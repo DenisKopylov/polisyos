@@ -1,0 +1,74 @@
+[project]
+name = "policy-engine"
+version = "0.1.0"
+description = "AI-driven Policy Simulation System using JAX and Unified Data Fabric"
+requires-python = ">=3.11"
+dependencies = [
+    # Core Math & Sim
+    "jax>=0.4.20",
+    "jaxlib>=0.4.20",
+    "equinox>=0.11.0",
+    "diffrax>=0.5.0",
+    "optax>=0.1.9",
+    "jaxtyping>=0.2.25",
+    # Data Fabric
+    "duckdb>=0.9.2",
+    "kuzu>=0.1.0",
+    "pyarrow>=14.0.0",
+    "pandas>=2.1.0",
+    "pydantic>=2.5.0",
+    "pydantic-settings>=2.0.0",
+    # Orchestration
+    "langgraph>=0.0.10",
+    "langchain>=0.1.0",
+    "pymoo>=0.6.0",
+    # Utils
+    "python-dotenv>=1.0.0",
+    "loguru>=0.7.2",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "mypy>=1.7.0",
+    "ruff>=0.1.6",
+    "jupyterlab>=4.0.0",
+    "matplotlib>=3.8.0",
+    "seaborn>=0.13.0"
+]
+
+# --- Tool Configurations ---
+
+# 1. Настройка Ruff (Линтер + Форматер)
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "F",   # pyflakes
+    "I",   # isort (imports sorting)
+    "B",   # flake8-bugbear (catching common bugs)
+    "T20", # flake8-print (FORBID PRINT STATEMENTS - требование ТЗ)
+    "N",   # pep8-naming
+]
+ignore = []
+
+# Запрещаем print только в продакшн коде (src), разрешаем в скриптах и утилитах
+[tool.ruff.lint.per-file-ignores]
+"notebooks/*" = ["T201"]
+"tests/*" = ["T201"]
+"src/utils/*" = ["T201"]  # Разрешаем print в утилитах для отладки
+
+# 2. Настройка Mypy (Типизация)
+[tool.mypy]
+python_version = "3.11"
+strict = true
+ignore_missing_imports = true # Для библиотек без типов (некоторые ML либы)
+plugins = ["pydantic.mypy"] # Плагин для корректной работы с Pydantic v2
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "-ra -q"
+testpaths = ["tests"]

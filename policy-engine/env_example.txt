@@ -1,0 +1,8 @@
+# LLM Providers
+OPENAI_API_KEY=sk-...
+ANTHROPIC_API_KEY=sk-...
+
+# System Settings
+LOG_LEVEL=DEBUG
+REPRO_SEED=42
+JAX_PLATFORM_NAME=cpu # или metal (Mac) или cuda (Linux)

@@ -2,6 +2,7 @@ from typing import Dict, Type, Any
 
 from src.foundry.base import Mechanism
 from src.foundry.fiscal import IncomeTax, TaxSubsidy  # <-- Импорт
+from src.foundry.queue import QueueMechanism
 # Импортируем типы из IR
 from src.policy_ir.contract import Intervention
 
@@ -9,8 +10,8 @@ from src.policy_ir.contract import Intervention
 MECHANISM_REGISTRY: Dict[str, Type[Mechanism]] = {
     "tax_subsidy": TaxSubsidy,
     "income_tax": IncomeTax,  # <-- Регистрация
+    "queue": QueueMechanism,
 }
-
 
 def get_mechanism_class(mech_type: str) -> Type[Mechanism]:
     if mech_type not in MECHANISM_REGISTRY:

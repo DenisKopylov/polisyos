@@ -74,15 +74,20 @@ def load_initial_state(udf: UDFEngine, source_run_id: str, step: int = 0) -> Glo
     )
 
     market = MarketState(
-        avg_price=1.0,
-        total_supply=0.0,
-        total_demand=0.0,
-        avg_wage=10.0,
-        unemployment_rate=0.0,
-        interest_rate=0.05,
+        avg_price=jnp.array(1.0, dtype=jnp.float32),
+        total_supply=jnp.array(0.0, dtype=jnp.float32),
+        total_demand=jnp.array(0.0, dtype=jnp.float32),
+        avg_wage=jnp.array(10.0, dtype=jnp.float32),
+        unemployment_rate=jnp.array(0.0, dtype=jnp.float32),
+        interest_rate=jnp.array(0.05, dtype=jnp.float32),
     )
 
     # 4. Баланс правительства (можно тоже читать из DB, но пока дадим 0)
     return GlobalState(
-        agents=agents, firms=firms, market=market, government_balance=0.0, gdp=0.0, step=step
+        agents=agents,
+        firms=firms,
+        market=market,
+        government_balance=jnp.array(0.0, dtype=jnp.float32),
+        gdp=jnp.array(0.0, dtype=jnp.float32),
+        step=jnp.array(step, dtype=jnp.int32),
     )

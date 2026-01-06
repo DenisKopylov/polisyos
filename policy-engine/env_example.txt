@@ -6,3 +6,8 @@ ANTHROPIC_API_KEY=sk-...
 LOG_LEVEL=DEBUG
 REPRO_SEED=42
 JAX_PLATFORM_NAME=cpu # или metal (Mac) или cuda (Linux)
+# На macOS по умолчанию форсируем CPU, чтобы избежать краша JAX Metal:
+# `UNIMPLEMENTED: default_memory_space is not supported.`
+# Чтобы явно разрешить Metal:
+# POLICY_ENGINE_ALLOW_JAX_METAL=1
+# JAX_PLATFORM_NAME=metal

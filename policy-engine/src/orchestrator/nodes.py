@@ -1,4 +1,6 @@
 # src/orchestrator/nodes.py
+import uuid
+
 import jax
 import jax.numpy as jnp
 
@@ -7,6 +9,8 @@ from src.orchestrator.data_loader import load_initial_state  # <--- Импорт
 from src.orchestrator.optimizer import optimize_mechanisms  # <--- Импорт
 from src.orchestrator.registry import create_mechanism
 from src.orchestrator.audit import append_audit
+from src.orchestrator.decision_packet import build_decision_packet, save_decision_packet
+from src.orchestrator.run_record import ReproMode, build_run_record, save_run_record_json
 from src.orchestrator.state import ExperimentState, GovernorFeedback, GovernorIssue
 from src.udf.engine import UDFEngine
 
@@ -37,7 +41,26 @@ def simulator_node(state: ExperimentState) -> ExperimentState:
         new_state = {**state, "feedback": feedback}
         return append_audit(new_state, "simulator", "skip_invalid_ir", {"issue": issue})
 
-    # 2. Загрузка начального состояния
+    # 2. Prepare RunRecord (contract + reproducibility)
+    run_id = state.get("run_id") or str(uuid.uuid4())[:8]
+    repro_mode_raw = state.get("repro_mode") or "fast"
+    repro_mode = ReproMode(repro_mode_raw)
+    parent_run_id = state.get("parent_run_id")
+    run_record = build_run_record(
+        run_id=run_id,
+        parent_run_id=parent_run_id,
+        seed=ir.simulation_params.random_seed,
+        repro_mode=repro_mode,
+        generator={"name": ir.generator.name, "version": ir.generator.version},
+    )
+    db.save_run_record(run_record)
+    save_run_record_json(run_record)
+    state["run_id"] = run_id
+    state["parent_run_id"] = parent_run_id
+    state["repro_mode"] = repro_mode.value
+    state["run_record"] = run_record
+
+    # 3. Загрузка начального состояния
     # Предполагаем, что у нас есть "baseline" прогон, с которого мы стартуем.
     # Его ID можно передать в ir.simulation_params или хардкодом.
     baseline_run_id = "baseline_2023"
@@ -66,7 +89,7 @@ def simulator_node(state: ExperimentState) -> ExperimentState:
     n_agents = world_state.agents.income.shape[0]
     print(f"   [Simulator] Loaded {n_agents} agents from DB.")
 
-    # 3. Сборка механизмов
+    # 4. Сборка механизмов
     key = jax.random.PRNGKey(ir.simulation_params.random_seed)
     mechanisms = []
     for intervention in ir.interventions:
@@ -77,7 +100,9 @@ def simulator_node(state: ExperimentState) -> ExperimentState:
     # --- НОВАЯ ЛОГИКА: ОПТИМИЗАЦИЯ ---
     # Проверяем, включен ли режим "Scientist"
     # (Для MVP включим его всегда или по флагу в state)
-    do_optimize = True
+    do_optimize = state.get("optimize")
+    if do_optimize is None:
+        do_optimize = True
 
     if do_optimize:
         min_balance = ir.global_constraints.get("min_balance", -1000.0)
@@ -169,7 +194,9 @@ def governor_node(state: ExperimentState) -> ExperimentState:
             }
         )
 
-    max_attempts = state.get("max_repair_attempts") or 3
+    max_attempts = state.get("max_repair_attempts")
+    if max_attempts is None:
+        max_attempts = 3
     if verdict == "NEEDS_REVISION" and (state.get("revision_count") or 0) >= max_attempts:
         verdict = "REJECT"
         issues.append(
@@ -185,4 +212,8 @@ def governor_node(state: ExperimentState) -> ExperimentState:
 
     feedback: GovernorFeedback = {"verdict": verdict, "issues": issues}
     new_state = {**state, "feedback": feedback}
+    run_record = new_state.get("run_record")
+    if run_record is not None:
+        packet = build_decision_packet(new_state, run_record)
+        save_decision_packet(packet)
     return append_audit(new_state, "governor", "verdict", {"verdict": verdict, "issues": issues})

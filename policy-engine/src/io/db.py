@@ -1,7 +1,13 @@
+import json
+from typing import TYPE_CHECKING
+
 import duckdb
 import pandas as pd
 
 from src.utils.logger import logger
+
+if TYPE_CHECKING:
+    from src.orchestrator.run_record import RunRecord
 
 
 class SimulationDB:
@@ -35,11 +41,41 @@ class SimulationDB:
             CREATE TABLE IF NOT EXISTS agents_snapshot (
                 run_id VARCHAR,
                 step INTEGER,
-                agent_id INTEGER,
+                agent_id VARCHAR,
                 age INTEGER,
                 income DOUBLE,
                 savings DOUBLE,
                 is_employed BOOLEAN
+            )
+        """
+        )
+        self.conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS entity_resolution (
+                raw_id VARCHAR,
+                canonical_id VARCHAR,
+                match_confidence DOUBLE,
+                match_method VARCHAR,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        """
+        )
+        self.conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS run_records (
+                run_id VARCHAR,
+                parent_run_id VARCHAR,
+                seed INTEGER,
+                repro_mode VARCHAR,
+                backend VARCHAR,
+                python_version VARCHAR,
+                platform VARCHAR,
+                generated_at TIMESTAMP,
+                schema_version VARCHAR,
+                generator_name VARCHAR,
+                generator_version VARCHAR,
+                library_versions VARCHAR,
+                flags VARCHAR
             )
         """
         )
@@ -83,3 +119,45 @@ class SimulationDB:
 
     def close(self):
         self.conn.close()
+
+    def save_run_record(self, record: "RunRecord") -> None:
+        payload = record.model_dump()
+        generator = payload.pop("generator", {})
+        library_versions = json.dumps(payload.pop("library_versions", {}))
+        flags = json.dumps(payload.pop("flags", {}))
+        self.conn.execute(
+            """
+            INSERT INTO run_records (
+                run_id,
+                parent_run_id,
+                seed,
+                repro_mode,
+                backend,
+                python_version,
+                platform,
+                generated_at,
+                schema_version,
+                generator_name,
+                generator_version,
+                library_versions,
+                flags
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """,
+            [
+                payload["run_id"],
+                payload.get("parent_run_id"),
+                payload["seed"],
+                payload["repro_mode"],
+                payload["backend"],
+                payload["python_version"],
+                payload["platform"],
+                payload["generated_at"],
+                payload["schema_version"],
+                generator.get("name"),
+                generator.get("version"),
+                library_versions,
+                flags,
+            ],
+        )
+        logger.info(f"🧾 RunRecord saved: {payload['run_id']}")

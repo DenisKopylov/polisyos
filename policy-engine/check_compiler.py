@@ -1,10 +1,11 @@
+import jax_bootstrap  # noqa: F401
 import jax
 import jax.numpy as jnp
 
 from src.domain.state import GlobalState  # noqa: E402
 from src.orchestrator.compiler import compile_policy
-from src.policy_ir.contract import PolicyRequestIR
-from src.policy_ir.types import TranslatableString
+from src.policy_ir.contract import PolicyEntity, PolicyRequestIR
+from src.policy_ir.types import EntityType, TranslatableString
 
 # IMPORTS HACK
 from src.utils.logger import logger  # noqa: E402
@@ -23,7 +24,7 @@ def main():
         price_base_year=2024,
         simulation_params={"scope_years": 1, "time_frequency": "M"},
         scenarios={"random_seed": 7, "shocks": [], "timeline": {"start_year": 2024, "end_year": 2024}},
-        entities=[],
+        entities=[PolicyEntity(id="all", entity_type=EntityType.AGENT, name=TranslatableString(en="All", ua="All"))],
         objectives=[],
         interventions=[
             {
@@ -54,7 +55,7 @@ def main():
     assert first_mech.rate == 0.15, "Parameter mismatch! JSON value lost."
 
     # 4. Пробный запуск (Execution)
-    state = GlobalState.empty(N_AGENTS)
+    state = GlobalState.empty(n_agents=N_AGENTS, n_firms=5)
     # Дадим доход 1000
     state = state.replace(agents=state.agents.replace(income=jnp.ones(N_AGENTS) * 1000.0))
 

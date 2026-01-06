@@ -61,7 +61,21 @@ class MockLLM:
 
 def drafter_node(state: ExperimentState) -> ExperimentState:
     """Узел Drafter: User Request -> Policy IR JSON."""
-    print(f"   [Drafter] Processing request: '{state['user_request']}'")
+    user_request = state.get("user_request")
+    if not user_request:
+        if state.get("ir") is not None:
+            print("   [Drafter] Skipping: IR already provided.")
+            return append_audit(state, "drafter", "skip_existing_ir", {"reason": "missing_user_request"})
+        state = {**state, "last_error": "Missing required field: user_request", "ir": None}
+        return append_audit(state, "drafter", "invalid_input", {"reason": "missing_user_request"})
+
+    if state.get("ir") is not None and not (
+        state.get("feedback") and state["feedback"].get("verdict") == "NEEDS_REVISION"
+    ):
+        print(f"   [Drafter] Skipping: IR already provided for request: '{user_request}'")
+        return append_audit(state, "drafter", "skip_existing_ir", {"reason": "ir_present"})
+
+    print(f"   [Drafter] Processing request: '{user_request}'")
     prior_feedback = state.get("feedback")
     prior_issues = []
     if prior_feedback and prior_feedback.get("verdict") == "NEEDS_REVISION":
@@ -70,7 +84,7 @@ def drafter_node(state: ExperimentState) -> ExperimentState:
 
     # 1. Готовим промпт
     system_prompt = get_system_prompt()
-    user_prompt = f"USER REQUEST: {state['user_request']}"
+    user_prompt = f"USER REQUEST: {user_request}"
     full_prompt = f"{system_prompt}\n\n{user_prompt}"
 
     # 2. Вызываем LLM (здесь можно заменить MockLLM на ChatOpenAI)

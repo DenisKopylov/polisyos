@@ -1,6 +1,7 @@
 import uuid
 
 # --- IMPORTS HACK ---
+import jax_bootstrap  # noqa: F401
 import jax  # noqa: E402
 import jax.numpy as jnp  # noqa: E402
 
@@ -19,7 +20,7 @@ def main():
 
     # 2. Init World (100k агентов для быстрого теста записи, миллион писать дольше)
     n_agents = 100_000
-    state = GlobalState.empty(n_agents)
+    state = GlobalState.empty(n_agents=n_agents, n_firms=100)
 
     # Даем деньги и работу
     state = state.replace(
@@ -45,8 +46,11 @@ def main():
                 "run_id": run_id,
                 "step": state.step.item(),
                 "gdp": state.gdp.item(),
-                "unemployment_rate": state.unemployment_rate.item(),
+                "unemployment_rate": state.market.unemployment_rate.item(),
+                "inflation_rate": 0.0,
+                "avg_price": state.market.avg_price.item(),
                 "avg_income": float(jnp.mean(state.agents.income)),
+                "government_balance": state.government_balance.item(),
                 "timestamp": None,  # DuckDB сам подставит current_timestamp
             }
         )

@@ -1,3 +1,4 @@
+import jax_bootstrap  # noqa: F401
 import jax
 import jax.numpy as jnp
 
@@ -13,7 +14,7 @@ def main():
 
     # 1. Init World
     N = 10
-    state = GlobalState.empty(N)
+    state = GlobalState.empty(n_agents=N, n_firms=2)
     # У всех доход 1000, в казне 0
     state = state.replace(
         agents=state.agents.replace(income=jnp.ones(N) * 1000.0), government_balance=0.0

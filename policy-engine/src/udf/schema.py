@@ -10,6 +10,12 @@ class DataViewType(str, Enum):
     NETWORK = "network"  # <--- Теперь активно
 
 
+class AccessTier(str, Enum):
+    PUBLIC = "public"
+    INTERNAL = "internal"
+    SENSITIVE = "sensitive"
+
+
 class DataFilter(BaseModel):
     """Фильтр для выборки данных."""
 
@@ -41,6 +47,9 @@ class DataViewRequest(BaseModel):
 
     # Группировка (для агрегации, например 'mean')
     aggregation: str = Field("mean", pattern=r"^(mean|sum|count|min|max)$")
+
+    # Уровень доступа (PII protection)
+    access_tier: AccessTier = AccessTier.INTERNAL
 
     # --- НОВЫЕ ПОЛЯ ДЛЯ ГРАФА ---
     # Для выборки "Кто связан с X на глубину N"

@@ -1,6 +1,7 @@
 from typing import Tuple
 
-from src.udf.schema import DataViewRequest, DataViewType
+from src.udf.config import ALLOWED_COLUMNS, FIELD_CLASSIFICATION
+from src.udf.schema import AccessTier, DataViewRequest, DataViewType
 from src.utils.logger import logger
 
 
@@ -25,10 +26,60 @@ class ViewCompiler:
         else:
             raise NotImplementedError(f"View type {req.view_type} not supported yet")
 
+    def _validate_columns(
+        self, table: str, metrics: list[str], filters, access_tier: AccessTier
+    ) -> None:
+        allowed = ALLOWED_COLUMNS.get(table, set())
+        for metric in metrics:
+            if metric not in allowed:
+                raise ValueError(f"Metric '{metric}' is not allowed for table '{table}'")
+        for f in filters:
+            if f.column not in allowed:
+                raise ValueError(f"Filter column '{f.column}' is not allowed for table '{table}'")
+        self._validate_access_tier(table, metrics, filters, access_tier)
+
+    def _validate_access_tier(
+        self, table: str, metrics: list[str], filters, access_tier: AccessTier
+    ) -> None:
+        classification = FIELD_CLASSIFICATION.get(table, {})
+        allowed_levels = self._allowed_levels_for_tier(access_tier)
+        for metric in metrics:
+            level = classification.get(metric, "internal")
+            if level not in allowed_levels:
+                logger.warning(
+                    "PII access blocked: table={table} metric={metric} tier={tier}",
+                    table=table,
+                    metric=metric,
+                    tier=access_tier.value,
+                )
+                raise ValueError(
+                    f"Metric '{metric}' not allowed for access_tier '{access_tier.value}'"
+                )
+        for f in filters:
+            level = classification.get(f.column, "internal")
+            if level not in allowed_levels:
+                logger.warning(
+                    "PII access blocked: table={table} column={column} tier={tier}",
+                    table=table,
+                    column=f.column,
+                    tier=access_tier.value,
+                )
+                raise ValueError(
+                    f"Filter column '{f.column}' not allowed for access_tier '{access_tier.value}'"
+                )
+
+    def _allowed_levels_for_tier(self, access_tier: AccessTier) -> set[str]:
+        if access_tier == AccessTier.PUBLIC:
+            return {"public"}
+        if access_tier == AccessTier.INTERNAL:
+            return {"public", "internal"}
+        return {"public", "internal", "sensitive"}
+
     def _compile_panel(self, req: DataViewRequest) -> Tuple[str, list]:
         """Строит запрос к макро-истории или агрегированным агентам."""
         # Для простоты MVP работаем с macro_history
         table = self.ALLOWED_TABLES["macro"]
+        self._validate_columns(table, req.metrics, req.filters, req.access_tier)
 
         # SELECT
         cols = ", ".join([f"{m}" for m in req.metrics])
@@ -60,6 +111,7 @@ class ViewCompiler:
     def _compile_snapshot(self, req: DataViewRequest) -> Tuple[str, list]:
         """Запрос к agents_snapshot (микро-данные)."""
         table = self.ALLOWED_TABLES["agents"]
+        self._validate_columns(table, req.metrics, req.filters, req.access_tier)
 
         # Если нужна агрегация (например, средний доход безработных)
         agg_func = req.aggregation

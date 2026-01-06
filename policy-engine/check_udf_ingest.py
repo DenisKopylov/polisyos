@@ -96,6 +96,7 @@ def main() -> None:
         kuzu_path=kuzu_path,
         source="demo_generator",
         license_name="CC0",
+        clear_on_start=True,
     )
 
     db = SimulationDB(str(db_path))

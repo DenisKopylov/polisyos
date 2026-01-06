@@ -1,6 +1,7 @@
 # check_integration.py
 import os
 
+import jax_bootstrap  # noqa: F401
 import jax
 import pandas as pd
 
@@ -82,7 +83,14 @@ def main():
     app = build_workflow()
     print("\n🚀 Running Orchestrator with Real Data...")
     result = app.invoke(
-        {"ir": ir, "revision_count": 0, "simulation_results": None, "feedback": None}
+        {
+            "user_request": "Test policy simulation",
+            "ir": ir,
+            "optimize": False,  # keep deterministic: validate raw simulation, not auto-tuning
+            "revision_count": 0,
+            "simulation_results": None,
+            "feedback": None,
+        }
     )
 
     # 4. Проверка результатов
@@ -101,5 +109,4 @@ def main():
 
 
 if __name__ == "__main__":
-    jax.config.update("jax_platform_name", "cpu")
     main()

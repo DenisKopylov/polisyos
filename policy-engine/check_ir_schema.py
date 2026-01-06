@@ -42,7 +42,7 @@ def main():
         print(f"\n{error_json}\n")
 
         # Проверяем, что сообщение понятное
-        if "requires parameter 'rate'" in str(e):
+        if "requires parameter 'rate'" in str(e) or "requires 'rate' parameter" in str(e):
             logger.info("✅ Error message is descriptive (LLM can fix this).")
         else:
             logger.error("❌ Error message is too vague!")

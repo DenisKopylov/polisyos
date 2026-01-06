@@ -21,6 +21,17 @@ class QualityMetrics(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
 
+class ReconciliationReport(BaseModel):
+    status: str
+    tolerance: float
+    total_outflow: float
+    total_inflow: float
+    diff: float
+    per_type: Dict[str, Dict[str, float]] = Field(default_factory=dict)
+
+    model_config = ConfigDict(extra="forbid")
+
+
 class DatasetManifest(BaseModel):
     dataset_name: str
     source: str
@@ -30,6 +41,7 @@ class DatasetManifest(BaseModel):
     row_count: int
     pii_flags: Dict[str, bool]
     quality: QualityMetrics
+    reconciliation: Optional[ReconciliationReport] = None
     created_at: str = Field(default_factory=lambda: datetime.utcnow().isoformat())
 
     model_config = ConfigDict(extra="forbid")

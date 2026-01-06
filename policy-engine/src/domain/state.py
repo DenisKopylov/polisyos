@@ -53,25 +53,25 @@ class FirmState:
 @chex.dataclass(frozen=True)
 class MarketState:
     # Агрегаты
-    avg_price: float  # CPI (Индекс цен)
-    total_supply: float  # Всего товаров
-    total_demand: float  # Всего денег у покупателей
+    avg_price: Float[Array, ""]  # CPI (Индекс цен)
+    total_supply: Float[Array, ""]  # Всего товаров
+    total_demand: Float[Array, ""]  # Всего денег у покупателей
 
-    avg_wage: float
-    unemployment_rate: float
-    interest_rate: float  # Ставка ЦБ
+    avg_wage: Float[Array, ""]
+    unemployment_rate: Float[Array, ""]
+    interest_rate: Float[Array, ""]  # Ставка ЦБ
 
 
 # --- 4. МИР (Global State) ---
 @chex.dataclass(frozen=True)
 class GlobalState:
-    step: int
+    step: Int[Array, ""]
     agents: AgentState
     firms: FirmState
     market: MarketState
 
-    government_balance: float
-    gdp: float
+    government_balance: Float[Array, ""]
+    gdp: Float[Array, ""]
 
     @classmethod
     def empty(cls, n_agents: int, n_firms: int) -> "GlobalState":
@@ -99,14 +99,19 @@ class GlobalState:
         )
 
         market = MarketState(
-            avg_price=1.0,
-            total_supply=0.0,
-            total_demand=0.0,
-            avg_wage=10.0,
-            unemployment_rate=0.0,
-            interest_rate=0.05,
+            avg_price=jnp.array(1.0, dtype=jnp.float32),
+            total_supply=jnp.array(0.0, dtype=jnp.float32),
+            total_demand=jnp.array(0.0, dtype=jnp.float32),
+            avg_wage=jnp.array(10.0, dtype=jnp.float32),
+            unemployment_rate=jnp.array(0.0, dtype=jnp.float32),
+            interest_rate=jnp.array(0.05, dtype=jnp.float32),
         )
 
         return cls(
-            step=0, agents=agents, firms=firms, market=market, government_balance=0.0, gdp=0.0
+            step=jnp.array(0, dtype=jnp.int32),
+            agents=agents,
+            firms=firms,
+            market=market,
+            government_balance=jnp.array(0.0, dtype=jnp.float32),
+            gdp=jnp.array(0.0, dtype=jnp.float32),
         )

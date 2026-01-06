@@ -2,6 +2,7 @@
 from typing import Dict, List, Optional, TypedDict, Any
 
 from src.policy_ir.contract import PolicyRequestIR
+from src.orchestrator.run_record import RunRecord
 
 
 class GovernorIssue(TypedDict):
@@ -30,6 +31,13 @@ class ExperimentState(TypedDict):
     ir: Optional[PolicyRequestIR]  # Теперь опционально, т.к. создается в процессе
     last_ir_json: Optional[str]
     last_error: Optional[str]
+
+    # Управление поведением workflow
+    optimize: Optional[bool]
+    run_id: Optional[str]
+    parent_run_id: Optional[str]
+    repro_mode: Optional[str]
+    run_record: Optional[RunRecord]
 
     # Результаты симуляции (сырые данные или метрики)
     simulation_results: Optional[Dict[str, float]]

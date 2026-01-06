@@ -1,9 +1,11 @@
 # check_foundry.py
+import jax_bootstrap  # noqa: F401
 import equinox as eqx
 import jax
 import jax.numpy as jnp
 from loguru import logger
 
+from src.domain.state import GlobalState
 from src.foundry.fiscal import TaxSubsidy  # noqa: E402
 
 # IMPORTS HACK
@@ -17,7 +19,8 @@ def main():
 
     # 1. Setup World
     N_AGENTS = 10
-    income = jnp.ones(N_AGENTS) * 100.0  # Все агенты имеют доход 100.0
+    state = GlobalState.empty(n_agents=N_AGENTS, n_firms=2)
+    state = state.replace(agents=state.agents.replace(income=jnp.ones(N_AGENTS) * 100.0))
 
     # 2. Инициализируем Политику
     # Ставка 10% (0.10)
@@ -29,10 +32,11 @@ def main():
     # Наша цель: Максимизировать GDP.
     # Но градиентный спуск ищет МИНИМУМ. Поэтому мы минимизируем (-GDP).
 
-    def loss_function(policy_model, current_income):
+    def loss_function(policy_model, current_state):
         # Применяем политику (Шаг симуляции)
         # key нам тут не важен, так как детерминированная логика
-        new_income = policy_model(current_income, jax.random.PRNGKey(0))
+        next_state = policy_model(current_state, jax.random.PRNGKey(0))
+        new_income = next_state.agents.income
 
         # Считаем GDP
         total_gdp = jnp.sum(new_income)
@@ -44,7 +48,7 @@ def main():
     # eqx.filter_grad говорит JAX'у: "Найди производную loss_function по параметрам внутри policy_model"
     grad_func = eqx.filter_jit(eqx.filter_grad(loss_function))
 
-    grads = grad_func(policy, income)
+    grads = grad_func(policy, state)
 
     # 5. Анализ результата
     # grads теперь имеет ту же структуру, что и policy, но вместо значений там производные

@@ -74,13 +74,14 @@ plugins = ["pydantic.mypy"] # Плагин для корректной рабо�
 
 [tool.pytest.ini_options]
 minversion = "6.0"
-addopts = "-ra -q"
+addopts = "-ra -q --import-mode=prepend"
 testpaths = ["tests"]
 
 [dependency-groups]
 dev = [
     "mypy>=1.19.1",
     "pre-commit>=4.5.1",
+    "pytest>=7.4.0",
     "ruff>=0.14.10",
     "types-requests>=2.32.4.20250913",
 ]

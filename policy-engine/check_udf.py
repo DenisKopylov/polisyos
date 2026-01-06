@@ -15,6 +15,7 @@ def main():
     # 2. Сценарий 1: LLM просит "Дай мне динамику ВВП и безработицы за шаги 1-5"
     req_panel = DataViewRequest(
         request_id="req_001",
+        run_id="demo_run",
         view_type="panel",
         metrics=["gdp", "unemployment_rate"],
         step_start=1,
@@ -33,6 +34,7 @@ def main():
     # 3. Сценарий 2: LLM просит "Какой средний доход у безработных на шаге 6?"
     req_snap = DataViewRequest(
         request_id="req_002",
+        run_id="demo_run",
         view_type="snapshot",
         metrics=["income"],
         aggregation="mean",

@@ -11,6 +11,8 @@ from src.policy_ir.types import (
     TimeUnit,
     TranslatableString,
 )
+from src.policy_ir.mechanism_spec import get_mechanism_spec
+from src.policy_ir.units import UNIT_REGISTRY
 
 # --- Limits (Anti-runaway) ---
 MAX_ENTITIES = 500
@@ -22,6 +24,44 @@ MAX_SELECTOR_FIELD_LEN = 64
 MAX_STRING_LEN = 500
 MAX_DEPTH = 4
 MAX_CHILDREN = 200
+
+
+def _get_param_value(params: Dict[str, Any], path: str) -> Any:
+    current = params
+    for part in path.split("."):
+        if not isinstance(current, dict) or part not in current:
+            return None
+        current = current[part]
+    return current
+
+
+def _validate_nested_specs(params: Dict[str, Any], spec) -> None:
+    for key, nested_spec in spec.nested_params.items():
+        nested_value = params.get(key)
+        if not isinstance(nested_value, dict):
+            raise ValueError(f"Mechanism '{spec.name}' param '{key}' must be object")
+        missing = nested_spec.required_params - set(nested_value.keys())
+        if missing:
+            missing_list = ", ".join(sorted(missing))
+            raise ValueError(
+                f"Mechanism '{spec.name}.{key}' requires params: {missing_list}"
+            )
+        for nested_key, (min_val, max_val) in nested_spec.param_ranges.items():
+            value = _get_param_value(nested_value, nested_key)
+            if value is None:
+                continue
+            if isinstance(value, (int, float)):
+                if value < min_val or value > max_val:
+                    raise ValueError(
+                        f"Mechanism '{spec.name}.{key}' param '{nested_key}' "
+                        f"out of range [{min_val}, {max_val}]"
+                    )
+        for nested_key, unit in nested_spec.param_units.items():
+            if unit not in UNIT_REGISTRY:
+                raise ValueError(
+                    f"Mechanism '{spec.name}.{key}' param '{nested_key}' "
+                    f"uses unknown unit '{unit}'"
+                )
 
 # --- 2.1 Entity (Плоская структура) ---
 class PolicyEntity(BaseModel):
@@ -136,9 +176,30 @@ class Intervention(BaseModel):
 
     @model_validator(mode="after")
     def validate_mechanism_params(self) -> "Intervention":
-        # Пример простейшей валидации (в будущем здесь будет связь с Registry)
-        if self.mechanism_type == "tax_subsidy" and "rate" not in self.parameters:
-             raise ValueError("Mechanism 'tax_subsidy' requires 'rate' parameter")
+        spec = get_mechanism_spec(self.mechanism_type)
+        missing = spec.required_params - set(self.parameters.keys())
+        if missing:
+            missing_list = ", ".join(sorted(missing))
+            raise ValueError(
+                f"Mechanism '{self.mechanism_type}' requires params: {missing_list}"
+            )
+        for key, (min_val, max_val) in spec.param_ranges.items():
+            value = _get_param_value(self.parameters, key)
+            if value is None:
+                continue
+            if isinstance(value, (int, float)):
+                if value < min_val or value > max_val:
+                    raise ValueError(
+                        f"Mechanism '{self.mechanism_type}' param '{key}' "
+                        f"out of range [{min_val}, {max_val}]"
+                    )
+        for key, unit in spec.param_units.items():
+            if unit not in UNIT_REGISTRY:
+                raise ValueError(
+                    f"Mechanism '{self.mechanism_type}' param '{key}' "
+                    f"uses unknown unit '{unit}'"
+                )
+        _validate_nested_specs(self.parameters, spec)
         return self
 
 

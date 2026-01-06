@@ -2454,6 +2454,7 @@ dev = [
 dev = [
     { name = "mypy" },
     { name = "pre-commit" },
+    { name = "pytest" },
     { name = "ruff" },
     { name = "types-requests" },
 ]
@@ -2494,6 +2495,7 @@ provides-extras = ["dev"]
 dev = [
     { name = "mypy", specifier = ">=1.19.1" },
     { name = "pre-commit", specifier = ">=4.5.1" },
+    { name = "pytest", specifier = ">=7.4.0" },
     { name = "ruff", specifier = ">=0.14.10" },
     { name = "types-requests", specifier = ">=2.32.4.20250913" },
 ]

@@ -1,5 +1,6 @@
 import uuid
 
+import jax_bootstrap  # noqa: F401
 import jax
 import jax.numpy as jnp
 
@@ -7,6 +8,7 @@ from src.agent.base import MockAgent
 from src.domain.state import GlobalState
 from src.engine.kernel import SimulationKernel
 from src.io.db import SimulationDB
+from src.orchestrator.run_record import build_run_record, save_run_record_json
 from src.orchestrator.compiler import compile_policy
 from src.udf.engine import UDFEngine
 from src.udf.schema import DataViewRequest
@@ -23,6 +25,10 @@ def main():
     db = SimulationDB()
     udf = UDFEngine(db)
     agent = MockAgent()  # Пока используем заглушку
+
+    run_record = build_run_record(run_id=RUN_ID, seed=42)
+    db.save_run_record(run_record)
+    save_run_record_json(run_record)
 
     # 2. Init World
     N_AGENTS = 1_000  # Меньше агентов для скорости экспериментов

@@ -1,5 +1,6 @@
 # check_domain.py
 # Хак импортов для конфига (как мы делали раньше)
+import jax_bootstrap  # noqa: F401
 import jax  # noqa: E402
 import jax.numpy as jnp  # noqa: E402
 
@@ -14,7 +15,7 @@ def main():
 
     # 1. Инициализация (на CPU это займет мгновения, т.к. JAX ленивый)
     logger.info(f"Allocating state for {N:,} agents...")
-    state = GlobalState.empty(n_agents=N)
+    state = GlobalState.empty(n_agents=N, n_firms=10)
 
     # 2. Простой расчет (Векторизация в действии)
     # Допустим, мы хотим выдать всем грант 500 единиц

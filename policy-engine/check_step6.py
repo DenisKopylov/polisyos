@@ -1,6 +1,7 @@
 # check_step6.py
 import os
 
+import jax_bootstrap  # noqa: F401
 import jax
 import pandas as pd
 
@@ -108,5 +109,4 @@ def main():
 
 
 if __name__ == "__main__":
-    jax.config.update("jax_platform_name", "cpu")
     main()

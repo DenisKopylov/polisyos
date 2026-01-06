@@ -1,3 +1,4 @@
+import equinox as eqx
 import jax
 import jax.numpy as jnp
 
@@ -19,14 +20,17 @@ def _assert_stable_tree(a, b):
 
 def test_tax_subsidy_jit_step_stable():
     n_agents = 5
-    state = GlobalState.empty(n_agents, 0)
+    state = GlobalState.empty(n_agents=n_agents, n_firms=2)
     state = state.replace(agents=state.agents.replace(income=jnp.ones(n_agents) * 1000.0))
 
     mech = TaxSubsidy(rate=0.1, n_agents=n_agents)
-    step = jax.jit(mech.step)
 
-    s1 = step(state, jax.random.PRNGKey(0))
-    s2 = step(s1, jax.random.PRNGKey(1))
+    @eqx.filter_jit
+    def step(mech, state, key):
+        return mech.step(state, key)
+
+    s1 = step(mech, state, jax.random.PRNGKey(0))
+    s2 = step(mech, s1, jax.random.PRNGKey(1))
 
     _assert_stable_tree(state, s1)
     _assert_stable_tree(s1, s2)
@@ -34,14 +38,17 @@ def test_tax_subsidy_jit_step_stable():
 
 def test_income_tax_jit_step_stable():
     n_agents = 5
-    state = GlobalState.empty(n_agents, 0)
+    state = GlobalState.empty(n_agents=n_agents, n_firms=2)
     state = state.replace(agents=state.agents.replace(income=jnp.ones(n_agents) * 1000.0))
 
     mech = IncomeTax(rate=0.2, n_agents=n_agents)
-    step = jax.jit(mech.step)
 
-    s1 = step(state, jax.random.PRNGKey(0))
-    s2 = step(s1, jax.random.PRNGKey(1))
+    @eqx.filter_jit
+    def step(mech, state, key):
+        return mech.step(state, key)
+
+    s1 = step(mech, state, jax.random.PRNGKey(0))
+    s2 = step(mech, s1, jax.random.PRNGKey(1))
 
     _assert_stable_tree(state, s1)
     _assert_stable_tree(s1, s2)

@@ -1,4 +1,5 @@
 # check_step3.py
+import jax_bootstrap  # noqa: F401
 import jax
 import jax.numpy as jnp
 import equinox as eqx

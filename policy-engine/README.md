@@ -64,6 +64,15 @@ pip install jax-metal
 # или uv add jax-metal
 ```
 
+По умолчанию на macOS проект форсирует `cpu` (через `src/__init__.py`), потому что
+`METAL` в некоторых версиях JAX падает даже на `jnp.zeros(...)` с ошибкой
+`UNIMPLEMENTED: default_memory_space is not supported.`  
+Если хочешь попробовать Metal, задай перед запуском:
+```bash
+POLICY_ENGINE_ALLOW_JAX_METAL=1
+JAX_PLATFORMS=metal   # или JAX_PLATFORM_NAME=metal
+```
+
 **Linux с NVIDIA:**
 ```bash
 pip install -U "jax[cuda12_pip]" -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html

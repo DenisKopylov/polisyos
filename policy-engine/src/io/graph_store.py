@@ -1,6 +1,8 @@
 # src/io/graph_store.py
-import shutil
 import os
+import shutil
+from pathlib import Path
+
 import kuzu
 from src.utils.logger import get_logger
 
@@ -10,7 +12,11 @@ class GraphStore:
     def __init__(self, db_path: str = "simulation.kuzu", clear_on_start: bool = False):
         self.db_path = db_path
         if clear_on_start and os.path.exists(db_path):
-            shutil.rmtree(db_path)
+            path = Path(db_path)
+            if path.is_dir():
+                shutil.rmtree(path)
+            else:
+                path.unlink()
 
         self.db = kuzu.Database(db_path)
         self.conn = kuzu.Connection(self.db)

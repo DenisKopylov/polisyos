@@ -1,0 +1,26 @@
+{
+    "python.defaultInterpreterPath": ".venv/bin/python",
+    "[python]": {
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+            "source.fixAll": "explicit",
+            "source.organizeImports": "explicit"
+        },
+        "editor.defaultFormatter": "charliermarsh.ruff"
+    },
+    "ruff.importStrategy": "fromEnvironment",
+    "files.exclude": {
+        "**/.git": true,
+        "**/.svn": true,
+        "**/.hg": true,
+        "**/CVS": true,
+        "**/.DS_Store": true,
+        "**/__pycache__": true,
+        "**/*.pyc": true,
+        "**/*.duckdb": true,
+        "**/*.kuzu": true,
+        "logs/*.log": true
+    },
+    "python.analysis.typeCheckingMode": "strict",
+    "python.analysis.extraPaths": ["./src"]
+}

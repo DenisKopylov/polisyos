@@ -25,6 +25,10 @@ dependencies = [
     # Utils
     "python-dotenv>=1.0.0",
     "loguru>=0.7.2",
+    "jax-metal>=0.1.1",
+    "chex>=0.1.91",
+    "streamlit>=1.52.2",
+    "plotly>=6.5.0",
 ]
 
 [project.optional-dependencies]
@@ -72,3 +76,11 @@ plugins = ["pydantic.mypy"] # Плагин для корректной рабо�
 minversion = "6.0"
 addopts = "-ra -q"
 testpaths = ["tests"]
+
+[dependency-groups]
+dev = [
+    "mypy>=1.19.1",
+    "pre-commit>=4.5.1",
+    "ruff>=0.14.10",
+    "types-requests>=2.32.4.20250913",
+]

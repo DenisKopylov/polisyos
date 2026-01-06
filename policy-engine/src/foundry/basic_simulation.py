@@ -5,15 +5,12 @@
 
 import jax
 import jax.numpy as jnp
-from jaxtyping import Array, Float
+from jaxtyping import Array
 from loguru import logger
 
 
 def simple_policy_simulation(
-    population_size: int,
-    time_steps: int,
-    policy_effect: float = 0.1,
-    random_seed: int = 42
+    population_size: int, time_steps: int, policy_effect: float = 0.1, random_seed: int = 42
 ) -> tuple[Array, Array]:
     """
     Простая симуляция эффекта политики на популяцию.
@@ -80,7 +77,7 @@ def analyze_simulation_results(time_steps: Array, populations: Array) -> dict:
         "total_growth_percent": total_growth,
         "final_population_mean": float(mean_population[-1]),
         "initial_population_mean": float(mean_population[0]),
-        "population_shape": populations.shape
+        "population_shape": populations.shape,
     }
 
 
@@ -93,13 +90,13 @@ if __name__ == "__main__":
     TIME_STEPS = 50
     POLICY_EFFECT = 0.05  # 5% эффект политики
 
-    logger.info(f"📊 Параметры: population={POPULATION_SIZE}, steps={TIME_STEPS}, effect={POLICY_EFFECT}")
+    logger.info(
+        f"📊 Параметры: population={POPULATION_SIZE}, steps={TIME_STEPS}, effect={POLICY_EFFECT}"
+    )
 
     # Запускаем симуляцию
     time_steps, populations = simple_policy_simulation(
-        population_size=POPULATION_SIZE,
-        time_steps=TIME_STEPS,
-        policy_effect=POLICY_EFFECT
+        population_size=POPULATION_SIZE, time_steps=TIME_STEPS, policy_effect=POLICY_EFFECT
     )
 
     # Анализируем результаты

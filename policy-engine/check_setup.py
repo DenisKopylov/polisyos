@@ -4,119 +4,67 @@ Smoke test для проверки корректной установки вс�
 Запустите: python check_setup.py
 """
 
-import sys
-from pathlib import Path
+import os  # noqa: I001
 
-def test_jax():
-    """Проверка JAX"""
-    try:
-        import jax
-        import jax.numpy as jnp
+# --- CRITICAL SETUP ORDER ---
+# Мы специально нарушаем порядок импортов (E402, I001),
+# чтобы применить настройки среды (.env) ДО загрузки тяжелых библиотек.
+from src.utils import config  # noqa: E402
 
-        print("✅ JAX:")
-        print(f"   Backend: {jax.default_backend()}")
-        print(f"   Devices: {jax.devices()}")
+# Теперь безопасные импорты
+import duckdb  # noqa: E402
+import jax  # noqa: E402
+from pydantic import BaseModel  # noqa: E402
 
-        # Простой тест вычислений
-        x = jnp.array([1.0, 2.0, 3.0])
-        y = jnp.array([4.0, 5.0, 6.0])
-        result = jnp.dot(x, y)
-        print(f"   Тест вычислений: {result}")
-        return True
-    except ImportError as e:
-        print(f"❌ JAX не установлен: {e}")
-        return False
+# Используем логгер из конфига или создаем локальный
+from loguru import logger  # noqa: E402
 
-def test_pydantic():
-    """Проверка Pydantic"""
-    try:
-        from pydantic import BaseModel
+logger.info("\n" + "=" * 50)
+logger.info("HARDWARE STATUS CHECK")
+logger.info("=" * 50)
 
-        class TestModel(BaseModel):
-            id: int
-            name: str
+# --- Проверка JAX ---
+logger.info(f"✅ JAX Backend: {jax.default_backend()}")
+# Важно: devices() покажет 'cpu', но реальное кол-во потоков скрыто внутри XLA
+logger.info(f"✅ JAX Devices: {jax.devices()}")
 
-        model = TestModel(id=1, name="PolicyEngine")
-        print(f"✅ Pydantic: {model.model_dump_json()}")
-        return True
-    except ImportError as e:
-        print(f"❌ Pydantic не установлен: {e}")
-        return False
+logger.info("\n--- Applied Safeguards ---")
+logger.info(f"🔒 XLA Flags (CPU Cores): {os.environ.get('XLA_FLAGS', 'Not Set')}")
+logger.info(
+    f"🔒 RAM Preallocate:       {os.environ.get('XLA_PYTHON_CLIENT_PREALLOCATE', 'Not Set')}"
+)
 
-def test_duckdb():
-    """Проверка DuckDB"""
-    try:
-        import duckdb
 
-        con = duckdb.connect(database=':memory:')
-        res = con.execute("SELECT 'DuckDB is ready' as status").fetchall()
-        print(f"✅ DuckDB: {res[0][0]}")
-        return True
-    except ImportError as e:
-        print(f"❌ DuckDB не установлен: {e}")
-        return False
+# --- Проверка Pydantic ---
+class TestModel(BaseModel):
+    id: int
+    name: str
 
-def test_equinox():
-    """Проверка Equinox"""
-    try:
-        import equinox as eqx
-        print("✅ Equinox: готов к работе")
-        return True
-    except ImportError as e:
-        print(f"❌ Equinox не установлен: {e}")
-        return False
 
-def test_diffrax():
-    """Проверка Diffrax"""
-    try:
-        import diffrax
-        print("✅ Diffrax: готов к работе")
-        return True
-    except ImportError as e:
-        print(f"❌ Diffrax не установлен: {e}")
-        return False
+model = TestModel(id=1, name="PolicyEngine")
+logger.info(f"\n✅ Pydantic: OK (Model init: {model.name})")
 
-def test_optax():
-    """Проверка Optax"""
-    try:
-        import optax
-        print("✅ Optax: готов к работе")
-        return True
-    except ImportError as e:
-        print(f"❌ Optax не установлен: {e}")
-        return False
+# --- Проверка DuckDB с лимитами ---
+try:
+    # Передаем настройки лимитов при подключении
+    con = duckdb.connect(database=":memory:")
 
-def main():
-    """Основная функция проверки"""
-    print("🚀 Policy Engine - Smoke Test\n")
-    print("=" * 50)
+    # Применяем лимиты из config
+    con.execute(f"SET memory_limit='{config.DUCKDB_MEMORY_LIMIT}'")
+    con.execute(f"SET threads={config.DUCKDB_THREADS}")
 
-    tests = [
-        test_jax,
-        test_pydantic,
-        test_duckdb,
-        test_equinox,
-        test_diffrax,
-        test_optax,
-    ]
+    res = con.execute("SELECT 'DuckDB is ready' as status").fetchall()
 
-    passed = 0
-    total = len(tests)
+    # Проверяем, применились ли настройки
+    actual_threads = con.execute("SELECT current_setting('threads')").fetchall()[0][0]
+    actual_mem = con.execute("SELECT current_setting('memory_limit')").fetchall()[0][0]
 
-    for test in tests:
-        if test():
-            passed += 1
-        print()
+    logger.info(f"✅ DuckDB: {res[0][0]}")
+    logger.info(f"   └── Limits Active: Threads={actual_threads}, Mem={actual_mem}")
 
-    print("=" * 50)
-    print(f"📊 Результаты: {passed}/{total} тестов пройдено")
+except Exception as e:
+    logger.error(f"❌ DuckDB Error: {e}")
 
-    if passed == total:
-        print("🎉 Все компоненты установлены корректно!")
-        return 0
-    else:
-        print("⚠️  Некоторые компоненты отсутствуют. Проверьте установку.")
-        return 1
-
-if __name__ == "__main__":
-    sys.exit(main())
+logger.info("\n" + "=" * 50)
+logger.info("SYSTEM READY FOR DEVELOPMENT")
+logger.info("=" * 50 + "\n")

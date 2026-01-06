@@ -1,0 +1,77 @@
+import uuid
+
+# --- IMPORTS HACK ---
+import jax  # noqa: E402
+import jax.numpy as jnp  # noqa: E402
+
+from src.domain.state import GlobalState  # noqa: E402
+from src.engine.kernel import SimulationKernel  # noqa: E402
+from src.io.db import SimulationDB  # noqa: E402
+from src.utils.logger import logger  # noqa: E402
+
+
+def main():
+    run_id = str(uuid.uuid4())[:8]  # Уникальный ID запуска
+    logger.info(f"🎬 Starting Full Pipeline Check. RunID: {run_id}")
+
+    # 1. Init DB
+    db = SimulationDB()
+
+    # 2. Init World (100k агентов для быстрого теста записи, миллион писать дольше)
+    n_agents = 100_000
+    state = GlobalState.empty(n_agents)
+
+    # Даем деньги и работу
+    state = state.replace(
+        agents=state.agents.replace(
+            income=jnp.ones(n_agents) * 1000.0, is_employed=jnp.ones(n_agents, dtype=bool)
+        )
+    )
+
+    kernel = SimulationKernel()
+    key = jax.random.PRNGKey(42)
+
+    macro_buffer = []
+
+    # 3. Run Loop
+    for t in range(6):  # 6 месяцев
+        step_key, key = jax.random.split(key)
+        state = kernel.step(state, step_key)
+
+        # Сбор макро-данных в буфер (Python list dicts)
+        # item() превращает JAX-скаляр в Python float
+        macro_buffer.append(
+            {
+                "run_id": run_id,
+                "step": state.step.item(),
+                "gdp": state.gdp.item(),
+                "unemployment_rate": state.unemployment_rate.item(),
+                "avg_income": float(jnp.mean(state.agents.income)),
+                "timestamp": None,  # DuckDB сам подставит current_timestamp
+            }
+        )
+
+        # Сохраняем "Снимок" популяции только на 0-м и последнем шаге (чтобы не забить диск)
+        if t == 0 or t == 5:
+            db.save_agents(run_id, state.step.item(), state.agents)
+
+    # 4. Flush to Disk
+    db.save_macro(macro_buffer)
+
+    # 5. Verify Data
+    logger.info("🔍 Verifying data in DuckDB...")
+    count = db.conn.execute(
+        "SELECT count(*) FROM agents_snapshot WHERE run_id=?", [run_id]
+    ).fetchone()[0]
+    avg_unempl = db.conn.execute(
+        "SELECT avg(unemployment_rate) FROM macro_history WHERE run_id=?", [run_id]
+    ).fetchone()[0]
+
+    logger.success(f"✅ Export Success! Total agent records: {count:,}")
+    logger.info(f"📊 Average Unemployment in DB: {avg_unempl:.2%}")
+
+    db.close()
+
+
+if __name__ == "__main__":
+    main()

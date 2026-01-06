@@ -25,9 +25,8 @@ class PolicyModel(BaseModel):
 
     class Config:
         """Конфигурация Pydantic"""
-        json_encoders = {
-            datetime: lambda v: v.isoformat()
-        }
+
+        json_encoders = {datetime: lambda v: v.isoformat()}
 
 
 class SimulationParameters(BaseModel):
@@ -69,7 +68,7 @@ if __name__ == "__main__":
         id="test-policy-001",
         name="Тестовая политика",
         description="Пример политики для демонстрации",
-        tags=["test", "demo"]
+        tags=["test", "demo"],
     )
 
     logger.info("✅ Policy Model создана:")
@@ -79,7 +78,10 @@ if __name__ == "__main__":
     params = SimulationParameters(
         time_steps=100,
         population_size=1000,
-        random_seed=42
+        random_seed=42,
+        confidence_level=0.95,
+        parallel_computation=True,
+        save_intermediate=False,
     )
 
     logger.info("✅ Simulation Parameters созданы:")

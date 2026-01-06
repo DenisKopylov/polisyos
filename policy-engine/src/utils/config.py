@@ -1,124 +1,73 @@
-"""
-Конфигурация приложения Policy Engine.
-Загружает настройки из переменных окружения и файлов конфигурации.
-"""
-
+import multiprocessing
 import os
-from pathlib import Path
-from typing import Optional
+import sys
 
+from dotenv import load_dotenv
 from loguru import logger
-from pydantic import Field
-from pydantic_settings import BaseSettings
 
+# JAX настройки ДО любого импорта JAX
+os.environ["JAX_PLATFORM_NAME"] = "cpu"
+os.environ["JAX_ENABLE_X64"] = "false"
+os.environ["JAX_DISABLE_MOST_OPTIMIZATIONS"] = "true"
+os.environ["JAX_CHECK_TRACER_LEAKS"] = "false"
 
-class AppConfig(BaseSettings):
-    """Основная конфигурация приложения"""
+# 1. Загружаем переменные из .env
+load_dotenv()
 
-    # Базовые настройки
-    app_name: str = Field(default="Policy Engine", description="Название приложения")
-    version: str = Field(default="0.1.0", description="Версия приложения")
-    debug: bool = Field(default=False, description="Режим отладки")
+# --- HARDWARE SAFEGUARDS (Защита железа) ---
 
-    # Настройки логирования
-    log_level: str = Field(default="INFO", description="Уровень логирования")
-    log_file: Optional[str] = Field(default=None, description="Файл для логирования")
+# Определяем количество физических ядер
+total_cores = multiprocessing.cpu_count()
 
-    # Настройки JAX
-    jax_platform: str = Field(default="cpu", description="Платформа JAX (cpu, gpu, metal)")
+# Рассчитываем безопасное число ядер (оставляем резерв системе ~20% или минимум 1 ядро)
+reserved_cores = max(1, int(total_cores * 0.20))
+allowed_cores = max(1, total_cores - reserved_cores)
 
-    # Настройки данных
-    data_dir: str = Field(default="./data", description="Директория для данных")
-    cache_dir: str = Field(default="./.cache", description="Директория для кэша")
+# --- ПРИМЕНЕНИЕ НАСТРОЕК JAX ---
+# Важно: Это должно произойти ДО первого import jax в проекте!
 
-    # API ключи (опционально)
-    openai_api_key: Optional[str] = Field(default=None, description="OpenAI API ключ")
-    anthropic_api_key: Optional[str] = Field(default=None, description="Anthropic API ключ")
+# 1. Отключаем жадную аллокацию памяти (если не задано в .env)
+if "XLA_PYTHON_CLIENT_PREALLOCATE" not in os.environ:
+    os.environ["XLA_PYTHON_CLIENT_PREALLOCATE"] = "false"
 
-    # Настройки симуляции
-    default_population_size: int = Field(
-        default=1000, gt=0, description="Размер популяции по умолчанию"
-    )
-    default_time_steps: int = Field(
-        default=100, gt=0, description="Количество шагов по умолчанию"
-    )
-    random_seed: int = Field(default=42, description="Seed для воспроизводимости")
+# 2. Ограничиваем потоки CPU (если не задано в .env)
+if "XLA_FLAGS" not in os.environ:
+    # intra_op_parallelism_threads ограничивает "тяжелые" вычисления внутри одной операции
+    flags = f"--xla_cpu_multi_thread_eigen=true intra_op_parallelism_threads={allowed_cores}"
+    os.environ["XLA_FLAGS"] = flags
+    logger.info(f"⚙️ Auto-configured JAX CPU Limit: {allowed_cores}/{total_cores} cores")
+else:
+    logger.info(f"⚙️ Using .env JAX Flags: {os.environ['XLA_FLAGS']}")
 
-    class Config:
-        """Конфигурация Pydantic Settings"""
-        env_file = ".env"
-        env_file_encoding = "utf-8"
-        case_sensitive = False
+logger.info(f"⚙️ Memory Safeguard: Preallocate={os.environ.get('XLA_PYTHON_CLIENT_PREALLOCATE')}")
 
+# --- APP SETTINGS ---
+LOG_LEVEL = os.getenv("LOG_LEVEL", "DEBUG")
+DUCKDB_MEMORY_LIMIT = os.getenv("DUCKDB_MEMORY_LIMIT", "4GB")
+# Используем allowed_cores как дефолт для DuckDB, если не задано иное
+DUCKDB_THREADS = int(os.getenv("DUCKDB_THREADS", allowed_cores))
 
-# Глобальный экземпляр конфигурации
-config = AppConfig()
+# --- LOGGER SETUP ---
+# Сбрасываем дефолтную конфигурацию
+logger.remove()
 
+# 1. Консоль (Красивый вывод для разработчика)
+logger.add(
+    sys.stderr,
+    level=LOG_LEVEL,
+    format=(
+        "<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <level>{level: <8}</level> | "
+        "<cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - <level>{message}</level>"
+    ),
+)
 
-def setup_logging():
-    """Настройка логирования"""
-    # Удаляем стандартный handler
-    logger.remove()
-
-    # Добавляем handler в stdout
-    logger.add(
-        sink=lambda msg: print(msg, end=""),
-        level=config.log_level,
-        format=(
-            "<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <level>{level: <8}</level> | "
-            "<cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - "
-            "<level>{message}</level>"
-        )
-    )
-
-    # Добавляем handler в файл, если указан
-    if config.log_file:
-        log_path = Path(config.log_file)
-        log_path.parent.mkdir(parents=True, exist_ok=True)
-
-        logger.add(
-            sink=str(log_path),
-            level=config.log_level,
-            rotation="10 MB",
-            retention="1 week",
-            format="{time:YYYY-MM-DD HH:mm:ss} | {level: <8} | {name}:{function}:{line} - {message}"
-        )
-
-    logger.info("🚀 Policy Engine v{} запущен", config.version)
-    logger.info(
-        "📋 Конфигурация загружена: debug={}, platform={}",
-        config.debug, config.jax_platform
-    )
-
-
-def ensure_directories():
-    """Создание необходимых директорий"""
-    dirs_to_create = [
-        Path(config.data_dir) / "raw",
-        Path(config.data_dir) / "curated",
-        Path(config.cache_dir),
-    ]
-
-    for dir_path in dirs_to_create:
-        dir_path.mkdir(parents=True, exist_ok=True)
-        logger.debug("📁 Директория создана/проверена: {}", dir_path)
-
-
-# Инициализация при импорте
-setup_logging()
-ensure_directories()
-
-
-if __name__ == "__main__":
-    print("🔧 Конфигурация Policy Engine:")
-    print(f"   App Name: {config.app_name}")
-    print(f"   Version: {config.version}")
-    print(f"   Debug: {config.debug}")
-    print(f"   JAX Platform: {config.jax_platform}")
-    print(f"   Data Dir: {config.data_dir}")
-    print(f"   Population Size: {config.default_population_size}")
-
-    print("\n📋 Переменные окружения:")
-    for key, value in os.environ.items():
-        if key.startswith(('OPENAI', 'ANTHROPIC', 'LOG_', 'JAX_')):
-            print(f"   {key}: {'*' * len(value) if 'KEY' in key else value}")
+# 2. Файл (JSON для аудита/парсинга машинами)
+# rotation="10 MB" создаст новый файл, когда лог достигнет 10МБ
+logger.add(
+    "logs/system.log",
+    rotation="10 MB",
+    retention="10 days",
+    serialize=True,
+    level="INFO",
+    encoding="utf-8",
+)

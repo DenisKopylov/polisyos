@@ -1,0 +1,102 @@
+# check_integration.py
+import os
+
+import jax
+import pandas as pd
+
+from src.io.db import SimulationDB
+from src.orchestrator.workflow import build_workflow
+from src.policy_ir.contract import (
+    Intervention,
+    PolicyEntity,
+    PolicyRequestIR,
+    SelectorPredicate,
+    SimulationParameters,
+    TargetSelector,
+)
+from src.policy_ir.types import EntityType, SelectorOperator, TranslatableString
+
+
+def setup_baseline_data():
+    """Создает БД и наполняет её 'историческими' данными."""
+    if os.path.exists("integration.duckdb"):
+        os.remove("integration.duckdb")
+
+    db = SimulationDB("integration.duckdb")
+
+    # Создаем 5 агентов с разным доходом
+    # Агент 1-3: Бедные (500)
+    # Агент 4-5: Богатые (2000)
+    data = {
+        "run_id": ["baseline_2023"] * 5,
+        "step": [0] * 5,
+        "agent_id": [1, 2, 3, 4, 5],
+        "age": [25, 30, 35, 40, 45],
+        "income": [500.0, 500.0, 500.0, 2000.0, 2000.0],
+        "savings": [0.0] * 5,
+        "is_employed": [True] * 5,
+    }
+    df = pd.DataFrame(data)
+
+    # Сохраняем напрямую в таблицу
+    db.conn.execute("INSERT INTO agents_snapshot SELECT * FROM df")
+    print("💾 Baseline data injected: 5 agents (3 poor, 2 rich).")
+    db.close()
+
+
+def main():
+    # 1. Готовим данные
+    setup_baseline_data()
+
+    # 2. Готовим IR (Субсидия 10%)
+    ir = PolicyRequestIR(
+        project_name=TranslatableString(en="Integration Test", ua="Тест"),
+        simulation_params=SimulationParameters(scope_years=1),
+        entities=[
+            PolicyEntity(
+                id="pop", entity_type=EntityType.AGENT, name=TranslatableString(en="Pop", ua="Pop")
+            )
+        ],
+        interventions=[
+            Intervention(
+                id="tax_sub",
+                name=TranslatableString(en="Sub", ua="Sub"),
+                target_selector=TargetSelector(
+                    logic="AND",
+                    predicates=[
+                        SelectorPredicate(field="id", operator=SelectorOperator.EQUALS, value="any")
+                    ],
+                ),
+                mechanism_type="tax_subsidy",
+                parameters={"rate": 0.1},  # 10% добавки к доходу
+            )
+        ],
+        objectives=[],
+        global_constraints={},
+    )
+
+    # 3. Запускаем Оркестратор
+    app = build_workflow()
+    print("\n🚀 Running Orchestrator with Real Data...")
+    result = app.invoke(
+        {"ir": ir, "revision_count": 0, "simulation_results": None, "feedback": None}
+    )
+
+    # 4. Проверка результатов
+    stats = result["simulation_results"]
+    print("📊 Results:", stats)
+
+    # Простая математика:
+    # Исходный средний доход: (500*3 + 2000*2) / 5 = 5500 / 5 = 1100
+    # Субсидия 10%: +110
+    # Ожидаемый новый доход: 1210
+
+    assert stats["n_agents"] == 5, "Should load exactly 5 agents"
+    assert abs(stats["avg_income"] - 1210.0) < 1.0, f"Expected 1210.0, got {stats['avg_income']}"
+
+    print("\n✅ Integration Successful! JAX simulation used DuckDB data.")
+
+
+if __name__ == "__main__":
+    jax.config.update("jax_platform_name", "cpu")
+    main()

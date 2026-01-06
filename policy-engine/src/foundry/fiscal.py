@@ -1,5 +1,6 @@
-import jax.numpy as jnp
 from typing import Any
+
+import jax.numpy as jnp
 
 from src.domain.state import GlobalState
 from src.foundry.base import Mechanism
@@ -17,7 +18,9 @@ class TaxSubsidy(Mechanism):
 
     def __call__(self, state: GlobalState, key) -> GlobalState:
         # Основная логика
-        subsidy_amount = state.agents.income * self.rate * self.target_sector_mask
+        # Ограничиваем rate в положительном диапазоне [0, 1]
+        clamped_rate = jnp.clip(self.rate, 0.0, 1.0)
+        subsidy_amount = state.agents.income * clamped_rate * self.target_sector_mask
         total_cost = jnp.sum(subsidy_amount)
 
         new_income = state.agents.income + subsidy_amount

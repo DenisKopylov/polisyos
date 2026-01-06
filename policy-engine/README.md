@@ -135,6 +135,14 @@ policy-engine/
 python check_setup.py
 ```
 
+## UDF Ingestion MVP Demo
+
+Минимальный прогон: raw → staging → curated → DuckDB/Kùzu → 1 panel + 1 network view.
+
+```bash
+python check_udf_ingest.py
+```
+
 ## Качество кода
 
 Проект использует строгие правила линтинга:

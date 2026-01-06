@@ -2,6 +2,7 @@
 import json
 
 from src.agent.prompts import get_system_prompt
+from src.orchestrator.audit import append_audit
 from src.orchestrator.state import ExperimentState
 from src.policy_ir.contract import PolicyRequestIR
 
@@ -17,12 +18,21 @@ class MockLLM:
         return """
         {
           "project_name": {"en": "Anti-Poverty Act", "ua": "Боротьба з бідністю"},
-          "schema_version": "1.0.0",
+          "schema_version": "1.0",
           "simulation_params": {
             "scope_years": 1,
             "time_frequency": "M",
             "start_date": "2024-01-01",
             "random_seed": 42
+          },
+          "generator": {"name": "policy-engine", "version": "0.1.0"},
+          "currency": "USD",
+          "time_unit": "year",
+          "price_base_year": 2024,
+          "scenarios": {
+            "random_seed": 42,
+            "shocks": [],
+            "timeline": {"start_year": 2024, "end_year": 2024}
           },
           "entities": [
             {"id": "poor_group", "entity_type": "agent", "name": {"en": "Poor", "ua": "Бідні"}}
@@ -32,8 +42,7 @@ class MockLLM:
               "id": "help_poor",
               "name": {"en": "Direct Aid", "ua": "Допомога"},
               "target_selector": {
-                "logic": "AND",
-                "predicates": [
+                "all_of": [
                   {"field": "income", "operator": "<", "value": 1000.0}
                 ]
               },
@@ -53,6 +62,11 @@ class MockLLM:
 def drafter_node(state: ExperimentState) -> ExperimentState:
     """Узел Drafter: User Request -> Policy IR JSON."""
     print(f"   [Drafter] Processing request: '{state['user_request']}'")
+    prior_feedback = state.get("feedback")
+    prior_issues = []
+    if prior_feedback and prior_feedback.get("verdict") == "NEEDS_REVISION":
+        prior_issues = prior_feedback.get("issues", [])
+        state = {**state, "revision_count": (state.get("revision_count") or 0) + 1}
 
     # 1. Готовим промпт
     system_prompt = get_system_prompt()
@@ -72,10 +86,48 @@ def drafter_node(state: ExperimentState) -> ExperimentState:
         # Pydantic валидация (самый важный шаг!)
         ir = PolicyRequestIR(**data)
         print("   [Drafter] ✅ Generated valid IR.")
+        after_json = json.dumps(data, sort_keys=True)
+        new_state = {**state, "ir": ir, "last_ir_json": after_json, "last_error": None}
+        if prior_issues:
+            repair_log = list(state.get("repair_log") or [])
+            error_summary = "; ".join([i.get("message", "") for i in prior_issues])
+            repair_log.append(
+                {
+                    "repair_attempt": state.get("revision_count") or 1,
+                    "error_summary": error_summary,
+                    "diff_before_after": {"before": state.get("last_ir_json"), "after": after_json},
+                }
+            )
+            new_state["repair_log"] = repair_log
+        return append_audit(new_state, "drafter", "ir_generated", {"valid": True})
 
     except Exception as e:
+        attempt = state.get("revision_count") or 0
+        if attempt == 0:
+            attempt = 1
+        before = state.get("last_ir_json")
+        error_summary = str(e)
+        diff = {"before": before, "after": clean_json}
+        repair_log = list(state.get("repair_log") or [])
+        repair_log.append(
+            {
+                "repair_attempt": attempt,
+                "error_summary": error_summary,
+                "diff_before_after": diff,
+            }
+        )
+        new_state = {
+            **state,
+            "ir": None,
+            "last_error": error_summary,
+            "revision_count": attempt,
+            "repair_log": repair_log,
+        }
+        new_state = append_audit(
+            new_state,
+            "drafter",
+            "ir_invalid",
+            {"attempt": attempt, "error_summary": error_summary},
+        )
         print(f"   [Drafter] ❌ Failed to generate valid IR: {e}")
-        # В реальной системе тут был бы цикл самокоррекции (Reflexion)
-        raise e
-
-    return {**state, "ir": ir}
+        return new_state

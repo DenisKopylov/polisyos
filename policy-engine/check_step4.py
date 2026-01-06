@@ -10,7 +10,13 @@ from src.orchestrator.workflow import build_workflow
 def create_test_ir(rate: float):
     return PolicyRequestIR(
         project_name=TranslatableString(en="Test Run", ua="Тест"),
+        schema_version="1.0",
+        generator={"name": "policy-engine", "version": "0.1.0"},
+        currency="USD",
+        time_unit="year",
+        price_base_year=2024,
         simulation_params=SimulationParameters(scope_years=1),
+        scenarios={"random_seed": 7, "shocks": [], "timeline": {"start_year": 2024, "end_year": 2024}},
         entities=[
             PolicyEntity(id="a", entity_type=EntityType.AGENT, name=TranslatableString(en="A", ua="A"))
         ],
@@ -19,8 +25,7 @@ def create_test_ir(rate: float):
                 id="sub1",
                 name=TranslatableString(en="Sub", ua="Суб"),
                 target_selector=TargetSelector(
-                    logic="AND",
-                    predicates=[SelectorPredicate(field="id", operator=SelectorOperator.EQUALS, value="a")]
+                    all_of=[SelectorPredicate(field="id", operator=SelectorOperator.EQUALS, value="a")]
                 ),
                 mechanism_type="tax_subsidy",
                 parameters={"rate": rate}
@@ -61,7 +66,8 @@ def main():
     })
 
     print("Verdict:", result_invalid["feedback"]["verdict"])
-    print("Reason:", result_invalid["feedback"]["comments"])
+    issues = result_invalid["feedback"]["issues"]
+    print("Reason:", issues[0]["message"] if issues else "No issues")
     assert result_invalid["feedback"]["verdict"] == "REJECT"
 
     print("\n✅ Step 4 Complete: Orchestrator logic is working!")

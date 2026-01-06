@@ -4,20 +4,32 @@ import equinox as eqx
 import jax
 
 from src.domain.state import GlobalState
-from src.foundry.types import FidelityLevel  # <--- Импорт
+from src.foundry.types import FidelityLevel
 
 
 class Mechanism(eqx.Module):
     """
-    Базовый класс механизма с поддержкой уровня точности.
+    Базовый класс механизма с поддержкой уровня точности и debug-режима.
     """
-    # По умолчанию работаем в режиме потоков (самый быстрый и дифференцируемый)
+
     fidelity: FidelityLevel = FidelityLevel.SURROGATE_FLUID
+    debug_mode: bool = False
 
     @abstractmethod
+    def init_state(self, state: GlobalState, key: jax.Array) -> GlobalState:
+        """Инициализирует состояние механизма (если нужно)."""
+        raise NotImplementedError
+
+    @abstractmethod
+    def step(self, state: GlobalState, key: jax.Array) -> GlobalState:
+        """Один шаг механизма."""
+        raise NotImplementedError
+
     def __call__(self, state: GlobalState, key: jax.Array) -> GlobalState:
-        """Применяет механику к состоянию."""
-        pass
+        if self.debug_mode:
+            with jax.disable_jit():
+                return self.step(state, key)
+        return self.step(state, key)
 
     def invariants(self, state: GlobalState) -> bool:
         """

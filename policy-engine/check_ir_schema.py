@@ -31,7 +31,7 @@ def main():
         bad_intervention = Intervention(
             id="bad_tax_cut",
             name=TranslatableString(en="Bad Cut", ua="Погана знижка"),
-            target_selector="all",
+            target_selector={"all_of": [{"field": "id", "operator": "==", "value": "all"}]},
             mechanism_type="tax_subsidy",
             parameters={"amount": 1000},  # ОШИБКА: нужен rate, а не amount
         )
@@ -52,7 +52,13 @@ def main():
     try:
         valid_ir = PolicyRequestIR(
             project_name=TranslatableString(en="SME Support", ua="Підтримка МСБ"),
+            schema_version="1.0",
+            generator={"name": "policy-engine", "version": "0.1.0"},
+            currency="USD",
+            time_unit="year",
+            price_base_year=2024,
             simulation_params={"scope_years": 3, "time_frequency": "M"},
+            scenarios={"random_seed": 42, "shocks": [], "timeline": {"start_year": 2024, "end_year": 2026}},
             entities=[
                 {
                     "id": "kyiv_region",
@@ -65,7 +71,11 @@ def main():
                 {
                     "id": "it_tax_break",
                     "name": {"en": "IT Tax Break", "ua": "Податкові канікули IT"},
-                    "target_selector": "sector == 'IT'",
+                    "target_selector": {
+                        "all_of": [
+                            {"field": "sector", "operator": "==", "value": "IT"}
+                        ]
+                    },
                     "mechanism_type": "tax_subsidy",
                     "parameters": {"rate": 0.05},  # ВЕРНО
                 }

@@ -8,7 +8,13 @@ def test_valid_ir():
     try:
         ir = PolicyRequestIR(
             project_name=TranslatableString(en="Test Project", ua="Тест"),
+            schema_version="1.0",
+            generator={"name": "policy-engine", "version": "0.1.0"},
+            currency="USD",
+            time_unit="year",
+            price_base_year=2024,
             simulation_params={"scope_years": 5},
+            scenarios={"random_seed": 7, "shocks": [], "timeline": {"start_year": 2024, "end_year": 2028}},
             entities=[
                 PolicyEntity(
                     id="holding_inc",
@@ -27,8 +33,7 @@ def test_valid_ir():
                     id="sub_1",
                     name=TranslatableString(en="Sub", ua="Субсидия"),
                     target_selector=TargetSelector(
-                        logic="AND",
-                        predicates=[
+                        all_of=[
                             SelectorPredicate(field="sector", operator=SelectorOperator.EQUALS, value="IT")
                         ]
                     ),
@@ -48,7 +53,13 @@ def test_cycle_ir():
     try:
         PolicyRequestIR(
             project_name=TranslatableString(en="Bad Project", ua="Тест"),
+            schema_version="1.0",
+            generator={"name": "policy-engine", "version": "0.1.0"},
+            currency="USD",
+            time_unit="year",
+            price_base_year=2024,
             simulation_params={"scope_years": 1},
+            scenarios={"random_seed": 7, "shocks": [], "timeline": {"start_year": 2024, "end_year": 2024}},
             entities=[
                 PolicyEntity(id="a", entity_type="agent", name=TranslatableString(en="A", ua="A"), parent_id="b"),
                 PolicyEntity(id="b", entity_type="agent", name=TranslatableString(en="B", ua="B"), parent_id="a")

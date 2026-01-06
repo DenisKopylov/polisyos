@@ -20,7 +20,10 @@ class CompositePolicy(Mechanism):
     def __init__(self, mechanisms: List[Mechanism]):
         self.steps = mechanisms
 
-    def __call__(self, state: GlobalState, key: jax.Array) -> GlobalState:
+    def init_state(self, state: GlobalState, key: jax.Array) -> GlobalState:
+        return state
+
+    def step(self, state: GlobalState, key: jax.Array) -> GlobalState:
         # Прогоняем состояние через цепочку мер
         # (JAX unroll'ит этот цикл при компиляции, если список фиксирован)
         current_state = state

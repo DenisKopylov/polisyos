@@ -16,14 +16,20 @@ def main():
     # 1. Создаем IR (как будто получили от GPT-4)
     dummy_ir = PolicyRequestIR(
         project_name=TranslatableString(en="Test Reform", ua="Тест"),
+        schema_version="1.0",
+        generator={"name": "policy-engine", "version": "0.1.0"},
+        currency="USD",
+        time_unit="year",
+        price_base_year=2024,
         simulation_params={"scope_years": 1, "time_frequency": "M"},
+        scenarios={"random_seed": 7, "shocks": [], "timeline": {"start_year": 2024, "end_year": 2024}},
         entities=[],
         objectives=[],
         interventions=[
             {
                 "id": "tax_cut_2025",
                 "name": {"en": "Tax Cut", "ua": "Знижка"},
-                "target_selector": "all",
+                "target_selector": {"all_of": [{"field": "id", "operator": "==", "value": "all"}]},
                 "mechanism_type": "tax_subsidy",
                 "parameters": {"rate": 0.15},  # 15% субсидия
             }

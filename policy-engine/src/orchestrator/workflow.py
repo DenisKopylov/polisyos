@@ -15,6 +15,11 @@ def route_governor(state: ExperimentState):
         # В полноценной системе здесь был бы переход к "Drafter" для исправления
         # Для MVP просто заканчиваем с ошибкой
         return END
+    max_attempts = state.get("max_repair_attempts") or 3
+    if verdict == "NEEDS_REVISION":
+        if (state.get("revision_count") or 0) < max_attempts:
+            return "drafter"
+        return END
     return END
 
 

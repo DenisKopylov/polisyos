@@ -11,10 +11,32 @@
       "title": "EntityType",
       "type": "string"
     },
+    "GeneratorInfo": {
+      "properties": {
+        "name": {
+          "description": "Component name",
+          "maxLength": 500,
+          "title": "Name",
+          "type": "string"
+        },
+        "version": {
+          "description": "Component version",
+          "maxLength": 500,
+          "title": "Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "version"
+      ],
+      "title": "GeneratorInfo",
+      "type": "object"
+    },
     "Intervention": {
-      "description": "\u041c\u0435\u0440\u0430 \u043f\u043e\u043b\u0438\u0442\u0438\u043a\u0438. \u0421\u043e\u0434\u0435\u0440\u0436\u0438\u0442 Self-Healing \u0432\u0430\u043b\u0438\u0434\u0430\u0442\u043e\u0440\u044b.",
       "properties": {
         "id": {
+          "maxLength": 64,
           "pattern": "^[a-z0-9_]+$",
           "title": "Id",
           "type": "string"
@@ -23,42 +45,22 @@
           "$ref": "#/$defs/TranslatableString"
         },
         "target_selector": {
-          "description": "SQL-like filter: sector == 'IT' and size == 'SME'",
-          "title": "Target Selector",
-          "type": "string"
+          "$ref": "#/$defs/TargetSelector"
         },
         "mechanism_type": {
-          "description": "Foundry mechanism ID: 'tax_subsidy', 'direct_grant'",
+          "description": "\u0421\u0441\u044b\u043b\u043a\u0430 \u043d\u0430 \u043c\u0435\u0445\u0430\u043d\u0438\u0437\u043c \u0432 Foundry",
+          "maxLength": 500,
           "title": "Mechanism Type",
           "type": "string"
         },
         "parameters": {
-          "additionalProperties": {
-            "anyOf": [
-              {
-                "type": "number"
-              },
-              {
-                "type": "integer"
-              },
-              {
-                "type": "string"
-              }
-            ]
-          },
+          "additionalProperties": true,
           "title": "Parameters",
           "type": "object"
         },
         "constraints": {
           "additionalProperties": {
-            "anyOf": [
-              {
-                "type": "number"
-              },
-              {
-                "type": "integer"
-              }
-            ]
+            "type": "number"
           },
           "title": "Constraints",
           "type": "object"
@@ -78,6 +80,7 @@
       "properties": {
         "metric_name": {
           "description": "Name of the metric to optimize (e.g. 'gdp', 'unemployment')",
+          "maxLength": 500,
           "title": "Metric Name",
           "type": "string"
         },
@@ -123,10 +126,11 @@
       "type": "string"
     },
     "PolicyEntity": {
-      "description": "\u0410\u0431\u0441\u0442\u0440\u0430\u043a\u0446\u0438\u044f \u043b\u044e\u0431\u043e\u0433\u043e \u0430\u043a\u0442\u043e\u0440\u0430 \u0438\u043b\u0438 \u043e\u0431\u044a\u0435\u043a\u0442\u0430.\n\u041f\u043e\u0434\u0434\u0435\u0440\u0436\u0438\u0432\u0430\u0435\u0442 \u0432\u043b\u043e\u0436\u0435\u043d\u043d\u043e\u0441\u0442\u044c (Composite Pattern).",
+      "description": "\u0421\u0443\u0449\u043d\u043e\u0441\u0442\u044c \u0432 \u043f\u043b\u043e\u0441\u043a\u043e\u043c \u0441\u043f\u0438\u0441\u043a\u0435 (Adjacency List).\n\u0418\u0435\u0440\u0430\u0440\u0445\u0438\u044f \u0441\u0442\u0440\u043e\u0438\u0442\u0441\u044f \u0447\u0435\u0440\u0435\u0437 parent_id.",
       "properties": {
         "id": {
-          "description": "Unique slug identifier (snake_case)",
+          "description": "Unique slug (snake_case)",
+          "maxLength": 64,
           "pattern": "^[a-z0-9_]+$",
           "title": "Id",
           "type": "string"
@@ -140,6 +144,7 @@
         "parent_id": {
           "anyOf": [
             {
+              "maxLength": 64,
               "type": "string"
             },
             {
@@ -147,7 +152,7 @@
             }
           ],
           "default": null,
-          "description": "ID \u0440\u043e\u0434\u0438\u0442\u0435\u043b\u044c\u0441\u043a\u043e\u0439 \u0441\u0443\u0449\u043d\u043e\u0441\u0442\u0438 (\u0434\u043b\u044f \u0438\u0435\u0440\u0430\u0440\u0445\u0438\u0438)",
+          "description": "ID \u0440\u043e\u0434\u0438\u0442\u0435\u043b\u044f. \u0414\u043e\u043b\u0436\u0435\u043d \u0441\u0443\u0449\u0435\u0441\u0442\u0432\u043e\u0432\u0430\u0442\u044c \u0432 \u0441\u043f\u0438\u0441\u043a\u0435.",
           "title": "Parent Id"
         },
         "state_variables": {
@@ -167,7 +172,7 @@
               }
             ]
           },
-          "description": "Initial state: {'balance': 1000.0, 'health': 0.8}",
+          "description": "Initial state: {'balance': 1000.0}",
           "title": "State Variables",
           "type": "object"
         }
@@ -178,6 +183,167 @@
         "name"
       ],
       "title": "PolicyEntity",
+      "type": "object"
+    },
+    "Scenarios": {
+      "properties": {
+        "random_seed": {
+          "description": "Deterministic seed for scenarios",
+          "title": "Random Seed",
+          "type": "integer"
+        },
+        "shocks": {
+          "items": {
+            "$ref": "#/$defs/Shock"
+          },
+          "title": "Shocks",
+          "type": "array"
+        },
+        "timeline": {
+          "$ref": "#/$defs/Timeline"
+        }
+      },
+      "required": [
+        "random_seed",
+        "timeline"
+      ],
+      "title": "Scenarios",
+      "type": "object"
+    },
+    "SelectorOperator": {
+      "description": "\u0420\u0430\u0437\u0440\u0435\u0448\u0435\u043d\u043d\u044b\u0435 \u043e\u043f\u0435\u0440\u0430\u0442\u043e\u0440\u044b \u0434\u043b\u044f TargetSelector (AST).",
+      "enum": [
+        "==",
+        "!=",
+        ">",
+        "<",
+        ">=",
+        "<=",
+        "in",
+        "not_in",
+        "between",
+        "contains"
+      ],
+      "title": "SelectorOperator",
+      "type": "string"
+    },
+    "SelectorPredicate": {
+      "additionalProperties": false,
+      "description": "\u0410\u0442\u043e\u043c\u0430\u0440\u043d\u043e\u0435 \u0443\u0441\u043b\u043e\u0432\u0438\u0435: field op value",
+      "properties": {
+        "field": {
+          "description": "\u0410\u0442\u0440\u0438\u0431\u0443\u0442 \u0441\u0443\u0449\u043d\u043e\u0441\u0442\u0438, \u043d\u0430\u043f\u0440. 'sector'",
+          "maxLength": 64,
+          "title": "Field",
+          "type": "string"
+        },
+        "operator": {
+          "$ref": "#/$defs/SelectorOperator"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "integer"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "boolean"
+            },
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "items": {
+                "type": "integer"
+              },
+              "type": "array"
+            },
+            {
+              "items": {
+                "type": "number"
+              },
+              "type": "array"
+            },
+            {
+              "items": {
+                "type": "boolean"
+              },
+              "type": "array"
+            }
+          ],
+          "title": "Value"
+        }
+      },
+      "required": [
+        "field",
+        "operator",
+        "value"
+      ],
+      "title": "SelectorPredicate",
+      "type": "object"
+    },
+    "Shock": {
+      "description": "\u0412\u043d\u0435\u0448\u043d\u0438\u0439 \u0448\u043e\u043a/\u0441\u043e\u0431\u044b\u0442\u0438\u0435.",
+      "properties": {
+        "id": {
+          "maxLength": 64,
+          "pattern": "^[a-z0-9_]+$",
+          "title": "Id",
+          "type": "string"
+        },
+        "name": {
+          "$ref": "#/$defs/TranslatableString"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TranslatableString"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "magnitude": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Magnitude"
+        },
+        "at_step": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "At Step"
+        }
+      },
+      "required": [
+        "id",
+        "name"
+      ],
+      "title": "Shock",
       "type": "object"
     },
     "SimulationParameters": {
@@ -210,6 +376,39 @@
       "title": "SimulationParameters",
       "type": "object"
     },
+    "TargetSelector": {
+      "additionalProperties": false,
+      "description": "\u0421\u0442\u0440\u0443\u043a\u0442\u0443\u0440\u0438\u0440\u043e\u0432\u0430\u043d\u043d\u044b\u0439 \u0444\u0438\u043b\u044c\u0442\u0440 \u0446\u0435\u043b\u0435\u0439.\n\u0417\u0430\u043c\u0435\u043d\u044f\u0435\u0442 \u0441\u0442\u0440\u043e\u043a\u0443 \"sector == 'IT'\".\n\u041f\u043e\u0434\u0434\u0435\u0440\u0436\u0438\u0432\u0430\u0435\u0442 \u043a\u043e\u043c\u043f\u043e\u0437\u0438\u0446\u0438\u044e all_of/any_of/not.",
+      "properties": {
+        "all_of": {
+          "items": {
+            "$ref": "#/$defs/SelectorPredicate"
+          },
+          "title": "All Of",
+          "type": "array"
+        },
+        "any_of": {
+          "items": {
+            "$ref": "#/$defs/SelectorPredicate"
+          },
+          "title": "Any Of",
+          "type": "array"
+        },
+        "not": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TargetSelector"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "title": "TargetSelector",
+      "type": "object"
+    },
     "TimeFrequency": {
       "description": "\u0415\u0434\u0438\u043d\u0438\u0446\u044b \u0432\u0440\u0435\u043c\u0435\u043d\u0438 \u0434\u043b\u044f \u0441\u0438\u043c\u0443\u043b\u044f\u0446\u0438\u0438.",
       "enum": [
@@ -220,22 +419,58 @@
       "title": "TimeFrequency",
       "type": "string"
     },
+    "TimeUnit": {
+      "description": "\u0415\u0434\u0438\u043d\u0438\u0446\u044b \u0432\u0440\u0435\u043c\u0435\u043d\u0438 \u0432 IR (\u0447\u0435\u043b\u043e\u0432\u0435\u0447\u0435\u0441\u043a\u0438\u0439 \u0444\u043e\u0440\u043c\u0430\u0442).",
+      "enum": [
+        "month",
+        "quarter",
+        "year"
+      ],
+      "title": "TimeUnit",
+      "type": "string"
+    },
+    "Timeline": {
+      "properties": {
+        "start_year": {
+          "maximum": 2100,
+          "minimum": 1900,
+          "title": "Start Year",
+          "type": "integer"
+        },
+        "end_year": {
+          "maximum": 2100,
+          "minimum": 1900,
+          "title": "End Year",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "start_year",
+        "end_year"
+      ],
+      "title": "Timeline",
+      "type": "object"
+    },
     "TranslatableString": {
+      "additionalProperties": false,
       "description": "\u041c\u0443\u043b\u044c\u0442\u0438\u044f\u0437\u044b\u0447\u043d\u0430\u044f \u0441\u0442\u0440\u043e\u043a\u0430.\nLLM \u0432\u0438\u0434\u0438\u0442 'en' \u0434\u043b\u044f \u043b\u043e\u0433\u0438\u043a\u0438, \u0430 'ua'/'ru' \u0438\u0441\u043f\u043e\u043b\u044c\u0437\u0443\u044e\u0442\u0441\u044f \u0434\u043b\u044f UI.",
       "properties": {
         "en": {
           "description": "English text for LLM logic",
+          "maxLength": 200,
           "title": "En",
           "type": "string"
         },
         "ua": {
           "description": "Ukrainian text for Reporting/UI",
+          "maxLength": 200,
           "title": "Ua",
           "type": "string"
         },
         "ru": {
           "anyOf": [
             {
+              "maxLength": 200,
               "type": "string"
             },
             {
@@ -255,19 +490,53 @@
       "type": "object"
     }
   },
-  "description": "\u041a\u043e\u0440\u043d\u0435\u0432\u043e\u0439 \u0434\u043e\u043a\u0443\u043c\u0435\u043d\u0442, \u043a\u043e\u0442\u043e\u0440\u044b\u0439 \u0434\u043e\u043b\u0436\u043d\u0430 \u0441\u0433\u0435\u043d\u0435\u0440\u0438\u0440\u043e\u0432\u0430\u0442\u044c LLM.\n\u042d\u0442\u043e \u0438 \u0435\u0441\u0442\u044c '\u041a\u043e\u043d\u0442\u0440\u0430\u043a\u0442'.",
+  "description": "\u041a\u043e\u0440\u043d\u0435\u0432\u043e\u0439 \u0430\u0440\u0442\u0435\u0444\u0430\u043a\u0442.\n\u0421\u043e\u0434\u0435\u0440\u0436\u0438\u0442 \u0432\u0435\u0440\u0441\u0438\u043e\u043d\u0438\u0440\u043e\u0432\u0430\u043d\u0438\u0435 \u0438 \u0433\u043b\u043e\u0431\u0430\u043b\u044c\u043d\u0443\u044e \u0432\u0430\u043b\u0438\u0434\u0430\u0446\u0438\u044e \u0433\u0440\u0430\u0444\u0430.",
   "properties": {
     "project_name": {
       "$ref": "#/$defs/TranslatableString"
     },
     "schema_version": {
-      "default": "1.0.0",
-      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "default": "1.0",
+      "pattern": "^\\d+\\.\\d+$",
       "title": "Schema Version",
       "type": "string"
     },
+    "generated_at": {
+      "title": "Generated At",
+      "type": "string"
+    },
+    "generator": {
+      "$ref": "#/$defs/GeneratorInfo"
+    },
+    "currency": {
+      "default": "USD",
+      "pattern": "^[A-Z]{3}$",
+      "title": "Currency",
+      "type": "string"
+    },
+    "time_unit": {
+      "$ref": "#/$defs/TimeUnit",
+      "default": "year"
+    },
+    "price_base_year": {
+      "anyOf": [
+        {
+          "maximum": 2100,
+          "minimum": 1900,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Price Base Year"
+    },
     "simulation_params": {
       "$ref": "#/$defs/SimulationParameters"
+    },
+    "scenarios": {
+      "$ref": "#/$defs/Scenarios"
     },
     "entities": {
       "items": {
@@ -276,18 +545,18 @@
       "title": "Entities",
       "type": "array"
     },
-    "objectives": {
-      "items": {
-        "$ref": "#/$defs/Objective"
-      },
-      "title": "Objectives",
-      "type": "array"
-    },
     "interventions": {
       "items": {
         "$ref": "#/$defs/Intervention"
       },
       "title": "Interventions",
+      "type": "array"
+    },
+    "objectives": {
+      "items": {
+        "$ref": "#/$defs/Objective"
+      },
+      "title": "Objectives",
       "type": "array"
     },
     "global_constraints": {
@@ -300,10 +569,12 @@
   },
   "required": [
     "project_name",
+    "generator",
     "simulation_params",
+    "scenarios",
     "entities",
-    "objectives",
-    "interventions"
+    "interventions",
+    "objectives"
   ],
   "title": "PolicyRequestIR",
   "type": "object"

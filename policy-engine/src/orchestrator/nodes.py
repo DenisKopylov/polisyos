@@ -6,7 +6,8 @@ from src.io.db import SimulationDB
 from src.orchestrator.data_loader import load_initial_state  # <--- Импорт
 from src.orchestrator.optimizer import optimize_mechanisms  # <--- Импорт
 from src.orchestrator.registry import create_mechanism
-from src.orchestrator.state import ExperimentState, GovernorFeedback
+from src.orchestrator.audit import append_audit
+from src.orchestrator.state import ExperimentState, GovernorFeedback, GovernorIssue
 from src.udf.engine import UDFEngine
 
 
@@ -21,7 +22,20 @@ def simulator_node(state: ExperimentState) -> ExperimentState:
     db = SimulationDB("integration.duckdb")
     udf = UDFEngine(db)  # GraphStore пока не нужен для загрузки плоского состояния
 
-    ir = state["ir"]
+    ir = state.get("ir")
+
+    if ir is None:
+        issue: GovernorIssue = {
+            "issue_id": "IR_VALIDATION",
+            "severity": "ERROR",
+            "component": "validation",
+            "message": state.get("last_error") or "IR is missing or invalid",
+            "recommended_fix": "Fix IR validation errors and regenerate",
+            "blocking": True,
+        }
+        feedback: GovernorFeedback = {"verdict": "NEEDS_REVISION", "issues": [issue]}
+        new_state = {**state, "feedback": feedback}
+        return append_audit(new_state, "simulator", "skip_invalid_ir", {"issue": issue})
 
     # 2. Загрузка начального состояния
     # Предполагаем, что у нас есть "baseline" прогон, с которого мы стартуем.
@@ -33,7 +47,21 @@ def simulator_node(state: ExperimentState) -> ExperimentState:
     except Exception as e:
         print(f"   [Simulator] ❌ Error loading data: {e}")
         # Возвращаем ошибку в state, чтобы workflow мог корректно упасть
-        return {**state, "simulation_results": {"error": str(e)}, "feedback": {"verdict": "REJECT"}}
+        feedback: GovernorFeedback = {
+            "verdict": "REJECT",
+            "issues": [
+                {
+                    "issue_id": "DATA_LOAD",
+                    "severity": "ERROR",
+                    "component": "data",
+                    "message": str(e),
+                    "recommended_fix": "Check UDF baseline and data availability",
+                    "blocking": True,
+                }
+            ],
+        }
+        new_state = {**state, "simulation_results": {"error": str(e)}, "feedback": feedback}
+        return append_audit(new_state, "simulator", "data_load_failed", {"error": str(e)})
 
     n_agents = world_state.agents.income.shape[0]
     print(f"   [Simulator] Loaded {n_agents} agents from DB.")
@@ -92,7 +120,8 @@ def simulator_node(state: ExperimentState) -> ExperimentState:
     # Закрываем соединение (важно для DuckDB)
     db.close()
 
-    return {**state, "simulation_results": results}
+    new_state = {**state, "simulation_results": results}
+    return append_audit(new_state, "simulator", "simulation_completed", results)
 
 
 def governor_node(state: ExperimentState) -> ExperimentState:
@@ -100,22 +129,60 @@ def governor_node(state: ExperimentState) -> ExperimentState:
     print("   [Governor] Reviewing results...")
     results = state.get("simulation_results", {})
 
+    # If simulator already requested revision, pass through
+    if state.get("feedback") and state["feedback"]["verdict"] == "NEEDS_REVISION":
+        return append_audit(state, "governor", "needs_revision", {"reason": "invalid_ir"})
+
     # Fail-safe если симулятор упал
     if "error" in results:
-        return {
-            **state,
-            "feedback": GovernorFeedback(
-                verdict="REJECT", comments=[f"Simulation Error: {results['error']}"]
-            ),
+        feedback: GovernorFeedback = {
+            "verdict": "REJECT",
+            "issues": [
+                {
+                    "issue_id": "SIM_ERROR",
+                    "severity": "ERROR",
+                    "component": "logic",
+                    "message": f"Simulation Error: {results['error']}",
+                    "recommended_fix": "Fix simulation error or adjust input IR",
+                    "blocking": True,
+                }
+            ],
         }
+        new_state = {**state, "feedback": feedback}
+        return append_audit(new_state, "governor", "reject", {"reason": "simulation_error"})
 
     ir = state["ir"]
-    comments = []
+    issues: list[GovernorIssue] = []
     verdict = "APPROVE"
 
     min_balance = ir.global_constraints.get("min_balance", -1e9)
     if results["gov_balance"] < min_balance:
-        verdict = "REJECT"
-        comments.append(f"Budget deficit too high: {results['gov_balance']} < {min_balance}")
+        verdict = "NEEDS_REVISION"
+        issues.append(
+            {
+                "issue_id": "BUDGET_CONSTRAINT",
+                "severity": "WARN",
+                "component": "logic",
+                "message": f"Budget deficit too high: {results['gov_balance']} < {min_balance}",
+                "recommended_fix": "Reduce subsidy rate or adjust mechanism parameters",
+                "blocking": True,
+            }
+        )
 
-    return {**state, "feedback": GovernorFeedback(verdict=verdict, comments=comments)}
+    max_attempts = state.get("max_repair_attempts") or 3
+    if verdict == "NEEDS_REVISION" and (state.get("revision_count") or 0) >= max_attempts:
+        verdict = "REJECT"
+        issues.append(
+            {
+                "issue_id": "MAX_REPAIR_ATTEMPTS",
+                "severity": "ERROR",
+                "component": "logic",
+                "message": f"Max repair attempts reached: {max_attempts}",
+                "recommended_fix": "Manual intervention required",
+                "blocking": True,
+            }
+        )
+
+    feedback: GovernorFeedback = {"verdict": verdict, "issues": issues}
+    new_state = {**state, "feedback": feedback}
+    return append_audit(new_state, "governor", "verdict", {"verdict": verdict, "issues": issues})

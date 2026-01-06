@@ -51,7 +51,13 @@ def main():
     # 2. Готовим IR (Субсидия 10%)
     ir = PolicyRequestIR(
         project_name=TranslatableString(en="Integration Test", ua="Тест"),
+        schema_version="1.0",
+        generator={"name": "policy-engine", "version": "0.1.0"},
+        currency="USD",
+        time_unit="year",
+        price_base_year=2024,
         simulation_params=SimulationParameters(scope_years=1),
+        scenarios={"random_seed": 7, "shocks": [], "timeline": {"start_year": 2024, "end_year": 2024}},
         entities=[
             PolicyEntity(
                 id="pop", entity_type=EntityType.AGENT, name=TranslatableString(en="Pop", ua="Pop")
@@ -62,10 +68,7 @@ def main():
                 id="tax_sub",
                 name=TranslatableString(en="Sub", ua="Sub"),
                 target_selector=TargetSelector(
-                    logic="AND",
-                    predicates=[
-                        SelectorPredicate(field="id", operator=SelectorOperator.EQUALS, value="any")
-                    ],
+                    all_of=[SelectorPredicate(field="id", operator=SelectorOperator.EQUALS, value="any")]
                 ),
                 mechanism_type="tax_subsidy",
                 parameters={"rate": 0.1},  # 10% добавки к доходу

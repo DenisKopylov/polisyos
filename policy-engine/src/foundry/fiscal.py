@@ -1,5 +1,6 @@
 from typing import Any
 
+import jax
 import jax.numpy as jnp
 
 from src.domain.state import GlobalState
@@ -16,7 +17,10 @@ class TaxSubsidy(Mechanism):
         self.target_sector_mask = jnp.ones(n_agents)
         self.fidelity = FidelityLevel.SURROGATE_FLUID
 
-    def __call__(self, state: GlobalState, key) -> GlobalState:
+    def init_state(self, state: GlobalState, key) -> GlobalState:
+        return state
+
+    def step(self, state: GlobalState, key) -> GlobalState:
         # Основная логика
         # Ограничиваем rate в положительном диапазоне [0, 1]
         clamped_rate = jnp.clip(self.rate, 0.0, 1.0)
@@ -27,6 +31,8 @@ class TaxSubsidy(Mechanism):
         new_balance = state.government_balance - total_cost
 
         new_agents = state.agents.replace(income=new_income)
+        if self.debug_mode:
+            jax.debug.print("TaxSubsidy rate={r}, total_cost={c}", r=clamped_rate, c=total_cost)
         return state.replace(agents=new_agents, government_balance=new_balance)
 
     def invariants(self, state: GlobalState) -> bool:
@@ -46,7 +52,10 @@ class IncomeTax(Mechanism):
         self.rate = rate
         self.fidelity = FidelityLevel.SURROGATE_FLUID
 
-    def __call__(self, state: GlobalState, key) -> GlobalState:
+    def init_state(self, state: GlobalState, key) -> GlobalState:
+        return state
+
+    def step(self, state: GlobalState, key) -> GlobalState:
         tax_amount = state.agents.income * self.rate
         total_revenue = jnp.sum(tax_amount)
 
@@ -54,4 +63,6 @@ class IncomeTax(Mechanism):
         new_balance = state.government_balance + total_revenue
 
         new_agents = state.agents.replace(income=new_income)
+        if self.debug_mode:
+            jax.debug.print("IncomeTax rate={r}, total_revenue={t}", r=self.rate, t=total_revenue)
         return state.replace(agents=new_agents, government_balance=new_balance)

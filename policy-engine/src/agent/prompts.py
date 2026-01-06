@@ -24,7 +24,7 @@ STRICT OUTPUT RULES:
 1. You must output ONLY valid JSON matching the schema below.
 2. No preamble, no markdown formatting (```json), just the raw JSON string.
 3. Use 'tax_subsidy' for handouts and 'income_tax' for collecting revenue.
-4. Ensure 'target_selector' is a valid AST (e.g., field='id', operator='==', value='...').
+4. Ensure 'target_selector' is a valid AST with all_of/any_of/not (e.g., all_of=[{field:'id', operator:'==', value:'...'}]).
 
 JSON SCHEMA:
 {json.dumps(schema, indent=2)}

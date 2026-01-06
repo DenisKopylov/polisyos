@@ -47,7 +47,13 @@ def main():
 
     ir = PolicyRequestIR(
         project_name=TranslatableString(en="Opt Test", ua="Тест"),
+        schema_version="1.0",
+        generator={"name": "policy-engine", "version": "0.1.0"},
+        currency="USD",
+        time_unit="year",
+        price_base_year=2024,
         simulation_params=SimulationParameters(scope_years=1),
+        scenarios={"random_seed": 7, "shocks": [], "timeline": {"start_year": 2024, "end_year": 2024}},
         entities=[
             PolicyEntity(
                 id="pop", entity_type=EntityType.AGENT, name=TranslatableString(en="P", ua="P")
@@ -58,8 +64,7 @@ def main():
                 id="sub",
                 name=TranslatableString(en="S", ua="S"),
                 target_selector=TargetSelector(
-                    logic="AND",
-                    predicates=[SelectorPredicate(field="id", operator="==", value="any")],
+                    all_of=[SelectorPredicate(field="id", operator="==", value="any")],
                 ),
                 mechanism_type="tax_subsidy",
                 parameters={"rate": 0.0},  # <--- НАЧИНАЕМ С НУЛЯ

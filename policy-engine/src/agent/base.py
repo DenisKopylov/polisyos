@@ -38,14 +38,20 @@ class MockAgent(BaseAgent):
 
         return PolicyRequestIR(
             project_name={"en": "Auto Rescue", "ua": "Авто-Порятунок"},
+            schema_version="1.0",
+            generator={"name": "policy-engine", "version": "0.1.0"},
+            currency="USD",
+            time_unit="year",
+            price_base_year=2024,
             simulation_params={"scope_years": 1, "time_frequency": "M"},
+            scenarios={"random_seed": 42, "shocks": [], "timeline": {"start_year": 2024, "end_year": 2024}},
             entities=[],
             objectives=[],
             interventions=[
                 {
                     "id": f"policy_step_{step}",
                     "name": {"en": mech_type.replace("_", " ").title(), "ua": mech_type},
-                    "target_selector": "all",
+                    "target_selector": {"all_of": [{"field": "id", "operator": "==", "value": "all"}]},
                     "mechanism_type": mech_type,
                     "parameters": {"rate": rate},
                 }

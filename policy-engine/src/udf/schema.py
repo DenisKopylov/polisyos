@@ -7,7 +7,7 @@ from pydantic import BaseModel, Field
 class DataViewType(str, Enum):
     PANEL = "panel"  # Таблица (Время x Сущность x Метрики)
     SNAPSHOT = "snapshot"  # Срез всех агентов в конкретный момент
-    # NETWORK = "network" # (Пока пропустим для MVP)
+    NETWORK = "network"  # <--- Теперь активно
 
 
 class DataFilter(BaseModel):
@@ -41,3 +41,9 @@ class DataViewRequest(BaseModel):
 
     # Группировка (для агрегации, например 'mean')
     aggregation: str = Field("mean", pattern=r"^(mean|sum|count|min|max)$")
+
+    # --- НОВЫЕ ПОЛЯ ДЛЯ ГРАФА ---
+    # Для выборки "Кто связан с X на глубину N"
+    ego_node_id: Optional[str] = Field(None, description="Center node for network query")
+    hop_depth: int = Field(1, ge=1, le=5, description="Search depth")
+    relation_types: Optional[List[str]] = None

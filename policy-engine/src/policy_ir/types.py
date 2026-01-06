@@ -30,6 +30,18 @@ class TimeFrequency(str, Enum):
     YEAR = "Y"
 
 
+class SelectorOperator(str, Enum):
+    """Разрешенные операторы для TargetSelector (AST)."""
+    EQUALS = "=="
+    NOT_EQUALS = "!="
+    GREATER_THAN = ">"
+    LESS_THAN = "<"
+    GREATER_EQUAL = ">="
+    LESS_EQUAL = "<="
+    IN = "in"
+    NOT_IN = "not_in"
+
+
 # --- Common Models ---
 class TranslatableString(BaseModel):
     """

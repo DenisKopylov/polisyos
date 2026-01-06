@@ -1,26 +1,55 @@
-from typing import Dict, List, Optional, Union
+from datetime import datetime
+from typing import Dict, List, Literal, Optional, Union, Any
 
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, Field, model_validator, field_validator
 
-from src.policy_ir.types import EntityType, OptimizationDirection, TimeFrequency, TranslatableString
+from src.policy_ir.types import (
+    EntityType,
+    OptimizationDirection,
+    SelectorOperator,
+    TimeFrequency,
+    TranslatableString,
+)
 
 
-# --- 2.1 Entity (Сущность) ---
+# --- 2.1 Entity (Плоская структура) ---
 class PolicyEntity(BaseModel):
     """
-    Абстракция любого актора или объекта.
-    Поддерживает вложенность (Composite Pattern).
+    Сущность в плоском списке (Adjacency List).
+    Иерархия строится через parent_id.
     """
-
-    id: str = Field(..., pattern=r"^[a-z0-9_]+$", description="Unique slug identifier (snake_case)")
+    id: str = Field(..., pattern=r"^[a-z0-9_]+$", description="Unique slug (snake_case)")
     entity_type: EntityType
     name: TranslatableString
-    parent_id: Optional[str] = Field(None, description="ID родительской сущности (для иерархии)")
+    parent_id: Optional[str] = Field(None, description="ID родителя. Должен существовать в списке.")
 
-    # Динамическое состояние (начальные значения)
+    # Динамическое состояние
     state_variables: Dict[str, Union[float, int, bool, str]] = Field(
-        default_factory=dict, description="Initial state: {'balance': 1000.0, 'health': 0.8}"
+        default_factory=dict, description="Initial state: {'balance': 1000.0}"
     )
+
+
+# --- 2.2 Target Selector (AST) ---
+class SelectorPredicate(BaseModel):
+    """Атомарное условие: field op value"""
+    field: str = Field(..., description="Атрибут сущности, напр. 'sector'")
+    operator: SelectorOperator
+    value: Union[str, int, float, bool, List[str], List[int]]
+
+class TargetSelector(BaseModel):
+    """
+    Структурированный фильтр целей.
+    Заменяет строку "sector == 'IT'".
+    Поддерживает логику AND/OR.
+    """
+    logic: Literal["AND", "OR"] = Field("AND", description="Логический оператор для списка условий")
+    predicates: List[SelectorPredicate] = Field(..., min_length=1)
+
+    def to_human_readable(self) -> str:
+        """Для удобства отладки/лога."""
+        parts = [f"{p.field} {p.operator.value} {p.value}" for p in self.predicates]
+        joiner = " AND " if self.logic == "AND" else " OR "
+        return f"({joiner.join(parts)})"
 
 
 # --- 2.3 Metric / Objective (Цель) ---
@@ -35,51 +64,23 @@ class Objective(BaseModel):
     priority_weight: float = Field(default=1.0, ge=0.0, le=10.0)
 
 
-# --- 2.2 Intervention (Вмешательство) ---
+# --- 2.3 Intervention ---
 class Intervention(BaseModel):
-    """
-    Мера политики. Содержит Self-Healing валидаторы.
-    """
-
     id: str = Field(..., pattern=r"^[a-z0-9_]+$")
     name: TranslatableString
 
-    # Селектор целей (пока строка, в будущем AST)
-    target_selector: str = Field(
-        ..., description="SQL-like filter: sector == 'IT' and size == 'SME'"
-    )
+    # Безопасный AST селектор
+    target_selector: TargetSelector
 
-    # Тип механизма (ссылка на Foundry)
-    mechanism_type: str = Field(
-        ..., description="Foundry mechanism ID: 'tax_subsidy', 'direct_grant'"
-    )
-
-    # Параметры механизма
-    parameters: Dict[str, Union[float, int, str]]
-
-    # Ограничения (бюджет, сроки)
-    constraints: Dict[str, Union[float, int]] = Field(default_factory=dict)
+    mechanism_type: str = Field(..., description="Ссылка на механизм в Foundry")
+    parameters: Dict[str, Any]
+    constraints: Dict[str, float] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def check_mechanism_semantics(self) -> "Intervention":
-        """
-        Умная валидация: проверяем, что параметры соответствуют типу механизма.
-        Это позволяет LLM 'понять' ошибку и исправить её.
-        """
-        mech = self.mechanism_type
-        params = self.parameters
-
-        # Пример правила из ТЗ
-        if mech == "tax_subsidy":
-            if "rate" not in params:
-                raise ValueError(f"Mechanism '{mech}' requires parameter 'rate' (float 0..1).")
-            if not (0 <= float(params["rate"]) <= 1):
-                raise ValueError("Parameter 'rate' for tax_subsidy must be between 0 and 1.")
-
-        elif mech == "direct_grant":
-            if "amount" not in params:
-                raise ValueError(f"Mechanism '{mech}' requires parameter 'amount'.")
-
+    def validate_mechanism_params(self) -> "Intervention":
+        # Пример простейшей валидации (в будущем здесь будет связь с Registry)
+        if self.mechanism_type == "tax_subsidy" and "rate" not in self.parameters:
+             raise ValueError("Mechanism 'tax_subsidy' requires 'rate' parameter")
         return self
 
 
@@ -95,34 +96,61 @@ class SimulationParameters(BaseModel):
 
 class PolicyRequestIR(BaseModel):
     """
-    Корневой документ, который должна сгенерировать LLM.
-    Это и есть 'Контракт'.
+    Корневой артефакт.
+    Содержит версионирование и глобальную валидацию графа.
     """
-
     project_name: TranslatableString
+
+    # Версионирование контракта (MUST have)
     schema_version: str = Field("1.0.0", pattern=r"^\d+\.\d+\.\d+$")
+    generated_at: str = Field(default_factory=lambda: datetime.utcnow().isoformat())
 
     simulation_params: SimulationParameters
 
-    # Списки объектов (Flat list, иерархия через parent_id)
     entities: List[PolicyEntity]
-    objectives: List[Objective]
     interventions: List[Intervention]
+    objectives: List[Objective]
 
-    # Глобальные ограничения
     global_constraints: Dict[str, float] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def validate_integrity(self) -> "PolicyRequestIR":
-        """Проверка целостности графа и бюджетов."""
-        # 1. Проверка уникальности ID сущностей
-        ids = [e.id for e in self.entities]
-        if len(ids) != len(set(ids)):
-            raise ValueError("Entity IDs must be unique.")
+    def validate_topology(self) -> "PolicyRequestIR":
+        """
+        Проверка графа сущностей:
+        1. Все parent_id существуют.
+        2. Нет циклов (A -> B -> A).
+        """
+        entity_ids = {e.id for e in self.entities}
 
-        # 2. Проверка связности (родитель должен существовать)
+        # 1. Проверка существования родителей
+        adjacency = {e.id: [] for e in self.entities}
         for e in self.entities:
-            if e.parent_id and e.parent_id not in ids:
-                raise ValueError(f"Entity '{e.id}' refers to non-existent parent '{e.parent_id}'.")
+            if e.parent_id:
+                if e.parent_id not in entity_ids:
+                    raise ValueError(f"Entity '{e.id}' refers to unknown parent '{e.parent_id}'")
+                adjacency[e.parent_id].append(e.id) # Строим граф сверху вниз
+
+        # 2. Проверка на циклы (DFS)
+        visited = set()
+        recursion_stack = set()
+
+        def detect_cycle(node_id):
+            visited.add(node_id)
+            recursion_stack.add(node_id)
+
+            for neighbor in adjacency[node_id]:
+                if neighbor not in visited:
+                    if detect_cycle(neighbor):
+                        return True
+                elif neighbor in recursion_stack:
+                    return True
+
+            recursion_stack.remove(node_id)
+            return False
+
+        for e in self.entities:
+            if e.id not in visited:
+                if detect_cycle(e.id):
+                    raise ValueError(f"Cycle detected in entity hierarchy involving '{e.id}'")
 
         return self

@@ -69,3 +69,33 @@ def test_validation_report_has_summary_and_diff() -> None:
     assert report.error_summary
     assert report.diff_before_after is not None
     assert report.issues
+
+
+def test_target_selector_requires_conditions() -> None:
+    with pytest.raises(ValidationError):
+        TargetSelector.model_validate({})
+
+
+def test_entity_topology_rejects_cycle() -> None:
+    payload = minimal_ir_payload()
+    payload["entities"] = [
+        {"id": "a", "entity_type": "agent", "name": {"en": "A", "ua": "A"}, "parent_id": "b"},
+        {"id": "b", "entity_type": "agent", "name": {"en": "B", "ua": "B"}, "parent_id": "a"},
+    ]
+    with pytest.raises(ValidationError):
+        PolicyRequestIR.model_validate(payload)
+
+
+def test_entity_topology_requires_existing_parent() -> None:
+    payload = minimal_ir_payload()
+    payload["entities"] = [
+        {
+            "id": "child",
+            "entity_type": "agent",
+            "name": {"en": "Child", "ua": "Child"},
+            "parent_id": "missing",
+        }
+    ]
+    with pytest.raises(ValidationError):
+        PolicyRequestIR.model_validate(payload)
+

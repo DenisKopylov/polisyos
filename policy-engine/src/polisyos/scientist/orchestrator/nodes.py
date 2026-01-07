@@ -14,6 +14,7 @@ from polisyos.scientist.orchestrator.run_record import ReproMode, build_run_reco
 from polisyos.scientist.orchestrator.state import ExperimentState, GovernorFeedback
 from polisyos.ir.validation import ValidationIssue
 from polisyos.fabric.udf.engine import UDFEngine
+from polisyos.fabric.io.graph_store import GraphStore
 
 
 def simulator_node(state: ExperimentState) -> ExperimentState:
@@ -24,8 +25,11 @@ def simulator_node(state: ExperimentState) -> ExperimentState:
 
     # 1. Подключение к данным
     # В проде это будет dependency injection. Сейчас хардкод пути.
-    db = SimulationDB("integration.duckdb")
-    udf = UDFEngine(db)  # GraphStore пока не нужен для загрузки плоского состояния
+    db_path = state.get("db_path") or "integration.duckdb"
+    graph_path = state.get("graph_path")
+    db = SimulationDB(db_path)
+    graph = GraphStore(str(graph_path)) if graph_path else None
+    udf = UDFEngine(db, graph) if graph is not None else UDFEngine(db)
 
     ir = state.get("ir")
 
@@ -62,7 +66,7 @@ def simulator_node(state: ExperimentState) -> ExperimentState:
     # 3. Загрузка начального состояния
     # Предполагаем, что у нас есть "baseline" прогон, с которого мы стартуем.
     # Его ID можно передать в ir.simulation_params или хардкодом.
-    baseline_run_id = "baseline_2023"
+    baseline_run_id = state.get("baseline_run_id") or "baseline_2023"
 
     try:
         world_state = load_initial_state(udf, baseline_run_id, step=0)

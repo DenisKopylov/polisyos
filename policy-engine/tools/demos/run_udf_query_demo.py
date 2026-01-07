@@ -1,7 +1,7 @@
 import sys
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parent
+REPO_ROOT = Path(__file__).resolve().parents[2]
 SRC_ROOT = REPO_ROOT / "src"
 if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
@@ -38,7 +38,9 @@ def main():
     if not df_panel.empty:
         logger.success("✅ Panel View works!")
     else:
-        logger.warning("⚠️ Panel is empty (maybe DB is empty? Run check_export.py first)")
+        logger.warning(
+            "⚠️ Panel is empty (maybe DB is empty? Run tools/demos/run_export_demo.py first)"
+        )
 
     # 3. Сценарий 2: LLM просит "Какой средний доход у безработных на шаге 6?"
     req_snap = DataViewRequest(

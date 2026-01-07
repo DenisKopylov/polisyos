@@ -53,7 +53,7 @@
 
 Ключевые элементы в `policy-engine/`:
 
-- Много “ручных гейтов”/скриптов: `check_*.py`, `run_experiment.py`, `migrate.py`, `jax_bootstrap.py`, `dashboard.py`.
+- Много “ручных гейтов”/скриптов: `tools/diagnostics/*`, `tools/demos/*`, `tools/benchmarks/*`, `run_experiment.py`, `migrate.py`, `jax_bootstrap.py`, `dashboard.py`.
 - Данные и локальные артефакты: `data/`, `*.duckdb`, `*.kuzu`, `logs/`, `policy_ir_schema.json`.
 - Исходники: `policy-engine/src/` (важно: **пакет называется `src`**, и импорты вида `from src....`).  
   Отдельно: `policy-engine/src/__init__.py` при импорте вызывает `apply_jax_env_defaults()` (side‑effect на env для JAX); похожая логика есть в `policy-engine/jax_bootstrap.py`.
@@ -138,12 +138,12 @@
 
 Сейчас часть “архитектурных гейтов” уже есть, но в виде скриптов/pytest и без единой классификации:
 
-- **IR / contracts:** `policy-engine/check_ir_schema.py` генерирует `policy_ir_schema.json` и показывает, как выглядит Pydantic `ValidationError` на “сломанном” IR.
-- **Compiler boundary:** `policy-engine/check_compiler.py` собирает `PolicyRequestIR → compile_policy() → foundry mechanism` и проверяет сохранность параметров.
-- **Foundry / gradients:** `policy-engine/check_foundry.py` делает sanity‑check градиента (eqx + jax).
-- **Integration (real DB):** `policy-engine/check_integration.py` прогоняет LangGraph workflow на baseline в `integration.duckdb`.
-- **Фискальная физика/движок:** `policy-engine/check_budget.py`, `policy-engine/check_production.py`.
-- **Pytest:** `policy-engine/tests/test_foundry_jit.py`, `policy-engine/tests/test_queue_fidelity.py` (JIT‑стабильность PyTree, fidelity gap).
+- **IR / contracts:** `policy-engine/tools/diagnostics/generate_ir_schema.py` генерирует `policy_ir_schema.json`; контракты — `policy-engine/tests/contract/test_ir_contract.py`.
+- **Compiler boundary:** `policy-engine/tests/scientist/test_compiler.py` собирает `PolicyRequestIR → compile_policy() → foundry mechanism` и проверяет сохранность параметров.
+- **Foundry / gradients:** `policy-engine/tests/foundry/test_gradients.py` делает sanity‑check градиента (eqx + jax).
+- **Integration (real DB):** `policy-engine/tests/integration/test_workflow_smoke.py` прогоняет workflow на baseline в DuckDB.
+- **Фискальная физика/движок:** `policy-engine/tests/foundry/test_fiscal.py`, `policy-engine/tests/foundry/test_production_kernel.py`.
+- **Pytest:** `policy-engine/tests/foundry/test_jit_stability.py`, `policy-engine/tests/foundry/test_health.py` (JIT‑стабильность PyTree, fidelity gap).
 - **Migrations:** `policy-engine/src/migrations/*` + CLI `policy-engine/migrate.py` (пока миграции частично заглушки).
 
 ---
@@ -328,7 +328,7 @@ As‑is уже частично совпадает с целями:
 
 - Нет канонического `ValidationIssue` и единого “self‑healing report” как артефакта.
 - Семантика механизмов (specs/ranges) сейчас зашита в `policy_ir/mechanism_spec.py`, т.е. IR знает про foundry‑семантику (см. Закон A).
-- Нет contract‑test набора для IR как отдельной библиотеки (часть есть в виде `check_ir_schema.py`, но это не тест‑гейт).
+- Есть базовый contract‑test набор для IR (`policy-engine/tests/contract/`), но генерация JSON Schema остаётся отдельным tool (`policy-engine/tools/diagnostics/generate_ir_schema.py`).
 
 #### `polisyos.fabric` — Unified Data Fabric
 
@@ -664,7 +664,7 @@ DoD:
 - **E2E:** pipeline run → `DecisionPacket`/`RunManifest` создан + причины pruning/reject логируются.
 - **Performance regression:** эталонные запросы/view‑операции не деградируют относительно baseline (relative gate).
 
-Примечание (as‑is): часть этого уже существует как `policy-engine/check_*.py` и `policy-engine/tests/*`; целевая форма — перенести/перепаковать их в системные тест‑гейты по слоям.
+Примечание: это уже перепаковано в `policy-engine/tests/*` (по слоям) и `policy-engine/tools/*` (ручные прогоны/диагностика).
 
 ## 10) Definition of Done (архитектура без самообмана)
 

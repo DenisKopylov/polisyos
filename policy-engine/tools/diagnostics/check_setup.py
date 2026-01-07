@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """
 Smoke test для проверки корректной установки всех компонентов Policy Engine.
-Запустите: python check_setup.py
+Запустите: python tools/diagnostics/check_setup.py
 """
 import sys
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parent
+REPO_ROOT = Path(__file__).resolve().parents[2]
 SRC_ROOT = REPO_ROOT / "src"
 if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))

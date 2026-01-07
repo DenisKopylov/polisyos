@@ -150,7 +150,7 @@ policy-engine/
 Запустите smoke test:
 
 ```bash
-python check_setup.py
+python tools/diagnostics/check_setup.py
 ```
 
 ## UDF Ingestion MVP Demo
@@ -158,7 +158,7 @@ python check_setup.py
 Минимальный прогон: raw → staging → curated → DuckDB/Kùzu → 1 panel + 1 network view.
 
 ```bash
-python check_udf_ingest.py
+python tools/demos/run_ingest_demo.py
 ```
 
 ## Качество кода

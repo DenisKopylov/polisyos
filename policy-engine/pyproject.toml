@@ -63,7 +63,10 @@ ignore = []
 [tool.ruff.lint.per-file-ignores]
 "notebooks/*" = ["T201"]
 "tests/*" = ["T201"]
+"tests/**" = ["T201"]
 "src/polisyos/common/*" = ["T201"]  # Разрешаем print в утилитах для отладки
+"tools/*" = ["T201"]
+"tools/**" = ["T201"]
 
 # 2. Настройка Mypy (Типизация)
 [tool.mypy]
@@ -76,6 +79,9 @@ plugins = ["pydantic.mypy"] # Плагин для корректной рабо�
 minversion = "6.0"
 addopts = "-ra -q --import-mode=prepend"
 testpaths = ["tests"]
+markers = [
+    "integration: slow or DB-backed workflow tests",
+]
 
 [dependency-groups]
 dev = [

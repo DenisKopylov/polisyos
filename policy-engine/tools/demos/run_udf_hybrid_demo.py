@@ -1,7 +1,7 @@
 import sys
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parent
+REPO_ROOT = Path(__file__).resolve().parents[2]
 SRC_ROOT = REPO_ROOT / "src"
 if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
@@ -15,7 +15,7 @@ from polisyos.fabric.io.graph_store import GraphStore
 from polisyos.fabric.udf.engine import UDFEngine
 from polisyos.fabric.udf.schema import AccessTier, DataViewRequest, DataViewType
 
-def test_udf_hybrid():
+def main():
     print("--- 1. Init Stores ---")
     if os.path.exists("test_udf.duckdb"): os.remove("test_udf.duckdb")
     if os.path.exists("test_udf.kuzu"):
@@ -71,4 +71,4 @@ def test_udf_hybrid():
     print("\n✅ Step 2 Complete: UDF supports both SQL and Graph queries!")
 
 if __name__ == "__main__":
-    test_udf_hybrid()
+    main()

@@ -4,6 +4,7 @@ import jax.numpy as jnp
 
 from polisyos.foundry.queue import QueueMechanism, QueueState, fidelity_gap_report, simulate_queue
 from polisyos.foundry.types import FidelityLevel
+from polisyos.foundry.utils import gradient_health_report
 
 
 def _tree_shapes(tree):
@@ -18,7 +19,15 @@ def _assert_stable_tree(a, b):
     assert _tree_shapes(a) == _tree_shapes(b)
 
 
-def test_queue_jit_step_stable():
+def test_gradient_health_clipping() -> None:
+    grads = jnp.array([10.0, 0.0, 0.0])
+    report, clipped = gradient_health_report(grads, clip_norm=1.0)
+    clipped_norm = float(jnp.linalg.norm(jnp.ravel(jnp.asarray(clipped))))
+    assert report.clipped
+    assert clipped_norm <= 1.0 + 1e-6
+
+
+def test_queue_jit_step_stable() -> None:
     state = QueueState(queue_length=jnp.array(10.0))
     mech = QueueMechanism(
         service_rate=4.0,
@@ -38,7 +47,7 @@ def test_queue_jit_step_stable():
     assert k1.shape == k2.shape
 
 
-def test_queue_fidelity_gap_small():
+def test_queue_fidelity_gap_small() -> None:
     key = jax.random.PRNGKey(0)
     state = QueueState(queue_length=jnp.array(5.0))
 

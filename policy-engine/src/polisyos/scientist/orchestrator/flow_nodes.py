@@ -24,6 +24,7 @@ from polisyos.ir.validation import build_validation_report, diff_payloads, Valid
 from polisyos.runtime import finalize_run, log_artifact, start_run, update_budget_usage
 from polisyos.fabric.udf.engine import UDFEngine
 from polisyos.fabric.io.db import SimulationDB
+from polisyos.fabric.io.graph_store import GraphStore
 
 DEFAULT_BUDGET = {
     "max_llm_calls": 3.0,
@@ -325,8 +326,11 @@ def compile_data_views_node(state: ExperimentState) -> ExperimentState:
         )
         return append_audit(state, "compile_data_views", "skipped", {})
 
-    db = SimulationDB("integration.duckdb")
-    udf = UDFEngine(db)
+    db_path = state.get("db_path") or "integration.duckdb"
+    graph_path = state.get("graph_path")
+    db = SimulationDB(db_path)
+    graph = GraphStore(str(graph_path)) if graph_path else None
+    udf = UDFEngine(db, graph) if graph is not None else UDFEngine(db)
     plans: List[Dict[str, Any]] = []
     try:
         for req_payload in requests_raw:
@@ -405,10 +409,14 @@ def run_sim_node(state: ExperimentState) -> ExperimentState:
         feedback: GovernorFeedback = {"verdict": "REJECT", "issues": [issue]}
         return append_audit({**state, "feedback": feedback}, "run_sim", "missing_ir", {})
 
-    db = SimulationDB("integration.duckdb")
-    udf = UDFEngine(db)
+    db_path = state.get("db_path") or "integration.duckdb"
+    graph_path = state.get("graph_path")
+    db = SimulationDB(db_path)
+    graph = GraphStore(str(graph_path)) if graph_path else None
+    udf = UDFEngine(db, graph) if graph is not None else UDFEngine(db)
     try:
-        world_state = load_initial_state(udf, "baseline_2023", step=0)
+        baseline_run_id = state.get("baseline_run_id") or "baseline_2023"
+        world_state = load_initial_state(udf, baseline_run_id, step=0)
     except Exception as exc:
         issue = _make_issue(["data"], str(exc), "data")
         feedback: GovernorFeedback = {"verdict": "REJECT", "issues": [issue]}

@@ -1,14 +1,23 @@
+import sys
+from pathlib import Path
+
+REPO_ROOT = Path(__file__).resolve().parent
+SRC_ROOT = REPO_ROOT / "src"
+if str(SRC_ROOT) not in sys.path:
+    sys.path.insert(0, str(SRC_ROOT))
+
 import jax_bootstrap  # noqa: F401
+from datetime import datetime
 import jax
 import jax.numpy as jnp
 
-from src.domain.state import GlobalState  # noqa: E402
-from src.orchestrator.compiler import compile_policy
-from src.policy_ir.contract import PolicyEntity, PolicyRequestIR
-from src.policy_ir.types import EntityType, TranslatableString
+from polisyos.foundry.domain.state import GlobalState  # noqa: E402
+from polisyos.scientist.orchestrator.compiler import compile_policy
+from polisyos.ir.contract import PolicyEntity, PolicyRequestIR
+from polisyos.ir.types import EntityType, TranslatableString
 
 # IMPORTS HACK
-from src.utils.logger import logger  # noqa: E402
+from polisyos.common.logger import logger  # noqa: E402
 
 
 def main():
@@ -18,6 +27,7 @@ def main():
     dummy_ir = PolicyRequestIR(
         project_name=TranslatableString(en="Test Reform", ua="Тест"),
         schema_version="1.0",
+        generated_at=datetime.utcnow().isoformat(),
         generator={"name": "policy-engine", "version": "0.1.0"},
         currency="USD",
         time_unit="year",
@@ -61,7 +71,7 @@ def main():
 
     logger.info("Running compiled policy...")
     # Запускаем!
-    next_state = policy_model(state, jax.random.PRNGKey(0))
+    next_state, _ = policy_model(state, jax.random.PRNGKey(0))
 
     # Проверка математики: 1000 + (1000 * 0.15) = 1150
     avg_income = jnp.mean(next_state.agents.income)

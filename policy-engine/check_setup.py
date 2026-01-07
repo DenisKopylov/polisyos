@@ -3,13 +3,21 @@
 Smoke test для проверки корректной установки всех компонентов Policy Engine.
 Запустите: python check_setup.py
 """
+import sys
+from pathlib import Path
+
+REPO_ROOT = Path(__file__).resolve().parent
+SRC_ROOT = REPO_ROOT / "src"
+if str(SRC_ROOT) not in sys.path:
+    sys.path.insert(0, str(SRC_ROOT))
+
 
 import os  # noqa: I001
 
 # --- CRITICAL SETUP ORDER ---
 # Мы специально нарушаем порядок импортов (E402, I001),
 # чтобы применить настройки среды (.env) ДО загрузки тяжелых библиотек.
-from src.utils import config  # noqa: E402
+from polisyos.common import config  # noqa: E402
 
 # Теперь безопасные импорты
 import duckdb  # noqa: E402

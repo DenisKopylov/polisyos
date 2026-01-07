@@ -1,13 +1,18 @@
-# check_udf_ingest.py
+import sys
 from pathlib import Path
+
+REPO_ROOT = Path(__file__).resolve().parent
+SRC_ROOT = REPO_ROOT / "src"
+if str(SRC_ROOT) not in sys.path:
+    sys.path.insert(0, str(SRC_ROOT))
 
 import pandas as pd
 
-from src.fabric.ingestion import run_ingestion
-from src.io.db import SimulationDB
-from src.io.graph_store import GraphStore
-from src.udf.engine import UDFEngine
-from src.udf.schema import DataViewRequest
+from polisyos.fabric.ingestion import run_ingestion
+from polisyos.fabric.io.db import SimulationDB
+from polisyos.fabric.io.graph_store import GraphStore
+from polisyos.ir.data_views import AccessTier, DataViewRequest
+from polisyos.fabric.udf.engine import UDFEngine
 
 
 def write_raw_demo(raw_dir: Path) -> None:
@@ -110,6 +115,7 @@ def main() -> None:
         metrics=["gdp", "unemployment_rate"],
         step_start=0,
         step_end=1,
+        access_tier=AccessTier.PUBLIC,
     )
     panel_df = udf.query(panel_req)
     print("Panel View:\n", panel_df)
@@ -118,9 +124,10 @@ def main() -> None:
         request_id="network_demo",
         run_id="demo_run",
         view_type="network",
-        metrics=["amount", "type"],
+        metrics=["neighbor_id", "amount", "type"],
         ego_node_id="agent_1",
         hop_depth=1,
+        access_tier=AccessTier.INTERNAL,
     )
     network_df = udf.query(network_req)
     print("\nNetwork View:\n", network_df)

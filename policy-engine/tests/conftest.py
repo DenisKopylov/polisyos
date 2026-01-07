@@ -5,10 +5,11 @@ from pathlib import Path
 import pytest
 from loguru import logger
 
-# Ensure `policy-engine/` is on sys.path so imports like `import src...` work under pytest.
+# Ensure `policy-engine/src` is on sys.path so imports like `import polisyos...` work under pytest.
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-if str(PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(PROJECT_ROOT))
+SRC_ROOT = PROJECT_ROOT / "src"
+if str(SRC_ROOT) not in sys.path:
+    sys.path.insert(0, str(SRC_ROOT))
 
 # --- FORCE SETTINGS FOR TESTS ---
 # Эти настройки должны сработать до любых других импортов в тестах

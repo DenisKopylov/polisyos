@@ -1,16 +1,24 @@
+import sys
+from pathlib import Path
+
+REPO_ROOT = Path(__file__).resolve().parent
+SRC_ROOT = REPO_ROOT / "src"
+if str(SRC_ROOT) not in sys.path:
+    sys.path.insert(0, str(SRC_ROOT))
+
 # check_step3.py
 import jax_bootstrap  # noqa: F401
 import jax
 import jax.numpy as jnp
 import equinox as eqx
 
-from src.domain.state import GlobalState, AgentState
-from src.foundry.fiscal import TaxSubsidy
-from src.foundry.types import FidelityLevel
+from polisyos.foundry.domain.state import GlobalState, AgentState
+from polisyos.foundry.fiscal import TaxSubsidy
+from polisyos.foundry.types import FidelityLevel
 
 def create_dummy_state(n=10):
     # Создаем упрощенное состояние для тестирования
-    from src.domain.state import FirmState, MarketState
+    from polisyos.foundry.domain.state import FirmState, MarketState
 
     agents = AgentState(
         age=jnp.ones(n, dtype=jnp.int32)*30,
@@ -65,7 +73,7 @@ def test_differentiability():
     def loss_fn(mech):
         # mech - это объект TaxSubsidy (PyTree)
         # Мы запускаем симуляцию на 1 шаг
-        next_state = mech(state, key)
+        next_state, _ = mech(state, key)
         return -jnp.mean(next_state.agents.income)
 
     # Создаем механизм с ставкой 0.1 (10% субсидия)
@@ -90,7 +98,7 @@ def test_differentiability():
     print("✅ Gradients are flowing correctly!")
 
     # 2. Проверка инвариантов
-    next_state = mech(state, key)
+    next_state, _ = mech(state, key)
     is_valid = mech.invariants(next_state)
     print(f"Invariant Check: {is_valid}")
     assert is_valid, "Invariant check failed"

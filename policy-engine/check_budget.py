@@ -1,12 +1,20 @@
+import sys
+from pathlib import Path
+
+REPO_ROOT = Path(__file__).resolve().parent
+SRC_ROOT = REPO_ROOT / "src"
+if str(SRC_ROOT) not in sys.path:
+    sys.path.insert(0, str(SRC_ROOT))
+
 import jax_bootstrap  # noqa: F401
 import jax
 import jax.numpy as jnp
 
-from src.domain.state import GlobalState  # noqa: E402
-from src.foundry.fiscal import IncomeTax, TaxSubsidy  # noqa: E402
+from polisyos.foundry.domain.state import GlobalState  # noqa: E402
+from polisyos.foundry.fiscal import IncomeTax, TaxSubsidy  # noqa: E402
 
 # IMPORTS HACK
-from src.utils.logger import logger  # noqa: E402
+from polisyos.common.logger import logger  # noqa: E402
 
 
 def main():
@@ -24,7 +32,7 @@ def main():
 
     # 2. Apply Tax (10%)
     tax_mech = IncomeTax(n_agents=N, rate=0.10)
-    state = tax_mech(state, jax.random.PRNGKey(0))
+    state, _ = tax_mech(state, jax.random.PRNGKey(0))
 
     # Ожидание:
     # Доход агентов: 1000 - 100 = 900
@@ -35,7 +43,7 @@ def main():
     # 3. Apply Subsidy (50% от текущего дохода)
     # Текущий доход 900. Субсидия 450.
     sub_mech = TaxSubsidy(n_agents=N, rate=0.50)
-    state = sub_mech(state, jax.random.PRNGKey(0))
+    state, _ = sub_mech(state, jax.random.PRNGKey(0))
 
     # Ожидание:
     # Расход: 450 * 10 = 4500

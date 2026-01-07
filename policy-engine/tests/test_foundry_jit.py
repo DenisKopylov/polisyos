@@ -2,8 +2,8 @@ import equinox as eqx
 import jax
 import jax.numpy as jnp
 
-from src.domain.state import GlobalState
-from src.foundry.fiscal import IncomeTax, TaxSubsidy
+from polisyos.foundry.domain.state import GlobalState
+from polisyos.foundry.fiscal import IncomeTax, TaxSubsidy
 
 
 def _tree_shapes(tree):
@@ -29,11 +29,12 @@ def test_tax_subsidy_jit_step_stable():
     def step(mech, state, key):
         return mech.step(state, key)
 
-    s1 = step(mech, state, jax.random.PRNGKey(0))
-    s2 = step(mech, s1, jax.random.PRNGKey(1))
+    s1, k1 = step(mech, state, jax.random.PRNGKey(0))
+    s2, k2 = step(mech, s1, jax.random.PRNGKey(1))
 
     _assert_stable_tree(state, s1)
     _assert_stable_tree(s1, s2)
+    assert k1.shape == k2.shape
 
 
 def test_income_tax_jit_step_stable():
@@ -47,8 +48,9 @@ def test_income_tax_jit_step_stable():
     def step(mech, state, key):
         return mech.step(state, key)
 
-    s1 = step(mech, state, jax.random.PRNGKey(0))
-    s2 = step(mech, s1, jax.random.PRNGKey(1))
+    s1, k1 = step(mech, state, jax.random.PRNGKey(0))
+    s2, k2 = step(mech, s1, jax.random.PRNGKey(1))
 
     _assert_stable_tree(state, s1)
     _assert_stable_tree(s1, s2)
+    assert k1.shape == k2.shape

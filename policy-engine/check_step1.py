@@ -1,7 +1,17 @@
+import sys
+from pathlib import Path
+
+REPO_ROOT = Path(__file__).resolve().parent
+SRC_ROOT = REPO_ROOT / "src"
+if str(SRC_ROOT) not in sys.path:
+    sys.path.insert(0, str(SRC_ROOT))
+
 # check_step1.py
+from datetime import datetime
+
 from pydantic import ValidationError
-from src.policy_ir.contract import PolicyRequestIR, PolicyEntity, Intervention, TargetSelector, SelectorPredicate
-from src.policy_ir.types import TranslatableString, EntityType, SelectorOperator
+from polisyos.ir.contract import PolicyRequestIR, PolicyEntity, Intervention, TargetSelector, SelectorPredicate
+from polisyos.ir.types import TranslatableString, EntityType, SelectorOperator
 
 def test_valid_ir():
     print("--- Test Valid IR ---")
@@ -9,6 +19,7 @@ def test_valid_ir():
         ir = PolicyRequestIR(
             project_name=TranslatableString(en="Test Project", ua="Тест"),
             schema_version="1.0",
+            generated_at=datetime.utcnow().isoformat(),
             generator={"name": "policy-engine", "version": "0.1.0"},
             currency="USD",
             time_unit="year",
@@ -54,6 +65,7 @@ def test_cycle_ir():
         PolicyRequestIR(
             project_name=TranslatableString(en="Bad Project", ua="Тест"),
             schema_version="1.0",
+            generated_at=datetime.utcnow().isoformat(),
             generator={"name": "policy-engine", "version": "0.1.0"},
             currency="USD",
             time_unit="year",

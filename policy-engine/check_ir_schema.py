@@ -1,10 +1,19 @@
+import sys
+from pathlib import Path
+
+REPO_ROOT = Path(__file__).resolve().parent
+SRC_ROOT = REPO_ROOT / "src"
+if str(SRC_ROOT) not in sys.path:
+    sys.path.insert(0, str(SRC_ROOT))
+
 import json
 
 from loguru import logger
 from pydantic import ValidationError
 
-from src.policy_ir.contract import Intervention, PolicyRequestIR
-from src.policy_ir.types import TranslatableString
+from polisyos.ir.contract import Intervention, PolicyRequestIR
+from polisyos.ir.types import TranslatableString
+from polisyos.ir.validation import build_validation_report
 
 # IMPORTS HACK
 
@@ -27,22 +36,22 @@ def main():
 
     try:
         # Пытаемся создать "сломанную" интервенцию
-        # tax_subsidy без rate - это должно упасть
+        # target_selector без условий - это должно упасть
         bad_intervention = Intervention(
             id="bad_tax_cut",
             name=TranslatableString(en="Bad Cut", ua="Погана знижка"),
-            target_selector={"all_of": [{"field": "id", "operator": "==", "value": "all"}]},
+            target_selector={"all_of": []},
             mechanism_type="tax_subsidy",
-            parameters={"amount": 1000},  # ОШИБКА: нужен rate, а не amount
+            parameters={"amount": 1000},
         )
     except ValidationError as e:
         logger.info("✅ Caught expected validation error:")
-        # Выводим ошибку так, как ее увидит LLM
-        error_json = e.json(include_url=False)
-        print(f"\n{error_json}\n")
+        # Выводим ошибку так, как ее увидит LLM (self-healing report)
+        report = build_validation_report(e)
+        print(f"\n{report.model_dump_json(indent=2)}\n")
 
         # Проверяем, что сообщение понятное
-        if "requires parameter 'rate'" in str(e) or "requires 'rate' parameter" in str(e):
+        if "TargetSelector must define at least one of all_of/any_of/not" in str(e):
             logger.info("✅ Error message is descriptive (LLM can fix this).")
         else:
             logger.error("❌ Error message is too vague!")
@@ -53,6 +62,7 @@ def main():
         valid_ir = PolicyRequestIR(
             project_name=TranslatableString(en="SME Support", ua="Підтримка МСБ"),
             schema_version="1.0",
+            generated_at="2024-01-01T00:00:00",
             generator={"name": "policy-engine", "version": "0.1.0"},
             currency="USD",
             time_unit="year",

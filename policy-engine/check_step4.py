@@ -1,16 +1,25 @@
+import sys
+from pathlib import Path
+
+REPO_ROOT = Path(__file__).resolve().parent
+SRC_ROOT = REPO_ROOT / "src"
+if str(SRC_ROOT) not in sys.path:
+    sys.path.insert(0, str(SRC_ROOT))
+
 # check_step4.py
 import jax_bootstrap  # noqa: F401
 import os
+from datetime import datetime
 
 import pandas as pd
 
-from src.io.db import SimulationDB
-from src.policy_ir.contract import (
+from polisyos.fabric.io.db import SimulationDB
+from polisyos.ir.contract import (
     PolicyRequestIR, PolicyEntity, Intervention, TargetSelector, SelectorPredicate,
     SimulationParameters
 )
-from src.policy_ir.types import TranslatableString, EntityType, SelectorOperator
-from src.orchestrator.workflow import build_workflow
+from polisyos.ir.types import TranslatableString, EntityType, SelectorOperator
+from polisyos.scientist.orchestrator.workflow import build_workflow
 
 
 def setup_baseline_data() -> None:
@@ -36,6 +45,7 @@ def create_test_ir(rate: float):
     return PolicyRequestIR(
         project_name=TranslatableString(en="Test Run", ua="Тест"),
         schema_version="1.0",
+        generated_at=datetime.utcnow().isoformat(),
         generator={"name": "policy-engine", "version": "0.1.0"},
         currency="USD",
         time_unit="year",

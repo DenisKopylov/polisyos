@@ -1,15 +1,23 @@
+import sys
+from pathlib import Path
+
+REPO_ROOT = Path(__file__).resolve().parent
+SRC_ROOT = REPO_ROOT / "src"
+if str(SRC_ROOT) not in sys.path:
+    sys.path.insert(0, str(SRC_ROOT))
+
 import jax_bootstrap  # noqa: F401
 import jax
 import jax.numpy as jnp
 
-from src.domain.state import GlobalState
-from src.engine.kernel import SimulationKernel
-from src.utils.logger import logger
+from polisyos.foundry.domain.state import GlobalState
+from polisyos.foundry.engine.kernel import SimulationKernel
+from polisyos.common.logger import logger
 
 
 def test_cobb_douglas():
     """Тест функции Кобба-Дугласа"""
-    from src.engine.logic import cobb_douglas_production
+    from polisyos.foundry.engine.logic import cobb_douglas_production
 
     logger.info("🧮 Testing Cobb-Douglas Production Function...")
 

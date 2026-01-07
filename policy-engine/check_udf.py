@@ -1,8 +1,16 @@
+import sys
+from pathlib import Path
+
+REPO_ROOT = Path(__file__).resolve().parent
+SRC_ROOT = REPO_ROOT / "src"
+if str(SRC_ROOT) not in sys.path:
+    sys.path.insert(0, str(SRC_ROOT))
+
 # check_udf.py
-from src.io.db import SimulationDB  # noqa: E402
-from src.udf.engine import UDFEngine  # noqa: E402
-from src.udf.schema import DataFilter, DataViewRequest  # noqa: E402
-from src.utils.logger import logger  # noqa: E402
+from polisyos.fabric.io.db import SimulationDB  # noqa: E402
+from polisyos.ir.data_views import AccessTier, DataFilter, DataViewRequest  # noqa: E402
+from polisyos.fabric.udf.engine import UDFEngine  # noqa: E402
+from polisyos.common.logger import logger  # noqa: E402
 
 
 def main():
@@ -20,6 +28,7 @@ def main():
         metrics=["gdp", "unemployment_rate"],
         step_start=1,
         step_end=5,
+        access_tier=AccessTier.PUBLIC,
     )
 
     logger.info("--- TEST 1: Macro Panel ---")
@@ -40,6 +49,7 @@ def main():
         aggregation="mean",
         step_end=6,
         filters=[DataFilter(column="is_employed", op="==", value=False)],
+        access_tier=AccessTier.INTERNAL,
     )
 
     logger.info("\n--- TEST 2: Unemployment Analysis (Snapshot) ---")

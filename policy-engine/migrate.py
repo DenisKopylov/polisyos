@@ -1,6 +1,13 @@
+import sys
+from pathlib import Path
+
+REPO_ROOT = Path(__file__).resolve().parent
+SRC_ROOT = REPO_ROOT / "src"
+if str(SRC_ROOT) not in sys.path:
+    sys.path.insert(0, str(SRC_ROOT))
+
 import argparse
 import json
-from pathlib import Path
 from typing import Tuple
 
 try:
@@ -8,7 +15,7 @@ try:
 except Exception:
     yaml = None
 
-from src.migrations import MANIFEST_CURRENT_VERSION, POLICY_IR_CURRENT_VERSION, migrate_artifact
+from polisyos.common.migrations import MANIFEST_CURRENT_VERSION, POLICY_IR_CURRENT_VERSION, migrate_artifact
 
 
 def _load(path: Path) -> Tuple[dict, str]:

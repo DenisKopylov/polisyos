@@ -1,11 +1,19 @@
+import sys
+from pathlib import Path
+
+REPO_ROOT = Path(__file__).resolve().parent
+SRC_ROOT = REPO_ROOT / "src"
+if str(SRC_ROOT) not in sys.path:
+    sys.path.insert(0, str(SRC_ROOT))
+
 # check_domain.py
 # Хак импортов для конфига (как мы делали раньше)
 import jax_bootstrap  # noqa: F401
 import jax  # noqa: E402
 import jax.numpy as jnp  # noqa: E402
 
-from src.domain.state import GlobalState  # noqa: E402
-from src.utils.logger import logger  # noqa: E402
+from polisyos.foundry.domain.state import GlobalState  # noqa: E402
+from polisyos.common.logger import logger  # noqa: E402
 
 
 def main():

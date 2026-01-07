@@ -1,20 +1,28 @@
+import sys
+from pathlib import Path
+
+REPO_ROOT = Path(__file__).resolve().parent
+SRC_ROOT = REPO_ROOT / "src"
+if str(SRC_ROOT) not in sys.path:
+    sys.path.insert(0, str(SRC_ROOT))
+
 import uuid
 
 import jax_bootstrap  # noqa: F401
 import jax
 import jax.numpy as jnp
 
-from src.agent.base import MockAgent
-from src.domain.state import GlobalState
-from src.engine.kernel import SimulationKernel
-from src.io.db import SimulationDB
-from src.orchestrator.run_record import build_run_record, save_run_record_json
-from src.orchestrator.compiler import compile_policy
-from src.udf.engine import UDFEngine
-from src.udf.schema import DataViewRequest
+from polisyos.scientist.agent.base import MockAgent
+from polisyos.foundry.domain.state import GlobalState
+from polisyos.foundry.engine.kernel import SimulationKernel
+from polisyos.fabric.io.db import SimulationDB
+from polisyos.scientist.orchestrator.run_record import build_run_record, save_run_record_json
+from polisyos.scientist.orchestrator.compiler import compile_policy
+from polisyos.ir.data_views import AccessTier, DataViewRequest
+from polisyos.fabric.udf.engine import UDFEngine
 
 # IMPORTS
-from src.utils.logger import logger
+from polisyos.common.logger import logger
 
 
 def main():
@@ -83,6 +91,7 @@ def main():
             view_type="panel",
             metrics=["unemployment_rate", "gdp", "inflation_rate", "avg_price"],
             step_start=max(0, t - 3),  # Смотрим на 3 шага назад
+            access_tier=AccessTier.PUBLIC,
         )
         context_df = udf.query(req)
         logger.info(f"📊 Context loaded:\n{context_df.tail(1)}")
@@ -100,7 +109,7 @@ def main():
         step_key, key = jax.random.split(key)
 
         # Сначала применяем политику агента
-        state = policy_model(state, step_key)
+        state, _ = policy_model(state, step_key)
 
         # Затем запускаем полный экономический цикл (производство + рынки)
         step_key2, key = jax.random.split(key)

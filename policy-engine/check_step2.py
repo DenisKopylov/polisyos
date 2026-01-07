@@ -1,11 +1,19 @@
+import sys
+from pathlib import Path
+
+REPO_ROOT = Path(__file__).resolve().parent
+SRC_ROOT = REPO_ROOT / "src"
+if str(SRC_ROOT) not in sys.path:
+    sys.path.insert(0, str(SRC_ROOT))
+
 # check_step2.py
 import pandas as pd
 import shutil
 import os
-from src.io.db import SimulationDB
-from src.io.graph_store import GraphStore
-from src.udf.engine import UDFEngine
-from src.udf.schema import DataViewRequest, DataViewType, DataFilter
+from polisyos.fabric.io.db import SimulationDB
+from polisyos.fabric.io.graph_store import GraphStore
+from polisyos.fabric.udf.engine import UDFEngine
+from polisyos.fabric.udf.schema import AccessTier, DataViewRequest, DataViewType
 
 def test_udf_hybrid():
     print("--- 1. Init Stores ---")
@@ -37,7 +45,8 @@ def test_udf_hybrid():
     print("--- 3. Test Relational Query (Panel) ---")
     req_panel = DataViewRequest(
         request_id="req1", run_id="run_1", view_type=DataViewType.PANEL,
-        metrics=["gdp", "inflation_rate"]
+        metrics=["gdp", "inflation_rate"],
+        access_tier=AccessTier.PUBLIC,
     )
     df_panel = engine.query(req_panel)
     print("DuckDB Result:")
@@ -47,9 +56,10 @@ def test_udf_hybrid():
     print("\n--- 4. Test Graph Query (Network) ---")
     req_network = DataViewRequest(
         request_id="req2", run_id="run_1", view_type=DataViewType.NETWORK,
-        metrics=["amount"],
+        metrics=["neighbor_id", "amount"],
         ego_node_id="firm_a", # Ищем связи Firm A
-        hop_depth=2           # Должен найти Worker X через Budget
+        hop_depth=2,          # Должен найти Worker X через Budget
+        access_tier=AccessTier.INTERNAL,
     )
     df_net = engine.query(req_network)
     print("KùzuDB Result (Neighbors of firm_a):")

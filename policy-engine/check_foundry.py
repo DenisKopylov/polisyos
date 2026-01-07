@@ -1,3 +1,11 @@
+import sys
+from pathlib import Path
+
+REPO_ROOT = Path(__file__).resolve().parent
+SRC_ROOT = REPO_ROOT / "src"
+if str(SRC_ROOT) not in sys.path:
+    sys.path.insert(0, str(SRC_ROOT))
+
 # check_foundry.py
 import jax_bootstrap  # noqa: F401
 import equinox as eqx
@@ -5,8 +13,8 @@ import jax
 import jax.numpy as jnp
 from loguru import logger
 
-from src.domain.state import GlobalState
-from src.foundry.fiscal import TaxSubsidy  # noqa: E402
+from polisyos.foundry.domain.state import GlobalState
+from polisyos.foundry.fiscal import TaxSubsidy  # noqa: E402
 
 # IMPORTS HACK
 
@@ -35,7 +43,7 @@ def main():
     def loss_function(policy_model, current_state):
         # Применяем политику (Шаг симуляции)
         # key нам тут не важен, так как детерминированная логика
-        next_state = policy_model(current_state, jax.random.PRNGKey(0))
+        next_state, _ = policy_model(current_state, jax.random.PRNGKey(0))
         new_income = next_state.agents.income
 
         # Считаем GDP

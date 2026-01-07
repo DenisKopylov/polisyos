@@ -1,3 +1,11 @@
+import sys
+from pathlib import Path
+
+REPO_ROOT = Path(__file__).resolve().parent
+SRC_ROOT = REPO_ROOT / "src"
+if str(SRC_ROOT) not in sys.path:
+    sys.path.insert(0, str(SRC_ROOT))
+
 # check_step5.py
 import os
 
@@ -5,8 +13,8 @@ import jax_bootstrap  # noqa: F401
 import jax
 import pandas as pd
 
-from src.io.db import SimulationDB
-from src.orchestrator.workflow import build_workflow
+from polisyos.fabric.io.db import SimulationDB
+from polisyos.scientist.orchestrator.workflow import build_workflow
 
 
 def setup_baseline_data():

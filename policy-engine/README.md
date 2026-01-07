@@ -64,7 +64,7 @@ pip install jax-metal
 # или uv add jax-metal
 ```
 
-По умолчанию на macOS проект форсирует `cpu` (через `src/__init__.py`), потому что
+По умолчанию на macOS проект форсирует `cpu` (через `jax_bootstrap.py`, импортируй его до `jax`), потому что
 `METAL` в некоторых версиях JAX падает даже на `jnp.zeros(...)` с ошибкой
 `UNIMPLEMENTED: default_memory_space is not supported.`  
 Если хочешь попробовать Metal, задай перед запуском:
@@ -127,12 +127,21 @@ policy-engine/
 │   ├── raw/
 │   └── curated/
 ├── notebooks/            # Jupyter ноутбуки для тестов и EDA
-├── src/                  # Весь исходный код
-│   ├── fabric/           # Unified Data Fabric (DB adapters, Ingestion)
-│   ├── foundry/          # JAX Simulation Core (Diffrax, Mechanisms)
-│   ├── policy_ir/        # Pydantic Schemas (Contracts)
-│   ├── orchestrator/     # LangGraph workflows
-│   └── utils/            # Logging, tracing
+├── src/                  # Весь исходный код (polisyos namespace)
+│   └── polisyos/
+│       ├── ir/           # Pydantic Schemas (Contracts)
+│       ├── fabric/       # Unified Data Fabric (DB adapters, Ingestion)
+│       │   ├── io/
+│       │   └── udf/
+│       ├── foundry/      # JAX Simulation Core (Diffrax, Mechanisms)
+│       │   ├── domain/
+│       │   └── engine/
+│       ├── scientist/    # Orchestration + agent workflows
+│       │   ├── agent/
+│       │   └── orchestrator/
+│       ├── runtime/      # Run artifacts, audit, tracing
+│       └── common/       # Shared utilities
+├── examples/             # Demo/legacy snippets
 └── tests/                # Pytest тесты
 ```
 

@@ -63,7 +63,7 @@ ignore = []
 [tool.ruff.lint.per-file-ignores]
 "notebooks/*" = ["T201"]
 "tests/*" = ["T201"]
-"src/utils/*" = ["T201"]  # Разрешаем print в утилитах для отладки
+"src/polisyos/common/*" = ["T201"]  # Разрешаем print в утилитах для отладки
 
 # 2. Настройка Mypy (Типизация)
 [tool.mypy]

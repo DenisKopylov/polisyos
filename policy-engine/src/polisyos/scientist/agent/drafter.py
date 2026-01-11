@@ -1,10 +1,10 @@
 # polisyos/agent/drafter.py
 import json
 
+from polisyos.ir.surface import PolicySurfaceIR
 from polisyos.scientist.agent.prompts import get_system_prompt
 from polisyos.scientist.orchestrator.audit import append_audit
 from polisyos.scientist.orchestrator.state import ExperimentState
-from polisyos.ir.surface import PolicySurfaceIR
 
 
 # --- Fake LLM for Testing (чтобы не требовать API Key) ---
@@ -82,7 +82,9 @@ def drafter_node(state: ExperimentState) -> ExperimentState:
     if not user_request:
         if state.get("ir") is not None:
             print("   [Drafter] Skipping: IR already provided.")
-            return append_audit(state, "drafter", "skip_existing_ir", {"reason": "missing_user_request"})
+            return append_audit(
+                state, "drafter", "skip_existing_ir", {"reason": "missing_user_request"}
+            )
         state = {**state, "last_error": "Missing required field: user_request", "ir": None}
         return append_audit(state, "drafter", "invalid_input", {"reason": "missing_user_request"})
 

@@ -17,7 +17,12 @@ from polisyos.ir.kernel.numbers import DecimalValue, NonNegativeDecimal
 from polisyos.ir.kernel.time_semantics import TimeSemantics
 from polisyos.ir.kernel.units import MoneyUnit, RateUnit, UnitsRegistry
 from polisyos.ir.kernel.values import CountValue, DurationValue, MoneyValue, RateValue
-from polisyos.ir.types import EntityType, OptimizationDirection, SelectorOperator, TranslatableString
+from polisyos.ir.types import (
+    EntityType,
+    OptimizationDirection,
+    SelectorOperator,
+    TranslatableString,
+)
 
 MAX_SELECTOR_DEPTH = 6
 MAX_SELECTOR_NODES = 200
@@ -249,9 +254,7 @@ def schedule_range(schedule: ScheduleSpec) -> tuple[int, int]:
 
 def _schedule_payload(schedule: ScheduleSpec) -> dict[str, int]:
     start, end = schedule_range(schedule)
-    duration = (
-        schedule.duration_steps if schedule.duration_steps is not None else end - start + 1
-    )
+    duration = schedule.duration_steps if schedule.duration_steps is not None else end - start + 1
     return {
         "start_step": start,
         "end_step": end,
@@ -285,9 +288,15 @@ def _canonicalize_selector_expr(node: SelectorExpr) -> dict[str, Any]:
     if isinstance(node, SelectorNot):
         return {"kind": node.kind, "clause": _canonicalize_selector_expr(node.clause)}
     if isinstance(node, SelectorAll):
-        return {"kind": node.kind, "clauses": [_canonicalize_selector_expr(c) for c in node.clauses]}
+        return {
+            "kind": node.kind,
+            "clauses": [_canonicalize_selector_expr(c) for c in node.clauses],
+        }
     if isinstance(node, SelectorAny):
-        return {"kind": node.kind, "clauses": [_canonicalize_selector_expr(c) for c in node.clauses]}
+        return {
+            "kind": node.kind,
+            "clauses": [_canonicalize_selector_expr(c) for c in node.clauses],
+        }
     return node.model_dump()
 
 

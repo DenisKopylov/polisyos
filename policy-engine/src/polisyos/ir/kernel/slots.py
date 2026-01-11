@@ -4,7 +4,7 @@ from enum import Enum
 
 from pydantic import Field, model_validator
 
-from .base import KernelModel, SLOT_ID_PATTERN
+from .base import SLOT_ID_PATTERN, KernelModel
 from .merge_rules import MergeRuleRef
 from .units import UnitRef
 

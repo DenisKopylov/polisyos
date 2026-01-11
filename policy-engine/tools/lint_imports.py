@@ -106,7 +106,9 @@ class ImportCollector(ast.NodeVisitor):
 
 
 def layer_for_module(module: str) -> str | None:
-    for prefix, layer in sorted(LAYER_BY_PREFIX.items(), key=lambda item: len(item[0]), reverse=True):
+    for prefix, layer in sorted(
+        LAYER_BY_PREFIX.items(), key=lambda item: len(item[0]), reverse=True
+    ):
         if module == prefix or module.startswith(f"{prefix}."):
             return layer
     return None
@@ -221,7 +223,9 @@ def format_path(root: Path, path: Path) -> str:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Check internal import boundaries and report cycles.")
+    parser = argparse.ArgumentParser(
+        description="Check internal import boundaries and report cycles."
+    )
     parser.add_argument("--src-root", type=Path, default=Path("src"), help="Source root")
     parser.add_argument("--top", type=int, default=10, help="Show top N god files")
     parser.add_argument("--fail-on-cycles", action="store_true", help="Fail on import cycles")
@@ -274,9 +278,7 @@ def main() -> int:
             src_layer = layer_for_module(ref.source_module)
             dst_layer = layer_for_module(ref.target_module)
             file_path = format_path(repo_root, ref.source_file)
-            print(
-                f"- {file_path}:{ref.lineno} {src_layer} -> {dst_layer} via {ref.target_module}"
-            )
+            print(f"- {file_path}:{ref.lineno} {src_layer} -> {dst_layer} via {ref.target_module}")
         print("")
     else:
         print("Forbidden edges (runtime): none")
@@ -288,9 +290,7 @@ def main() -> int:
             src_layer = layer_for_module(ref.source_module)
             dst_layer = layer_for_module(ref.target_module)
             file_path = format_path(repo_root, ref.source_file)
-            print(
-                f"- {file_path}:{ref.lineno} {src_layer} -> {dst_layer} via {ref.target_module}"
-            )
+            print(f"- {file_path}:{ref.lineno} {src_layer} -> {dst_layer} via {ref.target_module}")
         print("")
     else:
         print("Forbidden edges (TYPE_CHECKING): none")

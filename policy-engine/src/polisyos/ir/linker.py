@@ -23,12 +23,12 @@ from polisyos.ir.kernel.values import CountValue, DurationValue, MoneyValue, Rat
 from polisyos.ir.surface import (
     InterventionSpec,
     PolicySurfaceIR,
+    ScheduleSpec,
     SelectorAll,
     SelectorAny,
     SelectorExpr,
     SelectorNot,
     SelectorPredicate,
-    ScheduleSpec,
     schedule_range,
 )
 
@@ -566,6 +566,8 @@ def _validate_constraint_units(
                         path=["semantic", "constraints", idx, "value"],
                     )
                 )
+
+
 def _validate_objectives(
     policy: PolicySurfaceIR,
     metric_registry: MetricRegistry,
@@ -579,7 +581,7 @@ def _validate_objectives(
                     message=f"Unknown metric '{objective.metric_id}'",
                     path=["semantic", "objectives", idx, "metric_id"],
                 )
-                )
+            )
 
 
 def _validate_metric_units(
@@ -600,6 +602,8 @@ def _validate_metric_units(
                     path=["semantic", "objectives", idx, "metric_id"],
                 )
             )
+
+
 def _schedule_overlaps(left: ScheduleSpec, right: ScheduleSpec) -> bool:
     left_start, left_end = schedule_range(left)
     right_start, right_end = schedule_range(right)

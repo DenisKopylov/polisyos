@@ -3,14 +3,13 @@ from __future__ import annotations
 from decimal import Decimal
 
 import pytest
-from pydantic import ValidationError
-
 from polisyos.ir.kernel.merge_rules import MergeRuleKind, MergeRuleRegistry, MergeRuleSpec
 from polisyos.ir.kernel.slots import SlotKind, SlotRegistry, SlotScope, SlotSpec, SlotValueType
 from polisyos.ir.kernel.time_semantics import TimeSemantics
 from polisyos.ir.kernel.units import MoneyUnit, UnitRef, UnitsRegistry
 from polisyos.ir.kernel.values import MoneyValue, RateValue
 from polisyos.ir.types import TimeFrequency
+from pydantic import ValidationError
 
 
 def test_units_registry_rejects_invalid_id() -> None:
@@ -20,9 +19,7 @@ def test_units_registry_rejects_invalid_id() -> None:
 
 def test_merge_rule_registry_requires_matching_ids() -> None:
     with pytest.raises(ValidationError):
-        MergeRuleRegistry(
-            rules={"sum": MergeRuleSpec(rule_id="override", kind=MergeRuleKind.SUM)}
-        )
+        MergeRuleRegistry(rules={"sum": MergeRuleSpec(rule_id="override", kind=MergeRuleKind.SUM)})
 
 
 def test_slot_registry_requires_matching_ids() -> None:

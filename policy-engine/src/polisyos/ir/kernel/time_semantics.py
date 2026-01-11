@@ -5,8 +5,8 @@ from datetime import date
 
 from pydantic import Field, model_validator
 
-from .base import KernelModel
 from ..types import TimeFrequency
+from .base import KernelModel
 
 
 def _parse_date(value: str) -> date:

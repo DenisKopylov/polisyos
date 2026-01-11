@@ -9,15 +9,15 @@ from polisyos.core.artifacts.registry import RegistryBundle, RegistryBundlePaylo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.ir.kernel import (
     DEFAULT_CONSTRAINT_REGISTRY,
-    DEFAULT_METRIC_REGISTRY,
     DEFAULT_MECHANISM_REGISTRY,
     DEFAULT_MERGE_RULE_REGISTRY,
+    DEFAULT_METRIC_REGISTRY,
     DEFAULT_SELECTOR_FIELD_REGISTRY,
     DEFAULT_SLOT_REGISTRY,
     DEFAULT_UNITS_REGISTRY,
     MechanismTypeRegistry,
-    MetricRegistry,
     MergeRuleRegistry,
+    MetricRegistry,
     SelectorFieldRegistry,
     SlotRegistry,
     UnitsRegistry,

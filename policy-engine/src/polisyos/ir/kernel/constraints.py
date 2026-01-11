@@ -1,9 +1,10 @@
 from __future__ import annotations
 
-from pydantic import Field, model_validator
 from typing import Literal
 
-from .base import ID_PATTERN, KernelModel, SLOT_ID_PATTERN
+from pydantic import Field, model_validator
+
+from .base import ID_PATTERN, SLOT_ID_PATTERN, KernelModel
 
 
 class ConstraintSpec(KernelModel):

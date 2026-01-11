@@ -2,7 +2,6 @@ from pathlib import Path
 
 import pandas as pd
 import pytest
-
 from polisyos.fabric.io.db import SimulationDB
 from polisyos.ir.surface import PolicySurfaceIR
 from polisyos.ir.types import SelectorOperator

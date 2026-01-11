@@ -76,29 +76,21 @@ def _validate_param_value(value: Any, spec) -> None:
 
     if spec.enum_values is not None:
         if value not in spec.enum_values:
-            raise ValueError(
-                f"Mechanism param '{spec.param_id}' must be one of {spec.enum_values}"
-            )
+            raise ValueError(f"Mechanism param '{spec.param_id}' must be one of {spec.enum_values}")
         return
 
     numeric = _as_decimal(value, percent_ok=(spec.value_type == ParamType.RATE))
     if numeric is None:
-        raise ValueError(
-            f"Mechanism param '{spec.param_id}' expects {spec.value_type.value} value"
-        )
+        raise ValueError(f"Mechanism param '{spec.param_id}' expects {spec.value_type.value} value")
 
     if spec.value_type in {ParamType.INT, ParamType.COUNT, ParamType.DURATION}:
         if numeric != numeric.to_integral_value():
             raise ValueError(f"Mechanism param '{spec.param_id}' expects integer value")
 
     if spec.min_value is not None and numeric < spec.min_value:
-        raise ValueError(
-            f"Mechanism param '{spec.param_id}' below min {spec.min_value}"
-        )
+        raise ValueError(f"Mechanism param '{spec.param_id}' below min {spec.min_value}")
     if spec.max_value is not None and numeric > spec.max_value:
-        raise ValueError(
-            f"Mechanism param '{spec.param_id}' above max {spec.max_value}"
-        )
+        raise ValueError(f"Mechanism param '{spec.param_id}' above max {spec.max_value}")
 
 
 def validate_mechanism_params(

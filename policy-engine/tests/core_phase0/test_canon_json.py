@@ -5,7 +5,6 @@ from datetime import datetime, timezone
 from decimal import Decimal
 
 import pytest
-
 from polisyos.core.canon.canon_json import CanonViolation, to_canonical_bytes
 
 

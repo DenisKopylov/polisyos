@@ -1,3 +1,4 @@
+from .compiler import CompileReportRef, LinkReportRef
 from .fabric import (
     DataViewRequestRef,
     EvidenceBundle,
@@ -9,7 +10,6 @@ from .fabric import (
     WarningsBundle,
     WarningsRef,
 )
-from .compiler import CompileReportRef, LinkReportRef
 from .foundry import (
     ExecConfig,
     ExecConfigRef,

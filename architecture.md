@@ -253,7 +253,7 @@ flowchart LR
 
 ### 4.2. Поток B: LangGraph workflow (Scientist “NL → verdict”)
 
-Файл графа: `policy-engine/src/polisyos/scientist/orchestrator/workflow.py`  
+Файл графа: `policy-engine/src/polisyos/scientist/orchestrator/workflow.py`
 Узлы: `policy-engine/src/polisyos/scientist/orchestrator/flow_nodes.py`
 
 ```mermaid

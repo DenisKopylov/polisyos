@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 from decimal import Decimal
-from typing_extensions import Annotated
 
 from pydantic import BeforeValidator, Field
+from typing_extensions import Annotated
 
 from .base import reject_float
 

@@ -7,7 +7,8 @@ from .record import TraceRecord
 
 
 class TraceSink(Protocol):
-    def emit(self, rec: TraceRecord) -> None: ...
+    def emit(self, rec: TraceRecord) -> None:
+        ...
 
 
 class JsonlTraceSink:

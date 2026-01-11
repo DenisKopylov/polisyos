@@ -2,14 +2,13 @@ from __future__ import annotations
 
 from decimal import Decimal
 
+import jax.numpy as jnp
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.contracts.foundry import Metrics, StateDelta
 from polisyos.core.registry import build_default_registry_bundle, load_registry_bundle_content
 from polisyos.foundry.compiler import compile_surface_policy
 from polisyos.foundry.domain.state import GlobalState
-import jax.numpy as jnp
-
 from polisyos.foundry.executor import (
     apply_state_delta_and_snapshot,
     execute_program_graph,
@@ -81,9 +80,7 @@ def test_patch_executor_emits_artifacts(tmp_path) -> None:
         manifest = store.get_manifest(op.value_ref.artifact_id)
         assert manifest.media_type == "application/x-npy"
 
-    metrics_payload = from_canonical_bytes(
-        store.get_bytes(exec_artifacts.metrics_ref.artifact_id)
-    )
+    metrics_payload = from_canonical_bytes(store.get_bytes(exec_artifacts.metrics_ref.artifact_id))
     metrics = Metrics.model_validate(metrics_payload)
     assert metrics.values.get("applied_nodes") == 1
 
@@ -97,9 +94,7 @@ def test_patch_executor_emits_artifacts(tmp_path) -> None:
     )
 
     assert store.has(applied.state_snapshot_ref.artifact_id)
-    assert float(jnp.mean(next_state.agents.income)) < float(
-        jnp.mean(base_state.agents.income)
-    )
+    assert float(jnp.mean(next_state.agents.income)) < float(jnp.mean(base_state.agents.income))
 
     loaded = load_state_snapshot(store, snapshot_ref=applied.state_snapshot_ref)
     assert float(jnp.mean(loaded.agents.income)) == float(jnp.mean(next_state.agents.income))
@@ -141,9 +136,7 @@ def test_patch_executor_respects_target_mask(tmp_path) -> None:
 
     base_state = GlobalState.empty(n_agents=2, n_firms=1)
     base_state = base_state.replace(
-        agents=base_state.agents.replace(
-            income=jnp.array([500.0, 2000.0], dtype=jnp.float32)
-        )
+        agents=base_state.agents.replace(income=jnp.array([500.0, 2000.0], dtype=jnp.float32))
     )
 
     exec_artifacts = execute_program_graph(

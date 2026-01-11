@@ -2,16 +2,16 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.registry import RegistryBundle, RegistryBundlePayload
 from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.canon import from_canonical_bytes
 from polisyos.ir.kernel import (
     ConstraintRegistry,
     MechanismTypeRegistry,
-    MetricRegistry,
     MergeRuleRegistry,
+    MetricRegistry,
     SelectorFieldRegistry,
     SlotRegistry,
     TrustRegistry,

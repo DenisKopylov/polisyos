@@ -9,8 +9,14 @@ import jax
 import jax.numpy as jnp
 from pydantic import ValidationError
 
-from polisyos.scientist.agent.drafter import MockLLM
-from polisyos.scientist.agent.prompts import get_system_prompt
+from polisyos.core.artifacts.ids import ArtifactID
+from polisyos.core.artifacts.manifest import ArtifactRef, InputRef
+from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.compiler import CompileReport, put_compile_report, put_link_report
+from polisyos.core.registry import build_default_registry_bundle, load_registry_bundle_content
+from polisyos.fabric.io.db import SimulationDB
+from polisyos.fabric.io.graph_store import GraphStore
+from polisyos.fabric.udf.engine import UDFEngine
 from polisyos.foundry.compiler import compile_surface_policy, put_policy_surface
 from polisyos.foundry.executor import (
     apply_state_delta_and_snapshot,
@@ -19,26 +25,20 @@ from polisyos.foundry.executor import (
     put_state_snapshot,
 )
 from polisyos.foundry.registry import create_mechanism_from_spec
-from polisyos.scientist.orchestrator.audit import append_audit
-from polisyos.scientist.orchestrator.data_loader import load_initial_state
-from polisyos.scientist.orchestrator.decision_packet import build_decision_packet
-from polisyos.scientist.orchestrator.run_record import ReproMode, build_run_record
-from polisyos.scientist.orchestrator.state import ExperimentState, GovernorFeedback
-from polisyos.core.artifacts.ids import ArtifactID
-from polisyos.core.artifacts.manifest import ArtifactRef, InputRef
-from polisyos.core.artifacts.store import FileSystemCAS
-from polisyos.core.compiler import CompileReport, put_compile_report, put_link_report
-from polisyos.core.registry import build_default_registry_bundle, load_registry_bundle_content
 from polisyos.ir.data_views import DataViewRequest
 from polisyos.ir.kernel import MergeRuleKind
 from polisyos.ir.kernel.values import CountValue, DurationValue, MoneyValue, RateValue
 from polisyos.ir.linker import link_policy
 from polisyos.ir.surface import PolicySurfaceIR
-from polisyos.ir.validation import build_validation_report, diff_payloads, ValidationIssue
+from polisyos.ir.validation import ValidationIssue, build_validation_report, diff_payloads
 from polisyos.runtime import finalize_run, log_artifact, start_run, update_budget_usage
-from polisyos.fabric.udf.engine import UDFEngine
-from polisyos.fabric.io.db import SimulationDB
-from polisyos.fabric.io.graph_store import GraphStore
+from polisyos.scientist.agent.drafter import MockLLM
+from polisyos.scientist.agent.prompts import get_system_prompt
+from polisyos.scientist.orchestrator.audit import append_audit
+from polisyos.scientist.orchestrator.data_loader import load_initial_state
+from polisyos.scientist.orchestrator.decision_packet import build_decision_packet
+from polisyos.scientist.orchestrator.run_record import ReproMode, build_run_record
+from polisyos.scientist.orchestrator.state import ExperimentState, GovernorFeedback
 
 DEFAULT_BUDGET = {
     "max_llm_calls": 3.0,
@@ -130,7 +130,9 @@ def _ensure_context_snapshot(
     return {**state, "ir": updated_policy}, updated_policy
 
 
-def _resolve_registry_bundle_id(state: ExperimentState, policy: PolicySurfaceIR | None) -> str | None:
+def _resolve_registry_bundle_id(
+    state: ExperimentState, policy: PolicySurfaceIR | None
+) -> str | None:
     if policy and policy.semantic.registry_bundle_ref:
         return policy.semantic.registry_bundle_ref
     bundle_ref = state.get("registry_bundle_ref")
@@ -156,9 +158,7 @@ def _resolve_registry_bundle_ref(
     )
 
 
-def _load_registry_bundle_content_for(
-    state: ExperimentState, policy: PolicySurfaceIR | None
-):
+def _load_registry_bundle_content_for(state: ExperimentState, policy: PolicySurfaceIR | None):
     bundle_id = _resolve_registry_bundle_id(state, policy)
     if not bundle_id:
         raise ValueError("registry_bundle_ref is missing")
@@ -315,7 +315,9 @@ def _apply_slot_patches(
         if rule.kind == MergeRuleKind.SUM:
             total_delta = None
             for record in records:
-                total_delta = record["delta"] if total_delta is None else total_delta + record["delta"]
+                total_delta = (
+                    record["delta"] if total_delta is None else total_delta + record["delta"]
+                )
             merged = base_value if total_delta is None else base_value + total_delta
         elif rule.kind == MergeRuleKind.OVERRIDE:
             picked = sorted(records, key=lambda item: item["intervention_id"])[-1]
@@ -552,12 +554,16 @@ def validate_ir_node(state: ExperimentState) -> ExperimentState:
     bundle_id = _resolve_registry_bundle_id(state, policy)
     if policy.semantic.registry_bundle_ref is None and bundle_id:
         policy = policy.model_copy(
-            update={"semantic": policy.semantic.model_copy(update={"registry_bundle_ref": bundle_id})}
+            update={
+                "semantic": policy.semantic.model_copy(update={"registry_bundle_ref": bundle_id})
+            }
         )
         state = {**state, "ir": policy}
     if not policy.semantic.interventions:
         safety_issues.append(
-            _make_issue(["semantic", "interventions"], "At least one intervention is required", "safety")
+            _make_issue(
+                ["semantic", "interventions"], "At least one intervention is required", "safety"
+            )
         )
     for idx, intervention in enumerate(policy.semantic.interventions):
         if intervention.kind not in registry_content.mechanism_registry.mechanisms:
@@ -651,7 +657,9 @@ def compile_model_node(state: ExperimentState) -> ExperimentState:
         bundle_id = _resolve_registry_bundle_id(state, ir)
         if bundle_id and ir.semantic.registry_bundle_ref is None:
             ir = ir.model_copy(
-                update={"semantic": ir.semantic.model_copy(update={"registry_bundle_ref": bundle_id})}
+                update={
+                    "semantic": ir.semantic.model_copy(update={"registry_bundle_ref": bundle_id})
+                }
             )
             state = {**state, "ir": ir}
         registry_content = _load_registry_bundle_content_for(state, ir)

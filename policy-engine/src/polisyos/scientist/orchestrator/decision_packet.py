@@ -7,9 +7,9 @@ from typing import Any, Dict, List, Optional
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from polisyos.ir.surface import PolicySurfaceIR
 from polisyos.scientist.orchestrator.run_record import RunRecord
 from polisyos.scientist.orchestrator.state import ExperimentState, GovernorFeedback
-from polisyos.ir.surface import PolicySurfaceIR
 
 
 class DecisionPacket(BaseModel):

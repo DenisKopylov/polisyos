@@ -103,7 +103,9 @@ def compile_surface_policy(
             inputs=[InputRef(artifact_id=program_ref.artifact_id, role="program_graph")],
         ),
     )
-    return CompileArtifacts(policy_ref=policy_ref, program_ref=program_ref, exec_plan_ref=exec_plan_ref)
+    return CompileArtifacts(
+        policy_ref=policy_ref, program_ref=program_ref, exec_plan_ref=exec_plan_ref
+    )
 
 
 def _program_graph_inputs(

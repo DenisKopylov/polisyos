@@ -5,9 +5,8 @@ import sys
 from pathlib import Path
 
 import pytest
-
-from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.artifacts.manifest import EnvInfo, GitInfo, ProducerInfo
+from polisyos.core.artifacts.store import FileSystemCAS
 
 
 @pytest.fixture()

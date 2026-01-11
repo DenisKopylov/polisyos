@@ -3,13 +3,11 @@ from __future__ import annotations
 from decimal import Decimal
 
 import pytest
-from pydantic import ValidationError
-
 from polisyos.ir.kernel import (
     DEFAULT_CONSTRAINT_REGISTRY,
     DEFAULT_MECHANISM_REGISTRY,
-    DEFAULT_METRIC_REGISTRY,
     DEFAULT_MERGE_RULE_REGISTRY,
+    DEFAULT_METRIC_REGISTRY,
     DEFAULT_SELECTOR_FIELD_REGISTRY,
     DEFAULT_SLOT_REGISTRY,
     MergeRuleKind,
@@ -19,6 +17,7 @@ from polisyos.ir.kernel import (
 from polisyos.ir.linker import link_policy
 from polisyos.ir.surface import PolicyAdvisory, PolicySemantic, PolicySurfaceIR
 from polisyos.ir.types import SelectorOperator
+from pydantic import ValidationError
 
 CTX_REF = "sha256:0000000000000000000000000000000000000000000000000000000000000000"
 
@@ -207,8 +206,7 @@ def test_semantic_fingerprint_normalizes_schedule() -> None:
     )
 
     assert (
-        policy_duration.semantic_fingerprint_payload()
-        == policy_end.semantic_fingerprint_payload()
+        policy_duration.semantic_fingerprint_payload() == policy_end.semantic_fingerprint_payload()
     )
 
 
@@ -254,9 +252,7 @@ def test_semantic_fingerprint_normalizes_numeric_strings() -> None:
 
     assert policy_a.semantic_fingerprint_payload(
         mechanism_registry=DEFAULT_MECHANISM_REGISTRY
-    ) == policy_b.semantic_fingerprint_payload(
-        mechanism_registry=DEFAULT_MECHANISM_REGISTRY
-    )
+    ) == policy_b.semantic_fingerprint_payload(mechanism_registry=DEFAULT_MECHANISM_REGISTRY)
 
 
 def test_linker_ignores_non_overlapping_error_merge() -> None:

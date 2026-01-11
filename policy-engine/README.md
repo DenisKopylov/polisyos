@@ -85,7 +85,7 @@ pip install jax-metal
 
 По умолчанию на macOS проект форсирует `cpu` (через `jax_bootstrap.py`, импортируй его до `jax`), потому что
 `METAL` в некоторых версиях JAX падает даже на `jnp.zeros(...)` с ошибкой
-`UNIMPLEMENTED: default_memory_space is not supported.`  
+`UNIMPLEMENTED: default_memory_space is not supported.`
 Если хочешь попробовать Metal, задай перед запуском:
 ```bash
 POLICY_ENGINE_ALLOW_JAX_METAL=1

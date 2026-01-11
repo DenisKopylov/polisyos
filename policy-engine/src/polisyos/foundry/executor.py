@@ -1,14 +1,14 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
 import dataclasses
+from dataclasses import dataclass
+from decimal import Decimal, InvalidOperation
 from io import BytesIO
 from typing import Any, Iterable
 
 import jax
 import jax.numpy as jnp
 import numpy as np
-from decimal import Decimal, InvalidOperation
 from pydantic import BaseModel, TypeAdapter
 
 from polisyos.core.artifacts.ids import ArtifactID
@@ -23,8 +23,8 @@ from polisyos.core.contracts.foundry import (
     StateDelta,
     StateSnapshot,
 )
-from polisyos.foundry.registry import create_mechanism_from_spec
 from polisyos.foundry.domain.state import GlobalState
+from polisyos.foundry.registry import create_mechanism_from_spec
 from polisyos.ir.kernel import (
     ConstraintRegistry,
     MechanismTypeRegistry,
@@ -34,6 +34,7 @@ from polisyos.ir.kernel import (
     SlotRegistry,
     SlotScope,
 )
+from polisyos.ir.kernel.values import CountValue, DurationValue, MoneyValue, RateValue
 from polisyos.ir.surface import (
     PolicySurfaceIR,
     ScheduleSpec,
@@ -45,7 +46,6 @@ from polisyos.ir.surface import (
     schedule_range,
 )
 from polisyos.ir.types import SelectorOperator
-from polisyos.ir.kernel.values import CountValue, DurationValue, MoneyValue, RateValue
 
 
 @dataclass(frozen=True)
@@ -103,9 +103,7 @@ def execute_program_graph(
     constraint_values: dict[str, Any] = {}
     if constraint_registry is not None:
         try:
-            policy_payload = from_canonical_bytes(
-                store.get_bytes(program_graph.ir_ref.artifact_id)
-            )
+            policy_payload = from_canonical_bytes(store.get_bytes(program_graph.ir_ref.artifact_id))
             policy = PolicySurfaceIR.model_validate(policy_payload)
             constraint_values = {
                 constraint.constraint_id: constraint.value
@@ -638,35 +636,25 @@ def _check_constraints(
             raise ValueError(f"Constraint '{constraint_id}' has non-numeric value")
         slot_spec = slot_registry.slots.get(spec.slot_id)
         if slot_spec is None or not slot_spec.state_path:
-            raise ValueError(f"Constraint '{constraint_id}' references unknown slot '{spec.slot_id}'")
+            raise ValueError(
+                f"Constraint '{constraint_id}' references unknown slot '{spec.slot_id}'"
+            )
         state_value = _get_state_path(state, slot_spec.state_path)
         if np.ndim(state_value) != 0:
             raise ValueError(f"Constraint '{constraint_id}' expects scalar slot value")
         current = Decimal(str(float(state_value)))
         if spec.operator == ">=" and current < numeric:
-            raise ValueError(
-                f"Constraint '{constraint_id}' violated: {current} < {numeric}"
-            )
+            raise ValueError(f"Constraint '{constraint_id}' violated: {current} < {numeric}")
         if spec.operator == ">" and current <= numeric:
-            raise ValueError(
-                f"Constraint '{constraint_id}' violated: {current} <= {numeric}"
-            )
+            raise ValueError(f"Constraint '{constraint_id}' violated: {current} <= {numeric}")
         if spec.operator == "<=" and current > numeric:
-            raise ValueError(
-                f"Constraint '{constraint_id}' violated: {current} > {numeric}"
-            )
+            raise ValueError(f"Constraint '{constraint_id}' violated: {current} > {numeric}")
         if spec.operator == "<" and current >= numeric:
-            raise ValueError(
-                f"Constraint '{constraint_id}' violated: {current} >= {numeric}"
-            )
+            raise ValueError(f"Constraint '{constraint_id}' violated: {current} >= {numeric}")
         if spec.operator == "==" and current != numeric:
-            raise ValueError(
-                f"Constraint '{constraint_id}' violated: {current} != {numeric}"
-            )
+            raise ValueError(f"Constraint '{constraint_id}' violated: {current} != {numeric}")
         if spec.operator == "!=" and current == numeric:
-            raise ValueError(
-                f"Constraint '{constraint_id}' violated: {current} == {numeric}"
-            )
+            raise ValueError(f"Constraint '{constraint_id}' violated: {current} == {numeric}")
 
 
 def _artifact_id(value: ArtifactRef | ArtifactID | str) -> ArtifactID:
@@ -740,9 +728,7 @@ def _merge_patch_records(
             picked = sorted(records, key=lambda item: item["node_id"])[-1]
             patch_value = picked.get("value", picked.get("new_value"))
             if patch_value is None:
-                raise ValueError(
-                    f"Missing value for override merge on slot '{slot_id}'"
-                )
+                raise ValueError(f"Missing value for override merge on slot '{slot_id}'")
             op = "set"
         elif rule.kind == MergeRuleKind.PRIORITY:
             missing = [item["node_id"] for item in records if item.get("priority") is None]
@@ -756,9 +742,7 @@ def _merge_patch_records(
             )[0]
             patch_value = picked.get("value", picked.get("new_value"))
             if patch_value is None:
-                raise ValueError(
-                    f"Missing value for priority merge on slot '{slot_id}'"
-                )
+                raise ValueError(f"Missing value for priority merge on slot '{slot_id}'")
             op = "set"
         elif rule.kind == MergeRuleKind.ERROR:
             if len(records) > 1:
@@ -800,9 +784,7 @@ def _set_state_path(obj: Any, path: str, value: Any) -> Any:
     return obj.replace(**{head: updated})
 
 
-def _apply_ops_for_slot(
-    store: FileSystemCAS, base_value: Any, ops: Iterable[PatchOp]
-) -> Any:
+def _apply_ops_for_slot(store: FileSystemCAS, base_value: Any, ops: Iterable[PatchOp]) -> Any:
     ops_list = list(ops)
     if not ops_list:
         return base_value

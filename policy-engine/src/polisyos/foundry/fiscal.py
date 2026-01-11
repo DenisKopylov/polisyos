@@ -3,8 +3,8 @@ from typing import Any
 import jax
 import jax.numpy as jnp
 
-from polisyos.foundry.domain.state import GlobalState
 from polisyos.foundry.base import Mechanism
+from polisyos.foundry.domain.state import GlobalState
 from polisyos.foundry.types import FidelityLevel
 
 

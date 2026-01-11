@@ -1,10 +1,15 @@
 import inspect
-from typing import Dict, Type, Any
+from typing import Any, Dict, Type
 
 from polisyos.foundry.base import Mechanism
 from polisyos.foundry.fiscal import IncomeTax, TaxSubsidy
 from polisyos.foundry.queue import QueueMechanism
-from polisyos.foundry.specs import MECHANISM_SPECS, get_mechanism_spec, mechanism_catalog, validate_mechanism_params
+from polisyos.foundry.specs import (
+    MECHANISM_SPECS,
+    get_mechanism_spec,
+    mechanism_catalog,
+    validate_mechanism_params,
+)
 from polisyos.ir.contract import Intervention
 
 MECHANISM_REGISTRY: Dict[str, Type[Mechanism]] = {
@@ -62,6 +67,7 @@ def create_mechanism_from_spec(
 
 def _coerce_params(value: Any) -> Any:
     from decimal import Decimal, InvalidOperation
+
     from polisyos.ir.kernel.values import CountValue, DurationValue, MoneyValue, RateValue
 
     if isinstance(value, RateValue):

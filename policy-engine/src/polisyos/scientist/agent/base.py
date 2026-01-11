@@ -1,12 +1,10 @@
 from abc import ABC, abstractmethod
-from datetime import datetime
-
-from polisyos.ir.contract import PolicyRequestIR
+from polisyos.ir.surface import PolicySurfaceIR
 
 
 class BaseAgent(ABC):
     @abstractmethod
-    def decide(self, step: int, context_df) -> PolicyRequestIR:
+    def decide(self, step: int, context_df) -> PolicySurfaceIR:
         """
         Принимает данные (DataFrame), возвращает Решение (IR).
         """
@@ -18,7 +16,7 @@ class MockAgent(BaseAgent):
     Притворяется LLM. Принимает решения на основе экономических показателей.
     """
 
-    def decide(self, step: int, context_df) -> PolicyRequestIR:
+    def decide(self, step: int, context_df) -> PolicySurfaceIR:
         # Эмуляция "раздумий"
         print(f"🤖 MockAgent is thinking... (Data shape: {context_df.shape})")
 
@@ -37,25 +35,26 @@ class MockAgent(BaseAgent):
             mech_type = "tax_subsidy"
             rate = 0.10  # Умеренные субсидии
 
-        return PolicyRequestIR(
-            project_name={"en": "Auto Rescue", "ua": "Авто-Порятунок"},
-            schema_version="1.0",
-            generated_at=datetime.utcnow().isoformat(),
-            generator={"name": "policy-engine", "version": "0.1.0"},
-            currency="USD",
-            time_unit="year",
-            price_base_year=2024,
-            simulation_params={"scope_years": 1, "time_frequency": "M"},
-            scenarios={"random_seed": 42, "shocks": [], "timeline": {"start_year": 2024, "end_year": 2024}},
-            entities=[],
-            objectives=[],
-            interventions=[
-                {
-                    "id": f"policy_step_{step}",
-                    "name": {"en": mech_type.replace("_", " ").title(), "ua": mech_type},
-                    "target_selector": {"all_of": [{"field": "id", "operator": "==", "value": "all"}]},
-                    "mechanism_type": mech_type,
-                    "parameters": {"rate": rate},
-                }
-            ],
+        return PolicySurfaceIR(
+            schema_version="2.0",
+            semantic={
+                "context_snapshot_ref": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+                "time_semantics": {"frequency": "M", "start_date": "2024-01-01", "step_count": 1},
+                "interventions": [
+                    {
+                        "intervention_id": f"policy_step_{step}",
+                        "kind": mech_type,
+                        "target": {
+                            "kind": "predicate",
+                            "field": "id",
+                            "operator": "==",
+                            "value": "all",
+                        },
+                        "schedule": {"start_step": 0, "duration_steps": 1},
+                        "params": {"rate": str(rate)},
+                    }
+                ],
+                "objectives": [],
+                "constraints": [],
+            },
         )

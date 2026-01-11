@@ -9,7 +9,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from polisyos.scientist.orchestrator.run_record import RunRecord
 from polisyos.scientist.orchestrator.state import ExperimentState, GovernorFeedback
-from polisyos.ir.contract import PolicyRequestIR
+from polisyos.ir.surface import PolicySurfaceIR
 
 
 class DecisionPacket(BaseModel):
@@ -24,7 +24,7 @@ class DecisionPacket(BaseModel):
     parent_run_id: Optional[str] = None
     run_record: RunRecord
 
-    policy_ir: Optional[PolicyRequestIR] = None
+    policy_ir: Optional[PolicySurfaceIR] = None
     simulation_results: Optional[Dict[str, Any]] = None
     feedback: Optional[GovernorFeedback] = None
     audit_trail: List[Dict[str, Any]] = Field(default_factory=list)
@@ -47,7 +47,7 @@ def build_decision_packet(state: ExperimentState, run_record: RunRecord) -> Deci
 def save_decision_packet(packet: DecisionPacket, base_dir: Path = Path("logs")) -> Path:
     output_dir = base_dir / "decision_packets"
     output_dir.mkdir(parents=True, exist_ok=True)
-    payload = packet.model_dump()
+    payload = packet.model_dump(mode="json")
     path = output_dir / f"{packet.run_id}.json"
     path.write_text(json.dumps(payload, ensure_ascii=True, indent=2), encoding="utf-8")
     return path

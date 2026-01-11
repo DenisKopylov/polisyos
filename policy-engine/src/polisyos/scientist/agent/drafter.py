@@ -4,7 +4,7 @@ import json
 from polisyos.scientist.agent.prompts import get_system_prompt
 from polisyos.scientist.orchestrator.audit import append_audit
 from polisyos.scientist.orchestrator.state import ExperimentState
-from polisyos.ir.contract import PolicyRequestIR
+from polisyos.ir.surface import PolicySurfaceIR
 
 
 # --- Fake LLM for Testing (чтобы не требовать API Key) ---
@@ -17,45 +17,61 @@ class MockLLM:
         # В реальности здесь будет вызов OpenAI / Anthropic
         return """
         {
-          "project_name": {"en": "Anti-Poverty Act", "ua": "Боротьба з бідністю"},
-          "schema_version": "1.0",
-          "generated_at": "2024-01-01T00:00:00",
-          "simulation_params": {
-            "scope_years": 1,
-            "time_frequency": "M",
-            "start_date": "2024-01-01",
-            "random_seed": 42
+          "schema_version": "2.0",
+          "semantic": {
+            "context_snapshot_ref": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+            "time_semantics": {
+              "frequency": "M",
+              "start_date": "2024-01-01",
+              "step_count": 12
+            },
+            "objectives": [
+              {
+                "objective_id": "maximize_income",
+                "metric_id": "avg_income",
+                "direction": "maximize",
+                "weight": "1"
+              }
+            ],
+            "interventions": [
+              {
+                "intervention_id": "help_poor",
+                "kind": "tax_subsidy",
+                "target": {
+                  "kind": "predicate",
+                  "field": "income",
+                  "operator": "<",
+                  "value": "1000"
+                },
+                "schedule": {
+                  "start_step": 0,
+                  "duration_steps": 12
+                },
+                "params": {
+                  "rate": "0.2"
+                }
+              }
+            ],
+            "constraints": [
+              {
+                "constraint_id": "min_balance",
+                "value": {
+                  "amount": "-5000",
+                  "currency": "USD"
+                }
+              }
+            ]
           },
-          "generator": {"name": "policy-engine", "version": "0.1.0"},
-          "currency": "USD",
-          "time_unit": "year",
-          "price_base_year": 2024,
-          "scenarios": {
-            "random_seed": 42,
-            "shocks": [],
-            "timeline": {"start_year": 2024, "end_year": 2024}
-          },
-          "entities": [
-            {"id": "poor_group", "entity_type": "agent", "name": {"en": "Poor", "ua": "Бідні"}}
-          ],
-          "interventions": [
-            {
-              "id": "help_poor",
-              "name": {"en": "Direct Aid", "ua": "Допомога"},
-              "target_selector": {
-                "all_of": [
-                  {"field": "income", "operator": "<", "value": 1000.0}
-                ]
-              },
-              "mechanism_type": "tax_subsidy",
-              "parameters": {"rate": 0.2},
-              "constraints": {}
-            }
-          ],
-          "objectives": [
-            {"metric_name": "avg_income", "direction": "maximize", "priority_weight": 1.0}
-          ],
-          "global_constraints": {"min_balance": -5000.0}
+          "advisory": {
+            "entities": [
+              {
+                "entity_id": "poor_group",
+                "entity_type": "agent",
+                "name": {"en": "Poor", "ua": "Бідні"}
+              }
+            ],
+            "labels": ["poverty"]
+          }
         }
         """
 
@@ -99,7 +115,7 @@ def drafter_node(state: ExperimentState) -> ExperimentState:
         data = json.loads(clean_json)
 
         # Pydantic валидация (самый важный шаг!)
-        ir = PolicyRequestIR(**data)
+        ir = PolicySurfaceIR(**data)
         print("   [Drafter] ✅ Generated valid IR.")
         after_json = json.dumps(data, sort_keys=True)
         new_state = {**state, "ir": ir, "last_ir_json": after_json, "last_error": None}

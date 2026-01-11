@@ -9,6 +9,7 @@ from pathlib import Path
 INTERNAL_PREFIX = "polisyos"
 
 LAYER_BY_PREFIX = {
+    "polisyos.core": "core",
     "polisyos.ir": "ir",
     "polisyos.foundry": "foundry",
     "polisyos.fabric": "fabric",

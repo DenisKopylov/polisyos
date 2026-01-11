@@ -36,11 +36,12 @@ NL → LLM → IR (AST) → Compilation → Runtime (UDF + Foundry) → Artifact
 ```
 ir/
 ├── __init__.py              # Экспорт основных типов данных
+├── kernel/                  # Shared kernel: units, slots, merge rules, time semantics
 ├── contract.py               # Основные модели данных (316 строк)
 ├── types.py                  # Перечисления и базовые типы (81 строка)
 ├── data_views.py             # Модели запросов данных (60 строк)
 ├── validation.py             # Утилиты валидации и отчетов (89 строк)
-├── units.py                  # Реестр единиц измерения (10 строк)
+├── units.py                  # Default units registry + legacy UNIT_REGISTRY
 └── migrations/
     ├── __init__.py          # Экспорт миграций
     ├── base.py               # Инфраструктура миграций

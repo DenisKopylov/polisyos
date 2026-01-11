@@ -1,43 +1,14 @@
 from __future__ import annotations
 
-from typing import Dict, Optional, Set, Tuple, Any
+from decimal import Decimal, InvalidOperation
+from typing import Any, Dict
 
-from pydantic import BaseModel, ConfigDict, Field
-
+from polisyos.ir.kernel import DEFAULT_MECHANISM_REGISTRY, MechanismTypeSpec, ParamType
+from polisyos.ir.kernel.values import CountValue, DurationValue, MoneyValue, RateValue
 from polisyos.ir.units import UNIT_REGISTRY
 
-
-class MechanismSpec(BaseModel):
-    name: str = Field(..., max_length=100)
-    required_params: Set[str] = Field(default_factory=set)
-    param_ranges: Dict[str, Tuple[float, float]] = Field(default_factory=dict)
-    param_units: Dict[str, str] = Field(default_factory=dict)
-    nested_params: Dict[str, "MechanismSpec"] = Field(default_factory=dict)
-    description: Optional[str] = None
-
-    model_config = ConfigDict(extra="forbid")
-
-
-MECHANISM_SPECS: Dict[str, MechanismSpec] = {
-    "tax_subsidy": MechanismSpec(
-        name="tax_subsidy",
-        required_params={"rate"},
-        param_ranges={"rate": (0.0, 1.0)},
-        param_units={"rate": "ratio"},
-    ),
-    "income_tax": MechanismSpec(
-        name="income_tax",
-        required_params={"rate"},
-        param_ranges={"rate": (0.0, 1.0)},
-        param_units={"rate": "ratio"},
-    ),
-    "queue": MechanismSpec(
-        name="queue",
-        required_params={"service_rate", "arrival_rate"},
-        param_ranges={"service_rate": (0.0, 1e9), "arrival_rate": (0.0, 1e9)},
-        param_units={"service_rate": "per_step", "arrival_rate": "per_step"},
-    ),
-}
+MechanismSpec = MechanismTypeSpec
+MECHANISM_SPECS: Dict[str, MechanismSpec] = DEFAULT_MECHANISM_REGISTRY.mechanisms
 
 
 def get_mechanism_spec(mech_type: str) -> MechanismSpec:
@@ -49,7 +20,7 @@ def get_mechanism_spec(mech_type: str) -> MechanismSpec:
 
 
 def _get_param_value(params: Dict[str, Any], path: str) -> Any:
-    current = params
+    current: Any = params
     for part in path.split("."):
         if not isinstance(current, dict) or part not in current:
             return None
@@ -57,65 +28,131 @@ def _get_param_value(params: Dict[str, Any], path: str) -> Any:
     return current
 
 
-def _validate_nested_specs(params: Dict[str, Any], spec: MechanismSpec) -> None:
-    for key, nested_spec in spec.nested_params.items():
-        nested_value = params.get(key)
-        if not isinstance(nested_value, dict):
-            raise ValueError(f"Mechanism '{spec.name}' param '{key}' must be object")
-        missing = nested_spec.required_params - set(nested_value.keys())
-        if missing:
-            missing_list = ", ".join(sorted(missing))
+def _as_decimal(value: Any, *, percent_ok: bool = False) -> Decimal | None:
+    if isinstance(value, RateValue):
+        return value.as_ratio()
+    if isinstance(value, MoneyValue):
+        return value.amount
+    if isinstance(value, CountValue):
+        return Decimal(value.value)
+    if isinstance(value, DurationValue):
+        return Decimal(value.value)
+    if isinstance(value, Decimal):
+        return value
+    if isinstance(value, int) and not isinstance(value, bool):
+        return Decimal(value)
+    if isinstance(value, str):
+        text = value.strip()
+        if percent_ok and text.endswith("%"):
+            text = text[:-1].strip()
+            try:
+                return Decimal(text) / Decimal("100")
+            except InvalidOperation:
+                return None
+        try:
+            return Decimal(text)
+        except InvalidOperation:
+            return None
+    return None
+
+
+def _validate_param_value(value: Any, spec) -> None:
+    if spec.value_type == ParamType.BOOL:
+        if not isinstance(value, bool):
+            raise ValueError(f"Mechanism param '{spec.param_id}' expects bool")
+        return
+    if spec.value_type == ParamType.STRING:
+        if not isinstance(value, str):
+            raise ValueError(f"Mechanism param '{spec.param_id}' expects string")
+        return
+    if spec.value_type == ParamType.OBJECT:
+        if not isinstance(value, dict):
+            raise ValueError(f"Mechanism param '{spec.param_id}' expects object")
+        return
+    if spec.value_type == ParamType.ARRAY:
+        if not isinstance(value, list):
+            raise ValueError(f"Mechanism param '{spec.param_id}' expects array")
+        return
+
+    if spec.enum_values is not None:
+        if value not in spec.enum_values:
             raise ValueError(
-                f"Mechanism '{spec.name}.{key}' requires params: {missing_list}"
+                f"Mechanism param '{spec.param_id}' must be one of {spec.enum_values}"
             )
-        for nested_key, (min_val, max_val) in nested_spec.param_ranges.items():
-            value = _get_param_value(nested_value, nested_key)
-            if value is None:
-                continue
-            if isinstance(value, (int, float)) and (value < min_val or value > max_val):
-                raise ValueError(
-                    f"Mechanism '{spec.name}.{key}' param '{nested_key}' "
-                    f"out of range [{min_val}, {max_val}]"
-                )
-        for nested_key, unit in nested_spec.param_units.items():
-            if unit not in UNIT_REGISTRY:
-                raise ValueError(
-                    f"Mechanism '{spec.name}.{key}' param '{nested_key}' "
-                    f"uses unknown unit '{unit}'"
-                )
+        return
+
+    numeric = _as_decimal(value, percent_ok=(spec.value_type == ParamType.RATE))
+    if numeric is None:
+        raise ValueError(
+            f"Mechanism param '{spec.param_id}' expects {spec.value_type.value} value"
+        )
+
+    if spec.value_type in {ParamType.INT, ParamType.COUNT, ParamType.DURATION}:
+        if numeric != numeric.to_integral_value():
+            raise ValueError(f"Mechanism param '{spec.param_id}' expects integer value")
+
+    if spec.min_value is not None and numeric < spec.min_value:
+        raise ValueError(
+            f"Mechanism param '{spec.param_id}' below min {spec.min_value}"
+        )
+    if spec.max_value is not None and numeric > spec.max_value:
+        raise ValueError(
+            f"Mechanism param '{spec.param_id}' above max {spec.max_value}"
+        )
 
 
-def validate_mechanism_params(mech_type: str, params: Dict[str, Any]) -> None:
+def validate_mechanism_params(
+    mech_type: str, params: Dict[str, Any], *, allow_extra_params: bool = False
+) -> None:
     spec = get_mechanism_spec(mech_type)
-    missing = spec.required_params - set(params.keys())
+    spec_params = spec.params
+
+    missing = [
+        param_id
+        for param_id, param_spec in spec_params.items()
+        if param_spec.required and _get_param_value(params, param_id) is None
+    ]
     if missing:
         missing_list = ", ".join(sorted(missing))
         raise ValueError(f"Mechanism '{mech_type}' requires params: {missing_list}")
-    for key, (min_val, max_val) in spec.param_ranges.items():
-        value = _get_param_value(params, key)
+
+    for param_id, param_spec in spec_params.items():
+        value = _get_param_value(params, param_id)
         if value is None:
             continue
-        if isinstance(value, (int, float)) and (value < min_val or value > max_val):
+        _validate_param_value(value, param_spec)
+        if param_spec.unit_id and param_spec.unit_id not in UNIT_REGISTRY:
             raise ValueError(
-                f"Mechanism '{mech_type}' param '{key}' out of range [{min_val}, {max_val}]"
+                f"Mechanism '{mech_type}' param '{param_id}' uses unknown unit "
+                f"'{param_spec.unit_id}'"
             )
-    for key, unit in spec.param_units.items():
-        if unit not in UNIT_REGISTRY:
-            raise ValueError(
-                f"Mechanism '{mech_type}' param '{key}' uses unknown unit '{unit}'"
-            )
-    _validate_nested_specs(params, spec)
+
+    if not allow_extra_params:
+        for key in params.keys():
+            if key not in spec_params:
+                raise ValueError(f"Mechanism '{mech_type}' has unknown param '{key}'")
 
 
 def mechanism_catalog() -> list[dict]:
     catalog = []
     for name, spec in sorted(MECHANISM_SPECS.items()):
+        required = [param_id for param_id, param in spec.params.items() if param.required]
+        ranges = {
+            param_id: (param.min_value, param.max_value)
+            for param_id, param in spec.params.items()
+            if param.min_value is not None or param.max_value is not None
+        }
+        units = {
+            param_id: param.unit_id
+            for param_id, param in spec.params.items()
+            if param.unit_id is not None
+        }
         catalog.append(
             {
                 "name": name,
-                "required_params": sorted(spec.required_params),
-                "param_ranges": spec.param_ranges,
-                "param_units": spec.param_units,
+                "required_params": sorted(required),
+                "param_ranges": ranges,
+                "param_units": units,
                 "description": spec.description,
             }
         )

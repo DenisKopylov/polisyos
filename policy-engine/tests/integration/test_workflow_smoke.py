@@ -1,19 +1,11 @@
-from datetime import datetime
 from pathlib import Path
 
 import pandas as pd
 import pytest
 
 from polisyos.fabric.io.db import SimulationDB
-from polisyos.ir.contract import (
-    Intervention,
-    PolicyEntity,
-    PolicyRequestIR,
-    SelectorPredicate,
-    SimulationParameters,
-    TargetSelector,
-)
-from polisyos.ir.types import EntityType, SelectorOperator, TranslatableString
+from polisyos.ir.surface import PolicySurfaceIR
+from polisyos.ir.types import SelectorOperator
 from polisyos.scientist.orchestrator.workflow import build_workflow
 
 pytestmark = pytest.mark.integration
@@ -98,42 +90,27 @@ def test_workflow_smoke_approve(tmp_path: Path) -> None:
     ]
     _write_baseline(db_path, baseline_run_id, rows)
 
-    ir = PolicyRequestIR(
-        project_name=TranslatableString(en="Integration Test", ua="Test"),
-        schema_version="1.0",
-        generated_at=datetime.utcnow().isoformat(),
-        generator={"name": "policy-engine", "version": "0.1.0"},
-        currency="USD",
-        time_unit="year",
-        price_base_year=2024,
-        simulation_params=SimulationParameters(scope_years=1),
-        scenarios={
-            "random_seed": 7,
-            "shocks": [],
-            "timeline": {"start_year": 2024, "end_year": 2024},
-        },
-        entities=[
-            PolicyEntity(
-                id="pop",
-                entity_type=EntityType.AGENT,
-                name=TranslatableString(en="Pop", ua="Pop"),
-            )
-        ],
-        interventions=[
-            Intervention(
-                id="tax_sub",
-                name=TranslatableString(en="Sub", ua="Sub"),
-                target_selector=TargetSelector(
-                    all_of=[
-                        SelectorPredicate(field="id", operator=SelectorOperator.EQUALS, value="any")
-                    ]
-                ),
-                mechanism_type="tax_subsidy",
-                parameters={"rate": 0.1},
-            )
-        ],
-        objectives=[],
-        global_constraints={},
+    ir = PolicySurfaceIR(
+        semantic={
+            "context_snapshot_ref": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+            "time_semantics": {"frequency": "M", "start_date": "2024-01-01", "step_count": 1},
+            "interventions": [
+                {
+                    "intervention_id": "tax_sub",
+                    "kind": "tax_subsidy",
+                    "target": {
+                        "kind": "predicate",
+                        "field": "id",
+                        "operator": SelectorOperator.EQUALS,
+                        "value": "any",
+                    },
+                    "schedule": {"start_step": 0, "duration_steps": 1},
+                    "params": {"rate": "0.1"},
+                }
+            ],
+            "objectives": [],
+            "constraints": [],
+        }
     )
 
     app = build_workflow()
@@ -170,42 +147,32 @@ def test_workflow_budget_constraint_needs_revision(tmp_path: Path) -> None:
     ]
     _write_baseline(db_path, baseline_run_id, rows)
 
-    ir = PolicyRequestIR(
-        project_name=TranslatableString(en="Budget Test", ua="Test"),
-        schema_version="1.0",
-        generated_at=datetime.utcnow().isoformat(),
-        generator={"name": "policy-engine", "version": "0.1.0"},
-        currency="USD",
-        time_unit="year",
-        price_base_year=2024,
-        simulation_params=SimulationParameters(scope_years=1),
-        scenarios={
-            "random_seed": 7,
-            "shocks": [],
-            "timeline": {"start_year": 2024, "end_year": 2024},
-        },
-        entities=[
-            PolicyEntity(
-                id="pop",
-                entity_type=EntityType.AGENT,
-                name=TranslatableString(en="Pop", ua="Pop"),
-            )
-        ],
-        interventions=[
-            Intervention(
-                id="sub",
-                name=TranslatableString(en="Sub", ua="Sub"),
-                target_selector=TargetSelector(
-                    all_of=[
-                        SelectorPredicate(field="id", operator=SelectorOperator.EQUALS, value="any")
-                    ]
-                ),
-                mechanism_type="tax_subsidy",
-                parameters={"rate": 0.5},
-            )
-        ],
-        objectives=[],
-        global_constraints={"min_balance": -2000.0},
+    ir = PolicySurfaceIR(
+        semantic={
+            "context_snapshot_ref": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+            "time_semantics": {"frequency": "M", "start_date": "2024-01-01", "step_count": 1},
+            "interventions": [
+                {
+                    "intervention_id": "sub",
+                    "kind": "tax_subsidy",
+                    "target": {
+                        "kind": "predicate",
+                        "field": "id",
+                        "operator": SelectorOperator.EQUALS,
+                        "value": "any",
+                    },
+                    "schedule": {"start_step": 0, "duration_steps": 1},
+                    "params": {"rate": "0.5"},
+                }
+            ],
+            "objectives": [],
+            "constraints": [
+                {
+                    "constraint_id": "min_balance",
+                    "value": {"amount": "-2000", "currency": "USD"},
+                }
+            ],
+        }
     )
 
     app = build_workflow()

@@ -2,31 +2,50 @@
 
 AI-driven Policy Simulation System using JAX and Unified Data Fabric
 
-## Технологический стек
+## Технологический стек (текущий)
 
-### Model Foundry (Математическое ядро)
-- **Python 3.11**: Золотая середина между скоростью 3.12 и поддержкой JAX
-- **JAX/JAXlib**: Основа вычислений
-- **Equinox**: OOP wrapper для JAX моделей
-- **Diffrax**: Решение дифференциальных уравнений (ODE/SDE)
-- **Optax**: Оптимизаторы и лосс-функции
-- **Jaxtyping**: Проверка размерностей тензоров
+### Язык и вычисления
+- **Python 3.11+**: базовый рантайм проекта
+- **JAX/JAXlib**: численные вычисления, JIT и autodiff
+- **JAX Metal**: опциональный backend для macOS (через `jax-metal`)
+
+### Foundry (Математическое ядро)
+- **Equinox**: модульная структура JAX-моделей
+- **Optax**: оптимизаторы и градиентная оптимизация политик
+- **Jaxtyping + Chex**: типы и проверки форм массивов
 
 ### Unified Data Fabric (Данные)
-- **Kuzu**: Встраиваемая графовая БД
-- **DuckDB**: Встраиваемая аналитическая SQL БД
-- **PyArrow**: Zero-copy передача данных между БД и JAX
-- **Pydantic v2**: Валидация данных и схем IR
+- **DuckDB**: аналитическое хранилище временных рядов и срезов
+- **Kùzu**: графовая БД для взаимодействий агентов
+- **pandas**: ETL, валидация и загрузка CSV
+- **PyArrow/Parquet**: columnar storage для staging/curated слоев
+- **Pydantic v2**: схемы данных, IR и runtime-артефактов
 
-### Orchestrator & Agents (Мозг)
-- **LangGraph**: Управление стейтом агентов и циклами
-- **LangChain**: Доступ к LLM (OpenAI/Anthropic)
-- **PyMOO**: Многокритериальная оптимизация (NSGA-II)
+### Orchestrator & Scientist (Мозг)
+- **LangGraph**: state-machine workflow для пайплайна эксперимента
+- **MockLLM**: локальный LLM-адаптер для тестов (без провайдеров)
+
+### Runtime & Observability
+- **Loguru**: структурированное логирование
+- **python-dotenv**: загрузка `.env` и конфигурации окружения
+- **Pydantic v2**: модели RunManifest и артефактов
+
+### Dashboard / Visualization
+- **Streamlit**: интерактивная панель (`dashboard.py`)
+- **Plotly**: графики и KPI для дашборда
 
 ### Dev Tools (Качество кода)
-- **Ruff**: Быстрый линтер и форматер (замена Black + Flake8 + Isort)
-- **MyPy**: Статическая типизация
-- **Pytest**: Тесты
+- **Ruff**: быстрый линтер и форматер (замена Black + Flake8 + Isort)
+- **MyPy**: строгая статическая типизация
+- **Pytest**: unit/integration/contract тесты
+- **Pre-commit**: git hooks (dev зависимости)
+- **JupyterLab + Matplotlib + Seaborn**: ноутбуки и исследовательская визуализация
+
+### Подготовлено, но сейчас не задействовано в коде
+- **Diffrax**: ODE/SDE solver (зависимость под дифференциальные модели)
+- **LangChain**: интеграция реальных LLM провайдеров (OpenAI/Anthropic)
+- **PyMOO**: многокритериальная оптимизация (NSGA-II)
+- **pydantic-settings**: типизированная конфигурация окружения
 
 ## Установка
 
@@ -144,6 +163,11 @@ policy-engine/
 ├── examples/             # Demo/legacy snippets
 └── tests/                # Pytest тесты
 ```
+
+## Рабочая директория и CAS
+
+- CAS по умолчанию хранится в `policy-engine/.polisyos`.
+- Все инструменты и скрипты предполагают рабочую директорию `policy-engine/`, чтобы пути и артефакты были стабильны.
 
 ## Проверка установки
 

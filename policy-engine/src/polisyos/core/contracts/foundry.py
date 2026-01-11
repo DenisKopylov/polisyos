@@ -1,0 +1,197 @@
+from __future__ import annotations
+
+from typing import Any, Literal
+
+from pydantic import BaseModel, ConfigDict, Field, model_validator
+
+from ..artifacts.manifest import ArtifactRef
+
+
+class PolicyRequestIRRef(ArtifactRef):
+    kind: Literal["ir.policy_request"] = "ir.policy_request"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class PolicySurfaceIRRef(ArtifactRef):
+    kind: Literal["ir.policy_surface"] = "ir.policy_surface"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class ProgramGraphRef(ArtifactRef):
+    kind: Literal["foundry.program_graph"] = "foundry.program_graph"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class LoweredIRRef(ArtifactRef):
+    kind: Literal["foundry.lowered_ir"] = "foundry.lowered_ir"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class ExecPlanRef(ArtifactRef):
+    kind: Literal["foundry.exec_plan"] = "foundry.exec_plan"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class StateSnapshotRef(ArtifactRef):
+    kind: Literal["foundry.state_snapshot"] = "foundry.state_snapshot"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class TreasurySeedRef(ArtifactRef):
+    kind: Literal["foundry.treasury_seed"] = "foundry.treasury_seed"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class ExecConfigRef(ArtifactRef):
+    kind: Literal["foundry.exec_config"] = "foundry.exec_config"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class StateDeltaRef(ArtifactRef):
+    kind: Literal["foundry.state_delta"] = "foundry.state_delta"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class MetricsRef(ArtifactRef):
+    kind: Literal["foundry.metrics"] = "foundry.metrics"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class TraceSliceRef(ArtifactRef):
+    kind: Literal["foundry.trace_slice"] = "foundry.trace_slice"
+    media_type: Literal["application/jsonl"] = "application/jsonl"
+
+
+class ProgramNode(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    node_id: str
+    node_kind: Literal["mechanism", "op"] = "mechanism"
+    mechanism_type: str | None = None
+    params_ref: ArtifactRef | None = None
+    op: "ProgramOp" | None = None
+    inputs: list[str] = Field(default_factory=list)
+    outputs: list[str] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def validate_kind(self) -> "ProgramNode":
+        if self.node_kind == "mechanism" and not self.mechanism_type:
+            raise ValueError("mechanism node requires mechanism_type")
+        if self.node_kind == "op" and self.op is None:
+            raise ValueError("op node requires op")
+        return self
+
+
+class ProgramOp(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    op_kind: Literal[
+        "merge_state",
+        "check_constraints",
+        "read_view",
+        "make_mask",
+        "apply_mechanism",
+    ]
+    params: dict[str, Any] = Field(default_factory=dict)
+    notes: list[str] = Field(default_factory=list)
+
+
+ProgramNode.model_rebuild()
+
+
+class ProgramEdge(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    src: str
+    dst: str
+    relation: str = "depends_on"
+
+
+class ProgramGraph(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    ir_ref: PolicySurfaceIRRef
+    nodes: list[ProgramNode] = Field(default_factory=list)
+    edges: list[ProgramEdge] = Field(default_factory=list)
+    entrypoints: list[str] = Field(default_factory=list)
+    notes: list[str] = Field(default_factory=list)
+
+
+class LoweredMechanism(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    mechanism_type: str
+    params_ref: ArtifactRef | None = None
+    target_ref: ArtifactRef | None = None
+
+
+class LoweredIR(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    ir_ref: PolicySurfaceIRRef
+    mechanisms: list[LoweredMechanism] = Field(default_factory=list)
+    notes: list[str] = Field(default_factory=list)
+
+
+class ExecPlan(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    program_ref: ProgramGraphRef
+    order: list[str] = Field(default_factory=list)
+    mode: Literal["dev", "perf", "audit"] = "dev"
+    jit: bool = True
+    max_steps: int | None = None
+    notes: list[str] = Field(default_factory=list)
+
+
+class StateSnapshot(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    state_ref: ArtifactRef
+    schema_ref: ArtifactRef | None = None
+    step: int | None = None
+    notes: list[str] = Field(default_factory=list)
+
+
+class TreasurySeed(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    seed: int
+    streams: dict[str, int] = Field(default_factory=dict)
+    notes: list[str] = Field(default_factory=list)
+
+
+class ExecConfig(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    mode: Literal["dev", "perf", "audit"] = "dev"
+    max_steps: int | None = None
+    deterministic: bool = True
+    notes: list[str] = Field(default_factory=list)
+
+
+class PatchOp(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    slot_id: str
+    op: str
+    value_ref: ArtifactRef | None = None
+    mask_ref: ArtifactRef | None = None
+    mask_scope: Literal["global", "per_agent", "per_firm", "per_entity"] | None = None
+    notes: list[str] = Field(default_factory=list)
+
+
+class StateDelta(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    base_ref: StateSnapshotRef | None = None
+    patch_ref: ArtifactRef | None = None
+    ops: list[PatchOp] = Field(default_factory=list)
+    notes: list[str] = Field(default_factory=list)
+
+
+class Metrics(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    values: dict[str, int | str] = Field(default_factory=dict)
+    notes: list[str] = Field(default_factory=list)

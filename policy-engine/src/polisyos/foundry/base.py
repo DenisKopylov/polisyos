@@ -1,4 +1,5 @@
 from abc import abstractmethod
+from typing import Any
 
 import equinox as eqx
 import jax
@@ -30,6 +31,18 @@ class Mechanism(eqx.Module):
             with jax.disable_jit():
                 return self.step(state, key)
         return self.step(state, key)
+
+    def emit_patches(
+        self,
+        state: GlobalState,
+        key: jax.Array,
+        *,
+        target_mask=None,
+    ) -> tuple[dict[str, dict[str, Any]] | None, jax.Array]:
+        """
+        Optional patch-first path. Override in mechanisms to emit slot deltas directly.
+        """
+        return None, key
 
     def invariants(self, state: GlobalState) -> bool:
         """

@@ -2,7 +2,7 @@
 from typing import Any, Dict, List, Optional, TypedDict
 
 
-from polisyos.ir.contract import PolicyRequestIR
+from polisyos.ir.surface import PolicySurfaceIR
 from polisyos.scientist.orchestrator.run_record import RunRecord
 
 
@@ -20,7 +20,7 @@ class RepairAttempt(TypedDict):
 class ExperimentState(TypedDict):
     # Входные данные
     user_request: str  # <--- НОВОЕ ПОЛЕ: "Reduce poverty"
-    ir: Optional[PolicyRequestIR]  # Теперь опционально, т.к. создается в процессе
+    ir: Optional[PolicySurfaceIR]  # Surface IR (semantic + advisory)
     last_ir_json: Optional[str]
     last_error: Optional[str]
 
@@ -39,11 +39,22 @@ class ExperimentState(TypedDict):
     budget_started_at: Optional[float]
     pruning_reason: Optional[Dict[str, Any]]
     pruned: Optional[bool]
+    random_seed: Optional[int]
     last_prompt: Optional[str]
     last_llm_response: Optional[str]
     data_view_requests: Optional[List[Dict[str, Any]]]
     data_view_plans: Optional[List[Dict[str, Any]]]
     compiled_model: Optional[Any]
+    policy_ir_ref: Optional[Dict[str, Any]]
+    program_graph_ref: Optional[Dict[str, Any]]
+    exec_plan_ref: Optional[Dict[str, Any]]
+    link_report_ref: Optional[Dict[str, Any]]
+    compile_report_ref: Optional[Dict[str, Any]]
+    state_delta_ref: Optional[Dict[str, Any]]
+    metrics_ref: Optional[Dict[str, Any]]
+    state_snapshot_ref: Optional[Dict[str, Any]]
+    registry_bundle_ref: Optional[Dict[str, Any]]
+    cas_root: Optional[str]
     analysis: Optional[Dict[str, Any]]
     decision_packet: Optional[Dict[str, Any]]
 

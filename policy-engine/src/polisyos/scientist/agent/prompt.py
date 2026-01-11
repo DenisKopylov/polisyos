@@ -1,6 +1,6 @@
 import json
 
-from polisyos.ir.contract import PolicyRequestIR
+from polisyos.ir.surface import PolicySurfaceIR
 
 SYSTEM_PROMPT_TEMPLATE = """
 You are the **Policy Scientist** — an advanced AI governing a digital economic simulation.
@@ -29,7 +29,7 @@ Recent Economic Data:
 
 def get_system_prompt(step: int, data_context: str) -> str:
     # Динамически подгружаем актуальную схему Pydantic
-    schema = PolicyRequestIR.model_json_schema()
+    schema = PolicySurfaceIR.model_json_schema()
 
     return SYSTEM_PROMPT_TEMPLATE.format(
         schema=json.dumps(schema, indent=2), step=step, data_context=data_context

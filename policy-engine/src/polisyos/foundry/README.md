@@ -1,19 +1,21 @@
-# Polisyos Foundry: JAX Simulation Core
+# Polisyos Foundry: Policy Execution Engine
 
-**Foundry** - это JAX-ядро дифференцируемых симуляций экономических механизмов политики в системе Policy Engine. Модуль предоставляет математическую основу для моделирования и оптимизации экономических политик с использованием современных дифференцируемых вычислений.
+**Foundry** - это высокопроизводительный execution engine для дифференцируемого исполнения экономических политик в системе Policy Engine. Модуль предоставляет компилятор политик, patch-based runtime и математическую основу для моделирования и оптимизации экономических механизмов с использованием современных дифференцируемых вычислений.
 
 ## Роль в архитектуре
 
-Foundry является **runtime backend** в архитектуре Policy Engine, отвечая за исполнение скомпилированных политик:
+Foundry является **policy execution backend** в архитектуре Policy Engine, отвечая за компиляцию и исполнение политик:
 
 ```
-NL → LLM → IR (AST) → Compilation → Runtime (UDF + Foundry) → Artifacts
+NL → LLM → IR (AST) → Foundry Compiler → Runtime Execution → Artifacts
 ```
 
 Foundry **не знает** про LLM и работает исключительно с:
-- ✅ JAX для дифференцируемых вычислений
+- ✅ JAX для дифференцируемых вычислений и JIT-компиляции
 - ✅ Экономическими механизмами (налоги, субсидии, очереди)
 - ✅ Многоуровневыми симуляциями (multi-fidelity)
+- ✅ Slot-based state management и patch operations
+- ✅ Program graphs и execution plans
 - ❌ Никаких БД, LLM или сетевых вызовов
 
 ## Технологический стек
@@ -22,26 +24,170 @@ Foundry **не знает** про LLM и работает исключител�
 - **Equinox**: OOP-обертка для JAX-модулей
 - **Jaxtyping**: Статическая проверка размерностей тензоров
 - **Chex**: Дополнительные проверки типов и форм
+- **Pydantic**: Валидация конфигураций и схем
 
 ## Архитектура
 
+Foundry состоит из четырех основных слоев:
+
+### 1. Compiler Layer (Компилятор)
 ```
-foundry/
-├── domain/          # Экономическая модель состояний
-│   ├── state.py     # GlobalState, AgentState, FirmState, MarketState
-│   └── schema.py    # Pydantic схемы конфигурации
-├── engine/          # Движок симуляции
-│   ├── kernel.py    # SimulationKernel (JIT-шаг экономического цикла)
-│   └── logic.py     # Экономическая логика (рынки, производство)
-├── base.py          # Абстрактный класс Mechanism
-├── types.py         # FidelityLevel enum (уровни точности)
-├── fiscal.py        # Налоговые механизмы (IncomeTax, TaxSubsidy)
-├── queue.py         # Механизм очередей с multi-fidelity
-├── specs.py         # Спецификации механизмов с валидацией
-├── registry.py      # Регистрация и фабрика механизмов
-├── loss.py          # Функции потерь для оптимизации
-├── utils.py         # Утилиты (soft functions, gradient health)
-└── basic_simulation.py  # Демо и примеры использования
+compiler.py          # Компиляция политик в ProgramGraph
+layout.py            # Slot layout для state management
+treasury.py          # Deterministic RNG management
+```
+
+### 2. Runtime Layer (Исполнение)
+```
+patch_vm.py          # Patch-based виртуальная машина
+runtime.py           # Исполнение ProgramGraph'ов
+executor.py          # JIT-исполнение механизмов
+```
+
+### 3. Domain Layer (Модель предметной области)
+```
+domain/
+├── state.py         # GlobalState, AgentState, FirmState, MarketState
+└── schema.py        # Pydantic схемы конфигурации
+```
+
+### 4. Mechanism Layer (Механизмы)
+```
+base.py             # Абстрактный класс Mechanism
+types.py            # FidelityLevel enum (уровни точности)
+fiscal.py           # Налоговые механизмы (IncomeTax, TaxSubsidy)
+queue.py            # Механизм очередей с multi-fidelity
+specs.py            # Спецификации механизмов с валидацией
+registry.py         # Регистрация и фабрика механизмов
+```
+
+### 5. Legacy Layer (Устаревшее)
+```
+engine/             # Legacy симуляционный движок
+├── kernel.py       # SimulationKernel (простая симуляция)
+└── logic.py        # Экономическая логика
+loss.py             # Функции потерь
+utils.py            # Утилиты
+basic_simulation.py # Демо и примеры
+```
+
+## Компилятор политик
+
+### Program Graph
+
+Foundry компилирует политики из IR в **ProgramGraph** - ориентированный граф выполнения:
+
+```python
+from polisyos.foundry.compiler import compile_surface_policy
+from polisyos.ir.surface import PolicySurfaceIR
+
+# Компилируем политику
+artifacts = compile_surface_policy(
+    store=store,
+    policy=policy_ir,
+    mechanism_registry=mechanism_registry,
+    slot_registry=slot_registry,
+    merge_registry=merge_registry
+)
+
+program_graph = artifacts.program_ref  # Скомпилированный граф
+```
+
+ProgramGraph состоит из:
+- **Nodes**: Узлы операций (механизмы, merge, constraints)
+- **Edges**: Зависимости между узлами
+- **Entrypoints**: Точки входа для исполнения
+
+### Execution Plan
+
+После компиляции создается **ExecutionPlan** с топологическим порядком исполнения:
+
+```python
+exec_plan = artifacts.exec_plan_ref
+# exec_plan.order содержит отсортированный список node_id для исполнения
+```
+
+## Patch-based Execution
+
+### Slot System
+
+Вместо прямых изменений состояния Foundry использует **slot-based** архитектуру:
+
+```python
+# Механизмы записывают в слоты вместо прямого изменения state
+slots_written = ["agents.income", "government.balance"]
+slots_read = ["agents.income", "market.unemployment_rate"]
+```
+
+### Patch Operations
+
+Механизмы генерируют **патчи** вместо прямых изменений:
+
+```python
+from polisyos.core.contracts.foundry import PatchOp
+
+# Вместо: state.agents.income += tax_amount
+# Механизм генерирует:
+patches = [
+    PatchOp(
+        slot_id="agents.income",
+        op="add",
+        value_ref=tax_amount_tensor_ref,
+        notes=["income_tax_mechanism"]
+    )
+]
+```
+
+### Merge Rules
+
+При конфликтах патчей применяются **merge rules**:
+
+- **SUM**: Складывать изменения (для балансов)
+- **OVERRIDE**: Перезаписывать по приоритету
+- **PRIORITY**: Выбирать по явному приоритету
+- **ERROR**: Запрещать конфликты
+
+## Runtime Execution
+
+### Execution Flow
+
+Исполнение политики проходит через несколько фаз:
+
+1. **Load Program**: Загрузка ProgramGraph из artifact store
+2. **Initialize State**: Инициализация начального состояния экономики
+3. **Execute Nodes**: Исполнение узлов в топологическом порядке
+4. **Merge Patches**: Применение патчей с merge rules
+5. **Check Constraints**: Валидация ограничений
+
+### Runtime API
+
+```python
+from polisyos.foundry.runtime import execute_program
+from polisyos.foundry.domain.state import GlobalState
+
+# Исполнение программы
+result = execute_program(
+    program_graph=program_graph,
+    initial_state=initial_state,
+    exec_plan=exec_plan,
+    store=artifact_store,
+    treasury_plan=treasury_plan
+)
+
+final_state = result.final_state
+execution_trace = result.trace
+```
+
+### Treasury System
+
+Для детерминированного исполнения используется **Treasury** - система управления RNG:
+
+```python
+from polisyos.foundry.treasury import build_treasury_plan
+
+# Каждый узел получает deterministic salt
+treasury = build_treasury_plan(program_graph, root_seed=42)
+node_rng = jax.random.key(treasury.node_salts[node_id])
 ```
 
 ## Основные понятия
@@ -61,10 +207,11 @@ class FidelityLevel(str, Enum):
 
 ### Mechanism (Механизм)
 
-Абстрактный базовый класс для всех экономических механизмов политики:
+Абстрактный базовый класс для всех экономических механизмов политики. Современные механизмы работают через **patch system**:
 
 ```python
 from polisyos.foundry.base import Mechanism
+from polisyos.core.contracts.foundry import UpdateOp
 
 class Mechanism(eqx.Module):
     fidelity: FidelityLevel = FidelityLevel.SURROGATE_FLUID
@@ -76,7 +223,19 @@ class Mechanism(eqx.Module):
 
     @abstractmethod
     def step(self, state: GlobalState, key: jax.Array) -> tuple[GlobalState, jax.Array]:
-        """Один шаг механизма"""
+        """Один шаг механизма (legacy direct state changes)"""
+
+    def emit_patches(
+        self,
+        state: GlobalState,
+        key: jax.Array,
+        *,
+        target_mask=None,
+    ) -> tuple[dict[str, list[UpdateOp]] | None, jax.Array]:
+        """
+        Patch-first execution path. Генерирует патчи вместо прямых изменений.
+        """
+        return None, key
 
     def invariants(self, state: GlobalState) -> bool:
         """Проверка физической корректности"""
@@ -326,12 +485,69 @@ if health_report.vanishing:
 
 ## Примеры использования
 
-### Базовая симуляция
+### Компиляция и исполнение политики
+
+```python
+from polisyos.foundry.compiler import compile_surface_policy
+from polisyos.foundry.runtime import execute_program
+from polisyos.core.artifacts.store import FileSystemCAS
+
+# Компиляция политики
+store = FileSystemCAS("/tmp/artifacts")
+artifacts = compile_surface_policy(
+    store=store,
+    policy=policy_surface_ir,
+    mechanism_registry=mechanism_registry,
+    slot_registry=slot_registry,
+    merge_registry=merge_registry
+)
+
+# Исполнение программы
+initial_state = GlobalState.empty(n_agents=1000, n_firms=100)
+result = execute_program(
+    program_graph=artifacts.program_ref,
+    exec_plan=artifacts.exec_plan_ref,
+    initial_state=initial_state,
+    store=store,
+    treasury_plan=artifacts.treasury_plan_ref
+)
+
+print(f"Финальный GDP: {result.final_state.gdp:.2f}")
+```
+
+### Создание механизма с патчами
+
+```python
+from polisyos.foundry.base import Mechanism
+from polisyos.core.contracts.foundry import UpdateOp
+import jax.numpy as jnp
+
+class ModernIncomeTax(Mechanism):
+    tax_rate: float
+
+    def emit_patches(self, state, key, *, target_mask=None):
+        # Вычисляем налог
+        incomes = state.agents.income
+        tax_amounts = incomes * self.tax_rate
+
+        # Генерируем патчи вместо прямых изменений
+        patches = {
+            "agents.income": [
+                UpdateOp(delta=-tax_amounts, mask=target_mask)
+            ],
+            "government.balance": [
+                UpdateOp(delta=jnp.sum(tax_amounts), mask=None)
+            ]
+        }
+        return patches, key
+```
+
+### Legacy симуляция (устаревшее)
 
 ```python
 from polisyos.foundry.basic_simulation import simple_policy_simulation, analyze_simulation_results
 
-# Запуск симуляции
+# Запуск простой симуляции
 time_steps, populations = simple_policy_simulation(
     population_size=1000,
     time_steps=50,
@@ -341,37 +557,6 @@ time_steps, populations = simple_policy_simulation(
 # Анализ результатов
 analysis = analyze_simulation_results(time_steps, populations)
 print(f"Средний рост: {analysis['total_growth_percent']:.1f}%")
-```
-
-### Полная симуляция с механизмом
-
-```python
-import jax
-import jax.numpy as jnp
-from polisyos.foundry.domain.state import GlobalState
-from polisyos.foundry.fiscal import IncomeTax
-from polisyos.foundry.engine.kernel import SimulationKernel
-
-# Инициализация состояния
-state = GlobalState.empty(n_agents=1000, n_firms=100)
-key = jax.random.PRNGKey(42)
-
-# Создание механизма
-tax = IncomeTax(rate=0.2, n_agents=1000)
-
-# Инициализация механизма
-state, key = tax.init_state(state, key)
-
-# Движок симуляции
-kernel = SimulationKernel()
-
-# Запуск симуляции на 12 шагов (месяцев)
-for step in range(12):
-    state, key = kernel.step(state, key)
-    state, key = tax.step(state, key)
-
-print(f"Финальный GDP: {state.gdp:.2f}")
-print(f"Средний доход: {jnp.mean(state.agents.income):.2f}")
 ```
 
 ## Разработка новых механизмов
@@ -441,18 +626,31 @@ MECHANISM_REGISTRY["unemployment_benefit"] = UnemploymentBenefit
 
 ## Тестирование
 
-Foundry включает тесты для:
+Foundry включает comprehensive тесты:
 
-- **JIT-стабильности**: проверка что градиенты не ломаются при компиляции
-- **Экономических инвариантов**: сохранение законов экономики
-- **Валидации параметров**: корректность входных данных
-- **Multi-fidelity**: эквивалентность результатов разных уровней точности
+### Compiler Tests
+- **Program Graph compilation**: Корректность построения графа
+- **Execution Plan**: Топологическая сортировка и валидность
+- **Merge Rules**: Разрешение конфликтов патчей
+
+### Runtime Tests
+- **Patch execution**: Корректность применения патчей
+- **Slot management**: Чтение/запись в правильные слоты
+- **Treasury determinism**: Воспроизводимость результатов
+
+### Legacy Tests
+- **JIT-стабильности**: Градиенты не ломаются при компиляции
+- **Экономических инвариантов**: Сохранение законов экономики
+- **Multi-fidelity**: Эквивалентность разных уровней точности
 
 ```bash
-# Запуск тестов foundry
+# Запуск всех тестов foundry
 pytest tests/foundry/ -v
 
-# Проверка JIT-стабильности
+# Тесты компилятора
+pytest tests/foundry/test_constraints_executor.py -v
+
+# Legacy тесты симуляции
 pytest tests/foundry/test_jit_stability.py -v
 ```
 
@@ -485,25 +683,48 @@ with jax.profiler.trace("/tmp/jax-trace"):
 
 ## Ограничения и допущения
 
+### Архитектурные ограничения
+
+- **Patch-based execution**: Все изменения через патчи, нет прямого доступа к состоянию
+- **Slot-based state**: Состояние доступно только через предопределенные слоты
+- **Deterministic execution**: Все RNG через Treasury для воспроизводимости
+- **Static compilation**: ProgramGraph фиксирован после компиляции
+
 ### Экономическая модель
 
-- **Кобб-Дуглас**: `Y = A × K^α × L^(1-α)` с α=0.3
+- **Кобб-Дуглас**: `Y = A × K^α × L^(1-α)` с α=0.3 (в legacy engine)
 - **Совершенная конкуренция**: на рынках труда и товаров
 - **Рациональные агенты**: максимизация полезности
 - **Закрытая экономика**: без внешней торговли
 
 ### Вычислительные ограничения
 
-- **JAX immutable state**: все изменения через `replace()`
-- **Static shapes**: размеры массивов фиксированы при компиляции
-- **Limited Python**: только JAX-совместимые операции
+- **JAX immutable state**: Все изменения через патчи или `replace()`
+- **Static shapes**: Размеры массивов фиксированы при компиляции
+- **Limited Python**: Только JAX-совместимые операции в runtime
+- **Artifact-based**: Все данные через artifact store
 
 ## Связанные модули
 
-- **`ir/`**: контракты и спецификации политик
-- **`fabric/`**: данные и UDF для инициализации состояния
-- **`scientist/`**: оркестрация и оптимизация политик
-- **`runtime/`**: артефакты прогонов и аудит
+### Зависимости Foundry
+
+- **`ir/`**: Policy Surface IR, контракты механизмов, slot/merge registries
+- **`core/artifacts`**: Artifact storage для компиляции и исполнения
+- **`core/contracts`**: Foundry-specific типы (PatchOp, ProgramGraph, etc.)
+
+### Потребители Foundry
+
+- **`scientist/`**: Использует компилятор для создания execution plans
+- **`fabric/`**: Предоставляет данные для инициализации состояния
+- **`runtime/`**: Хранит результаты исполнения и обеспечивает аудит
+
+### Интеграция в Pipeline
+
+```
+scientist/ → ir/ → foundry.compiler → foundry.runtime → artifacts
+                     ↓
+               fabric/ (data)    core/artifacts (storage)
+```
 
 ## Соглашения по коду
 
@@ -513,6 +734,29 @@ with jax.profiler.trace("/tmp/jax-trace"):
 - **Импорты**: абсолютные импорты внутри polisyos
 - **Логирование**: через loguru, без print statements
 
+## Миграция и Roadmap
+
+### Legacy Support
+
+Текущая версия Foundry поддерживает **legacy режим** для обратной совместимости:
+
+- **engine/kernel.py**: Простая симуляция без компиляции
+- **basic_simulation.py**: Примеры использования legacy API
+- **Direct state changes**: Механизмы могут работать без патчей
+
+### Рекомендации по миграции
+
+1. **Новые механизмы**: Использовать `emit_patches()` вместо `step()`
+2. **Новые политики**: Использовать compiler API вместо прямого создания механизмов
+3. **Производство**: Переходить на ProgramGraph execution для лучшей производительности
+
+### Будущие улучшения
+
+- **Distributed execution**: Масштабирование на кластеры
+- **Advanced merge rules**: Более сложные стратегии разрешения конфликтов
+- **Dynamic shapes**: Поддержка переменных размеров массивов
+- **GPU acceleration**: Оптимизация для GPU-вычислений
+
 ---
 
-Foundry предоставляет надежную математическую основу для моделирования экономических политик, обеспечивая баланс между точностью, производительностью и дифференцируемостью вычислений.
+Foundry эволюционировал от простого симулятора к высокопроизводительному компилятору политик, обеспечивая масштабируемость, детерминизм и эффективность исполнения экономических моделей.

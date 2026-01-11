@@ -46,11 +46,15 @@ NL → LLM → IR (AST) → Compilation → Runtime (UDF + Foundry) → Artifact
 ```
 fabric/
 ├── __init__.py              # Экспорт run_ingestion
-├── ingestion.py             # Главный ETL pipeline
+├── ingestion.py             # Главный ETL pipeline с Fact Log
 ├── schema.py                # Pydantic модели данных
 ├── manifest.py              # Метаданные и качество данных
 ├── registry.py              # Управление манифестами
 ├── config.py                # Правила нормализации и reconciliation
+├── evidence.py              # Система доказательств (evidence bundles)
+├── materializer.py          # Материализация из Fact Log в хранилища
+├── segment_manifest.py      # Управление сегментами Fact Log
+├── fact_writer.py           # Запись фактов в каноническом формате
 ├── io/                      # Интерфейсы хранения
 │   ├── db.py               # DuckDB адаптер
 │   └── graph_store.py      # Kùzu адаптер
@@ -59,7 +63,14 @@ fabric/
     ├── compiler.py         # Безопасный компилятор SQL/Cypher
     ├── plan.py             # Планы выполнения запросов
     ├── config.py           # UDF конфигурация и whitelist
-    └── schema.py           # Реэкспорт типов из ir.data_views
+    ├── schema.py           # Реэкспорт типов из ir.data_views
+    └── passes/             # Пайплайн компиляции запросов
+        ├── __init__.py     # Экспорт всех pass-функций
+        ├── lowering.py     # Понижение уровня абстракции
+        ├── merge.py        # Слияние и оптимизация запросов
+        ├── privacy.py      # Контроль приватности и PII
+        ├── resolution.py   # Разрешение имен и зависимостей
+        └── typecheck.py    # Проверка типов и единиц измерения
 ```
 
 ## Ключевые компоненты
@@ -209,7 +220,7 @@ class GraphStore:
 
 ### 7. Unified Data Fabric (`udf/`)
 
-Безопасный слой запросов к разнородным данным:
+Безопасный слой запросов к разнородным данным с компиляторным пайплайном:
 
 #### Data View Types:
 - **PANEL**: Временные ряды (макро-метрики)
@@ -229,6 +240,15 @@ class UDFEngine:
     def execute(self, plan: DataViewPlan) -> pd.DataFrame
 ```
 
+#### Compilation Pipeline (`passes/`):
+UDF использует последовательность компиляционных проходов для безопасной трансформации запросов:
+
+1. **Resolution Pass** (`resolution.py`): Разрешение имен таблиц, колонок и зависимостей
+2. **Typecheck Pass** (`typecheck.py`): Валидация типов данных и единиц измерения
+3. **Merge Pass** (`merge.py`): Оптимизация и слияние запросов
+4. **Privacy Pass** (`privacy.py`): Контроль приватности и PII-фильтрация
+5. **Lowering Pass** (`lowering.py`): Понижение уровня абстракции до SQL/Cypher
+
 #### Schema-driven Configuration:
 UDF конфигурация загружается из `data/curated/udf_schema.json`:
 ```json
@@ -246,6 +266,76 @@ UDF конфигурация загружается из `data/curated/udf_schem
   }
 }
 ```
+
+### 8. Fact Log System (Фактовая система)
+
+Каноническая система записи и хранения фактов для обеспечения immutable audit trail:
+
+#### Fact Writer (`fact_writer.py`)
+Преобразование структурированных данных в канонические факты:
+
+```python
+def build_fact(
+    *,
+    subject_id: str,
+    predicate_id: str,
+    object_value: Any = None,
+    target_id: str | None = None,
+    valid_time: Any = None,
+    provenance: FactProvenance,
+) -> Fact:
+    """Создание факта с provenance и trust metadata."""
+```
+
+**Особенности:**
+- **Immutable Facts**: Каждый факт имеет уникальный ID и не может быть изменен
+- **Provenance Tracking**: Полная traceability источника данных
+- **Trust Policies**: Уровни доверия для разных источников
+- **Temporal Validity**: Поддержка valid_time для временных фактов
+
+#### Segment Manifests (`segment_manifest.py`)
+Управление сегментами Fact Log для эффективного хранения и индексации:
+
+```python
+def write_segment_manifest(manifest: FactSegmentManifest, manifest_path: Path) -> Path:
+    """Запись манифеста сегмента с метаданными."""
+```
+
+#### Materializer (`materializer.py`)
+Восстановление реляционных представлений из Fact Log:
+
+```python
+def materialize_duckdb_from_fact_log(fact_dir: Path, db: SimulationDB) -> None:
+    """Материализация DuckDB таблиц из Fact Log сегментов."""
+```
+
+**Преимущества подхода:**
+- **Audit Trail**: Полная история изменений каждого факта
+- **Reproducibility**: Возможность восстановить состояние на любой момент времени
+- **Schema Evolution**: Безопасная миграция между версиями схем
+- **Distributed Storage**: Поддержка распределенного хранения фактов
+
+### 9. Evidence System (`evidence.py`)
+
+Система доказательств для верификации происхождения данных:
+
+#### Evidence Bundles
+```python
+def build_evidence_bundle(
+    *,
+    sources: list[ArtifactRef] | None = None,
+    transforms: list[EvidenceStep] | None = None,
+    trust_policy_id: str | None = None,
+    notes: list[str] | None = None,
+) -> EvidenceBundle:
+    """Создание пакета доказательств для датасета."""
+```
+
+**Компоненты:**
+- **Sources**: Ссылки на исходные артефакты
+- **Transforms**: Шаги трансформации данных
+- **Trust Policies**: Правила верификации доверия
+- **Notes**: Дополнительная контекстная информация
 
 ## API и использование
 
@@ -431,6 +521,105 @@ network_data = graph.query("""
 db.close()
 ```
 
+### Работа с Fact Log системой
+
+```python
+from pathlib import Path
+from polisyos.fabric.fact_writer import build_fact, facts_from_dataframe, write_fact_segment
+from polisyos.fabric.segment_manifest import write_segment_manifest
+from polisyos.ir.fact_log import FactProvenance, FactTrust
+
+# Создание фактов из DataFrame
+agents_df = pd.DataFrame({
+    'agent_id': ['agent_001', 'agent_002'],
+    'age': [30, 25],
+    'income': [50000, 40000]
+})
+
+# Настройка provenance
+provenance = FactProvenance(
+    source_artifact_id="agents_ingestion_run_001",
+    transform_id="entity_resolution_v1",
+    trust_policy_id="standard_trust",
+    collected_at="2024-01-11T10:00:00Z"
+)
+
+# Преобразование DataFrame в факты
+facts = facts_from_dataframe(
+    df=agents_df,
+    subject_id_column="agent_id",
+    provenance=provenance
+)
+
+# Запись сегмента фактов
+segment_path = write_fact_segment(
+    facts=facts,
+    segment_dir=Path("data/facts"),
+    segment_id="agents_segment_001"
+)
+
+print(f"Записано {len(facts)} фактов в {segment_path}")
+```
+
+### Работа с Evidence Bundles
+
+```python
+from polisyos.fabric.evidence import build_evidence_bundle
+from polisyos.core.contracts.fabric import EvidenceStep
+from polisyos.core.artifacts.manifest import ArtifactRef
+
+# Создание пакета доказательств
+evidence_bundle = build_evidence_bundle(
+    sources=[
+        ArtifactRef(
+            artifact_id="raw_agents_csv",
+            artifact_type="dataset",
+            version="1.0"
+        )
+    ],
+    transforms=[
+        EvidenceStep(
+            step_id="entity_resolution",
+            description="Entity resolution and normalization",
+            inputs=["raw_agents_csv"],
+            outputs=["normalized_agents"],
+            parameters={"normalization_rules": "v1"}
+        ),
+        EvidenceStep(
+            step_id="validation",
+            description="Pydantic validation",
+            inputs=["normalized_agents"],
+            outputs=["validated_agents"],
+            parameters={"schema_version": "1.0"}
+        )
+    ],
+    trust_policy_id="fabric_standard_trust",
+    notes=[
+        "Data collected from simulation run 001",
+        "Entity resolution applied with confidence scoring"
+    ]
+)
+
+print(f"Evidence bundle created with {len(evidence_bundle.transforms)} steps")
+```
+
+### Материализация из Fact Log
+
+```python
+from polisyos.fabric.materializer import materialize_duckdb_from_fact_log
+from polisyos.fabric.io.db import SimulationDB
+
+# Инициализация хранилища
+db = SimulationDB("simulation.duckdb")
+
+# Материализация из Fact Log
+fact_dir = Path("data/facts")
+materialize_duckdb_from_fact_log(fact_dir, db)
+
+print("DuckDB materialized from Fact Log")
+db.close()
+```
+
 ### Кастомная валидация данных
 
 ```python
@@ -515,24 +704,34 @@ except ValueError as e:
 Согласно [Закону A архитектуры](../../../../../architecture.md), Fabric находится на **Runtime Backend** уровне и обеспечивает данные для верхних уровней:
 
 ```
-scientist → ir + fabric + foundry
-fabric → ir (только контракты)
-foundry → ir (только типы)
+scientist → ir + fabric + foundry + runtime
+fabric → ir + common (только контракты и утилиты)
+foundry → ir + common (только типы и утилиты)
+runtime → common (инфраструктура)
 ```
+
+**Новые компоненты и связи:**
+- **Fact Log System**: Связь с `ir.fact_log` для канонического хранения фактов
+- **Evidence System**: Интеграция с `core.contracts.fabric` для доказательств
+- **UDF Passes**: Компиляционный пайплайн с последовательной трансформацией запросов
+- **Materializer**: Восстановление реляционных представлений из immutable фактов
 
 ### Интерфейсы для Scientist (Orchestrator)
 
-**Scientist** использует Fabric для загрузки baseline состояния и выполнения запросов к данным:
+**Scientist** использует Fabric для загрузки baseline состояния, выполнения запросов к данным и работы с Fact Log:
 
 ```python
 # orchestrator/data_loader.py - загрузка начального состояния
 from polisyos.fabric.udf.engine import UDFEngine
 from polisyos.fabric.registry import ManifestRegistry
+from polisyos.fabric.evidence import build_evidence_bundle
+from polisyos.fabric.materializer import materialize_duckdb_from_fact_log
 
 class DataLoader:
-    def __init__(self, curated_dir: Path):
+    def __init__(self, curated_dir: Path, fact_dir: Path):
         self.udf = UDFEngine(curated_dir=curated_dir)
         self.manifests = ManifestRegistry(curated_dir)
+        self.fact_dir = fact_dir
 
     def load_baseline_state(self) -> dict:
         """Загрузка baseline состояния агентов для симуляции."""
@@ -543,6 +742,29 @@ class DataLoader:
             filters=[DataFilter(column="step", operator="=", value=0)]
         )
         return self.udf.query(request)
+
+    def ensure_materialized_state(self) -> None:
+        """Обеспечение актуального состояния через материализацию."""
+        # Материализация из Fact Log если необходимо
+        from polisyos.fabric.io.db import SimulationDB
+        db = SimulationDB()
+        materialize_duckdb_from_fact_log(self.fact_dir, db)
+        db.close()
+
+    def build_evidence_for_run(self, run_id: str) -> EvidenceBundle:
+        """Создание доказательств для прогона симуляции."""
+        return build_evidence_bundle(
+            sources=self.manifests.require("agents").to_artifact_ref(),
+            transforms=[
+                EvidenceStep(
+                    step_id="baseline_loading",
+                    description=f"Loading baseline state for run {run_id}",
+                    inputs=["agents_manifest"],
+                    outputs=[f"baseline_{run_id}"]
+                )
+            ],
+            trust_policy_id="scientist_baseline_trust"
+        )
 ```
 
 **Decision Packet** включает метаданные из Fabric manifests:
@@ -613,6 +835,10 @@ class AgentRow(BaseModel):
 2. **Entity Resolution Maps**: Соответствия ID для аудита
 3. **Reconciliation Reports**: Финансовые проверки
 4. **UDF Schema**: Конфигурация безопасных запросов
+5. **Fact Segments**: Immutable факты в каноническом формате
+6. **Segment Manifests**: Метаданные сегментов Fact Log
+7. **Evidence Bundles**: Пакеты доказательств происхождения данных
+8. **Materialization Indexes**: Индексы для быстрого доступа к материализованным данным
 
 ### Workflow Integration
 
@@ -668,11 +894,20 @@ def save_run_record(self, run_record: RunRecord):
 pytest tests/contract/test_ir_contract.py     # IR контракты
 pytest tests/contract/test_fabric_gates.py   # Fabric интерфейсы
 
+# Тесты компонентов Fabric
+pytest tests/core_phase0/test_artifact_store.py  # Хранение артефактов
+pytest tests/core_phase0/test_canon_json.py      # Канонический JSON
+
 # Интеграционные тесты
 pytest tests/integration/test_workflow_smoke.py  # Полный workflow с Fabric
 
 # Foundry интеграция
 pytest tests/foundry/test_fiscal.py           # Fiscal с UDF данными
+pytest tests/foundry/test_constraints_executor.py  # Constraints с данными Fabric
+
+# Специфические тесты новых компонентов
+pytest tests/contract/test_fabric_gates.py   # Evidence bundles и контракты
+# Fact Log тестируется через integration тесты
 ```
 
 ## Производительность и масштабируемость
@@ -773,6 +1008,9 @@ def _compile_panel(self, req: DataViewRequest) -> DataViewPlan:
 - **Partitioning**: Разделение данных по времени/типам
 - **Archival**: Автоматическое архивирование старых данных
 - **Federated queries**: Запросы к распределенным хранилищам
+- **Fact Log Segmentation**: Разделение immutable фактов на сегменты для эффективного хранения
+- **Lazy Materialization**: Материализация данных по требованию из Fact Log
+- **Distributed Fact Storage**: Поддержка распределенного хранения фактов
 
 ### Memory management
 
@@ -828,10 +1066,19 @@ python tools/diagnostics/generate_ir_schema.py
 
 **Fabric** — это надежный фундамент Policy Engine, обеспечивающий:
 
-- **Data integrity**: Строгая валидация и reconciliation
-- **Performance**: Оптимизированные запросы и storage
-- **Safety**: Безопасный доступ через UDF whitelist
-- **Scalability**: Поддержка роста данных и нагрузки
-- **Auditability**: Полная traceability всех операций
+- **Data integrity**: Строгая валидация, reconciliation и evidence tracking
+- **Immutability**: Fact Log система для полного audit trail
+- **Performance**: Оптимизированные запросы и multi-backend storage
+- **Safety**: Безопасный доступ через UDF whitelist и privacy passes
+- **Scalability**: Поддержка роста данных через сегментацию и материализацию
+- **Auditability**: Полная traceability от сырых данных до симуляционных результатов
+- **Schema Evolution**: Безопасная миграция через контракты и versioning
+- **Reproducibility**: Восстановление любого состояния через Fact Log
 
-Модуль следует принципам архитектуры, обеспечивая чистое разделение ответственности между ingestion, storage, и query слоями, с четкими контрактами для интеграции с остальной системой.
+**Новые возможности:**
+- **Fact Log System**: Immutable факты с provenance и trust policies
+- **Evidence Bundles**: Криптографически verifiable доказательства происхождения
+- **UDF Compilation Pipeline**: Многоуровневая компиляция запросов с оптимизациями
+- **Materialization Engine**: Эффективное восстановление реляционных представлений
+
+Модуль следует принципам архитектуры (Законы A, B, C, D), обеспечивая чистое разделение ответственности между ingestion, storage, query и audit слоями, с четкими контрактами для интеграции с остальной системой.

@@ -15,58 +15,97 @@
 
 ```
 tests/
-├── conftest.py              # Конфигурация pytest и настройка окружения
-├── contract/                # Тесты контрактов IR и схем валидации
-│   ├── test_ir_contract.py      # PolicyRequestIR, TargetSelector, валидация
-│   ├── test_ir_migrations.py    # Миграции схем IR
-│   └── test_fabric_gates.py     # Входные фильтры Fabric
-├── foundry/                 # Тесты симуляционных компонентов
-│   ├── test_gradients.py        # Градиенты политик (JAX/Equinox)
-│   ├── test_fiscal.py           # Фискальные механизмы
-│   ├── test_global_state.py     # Глобальное состояние симуляции
-│   ├── test_health.py           # Проверки здоровья системы
-│   ├── test_jit_stability.py    # JIT-стабильность
-│   ├── test_production_kernel.py # Production kernel
-│   └── test_*.py                # Другие тесты foundry
-├── integration/             # Интеграционные тесты workflow
-│   ├── test_workflow_smoke.py   # Полный smoke-test pipeline
-│   └── test_workflow_llm.py     # Интеграция с LLM компонентами
-└── scientist/               # Тесты компонентов scientist
-    └── test_compiler.py         # Компилятор политик из IR
+├── conftest.py                    # Конфигурация pytest и настройка окружения
+├── contract/                      # Тесты контрактов IR и схем валидации
+│   ├── test_ir_contract.py        # PolicyRequestIR, TargetSelector, валидация
+│   ├── test_ir_migrations.py      # Миграции схем IR
+│   ├── test_fabric_gates.py       # Входные фильтры Fabric
+│   ├── test_kernel_models.py      # Валидация моделей ядра IR (slots, units, merge rules)
+│   └── test_surface_ir.py         # Тестирование Surface IR, линкера и fingerprint'ов
+├── core_phase0/                   # Тесты базовых компонентов core (Phase 0)
+│   ├── conftest.py                # Специфичная конфигурация для core тестов
+│   ├── test_artifact_store.py     # FileSystemCAS, дедупликация, верификация
+│   ├── test_canon_json.py         # Каноническая JSON сериализация
+│   ├── test_registry_bundle.py    # Сборка и загрузка registry bundles
+│   └── test_run_context.py        # Контекст выполнения и артефакты
+├── foundry/                       # Тесты симуляционных компонентов
+│   ├── test_gradients.py          # Градиенты политик (JAX/Equinox)
+│   ├── test_fiscal.py             # Фискальные механизмы
+│   ├── test_global_state.py       # Глобальное состояние симуляции
+│   ├── test_health.py             # Проверки здоровья системы
+│   ├── test_jit_stability.py      # JIT-стабильность
+│   ├── test_production_kernel.py  # Production kernel
+│   ├── test_constraints_executor.py # Исполнение ограничений (constraints)
+│   ├── test_patch_executor.py     # Patch executor и state delta
+│   ├── test_program_graph_ops.py  # Операции с программными графами
+│   └── test_*.py                  # Другие тесты foundry
+├── integration/                   # Интеграционные тесты workflow
+│   ├── test_workflow_smoke.py     # Полный smoke-test pipeline
+│   └── test_workflow_llm.py       # Интеграция с LLM компонентами
+└── scientist/                     # Тесты компонентов scientist
+    └── test_compiler.py           # Компилятор политик из IR
 ```
 
 ## Категории тестов
 
 ### Contract Tests (`contract/`)
 
-**Цель**: Обеспечение корректности структур данных и API контрактов.
+**Цель**: Обеспечение корректности структур данных и API контрактов на всех уровнях IR.
 
 **Ключевые тесты:**
 - **IR Contract Validation**: Валидация `PolicyRequestIR`, селекторов, транслируемых строк
 - **Schema Migrations**: Тестирование миграций схем между версиями
 - **Fabric Gates**: Проверка входных фильтров и предусловий
+- **Kernel Models**: Валидация моделей ядра (slots, units, merge rules, time semantics)
+- **Surface IR**: Тестирование Surface IR, линкера, семантических fingerprint'ов
 
 **Принципы:**
 - Roundtrip тестирование: `yaml → model → yaml` сохраняет канонический формат
 - Alias acceptance: Принимает `En/Ua/Ru`, сериализует в `en/ua/ru`
 - Limits enforcement: Огромные payload'ы не "валят пайплайн"
 - Entity DAG validation: Циклы в графах сущностей ловятся
+- Type safety: Строгая валидация типов, запрет float значений, Decimal enforcement
+- Linker validation: Проверка корректности связывания политик с механизмами
+- Semantic fingerprinting: Детерминированные хэши для политик независимо от порядка
+
+### Core Phase 0 Tests (`core_phase0/`)
+
+**Цель**: Тестирование фундаментальных компонентов core layer - artifact store, канонической сериализации и registry систем.
+
+**Ключевые тесты:**
+- **Artifact Store**: FileSystemCAS, дедупликация контента, верификация integrity
+- **Canonical JSON**: Детерминированная сериализация, запрет float/NaN, нормализация
+- **Registry Bundle**: Сборка и загрузка registry bundles из artifact store
+- **Run Context**: Контекст выполнения, артефакты и метаданные producer'а
+
+**Принципы:**
+- Content-addressable storage: SHA256-based addressing, дедупликация
+- Canonical serialization: Стабильные хэши независимо от порядка ключей
+- Type safety: Запрет float значений, использование Decimal для денег
+- Artifact immutability: Артефакты неизменяемы после создания
+- Producer tracking: Метаданные о создателе и окружении
 
 ### Foundry Tests (`foundry/`)
 
-**Цель**: Валидация математических моделей и симуляций на JAX.
+**Цель**: Валидация математических моделей, симуляций на JAX и компонентов исполнения.
 
 **Ключевые тесты:**
 - **Gradient Health**: Проверка градиентов политик, NaN/Inf detection
 - **JIT Stability**: Стабильность PyTree структур при компиляции
 - **Fiscal Mechanisms**: Тестирование налоговых/субсидий механизмов
 - **Kernel Production**: Тестирование production симуляционного ядра
+- **Constraints Executor**: Исполнение ограничений (budget guards, validation)
+- **Patch Executor**: State delta, snapshot'ы, артефакт эмиссия
+- **Program Graph Ops**: Операции с программными графами, execution order
 
 **Принципы:**
 - Все тесты форсируют CPU (через conftest.py) для консистентности
 - Проверка `jit(step)` компилируется и сохраняет структуру
 - Gradient sanity: конечные разности vs JAX autodiff в допусках
 - Invariants verification: физическая корректность после шагов симуляции
+- Constraint enforcement: Валидация ограничений на runtime
+- State consistency: Корректность state delta и snapshot'ов
+- Graph execution: Правильный порядок операций в программных графах
 
 ### Integration Tests (`integration/`)
 
@@ -137,6 +176,9 @@ pytest --cov=polisyos --cov-report=html
 # Контрактные тесты (быстрые, без зависимостей)
 pytest tests/contract/ -v
 
+# Core Phase 0 тесты (базовые компоненты)
+pytest tests/core_phase0/ -v
+
 # Foundry тесты (JAX, математические)
 pytest tests/foundry/ -v
 
@@ -167,23 +209,78 @@ pytest tests/integration/test_workflow_smoke.py
 - **pytest-cov**: Покрытие кода (опционально)
 
 ### Domain-Specific Libraries
-- **JAX/Equinox**: Для тестирования математических компонентов
+- **JAX/Equinox**: Для тестирования математических компонентов и симуляций
 - **pandas**: Работа с тестовыми данными
 - **DuckDB/Kuzu**: Интеграционные тесты с базами данных
-- **Pydantic**: Валидация структур данных
+- **Pydantic**: Валидация структур данных и контрактов
+- **pathlib**: Работа с файловой системой в core тестах
+- **hashlib**: SHA256 хэширование для artifact integrity
 
 ## Принципы тестирования
 
 ### Архитектурные инварианты
-- **Закон A**: Граф зависимостей только внутрь (scientist → ir/fabric/foundry)
+- **Закон A**: Граф зависимостей только внутрь (scientist → ir/fabric/foundry/core)
 - **Закон B**: Компиляторная труба (NL → LLM → IR → Compilation → Runtime)
 - **Закон C**: Контракты как источник истины
+- **Закон D**: Core layer как фундамент (core → ir → fabric → foundry → scientist)
 
 ### Качественные требования
-- **Unit Tests**: Покрывают все публичные API foundry компонентов
+- **Unit Tests**: Покрывают все публичные API foundry и core компонентов
 - **Contract Tests**: Валидируют границы между слоями
 - **Integration Tests**: Проверяют end-to-end сценарии
 - **Performance Regression**: SLA на скорость выполнения
+
+## Связи между модулями и архитектурные зависимости
+
+### Core Layer (`core_phase0/`)
+**Artifact Store** → Используется всеми модулями для хранения immutable артефактов
+- **IR**: Хранение схем и политик
+- **Fabric**: Материализация данных в артефакты
+- **Foundry**: Компиляция политик в executable артефакты
+- **Scientist**: Хранение результатов экспериментов
+
+**Canonical JSON** → Стандартизированная сериализация
+- **IR**: Канонические представления политик
+- **Registry**: Нормализованные конфигурации
+- **Contracts**: Детерминированные хэши для валидации
+
+**Registry System** → Централизованное управление метаданными
+- **IR Kernel**: Слоты, механизмы, ограничения
+- **Foundry**: Доступ к registry для компиляции
+- **Fabric**: Registry-driven материализация
+
+### Contract Layer (`contract/`)
+**IR Contracts** → Валидация структур данных
+- **Surface IR**: Семантическая модель политик
+- **Kernel Models**: Базовые типы (MoneyValue, TimeSemantics, Slots)
+- **Linker**: Связывание политик с механизмами
+
+**Schema Validation** → Гарантии совместимости
+- **Migrations**: Безопасные переходы между версиями
+- **Fabric Gates**: Предусловия для обработки данных
+- **Surface IR**: Semantic fingerprinting для дедупликации
+
+### Foundry Layer (`foundry/`)
+**Simulation Engine** → JAX-based execution
+- **Constraints**: Runtime валидация ограничений
+- **Patch Executor**: State management и snapshots
+- **Program Graphs**: Оркестрация execution order
+
+**Compilation Pipeline** → IR → Executable
+- **IR Surface**: Исходные политики для компиляции
+- **Core Artifacts**: Хранение скомпилированных программ
+- **Integration**: End-to-end pipeline validation
+
+### Integration Layer (`integration/`)
+**Workflow Orchestration** → End-to-end scenarios
+- **Scientist**: LLM-driven policy drafting
+- **Foundry**: Simulation execution
+- **Fabric**: Data ingestion и materialization
+- **IR**: Policy compilation pipeline
+
+**LLM Integration** → AI-powered components
+- **Scientist Agent**: Drafter, prompt engineering
+- **Workflow**: Комплексные сценарии с AI
 
 ### CI/CD интеграция
 - Unit тесты запускаются на каждый PR
@@ -194,10 +291,11 @@ pytest tests/integration/test_workflow_smoke.py
 ## Разработка и расширение
 
 ### Добавление новых тестов
-1. Определите категорию (contract/foundry/integration/scientist)
+1. Определите категорию (contract/core_phase0/foundry/integration/scientist)
 2. Следуйте naming convention: `test_*.py`
-3. Используйте fixtures из `conftest.py`
+3. Используйте fixtures из соответствующего `conftest.py`
 4. Маркируйте медленные тесты `@pytest.mark.integration`
+5. Для core тестов используйте специфичные fixtures (store, producer, env_info)
 
 ### Отладка тестов
 ```bash

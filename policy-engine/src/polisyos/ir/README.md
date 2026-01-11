@@ -13,8 +13,20 @@ NL → LLM → IR (AST) → Compilation → Runtime (UDF + Foundry) → Artifact
 ### Положение в графе зависимостей
 
 - **Входящие зависимости**: НИКАКИХ (чистый контракт)
-- **Исходящие зависимости**: Используется всеми модулями (`scientist`, `fabric`, `foundry`)
+- **Исходящие зависимости**: Используется всеми модулями (`scientist`, `fabric`, `foundry`, `runtime`)
 - **Принцип**: "IR → никого" (Закон A - граф зависимостей только внутрь)
+
+### Архитектурная эволюция
+
+Модуль IR прошел через несколько этапов развития:
+
+1. **IR v1.0**: Простые контракты с базовой валидацией (`PolicyIR`)
+2. **IR v2.0**: Разделение на semantic и advisory части (`PolicySurfaceIR`)
+3. **Текущая версия**: Расширенная система с kernel-реестрами и линкером
+
+Текущая архитектура разделяет политику на две части:
+- **Semantic**: Исполняемая логика (интервенции, цели, ограничения)
+- **Advisory**: Человекочитаемые описания и метаданные
 
 ### Ключевые обязанности
 
@@ -36,25 +48,93 @@ NL → LLM → IR (AST) → Compilation → Runtime (UDF + Foundry) → Artifact
 ```
 ir/
 ├── __init__.py              # Экспорт основных типов данных
-├── kernel/                  # Shared kernel: units, slots, merge rules, time semantics
-├── contract.py               # Основные модели данных (316 строк)
-├── types.py                  # Перечисления и базовые типы (81 строка)
-├── data_views.py             # Модели запросов данных (60 строк)
-├── validation.py             # Утилиты валидации и отчетов (89 строк)
-├── units.py                  # Default units registry + legacy UNIT_REGISTRY
+├── contract.py               # Унаследованные модели данных (v1.0)
+├── types.py                  # Перечисления и базовые типы
+├── data_views.py             # Модели запросов данных
+├── validation.py             # Утилиты валидации и отчетов
+├── units.py                  # Унаследованный UNIT_REGISTRY
+├── fact_log.py               # Контракты для Fact Log (семантическая сеть)
+├── linker.py                 # Линкер политик с реестрами
+├── predicate.py              # Реестры предикатов для данных
+├── surface.py                # PolicySurfaceIR (v2.0) - основной контракт
+├── kernel/                   # Kernel: реестры и базовые типы
+│   ├── __init__.py          # Экспорт kernel компонентов
+│   ├── base.py              # KernelModel и утилиты
+│   ├── constraints.py       # Реестр ограничений
+│   ├── mechanisms.py        # Реестр механизмов
+│   ├── merge_rules.py       # Правила слияния слотов
+│   ├── metrics.py           # Реестр метрик
+│   ├── numbers.py           # Числовые типы (DecimalValue, etc.)
+│   ├── selector_fields.py   # Поля селекторов
+│   ├── slots.py             # Реестр слотов состояний
+│   ├── time_semantics.py    # Семантика времени
+│   ├── trust.py             # Политики доверия
+│   ├── units.py             # Реестр единиц измерения
+│   └── values.py            # Типизированные значения (MoneyValue, etc.)
 └── migrations/
-    ├── __init__.py          # Экспорт миграций
-    ├── base.py               # Инфраструктура миграций
-    └── policy_ir.py          # Конкретные миграции IR
+    ├── __init__.py          # API миграций
 ```
 
 ## Основные компоненты
 
-### 1. Контракты данных (`contract.py`)
+### 1. Surface контракты (`surface.py`) - v2.0
 
-#### PolicyIR - корневой документ
+#### PolicySurfaceIR - основной контракт системы
 
-Основная структура, описывающая полную политику симуляции:
+Текущий основной контракт системы, разделяющий политику на исполняемую (semantic) и advisory части:
+
+```python
+from polisyos.ir.surface import PolicySurfaceIR, PolicySemantic, PolicyAdvisory
+
+# Semantic часть - исполняемая логика
+semantic = PolicySemantic(
+    context_snapshot_ref="sha256:...",
+    registry_bundle_ref="sha256:...",
+    objectives=[
+        ObjectiveSpec(
+            objective_id="max_gdp",
+            metric_id="gdp",
+            direction=OptimizationDirection.MAXIMIZE
+        )
+    ],
+    interventions=[
+        InterventionSpec(
+            intervention_id="tax_reform",
+            kind="TaxMechanism",
+            target=SelectorAll(clauses=[
+                SelectorPredicate(field="income", operator=">", value=10000)
+            ]),
+            schedule=ScheduleSpec(start_step=0, end_step=120),  # 10 лет
+            params={"rate": 0.15}
+        )
+    ]
+)
+
+# Advisory часть - человекочитаемые описания
+advisory = PolicyAdvisory(
+    entities=[
+        AdvisoryEntity(
+            entity_id="government",
+            entity_type=EntityType.AGENT,
+            name=TranslatableString(en="Government", ua="Уряд")
+        )
+    ],
+    narrative="Fiscal policy reform to stimulate economic growth"
+)
+
+# Полная политика
+policy = PolicySurfaceIR(
+    schema_version="2.0",
+    semantic=semantic,
+    advisory=advisory
+)
+```
+
+### 2. Унаследованные контракты (`contract.py`) - v1.0
+
+#### PolicyIR - корневой документ (устаревший)
+
+Унаследованная структура v1.0, сохранена для обратной совместимости:
 
 ```python
 from polisyos.ir.contract import PolicyIR, PolicyEntity, Intervention
@@ -271,7 +351,111 @@ except ValidationError as e:
 - `diff_payloads()` - генерация diff между версиями
 - `summarize_issues()` - суммарный отчет проблем
 
-### 6. Система версий (`migrations/`)
+### 6. Fact Log контракты (`fact_log.py`)
+
+#### Семантическая сеть фактов
+
+Модель для представления знаний в виде семантической сети RDF-подобных фактов:
+
+```python
+from polisyos.ir.fact_log import Fact, FactBatch, FactProvenance, FactTrust, FactLegal
+
+# Факт о доходе агента
+fact = Fact(
+    fact_id="income_john_2024",
+    subject_id="agent_john",
+    predicate_id="has_income",
+    object_value=50000.0,
+    target_id=None,
+    valid_time="2024-01-01",
+    provenance=FactProvenance(
+        source_id="tax_authority",
+        license="public_domain",
+        raw_hash="sha256:...",
+        ingestion_run_id="ingest_001"
+    ),
+    trust=FactTrust(confidence=0.95, method="official_source"),
+    legal=FactLegal(pii_class="aggregated", access_tier="public")
+)
+
+# Пакет фактов для загрузки
+batch = FactBatch(facts=[fact])
+```
+
+#### Детерминированные идентификаторы
+
+```python
+from polisyos.ir.fact_log import build_fact_id
+
+# Генерация детерминированного ID на основе содержимого
+payload = {"subject": "agent_john", "predicate": "has_income", "value": 50000}
+fact_id = build_fact_id(payload)  # sha256:...
+```
+
+### 7. Линкер политик (`linker.py`)
+
+#### Валидация и линковка политик
+
+Система проверки корректности политик относительно реестров механизмов, слотов, метрик и ограничений:
+
+```python
+from polisyos.ir.linker import link_policy
+from polisyos.ir.kernel import MechanismTypeRegistry, SlotRegistry
+
+# Линковка политики с реестрами
+report = link_policy(
+    policy=surface_policy,
+    mechanism_registry=mechanism_registry,
+    slot_registry=slot_registry,
+    merge_registry=merge_registry,
+    constraint_registry=constraint_registry,
+    metric_registry=metric_registry
+)
+
+if not report.ok:
+    for issue in report.issues:
+        print(f"{issue.severity}: {issue.message}")
+```
+
+#### Типы проблем линковки
+
+- `unknown_mechanism`: Неизвестный механизм интервенции
+- `missing_param`: Отсутствует обязательный параметр
+- `param_type`: Неверный тип параметра
+- `unknown_slot`: Неизвестный слот состояния
+- `merge_conflict`: Конфликт правил слияния
+
+### 8. Реестры предикатов (`predicate.py`)
+
+#### Предикаты для запросов данных
+
+Определение предикатов для доступа к данным симуляции:
+
+```python
+from polisyos.ir.predicate import PredicateRegistry, ScalarPredicateSpec, EdgePredicateSpec
+
+registry = PredicateRegistry(
+    scalars={
+        "income": ScalarPredicateSpec(
+            predicate_id="income",
+            slot_id="agent.income",
+            value_type="number",
+            unit=UnitRef(unit_id="uah"),
+            default_agg="mean"
+        )
+    },
+    edges={
+        "trades_with": EdgePredicateSpec(
+            predicate_id="trades_with",
+            src_entity_type="agent",
+            dst_entity_type="agent",
+            cardinality="many_to_many"
+        )
+    }
+)
+```
+
+### 9. Система версий (`migrations/`)
 
 #### Детерминированные миграции
 
@@ -281,22 +465,109 @@ from polisyos.ir.migrations import migrate_policy_ir
 # Миграция данных между версиями
 migrated_data = migrate_policy_ir(
     data=input_data,
-    target_version="1.0",
+    target_version="2.0",
     allow_major=False  # Защита от major изменений
 )
 ```
 
-#### Регистрация миграций
+## Kernel: базовые реестры и типы
+
+Kernel предоставляет фундаментальные реестры и типы для всей системы IR:
+
+### 1. Реестры механизмов (`mechanisms.py`)
+
+Определение доступных типов механизмов интервенций:
 
 ```python
-from polisyos.ir.migrations.base import register_migration
+from polisyos.ir.kernel import MechanismTypeRegistry, MechanismTypeSpec, ParamSpec, ParamType
 
-@register_migration("0.9", "1.0")
-def migrate_policy_ir_0_9_to_1_0(data: dict) -> dict:
-    """Миграция: projectName → project_name"""
-    if "projectName" in data:
-        data["project_name"] = data.pop("projectName")
-    return data
+registry = MechanismTypeRegistry(mechanisms={
+    "TaxMechanism": MechanismTypeSpec(
+        mechanism_id="TaxMechanism",
+        params={
+            "rate": ParamSpec(
+                param_id="rate",
+                value_type=ParamType.RATE,
+                unit_id="percent",
+                required=True,
+                min_value=0.0,
+                max_value=1.0
+            )
+        },
+        reads_slots=["income"],
+        writes_slots=["tax_paid"]
+    )
+})
+```
+
+### 2. Реестр слотов (`slots.py`)
+
+Определение слотов состояния агентов и сущностей:
+
+```python
+from polisyos.ir.kernel import SlotRegistry, SlotSpec, SlotKind
+
+registry = SlotRegistry(slots={
+    "agent.income": SlotSpec(
+        slot_id="agent.income",
+        kind=SlotKind.AGGREGATE,
+        scope=SlotScope.AGENT,
+        merge_rule=MergeRuleRef(rule_id="sum")
+    )
+})
+```
+
+### 3. Реестр единиц (`units.py`)
+
+Типизированная система единиц измерения:
+
+```python
+from polisyos.ir.kernel import UnitsRegistry, MoneyUnit, RateUnit
+
+registry = UnitsRegistry(units={
+    "uah": MoneyUnit(
+        unit_id="uah",
+        currency="UAH",
+        nominal_year=2024
+    ),
+    "percent": RateUnit(
+        unit_id="percent",
+        base="percent"
+    )
+})
+```
+
+### 4. Типизированные значения (`values.py`)
+
+Строго типизированные значения с единицами:
+
+```python
+from polisyos.ir.kernel import MoneyValue, RateValue, CountValue
+
+salary = MoneyValue(amount=50000.0, currency="UAH", nominal_year=2024)
+tax_rate = RateValue.ratio(0.15)  # 15%
+employees = CountValue(value=100)
+```
+
+### 5. Правила слияния (`merge_rules.py`)
+
+Логика разрешения конфликтов при пересекающихся интервенциях:
+
+```python
+from polisyos.ir.kernel import MergeRuleRegistry, MergeRuleSpec, MergeRuleKind
+
+registry = MergeRuleRegistry(rules={
+    "priority": MergeRuleSpec(
+        rule_id="priority",
+        kind=MergeRuleKind.PRIORITY,
+        description="Resolve by priority field"
+    ),
+    "error": MergeRuleSpec(
+        rule_id="error",
+        kind=MergeRuleKind.ERROR,
+        description="Raise error on conflict"
+    )
+})
 ```
 
 ## Ограничения безопасности
@@ -304,28 +575,17 @@ def migrate_policy_ir_0_9_to_1_0(data: dict) -> dict:
 IR включает строгие лимиты для предотвращения runaway-симуляций:
 
 ```python
-# Анти-runaway константы
-MAX_ENTITIES = 500      # Максимум сущностей
-MAX_INTERVENTIONS = 200 # Максимум вмешательств
-MAX_DEPTH = 4          # Максимальная глубина иерархии
-MAX_CHILDREN = 200     # Максимум детей у сущности
-MAX_ID_LEN = 64        # Длина идентификаторов
-```
+# Анти-runaway константы (surface.py)
+MAX_SELECTOR_DEPTH = 6      # Максимальная глубина селекторов
+MAX_SELECTOR_NODES = 200    # Максимум узлов в селекторе
+MAX_INTERVENTIONS = 200     # Максимум интервенций
+MAX_OBJECTIVES = 50         # Максимум целей
+MAX_CONSTRAINTS = 100       # Максимум ограничений
 
-## Единицы измерения (`units.py`)
-
-Стандартизированный реестр единиц для параметров:
-
-```python
-UNIT_REGISTRY = {
-    "ratio": {"kind": "dimensionless"},
-    "percent": {"kind": "dimensionless"},
-    "uah": {"kind": "currency"},
-    "usd": {"kind": "currency"},
-    "year": {"kind": "time"},
-    "month": {"kind": "time"},
-    "per_step": {"kind": "rate"},
-}
+# Анти-runaway константы (contract.py - устаревшие)
+MAX_ENTITIES = 500          # Максимум сущностей
+MAX_DEPTH = 4               # Максимальная глубина иерархии
+MAX_ID_LEN = 64             # Длина идентификаторов
 ```
 
 ## Использование в коде
@@ -333,50 +593,91 @@ UNIT_REGISTRY = {
 ### Базовый импорт
 
 ```python
-from polisyos.ir import (
-    # Основные типы
-    EntityType, OptimizationDirection, TranslatableString,
+# Основные типы (рекомендуемый импорт)
+from polisyos.ir import PolicySurfaceIR
 
-    # Модели данных
-    PolicyIR, PolicyEntity, Intervention, TargetSelector,
-
-    # Запросы данных
-    DataViewRequest, DataViewType, AccessTier,
-
-    # Валидация
-    ValidationReport
+# Альтернативный импорт для доступа ко всем компонентам
+from polisyos.ir.surface import (
+    PolicySurfaceIR, PolicySemantic, PolicyAdvisory,
+    InterventionSpec, ObjectiveSpec, ConstraintSpec,
+    SelectorPredicate, SelectorAll, SelectorAny, SelectorNot
 )
+
+from polisyos.ir.kernel import (
+    MechanismTypeRegistry, SlotRegistry, UnitsRegistry,
+    MoneyValue, RateValue
+)
+
+from polisyos.ir.linker import link_policy
+from polisyos.ir.fact_log import Fact, FactBatch
 ```
 
-### Создание политики
+### Создание политики v2.0
 
 ```python
-from polisyos.ir.contract import PolicyIR, PolicyEntity, Intervention
-from polisyos.ir.types import EntityType, TranslatableString
+from polisyos.ir.surface import (
+    PolicySurfaceIR, PolicySemantic, PolicyAdvisory,
+    InterventionSpec, ObjectiveSpec, AdvisoryEntity,
+    SelectorPredicate, ScheduleSpec
+)
+from polisyos.ir.types import EntityType, TranslatableString, OptimizationDirection
 
-# Создание простой политики
-policy = PolicyIR(
-    schema_version="1.0",
-    project_name="Tax Policy Simulation",
-    entities=[
-        PolicyEntity(
-            id="government",
-            entity_type=EntityType.AGENT,
-            name=TranslatableString(en="Government", ua="Уряд"),
-            state_variables={"budget": 1000000.0}
+# Семантическая часть - исполняемая логика
+semantic = PolicySemantic(
+    context_snapshot_ref="sha256:...",  # Ссылка на snapshot контекста
+    objectives=[
+        ObjectiveSpec(
+            objective_id="max_economic_growth",
+            metric_id="gdp_growth",
+            direction=OptimizationDirection.MAXIMIZE,
+            weight=1.0
         )
     ],
     interventions=[
-        Intervention(
-            id="basic_income",
-            name=TranslatableString(en="Basic Income", ua="Базовий дохід"),
-            target_selector=TargetSelector(
-                all_of=[SelectorPredicate(field="income", operator="<", value=500)]
+        InterventionSpec(
+            intervention_id="basic_income_policy",
+            kind="TransferMechanism",  # Ссылка на механизм в Foundry
+            target=SelectorPredicate(
+                field="income",
+                operator="<",
+                value=500
             ),
-            mechanism_type="TransferPayment",
-            parameters={"amount": 200.0, "frequency": "monthly"}
+            schedule=ScheduleSpec(
+                start_step=0,
+                end_step=120  # 10 лет месячной симуляции
+            ),
+            params={
+                "amount": 200.0,
+                "frequency": "monthly"
+            }
         )
     ]
+)
+
+# Advisory часть - человекочитаемые метаданные
+advisory = PolicyAdvisory(
+    entities=[
+        AdvisoryEntity(
+            entity_id="government",
+            entity_type=EntityType.AGENT,
+            name=TranslatableString(en="Government", ua="Уряд"),
+            attributes={"budget_authority": True}
+        ),
+        AdvisoryEntity(
+            entity_id="citizens",
+            entity_type=EntityType.AGENT,
+            name=TranslatableString(en="Citizens", ua="Громадяни")
+        )
+    ],
+    narrative="Universal basic income policy to reduce poverty and stimulate consumption",
+    labels=["social_policy", "economic_stimulus"]
+)
+
+# Полная политика
+policy = PolicySurfaceIR(
+    schema_version="2.0",
+    semantic=semantic,
+    advisory=advisory
 )
 ```
 
@@ -433,11 +734,29 @@ IR строго следует архитектурным законам про�
 
 ## Связанные компоненты
 
-- **Scientist**: Использует IR для генерации политик из NL
-- **Fabric**: Импортирует типы данных из IR для запросов
-- **Foundry**: Получает скомпилированные параметры из IR
-- **Runtime**: Хранит артефакты IR для аудита
+### Зависимости и взаимодействие
+
+- **Scientist**: Генерирует `PolicySurfaceIR` из естественного языка через LLM
+- **Fabric**: Использует `DataViewRequest` и предикаты для запросов данных
+- **Foundry**: Компилирует `InterventionSpec` в исполняемые механизмы JAX
+- **Runtime**: Хранит артефакты `PolicySurfaceIR` для аудита и воспроизводимости
+- **Core**: Использует `Fact` и `FactBatch` для семантической сети знаний
+
+### Архитектурные контракты
+
+```
+Scientist → PolicySurfaceIR → [Linker] → Foundry → Simulation
+                     ↓
+                  Fabric → DataViewRequest → Runtime
+                     ↓
+                Fact Log → Semantic Network
+```
 
 ---
 
-**См. также**: [Общая архитектура](../../../../architecture.md), [Примеры использования](../../../examples/ir_base_demo.py)
+**См. также**:
+- [Общая архитектура](../../../../architecture.md)
+- [Примеры использования](../../../examples/ir_base_demo.py)
+- [Kernel реестры](../foundry/README.md) - механизмы и слоты
+- [Fabric](../fabric/README.md) - система данных
+- [Scientist](../scientist/README.md) - генерация политик

@@ -68,3 +68,4 @@ class ExperimentState(TypedDict):
     max_repair_attempts: int
     repair_log: List[RepairAttempt]
     audit_trail: List[Dict[str, Any]]
+    phase: Optional[str]

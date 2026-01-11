@@ -71,7 +71,7 @@ class ArtifactRef(BaseModel):
 
 
 class ArtifactManifest(BaseModel):
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="forbid", populate_by_name=True)
 
     artifact_id: ArtifactID
     kind: str
@@ -80,7 +80,7 @@ class ArtifactManifest(BaseModel):
     byte_size: int = Field(ge=0)
     created_at: datetime = Field(default_factory=utc_now)
 
-    schema: SchemaInfo | None = None
+    artifact_schema: SchemaInfo | None = Field(default=None, alias="schema")
     canon: CanonInfo | None = None
 
     inputs: list[InputRef] = Field(default_factory=list)

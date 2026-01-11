@@ -14,6 +14,7 @@ from polisyos.core.artifacts.manifest import ArtifactRef, InputRef
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.compiler import CompileReport, put_compile_report, put_link_report
 from polisyos.core.registry import build_default_registry_bundle, load_registry_bundle_content
+from polisyos.core.run.context import RunContext
 from polisyos.fabric.io.db import SimulationDB
 from polisyos.fabric.io.graph_store import GraphStore
 from polisyos.fabric.udf.engine import UDFEngine
@@ -385,7 +386,7 @@ def _check_budget(state: ExperimentState, kind: str) -> ExperimentState:
 
 
 def _ensure_run(state: ExperimentState) -> ExperimentState:
-    if state.get("run_id"):
+    if state.get("run_id") and state.get("run_context"):
         return _ensure_registry_bundle(state)
     runtime_dir = _runtime_base_dir(state)
     manifest = start_run(
@@ -397,6 +398,16 @@ def _ensure_run(state: ExperimentState) -> ExperimentState:
     )
     new_state = {**state, "run_id": manifest.run_id, "runtime_base_dir": str(runtime_dir)}
     new_state = _ensure_registry_bundle(new_state)
+    registry_bundle_ref = new_state.get("registry_bundle_ref")
+    if registry_bundle_ref:
+        store = FileSystemCAS(_cas_root(new_state))
+        ctx = RunContext.start(
+            store,
+            registry_bundle=ArtifactRef.model_validate(registry_bundle_ref),
+            run_dir=_runtime_base_dir(new_state),
+            run_id=manifest.run_id,
+        )
+        new_state = {**new_state, "run_context": ctx}
     return append_audit(new_state, "runtime", "start_run", {"run_id": manifest.run_id})
 
 
@@ -771,6 +782,24 @@ def compile_model_node(state: ExperimentState) -> ExperimentState:
             step="compile_model",
             base_dir=_runtime_base_dir(state),
         )
+        if artifacts.slot_layout_ref is not None:
+            log_artifact(
+                run_id=state["run_id"],
+                artifact_type="slot_layout_ref",
+                payload=artifacts.slot_layout_ref.model_dump(),
+                media_type="application/json",
+                step="compile_model",
+                base_dir=_runtime_base_dir(state),
+            )
+        if artifacts.treasury_plan_ref is not None:
+            log_artifact(
+                run_id=state["run_id"],
+                artifact_type="treasury_plan_ref",
+                payload=artifacts.treasury_plan_ref.model_dump(),
+                media_type="application/json",
+                step="compile_model",
+                base_dir=_runtime_base_dir(state),
+            )
 
         compile_inputs.extend(
             [
@@ -778,6 +807,16 @@ def compile_model_node(state: ExperimentState) -> ExperimentState:
                 InputRef(artifact_id=artifacts.exec_plan_ref.artifact_id, role="exec_plan"),
             ]
         )
+        if artifacts.slot_layout_ref is not None:
+            compile_inputs.append(
+                InputRef(artifact_id=artifacts.slot_layout_ref.artifact_id, role="slot_layout")
+            )
+        if artifacts.treasury_plan_ref is not None:
+            compile_inputs.append(
+                InputRef(
+                    artifact_id=artifacts.treasury_plan_ref.artifact_id, role="treasury_plan"
+                )
+            )
         compile_report = CompileReport(
             ok=True,
             policy_ref=artifacts.policy_ref,
@@ -785,6 +824,8 @@ def compile_model_node(state: ExperimentState) -> ExperimentState:
             link_report_ref=link_ref,
             program_graph_ref=artifacts.program_ref,
             exec_plan_ref=artifacts.exec_plan_ref,
+            slot_layout_ref=artifacts.slot_layout_ref,
+            treasury_plan_ref=artifacts.treasury_plan_ref,
         )
         compile_ref = put_compile_report(store, compile_report, inputs=compile_inputs)
         log_artifact(
@@ -802,6 +843,12 @@ def compile_model_node(state: ExperimentState) -> ExperimentState:
                 "policy_ir_ref": artifacts.policy_ref.model_dump(),
                 "program_graph_ref": artifacts.program_ref.model_dump(),
                 "exec_plan_ref": artifacts.exec_plan_ref.model_dump(),
+                "slot_layout_ref": artifacts.slot_layout_ref.model_dump()
+                if artifacts.slot_layout_ref
+                else None,
+                "treasury_plan_ref": artifacts.treasury_plan_ref.model_dump()
+                if artifacts.treasury_plan_ref
+                else None,
                 "link_report_ref": link_ref.model_dump(),
                 "compile_report_ref": compile_ref.model_dump(),
             },
@@ -1047,8 +1094,17 @@ def pack_decision_node(state: ExperimentState) -> ExperimentState:
         base_dir=_runtime_base_dir(state),
     )
 
+    ctx = state.get("run_context")
+    run_manifest_ref = None
+    if ctx:
+        run_manifest_ref = ctx.finalize(status=status)
+
     return append_audit(
-        {**state, "decision_packet": packet.model_dump(mode="json") if packet else None},
+        {
+            **state,
+            "decision_packet": packet.model_dump(mode="json") if packet else None,
+            "run_manifest_ref": run_manifest_ref.model_dump() if run_manifest_ref else None,
+        },
         "pack_decision",
         "completed",
         {"status": status},

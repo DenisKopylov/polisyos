@@ -1,4 +1,11 @@
 from polisyos.fabric.registry import ManifestRegistry
+from polisyos.fabric.udf.passes import (
+    lowering_pass,
+    merge_pass,
+    privacy_pass,
+    resolution_pass,
+    typecheck_pass,
+)
 from polisyos.ir.data_views import AccessTier, DataViewRequest, DataViewType
 from polisyos.fabric.udf.config import UdfSchema
 from polisyos.fabric.udf.plan import DataViewPlan
@@ -24,13 +31,21 @@ class ViewCompiler:
         """
         logger.info(f"👓 Compiling DataView: {req.view_type} for {req.metrics}")
 
+        req = resolution_pass(req)
+        req = typecheck_pass(req)
+        req = merge_pass(req)
+        req = privacy_pass(req)
+
         if req.view_type == DataViewType.PANEL:
-            return self._compile_panel(req)
+            plan = self._compile_panel(req)
         elif req.view_type == DataViewType.SNAPSHOT:
-            return self._compile_snapshot(req)
+            plan = self._compile_snapshot(req)
         elif req.view_type == DataViewType.NETWORK:
-            return self._compile_network(req)
-        raise NotImplementedError(f"View type {req.view_type} not supported")
+            plan = self._compile_network(req)
+        else:
+            raise NotImplementedError(f"View type {req.view_type} not supported")
+
+        return lowering_pass(req, plan)
 
     def _validate_columns(
         self, table: str, metrics: list[str], filters, access_tier: AccessTier

@@ -39,6 +39,11 @@ def _as_decimal(value: Any, *, percent_ok: bool = False) -> Decimal | None:
         return Decimal(value.value)
     if isinstance(value, Decimal):
         return value
+    if isinstance(value, float):
+        try:
+            return Decimal(str(value))
+        except (InvalidOperation, ValueError):
+            return None
     if isinstance(value, int) and not isinstance(value, bool):
         return Decimal(value)
     if isinstance(value, str):

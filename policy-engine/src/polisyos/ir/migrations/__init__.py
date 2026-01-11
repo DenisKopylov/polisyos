@@ -1,12 +1,60 @@
-from polisyos.ir.migrations.base import (
-    is_major_bump,
-    migrate_policy_ir,
-    parse_version,
-    register_migration,
-)
-from polisyos.ir.migrations.policy_ir import IR_CURRENT_VERSION
+from __future__ import annotations
+
+import re
+
+from polisyos.common.migrations.base import migrate_artifact, register_migration as _register_migration
+from polisyos.common.migrations.policy_ir import POLICY_IR_CURRENT_VERSION
+
+IR_ARTIFACT = "policy_ir"
+IR_CURRENT_VERSION = POLICY_IR_CURRENT_VERSION
+
+_VERSION_RE = re.compile(r"^(?P<major>\d+)\.(?P<minor>\d+)$")
+
+
+def parse_version(version: str) -> tuple[int, int]:
+    match = _VERSION_RE.match(version)
+    if not match:
+        raise ValueError(f"Invalid schema version '{version}'. Expected MAJOR.MINOR.")
+    return int(match.group("major")), int(match.group("minor"))
+
+
+def is_major_bump(from_version: str, to_version: str) -> bool:
+    from_major, _ = parse_version(from_version)
+    to_major, _ = parse_version(to_version)
+    return to_major != from_major
+
+
+def register_migration(from_version: str, to_version: str):
+    """
+    Backwards-compatible shim that registers policy IR migrations
+    using the shared common.migrations registry.
+    """
+    parse_version(from_version)
+    parse_version(to_version)
+    return _register_migration(IR_ARTIFACT, from_version, to_version)
+
+
+def migrate_policy_ir(data: dict, target_version: str | None = None, *, allow_major: bool = False) -> dict:
+    """
+    Migrate policy IR payload using the shared common.migrations registry.
+    """
+    if "schema_version" not in data:
+        raise ValueError("Missing schema_version for policy IR")
+    current_version = data["schema_version"]
+    target = target_version or IR_CURRENT_VERSION
+    parse_version(current_version)
+    parse_version(target)
+
+    if not allow_major and is_major_bump(current_version, target):
+        raise ValueError(
+            f"Major version change requires allow_major=True: {current_version} -> {target}"
+        )
+
+    return migrate_artifact(data, IR_ARTIFACT, target)
+
 
 __all__ = [
+    "IR_ARTIFACT",
     "IR_CURRENT_VERSION",
     "is_major_bump",
     "migrate_policy_ir",

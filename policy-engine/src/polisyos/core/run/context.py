@@ -31,8 +31,9 @@ class RunContext:
         producer: ProducerInfo | None = None,
         env: EnvInfo | None = None,
         run_dir: Path | None = None,
+        run_id: str | None = None,
     ) -> "RunContext":
-        run_id = new_run_id()
+        run_id = run_id or new_run_id()
         run_dir = run_dir or (store.root / "runs" / run_id)
         run_dir.mkdir(parents=True, exist_ok=True)
         trace_path = run_dir / "trace.jsonl"

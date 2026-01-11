@@ -15,7 +15,7 @@ from polisyos.ir.kernel import (
     MergeRuleSpec,
 )
 from polisyos.ir.linker import link_policy
-from polisyos.ir.surface import PolicyAdvisory, PolicySemantic, PolicySurfaceIR
+from polisyos.ir.surface import PolicyAdvisory, PolicySemantic, PolicySurfaceIR, ScheduleSpec
 from polisyos.ir.types import SelectorOperator
 from pydantic import ValidationError
 
@@ -184,25 +184,11 @@ def test_semantic_fingerprint_normalizes_schedule() -> None:
     base_semantic = _minimal_semantic()
     policy_duration = PolicySurfaceIR(semantic=base_semantic)
 
+    intervention_with_end = base_semantic.interventions[0].model_copy(
+        update={"schedule": ScheduleSpec(start_step=0, end_step=0)}
+    )
     policy_end = PolicySurfaceIR(
-        semantic=base_semantic.model_copy(
-            update={
-                "interventions": [
-                    {
-                        "intervention_id": "tax_cut",
-                        "kind": "income_tax",
-                        "target": {
-                            "kind": "predicate",
-                            "field": "id",
-                            "operator": SelectorOperator.EQUALS,
-                            "value": "all",
-                        },
-                        "schedule": {"start_step": 0, "end_step": 0},
-                        "params": {"rate": Decimal("0.1")},
-                    }
-                ]
-            }
-        )
+        semantic=base_semantic.model_copy(update={"interventions": [intervention_with_end]})
     )
 
     assert (
@@ -253,6 +239,51 @@ def test_semantic_fingerprint_normalizes_numeric_strings() -> None:
     assert policy_a.semantic_fingerprint_payload(
         mechanism_registry=DEFAULT_MECHANISM_REGISTRY
     ) == policy_b.semantic_fingerprint_payload(mechanism_registry=DEFAULT_MECHANISM_REGISTRY)
+
+
+def test_semantic_fingerprint_ignores_intervention_order() -> None:
+    target = {
+        "kind": "predicate",
+        "field": "id",
+        "operator": SelectorOperator.EQUALS,
+        "value": "all",
+    }
+    int_a = {
+        "intervention_id": "a_tax",
+        "kind": "income_tax",
+        "target": target,
+        "schedule": {"start_step": 0, "duration_steps": 1},
+        "params": {"rate": Decimal("0.1")},
+    }
+    int_b = {
+        "intervention_id": "b_subsidy",
+        "kind": "tax_subsidy",
+        "target": target,
+        "schedule": {"start_step": 0, "duration_steps": 1},
+        "params": {"rate": Decimal("0.2")},
+    }
+
+    policy_a = PolicySurfaceIR(
+        semantic=PolicySemantic(
+            context_snapshot_ref=CTX_REF,
+            interventions=[int_a, int_b],
+        )
+    )
+    policy_b = PolicySurfaceIR(
+        semantic=PolicySemantic(
+            context_snapshot_ref=CTX_REF,
+            interventions=[int_b, int_a],
+        )
+    )
+
+    payload_a = policy_a.semantic_fingerprint_payload(
+        mechanism_registry=DEFAULT_MECHANISM_REGISTRY
+    )
+    payload_b = policy_b.semantic_fingerprint_payload(
+        mechanism_registry=DEFAULT_MECHANISM_REGISTRY
+    )
+
+    assert payload_a == payload_b
 
 
 def test_linker_ignores_non_overlapping_error_merge() -> None:

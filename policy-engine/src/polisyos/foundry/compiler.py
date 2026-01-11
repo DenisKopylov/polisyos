@@ -9,25 +9,33 @@ from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.contracts.foundry import (
     ExecPlan,
+    ExecPlanRef,
+    PolicySurfaceIRRef,
     ProgramEdge,
     ProgramGraph,
+    ProgramGraphRef,
     ProgramNode,
     ProgramOp,
 )
-from polisyos.ir.kernel import (
-    MechanismTypeRegistry,
-    MergeRuleRegistry,
-    SlotRegistry,
-    UnitsRegistry,
-)
+from polisyos.ir.kernel import MechanismTypeRegistry, MergeRuleRegistry, SlotRegistry, UnitsRegistry
 from polisyos.ir.surface import InterventionSpec, PolicySurfaceIR, schedule_range
+from polisyos.foundry.layout import SlotLayout, build_slot_layout
+from polisyos.foundry.treasury import TreasuryPlan, build_treasury_plan
 
 
 @dataclass
 class CompileArtifacts:
-    policy_ref: ArtifactRef
-    program_ref: ArtifactRef
-    exec_plan_ref: ArtifactRef
+    policy_ref: PolicySurfaceIRRef
+    program_ref: ProgramGraphRef
+    exec_plan_ref: ExecPlanRef
+    slot_layout_ref: ArtifactRef | None = None
+    treasury_plan_ref: ArtifactRef | None = None
+
+
+def _as_policy_ref(ref: ArtifactRef | PolicySurfaceIRRef) -> PolicySurfaceIRRef:
+    if isinstance(ref, PolicySurfaceIRRef):
+        return ref
+    return PolicySurfaceIRRef(artifact_id=ref.artifact_id)
 
 
 def put_policy_surface(
@@ -37,7 +45,7 @@ def put_policy_surface(
     semantic_only: bool = True,
     mechanism_registry: MechanismTypeRegistry | None = None,
     units_registry: UnitsRegistry | None = None,
-) -> ArtifactRef:
+) -> PolicySurfaceIRRef:
     payload = (
         policy.semantic_fingerprint_payload(
             mechanism_registry=mechanism_registry,
@@ -46,7 +54,7 @@ def put_policy_surface(
         if semantic_only
         else policy
     )
-    return store.put_json(
+    ref = store.put_json(
         payload,
         PutOptions(
             kind="ir.policy_surface",
@@ -54,6 +62,7 @@ def put_policy_surface(
             schema=SchemaInfo(name="polisyos.ir.PolicySurfaceIR", version=policy.schema_version),
         ),
     )
+    return _as_policy_ref(ref)
 
 
 def compile_surface_policy(
@@ -73,6 +82,7 @@ def compile_surface_policy(
             mechanism_registry=mechanism_registry,
             units_registry=units_registry,
         )
+    policy_ref = _as_policy_ref(policy_ref)
     program_graph = _build_program_graph(
         policy,
         policy_ref,
@@ -91,20 +101,46 @@ def compile_surface_policy(
             inputs=program_inputs,
         ),
     )
+    program_graph_ref = ProgramGraphRef(artifact_id=program_ref.artifact_id)
 
     order = _build_exec_order(program_graph)
-    exec_plan = ExecPlan(program_ref=program_ref, order=order)
-    exec_plan_ref = store.put_json(
+    exec_plan = ExecPlan(program_ref=program_graph_ref, order=order)
+    exec_plan_payload_ref = store.put_json(
         exec_plan,
         PutOptions(
             kind="foundry.exec_plan",
             media_type="application/json",
             schema=SchemaInfo(name="polisyos.core.ExecPlan", version="0.1.0"),
+            inputs=[InputRef(artifact_id=program_graph_ref.artifact_id, role="program_graph")],
+        ),
+    )
+    exec_plan_ref = ExecPlanRef(artifact_id=exec_plan_payload_ref.artifact_id)
+    slot_layout = build_slot_layout(slot_registry)
+    slot_layout_ref = store.put_json(
+        slot_layout,
+        PutOptions(
+            kind="foundry.slot_layout",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.foundry.SlotLayout", version=slot_layout.schema_version),
+            inputs=[InputRef(artifact_id=program_graph_ref.artifact_id, role="program_graph")],
+        ),
+    )
+    treasury_plan = build_treasury_plan(program_graph)
+    treasury_plan_ref = store.put_json(
+        treasury_plan,
+        PutOptions(
+            kind="foundry.treasury_plan",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.foundry.TreasuryPlan", version=treasury_plan.schema_version),
             inputs=[InputRef(artifact_id=program_ref.artifact_id, role="program_graph")],
         ),
     )
     return CompileArtifacts(
-        policy_ref=policy_ref, program_ref=program_ref, exec_plan_ref=exec_plan_ref
+        policy_ref=policy_ref,
+        program_ref=program_graph_ref,
+        exec_plan_ref=exec_plan_ref,
+        slot_layout_ref=slot_layout_ref,
+        treasury_plan_ref=treasury_plan_ref,
     )
 
 

@@ -16,6 +16,8 @@ from polisyos.fabric.manifest import CoverageMetrics, DatasetManifest, QualityMe
 from polisyos.fabric.schema import AgentRow, InteractionRow, MacroRow
 from polisyos.fabric.io.db import SimulationDB
 from polisyos.fabric.io.graph_store import GraphStore
+from polisyos.fabric.fact_writer import build_fact, facts_from_dataframe, write_fact_segment
+from polisyos.ir.fact_log import FactProvenance, FactSegmentManifest
 
 
 def _file_hash(path: Path) -> str:
@@ -141,6 +143,47 @@ def _reconcile_interactions(
     )
 
 
+def _build_provenance(manifest: DatasetManifest, ingestion_run_id: str | None = None) -> FactProvenance:
+    return FactProvenance(
+        source_id=manifest.source,
+        license=manifest.license,
+        raw_hash=manifest.raw_hash,
+        ingestion_run_id=ingestion_run_id,
+    )
+
+
+def _append_segment_index(manifest: FactSegmentManifest, index_path: Path) -> None:
+    index_path.parent.mkdir(parents=True, exist_ok=True)
+    with index_path.open("a", encoding="utf-8") as f:
+        f.write(manifest.model_dump_json() + "\n")
+
+
+def _emit_fact_segments(
+    df: pd.DataFrame,
+    *,
+    dataset_name: str,
+    curated_dir: Path,
+    predicate_map: dict[str, str],
+    subject_field: str,
+    provenance: FactProvenance,
+    valid_time_field: str | None = None,
+    target_field: str | None = None,
+) -> None:
+    if df.empty:
+        return
+    facts = facts_from_dataframe(
+        df,
+        subject_field=subject_field,
+        predicate_value_map=predicate_map,
+        provenance=provenance,
+        valid_time_field=valid_time_field,
+        target_field=target_field,
+    )
+    segment_dir = curated_dir / "fact_log"
+    manifest = write_fact_segment(facts, segment_dir=segment_dir, segment_name=dataset_name)
+    _append_segment_index(manifest, segment_dir / "_segments.jsonl")
+
+
 def ingest_macro(
     raw_path: Path,
     staging_dir: Path,
@@ -183,6 +226,23 @@ def ingest_macro(
     )
     manifest_path = curated_dir / "macro_manifest.json"
     manifest_path.write_text(manifest.model_dump_json(indent=2), encoding="utf-8")
+    provenance = _build_provenance(manifest)
+    _emit_fact_segments(
+        df_valid,
+        dataset_name="macro",
+        curated_dir=curated_dir,
+        predicate_map={
+            "macro.gdp": "gdp",
+            "macro.unemployment_rate": "unemployment_rate",
+            "macro.inflation_rate": "inflation_rate",
+            "macro.avg_price": "avg_price",
+            "macro.avg_income": "avg_income",
+            "macro.government_balance": "government_balance",
+        },
+        subject_field="run_id",
+        valid_time_field="step",
+        provenance=provenance,
+    )
     return curated_path
 
 
@@ -266,6 +326,20 @@ def ingest_agents(
     resolution_manifest_path.write_text(
         resolution_manifest.model_dump_json(indent=2), encoding="utf-8"
     )
+    provenance = _build_provenance(manifest)
+    _emit_fact_segments(
+        df_valid,
+        dataset_name="agents",
+        curated_dir=curated_dir,
+        predicate_map={
+            "agent.age": "age",
+            "agent.income": "income",
+            "agent.savings": "savings",
+            "agent.employment": "is_employed",
+        },
+        subject_field="canonical_id",
+        provenance=provenance,
+    )
     return curated_path, entity_map, resolution_path
 
 
@@ -337,6 +411,26 @@ def ingest_interactions(
     )
     manifest_path = curated_dir / "interactions_manifest.json"
     manifest_path.write_text(manifest.model_dump_json(indent=2), encoding="utf-8")
+    provenance = _build_provenance(manifest)
+    if not df_valid.empty:
+        facts = []
+        for _, row in df_valid.iterrows():
+            predicate_id = f"interaction.{row['type']}"
+            facts.append(
+                build_fact(
+                    subject_id=str(row["from_canonical_id"]),
+                    predicate_id=predicate_id,
+                    object_value=row.get("amount"),
+                    target_id=str(row["to_canonical_id"]),
+                    valid_time=row.get("step"),
+                    provenance=provenance,
+                )
+            )
+        segment_dir = curated_dir / "fact_log"
+        manifest_segment = write_fact_segment(
+            facts, segment_dir=segment_dir, segment_name="interactions"
+        )
+        _append_segment_index(manifest_segment, segment_dir / "_segments.jsonl")
     return curated_path
 
 

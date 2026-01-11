@@ -4,6 +4,7 @@ from typing import Any
 import equinox as eqx
 import jax
 
+from polisyos.core.contracts.foundry import UpdateOp
 from polisyos.foundry.domain.state import GlobalState
 from polisyos.foundry.types import FidelityLevel
 
@@ -38,7 +39,7 @@ class Mechanism(eqx.Module):
         key: jax.Array,
         *,
         target_mask=None,
-    ) -> tuple[dict[str, dict[str, Any]] | None, jax.Array]:
+    ) -> tuple[dict[str, list[UpdateOp]] | None, jax.Array]:
         """
         Optional patch-first path. Override in mechanisms to emit slot deltas directly.
         """

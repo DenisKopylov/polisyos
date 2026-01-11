@@ -59,8 +59,8 @@ def test_manifest_written_and_parses(store: FileSystemCAS):
     assert man.media_type == "application/json"
     assert man.byte_size > 0
     assert man.integrity.sha256 == ref.artifact_id.hex
-    assert man.schema is not None
-    assert man.schema.name == "tests.Payload"
+    assert man.artifact_schema is not None
+    assert man.artifact_schema.name == "tests.Payload"
 
 
 def test_corruption_detection(store: FileSystemCAS):

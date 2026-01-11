@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Literal
+
 from pydantic import Field, model_validator
 
 from .base import ID_PATTERN, KernelModel
@@ -8,6 +10,10 @@ from .base import ID_PATTERN, KernelModel
 class TrustPolicySpec(KernelModel):
     policy_id: str = Field(..., pattern=ID_PATTERN)
     description: str | None = Field(None, max_length=200)
+    min_confidence: float | None = None
+    conflict_policy: Literal["optimistic", "pessimistic"] | None = None
+    two_pass_compare: bool = False
+    thresholds: dict[str, float] | None = None
 
 
 class TrustRegistry(KernelModel):

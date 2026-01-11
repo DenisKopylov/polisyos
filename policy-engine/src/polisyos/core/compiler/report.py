@@ -17,6 +17,8 @@ class CompileReport(BaseModel):
     link_report_ref: ArtifactRef | None = None
     program_graph_ref: ArtifactRef | None = None
     exec_plan_ref: ArtifactRef | None = None
+    slot_layout_ref: ArtifactRef | None = None
+    treasury_plan_ref: ArtifactRef | None = None
     notes: list[str] = Field(default_factory=list)
 
 

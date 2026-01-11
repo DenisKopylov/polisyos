@@ -15,6 +15,8 @@ class RegistryBundlePayload(BaseModel):
     mechanism_registry: ArtifactRef
     trust_registry: ArtifactRef | None = None
     units_registry: ArtifactRef | None = None
+    predicate_registry: ArtifactRef | None = None
+    privacy_registry: ArtifactRef | None = None
 
 
 class RegistryBundle(RegistryBundlePayload):

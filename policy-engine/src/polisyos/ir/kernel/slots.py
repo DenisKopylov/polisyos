@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from enum import Enum
+from typing import Literal
 
 from pydantic import Field, model_validator
 
@@ -38,6 +39,12 @@ class SlotSpec(KernelModel):
     merge_rule: MergeRuleRef
     state_path: str | None = Field(None, max_length=200)
     description: str | None = Field(None, max_length=200)
+    reset_rule: Literal["carry", "zero"] | None = None
+    resample_rule: str | None = None
+    conservation_group_id: str | None = None
+    dtype: str | None = None
+    shape: list[str] | None = None
+    axes: list[str] | None = None
 
 
 class SlotRegistry(KernelModel):
@@ -66,6 +73,7 @@ DEFAULT_SLOT_REGISTRY = SlotRegistry(
             merge_rule=MergeRuleRef(rule_id="sum"),
             state_path="agents.income",
             description="Agent income (per-step flow)",
+            reset_rule="zero",
         ),
         "government.balance": SlotSpec(
             slot_id="government.balance",
@@ -76,6 +84,7 @@ DEFAULT_SLOT_REGISTRY = SlotRegistry(
             merge_rule=MergeRuleRef(rule_id="sum"),
             state_path="government_balance",
             description="Government balance (stock)",
+            reset_rule="carry",
         ),
     }
 )

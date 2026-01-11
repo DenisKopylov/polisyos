@@ -39,7 +39,10 @@ class GraphStore:
                     FROM Agent TO Agent,
                     step INT64,
                     amount DOUBLE,
-                    type STRING
+                    type STRING,
+                    predicate_id STRING,
+                    valid_time STRING,
+                    tx_time STRING
                 )
                 """
             )
@@ -60,16 +63,36 @@ class GraphStore:
             # Fallback для старых версий или конфликтов
             pass
 
-    def add_interaction(self, from_id: str, to_id: str, step: int, amount: float, type_: str):
+    def add_interaction(
+        self,
+        from_id: str,
+        to_id: str,
+        step: int,
+        amount: float,
+        type_: str,
+        predicate_id: str | None = None,
+        valid_time: str | None = None,
+        tx_time: str | None = None,
+    ):
         """Добавление ребра события."""
         self.conn.execute(
             """
             MATCH (a:Agent), (b:Agent)
             WHERE a.id = $from_id AND b.id = $to_id
             CREATE (a)-[r:Interaction]->(b)
-            SET r.step = $step, r.amount = $amount, r.type = $type_
+            SET r.step = $step, r.amount = $amount, r.type = $type_,
+                r.predicate_id = $predicate_id, r.valid_time = $valid_time, r.tx_time = $tx_time
             """,
-            {"from_id": from_id, "to_id": to_id, "step": step, "amount": amount, "type_": type_}
+            {
+                "from_id": from_id,
+                "to_id": to_id,
+                "step": step,
+                "amount": amount,
+                "type_": type_,
+                "predicate_id": predicate_id,
+                "valid_time": valid_time,
+                "tx_time": tx_time,
+            },
         )
 
     def query(self, cypher: str, params: dict = None):

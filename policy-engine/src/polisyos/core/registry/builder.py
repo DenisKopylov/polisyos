@@ -61,6 +61,8 @@ def build_registry_bundle(
     metric_registry: MetricRegistry | None = None,
     units_registry: UnitsRegistry | None = None,
     trust_registry: BaseModel | dict[str, Any] | None = None,
+    predicate_registry: BaseModel | dict[str, Any] | None = None,
+    privacy_registry: BaseModel | dict[str, Any] | None = None,
 ) -> RegistryBundle:
     slot_ref = _put_registry(
         store,
@@ -123,6 +125,24 @@ def build_registry_bundle(
             schema_name="polisyos.ir.kernel.TrustRegistry",
         )
 
+    predicate_ref = None
+    if predicate_registry is not None:
+        predicate_ref = _put_registry(
+            store,
+            obj=predicate_registry,
+            kind="ir.predicate_registry",
+            schema_name="polisyos.ir.predicate.PredicateRegistry",
+        )
+
+    privacy_ref = None
+    if privacy_registry is not None:
+        privacy_ref = _put_registry(
+            store,
+            obj=privacy_registry,
+            kind="ir.privacy_registry",
+            schema_name="polisyos.ir.predicate.PrivacyPolicyRegistry",
+        )
+
     payload = RegistryBundlePayload(
         slot_registry=slot_ref,
         merge_registry=merge_ref,
@@ -132,6 +152,8 @@ def build_registry_bundle(
         mechanism_registry=mech_ref,
         trust_registry=trust_ref,
         units_registry=units_ref,
+        predicate_registry=predicate_ref,
+        privacy_registry=privacy_ref,
     )
 
     inputs = [
@@ -150,6 +172,12 @@ def build_registry_bundle(
         inputs.append(InputRef(artifact_id=units_ref.artifact_id, role="units_registry"))
     if trust_ref is not None:
         inputs.append(InputRef(artifact_id=trust_ref.artifact_id, role="trust_registry"))
+    if predicate_ref is not None:
+        inputs.append(
+            InputRef(artifact_id=predicate_ref.artifact_id, role="predicate_registry")
+        )
+    if privacy_ref is not None:
+        inputs.append(InputRef(artifact_id=privacy_ref.artifact_id, role="privacy_registry"))
 
     bundle_ref = _put_registry(
         store,

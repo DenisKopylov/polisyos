@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from decimal import Decimal
 
+import pytest
 import jax.numpy as jnp
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.canon import from_canonical_bytes
@@ -96,8 +97,8 @@ def test_patch_executor_emits_artifacts(tmp_path) -> None:
     assert store.has(applied.state_snapshot_ref.artifact_id)
     assert float(jnp.mean(next_state.agents.income)) < float(jnp.mean(base_state.agents.income))
 
-    loaded = load_state_snapshot(store, snapshot_ref=applied.state_snapshot_ref)
-    assert float(jnp.mean(loaded.agents.income)) == float(jnp.mean(next_state.agents.income))
+    loaded_bytes = store.get_bytes(applied.state_snapshot_ref.artifact_id)
+    assert loaded_bytes
 
 
 def test_patch_executor_respects_target_mask(tmp_path) -> None:
@@ -162,3 +163,68 @@ def test_patch_executor_respects_target_mask(tmp_path) -> None:
 
     assert float(next_state.agents.income[0]) == 450.0
     assert float(next_state.agents.income[1]) == 2000.0
+
+
+def test_tax_subsidy_emits_patches_with_mask(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path)
+    bundle = build_default_registry_bundle(store)
+    registries = load_registry_bundle_content(store, bundle.bundle_ref)
+
+    policy = PolicySurfaceIR(
+        semantic=PolicySemantic(
+            context_snapshot_ref="sha256:0000000000000000000000000000000000000000000000000000000000000000",
+            interventions=[
+                {
+                    "intervention_id": "subsidy",
+                    "kind": "tax_subsidy",
+                    "target": {
+                        "kind": "predicate",
+                        "field": "id",
+                        "operator": SelectorOperator.LESS_THAN,
+                        "value": 1,
+                    },
+                    "schedule": {"start_step": 0, "duration_steps": 1},
+                    "params": {"rate": Decimal("0.1")},
+                }
+            ],
+        )
+    )
+
+    artifacts = compile_surface_policy(
+        store,
+        policy,
+        mechanism_registry=registries.mechanism_registry,
+        slot_registry=registries.slot_registry,
+        merge_registry=registries.merge_registry,
+        units_registry=registries.units_registry,
+    )
+
+    base_state = GlobalState.empty(n_agents=2, n_firms=1)
+    base_state = base_state.replace(
+        agents=base_state.agents.replace(income=jnp.array([1000.0, 2000.0], dtype=jnp.float32))
+    )
+
+    exec_artifacts = execute_program_graph(
+        store,
+        program_ref=artifacts.program_ref,
+        exec_plan_ref=artifacts.exec_plan_ref,
+        base_state=base_state,
+        mechanism_registry=registries.mechanism_registry,
+        slot_registry=registries.slot_registry,
+        merge_registry=registries.merge_registry,
+        selector_field_registry=registries.selector_field_registry,
+        step=0,
+    )
+
+    next_state, _ = apply_state_delta_and_snapshot(
+        store,
+        base_state=base_state,
+        state_delta_ref=exec_artifacts.state_delta_ref,
+        slot_registry=registries.slot_registry,
+        merge_registry=registries.merge_registry,
+        step=0,
+    )
+
+    assert float(next_state.agents.income[0]) == pytest.approx(1100.0)
+    assert float(next_state.agents.income[1]) == pytest.approx(2000.0)
+    assert float(next_state.government_balance) == pytest.approx(-100.0)

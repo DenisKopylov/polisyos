@@ -90,7 +90,7 @@ class FileSystemCAS:
                 kind=opts.kind,
                 media_type=opts.media_type,
                 byte_size=len(data),
-                schema=opts.schema,
+                artifact_schema=opts.schema,
                 canon=opts.canon,
                 inputs=list(opts.inputs or []),
                 producer=opts.producer,

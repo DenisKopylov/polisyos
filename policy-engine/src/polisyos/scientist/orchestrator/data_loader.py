@@ -1,6 +1,8 @@
 # polisyos/orchestrator/data_loader.py
 
 import jax.numpy as jnp
+import numpy as np
+import pyarrow as pa
 
 from polisyos.foundry.domain.state import AgentState, FirmState, GlobalState, MarketState
 from polisyos.ir.data_views import AccessTier, DataViewRequest, DataViewType
@@ -27,25 +29,25 @@ def load_initial_state(udf: UDFEngine, source_run_id: str, step: int = 0) -> Glo
         access_tier=AccessTier.INTERNAL,
     )
 
-    df = udf.query(req)
+    table = udf.query_arrow(req)
 
-    if df.empty:
+    if table.num_rows == 0:
         raise ValueError(f"No data found for RunID: {source_run_id} at Step: {step}")
 
-    n_agents = len(df)
+    n_agents = table.num_rows
     logger.info(f"👥 Found {n_agents} agents in DB.")
 
-    # 2. Конвертация Pandas -> JAX
-    # JAX любит типизированные массивы
-    # Обратите внимание: в базе данных нет skill_level, consumption, employer_id
-    # Их нужно инициализировать дефолтными значениями
+    def _col(name: str, dtype):
+        arr = table.column(name).to_numpy(zero_copy_only=False)
+        return jnp.asarray(np.asarray(arr, dtype=dtype))
+
     agents = AgentState(
-        age=jnp.array(df["age"].values, dtype=jnp.int32),
+        age=_col("age", np.int32),
         skill_level=jnp.ones(n_agents, dtype=jnp.float32),  # Дефолтное значение
-        income=jnp.array(df["income"].values, dtype=jnp.float32),
-        savings=jnp.array(df["savings"].values, dtype=jnp.float32),
+        income=_col("income", np.float32),
+        savings=_col("savings", np.float32),
         consumption=jnp.zeros(n_agents, dtype=jnp.float32),  # Дефолтное значение
-        is_employed=jnp.array(df["is_employed"].values, dtype=bool),
+        is_employed=_col("is_employed", bool),
         employer_id=jnp.full(n_agents, -1, dtype=jnp.int32),  # Дефолтное значение
     )
 

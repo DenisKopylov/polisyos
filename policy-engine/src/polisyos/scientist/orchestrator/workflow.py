@@ -1,6 +1,7 @@
 # polisyos/orchestrator/workflow.py
 from langgraph.graph import END, StateGraph
 
+from polisyos.scientist.kernel import Phase, advance_phase
 from polisyos.scientist.orchestrator.flow_nodes import (
     analyze_node,
     compile_data_views_node,
@@ -29,18 +30,26 @@ def _route_after_validate(state: ExperimentState) -> str:
     return "compile_data_views"
 
 
+def _with_phase(phase: Phase, node_fn):
+    def _wrapped(state: ExperimentState):
+        state = advance_phase(state, phase)
+        return node_fn(state)
+
+    return _wrapped
+
+
 def build_workflow():
     workflow = StateGraph(ExperimentState)
 
-    workflow.add_node("draft_ir", draft_ir_node)
-    workflow.add_node("validate_ir", validate_ir_node)
-    workflow.add_node("repair_ir", repair_ir_node)
-    workflow.add_node("compile_data_views", compile_data_views_node)
-    workflow.add_node("compile_model", compile_model_node)
-    workflow.add_node("run_sim", run_sim_node)
-    workflow.add_node("analyze", analyze_node)
-    workflow.add_node("governor", governor_node)
-    workflow.add_node("pack_decision", pack_decision_node)
+    workflow.add_node("draft_ir", _with_phase(Phase.FRAME, draft_ir_node))
+    workflow.add_node("validate_ir", _with_phase(Phase.FRAME, validate_ir_node))
+    workflow.add_node("repair_ir", _with_phase(Phase.FRAME, repair_ir_node))
+    workflow.add_node("compile_data_views", _with_phase(Phase.PLAN, compile_data_views_node))
+    workflow.add_node("compile_model", _with_phase(Phase.EXECUTE, compile_model_node))
+    workflow.add_node("run_sim", _with_phase(Phase.EXECUTE, run_sim_node))
+    workflow.add_node("analyze", _with_phase(Phase.EXECUTE, analyze_node))
+    workflow.add_node("governor", _with_phase(Phase.POSTFLIGHT_GOV, governor_node))
+    workflow.add_node("pack_decision", _with_phase(Phase.PUBLISH, pack_decision_node))
 
     workflow.set_entry_point("draft_ir")
     workflow.add_edge("draft_ir", "validate_ir")

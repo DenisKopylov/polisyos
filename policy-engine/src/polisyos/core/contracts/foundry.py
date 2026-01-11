@@ -69,7 +69,7 @@ class ProgramNode(BaseModel):
     node_kind: Literal["mechanism", "op"] = "mechanism"
     mechanism_type: str | None = None
     params_ref: ArtifactRef | None = None
-    op: "ProgramOp" | None = None
+    op: ProgramOp | None = None
     inputs: list[str] = Field(default_factory=list)
     outputs: list[str] = Field(default_factory=list)
 
@@ -178,6 +178,47 @@ class PatchOp(BaseModel):
     value_ref: ArtifactRef | None = None
     mask_ref: ArtifactRef | None = None
     mask_scope: Literal["global", "per_agent", "per_firm", "per_entity"] | None = None
+    notes: list[str] = Field(default_factory=list)
+
+
+class UpdateOp(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    slot_id: str
+    op: Literal["add", "set", "priority_set", "clamp", "masked"]
+    value_ref: ArtifactRef | None = None
+    mask_ref: ArtifactRef | None = None
+    priority: int | None = None
+    min_ref: ArtifactRef | None = None
+    max_ref: ArtifactRef | None = None
+    notes: list[str] = Field(default_factory=list)
+
+
+class PatchMeta(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    source_node_id: str | None = None
+    step: int | None = None
+    mode: Literal["dev", "perf", "audit"] | None = None
+    confidence: float | None = Field(None, ge=0.0, le=1.0)
+    tags: list[str] = Field(default_factory=list)
+    notes: list[str] = Field(default_factory=list)
+
+
+class Patch(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
+    meta: PatchMeta | None = None
+    ops: list[UpdateOp] = Field(default_factory=list)
+    notes: list[str] = Field(default_factory=list)
+
+
+class PatchSet(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
+    patches: list[Patch] = Field(default_factory=list)
     notes: list[str] = Field(default_factory=list)
 
 

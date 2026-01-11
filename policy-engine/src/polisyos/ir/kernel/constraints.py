@@ -13,6 +13,9 @@ class ConstraintSpec(KernelModel):
     slot_id: str | None = Field(None, pattern=SLOT_ID_PATTERN)
     operator: Literal["<", "<=", ">", ">=", "==", "!="] | None = None
     description: str | None = Field(None, max_length=200)
+    constraint_type: Literal["accounting", "non_negative", "budget", "legal"] | None = None
+    policy_by_mode: dict[str, str] | None = None
+    repair_strategy: str | None = None
 
 
 class ConstraintRegistry(KernelModel):

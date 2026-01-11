@@ -4,12 +4,24 @@
 
 ## Роль в архитектуре
 
-Согласно [архитектуре проекта](../architecture.md), `common` является вспомогательным слоем, который:
+Согласно [архитектуре проекта](../architecture.md), `common` является фундаментальным инфраструктурным слоем, который:
 
 - **Не имеет зависимостей** от других слоев (scientist, fabric, foundry, ir)
-- **Предоставляет сервисы** всем слоям
-- **Содержит только инфраструктуру** - конфигурации, логирование, миграции
-- **Избегает тяжелых зависимостей** - только стандартная библиотека + минимальный набор пакетов
+- **Предоставляет сервисы** всем слоям проекта
+- **Содержит только инфраструктуру** - конфигурации, логирование, миграции, JAX настройка
+- **Избегает тяжелых зависимостей** - только стандартная библиотека + минимальный набор пакетов (loguru, python-dotenv)
+
+### Текущие связи с модулями проекта
+
+Модуль `common` активно используется в следующих компонентах:
+
+- **fabric/io/db.py** - логирование операций с базой данных
+- **fabric/io/graph_store.py** - логирование операций с графовым хранилищем
+- **ir/migrations/** - система миграций для Policy IR артефактов
+- **scientist/orchestrator/** - логирование и миграции в оркестраторе экспериментов
+- **fabric/udf/** - логирование в UDF движке
+- **jax_bootstrap.py** - настройка JAX окружения перед импортом JAX
+- **run_experiment.py** - конфигурация и логирование основного экспериментального пайплайна
 
 ## Архитектурные принципы
 
@@ -29,59 +41,72 @@ Common обеспечивает:
 
 ## Модули
 
-### `config.py` - Конфигурация приложения
+### `config.py` - Конфигурация приложения и инфраструктуры
 
-**Цель:** Централизованная настройка всех зависимостей проекта.
+**Цель:** Централизованная настройка всех зависимостей проекта с защитой от перегрузки системы.
 
 #### Функциональность:
 
-1. **JAX Environment Setup**
-   - Автоматическое определение CPU ядер (резерв 20% для системы)
-   - Защита от перегрузки памяти (XLA_PYTHON_CLIENT_PREALLOCATE=false)
-   - Стабильная JIT-компиляция (XLA_FLAGS с intra_op_parallelism_threads)
+1. **JAX Environment Setup (Критично - выполняется ДО импорта JAX)**
+   - Принудительная установка CPU как платформы: `JAX_PLATFORM_NAME=cpu`
+   - Отключение 64-битных вычислений: `JAX_ENABLE_X64=false`
+   - Отключение большинства оптимизаций: `JAX_DISABLE_MOST_OPTIMIZATIONS=true`
+   - Отключение проверки утечек трассировщиков: `JAX_CHECK_TRACER_LEAKS=false`
 
-2. **Hardware Safeguards**
-   - Автоматическое ограничение ядер CPU (max(1, total_cores - reserved_cores))
-   - Предотвращение перегрузки системы
-   - Адаптация под доступные ресурсы
+2. **Hardware Safeguards (Защита железа)**
+   - Автоматическое определение физических ядер CPU
+   - Резерв 20% ядер для системы (минимум 1 ядро)
+   - Расчет безопасного количества ядер: `max(1, total_cores - reserved_cores)`
 
-3. **Database Configuration**
-   - DuckDB: память (4GB по умолчанию) и потоки
-   - Настройка на основе доступных ядер CPU
+3. **Memory Management**
+   - Отключение жадной аллокации памяти: `XLA_PYTHON_CLIENT_PREALLOCATE=false`
+   - Настройка параллелизма CPU: `intra_op_parallelism_threads={allowed_cores}`
 
-4. **Logging Infrastructure**
-   - Консоль: читаемый вывод для разработчиков
-   - Файл: JSON для аудита и парсинга машинами
-   - Ротация логов (10MB, 10 дней хранения)
+4. **Database Configuration**
+   - DuckDB память: 4GB по умолчанию (`DUCKDB_MEMORY_LIMIT`)
+   - DuckDB потоки: автоматически на основе доступных ядер CPU (`DUCKDB_THREADS`)
+
+5. **Logging Infrastructure**
+   - **Консоль:** Читаемый вывод для разработчиков с цветами и форматированием
+   - **Файл:** JSON сериализация в `logs/system.log` для аудита
+   - Ротация: 10MB с хранением 10 дней
+   - Уровни: DEBUG по умолчанию, настраивается через `LOG_LEVEL`
 
 #### Переменные окружения:
 
 ```bash
-# JAX
-XLA_PYTHON_CLIENT_PREALLOCATE=false  # Не жадничать памятью
-XLA_FLAGS=...                        # Настройки CPU параллелизма
+# JAX (автоматически устанавливаются)
+JAX_PLATFORM_NAME=cpu
+JAX_ENABLE_X64=false
+JAX_DISABLE_MOST_OPTIMIZATIONS=true
+JAX_CHECK_TRACER_LEAKS=false
+
+# Memory & CPU
+XLA_PYTHON_CLIENT_PREALLOCATE=false
+XLA_FLAGS=--xla_cpu_multi_thread_eigen=true intra_op_parallelism_threads={auto}
 
 # DuckDB
-DUCKDB_MEMORY_LIMIT=4GB              # Лимит памяти
-DUCKDB_THREADS=<auto>                # Количество потоков
+DUCKDB_MEMORY_LIMIT=4GB
+DUCKDB_THREADS={auto}                # Автоматически = доступным ядрам CPU
 
 # Логирование
-LOG_LEVEL=DEBUG                      # Уровень логирования
+LOG_LEVEL=DEBUG
 ```
 
 #### Важные детали:
 
-- **Импорт до JAX:** `config.py` должен загружаться ДО любого импорта JAX
-- **Side effects:** Мутирует `os.environ` для стабильности JAX
-- **Автокоррекция:** Сам определяет безопасные лимиты CPU
+- **Импорт до JAX:** Должен быть импортирован ДО любого `import jax`
+- **Side effects:** Мутирует `os.environ` глобально для стабильности JAX
+- **Автокоррекция:** Сам определяет безопасные лимиты на основе доступного железа
+- **.env поддержка:** Загружает переменные из `.env` файла через `python-dotenv`
 
-### `jax_env.py` - JAX Backend Selection
+### `jax_env.py` - JAX Backend Selection для macOS
 
-**Цель:** Предотвращение падений JAX на macOS с Metal backend.
+**Цель:** Предотвращение падений JAX на macOS с экспериментальным Metal backend.
 
 #### Проблема:
 
-На macOS JAX по умолчанию выбирает Metal backend, который в некоторых версиях падает даже на базовых операциях:
+На macOS JAX автоматически выбирает Metal backend, который в текущей версии вызывает падения даже на базовых операциях:
 ```
 UNIMPLEMENTED: default_memory_space is not supported.
 ```
@@ -89,104 +114,169 @@ UNIMPLEMENTED: default_memory_space is not supported.
 #### Решение:
 
 ```python
-# По умолчанию CPU на macOS
-if sys.platform == "darwin":
-    if not os.environ.get("POLICY_ENGINE_ALLOW_JAX_METAL"):
-        os.environ.setdefault("JAX_PLATFORMS", "cpu")
+def apply_jax_env_defaults() -> None:
+    """Применяет безопасные настройки JAX для macOS."""
+    if sys.platform != "darwin":
+        return  # Только для macOS
+
+    # Если пользователь явно не разрешил Metal
+    if os.environ.get("POLICY_ENGINE_ALLOW_JAX_METAL") != "1":
+        # Принудительно CPU, если не запрошена другая платформа или Metal
+        requested = (os.environ.get("JAX_PLATFORMS") or
+                    os.environ.get("JAX_PLATFORM_NAME") or "").lower()
+        if not requested or "metal" in requested:
+            os.environ.setdefault("JAX_PLATFORMS", "cpu")
+            os.environ.setdefault("JAX_PLATFORM_NAME", "cpu")
 ```
 
 #### Опциональное включение Metal:
 
 ```bash
+# Явное разрешение Metal backend
 POLICY_ENGINE_ALLOW_JAX_METAL=1
 JAX_PLATFORMS=metal
-# или JAX_PLATFORM_NAME=metal
+# или
+JAX_PLATFORM_NAME=metal
 ```
 
-### `logger.py` - Структурированное логирование
+#### Использование:
 
-**Цель:** Единый интерфейс логирования с контекстом модуля.
+```python
+# В jax_bootstrap.py (импортируется перед любым JAX)
+from polisyos.common.jax_env import apply_jax_env_defaults
+apply_jax_env_defaults()
+```
+
+### `logger.py` - Структурированное логирование с контекстом модуля
+
+**Цель:** Единый интерфейс логирования с автоматическим контекстом модуля.
 
 #### API:
 
 ```python
 from polisyos.common.logger import get_logger
 
+# Получение логгера с контекстом модуля
 log = get_logger(__name__)
+
+# Использование
 log.info("Operation completed", extra_data={"key": "value"})
+log.error("Something went wrong", error_details={"code": 500})
 ```
 
 #### Особенности:
 
-- **Контекст модуля:** Автоматически добавляет имя модуля
-- **Loguru backend:** Структурированные логи с уровнями и форматированием
-- **JSON сериализация:** Для файловых логов (машинный парсинг)
+- **Контекст модуля:** Автоматически привязывает имя модуля через `logger.bind(module=module_name)`
+- **Loguru backend:** Мощная система логирования с уровнями, форматированием и сериализацией
+- **JSON сериализация:** Файловые логи сериализуются в JSON для машинного парсинга
+- **Настройка в config.py:** Логгер настраивается в `config.py` для избежания циклических импортов
 
-### `migrations/` - Система версионирования
+### `migrations/` - Система версионирования артефактов
 
-**Цель:** Детерминированные преобразования артефактов между версиями схем.
+**Цель:** Детерминированные преобразования артефактов между версиями схем с обнаружением циклов.
 
 #### Архитектура:
 
 - **Базовый фреймворк** (`base.py`): Регистрация и выполнение миграций
 - **Декораторная система:** `@register_migration(artifact, from_version, to_version)`
-- **Цикл обнаружения:** Предотвращает бесконечные циклы миграций
+- **Глобальный реестр:** `_MIGRATIONS` - словарь артефакт → версия → (целевая_версия, функция)
+- **Цикл обнаружения:** Предотвращает бесконечные циклы миграций через множество `visited`
 
-#### Поддерживаемые артефакты:
+#### Компоненты:
 
-1. **Dataset Manifest** (`manifest.py`)
-   - Нормализация полей: `datasetName` → `dataset_name`
-   - Хэши и метаданные: `rawHash` → `raw_hash`
+1. **`base.py` - Ядро системы миграций**
+   ```python
+   def register_migration(artifact: str, from_version: str, to_version: str):
+       def decorator(fn: MigrationFn) -> MigrationFn:
+           _MIGRATIONS.setdefault(artifact, {})[from_version] = (to_version, fn)
+           return fn
+       return decorator
 
-2. **Policy IR** (`policy_ir.py`)
-   - Структурные изменения: `projectName` → `project_name`
-   - Конфигурационные поля: `globalConstraints` → `global_constraints`
+   def migrate_artifact(data: dict, artifact: str, target_version: str) -> dict:
+       # Миграция с проверкой циклов и версий
+   ```
+
+2. **`manifest.py` - Миграции Dataset Manifest**
+   - Текущая версия: `MANIFEST_CURRENT_VERSION = "1.0"`
+   - Миграция `0.9 → 1.0`: нормализация полей (`datasetName` → `dataset_name`, `rawHash` → `raw_hash`)
+
+3. **`policy_ir.py` - Миграции Policy IR**
+   - Текущая версия: `POLICY_IR_CURRENT_VERSION = "1.0"`
+   - Миграция `0.9 → 1.0`: нормализация полей (`projectName` → `project_name`, `globalConstraints` → `global_constraints`)
 
 #### Пример использования:
 
 ```python
-from polisyos.common.migrations.base import migrate_artifact
+from polisyos.common.migrations import migrate_artifact
 
-# Миграция данных к целевой версии
-migrated_data = migrate_artifact(data, "dataset_manifest", "1.0")
+# Миграция Dataset Manifest
+manifest_data = {"schema_version": "0.9", "datasetName": "test"}
+migrated = migrate_artifact(manifest_data, "dataset_manifest", "1.0")
+# Результат: {"schema_version": "1.0", "dataset_name": "test"}
+
+# Миграция Policy IR
+policy_data = {"schema_version": "0.9", "projectName": "policy"}
+migrated = migrate_artifact(policy_data, "policy_ir", "1.0")
+# Результат: {"schema_version": "1.0", "project_name": "policy"}
 ```
 
 ## Использование в проекте
 
-### Порядок инициализации:
+### Порядок инициализации (критично для стабильности):
 
 ```python
-# 1. Конфигурация (ДО любого импорта JAX!)
-from polisyos.common import config  # Side effects на os.environ
+# 1. КРИТИЧНО: Конфигурация ДО любого импорта JAX!
+from polisyos.common import config  # Side effects на os.environ (JAX настройки)
 
-# 2. JAX backend (если нужно)
-from polisyos.common import jax_env  # apply_jax_env_defaults()
+# 2. JAX backend (опционально, для дополнительной защиты на macOS)
+from polisyos.common.jax_env import apply_jax_env_defaults
+apply_jax_env_defaults()  # Только если нужна дополнительная настройка
 
-# 3. Логирование
+# 3. Логирование (теперь доступно через config)
 from polisyos.common.logger import get_logger
 log = get_logger(__name__)
 ```
 
-### В других модулях:
+### Альтернативная инициализация через jax_bootstrap:
 
 ```python
-# В любом модуле проекта
-from polisyos.common.logger import get_logger
-from polisyos.common.migrations.base import migrate_artifact
+# В jax_bootstrap.py (рекомендуемый способ для проектов с JAX)
+from polisyos.common.jax_env import apply_jax_env_defaults
+apply_jax_env_defaults()  # Применяет безопасные JAX настройки
 
+# Затем в коде проекта:
+from polisyos.common import config  # Импорт config после jax_bootstrap
+from polisyos.common.logger import get_logger
 log = get_logger(__name__)
-# ... бизнес-логика ...
+```
+
+### Использование в модулях проекта:
+
+```python
+# В fabric/io/db.py (логирование операций БД)
+from polisyos.common.logger import get_logger
+log = get_logger(__name__)
+
+def save_simulation_data(self, data):
+    log.info("Saving simulation data", run_id=self.run_id)
+    # ... операции с БД ...
+
+# В ir/migrations/__init__.py (миграции Policy IR)
+from polisyos.common.migrations import migrate_artifact, POLICY_IR_CURRENT_VERSION
+
+def migrate_policy_ir(data: dict, target_version: str | None = None) -> dict:
+    return migrate_artifact(data, "policy_ir", target_version or POLICY_IR_CURRENT_VERSION)
 ```
 
 ## Зависимости
 
 ### Runtime:
-- `loguru` - структурированное логирование
-- `python-dotenv` - загрузка переменных окружения
-- `multiprocessing` - определение CPU ядер
+- `loguru` - структурированное логирование с JSON сериализацией
+- `python-dotenv` - загрузка переменных окружения из `.env` файла
+- `multiprocessing` - определение количества CPU ядер для автонастройки
 
 ### Development:
-- Зависимости тестируются в `pyproject.toml`
+- Все зависимости определены в `pyproject.toml` корневой директории проекта
 
 ## Тестирование
 
@@ -215,20 +305,34 @@ log = get_logger(__name__)
 ## Архитектурные ограничения
 
 ### Запрещено:
-- **Бизнес-логика:** Только инфраструктура
-- **Тяжелые зависимости:** JAX, DuckDB, LLM, etc.
-- **Слой-specific код:** Нейтральные утилиты
+- **Бизнес-логика:** Только инфраструктура и утилиты
+- **Тяжелые зависимости:** JAX, DuckDB, LLM, pandas, etc. (кроме базовых: loguru, python-dotenv)
+- **Слой-specific код:** Нейтральные компоненты, используемые всеми слоями
 
 ### Разрешено:
-- **Конфигурации:** Настройки окружения
-- **Утилиты:** Логирование, миграции
-- **Инфраструктура:** Базовые сервисы
+- **Конфигурации:** Настройки окружения и системных параметров
+- **Утилиты:** Логирование, миграции, JAX настройки
+- **Инфраструктура:** Базовые сервисы для всех компонентов проекта
 
 ## Связанные компоненты
 
+### Активное использование в модулях проекта:
+
+- **`jax_bootstrap.py`** - применение JAX настроек перед импортом JAX
+- **`run_experiment.py`** - конфигурация и логирование основного экспериментального пайплайна
+- **`fabric/io/db.py`** - логирование операций с DuckDB
+- **`fabric/io/graph_store.py`** - логирование операций с графовым хранилищем
+- **`fabric/materializer.py`** - логирование операций материализации
+- **`fabric/udf/engine.py`** - логирование UDF движка
+- **`scientist/orchestrator/compiler.py`** - логирование компиляции экспериментов
+- **`scientist/orchestrator/data_loader.py`** - логирование загрузки данных
+- **`ir/migrations/__init__.py`** - обертка над системой миграций для Policy IR
+
+### Архитектурные связи:
+
 - **runtime:** Использует логирование и миграции для артефактов
-- **ir:** Зависит от миграций для версионирования схем
-- **scientist/fabric/foundry:** Используют конфигурации и логирование
+- **ir:** Зависит от миграций для версионирования Policy IR схем
+- **scientist/fabric/foundry:** Используют конфигурации, логирование и JAX настройки
 
 ## Контрибьютинг
 

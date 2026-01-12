@@ -12,6 +12,9 @@ from polisyos.fabric.udf.config import (
     DEFAULT_FIELD_CLASSIFICATION,
     UdfSchema,
 )
+from polisyos.fabric.udf.engine import UDFEngine
+from polisyos.fabric.io.db import SimulationDB
+from polisyos.fabric.io.graph_store import GraphStore
 
 
 def _write_manifest(curated_dir: Path, dataset_name: str) -> None:
@@ -85,3 +88,31 @@ def test_entity_resolution_required_for_snapshot(tmp_path: Path) -> None:
     )
     with pytest.raises(ValueError):
         compiler.compile(req)
+
+
+def test_fabric_gate_requires_evidence(tmp_path: Path) -> None:
+    # Минимальная подготовка: пустые manifests для schema validation
+    (tmp_path / "macro_manifest.json").write_text(
+        '{"dataset_name":"macro","source":"test","license":"test","raw_hash":"x","schema_version":"1.0","row_count":0,"pii_flags":{},"quality":{"missing_rate":0,"duplicate_rate":0,"outlier_rate":0,"coverage":{}}}',
+        encoding="utf-8",
+    )
+    schema = UdfSchema(
+        allowed_columns=DEFAULT_ALLOWED_COLUMNS,
+        allowed_relation_types=DEFAULT_ALLOWED_RELATION_TYPES,
+        field_classification=DEFAULT_FIELD_CLASSIFICATION,
+    )
+    db = SimulationDB(str(tmp_path / "db.duckdb"))
+    graph = GraphStore(str(tmp_path / "graph.kuzu"), clear_on_start=True)
+    engine = UDFEngine(db, graph, curated_dir=tmp_path, schema=schema, cas_root=tmp_path / ".polisyos")
+
+    req = DataViewRequest(
+        request_id="req",
+        run_id="demo_run",
+        view_type=DataViewType.PANEL,
+        metrics=["gdp"],
+        access_tier=AccessTier.INTERNAL,
+    )
+
+    # query_result должен вернуть FabricResult с evidence_ref
+    res = engine.query_result(req)
+    assert res.evidence_ref is not None

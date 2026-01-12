@@ -1,0 +1,1 @@
+{"access_tier":"internal","aggregation":null,"ego_node_id":null,"filters":[],"hop_depth":1,"metrics":["income","age","savings","is_employed"],"relation_types":null,"request_id":"init_load","run_id":"baseline_2023","step_end":0,"step_start":null,"view_type":"snapshot"}

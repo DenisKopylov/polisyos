@@ -8,7 +8,8 @@ from pydantic import BaseModel, ConfigDict, Field
 
 class ArtifactRef(BaseModel):
     artifact_type: str
-    path: str
+    path: Optional[str] = None
+    relative_path: Optional[str] = None
     media_type: str
     schema_version: Optional[str] = None
     step: Optional[str] = None
@@ -29,5 +30,6 @@ class RunManifest(BaseModel):
     budget_usage: Dict[str, float] = Field(default_factory=dict)
     pruning_reason: Optional[Dict[str, Any]] = None
     artifacts: List[ArtifactRef] = Field(default_factory=list)
+    run_root: Optional[str] = None
 
     model_config = ConfigDict(extra="forbid")

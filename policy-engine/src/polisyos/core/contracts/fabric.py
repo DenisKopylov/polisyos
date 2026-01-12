@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from decimal import Decimal
 from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -24,6 +25,11 @@ class FabricResultRef(ArtifactRef):
 
 class EvidenceBundleRef(ArtifactRef):
     kind: Literal["fabric.evidence_bundle"] = "fabric.evidence_bundle"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class UncertaintyBoundsRef(ArtifactRef):
+    kind: Literal["fabric.uncertainty_bounds"] = "fabric.uncertainty_bounds"
     media_type: Literal["application/json"] = "application/json"
 
 
@@ -65,6 +71,16 @@ class EvidenceBundle(BaseModel):
     notes: list[str] = Field(default_factory=list)
 
 
+class UncertaintyBounds(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
+    value: Decimal
+    lower: Decimal
+    upper: Decimal
+    method: str = "two_pass_compare"
+
+
 class WarningsBundle(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -80,6 +96,7 @@ class FabricResult(BaseModel):
     data_schema_ref: ArtifactRef | None = None
     sources: list[ArtifactRef] = Field(default_factory=list)
     trust_policy_id: str | None = None
-    evidence_ref: EvidenceBundleRef | None = None
+    evidence_ref: EvidenceBundleRef
+    uncertainty_ref: UncertaintyBoundsRef | None = None
     warnings_ref: WarningsRef | None = None
     stats: dict[str, int | str] = Field(default_factory=dict)

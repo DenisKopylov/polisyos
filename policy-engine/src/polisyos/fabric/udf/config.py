@@ -71,7 +71,15 @@ def _load_schema_file(path: Path) -> UdfSchema:
             allowed_relation_types=DEFAULT_ALLOWED_RELATION_TYPES,
             field_classification=DEFAULT_FIELD_CLASSIFICATION,
         )
-    data = json.loads(path.read_text(encoding="utf-8"))
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        # Некорректный или битый schema-файл — откатываемся к дефолтным правилам.
+        return UdfSchema(
+            allowed_columns=DEFAULT_ALLOWED_COLUMNS,
+            allowed_relation_types=DEFAULT_ALLOWED_RELATION_TYPES,
+            field_classification=DEFAULT_FIELD_CLASSIFICATION,
+        )
     raw_cols = data.get("allowed_columns", {})
     raw_rel = data.get("allowed_relation_types", [])
     raw_class = data.get("field_classification", {})

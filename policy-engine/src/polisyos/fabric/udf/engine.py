@@ -1,9 +1,22 @@
+from dataclasses import asdict
+from io import BytesIO
 from pathlib import Path
 from typing import Optional
 
 import pandas as pd
 import pyarrow as pa
+import pyarrow.parquet as pq
 
+from polisyos.core.artifacts.ids import ArtifactID
+from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
+from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.contracts.fabric import (
+    DataViewRequestRef,
+    EvidenceBundleRef,
+    FabricResult,
+    QueryPlanRef,
+)
+from polisyos.fabric.evidence import build_evidence_bundle, persist_evidence_bundle
 from polisyos.fabric.registry import ManifestRegistry
 from polisyos.fabric.io.db import SimulationDB
 from polisyos.fabric.io.graph_store import GraphStore  # <--- Импорт
@@ -21,6 +34,7 @@ class UDFEngine:
         graph: Optional[GraphStore] = None,
         curated_dir: Path | str = Path("data/curated"),
         schema: Optional[UdfSchema] = None,
+        cas_root: Path | str = Path(".polisyos"),
     ):
         self.db = db
         # Если граф не передан, создаем дефолтный (для удобства)
@@ -35,21 +49,44 @@ class UDFEngine:
         else:
             self.schema = schema
         self.compiler = ViewCompiler(self.manifests, self.schema)
+        self.cas = FileSystemCAS(Path(cas_root))
 
     def compile(self, request: DataViewRequest) -> DataViewPlan:
         return self.compiler.compile(request)
 
     def query(self, request: DataViewRequest) -> pd.DataFrame:
-        logger.info(f"🚀 UDF Query: {request.view_type} | {request.metrics}")
-        plan = self.compile(request)
-        return self.execute(plan)
+        result = self.query_result(request)
+        return self._materialize_dataframe(result.data_ref)
 
     def query_arrow(self, request: DataViewRequest) -> pa.Table:
-        logger.info(f"🚀 UDF Arrow Query: {request.view_type} | {request.metrics}")
-        plan = self.compile(request)
-        return self.execute(plan, as_arrow=True)
+        result = self.query_result(request)
+        return self._materialize_arrow(result.data_ref)
 
-    def execute(self, plan: DataViewPlan, *, as_arrow: bool = False):
+    def query_result(self, request: DataViewRequest) -> FabricResult:
+        logger.info(f"🚀 UDF Query: {request.view_type} | {request.metrics}")
+        plan = self.compile(request)
+        table = self._execute(plan, as_arrow=True)
+
+        # Persist request + plan + data in CAS
+        request_ref = self._persist_request(request)
+        plan_ref = self._persist_plan(plan, request_ref)
+        data_ref = self._persist_data(table)
+
+        evidence_bundle = build_evidence_bundle(
+            sources=[request_ref, plan_ref, data_ref],
+            notes=["auto-generated evidence bundle"],
+        )
+        evidence_ref = persist_evidence_bundle(self.cas, evidence_bundle)
+
+        return FabricResult(
+            request_ref=request_ref,
+            plan_ref=plan_ref,
+            data_ref=data_ref,
+            sources=[request_ref, plan_ref],
+            evidence_ref=evidence_ref,
+        )
+
+    def _execute(self, plan: DataViewPlan, *, as_arrow: bool = False):
         if plan.view_type == DataViewType.NETWORK:
             return self._execute_network(plan, as_arrow=as_arrow)
         return self._execute_relational(plan, as_arrow=as_arrow)
@@ -78,3 +115,49 @@ class UDFEngine:
         except Exception as e:
             logger.error(f"Graph Query Failed: {e}")
             raise e
+
+    # ---- Persistence helpers -------------------------------------------------
+    def _persist_request(self, request: DataViewRequest) -> DataViewRequestRef:
+        ref = self.cas.put_json(
+            request.model_dump(),
+            opts=PutOptions(
+                kind="ir.data_view_request",
+                media_type="application/json",
+                schema=SchemaInfo(name="ir.data_view_request", version="1.0"),
+            ),
+        )
+        return DataViewRequestRef.model_validate(ref.model_dump())
+
+    def _persist_plan(
+        self, plan: DataViewPlan, request_ref: DataViewRequestRef
+    ) -> QueryPlanRef:
+        ref = self.cas.put_json(
+            asdict(plan),
+            opts=PutOptions(
+                kind="fabric.query_plan",
+                media_type="application/json",
+                schema=SchemaInfo(name="fabric.query_plan", version="1.0"),
+            ),
+        )
+        return QueryPlanRef.model_validate(ref.model_dump())
+
+    def _persist_data(self, table: pa.Table) -> ArtifactRef:
+        buf = pa.BufferOutputStream()
+        pq.write_table(table, buf)
+        data_bytes = buf.getvalue().to_pybytes()
+        ref = self.cas.put_bytes(
+            data_bytes,
+            opts=PutOptions(
+                kind="fabric.data",
+                media_type="application/parquet",
+                schema=SchemaInfo(name="fabric.data", version="1.0"),
+            ),
+        )
+        return ArtifactRef.model_validate(ref.model_dump())
+
+    def _materialize_arrow(self, data_ref: ArtifactRef) -> pa.Table:
+        blob = self.cas.get_bytes(ArtifactID.model_validate(data_ref.artifact_id))
+        return pq.read_table(pa.BufferReader(blob))
+
+    def _materialize_dataframe(self, data_ref: ArtifactRef) -> pd.DataFrame:
+        return self._materialize_arrow(data_ref).to_pandas()

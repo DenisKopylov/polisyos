@@ -23,3 +23,19 @@ def run_scan(initial_state, controls_seq, root_key, static_bundle=None):
 
     (_, _), traces = jax.lax.scan(_body, (initial_state, root_key), controls_seq)
     return traces
+
+
+def execute_program_batch(initial_states, controls_seq, root_key, static_bundle=None):
+    """
+    Execute batched programs deterministically.
+
+    Layout of keys: root_key -> split into [batch] subkeys (no extra leading split),
+    so shape is [batch, 2] and stable for reproducibility.
+    """
+    batch_size = initial_states.shape[0]
+    keys = jax.random.split(root_key, batch_size)
+
+    def _run_single(state, controls, key):
+        return run_scan(state, controls, key, static_bundle=static_bundle)
+
+    return jax.vmap(_run_single)(initial_states, controls_seq, keys)

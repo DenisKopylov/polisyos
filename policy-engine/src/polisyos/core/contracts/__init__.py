@@ -7,6 +7,8 @@ from .fabric import (
     FabricResultRef,
     QueryPlan,
     QueryPlanRef,
+    UncertaintyBounds,
+    UncertaintyBoundsRef,
     WarningsBundle,
     WarningsRef,
 )
@@ -36,6 +38,8 @@ __all__ = [
     "DataViewRequestRef",
     "EvidenceBundle",
     "EvidenceBundleRef",
+    "UncertaintyBounds",
+    "UncertaintyBoundsRef",
     "ExecConfig",
     "ExecConfigRef",
     "ExecPlan",

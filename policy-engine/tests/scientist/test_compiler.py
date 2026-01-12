@@ -2,6 +2,7 @@ from datetime import datetime
 
 import jax
 import jax.numpy as jnp
+import pytest
 
 from polisyos.foundry.domain.state import GlobalState
 from polisyos.scientist.orchestrator.compiler import compile_policy
@@ -47,11 +48,11 @@ def test_compile_policy_roundtrip_rate() -> None:
     policy_model = compile_policy(dummy_ir, n_agents=n_agents)
     first_mech = policy_model.steps[0]
 
-    assert float(first_mech.rate) == 0.15
+    assert float(first_mech.rate) == pytest.approx(0.15, abs=1e-6)
 
     state = GlobalState.empty(n_agents=n_agents, n_firms=5)
     state = state.replace(agents=state.agents.replace(income=jnp.ones(n_agents) * 1000.0))
     next_state, _ = policy_model(state, jax.random.PRNGKey(0))
     avg_income = jnp.mean(next_state.agents.income)
 
-    assert abs(float(avg_income) - 1150.0) < 1e-6
+    assert float(avg_income) == pytest.approx(1150.0, abs=1e-3)

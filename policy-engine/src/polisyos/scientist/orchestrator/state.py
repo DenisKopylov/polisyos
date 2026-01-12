@@ -56,12 +56,22 @@ class ExperimentState(TypedDict):
     cas_root: Optional[str]
     analysis: Optional[Dict[str, Any]]
     decision_packet: Optional[Dict[str, Any]]
+    gate_request: Optional[Dict[str, Any]]
 
     # Результаты симуляции (сырые данные или метрики)
     simulation_results: Optional[Dict[str, float]]
 
     # Обратная связь от Губернатора
     feedback: Optional[GovernorFeedback]
+
+    # Human gate / safety controls (must be part of state schema for LangGraph)
+    require_human_gate: Optional[bool]
+    gate_decision: Optional[Dict[str, Any]]
+    pii_tier: Optional[str]
+    uncertainty_bounds: Optional[Dict[str, float]]
+
+    # Execution config
+    runner_backend: Optional[str]
 
     # Счетчик попыток (чтобы избежать бесконечных циклов)
     revision_count: int

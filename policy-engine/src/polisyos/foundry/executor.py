@@ -22,6 +22,7 @@ from polisyos.core.contracts.foundry import (
     ProgramGraph,
     StateDelta,
     StateSnapshot,
+    ConstraintReportRef,
 )
 from polisyos.foundry.domain.state import GlobalState
 from polisyos.foundry.registry import create_mechanism_from_spec
@@ -53,6 +54,7 @@ from polisyos.ir.types import SelectorOperator
 class ExecuteArtifacts:
     state_delta_ref: ArtifactRef
     metrics_ref: ArtifactRef
+    constraint_report_ref: ConstraintReportRef | None = None
 
 
 @dataclass(frozen=True)
@@ -112,6 +114,7 @@ def execute_program_graph(
             }
         except Exception as exc:  # pragma: no cover - defensive
             raise ValueError(f"Failed to load policy for constraints: {exc}") from exc
+    constraint_events: list[dict[str, Any]] = []
 
     for node_id in order:
         node = node_map.get(node_id)
@@ -250,6 +253,7 @@ def execute_program_graph(
                         constraint_values=constraint_values,
                         slot_registry=slot_registry,
                         state=state_for_checks,
+                        events=constraint_events,
                     )
             else:
                 skipped_nodes += 1
@@ -337,7 +341,29 @@ def execute_program_graph(
         ),
     )
 
-    return ExecuteArtifacts(state_delta_ref=state_delta_ref, metrics_ref=metrics_ref)
+    constraint_report_ref = None
+    if constraint_registry is not None:
+        report = {
+            "schema_version": "1.0",
+            "step": step,
+            "checked": checked_constraints,
+            "events": constraint_events,
+        }
+        cref = store.put_json(
+            report,
+            PutOptions(
+                kind="foundry.constraint_report",
+                media_type="application/json",
+                inputs=inputs,
+            ),
+        )
+        constraint_report_ref = ConstraintReportRef.model_validate(cref.model_dump())
+
+    return ExecuteArtifacts(
+        state_delta_ref=state_delta_ref,
+        metrics_ref=metrics_ref,
+        constraint_report_ref=constraint_report_ref,
+    )
 
 
 def apply_state_delta(
@@ -622,6 +648,7 @@ def _check_constraints(
     constraint_values: dict[str, Any],
     slot_registry: SlotRegistry,
     state: Any,
+    events: list[dict[str, Any]] | None = None,
 ) -> None:
     for constraint_id in constraint_ids:
         if not isinstance(constraint_id, str):
@@ -644,18 +671,33 @@ def _check_constraints(
         if np.ndim(state_value) != 0:
             raise ValueError(f"Constraint '{constraint_id}' expects scalar slot value")
         current = Decimal(str(float(state_value)))
+        violated = False
         if spec.operator == ">=" and current < numeric:
-            raise ValueError(f"Constraint '{constraint_id}' violated: {current} < {numeric}")
+            violated = True
         if spec.operator == ">" and current <= numeric:
-            raise ValueError(f"Constraint '{constraint_id}' violated: {current} <= {numeric}")
+            violated = True
         if spec.operator == "<=" and current > numeric:
-            raise ValueError(f"Constraint '{constraint_id}' violated: {current} > {numeric}")
+            violated = True
         if spec.operator == "<" and current >= numeric:
-            raise ValueError(f"Constraint '{constraint_id}' violated: {current} >= {numeric}")
+            violated = True
         if spec.operator == "==" and current != numeric:
-            raise ValueError(f"Constraint '{constraint_id}' violated: {current} != {numeric}")
+            violated = True
         if spec.operator == "!=" and current == numeric:
-            raise ValueError(f"Constraint '{constraint_id}' violated: {current} == {numeric}")
+            violated = True
+
+        if events is not None:
+            events.append(
+                {
+                    "constraint_id": constraint_id,
+                    "operator": spec.operator,
+                    "expected": str(numeric),
+                    "actual": str(current),
+                    "ok": not violated,
+                }
+            )
+
+        if violated:
+            raise ValueError(f"Constraint '{constraint_id}' violated: {current} vs {spec.operator} {numeric}")
 
 
 def _artifact_id(value: ArtifactRef | ArtifactID | str) -> ArtifactID:
@@ -844,7 +886,3 @@ def _build_dataclass(cls, data: dict[str, Any]) -> Any:
                 raise ValueError(f"Missing value for '{field.name}'")
             kwargs[field.name] = jnp.asarray(value)
     return cls(**kwargs)
-    if isinstance(obj, (int, float, bool, np.generic)):
-        key = prefix[:-1]
-        yield key, np.asarray(obj)
-        return

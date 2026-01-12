@@ -17,7 +17,7 @@ SRC_ROOT = REPO_ROOT / "src"
 if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
 
-from polisyos.ir.migrations import IR_CURRENT_VERSION, migrate_policy_ir
+from polisyos.ir.loaders import load_policy
 
 
 def _load(path: Path) -> Tuple[dict, str]:
@@ -42,17 +42,20 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Migrate policy IR artifacts.")
     parser.add_argument("input", type=Path)
     parser.add_argument("output", type=Path)
-    parser.add_argument("--to", dest="target_version", default=IR_CURRENT_VERSION)
+    parser.add_argument("--to", dest="target_version", default="2.0")
     parser.add_argument("--allow-major", action="store_true")
     args = parser.parse_args()
 
     data, fmt = _load(args.input)
-    migrated = migrate_policy_ir(
-        data,
-        args.target_version,
-        allow_major=args.allow_major,
-    )
-    _dump(args.output, migrated, fmt)
+    policy = load_policy(data)
+    output_payload = policy.model_dump(mode="json")
+    if args.target_version and args.target_version != policy.schema_version:
+        print(
+            f"Requested target_version={args.target_version}, "
+            f"but PolicySurfaceIR schema_version is {policy.schema_version}. "
+            "Only 2.x is supported."
+        )
+    _dump(args.output, output_payload, fmt)
 
 
 if __name__ == "__main__":

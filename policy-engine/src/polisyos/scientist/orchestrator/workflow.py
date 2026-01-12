@@ -49,7 +49,7 @@ def build_workflow():
     workflow.add_node("run_sim", _with_phase(Phase.EXECUTE, run_sim_node))
     workflow.add_node("analyze", _with_phase(Phase.EXECUTE, analyze_node))
     workflow.add_node("governor", _with_phase(Phase.POSTFLIGHT_GOV, governor_node))
-    workflow.add_node("pack_decision", _with_phase(Phase.PUBLISH, pack_decision_node))
+    workflow.add_node("pack_decision", _with_phase(Phase.DECIDE, pack_decision_node))
 
     workflow.set_entry_point("draft_ir")
     workflow.add_edge("draft_ir", "validate_ir")

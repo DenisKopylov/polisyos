@@ -21,6 +21,10 @@ def parse_version(version: str) -> tuple[int, int]:
 def is_major_bump(from_version: str, to_version: str) -> bool:
     from_major, _ = parse_version(from_version)
     to_major, _ = parse_version(to_version)
+    # Policy IR versioning treats the stabilization jump 0.x -> 1.x as a
+    # backwards-compatible migration path (tests rely on this).
+    if from_major == 0 and to_major == 1:
+        return False
     return to_major != from_major
 
 

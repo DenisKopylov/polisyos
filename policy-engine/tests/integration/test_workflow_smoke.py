@@ -5,6 +5,7 @@ import pytest
 from polisyos.fabric.io.db import SimulationDB
 from polisyos.ir.surface import PolicySurfaceIR
 from polisyos.ir.types import SelectorOperator
+from polisyos.scientist.kernel.human_gate import GateDecision
 from polisyos.scientist.orchestrator.workflow import build_workflow
 
 pytestmark = pytest.mark.integration
@@ -183,3 +184,178 @@ def test_workflow_budget_constraint_needs_revision(tmp_path: Path) -> None:
     result = app.invoke(state)
 
     assert result["feedback"]["verdict"] == "NEEDS_REVISION"
+
+
+def test_workflow_does_not_create_logs_dir(tmp_path: Path) -> None:
+    """
+    Workflow must use runtime artifacts under runs/<run_id>/ and not emit legacy logs/.
+    """
+    db_path = tmp_path / "integration.duckdb"
+    graph_path = tmp_path / "integration.kuzu"
+    baseline_run_id = "baseline_2023"
+    runtime_base_dir = tmp_path / "runs"
+
+    rows = [
+        {
+            "run_id": baseline_run_id,
+            "step": 0,
+            "agent_id": 1,
+            "age": 25,
+            "income": 500.0,
+            "savings": 0.0,
+            "is_employed": True,
+        },
+        {
+            "run_id": baseline_run_id,
+            "step": 0,
+            "agent_id": 2,
+            "age": 30,
+            "income": 500.0,
+            "savings": 0.0,
+            "is_employed": True,
+        },
+    ]
+    _write_baseline(db_path, baseline_run_id, rows)
+
+    ir = PolicySurfaceIR(
+        semantic={
+            "context_snapshot_ref": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+            "time_semantics": {"frequency": "M", "start_date": "2024-01-01", "step_count": 1},
+            "interventions": [
+                {
+                    "intervention_id": "tax_sub",
+                    "kind": "tax_subsidy",
+                    "target": {
+                        "kind": "predicate",
+                        "field": "id",
+                        "operator": SelectorOperator.EQUALS,
+                        "value": "any",
+                    },
+                    "schedule": {"start_step": 0, "duration_steps": 1},
+                    "params": {"rate": "0.1"},
+                }
+            ],
+            "objectives": [],
+            "constraints": [],
+        }
+    )
+
+    app = build_workflow()
+    state = {
+        **_base_state(db_path, graph_path, baseline_run_id, runtime_base_dir),
+        "user_request": "No legacy logs",
+        "ir": ir,
+    }
+    result = app.invoke(state)
+
+    assert result["simulation_results"]["n_agents"] == 2
+    assert not (tmp_path / "logs").exists()
+
+
+def test_workflow_human_gate_pending(tmp_path: Path) -> None:
+    db_path = tmp_path / "integration.duckdb"
+    graph_path = tmp_path / "integration.kuzu"
+    baseline_run_id = "baseline_2023"
+    runtime_base_dir = tmp_path / "runs"
+
+    rows = [
+        {
+            "run_id": baseline_run_id,
+            "step": 0,
+            "agent_id": 1,
+            "age": 25,
+            "income": 500.0,
+            "savings": 0.0,
+            "is_employed": True,
+        }
+    ]
+    _write_baseline(db_path, baseline_run_id, rows)
+
+    ir = PolicySurfaceIR(
+        semantic={
+            "context_snapshot_ref": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+            "time_semantics": {"frequency": "M", "start_date": "2024-01-01", "step_count": 1},
+            "interventions": [
+                {
+                    "intervention_id": "tax_sub",
+                    "kind": "tax_subsidy",
+                    "target": {
+                        "kind": "predicate",
+                        "field": "id",
+                        "operator": SelectorOperator.EQUALS,
+                        "value": "any",
+                    },
+                    "schedule": {"start_step": 0, "duration_steps": 1},
+                    "params": {"rate": "0.1"},
+                }
+            ],
+            "objectives": [],
+            "constraints": [],
+        }
+    )
+
+    app = build_workflow()
+    state = {
+        **_base_state(db_path, graph_path, baseline_run_id, runtime_base_dir),
+        "user_request": "Gate pending",
+        "ir": ir,
+        "require_human_gate": True,
+    }
+    result = app.invoke(state)
+    assert result["feedback"]["verdict"] == "HUMAN_GATE"
+    assert "gate_request" in result
+
+
+def test_workflow_human_gate_approved(tmp_path: Path) -> None:
+    db_path = tmp_path / "integration.duckdb"
+    graph_path = tmp_path / "integration.kuzu"
+    baseline_run_id = "baseline_2023"
+    runtime_base_dir = tmp_path / "runs"
+
+    rows = [
+        {
+            "run_id": baseline_run_id,
+            "step": 0,
+            "agent_id": 1,
+            "age": 25,
+            "income": 500.0,
+            "savings": 0.0,
+            "is_employed": True,
+        }
+    ]
+    _write_baseline(db_path, baseline_run_id, rows)
+
+    ir = PolicySurfaceIR(
+        semantic={
+            "context_snapshot_ref": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+            "time_semantics": {"frequency": "M", "start_date": "2024-01-01", "step_count": 1},
+            "interventions": [
+                {
+                    "intervention_id": "tax_sub",
+                    "kind": "tax_subsidy",
+                    "target": {
+                        "kind": "predicate",
+                        "field": "id",
+                        "operator": SelectorOperator.EQUALS,
+                        "value": "any",
+                    },
+                    "schedule": {"start_step": 0, "duration_steps": 1},
+                    "params": {"rate": "0.1"},
+                }
+            ],
+            "objectives": [],
+            "constraints": [],
+        }
+    )
+
+    app = build_workflow()
+    gate_decision = GateDecision(approved=True, actor="tester")
+    state = {
+        **_base_state(db_path, graph_path, baseline_run_id, runtime_base_dir),
+        "user_request": "Gate approved",
+        "ir": ir,
+        "require_human_gate": True,
+        "gate_decision": gate_decision.model_dump(),
+    }
+    result = app.invoke(state)
+    assert result["feedback"]["verdict"] in {"APPROVE", "NEEDS_REVISION"}

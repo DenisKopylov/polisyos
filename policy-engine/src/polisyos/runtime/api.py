@@ -25,6 +25,8 @@ def _load_manifest(base_dir: Path, run_id: str) -> RunManifest:
 def _write_manifest(base_dir: Path, manifest: RunManifest) -> Path:
     run_dir = _run_dir(base_dir, manifest.run_id)
     run_dir.mkdir(parents=True, exist_ok=True)
+    if manifest.run_root is None:
+        manifest.run_root = str(base_dir)
     path = _manifest_path(base_dir, manifest.run_id)
     path.write_text(manifest.model_dump_json(indent=2), encoding="utf-8")
     return path
@@ -45,6 +47,7 @@ def start_run(
         generator=generator or {},
         budgets=budgets or {},
         budget_usage={},
+        run_root=str(base_dir),
     )
     _write_manifest(base_dir, manifest)
     return manifest
@@ -74,15 +77,18 @@ def log_artifact(
     else:
         path.write_text(str(payload), encoding="utf-8")
 
+    rel_path = path.relative_to(base_dir)
     ref = ArtifactRef(
         artifact_type=artifact_type,
-        path=str(path),
+        path=str(rel_path),
+        relative_path=str(rel_path),
         media_type=media_type,
         schema_version=schema_version,
         step=step,
     )
 
     manifest = _load_manifest(base_dir, run_id)
+    manifest.run_root = manifest.run_root or str(base_dir)
     manifest.artifacts.append(ref)
     _write_manifest(base_dir, manifest)
     return ref
@@ -105,7 +111,8 @@ def append_audit(
         manifest.artifacts.append(
             ArtifactRef(
                 artifact_type="audit_trail",
-                path=str(audit_path),
+                path=str(audit_path.relative_to(base_dir)),
+                relative_path=str(audit_path.relative_to(base_dir)),
                 media_type="application/json",
             )
         )
@@ -135,3 +142,26 @@ def finalize_run(
     manifest.finished_at = datetime.utcnow().isoformat()
     manifest.pruning_reason = pruning_reason
     _write_manifest(base_dir, manifest)
+
+
+def resolve_artifact_path(
+    ref: ArtifactRef, *, base_dir: Path = Path("runs"), run_root: Optional[Path] = None
+) -> Path:
+    """
+    Возвращает абсолютный путь к артефакту, опираясь на relative_path/path и run_root.
+
+    Приоритет:
+    1. ref.relative_path, собранный с run_root или base_dir
+    2. ref.path, если он абсолютный — возвращаем как есть
+       если относительный — собираем с run_root или base_dir
+    """
+    if ref.relative_path:
+        root = run_root or base_dir
+        return (root / ref.relative_path).resolve()
+    if ref.path:
+        p = Path(ref.path)
+        if p.is_absolute():
+            return p
+        root = run_root or base_dir
+        return (root / p).resolve()
+    raise ValueError("ArtifactRef is missing path information")

@@ -33,4 +33,6 @@ class JobResult(BaseModel):
     job_key: JobKey
     state_delta_ref: ArtifactRef | None = None
     metrics_ref: ArtifactRef | None = None
+    state_snapshot_ref: ArtifactRef | None = None
+    final_state: Any | None = None
     warnings: list[str] = Field(default_factory=list)

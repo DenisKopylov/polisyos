@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 from polisyos.core.contracts.fabric import EvidenceBundle, EvidenceBundleRef, EvidenceStep
-from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
+from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 
 
 def build_evidence_bundle(
@@ -17,3 +18,24 @@ def build_evidence_bundle(
         trust_policy_id=trust_policy_id,
         notes=notes or [],
     )
+
+
+def persist_evidence_bundle(
+    store: FileSystemCAS,
+    bundle: EvidenceBundle,
+    *,
+    schema_name: str = "fabric.evidence_bundle",
+    schema_version: str = "1.0",
+) -> EvidenceBundleRef:
+    """
+    Сохраняет EvidenceBundle в CAS и возвращает строгий EvidenceBundleRef.
+    """
+    ref = store.put_json(
+        bundle.model_dump(),
+        opts=PutOptions(
+            kind="fabric.evidence_bundle",
+            media_type="application/json",
+            schema=SchemaInfo(name=schema_name, version=schema_version),
+        ),
+    )
+    return EvidenceBundleRef.model_validate(ref.model_dump())

@@ -1,0 +1,1 @@
+{"access_tier":"internal","cypher":null,"cypher_params":{},"dataset_name":"agents","params":["baseline_2023",0],"redacted_fields":[],"request_id":"init_load","sql":"SELECT income, age, savings, is_employed FROM agents_snapshot WHERE run_id = ? AND step = ?","table":"agents_snapshot","view_type":"snapshot"}

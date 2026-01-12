@@ -118,7 +118,7 @@ def _fact_to_row(fact: Fact) -> dict[str, Any]:
         "schema_version": fact.schema_version,
         "subject_id": fact.subject_id,
         "predicate_id": fact.predicate_id,
-        "object_value": str(fact.object_value) if isinstance(fact.object_value, Decimal) else fact.object_value,
+        "object_value": str(fact.object_value) if fact.object_value is not None else None,
         "target_id": fact.target_id,
         "valid_time": fact.valid_time,
         "tx_time": fact.tx_time,

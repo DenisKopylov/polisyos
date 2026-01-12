@@ -1,13 +1,9 @@
 import json
-from typing import TYPE_CHECKING
 
 import duckdb
 import pandas as pd
 
 from polisyos.common.logger import logger
-
-if TYPE_CHECKING:
-    from polisyos.scientist.orchestrator.run_record import RunRecord
 
 
 class SimulationDB:

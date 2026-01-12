@@ -1,4 +1,5 @@
 import hashlib
+import math
 import json
 import re
 from pathlib import Path
@@ -7,11 +8,15 @@ from typing import Any, Dict, Iterable, Tuple, Type
 import pandas as pd
 from pydantic import BaseModel, ValidationError
 
+from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
+from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.contracts.fabric import EvidenceBundleRef
 from polisyos.fabric.config import (
     DEFAULT_RECONCILIATION_TOLERANCE,
     NORMALIZATION_RULES,
     RECONCILIATION_RULES,
 )
+from polisyos.fabric.evidence import build_evidence_bundle, persist_evidence_bundle
 from polisyos.fabric.manifest import CoverageMetrics, DatasetManifest, QualityMetrics, ReconciliationReport
 from polisyos.fabric.schema import AgentRow, InteractionRow, MacroRow
 from polisyos.fabric.io.db import SimulationDB
@@ -57,6 +62,8 @@ def _quality_metrics(df: pd.DataFrame, dedup_key: list[str]) -> QualityMetrics:
     duplicate_rate = 0.0
     if dedup_key:
         duplicate_rate = float(df.duplicated(subset=dedup_key).mean())
+        if math.isnan(duplicate_rate):
+            duplicate_rate = 0.0
     return QualityMetrics(
         missing_rate=missing_rate,
         duplicate_rate=duplicate_rate,
@@ -168,7 +175,7 @@ def _emit_fact_segments(
     provenance: FactProvenance,
     valid_time_field: str | None = None,
     target_field: str | None = None,
-) -> None:
+) -> ArtifactRef | None:
     if df.empty:
         return
     facts = facts_from_dataframe(
@@ -443,7 +450,8 @@ def run_ingestion(
     source: str,
     license_name: str,
     clear_on_start: bool = False,
-) -> None:
+    cas_root: Path | None = Path(".polisyos"),
+) -> EvidenceBundleRef | None:
     if clear_on_start and db_path.exists():
         db_path.unlink()
     db = SimulationDB(str(db_path))
@@ -477,3 +485,32 @@ def run_ingestion(
     )
 
     db.close()
+
+    # Пишем evidence bundle в CAS для набора манифестов
+    if cas_root is not None:
+        store = FileSystemCAS(Path(cas_root))
+        manifest_refs: list[ArtifactRef] = []
+
+        def _put_manifest(name: str) -> None:
+            path = curated_dir / f"{name}_manifest.json"
+            if not path.exists():
+                return
+            ref = store.put_bytes(
+                path.read_bytes(),
+                opts=PutOptions(
+                    kind="fabric.dataset_manifest",
+                    media_type="application/json",
+                    schema=SchemaInfo(name="fabric.dataset_manifest", version="1.0"),
+                ),
+            )
+            manifest_refs.append(ArtifactRef.model_validate(ref.model_dump()))
+
+        for manifest_name in ["macro", "agents", "entity_resolution", "interactions"]:
+            _put_manifest(manifest_name)
+
+        evidence_bundle = build_evidence_bundle(
+            sources=manifest_refs,
+            notes=["ingestion evidence"],
+        )
+        return persist_evidence_bundle(store, evidence_bundle)
+    return None

@@ -39,13 +39,35 @@ def _dump(path: Path, data: dict, fmt: str) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Migrate schema artifacts to target version.")
-    parser.add_argument("artifact", choices=["policy_ir", "dataset_manifest"])
+    parser.add_argument("artifact", choices=["policy_ir", "dataset_manifest", "run_manifest"])
     parser.add_argument("input", type=Path)
     parser.add_argument("output", type=Path)
     parser.add_argument("--to", dest="target_version")
     args = parser.parse_args()
 
     data, fmt = _load(args.input)
+    if args.artifact == "run_manifest":
+        # Convert absolute paths to relative and attach run_root
+        manifest_dir = args.input.parent
+        base_dir = manifest_dir.parent
+        artifacts = data.get("artifacts", [])
+        new_artifacts = []
+        for art in artifacts:
+            path_val = art.get("path")
+            rel = art.get("relative_path")
+            if rel is None and path_val:
+                try:
+                    rel_path = str(Path(path_val).relative_to(base_dir))
+                except Exception:
+                    rel_path = Path(path_val).name
+                art["relative_path"] = rel_path
+                art["path"] = rel_path
+            new_artifacts.append(art)
+        data["artifacts"] = new_artifacts
+        data.setdefault("run_root", str(base_dir))
+        _dump(args.output, data, fmt)
+        return
+
     if args.target_version:
         target = args.target_version
     else:

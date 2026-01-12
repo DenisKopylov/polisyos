@@ -63,13 +63,10 @@ registry.py         # Регистрация и фабрика механизм�
 
 ### 5. Legacy Layer (Устаревшее)
 ```
-engine/             # Legacy симуляционный движок
-├── kernel.py       # SimulationKernel (простая симуляция)
-└── logic.py        # Экономическая логика
-loss.py             # Функции потерь
-utils.py            # Утилиты
-basic_simulation.py # Демо и примеры
+_legacy/engine/     # Legacy симуляционный движок (SimulationKernel, logic)
+_legacy/basic_simulation.py # Демо и примеры (deprecated)
 ```
+> Legacy находится в `_legacy/` и запрещён к использованию в новом коде; используйте patch VM / ProgramGraph runtime.
 
 ## Компилятор политик
 
@@ -333,12 +330,12 @@ queue = QueueMechanism(
 
 ## Движок симуляции
 
-### SimulationKernel
+### SimulationKernel (legacy)
 
-JIT-скомпилированный экономический цикл:
+JIT-скомпилированный экономический цикл (доступен только для обратной совместимости):
 
 ```python
-from polisyos.foundry.engine.kernel import SimulationKernel
+from polisyos.foundry._legacy.engine.kernel import SimulationKernel  # deprecated
 
 kernel = SimulationKernel()  # JIT-компиляция при создании
 

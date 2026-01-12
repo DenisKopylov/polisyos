@@ -7,6 +7,10 @@ from dataclasses import dataclass
 from pathlib import Path
 
 INTERNAL_PREFIX = "polisyos"
+FORBIDDEN_MODULE_PREFIXES = {
+    "polisyos.scientist._legacy",
+    "polisyos.foundry._legacy",
+}
 
 LAYER_BY_PREFIX = {
     "polisyos.core": "core",
@@ -234,6 +238,11 @@ def main() -> int:
         action="store_true",
         help="Fail on forbidden edges inside TYPE_CHECKING blocks",
     )
+    parser.add_argument(
+        "--fail-on-legacy",
+        action="store_true",
+        help="Fail when importing polisyos.*._legacy modules anywhere",
+    )
     args = parser.parse_args()
 
     if not args.src_root.exists():
@@ -243,8 +252,20 @@ def main() -> int:
     imports, internal_counts, module_graph = parse_imports(args.src_root)
     runtime_forbidden: list[ImportRef] = []
     type_checking_forbidden: list[ImportRef] = []
+    legacy_forbidden: list[ImportRef] = []
+    legacy_type_forbidden: list[ImportRef] = []
 
     for ref in imports:
+        if any(
+            ref.target_module == prefix or ref.target_module.startswith(f"{prefix}.")
+            for prefix in FORBIDDEN_MODULE_PREFIXES
+        ):
+            if ref.in_type_checking:
+                legacy_type_forbidden.append(ref)
+            else:
+                legacy_forbidden.append(ref)
+            continue
+
         src_layer = layer_for_module(ref.source_module)
         dst_layer = layer_for_module(ref.target_module)
         if not src_layer or not dst_layer:
@@ -296,6 +317,26 @@ def main() -> int:
         print("Forbidden edges (TYPE_CHECKING): none")
         print("")
 
+    if legacy_forbidden:
+        print("Forbidden legacy imports (runtime):")
+        for ref in legacy_forbidden:
+            file_path = format_path(repo_root, ref.source_file)
+            print(f"- {file_path}:{ref.lineno} imports {ref.target_module}")
+        print("")
+    else:
+        print("Forbidden legacy imports (runtime): none")
+        print("")
+
+    if legacy_type_forbidden:
+        print("Forbidden legacy imports (TYPE_CHECKING):")
+        for ref in legacy_type_forbidden:
+            file_path = format_path(repo_root, ref.source_file)
+            print(f"- {file_path}:{ref.lineno} imports {ref.target_module}")
+        print("")
+    else:
+        print("Forbidden legacy imports (TYPE_CHECKING): none")
+        print("")
+
     if cycles:
         print("Cycles (runtime imports, package-level):")
         for group in cycles:
@@ -315,7 +356,9 @@ def main() -> int:
     exit_code = 0
     if runtime_forbidden:
         exit_code = 1
-    if args.fail_on_type_checking and type_checking_forbidden:
+    if args.fail_on_type_checking and (type_checking_forbidden or legacy_type_forbidden):
+        exit_code = 1
+    if args.fail_on_legacy and legacy_forbidden:
         exit_code = 1
     if args.fail_on_cycles and cycles:
         exit_code = 1

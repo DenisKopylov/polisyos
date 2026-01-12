@@ -1,10 +1,11 @@
 from __future__ import annotations
 
+import json
 import os
 import platform
+import warnings
 from datetime import datetime
 from enum import Enum
-import json
 from importlib import metadata
 from pathlib import Path
 from typing import Any, Dict, Optional
@@ -103,8 +104,13 @@ def build_run_record(
     )
 
 
-def save_run_record_json(record: RunRecord, base_dir: Path = Path("logs")) -> Path:
-    output_dir = base_dir / "run_records"
+def save_run_record_json(record: RunRecord, base_dir: Path = Path("runs")) -> Path:
+    warnings.warn(
+        "save_run_record_json is deprecated; use polisyos.runtime.log_artifact instead.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+    output_dir = Path(base_dir or "runs") / "run_records"
     output_dir.mkdir(parents=True, exist_ok=True)
     payload = record.model_dump()
     path = output_dir / f"{record.run_id}.json"

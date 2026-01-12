@@ -29,7 +29,9 @@ def load_initial_state(udf: UDFEngine, source_run_id: str, step: int = 0) -> Glo
         access_tier=AccessTier.INTERNAL,
     )
 
-    table = udf.query_arrow(req)
+    # UDFEngine теперь возвращает FabricResult; используем артефакт данных.
+    result = udf.query_result(req)
+    table = udf._materialize_arrow(result.data_ref)  # noqa: SLF001 - внутреннее, но здесь ок
 
     if table.num_rows == 0:
         raise ValueError(f"No data found for RunID: {source_run_id} at Step: {step}")

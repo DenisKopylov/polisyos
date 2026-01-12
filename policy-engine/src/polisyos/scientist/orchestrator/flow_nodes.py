@@ -19,12 +19,7 @@ from polisyos.fabric.io.db import SimulationDB
 from polisyos.fabric.io.graph_store import GraphStore
 from polisyos.fabric.udf.engine import UDFEngine
 from polisyos.foundry.compiler import compile_surface_policy, put_policy_surface
-from polisyos.foundry.executor import (
-    apply_state_delta_and_snapshot,
-    execute_program_graph,
-    load_state_snapshot,
-    put_state_snapshot,
-)
+from polisyos.foundry.executor import load_state_snapshot, put_state_snapshot
 from polisyos.foundry.registry import create_mechanism_from_spec
 from polisyos.ir.data_views import DataViewRequest
 from polisyos.ir.kernel import MergeRuleKind
@@ -35,11 +30,14 @@ from polisyos.ir.validation import ValidationIssue, build_validation_report, dif
 from polisyos.runtime import finalize_run, log_artifact, start_run, update_budget_usage
 from polisyos.scientist.agent.drafter import MockLLM
 from polisyos.scientist.agent.prompts import get_system_prompt
+from polisyos.scientist.compute.job_spec import JobSpec
+from polisyos.scientist.compute.runner import resolve_backend, run_job
 from polisyos.scientist.orchestrator.audit import append_audit
 from polisyos.scientist.orchestrator.data_loader import load_initial_state
 from polisyos.scientist.orchestrator.decision_packet import build_decision_packet
 from polisyos.scientist.orchestrator.run_record import ReproMode, build_run_record
 from polisyos.scientist.orchestrator.state import ExperimentState, GovernorFeedback
+from polisyos.scientist.kernel.human_gate import GateDecision, GateRequest
 
 DEFAULT_BUDGET = {
     "max_llm_calls": 3.0,
@@ -910,51 +908,53 @@ def run_sim_node(state: ExperimentState) -> ExperimentState:
         return append_audit({**state, "feedback": feedback}, "run_sim", "missing_program", {})
 
     try:
-        exec_artifacts = execute_program_graph(
-            FileSystemCAS(_cas_root(state)),
+        job_spec = JobSpec(
             program_ref=ArtifactRef.model_validate(program_graph_ref),
             exec_plan_ref=ArtifactRef.model_validate(exec_plan_ref),
-            base_state=world_state,
-            mechanism_registry=registry_content.mechanism_registry,
-            slot_registry=registry_content.slot_registry,
-            merge_registry=registry_content.merge_registry,
-            selector_field_registry=registry_content.selector_field_registry,
-            constraint_registry=registry_content.constraint_registry,
-            step=int(world_state.step),
+            state_snapshot_ref=None,
             seed=seed,
         )
-        log_artifact(
-            run_id=state["run_id"],
-            artifact_type="state_delta_ref",
-            payload=exec_artifacts.state_delta_ref.model_dump(),
-            media_type="application/json",
-            step="run_sim",
-            base_dir=_runtime_base_dir(state),
-        )
-        log_artifact(
-            run_id=state["run_id"],
-            artifact_type="metrics_ref",
-            payload=exec_artifacts.metrics_ref.model_dump(),
-            media_type="application/json",
-            step="run_sim",
-            base_dir=_runtime_base_dir(state),
-        )
-        world_state, applied = apply_state_delta_and_snapshot(
-            FileSystemCAS(_cas_root(state)),
+        backend = resolve_backend(state.get("runner_backend"))
+        job_result = run_job(
+            job_spec,
+            backend=backend,
+            registry_content=registry_content,
             base_state=world_state,
-            state_delta_ref=exec_artifacts.state_delta_ref,
-            slot_registry=registry_content.slot_registry,
-            merge_registry=registry_content.merge_registry,
-            step=int(world_state.step),
+            cas_root=_cas_root(state),
         )
-        log_artifact(
-            run_id=state["run_id"],
-            artifact_type="state_snapshot_ref",
-            payload=applied.state_snapshot_ref.model_dump(),
-            media_type="application/json",
-            step="run_sim",
-            base_dir=_runtime_base_dir(state),
-        )
+        if job_result.warnings:
+            issue = _make_issue(["runtime"], "; ".join(job_result.warnings), "runtime")
+            feedback: GovernorFeedback = {"verdict": "REJECT", "issues": [issue]}
+            return append_audit({**state, "feedback": feedback}, "run_sim", "failed", {})
+        exec_artifacts = job_result
+        world_state = job_result.final_state or world_state
+        if exec_artifacts.state_delta_ref is not None:
+            log_artifact(
+                run_id=state["run_id"],
+                artifact_type="state_delta_ref",
+                payload=exec_artifacts.state_delta_ref.model_dump(),
+                media_type="application/json",
+                step="run_sim",
+                base_dir=_runtime_base_dir(state),
+            )
+        if exec_artifacts.metrics_ref is not None:
+            log_artifact(
+                run_id=state["run_id"],
+                artifact_type="metrics_ref",
+                payload=exec_artifacts.metrics_ref.model_dump(),
+                media_type="application/json",
+                step="run_sim",
+                base_dir=_runtime_base_dir(state),
+            )
+        if exec_artifacts.state_snapshot_ref is not None:
+            log_artifact(
+                run_id=state["run_id"],
+                artifact_type="state_snapshot_ref",
+                payload=exec_artifacts.state_snapshot_ref.model_dump(),
+                media_type="application/json",
+                step="run_sim",
+                base_dir=_runtime_base_dir(state),
+            )
     except Exception as exc:
         verdict = "REJECT"
         issue_kind = "runtime"
@@ -993,7 +993,9 @@ def run_sim_node(state: ExperimentState) -> ExperimentState:
             "run_record": run_record,
             "state_delta_ref": exec_artifacts.state_delta_ref.model_dump(),
             "metrics_ref": exec_artifacts.metrics_ref.model_dump(),
-            "state_snapshot_ref": applied.state_snapshot_ref.model_dump(),
+            "state_snapshot_ref": exec_artifacts.state_snapshot_ref.model_dump()
+            if exec_artifacts.state_snapshot_ref is not None
+            else None,
         },
         "run_sim",
         "completed",
@@ -1045,6 +1047,55 @@ def governor_node(state: ExperimentState) -> ExperimentState:
             )
         )
 
+    gate_reasons: list[str] = []
+    if state.get("require_human_gate"):
+        gate_reasons.append("require_human_gate_flag")
+    uncertainty = state.get("uncertainty_bounds")
+    if uncertainty and isinstance(uncertainty, dict):
+        lower = uncertainty.get("lower")
+        upper = uncertainty.get("upper")
+        if lower is not None and upper is not None and (upper - lower) > 0.2:
+            gate_reasons.append("wide_uncertainty_bounds")
+    pii_tier = state.get("pii_tier")
+    if pii_tier and str(pii_tier).lower() in {"high", "sensitive"}:
+        gate_reasons.append("high_pii_tier")
+
+    gate_decision = state.get("gate_decision")
+    if gate_reasons and not gate_decision:
+        gate_request = GateRequest(
+            run_id=state.get("run_id") or "unknown",
+            reason=";".join(gate_reasons),
+            details={"reasons": gate_reasons, "results": results},
+        )
+        feedback: GovernorFeedback = {"verdict": "HUMAN_GATE", "issues": issues}
+        return append_audit(
+            {**state, "feedback": feedback, "gate_request": gate_request.model_dump()},
+            "governor",
+            "human_gate_required",
+            {"reasons": gate_reasons},
+        )
+
+    if gate_reasons and gate_decision:
+        decision_obj = (
+            gate_decision if isinstance(gate_decision, GateDecision) else GateDecision.model_validate(gate_decision)
+        )
+        if not decision_obj.approved:
+            issues.append(
+                _make_issue(
+                    ["governor", "human_gate"],
+                    "Human gate rejected the run",
+                    "policy",
+                    decision_obj.reason_codes,
+                )
+            )
+            feedback = {"verdict": "REJECT", "issues": issues}
+            return append_audit(
+                {**state, "feedback": feedback, "gate_decision": decision_obj.model_dump()},
+                "governor",
+                "rejected_by_gate",
+                {},
+            )
+
     feedback: GovernorFeedback = {"verdict": verdict, "issues": issues}
     return append_audit({**state, "feedback": feedback}, "governor", "verdict", feedback)
 
@@ -1086,7 +1137,10 @@ def pack_decision_node(state: ExperimentState) -> ExperimentState:
         status = "pruned"
     elif feedback:
         verdict = feedback.get("verdict")
-        status = verdict.lower() if verdict else "running"
+        if verdict and verdict.upper() == "HUMAN_GATE":
+            status = "waiting_human_gate"
+        else:
+            status = verdict.lower() if verdict else "running"
     finalize_run(
         run_id=state["run_id"],
         status=status,

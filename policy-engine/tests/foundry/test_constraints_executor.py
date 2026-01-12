@@ -108,6 +108,7 @@ def test_constraint_operators(operator: str, state_value: float, constraint_valu
     if should_pass:
         result = execute_program_graph(**exec_kwargs)
         assert result.metrics_ref is not None
+        assert result.constraint_report_ref is not None
     else:
         with pytest.raises(ValueError):
             execute_program_graph(**exec_kwargs)

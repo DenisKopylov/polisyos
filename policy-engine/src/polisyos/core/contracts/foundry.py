@@ -57,6 +57,11 @@ class MetricsRef(ArtifactRef):
     media_type: Literal["application/json"] = "application/json"
 
 
+class ConstraintReportRef(ArtifactRef):
+    kind: Literal["foundry.constraint_report"] = "foundry.constraint_report"
+    media_type: Literal["application/json"] = "application/json"
+
+
 class TraceSliceRef(ArtifactRef):
     kind: Literal["foundry.trace_slice"] = "foundry.trace_slice"
     media_type: Literal["application/jsonl"] = "application/jsonl"

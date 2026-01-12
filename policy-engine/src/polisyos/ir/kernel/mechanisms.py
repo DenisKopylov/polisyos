@@ -28,6 +28,11 @@ class ParamSpec(KernelModel):
     value_type: ParamType = ParamType.DECIMAL
     min_value: Decimal | None = None
     max_value: Decimal | None = None
+    # Флаг для дифференцируемого калибратора: параметр оптимизируется, если True
+    trainable: bool = False
+    # Опциональные прайоры (MVP: только хранение метаданных, без обязательного использования)
+    prior_mean: Decimal | None = None
+    prior_std: Decimal | None = None
     unit_id: str | None = Field(None, pattern=ID_PATTERN)
     description: str | None = Field(None, max_length=200)
     enum_values: list[str] | None = None
@@ -73,6 +78,7 @@ DEFAULT_MECHANISM_REGISTRY = MechanismTypeRegistry(
                     value_type=ParamType.RATE,
                     min_value=Decimal("0"),
                     max_value=Decimal("1"),
+                    trainable=True,
                     unit_id="ratio",
                 )
             },
@@ -90,6 +96,7 @@ DEFAULT_MECHANISM_REGISTRY = MechanismTypeRegistry(
                     value_type=ParamType.RATE,
                     min_value=Decimal("0"),
                     max_value=Decimal("1"),
+                    trainable=True,
                     unit_id="ratio",
                 )
             },

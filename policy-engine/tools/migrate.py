@@ -16,7 +16,11 @@ try:
 except Exception:
     yaml = None
 
-from polisyos.common.migrations import MANIFEST_CURRENT_VERSION, POLICY_IR_CURRENT_VERSION, migrate_artifact
+from polisyos.common.migrations import (
+    MANIFEST_CURRENT_VERSION,
+    POLICY_IR_CURRENT_VERSION,
+    migrate_artifact,
+)
 
 
 def _load(path: Path) -> Tuple[dict, str]:

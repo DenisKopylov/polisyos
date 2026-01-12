@@ -1,7 +1,6 @@
 from pathlib import Path
 
 import pytest
-
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.contracts.fabric import FabricResult
 from polisyos.fabric.ingestion import run_ingestion
@@ -33,13 +32,11 @@ def test_run_ingestion_writes_evidence(tmp_path: Path) -> None:
         encoding="utf-8",
     )
     (raw_dir / "agents.csv").write_text(
-        "agent_id,agent_type,age,income,savings,is_employed\n"
-        "a,worker,30,1000,5000,True\n",
+        "agent_id,agent_type,age,income,savings,is_employed\n" "a,worker,30,1000,5000,True\n",
         encoding="utf-8",
     )
     (raw_dir / "interactions.csv").write_text(
-        "from_id,to_id,step,amount,type\n"
-        "a,a,0,1.0,transfer\n",
+        "from_id,to_id,step,amount,type\n" "a,a,0,1.0,transfer\n",
         encoding="utf-8",
     )
 

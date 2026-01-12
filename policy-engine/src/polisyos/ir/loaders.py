@@ -94,4 +94,3 @@ def load_policy(payload: Any) -> PolicySurfaceIR:
         return _coerce_v1_to_surface(payload)
 
     raise TypeError(f"Unsupported policy payload type: {type(payload)}")
-

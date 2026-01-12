@@ -16,15 +16,16 @@ from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.contracts.foundry import (
+    ConstraintReportRef,
     ExecPlan,
     Metrics,
     PatchOp,
     ProgramGraph,
     StateDelta,
     StateSnapshot,
-    ConstraintReportRef,
 )
 from polisyos.foundry.domain.state import GlobalState
+from polisyos.foundry.patch_vm import merge_patch_records
 from polisyos.foundry.registry import create_mechanism_from_spec
 from polisyos.ir.kernel import (
     ConstraintRegistry,
@@ -36,7 +37,6 @@ from polisyos.ir.kernel import (
     SlotScope,
 )
 from polisyos.ir.kernel.values import CountValue, DurationValue, MoneyValue, RateValue
-from polisyos.foundry.patch_vm import merge_patch_records
 from polisyos.ir.surface import (
     PolicySurfaceIR,
     ScheduleSpec,
@@ -697,7 +697,9 @@ def _check_constraints(
             )
 
         if violated:
-            raise ValueError(f"Constraint '{constraint_id}' violated: {current} vs {spec.operator} {numeric}")
+            raise ValueError(
+                f"Constraint '{constraint_id}' violated: {current} vs {spec.operator} {numeric}"
+            )
 
 
 def _artifact_id(value: ArtifactRef | ArtifactID | str) -> ArtifactID:

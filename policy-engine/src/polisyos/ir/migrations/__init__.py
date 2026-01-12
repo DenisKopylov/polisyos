@@ -2,7 +2,8 @@ from __future__ import annotations
 
 import re
 
-from polisyos.common.migrations.base import migrate_artifact, register_migration as _register_migration
+from polisyos.common.migrations.base import migrate_artifact
+from polisyos.common.migrations.base import register_migration as _register_migration
 from polisyos.common.migrations.policy_ir import POLICY_IR_CURRENT_VERSION
 
 IR_ARTIFACT = "policy_ir"
@@ -38,7 +39,9 @@ def register_migration(from_version: str, to_version: str):
     return _register_migration(IR_ARTIFACT, from_version, to_version)
 
 
-def migrate_policy_ir(data: dict, target_version: str | None = None, *, allow_major: bool = False) -> dict:
+def migrate_policy_ir(
+    data: dict, target_version: str | None = None, *, allow_major: bool = False
+) -> dict:
     """
     Migrate policy IR payload using the shared common.migrations registry.
     """

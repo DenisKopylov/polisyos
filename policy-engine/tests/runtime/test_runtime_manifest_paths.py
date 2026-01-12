@@ -38,7 +38,9 @@ def test_resolve_artifact_path_handles_relative_and_absolute(tmp_path: Path) -> 
     base_dir = tmp_path / "runs"
     base_dir.mkdir()
 
-    rel_ref = ArtifactRef(artifact_type="x", relative_path="foo/bar.json", media_type="application/json")
+    rel_ref = ArtifactRef(
+        artifact_type="x", relative_path="foo/bar.json", media_type="application/json"
+    )
     abs_ref = ArtifactRef(
         artifact_type="x",
         path=str((tmp_path / "abs.json").resolve()),
@@ -48,5 +50,8 @@ def test_resolve_artifact_path_handles_relative_and_absolute(tmp_path: Path) -> 
     (base_dir / "foo").mkdir(parents=True)
     (base_dir / "foo" / "bar.json").write_text("world", encoding="utf-8")
 
-    assert resolve_artifact_path(rel_ref, base_dir=base_dir) == (base_dir / "foo" / "bar.json").resolve()
+    assert (
+        resolve_artifact_path(rel_ref, base_dir=base_dir)
+        == (base_dir / "foo" / "bar.json").resolve()
+    )
     assert resolve_artifact_path(abs_ref, base_dir=base_dir) == (tmp_path / "abs.json").resolve()

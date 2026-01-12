@@ -10,4 +10,3 @@ warnings.warn(
 )
 
 from polisyos.foundry._legacy.engine.kernel import SimulationKernel  # noqa: F401
-

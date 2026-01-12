@@ -69,7 +69,9 @@ class LocalBackend(RunnerBackend):
             merge_registry=registry_content.merge_registry,
             step=int(base_state.step),
         )
-        return ExecutionResult(exec_artifacts=exec_artifacts, applied=applied, final_state=final_state)
+        return ExecutionResult(
+            exec_artifacts=exec_artifacts, applied=applied, final_state=final_state
+        )
 
 
 class RayBackend(RunnerBackend):
@@ -120,7 +122,12 @@ def run_job(
     job_key = JobKey.from_spec(spec)
     if backend is None:
         backend = resolve_backend(None)
-    if registry_content is None or base_state is None or spec.exec_plan_ref is None or cas_root is None:
+    if (
+        registry_content is None
+        or base_state is None
+        or spec.exec_plan_ref is None
+        or cas_root is None
+    ):
         return JobResult(job_key=job_key, warnings=["missing inputs for execution"])
 
     result = backend.run(
@@ -136,7 +143,9 @@ def run_job(
         job_key=job_key,
         state_delta_ref=result.exec_artifacts.state_delta_ref,
         metrics_ref=result.exec_artifacts.metrics_ref,
-        state_snapshot_ref=result.applied.state_snapshot_ref if hasattr(result.applied, "state_snapshot_ref") else None,
+        state_snapshot_ref=result.applied.state_snapshot_ref
+        if hasattr(result.applied, "state_snapshot_ref")
+        else None,
         final_state=result.final_state,
         warnings=[],
     )

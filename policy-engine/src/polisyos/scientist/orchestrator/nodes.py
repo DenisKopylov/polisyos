@@ -10,4 +10,3 @@ warnings.warn(
 )
 
 from polisyos.scientist._legacy.nodes import governor_node, simulator_node  # noqa: F401
-

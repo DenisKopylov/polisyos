@@ -12,7 +12,9 @@ from polisyos.foundry.registry import create_mechanism
 from polisyos.ir.contract import PolicyRequestIR
 from polisyos.scientist import deprecated_import
 
-deprecated_import("polisyos.scientist.orchestrator.compiler (PolicyRequestIR) is deprecated; use Surface IR.")
+deprecated_import(
+    "polisyos.scientist.orchestrator.compiler (PolicyRequestIR) is deprecated; use Surface IR."
+)
 
 
 class CompositePolicy(Mechanism):
@@ -50,4 +52,3 @@ def compile_policy(ir: PolicyRequestIR, n_agents: int, n_firms: int = 0) -> Mech
             logger.error(f"  ❌ Failed to compile '{intervention.id}': {exc}")
             raise ValueError(f"Parameter mismatch for {intervention.mechanism_type}: {exc}")
     return CompositePolicy(mechanisms=compiled_steps)
-

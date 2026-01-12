@@ -9,4 +9,3 @@ warnings.warn(
     DeprecationWarning,
     stacklevel=2,
 )
-

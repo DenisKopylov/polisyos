@@ -8,7 +8,7 @@ from datetime import datetime
 from enum import Enum
 from importlib import metadata
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Dict, Optional
 
 from pydantic import BaseModel, ConfigDict, Field
 

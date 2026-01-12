@@ -32,4 +32,3 @@ def run_experiment(state: Mapping[str, Any] | None = None) -> dict[str, Any]:
     """
     workflow = build_workflow()
     return workflow.invoke(dict(state or {}))
-

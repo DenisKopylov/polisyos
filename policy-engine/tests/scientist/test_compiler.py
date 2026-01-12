@@ -3,11 +3,10 @@ from datetime import datetime
 import jax
 import jax.numpy as jnp
 import pytest
-
 from polisyos.foundry.domain.state import GlobalState
-from polisyos.scientist.orchestrator.compiler import compile_policy
 from polisyos.ir.contract import PolicyEntity, PolicyRequestIR
 from polisyos.ir.types import EntityType, TranslatableString
+from polisyos.scientist.orchestrator.compiler import compile_policy
 
 
 def test_compile_policy_roundtrip_rate() -> None:

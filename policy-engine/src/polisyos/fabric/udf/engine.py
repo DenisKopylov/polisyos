@@ -1,5 +1,4 @@
 from dataclasses import asdict
-from io import BytesIO
 from pathlib import Path
 from typing import Optional
 
@@ -7,24 +6,23 @@ import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
 
+from polisyos.common.logger import logger
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.contracts.fabric import (
     DataViewRequestRef,
-    EvidenceBundleRef,
     FabricResult,
     QueryPlanRef,
 )
 from polisyos.fabric.evidence import build_evidence_bundle, persist_evidence_bundle
-from polisyos.fabric.registry import ManifestRegistry
 from polisyos.fabric.io.db import SimulationDB
 from polisyos.fabric.io.graph_store import GraphStore  # <--- Импорт
-from polisyos.ir.data_views import DataViewRequest, DataViewType
+from polisyos.fabric.registry import ManifestRegistry
 from polisyos.fabric.udf.compiler import ViewCompiler
 from polisyos.fabric.udf.config import UdfSchema, load_udf_schema
 from polisyos.fabric.udf.plan import DataViewPlan
-from polisyos.common.logger import logger
+from polisyos.ir.data_views import DataViewRequest, DataViewType
 
 
 class UDFEngine:
@@ -128,9 +126,7 @@ class UDFEngine:
         )
         return DataViewRequestRef.model_validate(ref.model_dump())
 
-    def _persist_plan(
-        self, plan: DataViewPlan, request_ref: DataViewRequestRef
-    ) -> QueryPlanRef:
+    def _persist_plan(self, plan: DataViewPlan, request_ref: DataViewRequestRef) -> QueryPlanRef:
         ref = self.cas.put_json(
             asdict(plan),
             opts=PutOptions(

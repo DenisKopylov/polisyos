@@ -2,12 +2,11 @@
 
 import jax.numpy as jnp
 import numpy as np
-import pyarrow as pa
 
+from polisyos.common.logger import logger
+from polisyos.fabric.udf.engine import UDFEngine
 from polisyos.foundry.domain.state import AgentState, FirmState, GlobalState, MarketState
 from polisyos.ir.data_views import AccessTier, DataViewRequest, DataViewType
-from polisyos.fabric.udf.engine import UDFEngine
-from polisyos.common.logger import logger
 
 
 def load_initial_state(udf: UDFEngine, source_run_id: str, step: int = 0) -> GlobalState:

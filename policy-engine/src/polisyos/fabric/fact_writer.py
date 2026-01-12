@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import json
 import time
-from datetime import datetime
 from decimal import Decimal
 from hashlib import sha256
 from pathlib import Path
@@ -10,6 +9,7 @@ from typing import Any
 
 import pandas as pd
 
+from polisyos.fabric.segment_manifest import write_segment_manifest
 from polisyos.ir.fact_log import (
     Fact,
     FactLegal,
@@ -18,7 +18,6 @@ from polisyos.ir.fact_log import (
     FactTrust,
     build_fact_id,
 )
-from polisyos.fabric.segment_manifest import write_segment_manifest
 
 
 def _sanitize_value(value: Any) -> str | int | bool | Decimal | None:
@@ -123,8 +122,12 @@ def _fact_to_row(fact: Fact) -> dict[str, Any]:
         "valid_time": fact.valid_time,
         "tx_time": fact.tx_time,
         "provenance": json.dumps(fact.provenance.model_dump(mode="json", exclude_none=True)),
-        "trust": json.dumps(fact.trust.model_dump(mode="json", exclude_none=True)) if fact.trust else None,
-        "legal": json.dumps(fact.legal.model_dump(mode="json", exclude_none=True)) if fact.legal else None,
+        "trust": json.dumps(fact.trust.model_dump(mode="json", exclude_none=True))
+        if fact.trust
+        else None,
+        "legal": json.dumps(fact.legal.model_dump(mode="json", exclude_none=True))
+        if fact.legal
+        else None,
     }
 
 

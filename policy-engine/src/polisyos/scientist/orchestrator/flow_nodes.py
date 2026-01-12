@@ -32,12 +32,12 @@ from polisyos.scientist.agent.drafter import MockLLM
 from polisyos.scientist.agent.prompts import get_system_prompt
 from polisyos.scientist.compute.job_spec import JobSpec
 from polisyos.scientist.compute.runner import resolve_backend, run_job
+from polisyos.scientist.kernel.human_gate import GateDecision, GateRequest
 from polisyos.scientist.orchestrator.audit import append_audit
 from polisyos.scientist.orchestrator.data_loader import load_initial_state
 from polisyos.scientist.orchestrator.decision_packet import build_decision_packet
 from polisyos.scientist.orchestrator.run_record import ReproMode, build_run_record
 from polisyos.scientist.orchestrator.state import ExperimentState, GovernorFeedback
-from polisyos.scientist.kernel.human_gate import GateDecision, GateRequest
 
 DEFAULT_BUDGET = {
     "max_llm_calls": 3.0,
@@ -811,9 +811,7 @@ def compile_model_node(state: ExperimentState) -> ExperimentState:
             )
         if artifacts.treasury_plan_ref is not None:
             compile_inputs.append(
-                InputRef(
-                    artifact_id=artifacts.treasury_plan_ref.artifact_id, role="treasury_plan"
-                )
+                InputRef(artifact_id=artifacts.treasury_plan_ref.artifact_id, role="treasury_plan")
             )
         compile_report = CompileReport(
             ok=True,
@@ -1077,7 +1075,9 @@ def governor_node(state: ExperimentState) -> ExperimentState:
 
     if gate_reasons and gate_decision:
         decision_obj = (
-            gate_decision if isinstance(gate_decision, GateDecision) else GateDecision.model_validate(gate_decision)
+            gate_decision
+            if isinstance(gate_decision, GateDecision)
+            else GateDecision.model_validate(gate_decision)
         )
         if not decision_obj.approved:
             issues.append(

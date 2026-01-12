@@ -33,7 +33,9 @@ deprecated_import(
 
 
 def simulator_node(state: ExperimentState) -> ExperimentState:
-    warnings.warn("simulator_node is legacy; use run_sim_node from flow_nodes.py", DeprecationWarning)
+    warnings.warn(
+        "simulator_node is legacy; use run_sim_node from flow_nodes.py", DeprecationWarning
+    )
 
     print("   [Simulator] Initializing UDF connection...")
     db_path = state.get("db_path") or "integration.duckdb"
@@ -133,7 +135,10 @@ def simulator_node(state: ExperimentState) -> ExperimentState:
 
 
 def governor_node(state: ExperimentState) -> ExperimentState:
-    warnings.warn("governor_node (legacy) is deprecated; use governor_node in flow_nodes.py", DeprecationWarning)
+    warnings.warn(
+        "governor_node (legacy) is deprecated; use governor_node in flow_nodes.py",
+        DeprecationWarning,
+    )
     print("   [Governor] Reviewing results...")
     results = state.get("simulation_results", {})
 
@@ -190,4 +195,3 @@ def governor_node(state: ExperimentState) -> ExperimentState:
         packet = build_decision_packet(new_state, run_record)
         save_decision_packet(packet)
     return append_audit(new_state, "governor", "verdict", {"verdict": verdict, "issues": issues})
-

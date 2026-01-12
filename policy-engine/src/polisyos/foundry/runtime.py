@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import jax
-import jax.numpy as jnp
 
 
 def step(state, controls, root_key, t: int, static_bundle=None):

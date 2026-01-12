@@ -54,4 +54,3 @@ if __name__ == "__main__":
     logger.info(f"Final mean: {analysis['final_population_mean']}")
     logger.info(f"Total growth: {analysis['total_growth_percent']:.2f}%")
     logger.info(f"JAX backend: {jax.default_backend()}")
-

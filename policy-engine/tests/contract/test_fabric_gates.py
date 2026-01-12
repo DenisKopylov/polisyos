@@ -1,10 +1,10 @@
 from pathlib import Path
 
 import pytest
-
+from polisyos.fabric.io.db import SimulationDB
+from polisyos.fabric.io.graph_store import GraphStore
 from polisyos.fabric.manifest import CoverageMetrics, DatasetManifest, QualityMetrics
 from polisyos.fabric.registry import ManifestRegistry
-from polisyos.ir.data_views import AccessTier, DataViewRequest, DataViewType
 from polisyos.fabric.udf.compiler import ViewCompiler
 from polisyos.fabric.udf.config import (
     DEFAULT_ALLOWED_COLUMNS,
@@ -13,8 +13,7 @@ from polisyos.fabric.udf.config import (
     UdfSchema,
 )
 from polisyos.fabric.udf.engine import UDFEngine
-from polisyos.fabric.io.db import SimulationDB
-from polisyos.fabric.io.graph_store import GraphStore
+from polisyos.ir.data_views import AccessTier, DataViewRequest, DataViewType
 
 
 def _write_manifest(curated_dir: Path, dataset_name: str) -> None:
@@ -103,7 +102,9 @@ def test_fabric_gate_requires_evidence(tmp_path: Path) -> None:
     )
     db = SimulationDB(str(tmp_path / "db.duckdb"))
     graph = GraphStore(str(tmp_path / "graph.kuzu"), clear_on_start=True)
-    engine = UDFEngine(db, graph, curated_dir=tmp_path, schema=schema, cas_root=tmp_path / ".polisyos")
+    engine = UDFEngine(
+        db, graph, curated_dir=tmp_path, schema=schema, cas_root=tmp_path / ".polisyos"
+    )
 
     req = DataViewRequest(
         request_id="req",

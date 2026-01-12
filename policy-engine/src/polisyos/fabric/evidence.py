@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from polisyos.core.contracts.fabric import EvidenceBundle, EvidenceBundleRef, EvidenceStep
 from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.contracts.fabric import EvidenceBundle, EvidenceBundleRef, EvidenceStep
 
 
 def build_evidence_bundle(

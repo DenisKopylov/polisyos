@@ -62,7 +62,9 @@ def _registries_with_constraint(store: FileSystemCAS, operator: str):
         ("<=", 1.0, 1.0, True),
     ],
 )
-def test_constraint_operators(operator: str, state_value: float, constraint_value: float, should_pass: bool, tmp_path) -> None:
+def test_constraint_operators(
+    operator: str, state_value: float, constraint_value: float, should_pass: bool, tmp_path
+) -> None:
     store = FileSystemCAS(tmp_path)
     registries = _registries_with_constraint(store, operator)
 

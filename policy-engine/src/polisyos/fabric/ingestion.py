@@ -1,6 +1,6 @@
 import hashlib
-import math
 import json
+import math
 import re
 from pathlib import Path
 from typing import Any, Dict, Iterable, Tuple, Type
@@ -17,11 +17,16 @@ from polisyos.fabric.config import (
     RECONCILIATION_RULES,
 )
 from polisyos.fabric.evidence import build_evidence_bundle, persist_evidence_bundle
-from polisyos.fabric.manifest import CoverageMetrics, DatasetManifest, QualityMetrics, ReconciliationReport
-from polisyos.fabric.schema import AgentRow, InteractionRow, MacroRow
+from polisyos.fabric.fact_writer import build_fact, facts_from_dataframe, write_fact_segment
 from polisyos.fabric.io.db import SimulationDB
 from polisyos.fabric.io.graph_store import GraphStore
-from polisyos.fabric.fact_writer import build_fact, facts_from_dataframe, write_fact_segment
+from polisyos.fabric.manifest import (
+    CoverageMetrics,
+    DatasetManifest,
+    QualityMetrics,
+    ReconciliationReport,
+)
+from polisyos.fabric.schema import AgentRow, InteractionRow, MacroRow
 from polisyos.ir.fact_log import FactProvenance, FactSegmentManifest
 
 
@@ -137,9 +142,7 @@ def _reconcile_interactions(
     diff_total = abs(total_outflow - total_inflow)
     status = "pass" if diff_total <= tolerance else "fail"
     if status == "fail":
-        raise ValueError(
-            f"Reconciliation failed: diff {diff_total} > tolerance {tolerance}"
-        )
+        raise ValueError(f"Reconciliation failed: diff {diff_total} > tolerance {tolerance}")
     return ReconciliationReport(
         status=status,
         tolerance=tolerance,
@@ -150,7 +153,9 @@ def _reconcile_interactions(
     )
 
 
-def _build_provenance(manifest: DatasetManifest, ingestion_run_id: str | None = None) -> FactProvenance:
+def _build_provenance(
+    manifest: DatasetManifest, ingestion_run_id: str | None = None
+) -> FactProvenance:
     return FactProvenance(
         source_id=manifest.source,
         license=manifest.license,
@@ -215,11 +220,13 @@ def ingest_macro(
 
     # Load into DuckDB
     if not df_valid.empty:
-        db.conn.execute("""
+        db.conn.execute(
+            """
             INSERT INTO macro_history (run_id, step, gdp, unemployment_rate, inflation_rate, avg_price, avg_income, government_balance)
             SELECT run_id, step, gdp, unemployment_rate, inflation_rate, avg_price, avg_income, government_balance
             FROM df_valid
-        """)
+        """
+        )
 
     manifest = DatasetManifest(
         dataset_name="macro",
@@ -286,14 +293,14 @@ def ingest_agents(
         df_db["run_id"] = "demo_run"
         df_db["step"] = 0
         df_db["agent_id"] = df_db["canonical_id"]
-        df_db = df_db[
-            ["run_id", "step", "agent_id", "age", "income", "savings", "is_employed"]
-        ]
-        db.conn.execute("""
+        df_db = df_db[["run_id", "step", "agent_id", "age", "income", "savings", "is_employed"]]
+        db.conn.execute(
+            """
             INSERT INTO agents_snapshot (run_id, step, agent_id, age, income, savings, is_employed)
             SELECT run_id, step, agent_id, age, income, savings, is_employed
             FROM df_db
-        """)
+        """
+        )
         if not resolution_df.empty:
             db.conn.execute(
                 """

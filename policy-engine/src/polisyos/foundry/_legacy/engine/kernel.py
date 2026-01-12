@@ -1,7 +1,6 @@
 import jax
 import jax.numpy as jnp
 
-from polisyos.foundry.domain.state import GlobalState
 from polisyos.foundry._legacy.engine.logic import (
     aggregate_market_stats,
     update_agents_consumption,
@@ -9,6 +8,7 @@ from polisyos.foundry._legacy.engine.logic import (
     update_goods_market,
     update_labor_market,
 )
+from polisyos.foundry.domain.state import GlobalState
 
 
 class SimulationKernel:
@@ -32,4 +32,3 @@ class SimulationKernel:
             market=final_market,
             gdp=total_gdp,
         )
-

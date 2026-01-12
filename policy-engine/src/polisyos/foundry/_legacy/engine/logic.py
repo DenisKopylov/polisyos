@@ -125,4 +125,3 @@ def aggregate_market_stats(
         unemployment_rate=unemployment_rate,
         interest_rate=interest_rate,
     )
-

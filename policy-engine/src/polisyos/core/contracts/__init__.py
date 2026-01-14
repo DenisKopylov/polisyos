@@ -13,6 +13,7 @@ from .fabric import (
     WarningsRef,
 )
 from .foundry import (
+    CalibrationReportRef,
     ExecConfig,
     ExecConfigRef,
     ExecPlan,
@@ -46,6 +47,7 @@ __all__ = [
     "ExecPlanRef",
     "FabricResult",
     "FabricResultRef",
+    "CalibrationReportRef",
     "LoweredIR",
     "LoweredIRRef",
     "Metrics",

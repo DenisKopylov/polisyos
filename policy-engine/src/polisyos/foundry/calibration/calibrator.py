@@ -1,22 +1,23 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, Callable, Dict, Iterable, Mapping, Sequence
+import json
+from typing import Any, Callable, Dict, Mapping, Sequence
 
-import equinox as eqx
 import jax
+from jax.flatten_util import ravel_pytree
 import jax.numpy as jnp
+import numpy as np
 import optax
 
 from polisyos.core.contracts.foundry import ExecPlan, ProgramGraph
 from polisyos.foundry.calibration.bijectors import (
-    Bijector,
     from_unconstrained,
     make_bijector,
     to_unconstrained,
 )
-from polisyos.foundry.calibration.loss import unified_loss
-from polisyos.foundry.calibration.preflight import prepare_targets
+from polisyos.foundry.calibration.loss import compute_base_loss
+from polisyos.foundry.calibration.preflight import fetch_targets, prepare_targets, resolve_steps
 from polisyos.foundry.calibration.pure_executor import (
     StaticBundle,
     apply_trainable_values,
@@ -24,10 +25,22 @@ from polisyos.foundry.calibration.pure_executor import (
     extract_trainable_values,
     run_pure_scan,
 )
-from polisyos.foundry.calibration.report import CalibrationReport
+from polisyos.foundry.calibration.report import (
+    CalibrationFitMetrics,
+    CalibrationFitQuality,
+    CalibrationReport,
+    CalibrationSeriesComparison,
+    CalibrationUncertainty,
+)
 from polisyos.foundry.domain.state import GlobalState
-from polisyos.ir.calibration import CalibrationConfig, CalibrationTarget
-from polisyos.ir.kernel import MechanismTypeRegistry, SelectorFieldRegistry, SlotRegistry
+from polisyos.ir.calibration import CalibrationConfig, CalibrationTarget, TrainableParamRef
+from polisyos.ir.kernel import (
+    ConstraintRegistry,
+    MechanismTypeRegistry,
+    MergeRuleRegistry,
+    SelectorFieldRegistry,
+    SlotRegistry,
+)
 
 
 @dataclass
@@ -38,10 +51,100 @@ class CalibratorInputs:
     base_state: GlobalState
     mechanism_registry: MechanismTypeRegistry
     slot_registry: SlotRegistry
+    merge_registry: MergeRuleRegistry
     selector_field_registry: SelectorFieldRegistry | None
+    constraint_registry: ConstraintRegistry | None = None
+    constraint_values: Mapping[str, float] | None = None
     parameter_loader: Callable[[Any], dict[str, Any]]
-    raw_targets: Mapping[str, object]
+    raw_targets: Mapping[str, object] | None = None
     controls_seq: jnp.ndarray | None = None
+    udf_engine: Any | None = None
+    target_fetcher: Callable[[CalibrationTarget, Any], object] | None = None
+
+
+@dataclass
+class TrainableGroup:
+    group_id: str
+    handle_indices: list[int]
+    lower: float | None
+    upper: float | None
+    prior_mean: float | None = None
+    prior_std: float | None = None
+
+
+@dataclass
+class ConstraintHandle:
+    constraint_id: str
+    operator: str
+    path: str
+    value: float
+
+
+def _selector_key(value: Any) -> str:
+    if value is None:
+        return ""
+    if isinstance(value, str):
+        return value
+    if hasattr(value, "model_dump"):
+        try:
+            return json.dumps(value.model_dump(), sort_keys=True)
+        except TypeError:
+            return str(value)
+    try:
+        return json.dumps(value, sort_keys=True)
+    except TypeError:
+        return str(value)
+
+
+def _match_trainable(handle: Any, ref: TrainableParamRef) -> bool:
+    if ref.param_id != handle.field_name:
+        return False
+    if ref.node_id is not None and ref.node_id != handle.node_id:
+        return False
+    if ref.mechanism_type is not None and ref.mechanism_type != handle.mechanism_type:
+        return False
+    if ref.selector is not None:
+        if handle.selector is None:
+            return False
+        if _selector_key(handle.selector) != _selector_key(ref.selector):
+            return False
+    return True
+
+
+def _resolve_metric_path(path: str, slot_registry: SlotRegistry) -> str:
+    slot_spec = slot_registry.slots.get(path)
+    if slot_spec is None:
+        return path
+    if not slot_spec.state_path:
+        raise ValueError(f"Slot '{path}' missing state_path for calibration")
+    return slot_spec.state_path
+
+
+def _apply_aggregation(series: jnp.ndarray, aggregation: str) -> jnp.ndarray:
+    if aggregation == "none":
+        return series
+    if series.ndim <= 1:
+        return series
+    axes = tuple(range(1, series.ndim))
+    if aggregation == "mean":
+        return jnp.mean(series, axis=axes)
+    if aggregation == "sum":
+        return jnp.sum(series, axis=axes)
+    if aggregation == "min":
+        return jnp.min(series, axis=axes)
+    if aggregation == "max":
+        return jnp.max(series, axis=axes)
+    return series
+
+
+def _as_float_list(values: Any) -> list[float]:
+    arr = np.asarray(values, dtype=float).reshape(-1)
+    return [float(item) for item in arr]
+
+
+def _as_float_matrix(values: Any) -> list[list[float]]:
+    arr = np.atleast_2d(np.asarray(values, dtype=float))
+    return [[float(item) for item in row] for row in arr.tolist()]
 
 
 class Calibrator:
@@ -55,7 +158,6 @@ class Calibrator:
     def __init__(self, inputs: CalibratorInputs):
         self.inputs = inputs
         self._bundle: StaticBundle | None = None
-        self._bijectors: list[Bijector] = []
 
     def _build_bundle(self) -> StaticBundle:
         if self._bundle is not None:
@@ -65,6 +167,7 @@ class Calibrator:
             self.inputs.exec_plan,
             mechanism_registry=self.inputs.mechanism_registry,
             slot_registry=self.inputs.slot_registry,
+            merge_registry=self.inputs.merge_registry,
             selector_field_registry=self.inputs.selector_field_registry,
             base_state=self.inputs.base_state,
             parameter_loader=self.inputs.parameter_loader,
@@ -72,92 +175,576 @@ class Calibrator:
         self._bundle = bundle
         return bundle
 
-    def _target_meta(self) -> tuple[list[CalibrationTarget], list[str]]:
+    def _target_meta(self) -> tuple[list[CalibrationTarget], list[str], dict[str, str]]:
         targets = list(self.inputs.config.targets)
-        metric_paths = [t.model_metric_path for t in targets]
-        return targets, metric_paths
+        metric_paths: list[str] = []
+        path_by_target: dict[str, str] = {}
+        for target in targets:
+            resolved = _resolve_metric_path(target.model_metric_path, self.inputs.slot_registry)
+            path_by_target[target.target_id] = resolved
+            if resolved not in metric_paths:
+                metric_paths.append(resolved)
+        return targets, metric_paths, path_by_target
 
-    def _build_bijectors(self, bundle: StaticBundle) -> list[Bijector]:
-        if self._bijectors:
-            return self._bijectors
-        bij = [
-            make_bijector(handle.lower, handle.upper)
-            for handle in bundle.trainables
-        ]
-        self._bijectors = bij
-        return bij
+    def _resolve_constraints(self) -> list[ConstraintHandle]:
+        cfg = self.inputs.config
+        if not cfg.constraint_loss.enabled:
+            return []
+        registry = self.inputs.constraint_registry
+        if registry is None:
+            raise ValueError("constraint_loss enabled but constraint_registry is missing")
+        constraint_values: Dict[str, float] = {}
+        if cfg.constraint_values:
+            constraint_values.update(cfg.constraint_values)
+        if self.inputs.constraint_values:
+            constraint_values.update(self.inputs.constraint_values)
+        handles: list[ConstraintHandle] = []
+        ids = cfg.constraint_loss.constraint_ids or list(registry.constraints.keys())
+        for constraint_id in ids:
+            spec = registry.constraints.get(constraint_id)
+            if spec is None or spec.slot_id is None or spec.operator is None:
+                raise ValueError(f"Constraint '{constraint_id}' missing slot_id/operator")
+            if constraint_id not in constraint_values:
+                raise ValueError(f"Constraint '{constraint_id}' missing value for penalty")
+            path = _resolve_metric_path(spec.slot_id, self.inputs.slot_registry)
+            handles.append(
+                ConstraintHandle(
+                    constraint_id=constraint_id,
+                    operator=spec.operator,
+                    path=path,
+                    value=float(constraint_values[constraint_id]),
+                )
+            )
+        return handles
+
+    def _resolve_trainable_groups(
+        self, bundle: StaticBundle, targets: Sequence[CalibrationTarget]
+    ) -> tuple[list[TrainableGroup], list[str]]:
+        diagnostics: list[str] = []
+        all_handles = bundle.trainables
+        if not all_handles:
+            return [], diagnostics
+        refs: list[TrainableParamRef] = []
+        if self.inputs.config.trainables:
+            refs.extend(self.inputs.config.trainables)
+        for target in targets:
+            if target.trainables:
+                refs.extend(target.trainables)
+        if not refs:
+            groups = [
+                TrainableGroup(
+                    group_id=f"{handle.node_id}.{handle.field_name}",
+                    handle_indices=[idx],
+                    lower=handle.lower,
+                    upper=handle.upper,
+                    prior_mean=handle.prior_mean,
+                    prior_std=handle.prior_std,
+                )
+                for idx, handle in enumerate(all_handles)
+            ]
+            return groups, diagnostics
+
+        assignments: dict[int, str] = {}
+        groups_map: dict[str, list[int]] = {}
+        group_order: list[str] = []
+        for ref in refs:
+            matched = [idx for idx, handle in enumerate(all_handles) if _match_trainable(handle, ref)]
+            if not matched:
+                raise ValueError(f"Trainable ref did not match any parameters: {ref.model_dump()}")
+            for idx in matched:
+                handle = all_handles[idx]
+                group_id = ref.tie_id or f"{handle.node_id}.{handle.field_name}"
+                if idx in assignments:
+                    if assignments[idx] != group_id:
+                        raise ValueError(
+                            f"Trainable '{handle.node_id}.{handle.field_name}' assigned to multiple groups"
+                        )
+                    continue
+                assignments[idx] = group_id
+                if group_id not in groups_map:
+                    groups_map[group_id] = []
+                    group_order.append(group_id)
+                groups_map[group_id].append(idx)
+
+        groups: list[TrainableGroup] = []
+        for group_id in group_order:
+            indices = groups_map[group_id]
+            lowers = [all_handles[i].lower for i in indices if all_handles[i].lower is not None]
+            uppers = [all_handles[i].upper for i in indices if all_handles[i].upper is not None]
+            lower = max(lowers) if lowers else None
+            upper = min(uppers) if uppers else None
+            if lower is not None and upper is not None and lower > upper:
+                raise ValueError(f"Tied group '{group_id}' has incompatible bounds")
+            means = [
+                all_handles[i].prior_mean
+                for i in indices
+                if all_handles[i].prior_mean is not None
+            ]
+            stds = [
+                all_handles[i].prior_std
+                for i in indices
+                if all_handles[i].prior_std is not None
+            ]
+            prior_mean = None
+            prior_std = None
+            if means and stds:
+                prior_mean = float(sum(means) / len(means))
+                prior_std = float(sum(stds) / len(stds))
+                if (max(means) - min(means)) > 1e-6 or (max(stds) - min(stds)) > 1e-6:
+                    diagnostics.append(f"Prior mismatch within tied group '{group_id}'")
+            elif means or stds:
+                diagnostics.append(f"Partial prior for tied group '{group_id}' ignored")
+            groups.append(
+                TrainableGroup(
+                    group_id=group_id,
+                    handle_indices=indices,
+                    lower=lower,
+                    upper=upper,
+                    prior_mean=prior_mean,
+                    prior_std=prior_std,
+                )
+            )
+        return groups, diagnostics
 
     def run(self) -> CalibrationReport:
         cfg = self.inputs.config
         bundle = self._build_bundle()
-        bijectors = self._build_bijectors(bundle)
+        targets, metric_paths, path_by_target = self._target_meta()
+        constraint_handles = self._resolve_constraints()
+        path_by_constraint = {handle.constraint_id: handle.path for handle in constraint_handles}
+        for handle in constraint_handles:
+            if handle.path not in metric_paths:
+                metric_paths.append(handle.path)
 
-        targets, metric_paths = self._target_meta()
-        steps = len(next(iter(self.inputs.raw_targets.values()))) if self.inputs.raw_targets else 0
+        raw_targets: Dict[str, object] = {}
+        if self.inputs.raw_targets:
+            raw_targets.update(self.inputs.raw_targets)
+        if any(t.fabric_query is not None for t in targets):
+            if self.inputs.udf_engine is not None or self.inputs.target_fetcher is not None:
+                fetched = fetch_targets(
+                    cfg, udf_engine=self.inputs.udf_engine, fetcher=self.inputs.target_fetcher
+                )
+                raw_targets = {**fetched, **raw_targets}
+        steps = resolve_steps(cfg, raw_targets)
         if steps == 0:
             raise ValueError("No target series provided for calibration")
-        aligned_targets, scales = prepare_targets(cfg, raw_targets=self.inputs.raw_targets, steps=steps)
+        if self.inputs.controls_seq is not None and len(self.inputs.controls_seq) != steps:
+            raise ValueError("controls_seq length must match calibration steps")
+        aligned_targets, scales, time_axes = prepare_targets(
+            cfg, raw_targets=raw_targets, steps=steps, time_axis=cfg.time_axis
+        )
+        if not aligned_targets:
+            raise ValueError("No aligned target series available for calibration")
+        missing_targets = [t.target_id for t in targets if t.target_id not in aligned_targets]
+        if missing_targets:
+            raise ValueError(f"Missing target series for: {', '.join(missing_targets)}")
+
         loss_configs = {t.target_id: t.loss for t in targets}
+        target_ids = [t.target_id for t in targets]
 
+        groups, diagnostics = self._resolve_trainable_groups(bundle, targets)
+        if not groups:
+            raise ValueError("No trainable parameters available for calibration")
         base_values = extract_trainable_values(bundle)
-        unconstrained = to_unconstrained(base_values, bijectors)
+        group_values = []
+        for group in groups:
+            values = [jnp.asarray(base_values[idx]) for idx in group.handle_indices]
+            stacked = jnp.stack(values)
+            group_values.append(jnp.mean(stacked, axis=0))
+        group_bijectors = [make_bijector(group.lower, group.upper) for group in groups]
+        u = to_unconstrained(group_values, group_bijectors)
 
-        opt = optax.adam(cfg.learning_rate)
-        opt_state = opt.init(unconstrained)
+        weights = jnp.asarray([loss_configs[tid].weight for tid in target_ids], dtype=jnp.float32)
+        if cfg.clip_grad_norm is None:
+            opt = optax.adam(cfg.learning_rate)
+        else:
+            opt = optax.chain(
+                optax.clip_by_global_norm(cfg.clip_grad_norm),
+                optax.adam(cfg.learning_rate),
+            )
+        opt_state = opt.init(u)
 
-        def loss_fn(u):
-            theta = from_unconstrained(u, bijectors)
+        def _expand_group_values(values: Sequence[jnp.ndarray]) -> list[Any]:
+            expanded = list(base_values)
+            for group, value in zip(groups, values):
+                for idx in group.handle_indices:
+                    expanded[idx] = value
+            return expanded
+
+        def _root_key(step_idx: jax.Array) -> jax.Array:
+            key = jax.random.PRNGKey(cfg.seed)
+            if cfg.seed_strategy == "step":
+                key = jax.random.fold_in(key, step_idx)
+            return key
+
+        def _constraint_violation(value: jnp.ndarray, handle: ConstraintHandle) -> jnp.ndarray:
+            threshold = handle.value
+            eps = cfg.constraint_loss.epsilon
+            if handle.operator == ">=":
+                return jnp.maximum(0.0, threshold - value)
+            if handle.operator == ">":
+                return jnp.maximum(0.0, threshold - value + eps)
+            if handle.operator == "<=":
+                return jnp.maximum(0.0, value - threshold)
+            if handle.operator == "<":
+                return jnp.maximum(0.0, value - threshold + eps)
+            if handle.operator == "==":
+                return value - threshold
+            if handle.operator == "!=":
+                return jnp.maximum(0.0, eps - jnp.abs(value - threshold))
+            raise ValueError(f"Unsupported constraint operator '{handle.operator}'")
+
+        def _constraint_penalty(traces: Mapping[str, jnp.ndarray]) -> jnp.ndarray:
+            if not constraint_handles:
+                return jnp.array(0.0)
+            total = jnp.array(0.0)
+            for handle in constraint_handles:
+                series = traces[path_by_constraint[handle.constraint_id]]
+                if series.ndim > 1:
+                    axes = tuple(range(1, series.ndim))
+                    series = jnp.mean(series, axis=axes)
+                if cfg.constraint_loss.mode == "final":
+                    value = series[-1]
+                    violation = _constraint_violation(value, handle)
+                    penalty = jnp.square(violation)
+                else:
+                    violation = _constraint_violation(series, handle)
+                    penalty = jnp.square(violation)
+                    if cfg.constraint_loss.reduction == "max":
+                        penalty = jnp.max(penalty)
+                    else:
+                        penalty = jnp.mean(penalty)
+                total = total + penalty
+            return cfg.constraint_loss.weight * total
+
+        def _prior_penalty(theta_groups: Sequence[jnp.ndarray]) -> jnp.ndarray:
+            if not cfg.prior_loss.enabled:
+                return jnp.array(0.0)
+            total = jnp.array(0.0)
+            for group, value in zip(groups, theta_groups):
+                if group.prior_mean is None or group.prior_std is None:
+                    continue
+                diff = (value - group.prior_mean) / (group.prior_std + cfg.prior_loss.epsilon)
+                total = total + jnp.mean(jnp.square(diff))
+            return cfg.prior_loss.weight * total
+
+        def _target_loss_vec(u: Sequence[jnp.ndarray], step_idx: jax.Array) -> jnp.ndarray:
+            theta_groups = from_unconstrained(u, group_bijectors)
+            theta = _expand_group_values(theta_groups)
             sim_bundle = apply_trainable_values(bundle, theta)
             _, traces = run_pure_scan(
                 self.inputs.base_state,
                 steps=steps,
-                root_key=jax.random.PRNGKey(cfg.seed),
+                root_key=_root_key(step_idx),
                 bundle=sim_bundle,
                 metric_paths=metric_paths,
                 controls_seq=self.inputs.controls_seq,
             )
-            predicted = {t.target_id: traces[t.model_metric_path] for t in targets}
-            total, per_target = unified_loss(predicted, aligned_targets, loss_configs, scales)
-            return total, per_target
+            return _base_vec_from_traces(traces)
+
+        def _base_vec_from_traces(traces: Mapping[str, jnp.ndarray]) -> jnp.ndarray:
+            losses = []
+            for target in targets:
+                trace = traces[path_by_target[target.target_id]]
+                predicted = _apply_aggregation(trace, target.aggregation)
+                cfg_loss = loss_configs[target.target_id]
+                scale = scales.get(target.target_id, 1.0) if cfg_loss.relative else 1.0
+                losses.append(
+                    compute_base_loss(predicted, aligned_targets[target.target_id], cfg_loss, scale)
+                )
+            if not losses:
+                return jnp.zeros((0,), dtype=jnp.float32)
+            return jnp.stack(losses)
+
+        def _tree_is_finite(tree: Any) -> jnp.ndarray:
+            leaves = jax.tree_util.tree_leaves(tree)
+            finite = jnp.array(True)
+            for leaf in leaves:
+                finite = finite & jnp.all(jnp.isfinite(leaf))
+            return finite
+
+        def loss_fn(u: Sequence[jnp.ndarray], weights_vec: jnp.ndarray, step_idx: jax.Array):
+            theta_groups = from_unconstrained(u, group_bijectors)
+            theta = _expand_group_values(theta_groups)
+            sim_bundle = apply_trainable_values(bundle, theta)
+            _, traces = run_pure_scan(
+                self.inputs.base_state,
+                steps=steps,
+                root_key=_root_key(step_idx),
+                bundle=sim_bundle,
+                metric_paths=metric_paths,
+                controls_seq=self.inputs.controls_seq,
+            )
+            base_vec = _base_vec_from_traces(traces)
+            total = jnp.sum(base_vec * weights_vec) if base_vec.size else jnp.array(0.0)
+            constraint_penalty = _constraint_penalty(traces)
+            prior_penalty = _prior_penalty(theta_groups)
+            total = total + constraint_penalty + prior_penalty
+            aux = (base_vec, constraint_penalty, prior_penalty)
+            return total, aux
+
+        @jax.jit
+        def step_fn(
+            u_state: Sequence[jnp.ndarray],
+            weights_state: jnp.ndarray,
+            opt_state_state: optax.OptState,
+            step_idx: jax.Array,
+        ):
+            (loss_val, aux), grads = jax.value_and_grad(loss_fn, has_aux=True)(
+                u_state, weights_state, step_idx
+            )
+            updates, new_opt_state = opt.update(grads, opt_state_state, u_state)
+            new_u = optax.apply_updates(u_state, updates)
+            grad_norm = optax.global_norm(grads)
+            grads_finite = _tree_is_finite(grads)
+            return new_u, weights_state, new_opt_state, loss_val, aux, grad_norm, grads_finite
+
+        def _grad_norms_from_jac(jac_tree: Any, eps: float) -> jnp.ndarray:
+            leaves = jax.tree_util.tree_leaves(jac_tree)
+            if not leaves:
+                return jnp.zeros((0,), dtype=jnp.float32)
+            n_targets = leaves[0].shape[0]
+            norms_sq = jnp.zeros((n_targets,), dtype=jnp.float32)
+            for leaf in leaves:
+                leaf_sq = jnp.sum(jnp.square(leaf), axis=tuple(range(1, leaf.ndim)))
+                norms_sq = norms_sq + leaf_sq
+            return jnp.sqrt(norms_sq + eps)
+
+        @jax.jit
+        def gradnorm_update(
+            u_state: Sequence[jnp.ndarray],
+            weights_state: jnp.ndarray,
+            base_vec: jnp.ndarray,
+            init_vec: jnp.ndarray,
+            step_idx: jax.Array,
+        ):
+            def weighted_losses(params):
+                losses = _target_loss_vec(params, step_idx)
+                return losses * weights_state
+
+            jac = jax.jacrev(weighted_losses)(u_state)
+            norms = _grad_norms_from_jac(jac, cfg.grad_norm.epsilon)
+            g_avg = jnp.mean(norms) if norms.size else jnp.array(0.0)
+            rel = jnp.power(base_vec / (init_vec + cfg.grad_norm.epsilon), cfg.grad_norm.alpha)
+            target = g_avg * rel
+            scale = jnp.power(target / (norms + cfg.grad_norm.epsilon), cfg.grad_norm.lr)
+            new_weights = jnp.clip(
+                weights_state * scale,
+                cfg.grad_norm.min_weight,
+                cfg.grad_norm.max_weight,
+            )
+            return new_weights, norms
 
         loss_history: list[float] = []
-        per_target_final: Dict[str, float] = {}
-        u = unconstrained
-        for _ in range(cfg.max_steps):
-            (loss_val, per_target), grads = jax.value_and_grad(loss_fn, has_aux=True)(u)
-            updates, opt_state = opt.update(grads, opt_state, u)
-            u = optax.apply_updates(u, updates)
-            loss_history.append(float(loss_val))
-            per_target_final = {k: float(v) for k, v in per_target.items()}
+        grad_norm_history: list[float] = []
+        u_state = u
+        weights_state = weights
+        best_loss = float("inf")
+        patience = 0
+        init_base_vec = None
 
-        final_theta = from_unconstrained(u, bijectors)
+        for step in range(cfg.max_steps):
+            step_idx = jnp.array(step, dtype=jnp.int32)
+            (
+                u_state,
+                weights_state,
+                opt_state,
+                loss_val,
+                aux,
+                grad_norm,
+                grads_finite,
+            ) = step_fn(u_state, weights_state, opt_state, step_idx)
+            loss_float = float(loss_val)
+            loss_history.append(loss_float)
+            grad_norm_history.append(float(grad_norm))
+            if not bool(grads_finite):
+                diagnostics.append(f"Non-finite gradients at step {step}")
+                break
+            base_vec, _, _ = aux
+            if cfg.grad_norm.enabled and step % cfg.grad_norm.update_every == 0:
+                if init_base_vec is None:
+                    init_base_vec = base_vec
+                weights_state, _ = gradnorm_update(
+                    u_state, weights_state, base_vec, init_base_vec, step_idx
+                )
+            if step >= cfg.early_stop_min_steps and cfg.early_stop_patience > 0:
+                if loss_float + cfg.early_stop_min_delta < best_loss:
+                    best_loss = loss_float
+                    patience = 0
+                else:
+                    patience += 1
+                if patience >= cfg.early_stop_patience:
+                    diagnostics.append(f"Early stopping at step {step}")
+                    break
+
+        final_theta_groups = from_unconstrained(u_state, group_bijectors)
+        final_theta = _expand_group_values(final_theta_groups)
         final_bundle = apply_trainable_values(bundle, final_theta)
         calibrated_params: Dict[str, float] = {}
         for handle, value in zip(final_bundle.trainables, final_theta):
             node_id = final_bundle.nodes[handle.node_index].node_id
             calibrated_params[f"{node_id}.{handle.field_name}"] = float(value)
 
-        # Финальный прогон для сохранения сравнения рядов
+        final_target_losses = _target_loss_vec(u_state, jnp.array(0, dtype=jnp.int32))
+        per_target_final = {
+            tid: float(final_target_losses[idx] * weights_state[idx])
+            for idx, tid in enumerate(target_ids)
+        }
+        target_weights = {tid: float(weights_state[idx]) for idx, tid in enumerate(target_ids)}
+        final_total_loss, _ = loss_fn(u_state, weights_state, jnp.array(0, dtype=jnp.int32))
+        final_total_loss = float(final_total_loss)
+
         _, traces = run_pure_scan(
             self.inputs.base_state,
             steps=steps,
-            root_key=jax.random.PRNGKey(cfg.seed),
+            root_key=_root_key(jnp.array(0, dtype=jnp.int32)),
             bundle=final_bundle,
             metric_paths=metric_paths,
             controls_seq=self.inputs.controls_seq,
         )
-        series_comparison: Dict[str, Dict[str, Any]] = {}
+        series_comparison: Dict[str, CalibrationSeriesComparison] = {}
+        per_target_metrics: Dict[str, CalibrationFitMetrics] = {}
+        all_real: list[np.ndarray] = []
+        all_model: list[np.ndarray] = []
+
+        def _fit_metrics(model_series: Any, real_series: Any) -> CalibrationFitMetrics:
+            model_arr = np.asarray(model_series, dtype=float).reshape(-1)
+            real_arr = np.asarray(real_series, dtype=float).reshape(-1)
+            if model_arr.size == 0 or real_arr.size == 0:
+                return CalibrationFitMetrics(mse=0.0, rmse=0.0, mae=0.0, r2=None, n=0)
+            diff = model_arr - real_arr
+            mse = float(np.mean(diff**2))
+            mae = float(np.mean(np.abs(diff)))
+            rmse = float(np.sqrt(mse))
+            denom = float(np.sum((real_arr - real_arr.mean()) ** 2))
+            r2 = None if denom <= 0.0 else float(1.0 - float(np.sum(diff**2)) / denom)
+            return CalibrationFitMetrics(mse=mse, rmse=rmse, mae=mae, r2=r2, n=int(real_arr.size))
+
         for tgt in targets:
-            series_comparison[tgt.target_id] = {
-                "real": aligned_targets[tgt.target_id],
-                "model": traces[tgt.model_metric_path],
-            }
+            target_id = tgt.target_id
+            model_series = _apply_aggregation(traces[path_by_target[target_id]], tgt.aggregation)
+            real_list = _as_float_list(aligned_targets[target_id])
+            model_list = _as_float_list(model_series)
+            series_comparison[target_id] = CalibrationSeriesComparison(
+                time=time_axes.get(target_id),
+                real=real_list,
+                model=model_list,
+            )
+            per_target_metrics[target_id] = _fit_metrics(model_list, real_list)
+            if real_list:
+                all_real.append(np.asarray(real_list, dtype=float))
+                all_model.append(np.asarray(model_list, dtype=float))
+
+        aggregate_metrics = None
+        if all_real:
+            aggregate_metrics = _fit_metrics(np.concatenate(all_model), np.concatenate(all_real))
+        fit_quality = CalibrationFitQuality(
+            per_target=per_target_metrics,
+            aggregate=aggregate_metrics,
+        )
+
+        uncertainties: CalibrationUncertainty | None = None
+        if cfg.hessian.enabled:
+            flat_theta, unravel_theta = ravel_pytree(final_theta_groups)
+            n_params = int(flat_theta.size)
+            if n_params == 0:
+                diagnostics.append("Hessian skipped: no parameters")
+            elif cfg.hessian.max_params is not None and n_params > cfg.hessian.max_params:
+                diagnostics.append(
+                    f"Hessian skipped: parameter count {n_params} exceeds {cfg.hessian.max_params}"
+                )
+            else:
+                param_names: list[str] = []
+                for group, value in zip(groups, final_theta_groups):
+                    arr = np.asarray(value)
+                    if arr.size == 1:
+                        param_names.append(group.group_id)
+                    else:
+                        param_names.extend(
+                            f"{group.group_id}[{idx}]" for idx in range(int(arr.size))
+                        )
+                if len(param_names) != n_params:
+                    diagnostics.append("Hessian param naming mismatch; using generic names")
+                    param_names = [f"param_{idx}" for idx in range(n_params)]
+
+                def _loss_from_flat(flat_params: jnp.ndarray) -> jnp.ndarray:
+                    theta_groups = unravel_theta(flat_params)
+                    theta = _expand_group_values(theta_groups)
+                    sim_bundle = apply_trainable_values(bundle, theta)
+                    _, traces_local = run_pure_scan(
+                        self.inputs.base_state,
+                        steps=steps,
+                        root_key=_root_key(jnp.array(0, dtype=jnp.int32)),
+                        bundle=sim_bundle,
+                        metric_paths=metric_paths,
+                        controls_seq=self.inputs.controls_seq,
+                    )
+                    base_vec = _base_vec_from_traces(traces_local)
+                    total = (
+                        jnp.sum(base_vec * weights_state)
+                        if base_vec.size
+                        else jnp.array(0.0)
+                    )
+                    total = total + _constraint_penalty(traces_local) + _prior_penalty(theta_groups)
+                    return total
+
+                try:
+                    hessian = jax.hessian(_loss_from_flat)(jnp.asarray(flat_theta))
+                    if not bool(jnp.all(jnp.isfinite(hessian))):
+                        diagnostics.append("Hessian contains non-finite values")
+                    else:
+                        eye = jnp.eye(n_params, dtype=hessian.dtype)
+                        hessian_damped = hessian + cfg.hessian.damping * eye
+                        cov = jnp.linalg.pinv(hessian_damped)
+                        diag = jnp.diag(cov)
+                        std = jnp.sqrt(jnp.maximum(diag, 0.0))
+                        denom = (std[:, None] * std[None, :]) + cfg.hessian.rank_tol
+                        corr = cov / denom
+                        singular_values = jnp.linalg.svd(hessian_damped, compute_uv=False)
+                        s_max = float(jnp.max(singular_values)) if singular_values.size else 0.0
+                        s_min = float(jnp.min(singular_values)) if singular_values.size else 0.0
+                        rank = int(jnp.sum(singular_values > cfg.hessian.rank_tol))
+                        condition = float(s_max / s_min) if s_min > 0 else float("inf")
+
+                        non_identifiable: list[str] = []
+                        std_np = np.asarray(std, dtype=float)
+                        for idx, value in enumerate(std_np):
+                            if not np.isfinite(value) or value > cfg.hessian.std_warn:
+                                non_identifiable.append(param_names[idx])
+
+                        if rank < n_params:
+                            diagnostics.append(f"Hessian rank deficient: {rank}/{n_params}")
+                        if condition > cfg.hessian.condition_warn:
+                            diagnostics.append(f"Hessian ill-conditioned: {condition:.3g}")
+                        if non_identifiable:
+                            diagnostics.append(
+                                "Non-identifiable params: " + ", ".join(non_identifiable)
+                            )
+
+                        uncertainties = CalibrationUncertainty(
+                            params=param_names,
+                            covariance=_as_float_matrix(cov),
+                            correlation=_as_float_matrix(corr),
+                            std=_as_float_list(std),
+                            damping=float(cfg.hessian.damping),
+                            hessian_rank=rank,
+                            hessian_condition=None
+                            if not np.isfinite(condition)
+                            else float(condition),
+                            non_identifiable=non_identifiable,
+                        )
+                except Exception as exc:  # pragma: no cover - defensive
+                    diagnostics.append(f"Hessian computation failed: {exc}")
 
         return CalibrationReport(
             calibrated_params=calibrated_params,
-            total_loss=loss_history[-1] if loss_history else 0.0,
+            total_loss=final_total_loss,
             per_target_loss=per_target_final,
+            target_weights=target_weights,
             loss_history=loss_history,
+            grad_norm_history=grad_norm_history,
             series_comparison=series_comparison,
-            diagnostics=[],
+            fit_quality=fit_quality,
+            uncertainties=uncertainties,
+            diagnostics=diagnostics,
         )

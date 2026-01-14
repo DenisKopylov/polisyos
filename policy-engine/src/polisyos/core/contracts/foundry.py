@@ -62,6 +62,11 @@ class ConstraintReportRef(ArtifactRef):
     media_type: Literal["application/json"] = "application/json"
 
 
+class CalibrationReportRef(ArtifactRef):
+    kind: Literal["foundry.calibration_report"] = "foundry.calibration_report"
+    media_type: Literal["application/json"] = "application/json"
+
+
 class TraceSliceRef(ArtifactRef):
     kind: Literal["foundry.trace_slice"] = "foundry.trace_slice"
     media_type: Literal["application/jsonl"] = "application/jsonl"

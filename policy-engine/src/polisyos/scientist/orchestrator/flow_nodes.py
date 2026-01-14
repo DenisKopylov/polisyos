@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from decimal import Decimal
 import json
 import time
 from pathlib import Path
@@ -10,17 +11,23 @@ import jax.numpy as jnp
 from pydantic import ValidationError
 
 from polisyos.core.artifacts.ids import ArtifactID
-from polisyos.core.artifacts.manifest import ArtifactRef, InputRef
-from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
+from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.compiler import CompileReport, put_compile_report, put_link_report
 from polisyos.core.registry import build_default_registry_bundle, load_registry_bundle_content
 from polisyos.core.run.context import RunContext
+from polisyos.core.contracts.foundry import ExecPlan, ExecPlanRef, ProgramGraph, ProgramGraphRef
 from polisyos.fabric.io.db import SimulationDB
 from polisyos.fabric.io.graph_store import GraphStore
 from polisyos.fabric.udf.engine import UDFEngine
+from polisyos.foundry.calibration import Calibrator, CalibratorInputs
+from polisyos.foundry.calibration.preflight import extract_fabric_series
+from polisyos.foundry.calibration.report import put_calibration_config, put_calibration_report
 from polisyos.foundry.compiler import compile_surface_policy, put_policy_surface
 from polisyos.foundry.executor import load_state_snapshot, put_state_snapshot
 from polisyos.foundry.registry import create_mechanism_from_spec
+from polisyos.ir.calibration import CalibrationConfig
 from polisyos.ir.data_views import DataViewRequest
 from polisyos.ir.kernel import MergeRuleKind
 from polisyos.ir.kernel.values import CountValue, DurationValue, MoneyValue, RateValue
@@ -163,6 +170,26 @@ def _load_registry_bundle_content_for(state: ExperimentState, policy: PolicySurf
         raise ValueError("registry_bundle_ref is missing")
     store = FileSystemCAS(_cas_root(state))
     return load_registry_bundle_content(store, bundle_id)
+
+
+def _artifact_id(value: ArtifactRef | ArtifactID | str) -> ArtifactID:
+    if isinstance(value, ArtifactRef):
+        return value.artifact_id
+    if isinstance(value, ArtifactID):
+        return value
+    return ArtifactID.model_validate(value)
+
+
+def _load_model_from_ref(store: FileSystemCAS, ref: ArtifactRef | ArtifactID | str, model_cls):
+    payload = from_canonical_bytes(store.get_bytes(_artifact_id(ref)))
+    return model_cls.model_validate(payload)
+
+
+def _load_payload(store: FileSystemCAS, ref: ArtifactRef | ArtifactID | str) -> dict[str, Any]:
+    payload = from_canonical_bytes(store.get_bytes(_artifact_id(ref)))
+    if not isinstance(payload, dict):
+        raise ValueError("Expected dict payload")
+    return payload
 
 
 def _ensure_budget(state: ExperimentState) -> ExperimentState:
@@ -998,6 +1025,267 @@ def run_sim_node(state: ExperimentState) -> ExperimentState:
         "run_sim",
         "completed",
         results,
+    )
+
+
+def run_calibration_node(state: ExperimentState) -> ExperimentState:
+    state = _ensure_run(state)
+    if state.get("pruned") or _blocked_by_feedback(state):
+        return append_audit(state, "run_calibration", "skipped", {"reason": "feedback_blocked"})
+    state = _check_budget(state, "sim")
+    if state.get("pruned"):
+        return state
+
+    cfg_raw = state.get("calibration_config")
+    if cfg_raw is None:
+        issue = _make_issue(["calibration_config"], "Calibration config missing", "runtime")
+        feedback: GovernorFeedback = {"verdict": "REJECT", "issues": [issue]}
+        return append_audit({**state, "feedback": feedback}, "run_calibration", "missing_cfg", {})
+    try:
+        cfg = cfg_raw if isinstance(cfg_raw, CalibrationConfig) else CalibrationConfig.model_validate(cfg_raw)
+    except Exception as exc:
+        issue = _make_issue(["calibration_config"], str(exc), "runtime")
+        feedback: GovernorFeedback = {"verdict": "REJECT", "issues": [issue]}
+        return append_audit({**state, "feedback": feedback}, "run_calibration", "invalid_cfg", {})
+
+    policy = state.get("ir")
+    if policy is None:
+        issue = _make_issue(["ir"], "IR missing before run_calibration", "runtime")
+        feedback: GovernorFeedback = {"verdict": "REJECT", "issues": [issue]}
+        return append_audit({**state, "feedback": feedback}, "run_calibration", "missing_ir", {})
+
+    state = _ensure_registry_bundle(state)
+    try:
+        state, policy = _ensure_context_snapshot(state, policy)
+    except Exception as exc:
+        issue = _make_issue(["semantic", "context_snapshot_ref"], str(exc), "registry")
+        feedback: GovernorFeedback = {"verdict": "REJECT", "issues": [issue]}
+        return append_audit({**state, "feedback": feedback}, "run_calibration", "context_missing", {})
+    try:
+        registry_content = _load_registry_bundle_content_for(state, policy)
+    except Exception as exc:
+        issue = _make_issue(["semantic", "registry_bundle_ref"], str(exc), "registry")
+        feedback: GovernorFeedback = {"verdict": "REJECT", "issues": [issue]}
+        return append_audit({**state, "feedback": feedback}, "run_calibration", "registry_failed", {})
+
+    store = FileSystemCAS(_cas_root(state))
+    try:
+        world_state = load_state_snapshot(
+            store,
+            snapshot_ref=ArtifactID.model_validate(policy.semantic.context_snapshot_ref),
+        )
+    except Exception as exc:
+        issue = _make_issue(["semantic", "context_snapshot_ref"], str(exc), "data")
+        feedback: GovernorFeedback = {"verdict": "REJECT", "issues": [issue]}
+        return append_audit({**state, "feedback": feedback}, "run_calibration", "context_load_failed", {})
+
+    program_graph_ref = state.get("program_graph_ref")
+    exec_plan_ref = state.get("exec_plan_ref")
+    if not program_graph_ref or not exec_plan_ref:
+        issue = _make_issue(["program_graph_ref"], "Compiled program missing", "runtime")
+        feedback: GovernorFeedback = {"verdict": "REJECT", "issues": [issue]}
+        return append_audit({**state, "feedback": feedback}, "run_calibration", "missing_program", {})
+
+    try:
+        program_graph = _load_model_from_ref(
+            store, ArtifactRef.model_validate(program_graph_ref), ProgramGraph
+        )
+        exec_plan = _load_model_from_ref(store, ArtifactRef.model_validate(exec_plan_ref), ExecPlan)
+    except Exception as exc:
+        issue = _make_issue(["program_graph_ref"], str(exc), "runtime")
+        feedback: GovernorFeedback = {"verdict": "REJECT", "issues": [issue]}
+        return append_audit({**state, "feedback": feedback}, "run_calibration", "load_failed", {})
+
+    raw_targets: dict[str, Any] = {}
+    raw_targets.update(state.get("calibration_raw_targets") or {})
+    evidence_refs: list[ArtifactRef] = []
+    if any(t.fabric_query is not None for t in cfg.targets):
+        db_path = state.get("db_path") or "simulation.duckdb"
+        graph_path = state.get("graph_path")
+        db = SimulationDB(db_path)
+        graph = GraphStore(str(graph_path)) if graph_path else None
+        udf = UDFEngine(db, graph) if graph is not None else UDFEngine(db)
+        try:
+            for target in cfg.targets:
+                if target.fabric_query is None:
+                    continue
+                request = DataViewRequest.model_validate(target.fabric_query)
+                result = udf.query_result(request)
+                df = udf._materialize_dataframe(result.data_ref)
+                raw_targets[target.target_id] = extract_fabric_series(df, target, request)
+                evidence_refs.append(ArtifactRef.model_validate(result.evidence_ref.model_dump()))
+        finally:
+            db.close()
+
+    constraint_values: dict[str, float] = {}
+    for constraint in policy.semantic.constraints:
+        value = _coerce_number(constraint.value)
+        if value is not None:
+            constraint_values[constraint.constraint_id] = value
+
+    def parameter_loader(ref_or_node: Any) -> dict[str, Any]:
+        params_ref = None
+        if isinstance(ref_or_node, ArtifactRef):
+            params_ref = ref_or_node
+        else:
+            params_ref = getattr(ref_or_node, "params_ref", None)
+        if params_ref is None:
+            return {}
+        return _load_payload(store, params_ref)
+
+    controls_seq = state.get("calibration_controls_seq")
+    if controls_seq is not None:
+        controls_seq = jnp.asarray(controls_seq)
+
+    try:
+        inputs = CalibratorInputs(
+            config=cfg,
+            program_graph=program_graph,
+            exec_plan=exec_plan,
+            base_state=world_state,
+            mechanism_registry=registry_content.mechanism_registry,
+            slot_registry=registry_content.slot_registry,
+            merge_registry=registry_content.merge_registry,
+            selector_field_registry=registry_content.selector_field_registry,
+            constraint_registry=registry_content.constraint_registry,
+            constraint_values=constraint_values or None,
+            parameter_loader=parameter_loader,
+            raw_targets=raw_targets,
+            controls_seq=controls_seq,
+        )
+        report = Calibrator(inputs).run()
+    except Exception as exc:
+        issue = _make_issue(["calibration"], str(exc), "runtime")
+        feedback: GovernorFeedback = {"verdict": "REJECT", "issues": [issue]}
+        return append_audit({**state, "feedback": feedback}, "run_calibration", "failed", {})
+
+    config_ref = put_calibration_config(store, cfg)
+    report_inputs = [InputRef(artifact_id=config_ref.artifact_id, role="calibration_config")]
+    for evidence_ref in evidence_refs:
+        report_inputs.append(InputRef(artifact_id=evidence_ref.artifact_id, role="fabric_evidence"))
+    report_ref = put_calibration_report(store, report, inputs=report_inputs)
+
+    if state.get("run_id"):
+        log_artifact(
+            run_id=state["run_id"],
+            artifact_type="calibration_config_ref",
+            payload=config_ref.model_dump(),
+            media_type="application/json",
+            step="run_calibration",
+            base_dir=_runtime_base_dir(state),
+        )
+        log_artifact(
+            run_id=state["run_id"],
+            artifact_type="calibration_report_ref",
+            payload=report_ref.model_dump(),
+            media_type="application/json",
+            step="run_calibration",
+            base_dir=_runtime_base_dir(state),
+        )
+
+    updates_by_node: dict[str, dict[str, float]] = {}
+    for key, value in report.calibrated_params.items():
+        if "." not in key:
+            continue
+        node_id, param_id = key.split(".", 1)
+        updates_by_node.setdefault(node_id, {})[param_id] = value
+
+    updated_params_ref: dict[str, ArtifactRef] = {}
+    for node in program_graph.nodes:
+        if node.node_id not in updates_by_node:
+            continue
+        if node.params_ref is None:
+            continue
+        payload = _load_payload(store, node.params_ref)
+        params = dict(payload.get("params") or {})
+        for param_id, value in updates_by_node[node.node_id].items():
+            params[param_id] = Decimal(str(value))
+        payload["params"] = params
+        new_ref = store.put_json(
+            payload,
+            PutOptions(kind="ir.intervention_payload", media_type="application/json"),
+        )
+        updated_params_ref[node.node_id] = ArtifactRef.model_validate(new_ref.model_dump())
+
+    new_program_graph_ref = ProgramGraphRef.model_validate(program_graph_ref)
+    new_exec_plan_ref = ExecPlanRef.model_validate(exec_plan_ref)
+    if updated_params_ref:
+        updated_nodes = []
+        for node in program_graph.nodes:
+            if node.node_id in updated_params_ref:
+                updated_nodes.append(
+                    node.model_copy(update={"params_ref": updated_params_ref[node.node_id]})
+                )
+            else:
+                updated_nodes.append(node)
+        updated_graph = program_graph.model_copy(update={"nodes": updated_nodes})
+        graph_inputs = [
+            InputRef(
+                artifact_id=_artifact_id(ArtifactRef.model_validate(program_graph_ref)),
+                role="program_graph",
+            )
+        ]
+        for node_id, params_ref in updated_params_ref.items():
+            graph_inputs.append(
+                InputRef(artifact_id=params_ref.artifact_id, role=f"params:{node_id}")
+            )
+        stored_graph_ref = store.put_json(
+            updated_graph,
+            PutOptions(
+                kind="foundry.program_graph",
+                media_type="application/json",
+                schema=SchemaInfo(name="polisyos.core.ProgramGraph", version="0.1.0"),
+                inputs=graph_inputs,
+            ),
+        )
+        new_program_graph_ref = ProgramGraphRef(artifact_id=stored_graph_ref.artifact_id)
+        updated_exec_plan = exec_plan.model_copy(update={"program_ref": new_program_graph_ref})
+        stored_exec_plan_ref = store.put_json(
+            updated_exec_plan,
+            PutOptions(
+                kind="foundry.exec_plan",
+                media_type="application/json",
+                schema=SchemaInfo(name="polisyos.core.ExecPlan", version="0.1.0"),
+                inputs=[InputRef(artifact_id=new_program_graph_ref.artifact_id, role="program_graph")],
+            ),
+        )
+        new_exec_plan_ref = ExecPlanRef(artifact_id=stored_exec_plan_ref.artifact_id)
+
+        if state.get("run_id"):
+            log_artifact(
+                run_id=state["run_id"],
+                artifact_type="program_graph_ref",
+                payload=new_program_graph_ref.model_dump(),
+                media_type="application/json",
+                step="run_calibration",
+                base_dir=_runtime_base_dir(state),
+            )
+            log_artifact(
+                run_id=state["run_id"],
+                artifact_type="exec_plan_ref",
+                payload=new_exec_plan_ref.model_dump(),
+                media_type="application/json",
+                step="run_calibration",
+                base_dir=_runtime_base_dir(state),
+            )
+
+    updated_params_payload = {
+        node_id: ref.model_dump() for node_id, ref in updated_params_ref.items()
+    }
+
+    return append_audit(
+        {
+            **state,
+            "calibration_report_ref": report_ref.model_dump(),
+            "calibration_config_ref": config_ref.model_dump(),
+            "calibrated_params": report.calibrated_params,
+            "calibrated_params_ref": updated_params_payload,
+            "program_graph_ref": new_program_graph_ref.model_dump(),
+            "exec_plan_ref": new_exec_plan_ref.model_dump(),
+        },
+        "run_calibration",
+        "completed",
+        {"targets": len(cfg.targets), "updated_params": len(updated_params_ref)},
     )
 
 

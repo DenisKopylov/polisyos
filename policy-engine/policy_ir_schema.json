@@ -1,5 +1,176 @@
 {
   "$defs": {
+    "AdvisoryEntity": {
+      "additionalProperties": false,
+      "properties": {
+        "entity_id": {
+          "pattern": "^[a-z][a-z0-9_.-]*$",
+          "title": "Entity Id",
+          "type": "string"
+        },
+        "entity_type": {
+          "$ref": "#/$defs/EntityType"
+        },
+        "name": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TranslatableString"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "parent_id": {
+          "anyOf": [
+            {
+              "pattern": "^[a-z][a-z0-9_.-]*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Parent Id"
+        },
+        "attributes": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "boolean"
+              }
+            ]
+          },
+          "title": "Attributes",
+          "type": "object"
+        }
+      },
+      "required": [
+        "entity_id",
+        "entity_type"
+      ],
+      "title": "AdvisoryEntity",
+      "type": "object"
+    },
+    "ConstraintSpec": {
+      "additionalProperties": false,
+      "properties": {
+        "constraint_id": {
+          "pattern": "^[a-z][a-z0-9_.-]*$",
+          "title": "Constraint Id",
+          "type": "string"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/MoneyValue"
+            },
+            {
+              "$ref": "#/$defs/RateValue"
+            },
+            {
+              "$ref": "#/$defs/CountValue"
+            },
+            {
+              "$ref": "#/$defs/DurationValue"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+              "type": "string"
+            },
+            {
+              "type": "integer"
+            },
+            {
+              "type": "string"
+            },
+            {
+              "type": "boolean"
+            }
+          ],
+          "title": "Value"
+        },
+        "notes": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Notes",
+          "type": "array"
+        }
+      },
+      "required": [
+        "constraint_id",
+        "value"
+      ],
+      "title": "ConstraintSpec",
+      "type": "object"
+    },
+    "CountValue": {
+      "additionalProperties": false,
+      "properties": {
+        "value": {
+          "minimum": 0,
+          "title": "Value",
+          "type": "integer"
+        },
+        "label": {
+          "anyOf": [
+            {
+              "maxLength": 64,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Label"
+        }
+      },
+      "required": [
+        "value"
+      ],
+      "title": "CountValue",
+      "type": "object"
+    },
+    "DurationValue": {
+      "additionalProperties": false,
+      "properties": {
+        "value": {
+          "minimum": 0,
+          "title": "Value",
+          "type": "integer"
+        },
+        "unit": {
+          "default": "step",
+          "enum": [
+            "step",
+            "day",
+            "month",
+            "quarter",
+            "year"
+          ],
+          "title": "Unit",
+          "type": "string"
+        }
+      },
+      "required": [
+        "value"
+      ],
+      "title": "DurationValue",
+      "type": "object"
+    },
     "EntityType": {
       "description": "\u0422\u0438\u043f\u044b \u0430\u0433\u0435\u043d\u0442\u043e\u0432 \u0438 \u043e\u0431\u044a\u0435\u043a\u0442\u043e\u0432 \u0432 \u0441\u0438\u0441\u0442\u0435\u043c\u0435.",
       "enum": [
@@ -11,111 +182,178 @@
       "title": "EntityType",
       "type": "string"
     },
-    "GeneratorInfo": {
+    "InterventionSpec": {
       "additionalProperties": false,
       "properties": {
-        "name": {
-          "description": "Component name",
-          "maxLength": 500,
-          "title": "Name",
+        "intervention_id": {
+          "pattern": "^[a-z][a-z0-9_.-]*$",
+          "title": "Intervention Id",
           "type": "string"
         },
-        "version": {
-          "description": "Component version",
-          "maxLength": 500,
-          "title": "Version",
-          "type": "string"
-        }
-      },
-      "required": [
-        "name",
-        "version"
-      ],
-      "title": "GeneratorInfo",
-      "type": "object"
-    },
-    "Intervention": {
-      "additionalProperties": false,
-      "properties": {
-        "id": {
-          "maxLength": 64,
-          "pattern": "^[a-z0-9_]+$",
-          "title": "Id",
+        "kind": {
+          "pattern": "^[a-z][a-z0-9_.-]*$",
+          "title": "Kind",
           "type": "string"
         },
-        "name": {
-          "$ref": "#/$defs/TranslatableString"
-        },
-        "target_selector": {
-          "$ref": "#/$defs/TargetSelector"
-        },
-        "mechanism_type": {
-          "description": "\u0421\u0441\u044b\u043b\u043a\u0430 \u043d\u0430 \u043c\u0435\u0445\u0430\u043d\u0438\u0437\u043c \u0432 Foundry",
-          "maxLength": 500,
-          "title": "Mechanism Type",
-          "type": "string"
-        },
-        "parameters": {
-          "additionalProperties": true,
-          "title": "Parameters",
-          "type": "object"
-        },
-        "constraints": {
-          "additionalProperties": {
-            "type": "number"
+        "target": {
+          "discriminator": {
+            "mapping": {
+              "all_of": "#/$defs/SelectorAll",
+              "any_of": "#/$defs/SelectorAny",
+              "not": "#/$defs/SelectorNot",
+              "predicate": "#/$defs/SelectorPredicate"
+            },
+            "propertyName": "kind"
           },
-          "title": "Constraints",
+          "oneOf": [
+            {
+              "$ref": "#/$defs/SelectorPredicate"
+            },
+            {
+              "$ref": "#/$defs/SelectorAll"
+            },
+            {
+              "$ref": "#/$defs/SelectorAny"
+            },
+            {
+              "$ref": "#/$defs/SelectorNot"
+            }
+          ],
+          "title": "Target"
+        },
+        "schedule": {
+          "$ref": "#/$defs/ScheduleSpec"
+        },
+        "params": {
+          "additionalProperties": true,
+          "title": "Params",
           "type": "object"
-        }
-      },
-      "required": [
-        "id",
-        "name",
-        "target_selector",
-        "mechanism_type",
-        "parameters"
-      ],
-      "title": "Intervention",
-      "type": "object"
-    },
-    "Objective": {
-      "additionalProperties": false,
-      "properties": {
-        "metric_name": {
-          "description": "Name of the metric to optimize (e.g. 'gdp', 'unemployment')",
-          "maxLength": 500,
-          "title": "Metric Name",
-          "type": "string"
         },
-        "direction": {
-          "$ref": "#/$defs/OptimizationDirection"
-        },
-        "threshold": {
+        "priority": {
           "anyOf": [
             {
-              "type": "number"
+              "minimum": 0,
+              "type": "integer"
             },
             {
               "type": "null"
             }
           ],
           "default": null,
-          "description": "Target value boundary if direction is RANGE",
-          "title": "Threshold"
+          "title": "Priority"
         },
-        "priority_weight": {
-          "default": 1.0,
-          "maximum": 10.0,
-          "minimum": 0.0,
-          "title": "Priority Weight",
-          "type": "number"
+        "notes": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Notes",
+          "type": "array"
         }
       },
       "required": [
-        "metric_name",
+        "intervention_id",
+        "kind",
+        "target",
+        "schedule"
+      ],
+      "title": "InterventionSpec",
+      "type": "object"
+    },
+    "MoneyValue": {
+      "additionalProperties": false,
+      "properties": {
+        "amount": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+              "type": "string"
+            }
+          ],
+          "title": "Amount"
+        },
+        "currency": {
+          "pattern": "^[A-Z]{3}$",
+          "title": "Currency",
+          "type": "string"
+        },
+        "nominal_year": {
+          "anyOf": [
+            {
+              "maximum": 2100,
+              "minimum": 1900,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Nominal Year"
+        }
+      },
+      "required": [
+        "amount",
+        "currency"
+      ],
+      "title": "MoneyValue",
+      "type": "object"
+    },
+    "ObjectiveSpec": {
+      "additionalProperties": false,
+      "properties": {
+        "objective_id": {
+          "pattern": "^[a-z][a-z0-9_.-]*$",
+          "title": "Objective Id",
+          "type": "string"
+        },
+        "metric_id": {
+          "pattern": "^[a-z][a-z0-9_.-]*$",
+          "title": "Metric Id",
+          "type": "string"
+        },
+        "direction": {
+          "$ref": "#/$defs/OptimizationDirection"
+        },
+        "target": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Target"
+        },
+        "weight": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+              "type": "string"
+            }
+          ],
+          "default": "1",
+          "ge": 0,
+          "title": "Weight"
+        }
+      },
+      "required": [
+        "objective_id",
+        "metric_id",
         "direction"
       ],
-      "title": "Objective",
+      "title": "ObjectiveSpec",
       "type": "object"
     },
     "OptimizationDirection": {
@@ -128,27 +366,20 @@
       "title": "OptimizationDirection",
       "type": "string"
     },
-    "PolicyEntity": {
+    "PolicyAdvisory": {
       "additionalProperties": false,
-      "description": "\u0421\u0443\u0449\u043d\u043e\u0441\u0442\u044c \u0432 \u043f\u043b\u043e\u0441\u043a\u043e\u043c \u0441\u043f\u0438\u0441\u043a\u0435 (Adjacency List).\n\u0418\u0435\u0440\u0430\u0440\u0445\u0438\u044f \u0441\u0442\u0440\u043e\u0438\u0442\u0441\u044f \u0447\u0435\u0440\u0435\u0437 parent_id.",
       "properties": {
-        "id": {
-          "description": "Unique slug (snake_case)",
-          "maxLength": 64,
-          "pattern": "^[a-z0-9_]+$",
-          "title": "Id",
-          "type": "string"
+        "entities": {
+          "items": {
+            "$ref": "#/$defs/AdvisoryEntity"
+          },
+          "title": "Entities",
+          "type": "array"
         },
-        "entity_type": {
-          "$ref": "#/$defs/EntityType"
-        },
-        "name": {
-          "$ref": "#/$defs/TranslatableString"
-        },
-        "parent_id": {
+        "narrative": {
           "anyOf": [
             {
-              "maxLength": 64,
+              "maxLength": 2000,
               "type": "string"
             },
             {
@@ -156,63 +387,295 @@
             }
           ],
           "default": null,
-          "description": "ID \u0440\u043e\u0434\u0438\u0442\u0435\u043b\u044f. \u0414\u043e\u043b\u0436\u0435\u043d \u0441\u0443\u0449\u0435\u0441\u0442\u0432\u043e\u0432\u0430\u0442\u044c \u0432 \u0441\u043f\u0438\u0441\u043a\u0435.",
-          "title": "Parent Id"
+          "title": "Narrative"
         },
-        "state_variables": {
-          "additionalProperties": {
-            "anyOf": [
+        "labels": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Labels",
+          "type": "array"
+        },
+        "notes": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Notes",
+          "type": "array"
+        }
+      },
+      "title": "PolicyAdvisory",
+      "type": "object"
+    },
+    "PolicySemantic": {
+      "additionalProperties": false,
+      "properties": {
+        "context_snapshot_ref": {
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "title": "Context Snapshot Ref",
+          "type": "string"
+        },
+        "registry_bundle_ref": {
+          "anyOf": [
+            {
+              "pattern": "^sha256:[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Registry Bundle Ref"
+        },
+        "time_semantics": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TimeSemantics"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "objectives": {
+          "items": {
+            "$ref": "#/$defs/ObjectiveSpec"
+          },
+          "title": "Objectives",
+          "type": "array"
+        },
+        "interventions": {
+          "items": {
+            "$ref": "#/$defs/InterventionSpec"
+          },
+          "title": "Interventions",
+          "type": "array"
+        },
+        "constraints": {
+          "items": {
+            "$ref": "#/$defs/ConstraintSpec"
+          },
+          "title": "Constraints",
+          "type": "array"
+        },
+        "notes": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Notes",
+          "type": "array"
+        }
+      },
+      "required": [
+        "context_snapshot_ref"
+      ],
+      "title": "PolicySemantic",
+      "type": "object"
+    },
+    "RateValue": {
+      "additionalProperties": false,
+      "properties": {
+        "value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+              "type": "string"
+            }
+          ],
+          "title": "Value"
+        },
+        "base": {
+          "default": "ratio",
+          "enum": [
+            "ratio",
+            "percent"
+          ],
+          "title": "Base",
+          "type": "string"
+        }
+      },
+      "required": [
+        "value"
+      ],
+      "title": "RateValue",
+      "type": "object"
+    },
+    "ScheduleSpec": {
+      "additionalProperties": false,
+      "properties": {
+        "start_step": {
+          "minimum": 0,
+          "title": "Start Step",
+          "type": "integer"
+        },
+        "end_step": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "End Step"
+        },
+        "duration_steps": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Duration Steps"
+        }
+      },
+      "required": [
+        "start_step"
+      ],
+      "title": "ScheduleSpec",
+      "type": "object"
+    },
+    "SelectorAll": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "all_of",
+          "default": "all_of",
+          "title": "Kind",
+          "type": "string"
+        },
+        "clauses": {
+          "items": {
+            "discriminator": {
+              "mapping": {
+                "all_of": "#/$defs/SelectorAll",
+                "any_of": "#/$defs/SelectorAny",
+                "not": "#/$defs/SelectorNot",
+                "predicate": "#/$defs/SelectorPredicate"
+              },
+              "propertyName": "kind"
+            },
+            "oneOf": [
               {
-                "type": "number"
+                "$ref": "#/$defs/SelectorPredicate"
               },
               {
-                "type": "integer"
+                "$ref": "#/$defs/SelectorAll"
               },
               {
-                "type": "boolean"
+                "$ref": "#/$defs/SelectorAny"
               },
               {
-                "type": "string"
+                "$ref": "#/$defs/SelectorNot"
               }
             ]
           },
-          "description": "Initial state: {'balance': 1000.0}",
-          "title": "State Variables",
-          "type": "object"
+          "title": "Clauses",
+          "type": "array"
         }
       },
       "required": [
-        "id",
-        "entity_type",
-        "name"
+        "clauses"
       ],
-      "title": "PolicyEntity",
+      "title": "SelectorAll",
       "type": "object"
     },
-    "Scenarios": {
+    "SelectorAny": {
       "additionalProperties": false,
       "properties": {
-        "random_seed": {
-          "description": "Deterministic seed for scenarios",
-          "title": "Random Seed",
-          "type": "integer"
+        "kind": {
+          "const": "any_of",
+          "default": "any_of",
+          "title": "Kind",
+          "type": "string"
         },
-        "shocks": {
+        "clauses": {
           "items": {
-            "$ref": "#/$defs/Shock"
+            "discriminator": {
+              "mapping": {
+                "all_of": "#/$defs/SelectorAll",
+                "any_of": "#/$defs/SelectorAny",
+                "not": "#/$defs/SelectorNot",
+                "predicate": "#/$defs/SelectorPredicate"
+              },
+              "propertyName": "kind"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/$defs/SelectorPredicate"
+              },
+              {
+                "$ref": "#/$defs/SelectorAll"
+              },
+              {
+                "$ref": "#/$defs/SelectorAny"
+              },
+              {
+                "$ref": "#/$defs/SelectorNot"
+              }
+            ]
           },
-          "title": "Shocks",
+          "title": "Clauses",
           "type": "array"
-        },
-        "timeline": {
-          "$ref": "#/$defs/Timeline"
         }
       },
       "required": [
-        "random_seed",
-        "timeline"
+        "clauses"
       ],
-      "title": "Scenarios",
+      "title": "SelectorAny",
+      "type": "object"
+    },
+    "SelectorNot": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "not",
+          "default": "not",
+          "title": "Kind",
+          "type": "string"
+        },
+        "clause": {
+          "discriminator": {
+            "mapping": {
+              "all_of": "#/$defs/SelectorAll",
+              "any_of": "#/$defs/SelectorAny",
+              "not": "#/$defs/SelectorNot",
+              "predicate": "#/$defs/SelectorPredicate"
+            },
+            "propertyName": "kind"
+          },
+          "oneOf": [
+            {
+              "$ref": "#/$defs/SelectorPredicate"
+            },
+            {
+              "$ref": "#/$defs/SelectorAll"
+            },
+            {
+              "$ref": "#/$defs/SelectorAny"
+            },
+            {
+              "$ref": "#/$defs/SelectorNot"
+            }
+          ],
+          "title": "Clause"
+        }
+      },
+      "required": [
+        "clause"
+      ],
+      "title": "SelectorNot",
       "type": "object"
     },
     "SelectorOperator": {
@@ -234,10 +697,14 @@
     },
     "SelectorPredicate": {
       "additionalProperties": false,
-      "description": "\u0410\u0442\u043e\u043c\u0430\u0440\u043d\u043e\u0435 \u0443\u0441\u043b\u043e\u0432\u0438\u0435: field op value",
       "properties": {
+        "kind": {
+          "const": "predicate",
+          "default": "predicate",
+          "title": "Kind",
+          "type": "string"
+        },
         "field": {
-          "description": "\u0410\u0442\u0440\u0438\u0431\u0443\u0442 \u0441\u0443\u0449\u043d\u043e\u0441\u0442\u0438, \u043d\u0430\u043f\u0440. 'sector'",
           "maxLength": 64,
           "title": "Field",
           "type": "string"
@@ -254,32 +721,35 @@
               "type": "integer"
             },
             {
-              "type": "number"
-            },
-            {
               "type": "boolean"
             },
             {
-              "items": {
-                "type": "string"
-              },
-              "type": "array"
+              "type": "number"
+            },
+            {
+              "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+              "type": "string"
             },
             {
               "items": {
-                "type": "integer"
-              },
-              "type": "array"
-            },
-            {
-              "items": {
-                "type": "number"
-              },
-              "type": "array"
-            },
-            {
-              "items": {
-                "type": "boolean"
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "boolean"
+                  },
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                    "type": "string"
+                  }
+                ]
               },
               "type": "array"
             }
@@ -295,141 +765,6 @@
       "title": "SelectorPredicate",
       "type": "object"
     },
-    "Shock": {
-      "additionalProperties": false,
-      "description": "\u0412\u043d\u0435\u0448\u043d\u0438\u0439 \u0448\u043e\u043a/\u0441\u043e\u0431\u044b\u0442\u0438\u0435.",
-      "properties": {
-        "id": {
-          "maxLength": 64,
-          "pattern": "^[a-z0-9_]+$",
-          "title": "Id",
-          "type": "string"
-        },
-        "name": {
-          "$ref": "#/$defs/TranslatableString"
-        },
-        "description": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/TranslatableString"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null
-        },
-        "magnitude": {
-          "anyOf": [
-            {
-              "type": "number"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Magnitude"
-        },
-        "at_step": {
-          "anyOf": [
-            {
-              "minimum": 0,
-              "type": "integer"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "At Step"
-        }
-      },
-      "required": [
-        "id",
-        "name"
-      ],
-      "title": "Shock",
-      "type": "object"
-    },
-    "SimulationParameters": {
-      "additionalProperties": false,
-      "description": "\u0422\u0435\u0445\u043d\u0438\u0447\u0435\u0441\u043a\u0438\u0435 \u043f\u0430\u0440\u0430\u043c\u0435\u0442\u0440\u044b \u0441\u0438\u043c\u0443\u043b\u044f\u0446\u0438\u0438.",
-      "properties": {
-        "scope_years": {
-          "maximum": 50,
-          "minimum": 1,
-          "title": "Scope Years",
-          "type": "integer"
-        },
-        "time_frequency": {
-          "$ref": "#/$defs/TimeFrequency",
-          "default": "M"
-        },
-        "start_date": {
-          "default": "2024-01-01",
-          "title": "Start Date",
-          "type": "string"
-        },
-        "random_seed": {
-          "default": 42,
-          "title": "Random Seed",
-          "type": "integer"
-        }
-      },
-      "required": [
-        "scope_years"
-      ],
-      "title": "SimulationParameters",
-      "type": "object"
-    },
-    "TargetSelector": {
-      "additionalProperties": false,
-      "description": "\u0421\u0442\u0440\u0443\u043a\u0442\u0443\u0440\u0438\u0440\u043e\u0432\u0430\u043d\u043d\u044b\u0439 \u0444\u0438\u043b\u044c\u0442\u0440 \u0446\u0435\u043b\u0435\u0439.\n\u0417\u0430\u043c\u0435\u043d\u044f\u0435\u0442 \u0441\u0442\u0440\u043e\u043a\u0443 \"sector == 'IT'\".\n\u041f\u043e\u0434\u0434\u0435\u0440\u0436\u0438\u0432\u0430\u0435\u0442 \u043a\u043e\u043c\u043f\u043e\u0437\u0438\u0446\u0438\u044e all_of/any_of/not.",
-      "properties": {
-        "all_of": {
-          "items": {
-            "$ref": "#/$defs/SelectorPredicate"
-          },
-          "title": "All Of",
-          "type": "array"
-        },
-        "any_of": {
-          "items": {
-            "$ref": "#/$defs/SelectorPredicate"
-          },
-          "title": "Any Of",
-          "type": "array"
-        },
-        "not": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/TargetSelector"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null
-        },
-        "selector_text": {
-          "anyOf": [
-            {
-              "maxLength": 500,
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "description": "Human-readable selector text (never executed)",
-          "title": "Selector Text"
-        }
-      },
-      "title": "TargetSelector",
-      "type": "object"
-    },
     "TimeFrequency": {
       "description": "\u0415\u0434\u0438\u043d\u0438\u0446\u044b \u0432\u0440\u0435\u043c\u0435\u043d\u0438 \u0434\u043b\u044f \u0441\u0438\u043c\u0443\u043b\u044f\u0446\u0438\u0438.",
       "enum": [
@@ -440,37 +775,54 @@
       "title": "TimeFrequency",
       "type": "string"
     },
-    "TimeUnit": {
-      "description": "\u0415\u0434\u0438\u043d\u0438\u0446\u044b \u0432\u0440\u0435\u043c\u0435\u043d\u0438 \u0432 IR (\u0447\u0435\u043b\u043e\u0432\u0435\u0447\u0435\u0441\u043a\u0438\u0439 \u0444\u043e\u0440\u043c\u0430\u0442).",
-      "enum": [
-        "month",
-        "quarter",
-        "year"
-      ],
-      "title": "TimeUnit",
-      "type": "string"
-    },
-    "Timeline": {
+    "TimeSemantics": {
       "additionalProperties": false,
       "properties": {
-        "start_year": {
-          "maximum": 2100,
-          "minimum": 1900,
-          "title": "Start Year",
-          "type": "integer"
+        "frequency": {
+          "$ref": "#/$defs/TimeFrequency"
         },
-        "end_year": {
-          "maximum": 2100,
-          "minimum": 1900,
-          "title": "End Year",
-          "type": "integer"
+        "start_date": {
+          "title": "Start Date",
+          "type": "string"
+        },
+        "step_count": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Step Count"
+        },
+        "end_date": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "End Date"
+        },
+        "notes": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Notes",
+          "type": "array"
         }
       },
       "required": [
-        "start_year",
-        "end_year"
+        "frequency",
+        "start_date"
       ],
-      "title": "Timeline",
+      "title": "TimeSemantics",
       "type": "object"
     },
     "TranslatableString": {
@@ -513,87 +865,31 @@
     }
   },
   "additionalProperties": false,
-  "description": "\u041a\u043e\u0440\u043d\u0435\u0432\u043e\u0439 \u0430\u0440\u0442\u0435\u0444\u0430\u043a\u0442.\n\u0421\u043e\u0434\u0435\u0440\u0436\u0438\u0442 \u0432\u0435\u0440\u0441\u0438\u043e\u043d\u0438\u0440\u043e\u0432\u0430\u043d\u0438\u0435 \u0438 \u0433\u043b\u043e\u0431\u0430\u043b\u044c\u043d\u0443\u044e \u0432\u0430\u043b\u0438\u0434\u0430\u0446\u0438\u044e \u0433\u0440\u0430\u0444\u0430.",
   "properties": {
-    "project_name": {
-      "$ref": "#/$defs/TranslatableString"
-    },
     "schema_version": {
+      "default": "2.0",
       "pattern": "^\\d+\\.\\d+$",
       "title": "Schema Version",
       "type": "string"
     },
-    "generated_at": {
-      "maxLength": 500,
-      "title": "Generated At",
-      "type": "string"
+    "semantic": {
+      "$ref": "#/$defs/PolicySemantic"
     },
-    "generator": {
-      "$ref": "#/$defs/GeneratorInfo"
-    },
-    "currency": {
-      "pattern": "^[A-Z]{3}$",
-      "title": "Currency",
-      "type": "string"
-    },
-    "time_unit": {
-      "$ref": "#/$defs/TimeUnit"
-    },
-    "price_base_year": {
-      "maximum": 2100,
-      "minimum": 1900,
-      "title": "Price Base Year",
-      "type": "integer"
-    },
-    "simulation_params": {
-      "$ref": "#/$defs/SimulationParameters"
-    },
-    "scenarios": {
-      "$ref": "#/$defs/Scenarios"
-    },
-    "entities": {
-      "items": {
-        "$ref": "#/$defs/PolicyEntity"
-      },
-      "title": "Entities",
-      "type": "array"
-    },
-    "interventions": {
-      "items": {
-        "$ref": "#/$defs/Intervention"
-      },
-      "title": "Interventions",
-      "type": "array"
-    },
-    "objectives": {
-      "items": {
-        "$ref": "#/$defs/Objective"
-      },
-      "title": "Objectives",
-      "type": "array"
-    },
-    "global_constraints": {
-      "additionalProperties": {
-        "type": "number"
-      },
-      "title": "Global Constraints",
-      "type": "object"
+    "advisory": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/PolicyAdvisory"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
     }
   },
   "required": [
-    "project_name",
-    "schema_version",
-    "generated_at",
-    "generator",
-    "currency",
-    "time_unit",
-    "price_base_year",
-    "simulation_params",
-    "scenarios",
-    "entities",
-    "interventions",
-    "objectives"
+    "semantic"
   ],
-  "title": "PolicyRequestIR",
+  "title": "PolicySurfaceIR",
   "type": "object"
 }

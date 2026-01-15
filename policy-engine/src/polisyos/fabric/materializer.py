@@ -1,28 +1,248 @@
 from __future__ import annotations
 
-import json
+import hashlib
 from pathlib import Path
+from typing import Iterable
+
+import pandas as pd
 
 from polisyos.common.logger import get_logger
 from polisyos.fabric.io.db import SimulationDB
+from polisyos.ir.fact_log import FactSegmentManifest
 
 logger = get_logger(__name__)
 
+META_TABLE = "_meta_segments"
+MACRO_PREFIX = "macro."
+AGENT_PREFIX = "agent."
+ENTITY_PREFIX = "entity_resolution."
 
-def materialize_duckdb_from_fact_log(fact_dir: Path, db: SimulationDB) -> None:
-    """
-    Placeholder materializer: reads segment manifests and logs their presence.
-    Future versions will rebuild DuckDB tables directly from Fact Log.
-    """
+DEFAULT_AGENT_RUN_ID = "demo_run"
+DEFAULT_AGENT_STEP = 0
+
+
+def load_fact_manifests(fact_dir: Path) -> list[FactSegmentManifest]:
     index_path = fact_dir / "_segments.jsonl"
     if not index_path.exists():
-        logger.info("No fact segments found at %s", fact_dir)
-        return
-    segments = []
+        return []
+    manifests: list[FactSegmentManifest] = []
     with index_path.open("r", encoding="utf-8") as f:
         for line in f:
-            try:
-                segments.append(json.loads(line))
-            except json.JSONDecodeError:
+            raw = line.strip()
+            if not raw:
                 continue
-    logger.info("Found %d fact segments (materialization stub)", len(segments))
+            try:
+                manifests.append(FactSegmentManifest.model_validate_json(raw))
+            except Exception as exc:
+                logger.warning("Skipping invalid fact manifest: %s", exc)
+    return manifests
+
+
+def ensure_materialized(
+    db: SimulationDB, fact_manifests: Iterable[FactSegmentManifest]
+) -> None:
+    manifests = list(fact_manifests)
+    if not manifests:
+        return
+    _ensure_meta_table(db)
+    applied = _load_applied_segments(db)
+    for manifest in manifests:
+        existing = applied.get(manifest.segment_id)
+        if existing:
+            if existing != manifest.sha256:
+                raise ValueError(
+                    f"Segment hash mismatch for {manifest.segment_id}: {existing} != {manifest.sha256}"
+                )
+            continue
+        _apply_segment(db, manifest)
+        _record_applied_segment(db, manifest)
+
+
+def materialize_duckdb_from_fact_log(fact_dir: Path, db: SimulationDB) -> None:
+    manifests = load_fact_manifests(fact_dir)
+    ensure_materialized(db, manifests)
+
+
+def _ensure_meta_table(db: SimulationDB) -> None:
+    db.conn.execute(
+        """
+        CREATE TABLE IF NOT EXISTS _meta_segments (
+            segment_id VARCHAR PRIMARY KEY,
+            sha256 VARCHAR,
+            row_count INTEGER,
+            applied_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """
+    )
+
+
+def _load_applied_segments(db: SimulationDB) -> dict[str, str]:
+    rows = db.conn.execute(f"SELECT segment_id, sha256 FROM {META_TABLE}").fetchall()
+    return {row[0]: row[1] for row in rows}
+
+
+def _record_applied_segment(db: SimulationDB, manifest: FactSegmentManifest) -> None:
+    db.conn.execute(
+        f"""
+        INSERT INTO {META_TABLE} (segment_id, sha256, row_count)
+        VALUES (?, ?, ?)
+    """,
+        [manifest.segment_id, manifest.sha256, manifest.row_count],
+    )
+
+
+def _apply_segment(db: SimulationDB, manifest: FactSegmentManifest) -> None:
+    segment_path = Path(manifest.path)
+    if not segment_path.exists():
+        raise FileNotFoundError(f"Missing fact segment: {segment_path}")
+    _verify_segment_hash(segment_path, manifest.sha256)
+    df = pd.read_parquet(segment_path)
+    if df.empty:
+        return
+    _apply_macro_facts(db, df)
+    _apply_agent_facts(db, df)
+    _apply_entity_resolution_facts(db, df)
+
+
+def _verify_segment_hash(path: Path, expected_sha256: str) -> None:
+    digest = hashlib.sha256(path.read_bytes()).hexdigest()
+    if digest != expected_sha256:
+        raise ValueError(f"Segment hash mismatch for {path}: {digest} != {expected_sha256}")
+
+
+def _apply_macro_facts(db: SimulationDB, facts: pd.DataFrame) -> None:
+    macro = _select_prefix(facts, MACRO_PREFIX)
+    if macro.empty:
+        return
+    macro = macro[["subject_id", "valid_time", "predicate_id", "object_value"]].copy()
+    macro = macro[macro["valid_time"].notna()]
+    if macro.empty:
+        return
+    macro["metric"] = macro["predicate_id"].str[len(MACRO_PREFIX) :]
+    pivot = (
+        macro.pivot_table(
+            index=["subject_id", "valid_time"],
+            columns="metric",
+            values="object_value",
+            aggfunc="first",
+        )
+        .reset_index()
+        .rename(columns={"subject_id": "run_id", "valid_time": "step"})
+    )
+    metrics = [
+        "gdp",
+        "unemployment_rate",
+        "inflation_rate",
+        "avg_price",
+        "avg_income",
+        "government_balance",
+    ]
+    _ensure_columns(pivot, metrics)
+    for col in metrics:
+        pivot[col] = pd.to_numeric(pivot[col], errors="coerce")
+    pivot["step"] = pd.to_numeric(pivot["step"], errors="coerce").astype("Int64")
+    pivot = pivot[["run_id", "step", *metrics]]
+    if pivot.empty:
+        return
+    db.conn.execute(
+        """
+        INSERT INTO macro_history (
+            run_id, step, gdp, unemployment_rate, inflation_rate,
+            avg_price, avg_income, government_balance
+        )
+        SELECT run_id, step, gdp, unemployment_rate, inflation_rate,
+            avg_price, avg_income, government_balance
+        FROM pivot
+    """
+    )
+
+
+def _apply_agent_facts(db: SimulationDB, facts: pd.DataFrame) -> None:
+    agents = _select_prefix(facts, AGENT_PREFIX)
+    if agents.empty:
+        return
+    agents = agents[["subject_id", "predicate_id", "object_value"]].copy()
+    agents["metric"] = agents["predicate_id"].str[len(AGENT_PREFIX) :]
+    pivot = (
+        agents.pivot_table(
+            index=["subject_id"], columns="metric", values="object_value", aggfunc="first"
+        )
+        .reset_index()
+        .rename(columns={"subject_id": "agent_id", "employment": "is_employed"})
+    )
+    _ensure_columns(pivot, ["age", "income", "savings", "is_employed"])
+    pivot["age"] = pd.to_numeric(pivot["age"], errors="coerce").astype("Int64")
+    pivot["income"] = pd.to_numeric(pivot["income"], errors="coerce")
+    pivot["savings"] = pd.to_numeric(pivot["savings"], errors="coerce")
+    pivot["is_employed"] = pivot["is_employed"].map(_coerce_bool)
+    pivot["run_id"] = DEFAULT_AGENT_RUN_ID
+    pivot["step"] = DEFAULT_AGENT_STEP
+    pivot = pivot[["run_id", "step", "agent_id", "age", "income", "savings", "is_employed"]]
+    if pivot.empty:
+        return
+    db.conn.execute(
+        """
+        INSERT INTO agents_snapshot (
+            run_id, step, agent_id, age, income, savings, is_employed
+        )
+        SELECT run_id, step, agent_id, age, income, savings, is_employed
+        FROM pivot
+    """
+    )
+
+
+def _apply_entity_resolution_facts(db: SimulationDB, facts: pd.DataFrame) -> None:
+    entities = _select_prefix(facts, ENTITY_PREFIX)
+    if entities.empty:
+        return
+    entities = entities[["subject_id", "predicate_id", "object_value"]].copy()
+    entities["metric"] = entities["predicate_id"].str[len(ENTITY_PREFIX) :]
+    pivot = (
+        entities.pivot_table(
+            index=["subject_id"], columns="metric", values="object_value", aggfunc="first"
+        )
+        .reset_index()
+        .rename(columns={"subject_id": "raw_id"})
+    )
+    _ensure_columns(pivot, ["canonical_id", "match_confidence", "match_method"])
+    pivot["match_confidence"] = pd.to_numeric(pivot["match_confidence"], errors="coerce")
+    pivot = pivot[["raw_id", "canonical_id", "match_confidence", "match_method"]]
+    if pivot.empty:
+        return
+    db.conn.execute(
+        """
+        INSERT INTO entity_resolution (
+            raw_id, canonical_id, match_confidence, match_method
+        )
+        SELECT raw_id, canonical_id, match_confidence, match_method
+        FROM pivot
+    """
+    )
+
+
+def _select_prefix(df: pd.DataFrame, prefix: str) -> pd.DataFrame:
+    if "predicate_id" not in df.columns:
+        return pd.DataFrame()
+    predicates = df["predicate_id"].astype(str)
+    return df[predicates.str.startswith(prefix)].copy()
+
+
+def _ensure_columns(df: pd.DataFrame, columns: list[str]) -> None:
+    for col in columns:
+        if col not in df.columns:
+            df[col] = None
+
+
+def _coerce_bool(value: object) -> bool | None:
+    if value is None or (isinstance(value, float) and pd.isna(value)):
+        return None
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, (int, float)):
+        return bool(value)
+    text = str(value).strip().lower()
+    if text in {"true", "t", "1", "yes"}:
+        return True
+    if text in {"false", "f", "0", "no"}:
+        return False
+    return None

@@ -19,10 +19,15 @@ class Phase(str, Enum):
 
 ALLOWED_TRANSITIONS: Dict[Phase, Set[Phase]] = {
     Phase.INTAKE: {Phase.FRAME},
-    Phase.FRAME: {Phase.FRAME, Phase.PREFLIGHT_GOV, Phase.PLAN},
+    # FRAME can short-circuit to DECIDE when the policy is rejected/pruned early.
+    Phase.FRAME: {Phase.FRAME, Phase.PREFLIGHT_GOV, Phase.PLAN, Phase.DECIDE},
     Phase.PREFLIGHT_GOV: {Phase.PLAN},
-    Phase.PLAN: {Phase.PLAN, Phase.EXECUTE},
-    Phase.EXECUTE: {Phase.EXECUTE, Phase.POSTFLIGHT_GOV},
+    # PLAN can also short-circuit to DECIDE (e.g. compilation yields REJECT/pruned).
+    Phase.PLAN: {Phase.PLAN, Phase.EXECUTE, Phase.DECIDE},
+    # Self-healing loop: execution-time feedback can require reframing/repairing the IR.
+    # This enables edges like compile_model/run_sim -> repair_ir in the workflow graph.
+    # EXECUTE can short-circuit to DECIDE when the run is pruned early.
+    Phase.EXECUTE: {Phase.EXECUTE, Phase.POSTFLIGHT_GOV, Phase.FRAME, Phase.DECIDE},
     Phase.POSTFLIGHT_GOV: {Phase.DECIDE},
     Phase.DECIDE: {Phase.PUBLISH},
     Phase.PUBLISH: {Phase.ARCHIVE},

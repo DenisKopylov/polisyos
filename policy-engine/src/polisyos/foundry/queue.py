@@ -7,7 +7,7 @@ import equinox as eqx
 import jax
 import jax.numpy as jnp
 
-from polisyos.foundry.base import Mechanism
+from polisyos.foundry.base import Mechanism, PatchMap
 from polisyos.foundry.types import FidelityLevel
 
 
@@ -47,6 +47,17 @@ class QueueMechanism(Mechanism):
 
     def init_state(self, state: QueueState, key: jax.Array) -> tuple[QueueState, jax.Array]:
         return state, key
+
+    def emit_patches(
+        self,
+        state: QueueState,
+        key: jax.Array,
+        *,
+        target_mask=None,
+    ) -> tuple[PatchMap, jax.Array]:
+        next_state, key = self.step(state, key)
+        delta = next_state.queue_length - state.queue_length
+        return {"queue.queue_length": [{"delta": delta}]}, key
 
     def step(self, state: QueueState, key: jax.Array) -> tuple[QueueState, jax.Array]:
         queue = state.queue_length

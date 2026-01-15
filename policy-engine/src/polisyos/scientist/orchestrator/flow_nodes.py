@@ -580,6 +580,10 @@ def validate_ir_node(state: ExperimentState) -> ExperimentState:
 
     safety_issues = []
     policy = state["ir"]
+    # Validation needs the registry to exist even when the caller didn't provide one.
+    # Without this, integration runs would get an immediate REJECT ("registry_bundle_ref is missing")
+    # and the workflow would never reach compile/run/governor.
+    state = _ensure_registry_bundle(state)
     try:
         registry_content = _load_registry_bundle_content_for(state, policy)
     except Exception as exc:
@@ -684,7 +688,7 @@ def compile_model_node(state: ExperimentState) -> ExperimentState:
     ir = state.get("ir")
     if ir is None:
         issue = _make_issue(["ir"], "IR missing before compile_model", "compile")
-        feedback: GovernorFeedback = {"verdict": "REJECT", "issues": [issue]}
+        feedback: GovernorFeedback = {"verdict": "NEEDS_REVISION", "issues": [issue]}
         return append_audit({**state, "feedback": feedback}, "compile_model", "missing_ir", {})
     try:
         state = _ensure_registry_bundle(state)
@@ -896,47 +900,51 @@ def run_sim_node(state: ExperimentState) -> ExperimentState:
     policy = state.get("ir")
     if policy is None:
         issue = _make_issue(["ir"], "IR missing before run_sim", "runtime")
-        feedback: GovernorFeedback = {"verdict": "REJECT", "issues": [issue]}
+        feedback: GovernorFeedback = {"verdict": "NEEDS_REVISION", "issues": [issue]}
         return append_audit({**state, "feedback": feedback}, "run_sim", "missing_ir", {})
 
     state = _ensure_registry_bundle(state)
     try:
-        state, policy = _ensure_context_snapshot(state, policy)
-    except Exception as exc:
-        issue = _make_issue(["semantic", "context_snapshot_ref"], str(exc), "registry")
-        feedback: GovernorFeedback = {"verdict": "REJECT", "issues": [issue]}
-        return append_audit({**state, "feedback": feedback}, "run_sim", "context_missing", {})
-    try:
         registry_content = _load_registry_bundle_content_for(state, policy)
     except Exception as exc:
         issue = _make_issue(["semantic", "registry_bundle_ref"], str(exc), "registry")
-        feedback: GovernorFeedback = {"verdict": "REJECT", "issues": [issue]}
+        feedback: GovernorFeedback = {"verdict": "NEEDS_REVISION", "issues": [issue]}
         return append_audit({**state, "feedback": feedback}, "run_sim", "registry_failed", {})
-    try:
-        world_state = load_state_snapshot(
-            FileSystemCAS(_cas_root(state)),
-            snapshot_ref=ArtifactID.model_validate(policy.semantic.context_snapshot_ref),
-        )
-    except Exception as exc:
-        issue = _make_issue(["semantic", "context_snapshot_ref"], str(exc), "data")
-        feedback: GovernorFeedback = {"verdict": "REJECT", "issues": [issue]}
-        return append_audit({**state, "feedback": feedback}, "run_sim", "context_load_failed", {})
-
-    n_agents = world_state.agents.income.shape[0]
     seed = state.get("random_seed") or 42
-    key = jax.random.PRNGKey(seed)
+    snapshot_ref_value = policy.semantic.context_snapshot_ref
+    if not snapshot_ref_value:
+        issue = _make_issue(
+            ["semantic", "context_snapshot_ref"],
+            "context_snapshot_ref missing before run_sim",
+            "runtime",
+        )
+        feedback: GovernorFeedback = {"verdict": "NEEDS_REVISION", "issues": [issue]}
+        return append_audit({**state, "feedback": feedback}, "run_sim", "context_missing", {})
     program_graph_ref = state.get("program_graph_ref")
     exec_plan_ref = state.get("exec_plan_ref")
     if not program_graph_ref or not exec_plan_ref:
         issue = _make_issue(["program_graph_ref"], "Compiled program missing", "runtime")
-        feedback: GovernorFeedback = {"verdict": "REJECT", "issues": [issue]}
+        feedback: GovernorFeedback = {"verdict": "NEEDS_REVISION", "issues": [issue]}
         return append_audit({**state, "feedback": feedback}, "run_sim", "missing_program", {})
+
+    try:
+        snapshot_ref = ArtifactRef(
+            artifact_id=ArtifactID.model_validate(snapshot_ref_value),
+            kind="foundry.state_snapshot",
+            media_type="application/json",
+        )
+    except Exception as exc:
+        issue = _make_issue(
+            ["semantic", "context_snapshot_ref"], f"Invalid context_snapshot_ref: {exc}", "runtime"
+        )
+        feedback: GovernorFeedback = {"verdict": "NEEDS_REVISION", "issues": [issue]}
+        return append_audit({**state, "feedback": feedback}, "run_sim", "context_missing", {})
 
     try:
         job_spec = JobSpec(
             program_ref=ArtifactRef.model_validate(program_graph_ref),
             exec_plan_ref=ArtifactRef.model_validate(exec_plan_ref),
-            state_snapshot_ref=None,
+            state_snapshot_ref=snapshot_ref,
             seed=seed,
         )
         backend = resolve_backend(state.get("runner_backend"))
@@ -944,57 +952,69 @@ def run_sim_node(state: ExperimentState) -> ExperimentState:
             job_spec,
             backend=backend,
             registry_content=registry_content,
-            base_state=world_state,
             cas_root=_cas_root(state),
         )
-        if job_result.warnings:
-            issue = _make_issue(["runtime"], "; ".join(job_result.warnings), "runtime")
-            feedback: GovernorFeedback = {"verdict": "REJECT", "issues": [issue]}
+        if job_result.issues or job_result.warnings:
+            issues = list(job_result.issues)
+            if not issues and job_result.warnings:
+                issues = [
+                    _make_issue(["runtime"], warning, "runtime")
+                    for warning in job_result.warnings
+                ]
+            feedback = {"verdict": "NEEDS_REVISION", "issues": issues}
             return append_audit({**state, "feedback": feedback}, "run_sim", "failed", {})
-        exec_artifacts = job_result
-        world_state = job_result.final_state or world_state
-        if exec_artifacts.state_delta_ref is not None:
+
+        if job_result.state_delta_ref is not None:
             log_artifact(
                 run_id=state["run_id"],
                 artifact_type="state_delta_ref",
-                payload=exec_artifacts.state_delta_ref.model_dump(),
+                payload=job_result.state_delta_ref.model_dump(),
                 media_type="application/json",
                 step="run_sim",
                 base_dir=_runtime_base_dir(state),
             )
-        if exec_artifacts.metrics_ref is not None:
+        if job_result.metrics_ref is not None:
             log_artifact(
                 run_id=state["run_id"],
                 artifact_type="metrics_ref",
-                payload=exec_artifacts.metrics_ref.model_dump(),
+                payload=job_result.metrics_ref.model_dump(),
                 media_type="application/json",
                 step="run_sim",
                 base_dir=_runtime_base_dir(state),
             )
-        if exec_artifacts.state_snapshot_ref is not None:
+        if job_result.state_snapshot_ref is not None:
             log_artifact(
                 run_id=state["run_id"],
                 artifact_type="state_snapshot_ref",
-                payload=exec_artifacts.state_snapshot_ref.model_dump(),
+                payload=job_result.state_snapshot_ref.model_dump(),
+                media_type="application/json",
+                step="run_sim",
+                base_dir=_runtime_base_dir(state),
+            )
+        if job_result.simulation_results_ref is not None:
+            log_artifact(
+                run_id=state["run_id"],
+                artifact_type="simulation_results_ref",
+                payload=job_result.simulation_results_ref.model_dump(),
                 media_type="application/json",
                 step="run_sim",
                 base_dir=_runtime_base_dir(state),
             )
     except Exception as exc:
-        verdict = "REJECT"
-        issue_kind = "runtime"
-        if str(exc).startswith("Constraint"):
-            verdict = "NEEDS_REVISION"
-            issue_kind = "constraint"
-        issue = _make_issue(["semantic", "constraints"], str(exc), issue_kind)
-        feedback: GovernorFeedback = {"verdict": verdict, "issues": [issue]}
+        issue = _make_issue(["runtime"], str(exc), "runtime")
+        feedback: GovernorFeedback = {"verdict": "NEEDS_REVISION", "issues": [issue]}
         return append_audit({**state, "feedback": feedback}, "run_sim", "failed", {})
 
-    results = {
-        "avg_income": float(jnp.mean(world_state.agents.income)),
-        "gov_balance": float(world_state.government_balance),
-        "n_agents": int(n_agents),
-    }
+    results: dict[str, Any] = {}
+    if job_result.simulation_results_ref is not None:
+        try:
+            results = _load_payload(FileSystemCAS(_cas_root(state)), job_result.simulation_results_ref)
+        except Exception as exc:
+            issue = _make_issue(
+                ["simulation_results_ref"], f"Failed to load results: {exc}", "runtime"
+            )
+            feedback: GovernorFeedback = {"verdict": "NEEDS_REVISION", "issues": [issue]}
+            return append_audit({**state, "feedback": feedback}, "run_sim", "failed", {})
 
     run_record = build_run_record(
         run_id=state["run_id"],
@@ -1016,10 +1036,15 @@ def run_sim_node(state: ExperimentState) -> ExperimentState:
             **state,
             "simulation_results": results,
             "run_record": run_record,
-            "state_delta_ref": exec_artifacts.state_delta_ref.model_dump(),
-            "metrics_ref": exec_artifacts.metrics_ref.model_dump(),
-            "state_snapshot_ref": exec_artifacts.state_snapshot_ref.model_dump()
-            if exec_artifacts.state_snapshot_ref is not None
+            "simulation_results_ref": job_result.simulation_results_ref.model_dump()
+            if job_result.simulation_results_ref is not None
+            else None,
+            "state_delta_ref": job_result.state_delta_ref.model_dump()
+            if job_result.state_delta_ref is not None
+            else None,
+            "metrics_ref": job_result.metrics_ref.model_dump() if job_result.metrics_ref is not None else None,
+            "state_snapshot_ref": job_result.state_snapshot_ref.model_dump()
+            if job_result.state_snapshot_ref is not None
             else None,
         },
         "run_sim",

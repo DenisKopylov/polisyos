@@ -49,6 +49,10 @@ def migrate_policy_ir(
         raise ValueError("Missing schema_version for policy IR")
     current_version = data["schema_version"]
     target = target_version or IR_CURRENT_VERSION
+    if not str(current_version).startswith("2."):
+        raise ValueError("Legacy policy IR versions are not supported; expected 2.x PolicySurfaceIR.")
+    if not str(target).startswith("2."):
+        raise ValueError("Target policy IR version must be 2.x.")
     parse_version(current_version)
     parse_version(target)
 

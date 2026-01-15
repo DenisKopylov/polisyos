@@ -105,6 +105,38 @@ DEFAULT_MECHANISM_REGISTRY = MechanismTypeRegistry(
             default_merge={"agents.income": "sum", "government.balance": "sum"},
             description="Income tax applied to agent income",
         ),
+        "labor_market": MechanismTypeSpec(
+            mechanism_id="labor_market",
+            params={
+                "employment_threshold": ParamSpec(
+                    param_id="employment_threshold",
+                    required=False,
+                    value_type=ParamType.RATE,
+                    min_value=Decimal("0"),
+                    max_value=Decimal("1"),
+                )
+            },
+            reads_slots=[
+                "agents.skill_level",
+                "firms.wage_offer",
+                "agents.is_employed",
+                "agents.employer_id",
+                "agents.income",
+            ],
+            writes_slots=[
+                "agents.employer_id",
+                "agents.is_employed",
+                "agents.income",
+                "firms.labor_count",
+            ],
+            default_merge={
+                "agents.employer_id": "override",
+                "agents.is_employed": "override",
+                "agents.income": "sum",
+                "firms.labor_count": "override",
+            },
+            description="Labor market assignment and wage updates",
+        ),
         "queue": MechanismTypeSpec(
             mechanism_id="queue",
             params={

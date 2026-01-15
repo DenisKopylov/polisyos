@@ -3,7 +3,10 @@ import jax
 import jax.numpy as jnp
 
 from polisyos.foundry.domain.state import GlobalState
+from polisyos.foundry.executor import apply_patch_map
 from polisyos.foundry.fiscal import TaxSubsidy
+from polisyos.ir.kernel.merge_rules import DEFAULT_MERGE_RULE_REGISTRY
+from polisyos.ir.kernel.slots import DEFAULT_SLOT_REGISTRY
 
 
 def test_tax_subsidy_gradient_value() -> None:
@@ -14,7 +17,14 @@ def test_tax_subsidy_gradient_value() -> None:
     policy = TaxSubsidy(rate=0.10, n_agents=n_agents)
 
     def loss_fn(policy_model, current_state):
-        next_state, _ = policy_model(current_state, jax.random.PRNGKey(0))
+        patches, _ = policy_model.emit_patches(current_state, jax.random.PRNGKey(0))
+        next_state = apply_patch_map(
+            current_state,
+            patches,
+            slot_registry=DEFAULT_SLOT_REGISTRY,
+            merge_registry=DEFAULT_MERGE_RULE_REGISTRY,
+            default_node_id="subsidy",
+        )
         total_gdp = jnp.sum(next_state.agents.income)
         return -total_gdp
 
@@ -33,7 +43,14 @@ def test_tax_subsidy_gradient_sign_and_invariants() -> None:
     mech = TaxSubsidy(rate=0.1, n_agents=n_agents)
 
     def loss_fn(mechanism):
-        next_state, _ = mechanism(state, key)
+        patches, _ = mechanism.emit_patches(state, key)
+        next_state = apply_patch_map(
+            state,
+            patches,
+            slot_registry=DEFAULT_SLOT_REGISTRY,
+            merge_registry=DEFAULT_MERGE_RULE_REGISTRY,
+            default_node_id="subsidy",
+        )
         return -jnp.mean(next_state.agents.income)
 
     grad_fn = eqx.filter_grad(loss_fn)
@@ -42,5 +59,12 @@ def test_tax_subsidy_gradient_sign_and_invariants() -> None:
     assert grads.rate is not None
     assert float(grads.rate) < 0.0
 
-    next_state, _ = mech(state, key)
+    patches, _ = mech.emit_patches(state, key)
+    next_state = apply_patch_map(
+        state,
+        patches,
+        slot_registry=DEFAULT_SLOT_REGISTRY,
+        merge_registry=DEFAULT_MERGE_RULE_REGISTRY,
+        default_node_id="subsidy",
+    )
     assert mech.invariants(next_state)

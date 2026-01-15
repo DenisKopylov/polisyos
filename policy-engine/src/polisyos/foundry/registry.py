@@ -1,8 +1,9 @@
 import inspect
-from typing import Any, Dict, Type
+from typing import Any, Dict, Mapping, Type
 
 from polisyos.foundry.base import Mechanism
 from polisyos.foundry.fiscal import IncomeTax, TaxSubsidy
+from polisyos.foundry.labor import LaborMarketMechanism
 from polisyos.foundry.queue import QueueMechanism
 from polisyos.foundry.specs import (
     MECHANISM_SPECS,
@@ -11,11 +12,11 @@ from polisyos.foundry.specs import (
     validate_mechanism_params,
 )
 from polisyos.ir.kernel import MechanismTypeSpec
-from polisyos.ir.contract import Intervention
 
 MECHANISM_REGISTRY: Dict[str, Type[Mechanism]] = {
     "tax_subsidy": TaxSubsidy,
     "income_tax": IncomeTax,
+    "labor_market": LaborMarketMechanism,
     "queue": QueueMechanism,
 }
 
@@ -41,13 +42,14 @@ def _init_kwargs(mech_cls: Type[Mechanism], kwargs: dict[str, Any]) -> dict[str,
     return accepted
 
 
-def create_mechanism(intervention: Intervention, n_agents: int, n_firms: int = 0) -> Mechanism:
-    validate_mechanism_params(intervention.mechanism_type, intervention.parameters)
-    mech_cls = get_mechanism_class(intervention.mechanism_type)
+def create_mechanism(intervention: Any, n_agents: int, n_firms: int = 0) -> Mechanism:
+    mechanism_type, params = _extract_intervention_fields(intervention)
+    validate_mechanism_params(mechanism_type, params)
+    mech_cls = get_mechanism_class(mechanism_type)
     init_kwargs = {
         "n_agents": n_agents,
         "n_firms": n_firms,
-        **intervention.parameters,
+        **params,
     }
     return mech_cls(**_init_kwargs(mech_cls, init_kwargs))
 
@@ -96,6 +98,28 @@ def _coerce_params(value: Any) -> Any:
     if isinstance(value, dict):
         return {key: _coerce_params(val) for key, val in value.items()}
     return value
+
+
+def _extract_intervention_fields(intervention: Any) -> tuple[str, dict[str, Any]]:
+    if isinstance(intervention, Mapping):
+        mechanism_type = intervention.get("mechanism_type") or intervention.get("kind")
+        params = intervention.get("parameters") or intervention.get("params") or {}
+    else:
+        mechanism_type = getattr(intervention, "mechanism_type", None) or getattr(
+            intervention, "kind", None
+        )
+        params = (
+            getattr(intervention, "parameters", None)
+            or getattr(intervention, "params", None)
+            or {}
+        )
+    if not mechanism_type:
+        raise ValueError("Intervention missing mechanism_type/kind")
+    if params is None:
+        params = {}
+    if not isinstance(params, dict):
+        raise ValueError("Intervention params must be a dict")
+    return mechanism_type, params
 
 
 __all__ = [

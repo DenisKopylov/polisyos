@@ -1,54 +1,29 @@
 import pytest
 from pydantic import ValidationError
 
-from polisyos.ir.contract import PolicyRequestIR, TargetSelector
+from polisyos.ir.surface import PolicySurfaceIR
+from polisyos.ir.types import SelectorOperator
 from polisyos.ir.types import TranslatableString
 from polisyos.ir.validation import build_validation_report
 
 
 def minimal_ir_payload() -> dict:
     return {
-        "project_name": {"en": "Test", "ua": "Test"},
-        "schema_version": "1.0",
-        "generated_at": "2024-01-01T00:00:00",
-        "generator": {"name": "policy-engine", "version": "0.1.0"},
-        "currency": "USD",
-        "time_unit": "year",
-        "price_base_year": 2024,
-        "simulation_params": {"scope_years": 1, "time_frequency": "M"},
-        "scenarios": {
-            "random_seed": 7,
-            "shocks": [],
-            "timeline": {"start_year": 2024, "end_year": 2024},
+        "schema_version": "2.0",
+        "semantic": {
+            "context_snapshot_ref": "sha256:" + "0" * 64,
+            "interventions": [],
+            "objectives": [],
+            "constraints": [],
         },
-        "entities": [
-            {"id": "root", "entity_type": "agent", "name": {"en": "Root", "ua": "Root"}}
-        ],
-        "interventions": [
-            {
-                "id": "sub",
-                "name": {"en": "Sub", "ua": "Sub"},
-                "target_selector": {
-                    "all_of": [{"field": "id", "operator": "==", "value": "root"}]
-                },
-                "mechanism_type": "tax_subsidy",
-                "parameters": {"rate": 0.1},
-            }
-        ],
-        "objectives": [],
     }
 
 
 def test_required_fields_enforced() -> None:
     payload = minimal_ir_payload()
-    payload.pop("generated_at")
+    payload["semantic"].pop("context_snapshot_ref")
     with pytest.raises(ValidationError):
-        PolicyRequestIR.model_validate(payload)
-
-
-def test_selector_text_cannot_replace_ast() -> None:
-    with pytest.raises(ValidationError):
-        TargetSelector.model_validate({"selector_text": "sector == 'IT'"})
+        PolicySurfaceIR.model_validate(payload)
 
 
 def test_translatable_string_aliases_lowercase_dump() -> None:
@@ -62,40 +37,62 @@ def test_translatable_string_aliases_lowercase_dump() -> None:
 
 def test_validation_report_has_summary_and_diff() -> None:
     payload = minimal_ir_payload()
-    payload.pop("schema_version")
+    payload.pop("semantic")
     with pytest.raises(ValidationError) as excinfo:
-        PolicyRequestIR.model_validate(payload)
+        PolicySurfaceIR.model_validate(payload)
     report = build_validation_report(excinfo.value, before=payload, after=payload)
     assert report.error_summary
     assert report.diff_before_after is not None
     assert report.issues
 
 
-def test_target_selector_requires_conditions() -> None:
+def test_selector_requires_list_for_in() -> None:
     with pytest.raises(ValidationError):
-        TargetSelector.model_validate({})
+        PolicySurfaceIR.model_validate(
+            {
+                "schema_version": "2.0",
+                "semantic": {
+                    "context_snapshot_ref": "sha256:" + "0" * 64,
+                    "interventions": [
+                        {
+                            "intervention_id": "sub",
+                            "kind": "tax_subsidy",
+                            "target": {
+                                "kind": "predicate",
+                                "field": "id",
+                                "operator": SelectorOperator.IN,
+                                "value": "all",
+                            },
+                            "schedule": {"start_step": 0, "duration_steps": 1},
+                            "params": {"rate": "0.1"},
+                        }
+                    ],
+                },
+            }
+        )
 
 
-def test_entity_topology_rejects_cycle() -> None:
-    payload = minimal_ir_payload()
-    payload["entities"] = [
-        {"id": "a", "entity_type": "agent", "name": {"en": "A", "ua": "A"}, "parent_id": "b"},
-        {"id": "b", "entity_type": "agent", "name": {"en": "B", "ua": "B"}, "parent_id": "a"},
-    ]
+def test_schedule_requires_end_or_duration() -> None:
     with pytest.raises(ValidationError):
-        PolicyRequestIR.model_validate(payload)
-
-
-def test_entity_topology_requires_existing_parent() -> None:
-    payload = minimal_ir_payload()
-    payload["entities"] = [
-        {
-            "id": "child",
-            "entity_type": "agent",
-            "name": {"en": "Child", "ua": "Child"},
-            "parent_id": "missing",
-        }
-    ]
-    with pytest.raises(ValidationError):
-        PolicyRequestIR.model_validate(payload)
-
+        PolicySurfaceIR.model_validate(
+            {
+                "schema_version": "2.0",
+                "semantic": {
+                    "context_snapshot_ref": "sha256:" + "0" * 64,
+                    "interventions": [
+                        {
+                            "intervention_id": "sub",
+                            "kind": "tax_subsidy",
+                            "target": {
+                                "kind": "predicate",
+                                "field": "id",
+                                "operator": SelectorOperator.EQUALS,
+                                "value": "all",
+                            },
+                            "schedule": {"start_step": 0},
+                            "params": {"rate": "0.1"},
+                        }
+                    ],
+                },
+            }
+        )

@@ -18,6 +18,7 @@ from polisyos.core.contracts.fabric import (
 from polisyos.fabric.evidence import build_evidence_bundle, persist_evidence_bundle
 from polisyos.fabric.io.db import SimulationDB
 from polisyos.fabric.io.graph_store import GraphStore  # <--- Импорт
+from polisyos.fabric.materializer import ensure_materialized, load_fact_manifests
 from polisyos.fabric.registry import ManifestRegistry
 from polisyos.fabric.udf.compiler import ViewCompiler
 from polisyos.fabric.udf.config import UdfSchema, load_udf_schema
@@ -31,6 +32,7 @@ class UDFEngine:
         db: SimulationDB,
         graph: Optional[GraphStore] = None,
         curated_dir: Path | str = Path("data/curated"),
+        fact_dir: Path | str | None = None,
         schema: Optional[UdfSchema] = None,
         cas_root: Path | str = Path(".polisyos"),
     ):
@@ -38,6 +40,11 @@ class UDFEngine:
         # Если граф не передан, создаем дефолтный (для удобства)
         self.graph = graph if graph else GraphStore()
         curated_path = Path(curated_dir)
+        self.fact_dir = (
+            Path(fact_dir)
+            if fact_dir is not None
+            else self._resolve_fact_dir(curated_path)
+        )
         self.manifests = ManifestRegistry(curated_path)
         if schema is None:
             schema_path = curated_path / "udf_schema.json"
@@ -92,6 +99,7 @@ class UDFEngine:
     def _execute_relational(self, plan: DataViewPlan, *, as_arrow: bool = False):
         if not plan.sql:
             raise ValueError("Relational plan missing SQL")
+        self._ensure_materialized()
         logger.debug(f"SQL: {plan.sql} | Params: {plan.params}")
         try:
             if as_arrow:
@@ -100,6 +108,22 @@ class UDFEngine:
         except Exception as e:
             logger.error(f"Relational Query Failed: {e}")
             raise e
+
+    def _ensure_materialized(self) -> None:
+        manifests = load_fact_manifests(self.fact_dir)
+        ensure_materialized(self.db, manifests)
+
+    def _resolve_fact_dir(self, curated_dir: Path) -> Path:
+        candidates = [
+            curated_dir / "fact_log",
+            curated_dir / "facts",
+            curated_dir.parent / "facts",
+            curated_dir.parent / "fact_log",
+        ]
+        for candidate in candidates:
+            if candidate.exists():
+                return candidate
+        return curated_dir / "fact_log"
 
     def _execute_network(self, plan: DataViewPlan, *, as_arrow: bool = False):
         if not plan.cypher:

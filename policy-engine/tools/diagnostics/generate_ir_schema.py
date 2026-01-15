@@ -11,8 +11,8 @@ import json
 from loguru import logger
 from pydantic import ValidationError
 
-from polisyos.ir.contract import Intervention, PolicyRequestIR
-from polisyos.ir.types import TranslatableString
+from polisyos.ir.surface import PolicySurfaceIR
+from polisyos.ir.types import SelectorOperator
 from polisyos.ir.validation import build_validation_report
 
 # IMPORTS HACK
@@ -22,7 +22,7 @@ def main():
     logger.info("📜 Generating JSON Schema for LLM...")
 
     # 1. Генерация схемы
-    schema = PolicyRequestIR.model_json_schema()
+    schema = PolicySurfaceIR.model_json_schema()
     schema_str = json.dumps(schema, indent=2)
 
     # Сохраняем схему (ее потом можно вставить в промпт)
@@ -37,12 +37,24 @@ def main():
     try:
         # Пытаемся создать "сломанную" интервенцию
         # target_selector без условий - это должно упасть
-        bad_intervention = Intervention(
-            id="bad_tax_cut",
-            name=TranslatableString(en="Bad Cut", ua="Погана знижка"),
-            target_selector={"all_of": []},
-            mechanism_type="tax_subsidy",
-            parameters={"amount": 1000},
+        PolicySurfaceIR(
+            semantic={
+                "context_snapshot_ref": "sha256:" + "0" * 64,
+                "interventions": [
+                    {
+                        "intervention_id": "bad_tax_cut",
+                        "kind": "tax_subsidy",
+                        "target": {
+                            "kind": "predicate",
+                            "field": "id",
+                            "operator": SelectorOperator.IN,
+                            "value": "all",
+                        },
+                        "schedule": {"start_step": 0, "duration_steps": 1},
+                        "params": {"rate": "0.1"},
+                    }
+                ],
+            }
         )
     except ValidationError as e:
         logger.info("✅ Caught expected validation error:")
@@ -51,7 +63,7 @@ def main():
         print(f"\n{report.model_dump_json(indent=2)}\n")
 
         # Проверяем, что сообщение понятное
-        if "TargetSelector must define at least one of all_of/any_of/not" in str(e):
+        if "operator 'in' requires a non-empty list" in str(e):
             logger.info("✅ Error message is descriptive (LLM can fix this).")
         else:
             logger.error("❌ Error message is too vague!")
@@ -59,37 +71,26 @@ def main():
     # 3. Тест успешного создания
     logger.info("Testing valid IR creation...")
     try:
-        valid_ir = PolicyRequestIR(
-            project_name=TranslatableString(en="SME Support", ua="Підтримка МСБ"),
-            schema_version="1.0",
-            generated_at="2024-01-01T00:00:00",
-            generator={"name": "policy-engine", "version": "0.1.0"},
-            currency="USD",
-            time_unit="year",
-            price_base_year=2024,
-            simulation_params={"scope_years": 3, "time_frequency": "M"},
-            scenarios={"random_seed": 42, "shocks": [], "timeline": {"start_year": 2024, "end_year": 2026}},
-            entities=[
-                {
-                    "id": "kyiv_region",
-                    "entity_type": "infrastructure",
-                    "name": {"en": "Kyiv Region", "ua": "Київська область"},
-                }
-            ],
-            objectives=[],
-            interventions=[
-                {
-                    "id": "it_tax_break",
-                    "name": {"en": "IT Tax Break", "ua": "Податкові канікули IT"},
-                    "target_selector": {
-                        "all_of": [
-                            {"field": "sector", "operator": "==", "value": "IT"}
-                        ]
-                    },
-                    "mechanism_type": "tax_subsidy",
-                    "parameters": {"rate": 0.05},  # ВЕРНО
-                }
-            ],
+        valid_ir = PolicySurfaceIR(
+            semantic={
+                "context_snapshot_ref": "sha256:" + "0" * 64,
+                "interventions": [
+                    {
+                        "intervention_id": "it_tax_break",
+                        "kind": "tax_subsidy",
+                        "target": {
+                            "kind": "predicate",
+                            "field": "sector",
+                            "operator": "==",
+                            "value": "IT",
+                        },
+                        "schedule": {"start_step": 0, "duration_steps": 1},
+                        "params": {"rate": "0.05"},
+                    }
+                ],
+                "objectives": [],
+                "constraints": [],
+            }
         )
         logger.info("✅ Valid IR created successfully.")
     except ValidationError as e:

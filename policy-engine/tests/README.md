@@ -20,7 +20,7 @@
 tests/
 ├── conftest.py                    # Конфигурация pytest и настройка окружения
 ├── contract/                      # Тесты контрактов IR и схем валидации
-│   ├── test_ir_contract.py        # PolicyRequestIR, TargetSelector, валидация
+│   ├── test_ir_contract.py        # PolicySurfaceIR, селекторы, валидация
 │   ├── test_ir_migrations.py      # Миграции схем IR
 │   ├── test_fabric_gates.py       # Входные фильтры Fabric
 │   ├── test_kernel_models.py      # Валидация моделей ядра IR (slots, units, merge rules)
@@ -66,7 +66,7 @@ tests/
 **Цель**: Обеспечение корректности структур данных и API контрактов на всех уровнях IR.
 
 **Ключевые тесты:**
-- **IR Contract Validation**: Валидация `PolicyRequestIR`, селекторов, транслируемых строк
+- **IR Contract Validation**: Валидация `PolicySurfaceIR`, селекторов, транслируемых строк
 - **Schema Migrations**: Тестирование миграций схем между версиями
 - **Fabric Gates**: Проверка входных фильтров и предусловий
 - **Kernel Models**: Валидация моделей ядра (slots, units, merge rules, time semantics)
@@ -76,7 +76,6 @@ tests/
 - Roundtrip тестирование: `yaml → model → yaml` сохраняет канонический формат
 - Alias acceptance: Принимает `En/Ua/Ru`, сериализует в `en/ua/ru`
 - Limits enforcement: Огромные payload'ы не "валят пайплайн"
-- Entity DAG validation: Циклы в графах сущностей ловятся
 - Type safety: Строгая валидация типов, запрет float значений, Decimal enforcement
 - Linker validation: Проверка корректности связывания политик с механизмами
 - Semantic fingerprinting: Детерминированные хэши для политик независимо от порядка

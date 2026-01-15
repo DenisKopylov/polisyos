@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, replace
 from decimal import Decimal, InvalidOperation
-from typing import Any, Callable, Iterable, Sequence
+from typing import Any, Callable, Sequence
 
 import equinox as eqx
 import jax
@@ -251,17 +251,6 @@ def _set_state_path(obj: Any, path: str, value: Any) -> Any:
     return obj.replace(**{head: updated})
 
 
-def _apply_outputs(base_state: GlobalState, full_state: GlobalState, outputs: Iterable[str], slot_registry: SlotRegistry) -> GlobalState:
-    state = base_state
-    for slot_id in outputs:
-        slot_spec = slot_registry.slots.get(slot_id)
-        if slot_spec is None or not slot_spec.state_path:
-            continue
-        new_value = _get_state_path(full_state, slot_spec.state_path)
-        state = _set_state_path(state, slot_spec.state_path, new_value)
-    return state
-
-
 def _coerce_selector_scalar(value: Any) -> Any:
     if isinstance(value, Decimal):
         return float(value)
@@ -377,37 +366,6 @@ def _evaluate_selector(
     raise ValueError("Invalid selector expression")
 
 
-def _apply_mask(value: jnp.ndarray, mask: jnp.ndarray) -> jnp.ndarray:
-    if value.dtype == jnp.bool_:
-        return jnp.where(mask, value, False)
-    return jnp.where(mask, value, jnp.zeros_like(value))
-
-
-def _mask_state_inputs(
-    base_state: Any,
-    mask: jnp.ndarray,
-    mask_scope: SlotScope,
-    *,
-    mechanism_type: str,
-    mechanism_registry: MechanismTypeRegistry,
-    slot_registry: SlotRegistry,
-) -> Any:
-    mech = mechanism_registry.mechanisms.get(mechanism_type)
-    if mech is None or mask_scope not in {SlotScope.PER_AGENT, SlotScope.PER_FIRM}:
-        return base_state
-    state = base_state
-    for slot_id in mech.reads_slots:
-        slot_spec = slot_registry.slots.get(slot_id)
-        if slot_spec is None or not slot_spec.state_path:
-            continue
-        if slot_spec.scope != mask_scope:
-            continue
-        base_value = _get_state_path(state, slot_spec.state_path)
-        masked = _apply_mask(base_value, mask)
-        state = _set_state_path(state, slot_spec.state_path, masked)
-    return state
-
-
 def apply_trainable_values(bundle: StaticBundle, values: Sequence[Any]) -> StaticBundle:
     """Вернуть копию bundle с обновлёнными trainable полями механизмов."""
     if not bundle.trainables:
@@ -449,62 +407,25 @@ def apply_nodes(
         else:
             mask = None
             mask_scope = None
-
-        def _run(carry):
-            st, k = carry
-            k, sub = jax.random.split(k)
-            full_state, _ = node.mechanism(st, sub)
-            if mask is None:
-                return full_state, full_state, k
-            masked_inputs = _mask_state_inputs(
-                st,
-                mask,
-                mask_scope,
-                mechanism_type=node.mechanism_type,
-                mechanism_registry=bundle.mechanism_registry,
-                slot_registry=bundle.slot_registry,
-            )
-            masked_state, _ = node.mechanism(masked_inputs, sub)
-            return full_state, masked_state, k
-
-        def _skip(carry):
-            st, k = carry
-            return st, st, k
-
-        full_state, masked_state, cur_key = jax.lax.cond(
-            active,
-            _run,
-            _skip,
-            operand=(base_state, cur_key),
+        _, sub = jax.random.split(cur_key)
+        patch_map, next_key = node.mechanism.emit_patches(
+            base_state,
+            sub,
+            target_mask=mask
+            if mask_scope in {SlotScope.PER_AGENT, SlotScope.PER_FIRM}
+            else None,
         )
-
-        for slot_id in node.outputs:
-            slot_spec = bundle.slot_registry.slots.get(slot_id)
-            if slot_spec is None or not slot_spec.state_path:
-                raise ValueError(f"Slot '{slot_id}' missing state_path for execution")
-            base_value = _get_state_path(base_state, slot_spec.state_path)
-            full_value = _get_state_path(full_state, slot_spec.state_path)
-            if mask is None:
-                new_value = full_value
-            elif slot_spec.scope == SlotScope.GLOBAL:
-                new_value = _get_state_path(masked_state, slot_spec.state_path)
-            elif slot_spec.scope == mask_scope:
-                new_value = jnp.where(mask, full_value, base_value)
-            else:
-                raise ValueError(
-                    f"Selector scope '{mask_scope.value}' incompatible with slot "
-                    f"'{slot_id}' ({slot_spec.scope.value})"
-                )
-            delta = new_value - base_value
-            patch_records.setdefault(slot_id, []).append(
-                {
-                    "delta": delta,
-                    "new_value": new_value,
-                    "priority": node.priority,
-                    "rank": float(node.rank),
-                    "active": active,
-                }
-            )
+        if patch_map is None:
+            raise ValueError(f"Mechanism '{node.mechanism_type}' did not emit patches")
+        cur_key = jax.lax.select(active, next_key, cur_key)
+        for slot_id, patches in patch_map.items():
+            patch_list = patches if isinstance(patches, list) else [patches]
+            for patch in patch_list:
+                record = dict(patch)
+                record["priority"] = node.priority
+                record["rank"] = float(node.rank)
+                record["active"] = active
+                patch_records.setdefault(slot_id, []).append(record)
 
     state = base_state
     for slot_id, records in sorted(patch_records.items()):
@@ -518,7 +439,11 @@ def apply_nodes(
         if rule.kind == MergeRuleKind.SUM:
             total_delta = None
             for record in records:
-                delta = record["delta"]
+                delta = record.get("delta")
+                if delta is None and "new_value" in record and "base_value" in record:
+                    delta = record["new_value"] - record["base_value"]
+                if delta is None:
+                    raise ValueError(f"Missing delta for sum merge on slot '{slot_id}'")
                 masked_delta = jnp.where(record["active"], delta, jnp.zeros_like(delta))
                 total_delta = masked_delta if total_delta is None else total_delta + masked_delta
             new_value = base_value + (total_delta if total_delta is not None else 0.0)
@@ -526,9 +451,12 @@ def apply_nodes(
             best_rank = jnp.array(-1e9)
             new_value = base_value
             for record in records:
+                value = record.get("value", record.get("new_value"))
+                if value is None:
+                    raise ValueError(f"Missing value for override merge on slot '{slot_id}'")
                 rank = jnp.array(record["rank"])
                 better = record["active"] & (rank > best_rank)
-                new_value = jnp.where(better, record["new_value"], new_value)
+                new_value = jnp.where(better, value, new_value)
                 best_rank = jnp.where(better, rank, best_rank)
         elif rule.kind == MergeRuleKind.PRIORITY:
             if any(record["priority"] is None for record in records):
@@ -537,22 +465,36 @@ def apply_nodes(
             best_rank = jnp.array(1e9)
             new_value = base_value
             for record in records:
+                value = record.get("value", record.get("new_value"))
+                if value is None:
+                    raise ValueError(f"Missing value for priority merge on slot '{slot_id}'")
                 priority = jnp.array(float(record["priority"]))
                 rank = jnp.array(record["rank"])
                 higher = priority > best_priority
                 tie = (priority == best_priority) & (rank < best_rank)
                 better = record["active"] & (higher | tie)
-                new_value = jnp.where(better, record["new_value"], new_value)
+                new_value = jnp.where(better, value, new_value)
                 best_priority = jnp.where(better, priority, best_priority)
                 best_rank = jnp.where(better, rank, best_rank)
         elif rule.kind == MergeRuleKind.ERROR:
+            active_count = jnp.array(0, dtype=jnp.int32)
             best_rank = jnp.array(1e9)
             new_value = base_value
             for record in records:
+                value = record.get("value", record.get("new_value"))
+                if value is None:
+                    raise ValueError(f"Missing value for error merge on slot '{slot_id}'")
                 rank = jnp.array(record["rank"])
-                better = record["active"] & (rank < best_rank)
-                new_value = jnp.where(better, record["new_value"], new_value)
+                is_active = record["active"]
+                active_count = active_count + is_active.astype(jnp.int32)
+                better = is_active & (rank < best_rank)
+                new_value = jnp.where(better, value, new_value)
                 best_rank = jnp.where(better, rank, best_rank)
+            new_value = eqx.error_if(
+                new_value,
+                active_count > 1,
+                f"Merge conflict for slot '{slot_id}'",
+            )
         else:
             raise ValueError(f"Unsupported merge rule '{rule.kind}' for '{slot_id}'")
         state = _set_state_path(state, slot_spec.state_path, new_value)

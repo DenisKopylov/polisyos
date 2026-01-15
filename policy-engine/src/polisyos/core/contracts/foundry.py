@@ -7,11 +7,6 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 from ..artifacts.manifest import ArtifactRef
 
 
-class PolicyRequestIRRef(ArtifactRef):
-    kind: Literal["ir.policy_request"] = "ir.policy_request"
-    media_type: Literal["application/json"] = "application/json"
-
-
 class PolicySurfaceIRRef(ArtifactRef):
     kind: Literal["ir.policy_surface"] = "ir.policy_surface"
     media_type: Literal["application/json"] = "application/json"
@@ -184,7 +179,7 @@ class PatchOp(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     slot_id: str
-    op: str
+    op: Literal["add", "set"]
     value_ref: ArtifactRef | None = None
     mask_ref: ArtifactRef | None = None
     mask_scope: Literal["global", "per_agent", "per_firm", "per_entity"] | None = None

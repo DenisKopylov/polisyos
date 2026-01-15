@@ -56,7 +56,7 @@ tools/
 │       # - Совместимость версий и детерминированность
 ├── gen_schema.py               # Генератор JSON Schema из Pydantic моделей
 │   # - Генерация и валидация JSON Schema по Закону C
-│   # - Работа с PolicyRequestIR и всеми IR моделями
+│   # - Работа с PolicySurfaceIR и всеми IR моделями
 │   # - Детерминированная генерация для CI/CD
 ├── lint_foundry.py             # Архитектурный линтер foundry модуля
 │   # - Обеспечение чистоты математического ядра (Закон B)
@@ -175,7 +175,7 @@ python tools/lint_foundry.py --verbose
 Генерирует и валидирует JSON Schema согласно **Закону C** ("Контракты - единственный источник истины").
 
 **Работает с:**
-- `PolicyRequestIR` из `polisyos.ir.contract`
+- `PolicySurfaceIR` из `polisyos.ir.surface`
 - Все Pydantic модели в IR модуле
 - Автоматическая генерация из type hints
 
@@ -193,7 +193,7 @@ python tools/gen_schema.py --check --output policy_ir_schema.json 2>&1 | head -2
 ```
 
 **Что проверяется:**
-- Структурная валидность PolicyRequestIR
+- Структурная валидность PolicySurfaceIR
 - Совместимость версий Pydantic (v2 required)
 - Детерминированность генерации схемы
 - Совпадение с зафиксированным snapshot

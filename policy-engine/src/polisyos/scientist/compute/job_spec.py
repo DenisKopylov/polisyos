@@ -34,5 +34,7 @@ class JobResult(BaseModel):
     state_delta_ref: ArtifactRef | None = None
     metrics_ref: ArtifactRef | None = None
     state_snapshot_ref: ArtifactRef | None = None
+    simulation_results_ref: ArtifactRef | None = None
     final_state: Any | None = None
+    issues: list[dict[str, Any]] = Field(default_factory=list)
     warnings: list[str] = Field(default_factory=list)

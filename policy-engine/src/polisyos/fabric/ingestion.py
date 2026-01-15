@@ -170,6 +170,20 @@ def _append_segment_index(manifest: FactSegmentManifest, index_path: Path) -> No
         f.write(manifest.model_dump_json() + "\n")
 
 
+def _persist_fact_segment_manifest(
+    manifest: FactSegmentManifest, store: FileSystemCAS
+) -> ArtifactRef:
+    ref = store.put_json(
+        manifest.model_dump(),
+        opts=PutOptions(
+            kind="ir.fact_segment_manifest",
+            media_type="application/json",
+            schema=SchemaInfo(name="ir.fact_segment_manifest", version="1.0"),
+        ),
+    )
+    return ArtifactRef.model_validate(ref.model_dump())
+
+
 def _emit_fact_segments(
     df: pd.DataFrame,
     *,
@@ -180,6 +194,7 @@ def _emit_fact_segments(
     provenance: FactProvenance,
     valid_time_field: str | None = None,
     target_field: str | None = None,
+    cas_store: FileSystemCAS | None = None,
 ) -> ArtifactRef | None:
     if df.empty:
         return
@@ -194,16 +209,20 @@ def _emit_fact_segments(
     segment_dir = curated_dir / "fact_log"
     manifest = write_fact_segment(facts, segment_dir=segment_dir, segment_name=dataset_name)
     _append_segment_index(manifest, segment_dir / "_segments.jsonl")
+    if cas_store is not None:
+        return _persist_fact_segment_manifest(manifest, cas_store)
+    return None
 
 
 def ingest_macro(
     raw_path: Path,
     staging_dir: Path,
     curated_dir: Path,
-    db: SimulationDB,
+    db: SimulationDB | None,
     manifest_source: str,
     manifest_license: str,
     schema_version: str = "1.0",
+    cas_store: FileSystemCAS | None = None,
 ) -> Path:
     df_raw = pd.read_csv(raw_path)
     df_valid, rejects = _validate_rows(df_raw, MacroRow)
@@ -217,16 +236,6 @@ def ingest_macro(
     df_valid.to_parquet(curated_path, index=False)
 
     _write_rejects(rejects, staging_dir / "rejects" / "macro_rejects.jsonl")
-
-    # Load into DuckDB
-    if not df_valid.empty:
-        db.conn.execute(
-            """
-            INSERT INTO macro_history (run_id, step, gdp, unemployment_rate, inflation_rate, avg_price, avg_income, government_balance)
-            SELECT run_id, step, gdp, unemployment_rate, inflation_rate, avg_price, avg_income, government_balance
-            FROM df_valid
-        """
-        )
 
     manifest = DatasetManifest(
         dataset_name="macro",
@@ -256,6 +265,7 @@ def ingest_macro(
         subject_field="run_id",
         valid_time_field="step",
         provenance=provenance,
+        cas_store=cas_store,
     )
     return curated_path
 
@@ -264,11 +274,12 @@ def ingest_agents(
     raw_path: Path,
     staging_dir: Path,
     curated_dir: Path,
-    db: SimulationDB,
+    db: SimulationDB | None,
     graph: GraphStore,
     manifest_source: str,
     manifest_license: str,
     schema_version: str = "1.0",
+    cas_store: FileSystemCAS | None = None,
 ) -> Tuple[Path, Dict[str, str], Path]:
     df_raw = pd.read_csv(raw_path)
     df_valid, rejects = _validate_rows(df_raw, AgentRow)
@@ -286,29 +297,6 @@ def ingest_agents(
     resolution_df.to_parquet(resolution_path, index=False)
 
     _write_rejects(rejects, staging_dir / "rejects" / "agents_rejects.jsonl")
-
-    # Load into DuckDB (agents_snapshot)
-    if not df_valid.empty:
-        df_db = df_valid.copy()
-        df_db["run_id"] = "demo_run"
-        df_db["step"] = 0
-        df_db["agent_id"] = df_db["canonical_id"]
-        df_db = df_db[["run_id", "step", "agent_id", "age", "income", "savings", "is_employed"]]
-        db.conn.execute(
-            """
-            INSERT INTO agents_snapshot (run_id, step, agent_id, age, income, savings, is_employed)
-            SELECT run_id, step, agent_id, age, income, savings, is_employed
-            FROM df_db
-        """
-        )
-        if not resolution_df.empty:
-            db.conn.execute(
-                """
-                INSERT INTO entity_resolution (raw_id, canonical_id, match_confidence, match_method)
-                SELECT raw_id, canonical_id, match_confidence, match_method
-                FROM resolution_df
-            """
-            )
 
     # Load into Kùzu
     for _, row in df_valid.iterrows():
@@ -341,6 +329,7 @@ def ingest_agents(
         resolution_manifest.model_dump_json(indent=2), encoding="utf-8"
     )
     provenance = _build_provenance(manifest)
+    resolution_provenance = _build_provenance(resolution_manifest)
     _emit_fact_segments(
         df_valid,
         dataset_name="agents",
@@ -353,6 +342,20 @@ def ingest_agents(
         },
         subject_field="canonical_id",
         provenance=provenance,
+        cas_store=cas_store,
+    )
+    _emit_fact_segments(
+        resolution_df,
+        dataset_name="entity_resolution",
+        curated_dir=curated_dir,
+        predicate_map={
+            "entity_resolution.canonical_id": "canonical_id",
+            "entity_resolution.match_confidence": "match_confidence",
+            "entity_resolution.match_method": "match_method",
+        },
+        subject_field="raw_id",
+        provenance=resolution_provenance,
+        cas_store=cas_store,
     )
     return curated_path, entity_map, resolution_path
 
@@ -367,6 +370,7 @@ def ingest_interactions(
     manifest_license: str,
     schema_version: str = "1.0",
     reconciliation_tolerance: float = DEFAULT_RECONCILIATION_TOLERANCE,
+    cas_store: FileSystemCAS | None = None,
 ) -> Path:
     df_raw = pd.read_csv(raw_path)
     df_valid, rejects = _validate_rows(df_raw, InteractionRow)
@@ -445,6 +449,8 @@ def ingest_interactions(
             facts, segment_dir=segment_dir, segment_name="interactions"
         )
         _append_segment_index(manifest_segment, segment_dir / "_segments.jsonl")
+        if cas_store is not None:
+            _persist_fact_segment_manifest(manifest_segment, cas_store)
     return curated_path
 
 
@@ -461,25 +467,27 @@ def run_ingestion(
 ) -> EvidenceBundleRef | None:
     if clear_on_start and db_path.exists():
         db_path.unlink()
-    db = SimulationDB(str(db_path))
     graph = GraphStore(str(kuzu_path), clear_on_start=True)
+    cas_store = FileSystemCAS(Path(cas_root)) if cas_root is not None else None
 
     ingest_macro(
         raw_path=raw_dir / "macro.csv",
         staging_dir=staging_dir,
         curated_dir=curated_dir,
-        db=db,
+        db=None,
         manifest_source=source,
         manifest_license=license_name,
+        cas_store=cas_store,
     )
     _, entity_map, _ = ingest_agents(
         raw_path=raw_dir / "agents.csv",
         staging_dir=staging_dir,
         curated_dir=curated_dir,
-        db=db,
+        db=None,
         graph=graph,
         manifest_source=source,
         manifest_license=license_name,
+        cas_store=cas_store,
     )
     ingest_interactions(
         raw_path=raw_dir / "interactions.csv",
@@ -489,20 +497,18 @@ def run_ingestion(
         entity_map=entity_map,
         manifest_source=source,
         manifest_license=license_name,
+        cas_store=cas_store,
     )
 
-    db.close()
-
     # Пишем evidence bundle в CAS для набора манифестов
-    if cas_root is not None:
-        store = FileSystemCAS(Path(cas_root))
+    if cas_store is not None:
         manifest_refs: list[ArtifactRef] = []
 
         def _put_manifest(name: str) -> None:
             path = curated_dir / f"{name}_manifest.json"
             if not path.exists():
                 return
-            ref = store.put_bytes(
+            ref = cas_store.put_bytes(
                 path.read_bytes(),
                 opts=PutOptions(
                     kind="fabric.dataset_manifest",
@@ -519,5 +525,5 @@ def run_ingestion(
             sources=manifest_refs,
             notes=["ingestion evidence"],
         )
-        return persist_evidence_bundle(store, evidence_bundle)
+        return persist_evidence_bundle(cas_store, evidence_bundle)
     return None

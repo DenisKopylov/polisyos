@@ -1,267 +1,183 @@
-# Architecture (as-is) for `polisyos/policy-engine`
+# Architecture for `polisyos/policy-engine` — As‑Is (2026‑01) and To‑Be v2.0
 
-Этот документ — **снимок текущей архитектуры репозитория** `/Users/deniskopylov/polisyos` (по коду и тестам), с акцентом на:
+Этот документ фиксирует два состояния:
 
-- слои/пакеты и их зависимости,
-- основные рантайм‑потоки (experiment loop, LangGraph workflow, ingestion/UDF),
-- форматы данных (IR, manifests, run artifacts) и места хранения,
-- то, что “задумано в README”, но фактически реализовано иначе.
+1) **As‑Is** — “как реально устроено сейчас” (по коду и тестам в репозитории).
+2) **To‑Be v2.0** — целевая архитектура, которую мы хотим получить (в терминах слоёв, контрактов и потоков).
 
-> Репозиторий состоит из одного Python‑проекта `policy-engine/`. В корне репозитория лежит только этот документ `architecture.md` и папка `policy-engine/`.
+Документ написан так, чтобы по нему можно было:
 
----
+- быстро понять “что здесь правда, а что только в README”,
+- увидеть текущие разрывы (legacy, дублирования, несовпадение семантик),
+- двигаться по слоям в правильном порядке и иметь критерии Done‑of‑Layer.
 
-## 0) Словарь терминов
-
-- **IR**: канонические Pydantic‑контракты (PolicyRequestIR, DataViewRequest и пр.), “общий язык” между модулями.
-- **Foundry**: JAX‑ядро симуляции + набор механизмов политики (налоги/субсидии/очереди).
-- **Fabric**: Unified Data Fabric — ingestion, манифесты качества, адаптеры DuckDB/Kùzu, безопасные запросы через UDF.
-- **UDF**: слой безопасной компиляции DataViewRequest → SQL/Cypher → выполнение.
-- **Scientist**: оркестрация “NL → IR → sim → verdict” (LangGraph), агенты/промпты/самоисправление.
-- **Runtime**: инфраструктура жизненного цикла прогона (run_id, артефакты, audit trail, бюджеты).
+Репозиторий: один Python‑проект `policy-engine/`, корень содержит `architecture.md` и директорию `policy-engine/`.
 
 ---
 
-## 0.1) Архитектурные “законы” (как это задумано и частично соблюдается)
+## 0) Общая карта слоёв (порядок работы)
 
-Эти принципы активно используются в документации модулей (`polisyos/*/README.md`) и отражены в tooling (например, в `policy-engine/tools/lint_imports.py`).
+**Почему именно так:** верхние слои компилируются/исполняются только при стабильных контрактах (Core/IR) и стабильной эпистемологии (Fabric). Foundry — “физика” на базе этих контрактов и данных. Scientist — управляющая автоматика поверх устойчивой физики и данных.
 
-### Закон A. Граф зависимостей только внутрь
+**Порядок работ (нормативный):**
 
-Целевая зависимость по слоям (пакетам):
+1) **Core & IR (Конституция)**: типы и протоколы. Если меняются — ломается всё.
+2) **Fabric (Эпистемология/Факты)**: факты, provenance, доступ к данным только через UDF.
+3) **Foundry (Физика мира)**: PatchVM/ProgramGraph, вычислительная модель изменений состояния.
+4) **Scientist (Мозг/Воля)**: workflow и self‑healing, которые “включаются”, когда слои ниже стабильны.
 
-- `scientist` → {`ir`, `fabric`, `foundry`, `runtime`, `common`}
-- `fabric` → {`ir`, `common`}
-- `foundry` → {`ir`, `common`}
-- `runtime` → никого из `scientist/fabric/foundry` (инфраструктура)
-- `ir` → никого
+Инфраструктура прогона сейчас разделена между:
 
-Определение “зависимости”: **runtime‑import**. Импорты в блоках `if TYPE_CHECKING:` считаются “подозрительными”, потому что закрепляют неправильные границы и часто превращаются в runtime‑зависимости по мере роста кода.
+- `polisyos.core` (CAS, contracts, registry bundle, RunContext),
+- `polisyos.runtime` (runs/<run_id>/ manifest + audit + filesystem artifacts).
 
-### Закон B. Система — это компилятор
-
-Целевая труба:
-
-`NL` → `LLM` → `IR (AST)` → `Compilation` → `Runtime (UDF + Foundry)` → `Artifacts / DecisionPacket`
-
-Текущее состояние:
-
-- Реального LLM‑провайдера в рантайме нет — используется `MockLLM` и/или `MockAgent`.
-- “Compilation” присутствует как `compile_policy()` (IR → последовательность механизмов).
-- “Runtime” реализован как файловые артефакты + audit + бюджеты в `polisyos.runtime`.
-
-### Закон C. Контракты — единственный источник истины
-
-Если поле/сущность не описаны в **канонической Pydantic‑схеме** артефакта — считается, что их “не существует”.
-
-Следствия в текущем коде:
-
-- `PolicyRequestIR`, `DatasetManifest`, `RunManifest`, `DecisionPacket` имеют `schema_version`.
-- Есть миграции `0.9 → 1.0` (сейчас — в двух местах; см. раздел 7).
-- Есть экспорт JSON Schema для IR (`policy-engine/tools/diagnostics/generate_ir_schema.py`).
-
-### Закон D. Любой прогон — воспроизводим и аудируем
-
-В текущей реализации это выражается через:
-
-- `run_id` и `manifest.json` (runtime),
-- `audit.jsonl` (runtime) + `audit_trail` в state,
-- `RunRecord` (seed, backend, версии библиотек и переменные окружения).
+В To‑Be v2.0 это будет сведено к единому протоколу исполнения.
 
 ---
 
-## 1) Структура репозитория (физическая)
+## 1) Словарь терминов (кратко)
 
-Ключевые элементы:
-
-- `policy-engine/src/polisyos/…` — основной Python‑код (namespace package `polisyos`).
-- `policy-engine/tests/…` — pytest тесты (contract/foundry/scientist/integration).
-- `policy-engine/tools/…` — диагностические и демо‑скрипты (ingestion/UDF/schema/import-gates/benchmarks).
-- `policy-engine/run_experiment.py` — “ручной” цикл эксперимента (UDF → MockAgent → compile_policy → Foundry kernel → DuckDB).
-- `policy-engine/dashboard.py` — Streamlit дашборд по `simulation.duckdb`.
-- `policy-engine/jax_bootstrap.py` — безопасный bootstrap JAX (особенно для macOS/Metal).
-- `policy-engine/migrate.py` и `policy-engine/tools/migrate.py` — миграция JSON/YAML артефактов по `schema_version`.
-- `policy-engine/data/` — локальные данные (raw/staging/curated) и схемы UDF.
-- `policy-engine/logs/` — лог‑файлы и legacy‑артефакты (`system.log`, `logs/run_records`, `logs/decision_packets`).
-- `policy-engine/runs/` — артефакты `polisyos.runtime` (создаются при запуске workflow; путь настраивается).
-
-### 1.1. Важная особенность запуска: `sys.path`-bootstrap
-
-Многие скрипты (включая `run_experiment.py`, `dashboard.py`, `tools/*`) добавляют `policy-engine/src` в `sys.path` вручную, чтобы импорты `from polisyos...` работали без установки пакета.
+- **IR v2.0 / PolicySurfaceIR**: основной контракт политики (semantic + advisory) — `policy-engine/src/polisyos/ir/surface.py`.
+- **IR v1.x / PolicyRequestIR**: legacy‑контракт — `policy-engine/src/polisyos/ir/contract.py`.
+- **ProgramGraph / ExecPlan**: компилированная программа Foundry — `policy-engine/src/polisyos/core/contracts/foundry.py`.
+- **PatchVM**: “патч‑ориентированная” модель изменений (delta/set + merge rules) — `policy-engine/src/polisyos/foundry/patch_vm.py`.
+- **CAS (FileSystemCAS)**: content‑addressed store (sha256) — `policy-engine/src/polisyos/core/artifacts/store.py`.
+- **Runtime runs/**: файловый лог прогона (manifest + artifacts + audit) — `policy-engine/src/polisyos/runtime/*`.
+- **UDF**: безопасная компиляция `DataViewRequest → SQL/Cypher` — `policy-engine/src/polisyos/fabric/udf/*`.
 
 ---
 
-## 2) Слои (пакеты) и границы ответственности (логическая архитектура)
+## 2) As‑Is: логическая архитектура по слоям (по фактическому коду)
 
-Система организована в набор пакетов внутри `polisyos`:
+### 2.1) Core (инфраструктура и “протоколы”)
 
-```
-polisyos/
-  ir/        # Контракты и валидация (Pydantic)
-  foundry/   # JAX симуляция и механизмы
-  fabric/    # Ingestion + DB adapters + UDF query layer
-  scientist/ # LangGraph workflow + агенты (MockLLM/MockAgent)
-  runtime/   # Run lifecycle: artifacts/audit/budgets
-  common/    # env/config/logging/migrations utilities
-```
+**Что есть:**
 
-### 2.1. `polisyos.ir` (контракты)
+- `polisyos.core.artifacts`:
+  - `ArtifactID` (sha256),
+  - `ArtifactManifest`/`ArtifactRef`,
+  - `FileSystemCAS` и `PutOptions` (atomic writes, verify) — `policy-engine/src/polisyos/core/artifacts/store.py`.
+- `polisyos.core.contracts.*`:
+  - **Foundry contracts**: `ProgramGraph`, `ExecPlan`, `PatchOp`, `StateDelta`, `Metrics` — `policy-engine/src/polisyos/core/contracts/foundry.py`.
+  - **Fabric contracts**: `FabricResult`, refs и т.п.
+- `polisyos.core.registry`: сборка и загрузка bundle реестров (mechanisms/slots/merge/constraints/metrics/selector_fields/units).
+- `polisyos.core.run`: `RunContext` и `RunManifest` (не путать с `polisyos.runtime`).
 
-**Роль:** “единственный источник истины” по структурам данных.
+**Что важно:**
 
-Ключевые модели:
+- `FileSystemCAS` активно используется Foundry/Scientist (compile/execute).
+- Внешняя “операционная” папка `runs/` с audit/manifest живёт в отдельном модуле `polisyos.runtime`.
 
-- `polisyos.ir.contract.PolicyRequestIR` — корневой документ политики:
-  - anti‑runaway лимиты (число сущностей/интервенций/целей/шоков, глубина графа),
-  - валидация топологии сущностей (parent_id, циклы, глубина, fan-out),
-  - `TargetSelector` как безопасный AST вместо “строковых фильтров”.
-- `polisyos.ir.data_views.DataViewRequest` — унифицированный запрос данных (panel/snapshot/network) + PII tier.
-- `polisyos.ir.validation` — `ValidationIssue/ValidationReport`, генерация diff’ов для self‑healing.
-- `polisyos.ir.migrations` — миграции Policy IR (0.9→1.0).
+### 2.2) IR (контракты и линковка)
 
-**Зависимости:** только стандартная библиотека + pydantic (и typing). Внутренних зависимостей на остальные слои нет.
+**As‑Is факт: IR двуголовый (v2.0 + legacy v1.x).**
 
-### 2.2. `polisyos.foundry` (симуляция)
+1) **PolicySurfaceIR (v2.0)** — основной контракт:
+   - `policy-engine/src/polisyos/ir/surface.py` (`schema_version = "2.0"`).
+   - Используется в новом workflow (`flow_nodes.py`) и в новом Foundry compiler (`compile_surface_policy`).
 
-**Роль:** JAX‑ядро и экономические механизмы, не знает про БД/LLM.
+2) **PolicyRequestIR (legacy)** — сохраняется:
+   - `policy-engine/src/polisyos/ir/contract.py` (используется `tools/gen_schema.py`, legacy compiler, ручные/старые сценарии).
 
-Основные части:
+**Поддерживающая инфраструктура v2.0:**
 
-- `polisyos.foundry.domain.state` — JAX PyTree состояние мира:
-  - `AgentState`, `FirmState`, `MarketState`, `GlobalState`.
-- `polisyos.foundry.engine.kernel.SimulationKernel` — один “экономический тик” (production → labor → goods → consumption → macro aggregation), JIT‑компилируется при создании.
-- `polisyos.foundry.base.Mechanism` — протокол механизмов политики (`step(state, key)`), поддерживает `debug_mode` (`jax.disable_jit`).
-- `polisyos.foundry.fiscal` — механизмы `IncomeTax`, `TaxSubsidy` (параметры как `jnp.array` → дифференцируемость).
-- `polisyos.foundry.queue` — QueueMechanism (используется в registry).
-- `polisyos.foundry.specs` — `MECHANISM_SPECS` + `validate_mechanism_params` + `mechanism_catalog()` для промптов и safety‑валидации.
-- `polisyos.foundry.registry` — `MECHANISM_REGISTRY` и фабрика `create_mechanism(Intervention, n_agents, n_firms)`.
-- `polisyos.foundry.loss` и `polisyos.foundry.utils` — loss/градиент‑health (используется оптимизатором).
+- kernel‑реестры:
+  - механизмы: `policy-engine/src/polisyos/ir/kernel/mechanisms.py`,
+  - слоты: `policy-engine/src/polisyos/ir/kernel/slots.py`,
+  - merge rules: `policy-engine/src/polisyos/ir/kernel/merge_rules.py`,
+  - selector fields: `policy-engine/src/polisyos/ir/kernel/selector_fields.py`,
+  - constraints/metrics/units: `policy-engine/src/polisyos/ir/kernel/*`.
+- линковка/валидация v2.0:
+  - `link_policy(...)` + проверки конфликтов расписаний/merge rule — `policy-engine/src/polisyos/ir/linker.py`.
+- факт‑контракты:
+  - `Fact`, `FactSegmentManifest` и др. — `policy-engine/src/polisyos/ir/fact_log.py`.
 
-**Зависимости:** JAX/equinox/chex/jaxtyping + `polisyos.ir` (типы Intervention, units) и немного `polisyos.common` (logger).
+**Техническая деталь, которая влияет на To‑Be:**
 
-### 2.3. `polisyos.fabric` (данные + UDF)
+- `policy-engine/tools/gen_schema.py` генерирует JSON Schema **для legacy** `PolicyRequestIR`, а не для `PolicySurfaceIR`.
 
-**Роль:** ingestion и безопасный слой чтения данных (UDF) поверх DuckDB (табличные данные) и Kùzu (граф).
+### 2.3) Fabric (данные, UDF, evidence)
 
-Состав:
+**Ingestion (`policy-engine/src/polisyos/fabric/ingestion.py`) делает сразу три вещи:**
 
-- `polisyos.fabric.ingestion` — ETL:
-  - raw CSV → Pydantic‑валидация строк → staging/curated Parquet,
-  - формирование `DatasetManifest` (качество, PII flags, reconciliation),
-  - загрузка в DuckDB (`macro_history`, `agents_snapshot`, `entity_resolution`) и Kùzu (Agent/Interaction).
-- `polisyos.fabric.manifest` — контракт `DatasetManifest` и метрик качества.
-- `polisyos.fabric.registry.ManifestRegistry` — обязательность наличия манифестов для UDF (и проверки reconciliation).
-- `polisyos.fabric.io.db.SimulationDB` — адаптер DuckDB + создание таблиц.
-- `polisyos.fabric.io.graph_store.GraphStore` — адаптер Kùzu + инициализация схемы графа.
-- `polisyos.fabric.udf.*` — UDF:
-  - `UDFEngine` компилирует и исполняет `DataViewRequest`,
-  - `ViewCompiler` — whitelist/PII gate + компиляция в SQL/Cypher,
-  - `UdfSchema` загружается из `data/curated/udf_schema.json` (или дефолтные списки).
+1) валидирует raw CSV → пишет staging/curated Parquet;
+2) грузит curated данные в DuckDB (`macro_history`, `agents_snapshot`, `entity_resolution`) и Kùzu (agents/interactions);
+3) параллельно пишет immutable факт‑сегменты (Parquet) в `curated_dir/fact_log/` и индекс `_segments.jsonl`.
 
-**Важно про “gates”:**
+**FactLog (как “append‑only источник истины”) существует, но не является источником для UDF:**
 
-- UDF требует наличия `*_manifest.json` в `data/curated/` (или заданной curated_dir).
-- Доступ к колонкам зависит от `AccessTier` (PUBLIC/INTERNAL/SENSITIVE) через `field_classification`.
-- Текущий `UDFEngine` при отсутствии явного `graph` **всегда** создаёт `GraphStore()` (т.е. открывает/инициализирует Kùzu), даже если выполняются только табличные запросы.
+- сегменты фактов пишутся (через `polisyos.fabric.fact_writer.write_fact_segment`);
+- `polisyos.fabric.materializer.materialize_duckdb_from_fact_log(...)` — заглушка, не делает pivot/insert.
 
-### 2.4. `polisyos.runtime` (артефакты/аудит)
+**UDF (`policy-engine/src/polisyos/fabric/udf/*`):**
 
-**Роль:** единый формат хранения артефактов прогона и audit trail.
+- Whitelist/PII gate включены:
+  - проверка разрешённых колонок + access tier — `policy-engine/src/polisyos/fabric/udf/compiler.py`;
+  - покрыто контрактными тестами `policy-engine/tests/contract/test_fabric_gates.py`.
+- Выполнение запросов:
+  - читает **DuckDB напрямую** (`SimulationDB.conn.execute(...)`), без materialization из FactLog — `policy-engine/src/polisyos/fabric/udf/engine.py`;
+  - сохраняет request/plan/result в CAS (result как parquet‑байты в CAS) и возвращает `FabricResult` с evidence.
 
-- `start_run()` создаёт `runs/<run_id>/manifest.json`.
-- `log_artifact()` пишет payload в `runs/<run_id>/artifacts/<artifact_type>/...` и добавляет `ArtifactRef` в manifest.
-- `append_audit()` пишет JSONL в `runs/<run_id>/audit.jsonl`.
-- `update_budget_usage()` и `finalize_run()` обновляют manifest.
+**Критическая As‑Is особенность:**
 
-Важный нюанс текущей реализации: `ArtifactRef.path` хранит строковый путь файла (сейчас это **полный** путь, а не “относительно runs/”).
+- UDFEngine, если `graph=None`, всё равно создаёт `GraphStore()` по умолчанию (даже для чисто табличных запросов).
 
-### 2.5. `polisyos.scientist` (оркестрация и агенты)
+### 2.4) Foundry (PatchVM, ProgramGraph, legacy kernel)
 
-**Роль:** управляет пайплайном от `user_request` до `DecisionPacket`, включая бюджеты и self‑healing.
+**Foundry сейчас — это “две эпохи” + отдельный JAX‑executor для calibration:**
 
-Текущая реализация содержит **две линии**:
+1) **Legacy экономика**:
+   - `_legacy/engine/kernel.py` + `_legacy/engine/logic.py`.
+   - `polisyos.foundry.engine.*` — deprecated реэкспорт из `_legacy`.
+   - Используется “ручными” скриптами/демо, но не ядром нового workflow.
 
-1) “Новая” линия (используется workflow):
+2) **ProgramGraph + PatchVM путь**:
+   - compiler → `ProgramGraph`/`ExecPlan`:
+     - `policy-engine/src/polisyos/foundry/compiler.py` (surface IR → ProgramGraph).
+   - executor (CAS‑ориентированный):
+     - `execute_program_graph(...)`, `apply_state_delta(...)` — `policy-engine/src/polisyos/foundry/executor.py`.
+   - PatchVM:
+     - merge patch records по правилам merge rules — `policy-engine/src/polisyos/foundry/patch_vm.py`.
 
-- `polisyos.scientist.orchestrator.workflow.build_workflow()` — LangGraph StateGraph.
-- `polisyos.scientist.orchestrator.flow_nodes` — реализация узлов (budgeting, runtime artifacts, MockLLM, UDF plans, run_sim, governor).
+**PatchVM/patch ops As‑Is ограничения (важно для v2.0):**
 
-2) “Legacy” линия (лежит рядом, но workflow её не использует):
+- на уровне применения state delta поддерживаются только `op in {"add", "set"}` и только один “тип множественности”:
+  - несколько ops на слот допускаются только если все `add`; иначе исключение (`Multiple patch ops for a slot are not supported`) — `policy-engine/src/polisyos/foundry/executor.py`.
+- `PatchOp` определён в `core.contracts.foundry`, но `UpdateOp` (с priority/clamp/masked) сейчас не интегрирован в executor.
 
-- `polisyos.scientist.agent.drafter.drafter_node`
-- `polisyos.scientist.orchestrator.nodes` (simulator_node/governor_node) + оптимизация `optimizer.py`
+**Merge rules As‑Is:**
 
-Обе линии концептуально похожи, но отличаются контрактами артефактов и точками сохранения (runtime vs `logs/`).
+- IR/kernel: `sum / override / priority / error` — `policy-engine/src/polisyos/ir/kernel/merge_rules.py`.
+- В PatchVM:
+  - `sum` → `add`,
+  - `override/priority/error` → `set` (c выбором “победителя”).
+- В pure_executor (см. ниже) семантика `override/error` отличается от PatchVM (использует rank и не бросает ошибку для `ERROR`).
 
----
+3) **Pure Executor (только для calibration/runtime‑JAX)**
+   - `policy-engine/src/polisyos/foundry/calibration/pure_executor.py`.
+   - работает в `jax.lax.scan`, не ходит в CAS в цикле;
+   - но unroll’ит узлы python‑циклом (компиляция растёт с числом узлов);
+   - и реализует merge rules иначе, чем PatchVM executor (это архитектурный риск).
 
-## 3) Граф зависимостей (как в коде)
+### 2.5) Scientist (workflow, self‑healing, legacy)
 
-### 3.1. Декларируемая цель слоёв
+**Новая линия (используется integration‑тестами):**
 
-Практически применяемое правило:
+- entrypoint:
+  - `polisyos.scientist.run_experiment()` → `build_workflow().invoke(...)` — `policy-engine/src/polisyos/scientist/__init__.py`.
+- workflow:
+  - `policy-engine/src/polisyos/scientist/orchestrator/workflow.py`.
+- узлы:
+  - `policy-engine/src/polisyos/scientist/orchestrator/flow_nodes.py`.
 
-- `polisyos.scientist` → может импортировать `ir/fabric/foundry/runtime/common`
-- `polisyos.fabric` → импортирует `ir/common` (и свои под‑пакеты), не должен импортировать `scientist`
-- `polisyos.foundry` → импортирует `ir/common`, не должен импортировать `fabric/scientist`
-- `polisyos.ir` → не импортирует ничего из `polisyos.*` кроме себя
-- `polisyos.runtime` → инфраструктура, не импортирует `scientist/fabric/foundry`
-
-### 3.2. Реальная проверка границ (импорт‑гейты)
-
-В репозитории есть статический линтер импортов: `policy-engine/tools/lint_imports.py`.
-
-Его текущий вывод для `policy-engine/src/polisyos`:
-
-- Forbidden edges (runtime): **нет**
-- Forbidden edges (TYPE_CHECKING): **есть**
-  - `polisyos/fabric/io/db.py` импортирует `polisyos.scientist.orchestrator.run_record.RunRecord` под `TYPE_CHECKING`
-- Cycles (runtime imports, package-level): **есть**
-  - `polisyos.scientist.agent` ↔ `polisyos.scientist.orchestrator`
-
-Это означает: “слоёвый граф” в рантайме пока удержан, но внутри `scientist` есть пакетный цикл, а в `fabric` — type‑leak в сторону `scientist`.
-
----
-
-## 4) Основные рантайм‑потоки (как это сейчас работает)
-
-### 4.1. Поток A: `run_experiment.py` (ручной цикл “агент в петле”)
-
-Файл: `policy-engine/run_experiment.py`
-
-Схема потока:
-
-```mermaid
-flowchart LR
-  A[GlobalState init] --> B[UDF query: macro panel]
-  B --> C[MockAgent.decide -> PolicyRequestIR]
-  C --> D[compile_policy -> CompositePolicy]
-  D --> E[apply policy mechanisms]
-  E --> F[SimulationKernel.step]
-  F --> G[DuckDB: save macro_history]
-  G --> B
-```
-
-Ключевые детали:
-
-- **Источник данных для агента** — `UDFEngine.query(DataViewRequest)` читает `macro_history` по `run_id`.
-- **Принятие решения** — `polisyos.scientist.agent.base.MockAgent` строит `PolicyRequestIR` по эвристике (без LLM).
-- **Компиляция** — `polisyos.scientist.orchestrator.compiler.compile_policy()` создаёт `CompositePolicy`, который последовательно вызывает JAX‑механизмы из Foundry.
-- **Экономический тик** — `polisyos.foundry.engine.kernel.SimulationKernel` выполняет внутреннюю “экономику” независимо от политики.
-- **Persist** — `SimulationDB.save_macro()` пишет KPI в DuckDB. (agent snapshots в этом скрипте не пишутся.)
-- **Визуализация** — `policy-engine/dashboard.py` читает `simulation.duckdb` и показывает trajectory (GDP, unemployment, avg_income, budget).
-
-### 4.2. Поток B: LangGraph workflow (Scientist “NL → verdict”)
-
-Файл графа: `policy-engine/src/polisyos/scientist/orchestrator/workflow.py`
-Узлы: `policy-engine/src/polisyos/scientist/orchestrator/flow_nodes.py`
+**As‑Is поток workflow (фактически):**
 
 ```mermaid
 graph TD
   A[draft_ir] --> B[validate_ir]
   B --> C{route}
   C -->|NEEDS_REVISION| D[repair_ir]
-  C -->|APPROVE| E[compile_data_views]
+  C -->|OK| E[compile_data_views]
   C -->|REJECT| J[pack_decision]
   D --> B
   E --> F[compile_model]
@@ -272,475 +188,270 @@ graph TD
   J --> K[END]
 ```
 
-Что делает каждый шаг (по фактическому коду):
+**Что реально делает simulation path:**
 
-- `draft_ir` / `repair_ir`:
-  - гарантирует наличие `run_id` через `polisyos.runtime.start_run`,
-  - считает бюджет (`max_llm_calls`, `max_sim_runs`, `max_wall_time_s`),
-  - логирует `prompt` и `llm_response` как runtime artifacts,
-  - **использует `MockLLM`** (без провайдеров) и парсит JSON в `PolicyRequestIR`.
-- `validate_ir`:
-  - повторно валидирует `PolicyRequestIR` через Pydantic,
-  - выполняет safety‑проверки: наличие interventions и известность `mechanism_type` (по `MECHANISM_REGISTRY`).
-- `compile_data_views`:
-  - если в state есть `data_view_requests`, компилирует их в планы через `UDFEngine.compile()` и пишет `data_view_plans` artifact,
-  - если запросов нет — шаг пропускается.
-- `compile_model`:
-  - вызывает `compile_policy(ir, n_agents=0, n_firms=0)` и записывает “compiled_spec”,
-  - **важно:** этот результат сейчас не участвует в `run_sim` (узел фактически “компиляция ради артефакта”).
+- `compile_model_node` компилирует `PolicySurfaceIR → ProgramGraph/ExecPlan` и логирует refs в runtime.
+- `run_sim_node` формирует `JobSpec` и вызывает compute‑runner:
+  - `run_job(...)` → `execute_program_graph(...)` → `apply_state_delta_and_snapshot(...)` — `policy-engine/src/polisyos/scientist/compute/runner.py`.
+
+**As‑Is self‑healing ограничен маршрутизацией:**
+
+- `repair_ir` вызывается только после `validate_ir` при `NEEDS_REVISION`.
+- ошибки/NEEDS_REVISION, возникшие в `compile_model` или `run_sim`, **не возвращают** граф в `repair_ir` (узлы дальше “skipped” из‑за `_blocked_by_feedback`).
+
+**Legacy Scientist (соседствует, но не используется workflow):**
+
+- `_legacy/nodes.py`, `_legacy/compiler.py` (PolicyRequestIR → CompositePolicy),
+- `agent/drafter.py` (старый подход к repair‑логам в state),
+- deprecated stubs в `orchestrator/nodes.py`, `orchestrator/compiler.py`.
+
+**Отдельно: “ручный запуск” остаётся legacy и внутренне несовместим:**
+
+- `policy-engine/run_experiment.py` делает ручной цикл с `MockAgent` и `compile_policy` (legacy) + `SimulationKernel.step`.
+- при этом `MockAgent.decide` возвращает `PolicySurfaceIR`, а legacy `compile_policy` ожидает `PolicyRequestIR` — это “стык эпох”, который надо закрыть в To‑Be.
+
+### 2.6) Runtime (runs/<run_id>, audit, filesystem artifacts)
+
+`polisyos.runtime` — отдельный инфраструктурный слой поверх файловой системы (не CAS):
+
+- `start_run`, `log_artifact`, `append_audit`, budgets — `policy-engine/src/polisyos/runtime/api.py`.
+- `ArtifactRef.relative_path` используется как основной переносимый указатель (в `api.py` path и relative_path совпадают и оба относительны к `base_dir`).
+
+**As‑Is нюанс:** в системе одновременно живут два типа “артефактных ссылок”:
+
+- CAS `core.artifacts.manifest.ArtifactRef` (kind/media_type + artifact_id),
+- runtime `runtime.manifest.ArtifactRef` (artifact_type + relative_path).
+
+### 2.7) Тесты и реальная зависимость от legacy
+
+- `policy-engine/tests/integration/*` (7 тестов) используют `build_workflow()` и новый ProgramGraph‑путь; прямых импортов `*_legacy` в integration нет.
+- Контрактные тесты по gates/контрактам (`tests/contract/*`) проверяют Fabric UDF whitelist и evidence.
+
+---
+
+## 3) As‑Is: ключевые разрывы, которые влияют на дизайн v2.0
+
+1) **IR двуголовый**: `PolicySurfaceIR` и `PolicyRequestIR` сосуществуют, schema snapshot (`tools/gen_schema.py`) привязан к legacy.
+2) **Foundry “patch‑first” не доведён до конца**:
+   - механизмам разрешён `step()`, `emit_patches` опционален;
+   - PatchOp поддерживает только `add/set` и нет атомарных scatter/graph ops.
+3) **Два executors с разной семантикой merge rules** (CAS executor vs pure_executor) → риск “калибровка ≠ исполнение”.
+4) **Fabric не “FactLog‑first”**: ingestion пишет и в DuckDB, и в FactLog; materializer не восстановит DuckDB.
+5) **Scientist self‑healing не замкнут**: compile/run ошибки не возвращаются в repair loop.
+6) **Скрипты‑петли (run_experiment.py) не являются публичной точкой входа и ломают слои**.
+
+---
+
+## 4) To‑Be v2.0: обновлённая целевая архитектура
+
+Ниже — целевое состояние (v2.0) в формате “слой → обязанности → To‑Be логика → критерии завершения”.
+
+### 4.0) Главная цель v2.0
+
+Система становится строго компиляторной трубой:
+
+`NL → Scientist workflow → PolicySurfaceIR → link/compile → ProgramGraph → (PatchVM / PureExecutor) → Artifacts`
+
+и при этом:
+
+- **данные доступны только через UDF**, который стоит на FactLog;
+- **изменения состояния только через патчи**, а не через “мутирование state”;
+- **workflow самовосстанавливается**, замыкая ошибки компиляции и исполнения обратно в repair loop.
+
+---
+
+## 5) Слой 1: Core & IR (Конституция)
+
+### 5.1) `ir.contracts` (чистка legacy)
+
+**To‑Be:**
+
+- `policy-engine/src/polisyos/ir/contract.py` (v1.x) — **удалён**.
+- `policy-engine/src/polisyos/ir/surface.py` (v2.0) — **единственный источник истины** структуры политики.
+- `policy-engine/src/polisyos/ir/kernel/mechanisms.py` — содержит типизированные параметры для всех механизмов (включая будущие complex mechanisms).
+
+**Инструменты/гейты:**
+
+- `policy-engine/tools/gen_schema.py` переводится на `PolicySurfaceIR` и перестаёт импортировать legacy типы.
+- Контрактные тесты (`policy-engine/tests/contract/*`) не должны импортировать/валидировать legacy модели.
+
+### 5.2) `ir.fact_log` (контракты фактов)
+
+**To‑Be:**
+
+- `Fact` заморожен по полям и смыслу:
+  - `subject_id`, `predicate_id`, `object_value/target_id`, `valid_time`, `provenance`, + системные мета‑поля (`tx_time`, trust/legal).
+- `FactSegmentManifest` строго определён и стабилен (чтобы Materializer мог читать без “угадываний”).
+
+### 5.3) `core.contracts.foundry` (протокол симуляции и патчи)
+
+**To‑Be:**
+
+- Единый стандарт на операцию обновления:
+  - либо фиксируем `PatchOp` (`ADD`/`SET`) как внешний контракт,
+  - либо делаем `UpdateOp` внешним, но executor обязан его понимать.
+- Для сложных механизмов допускается `ScatterOp`/`IndexedSet` (обновление по списку индексов), но:
+  - это инкапсулировано внутри Foundry,
+  - наружу всё равно уходит “стандартный” `StateDelta` как артефакт (с воспроизводимым применением).
+
+**Критерий завершения слоя 1:**
+
+- JSON Schema (через `tools/gen_schema.py`) **не содержит ссылок** на legacy‑типы.
+- `pytest policy-engine/tests/contract -q` проходит.
+
+---
+
+## 6) Слой 2: Fabric (Эпистемология)
+
+### 6.1) Fact Writer / Ingestion (запись)
+
+**Контекст:** `policy-engine/src/polisyos/fabric/ingestion.py`
+
+**To‑Be логика:**
+
+- ingestion pipeline **никогда** не пишет напрямую в DuckDB как “источник истины”.
+- вместо этого:
+  - пишет FactSegments (parquet фактов) в `data/facts/` (или эквивалентную директорию FactLog),
+  - для каждого прогона пишет `FactSegmentManifest` в CAS,
+  - DuckDB является кэшем/материализованным представлением, а не первичным хранилищем.
+
+### 6.2) Materializer (восстановление)
+
+**Контекст:** `policy-engine/src/polisyos/fabric/materializer.py` (сейчас заглушка).
+
+**To‑Be логика:**
+
+- `ensure_materialized(db, fact_manifests)`:
+  1) читает `_meta_segments` в DuckDB (какие сегменты уже применены);
+  2) для новых сегментов:
+     - читает parquet сегмента,
+     - делает pivot/transform в реляционные таблицы,
+     - вставляет данные в `macro_history`, `agents_snapshot`, `entity_resolution` и т.п.,
+     - фиксирует applied‑segment в `_meta_segments`.
+- Это **единственный мост** между “фактами” и “SQL”.
+
+### 6.3) UDF Engine (чтение)
+
+**Контекст:** `policy-engine/src/polisyos/fabric/udf/engine.py`
+
+**To‑Be логика:**
+
+- `UDFEngine.query()` перед выполнением SQL вызывает `Materializer.ensure_materialized(...)`.
+- Строгий запрет:
+  - UDF **не читает** локальные CSV/Parquet “сбоку”,
+  - только то, что прошло через FactLog → Materializer → DuckDB.
+
+**Критерий завершения слоя 2:**
+
+- удаляем `*.duckdb`, запускаем materializer на FactLog → восстанавливаем DB детерминированно;
+- UDF‑запросы работают на восстановленной базе.
+
+---
+
+## 7) Слой 3: Foundry (Физика / Ядро)
+
+### 7.1) Интерфейс `Mechanism` (patch‑first)
+
+**Контекст:** `policy-engine/src/polisyos/foundry/base.py`
+
+**To‑Be логика:**
+
+- `step()` **удалён** (или бросает исключение).
+- `emit_patches(state, key, ...)` — единственный абстрактный метод, обязателен для всех механизмов.
+- Вводится `ComplexMechanism(Mechanism)`:
+  - внутри разрешены сложные вычисления (matching, graph algorithms),
+  - на выходе — строго “патчи”, которые можно слить/apply детерминированно (например, `SET` для полного вектора `agents.employer_id`).
+
+### 7.2) Pure Executor (JAX runtime)
+
+**Контекст:** `policy-engine/src/polisyos/foundry/calibration/pure_executor.py`
+
+**To‑Be логика:**
+
+- PureExecutor становится **единственным** способом запускать Foundry симуляцию в workflow (через runner).
+- Merge rules и поведение patch‑apply полностью совпадают с “Python/CAS executor”:
+  - одинаковые tie‑break,
+  - одинаковая семантика `ERROR`.
+- Legacy kernel (`foundry/_legacy/engine/*`) удалён.
+
+### 7.3) Механизмы (Fiscal + Complex)
+
+**Контекст:** `policy-engine/src/polisyos/foundry/fiscal.py` и новые файлы.
+
+**To‑Be логика:**
+
+- налоговые/фискальные механизмы полностью переписаны на `emit_patches`.
+- логика рынка труда из legacy (`_legacy/engine/logic.py`) переносится в `LaborMarketMechanism` (ComplexMechanism) и возвращает патчи.
+
+**Критерий завершения слоя 3:**
+
+- `pytest policy-engine/tests/foundry -q` проходит на PureExecutor.
+- в коде нет прямых мутаций state (“state.x += ...”), только патчи.
+
+---
+
+## 8) Слой 4: Scientist (Мозг / Оркестратор)
+
+### 8.1) Flow Nodes (единая реализация)
+
+**Контекст:** `policy-engine/src/polisyos/scientist/orchestrator/flow_nodes.py`
+
+**To‑Be логика:**
+
 - `run_sim`:
-  - открывает DuckDB по `db_path` (по умолчанию `integration.duckdb`),
-  - загружает baseline‑состояние через `load_initial_state()` (который делает UDF SNAPSHOT запрос),
-  - создаёт механизмы через `create_mechanism(intervention, n_agents=...)` и применяет их к `GlobalState`,
-  - пишет `run_record` artifact (Pydantic `RunRecord`).
-- `analyze`:
-  - формирует простой payload `{"status": "ok", "metrics": ...}` и пишет artifact.
-- `governor`:
-  - проверяет `global_constraints.min_balance` на `simulation_results.gov_balance`,
-  - возвращает verdict `APPROVE` или `NEEDS_REVISION`.
-- `pack_decision`:
-  - собирает `DecisionPacket` (IR + результаты + feedback + audit_trail + RunRecord),
-  - пишет `decision_packet` artifact,
-  - финализирует run (`finalize_run`) со статусом `approve/reject/needs_revision/pruned`.
+  - формирует `JobSpec`,
+  - вызывает runner (compute plane),
+  - получает `ArtifactRef` (CAS) и не знает деталей JAX.
+- `repair_ir`:
+  - получает не только JSON/Pydantic validation ошибки,
+  - но и ошибки linker/compiler/runtime (в виде структурированных issue payloads).
+- `_legacy/nodes.py` и прочие дубликаты удалены.
 
-### 4.3. Поток C: Ingestion → UDF (данные)
+### 8.2) Workflow graph (замкнутые feedback loops)
 
-Файл: `policy-engine/src/polisyos/fabric/ingestion.py` (оркестратор ingestion: `run_ingestion()`).
+**Контекст:** `policy-engine/src/polisyos/scientist/orchestrator/workflow.py`
 
-```mermaid
-flowchart LR
-  A[CSV raw] --> B[Pydantic row validation]
-  B --> C[staging/*.parquet + rejects/*.jsonl]
-  C --> D[curated/*.parquet]
-  D --> E[write *_manifest.json]
-  D --> F[DuckDB load]
-  D --> G[Kùzu load]
-  E --> H[ManifestRegistry]
-  H --> I[UDFEngine.compile/query]
-```
+**To‑Be логика:**
 
-Минимальный рабочий demo‑скрипт: `policy-engine/tools/demos/run_ingest_demo.py`.
+- добавлены обратные ребра:
+  - `compile_model` error → `repair_ir`,
+  - `run_sim` error → `repair_ir`.
+- workflow становится самовосстанавливающимся циклом с bounded attempts (max_repair_attempts).
 
----
+### 8.3) Entrypoint (никакой бизнес‑логики в корне)
 
-## 5) Хранилища и форматы данных
+**Контекст:** `policy-engine/run_experiment.py`
 
-### 5.1. DuckDB (`SimulationDB`)
+**To‑Be логика:**
 
-Файл: `policy-engine/src/polisyos/fabric/io/db.py`
+- файл переписан в “конфигуратор workflow”:
+  - CLI args → state/config → `workflow.invoke()`.
+- никаких ручных циклов `UDF → Agent → compile → kernel.step`.
 
-Таблицы (создаются автоматически):
+**Критерий завершения слоя 4:**
 
-- `macro_history(run_id, step, gdp, unemployment_rate, inflation_rate, avg_price, avg_income, government_balance, timestamp)`
-- `agents_snapshot(run_id, step, agent_id, age, income, savings, is_employed)`
-- `entity_resolution(raw_id, canonical_id, match_confidence, match_method, created_at)`
-- `run_records(run_id, parent_run_id, seed, repro_mode, backend, python_version, platform, generated_at, schema_version, generator_name, generator_version, library_versions, flags)`
-
-Примечания:
-
-- UDF фильтрует по `run_id` всегда (это часть безопасной модели доступа).
-- Snapshot‑запросы требуют `step_end` и читают `agents_snapshot`.
-
-### 5.2. Kùzu (`GraphStore`)
-
-Файл: `policy-engine/src/polisyos/fabric/io/graph_store.py`
-
-Схема:
-
-- Node table: `Agent(id STRING, type STRING, PRIMARY KEY(id))`
-- Rel table: `Interaction(FROM Agent TO Agent, step INT64, amount DOUBLE, type STRING)`
-
-### 5.3. Curated manifests и UDF schema
-
-UDF требует:
-
-- `data/curated/*_manifest.json` (например, `macro_manifest.json`, `agents_manifest.json`, `entity_resolution_manifest.json`)
-- `data/curated/udf_schema.json` (или переменная окружения `UDF_SCHEMA_PATH`)
-
-В `udf_schema.json` задаются:
-
-- `allowed_columns` (whitelist по таблицам),
-- `field_classification` (public/internal/sensitive),
-- `allowed_relation_types` для network запросов.
-
-### 5.4. Runtime artifacts (`polisyos.runtime`)
-
-По умолчанию:
-
-```
-runs/<run_id>/
-  manifest.json
-  audit.jsonl
-  artifacts/<artifact_type>/*.json|*.txt
-```
-
-`RunManifest` содержит список `ArtifactRef` и текущее состояние бюджетов/статуса.
-
-### 5.5. Legacy logs
-
-Параллельно runtime существуют функции, которые пишут артефакты в `logs/`:
-
-- `polisyos.scientist.orchestrator.run_record.save_run_record_json`
-- `polisyos.scientist.orchestrator.decision_packet.save_decision_packet`
-
-Workflow на `flow_nodes.py` в основном пишет в runtime (`runs/`), но эти функции всё ещё присутствуют.
+- `python policy-engine/run_experiment.py "Lower taxes"` запускает полный цикл Draft→Sim→Repair→Result без падений,
+- используя только FactLog + UDF + PatchVM/PureExecutor.
 
 ---
 
-## 6) Конфигурация и bootstrap окружения
+## 9) Как работать по плану (операционный порядок)
 
-### 6.1. JAX bootstrap
-
-Есть два механизма, которые сейчас используются в разных местах:
-
-- `policy-engine/jax_bootstrap.py` → `polisyos.common.jax_env.apply_jax_env_defaults()`:
-  - на macOS форсирует CPU, если пользователь явно не включил Metal (`POLICY_ENGINE_ALLOW_JAX_METAL=1`).
-- `polisyos.common.config`:
-  - **всегда** выставляет `JAX_PLATFORM_NAME=cpu` и ряд флагов JAX/XLA,
-  - ограничивает CPU cores через `XLA_FLAGS`,
-  - настраивает loguru и грузит `.env`.
-
-Скрипт `policy-engine/tools/diagnostics/check_setup.py` специально импортирует `polisyos.common.config` **до** `jax`/`duckdb`, чтобы флаги применились.
-
-### 6.2. Логирование
-
-- `polisyos.common.config` настраивает loguru (console + `logs/system.log` в JSON).
-- `polisyos.common.logger` и `get_logger()` дают bind‑логгер для модулей.
-
----
-
-## 7) Версионирование и миграции
-
-В текущем состоянии есть **две параллельные системы миграций**:
-
-1) `polisyos.common.migrations` (универсальная, по `artifact`):
-
-- поддерживает `policy_ir` и `dataset_manifest`,
-- используется CLI: `policy-engine/migrate.py` и `policy-engine/tools/migrate.py`.
-
-2) `polisyos.ir.migrations` (специализированная, только Policy IR):
-
-- используется CLI: `policy-engine/tools/migrate_ir.py`,
-- покрыта тестом: `policy-engine/tests/contract/test_ir_migrations.py`.
-
-Обе поддерживают миграцию `0.9 → 1.0` (нормализация `projectName` → `project_name`, `globalConstraints` → `global_constraints`).
-
----
-
-## 8) Тесты и “гейты” качества
-
-Папка: `policy-engine/tests/`
-
-- `tests/contract/*`:
-  - контракт IR (`test_ir_contract.py`),
-  - миграции IR (`test_ir_migrations.py`),
-  - гейты Fabric/UDF (манифесты + PII) (`test_fabric_gates.py`).
-- `tests/foundry/*`: состояние мира, JIT‑стабильность, градиенты, фискальные механизмы, kernel.
-- `tests/scientist/test_compiler.py`: компиляция IR → механизмы.
-- `tests/integration/*`: workflow smoke и workflow “LLM” (на деле MockLLM).
-
-Инструмент архитектурных границ: `policy-engine/tools/lint_imports.py`.
-
----
-
-## 9) Текущее состояние (важные несоответствия и технический долг)
-
-Это не “план изменений”, а перечисление того, что уже есть в коде и влияет на архитектурную картину:
-
-- В `polisyos.scientist` сосуществуют два набора узлов/агентов (`flow_nodes.py` vs `nodes.py` + `drafter.py`), что создаёт дублирование логики и разные точки записи артефактов.
-- `compile_model_node` сейчас компилирует с `n_agents=0` и результат не используется в `run_sim` (узел полезен в основном как “артефакт компиляции”).
-- Есть пакетный цикл импортов `polisyos.scientist.agent` ↔ `polisyos.scientist.orchestrator`.
-- Есть type‑leak из `fabric` в `scientist` через `TYPE_CHECKING` в `polisyos.fabric.io.db`.
-- Часть модулей/скриптов использует `print` (в т.ч. в `src/`), хотя ruff‑правило `T20` задумывает запрет `print` в production‑коде (исключения настроены только для некоторых путей).
-
-Ниже — целевая архитектурная спецификация (to-be) для polisyos/policy-engine
-1) Назначение целевой архитектуры
-polisyos становится компилятором политики, где:
-IR — язык/AST намерений и ограничений,
-Fabric — эпистемический слой: факты + происхождение + доверие,
-Foundry — VM/ядро вычислений: детерминированная симуляция + patch-first изменения,
-Scientist — управляющий автомат: планирует эксперименты, запускает вычисления, проверяет безопасность, собирает DecisionPacket.
-Критическое усиление: все модули обязаны жить через один “хребет” воспроизводимости (Фаза 0), иначе система распадается на скрипты.
-2) Неподвижные принципы (инварианты)
-2.1. “Everything is an Artifact”
-Любой значимый объект (IR, QueryPlan, Snapshot, ProgramGraph, результаты симуляции, отчёты, DecisionPacket) существует только как:
-ArtifactRef (ссылка),
-в CAS (content-addressed store),
-с Manifest (происхождение/версия/inputs),
-и с Trace событиями.
-Запрещено: “просто сохранить JSON рядом в runs/… и потом как-то прочитать”.
-2.2. “Canonical bytes → hash”
-Идентичность артефакта определяется каноническими байтами, а не Python-объектом и не путём файла.
-2.3. “RunContext is mandatory”
-Все верхнеуровневые операции (компиляция, запросы данных, симуляции, анализ, губернаторы) принимают RunContext и возвращают ArtifactRef.
-Это делает невозможным “выполнить и забыть” provenance.
-2.4. “Dependency graph only inward”
-Слои обязаны соблюдаться не только в runtime-import, но и в TYPE_CHECKING (чтобы не протекало обратно).
-3) Логическая архитектура и пакеты (to-be)
-Целевая структура polisyos:
-polisyos/
-  core/        # Фаза 0: canon + CAS + manifests + trace + run + migrations + registry spine
-  ir/          # Контракты AST/IR (строгие Pydantic схемы)
-  fabric/      # Data Fabric: ingestion + QueryPlan + trust/evidence + adapters
-  foundry/     # VM: ProgramGraph/ExecPlan + механизмы + patch/merge/constraints + kernel
-  scientist/   # Orchestrator: FSM, DOE, governors, decision packets, compute-plane client
-  common/      # минимально: utils/конфиги, но не “всё подряд”
-  cli/         # команды диагностики/миграций/проверок, без sys.path bootstrap
-3.1. Главный перенос ответственности
-Текущий polisyos.runtime сворачивается в polisyos.core.
-runtime может остаться временным “compat layer”, но истина — только core.
-4) Фаза 0 “хребет” (core)
-4.1. Canonicalization
-CanonSpec
-Версия канонизации — часть протокола (canon.name, canon.version).
-JSON сериализация:
-сортировка ключей,
-стабильные separators,
-UTF-8.
-Запрет float в JSON-артефактах (всё численно-тяжёлое хранится бинарно: Arrow/NPY/Parquet как отдельные артефакты).
-Запрет NaN/Inf.
-Правило: если объект содержит массивы/матрицы/float — он обязан вынести их в отдельные бинарные артефакты и ссылаться на них через ArtifactRef.
-4.2. CAS (content-addressed store)
-ArtifactID
-Формат адресации: sha256:<hex> (алгоритм фиксирован для аудита).
-Layout на диске: шардирование по префиксу хеша.
-Put/Get/Verify
-put_* обязательно атомарный (temp → fsync → rename).
-verify обязателен как инструмент CI/аудита.
-4.3. Artifact Manifest (обязателен)
-Каждый артефакт имеет Manifest со строгими полями:
-artifact_id, kind, media_type, byte_size, created_at
-schema (name + version) — если артефакт схематизирован
-canon (name + version) — для JSON
-inputs[] — список зависимостей с ролями
-producer (component + version + git commit/dirty)
-env (python/platform/deps_lock_hash)
-integrity (sha256 + опциональные доп. хеши)
-warnings[]
-Запрет: хранить “полный путь файла” внутри ArtifactRef (это ломает переносимость). Путь — дело CAS, а не контракта.
-4.4. TraceRecord (единый формат наблюдаемости)
-Формат хранения: JSONL (стриминг).
-Каждое событие: ts, run_id, phase, event, refs(inputs/outputs), metrics, warnings/errors.
-В core должен быть TraceSink интерфейс + минимум одна реализация (JSONL).
-Правило: каждый put артефакта и каждый переход стадии пайплайна обязан emit TraceRecord.
-4.5. RunManifest (корневой чек)
-Для каждого запуска:
-run_id
-registry_bundle_ref
-inputs[], outputs[]
-status, errors[]
-trace_ref
-producer/env
-started_at/finished_at
-Правило: любой “внешний результат” (DecisionPacket/Report) обязан ссылаться на RunManifestRef.
-4.6. Registry spine (конституция мира)
-Система реестров хранится как набор артефактов, собранных в RegistryBundle:
-Минимальный bundle:
-SlotRegistry
-MergeRuleRegistry
-ConstraintRegistry
-MechanismTypeRegistry
-TrustPolicyRegistry (для Fabric)
-UnitsRegistry (опционально сначала)
-Правило:
-Ни один запуск Foundry/Fabric/Scientist не считается валидным без registry_bundle_ref.
-5) Контракты между слоями (то, что “сшивает” систему)
-Это ключ: слои должны “переписываться” не имплицитно, а через фиксированные артефакты.
-5.1. IR → Fabric
-Input: DataViewRequestRef (IR)
-Output: QueryPlanRef (Fabric)
-Output: FabricResultRef (таблица/граф/снэпшот) + EvidenceBundleRef + WarningsRef
-Важное изменение относительно as-is: Fabric должен возвращать не “просто DataFrame”, а унифицированный контейнер результата:
-где лежит data (обычно Arrow/Parquet),
-откуда оно взялось (sources),
-каковы ограничения доверия (trust policy),
-какие предупреждения/фильтры применены.
-Минимальные артефакты и payload (шаг 1):
-- kind: ir.data_view_request (schema: polisyos.ir.DataViewRequest) — входной запрос.
-- kind: fabric.query_plan (schema: polisyos.core.contracts.QueryPlan)
-  поля: request_ref, engine, steps[], trust_policy_id, notes.
-- kind: fabric.result_bundle (schema: polisyos.core.contracts.FabricResult)
-  поля: request_ref, plan_ref, data_ref, data_schema_ref, sources[], trust_policy_id,
-  evidence_ref, warnings_ref, stats.
-- kind: fabric.evidence_bundle (schema: polisyos.core.contracts.EvidenceBundle)
-  поля: sources[], transforms[], trust_policy_id, notes.
-- kind: fabric.warnings (schema: polisyos.core.contracts.WarningsBundle)
-  поля: warnings[] (code/msg/data).
-Инварианты:
-- FabricResult.data_ref должен указывать на бинарный артефакт (Arrow/Parquet).
-- Evidence/Warn артефакты обязаны быть отдельными и ссылочными.
-5.1.1. Правило float
-JSON‑контейнеры не содержат float; числовые массивы/матрицы — только как бинарные артефакты.
-5.2. IR → Foundry
-Input: PolicyRequestIRRef
-Output: ProgramGraphRef (или LoweredIRRef как ISA)
-Output: ExecPlanRef (опционально)
-На старте допускается промежуточный этап: “компиляция в последовательность механизмов”, но контракт должен сразу быть оформлен как артефакт компиляции (чтобы потом заменить на ProgramGraph без ломки API).
-Минимальные артефакты и payload (шаг 1):
-- kind: ir.policy_request (schema: polisyos.ir.PolicyRequestIR) — входной IR.
-- kind: foundry.program_graph (schema: polisyos.core.contracts.ProgramGraph)
-  поля: ir_ref, nodes[], edges[], entrypoints[], notes.
-- kind: foundry.lowered_ir (schema: polisyos.core.contracts.LoweredIR) — временный ISA.
-  поля: ir_ref, mechanisms[], notes.
-- kind: foundry.exec_plan (schema: polisyos.core.contracts.ExecPlan)
-  поля: program_ref, order[], mode(dev/perf/audit), jit, max_steps, notes.
-5.3. Foundry execution
-Input: StateSnapshotRef + ProgramGraphRef + TreasurySeedRef + ExecConfigRef
-Output: StateDeltaRef (patch-first) + MetricsRef + TraceSliceRef
-Минимальные артефакты и payload (шаг 1):
-- kind: foundry.state_snapshot (schema: polisyos.core.contracts.StateSnapshot)
-  поля: state_ref, schema_ref, step, notes.
-- kind: foundry.treasury_seed (schema: polisyos.core.contracts.TreasurySeed)
-  поля: seed, streams{}, notes.
-- kind: foundry.exec_config (schema: polisyos.core.contracts.ExecConfig)
-  поля: mode(dev/perf/audit), max_steps, deterministic, notes.
-- kind: foundry.state_delta (schema: polisyos.core.contracts.StateDelta)
-  поля: base_ref, patch_ref, ops[], notes.
-- kind: foundry.metrics (schema: polisyos.core.contracts.Metrics)
-  поля: values{} (int/decimal-as-string), notes.
-- kind: foundry.trace_slice (media_type: application/jsonl)
-  JSONL записи TraceRecord, детерминированно записаны через TraceSink.
-6) Fabric (to-be)
-6.1. Разделение: ingestion vs query
-Ingestion: создаёт curated слои + DatasetManifest.
-Query: компилирует DataViewRequest → QueryPlan → executes → ResultBundle.
-6.2. TrustPolicy как обязательный шаг
-В QueryPlan появляется явный шаг:
-apply_trust_policy(mode=...)
-поддерживающий минимум:
-optimistic
-pessimistic
-two_pass_compare (bounds/delta)
-Правило: любой результат Fabric обязан содержать:
-evidence,
-trust annotations,
-применённые фильтры/агрегации/оконные семантики.
-6.3. Устранение текущих “as-is” проблем
-GraphStore не должен инициализироваться автоматически если запрос не требует графа.
-(Иначе Fabric всегда делает побочные эффекты и удорожает любой запрос.)
-Убрать type-leak fabric → scientist даже под TYPE_CHECKING: контракты типа RunRecord должны жить в core или ir, а не в scientist.
-6.4. Режимы исполнения (обязательное требование)
-Fabric и Foundry поддерживают три режима:
-dev — допускаются копии/упрощения, главное корректность.
-perf — zero-copy/Arrow/DLPack, минимальный overhead.
-audit — максимум provenance, дополнительные проверки, расширенные warnings.
-7) Foundry (to-be)
-7.1. VM модель
-Foundry обязан стать “исполнителем программы”, где:
-ProgramGraph = граф механизмов
-State = память (слоты)
-Patch = единственный способ изменить state
-MergeRules = строгие правила разрешения конфликтов
-Treasury = детерминированная раздача randomness (stable key by node_id × t × stream)
-7.2. Patch-first state (ключевое отличие)
-Вместо “механизм мутирует state”, механизм возвращает:
-Patch
-Outputs (наблюдаемые значения)
-Aux (для трассы/диагностики)
-Runtime Foundry применяет патчи согласно MergeRules и Constraint hooks.
-7.3. Constraint hooks
-Constraints декларативно привязаны к слотам и/или к фазам шага.
-После merge применяется CHECK_CONSTRAINTS.
-Есть стандартные repair стратегии (clamp, redistribute, penalty-only, reject patch).
-7.4. Переходный мост от текущего состояния
-Текущий SimulationKernel и механизмы могут быть адаптированы:
-как “MechanismNode wrappers”, которые внутри используют текущие step-функции,
-но наружу выдают Patch (даже если patch пока “полное состояние” — временно).
-Главное: внешний контракт должен стать patch-first, иначе потом будет болезненный разрыв.
-8) Scientist (to-be)
-8.1. Один оркестратор, одна линия кода
-Текущие две линии (flow_nodes.py vs legacy nodes/agent) должны быть сведены к одной:
-scientist/orchestrator — единственная “истина”
-любые “legacy” узлы либо удаляются, либо становятся thin wrappers и помечаются deprecated.
-8.2. Scientist = FSM + budgets + governors
-Workflow оформляется как конечный автомат с:
-лимитами LLM calls / sim runs / wall time / compute cost
-checkpointing через RunContext
-детерминированной трассой переходов
-Governors
-Два класса:
-Pre-flight Governor: режет недопустимое до симуляций (право/этика/PII/бюджеты/технические лимиты).
-Post-flight Governor: проверяет метрики, fairness, риск “обмана метрик”, правовые ограничения, constraints violations.
-Правило: губернатор не возвращает “текст”; он возвращает структурный Verdict как артефакт (с reason codes и ссылками на evidence).
-8.3. DOE библиотека (Experiment Design Library)
-Scientist не “придумывает эксперименты”, а выбирает из стандартных дизайнов:
-ScenarioSweep
-AblationPlan
-SensitivityPlan
-CounterfactualGrid
-StressTestPack
-Каждый DOE:
-существует как артефакт
-компилируется в список JobSpec (артефакты задач)
-результаты сводятся в ResultBundle (артефакт)
-8.4. Compute plane separation (важно для будущего)
-Scientist в Control Plane не должен напрямую тянуть JAX и исполнять тяжёлое:
-он формирует JobSpec → отправляет в compute runner → получает ArtifactRefs результатов.
-На dev этапе runner может быть локальным, но контракт должен быть одинаковым.
-9) Хранилища и пути (to-be)
-9.1. Истина: .polisyos/artifacts (CAS)
-Все артефакты в CAS.
-9.2. runs/ становится “проекцией”
-Текущая папка runs/<run_id>/... превращается в:
-thin view (trace, run manifest как ссылки)
-или вообще заменяется на core/runs/<run_id>/ где лежит только trace jsonl и “run pointer”.
-Ключ: run хранит ссылки, а не данные.
-9.3. Legacy logs/ — удаление
-Все legacy writers (logs/run_records, logs/decision_packets) должны быть выключены.
-Если нужно — делается экспорт из CAS в человекочитаемый формат, но не “пишем параллельно”.
-10) Миграции и версии (to-be)
-10.1. Единая система миграций
-Сейчас у тебя две параллельные системы миграции. В целевом состоянии:
-polisyos.core.migrations — единственная точка миграции артефактов (IR, dataset manifests, run manifests, decision packets).
-polisyos.ir.migrations может остаться как “подпакет”, но вызываться через core-механизм (единый CLI, единые правила).
-10.2. Версии обязательны
-Каждый схематизированный артефакт имеет:
-schema.name
-schema.version
-И для JSON — canon.version.
-11) Последовательность изменений от as-is к to-be (пошагово)
-Ниже — именно “как перепрошить существующую архитектуру”, не ломая всё сразу.
-Шаг 1 — Ввод polisyos.core
-Добавить core пакет: canon, artifacts(CAS+manifest), trace, run, registry bundle, migrations.
-Ввести RunContext как обязательный объект, создаваемый в начале любого workflow.
-Включить CAS в CI: базовая команда verify.
-Критерий готовности: можно создать run, записать 3–5 артефактов, получить RunManifestRef, пройти verify, иметь trace.
-Шаг 2 — Замена polisyos.runtime на thin-compat
-polisyos.runtime.start_run/log_artifact/append_audit переводятся на вызовы core.
-Удалить ArtifactRef.path из контрактов runtime; везде заменить на ArtifactRef(artifact_id, kind, media_type).
-Обновить тесты integration/workflow под новый runtime.
-Критерий готовности: workflow пишет только в CAS + RunManifest, runs/ не содержит “данных”, только trace/pointers.
-Шаг 3 — Чистка границ импортов
-Убрать цикл scientist.agent ↔ scientist.orchestrator через выделение общих контрактов в core/ir.
-Убрать TYPE_CHECKING leak fabric → scientist (RunRecord/типы переносятся в core).
-Усилить lint_imports.py: TYPE_CHECKING тоже должен быть чистым.
-Критерий готовности: import graph чистый, без исключений.
-Шаг 4 — Fabric: ResultBundle + TrustPolicy step
-DataViewRequest компилируется в QueryPlan как артефакт.
-Выполнение QueryPlan выдаёт ResultBundle (data_uri/inline_preview + evidence + warnings).
-Разделить табличный и графовый адаптеры: GraphStore создаётся только если нужен.
-Критерий готовности: любой UDF query возвращает ArtifactRefs, а не “сырые данные”.
-Шаг 5 — Foundry: внешний контракт patch-first
-Добавить Patch/Merge/Constraint интерфейсы (даже если внутри пока адаптеры к текущему kernel).
-Компиляция IR → “compiled program” как артефакт (ProgramGraphRef).
-Исполнение возвращает StateDeltaRef + MetricsRef.
-Критерий готовности: Scientist больше не “мутирует GlobalState напрямую”, а применяет патчи через Foundry runtime.
-Шаг 6 — Scientist: одна линия оркестрации + DOE
-Удалить/заморозить legacy узлы (или пометить deprecated и убрать из путей запуска).
-Ввести DOE каталог как обязательный источник JobSpec.
-Ввести governors как структурные Verdict артефакты.
-Критерий готовности: end-to-end DecisionPacket полностью воспроизводим по ссылкам CAS.
-Шаг 7 — Compute plane отделение
-Ввести интерфейс runner (локальный сначала).
-Узлы симуляции становятся клиентами runner.
-Trace и артефакты синхронизируются через CAS.
-Критерий готовности: можно запускать симуляции “в стороне”, сохраняя ту же provenance-цепь.
-12) Обязательные “гейты качества” (архитектурный DoD)
-Система считается соответствующей целевой архитектуре только если выполняются правила:
-Любой результат имеет RunManifestRef.
-Любой артефакт можно verify.
-IR/Fabric/Foundry/Scientist возвращают только ArtifactRefs наружу.
-Нет runtime/TYPE_CHECKING импорт-нарушений.
-Fabric всегда выдаёт evidence/trust annotations.
-Foundry внешний контракт patch-first.
-Trace покрывает все ключевые события (artifact put, compile, execute, governor verdict).
+1) **Слой 1 (Core/IR):**
+   - игнорируем Scientist/Foundry;
+   - правим только IR/Core;
+   - тестируем `tests/contract`.
+2) **Слой 2 (Fabric):**
+   - игнорируем Foundry;
+   - заставляем данные течь FactLog → Materializer → UDF;
+   - тестируем `tests/fabric` и контрактные gates.
+3) **Слой 3 (Foundry):**
+   - переписываем механизмы на патчи,
+   - вычищаем legacy kernel,
+   - выравниваем семантику merge между executors;
+   - тестируем `tests/foundry`.
+4) **Слой 4 (Scientist):**
+   - собираем всё в LangGraph,
+   - добавляем feedback loops,
+   - переписываем entrypoint;
+   - тестируем `tests/integration`.

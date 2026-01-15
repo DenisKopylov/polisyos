@@ -4,9 +4,12 @@ from typing import Any
 import equinox as eqx
 import jax
 
-from polisyos.core.contracts.foundry import UpdateOp
 from polisyos.foundry.domain.state import GlobalState
 from polisyos.foundry.types import FidelityLevel
+
+
+PatchRecord = dict[str, Any]
+PatchMap = dict[str, list[PatchRecord]]
 
 
 class Mechanism(eqx.Module):
@@ -23,27 +26,17 @@ class Mechanism(eqx.Module):
         raise NotImplementedError
 
     @abstractmethod
-    def step(self, state: GlobalState, key: jax.Array) -> tuple[GlobalState, jax.Array]:
-        """Один шаг механизма (state, key) -> (state, key)."""
-        raise NotImplementedError
-
-    def __call__(self, state: GlobalState, key: jax.Array) -> tuple[GlobalState, jax.Array]:
-        if self.debug_mode:
-            with jax.disable_jit():
-                return self.step(state, key)
-        return self.step(state, key)
-
     def emit_patches(
         self,
         state: GlobalState,
         key: jax.Array,
         *,
         target_mask=None,
-    ) -> tuple[dict[str, list[UpdateOp]] | None, jax.Array]:
+    ) -> tuple[PatchMap, jax.Array]:
         """
-        Optional patch-first path. Override in mechanisms to emit slot deltas directly.
+        Patch-first path. Must return per-slot patch records (delta/value/new_value, etc.).
         """
-        return None, key
+        raise NotImplementedError
 
     def invariants(self, state: GlobalState) -> bool:
         """
@@ -52,3 +45,9 @@ class Mechanism(eqx.Module):
         Может использоваться в debug-режиме или Assert-нодах.
         """
         return True
+
+
+class ComplexMechanism(Mechanism):
+    """
+    Marker for mechanisms that run complex computations but still emit patches only.
+    """

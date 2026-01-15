@@ -1,4 +1,4 @@
-# Deprecated module stub. The legacy implementations live in polisyos.scientist._legacy.nodes.
+# Deprecated module stub. Use flow_nodes.py via build_workflow().
 from __future__ import annotations
 
 import warnings
@@ -9,4 +9,7 @@ warnings.warn(
     stacklevel=2,
 )
 
-from polisyos.scientist._legacy.nodes import governor_node, simulator_node  # noqa: F401
+from polisyos.scientist.orchestrator.flow_nodes import (  # noqa: F401
+    governor_node,
+    run_sim_node as simulator_node,
+)

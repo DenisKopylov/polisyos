@@ -3,7 +3,10 @@ import jax
 import jax.numpy as jnp
 
 from polisyos.foundry.domain.state import GlobalState
+from polisyos.foundry.executor import apply_patch_map
 from polisyos.foundry.fiscal import IncomeTax, TaxSubsidy
+from polisyos.ir.kernel.merge_rules import DEFAULT_MERGE_RULE_REGISTRY
+from polisyos.ir.kernel.slots import DEFAULT_SLOT_REGISTRY
 
 
 def _tree_shapes(tree):
@@ -27,7 +30,15 @@ def test_tax_subsidy_jit_step_stable():
 
     @eqx.filter_jit
     def step(mech, state, key):
-        return mech.step(state, key)
+        patches, next_key = mech.emit_patches(state, key)
+        next_state = apply_patch_map(
+            state,
+            patches,
+            slot_registry=DEFAULT_SLOT_REGISTRY,
+            merge_registry=DEFAULT_MERGE_RULE_REGISTRY,
+            default_node_id="subsidy",
+        )
+        return next_state, next_key
 
     s1, k1 = step(mech, state, jax.random.PRNGKey(0))
     s2, k2 = step(mech, s1, jax.random.PRNGKey(1))
@@ -46,7 +57,15 @@ def test_income_tax_jit_step_stable():
 
     @eqx.filter_jit
     def step(mech, state, key):
-        return mech.step(state, key)
+        patches, next_key = mech.emit_patches(state, key)
+        next_state = apply_patch_map(
+            state,
+            patches,
+            slot_registry=DEFAULT_SLOT_REGISTRY,
+            merge_registry=DEFAULT_MERGE_RULE_REGISTRY,
+            default_node_id="tax",
+        )
+        return next_state, next_key
 
     s1, k1 = step(mech, state, jax.random.PRNGKey(0))
     s2, k2 = step(mech, s1, jax.random.PRNGKey(1))

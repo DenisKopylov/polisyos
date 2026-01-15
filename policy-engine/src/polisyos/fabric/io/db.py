@@ -75,6 +75,16 @@ class SimulationDB:
             )
         """
         )
+        self.conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS _meta_segments (
+                segment_id VARCHAR PRIMARY KEY,
+                sha256 VARCHAR,
+                row_count INTEGER,
+                applied_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        """
+        )
         logger.info(f"💾 Database connected: {self.db_path}")
 
     def save_macro(self, data: list[dict]):

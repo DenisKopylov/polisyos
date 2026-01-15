@@ -18,6 +18,8 @@ if str(SRC_ROOT) not in sys.path:
 os.environ["XLA_PYTHON_CLIENT_PREALLOCATE"] = "false"
 
 # 2. Для тестов всегда форсируем CPU (даже если есть GPU), чтобы избежать конфликтов драйверов в CI/CD
+# JAX 0.4+ предпочитает JAX_PLATFORMS; JAX_PLATFORM_NAME оставляем для совместимости.
+os.environ["JAX_PLATFORMS"] = "cpu"
 os.environ["JAX_PLATFORM_NAME"] = "cpu"
 
 

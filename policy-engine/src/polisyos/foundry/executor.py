@@ -163,68 +163,25 @@ def execute_program_graph(
                     mechanism_type, params, n_agents=n_agents, n_firms=n_firms
                 )
                 key, step_key = jax.random.split(key)
-
-                patch_map = None
-                if hasattr(mechanism, "emit_patches"):
-                    patch_map, key = mechanism.emit_patches(
-                        base_state,
-                        step_key,
-                        target_mask=mask
-                        if mask_scope in {SlotScope.PER_AGENT, SlotScope.PER_FIRM}
-                        else None,
-                    )
-                if patch_map:
-                    applied_nodes += 1
-                    for slot_id, patch in patch_map.items():
+                patch_map, key = mechanism.emit_patches(
+                    base_state,
+                    step_key,
+                    target_mask=mask
+                    if mask_scope in {SlotScope.PER_AGENT, SlotScope.PER_FIRM}
+                    else None,
+                )
+                if patch_map is None:
+                    raise ValueError(f"Mechanism '{mechanism_type}' did not emit patches")
+                applied_nodes += 1
+                for slot_id, patches in patch_map.items():
+                    patch_list = patches if isinstance(patches, list) else [patches]
+                    for patch in patch_list:
                         record = {
                             "node_id": node_id,
                             "priority": payload.get("priority"),
                         }
                         record.update(patch)
                         patch_records.setdefault(slot_id, []).append(record)
-                    continue
-
-                full_state, key = mechanism(base_state, step_key)
-                masked_state = full_state
-                mask_all = _mask_is_all(mask)
-                if not mask_all:
-                    masked_input_state = _mask_state_inputs(
-                        base_state,
-                        mask,
-                        mask_scope,
-                        mechanism_type=mechanism_type,
-                        mechanism_registry=mechanism_registry,
-                        slot_registry=slot_registry,
-                    )
-                    masked_state, key = mechanism(masked_input_state, step_key)
-
-                applied_nodes += 1
-                for slot_id in node.outputs:
-                    slot_spec = slot_registry.slots.get(slot_id)
-                    if slot_spec is None or not slot_spec.state_path:
-                        raise ValueError(f"Slot '{slot_id}' missing state_path for execution")
-                    base_value = _get_state_path(base_state, slot_spec.state_path)
-                    full_value = _get_state_path(full_state, slot_spec.state_path)
-                    if mask_all:
-                        new_value = full_value
-                    elif slot_spec.scope == SlotScope.GLOBAL:
-                        new_value = _get_state_path(masked_state, slot_spec.state_path)
-                    elif slot_spec.scope == mask_scope:
-                        new_value = jnp.where(mask, full_value, base_value)
-                    else:
-                        raise ValueError(
-                            f"Selector scope '{mask_scope.value}' incompatible with slot "
-                            f"'{slot_id}' ({slot_spec.scope.value})"
-                        )
-                    patch_records.setdefault(slot_id, []).append(
-                        {
-                            "node_id": node_id,
-                            "priority": payload.get("priority"),
-                            "base_value": base_value,
-                            "new_value": new_value,
-                            "delta": new_value - base_value,
-                        }
-                    )
                 continue
             if node.op.op_kind == "merge_state":
                 ops = merge_patch_records(
@@ -274,23 +231,19 @@ def execute_program_graph(
                 mechanism_type, params, n_agents=n_agents, n_firms=n_firms
             )
             key, step_key = jax.random.split(key)
-            next_state, key = mechanism(base_state, step_key)
+            patch_map, key = mechanism.emit_patches(base_state, step_key)
+            if patch_map is None:
+                raise ValueError(f"Mechanism '{mechanism_type}' did not emit patches")
             applied_nodes += 1
-            for slot_id in node.outputs:
-                slot_spec = slot_registry.slots.get(slot_id)
-                if slot_spec is None or not slot_spec.state_path:
-                    raise ValueError(f"Slot '{slot_id}' missing state_path for execution")
-                base_value = _get_state_path(base_state, slot_spec.state_path)
-                new_value = _get_state_path(next_state, slot_spec.state_path)
-                patch_records.setdefault(slot_id, []).append(
-                    {
+            for slot_id, patches in patch_map.items():
+                patch_list = patches if isinstance(patches, list) else [patches]
+                for patch in patch_list:
+                    record = {
                         "node_id": node_id,
                         "priority": payload.get("priority"),
-                        "base_value": base_value,
-                        "new_value": new_value,
-                        "delta": new_value - base_value,
                     }
-                )
+                    record.update(patch)
+                    patch_records.setdefault(slot_id, []).append(record)
             continue
         skipped_nodes += 1
 
@@ -396,6 +349,95 @@ def apply_state_delta(
     return state
 
 
+def apply_patch_records(
+    base_state: Any,
+    patch_records: dict[str, list[dict[str, Any]]],
+    *,
+    slot_registry: SlotRegistry,
+    merge_registry: MergeRuleRegistry,
+) -> Any:
+    """
+    Apply in-memory patch records (delta/value/new_value) to a state.
+    Mirrors merge_patch_records semantics without CAS IO.
+    """
+    state = base_state
+    for slot_id, records in sorted(patch_records.items()):
+        slot_spec = slot_registry.slots.get(slot_id)
+        if slot_spec is None or not slot_spec.state_path:
+            raise ValueError(f"Slot '{slot_id}' missing state_path for execution")
+        rule = merge_registry.rules.get(slot_spec.merge_rule.rule_id)
+        if rule is None:
+            raise ValueError(f"Unknown merge rule '{slot_spec.merge_rule.rule_id}' for '{slot_id}'")
+
+        base_value = _get_state_path(state, slot_spec.state_path)
+        if rule.kind == MergeRuleKind.SUM:
+            total_delta = None
+            for record in records:
+                delta = record.get("delta")
+                if delta is None and "new_value" in record and "base_value" in record:
+                    delta = record["new_value"] - record["base_value"]
+                if delta is None:
+                    raise ValueError(f"Missing delta for sum merge on slot '{slot_id}'")
+                total_delta = delta if total_delta is None else total_delta + delta
+            new_value = base_value + (total_delta if total_delta is not None else 0)
+        elif rule.kind == MergeRuleKind.OVERRIDE:
+            picked = sorted(records, key=lambda item: item["node_id"])[-1]
+            new_value = picked.get("value", picked.get("new_value"))
+            if new_value is None:
+                raise ValueError(f"Missing value for override merge on slot '{slot_id}'")
+        elif rule.kind == MergeRuleKind.PRIORITY:
+            missing = [item["node_id"] for item in records if item.get("priority") is None]
+            if missing:
+                raise ValueError(
+                    f"Merge rule 'priority' requires priority for: {', '.join(sorted(missing))}"
+                )
+            picked = sorted(
+                records,
+                key=lambda item: (-int(item["priority"]), item["node_id"]),
+            )[0]
+            new_value = picked.get("value", picked.get("new_value"))
+            if new_value is None:
+                raise ValueError(f"Missing value for priority merge on slot '{slot_id}'")
+        elif rule.kind == MergeRuleKind.ERROR:
+            if len(records) > 1:
+                ids = ", ".join(sorted(item["node_id"] for item in records))
+                raise ValueError(f"Merge conflict for slot '{slot_id}': {ids}")
+            new_value = records[0].get("value", records[0].get("new_value"))
+            if new_value is None:
+                raise ValueError(f"Missing value for error merge on slot '{slot_id}'")
+        else:
+            raise ValueError(f"Unsupported merge rule '{rule.kind}' for '{slot_id}'")
+
+        state = _set_state_path(state, slot_spec.state_path, new_value)
+    return state
+
+
+def apply_patch_map(
+    base_state: Any,
+    patch_map: dict[str, list[dict[str, Any]]],
+    *,
+    slot_registry: SlotRegistry,
+    merge_registry: MergeRuleRegistry,
+    default_node_id: str = "mechanism",
+    priority: int | None = None,
+) -> Any:
+    patch_records: dict[str, list[dict[str, Any]]] = {}
+    for slot_id, patches in patch_map.items():
+        patch_list = patches if isinstance(patches, list) else [patches]
+        for patch in patch_list:
+            record = {"node_id": default_node_id}
+            if "priority" not in patch:
+                record["priority"] = priority
+            record.update(patch)
+            patch_records.setdefault(slot_id, []).append(record)
+    return apply_patch_records(
+        base_state,
+        patch_records,
+        slot_registry=slot_registry,
+        merge_registry=merge_registry,
+    )
+
+
 def apply_state_delta_and_snapshot(
     store: FileSystemCAS,
     *,
@@ -438,12 +480,6 @@ def load_state_snapshot(
     flat = {key: blob[key] for key in blob.files}
     nested = _nest_state(flat)
     return _build_dataclass(GlobalState, nested)
-
-
-def _mask_is_all(mask: jnp.ndarray | None) -> bool:
-    if mask is None:
-        return True
-    return bool(np.all(np.asarray(mask)))
 
 
 def _coerce_selector_scalar(value: Any) -> Any:
@@ -559,37 +595,6 @@ def _evaluate_selector(
             combined = combined | mask
         return combined, scope
     raise ValueError("Invalid selector expression")
-
-
-def _apply_mask(value: jnp.ndarray, mask: jnp.ndarray) -> jnp.ndarray:
-    if value.dtype == jnp.bool_:
-        return jnp.where(mask, value, False)
-    return jnp.where(mask, value, jnp.zeros_like(value))
-
-
-def _mask_state_inputs(
-    base_state: Any,
-    mask: jnp.ndarray,
-    mask_scope: SlotScope,
-    *,
-    mechanism_type: str,
-    mechanism_registry: MechanismTypeRegistry,
-    slot_registry: SlotRegistry,
-) -> Any:
-    mech = mechanism_registry.mechanisms.get(mechanism_type)
-    if mech is None or mask_scope not in {SlotScope.PER_AGENT, SlotScope.PER_FIRM}:
-        return base_state
-    state = base_state
-    for slot_id in mech.reads_slots:
-        slot_spec = slot_registry.slots.get(slot_id)
-        if slot_spec is None or not slot_spec.state_path:
-            continue
-        if slot_spec.scope != mask_scope:
-            continue
-        base_value = _get_state_path(state, slot_spec.state_path)
-        masked = _apply_mask(base_value, mask)
-        state = _set_state_path(state, slot_spec.state_path, masked)
-    return state
 
 
 def _apply_ops_to_state(

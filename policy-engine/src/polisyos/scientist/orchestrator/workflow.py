@@ -30,6 +30,40 @@ def _route_after_validate(state: ExperimentState) -> str:
     return "compile_data_views"
 
 
+def _route_after_compile(state: ExperimentState) -> str:
+    if state.get("pruned"):
+        return "pack_decision"
+    feedback = state.get("feedback")
+    if not feedback:
+        return "run_sim"
+    verdict = feedback.get("verdict")
+    if verdict == "NEEDS_REVISION":
+        return "repair_ir"
+    if verdict == "REJECT":
+        return "pack_decision"
+    return "run_sim"
+
+
+def _route_after_run_sim(state: ExperimentState) -> str:
+    if state.get("pruned"):
+        return "pack_decision"
+    feedback = state.get("feedback")
+    if not feedback:
+        return "analyze"
+    verdict = feedback.get("verdict")
+    if verdict == "NEEDS_REVISION":
+        # If simulation produced a *constraint/policy* verdict, we should stop and pack the decision
+        # rather than immediately burning additional sim budget on auto-repair loops.
+        # Runtime/infra failures remain eligible for repair.
+        issues = feedback.get("issues") or []
+        if any(isinstance(issue, dict) and issue.get("error_type") == "constraint" for issue in issues):
+            return "pack_decision"
+        return "repair_ir"
+    if verdict == "REJECT":
+        return "pack_decision"
+    return "analyze"
+
+
 def _with_phase(phase: Phase, node_fn):
     def _wrapped(state: ExperimentState):
         state = advance_phase(state, phase)
@@ -56,8 +90,8 @@ def build_workflow():
     workflow.add_conditional_edges("validate_ir", _route_after_validate)
     workflow.add_edge("repair_ir", "validate_ir")
     workflow.add_edge("compile_data_views", "compile_model")
-    workflow.add_edge("compile_model", "run_sim")
-    workflow.add_edge("run_sim", "analyze")
+    workflow.add_conditional_edges("compile_model", _route_after_compile)
+    workflow.add_conditional_edges("run_sim", _route_after_run_sim)
     workflow.add_edge("analyze", "governor")
     workflow.add_edge("governor", "pack_decision")
     workflow.add_edge("pack_decision", END)

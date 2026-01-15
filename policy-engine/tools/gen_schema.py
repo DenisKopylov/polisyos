@@ -12,11 +12,11 @@ SRC_ROOT = REPO_ROOT / "src"
 if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
 
-from polisyos.ir.contract import PolicyRequestIR
+from polisyos.ir.surface import PolicySurfaceIR
 
 
 def generate_schema() -> str:
-    schema = PolicyRequestIR.model_json_schema()
+    schema = PolicySurfaceIR.model_json_schema()
     return json.dumps(schema, indent=2)
 
 

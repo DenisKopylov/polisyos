@@ -67,6 +67,7 @@ class ExperimentState(TypedDict):
 
     # Результаты симуляции (сырые данные или метрики)
     simulation_results: Optional[Dict[str, float]]
+    simulation_results_ref: Optional[Dict[str, Any]]
 
     # Обратная связь от Губернатора
     feedback: Optional[GovernorFeedback]

@@ -7,8 +7,11 @@ import optax
 
 from polisyos.foundry.domain.state import GlobalState
 from polisyos.foundry.base import Mechanism
+from polisyos.foundry.executor import apply_patch_map
 from polisyos.foundry.loss import policy_loss_fn
 from polisyos.foundry.utils import gradient_health_report
+from polisyos.ir.kernel.merge_rules import DEFAULT_MERGE_RULE_REGISTRY
+from polisyos.ir.kernel.slots import DEFAULT_SLOT_REGISTRY
 
 
 def optimize_mechanisms(
@@ -68,9 +71,17 @@ def optimize_mechanisms(
 
         curr_state = initial_state
         curr_key = state_key
-        for m in modified_mechanisms:
+        for idx, m in enumerate(modified_mechanisms):
             curr_key, step_key = jax.random.split(curr_key)
-            curr_state, curr_key = m(curr_state, step_key)
+            patches, next_key = m.emit_patches(curr_state, step_key)
+            curr_state = apply_patch_map(
+                curr_state,
+                patches,
+                slot_registry=DEFAULT_SLOT_REGISTRY,
+                merge_registry=DEFAULT_MERGE_RULE_REGISTRY,
+                default_node_id=f"mech_{idx}",
+            )
+            curr_key = next_key
         return policy_loss_fn(curr_state, min_balance)
 
     @jax.jit

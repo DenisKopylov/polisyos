@@ -123,7 +123,6 @@ core/
 - `WarningsBundle` / `WarningsRef` - пакет предупреждений
 
 #### Foundry Contracts (Foundry - симуляция и исполнение)
-- `PolicyRequestIRRef` - IR запроса политики
 - `PolicySurfaceIRRef` - IR поверхности политики
 - `ProgramGraph` / `ProgramGraphRef` - граф программы с узлами и операциями
 - `LoweredIR` / `LoweredIRRef` - пониженное IR для исполнения

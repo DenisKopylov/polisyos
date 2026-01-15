@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Dict, Optional
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -42,6 +42,6 @@ class DatasetManifest(BaseModel):
     pii_flags: Dict[str, bool]
     quality: QualityMetrics
     reconciliation: Optional[ReconciliationReport] = None
-    created_at: str = Field(default_factory=lambda: datetime.utcnow().isoformat())
+    created_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
 
     model_config = ConfigDict(extra="forbid")

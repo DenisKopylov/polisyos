@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 import warnings
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
@@ -20,7 +20,7 @@ class DecisionPacket(BaseModel):
     """
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
-    generated_at: str = Field(default_factory=lambda: datetime.utcnow().isoformat())
+    generated_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
 
     run_id: str
     parent_run_id: Optional[str] = None

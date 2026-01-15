@@ -4,7 +4,7 @@ import json
 import os
 import platform
 import warnings
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from importlib import metadata
 from pathlib import Path
@@ -31,7 +31,7 @@ class RunRecord(BaseModel):
     """
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
-    generated_at: str = Field(default_factory=lambda: datetime.utcnow().isoformat())
+    generated_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
 
     run_id: str = Field(..., max_length=64)
     parent_run_id: Optional[str] = Field(None, max_length=64)

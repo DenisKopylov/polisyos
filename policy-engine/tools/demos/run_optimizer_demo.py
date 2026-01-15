@@ -8,7 +8,7 @@ if str(SRC_ROOT) not in sys.path:
 
 # check_step6.py
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 
 import jax_bootstrap  # noqa: F401
 import jax
@@ -58,7 +58,7 @@ def main():
     ir = PolicyRequestIR(
         project_name=TranslatableString(en="Opt Test", ua="Тест"),
         schema_version="1.0",
-        generated_at=datetime.utcnow().isoformat(),
+        generated_at=datetime.now(timezone.utc).isoformat(),
         generator={"name": "policy-engine", "version": "0.1.0"},
         currency="USD",
         time_unit="year",

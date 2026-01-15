@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import hashlib
-from datetime import datetime
+from datetime import datetime, timezone
 from decimal import Decimal
 from typing import Any
 
@@ -44,7 +44,7 @@ class Fact(KernelModel):
     object_value: str | int | bool | Decimal | None = Field(None, serialization_alias="object")
     target_id: str | None = Field(None, pattern=ID_PATTERN)
     valid_time: str | int | None = None
-    tx_time: str = Field(default_factory=lambda: datetime.utcnow().isoformat() + "Z")
+    tx_time: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"))
     provenance: FactProvenance
     trust: FactTrust | None = None
     legal: FactLegal | None = None

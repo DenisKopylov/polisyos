@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import difflib
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Iterable, List, Optional, Union
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
@@ -21,7 +21,7 @@ class ValidationReport(BaseModel):
     issues: List[ValidationIssue]
     repair_attempt: Optional[str] = None
     diff_before_after: Optional[str] = None
-    generated_at: str = Field(default_factory=lambda: datetime.utcnow().isoformat())
+    generated_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
     model_config = ConfigDict(extra="forbid")
 
 

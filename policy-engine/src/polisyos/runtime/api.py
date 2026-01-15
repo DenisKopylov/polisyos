@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, Optional
 
@@ -69,7 +69,7 @@ def log_artifact(
     artifact_dir.mkdir(parents=True, exist_ok=True)
 
     suffix = ".json" if media_type == "application/json" else ".txt"
-    safe_name = filename or f"{datetime.utcnow().strftime('%Y%m%dT%H%M%S')}_{artifact_type}{suffix}"
+    safe_name = filename or f"{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%S')}_{artifact_type}{suffix}"
     path = artifact_dir / safe_name
 
     if media_type == "application/json":
@@ -139,7 +139,7 @@ def finalize_run(
 ) -> None:
     manifest = _load_manifest(base_dir, run_id)
     manifest.status = status
-    manifest.finished_at = datetime.utcnow().isoformat()
+    manifest.finished_at = datetime.now(timezone.utc).isoformat()
     manifest.pruning_reason = pruning_reason
     _write_manifest(base_dir, manifest)
 

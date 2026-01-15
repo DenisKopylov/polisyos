@@ -102,6 +102,8 @@ def main() -> None:
         source="demo_generator",
         license_name="CC0",
         clear_on_start=True,
+        reconciliation_tolerance=1e-4,
+        reconciliation_strict=False,
     )
 
     db = SimulationDB(str(db_path))

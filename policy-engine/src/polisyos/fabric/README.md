@@ -206,6 +206,7 @@ RECONCILIATION_RULES = {
 - Расчет дебет/кредит сумм
 - Проверка баланса с заданной toleranc'ей
 - Генерация отчета с per-type breakdown
+- В warn-only режиме (`reconciliation_strict=False`) несоответствия логируются и не блокируют ingestion
 
 ### 6. Storage Adapters (`io/`)
 
@@ -433,11 +434,12 @@ run_ingestion(
     raw_dir=Path("data/raw"),
     staging_dir=Path("data/staging"),
     curated_dir=Path("data/curated"),
-    fact_dir=Path("data/facts"),  # Новое: директория для Fact Log
     db_path=Path("simulation.duckdb"),
     kuzu_path=Path("simulation.kuzu"),
     source="demo_dataset",
-    license_name="MIT"
+    license_name="MIT",
+    reconciliation_tolerance=1e-4,
+    reconciliation_strict=False
 )
 ```
 

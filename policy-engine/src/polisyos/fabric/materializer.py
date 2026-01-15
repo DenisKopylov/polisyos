@@ -24,6 +24,21 @@ DEFAULT_AGENT_STEP = 0
 AUTO_COLUMNS = {"timestamp", "created_at", "applied_at"}
 VALID_IDENTIFIER = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
 
+TABLE_TYPE_HINTS = {
+    "macro_history": {
+        "run_id": "VARCHAR",
+        "step": "INTEGER",
+        "timestamp": "TIMESTAMP",
+    },
+    "agents_snapshot": {
+        "run_id": "VARCHAR",
+        "step": "INTEGER",
+        "agent_id": "VARCHAR",
+        "age": "INTEGER",
+        "is_employed": "BOOLEAN",
+    },
+}
+
 
 def load_fact_manifests(fact_dir: Path) -> list[FactSegmentManifest]:
     index_path = fact_dir / "_segments.jsonl"
@@ -138,6 +153,7 @@ def _apply_macro_facts(db: SimulationDB, facts: pd.DataFrame) -> None:
     for col in metrics:
         pivot[col] = pd.to_numeric(pivot[col], errors="coerce")
     pivot["step"] = pd.to_numeric(pivot["step"], errors="coerce").astype("Int64")
+    _ensure_columns_from_udf_schema(db, "macro_history")
     _ensure_table_columns(db, "macro_history", pivot)
     table_cols = _table_columns(db, "macro_history")
     insert_cols = [col for col in ["run_id", "step", *metrics] if col in table_cols]
@@ -175,6 +191,7 @@ def _apply_agent_facts(db: SimulationDB, facts: pd.DataFrame) -> None:
     pivot["is_employed"] = pivot["is_employed"].map(_coerce_bool)
     pivot["run_id"] = DEFAULT_AGENT_RUN_ID
     pivot["step"] = DEFAULT_AGENT_STEP
+    _ensure_columns_from_udf_schema(db, "agents_snapshot")
     _ensure_table_columns(db, "agents_snapshot", pivot)
     table_cols = _table_columns(db, "agents_snapshot")
     base_cols = ["run_id", "step", "agent_id"]
@@ -262,6 +279,39 @@ def _ensure_table_columns(db: SimulationDB, table: str, df: pd.DataFrame) -> Non
             logger.warning("Skipping unsafe column name in materializer: %s", col)
             continue
         dtype = _duckdb_type_for_series(df[col])
+        db.conn.execute(f'ALTER TABLE {table} ADD COLUMN "{col}" {dtype}')
+        existing.add(col)
+
+
+def _default_type_for_column(table: str, column: str) -> str:
+    table_hints = TABLE_TYPE_HINTS.get(table, {})
+    if column in table_hints:
+        return table_hints[column]
+    if table == "macro_history":
+        return "DOUBLE"
+    if table == "agents_snapshot":
+        return "DOUBLE"
+    return "VARCHAR"
+
+
+def _ensure_columns_from_udf_schema(db: SimulationDB, table: str) -> None:
+    try:
+        from polisyos.fabric.udf.config import load_udf_schema
+    except Exception as exc:
+        logger.warning("Skipping UDF schema precreate: %s", exc)
+        return
+    schema = load_udf_schema()
+    allowed = schema.allowed_columns.get(table, set())
+    if not allowed:
+        return
+    existing = set(_table_columns(db, table))
+    for col in sorted(allowed):
+        if col in existing or col in AUTO_COLUMNS:
+            continue
+        if not VALID_IDENTIFIER.match(col):
+            logger.warning("Skipping unsafe UDF schema column: %s", col)
+            continue
+        dtype = _default_type_for_column(table, col)
         db.conn.execute(f'ALTER TABLE {table} ADD COLUMN "{col}" {dtype}')
         existing.add(col)
 

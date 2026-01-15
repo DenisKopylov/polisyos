@@ -8,6 +8,7 @@ from typing import Any, Dict, Iterable, Tuple, Type
 import pandas as pd
 from pydantic import BaseModel, ValidationError
 
+from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.contracts.fabric import EvidenceBundleRef
@@ -28,6 +29,8 @@ from polisyos.fabric.manifest import (
 )
 from polisyos.fabric.schema import AgentRow, InteractionRow, MacroRow
 from polisyos.ir.fact_log import FactProvenance, FactSegmentManifest
+
+logger = get_logger(__name__)
 
 
 def _file_hash(path: Path) -> str:
@@ -135,6 +138,13 @@ def _reconcile_interactions(
             raise ValueError(
                 f"Reconciliation failed for type '{event_type}': diff {diff} > {tolerance}"
             )
+        if diff > tolerance and not strict:
+            logger.warning(
+                "Reconciliation diff for type '%s' exceeds tolerance: %s > %s",
+                event_type,
+                diff,
+                tolerance,
+            )
         per_type[event_type] = {
             "total_debit": debit_sum,
             "total_credit": credit_sum,
@@ -147,6 +157,10 @@ def _reconcile_interactions(
     status = "pass" if diff_total <= tolerance else "fail"
     if status == "fail" and strict:
         raise ValueError(f"Reconciliation failed: diff {diff_total} > tolerance {tolerance}")
+    if status == "fail" and not strict:
+        logger.warning(
+            "Reconciliation diff exceeds tolerance: %s > %s", diff_total, tolerance
+        )
     return ReconciliationReport(
         status=status,
         tolerance=tolerance,

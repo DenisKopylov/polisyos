@@ -1,33 +1,46 @@
-# Policy Engine
+# Policy Engine (PolisyOS)
 
-**AI-driven Policy Simulation System** - система симуляции экономической политики с использованием дифференцируемых вычислений и унифицированного хранилища данных.
+**Policy Engine** — AI‑driven система проектирования, валидации, калибровки и исполнения политик. Архитектурно это “компиляторная труба”: от запроса пользователя/LLM до формально типизированных контрактов (IR), далее — компиляция в исполняемые графы, выполнение в JAX‑ядре и фиксация результатов в воспроизводимых артефактах.
+
+**Состояние документа (актуально на 2026‑01):** архитектура v2.1 (Fabric layer, Calibration MVP, Runtime API), присутствуют legacy‑фрагменты после крупных изменений (см. раздел “Legacy и переходные зоны”).
 
 ## Архитектурный обзор
 
-Policy Engine представляет собой полнофункциональную систему для проектирования, валидации и оптимизации экономических политик через комбинацию ИИ, симуляций и детерминированных вычислений.
-
-### Компиляторная архитектура
-
-Система построена по принципам компилятора с четким разделением ответственности:
+### Компиляторная труба (сверху вниз)
 
 ```
-NL → LLM → IR (AST) → Compilation → Runtime (UDF + Foundry) → Artifacts
+NL/Request → Scientist (LLM + Workflow) → IR (contracts) → Compilation → Runtime (Fabric UDF + Foundry) → Artifacts
 ```
 
-**Архитектурные законы:**
-- **Закон A**: Граф зависимостей направлен только внутрь (scientist → ir/fabric/foundry → core)
-- **Закон B**: Foundry остается чистым математическим ядром (без IO/сетевых операций)
-- **Закон C**: Контракты (IR) - единственный источник истины для всех компонентов
-- **Закон D**: Любой прогон воспроизводим и аудируем (run_id, seed, детерминированные артефакты)
+Грубо: `scientist` производит/чинит IR, `ir` задаёт контракты, `fabric` обеспечивает данные/доказательства, `foundry` компилирует и исполняет политику, `runtime` фиксирует прогон, `core` даёт инфраструктуру артефактов/контрактов/трассировки.
 
-### Основные компоненты
+### Архитектурные законы (инварианты проекта)
 
-- **Scientist**: AI-агент для проектирования политик (LLM + оптимизация)
-- **IR**: Промежуточное представление (контракты, типы, валидация)
-- **Fabric**: Unified Data Fabric (ingestion, storage, UDF запросы)
-- **Foundry**: JAX симуляционное ядро (механизмы, patch execution, оптимизация)
-- **Runtime**: Управление жизненным циклом прогонов (артефакты, аудит, бюджеты)
-- **Core**: Фундаментальные утилиты (конфигурация, логирование, миграции)
+Проект опирается на набор инвариантов, которые проверяются линтерами/тестами и позволяют держать систему “как компилятор”:
+
+- **Закон A — направленный граф зависимостей**: верхние слои зависят от нижних; запрещены обратные импорты и циклы. Проверяется `tools/lint_imports.py`.
+- **Закон B — Foundry как чистое математическое ядро**: без БД/FS/сети и прочих side‑effects; только JAX‑совместимая логика, контракты, работа с артефактами. Проверяется `tools/lint_foundry.py`.
+- **Закон C — контракты как источник истины**: структура данных определена в `ir` (и в `core.contracts` для межслойного обмена), экспортируется в JSON Schema и валидируется на границах. Поддерживается `tools/gen_schema.py`.
+- **Закон D — воспроизводимость и аудит**: любой прогон имеет `run_id`, детерминированные seed’ы, протокол артефактов и audit trail.
+- **Закон E — evidence обязательны**: результаты data‑провода фиксируют provenance/evidence (важно для доверия к данным).
+- **Закон F — fidelity control**: симуляции/калибровки поддерживают управление точностью (speed/accuracy trade‑off).
+- **Закон G — uncertainty quantification**: калибровки предоставляют оценки неопределённости (на уровне отчётов/артефактов).
+
+### Слои и зависимости (упрощённо)
+
+Нормативная схема зависимостей (ориентир; фактическую проверяет `tools/lint_imports.py`):
+
+```
+core → (никого)
+ir → core
+fabric → ir (+ core.contracts/core.artifacts; + common.logger)
+foundry → ir (+ core.contracts/core.artifacts)
+runtime → ir + core
+scientist → ir + fabric + foundry + runtime (+ core как инфраструктура)
+common → (никого)   # “тонкая” инфраструктура (config/logger/migrations)
+```
+
+> Примечание: `polisyos.common` и `polisyos.core` — разные “фундаменты”. `common` — минимальные утилиты (config/logger/migrations) без бизнес‑логики. `core` — инфраструктура артефактов/контрактов/trace/run‑контекстов.
 
 ## Технологический стек (текущий)
 
@@ -296,71 +309,76 @@ RunManifest + seed + artifacts → Full reproducibility
 
 **Инструменты поддержки:** Runtime API (`start_run`, `log_artifact`, `append_audit`) обеспечивает соблюдение закона D.
 
-## Модули системы
+## Модули системы (актуальное назначение и контракты)
 
-### Core Layer (Фундамент)
-**Обеспечивает базовую инфраструктуру для всех компонентов:**
+Ниже — “карта модулей” в терминах **ответственности** и **контрактов**. Детали — в README каждого модуля.
 
-- **`core/artifacts/`**: FileSystemCAS - content-addressable storage для immutable артефактов
-- **`core/compiler/`**: Компиляция политик IR в исполняемые ProgramGraph структуры
-- **`core/contracts/`**: Foundry-specific контракты (PatchOp, ProgramGraph, ExecutionPlan)
-- **`core/registry/`**: Управление реестрами компонентов и их версиями
-- **`core/run/`**: Контекст выполнения, метаданные producer'а и артефакты
+### `polisyos.core` — инфраструктурный фундамент
 
-### IR Layer (Intermediate Representation)
-**Канонические контракты и типы для всей системы:**
+Что даёт:
+- **CAS/артефакты**: `core.artifacts` (FileSystemCAS, ArtifactID/Ref/Manifest, provenance).
+- **Канонический JSON**: `core.canon` (детерминированная сериализация, запрет float → Decimal‑first).
+- **Контракты между слоями**: `core.contracts` (foundry/fabric/compiler).
+- **Трассировка**: `core.trace` (JsonlTraceSink, TraceRecord).
+- **Run‑контекст**: `core.run` (RunContext/RunManifest).
+- **Реестры**: `core.registry` (сборка/загрузка bundles).
 
-- **`ir/surface.py`**: PolicySurfaceIR v2.0 - основной контракт системы с semantic/advisory разделением
-- **`ir/kernel/`**: Базовые реестры (механизмы, слоты, единицы измерения, merge rules)
-- **`ir/data_views.py`**: Унифицированные запросы к данным (PANEL/SNAPSHOT/NETWORK)
-- **`ir/linker.py`**: Валидация и линковка политик с реестрами компонентов
-- **`ir/fact_log.py`**: Контракты для Fact Log системы (immutable факты с provenance)
-- **`ir/migrations/`**: Детерминированные миграции между версиями схем
+### `polisyos.ir` — канонические контракты политики (IR)
 
-### Fabric Layer (Unified Data Fabric)
-**Полный жизненный цикл данных от сырых CSV до аналитических запросов:**
+Что определяет:
+- **Surface IR v2.0**: `ir.surface.PolicySurfaceIR` (semantic/advisory раздельно).
+- **Kernel‑реестры**: `ir.kernel` (mechanisms/slots/merge rules/units/time semantics/values).
+- **Data views**: `ir.data_views` (PANEL/SNAPSHOT/NETWORK, access tiers, фильтры).
+- **Linker**: `ir.linker` (валидация/связывание политики с реестрами).
+- **Fact Log контракты**: `ir.fact_log` (immutable facts, provenance/trust/legal).
+- **Миграции**: `ir.migrations` + loaders (авто‑распознавание версии и коэрция v1→v2).
 
-- **`fabric/ingestion.py`**: ETL пайплайн с entity resolution, reconciliation и Fact Log
-- **`fabric/io/`**: Адаптеры хранилищ (DuckDB для аналитики, Kuzu для графов)
-- **`fabric/udf/`**: Unified Data Fabric с безопасной компиляцией SQL/Cypher запросов
-- **`fabric/fact_writer.py`**: Запись immutable фактов в каноническом формате
-- **`fabric/materializer.py`**: Восстановление реляционных представлений из Fact Log
-- **`fabric/evidence.py`**: Система доказательств (evidence bundles) для верификации данных
+### `polisyos.fabric` — Unified Data Fabric (данные + evidence)
 
-### Foundry Layer (JAX Simulation Core)
-**Высокопроизводительное симуляционное ядро с patch-based execution:**
+Что делает:
+- **Ingestion pipeline**: raw CSV → staging (Parquet) → curated (DuckDB/Kùzu) + manifests.
+- **UDF**: компилируемый безопасный слой запросов (passes: resolution/typecheck/merge/privacy/lowering).
+- **Fact Log**: запись immutable фактов + сегменты/манифесты.
+- **Evidence bundles**: provenance трансформаций и источников, хранение в CAS через `core`.
+- **Entity resolution / reconciliation**: нормализация ID, балансовые проверки транзакций.
 
-- **`foundry/compiler.py`**: Компиляция политик в ProgramGraph с топологической сортировкой
-- **`foundry/runtime.py`**: Исполнение программ с patch system и merge rules
-- **`foundry/domain/`**: Экономическая модель (GlobalState, AgentState, FirmState, MarketState)
-- **`foundry/fiscal.py`**: Налоговые механизмы (IncomeTax, TaxSubsidy) с multi-fidelity
-- **`foundry/treasury.py`**: Детерминированное управление RNG для воспроизводимости
-- **`foundry/base.py`**: Абстрактный класс Mechanism с emit_patches() методом
+Важно по статусу:
+- `materializer` сейчас описан как **placeholder** (есть каркас/логирование, полная материализация ещё в разработке).
 
-### Scientist Layer (AI Policy Scientist)
-**Интеллектуальная оркестрация экспериментов с LLM и оптимизацией:**
+### `polisyos.foundry` — JAX‑ядро исполнения (compiler + runtime + calibration)
 
-- **`scientist/orchestrator/`**: LangGraph workflow с 9 узлами (draft_ir → analyze → governor)
-- **`scientist/agent/`**: LLM интеграция (drafter, prompt engineering, MockLLM для тестов)
-- **`scientist/kernel/`**: Управление состоянием (FSM, budgets, guards, human gates)
-- **`scientist/compute/`**: Спецификации вычислительных задач (JobSpec, JobKey, JobResult)
-- **`scientist/doe/`**: Design of Experiments (ScenarioSweep, AblationPlan, SensitivityPlan)
-- **`scientist/governance/`**: Preflight/postflight проверки и бюджетный контроль
+Что делает:
+- **Компиляция**: IR → ProgramGraph + ExecPlan (топологический порядок).
+- **Patch‑based execution**: механизмы генерируют патчи в слоты; применяется merge rules.
+- **Deterministic RNG**: Treasury plan (узлам выдаются детерминированные соли/ключи).
+- **Calibration MVP**: калибровка параметров по целям, отчёты, uncertainty (на уровне репортов).
+- **Multi‑fidelity**: уровни точности (fluid/relaxed/hard) для trade‑off скорость/реализм.
 
-### Runtime Layer (Experiment Lifecycle)
-**Управление жизненным циклом прогонов с аудитом и артефактами:**
+### `polisyos.scientist` — AI Policy Scientist (оркестрация эксперимента)
 
-- **`runtime/api.py`**: Основные функции (start_run, log_artifact, append_audit, finalize_run)
-- **`runtime/manifest.py`**: RunManifest (паспорт прогона) и ArtifactRef модели
-- **Структура runs/**: Стандартизированное хранение результатов (`manifest.json`, `artifacts/`, `audit.jsonl`)
+Что делает:
+- **Workflow**: LangGraph + FSM (фазы), узлы: draft → validate → repair → compile_data_views → compile_model → run_sim → analyze → governor → pack_decision.
+- **Governance**: preflight/postflight, human gates.
+- **Budgets**: compute/evidence/legitimacy/complexity бюджеты и их enforcement.
+- **Optimization**: градиентная оптимизация (Optax) и multi‑objective (PyMOO).
+- **DecisionPacket**: финальный “пакет решения” с IR, артефактами, аудитом, результатами.
 
-### Common Layer (Shared Infrastructure)
-**Фундаментальные утилиты без зависимостей:**
+### `polisyos.runtime` — жизненный цикл прогонов (runs/<run_id>)
 
-- **`common/config.py`**: Конфигурация JAX, системных лимитов и логирования
-- **`common/logger.py`**: Структурированное логирование с контекстом модуля
-- **`common/jax_env.py`**: JAX backend selection для macOS (предотвращение Metal падений)
-- **`common/migrations/`**: Детерминированные миграции артефактов между версиями
+Что делает:
+- **start_run / finalize_run**: создание и финализация прогона.
+- **log_artifact**: стандартизированная запись артефактов в `runs/<run_id>/artifacts/...`.
+- **append_audit**: JSONL audit trail.
+- **budget_usage**: фиксация использования бюджета.
+
+Ключевая особенность: **переносимость** — рекомендуем `ArtifactRef.relative_path` (поле `path` считается устаревшим).
+
+### `polisyos.common` — минимальная инфраструктура (без бизнес‑логики)
+
+Что делает:
+- **config/jax_env**: безопасные настройки JAX (особенно macOS/Metal).
+- **logger/get_logger**: единое структурированное логирование.
+- **migrations**: детерминированные миграции некоторых артефактов (на уровне инфраструктуры).
 
 ## Рабочая директория и артефакты
 
@@ -530,31 +548,31 @@ python tools/diagnostics/generate_ir_schema.py
 Для детального понимания архитектуры и API каждого модуля обратитесь к специализированной документации:
 
 ### Core Infrastructure
-- **[`src/polisyos/core/`](../core/README.md)**: Фундаментальные компоненты (CAS, compiler, registry, contracts)
+- **[`src/polisyos/core/README.md`](src/polisyos/core/README.md)**: CAS/артефакты, канонический JSON, contracts, trace, run‑контекст, registry
 
 ### Intermediate Representation
-- **[`src/polisyos/ir/README.md`](../ir/README.md)**: Контракты данных, PolicySurfaceIR, kernel реестры, линкер, миграции
+- **[`src/polisyos/ir/README.md`](src/polisyos/ir/README.md)**: PolicySurfaceIR, kernel‑реестры, linker, loaders/migrations, fact log контракты
 
 ### Unified Data Fabric
-- **[`src/polisyos/fabric/README.md`](../fabric/README.md)**: Ingestion, storage, UDF запросы, Fact Log, evidence bundles
+- **[`src/polisyos/fabric/README.md`](src/polisyos/fabric/README.md)**: ingestion, DuckDB/Kùzu, UDF compiler pipeline, Fact Log, evidence
 
 ### JAX Simulation Core
-- **[`src/polisyos/foundry/README.md`](../foundry/README.md)**: Компиляция, patch execution, механизмы, экономическая модель
+- **[`src/polisyos/foundry/README.md`](src/polisyos/foundry/README.md)**: compile→ProgramGraph, patch VM, механизмы, treasury, calibration, legacy слой
 
 ### AI Policy Scientist
-- **[`src/polisyos/scientist/README.md`](../scientist/README.md)**: LLM интеграция, workflow, governance, DOE
+- **[`src/polisyos/scientist/README.md`](src/polisyos/scientist/README.md)**: LangGraph workflow, budgets/governance, DoE, publisher, legacy слой
 
 ### Runtime & Lifecycle
-- **[`src/polisyos/runtime/README.md`](../runtime/README.md)**: Управление прогонами, артефакты, аудит
+- **[`src/polisyos/runtime/README.md`](src/polisyos/runtime/README.md)**: runs/<run_id>, audit.jsonl, log_artifact, budget usage, переносимость путей
 
 ### Common Utilities
-- **[`src/polisyos/common/README.md`](../common/README.md)**: Конфигурация, логирование, JAX setup, миграции
+- **[`src/polisyos/common/README.md`](src/polisyos/common/README.md)**: config/jax_env, logger, migrations
 
 ### Testing Framework
-- **[`tests/README.md`](../tests/README.md)**: Архитектура тестов, категории, CI/CD интеграция
+- **[`tests/README.md`](tests/README.md)**: структура тестов, категории, архитектурные гейты, интеграция CI
 
 ### Developer Tools
-- **[`tools/README.md`](../tools/README.md)**: Линтеры, диагностика, бенчмарки, демонстрации
+- **[`tools/README.md`](tools/README.md)**: линтеры законов, диагностика, миграции, схемы, бенчмарки, демо
 
 ## Архитектурные принципы проекта
 
@@ -563,6 +581,9 @@ python tools/diagnostics/generate_ir_schema.py
 - **Закон B**: Компиляторная архитектура (чистота математического ядра)
 - **Закон C**: Контракты - единственный источник истины
 - **Закон D**: Воспроизводимость и аудит всех прогонов
+- **Закон E**: Evidence обязательны для data‑провода (provenance/доверие к данным)
+- **Закон F**: Fidelity control (управление точностью симуляций/калибровок)
+- **Закон G**: Uncertainty quantification (оценки неопределённости в калибровке/отчётах)
 
 ## Контрибьютинг
 
@@ -578,6 +599,32 @@ python tools/diagnostics/generate_ir_schema.py
 
 Проект находится в активной разработке. Для вопросов и предложений используйте issue tracker или связывайтесь с командой разработки.
 
+## Legacy и переходные зоны (после крупных изменений)
+
+Система активно эволюционировала; часть кода/контрактов сохраняется для совместимости и миграций. Важно явно понимать, что “новое”, а что “поддерживается, но не развиваем”.
+
+### Legacy в `ir`
+
+- **`ir/contract.py` (IR v1.0)**: устаревшие модели (`PolicyIR`, иерархические `PolicyEntity`, старые селекторы). Сохраняются для обратной совместимости и миграции.
+- **Переход на v2**: основной контракт — `ir/surface.py` (`PolicySurfaceIR`). Загрузчики (`ir/loaders.py`) умеют распознавать версии и коэрсить v1→v2.
+
+### Legacy в `foundry`
+
+- **`foundry/_legacy/engine/*` и `basic_simulation.py`**: старый симуляционный движок и демо. Новая линия — ProgramGraph + patch‑based runtime.
+- **Механизмы “step()” vs “emit_patches()”**: новые механизмы должны использовать patch‑first подход; `step()` остаётся как совместимость/переходный слой.
+
+### Legacy в `scientist`
+
+- **`scientist/_legacy/*`**: старый компилятор/узлы workflow. Актуальная линия — `scientist/orchestrator/*` (LangGraph + `flow_nodes.py` + FSM/guards).
+
+### Переходные зоны в `fabric`
+
+- **Materializer**: в документации обозначен как placeholder — каркас есть, но полная материализация DuckDB/Kùzu из Fact Log ещё не доведена до конечного состояния.
+
+### Переходные зоны в `runtime`
+
+- **`ArtifactRef.path`**: поддерживается для старых артефактов, но для новых следует использовать `relative_path` (переносимость runs/).
+
 ---
 
-*Policy Engine - AI-driven Policy Simulation System с гарантированной воспроизводимостью и аудитом.*
+*Policy Engine (PolisyOS) — компиляторная система симуляции политик: контракты → компиляция → JAX‑исполнение → артефакты с аудитом и воспроизводимостью.*

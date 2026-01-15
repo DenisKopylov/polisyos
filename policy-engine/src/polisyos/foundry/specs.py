@@ -99,9 +99,13 @@ def _validate_param_value(value: Any, spec) -> None:
 
 
 def validate_mechanism_params(
-    mech_type: str, params: Dict[str, Any], *, allow_extra_params: bool = False
+    mech_type: str,
+    params: Dict[str, Any],
+    *,
+    allow_extra_params: bool = False,
+    mechanism_spec: MechanismSpec | None = None,
 ) -> None:
-    spec = get_mechanism_spec(mech_type)
+    spec = mechanism_spec or get_mechanism_spec(mech_type)
     spec_params = spec.params
 
     missing = [

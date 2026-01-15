@@ -35,9 +35,12 @@ def make_bijector(lower: float | None, upper: float | None, eps: float = 1e-6) -
         )
     if lower is not None and upper is not None:
         width = upper - lower
+        # "Температура" для sigmoid-параметризации: меньшие значения дают более сильный
+        # градиент в ограниченном пространстве (полезно для быстрой сходимости калибратора).
+        temperature = 0.5
         return Bijector(
-            forward=lambda u: jax.nn.sigmoid(u) * width + lower,
-            inverse=lambda x: jnp.log((x - lower) / (upper - x + eps)),
+            forward=lambda u: jax.nn.sigmoid(u / temperature) * width + lower,
+            inverse=lambda x: temperature * jnp.log((x - lower) / (upper - x + eps)),
         )
     return _identity()
 

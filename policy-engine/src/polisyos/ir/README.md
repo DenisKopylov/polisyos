@@ -57,22 +57,24 @@ ir/
 ├── linker.py                 # Линкер политик с реестрами
 ├── predicate.py              # Реестры предикатов для данных
 ├── surface.py                # PolicySurfaceIR (v2.0) - основной контракт
+├── loaders.py                # Загрузчики политик с поддержкой версий
+├── calibration.py            # Контракты калибровки политик
 ├── kernel/                   # Kernel: реестры и базовые типы
 │   ├── __init__.py          # Экспорт kernel компонентов
-│   ├── base.py              # KernelModel и утилиты
+│   ├── base.py              # KernelModel и утилиты валидации
 │   ├── constraints.py       # Реестр ограничений
-│   ├── mechanisms.py        # Реестр механизмов
-│   ├── merge_rules.py       # Правила слияния слотов
-│   ├── metrics.py           # Реестр метрик
+│   ├── mechanisms.py        # Реестр механизмов интервенций
+│   ├── merge_rules.py       # Правила слияния слотов состояний
+│   ├── metrics.py           # Реестр метрик оптимизации
 │   ├── numbers.py           # Числовые типы (DecimalValue, etc.)
-│   ├── selector_fields.py   # Поля селекторов
-│   ├── slots.py             # Реестр слотов состояний
-│   ├── time_semantics.py    # Семантика времени
-│   ├── trust.py             # Политики доверия
+│   ├── selector_fields.py   # Реестр полей селекторов
+│   ├── slots.py             # Реестр слотов состояний агентов
+│   ├── time_semantics.py    # Семантика времени и расписаний
+│   ├── trust.py             # Политики доверия к данным
 │   ├── units.py             # Реестр единиц измерения
 │   └── values.py            # Типизированные значения (MoneyValue, etc.)
 └── migrations/
-    ├── __init__.py          # API миграций
+    ├── __init__.py          # API миграций между версиями
 ```
 
 ## Основные компоненты
@@ -455,7 +457,77 @@ registry = PredicateRegistry(
 )
 ```
 
-### 9. Система версий (`migrations/`)
+### 9. Загрузчики политик (`loaders.py`)
+
+#### Универсальная загрузка политик
+
+Система загрузки поддерживает автоматическое распознавание версий политик и конвертацию между форматами:
+
+```python
+from polisyos.ir.loaders import load_policy
+
+# Автоматическая загрузка с распознаванием версии
+policy = load_policy(input_data)  # Возвращает PolicySurfaceIR
+
+# Поддерживает как v1.0 (PolicyRequestIR), так и v2.0 (PolicySurfaceIR)
+# Автоматически конвертирует v1.0 в v2.0 при необходимости
+```
+
+#### Конвертация версий
+
+```python
+from polisyos.ir.loaders import _coerce_v1_to_surface
+
+# Ручная конвертация из v1.0 в v2.0
+surface_policy = _coerce_v1_to_surface(v1_data)
+```
+
+### 10. Калибровка политик (`calibration.py`)
+
+#### Настройки калибровки
+
+Контракты для калибровки политик относительно исторических данных:
+
+```python
+from polisyos.ir.calibration import (
+    TargetAlignConfig, TargetLossConfig, CalibrationTarget,
+    CalibrationConfig, CalibrationReport
+)
+
+# Настройки выравнивания временных рядов
+align_config = TargetAlignConfig(
+    frequency="monthly",
+    method="linear",
+    fill_value=None
+)
+
+# Параметры расчета ошибки
+loss_config = TargetLossConfig(
+    kind="mse",
+    relative=True,
+    scale="mean_abs",
+    weight=1.0
+)
+
+# Цель калибровки
+target = CalibrationTarget(
+    target_id="gdp_calibration",
+    series_ref="historical_gdp",
+    align=align_config,
+    loss=loss_config,
+    tolerance=0.05
+)
+
+# Конфигурация калибровки политики
+calibration = CalibrationConfig(
+    policy_ref="policy_sha256_hash",
+    targets=[target],
+    max_iterations=100,
+    tolerance=0.01
+)
+```
+
+### 11. Система версий (`migrations/`)
 
 #### Детерминированные миграции
 
@@ -517,7 +589,60 @@ registry = SlotRegistry(slots={
 })
 ```
 
-### 3. Реестр единиц (`units.py`)
+### 3. Поля селекторов (`selector_fields.py`)
+
+#### Реестр полей для селекторов
+
+Определение доступных полей для фильтрации сущностей в селекторах:
+
+```python
+from polisyos.ir.kernel import SelectorFieldRegistry, SelectorFieldSpec, FieldValueType
+
+registry = SelectorFieldRegistry(fields={
+    "income": SelectorFieldSpec(
+        field_id="income",
+        slot_id="agent.income",
+        value_type=FieldValueType.NUMBER,
+        description="Доход агента"
+    ),
+    "sector": SelectorFieldSpec(
+        field_id="sector",
+        slot_id="agent.sector",
+        value_type=FieldValueType.STRING,
+        allowed_values=["IT", "finance", "manufacturing"],
+        description="Сектор экономики"
+    )
+})
+```
+
+### 4. Политики доверия (`trust.py`)
+
+#### Реестр политик доверия
+
+Определение уровней доверия к источникам данных:
+
+```python
+from polisyos.ir.kernel import TrustRegistry, TrustPolicySpec, TrustLevel
+
+registry = TrustRegistry(policies={
+    "official_stats": TrustPolicySpec(
+        policy_id="official_stats",
+        level=TrustLevel.HIGH,
+        sources=["government_api", "central_bank"],
+        validation_rules=["signature_required", "freshness_check"],
+        description="Официальная статистика от государственных органов"
+    ),
+    "survey_data": TrustPolicySpec(
+        policy_id="survey_data",
+        level=TrustLevel.MEDIUM,
+        sources=["research_firms"],
+        validation_rules=["sample_size_check"],
+        description="Данные опросов и исследований"
+    )
+})
+```
+
+### 5. Реестр единиц (`units.py`)
 
 Типизированная система единиц измерения:
 
@@ -537,7 +662,7 @@ registry = UnitsRegistry(units={
 })
 ```
 
-### 4. Типизированные значения (`values.py`)
+### 6. Типизированные значения (`values.py`)
 
 Строго типизированные значения с единицами:
 
@@ -549,7 +674,7 @@ tax_rate = RateValue.ratio(0.15)  # 15%
 employees = CountValue(value=100)
 ```
 
-### 5. Правила слияния (`merge_rules.py`)
+### 7. Правила слияния (`merge_rules.py`)
 
 Логика разрешения конфликтов при пересекающихся интервенциях:
 
@@ -578,6 +703,7 @@ IR включает строгие лимиты для предотвращен�
 # Анти-runaway константы (surface.py)
 MAX_SELECTOR_DEPTH = 6      # Максимальная глубина селекторов
 MAX_SELECTOR_NODES = 200    # Максимум узлов в селекторе
+MAX_SELECTOR_CLAUSES = 50   # Максимум выражений в селекторе
 MAX_INTERVENTIONS = 200     # Максимум интервенций
 MAX_OBJECTIVES = 50         # Максимум целей
 MAX_CONSTRAINTS = 100       # Максимум ограничений
@@ -594,22 +720,26 @@ MAX_ID_LEN = 64             # Длина идентификаторов
 
 ```python
 # Основные типы (рекомендуемый импорт)
-from polisyos.ir import PolicySurfaceIR
+from polisyos.ir import PolicySurfaceIR, load_policy, CalibrationConfig, CalibrationTarget
 
 # Альтернативный импорт для доступа ко всем компонентам
 from polisyos.ir.surface import (
     PolicySurfaceIR, PolicySemantic, PolicyAdvisory,
     InterventionSpec, ObjectiveSpec, ConstraintSpec,
-    SelectorPredicate, SelectorAll, SelectorAny, SelectorNot
+    SelectorPredicate, SelectorAll, SelectorAny, SelectorNot,
+    ScheduleSpec, schedule_range
 )
 
 from polisyos.ir.kernel import (
     MechanismTypeRegistry, SlotRegistry, UnitsRegistry,
-    MoneyValue, RateValue
+    SelectorFieldRegistry, TrustRegistry,
+    MoneyValue, RateValue, CountValue,
+    MergeRuleRegistry, MetricRegistry, ConstraintRegistry
 )
 
-from polisyos.ir.linker import link_policy
+from polisyos.ir.linker import link_policy, LinkReport
 from polisyos.ir.fact_log import Fact, FactBatch
+from polisyos.ir.calibration import CalibrationConfig, CalibrationTarget
 ```
 
 ### Создание политики v2.0
@@ -695,6 +825,79 @@ except ValidationError as e:
     print(f"❌ Validation failed: {report.error_summary}")
     for issue in report.issues[:3]:  # Показать первые 3 проблемы
         print(f"   {'.'.join(issue.loc)}: {issue.message}")
+
+### Калибровка политики
+
+```python
+from polisyos.ir.calibration import (
+    CalibrationConfig, CalibrationTarget,
+    TargetAlignConfig, TargetLossConfig
+)
+
+# Настройка цели калибровки
+calibration_target = CalibrationTarget(
+    target_id="gdp_target",
+    series_ref="historical_gdp_quarterly",
+    align=TargetAlignConfig(
+        frequency="quarterly",
+        method="linear"
+    ),
+    loss=TargetLossConfig(
+        kind="mse",
+        relative=True,
+        scale="mean_abs",
+        weight=1.0
+    ),
+    tolerance=0.05
+)
+
+# Конфигурация калибровки
+calibration_config = CalibrationConfig(
+    policy_ref="sha256:abc123...",
+    targets=[calibration_target],
+    max_iterations=50,
+    tolerance=0.01,
+    learning_rate=0.01
+)
+
+# Использование в Foundry для калибровки
+from polisyos.foundry.calibration import calibrate_policy
+result = calibrate_policy(calibration_config)
+```
+
+### Загрузка политик с автоматическим распознаванием версии
+
+```python
+from polisyos.ir.loaders import load_policy
+
+# Загрузка политики с автоматическим распознаванием версии
+policy_data = {
+    "schema_version": "2.0",
+    "semantic": {
+        "context_snapshot_ref": "sha256:123...",
+        "objectives": [...],
+        "interventions": [...]
+    },
+    "advisory": {
+        "entities": [...],
+        "narrative": "Economic policy"
+    }
+}
+
+# Автоматическая загрузка и валидация
+policy = load_policy(policy_data)
+print(f"✅ Loaded policy: {policy.schema_version}")
+
+# Поддержка обратной совместимости с v1.0
+v1_policy_data = {
+    "schema_version": "1.0",
+    "project_name": "Legacy Policy",
+    "entities": [...],
+    "interventions": [...]
+}
+
+legacy_policy = load_policy(v1_policy_data)  # Автоматически конвертируется в v2.0
+```
 ```
 
 ## JSON Schema экспорт
@@ -713,14 +916,29 @@ python tools/diagnostics/generate_ir_schema.py
 Модуль включает исчерпывающее тестирование:
 
 ```bash
-# Контрактные тесты
+# Основные контрактные тесты
 pytest tests/contract/test_ir_contract.py
 
-# Миграции
+# Тесты surface API (v2.0)
+pytest tests/contract/test_ir_surface.py
+
+# Тесты линкера и реестров
+pytest tests/contract/test_ir_linker.py
+
+# Тесты калибровки
+pytest tests/contract/test_ir_calibration.py
+
+# Тесты загрузчиков
+pytest tests/contract/test_ir_loaders.py
+
+# Миграции между версиями
 pytest tests/contract/test_ir_migrations.py
 
-# Валидация
+# Валидация и ворота
 pytest tests/contract/test_fabric_gates.py
+
+# Интеграционные тесты с Foundry
+pytest tests/integration/test_foundry_ir.py
 ```
 
 ## Архитектурные принципы
@@ -736,16 +954,21 @@ IR строго следует архитектурным законам про�
 
 ### Зависимости и взаимодействие
 
-- **Scientist**: Генерирует `PolicySurfaceIR` из естественного языка через LLM
-- **Fabric**: Использует `DataViewRequest` и предикаты для запросов данных
-- **Foundry**: Компилирует `InterventionSpec` в исполняемые механизмы JAX
+- **Scientist** (11 файлов): Генерирует `PolicySurfaceIR` из естественного языка через LLM, использует типы из `types.py`, `surface.py`, валидацию из `validation.py`
+- **Fabric** (13 файлов): Использует `DataViewRequest` из `data_views.py`, предикаты из `predicate.py`, контракты фактов из `fact_log.py` для запросов данных
+- **Foundry** (13 файлов): Компилирует `InterventionSpec` из `surface.py` в исполняемые механизмы JAX, использует реестры из `kernel/`, калибровку из `calibration.py`
 - **Runtime**: Хранит артефакты `PolicySurfaceIR` для аудита и воспроизводимости
-- **Core**: Использует `Fact` и `FactBatch` для семантической сети знаний
+- **Core**: Использует `Fact` и `FactBatch` из `fact_log.py` для семантической сети знаний
 
 ### Архитектурные контракты
 
 ```
 Scientist → PolicySurfaceIR → [Linker] → Foundry → Simulation
+       ↓                        ↓             ↓
+   types.py                  kernel/     calibration.py
+       ↓                        ↓             ↓
+   validation.py           surface.py     executor.py
+
                      ↓
                   Fabric → DataViewRequest → Runtime
                      ↓

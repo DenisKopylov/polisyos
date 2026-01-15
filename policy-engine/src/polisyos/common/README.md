@@ -1,5 +1,7 @@
 # Common: Общие компоненты Policy Engine
 
+> **Последнее обновление:** 15 января 2026 г.
+
 Модуль `polisyos.common` содержит фундаментальные утилиты и конфигурации, используемые во всех слоях архитектуры Policy Engine. Эти компоненты обеспечивают базовую инфраструктуру без зависимостей от бизнес-логики.
 
 ## Роль в архитектуре
@@ -15,13 +17,14 @@
 
 Модуль `common` активно используется в следующих компонентах:
 
-- **fabric/io/db.py** - логирование операций с базой данных
-- **fabric/io/graph_store.py** - логирование операций с графовым хранилищем
-- **ir/migrations/** - система миграций для Policy IR артефактов
-- **scientist/orchestrator/** - логирование и миграции в оркестраторе экспериментов
-- **fabric/udf/** - логирование в UDF движке
-- **jax_bootstrap.py** - настройка JAX окружения перед импортом JAX
-- **run_experiment.py** - конфигурация и логирование основного экспериментального пайплайна
+- **fabric/io/db.py** - логирование операций с DuckDB через `logger`
+- **fabric/io/graph_store.py** - логирование операций с графовым хранилищем через `get_logger`
+- **fabric/materializer.py** - логирование операций материализации через `get_logger`
+- **fabric/udf/engine.py** - логирование в UDF движке через `logger`
+- **fabric/udf/compiler.py** - логирование компиляции UDF через `logger`
+- **ir/migrations/** - система миграций для Policy IR артефактов (расширенная обертка над `common.migrations`)
+- **scientist/orchestrator/data_loader.py** - логирование загрузки данных через `logger`
+- **scientist/_legacy/compiler.py** - логирование компиляции через `logger`
 
 ## Архитектурные принципы
 
@@ -39,7 +42,23 @@ Common обеспечивает:
 - Сериализацию артефактов в JSON для машинного парсинга
 - Миграции для обратной совместимости схем
 
-## Модули
+## Структура модуля
+
+### Корневые файлы:
+
+- **`__init__.py`** - пустой (модуль не экспортирует публичный API напрямую)
+- **`config.py`** - централизованная конфигурация приложения
+- **`jax_env.py`** - безопасная настройка JAX backend для macOS
+- **`logger.py`** - единый интерфейс структурированного логирования
+
+### Подмодуль `migrations/`:
+
+- **`__init__.py`** - экспорт API миграций
+- **`base.py`** - ядро системы миграций
+- **`manifest.py`** - миграции Dataset Manifest
+- **`policy_ir.py`** - миграции Policy IR
+
+## Детальное описание модулей
 
 ### `config.py` - Конфигурация приложения и инфраструктуры
 
@@ -252,17 +271,32 @@ log = get_logger(__name__)
 
 ### Использование в модулях проекта:
 
+#### Логирование в fabric модулях:
+
 ```python
-# В fabric/io/db.py (логирование операций БД)
+# В fabric/io/db.py (операции с DuckDB)
+from polisyos.common.logger import logger
+
+def save_simulation_data(self, data):
+    logger.info("Saving simulation data", run_id=self.run_id)
+    # ... операции с БД ...
+
+# В fabric/materializer.py (материализация данных)
 from polisyos.common.logger import get_logger
 log = get_logger(__name__)
 
-def save_simulation_data(self, data):
-    log.info("Saving simulation data", run_id=self.run_id)
-    # ... операции с БД ...
+def materialize(self, request):
+    log.info("Starting materialization", request_id=request.id)
+    # ... логика материализации ...
+```
 
-# В ir/migrations/__init__.py (миграции Policy IR)
-from polisyos.common.migrations import migrate_artifact, POLICY_IR_CURRENT_VERSION
+#### Миграции в ir модуле:
+
+```python
+# В ir/migrations/__init__.py (расширенная обертка над common.migrations)
+from polisyos.common.migrations.base import migrate_artifact
+from polisyos.common.migrations.base import register_migration as _register_migration
+from polisyos.common.migrations.policy_ir import POLICY_IR_CURRENT_VERSION
 
 def migrate_policy_ir(data: dict, target_version: str | None = None) -> dict:
     return migrate_artifact(data, "policy_ir", target_version or POLICY_IR_CURRENT_VERSION)
@@ -318,27 +352,49 @@ def migrate_policy_ir(data: dict, target_version: str | None = None) -> dict:
 
 ### Активное использование в модулях проекта:
 
-- **`jax_bootstrap.py`** - применение JAX настроек перед импортом JAX
-- **`run_experiment.py`** - конфигурация и логирование основного экспериментального пайплайна
-- **`fabric/io/db.py`** - логирование операций с DuckDB
-- **`fabric/io/graph_store.py`** - логирование операций с графовым хранилищем
-- **`fabric/materializer.py`** - логирование операций материализации
-- **`fabric/udf/engine.py`** - логирование UDF движка
-- **`scientist/orchestrator/compiler.py`** - логирование компиляции экспериментов
-- **`scientist/orchestrator/data_loader.py`** - логирование загрузки данных
-- **`ir/migrations/__init__.py`** - обертка над системой миграций для Policy IR
+#### Логирование (logger/get_logger):
+- **`fabric/io/db.py`** - операции с DuckDB
+- **`fabric/io/graph_store.py`** - операции с графовым хранилищем
+- **`fabric/materializer.py`** - операции материализации данных
+- **`fabric/udf/engine.py`** - UDF движок
+- **`fabric/udf/compiler.py`** - компиляция UDF
+- **`scientist/orchestrator/data_loader.py`** - загрузка данных экспериментов
+- **`scientist/_legacy/compiler.py`** - компиляция экспериментов (legacy)
+
+#### Миграции (migrations):
+- **`ir/migrations/__init__.py`** - расширенная обертка для миграций Policy IR с дополнительной логикой версий
 
 ### Архитектурные связи:
 
-- **runtime:** Использует логирование и миграции для артефактов
-- **ir:** Зависит от миграций для версионирования Policy IR схем
-- **scientist/fabric/foundry:** Используют конфигурации, логирование и JAX настройки
+- **core:** Использует логирование для операций с артефактами и регистрами
+- **fabric:** Зависит от логирования для всех I/O операций и UDF движка
+- **foundry:** Использует логирование в симуляциях и калибровке
+- **ir:** Зависит от миграций для версионирования схем Policy IR
+- **runtime:** Использует логирование для аудита прогонов
+- **scientist:** Зависит от логирования в оркестрации экспериментов и агентов
+
+## Проверка актуальности документации
+
+Для поддержания актуальности этого README рекомендуется:
+
+1. **Проверка импортов:** Регулярно проверять использование `common` в проекте:
+   ```bash
+   grep -r "from polisyos.common" src/polisyos/
+   ```
+
+2. **Анализ зависимостей:** Убедиться, что `common` не импортирует другие слои:
+   ```bash
+   grep -r "from polisyos\.\(scientist\|fabric\|foundry\|runtime\)" src/polisyos/common/
+   ```
+
+3. **Тестирование изоляции:** `common` должен работать автономно без зависимостей от других модулей
 
 ## Контрибьютинг
 
 При добавлении новых компонентов в `common`:
 
-1. **Проверить зависимости:** Не добавлять тяжелые импорты
-2. **Тестировать изоляцию:** Работает без других слоев
-3. **Документировать:** Обновить этот README
-4. **Следовать принципам:** Инфраструктура, не бизнес-логика
+1. **Проверить зависимости:** Не добавлять тяжелые импорты (JAX, DuckDB, LLM и т.д.)
+2. **Тестировать изоляцию:** Работает без других слоев проекта
+3. **Обновить документацию:** Добавить описание нового компонента в этот README
+4. **Следовать принципам:** Только инфраструктура и утилиты, не бизнес-логика
+5. **Обновить связи:** Добавить информацию о новом использовании в раздел "Связанные компоненты"

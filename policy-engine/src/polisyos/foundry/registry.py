@@ -10,6 +10,7 @@ from polisyos.foundry.specs import (
     mechanism_catalog,
     validate_mechanism_params,
 )
+from polisyos.ir.kernel import MechanismTypeSpec
 from polisyos.ir.contract import Intervention
 
 MECHANISM_REGISTRY: Dict[str, Type[Mechanism]] = {
@@ -52,10 +53,15 @@ def create_mechanism(intervention: Intervention, n_agents: int, n_firms: int = 0
 
 
 def create_mechanism_from_spec(
-    mechanism_type: str, params: dict[str, Any], n_agents: int, n_firms: int = 0
+    mechanism_type: str,
+    params: dict[str, Any],
+    n_agents: int,
+    n_firms: int = 0,
+    *,
+    mechanism_spec: MechanismTypeSpec | None = None,
 ) -> Mechanism:
     coerced = _coerce_params(params)
-    validate_mechanism_params(mechanism_type, coerced)
+    validate_mechanism_params(mechanism_type, coerced, mechanism_spec=mechanism_spec)
     mech_cls = get_mechanism_class(mechanism_type)
     init_kwargs = {
         "n_agents": n_agents,

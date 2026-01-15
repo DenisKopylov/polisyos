@@ -1,13 +1,13 @@
 # Polisyos Foundry: Policy Execution Engine
 
-**Foundry** - это высокопроизводительный execution engine для дифференцируемого исполнения экономических политик в системе Policy Engine. Модуль предоставляет компилятор политик, patch-based runtime и математическую основу для моделирования и оптимизации экономических механизмов с использованием современных дифференцируемых вычислений.
+**Foundry** - это высокопроизводительный execution engine для дифференцируемого исполнения экономических политик в системе Policy Engine. Модуль предоставляет компилятор политик, patch-based runtime, калибровку параметров и математическую основу для моделирования и оптимизации экономических механизмов с использованием современных дифференцируемых вычислений.
 
 ## Роль в архитектуре
 
-Foundry является **policy execution backend** в архитектуре Policy Engine, отвечая за компиляцию и исполнение политик:
+Foundry является **policy execution backend** в архитектуре Policy Engine, отвечая за компиляцию, калибровку и исполнение политик:
 
 ```
-NL → LLM → IR (AST) → Foundry Compiler → Runtime Execution → Artifacts
+NL → LLM → IR (AST) → Foundry Compiler → Foundry Calibration → Foundry Runtime → Artifacts
 ```
 
 Foundry **не знает** про LLM и работает исключительно с:
@@ -16,6 +16,8 @@ Foundry **не знает** про LLM и работает исключител�
 - ✅ Многоуровневыми симуляциями (multi-fidelity)
 - ✅ Slot-based state management и patch operations
 - ✅ Program graphs и execution plans
+- ✅ Калибровкой параметров на реальных данных
+- ✅ Constraints engine для валидации ограничений
 - ❌ Никаких БД, LLM или сетевых вызовов
 
 ## Технологический стек
@@ -28,7 +30,7 @@ Foundry **не знает** про LLM и работает исключител�
 
 ## Архитектура
 
-Foundry состоит из четырех основных слоев:
+Foundry состоит из шести основных слоев:
 
 ### 1. Compiler Layer (Компилятор)
 ```
@@ -39,9 +41,9 @@ treasury.py          # Deterministic RNG management
 
 ### 2. Runtime Layer (Исполнение)
 ```
-patch_vm.py          # Patch-based виртуальная машина
-runtime.py           # Исполнение ProgramGraph'ов
-executor.py          # JIT-исполнение механизмов
+patch_vm.py          # Patch-based виртуальная машина и merge rules
+runtime.py           # Чистые JAX функции для исполнения (step, run_scan, execute_program_batch)
+executor.py          # Исполнение программ с constraints и state management
 ```
 
 ### 3. Domain Layer (Модель предметной области)
@@ -61,24 +63,129 @@ specs.py            # Спецификации механизмов с вали�
 registry.py         # Регистрация и фабрика механизмов
 ```
 
-### 5. Legacy Layer (Устаревшее)
+### 5. Calibration Layer (Калибровка моделей)
+```
+calibration/
+├── calibrator.py     # Основной класс Calibrator для оптимизации параметров
+├── pure_executor.py  # Чистый JAX executor для калибровки (без side effects)
+├── bijectors.py      # Биекции для ограничения параметров (sigmoid, softplus)
+├── loss.py           # Функции потерь (MSE, Huber, weighted loss)
+├── preflight.py      # Подготовка данных и конфигурации для калибровки
+└── report.py         # Отчёты калибровки (метрики качества, неопределённости)
+```
+
+### 6. Legacy Layer (Устаревшее)
 ```
 _legacy/engine/     # Legacy симуляционный движок (SimulationKernel, logic)
 _legacy/basic_simulation.py # Демо и примеры (deprecated)
 ```
 > Legacy находится в `_legacy/` и запрещён к использованию в новом коде; используйте patch VM / ProgramGraph runtime.
 
-## Компилятор политик
+## Калибровка моделей (Calibration)
 
-### Program Graph
+### Обзор
 
-Foundry компилирует политики из IR в **ProgramGraph** - ориентированный граф выполнения:
+Calibration Layer предоставляет инструменты для автоматической калибровки параметров экономических моделей на реальных данных. Модуль использует градиентную оптимизацию для подбора параметров механизмов, обеспечивая соответствие моделируемых показателей реальным данным.
+
+### Основные компоненты
+
+#### Calibrator (Калибратор)
+```python
+from polisyos.foundry.calibration.calibrator import Calibrator, CalibratorInputs
+from polisyos.foundry.calibration.report import CalibrationReport
+
+# Входные данные для калибровки
+inputs = CalibratorInputs(
+    config=calibration_config,        # Конфигурация калибровки
+    program_graph=program_graph,      # Скомпилированная политика
+    exec_plan=exec_plan,              # План исполнения
+    base_state=initial_state,         # Начальное состояние экономики
+    mechanism_registry=mechanism_registry,
+    slot_registry=slot_registry,
+    merge_registry=merge_registry,
+    raw_targets=real_data_targets     # Реальные данные для сравнения
+)
+
+# Запуск калибровки
+calibrator = Calibrator()
+report = calibrator.calibrate(inputs)
+
+print(f"Total loss: {report.total_loss}")
+print(f"Calibrated params: {report.calibrated_params}")
+```
+
+#### Функции потерь
+```python
+from polisyos.foundry.calibration.loss import loss_components, compute_base_loss
+
+# Вычисление потерь по нескольким целям
+total_loss, per_target_loss, per_target_base = loss_components(
+    predicted=predicted_values,     # Предсказанные значения
+    targets=real_values,            # Конфигурация потерь (MSE/Huber)
+    configs=target_configs,         # Масштабы для относительных ошибок
+    scales=target_scales,           # Веса целей
+    weights=target_weights          # Реальные значения
+)
+```
+
+#### Биекции параметров
+```python
+from polisyos.foundry.calibration.bijectors import make_bijector, to_unconstrained, from_unconstrained
+
+# Создание биекции для ограничения параметра [0, 1]
+bijector = make_bijector(lower=0.0, upper=1.0)
+
+# Преобразование в unconstrained пространство для оптимизации
+unconstrained = to_unconstrained([param_value], [bijector])
+
+# Обратное преобразование
+constrained = from_unconstrained(unconstrained, [bijector])
+```
+
+### Отчёт калибровки
 
 ```python
-from polisyos.foundry.compiler import compile_surface_policy
-from polisyos.ir.surface import PolicySurfaceIR
+from polisyos.foundry.calibration.report import CalibrationReport
 
-# Компилируем политику
+report = CalibrationReport(
+    calibrated_params={"tax_mechanism.rate": 0.23},  # Калиброванные параметры
+    total_loss=0.034,                                # Общая потеря
+    per_target_loss={"gdp": 0.012, "unemployment": 0.022},  # Потери по целям
+    series_comparison={                             # Сравнение временных рядов
+        "gdp": CalibrationSeriesComparison(
+            time=[1, 2, 3, 4],
+            real=[100, 102, 105, 108],
+            model=[99, 101, 104, 107]
+        )
+    },
+    fit_quality=CalibrationFitQuality(...),         # Метрики качества подгонки
+    uncertainties=CalibrationUncertainty(...)       # Оценки неопределённости
+)
+```
+
+### Процесс калибровки
+
+1. **Подготовка** (Preflight): Валидация конфигурации, подготовка данных
+2. **Компиляция**: Создание оптимизируемой функции с автоматическим дифференцированием
+3. **Оптимизация**: Градиентный спуск с биекциями для ограниченных параметров
+4. **Анализ**: Вычисление метрик качества и оценок неопределённости
+5. **Отчёт**: Сохранение результатов в artifact store
+
+### Поддерживаемые оптимизаторы
+
+- **Adam**: Адаптивная оптимизация (рекомендуется)
+- **L-BFGS**: Квазиньютоновский метод для точной оптимизации
+- **SLSQP**: Sequential Least Squares Programming с ограничениями
+
+## Компилятор политик
+
+### CompileArtifacts
+
+Результат компиляции политики включает несколько артефактов:
+
+```python
+from polisyos.foundry.compiler import compile_surface_policy, CompileArtifacts
+
 artifacts = compile_surface_policy(
     store=store,
     policy=policy_ir,
@@ -87,21 +194,163 @@ artifacts = compile_surface_policy(
     merge_registry=merge_registry
 )
 
-program_graph = artifacts.program_ref  # Скомпилированный граф
+# Доступные артефакты
+policy_ref = artifacts.policy_ref           # Ссылка на исходную политику
+program_ref = artifacts.program_ref         # Скомпилированный ProgramGraph
+exec_plan_ref = artifacts.exec_plan_ref     # План исполнения с топологической сортировкой
+slot_layout_ref = artifacts.slot_layout_ref # Layout слотов состояния (опционально)
+treasury_plan_ref = artifacts.treasury_plan_ref  # План детерминированного RNG (опционально)
+```
+
+### Program Graph
+
+Foundry компилирует политики из IR в **ProgramGraph** - ориентированный граф выполнения:
+
+```python
+from polisyos.core.contracts.foundry import ProgramGraph, ProgramNode, ProgramEdge
+
+# Загрузка ProgramGraph из artifact store
+program_graph = store.get_json(artifacts.program_ref)
+
+# Структура графа
+for node in program_graph.nodes:
+    print(f"Node {node.node_id}: {node.op}")  # Узел с операцией
+
+for edge in program_graph.edges:
+    print(f"{edge.source} -> {edge.target}")  # Зависимости
 ```
 
 ProgramGraph состоит из:
-- **Nodes**: Узлы операций (механизмы, merge, constraints)
-- **Edges**: Зависимости между узлами
-- **Entrypoints**: Точки входа для исполнения
+- **Nodes**: Узлы операций (механизмы, merge, constraints, data sources)
+- **Edges**: Зависимости между узлами с указанием портов
+- **Entrypoints**: Точки входа для исполнения (обычно "root")
 
 ### Execution Plan
 
 После компиляции создается **ExecutionPlan** с топологическим порядком исполнения:
 
 ```python
-exec_plan = artifacts.exec_plan_ref
-# exec_plan.order содержит отсортированный список node_id для исполнения
+from polisyos.core.contracts.foundry import ExecPlan
+
+exec_plan = store.get_json(artifacts.exec_plan_ref)
+print(f"Execution order: {exec_plan.order}")  # ['node1', 'node2', 'merge1', ...]
+```
+
+## Executor (Исполнитель программ)
+
+### Обзор
+
+Executor предоставляет высокоуровневый API для исполнения скомпилированных ProgramGraph'ов с поддержкой constraints, state management и детального логирования.
+
+### Основные функции
+
+#### Исполнение с constraints
+```python
+from polisyos.foundry.executor import execute_with_constraints
+from polisyos.foundry.constraints_engine import ConstraintResult
+
+# Исполнение с проверкой ограничений
+result = execute_with_constraints(
+    program_graph=program_graph,
+    initial_state=initial_state,
+    exec_plan=exec_plan,
+    store=store,
+    constraint_registry=constraint_registry,
+    slot_registry=slot_registry,
+    mechanism_registry=mechanism_registry,
+    merge_registry=merge_registry
+)
+
+# Результат содержит финальное состояние и информацию о violations
+final_state = result.final_state
+constraint_result = result.constraint_result
+
+if constraint_result.violations:
+    print(f"Found {len(constraint_result.violations)} constraint violations")
+    for violation in constraint_result.violations:
+        print(f"- {violation}")
+```
+
+#### Step-by-step исполнение
+```python
+from polisyos.foundry.executor import execute_single_step
+
+# Исполнение одного узла графа
+step_result = execute_single_step(
+    node_id="tax_mechanism_1",
+    program_graph=program_graph,
+    current_state=current_state,
+    store=store,
+    mechanism_registry=mechanism_registry,
+    slot_registry=slot_registry,
+    merge_registry=merge_registry,
+    treasury_plan=treasury_plan
+)
+
+# Результат шага
+new_state = step_result.final_state
+patches_applied = step_result.patches_applied
+metrics = step_result.metrics
+```
+
+#### Batch исполнение
+```python
+from polisyos.foundry.executor import execute_batch
+
+# Исполнение для нескольких сценариев
+batch_result = execute_batch(
+    program_graph=program_graph,
+    initial_states=[state1, state2, state3],  # Разные начальные условия
+    exec_plan=exec_plan,
+    store=store,
+    mechanism_registry=mechanism_registry,
+    slot_registry=slot_registry,
+    merge_registry=merge_registry
+)
+
+# Результаты для каждого сценария
+for i, result in enumerate(batch_result.results):
+    print(f"Scenario {i}: GDP = {result.final_state.gdp}")
+```
+
+### State Management
+
+Executor управляет state transitions через **StateDelta** и **StateSnapshot**:
+
+```python
+from polisyos.core.contracts.foundry import StateDelta, StateSnapshot
+
+# StateDelta - изменения состояния между шагами
+delta = StateDelta(
+    step_from=0,
+    step_to=1,
+    slot_deltas={
+        "agents.income": tensor_ref_increase,
+        "government.balance": tensor_ref_decrease
+    }
+)
+
+# StateSnapshot - полное состояние на момент времени
+snapshot = StateSnapshot(
+    step=1,
+    state_ref=state_artifact_ref,
+    metadata={"simulation_id": "sim_001"}
+)
+```
+
+### Metrics и логирование
+
+```python
+from polisyos.core.contracts.foundry import Metrics
+
+# Метрики исполнения
+execution_metrics = Metrics(
+    execution_time=1.23,           # Время исполнения в секундах
+    nodes_executed=15,             # Количество выполненных узлов
+    patches_applied=42,            # Количество применённых патчей
+    constraints_checked=8,         # Количество проверенных ограничений
+    memory_peak=512.5              # Пиковое использование памяти (MB)
+)
 ```
 
 ## Patch-based Execution
@@ -137,12 +386,42 @@ patches = [
 
 ### Merge Rules
 
-При конфликтах патчей применяются **merge rules**:
+При конфликтах патчей применяются **merge rules** из **patch_vm** модуля:
 
-- **SUM**: Складывать изменения (для балансов)
-- **OVERRIDE**: Перезаписывать по приоритету
-- **PRIORITY**: Выбирать по явному приоритету
-- **ERROR**: Запрещать конфликты
+```python
+from polisyos.foundry.patch_vm import merge_patch_records
+from polisyos.ir.kernel import MergeRuleKind
+
+# Поддерживаемые виды merge rules
+merge_kinds = [
+    MergeRuleKind.SUM,        # Складывать изменения (для балансов)
+    MergeRuleKind.OVERRIDE,   # Перезаписывать по приоритету
+    MergeRuleKind.PRIORITY,   # Выбирать по явному приоритету
+    MergeRuleKind.ERROR       # Запрещать конфликты
+]
+
+# Применение merge rules к патчам
+merged_patches = merge_patch_records(
+    store=artifact_store,
+    patch_records=patch_records_from_mechanisms,
+    slot_registry=slot_registry,
+    merge_registry=merge_registry
+)
+```
+
+### Artifact-based патчи
+
+Patch VM сохраняет значения патчей как артефакты:
+
+```python
+from polisyos.foundry.patch_vm import _put_tensor, _load_tensor
+
+# Сохранение тензора патча в artifact store
+tensor_ref = _put_tensor(store, jnp.array([100.0, 200.0, 300.0]))
+
+# Загрузка тензора из artifact store
+tensor_value = _load_tensor(store, tensor_ref)
+```
 
 ## Runtime Execution
 
@@ -159,20 +438,23 @@ patches = [
 ### Runtime API
 
 ```python
-from polisyos.foundry.runtime import execute_program
-from polisyos.foundry.domain.state import GlobalState
+from polisyos.foundry.runtime import step, run_scan, execute_program_batch
 
-# Исполнение программы
-result = execute_program(
-    program_graph=program_graph,
-    initial_state=initial_state,
-    exec_plan=exec_plan,
-    store=artifact_store,
-    treasury_plan=treasury_plan
+# Один шаг симуляции (чистая JAX функция)
+def step(state, controls, root_key, t: int, static_bundle=None):
+    """Placeholder pure JAX step; returns state unchanged and empty trace."""
+    return state, {"t": t, "controls": controls}
+
+# Исполнение последовательности контролей через lax.scan
+traces = run_scan(initial_state, controls_seq, root_key, static_bundle=static_bundle)
+
+# Batch исполнение для нескольких начальных состояний
+batch_results = execute_program_batch(
+    initial_states=batch_states,      # [batch_size, ...] состояния
+    controls_seq=controls_seq,        # [batch_size, time_steps, ...] контролы
+    root_key=root_key,                # Общий ключ для детерминизма
+    static_bundle=static_bundle       # Скомпилированные компоненты
 )
-
-final_state = result.final_state
-execution_trace = result.trace
 ```
 
 ### Treasury System
@@ -302,16 +584,26 @@ class MarketState:
 ```python
 from polisyos.foundry.fiscal import IncomeTax
 
+# Legacy direct state changes
 tax = IncomeTax(rate=0.2, n_agents=1000)  # 20% налог
 new_state, key = tax.step(state, key)
+
+# Modern patch-based execution
+tax_modern = IncomeTax(rate=0.2, n_agents=1000)
+patches, key = tax_modern.emit_patches(state, key)
 ```
 
 #### TaxSubsidy (Налоговые субсидии)
 ```python
 from polisyos.foundry.fiscal import TaxSubsidy
 
+# Legacy direct state changes
 subsidy = TaxSubsidy(rate=0.1, n_agents=1000)  # 10% субсидия
 new_state, key = subsidy.step(state, key)
+
+# Modern patch-based execution
+subsidy_modern = TaxSubsidy(rate=0.1, n_agents=1000)
+patches, key = subsidy_modern.emit_patches(state, key)
 ```
 
 ### QueueMechanism (Механизм очередей)
@@ -326,6 +618,10 @@ queue = QueueMechanism(
     arrival_rate=1.0,      # Скорость поступления
     fidelity=FidelityLevel.RELAXED_DISCRETE
 )
+
+# Поддерживает как step(), так и emit_patches()
+new_state, key = queue.step(queue_state, key)
+patches, key = queue.emit_patches(state, key)
 ```
 
 ## Движок симуляции
@@ -705,22 +1001,26 @@ with jax.profiler.trace("/tmp/jax-trace"):
 
 ### Зависимости Foundry
 
-- **`ir/`**: Policy Surface IR, контракты механизмов, slot/merge registries
-- **`core/artifacts`**: Artifact storage для компиляции и исполнения
-- **`core/contracts`**: Foundry-specific типы (PatchOp, ProgramGraph, etc.)
+- **`ir/`**: Policy Surface IR, контракты механизмов, slot/merge registries, calibration configs
+- **`core/artifacts`**: Artifact storage для компиляции, исполнения и калибровки
+- **`core/contracts`**: Foundry-specific типы (PatchOp, ProgramGraph, ExecPlan, etc.)
+- **`ir/calibration`**: Конфигурации и типы для калибровки моделей
 
 ### Потребители Foundry
 
-- **`scientist/`**: Использует компилятор для создания execution plans
-- **`fabric/`**: Предоставляет данные для инициализации состояния
+- **`scientist/`**: Использует компилятор для создания execution plans и калибратор для оптимизации параметров
+- **`fabric/`**: Предоставляет данные для инициализации состояния экономики
 - **`runtime/`**: Хранит результаты исполнения и обеспечивает аудит
+- **`ir/`**: Определяет механизм спецификации и calibration targets
 
 ### Интеграция в Pipeline
 
 ```
-scientist/ → ir/ → foundry.compiler → foundry.runtime → artifacts
-                     ↓
-               fabric/ (data)    core/artifacts (storage)
+scientist/ → ir/ → foundry.compiler → foundry.calibration → foundry.runtime → artifacts
+                     ↓                           ↓
+               fabric/ (data)             foundry.executor (constraints)
+                     ↓                           ↓
+               core/artifacts (storage)    core/contracts (types)
 ```
 
 ## Соглашения по коду

@@ -2,6 +2,9 @@
 
 Тестовая инфраструктура для Policy Engine - AI-driven Policy Simulation System. Тесты обеспечивают качество кода, валидируют архитектурные границы и проверяют корректность работы всех компонентов системы.
 
+**Последнее обновление:** Январь 2026
+**Актуальная версия архитектуры:** v2.1 (Fabric layer, Calibration MVP, Runtime API)
+
 ## Архитектурный контекст
 
 Согласно [архитектуре проекта](../architecture.md), тесты организованы по слоям компилятора:
@@ -28,20 +31,30 @@ tests/
 │   ├── test_canon_json.py         # Каноническая JSON сериализация
 │   ├── test_registry_bundle.py    # Сборка и загрузка registry bundles
 │   └── test_run_context.py        # Контекст выполнения и артефакты
+├── fabric/                        # Тесты компонентов Fabric layer
+│   ├── test_evidence_bundle.py    # Evidence bundles, ingestion results
+│   └── test_trust_two_pass.py     # Доверие к данным, uncertainty bounds
 ├── foundry/                       # Тесты симуляционных компонентов
-│   ├── test_gradients.py          # Градиенты политик (JAX/Equinox)
+│   ├── test_calibrator_fidelity.py # Калибровка fidelity уровней (fluid/relaxed/hard)
+│   ├── test_calibrator_mvp.py     # Полноценная система калибровки параметров
+│   ├── test_constraints_executor.py # Исполнение ограничений (constraints)
 │   ├── test_fiscal.py             # Фискальные механизмы
 │   ├── test_global_state.py       # Глобальное состояние симуляции
+│   ├── test_gradients.py          # Градиенты политик (JAX/Equinox)
 │   ├── test_health.py             # Проверки здоровья системы
 │   ├── test_jit_stability.py      # JIT-стабильность
-│   ├── test_production_kernel.py  # Production kernel
-│   ├── test_constraints_executor.py # Исполнение ограничений (constraints)
 │   ├── test_patch_executor.py     # Patch executor и state delta
 │   ├── test_program_graph_ops.py  # Операции с программными графами
+│   ├── test_runtime_batch.py      # Пакетное выполнение программ
 │   └── test_*.py                  # Другие тесты foundry
 ├── integration/                   # Интеграционные тесты workflow
+│   ├── test_calibration_udf.py    # Калибровка с UDF движком
 │   ├── test_workflow_smoke.py     # Полный smoke-test pipeline
 │   └── test_workflow_llm.py       # Интеграция с LLM компонентами
+├── ir/                            # Тесты компонентов IR layer
+│   └── test_loaders.py            # Загрузчики политик из различных форматов
+├── runtime/                       # Тесты runtime компонентов
+│   └── test_runtime_manifest_paths.py # Управление runs, артефакты, пути
 └── scientist/                     # Тесты компонентов scientist
     └── test_compiler.py           # Компилятор политик из IR
 ```
@@ -121,6 +134,96 @@ tests/
 - Используют реальные БД (DuckDB/Kuzu) с тестовыми данными
 - Проверяют полный цикл: draft → simulate → governor → decision
 
+### Fabric Tests (`fabric/`)
+
+**Цель**: Валидация компонентов Fabric layer - ingestion, evidence bundles и доверие к данным.
+
+**Ключевые тесты:**
+- **Evidence Bundle**: Создание и валидация evidence артефактов после ingestion
+- **Trust & Uncertainty**: Двухпроходное сравнение, оценка uncertainty bounds, доверие к данным
+
+**Принципы:**
+- Evidence bundles обязательны в FabricResult контрактах
+- Двухпроходное сравнение для оптимистических/пессимистических сценариев
+- Persistence uncertainty bounds в artifact store
+- Интеграция с ingestion pipeline (raw → staging → curated)
+
+### IR Tests (`ir/`)
+
+**Цель**: Валидация загрузчиков и преобразователей IR структур.
+
+**Ключевые тесты:**
+- **Policy Loaders**: Загрузка политик из различных форматов (PolicySurfaceIR объекты, словари)
+
+**Принципы:**
+- Pass-through для уже загруженных политик
+- Валидация структуры при загрузке из mapping
+- Поддержка schema versioning
+
+### Runtime Tests (`runtime/`)
+
+**Цель**: Валидация runtime API и управления жизненным циклом runs.
+
+**Ключевые тесты:**
+- **Manifest Paths**: Управление относительными/абсолютными путями в манифестах
+- **Artifact Logging**: Логирование артефактов с корректным path resolution
+- **Run Context**: Создание и управление run контекстами
+
+**Принципы:**
+- Относительные пути для portability артефактов
+- Переносимость каталогов без потери доступа к артефактам
+- Корректное разрешение путей для разных типов артефактов
+
+### Foundry Tests (`foundry/`)
+
+**Цель**: Валидация математических моделей, симуляций на JAX и компонентов исполнения.
+
+**Ключевые тесты:**
+- **Calibrator Fidelity**: Управление уровнями fidelity (fluid/relaxed/hard/temperature)
+- **Calibrator MVP**: Полноценная система калибровки параметров с оптимизацией
+- **Runtime Batch**: Пакетное выполнение программ с JAX
+- **Gradient Health**: Проверка градиентов политик, NaN/Inf detection
+- **JIT Stability**: Стабильность PyTree структур при компиляции
+- **Fiscal Mechanisms**: Тестирование налоговых/субсидий механизмов
+- **Kernel Production**: Тестирование production симуляционного ядра
+- **Constraints Executor**: Исполнение ограничений (budget guards, validation)
+- **Patch Executor**: State delta, snapshot'ы, артефакт эмиссия
+- **Program Graph Ops**: Операции с программными графами, execution order
+
+**Принципы:**
+- Все тесты форсируют CPU (через conftest.py) для консистентности
+- Проверка `jit(step)` компилируется и сохраняет структуру
+- Gradient sanity: конечные разности vs JAX autodiff в допусках
+- Invariants verification: физическая корректность после шагов симуляции
+- Constraint enforcement: Валидация ограничений на runtime
+- State consistency: Корректность state delta и snapshot'ов
+- Graph execution: Правильный порядок операций в программных графах
+- **Новые возможности калибровки:**
+  - Fidelity control: принудительное понижение/повышение точности для производительности
+  - Parameter optimization: восстановление параметров по целевым метрикам
+  - Uncertainty quantification: оценка неопределенности через Hessian
+  - Constraint penalties: штрафы за нарушение ограничений
+  - Prior penalties: регуляризация через априорные распределения
+  - GradNorm: адаптивное взвешивание потерь по градиентам
+
+### Integration Tests (`integration/`)
+
+**Цель**: Проверка end-to-end сценариев через все слои системы.
+
+**Ключевые тесты:**
+- **Calibration UDF**: Калибровка параметров с использованием UDF движка для получения целей
+- **Workflow Smoke Test**: Полный pipeline от IR до DecisionPacket
+- **LLM Integration**: Тестирование интеграции с языковыми моделями
+- **Budget Constraints**: Проверка ограничений на ресурсы
+
+**Принципы:**
+- Маркированы `pytest.mark.integration` для раздельного запуска
+- Используют реальные БД (DuckDB/Kuzu) с тестовыми данными
+- Проверяют полный цикл: draft → simulate → governor → decision
+- **Новые возможности:**
+  - UDF-based targets: получение целевых значений через User Defined Functions
+  - Database integration: чтение исторических данных симуляции для калибровки
+
 ### Scientist Tests (`scientist/`)
 
 **Цель**: Валидация компонентов ИИ и оптимизации.
@@ -179,8 +282,17 @@ pytest tests/contract/ -v
 # Core Phase 0 тесты (базовые компоненты)
 pytest tests/core_phase0/ -v
 
-# Foundry тесты (JAX, математические)
+# Fabric тесты (ingestion, evidence, trust)
+pytest tests/fabric/ -v
+
+# Foundry тесты (JAX, математические, калибровка)
 pytest tests/foundry/ -v
+
+# IR тесты (загрузчики, трансформации)
+pytest tests/ir/ -v
+
+# Runtime тесты (run management, artifacts)
+pytest tests/runtime/ -v
 
 # Интеграционные тесты (медленные, с БД)
 pytest tests/integration/ -v
@@ -192,6 +304,18 @@ pytest tests/scientist/ -v
 ### Специфические сценарии
 
 ```bash
+# Калибровка fidelity (управление точностью)
+pytest tests/foundry/test_calibrator_fidelity.py
+
+# Полноценная калибровка параметров
+pytest tests/foundry/test_calibrator_mvp.py
+
+# Пакетное выполнение программ
+pytest tests/foundry/test_runtime_batch.py
+
+# Калибровка с UDF движком (интеграционный)
+pytest tests/integration/test_calibration_udf.py
+
 # Тесты градиентов (требуют Equinox)
 pytest tests/foundry/test_gradients.py
 
@@ -200,6 +324,18 @@ pytest tests/integration/test_workflow_llm.py
 
 # Smoke test (минимальный полный цикл)
 pytest tests/integration/test_workflow_smoke.py
+
+# Evidence bundles и ingestion
+pytest tests/fabric/test_evidence_bundle.py
+
+# Trust и uncertainty bounds
+pytest tests/fabric/test_trust_two_pass.py
+
+# Policy loaders
+pytest tests/ir/test_loaders.py
+
+# Runtime manifest paths
+pytest tests/runtime/test_runtime_manifest_paths.py
 ```
 
 ## Технологии и зависимости
@@ -213,16 +349,21 @@ pytest tests/integration/test_workflow_smoke.py
 - **pandas**: Работа с тестовыми данными
 - **DuckDB/Kuzu**: Интеграционные тесты с базами данных
 - **Pydantic**: Валидация структур данных и контрактов
-- **pathlib**: Работа с файловой системой в core тестах
+- **pathlib**: Работа с файловой системой в core/runtime тестах
 - **hashlib**: SHA256 хэширование для artifact integrity
+- **UDF Engine**: User Defined Functions для сложных запросов к данным
+- **Calibration Engine**: Оптимизация параметров с Hessian uncertainty
 
 ## Принципы тестирования
 
 ### Архитектурные инварианты
-- **Закон A**: Граф зависимостей только внутрь (scientist → ir/fabric/foundry/core)
+- **Закон A**: Граф зависимостей только внутрь (scientist → ir/fabric/foundry/runtime/core)
 - **Закон B**: Компиляторная труба (NL → LLM → IR → Compilation → Runtime)
 - **Закон C**: Контракты как источник истины
-- **Закон D**: Core layer как фундамент (core → ir → fabric → foundry → scientist)
+- **Закон D**: Core layer как фундамент (core → runtime → ir → fabric → foundry → scientist)
+- **Закон E**: Evidence обязательны (FabricResult всегда содержит evidence_ref)
+- **Закон F**: Fidelity control (система может форсировать уровни точности для производительности)
+- **Закон G**: Uncertainty quantification (все калибровки предоставляют оценки неопределенности)
 
 ### Качественные требования
 - **Unit Tests**: Покрывают все публичные API foundry и core компонентов
@@ -260,15 +401,51 @@ pytest tests/integration/test_workflow_smoke.py
 - **Fabric Gates**: Предусловия для обработки данных
 - **Surface IR**: Semantic fingerprinting для дедупликации
 
+### Fabric Layer (`fabric/`)
+**Data Ingestion & Evidence** → Raw data processing
+- **Ingestion Pipeline**: Raw → Staging → Curated трансформация
+- **Evidence Bundles**: Артефакты результатов ingestion с метаданными
+- **Trust Engine**: Оценка доверия и uncertainty bounds для данных
+
+**Data Trust & Validation** → Quality assurance
+- **Two-pass Comparison**: Оптимистические/пессимистические сценарии
+- **Uncertainty Quantification**: Статистическая оценка неопределенности
+- **Core Artifacts**: Хранение evidence bundles и trust metrics
+
+### IR Layer (`ir/`)
+**Policy Loading & Transformation** → Universal policy interface
+- **Policy Loaders**: Загрузка из различных форматов (объекты, словари, файлы)
+- **Surface IR**: Семантическая модель политик
+- **Contract Validation**: Валидация структур данных
+
+**Schema Management** → Version compatibility
+- **Schema Evolution**: Миграции между версиями IR
+- **Type Safety**: Строгая валидация типов и структур
+
+### Runtime Layer (`runtime/`)
+**Run Lifecycle Management** → Execution orchestration
+- **Run Manifests**: Метаданные и артефакты выполнения
+- **Artifact Management**: Логирование и разрешение путей артефактов
+- **Path Resolution**: Относительные/абсолютные пути для portability
+
+**Execution Context** → Environment management
+- **Run Context**: Контекст выполнения с метаданными producer'а
+- **Artifact Store Integration**: Связь с core artifact storage
+
 ### Foundry Layer (`foundry/`)
 **Simulation Engine** → JAX-based execution
 - **Constraints**: Runtime валидация ограничений
 - **Patch Executor**: State management и snapshots
 - **Program Graphs**: Оркестрация execution order
+- **Runtime Batch**: Пакетное выполнение для производительности
 
-**Compilation Pipeline** → IR → Executable
+**Calibration System** → Parameter optimization
+- **Calibrator MVP**: Полноценная калибровка параметров по целевым метрикам
+- **Fidelity Control**: Управление точностью/производительностью trade-off
+- **Uncertainty Analysis**: Квантификация неопределенности через Hessian
 - **IR Surface**: Исходные политики для компиляции
 - **Core Artifacts**: Хранение скомпилированных программ
+- **Fabric Trust**: Интеграция с uncertainty bounds
 - **Integration**: End-to-end pipeline validation
 
 ### Integration Layer (`integration/`)
@@ -291,11 +468,14 @@ pytest tests/integration/test_workflow_smoke.py
 ## Разработка и расширение
 
 ### Добавление новых тестов
-1. Определите категорию (contract/core_phase0/foundry/integration/scientist)
+1. Определите категорию (contract/core_phase0/fabric/foundry/ir/runtime/integration/scientist)
 2. Следуйте naming convention: `test_*.py`
 3. Используйте fixtures из соответствующего `conftest.py`
 4. Маркируйте медленные тесты `@pytest.mark.integration`
-5. Для core тестов используйте специфичные fixtures (store, producer, env_info)
+5. Для core/runtime тестов используйте специфичные fixtures (store, producer, env_info)
+6. Для fabric тестов проверяйте работу с evidence bundles и trust metrics
+7. Для foundry тестов включайте проверки fidelity control и uncertainty quantification
+8. Для calibration тестов тестируйте convergence, penalties и parameter recovery
 
 ### Отладка тестов
 ```bash
@@ -326,6 +506,21 @@ export JAX_PLATFORM_NAME=cpu
 pytest tests/foundry/
 ```
 
+**Calibration convergence issues:**
+```bash
+# Калибровка может не сходиться при неправильных гиперпараметрах
+pytest tests/foundry/test_calibrator_mvp.py::test_calibrator_recovers_income_tax_rate -v --tb=long
+# Проверьте learning_rate, max_steps и seed
+```
+
+**UDF engine database issues:**
+```bash
+# Проверьте что тестовые БД корректно инициализированы
+pytest tests/integration/test_calibration_udf.py -v --tb=short
+# Очистите кэш если возникают конфликты
+rm -rf tmp_path/.polisyos tmp_path/*.duckdb
+```
+
 **Database connection issues в integration тестах:**
 ```bash
 # Проверьте что тестовые БД не заблокированы предыдущими запусками
@@ -338,6 +533,13 @@ rm -f tmp_path/integration.duckdb tmp_path/integration.kuzu
 pytest tests/integration/test_workflow_llm.py --tb=short
 ```
 
+**Fabric ingestion failures:**
+```bash
+# Проверьте структуру тестовых CSV файлов
+pytest tests/fabric/test_evidence_bundle.py -v
+# Убедитесь что raw/staging/curated директории существуют
+```
+
 ### Полезные команды диагностики
 
 ```bash
@@ -347,6 +549,15 @@ python tools/diagnostics/check_setup.py
 # Генерация схем для проверки контрактов
 python tools/diagnostics/generate_ir_schema.py
 
+# Диагностика calibration системы
+python tools/diagnostics/check_calibration_setup.py
+
+# Проверка fabric ingestion pipeline
+python tools/diagnostics/validate_fabric_pipeline.py
+
 # Линтинг тест кода
 ruff check tests/
+
+# Проверка JAX/calibration зависимостей
+python -c "import jax, jax.numpy as jnp; from polisyos.foundry.calibration import calibrator; print('Calibration dependencies OK')"
 ```

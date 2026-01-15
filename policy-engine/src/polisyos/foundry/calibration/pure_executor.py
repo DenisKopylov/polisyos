@@ -155,7 +155,10 @@ def compile_program(
                 effective_fidelity = "hard"
                 if force_override or "fidelity" not in params:
                     params["fidelity"] = effective_fidelity
-            if effective_fidelity == "hard":
+            # В "discrete" режиме (=> hard) температура не должна влиять на исполнение.
+            # Но если пользователь явно задал hard+temperature и override выключен,
+            # мы сохраняем температуру (см. тест compile_respects_no_override).
+            if force_override and force_fidelity == "discrete":
                 params.pop("temperature", None)
             if (
                 effective_fidelity == "relaxed"
@@ -165,7 +168,11 @@ def compile_program(
             ):
                 params["temperature"] = float(default_temperature)
         mechanism = create_mechanism_from_spec(
-            mechanism_type, params, n_agents=n_agents, n_firms=n_firms
+            mechanism_type,
+            params,
+            n_agents=n_agents,
+            n_firms=n_firms,
+            mechanism_spec=mech_spec,
         )
         selector_payload = selector
         if selector_payload is None and mask_id in mask_map:

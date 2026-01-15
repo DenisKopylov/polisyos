@@ -6,24 +6,74 @@
 
 ```
 tools/
-├── benchmarks/           # Бенчмарки производительности системы
-│   ├── bench_domain.py   # Тест доменной модели (JAX + Equinox + GlobalState)
-│   └── bench_simulation.py # Тест полного симуляционного пайплайна
-├── demos/               # Демонстрационные скрипты возможностей
+├── benchmarks/                 # Бенчмарки производительности системы
+│   ├── bench_domain.py         # Тест доменной модели (JAX + Equinox + GlobalState)
+│   │   # - Аллокация GlobalState для миллионов агентов
+│   │   # - JAX JIT компиляция функциональных обновлений
+│   │   # - Векторизованные операции (grants, taxes)
+│   │   # - Память эффективность Equinox структур
+│   └── bench_simulation.py     # Тест полного симуляционного пайплайна
+│       # - Экономический цикл (производство → потребление → рынок)
+│       # - Механизмы политик (TaxSubsidy, IncomeTax, Queue)
+│       # - JAX JIT оптимизации для больших состояний
+│       # - Полная интеграция foundry модуля
+├── demos/                      # Демонстрационные скрипты возможностей
 │   ├── run_export_demo.py      # Экспорт результатов симуляции в разные форматы
+│   │   # - Экспорт в Parquet, JSON, CSV, HDF5
+│   │   # - Поддержка downstream анализа
 │   ├── run_ingest_demo.py      # Полный ingestion пайплайн (CSV → DuckDB + Kuzu)
+│   │   # - Генерация тестовых данных (agents, interactions, macro)
+│   │   # - Pydantic валидация и Parquet конвертация
+│   │   # - Загрузка в DuckDB (аналитическое хранилище)
+│   │   # - Загрузка в Kuzu (графовая БД взаимодействий)
+│   │   # - Генерация manifests для reproducible runs
 │   ├── run_optimizer_demo.py   # Многокритериальная оптимизация политик (NSGA-II)
+│   │   # - Настройка целевых функций (GDP, inequality, unemployment)
+│   │   # - PyMOO NSGA-II оптимизация
+│   │   # - Pareto front анализ и визуализация
 │   ├── run_udf_hybrid_demo.py  # Гибридные запросы (SQL + Python UDF)
+│   │   # - Комплексные агрегации с Python функциями
+│   │   # - Машинное обучение в SQL запросах
+│   │   # - Статистические и временные ряды функции
 │   └── run_udf_query_demo.py   # UDF запросы к Unified Data Fabric
-├── diagnostics/         # Диагностика и анализ системы
-│   ├── check_setup.py           # Проверка установки всех компонентов
-│   ├── check_udf_perf.py        # Профилирование производительности UDF
-│   └── generate_ir_schema.py    # Генерация JSON Schema для IR компонентов
-├── gen_schema.py        # Генератор JSON Schema из Pydantic моделей
-├── lint_foundry.py      # Архитектурный линтер foundry модуля
-├── lint_imports.py      # Линтер межмодульных зависимостей (Закон A)
-├── migrate.py           # Миграция dataset manifests и policy IR
-└── migrate_ir.py        # Специализированная миграция Policy IR артефактов
+│       # - Регистрация Python функций в DuckDB
+│       # - Гибридные SQL + Python запросы
+│       # - Kuzu графовые запросы с UDF
+├── diagnostics/                # Диагностика и анализ системы
+│   ├── check_setup.py          # Комплексная проверка установки компонентов
+│   │   # - JAX экосистема (платформа, устройства, базовые операции)
+│   │   # - Базы данных (DuckDB, Kuzu)
+│   │   # - Python стек (Python 3.11+, Pydantic v2, Equinox)
+│   │   # - Импорт всех основных модулей
+│   │   # - Интеграция с polisyos.common.config
+│   ├── check_udf_perf.py       # Профилирование производительности UDF
+│   │   # - Анализ времени выполнения запросов
+│   │   # - Мониторинг памяти и CPU использования
+│   │   # - Сравнение DuckDB vs Kuzu производительности
+│   └── generate_ir_schema.py   # Генерация JSON Schema для IR компонентов
+│       # - Автоматическая генерация схем из Pydantic моделей
+│       # - Валидация структур данных IR
+│       # - Совместимость версий и детерминированность
+├── gen_schema.py               # Генератор JSON Schema из Pydantic моделей
+│   # - Генерация и валидация JSON Schema по Закону C
+│   # - Работа с PolicyRequestIR и всеми IR моделями
+│   # - Детерминированная генерация для CI/CD
+├── lint_foundry.py             # Архитектурный линтер foundry модуля
+│   # - Обеспечение чистоты математического ядра (Закон B)
+│   # - Запрет импортов IO/сетевых библиотек в foundry
+│   # - Проверка на недетерминированные операции
+├── lint_imports.py             # Линтер межмодульных зависимостей (Закон A)
+│   # - Анализ графа импортов между модулями
+│   # - Выявление запрещенных обратных зависимостей
+│   # - Предотвращение циклических импортов
+├── migrate.py                  # Универсальная миграция артефактов
+│   # - Миграция dataset_manifest, policy_ir, run_manifest
+│   # - Поддержка JSON и YAML форматов
+│   # - Семантическое версионирование
+└── migrate_ir.py               # Специализированная миграция Policy IR
+    # - Детерминированные миграции между версиями IR
+    # - Безопасные обновления с откатом
+    # - Валидация структуры после миграции
 ```
 
 ## Быстрый старт
@@ -418,64 +468,147 @@ python tools/demos/run_export_demo.py
 
 ### Связи с модулями проекта
 
-| Инструмент | Зависимости от модулей | Проверяет/Тестирует |
-|------------|----------------------|---------------------|
-| `lint_imports.py` | `core.*` | Закон A (направленные зависимости) |
-| `lint_foundry.py` | - | Закон B (чистота математического ядра) |
-| `gen_schema.py` | `ir.contract` | Закон C (контракты как источник истины) |
-| `migrate_ir.py` | `ir.migrations` | Закон C (детерминированные миграции) |
-| `check_setup.py` | `common.config`, все модули | Системная интеграция |
-| `check_udf_perf.py` | `fabric.*`, `ir.data_views` | Производительность Data Fabric |
-| `bench_domain.py` | `foundry.domain.*` | Масштабируемость JAX модели |
-| `bench_simulation.py` | `foundry.*` | Полный симуляционный пайплайн |
-| `run_ingest_demo.py` | `fabric.*`, `ir.*` | Unified Data Fabric |
-| `run_udf_*_demo.py` | `fabric.udf.*` | Гибридные запросы |
-| `run_optimizer_demo.py` | `scientist.*` | Многокритериальная оптимизация |
+| Инструмент | Зависимости от модулей | Проверяет/Тестирует | Архитектурный закон |
+|------------|----------------------|---------------------|---------------------|
+| `lint_imports.py` | `core.*` | Закон A (направленный граф зависимостей) | A (направленные зависимости) |
+| `lint_foundry.py` | `foundry.*` (только структура) | Закон B (чистота математического ядра) | B (компиляторная архитектура) |
+| `gen_schema.py` | `ir.contract` | Закон C (контракты как источник истины) | C (контракты) |
+| `migrate_ir.py` | `ir.migrations`, `common.migrations` | Закон C (детерминированные миграции) | C (контракты) |
+| `migrate.py` | `common.migrations` | Закон C (миграции артефактов) | C (контракты) |
+| `check_setup.py` | `common.config`, все модули | Системная интеграция и готовность | - |
+| `check_udf_perf.py` | `fabric.*`, `ir.data_views` | Производительность Unified Data Fabric | - |
+| `generate_ir_schema.py` | `ir.*` (все Pydantic модели) | Валидность IR структур данных | C (контракты) |
+| `bench_domain.py` | `foundry.domain.*`, `common.logger` | Масштабируемость JAX доменной модели | - |
+| `bench_simulation.py` | `foundry.*` | Полный симуляционный пайплайн | - |
+| `run_ingest_demo.py` | `fabric.*`, `ir.*` | Unified Data Fabric ingestion | - |
+| `run_udf_*_demo.py` | `fabric.udf.*`, `ir.data_views` | Гибридные SQL + Python запросы | - |
+| `run_optimizer_demo.py` | `scientist.*` | Многокритериальная оптимизация | - |
+| `run_export_demo.py` | `core.*`, `fabric.*` | Экспорт симуляционных данных | - |
+
+### Детальные архитектурные связи
+
+**Модули проекта и их роли:**
+
+- **`core`**: Фундаментальные утилиты (артефакты, контракты, registry, trace)
+- **`ir`**: Intermediate Representation (контракты, data views, калибровка, типы)
+- **`fabric`**: Unified Data Fabric (ingestion, DB, graph store, UDF engine)
+- **`foundry`**: Математическое ядро (JAX симуляции, доменная модель, engine)
+- **`scientist`**: AI/ML оркестрация (оптимизация, DOE, governance)
+- **`runtime`**: Исполнение (API, manifests)
+- **`common`**: Общие утилиты (config, logger, migrations)
 
 ### Архитектурные гарантии
 
-**Закон A (Направленный граф зависимостей):**
-- `lint_imports.py` предотвращает обратные зависимости
-- Обеспечивает чистоту слоев архитектуры
+**Закон A (Направленный граф зависимостей только внутрь):**
+- `lint_imports.py` анализирует все Python файлы в `src/polisyos/`
+- Строит граф импортов между модулями и выявляет нарушения
+- Обеспечивает, что зависимости идут только в одном направлении
+- Предотвращает циклические импорты и обратные зависимости
 
-**Закон B (Компиляторная архитектура):**
-- `lint_foundry.py` защищает математическое ядро от IO/сетевых операций
-- Foundry остается чистым функциональным ядром
+**Разрешенные зависимости (согласно архитектуре):**
+```
+scientist → ir, fabric, foundry  (orchestration использует все)
+fabric → ir                      (data fabric зависит от типов/контрактов)
+foundry → ir                     (математическое ядро использует только типы)
+ir → core                        (IR зависит от базовых утилит)
+runtime → ir, core               (runtime использует контракты)
+core → (никого)                  (фундаментальные утилиты)
+```
+
+**Закон B (Компиляторная архитектура - "Ты строишь компилятор"):**
+- `lint_foundry.py` обеспечивает чистоту математического ядра
+- Foundry должно быть функциональным ядром без side effects
+- Запрещены: базы данных, IO операции, сеть, недетерминированность
+- Разрешены: JAX, Equinox, typing, собственные модули (только типы)
+
+**Запрещенные импорты в foundry:**
+- Базы данных: `duckdb`, `kuzu`, `pandas`, `sqlite3`, `sqlalchemy`
+- IO операции: `os`, `pathlib`, `shutil`, `glob`, `tempfile`, `open`
+- Сеть: `requests`, `httpx`, `urllib`
+- Недетерминированность: `random`, `time` (кроме профилирования)
 
 **Закон C (Контракты как источник истины):**
-- `gen_schema.py` и `migrate_*` обеспечивают эволюцию схем
-- Детерминированные миграции между версиями
+- `gen_schema.py` генерирует JSON Schema из Pydantic моделей
+- `migrate_ir.py` и `migrate.py` обеспечивают детерминированные миграции
+- Все артефакты имеют `schema_version` для версионирования
+- Контракты эволюционируют безопасно между версиями
 
 **Закон D (Воспроизводимость и аудит):**
-- Все инструменты имеют `--seed`, `--run-id` для reproducible runs
-- Полная трассировка артефактов и версий
+- Все инструменты поддерживают `--seed`, `--run-id` для воспроизводимости
+- Полная трассировка артефактов через `polisyos.core.trace`
+- Manifest файлы для reproducible runs
+- Аудит через `polisyos.core.artifacts`
 
 ## Использование в CI/CD
 
-Рекомендуемый pipeline качества для Policy Engine:
+Рекомендуемый pipeline качества для Policy Engine с учетом архитектурных законов:
 
 ```yaml
 # .github/workflows/ci.yml
-- name: System readiness check
-  run: |
-    python tools/diagnostics/check_setup.py
+jobs:
+  quality-gate:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
 
-- name: Architecture compliance (Законы A, B, C)
-  run: |
-    python tools/lint_imports.py --fail-on-cycles
-    python tools/lint_foundry.py
-    python tools/gen_schema.py --check --output policy_ir_schema.json
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
 
-- name: Performance regression gate
-  run: |
-    python tools/benchmarks/bench_domain.py
-    python tools/benchmarks/bench_simulation.py
-    python tools/diagnostics/check_udf_perf.py --baseline data/curated/udf_perf_baseline.json
+    - name: Install dependencies
+      run: |
+        pip install -e .[dev,test]
 
-- name: Integration smoke tests
-  run: |
-    python tools/demos/run_ingest_demo.py
-    python tools/demos/run_udf_query_demo.py
+    - name: System readiness check
+      run: |
+        python tools/diagnostics/check_setup.py
+
+    - name: Architecture compliance (Законы A, B, C)
+      run: |
+        # Закон A: направленный граф зависимостей
+        python tools/lint_imports.py --fail-on-cycles --verbose
+
+        # Закон B: чистота математического ядра
+        python tools/lint_foundry.py --verbose
+
+        # Закон C: контракты как источник истины
+        python tools/gen_schema.py --check --output policy_ir_schema.json
+
+    - name: Schema validation
+      run: |
+        python tools/diagnostics/generate_ir_schema.py
+        python tools/migrate.py policy_ir tests/data/policy_v1.json /tmp/migrated.json --to v2.0.0
+
+    - name: Performance regression gate
+      run: |
+        python tools/benchmarks/bench_domain.py --n-agents 10000
+        python tools/benchmarks/bench_simulation.py --n-steps 50 --n-agents 1000
+        python tools/diagnostics/check_udf_perf.py
+
+    - name: Integration smoke tests
+      run: |
+        python tools/demos/run_ingest_demo.py
+        python tools/demos/run_udf_query_demo.py
+        python tools/demos/run_optimizer_demo.py --quick
+
+  nightly-benchmarks:
+    runs-on: ubuntu-latest
+    schedule:
+      - cron: '0 2 * * *'  # Каждый день в 2:00 UTC
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Full performance benchmark
+      run: |
+        python tools/benchmarks/bench_domain.py --n-agents 1000000
+        python tools/benchmarks/bench_simulation.py --n-steps 1000 --n-agents 10000
+
+    - name: Upload benchmark results
+      uses: actions/upload-artifact@v4
+      with:
+        name: benchmark-results
+        path: benchmark_*.json
 ```
 
 ## Архитектурные принципы
@@ -614,16 +747,61 @@ pytest tests/tools/ -v
 
 ## Поддержка и совместимость
 
-- **Python:** 3.11+ (тестировано на 3.11, 3.12)
-- **JAX:** 0.4.x+ с JAXlib
-- **Pydantic:** v2 only ( breaking changes в v1→v2)
-- **Операционные системы:** Linux, macOS, Windows (через WSL)
+### Системные требования
 
-### Известные ограничения
+- **Python:** 3.11+ (рекомендуется 3.11 или 3.12)
+- **JAX:** 0.4.x+ с соответствующими JAXlib
+- **Pydantic:** v2 only (критические изменения в v1→v2)
+- **Операционные системы:** Linux, macOS (Intel/Apple Silicon), Windows (WSL2)
 
-- **macOS + JAX Metal:** Может требовать `POLICY_ENGINE_ALLOW_JAX_METAL=0`
-- **PyYAML:** Опционально для YAML поддержки в миграциях
-- **Kuzu:** Требует C++ компилятор для установки
+### Зависимости
+
+| Компонент | Версия | Примечание |
+|------------|--------|------------|
+| `jax` | 0.4.x+ | С JAXlib для целевой платформы |
+| `jaxlib` | Совместимая с JAX | CPU или GPU версия |
+| `equinox` | 0.11.x+ | Функциональное программирование |
+| `pydantic` | 2.x | Только v2, v1 не поддерживается |
+| `duckdb` | 0.9.x+ | Аналитическое хранилище |
+| `kuzu` | 0.0.x+ | Графовая база данных |
+| `pymoo` | 0.6.x+ | Многокритериальная оптимизация |
+
+### Известные ограничения и решения
+
+#### JAX и Apple Silicon (macOS)
+```bash
+# Принудительное использование CPU (рекомендуется для стабильности)
+export POLICY_ENGINE_ALLOW_JAX_METAL=0
+python tools/diagnostics/check_setup.py
+```
+
+#### PyYAML для YAML поддержки
+```bash
+# Опционально для миграций YAML файлов
+pip install PyYAML
+```
+
+#### Kuzu установка
+```bash
+# Требует C++ компилятора
+# На macOS: xcode-select --install
+# На Ubuntu: apt-get install build-essential
+pip install kuzu
+```
+
+#### Windows поддержка
+- Полная поддержка через WSL2
+- Native Windows: экспериментальная, возможны проблемы с JAX GPU
+
+### Тестирование совместимости
+
+```bash
+# Полная проверка системной совместимости
+python tools/diagnostics/check_setup.py
+
+# Проверка с детальным логированием
+POLICY_ENGINE_LOG_LEVEL=DEBUG python tools/diagnostics/check_setup.py
+```
 
 ### Версионирование
 
@@ -631,4 +809,27 @@ pytest tests/tools/ -v
 
 ---
 
-*Инструменты протестированы на Python 3.11+ с JAX, DuckDB, Kuzu и полным технологическим стеком Policy Engine.*
+## Архитектурная актуальность
+
+Данная документация отражает текущее состояние Policy Engine на **2026-01-15** и соответствует принципам, описанным в `architecture.md`.
+
+### Ключевые архитектурные достижения
+
+- **Закон A**: Гарантированная направленность зависимостей через автоматизированное тестирование
+- **Закон B**: Чистота математического ядра foundry с запретом IO операций
+- **Закон C**: Контракты как источник истины с детерминированными миграциями
+- **Закон D**: Полная воспроизводимость через manifests и trace систему
+
+### Интеграция с модулями
+
+Инструменты `tools/` обеспечивают качество всей экосистемы Policy Engine:
+
+- **Диагностика**: `diagnostics/` - проверка готовности системы
+- **Качество**: `lint_*.py` - соблюдение архитектурных законов
+- **Эволюция**: `migrate_*.py`, `gen_schema.py` - безопасные изменения
+- **Производительность**: `benchmarks/` - регрессионное тестирование
+- **Демонстрация**: `demos/` - валидация функциональности
+
+---
+
+*Инструменты протестированы на Python 3.11+ с JAX 0.4.x, DuckDB, Kuzu и полным технологическим стеком Policy Engine. Документация обновлена для отражения актуального состояния на 2026-01-15.*

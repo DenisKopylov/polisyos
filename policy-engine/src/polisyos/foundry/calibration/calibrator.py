@@ -54,9 +54,9 @@ class CalibratorInputs:
     slot_registry: SlotRegistry
     merge_registry: MergeRuleRegistry
     selector_field_registry: SelectorFieldRegistry | None
+    parameter_loader: Callable[[Any], dict[str, Any]]
     constraint_registry: ConstraintRegistry | None = None
     constraint_values: Mapping[str, float] | None = None
-    parameter_loader: Callable[[Any], dict[str, Any]]
     raw_targets: Mapping[str, object] | None = None
     controls_seq: jnp.ndarray | None = None
     udf_engine: Any | None = None
@@ -739,6 +739,8 @@ class Calibrator:
                         std = jnp.sqrt(jnp.maximum(diag, 0.0))
                         denom = (std[:, None] * std[None, :]) + cfg.hessian.rank_tol
                         corr = cov / denom
+                        if n_params > 0:
+                            corr = corr.at[jnp.diag_indices(n_params)].set(1.0)
                         singular_values = jnp.linalg.svd(hessian_damped, compute_uv=False)
                         s_max = float(jnp.max(singular_values)) if singular_values.size else 0.0
                         s_min = float(jnp.min(singular_values)) if singular_values.size else 0.0
@@ -792,8 +794,26 @@ class Calibrator:
                 "effective_fidelity": fidelity_stats["effective_fidelity"],
                 "temperature": cfg.fidelity.temperature,
                 "forced_override": cfg.fidelity.force_override,
-                "jax_platform": jax.lib.xla_bridge.get_backend().platform,
+                "jax_platform": _jax_platform(),
                 "timestamp": datetime.now(timezone.utc).isoformat(),
                 "fidelity_stats": fidelity_stats,
             },
         )
+
+
+def _jax_platform() -> str:
+    """
+    JAX 0.8+ удалил `jax.lib.xla_bridge.get_backend()`.
+    Возвращаем строковый идентификатор платформы максимально совместимым способом.
+    """
+    try:
+        # JAX >= 0.8
+        import jax.extend as jax_extend  # type: ignore[import-not-found]
+
+        return str(jax_extend.backend.get_backend().platform)
+    except Exception:
+        try:
+            # Старый/универсальный API
+            return str(jax.default_backend())
+        except Exception:
+            return "unknown"

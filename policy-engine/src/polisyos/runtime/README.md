@@ -6,8 +6,9 @@
 
 - **Воспроизводимость**: Каждый прогон имеет уникальный `run_id` и полную трассировку
 - **Аудит**: Полный лог всех операций и решений в формате JSON Lines
-- **Артефакты**: Структурированное хранение результатов, IR, метрик симуляции
+- **Артефакты**: Структурированное хранение результатов, IR, метрик симуляции с переносимыми ссылками
 - **Бюджеты**: Отслеживание использования ресурсов (compute, memory, time)
+- **Переносимость**: Артефакты используют относительные пути и могут быть перемещены между директориями
 
 Согласно **Закону D архитектуры** ("Любой прогон — воспроизводим и аудируем"), runtime является единственной точкой входа для создания и управления запусками.
 
@@ -23,7 +24,7 @@ Runtime стоит в конце трубы, собирая все артефа�
 
 ### Границы ответственности
 
-- ✅ **Владеет**: жизненный цикл запусков, артефакты, audit trail, бюджеты, сериализация
+- ✅ **Владеет**: жизненный цикл запусков, артефакты, audit trail, бюджеты, сериализация, разрешение путей
 - ❌ **Не владеет**: бизнес-логика, JAX вычисления, БД, LLM, workflow orchestration
 
 Runtime — это **чистая инфраструктура** без зависимостей от scientist/fabric/foundry.
@@ -38,6 +39,20 @@ runtime/
 └── README.md           # Эта документация
 ```
 
+### Публичный API
+
+```python
+from polisyos.runtime import (
+    RunManifest,                    # Модель паспорта эксперимента
+    append_audit,                   # Добавление записи в audit trail
+    finalize_run,                   # Завершение запуска с финальным статусом
+    log_artifact,                   # Логирование артефакта прогона
+    resolve_artifact_path,          # Разрешение пути к артефакту
+    start_run,                      # Инициализация нового запуска
+    update_budget_usage,            # Обновление использования бюджета
+)
+```
+
 ## Структура артефактов
 
 ### Стандартная директория запуска
@@ -46,11 +61,12 @@ runtime/
 runs/<run_id>/
 ├── manifest.json              # RunManifest (паспорт прогона)
 ├── artifacts/                 # Структурированные результаты
-│   ├── policy_ir/            # IR политики (YAML/JSON)
-│   ├── simulation_results/   # Метрики симуляции
+│   ├── policy_ir/            # IR политики (JSON)
+│   ├── simulation_results/   # Метрики симуляции (JSON)
 │   ├── compiled_model/       # Скомпилированная модель
-│   └── data_views/           # Результаты UDF запросов
-├── audit.jsonl               # Аудит-лог всех операций
+│   ├── data_views/           # Результаты UDF запросов (JSON)
+│   └── audit_trail/          # Автоматически создаваемая ссылка на audit
+├── audit.jsonl               # Аудит-лог всех операций (JSON Lines)
 └── [decision_packet.json]    # Финальный артефакт (опционально)
 ```
 
@@ -58,17 +74,35 @@ runs/<run_id>/
 
 ```python
 class RunManifest(BaseModel):
-    schema_version: str = "1.0"
-    run_id: str                    # Уникальный идентификатор
-    parent_run_id: Optional[str]   # Для иерархических прогонов
-    status: str = "running"        # "running" | "completed" | "failed" | "pruned"
-    started_at: str               # ISO timestamp
-    finished_at: Optional[str]    # ISO timestamp при завершении
-    generator: Dict[str, str]     # Кто создал (scientist.workflow, etc.)
-    budgets: Dict[str, float]     # Исходные лимиты ресурсов
-    budget_usage: Dict[str, float] # Фактическое использование
-    pruning_reason: Optional[Dict[str, Any]]  # Причина досрочного завершения
-    artifacts: List[ArtifactRef]  # Ссылки на все артефакты
+    schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
+    run_id: str
+    parent_run_id: Optional[str] = None
+    status: str = "running"
+    started_at: str = Field(default_factory=lambda: datetime.utcnow().isoformat())
+    finished_at: Optional[str] = None
+    generator: Dict[str, str] = Field(default_factory=dict)
+    budgets: Dict[str, float] = Field(default_factory=dict)
+    budget_usage: Dict[str, float] = Field(default_factory=dict)
+    pruning_reason: Optional[Dict[str, Any]] = None
+    artifacts: List[ArtifactRef] = Field(default_factory=list)
+    run_root: Optional[str] = None  # Корневая директория для разрешения путей
+
+    model_config = ConfigDict(extra="forbid")
+```
+
+### ArtifactRef (ссылка на артефакт)
+
+```python
+class ArtifactRef(BaseModel):
+    artifact_type: str
+    path: Optional[str] = None                    # Абсолютный путь (устаревший)
+    relative_path: Optional[str] = None          # Относительный путь (рекомендуемый)
+    media_type: str
+    schema_version: Optional[str] = None
+    step: Optional[str] = None
+    created_at: str = Field(default_factory=lambda: datetime.utcnow().isoformat())
+
+    model_config = ConfigDict(extra="forbid")
 ```
 
 ## API Reference
@@ -86,7 +120,7 @@ manifest = start_run()
 
 # Запуск с метаданными и бюджетами
 manifest = start_run(
-    run_id="policy_sim_001",                    # Опционально, генерируется автоматически
+    run_id="abc123def",                         # Опционально, генерируется автоматически (8 символов UUID)
     parent_run_id="draft_123",                  # Для иерархических прогонов
     generator={"component": "scientist.workflow", "version": "1.0"},
     budgets={"compute": 1000.0, "memory": 2048.0, "time": 3600.0},
@@ -101,11 +135,11 @@ manifest = start_run(
 from polisyos.runtime import finalize_run
 
 # Успешное завершение
-finalize_run(run_id="policy_sim_001", status="completed")
+finalize_run(run_id="abc123def", status="completed")
 
 # Завершение с причиной pruning
 finalize_run(
-    run_id="policy_sim_001",
+    run_id="abc123def",
     status="pruned",
     pruning_reason={
         "type": "budget_exceeded",
@@ -117,24 +151,39 @@ finalize_run(
 )
 ```
 
+#### `resolve_artifact_path()`
+Разрешает абсолютный путь к артефакту из ArtifactRef.
+
+```python
+from polisyos.runtime import resolve_artifact_path
+
+# Разрешение пути с учетом run_root
+abs_path = resolve_artifact_path(
+    artifact_ref,
+    base_dir=Path("runs"),
+    run_root=Path("/original/location")  # Опционально, если run_root отличается
+)
+```
+
 ### Логирование артефактов
 
 #### `log_artifact()`
-Сохраняет артефакт прогона с автоматической категоризацией.
+Сохраняет артефакт прогона с автоматической категоризацией и созданием переносимых ссылок.
 
 ```python
 from polisyos.runtime import log_artifact
 
 # Логирование Policy IR
 policy_ir = {"policies": [...], "objectives": [...]}
-log_artifact(
-    run_id="policy_sim_001",
+ref = log_artifact(
+    run_id="abc123def",
     artifact_type="policy_ir",
     payload=policy_ir,
     step="draft",
-    filename="policy_draft_v1.yaml",
+    filename="policy_draft_v1.json",  # Автоматически .json если media_type="application/json"
     base_dir=Path("runs")
 )
+# ref.relative_path будет содержать "abc123def/artifacts/policy_ir/20240101T100000_policy_ir.json"
 
 # Логирование результатов симуляции
 simulation_results = {
@@ -142,8 +191,8 @@ simulation_results = {
     "timesteps": 100,
     "convergence": True
 }
-log_artifact(
-    run_id="policy_sim_001",
+ref = log_artifact(
+    run_id="abc123def",
     artifact_type="simulation_results",
     payload=simulation_results,
     step="simulate",
@@ -153,8 +202,8 @@ log_artifact(
 
 # Логирование data view результатов
 panel_data = pd.DataFrame(...)  # Результат UDF запроса
-log_artifact(
-    run_id="policy_sim_001",
+ref = log_artifact(
+    run_id="abc123def",
     artifact_type="data_views",
     payload=panel_data.to_dict('records'),
     media_type="application/json",
@@ -227,11 +276,14 @@ update_budget_usage(run_id="policy_sim_001", budget_usage={
 ```python
 class ArtifactRef(BaseModel):
     artifact_type: str              # Категория артефакта
-    path: str                      # Путь к файлу относительно runs/
-    media_type: str = "application/json"
-    schema_version: Optional[str]  # Версия схемы для структурированных данных
-    step: Optional[str]           # Этап workflow, на котором создан
-    created_at: str               # ISO timestamp создания
+    path: Optional[str] = None      # Абсолютный путь (устаревший, для обратной совместимости)
+    relative_path: Optional[str] = None  # Относительный путь (рекомендуемый)
+    media_type: str                 # MIME тип ("application/json", "text/plain")
+    schema_version: Optional[str] = None  # Версия схемы для структурированных данных
+    step: Optional[str] = None      # Этап workflow, на котором создан
+    created_at: str = Field(default_factory=lambda: datetime.utcnow().isoformat())
+
+    model_config = ConfigDict(extra="forbid")
 ```
 
 ## Аудит-лог
@@ -258,10 +310,11 @@ class ArtifactRef(BaseModel):
 
 ### Scientist/Orchestrator
 
-Runtime интегрирован в workflow через `flow_nodes.py` и `audit.py`:
+Runtime является основной инфраструктурой для workflow в `scientist.orchestrator`. Интеграция происходит через:
+
+#### `flow_nodes.py` - управление жизненным циклом экспериментов
 
 ```python
-# В flow_nodes.py - управление жизненным циклом экспериментов
 from polisyos.runtime import finalize_run, log_artifact, start_run, update_budget_usage
 
 def experiment_workflow(state: ExperimentState):
@@ -271,10 +324,11 @@ def experiment_workflow(state: ExperimentState):
         budgets={"llm_calls": 3.0, "sim_runs": 1.0, "wall_time_s": 120.0},
         base_dir=_runtime_base_dir(state)
     )
+    state["run_id"] = manifest.run_id
 
     # Логирование артефактов на этапах workflow
     log_artifact(
-        run_id=manifest.run_id,
+        run_id=state["run_id"],
         artifact_type="policy_ir",
         payload=policy_ir,
         step="draft",
@@ -282,35 +336,42 @@ def experiment_workflow(state: ExperimentState):
     )
 
     # Финализация эксперимента
-    finalize_run(run_id=manifest.run_id, status="completed", base_dir=_runtime_base_dir(state))
+    finalize_run(run_id=state["run_id"], status="completed", base_dir=_runtime_base_dir(state))
 ```
 
+#### `audit.py` - интеграция с audit trail
+
 ```python
-# В audit.py - интеграция с audit trail
 from polisyos.runtime import append_audit as runtime_append_audit
 
-def append_audit(state: Dict[str, Any], node: str, action: str, details: Dict[str, Any]):
+def append_audit(state: Dict[str, Any], node: str, action: str, details: Dict[str, Any]) -> Dict[str, Any]:
+    audit = state.get("audit_trail") or []
     record = {
         "timestamp": datetime.utcnow().isoformat(),
         "node": node,
         "action": action,
         "details": details,
     }
+    audit.append(record)
 
     # Синхронная запись в runtime audit trail
     run_id = state.get("run_id")
+    runtime_base_dir = state.get("runtime_base_dir")
     if run_id:
-        runtime_append_audit(run_id=run_id, record=record, base_dir=Path(state.get("runtime_base_dir", "runs")))
+        base_dir = Path(runtime_base_dir) if runtime_base_dir else Path("runs")
+        runtime_append_audit(run_id=run_id, record=record, base_dir=base_dir)
+
+    return {**state, "audit_trail": audit}
 ```
 
 ### Fabric/UDF
 
-UDF результаты логируются как артефакты для трассировки через orchestrator:
+Результаты UDF запросов логируются как артефакты для обеспечения полной трассировки:
 
 ```python
-# В flow_nodes.py - логирование результатов UDF запросов
-def compile_data_node(state: ExperimentState):
-    # ... компиляция и исполнение UDF ...
+# В compile_data_views_node (flow_nodes.py)
+def compile_data_views_node(state: ExperimentState):
+    # ... компиляция и исполнение UDF через fabric.udf ...
     log_artifact(
         run_id=state["run_id"],
         artifact_type="data_views",
@@ -322,14 +383,14 @@ def compile_data_node(state: ExperimentState):
 
 ### Foundry
 
-Результаты симуляции интегрируются через orchestrator workflow:
+Результаты симуляции и метрики логируются через runtime для сохранения истории экспериментов:
 
 ```python
-# В flow_nodes.py - логирование результатов симуляции
-def simulate_node(state: ExperimentState):
+# В run_sim_node (flow_nodes.py)
+def run_sim_node(state: ExperimentState):
     # ... запуск симуляции в foundry ...
 
-    # Логирование результатов
+    # Логирование результатов симуляции
     log_artifact(
         run_id=state["run_id"],
         artifact_type="simulation_results",
@@ -338,7 +399,7 @@ def simulate_node(state: ExperimentState):
         base_dir=_runtime_base_dir(state)
     )
 
-    # Обновление бюджета
+    # Обновление бюджета после симуляции
     update_budget_usage(
         run_id=state["run_id"],
         budget_usage={"sim_runs": 1.0},
@@ -445,7 +506,7 @@ runs/<run_id>/
 
 ## Примеры использования
 
-### Полный цикл эксперимента (реальный паттерн из flow_nodes.py)
+### Полный цикл эксперимента
 
 ```python
 from polisyos.runtime import start_run, log_artifact, append_audit, finalize_run, update_budget_usage
@@ -461,12 +522,13 @@ run_id = manifest.run_id
 
 # 2. Этап черновика IR
 append_audit(run_id=run_id, record={
+    "timestamp": "2024-01-01T10:00:00Z",
     "event": "workflow_step_started",
     "step": "draft_ir",
-    "details": {"input_length": len(input_text)}
+    "details": {"input_length": 1500}
 }, base_dir=Path("runs"))
 
-policy_ir = generate_policy_draft()
+policy_ir = {"policies": [...], "objectives": [...]}
 log_artifact(
     run_id=run_id,
     artifact_type="policy_ir",
@@ -476,7 +538,7 @@ log_artifact(
 )
 
 # 3. Компиляция данных (UDF запросы)
-data_views = compile_data_views(policy_ir)
+data_views = {"panels": [...], "networks": [...]}
 log_artifact(
     run_id=run_id,
     artifact_type="data_views",
@@ -486,7 +548,11 @@ log_artifact(
 )
 
 # 4. Симуляция в Foundry
-simulation_result = run_foundry_simulation(policy_ir, data_views)
+simulation_result = {
+    "metrics": {"gdp": 1250.5, "unemployment": 0.045},
+    "timesteps": 100,
+    "converged": True
+}
 log_artifact(
     run_id=run_id,
     artifact_type="simulation_results",
@@ -503,10 +569,10 @@ update_budget_usage(
 )
 
 # 5. Решение Governor
-decision = governor_analyze(simulation_result)
 append_audit(run_id=run_id, record={
+    "timestamp": "2024-01-01T10:15:00Z",
     "event": "governor_decision",
-    "verdict": decision,
+    "verdict": "approve",
     "details": {"confidence": 0.85}
 }, base_dir=Path("runs"))
 
@@ -579,9 +645,11 @@ Runtime обеспечивает соблюдение **Закона D**:
 
 ### Активные интеграции
 
-- **Scientist/Orchestrator**: Основной потребитель runtime API через `flow_nodes.py` и `audit.py`
-- **Fabric**: Косвенная интеграция через результаты UDF запросов
-- **Foundry**: Косвенная интеграция через результаты симуляции
+- **Scientist/Orchestrator**: Основной потребитель runtime API
+  - `scientist.orchestrator.flow_nodes` - управление жизненным циклом экспериментов
+  - `scientist.orchestrator.audit` - синхронизация audit trail
+- **Fabric/UDF**: Косвенная интеграция через логирование результатов UDF запросов
+- **Foundry**: Косвенная интеграция через логирование результатов симуляции
 
 ### Архитектурные связи
 
@@ -590,21 +658,106 @@ graph TD
     A[scientist.orchestrator.flow_nodes] --> B[runtime.api]
     A --> C[runtime.manifest]
     D[scientist.orchestrator.audit] --> B
-    B --> E[filesystem: runs/<run_id>/]
+    B --> E[filesystem: runs/&lt;run_id&gt;/]
     C --> E
+    F[fabric.udf] -.-> B
+    G[foundry.engine] -.-> B
 ```
 
 ### Модели данных
 
-Модуль предоставляет две ключевые Pydantic модели:
+Модуль предоставляет две ключевые Pydantic модели с строгой валидацией:
 
-- **`RunManifest`**: Полный "паспорт" эксперимента с метаданными, статусом и ссылками на артефакты
-- **`ArtifactRef`**: Ссылка на артефакт с типом, путем, медиа-типом и версией схемы
+- **`RunManifest`**: Полный "паспорт" эксперимента с метаданными, статусом, бюджетами и ссылками на артефакты
+- **`ArtifactRef`**: Переносимая ссылка на артефакт с поддержкой относительных путей
 
 ### Поток данных
 
 ```
-Scientist Workflow → Runtime API → File System (runs/) → Artifacts + Audit Trail
+Scientist Workflow → Runtime API → File System (runs/<run_id>/) → Artifacts + Audit Trail
 ```
+
+### Ключевые особенности реализации
+
+- **Переносимость**: Использование `relative_path` в `ArtifactRef` позволяет перемещать директории `runs/` без потери ссылок
+- **Строгая схема**: Все модели используют `extra="forbid"` для предотвращения незапланированных полей
+- **Версионирование**: `schema_version` в `RunManifest` обеспечивает эволюцию формата
+- **Идемпотентность**: Все операции безопасны для повторного выполнения
+- **Автоматическое создание директорий**: Нет ошибок на отсутствующие пути
+
+## Тестирование
+
+### Unit тесты
+
+```bash
+# Тестирование API и путей
+pytest policy-engine/tests/runtime/test_runtime_manifest_paths.py -v
+```
+
+### Integration тесты
+
+```bash
+# Полный workflow с runtime
+pytest policy-engine/tests/integration/test_workflow_smoke.py::test_workflow_with_runtime -v
+
+# Runtime в контексте scientist
+pytest policy-engine/tests/integration/test_workflow_llm.py -k runtime -v
+```
+
+## Архитектурные гарантии
+
+Runtime обеспечивает соблюдение **Закона D** архитектуры:
+
+- ✅ **Воспроизводимость**: Каждый прогон имеет уникальный run_id и полную трассировку
+- ✅ **Аудит**: Полный лог всех операций в JSON Lines формате
+- ✅ **Артефакты**: Структурированное хранение всех результатов с переносимыми ссылками
+- ✅ **Бюджеты**: Отслеживание и enforcement лимитов ресурсов
+
+## Производительность и надежность
+
+### Оптимизации
+
+- **Ленивая загрузка**: Manifest читается только при обновлении
+- **JSON Lines streaming**: Аудит-лог поддерживает потоковое чтение
+- **Автоматическое создание директорий**: Нет ошибок на отсутствующие пути
+- **Идемпотентность**: Все операции безопасны для повторного выполнения
+
+### Обработка ошибок
+
+```python
+# Runtime операции устойчивы к ошибкам
+try:
+    log_artifact(run_id, "policy_ir", payload)
+except FileNotFoundError:
+    # Создание директорий автоматически
+    pass
+except ValidationError as e:
+    # Pydantic валидация на всех моделях
+    append_audit(run_id, {"event": "artifact_validation_failed", "error": str(e)})
+```
+
+## Миграция и совместимость
+
+### Поддержка переносимости
+
+Runtime поддерживает перенос директорий `runs/` благодаря использованию `relative_path`:
+
+```python
+# Артефакты остаются доступными после перемещения
+original_base = Path("/original/runs")
+new_base = Path("/backup/runs")
+
+# Перемещение директории
+shutil.move(str(original_base / run_id), str(new_base / run_id))
+
+# Пути разрешаются корректно
+artifact_path = resolve_artifact_path(ref, base_dir=new_base)
+```
+
+### Обратная совместимость
+
+- `path` поле в `ArtifactRef` поддерживается для существующих артефактов
+- `relative_path` является рекомендуемым подходом для новых артефактов
+- `run_root` в `RunManifest` позволяет корректно разрешать пути при перемещении
 
 Runtime — это **инфраструктурный фундамент** для надежной, трассируемой и воспроизводимой системы симуляции политик.

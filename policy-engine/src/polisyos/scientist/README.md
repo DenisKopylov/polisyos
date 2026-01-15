@@ -6,70 +6,78 @@ Scientist - это "мозг" Policy Engine, отвечающий за авто�
 
 ## Архитектура
 
-Scientist построен как многоуровневая система оркестрации с четким разделением ответственности:
+Scientist построен как многоуровневая система оркестрации с четким разделением ответственности. Архитектура следует принципам модульной декомпозиции и однонаправленных зависимостей, обеспечивая высокую тестируемость и расширяемость.
 
 ### 🤖 Agent Layer (Агенты и генерация)
 
-Отвечает за генерацию и принятие решений о политиках:
+Отвечает за генерацию и принятие решений о политиках через различные стратегии:
 
-- **base.py**: Абстрактный класс `BaseAgent` и `MockAgent` для эвристического принятия решений
-- **drafter.py**: Узел генерации политики через LLM (`MockLLM` для тестирования)
-- **prompts.py**: Системные промпты для LLM с каталогом доступных механизмов
-- **prompt.py**: Альтернативные промпты для Policy Scientist
+- **base.py**: Абстрактный класс `BaseAgent` и `MockAgent` для эвристического принятия решений на основе экономических показателей (безработица, бюджетный баланс)
+- **drafter.py**: Узел генерации политики через LLM с поддержкой `MockLLM` для тестирования без API ключей
+- **prompts.py**: Системные промпты для LLM с каталогом доступных механизмов политики и селекторов
+- **prompt.py**: Альтернативные и специализированные промпты для различных сценариев Policy Scientist
 
 ### 🎯 Kernel Layer (Ядро управления)
 
-Обеспечивает контроль выполнения и безопасность:
+Обеспечивает контроль выполнения, безопасность и управление жизненным циклом экспериментов:
 
-- **budgets.py**: Модели бюджетов (`ComputeBudget`, `EvidenceBudget`, `LegitimacyBudget`, `ComplexityBudget`)
-- **fsm.py**: Конечный автомат состояний (`Phase` enum, `KernelState`, `ALLOWED_TRANSITIONS`)
-- **guards.py**: Проверки переходов между состояниями и валидация артефактов
-- **human_gate.py**: Система человеческих ворот (`GateRequest`, `GateDecision`)
+- **budgets.py**: Строгие модели бюджетов (`ComputeBudget`, `EvidenceBudget`, `LegitimacyBudget`, `ComplexityBudget`) с валидацией Pydantic
+- **fsm.py**: Конечный автомат состояний с 9 фазами (`Phase` enum) и строгими правилами переходов (`ALLOWED_TRANSITIONS`)
+- **guards.py**: Система проверок переходов между состояниями и валидации артефактов для предотвращения некорректных состояний
+- **human_gate.py**: Асинхронная система человеческих ворот для одобрения критических решений (`GateRequest`, `GateDecision`)
 
 ### 🔬 Compute Layer (Вычислительные спецификации)
 
-Определяет интерфейсы для запуска симуляций:
+Определяет интерфейсы и спецификации для запуска симуляций и распределенных вычислений:
 
-- **job_spec.py**: Спецификации задач (`JobSpec`, `JobKey`, `JobResult`)
-- **runner.py**: Заглушка для запуска вычислительных задач (будет интегрирован с Foundry)
+- **job_spec.py**: Детальные спецификации задач симуляции (`JobSpec`, `JobKey`, `JobResult`) с поддержкой артефактов, seed и метрик
+- **runner.py**: Интерфейс для запуска вычислительных задач с поддержкой разных бэкендов (интегрирован с Foundry executor)
 
 ### 📊 Design of Experiments (DoE)
 
-Планирование экспериментов и сценариев:
+Планирование экспериментов и систематическое исследование сценариев политики:
 
-- **designs.py**: Модели дизайнов экспериментов (`ScenarioSweep`, `AblationPlan`, `SensitivityPlan`)
+- **designs.py**: Модели дизайнов экспериментов (`ScenarioSweep`, `AblationPlan`, `SensitivityPlan`) для сравнения политик и анализа чувствительности
 
 ### 🛡️ Governance Layer (Управление и безопасность)
 
-Контроль качества и безопасности:
+Многоуровневый контроль качества, безопасности и соответствия требованиям:
 
-- **preflight.py**: Предварительные проверки перед запуском экспериментов
-- **postflight.py**: Пост-запусковые проверки и валидация результатов
+- **preflight.py**: Предварительные проверки безопасности и валидации перед запуском экспериментов (возвращает `GateRequest` при необходимости)
+- **postflight.py**: Пост-запусковые проверки результатов и финальное одобрение экспериментов
 
 ### 🎼 Orchestrator Layer (Основная оркестрация)
 
-Управляет полным жизненным циклом экспериментов:
+Управляет полным жизненным циклом экспериментов с использованием LangGraph для декларативного workflow:
 
-- **workflow.py**: Основной граф состояний LangGraph с 9 узлами
-- **state.py**: `ExperimentState` (TypedDict с 70+ полями управления экспериментом)
-- **flow_nodes.py**: Реализации всех узлов workflow (1000+ строк кода)
-- **decision_packet.py**: Итоговый артефакт прогона (`DecisionPacket` с полной информацией)
-- **run_record.py**: Записи для воспроизводимости (`RunRecord` с метаданными)
-- **audit.py**: Система аудита и логирования
-- **data_loader.py**: Загрузка начальных данных
-- **nodes.py**: Дополнительные узлы workflow
-- **optimizer.py**: Градиентная оптимизация параметров политик
-- **registry.py**: Управление реестрами компонентов
+- **workflow.py**: Основной граф состояний LangGraph с 9 узлами и системой маршрутизации
+- **state.py**: `ExperimentState` (TypedDict с 80+ полями) - центральная структура данных эксперимента
+- **flow_nodes.py**: Полные реализации всех узлов workflow (1450+ строк кода) с интеграцией всех компонентов системы
+- **decision_packet.py**: Итоговый артефакт прогона (`DecisionPacket`) с полной информацией о эксперименте
+- **run_record.py**: Детальные записи для воспроизводимости (`RunRecord` с метаданными окружения)
+- **audit.py**: Комплексная система аудита и логирования всех операций
+- **data_loader.py**: Загрузка и подготовка начальных данных из Fabric layer
+- **nodes.py**: Дополнительные специализированные узлы workflow
+- **optimizer.py**: Градиентная оптимизация параметров политик с использованием Optax
+- **registry.py**: Управление реестрами компонентов и артефактов
+
+### 📚 Legacy Layer (Устаревший код)
+
+Содержит устаревшие реализации для обратной совместимости:
+
+- **_legacy/**: Папка с устаревшим кодом
+  - **compiler.py**: Legacy компилятор для старого `PolicyRequestIR` (deprecated, использовать Surface IR)
+  - **nodes.py**: Устаревшие узлы workflow (deprecated, использовать flow_nodes.py)
 
 ### 📤 Publisher Layer (Публикация)
 
-Финализация и экспорт результатов:
+Финализация, публикация и экспорт результатов экспериментов:
 
-- **publisher.py**: Публикация решений и артефактов экспериментов
+- **publisher.py**: Публикация решений и артефактов экспериментов с формированием финального `DecisionPacket`
 
 ## Workflow Pipeline
 
-Scientist реализует декларативный workflow на LangGraph с поддержкой FSM фаз:
+Scientist реализует декларативный workflow на LangGraph с поддержкой FSM фаз и автоматической маршрутизацией:
 
 ```mermaid
 graph TD
@@ -102,15 +110,15 @@ Workflow управляется конечным автоматом состоя
 
 ### Узлы Workflow
 
-1. **draft_ir** (FRAME): Генерация начальной политики из пользовательского запроса через LLM
-2. **validate_ir** (FRAME): Валидация структуры и семантики политики
-3. **repair_ir** (FRAME): Автоматическое исправление ошибок валидации через повторные LLM вызовы
-4. **compile_data_views** (PLAN): Подготовка DataView запросов для Fabric (UDF)
-5. **compile_model** (EXECUTE): Компиляция политики в дифференцируемые JAX механизмы
-6. **run_sim** (EXECUTE): Запуск симуляции и сбор метрик через Foundry
-7. **analyze** (EXECUTE): Анализ результатов симуляции и расчет метрик
-8. **governor** (POSTFLIGHT_GOV): Финальное решение на основе бюджетов и политики безопасности
-9. **pack_decision** (PUBLISH): Формирование `DecisionPacket` с полной информацией о эксперименте
+1. **draft_ir** (FRAME): Генерация начальной политики из пользовательского запроса через LLM с использованием системных промптов
+2. **validate_ir** (FRAME): Полная валидация структуры и семантики политики с проверкой схемы и бизнес-правил
+3. **repair_ir** (FRAME): Автоматическое исправление ошибок валидации через повторные LLM вызовы с анализом diff
+4. **compile_data_views** (PLAN): Подготовка DataView запросов для Fabric layer и компиляция UDF функций
+5. **compile_model** (EXECUTE): Компиляция политики в дифференцируемые JAX механизмы через Foundry compiler
+6. **run_sim** (EXECUTE): Запуск симуляции через Foundry executor с сбором метрик и состояний
+7. **analyze** (EXECUTE): Анализ результатов симуляции, расчет экономических метрик и подготовка отчетов
+8. **governor** (POSTFLIGHT_GOV): Финальное решение губернатора на основе бюджетов, безопасности и политик
+9. **pack_decision** (PUBLISH): Формирование итогового `DecisionPacket` с полной информацией о эксперименте
 
 ## Ключевые возможности
 
@@ -170,12 +178,12 @@ result = workflow.invoke({
 
 ### ExperimentState
 
-Центральная структура данных workflow (TypedDict с 70+ полями):
+Центральная структура данных workflow (TypedDict с 80+ полями), управляющая состоянием эксперимента:
 
 ```python
 class ExperimentState(TypedDict):
     # Входные данные
-    user_request: str
+    user_request: str  # <--- НОВОЕ ПОЛЕ: "Reduce poverty"
     ir: Optional[PolicySurfaceIR]
     last_ir_json: Optional[str]
     last_error: Optional[str]
@@ -184,29 +192,65 @@ class ExperimentState(TypedDict):
     optimize: Optional[bool]
     run_id: Optional[str]
     parent_run_id: Optional[str]
-    phase: Optional[str]  # Текущая фаза FSM
+    repro_mode: Optional[str]
+    run_record: Optional[RunRecord]
+    runtime_base_dir: Optional[str]
+    db_path: Optional[str]
+    graph_path: Optional[str]
+    baseline_run_id: Optional[str]
     budget: Optional[Dict[str, float]]
     budget_usage: Optional[Dict[str, float]]
-
-    # Артефакты и ссылки
+    budget_started_at: Optional[float]
+    pruning_reason: Optional[Dict[str, Any]]
+    pruned: Optional[bool]
+    random_seed: Optional[int]
+    last_prompt: Optional[str]
+    last_llm_response: Optional[str]
+    data_view_requests: Optional[List[Dict[str, Any]]]
+    data_view_plans: Optional[List[Dict[str, Any]]]
+    calibration_config: Optional[Dict[str, Any]]
+    calibration_raw_targets: Optional[Dict[str, Any]]
+    calibration_controls_seq: Optional[List[Any]]
+    calibration_config_ref: Optional[Dict[str, Any]]
+    calibration_report_ref: Optional[Dict[str, Any]]
+    calibrated_params: Optional[Dict[str, float]]
+    calibrated_params_ref: Optional[Dict[str, Dict[str, Any]]]
+    compiled_model: Optional[Any]
     policy_ir_ref: Optional[Dict[str, Any]]
-    state_snapshot_ref: Optional[Dict[str, Any]]
+    program_graph_ref: Optional[Dict[str, Any]]
+    exec_plan_ref: Optional[Dict[str, Any]]
+    link_report_ref: Optional[Dict[str, Any]]
+    compile_report_ref: Optional[Dict[str, Any]]
+    state_delta_ref: Optional[Dict[str, Any]]
     metrics_ref: Optional[Dict[str, Any]]
+    state_snapshot_ref: Optional[Dict[str, Any]]
     registry_bundle_ref: Optional[Dict[str, Any]]
+    cas_root: Optional[str]
+    analysis: Optional[Dict[str, Any]]
+    decision_packet: Optional[Dict[str, Any]]
+    gate_request: Optional[Dict[str, Any]]
 
     # Результаты симуляции
     simulation_results: Optional[Dict[str, float]]
-    analysis: Optional[Dict[str, Any]]
 
-    # Управление качеством
+    # Обратная связь от Губернатора
     feedback: Optional[GovernorFeedback]
+
+    # Human gate / safety controls
+    require_human_gate: Optional[bool]
+    gate_decision: Optional[Dict[str, Any]]
+    pii_tier: Optional[str]
+    uncertainty_bounds: Optional[Dict[str, float]]
+
+    # Execution config
+    runner_backend: Optional[str]
+
+    # Счетчик попыток (чтобы избежать бесконечных циклов)
     revision_count: int
     max_repair_attempts: int
     repair_log: List[RepairAttempt]
-
-    # Аудит и трассировка
     audit_trail: List[Dict[str, Any]]
-    decision_packet: Optional[Dict[str, Any]]
+    phase: Optional[str]
 ```
 
 ### Новые модели данных
@@ -284,17 +328,28 @@ from polisyos.scientist.orchestrator.workflow import build_workflow
 # Создание и запуск workflow
 workflow = build_workflow()
 result = workflow.invoke({
-    "user_request": "Implement progressive taxation to reduce inequality"
+    "user_request": "Implement progressive taxation to reduce inequality",
+    "run_id": "tax_experiment_001",
+    "optimize": True
 })
 
-print(f"Decision: {result.get('decision_packet', {}).get('verdict')}")
+# Получение результатов
+decision_packet = result.get("decision_packet")
+if decision_packet:
+    print(f"Decision: {decision_packet.get('feedback', {}).get('verdict')}")
+    print(f"Run ID: {decision_packet.get('run_id')}")
+
+    # Экономические метрики
+    results = decision_packet.get("simulation_results", {})
+    print(f"Gini coefficient: {results.get('gini_coefficient', 'N/A')}")
+    print(f"Unemployment: {results.get('unemployment_rate', 'N/A')}")
 ```
 
 ### Работа с расширенными бюджетами
 
 ```python
 from polisyos.scientist.orchestrator.workflow import build_workflow
-from polisyos.scientist.kernel.budgets import ComputeBudget, EvidenceBudget
+from polisyos.scientist.kernel.budgets import ComputeBudget, EvidenceBudget, LegitimacyBudget
 
 # Создание детализированных бюджетов
 compute_budget = ComputeBudget(
@@ -305,31 +360,48 @@ compute_budget = ComputeBudget(
 
 evidence_budget = EvidenceBudget(max_queries=20)
 
+legitimacy_budget = LegitimacyBudget(
+    require_human_gate=True,
+    notes=["Требуется одобрение для социальных программ"]
+)
+
 workflow = build_workflow()
 result = workflow.invoke({
     "user_request": "Design a universal basic income policy",
+    "run_id": "ubi_experiment_002",
     "budget": compute_budget.model_dump(),
-    "evidence_budget": evidence_budget.model_dump()
+    "evidence_budget": evidence_budget.model_dump(),
+    "legitimacy_budget": legitimacy_budget.model_dump(),
+    "optimize": True
 })
 ```
 
 ### Работа с Design of Experiments
 
 ```python
-from polisyos.scientist.doe.designs import ScenarioSweep
+from polisyos.scientist.doe.designs import ScenarioSweep, AblationPlan
 
-# Определение сценариев для сравнения
+# Сравнение разных механизмов финансирования UBI
 scenarios = ScenarioSweep(scenarios=[
     {"ubi_amount": 500, "funding_source": "income_tax"},
     {"ubi_amount": 750, "funding_source": "wealth_tax"},
     {"ubi_amount": 1000, "funding_source": "carbon_tax"}
 ])
 
+# Или анализ абляции компонентов политики
+ablation = AblationPlan(targets=[
+    "ubi_mechanism",
+    "progressive_tax_mechanism",
+    "wealth_tax_mechanism"
+])
+
 workflow = build_workflow()
 result = workflow.invoke({
     "user_request": "Compare different UBI funding mechanisms",
-    "doe_design": scenarios.model_dump(),
-    "optimize": True
+    "run_id": "ubi_comparison_003",
+    "doe_design": scenarios.model_dump(),  # или ablation.model_dump()
+    "optimize": True,
+    "budget": {"max_llm_calls": 3, "max_sim_runs": 5}
 })
 ```
 
@@ -750,34 +822,37 @@ print(f"Audit trail: {len(decision_packet.audit_trail)} events")
 ## Связанные модули
 
 ### 🔗 Core (Базовые компоненты)
-- **Artifacts**: Управление артефактами (`ArtifactID`, `ArtifactRef`, `FileSystemCAS`)
-- **Compiler**: Компиляция политик (`CompileReport`, `put_compile_report`)
-- **Registry**: Управление реестрами компонентов (`build_default_registry_bundle`)
-- **Run Context**: Контекст выполнения (`RunContext`, `start_run`, `finalize_run`)
+- **Artifacts**: Управление артефактами (`ArtifactID`, `ArtifactRef`, `FileSystemCAS`, `PutOptions`)
+- **Compiler**: Компиляция политик (`CompileReport`, `put_compile_report`, `put_link_report`)
+- **Registry**: Управление реестрами компонентов (`build_default_registry_bundle`, `load_registry_bundle_content`)
+- **Run Context**: Контекст выполнения (`RunContext`, `start_run`, `finalize_run`, `update_budget_usage`)
+- **Canon**: Канонические преобразования (`from_canonical_bytes`)
+- **Contracts**: Контракты Foundry (`ExecPlan`, `ExecPlanRef`, `ProgramGraph`, `ProgramGraphRef`)
 
 ### 🔗 IR (Contracts & Validation)
-- **Surface IR**: `PolicySurfaceIR` - декларативное описание политик
-- **Kernel Models**: Механизмы, значения, селекторы (`MechanismRegistry`, `MergeRuleKind`)
-- **Validation**: Валидация структур (`build_validation_report`, `ValidationIssue`)
+- **Surface IR**: `PolicySurfaceIR` - декларативное описание политик с семантикой и контекстом
+- **Kernel Models**: Механизмы, значения, селекторы (`MechanismRegistry`, `MergeRuleKind`, `CountValue`, `DurationValue`, `MoneyValue`, `RateValue`)
+- **Validation**: Валидация структур (`build_validation_report`, `ValidationIssue`, `diff_payloads`)
 - **Linker**: Связывание политик (`link_policy`)
-- **Migrations**: Миграции между версиями схем
+- **Calibration**: Конфигурация калибровки (`CalibrationConfig`)
+- **Data Views**: Запросы данных (`DataViewRequest`)
 
 ### 🔗 Fabric (Data Layer)
 - **IO**: Доступ к данным (`SimulationDB`, `GraphStore`)
 - **UDF Engine**: Обработка данных (`UDFEngine`)
-- **Schema**: Управление схемами данных
-- **Data Views**: `DataViewRequest` и компиляция
+- **Calibration**: Калибровка и настройка параметров (`Calibrator`, `CalibratorInputs`, `extract_fabric_series`, `put_calibration_config`, `put_calibration_report`)
+- **Data Views**: `DataViewRequest` и компиляция (интегрировано в workflow)
 
 ### 🔗 Foundry (Simulation Engine)
-- **Compiler**: Компиляция в JAX (`compile_surface_policy`)
-- **Executor**: Запуск симуляций (`execute_program_graph`, `load_state_snapshot`)
+- **Compiler**: Компиляция в JAX (`compile_surface_policy`, `put_policy_surface`)
+- **Executor**: Запуск симуляций (`execute_program_graph`, `load_state_snapshot`, `put_state_snapshot`)
 - **Registry**: Механизмы политик (`create_mechanism_from_spec`)
-- **Types**: Типы данных Foundry
+- **Types**: Типы данных Foundry (интегрировано через contracts)
 
 ### 🔗 Runtime (Artifact Management)
-- **API**: Интерфейсы управления прогонами
-- **Manifest**: Метаданные рантайма
-- **Storage**: Хранение в структуре `runs/<run_id>/`
+- **API**: Интерфейсы управления прогонами (`log_artifact`)
+- **Manifest**: Метаданные рантайма (`ArtifactRef`, `InputRef`, `SchemaInfo`)
+- **Storage**: Хранение в структуре `runs/<run_id>/` с CAS (Content Addressable Storage)
 
 ## Troubleshooting
 
@@ -805,6 +880,38 @@ Gradient health: NaN detected in parameter gradients
 ```
 
 **Решение**: Проверьте fidelity level или уменьшите learning rate
+
+### Ошибки калибровки данных
+
+```
+CalibrationError: No valid targets found in fabric series
+```
+
+**Решение**: Проверьте наличие данных в Fabric или настройте calibration config
+
+### Ошибки валидации контекста
+
+```
+ValueError: Invalid context_snapshot_ref: invalid sha256 hash
+```
+
+**Решение**: Убедитесь, что context snapshot существует в CAS
+
+### Превышение лимита попыток ремонта
+
+```
+MaxRepairAttemptsExceeded: revision_count=3 >= max_repair_attempts=3
+```
+
+**Решение**: Увеличьте `max_repair_attempts` или улучшите системные промпты
+
+### Ошибки компиляции JAX
+
+```
+JaxCompilationError: Cannot compile mechanism: invalid parameter shape
+```
+
+**Решение**: Проверьте параметры механизма в IR и их совместимость с Foundry registry
 
 ## Архитектурные принципы
 

@@ -104,7 +104,11 @@ def _build_entity_resolution(df: pd.DataFrame) -> Tuple[pd.DataFrame, Dict[str, 
 
 
 def _reconcile_interactions(
-    df: pd.DataFrame, tolerance: float, rules: Dict[str, Dict[str, str]]
+    df: pd.DataFrame,
+    tolerance: float,
+    rules: Dict[str, Dict[str, str]],
+    *,
+    strict: bool = True,
 ) -> ReconciliationReport:
     unknown_types = sorted(set(df["type"]) - set(rules.keys()))
     if unknown_types:
@@ -127,7 +131,7 @@ def _reconcile_interactions(
         debit_sum = float(df_type["amount"].sum())
         credit_sum = float(df_type["amount"].sum())
         diff = abs(debit_sum - credit_sum)
-        if diff > tolerance:
+        if diff > tolerance and strict:
             raise ValueError(
                 f"Reconciliation failed for type '{event_type}': diff {diff} > {tolerance}"
             )
@@ -141,7 +145,7 @@ def _reconcile_interactions(
 
     diff_total = abs(total_outflow - total_inflow)
     status = "pass" if diff_total <= tolerance else "fail"
-    if status == "fail":
+    if status == "fail" and strict:
         raise ValueError(f"Reconciliation failed: diff {diff_total} > tolerance {tolerance}")
     return ReconciliationReport(
         status=status,
@@ -370,6 +374,7 @@ def ingest_interactions(
     manifest_license: str,
     schema_version: str = "1.0",
     reconciliation_tolerance: float = DEFAULT_RECONCILIATION_TOLERANCE,
+    reconciliation_strict: bool = True,
     cas_store: FileSystemCAS | None = None,
 ) -> Path:
     df_raw = pd.read_csv(raw_path)
@@ -401,7 +406,10 @@ def ingest_interactions(
     _write_rejects(rejects, staging_dir / "rejects" / "interactions_rejects.jsonl")
 
     reconciliation = _reconcile_interactions(
-        df_valid, reconciliation_tolerance, RECONCILIATION_RULES
+        df_valid,
+        reconciliation_tolerance,
+        RECONCILIATION_RULES,
+        strict=reconciliation_strict,
     )
 
     # Load into Kùzu
@@ -463,6 +471,8 @@ def run_ingestion(
     source: str,
     license_name: str,
     clear_on_start: bool = False,
+    reconciliation_tolerance: float = DEFAULT_RECONCILIATION_TOLERANCE,
+    reconciliation_strict: bool = True,
     cas_root: Path | None = Path(".polisyos"),
 ) -> EvidenceBundleRef | None:
     if clear_on_start and db_path.exists():
@@ -497,6 +507,8 @@ def run_ingestion(
         entity_map=entity_map,
         manifest_source=source,
         manifest_license=license_name,
+        reconciliation_tolerance=reconciliation_tolerance,
+        reconciliation_strict=reconciliation_strict,
         cas_store=cas_store,
     )
 

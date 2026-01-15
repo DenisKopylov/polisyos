@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import re
 from pathlib import Path
 from typing import Iterable
 
@@ -19,6 +20,9 @@ ENTITY_PREFIX = "entity_resolution."
 
 DEFAULT_AGENT_RUN_ID = "demo_run"
 DEFAULT_AGENT_STEP = 0
+
+AUTO_COLUMNS = {"timestamp", "created_at", "applied_at"}
+VALID_IDENTIFIER = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
 
 
 def load_fact_manifests(fact_dir: Path) -> list[FactSegmentManifest]:
@@ -129,29 +133,23 @@ def _apply_macro_facts(db: SimulationDB, facts: pd.DataFrame) -> None:
         .reset_index()
         .rename(columns={"subject_id": "run_id", "valid_time": "step"})
     )
-    metrics = [
-        "gdp",
-        "unemployment_rate",
-        "inflation_rate",
-        "avg_price",
-        "avg_income",
-        "government_balance",
-    ]
+    metrics = [col for col in pivot.columns if col not in {"run_id", "step"}]
     _ensure_columns(pivot, metrics)
     for col in metrics:
         pivot[col] = pd.to_numeric(pivot[col], errors="coerce")
     pivot["step"] = pd.to_numeric(pivot["step"], errors="coerce").astype("Int64")
-    pivot = pivot[["run_id", "step", *metrics]]
+    _ensure_table_columns(db, "macro_history", pivot)
+    table_cols = _table_columns(db, "macro_history")
+    insert_cols = [col for col in ["run_id", "step", *metrics] if col in table_cols]
+    _ensure_columns(pivot, insert_cols)
+    pivot = pivot[insert_cols]
     if pivot.empty:
         return
+    cols_sql = ", ".join(insert_cols)
     db.conn.execute(
-        """
-        INSERT INTO macro_history (
-            run_id, step, gdp, unemployment_rate, inflation_rate,
-            avg_price, avg_income, government_balance
-        )
-        SELECT run_id, step, gdp, unemployment_rate, inflation_rate,
-            avg_price, avg_income, government_balance
+        f"""
+        INSERT INTO macro_history ({cols_sql})
+        SELECT {cols_sql}
         FROM pivot
     """
     )
@@ -177,15 +175,20 @@ def _apply_agent_facts(db: SimulationDB, facts: pd.DataFrame) -> None:
     pivot["is_employed"] = pivot["is_employed"].map(_coerce_bool)
     pivot["run_id"] = DEFAULT_AGENT_RUN_ID
     pivot["step"] = DEFAULT_AGENT_STEP
-    pivot = pivot[["run_id", "step", "agent_id", "age", "income", "savings", "is_employed"]]
+    _ensure_table_columns(db, "agents_snapshot", pivot)
+    table_cols = _table_columns(db, "agents_snapshot")
+    base_cols = ["run_id", "step", "agent_id"]
+    metric_cols = [col for col in pivot.columns if col not in base_cols]
+    insert_cols = [col for col in [*base_cols, *metric_cols] if col in table_cols]
+    _ensure_columns(pivot, insert_cols)
+    pivot = pivot[insert_cols]
     if pivot.empty:
         return
+    cols_sql = ", ".join(insert_cols)
     db.conn.execute(
-        """
-        INSERT INTO agents_snapshot (
-            run_id, step, agent_id, age, income, savings, is_employed
-        )
-        SELECT run_id, step, agent_id, age, income, savings, is_employed
+        f"""
+        INSERT INTO agents_snapshot ({cols_sql})
+        SELECT {cols_sql}
         FROM pivot
     """
     )
@@ -231,6 +234,36 @@ def _ensure_columns(df: pd.DataFrame, columns: list[str]) -> None:
     for col in columns:
         if col not in df.columns:
             df[col] = None
+
+
+def _table_columns(db: SimulationDB, table: str) -> list[str]:
+    rows = db.conn.execute(f"PRAGMA table_info('{table}')").fetchall()
+    return [row[1] for row in rows]
+
+
+def _duckdb_type_for_series(series: pd.Series) -> str:
+    if pd.api.types.is_bool_dtype(series.dtype):
+        return "BOOLEAN"
+    if pd.api.types.is_integer_dtype(series.dtype):
+        return "INTEGER"
+    if pd.api.types.is_float_dtype(series.dtype):
+        return "DOUBLE"
+    if pd.api.types.is_datetime64_any_dtype(series.dtype):
+        return "TIMESTAMP"
+    return "VARCHAR"
+
+
+def _ensure_table_columns(db: SimulationDB, table: str, df: pd.DataFrame) -> None:
+    existing = set(_table_columns(db, table))
+    for col in df.columns:
+        if col in existing or col in AUTO_COLUMNS:
+            continue
+        if not VALID_IDENTIFIER.match(col):
+            logger.warning("Skipping unsafe column name in materializer: %s", col)
+            continue
+        dtype = _duckdb_type_for_series(df[col])
+        db.conn.execute(f'ALTER TABLE {table} ADD COLUMN "{col}" {dtype}')
+        existing.add(col)
 
 
 def _coerce_bool(value: object) -> bool | None:

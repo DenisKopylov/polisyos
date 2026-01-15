@@ -103,6 +103,24 @@ class PriorLossConfig(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
 
+class FidelityConfig(BaseModel):
+    """Настройки режима исполнения для калибрации."""
+
+    mode: str = Field(
+        "relaxed",
+        description="Режим исполнения (relaxed|discrete).",
+        pattern=r"^(relaxed|discrete)$",
+    )
+    temperature: float = Field(
+        1.0, gt=0.0, description="Температура сглаживания (softmax/gumbel)."
+    )
+    force_override: bool = Field(
+        True, description="Принудительно перезаписывать fidelity в параметрах механизма."
+    )
+
+    model_config = ConfigDict(extra="forbid")
+
+
 class CalibrationTarget(BaseModel):
     """Связка наблюдаемого ряда Fabric с метрикой симуляции."""
 
@@ -192,6 +210,7 @@ class CalibrationConfig(BaseModel):
     hessian: HessianConfig = Field(default_factory=HessianConfig)
     constraint_loss: ConstraintLossConfig = Field(default_factory=ConstraintLossConfig)
     prior_loss: PriorLossConfig = Field(default_factory=PriorLossConfig)
+    fidelity: FidelityConfig = Field(default_factory=FidelityConfig)
     constraint_values: dict[str, float] | None = Field(
         None, description="Значения ограничений по constraint_id."
     )

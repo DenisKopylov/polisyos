@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from datetime import datetime, timezone
 import json
 from typing import Any, Callable, Dict, Mapping, Sequence
 
@@ -147,6 +148,33 @@ def _as_float_matrix(values: Any) -> list[list[float]]:
     return [[float(item) for item in row] for row in arr.tolist()]
 
 
+def _inspect_bundle_fidelity(bundle: StaticBundle) -> dict[str, Any]:
+    modes: set[str] = set()
+    temperatures: list[float] = []
+    for node in bundle.nodes:
+        mech = node.mechanism
+        if hasattr(mech, "fidelity"):
+            modes.add(str(mech.fidelity))
+        if hasattr(mech, "temperature"):
+            temp = float(mech.temperature)
+            temperatures.append(temp)
+    if not modes:
+        effective = "unknown"
+    elif len(modes) == 1:
+        effective = next(iter(modes))
+    else:
+        effective = "mixed"
+    avg_temperature = None
+    if temperatures:
+        avg_temperature = sum(temperatures) / len(temperatures)
+    return {
+        "effective_fidelity": effective,
+        "modes_found": sorted(modes),
+        "avg_temperature": avg_temperature,
+        "temperature_samples": temperatures,
+    }
+
+
 class Calibrator:
     """
     Минимальный дифференцируемый калибратор (MVP):
@@ -162,6 +190,7 @@ class Calibrator:
     def _build_bundle(self) -> StaticBundle:
         if self._bundle is not None:
             return self._bundle
+        cfg = self.inputs.config
         bundle = compile_program(
             self.inputs.program_graph,
             self.inputs.exec_plan,
@@ -171,6 +200,9 @@ class Calibrator:
             selector_field_registry=self.inputs.selector_field_registry,
             base_state=self.inputs.base_state,
             parameter_loader=self.inputs.parameter_loader,
+            force_fidelity=cfg.fidelity.mode,
+            default_temperature=cfg.fidelity.temperature,
+            force_override=cfg.fidelity.force_override,
         )
         self._bundle = bundle
         return bundle
@@ -308,8 +340,14 @@ class Calibrator:
 
     def run(self) -> CalibrationReport:
         cfg = self.inputs.config
+        diagnostics: list[str] = []
         bundle = self._build_bundle()
         targets, metric_paths, path_by_target = self._target_meta()
+        if cfg.fidelity.mode == "discrete":
+            diagnostics.append(
+                "Calibration running in 'discrete' mode. Gradient-based optimization (Adam) "
+                "requires differentiable logic and may fail to converge (zero/undefined gradients)."
+            )
         constraint_handles = self._resolve_constraints()
         path_by_constraint = {handle.constraint_id: handle.path for handle in constraint_handles}
         for handle in constraint_handles:
@@ -342,7 +380,8 @@ class Calibrator:
         loss_configs = {t.target_id: t.loss for t in targets}
         target_ids = [t.target_id for t in targets]
 
-        groups, diagnostics = self._resolve_trainable_groups(bundle, targets)
+        groups, trainable_diagnostics = self._resolve_trainable_groups(bundle, targets)
+        diagnostics.extend(trainable_diagnostics)
         if not groups:
             raise ValueError("No trainable parameters available for calibration")
         base_values = extract_trainable_values(bundle)
@@ -736,6 +775,7 @@ class Calibrator:
                 except Exception as exc:  # pragma: no cover - defensive
                     diagnostics.append(f"Hessian computation failed: {exc}")
 
+        fidelity_stats = _inspect_bundle_fidelity(bundle)
         return CalibrationReport(
             calibrated_params=calibrated_params,
             total_loss=final_total_loss,
@@ -747,4 +787,13 @@ class Calibrator:
             fit_quality=fit_quality,
             uncertainties=uncertainties,
             diagnostics=diagnostics,
+            execution_context={
+                "requested_mode": cfg.fidelity.mode,
+                "effective_fidelity": fidelity_stats["effective_fidelity"],
+                "temperature": cfg.fidelity.temperature,
+                "forced_override": cfg.fidelity.force_override,
+                "jax_platform": jax.lib.xla_bridge.get_backend().platform,
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "fidelity_stats": fidelity_stats,
+            },
         )

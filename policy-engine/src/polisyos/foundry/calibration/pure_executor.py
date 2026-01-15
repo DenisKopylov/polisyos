@@ -84,6 +84,9 @@ def compile_program(
     selector_field_registry: SelectorFieldRegistry | None = None,
     base_state: GlobalState | None = None,
     parameter_loader: Callable[[Any], dict[str, Any]] | None = None,
+    force_fidelity: str | None = "relaxed",
+    default_temperature: float | None = 1.0,
+    force_override: bool = True,
 ) -> StaticBundle:
     """
     Предварительная компиляция ProgramGraph -> StaticBundle без обращений к CAS внутри JAX-цикла.
@@ -140,8 +143,27 @@ def compile_program(
             payload = parameter_loader(params_ref or node) or {}
         schedule = ScheduleSpec.model_validate(payload.get("schedule", {}))
         start, end = schedule_range(schedule)
-        params = payload.get("params", {})
+        params = dict(payload.get("params", {}))
         priority = payload.get("priority")
+        mech_spec = mechanism_registry.mechanisms.get(mechanism_type)
+        fidelity_value = "hard" if force_fidelity == "discrete" else force_fidelity
+        if force_fidelity and mech_spec and "fidelity" in mech_spec.params:
+            if force_override or "fidelity" not in params:
+                params["fidelity"] = fidelity_value
+            effective_fidelity = params.get("fidelity")
+            if effective_fidelity == "discrete":
+                effective_fidelity = "hard"
+                if force_override or "fidelity" not in params:
+                    params["fidelity"] = effective_fidelity
+            if effective_fidelity == "hard":
+                params.pop("temperature", None)
+            if (
+                effective_fidelity == "relaxed"
+                and "temperature" in mech_spec.params
+                and "temperature" not in params
+                and default_temperature is not None
+            ):
+                params["temperature"] = float(default_temperature)
         mechanism = create_mechanism_from_spec(
             mechanism_type, params, n_agents=n_agents, n_firms=n_firms
         )

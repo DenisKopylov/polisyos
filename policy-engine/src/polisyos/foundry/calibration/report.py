@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import List, Mapping
+from typing import Any, Dict, List, Mapping
 
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
@@ -67,6 +67,10 @@ class CalibrationReport(BaseModel):
     fit_quality: CalibrationFitQuality | None = None
     uncertainties: CalibrationUncertainty | None = None
     diagnostics: List[str] = Field(default_factory=list)
+    execution_context: Dict[str, Any] = Field(
+        default_factory=dict,
+        description="Параметры среды исполнения (fidelity, temperature и т.п.).",
+    )
 
 
 def put_calibration_config(

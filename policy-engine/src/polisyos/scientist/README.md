@@ -12,8 +12,8 @@ Scientist построен как многоуровневая система о
 
 Отвечает за генерацию и принятие решений о политиках через различные стратегии:
 
-- **base.py**: Абстрактный класс `BaseAgent` и `MockAgent` для эвристического принятия решений на основе экономических показателей (безработица, бюджетный баланс)
-- **drafter.py**: Узел генерации политики через LLM с поддержкой `MockLLM` для тестирования без API ключей
+- **base.py**: Абстрактный класс `BaseAgent` и `MockAgent` для эвристического принятия решений на основе экономических показателей (безработица, бюджетный баланс). MockAgent создает простые политики налогообложения/субсидий
+- **drafter.py**: Узел генерации политики через LLM с поддержкой `MockLLM` для тестирования без API ключей. Включает интеграцию с системными промптами и аудит трейлинг
 - **prompts.py**: Системные промпты для LLM с каталогом доступных механизмов политики и селекторов
 - **prompt.py**: Альтернативные и специализированные промпты для различных сценариев Policy Scientist
 
@@ -21,8 +21,8 @@ Scientist построен как многоуровневая система о
 
 Обеспечивает контроль выполнения, безопасность и управление жизненным циклом экспериментов:
 
-- **budgets.py**: Строгие модели бюджетов (`ComputeBudget`, `EvidenceBudget`, `LegitimacyBudget`, `ComplexityBudget`) с валидацией Pydantic
-- **fsm.py**: Конечный автомат состояний с 9 фазами (`Phase` enum) и строгими правилами переходов (`ALLOWED_TRANSITIONS`)
+- **budgets.py**: Строгие модели бюджетов (`ComputeBudget`, `EvidenceBudget`, `LegitimacyBudget`, `ComplexityBudget`) с валидацией Pydantic. ComputeBudget контролирует LLM вызовы, симуляции и время выполнения
+- **fsm.py**: Конечный автомат состояний с 9 фазами (`Phase` enum) и строгими правилами переходов (`ALLOWED_TRANSITIONS`). Поддерживает self-healing циклы для исправления ошибок
 - **guards.py**: Система проверок переходов между состояниями и валидации артефактов для предотвращения некорректных состояний
 - **human_gate.py**: Асинхронная система человеческих ворот для одобрения критических решений (`GateRequest`, `GateDecision`)
 
@@ -30,8 +30,8 @@ Scientist построен как многоуровневая система о
 
 Определяет интерфейсы и спецификации для запуска симуляций и распределенных вычислений:
 
-- **job_spec.py**: Детальные спецификации задач симуляции (`JobSpec`, `JobKey`, `JobResult`) с поддержкой артефактов, seed и метрик
-- **runner.py**: Интерфейс для запуска вычислительных задач с поддержкой разных бэкендов (интегрирован с Foundry executor)
+- **job_spec.py**: Детальные спецификации задач симуляции (`JobSpec`, `JobKey`, `JobResult`) с поддержкой артефактов, seed и метрик. JobKey генерируется как SHA256 хеш от спецификации
+- **runner.py**: Интерфейс для запуска вычислительных задач с поддержкой разных бэкендов (`LocalBackend`, `RunnerBackend`). Интегрирован с Foundry executor для выполнения JAX программ
 
 ### 📊 Design of Experiments (DoE)
 
@@ -43,23 +43,23 @@ Scientist построен как многоуровневая система о
 
 Многоуровневый контроль качества, безопасности и соответствия требованиям:
 
-- **preflight.py**: Предварительные проверки безопасности и валидации перед запуском экспериментов (возвращает `GateRequest` при необходимости)
-- **postflight.py**: Пост-запусковые проверки результатов и финальное одобрение экспериментов
+- **preflight.py**: Предварительные проверки безопасности и валидации перед запуском экспериментов (возвращает `GateRequest` при необходимости). Текущая реализация - placeholder
+- **postflight.py**: Пост-запусковые проверки результатов и финальное одобрение экспериментов. Текущая реализация - placeholder
 
 ### 🎼 Orchestrator Layer (Основная оркестрация)
 
 Управляет полным жизненным циклом экспериментов с использованием LangGraph для декларативного workflow:
 
-- **workflow.py**: Основной граф состояний LangGraph с 9 узлами и системой маршрутизации
-- **state.py**: `ExperimentState` (TypedDict с 80+ полями) - центральная структура данных эксперимента
-- **flow_nodes.py**: Полные реализации всех узлов workflow (1450+ строк кода) с интеграцией всех компонентов системы
-- **decision_packet.py**: Итоговый артефакт прогона (`DecisionPacket`) с полной информацией о эксперименте
-- **run_record.py**: Детальные записи для воспроизводимости (`RunRecord` с метаданными окружения)
-- **audit.py**: Комплексная система аудита и логирования всех операций
-- **data_loader.py**: Загрузка и подготовка начальных данных из Fabric layer
-- **nodes.py**: Дополнительные специализированные узлы workflow
-- **optimizer.py**: Градиентная оптимизация параметров политик с использованием Optax
-- **registry.py**: Управление реестрами компонентов и артефактов
+- **workflow.py**: Основной граф состояний LangGraph с 9 узлами и системой маршрутизации на основе состояния и фидбэка
+- **state.py**: `ExperimentState` (TypedDict с 80+ полями) - центральная структура данных эксперимента с полями для всех этапов workflow
+- **flow_nodes.py**: Полные реализации всех узлов workflow (1450+ строк кода) с интеграцией Foundry, Fabric, Core и всех компонентов системы
+- **decision_packet.py**: Итоговый артефакт прогона (`DecisionPacket`) с полной информацией о эксперименте, включая fabric_result и evidence_ref
+- **run_record.py**: Детальные записи для воспроизводимости (`RunRecord` с метаданными окружения, seed, версиями библиотек)
+- **audit.py**: Комплексная система аудита и логирования всех операций с append_audit функцией
+- **data_loader.py**: Загрузка и подготовка начальных данных из Fabric layer через SimulationDB и GraphStore
+- **nodes.py**: Дополнительные специализированные узлы workflow (устаревший, заменен flow_nodes.py)
+- **optimizer.py**: Градиентная оптимизация параметров политик с использованием Optax (placeholder)
+- **registry.py**: Управление реестрами компонентов и артефактов (placeholder)
 
 ### 📚 Legacy Layer (Устаревший код)
 
@@ -73,7 +73,7 @@ Scientist построен как многоуровневая система о
 
 Финализация, публикация и экспорт результатов экспериментов:
 
-- **publisher.py**: Публикация решений и артефактов экспериментов с формированием финального `DecisionPacket`
+- **publisher.py**: Публикация решений и артефактов экспериментов с формированием финального `DecisionPacket` через build_decision_packet
 
 ## Workflow Pipeline
 
@@ -232,6 +232,8 @@ class ExperimentState(TypedDict):
 
     # Результаты симуляции
     simulation_results: Optional[Dict[str, float]]
+    simulation_results_ref: Optional[Dict[str, Any]]  # <--- НОВОЕ: Ссылка на артефакт результатов
+    fabric_result: Optional[Dict[str, Any]]  # <--- НОВОЕ: Результаты Fabric layer
 
     # Обратная связь от Губернатора
     feedback: Optional[GovernorFeedback]
@@ -289,6 +291,9 @@ packet = DecisionPacket(
     run_record=run_record,
     policy_ir=policy_ir,
     simulation_results={"gdp": 1000.0, "unemployment": 0.05},
+    fabric_result=fabric_result,  # <--- НОВОЕ: Результаты Fabric
+    evidence_ref=evidence_bundle,  # <--- НОВОЕ: Ссылка на доказательства
+    uncertainty_ref=uncertainty_bounds,  # <--- НОВОЕ: Границы неопределенности
     feedback=governor_feedback,
     audit_trail=audit_events
 )
@@ -330,19 +335,26 @@ workflow = build_workflow()
 result = workflow.invoke({
     "user_request": "Implement progressive taxation to reduce inequality",
     "run_id": "tax_experiment_001",
-    "optimize": True
+    "optimize": True,
+    "budget": {"max_llm_calls": 3, "max_sim_runs": 1, "max_wall_time_s": 120}
 })
 
 # Получение результатов
 decision_packet = result.get("decision_packet")
 if decision_packet:
-    print(f"Decision: {decision_packet.get('feedback', {}).get('verdict')}")
-    print(f"Run ID: {decision_packet.get('run_id')}")
+    print(f"Decision: {decision_packet.feedback.verdict if decision_packet.feedback else 'N/A'}")
+    print(f"Run ID: {decision_packet.run_id}")
 
     # Экономические метрики
-    results = decision_packet.get("simulation_results", {})
+    results = decision_packet.simulation_results or {}
     print(f"Gini coefficient: {results.get('gini_coefficient', 'N/A')}")
     print(f"Unemployment: {results.get('unemployment_rate', 'N/A')}")
+
+    # Новые поля
+    if decision_packet.fabric_result:
+        print(f"Fabric data available: {len(decision_packet.fabric_result)} series")
+    if decision_packet.evidence_ref:
+        print(f"Evidence bundle: {decision_packet.evidence_ref.bundle_id}")
 ```
 
 ### Работа с расширенными бюджетами
@@ -417,28 +429,37 @@ if decision_packet:
     print(f"Run ID: {decision_packet.run_id}")
     print(f"Policy Schema: {decision_packet.policy_ir.schema_version}")
 
-    # Экономические метрики
-    results = decision_packet.simulation_results
-    if results:
-        print(f"GDP Impact: {results.get('gdp_change', 'N/A')}%")
-        print(f"Unemployment: {results.get('unemployment_rate', 'N/A')}%")
-        print(f"Income Inequality (Gini): {results.get('gini_coefficient', 'N/A')}")
+        # Экономические метрики
+        results = decision_packet.simulation_results
+        if results:
+            print(f"GDP Impact: {results.get('gdp_change', 'N/A')}%")
+            print(f"Unemployment: {results.get('unemployment_rate', 'N/A')}%")
+            print(f"Income Inequality (Gini): {results.get('gini_coefficient', 'N/A')}")
 
-    # Решение губернатора
-    feedback = decision_packet.feedback
-    if feedback:
-        verdict = feedback.get("verdict")
-        print(f"Governor Verdict: {verdict}")
+        # Новые поля результатов
+        if decision_packet.fabric_result:
+            print(f"Fabric data processed: {len(decision_packet.fabric_result)} datasets")
+        if decision_packet.evidence_ref:
+            print(f"Evidence available: {decision_packet.evidence_ref.bundle_id}")
+        if decision_packet.uncertainty_ref:
+            bounds = decision_packet.uncertainty_ref.bounds
+            print(f"Uncertainty bounds: {bounds}")
 
-        if verdict == "APPROVE":
-            print("✅ Policy approved for implementation")
-        elif verdict == "REJECT":
-            issues = feedback.get("issues", [])
-            print(f"❌ Rejected due to: {[i.get('message') for i in issues]}")
+        # Решение губернатора
+        feedback = decision_packet.feedback
+        if feedback:
+            verdict = feedback.verdict
+            print(f"Governor Verdict: {verdict}")
 
-    # Аудит траил
-    audit_events = decision_packet.audit_trail
-    print(f"Total audit events: {len(audit_events)}")
+            if verdict == "APPROVE":
+                print("✅ Policy approved for implementation")
+            elif verdict == "REJECT":
+                issues = feedback.issues
+                print(f"❌ Rejected due to: {[i.get('message') for i in issues]}")
+
+        # Аудит траил
+        audit_events = decision_packet.audit_trail
+        print(f"Total audit events: {len(audit_events)}")
 ```
 
 ## Конфигурация и настройки
@@ -835,24 +856,24 @@ print(f"Audit trail: {len(decision_packet.audit_trail)} events")
 - **Validation**: Валидация структур (`build_validation_report`, `ValidationIssue`, `diff_payloads`)
 - **Linker**: Связывание политик (`link_policy`)
 - **Calibration**: Конфигурация калибровки (`CalibrationConfig`)
-- **Data Views**: Запросы данных (`DataViewRequest`)
+- **Data Views**: Запросы данных (`DataViewRequest`) - используются в `flow_nodes.py` для подготовки данных
 
 ### 🔗 Fabric (Data Layer)
-- **IO**: Доступ к данным (`SimulationDB`, `GraphStore`)
-- **UDF Engine**: Обработка данных (`UDFEngine`)
+- **IO**: Доступ к данным (`SimulationDB`, `GraphStore`) - используется в `data_loader.py` и `flow_nodes.py`
+- **UDF Engine**: Обработка данных (`UDFEngine`) - для выполнения пользовательских функций над данными
 - **Calibration**: Калибровка и настройка параметров (`Calibrator`, `CalibratorInputs`, `extract_fabric_series`, `put_calibration_config`, `put_calibration_report`)
-- **Data Views**: `DataViewRequest` и компиляция (интегрировано в workflow)
+- **Data Views**: `DataViewRequest` и компиляция - интегрировано в workflow через `compile_data_views_node`
 
 ### 🔗 Foundry (Simulation Engine)
-- **Compiler**: Компиляция в JAX (`compile_surface_policy`, `put_policy_surface`)
-- **Executor**: Запуск симуляций (`execute_program_graph`, `load_state_snapshot`, `put_state_snapshot`)
-- **Registry**: Механизмы политик (`create_mechanism_from_spec`)
+- **Compiler**: Компиляция в JAX (`compile_surface_policy`, `put_policy_surface`) - используется в `compile_model_node`
+- **Executor**: Запуск симуляций (`execute_program_graph`, `load_state_snapshot`, `put_state_snapshot`) - используется в `run_sim_node`
+- **Registry**: Механизмы политик (`create_mechanism_from_spec`) - для создания JAX механизмов
 - **Types**: Типы данных Foundry (интегрировано через contracts)
 
 ### 🔗 Runtime (Artifact Management)
-- **API**: Интерфейсы управления прогонами (`log_artifact`)
+- **API**: Интерфейсы управления прогонами (`log_artifact`) - используется для логирования артефактов
 - **Manifest**: Метаданные рантайма (`ArtifactRef`, `InputRef`, `SchemaInfo`)
-- **Storage**: Хранение в структуре `runs/<run_id>/` с CAS (Content Addressable Storage)
+- **Storage**: Хранение в структуре `runs/<run_id>/` с CAS (Content Addressable Storage) - используется в `flow_nodes.py`
 
 ## Troubleshooting
 
@@ -928,32 +949,33 @@ Scientist следует принципам из `architecture.md`:
 
 ```
 tests/scientist/
-├── test_*.py              # Unit tests для отдельных модулей
+├── test_agent_*.py         # Agent layer (base, drafter, prompts)
+├── test_kernel_*.py        # Kernel layer (FSM, budgets, guards, human_gate)
+├── test_compute_*.py       # Compute layer (job_spec, runner)
+├── test_governance_*.py    # Governance layer (preflight, postflight)
+├── test_doe_*.py          # Design of Experiments (designs)
+├── test_orchestrator_*.py  # Orchestrator layer (workflow, state, flow_nodes)
+├── test_publisher.py       # Publisher layer
 └── integration/
-    ├── test_workflow_smoke.py    # Базовый workflow
-    └── test_workflow_llm.py      # E2E с LLM
+    ├── test_workflow_smoke.py    # Базовый workflow без LLM
+    └── test_workflow_llm.py      # E2E с LLM (требует API ключей)
 ```
 
 ### Запуск тестов
 
 ```bash
 # Unit tests для отдельных компонентов
-pytest tests/scientist/test_compiler.py -v
-
-# Kernel модули (FSM, budgets, guards)
-pytest tests/scientist/test_kernel_*.py -v
-
-# Compute layer
-pytest tests/scientist/test_compute_*.py -v
-
-# Governance
-pytest tests/scientist/test_governance_*.py -v
+pytest tests/scientist/test_agent_*.py -v      # Agent layer
+pytest tests/scientist/test_kernel_*.py -v     # Kernel (FSM, budgets, guards)
+pytest tests/scientist/test_compute_*.py -v    # Compute layer
+pytest tests/scientist/test_governance_*.py -v # Governance
+pytest tests/scientist/test_orchestrator_*.py -v # Orchestrator
 
 # Integration tests для полного workflow
-pytest tests/integration/test_workflow_smoke.py -v
+pytest tests/scientist/integration/test_workflow_smoke.py -v
 
-# E2E tests с реальными данными
-pytest tests/integration/test_workflow_llm.py -v --tb=short
+# E2E tests с реальными данными (требуют API ключей)
+pytest tests/scientist/integration/test_workflow_llm.py -v --tb=short
 
 # Все тесты scientist модуля
 pytest tests/scientist/ -x --tb=short
@@ -1040,3 +1062,36 @@ research_budget = {
 - [ ] **A/B Testing**: Статистическое сравнение политик
 - [ ] **Version Control**: Git-подобное управление версиями политик
 - [ ] **Federated Learning**: Обучение на distributed данных
+
+## Текущее состояние реализации
+
+### ✅ Полностью реализованные компоненты
+
+- **Agent Layer**: MockAgent с базовой логикой принятия решений, MockLLM для тестирования без API ключей
+- **Kernel Layer**: Полная реализация FSM с 9 фазами, все модели бюджетов (Compute, Evidence, Legitimacy, Complexity), guards и human_gate
+- **Compute Layer**: JobSpec/JobKey/JobResult модели, LocalBackend для выполнения через Foundry executor
+- **Orchestrator Layer**: Полный workflow на LangGraph (1450+ строк в flow_nodes.py), ExperimentState с 80+ полями, DecisionPacket с новыми полями
+- **Publisher Layer**: Базовая публикация через build_decision_packet
+- **Workflow Integration**: Полная интеграция со всеми модулями (Core, IR, Fabric, Foundry, Runtime)
+
+### 🚧 Частично реализованные компоненты
+
+- **Governance Layer**: Placeholder реализации preflight/postflight с базовой структурой для GateRequest/GateDecision
+- **DoE Layer**: Базовые модели ScenarioSweep, AblationPlan, SensitivityPlan без полной интеграции в workflow
+- **Optimization**: Placeholder для градиентной оптимизации через Optax
+
+### 🎯 Готовые к использованию возможности
+
+- **End-to-End Workflow**: Полный цикл от естественного языка до DecisionPacket с MockAgent
+- **Budget Controls**: Полный контроль ресурсов (LLM calls, sim runs, wall time)
+- **FSM Management**: Строгие переходы между фазами с guards и self-healing циклами
+- **Artifact Management**: Полная поддержка CAS, RunRecord для воспроизводимости
+- **Audit Trail**: Комплексное логирование всех операций
+- **Mock Testing**: Полная поддержка тестирования без внешних зависимостей
+
+### 🔄 Архитектурные принципы соблюдены
+
+- **Закон A**: Однонаправленные зависимости (scientist зависит только от нижних уровней)
+- **Закон B**: Компиляторная труба реализована через workflow
+- **Закон C**: Контракты как источник истины (PolicySurfaceIR, DecisionPacket)
+- **Закон D**: Полная воспроизводимость через RunRecord и CAS

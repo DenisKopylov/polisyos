@@ -61,23 +61,23 @@ fabric/
 ├── ingestion.py             # Главный ETL pipeline с Fact Log и evidence
 ├── schema.py                # Pydantic модели данных (AgentRow, InteractionRow, MacroRow)
 ├── manifest.py              # Метаданные и качество данных (DatasetManifest, QualityMetrics)
-├── registry.py              # Управление манифестами датасетов
+├── registry.py              # Управление манифестами датасетов (ManifestRegistry)
 ├── config.py                # Правила нормализации и reconciliation
-├── evidence.py              # Система доказательств (EvidenceBundle, provenance tracking)
-├── materializer.py          # Материализация из Fact Log в реляционные хранилища
-├── segment_manifest.py      # Управление сегментами Fact Log
+├── evidence.py              # Система доказательств (build_evidence_bundle, persist_evidence_bundle)
+├── materializer.py          # Полная материализация из Fact Log (ensure_materialized, materialize_duckdb_from_fact_log)
+├── segment_manifest.py      # Управление сегментами Fact Log (write_segment_manifest)
 ├── fact_writer.py           # Запись фактов в каноническом формате (build_fact, facts_from_dataframe)
-├── trust.py                 # Политики доверия и верификации источников
+├── trust.py                 # Политики доверия (two_pass_compare, persist_uncertainty_bounds)
 ├── io/                      # Интерфейсы хранения данных
 │   ├── __init__.py          # Экспорт адаптеров хранения
 │   ├── db.py                # DuckDB адаптер (SimulationDB)
 │   └── graph_store.py       # Kùzu графовый адаптер (GraphStore)
 └── udf/                     # Unified Data Fabric - безопасный слой запросов
     ├── __init__.py          # Экспорт UDF компонентов
-    ├── engine.py            # UDF движок запросов (UDFEngine)
+    ├── engine.py            # UDF движок с CAS интеграцией (UDFEngine)
     ├── compiler.py          # Безопасный компилятор SQL/Cypher (ViewCompiler)
     ├── plan.py              # Планы выполнения запросов (DataViewPlan)
-    ├── config.py            # UDF конфигурация и whitelist (UdfSchema)
+    ├── config.py            # UDF конфигурация и whitelist (UdfSchema, load_udf_schema)
     ├── schema.py            # Реэкспорт типов из ir.data_views
     └── passes/              # Компиляционный пайплайн запросов
         ├── __init__.py      # Экспорт всех pass-функций
@@ -258,10 +258,17 @@ class UDFEngine:
         db: SimulationDB,
         graph: Optional[GraphStore] = None,
         curated_dir: Path | str = Path("data/curated"),
+        fact_dir: Path | str | None = None,
         schema: Optional[UdfSchema] = None,
         cas_root: Path | str = Path(".polisyos"),
     ):
-        # Инициализация с multi-backend storage и CAS
+        self.db = db
+        self.graph = graph if graph else GraphStore()
+        self.fact_dir = Path(fact_dir) if fact_dir else self._resolve_fact_dir(curated_dir)
+        self.manifests = ManifestRegistry(curated_dir)
+        self.schema = schema or load_udf_schema(curated_dir / "udf_schema.json")
+        self.compiler = ViewCompiler(self.manifests, self.schema)
+        self.cas = FileSystemCAS(Path(cas_root))
 
     def compile(self, request: DataViewRequest) -> DataViewPlan
     def query(self, request: DataViewRequest) -> pd.DataFrame
@@ -270,10 +277,13 @@ class UDFEngine:
     def _execute(self, plan: DataViewPlan, *, as_arrow: bool = False)
 ```
 
-**Новые возможности:**
-- **FabricResult**: Структурированный результат с evidence и provenance
-- **Arrow Support**: Эффективная работа с columnar данными
-- **CAS Integration**: Автоматическое сохранение запросов, планов и результатов
+**Ключевые возможности:**
+- **Multi-Backend Execution**: Автоматическое определение типа запроса (реляционный/графовый)
+- **FabricResult**: Структурированный результат с полным provenance tracking
+- **Arrow Support**: Высокопроизводительная работа с columnar данными через PyArrow
+- **CAS Integration**: Автоматическое сохранение запросов, планов и результатов в Content Addressable Storage
+- **Evidence Bundles**: Криптографически verifiable доказательства для каждого запроса
+- **Lazy Materialization**: Автоматическая материализация данных из Fact Log при необходимости
 
 #### Compilation Pipeline (`passes/`):
 UDF использует последовательность компиляционных проходов для безопасной трансформации запросов:
@@ -358,14 +368,32 @@ def write_segment_manifest(manifest: FactSegmentManifest, manifest_path: Path) -
 - Append-only: новые факты только добавляются
 
 #### Materializer (`materializer.py`)
-Восстановление реляционных представлений из immutable Fact Log:
+Полноценная система восстановления реляционных представлений из immutable Fact Log:
 
 ```python
+def load_fact_manifests(fact_dir: Path) -> list[FactSegmentManifest]:
+    """Загрузка всех манифестов сегментов Fact Log."""
+
+def ensure_materialized(
+    fact_dir: Path,
+    db: SimulationDB,
+    *,
+    force: bool = False,
+    progress_callback: Optional[Callable[[str], None]] = None,
+) -> None:
+    """Обеспечение актуальной материализации с инкрементальными обновлениями."""
+
 def materialize_duckdb_from_fact_log(fact_dir: Path, db: SimulationDB) -> None:
-    """Материализация DuckDB таблиц из Fact Log сегментов (placeholder)."""
+    """Полная материализация DuckDB таблиц из Fact Log сегментов."""
 ```
 
-**Текущий статус:** Placeholder реализация с логированием наличия сегментов. Полная реализация в разработке.
+**Ключевые функции:**
+- **Incremental Updates**: Инкрементальная материализация только новых сегментов
+- **Schema Evolution**: Автоматическое создание и обновление схем таблиц
+- **Type Inference**: Автоматическое определение типов колонок из фактов
+- **Entity Resolution**: Применение entity resolution mapping при материализации
+- **Progress Tracking**: Отслеживание прогресса через callback функции
+- **Hash Verification**: Проверка целостности сегментов перед применением
 
 **Преимущества архитектуры:**
 - **Complete Audit Trail**: Полная история всех изменений данных
@@ -419,7 +447,29 @@ def persist_evidence_bundle(
 - **Source Validation**: Проверка соответствия данных политике
 - **Risk Assessment**: Оценка рисков использования данных
 
-**Интеграция:** Используется в Fact Writer и Evidence Bundles для маркировки уровня доверия к данным.
+#### Основные функции:
+```python
+def two_pass_compare(
+    series_a: pd.Series,
+    series_b: pd.Series,
+    *,
+    rtol: float = 1e-05,
+    atol: float = 1e-08,
+    equal_nan: bool = False,
+) -> tuple[bool, float, float]:
+    """Двухпроходное сравнение серий с расчетом границ неопределенности."""
+
+def persist_uncertainty_bounds(
+    bounds: tuple[float, float],
+    cas: FileSystemCAS,
+    *,
+    schema_name: str = "trust.uncertainty_bounds",
+    schema_version: str = "1.0",
+) -> ArtifactRef:
+    """Сохранение границ неопределенности в CAS."""
+```
+
+**Интеграция:** Используется в Fact Writer и Evidence Bundles для маркировки уровня доверия к данным. Поддерживает статистическую верификацию и сохранение результатов сравнения в Content Addressable Storage.
 
 ## API и использование
 
@@ -517,11 +567,13 @@ print(f"Quality: {agents_manifest.quality.missing_rate:.2%} missing")
 from polisyos.fabric.udf.engine import UDFEngine
 from polisyos.ir.data_views import DataViewRequest, DataViewType, AccessTier
 
-# Инициализация UDF движка
+# Инициализация UDF движка с поддержкой Fact Log
 engine = UDFEngine(
     db=SimulationDB("simulation.duckdb"),
     graph=GraphStore("simulation.kuzu"),
-    curated_dir=Path("data/curated")
+    curated_dir=Path("data/curated"),
+    fact_dir=Path("data/facts"),  # Для lazy материализации
+    cas_root=Path(".polisyos")    # CAS для provenance
 )
 
 # Запрос макро-метрик (PANEL view)
@@ -549,6 +601,15 @@ agents_request = DataViewRequest(
 )
 
 agents_snapshot = engine.query(agents_request)
+
+# Запрос с Arrow для высокой производительности
+agents_arrow = engine.query_arrow(agents_request)
+print(f"Arrow table: {agents_arrow.num_rows} rows, {agents_arrow.num_columns} columns")
+
+# Запрос с полным FabricResult (включая provenance)
+result = engine.query_result(agents_request)
+print(f"Query executed, data saved as: {result.data_ref.artifact_id}")
+print(f"Evidence bundle: {result.evidence_ref.artifact_id}")
 
 # Графовый запрос (NETWORK view)
 network_request = DataViewRequest(
@@ -725,14 +786,33 @@ print(f"Persisted as artifact: {evidence_ref.artifact_id}")
 ### Материализация из Fact Log
 
 ```python
-from polisyos.fabric.materializer import materialize_duckdb_from_fact_log
+from polisyos.fabric.materializer import (
+    ensure_materialized,
+    materialize_duckdb_from_fact_log,
+    load_fact_manifests
+)
 from polisyos.fabric.io.db import SimulationDB
 
 # Инициализация хранилища
 db = SimulationDB("simulation.duckdb")
-
-# Материализация из Fact Log
 fact_dir = Path("data/facts")
+
+# Просмотр доступных сегментов Fact Log
+manifests = load_fact_manifests(fact_dir)
+print(f"Found {len(manifests)} fact segments")
+
+# Инкрементальная материализация (только новые сегменты)
+def progress_callback(msg: str):
+    print(f"Materialization: {msg}")
+
+ensure_materialized(
+    fact_dir,
+    db,
+    force=False,  # Только новые сегменты
+    progress_callback=progress_callback
+)
+
+# Или полная материализация
 materialize_duckdb_from_fact_log(fact_dir, db)
 
 print("DuckDB materialized from Fact Log")
@@ -830,12 +910,14 @@ runtime → common (инфраструктура)
 ```
 
 **Новые компоненты и связи:**
-- **Fact Log System**: Интеграция с `ir.fact_log` для immutable хранения фактов
+- **Fact Log System**: Полная интеграция с `ir.fact_log` для immutable хранения фактов
 - **Evidence System**: Использование `core.contracts.fabric` и `core.artifacts` для verifiable доказательств
 - **UDF Compilation Pipeline**: Многофазный компилятор с passes для security и optimization
-- **Materializer Engine**: Восстановление реляционных представлений из Fact Log (в разработке)
-- **Trust Policies**: Многоуровневые политики доверия для источников данных
-- **CAS Integration**: Content Addressable Storage для всех артефактов и evidence
+- **Materializer Engine**: Полноценная система восстановления реляционных представлений из Fact Log с инкрементальными обновлениями
+- **Trust Policies**: Многоуровневые политики доверия с статистической верификацией
+- **CAS Integration**: Content Addressable Storage для всех артефактов и evidence bundles
+- **Arrow Support**: Высокопроизводительная работа с columnar данными
+- **Lazy Materialization**: Автоматическая материализация данных по требованию и evidence
 
 ### Интерфейсы для Scientist (Orchestrator)
 
@@ -1202,9 +1284,10 @@ python tools/diagnostics/generate_ir_schema.py
 - **Fact Log System**: Complete immutable audit trail с deterministic fact IDs
 - **Evidence Bundles**: Cryptographically verifiable provenance tracking
 - **UDF Compilation Pipeline**: Multi-phase compilation с security passes
-- **Materializer Engine**: Lazy материализация реляционных представлений из фактов
-- **Trust Policies**: Multi-tier trust validation для источников данных
+- **Materializer Engine**: Полноценная incremental материализация реляционных представлений из фактов
+- **Trust Policies**: Multi-tier trust validation с statistical verification
 - **CAS Integration**: Content-addressable storage для всех артефактов
 - **Arrow Support**: High-performance columnar data processing
+- **FabricResult**: Structured results с complete provenance chain
 
 Модуль следует принципам архитектуры (Законы A, B, C, D), обеспечивая чистое разделение ответственности между ingestion, storage, query и audit слоями, с четкими контрактами для интеграции с остальной системой.

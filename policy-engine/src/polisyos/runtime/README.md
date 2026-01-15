@@ -1,5 +1,7 @@
 # Runtime Module (`polisyos.runtime`)
 
+*Документация актуализирована на 2026-01-15 в соответствии с текущим состоянием кода и интеграциями.*
+
 ## Обзор
 
 Модуль `polisyos.runtime` предоставляет **инфраструктуру управления жизненным циклом экспериментов и запусков** в системе симуляции политик. Это чистый слой инфраструктуры, который обеспечивает:
@@ -174,13 +176,12 @@ abs_path = resolve_artifact_path(
 from polisyos.runtime import log_artifact
 
 # Логирование Policy IR
-policy_ir = {"policies": [...], "objectives": [...]}
+policy_ir = {"semantic": {...}, "advisory": {...}}
 ref = log_artifact(
     run_id="abc123def",
     artifact_type="policy_ir",
     payload=policy_ir,
     step="draft",
-    filename="policy_draft_v1.json",  # Автоматически .json если media_type="application/json"
     base_dir=Path("runs")
 )
 # ref.relative_path будет содержать "abc123def/artifacts/policy_ir/20240101T100000_policy_ir.json"
@@ -200,15 +201,23 @@ ref = log_artifact(
     base_dir=Path("runs")
 )
 
+# Логирование registry bundle для воспроизводимости
+registry_bundle = {"mechanisms": [...], "slots": [...], "merge_rules": [...]}
+ref = log_artifact(
+    run_id="abc123def",
+    artifact_type="registry_bundle_ref",
+    payload=registry_bundle,
+    step="runtime",
+    base_dir=Path("runs")
+)
+
 # Логирование data view результатов
-panel_data = pd.DataFrame(...)  # Результат UDF запроса
+panel_data = {"records": [...], "metadata": {...}}  # Результат UDF запроса через Fabric
 ref = log_artifact(
     run_id="abc123def",
     artifact_type="data_views",
-    payload=panel_data.to_dict('records'),
-    media_type="application/json",
+    payload=panel_data,
     step="compile_data",
-    filename="population_panel.json",
     base_dir=Path("runs")
 )
 ```
@@ -263,13 +272,14 @@ update_budget_usage(run_id="policy_sim_001", budget_usage={
 
 ### Стандартные категории
 
-- **`policy_ir`**: Policy Request IR в YAML/JSON формате
-- **`simulation_results`**: Метрики и результаты симуляции
-- **`compiled_model`**: Скомпилированная JAX модель
-- **`data_views`**: Результаты UDF запросов (панели, сети)
-- **`validation_report`**: Отчеты валидации IR
-- **`gradient_health`**: Метрики здоровья градиентов
-- **`audit_trail`**: Автоматически создается из audit.jsonl
+- **`policy_ir`**: Policy Surface IR в JSON формате (semantic + advisory contracts)
+- **`simulation_results`**: Метрики и результаты симуляции в Foundry
+- **`compiled_model`**: Скомпилированная JAX модель (ProgramGraph + ExecPlan)
+- **`data_views`**: Результаты UDF запросов через Fabric (панели, сети, факты)
+- **`registry_bundle_ref`**: Ссылка на registry bundle для обеспечения воспроизводимости
+- **`validation_report`**: Отчеты валидации IR и линковки
+- **`gradient_health`**: Метрики здоровья градиентов и сходимости
+- **`audit_trail`**: Автоматически создается из audit.jsonl (JSON Lines формат)
 
 ### ArtifactRef модель
 
@@ -314,6 +324,13 @@ Runtime является основной инфраструктурой для 
 
 #### `flow_nodes.py` - управление жизненным циклом экспериментов
 
+Основные точки интеграции:
+
+- **`start_run()`** - инициализация эксперимента в начале workflow
+- **`log_artifact()`** - логирование результатов на каждом этапе (IR, data views, simulation results, registry bundles)
+- **`finalize_run()`** - завершение эксперимента с финальным статусом
+- **`update_budget_usage()`** - отслеживание использования ресурсов
+
 ```python
 from polisyos.runtime import finalize_run, log_artifact, start_run, update_budget_usage
 
@@ -325,6 +342,15 @@ def experiment_workflow(state: ExperimentState):
         base_dir=_runtime_base_dir(state)
     )
     state["run_id"] = manifest.run_id
+
+    # Логирование registry bundle для обеспечения воспроизводимости
+    log_artifact(
+        run_id=state["run_id"],
+        artifact_type="registry_bundle_ref",
+        payload=bundle.bundle_ref.model_dump(),
+        step="runtime",
+        base_dir=_runtime_base_dir(state)
+    )
 
     # Логирование артефактов на этапах workflow
     log_artifact(
@@ -341,13 +367,15 @@ def experiment_workflow(state: ExperimentState):
 
 #### `audit.py` - интеграция с audit trail
 
+Двунаправленная синхронизация audit trail между локальным состоянием workflow и runtime:
+
 ```python
 from polisyos.runtime import append_audit as runtime_append_audit
 
 def append_audit(state: Dict[str, Any], node: str, action: str, details: Dict[str, Any]) -> Dict[str, Any]:
     audit = state.get("audit_trail") or []
     record = {
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
         "node": node,
         "action": action,
         "details": details,
@@ -496,10 +524,10 @@ def _ensure_budget(state: ExperimentState) -> ExperimentState:
 runs/<run_id>/
 ├── manifest.json                    # RunManifest
 ├── artifacts/
-│   ├── policy_ir/                  # IR политики
-│   ├── data_views/                 # Результаты UDF
-│   ├── simulation_results/         # Метрики симуляции
-│   └── registry_bundle_ref/        # Ссылки на registry
+│   ├── policy_ir/                  # Policy Surface IR
+│   ├── data_views/                 # Результаты UDF через Fabric
+│   ├── simulation_results/         # Метрики симуляции в Foundry
+│   └── registry_bundle_ref/        # Registry bundle для воспроизводимости
 ├── audit.jsonl                     # Audit trail
 └── ...
 ```
@@ -520,7 +548,17 @@ manifest = start_run(
 )
 run_id = manifest.run_id
 
-# 2. Этап черновика IR
+# 2. Регистрация registry bundle для воспроизводимости
+registry_bundle = {"bundle_ref": {...}, "mechanisms": [...], "slots": [...]}
+log_artifact(
+    run_id=run_id,
+    artifact_type="registry_bundle_ref",
+    payload=registry_bundle,
+    step="runtime",
+    base_dir=Path("runs")
+)
+
+# 3. Этап черновика IR
 append_audit(run_id=run_id, record={
     "timestamp": "2024-01-01T10:00:00Z",
     "event": "workflow_step_started",
@@ -528,7 +566,7 @@ append_audit(run_id=run_id, record={
     "details": {"input_length": 1500}
 }, base_dir=Path("runs"))
 
-policy_ir = {"policies": [...], "objectives": [...]}
+policy_ir = {"semantic": {...}, "advisory": {...}}
 log_artifact(
     run_id=run_id,
     artifact_type="policy_ir",
@@ -611,26 +649,29 @@ finalize_run(run_id=run_id, status="pruned", pruning_reason={
 ### Unit тесты
 
 ```bash
-# Тестирование API
-pytest tests/runtime/test_api.py
+# Тестирование API и путей
+pytest policy-engine/tests/runtime/test_runtime_manifest_paths.py -v
 
-# Тестирование моделей
-pytest tests/runtime/test_manifest.py
+# Тестирование логирования артефактов и разрешения путей
+pytest policy-engine/tests/runtime/test_runtime_manifest_paths.py::test_log_artifact_uses_relative_paths -v
+pytest policy-engine/tests/runtime/test_runtime_manifest_paths.py::test_resolve_artifact_path_handles_relative_and_absolute -v
 ```
 
 ### Integration тесты
 
 ```bash
-# Полный цикл с файловой системой
-pytest tests/integration/test_runtime_workflow.py
+# Полный workflow с runtime в контексте scientist
+pytest policy-engine/tests/integration/test_workflow_llm.py -k runtime -v
+pytest policy-engine/tests/integration/test_workflow_smoke.py::test_workflow_with_runtime -v
 ```
 
 ### Контрактные тесты
 
-```bash
-# Валидация схем артефактов
-pytest tests/contract/test_runtime_contracts.py
-```
+Runtime тестируется в составе интеграционных тестов workflow, где проверяется:
+- Воспроизводимость артефактов
+- Переносимость директорий `runs/`
+- Целостность audit trail
+- Корректность бюджетов
 
 ## Архитектурные гарантии
 

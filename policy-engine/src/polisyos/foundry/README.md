@@ -12,7 +12,7 @@ NL → LLM → IR (AST) → Foundry Compiler → Foundry Calibration → Foundry
 
 Foundry **не знает** про LLM и работает исключительно с:
 - ✅ JAX для дифференцируемых вычислений и JIT-компиляции
-- ✅ Экономическими механизмами (налоги, субсидии, очереди)
+- ✅ Экономическими механизмами (налоги, субсидии, рынок труда, очереди)
 - ✅ Многоуровневыми симуляциями (multi-fidelity)
 - ✅ Slot-based state management и patch operations
 - ✅ Program graphs и execution plans
@@ -44,6 +44,8 @@ treasury.py          # Deterministic RNG management
 patch_vm.py          # Patch-based виртуальная машина и merge rules
 runtime.py           # Чистые JAX функции для исполнения (step, run_scan, execute_program_batch)
 executor.py          # Исполнение программ с constraints и state management
+constraints_engine.py # Движок ограничений и валидации
+trace.py             # Система трассировки исполнения
 ```
 
 ### 3. Domain Layer (Модель предметной области)
@@ -55,10 +57,11 @@ domain/
 
 ### 4. Mechanism Layer (Механизмы)
 ```
-base.py             # Абстрактный класс Mechanism
+base.py             # Абстрактный класс Mechanism и ComplexMechanism
 types.py            # FidelityLevel enum (уровни точности)
 fiscal.py           # Налоговые механизмы (IncomeTax, TaxSubsidy)
-queue.py            # Механизм очередей с multi-fidelity
+labor.py            # Механизм рынка труда (LaborMarketMechanism)
+queue.py            # Механизм очередей с multi-fidelity (QueueMechanism)
 specs.py            # Спецификации механизмов с валидацией
 registry.py         # Регистрация и фабрика механизмов
 ```
@@ -74,12 +77,11 @@ calibration/
 └── report.py         # Отчёты калибровки (метрики качества, неопределённости)
 ```
 
-### 6. Legacy Layer (Устаревшее)
+### 6. Utils Layer (Утилиты)
 ```
-_legacy/engine/     # Legacy симуляционный движок (SimulationKernel, logic)
-_legacy/basic_simulation.py # Демо и примеры (deprecated)
+loss.py             # Функции потерь для оптимизации политик
+utils.py            # Дифференцируемые утилиты (soft_step, soft_clamp, gradient_health)
 ```
-> Legacy находится в `_legacy/` и запрещён к использованию в новом коде; используйте patch VM / ProgramGraph runtime.
 
 ## Калибровка моделей (Calibration)
 
@@ -528,52 +530,66 @@ class Mechanism(eqx.Module):
 ```python
 @chex.dataclass(frozen=True)
 class GlobalState:
-    step: Int[Array, ""]                    # Текущий шаг симуляции
-    agents: AgentState                      # Состояние агентов
-    firms: FirmState                        # Состояние фирм
-    market: MarketState                     # Состояние рынка
-    government_balance: Float[Array, ""]    # Баланс правительства
-    gdp: Float[Array, ""]                   # ВВП
+    step: Int[Array, ""]                     # Текущий шаг симуляции
+    agents: AgentState                       # Состояние агентов
+    firms: FirmState                         # Состояние фирм
+    market: MarketState                      # Состояние рынка
+    government_balance: Float[Array, ""]     # Баланс правительства
+    gdp: Float[Array, ""]                    # ВВП
 ```
 
 #### AgentState (Агенты)
 ```python
 @chex.dataclass(frozen=True)
 class AgentState:
-    age: Int[Array, "n_agents"]              # Возраст
-    skill_level: Float[Array, "n_agents"]    # Уровень навыков
-    income: Float[Array, "n_agents"]         # Доход
-    savings: Float[Array, "n_agents"]        # Сбережения
-    consumption: Float[Array, "n_agents"]    # Потребление
-    is_employed: Bool[Array, "n_agents"]     # Статус занятости
-    employer_id: Int[Array, "n_agents"]      # ID работодателя
+    # Демография и Навыки
+    age: Int[Array, "n_agents"]               # Возраст
+    skill_level: Float[Array, "n_agents"]     # Влияет на зарплату
+
+    # Финансы
+    income: Float[Array, "n_agents"]          # Доход
+    savings: Float[Array, "n_agents"]         # Сбережения
+    consumption: Float[Array, "n_agents"]     # Сколько потратил
+
+    # Работа
+    is_employed: Bool[Array, "n_agents"]      # Статус занятости
+    employer_id: Int[Array, "n_agents"]       # ID фирмы (0..M-1) или -1
 ```
 
 #### FirmState (Фирмы)
 ```python
 @chex.dataclass(frozen=True)
 class FirmState:
-    sector_id: Int[Array, "n_firms"]         # Сектор экономики
-    productivity: Float[Array, "n_firms"]    # Производительность
-    capital: Float[Array, "n_firms"]         # Капитал
-    labor_count: Float[Array, "n_firms"]     # Численность персонала
-    cash: Float[Array, "n_firms"]            # Денежные средства
-    inventory: Float[Array, "n_firms"]       # Запасы
-    debt: Float[Array, "n_firms"]            # Долги
-    wage_offer: Float[Array, "n_firms"]      # Предлагаемая зарплата
-    price: Float[Array, "n_firms"]           # Цена продукции
+    # Статика
+    sector_id: Int[Array, "n_firms"]          # 0=IT, 1=Agro...
+
+    # Производственные факторы
+    productivity: Float[Array, "n_firms"]     # Технологичность (A)
+    capital: Float[Array, "n_firms"]          # Станки/Софт (K)
+    labor_count: Float[Array, "n_firms"]      # Текущий штат (L)
+
+    # Финансы
+    cash: Float[Array, "n_firms"]             # Деньги на зарплаты
+    inventory: Float[Array, "n_firms"]        # Товары на складе
+    debt: Float[Array, "n_firms"]             # Долги
+
+    # Рынок
+    wage_offer: Float[Array, "n_firms"]       # Зарплатное предложение
+    price: Float[Array, "n_firms"]            # Цена товара фирмы
 ```
 
 #### MarketState (Рынок)
 ```python
 @chex.dataclass(frozen=True)
 class MarketState:
-    avg_price: Float[Array, ""]              # Средняя цена (CPI)
-    total_supply: Float[Array, ""]           # Общее предложение
-    total_demand: Float[Array, ""]           # Общий спрос
-    avg_wage: Float[Array, ""]               # Средняя зарплата
-    unemployment_rate: Float[Array, ""]      # Уровень безработицы
-    interest_rate: Float[Array, ""]          # Процентная ставка
+    # Агрегаты
+    avg_price: Float[Array, ""]               # CPI (Индекс цен)
+    total_supply: Float[Array, ""]            # Всего товаров
+    total_demand: Float[Array, ""]            # Всего денег у покупателей
+
+    avg_wage: Float[Array, ""]
+    unemployment_rate: Float[Array, ""]
+    interest_rate: Float[Array, ""]           # Ставка ЦБ
 ```
 
 ## Доступные механизмы
@@ -584,26 +600,31 @@ class MarketState:
 ```python
 from polisyos.foundry.fiscal import IncomeTax
 
-# Legacy direct state changes
 tax = IncomeTax(rate=0.2, n_agents=1000)  # 20% налог
-new_state, key = tax.step(state, key)
-
-# Modern patch-based execution
-tax_modern = IncomeTax(rate=0.2, n_agents=1000)
-patches, key = tax_modern.emit_patches(state, key)
+patches, key = tax.emit_patches(state, key)
 ```
 
 #### TaxSubsidy (Налоговые субсидии)
 ```python
 from polisyos.foundry.fiscal import TaxSubsidy
 
-# Legacy direct state changes
 subsidy = TaxSubsidy(rate=0.1, n_agents=1000)  # 10% субсидия
-new_state, key = subsidy.step(state, key)
+patches, key = subsidy.emit_patches(state, key)
+```
 
-# Modern patch-based execution
-subsidy_modern = TaxSubsidy(rate=0.1, n_agents=1000)
-patches, key = subsidy_modern.emit_patches(state, key)
+### LaborMarketMechanism (Механизм рынка труда)
+
+Механизм моделирования рынка труда с вероятностным распределением занятости:
+
+```python
+from polisyos.foundry.labor import LaborMarketMechanism
+
+labor_market = LaborMarketMechanism(
+    employment_threshold=0.5,  # Порог занятости (0-1)
+    fidelity=FidelityLevel.SURROGATE_FLUID
+)
+
+patches, key = labor_market.emit_patches(state, key)
 ```
 
 ### QueueMechanism (Механизм очередей)
@@ -619,56 +640,79 @@ queue = QueueMechanism(
     fidelity=FidelityLevel.RELAXED_DISCRETE
 )
 
-# Поддерживает как step(), так и emit_patches()
-new_state, key = queue.step(queue_state, key)
 patches, key = queue.emit_patches(state, key)
 ```
 
 ## Движок симуляции
 
-### SimulationKernel (legacy)
+### Patch-based Execution (Современный подход)
 
-JIT-скомпилированный экономический цикл (доступен только для обратной совместимости):
+Foundry использует patch-based модель исполнения, где механизмы генерируют патчи изменений вместо прямых модификаций состояния. Это обеспечивает:
+
+- **Идемпотентность**: одни и те же патчи всегда дают одинаковый результат
+- **Детерминизм**: результаты воспроизводимы при одинаковых входах
+- **Аудит**: все изменения логируются и могут быть проверены
+- **Составляемость**: патчи можно комбинировать и трансформировать
+
+#### Patch Generation (Генерация патчей)
+
+Механизмы генерируют патчи через метод `emit_patches()`:
 
 ```python
-from polisyos.foundry._legacy.engine.kernel import SimulationKernel  # deprecated
+from polisyos.foundry.base import Mechanism
+from polisyos.core.contracts.foundry import UpdateOp
 
-kernel = SimulationKernel()  # JIT-компиляция при создании
+class ModernTax(Mechanism):
+    def emit_patches(self, state, key, *, target_mask=None):
+        # Вычисляем изменения
+        tax_amounts = state.agents.income * self.tax_rate
 
-# Один шаг симуляции
-final_state, key = kernel.step(state, key)
+        # Генерируем патчи вместо прямых изменений
+        patches = {
+            "agents.income": [
+                UpdateOp(delta=-tax_amounts, mask=target_mask)
+            ],
+            "government.balance": [
+                UpdateOp(delta=jnp.sum(tax_amounts), mask=None)
+            ]
+        }
+        return patches, key
 ```
 
-#### Экономический цикл
+#### Merge Rules (Правила слияния)
 
-Каждый шаг включает четыре фазы:
-
-1. **Производство** (Кобб-Дуглас): `Y = A × K^α × L^(1-α)`
-2. **Рынок труда**: распределение работников по фирмам
-3. **Рынок товаров**: ценообразование и торговля
-4. **Потребление**: расходы домохозяйств
+При конфликтах патчей применяются правила слияния из slot registry:
 
 ```python
-# Внутри kernel.py
-def _step_logic(self, state: GlobalState, key: jax.Array) -> GlobalState:
-    # 1. Производство
-    new_firms, produced_goods = update_firms_production(state.firms, key1)
+from polisyos.ir.kernel import MergeRuleKind
 
-    # 2. Рынок труда
-    new_agents, new_firms = update_labor_market(state.agents, new_firms, key2)
+# Поддерживаемые виды merge rules
+merge_kinds = [
+    MergeRuleKind.SUM,        # Складывать изменения (для балансов)
+    MergeRuleKind.OVERRIDE,   # Перезаписывать по приоритету
+    MergeRuleKind.PRIORITY,   # Выбирать по явному приоритету
+    MergeRuleKind.ERROR       # Запрещать конфликты
+]
+```
 
-    # 3. Рынок товаров
-    new_firms, new_agents, new_market = update_goods_market(
-        new_firms, new_agents, state.market, produced_goods, key3
-    )
+#### Constraints Engine (Движок ограничений)
 
-    # 4. Потребление
-    final_agents = update_agents_consumption(new_agents, new_market, key4)
+Валидация ограничений после применения патчей:
 
-    # Агрегация макропоказателей
-    final_market = aggregate_market_stats(final_agents, new_firms, new_market)
+```python
+from polisyos.foundry.constraints_engine import check_constraints
 
-    return state.replace(step=state.step + 1, ...)
+result = check_constraints(
+    constraint_registry=constraint_registry,
+    slot_registry=slot_registry,
+    merged_ops=patch_ops,
+    state_before=state
+)
+
+if result.violations:
+    print(f"Найдено нарушений: {len(result.violations)}")
+    for violation in result.violations:
+        print(f"- {violation}")
 ```
 
 ## Функции потерь и оптимизация
@@ -678,7 +722,8 @@ def _step_logic(self, state: GlobalState, key: jax.Array) -> GlobalState:
 Функция потерь для градиентной оптимизации политик:
 
 ```python
-from polisyos.foundry.loss import policy_loss_fn
+import jax.numpy as jnp
+from polisyos.foundry.domain.state import GlobalState
 
 def policy_loss_fn(final_state: GlobalState, min_balance: float = -1000.0) -> float:
     # Максимизация дохода (минимизация отрицательного дохода)
@@ -714,12 +759,15 @@ mechanism = create_mechanism(intervention, n_agents=1000, n_firms=100)
 ### Доступные механизмы
 
 ```python
-from polisyos.foundry.registry import MECHANISM_SPECS
+from polisyos.foundry.registry import MECHANISM_REGISTRY
 
-# Каталог всех механизмов
-catalog = mechanism_catalog()
-for mech in catalog:
-    print(f"{mech['name']}: {mech['description']}")
+# Доступные механизмы в registry
+mechanisms = {
+    "tax_subsidy": "TaxSubsidy",           # Налоговые субсидии
+    "income_tax": "IncomeTax",             # Подоходный налог
+    "labor_market": "LaborMarketMechanism", # Рынок труда
+    "queue": "QueueMechanism"              # Механизм очередей
+}
 ```
 
 ## Спецификации механизмов
@@ -774,6 +822,28 @@ from polisyos.foundry.utils import gradient_health
 health_report = gradient_health(gradients)
 if health_report.vanishing:
     print("Градиенты затухают - проблема с learning!")
+```
+
+### Trace System (Система трассировки)
+
+Отслеживание исполнения программ для отладки и анализа:
+
+```python
+from polisyos.foundry.trace import TraceEvent, TraceSlice
+
+# Создание события трассировки
+event = TraceEvent(
+    phase="execution",
+    event="node_executed",
+    payload={
+        "node_id": "tax_mechanism_1",
+        "execution_time": 0.023,
+        "patches_generated": 42
+    }
+)
+
+# Срез трассировки для анализа
+trace_slice = TraceSlice(events=[event])
 ```
 
 ## Примеры использования
@@ -985,10 +1055,10 @@ with jax.profiler.trace("/tmp/jax-trace"):
 
 ### Экономическая модель
 
-- **Кобб-Дуглас**: `Y = A × K^α × L^(1-α)` с α=0.3 (в legacy engine)
-- **Совершенная конкуренция**: на рынках труда и товаров
-- **Рациональные агенты**: максимизация полезности
-- **Закрытая экономика**: без внешней торговли
+- **Patch-based изменения**: все модификации состояния через патчи
+- **Slot-based state**: доступ к состоянию только через предопределенные слоты
+- **Многоуровневая точность**: три уровня fidelity (fluid/relaxed/hard)
+- **Детерминированное исполнение**: RNG через Treasury для воспроизводимости
 
 ### Вычислительные ограничения
 
@@ -1033,19 +1103,21 @@ scientist/ → ir/ → foundry.compiler → foundry.calibration → foundry.runt
 
 ## Миграция и Roadmap
 
-### Legacy Support
+### Современная архитектура
 
-Текущая версия Foundry поддерживает **legacy режим** для обратной совместимости:
+Foundry полностью переведен на patch-based архитектуру:
 
-- **engine/kernel.py**: Простая симуляция без компиляции
-- **basic_simulation.py**: Примеры использования legacy API
-- **Direct state changes**: Механизмы могут работать без патчей
+- **emit_patches()**: Все механизмы используют патчи вместо прямых изменений
+- **ProgramGraph execution**: Компиляция политик в графы выполнения
+- **Constraints validation**: Валидация ограничений после каждого шага
+- **Trace logging**: Полная трассировка исполнения для отладки
 
-### Рекомендации по миграции
+### Разработка новых механизмов
 
-1. **Новые механизмы**: Использовать `emit_patches()` вместо `step()`
-2. **Новые политики**: Использовать compiler API вместо прямого создания механизмов
-3. **Производство**: Переходить на ProgramGraph execution для лучшей производительности
+1. **Наследоваться от Mechanism**: Использовать абстрактный базовый класс
+2. **Реализовать emit_patches()**: Генерировать патчи вместо прямых изменений
+3. **Добавить в registry**: Зарегистрировать механизм для использования
+4. **Добавить спецификации**: Определить параметры и ограничения
 
 ### Будущие улучшения
 
@@ -1056,4 +1128,4 @@ scientist/ → ir/ → foundry.compiler → foundry.calibration → foundry.runt
 
 ---
 
-Foundry эволюционировал от простого симулятора к высокопроизводительному компилятору политик, обеспечивая масштабируемость, детерминизм и эффективность исполнения экономических моделей.
+Foundry представляет собой современный высокопроизводительный execution engine для дифференцируемого исполнения экономических политик, использующий patch-based архитектуру, ProgramGraph компиляцию и constraints validation для обеспечения надежности и эффективности моделирования.

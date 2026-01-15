@@ -1,6 +1,6 @@
 # Common: Общие компоненты Policy Engine
 
-> **Последнее обновление:** 15 января 2026 г.
+> **Последнее обновление:** 15 января 2026 г. (обновление документации)
 
 Модуль `polisyos.common` содержит фундаментальные утилиты и конфигурации, используемые во всех слоях архитектуры Policy Engine. Эти компоненты обеспечивают базовую инфраструктуру без зависимостей от бизнес-логики.
 
@@ -17,6 +17,7 @@
 
 Модуль `common` активно используется в следующих компонентах:
 
+- **fabric/ingestion.py** - логирование операций ingestion через `get_logger`
 - **fabric/io/db.py** - логирование операций с DuckDB через `logger`
 - **fabric/io/graph_store.py** - логирование операций с графовым хранилищем через `get_logger`
 - **fabric/materializer.py** - логирование операций материализации через `get_logger`
@@ -73,9 +74,10 @@ Common обеспечивает:
    - Отключение проверки утечек трассировщиков: `JAX_CHECK_TRACER_LEAKS=false`
 
 2. **Hardware Safeguards (Защита железа)**
-   - Автоматическое определение физических ядер CPU
+   - Автоматическое определение количества ядер CPU через `multiprocessing.cpu_count()`
    - Резерв 20% ядер для системы (минимум 1 ядро)
    - Расчет безопасного количества ядер: `max(1, total_cores - reserved_cores)`
+   - Логирование выбранной конфигурации CPU для отладки
 
 3. **Memory Management**
    - Отключение жадной аллокации памяти: `XLA_PYTHON_CLIENT_PREALLOCATE=false`
@@ -220,8 +222,8 @@ log.error("Something went wrong", error_details={"code": 500})
    - Миграция `0.9 → 1.0`: нормализация полей (`datasetName` → `dataset_name`, `rawHash` → `raw_hash`)
 
 3. **`policy_ir.py` - Миграции Policy IR**
-   - Текущая версия: `POLICY_IR_CURRENT_VERSION = "1.0"`
-   - Миграция `0.9 → 1.0`: нормализация полей (`projectName` → `project_name`, `globalConstraints` → `global_constraints`)
+   - Текущая версия: `POLICY_IR_CURRENT_VERSION = "2.0"`
+   - Миграции: отсутствуют (текущая версия является основной стабильной версией)
 
 #### Пример использования:
 
@@ -233,10 +235,7 @@ manifest_data = {"schema_version": "0.9", "datasetName": "test"}
 migrated = migrate_artifact(manifest_data, "dataset_manifest", "1.0")
 # Результат: {"schema_version": "1.0", "dataset_name": "test"}
 
-# Миграция Policy IR
-policy_data = {"schema_version": "0.9", "projectName": "policy"}
-migrated = migrate_artifact(policy_data, "policy_ir", "1.0")
-# Результат: {"schema_version": "1.0", "project_name": "policy"}
+# Policy IR использует версию 2.0 как основную и не имеет миграций из предыдущих версий
 ```
 
 ## Использование в проекте
@@ -353,6 +352,7 @@ def migrate_policy_ir(data: dict, target_version: str | None = None) -> dict:
 ### Активное использование в модулях проекта:
 
 #### Логирование (logger/get_logger):
+- **`fabric/ingestion.py`** - операции ingestion данных
 - **`fabric/io/db.py`** - операции с DuckDB
 - **`fabric/io/graph_store.py`** - операции с графовым хранилищем
 - **`fabric/materializer.py`** - операции материализации данных

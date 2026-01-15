@@ -2,6 +2,8 @@
 
 **IR (Intermediate Representation)** - это промежуточное представление политик и симуляций в системе Policy Engine. Модуль определяет канонические контракты данных, обеспечивая единообразие коммуникации между всеми компонентами системы: от LLM-агентов до JAX-симуляций.
 
+**Обновлено**: документация актуализирована для отражения текущей архитектуры IR v2.0, включая детальное описание всех компонентов, связей с другими модулями и обновленные примеры использования.
+
 ## Архитектурная роль
 
 Согласно [архитектурным принципам](../../../../architecture.md) проекта, **IR** является фундаментальным слоем контрактов:
@@ -47,34 +49,32 @@ NL → LLM → IR (AST) → Compilation → Runtime (UDF + Foundry) → Artifact
 
 ```
 ir/
-├── __init__.py              # Экспорт основных типов данных
-├── contract.py               # Унаследованные модели данных (v1.0)
-├── types.py                  # Перечисления и базовые типы
-├── data_views.py             # Модели запросов данных
-├── validation.py             # Утилиты валидации и отчетов
-├── units.py                  # Унаследованный UNIT_REGISTRY
-├── fact_log.py               # Контракты для Fact Log (семантическая сеть)
-├── linker.py                 # Линкер политик с реестрами
-├── predicate.py              # Реестры предикатов для данных
-├── surface.py                # PolicySurfaceIR (v2.0) - основной контракт
-├── loaders.py                # Загрузчики политик с поддержкой версий
-├── calibration.py            # Контракты калибровки политик
-├── kernel/                   # Kernel: реестры и базовые типы
-│   ├── __init__.py          # Экспорт kernel компонентов
-│   ├── base.py              # KernelModel и утилиты валидации
-│   ├── constraints.py       # Реестр ограничений
-│   ├── mechanisms.py        # Реестр механизмов интервенций
-│   ├── merge_rules.py       # Правила слияния слотов состояний
-│   ├── metrics.py           # Реестр метрик оптимизации
-│   ├── numbers.py           # Числовые типы (DecimalValue, etc.)
-│   ├── selector_fields.py   # Реестр полей селекторов
-│   ├── slots.py             # Реестр слотов состояний агентов
-│   ├── time_semantics.py    # Семантика времени и расписаний
-│   ├── trust.py             # Политики доверия к данным
-│   ├── units.py             # Реестр единиц измерения
-│   └── values.py            # Типизированные значения (MoneyValue, etc.)
+├── __init__.py              # Экспорт основных типов данных и функций
+├── types.py                  # Перечисления, базовые типы и утилиты
+├── surface.py                # PolicySurfaceIR (v2.0) - основной контракт системы
+├── data_views.py             # Модели запросов данных (DataViewRequest, DataViewType)
+├── validation.py             # Утилиты валидации и отчетов об ошибках
+├── fact_log.py               # Контракты для семантической сети фактов
+├── linker.py                 # Линкер политик с валидацией по реестрам
+├── predicate.py              # Реестры предикатов для запросов данных
+├── loaders.py                # Универсальная загрузка политик с автораспознаванием версий
+├── calibration.py            # Контракты калибровки политик относительно данных
+├── kernel/                   # Kernel: фундаментальные реестры и типы
+│   ├── __init__.py          # Экспорт всех kernel компонентов
+│   ├── base.py              # KernelModel, паттерны ID, утилиты валидации
+│   ├── constraints.py       # Реестр ограничений (ConstraintRegistry)
+│   ├── mechanisms.py        # Реестр типов механизмов (MechanismTypeRegistry)
+│   ├── merge_rules.py       # Правила слияния слотов состояний (MergeRuleRegistry)
+│   ├── metrics.py           # Реестр метрик оптимизации (MetricRegistry)
+│   ├── numbers.py           # Типизированные числовые значения (DecimalValue, etc.)
+│   ├── selector_fields.py   # Реестр полей для селекторов (SelectorFieldRegistry)
+│   ├── slots.py             # Реестр слотов состояний (SlotRegistry)
+│   ├── time_semantics.py    # Семантика времени и расписаний (TimeSemantics)
+│   ├── trust.py             # Политики доверия к данным (TrustRegistry)
+│   ├── units.py             # Система единиц измерения (UnitsRegistry)
+│   └── values.py            # Типизированные значения (MoneyValue, RateValue, etc.)
 └── migrations/
-    ├── __init__.py          # API миграций между версиями
+    └── __init__.py          # API миграций между версиями схем
 ```
 
 ## Основные компоненты
@@ -83,7 +83,7 @@ ir/
 
 #### PolicySurfaceIR - основной контракт системы
 
-Текущий основной контракт системы, разделяющий политику на исполняемую (semantic) и advisory части:
+Текущий основной контракт системы, разделяющий политику на исполняемую (semantic) и advisory части. PolicySurfaceIR является центральным контрактом, используемым всеми компонентами системы для обмена данными о политиках.
 
 ```python
 from polisyos.ir.surface import PolicySurfaceIR, PolicySemantic, PolicyAdvisory
@@ -296,7 +296,7 @@ name = TranslatableString(
 Структурированные запросы к данным симуляции:
 
 ```python
-from polisyos.ir.data_views import DataViewRequest, DataViewType, AccessTier
+from polisyos.ir.data_views import DataViewRequest, DataViewType, AccessTier, DataFilter
 
 # Запрос панельных данных агентов
 panel_request = DataViewRequest(
@@ -325,6 +325,17 @@ network_request = DataViewRequest(
     relation_types=["trade", "investment"],
     access_tier=AccessTier.SENSITIVE
 )
+
+# Запрос снимка состояния на конкретный момент
+snapshot_request = DataViewRequest(
+    request_id="economy_snapshot_2024",
+    run_id="sim_001",
+    view_type=DataViewType.SNAPSHOT,
+    metrics=["gdp", "unemployment_rate", "inflation"],
+    step_start=48,  # Фиксированный момент времени
+    step_end=48,    # Для snapshot start == end
+    access_tier=AccessTier.PUBLIC
+)
 ```
 
 ### 5. Валидация и отчеты (`validation.py`)
@@ -349,9 +360,10 @@ except ValidationError as e:
 
 #### Функции валидации
 
-- `issues_from_validation_error()` - конвертация Pydantic ошибок
-- `diff_payloads()` - генерация diff между версиями
-- `summarize_issues()` - суммарный отчет проблем
+- `build_validation_report()` - полный отчет с diff и детализацией проблем
+- `issues_from_validation_error()` - конвертация Pydantic ошибок в структурированный формат
+- `diff_payloads()` - генерация унифицированного diff между версиями данных
+- `summarize_issues()` - компактный суммарный отчет о проблемах валидации
 
 ### 6. Fact Log контракты (`fact_log.py`)
 
@@ -398,20 +410,22 @@ fact_id = build_fact_id(payload)  # sha256:...
 
 #### Валидация и линковка политик
 
-Система проверки корректности политик относительно реестров механизмов, слотов, метрик и ограничений:
+Система проверки корректности политик относительно реестров механизмов, слотов, метрик и ограничений. Линкер обеспечивает, что все ссылки в политике (механизмы, слоты, метрики) существуют в соответствующих реестрах и имеют корректные параметры:
 
 ```python
 from polisyos.ir.linker import link_policy
-from polisyos.ir.kernel import MechanismTypeRegistry, SlotRegistry
+from polisyos.ir.kernel import (
+    DEFAULT_MECHANISM_REGISTRY, DEFAULT_SLOT_REGISTRY,
+    DEFAULT_MERGE_RULE_REGISTRY, DEFAULT_METRIC_REGISTRY
+)
 
 # Линковка политики с реестрами
 report = link_policy(
     policy=surface_policy,
-    mechanism_registry=mechanism_registry,
-    slot_registry=slot_registry,
-    merge_registry=merge_registry,
-    constraint_registry=constraint_registry,
-    metric_registry=metric_registry
+    mechanism_registry=DEFAULT_MECHANISM_REGISTRY,
+    slot_registry=DEFAULT_SLOT_REGISTRY,
+    merge_registry=DEFAULT_MERGE_RULE_REGISTRY,
+    metric_registry=DEFAULT_METRIC_REGISTRY
 )
 
 if not report.ok:
@@ -421,11 +435,14 @@ if not report.ok:
 
 #### Типы проблем линковки
 
-- `unknown_mechanism`: Неизвестный механизм интервенции
-- `missing_param`: Отсутствует обязательный параметр
-- `param_type`: Неверный тип параметра
-- `unknown_slot`: Неизвестный слот состояния
-- `merge_conflict`: Конфликт правил слияния
+- `unknown_mechanism`: Механизм интервенции не найден в реестре
+- `missing_param`: Отсутствует обязательный параметр механизма
+- `param_type`: Тип параметра не соответствует спецификации
+- `param_range`: Значение параметра вне допустимого диапазона
+- `unknown_slot`: Слот состояния не найден в реестре
+- `slot_type_mismatch`: Несоответствие типов слота
+- `merge_conflict`: Конфликт правил слияния состояний
+- `constraint_violation`: Нарушение ограничений политики
 
 ### 8. Реестры предикатов (`predicate.py`)
 
@@ -461,7 +478,7 @@ registry = PredicateRegistry(
 
 #### Универсальная загрузка политик
 
-Система загрузки поддерживает автоматическое распознавание версий политик и конвертацию между форматами:
+Система загрузки поддерживает автоматическое распознавание версий политик и конвертацию между форматами. Основная функция `load_policy()` принимает любые поддерживаемые форматы политик и возвращает унифицированный `PolicySurfaceIR`:
 
 ```python
 from polisyos.ir.loaders import load_policy
@@ -531,20 +548,33 @@ calibration = CalibrationConfig(
 
 #### Детерминированные миграции
 
-```python
-from polisyos.ir.migrations import migrate_policy_ir
+Модуль IR использует общую систему миграций из `common.migrations` для управления версиями схем политик:
 
-# Миграция данных между версиями
+```python
+from polisyos.ir.migrations import migrate_policy_ir, IR_CURRENT_VERSION
+
+# Миграция данных между версиями в рамках 2.x
 migrated_data = migrate_policy_ir(
     data=input_data,
-    target_version="2.0",
-    allow_major=False  # Защита от major изменений
+    target_version="2.1",  # или IR_CURRENT_VERSION
+    allow_major=False     # Защита от major изменений
 )
+
+# Проверка версии
+from polisyos.ir.migrations import parse_version, is_major_bump
+major, minor = parse_version("2.1")
+is_major = is_major_bump("2.0", "2.1")  # False для minor изменений
 ```
+
+#### Поддерживаемые версии
+
+- **v2.x**: PolicySurfaceIR (текущая версия, обратная совместимость в рамках 2.x)
+- **v1.x**: Устаревший PolicyIR (конвертация через `load_policy()`)
+- **v0.x**: Устаревшие форматы (требуют ручной миграции)
 
 ## Kernel: базовые реестры и типы
 
-Kernel предоставляет фундаментальные реестры и типы для всей системы IR:
+Kernel предоставляет фундаментальные реестры и типы для всей системы IR. Это слой типизированных определений, которые используются всеми остальными компонентами для валидации и линковки политик:
 
 ### 1. Реестры механизмов (`mechanisms.py`)
 
@@ -720,7 +750,10 @@ MAX_ID_LEN = 64             # Длина идентификаторов
 
 ```python
 # Основные типы (рекомендуемый импорт)
-from polisyos.ir import PolicySurfaceIR, load_policy, CalibrationConfig, CalibrationTarget
+from polisyos.ir import (
+    PolicySurfaceIR, load_policy, CalibrationConfig, CalibrationTarget,
+    DataViewRequest, DataViewType, AccessTier
+)
 
 # Альтернативный импорт для доступа ко всем компонентам
 from polisyos.ir.surface import (
@@ -734,11 +767,13 @@ from polisyos.ir.kernel import (
     MechanismTypeRegistry, SlotRegistry, UnitsRegistry,
     SelectorFieldRegistry, TrustRegistry,
     MoneyValue, RateValue, CountValue,
-    MergeRuleRegistry, MetricRegistry, ConstraintRegistry
+    MergeRuleRegistry, MetricRegistry, ConstraintRegistry,
+    DEFAULT_MECHANISM_REGISTRY, DEFAULT_SLOT_REGISTRY
 )
 
 from polisyos.ir.linker import link_policy, LinkReport
-from polisyos.ir.fact_log import Fact, FactBatch
+from polisyos.ir.fact_log import Fact, FactBatch, FactProvenance
+from polisyos.ir.validation import ValidationReport, build_validation_report
 from polisyos.ir.calibration import CalibrationConfig, CalibrationTarget
 ```
 
@@ -902,43 +937,61 @@ legacy_policy = load_policy(v1_policy_data)  # Автоматически кон
 
 ## JSON Schema экспорт
 
-IR поддерживает автоматический экспорт JSON Schema для интеграций:
+IR поддерживает автоматический экспорт JSON Schema для интеграций с внешними системами:
+
+```python
+from polisyos.ir.surface import PolicySurfaceIR
+import json
+
+# Генерация схемы для PolicySurfaceIR
+schema = PolicySurfaceIR.model_json_schema()
+
+# Сохранение в файл
+with open('policy_ir_schema.json', 'w') as f:
+    json.dump(schema, f, indent=2, ensure_ascii=False)
+
+# Схема включает:
+# - Полную валидацию всех полей
+# - Описания и примеры
+# - Перечисления и ограничения
+# - Многоязычные описания
+```
+
+#### Инструменты диагностики
 
 ```bash
-# Генерация схемы (через tools/diagnostics/generate_ir_schema.py)
+# Генерация полной схемы IR (через tools/diagnostics/)
 python tools/diagnostics/generate_ir_schema.py
 
-# Результат: policy_ir_schema.json
+# Валидация политик по схеме
+python tools/diagnostics/validate_policy.py policy.json
 ```
 
 ## Тестирование
 
-Модуль включает исчерпывающее тестирование:
+Модуль включает исчерпывающее тестирование, разделенное на контрактные, интеграционные и unit-тесты:
 
 ```bash
-# Основные контрактные тесты
-pytest tests/contract/test_ir_contract.py
+# Контрактные тесты IR
+pytest tests/contract/test_ir_*.py
 
-# Тесты surface API (v2.0)
-pytest tests/contract/test_ir_surface.py
+# Основные тесты контрактов
+pytest tests/contract/test_ir_surface.py      # PolicySurfaceIR и компоненты
+pytest tests/contract/test_ir_linker.py       # Линкер и валидация
+pytest tests/contract/test_ir_loaders.py      # Загрузчики политик
+pytest tests/contract/test_ir_calibration.py  # Калибровка политик
+pytest tests/contract/test_ir_kernel.py       # Kernel реестры и типы
 
-# Тесты линкера и реестров
-pytest tests/contract/test_ir_linker.py
+# Тесты валидации и ворота
+pytest tests/contract/test_fabric_gates.py    # Валидационные ворота
 
-# Тесты калибровки
-pytest tests/contract/test_ir_calibration.py
+# Интеграционные тесты
+pytest tests/integration/test_foundry_ir.py   # IR + Foundry интеграция
+pytest tests/integration/test_scientist_ir.py # IR + Scientist интеграция
 
-# Тесты загрузчиков
-pytest tests/contract/test_ir_loaders.py
-
-# Миграции между версиями
-pytest tests/contract/test_ir_migrations.py
-
-# Валидация и ворота
-pytest tests/contract/test_fabric_gates.py
-
-# Интеграционные тесты с Foundry
-pytest tests/integration/test_foundry_ir.py
+# Unit-тесты отдельных компонентов
+pytest tests/unit/test_ir_validation.py       # Система валидации
+pytest tests/unit/test_ir_fact_log.py         # Fact Log контракты
 ```
 
 ## Архитектурные принципы
@@ -954,11 +1007,11 @@ IR строго следует архитектурным законам про�
 
 ### Зависимости и взаимодействие
 
-- **Scientist** (11 файлов): Генерирует `PolicySurfaceIR` из естественного языка через LLM, использует типы из `types.py`, `surface.py`, валидацию из `validation.py`
-- **Fabric** (13 файлов): Использует `DataViewRequest` из `data_views.py`, предикаты из `predicate.py`, контракты фактов из `fact_log.py` для запросов данных
-- **Foundry** (13 файлов): Компилирует `InterventionSpec` из `surface.py` в исполняемые механизмы JAX, использует реестры из `kernel/`, калибровку из `calibration.py`
-- **Runtime**: Хранит артефакты `PolicySurfaceIR` для аудита и воспроизводимости
-- **Core**: Использует `Fact` и `FactBatch` из `fact_log.py` для семантической сети знаний
+- **Scientist** (11 файлов): Генерирует и обрабатывает политики в формате `PolicySurfaceIR`. Использует типы из `types.py`, `surface.py`, валидацию из `validation.py`, загрузчики из `loaders.py`
+- **Fabric** (14 файлов): Использует `DataViewRequest` из `data_views.py` для структурированных запросов данных, предикаты из `predicate.py` для семантических фильтров, контракты фактов из `fact_log.py` для семантической сети
+- **Foundry** (13 файлов): Компилирует `InterventionSpec` из `surface.py` в исполняемые механизмы JAX. Использует реестры из `kernel/` для линковки, калибровку из `calibration.py` для оптимизации параметров
+- **Core** (3 файла): Использует `Fact` и `FactBatch` из `fact_log.py` для построения семантической сети знаний
+- **Runtime**: Хранит артефакты `PolicySurfaceIR` для аудита и воспроизводимости симуляций
 
 ### Архитектурные контракты
 

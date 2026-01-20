@@ -602,6 +602,25 @@ registry = MechanismTypeRegistry(mechanisms={
 })
 ```
 
+Адаптивный агент описывается отдельным механизмом с параметрами для наблюдений, действий и цели:
+
+```python
+MechanismTypeSpec(
+    mechanism_id="adaptive_agent",
+    params={
+        "observation_space": ParamSpec(param_id="observation_space", required=True, value_type=ParamType.ARRAY),
+        "action_space": ParamSpec(param_id="action_space", required=True, value_type=ParamType.OBJECT),
+        "utility": ParamSpec(param_id="utility", required=True, value_type=ParamType.STRING),
+        "policy_model": ParamSpec(param_id="policy_model", required=False, value_type=ParamType.OBJECT),
+        "weights_artifact": ParamSpec(param_id="weights_artifact", required=False, value_type=ParamType.STRING),
+        "learning_rate": ParamSpec(param_id="learning_rate", required=False, value_type=ParamType.DECIMAL),
+        "seed": ParamSpec(param_id="seed", required=False, value_type=ParamType.INT),
+    },
+)
+```
+
+`observation_space` перечисляет слоты наблюдения (например, `["agents.income", "global.tax_rate"]`), а `action_space` описывает формат действия (например, `"affects": "agents.reported_income"`). Если `policy_model` не указан, применяется простой MLP (например, слои `[64, 64]`).
+
 ### 2. Реестр слотов (`slots.py`)
 
 Определение слотов состояния агентов и сущностей:

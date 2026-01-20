@@ -54,7 +54,10 @@ def test_patch_executor_emits_artifacts(tmp_path) -> None:
 
     base_state = GlobalState.empty(n_agents=4, n_firms=2)
     base_state = base_state.replace(
-        agents=base_state.agents.replace(income=jnp.ones(4, dtype=jnp.float32) * 1000.0)
+        agents=base_state.agents.replace(
+            income=jnp.ones(4, dtype=jnp.float32) * 1000.0,
+            reported_income=jnp.ones(4, dtype=jnp.float32) * 1000.0,
+        )
     )
     exec_artifacts = execute_program_graph(
         store,
@@ -84,6 +87,7 @@ def test_patch_executor_emits_artifacts(tmp_path) -> None:
     metrics_payload = from_canonical_bytes(store.get_bytes(exec_artifacts.metrics_ref.artifact_id))
     metrics = Metrics.model_validate(metrics_payload)
     assert metrics.values.get("applied_nodes") == 1
+    assert int(metrics.values.get("step_latency_ms", 0)) >= 0
 
     next_state, applied = apply_state_delta_and_snapshot(
         store,
@@ -137,7 +141,10 @@ def test_patch_executor_respects_target_mask(tmp_path) -> None:
 
     base_state = GlobalState.empty(n_agents=2, n_firms=1)
     base_state = base_state.replace(
-        agents=base_state.agents.replace(income=jnp.array([500.0, 2000.0], dtype=jnp.float32))
+        agents=base_state.agents.replace(
+            income=jnp.array([500.0, 2000.0], dtype=jnp.float32),
+            reported_income=jnp.array([500.0, 2000.0], dtype=jnp.float32),
+        )
     )
 
     exec_artifacts = execute_program_graph(

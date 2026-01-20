@@ -1,17 +1,22 @@
 from __future__ import annotations
 
+import re
 from decimal import Decimal, InvalidOperation
 from typing import Any, Literal
 
 from pydantic import Field
 
-from polisyos.ir.kernel.base import KernelModel
+from polisyos.ir.kernel.base import ARTIFACT_ID_PATTERN, KernelModel
 from polisyos.ir.kernel.constraints import ConstraintRegistry
-from polisyos.ir.kernel.mechanisms import MechanismTypeRegistry, ParamType
+from polisyos.ir.kernel.mechanisms import (
+    MechanismTypeRegistry,
+    ParamType,
+    resolve_mechanism_slots,
+)
 from polisyos.ir.kernel.merge_rules import MergeRuleKind, MergeRuleRegistry
 from polisyos.ir.kernel.metrics import MetricRegistry
 from polisyos.ir.kernel.selector_fields import SelectorFieldRegistry
-from polisyos.ir.kernel.slots import SlotRegistry
+from polisyos.ir.kernel.slots import SlotRegistry, SlotValueType
 from polisyos.ir.kernel.units import (
     CountUnit,
     DurationUnit,
@@ -74,6 +79,7 @@ def link_policy(
             )
             continue
 
+        reads_slots, writes_slots = resolve_mechanism_slots(mech, intervention.params)
         _validate_params(
             intervention,
             mech,
@@ -88,6 +94,15 @@ def link_policy(
                 slot_registry,
                 issues,
                 path_prefix=["semantic", "interventions", idx, "kind"],
+                reads_slots=reads_slots,
+                writes_slots=writes_slots,
+            )
+        if mech.mechanism_id == "adaptive_agent":
+            _validate_adaptive_agent(
+                intervention,
+                slot_registry,
+                issues,
+                path_prefix=["semantic", "interventions", idx, "params"],
             )
         if selector_field_registry is not None:
             _validate_selector_fields(
@@ -418,8 +433,12 @@ def _validate_mechanism_slots(
     issues: list[LinkIssue],
     *,
     path_prefix: list[str | int],
+    reads_slots: list[str] | None = None,
+    writes_slots: list[str] | None = None,
 ) -> None:
-    for slot_id in list(mech.reads_slots) + list(mech.writes_slots):
+    reads = list(reads_slots) if reads_slots is not None else list(mech.reads_slots)
+    writes = list(writes_slots) if writes_slots is not None else list(mech.writes_slots)
+    for slot_id in reads + writes:
         if slot_id not in slot_registry.slots:
             issues.append(
                 LinkIssue(
@@ -623,7 +642,8 @@ def _validate_schedule_conflicts(
         mech = mechanism_registry.mechanisms.get(intervention.kind)
         if mech is None:
             continue
-        for slot_id in mech.writes_slots:
+        _, writes = resolve_mechanism_slots(mech, intervention.params)
+        for slot_id in writes:
             writers.setdefault(slot_id, []).append(intervention)
 
     for slot_id, interventions_for_slot in writers.items():
@@ -686,3 +706,273 @@ def _validate_schedule_conflicts(
                         data={"slot_id": slot_id, "missing": sorted(missing)},
                     )
                 )
+
+
+def _validate_adaptive_agent(
+    intervention: InterventionSpec,
+    slot_registry: SlotRegistry | None,
+    issues: list[LinkIssue],
+    *,
+    path_prefix: list[str | int],
+) -> None:
+    params = intervention.params
+
+    observation_space = params.get("observation_space")
+    if isinstance(observation_space, list):
+        for idx, item in enumerate(observation_space):
+            if not isinstance(item, str):
+                issues.append(
+                    LinkIssue(
+                        code="observation_item_type",
+                        message="observation_space entries must be strings",
+                        path=path_prefix + ["observation_space", idx],
+                    )
+                )
+                continue
+            if slot_registry is not None and item not in slot_registry.slots:
+                issues.append(
+                    LinkIssue(
+                        code="unknown_slot",
+                        message=f"Unknown slot '{item}' in observation_space",
+                        path=path_prefix + ["observation_space", idx],
+                        data={"slot_id": item},
+                    )
+                )
+
+    action_space = params.get("action_space")
+    if isinstance(action_space, dict):
+        _validate_action_space(
+            action_space,
+            slot_registry,
+            issues,
+            path_prefix=path_prefix + ["action_space"],
+        )
+
+    utility = params.get("utility")
+    if isinstance(utility, str):
+        _validate_utility_tokens(
+            utility,
+            slot_registry,
+            issues,
+            path_prefix=path_prefix + ["utility"],
+        )
+
+    policy_model = params.get("policy_model")
+    if isinstance(policy_model, dict):
+        _validate_policy_model(
+            policy_model,
+            issues,
+            path_prefix=path_prefix + ["policy_model"],
+        )
+
+    weights_artifact = params.get("weights_artifact")
+    if isinstance(weights_artifact, str):
+        if re.match(ARTIFACT_ID_PATTERN, weights_artifact) is None:
+            issues.append(
+                LinkIssue(
+                    code="invalid_artifact_id",
+                    message="weights_artifact must be a valid artifact id",
+                    path=path_prefix + ["weights_artifact"],
+                )
+            )
+
+
+def _validate_action_space(
+    action_space: dict[str, Any],
+    slot_registry: SlotRegistry | None,
+    issues: list[LinkIssue],
+    *,
+    path_prefix: list[str | int],
+) -> None:
+    if "id" not in action_space:
+        issues.append(
+            LinkIssue(
+                code="missing_action_field",
+                message="action_space requires 'id'",
+                path=path_prefix + ["id"],
+            )
+        )
+    elif not isinstance(action_space.get("id"), str):
+        issues.append(
+            LinkIssue(
+                code="action_field_type",
+                message="action_space.id must be a string",
+                path=path_prefix + ["id"],
+            )
+        )
+
+    action_type = action_space.get("type")
+    if action_type is None:
+        issues.append(
+            LinkIssue(
+                code="missing_action_field",
+                message="action_space requires 'type'",
+                path=path_prefix + ["type"],
+            )
+        )
+    elif not isinstance(action_type, str):
+        issues.append(
+            LinkIssue(
+                code="action_field_type",
+                message="action_space.type must be a string",
+                path=path_prefix + ["type"],
+            )
+        )
+    elif action_type not in {"continuous", "discrete"}:
+        issues.append(
+            LinkIssue(
+                code="action_type",
+                message="action_space.type must be 'continuous' or 'discrete'",
+                path=path_prefix + ["type"],
+            )
+        )
+
+    affects = action_space.get("affects")
+    affects_list: list[str] = []
+    if affects is None:
+        issues.append(
+            LinkIssue(
+                code="missing_action_field",
+                message="action_space requires 'affects'",
+                path=path_prefix + ["affects"],
+            )
+        )
+    elif isinstance(affects, str):
+        affects_list = [affects]
+    elif isinstance(affects, list):
+        for idx, item in enumerate(affects):
+            if isinstance(item, str):
+                affects_list.append(item)
+            else:
+                issues.append(
+                    LinkIssue(
+                        code="action_field_type",
+                        message="action_space.affects entries must be strings",
+                        path=path_prefix + ["affects", idx],
+                    )
+                )
+    else:
+        issues.append(
+            LinkIssue(
+                code="action_field_type",
+                message="action_space.affects must be a string or list of strings",
+                path=path_prefix + ["affects"],
+            )
+        )
+
+    if slot_registry is None:
+        return
+    for idx, slot_id in enumerate(affects_list):
+        slot = slot_registry.slots.get(slot_id)
+        if slot is None:
+            issues.append(
+                LinkIssue(
+                    code="unknown_slot",
+                    message=f"Unknown slot '{slot_id}' in action_space.affects",
+                    path=path_prefix + ["affects", idx],
+                    data={"slot_id": slot_id},
+                )
+            )
+            continue
+        if action_type == "continuous" and slot.value_type != SlotValueType.DECIMAL:
+            issues.append(
+                LinkIssue(
+                    code="action_type_mismatch",
+                    message=f"action_space.affects '{slot_id}' must target decimal slot",
+                    path=path_prefix + ["affects", idx],
+                    data={"slot_id": slot_id},
+                )
+            )
+        if action_type == "discrete" and slot.value_type not in {
+            SlotValueType.INT,
+            SlotValueType.BOOL,
+        }:
+            issues.append(
+                LinkIssue(
+                    code="action_type_mismatch",
+                    message=f"action_space.affects '{slot_id}' must target int/bool slot",
+                    path=path_prefix + ["affects", idx],
+                    data={"slot_id": slot_id},
+                )
+            )
+
+
+def _validate_policy_model(
+    policy_model: dict[str, Any],
+    issues: list[LinkIssue],
+    *,
+    path_prefix: list[str | int],
+) -> None:
+    model_type = policy_model.get("type", "mlp")
+    if not isinstance(model_type, str):
+        issues.append(
+            LinkIssue(
+                code="policy_model_type",
+                message="policy_model.type must be a string",
+                path=path_prefix + ["type"],
+            )
+        )
+        return
+    if model_type not in {"mlp"}:
+        issues.append(
+            LinkIssue(
+                code="policy_model_type",
+                message=f"Unsupported policy_model.type '{model_type}'",
+                path=path_prefix + ["type"],
+            )
+        )
+
+    hidden_layers = policy_model.get("hidden_layers")
+    if hidden_layers is None:
+        return
+    if not isinstance(hidden_layers, list):
+        issues.append(
+            LinkIssue(
+                code="policy_model_layers",
+                message="policy_model.hidden_layers must be a list of ints",
+                path=path_prefix + ["hidden_layers"],
+            )
+        )
+        return
+    for idx, value in enumerate(hidden_layers):
+        if not isinstance(value, int) or isinstance(value, bool) or value <= 0:
+            issues.append(
+                LinkIssue(
+                    code="policy_model_layers",
+                    message="policy_model.hidden_layers must be positive integers",
+                    path=path_prefix + ["hidden_layers", idx],
+                )
+            )
+        elif value > 1024:
+            issues.append(
+                LinkIssue(
+                    code="policy_model_layers",
+                    message="policy_model.hidden_layers values must be <= 1024",
+                    path=path_prefix + ["hidden_layers", idx],
+                )
+            )
+
+
+def _validate_utility_tokens(
+    utility: str,
+    slot_registry: SlotRegistry | None,
+    issues: list[LinkIssue],
+    *,
+    path_prefix: list[str | int],
+) -> None:
+    if slot_registry is None:
+        return
+    tokens = re.findall(r"[a-z][a-z0-9_.]*", utility)
+    for token in tokens:
+        if "." not in token:
+            continue
+        if token not in slot_registry.slots:
+            issues.append(
+                LinkIssue(
+                    severity="warning",
+                    code="unknown_utility_field",
+                    message=f"Utility references unknown slot '{token}'",
+                    path=path_prefix,
+                    data={"slot_id": token},
+                )
+            )

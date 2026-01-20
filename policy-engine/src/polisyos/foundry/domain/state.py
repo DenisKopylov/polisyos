@@ -12,8 +12,10 @@ class AgentState:
 
     # Финансы
     income: Float[Array, "n_agents"]
+    reported_income: Float[Array, "n_agents"]
     savings: Float[Array, "n_agents"]
     consumption: Float[Array, "n_agents"]  # Сколько потратил
+    risk_aversion: Float[Array, "n_agents"]
 
     # Работа
     is_employed: Bool[Array, "n_agents"]
@@ -71,6 +73,7 @@ class GlobalState:
     market: MarketState
 
     government_balance: Float[Array, ""]
+    tax_rate: Float[Array, ""]
     gdp: Float[Array, ""]
 
     @classmethod
@@ -80,8 +83,10 @@ class GlobalState:
             age=jnp.zeros(n_agents, dtype=jnp.int32),
             skill_level=jnp.ones(n_agents, dtype=jnp.float32),
             income=jnp.zeros(n_agents, dtype=jnp.float32),
+            reported_income=jnp.zeros(n_agents, dtype=jnp.float32),
             savings=jnp.zeros(n_agents, dtype=jnp.float32),
             consumption=jnp.zeros(n_agents, dtype=jnp.float32),
+            risk_aversion=jnp.ones(n_agents, dtype=jnp.float32) * 0.5,
             is_employed=jnp.zeros(n_agents, dtype=jnp.bool_),
             employer_id=jnp.full(n_agents, -1, dtype=jnp.int32),
         )
@@ -113,5 +118,6 @@ class GlobalState:
             firms=firms,
             market=market,
             government_balance=jnp.array(0.0, dtype=jnp.float32),
+            tax_rate=jnp.array(0.0, dtype=jnp.float32),
             gdp=jnp.array(0.0, dtype=jnp.float32),
         )

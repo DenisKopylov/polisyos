@@ -1,13 +1,16 @@
 from __future__ import annotations
 
 from decimal import Decimal
+from io import BytesIO
 import json
 import time
 from pathlib import Path
 from typing import Any, Dict, List
 
+import equinox as eqx
 import jax
 import jax.numpy as jnp
+import optax
 from pydantic import ValidationError
 
 from polisyos.core.artifacts.ids import ArtifactID
@@ -26,13 +29,17 @@ from polisyos.foundry.calibration.preflight import extract_fabric_series
 from polisyos.foundry.calibration.report import put_calibration_config, put_calibration_report
 from polisyos.foundry.compiler import compile_surface_policy, put_policy_surface
 from polisyos.foundry.executor import load_state_snapshot, put_state_snapshot
+from polisyos.foundry.agent_metrics import normalize_action, policy_entropy, saturation_rate
+from polisyos.foundry.agents import build_observations, continuous_actions_from_logits
+from polisyos.foundry.fiscal import compute_tax
 from polisyos.foundry.registry import create_mechanism_from_spec
+from polisyos.foundry.utils import gradient_health_report
 from polisyos.ir.calibration import CalibrationConfig
 from polisyos.ir.data_views import DataViewRequest
 from polisyos.ir.kernel import MergeRuleKind
 from polisyos.ir.kernel.values import CountValue, DurationValue, MoneyValue, RateValue
 from polisyos.ir.linker import link_policy
-from polisyos.ir.surface import PolicySurfaceIR
+from polisyos.ir.surface import PolicySurfaceIR, ScheduleSpec, schedule_range
 from polisyos.ir.validation import ValidationIssue, build_validation_report, diff_payloads
 from polisyos.runtime import finalize_run, log_artifact, start_run, update_budget_usage
 from polisyos.scientist.agent.drafter import MockLLM
@@ -887,6 +894,487 @@ def compile_model_node(state: ExperimentState) -> ExperimentState:
         issue = _make_issue(["semantic", "interventions"], str(exc), "compile")
         feedback: GovernorFeedback = {"verdict": "NEEDS_REVISION", "issues": [issue]}
         return append_audit({**state, "feedback": feedback}, "compile_model", "failed", {})
+
+
+def train_agents_node(state: ExperimentState) -> ExperimentState:
+    state = _ensure_run(state)
+    if state.get("pruned") or _blocked_by_feedback(state):
+        return append_audit(state, "train_agents", "skipped", {"reason": "feedback_blocked"})
+    state = _check_budget(state, "sim")
+    if state.get("pruned"):
+        return state
+
+    policy = state.get("ir")
+    if policy is None:
+        issue = _make_issue(["ir"], "IR missing before train_agents", "runtime")
+        feedback: GovernorFeedback = {"verdict": "NEEDS_REVISION", "issues": [issue]}
+        return append_audit({**state, "feedback": feedback}, "train_agents", "missing_ir", {})
+
+    state = _ensure_registry_bundle(state)
+    try:
+        state, policy = _ensure_context_snapshot(state, policy)
+    except Exception as exc:
+        issue = _make_issue(["semantic", "context_snapshot_ref"], str(exc), "runtime")
+        feedback: GovernorFeedback = {"verdict": "NEEDS_REVISION", "issues": [issue]}
+        return append_audit({**state, "feedback": feedback}, "train_agents", "context_missing", {})
+
+    store = FileSystemCAS(_cas_root(state))
+    try:
+        world_state = load_state_snapshot(
+            store, snapshot_ref=ArtifactID.model_validate(policy.semantic.context_snapshot_ref)
+        )
+    except Exception as exc:
+        issue = _make_issue(["semantic", "context_snapshot_ref"], str(exc), "runtime")
+        feedback: GovernorFeedback = {"verdict": "NEEDS_REVISION", "issues": [issue]}
+        return append_audit({**state, "feedback": feedback}, "train_agents", "context_load_failed", {})
+
+    program_graph_ref = state.get("program_graph_ref")
+    exec_plan_ref = state.get("exec_plan_ref")
+    if not program_graph_ref or not exec_plan_ref:
+        issue = _make_issue(["program_graph_ref"], "Compiled program missing", "runtime")
+        feedback: GovernorFeedback = {"verdict": "NEEDS_REVISION", "issues": [issue]}
+        return append_audit(
+            {**state, "feedback": feedback}, "train_agents", "missing_program", {}
+        )
+
+    try:
+        program_graph = _load_model_from_ref(
+            store, ArtifactRef.model_validate(program_graph_ref), ProgramGraph
+        )
+        exec_plan = _load_model_from_ref(store, ArtifactRef.model_validate(exec_plan_ref), ExecPlan)
+    except Exception as exc:
+        issue = _make_issue(["program_graph_ref"], str(exc), "runtime")
+        feedback: GovernorFeedback = {"verdict": "NEEDS_REVISION", "issues": [issue]}
+        return append_audit({**state, "feedback": feedback}, "train_agents", "load_failed", {})
+
+    agent_nodes = [
+        node for node in program_graph.nodes if node.mechanism_type == "adaptive_agent"
+    ]
+    if not agent_nodes:
+        return append_audit(state, "train_agents", "skipped", {"reason": "no_adaptive_agent"})
+
+    config = state.get("agent_training_config") or {}
+    steps = int(config.get("steps", 50))
+    learning_rate = float(config.get("learning_rate", 0.01))
+    seed = int(config.get("seed", state.get("random_seed") or 0))
+    risk_penalty = float(config.get("risk_penalty", 1.0))
+    entropy_beta = float(config.get("entropy_beta", 0.0))
+    saturation_epsilon = float(config.get("saturation_epsilon", 1e-3))
+    batch_size = int(config.get("batch_size", 1))
+    income_noise = float(config.get("income_noise", 0.0))
+    risk_noise = float(config.get("risk_noise", 0.0))
+    tax_rate_spread = float(config.get("tax_rate_spread", 0.0))
+    batch_tax_rates = config.get("batch_tax_rates")
+    eval_stochastic = bool(config.get("eval_stochastic", False))
+
+    if steps <= 0 or learning_rate <= 0 or batch_size <= 0:
+        issue = _make_issue(
+            ["agent_training_config"],
+            "Training config requires steps > 0, learning_rate > 0, batch_size > 0",
+            "runtime",
+        )
+        feedback: GovernorFeedback = {"verdict": "REJECT", "issues": [issue]}
+        return append_audit({**state, "feedback": feedback}, "train_agents", "invalid_cfg", {})
+
+    n_agents = getattr(world_state.agents, "size", None)
+    if n_agents is None:
+        n_agents = int(world_state.agents.income.shape[0])
+    n_firms = getattr(world_state.firms, "size", None)
+    if n_firms is None:
+        n_firms = int(world_state.firms.capital.shape[0])
+    step = int(getattr(world_state, "step", 0))
+
+    tax_rate_value = None
+    for node in program_graph.nodes:
+        if node.mechanism_type != "income_tax" or node.params_ref is None:
+            continue
+        payload = _load_payload(store, node.params_ref)
+        schedule = ScheduleSpec.model_validate(payload.get("schedule", {}))
+        start, end = schedule_range(schedule)
+        if step < start or step > end:
+            continue
+        params = payload.get("params", {})
+        tax_mech = create_mechanism_from_spec(
+            "income_tax", params, n_agents=n_agents, n_firms=n_firms
+        )
+        tax_rate_value = tax_mech.rate
+        break
+    if tax_rate_value is None:
+        tax_rate_value = jnp.array(0.0, dtype=jnp.float32)
+
+    base_state = world_state.replace(
+        agents=world_state.agents.replace(reported_income=world_state.agents.income)
+    )
+    base_income = base_state.agents.income
+    base_risk = base_state.agents.risk_aversion
+    base_tax_rate = jnp.asarray(tax_rate_value, dtype=jnp.float32)
+
+    def _select_action_for_slot(
+        action_val: jnp.ndarray, affects_list: list[str], slot_id: str
+    ) -> jnp.ndarray:
+        if action_val.ndim == 1:
+            return action_val
+        if action_val.ndim == 2:
+            if slot_id in affects_list and action_val.shape[1] == len(affects_list):
+                return action_val[:, affects_list.index(slot_id)]
+            return action_val[:, 0]
+        return action_val.reshape((action_val.shape[0],))
+
+    def _prepare_batch_inputs(key: jax.Array) -> tuple[jnp.ndarray, jnp.ndarray, jnp.ndarray]:
+        batch_count = batch_size
+        tax_rate_values = None
+        if batch_tax_rates is not None:
+            tax_rate_values = jnp.asarray(batch_tax_rates, dtype=jnp.float32)
+            if tax_rate_values.ndim != 1:
+                raise ValueError("agent_training_config.batch_tax_rates must be a 1D list")
+            if tax_rate_values.size == 0:
+                raise ValueError("agent_training_config.batch_tax_rates cannot be empty")
+            if batch_count <= 1:
+                batch_count = int(tax_rate_values.shape[0])
+            elif tax_rate_values.shape[0] != batch_count:
+                raise ValueError("agent_training_config.batch_tax_rates length must match batch_size")
+        if batch_count <= 0:
+            batch_count = 1
+        income_batch = jnp.broadcast_to(base_income, (batch_count,) + base_income.shape)
+        risk_batch = jnp.broadcast_to(base_risk, (batch_count,) + base_risk.shape)
+        if income_noise > 0.0:
+            key, subkey = jax.random.split(key)
+            noise = jax.random.normal(subkey, shape=income_batch.shape)
+            income_batch = jnp.maximum(income_batch * (1.0 + income_noise * noise), 0.0)
+        if risk_noise > 0.0:
+            key, subkey = jax.random.split(key)
+            noise = jax.random.normal(subkey, shape=risk_batch.shape)
+            risk_batch = jnp.clip(risk_batch + risk_noise * noise, 0.0, 1.0)
+        if tax_rate_values is None:
+            if batch_count > 1 and tax_rate_spread > 0.0:
+                key, subkey = jax.random.split(key)
+                offsets = jax.random.uniform(
+                    subkey,
+                    shape=(batch_count,),
+                    minval=-tax_rate_spread,
+                    maxval=tax_rate_spread,
+                )
+                tax_rate_values = jnp.clip(base_tax_rate + offsets, 0.0, 1.0)
+            else:
+                tax_rate_values = jnp.full((batch_count,), base_tax_rate)
+        return income_batch, risk_batch, tax_rate_values
+
+    weights_refs: dict[str, ArtifactRef] = {}
+    training_metrics: dict[str, Any] = {}
+    updated_nodes: list[Any] = []
+
+    try:
+        for node in program_graph.nodes:
+            if node.mechanism_type != "adaptive_agent" or node.params_ref is None:
+                updated_nodes.append(node)
+                continue
+
+            payload = _load_payload(store, node.params_ref)
+            params = dict(payload.get("params", {}))
+            action_space = params.get("action_space") or {}
+            action_type = action_space.get("type", "continuous")
+            affects = action_space.get("affects")
+            affects_list = [affects] if isinstance(affects, str) else list(affects or [])
+            if "agents.reported_income" not in affects_list:
+                updated_nodes.append(node)
+                continue
+            if action_type == "discrete":
+                issue = _make_issue(
+                    ["semantic", "interventions", node.node_id],
+                    "Discrete adaptive_agent training is not supported yet",
+                    "runtime",
+                )
+                feedback: GovernorFeedback = {"verdict": "REJECT", "issues": [issue]}
+                return append_audit(
+                    {**state, "feedback": feedback}, "train_agents", "unsupported_action", {}
+                )
+
+            mechanism = create_mechanism_from_spec(
+                "adaptive_agent", params, n_agents=n_agents, n_firms=n_firms
+            )
+            observation_space = mechanism.observation_space
+            policy_params, policy_static = eqx.partition(
+                mechanism.policy, eqx.is_inexact_array
+            )
+
+            def _loss_fn(
+                policy_params: Any, key: jax.Array, batch_inputs: tuple[jnp.ndarray, ...]
+            ):
+                policy = eqx.combine(policy_static, policy_params)
+                income_batch, risk_batch, tax_rate_batch = batch_inputs
+                batch_count = income_batch.shape[0]
+                keys = jax.random.split(key, batch_count)
+
+                def _loss_single(
+                    income: jnp.ndarray,
+                    risk_aversion: jnp.ndarray,
+                    tax_rate: jnp.ndarray,
+                    subkey: jax.Array,
+                ):
+                    agents_state = base_state.agents.replace(
+                        income=income,
+                        risk_aversion=risk_aversion,
+                        reported_income=income,
+                    )
+                    mini_state = base_state.replace(agents=agents_state)
+                    obs = build_observations(
+                        mini_state,
+                        observation_space,
+                        overrides={"tax_rate": tax_rate},
+                    )
+                    logits = policy(obs)
+                    action_val = continuous_actions_from_logits(
+                        logits,
+                        action_space,
+                        key=subkey,
+                        stochastic=False,
+                    )
+                    action_val = _select_action_for_slot(
+                        action_val, affects_list, "agents.reported_income"
+                    )
+                    action_norm = normalize_action(action_val, action_space)
+                    reported = income * action_val
+                    updated_state = mini_state.replace(
+                        agents=agents_state.replace(reported_income=reported)
+                    )
+                    tax_amount = compute_tax(updated_state, tax_rate)
+                    hidden_income = income - reported
+                    penalty = risk_penalty * (risk_aversion * hidden_income)
+                    reward = income - tax_amount - penalty
+                    avg_reward = jnp.mean(reward)
+                    denom = jnp.maximum(income, 1e-6)
+                    reported_ratio = jnp.mean(reported / denom)
+                    entropy = policy_entropy(action_norm)
+                    sat_rate = saturation_rate(action_norm, epsilon=saturation_epsilon)
+                    return -(avg_reward + entropy_beta * entropy), {
+                        "avg_reward": avg_reward,
+                        "avg_reported_ratio": reported_ratio,
+                        "entropy": entropy,
+                        "saturation_rate": sat_rate,
+                        "action_mean": jnp.mean(action_val),
+                        "action_var": jnp.var(action_val),
+                    }
+
+                losses, metrics = jax.vmap(_loss_single, in_axes=(0, 0, 0, 0))(
+                    income_batch, risk_batch, tax_rate_batch, keys
+                )
+                loss = jnp.mean(losses)
+                metrics = jax.tree_util.tree_map(lambda x: jnp.mean(x), metrics)
+                return loss, metrics
+
+            optimizer = optax.adam(learning_rate)
+            opt_state = optimizer.init(policy_params)
+            key = jax.random.PRNGKey(seed)
+
+            loss_history: list[float] = []
+            reward_history: list[float] = []
+            reported_history: list[float] = []
+            entropy_history: list[float] = []
+            saturation_history: list[float] = []
+            action_mean_history: list[float] = []
+            action_var_history: list[float] = []
+            grad_norms: list[float] = []
+            grad_nan_history: list[float] = []
+            grad_inf_history: list[float] = []
+            grad_vanishing_history: list[bool] = []
+            grad_exploding_history: list[bool] = []
+            batch_size_used: int | None = None
+
+            for _ in range(steps):
+                key, batch_key, loss_key = jax.random.split(key, 3)
+                batch_inputs = _prepare_batch_inputs(batch_key)
+                batch_size_used = int(batch_inputs[0].shape[0])
+                (loss_val, aux), grads = eqx.filter_value_and_grad(_loss_fn, has_aux=True)(
+                    policy_params, loss_key, batch_inputs
+                )
+                updates, opt_state = optimizer.update(grads, opt_state, policy_params)
+                policy_params = optax.apply_updates(policy_params, updates)
+
+                loss_history.append(float(loss_val))
+                reward_history.append(float(aux["avg_reward"]))
+                reported_history.append(float(aux["avg_reported_ratio"]))
+                entropy_history.append(float(aux["entropy"]))
+                saturation_history.append(float(aux["saturation_rate"]))
+                action_mean_history.append(float(aux["action_mean"]))
+                action_var_history.append(float(aux["action_var"]))
+                health_report, _ = gradient_health_report(grads)
+                grad_norms.append(float(health_report.grad_norm))
+                grad_nan_history.append(float(health_report.nan_frac))
+                grad_inf_history.append(float(health_report.inf_frac))
+                grad_vanishing_history.append(bool(health_report.vanishing))
+                grad_exploding_history.append(bool(health_report.exploding))
+
+            trained_policy = eqx.combine(policy_static, policy_params)
+            buf = BytesIO()
+            eqx.tree_serialise_leaves(buf, trained_policy)
+            weights_ref = store.put_bytes(
+                buf.getvalue(),
+                PutOptions(
+                    kind="foundry.agent_weights",
+                    media_type="application/octet-stream",
+                    inputs=[
+                        InputRef(artifact_id=node.params_ref.artifact_id, role="params"),
+                    ],
+                ),
+            )
+            weights_refs[node.node_id] = weights_ref
+            training_metrics[node.node_id] = {
+                "loss_history": loss_history,
+                "reward_history": reward_history,
+                "reported_ratio_history": reported_history,
+                "entropy_history": entropy_history,
+                "saturation_rate_history": saturation_history,
+                "action_mean_history": action_mean_history,
+                "action_var_history": action_var_history,
+                "grad_norm_history": grad_norms,
+                "grad_nan_frac_history": grad_nan_history,
+                "grad_inf_frac_history": grad_inf_history,
+                "grad_vanishing_history": grad_vanishing_history,
+                "grad_exploding_history": grad_exploding_history,
+                "final_loss": loss_history[-1] if loss_history else None,
+                "final_reward": reward_history[-1] if reward_history else None,
+                "final_entropy": entropy_history[-1] if entropy_history else None,
+                "final_saturation_rate": saturation_history[-1] if saturation_history else None,
+                "batch_size": batch_size_used,
+            }
+
+            params["weights_artifact"] = str(weights_ref.artifact_id)
+            params["stochastic"] = eval_stochastic
+            new_payload = {**payload, "params": params}
+            new_params_ref = store.put_json(
+                new_payload,
+                PutOptions(
+                    kind="ir.intervention_payload",
+                    media_type="application/json",
+                    inputs=[
+                        InputRef(artifact_id=node.params_ref.artifact_id, role="params:base"),
+                        InputRef(artifact_id=weights_ref.artifact_id, role="agent_weights"),
+                    ],
+                ),
+            )
+            updated_nodes.append(node.model_copy(update={"params_ref": new_params_ref}))
+    except Exception as exc:
+        issue = _make_issue(["train_agents"], str(exc), "runtime")
+        feedback: GovernorFeedback = {"verdict": "NEEDS_REVISION", "issues": [issue]}
+        return append_audit({**state, "feedback": feedback}, "train_agents", "failed", {})
+
+    if not weights_refs:
+        return append_audit(state, "train_agents", "skipped", {"reason": "no_trainable_agents"})
+
+    program_inputs = [
+        InputRef(
+            artifact_id=ArtifactRef.model_validate(program_graph_ref).artifact_id,
+            role="program_graph",
+        )
+    ]
+    for node_id, ref in weights_refs.items():
+        program_inputs.append(InputRef(artifact_id=ref.artifact_id, role=f"agent_weights:{node_id}"))
+
+    updated_program_graph = ProgramGraph(
+        ir_ref=program_graph.ir_ref,
+        nodes=updated_nodes,
+        edges=program_graph.edges,
+        entrypoints=program_graph.entrypoints,
+        notes=program_graph.notes,
+    )
+    program_ref = store.put_json(
+        updated_program_graph,
+        PutOptions(
+            kind="foundry.program_graph",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.core.ProgramGraph", version="0.1.0"),
+            inputs=program_inputs,
+        ),
+    )
+    updated_program_ref = ProgramGraphRef(artifact_id=program_ref.artifact_id)
+
+    updated_exec_plan = exec_plan.model_copy(update={"program_ref": updated_program_ref})
+    exec_plan_ref = store.put_json(
+        updated_exec_plan,
+        PutOptions(
+            kind="foundry.exec_plan",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.core.ExecPlan", version="0.1.0"),
+            inputs=[InputRef(artifact_id=updated_program_ref.artifact_id, role="program_graph")],
+        ),
+    )
+    updated_exec_ref = ExecPlanRef(artifact_id=exec_plan_ref.artifact_id)
+
+    report_payload = {
+        "ok": True,
+        "steps": steps,
+        "learning_rate": learning_rate,
+        "risk_penalty": risk_penalty,
+        "entropy_beta": entropy_beta,
+        "saturation_epsilon": saturation_epsilon,
+        "batch_size": batch_size,
+        "income_noise": income_noise,
+        "risk_noise": risk_noise,
+        "tax_rate_spread": tax_rate_spread,
+        "batch_tax_rates": batch_tax_rates,
+        "eval_stochastic": eval_stochastic,
+        "weights": {node_id: str(ref.artifact_id) for node_id, ref in weights_refs.items()},
+        "metrics": training_metrics,
+    }
+    report_ref = store.put_json(
+        report_payload,
+        PutOptions(
+            kind="scientist.agent_training_report",
+            media_type="application/json",
+            inputs=[
+                InputRef(artifact_id=updated_program_ref.artifact_id, role="program_graph"),
+            ],
+        ),
+    )
+
+    if state.get("run_id"):
+        log_artifact(
+            run_id=state["run_id"],
+            artifact_type="agent_training_report_ref",
+            payload=report_ref.model_dump(),
+            media_type="application/json",
+            step="train_agents",
+            base_dir=_runtime_base_dir(state),
+        )
+        log_artifact(
+            run_id=state["run_id"],
+            artifact_type="program_graph_ref",
+            payload=updated_program_ref.model_dump(),
+            media_type="application/json",
+            step="train_agents",
+            base_dir=_runtime_base_dir(state),
+        )
+        log_artifact(
+            run_id=state["run_id"],
+            artifact_type="exec_plan_ref",
+            payload=updated_exec_ref.model_dump(),
+            media_type="application/json",
+            step="train_agents",
+            base_dir=_runtime_base_dir(state),
+        )
+        log_artifact(
+            run_id=state["run_id"],
+            artifact_type="agent_weights_ref",
+            payload={node_id: ref.model_dump() for node_id, ref in weights_refs.items()},
+            media_type="application/json",
+            step="train_agents",
+            base_dir=_runtime_base_dir(state),
+        )
+
+    return append_audit(
+        {
+            **state,
+            "program_graph_ref": updated_program_ref.model_dump(),
+            "exec_plan_ref": updated_exec_ref.model_dump(),
+            "agent_training_report_ref": report_ref.model_dump(),
+            "agent_weights_ref": {
+                node_id: ref.model_dump() for node_id, ref in weights_refs.items()
+            },
+        },
+        "train_agents",
+        "completed",
+        {"trained_nodes": sorted(weights_refs.keys())},
+    )
 
 
 def run_sim_node(state: ExperimentState) -> ExperimentState:

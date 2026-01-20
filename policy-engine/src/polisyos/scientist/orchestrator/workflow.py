@@ -11,6 +11,7 @@ from polisyos.scientist.orchestrator.flow_nodes import (
     pack_decision_node,
     repair_ir_node,
     run_sim_node,
+    train_agents_node,
     validate_ir_node,
 )
 from polisyos.scientist.orchestrator.state import ExperimentState
@@ -35,13 +36,13 @@ def _route_after_compile(state: ExperimentState) -> str:
         return "pack_decision"
     feedback = state.get("feedback")
     if not feedback:
-        return "run_sim"
+        return "train_agents"
     verdict = feedback.get("verdict")
     if verdict == "NEEDS_REVISION":
         return "repair_ir"
     if verdict == "REJECT":
         return "pack_decision"
-    return "run_sim"
+    return "train_agents"
 
 
 def _route_after_run_sim(state: ExperimentState) -> str:
@@ -64,6 +65,20 @@ def _route_after_run_sim(state: ExperimentState) -> str:
     return "analyze"
 
 
+def _route_after_train_agents(state: ExperimentState) -> str:
+    if state.get("pruned"):
+        return "pack_decision"
+    feedback = state.get("feedback")
+    if not feedback:
+        return "run_sim"
+    verdict = feedback.get("verdict")
+    if verdict == "NEEDS_REVISION":
+        return "repair_ir"
+    if verdict == "REJECT":
+        return "pack_decision"
+    return "run_sim"
+
+
 def _with_phase(phase: Phase, node_fn):
     def _wrapped(state: ExperimentState):
         state = advance_phase(state, phase)
@@ -80,6 +95,7 @@ def build_workflow():
     workflow.add_node("repair_ir", _with_phase(Phase.FRAME, repair_ir_node))
     workflow.add_node("compile_data_views", _with_phase(Phase.PLAN, compile_data_views_node))
     workflow.add_node("compile_model", _with_phase(Phase.EXECUTE, compile_model_node))
+    workflow.add_node("train_agents", _with_phase(Phase.EXECUTE, train_agents_node))
     workflow.add_node("run_sim", _with_phase(Phase.EXECUTE, run_sim_node))
     workflow.add_node("analyze", _with_phase(Phase.EXECUTE, analyze_node))
     workflow.add_node("governor", _with_phase(Phase.POSTFLIGHT_GOV, governor_node))
@@ -91,6 +107,7 @@ def build_workflow():
     workflow.add_edge("repair_ir", "validate_ir")
     workflow.add_edge("compile_data_views", "compile_model")
     workflow.add_conditional_edges("compile_model", _route_after_compile)
+    workflow.add_conditional_edges("train_agents", _route_after_train_agents)
     workflow.add_conditional_edges("run_sim", _route_after_run_sim)
     workflow.add_edge("analyze", "governor")
     workflow.add_edge("governor", "pack_decision")

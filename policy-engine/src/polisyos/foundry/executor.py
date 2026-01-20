@@ -4,6 +4,7 @@ import dataclasses
 from dataclasses import dataclass
 from decimal import Decimal, InvalidOperation
 from io import BytesIO
+import time
 from typing import Any, Iterable
 
 import jax
@@ -24,6 +25,7 @@ from polisyos.core.contracts.foundry import (
     StateDelta,
     StateSnapshot,
 )
+from polisyos.foundry.agents import AdaptiveAgentMechanism
 from polisyos.foundry.domain.state import GlobalState
 from polisyos.foundry.patch_vm import merge_patch_records
 from polisyos.foundry.registry import create_mechanism_from_spec
@@ -80,6 +82,7 @@ def execute_program_graph(
     seed: int = 0,
     base_ref: ArtifactRef | None = None,
 ) -> ExecuteArtifacts:
+    start_time = time.perf_counter()
     program_graph = _load_model(store, program_ref, ProgramGraph)
     exec_plan = _load_model(store, exec_plan_ref, ExecPlan)
 
@@ -94,6 +97,7 @@ def execute_program_graph(
         n_firms = int(base_state.firms.capital.shape[0])
 
     key = jax.random.PRNGKey(seed)
+    tax_rate_value = _resolve_income_tax_rate(program_graph, store, step)
     patch_records: dict[str, list[dict[str, Any]]] = {}
     ops: list[PatchOp] = []
     applied_nodes = 0
@@ -162,6 +166,15 @@ def execute_program_graph(
                 mechanism = create_mechanism_from_spec(
                     mechanism_type, params, n_agents=n_agents, n_firms=n_firms
                 )
+                if (
+                    tax_rate_value is not None
+                    and isinstance(mechanism, AdaptiveAgentMechanism)
+                    and (
+                        "global.tax_rate" in mechanism.observation_space
+                        or "policy.tax_rate" in mechanism.observation_space
+                    )
+                ):
+                    object.__setattr__(mechanism, "tax_rate_value", tax_rate_value)
                 key, step_key = jax.random.split(key)
                 patch_map, key = mechanism.emit_patches(
                     base_state,
@@ -230,6 +243,15 @@ def execute_program_graph(
             mechanism = create_mechanism_from_spec(
                 mechanism_type, params, n_agents=n_agents, n_firms=n_firms
             )
+            if (
+                tax_rate_value is not None
+                and isinstance(mechanism, AdaptiveAgentMechanism)
+                and (
+                    "global.tax_rate" in mechanism.observation_space
+                    or "policy.tax_rate" in mechanism.observation_space
+                )
+            ):
+                object.__setattr__(mechanism, "tax_rate_value", tax_rate_value)
             key, step_key = jax.random.split(key)
             patch_map, key = mechanism.emit_patches(base_state, step_key)
             if patch_map is None:
@@ -254,6 +276,8 @@ def execute_program_graph(
             slot_registry=slot_registry,
             merge_registry=merge_registry,
         )
+
+    latency_ms = int((time.perf_counter() - start_time) * 1000)
 
     inputs = [
         InputRef(artifact_id=_artifact_id(program_ref), role="program_graph"),
@@ -282,6 +306,7 @@ def execute_program_graph(
             "checked_constraints": int(checked_constraints),
             "patch_ops": int(len(ops)),
             "step": int(step),
+            "step_latency_ms": latency_ms,
         }
     )
     metrics_ref = store.put_json(
@@ -729,6 +754,27 @@ def _load_payload(store: FileSystemCAS, ref: ArtifactRef | ArtifactID | str) -> 
     if isinstance(payload, dict):
         return payload
     raise ValueError("Invalid intervention payload")
+
+
+def _resolve_income_tax_rate(
+    program_graph: ProgramGraph,
+    store: FileSystemCAS,
+    step: int,
+) -> jnp.ndarray | None:
+    for node in program_graph.nodes:
+        if node.mechanism_type != "income_tax" or node.params_ref is None:
+            continue
+        payload = _load_payload(store, node.params_ref)
+        schedule = ScheduleSpec.model_validate(payload.get("schedule", {}))
+        start, end = schedule_range(schedule)
+        if step < start or step > end:
+            continue
+        params = payload.get("params", {})
+        numeric = _coerce_number(params.get("rate"))
+        if numeric is None:
+            continue
+        return jnp.array(float(numeric), dtype=jnp.float32)
+    return None
 
 
 def _put_tensor(store: FileSystemCAS, value: Any) -> ArtifactRef:

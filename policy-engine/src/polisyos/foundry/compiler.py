@@ -18,6 +18,7 @@ from polisyos.core.contracts.foundry import (
     ProgramOp,
 )
 from polisyos.ir.kernel import MechanismTypeRegistry, MergeRuleRegistry, SlotRegistry, UnitsRegistry
+from polisyos.ir.kernel.mechanisms import resolve_mechanism_slots
 from polisyos.ir.surface import InterventionSpec, PolicySurfaceIR, schedule_range
 from polisyos.foundry.layout import SlotLayout, build_slot_layout
 from polisyos.foundry.treasury import TreasuryPlan, build_treasury_plan
@@ -193,8 +194,7 @@ def _build_program_graph(
     ):
         params_ref = _put_intervention_payload(store, intervention)
         mech = mechanism_registry.mechanisms.get(intervention.kind)
-        inputs = list(mech.reads_slots) if mech else []
-        outputs = list(mech.writes_slots) if mech else []
+        inputs, outputs = resolve_mechanism_slots(mech, intervention.params)
         existing = {node.node_id for node in nodes}
         mask_id = _unique_node_id(f"op.mask.{intervention.intervention_id}", existing)
         existing.add(mask_id)
@@ -227,6 +227,16 @@ def _build_program_graph(
             )
         )
         edges.append(ProgramEdge(src=mask_id, dst=apply_id, relation="depends_on"))
+
+    slot_edges = _slot_dependency_edges(nodes)
+    if slot_edges:
+        edge_keys = {(edge.src, edge.dst, edge.relation) for edge in edges}
+        for edge in slot_edges:
+            key = (edge.src, edge.dst, edge.relation)
+            if key in edge_keys:
+                continue
+            edge_keys.add(key)
+            edges.append(edge)
 
     op_nodes, op_edges = _build_op_nodes(nodes, policy)
     nodes.extend(op_nodes)
@@ -291,6 +301,35 @@ def _unique_node_id(base_id: str, existing: set[str]) -> str:
     return f"{base_id}_{suffix}"
 
 
+def _slot_dependency_edges(nodes: list[ProgramNode]) -> list[ProgramEdge]:
+    def _is_mechanism_node(node: ProgramNode) -> bool:
+        if node.node_kind == "mechanism":
+            return True
+        return bool(node.op and node.op.op_kind == "apply_mechanism")
+
+    mech_nodes = [node for node in nodes if _is_mechanism_node(node)]
+    edge_keys: set[tuple[str, str]] = set()
+    edges: list[ProgramEdge] = []
+    for writer in mech_nodes:
+        if not writer.outputs:
+            continue
+        writer_slots = set(writer.outputs)
+        for reader in mech_nodes:
+            if writer.node_id == reader.node_id or not reader.inputs:
+                continue
+            reader_slots = set(reader.inputs) - set(reader.outputs)
+            if writer_slots.intersection(reader_slots):
+                key = (writer.node_id, reader.node_id)
+                if key in edge_keys:
+                    continue
+                edge_keys.add(key)
+                edges.append(
+                    ProgramEdge(src=writer.node_id, dst=reader.node_id, relation="depends_on")
+                )
+    edges.sort(key=lambda edge: (edge.src, edge.dst, edge.relation))
+    return edges
+
+
 def _build_op_nodes(
     nodes: list[ProgramNode], policy: PolicySurfaceIR
 ) -> tuple[list[ProgramNode], list[ProgramEdge]]:
@@ -338,7 +377,8 @@ def _validate_slot_conflicts(
         mech = mechanism_registry.mechanisms.get(intervention.kind)
         if mech is None:
             continue
-        for slot_id in mech.writes_slots:
+        _, writes = resolve_mechanism_slots(mech, intervention.params)
+        for slot_id in writes:
             writers.setdefault(slot_id, []).append(intervention)
 
     for slot_id, interventions_for_slot in writers.items():

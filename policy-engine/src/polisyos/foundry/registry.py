@@ -2,6 +2,7 @@ import inspect
 from typing import Any, Dict, Mapping, Type
 
 from polisyos.foundry.base import Mechanism
+from polisyos.foundry.agents import AdaptiveAgentMechanism
 from polisyos.foundry.fiscal import IncomeTax, TaxSubsidy
 from polisyos.foundry.labor import LaborMarketMechanism
 from polisyos.foundry.queue import QueueMechanism
@@ -14,6 +15,7 @@ from polisyos.foundry.specs import (
 from polisyos.ir.kernel import MechanismTypeSpec
 
 MECHANISM_REGISTRY: Dict[str, Type[Mechanism]] = {
+    "adaptive_agent": AdaptiveAgentMechanism,
     "tax_subsidy": TaxSubsidy,
     "income_tax": IncomeTax,
     "labor_market": LaborMarketMechanism,

@@ -97,7 +97,10 @@ def test_calibrator_fetches_targets_from_udf(tmp_path: Path) -> None:
 
         base_state = GlobalState.empty(n_agents=1, n_firms=1)
         base_state = base_state.replace(
-            agents=base_state.agents.replace(income=jnp.array([100.0])),
+            agents=base_state.agents.replace(
+                income=jnp.array([100.0]),
+                reported_income=jnp.array([100.0]),
+            ),
             government_balance=jnp.array(0.0),
         )
 

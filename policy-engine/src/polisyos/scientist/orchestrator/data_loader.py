@@ -46,8 +46,10 @@ def load_initial_state(udf: UDFEngine, source_run_id: str, step: int = 0) -> Glo
         age=_col("age", np.int32),
         skill_level=jnp.ones(n_agents, dtype=jnp.float32),  # Дефолтное значение
         income=_col("income", np.float32),
+        reported_income=_col("income", np.float32),
         savings=_col("savings", np.float32),
         consumption=jnp.zeros(n_agents, dtype=jnp.float32),  # Дефолтное значение
+        risk_aversion=jnp.ones(n_agents, dtype=jnp.float32) * 0.5,
         is_employed=_col("is_employed", bool),
         employer_id=jnp.full(n_agents, -1, dtype=jnp.int32),  # Дефолтное значение
     )
@@ -81,6 +83,7 @@ def load_initial_state(udf: UDFEngine, source_run_id: str, step: int = 0) -> Glo
         firms=firms,
         market=market,
         government_balance=jnp.array(0.0, dtype=jnp.float32),
+        tax_rate=jnp.array(0.0, dtype=jnp.float32),
         gdp=jnp.array(0.0, dtype=jnp.float32),
         step=jnp.array(step, dtype=jnp.int32),
     )

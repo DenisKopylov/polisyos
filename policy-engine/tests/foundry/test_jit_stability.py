@@ -51,7 +51,12 @@ def test_tax_subsidy_jit_step_stable():
 def test_income_tax_jit_step_stable():
     n_agents = 5
     state = GlobalState.empty(n_agents=n_agents, n_firms=2)
-    state = state.replace(agents=state.agents.replace(income=jnp.ones(n_agents) * 1000.0))
+    state = state.replace(
+        agents=state.agents.replace(
+            income=jnp.ones(n_agents) * 1000.0,
+            reported_income=jnp.ones(n_agents) * 1000.0,
+        )
+    )
 
     mech = IncomeTax(rate=0.2, n_agents=n_agents)
 

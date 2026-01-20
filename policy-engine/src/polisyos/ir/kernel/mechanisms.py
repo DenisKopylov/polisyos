@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from decimal import Decimal
 from enum import Enum
+from typing import Any
 
 from pydantic import Field, model_validator
 
@@ -100,7 +101,7 @@ DEFAULT_MECHANISM_REGISTRY = MechanismTypeRegistry(
                     unit_id="ratio",
                 )
             },
-            reads_slots=["agents.income"],
+            reads_slots=["agents.reported_income"],
             writes_slots=["agents.income", "government.balance"],
             default_merge={"agents.income": "sum", "government.balance": "sum"},
             description="Income tax applied to agent income",
@@ -159,5 +160,67 @@ DEFAULT_MECHANISM_REGISTRY = MechanismTypeRegistry(
             },
             description="Queue mechanism (standalone)",
         ),
+        "adaptive_agent": MechanismTypeSpec(
+            mechanism_id="adaptive_agent",
+            params={
+                "observation_space": ParamSpec(
+                    param_id="observation_space", required=True, value_type=ParamType.ARRAY
+                ),
+                "action_space": ParamSpec(
+                    param_id="action_space", required=True, value_type=ParamType.OBJECT
+                ),
+                "utility": ParamSpec(
+                    param_id="utility", required=True, value_type=ParamType.STRING
+                ),
+                "policy_model": ParamSpec(
+                    param_id="policy_model", required=False, value_type=ParamType.OBJECT
+                ),
+                "weights_artifact": ParamSpec(
+                    param_id="weights_artifact", required=False, value_type=ParamType.STRING
+                ),
+                "learning_rate": ParamSpec(
+                    param_id="learning_rate",
+                    required=False,
+                    value_type=ParamType.DECIMAL,
+                    min_value=Decimal("0"),
+                ),
+                "seed": ParamSpec(
+                    param_id="seed",
+                    required=False,
+                    value_type=ParamType.INT,
+                    min_value=Decimal("0"),
+                ),
+                "stochastic": ParamSpec(
+                    param_id="stochastic", required=False, value_type=ParamType.BOOL
+                ),
+            },
+            reads_slots=[],
+            writes_slots=[],
+            description="Adaptive neural policy mechanism for agent decision-making",
+        ),
     }
 )
+
+
+def resolve_mechanism_slots(
+    mech: MechanismTypeSpec | None, params: dict[str, Any]
+) -> tuple[list[str], list[str]]:
+    if mech is None:
+        return [], []
+    if mech.mechanism_id != "adaptive_agent":
+        return list(mech.reads_slots), list(mech.writes_slots)
+
+    reads: list[str] = []
+    observation_space = params.get("observation_space")
+    if isinstance(observation_space, list):
+        reads = [item for item in observation_space if isinstance(item, str)]
+
+    writes: list[str] = []
+    action_space = params.get("action_space")
+    if isinstance(action_space, dict):
+        affects = action_space.get("affects")
+        if isinstance(affects, list):
+            writes = [item for item in affects if isinstance(item, str)]
+        elif isinstance(affects, str):
+            writes = [affects]
+    return reads, writes

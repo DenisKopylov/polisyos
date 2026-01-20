@@ -42,7 +42,10 @@ def _build_graph(nodes: list[ProgramNode]) -> tuple[ProgramGraph, ExecPlan]:
 def _base_state(n_agents: int = 5) -> GlobalState:
     base_state = GlobalState.empty(n_agents=n_agents, n_firms=1)
     return base_state.replace(
-        agents=base_state.agents.replace(income=jnp.ones(n_agents) * 100.0),
+        agents=base_state.agents.replace(
+            income=jnp.ones(n_agents) * 100.0,
+            reported_income=jnp.ones(n_agents) * 100.0,
+        ),
         government_balance=jnp.array(0.0),
     )
 
@@ -285,7 +288,7 @@ def test_calibrator_prior_penalty():
                         unit_id="ratio",
                     )
                 },
-                reads_slots=["agents.income"],
+                reads_slots=["agents.reported_income"],
                 writes_slots=["agents.income", "government.balance"],
                 default_merge={"agents.income": "sum", "government.balance": "sum"},
             )

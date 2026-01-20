@@ -8,6 +8,14 @@ from polisyos.foundry.domain.state import GlobalState
 from polisyos.foundry.types import FidelityLevel
 
 
+def compute_tax(state: GlobalState, rate: jnp.ndarray) -> jnp.ndarray:
+    return state.agents.reported_income * rate
+
+
+def compute_income_tax(state: GlobalState, rate: jnp.ndarray) -> jnp.ndarray:
+    return compute_tax(state, rate)
+
+
 class TaxSubsidy(Mechanism):
     rate: jnp.ndarray  # Изменено на jnp.ndarray для дифференцируемости
     target_sector_mask: jnp.ndarray
@@ -69,7 +77,7 @@ class IncomeTax(Mechanism):
         *,
         target_mask=None,
     ) -> tuple[PatchMap, jax.Array]:
-        tax_amount = state.agents.income * self.rate
+        tax_amount = compute_tax(state, self.rate)
         if target_mask is not None:
             tax_amount = jnp.where(target_mask, tax_amount, 0.0)
         total_revenue = jnp.sum(tax_amount)

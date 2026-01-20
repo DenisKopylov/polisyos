@@ -59,6 +59,7 @@ domain/
 ```
 base.py             # Абстрактный класс Mechanism и ComplexMechanism
 types.py            # FidelityLevel enum (уровни точности)
+agents.py           # Адаптивные агенты с нейронными сетями (AdaptiveAgentMechanism)
 fiscal.py           # Налоговые механизмы (IncomeTax, TaxSubsidy)
 labor.py            # Механизм рынка труда (LaborMarketMechanism)
 queue.py            # Механизм очередей с multi-fidelity (QueueMechanism)
@@ -547,9 +548,11 @@ class AgentState:
     skill_level: Float[Array, "n_agents"]     # Влияет на зарплату
 
     # Финансы
-    income: Float[Array, "n_agents"]          # Доход
+    income: Float[Array, "n_agents"]          # Фактический доход
+    reported_income: Float[Array, "n_agents"] # Декларируемый доход (для налогов)
     savings: Float[Array, "n_agents"]         # Сбережения
     consumption: Float[Array, "n_agents"]     # Сколько потратил
+    risk_aversion: Float[Array, "n_agents"]   # Отношение к риску (0-1)
 
     # Работа
     is_employed: Bool[Array, "n_agents"]      # Статус занятости
@@ -596,12 +599,15 @@ class MarketState:
 
 ### Налоговые механизмы (fiscal.py)
 
+Налоговые механизмы работают с **reported_income** (декларируемым доходом) вместо фактического дохода.
+
 #### IncomeTax (Подоходный налог)
 ```python
 from polisyos.foundry.fiscal import IncomeTax
 
 tax = IncomeTax(rate=0.2, n_agents=1000)  # 20% налог
 patches, key = tax.emit_patches(state, key)
+# Налог рассчитывается на reported_income: tax_amount = reported_income * rate
 ```
 
 #### TaxSubsidy (Налоговые субсидии)
@@ -626,6 +632,37 @@ labor_market = LaborMarketMechanism(
 
 patches, key = labor_market.emit_patches(state, key)
 ```
+
+### AdaptiveAgentMechanism (Адаптивные агенты)
+
+Механизм моделирования агентов с обучением на основе нейронных сетей. Агенты наблюдают состояние экономики и принимают решения через обученные политики.
+
+```python
+from polisyos.foundry.agents import AdaptiveAgentMechanism
+
+# Создание механизма с MLP политикой
+agent_mech = AdaptiveAgentMechanism(
+    observation_space=["agents.income", "agents.savings", "market.unemployment_rate"],
+    action_space={
+        "type": "continuous",
+        "affects": ["agents.reported_income"],
+        "dim": 1,
+        "range": [0.0, 1.0]  # Масштаб для reported_income = income * scale
+    },
+    policy_model={"hidden_layers": [64, 32], "activation": "relu"},
+    learning_rate=0.01,
+    stochastic=True
+)
+
+patches, key = agent_mech.emit_patches(state, key)
+```
+
+#### Особенности:
+- **Нейронные сети**: Политики реализованы через MLP с настраиваемой архитектурой
+- **Гибкие наблюдения**: Можно наблюдать любые поля состояния экономики
+- **Разные типы действий**: Непрерывные (continuous) или дискретные (discrete) действия
+- **Масштабирование**: Поддержка диапазонов и нормализации для действий
+- **Стохастичность**: Опциональная случайность в принятии решений
 
 ### QueueMechanism (Механизм очередей)
 
@@ -763,6 +800,7 @@ from polisyos.foundry.registry import MECHANISM_REGISTRY
 
 # Доступные механизмы в registry
 mechanisms = {
+    "adaptive_agent": "AdaptiveAgentMechanism", # Адаптивные агенты с ML
     "tax_subsidy": "TaxSubsidy",           # Налоговые субсидии
     "income_tax": "IncomeTax",             # Подоходный налог
     "labor_market": "LaborMarketMechanism", # Рынок труда
@@ -903,6 +941,33 @@ class ModernIncomeTax(Mechanism):
             ]
         }
         return patches, key
+```
+
+### Создание адаптивного агента
+
+```python
+from polisyos.foundry.agents import AdaptiveAgentMechanism
+
+# Агент, который оптимизирует декларируемый доход (уклонение от налогов)
+tax_evasion_agent = AdaptiveAgentMechanism(
+    observation_space=[
+        "agents.income",           # Фактический доход
+        "global.tax_rate",         # Ставка налога
+        "market.unemployment_rate" # Риск безработицы
+    ],
+    action_space={
+        "type": "continuous",
+        "affects": ["agents.reported_income"],
+        "dim": 1,
+        "range": [0.5, 1.0]  # Декларировать 50-100% дохода
+    },
+    utility="risk_adjusted_income",  # Максимизировать доход с учётом риска
+    learning_rate=0.01,
+    stochastic=False
+)
+
+# Агент принимает решение на основе наблюдений
+patches, key = tax_evasion_agent.emit_patches(state, key)
 ```
 
 ### Legacy симуляция (устаревшее)
@@ -1072,8 +1137,9 @@ with jax.profiler.trace("/tmp/jax-trace"):
 ### Зависимости Foundry
 
 - **`ir/`**: Policy Surface IR, контракты механизмов, slot/merge registries, calibration configs
-- **`core/artifacts`**: Artifact storage для компиляции, исполнения и калибровки
+- **`core/artifacts`**: Artifact storage и CAS для компиляции, исполнения и калибровки
 - **`core/contracts`**: Foundry-specific типы (PatchOp, ProgramGraph, ExecPlan, etc.)
+- **`core/canon`**: Каноническая сериализация для артефактов
 - **`ir/calibration`**: Конфигурации и типы для калибровки моделей
 
 ### Потребители Foundry
@@ -1090,7 +1156,9 @@ scientist/ → ir/ → foundry.compiler → foundry.calibration → foundry.runt
                      ↓                           ↓
                fabric/ (data)             foundry.executor (constraints)
                      ↓                           ↓
-               core/artifacts (storage)    core/contracts (types)
+               core/artifacts (CAS)        core/contracts (types)
+                     ↓                           ↓
+               core/canon (serialization)  ir/kernel (registries)
 ```
 
 ## Соглашения по коду

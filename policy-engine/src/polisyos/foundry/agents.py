@@ -171,9 +171,29 @@ class AgentPolicy(eqx.Module):
         x = obs
         if not self.layers:
             return x
-        for layer in self.layers[:-1]:
-            x = self.activation(layer(x))
-        return self.layers[-1](x)
+
+        # `eqx.nn.Linear` is defined for a single feature vector (in_dim,).
+        # In our usage, observations are often batched as (batch, in_dim),
+        # so we `vmap` the layer application over the leading dimension.
+        if x.ndim == 1:
+            for layer in self.layers[:-1]:
+                x = self.activation(layer(x))
+            return self.layers[-1](x)
+
+        if x.ndim == 2:
+            # Feature-wise normalization helps keep heterogeneous features
+            # (e.g. income vs risk) on comparable scales and avoids activation
+            # saturation that can collapse actions to a constant.
+            mean = jnp.mean(x, axis=0, keepdims=True)
+            std = jnp.std(x, axis=0, keepdims=True)
+            x = (x - mean) / (std + 1e-6)
+
+            for layer in self.layers[:-1]:
+                x = jax.vmap(layer)(x)
+                x = self.activation(x)
+            return jax.vmap(self.layers[-1])(x)
+
+        raise ValueError(f"AgentPolicy expected obs ndim 1 or 2, got shape={x.shape!r}")
 
 
 class AdaptiveAgentMechanism(Mechanism):

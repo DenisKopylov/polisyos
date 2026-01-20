@@ -6,7 +6,7 @@ Scientist - это "мозг" Policy Engine, отвечающий за авто�
 
 ## Архитектура
 
-Scientist построен как многоуровневая система оркестрации с четким разделением ответственности. Архитектура следует принципам модульной декомпозиции и однонаправленных зависимостей, обеспечивая высокую тестируемость и расширяемость.
+Scientist построен как многоуровневая система оркестрации с четким разделением ответственности. Архитектура следует принципам модульной декомпозиции и однонаправленных зависимостей (Закон A), обеспечивая высокую тестируемость и расширяемость. Модуль интегрируется с остальной системой через контракты IR (Закон C) и обеспечивает полную воспроизводимость экспериментов (Закон D).
 
 ### 🤖 Agent Layer (Агенты и генерация)
 
@@ -115,10 +115,11 @@ Workflow управляется конечным автоматом состоя
 3. **repair_ir** (FRAME): Автоматическое исправление ошибок валидации через повторные LLM вызовы с анализом diff
 4. **compile_data_views** (PLAN): Подготовка DataView запросов для Fabric layer и компиляция UDF функций
 5. **compile_model** (EXECUTE): Компиляция политики в дифференцируемые JAX механизмы через Foundry compiler
-6. **run_sim** (EXECUTE): Запуск симуляции через Foundry executor с сбором метрик и состояний
-7. **analyze** (EXECUTE): Анализ результатов симуляции, расчет экономических метрик и подготовка отчетов
-8. **governor** (POSTFLIGHT_GOV): Финальное решение губернатора на основе бюджетов, безопасности и политик
-9. **pack_decision** (PUBLISH): Формирование итогового `DecisionPacket` с полной информацией о эксперименте
+6. **train_agents** (EXECUTE): Обучение адаптивных агентов с калибровкой параметров через Optax
+7. **run_sim** (EXECUTE): Запуск симуляции через Foundry executor с patch-based execution и сбором метрик
+8. **analyze** (EXECUTE): Анализ результатов симуляции, расчет экономических метрик и gradient health reports
+9. **governor** (POSTFLIGHT_GOV): Финальное решение губернатора на основе бюджетов, безопасности и политик
+10. **pack_decision** (PUBLISH): Формирование итогового `DecisionPacket` с полной информацией об эксперименте
 
 ## Ключевые возможности
 
@@ -133,6 +134,9 @@ Workflow управляется конечным автоматом состоя
 - Градиентная оптимизация параметров через Optax
 - Многокритериальная оптимизация (PyMOO)
 - Fidelity levels для контроля точности/скорости
+- **Agent Training**: Система обучения адаптивных агентов с continuous actions
+- **Uncertainty Quantification**: Оценки неопределенности через Hessian analysis
+- **Gradient Health Monitoring**: Диагностика проблем с градиентами в оптимизации
 
 ### 📊 Data Integration
 - Интеграция с Fabric (DuckDB + Kuzu)
@@ -150,9 +154,12 @@ Workflow управляется конечным автоматом состоя
 
 ### 🔄 Reproducibility & Artifacts
 - **RunRecord**: Детальные метаданные о прогоне (seed, backend, версии библиотек, флаги)
-- **DecisionPacket**: Итоговый артефакт с IR, результатами, аудитом
-- **Artifact Management**: Версионирование и provenance через CAS
+- **DecisionPacket**: Итоговый артефакт с IR, результатами, аудитом, evidence и uncertainty bounds
+- **Artifact Management**: Content-addressable storage (CAS) с SHA256-based addressing
 - **Parent/Child Relationships**: Связи между экспериментами для воспроизводимости
+- **Evidence Bundles**: Криптографически verifiable доказательства происхождения данных
+- **Fabric Result**: Результаты Fabric layer с evidence references и uncertainty bounds
+- **Audit Trail**: Полный JSON Lines лог всех операций с provenance tracking
 
 ### ⚙️ Compute & Experiment Design
 - **Job Specifications**: `JobSpec`, `JobKey`, `JobResult` для структурированных задач
@@ -213,6 +220,9 @@ class ExperimentState(TypedDict):
     calibration_controls_seq: Optional[List[Any]]
     calibration_config_ref: Optional[Dict[str, Any]]
     calibration_report_ref: Optional[Dict[str, Any]]
+    agent_training_config: Optional[Dict[str, Any]]
+    agent_training_report_ref: Optional[Dict[str, Any]]
+    agent_weights_ref: Optional[Dict[str, Any]]
     calibrated_params: Optional[Dict[str, float]]
     calibrated_params_ref: Optional[Dict[str, Dict[str, Any]]]
     compiled_model: Optional[Any]
@@ -232,8 +242,9 @@ class ExperimentState(TypedDict):
 
     # Результаты симуляции
     simulation_results: Optional[Dict[str, float]]
-    simulation_results_ref: Optional[Dict[str, Any]]  # <--- НОВОЕ: Ссылка на артефакт результатов
-    fabric_result: Optional[Dict[str, Any]]  # <--- НОВОЕ: Результаты Fabric layer
+    simulation_results_ref: Optional[Dict[str, Any]]
+    fabric_result: Optional[Dict[str, Any]]  # Результаты Fabric layer с evidence и uncertainty
+    uncertainty_ref: Optional[Dict[str, float]]  # Границы неопределенности
 
     # Обратная связь от Губернатора
     feedback: Optional[GovernorFeedback]
@@ -291,9 +302,9 @@ packet = DecisionPacket(
     run_record=run_record,
     policy_ir=policy_ir,
     simulation_results={"gdp": 1000.0, "unemployment": 0.05},
-    fabric_result=fabric_result,  # <--- НОВОЕ: Результаты Fabric
-    evidence_ref=evidence_bundle,  # <--- НОВОЕ: Ссылка на доказательства
-    uncertainty_ref=uncertainty_bounds,  # <--- НОВОЕ: Границы неопределенности
+    fabric_result=fabric_result,  # Результаты Fabric layer с evidence
+    evidence_ref=evidence_bundle,  # Криптографически verifiable доказательства
+    uncertainty_ref=uncertainty_bounds,  # Оценки неопределенности через Hessian
     feedback=governor_feedback,
     audit_trail=audit_events
 )
@@ -842,38 +853,50 @@ print(f"Audit trail: {len(decision_packet.audit_trail)} events")
 
 ## Связанные модули
 
-### 🔗 Core (Базовые компоненты)
-- **Artifacts**: Управление артефактами (`ArtifactID`, `ArtifactRef`, `FileSystemCAS`, `PutOptions`)
-- **Compiler**: Компиляция политик (`CompileReport`, `put_compile_report`, `put_link_report`)
-- **Registry**: Управление реестрами компонентов (`build_default_registry_bundle`, `load_registry_bundle_content`)
-- **Run Context**: Контекст выполнения (`RunContext`, `start_run`, `finalize_run`, `update_budget_usage`)
-- **Canon**: Канонические преобразования (`from_canonical_bytes`)
-- **Contracts**: Контракты Foundry (`ExecPlan`, `ExecPlanRef`, `ProgramGraph`, `ProgramGraphRef`)
+Scientist является верхним уровнем в архитектуре Policy Engine и зависит от всех нижних модулей. Следуя Закону A (направленный граф зависимостей), Scientist импортирует компоненты из:
 
-### 🔗 IR (Contracts & Validation)
-- **Surface IR**: `PolicySurfaceIR` - декларативное описание политик с семантикой и контекстом
-- **Kernel Models**: Механизмы, значения, селекторы (`MechanismRegistry`, `MergeRuleKind`, `CountValue`, `DurationValue`, `MoneyValue`, `RateValue`)
-- **Validation**: Валидация структур (`build_validation_report`, `ValidationIssue`, `diff_payloads`)
-- **Linker**: Связывание политик (`link_policy`)
-- **Calibration**: Конфигурация калибровки (`CalibrationConfig`)
-- **Data Views**: Запросы данных (`DataViewRequest`) - используются в `flow_nodes.py` для подготовки данных
+### 🔗 Core (Инфраструктурный фундамент)
+- **Artifacts**: `FileSystemCAS`, `ArtifactRef`, `PutOptions` - управление артефактами в CAS
+- **Compiler**: `CompileReport`, `put_compile_report`, `put_link_report` - логирование компиляции
+- **Registry**: `build_default_registry_bundle`, `load_registry_bundle_content` - сборка реестров компонентов
+- **Run Context**: `RunContext` - контекст выполнения экспериментов
+- **Canon**: `from_canonical_bytes` - детерминированная сериализация для reproducible хешей
+- **Contracts**: `ExecPlan`, `ExecPlanRef`, `ProgramGraph`, `ProgramGraphRef` - типизированные ссылки на артефакты Foundry
 
-### 🔗 Fabric (Data Layer)
-- **IO**: Доступ к данным (`SimulationDB`, `GraphStore`) - используется в `data_loader.py` и `flow_nodes.py`
-- **UDF Engine**: Обработка данных (`UDFEngine`) - для выполнения пользовательских функций над данными
-- **Calibration**: Калибровка и настройка параметров (`Calibrator`, `CalibratorInputs`, `extract_fabric_series`, `put_calibration_config`, `put_calibration_report`)
-- **Data Views**: `DataViewRequest` и компиляция - интегрировано в workflow через `compile_data_views_node`
+### 🔗 IR (Intermediate Representation)
+- **Surface IR**: `PolicySurfaceIR` - основной контракт политик (v2.0) с семантикой и advisory
+- **Kernel Models**: `DEFAULT_MECHANISM_REGISTRY`, `MergeRuleKind`, `CountValue`, `DurationValue`, `MoneyValue`, `RateValue` - реестры фундаментальных типов
+- **Validation**: `ValidationIssue`, `build_validation_report`, `diff_payloads` - структурированные отчеты о проблемах
+- **Linker**: `link_policy` - валидация и связывание политик с реестрами
+- **Calibration**: `CalibrationConfig` - контракты калибровки политик
+- **Data Views**: `DataViewRequest`, `DataViewType`, `AccessTier` - запросы данных с PII control
 
-### 🔗 Foundry (Simulation Engine)
-- **Compiler**: Компиляция в JAX (`compile_surface_policy`, `put_policy_surface`) - используется в `compile_model_node`
-- **Executor**: Запуск симуляций (`execute_program_graph`, `load_state_snapshot`, `put_state_snapshot`) - используется в `run_sim_node`
-- **Registry**: Механизмы политик (`create_mechanism_from_spec`) - для создания JAX механизмов
-- **Types**: Типы данных Foundry (интегрировано через contracts)
+### 🔗 Fabric (Unified Data Fabric)
+- **IO Layer**: `SimulationDB`, `GraphStore` - доступ к реляционным и графовым данным
+- **UDF Engine**: `UDFEngine` - безопасный компилируемый слой запросов с whitelist и PII gates
+- **Calibration**: `Calibrator`, `CalibratorInputs`, `extract_fabric_series`, `put_calibration_config`, `put_calibration_report` - полная система калибровки с uncertainty quantification
+- **Trust System**: Политики доверия с statistical verification и uncertainty bounds
+- **Evidence Bundles**: Криптографически verifiable доказательства происхождения данных
 
-### 🔗 Runtime (Artifact Management)
-- **API**: Интерфейсы управления прогонами (`log_artifact`) - используется для логирования артефактов
-- **Manifest**: Метаданные рантайма (`ArtifactRef`, `InputRef`, `SchemaInfo`)
-- **Storage**: Хранение в структуре `runs/<run_id>/` с CAS (Content Addressable Storage) - используется в `flow_nodes.py`
+### 🔗 Foundry (JAX Simulation Engine)
+- **Compiler**: `compile_surface_policy`, `put_policy_surface` - компиляция IR в ProgramGraph + ExecPlan
+- **Executor**: `execute_program_graph`, `load_state_snapshot`, `put_state_snapshot` - patch-based execution
+- **Registry**: `create_mechanism_from_spec` - фабрика механизмов политик
+- **Domain**: `GlobalState`, `AgentState`, `FirmState`, `MarketState` - экономическая модель
+- **Fiscal**: `compute_tax` - налоговые расчеты
+- **Agent Metrics**: `normalize_action`, `policy_entropy`, `saturation_rate` - метрики поведения агентов
+- **Agents**: `build_observations`, `continuous_actions_from_logits` - система адаптивных агентов
+- **Loss Functions**: `policy_loss_fn` - функции потерь для оптимизации
+- **Utils**: `gradient_health_report` - диагностика градиентов
+
+### 🔗 Runtime (Lifecycle Management)
+- **API**: `start_run`, `finalize_run`, `log_artifact`, `update_budget_usage`, `append_audit` - управление жизненным циклом экспериментов
+- **Manifest**: `ArtifactRef.relative_path` - переносимые ссылки на артефакты
+- **Audit Trail**: JSON Lines логирование всех операций с временными метками
+
+### 🔗 Common (Infrastructure Utils)
+- **Logger**: `logger` - структурированное логирование с контекстом модуля через Loguru
+- **Config**: Централизованная конфигурация и JAX environment setup
 
 ## Troubleshooting
 
@@ -1042,56 +1065,64 @@ research_budget = {
 
 ### 🚀 Ближайшие приоритеты
 
-- [ ] **Compute Layer**: Реализация distributed job execution
-- [ ] **DoE Integration**: Полная поддержка экспериментальных дизайнов
-- [ ] **Governance UI**: Веб-интерфейс для human gates
-- [ ] **Real LLM Integration**: Замена MockLLM на production LLM APIs
+- [ ] **Compute Layer**: Завершение distributed job execution (RayBackend skeleton готов)
+- [ ] **DoE Integration**: Полная интеграция ScenarioSweep, AblationPlan, SensitivityPlan в workflow
+- [ ] **Governance UI**: Веб-интерфейс для human gates (preflight/postflight готовы)
+- [ ] **Real LLM Integration**: Замена MockLLM на production LLM APIs (LangChain интеграция готова)
+- [ ] **Multi-objective Optimization**: NSGA-II и Pareto fronts (PyMOO уже подключен)
 
 ### 🔬 Продвинутые возможности
 
-- [ ] **Multi-objective Optimization**: NSGA-II и Pareto fronts
-- [ ] **Reinforcement Learning**: RL для policy discovery
-- [ ] **Distributed Simulation**: Кластерное выполнение
+- [ ] **Reinforcement Learning**: RL для policy discovery (agent training система готова)
+- [ ] **Distributed Simulation**: Кластерное выполнение (RayBackend skeleton)
 - [ ] **Interactive Refinement**: UI для итеративного улучшения политик
 - [ ] **Multi-agent Negotiation**: Переговоры между заинтересованными сторонами
+- [ ] **Advanced Calibration**: Расширение uncertainty quantification
 
 ### 🏗️ Архитектурные улучшения
 
-- [ ] **Event Sourcing**: Полная audit trail как event log
-- [ ] **Policy Templates**: Реиспользуемые паттерны политик
-- [ ] **A/B Testing**: Статистическое сравнение политик
+- [ ] **Event Sourcing**: Переход audit trail на event log архитектуру
+- [ ] **Policy Templates**: Реиспользуемые паттерны политик на базе PolicySurfaceIR
+- [ ] **A/B Testing**: Статистическое сравнение политик (DoE основа готова)
 - [ ] **Version Control**: Git-подобное управление версиями политик
-- [ ] **Federated Learning**: Обучение на distributed данных
+- [ ] **Federated Learning**: Обучение на distributed данных с privacy preservation
 
 ## Текущее состояние реализации
 
 ### ✅ Полностью реализованные компоненты
 
-- **Agent Layer**: MockAgent с базовой логикой принятия решений, MockLLM для тестирования без API ключей
-- **Kernel Layer**: Полная реализация FSM с 9 фазами, все модели бюджетов (Compute, Evidence, Legitimacy, Complexity), guards и human_gate
-- **Compute Layer**: JobSpec/JobKey/JobResult модели, LocalBackend для выполнения через Foundry executor
-- **Orchestrator Layer**: Полный workflow на LangGraph (1450+ строк в flow_nodes.py), ExperimentState с 80+ полями, DecisionPacket с новыми полями
-- **Publisher Layer**: Базовая публикация через build_decision_packet
+- **Agent Layer**: MockAgent с эвристической логикой принятия решений, MockLLM для тестирования без API ключей, системные промпты с реестрами механизмов
+- **Kernel Layer**: Полная реализация FSM с 9 фазами, все модели бюджетов (Compute, Evidence, Legitimacy, Complexity), guards, human_gate и advance_phase guards
+- **Compute Layer**: JobSpec/JobKey/JobResult модели, LocalBackend и RayBackend (skeleton) для выполнения через Foundry executor, поддержка distributed execution
+- **Orchestrator Layer**: Полный workflow на LangGraph (1450+ строк в flow_nodes.py), ExperimentState с 90+ полями, DecisionPacket с evidence и uncertainty, audit trail
+- **Publisher Layer**: Полная публикация через build_decision_packet с интеграцией всех артефактов
 - **Workflow Integration**: Полная интеграция со всеми модулями (Core, IR, Fabric, Foundry, Runtime)
 
 ### 🚧 Частично реализованные компоненты
 
-- **Governance Layer**: Placeholder реализации preflight/postflight с базовой структурой для GateRequest/GateDecision
-- **DoE Layer**: Базовые модели ScenarioSweep, AblationPlan, SensitivityPlan без полной интеграции в workflow
-- **Optimization**: Placeholder для градиентной оптимизации через Optax
+- **Governance Layer**: Placeholder реализации preflight/postflight с базовой структурой для GateRequest/GateDecision (готовы для интеграции с UI)
+- **DoE Layer**: Базовые модели ScenarioSweep, AblationPlan, SensitivityPlan без полной интеграции в workflow (готовы для расширения)
+- **Optimization**: Градиентная оптимизация через Optax с gradient health monitoring и uncertainty quantification (нужна интеграция с multi-objective optimization)
 
 ### 🎯 Готовые к использованию возможности
 
-- **End-to-End Workflow**: Полный цикл от естественного языка до DecisionPacket с MockAgent
-- **Budget Controls**: Полный контроль ресурсов (LLM calls, sim runs, wall time)
-- **FSM Management**: Строгие переходы между фазами с guards и self-healing циклами
-- **Artifact Management**: Полная поддержка CAS, RunRecord для воспроизводимости
-- **Audit Trail**: Комплексное логирование всех операций
+- **End-to-End Workflow**: Полный цикл от естественного языка до DecisionPacket с MockAgent и evidence tracking
+- **Budget Controls**: Полный контроль ресурсов (LLM calls, sim runs, wall time, evidence queries, complexity)
+- **FSM Management**: Строгие переходы между фазами с guards, human gates и self-healing циклами
+- **Artifact Management**: Полная поддержка CAS с SHA256 addressing, RunRecord для воспроизводимости
+- **Audit Trail**: Комплексное JSON Lines логирование всех операций с provenance tracking
+- **Agent Training**: Система обучения адаптивных агентов с continuous actions и gradient monitoring
+- **Uncertainty Quantification**: Оценки неопределенности через Hessian analysis и confidence bounds
+- **Evidence Integration**: Криптографически verifiable доказательства с Fabric layer integration
 - **Mock Testing**: Полная поддержка тестирования без внешних зависимостей
 
 ### 🔄 Архитектурные принципы соблюдены
 
-- **Закон A**: Однонаправленные зависимости (scientist зависит только от нижних уровней)
-- **Закон B**: Компиляторная труба реализована через workflow
-- **Закон C**: Контракты как источник истины (PolicySurfaceIR, DecisionPacket)
-- **Закон D**: Полная воспроизводимость через RunRecord и CAS
+- **Закон A**: Однонаправленные зависимости (scientist → ir/fabric/foundry/runtime/core)
+- **Закон B**: Foundry как чистое математическое ядро (чистые JAX функции без side effects)
+- **Закон C**: Контракты как источник истины (PolicySurfaceIR v2.0, DecisionPacket, evidence bundles)
+- **Закон D**: Полная воспроизводимость через RunRecord, deterministic seeds и CAS artifacts
+- **Закон E**: Evidence обязательны (evidence bundles, provenance tracking, uncertainty quantification)
+- **Закон F**: Fidelity control (multi-fidelity simulation с adjustable precision)
+- **Закон G**: Uncertainty quantification (Hessian analysis, confidence bounds)
+- **Закон H**: Trust policies (statistical verification, multi-tier evidence validation)

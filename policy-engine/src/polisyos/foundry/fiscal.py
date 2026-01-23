@@ -8,8 +8,22 @@ from polisyos.foundry.domain.state import GlobalState
 from polisyos.foundry.types import FidelityLevel
 
 
+def _combine_masks(
+    target_mask: jnp.ndarray | None, active_mask: jnp.ndarray | None
+) -> jnp.ndarray | None:
+    if target_mask is None:
+        return active_mask
+    if active_mask is None:
+        return target_mask
+    return jnp.asarray(target_mask, dtype=jnp.bool_) & jnp.asarray(active_mask, dtype=jnp.bool_)
+
+
 def compute_tax(state: GlobalState, rate: jnp.ndarray) -> jnp.ndarray:
-    return state.agents.reported_income * rate
+    tax = state.agents.reported_income * rate
+    active_mask = getattr(state.agents, "active", None)
+    if active_mask is None:
+        return tax
+    return jnp.where(active_mask, tax, 0.0)
 
 
 def compute_income_tax(state: GlobalState, rate: jnp.ndarray) -> jnp.ndarray:
@@ -37,8 +51,9 @@ class TaxSubsidy(Mechanism):
     ) -> tuple[PatchMap, jax.Array]:
         clamped_rate = jnp.clip(self.rate, 0.0, 1.0)
         subsidy_amount = state.agents.income * clamped_rate * self.target_sector_mask
-        if target_mask is not None:
-            subsidy_amount = jnp.where(target_mask, subsidy_amount, 0.0)
+        mask = _combine_masks(target_mask, getattr(state.agents, "active", None))
+        if mask is not None:
+            subsidy_amount = jnp.where(mask, subsidy_amount, 0.0)
         total_cost = jnp.sum(subsidy_amount)
         if self.debug_mode:
             jax.debug.print("TaxSubsidy rate={r}, total_cost={c}", r=clamped_rate, c=total_cost)
@@ -78,8 +93,9 @@ class IncomeTax(Mechanism):
         target_mask=None,
     ) -> tuple[PatchMap, jax.Array]:
         tax_amount = compute_tax(state, self.rate)
-        if target_mask is not None:
-            tax_amount = jnp.where(target_mask, tax_amount, 0.0)
+        mask = _combine_masks(target_mask, getattr(state.agents, "active", None))
+        if mask is not None:
+            tax_amount = jnp.where(mask, tax_amount, 0.0)
         total_revenue = jnp.sum(tax_amount)
         if self.debug_mode:
             jax.debug.print("IncomeTax rate={r}, total_revenue={t}", r=self.rate, t=total_revenue)

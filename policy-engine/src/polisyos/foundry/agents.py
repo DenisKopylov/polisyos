@@ -56,6 +56,16 @@ def _apply_mask(mask: jnp.ndarray | None, value: jnp.ndarray, fallback: jnp.ndar
     return jnp.where(mask_arr, value, fallback)
 
 
+def _combine_masks(
+    target_mask: jnp.ndarray | None, active_mask: jnp.ndarray | None
+) -> jnp.ndarray | None:
+    if target_mask is None:
+        return active_mask
+    if active_mask is None:
+        return target_mask
+    return jnp.asarray(target_mask, dtype=jnp.bool_) & jnp.asarray(active_mask, dtype=jnp.bool_)
+
+
 def build_observations(
     state: GlobalState,
     observation_space: Iterable[str],
@@ -315,6 +325,8 @@ class AdaptiveAgentMechanism(Mechanism):
         *,
         target_mask=None,
     ) -> tuple[PatchMap, jax.Array]:
+        active_mask = getattr(state.agents, "active", None)
+        effective_mask = _combine_masks(target_mask, active_mask)
         obs = self._extract_observations(state)
         logits = self.policy(obs)
         n_agents = obs.shape[0] if obs.ndim > 0 else state.agents.size
@@ -354,7 +366,7 @@ class AdaptiveAgentMechanism(Mechanism):
                     )
                 else:
                     new_value = action_idx.astype(current.dtype)
-                new_value = _apply_mask(target_mask, new_value, current)
+                new_value = _apply_mask(effective_mask, new_value, current)
                 patches[slot_id] = [{"value": new_value}]
             if self.debug_mode and affects_list:
                 avg_action = jnp.mean(action_idx.astype(jnp.float32))
@@ -384,7 +396,7 @@ class AdaptiveAgentMechanism(Mechanism):
                 new_value = state.agents.income * chosen_val
             else:
                 new_value = chosen_val.astype(current.dtype)
-            new_value = _apply_mask(target_mask, new_value, current)
+            new_value = _apply_mask(effective_mask, new_value, current)
             patches[slot_id] = [{"value": new_value}]
 
         if self.debug_mode and affects_list:

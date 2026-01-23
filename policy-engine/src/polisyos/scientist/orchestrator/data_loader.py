@@ -43,6 +43,7 @@ def load_initial_state(udf: UDFEngine, source_run_id: str, step: int = 0) -> Glo
         return jnp.asarray(np.asarray(arr, dtype=dtype))
 
     agents = AgentState(
+        active=jnp.ones(n_agents, dtype=jnp.bool_),
         age=_col("age", np.int32),
         skill_level=jnp.ones(n_agents, dtype=jnp.float32),  # Дефолтное значение
         income=_col("income", np.float32),

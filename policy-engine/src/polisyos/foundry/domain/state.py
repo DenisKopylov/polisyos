@@ -6,6 +6,9 @@ from jaxtyping import Array, Bool, Float, Int
 # --- 1. ЛЮДИ (Households) ---
 @chex.dataclass(frozen=True)
 class AgentState:
+    # Active mask: True means the agent participates in the simulation.
+    active: Bool[Array, "n_agents"]
+
     # Демография и Навыки
     age: Int[Array, "n_agents"]
     skill_level: Float[Array, "n_agents"]  # Влияет на зарплату
@@ -80,6 +83,7 @@ class GlobalState:
     def empty(cls, n_agents: int, n_firms: int) -> "GlobalState":
         # Инициализация дефолтными значениями
         agents = AgentState(
+            active=jnp.ones(n_agents, dtype=jnp.bool_),
             age=jnp.zeros(n_agents, dtype=jnp.int32),
             skill_level=jnp.ones(n_agents, dtype=jnp.float32),
             income=jnp.zeros(n_agents, dtype=jnp.float32),

@@ -1,0 +1,94 @@
+from __future__ import annotations
+
+import jax
+import jax.numpy as jnp
+
+from polisyos.foundry.agent_sim.state import GlobalState
+
+
+class UtilityFunction:
+    @staticmethod
+    def crra(consumption: jnp.ndarray, risk_aversion: jnp.ndarray) -> jnp.ndarray:
+        gamma = risk_aversion
+        safe_c = jnp.maximum(consumption, 1e-8)
+        is_log = jnp.abs(gamma - 1.0) < 1e-6
+        power_term = (jnp.power(safe_c, 1.0 - gamma) - 1.0) / (1.0 - gamma)
+        return jnp.where(is_log, jnp.log(safe_c), power_term)
+
+    @staticmethod
+    def cara(consumption: jnp.ndarray, risk_aversion: jnp.ndarray) -> jnp.ndarray:
+        gamma = risk_aversion
+        return -jnp.exp(-gamma * consumption) / gamma
+
+    @staticmethod
+    def epstein_zin(
+        consumption: jnp.ndarray,
+        continuation_value: jnp.ndarray,
+        risk_aversion: jnp.ndarray,
+        ies: jnp.ndarray,
+        discount_factor: jnp.ndarray,
+    ) -> jnp.ndarray:
+        gamma = risk_aversion
+        psi = ies
+        beta = discount_factor
+        theta = (1.0 - gamma) / (1.0 - 1.0 / psi)
+        safe_c = jnp.maximum(consumption, 1e-8)
+        consumption_term = (1.0 - beta) * jnp.power(safe_c, 1.0 - 1.0 / psi)
+        continuation_term = beta * jnp.power(jnp.maximum(continuation_value, 1e-8), theta)
+        return jnp.power(consumption_term + continuation_term, 1.0 / (1.0 - 1.0 / psi))
+
+
+def compute_agent_reward(
+    state: GlobalState,
+    next_state: GlobalState,
+    *,
+    utility_type: str = "crra",
+    ies: float | jnp.ndarray | None = None,
+) -> jnp.ndarray:
+    agents = next_state.agents
+
+    if utility_type == "crra":
+        utility = UtilityFunction.crra(agents.consumption, agents.risk_aversion)
+    elif utility_type == "cara":
+        utility = UtilityFunction.cara(agents.consumption, agents.risk_aversion)
+    elif utility_type == "epstein_zin":
+        if ies is None:
+            ies_val = jnp.ones_like(agents.risk_aversion)
+        else:
+            ies_val = jnp.asarray(ies, dtype=jnp.float32)
+            if ies_val.shape == ():
+                ies_val = jnp.full_like(agents.risk_aversion, ies_val)
+        utility = UtilityFunction.epstein_zin(
+            agents.consumption,
+            agents.expected_lifetime_utility,
+            agents.risk_aversion,
+            ies_val,
+            agents.discount_factor,
+        )
+    else:
+        raise ValueError(f"Unknown utility type: {utility_type}")
+
+    wealth_bonus = 0.01 * jnp.log(jnp.maximum(agents.wealth, 1.0))
+    bankruptcy_penalty = -10.0 * (agents.wealth < 0.1).astype(jnp.float32)
+    reward = utility + wealth_bonus + bankruptcy_penalty + agents.utility_adjustment
+    return jnp.where(agents.active, reward, 0.0)
+
+
+def apply_discounting(
+    rewards: jnp.ndarray,
+    discount_factors: jnp.ndarray,
+    active_mask: jnp.ndarray,
+) -> jnp.ndarray:
+    def discount_step(carry, t):
+        cumulative = carry
+        reward_t = rewards[t]
+        active_t = active_mask[t]
+        new_cumulative = reward_t + discount_factors * cumulative * active_t
+        return new_cumulative, None
+
+    final, _ = jax.lax.scan(
+        discount_step,
+        jnp.zeros_like(discount_factors),
+        jnp.arange(rewards.shape[0] - 1, -1, -1),
+    )
+    return final

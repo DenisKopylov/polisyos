@@ -41,6 +41,9 @@ dev = [
     "seaborn>=0.13.0"
 ]
 
+[project.scripts]
+polisy = "polisyos.foundry.plugins.cli:main"
+
 # --- Tool Configurations ---
 
 # 1. Настройка Ruff (Линтер + Форматер)

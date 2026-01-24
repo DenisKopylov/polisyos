@@ -207,3 +207,43 @@ def _replace_temporal_mechanism(
         aggregate_every=executor.aggregate_every,
         compute_gini=executor.compute_gini,
     )
+
+
+def train_actor_critic_jit(
+    actor_critic: ActorCritic,
+    initial_state,
+    config: TrainingConfig,
+    *,
+    make_executor: Callable[[ActorCritic], PureExecutor],
+    rng_key: jax.Array | None = None,
+) -> tuple[ActorCritic, dict]:
+    """
+    Fully JIT-compiled training loop for large-scale runs.
+    """
+    from polisyos.foundry.agent_sim.jit_training import (
+        JITTrainingConfig,
+        create_jit_trainer,
+    )
+
+    jit_config = JITTrainingConfig(
+        n_episodes=config.n_episodes,
+        steps_per_episode=config.steps_per_episode,
+        ppo_epochs=config.ppo_epochs,
+        gamma=config.gamma,
+        gae_lambda=config.gae_lambda,
+        clip_epsilon=config.clip_epsilon,
+        value_coef=config.value_coef,
+        entropy_coef=config.entropy_coef,
+        learning_rate=config.learning_rate,
+        max_grad_norm=config.max_grad_norm,
+        horizon=config.horizon,
+        utility_type=config.utility_type,
+        fidelity=config.fidelity,
+        include_expectations=config.include_expectations,
+    )
+
+    if rng_key is None:
+        rng_key = jax.random.PRNGKey(0)
+
+    trainer = create_jit_trainer(actor_critic, make_executor, initial_state, jit_config)
+    return trainer(rng_key)

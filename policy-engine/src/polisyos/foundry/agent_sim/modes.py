@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from enum import Enum
 from typing import Callable, Sequence
 
 import equinox as eqx
@@ -8,6 +9,8 @@ import jax
 import jax.numpy as jnp
 import optax
 
+from polisyos.foundry.agent_sim.actor_critic import ActorCritic
+from polisyos.foundry.agent_sim.credit_assignment import CreditConfig, CreditMode
 from polisyos.foundry.agent_sim.executor import PureExecutor
 from polisyos.foundry.agent_sim.policy import SharedPolicy
 from polisyos.foundry.agent_sim.state import GlobalState, PolicyState
@@ -19,6 +22,184 @@ class CalibrationTarget:
     metric_path: str
     empirical_value: float
     weight: float = 1.0
+
+
+class LearningMode(str, Enum):
+    AGENTS_ADAPT = "agents_adapt"
+    POLICY_OPTIMIZE = "policy_optimize"
+    CALIBRATE = "calibrate"
+    BILEVEL = "bilevel"
+
+
+@dataclass(frozen=True)
+class ModeAConfig:
+    n_episodes: int = 100
+    steps_per_episode: int = 64
+    learning_rate: float = 3e-4
+    credit_mode: CreditMode = CreditMode.COUNTERFACTUAL
+    freeze_policy: bool = True
+    fidelity: FidelityLevel = FidelityLevel.SURROGATE_FLUID
+
+
+@dataclass(frozen=True)
+class ModeBConfig:
+    n_iterations: int = 50
+    n_steps: int = 256
+    learning_rate: float = 1e-3
+    objective: str = "social_welfare"
+    welfare_weights: dict | None = None
+    freeze_agents: bool = True
+    fidelity: FidelityLevel = FidelityLevel.SURROGATE_FLUID
+
+
+@dataclass(frozen=True)
+class BilevelConfig:
+    outer_iterations: int = 20
+    inner_episodes: int = 50
+    mode_a_config: ModeAConfig | None = None
+    mode_b_config: ModeBConfig | None = None
+    alternating: bool = True
+
+
+def social_welfare_objective(state: GlobalState, weights: dict | None = None) -> jnp.ndarray:
+    if weights is None:
+        weights = {"gdp": 1.0, "neg_gini": 0.5}
+
+    total = jnp.array(0.0, dtype=jnp.float32)
+
+    if "gdp" in weights:
+        total = total + weights["gdp"] * state.aggregates.total_wealth
+
+    if "neg_gini" in weights:
+        total = total - weights["neg_gini"] * state.distributions.gini_wealth
+
+    if "mean_consumption" in weights:
+        total = total + weights["mean_consumption"] * state.aggregates.mean_consumption
+
+    if "bottom_50_share" in weights:
+        total = total + weights["bottom_50_share"] * state.distributions.bottom_50_share
+
+    return total
+
+
+def run_mode_a_jit(
+    make_executor: Callable[[ActorCritic], PureExecutor],
+    initial_state: GlobalState,
+    agent_policy: ActorCritic,
+    config: ModeAConfig,
+    credit_config: CreditConfig | None = None,
+    rng_key: jax.Array | None = None,
+) -> tuple[ActorCritic, dict]:
+    from polisyos.foundry.agent_sim.jit_training import (
+        JITTrainingConfig,
+        create_jit_trainer,
+    )
+
+    if credit_config is None:
+        credit_config = CreditConfig(mode=config.credit_mode)
+
+    if rng_key is None:
+        rng_key = jax.random.PRNGKey(0)
+
+    jit_config = JITTrainingConfig(
+        n_episodes=config.n_episodes,
+        steps_per_episode=config.steps_per_episode,
+        learning_rate=config.learning_rate,
+        fidelity=config.fidelity,
+        credit_config=credit_config,
+    )
+    trainer = create_jit_trainer(agent_policy, make_executor, initial_state, jit_config)
+    return trainer(rng_key)
+
+
+def run_mode_b_jit(
+    executor: PureExecutor,
+    initial_state: GlobalState,
+    policy_params: PolicyState,
+    config: ModeBConfig,
+    objective_fn: Callable[[GlobalState], jnp.ndarray] | None = None,
+) -> tuple[PolicyState, dict]:
+    if objective_fn is None:
+        objective_fn = lambda s: social_welfare_objective(s, config.welfare_weights)
+
+    optimizer = optax.adam(config.learning_rate)
+    opt_state = optimizer.init(policy_params)
+
+    @jax.jit
+    def loss_fn(policy: PolicyState) -> jnp.ndarray:
+        state = initial_state.replace(policy=policy)
+        final_state, _ = executor.run(state, int(config.n_steps), fidelity=config.fidelity)
+        return -objective_fn(final_state)
+
+    @jax.jit
+    def step_fn(carry, _):
+        params, opt_state = carry
+        loss_val, grads = jax.value_and_grad(loss_fn)(params)
+        updates, new_opt_state = optimizer.update(grads, opt_state, params)
+        new_params = optax.apply_updates(params, updates)
+        return (new_params, new_opt_state), loss_val
+
+    (final_params, _), losses = jax.lax.scan(
+        step_fn,
+        (policy_params, opt_state),
+        None,
+        length=int(config.n_iterations),
+    )
+
+    metrics = {
+        "loss_history": losses,
+        "final_objective": -losses[-1],
+    }
+    return final_params, metrics
+
+
+def run_bilevel(
+    make_executor: Callable[[ActorCritic], PureExecutor],
+    initial_state: GlobalState,
+    agent_policy: ActorCritic,
+    policy_params: PolicyState,
+    config: BilevelConfig,
+    rng_key: jax.Array | None = None,
+) -> tuple[ActorCritic, PolicyState, dict]:
+    mode_a_config = config.mode_a_config or ModeAConfig(n_episodes=config.inner_episodes)
+    mode_b_config = config.mode_b_config or ModeBConfig(n_iterations=10)
+
+    if rng_key is None:
+        rng_key = jax.random.PRNGKey(0)
+
+    current_agent = agent_policy
+    current_policy = policy_params
+
+    all_metrics = {
+        "agent_losses": [],
+        "policy_losses": [],
+        "welfare_history": [],
+    }
+
+    for _ in range(int(config.outer_iterations)):
+        key1, key2, rng_key = jax.random.split(rng_key, 3)
+
+        state_with_policy = initial_state.replace(policy=current_policy)
+        current_agent, agent_metrics = run_mode_a_jit(
+            make_executor,
+            state_with_policy,
+            current_agent,
+            mode_a_config,
+            rng_key=key1,
+        )
+        all_metrics["agent_losses"].append(float(agent_metrics["final_loss"]))
+
+        executor = make_executor(current_agent)
+        current_policy, policy_metrics = run_mode_b_jit(
+            executor,
+            initial_state,
+            current_policy,
+            mode_b_config,
+        )
+        all_metrics["policy_losses"].append(float(policy_metrics["final_objective"]))
+        all_metrics["welfare_history"].append(float(policy_metrics["final_objective"]))
+
+    return current_agent, current_policy, all_metrics
 
 
 def run_mode_a(

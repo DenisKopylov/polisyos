@@ -4,6 +4,10 @@ import jax
 import jax.numpy as jnp
 
 from polisyos.foundry.agent_sim.state import GlobalState
+from polisyos.foundry.agent_sim.credit_assignment import (
+    CreditConfig,
+    compute_credit_assignment,
+)
 
 
 class UtilityFunction:
@@ -92,3 +96,27 @@ def apply_discounting(
         jnp.arange(rewards.shape[0] - 1, -1, -1),
     )
     return final
+
+
+def compute_agent_reward_with_credit(
+    state: GlobalState,
+    next_state: GlobalState,
+    credit_config: CreditConfig,
+    *,
+    utility_type: str = "crra",
+    ies: float | jnp.ndarray | None = None,
+    rng_key: jax.Array | None = None,
+) -> jnp.ndarray:
+    individual_rewards = compute_agent_reward(
+        state,
+        next_state,
+        utility_type=utility_type,
+        ies=ies,
+    )
+    return compute_credit_assignment(
+        individual_rewards,
+        state,
+        next_state,
+        credit_config,
+        rng_key=rng_key,
+    )

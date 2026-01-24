@@ -4,62 +4,97 @@
 
 Scientist - это "мозг" Policy Engine, отвечающий за автоматическое проектирование, валидацию и оптимизацию экономических политик с использованием LLM и дифференцируемых симуляций. Модуль реализует полный цикл от естественного языка пользователя до оптимизированного пакета решений.
 
+## Обзор модуля
+
+Модуль `scientist` представляет собой оркестрационную систему, управляющую полным жизненным циклом экспериментов с экономическими политиками. Он интегрирует:
+
+- **LLM-агентов** для генерации политик из естественного языка
+- **Конечный автомат состояний (FSM)** для управления фазами эксперимента
+- **Дифференцируемые симуляции** через Foundry executor
+- **Гovernance и safety controls** для контроля качества и безопасности
+- **Design of Experiments (DoE)** для систематического исследования сценариев
+- **Content-addressable storage (CAS)** для reproducible артефактов
+
 ## Архитектура
 
-Scientist построен как многоуровневая система оркестрации с четким разделением ответственности. Архитектура следует принципам модульной декомпозиции и однонаправленных зависимостей (Закон A), обеспечивая высокую тестируемость и расширяемость. Модуль интегрируется с остальной системой через контракты IR (Закон C) и обеспечивает полную воспроизводимость экспериментов (Закон D).
+Scientist построен как многоуровневая система оркестрации с четким разделением ответственности по принципу однонаправленных зависимостей (Закон A). Архитектура следует паттерну "Clean Architecture" с явным разделением на слои:
 
-### 🤖 Agent Layer (Агенты и генерация)
+### 🏗️ Архитектурные принципы
+
+- **Закон A (Dependencies)**: Однонаправленные зависимости (scientist зависит от всех нижних модулей, но не наоборот)
+- **Закон B (Compiler Pipeline)**: NL → LLM → IR → Compilation → Runtime
+- **Закон C (Contracts)**: Контракты как источник истины (PolicySurfaceIR v2.0)
+- **Закон D (Reproducibility)**: Полная воспроизводимость через RunRecord, deterministic seeds и CAS artifacts
+- **Закон E (Evidence)**: Все результаты должны иметь криптографически verifiable доказательства
+- **Закон F (Fidelity)**: Multi-fidelity simulation с adjustable precision
+- **Закон G (Uncertainty)**: Оценки неопределенности через Hessian analysis
+- **Закон H (Trust)**: Statistical verification и multi-tier evidence validation
+
+### 📦 Структура модуля
+
+```
+scientist/
+├── agent/           # LLM агенты и промпты
+├── kernel/          # FSM, бюджеты, guards, human gates
+├── compute/         # Спецификации задач и execution backends
+├── doe/            # Design of Experiments
+├── governance/     # Preflight/postflight проверки
+├── orchestrator/   # Workflow и state management
+└── publisher.py    # Финализация результатов
+```
+
+### 🤖 Agent Layer (агенты/agent)
 
 Отвечает за генерацию и принятие решений о политиках через различные стратегии:
 
-- **base.py**: Абстрактный класс `BaseAgent` и `MockAgent` для эвристического принятия решений на основе экономических показателей (безработица, бюджетный баланс). MockAgent создает простые политики налогообложения/субсидий
-- **drafter.py**: Узел генерации политики через LLM с поддержкой `MockLLM` для тестирования без API ключей. Включает интеграцию с системными промптами и аудит трейлинг
-- **prompts.py**: Системные промпты для LLM с каталогом доступных механизмов политики и селекторов
-- **prompt.py**: Альтернативные и специализированные промпты для различных сценариев Policy Scientist
+- **`base.py`**: Абстрактный класс `BaseAgent` и `MockAgent` для эвристического принятия решений на основе экономических показателей. MockAgent создает простые политики налогообложения/субсидий на основе безработицы и бюджетного баланса
+- **`drafter.py`**: Узел генерации политики через LLM с поддержкой `MockLLM` для тестирования без API ключей. Реализует self-healing циклы для исправления ошибок валидации через повторные LLM вызовы
+- **`prompts.py`**: Системные промпты для LLM с полным каталогом доступных механизмов политики и селекторов из DEFAULT_MECHANISM_REGISTRY
+- **`prompt.py`**: Альтернативные и специализированные промпты для различных сценариев Policy Scientist с динамической загрузкой схем Pydantic
 
-### 🎯 Kernel Layer (Ядро управления)
+### 🎯 Kernel Layer (ядро/kernel)
 
 Обеспечивает контроль выполнения, безопасность и управление жизненным циклом экспериментов:
 
-- **budgets.py**: Строгие модели бюджетов (`ComputeBudget`, `EvidenceBudget`, `LegitimacyBudget`, `ComplexityBudget`) с валидацией Pydantic. ComputeBudget контролирует LLM вызовы, симуляции и время выполнения
-- **fsm.py**: Конечный автомат состояний с 9 фазами (`Phase` enum) и строгими правилами переходов (`ALLOWED_TRANSITIONS`). Поддерживает self-healing циклы для исправления ошибок
-- **guards.py**: Система проверок переходов между состояниями и валидации артефактов для предотвращения некорректных состояний
-- **human_gate.py**: Асинхронная система человеческих ворот для одобрения критических решений (`GateRequest`, `GateDecision`)
+- **`budgets.py`**: Строгие модели бюджетов (`ComputeBudget`, `EvidenceBudget`, `LegitimacyBudget`, `ComplexityBudget`) с валидацией Pydantic. ComputeBudget контролирует LLM вызовы, симуляции и время выполнения
+- **`fsm.py`**: Конечный автомат состояний с 9 фазами (`Phase` enum) и строгими правилами переходов (`ALLOWED_TRANSITIONS`). Поддерживает self-healing циклы для исправления ошибок
+- **`guards.py`**: Система проверок переходов между состояниями и валидации артефактов для предотвращения некорректных состояний
+- **`human_gate.py`**: Асинхронная система человеческих ворот для одобрения критических решений (`GateRequest`, `GateDecision`)
 
-### 🔬 Compute Layer (Вычислительные спецификации)
+### 🔬 Compute Layer (вычисления/compute)
 
 Определяет интерфейсы и спецификации для запуска симуляций и распределенных вычислений:
 
-- **job_spec.py**: Детальные спецификации задач симуляции (`JobSpec`, `JobKey`, `JobResult`) с поддержкой артефактов, seed и метрик. JobKey генерируется как SHA256 хеш от спецификации
-- **runner.py**: Интерфейс для запуска вычислительных задач с поддержкой разных бэкендов (`LocalBackend`, `RunnerBackend`). Интегрирован с Foundry executor для выполнения JAX программ
+- **`job_spec.py`**: Детальные спецификации задач симуляции (`JobSpec`, `JobKey`, `JobResult`) с поддержкой артефактов, seed и метрик. JobKey генерируется как SHA256 хеш от спецификации для reproducible execution
+- **`runner.py`**: Интерфейс для запуска вычислительных задач с поддержкой разных бэкендов (`LocalBackend`, `RayBackend`). Интегрирован с Foundry executor для выполнения JAX программ с patch-based execution
 
-### 📊 Design of Experiments (DoE)
+### 📊 Design of Experiments (DoE/doe)
 
 Планирование экспериментов и систематическое исследование сценариев политики:
 
-- **designs.py**: Модели дизайнов экспериментов (`ScenarioSweep`, `AblationPlan`, `SensitivityPlan`) для сравнения политик и анализа чувствительности
+- **`designs.py`**: Модели дизайнов экспериментов (`ScenarioSweep`, `AblationPlan`, `SensitivityPlan`) для сравнения политик и анализа чувствительности. Готовы для интеграции в workflow
 
-### 🛡️ Governance Layer (Управление и безопасность)
+### 🛡️ Governance Layer (управление/governance)
 
 Многоуровневый контроль качества, безопасности и соответствия требованиям:
 
-- **preflight.py**: Предварительные проверки безопасности и валидации перед запуском экспериментов (возвращает `GateRequest` при необходимости). Текущая реализация - placeholder
-- **postflight.py**: Пост-запусковые проверки результатов и финальное одобрение экспериментов. Текущая реализация - placeholder
+- **`preflight.py`**: Предварительные проверки безопасности и валидации перед запуском экспериментов (возвращает `GateRequest` при необходимости). Текущая реализация - placeholder с базовой структурой
+- **`postflight.py`**: Пост-запусковые проверки результатов и финальное одобрение экспериментов. Текущая реализация - placeholder с базовой структурой
 
-### 🎼 Orchestrator Layer (Основная оркестрация)
+### 🎼 Orchestrator Layer (оркестрация/orchestrator)
 
 Управляет полным жизненным циклом экспериментов с использованием LangGraph для декларативного workflow:
 
-- **workflow.py**: Основной граф состояний LangGraph с 9 узлами и системой маршрутизации на основе состояния и фидбэка
-- **state.py**: `ExperimentState` (TypedDict с 80+ полями) - центральная структура данных эксперимента с полями для всех этапов workflow
-- **flow_nodes.py**: Полные реализации всех узлов workflow (1450+ строк кода) с интеграцией Foundry, Fabric, Core и всех компонентов системы
-- **decision_packet.py**: Итоговый артефакт прогона (`DecisionPacket`) с полной информацией о эксперименте, включая fabric_result и evidence_ref
-- **run_record.py**: Детальные записи для воспроизводимости (`RunRecord` с метаданными окружения, seed, версиями библиотек)
-- **audit.py**: Комплексная система аудита и логирования всех операций с append_audit функцией
-- **data_loader.py**: Загрузка и подготовка начальных данных из Fabric layer через SimulationDB и GraphStore
-- **nodes.py**: Дополнительные специализированные узлы workflow (устаревший, заменен flow_nodes.py)
-- **optimizer.py**: Градиентная оптимизация параметров политик с использованием Optax (placeholder)
-- **registry.py**: Управление реестрами компонентов и артефактов (placeholder)
+- **`workflow.py`**: Основной граф состояний LangGraph с 9 узлами и системой маршрутизации на основе состояния и фидбэка. Включает conditional edges для self-healing циклов
+- **`state.py`**: `ExperimentState` (TypedDict с 90+ полями) - центральная структура данных эксперимента с полями для всех этапов workflow
+- **`flow_nodes.py`**: Полные реализации всех узлов workflow (1450+ строк кода) с интеграцией Foundry, Fabric, Core и всех компонентов системы
+- **`decision_packet.py`**: Итоговый артефакт прогона (`DecisionPacket`) с полной информацией о эксперименте, включая fabric_result, evidence_ref и uncertainty quantification
+- **`run_record.py`**: Детальные записи для воспроизводимости (`RunRecord` с метаданными окружения, seed, версиями библиотек)
+- **`audit.py`**: Комплексная система аудита и логирования всех операций с append_audit функцией
+- **`data_loader.py`**: Загрузка и подготовка начальных данных из Fabric layer через SimulationDB и GraphStore
+- **`nodes.py`**: Устаревшие узлы workflow (deprecated, заменен flow_nodes.py)
+- **`optimizer.py`**: Градиентная оптимизация параметров политик с использованием Optax (placeholder)
+- **`registry.py`**: Управление реестрами компонентов и артефактов (placeholder)
 
 ### 📚 Legacy Layer (Устаревший код)
 
@@ -77,7 +112,7 @@ Scientist построен как многоуровневая система о
 
 ## Workflow Pipeline
 
-Scientist реализует декларативный workflow на LangGraph с поддержкой FSM фаз и автоматической маршрутизацией:
+Scientist реализует декларативный workflow на LangGraph с поддержкой FSM фаз и автоматической маршрутизацией. Workflow включает self-healing циклы и conditional routing на основе feedback от governor.
 
 ```mermaid
 graph TD
@@ -86,27 +121,49 @@ graph TD
     C -->|NEEDS_REVISION| D[repair_ir<br/>FRAME]
     C -->|APPROVE| E[compile_data_views<br/>PLAN]
     D --> B
+
     E --> F[compile_model<br/>EXECUTE]
-    F --> G[run_sim<br/>EXECUTE]
-    G --> H[analyze<br/>EXECUTE]
-    H --> I[governor<br/>POSTFLIGHT_GOV]
-    I --> J[pack_decision<br/>PUBLISH]
-    J --> K[END]
+    F --> G{compile_feedback?}
+    G -->|NEEDS_REVISION| D
+    G -->|REJECT| J
+    G -->|APPROVE| H[train_agents<br/>EXECUTE]
+
+    H --> I{training_feedback?}
+    I -->|NEEDS_REVISION| D
+    I -->|REJECT| J
+    I -->|APPROVE| K[run_sim<br/>EXECUTE]
+
+    K --> L{sim_feedback?}
+    L -->|CONSTRAINT_ERROR| J
+    L -->|NEEDS_REVISION| D
+    L -->|REJECT| J
+    L -->|APPROVE| M[analyze<br/>EXECUTE]
+
+    M --> N[governor<br/>POSTFLIGHT_GOV]
+    N --> O[pack_decision<br/>DECIDE]
+    O --> P[END]
+
+    J[pack_decision<br/>EARLY_EXIT]
 ```
 
 ### FSM Фазы (Kernel Layer)
 
-Workflow управляется конечным автоматом состояний:
+Workflow управляется конечным автоматом состояний с поддержкой self-healing циклов и early exit:
 
 1. **INTAKE**: Начальная фаза, подготовка к эксперименту
 2. **FRAME**: Генерация и валидация политики (draft_ir, validate_ir, repair_ir)
-3. **PREFLIGHT_GOV**: Предварительные проверки безопасности
+3. **PREFLIGHT_GOV**: Предварительные проверки безопасности (placeholder)
 4. **PLAN**: Планирование данных и компиляции (compile_data_views)
-5. **EXECUTE**: Запуск симуляции (compile_model, run_sim, analyze)
+5. **EXECUTE**: Запуск симуляции (compile_model, train_agents, run_sim, analyze)
 6. **POSTFLIGHT_GOV**: Финальные проверки (governor)
-7. **DECIDE**: Принятие решения
-8. **PUBLISH**: Публикация результатов (pack_decision)
+7. **DECIDE**: Принятие решения (pack_decision)
+8. **PUBLISH**: Публикация результатов
 9. **ARCHIVE**: Архивация эксперимента
+
+#### Self-healing циклы
+- **FRAME → FRAME**: Повторная генерация при ошибках валидации
+- **EXECUTE → FRAME**: Возврат к генерации при constraint/runtime ошибках
+- **Early Exit**: Преждевременное завершение при budget exhaustion или policy rejection
 
 ### Узлы Workflow
 
@@ -119,7 +176,7 @@ Workflow управляется конечным автоматом состоя
 7. **run_sim** (EXECUTE): Запуск симуляции через Foundry executor с patch-based execution и сбором метрик
 8. **analyze** (EXECUTE): Анализ результатов симуляции, расчет экономических метрик и gradient health reports
 9. **governor** (POSTFLIGHT_GOV): Финальное решение губернатора на основе бюджетов, безопасности и политик
-10. **pack_decision** (PUBLISH): Формирование итогового `DecisionPacket` с полной информацией об эксперименте
+10. **pack_decision** (DECIDE): Формирование итогового `DecisionPacket` с полной информацией об эксперименте
 
 ## Ключевые возможности
 
@@ -153,13 +210,14 @@ Workflow управляется конечным автоматом состоя
 - **Audit Trail**: Полный лог всех операций для compliance
 
 ### 🔄 Reproducibility & Artifacts
-- **RunRecord**: Детальные метаданные о прогоне (seed, backend, версии библиотек, флаги)
+- **RunRecord**: Детальные метаданные о прогоне (seed, backend, версии библиотек, флаги, environment)
 - **DecisionPacket**: Итоговый артефакт с IR, результатами, аудитом, evidence и uncertainty bounds
 - **Artifact Management**: Content-addressable storage (CAS) с SHA256-based addressing
 - **Parent/Child Relationships**: Связи между экспериментами для воспроизводимости
 - **Evidence Bundles**: Криптографически verifiable доказательства происхождения данных
 - **Fabric Result**: Результаты Fabric layer с evidence references и uncertainty bounds
-- **Audit Trail**: Полный JSON Lines лог всех операций с provenance tracking
+- **Audit Trail**: Полный JSON Lines лог всех операций с provenance tracking и timestamps
+- **Deterministic Seeds**: Полная воспроизводимость через fixed seeds и canonical serialization
 
 ### ⚙️ Compute & Experiment Design
 - **Job Specifications**: `JobSpec`, `JobKey`, `JobResult` для структурированных задач

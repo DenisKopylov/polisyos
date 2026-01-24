@@ -67,7 +67,7 @@ fabric/
 ├── materializer.py          # Полная материализация из Fact Log (ensure_materialized, materialize_duckdb_from_fact_log)
 ├── segment_manifest.py      # Управление сегментами Fact Log (write_segment_manifest)
 ├── fact_writer.py           # Запись фактов в каноническом формате (build_fact, facts_from_dataframe)
-├── trust.py                 # Политики доверия (two_pass_compare, persist_uncertainty_bounds)
+├── trust.py                 # Политики доверия (two_pass_compare, persist_uncertainty_bounds, UncertaintyBounds)
 ├── io/                      # Интерфейсы хранения данных
 │   ├── __init__.py          # Экспорт адаптеров хранения
 │   ├── db.py                # DuckDB адаптер (SimulationDB)
@@ -450,22 +450,20 @@ def persist_evidence_bundle(
 #### Основные функции:
 ```python
 def two_pass_compare(
-    series_a: pd.Series,
-    series_b: pd.Series,
+    optimistic_value: float,
+    pessimistic_value: float,
     *,
-    rtol: float = 1e-05,
-    atol: float = 1e-08,
-    equal_nan: bool = False,
-) -> tuple[bool, float, float]:
-    """Двухпроходное сравнение серий с расчетом границ неопределенности."""
+    method: str = "two_pass_compare",
+) -> UncertaintyBounds:
+    """Двухпроходное сравнение значений с расчетом границ неопределенности."""
 
 def persist_uncertainty_bounds(
-    bounds: tuple[float, float],
-    cas: FileSystemCAS,
+    store: FileSystemCAS,
+    bounds: UncertaintyBounds,
     *,
-    schema_name: str = "trust.uncertainty_bounds",
+    schema_name: str = "fabric.uncertainty_bounds",
     schema_version: str = "1.0",
-) -> ArtifactRef:
+) -> UncertaintyBoundsRef:
     """Сохранение границ неопределенности в CAS."""
 ```
 

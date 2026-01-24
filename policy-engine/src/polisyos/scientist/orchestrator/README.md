@@ -1,0 +1,578 @@
+# Orchestrator Layer: Управление жизненным циклом экспериментов
+
+**Workflow orchestration и state management для сложных экспериментов**
+
+Orchestrator Layer управляет полным жизненным циклом экспериментов с использованием LangGraph для декларативного workflow, обеспечивая reproducible execution и comprehensive state management.
+
+## Обзор
+
+Папка `orchestrator/` содержит ядро оркестрации экспериментов - workflow на LangGraph, state management, decision packets и вспомогательные компоненты для управления сложными multi-step экспериментами.
+
+## Архитектура
+
+```
+orchestrator/
+├── __init__.py                    # Пустой (для будущего использования)
+├── workflow.py                   # Основной LangGraph workflow
+├── state.py                      # ExperimentState и типы данных
+├── flow_nodes.py                 # Реализации узлов workflow (1450+ строк)
+├── decision_packet.py            # Итоговый артефакт эксперимента
+├── run_record.py                 # Метаданные для воспроизводимости
+├── audit.py                      # Система аудита и логирования
+├── data_loader.py                # Загрузка данных из Fabric
+├── nodes.py                      # Устаревшие узлы (deprecated)
+├── optimizer.py                  # Оптимизация параметров (placeholder)
+└── registry.py                   # Управление реестрами (placeholder)
+```
+
+## Компоненты
+
+### 🔄 Workflow Orchestration (workflow.py)
+
+Основной декларативный workflow на LangGraph с self-healing циклами:
+
+#### build_workflow()
+Создание LangGraph workflow:
+```python
+def build_workflow():
+    """Создание основного scientist workflow."""
+    workflow = StateGraph(ExperimentState)
+
+    # Добавление узлов с phase management
+    workflow.add_node("draft_ir", _with_phase(Phase.FRAME, draft_ir_node))
+    workflow.add_node("validate_ir", _with_phase(Phase.FRAME, validate_ir_node))
+    workflow.add_node("repair_ir", _with_phase(Phase.FRAME, repair_ir_node))
+    workflow.add_node("compile_data_views", _with_phase(Phase.PLAN, compile_data_views_node))
+    workflow.add_node("compile_model", _with_phase(Phase.EXECUTE, compile_model_node))
+    workflow.add_node("train_agents", _with_phase(Phase.EXECUTE, train_agents_node))
+    workflow.add_node("run_sim", _with_phase(Phase.EXECUTE, run_sim_node))
+    workflow.add_node("analyze", _with_phase(Phase.EXECUTE, analyze_node))
+    workflow.add_node("governor", _with_phase(Phase.POSTFLIGHT_GOV, governor_node))
+    workflow.add_node("pack_decision", _with_phase(Phase.DECIDE, pack_decision_node))
+
+    # Conditional edges для routing
+    workflow.add_conditional_edges("validate_ir", _route_after_validate)
+    workflow.add_conditional_edges("compile_model", _route_after_compile)
+    workflow.add_conditional_edges("run_sim", _route_after_run_sim)
+
+    workflow.set_entry_point("draft_ir")
+    return workflow.compile()
+```
+
+#### Conditional Routing
+Система условного routing на основе feedback:
+
+```python
+def _route_after_validate(state: ExperimentState) -> str:
+    """Routing после валидации IR."""
+    feedback = state.get("feedback")
+    if feedback and feedback.get("verdict") == "NEEDS_REVISION":
+        return "repair_ir"
+    return "compile_data_views"
+
+def _route_after_run_sim(state: ExperimentState) -> str:
+    """Routing после симуляции."""
+    feedback = state.get("feedback")
+    if feedback:
+        verdict = feedback.get("verdict")
+        if verdict == "REJECT":
+            return "pack_decision"
+        if verdict == "NEEDS_REVISION":
+            # Constraint errors → repair, runtime errors → pack_decision
+            issues = feedback.get("issues", [])
+            if any(issue.get("error_type") == "constraint" for issue in issues):
+                return "pack_decision"
+            return "repair_ir"
+    return "analyze"
+```
+
+### 📊 State Management (state.py)
+
+Центральная структура данных эксперимента:
+
+#### ExperimentState
+TypedDict с 90+ полями для полного state management:
+```python
+class ExperimentState(TypedDict):
+    # Входные данные
+    user_request: str
+    ir: Optional[PolicySurfaceIR]
+    last_ir_json: Optional[str]
+    last_error: Optional[str]
+
+    # Управление workflow
+    optimize: Optional[bool]
+    run_id: Optional[str]
+    parent_run_id: Optional[str]
+    repro_mode: Optional[str]
+    run_record: Optional[RunRecord]
+    budget: Optional[Dict[str, float]]
+    budget_usage: Optional[Dict[str, float]]
+
+    # Результаты симуляции
+    simulation_results: Optional[Dict[str, float]]
+    simulation_results_ref: Optional[Dict[str, Any]]
+    fabric_result: Optional[Dict[str, Any]]
+
+    # Обратная связь и governance
+    feedback: Optional[GovernorFeedback]
+    gate_request: Optional[Dict[str, Any]]
+    gate_decision: Optional[Dict[str, Any]]
+
+    # Audit и repair tracking
+    audit_trail: List[Dict[str, Any]]
+    repair_log: List[RepairAttempt]
+    revision_count: int
+    max_repair_attempts: int
+
+    # И многое другое...
+```
+
+#### GovernorFeedback
+Структура для обратной связи от governor:
+```python
+class GovernorFeedback(TypedDict):
+    verdict: str  # "APPROVE", "REJECT", "NEEDS_REVISION"
+    issues: List[Dict[str, Any]]  # Детали проблем
+```
+
+#### RepairAttempt
+Отслеживание попыток исправления ошибок:
+```python
+class RepairAttempt(TypedDict):
+    repair_attempt: int
+    error_summary: str
+    diff_before_after: Dict[str, Any]
+```
+
+### 🏗️ Flow Nodes (flow_nodes.py)
+
+Реализации всех узлов workflow (1450+ строк кода):
+
+#### draft_ir_node
+Генерация политики из natural language:
+```python
+def draft_ir_node(state: ExperimentState) -> ExperimentState:
+    """Генерация PolicySurfaceIR из user request."""
+    # 1. Получение user_request
+    # 2. Вызов drafter (LLM или MockAgent)
+    # 3. Pydantic валидация
+    # 4. Обновление state
+    # 5. Audit logging
+```
+
+#### validate_ir_node
+Полная валидация структуры и семантики:
+```python
+def validate_ir_node(state: ExperimentState) -> ExperimentState:
+    """Валидация IR через validation pipeline."""
+    # 1. Schema validation
+    # 2. Semantic validation
+    # 3. Business rules checking
+    # 4. Governor feedback generation
+```
+
+#### compile_model_node
+Компиляция политики в JAX:
+```python
+def compile_model_node(state: ExperimentState) -> ExperimentState:
+    """Компиляция IR в executable model через Foundry."""
+    # 1. Вызов foundry.compiler.compile_surface_policy
+    # 2. Linker validation
+    # 3. Artifact storage
+    # 4. State updates
+```
+
+#### run_sim_node
+Выполнение симуляции:
+```python
+def run_sim_node(state: ExperimentState) -> ExperimentState:
+    """Запуск симуляции через compute layer."""
+    # 1. Создание JobSpec
+    # 2. Вызов compute.run_job
+    # 3. Обработка результатов
+    # 4. State updates
+```
+
+#### governor_node
+Финальное решение:
+```python
+def governor_node(state: ExperimentState) -> ExperimentState:
+    """Governor принимает финальное решение."""
+    # 1. Анализ результатов
+    # 2. Проверка бюджетов
+    # 3. Safety validation
+    # 4. Генерация verdict
+```
+
+### 📦 Decision Packet (decision_packet.py)
+
+Итоговый артефакт эксперимента с полной информацией:
+
+#### DecisionPacket
+Структура финального результата:
+```python
+class DecisionPacket(BaseModel):
+    schema_version: str = "1.0"
+    generated_at: str
+    run_id: str
+    parent_run_id: Optional[str] = None
+    run_record: RunRecord
+    policy_ir: Optional[PolicySurfaceIR] = None
+    simulation_results: Optional[Dict[str, Any]] = None
+    fabric_result: Optional[FabricResult] = None
+    feedback: Optional[GovernorFeedback] = None
+    audit_trail: List[Dict[str, Any]] = []
+    evidence_ref: EvidenceBundleRef | None = None
+    uncertainty_ref: UncertaintyBoundsRef | None = None
+```
+
+#### build_decision_packet()
+Создание decision packet из experiment state:
+```python
+def build_decision_packet(state: ExperimentState, run_record: RunRecord) -> DecisionPacket:
+    """Формирование итогового артефакта."""
+    return DecisionPacket(
+        run_id=run_record.run_id,
+        run_record=run_record,
+        policy_ir=state.get("ir"),
+        simulation_results=state.get("simulation_results"),
+        fabric_result=state.get("fabric_result"),
+        evidence_ref=_resolve_evidence(state),
+        uncertainty_ref=_resolve_uncertainty(state),
+        feedback=state.get("feedback"),
+        audit_trail=list(state.get("audit_trail", []))
+    )
+```
+
+### 📋 Run Record (run_record.py)
+
+Метаданные для полной воспроизводимости:
+
+#### RunRecord
+Детальная информация о прогоне:
+```python
+class RunRecord(BaseModel):
+    run_id: str
+    parent_run_id: Optional[str] = None
+    seed: int
+    repro_mode: ReproMode
+    generator: Dict[str, str]
+    python_version: str
+    platform_info: Dict[str, str]
+    library_versions: Dict[str, str]
+    environment_vars: Dict[str, str]
+    start_time: str
+    end_time: Optional[str] = None
+    status: str = "running"
+```
+
+#### build_run_record()
+Создание run record с автоматическим сбором метаданных:
+```python
+def build_run_record(
+    run_id: str,
+    parent_run_id: Optional[str] = None,
+    seed: int = 0,
+    repro_mode: ReproMode = ReproMode.STRICT,
+    generator: Optional[Dict[str, str]] = None
+) -> RunRecord:
+    """Создание run record с системной информацией."""
+    return RunRecord(
+        run_id=run_id,
+        parent_run_id=parent_run_id,
+        seed=seed,
+        repro_mode=repro_mode,
+        generator=generator or {"name": "policy-engine", "version": "0.1.0"},
+        python_version=platform.python_version(),
+        platform_info=get_platform_info(),
+        library_versions=get_library_versions(),
+        environment_vars=get_relevant_env_vars(),
+        start_time=datetime.now(timezone.utc).isoformat()
+    )
+```
+
+### 📝 Audit System (audit.py)
+
+Комплексная система логирования всех операций:
+
+#### append_audit()
+Добавление события в audit trail:
+```python
+def append_audit(
+    state: dict,
+    operation: str,
+    event_type: str,
+    details: dict,
+    timestamp: Optional[str] = None
+) -> dict:
+    """Добавление события аудита."""
+    audit_entry = {
+        "timestamp": timestamp or datetime.now(timezone.utc).isoformat(),
+        "operation": operation,
+        "event_type": event_type,
+        "details": details,
+        "phase": state.get("phase"),
+        "run_id": state.get("run_id")
+    }
+
+    current_trail = state.get("audit_trail", [])
+    current_trail.append(audit_entry)
+
+    return {**state, "audit_trail": current_trail}
+```
+
+### 📊 Data Loader (data_loader.py)
+
+Загрузка и подготовка данных из Fabric layer:
+
+#### load_experiment_data()
+Загрузка начальных данных для эксперимента:
+```python
+def load_experiment_data(state: ExperimentState) -> ExperimentState:
+    """Загрузка данных из Fabric через SimulationDB и GraphStore."""
+    # 1. Получение data view requests из IR
+    # 2. Вызов fabric.io для загрузки данных
+    # 3. Подготовка initial state snapshot
+    # 4. Обновление state
+```
+
+## API Использование
+
+### Запуск workflow
+
+```python
+from polisyos.scientist.orchestrator.workflow import build_workflow
+
+# Создание workflow
+workflow = build_workflow()
+
+# Запуск эксперимента
+result = workflow.invoke({
+    "user_request": "Reduce poverty through targeted subsidies",
+    "run_id": "experiment_001",
+    "optimize": True,
+    "budget": {
+        "max_llm_calls": 3,
+        "max_sim_runs": 1,
+        "max_wall_time_s": 120
+    }
+})
+
+# Получение результата
+decision_packet = result.get("decision_packet")
+if decision_packet:
+    print(f"Verdict: {decision_packet.feedback.verdict}")
+    print(f"Run ID: {decision_packet.run_id}")
+```
+
+### Работа с Decision Packet
+
+```python
+from polisyos.scientist.orchestrator.decision_packet import build_decision_packet
+
+# Создание decision packet
+packet = build_decision_packet(experiment_state, run_record)
+
+# Сохранение (deprecated, использовать runtime.log_artifact)
+# save_decision_packet(packet, base_dir=Path("results"))
+
+# Доступ к результатам
+print(f"Policy: {packet.policy_ir.semantic.interventions}")
+print(f"Results: {packet.simulation_results}")
+print(f"Audit events: {len(packet.audit_trail)}")
+if packet.evidence_ref:
+    print(f"Evidence bundle: {packet.evidence_ref.bundle_id}")
+```
+
+### Audit Trail анализ
+
+```python
+# Анализ audit trail
+audit_events = decision_packet.audit_trail
+
+# Статистика по операциям
+operations = {}
+for event in audit_events:
+    op = event["operation"]
+    operations[op] = operations.get(op, 0) + 1
+
+print(f"Operations: {operations}")
+
+# Timeline анализа
+timestamps = [event["timestamp"] for event in audit_events]
+duration = datetime.fromisoformat(timestamps[-1]) - datetime.fromisoformat(timestamps[0])
+print(f"Total duration: {duration}")
+```
+
+## Расширение
+
+### Кастомные узлы workflow
+
+```python
+from polisyos.scientist.orchestrator.state import ExperimentState
+
+def custom_analysis_node(state: ExperimentState) -> ExperimentState:
+    """Кастомный узел анализа."""
+
+    results = state.get("simulation_results", {})
+
+    # Кастомная логика анализа
+    custom_metrics = {
+        "efficiency_ratio": results.get("gdp_change", 0) / max(abs(results.get("budget_deficit", 1)), 1),
+        "equity_score": 1 - results.get("gini_coefficient", 0),
+        "sustainability_index": (results.get("gdp_change", 0) - abs(results.get("budget_deficit", 0))) / 100
+    }
+
+    return {**state, "custom_analysis": custom_metrics}
+```
+
+### Интеграция с DOE
+
+```python
+def doe_execution_node(state: ExperimentState) -> ExperimentState:
+    """Узел для выполнения DoE дизайнов."""
+
+    doe_design = state.get("doe_design")
+    if not doe_design:
+        return state
+
+    # Выполнение multiple scenarios
+    results = []
+    for scenario in doe_design.get("scenarios", []):
+        scenario_state = apply_scenario_to_state(state, scenario)
+        scenario_result = run_single_scenario(scenario_state)
+        results.append(scenario_result)
+
+    # Statistical analysis
+    analysis = analyze_doe_results(results)
+
+    return {**state, "doe_results": results, "doe_analysis": analysis}
+```
+
+### Кастомные governor правила
+
+```python
+def custom_governor_logic(state: ExperimentState) -> GovernorFeedback:
+    """Кастомная логика governor."""
+
+    results = state.get("simulation_results", {})
+    budget = state.get("budget", {})
+
+    issues = []
+
+    # Custom checks
+    if results.get("budget_deficit", 0) < -1000:
+        issues.append({
+            "message": "Budget deficit exceeds threshold",
+            "severity": "high",
+            "code": "budget_deficit"
+        })
+
+    if results.get("unemployment_rate", 0) > 0.08:
+        issues.append({
+            "message": "Unemployment rate too high",
+            "severity": "medium",
+            "code": "high_unemployment"
+        })
+
+    verdict = "REJECT" if issues else "APPROVE"
+
+    return GovernorFeedback(verdict=verdict, issues=issues)
+```
+
+## Тестирование
+
+### Unit тесты
+
+```bash
+# Тестирование orchestrator компонентов
+pytest tests/scientist/test_orchestrator_*.py -v
+
+# Workflow execution
+pytest tests/scientist/test_orchestrator_workflow.py -v
+
+# State management
+pytest tests/scientist/test_orchestrator_state.py -v
+
+# Decision packets
+pytest tests/scientist/test_orchestrator_decision_packet.py -v
+```
+
+### Integration тесты
+
+```bash
+# E2E workflow тесты
+pytest tests/scientist/integration/test_workflow_smoke.py -v
+
+# LLM integration тесты
+pytest tests/scientist/integration/test_workflow_llm.py -v --tb=short
+```
+
+### Mock тестирование
+
+```python
+def test_workflow_execution_mock():
+    """Тестирование workflow с mock компонентами."""
+
+    # Создание mock state
+    initial_state = {
+        "user_request": "Test policy",
+        "run_id": "mock_test_001",
+        "budget": {"max_llm_calls": 1, "max_sim_runs": 1}
+    }
+
+    # Выполнение workflow
+    workflow = build_workflow()
+    result = workflow.invoke(initial_state)
+
+    # Проверка результатов
+    assert "decision_packet" in result
+    packet = result["decision_packet"]
+    assert packet.run_id == "mock_test_001"
+```
+
+## Связанные компоненты
+
+- **Agent**: `draft_ir_node` использует `drafter.py`
+- **Kernel**: FSM phases, guards, human gates
+- **Compute**: `run_sim_node` использует `run_job`
+- **Governance**: Preflight/postflight integration
+- **IR**: PolicySurfaceIR валидация и compilation
+- **Fabric**: Data loading и evidence bundles
+- **Foundry**: Model compilation и simulation execution
+- **Runtime**: Lifecycle management и artifact storage
+
+## Troubleshooting
+
+### Workflow не завершается
+
+```
+LangGraphError: Maximum iterations exceeded
+```
+
+**Решение**: Проверить self-healing циклы - возможно бесконечный loop в repair_ir
+
+### State становится слишком большим
+
+**Решение**: Очистить ненужные поля из state или использовать external storage для больших данных
+
+### Decision packet не содержит ожидаемые данные
+
+```
+KeyError: 'simulation_results' not found in decision packet
+```
+
+**Решение**: Убедиться, что `run_sim_node` выполнился успешно перед `pack_decision_node`
+
+### Audit trail поврежден
+
+**Решение**: Проверить, что все узлы правильно вызывают `append_audit`
+
+### Memory leaks в долгосрочных экспериментах
+
+**Решение**: Implement state cleanup между итерациями или использовать streaming processing
+
+### Race conditions в parallel execution
+
+**Решение**: Implement proper synchronization primitives или sequential execution для critical sections

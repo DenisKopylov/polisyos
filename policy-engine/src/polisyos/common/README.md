@@ -1,8 +1,24 @@
 # Common: Общие компоненты Policy Engine
 
-> **Последнее обновление:** 15 января 2026 г. (обновление документации)
+> **Последнее обновление:** 24 января 2026 г. (обновление документации)
 
 Модуль `polisyos.common` содержит фундаментальные утилиты и конфигурации, используемые во всех слоях архитектуры Policy Engine. Эти компоненты обеспечивают базовую инфраструктуру без зависимостей от бизнес-логики.
+
+## Структура модуля
+
+```
+common/
+├── __init__.py              # Пустой - модуль не экспортирует публичный API
+├── config.py                # Централизованная конфигурация приложения
+├── jax_env.py               # Безопасная настройка JAX backend для macOS
+├── logger.py                # Единый интерфейс структурированного логирования
+├── migrations/              # Система версионирования артефактов
+│   ├── __init__.py         # Экспорт API миграций
+│   ├── base.py             # Ядро системы миграций
+│   ├── manifest.py         # Миграции Dataset Manifest
+│   └── policy_ir.py        # Миграции Policy IR
+└── README.md               # Эта документация
+```
 
 ## Роль в архитектуре
 
@@ -17,15 +33,21 @@
 
 Модуль `common` активно используется в следующих компонентах:
 
-- **fabric/ingestion.py** - логирование операций ingestion через `get_logger`
+#### Логирование (`logger.py`, `get_logger`):
+- **fabric/ingestion.py** - логирование операций ingestion данных
 - **fabric/io/db.py** - логирование операций с DuckDB через `logger`
 - **fabric/io/graph_store.py** - логирование операций с графовым хранилищем через `get_logger`
-- **fabric/materializer.py** - логирование операций материализации через `get_logger`
+- **fabric/materializer.py** - логирование операций материализации данных
 - **fabric/udf/engine.py** - логирование в UDF движке через `logger`
 - **fabric/udf/compiler.py** - логирование компиляции UDF через `logger`
-- **ir/migrations/** - система миграций для Policy IR артефактов (расширенная обертка над `common.migrations`)
-- **scientist/orchestrator/data_loader.py** - логирование загрузки данных через `logger`
-- **scientist/_legacy/compiler.py** - логирование компиляции через `logger`
+- **scientist/orchestrator/data_loader.py** - логирование загрузки данных экспериментов
+
+#### Миграции (`migrations/`):
+- **ir/migrations/** - расширенная обертка над `common.migrations` для Policy IR артефактов
+
+#### Конфигурация (`config.py`):
+- **jax_bootstrap.py** - применение JAX настроек через side effects при импорте
+- **Весь проект** - косвенное использование через переменные окружения и настройки логирования
 
 ## Архитектурные принципы
 
@@ -72,6 +94,8 @@ Common обеспечивает:
    - Отключение 64-битных вычислений: `JAX_ENABLE_X64=false`
    - Отключение большинства оптимизаций: `JAX_DISABLE_MOST_OPTIMIZATIONS=true`
    - Отключение проверки утечек трассировщиков: `JAX_CHECK_TRACER_LEAKS=false`
+   - Отключение жадной аллокации памяти XLA: `XLA_PYTHON_CLIENT_PREALLOCATE=false`
+   - Автоматическая настройка CPU потоков: `intra_op_parallelism_threads={auto_cores}`
 
 2. **Hardware Safeguards (Защита железа)**
    - Автоматическое определение количества ядер CPU через `multiprocessing.cpu_count()`
@@ -102,16 +126,16 @@ JAX_ENABLE_X64=false
 JAX_DISABLE_MOST_OPTIMIZATIONS=true
 JAX_CHECK_TRACER_LEAKS=false
 
-# Memory & CPU
+# Memory & CPU (автоматически настраиваются)
 XLA_PYTHON_CLIENT_PREALLOCATE=false
-XLA_FLAGS=--xla_cpu_multi_thread_eigen=true intra_op_parallelism_threads={auto}
+XLA_FLAGS=--xla_cpu_multi_thread_eigen=true intra_op_parallelism_threads={auto_cores}
 
 # DuckDB
-DUCKDB_MEMORY_LIMIT=4GB
-DUCKDB_THREADS={auto}                # Автоматически = доступным ядрам CPU
+DUCKDB_MEMORY_LIMIT=4GB              # Дефолт: 4GB
+DUCKDB_THREADS={auto_cores}          # Автоматически = доступным ядрам CPU
 
 # Логирование
-LOG_LEVEL=DEBUG
+LOG_LEVEL=DEBUG                      # Уровень логирования (DEBUG, INFO, WARNING, ERROR)
 ```
 
 #### Важные детали:
@@ -260,12 +284,22 @@ log = get_logger(__name__)
 ```python
 # В jax_bootstrap.py (рекомендуемый способ для проектов с JAX)
 from polisyos.common.jax_env import apply_jax_env_defaults
-apply_jax_env_defaults()  # Применяет безопасные JAX настройки
+apply_jax_env_defaults()  # Применяет безопасные JAX настройки для macOS
 
 # Затем в коде проекта:
 from polisyos.common import config  # Импорт config после jax_bootstrap
 from polisyos.common.logger import get_logger
 log = get_logger(__name__)
+```
+
+#### jax_bootstrap.py в проекте
+
+Файл `jax_bootstrap.py` в корне проекта выполняет инициализацию JAX перед любым импортом JAX:
+
+```python
+# jax_bootstrap.py
+from polisyos.common.jax_env import apply_jax_env_defaults
+apply_jax_env_defaults()  # Безопасная настройка JAX backend
 ```
 
 ### Использование в модулях проекта:

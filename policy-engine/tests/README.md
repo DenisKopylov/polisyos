@@ -27,15 +27,27 @@ tests/
 │   └── test_surface_ir.py         # Surface IR, линкер, semantic fingerprinting, validation reports
 ├── core_phase0/                   # Тесты базовых компонентов core (Phase 0)
 │   ├── conftest.py                # Специфичная конфигурация для core тестов
-│   ├── test_artifact_store.py     # FileSystemCAS, дедупликация, верификация
-│   ├── test_canon_json.py         # Каноническая JSON сериализация
+│   ├── test_artifact_store.py     # FileSystemCAS, дедупликация, верификация integrity
+│   ├── test_canon_json.py         # Каноническая JSON сериализация, детерминированные хэши
 │   ├── test_registry_bundle.py    # Сборка и загрузка registry bundles
-│   └── test_run_context.py        # Контекст выполнения и артефакты
+│   └── test_run_context.py        # Контекст выполнения и артефакты producer'а
+├── demos/                         # Демо-тесты для проверки функциональности
+│   └── run_laffer_demo.py         # Тест запуска демо Laffer curve из tools/demos/
 ├── fabric/                        # Тесты компонентов Fabric layer
-│   ├── test_evidence_bundle.py    # Evidence bundles, ingestion results
-│   └── test_trust_two_pass.py     # Доверие к данным, uncertainty bounds
+│   ├── test_evidence_bundle.py    # Evidence bundles, ingestion pipeline, provenance tracking
+│   └── test_trust_two_pass.py     # Trust system, uncertainty bounds, двухпроходное сравнение
 ├── foundry/                       # Тесты симуляционных компонентов JAX-ядра
+│   ├── agent_sim/                 # Тесты симуляции агентов
+│   │   └── test_monitoring.py     # MetricsCollector, ExperimentTracker, DashboardGenerator, визуализация
+│   ├── plugins/                   # Тесты плагинной системы Foundry
+│   │   └── test_plugin_system.py  # PluginRegistry, CompositeExecutor, EconomicsPlugin, domain configs
 │   ├── test_adaptive_agents.py    # Адаптивные агенты и их поведение
+│   ├── test_agent_simulation_step1.py # Шаг 1 симуляции агентов
+│   ├── test_agent_simulation_step2.py # Шаг 2 симуляции агентов
+│   ├── test_agent_simulation_step3.py # Шаг 3 симуляции агентов
+│   ├── test_agent_simulation_step4.py # Шаг 4 симуляции агентов
+│   ├── test_agent_simulation_step5.py # Шаг 5 симуляции агентов
+│   ├── test_agent_simulation_step6.py # Шаг 6 симуляции агентов
 │   ├── test_calibrator_fidelity.py # Управление fidelity уровнями (fluid/relaxed/hard/temperature)
 │   ├── test_calibrator_mvp.py     # Полноценная калибровка параметров с оптимизацией
 │   ├── test_constraints_executor.py # Исполнение ограничений (budget guards, validation)
@@ -46,8 +58,7 @@ tests/
 │   ├── test_jit_stability.py      # JIT-стабильность PyTree структур
 │   ├── test_patch_executor.py     # Patch executor, state delta и snapshot'ы
 │   ├── test_program_graph_ops.py  # Операции с программными графами, execution order
-│   ├── test_runtime_batch.py      # Пакетное выполнение программ с JAX
-│   └── test_*.py                  # Дополнительные тесты симуляционных компонентов
+│   └── test_runtime_batch.py      # Пакетное выполнение программ с JAX
 ├── integration/                   # Интеграционные тесты end-to-end сценариев
 │   ├── test_calibration_udf.py    # Калибровка параметров с UDF движком и историческими данными
 │   ├── test_workflow_smoke.py     # Полный smoke-test pipeline (draft → simulate → governor → decision)
@@ -101,9 +112,11 @@ tests/
 
 ### Foundry Tests (`foundry/`)
 
-**Цель**: Комплексная валидация математических моделей, симуляций на JAX, компонентов исполнения и систем калибровки.
+**Цель**: Комплексная валидация математических моделей, симуляций на JAX, компонентов исполнения, систем калибровки и плагинной архитектуры.
 
 **Ключевые тесты:**
+- **Agent Simulation**: Пошаговая симуляция агентов (step1-step6), метрики, трекинг экспериментов, визуализация обучения
+- **Plugin System**: PluginRegistry, CompositeExecutor, EconomicsPlugin, domain configurations и capability system
 - **Adaptive Agents**: Поведение адаптивных агентов и их реакция на политики
 - **Calibrator Fidelity**: Управление уровнями fidelity (fluid/relaxed/hard/temperature) для trade-off точность/производительность
 - **Calibrator MVP**: Полноценная система калибровки параметров с оптимизацией, uncertainty quantification и penalty functions
@@ -126,6 +139,18 @@ tests/
 - **State Consistency**: Корректность state delta, snapshot'ов и rollback механизмов
 - **Graph Execution**: Правильный порядок операций в программных графах с dependency tracking
 - **Uncertainty Quantification**: Все калибровки предоставляют оценки неопределенности через Hessian analysis
+
+### Demo Tests (`demos/`)
+
+**Цель**: Тестирование интеграции с демонстрационными скриптами и инструментами из директории tools/demos/.
+
+**Ключевые тесты:**
+- **Laffer Demo**: Запуск и валидация демо-скрипта кривой Лаффера из tools/demos/
+
+**Принципы:**
+- **Tool Integration**: Проверка что демо-скрипты из tools/ корректно запускаются
+- **Path Resolution**: Корректное разрешение относительных путей к репозиторию
+- **Runtime Validation**: Успешное выполнение демо без ошибок
 
 ### Integration Tests (`integration/`)
 
@@ -248,10 +273,13 @@ pytest tests/contract/ -v
 # Core Phase 0 тесты (базовые компоненты)
 pytest tests/core_phase0/ -v
 
+# Demo тесты (интеграция с tools/demos)
+pytest tests/demos/ -v
+
 # Fabric тесты (ingestion, evidence, trust)
 pytest tests/fabric/ -v
 
-# Foundry тесты (JAX, математические, калибровка)
+# Foundry тесты (JAX, математические, калибровка, плагины)
 pytest tests/foundry/ -v
 
 # IR тесты (загрузчики, трансформации)
@@ -270,6 +298,15 @@ pytest tests/scientist/ -v
 ### Специфические сценарии
 
 ```bash
+# Агентная симуляция и мониторинг
+pytest tests/foundry/agent_sim/test_monitoring.py
+
+# Плагинная система Foundry
+pytest tests/foundry/plugins/test_plugin_system.py
+
+# Demo скрипты
+pytest tests/demos/run_laffer_demo.py
+
 # Адаптивные агенты и их поведение
 pytest tests/foundry/test_adaptive_agents.py
 
@@ -325,6 +362,8 @@ pytest tests/runtime/test_runtime_manifest_paths.py
 - **Fact Log System**: Immutable факты с provenance tracking и детерминированные ID
 - **Materializer Engine**: Инкрементальная материализация реляционных представлений
 - **Trust System**: Статистическая верификация доверия к данным с evidence bundles
+- **Plugin System**: Модульная архитектура с capability-based plugin registry и composite executors
+- **Agent Simulation**: Пошаговая симуляция агентов с метриками, трекингом экспериментов и визуализацией
 
 ## Принципы тестирования
 
@@ -408,6 +447,8 @@ pytest tests/runtime/test_runtime_manifest_paths.py
 
 ### Foundry Layer (`foundry/`)
 **Simulation Engine** → JAX-based execution с mathematical guarantees
+- **Agent Simulation**: Пошаговая симуляция агентов с метриками, экспериментальным трекингом и визуализацией
+- **Plugin System**: Модульная архитектура с capability-based plugin registry и composite executors
 - **Adaptive Agents**: Поведенческие модели агентов с learning capabilities
 - **Constraints Executor**: Runtime валидация ограничений (budget guards, validation)
 - **Patch Executor**: State management через UpdateOp и Merge Rules, snapshots
@@ -445,7 +486,7 @@ pytest tests/runtime/test_runtime_manifest_paths.py
 ## Разработка и расширение
 
 ### Добавление новых тестов
-1. Определите категорию (contract/core_phase0/fabric/foundry/ir/runtime/integration/scientist)
+1. Определите категорию (contract/core_phase0/demos/fabric/foundry/ir/runtime/integration/scientist)
 2. Следуйте naming convention: `test_*.py`
 3. Используйте fixtures из соответствующего `conftest.py`
 4. Маркируйте медленные тесты `@pytest.mark.integration`
@@ -453,6 +494,9 @@ pytest tests/runtime/test_runtime_manifest_paths.py
 6. Для fabric тестов проверяйте работу с evidence bundles и trust metrics
 7. Для foundry тестов включайте проверки fidelity control и uncertainty quantification
 8. Для calibration тестов тестируйте convergence, penalties и parameter recovery
+9. Для plugin system тестов проверяйте capability system, composite executors и domain configs
+10. Для agent simulation тестов валидируйте метрики, экспериментальный трекинг и визуализацию
+11. Для demo тестов проверяйте интеграцию с tools/ и корректность path resolution
 
 ### Отладка тестов
 ```bash
@@ -524,6 +568,27 @@ pytest tests/fabric/test_evidence_bundle.py -v
 # Убедитесь что raw/staging/curated директории существуют
 ```
 
+**Plugin system issues:**
+```bash
+# Проверьте что плагины корректно регистрируются
+pytest tests/foundry/plugins/test_plugin_system.py -v
+# Проверьте capability system и composite executors
+```
+
+**Agent simulation failures:**
+```bash
+# Проверьте метрики и трекинг экспериментов
+pytest tests/foundry/agent_sim/test_monitoring.py -v
+# Проверьте визуализацию и dashboard generation
+```
+
+**Demo script failures:**
+```bash
+# Проверьте интеграцию с tools/demos
+pytest tests/demos/run_laffer_demo.py -v
+# Убедитесь что пути к репозиторию разрешаются корректно
+```
+
 ### Полезные команды диагностики
 
 ```bash
@@ -550,4 +615,10 @@ python -c "from polisyos.fabric.trust import TrustEngine; from polisyos.fabric.e
 
 # Проверка materializer engine
 python -c "from polisyos.fabric.materializer import MaterializerEngine; print('Materializer engine OK')"
+
+# Проверка plugin system
+python -c "from polisyos.foundry.plugins.core import PluginRegistry; from polisyos.foundry.plugins.economics import EconomicsPlugin; print('Plugin system OK')"
+
+# Проверка agent simulation
+python -c "from polisyos.foundry.agent_sim import MetricsCollector, ExperimentTracker; print('Agent simulation OK')"
 ```

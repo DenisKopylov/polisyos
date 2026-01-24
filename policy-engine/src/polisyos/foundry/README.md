@@ -28,9 +28,89 @@ Foundry **не знает** про LLM и работает исключител�
 - **Chex**: Дополнительные проверки типов и форм
 - **Pydantic**: Валидация конфигураций и схем
 
+## Agent Simulation (Симуляция агентов)
+
+### Обзор
+
+Модуль `agent_sim` предоставляет высокоуровневый фреймворк для симуляции поведенчески-гетерогенных агентов в экономических моделях. Реализует современные подходы к моделированию агентов с использованием глубокого обучения, графовых структур и эволюционных алгоритмов.
+
+### Ключевые возможности
+
+- **Гетерогенные агенты**: Агенты с различными предпочтениями, демографией и поведением
+- **Нейронные сети**: Actor-Critic архитектуры для обучения политик агентов
+- **Графовые структуры**: Моделирование социальных сетей и взаимодействий
+- **Демографические процессы**: Рождение, старение, смерть и миграция
+- **Распределения доходов**: Метрики неравенства (Gini, Palma ratio)
+- **Эволюционные алгоритмы**: CMA-ES для оптимизации параметров
+- **Временные аспекты**: Обработка последовательных данных и памяти
+
+### Основные компоненты
+
+#### Agent State (Состояние агента)
+```python
+@chex.dataclass(frozen=True)
+class AgentState:
+    active: Bool[Array, "n_agents"]           # Активность агента
+    agent_id: Int[Array, "n_agents"]          # Уникальный ID
+    wealth: Float[Array, "n_agents"]          # Богатство
+    income: Float[Array, "n_agents"]          # Доход
+    consumption: Float[Array, "n_agents"]     # Потребление
+    employed: Bool[Array, "n_agents"]         # Статус занятости
+    age: Int[Array, "n_agents"]               # Возраст
+    skill_level: Float[Array, "n_agents"]     # Уровень навыков
+    risk_aversion: Float[Array, "n_agents"]   # Отношение к риску
+    n_connections: Int[Array, "n_agents"]     # Социальные связи
+```
+
+#### Actor-Critic обучение
+```python
+from polisyos.foundry.agent_sim import ActorCritic, train_actor_critic
+
+# Создание модели
+model = ActorCritic(obs_dim=10, action_dim=5, hidden_dims=[64, 32])
+
+# Обучение агентов
+trained_model = train_actor_critic(
+    model=model,
+    mechanisms=[consumption_mechanism, labor_mechanism],
+    n_episodes=1000
+)
+```
+
+#### Графовые структуры
+```python
+from polisyos.foundry.agent_sim import create_scale_free_graph
+
+# Создание сети социальных связей
+social_graph = create_scale_free_graph(n_nodes=1000, m=3)
+
+# Агенты взаимодействуют через граф
+influenced_opinions = social_graph.aggregate_messages(
+    node_features=agent_opinions,
+    edge_features=influence_strengths
+)
+```
+
+#### Метрики неравенства
+```python
+from polisyos.foundry.agent_sim import compute_gini, compute_palma_ratio
+
+gini_coefficient = compute_gini(agent_incomes)
+palma_ratio = compute_palma_ratio(agent_incomes)  # top10% / bottom40%
+```
+
+### Применение в политике
+
+Agent simulation позволяет моделировать:
+- **Поведенческие реакции** на экономические политики
+- **Распространение информации** через социальные сети
+- **Неравенство** и его динамику во времени
+- **Демографические изменения** и их экономические последствия
+- **Обучение агентов** новым стратегиям поведения
+
 ## Архитектура
 
-Foundry состоит из шести основных слоев:
+Foundry состоит из семи основных слоев:
 
 ### 1. Compiler Layer (Компилятор)
 ```
@@ -55,7 +135,24 @@ domain/
 └── schema.py        # Pydantic схемы конфигурации
 ```
 
-### 4. Mechanism Layer (Механизмы)
+### 4. Agent Simulation Layer (Симуляция агентов)
+```
+agent_sim/
+├── state.py         # Расширенные состояния агентов с демографией и поведением
+├── population.py    # Управление популяцией (рождение, смерть, миграция)
+├── mechanisms/      # Демографические и социальные механизмы
+├── actor_critic.py  # Actor-Critic архитектуры для RL
+├── rl.py            # PPO и другие алгоритмы обучения
+├── graphs.py        # Графовые структуры социальных связей
+├── distributions.py # Метрики неравенства (Gini, Palma ratio)
+├── evolution.py     # Эволюционные алгоритмы (CMA-ES)
+├── training.py      # JIT-компиляция обучения
+├── analysis.py      # Анализ поведения агентов
+├── dashboard.py     # Визуализация результатов
+└── visualization.py # Графики и метрики обучения
+```
+
+### 5. Mechanism Layer (Механизмы)
 ```
 base.py             # Абстрактный класс Mechanism и ComplexMechanism
 types.py            # FidelityLevel enum (уровни точности)
@@ -67,7 +164,7 @@ specs.py            # Спецификации механизмов с вали�
 registry.py         # Регистрация и фабрика механизмов
 ```
 
-### 5. Calibration Layer (Калибровка моделей)
+### 6. Calibration Layer (Калибровка моделей)
 ```
 calibration/
 ├── calibrator.py     # Основной класс Calibrator для оптимизации параметров
@@ -78,7 +175,22 @@ calibration/
 └── report.py         # Отчёты калибровки (метрики качества, неопределённости)
 ```
 
-### 6. Utils Layer (Утилиты)
+### 7. Plugins Layer (Плагины доменов)
+```
+plugins/
+├── core.py           # Протоколы плагинов и реестр
+├── composite.py      # Мульти-доменные симуляции
+├── discovery.py      # Автообнаружение плагинов
+├── api.py            # High-level PolisySimulator API
+├── economics/        # Экономический домен
+│   ├── plugin.py     # EconomicsPlugin с механизмами
+│   ├── mechanisms.py # Экономические механизмы
+│   ├── objectives.py # Целевые функции (GDP, Gini, etc.)
+│   └── rewards.py    # Функции вознаграждения
+└── cli.py            # Command-line interface
+```
+
+### 8. Utils Layer (Утилиты)
 ```
 loss.py             # Функции потерь для оптимизации политик
 utils.py            # Дифференцируемые утилиты (soft_step, soft_clamp, gradient_health)

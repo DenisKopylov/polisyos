@@ -11,10 +11,10 @@ import hashlib
 import json
 import uuid
 from datetime import datetime
-from typing import Any
+from typing import Any, TYPE_CHECKING
 
 from polisyos.ir.surface import PolicySurfaceIR
-from polisyos.scientist.agent.prompts import get_system_prompt
+from polisyos.scientist.agent.prompts import get_drafter_prompt, get_system_prompt
 from polisyos.scientist.agent.protocols import (
     CritiqueReport,
     DrafterAgent,
@@ -24,6 +24,8 @@ from polisyos.scientist.agent.protocols import (
 from polisyos.scientist.orchestrator.audit import append_audit
 from polisyos.scientist.orchestrator.state import ExperimentState
 
+if TYPE_CHECKING:
+    pass
 
 class MockLLM:
     def invoke(self, prompt: str) -> str:
@@ -300,6 +302,98 @@ class MockDrafterAgent:
     def reset(self) -> None:
         self._draft_count = 0
         self._refine_count = 0
+
+
+class LLMDrafterAgent:
+    """LLM-powered drafter agent for producing DraftResult artifacts."""
+
+    def __init__(self, llm_client: Any) -> None:
+        self._llm = llm_client
+
+    async def draft_policy(
+        self,
+        problem_frame: ProblemFrame,
+        *,
+        hints: list[str] | None = None,
+        prior_drafts: list[DraftResult] | None = None,
+    ) -> DraftResult:
+        if not problem_frame.frame_id:
+            raise ValueError("ProblemFrame must have a valid frame_id")
+
+        prompt = get_drafter_prompt(hints=hints)
+        pf_payload = {
+            "frame_id": problem_frame.frame_id,
+            "domain": problem_frame.domain,
+            "problem_statement": problem_frame.problem_statement,
+            "actors": list(problem_frame.actors),
+            "goals": list(problem_frame.goals),
+            "constraints": list(problem_frame.constraints),
+            "success_criteria": problem_frame.success_criteria,
+            "assumptions": list(problem_frame.assumptions),
+        }
+        prior_payload = []
+        if prior_drafts:
+            prior_payload = [
+                {"draft_id": draft.draft_id, "summary": draft.narrative[:200]}
+                for draft in prior_drafts
+            ]
+
+        user_message = f"""
+PROBLEM FRAME:
+{json.dumps(pf_payload, indent=2)}
+
+PRIOR DRAFTS:
+{json.dumps(prior_payload, indent=2)}
+
+Generate a draft JSON object.
+"""
+
+        response = await self._llm.generate(
+            system=prompt,
+            user=user_message,
+            response_format={"type": "json_object"},
+        )
+
+        content = response.content if hasattr(response, "content") else str(response)
+        try:
+            data = json.loads(content)
+            return DraftResult(
+                draft_id=data.get("draft_id", f"draft_{uuid.uuid4().hex[:8]}"),
+                problem_frame_ref=data.get("problem_frame_ref", problem_frame.frame_id),
+                narrative=data.get("narrative", ""),
+                interventions=data.get("interventions", []),
+                rationale=data.get("rationale", ""),
+                alternatives_considered=data.get("alternatives_considered", []),
+                confidence=float(data.get("confidence", 0.6)),
+                raw_llm_response=content,
+                created_at=datetime.utcnow(),
+            )
+        except (json.JSONDecodeError, TypeError, ValueError):
+            fallback = MockDrafterAgent()
+            return await fallback.draft_policy(problem_frame, hints=hints, prior_drafts=prior_drafts)
+
+    async def refine_draft(
+        self,
+        draft: DraftResult,
+        critique: CritiqueReport,
+    ) -> DraftResult:
+        hints = [critique.reflexion_hint] if critique.reflexion_hint else []
+        for issue in critique.issues[:3]:
+            if issue.suggestion:
+                hints.append(f"Addressing: {issue.suggestion}")
+        refined_narrative = draft.narrative + "\n\n[REFINED]\n" + "\n".join(hints)
+        return DraftResult(
+            draft_id=f"{draft.draft_id}_refined",
+            problem_frame_ref=draft.problem_frame_ref,
+            narrative=refined_narrative,
+            interventions=draft.interventions,
+            rationale=f"{draft.rationale} [Refined based on critique]",
+            domain_references=draft.domain_references,
+            confidence=min(0.95, draft.confidence + 0.05),
+            alternatives_considered=draft.alternatives_considered,
+            raw_llm_response=draft.raw_llm_response,
+            created_at=datetime.utcnow(),
+        )
 
 
 def drafter_node(state: ExperimentState) -> ExperimentState:

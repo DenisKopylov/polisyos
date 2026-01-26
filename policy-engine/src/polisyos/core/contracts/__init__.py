@@ -34,6 +34,7 @@ from .foundry import (
     TreasurySeed,
     TreasurySeedRef,
 )
+from .scientist import CritiqueRef, FailureCardRef, PolicyIRRef
 from .trinity import (
     ModelSpecRef,
     PolicySpecRef,
@@ -76,6 +77,9 @@ __all__ = [
     "WarningsRef",
     "LinkReportRef",
     "CompileReportRef",
+    "FailureCardRef",
+    "PolicyIRRef",
+    "CritiqueRef",
     "ProblemFrameRef",
     "PolicySpecRef",
     "ModelSpecRef",

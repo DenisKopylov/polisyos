@@ -26,6 +26,7 @@ core/
 │   ├── compiler.py     # Контракты компилятора (CompileReportRef, LinkReportRef)
 │   ├── fabric.py       # Контракты Fabric (6 типов ссылок + модели данных)
 │   ├── foundry.py      # Контракты Foundry (13 типов ссылок + модели исполнения)
+│   ├── scientist.py    # Контракты Scientist (FailureCardRef, PolicyIRRef, CritiqueRef)
 │   └── trinity.py      # Trinity контракты (ProblemFrame, PolicySpec, ModelSpec)
 ├── registry/           # Сборка и загрузка реестров компонентов
 │   ├── builder.py      # Сборка реестров (build_default_registry_bundle, build_registry_bundle)
@@ -188,6 +189,11 @@ core/
 - `TrinityBundle` - пакет из трех Trinity артефактов
 - `TrinityManifest` - манифест с метаданными Trinity эксперимента
 
+#### Scientist Contracts (Scientist - эксперименты и агенты)
+- `FailureCardRef` - ссылка на FailureCard с информацией об ошибках экспериментов
+- `PolicyIRRef` - ссылка на PolicySurfaceIR с версией и статусом
+- `CritiqueRef` - ссылка на артефакт оценки критика с вердиктом
+
 **Функционал**:
 - Типизированные ссылки на артефакты с проверкой kind и media_type
 - Структурированные модели данных для межмодульного обмена
@@ -279,11 +285,12 @@ Core является фундаментом всей системы PolisyOS и
 - **run**: Контексты и манифесты выполнения экспериментов
 - **artifacts**: Хранение всех результатов экспериментов и моделей
 - **contracts.trinity**: Trinity контракты (ProblemFrame, PolicySpec, ModelSpec) для структурирования экспериментов
+- **contracts.scientist**: Scientist контракты (FailureCardRef, PolicyIRRef, CritiqueRef) для управления жизненным циклом политик и оценок
 - **trace**: Трассировка всех этапов workflow (draft → compile → execute → analyze)
 - **registry**: Загрузка реестров компонентов для каждого эксперимента
 - **contracts**: Ссылки на все типы артефактов в decision packets
 
-**Обоснование**: Scientist оркестрирует полный жизненный цикл от LLM до оптимизированных политик, используя Trinity контракты для структурирования экспериментов по трем базовым аспектам: проблема, политика, модель.
+**Обоснование**: Scientist оркестрирует полный жизненный цикл от LLM до оптимизированных политик, используя Trinity контракты для структурирования экспериментов по трем базовым аспектам (проблема, политика, модель) и Scientist контракты для типобезопасного управления артефактами экспериментов, включая обработку ошибок и оценок политик.
 
 #### Runtime (Исполнение в production) - Зависит от core
 - **artifacts**: Доступ к развернутым артефактам политик

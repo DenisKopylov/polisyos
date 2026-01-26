@@ -2,6 +2,8 @@
 from typing import Any, Dict, List, Optional, TypedDict
 
 from polisyos.ir.surface import PolicySurfaceIR
+from polisyos.core.contracts.scientist import FailureCardRef
+from polisyos.scientist.agent.protocols import DraftResult, ProblemFrame, SubTask
 from polisyos.scientist.orchestrator.run_record import RunRecord
 
 
@@ -16,12 +18,57 @@ class RepairAttempt(TypedDict):
     diff_before_after: Dict[str, Any]
 
 
+class ReflexionState(TypedDict, total=False):
+    """Reflexion-specific state fields."""
+
+    current_failure_card: Optional[Dict[str, Any]]
+    failure_history: List[FailureCardRef]
+    reflexion_cycle_count: int
+    total_retry_count: int
+    reflexion_decision: Optional[str]
+    retry_context: Optional[Dict[str, Any]]
+    human_intervention_payload: Optional[Dict[str, Any]]
+
+
 class ExperimentState(TypedDict):
     # Входные данные
     user_request: str  # <--- НОВОЕ ПОЛЕ: "Reduce poverty"
     ir: Optional[PolicySurfaceIR]  # Surface IR (semantic + advisory)
     last_ir_json: Optional[str]
     last_error: Optional[str]
+
+    # NEW: Multi-agent state
+    problem_frame: Optional[ProblemFrame]
+    sub_tasks: Optional[List[SubTask]]
+    draft_result: Optional[DraftResult]
+    critique_report: Optional[Dict[str, Any]]
+
+    # Reflexion loop tracking
+    reflexion_attempt: int
+    max_reflexion_attempts: int
+    reflexion_hints: Optional[List[str]]
+
+    # New Reflexion loop tracking
+    current_failure_card: Optional[Dict[str, Any]]
+    failure_history: List[Dict[str, Any]]
+    reflexion_cycle_count: int
+    total_retry_count: int
+    reflexion_decision: Optional[str]
+    retry_context: Optional[Dict[str, Any]]
+    human_intervention_payload: Optional[Dict[str, Any]]
+
+    # Memory reference
+    short_term_memory: Optional[Dict[str, Any]]
+
+    # Agent/LLM overrides
+    llm_client: Optional[Any]
+    pi_agent: Optional[Any]
+    drafter_agent: Optional[Any]
+    formalizer_agent: Optional[Any]
+    critic_agent: Optional[Any]
+
+    # Optional test/debug controls
+    stop_after_phase: Optional[str]
 
     # Управление поведением workflow
     optimize: Optional[bool]
@@ -90,3 +137,52 @@ class ExperimentState(TypedDict):
     repair_log: List[RepairAttempt]
     audit_trail: List[Dict[str, Any]]
     phase: Optional[str]
+
+
+def create_initial_state(
+    user_request: str,
+    run_id: str,
+    budget: Optional[Dict[str, float]] = None,
+) -> ExperimentState:
+    """Create a fresh experiment state with Reflexion fields initialized."""
+    return ExperimentState(
+        user_request=user_request,
+        run_id=run_id,
+        budget=budget or {"max_llm_calls": 50.0, "max_sim_runs": 5.0, "max_wall_time_s": 3600.0},
+        reflexion_attempt=0,
+        max_reflexion_attempts=3,
+        reflexion_hints=None,
+        current_failure_card=None,
+        failure_history=[],
+        reflexion_cycle_count=0,
+        total_retry_count=0,
+        reflexion_decision=None,
+        retry_context=None,
+        human_intervention_payload=None,
+        audit_trail=[],
+        revision_count=0,
+        max_repair_attempts=3,
+        repair_log=[],
+        pruned=False,
+        phase="INTAKE",
+    )
+
+
+def get_retry_count(state: ExperimentState) -> int:
+    """Get total retry count from state."""
+    return state.get("total_retry_count", 0)
+
+
+def get_failure_history(state: ExperimentState) -> List[Dict[str, Any]]:
+    """Get failure history from state."""
+    return state.get("failure_history", [])
+
+
+def has_active_failure(state: ExperimentState) -> bool:
+    """Check if there's an active failure being processed."""
+    return state.get("current_failure_card") is not None
+
+
+def get_reflexion_cycle_count(state: ExperimentState) -> int:
+    """Get number of reflexion cycles in this run."""
+    return state.get("reflexion_cycle_count", 0)

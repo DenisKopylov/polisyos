@@ -7,10 +7,12 @@ Implements the CriticAgent protocol with deterministic critique behavior.
 from __future__ import annotations
 
 import hashlib
+import json
 import uuid
 from datetime import datetime
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
+from polisyos.scientist.agent.prompts import get_critic_prompt
 from polisyos.scientist.agent.protocols import (
     CriticAgent,
     CritiqueCategory,
@@ -308,6 +310,166 @@ class MockCriticAgent:
 
     def set_default_verdict(self, verdict: str) -> None:
         self._default_verdict = verdict
+
+
+class LLMCriticAgent:
+    """
+    LLM-powered Critic agent.
+
+    Performs adversarial review of IR against ProblemFrame.
+    """
+
+    def __init__(self, llm_client: Any) -> None:
+        self._llm = llm_client
+
+    async def critique(
+        self,
+        ir: "PolicySurfaceIR",
+        problem_frame: ProblemFrame,
+        *,
+        depth: str = "standard",
+    ) -> CritiqueReport:
+        """Review IR against the ProblemFrame."""
+        prompt = get_critic_prompt()
+
+        ir_json = ir.model_dump_json(indent=2)
+        pf_payload = {
+            "frame_id": problem_frame.frame_id,
+            "domain": problem_frame.domain,
+            "problem_statement": problem_frame.problem_statement,
+            "goals": list(problem_frame.goals),
+            "constraints": list(problem_frame.constraints),
+            "success_criteria": problem_frame.success_criteria,
+            "assumptions": list(problem_frame.assumptions),
+        }
+
+        user_message = f"""
+PROBLEM FRAME:
+{json.dumps(pf_payload, indent=2)}
+
+POLICY IR TO REVIEW:
+{ir_json}
+
+REVIEW DEPTH: {depth}
+
+Provide your critique as a JSON object.
+"""
+
+        response = await self._llm.generate(
+            system=prompt,
+            user=user_message,
+            response_format={"type": "json_object"},
+        )
+
+        content = response.content if hasattr(response, "content") else str(response)
+        try:
+            data = json.loads(content)
+            issues = []
+            for idx, issue in enumerate(data.get("issues", [])):
+                category = issue.get("category", "SCHEMA")
+                severity = issue.get("severity", "WARNING")
+                try:
+                    category_enum = CritiqueCategory(category.lower())
+                except ValueError:
+                    category_enum = CritiqueCategory.SCHEMA
+                try:
+                    severity_enum = CritiqueSeverity(severity.lower())
+                except ValueError:
+                    severity_enum = CritiqueSeverity.WARNING
+                issues.append(
+                    CritiqueIssue(
+                        issue_id=issue.get("issue_id", f"issue_{idx}"),
+                        category=category_enum,
+                        severity=severity_enum,
+                        message=issue.get("message", ""),
+                        location=issue.get("location", ""),
+                        suggestion=issue.get("suggestion", ""),
+                    )
+                )
+
+            ir_ref = data.get("ir_ref")
+            if not ir_ref:
+                ir_ref = hashlib.sha256(ir_json.encode()).hexdigest()
+
+            return CritiqueReport(
+                report_id=data.get("report_id", str(uuid.uuid4())),
+                ir_ref=ir_ref,
+                problem_frame_ref=problem_frame.frame_id,
+                verdict=data.get("verdict", "NEEDS_REVISION"),
+                issues=issues,
+                alignment_score=float(data.get("alignment_score", 0.5)),
+                completeness_score=float(data.get("completeness_score", 0.5)),
+                overall_quality=float(data.get("overall_quality", 0.5)),
+                reflexion_hint=data.get("reflexion_hint", ""),
+                created_at=datetime.utcnow(),
+            )
+        except (json.JSONDecodeError, KeyError, ValueError) as exc:
+            return CritiqueReport(
+                report_id=str(uuid.uuid4()),
+                ir_ref="",
+                problem_frame_ref=problem_frame.frame_id,
+                verdict="NEEDS_REVISION",
+                issues=[
+                    CritiqueIssue(
+                        issue_id="parse_error",
+                        category=CritiqueCategory.SCHEMA,
+                        severity=CritiqueSeverity.WARNING,
+                        message=f"Critique parse error: {exc}",
+                    )
+                ],
+                reflexion_hint="Unable to parse critique response. Please review manually.",
+            )
+
+    async def generate_hint(self, issues: list[CritiqueIssue]) -> str:
+        """Generate a verbal hint from issues for Reflexion."""
+        if not issues:
+            return "No issues identified."
+
+        blockers = [issue for issue in issues if issue.severity == CritiqueSeverity.BLOCKER]
+        warnings = [issue for issue in issues if issue.severity == CritiqueSeverity.WARNING]
+
+        hint_parts = []
+        if blockers:
+            top_blocker = blockers[0]
+            hint_parts.append(
+                f"CRITICAL: {top_blocker.message}. "
+                f"Fix at {top_blocker.location or 'unspecified location'}. "
+                f"{top_blocker.suggestion or ''}"
+            )
+        if warnings and len(hint_parts) < 2:
+            top_warning = warnings[0]
+            hint_parts.append(f"WARNING: {top_warning.message}. {top_warning.suggestion or ''}")
+
+        return " ".join(part for part in hint_parts if part).strip() or (
+            "Review all issues and address systematically."
+        )
+
+    async def check_alignment(
+        self,
+        ir: "PolicySurfaceIR",
+        problem_frame: ProblemFrame,
+    ) -> float:
+        """Calculate alignment score between IR and ProblemFrame."""
+        goals = set(problem_frame.goals)
+        covered_goals = set()
+
+        for intervention in ir.semantic.interventions:
+            for goal in goals:
+                goal_lower = goal.lower()
+                if any(
+                    keyword in goal_lower
+                    for keyword in [
+                        intervention.kind,
+                        intervention.intervention_id,
+                        *intervention.params.keys(),
+                    ]
+                ):
+                    covered_goals.add(goal)
+
+        if not goals:
+            return 1.0
+
+        return len(covered_goals) / len(goals)
 
 
 def create_mock_problem_frame(

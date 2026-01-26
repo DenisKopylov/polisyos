@@ -1,9 +1,11 @@
 from __future__ import annotations
 
+import asyncio
 from decimal import Decimal
 from io import BytesIO
 import json
 import time
+from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List
 
@@ -42,8 +44,29 @@ from polisyos.ir.linker import link_policy
 from polisyos.ir.surface import PolicySurfaceIR, ScheduleSpec, schedule_range
 from polisyos.ir.validation import ValidationIssue, build_validation_report, diff_payloads
 from polisyos.runtime import finalize_run, log_artifact, start_run, update_budget_usage
-from polisyos.scientist.agent.drafter import MockLLM
+from polisyos.scientist.agent.critic import LLMCriticAgent, MockCriticAgent
+from polisyos.scientist.agent.drafter import LLMDrafterAgent, MockDrafterAgent, MockLLM
+from polisyos.scientist.agent.formalizer import LLMFormalizerAgent, MockFormalizerAgent
+from polisyos.scientist.agent.failure_card import (
+    ConstraintViolation,
+    FailureCard,
+    FailureSource,
+    from_critic_feedback,
+    from_governor_feedback,
+    from_validation_error,
+)
+from polisyos.scientist.agent.memory import ShortTermMemory, TurnRole
+from polisyos.scientist.agent.pi import LLMPIAgent, MockPIAgent
 from polisyos.scientist.agent.prompts import get_system_prompt
+from polisyos.scientist.agent.protocols import DraftResult, ProblemFrame
+from polisyos.scientist.agent.reflexion import (
+    ReflexionConfig,
+    ReflexionDecision,
+    ReflexionOrchestrator,
+    add_failure_to_history,
+    increment_retry_count,
+    set_current_failure_card,
+)
 from polisyos.scientist.compute.job_spec import JobSpec
 from polisyos.scientist.compute.runner import resolve_backend, run_job
 from polisyos.scientist.kernel.human_gate import GateDecision, GateRequest
@@ -441,6 +464,748 @@ def _ensure_run(state: ExperimentState) -> ExperimentState:
     return append_audit(new_state, "runtime", "start_run", {"run_id": manifest.run_id})
 
 
+def _run_async(coro):
+    try:
+        loop = asyncio.get_running_loop()
+    except RuntimeError:
+        return asyncio.run(coro)
+    if loop.is_running():
+        result: dict[str, Any] = {}
+
+        def _runner():
+            result["value"] = asyncio.run(coro)
+
+        import threading
+
+        thread = threading.Thread(target=_runner)
+        thread.start()
+        thread.join()
+        return result.get("value")
+    return loop.run_until_complete(coro)
+
+
+def _load_short_term_memory(state: ExperimentState) -> ShortTermMemory:
+    payload = state.get("short_term_memory")
+    if isinstance(payload, ShortTermMemory):
+        return payload
+    if isinstance(payload, dict):
+        return ShortTermMemory.from_dict(payload)
+    return ShortTermMemory()
+
+
+def _problem_frame_payload(problem_frame: ProblemFrame) -> dict[str, Any]:
+    return {
+        "frame_id": problem_frame.frame_id,
+        "domain": problem_frame.domain,
+        "problem_statement": problem_frame.problem_statement,
+        "actors": list(problem_frame.actors),
+        "goals": list(problem_frame.goals),
+        "constraints": list(problem_frame.constraints),
+        "success_criteria": problem_frame.success_criteria,
+        "assumptions": list(problem_frame.assumptions),
+        "context": problem_frame.context,
+        "created_at": problem_frame.created_at.isoformat(),
+    }
+
+
+def _problem_frame_from_state(state: ExperimentState) -> ProblemFrame | None:
+    payload = state.get("problem_frame")
+    if isinstance(payload, ProblemFrame):
+        return payload
+    if isinstance(payload, dict):
+        created_at = payload.get("created_at")
+        if isinstance(created_at, str):
+            try:
+                created_at = datetime.fromisoformat(created_at)
+            except ValueError:
+                created_at = datetime.utcnow()
+        if not isinstance(created_at, datetime):
+            created_at = datetime.utcnow()
+        return ProblemFrame(
+            frame_id=payload.get("frame_id", ""),
+            domain=payload.get("domain", "economic"),
+            problem_statement=payload.get("problem_statement", ""),
+            actors=tuple(payload.get("actors", [])),
+            goals=tuple(payload.get("goals", [])),
+            constraints=tuple(payload.get("constraints", [])),
+            success_criteria=payload.get("success_criteria", {}),
+            assumptions=tuple(payload.get("assumptions", [])),
+            context=payload.get("context", {}),
+            created_at=created_at,
+        )
+    return None
+
+
+def _draft_result_payload(draft: DraftResult) -> dict[str, Any]:
+    created_at = draft.created_at
+    created_at_value = created_at.isoformat() if hasattr(created_at, "isoformat") else created_at
+    return {
+        "draft_id": draft.draft_id,
+        "problem_frame_ref": draft.problem_frame_ref,
+        "narrative": draft.narrative,
+        "interventions": draft.interventions,
+        "rationale": draft.rationale,
+        "domain_references": draft.domain_references,
+        "confidence": draft.confidence,
+        "alternatives_considered": draft.alternatives_considered,
+        "raw_llm_response": draft.raw_llm_response,
+        "created_at": created_at_value,
+    }
+
+
+def _draft_result_from_state(state: ExperimentState) -> DraftResult | None:
+    payload = state.get("draft_result")
+    if isinstance(payload, DraftResult):
+        return payload
+    if isinstance(payload, dict):
+        created_at = payload.get("created_at")
+        if isinstance(created_at, str):
+            try:
+                created_at = datetime.fromisoformat(created_at)
+            except ValueError:
+                created_at = datetime.utcnow()
+        if not isinstance(created_at, datetime):
+            created_at = datetime.utcnow()
+        confidence_value = payload.get("confidence")
+        if confidence_value is None:
+            confidence = 0.0
+        else:
+            try:
+                confidence = float(confidence_value)
+            except (TypeError, ValueError):
+                confidence = 0.0
+        return DraftResult(
+            draft_id=payload.get("draft_id", ""),
+            problem_frame_ref=payload.get("problem_frame_ref", ""),
+            narrative=payload.get("narrative", ""),
+            interventions=payload.get("interventions", []),
+            rationale=payload.get("rationale", ""),
+            domain_references=payload.get("domain_references", []),
+            confidence=confidence,
+            alternatives_considered=payload.get("alternatives_considered", []),
+            raw_llm_response=payload.get("raw_llm_response"),
+            created_at=created_at,
+        )
+    return None
+
+
+def _sub_task_payload(task) -> dict[str, Any]:
+    return {
+        "task_id": task.task_id,
+        "description": task.description,
+        "target_agent": task.target_agent.value,
+        "priority": task.priority.value,
+        "status": task.status.value,
+        "dependencies": list(task.dependencies),
+        "inputs": task.inputs,
+        "expected_output": task.expected_output,
+        "metadata": task.metadata,
+    }
+
+
+def _critique_report_payload(report) -> dict[str, Any]:
+    issues = []
+    for issue in report.issues:
+        issues.append(
+            {
+                "issue_id": issue.issue_id,
+                "category": issue.category.value,
+                "severity": issue.severity.value,
+                "message": issue.message,
+                "location": issue.location,
+                "suggestion": issue.suggestion,
+                "evidence": issue.evidence,
+            }
+        )
+    created_at = report.created_at
+    created_at_value = created_at.isoformat() if hasattr(created_at, "isoformat") else created_at
+    return {
+        "report_id": report.report_id,
+        "ir_ref": report.ir_ref,
+        "problem_frame_ref": report.problem_frame_ref,
+        "verdict": report.verdict,
+        "issues": issues,
+        "alignment_score": report.alignment_score,
+        "completeness_score": report.completeness_score,
+        "overall_quality": report.overall_quality,
+        "reflexion_hint": report.reflexion_hint,
+        "metadata": report.metadata,
+        "created_at": created_at_value,
+    }
+
+
+def _summarize_ir(ir: PolicySurfaceIR | None) -> str:
+    if ir is None:
+        return ""
+    interventions = ir.semantic.interventions or []
+    kinds = [intervention.kind for intervention in interventions[:3] if intervention.kind]
+    return f"interventions={len(interventions)} kinds={kinds}"
+
+
+def _should_reflexion(state: ExperimentState) -> bool:
+    attempt = state.get("reflexion_attempt", 0)
+    max_attempts = state.get("max_reflexion_attempts", 3)
+    return attempt < max_attempts
+
+
+_reflexion_orchestrator: ReflexionOrchestrator | None = None
+
+
+def _get_reflexion_orchestrator() -> ReflexionOrchestrator:
+    global _reflexion_orchestrator
+    if _reflexion_orchestrator is None:
+        _reflexion_orchestrator = ReflexionOrchestrator(ReflexionConfig())
+    return _reflexion_orchestrator
+
+
+def _extract_remediation_hints(card: FailureCard) -> list[str]:
+    hints: list[str] = []
+    for line in card.remediation_advice.splitlines():
+        cleaned = line.strip()
+        if cleaned.startswith("-"):
+            cleaned = cleaned.lstrip("-").strip()
+        if cleaned:
+            hints.append(cleaned)
+    if card.governor_advice:
+        hints.append(card.governor_advice)
+    return hints[:5]
+
+
+def reflexion_node(state: ExperimentState) -> ExperimentState:
+    """
+    Reflexion node: Evaluate failure and decide next action.
+    """
+    state = _ensure_run(state)
+    if state.get("pruned"):
+        return state
+
+    orchestrator = _get_reflexion_orchestrator()
+    run_id = state.get("run_id") or "unknown"
+
+    card = _get_or_create_failure_card(state)
+    if card is None:
+        return {**state, "reflexion_decision": ReflexionDecision.PASS_THROUGH.value}
+
+    new_state = set_current_failure_card(state, card)
+    decision = orchestrator.evaluate_failure(card, new_state)
+
+    new_state = {
+        **new_state,
+        "reflexion_decision": decision.value,
+        "reflexion_cycle_count": new_state.get("reflexion_cycle_count", 0) + 1,
+        "reflexion_attempt": card.attempt_number,
+    }
+
+    new_state = add_failure_to_history(new_state, card)
+
+    if run_id:
+        log_artifact(
+            run_id=run_id,
+            artifact_type="failure_card",
+            payload=card.model_dump(mode="json"),
+            media_type="application/json",
+            step="reflexion",
+            base_dir=_runtime_base_dir(new_state),
+        )
+
+    if decision in (
+        ReflexionDecision.RETURN_TO_FORMALIZER,
+        ReflexionDecision.RETURN_TO_DRAFTER,
+    ):
+        retry_context = orchestrator.prepare_retry_context(card, new_state)
+        new_state["retry_context"] = retry_context
+        new_state = increment_retry_count(new_state)
+        new_state["feedback"] = None
+
+        hints = _extract_remediation_hints(card)
+        if hints:
+            new_state["reflexion_hints"] = hints
+
+        log_artifact(
+            run_id=run_id,
+            artifact_type="reflexion_retry",
+            payload={
+                "card": card.model_dump(mode="json"),
+                "decision": decision.value,
+                "attempt": card.attempt_number,
+            },
+            media_type="application/json",
+            step="reflexion",
+            base_dir=_runtime_base_dir(new_state),
+        )
+
+    if decision in (
+        ReflexionDecision.ABORT_WITH_REPORT,
+        ReflexionDecision.ESCALATE_TO_HUMAN,
+    ):
+        new_state["pruned"] = True
+        new_state = _create_terminal_report(new_state, card, decision)
+        if decision == ReflexionDecision.ESCALATE_TO_HUMAN:
+            new_state["human_intervention_payload"] = {
+                "failure_card": card.model_dump(mode="json"),
+                "decision": decision.value,
+            }
+
+        log_artifact(
+            run_id=run_id,
+            artifact_type="reflexion_terminal",
+            payload={
+                "card": card.model_dump(mode="json"),
+                "decision": decision.value,
+                "failure_history": new_state.get("failure_history", []),
+            },
+            media_type="application/json",
+            step="reflexion",
+            base_dir=_runtime_base_dir(new_state),
+        )
+
+    new_state = append_audit(
+        new_state,
+        "reflexion",
+        decision.value,
+        {
+            "error_code": card.error_code,
+            "attempt": card.attempt_number,
+            "can_retry": card.can_retry,
+        },
+    )
+
+    return new_state
+
+
+def _get_or_create_failure_card(state: ExperimentState) -> FailureCard | None:
+    if state.get("current_failure_card"):
+        return FailureCard.model_validate(state["current_failure_card"])
+
+    run_id = state.get("run_id") or "unknown"
+    attempt = (state.get("total_retry_count") or state.get("reflexion_attempt") or 0) + 1
+    max_iter = (
+        state.get("max_reflexion_attempts")
+        or (state.get("budget") or {}).get("max_reflexion_iterations")
+        or 3
+    )
+
+    history = state.get("failure_history") or []
+    previous_ref = None
+    if history:
+        last = history[-1]
+        if isinstance(last, dict):
+            previous_ref = last.get("cas_hash")
+
+    critique = state.get("critique_report")
+    if critique:
+        verdict = critique.get("verdict") if isinstance(critique, dict) else None
+        if verdict and verdict.upper() != "APPROVE":
+            card = from_critic_feedback(
+                critique,
+                run_id=run_id,
+                attempt_number=attempt,
+                max_iterations=max_iter,
+            )
+            if previous_ref:
+                return card.model_copy(update={"previous_card_ref": previous_ref})
+            return card
+
+    feedback = state.get("feedback") or {}
+    verdict = feedback.get("verdict")
+    if verdict and verdict.upper() != "APPROVE":
+        issues = feedback.get("issues") or []
+        error_types = {
+            str(issue.get("error_type")).lower()
+            for issue in issues
+            if isinstance(issue, dict) and issue.get("error_type") is not None
+        }
+        if error_types & {"compile", "link"}:
+            card = _card_from_runtime_issues(
+                issues,
+                run_id=run_id,
+                attempt_number=attempt,
+                max_iterations=max_iter,
+                source=FailureSource.RUNTIME_COMPILE,
+                error_code="COMPILE_FAILURE",
+            )
+        elif error_types & {"runtime", "simulation", "simulate"}:
+            card = _card_from_runtime_issues(
+                issues,
+                run_id=run_id,
+                attempt_number=attempt,
+                max_iterations=max_iter,
+                source=FailureSource.RUNTIME_SIMULATE,
+                error_code="RUNTIME_FAILURE",
+            )
+        elif error_types & {"safety", "budget", "policy", "governance", "registry", "constraint"}:
+            card = from_governor_feedback(
+                feedback,
+                run_id=run_id,
+                attempt_number=attempt,
+                max_iterations=max_iter,
+            )
+        else:
+            card = from_validation_error(
+                {"issues": issues},
+                run_id=run_id,
+                attempt_number=attempt,
+                max_iterations=max_iter,
+            )
+
+        if previous_ref and card:
+            return card.model_copy(update={"previous_card_ref": previous_ref})
+        return card
+
+    last_error = state.get("last_error")
+    if last_error:
+        card = FailureCard.generate(
+            source_step=FailureSource.UNKNOWN,
+            error_code="RUNTIME_ERROR",
+            violation_summary=str(last_error),
+            remediation_advice="Review the error and adjust the workflow inputs.",
+            run_id=run_id,
+            attempt_number=attempt,
+            max_iterations=max_iter,
+            technical_details={"last_error": last_error},
+        )
+        if previous_ref:
+            return card.model_copy(update={"previous_card_ref": previous_ref})
+        return card
+
+    return None
+
+
+def _card_from_runtime_issues(
+    issues: list[dict],
+    *,
+    run_id: str,
+    attempt_number: int,
+    max_iterations: int,
+    source: FailureSource,
+    error_code: str,
+) -> FailureCard:
+    violations = []
+    for issue in issues:
+        if not isinstance(issue, dict):
+            continue
+        loc = issue.get("loc") or issue.get("location") or []
+        field_path = ".".join(str(item) for item in loc) if isinstance(loc, list) else str(loc)
+        violations.append(
+            ConstraintViolation(
+                constraint_id=issue.get("constraint_id", "runtime_check"),
+                constraint_type=issue.get("error_type", "runtime"),
+                field_path=field_path or None,
+                message=issue.get("message") or issue.get("msg") or "Runtime failure",
+            )
+        )
+
+    summary = f"Runtime failure with {len(violations)} issue(s)"
+    remediation = "Review runtime errors and adjust the IR or execution config."
+    return FailureCard.generate(
+        source_step=source,
+        error_code=error_code,
+        violation_summary=summary,
+        remediation_advice=remediation,
+        run_id=run_id,
+        attempt_number=attempt_number,
+        max_iterations=max_iterations,
+        violations=violations,
+        technical_details={"issues": issues},
+    )
+
+
+def _create_terminal_report(
+    state: ExperimentState,
+    card: FailureCard,
+    decision: ReflexionDecision,
+) -> ExperimentState:
+    report = {
+        "status": "failed",
+        "reason": decision.value,
+        "final_error": {
+            "code": card.error_code,
+            "summary": card.violation_summary,
+            "source": card.source_step.value,
+        },
+        "attempts": card.attempt_number,
+        "failure_history_count": len(state.get("failure_history", [])),
+        "remediation_advice": card.remediation_advice,
+    }
+    if decision == ReflexionDecision.ESCALATE_TO_HUMAN:
+        report["escalation_required"] = True
+        report["escalation_reason"] = card.governor_advice or card.remediation_advice
+    return {**state, "terminal_report": report}
+
+
+def pi_decompose_node(state: ExperimentState) -> ExperimentState:
+    """PI node: user request -> ProblemFrame + sub-task DAG."""
+    state = _ensure_run(state)
+    if state.get("pruned"):
+        return state
+
+    if state.get("ir") is not None and not state.get("user_request"):
+        return append_audit(state, "pi_decompose", "skip_existing_ir", {"reason": "ir_present"})
+
+    if state.get("problem_frame") and state.get("sub_tasks"):
+        return append_audit(state, "pi_decompose", "skip_existing", {"reason": "already_set"})
+
+    user_request = state.get("user_request")
+    if not user_request:
+        issue = _make_issue(["user_request"], "Missing user_request", "input")
+        feedback: GovernorFeedback = {"verdict": "REJECT", "issues": [issue]}
+        return append_audit(
+            {**state, "feedback": feedback, "problem_frame": None},
+            "pi_decompose",
+            "missing_user_request",
+            {},
+        )
+
+    llm_client = state.get("llm_client")
+    agent = state.get("pi_agent")
+    if agent is None:
+        agent = LLMPIAgent(llm_client) if llm_client else MockPIAgent()
+
+    if llm_client:
+        state = _check_budget(state, "llm")
+        if state.get("pruned"):
+            return state
+
+    try:
+        problem_frame = _run_async(agent.create_problem_frame(user_request))
+        _run_async(agent.hold_problem_frame(problem_frame))
+        sub_tasks = _run_async(agent.decompose_task(user_request))
+    except Exception as exc:
+        issue = _make_issue(["problem_frame"], str(exc), "pi")
+        feedback: GovernorFeedback = {"verdict": "REJECT", "issues": [issue]}
+        return append_audit(
+            {**state, "feedback": feedback, "problem_frame": None, "last_error": str(exc)},
+            "pi_decompose",
+            "failed",
+            {"error": str(exc)},
+        )
+
+    memory = _load_short_term_memory(state)
+    memory.add_turn(TurnRole.USER, user_request)
+    memory.add_turn(
+        TurnRole.PI, json.dumps(_problem_frame_payload(problem_frame), ensure_ascii=True)
+    )
+
+    task_payloads = [_sub_task_payload(task) for task in sub_tasks]
+    new_state = {
+        **state,
+        "problem_frame": _problem_frame_payload(problem_frame),
+        "sub_tasks": task_payloads,
+        "short_term_memory": memory.to_dict(),
+        "reflexion_hints": memory.get_hints(),
+        "last_error": None,
+    }
+    return append_audit(
+        new_state,
+        "pi_decompose",
+        "problem_frame_created",
+        {"task_count": len(task_payloads)},
+    )
+
+
+def drafter_node(state: ExperimentState) -> ExperimentState:
+    """Drafter node: ProblemFrame -> DraftResult."""
+    state = _ensure_run(state)
+    if state.get("pruned"):
+        return state
+
+    problem_frame = _problem_frame_from_state(state)
+    if not problem_frame:
+        issue = _make_issue(["problem_frame"], "ProblemFrame is missing", "input")
+        feedback: GovernorFeedback = {"verdict": "REJECT", "issues": [issue]}
+        return append_audit(
+            {**state, "feedback": feedback, "draft_result": None},
+            "drafter",
+            "missing_problem_frame",
+            {},
+        )
+
+    llm_client = state.get("llm_client")
+    agent = state.get("drafter_agent")
+    if agent is None:
+        agent = LLMDrafterAgent(llm_client) if llm_client else MockDrafterAgent()
+
+    if llm_client:
+        state = _check_budget(state, "llm")
+        if state.get("pruned"):
+            return state
+
+    memory = _load_short_term_memory(state)
+    retry_context = state.get("retry_context") or {}
+    if retry_context.get("failure_context"):
+        memory.add_turn(TurnRole.SYSTEM, retry_context["failure_context"])
+    hints = state.get("reflexion_hints") or memory.get_hints()
+
+    try:
+        draft = _run_async(agent.draft_policy(problem_frame, hints=hints))
+        memory.add_turn(TurnRole.DRAFTER, draft.narrative[:800])
+        new_state = {
+            **state,
+            "draft_result": _draft_result_payload(draft),
+            "short_term_memory": memory.to_dict(),
+            "last_error": None,
+        }
+        new_state = set_current_failure_card(new_state, None)
+        return append_audit(
+            new_state, "drafter", "draft_created", {"draft_id": draft.draft_id}
+        )
+    except Exception as exc:
+        issue = _make_issue(["draft_result"], str(exc), "draft")
+        feedback: GovernorFeedback = {"verdict": "NEEDS_REVISION", "issues": [issue]}
+        new_state = {**state, "draft_result": None, "feedback": feedback, "last_error": str(exc)}
+        return append_audit(new_state, "drafter", "draft_failed", {"error": str(exc)})
+
+
+def formalize_node(state: ExperimentState) -> ExperimentState:
+    """Formalizer node: DraftResult -> PolicySurfaceIR."""
+    state = _ensure_run(state)
+    if state.get("pruned"):
+        return state
+
+    draft = _draft_result_from_state(state)
+    if not draft:
+        issue = _make_issue(["draft_result"], "DraftResult is missing", "input")
+        feedback: GovernorFeedback = {"verdict": "REJECT", "issues": [issue]}
+        return append_audit(
+            {**state, "feedback": feedback, "ir": None},
+            "formalize",
+            "missing_draft",
+            {},
+        )
+
+    llm_client = state.get("llm_client")
+    agent = state.get("formalizer_agent")
+    if agent is None:
+        agent = LLMFormalizerAgent(llm_client) if llm_client else MockFormalizerAgent()
+
+    if llm_client:
+        state = _check_budget(state, "llm")
+        if state.get("pruned"):
+            return state
+
+    try:
+        ir = _run_async(agent.formalize(draft))
+        memory = _load_short_term_memory(state)
+        memory.add_turn(TurnRole.FORMALIZER, _summarize_ir(ir))
+        new_state = {
+            **state,
+            "ir": ir,
+            "short_term_memory": memory.to_dict(),
+            "last_error": None,
+        }
+        return append_audit(new_state, "formalize", "ir_generated", {"valid": True})
+    except Exception as exc:
+        new_state = {**state, "ir": None, "last_error": str(exc)}
+        return append_audit(
+            new_state, "formalize", "ir_invalid", {"error": str(exc)}
+        )
+
+
+def critic_review_node(state: ExperimentState) -> ExperimentState:
+    """Critic node: PolicySurfaceIR + ProblemFrame -> CritiqueReport."""
+    state = _ensure_run(state)
+    if state.get("pruned"):
+        return state
+
+    ir = state.get("ir")
+    problem_frame = _problem_frame_from_state(state)
+    if ir is None or problem_frame is None:
+        issue = _make_issue(["ir"], "IR or ProblemFrame missing", "input")
+        feedback: GovernorFeedback = {"verdict": "NEEDS_REVISION", "issues": [issue]}
+        return append_audit(
+            {**state, "feedback": feedback, "critique_report": None},
+            "critic_review",
+            "missing_inputs",
+            {},
+        )
+
+    llm_client = state.get("llm_client")
+    agent = state.get("critic_agent")
+    if agent is None:
+        agent = LLMCriticAgent(llm_client) if llm_client else MockCriticAgent()
+
+    if llm_client:
+        state = _check_budget(state, "llm")
+        if state.get("pruned"):
+            return state
+
+    try:
+        report = _run_async(agent.critique(ir, problem_frame))
+        report_payload = _critique_report_payload(report)
+        memory = _load_short_term_memory(state)
+        memory.add_turn(TurnRole.CRITIC, json.dumps(report_payload, ensure_ascii=True))
+        new_state = {
+            **state,
+            "critique_report": report_payload,
+            "short_term_memory": memory.to_dict(),
+            "last_error": None,
+        }
+        return append_audit(
+            new_state,
+            "critic_review",
+            "critique_complete",
+            {"verdict": report_payload.get("verdict")},
+        )
+    except Exception as exc:
+        issue = _make_issue(["critique_report"], str(exc), "critic")
+        feedback: GovernorFeedback = {"verdict": "NEEDS_REVISION", "issues": [issue]}
+        return append_audit(
+            {**state, "feedback": feedback, "critique_report": None, "last_error": str(exc)},
+            "critic_review",
+            "critique_failed",
+            {"error": str(exc)},
+        )
+
+
+def reflexion_repair_node(state: ExperimentState) -> ExperimentState:
+    """Reflexion node: accumulate hints and prepare for next draft iteration."""
+    state = _ensure_run(state)
+    if state.get("pruned"):
+        return state
+
+    attempt = (state.get("reflexion_attempt") or 0) + 1
+    critique = state.get("critique_report") or {}
+    feedback = state.get("feedback") or {}
+
+    hint = ""
+    if isinstance(critique, dict):
+        hint = critique.get("reflexion_hint") or ""
+    else:
+        hint = getattr(critique, "reflexion_hint", "") or ""
+
+    if not hint and feedback:
+        issues = feedback.get("issues") or []
+        if issues:
+            issue = issues[0]
+            location = issue.get("location") or issue.get("loc") or ""
+            hint = f"{issue.get('message', 'Issue')} at {location}".strip()
+
+    memory = _load_short_term_memory(state)
+    draft = _draft_result_from_state(state)
+    draft_summary = draft.narrative[:200] if draft else ""
+    ir_summary = _summarize_ir(state.get("ir"))
+    if isinstance(critique, dict):
+        verdict = critique.get("verdict")
+    else:
+        verdict = getattr(critique, "verdict", None)
+    verdict = verdict or feedback.get("verdict") or "NEEDS_REVISION"
+    memory.add_attempt(draft_summary, ir_summary, verdict, hint)
+    if hint:
+        memory.add_turn(TurnRole.SYSTEM, f"Reflexion hint: {hint}")
+
+    new_state = {
+        **state,
+        "reflexion_attempt": attempt,
+        "reflexion_hints": memory.get_hints(),
+        "short_term_memory": memory.to_dict(),
+        "feedback": None,
+        "last_error": None,
+    }
+    return append_audit(
+        new_state, "reflexion_repair", "hint_added", {"attempt": attempt}
+    )
+
+
 def _generate_ir(state: ExperimentState, *, repair: bool) -> ExperimentState:
     state = _ensure_run(state)
     if state.get("pruned"):
@@ -635,7 +1400,53 @@ def repair_ir_node(state: ExperimentState) -> ExperimentState:
     if revision_count >= max_attempts:
         return _prune(state, "max_repair_attempts", "Exceeded max_repair_attempts")
     state = {**state, "revision_count": revision_count + 1}
-    return _generate_ir(state, repair=True)
+
+    ir = state.get("ir")
+    if ir is None:
+        return _generate_ir(state, repair=True)
+
+    card_payload = state.get("current_failure_card")
+    card = FailureCard.model_validate(card_payload) if card_payload else None
+
+    llm_client = state.get("llm_client")
+    agent = state.get("formalizer_agent")
+    if agent is None:
+        agent = LLMFormalizerAgent(llm_client) if llm_client else MockFormalizerAgent()
+
+    if llm_client:
+        state = _check_budget(state, "llm")
+        if state.get("pruned"):
+            return state
+
+    errors = []
+    hint = None
+    if card:
+        errors = [violation.message for violation in card.violations if violation.message]
+        if not errors:
+            errors = [card.violation_summary]
+        hint = card.remediation_advice or card.governor_advice
+
+    try:
+        repaired = _run_async(agent.repair_ir(ir, errors, hint=hint))
+        memory = _load_short_term_memory(state)
+        memory.add_turn(TurnRole.FORMALIZER, _summarize_ir(repaired))
+        new_state = {
+            **state,
+            "ir": repaired,
+            "short_term_memory": memory.to_dict(),
+            "last_error": None,
+        }
+        new_state = set_current_failure_card(new_state, None)
+        return append_audit(new_state, "repair_ir", "ir_repaired", {"errors": len(errors)})
+    except Exception as exc:
+        issue = _make_issue(["ir"], str(exc), "formalizer")
+        feedback: GovernorFeedback = {"verdict": "NEEDS_REVISION", "issues": [issue]}
+        new_state = {
+            **state,
+            "feedback": feedback,
+            "last_error": str(exc),
+        }
+        return append_audit(new_state, "repair_ir", "repair_failed", {"error": str(exc)})
 
 
 def compile_data_views_node(state: ExperimentState) -> ExperimentState:

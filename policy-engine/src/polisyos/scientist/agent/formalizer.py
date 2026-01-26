@@ -7,13 +7,18 @@ Implements the FormalizerAgent protocol with deterministic IR outputs for tests.
 from __future__ import annotations
 
 import hashlib
+import json
 from datetime import datetime
 from typing import TYPE_CHECKING, Any
 
+from pydantic import ValidationError
+
+from polisyos.ir.surface import PolicySurfaceIR
+from polisyos.scientist.agent.prompts import get_formalizer_prompt
 from polisyos.scientist.agent.protocols import DraftResult, FormalizerAgent
 
 if TYPE_CHECKING:
-    from polisyos.ir.surface import PolicySurfaceIR
+    pass
 
 
 class MockFormalizerAgent:
@@ -214,6 +219,129 @@ class MockFormalizerAgent:
     def reset(self) -> None:
         self._formalization_count = 0
         self._repair_count = 0
+
+
+class LLMFormalizerAgent:
+    """
+    LLM-powered Formalizer agent.
+
+    Converts DraftResult to PolicySurfaceIR with validation.
+    """
+
+    MAX_RETRIES = 2
+
+    def __init__(self, llm_client: Any) -> None:
+        self._llm = llm_client
+
+    async def formalize(
+        self,
+        draft: DraftResult,
+        *,
+        schema_version: str = "2.0",
+    ) -> PolicySurfaceIR:
+        """Convert a natural language draft to PolicySurfaceIR."""
+        prompt = get_formalizer_prompt()
+
+        user_message = f"""
+DRAFT TO FORMALIZE:
+{draft.narrative}
+
+PROPOSED INTERVENTIONS:
+{json.dumps(draft.interventions, indent=2)}
+
+RATIONALE:
+{draft.rationale}
+
+Generate a valid PolicySurfaceIR v{schema_version} JSON.
+"""
+
+        last_error: str | None = None
+        for attempt in range(self.MAX_RETRIES + 1):
+            if last_error and attempt > 0:
+                user_message += (
+                    f"\n\nPREVIOUS ERROR (attempt {attempt}):\n{last_error}\n"
+                    "Please fix and try again."
+                )
+
+            response = await self._llm.generate(
+                system=prompt,
+                user=user_message,
+                response_format={"type": "json_object"},
+            )
+
+            content = response.content if hasattr(response, "content") else str(response)
+            content = content.strip()
+            if content.startswith("```"):
+                content = content.split("```")[1]
+                if content.startswith("json"):
+                    content = content[4:]
+
+            try:
+                data = json.loads(content)
+                return PolicySurfaceIR(**data)
+            except json.JSONDecodeError as exc:
+                last_error = f"JSON parse error: {exc}"
+            except ValidationError as exc:
+                last_error = f"Schema validation error: {exc.errors()[:3]}"
+
+        raise ValueError(
+            f"Formalization failed after {self.MAX_RETRIES + 1} attempts: {last_error}"
+        )
+
+    async def repair_ir(
+        self,
+        ir: PolicySurfaceIR,
+        errors: list[str],
+        *,
+        hint: str | None = None,
+    ) -> PolicySurfaceIR:
+        """Repair an invalid IR based on validation errors."""
+        prompt = get_formalizer_prompt()
+
+        ir_json = ir.model_dump_json(indent=2)
+        errors_text = "\n".join(f"- {error}" for error in errors)
+
+        user_message = f"""
+INVALID IR TO REPAIR:
+{ir_json}
+
+ERRORS TO FIX:
+{errors_text}
+"""
+        if hint:
+            user_message += f"\nHINT: {hint}"
+
+        user_message += "\n\nGenerate the CORRECTED PolicySurfaceIR JSON."
+
+        response = await self._llm.generate(
+            system=prompt,
+            user=user_message,
+            response_format={"type": "json_object"},
+        )
+
+        content = response.content if hasattr(response, "content") else str(response)
+        data = json.loads(content)
+        return PolicySurfaceIR(**data)
+
+    async def validate_structure(
+        self,
+        ir: PolicySurfaceIR,
+    ) -> tuple[bool, list[str]]:
+        """Validate IR structure without full semantic check."""
+        errors: list[str] = []
+
+        if not ir.semantic.interventions:
+            errors.append("No interventions defined")
+
+        for i, intervention in enumerate(ir.semantic.interventions):
+            if not intervention.intervention_id:
+                errors.append(f"Intervention {i}: missing intervention_id")
+            if not intervention.kind:
+                errors.append(f"Intervention {i}: missing mechanism kind")
+            if not intervention.target:
+                errors.append(f"Intervention {i}: missing target selector")
+
+        return (len(errors) == 0, errors)
 
 
 def create_mock_draft(

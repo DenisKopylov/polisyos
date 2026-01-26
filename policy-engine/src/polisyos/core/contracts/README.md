@@ -12,6 +12,7 @@ contracts/
 ├── compiler.py     # Контракты компилятора
 ├── fabric.py       # Контракты Fabric (обработка данных)
 ├── foundry.py      # Контракты Foundry (симуляция)
+├── scientist.py    # Контракты Scientist (эксперименты и агенты)
 └── trinity.py      # Trinity контракты (базовые спецификации)
 ```
 
@@ -477,6 +478,60 @@ calibration_ref = CalibrationReportRef(
 
 Trinity контракты определяют ссылки на три фундаментальные спецификации системы PolisyOS: ProblemFrame (проблема), PolicySpec (политика), ModelSpec (модель). Эти контракты обеспечивают структурированный подход к экспериментам и политикам.
 
+## Scientist Contracts (Контракты Scientist)
+
+Scientist контракты определяют типизированные ссылки на артефакты, используемые в Scientist layer для оркестрации экспериментов, оценки политик и управления жизненным циклом ИИ-агентов. Эти контракты обеспечивают типобезопасное взаимодействие между компонентами Scientist модуля.
+
+### FailureCardRef
+
+Ссылка на FailureCard артефакт, содержащий информацию об ошибках и неудачах в процессе выполнения экспериментов.
+
+```python
+from polisyos.core.contracts.scientist import FailureCardRef
+
+failure_ref = FailureCardRef(
+    cas_hash="sha256:abcd1234...",           # Content-addressable hash
+    artifact_type="failure_card",              # literal type
+    ref_type="failure_card",                   # literal type
+    attempt_number=3,                          # номер попытки (≥1)
+    error_code="VALIDATION_ERROR",             # код ошибки для категоризации
+    source_step="policy_compilation",          # источник ошибки
+    can_retry=True                             # можно ли повторить
+)
+```
+
+### PolicyIRRef
+
+Ссылка на PolicySurfaceIR артефакт с информацией о версии и статусе.
+
+```python
+from polisyos.core.contracts.scientist import PolicyIRRef
+
+policy_ir_ref = PolicyIRRef(
+    cas_hash="sha256:efgh5678...",           # Content-addressable hash
+    artifact_type="policy_ir",                 # literal type
+    ref_type="policy_ir",                      # literal type
+    version=2,                                 # номер ревизии (≥1)
+    status="validated"                         # статус: draft, validated, rejected
+)
+```
+
+### CritiqueRef
+
+Ссылка на артефакт оценки критика (Critic evaluation) с вердиктом и ссылкой на оцененный IR.
+
+```python
+from polisyos.core.contracts.scientist import CritiqueRef
+
+critique_ref = CritiqueRef(
+    cas_hash="sha256:ijkl9012...",           # Content-addressable hash
+    artifact_type="critique",                  # literal type
+    ref_type="critique",                       # literal type
+    verdict="revise",                          # вердикт: approve, revise, reject
+    ir_ref="sha256:efgh5678..."               # хеш оцененного IR
+)
+```
+
 ### ProblemFrameRef
 
 Ссылка на спецификацию проблемы (ProblemFrame) - определение контекста и требований к политике.
@@ -693,13 +748,60 @@ def create_trinity_bundle_for_experiment(
     )
 ```
 
+### Работа с Scientist контрактами
+
+```python
+from polisyos.core.contracts.scientist import FailureCardRef, PolicyIRRef, CritiqueRef
+from polisyos.scientist.agent.failure_card import FailureCard
+
+# Создание ссылки на FailureCard
+def create_failure_card_ref(card: FailureCard) -> FailureCardRef:
+    """Создание типизированной ссылки на FailureCard"""
+    return FailureCardRef.from_card(card)
+
+# Создание ссылки на PolicyIR с метаданными
+def create_policy_ir_ref(cas_hash: str, version: int, status: str) -> PolicyIRRef:
+    """Создание ссылки на PolicyIR артефакт"""
+    return PolicyIRRef(
+        cas_hash=cas_hash,
+        version=version,
+        status=status
+    )
+
+# Создание ссылки на оценку критика
+def create_critique_ref(cas_hash: str, verdict: str, ir_hash: str) -> CritiqueRef:
+    """Создание ссылки на артефакт оценки критика"""
+    return CritiqueRef(
+        cas_hash=cas_hash,
+        verdict=verdict,
+        ir_ref=ir_hash
+    )
+
+# Управление состоянием эксперимента
+def track_experiment_state(policy_refs: list[PolicyIRRef], critique_refs: list[CritiqueRef]) -> dict:
+    """Отслеживание состояния эксперимента с помощью Scientist контрактов"""
+
+    # Группировка по вердиктам критика
+    approved = [ref for ref in critique_refs if ref.verdict == "approve"]
+    revisions = [ref for ref in critique_refs if ref.verdict == "revise"]
+    rejected = [ref for ref in critique_refs if ref.verdict == "reject"]
+
+    return {
+        "total_policies": len(policy_refs),
+        "approved": len(approved),
+        "pending_revision": len(revisions),
+        "rejected": len(rejected),
+        "latest_version": max((ref.version for ref in policy_refs), default=0)
+    }
+```
+
 ## Архитектурная роль
 
 ### Разделение ответственности
 
-- **Contracts**: Определяют интерфейсы и типы данных
-- **Artifacts**: Предоставляют инфраструктуру хранения
-- **Модули**: Реализуют логику, используя контракты
+- **Contracts**: Определяют интерфейсы и типы данных для всех модулей (Fabric, Foundry, Scientist, Trinity)
+- **Artifacts**: Предоставляют инфраструктуру хранения и CAS для всех артефактов
+- **Модули**: Реализуют логику, используя контракты для типобезопасного взаимодействия
 
 ### Trinity архитектура
 
@@ -740,6 +842,35 @@ state = StateSnapshot(
     state_data_ref=fabric_result.artifact_id,  # provenance link
     metadata={"source": "fabric_ingestion"}
 )
+
+# Scientist координирует эксперименты, используя все типы контрактов
+def scientist_experiment_workflow(
+    trinity_bundle: TrinityBundle,
+    fabric_result: FabricResultRef,
+    foundry_metrics: MetricsRef
+) -> PolicyIRRef:
+    """Полный workflow эксперимента в Scientist"""
+
+    # 1. Использование Trinity bundle для контекста
+    context = setup_experiment_context(trinity_bundle)
+
+    # 2. Работа с данными из Fabric
+    data_context = integrate_fabric_data(fabric_result)
+
+    # 3. Мониторинг метрик из Foundry
+    performance_data = analyze_foundry_metrics(foundry_metrics)
+
+    # 4. Генерация и оценка политик
+    policy_ir = generate_policy_ir(context, data_context, performance_data)
+
+    # 5. Создание типизированной ссылки на результат
+    policy_ref = PolicyIRRef(
+        cas_hash=policy_ir.content_hash,
+        version=policy_ir.version,
+        status="draft"
+    )
+
+    return policy_ref
 ```
 
 ## Производительность
@@ -758,3 +889,4 @@ state = StateSnapshot(
 3. **Поддерживайте provenance**: Связывайте артефакты через ссылки на входы
 4. **Документируйте контракты**: Описывайте назначение и constraints каждого контракта
 5. **Версионируйте схемы**: Используйте семантическое версионирование для моделей данных
+6. **Используйте Scientist контракты для экспериментов**: Для управления жизненным циклом политик и отслеживания оценок используйте PolicyIRRef, CritiqueRef и FailureCardRef

@@ -2,7 +2,7 @@
 
 **Policy Engine** — AI‑driven система проектирования, валидации, калибровки и исполнения политик. Архитектурно это “компиляторная труба”: от запроса пользователя/LLM до формально типизированных контрактов (IR), далее — компиляция в исполняемые графы, выполнение в JAX‑ядре и фиксация результатов в воспроизводимых артефактах.
 
-**Состояние документа (актуально на 2026‑01‑26):** архитектура v2.1.2 (Trinity Migration, Agent Protocols, Environment Manifest, Enhanced Monitoring), присутствуют переходные зоны/устаревшие интерфейсы (см. раздел “Legacy и переходные зоны”).
+**Состояние документа (актуально на 2026‑01‑26):** архитектура v2.1.2 (Trinity Migration, Agent Protocols, Environment Manifest, Enhanced Monitoring, Self-Healing Agents, Reflexion System, Multi-Agent Workflow, Failure Card Recovery, Trust System, Materializer Engine, Plugin Architecture, Agent Simulation), присутствуют переходные зоны/устаревшие интерфейсы (см. раздел “Legacy и переходные зоны”).
 
 ## Архитектурный обзор
 
@@ -182,20 +182,31 @@ common → (никого)                                      # фундаме�
 
 ### Новые компоненты (после крупных изменений)
 - **Trinity Architecture**: Разделение IR на ProblemFrame ("Why"), PolicySpec ("What"), ModelSpec ("How")
-- **Agent Protocols**: Стандартизированные интерфейсы для PI/Drafter/Formalizer/Critic агентов
-- **Environment Manifest**: Захват и сравнение вычислительных окружений для reproducibility
-- **Enhanced Monitoring**: Расширенная система мониторинга с метриками, трекингом экспериментов и визуализацией
-- **Fact Log System**: immutable факты с provenance tracking и детерминированные ID
-- **Evidence Bundles**: криптографически verifiable доказательства происхождения данных
-- **UDF Compilation Pipeline**: многофазная компиляция SQL/Cypher запросов с security passes
-- **Patch-based Execution**: декларативные изменения состояния через UpdateOp и Merge Rules
-- **Treasury System**: детерминированное управление RNG для воспроизводимости
-- **Materializer Engine**: полная материализация реляционных представлений из Fact Log с incremental updates
-- **Trust System**: многоуровневые политики доверия с statistical verification
-- **Calibration MVP**: полная система калибровки параметров с uncertainty quantification
-- **Runtime API**: жизненный цикл прогонов с переносимыми артефактами и audit trail
-- **Plugin System**: Модульная архитектура с capability-based plugin registry и composite executors
-- **Agent Simulation**: Пошаговая симуляция агентов с метриками, экспериментальным трекингом и визуализацией
+- **Agent Protocols**: Стандартизированные интерфейсы для PI/Drafter/Formalizer/Critic агентов с runtime поведением
+- **Environment Manifest**: Захват и сравнение вычислительных окружений с compatibility scoring
+- **Enhanced Monitoring**: Метрики, трекинг экспериментов и визуализация для agent simulation
+- **Self-Healing Agents**: Reflexion system с FailureCard recovery и intelligent routing
+- **Multi-Agent Workflow**: Интегрированная система агентов с critique-based refinement
+- **Failure Card System**: Структурированные артефакты ошибок с recovery mechanisms
+- **Short-Term Memory**: Persistence состояния между agent attempts с hint accumulation
+- **Reflexion Orchestrator**: Автоматический retry management с backoff и decision making
+- **Fact Log System**: immutable факты с provenance tracking и evidence bundles
+- **Evidence Bundles**: Криптографически verifiable доказательства с trust policies
+- **UDF Compilation Pipeline**: Безопасная компиляция SQL/Cypher запросов с whitelist
+- **Trust System**: Statistical verification и multi-tier evidence validation
+- **Materializer Engine**: Incremental материализация реляционных представлений из Fact Log
+- **Plugin System**: Capability-based registry с composite executors для domain extensions
+- **Agent Simulation**: Пошаговая симуляция с ML моделями, социальными связями и демографией
+- **Patch-based Execution**: UpdateOp и Merge Rules (SUM/OVERRIDE/PRIORITY/ERROR)
+- **Treasury System**: Детерминированное RNG управление для reproducible симуляций
+- **Calibration MVP**: Полная система калибровки с Hessian uncertainty quantification
+- **Runtime API**: Жизненный цикл прогонов с portable artifacts и audit trail
+- **Job Specifications**: Structured execution с reproducible hashing и distributed backends
+- **Design of Experiments**: ScenarioSweep, AblationPlan, SensitivityPlan для systematic research
+- **FSM Orchestration**: Конечный автомат состояний с 9 фазами и self-healing cycles
+- **Budget Controls**: Compute/Evidence/Legitimacy/Complexity бюджеты с enforcement
+- **Human Gates**: Асинхронная система GateRequest/GateDecision для approvals
+- **Decision Packet**: Полный артефакт с evidence, uncertainty и provenance tracking
 
 ### Подготовлено, но сейчас не задействовано в коде
 - **Diffrax**: ODE/SDE solver (для дифференциальных моделей)
@@ -327,12 +338,31 @@ policy-engine/
 │   │   ├── jax_env.py                # Безопасная настройка JAX backend для macOS
 │   │   └── migrations/               # Детерминированные миграции схем
 │   ├── core/                         # Инфраструктура артефактов и контрактов
-│   │   ├── artifacts/                # Content-Addressable Storage (CAS)
+│   │   ├── artifacts/                # Content-Addressable Storage (CAS) + Environment Manifest
+│   │   │   ├── ids.py                # ArtifactID с SHA256 хешированием
+│   │   │   ├── manifest.py           # ArtifactManifest, ArtifactRef, ProducerInfo
+│   │   │   ├── environment.py        # EnvironmentManifest с compatibility scoring
+│   │   │   ├── registry.py           # RegistryBundle для компонентов системы
+│   │   │   └── store.py              # FileSystemCAS, PutOptions, VerificationReport
 │   │   ├── canon/                    # Каноническая JSON сериализация
-│   │   ├── contracts/                # Типизированные контракты межмодульного взаимодействия
-│   │   ├── trace/                    # Распределенная система трассировки
-│   │   ├── run/                      # Контексты выполнения экспериментов
-│   │   └── registry/                 # Управление реестрами компонентов
+│   │   │   └── canon_json.py         # CanonSpec, to_canonical_bytes, deterministic хеши
+│   │   ├── compiler/                 # Отчеты компиляции и линковки
+│   │   │   └── report.py             # CompileReport, put_compile_report, put_link_report
+│   │   ├── contracts/                # Контракты между модулями системы
+│   │   │   ├── compiler.py           # CompileReportRef, LinkReportRef
+│   │   │   ├── fabric.py             # FabricResult, EvidenceBundle, UncertaintyBounds
+│   │   │   ├── foundry.py            # ProgramGraph, ExecPlan, StateDelta, TreasurySeed
+│   │   │   ├── scientist.py          # FailureCardRef, PolicyIRRef, CritiqueRef
+│   │   │   └── trinity.py            # TrinityBundle, ProblemFrameRef, PolicySpecRef, ModelSpecRef
+│   │   ├── registry/                 # Сборка и загрузка реестров компонентов
+│   │   │   ├── builder.py            # build_default_registry_bundle, build_registry_bundle
+│   │   │   └── loader.py             # load_registry_bundle_content, load_registry_bundle_payload
+│   │   ├── run/                      # Контексты и манифесты выполнения
+│   │   │   ├── context.py            # RunContext с трассировкой
+│   │   │   └── manifest.py           # RunManifest с метаданными прогонов
+│   │   └── trace/                    # Распределенная система трассировки
+│   │       ├── record.py             # TraceRecord с временными метками
+│   │       └── sink.py               # TraceSink, JsonlTraceSink для логирования
 │   ├── ir/                           # Intermediate Representation (Trinity контракты)
 │   │   ├── trinity.py                # Trinity артефакты: ProblemFrame, PolicySpec, ModelSpec
 │   │   ├── problem_frame.py          # ProblemFrame: определение проблемы и целей
@@ -362,12 +392,43 @@ policy-engine/
 │   │   ├── agent_sim/                # Агентная симуляция с нейронными сетями
 │   │   └── plugins/                  # Plugin system для расширения доменов
 │   ├── scientist/                    # AI оркестрация экспериментов
-│   │   ├── agent/                    # LLM агенты и протоколы (PI, Drafter, Formalizer, Critic)
+│   │   ├── agent/                    # Иерархическая система агентов + Self-Healing
+│   │   │   ├── protocols.py          # AgentRole, ProblemFrame, SubTask, CritiqueReport
+│   │   │   ├── failure_card.py       # FailureCard system для обработки ошибок
+│   │   │   ├── memory.py             # ShortTermMemory для conversation tracking
+│   │   │   ├── reflexion.py          # ReflexionOrchestrator с intelligent routing
+│   │   │   ├── pi.py                 # Principal Investigator agent
+│   │   │   ├── drafter.py            # Drafter agent для генерации политик
+│   │   │   ├── formalizer.py         # Formalizer agent для IR трансформации
+│   │   │   ├── critic.py             # Critic agent для валидации
+│   │   │   ├── prompts.py            # Системные промпты для агентов
+│   │   │   └── __init__.py           # Экспорт агентов и протоколов
 │   │   ├── kernel/                   # FSM, бюджеты, guards, human gates
+│   │   │   ├── budgets.py            # ComputeBudget, EvidenceBudget, LegitimacyBudget, ComplexityBudget
+│   │   │   ├── fsm.py                # Phase enum, KernelState, ALLOWED_TRANSITIONS
+│   │   │   ├── guards.py             # Проверки переходов между состояниями
+│   │   │   ├── human_gate.py         # GateRequest, GateDecision система
+│   │   │   └── __init__.py           # Экспорт kernel компонентов
 │   │   ├── compute/                  # Спецификации задач и execution backends
-│   │   ├── doe/                      # Design of Experiments (ScenarioSweep, AblationPlan)
+│   │   │   ├── job_spec.py           # JobSpec, JobKey, JobResult с reproducible hashing
+│   │   │   ├── runner.py             # LocalBackend, RayBackend для distributed execution
+│   │   │   └── __init__.py           # Экспорт compute компонентов
+│   │   ├── doe/                      # Design of Experiments
+│   │   │   └── designs.py            # ScenarioSweep, AblationPlan, SensitivityPlan
 │   │   ├── governance/               # Preflight/postflight проверки
-│   │   └── orchestrator/             # LangGraph workflow с 9 фазами
+│   │   │   ├── preflight.py          # Предварительные проверки безопасности
+│   │   │   ├── postflight.py         # Пост-запусковые проверки результатов
+│   │   │   └── __init__.py           # Экспорт governance компонентов
+│   │   ├── orchestrator/             # LangGraph workflow с 9 фазами
+│   │   │   ├── workflow.py           # Основной граф состояний LangGraph
+│   │   │   ├── state.py              # ExperimentState с 90+ полями
+│   │   │   ├── flow_nodes.py         # Реализации всех узлов workflow (1450+ строк)
+│   │   │   ├── decision_packet.py    # DecisionPacket с evidence и uncertainty
+│   │   │   ├── run_record.py         # RunRecord для воспроизводимости
+│   │   │   ├── audit.py              # Комплексная система аудита
+│   │   │   ├── data_loader.py        # Загрузка данных из Fabric layer
+│   │   │   └── __init__.py           # Экспорт orchestrator компонентов
+│   │   └── publisher.py              # Финализация результатов в DecisionPacket
 │   └── runtime/                      # Управление жизненным циклом экспериментов
 │       ├── api.py                    # start_run, finalize_run, log_artifact
 │       ├── manifest.py               # RunManifest, ArtifactRef с переносимыми путями
@@ -451,11 +512,20 @@ RunManifest + seed + artifacts → Full reproducibility
 
 **Ключевые компоненты:**
 - **Artifacts**: Content-Addressable Storage (CAS) с SHA256 хешированием, дедупликацией и верификацией целостности
+- **Environment Manifest**: Захват и сравнение вычислительных окружений с compatibility scoring (CPU/GPU/OS/Python/JAX)
 - **Canonical JSON**: Детерминированная сериализация с запретом float чисел и reproducible хешами
-- **Contracts**: Типизированные контракты межмодульного взаимодействия (foundry/fabric/compiler)
-- **Trace**: Распределенная система трассировки с span-based моделированием
+- **Contracts**: Типизированные контракты межмодульного взаимодействия (Trinity, Foundry, Fabric, Scientist)
+- **Compiler Reports**: Управление отчетами компиляции и линковки политик
+- **Registry System**: Сборка и загрузка реестров компонентов с artifact persistence
+- **Trace**: Распределенная система трассировки с span-based моделированием и JSON Lines
 - **Run**: Контексты выполнения экспериментов с метаданными и lifecycle management
-- **Registry**: Управление реестрами компонентов системы (механизмы, слоты, метрики)
+
+**Новые возможности (после обновлений):**
+- **Environment Manifest**: Полный захват окружения с fingerprinting и risk assessment для reproducible симуляций
+- **Trinity Contracts**: Типизированные ссылки на ProblemFrame/PolicySpec/ModelSpec артефакты
+- **Scientist Contracts**: Контракты для FailureCard, PolicyIR и Critique артефактов
+- **Enhanced Registry**: Автоматическая сборка registry bundles из IR модуля
+- **Trace Sinks**: JSON Lines логирование с structured events и metadata
 
 **Архитектурные особенности:**
 - Не зависит ни от одного модуля системы (чистый фундамент)
@@ -463,6 +533,7 @@ RunManifest + seed + artifacts → Full reproducibility
 - Литеральные типы для kind и media_type артефактов обеспечивают compile-time проверки
 - Декларативные контракты вместо прямых зависимостей
 - Встроенная система трассировки для всех операций
+- Environment compatibility scoring для reproducible execution
 
 ### `polisyos.ir` — канонические контракты политики (IR)
 
@@ -539,16 +610,30 @@ RunManifest + seed + artifacts → Full reproducibility
 
 ### `polisyos.scientist` — AI Policy Scientist (оркестрация эксперимента)
 
-**Архитектурная роль**: "Мозг" Policy Engine - система оркестрации полного жизненного цикла экспериментов с экономическими политиками. Scientist интегрирует LLM-агентов, дифференцируемые симуляции и governance controls для автоматического проектирования и оптимизации политик.
+**Архитектурная роль**: "Мозг" Policy Engine - система оркестрации полного жизненного цикла экспериментов с экономическими политиками. Scientist интегрирует иерархическую систему LLM-агентов, дифференцируемые симуляции и governance controls для автоматического проектирования и оптимизации политик.
 
 **Ключевые компоненты:**
-- **Agent Layer**: LLM-агенты (Drafter, MockAgent) для генерации политик из естественного языка
+- **Agent Layer**: Иерархическая система агентов (PI → Drafter → Formalizer → Critic) с self-healing через Reflexion
+- **Failure Card System**: Структурированные артефакты ошибок с recovery mechanisms и intelligent routing
+- **Short-Term Memory**: Persistence состояния агентов между attempts с hint accumulation
+- **Reflexion Orchestrator**: Автоматический retry management с backoff и decision making
 - **Kernel Layer**: FSM с 9 фазами, бюджеты (Compute/Evidence/Legitimacy/Complexity), guards, human gates
-- **Compute Layer**: Спецификации задач, distributed execution через Foundry executor
-- **Design of Experiments**: ScenarioSweep, AblationPlan, SensitivityPlan для систематического исследования
+- **Compute Layer**: Job specifications (JobSpec/JobKey/JobResult), distributed backends (LocalBackend/RayBackend)
+- **Design of Experiments**: ScenarioSweep, AblationPlan, SensitivityPlan для systematic research
 - **Governance Layer**: Preflight/postflight проверки, safety controls, policy validation
 - **Orchestrator Layer**: LangGraph workflow с 9 узлами, self-healing циклами и conditional routing
-- **Publisher**: Финализация результатов в DecisionPacket с evidence и uncertainty quantification
+- **Decision Packet**: Полный артефакт эксперимента с evidence, uncertainty и provenance tracking
+- **Publisher**: Финализация результатов в DecisionPacket с comprehensive audit trail
+
+**Новые возможности (после обновлений):**
+- **Hierarchical Agent System**: PI декомпозиция → Drafter генерация → Formalizer трансформация → Critic валидация
+- **Self-Healing & Reflexion**: FailureCard recovery, ShortTermMemory, intelligent routing с backoff logic
+- **Multi-Agent Workflow**: Интегрированная система с critique-based refinement и convergence tracking
+- **Budget Controls**: Compute/Evidence/Legitimacy/Complexity бюджеты с runtime enforcement
+- **FSM Orchestration**: Конечный автомат с 9 фазами и self-healing cycles
+- **Human Gates**: Асинхронная система GateRequest/GateDecision для approvals
+- **Job Specifications**: Structured execution с reproducible hashing и distributed execution
+- **Decision Packet**: Comprehensive артефакт с fabric_result, evidence_ref, uncertainty quantification
 
 **Технологии:**
 - LangGraph (декларативный workflow с FSM)
@@ -558,11 +643,12 @@ RunManifest + seed + artifacts → Full reproducibility
 - Pydantic (строгая типизация экспериментального state)
 
 **Архитектурные особенности:**
-- Self-healing циклы для исправления ошибок валидации
-- Multi-fidelity симуляции с adjustable precision
-- Budget enforcement на всех уровнях (LLM calls, sim runs, wall time)
-- Human gates для критических решений
-- End-to-end audit trail с provenance tracking
+- Self-healing циклы для исправления ошибок валидации через Reflexion pattern
+- Multi-fidelity симуляции с adjustable precision и uncertainty quantification
+- Budget enforcement на всех уровнях (LLM calls, sim runs, wall time, evidence queries)
+- Human gates для критических решений с approval workflow
+- End-to-end audit trail с provenance tracking и structured events
+- Hierarchical agent coordination с failure recovery и memory persistence
 
 ### `polisyos.runtime` — жизненный цикл прогонов (runs/<run_id>)
 
@@ -777,12 +863,16 @@ pytest tests/integration/ -v
 
 ### 🤖 Улучшенный AI Scientist
 
+- **Hierarchical Agent System**: PI декомпозиция → Drafter генерация → Formalizer трансформация → Critic валидация
+- **Self-Healing & Reflexion**: FailureCard recovery, ShortTermMemory, intelligent routing с backoff logic
+- **Multi-Agent Workflow**: Интегрированная система с critique-based refinement и convergence tracking
 - **FSM-based Orchestration**: Конечный автомат состояний с 9 фазами для надежного workflow
-- **Budget Controls**: Compute/Evidence/Legitimacy/Complexity бюджеты с enforcement
-- **Human Gates**: Асинхронная система GateRequest/GateDecision для человеческого одобрения
-- **Design of Experiments**: ScenarioSweep, AblationPlan, SensitivityPlan
-- **Self-healing Policies**: Автоматическое исправление ошибок валидации через LLM
-- **Decision Packet**: Полный артефакт с IR, результатами, аудитом и evidence
+- **Budget Controls**: Compute/Evidence/Legitimacy/Complexity бюджеты с runtime enforcement
+- **Human Gates**: Асинхронная система GateRequest/GateDecision для approvals
+- **Job Specifications**: Structured execution с reproducible hashing и distributed backends
+- **Design of Experiments**: ScenarioSweep, AblationPlan, SensitivityPlan для systematic research
+- **Self-healing Policies**: Автоматическое исправление ошибок валидации через Reflexion pattern
+- **Decision Packet**: Полный артефакт с evidence, uncertainty и provenance tracking
 
 ### 🔬 Продвинутое симуляционное ядро
 

@@ -34,7 +34,7 @@ Scientist построен как многоуровневая система о
 
 ```
 scientist/
-├── agent/           # Иерархическая система агентов (PI, Drafter, Formalizer, Critic)
+├── agent/           # Иерархическая система агентов + Self-Healing (Reflexion)
 ├── kernel/          # FSM, бюджеты, guards, human gates
 ├── compute/         # Спецификации задач и execution backends
 ├── doe/            # Design of Experiments
@@ -45,13 +45,18 @@ scientist/
 
 ### 🤖 Agent Layer (агенты/agent)
 
-Реализует иерархическую систему AI агентов для генерации и валидации политик:
+Реализует иерархическую систему AI агентов с self-healing возможностями:
 
 #### 🎯 Протокольная архитектура (protocols.py)
 - **`AgentRole`**: Перечисление ролей агентов (PI, DRAFTER, FORMALIZER, CRITIC)
 - **`ProblemFrame`**: Формализованное описание проблемы (immutable артефакт)
 - **`SubTask`**: Структура для декомпозиции задач с приоритетами и зависимостями
 - **`CritiqueReport`**: Структурированные отчеты о проблемах с категориями и severity
+
+#### 🔄 Self-Healing система (Reflexion Pattern)
+- **`FailureCard`**: Структурированные артефакты для фиксации и обработки ошибок
+- **`ShortTermMemory`**: Кратковременная память для conversation tracking и hints accumulation
+- **`ReflexionOrchestrator`**: Intelligent routing и backoff для self-healing workflows
 
 #### 🧠 Агенты по ролям
 - **`pi.py`**: Principal Investigator - декомпозиция высокоуровневых задач на подзадачи для других агентов
@@ -203,7 +208,15 @@ Workflow управляется конечным автоматом состоя
 - **Formalizer Agent**: Преобразование черновиков в формальный PolicySurfaceIR
 - **Critic Agent**: Многоуровневая валидация с категориями (alignment, completeness, consistency, feasibility)
 - **Mock Agents**: Полная система mock агентов для тестирования без LLM зависимостей
-- **Self-healing**: Автоматическое исправление через targeted repair циклы
+- **Self-healing**: Автоматическое исправление через Reflexion pattern с FailureCard routing
+
+### 🔄 Self-Healing & Reflexion
+- **FailureCard System**: Структурированные артефакты для фиксации ошибок и их классификации
+- **Intelligent Routing**: Автоматическое определение remediation target (Formalizer/Drafter/Human)
+- **Short-term Memory**: Conversation tracking и hints accumulation для iterative improvement
+- **Backoff & Retry Logic**: Exponential backoff с configurable delays и attempt limits
+- **Ping-pong Detection**: Предотвращение бесконечных циклов между агентами
+- **Context Injection**: Автоматическое включение failure context в LLM prompts
 
 ### 🔬 Дифференцируемые симуляции
 - Компиляция политик в JAX механизмы (Equinox)
@@ -443,7 +456,49 @@ critique_report = await critic_agent.critique(
 if critique_report.verdict == "APPROVE":
     print("✅ Policy approved by Critic Agent")
 else:
-    print(f"❌ Issues found: {len(critique_report.issues)}")
+        print(f"❌ Issues found: {len(critique_report.issues)}")
+```
+
+### Работа с Self-Healing компонентами
+
+```python
+from polisyos.scientist.agent.failure_card import FailureCard, from_critic_feedback
+from polisyos.scientist.agent.memory import ShortTermMemory, TurnRole
+from polisyos.scientist.agent.reflexion import ReflexionOrchestrator, ReflexionDecision
+
+# Создание FailureCard из Critic feedback
+critique = {
+    "verdict": "NEEDS_REVISION",
+    "issues": [{"message": "Invalid mechanism", "category": "schema"}],
+    "summary": "Schema validation failed"
+}
+
+failure_card = from_critic_feedback(critique, run_id="exp_001", attempt_number=1)
+
+# Работа с памятью для conversation tracking
+memory = ShortTermMemory()
+memory.add_turn(TurnRole.USER, "Implement progressive taxation")
+memory.add_turn(TurnRole.CRITIC, "Policy needs revision: use 'income_tax' mechanism")
+memory.add_attempt("Tax policy draft", "Progressive tax IR", "NEEDS_REVISION", "Use income_tax mechanism")
+
+hints = memory.get_hints()  # Накопленные подсказки для улучшения
+
+# Reflexion orchestrator для intelligent routing
+orchestrator = ReflexionOrchestrator()
+
+# Оценка failure и принятие решения
+decision = orchestrator.evaluate_failure(failure_card, experiment_state)
+
+if decision == ReflexionDecision.RETURN_TO_FORMALIZER:
+    # Техническая проблема - исправить Formalizer
+    retry_context = orchestrator.prepare_retry_context(failure_card, experiment_state)
+    # Inject failure context в следующий LLM call
+elif decision == ReflexionDecision.ESCALATE_TO_HUMAN:
+    # Требуется человеческое вмешательство
+    pass
+
+# Применение backoff delay перед retry
+await orchestrator.apply_backoff(attempt=2)
 ```
 
 #### Создание кастомных агентов
@@ -1274,7 +1329,7 @@ research_budget = {
 
 ### ✅ Полностью реализованные компоненты
 
-- **Agent Layer**: Полная иерархическая система агентов (PI → Drafter → Formalizer → Critic) с протоколами, mock реализациями всех ролей, структурированными артефактами (ProblemFrame, SubTask, CritiqueReport)
+- **Agent Layer**: Полная иерархическая система агентов (PI → Drafter → Formalizer → Critic) с протоколами, mock реализациями всех ролей, структурированными артефактами (ProblemFrame, SubTask, CritiqueReport) + Self-Healing система (FailureCard, ShortTermMemory, ReflexionOrchestrator)
 - **Kernel Layer**: Полная реализация FSM с 9 фазами, все модели бюджетов (Compute, Evidence, Legitimacy, Complexity), guards, human_gate и advance_phase guards
 - **Compute Layer**: JobSpec/JobKey/JobResult модели, LocalBackend и RayBackend (skeleton) для выполнения через Foundry executor, поддержка distributed execution
 - **Orchestrator Layer**: Полный workflow на LangGraph (1450+ строк в flow_nodes.py), ExperimentState с 90+ полями, DecisionPacket с evidence и uncertainty, audit trail

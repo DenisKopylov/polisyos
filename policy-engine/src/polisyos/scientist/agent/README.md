@@ -18,7 +18,112 @@ agent/
 ├── drafter.py            # Drafter Agent для генерации черновиков
 ├── formalizer.py         # Formalizer Agent для преобразования в IR
 ├── critic.py             # Critic Agent для валидации и критики
+├── failure_card.py       # Структурированные артефакты для self-healing
+├── memory.py             # Кратковременная память для Reflexion
+├── reflexion.py          # Оркестратор self-healing workflow
+├── prompts.py            # Системные промпты для LLM
+├── prompt.py             # Альтернативные промпты (legacy)
 └── base.py               # Legacy поддержка (BaseAgent, MockAgent)
+```
+
+### Self-Healing система (Reflexion Pattern)
+
+Agent Layer реализует паттерн Reflexion для автономного исправления ошибок и self-healing workflows:
+
+#### FailureCard (failure_card.py)
+
+Структурированный артефакт для фиксации и обработки ошибок:
+
+```python
+class FailureCard(BaseModel):
+    """Структурированный failure artifact для Reflexion loop."""
+
+    # Идентификация
+    card_id: UUID
+    source_step: FailureSource  # CRITIC, GOVERNOR_SAFETY, etc.
+    run_id: str
+
+    # Классификация ошибки
+    error_code: str
+    severity: FailureSeverity  # RECOVERABLE, NEEDS_HUMAN, FATAL
+    violation_summary: str
+
+    # Технические детали
+    violations: List[ConstraintViolation]
+    technical_details: Dict[str, Any]
+    state_diff: Optional[StateDiff]
+
+    # Руководство по исправлению
+    remediation_advice: str
+    governor_advice: Optional[str]
+    remediation_target: RemediationTarget  # FORMALIZER, DRAFTER, HUMAN, NONE
+
+    # Управление итерациями
+    attempt_number: int
+    max_iterations: int
+
+    # Ссылки на артефакты
+    failed_artifact_ref: Optional[str]
+    previous_card_ref: Optional[str]
+```
+
+**Ключевые возможности:**
+- Автоматическая классификация severity и remediation target
+- Content-addressable hashing для reproducible tracking
+- Форматирование для LLM context injection
+- Конвертеры из Critic feedback, validation errors, governor feedback
+
+#### ShortTermMemory (memory.py)
+
+Кратковременная память для отслеживания conversation и попыток в рамках одного эксперимента:
+
+```python
+class ShortTermMemory:
+    """Short-term memory for a single experiment run."""
+
+    def add_turn(self, role: TurnRole, content: str, **metadata) -> None:
+        """Добавить turn в conversation память."""
+
+    def add_attempt(self, draft_summary: str, ir_summary: str,
+                   critique_verdict: str, critique_hint: str) -> None:
+        """Записать попытку формализации для Reflexion."""
+
+    def get_hints(self) -> List[str]:
+        """Получить все накопленные hints от Critic reviews."""
+```
+
+**Роли в памяти:**
+- USER, PI, DRAFTER, FORMALIZER, CRITIC, SYSTEM
+
+#### ReflexionOrchestrator (reflexion.py)
+
+Оркестратор self-healing workflow с intelligent routing и backoff:
+
+```python
+class ReflexionOrchestrator:
+    """Координатор Reflexion loop для self-healing workflows."""
+
+    def evaluate_failure(self, card: FailureCard, state: ExperimentState) -> ReflexionDecision:
+        """Оценить failure и принять решение о next action."""
+
+    def prepare_retry_context(self, card: FailureCard, state: ExperimentState) -> Dict[str, Any]:
+        """Подготовить context для retry attempt."""
+
+    async def apply_backoff(self, attempt: int) -> None:
+        """Применить exponential backoff delay."""
+```
+
+**Решения Reflexion:**
+- RETURN_TO_FORMALIZER: Технические проблемы (schema, compilation)
+- RETURN_TO_DRAFTER: Концептуальные проблемы (alignment, scope)
+- ESCALATE_TO_HUMAN: Требуется человеческое решение
+- ABORT_WITH_REPORT: Фатальные ошибки или исчерпан бюджет
+
+**Self-Healing Workflow:**
+```
+Detect Failure → Evaluate → Route → Inject Context → Retry
+      ↓              ↓         ↓         ↓              ↓
+FailureCard → Decision → Target → Prompt Context → Attempt
 ```
 
 ### Иерархическая архитектура
@@ -293,6 +398,70 @@ def get_system_prompt(step: int, data_context: str) -> str:
 
 ## API Использование
 
+### Работа с Self-Healing компонентами
+
+```python
+from polisyos.scientist.agent.failure_card import FailureCard, from_critic_feedback, from_validation_error
+from polisyos.scientist.agent.memory import ShortTermMemory, TurnRole
+from polisyos.scientist.agent.reflexion import ReflexionOrchestrator, ReflexionDecision
+
+# Создание FailureCard из Critic feedback
+critique_feedback = {
+    "verdict": "NEEDS_REVISION",
+    "issues": [{"message": "Invalid mechanism type", "category": "schema"}],
+    "summary": "Policy contains invalid mechanisms"
+}
+
+failure_card = from_critic_feedback(
+    critique=critique_feedback,
+    run_id="exp_001",
+    attempt_number=1,
+    failed_artifact_ref="sha256:abcd1234"
+)
+
+# Работа с памятью
+memory = ShortTermMemory(max_turns=50, max_attempts=10)
+
+# Добавление conversation turns
+memory.add_turn(TurnRole.USER, "Reduce poverty through subsidies")
+memory.add_turn(TurnRole.DRAFTER, "Generated policy draft with tax subsidies")
+memory.add_turn(TurnRole.CRITIC, "Policy needs revision: invalid subsidy mechanism")
+
+# Добавление попыток
+memory.add_attempt(
+    draft_summary="Basic subsidy policy",
+    ir_summary="Tax subsidy mechanism with 5% rate",
+    critique_verdict="NEEDS_REVISION",
+    critique_hint="Use 'tax_subsidy' instead of 'subsidy'"
+)
+
+# Получение hints для следующей попытки
+hints = memory.get_hints()  # ["Use 'tax_subsidy' instead of 'subsidy'"]
+
+# Форматирование истории для LLM
+conversation_history = memory.get_history_as_text(last_n=10)
+
+# Reflexion Orchestrator
+orchestrator = ReflexionOrchestrator()
+
+# Оценка failure и принятие решения
+decision = orchestrator.evaluate_failure(failure_card, experiment_state)
+
+if decision == ReflexionDecision.RETURN_TO_FORMALIZER:
+    # Техническая проблема - вернуть Formalizer
+    retry_context = orchestrator.prepare_retry_context(failure_card, experiment_state)
+    # Inject context into next attempt
+elif decision == ReflexionDecision.RETURN_TO_DRAFTER:
+    # Концептуальная проблема - вернуть Drafter
+    pass
+elif decision == ReflexionDecision.ESCALATE_TO_HUMAN:
+    # Требуется человеческое вмешательство
+    pass
+
+# Применение backoff delay
+await orchestrator.apply_backoff(attempt=2)
+```
+
 ### Работа с иерархической системой агентов
 
 ```python
@@ -407,7 +576,10 @@ pytest tests/scientist/integration/test_workflow_smoke.py -v
 - **Drafter Agent**: Генерация черновиков, контекстуализация
 - **Formalizer Agent**: IR генерация, схема валидация
 - **Critic Agent**: Многоуровневая валидация, critique reports
-- **Integration**: Полный цикл агентов, error handling
+- **FailureCard**: Создание, классификация, formatting для LLM
+- **ShortTermMemory**: Conversation tracking, attempt recording, hints accumulation
+- **ReflexionOrchestrator**: Failure evaluation, routing decisions, backoff logic
+- **Integration**: Полный цикл агентов, self-healing workflows, error recovery
 
 ## Расширение
 
@@ -482,6 +654,78 @@ class DomainSpecificCriticAgent(CriticAgent):
             issues=issues,
             confidence=0.9
         )
+```
+
+### Кастомные FailureCard конвертеры
+
+```python
+from polisyos.scientist.agent.failure_card import FailureCard, FailureSource, RemediationTarget
+
+def from_custom_error(error_type: str, details: dict, run_id: str) -> FailureCard:
+    """Создание FailureCard из кастомной ошибки."""
+
+    # Автоматическая классификация
+    if "validation" in error_type:
+        source = FailureSource.VALIDATOR_SCHEMA
+        target = RemediationTarget.FORMALIZER
+    elif "alignment" in error_type:
+        source = FailureSource.CRITIC
+        target = RemediationTarget.DRAFTER
+    else:
+        source = FailureSource.UNKNOWN
+        target = RemediationTarget.NONE
+
+    return FailureCard.generate(
+        source_step=source,
+        error_code=error_type.upper(),
+        violation_summary=details.get("message", "Custom error occurred"),
+        remediation_advice=details.get("fix_suggestion", "Review and fix the error"),
+        run_id=run_id,
+        remediation_target=target,
+        technical_details=details
+    )
+```
+
+### Расширение ShortTermMemory
+
+```python
+class EnhancedShortTermMemory(ShortTermMemory):
+    """Расширенная память с дополнительными возможностями."""
+
+    def add_performance_metric(self, metric_name: str, value: float, attempt: int) -> None:
+        """Записать метрику производительности для попытки."""
+        self._performance_history[attempt] = {metric_name: value}
+
+    def get_performance_trends(self) -> dict:
+        """Анализ трендов производительности по попыткам."""
+        return self._analyze_performance_trends()
+
+    def suggest_improvements(self) -> List[str]:
+        """Предложить улучшения на основе истории."""
+        trends = self.get_performance_trends()
+        return self._generate_improvement_suggestions(trends)
+```
+
+### Кастомный ReflexionOrchestrator
+
+```python
+class AdvancedReflexionOrchestrator(ReflexionOrchestrator):
+    """Расширенный оркестратор с ML-based routing."""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._routing_model = self._load_routing_model()  # ML модель для routing
+
+    def evaluate_failure(self, card: FailureCard, state) -> ReflexionDecision:
+        # Сначала базовая логика
+        base_decision = super().evaluate_failure(card, state)
+
+        # Затем ML-based refinement
+        features = self._extract_features(card, state)
+        ml_decision = self._routing_model.predict(features)
+
+        # Combine base + ML decisions
+        return self._combine_decisions(base_decision, ml_decision)
 ```
 
 ### Добавление новой роли агента

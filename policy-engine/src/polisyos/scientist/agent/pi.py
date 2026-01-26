@@ -7,10 +7,12 @@ Implements the PIAgent protocol with deterministic outputs suitable for tests.
 from __future__ import annotations
 
 import hashlib
+import json
 import uuid
 from datetime import datetime
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
+from polisyos.scientist.agent.prompts import get_pi_prompt
 from polisyos.scientist.agent.protocols import (
     AgentRole,
     DelegationResult,
@@ -20,6 +22,9 @@ from polisyos.scientist.agent.protocols import (
     TaskPriority,
     TaskStatus,
 )
+
+if TYPE_CHECKING:
+    from polisyos.scientist.agent.protocols import CriticAgent, DrafterAgent, FormalizerAgent
 
 
 class MockPIAgent:
@@ -167,6 +172,192 @@ class MockPIAgent:
     def reset(self) -> None:
         self._problem_frame = None
         self._delegation_count = 0
+
+
+class LLMPIAgent:
+    """
+    LLM-powered Principal Investigator agent.
+
+    Uses chain-of-thought prompting for task decomposition.
+    """
+
+    def __init__(
+        self,
+        llm_client: Any,
+        drafter: "DrafterAgent | None" = None,
+        formalizer: "FormalizerAgent | None" = None,
+        critic: "CriticAgent | None" = None,
+    ) -> None:
+        self._llm = llm_client
+        self._drafter = drafter
+        self._formalizer = formalizer
+        self._critic = critic
+        self._current_problem_frame: ProblemFrame | None = None
+
+    async def create_problem_frame(
+        self,
+        request: str,
+        *,
+        domain_hint: str | None = None,
+    ) -> ProblemFrame:
+        """Create a ProblemFrame from a user request using LLM."""
+        if not request or not request.strip():
+            raise ValueError("Request cannot be empty")
+
+        prompt = get_pi_prompt()
+        user_message = f"USER REQUEST: {request}"
+        if domain_hint:
+            user_message += f"\nDOMAIN HINT: {domain_hint}"
+
+        response = await self._llm.generate(
+            system=prompt,
+            user=user_message,
+            response_format={"type": "json_object"},
+        )
+
+        content = response.content if hasattr(response, "content") else str(response)
+        try:
+            data = json.loads(content)
+            pf_data = data.get("problem_frame", data)
+            return ProblemFrame(
+                frame_id=pf_data.get("frame_id", str(uuid.uuid4())),
+                domain=pf_data.get("domain", domain_hint or "economic"),
+                problem_statement=pf_data["problem_statement"],
+                actors=tuple(pf_data.get("actors", [])),
+                goals=tuple(pf_data.get("goals", [])),
+                constraints=tuple(pf_data.get("constraints", [])),
+                success_criteria=pf_data.get("success_criteria", {}),
+                assumptions=tuple(pf_data.get("assumptions", [])),
+                created_at=datetime.utcnow(),
+            )
+        except (json.JSONDecodeError, KeyError):
+            return ProblemFrame(
+                frame_id=str(uuid.uuid4()),
+                domain=domain_hint or "economic",
+                problem_statement=request[:500],
+                goals=(request[:200],),
+                created_at=datetime.utcnow(),
+            )
+
+    async def decompose_task(
+        self,
+        request: str,
+        *,
+        context: dict[str, Any] | None = None,
+    ) -> list[SubTask]:
+        """Decompose a high-level request into sub-tasks using LLM."""
+        if not request or not request.strip():
+            raise ValueError("Request cannot be empty")
+
+        prompt = get_pi_prompt()
+        context_str = ""
+        if context:
+            context_str = f"\nCONTEXT: {json.dumps(context, ensure_ascii=True)}"
+        user_message = f"USER REQUEST: {request}{context_str}"
+
+        response = await self._llm.generate(
+            system=prompt,
+            user=user_message,
+            response_format={"type": "json_object"},
+        )
+
+        content = response.content if hasattr(response, "content") else str(response)
+        try:
+            data = json.loads(content)
+            tasks_data = data.get("sub_tasks", [])
+            tasks: list[SubTask] = []
+            for idx, task in enumerate(tasks_data):
+                target_agent = task.get("target_agent", "DRAFTER")
+                priority = task.get("priority", "medium")
+                try:
+                    agent_role = AgentRole(target_agent.lower())
+                except ValueError:
+                    agent_role = AgentRole.DRAFTER
+                try:
+                    priority_enum = TaskPriority(priority.lower())
+                except ValueError:
+                    priority_enum = TaskPriority.MEDIUM
+                tasks.append(
+                    SubTask(
+                        task_id=task.get("task_id", f"task_{idx}"),
+                        description=task["description"],
+                        target_agent=agent_role,
+                        priority=priority_enum,
+                        status=TaskStatus.PENDING,
+                        dependencies=tuple(task.get("dependencies", [])),
+                        expected_output=task.get("expected_output", ""),
+                    )
+                )
+            return tasks
+        except (json.JSONDecodeError, KeyError, ValueError):
+            return [
+                SubTask(
+                    task_id="task_0",
+                    description=request[:500],
+                    target_agent=AgentRole.DRAFTER,
+                    priority=TaskPriority.HIGH,
+                    status=TaskStatus.PENDING,
+                )
+            ]
+
+    async def delegate(
+        self,
+        task: SubTask,
+        agent_role: AgentRole,
+    ) -> DelegationResult:
+        """Delegate a sub-task to a specialized agent."""
+        agent_map = {
+            AgentRole.DRAFTER: self._drafter,
+            AgentRole.FORMALIZER: self._formalizer,
+            AgentRole.CRITIC: self._critic,
+        }
+        agent = agent_map.get(agent_role)
+        if agent is None:
+            return DelegationResult(
+                task_id=task.task_id,
+                agent_role=agent_role,
+                success=False,
+                error=f"No {agent_role.value} agent registered",
+            )
+
+        start_time = datetime.utcnow()
+        try:
+            if agent_role == AgentRole.DRAFTER:
+                result = await agent.draft_policy(
+                    self._current_problem_frame,
+                    hints=task.inputs.get("hints"),
+                )
+            elif agent_role == AgentRole.FORMALIZER:
+                result = await agent.formalize(task.inputs.get("draft"))
+            elif agent_role == AgentRole.CRITIC:
+                result = await agent.critique(task.inputs.get("ir"), self._current_problem_frame)
+            else:
+                raise ValueError(f"Unknown agent role: {agent_role}")
+
+            duration = (datetime.utcnow() - start_time).total_seconds() * 1000
+            return DelegationResult(
+                task_id=task.task_id,
+                agent_role=agent_role,
+                success=True,
+                output=result,
+                duration_ms=int(duration),
+            )
+        except Exception as exc:
+            return DelegationResult(
+                task_id=task.task_id,
+                agent_role=agent_role,
+                success=False,
+                error=str(exc),
+            )
+
+    async def hold_problem_frame(self, problem_frame: ProblemFrame) -> None:
+        """Set the current ProblemFrame for the session."""
+        self._current_problem_frame = problem_frame
+
+    @property
+    def current_problem_frame(self) -> ProblemFrame | None:
+        """Get the currently held ProblemFrame."""
+        return self._current_problem_frame
 
 
 def _verify_protocol() -> None:

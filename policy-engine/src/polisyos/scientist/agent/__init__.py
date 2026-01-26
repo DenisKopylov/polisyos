@@ -36,10 +36,11 @@ from polisyos.scientist.agent.protocols import (
 # MOCK IMPLEMENTATIONS (Testing)
 # =============================================================================
 
-from polisyos.scientist.agent.critic import MockCriticAgent, create_mock_problem_frame
-from polisyos.scientist.agent.drafter import MockDrafterAgent, MockLLM
-from polisyos.scientist.agent.formalizer import MockFormalizerAgent, create_mock_draft
-from polisyos.scientist.agent.pi import MockPIAgent
+from polisyos.scientist.agent.critic import LLMCriticAgent, MockCriticAgent, create_mock_problem_frame
+from polisyos.scientist.agent.drafter import LLMDrafterAgent, MockDrafterAgent, MockLLM
+from polisyos.scientist.agent.formalizer import LLMFormalizerAgent, MockFormalizerAgent, create_mock_draft
+from polisyos.scientist.agent.memory import ShortTermMemory, TurnRole
+from polisyos.scientist.agent.pi import LLMPIAgent, MockPIAgent
 
 # =============================================================================
 # LEGACY SUPPORT (Backward Compatibility)
@@ -54,9 +55,13 @@ __all__ = [
     "FormalizerAgent",
     "CriticAgent",
     "MockPIAgent",
+    "LLMPIAgent",
     "MockDrafterAgent",
+    "LLMDrafterAgent",
     "MockFormalizerAgent",
+    "LLMFormalizerAgent",
     "MockCriticAgent",
+    "LLMCriticAgent",
     "MockLLM",
     "ProblemFrame",
     "SubTask",
@@ -74,6 +79,8 @@ __all__ = [
     "is_valid_agent",
     "create_mock_draft",
     "create_mock_problem_frame",
+    "ShortTermMemory",
+    "TurnRole",
     "BaseAgent",
     "MockAgent",
     "drafter_node",

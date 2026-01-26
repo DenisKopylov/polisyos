@@ -2,7 +2,7 @@
 
 Тестовая инфраструктура для Policy Engine - AI-driven Policy Simulation System. Тесты обеспечивают качество кода, валидируют архитектурные границы и проверяют корректность работы всех компонентов системы.
 
-**Последнее обновление:** Январь 2026
+**Последнее обновление:** Январь 2026 (добавлены тесты reflexion loop и multi-agent workflow)
 **Актуальная версия архитектуры:** v2.1.2 (Trinity Migration, Agent Protocols, Environment Manifest, Enhanced Monitoring)
 
 ## Архитектурный контекст
@@ -72,7 +72,9 @@ tests/
 │   └── test_runtime_manifest_paths.py # Управление runs, артефакты, пути
 └── scientist/                     # Тесты компонентов scientist
     ├── test_agent_protocols.py    # Протоколы агентов: PI, Drafter, Formalizer, Critic
-    └── test_compiler.py           # Компилятор политик из IR
+    ├── test_compiler.py           # Компилятор политик из IR
+    ├── test_multi_agent_workflow.py # Multi-agent workflow с critique system и памятью
+    └── test_reflexion_loop.py     # Reflexion loop, failure cards, recovery mechanisms
 ```
 
 ## Категории тестов
@@ -224,13 +226,16 @@ tests/
 
 ### Scientist Tests (`scientist/`)
 
-**Цель**: Валидация компонентов ИИ, протоколов агентов и компиляции политик.
+**Цель**: Валидация компонентов ИИ, протоколов агентов, компиляции политик и систем recovery.
 
 **Ключевые тесты:**
 - **Agent Protocols**: Валидация протоколов PI/Drafter/Formalizer/Critic агентов с runtime поведением
 - **Policy Compiler**: Компиляция IR в исполняемые модели foundry
 - **Agent Pipeline**: Полный pipeline от user request до PolicySurfaceIR через агентов
 - **Reflexion Loop**: Тестирование цикла draft → critique → refine с convergence
+- **Multi-Agent Workflow**: Интеграция multi-agent системы с critique system и памятью агентов
+- **Failure Cards**: Система обработки ошибок, recovery mechanisms и escalation logic
+- **Short-Term Memory**: Persistence состояния и hints между попытками агентов
 
 ## Конфигурация окружения (conftest.py)
 
@@ -302,6 +307,10 @@ pytest tests/integration/ -v
 
 # Scientist тесты
 pytest tests/scientist/ -v
+
+# Новые компоненты scientist layer
+pytest tests/scientist/test_multi_agent_workflow.py -v  # Multi-agent workflow
+pytest tests/scientist/test_reflexion_loop.py -v       # Reflexion loop и failure cards
 ```
 
 ### Специфические сценарии
@@ -375,6 +384,10 @@ pytest tests/runtime/test_runtime_manifest_paths.py
 - **Agent Simulation**: Пошаговая симуляция агентов с метриками, трекингом экспериментов и визуализацией
 - **Trinity Architecture**: Разделение политик на ProblemFrame/PolicySpec/ModelSpec с типизированными ссылками
 - **Agent Protocols**: Стандартизированные интерфейсы для PI/Drafter/Formalizer/Critic агентов
+- **Failure Card System**: Система обработки ошибок с recovery mechanisms и escalation logic
+- **Reflexion Orchestrator**: Автоматический оркестратор retry loops с backoff и decision making
+- **Short-Term Memory**: Persistence состояния агентов между попытками с hint accumulation
+- **Multi-Agent Workflow**: Интегрированная система workflow с critique-based refinement
 - **Environment Manifest**: Захват и сравнение вычислительных окружений для reproducibility
 
 ## Принципы тестирования
@@ -487,7 +500,11 @@ pytest tests/runtime/test_runtime_manifest_paths.py
 
 **LLM Integration** → AI-powered components
 - **Agent Pipeline**: PI → Drafter → Formalizer → Critic workflow
-- **Reflexion Loop**: Critique-based policy refinement и convergence
+- **Reflexion Loop**: Critique-based policy refinement и convergence с failure recovery
+- **Multi-Agent Workflow**: Интегрированная система workflow с critique system
+- **Failure Cards**: Error handling и recovery mechanisms для LLM interactions
+- **Short-Term Memory**: State persistence между agent attempts с hint accumulation
+- **Reflexion Orchestrator**: Автоматический retry management с escalation logic
 - **Trinity Migration**: Seamless transition между Surface IR и Trinity formats
 
 ### Trinity Architecture Integration
@@ -640,6 +657,30 @@ pytest tests/demos/run_laffer_demo.py -v
 # Убедитесь что пути к репозиторию разрешаются корректно
 ```
 
+**Reflexion loop failures:**
+```bash
+# Проверьте reflexion orchestrator decisions
+pytest tests/scientist/test_reflexion_loop.py::TestReflexionOrchestrator -v
+# Проверьте failure card generation
+pytest tests/scientist/test_reflexion_loop.py::TestFailureCardSchema -v
+```
+
+**Multi-agent workflow failures:**
+```bash
+# Проверьте workflow orchestration
+pytest tests/scientist/test_multi_agent_workflow.py::TestMultiAgentWorkflow -v
+# Проверьте memory persistence
+pytest tests/scientist/test_multi_agent_workflow.py::TestShortTermMemory -v
+```
+
+**Failure card recovery issues:**
+```bash
+# Проверьте recovery mechanisms
+pytest tests/scientist/test_reflexion_loop.py::TestFailureCardConverters -v
+# Проверьте state management
+pytest tests/scientist/test_reflexion_loop.py::TestStateManagement -v
+```
+
 ### Полезные команды диагностики
 
 ```bash
@@ -678,6 +719,18 @@ python -c "from polisyos.ir.trinity import TrinityBundle; from polisyos.ir.probl
 
 # Проверка agent protocols
 python -c "from polisyos.scientist.agent.protocols import AGENT_PROTOCOLS, AgentRole; print('Agent protocols OK')"
+
+# Проверка failure card system
+python -c "from polisyos.scientist.agent.failure_card import FailureCard, FailureSource; print('Failure card system OK')"
+
+# Проверка reflexion orchestrator
+python -c "from polisyos.scientist.agent.reflexion import ReflexionOrchestrator; print('Reflexion orchestrator OK')"
+
+# Проверка short-term memory
+python -c "from polisyos.scientist.agent.memory import ShortTermMemory; print('Short-term memory OK')"
+
+# Проверка multi-agent workflow
+python -c "from polisyos.scientist.orchestrator.workflow import build_workflow; print('Multi-agent workflow OK')"
 
 # Проверка environment manifest
 python -c "from polisyos.core.artifacts.environment import capture_environment; print('Environment manifest OK')"

@@ -2,7 +2,7 @@
 
 Тестовая инфраструктура для Policy Engine - AI-driven Policy Simulation System. Тесты обеспечивают качество кода, валидируют архитектурные границы и проверяют корректность работы всех компонентов системы.
 
-**Последнее обновление:** Январь 2026 (добавлены тесты reflexion loop и multi-agent workflow)
+**Последнее обновление:** Январь 2026 (добавлены тесты governance layer и validation pipeline)
 **Актуальная версия архитектуры:** v2.1.2 (Trinity Migration, Agent Protocols, Environment Manifest, Enhanced Monitoring)
 
 ## Архитектурный контекст
@@ -71,6 +71,8 @@ tests/
 ├── runtime/                       # Тесты runtime компонентов
 │   └── test_runtime_manifest_paths.py # Управление runs, артефакты, пути
 └── scientist/                     # Тесты компонентов scientist
+    ├── governance/                # Тесты governance layer (validation pipeline)
+    │   └── test_validation_pipeline.py # ValidationPipeline, profiles, compliance issues
     ├── test_agent_protocols.py    # Протоколы агентов: PI, Drafter, Formalizer, Critic
     ├── test_compiler.py           # Компилятор политик из IR
     ├── test_multi_agent_workflow.py # Multi-agent workflow с critique system и памятью
@@ -226,9 +228,10 @@ tests/
 
 ### Scientist Tests (`scientist/`)
 
-**Цель**: Валидация компонентов ИИ, протоколов агентов, компиляции политик и систем recovery.
+**Цель**: Валидация компонентов ИИ, протоколов агентов, компиляции политик, систем recovery и governance layer.
 
 **Ключевые тесты:**
+- **Governance Layer**: Validation pipeline, compliance checks, pre/post-flight governance
 - **Agent Protocols**: Валидация протоколов PI/Drafter/Formalizer/Critic агентов с runtime поведением
 - **Policy Compiler**: Компиляция IR в исполняемые модели foundry
 - **Agent Pipeline**: Полный pipeline от user request до PolicySurfaceIR через агентов
@@ -307,6 +310,9 @@ pytest tests/integration/ -v
 
 # Scientist тесты
 pytest tests/scientist/ -v
+
+# Governance layer тесты
+pytest tests/scientist/governance/ -v                 # Validation pipeline
 
 # Новые компоненты scientist layer
 pytest tests/scientist/test_multi_agent_workflow.py -v  # Multi-agent workflow
@@ -497,6 +503,7 @@ pytest tests/runtime/test_runtime_manifest_paths.py
 - **Foundry**: Simulation execution с calibration и fidelity control
 - **Fabric**: Data ingestion, evidence bundles и trust quantification
 - **IR**: Policy compilation pipeline и Trinity migration
+- **Governance**: Pre/post-flight validation и compliance checks
 
 **LLM Integration** → AI-powered components
 - **Agent Pipeline**: PI → Drafter → Formalizer → Critic workflow

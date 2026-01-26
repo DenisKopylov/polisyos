@@ -127,6 +127,8 @@ class ExperimentState(TypedDict):
     gate_decision: Optional[Dict[str, Any]]
     pii_tier: Optional[str]
     uncertainty_bounds: Optional[Dict[str, float]]
+    validation_trace: Optional[Dict[str, Any]]
+    validation_warnings: Optional[List[Dict[str, Any]]]
 
     # Execution config
     runner_backend: Optional[str]

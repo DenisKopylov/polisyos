@@ -1,6 +1,6 @@
 # Complete Policy Engine Architecture
 
-> **Last updated:** January 26, 2026
+> **Last updated:** January 26, 2026 (added governance validation pipeline system)
 >
 > This document contains the complete architecture of the Policy Engine project with detailed descriptions of all files in the `src/`, `tests/`, and `tools/` directories.
 
@@ -285,8 +285,18 @@ policy-engine/
 │       │   └── README.md             # Design of Experiments documentation
 │       ├── governance/               # Preflight/postflight validation and safety checks
 │       │   ├── __init__.py           # Exports governance API
+│       │   ├── passes/               # Modular validation passes system
+│       │   │   ├── __init__.py       # Exports validation passes API
+│       │   │   ├── base.py           # Base classes for validation passes and compliance issues
+│       │   │   ├── budget_pass.py    # Budget constraint validation (compute, evidence, complexity)
+│       │   │   ├── privacy_pass.py   # Privacy and data protection validation
+│       │   │   ├── safety_pass.py    # Policy safety and mechanism validation
+│       │   │   └── schema_pass.py    # Policy schema validation and structure checks
+│       │   ├── pipeline.py           # Validation pipeline orchestrator with short-circuit logic
 │       │   ├── postflight.py         # Post-execution validation and result verification
 │       │   ├── preflight.py          # Pre-execution safety checks and validation
+│       │   ├── profiles.py           # Validation profiles (fast/mvp/strict) with configurable passes
+│       │   ├── telemetry.py          # Validation tracing and performance monitoring
 │       │   └── README.md             # Governance system documentation and policies
 │       ├── kernel/                   # Core orchestration (FSM, budgets, guards, human gates)
 │       │   ├── __init__.py           # Exports kernel API
@@ -376,6 +386,8 @@ policy-engine/
 │   │   ├── README.md                 # Runtime testing documentation and lifecycle validation
 │   │   └── test_runtime_manifest_paths.py # Runtime manifests with portable path resolution
 │   └── scientist/                    # AI components and orchestration testing
+│       ├── governance/               # Governance layer testing
+│       │   └── test_validation_pipeline.py # Validation pipeline orchestration and compliance testing
 │       ├── README.md                 # Scientist testing documentation and AI validation
 │       ├── test_agent_protocols.py   # Agent communication protocols and interface validation
 │       ├── test_compiler.py          # Scientist workflow compiler testing and optimization

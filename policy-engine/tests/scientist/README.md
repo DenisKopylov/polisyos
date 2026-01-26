@@ -2,7 +2,7 @@
 
 Валидация компонентов scientist layer - протоколов агентов, компилятора политик и ИИ-компонентов.
 
-**Последнее обновление:** Январь 2026 (добавлены тесты reflexion loop и multi-agent workflow)
+**Последнее обновление:** Январь 2026 (добавлены тесты governance layer и validation pipeline)
 **Уровень:** Scientist Layer (AI & Compilation)
 **Зависимости:** JAX, Core artifacts, IR structures
 
@@ -14,6 +14,8 @@ Scientist layer обеспечивает компиляцию политик и�
 
 ```
 scientist/
+├── governance/                # Тесты governance layer
+│   └── test_validation_pipeline.py # ValidationPipeline, profiles, compliance issues
 ├── test_agent_protocols.py    # Протоколы агентов: PI, Drafter, Formalizer, Critic
 ├── test_compiler.py           # Компилятор политик из IR
 ├── test_multi_agent_workflow.py # Multi-agent workflow с critique system и памятью
@@ -21,6 +23,23 @@ scientist/
 ```
 
 ## Категории тестов
+
+### Governance Layer (`governance/test_validation_pipeline.py`)
+
+**Цель:** Валидация validation pipeline, compliance checks, pre/post-flight governance и safety validation.
+
+**Ключевые тесты:**
+- **Validation Pipeline**: Orchestrator для passes с short-circuit при blocker issues
+- **Compliance Issues**: Создание и валидация compliance issues с severity levels
+- **Validation Profiles**: Fast/mvp/strict profiles с разными наборами passes
+- **Pass Context**: PassContext и ComplianceIssue schema validation
+- **Custom Passes**: Создание кастомных validator passes для specific checks
+
+**Принципы:**
+- **Pass Orchestration**: ValidationPipeline упорядочивает passes по стоимости и short-circuit'ит
+- **Issue Classification**: Blocker/warning/error severity levels с remediation guidance
+- **Profile Configuration**: Fast (basic), mvp (balanced), strict (comprehensive) profiles
+- **Context Management**: PassContext предоставляет shared state между passes
 
 ### Agent Protocols (`test_agent_protocols.py`)
 
@@ -93,6 +112,10 @@ scientist/
 # Все scientist тесты
 pytest tests/scientist/ -v
 
+# Governance layer тесты
+pytest tests/scientist/governance/ -v
+pytest tests/scientist/governance/test_validation_pipeline.py -v
+
 # Конкретные компоненты
 pytest tests/scientist/test_agent_protocols.py -v
 pytest tests/scientist/test_compiler.py -v
@@ -115,6 +138,11 @@ pytest tests/scientist/test_reflexion_loop.py::TestFailureCardConverters -v
 ## Связи с другими модулями
 
 ### Зависимости Scientist Layer
+
+**Governance Layer** (`governance/`):
+- **Validation Pipeline**: Pre/post-flight checks для safety и compliance
+- **Compliance Issues**: Structured feedback для policy refinement
+- **Validation Profiles**: Configurable validation levels (fast/mvp/strict)
 
 **IR Layer** (`ir/`):
 - **Policy Surface**: Surface IR как input для compilation
@@ -139,9 +167,11 @@ pytest tests/scientist/test_reflexion_loop.py::TestFailureCardConverters -v
 ### Архитектурные инварианты
 
 - **Закон B**: Компиляторная труба (NL → LLM → IR → Compilation → Runtime)
+- **Закон C**: Governance gates (pre-flight validation перед execution, post-flight review)
 - **Registry Consistency**: Compilation использует consistent registry bundles
 - **Execution Correctness**: Compiled programs preserve policy semantics
 - **State Safety**: Safe state transformations через execution
+- **Validation Pipeline**: Governance checks short-circuit при blocker issues
 - **Failure Recovery**: Все failures имеют structured remediation paths (retry/escalate/abort)
 - **Memory Persistence**: Agent state persists across workflow attempts с hint accumulation
 - **Critique Integration**: Critique system provides actionable feedback для всех agents
@@ -155,10 +185,11 @@ pytest tests/scientist/test_reflexion_loop.py::TestFailureCardConverters -v
 2. Проверяйте registry integration и consistency
 3. Валидируйте execution correctness compiled programs
 4. Тестируйте error handling в compilation pipeline
-5. Для reflexion loop: тестируйте failure scenarios, recovery paths, escalation logic
-6. Для multi-agent workflow: проверяйте state persistence, critique integration, memory management
-7. Для failure cards: валидируйте schema compliance, converter accuracy, severity classification
-8. Используйте fixtures для shared state (base_state, recoverable_failure_card, fatal_failure_card)
+5. Для governance layer: тестируйте validation pipeline, compliance issues, custom passes
+6. Для reflexion loop: тестируйте failure scenarios, recovery paths, escalation logic
+7. Для multi-agent workflow: проверяйте state persistence, critique integration, memory management
+8. Для failure cards: валидируйте schema compliance, converter accuracy, severity classification
+9. Используйте fixtures для shared state (base_state, recoverable_failure_card, fatal_failure_card)
 
 ### Структура scientist теста
 
@@ -198,6 +229,46 @@ def test_multi_agent_workflow_memory():
     # Verify: memory persistence
     memory_data = result.get("short_term_memory", {})
     assert memory_data  # Memory should be populated
+
+def test_validation_pipeline_with_blocker_issue():
+    """Тестирование validation pipeline с blocker issue."""
+    from polisyos.scientist.governance.pipeline import ValidationPipeline
+    from polisyos.scientist.governance.profiles import ValidationProfile, ProfileLevel
+    from polisyos.scientist.governance.passes.base import ComplianceIssue, IssueSeverity
+
+    # Setup: create pipeline с blocker pass
+    pipeline = ValidationPipeline()
+    pipeline.add_pass(AlwaysBlockerPass())
+
+    ir = _create_minimal_ir()
+    profile = ValidationProfile(level=ProfileLevel.STRICT)
+
+    # Execute: run validation
+    trace = pipeline.validate(ir, profile)
+
+    # Verify: blocker issue stops pipeline
+    assert len(trace.issues) == 1
+    assert trace.issues[0].severity == IssueSeverity.BLOCKER
+    assert trace.has_blockers is True
+
+def test_compliance_issue_schema():
+    """Тестирование ComplianceIssue schema."""
+    from polisyos.scientist.governance.passes.base import ComplianceIssue, IssueSeverity
+
+    # Setup: create compliance issue
+    issue = ComplianceIssue(
+        issue_id="test_issue",
+        message="Test compliance issue",
+        severity=IssueSeverity.WARNING,
+        category="safety",
+        location="policy.interventions[0]",
+        remediation="Fix the parameter value"
+    )
+
+    # Verify: schema validation
+    assert issue.issue_id == "test_issue"
+    assert issue.severity == IssueSeverity.WARNING
+    assert issue.category == "safety"
 ```
 
 ## Troubleshooting
@@ -272,3 +343,10 @@ pytest tests/scientist/test_multi_agent_workflow.py::TestShortTermMemory::test_s
 - **Critique System**: Feedback generation для policy refinement
 - **Workflow Orchestration**: Multi-agent pipeline coordination
 - **State Serialization**: Deterministic state persistence между attempts
+
+### Governance Components
+- **Validation Pipeline**: Orchestrator для validation passes с short-circuit logic
+- **Compliance Issues**: Structured representation проблем с severity levels
+- **Validation Profiles**: Fast/mvp/strict конфигурации для разных validation levels
+- **Pass Context**: Shared state между validation passes
+- **Custom Passes**: Extensible system для domain-specific validation

@@ -38,7 +38,11 @@ scientist/
 ├── kernel/          # FSM, бюджеты, guards, human gates
 ├── compute/         # Спецификации задач и execution backends
 ├── doe/            # Design of Experiments
-├── governance/     # Preflight/postflight проверки
+├── governance/     # Preflight/postflight проверки + passes pipeline
+│   ├── passes/     # Модульные проверки (budget, safety, privacy, schema)
+│   ├── pipeline.py # Orchestrator for validation passes
+│   ├── profiles.py # Validation profiles (fast/mvp/strict)
+│   └── telemetry.py# Validation tracing и metrics
 ├── orchestrator/   # Workflow orchestration и state management
 └── publisher.py    # Финализация результатов
 ```
@@ -98,10 +102,23 @@ scientist/
 
 ### 🛡️ Governance Layer (управление/governance)
 
-Многоуровневый контроль качества, безопасности и соответствия требованиям:
+Многоуровневый контроль качества, безопасности и соответствия требованиям с модульной системой проверок:
 
-- **`preflight.py`**: Предварительные проверки безопасности и валидации перед запуском экспериментов (возвращает `GateRequest` при необходимости). Текущая реализация - placeholder с базовой структурой
-- **`postflight.py`**: Пост-запусковые проверки результатов и финальное одобрение экспериментов. Текущая реализация - placeholder с базовой структурой
+#### Core Components
+- **`preflight.py`**: Предварительные проверки безопасности и валидации перед запуском экспериментов (возвращает `GateRequest` при необходимости)
+- **`postflight.py`**: Пост-запусковые проверки результатов и финальное одобрение экспериментов
+- **`pipeline.py`**: Оркестратор для запуска последовательности validation passes с short-circuit логикой
+- **`profiles.py`**: Предопределенные профили валидации (`fast`, `mvp`, `strict`) с различными наборами проверок
+- **`telemetry.py`**: Система трассировки валидации с `ValidationTrace` и `PassSpan` для мониторинга производительности
+
+#### Validation Passes (`passes/`)
+Модульная система проверок, каждая из которых фокусируется на конкретном аспекте:
+
+- **`budget_pass.py`**: Контроль бюджетов (compute, evidence, legitimacy, complexity)
+- **`safety_pass.py`**: Проверка безопасности механизмов и селекторов политики
+- **`privacy_pass.py`**: Контроль приватности данных (PII tiers, access control)
+- **`schema_pass.py`**: Валидация структуры IR и compliance с PolicySurfaceIR schema
+- **`base.py`**: Базовые классы `ValidatorPass`, `PassContext`, `ComplianceIssue` для создания кастомных проверок
 
 ### 🎼 Orchestrator Layer (оркестрация/orchestrator)
 
@@ -237,7 +254,9 @@ Workflow управляется конечным автоматом состоя
 - **Budget Controls**: `ComputeBudget`, `EvidenceBudget`, `LegitimacyBudget`, `ComplexityBudget`
 - **FSM Guards**: Проверки переходов между состояниями и валидация артефактов
 - **Human Gates**: Система `GateRequest`/`GateDecision` для человеческого одобрения
-- **Preflight/Postflight Checks**: Автоматические проверки безопасности
+- **Validation Pipeline**: Модульная система проверок с passes (budget, safety, privacy, schema)
+- **Validation Profiles**: Конфигурируемые профили валидации (fast/mvp/strict)
+- **Preflight/Postflight Checks**: Автоматические проверки безопасности с telemetry
 - **Policy Safety**: Валидация запрещенных механизмов и селекторов
 - **Audit Trail**: Полный лог всех операций для compliance
 
@@ -1207,7 +1226,7 @@ tests/scientist/
 ├── test_agent_*.py         # Agent layer (protocols, pi, drafter, formalizer, critic)
 ├── test_kernel_*.py        # Kernel layer (FSM, budgets, guards, human_gate)
 ├── test_compute_*.py       # Compute layer (job_spec, runner)
-├── test_governance_*.py    # Governance layer (preflight, postflight)
+├── test_governance_*.py    # Governance layer (preflight, postflight, passes, pipeline)
 ├── test_doe_*.py          # Design of Experiments (designs)
 ├── test_orchestrator_*.py  # Orchestrator layer (workflow, state, flow_nodes)
 ├── test_publisher.py       # Publisher layer
@@ -1242,7 +1261,7 @@ pytest tests/scientist/ -x --tb=short
 - **Agent Layer**: Протоколы агентов, иерархическая система (PI→Drafter→Formalizer→Critic), mock реализации всех ролей
 - **Kernel Layer**: FSM transitions, budget enforcement, guards, human gates
 - **Compute Layer**: Job specifications, execution backends, reproducible hashing
-- **Governance**: Preflight/postflight checks, human gates (placeholders)
+- **Governance**: Preflight/postflight checks, validation passes, pipeline orchestration, profiles, telemetry
 - **Orchestrator**: Workflow execution, state management, decision packets
 - **DoE**: Experiment designs, scenario generation, statistical analysis
 - **Integration**: Полный цикл агентов, end-to-end workflow testing
@@ -1338,7 +1357,7 @@ research_budget = {
 
 ### 🚧 Частично реализованные компоненты
 
-- **Governance Layer**: Placeholder реализации preflight/postflight с базовой структурой для GateRequest/GateDecision (готовы для интеграции с UI)
+- **Governance Layer**: Полная система validation passes с pipeline orchestration, профилями и telemetry. Preflight/postflight с GateRequest/GateDecision интеграцией (готовы для UI integration)
 - **DoE Layer**: Базовые модели ScenarioSweep, AblationPlan, SensitivityPlan без полной интеграции в workflow (готовы для расширения)
 - **Optimization**: Градиентная оптимизация через Optax с gradient health monitoring и uncertainty quantification (нужна интеграция с multi-objective optimization)
 

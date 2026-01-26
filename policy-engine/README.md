@@ -207,6 +207,8 @@ common → (никого)                                      # фундаме�
 - **Budget Controls**: Compute/Evidence/Legitimacy/Complexity бюджеты с enforcement
 - **Human Gates**: Асинхронная система GateRequest/GateDecision для approvals
 - **Decision Packet**: Полный артефакт с evidence, uncertainty и provenance tracking
+- **Governance Layer**: Модульная система validation passes (budget/safety/privacy/schema) с pipeline orchestration
+- **Validation Profiles**: Предопределенные профили валидации (fast/mvp/strict) с telemetry и tracing
 
 ### Подготовлено, но сейчас не задействовано в коде
 - **Diffrax**: ODE/SDE solver (для дифференциальных моделей)
@@ -415,7 +417,16 @@ policy-engine/
 │   │   │   └── __init__.py           # Экспорт compute компонентов
 │   │   ├── doe/                      # Design of Experiments
 │   │   │   └── designs.py            # ScenarioSweep, AblationPlan, SensitivityPlan
-│   │   ├── governance/               # Preflight/postflight проверки
+│   │   ├── governance/               # Preflight/postflight проверки + validation pipeline
+│   │   │   ├── passes/               # Модульные проверки (budget, safety, privacy, schema)
+│   │   │   │   ├── budget_pass.py    # Контроль бюджетов (compute, evidence, legitimacy, complexity)
+│   │   │   │   ├── safety_pass.py    # Проверка безопасности механизмов и селекторов
+│   │   │   │   ├── privacy_pass.py   # Контроль приватности (PII tiers, access control)
+│   │   │   │   ├── schema_pass.py    # Валидация структуры IR и PolicySurfaceIR compliance
+│   │   │   │   └── base.py           # Базовые классы ValidatorPass, PassContext, ComplianceIssue
+│   │   │   ├── pipeline.py           # Orchestrator for validation passes с short-circuit логикой
+│   │   │   ├── profiles.py           # Validation profiles (fast/mvp/strict)
+│   │   │   ├── telemetry.py          # Validation tracing и metrics
 │   │   │   ├── preflight.py          # Предварительные проверки безопасности
 │   │   │   ├── postflight.py         # Пост-запусковые проверки результатов
 │   │   │   └── __init__.py           # Экспорт governance компонентов
@@ -620,7 +631,7 @@ RunManifest + seed + artifacts → Full reproducibility
 - **Kernel Layer**: FSM с 9 фазами, бюджеты (Compute/Evidence/Legitimacy/Complexity), guards, human gates
 - **Compute Layer**: Job specifications (JobSpec/JobKey/JobResult), distributed backends (LocalBackend/RayBackend)
 - **Design of Experiments**: ScenarioSweep, AblationPlan, SensitivityPlan для systematic research
-- **Governance Layer**: Preflight/postflight проверки, safety controls, policy validation
+- **Governance Layer**: Preflight/postflight проверки + validation pipeline с модульными passes
 - **Orchestrator Layer**: LangGraph workflow с 9 узлами, self-healing циклами и conditional routing
 - **Decision Packet**: Полный артефакт эксперимента с evidence, uncertainty и provenance tracking
 - **Publisher**: Финализация результатов в DecisionPacket с comprehensive audit trail
@@ -634,6 +645,8 @@ RunManifest + seed + artifacts → Full reproducibility
 - **Human Gates**: Асинхронная система GateRequest/GateDecision для approvals
 - **Job Specifications**: Structured execution с reproducible hashing и distributed execution
 - **Decision Packet**: Comprehensive артефакт с fabric_result, evidence_ref, uncertainty quantification
+- **Governance Pipeline**: Модульная система validation passes (budget/safety/privacy/schema) с telemetry
+- **Validation Profiles**: Предопределенные профили валидации (fast/mvp/strict) с short-circuit логикой
 
 **Технологии:**
 - LangGraph (декларативный workflow с FSM)
@@ -873,6 +886,8 @@ pytest tests/integration/ -v
 - **Design of Experiments**: ScenarioSweep, AblationPlan, SensitivityPlan для systematic research
 - **Self-healing Policies**: Автоматическое исправление ошибок валидации через Reflexion pattern
 - **Decision Packet**: Полный артефакт с evidence, uncertainty и provenance tracking
+- **Governance Pipeline**: Модульная система validation passes с short-circuit логикой и telemetry
+- **Validation Profiles**: Fast/mvp/strict профили валидации с configurable passes
 
 ### 🔬 Продвинутое симуляционное ядро
 
@@ -887,7 +902,9 @@ pytest tests/integration/ -v
 
 ### 🛡️ Governance & Compliance
 
-- **Preflight/Postflight Checks**: Автоматические проверки безопасности
+- **Preflight/Postflight Checks**: Автоматические проверки безопасности с validation pipeline
+- **Validation Passes**: Модульные проверки (budget/safety/privacy/schema) с telemetry
+- **Validation Profiles**: Fast/mvp/strict профили с configurable passes и short-circuit логикой
 - **Audit Trail**: Полная JSON Lines трассировка всех операций
 - **Policy Safety**: Валидация запрещенных механизмов и селекторов
 - **Version Control**: Миграции артефактов с backward compatibility
@@ -950,6 +967,9 @@ pytest tests/contract/
 # Тесты симуляционного ядра
 pytest tests/foundry/
 
+# Тесты governance layer
+pytest tests/scientist/governance/ -v
+
 # Производительность и регрессии
 python tools/benchmarks/bench_domain.py
 python tools/benchmarks/bench_simulation.py
@@ -994,7 +1014,7 @@ python tools/diagnostics/generate_ir_schema.py
 - **[`src/polisyos/common/README.md`](src/polisyos/common/README.md)**: JAX environment setup (CPU-first для macOS), структурированное логирование через Loguru, детерминированные миграции схем, hardware safeguards
 
 ### 🧪 Testing Framework (Тестовая инфраструктура)
-- **[`tests/README.md`](tests/README.md)**: Contract тесты (IR валидация), core phase 0 (CAS, canonical JSON), fabric (evidence, trust), foundry (JAX, calibration), integration (end-to-end workflows), runtime (artifact management)
+- **[`tests/README.md`](tests/README.md)**: Contract тесты (IR валидация), core phase 0 (CAS, canonical JSON), fabric (evidence, trust), foundry (JAX, calibration), integration (end-to-end workflows), runtime (artifact management), governance (validation pipeline)
 
 ### 🔨 Developer Tools (Инструменты разработчика)
 - **[`tools/README.md`](tools/README.md)**: Архитектурные линтеры (lint_imports.py - Закон A, lint_foundry.py - Закон B), генерация JSON Schema, миграции артефактов, бенчмарки производительности, демонстрационные скрипты, диагностика системы

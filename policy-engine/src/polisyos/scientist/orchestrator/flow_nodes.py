@@ -1324,72 +1324,31 @@ def validate_ir_node(state: ExperimentState) -> ExperimentState:
     state = _ensure_run(state)
     if state.get("pruned"):
         return state
-    if state.get("ir") is None:
-        issue = _make_issue(["ir"], "IR is missing", "validation")
-        feedback: GovernorFeedback = {"verdict": "NEEDS_REVISION", "issues": [issue]}
-        return append_audit({**state, "feedback": feedback}, "validate_ir", "missing_ir", {})
+    from polisyos.scientist.governance import preflight_checks
+    from polisyos.scientist.governance.profiles import ValidationProfile
 
-    try:
-        payload = state["ir"].model_dump(mode="json")
-        PolicySurfaceIR.model_validate(payload)
-    except ValidationError as exc:
-        report = build_validation_report(exc, before=payload, after=payload)
-        feedback: GovernorFeedback = {
-            "verdict": "NEEDS_REVISION",
-            "issues": [issue.model_dump() for issue in report.issues],
-        }
-        log_artifact(
-            run_id=state["run_id"],
-            artifact_type="validation_report",
-            payload=report.model_dump(),
-            media_type="application/json",
-            step="validate_ir",
-            base_dir=_runtime_base_dir(state),
-        )
-        return append_audit({**state, "feedback": feedback}, "validate_ir", "invalid", {})
+    updated_state, gate_request = preflight_checks(state, ValidationProfile.mvp())
 
-    safety_issues = []
-    policy = state["ir"]
-    # Validation needs the registry to exist even when the caller didn't provide one.
-    # Without this, integration runs would get an immediate REJECT ("registry_bundle_ref is missing")
-    # and the workflow would never reach compile/run/governor.
-    state = _ensure_registry_bundle(state)
-    try:
-        registry_content = _load_registry_bundle_content_for(state, policy)
-    except Exception as exc:
-        issue = _make_issue(["semantic", "registry_bundle_ref"], str(exc), "registry")
-        feedback: GovernorFeedback = {"verdict": "REJECT", "issues": [issue]}
-        return append_audit({**state, "feedback": feedback}, "validate_ir", "registry_failed", {})
+    if gate_request:
+        details = gate_request.details or {}
+        issues = details.get("issues", [])
 
-    bundle_id = _resolve_registry_bundle_id(state, policy)
-    if policy.semantic.registry_bundle_ref is None and bundle_id:
-        policy = policy.model_copy(
-            update={
-                "semantic": policy.semantic.model_copy(update={"registry_bundle_ref": bundle_id})
-            }
-        )
-        state = {**state, "ir": policy}
-    if not policy.semantic.interventions:
-        safety_issues.append(
-            _make_issue(
-                ["semantic", "interventions"], "At least one intervention is required", "safety"
-            )
-        )
-    for idx, intervention in enumerate(policy.semantic.interventions):
-        if intervention.kind not in registry_content.mechanism_registry.mechanisms:
-            safety_issues.append(
-                _make_issue(
-                    ["semantic", "interventions", idx, "kind"],
-                    f"Unknown mechanism type '{intervention.kind}'",
-                    "safety",
-                    intervention.kind,
-                )
-            )
-    if safety_issues:
-        feedback: GovernorFeedback = {"verdict": "REJECT", "issues": safety_issues}
-        return append_audit({**state, "feedback": feedback}, "validate_ir", "safety_block", {})
+        verdict = "NEEDS_REVISION" if _has_revisions(issues) else "REJECT"
+        feedback: GovernorFeedback = {"verdict": verdict, "issues": issues}
+        return append_audit({**updated_state, "feedback": feedback}, "validate_ir", "invalid", {})
 
-    return append_audit({**state, "feedback": None}, "validate_ir", "valid", {})
+    return append_audit({**updated_state, "feedback": None}, "validate_ir", "valid", {})
+
+
+def _has_revisions(issues: list[dict]) -> bool:
+    if not issues:
+        return False
+    for issue in issues:
+        if issue.get("code") == "PASS_EXECUTION_ERROR":
+            return False
+        if issue.get("error_type") in {"safety"}:
+            return False
+    return True
 
 
 def repair_ir_node(state: ExperimentState) -> ExperimentState:

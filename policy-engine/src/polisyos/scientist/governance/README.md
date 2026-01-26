@@ -13,8 +13,18 @@ Governance Layer обеспечивает многоуровневый конт�
 ```
 governance/
 ├── __init__.py           # Экспорт основных компонентов
-├── preflight.py         # Предварительные проверки безопасности
-└── postflight.py        # Пост-запусковые проверки результатов
+├── preflight.py         # Preflight validation pipeline
+├── postflight.py        # Postflight validation pipeline (GateDecision)
+├── pipeline.py          # Orchestrator for validation passes с short-circuit логикой
+├── profiles.py          # ValidationProfile presets (fast/mvp/strict)
+├── telemetry.py         # ValidationTrace/PassSpan для мониторинга производительности
+└── passes/
+    ├── __init__.py
+    ├── base.py          # ValidatorPass, PassContext, ComplianceIssue базовые классы
+    ├── budget_pass.py   # Контроль бюджетов (compute, evidence, legitimacy, complexity)
+    ├── privacy_pass.py  # Контроль приватности (PII tiers, access control)
+    ├── safety_pass.py   # Проверка безопасности механизмов и селекторов
+    └── schema_pass.py   # Валидация структуры IR и PolicySurfaceIR compliance
 ```
 
 ## Компоненты
@@ -26,42 +36,78 @@ governance/
 #### preflight_checks()
 Основная функция pre-flight governance:
 ```python
-def preflight_checks(state: dict) -> tuple[dict, GateRequest | None]:
+def preflight_checks(
+    state: dict,
+    profile: ValidationProfile | None = None,
+) -> tuple[dict, GateRequest | None]:
     """
-    Предварительные проверки безопасности и валидации.
+    Запускает ValidationPipeline и прикрепляет validation_trace к state.
 
     Returns:
         tuple: (updated_state, gate_request)
-        - gate_request: None если проверки пройдены, GateRequest если требуется human approval
+        - gate_request: None если проверка прошла
+        - gate_request: GateRequest если найдены blocker-issues
     """
-    return state, None  # Placeholder implementation
 ```
-
-**Текущая реализация**: Placeholder с базовой структурой для будущей интеграции.
 
 ### 🛑 Postflight Checks (postflight.py)
 
 Пост-запусковые проверки результатов экспериментов:
 
 #### postflight_checks()
-Основная функция post-flight governance:
 ```python
-def postflight_checks(state: dict) -> tuple[dict, GateDecision | None]:
+def postflight_checks(
+    state: dict,
+    profile: ValidationProfile | None = None,
+) -> tuple[dict, GateDecision | None]:
     """
-    Пост-запусковые проверки результатов и финальное одобрение.
-
-    Returns:
-        tuple: (updated_state, gate_decision)
-        - gate_decision: None если проверки пройдены, GateDecision с результатом проверки
+    Повторно валидирует state через ValidationPipeline и возвращает GateDecision
+    при наличии blocker-issues.
     """
-    return state, None  # Placeholder implementation
 ```
 
-**Текущая реализация**: Placeholder с базовой структурой для будущей интеграции.
+### 🔁 Validation Pipeline (pipeline.py)
+
+- `ValidationPipeline` упорядочивает и оркестрирует выполнение validation passes с оптимизацией по стоимости
+- **Short-circuit логика**: Останавливает выполнение при обнаружении blocker-issues для экономии ресурсов
+- **Параллельное выполнение**: Passes без зависимостей выполняются параллельно
+- **Telemetry интеграция**: Каждый pass создает `PassSpan` с метриками производительности
+- **Конфигурируемые профили**: Разные наборы passes для различных сценариев (fast/mvp/strict)
+
+#### ValidationTrace (telemetry.py)
+- `ValidationTrace` фиксирует полную историю выполнения pipeline с timing и метриками
+- `PassSpan` для каждого individual pass с CPU/memory usage, duration, status
+- Сериализуется в `validation_trace` для аудита и debugging
+- Интеграция с основным audit trail системы
+
+### 📊 Validation Profiles (profiles.py)
+
+`ValidationProfile` определяет набор активных passes, их конфигурацию и политику short-circuit:
+
+#### Предопределенные профили:
+
+- **`fast`**: Минимальный набор для быстрой валидации
+  - schema_pass (Pydantic validation)
+  - privacy_pass (PII checks)
+  - budget_pass (budget validation)
+  - Short-circuit: enabled
+
+- **`mvp`**: Сбалансированный набор для большинства сценариев
+  - schema_pass + safety_pass + privacy_pass + budget_pass
+  - Short-circuit: enabled
+  - Подходит для development и production
+
+- **`strict`**: Полный набор проверок без оптимизаций
+  - Все доступные passes
+  - Short-circuit: disabled
+  - Максимальная безопасность и compliance
+
+#### Кастомные профили:
+Возможно создание custom профилей с специфическими passes и thresholds для особых требований.
 
 ## Архитектура Governance
 
-### Многоуровневый контроль
+### Многоуровневый контроль с модульной архитектурой
 
 ```
 ┌─────────────────────────────────────┐
@@ -73,10 +119,18 @@ def postflight_checks(state: dict) -> tuple[dict, GateDecision | None]:
 │      PREFLIGHT GOVERNANCE           │◄── Kernel Human Gates
 │                                     │
 │  ┌─────────────────────────────────┐ │
-│  │   Safety Validation            │ │
-│  │   • Policy Safety Rules        │ │
-│  │   • Budget Compliance          │ │
-│  │   • PII/Data Access Control    │ │
+│  │   Validation Pipeline          │ │
+│  │   ┌─────────────────────────────┐ │ │
+│  │   │ Schema Pass                │ │ │
+│  │   │ Safety Pass                │ │ │
+│  │   │ Privacy Pass               │ │ │
+│  │   │ Budget Pass                │ │ │
+│  │   └─────────────────────────────┘ │ │
+│  │                                 │ │
+│  │   • Modular Design             │ │
+│  │   • Short-circuit Logic        │ │
+│  │   • Parallel Execution         │ │
+│  │   • Telemetry & Tracing        │ │
 │  └─────────────────────────────────┘ │
 │                                     │
 │  ┌─────────────────────────────────┐ │
@@ -141,13 +195,18 @@ gate_decision = GateDecision(
 
 ```python
 from polisyos.scientist.governance.preflight import preflight_checks
+from polisyos.scientist.governance.profiles import ValidationProfile, get_profile
 from polisyos.scientist.orchestrator.state import ExperimentState
 
 def preflight_node(state: ExperimentState) -> ExperimentState:
-    """Узел workflow для preflight governance."""
+    """Узел workflow для preflight governance с выбором профиля."""
 
-    # Выполнение проверок
-    updated_state, gate_request = preflight_checks(state)
+    # Выбор профиля валидации (из state или по умолчанию)
+    profile_name = state.get("validation_profile", "mvp")
+    profile = get_profile(profile_name)
+
+    # Выполнение проверок с выбранным профилем
+    updated_state, gate_request = preflight_checks(state, profile=profile)
 
     if gate_request:
         # Требуется human approval
@@ -155,13 +214,15 @@ def preflight_node(state: ExperimentState) -> ExperimentState:
             **updated_state,
             "gate_request": gate_request,
             "require_human_gate": True,
-            "phase": "PREFLIGHT_GOV"  # Ожидание решения
+            "phase": "PREFLIGHT_GOV",  # Ожидание решения
+            "validation_trace": updated_state.get("validation_trace")  # Telemetry data
         }
 
     # Проверки пройдены, продолжаем
     return {
         **updated_state,
-        "preflight_approved": True
+        "preflight_approved": True,
+        "validation_profile_used": profile_name
     }
 ```
 
@@ -193,35 +254,71 @@ def postflight_node(state: ExperimentState) -> ExperimentState:
     }
 ```
 
+### Работа с Validation Profiles
+
+```python
+from polisyos.scientist.governance.profiles import get_profile, ValidationProfile
+from polisyos.scientist.governance.pipeline import ValidationPipeline
+
+# Использование предопределенных профилей
+fast_profile = get_profile("fast")      # Быстрая валидация
+mvp_profile = get_profile("mvp")        # Сбалансированная
+strict_profile = get_profile("strict")  # Максимальная безопасность
+
+# Кастомный профиль
+custom_profile = ValidationProfile(
+    name="custom",
+    passes=["schema_pass", "budget_pass"],  # Только необходимые passes
+    short_circuit=True,
+    timeout_seconds=30.0
+)
+
+# Применение профиля
+pipeline = ValidationPipeline(profile=custom_profile)
+result = pipeline.run(state)
+
+print(f"Profile: {result.profile_name}")
+print(f"Duration: {result.total_duration}s")
+print(f"Passed: {len(result.passed_passes)}/{len(result.total_passes)}")
+```
+
 ### Кастомные проверки
 
 ```python
-def custom_preflight_checks(state: dict) -> tuple[dict, GateRequest | None]:
-    """Кастомные preflight проверки."""
+from polisyos.scientist.governance.passes.base import ValidatorPass, ComplianceIssue
+from polisyos.scientist.governance.passes.base import IssueSeverity
 
-    issues = []
+class CustomEconomicPass(ValidatorPass):
+    """Кастомная проверка экономических показателей."""
 
-    # Проверка бюджетного дефицита
-    simulation_results = state.get("simulation_results", {})
-    deficit = simulation_results.get("budget_deficit", 0)
+    def validate(self, context) -> list[ComplianceIssue]:
+        issues = []
 
-    if deficit < -1000.0:  # Threshold для human approval
-        gate_request = GateRequest(
-            run_id=state.get("run_id"),
-            reason="Excessive budget deficit detected",
-            details={"deficit": deficit, "threshold": -1000.0}
-        )
-        return state, gate_request
+        # Проверка бюджетного дефицита
+        deficit = context.state.get("simulation_results", {}).get("budget_deficit", 0)
+        if deficit < -1000.0:
+            issues.append(ComplianceIssue(
+                pass_name=self.name,
+                message="Excessive budget deficit detected",
+                severity=IssueSeverity.BLOCKER,
+                details={"deficit": deficit, "threshold": -1000.0}
+            ))
 
-    # Проверка потенциального воздействия на бедность
-    poverty_rate_change = simulation_results.get("poverty_rate_change", 0)
-    if poverty_rate_change > 0.05:  # >5% increase
-        issues.append("Significant increase in poverty rate")
+        # Проверка воздействия на бедность
+        poverty_change = context.state.get("simulation_results", {}).get("poverty_rate_change", 0)
+        if poverty_change > 0.05:  # >5% increase
+            issues.append(ComplianceIssue(
+                pass_name=self.name,
+                message="Significant increase in poverty rate",
+                severity=IssueSeverity.WARNING,
+                details={"change": poverty_change}
+            ))
 
-    if issues:
-        return {**state, "preflight_issues": issues}, None
+        return issues
 
-    return state, None
+# Регистрация кастомного pass
+from polisyos.scientist.governance.pipeline import ValidationPipeline
+pipeline.register_pass(CustomEconomicPass())
 ```
 
 ## Примеры реализации
@@ -364,11 +461,17 @@ def governor_node(state: ExperimentState) -> ExperimentState:
 # Тестирование governance layer
 pytest tests/scientist/test_governance_*.py -v
 
-# Preflight checks
+# Preflight/postflight checks
 pytest tests/scientist/test_governance_preflight.py -v
-
-# Postflight checks
 pytest tests/scientist/test_governance_postflight.py -v
+
+# Validation pipeline и passes
+pytest tests/scientist/test_governance_pipeline.py -v
+pytest tests/scientist/test_governance_passes.py -v
+
+# Profiles и telemetry
+pytest tests/scientist/test_governance_profiles.py -v
+pytest tests/scientist/test_governance_telemetry.py -v
 ```
 
 ### Mock тестирование
@@ -392,29 +495,56 @@ def test_preflight_with_gate_request():
 ### Integration тесты
 
 ```python
+from polisyos.scientist.governance.pipeline import ValidationPipeline
+from polisyos.scientist.governance.profiles import get_profile
+
+def test_validation_pipeline_integration():
+    """Тестирование полной validation pipeline."""
+
+    # Создание тестового состояния
+    state = {
+        "run_id": "test_pipeline",
+        "ir": create_test_policy_ir(),
+        "budget": {"max_llm_calls": 5}
+    }
+
+    # Выполнение pipeline с профилем
+    profile = get_profile("mvp")
+    pipeline = ValidationPipeline(profile=profile)
+    result = pipeline.run(state)
+
+    # Проверка результатов
+    assert result.total_passes > 0
+    assert result.validation_trace is not None
+    assert "duration" in result.validation_trace
+
+    # Проверка telemetry
+    trace = result.validation_trace
+    assert len(trace.pass_spans) == len(result.total_passes)
+
 def test_full_governance_workflow():
-    """Тестирование полного governance workflow."""
+    """Тестирование полного governance workflow с pipeline."""
 
-    # Мокаем governance functions
-    def mock_preflight(state):
-        return state, GateRequest(run_id="test", reason="mock_reason")
-
-    def mock_postflight(state):
-        return state, GateDecision(approved=True, actor="test_user")
+    from polisyos.scientist.governance.preflight import preflight_checks
+    from polisyos.scientist.governance.postflight import postflight_checks
 
     # Имитация workflow
-    state = {"run_id": "integration_test"}
+    state = {
+        "run_id": "integration_test",
+        "ir": create_valid_policy_ir(),
+        "budget": {"max_llm_calls": 3}
+    }
 
-    # Preflight
-    state, gate_req = mock_preflight(state)
-    assert gate_req is not None
+    # Preflight с pipeline
+    state, gate_req = preflight_checks(state, profile=get_profile("fast"))
+    if gate_req:
+        # Human decision
+        state["gate_decision"] = GateDecision(approved=True, actor="admin")
 
-    # Human decision
-    state["gate_decision"] = GateDecision(approved=True, actor="admin")
-
-    # Postflight
-    state, gate_dec = mock_postflight(state)
-    assert gate_dec.approved
+    # Postflight с pipeline
+    state, gate_dec = postflight_checks(state, profile=get_profile("fast"))
+    if gate_dec:
+        assert gate_dec.approved
 ```
 
 ## Расширение

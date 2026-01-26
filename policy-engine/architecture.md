@@ -76,6 +76,7 @@ policy-engine/
 │   │   │   ├── compiler.py           # Compiler contracts (CompileReportRef, LinkReportRef)
 │   │   │   ├── fabric.py             # Fabric contracts (6 reference types + data models)
 │   │   │   ├── foundry.py            # Foundry contracts (13 reference types + execution models)
+│   │   │   ├── scientist.py          # Scientist contracts (FailureCardRef, PolicyIRRef, CritiqueRef)
 │   │   │   ├── trinity.py            # Trinity contracts (ProblemFrame, PolicySpec, ModelSpec, TrinityBundle)
 │   │   │   └── README.md             # Inter-module contracts documentation
 │   │   ├── README.md                 # Core module architecture and responsibilities
@@ -264,11 +265,14 @@ policy-engine/
 │       │   ├── base.py               # Base agent class with common functionality
 │       │   ├── critic.py             # Critic agent for policy evaluation and critique generation
 │       │   ├── drafter.py            # Drafter agent for policy generation from natural language
+│       │   ├── failure_card.py       # Structured artifacts for self-healing workflow failures
 │       │   ├── formalizer.py         # Formalizer agent for mathematical formalization of policies
+│       │   ├── memory.py             # Short-term memory for Reflexion workflow conversation tracking
 │       │   ├── pi.py                 # Policy Iteration agent for optimization and refinement
 │       │   ├── prompt.py             # Prompt management and template system
 │       │   ├── prompts.py            # Curated collection of LLM prompts and templates
 │       │   ├── protocols.py          # Agent communication protocols and interfaces
+│       │   ├── reflexion.py          # Self-healing workflow orchestrator with intelligent routing
 │       │   └── README.md             # Agent system documentation and LLM integration
 │       ├── compute/                  # Task specifications and execution backends
 │       │   ├── __init__.py           # Exports compute API
@@ -374,7 +378,9 @@ policy-engine/
 │   └── scientist/                    # AI components and orchestration testing
 │       ├── README.md                 # Scientist testing documentation and AI validation
 │       ├── test_agent_protocols.py   # Agent communication protocols and interface validation
-│       └── test_compiler.py          # Scientist workflow compiler testing and optimization
+│       ├── test_compiler.py          # Scientist workflow compiler testing and optimization
+│       ├── test_multi_agent_workflow.py # Multi-agent workflow integration and memory persistence testing
+│       └── test_reflexion_loop.py    # Reflexion loop and FailureCard system validation
 └── tools/                            # Developer tools and demonstrations ensuring architecture compliance
     ├── benchmarks/                   # Performance benchmarks for JAX and simulation components
     │   ├── bench_domain.py           # Economic domain model benchmark (JAX + Equinox + GlobalState allocation)

@@ -5,6 +5,8 @@ from typing import Any, Dict, List, Optional
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from polisyos.core.contracts.foundry import EnvironmentManifestRef
+
 
 class ArtifactRef(BaseModel):
     artifact_type: str
@@ -30,6 +32,14 @@ class RunManifest(BaseModel):
     budget_usage: Dict[str, float] = Field(default_factory=dict)
     pruning_reason: Optional[Dict[str, Any]] = None
     artifacts: List[ArtifactRef] = Field(default_factory=list)
+    environment_ref: EnvironmentManifestRef | None = Field(
+        default=None,
+        description="Reference to environment manifest captured at run start",
+    )
+    environment_fingerprint: str | None = Field(
+        default=None,
+        description="Fingerprint of critical environment factors",
+    )
     run_root: Optional[str] = None
 
     model_config = ConfigDict(extra="forbid")

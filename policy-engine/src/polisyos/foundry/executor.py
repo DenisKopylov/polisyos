@@ -12,6 +12,11 @@ import jax.numpy as jnp
 import numpy as np
 from pydantic import BaseModel, TypeAdapter
 
+from polisyos.core.artifacts.environment import (
+    EnvironmentManifest,
+    EnvironmentManifestRef,
+    capture_environment,
+)
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
@@ -27,6 +32,7 @@ from polisyos.core.contracts.foundry import (
 )
 from polisyos.foundry.agents import AdaptiveAgentMechanism
 from polisyos.foundry.domain.state import GlobalState
+from polisyos.foundry.merge_engine import MergeEngine, MergeRecord
 from polisyos.foundry.patch_vm import merge_patch_records
 from polisyos.foundry.registry import create_mechanism_from_spec
 from polisyos.ir.kernel import (
@@ -57,6 +63,8 @@ class ExecuteArtifacts:
     state_delta_ref: ArtifactRef
     metrics_ref: ArtifactRef
     constraint_report_ref: ConstraintReportRef | None = None
+    environment_ref: EnvironmentManifestRef | None = None
+    environment_fingerprint: str | None = None
 
 
 @dataclass(frozen=True)
@@ -81,7 +89,26 @@ def execute_program_graph(
     step: int = 0,
     seed: int = 0,
     base_ref: ArtifactRef | None = None,
+    project_root: str | None = None,
+    capture_env: bool = True,
 ) -> ExecuteArtifacts:
+    env_manifest_ref: EnvironmentManifestRef | None = None
+    env_fingerprint: str | None = None
+    if capture_env:
+        env_manifest = capture_environment(
+            project_root=project_root,
+            include_git=True,
+            include_dependencies=True,
+            custom_metadata={
+                "seed": seed,
+                "seed_source": "jax_prng",
+                "exec_plan_id": str(_artifact_id(exec_plan_ref)),
+            },
+        )
+        env_manifest_ref = _persist_environment_manifest(store, env_manifest, exec_plan_ref)
+        env_fingerprint = env_manifest.fingerprint
+        _log_environment_captured(env_manifest)
+
     start_time = time.perf_counter()
     program_graph = _load_model(store, program_ref, ProgramGraph)
     exec_plan = _load_model(store, exec_plan_ref, ExecPlan)
@@ -341,6 +368,43 @@ def execute_program_graph(
         state_delta_ref=state_delta_ref,
         metrics_ref=metrics_ref,
         constraint_report_ref=constraint_report_ref,
+        environment_ref=env_manifest_ref,
+        environment_fingerprint=env_fingerprint,
+    )
+
+
+def _persist_environment_manifest(
+    store: FileSystemCAS,
+    manifest: EnvironmentManifest,
+    exec_plan_ref: ArtifactRef | ArtifactID | str,
+) -> EnvironmentManifestRef:
+    artifact_ref = store.put_json(
+        manifest,
+        PutOptions(
+            kind="foundry.environment_manifest",
+            media_type="application/json",
+            schema=SchemaInfo(
+                name="polisyos.core.artifacts.environment.EnvironmentManifest",
+                version="1.0",
+            ),
+            inputs=[InputRef(artifact_id=_artifact_id(exec_plan_ref), role="exec_plan")],
+        ),
+    )
+    return EnvironmentManifestRef(artifact_id=artifact_ref.artifact_id)
+
+
+def _log_environment_captured(manifest: EnvironmentManifest) -> None:
+    from polisyos.common.logger import get_logger
+
+    log = get_logger(__name__)
+    log.info(
+        "Environment captured",
+        fingerprint=manifest.fingerprint,
+        cpu_arch=manifest.cpu.architecture,
+        jax_version=manifest.jax.jax_version,
+        cuda_version=manifest.gpu.cuda_version,
+        python_version=manifest.python.version,
+        git_commit=manifest.git.commit_short if manifest.git else None,
     )
 
 
@@ -385,55 +449,41 @@ def apply_patch_records(
     Apply in-memory patch records (delta/value/new_value) to a state.
     Mirrors merge_patch_records semantics without CAS IO.
     """
-    state = base_state
-    for slot_id, records in sorted(patch_records.items()):
+    engine = MergeEngine(slot_registry, merge_registry)
+
+    records: list[MergeRecord] = []
+    for slot_id, slot_records in patch_records.items():
+        for record in slot_records:
+            delta = record.get("delta")
+            if delta is None and "new_value" in record and "base_value" in record:
+                delta = record["new_value"] - record["base_value"]
+            records.append(
+                MergeRecord(
+                    node_id=record.get("node_id", "unknown"),
+                    slot_id=slot_id,
+                    value=record.get("value", record.get("new_value")),
+                    delta=delta,
+                    priority=record.get("priority"),
+                    timestamp=record.get("timestamp"),
+                )
+            )
+
+    base_values: dict[str, Any] = {}
+    for slot_id in patch_records.keys():
         slot_spec = slot_registry.slots.get(slot_id)
         if slot_spec is None or not slot_spec.state_path:
             raise ValueError(f"Slot '{slot_id}' missing state_path for execution")
-        rule = merge_registry.rules.get(slot_spec.merge_rule.rule_id)
-        if rule is None:
-            raise ValueError(f"Unknown merge rule '{slot_spec.merge_rule.rule_id}' for '{slot_id}'")
+        base_values[slot_id] = _get_state_path(base_state, slot_spec.state_path)
 
-        base_value = _get_state_path(state, slot_spec.state_path)
-        if rule.kind == MergeRuleKind.SUM:
-            total_delta = None
-            for record in records:
-                delta = record.get("delta")
-                if delta is None and "new_value" in record and "base_value" in record:
-                    delta = record["new_value"] - record["base_value"]
-                if delta is None:
-                    raise ValueError(f"Missing delta for sum merge on slot '{slot_id}'")
-                total_delta = delta if total_delta is None else total_delta + delta
-            new_value = base_value + (total_delta if total_delta is not None else 0)
-        elif rule.kind == MergeRuleKind.OVERRIDE:
-            picked = sorted(records, key=lambda item: item["node_id"])[-1]
-            new_value = picked.get("value", picked.get("new_value"))
-            if new_value is None:
-                raise ValueError(f"Missing value for override merge on slot '{slot_id}'")
-        elif rule.kind == MergeRuleKind.PRIORITY:
-            missing = [item["node_id"] for item in records if item.get("priority") is None]
-            if missing:
-                raise ValueError(
-                    f"Merge rule 'priority' requires priority for: {', '.join(sorted(missing))}"
-                )
-            picked = sorted(
-                records,
-                key=lambda item: (-int(item["priority"]), item["node_id"]),
-            )[0]
-            new_value = picked.get("value", picked.get("new_value"))
-            if new_value is None:
-                raise ValueError(f"Missing value for priority merge on slot '{slot_id}'")
-        elif rule.kind == MergeRuleKind.ERROR:
-            if len(records) > 1:
-                ids = ", ".join(sorted(item["node_id"] for item in records))
-                raise ValueError(f"Merge conflict for slot '{slot_id}': {ids}")
-            new_value = records[0].get("value", records[0].get("new_value"))
-            if new_value is None:
-                raise ValueError(f"Missing value for error merge on slot '{slot_id}'")
-        else:
-            raise ValueError(f"Unsupported merge rule '{rule.kind}' for '{slot_id}'")
+    report = engine.merge_records(records, base_values)
+    report.raise_if_conflicts()
 
-        state = _set_state_path(state, slot_spec.state_path, new_value)
+    state = base_state
+    for slot_id, merged_value in report.merged_values.items():
+        slot_spec = slot_registry.slots.get(slot_id)
+        if slot_spec is None or not slot_spec.state_path:
+            raise ValueError(f"Slot '{slot_id}' missing state_path for execution")
+        state = _set_state_path(state, slot_spec.state_path, merged_value)
     return state
 
 

@@ -41,8 +41,8 @@ class CalibratorInputs:
     raw_targets: Mapping[str, object]     # Реальные данные для сравнения
 
 # Запуск калибровки
-calibrator = Calibrator()
-report = calibrator.calibrate(inputs)
+calibrator = Calibrator(inputs)
+report = calibrator.run()
 ```
 
 ### CalibrationConfig (Конфигурация калибровки)
@@ -117,16 +117,7 @@ static_bundle = compile_program(
 ### 3. Оптимизация параметров
 
 ```python
-from polisyos.foundry.calibration.calibrator import _run_optimization
-
-# Запуск оптимизации
-optimization_result = _run_optimization(
-    objective_fn=lambda params: compute_loss(params, static_bundle),
-    initial_params=initial_param_values,
-    bijectors=param_bijectors,
-    optimizer_config=config.optimizer,
-    constraints=constraint_handles
-)
+# Оптимизация выполняется внутри метода run() класса Calibrator
 ```
 
 ### 4. Анализ результатов
@@ -330,8 +321,8 @@ inputs = CalibratorInputs(
 )
 
 # Запуск калибровки
-calibrator = Calibrator()
-report = calibrator.calibrate(inputs)
+calibrator = Calibrator(inputs)
+report = calibrator.run()
 
 print(f"Калиброванная ставка налога: {report.calibrated_params['tax_mechanism.rate']:.3f}")
 print(f"Общая потеря: {report.total_loss:.6f}")

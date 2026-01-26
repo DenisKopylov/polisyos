@@ -229,6 +229,13 @@ def run_job(
                         role="metrics",
                     )
                 )
+            if getattr(result.exec_artifacts, "environment_ref", None) is not None:
+                inputs.append(
+                    InputRef(
+                        artifact_id=result.exec_artifacts.environment_ref.artifact_id,
+                        role="environment_manifest",
+                    )
+                )
             if getattr(result.applied, "state_snapshot_ref", None) is not None:
                 inputs.append(
                     InputRef(
@@ -261,6 +268,8 @@ def run_job(
         job_key=job_key,
         state_delta_ref=result.exec_artifacts.state_delta_ref,
         metrics_ref=result.exec_artifacts.metrics_ref,
+        environment_ref=getattr(result.exec_artifacts, "environment_ref", None),
+        environment_fingerprint=getattr(result.exec_artifacts, "environment_fingerprint", None),
         state_snapshot_ref=result.applied.state_snapshot_ref
         if hasattr(result.applied, "state_snapshot_ref")
         else None,

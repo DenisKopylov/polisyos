@@ -1,0 +1,806 @@
+{
+  "$defs": {
+    "ConstraintSpec": {
+      "additionalProperties": false,
+      "description": "Constraint specification on policy outcomes.\n\nDefines hard or soft boundaries that must/should be respected.",
+      "properties": {
+        "constraint_id": {
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "title": "Constraint Id",
+          "type": "string"
+        },
+        "constraint_type": {
+          "$ref": "#/$defs/ConstraintType",
+          "default": "hard",
+          "description": "Hard (must satisfy) or soft (preferred)"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/MoneyValue"
+            },
+            {
+              "$ref": "#/$defs/RateValue"
+            },
+            {
+              "$ref": "#/$defs/CountValue"
+            },
+            {
+              "$ref": "#/$defs/DurationValue"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+              "type": "string"
+            },
+            {
+              "type": "integer"
+            },
+            {
+              "type": "string"
+            },
+            {
+              "type": "boolean"
+            }
+          ],
+          "description": "Constraint value or threshold",
+          "title": "Value"
+        },
+        "slot_id": {
+          "anyOf": [
+            {
+              "pattern": "^[a-z][a-z0-9_]*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Slot this constrains",
+          "title": "Slot Id"
+        },
+        "operator": {
+          "anyOf": [
+            {
+              "enum": [
+                "<",
+                "<=",
+                "==",
+                "!=",
+                ">=",
+                ">"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Comparison operator (if applicable)",
+          "title": "Operator"
+        },
+        "penalty_weight": {
+          "anyOf": [
+            {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                  "type": "string"
+                }
+              ],
+              "ge": 0
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Penalty weight for soft constraint violation",
+          "title": "Penalty Weight"
+        },
+        "notes": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 5,
+          "title": "Notes",
+          "type": "array"
+        }
+      },
+      "required": [
+        "constraint_id",
+        "value"
+      ],
+      "title": "ConstraintSpec",
+      "type": "object"
+    },
+    "ConstraintType": {
+      "description": "Types of constraints on policy outcomes.",
+      "enum": [
+        "hard",
+        "soft"
+      ],
+      "title": "ConstraintType",
+      "type": "string"
+    },
+    "CountValue": {
+      "additionalProperties": false,
+      "properties": {
+        "value": {
+          "minimum": 0,
+          "title": "Value",
+          "type": "integer"
+        },
+        "label": {
+          "anyOf": [
+            {
+              "maxLength": 64,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Label"
+        }
+      },
+      "required": [
+        "value"
+      ],
+      "title": "CountValue",
+      "type": "object"
+    },
+    "DurationValue": {
+      "additionalProperties": false,
+      "properties": {
+        "value": {
+          "minimum": 0,
+          "title": "Value",
+          "type": "integer"
+        },
+        "unit": {
+          "default": "step",
+          "enum": [
+            "step",
+            "day",
+            "month",
+            "quarter",
+            "year"
+          ],
+          "title": "Unit",
+          "type": "string"
+        }
+      },
+      "required": [
+        "value"
+      ],
+      "title": "DurationValue",
+      "type": "object"
+    },
+    "EntityType": {
+      "description": "\u0422\u0438\u043f\u044b \u0430\u0433\u0435\u043d\u0442\u043e\u0432 \u0438 \u043e\u0431\u044a\u0435\u043a\u0442\u043e\u0432 \u0432 \u0441\u0438\u0441\u0442\u0435\u043c\u0435.",
+      "enum": [
+        "agent",
+        "resource",
+        "infrastructure",
+        "environment"
+      ],
+      "title": "EntityType",
+      "type": "string"
+    },
+    "KPISpec": {
+      "additionalProperties": false,
+      "description": "Key Performance Indicator specification.\n\nDefines a measurable metric that indicates progress toward objectives.",
+      "properties": {
+        "kpi_id": {
+          "description": "Unique KPI identifier",
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "title": "Kpi Id",
+          "type": "string"
+        },
+        "metric_id": {
+          "description": "Reference to metric registry",
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "title": "Metric Id",
+          "type": "string"
+        },
+        "name": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TranslatableString"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Human-readable KPI name"
+        },
+        "unit_id": {
+          "anyOf": [
+            {
+              "pattern": "^[a-z][a-z0-9_]*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Unit of measurement",
+          "title": "Unit Id"
+        },
+        "baseline_value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Current/starting value",
+          "title": "Baseline Value"
+        },
+        "target_value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Desired target value",
+          "title": "Target Value"
+        },
+        "direction": {
+          "$ref": "#/$defs/OptimizationDirection",
+          "description": "Optimization direction: maximize, minimize, or maintain_range"
+        },
+        "weight": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+              "type": "string"
+            }
+          ],
+          "default": "1",
+          "description": "Relative importance weight (0-100)",
+          "ge": 0,
+          "le": 100,
+          "title": "Weight"
+        },
+        "notes": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 10,
+          "title": "Notes",
+          "type": "array"
+        }
+      },
+      "required": [
+        "kpi_id",
+        "metric_id",
+        "direction"
+      ],
+      "title": "KPISpec",
+      "type": "object"
+    },
+    "MoneyValue": {
+      "additionalProperties": false,
+      "properties": {
+        "amount": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+              "type": "string"
+            }
+          ],
+          "title": "Amount"
+        },
+        "currency": {
+          "pattern": "^[A-Z]{3}$",
+          "title": "Currency",
+          "type": "string"
+        },
+        "nominal_year": {
+          "anyOf": [
+            {
+              "maximum": 2100,
+              "minimum": 1900,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Nominal Year"
+        }
+      },
+      "required": [
+        "amount",
+        "currency"
+      ],
+      "title": "MoneyValue",
+      "type": "object"
+    },
+    "ObjectiveSpec": {
+      "additionalProperties": false,
+      "description": "Formal objective specification linking to metrics.\n\nPreserves compatibility with existing ObjectiveSpec in surface.py.",
+      "properties": {
+        "objective_id": {
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "title": "Objective Id",
+          "type": "string"
+        },
+        "metric_id": {
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "title": "Metric Id",
+          "type": "string"
+        },
+        "direction": {
+          "$ref": "#/$defs/OptimizationDirection"
+        },
+        "target": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Target"
+        },
+        "weight": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+              "type": "string"
+            }
+          ],
+          "default": "1",
+          "ge": 0,
+          "title": "Weight"
+        },
+        "kpi_refs": {
+          "description": "References to KPIs this objective relates to",
+          "items": {
+            "type": "string"
+          },
+          "title": "Kpi Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "objective_id",
+        "metric_id",
+        "direction"
+      ],
+      "title": "ObjectiveSpec",
+      "type": "object"
+    },
+    "OptimizationDirection": {
+      "description": "\u041a\u0443\u0434\u0430 \u0434\u0432\u0438\u0433\u0430\u0442\u044c \u043c\u0435\u0442\u0440\u0438\u043a\u0443.",
+      "enum": [
+        "maximize",
+        "minimize",
+        "maintain_range"
+      ],
+      "title": "OptimizationDirection",
+      "type": "string"
+    },
+    "ProblemDomain": {
+      "description": "Classification of policy problem domains.",
+      "enum": [
+        "fiscal",
+        "monetary",
+        "social",
+        "environmental",
+        "labor",
+        "healthcare",
+        "education",
+        "infrastructure",
+        "regulatory",
+        "trade",
+        "custom"
+      ],
+      "title": "ProblemDomain",
+      "type": "string"
+    },
+    "RateValue": {
+      "additionalProperties": false,
+      "properties": {
+        "value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+              "type": "string"
+            }
+          ],
+          "title": "Value"
+        },
+        "base": {
+          "default": "ratio",
+          "enum": [
+            "ratio",
+            "percent"
+          ],
+          "title": "Base",
+          "type": "string"
+        }
+      },
+      "required": [
+        "value"
+      ],
+      "title": "RateValue",
+      "type": "object"
+    },
+    "StakeholderSpec": {
+      "additionalProperties": false,
+      "description": "Stakeholder affected by the policy problem.\n\nCaptures who is impacted and how.",
+      "properties": {
+        "stakeholder_id": {
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "title": "Stakeholder Id",
+          "type": "string"
+        },
+        "entity_type": {
+          "$ref": "#/$defs/EntityType"
+        },
+        "name": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TranslatableString"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "role": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Role in the problem space",
+          "title": "Role"
+        },
+        "impact_direction": {
+          "anyOf": [
+            {
+              "enum": [
+                "positive",
+                "negative",
+                "mixed",
+                "neutral"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Expected policy impact direction",
+          "title": "Impact Direction"
+        },
+        "priority": {
+          "default": 5,
+          "description": "Stakeholder priority (1-10)",
+          "maximum": 10,
+          "minimum": 1,
+          "title": "Priority",
+          "type": "integer"
+        },
+        "attributes": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "boolean"
+              }
+            ]
+          },
+          "title": "Attributes",
+          "type": "object"
+        }
+      },
+      "required": [
+        "stakeholder_id",
+        "entity_type"
+      ],
+      "title": "StakeholderSpec",
+      "type": "object"
+    },
+    "SuccessCriterion": {
+      "additionalProperties": false,
+      "description": "Formal success criterion with threshold and operator.\n\nDefines when an objective/KPI is considered achieved.",
+      "properties": {
+        "criterion_id": {
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "title": "Criterion Id",
+          "type": "string"
+        },
+        "kpi_id": {
+          "description": "KPI this criterion evaluates",
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "title": "Kpi Id",
+          "type": "string"
+        },
+        "operator": {
+          "description": "Comparison operator",
+          "enum": [
+            "<",
+            "<=",
+            "==",
+            "!=",
+            ">=",
+            ">"
+          ],
+          "title": "Operator",
+          "type": "string"
+        },
+        "threshold": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+              "type": "string"
+            },
+            {
+              "$ref": "#/$defs/MoneyValue"
+            },
+            {
+              "$ref": "#/$defs/RateValue"
+            },
+            {
+              "$ref": "#/$defs/CountValue"
+            }
+          ],
+          "description": "Success threshold value",
+          "title": "Threshold"
+        },
+        "confidence_level": {
+          "anyOf": [
+            {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                  "type": "string"
+                }
+              ],
+              "ge": 0,
+              "le": 1
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Required confidence level (0-1)",
+          "title": "Confidence Level"
+        },
+        "notes": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 5,
+          "title": "Notes",
+          "type": "array"
+        }
+      },
+      "required": [
+        "criterion_id",
+        "kpi_id",
+        "operator",
+        "threshold"
+      ],
+      "title": "SuccessCriterion",
+      "type": "object"
+    },
+    "TranslatableString": {
+      "additionalProperties": false,
+      "description": "\u041c\u0443\u043b\u044c\u0442\u0438\u044f\u0437\u044b\u0447\u043d\u0430\u044f \u0441\u0442\u0440\u043e\u043a\u0430.\nLLM \u0432\u0438\u0434\u0438\u0442 'en' \u0434\u043b\u044f \u043b\u043e\u0433\u0438\u043a\u0438, \u0430 'ua'/'ru' \u0438\u0441\u043f\u043e\u043b\u044c\u0437\u0443\u044e\u0442\u0441\u044f \u0434\u043b\u044f UI.",
+      "properties": {
+        "en": {
+          "description": "English text for LLM logic",
+          "maxLength": 200,
+          "title": "En",
+          "type": "string"
+        },
+        "ua": {
+          "description": "Ukrainian text for Reporting/UI",
+          "maxLength": 200,
+          "title": "Ua",
+          "type": "string"
+        },
+        "ru": {
+          "anyOf": [
+            {
+              "maxLength": 200,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Russian text (optional)",
+          "title": "Ru"
+        }
+      },
+      "required": [
+        "en",
+        "ua"
+      ],
+      "title": "TranslatableString",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "ProblemFrame: The \"Why\" artifact.\n\nFormalizes the policy problem being addressed, including goals, KPIs,\nsuccess criteria, constraints, and stakeholders. This artifact remains\nconstant during policy optimization and sensitivity analysis.",
+  "properties": {
+    "schema_version": {
+      "default": "1.0",
+      "pattern": "^\\d+\\.\\d+$",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "problem_id": {
+      "description": "Unique problem identifier",
+      "pattern": "^[a-z][a-z0-9_]*$",
+      "title": "Problem Id",
+      "type": "string"
+    },
+    "domain": {
+      "$ref": "#/$defs/ProblemDomain",
+      "description": "Policy domain classification"
+    },
+    "objectives": {
+      "description": "Formal optimization objectives",
+      "items": {
+        "$ref": "#/$defs/ObjectiveSpec"
+      },
+      "maxItems": 20,
+      "title": "Objectives",
+      "type": "array"
+    },
+    "kpis": {
+      "description": "Key Performance Indicators",
+      "items": {
+        "$ref": "#/$defs/KPISpec"
+      },
+      "maxItems": 30,
+      "title": "Kpis",
+      "type": "array"
+    },
+    "success_criteria": {
+      "description": "Formal success thresholds",
+      "items": {
+        "$ref": "#/$defs/SuccessCriterion"
+      },
+      "maxItems": 20,
+      "title": "Success Criteria",
+      "type": "array"
+    },
+    "hard_constraints": {
+      "description": "Inviolable constraints",
+      "items": {
+        "$ref": "#/$defs/ConstraintSpec"
+      },
+      "maxItems": 50,
+      "title": "Hard Constraints",
+      "type": "array"
+    },
+    "soft_constraints": {
+      "description": "Preferred but flexible constraints",
+      "items": {
+        "$ref": "#/$defs/ConstraintSpec"
+      },
+      "maxItems": 50,
+      "title": "Soft Constraints",
+      "type": "array"
+    },
+    "stakeholders": {
+      "description": "Entities affected by the problem",
+      "items": {
+        "$ref": "#/$defs/StakeholderSpec"
+      },
+      "maxItems": 100,
+      "title": "Stakeholders",
+      "type": "array"
+    },
+    "narrative": {
+      "anyOf": [
+        {
+          "maxLength": 5000,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Human-readable problem description",
+      "title": "Narrative"
+    },
+    "labels": {
+      "items": {
+        "type": "string"
+      },
+      "maxItems": 20,
+      "title": "Labels",
+      "type": "array"
+    },
+    "notes": {
+      "items": {
+        "type": "string"
+      },
+      "maxItems": 50,
+      "title": "Notes",
+      "type": "array"
+    }
+  },
+  "required": [
+    "problem_id",
+    "domain"
+  ],
+  "title": "ProblemFrame",
+  "type": "object"
+}

@@ -1,22 +1,28 @@
 from __future__ import annotations
 
+import warnings
 from decimal import Decimal, InvalidOperation
 from typing import Any, Literal
 
-from pydantic import BeforeValidator, Field, model_validator
+from pydantic import Field, model_validator
 from typing_extensions import Annotated
 
 from polisyos.ir.kernel.base import (
     ARTIFACT_ID_PATTERN,
     ID_PATTERN,
     KernelModel,
-    reject_floats_deep,
 )
 from polisyos.ir.kernel.mechanisms import MechanismTypeRegistry, ParamSpec, ParamType
 from polisyos.ir.kernel.numbers import DecimalValue, NonNegativeDecimal
 from polisyos.ir.kernel.time_semantics import TimeSemantics
 from polisyos.ir.kernel.units import MoneyUnit, RateUnit, UnitsRegistry
-from polisyos.ir.kernel.values import CountValue, DurationValue, MoneyValue, RateValue
+from polisyos.ir.kernel.values import (
+    CountValue,
+    DurationValue,
+    MoneyValue,
+    ParamValue,
+    RateValue,
+)
 from polisyos.ir.types import (
     EntityType,
     OptimizationDirection,
@@ -33,12 +39,6 @@ MAX_CONSTRAINTS = 100
 
 SelectorScalar = str | int | bool | DecimalValue
 SelectorValue = SelectorScalar | list[SelectorScalar]
-
-ParamValue = Annotated[
-    Any,
-    BeforeValidator(reject_floats_deep),
-]
-
 
 class SelectorPredicate(KernelModel):
     kind: Literal["predicate"] = "predicate"
@@ -181,10 +181,20 @@ class PolicyAdvisory(KernelModel):
     notes: list[str] = Field(default_factory=list)
 
 
+# Deprecated: use ProblemFrame/PolicySpec/ModelSpec (docs/contracts/TRINITY.md).
 class PolicySurfaceIR(KernelModel):
     schema_version: str = Field("2.0", pattern=r"^\d+\.\d+$")
     semantic: PolicySemantic
     advisory: PolicyAdvisory | None = None
+
+    def __init__(self, **data: Any) -> None:
+        warnings.warn(
+            "PolicySurfaceIR is deprecated. Use ProblemFrame, PolicySpec, "
+            "and ModelSpec separately. See docs/contracts/TRINITY.md",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        super().__init__(**data)
 
     def semantic_fingerprint_payload(
         self,

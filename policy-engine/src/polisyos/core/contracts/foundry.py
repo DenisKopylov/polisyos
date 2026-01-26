@@ -4,6 +4,7 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from ..artifacts.environment import EnvironmentManifestRef
 from ..artifacts.manifest import ArtifactRef
 
 
@@ -143,6 +144,10 @@ class ExecPlan(BaseModel):
 
     program_ref: ProgramGraphRef
     order: list[str] = Field(default_factory=list)
+    environment_ref: EnvironmentManifestRef | None = Field(
+        default=None,
+        description="Reference to captured environment at plan creation time",
+    )
     mode: Literal["dev", "perf", "audit"] = "dev"
     jit: bool = True
     max_steps: int | None = None

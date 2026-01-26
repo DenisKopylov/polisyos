@@ -55,11 +55,13 @@ class JobKey(BaseModel):
 ```python
 class JobResult(BaseModel):
     job_key: JobKey
-    state_delta_ref: ArtifactRef | None = None    # Изменения состояния
-    metrics_ref: ArtifactRef | None = None        # Метрики
-    state_snapshot_ref: ArtifactRef | None = None # Финальное состояние
-    simulation_results_ref: ArtifactRef | None = None  # Суммарные результаты
-    final_state: Any | None = None               # Объект состояния
+    state_delta_ref: ArtifactRef | None = None        # Изменения состояния
+    metrics_ref: ArtifactRef | None = None            # Метрики
+    environment_ref: ArtifactRef | None = None        # Окружение выполнения
+    environment_fingerprint: str | None = None        # Fingerprint окружения
+    state_snapshot_ref: ArtifactRef | None = None     # Финальное состояние
+    simulation_results_ref: ArtifactRef | None = None # Суммарные результаты
+    final_state: Any | None = None                    # Объект состояния
     issues: list[dict[str, Any]] = Field(default_factory=list)  # Проблемы
     warnings: list[str] = Field(default_factory=list)  # Предупреждения
 ```

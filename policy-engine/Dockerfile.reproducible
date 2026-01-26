@@ -1,0 +1,123 @@
+# ============================================
+# Dockerfile.reproducible
+# Reference container for reproducible Policy OS runs
+# ============================================
+
+# ============================================
+# Stage 1: Base with Python and system deps
+# ============================================
+FROM python:3.11-slim AS base
+
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=1
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    git \
+    curl \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh
+ENV PATH="/root/.cargo/bin:$PATH"
+
+WORKDIR /app
+
+# ============================================
+# Stage 2: CPU-only reproducible environment
+# ============================================
+FROM base AS cpu-reproducible
+
+ENV JAX_PLATFORM_NAME=cpu
+ENV JAX_ENABLE_X64=false
+ENV JAX_DISABLE_MOST_OPTIMIZATIONS=false
+ENV XLA_FLAGS="--xla_cpu_multi_thread_eigen=true --xla_force_host_platform_device_count=8"
+
+COPY pyproject.toml uv.lock ./
+
+RUN uv sync --frozen --no-dev
+
+COPY src/ ./src/
+COPY tools/ ./tools/
+
+ENV PYTHONPATH=/app/src
+
+ARG GIT_COMMIT=unknown
+ARG BUILD_DATE=unknown
+ARG IMAGE_TAG=unknown
+ENV DOCKER_IMAGE_SHA256=""
+ENV DOCKER_IMAGE_TAG=${IMAGE_TAG}
+ENV DOCKER_BUILD_DATE=${BUILD_DATE}
+ENV DOCKER_GIT_COMMIT=${GIT_COMMIT}
+
+RUN useradd --create-home --shell /bin/bash polisyos
+USER polisyos
+
+CMD ["python", "-m", "tools.capture_env", "capture"]
+
+# ============================================
+# Stage 3: GPU reproducible environment (NVIDIA)
+# ============================================
+FROM nvidia/cuda:12.3-cudnn8-runtime-ubuntu22.04 AS gpu-base
+
+ENV DEBIAN_FRONTEND=noninteractive
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=1
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3.11 \
+    python3.11-venv \
+    python3.11-dev \
+    python3-pip \
+    git \
+    curl \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/* \
+    && update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.11 1 \
+    && update-alternatives --install /usr/bin/python python /usr/bin/python3.11 1
+
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh
+ENV PATH="/root/.cargo/bin:$PATH"
+
+WORKDIR /app
+
+FROM gpu-base AS gpu-reproducible
+
+ENV JAX_PLATFORM_NAME=cuda
+ENV JAX_ENABLE_X64=false
+ENV XLA_FLAGS="--xla_gpu_deterministic_ops=true --xla_gpu_autotune_level=0"
+
+ENV XLA_PYTHON_CLIENT_PREALLOCATE=false
+ENV XLA_PYTHON_CLIENT_ALLOCATOR=platform
+
+ENV NCCL_DEBUG=WARN
+ENV NCCL_P2P_DISABLE=1
+
+COPY pyproject.toml uv.lock ./
+
+RUN uv sync --frozen --no-dev && \
+    uv pip install "jax[cuda12_pip]" -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
+
+COPY src/ ./src/
+COPY tools/ ./tools/
+
+ENV PYTHONPATH=/app/src
+
+ARG GIT_COMMIT=unknown
+ARG BUILD_DATE=unknown
+ARG IMAGE_TAG=unknown
+ENV DOCKER_IMAGE_TAG=${IMAGE_TAG}
+ENV DOCKER_BUILD_DATE=${BUILD_DATE}
+ENV DOCKER_GIT_COMMIT=${GIT_COMMIT}
+
+RUN useradd --create-home --shell /bin/bash polisyos
+USER polisyos
+
+CMD ["python", "-m", "tools.capture_env", "capture"]
+
+# ============================================
+# Labels for provenance tracking
+# ============================================
+LABEL org.opencontainers.image.title="Policy OS Reproducible Runtime"
+LABEL org.opencontainers.image.description="Reference container for reproducible policy simulations"
+LABEL org.opencontainers.image.version="1.0"
+LABEL org.opencontainers.image.source="https://github.com/your-org/policy-engine"

@@ -6,6 +6,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, Optional
 
+from polisyos.core.contracts.foundry import EnvironmentManifestRef
 from polisyos.runtime.manifest import ArtifactRef, RunManifest
 
 
@@ -90,6 +91,16 @@ def log_artifact(
     manifest = _load_manifest(base_dir, run_id)
     manifest.run_root = manifest.run_root or str(base_dir)
     manifest.artifacts.append(ref)
+    if artifact_type == "environment_ref":
+        try:
+            payload_dict = payload if isinstance(payload, dict) else {}
+            env_payload = payload_dict.get("environment_ref", payload)
+            manifest.environment_ref = EnvironmentManifestRef.model_validate(env_payload)
+            fingerprint = payload_dict.get("fingerprint")
+            if isinstance(fingerprint, str):
+                manifest.environment_fingerprint = fingerprint
+        except Exception:
+            pass
     _write_manifest(base_dir, manifest)
     return ref
 

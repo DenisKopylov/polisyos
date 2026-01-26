@@ -1,6 +1,6 @@
 # Scientist Tests
 
-Валидация компонентов scientist layer - компилятора политик и ИИ-компонентов.
+Валидация компонентов scientist layer - протоколов агентов, компилятора политик и ИИ-компонентов.
 
 **Последнее обновление:** Январь 2026
 **Уровень:** Scientist Layer (AI & Compilation)
@@ -14,10 +14,28 @@ Scientist layer обеспечивает компиляцию политик и�
 
 ```
 scientist/
+├── test_agent_protocols.py    # Протоколы агентов: PI, Drafter, Formalizer, Critic
 └── test_compiler.py           # Компилятор политик из IR
 ```
 
 ## Категории тестов
+
+### Agent Protocols (`test_agent_protocols.py`)
+
+**Цель:** Валидация протоколов агентов и их runtime поведения в полном pipeline.
+
+**Ключевые тесты:**
+- **Protocol Conformance**: Проверка реализации интерфейсов PI/Drafter/Formalizer/Critic
+- **Runtime Behavior**: Тестирование async execution, delegation, task decomposition
+- **Pipeline Flow**: Полный workflow от user request до PolicySurfaceIR через агентов
+- **Reflexion Loop**: Critique-based refinement с convergence guarantees
+- **Backward Compatibility**: Поддержка legacy MockAgent интерфейсов
+
+**Принципы:**
+- **Protocol Compliance**: Строгое следование agent protocol definitions
+- **Async Execution**: Правильная обработка asyncio coroutines и delegation
+- **State Management**: Корректное управление agent state и problem frames
+- **Error Handling**: Graceful handling ошибок в agent interactions
 
 ### Policy Compiler (`test_compiler.py`)
 
@@ -42,7 +60,11 @@ scientist/
 pytest tests/scientist/ -v
 
 # Конкретные компоненты
+pytest tests/scientist/test_agent_protocols.py -v
 pytest tests/scientist/test_compiler.py -v
+
+# Agent pipeline testing
+pytest tests/scientist/test_agent_protocols.py::TestAgentPipeline -v
 ```
 
 ## Связи с другими модулями
@@ -107,6 +129,14 @@ def test_policy_compilation_roundtrip(tmp_path):
 ```bash
 # Проверьте registry loading
 pytest tests/scientist/test_compiler.py::test_compile_surface_policy_roundtrip_rate -v --tb=long
+```
+
+**Agent protocol failures:**
+```bash
+# Проверьте protocol conformance
+pytest tests/scientist/test_agent_protocols.py::TestProtocolConformance -v
+# Проверьте pipeline flow
+pytest tests/scientist/test_agent_protocols.py::TestAgentPipeline::test_full_pipeline_flow -v
 ```
 
 **Execution errors:**

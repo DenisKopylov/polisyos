@@ -16,6 +16,8 @@ Contract тесты обеспечивают корректность грани
 contract/
 ├── test_ir_contract.py        # PolicySurfaceIR, селекторы, валидация, TranslatableString
 ├── test_ir_migrations.py      # Миграции схем IR между версиями
+├── test_trinity_contracts.py  # Trinity артефакты: ProblemFrame, PolicySpec, ModelSpec
+├── test_trinity_migration.py  # Миграция между Surface IR и Trinity форматами
 ├── test_fabric_gates.py       # Входные фильтры и предусловия Fabric layer
 ├── test_kernel_models.py      # Валидация моделей ядра IR (slots, units, merge rules, time semantics)
 └── test_surface_ir.py         # Surface IR, линкер, semantic fingerprinting, validation reports
@@ -88,6 +90,40 @@ contract/
 - **Consistency Checks**: Internal consistency validation
 - **Registry Integrity**: Correct registry structure и relationships
 
+### Trinity Contracts (`test_trinity_contracts.py`)
+
+**Цель:** Валидация Trinity артефактов (ProblemFrame, PolicySpec, ModelSpec) с типизированными ссылками.
+
+**Ключевые тесты:**
+- **ProblemFrame Validation**: Schema compliance, objective/KPI constraints, success criteria
+- **PolicySpec Validation**: Intervention structure, mechanism bindings, selector validation
+- **ModelSpec Validation**: Data snapshot references, assumption tracking, agent configuration
+- **Typed References**: ArtifactID-based references с media type validation
+- **TrinityBundle**: Cross-reference consistency между компонентами
+
+**Принципы:**
+- **Schema Compliance**: Полная валидация Pydantic схем с custom validators
+- **Reference Integrity**: Typed references с guaranteed existence checks
+- **Cross-validation**: Consistency между Trinity компонентами
+- **Immutable Contracts**: Data integrity через schema constraints
+
+### Trinity Migration (`test_trinity_migration.py`)
+
+**Цель:** Миграция между Surface IR и Trinity форматами с сохранением семантического fingerprint.
+
+**Ключевые тесты:**
+- **Split Operations**: Surface IR → ProblemFrame + PolicySpec + ModelSpec
+- **Merge Operations**: Trinity components → Surface IR reconstruction
+- **Roundtrip Fidelity**: Zero data loss через split/merge cycles
+- **Semantic Preservation**: Fingerprint stability после миграции
+- **Loader Integration**: Universal loading через load_policy/load_trinity
+
+**Принципы:**
+- **Zero Data Loss**: Полная preservation всех semantic elements
+- **Idempotent Operations**: Multiple migrations не изменяют результат
+- **Backward Compatibility**: Support для legacy Surface IR форматов
+- **Schema Evolution**: Safe transitions между IR версиями
+
 ### Surface IR (`test_surface_ir.py`)
 
 **Цель:** Тестирование Surface IR, линкера, семантических fingerprint'ов и validation reports.
@@ -113,6 +149,8 @@ pytest tests/contract/ -v
 # Конкретные компоненты
 pytest tests/contract/test_ir_contract.py -v
 pytest tests/contract/test_ir_migrations.py -v
+pytest tests/contract/test_trinity_contracts.py -v
+pytest tests/contract/test_trinity_migration.py -v
 pytest tests/contract/test_fabric_gates.py -v
 pytest tests/contract/test_kernel_models.py -v
 pytest tests/contract/test_surface_ir.py -v
@@ -182,6 +220,22 @@ pytest tests/contract/test_ir_contract.py::test_required_fields_enforced -v
 ```bash
 # Проверьте type safety rules
 pytest tests/contract/test_ir_contract.py::test_translatable_string_aliases_lowercase_dump -v
+```
+
+**Trinity contract failures:**
+```bash
+# Проверьте schema validation для Trinity артефактов
+pytest tests/contract/test_trinity_contracts.py -v
+# Проверьте reference integrity
+pytest tests/contract/test_trinity_contracts.py::TestTypedReferences -v
+```
+
+**Trinity migration failures:**
+```bash
+# Проверьте semantic fingerprint preservation
+pytest tests/contract/test_trinity_migration.py::TestRoundTrip::test_roundtrip_semantic_fingerprint -v
+# Проверьте zero data loss
+pytest tests/contract/test_trinity_migration.py::TestRoundTrip::test_roundtrip_minimal -v
 ```
 
 **Migration issues:**

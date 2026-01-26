@@ -11,7 +11,8 @@ contracts/
 ├── __init__.py     # Экспорт всех контрактов
 ├── compiler.py     # Контракты компилятора
 ├── fabric.py       # Контракты Fabric (обработка данных)
-└── foundry.py      # Контракты Foundry (симуляция)
+├── foundry.py      # Контракты Foundry (симуляция)
+└── trinity.py      # Trinity контракты (базовые спецификации)
 ```
 
 ## Принципы контрактов
@@ -472,6 +473,93 @@ calibration_ref = CalibrationReportRef(
 )
 ```
 
+## Trinity Contracts (Базовые спецификации)
+
+Trinity контракты определяют ссылки на три фундаментальные спецификации системы PolisyOS: ProblemFrame (проблема), PolicySpec (политика), ModelSpec (модель). Эти контракты обеспечивают структурированный подход к экспериментам и политикам.
+
+### ProblemFrameRef
+
+Ссылка на спецификацию проблемы (ProblemFrame) - определение контекста и требований к политике.
+
+```python
+from polisyos.core.contracts.trinity import ProblemFrameRef
+
+problem_ref = ProblemFrameRef(
+    artifact_id=problem_frame_id,
+    kind="ir.problem_frame",        # literal type
+    media_type="application/json"   # literal type
+)
+```
+
+### PolicySpecRef
+
+Ссылка на спецификацию политики (PolicySpec) - определение структуры и поведения политики.
+
+```python
+from polisyos.core.contracts.trinity import PolicySpecRef
+
+policy_ref = PolicySpecRef(
+    artifact_id=policy_spec_id,
+    kind="ir.policy_spec",          # literal type
+    media_type="application/json"   # literal type
+)
+```
+
+### ModelSpecRef
+
+Ссылка на спецификацию модели (ModelSpec) - определение модели мира и ее компонентов.
+
+```python
+from polisyos.core.contracts.trinity import ModelSpecRef
+
+model_ref = ModelSpecRef(
+    artifact_id=model_spec_id,
+    kind="ir.model_spec",           # literal type
+    media_type="application/json"   # literal type
+)
+```
+
+### TrinityBundle
+
+Пакет содержащий ссылки на все три Trinity артефакта с информацией о совместимости.
+
+```python
+from polisyos.core.contracts.trinity import TrinityBundle
+
+# Создание Trinity bundle для эксперимента
+trinity_bundle = TrinityBundle(
+    problem_frame_ref=problem_ref,
+    policy_spec_ref=policy_ref,
+    model_spec_ref=model_ref,
+    compatible=True,
+    compatibility_notes=[
+        "All specifications validated",
+        "Compatible schema versions",
+        "No conflicting constraints"
+    ]
+)
+```
+
+### TrinityManifest
+
+Манифест эксперимента с метаданными Trinity артефактов.
+
+```python
+from polisyos.core.contracts.trinity import TrinityManifest
+
+manifest = TrinityManifest(
+    manifest_id="exp_001_policy_optimization",
+    bundle=trinity_bundle,
+    experiment_name="Credit Risk Policy Optimization",
+    created_by="alice@company.com",
+    created_at="2024-01-15T10:00:00Z",
+    notes=[
+        "First experiment with new risk model",
+        "Focus on fraud detection improvement"
+    ]
+)
+```
+
 ## Использование контрактов
 
 ### Создание типизированных ссылок
@@ -548,6 +636,63 @@ def trace_fabric_lineage(store: FileSystemCAS, result_ref: FabricResultRef) -> d
     return lineage
 ```
 
+### Работа с Trinity контрактами
+
+```python
+def setup_experiment_context(store: FileSystemCAS, trinity_bundle: TrinityBundle) -> dict:
+    """Настройка контекста эксперимента на основе Trinity bundle"""
+
+    # Загрузка и валидация всех трех спецификаций
+    problem_frame = load_problem_frame(store, trinity_bundle.problem_frame_ref)
+    policy_spec = load_policy_spec(store, trinity_bundle.policy_spec_ref)
+    model_spec = load_model_spec(store, trinity_bundle.model_spec_ref)
+
+    # Проверка совместимости
+    if not trinity_bundle.compatible:
+        raise ValueError(f"Incompatible Trinity specs: {trinity_bundle.compatibility_notes}")
+
+    return {
+        "problem_frame": problem_frame,
+        "policy_spec": policy_spec,
+        "model_spec": model_spec,
+        "compatibility_verified": True
+    }
+```
+
+### Создание Trinity bundle для эксперимента
+
+```python
+def create_trinity_bundle_for_experiment(
+    store: FileSystemCAS,
+    problem_frame_id: str,
+    policy_spec_id: str,
+    model_spec_id: str
+) -> TrinityBundle:
+    """Создание валидного Trinity bundle"""
+
+    # Создание типизированных ссылок
+    problem_ref = ProblemFrameRef.from_artifact_ref(
+        ArtifactRef(artifact_id=problem_frame_id, kind="ir.problem_frame", media_type="application/json")
+    )
+    policy_ref = PolicySpecRef.from_artifact_ref(
+        ArtifactRef(artifact_id=policy_spec_id, kind="ir.policy_spec", media_type="application/json")
+    )
+    model_ref = ModelSpecRef.from_artifact_ref(
+        ArtifactRef(artifact_id=model_spec_id, kind="ir.model_spec", media_type="application/json")
+    )
+
+    # Валидация совместимости (упрощенная)
+    compatible = validate_trinity_compatibility(store, problem_ref, policy_ref, model_ref)
+
+    return TrinityBundle(
+        problem_frame_ref=problem_ref,
+        policy_spec_ref=policy_ref,
+        model_spec_ref=model_ref,
+        compatible=compatible,
+        compatibility_notes=["Validation completed"] if compatible else ["Compatibility issues found"]
+    )
+```
+
 ## Архитектурная роль
 
 ### Разделение ответственности
@@ -555,6 +700,20 @@ def trace_fabric_lineage(store: FileSystemCAS, result_ref: FabricResultRef) -> d
 - **Contracts**: Определяют интерфейсы и типы данных
 - **Artifacts**: Предоставляют инфраструктуру хранения
 - **Модули**: Реализуют логику, используя контракты
+
+### Trinity архитектура
+
+Trinity контракты реализуют паттерн "триединства" для структурирования экспериментов:
+
+- **ProblemFrame**: "Почему" - определение проблемы и требований
+- **PolicySpec**: "Что" - спецификация поведения политики
+- **ModelSpec**: "Как" - модель мира и механизмы исполнения
+
+Этот подход обеспечивает:
+- Структурированное описание экспериментов
+- Явное разделение concerns между компонентами
+- Возможность независимого развития каждого аспекта
+- Удобство анализа и воспроизводимости экспериментов
 
 ### Типобезопасность
 
@@ -589,6 +748,8 @@ state = StateSnapshot(
 - **Валидация**: Эффективная Pydantic валидация
 - **Хранение**: JSON сериализация с оптимизацией
 - **Доступ**: CAS обеспечивает быстрое чтение/запись
+- **Trinity contracts**: Легковесные ссылки без дополнительных накладных расходов
+- **Bundle validation**: Быстрая проверка совместимости Trinity спецификаций
 
 ## Лучшие практики
 

@@ -11,6 +11,7 @@ from pydantic import TypeAdapter
 
 from polisyos.core.contracts.foundry import ExecPlan, ProgramGraph
 from polisyos.foundry.domain.state import GlobalState
+from polisyos.foundry.merge_engine import JAXMergeEngine
 from polisyos.foundry.registry import create_mechanism_from_spec
 from polisyos.ir.kernel import (
     MechanismTypeRegistry,
@@ -427,6 +428,7 @@ def apply_nodes(
                 record["active"] = active
                 patch_records.setdefault(slot_id, []).append(record)
 
+    engine = JAXMergeEngine(bundle.slot_registry, bundle.merge_registry)
     state = base_state
     for slot_id, records in sorted(patch_records.items()):
         slot_spec = bundle.slot_registry.slots.get(slot_id)
@@ -435,66 +437,72 @@ def apply_nodes(
         rule = bundle.merge_registry.rules.get(slot_spec.merge_rule.rule_id)
         if rule is None:
             raise ValueError(f"Unknown merge rule '{slot_spec.merge_rule.rule_id}' for '{slot_id}'")
+        if slot_spec.merge_override is not None:
+            override = slot_spec.merge_override
+            updates = {}
+            if override.conflict_resolution is not None:
+                updates["conflict_resolution"] = override.conflict_resolution
+            if override.default_priority is not None:
+                updates["default_priority"] = override.default_priority
+            if updates:
+                rule = rule.model_copy(update=updates)
+
         base_value = _get_state_path(base_state, slot_spec.state_path)
         if rule.kind == MergeRuleKind.SUM:
-            total_delta = None
+            deltas = []
+            masks = []
             for record in records:
                 delta = record.get("delta")
                 if delta is None and "new_value" in record and "base_value" in record:
                     delta = record["new_value"] - record["base_value"]
                 if delta is None:
                     raise ValueError(f"Missing delta for sum merge on slot '{slot_id}'")
-                masked_delta = jnp.where(record["active"], delta, jnp.zeros_like(delta))
-                total_delta = masked_delta if total_delta is None else total_delta + masked_delta
-            new_value = base_value + (total_delta if total_delta is not None else 0.0)
+                deltas.append(delta)
+                masks.append(record["active"])
+            new_value = engine.merge_sum_jax(base_value, deltas, masks)
         elif rule.kind == MergeRuleKind.OVERRIDE:
-            best_rank = jnp.array(-1e9)
-            new_value = base_value
+            values = []
+            ranks = []
+            masks = []
             for record in records:
                 value = record.get("value", record.get("new_value"))
                 if value is None:
                     raise ValueError(f"Missing value for override merge on slot '{slot_id}'")
-                rank = jnp.array(record["rank"])
-                better = record["active"] & (rank > best_rank)
-                new_value = jnp.where(better, value, new_value)
-                best_rank = jnp.where(better, rank, best_rank)
+                values.append(value)
+                ranks.append(jnp.array(record["rank"]))
+                masks.append(record["active"])
+            new_value = engine.merge_override_jax(base_value, values, ranks, masks)
         elif rule.kind == MergeRuleKind.PRIORITY:
-            if any(record["priority"] is None for record in records):
-                raise ValueError(f"Merge rule 'priority' requires priority for slot '{slot_id}'")
-            best_priority = jnp.array(-1e9)
-            best_rank = jnp.array(1e9)
-            new_value = base_value
+            values = []
+            priorities = []
+            ranks = []
+            masks = []
             for record in records:
                 value = record.get("value", record.get("new_value"))
                 if value is None:
                     raise ValueError(f"Missing value for priority merge on slot '{slot_id}'")
-                priority = jnp.array(float(record["priority"]))
-                rank = jnp.array(record["rank"])
-                higher = priority > best_priority
-                tie = (priority == best_priority) & (rank < best_rank)
-                better = record["active"] & (higher | tie)
-                new_value = jnp.where(better, value, new_value)
-                best_priority = jnp.where(better, priority, best_priority)
-                best_rank = jnp.where(better, rank, best_rank)
+                priority = record.get("priority")
+                if priority is None:
+                    if rule.default_priority is None:
+                        raise ValueError(
+                            f"Merge rule 'priority' requires priority for slot '{slot_id}'"
+                        )
+                    priority = rule.default_priority
+                values.append(value)
+                priorities.append(jnp.array(float(priority)))
+                ranks.append(jnp.array(record["rank"]))
+                masks.append(record["active"])
+            new_value = engine.merge_priority_jax(base_value, values, priorities, ranks, masks)
         elif rule.kind == MergeRuleKind.ERROR:
-            active_count = jnp.array(0, dtype=jnp.int32)
-            best_rank = jnp.array(1e9)
-            new_value = base_value
+            values = []
+            masks = []
             for record in records:
                 value = record.get("value", record.get("new_value"))
                 if value is None:
                     raise ValueError(f"Missing value for error merge on slot '{slot_id}'")
-                rank = jnp.array(record["rank"])
-                is_active = record["active"]
-                active_count = active_count + is_active.astype(jnp.int32)
-                better = is_active & (rank < best_rank)
-                new_value = jnp.where(better, value, new_value)
-                best_rank = jnp.where(better, rank, best_rank)
-            new_value = eqx.error_if(
-                new_value,
-                active_count > 1,
-                f"Merge conflict for slot '{slot_id}'",
-            )
+                values.append(value)
+                masks.append(record["active"])
+            new_value = engine.merge_error_jax(base_value, values, masks, slot_id)
         else:
             raise ValueError(f"Unsupported merge rule '{rule.kind}' for '{slot_id}'")
         state = _set_state_path(state, slot_spec.state_path, new_value)

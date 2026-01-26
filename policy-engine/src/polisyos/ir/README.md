@@ -2,7 +2,7 @@
 
 **IR (Intermediate Representation)** - это промежуточное представление политик и симуляций в системе Policy Engine. Модуль определяет канонические контракты данных, обеспечивая единообразие коммуникации между всеми компонентами системы: от LLM-агентов до JAX-симуляций.
 
-**Обновлено**: документация актуализирована для отражения текущего состояния на 2026-01-24, включая детальное описание всех компонентов, связей с другими модулями и обновленные примеры использования.
+**Обновлено**: документация актуализирована для отражения текущего состояния на 2026-01-26, включая новую архитектуру Trinity (ProblemFrame, PolicySpec, ModelSpec), расширенную систему Kernel реестров и интеграцию с Fact Log.
 
 ## Архитектурная роль
 
@@ -11,6 +11,14 @@
 ```
 NL/Request → Scientist (LLM + Workflow) → IR (contracts) → Compilation → Runtime (Fabric UDF + Foundry) → Artifacts
 ```
+
+### Архитектура Trinity
+
+Система IR реализует **Trinity архитектуру** - разделение на три независимых артефакта, каждый из которых отвечает за отдельный аспект моделирования политики:
+
+- **ProblemFrame** ("Why"): Определение проблемы, целей, KPI и ограничений (неизменен в рамках эксперимента)
+- **PolicySpec** ("What"): Спецификация политики, интервенций и параметров (итерируется при оптимизации)
+- **ModelSpec** ("How"): Конфигурация модели мира, агентов, данных и предположений (для sensitivity analysis)
 
 ### Положение в графе зависимостей
 
@@ -24,24 +32,30 @@ NL/Request → Scientist (LLM + Workflow) → IR (contracts) → Compilation →
 
 1. **IR v1.0**: Простые контракты с базовой валидацией (`PolicyIR`)
 2. **IR v2.0**: Разделение на semantic и advisory части (`PolicySurfaceIR`)
-3. **Текущая версия**: Расширенная система с kernel-реестрами, линкером и Fact Log
+3. **IR v2.1**: Расширенная система с kernel-реестрами, линкером и Fact Log
+4. **Текущая версия (Trinity)**: Разделение на три независимых артефакта (ProblemFrame, PolicySpec, ModelSpec)
 
-Текущая архитектура разделяет политику на две части:
-- **Semantic**: Исполняемая логика (интервенции, цели, ограничения)
-- **Advisory**: Человекочитаемые описания и метаданные
+**Текущая архитектура реализует Trinity паттерн:**
+- **ProblemFrame**: "Why" - постоянные аспекты проблемы
+- **PolicySpec**: "What" - изменяемые аспекты политики
+- **ModelSpec**: "How" - конфигурация моделирования
+
+PolicySurfaceIR v2.x остается совместимым интерфейсом для обратной совместимости.
 
 ### Ключевые обязанности
 
-1. **Канонические схемы**: Pydantic-модели для всех артефактов системы
-2. **Валидация данных**: Строгие ограничения и проверки корректности
-3. **Версионирование**: Детерминированные миграции схем
-4. **Многоязычность**: Поддержка локализации интерфейсов
-5. **Безопасность**: Анти-runaway лимиты на размеры и глубину
-6. **Линковка**: Валидация политик относительно kernel-реестров механизмов и слотов
-7. **Fact Log**: Семантическая сеть фактов с provenance tracking и trust policies
-8. **Kernel реестры**: Фундаментальные реестры типов, единиц, слотов и механизмов
-9. **Калибровка**: Настройки оптимизации политик относительно исторических данных
-10. **Запросы данных**: Структурированные запросы к результатам симуляции
+1. **Trinity артефакты**: Три независимых контракта (ProblemFrame, PolicySpec, ModelSpec)
+2. **Канонические схемы**: Pydantic-модели для всех артефактов системы
+3. **Валидация данных**: Строгие ограничения и проверки корректности
+4. **Версионирование**: Детерминированные миграции схем
+5. **Многоязычность**: Поддержка локализации интерфейсов
+6. **Безопасность**: Анти-runaway лимиты на размеры и глубину
+7. **Линковка**: Валидация политик относительно kernel-реестров механизмов и слотов
+8. **Fact Log**: Семантическая сеть фактов с provenance tracking и trust policies
+9. **Kernel реестры**: Фундаментальные реестры типов, единиц, слотов и механизмов
+10. **Калибровка**: Настройки оптимизации политик относительно исторических данных
+11. **Запросы данных**: Структурированные запросы к результатам симуляции
+12. **Предикаты**: Определение фильтров для доступа к данным симуляции
 
 ### Ключевые обязанности
 
@@ -66,7 +80,11 @@ NL/Request → Scientist (LLM + Workflow) → IR (contracts) → Compilation →
 ir/
 ├── __init__.py              # Экспорт основных типов данных и функций
 ├── types.py                  # Перечисления, базовые типы и утилиты
-├── surface.py                # PolicySurfaceIR (v2.0) - основной контракт системы
+├── trinity.py                # Trinity артефакты (ProblemFrame, PolicySpec, ModelSpec)
+├── problem_frame.py          # ProblemFrame: определение проблемы и целей
+├── policy_spec.py            # PolicySpec: спецификация политики и интервенций
+├── model_spec.py             # ModelSpec: конфигурация модели мира
+├── surface.py                # PolicySurfaceIR (v2.x) - совместимый интерфейс
 ├── data_views.py             # Модели запросов данных (DataViewRequest, DataViewType)
 ├── validation.py             # Утилиты валидации и отчетов об ошибках
 ├── fact_log.py               # Контракты для семантической сети фактов
@@ -89,8 +107,137 @@ ir/
 │   ├── units.py             # Система единиц измерения (UnitsRegistry)
 │   └── values.py            # Типизированные значения (MoneyValue, RateValue, etc.)
 ├── migrations/
-│   └── __init__.py          # API миграций между версиями схем
+│   ├── __init__.py          # API миграций между версиями схем
+│   └── trinity_migration.py # Миграция PolicySurfaceIR → Trinity артефактов
 └── units.py                 # Устаревшие утилиты для работы с единицами измерения (дубликат kernel/units.py)
+```
+
+## Trinity артефакты
+
+### 1. ProblemFrame (`problem_frame.py`) - "Why" артефакт
+
+**ProblemFrame** определяет постоянные аспекты проблемы, которые не изменяются в рамках эксперимента. Это включает цели, ограничения, заинтересованные стороны и критерии успеха.
+
+```python
+from polisyos.ir.problem_frame import ProblemFrame, KPISpec, SuccessCriterion, StakeholderSpec
+from polisyos.ir.types import OptimizationDirection, EntityType
+
+problem_frame = ProblemFrame(
+    schema_version="1.0",
+    domain=ProblemDomain.FISCAL,
+    objectives=[
+        KPISpec(
+            kpi_id="gdp_growth",
+            name=TranslatableString(en="GDP Growth Rate"),
+            direction=OptimizationDirection.MAXIMIZE,
+            unit_id="ratio",
+            description="Annual GDP growth rate"
+        )
+    ],
+    constraints=[
+        ConstraintSpec(
+            constraint_id="budget_deficit_limit",
+            operator="<=",
+            value=0.03,  # 3% of GDP
+            description="Budget deficit cannot exceed 3% of GDP"
+        )
+    ],
+    stakeholders=[
+        StakeholderSpec(
+            stakeholder_id="government",
+            entity_type=EntityType.AGENT,
+            influence_level="high",
+            interests=["fiscal_stability", "economic_growth"]
+        )
+    ],
+    success_criteria=[
+        SuccessCriterion(
+            criterion_id="poverty_reduction",
+            description="Reduce poverty rate by at least 10%",
+            metric_id="poverty_rate",
+            threshold=0.1,
+            direction="decrease"
+        )
+    ]
+)
+```
+
+### 2. PolicySpec (`policy_spec.py`) - "What" артефакт
+
+**PolicySpec** определяет, какие действия предпринимаются - интервенции, механизмы и их параметры. Этот артефакт изменяется при оптимизации политики.
+
+```python
+from polisyos.ir.policy_spec import PolicySpec, InterventionSpec, MechanismBinding
+from polisyos.ir.surface import ScheduleSpec, SelectorPredicate
+
+policy_spec = PolicySpec(
+    schema_version="1.0",
+    interventions=[
+        InterventionSpec(
+            intervention_id="basic_income",
+            name=TranslatableString(en="Universal Basic Income"),
+            target=SelectorPredicate(
+                field="income",
+                operator="<",
+                value=500
+            ),
+            schedule=ScheduleSpec(
+                start_step=0,
+                end_step=120  # 10 years
+            ),
+            params={
+                "amount": 200.0,
+                "frequency": "monthly"
+            }
+        )
+    ],
+    mechanism_bindings=[
+        MechanismBinding(
+            binding_id="income_transfer",
+            mechanism_id="transfer_mechanism",
+            intervention_ids=["basic_income"]
+        )
+    ]
+)
+```
+
+### 3. ModelSpec (`model_spec.py`) - "How" артефакт
+
+**ModelSpec** определяет, как моделируется мир - агенты, окружение, данные и предположения. Используется для sensitivity analysis с разными конфигурациями.
+
+```python
+from polisyos.ir.model_spec import ModelSpec, AgentTypeConfig, EnvironmentConfig, AssumptionSpec
+from polisyos.ir.types import AssumptionType
+
+model_spec = ModelSpec(
+    schema_version="1.0",
+    fidelity_level=FidelityLevel.FULL_DISCRETE,
+    agent_types=[
+        AgentTypeConfig(
+            type_id="household",
+            count=10000,
+            attributes={
+                "income_distribution": "pareto",
+                "consumption_propensity": 0.8
+            }
+        )
+    ],
+    environment=EnvironmentConfig(
+        time_horizon=120,  # months
+        random_seed=42,
+        parameters={
+            "inflation_rate": 0.02,
+            "interest_rate": 0.05
+        }
+    ),
+    assumptions=[
+        AssumptionSpec(
+            assumption_id="rational_agents",
+            type=AssumptionType.BEHAVIORAL,
+            description="Agents make rational economic decisions"
+        )
+    ]
+)
 ```
 
 ## Основные компоненты
@@ -862,20 +1009,35 @@ employees = CountValue(value=100)
 Логика разрешения конфликтов при пересекающихся интервенциях:
 
 ```python
-from polisyos.ir.kernel import MergeRuleRegistry, MergeRuleSpec, MergeRuleKind
+from polisyos.ir.kernel import (
+    ConflictResolution,
+    MergeRuleRegistry,
+    MergeRuleSpec,
+    MergeRuleKind,
+)
 
-registry = MergeRuleRegistry(rules={
-    "priority": MergeRuleSpec(
-        rule_id="priority",
-        kind=MergeRuleKind.PRIORITY,
-        description="Resolve by priority field"
-    ),
-    "error": MergeRuleSpec(
-        rule_id="error",
-        kind=MergeRuleKind.ERROR,
-        description="Raise error on conflict"
-    )
-})
+registry = MergeRuleRegistry(
+    rules={
+        "priority": MergeRuleSpec(
+            rule_id="priority",
+            kind=MergeRuleKind.PRIORITY,
+            commutativity=True,
+            associativity=True,
+            idempotency=True,
+            conflict_resolution=ConflictResolution.ERROR,
+            description="Resolve by priority field",
+        ),
+        "error": MergeRuleSpec(
+            rule_id="error",
+            kind=MergeRuleKind.ERROR,
+            commutativity=True,
+            associativity=True,
+            idempotency=True,
+            conflict_resolution=ConflictResolution.ERROR,
+            description="Raise error on conflict",
+        ),
+    }
+)
 ```
 
 ## Ограничения безопасности
@@ -899,11 +1061,33 @@ MAX_ID_LEN = 64             # Длина идентификаторов
 
 ## Использование в коде
 
+### Работа с Trinity артефактами
+
+```python
+from polisyos.ir import ProblemFrame, PolicySpec, ModelSpec
+
+# Создание полного набора Trinity артефактов
+trinity_bundle = {
+    "problem_frame": problem_frame,
+    "policy_spec": policy_spec,
+    "model_spec": model_spec
+}
+
+# Сериализация для хранения
+import json
+for artifact_name, artifact in trinity_bundle.items():
+    with open(f"{artifact_name}.json", 'w') as f:
+        json.dump(artifact.model_dump(), f, indent=2, ensure_ascii=False)
+```
+
 ### Базовый импорт
 
 ```python
 # Основные типы (рекомендуемый импорт через __init__.py)
 from polisyos.ir import (
+    # Trinity артефакты
+    ProblemFrame, PolicySpec, ModelSpec,
+    # Унаследованные интерфейсы
     PolicySurfaceIR, load_policy, CalibrationConfig, CalibrationTarget,
     DataViewRequest, DataViewType, AccessTier, DataFilter
 )
@@ -1173,26 +1357,35 @@ IR строго следует архитектурным законам про�
 
 IR является фундаментом всей системы и используется всеми модулями Policy Engine:
 
-- **Scientist**: Генерирует политики в формате `PolicySurfaceIR`, использует линкер для валидации, типы из `types.py` и загрузчики из `loaders.py`
-- **Foundry**: Компилирует `InterventionSpec` в JAX-механизмы, использует kernel-реестры для линковки, калибровку из `calibration.py` для оптимизации
-- **Fabric**: Обрабатывает `DataViewRequest` для запросов данных, использует предикаты из `predicate.py`, контракты фактов из `fact_log.py` для семантической сети
-- **Core**: Предоставляет базовую инфраструктуру, использует `Fact` и `FactBatch` для построения семантической сети знаний
-- **Runtime**: Хранит артефакты `PolicySurfaceIR` для аудита, использует `CalibrationConfig` для управления оптимизацией
-- **Common**: Использует систему миграций из `common.migrations` для версионирования схем
+- **Scientist**: Генерирует Trinity артефакты (ProblemFrame, PolicySpec, ModelSpec) или PolicySurfaceIR, использует линкер для валидации, типы из `types.py` и загрузчики из `loaders.py`
+- **Foundry**: Компилирует `InterventionSpec` из PolicySpec в JAX-механизмы, использует kernel-реестры для линковки, калибровку из `calibration.py` для оптимизации, работает с ModelSpec для конфигурации симуляции
+- **Fabric**: Обрабатывает `DataViewRequest` для запросов данных, использует предикаты из `predicate.py`, контракты фактов из `fact_log.py` для семантической сети, работает с ModelSpec для понимания структуры данных
+- **Core**: Предоставляет базовую инфраструктуру, использует `Fact` и `FactBatch` для построения семантической сети знаний, интегрируется с ModelSpec для загрузки данных
+- **Runtime**: Хранит артефакты Trinity и PolicySurfaceIR для аудита, использует `CalibrationConfig` для управления оптимизацией, сохраняет метаданные из всех артефактов
+- **Common**: Использует систему миграций из `common.migrations` для версионирования схем, включая Trinity миграции
 
 ### Архитектурные контракты
 
 ```
-Scientist → PolicySurfaceIR → Linker → Foundry → Simulation
-       ↓                        ↓             ↓
-   types.py                  kernel/     calibration.py
-       ↓                        ↓             ↓
-   validation.py           surface.py     executor.py
+Scientist → Trinity (ProblemFrame, PolicySpec, ModelSpec) → Linker → Foundry → Simulation
+   ↓                                                        ↓             ↓
+PolicySurfaceIR (legacy)                              kernel/     calibration.py
+   ↓                                                        ↓             ↓
+loaders.py (migration)                             surface.py     executor.py
 
                      ↓
                   Fabric → DataViewRequest → Runtime
                      ↓
                 Fact Log → Semantic Network → Core
+```
+
+**Trinity Workflow:**
+```
+ProblemFrame (constant) + PolicySpec (iterated) + ModelSpec (varied)
+    ↓
+  Linker validation
+    ↓
+Foundry compilation → Simulation → Analysis
 ```
 
 ---

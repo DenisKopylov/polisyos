@@ -36,7 +36,7 @@ from polisyos.foundry.registry import create_mechanism_from_spec
 from polisyos.foundry.utils import gradient_health_report
 from polisyos.ir.calibration import CalibrationConfig
 from polisyos.ir.data_views import DataViewRequest
-from polisyos.ir.kernel import MergeRuleKind
+from polisyos.foundry.merge_engine import MergeEngine, MergeRecord
 from polisyos.ir.kernel.values import CountValue, DurationValue, MoneyValue, RateValue
 from polisyos.ir.linker import link_policy
 from polisyos.ir.surface import PolicySurfaceIR, ScheduleSpec, schedule_range
@@ -336,40 +336,38 @@ def _apply_slot_patches(
     slot_registry,
     merge_registry,
 ) -> Any:
-    state = base_state
-    for slot_id, records in sorted(patches.items()):
+    engine = MergeEngine(slot_registry, merge_registry)
+    records: list[MergeRecord] = []
+    for slot_id, slot_records in patches.items():
+        for record in slot_records:
+            node_id = record.get("intervention_id", "unknown")
+            records.append(
+                MergeRecord(
+                    node_id=node_id,
+                    slot_id=slot_id,
+                    value=record.get("value", record.get("new_value")),
+                    delta=record.get("delta"),
+                    priority=record.get("priority"),
+                    timestamp=record.get("timestamp"),
+                )
+            )
+
+    base_values: dict[str, Any] = {}
+    for slot_id in patches.keys():
         slot_spec = slot_registry.slots.get(slot_id)
         if slot_spec is None or not slot_spec.state_path:
             raise ValueError(f"Slot '{slot_id}' missing state_path for execution")
-        rule = merge_registry.rules.get(slot_spec.merge_rule.rule_id)
-        if rule is None:
-            raise ValueError(f"Unknown merge rule '{slot_spec.merge_rule.rule_id}' for '{slot_id}'")
-        base_value = _get_state_path(base_state, slot_spec.state_path)
-        if rule.kind == MergeRuleKind.SUM:
-            total_delta = None
-            for record in records:
-                total_delta = (
-                    record["delta"] if total_delta is None else total_delta + record["delta"]
-                )
-            merged = base_value if total_delta is None else base_value + total_delta
-        elif rule.kind == MergeRuleKind.OVERRIDE:
-            picked = sorted(records, key=lambda item: item["intervention_id"])[-1]
-            merged = picked["value"]
-        elif rule.kind == MergeRuleKind.PRIORITY:
-            if any(record["priority"] is None for record in records):
-                raise ValueError(f"Priority merge requires priority for slot '{slot_id}'")
-            picked = sorted(
-                records, key=lambda item: (-int(item["priority"]), item["intervention_id"])
-            )[0]
-            merged = picked["value"]
-        elif rule.kind == MergeRuleKind.ERROR:
-            if len(records) > 1:
-                ids = ", ".join(record["intervention_id"] for record in records)
-                raise ValueError(f"Merge conflict for slot '{slot_id}': {ids}")
-            merged = records[0]["value"]
-        else:
-            raise ValueError(f"Unsupported merge rule '{rule.kind}' for '{slot_id}'")
-        state = _set_state_path(state, slot_spec.state_path, merged)
+        base_values[slot_id] = _get_state_path(base_state, slot_spec.state_path)
+
+    report = engine.merge_records(records, base_values)
+    report.raise_if_conflicts()
+
+    state = base_state
+    for slot_id, merged_value in report.merged_values.items():
+        slot_spec = slot_registry.slots.get(slot_id)
+        if slot_spec is None or not slot_spec.state_path:
+            raise ValueError(f"Slot '{slot_id}' missing state_path for execution")
+        state = _set_state_path(state, slot_spec.state_path, merged_value)
     return state
 
 
@@ -1466,6 +1464,19 @@ def run_sim_node(state: ExperimentState) -> ExperimentState:
                 run_id=state["run_id"],
                 artifact_type="metrics_ref",
                 payload=job_result.metrics_ref.model_dump(),
+                media_type="application/json",
+                step="run_sim",
+                base_dir=_runtime_base_dir(state),
+            )
+        if job_result.environment_ref is not None:
+            payload = {
+                "environment_ref": job_result.environment_ref.model_dump(),
+                "fingerprint": job_result.environment_fingerprint,
+            }
+            log_artifact(
+                run_id=state["run_id"],
+                artifact_type="environment_ref",
+                payload=payload,
                 media_type="application/json",
                 step="run_sim",
                 base_dir=_runtime_base_dir(state),

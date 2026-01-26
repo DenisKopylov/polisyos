@@ -3,7 +3,7 @@
 Тестовая инфраструктура для Policy Engine - AI-driven Policy Simulation System. Тесты обеспечивают качество кода, валидируют архитектурные границы и проверяют корректность работы всех компонентов системы.
 
 **Последнее обновление:** Январь 2026
-**Актуальная версия архитектуры:** v2.1.1 (Evidence Bundles, UDF Calibration, Trust System, Materializer Engine)
+**Актуальная версия архитектуры:** v2.1.2 (Trinity Migration, Agent Protocols, Environment Manifest, Enhanced Monitoring)
 
 ## Архитектурный контекст
 
@@ -22,6 +22,8 @@ tests/
 ├── contract/                      # Тесты контрактов IR и схем валидации
 │   ├── test_ir_contract.py        # PolicySurfaceIR, селекторы, валидация, TranslatableString
 │   ├── test_ir_migrations.py      # Миграции схем IR между версиями
+│   ├── test_trinity_contracts.py  # Trinity артефакты: ProblemFrame, PolicySpec, ModelSpec
+│   ├── test_trinity_migration.py  # Миграция между Surface IR и Trinity форматами
 │   ├── test_fabric_gates.py       # Входные фильтры и предусловия Fabric layer
 │   ├── test_kernel_models.py      # Валидация моделей ядра IR (slots, units, merge rules, time semantics)
 │   └── test_surface_ir.py         # Surface IR, линкер, semantic fingerprinting, validation reports
@@ -29,6 +31,7 @@ tests/
 │   ├── conftest.py                # Специфичная конфигурация для core тестов
 │   ├── test_artifact_store.py     # FileSystemCAS, дедупликация, верификация integrity
 │   ├── test_canon_json.py         # Каноническая JSON сериализация, детерминированные хэши
+│   ├── test_environment_manifest.py # Захват и сравнение environment манифестов
 │   ├── test_registry_bundle.py    # Сборка и загрузка registry bundles
 │   └── test_run_context.py        # Контекст выполнения и артефакты producer'а
 ├── demos/                         # Демо-тесты для проверки функциональности
@@ -68,6 +71,7 @@ tests/
 ├── runtime/                       # Тесты runtime компонентов
 │   └── test_runtime_manifest_paths.py # Управление runs, артефакты, пути
 └── scientist/                     # Тесты компонентов scientist
+    ├── test_agent_protocols.py    # Протоколы агентов: PI, Drafter, Formalizer, Critic
     └── test_compiler.py           # Компилятор политик из IR
 ```
 
@@ -79,6 +83,8 @@ tests/
 
 **Ключевые тесты:**
 - **IR Contract Validation**: Полная валидация `PolicySurfaceIR`, селекторов, транслируемых строк, обязательных полей
+- **Trinity Contracts**: Валидация Trinity артефактов (ProblemFrame, PolicySpec, ModelSpec) с типизированными ссылками
+- **Trinity Migration**: Миграция между Surface IR и Trinity форматами с сохранением семантического fingerprint
 - **Schema Migrations**: Тестирование миграций схем между версиями с сохранением совместимости
 - **Fabric Gates**: Проверка входных фильтров, предусловий и валидационных барьеров Fabric layer
 - **Kernel Models**: Комплексная валидация моделей ядра (slots, units, merge rules, time semantics, constraint registry)
@@ -100,6 +106,7 @@ tests/
 **Ключевые тесты:**
 - **Artifact Store**: FileSystemCAS, дедупликация контента, верификация integrity
 - **Canonical JSON**: Детерминированная сериализация, запрет float/NaN, нормализация
+- **Environment Manifest**: Захват и сравнение окружений (CPU/GPU/OS/Python/JAX), compatibility scoring
 - **Registry Bundle**: Сборка и загрузка registry bundles из artifact store
 - **Run Context**: Контекст выполнения, артефакты и метаданные producer'а
 
@@ -217,11 +224,13 @@ tests/
 
 ### Scientist Tests (`scientist/`)
 
-**Цель**: Валидация компонентов ИИ и оптимизации.
+**Цель**: Валидация компонентов ИИ, протоколов агентов и компиляции политик.
 
 **Ключевые тесты:**
+- **Agent Protocols**: Валидация протоколов PI/Drafter/Formalizer/Critic агентов с runtime поведением
 - **Policy Compiler**: Компиляция IR в исполняемые модели foundry
-- **Self-healing**: Тестирование автоматического исправления ошибок
+- **Agent Pipeline**: Полный pipeline от user request до PolicySurfaceIR через агентов
+- **Reflexion Loop**: Тестирование цикла draft → critique → refine с convergence
 
 ## Конфигурация окружения (conftest.py)
 
@@ -364,6 +373,9 @@ pytest tests/runtime/test_runtime_manifest_paths.py
 - **Trust System**: Статистическая верификация доверия к данным с evidence bundles
 - **Plugin System**: Модульная архитектура с capability-based plugin registry и composite executors
 - **Agent Simulation**: Пошаговая симуляция агентов с метриками, трекингом экспериментов и визуализацией
+- **Trinity Architecture**: Разделение политик на ProblemFrame/PolicySpec/ModelSpec с типизированными ссылками
+- **Agent Protocols**: Стандартизированные интерфейсы для PI/Drafter/Formalizer/Critic агентов
+- **Environment Manifest**: Захват и сравнение вычислительных окружений для reproducibility
 
 ## Принципы тестирования
 
@@ -468,14 +480,29 @@ pytest tests/runtime/test_runtime_manifest_paths.py
 
 ### Integration Layer (`integration/`)
 **Workflow Orchestration** → End-to-end scenarios
-- **Scientist**: LLM-driven policy drafting
-- **Foundry**: Simulation execution
-- **Fabric**: Data ingestion и materialization
-- **IR**: Policy compilation pipeline
+- **Scientist**: LLM-driven policy drafting через agent protocols
+- **Foundry**: Simulation execution с calibration и fidelity control
+- **Fabric**: Data ingestion, evidence bundles и trust quantification
+- **IR**: Policy compilation pipeline и Trinity migration
 
 **LLM Integration** → AI-powered components
-- **Scientist Agent**: Drafter, prompt engineering
-- **Workflow**: Комплексные сценарии с AI
+- **Agent Pipeline**: PI → Drafter → Formalizer → Critic workflow
+- **Reflexion Loop**: Critique-based policy refinement и convergence
+- **Trinity Migration**: Seamless transition между Surface IR и Trinity formats
+
+### Trinity Architecture Integration
+**ProblemFrame** → Policy context and constraints
+- **Contract Tests**: Schema validation и reference integrity
+- **IR Layer**: Migration between Surface IR и Trinity formats
+- **Scientist**: Problem decomposition и context для агентов
+
+**PolicySpec** → Intervention definitions
+- **Contract Tests**: Roundtrip serialization и cross-reference validation
+- **Scientist**: Formalization от draft до executable IR
+
+**ModelSpec** → Simulation parameters
+- **Contract Tests**: Data snapshot validation и assumption tracking
+- **Foundry**: Calibration targets и model configuration
 
 ### CI/CD интеграция
 - Unit тесты запускаются на каждый PR
@@ -582,6 +609,30 @@ pytest tests/foundry/agent_sim/test_monitoring.py -v
 # Проверьте визуализацию и dashboard generation
 ```
 
+**Trinity migration failures:**
+```bash
+# Проверьте semantic fingerprint preservation
+pytest tests/contract/test_trinity_migration.py::TestRoundTrip::test_roundtrip_semantic_fingerprint -v
+# Проверьте zero data loss
+pytest tests/contract/test_trinity_migration.py::TestRoundTrip::test_roundtrip_minimal -v
+```
+
+**Agent protocol failures:**
+```bash
+# Проверьте protocol conformance
+pytest tests/scientist/test_agent_protocols.py::TestProtocolConformance -v
+# Проверьте agent pipeline flow
+pytest tests/scientist/test_agent_protocols.py::TestAgentPipeline::test_full_pipeline_flow -v
+```
+
+**Environment manifest issues:**
+```bash
+# Проверьте environment capture
+pytest tests/core_phase0/test_environment_manifest.py::TestCaptureEnvironment::test_capture_returns_valid_manifest -v
+# Проверьте compatibility scoring
+pytest tests/core_phase0/test_environment_manifest.py::TestEnvironmentManifest::test_compatibility_score_identical -v
+```
+
 **Demo script failures:**
 ```bash
 # Проверьте интеграцию с tools/demos
@@ -621,4 +672,13 @@ python -c "from polisyos.foundry.plugins.core import PluginRegistry; from polisy
 
 # Проверка agent simulation
 python -c "from polisyos.foundry.agent_sim import MetricsCollector, ExperimentTracker; print('Agent simulation OK')"
+
+# Проверка Trinity architecture
+python -c "from polisyos.ir.trinity import TrinityBundle; from polisyos.ir.problem_frame import ProblemFrame; print('Trinity architecture OK')"
+
+# Проверка agent protocols
+python -c "from polisyos.scientist.agent.protocols import AGENT_PROTOCOLS, AgentRole; print('Agent protocols OK')"
+
+# Проверка environment manifest
+python -c "from polisyos.core.artifacts.environment import capture_environment; print('Environment manifest OK')"
 ```

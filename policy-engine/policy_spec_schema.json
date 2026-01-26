@@ -1,0 +1,628 @@
+{
+  "$defs": {
+    "InterventionSpec": {
+      "additionalProperties": false,
+      "description": "Policy intervention specification.\n\nDefines a single policy action with targeting, timing, and parameters.\nCompatible with existing InterventionSpec in surface.py.",
+      "properties": {
+        "intervention_id": {
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "title": "Intervention Id",
+          "type": "string"
+        },
+        "kind": {
+          "description": "Mechanism type",
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "title": "Kind",
+          "type": "string"
+        },
+        "target": {
+          "description": "Agent/entity selector expression",
+          "discriminator": {
+            "mapping": {
+              "all_of": "#/$defs/SelectorAll",
+              "any_of": "#/$defs/SelectorAny",
+              "not": "#/$defs/SelectorNot",
+              "predicate": "#/$defs/SelectorPredicate"
+            },
+            "propertyName": "kind"
+          },
+          "oneOf": [
+            {
+              "$ref": "#/$defs/SelectorPredicate"
+            },
+            {
+              "$ref": "#/$defs/SelectorAll"
+            },
+            {
+              "$ref": "#/$defs/SelectorAny"
+            },
+            {
+              "$ref": "#/$defs/SelectorNot"
+            }
+          ],
+          "title": "Target"
+        },
+        "schedule": {
+          "$ref": "#/$defs/ScheduleSpec",
+          "description": "Timing of intervention"
+        },
+        "params": {
+          "additionalProperties": true,
+          "description": "Mechanism parameters",
+          "title": "Params",
+          "type": "object"
+        },
+        "priority": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Execution priority (lower = earlier)",
+          "title": "Priority"
+        },
+        "enabled": {
+          "default": true,
+          "description": "Whether intervention is active",
+          "title": "Enabled",
+          "type": "boolean"
+        },
+        "notes": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 10,
+          "title": "Notes",
+          "type": "array"
+        }
+      },
+      "required": [
+        "intervention_id",
+        "kind",
+        "target",
+        "schedule"
+      ],
+      "title": "InterventionSpec",
+      "type": "object"
+    },
+    "MechanismBinding": {
+      "additionalProperties": false,
+      "description": "Binding between an intervention and a mechanism from the registry.\n\nLinks policy interventions to executable mechanisms.",
+      "properties": {
+        "binding_id": {
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "title": "Binding Id",
+          "type": "string"
+        },
+        "mechanism_id": {
+          "description": "Reference to mechanism registry",
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "title": "Mechanism Id",
+          "type": "string"
+        },
+        "intervention_ids": {
+          "description": "Interventions using this mechanism",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Intervention Ids",
+          "type": "array"
+        },
+        "config_overrides": {
+          "additionalProperties": true,
+          "description": "Mechanism-specific config overrides",
+          "title": "Config Overrides",
+          "type": "object"
+        }
+      },
+      "required": [
+        "binding_id",
+        "mechanism_id",
+        "intervention_ids"
+      ],
+      "title": "MechanismBinding",
+      "type": "object"
+    },
+    "ParameterSpec": {
+      "additionalProperties": false,
+      "description": "Tunable parameter specification with bounds and metadata.\n\nSupports calibration and sensitivity analysis.",
+      "properties": {
+        "param_id": {
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "title": "Param Id",
+          "type": "string"
+        },
+        "intervention_id": {
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "title": "Intervention Id",
+          "type": "string"
+        },
+        "param_path": {
+          "description": "Dot-separated path to parameter within intervention.params",
+          "title": "Param Path",
+          "type": "string"
+        },
+        "default_value": {
+          "description": "Default/initial value",
+          "title": "Default Value"
+        },
+        "min_value": {
+          "anyOf": [
+            {},
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Minimum allowed value",
+          "title": "Min Value"
+        },
+        "max_value": {
+          "anyOf": [
+            {},
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Maximum allowed value",
+          "title": "Max Value"
+        },
+        "tunable": {
+          "default": true,
+          "description": "Whether parameter can be optimized",
+          "title": "Tunable",
+          "type": "boolean"
+        },
+        "sensitivity_priority": {
+          "default": 5,
+          "description": "Priority for sensitivity analysis (1=highest)",
+          "maximum": 10,
+          "minimum": 1,
+          "title": "Sensitivity Priority",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "param_id",
+        "intervention_id",
+        "param_path",
+        "default_value"
+      ],
+      "title": "ParameterSpec",
+      "type": "object"
+    },
+    "ScheduleSpec": {
+      "additionalProperties": false,
+      "properties": {
+        "start_step": {
+          "minimum": 0,
+          "title": "Start Step",
+          "type": "integer"
+        },
+        "end_step": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "End Step"
+        },
+        "duration_steps": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Duration Steps"
+        }
+      },
+      "required": [
+        "start_step"
+      ],
+      "title": "ScheduleSpec",
+      "type": "object"
+    },
+    "SelectorAll": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "all_of",
+          "default": "all_of",
+          "title": "Kind",
+          "type": "string"
+        },
+        "clauses": {
+          "items": {
+            "discriminator": {
+              "mapping": {
+                "all_of": "#/$defs/SelectorAll",
+                "any_of": "#/$defs/SelectorAny",
+                "not": "#/$defs/SelectorNot",
+                "predicate": "#/$defs/SelectorPredicate"
+              },
+              "propertyName": "kind"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/$defs/SelectorPredicate"
+              },
+              {
+                "$ref": "#/$defs/SelectorAll"
+              },
+              {
+                "$ref": "#/$defs/SelectorAny"
+              },
+              {
+                "$ref": "#/$defs/SelectorNot"
+              }
+            ]
+          },
+          "title": "Clauses",
+          "type": "array"
+        }
+      },
+      "required": [
+        "clauses"
+      ],
+      "title": "SelectorAll",
+      "type": "object"
+    },
+    "SelectorAny": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "any_of",
+          "default": "any_of",
+          "title": "Kind",
+          "type": "string"
+        },
+        "clauses": {
+          "items": {
+            "discriminator": {
+              "mapping": {
+                "all_of": "#/$defs/SelectorAll",
+                "any_of": "#/$defs/SelectorAny",
+                "not": "#/$defs/SelectorNot",
+                "predicate": "#/$defs/SelectorPredicate"
+              },
+              "propertyName": "kind"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/$defs/SelectorPredicate"
+              },
+              {
+                "$ref": "#/$defs/SelectorAll"
+              },
+              {
+                "$ref": "#/$defs/SelectorAny"
+              },
+              {
+                "$ref": "#/$defs/SelectorNot"
+              }
+            ]
+          },
+          "title": "Clauses",
+          "type": "array"
+        }
+      },
+      "required": [
+        "clauses"
+      ],
+      "title": "SelectorAny",
+      "type": "object"
+    },
+    "SelectorNot": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "not",
+          "default": "not",
+          "title": "Kind",
+          "type": "string"
+        },
+        "clause": {
+          "discriminator": {
+            "mapping": {
+              "all_of": "#/$defs/SelectorAll",
+              "any_of": "#/$defs/SelectorAny",
+              "not": "#/$defs/SelectorNot",
+              "predicate": "#/$defs/SelectorPredicate"
+            },
+            "propertyName": "kind"
+          },
+          "oneOf": [
+            {
+              "$ref": "#/$defs/SelectorPredicate"
+            },
+            {
+              "$ref": "#/$defs/SelectorAll"
+            },
+            {
+              "$ref": "#/$defs/SelectorAny"
+            },
+            {
+              "$ref": "#/$defs/SelectorNot"
+            }
+          ],
+          "title": "Clause"
+        }
+      },
+      "required": [
+        "clause"
+      ],
+      "title": "SelectorNot",
+      "type": "object"
+    },
+    "SelectorOperator": {
+      "description": "\u0420\u0430\u0437\u0440\u0435\u0448\u0435\u043d\u043d\u044b\u0435 \u043e\u043f\u0435\u0440\u0430\u0442\u043e\u0440\u044b \u0434\u043b\u044f TargetSelector (AST).",
+      "enum": [
+        "==",
+        "!=",
+        ">",
+        "<",
+        ">=",
+        "<=",
+        "in",
+        "not_in",
+        "between",
+        "contains"
+      ],
+      "title": "SelectorOperator",
+      "type": "string"
+    },
+    "SelectorPredicate": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "predicate",
+          "default": "predicate",
+          "title": "Kind",
+          "type": "string"
+        },
+        "field": {
+          "maxLength": 64,
+          "title": "Field",
+          "type": "string"
+        },
+        "operator": {
+          "$ref": "#/$defs/SelectorOperator"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "integer"
+            },
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+              "type": "string"
+            },
+            {
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "boolean"
+                  },
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                    "type": "string"
+                  }
+                ]
+              },
+              "type": "array"
+            }
+          ],
+          "title": "Value"
+        }
+      },
+      "required": [
+        "field",
+        "operator",
+        "value"
+      ],
+      "title": "SelectorPredicate",
+      "type": "object"
+    },
+    "TranslatableString": {
+      "additionalProperties": false,
+      "description": "\u041c\u0443\u043b\u044c\u0442\u0438\u044f\u0437\u044b\u0447\u043d\u0430\u044f \u0441\u0442\u0440\u043e\u043a\u0430.\nLLM \u0432\u0438\u0434\u0438\u0442 'en' \u0434\u043b\u044f \u043b\u043e\u0433\u0438\u043a\u0438, \u0430 'ua'/'ru' \u0438\u0441\u043f\u043e\u043b\u044c\u0437\u0443\u044e\u0442\u0441\u044f \u0434\u043b\u044f UI.",
+      "properties": {
+        "en": {
+          "description": "English text for LLM logic",
+          "maxLength": 200,
+          "title": "En",
+          "type": "string"
+        },
+        "ua": {
+          "description": "Ukrainian text for Reporting/UI",
+          "maxLength": 200,
+          "title": "Ua",
+          "type": "string"
+        },
+        "ru": {
+          "anyOf": [
+            {
+              "maxLength": 200,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Russian text (optional)",
+          "title": "Ru"
+        }
+      },
+      "required": [
+        "en",
+        "ua"
+      ],
+      "title": "TranslatableString",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "PolicySpec: The \"What\" artifact.\n\nSpecifies the policy interventions, mechanism bindings, and parameters.\nThis artifact is iterated during policy optimization while the ProblemFrame\nremains constant.",
+  "properties": {
+    "schema_version": {
+      "default": "1.0",
+      "pattern": "^\\d+\\.\\d+$",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "policy_id": {
+      "description": "Unique policy identifier",
+      "pattern": "^[a-z][a-z0-9_]*$",
+      "title": "Policy Id",
+      "type": "string"
+    },
+    "problem_frame_ref": {
+      "anyOf": [
+        {
+          "pattern": "^sha256:[a-f0-9]{64}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Reference to ProblemFrame artifact this policy addresses",
+      "title": "Problem Frame Ref"
+    },
+    "interventions": {
+      "description": "Policy interventions/actions",
+      "items": {
+        "$ref": "#/$defs/InterventionSpec"
+      },
+      "maxItems": 100,
+      "title": "Interventions",
+      "type": "array"
+    },
+    "mechanism_bindings": {
+      "description": "Explicit mechanism bindings",
+      "items": {
+        "$ref": "#/$defs/MechanismBinding"
+      },
+      "maxItems": 100,
+      "title": "Mechanism Bindings",
+      "type": "array"
+    },
+    "parameters": {
+      "description": "Tunable parameter specifications",
+      "items": {
+        "$ref": "#/$defs/ParameterSpec"
+      },
+      "title": "Parameters",
+      "type": "array"
+    },
+    "global_schedule": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ScheduleSpec"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Global policy schedule (overrides individual if set)"
+    },
+    "name": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/TranslatableString"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Human-readable policy name"
+    },
+    "description": {
+      "anyOf": [
+        {
+          "maxLength": 2000,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Description"
+    },
+    "labels": {
+      "items": {
+        "type": "string"
+      },
+      "maxItems": 20,
+      "title": "Labels",
+      "type": "array"
+    },
+    "version_tag": {
+      "anyOf": [
+        {
+          "maxLength": 50,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Semantic version tag",
+      "title": "Version Tag"
+    },
+    "notes": {
+      "items": {
+        "type": "string"
+      },
+      "maxItems": 50,
+      "title": "Notes",
+      "type": "array"
+    }
+  },
+  "required": [
+    "policy_id"
+  ],
+  "title": "PolicySpec",
+  "type": "object"
+}

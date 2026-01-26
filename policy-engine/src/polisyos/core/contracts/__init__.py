@@ -18,6 +18,7 @@ from .foundry import (
     ExecConfigRef,
     ExecPlan,
     ExecPlanRef,
+    EnvironmentManifestRef,
     LoweredIR,
     LoweredIRRef,
     Metrics,
@@ -33,6 +34,13 @@ from .foundry import (
     TreasurySeed,
     TreasurySeedRef,
 )
+from .trinity import (
+    ModelSpecRef,
+    PolicySpecRef,
+    ProblemFrameRef,
+    TrinityBundle,
+    TrinityManifest,
+)
 
 __all__ = [
     "DataViewRequestRef",
@@ -44,6 +52,7 @@ __all__ = [
     "ExecConfigRef",
     "ExecPlan",
     "ExecPlanRef",
+    "EnvironmentManifestRef",
     "FabricResult",
     "FabricResultRef",
     "CalibrationReportRef",
@@ -67,4 +76,9 @@ __all__ = [
     "WarningsRef",
     "LinkReportRef",
     "CompileReportRef",
+    "ProblemFrameRef",
+    "PolicySpecRef",
+    "ModelSpecRef",
+    "TrinityBundle",
+    "TrinityManifest",
 ]

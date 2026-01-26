@@ -692,20 +692,21 @@ def _validate_schedule_conflicts(
                 )
             )
         elif rule.kind == MergeRuleKind.PRIORITY:
-            missing = [
-                intervention.intervention_id
-                for intervention in interventions_for_slot
-                if intervention.intervention_id in overlapping and intervention.priority is None
-            ]
-            if missing:
-                issues.append(
-                    LinkIssue(
-                        code="merge_priority_missing",
-                        message=f"Merge rule 'priority' requires priority for slot '{slot_id}'",
-                        path=["semantic", "interventions"],
-                        data={"slot_id": slot_id, "missing": sorted(missing)},
+            if rule.default_priority is None:
+                missing = [
+                    intervention.intervention_id
+                    for intervention in interventions_for_slot
+                    if intervention.intervention_id in overlapping and intervention.priority is None
+                ]
+                if missing:
+                    issues.append(
+                        LinkIssue(
+                            code="merge_priority_missing",
+                            message=f"Merge rule 'priority' requires priority for slot '{slot_id}'",
+                            path=["semantic", "interventions"],
+                            data={"slot_id": slot_id, "missing": sorted(missing)},
+                        )
                     )
-                )
 
 
 def _validate_adaptive_agent(

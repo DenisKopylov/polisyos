@@ -1,17 +1,17 @@
 # Scientist: AI Policy Scientist
 
-**AI-driven Policy Design and Orchestration System**
+**Иерархическая система агентов для проектирования экономических политик**
 
-Scientist - это "мозг" Policy Engine, отвечающий за автоматическое проектирование, валидацию и оптимизацию экономических политик с использованием LLM и дифференцируемых симуляций. Модуль реализует полный цикл от естественного языка пользователя до оптимизированного пакета решений.
+Scientist - это "мозг" Policy Engine, реализующий иерархическую систему AI агентов для автоматического проектирования, валидации и оптимизации экономических политик. Модуль реализует полный цикл от естественного языка пользователя до оптимизированного пакета решений через координацию специализированных агентов.
 
 ## Обзор модуля
 
-Модуль `scientist` представляет собой оркестрационную систему, управляющую полным жизненным циклом экспериментов с экономическими политиками. Он интегрирует:
+Модуль `scientist` реализует иерархическую систему AI агентов для управления полным жизненным циклом экспериментов с экономическими политиками. Он интегрирует:
 
-- **LLM-агентов** для генерации политик из естественного языка
+- **Иерархическую систему агентов** (PI → Drafter → Formalizer → Critic) для генерации и валидации политик
 - **Конечный автомат состояний (FSM)** для управления фазами эксперимента
 - **Дифференцируемые симуляции** через Foundry executor
-- **Гovernance и safety controls** для контроля качества и безопасности
+- **Governance и safety controls** для контроля качества и безопасности
 - **Design of Experiments (DoE)** для систематического исследования сценариев
 - **Content-addressable storage (CAS)** для reproducible артефактов
 
@@ -34,23 +34,40 @@ Scientist построен как многоуровневая система о
 
 ```
 scientist/
-├── agent/           # LLM агенты и промпты
+├── agent/           # Иерархическая система агентов (PI, Drafter, Formalizer, Critic)
 ├── kernel/          # FSM, бюджеты, guards, human gates
 ├── compute/         # Спецификации задач и execution backends
 ├── doe/            # Design of Experiments
 ├── governance/     # Preflight/postflight проверки
-├── orchestrator/   # Workflow и state management
+├── orchestrator/   # Workflow orchestration и state management
 └── publisher.py    # Финализация результатов
 ```
 
 ### 🤖 Agent Layer (агенты/agent)
 
-Отвечает за генерацию и принятие решений о политиках через различные стратегии:
+Реализует иерархическую систему AI агентов для генерации и валидации политик:
 
-- **`base.py`**: Абстрактный класс `BaseAgent` и `MockAgent` для эвристического принятия решений на основе экономических показателей. MockAgent создает простые политики налогообложения/субсидий на основе безработицы и бюджетного баланса
-- **`drafter.py`**: Узел генерации политики через LLM с поддержкой `MockLLM` для тестирования без API ключей. Реализует self-healing циклы для исправления ошибок валидации через повторные LLM вызовы
-- **`prompts.py`**: Системные промпты для LLM с полным каталогом доступных механизмов политики и селекторов из DEFAULT_MECHANISM_REGISTRY
-- **`prompt.py`**: Альтернативные и специализированные промпты для различных сценариев Policy Scientist с динамической загрузкой схем Pydantic
+#### 🎯 Протокольная архитектура (protocols.py)
+- **`AgentRole`**: Перечисление ролей агентов (PI, DRAFTER, FORMALIZER, CRITIC)
+- **`ProblemFrame`**: Формализованное описание проблемы (immutable артефакт)
+- **`SubTask`**: Структура для декомпозиции задач с приоритетами и зависимостями
+- **`CritiqueReport`**: Структурированные отчеты о проблемах с категориями и severity
+
+#### 🧠 Агенты по ролям
+- **`pi.py`**: Principal Investigator - декомпозиция высокоуровневых задач на подзадачи для других агентов
+- **`drafter.py`**: Drafter Agent - генерация черновиков политик из естественного языка
+- **`formalizer.py`**: Formalizer Agent - преобразование черновиков в структурированный PolicySurfaceIR
+- **`critic.py`**: Critic Agent - валидация и критика сгенерированных политик
+
+#### 🔧 Mock реализации для тестирования
+- **`MockPIAgent`**: Детерминированная декомпозиция задач
+- **`MockDrafterAgent`**: Генерация предопределенных черновиков политик
+- **`MockFormalizerAgent`**: Создание валидного IR из черновиков
+- **`MockCriticAgent`**: Предсказуемые отчеты о валидации
+
+#### 🔄 Legacy поддержка (base.py)
+- **`BaseAgent`**: Абстрактный класс для обратной совместимости
+- **`MockAgent`**: Простой эвристический агент для базовых сценариев
 
 ### 🎯 Kernel Layer (ядро/kernel)
 
@@ -112,7 +129,7 @@ scientist/
 
 ## Workflow Pipeline
 
-Scientist реализует декларативный workflow на LangGraph с поддержкой FSM фаз и автоматической маршрутизацией. Workflow включает self-healing циклы и conditional routing на основе feedback от governor.
+Scientist реализует декларативный workflow на LangGraph с иерархической системой агентов и поддержкой FSM фаз. Workflow координирует работу специализированных агентов (PI → Drafter → Formalizer → Critic) и включает self-healing циклы с conditional routing на основе feedback от governor.
 
 ```mermaid
 graph TD
@@ -167,9 +184,9 @@ Workflow управляется конечным автоматом состоя
 
 ### Узлы Workflow
 
-1. **draft_ir** (FRAME): Генерация начальной политики из пользовательского запроса через LLM с использованием системных промптов
-2. **validate_ir** (FRAME): Полная валидация структуры и семантики политики с проверкой схемы и бизнес-правил
-3. **repair_ir** (FRAME): Автоматическое исправление ошибок валидации через повторные LLM вызовы с анализом diff
+1. **draft_ir** (FRAME): Координация иерархической системы агентов (PI → Drafter → Formalizer → Critic) для генерации и валидации политики из пользовательского запроса
+2. **validate_ir** (FRAME): Комплексная валидация через Critic Agent с проверкой alignment, completeness, consistency и feasibility
+3. **repair_ir** (FRAME): Self-healing через повторную работу Formalizer/Critic агентов с анализом различий и targeted исправлениями
 4. **compile_data_views** (PLAN): Подготовка DataView запросов для Fabric layer и компиляция UDF функций
 5. **compile_model** (EXECUTE): Компиляция политики в дифференцируемые JAX механизмы через Foundry compiler
 6. **train_agents** (EXECUTE): Обучение адаптивных агентов с калибровкой параметров через Optax
@@ -180,11 +197,13 @@ Workflow управляется конечным автоматом состоя
 
 ## Ключевые возможности
 
-### 🤖 LLM Integration
-- Поддержка OpenAI/Anthropic через LangChain
-- MockLLM для тестирования без API ключей
-- Автоматическая генерация PolicyRequestIR из естественного языка
-- Self-healing: исправление ошибок валидации через повторные вызовы
+### 🤖 Hierarchical Agent System
+- **PI Agent**: Декомпозиция высокоуровневых задач на специализированные подзадачи
+- **Drafter Agent**: Генерация естественных черновиков политик из пользовательских запросов
+- **Formalizer Agent**: Преобразование черновиков в формальный PolicySurfaceIR
+- **Critic Agent**: Многоуровневая валидация с категориями (alignment, completeness, consistency, feasibility)
+- **Mock Agents**: Полная система mock агентов для тестирования без LLM зависимостей
+- **Self-healing**: Автоматическое исправление через targeted repair циклы
 
 ### 🔬 Дифференцируемые симуляции
 - Компиляция политик в JAX механизмы (Equinox)
@@ -381,15 +400,78 @@ job_spec = JobSpec(
 job_key = JobKey.from_spec(job_spec)
 ```
 
-### Агенты
+### Работа с иерархической системой агентов
 
 ```python
-from polisyos.scientist.agent.base import BaseAgent, MockAgent
+from polisyos.scientist.agent import (
+    MockPIAgent, MockDrafterAgent, MockFormalizerAgent, MockCriticAgent,
+    ProblemFrame, AgentRole, TaskPriority
+)
 
-class MyAgent(BaseAgent):
-    def decide(self, step: int, context_df) -> PolicyRequestIR:
-        # Ваша логика принятия решений
-        pass
+# Создание агентов для тестирования
+pi_agent = MockPIAgent()
+drafter_agent = MockDrafterAgent()
+formalizer_agent = MockFormalizerAgent()
+critic_agent = MockCriticAgent()
+
+# 1. PI Agent декомпозирует задачу
+subtasks = await pi_agent.decompose_task(
+    "Implement progressive taxation to reduce inequality",
+    context={"domain": "fiscal_policy"}
+)
+
+# 2. Drafter Agent создает черновик
+draft_result = await drafter_agent.draft(
+    problem_frame=subtasks[0],  # Из PI декомпозиции
+    context={"economic_context": "high_inequality"}
+)
+
+# 3. Formalizer Agent преобразует в IR
+policy_ir = await formalizer_agent.formalize(
+    draft=draft_result,
+    schema_version="2.0"
+)
+
+# 4. Critic Agent валидирует результат
+critique_report = await critic_agent.critique(
+    ir=policy_ir,
+    problem_frame=subtasks[0],
+    depth="standard"
+)
+
+# Проверка результатов валидации
+if critique_report.verdict == "APPROVE":
+    print("✅ Policy approved by Critic Agent")
+else:
+    print(f"❌ Issues found: {len(critique_report.issues)}")
+```
+
+#### Создание кастомных агентов
+
+```python
+from polisyos.scientist.agent.protocols import PIAgent, DrafterAgent
+
+class CustomPIAgent(PIAgent):
+    async def decompose_task(self, request: str, *, context=None) -> list[SubTask]:
+        # Кастомная логика декомпозиции задач
+        return [
+            SubTask(
+                task_id=f"custom_{request[:10]}",
+                description=f"Custom decomposition for: {request}",
+                target_agent=AgentRole.DRAFTER,
+                priority=TaskPriority.HIGH,
+                status=TaskStatus.PENDING
+            )
+        ]
+
+class CustomDrafterAgent(DrafterAgent):
+    async def draft(self, problem_frame, *, context=None):
+        # Кастомная логика генерации черновиков
+        return DraftResult(
+            draft_id=f"draft_{problem_frame.frame_id}",
+            narrative="Custom policy draft...",
+            metadata={"custom": True}
+        )
 ```
 
 ## Примеры использования
@@ -565,17 +647,54 @@ Governor принимает решение на основе:
 
 ### Добавление нового агента
 
-```python
-from polisyos.scientist.agent.base import BaseAgent
-from polisyos.ir.contract import PolicyRequestIR
+#### Создание кастомного Drafter Agent
 
-class LLMAgent(BaseAgent):
+```python
+from polisyos.scientist.agent.protocols import DrafterAgent, ProblemFrame, DraftResult
+
+class LLMDrafterAgent(DrafterAgent):
     def __init__(self, model_name: str = "gpt-4"):
         self.model_name = model_name
 
-    def decide(self, step: int, context_df) -> PolicyRequestIR:
-        # Реализация через LLM API
-        pass
+    async def draft(self, problem_frame: ProblemFrame, *, context=None) -> DraftResult:
+        # Интеграция с LLM API для генерации черновиков
+        llm_response = await self._call_llm_api(problem_frame.problem_statement)
+
+        return DraftResult(
+            draft_id=f"llm_draft_{problem_frame.frame_id}",
+            narrative=llm_response,
+            metadata={"model": self.model_name, "temperature": 0.7}
+        )
+```
+
+#### Создание кастомного Critic Agent
+
+```python
+from polisyos.scientist.agent.protocols import CriticAgent, CritiqueReport, CritiqueIssue
+
+class AdvancedCriticAgent(CriticAgent):
+    def __init__(self, validation_rules: dict):
+        self.validation_rules = validation_rules
+
+    async def critique(self, ir, problem_frame, *, depth="standard"):
+        issues = []
+
+        # Кастомная логика валидации
+        if self._check_alignment(ir, problem_frame):
+            issues.append(CritiqueIssue(
+                category=CritiqueCategory.ALIGNMENT,
+                severity=CritiqueSeverity.WARNING,
+                message="Policy may not fully address problem constraints"
+            ))
+
+        verdict = "REJECT" if any(i.severity == CritiqueSeverity.BLOCKER for i in issues) else "APPROVE"
+
+        return CritiqueReport(
+            report_id=f"critique_{ir.schema_version}",
+            verdict=verdict,
+            issues=issues,
+            confidence=0.85
+        )
 ```
 
 ### Добавление узла workflow
@@ -1030,7 +1149,7 @@ Scientist следует принципам из `architecture.md`:
 
 ```
 tests/scientist/
-├── test_agent_*.py         # Agent layer (base, drafter, prompts)
+├── test_agent_*.py         # Agent layer (protocols, pi, drafter, formalizer, critic)
 ├── test_kernel_*.py        # Kernel layer (FSM, budgets, guards, human_gate)
 ├── test_compute_*.py       # Compute layer (job_spec, runner)
 ├── test_governance_*.py    # Governance layer (preflight, postflight)
@@ -1038,7 +1157,8 @@ tests/scientist/
 ├── test_orchestrator_*.py  # Orchestrator layer (workflow, state, flow_nodes)
 ├── test_publisher.py       # Publisher layer
 └── integration/
-    ├── test_workflow_smoke.py    # Базовый workflow без LLM
+    ├── test_agent_hierarchy.py   # Тестирование иерархической системы агентов
+    ├── test_workflow_smoke.py    # Базовый workflow с mock агентами
     └── test_workflow_llm.py      # E2E с LLM (требует API ключей)
 ```
 
@@ -1064,20 +1184,25 @@ pytest tests/scientist/ -x --tb=short
 
 ### Test Coverage
 
-- **Agent Layer**: Mock agents, prompt generation, LLM integration
-- **Kernel Layer**: FSM transitions, budget enforcement, guards
-- **Compute Layer**: Job specifications, execution (mock)
-- **Governance**: Preflight/postflight checks, human gates
-- **Orchestrator**: Workflow execution, state management, artifacts
-- **DoE**: Experiment designs, scenario generation
+- **Agent Layer**: Протоколы агентов, иерархическая система (PI→Drafter→Formalizer→Critic), mock реализации всех ролей
+- **Kernel Layer**: FSM transitions, budget enforcement, guards, human gates
+- **Compute Layer**: Job specifications, execution backends, reproducible hashing
+- **Governance**: Preflight/postflight checks, human gates (placeholders)
+- **Orchestrator**: Workflow execution, state management, decision packets
+- **DoE**: Experiment designs, scenario generation, statistical analysis
+- **Integration**: Полный цикл агентов, end-to-end workflow testing
 
 ### Mock Components
 
-Для тестирования без зависимостей:
-- `MockLLM`: Эмуляция LLM ответов
-- `MockAgent`: Эвристический агент
-- `StubRunner`: Заглушка для compute jobs
-- `TestCAS`: In-memory artifact storage
+Для тестирования без внешних зависимостей:
+- **`MockPIAgent`**: Детерминированная декомпозиция задач
+- **`MockDrafterAgent`**: Предопределенные черновики политик
+- **`MockFormalizerAgent`**: Создание валидного IR из черновиков
+- **`MockCriticAgent`**: Предсказуемые отчеты о валидации
+- **`MockLLM`**: Эмуляция LLM ответов (legacy)
+- **`MockAgent`**: Простой эвристический агент (legacy)
+- **`StubRunner`**: Заглушка для compute jobs
+- **`TestCAS`**: In-memory artifact storage
 
 ## Производительность
 
@@ -1149,7 +1274,7 @@ research_budget = {
 
 ### ✅ Полностью реализованные компоненты
 
-- **Agent Layer**: MockAgent с эвристической логикой принятия решений, MockLLM для тестирования без API ключей, системные промпты с реестрами механизмов
+- **Agent Layer**: Полная иерархическая система агентов (PI → Drafter → Formalizer → Critic) с протоколами, mock реализациями всех ролей, структурированными артефактами (ProblemFrame, SubTask, CritiqueReport)
 - **Kernel Layer**: Полная реализация FSM с 9 фазами, все модели бюджетов (Compute, Evidence, Legitimacy, Complexity), guards, human_gate и advance_phase guards
 - **Compute Layer**: JobSpec/JobKey/JobResult модели, LocalBackend и RayBackend (skeleton) для выполнения через Foundry executor, поддержка distributed execution
 - **Orchestrator Layer**: Полный workflow на LangGraph (1450+ строк в flow_nodes.py), ExperimentState с 90+ полями, DecisionPacket с evidence и uncertainty, audit trail
@@ -1164,7 +1289,7 @@ research_budget = {
 
 ### 🎯 Готовые к использованию возможности
 
-- **End-to-End Workflow**: Полный цикл от естественного языка до DecisionPacket с MockAgent и evidence tracking
+- **End-to-End Workflow**: Полный цикл от естественного языка до DecisionPacket с иерархической системой агентов и evidence tracking
 - **Budget Controls**: Полный контроль ресурсов (LLM calls, sim runs, wall time, evidence queries, complexity)
 - **FSM Management**: Строгие переходы между фазами с guards, human gates и self-healing циклами
 - **Artifact Management**: Полная поддержка CAS с SHA256 addressing, RunRecord для воспроизводимости

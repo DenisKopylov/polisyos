@@ -2,7 +2,7 @@
 
 **Kernel** - это фундаментальный слой типизированных определений и реестров системы IR, обеспечивающий type safety и единообразие интерпретации компонентов Policy Engine.
 
-**Обновлено**: документация актуализирована для отражения текущего состояния на 2026-01-24, включая детальное описание всех реестров и их архитектурную роль.
+**Обновлено**: документация актуализирована для отражения текущего состояния на 2026-01-26, включая новые реестры (constraints, metrics, selector_fields, trust) и расширенную систему типов.
 
 ## Архитектурная роль
 
@@ -194,7 +194,12 @@ class RateUnit(UnitSpec):
 Логика разрешения конфликтов при пересекающихся интервенциях:
 
 ```python
-from polisyos.ir.kernel import MergeRuleRegistry, MergeRuleSpec, MergeRuleKind
+from polisyos.ir.kernel import (
+    ConflictResolution,
+    MergeRuleRegistry,
+    MergeRuleSpec,
+    MergeRuleKind,
+)
 
 class MergeRuleKind(str, Enum):
     SUM = "sum"           # Сложение значений
@@ -202,12 +207,26 @@ class MergeRuleKind(str, Enum):
     PRIORITY = "priority" # По полю priority
     ERROR = "error"       # Ошибка при конфликте
 
-DEFAULT_MERGE_RULE_REGISTRY = MergeRuleRegistry(rules={
-    "sum": MergeRuleSpec(rule_id="sum", kind=MergeRuleKind.SUM),
-    "override": MergeRuleSpec(rule_id="override", kind=MergeRuleKind.OVERRIDE),
-    "priority": MergeRuleSpec(rule_id="priority", kind=MergeRuleKind.PRIORITY),
-    "error": MergeRuleSpec(rule_id="error", kind=MergeRuleKind.ERROR),
-})
+DEFAULT_MERGE_RULE_REGISTRY = MergeRuleRegistry(
+    rules={
+        "sum": MergeRuleSpec(
+            rule_id="sum",
+            kind=MergeRuleKind.SUM,
+            commutativity=True,
+            associativity=True,
+            idempotency=False,
+            conflict_resolution=ConflictResolution.AGGREGATE,
+        ),
+        "override": MergeRuleSpec(
+            rule_id="override",
+            kind=MergeRuleKind.OVERRIDE,
+            commutativity=False,
+            associativity=False,
+            idempotency=True,
+            conflict_resolution=ConflictResolution.LAST,
+        ),
+    }
+)
 ```
 
 ### 6. Типизированные значения (`values.py`)
@@ -256,7 +275,7 @@ class TrustPolicySpec(KernelModel):
 
 #### ConstraintRegistry
 
-Ограничения на применение политик:
+Ограничения на применение политик, обеспечивающие корректность и безопасность симуляций:
 
 ```python
 from polisyos.ir.kernel import ConstraintRegistry, ConstraintSpec
@@ -266,10 +285,97 @@ class ConstraintSpec(KernelModel):
     unit_id: str | None = None
     slot_id: str | None = None
     operator: Literal["<", "<=", ">", ">=", "==", "!="] | None = None
+    value: Any = None
     description: str | None = None
-    constraint_type: Literal["accounting", "non_negative", "budget", "legal"] | None = None
-    policy_by_mode: dict[str, str] | None = None
+    constraint_type: Literal["accounting", "non_negative", "budget", "legal", "physical"] | None = None
+    enforcement_level: Literal["hard", "soft", "warning"] = "hard"
     repair_strategy: str | None = None
+```
+
+**Типы ограничений:**
+- `accounting`: Бухгалтерские балансы (дебет = кредит)
+- `non_negative`: Неотрицательные значения
+- `budget`: Бюджетные ограничения
+- `legal`: Законодательные ограничения
+- `physical`: Физические ограничения
+
+### 9. Метрики оптимизации (`metrics.py`)
+
+#### MetricRegistry
+
+Спецификации метрик для оптимизации политик:
+
+```python
+from polisyos.ir.kernel import MetricRegistry, MetricSpec, MetricKind
+
+class MetricKind(str, Enum):
+    STOCK = "stock"        # Накопительные метрики
+    FLOW = "flow"          # Потоковые метрики
+    RATIO = "ratio"        # Относительные метрики
+    INDEX = "index"        # Индексные метрики
+    COMPOSITE = "composite"  # Составные метрики
+
+class MetricSpec(KernelModel):
+    metric_id: str
+    name: str
+    kind: MetricKind
+    unit_id: str | None = None
+    description: str | None = None
+    aggregation_method: Literal["sum", "mean", "median", "last"] = "mean"
+    normalization: Literal["none", "zscore", "minmax", "robust"] | None = None
+    direction_preference: Literal["higher_better", "lower_better", "target_range"] | None = None
+```
+
+### 10. Поля селекторов (`selector_fields.py`)
+
+#### SelectorFieldRegistry
+
+Определения полей для фильтрации сущностей в селекторах политик:
+
+```python
+from polisyos.ir.kernel import SelectorFieldRegistry, SelectorFieldSpec, FieldValueType
+
+class FieldValueType(str, Enum):
+    NUMBER = "number"
+    STRING = "string"
+    BOOLEAN = "boolean"
+    ENUM = "enum"
+    DATE = "date"
+
+class SelectorFieldSpec(KernelModel):
+    field_id: str
+    slot_id: str
+    value_type: FieldValueType
+    unit_id: str | None = None
+    allowed_values: list[str] | None = None
+    range_min: Any = None
+    range_max: Any = None
+    description: str | None = None
+    searchable: bool = True
+```
+
+### 11. Политики доверия (`trust.py`)
+
+#### TrustRegistry
+
+Уровни доверия к источникам данных для семантической сети фактов:
+
+```python
+from polisyos.ir.kernel import TrustRegistry, TrustPolicySpec, TrustLevel
+
+class TrustLevel(str, Enum):
+    HIGH = "high"
+    MEDIUM = "medium"
+    LOW = "low"
+    UNTRUSTED = "untrusted"
+
+class TrustPolicySpec(KernelModel):
+    policy_id: str
+    level: TrustLevel
+    sources: list[str] = []
+    validation_rules: list[str] = []
+    confidence_threshold: float = 0.5
+    description: str | None = None
 ```
 
 ## Использование в коде
@@ -284,6 +390,9 @@ from polisyos.ir.kernel import (
     DEFAULT_UNITS_REGISTRY,
     DEFAULT_CONSTRAINT_REGISTRY,
     DEFAULT_MERGE_RULE_REGISTRY,
+    DEFAULT_METRIC_REGISTRY,
+    DEFAULT_SELECTOR_FIELD_REGISTRY,
+    DEFAULT_TRUST_REGISTRY,
 )
 
 # Типы и модели
@@ -291,6 +400,8 @@ from polisyos.ir.kernel import (
     MechanismTypeSpec, SlotSpec, UnitRef,
     MoneyValue, RateValue, CountValue,
     MergeRuleRef, TrustPolicySpec,
+    ConstraintSpec, MetricSpec, SelectorFieldSpec,
+    DecimalValue, NonNegativeDecimal, PositiveDecimal,
 )
 ```
 

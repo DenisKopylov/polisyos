@@ -4,7 +4,7 @@
 
 **Последнее обновление:** Январь 2026
 **Уровень:** Core Phase 0 (фундаментальные примитивы)
-**Зависимости:** Только стандартная библиотека Python
+**Зависимости:** Только стандартная библиотека Python, pathlib, hashlib
 
 ## Архитектурный контекст
 
@@ -17,6 +17,7 @@ core_phase0/
 ├── conftest.py                    # Специфичные fixtures для core тестов
 ├── test_artifact_store.py         # FileSystemCAS, дедупликация, верификация integrity
 ├── test_canon_json.py             # Каноническая JSON сериализация, детерминированные хэши
+├── test_environment_manifest.py   # Захват и сравнение environment манифестов
 ├── test_registry_bundle.py        # Сборка и загрузка registry bundles
 └── test_run_context.py            # Контекст выполнения и артефакты producer'а
 ```
@@ -69,6 +70,22 @@ core_phase0/
 - **Centralized Metadata**: Единое место для всех системных конфигураций
 - **Version Tracking**: Полная traceability версий registry компонентов
 - **Artifact-based Storage**: Registry данные immutable и versioned
+
+### Environment Manifest (`test_environment_manifest.py`)
+
+**Цель:** Захват и сравнение вычислительных окружений для обеспечения reproducibility.
+
+**Ключевые тесты:**
+- **Environment Capture**: Захват CPU/GPU/OS/Python/JAX информации без приватных данных
+- **Manifest Fingerprinting**: Детерминированные SHA256 fingerprints для environment comparison
+- **Compatibility Scoring**: Автоматическое определение compatibility между окружениями с risk levels
+- **Component Validation**: Валидация отдельных компонентов (CPU info, GPU info, OS info, etc.)
+
+**Принципы:**
+- **Deterministic Fingerprinting**: Стабильные хэши независимо от порядка компонентов
+- **Privacy Protection**: Исключение hostname, username и других приватных данных
+- **Risk-based Comparison**: Классификация различий по уровням риска (CRITICAL/HIGH/MEDIUM/LOW/INFO)
+- **Performance Bounds**: Быстрый capture (< 2 сек) для CI/CD интеграции
 
 ### Run Context (`test_run_context.py`)
 
@@ -136,6 +153,7 @@ pytest tests/core_phase0/test_run_context.py -v
 **Все модули системы** используют компоненты Core Phase 0:
 - **Artifact Store**: Фундаментальное хранилище для всех immutable артефактов
 - **Canonical JSON**: Стандартизированная сериализация для детерминированных хэшей
+- **Environment Manifest**: Захват и сравнение окружений для reproducibility и debugging
 - **Registry System**: Централизованное управление метаданными и конфигурациями
 - **Run Context**: Базовая инфраструктура для execution tracking и audit trails
 
@@ -186,6 +204,14 @@ pytest tests/core_phase0/test_canon_json.py::test_float_forbidden -v
 ```bash
 # Проверьте persistence всех компонентов
 pytest tests/core_phase0/test_registry_bundle.py -v
+```
+
+**Environment manifest capture issues:**
+```bash
+# Проверьте capture без приватных данных
+pytest tests/core_phase0/test_environment_manifest.py::TestCaptureEnvironment::test_capture_no_private_data -v
+# Проверьте fingerprint determinism
+pytest tests/core_phase0/test_environment_manifest.py::TestEnvironmentManifest::test_manifest_fingerprint_deterministic -v
 ```
 
 **Run context path resolution issues:**

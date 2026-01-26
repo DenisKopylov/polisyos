@@ -2,7 +2,7 @@
 
 **Policy Engine** — AI‑driven система проектирования, валидации, калибровки и исполнения политик. Архитектурно это “компиляторная труба”: от запроса пользователя/LLM до формально типизированных контрактов (IR), далее — компиляция в исполняемые графы, выполнение в JAX‑ядре и фиксация результатов в воспроизводимых артефактах.
 
-**Состояние документа (актуально на 2026‑01‑21):** архитектура v2.1 (Fabric layer, Calibration MVP, Runtime API), присутствуют переходные зоны/устаревшие интерфейсы (см. раздел “Legacy и переходные зоны”).
+**Состояние документа (актуально на 2026‑01‑26):** архитектура v2.1.2 (Trinity Migration, Agent Protocols, Environment Manifest, Enhanced Monitoring), присутствуют переходные зоны/устаревшие интерфейсы (см. раздел “Legacy и переходные зоны”).
 
 ## Архитектурный обзор
 
@@ -35,6 +35,16 @@ Artifacts (CAS + Audit Trail + Evidence)
 8. **Artifact Persistence** → Runtime сохраняет все артефакты с provenance и audit trail
 
 **Архитектурная метафора**: Policy Engine - это "компилятор политик", где LLM выступает frontend компилятором, IR - промежуточным представлением, Foundry - оптимизирующим бэкендом, а Fabric - runtime системой данных.
+
+### Trinity архитектура IR
+
+Система IR реализует **Trinity архитектуру** - разделение на три независимых артефакта, каждый из которых отвечает за отдельный аспект моделирования политики:
+
+- **ProblemFrame ("Why")**: Определение проблемы, целей, KPI и ограничений (неизменен в рамках эксперимента)
+- **PolicySpec ("What")**: Спецификация политики, интервенций и параметров (итерируется при оптимизации)
+- **ModelSpec ("How")**: Конфигурация модели мира, агентов, данных и предположений (для sensitivity analysis)
+
+PolicySurfaceIR v2.x остается совместимым интерфейсом для обратной совместимости.
 
 ### Архитектурные законы (инварианты проекта)
 
@@ -171,6 +181,10 @@ common → (никого)                                      # фундаме�
 - **JupyterLab + Matplotlib + Seaborn + Plotly**: исследовательская визуализация и ноутбуки
 
 ### Новые компоненты (после крупных изменений)
+- **Trinity Architecture**: Разделение IR на ProblemFrame ("Why"), PolicySpec ("What"), ModelSpec ("How")
+- **Agent Protocols**: Стандартизированные интерфейсы для PI/Drafter/Formalizer/Critic агентов
+- **Environment Manifest**: Захват и сравнение вычислительных окружений для reproducibility
+- **Enhanced Monitoring**: Расширенная система мониторинга с метриками, трекингом экспериментов и визуализацией
 - **Fact Log System**: immutable факты с provenance tracking и детерминированные ID
 - **Evidence Bundles**: криптографически verifiable доказательства происхождения данных
 - **UDF Compilation Pipeline**: многофазная компиляция SQL/Cypher запросов с security passes
@@ -180,6 +194,8 @@ common → (никого)                                      # фундаме�
 - **Trust System**: многоуровневые политики доверия с statistical verification
 - **Calibration MVP**: полная система калибровки параметров с uncertainty quantification
 - **Runtime API**: жизненный цикл прогонов с переносимыми артефактами и audit trail
+- **Plugin System**: Модульная архитектура с capability-based plugin registry и composite executors
+- **Agent Simulation**: Пошаговая симуляция агентов с метриками, экспериментальным трекингом и визуализацией
 
 ### Подготовлено, но сейчас не задействовано в коде
 - **Diffrax**: ODE/SDE solver (для дифференциальных моделей)
@@ -317,8 +333,12 @@ policy-engine/
 │   │   ├── trace/                    # Распределенная система трассировки
 │   │   ├── run/                      # Контексты выполнения экспериментов
 │   │   └── registry/                 # Управление реестрами компонентов
-│   ├── ir/                           # Intermediate Representation (контракты)
-│   │   ├── surface.py                # PolicySurfaceIR v2.0 (основной контракт)
+│   ├── ir/                           # Intermediate Representation (Trinity контракты)
+│   │   ├── trinity.py                # Trinity артефакты: ProblemFrame, PolicySpec, ModelSpec
+│   │   ├── problem_frame.py          # ProblemFrame: определение проблемы и целей
+│   │   ├── policy_spec.py            # PolicySpec: спецификация политики и интервенций
+│   │   ├── model_spec.py             # ModelSpec: конфигурация модели мира
+│   │   ├── surface.py                # PolicySurfaceIR v2.0 (совместимый интерфейс)
 │   │   ├── kernel/                   # Фундаментальные реестры (механизмы, слоты, units)
 │   │   ├── data_views.py             # Запросы данных (PANEL/SNAPSHOT/NETWORK)
 │   │   ├── linker.py                 # Валидация и линковка политик
@@ -342,7 +362,7 @@ policy-engine/
 │   │   ├── agent_sim/                # Агентная симуляция с нейронными сетями
 │   │   └── plugins/                  # Plugin system для расширения доменов
 │   ├── scientist/                    # AI оркестрация экспериментов
-│   │   ├── agent/                    # LLM агенты (Drafter, MockAgent)
+│   │   ├── agent/                    # LLM агенты и протоколы (PI, Drafter, Formalizer, Critic)
 │   │   ├── kernel/                   # FSM, бюджеты, guards, human gates
 │   │   ├── compute/                  # Спецификации задач и execution backends
 │   │   ├── doe/                      # Design of Experiments (ScenarioSweep, AblationPlan)
@@ -449,6 +469,7 @@ RunManifest + seed + artifacts → Full reproducibility
 **Архитектурная роль**: Фундаментальный слой контрактов данных, обеспечивающий единообразие коммуникации между всеми компонентами системы. IR определяет канонические структуры для политик, данных и симуляций, обеспечивая type safety и валидацию на всех уровнях.
 
 **Ключевые компоненты:**
+- **Trinity артефакты**: ProblemFrame ("Why"), PolicySpec ("What"), ModelSpec ("How") - разделение ответственности
 - **Surface IR v2.0**: Разделение на semantic (исполняемая логика) и advisory (человекочитаемые метаданные) части
 - **Kernel Registry**: Фундаментальные реестры типов (механизмы, слоты, merge rules, units, trust policies)
 - **Data Views**: Структурированные запросы к данным симуляции (PANEL/SNAPSHOT/NETWORK с access tiers)
@@ -592,14 +613,15 @@ Policy Engine строго следует **Закону A** (направлен
 - **Scientist**: Зависит от `core.registry` (реестры), `core.artifacts` (хранение результатов)
 - **Runtime**: Интегрируется с `core.artifacts` через CAS, использует `core.trace` для логирования
 
-#### IR Layer - контракты и типы данных
+#### IR Layer - Trinity контракты и типы данных
 
-**IR** определяет канонические структуры данных, используемые всеми модулями:
+**IR** определяет Trinity артефакты и канонические структуры данных, используемые всеми модулями:
 
-- **Fabric**: `ir.data_views` (DataViewRequest, DataViewType), `ir.fact_log` (Fact, FactBatch)
-- **Foundry**: `ir.surface` (PolicySurfaceIR), `ir.kernel` (механизмы, слоты, merge rules)
-- **Scientist**: `ir.contract` (PolicyIR), `ir.loaders` (универсальная загрузка), `ir.calibration` (CalibrationConfig)
-- **Runtime**: `ir.types` (TranslatableString, EntityType) для метаданных
+- **Trinity Architecture**: ProblemFrame ("Why"), PolicySpec ("What"), ModelSpec ("How") - разделение ответственности
+- **Fabric**: `ir.data_views` (DataViewRequest, DataViewType), `ir.fact_log` (Fact, FactBatch), `ir.trinity` (Trinity артефакты)
+- **Foundry**: `ir.surface` (PolicySurfaceIR), `ir.kernel` (механизмы, слоты, merge rules), `ir.trinity` (ModelSpec для конфигурации)
+- **Scientist**: `ir.trinity` (ProblemFrame для декомпозиции, PolicySpec для генерации), `ir.loaders` (универсальная загрузка), `ir.calibration` (CalibrationConfig)
+- **Runtime**: `ir.types` (TranslatableString, EntityType) для метаданных, `ir.trinity` (артефакты экспериментов)
 
 #### Fabric Layer - данные и evidence
 
@@ -609,12 +631,14 @@ Policy Engine строго следует **Закону A** (направлен
 - **Foundry**: Косвенная зависимость через scientist (данные для симуляций)
 - **Runtime**: Косвенная интеграция через логирование результатов UDF запросов
 
-#### Foundry Layer - математическое ядро
+#### Foundry Layer - математическое ядро и симуляции
 
-**Foundry** реализует execution engine, изолированный от data layer:
+**Foundry** реализует execution engine, изолированный от data layer согласно **Закону B**:
 
-- **Scientist**: `foundry.compiler` (compile_surface_policy), `foundry.executor` (execute_program_graph)
-- **Runtime**: Косвенная интеграция через логирование результатов симуляций
+- **Scientist**: `foundry.compiler` (compile_surface_policy), `foundry.executor` (execute_program_graph), `foundry.calibration` (параметр optimization), `foundry.agent_sim` (моделирование агентов)
+- **Runtime**: Косвенная интеграция через логирование результатов симуляций и калибровки
+- **Core**: `core.contracts.foundry` (ProgramGraph, ExecPlan, StateDelta), `core.artifacts` (хранение скомпилированных артефактов)
+- **IR**: `ir.kernel` (реестры механизмов, слотов, merge rules), `ir.calibration` (контракты калибровки), `ir.trinity` (ModelSpec)
 
 #### Scientist Layer - оркестрация
 
@@ -642,14 +666,16 @@ Policy Engine строго следует **Закону A** (направлен
 - **IR**: `common.migrations` (система миграций схем)
 - **Runtime**: Косвенная зависимость через другие модули
 
-### Поток данных в компиляторной трубе
+### Поток данных в компиляторной трубе (с Trinity архитектурой)
 
 ```
-User Request → Scientist.orchestrator → IR.loaders → Fabric.udf → Foundry.compiler → Foundry.runtime → Runtime.api → Artifacts
+User Request → Scientist.orchestrator → IR.trinity → Fabric.udf → Foundry.compiler → Foundry.calibration → Runtime.api → Artifacts
      ↓              ↓                      ↓            ↓             ↓                ↓              ↓
-   MockAgent    ExperimentState       PolicyIR   DataViewRequest  ProgramGraph    ExecResult    RunManifest
+   MockAgent    ExperimentState       ProblemFrame   DataViewRequest  ProgramGraph    ExecResult    RunManifest
      ↓              ↓                      ↓            ↓             ↓                ↓              ↓
-   LLM API      LangGraph Workflow   Validation   UDF Result     StateDelta     Metrics       Audit Trail
+   LLM API      LangGraph Workflow   PolicySpec     UDF Result     StateDelta     Metrics       Audit Trail
+     ↓              ↓                      ↓            ↓             ↓                ↓              ↓
+   Agent Protocols Trinity Migration ModelSpec    Evidence Bundle Uncertainty Bounds  DecisionPacket
 ```
 
 ### Архитектурные гарантии
@@ -730,11 +756,16 @@ pytest tests/integration/ -v
 
 ### 🏗️ Архитектурная эволюция
 
+- **Trinity Architecture**: Разделение IR на ProblemFrame ("Why"), PolicySpec ("What"), ModelSpec ("How")
+- **Agent Protocols**: Стандартизированные интерфейсы для PI/Drafter/Formalizer/Critic агентов с runtime поведением
+- **Environment Manifest**: Захват и сравнение вычислительных окружений с compatibility scoring
+- **Enhanced Monitoring**: Метрики, трекинг экспериментов и визуализация для agent simulation
 - **Runtime модуль**: Полное управление жизненным циклом прогонов с аудитом и артефактами
 - **Fact Log система**: Immutable факты с provenance tracking и evidence bundles
 - **UDF Compilation Pipeline**: Безопасная компиляция SQL/Cypher запросов с whitelist
 - **Patch-based Execution**: Декларативные изменения состояния вместо прямых модификаций
 - **Treasury System**: Детерминированное управление RNG для воспроизводимости
+- **Plugin System**: Модульная архитектура с capability-based registry и composite executors
 
 ### 📊 Расширенная система данных
 
@@ -755,12 +786,14 @@ pytest tests/integration/ -v
 
 ### 🔬 Продвинутое симуляционное ядро
 
+- **Agent Simulation**: Пошаговая симуляция гетерогенных агентов с ML моделями, социальными связями и демографией
 - **Program Graph Compilation**: Топологическая сортировка и execution plans с registry-driven линковкой
 - **Patch-based Execution**: UpdateOp и Merge Rules (SUM/OVERRIDE/PRIORITY/ERROR) для state management
 - **Multi-fidelity Mechanisms**: Fluid/relaxed/hard уровни точности с fidelity control
 - **Calibration MVP**: Полная система калибровки параметров с uncertainty quantification через Hessian
 - **Constraints Engine**: Runtime валидация ограничений с enforcement
 - **Treasury System**: Детерминированное управление RNG для reproducible симуляций
+- **Plugin Architecture**: Composite executors и capability-based plugin registry для расширения доменов
 
 ### 🛡️ Governance & Compliance
 
@@ -853,16 +886,16 @@ python tools/diagnostics/generate_ir_schema.py
 - **[`src/polisyos/core/README.md`](src/polisyos/core/README.md)**: Content-Addressable Storage (CAS), каноническая JSON сериализация, типизированные контракты межмодульного взаимодействия, распределенная трассировка, контексты выполнения, управление реестрами компонентов
 
 ### 📋 Intermediate Representation (Промежуточное представление)
-- **[`src/polisyos/ir/README.md`](src/polisyos/ir/README.md)**: PolicySurfaceIR v2.0 (semantic/advisory), kernel-реестры (механизмы, слоты, merge rules, units), линкер политик, загрузчики с автораспознаванием версий, Fact Log контракты, калибровка параметров
+- **[`src/polisyos/ir/README.md`](src/polisyos/ir/README.md)**: Trinity архитектура (ProblemFrame/PolicySpec/ModelSpec), PolicySurfaceIR v2.0 (semantic/advisory), kernel-реестры (механизмы, слоты, merge rules, units, trust policies), линкер политик, загрузчики с автораспознаванием версий, Fact Log контракты, калибровка параметров
 
 ### 🏗️ Unified Data Fabric (Единая система данных)
 - **[`src/polisyos/fabric/README.md`](src/polisyos/fabric/README.md)**: ETL pipeline (CSV → DuckDB + Kùzu), UDF compilation с security passes, Fact Log система, evidence bundles, entity resolution, materializer engine, trust policies с statistical verification
 
 ### ⚡ JAX Simulation Core (Математическое ядро)
-- **[`src/polisyos/foundry/README.md`](src/polisyos/foundry/README.md)**: Компиляция IR в ProgramGraph, patch-based execution, multi-fidelity механизмы, calibration через Optax, constraints engine, treasury RNG, агентная симуляция с reinforcement learning
+- **[`src/polisyos/foundry/README.md`](src/polisyos/foundry/README.md)**: Агентная симуляция с ML, plugin система, компиляция IR в ProgramGraph, patch-based execution, multi-fidelity механизмы, calibration через Optax с uncertainty quantification, constraints engine, treasury RNG
 
 ### 🤖 AI Policy Scientist (Интеллектуальная оркестрация)
-- **[`src/polisyos/scientist/README.md`](src/polisyos/scientist/README.md)**: LangGraph workflow с 9 фазами, FSM orchestration, budget controls, human gates, Design of Experiments, DecisionPacket с evidence и uncertainty quantification
+- **[`src/polisyos/scientist/README.md`](src/polisyos/scientist/README.md)**: Agent protocols (PI/Drafter/Formalizer/Critic), LangGraph workflow с 9 фазами, FSM orchestration, budget controls, human gates, Design of Experiments, DecisionPacket с evidence и uncertainty quantification
 
 ### 🔄 Runtime & Lifecycle (Управление жизненным циклом)
 - **[`src/polisyos/runtime/README.md`](src/polisyos/runtime/README.md)**: RunManifest API, audit trail в JSON Lines, artifact logging с переносимыми путями, budget tracking, lifecycle management экспериментов

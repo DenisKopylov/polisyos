@@ -27,6 +27,10 @@ tools/
 │   │   # - Загрузка в DuckDB (аналитическое хранилище)
 │   │   # - Загрузка в Kuzu (графовая БД взаимодействий)
 │   │   # - Генерация manifests для reproducible runs
+│   ├── run_laffer_demo.py      # Демонстрация кривой Лаффера
+│   │   # - Классическая кривая Лаффера (налоговые доходы)
+│   │   # - Поиск оптимальной налоговой ставки
+│   │   # - Экономическая теория в действии
 │   ├── run_optimizer_demo.py   # Многокритериальная оптимизация политик (NSGA-II)
 │   │   # - Настройка целевых функций (GDP, inequality, unemployment)
 │   │   # - PyMOO NSGA-II оптимизация
@@ -54,6 +58,10 @@ tools/
 │       # - Автоматическая генерация схем из Pydantic моделей
 │       # - Валидация структур данных IR
 │       # - Совместимость версий и детерминированность
+├── capture_env.py              # Захват и сравнение EnvironmentManifest
+│   # - Снимок окружения для воспроизводимости
+│   # - Сравнение двух окружений с оценкой риска
+│   # - Валидация манифестов
 ├── gen_schema.py               # Генератор JSON Schema из Pydantic моделей
 │   # - Генерация и валидация JSON Schema по Закону C
 │   # - Работа с PolicySurfaceIR и всеми IR моделями
@@ -74,6 +82,10 @@ tools/
 │   # - Детерминированные миграции между версиями IR
 │   # - Безопасные обновления с откатом
 │   # - Валидация структуры после миграции
+├── migrate_to_trinity.py       # Миграция в Trinity формат
+│   # - Конвертация PolicySurfaceIR в Trinity bundle
+│   # - Разделение на ProblemFrame, PolicySpec, ModelSpec
+│   # - Batch обработка и верификация
 └── run_mechanism_design.py     # End-to-end демонстрация механизма дизайна
     # - Дифференцируемая оптимизация политик через JAX grad
     # - Обучение агентных политик с reinforcement learning
@@ -93,6 +105,9 @@ python tools/diagnostics/check_setup.py
 # Линтинг архитектуры
 python tools/lint_imports.py
 python tools/lint_foundry.py
+
+# Снимок окружения
+python -m tools.capture_env capture --output env.json
 
 # Генерация схем
 python tools/gen_schema.py --check
@@ -206,6 +221,46 @@ python tools/gen_schema.py --check --output policy_ir_schema.json 2>&1 | head -2
 - Детерминированность генерации схемы
 - Совпадение с зафиксированным snapshot
 
+## Захват окружения
+
+### capture_env.py - Захват и сравнение Environment Manifest
+
+Инструмент для захвата, сравнения и валидации Environment Manifest согласно **Закону D** ("Воспроизводимость и аудит"). Позволяет отслеживать изменения в окружении и оценивать риски несовместимости.
+
+**Функциональность:**
+- **Захват окружения:** Полный snapshot системного окружения (Python, JAX, OS, hardware)
+- **Сравнение окружений:** Детальное сравнение двух манифестов с оценкой рисков
+- **Валидация:** Проверка корректности структуры манифеста
+- **Риск-оценка:** Автоматическая классификация изменений по уровню риска
+
+**Режимы работы:**
+
+```bash
+# Захват текущего окружения
+python -m tools.capture_env capture --output env.json
+
+# Сравнение двух окружений
+python -m tools.capture_env compare baseline.json current.json
+
+# Валидация манифеста
+python -m tools.capture_env validate env.json
+```
+
+**Что захватывается:**
+- Версии Python, pip, системных библиотек
+- JAX конфигурация (платформа, устройства, версии)
+- Операционная система и архитектура
+- Аппаратные характеристики (CPU, память, GPU)
+- Переменные окружения (отфильтрованные)
+- Установленные пакеты Python
+
+**Уровни риска:**
+- **CRITICAL:** Изменения, гарантированно ломающие совместимость
+- **HIGH:** Высокий риск несовместимости
+- **MEDIUM:** Возможные проблемы совместимости
+- **LOW:** Минорные изменения
+- **INFO:** Информационные изменения
+
 ## Миграции
 
 ### migrate_ir.py - Миграция Policy IR артефактов
@@ -253,6 +308,37 @@ python tools/migrate.py policy_ir old_ir.json new_ir.json --to v3.0.0
 # С поддержкой YAML
 python tools/migrate.py policy_ir policy.yml migrated_policy.json --to v2.5.0
 ```
+
+### migrate_to_trinity.py - Миграция в Trinity формат
+
+Специализированный инструмент для миграции PolicySurfaceIR в новый Trinity формат согласно **Закону C**. Trinity разделяет монолитный PolicySurfaceIR на три независимых компонента: ProblemFrame, PolicySpec и ModelSpec.
+
+**Trinity формат:**
+- **ProblemFrame:** "Что" - определение проблемы и критерии успеха
+- **PolicySpec:** "Как" - спецификация политик и интервенций
+- **ModelSpec:** "С чем" - модельные предположения и данные
+
+**Возможности:**
+- Batch миграция директорий с политиками
+- Верификация через round-trip сравнение семантических отпечатков
+- Создание резервных копий перед миграцией
+- Детальная отчетность о процессе миграции
+
+```bash
+# Dry-run миграция директории
+python tools/migrate_to_trinity.py data/policies/ --dry-run
+
+# Миграция с резервным копированием и верификацией
+python tools/migrate_to_trinity.py data/policies/ --backup --verify
+
+# Миграция одиночного файла
+python tools/migrate_to_trinity.py policy.yaml --output trinity_policy.yaml
+```
+
+**Верификация миграции:**
+- Семантическое сравнение отпечатков (fingerprint matching)
+- Проверка структурной целостности Trinity bundle
+- Валидация обратной совместимости (merge back to SurfaceIR)
 
 ## Диагностика
 
@@ -440,6 +526,32 @@ python tools/demos/run_optimizer_demo.py
 # 5. Визуализация результатов
 ```
 
+### run_laffer_demo.py - Кривая Лаффера
+
+Демонстрация классической экономической кривой Лаффера - зависимости налоговых доходов от ставки налога. Показывает, как поведенческая экономика и теория рационального выбора объясняют нелинейные эффекты налоговой политики.
+
+**Экономическая модель:**
+- **Агенты:** 10,000 агентов с гетерогенными доходами и aversion к риску
+- **Поведение:** Агенты могут скрывать доходы, балансируя между налогами и риском обнаружения
+- **Обучение:** Дифференцируемая оптимизация через JAX градиенты
+
+**Что демонстрируется:**
+- Нелинейная зависимость доходов от налоговой ставки
+- Поведенческая реакция агентов на налоговую политику
+- Поиск оптимальной ставки через градиентный спуск
+- Влияние параметров модели на форму кривой
+
+```bash
+# Запуск демонстрации кривой Лаффера
+python tools/demos/run_laffer_demo.py
+
+# Вывод:
+# - Таблица налоговых ставок и соответствующих доходов
+# - График кривой Лаффера с пиком доходов
+# - Корреляция между риск-aversion и compliance
+# - Оптимальная ставка налога (~30-55%)
+```
+
 ### run_udf_hybrid_demo.py - Гибридные UDF
 
 Продвинутая демонстрация комбинации SQL запросов и Python функций.
@@ -519,17 +631,20 @@ python tools/run_mechanism_design.py
 | `run_udf_*_demo.py` | `fabric.udf.*`, `ir.data_views` | Гибридные SQL + Python запросы | - |
 | `run_optimizer_demo.py` | `scientist.*` | Многокритериальная оптимизация | - |
 | `run_export_demo.py` | `core.*`, `fabric.*` | Экспорт симуляционных данных | - |
+| `run_laffer_demo.py` | `foundry.*` | Экономическая теория (кривая Лаффера) | - |
 | `run_mechanism_design.py` | `foundry.*`, `core.artifacts` | Дифференцируемый механизм дизайна | B (компиляторная архитектура) |
+| `capture_env.py` | `core.artifacts.environment` | Закон D (воспроизводимость окружения) | D (воспроизводимость) |
+| `migrate_to_trinity.py` | `ir.trinity`, `ir.migrations.trinity_migration` | Закон C (Trinity формат миграции) | C (контракты) |
 
 ### Детальные архитектурные связи
 
 **Модули проекта и их роли:**
 
-- **`core`**: Фундаментальные утилиты (артефакты, контракты, registry, trace)
-- **`ir`**: Intermediate Representation (контракты, data views, калибровка, типы)
+- **`core`**: Фундаментальные утилиты (артефакты, контракты, registry, trace, environment manifests)
+- **`ir`**: Intermediate Representation (контракты, data views, калибровка, типы, Trinity формат)
 - **`fabric`**: Unified Data Fabric (ingestion, DB, graph store, UDF engine)
-- **`foundry`**: Математическое ядро (JAX симуляции, доменная модель, engine)
-- **`scientist`**: AI/ML оркестрация (оптимизация, DOE, governance)
+- **`foundry`**: Математическое ядро (JAX симуляции, доменная модель, engine, merge engine)
+- **`scientist`**: AI/ML оркестрация (оптимизация, DOE, governance, агенты: critic, drafter, formalizer, pi)
 - **`runtime`**: Исполнение (API, manifests)
 - **`common`**: Общие утилиты (config, logger, migrations)
 
@@ -847,7 +962,7 @@ POLICY_ENGINE_LOG_LEVEL=DEBUG python tools/diagnostics/check_setup.py
 
 ## Архитектурная актуальность
 
-Данная документация отражает текущее состояние Policy Engine на **2026-01-15** и соответствует принципам, описанным в `architecture.md`.
+Данная документация отражает текущее состояние Policy Engine на **2026-01-26** и соответствует принципам, описанным в `architecture.md`.
 
 ### Ключевые архитектурные достижения
 
@@ -868,4 +983,4 @@ POLICY_ENGINE_LOG_LEVEL=DEBUG python tools/diagnostics/check_setup.py
 
 ---
 
-*Инструменты протестированы на Python 3.11+ с JAX 0.4.x, DuckDB, Kuzu и полным технологическим стеком Policy Engine. Документация обновлена для отражения актуального состояния на 2026-01-24.*
+*Инструменты протестированы на Python 3.11+ с JAX 0.4.x, DuckDB, Kuzu и полным технологическим стеком Policy Engine. Документация обновлена для отражения актуального состояния на 2026-01-26.*

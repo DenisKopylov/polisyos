@@ -1,20 +1,35 @@
-# polisyos/agent/drafter.py
+"""
+Drafter Agent Module
+====================
+
+LLM-based policy draft generation with protocol conformance.
+"""
+
+from __future__ import annotations
+
+import hashlib
 import json
+import uuid
+from datetime import datetime
+from typing import Any
 
 from polisyos.ir.surface import PolicySurfaceIR
 from polisyos.scientist.agent.prompts import get_system_prompt
+from polisyos.scientist.agent.protocols import (
+    CritiqueReport,
+    DrafterAgent,
+    DraftResult,
+    ProblemFrame,
+)
 from polisyos.scientist.orchestrator.audit import append_audit
 from polisyos.scientist.orchestrator.state import ExperimentState
 
 
-# --- Fake LLM for Testing (чтобы не требовать API Key) ---
 class MockLLM:
     def invoke(self, prompt: str) -> str:
         """Эмулирует ответ GPT-4, возвращая валидный JSON."""
         print(f"   [MockLLM] 'Thinking' about: {prompt[:50]}...")
 
-        # Возвращаем заранее заготовленный JSON, который решает задачу "уменьшить бедность"
-        # В реальности здесь будет вызов OpenAI / Anthropic
         return """
         {
           "schema_version": "2.0",
@@ -76,6 +91,217 @@ class MockLLM:
         """
 
 
+class MockDrafterAgent:
+    """Mock implementation of DrafterAgent for testing."""
+
+    def __init__(self) -> None:
+        self._draft_count: int = 0
+        self._refine_count: int = 0
+
+    async def draft_policy(
+        self,
+        problem_frame: ProblemFrame,
+        *,
+        hints: list[str] | None = None,
+        prior_drafts: list[DraftResult] | None = None,
+    ) -> DraftResult:
+        if not problem_frame.frame_id:
+            raise ValueError("ProblemFrame must have a valid frame_id")
+
+        self._draft_count += 1
+
+        base_hash = hashlib.sha256(problem_frame.frame_id.encode()).hexdigest()[:8]
+        draft_id = f"draft_{base_hash}_{self._draft_count}"
+
+        interventions = self._generate_interventions(problem_frame)
+        narrative = self._build_narrative(problem_frame, hints)
+        rationale = self._build_rationale(problem_frame, prior_drafts)
+
+        confidence = 0.7
+        if hints:
+            confidence += 0.1
+        if prior_drafts:
+            confidence += 0.05 * min(len(prior_drafts), 3)
+
+        return DraftResult(
+            draft_id=draft_id,
+            problem_frame_ref=problem_frame.frame_id,
+            narrative=narrative,
+            interventions=interventions,
+            rationale=rationale,
+            domain_references=self._get_domain_references(problem_frame.domain),
+            confidence=min(0.95, confidence),
+            alternatives_considered=self._get_alternatives(problem_frame),
+            raw_llm_response=None,
+            created_at=datetime.utcnow(),
+        )
+
+    def _generate_interventions(self, problem_frame: ProblemFrame) -> list[dict[str, Any]]:
+        domain = problem_frame.domain.lower()
+
+        if domain == "economic":
+            return [
+                {
+                    "kind": "tax_subsidy",
+                    "description": "Targeted subsidy for low-income groups",
+                    "target": {
+                        "kind": "predicate",
+                        "field": "income",
+                        "operator": "<",
+                        "value": "1000",
+                    },
+                    "params": {"rate": "0.15"},
+                },
+                {
+                    "kind": "income_tax",
+                    "description": "Progressive taxation on high earners",
+                    "target": {
+                        "kind": "predicate",
+                        "field": "income",
+                        "operator": ">",
+                        "value": "5000",
+                    },
+                    "params": {"rate": "0.25"},
+                },
+            ]
+        if domain == "healthcare":
+            return [
+                {
+                    "kind": "healthcare_subsidy",
+                    "description": "Subsidized healthcare for vulnerable populations",
+                    "target": {
+                        "kind": "predicate",
+                        "field": "health_coverage",
+                        "operator": "==",
+                        "value": "false",
+                    },
+                    "params": {"coverage_rate": "0.8"},
+                }
+            ]
+
+        return [
+            {
+                "kind": "general_intervention",
+                "description": "General policy intervention",
+                "target": {
+                    "kind": "predicate",
+                    "field": "id",
+                    "operator": "==",
+                    "value": "all",
+                },
+                "params": {"rate": "0.1"},
+            }
+        ]
+
+    def _build_narrative(self, problem_frame: ProblemFrame, hints: list[str] | None) -> str:
+        parts = [
+            f"Policy proposal to address: {problem_frame.problem_statement}",
+            "",
+            f"Domain: {problem_frame.domain}",
+            f"Target actors: {', '.join(problem_frame.actors)}",
+            "",
+            "Proposed approach:",
+            "This policy employs a multi-pronged strategy combining targeted interventions",
+            "with careful consideration of the stated constraints.",
+        ]
+
+        if hints:
+            parts.extend(
+                [
+                    "",
+                    "Incorporating feedback from previous review:",
+                    *[f"- {hint}" for hint in hints[:3]],
+                ]
+            )
+
+        return "\n".join(parts)
+
+    def _build_rationale(
+        self,
+        problem_frame: ProblemFrame,
+        prior_drafts: list[DraftResult] | None,
+    ) -> str:
+        rationale_parts = [
+            f"This approach was chosen to directly address the core problem: {problem_frame.problem_statement[:100]}",
+        ]
+
+        if prior_drafts:
+            rationale_parts.append(
+                f"Building on {len(prior_drafts)} prior draft(s), this iteration incorporates lessons learned."
+            )
+
+        rationale_parts.append(
+            "The interventions are designed to work within the stated constraints while maximizing impact."
+        )
+
+        return " ".join(rationale_parts)
+
+    def _get_domain_references(self, domain: str) -> list[str]:
+        refs = {
+            "economic": [
+                "Piketty, T. (2014). Capital in the Twenty-First Century",
+                "Banerjee & Duflo (2011). Poor Economics",
+            ],
+            "healthcare": [
+                "WHO (2010). Health Systems Financing",
+                "Hsiao, W. (2007). Why Is A Systemic View Of Health Financing Necessary?",
+            ],
+            "education": [
+                "Heckman, J. (2006). Skill Formation and the Economics of Investing in Disadvantaged Children",
+            ],
+        }
+        return refs.get(domain.lower(), ["General policy literature"])
+
+    def _get_alternatives(self, problem_frame: ProblemFrame) -> list[str]:
+        return [
+            "Direct cash transfers (rejected: higher administrative overhead)",
+            "Universal programs (rejected: less targeted, higher cost)",
+            "Market-based solutions (rejected: may not reach most vulnerable)",
+        ]
+
+    async def refine_draft(
+        self,
+        draft: DraftResult,
+        critique: CritiqueReport,
+    ) -> DraftResult:
+        if not draft.draft_id:
+            raise ValueError("Draft must have a valid draft_id")
+
+        self._refine_count += 1
+
+        hints = [critique.reflexion_hint] if critique.reflexion_hint else []
+        for issue in critique.issues[:3]:
+            if issue.suggestion:
+                hints.append(f"Addressing: {issue.suggestion}")
+
+        refined_narrative = draft.narrative + "\n\n[REFINED]\n" + "\n".join(hints)
+
+        return DraftResult(
+            draft_id=f"{draft.draft_id}_refined_{self._refine_count}",
+            problem_frame_ref=draft.problem_frame_ref,
+            narrative=refined_narrative,
+            interventions=draft.interventions,
+            rationale=f"{draft.rationale} [Refined based on critique]",
+            domain_references=draft.domain_references,
+            confidence=min(0.95, draft.confidence + 0.05),
+            alternatives_considered=draft.alternatives_considered,
+            raw_llm_response=None,
+            created_at=datetime.utcnow(),
+        )
+
+    @property
+    def draft_count(self) -> int:
+        return self._draft_count
+
+    @property
+    def refine_count(self) -> int:
+        return self._refine_count
+
+    def reset(self) -> None:
+        self._draft_count = 0
+        self._refine_count = 0
+
+
 def drafter_node(state: ExperimentState) -> ExperimentState:
     """Узел Drafter: User Request -> Policy IR JSON."""
     user_request = state.get("user_request")
@@ -101,22 +327,17 @@ def drafter_node(state: ExperimentState) -> ExperimentState:
         prior_issues = prior_feedback.get("issues", [])
         state = {**state, "revision_count": (state.get("revision_count") or 0) + 1}
 
-    # 1. Готовим промпт
     system_prompt = get_system_prompt()
     user_prompt = f"USER REQUEST: {user_request}"
     full_prompt = f"{system_prompt}\n\n{user_prompt}"
 
-    # 2. Вызываем LLM (здесь можно заменить MockLLM на ChatOpenAI)
     llm = MockLLM()
     response_text = llm.invoke(full_prompt)
 
-    # 3. Парсим и валидируем через Pydantic
     try:
-        # Очистка от markdown если есть
         clean_json = response_text.strip().replace("```json", "").replace("```", "")
         data = json.loads(clean_json)
 
-        # Pydantic валидация (самый важный шаг!)
         ir = PolicySurfaceIR(**data)
         print("   [Drafter] ✅ Generated valid IR.")
         after_json = json.dumps(data, sort_keys=True)
@@ -164,3 +385,12 @@ def drafter_node(state: ExperimentState) -> ExperimentState:
         )
         print(f"   [Drafter] ❌ Failed to generate valid IR: {e}")
         return new_state
+
+
+def _verify_protocol() -> None:
+    agent = MockDrafterAgent()
+    if not isinstance(agent, DrafterAgent):
+        raise TypeError("MockDrafterAgent does not implement DrafterAgent protocol")
+
+
+_verify_protocol()

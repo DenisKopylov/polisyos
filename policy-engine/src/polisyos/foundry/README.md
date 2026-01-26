@@ -110,90 +110,126 @@ Agent simulation позволяет моделировать:
 
 ## Архитектура
 
-Foundry состоит из семи основных слоев:
+Foundry состоит из следующих основных слоев (актуально на 2026-01-26):
 
-### 1. Compiler Layer (Компилятор)
+### 1. Core Layer (Ядро)
 ```
-compiler.py          # Компиляция политик в ProgramGraph
-layout.py            # Slot layout для state management
-treasury.py          # Deterministic RNG management
+__init__.py         # Пустой инициализатор
+base.py             # Абстрактный класс Mechanism и ComplexMechanism
+types.py            # FidelityLevel enum (уровни точности)
+utils.py            # Дифференцируемые утилиты (soft_step, soft_clamp, gradient_health)
+loss.py             # Функции потерь для оптимизации политик
+agent_metrics.py    # Метрики для анализа агентов
 ```
 
-### 2. Runtime Layer (Исполнение)
+### 2. Compiler Layer (Компилятор)
 ```
-patch_vm.py          # Patch-based виртуальная машина и merge rules
-runtime.py           # Чистые JAX функции для исполнения (step, run_scan, execute_program_batch)
-executor.py          # Исполнение программ с constraints и state management
+compiler.py         # Компиляция политик в ProgramGraph
+layout.py           # Slot layout для state management
+treasury.py         # Deterministic RNG management
+```
+
+### 3. Runtime Layer (Исполнение)
+```
+patch_vm.py         # Patch-based виртуальная машина и merge rules
+runtime.py          # Чистые JAX функции для исполнения (step, run_scan, execute_program_batch)
+executor.py         # Исполнение программ с constraints и state management
 constraints_engine.py # Движок ограничений и валидации
-trace.py             # Система трассировки исполнения
+trace.py            # Система трассировки исполнения
+merge_engine.py     # Движок для слияния патчей и состояний
 ```
 
-### 3. Domain Layer (Модель предметной области)
+### 4. Domain Layer (Модель предметной области)
 ```
 domain/
-├── state.py         # GlobalState, AgentState, FirmState, MarketState
-└── schema.py        # Pydantic схемы конфигурации
-```
-
-### 4. Agent Simulation Layer (Симуляция агентов)
-```
-agent_sim/
-├── state.py         # Расширенные состояния агентов с демографией и поведением
-├── population.py    # Управление популяцией (рождение, смерть, миграция)
-├── mechanisms/      # Демографические и социальные механизмы
-├── actor_critic.py  # Actor-Critic архитектуры для RL
-├── rl.py            # PPO и другие алгоритмы обучения
-├── graphs.py        # Графовые структуры социальных связей
-├── distributions.py # Метрики неравенства (Gini, Palma ratio)
-├── evolution.py     # Эволюционные алгоритмы (CMA-ES)
-├── training.py      # JIT-компиляция обучения
-├── analysis.py      # Анализ поведения агентов
-├── dashboard.py     # Визуализация результатов
-└── visualization.py # Графики и метрики обучения
+├── __init__.py     # Инициализатор домена
+├── state.py        # GlobalState, AgentState, FirmState, MarketState
+└── schema.py       # Pydantic схемы конфигурации
 ```
 
 ### 5. Mechanism Layer (Механизмы)
 ```
-base.py             # Абстрактный класс Mechanism и ComplexMechanism
-types.py            # FidelityLevel enum (уровни точности)
 agents.py           # Адаптивные агенты с нейронными сетями (AdaptiveAgentMechanism)
+base.py             # Абстрактный класс Mechanism и ComplexMechanism
 fiscal.py           # Налоговые механизмы (IncomeTax, TaxSubsidy)
 labor.py            # Механизм рынка труда (LaborMarketMechanism)
 queue.py            # Механизм очередей с multi-fidelity (QueueMechanism)
-specs.py            # Спецификации механизмов с валидацией
 registry.py         # Регистрация и фабрика механизмов
+specs.py            # Спецификации механизмов с валидацией
 ```
 
-### 6. Calibration Layer (Калибровка моделей)
+### 6. Agent Simulation Layer (Симуляция агентов)
+```
+agent_sim/          # Комплексная симуляция агентов с ML
+├── __init__.py
+├── actor_critic.py # Actor-Critic архитектуры для RL
+├── analysis.py     # Анализ поведения агентов
+├── credit_assignment.py # Назначение кредитов в обучении
+├── dashboard.py    # Дашборд для мониторинга
+├── demographics.py # Демографические метрики
+├── distribution_executor.py # Исполнение распределений
+├── distribution_mechanisms.py # Механизмы распределения
+├── distributions.py # Метрики неравенства (Gini, Palma ratio)
+├── evolution.py    # Эволюционные алгоритмы (CMA-ES)
+├── executor.py     # Исполнитель для симуляции агентов
+├── experiment.py   # Настройка экспериментов
+├── government_policy.py # Политики правительства
+├── graph_executor.py # Исполнение на графах
+├── graph_mechanisms.py # Механизмы для графов
+├── graph_observations.py # Наблюдения на графах
+├── graphs.py       # Графовые структуры социальных связей
+├── jit_training.py # JIT-компиляция обучения
+├── mechanism.py    # Базовые механизмы симуляции
+├── mechanisms.py   # Специфические механизмы
+├── metrics.py      # Сбор метрик обучения
+├── modes.py        # Режимы обучения (bilevel, MPC)
+├── mpc.py          # Model Predictive Control
+├── policy.py       # Политики агентов
+├── population_executor.py # Исполнение для популяции
+├── population_mechanisms.py # Механизмы популяции
+├── population.py   # Управление популяцией
+├── prng.py         # Генерация псевдослучайных чисел
+├── README.md       # Документация симуляции агентов
+├── rewards.py      # Функции вознаграждения
+├── rl.py           # PPO и другие алгоритмы обучения
+├── state.py        # Расширенные состояния агентов
+├── temporal_executor.py # Временное исполнение
+├── temporal_mechanisms.py # Временные механизмы
+├── temporal.py     # Временные аспекты
+├── training.py     # Обучение моделей
+└── visualization.py # Визуализация результатов
+```
+
+### 7. Calibration Layer (Калибровка моделей)
 ```
 calibration/
-├── calibrator.py     # Основной класс Calibrator для оптимизации параметров
-├── pure_executor.py  # Чистый JAX executor для калибровки (без side effects)
-├── bijectors.py      # Биекции для ограничения параметров (sigmoid, softplus)
-├── loss.py           # Функции потерь (MSE, Huber, weighted loss)
-├── preflight.py      # Подготовка данных и конфигурации для калибровки
-└── report.py         # Отчёты калибровки (метрики качества, неопределённости)
+├── __init__.py     # Инициализатор калибровки
+├── bijectors.py    # Биекции для ограничения параметров (sigmoid, softplus)
+├── calibrator.py   # Основной класс Calibrator для оптимизации параметров
+├── loss.py         # Функции потерь (MSE, Huber, weighted loss)
+├── preflight.py    # Подготовка данных и конфигурации для калибровки
+├── pure_executor.py # Чистый JAX executor для калибровки (без side effects)
+├── README.md       # Документация калибровки
+└── report.py       # Отчёты калибровки (метрики качества, неопределённости)
 ```
 
-### 7. Plugins Layer (Плагины доменов)
+### 8. Plugins Layer (Плагины доменов)
 ```
 plugins/
-├── core.py           # Протоколы плагинов и реестр
-├── composite.py      # Мульти-доменные симуляции
-├── discovery.py      # Автообнаружение плагинов
-├── api.py            # High-level PolisySimulator API
-├── economics/        # Экономический домен
-│   ├── plugin.py     # EconomicsPlugin с механизмами
+├── __init__.py     # Инициализатор плагинов
+├── api.py          # High-level PolisySimulator API
+├── cli.py          # Command-line interface
+├── composite.py    # Мульти-доменные симуляции
+├── core.py         # Протоколы плагинов и реестр
+├── discovery.py    # Автообнаружение плагинов
+├── economics/      # Экономический домен
+│   ├── __init__.py
 │   ├── mechanisms.py # Экономические механизмы
 │   ├── objectives.py # Целевые функции (GDP, Gini, etc.)
-│   └── rewards.py    # Функции вознаграждения
-└── cli.py            # Command-line interface
-```
-
-### 8. Utils Layer (Утилиты)
-```
-loss.py             # Функции потерь для оптимизации политик
-utils.py            # Дифференцируемые утилиты (soft_step, soft_clamp, gradient_health)
+│   ├── plugin.py   # EconomicsPlugin с механизмами
+│   ├── rewards.py  # Функции вознаграждения
+│   └── state.py    # Состояние экономического домена
+└── README.md       # Документация плагинов
 ```
 
 ## Калибровка моделей (Calibration)
@@ -1253,20 +1289,23 @@ with jax.profiler.trace("/tmp/jax-trace"):
 - **`core/contracts`**: Foundry-specific типы (PatchOp, ProgramGraph, ExecPlan, etc.)
 - **`core/canon`**: Каноническая сериализация для артефактов
 - **`ir/calibration`**: Конфигурации и типы для калибровки моделей
+- **`ir/kernel`**: SlotRegistry, MergeRuleRegistry, MechanismTypeRegistry
+- **`ir/surface`**: PolicySurfaceIR для компиляции политик
+- **`core/artifacts/environment`**: Захват окружения для воспроизводимости
 
 ### Потребители Foundry
 
 - **`scientist/`**: Использует компилятор для создания execution plans и калибратор для оптимизации параметров
-- **`fabric/`**: Предоставляет данные для инициализации состояния экономики
-- **`runtime/`**: Хранит результаты исполнения и обеспечивает аудит
+- **`runtime/`**: Управляет хранением результатов исполнения и обеспечивает аудит
 - **`ir/`**: Определяет механизм спецификации и calibration targets
+- **`tools/`**: Утилиты для миграции и работы с политиками
 
 ### Интеграция в Pipeline
 
 ```
 scientist/ → ir/ → foundry.compiler → foundry.calibration → foundry.runtime → artifacts
                      ↓                           ↓
-               fabric/ (data)             foundry.executor (constraints)
+               tools/ (migration)          foundry.executor (constraints)
                      ↓                           ↓
                core/artifacts (CAS)        core/contracts (types)
                      ↓                           ↓

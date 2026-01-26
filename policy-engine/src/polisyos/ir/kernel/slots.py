@@ -6,7 +6,7 @@ from typing import Literal
 from pydantic import Field, model_validator
 
 from .base import SLOT_ID_PATTERN, KernelModel
-from .merge_rules import MergeRuleRef
+from .merge_rules import ConflictResolution, MergeRuleRef
 from .units import UnitRef
 
 
@@ -30,13 +30,35 @@ class SlotValueType(str, Enum):
     STRING = "string"
 
 
+class MergeOverride(KernelModel):
+    """Slot-specific merge configuration."""
+
+    conflict_resolution: ConflictResolution | None = None
+    default_priority: int | None = Field(None, ge=0, le=1000)
+
+
 class SlotSpec(KernelModel):
+    """
+    Specification for a state slot with explicit merge semantics.
+
+    The merge_rule field is required to force explicit conflict resolution.
+    """
+
     slot_id: str = Field(..., pattern=SLOT_ID_PATTERN)
     scope: SlotScope
     value_type: SlotValueType
     unit: UnitRef | None = None
     kind: SlotKind
-    merge_rule: MergeRuleRef
+    merge_rule: MergeRuleRef = Field(
+        ...,
+        description=(
+            "Reference to merge rule. Required to prevent implicit order-dependent behavior."
+        ),
+    )
+    merge_override: MergeOverride | None = Field(
+        default=None,
+        description="Slot-specific merge configuration overriding registry defaults.",
+    )
     state_path: str | None = Field(None, max_length=200)
     description: str | None = Field(None, max_length=200)
     reset_rule: Literal["carry", "zero"] | None = None

@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import argparse
 import difflib
+import importlib
 import json
 import sys
 from pathlib import Path
@@ -12,11 +13,24 @@ SRC_ROOT = REPO_ROOT / "src"
 if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
 
-from polisyos.ir.surface import PolicySurfaceIR
+
+def _resolve_model(model_path: str) -> type:
+    if ":" in model_path:
+        module_path, class_name = model_path.split(":", 1)
+    else:
+        module_path, class_name = model_path.rsplit(".", 1)
+    module = importlib.import_module(module_path)
+    model = getattr(module, class_name, None)
+    if model is None:
+        raise ValueError(f"Model not found: {model_path}")
+    if not hasattr(model, "model_json_schema"):
+        raise TypeError(f"Model does not support JSON schema: {model_path}")
+    return model
 
 
-def generate_schema() -> str:
-    schema = PolicySurfaceIR.model_json_schema()
+def generate_schema(model_path: str) -> str:
+    model = _resolve_model(model_path)
+    schema = model.model_json_schema()
     return json.dumps(schema, indent=2)
 
 
@@ -31,6 +45,11 @@ def main() -> int:
         help="Schema snapshot path",
     )
     parser.add_argument(
+        "--model",
+        default="polisyos.ir.surface:PolicySurfaceIR",
+        help="Model path (module:Class or module.Class)",
+    )
+    parser.add_argument(
         "--check",
         action="store_true",
         help="Fail if the snapshot does not match the generated schema",
@@ -38,7 +57,7 @@ def main() -> int:
     args = parser.parse_args()
 
     output_path = args.output
-    schema_str = generate_schema()
+    schema_str = generate_schema(args.model)
 
     if args.check:
         if not output_path.exists():

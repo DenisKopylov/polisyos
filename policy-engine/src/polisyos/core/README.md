@@ -15,6 +15,7 @@ core/
 ├── artifacts/          # Управление артефактами и их хранением
 │   ├── ids.py          # Уникальные идентификаторы артефактов (ArtifactID)
 │   ├── manifest.py     # Метаданные артефактов (ArtifactManifest, ArtifactRef)
+│   ├── environment.py  # Манифесты окружения для reproducible симуляций (EnvironmentManifest)
 │   ├── registry.py     # Пакеты реестров компонентов (RegistryBundle)
 │   └── store.py        # Хранилище артефактов (FileSystemCAS, PutOptions, VerificationReport)
 ├── canon/              # Каноническая сериализация JSON
@@ -24,7 +25,8 @@ core/
 ├── contracts/          # Контракты между модулями системы
 │   ├── compiler.py     # Контракты компилятора (CompileReportRef, LinkReportRef)
 │   ├── fabric.py       # Контракты Fabric (6 типов ссылок + модели данных)
-│   └── foundry.py      # Контракты Foundry (13 типов ссылок + модели исполнения)
+│   ├── foundry.py      # Контракты Foundry (13 типов ссылок + модели исполнения)
+│   └── trinity.py      # Trinity контракты (ProblemFrame, PolicySpec, ModelSpec)
 ├── registry/           # Сборка и загрузка реестров компонентов
 │   ├── builder.py      # Сборка реестров (build_default_registry_bundle, build_registry_bundle)
 │   └── loader.py       # Загрузка реестров (load_registry_bundle_content, load_registry_bundle_payload)
@@ -75,6 +77,38 @@ core/
 - Управление зависимостями и provenance между артефактами
 - Поддержка различных типов артефактов (JSON, бинарные данные, изображения)
 - Типизированные ссылки на артефакты с проверкой kind и media_type
+
+### 1.1. Environment (Окружение)
+
+**Назначение**: Захват и управление манифестами окружения для обеспечения воспроизводимости симуляций. EnvironmentManifest фиксирует все факторы, влияющие на результаты вычислений: оборудование, ПО, рантаймы и конфигурацию.
+
+**Основные компоненты**:
+- `EnvironmentManifest` - полный манифест окружения с аппаратным и программным обеспечением
+- `CPUInfo` - информация о CPU (архитектура, инструкции AVX, ядра, потоки)
+- `GPUInfo` - информация о GPU (NVIDIA/Apple Silicon, CUDA, память)
+- `OSInfo` - информация об ОС (система, версия ядра, libc)
+- `PythonInfo` - информация о Python рантайме и исполняемом файле
+- `JAXInfo` - информация о JAX/XLA (версии, бэкенды, флаги)
+- `GitInfo` - информация о Git коммите и состоянии репозитория
+- `DependencyInfo` - хеш lock-файла зависимостей (uv.lock, poetry.lock)
+- `ContainerInfo` - информация о контейнеризации (Docker, Podman)
+- `SystemLibraryInfo` - хеши системных библиотек (CUDA, cuDNN)
+- `EnvironmentDiff` - различия между двумя манифестами окружения
+- `capture_environment()` - функция захвата текущего окружения
+
+**Ключевые возможности**:
+- **Fingerprinting**: Генерация компактного fingerprint для быстрого сравнения окружений
+- **Compatibility scoring**: Оценка совместимости между окружениями (1.0 = идентичные, 0.0 = несовместимые)
+- **Risk assessment**: Автоматическое определение рисков несовместимости (CPU архитектура, CUDA версии, XLA флаги)
+- **Cross-platform detection**: Обнаружение потенциальных проблем с переносимостью (ARM vs x86, GPU determinism)
+- **System library tracking**: Отслеживание версий критичных системных библиотек
+
+**Функционал**:
+- Захват полного состояния окружения для reproducible симуляций
+- Сравнение окружений с оценкой рисков несовместимости
+- Отслеживание изменений в зависимостях и системных библиотеках
+- Поддержка различных платформ (Linux, macOS, Windows)
+- Интеграция с CI/CD для валидации окружения
 
 ### 2. Canon (Канонический JSON)
 
@@ -146,6 +180,13 @@ core/
 - `ConstraintReportRef` - отчет о проверке ограничений
 - `CalibrationReportRef` - отчет калибровки параметров
 - `TraceSliceRef` - срез трассировки исполнения в формате JSONL
+
+#### Trinity Contracts (Trinity - базовые спецификации)
+- `ProblemFrameRef` - ссылка на спецификацию проблемы (ProblemFrame)
+- `PolicySpecRef` - ссылка на спецификацию политики (PolicySpec)
+- `ModelSpecRef` - ссылка на спецификацию модели (ModelSpec)
+- `TrinityBundle` - пакет из трех Trinity артефактов
+- `TrinityManifest` - манифест с метаданными Trinity эксперимента
 
 **Функционал**:
 - Типизированные ссылки на артефакты с проверкой kind и media_type
@@ -226,21 +267,23 @@ Core является фундаментом всей системы PolisyOS и
 #### Foundry (Симуляция и исполнение политик) - Зависит от core
 - **contracts.foundry**: Все контракты Foundry (ProgramGraph, ExecPlan, StateDelta, StateSnapshot, etc.)
 - **artifacts.store.FileSystemCAS**: Хранение всех артефактов симуляции (состояния, метрики, конфигурации)
+- **artifacts.environment**: EnvironmentManifest для reproducible симуляций с fingerprinting окружения
 - **run.RunContext**: Контексты выполнения симуляций с интегрированной трассировкой
 - **trace**: Детальная трассировка всех этапов исполнения, калибровки и симуляции
 - **canon**: Каноническая сериализация для обеспечения reproducible результатов
 - **artifacts.manifest**: Метаданные для всех артефактов симуляции
 
-**Обоснование**: Foundry реализует сложную логику симуляции с patch-based state management, где все состояния и результаты хранятся как артефакты для обеспечения traceability и reproducibility.
+**Обоснование**: Foundry реализует сложную логику симуляции с patch-based state management, где все состояния и результаты хранятся как артефакты для обеспечения traceability и reproducibility. EnvironmentManifest обеспечивает reproducible результаты путем фиксации всех факторов окружения.
 
 #### Scientist (Оркестрация экспериментов) - Зависит от core
 - **run**: Контексты и манифесты выполнения экспериментов
 - **artifacts**: Хранение всех результатов экспериментов и моделей
+- **contracts.trinity**: Trinity контракты (ProblemFrame, PolicySpec, ModelSpec) для структурирования экспериментов
 - **trace**: Трассировка всех этапов workflow (draft → compile → execute → analyze)
 - **registry**: Загрузка реестров компонентов для каждого эксперимента
 - **contracts**: Ссылки на все типы артефактов в decision packets
 
-**Обоснование**: Scientist оркестрирует полный жизненный цикл от LLM до оптимизированных политик.
+**Обоснование**: Scientist оркестрирует полный жизненный цикл от LLM до оптимизированных политик, используя Trinity контракты для структурирования экспериментов по трем базовым аспектам: проблема, политика, модель.
 
 #### Runtime (Исполнение в production) - Зависит от core
 - **artifacts**: Доступ к развернутым артефактам политик
@@ -383,6 +426,82 @@ loaded_bundle = load_registry_bundle(store, bundle_ref)
 mechanisms = loaded_bundle.mechanisms
 metrics = loaded_bundle.metrics
 constraints = loaded_bundle.constraints
+```
+
+### Захват и сравнение окружений для reproducible симуляций:
+
+```python
+from polisyos.core.artifacts.environment import capture_environment, compare_environments
+from pathlib import Path
+
+# Захват текущего окружения
+env_manifest = capture_environment(
+    project_root=Path("/path/to/project"),
+    include_git=True,
+    include_dependencies=True,
+    include_system_libraries=True
+)
+
+# Сохранение как артефакт
+env_ref = store.put_json(
+    env_manifest.model_dump(),
+    PutOptions(
+        kind="foundry.environment_manifest",
+        media_type="application/json",
+        producer=ProducerInfo(component="environment_capture", version="1.0.0")
+    )
+)
+
+# Сравнение с сохраненным окружением
+saved_env_data = store.get_json(saved_env_ref.artifact_id)
+saved_env = EnvironmentManifest(**saved_env_data)
+
+compatibility = env_manifest.compatibility_score(saved_env)
+print(f"Environment compatibility: {compatibility}")
+
+if compatibility < 0.8:
+    diffs = compare_environments(env_manifest, saved_env)
+    print("Critical differences found:")
+    for diff in diffs:
+        if diff.risk_level.name == "CRITICAL":
+            print(f"  {diff.field_name}: {diff.explanation}")
+```
+
+### Работа с Trinity контрактами:
+
+```python
+from polisyos.core.contracts.trinity import ProblemFrameRef, PolicySpecRef, ModelSpecRef, TrinityBundle
+
+# Создание Trinity bundle для эксперимента
+trinity_bundle = TrinityBundle(
+    problem_frame_ref=ProblemFrameRef(
+        artifact_id=problem_id,
+        kind="ir.problem_frame",
+        media_type="application/json"
+    ),
+    policy_spec_ref=PolicySpecRef(
+        artifact_id=policy_id,
+        kind="ir.policy_spec",
+        media_type="application/json"
+    ),
+    model_spec_ref=ModelSpecRef(
+        artifact_id=model_id,
+        kind="ir.model_spec",
+        media_type="application/json"
+    ),
+    compatible=True,
+    compatibility_notes=["All specs validated", "Compatible versions"]
+)
+
+# Сохранение Trinity bundle
+bundle_ref = store.put_json(
+    trinity_bundle.model_dump(),
+    PutOptions(
+        kind="scientist.trinity_bundle",
+        media_type="application/json",
+        producer=ProducerInfo(component="experiment_setup", version="1.0.0")
+    )
+)
 ```
 
 ## Архитектурные принципы

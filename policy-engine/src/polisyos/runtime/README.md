@@ -1,6 +1,6 @@
 # Runtime Module (`polisyos.runtime`)
 
-*Документация актуализирована на 2026-01-24 в соответствии с текущим состоянием кода и интеграциями.*
+*Документация актуализирована на 2026-01-26 в соответствии с текущим состоянием кода и интеграциями.*
 
 ## Обзор
 
@@ -103,6 +103,8 @@ class RunManifest(BaseModel):
 - `budget_usage`: Фактическое использование ресурсов
 - `pruning_reason`: Причина прерывания прогона (если применимо)
 - `artifacts`: Список всех артефактов прогона
+- `environment_ref`: Ссылка на манифест окружения для обеспечения воспроизводимости
+- `environment_fingerprint`: Хэш-сумма критически важных факторов окружения
 - `run_root`: Корневая директория для разрешения относительных путей
 
 ### ArtifactRef (ссылка на артефакт)
@@ -234,6 +236,20 @@ ref = log_artifact(
     base_dir=Path("runs")
 )
 
+# Логирование environment manifest для обеспечения воспроизводимости
+environment_manifest = {
+    "environment_ref": {...},  # EnvironmentManifest данные
+    "fingerprint": "abc123..." # Хэш-сумма окружения
+}
+ref = log_artifact(
+    run_id="abc123def",
+    artifact_type="environment_ref",
+    payload=environment_manifest,
+    step="runtime",
+    base_dir=Path("runs")
+)
+# Автоматически обновляет environment_ref и environment_fingerprint в RunManifest
+
 # Логирование data view результатов
 panel_data = {"records": [...], "metadata": {...}}  # Результат UDF запроса через Fabric
 ref = log_artifact(
@@ -300,6 +316,7 @@ update_budget_usage(run_id="policy_sim_001", budget_usage={
 - **`compiled_model`**: Скомпилированная JAX модель (ProgramGraph + ExecPlan)
 - **`data_views`**: Результаты UDF запросов через Fabric (панели, сети, факты)
 - **`registry_bundle_ref`**: Ссылка на registry bundle для обеспечения воспроизводимости
+- **`environment_ref`**: Манифест окружения для обеспечения воспроизводимости симуляций
 - **`validation_report`**: Отчеты валидации IR и линковки
 - **`gradient_health`**: Метрики здоровья градиентов и сходимости
 - **`audit_trail`**: Автоматически создается из audit.jsonl (JSON Lines формат)
@@ -460,6 +477,35 @@ def run_sim_node(state: ExperimentState):
     )
 ```
 
+### Core/Artifacts/Environment
+
+Runtime интегрирован с системой захвата окружения для обеспечения воспроизводимости симуляций:
+
+```python
+# Захват и логирование environment manifest
+from polisyos.core.artifacts.environment import capture_environment_manifest
+
+# Захват полного манифеста окружения
+env_manifest = capture_environment_manifest()
+
+# Логирование через runtime API
+log_artifact(
+    run_id=run_id,
+    artifact_type="environment_ref",
+    payload={
+        "environment_ref": env_manifest.model_dump(),
+        "fingerprint": env_manifest.fingerprint
+    },
+    step="environment_capture",
+    base_dir=Path("runs")
+)
+```
+
+Интеграция обеспечивает:
+- **Автоматическое обновление** `environment_ref` и `environment_fingerprint` в `RunManifest`
+- **Полную трассировку** факторов окружения, влияющих на воспроизводимость
+- **Валидацию** совместимости окружений при повторных запусках
+
 ## Воспроизводимость и трассировка
 
 ### Детерминированные прогоны
@@ -593,7 +639,22 @@ manifest = start_run(
 )
 run_id = manifest.run_id
 
-# 2. Регистрация registry bundle для воспроизводимости
+# 2. Захват и регистрация окружения для воспроизводимости
+from polisyos.core.artifacts.environment import capture_environment_manifest
+
+env_manifest = capture_environment_manifest()
+log_artifact(
+    run_id=run_id,
+    artifact_type="environment_ref",
+    payload={
+        "environment_ref": env_manifest.model_dump(),
+        "fingerprint": env_manifest.fingerprint
+    },
+    step="environment_capture",
+    base_dir=Path("runs")
+)
+
+# 3. Регистрация registry bundle для воспроизводимости
 registry_bundle = {"bundle_ref": {...}, "mechanisms": [...], "slots": [...]}
 log_artifact(
     run_id=run_id,
@@ -744,6 +805,10 @@ Runtime обеспечивает соблюдение **Закона D**:
   - `scientist.orchestrator.audit` - синхронизация audit trail
 - **Fabric/UDF**: Косвенная интеграция через логирование результатов UDF запросов
 - **Foundry**: Косвенная интеграция через логирование результатов симуляции
+- **Core/Artifacts/Environment**: Интеграция с захватом окружения
+  - `core.artifacts.environment.EnvironmentManifest` - полная спецификация окружения
+  - `core.artifacts.environment.EnvironmentManifestRef` - типизированная ссылка на артефакт
+  - Автоматическое обновление `environment_ref` и `environment_fingerprint` в RunManifest
 
 ### Архитектурные связи
 
@@ -756,6 +821,8 @@ graph TD
     C --> E
     F[fabric.udf] -.-> B
     G[foundry.engine] -.-> B
+    H[core.artifacts.environment] --> C
+    H --> B
 ```
 
 ### Модели данных
@@ -763,7 +830,12 @@ graph TD
 Модуль предоставляет две ключевые Pydantic модели с строгой валидацией:
 
 - **`RunManifest`**: Полный "паспорт" эксперимента с метаданными, статусом, бюджетами и ссылками на артефакты
+  - Новые поля: `environment_ref` (ссылка на EnvironmentManifest) и `environment_fingerprint` (хэш окружения)
 - **`ArtifactRef`**: Переносимая ссылка на артефакт с поддержкой относительных путей
+
+Дополнительные модели из зависимых модулей:
+- **`EnvironmentManifestRef`**: Типизированная ссылка на артефакт манифеста окружения
+- **`EnvironmentManifest`**: Полная спецификация окружения для воспроизводимости
 
 ### Поток данных
 

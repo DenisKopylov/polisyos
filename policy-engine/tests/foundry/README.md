@@ -33,6 +33,7 @@ foundry/
 ├── test_gradients.py              # Градиенты политик (JAX autodiff, Equinox)
 ├── test_health.py                 # Проверки здоровья системы и детекция аномалий
 ├── test_jit_stability.py          # JIT-стабильность PyTree структур
+├── test_merge_determinism.py      # Детерминизм операций merge и state consistency
 ├── test_patch_executor.py         # Patch executor, state delta и snapshot'ы
 ├── test_program_graph_ops.py      # Операции с программными графами, execution order
 └── test_runtime_batch.py          # Пакетное выполнение программ с JAX
@@ -147,6 +148,11 @@ foundry/
 - **Performance Consistency**: No regression в compiled execution
 
 ### Advanced Execution
+
+**Merge Determinism** (`test_merge_determinism.py`):
+- **Merge Operations**: Детерминированные merge rules с consistency guarantees
+- **State Evolution**: Предсказуемая эволюция состояния через merge operations
+- **Conflict Resolution**: Deterministic resolution конфликтов в state updates
 
 **Patch Executor** (`test_patch_executor.py`):
 - **State Delta**: Incremental state updates
@@ -285,6 +291,14 @@ pytest tests/foundry/plugins/test_plugin_system.py::TestPluginRegistry -v
 ```bash
 # Проверьте mechanism ordering
 pytest tests/foundry/test_agent_simulation_step1.py::test_active_mask_propagation -v
+```
+
+**Merge determinism failures:**
+```bash
+# Проверьте deterministic merge operations
+pytest tests/foundry/test_merge_determinism.py -v
+# Проверьте state consistency после merge
+pytest tests/foundry/test_merge_determinism.py -v --tb=short
 ```
 
 **Gradient computation failures:**

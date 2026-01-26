@@ -1,64 +1,195 @@
-# Agent Layer: LLM Агенты и Промпты
+# Agent Layer: Иерархическая система AI агентов
 
-**Слой генерации политик через LLM и эвристические агенты**
+**Протокольная архитектура для генерации и валидации экономических политик**
 
-Agent Layer отвечает за генерацию и принятие решений о политиках через различные стратегии: от простых эвристических агентов до продвинутых LLM-based систем.
+Agent Layer реализует иерархическую систему специализированных AI агентов (PI → Drafter → Formalizer → Critic) для структурированного решения задач policy design через декомпозицию, генерацию, формализацию и валидацию.
 
 ## Обзор
 
-Папка `agent/` содержит компоненты для генерации экономических политик из естественного языка пользователя. Включает как production-ready LLM интеграции, так и mock компоненты для тестирования.
+Папка `agent/` реализует иерархическую систему AI агентов для решения комплексных задач policy design. Архитектура следует паттерну Hierarchical Agent Orchestration с четким разделением ответственности между ролями и протоколами коммуникации.
 
 ## Архитектура
 
 ```
 agent/
-├── __init__.py           # Экспорт основных классов
-├── base.py               # Абстрактный BaseAgent и MockAgent
-├── drafter.py            # LLM-based генерация политик
-├── prompts.py            # Системные промпты для LLM
-└── prompt.py             # Альтернативные промпты
+├── __init__.py           # Экспорт протоколов, ролей и mock реализаций
+├── protocols.py          # Протоколы агентов и поддерживающие типы данных
+├── pi.py                 # Principal Investigator (PI) Agent
+├── drafter.py            # Drafter Agent для генерации черновиков
+├── formalizer.py         # Formalizer Agent для преобразования в IR
+├── critic.py             # Critic Agent для валидации и критики
+└── base.py               # Legacy поддержка (BaseAgent, MockAgent)
+```
+
+### Иерархическая архитектура
+
+```
+User Request
+    ↓
+🧠 PI Agent (Principal Investigator)
+    - Декомпозиция задачи на подзадачи
+    - Определение зависимостей
+    - Назначение ролей агентам
+    ↓
+📝 Drafter Agent
+    - Генерация естественных черновиков политик
+    - Контекстуализация требований
+    - Нарративное описание решений
+    ↓
+🔧 Formalizer Agent
+    - Преобразование черновиков в PolicySurfaceIR
+    - Схема валидация и типизация
+    - Структурирование параметров
+    ↓
+⚖️ Critic Agent
+    - Многоуровневая валидация
+    - Проверка alignment, completeness, consistency
+    - Оценка feasibility и compliance
+    ↓
+Decision Packet
 ```
 
 ## Компоненты
 
-### 🤖 BaseAgent (base.py)
+### 📋 Протоколы и типы данных (protocols.py)
 
-Абстрактный базовый класс для всех агентов принятия решений:
+#### Роли агентов (AgentRole)
+```python
+class AgentRole(str, Enum):
+    PI = "pi"              # Principal Investigator - декомпозиция задач
+    DRAFTER = "drafter"    # Drafter - генерация черновиков
+    FORMALIZER = "formalizer"  # Formalizer - формализация в IR
+    CRITIC = "critic"      # Critic - валидация и критика
+```
+
+#### Ключевые артефакты
+
+**ProblemFrame**: Формализованное описание проблемы (immutable)
+```python
+@dataclass(frozen=True, slots=True)
+class ProblemFrame:
+    frame_id: str
+    domain: str                    # Домен политики (fiscal, social, etc.)
+    problem_statement: str         # Описание проблемы
+    actors: tuple[str, ...]        # Затронутые стороны
+    goals: tuple[str, ...]         # Цели политики
+    constraints: tuple[str, ...]   # Ограничения
+    success_criteria: dict         # Критерии успеха
+```
+
+**SubTask**: Структура для декомпозиции задач
+```python
+@dataclass(frozen=True, slots=True)
+class SubTask:
+    task_id: str
+    description: str
+    target_agent: AgentRole
+    priority: TaskPriority
+    status: TaskStatus
+    dependencies: tuple[str, ...]
+```
+
+**CritiqueReport**: Структурированные отчеты о валидации
+```python
+@dataclass
+class CritiqueReport:
+    report_id: str
+    verdict: str                    # "APPROVE", "REJECT", "NEEDS_REVISION"
+    issues: list[CritiqueIssue]     # Детали проблем
+    confidence: float              # Уверенность в оценке
+```
+
+### 🧠 Principal Investigator (PI) Agent (pi.py)
+
+**Роль**: Декомпозиция высокоуровневых задач на управляемые подзадачи
+
+**Основные функции**:
+- Анализ пользовательского запроса
+- Определение домена и контекста проблемы
+- Создание ProblemFrame артефакта
+- Декомпозиция на SubTask'и с зависимостями
+- Назначение подходящих агентов для каждой подзадачи
+
+```python
+class MockPIAgent:
+    async def decompose_task(
+        self, request: str, *, context: dict | None = None
+    ) -> list[SubTask]:
+        # Анализ запроса и создание подзадач
+        # Возврат списка SubTask с target_agent, priority, dependencies
+```
+
+### 📝 Drafter Agent (drafter.py)
+
+**Роль**: Генерация естественных черновиков политик из формализованных требований
+
+**Основные функции**:
+- Получение ProblemFrame от PI Agent
+- Генерация narrativa решений
+- Контекстуализация экономических trade-offs
+- Создание DraftResult артефакта
+
+```python
+class MockDrafterAgent:
+    async def draft(
+        self, problem_frame: ProblemFrame, *, context: dict | None = None
+    ) -> DraftResult:
+        # Генерация естественного описания политики
+        # Возврат DraftResult с narrative и metadata
+```
+
+### 🔧 Formalizer Agent (formalizer.py)
+
+**Роль**: Преобразование естественных черновиков в формальный PolicySurfaceIR
+
+**Основные функции**:
+- Парсинг DraftResult от Drafter
+- Маппинг на механизмы политики из DEFAULT_MECHANISM_REGISTRY
+- Создание валидной структуры IR
+- Схема валидация и типизация параметров
+
+```python
+class MockFormalizerAgent:
+    async def formalize(
+        self, draft: DraftResult, *, schema_version: str = "2.0"
+    ) -> "PolicySurfaceIR":
+        # Преобразование draft в структурированный IR
+        # Возврат валидного PolicySurfaceIR объекта
+```
+
+### ⚖️ Critic Agent (critic.py)
+
+**Роль**: Комплексная валидация и критика сгенерированных политик
+
+**Основные функции**:
+- Проверка alignment с ProblemFrame
+- Оценка completeness и consistency
+- Анализ feasibility и потенциального воздействия
+- Проверка compliance с правилами и регуляциями
+- Генерация структурированного CritiqueReport
+
+```python
+class MockCriticAgent:
+    async def critique(
+        self, ir: "PolicySurfaceIR", problem_frame: ProblemFrame, *, depth: str = "standard"
+    ) -> CritiqueReport:
+        # Комплексная валидация политики
+        # Возврат CritiqueReport с verdict и issues
+```
+
+### 🔄 Legacy поддержка (base.py)
+
+**BaseAgent и MockAgent** - устаревшие компоненты для обратной совместимости:
 
 ```python
 class BaseAgent(ABC):
     @abstractmethod
     def decide(self, step: int, context_df) -> PolicySurfaceIR:
-        """Принимает данные (DataFrame), возвращает Решение (IR)."""
+        """Legacy интерфейс для простых агентов."""
         pass
-```
 
-#### MockAgent
-
-Простой эвристический агент для тестирования без LLM зависимостей:
-
-- **Логика**: Анализирует безработицу и бюджетный баланс
-- **Высокая безработица** → Агрессивные субсидии (rate=0.20)
-- **Низкая безработица** → Умеренные субсидии (rate=0.10)
-- **Первый шаг** → Налоги для сбора доходов (income_tax, rate=0.15)
-
-```python
 class MockAgent(BaseAgent):
-    """Притворяется LLM. Принимает решения на основе экономических показателей."""
-
-    def decide(self, step: int, context_df) -> PolicySurfaceIR:
-        # Эвристическая логика на основе безработицы и бюджетного баланса
-        current_unempl = context_df["unemployment_rate"].iloc[-1]
-
-        if step == 1:
-            mech_type = "income_tax"
-            rate = 0.15  # Собираем налоги
-        elif current_unempl > 0.05:
-            mech_type = "tax_subsidy"
-            rate = 0.20  # Агрессивные субсидии
-        else:
-            mech_type = "tax_subsidy"
-            rate = 0.10  # Умеренные субсидии
+    """Простой эвристический агент для базовых сценариев."""
 ```
 
 ### 📝 LLM Drafter (drafter.py)
@@ -162,20 +293,52 @@ def get_system_prompt(step: int, data_context: str) -> str:
 
 ## API Использование
 
-### Создание и использование агентов
+### Работа с иерархической системой агентов
 
 ```python
-from polisyos.scientist.agent.base import BaseAgent, MockAgent
+from polisyos.scientist.agent import (
+    MockPIAgent, MockDrafterAgent, MockFormalizerAgent, MockCriticAgent,
+    ProblemFrame, AgentRole, TaskPriority
+)
 
-# Использование готового агента
-agent = MockAgent()
-policy_ir = agent.decide(step=1, context_df=economic_data)
+# Создание агентов
+pi_agent = MockPIAgent()
+drafter_agent = MockDrafterAgent()
+formalizer_agent = MockFormalizerAgent()
+critic_agent = MockCriticAgent()
 
-# Создание кастомного агента
-class CustomAgent(BaseAgent):
-    def decide(self, step: int, context_df) -> PolicySurfaceIR:
-        # Ваша логика принятия решений
-        return PolicySurfaceIR(...)
+# 1. PI Agent декомпозирует задачу
+subtasks = await pi_agent.decompose_task(
+    "Implement progressive taxation to reduce inequality",
+    context={"domain": "fiscal_policy"}
+)
+
+# 2. Drafter Agent создает черновик
+draft_result = await drafter_agent.draft(
+    problem_frame=subtasks[0],  # Из PI декомпозиции
+    context={"economic_context": "high_inequality"}
+)
+
+# 3. Formalizer Agent преобразует в IR
+policy_ir = await formalizer_agent.formalize(
+    draft=draft_result,
+    schema_version="2.0"
+)
+
+# 4. Critic Agent валидирует результат
+critique_report = await critic_agent.critique(
+    ir=policy_ir,
+    problem_frame=subtasks[0],
+    depth="standard"
+)
+
+# Анализ результатов
+if critique_report.verdict == "APPROVE":
+    print("✅ Policy approved by Critic Agent")
+else:
+    print(f"❌ Issues found: {len(critique_report.issues)}")
+    for issue in critique_report.issues:
+        print(f"  - {issue.category}: {issue.message}")
 ```
 
 ### Интеграция с workflow
@@ -183,93 +346,215 @@ class CustomAgent(BaseAgent):
 ```python
 from polisyos.scientist.orchestrator.workflow import build_workflow
 
-# Workflow автоматически использует drafter_node
+# Workflow автоматически использует иерархическую систему агентов
 workflow = build_workflow()
 result = workflow.invoke({
     "user_request": "Reduce poverty through targeted subsidies",
     "optimize": True
 })
+
+# Результат включает critique report и decision packet
+decision_packet = result.get("decision_packet")
+if decision_packet and decision_packet.feedback:
+    print(f"Governor verdict: {decision_packet.feedback.verdict}")
 ```
 
 ## Тестирование
 
-### Mock компоненты
+### Mock реализации для всех ролей
 
-Для тестирования без LLM зависимостей:
+Для тестирования без внешних зависимостей:
 
 ```python
-from polisyos.scientist.agent.drafter import MockLLM
+from polisyos.scientist.agent import (
+    MockPIAgent, MockDrafterAgent, MockFormalizerAgent, MockCriticAgent
+)
 
-llm = MockLLM()
-response = llm.invoke("Generate a tax policy")
-# Возвращает заранее подготовленный JSON
+# Все mock агенты работают детерминированно
+pi_agent = MockPIAgent()
+drafter_agent = MockDrafterAgent()
+formalizer_agent = MockFormalizerAgent()
+critic_agent = MockCriticAgent()
+
+# Тестирование полного цикла
+subtasks = await pi_agent.decompose_task("Test policy")
+draft = await drafter_agent.draft(subtasks[0])
+ir = await formalizer_agent.formalize(draft)
+critique = await critic_agent.critique(ir, subtasks[0])
 ```
 
 ### Unit тесты
 
 ```bash
-# Тестирование agent layer
+# Тестирование всех агентов
 pytest tests/scientist/test_agent_*.py -v
 
-# С mock LLM (без API ключей)
+# Конкретные роли
+pytest tests/scientist/test_agent_pi.py -v        # PI Agent
+pytest tests/scientist/test_agent_drafter.py -v   # Drafter Agent
+pytest tests/scientist/test_agent_formalizer.py -v # Formalizer Agent
+pytest tests/scientist/test_agent_critic.py -v    # Critic Agent
+
+# Integration testing
+pytest tests/scientist/integration/test_agent_hierarchy.py -v
 pytest tests/scientist/integration/test_workflow_smoke.py -v
 ```
 
+### Test Coverage
+
+- **Протоколы**: Валидация интерфейсов и типов данных
+- **PI Agent**: Декомпозиция задач, создание ProblemFrame
+- **Drafter Agent**: Генерация черновиков, контекстуализация
+- **Formalizer Agent**: IR генерация, схема валидация
+- **Critic Agent**: Многоуровневая валидация, critique reports
+- **Integration**: Полный цикл агентов, error handling
+
 ## Расширение
 
-### Добавление нового агента
+### Создание кастомного агента
+
+#### Кастомный Drafter Agent с LLM интеграцией
 
 ```python
-from polisyos.scientist.agent.base import BaseAgent
-from polisyos.ir.surface import PolicySurfaceIR
+from polisyos.scientist.agent.protocols import DrafterAgent, ProblemFrame, DraftResult
+import openai
 
-class LLMAgent(BaseAgent):
+class LLMDrafterAgent(DrafterAgent):
     def __init__(self, model_name: str = "gpt-4"):
         self.model_name = model_name
+        self.client = openai.OpenAI()
 
-    def decide(self, step: int, context_df) -> PolicySurfaceIR:
-        # Интеграция с реальным LLM API
-        response = call_openai_api(self.model_name, ...)
-        return PolicySurfaceIR.parse_raw(response)
+    async def draft(self, problem_frame: ProblemFrame, *, context=None) -> DraftResult:
+        prompt = self._build_draft_prompt(problem_frame)
+
+        response = await self.client.chat.completions.create(
+            model=self.model_name,
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.7
+        )
+
+        return DraftResult(
+            draft_id=f"llm_draft_{problem_frame.frame_id}",
+            narrative=response.choices[0].message.content,
+            metadata={"model": self.model_name, "temperature": 0.7}
+        )
+
+    def _build_draft_prompt(self, problem_frame: ProblemFrame) -> str:
+        return f"""
+        You are a Policy Drafter. Create a natural language description of a policy that addresses:
+
+        Problem: {problem_frame.problem_statement}
+        Domain: {problem_frame.domain}
+        Goals: {', '.join(problem_frame.goals)}
+        Constraints: {', '.join(problem_frame.constraints)}
+
+        Provide a comprehensive policy draft that considers economic trade-offs and implementation feasibility.
+        """
 ```
 
-### Кастомные промпты
+#### Кастомный Critic Agent с доменными правилами
 
 ```python
-def get_custom_prompt(scenario: str) -> str:
-    """Промпт для специфического сценария политики."""
-    base_prompt = get_system_prompt()
+from polisyos.scientist.agent.protocols import CriticAgent, CritiqueReport, CritiqueIssue, CritiqueCategory
 
-    if scenario == "fiscal_policy":
-        return base_prompt + "\nFOCUS: Fiscal and monetary policy interactions..."
-    elif scenario == "social_policy":
-        return base_prompt + "\nFOCUS: Social welfare and inequality reduction..."
+class DomainSpecificCriticAgent(CriticAgent):
+    def __init__(self, domain_rules: dict):
+        self.domain_rules = domain_rules
+
+    async def critique(self, ir, problem_frame, *, depth="standard"):
+        issues = []
+
+        # Доменная валидация
+        domain_issues = self._check_domain_rules(ir, problem_frame.domain)
+        issues.extend(domain_issues)
+
+        # Стандартная валидация
+        standard_issues = self._check_standard_validation(ir)
+        issues.extend(standard_issues)
+
+        # Определение verdict
+        has_blockers = any(i.severity == "blocker" for i in issues)
+        verdict = "REJECT" if has_blockers else "APPROVE"
+
+        return CritiqueReport(
+            report_id=f"domain_critique_{ir.schema_version}",
+            verdict=verdict,
+            issues=issues,
+            confidence=0.9
+        )
+```
+
+### Добавление новой роли агента
+
+```python
+from polisyos.scientist.agent.protocols import AgentRole
+
+# Расширение enum'а ролей (в отдельном модуле)
+class ExtendedAgentRole(str, Enum):
+    SPECIALIST = "specialist"      # Доменный специалист
+    REVIEWER = "reviewer"         # Рецензент
+    OPTIMIZER = "optimizer"       # Оптимизатор параметров
+
+# Создание протокола для новой роли
+from typing import Protocol
+
+class SpecialistAgent(Protocol):
+    async def specialize(
+        self, problem_frame: ProblemFrame, domain_focus: str, *, context=None
+    ) -> SpecializedAnalysis:
+        """Доменная специализация для конкретной области."""
+        ...
 ```
 
 ## Связанные компоненты
 
-- **IR Layer**: `PolicySurfaceIR` для структур политик
-- **Kernel Layer**: `DEFAULT_MECHANISM_REGISTRY` для доступных механизмов
-- **Orchestrator**: `drafter_node` в workflow
-- **Fabric**: Данные для context-aware генерации
+- **IR Layer**: `PolicySurfaceIR` для формальных структур политик
+- **Kernel Layer**: FSM phases, guards, human gates для контроля выполнения
+- **Orchestrator**: Workflow orchestration, state management, decision packets
+- **Fabric Layer**: Data access для context-aware генерации
+- **Foundry**: Mechanism registry и compilation для policy execution
 
 ## Troubleshooting
 
-### Ошибки валидации IR
+### Ошибки декомпозиции задач (PI Agent)
 
 ```
-ValidationError: mechanism_type must be one of: tax_subsidy, income_tax
+ValueError: Request cannot be empty
 ```
 
-**Решение**: Проверить доступные механизмы в `DEFAULT_MECHANISM_REGISTRY`
+**Решение**: Убедиться, что пользовательский запрос не пустой и содержит достаточно контекста для декомпозиции
 
-### MockLLM не работает
+### Ошибки формализации (Formalizer Agent)
 
 ```
-AttributeError: 'MockLLM' object has no attribute 'invoke'
+ValidationError: Invalid mechanism type in interventions
 ```
 
-**Решение**: Убедиться, что используется правильный интерфейс LLM
+**Решение**: Проверить доступные механизмы в `DEFAULT_MECHANISM_REGISTRY` и соответствие черновика структуре IR
+
+### Critic Agent возвращает неожиданный verdict
+
+```
+Unexpected verdict: REJECT with no issues
+```
+
+**Решение**: Проверить логику валидации Critic Agent - возможно, проблема с severity classification или confidence thresholds
+
+### Проблемы с async/await
+
+```
+TypeError: object NoneType can't be used in 'await' expression
+```
+
+**Решение**: Убедиться, что все агенты реализуют async методы согласно протоколам
+
+### Protocol validation errors
+
+```
+TypeError: X does not implement protocol Y
+```
+
+**Решение**: Проверить, что кастомный агент правильно реализует все required методы протокола
 
 ### Промпт слишком длинный
 

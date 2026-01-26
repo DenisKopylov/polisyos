@@ -1,6 +1,6 @@
 # Common: Общие компоненты Policy Engine
 
-> **Последнее обновление:** 24 января 2026 г. (обновление документации)
+> **Последнее обновление:** 26 января 2026 г. (обновление документации)
 
 Модуль `polisyos.common` содержит фундаментальные утилиты и конфигурации, используемые во всех слоях архитектуры Policy Engine. Эти компоненты обеспечивают базовую инфраструктуру без зависимостей от бизнес-логики.
 
@@ -44,6 +44,8 @@ common/
 
 #### Миграции (`migrations/`):
 - **ir/migrations/** - расширенная обертка над `common.migrations` для Policy IR артефактов
+- **ir/trinity.py** - использование миграций для преобразования между PolicySurfaceIR и Trinity форматами
+- **ir/migrations/trinity_migration.py** - вспомогательные функции для Trinity миграций
 
 #### Конфигурация (`config.py`):
 - **jax_bootstrap.py** - применение JAX настроек через side effects при импорте
@@ -245,9 +247,11 @@ log.error("Something went wrong", error_details={"code": 500})
    - Текущая версия: `MANIFEST_CURRENT_VERSION = "1.0"`
    - Миграция `0.9 → 1.0`: нормализация полей (`datasetName` → `dataset_name`, `rawHash` → `raw_hash`)
 
-3. **`policy_ir.py` - Миграции Policy IR**
-   - Текущая версия: `POLICY_IR_CURRENT_VERSION = "2.0"`
-   - Миграции: отсутствуют (текущая версия является основной стабильной версией)
+3. **`policy_ir.py` - Миграции Policy IR и Trinity**
+   - Текущая версия Policy IR: `POLICY_IR_CURRENT_VERSION = "2.0"`
+   - Текущая версия Trinity: `TRINITY_CURRENT_VERSION = "1.0"`
+   - Миграции: преобразования между PolicySurfaceIR (v2.0) и Trinity форматом (v1.0)
+   - Двунаправленные миграции: `policy_surface_to_trinity` (2.0→1.0) и `trinity_to_policy_surface` (1.0→2.0)
 
 #### Пример использования:
 
@@ -259,7 +263,10 @@ manifest_data = {"schema_version": "0.9", "datasetName": "test"}
 migrated = migrate_artifact(manifest_data, "dataset_manifest", "1.0")
 # Результат: {"schema_version": "1.0", "dataset_name": "test"}
 
-# Policy IR использует версию 2.0 как основную и не имеет миграций из предыдущих версий
+# Trinity миграции - преобразование между форматами
+trinity_data = migrate_artifact(policy_surface_data, "policy_surface_to_trinity", "1.0")
+# Обратное преобразование
+policy_surface_data = migrate_artifact(trinity_data, "trinity_to_policy_surface", "2.0")
 ```
 
 ## Использование в проекте
@@ -397,13 +404,15 @@ def migrate_policy_ir(data: dict, target_version: str | None = None) -> dict:
 
 #### Миграции (migrations):
 - **`ir/migrations/__init__.py`** - расширенная обертка для миграций Policy IR с дополнительной логикой версий
+- **`ir/trinity.py`** - использование миграций для преобразования между PolicySurfaceIR и Trinity форматами
+- **`ir/migrations/trinity_migration.py`** - вспомогательные функции `split_to_bundle` и `merge_to_surface_ir` для Trinity миграций
 
 ### Архитектурные связи:
 
 - **core:** Использует логирование для операций с артефактами и регистрами
 - **fabric:** Зависит от логирования для всех I/O операций и UDF движка
 - **foundry:** Использует логирование в симуляциях и калибровке
-- **ir:** Зависит от миграций для версионирования схем Policy IR
+- **ir:** Зависит от миграций для версионирования схем Policy IR и Trinity преобразований
 - **runtime:** Использует логирование для аудита прогонов
 - **scientist:** Зависит от логирования в оркестрации экспериментов и агентов
 

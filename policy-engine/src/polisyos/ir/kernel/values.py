@@ -1,12 +1,15 @@
 from __future__ import annotations
 
 from decimal import Decimal
-from typing import Literal
+from typing import Any, Literal
 
-from pydantic import Field, model_validator
+from pydantic import BeforeValidator, Field, model_validator
+from typing_extensions import Annotated
 
-from .base import KernelModel
+from .base import KernelModel, reject_floats_deep
 from .numbers import DecimalValue
+
+ParamValue = Annotated[Any, BeforeValidator(reject_floats_deep)]
 
 
 class MoneyValue(KernelModel):

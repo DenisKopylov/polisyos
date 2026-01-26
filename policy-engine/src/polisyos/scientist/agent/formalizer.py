@@ -1,0 +1,245 @@
+"""
+Mock Formalizer Agent.
+
+Implements the FormalizerAgent protocol with deterministic IR outputs for tests.
+"""
+
+from __future__ import annotations
+
+import hashlib
+from datetime import datetime
+from typing import TYPE_CHECKING, Any
+
+from polisyos.scientist.agent.protocols import DraftResult, FormalizerAgent
+
+if TYPE_CHECKING:
+    from polisyos.ir.surface import PolicySurfaceIR
+
+
+class MockFormalizerAgent:
+    """Mock implementation of FormalizerAgent for testing."""
+
+    def __init__(self) -> None:
+        self._formalization_count: int = 0
+        self._repair_count: int = 0
+
+    async def formalize(
+        self,
+        draft: DraftResult,
+        *,
+        schema_version: str = "2.0",
+    ) -> "PolicySurfaceIR":
+        from polisyos.ir.surface import PolicySurfaceIR
+
+        if not draft.draft_id:
+            raise ValueError("Draft must have a valid draft_id")
+
+        self._formalization_count += 1
+
+        base_hash = hashlib.sha256(draft.draft_id.encode()).hexdigest()[:8]
+
+        intervention_kind = "tax_subsidy"
+        narrative_lower = draft.narrative.lower()
+        if "tax" in narrative_lower and "subsidy" not in narrative_lower:
+            intervention_kind = "income_tax"
+        elif any(word in narrative_lower for word in ["ubi", "basic income", "transfer"]):
+            intervention_kind = "direct_transfer"
+
+        ir_data: dict[str, Any] = {
+            "schema_version": schema_version,
+            "semantic": {
+                "context_snapshot_ref": f"sha256:{'0' * 64}",
+                "time_semantics": {
+                    "frequency": "M",
+                    "start_date": "2024-01-01",
+                    "step_count": 12,
+                },
+                "objectives": [
+                    {
+                        "objective_id": f"obj_{base_hash}",
+                        "metric_id": "improvement_rate",
+                        "direction": "maximize",
+                        "weight": "1.0",
+                    }
+                ],
+                "interventions": self._build_interventions(draft, intervention_kind, base_hash),
+                "constraints": [
+                    {
+                        "constraint_id": f"budget_{base_hash}",
+                        "value": {"amount": "-5000", "currency": "USD"},
+                    }
+                ],
+            },
+            "advisory": {
+                "entities": [
+                    {
+                        "entity_id": "target_group",
+                        "entity_type": "agent",
+                        "name": {"en": "Target population", "ua": "Target population"},
+                    }
+                ],
+                "labels": ["mock_generated"],
+                "narrative": draft.rationale or "Auto-generated from draft",
+            },
+        }
+
+        return PolicySurfaceIR(**ir_data)
+
+    def _build_interventions(
+        self,
+        draft: DraftResult,
+        intervention_kind: str,
+        base_hash: str,
+    ) -> list[dict[str, Any]]:
+        interventions: list[dict[str, Any]] = []
+
+        if draft.interventions:
+            for i, intervention in enumerate(draft.interventions):
+                interventions.append(
+                    {
+                        "intervention_id": f"interv_{base_hash}_{i}",
+                        "kind": intervention.get("kind", intervention_kind),
+                        "target": intervention.get(
+                            "target",
+                            {
+                                "kind": "predicate",
+                                "field": "income",
+                                "operator": "<",
+                                "value": "1000",
+                            },
+                        ),
+                        "schedule": intervention.get(
+                            "schedule",
+                            {"start_step": 0, "duration_steps": 12},
+                        ),
+                        "params": intervention.get("params", {"rate": "0.15"}),
+                    }
+                )
+        else:
+            interventions.append(
+                {
+                    "intervention_id": f"interv_{base_hash}_0",
+                    "kind": intervention_kind,
+                    "target": {
+                        "kind": "predicate",
+                        "field": "income",
+                        "operator": "<",
+                        "value": "1000",
+                    },
+                    "schedule": {"start_step": 0, "duration_steps": 12},
+                    "params": {"rate": "0.15"},
+                }
+            )
+
+        return interventions
+
+    async def repair_ir(
+        self,
+        ir: "PolicySurfaceIR",
+        errors: list[str],
+        *,
+        hint: str | None = None,
+    ) -> "PolicySurfaceIR":
+        from polisyos.ir.surface import PolicySurfaceIR
+
+        self._repair_count += 1
+
+        ir_dict = ir.model_dump()
+
+        for error in errors:
+            error_lower = error.lower()
+            if "context_snapshot_ref" in error_lower:
+                ir_dict["semantic"]["context_snapshot_ref"] = f"sha256:{'0' * 64}"
+            if "time_semantics" in error_lower:
+                ir_dict["semantic"]["time_semantics"] = {
+                    "frequency": "M",
+                    "start_date": "2024-01-01",
+                    "step_count": 12,
+                }
+            if "intervention" in error_lower and not ir_dict["semantic"].get("interventions"):
+                ir_dict["semantic"]["interventions"] = [
+                    {
+                        "intervention_id": "default_repair",
+                        "kind": "tax_subsidy",
+                        "target": {
+                            "kind": "predicate",
+                            "field": "id",
+                            "operator": "==",
+                            "value": "all",
+                        },
+                        "schedule": {"start_step": 0, "duration_steps": 12},
+                        "params": {"rate": "0.1"},
+                    }
+                ]
+
+        return PolicySurfaceIR(**ir_dict)
+
+    async def validate_structure(
+        self,
+        ir: "PolicySurfaceIR",
+    ) -> tuple[bool, list[str]]:
+        errors: list[str] = []
+
+        try:
+            if not ir.schema_version:
+                errors.append("Missing schema_version")
+            if not ir.semantic:
+                errors.append("Missing semantic section")
+                return False, errors
+
+            semantic = ir.semantic
+            if hasattr(semantic, "context_snapshot_ref") and not semantic.context_snapshot_ref:
+                errors.append("Missing context_snapshot_ref")
+
+            if hasattr(semantic, "interventions"):
+                if not semantic.interventions:
+                    errors.append("No interventions defined")
+                else:
+                    for i, intervention in enumerate(semantic.interventions):
+                        if not getattr(intervention, "intervention_id", None):
+                            errors.append(f"Intervention {i} missing intervention_id")
+        except Exception as exc:
+            errors.append(f"Validation error: {exc}")
+
+        return len(errors) == 0, errors
+
+    @property
+    def formalization_count(self) -> int:
+        return self._formalization_count
+
+    @property
+    def repair_count(self) -> int:
+        return self._repair_count
+
+    def reset(self) -> None:
+        self._formalization_count = 0
+        self._repair_count = 0
+
+
+def create_mock_draft(
+    *,
+    draft_id: str | None = None,
+    problem_frame_ref: str = "pf_mock",
+    narrative: str = "Mock policy to reduce poverty through targeted subsidies",
+    interventions: list[dict[str, Any]] | None = None,
+) -> DraftResult:
+    import uuid
+
+    return DraftResult(
+        draft_id=draft_id or f"draft_{uuid.uuid4().hex[:8]}",
+        problem_frame_ref=problem_frame_ref,
+        narrative=narrative,
+        interventions=interventions or [],
+        rationale="Mock rationale for testing",
+        confidence=0.85,
+        created_at=datetime.utcnow(),
+    )
+
+
+def _verify_protocol() -> None:
+    agent = MockFormalizerAgent()
+    if not isinstance(agent, FormalizerAgent):
+        raise TypeError("MockFormalizerAgent does not implement FormalizerAgent protocol")
+
+
+_verify_protocol()

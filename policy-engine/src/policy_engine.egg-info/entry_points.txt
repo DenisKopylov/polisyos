@@ -1,0 +1,2 @@
+[console_scripts]
+polisy = polisyos.foundry.plugins.cli:main

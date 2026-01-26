@@ -8,6 +8,7 @@ from .mechanisms import (
     ParamType,
 )
 from .merge_rules import (
+    ConflictResolution,
     DEFAULT_MERGE_RULE_REGISTRY,
     MergeRuleKind,
     MergeRuleRef,
@@ -23,6 +24,7 @@ from .selector_fields import (
 )
 from .slots import (
     DEFAULT_SLOT_REGISTRY,
+    MergeOverride,
     SlotKind,
     SlotRegistry,
     SlotScope,
@@ -50,6 +52,7 @@ __all__ = [
     "ID_PATTERN",
     "SLOT_ID_PATTERN",
     "KernelModel",
+    "ConflictResolution",
     "MergeRuleKind",
     "MergeRuleRef",
     "MergeRuleRegistry",
@@ -80,6 +83,7 @@ __all__ = [
     "SlotScope",
     "SlotSpec",
     "SlotValueType",
+    "MergeOverride",
     "DEFAULT_SLOT_REGISTRY",
     "TimeSemantics",
     "CountUnit",

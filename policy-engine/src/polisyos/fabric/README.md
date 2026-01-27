@@ -57,7 +57,14 @@ NL → LLM → IR (AST) → Compilation → Runtime (UDF + Foundry) → Artifact
 
 ```
 fabric/
-├── __init__.py              # Экспорт run_ingestion (главный API)
+├── __init__.py              # Экспорт run_ingestion и catalog API (главный API)
+├── catalog/                 # Metric-level data contract catalog
+│   ├── __init__.py          # Экспорт всех catalog компонентов
+│   ├── binding.py           # MetricBinding - hash-locked ссылки на метрики (MetricBinding)
+│   ├── contract.py          # DataContract модели (DataContract, DataContractCollection, DataType, Granularity, PIITier)
+│   ├── registry.py          # DataContractRegistry - реестр контрактов с валидацией
+│   ├── search.py            # MetricSearcher - поиск метрик с disambiguation (SearchResponse, SearchResult)
+│   └── validate.py          # Валидация контрактов (load_contract_collection, ContractValidationError)
 ├── ingestion.py             # Главный ETL pipeline с Fact Log и evidence
 ├── schema.py                # Pydantic модели данных (AgentRow, InteractionRow, MacroRow)
 ├── manifest.py              # Метаданные и качество данных (DatasetManifest, QualityMetrics)
@@ -90,7 +97,67 @@ fabric/
 
 ## Ключевые компоненты
 
-### 1. Data Ingestion Pipeline (`ingestion.py`)
+### 1. Data Contract Catalog (`catalog/`)
+
+Metric-level система контрактов для обеспечения type safety и предотвращения hallucination имен метрик:
+
+#### Data Contracts
+```python
+class DataContract(BaseModel):
+    """Канонический контракт для метрики."""
+    metric_id: str           # Уникальный ID (us.macro.gdp_nominal)
+    display_name: str        # Человекочитаемое имя
+    description: str         # Подробное описание
+    dtype: DataType          # Тип данных (int, float, string, etc.)
+    unit: str | None         # Единицы измерения
+    granularity: Granularity # Временная/сущностная гранулярность
+    dimensions: List[str]    # Измерения для slicing
+    pii_tier: PIITier        # Уровень приватности
+    source_system: str       # Система-источник
+    # ... provenance, aliases, lifecycle fields
+```
+
+#### Metric Bindings
+```python
+@dataclass(frozen=True)
+class MetricBinding:
+    """Hash-locked ссылка на метрику для Scientist агента."""
+    metric_id: str
+    unit: str | None
+    dtype: str
+    dimensions: tuple[str, ...]
+    pii_tier: str
+    contract_hash: str       # SHA-256 hash контракта
+```
+
+**Ключевые возможности:**
+- **Type Safety**: Предотвращение hallucination имен метрик через валидированные контракты
+- **Hash Locking**: Tamper-evident bindings с обнаружением изменений контрактов
+- **Search & Disambiguation**: Fuzzy поиск с human-in-the-loop disambiguation при низкой уверенности
+- **PII Classification**: 5-уровневая классификация приватности (none/low/medium/high/critical)
+- **Schema Evolution**: Lifecycle management с deprecation и supersession
+
+#### Registry & Search
+```python
+class DataContractRegistry:
+    """Реестр контрактов с кэшированием и валидацией."""
+    def get(self, metric_id: str) -> DataContract
+    def get_binding(self, metric_id: str) -> MetricBinding
+    def validate_binding(self, binding: MetricBinding) -> DataContract
+
+class MetricSearcher:
+    """Поиск метрик с disambiguation."""
+    def search(self, query: str) -> SearchResponse  # Fuzzy search
+    def resolve(self, query: str) -> MetricBinding  # Exact resolution
+```
+
+**Интеграция с Scientist:**
+- Scientist получает MetricBinding только после валидации контракта
+- Hash checking предотвращает silent contract drift
+- Disambiguation UI для ambiguous queries
+- Integration с UDF для type-safe queries
+
+### 2. Data Ingestion Pipeline (`ingestion.py`)
 
 Комплексный ETL-конвейер, обеспечивающий загрузку, валидацию и обработку данных с полным evidence tracking:
 
@@ -817,6 +884,76 @@ print("DuckDB materialized from Fact Log")
 db.close()
 ```
 
+### Работа с Data Contract Catalog
+
+```python
+from polisyos.fabric.catalog import (
+    DataContractRegistry, MetricSearcher, DataContract,
+    DataType, Granularity, PIITier
+)
+from pathlib import Path
+
+# Инициализация registry
+registry = DataContractRegistry(Path("data/curated"))
+
+# Поиск метрик
+searcher = MetricSearcher(list(registry))
+
+# Fuzzy поиск с disambiguation
+response = searcher.search("unemployment rate")
+if response.needs_disambiguation:
+    print("Ambiguous query. Options:")
+    for result in response.results[:3]:
+        print(f"  {result.contract.display_name}: {result.confidence:.0%}")
+else:
+    binding = response.best_match.binding
+    print(f"Found: {binding.metric_id}")
+
+# Exact resolution (raises on ambiguity)
+binding = searcher.resolve("us.macro.unemployment_rate")
+
+# Валидация binding (проверка hash)
+contract = registry.validate_binding(binding)
+print(f"Contract: {contract.display_name}, Unit: {contract.unit}")
+```
+
+### Создание Data Contracts
+
+```python
+from polisyos.fabric.catalog.contract import DataContract, DataContractCollection
+
+# Создание контракта для метрики
+contract = DataContract(
+    metric_id="us.macro.gdp_nominal",
+    display_name="Nominal GDP",
+    description="Gross Domestic Product in nominal terms",
+    dtype=DataType.FLOAT,
+    unit="USD",
+    granularity=Granularity.QUARTERLY,
+    dimensions=["region", "sector"],
+    valid_range=(0, None),  # Must be positive
+    source_system="bea.gov",
+    source_table="gdp_quarterly",
+    source_column="nominal_gdp",
+    jurisdiction="US",
+    pii_tier=PIITier.NONE,
+    aliases=["GDP", "nominal gdp", "gross domestic product"],
+    tags=["macro", "economic", "gdp"]
+)
+
+# Сохранение коллекции контрактов
+collection = DataContractCollection(
+    schema_version="1.0",
+    generated_at="2024-01-15T10:00:00Z",
+    generated_by="scan_fabric.py",
+    contracts=[contract]
+)
+
+import json
+with open("data/curated/data_contracts.json", "w") as f:
+    json.dump(collection.model_dump(), f, indent=2)
+```
+
 ### Кастомная валидация данных
 
 ```python
@@ -908,6 +1045,7 @@ runtime → common (инфраструктура)
 ```
 
 **Новые компоненты и связи:**
+- **Data Contract Catalog**: Metric-level type safety с hash-locked bindings для Scientist агента
 - **Fact Log System**: Полная интеграция с `ir.fact_log` для immutable хранения фактов
 - **Evidence System**: Использование `core.contracts.fabric` и `core.artifacts` для verifiable доказательств
 - **UDF Compilation Pipeline**: Многофазный компилятор с passes для security и optimization

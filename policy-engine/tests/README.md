@@ -37,6 +37,7 @@ tests/
 ├── demos/                         # Демо-тесты для проверки функциональности
 │   └── run_laffer_demo.py         # Тест запуска демо Laffer curve из tools/demos/
 ├── fabric/                        # Тесты компонентов Fabric layer
+│   ├── test_data_catalog.py       # Data Contract catalog system, contract validation, metric bindings, search
 │   ├── test_evidence_bundle.py    # Evidence bundles, ingestion pipeline, provenance tracking
 │   └── test_trust_two_pass.py     # Trust system, uncertainty bounds, двухпроходное сравнение
 ├── foundry/                       # Тесты симуляционных компонентов JAX-ядра
@@ -182,9 +183,10 @@ tests/
 
 ### Fabric Tests (`fabric/`)
 
-**Цель**: Комплексная валидация компонентов Fabric layer - ingestion pipeline, evidence bundles, trust system и materialization engine.
+**Цель**: Комплексная валидация компонентов Fabric layer - data catalog system, ingestion pipeline, evidence bundles, trust system и materialization engine.
 
 **Ключевые тесты:**
+- **Data Contract Catalog**: Валидация контрактов данных, metric bindings, registry system, поиск и разрешение метрик с disambiguation
 - **Evidence Bundle**: Создание, валидация и persistence evidence артефактов после ingestion с provenance tracking
 - **Trust & Uncertainty**: Двухпроходное сравнение данных, оценка uncertainty bounds, статистическая верификация доверия
 
@@ -357,6 +359,9 @@ pytest tests/integration/test_workflow_llm.py
 # Smoke test (минимальный полный цикл)
 pytest tests/integration/test_workflow_smoke.py
 
+# Data contract catalog system
+pytest tests/fabric/test_data_catalog.py
+
 # Evidence bundles и ingestion
 pytest tests/fabric/test_evidence_bundle.py
 
@@ -451,6 +456,12 @@ pytest tests/runtime/test_runtime_manifest_paths.py
 - **Surface IR**: Semantic fingerprinting для дедупликации
 
 ### Fabric Layer (`fabric/`)
+**Data Catalog System** → Metadata management and discovery
+- **Data Contract Catalog**: Структурированные контракты данных с типами, гранулярностью, PII уровнями
+- **Metric Bindings**: Hash-интегрированные привязки метрик к контрактам с валидацией целостности
+- **Metric Searcher**: Поиск и разрешение метрик с disambiguation логикой и fuzzy matching
+- **Contract Registry**: Загрузка, валидация и управление каталогом контрактов данных
+
 **Data Ingestion & Evidence** → Raw data processing
 - **Ingestion Pipeline**: Raw → Staging → Curated трансформация
 - **Evidence Bundles**: Артефакты результатов ingestion с метаданными
@@ -762,6 +773,9 @@ python -c "from polisyos.scientist.agent.memory import ShortTermMemory; print('S
 
 # Проверка multi-agent workflow
 python -c "from polisyos.scientist.orchestrator.workflow import build_workflow; print('Multi-agent workflow OK')"
+
+# Проверка data contract catalog system
+python -c "from polisyos.fabric.catalog.contract import DataContract, DataContractCollection; from polisyos.fabric.catalog.registry import DataContractRegistry; from polisyos.fabric.catalog.search import MetricSearcher; print('Data contract catalog OK')"
 
 # Проверка environment manifest
 python -c "from polisyos.core.artifacts.environment import capture_environment; print('Environment manifest OK')"

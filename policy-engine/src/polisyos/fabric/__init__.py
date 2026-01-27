@@ -1,3 +1,35 @@
 from polisyos.fabric.ingestion import run_ingestion
+from polisyos.fabric.catalog import (
+    ContractHashMismatchError,
+    ContractNotFoundError,
+    ContractValidationError,
+    DataContract,
+    DataContractCollection,
+    DataContractRegistry,
+    DataType,
+    Granularity,
+    MetricBinding,
+    MetricSearcher,
+    PIITier,
+    SearchResponse,
+    SearchResult,
+    load_contract_collection,
+)
 
-__all__ = ["run_ingestion"]
+__all__ = [
+    "ContractHashMismatchError",
+    "ContractNotFoundError",
+    "ContractValidationError",
+    "DataContract",
+    "DataContractCollection",
+    "DataContractRegistry",
+    "DataType",
+    "Granularity",
+    "MetricBinding",
+    "MetricSearcher",
+    "PIITier",
+    "SearchResponse",
+    "SearchResult",
+    "load_contract_collection",
+    "run_ingestion",
+]

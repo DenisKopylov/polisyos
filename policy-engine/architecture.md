@@ -1,6 +1,6 @@
 # Complete Policy Engine Architecture
 
-> **Last updated:** January 27, 2026 (added legal validation system and norm pack contracts)
+> **Last updated:** January 27, 2026 (added data contract catalog system and scan_fabric tool)
 >
 > This document contains the complete architecture of the Policy Engine project with detailed descriptions of all files in the `src/`, `tests/`, and `tools/` directories.
 
@@ -97,8 +97,15 @@ policy-engine/
 │   │     ├── record.py               # Trace record structures (TraceRecord)
 │   │     └── sink.py                 # Trace output sinks (JsonlTraceSink, TraceSink)
 │   ├── fabric/                       # Unified Data Fabric (data processing + cryptographic evidence)
-│   │   ├── __init__.py               # Exports Fabric module public API
-│   │   ├── config.py                 # Fabric layer configuration and data source setup
+│   │   ├── __init__.py               # Exports Fabric module public API (run_ingestion, catalog components)
+│   │   ├── catalog/                  # Metric-level data contract catalog system
+│   │   │   ├── __init__.py           # Exports catalog API (DataContract, MetricBinding, DataContractRegistry)
+│   │   │   ├── binding.py            # MetricBinding - hash-locked immutable references to contracts
+│   │   │   ├── contract.py           # DataContract models and validation (DataType, Granularity, PIITier)
+│   │   │   ├── registry.py           # DataContractRegistry with hash validation and contract loading
+│   │   │   ├── search.py             # MetricSearcher with fuzzy matching and disambiguation
+│   │   │   └── validate.py           # Contract validation from JSON and collection loading
+│   │   ├── config.py                 # Fabric layer configuration and data source setup (FabricConfig, CatalogConfig)
 │   │   ├── evidence.py               # Cryptographically verifiable evidence bundles for data provenance
 │   │   ├── fact_writer.py            # Immutable fact writer for audit trails and provenance
 │   │   ├── ingestion.py              # Full ETL pipeline (CSV → DuckDB + Kùzu with validation)
@@ -356,6 +363,7 @@ policy-engine/
 │   │   └── run_laffer_demo.py        # Laffer curve demo execution test from tools/demos/
 │   ├── fabric/                       # Data layer integration tests (ingestion, evidence, trust)
 │   │   ├── README.md                 # Fabric testing documentation and data pipeline validation
+│   │   ├── test_data_catalog.py      # Data contract catalog system (contracts, bindings, search, registry)
 │   │   ├── test_evidence_bundle.py   # Evidence bundles, ingestion pipeline, provenance tracking
 │   │   └── test_trust_two_pass.py    # Trust system validation with uncertainty bounds analysis
 │   ├── foundry/                      # Mathematical core unit tests (JAX, simulations)
@@ -425,6 +433,7 @@ policy-engine/
     ├── gen_schema.py                 # JSON Schema generation utility from Pydantic models
     ├── lint_foundry.py               # Mathematical core purity linter (Law B compliance)
     ├── lint_imports.py               # Architectural dependency linter (Law A compliance)
+    ├── scan_fabric.py                # Bootstrap utility to scan DuckDB files and generate draft data contracts
     ├── capture_env.py                # Environment capture and manifest generation tool
     ├── migrate_ir.py                 # Specialized Policy IR migration tool
     ├── migrate.py                    # Universal artifact migration tool

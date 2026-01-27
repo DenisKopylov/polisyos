@@ -2,7 +2,7 @@
 
 **Policy Engine** — AI‑driven система проектирования, валидации, калибровки и исполнения политик. Архитектурно это “компиляторная труба”: от запроса пользователя/LLM до формально типизированных контрактов (IR), далее — компиляция в исполняемые графы, выполнение в JAX‑ядре и фиксация результатов в воспроизводимых артефактах.
 
-**Состояние документа (актуально на 2026‑01‑27):** архитектура v2.1.3 (Legal Validation, Norm Pack Contracts, Rule Backend System, Trinity Architecture, Enhanced Governance, Legal Compliance, Kernel Registry Extensions, Fact Log Integration), присутствуют переходные зоны/устаревшие интерфейсы (см. раздел “Legacy и переходные зоны”).
+**Состояние документа (актуально на 2026‑01‑27):** архитектура v2.1.3 (Data Contract Catalog, Legal Validation, Norm Pack Contracts, Rule Backend System, Trinity Architecture, Enhanced Governance, Legal Compliance, Kernel Registry Extensions, Fact Log Integration), присутствуют переходные зоны/устаревшие интерфейсы (см. раздел “Legacy и переходные зоны”).
 
 ## Архитектурный обзор
 
@@ -181,6 +181,7 @@ common → (никого)                                      # фундаме�
 - **JupyterLab + Matplotlib + Seaborn + Plotly**: исследовательская визуализация и ноутбуки
 
 ### Новые компоненты (после крупных изменений)
+- **Data Contract Catalog**: Metric-level система контрактов для type safety и предотвращения hallucination имен метрик с hash-locked bindings
 - **Trinity Architecture**: Разделение IR на ProblemFrame ("Why"), PolicySpec ("What"), ModelSpec ("How")
 - **Agent Protocols**: Стандартизированные интерфейсы для PI/Drafter/Formalizer/Critic агентов с runtime поведением
 - **Environment Manifest**: Захват и сравнение вычислительных окружений с compatibility scoring
@@ -386,9 +387,15 @@ policy-engine/
 │   │   ├── calibration.py            # Контракты калибровки параметров
 │   │   └── migrations/               # Миграции между версиями IR
 │   ├── fabric/                       # Unified Data Fabric (данные + evidence)
+│   │   ├── catalog/                  # Metric-level data contract catalog
+│   │   │   ├── binding.py            # MetricBinding - hash-locked ссылки на метрики
+│   │   │   ├── contract.py           # DataContract модели (DataContract, DataContractCollection)
+│   │   │   ├── registry.py           # DataContractRegistry - реестр контрактов с валидацией
+│   │   │   ├── search.py             # MetricSearcher - поиск метрик с disambiguation
+│   │   │   └── validate.py           # Валидация контрактов (load_contract_collection)
 │   │   ├── ingestion.py              # ETL pipeline (CSV → DuckDB + Kùzu)
 │   │   ├── udf/                      # User Defined Functions (безопасные запросы)
-│   │   ├── materializer.py           # Материализация Fact Log в реляционные таблицы
+│   │   ├── materializer.py           # Полноценная материализация Fact Log в реляционные таблицы
 │   │   ├── evidence.py               # Криптографически verifiable evidence bundles
 │   │   ├── trust.py                  # Политики доверия с statistical verification
 │   │   └── io/                       # Интерфейсы хранения (DuckDB, Kùzu)
@@ -453,24 +460,27 @@ policy-engine/
 │       └── README.md                 # Подробная документация runtime API
 ├── tests/                            # Тестовая инфраструктура
 │   ├── conftest.py                   # Конфигурация pytest и JAX setup
-│   ├── contract/                     # Тесты контрактов IR (валидация схем, миграции)
+│   ├── contract/                     # Тесты контрактов IR (валидация схем, Trinity, миграции)
 │   ├── core_phase0/                  # Тесты фундаментальных компонентов core
-│   ├── fabric/                       # Тесты data layer (ingestion, evidence, trust)
+│   ├── fabric/                       # Тесты data layer (catalog, ingestion, evidence, trust)
 │   ├── foundry/                      # Тесты математического ядра (JAX, симуляции)
 │   ├── integration/                  # End-to-end тесты (calibration UDF, workflow)
 │   ├── ir/                           # Тесты загрузчиков и трансформаций IR
 │   ├── runtime/                      # Тесты управления жизненным циклом
-│   └── scientist/                    # Тесты AI компонентов и оркестрации
+│   └── scientist/                    # Тесты AI компонентов и оркестрации (governance, agents)
 └── tools/                            # Инструменты разработчика и демонстрации
     ├── benchmarks/                   # Бенчмарки производительности (JAX, симуляции)
     ├── demos/                        # Демонстрационные скрипты возможностей
     ├── diagnostics/                  # Диагностика системы (check_setup, perf analysis)
+    ├── capture_env.py                # Захват и сравнение Environment Manifest
     ├── gen_schema.py                 # Генерация JSON Schema из Pydantic
     ├── lint_imports.py               # Линтер архитектурных зависимостей (Закон A)
     ├── lint_foundry.py               # Линтер чистоты математического ядра (Закон B)
     ├── migrate.py                    # Универсальная миграция артефактов
     ├── migrate_ir.py                 # Специализированная миграция Policy IR
-    └── run_mechanism_design.py       # End-to-end демонстрация дифференцируемого дизайна
+    ├── migrate_to_trinity.py         # Миграция в Trinity формат
+    ├── run_mechanism_design.py       # End-to-end демонстрация дифференцируемого дизайна
+    └── scan_fabric.py                # Сканер DuckDB и генератор data contracts
 ```
     ├── migrate.py
     ├── migrate_ir.py
@@ -583,12 +593,13 @@ RunManifest + seed + artifacts → Full reproducibility
 **Архитектурная роль**: Единая система обработки и хранения данных для AI-driven симуляции политик. Fabric обеспечивает полный жизненный цикл данных от сырых CSV до высокопроизводительных UDF запросов с криптографической верификацией происхождения.
 
 **Ключевые компоненты:**
+- **Data Contract Catalog**: Metric-level система контрактов для type safety и предотвращения hallucination имен метрик с hash-locked bindings
 - **Data Ingestion Pipeline**: Полный ETL-конвейер (raw → staging → curated) с evidence tracking и quality metrics
 - **UDF Engine**: Безопасный компилируемый слой запросов с multi-pass compilation (resolution/typecheck/privacy/lowering)
 - **Fact Log System**: Immutable факты с provenance tracking, детерминированными ID и сегментацией
 - **Evidence Bundles**: Криптографически verifiable доказательства происхождения данных
 - **Entity Resolution**: Нормализация идентификаторов агентов с confidence scoring
-- **Materializer Engine**: Инкрементальная материализация реляционных представлений из Fact Log
+- **Materializer Engine**: Полноценная система материализации реляционных представлений из Fact Log с incremental updates
 - **Trust System**: Многоуровневые политики доверия с statistical verification и uncertainty bounds
 
 **Технологии:**
@@ -738,7 +749,8 @@ Policy Engine строго следует **Закону A** (направлен
 
 **Fabric** обеспечивает data layer для симуляций и анализа:
 
-- **Scientist**: `fabric.udf.engine` (UDFEngine для запросов данных), `fabric.registry` (ManifestRegistry)
+- **Data Contract Catalog**: `fabric.catalog.*` (DataContractRegistry, MetricBinding, MetricSearcher) - type safety для метрик
+- **Scientist**: `fabric.udf.engine` (UDFEngine для запросов данных), `fabric.catalog` (contract validation), `fabric.registry` (ManifestRegistry)
 - **Foundry**: Косвенная зависимость через scientist (данные для симуляций)
 - **Runtime**: Косвенная интеграция через логирование результатов UDF запросов
 
@@ -889,7 +901,8 @@ pytest tests/integration/ -v
 
 ### 📊 Расширенная система данных
 
-- **Materializer**: Восстановление реляционных представлений из Fact Log
+- **Data Contract Catalog**: Metric-level система контрактов с hash-locked bindings для предотвращения hallucination имен метрик
+- **Materializer**: Полноценная система восстановления реляционных представлений из Fact Log с incremental updates
 - **Evidence Bundles**: Криптографически verifiable доказательства происхождения данных
 - **Multi-tier Access Control**: PII classification (public/internal/sensitive)
 - **Entity Resolution**: Нормализация идентификаторов агентов с confidence scoring
@@ -1040,7 +1053,7 @@ python tools/diagnostics/generate_ir_schema.py
 - **[`tests/README.md`](tests/README.md)**: Contract тесты (IR валидация), core phase 0 (CAS, canonical JSON), fabric (evidence, trust), foundry (JAX, calibration), integration (end-to-end workflows), runtime (artifact management), governance (validation pipeline, legal compliance)
 
 ### 🔨 Developer Tools (Инструменты разработчика)
-- **[`tools/README.md`](tools/README.md)**: Архитектурные линтеры (lint_imports.py - Закон A, lint_foundry.py - Закон B), генерация JSON Schema, миграции артефактов, бенчмарки производительности, демонстрационные скрипты, диагностика системы
+- **[`tools/README.md`](tools/README.md)**: Архитектурные линтеры (lint_imports.py - Закон A, lint_foundry.py - Закон B), генерация JSON Schema, миграции артефактов, бенчмарки производительности, демонстрационные скрипты, диагностика системы, scan_fabric.py (bootstrap data contracts), migrate_to_trinity.py (миграция в Trinity формат), capture_env.py (environment manifests)
 
 ## Архитектурные принципы проекта
 

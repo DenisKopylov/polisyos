@@ -54,6 +54,7 @@ tools/
 │   │   # - Анализ времени выполнения запросов
 │   │   # - Мониторинг памяти и CPU использования
 │   │   # - Сравнение DuckDB vs Kuzu производительности
+│   │   # - Регрессионное тестирование производительности
 │   └── generate_ir_schema.py   # Генерация JSON Schema для IR компонентов
 │       # - Автоматическая генерация схем из Pydantic моделей
 │       # - Валидация структур данных IR
@@ -86,10 +87,15 @@ tools/
 │   # - Конвертация PolicySurfaceIR в Trinity bundle
 │   # - Разделение на ProblemFrame, PolicySpec, ModelSpec
 │   # - Batch обработка и верификация
-└── run_mechanism_design.py     # End-to-end демонстрация механизма дизайна
-    # - Дифференцируемая оптимизация политик через JAX grad
-    # - Обучение агентных политик с reinforcement learning
-    # - Полный цикл: IR → Foundry → градиентная оптимизация
+├── run_mechanism_design.py     # End-to-end демонстрация механизма дизайна
+│   # - Дифференцируемая оптимизация политик через JAX grad
+│   # - Обучение агентных политик с reinforcement learning
+│   # - Полный цикл: IR → Foundry → градиентная оптимизация
+└── scan_fabric.py              # Сканер DuckDB и генератор data contracts
+    # - Сканирование DuckDB файлов и извлечение схем
+    # - Генерация черновых data contracts для Unified Data Fabric
+    # - Автоматическое определение типов, единиц и PII tiers
+    # - Bootstrap утилита для быстрого старта с данными
 ```
 
 ## Быстрый старт
@@ -111,6 +117,9 @@ python -m tools.capture_env capture --output env.json
 
 # Генерация схем
 python tools/gen_schema.py --check
+
+# Bootstrap data contracts из существующих DuckDB
+python tools/scan_fabric.py data/curated/
 
 # Демонстрации возможностей
 python tools/demos/run_ingest_demo.py  # Полный ingestion пайплайн
@@ -609,6 +618,71 @@ python tools/run_mechanism_design.py
 # - Финальный оптимум (~30-55% по кривой Лаффера)
 ```
 
+### scan_fabric.py - Сканер DuckDB и генератор data contracts
+
+Bootstrap утилита для быстрого старта работы с Unified Data Fabric. Автоматически сканирует существующие DuckDB файлы, извлекает схемы таблиц и генерирует черновые data contracts с автоматическим определением типов, единиц измерения и уровней PII.
+
+**Функциональность:**
+- **Сканирование схем:** Автоматическое извлечение структуры таблиц из DuckDB файлов
+- **Маппинг типов:** Преобразование DuckDB типов в стандартные типы данных (int, float, string, array, json)
+- **Интеллектное определение:** Автоматическое определение единиц измерения и PII tiers на основе названий колонок
+- **Генерация контрактов:** Создание полных data contract структур с метаданными
+- **Bootstrap workflow:** Разработчик аннотирует черновики описаниями и проверяет автоматически определенные параметры
+
+**Алгоритмы определения:**
+- **PII tier:** Эвристический анализ названий колонок (high: ssn, password; medium: email, phone; low: age, income)
+- **Единицы измерения:** Паттерн-матчинг (usd для цен, ratio для ставок, count для количества)
+- **Отображаемые имена:** Автоматическое преобразование snake_case в Title Case
+- **Канонические ID:** Формат `{db}.{table}.{column}` с нормализацией
+
+**Интеграция с:**
+- `polisyos.fabric.catalog.*` - система data contracts
+- DuckDB read-only соединения
+- `polisyos.ir.contracts.DataContract` - структура контрактов
+- JSON Schema валидация
+
+```bash
+# Сканирование директории с DuckDB файлами
+python tools/scan_fabric.py data/curated/
+
+# Сканирование с verbose выводом
+python tools/scan_fabric.py data/curated/ -v
+
+# Вывод в конкретный файл
+python tools/scan_fabric.py data/curated/ -o my_contracts.json
+
+# Использование кастомного glob паттерна
+python tools/scan_fabric.py data/ -glob "*.db"
+```
+
+**Вывод:**
+```
+Scanning database.duckdb...
+  Found 15 columns in 3 tables
+Generated 15 draft contracts to draft_contracts.json
+
+Next steps:
+  1. Review and edit the generated contracts
+  2. Fill in TODO descriptions
+  3. Verify units and PII tiers
+  4. Move to production: mv draft_contracts.json data/curated/data_contracts.json
+```
+
+**Структура генерируемого контракта:**
+```json
+{
+  "metric_id": "demo_db.agents.income",
+  "display_name": "Income",
+  "description": "TODO: Describe income from agents",
+  "dtype": "float",
+  "unit": "usd",
+  "pii_tier": "low",
+  "source_system": "/path/to/database.duckdb",
+  "source_table": "agents",
+  "source_column": "income"
+}
+```
+
 ## Архитектурная интеграция
 
 Инструменты `tools/` обеспечивают качество и надежность всей системы Policy Engine, интегрируясь со всеми основными модулями:
@@ -633,6 +707,7 @@ python tools/run_mechanism_design.py
 | `run_export_demo.py` | `core.*`, `fabric.*` | Экспорт симуляционных данных | - |
 | `run_laffer_demo.py` | `foundry.*` | Экономическая теория (кривая Лаффера) | - |
 | `run_mechanism_design.py` | `foundry.*`, `core.artifacts` | Дифференцируемый механизм дизайна | B (компиляторная архитектура) |
+| `scan_fabric.py` | `fabric.catalog.*`, `ir.contracts` | Bootstrap data contracts для Unified Data Fabric | E (evidence и provenance) |
 | `capture_env.py` | `core.artifacts.environment` | Закон D (воспроизводимость окружения) | D (воспроизводимость) |
 | `migrate_to_trinity.py` | `ir.trinity`, `ir.migrations.trinity_migration` | Закон C (Trinity формат миграции) | C (контракты) |
 
@@ -741,6 +816,7 @@ jobs:
       run: |
         python tools/demos/run_ingest_demo.py
         python tools/demos/run_udf_query_demo.py
+        python tools/scan_fabric.py data/demo_udf.duckdb --output /tmp/test_contracts.json
         python tools/demos/run_optimizer_demo.py --quick
 
   nightly-benchmarks:
@@ -865,6 +941,28 @@ python tools/lint_foundry.py --verbose
 python tools/lint_foundry.py --exclude "test_*"
 ```
 
+### scan_fabric.py не находит DuckDB файлы
+```bash
+# Проверь наличие файлов
+ls -la data/curated/*.duckdb
+
+# Используй кастомный glob паттерн
+python tools/scan_fabric.py data/ -glob "**/*.duckdb"
+
+# Проверь права доступа
+python -c "import duckdb; print('DuckDB OK')"
+```
+
+### Некорректное определение типов/единиц
+```bash
+# Просмотри сгенерированные контракты
+python tools/scan_fabric.py data/curated/ -v
+
+# Ручная аннотация после генерации
+# Отредактируй draft_contracts.json вручную
+# Проверь units и pii_tiers
+```
+
 ## Разработка новых инструментов
 
 ### Принципы дизайна
@@ -970,6 +1068,7 @@ POLICY_ENGINE_LOG_LEVEL=DEBUG python tools/diagnostics/check_setup.py
 - **Закон B**: Чистота математического ядра foundry с запретом IO операций
 - **Закон C**: Контракты как источник истины с детерминированными миграциями
 - **Закон D**: Полная воспроизводимость через manifests и trace систему
+- **Закон E**: Evidence и provenance обязательны для всех данных (новая система data contracts)
 
 ### Интеграция с модулями
 
@@ -980,7 +1079,15 @@ POLICY_ENGINE_LOG_LEVEL=DEBUG python tools/diagnostics/check_setup.py
 - **Эволюция**: `migrate_*.py`, `gen_schema.py` - безопасные изменения
 - **Производительность**: `benchmarks/` - регрессионное тестирование
 - **Демонстрация**: `demos/` - валидация функциональности
+- **Bootstrap**: `scan_fabric.py` - быстрая генерация data contracts из существующих данных
+
+### Новые возможности (2026-01-27)
+
+- **Data Catalog System**: Новая подсистема data contracts в `fabric.catalog/`
+- **scan_fabric.py**: Bootstrap утилита для автоматической генерации data contracts
+- **Enhanced Evidence Tracking**: Улучшенная система provenance и evidence bundles
+- **Trinity Migration**: Поддержка миграции в новый Trinity формат (ProblemFrame, PolicySpec, ModelSpec)
 
 ---
 
-*Инструменты протестированы на Python 3.11+ с JAX 0.4.x, DuckDB, Kuzu и полным технологическим стеком Policy Engine. Документация обновлена для отражения актуального состояния на 2026-01-26.*
+*Инструменты протестированы на Python 3.11+ с JAX 0.4.x, DuckDB, Kuzu и полным технологическим стеком Policy Engine. Документация обновлена для отражения актуального состояния на 2026-01-27.*

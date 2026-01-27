@@ -1,6 +1,6 @@
 # Complete Policy Engine Architecture
 
-> **Last updated:** January 27, 2026 (added data contract catalog system and scan_fabric tool)
+> **Last updated:** January 27, 2026 (added W3C PROV-O provenance tracking system and visualization tools)
 >
 > This document contains the complete architecture of the Policy Engine project with detailed descriptions of all files in the `src/`, `tests/`, and `tools/` directories.
 
@@ -121,6 +121,10 @@ policy-engine/
 │   │   ├── schema.py                 # Fabric data schemas and type definitions
 │   │   ├── segment_manifest.py       # Segment manifests for data partitioning and optimization
 │   │   ├── trust.py                  # Trust policies with statistical verification and uncertainty bounds
+│   │   ├── provenance/               # W3C PROV-O provenance tracking system
+│   │   │   ├── __init__.py          # Exports provenance API
+│   │   │   ├── core.py               # ProvenanceCoreGraph and entity models (ProvenanceEntity, ProvenanceActivity, ProvenanceAgent)
+│   │   │   └── export_provo.py       # PROV-O JSON-LD and N-Quads export
 │   │   └── udf/                      # User Defined Functions (secure compiled queries)
 │   │       ├── __init__.py           # Exports UDF system API
 │   │       ├── compiler.py           # UDF query compilation with security checks
@@ -365,6 +369,7 @@ policy-engine/
 │   │   ├── README.md                 # Fabric testing documentation and data pipeline validation
 │   │   ├── test_data_catalog.py      # Data contract catalog system (contracts, bindings, search, registry)
 │   │   ├── test_evidence_bundle.py   # Evidence bundles, ingestion pipeline, provenance tracking
+│   │   ├── test_provenance.py        # Provenance subsystem, entities, graphs, PROV-O export, persistence
 │   │   └── test_trust_two_pass.py    # Trust system validation with uncertainty bounds analysis
 │   ├── foundry/                      # Mathematical core unit tests (JAX, simulations)
 │   │   ├── agent_sim/                # Agent simulation testing suite
@@ -435,6 +440,7 @@ policy-engine/
     ├── lint_imports.py               # Architectural dependency linter (Law A compliance)
     ├── scan_fabric.py                # Bootstrap utility to scan DuckDB files and generate draft data contracts
     ├── capture_env.py                # Environment capture and manifest generation tool
+    ├── visualize_provenance.py       # Provenance graph visualization and verification tool
     ├── migrate_ir.py                 # Specialized Policy IR migration tool
     ├── migrate.py                    # Universal artifact migration tool
     ├── migrate_to_trinity.py         # Batch migration tool for Trinity framework adoption

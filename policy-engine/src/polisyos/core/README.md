@@ -164,17 +164,18 @@ core/
 #### Fabric Contracts (Fabric - обработка данных)
 - `DataViewRequestRef` - запрос на представление данных
 - `QueryPlan` / `QueryPlanRef` - план запроса с шагами выполнения
-- `EvidenceBundle` / `EvidenceBundleRef` - пакет доказательств с трансформациями
-- `FabricResult` / `FabricResultRef` - результат обработки с метаданными
+- `EvidenceBundle` / `EvidenceBundleRef` - пакет доказательств с трансформациями и provenance tracking
+- `FabricResult` / `FabricResultRef` - результат обработки с полными метаданными
 - `UncertaintyBounds` / `UncertaintyBoundsRef` - границы неопределенности
 - `WarningsBundle` / `WarningsRef` - пакет предупреждений
+- `ProvenanceCoreRefModel` - модель для отслеживания происхождения данных
 
 #### Foundry Contracts (Foundry - симуляция и исполнение политик)
 - `PolicySurfaceIRRef` - ссылка на IR поверхности политики
 - `ProgramGraph` / `ProgramGraphRef` - граф программы с узлами и операциями (механизмы, операции)
 - `LoweredIR` / `LoweredIRRef` - пониженное IR для исполнения
-- `ExecPlan` / `ExecPlanRef` - план исполнения с конфигурацией
-- `StateSnapshot` / `StateSnapshotRef` - снимок состояния симуляции
+- `ExecPlan` / `ExecPlanRef` - план исполнения с конфигурацией и environment tracking
+- `StateSnapshot` / `StateSnapshotRef` - снимок состояния симуляции с schema tracking
 - `StateDelta` / `StateDeltaRef` - дельта изменений состояния (patch-based updates)
 - `TreasurySeed` / `TreasurySeedRef` - детерминированный seed для RNG
 - `ExecConfig` / `ExecConfigRef` - конфигурация исполнения (JAX, ресурсы, параметры)
@@ -182,18 +183,22 @@ core/
 - `ConstraintReportRef` - отчет о проверке ограничений
 - `CalibrationReportRef` - отчет калибровки параметров
 - `TraceSliceRef` - срез трассировки исполнения в формате JSONL
+- `PatchOp` / `UpdateOp` - операции для patch-based state management
+- `Patch` / `PatchSet` - структурированные патчи с метаданными и confidence scoring
+- `PatchMeta` - метаданные патчей с source tracking и confidence levels
 
 #### Trinity Contracts (Trinity - базовые спецификации)
 - `ProblemFrameRef` - ссылка на спецификацию проблемы (ProblemFrame)
 - `PolicySpecRef` - ссылка на спецификацию политики (PolicySpec)
 - `ModelSpecRef` - ссылка на спецификацию модели (ModelSpec)
-- `TrinityBundle` - пакет из трех Trinity артефактов
-- `TrinityManifest` - манифест с метаданными Trinity эксперимента
+- `TrinityBundle` - пакет из трех Trinity артефактов с валидацией совместимости
+- `TrinityManifest` - манифест с метаданными Trinity эксперимента и полными полями
 
 #### Scientist Contracts (Scientist - эксперименты и агенты)
-- `FailureCardRef` - ссылка на FailureCard с информацией об ошибках экспериментов
-- `PolicyIRRef` - ссылка на PolicySurfaceIR с версией и статусом
-- `CritiqueRef` - ссылка на артефакт оценки критика с вердиктом
+- `ArtifactRef` - базовый класс для всех ссылок на артефакты с CAS хешированием
+- `FailureCardRef` - ссылка на FailureCard с информацией об ошибках экспериментов (attempt_number, error_code, source_step, can_retry)
+- `PolicyIRRef` - ссылка на PolicySurfaceIR с версией и статусом (version, status)
+- `CritiqueRef` - ссылка на артефакт оценки критика с вердиктом (verdict, ir_ref)
 
 #### Legal Contracts (Legal - compliance и валидация)
 - `NormPack` - пакет нормативных правил и ограничений
@@ -280,15 +285,15 @@ Core является фундаментом всей системы PolisyOS и
 **Обоснование**: Fabric работает с данными как с артефактами и использует контракты core для типобезопасного обмена.
 
 #### Foundry (Симуляция и исполнение политик) - Зависит от core
-- **contracts.foundry**: Все контракты Foundry (ProgramGraph, ExecPlan, StateDelta, StateSnapshot, etc.)
+- **contracts.foundry**: Полный набор контрактов Foundry (ProgramGraph, ExecPlan, StateDelta, StateSnapshot, PatchOp, UpdateOp, Patch, PatchSet, etc.)
 - **artifacts.store.FileSystemCAS**: Хранение всех артефактов симуляции (состояния, метрики, конфигурации)
-- **artifacts.environment**: EnvironmentManifest для reproducible симуляций с fingerprinting окружения
+- **artifacts.environment**: EnvironmentManifest для reproducible симуляций с fingerprinting окружения и compatibility scoring
 - **run.RunContext**: Контексты выполнения симуляций с интегрированной трассировкой
 - **trace**: Детальная трассировка всех этапов исполнения, калибровки и симуляции
 - **canon**: Каноническая сериализация для обеспечения reproducible результатов
 - **artifacts.manifest**: Метаданные для всех артефактов симуляции
 
-**Обоснование**: Foundry реализует сложную логику симуляции с patch-based state management, где все состояния и результаты хранятся как артефакты для обеспечения traceability и reproducibility. EnvironmentManifest обеспечивает reproducible результаты путем фиксации всех факторов окружения.
+**Обоснование**: Foundry реализует сложную логику симуляции с advanced patch-based state management, где все состояния и результаты хранятся как артефакты для обеспечения traceability и reproducibility. EnvironmentManifest обеспечивает reproducible результаты путем фиксации всех факторов окружения с автоматическим compatibility scoring и risk assessment.
 
 #### Scientist (Оркестрация экспериментов) - Зависит от core
 - **run**: Контексты и манифесты выполнения экспериментов
@@ -491,10 +496,68 @@ if compatibility < 0.8:
             print(f"  {diff.field_name}: {diff.explanation}")
 ```
 
+### Работа с patch-based state management в Foundry:
+
+```python
+from polisyos.core.contracts.foundry import PatchOp, UpdateOp, Patch, PatchSet, PatchMeta, StateDelta
+
+# Создание patch-based state update
+patch_ops = [
+    PatchOp(
+        slot_id="user_balance",
+        op="add",
+        value_ref=balance_update_ref,
+        mask_scope="per_agent"
+    ),
+    PatchOp(
+        slot_id="system_interest_rate",
+        op="set",
+        value_ref=rate_ref
+    )
+]
+
+update_ops = [
+    UpdateOp(
+        slot_id="market_price",
+        op="clamp",
+        value_ref=new_price_ref,
+        min_ref=min_price_ref,
+        max_ref=max_price_ref
+    )
+]
+
+# Создание патча с метаданными
+patch = Patch(
+    schema_version="1.0",
+    meta=PatchMeta(
+        source_node_id="price_update_mechanism",
+        step=100,
+        confidence=0.95,
+        tags=["market_update", "price_adjustment"]
+    ),
+    ops=update_ops
+)
+
+# Создание patch set для batch updates
+patch_set = PatchSet(
+    schema_version="1.0",
+    patches=[patch],
+    notes=["Monthly market price adjustment"]
+)
+
+# State delta с patch-based updates
+state_delta = StateDelta(
+    base_ref=previous_state_ref,
+    patch_ref=patch_set_ref,
+    ops=patch_ops,
+    notes=["Combined market and user updates"]
+)
+```
+
 ### Работа с Trinity контрактами:
 
 ```python
-from polisyos.core.contracts.trinity import ProblemFrameRef, PolicySpecRef, ModelSpecRef, TrinityBundle
+from polisyos.core.contracts.trinity import ProblemFrameRef, PolicySpecRef, ModelSpecRef, TrinityBundle, TrinityManifest
 
 # Создание Trinity bundle для эксперимента
 trinity_bundle = TrinityBundle(
@@ -515,6 +578,16 @@ trinity_bundle = TrinityBundle(
     ),
     compatible=True,
     compatibility_notes=["All specs validated", "Compatible versions"]
+)
+
+# Создание манифеста эксперимента
+manifest = TrinityManifest(
+    manifest_id="exp_credit_risk_001",
+    bundle=trinity_bundle,
+    experiment_name="Credit Risk Policy Optimization",
+    created_by="alice@finance.com",
+    created_at="2024-01-15T10:00:00Z",
+    notes=["First experiment with neural risk model", "Focus on fraud detection"]
 )
 
 # Сохранение Trinity bundle

@@ -91,11 +91,16 @@ tools/
 │   # - Дифференцируемая оптимизация политик через JAX grad
 │   # - Обучение агентных политик с reinforcement learning
 │   # - Полный цикл: IR → Foundry → градиентная оптимизация
-└── scan_fabric.py              # Сканер DuckDB и генератор data contracts
-    # - Сканирование DuckDB файлов и извлечение схем
-    # - Генерация черновых data contracts для Unified Data Fabric
-    # - Автоматическое определение типов, единиц и PII tiers
-    # - Bootstrap утилита для быстрого старта с данными
+├── scan_fabric.py              # Сканер DuckDB и генератор data contracts
+│   # - Сканирование DuckDB файлов и извлечение схем
+│   # - Генерация черновых data contracts для Unified Data Fabric
+│   # - Автоматическое определение типов, единиц и PII tiers
+│   # - Bootstrap утилита для быстрого старта с данными
+└── visualize_provenance.py     # Визуализация и верификация provenance графов
+    # - Генерация Graphviz DOT файлов для provenance графов
+    # - Верификация целостности графов (orphaned nodes, cycles)
+    # - Экспорт в JSON и DOT форматы
+    # - Интеграция с Evidence Bundles и CAS системой
 ```
 
 ## Быстрый старт
@@ -120,6 +125,9 @@ python tools/gen_schema.py --check
 
 # Bootstrap data contracts из существующих DuckDB
 python tools/scan_fabric.py data/curated/
+
+# Визуализация provenance графов
+python tools/visualize_provenance.py evidence.json --verify
 
 # Демонстрации возможностей
 python tools/demos/run_ingest_demo.py  # Полный ingestion пайплайн
@@ -683,6 +691,66 @@ Next steps:
 }
 ```
 
+### visualize_provenance.py - Визуализация и верификация provenance графов
+
+Инструмент для визуализации и верификации provenance графов согласно **Закону E** ("Evidence и provenance обязательны"). Позволяет анализировать происхождение данных, выявлять проблемы в графах зависимостей и генерировать визуализации для отладки.
+
+**Функциональность:**
+
+**Загрузка графов:**
+- Загрузка из файлов JSON или evidence bundles
+- Разрешение provenance_ref через CAS систему
+- Поддержка различных форматов хранения
+
+**Верификация целостности:**
+- Проверка на orphaned nodes (узлы без связей)
+- Выявление dangling references (ссылки на несуществующие узлы)
+- Детекция циклов в wasDerivedFrom отношениях
+- Валидация всех обязательных полей
+
+**Визуализация:**
+- Экспорт в Graphviz DOT формат для визуализации
+- Цветовое кодирование по типам узлов (entities, activities, agents)
+- Стилизация отношений (derived, generated, used, attributed, associated)
+- Генерация PNG/SVG через Graphviz
+
+**Экспорт:**
+- JSON дамп графов с форматированием
+- DOT файлы для Graphviz визуализации
+- Поддержка stdout и файлового вывода
+
+```bash
+# Генерация DOT файла из evidence bundle
+python tools/visualize_provenance.py evidence.json --format dot > graph.dot
+dot -Tpng graph.dot -o graph.png
+
+# Верификация графа с CAS разрешением
+python tools/visualize_provenance.py provenance.json --cas-root .polisyos --verify
+
+# Экспорт в JSON формат
+python tools/visualize_provenance.py graph.json --format json --output graph_pretty.json
+```
+
+**Типы отношений в provenance:**
+- `wasDerivedFrom` - трансформация данных (синие сплошные линии)
+- `wasGeneratedBy` - генерация данных активностью (зеленые пунктирные)
+- `used` - использование данных активностью (оранжевые точечные)
+- `wasAttributedTo` - атрибуция агенту (фиолетовые сплошные)
+- `wasAssociatedWith` - ассоциация агента с активностью (фиолетовые пунктирные)
+
+**Интеграция с модулями:**
+- `polisyos.core.artifacts.ids.ArtifactID` - идентификаторы артефактов
+- `polisyos.core.artifacts.store.FileSystemCAS` - Content Addressable Storage
+- JSON Schema валидация provenance структур
+
+**Примеры вывода верификации:**
+```
+VERIFICATION FAILED:
+  - ORPHANED: Node 'data_entity_123' not connected to any edge
+  - DANGLING: Edge source 'activity_456' not found in nodes
+  - CYCLE: Circular dependency detected in wasDerivedFrom edges
+```
+
 ## Архитектурная интеграция
 
 Инструменты `tools/` обеспечивают качество и надежность всей системы Policy Engine, интегрируясь со всеми основными модулями:
@@ -708,6 +776,7 @@ Next steps:
 | `run_laffer_demo.py` | `foundry.*` | Экономическая теория (кривая Лаффера) | - |
 | `run_mechanism_design.py` | `foundry.*`, `core.artifacts` | Дифференцируемый механизм дизайна | B (компиляторная архитектура) |
 | `scan_fabric.py` | `fabric.catalog.*`, `ir.contracts` | Bootstrap data contracts для Unified Data Fabric | E (evidence и provenance) |
+| `visualize_provenance.py` | `core.artifacts.*` | Визуализация provenance графов | E (evidence и provenance) |
 | `capture_env.py` | `core.artifacts.environment` | Закон D (воспроизводимость окружения) | D (воспроизводимость) |
 | `migrate_to_trinity.py` | `ir.trinity`, `ir.migrations.trinity_migration` | Закон C (Trinity формат миграции) | C (контракты) |
 
@@ -817,6 +886,7 @@ jobs:
         python tools/demos/run_ingest_demo.py
         python tools/demos/run_udf_query_demo.py
         python tools/scan_fabric.py data/demo_udf.duckdb --output /tmp/test_contracts.json
+        python tools/visualize_provenance.py /tmp/test_provenance.json --verify || echo "No provenance file for testing"
         python tools/demos/run_optimizer_demo.py --quick
 
   nightly-benchmarks:
@@ -963,6 +1033,34 @@ python tools/scan_fabric.py data/curated/ -v
 # Проверь units и pii_tiers
 ```
 
+### visualize_provenance.py не может загрузить граф
+```bash
+# Проверь существование файла
+ls -la evidence.json
+
+# Для CAS артефактов проверь путь к .polisyos
+ls -la .polisyos/
+
+# Попробуй с verbose выводом
+python tools/visualize_provenance.py evidence.json --cas-root .polisyos --verify -v
+
+# Проверь JSON структуру
+python -c "import json; print(json.load(open('evidence.json'))['provenance_ref'])" 2>/dev/null || echo "No provenance_ref"
+```
+
+### DOT визуализация не работает
+```bash
+# Установи Graphviz
+# macOS: brew install graphviz
+# Ubuntu: apt-get install graphviz
+
+# Проверь установку
+dot -V
+
+# Сгенерируй и визуализируй
+python tools/visualize_provenance.py evidence.json --format dot | dot -Tpng -o graph.png
+```
+
 ## Разработка новых инструментов
 
 ### Принципы дизайна
@@ -1087,6 +1185,7 @@ POLICY_ENGINE_LOG_LEVEL=DEBUG python tools/diagnostics/check_setup.py
 - **scan_fabric.py**: Bootstrap утилита для автоматической генерации data contracts
 - **Enhanced Evidence Tracking**: Улучшенная система provenance и evidence bundles
 - **Trinity Migration**: Поддержка миграции в новый Trinity формат (ProblemFrame, PolicySpec, ModelSpec)
+- **visualize_provenance.py**: Инструмент для визуализации и верификации provenance графов
 
 ---
 

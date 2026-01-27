@@ -1,8 +1,17 @@
 from __future__ import annotations
 
+import json
+
+from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
-from polisyos.core.contracts.fabric import EvidenceBundle, EvidenceBundleRef, EvidenceStep
+from polisyos.core.contracts.fabric import (
+    EvidenceBundle,
+    EvidenceBundleRef,
+    EvidenceStep,
+    ProvenanceCoreRefModel,
+)
+from polisyos.fabric.provenance.core import ProvenanceCoreGraph, ProvenanceCoreRef
 
 
 def build_evidence_bundle(
@@ -11,13 +20,73 @@ def build_evidence_bundle(
     transforms: list[EvidenceStep] | None = None,
     trust_policy_id: str | None = None,
     notes: list[str] | None = None,
+    provenance_ref: ProvenanceCoreRef | None = None,
 ) -> EvidenceBundle:
+    prov_model = None
+    if provenance_ref is not None:
+        prov_model = ProvenanceCoreRefModel(
+            graph_id=provenance_ref.graph_id,
+            stable_id=provenance_ref.stable_id,
+            artifact_id=provenance_ref.artifact_id,
+        )
     return EvidenceBundle(
         sources=sources or [],
         transforms=transforms or [],
         trust_policy_id=trust_policy_id,
         notes=notes or [],
+        provenance_ref=prov_model,
     )
+
+
+def persist_provenance_graph(
+    store: FileSystemCAS,
+    graph: ProvenanceCoreGraph,
+    *,
+    schema_name: str = "fabric.provenance_graph",
+    schema_version: str = "1.0",
+) -> ProvenanceCoreRef:
+    """
+    Persist a ProvenanceCoreGraph to CAS and return a reference.
+    """
+    payload = graph.to_dict()
+    stable_id = payload["stable_id"]
+    ref = store.put_json(
+        payload,
+        opts=PutOptions(
+            kind="fabric.provenance_graph",
+            media_type="application/json",
+            schema=SchemaInfo(name=schema_name, version=schema_version),
+        ),
+    )
+    return ProvenanceCoreRef(
+        graph_id=graph.graph_id,
+        stable_id=stable_id,
+        artifact_id=str(ref.artifact_id),
+    )
+
+
+def load_provenance_graph(
+    store: FileSystemCAS,
+    ref: ProvenanceCoreRef,
+) -> ProvenanceCoreGraph:
+    """
+    Load a ProvenanceCoreGraph from CAS by reference.
+
+    Raises:
+        ValueError: If stable_id verification fails
+    """
+    payload = store.get_bytes(ArtifactID.model_validate(ref.artifact_id))
+    data = json.loads(payload.decode("utf-8"))
+    graph = ProvenanceCoreGraph.from_dict(data)
+
+    computed_stable_id = graph.compute_stable_id()
+    if computed_stable_id != ref.stable_id:
+        raise ValueError(
+            "Provenance graph integrity check failed: "
+            f"expected {ref.stable_id}, got {computed_stable_id}"
+        )
+
+    return graph
 
 
 def persist_evidence_bundle(

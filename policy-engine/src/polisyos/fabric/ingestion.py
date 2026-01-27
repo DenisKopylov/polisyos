@@ -2,8 +2,10 @@ import hashlib
 import json
 import math
 import re
+from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, Iterable, Tuple, Type
+from uuid import uuid4
 
 import pandas as pd
 from pydantic import BaseModel, ValidationError
@@ -17,7 +19,11 @@ from polisyos.fabric.config import (
     NORMALIZATION_RULES,
     RECONCILIATION_RULES,
 )
-from polisyos.fabric.evidence import build_evidence_bundle, persist_evidence_bundle
+from polisyos.fabric.evidence import (
+    build_evidence_bundle,
+    persist_evidence_bundle,
+    persist_provenance_graph,
+)
 from polisyos.fabric.fact_writer import build_fact, facts_from_dataframe, write_fact_segment
 from polisyos.fabric.io.db import SimulationDB
 from polisyos.fabric.io.graph_store import GraphStore
@@ -26,6 +32,15 @@ from polisyos.fabric.manifest import (
     DatasetManifest,
     QualityMetrics,
     ReconciliationReport,
+)
+from polisyos.fabric.provenance.core import (
+    ActivityType,
+    AgentType,
+    EntityType,
+    ProvenanceActivity,
+    ProvenanceAgent,
+    ProvenanceCoreGraph,
+    ProvenanceEntity,
 )
 from polisyos.fabric.schema import AgentRow, InteractionRow, MacroRow
 from polisyos.ir.fact_log import FactProvenance, FactSegmentManifest
@@ -39,6 +54,90 @@ def _file_hash(path: Path) -> str:
         for chunk in iter(lambda: f.read(8192), b""):
             hasher.update(chunk)
     return hasher.hexdigest()
+
+
+def _build_ingestion_provenance_graph(
+    *,
+    raw_dir: Path,
+    curated_dir: Path,
+    source: str,
+    license_name: str,
+    started_at: datetime,
+    ended_at: datetime,
+) -> ProvenanceCoreGraph:
+    graph = ProvenanceCoreGraph(
+        graph_id=f"ingestion-{uuid4().hex[:8]}",
+        created_at=started_at,
+        metadata={"source": source, "license": license_name},
+    )
+
+    system_agent = ProvenanceAgent(
+        agent_id="polisyos-fabric",
+        agent_type=AgentType.SYSTEM,
+        label="Policy OS Fabric Ingestion System",
+        metadata={"version": "1.0"},
+    )
+    graph.add_agent(system_agent)
+
+    ingest_activity = ProvenanceActivity(
+        activity_id=f"ingest-{uuid4().hex[:8]}",
+        activity_type=ActivityType.INGEST,
+        label=f"Ingest from {source}",
+        started_at=started_at,
+        ended_at=ended_at,
+        parameters={"source": source, "license": license_name},
+    )
+    graph.add_activity(ingest_activity)
+    graph.add_association(ingest_activity.activity_id, system_agent.agent_id)
+
+    raw_entity_ids: list[str] = []
+    raw_paths = [
+        raw_dir / "macro.csv",
+        raw_dir / "agents.csv",
+        raw_dir / "interactions.csv",
+    ]
+    for raw_path in raw_paths:
+        if not raw_path.exists():
+            continue
+        entity_id = f"raw-{raw_path.stem}-{_file_hash(raw_path)[:8]}"
+        entity = ProvenanceEntity(
+            entity_id=entity_id,
+            entity_type=EntityType.DATASET,
+            label=f"Raw CSV: {raw_path.name}",
+            created_at=datetime.fromtimestamp(raw_path.stat().st_mtime),
+            attributes={
+                "path": str(raw_path),
+                "size_bytes": raw_path.stat().st_size,
+                "source_system": source,
+            },
+        )
+        graph.add_entity(entity)
+        graph.add_attribution(entity_id, system_agent.agent_id)
+        graph.add_usage(ingest_activity.activity_id, entity_id)
+        raw_entity_ids.append(entity_id)
+
+    for name in ["macro", "agents", "entity_resolution", "interactions"]:
+        manifest_path = curated_dir / f"{name}_manifest.json"
+        if not manifest_path.exists():
+            continue
+        entity_id = f"curated-{manifest_path.stem}-{_file_hash(manifest_path)[:8]}"
+        entity = ProvenanceEntity(
+            entity_id=entity_id,
+            entity_type=EntityType.DATASET,
+            label=f"Manifest: {manifest_path.name}",
+            created_at=datetime.fromtimestamp(manifest_path.stat().st_mtime),
+            attributes={
+                "path": str(manifest_path),
+                "format": "json",
+            },
+        )
+        graph.add_entity(entity)
+        graph.add_attribution(entity_id, system_agent.agent_id)
+        graph.add_generation(entity_id, ingest_activity.activity_id)
+        for raw_id in raw_entity_ids:
+            graph.add_derivation(entity_id, raw_id)
+
+    return graph
 
 
 def _validate_rows(
@@ -493,6 +592,7 @@ def run_ingestion(
         db_path.unlink()
     graph = GraphStore(str(kuzu_path), clear_on_start=True)
     cas_store = FileSystemCAS(Path(cas_root)) if cas_root is not None else None
+    ingestion_started_at = datetime.utcnow()
 
     ingest_macro(
         raw_path=raw_dir / "macro.csv",
@@ -525,6 +625,7 @@ def run_ingestion(
         reconciliation_strict=reconciliation_strict,
         cas_store=cas_store,
     )
+    ingestion_completed_at = datetime.utcnow()
 
     # Пишем evidence bundle в CAS для набора манифестов
     if cas_store is not None:
@@ -547,9 +648,21 @@ def run_ingestion(
         for manifest_name in ["macro", "agents", "entity_resolution", "interactions"]:
             _put_manifest(manifest_name)
 
+        provenance_ref = None
+        prov_graph = _build_ingestion_provenance_graph(
+            raw_dir=raw_dir,
+            curated_dir=curated_dir,
+            source=source,
+            license_name=license_name,
+            started_at=ingestion_started_at,
+            ended_at=ingestion_completed_at,
+        )
+        provenance_ref = persist_provenance_graph(cas_store, prov_graph)
+
         evidence_bundle = build_evidence_bundle(
             sources=manifest_refs,
             notes=["ingestion evidence"],
+            provenance_ref=provenance_ref,
         )
         return persist_evidence_bundle(cas_store, evidence_bundle)
     return None

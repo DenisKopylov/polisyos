@@ -2,8 +2,8 @@
 
 Тестовая инфраструктура для Policy Engine - AI-driven Policy Simulation System. Тесты обеспечивают качество кода, валидируют архитектурные границы и проверяют корректность работы всех компонентов системы.
 
-**Последнее обновление:** Январь 2026 (добавлены legal pass, norm pack структуры и legal validation backends)
-**Актуальная версия архитектуры:** v2.1.3 (Legal Validation, Norm Pack Contracts, Rule Backend System)
+**Последнее обновление:** Январь 2026 (добавлены provenance subsystem, PROV-O экспорт и provenance tracking в Fabric layer)
+**Актуальная версия архитектуры:** v2.1.4 (Provenance Tracking, PROV-O Integration, Evidence-Enhanced Fabric)
 
 ## Архитектурный контекст
 
@@ -39,6 +39,7 @@ tests/
 ├── fabric/                        # Тесты компонентов Fabric layer
 │   ├── test_data_catalog.py       # Data Contract catalog system, contract validation, metric bindings, search
 │   ├── test_evidence_bundle.py    # Evidence bundles, ingestion pipeline, provenance tracking
+│   ├── test_provenance.py         # Provenance subsystem, entities, graphs, PROV-O export, persistence
 │   └── test_trust_two_pass.py     # Trust system, uncertainty bounds, двухпроходное сравнение
 ├── foundry/                       # Тесты симуляционных компонентов JAX-ядра
 │   ├── agent_sim/                 # Тесты симуляции агентов
@@ -188,6 +189,7 @@ tests/
 **Ключевые тесты:**
 - **Data Contract Catalog**: Валидация контрактов данных, metric bindings, registry system, поиск и разрешение метрик с disambiguation
 - **Evidence Bundle**: Создание, валидация и persistence evidence артефактов после ingestion с provenance tracking
+- **Provenance System**: Тестирование provenance подсистемы - entities, graphs, PROV-O экспорт, persistence и интеграция с evidence bundles
 - **Trust & Uncertainty**: Двухпроходное сравнение данных, оценка uncertainty bounds, статистическая верификация доверия
 
 **Принципы:**
@@ -364,6 +366,9 @@ pytest tests/fabric/test_data_catalog.py
 
 # Evidence bundles и ingestion
 pytest tests/fabric/test_evidence_bundle.py
+
+# Provenance subsystem
+pytest tests/fabric/test_provenance.py
 
 # Trust и uncertainty bounds
 pytest tests/fabric/test_trust_two_pass.py

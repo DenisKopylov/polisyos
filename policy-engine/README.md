@@ -2,7 +2,7 @@
 
 **Policy Engine** — AI‑driven система проектирования, валидации, калибровки и исполнения политик. Архитектурно это “компиляторная труба”: от запроса пользователя/LLM до формально типизированных контрактов (IR), далее — компиляция в исполняемые графы, выполнение в JAX‑ядре и фиксация результатов в воспроизводимых артефактах.
 
-**Состояние документа (актуально на 2026‑01‑27):** архитектура v2.1.3 (Data Contract Catalog, Legal Validation, Norm Pack Contracts, Rule Backend System, Trinity Architecture, Enhanced Governance, Legal Compliance, Kernel Registry Extensions, Fact Log Integration), присутствуют переходные зоны/устаревшие интерфейсы (см. раздел “Legacy и переходные зоны”).
+**Состояние документа (актуально на 2026‑01‑27):** архитектура v2.1.4 (Provenance Tracking, PROV-O Integration, Evidence-Enhanced Fabric, Trinity Contracts, Legal Contracts, Enhanced Environment Manifest), присутствуют переходные зоны/устаревшие интерфейсы (см. раздел “Legacy и переходные зоны”).
 
 ## Архитектурный обзор
 
@@ -217,6 +217,10 @@ common → (никого)                                      # фундаме�
 - **Trinity Contracts**: Типизированные ссылки на ProblemFrame/PolicySpec/ModelSpec артефакты
 - **Enhanced Kernel Registries**: Расширенная система фундаментальных реестров (механизмы, слоты, units, trust policies)
 - **Fact Log Integration**: Семантическая сеть фактов с provenance tracking и trust policies
+- **Provenance Tracking System**: W3C PROV-O compliant система отслеживания происхождения данных с entities, activities и agents
+- **Evidence-Enhanced Fabric**: Криптографически verifiable evidence bundles с provenance графами и trust policies
+- **Enhanced Environment Manifest**: Захват окружения с compatibility scoring, risk assessment и fingerprinting для reproducible симуляций
+- **Legal Contracts**: Стабильные контракты для legal validation subsystem с pluggable rule backends
 
 ### Подготовлено, но сейчас не задействовано в коде
 - **Diffrax**: ODE/SDE solver (для дифференциальных моделей)
@@ -549,12 +553,13 @@ RunManifest + seed + artifacts → Full reproducibility
 - **Run**: Контексты выполнения экспериментов с метаданными и lifecycle management
 
 **Новые возможности (после обновлений):**
-- **Environment Manifest**: Полный захват окружения с fingerprinting и risk assessment для reproducible симуляций
+- **Enhanced Environment Manifest**: Захват окружения с compatibility scoring, risk assessment и fingerprinting для reproducible симуляций
 - **Trinity Contracts**: Типизированные ссылки на ProblemFrame/PolicySpec/ModelSpec артефакты
 - **Scientist Contracts**: Контракты для FailureCard, PolicyIR и Critique артефактов
 - **Enhanced Registry**: Автоматическая сборка registry bundles из IR модуля
 - **Trace Sinks**: JSON Lines логирование с structured events и metadata
 - **Legal Contracts**: Стабильные контракты для legal validation subsystem (NormPack, NormRule, RuleBackend)
+- **Provenance Contracts**: Контракты для W3C PROV-O provenance tracking с entities, activities и agents
 
 **Архитектурные особенности:**
 - Не зависит ни от одного модуля системы (чистый фундамент)
@@ -600,7 +605,9 @@ RunManifest + seed + artifacts → Full reproducibility
 - **Evidence Bundles**: Криптографически verifiable доказательства происхождения данных
 - **Entity Resolution**: Нормализация идентификаторов агентов с confidence scoring
 - **Materializer Engine**: Полноценная система материализации реляционных представлений из Fact Log с incremental updates
-- **Trust System**: Многоуровневые политики доверия с statistical verification и uncertainty bounds
+- **Trust System**: Многоуровневые политики доверия с statistical verification
+- **Provenance System**: W3C PROV-O compliant система отслеживания происхождения с entities, activities и agents
+- **Evidence-Enhanced Operations**: Все операции с полным provenance tracking и cryptographic verification и uncertainty bounds
 
 **Технологии:**
 - DuckDB (аналитическое хранилище временных рядов)
@@ -890,7 +897,7 @@ pytest tests/integration/ -v
 
 - **Trinity Architecture**: Разделение IR на ProblemFrame ("Why"), PolicySpec ("What"), ModelSpec ("How")
 - **Agent Protocols**: Стандартизированные интерфейсы для PI/Drafter/Formalizer/Critic агентов с runtime поведением
-- **Environment Manifest**: Захват и сравнение вычислительных окружений с compatibility scoring
+- **Enhanced Environment Manifest**: Захват окружения с compatibility scoring, risk assessment и fingerprinting для reproducible симуляций
 - **Enhanced Monitoring**: Метрики, трекинг экспериментов и визуализация для agent simulation
 - **Runtime модуль**: Полное управление жизненным циклом прогонов с аудитом и артефактами
 - **Fact Log система**: Immutable факты с provenance tracking и evidence bundles
@@ -898,12 +905,15 @@ pytest tests/integration/ -v
 - **Patch-based Execution**: Декларативные изменения состояния вместо прямых модификаций
 - **Treasury System**: Детерминированное управление RNG для воспроизводимости
 - **Plugin System**: Модульная архитектура с capability-based registry и composite executors
+- **Provenance Tracking System**: W3C PROV-O compliant система отслеживания происхождения данных
+- **Evidence-Enhanced Fabric**: Криптографически verifiable evidence bundles с provenance графами
 
 ### 📊 Расширенная система данных
 
 - **Data Contract Catalog**: Metric-level система контрактов с hash-locked bindings для предотвращения hallucination имен метрик
 - **Materializer**: Полноценная система восстановления реляционных представлений из Fact Log с incremental updates
 - **Evidence Bundles**: Криптографически verifiable доказательства происхождения данных
+- **Provenance Tracking**: W3C PROV-O compliant система отслеживания происхождения с entities, activities и agents
 - **Multi-tier Access Control**: PII classification (public/internal/sensitive)
 - **Entity Resolution**: Нормализация идентификаторов агентов с confidence scoring
 - **Financial Reconciliation**: Балансовая проверка транзакций с tolerance
@@ -1053,7 +1063,7 @@ python tools/diagnostics/generate_ir_schema.py
 - **[`tests/README.md`](tests/README.md)**: Contract тесты (IR валидация), core phase 0 (CAS, canonical JSON), fabric (evidence, trust), foundry (JAX, calibration), integration (end-to-end workflows), runtime (artifact management), governance (validation pipeline, legal compliance)
 
 ### 🔨 Developer Tools (Инструменты разработчика)
-- **[`tools/README.md`](tools/README.md)**: Архитектурные линтеры (lint_imports.py - Закон A, lint_foundry.py - Закон B), генерация JSON Schema, миграции артефактов, бенчмарки производительности, демонстрационные скрипты, диагностика системы, scan_fabric.py (bootstrap data contracts), migrate_to_trinity.py (миграция в Trinity формат), capture_env.py (environment manifests)
+- **[`tools/README.md`](tools/README.md)**: Архитектурные линтеры (lint_imports.py - Закон A, lint_foundry.py - Закон B), генерация JSON Schema, миграции артефактов, бенчмарки производительности, демонстрационные скрипты, диагностика системы, scan_fabric.py (bootstrap data contracts), migrate_to_trinity.py (миграция в Trinity формат), capture_env.py (environment manifests), visualize_provenance.py (визуализация provenance графов)
 
 ## Архитектурные принципы проекта
 
@@ -1114,6 +1124,18 @@ python tools/diagnostics/generate_ir_schema.py
 - **Legal Validation System**: Полноценная система проверки соответствия политик юридическим нормам с pluggable backends (RuleBackend, NormPack, NormRule)
 - **Trinity Architecture**: Активно используется в scientist модуле для структурирования экспериментов (ProblemFrame, PolicySpec, ModelSpec)
 - **Enhanced Kernel Registries**: Расширенная система фундаментальных реестров с новыми типами (механизмы, слоты, trust policies, legal norms)
+- **Provenance Tracking System**: W3C PROV-O compliant система отслеживания происхождения данных с entities, activities и agents
+- **Evidence-Enhanced Fabric**: Криптографически verifiable evidence bundles с provenance графами и trust policies
+
+### Новые возможности (2026-01-27)
+
+- **Data Catalog System**: Новая подсистема data contracts в `fabric.catalog/`
+- **scan_fabric.py**: Bootstrap утилита для автоматической генерации data contracts
+- **Provenance Tracking System**: W3C PROV-O compliant система отслеживания происхождения данных
+- **Evidence-Enhanced Fabric**: Криптографически verifiable evidence bundles с provenance графами
+- **Trinity Migration**: Поддержка миграции в новый Trinity формат (ProblemFrame, PolicySpec, ModelSpec)
+- **visualize_provenance.py**: Инструмент для визуализации и верификации provenance графов
+- **Enhanced Environment Manifest**: Захват окружения с compatibility scoring и risk assessment
 
 ---
 

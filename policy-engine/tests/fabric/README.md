@@ -3,7 +3,7 @@
 Комплексная валидация компонентов Fabric layer - ingestion pipeline, evidence bundles, trust system и materialization engine.
 
 **Последнее обновление:** Январь 2026
-**Уровень:** Fabric Layer (Data Ingestion & Trust)
+**Уровень:** Fabric Layer (Data Ingestion & Trust & Provenance)
 **Зависимости:** Core artifacts, DuckDB, Kuzu, pandas
 
 ## Архитектурный контекст
@@ -16,6 +16,7 @@ Fabric layer отвечает за ingestion и обработку внешни�
 fabric/
 ├── test_data_catalog.py           # Data Contract catalog system, contract validation, metric bindings, search
 ├── test_evidence_bundle.py        # Evidence bundles, ingestion pipeline, provenance tracking
+├── test_provenance.py             # Provenance subsystem, entities, graphs, PROV-O export, persistence
 └── test_trust_two_pass.py         # Trust system, uncertainty bounds, двухпроходное сравнение
 ```
 
@@ -72,6 +73,24 @@ fabric/
 - **Cryptographic Verification**: Криптографические гарантии целостности данных
 - **Trust Levels**: Иерархическая система уровней доверия к источникам
 
+### Provenance System (`test_provenance.py`)
+
+**Цель:** Комплексная валидация provenance подсистемы - tracking происхождения данных, activity graphs, PROV-O экспорт и persistence.
+
+**Ключевые тесты:**
+- **Provenance Entities**: Валидация сущностей provenance (datasets, metrics, snapshots) с типизацией, immutable свойствами и hash-based identity
+- **Provenance Graphs**: Тестирование графов provenance с entities, activities, agents и relations (wasGeneratedBy, used, wasAssociatedWith)
+- **PROV-O Export**: Экспорт provenance данных в стандартизированные форматы PROV-JSONLD и PROV-NQUADS
+- **Provenance Persistence**: Сохранение и загрузка provenance graphs из artifact store с integrity checks
+- **Evidence Bundle Integration**: Интеграция provenance tracking с evidence bundles для end-to-end traceability
+
+**Принципы:**
+- **Immutable Entities**: Сущности provenance неизменяемы после создания (frozen dataclasses)
+- **Hash-based Identity**: Детерминированные идентификаторы на основе entity_id независимо от других атрибутов
+- **Activity Graph**: Полные графы provenance с entities, activities, agents и typed relations
+- **PROV-O Standards**: Экспорт в стандартные форматы PROV-O для interoperability
+- **Evidence Integration**: Автоматическая генерация provenance graphs из evidence bundles
+
 ## Запуск тестов
 
 ```bash
@@ -81,6 +100,7 @@ pytest tests/fabric/ -v
 # Конкретные компоненты
 pytest tests/fabric/test_data_catalog.py -v
 pytest tests/fabric/test_evidence_bundle.py -v
+pytest tests/fabric/test_provenance.py -v
 pytest tests/fabric/test_trust_two_pass.py -v
 ```
 
@@ -131,8 +151,9 @@ pytest tests/fabric/test_trust_two_pass.py -v
 5. **Integration Tests**: Используйте реальные базы данных (DuckDB/Kuzu) для integration-style тестов
 6. **Evidence Tests**: Проверяйте evidence bundles для всех результатов ingestion
 7. **Trust Tests**: Валидируйте trust metrics и uncertainty bounds
-8. **Failure Tests**: Тестируйте failure scenarios и error handling
-9. **Provenance Tests**: Проверяйте provenance tracking через всю pipeline
+8. **Provenance Tests**: Тестируйте provenance entities, activity graphs и PROV-O экспорт
+9. **Failure Tests**: Тестируйте failure scenarios и error handling
+10. **Integration Tests**: Проверяйте provenance tracking через всю pipeline с evidence bundles
 
 ### Структура fabric теста
 
@@ -201,6 +222,30 @@ pytest tests/fabric/test_trust_two_pass.py::test_two_pass_compare_bounds -v
 # Валидируйте математическую корректность bounds
 ```
 
+**Provenance graph creation failures:**
+```bash
+# Проверьте создание provenance entities
+pytest tests/fabric/test_provenance.py::TestProvenanceEntity::test_entity_creation -v
+# Валидируйте immutable свойства entities
+pytest tests/fabric/test_provenance.py::TestProvenanceEntity::test_entity_is_frozen -v
+```
+
+**PROV-O export errors:**
+```bash
+# Проверьте экспорт в PROV-JSONLD
+pytest tests/fabric/test_provenance.py::TestProvoExport::test_export_to_provo_jsonld -v
+# Валидируйте PROV-NQUADS формат
+pytest tests/fabric/test_provenance.py::TestProvoExport::test_export_to_provo_nquads -v
+```
+
+**Provenance persistence issues:**
+```bash
+# Проверьте сохранение provenance graphs
+pytest tests/fabric/test_provenance.py::TestProvenancePersistence::test_persist_provenance_graph -v
+# Валидируйте загрузку из artifact store
+pytest tests/fabric/test_provenance.py::TestProvenancePersistence::test_load_provenance_graph -v
+```
+
 **Database connection issues:**
 ```bash
 # Проверьте что Kuzu доступен
@@ -231,6 +276,7 @@ pytest tests/fabric/test_evidence_bundle.py -v --tb=long
 - **Contract Registry**: Управление каталогом контрактов с валидацией
 - **Ingestion Pipeline**: Raw → Staging → Curated трансформация
 - **Evidence Bundles**: Артефакты результатов ingestion с provenance
+- **Provenance System**: Tracking происхождения данных с PROV-O стандартами и activity graphs
 - **Trust Engine**: Статистическая верификация доверия к данным
 - **Materializer Engine**: Инкрементальная материализация представлений
 

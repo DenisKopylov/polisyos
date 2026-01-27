@@ -62,6 +62,16 @@ class EvidenceStep(BaseModel):
     details: dict[str, str | int | bool] = Field(default_factory=dict)
 
 
+class ProvenanceCoreRefModel(BaseModel):
+    """Pydantic model for ProvenanceCoreRef."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    graph_id: str
+    stable_id: str
+    artifact_id: str
+
+
 class EvidenceBundle(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -69,6 +79,7 @@ class EvidenceBundle(BaseModel):
     transforms: list[EvidenceStep] = Field(default_factory=list)
     trust_policy_id: str | None = None
     notes: list[str] = Field(default_factory=list)
+    provenance_ref: ProvenanceCoreRefModel | None = None
 
 
 class UncertaintyBounds(BaseModel):

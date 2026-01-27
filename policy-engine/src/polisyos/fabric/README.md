@@ -75,6 +75,10 @@ fabric/
 ├── segment_manifest.py      # Управление сегментами Fact Log (write_segment_manifest)
 ├── fact_writer.py           # Запись фактов в каноническом формате (build_fact, facts_from_dataframe)
 ├── trust.py                 # Политики доверия (two_pass_compare, persist_uncertainty_bounds, UncertaintyBounds)
+├── provenance/              # W3C PROV-O provenance tracking система
+│   ├── __init__.py          # Экспорт всех provenance компонентов
+│   ├── core.py              # Базовые модели provenance (ProvenanceCoreGraph, Entity/Activity/Agent)
+│   └── export_provo.py      # Экспорт в W3C PROV-O JSON-LD/N-Quads форматы
 ├── io/                      # Интерфейсы хранения данных
 │   ├── __init__.py          # Экспорт адаптеров хранения
 │   ├── db.py                # DuckDB адаптер (SimulationDB)
@@ -535,6 +539,95 @@ def persist_uncertainty_bounds(
 ```
 
 **Интеграция:** Используется в Fact Writer и Evidence Bundles для маркировки уровня доверия к данным. Поддерживает статистическую верификацию и сохранение результатов сравнения в Content Addressable Storage.
+
+### 11. Provenance System (`provenance/`)
+
+Стандартизированная система отслеживания происхождения данных на основе W3C PROV-O спецификации:
+
+#### PROV-O Data Model
+Система реализует полный PROV-O граф с тремя основными типами узлов:
+
+```python
+class ProvenanceEntity:
+    """PROV-O Entity - данные или артефакты."""
+    entity_id: str
+    entity_type: EntityType  # DATASET, METRIC, SNAPSHOT, FACT_SEGMENT, etc.
+    label: str
+    created_at: datetime
+    attributes: dict[str, Any]  # Дополнительные метаданные
+
+class ProvenanceActivity:
+    """PROV-O Activity - трансформации и действия."""
+    activity_id: str
+    activity_type: ActivityType  # INGEST, QUERY, ETL, VALIDATION, etc.
+    label: str
+    started_at: datetime
+    ended_at: datetime | None
+    query_hash: str | None  # Для query activities
+    etl_step_id: str | None  # Для ETL steps
+    code_artifact_ref: str | None  # Ссылка на код
+
+class ProvenanceAgent:
+    """PROV-O Agent - ответственные сущности."""
+    agent_id: str
+    agent_type: AgentType  # SYSTEM, USER, MODEL, SCHEDULER
+    label: str
+    metadata: dict[str, str]
+```
+
+#### PROV-O Relations
+Полная поддержка W3C PROV-O отношений:
+
+- **`wasDerivedFrom`**: Связь происхождения (derived_entity → source_entity)
+- **`wasGeneratedBy`**: Связь генерации (entity → activity)
+- **`used`**: Связь использования (activity → entity)
+- **`wasAttributedTo`**: Связь атрибуции (entity → agent)
+- **`wasAssociatedWith`**: Связь ассоциации (activity → agent)
+
+#### ProvenanceCoreGraph
+Минимальный внутренний граф provenance, всегда присутствующий в FabricResult:
+
+```python
+@dataclass
+class ProvenanceCoreGraph:
+    graph_id: str
+    entities: dict[str, ProvenanceEntity]
+    activities: dict[str, ProvenanceActivity]
+    agents: dict[str, ProvenanceAgent]
+    edges: list[ProvenanceEdge]
+
+    # Методы построения графа
+    def add_derivation(self, derived_id: str, source_id: str) -> None
+    def add_generation(self, entity_id: str, activity_id: str) -> None
+    def add_usage(self, activity_id: str, entity_id: str) -> None
+    def add_attribution(self, entity_id: str, agent_id: str) -> None
+    def add_association(self, activity_id: str, agent_id: str) -> None
+
+    # Аналитические методы
+    def get_ancestors(self, entity_id: str, max_depth: int = 10) -> set[str]
+    def get_generating_activity(self, entity_id: str) -> str | None
+```
+
+#### Экспорт в PROV-O
+Опциональный экспорт для STRICT validation или внешнего аудита:
+
+```python
+# Экспорт в JSON-LD для семантического веба
+prov_jsonld = export_to_provo_jsonld(graph, base_uri="https://polisyos.io/provenance/")
+
+# Экспорт в N-Quads для RDF triple stores
+prov_nquads = export_to_provo_nquads(graph, base_uri="https://polisyos.io/provenance/")
+```
+
+**Ключевые возможности:**
+- **Стандартизация**: Полная совместимость с W3C PROV-O спецификацией
+- **Minimal Internal Model**: Легковесный ProvenanceCoreGraph для внутренней работы
+- **Deterministic IDs**: SHA256-based генерация стабильных ID для CAS хранения
+- **Query Lineage**: Отслеживание полного пути от сырых данных до результатов запросов
+- **Multi-format Export**: JSON-LD и N-Quads для разных потребителей
+- **Immutable Storage**: Сохранение в Content Addressable Storage для аудита
+
+**Интеграция с Fabric:** Каждый FabricResult включает ProvenanceCoreRef, позволяя отслеживать происхождение всех данных в системе.
 
 ## API и использование
 
@@ -1419,6 +1512,7 @@ python tools/diagnostics/generate_ir_schema.py
 **Новые возможности:**
 - **Fact Log System**: Complete immutable audit trail с deterministic fact IDs
 - **Evidence Bundles**: Cryptographically verifiable provenance tracking
+- **Provenance System**: W3C PROV-O compliant lineage tracking для полного audit trail
 - **UDF Compilation Pipeline**: Multi-phase compilation с security passes
 - **Materializer Engine**: Полноценная incremental материализация реляционных представлений из фактов
 - **Trust Policies**: Multi-tier trust validation с statistical verification

@@ -117,12 +117,12 @@ plan_ref = QueryPlanRef(
 
 ### EvidenceBundle & EvidenceBundleRef
 
-Пакет доказательств с трансформациями данных.
+Пакет доказательств с трансформациями данных и provenance tracking.
 
 ```python
-from polisyos.core.contracts.fabric import EvidenceBundle, EvidenceBundleRef, EvidenceStep
+from polisyos.core.contracts.fabric import EvidenceBundle, EvidenceBundleRef, EvidenceStep, ProvenanceCoreRefModel
 
-# Пакет доказательств
+# Пакет доказательств с provenance tracking
 evidence = EvidenceBundle(
     sources=[source1_ref, source2_ref],
     transforms=[
@@ -130,7 +130,12 @@ evidence = EvidenceBundle(
         EvidenceStep(op="validate", details={"schema": "financial_data"})
     ],
     trust_policy_id="audited_sources",
-    notes=["All sources verified", "Statistical validation passed"]
+    provenance_ref=ProvenanceCoreRefModel(
+        graph_id="evidence_chain_001",
+        stable_id="evidence_v2",
+        artifact_id=provenance_artifact_id
+    ),
+    notes=["All sources verified", "Statistical validation passed", "Provenance tracked"]
 )
 
 # Ссылка на пакет
@@ -314,22 +319,25 @@ lowered_ref = LoweredIRRef(
 
 ### ExecPlan & ExecPlanRef
 
-План исполнения с конфигурацией.
+План исполнения с конфигурацией и environment tracking.
 
 ```python
 from polisyos.core.contracts.foundry import ExecPlan, ExecPlanRef
+from polisyos.core.artifacts.environment import EnvironmentManifestRef
 
-# План исполнения
+# План исполнения с environment tracking
 exec_plan = ExecPlan(
-    program_graph_ref=graph_ref,
-    exec_config_ref=config_ref,
-    resource_requirements={
-        "cpu_cores": 8,
-        "memory_gb": 32,
-        "gpu_memory_gb": 16
-    },
-    optimization_hints=["enable_xla", "fuse_operations"],
-    timeout_seconds=3600
+    program_ref=graph_ref,
+    order=["init", "compute", "finalize"],
+    environment_ref=EnvironmentManifestRef(
+        artifact_id=env_id,
+        kind="foundry.environment_manifest",
+        media_type="application/json"
+    ),
+    mode="perf",
+    jit=True,
+    max_steps=10000,
+    notes=["Performance optimized execution"]
 )
 
 # Ссылка
@@ -475,13 +483,87 @@ calibration_ref = CalibrationReportRef(
 )
 ```
 
+### Patch-based State Management Contracts
+
+Современная система управления состоянием с patch-based updates, confidence scoring и метаданными.
+
+#### PatchOp & UpdateOp
+
+```python
+from polisyos.core.contracts.foundry import PatchOp, UpdateOp
+
+# Patch operation для обновления состояния агентов
+patch_op = PatchOp(
+    slot_id="agent_balance",
+    op="add",
+    value_ref=balance_update_ref,
+    mask_scope="per_agent",
+    notes=["Monthly interest payment"]
+)
+
+# Update operation с расширенными опциями
+update_op = UpdateOp(
+    slot_id="market_price",
+    op="clamp",
+    value_ref=new_price_ref,
+    mask_ref=agent_mask_ref,
+    priority=3,
+    min_ref=min_price_ref,
+    max_ref=max_price_ref,
+    notes=["Price stabilization within bounds"]
+)
+```
+
+#### Patch & PatchSet
+
+```python
+from polisyos.core.contracts.foundry import Patch, PatchSet, PatchMeta
+
+# Patch с метаданными и confidence scoring
+patch = Patch(
+    schema_version="1.0",
+    meta=PatchMeta(
+        source_node_id="economic_mechanism_001",
+        step=750,
+        mode="perf",
+        confidence=0.89,
+        tags=["economic_update", "price_mechanism"],
+        notes=["Market equilibrium adjustment"]
+    ),
+    ops=[update_op],
+    notes=["Economic state update with market corrections"]
+)
+
+# PatchSet для batch updates
+patch_set = PatchSet(
+    schema_version="1.0",
+    patches=[patch],
+    notes=["Quarterly economic adjustments"]
+)
+```
+
 ## Trinity Contracts (Базовые спецификации)
 
 Trinity контракты определяют ссылки на три фундаментальные спецификации системы PolisyOS: ProblemFrame (проблема), PolicySpec (политика), ModelSpec (модель). Эти контракты обеспечивают структурированный подход к экспериментам и политикам.
 
 ## Scientist Contracts (Контракты Scientist)
 
-Scientist контракты определяют типизированные ссылки на артефакты, используемые в Scientist layer для оркестрации экспериментов, оценки политик и управления жизненным циклом ИИ-агентов. Эти контракты обеспечивают типобезопасное взаимодействие между компонентами Scientist модуля.
+Scientist контракты определяют типизированные ссылки на артефакты, используемые в Scientist layer для оркестрации экспериментов, оценки политик и управления жизненным циклом ИИ-агентов. Эти контракты наследуются от базового класса ArtifactRef и обеспечивают типобезопасное взаимодействие.
+
+### ArtifactRef (Базовый класс)
+
+Базовый класс для всех ссылок на артефакты в Scientist layer с CAS хешированием.
+
+```python
+from polisyos.core.contracts.scientist import ArtifactRef
+
+# Базовый класс для всех scientist ссылок
+artifact_ref = ArtifactRef(
+    ref_type="policy_ir",                      # Тип ссылки
+    cas_hash="sha256:abcd1234...",           # Content-addressable hash
+    artifact_type="policy_ir"                 # Тип артефакта
+)
+```
 
 ### FailureCardRef
 
@@ -491,9 +573,9 @@ Scientist контракты определяют типизированные �
 from polisyos.core.contracts.scientist import FailureCardRef
 
 failure_ref = FailureCardRef(
-    cas_hash="sha256:abcd1234...",           # Content-addressable hash
-    artifact_type="failure_card",              # literal type
-    ref_type="failure_card",                   # literal type
+    ref_type="failure_card",
+    cas_hash="sha256:abcd1234...",
+    artifact_type="failure_card",
     attempt_number=3,                          # номер попытки (≥1)
     error_code="VALIDATION_ERROR",             # код ошибки для категоризации
     source_step="policy_compilation",          # источник ошибки
@@ -509,9 +591,9 @@ failure_ref = FailureCardRef(
 from polisyos.core.contracts.scientist import PolicyIRRef
 
 policy_ir_ref = PolicyIRRef(
-    cas_hash="sha256:efgh5678...",           # Content-addressable hash
-    artifact_type="policy_ir",                 # literal type
-    ref_type="policy_ir",                      # literal type
+    ref_type="policy_ir",
+    cas_hash="sha256:efgh5678...",
+    artifact_type="policy_ir",
     version=2,                                 # номер ревизии (≥1)
     status="validated"                         # статус: draft, validated, rejected
 )
@@ -525,9 +607,9 @@ policy_ir_ref = PolicyIRRef(
 from polisyos.core.contracts.scientist import CritiqueRef
 
 critique_ref = CritiqueRef(
-    cas_hash="sha256:ijkl9012...",           # Content-addressable hash
-    artifact_type="critique",                  # literal type
-    ref_type="critique",                       # literal type
+    ref_type="critique",
+    cas_hash="sha256:ijkl9012...",
+    artifact_type="critique",
     verdict="revise",                          # вердикт: approve, revise, reject
     ir_ref="sha256:efgh5678..."               # хеш оцененного IR
 )

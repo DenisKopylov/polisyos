@@ -13,6 +13,8 @@ Scientist - это "мозг" Policy Engine, реализующий иерарх
 - **Дифференцируемые симуляции** через Foundry executor
 - **Governance и safety controls** для контроля качества и безопасности
 - **Design of Experiments (DoE)** для систематического исследования сценариев
+- **Search framework** для итеративной оптимизации политик
+- **Workflow engines** для декларативного управления процессами
 - **Content-addressable storage (CAS)** для reproducible артефактов
 
 ## Архитектура
@@ -48,6 +50,15 @@ scientist/
 │   ├── decision_card.py    # Human-readable summaries результатов экспериментов
 │   ├── run_timeline.py     # Timeline artifact для observability и tracing
 │   └── [другие файлы...]
+├── search/         # Фреймворк итеративной оптимизации политик
+│   ├── controller.py # SearchController для управления поиском
+│   ├── objective.py  # Определение целей оптимизации
+│   ├── stages.py     # Стадии оценки кандидатов (cheap/expensive)
+│   └── stopping.py   # Критерии остановки поиска
+├── workflow/       # Движки рабочих процессов
+│   ├── engine_base.py    # Базовые абстракции workflow
+│   ├── engine_simple.py  # Простой loop-based движок
+│   └── engine_langgraph.py # LangGraph-based декларативный workflow
 └── publisher.py    # Финализация результатов
 ```
 
@@ -159,6 +170,23 @@ scientist/
 - **`optimizer.py`**: Градиентная оптимизация параметров политик с использованием Optax (placeholder)
 - **`registry.py`**: Управление реестрами компонентов и артефактов (placeholder)
 
+### 🔍 Search Layer (поиск/search)
+
+Фреймворк для итеративной оптимизации политик с двухстадийной оценкой и интеллектуальными критериями остановки:
+
+- **`controller.py`**: `SearchController` - основной контроллер поиска с управлением итерациями, статусами и историей оптимизации. Поддерживает `SearchIteration`, `SearchResult` и различные стратегии поиска
+- **`objective.py`**: Система определения целей оптимизации с `CompositeObjective`, `ObjectiveValue` и предустановленными целями (`GDPGrowthObjective`, `InequalityObjective`, `EmploymentObjective`, `BudgetDeficitObjective`). Поддерживает минимизацию и максимизацию с весами и порогами
+- **`stages.py`**: Двухстадийная система оценки кандидатов политик (`CheapStage`/`ExpensiveStage`) с `CorrelationTracker` для отслеживания качества предсказаний. `SearchStage` абстракция позволяет создавать кастомные стадии оценки
+- **`stopping.py`**: Интеллектуальные критерии остановки поиска с `CompositeStoppingCriterion`, `ImprovementPlateau`, `MaxIterations`, `MaxWallTime` и `TargetAchieved`. Поддерживает комбинацию критериев для гибкого управления поиском
+
+### ⚙️ Workflow Layer (рабочие процессы/workflow)
+
+Абстракции и реализации движков рабочих процессов для декларативного управления экспериментами:
+
+- **`engine_base.py`**: Базовые абстракции `WorkflowEngine` и `WorkflowEngineFactory` для создания унифицированного интерфейса движков
+- **`engine_simple.py`**: `SimpleLoopEngine` - простой движок на базе циклов для базовых сценариев workflow
+- **`engine_langgraph.py`**: `LangGraphEngine` - продвинутый декларативный движок на базе LangGraph для комплексных workflow с conditional routing, state management и observability
+
 ### 📚 Legacy Layer (Устаревший код)
 
 Содержит устаревшие реализации для обратной совместимости:
@@ -258,6 +286,19 @@ Workflow управляется конечным автоматом состоя
 - **Backoff & Retry Logic**: Exponential backoff с configurable delays и attempt limits
 - **Ping-pong Detection**: Предотвращение бесконечных циклов между агентами
 - **Context Injection**: Автоматическое включение failure context в LLM prompts
+
+### 🔍 Search Framework (поисковая оптимизация)
+- **Two-Stage Evaluation**: Быстрая предварительная оценка (cheap stage) с корреляционным трекингом для предсказания результатов дорогой симуляции (expensive stage)
+- **Composite Objectives**: Многокритериальная оптимизация с весами и порогами для экономических метрик (GDP, inequality, employment, budget deficit)
+- **Intelligent Stopping**: Комбинированные критерии остановки (plateau detection, max iterations, wall time, target achievement)
+- **Search Controller**: Управление полным циклом оптимизации с историей итераций, статусами и результатами
+- **Objective Presets**: Готовые конфигурации целей для типичных сценариев оптимизации политик
+
+### ⚙️ Workflow Engines (движки процессов)
+- **Engine Abstractions**: Унифицированный интерфейс для различных реализаций workflow через `WorkflowEngine` и `WorkflowEngineFactory`
+- **Simple Loop Engine**: Легковесный движок на базе циклов для простых последовательных процессов
+- **LangGraph Engine**: Продвинутый декларативный движок с графовым представлением, conditional routing и state management
+- **Pluggable Architecture**: Возможность создания кастомных движков для специфических сценариев
 
 ### 🔬 Дифференцируемые симуляции
 - Компиляция политик в JAX механизмы (Equinox)
@@ -1436,6 +1477,8 @@ research_budget = {
 - **Kernel Layer**: Полная реализация FSM с 9 фазами, все модели бюджетов (Compute, Evidence, Legitimacy, Complexity), guards, human_gate и advance_phase guards
 - **Compute Layer**: JobSpec/JobKey/JobResult модели, LocalBackend и RayBackend (skeleton) для выполнения через Foundry executor, поддержка distributed execution
 - **Orchestrator Layer**: Полный workflow на LangGraph (1450+ строк в flow_nodes.py), ExperimentState с 90+ полями, DecisionPacket с evidence и uncertainty, DecisionCard summaries, RunTimeline для observability, audit trail
+- **Search Layer**: Полный фреймворк итеративной оптимизации с SearchController, двухстадийной оценкой (cheap/expensive stages), composite objectives и интеллектуальными критериями остановки
+- **Workflow Layer**: Полные абстракции и реализации движков (SimpleLoopEngine, LangGraphEngine) с унифицированным интерфейсом для декларативного управления процессами
 - **Publisher Layer**: Полная публикация через build_decision_packet с интеграцией всех артефактов
 - **Workflow Integration**: Полная интеграция со всеми модулями (Core, IR, Fabric, Foundry, Runtime)
 

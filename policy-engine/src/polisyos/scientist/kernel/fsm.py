@@ -15,11 +15,14 @@ class Phase(str, Enum):
     DECIDE = "DECIDE"
     PUBLISH = "PUBLISH"
     ARCHIVE = "ARCHIVE"
+    SEARCH_INIT = "SEARCH_INIT"
+    SEARCH_ITERATE = "SEARCH_ITERATE"
+    SEARCH_COMPLETE = "SEARCH_COMPLETE"
     REFLEXION = "REFLEXION"
 
 
 ALLOWED_TRANSITIONS: Dict[Phase, Set[Phase]] = {
-    Phase.INTAKE: {Phase.FRAME},
+    Phase.INTAKE: {Phase.FRAME, Phase.SEARCH_INIT},
     # FRAME can short-circuit to DECIDE when the policy is rejected/pruned early.
     Phase.FRAME: {Phase.FRAME, Phase.REFLEXION, Phase.PREFLIGHT_GOV, Phase.PLAN, Phase.DECIDE},
     Phase.PREFLIGHT_GOV: {Phase.PLAN, Phase.REFLEXION},
@@ -37,9 +40,12 @@ ALLOWED_TRANSITIONS: Dict[Phase, Set[Phase]] = {
     },
     Phase.POSTFLIGHT_GOV: {Phase.DECIDE, Phase.REFLEXION},
     Phase.REFLEXION: {Phase.FRAME, Phase.PLAN, Phase.DECIDE},
-    Phase.DECIDE: {Phase.PUBLISH},
+    Phase.DECIDE: {Phase.PUBLISH, Phase.ARCHIVE},
     Phase.PUBLISH: {Phase.ARCHIVE},
     Phase.ARCHIVE: {Phase.ARCHIVE},
+    Phase.SEARCH_INIT: {Phase.SEARCH_ITERATE, Phase.DECIDE},
+    Phase.SEARCH_ITERATE: {Phase.SEARCH_ITERATE, Phase.SEARCH_COMPLETE, Phase.FRAME},
+    Phase.SEARCH_COMPLETE: {Phase.DECIDE},
 }
 
 

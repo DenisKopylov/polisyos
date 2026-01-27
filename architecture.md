@@ -1,6 +1,6 @@
 # Complete Policy Engine Architecture
 
-> **Last updated:** January 27, 2026 (added Runtime module with Environment Fingerprinting, Agent Policy Artifacts system, comprehensive monitoring/test coverage for agent simulation and plugin system, compile-time conflict detection, cost estimation model, NaN/Inf runtime guards, DecisionCard human-readable summaries, RunTimeline observability artifacts, and enhanced Scientist contracts)
+> **Last updated:** January 27, 2026 (added Runtime module with Environment Fingerprinting, Agent Policy Artifacts system, comprehensive monitoring/test coverage for agent simulation and plugin system, compile-time conflict detection, cost estimation model, NaN/Inf runtime guards, DecisionCard human-readable summaries, RunTimeline observability artifacts, enhanced Scientist contracts, Search Framework for iterative policy optimization with two-stage evaluation, and Workflow Engines abstraction layer for declarative experiment orchestration)
 >
 > This document contains the complete architecture of the Policy Engine project with detailed descriptions of all files in the `src/`, `tests/`, and `tools/` directories.
 
@@ -333,10 +333,23 @@ policy-engine/
 │       ├── kernel/                   # Core orchestration (FSM, budgets, guards, human gates)
 │       │   ├── __init__.py           # Exports kernel API
 │       │   ├── budgets.py            # Resource budget management and allocation
-│       │   ├── fsm.py                # Finite State Machine for experiment orchestration
+│       │   ├── fsm.py                # Finite State Machine for experiment orchestration (with SEARCH phases)
 │       │   ├── guards.py             # Safety guards and execution constraints
 │       │   ├── human_gate.py         # Human-in-the-loop decision gates
 │       │   └── README.md             # Kernel documentation and orchestration patterns
+│       ├── search/                   # Iterative policy optimization with two-stage evaluation
+│       │   ├── __init__.py           # Exports search framework API
+│       │   ├── controller.py         # SearchController and optimization loop management
+│       │   ├── objective.py          # Multi-objective optimization definitions and evaluation
+│       │   ├── stages.py             # Cheap/expensive stage evaluation implementations
+│       │   ├── stopping.py           # Intelligent stopping criteria and plateau detection
+│       │   └── README.md             # Search framework documentation and two-stage evaluation
+│       ├── workflow/                 # Workflow engine abstraction layer for experiment orchestration
+│       │   ├── __init__.py           # Exports workflow engines API with lazy loading
+│       │   ├── engine_base.py        # Base abstractions (WorkflowEngine protocol, factory pattern)
+│       │   ├── engine_simple.py      # SimpleLoopEngine for sequential workflow execution
+│       │   ├── engine_langgraph.py   # LangGraphEngine for complex graph-based workflows
+│       │   └── README.md             # Workflow engines documentation and protocol-based design
 │       ├── orchestrator/             # LangGraph workflow orchestration with 9 phases
 │       │   ├── __init__.py           # Exports orchestrator API
 │       │   ├── audit.py              # Operation audit trail and compliance tracking
@@ -433,6 +446,10 @@ policy-engine/
 │       │   ├── test_legal_pass.py    # Legal validation pass testing and backend integration
 │       │   └── test_validation_pipeline.py # Validation pipeline orchestration and compliance testing
 │       ├── README.md                 # Scientist testing documentation and AI validation
+│       ├── search/                   # Search framework testing and optimization validation
+│       │   ├── __init__.py           # Search testing configuration and fixtures
+│       │   ├── conftest.py           # Pytest fixtures for search component testing
+│       │   └── test_search_loop.py   # SearchController, two-stage evaluation, stopping criteria validation
 │       ├── test_agent_protocols.py   # Agent communication protocols and interface validation
 │       ├── test_compiler.py          # Scientist workflow compiler testing and optimization
 │       ├── test_decision_card.py     # DecisionCard deterministic generation and markdown rendering
@@ -670,6 +687,110 @@ from .scientist import (
 - **Performance Analysis**: Detailed timing and bottleneck identification
 - **Result Transparency**: Clear verdict communication with confidence metrics
 - **Artifact Provenance**: Complete lifecycle tracking from generation to consumption
+
+## Search Framework & Workflow Engines
+
+The Scientist module introduces advanced optimization and orchestration capabilities through two new architectural components that enable efficient policy parameter optimization and flexible experiment management.
+
+### Search Framework (`scientist/search/`)
+
+**Purpose**: Intelligent iterative optimization framework for economic policy parameters using two-stage evaluation to balance speed and accuracy.
+
+#### Two-Stage Evaluation Architecture
+
+The framework implements a sophisticated two-stage evaluation pipeline:
+
+1. **Cheap Stage**: Fast preliminary evaluation using proxy models or simplified simulations
+2. **Expensive Stage**: Comprehensive evaluation through full Foundry executor with detailed economic metrics
+
+#### Key Components
+
+- **`SearchController`**: Central optimization orchestrator managing the complete search lifecycle
+- **`CompositeObjective`**: Multi-objective optimization supporting weighted combinations of economic goals
+- **`OptimizationDirection`**: Bidirectional optimization (MAXIMIZE/MINIMIZE) for different policy targets
+- **`Intelligent Stopping Criteria`**: Advanced termination logic including plateau detection and target achievement
+- **`Correlation Tracking`**: Quality monitoring between cheap and expensive stage predictions
+
+#### Supported Objectives
+
+- **GDPGrowthObjective**: Economic growth maximization
+- **InequalityObjective**: Income inequality minimization
+- **EmploymentObjective**: Employment rate optimization
+- **BudgetDeficitObjective**: Fiscal balance maintenance
+- **Composite Objectives**: Weighted combinations of multiple targets
+
+#### Stopping Criteria Types
+
+- **MaxIterations**: Fixed iteration limits
+- **MaxWallTime**: Time-based termination
+- **ImprovementPlateau**: Convergence detection
+- **TargetAchieved**: Goal attainment triggers
+- **Composite Criteria**: Logical combinations of conditions
+
+### Workflow Engines (`scientist/workflow/`)
+
+**Purpose**: Protocol-based abstraction layer for workflow execution engines, enabling pluggable implementations from simple sequential execution to complex graph-based orchestration.
+
+#### Engine Architecture
+
+Built on dependency inversion principles with protocol-based design:
+
+- **`WorkflowEngine` Protocol**: Unified interface for all engine implementations
+- **`WorkflowEngineFactory`**: Factory pattern for engine instantiation
+- **Pluggable Architecture**: Easy substitution of implementations without client code changes
+
+#### Engine Implementations
+
+##### SimpleLoopEngine
+- **Purpose**: Lightweight sequential workflow execution
+- **Use Cases**: Unit testing, development iteration, cheap stage evaluations
+- **Features**: Zero external dependencies, minimal overhead, step-by-step execution
+- **Performance**: ~10-100μs per node, suitable for fast iterations
+
+##### LangGraphEngine
+- **Purpose**: Complex graph-based workflow orchestration with conditional routing
+- **Use Cases**: Production experiments requiring branching and state management
+- **Features**: Declarative graph definition, conditional routing, error recovery, observability
+- **Performance**: ~1-10ms per node, optimized for complex workflows
+
+#### Protocol Benefits
+
+- **Testability**: Mock implementations for isolated testing
+- **Flexibility**: Migration between engines (SimpleLoop → LangGraph → Temporal)
+- **Consistency**: Unified interface across different workflow complexities
+- **Future-Proofing**: Support for emerging orchestration technologies
+
+### FSM Enhancement (Search Phases)
+
+The kernel FSM has been extended with new phases to support search-based optimization workflows:
+
+- **`SEARCH_INIT`**: Search parameter initialization and configuration
+- **`SEARCH_ITERATE`**: Iterative optimization loop with candidate evaluation
+- **`SEARCH_COMPLETE`**: Search termination and result finalization
+
+#### Phase Transitions
+
+```python
+SEARCH_INIT → {SEARCH_ITERATE, DECIDE}
+SEARCH_ITERATE → {SEARCH_ITERATE, SEARCH_COMPLETE, FRAME}
+SEARCH_COMPLETE → DECIDE
+```
+
+### Integration Benefits
+
+- **Optimization Efficiency**: Two-stage evaluation reduces computational costs while maintaining accuracy
+- **Workflow Flexibility**: Protocol-based design enables seamless engine substitution
+- **Scalability**: Support for both lightweight testing and production-grade orchestration
+- **Observability**: Complete tracing and monitoring across optimization iterations
+- **Extensibility**: Plugin architecture for custom objectives, stages, and engines
+
+### Future Capabilities
+
+- **Bayesian Optimization**: Gaussian process-based efficient search
+- **Multi-Fidelity Methods**: Variable precision evaluation strategies
+- **Distributed Search**: Cluster-based parallel optimization
+- **Meta-Learning**: Adaptive strategy optimization
+- **Workflow Templates**: Reusable orchestration patterns
 
 ## Compile-time Analysis & Validation
 

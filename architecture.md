@@ -1,6 +1,6 @@
 # Complete Policy Engine Architecture
 
-> **Last updated:** January 27, 2026 (added Runtime module with Environment Fingerprinting, Agent Policy Artifacts system, and comprehensive monitoring/test coverage for agent simulation and plugin system)
+> **Last updated:** January 27, 2026 (added Runtime module with Environment Fingerprinting, Agent Policy Artifacts system, comprehensive monitoring/test coverage for agent simulation and plugin system, compile-time conflict detection, cost estimation model, NaN/Inf runtime guards, DecisionCard human-readable summaries, RunTimeline observability artifacts, and enhanced Scientist contracts)
 >
 > This document contains the complete architecture of the Policy Engine project with detailed descriptions of all files in the `src/`, `tests/`, and `tools/` directories.
 
@@ -45,7 +45,7 @@ policy-engine/
 │   │   ├── __init__.py               # Exports configuration and logging interfaces
 │   │   ├── config.py                 # Centralized application configuration and environment setup
 │   │   ├── jax_env.py                # Safe JAX backend configuration for macOS compatibility
-│   │   ├── logger.py                 # Unified structured logging interface using Loguru
+│   │   ├── logger.py                 # Unified structured logging interface (Loguru with fallback to standard logging)
 │   │   ├── migrations/               # Deterministic artifact versioning and schema evolution
 │   │   │   ├── __init__.py           # Exports migration system API
 │   │   │   ├── base.py               # Core migration system with version management
@@ -76,7 +76,7 @@ policy-engine/
 │   │   │   ├── compiler.py           # Compiler contracts (CompileReportRef, LinkReportRef)
 │   │   │   ├── fabric.py             # Fabric contracts (6 reference types + data models, quality indicators)
 │   │   │   ├── foundry.py            # Foundry contracts (16 reference types + execution models, agent policy artifacts)
-│   │   │   ├── scientist.py          # Scientist contracts (FailureCardRef, PolicyIRRef, CritiqueRef)
+│   │   │   ├── scientist.py          # Scientist contracts (FailureCardRef, PolicyIRRef, CritiqueRef, TimelineRef, DecisionCardRef)
 │   │   │   ├── trinity.py            # Trinity contracts (ProblemFrame, PolicySpec, ModelSpec, TrinityBundle)
 │   │   │   ├── legal.py              # Legal compliance contracts (NormPack, NormRule, RuleBackend)
 │   │   │   └── README.md             # Inter-module contracts documentation
@@ -196,11 +196,14 @@ policy-engine/
 │   │   │   ├── README.md             # Calibration system documentation and algorithms
 │   │   │   └── report.py             # Calibration reports with convergence analysis
 │   │   ├── compiler.py               # IR compilation to ProgramGraph + ExecPlan
+│   ├── conflict_checker.py        # Compile-time conflict detection and resolution analysis
+│   ├── cost_model.py              # Execution cost estimation with self-calibration
 │   │   ├── constraints_engine.py     # Policy constraint validation and enforcement engine
 │   │   ├── domain/                   # Economic domain model (GlobalState, AgentState)
 │   │   ├── runtime/                  # Patch-based execution runtime with JAX and environment fingerprinting
 │   │   │   ├── __init__.py           # Exports runtime module public API (step, run_scan, execute_program_batch)
 │   │   │   ├── fingerprint.py        # Environment fingerprinting and determinism tier configuration
+│   │   │   ├── nan_guard.py          # Runtime NaN/Inf detection with diagnostics for STRICT validation
 │   │   │   └── README.md             # Runtime module documentation and environment fingerprinting system
 │   │   │   ├── __init__.py           # Exports domain model API
 │   │   │   ├── README.md             # Domain model documentation and state evolution
@@ -339,13 +342,15 @@ policy-engine/
 │       │   ├── audit.py              # Operation audit trail and compliance tracking
 │       │   ├── compiler.py           # Workflow compilation and optimization
 │       │   ├── data_loader.py        # Experiment data loading and preprocessing
-│       │   ├── decision_packet.py    # Structured decision packets for workflow communication
+│       │   ├── decision_card.py      # Human-readable summaries of experiment results
+│       │   ├── decision_packet.py    # Structured decision packets for workflow communication (DecisionPacket with run_timeline, decision_card, validation_trace)
 │       │   ├── flow_nodes.py         # Workflow graph nodes and execution logic
 │       │   ├── nodes.py              # Base workflow node implementations
 │       │   ├── optimizer.py          # Workflow optimization and parallelization
 │       │   ├── README.md             # Orchestrator documentation and 9-phase workflow
 │       │   ├── registry.py           # Component registry for workflow extensibility
 │       │   ├── run_record.py         # Experiment run records and state persistence
+│       │   ├── run_timeline.py       # Timeline artifact for observability and tracing
 │       │   ├── state.py              # Workflow state management and transitions
 │       │   ├── workflow.py           # Main workflow orchestrator with LangGraph integration
 │       │   └── workflow_compiler.py  # Workflow compilation to executable graphs
@@ -406,7 +411,10 @@ policy-engine/
 │   │   ├── test_merge_determinism.py  # Merge engine determinism and CRDT-inspired state updates
 │   │   ├── test_patch_executor.py     # Patch-based execution engine testing
 │   │   ├── test_program_graph_ops.py  # Program graph operations and transformations
-│   │   └── test_runtime_batch.py      # Batch runtime execution and parallel processing
+│   │   ├── test_runtime_batch.py      # Batch runtime execution and parallel processing
+│   │   ├── test_conflict_detection.py # Compile-time conflict detection and resolution analysis testing
+│   │   ├── test_cost_model.py         # Execution cost estimation model testing
+│   │   └── test_nan_guard.py          # NaN/Inf runtime guard testing
 │   ├── integration/                  # End-to-end integration tests (calibration UDF, workflow)
 │   │   ├── README.md                 # Integration testing documentation and system validation
 │   │   ├── test_calibration_udf.py   # Parameter calibration through UDF system integration
@@ -427,8 +435,11 @@ policy-engine/
 │       ├── README.md                 # Scientist testing documentation and AI validation
 │       ├── test_agent_protocols.py   # Agent communication protocols and interface validation
 │       ├── test_compiler.py          # Scientist workflow compiler testing and optimization
+│       ├── test_decision_card.py     # DecisionCard deterministic generation and markdown rendering
+│       ├── test_decision_packet_v2.py # DecisionPacket v1.1 with timeline and card support
 │       ├── test_multi_agent_workflow.py # Multi-agent workflow integration and memory persistence testing
-│       └── test_reflexion_loop.py    # Reflexion loop and FailureCard system validation
+│       ├── test_reflexion_loop.py    # Reflexion loop and FailureCard system validation
+│       └── test_run_timeline.py      # RunTimeline event recording and analytics
 └── tools/                            # Developer tools and demonstrations ensuring architecture compliance
     ├── benchmarks/                   # Performance benchmarks for JAX and simulation components
     │   ├── bench_domain.py           # Economic domain model benchmark (JAX + Equinox + GlobalState allocation)
@@ -531,6 +542,13 @@ The Runtime module introduces a comprehensive environment fingerprinting system 
 - **`DeterminismTier`**: Three-tier determinism guarantee system (STRICT_CPU, BEST_EFFORT_GPU, NONDETERMINISTIC)
 - **`configure_determinism`**: JAX/XLA configuration for specified determinism levels
 
+#### Runtime NaN/Inf Guard (`nan_guard.py`)
+- **`NaNGuard`**: Runtime detection of NaN/Inf values with human-readable diagnostics
+- **`NaNDiagnostic`**: Structured diagnostic information for numerical issues
+- **`create_nan_guard_for_profile`**: Profile-based guard configuration (disabled/fast/mvp/strict)
+- **Performance**: Efficient `jnp.any()` checks with configurable frequency
+- **Integration**: Only enabled in STRICT validation profile for debugging
+
 ### Agent Policy Artifacts (`agent_sim/artifact.py`)
 
 **Purpose**: Immutable, content-addressable artifacts for trained neural network policies with full provenance tracking.
@@ -559,3 +577,151 @@ The Runtime module introduces a comprehensive environment fingerprinting system 
 - **Provenance Tracking**: Complete audit trail from training through deployment
 - **Performance**: JIT-compiled execution with minimal overhead
 - **Scalability**: Batch execution primitives for parallel simulation
+
+## DecisionCard & RunTimeline Artifacts
+
+The Scientist module introduces comprehensive observability and human-readable reporting through two new artifact types that enhance experiment transparency and result communication.
+
+### DecisionCard (`scientist/orchestrator/decision_card.py`)
+
+**Purpose**: Deterministic human-readable summaries of experiment results with structured formatting for stakeholders and audit trails.
+
+#### Key Features
+- **Deterministic Generation**: Same DecisionPacket always produces identical DecisionCard
+- **Markdown Rendering**: Human-readable format with emojis, tables, and structured sections
+- **Compliance Summary**: Blocker/warning/info counts with failed pass identification
+- **Key Metrics Display**: Formatted economic indicators with baseline deltas
+- **Artifact References**: Links to PolicyIR, simulation results, and evidence bundles
+- **Source Hash Tracking**: Deterministic fingerprint for result verification
+
+#### DecisionCard Components
+- **`Verdict`**: APPROVE/REJECT/NEEDS_REVISION/PENDING/UNKNOWN with emoji indicators
+- **`Confidence`**: HIGH/MEDIUM/LOW based on blocker/warning counts
+- **`IssuesSummary`**: Structured compliance issues with blocker counting
+- **`KeyMetric`**: Formatted metric display with units and baseline deltas
+- **`ArtifactReference`**: Typed references to experiment artifacts
+
+### RunTimeline (`scientist/orchestrator/run_timeline.py`)
+
+**Purpose**: Event-based timeline artifacts for observability, debugging, and performance analysis throughout experiment execution.
+
+#### Key Features
+- **Append-Only Design**: Thread-safe event recording with automatic indexing
+- **Event Classification**: 12 event types (run_start, phase transitions, node execution, artifacts, validation, errors)
+- **Phase Tracking**: Automatic phase start/end timing with duration calculation
+- **Node Profiling**: Execution time tracking for workflow nodes
+- **Validation Summary**: Pass/failure counts with detailed error analysis
+- **Artifact Lifecycle**: Complete tracking of artifact creation and references
+- **Trace Integration**: Automatic conversion to core TraceRecord format
+
+#### Timeline Events
+- **`RUN_START/RUN_END`**: Experiment lifecycle boundaries
+- **`PHASE_START/PHASE_END`**: Workflow phase transitions with duration
+- **`NODE_ENTER/NODE_EXIT`**: Individual node execution tracking
+- **`ARTIFACT_CREATED`**: New artifact generation events
+- **`VALIDATION_PASS/VALIDATION_FAIL`**: Governance validation results
+- **`HUMAN_GATE/REFLEXION/ERROR`**: Self-healing and error events
+
+#### Timeline Analytics
+- **Phase Durations**: Per-phase execution times for bottleneck identification
+- **Node Performance**: Execution time distribution across workflow nodes
+- **Error Analysis**: Comprehensive error tracking with context
+- **Validation Metrics**: Governance pass/failure ratios
+- **Artifact Inventory**: Complete catalog of generated artifacts
+
+### Integration with DecisionPacket
+
+**Enhanced DecisionPacket** now includes three new optional fields for comprehensive experiment documentation:
+
+- **`run_timeline`**: Serialized RunTimeline artifact for observability
+- **`decision_card`**: Cached deterministic DecisionCard (generated on-demand)
+- **`validation_trace`**: Phase 9 telemetry data from governance validation
+
+#### DecisionPacket Enhancement
+```python
+class DecisionPacket(BaseModel):
+    # Existing fields...
+    run_timeline: Optional[Dict[str, Any]] = None      # Timeline observability data
+    validation_trace: Optional[Dict[str, Any]] = None  # Governance telemetry
+    decision_card: Optional[Dict[str, Any]] = None     # Cached human-readable summary
+```
+
+### Scientist Contracts Enhancement
+
+**New contract types** added to `core/contracts/scientist.py` for type-safe artifact references:
+
+- **`TimelineRef`**: References to stored RunTimeline artifacts with run metadata
+- **`DecisionCardRef`**: References to DecisionCard artifacts with verdict and generation info
+
+#### Contract Integration
+```python
+# New contract exports in contracts/__init__.py
+from .scientist import (
+    TimelineRef,      # Timeline artifact references
+    DecisionCardRef,  # DecisionCard artifact references
+    # ... existing contracts
+)
+```
+
+### Benefits
+- **Enhanced Observability**: Complete event timeline for experiment debugging and optimization
+- **Stakeholder Communication**: Human-readable summaries with structured compliance reporting
+- **Audit Trail Enhancement**: Deterministic summaries with source hash verification
+- **Performance Analysis**: Detailed timing and bottleneck identification
+- **Result Transparency**: Clear verdict communication with confidence metrics
+- **Artifact Provenance**: Complete lifecycle tracking from generation to consumption
+
+## Compile-time Analysis & Validation
+
+The compile-time analysis system provides static validation and optimization analysis before JAX compilation, ensuring reliable and efficient policy execution.
+
+### Conflict Detection (`foundry/conflict_checker.py`)
+
+**Purpose**: Static analysis of ProgramGraph for slot conflicts before runtime execution.
+
+#### Key Features
+- **Compile-time Analysis**: Pure Python analysis of mechanism slot interactions
+- **Merge Rule Validation**: Verifies merge rules are properly registered and configured
+- **Conflict Classification**: Uses MergeEngine semantics to classify conflict types
+- **Actionable Diagnostics**: Provides specific suggestions for conflict resolution
+- **Performance**: O(n*m) complexity where n=nodes, m=avg slots per node (<10ms typical)
+
+#### Conflict Types Detected
+- **Missing Slot Registration**: Unregistered slots in SlotRegistry
+- **Missing Merge Rules**: Unregistered merge rules in MergeRuleRegistry
+- **Multiple Writers**: Slots with multiple mechanisms writing without proper merge rules
+- **Unsupported Merge Rules**: Invalid merge rule configurations
+
+#### Integration with Governance
+- **Compliance Issues**: Converts conflicts to Phase 9 ComplianceIssue format
+- **Severity Levels**: Blocker, warning, and info classifications
+- **Location Tracking**: Precise path information for debugging
+
+### Cost Estimation Model (`foundry/cost_model.py`)
+
+**Purpose**: Heuristic cost estimation with self-calibration for execution planning and budget control.
+
+#### Key Features
+- **Multi-dimensional Estimation**: Compile time, runtime, memory usage, and FLOPs
+- **Self-calibrating Model**: Learns from telemetry to improve accuracy over time
+- **Budget Enforcement**: Validates execution against configurable resource constraints
+- **Mechanism-specific Costs**: Differentiated costs for different mechanism types
+- **Agent Scaling**: Accounts for agent count and time step scaling
+
+#### Cost Components
+- **Compile Time**: JAX/XLA compilation overhead estimation
+- **Runtime**: Per-step execution cost with mechanism and agent scaling
+- **Memory**: Peak memory usage based on agent count and slot requirements
+- **FLOPs**: Floating point operation estimates for performance analysis
+
+#### Budget Controls
+- **Time Limits**: Total execution, per-mechanism, and compile time budgets
+- **Memory Limits**: Peak memory consumption constraints
+- **Utilization Tracking**: Fraction of budget consumed with violation detection
+
+### Integration Benefits
+- **Pre-execution Validation**: Catches issues before expensive JAX compilation
+- **Resource Planning**: Informed decisions about execution feasibility
+- **Debugging Support**: Clear diagnostics for conflict resolution
+- **Performance Optimization**: Cost-guided optimization decisions
+- **System Reliability**: Prevents runtime failures through static analysis

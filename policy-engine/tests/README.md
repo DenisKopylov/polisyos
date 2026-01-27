@@ -2,7 +2,7 @@
 
 Тестовая инфраструктура для Policy Engine - AI-driven Policy Simulation System. Тесты обеспечивают качество кода, валидируют архитектурные границы и проверяют корректность работы всех компонентов системы.
 
-**Последнее обновление:** 27 января 2026 (добавлены agent artifacts, merge determinism, quality indicators system, fitness reports и quality gate pass)
+**Последнее обновление:** 27 января 2026 (добавлены conflict detection, cost model, NaN guard, agent artifacts, merge determinism, quality indicators system, fitness reports и quality gate pass)
 **Актуальная версия архитектуры:** v2.1.4 (Provenance Tracking, PROV-O Integration, Evidence-Enhanced Fabric)
 
 ## Архитектурный контекст
@@ -57,13 +57,16 @@ tests/
 │   ├── test_agent_simulation_step6.py # Шаг 6 симуляции агентов
 │   ├── test_calibrator_fidelity.py # Управление fidelity уровнями (fluid/relaxed/hard/temperature)
 │   ├── test_calibrator_mvp.py     # Полноценная калибровка параметров с оптимизацией
+│   ├── test_conflict_detection.py # Compile-time conflict detection (multiple writers, merge rules)
 │   ├── test_constraints_executor.py # Исполнение ограничений (budget guards, validation)
+│   ├── test_cost_model.py         # Cost estimation model (compile/runtime costs, budget checks)
 │   ├── test_fiscal.py             # Фискальные механизмы (налоги, субсидии)
 │   ├── test_global_state.py       # Глобальное состояние симуляции и его эволюция
 │   ├── test_gradients.py          # Градиенты политик (JAX autodiff, Equinox)
 │   ├── test_health.py             # Проверки здоровья системы и детекция аномалий
 │   ├── test_jit_stability.py      # JIT-стабильность PyTree структур
 │   ├── test_merge_determinism.py  # Детерминизм операций merge и state consistency
+│   ├── test_nan_guard.py          # NaN/Inf detection guard (runtime numerical stability)
 │   ├── test_patch_executor.py     # Patch executor, state delta и snapshot'ы
 │   ├── test_program_graph_ops.py  # Операции с программными графами, execution order
 │   └── test_runtime_batch.py      # Пакетное выполнение программ с JAX
@@ -137,9 +140,12 @@ tests/
 - **Plugin System**: PluginRegistry, CompositeExecutor, EconomicsPlugin, domain configurations и capability system
 - **Adaptive Agents**: Поведение адаптивных агентов и их реакция на политики
 - **Merge Determinism**: Детерминированные merge operations, state consistency, conflict resolution
+- **NaN Guard**: Runtime обнаружение NaN/Inf значений, numerical stability monitoring, diagnostics
 - **Calibrator Fidelity**: Управление уровнями fidelity (fluid/relaxed/hard/temperature) для trade-off точность/производительность
 - **Calibrator MVP**: Полноценная система калибровки параметров с оптимизацией, uncertainty quantification и penalty functions
+- **Conflict Detection**: Compile-time обнаружение конфликтов (multiple writers, merge rules, slot validation)
 - **Constraints Executor**: Исполнение ограничений (budget guards, validation, runtime checks)
+- **Cost Model**: Оценка стоимости выполнения программ (compile/runtime costs, memory usage, budget checks)
 - **Fiscal Mechanisms**: Тестирование налоговых/субсидий механизмов, их математическая корректность
 - **Global State**: Эволюция глобального состояния симуляции, consistency checks
 - **Gradient Health**: Проверка градиентов политик, NaN/Inf detection, numerical stability
@@ -360,6 +366,15 @@ pytest tests/foundry/test_agent_artifact.py
 # Merge determinism и state consistency
 pytest tests/foundry/test_merge_determinism.py
 
+# NaN guard (numerical stability)
+pytest tests/foundry/test_nan_guard.py
+
+# Conflict detection (compile-time validation)
+pytest tests/foundry/test_conflict_detection.py
+
+# Cost model (performance estimation)
+pytest tests/foundry/test_cost_model.py
+
 # Калибровка fidelity (управление точностью)
 pytest tests/foundry/test_calibrator_fidelity.py
 
@@ -437,6 +452,9 @@ pytest tests/runtime/test_runtime_manifest_paths.py
 - **Norm Pack Contracts**: Структурированные представления юридических норм (NormPack, NormRule, NormRef)
 - **Rule Backend System**: Extensible evaluators для разных типов правил (AST, LLM, Stub implementations)
 - **Environment Manifest**: Захват и сравнение вычислительных окружений для reproducibility
+- **Conflict Detection System**: Compile-time валидация программных графов на предмет конфликтов с merge rules
+- **Cost Model**: Оценка стоимости выполнения с budget constraints и telemetry-based calibration
+- **NaN Guard**: Runtime monitoring численной стабильности с diagnostics и cause detection
 
 ## Принципы тестирования
 
@@ -529,7 +547,10 @@ pytest tests/runtime/test_runtime_manifest_paths.py
 - **Agent Simulation**: Пошаговая симуляция агентов с метриками, экспериментальным трекингом и визуализацией
 - **Plugin System**: Модульная архитектура с capability-based plugin registry и composite executors
 - **Adaptive Agents**: Поведенческие модели агентов с learning capabilities
+- **Conflict Detection**: Compile-time валидация программных графов на конфликты merge rules
 - **Constraints Executor**: Runtime валидация ограничений (budget guards, validation)
+- **Cost Model**: Оценка стоимости выполнения с budget constraints и calibration
+- **NaN Guard**: Runtime monitoring численной стабильности и diagnostics
 - **Patch Executor**: State management через UpdateOp и Merge Rules, snapshots
 - **Program Graphs**: Оркестрация execution order с dependency tracking
 - **Runtime Batch**: Пакетное выполнение для производительности и parallelization
@@ -723,6 +744,30 @@ pytest tests/core_phase0/test_environment_manifest.py::TestEnvironmentManifest::
 # Проверьте интеграцию с tools/demos
 pytest tests/demos/run_laffer_demo.py -v
 # Убедитесь что пути к репозиторию разрешаются корректно
+```
+
+**Conflict detection failures:**
+```bash
+# Проверьте slot registry configuration
+pytest tests/foundry/test_conflict_detection.py::TestConflictDetectionBasics::test_multi_writer_error_rule_conflict -v
+# Проверьте merge rules setup
+pytest tests/foundry/test_conflict_detection.py -v --tb=short
+```
+
+**Cost model failures:**
+```bash
+# Проверьте mechanism registry alignment
+pytest tests/foundry/test_cost_model.py::TestCostModelBasics::test_multiplier_keys_match_registry -v
+# Проверьте telemetry calibration
+pytest tests/foundry/test_cost_model.py::TestCostModelCalibration -v
+```
+
+**NaN guard failures:**
+```bash
+# Проверьте JAX array handling
+pytest tests/foundry/test_nan_guard.py::TestNaNGuardBasics::test_enabled_guard_catches_nan -v
+# Проверьте profile configuration
+pytest tests/foundry/test_nan_guard.py::TestNaNGuardProfileFactory -v
 ```
 
 **Reflexion loop failures:**

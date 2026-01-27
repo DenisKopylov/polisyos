@@ -1,6 +1,6 @@
 # Complete Policy Engine Architecture
 
-> **Last updated:** January 27, 2026 (added Runtime module with Environment Fingerprinting, Agent Policy Artifacts system, and comprehensive monitoring/test coverage for agent simulation and plugin system)
+> **Last updated:** January 27, 2026 (added Runtime module with Environment Fingerprinting, Agent Policy Artifacts system, comprehensive monitoring/test coverage for agent simulation and plugin system, compile-time conflict detection, cost estimation model, and NaN/Inf runtime guards)
 >
 > This document contains the complete architecture of the Policy Engine project with detailed descriptions of all files in the `src/`, `tests/`, and `tools/` directories.
 
@@ -196,11 +196,14 @@ policy-engine/
 │   │   │   ├── README.md             # Calibration system documentation and algorithms
 │   │   │   └── report.py             # Calibration reports with convergence analysis
 │   │   ├── compiler.py               # IR compilation to ProgramGraph + ExecPlan
+│   ├── conflict_checker.py        # Compile-time conflict detection and resolution analysis
+│   ├── cost_model.py              # Execution cost estimation with self-calibration
 │   │   ├── constraints_engine.py     # Policy constraint validation and enforcement engine
 │   │   ├── domain/                   # Economic domain model (GlobalState, AgentState)
 │   │   ├── runtime/                  # Patch-based execution runtime with JAX and environment fingerprinting
 │   │   │   ├── __init__.py           # Exports runtime module public API (step, run_scan, execute_program_batch)
 │   │   │   ├── fingerprint.py        # Environment fingerprinting and determinism tier configuration
+│   │   │   ├── nan_guard.py          # Runtime NaN/Inf detection with diagnostics for STRICT validation
 │   │   │   └── README.md             # Runtime module documentation and environment fingerprinting system
 │   │   │   ├── __init__.py           # Exports domain model API
 │   │   │   ├── README.md             # Domain model documentation and state evolution
@@ -406,7 +409,10 @@ policy-engine/
 │   │   ├── test_merge_determinism.py  # Merge engine determinism and CRDT-inspired state updates
 │   │   ├── test_patch_executor.py     # Patch-based execution engine testing
 │   │   ├── test_program_graph_ops.py  # Program graph operations and transformations
-│   │   └── test_runtime_batch.py      # Batch runtime execution and parallel processing
+│   │   ├── test_runtime_batch.py      # Batch runtime execution and parallel processing
+│   │   ├── test_conflict_detection.py # Compile-time conflict detection and resolution analysis testing
+│   │   ├── test_cost_model.py         # Execution cost estimation model testing
+│   │   └── test_nan_guard.py          # NaN/Inf runtime guard testing
 │   ├── integration/                  # End-to-end integration tests (calibration UDF, workflow)
 │   │   ├── README.md                 # Integration testing documentation and system validation
 │   │   ├── test_calibration_udf.py   # Parameter calibration through UDF system integration
@@ -531,6 +537,13 @@ The Runtime module introduces a comprehensive environment fingerprinting system 
 - **`DeterminismTier`**: Three-tier determinism guarantee system (STRICT_CPU, BEST_EFFORT_GPU, NONDETERMINISTIC)
 - **`configure_determinism`**: JAX/XLA configuration for specified determinism levels
 
+#### Runtime NaN/Inf Guard (`nan_guard.py`)
+- **`NaNGuard`**: Runtime detection of NaN/Inf values with human-readable diagnostics
+- **`NaNDiagnostic`**: Structured diagnostic information for numerical issues
+- **`create_nan_guard_for_profile`**: Profile-based guard configuration (disabled/fast/mvp/strict)
+- **Performance**: Efficient `jnp.any()` checks with configurable frequency
+- **Integration**: Only enabled in STRICT validation profile for debugging
+
 ### Agent Policy Artifacts (`agent_sim/artifact.py`)
 
 **Purpose**: Immutable, content-addressable artifacts for trained neural network policies with full provenance tracking.
@@ -559,3 +572,58 @@ The Runtime module introduces a comprehensive environment fingerprinting system 
 - **Provenance Tracking**: Complete audit trail from training through deployment
 - **Performance**: JIT-compiled execution with minimal overhead
 - **Scalability**: Batch execution primitives for parallel simulation
+
+## Compile-time Analysis & Validation
+
+The compile-time analysis system provides static validation and optimization analysis before JAX compilation, ensuring reliable and efficient policy execution.
+
+### Conflict Detection (`foundry/conflict_checker.py`)
+
+**Purpose**: Static analysis of ProgramGraph for slot conflicts before runtime execution.
+
+#### Key Features
+- **Compile-time Analysis**: Pure Python analysis of mechanism slot interactions
+- **Merge Rule Validation**: Verifies merge rules are properly registered and configured
+- **Conflict Classification**: Uses MergeEngine semantics to classify conflict types
+- **Actionable Diagnostics**: Provides specific suggestions for conflict resolution
+- **Performance**: O(n*m) complexity where n=nodes, m=avg slots per node (<10ms typical)
+
+#### Conflict Types Detected
+- **Missing Slot Registration**: Unregistered slots in SlotRegistry
+- **Missing Merge Rules**: Unregistered merge rules in MergeRuleRegistry
+- **Multiple Writers**: Slots with multiple mechanisms writing without proper merge rules
+- **Unsupported Merge Rules**: Invalid merge rule configurations
+
+#### Integration with Governance
+- **Compliance Issues**: Converts conflicts to Phase 9 ComplianceIssue format
+- **Severity Levels**: Blocker, warning, and info classifications
+- **Location Tracking**: Precise path information for debugging
+
+### Cost Estimation Model (`foundry/cost_model.py`)
+
+**Purpose**: Heuristic cost estimation with self-calibration for execution planning and budget control.
+
+#### Key Features
+- **Multi-dimensional Estimation**: Compile time, runtime, memory usage, and FLOPs
+- **Self-calibrating Model**: Learns from telemetry to improve accuracy over time
+- **Budget Enforcement**: Validates execution against configurable resource constraints
+- **Mechanism-specific Costs**: Differentiated costs for different mechanism types
+- **Agent Scaling**: Accounts for agent count and time step scaling
+
+#### Cost Components
+- **Compile Time**: JAX/XLA compilation overhead estimation
+- **Runtime**: Per-step execution cost with mechanism and agent scaling
+- **Memory**: Peak memory usage based on agent count and slot requirements
+- **FLOPs**: Floating point operation estimates for performance analysis
+
+#### Budget Controls
+- **Time Limits**: Total execution, per-mechanism, and compile time budgets
+- **Memory Limits**: Peak memory consumption constraints
+- **Utilization Tracking**: Fraction of budget consumed with violation detection
+
+### Integration Benefits
+- **Pre-execution Validation**: Catches issues before expensive JAX compilation
+- **Resource Planning**: Informed decisions about execution feasibility
+- **Debugging Support**: Clear diagnostics for conflict resolution
+- **Performance Optimization**: Cost-guided optimization decisions
+- **System Reliability**: Prevents runtime failures through static analysis

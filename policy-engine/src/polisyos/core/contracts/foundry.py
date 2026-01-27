@@ -179,6 +179,10 @@ class ExecPlan(BaseModel):
         default=None,
         description="Random seed associated with determinism tier",
     )
+    nan_guard_enabled: bool = Field(
+        default=False,
+        description="Enable NaN/Inf guard checks during execution",
+    )
     mode: Literal["dev", "perf", "audit"] = "dev"
     jit: bool = True
     max_steps: int | None = None

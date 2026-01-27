@@ -27,13 +27,16 @@ foundry/
 ├── test_agent_simulation_step6.py # Шаг 6 симуляции агентов
 ├── test_calibrator_fidelity.py    # Управление fidelity уровнями (fluid/relaxed/hard/temperature)
 ├── test_calibrator_mvp.py         # Полноценная калибровка параметров с оптимизацией
+├── test_conflict_detection.py     # Compile-time conflict detection (multiple writers, merge rules)
 ├── test_constraints_executor.py   # Исполнение ограничений (budget guards, validation)
+├── test_cost_model.py             # Cost estimation model (compile/runtime costs, budget checks)
 ├── test_fiscal.py                 # Фискальные механизмы (налоги, субсидии)
 ├── test_global_state.py           # Глобальное состояние симуляции и его эволюция
 ├── test_gradients.py              # Градиенты политик (JAX autodiff, Equinox)
 ├── test_health.py                 # Проверки здоровья системы и детекция аномалий
 ├── test_jit_stability.py          # JIT-стабильность PyTree структур
 ├── test_merge_determinism.py      # Детерминизм операций merge и state consistency
+├── test_nan_guard.py              # NaN/Inf detection guard (runtime numerical stability)
 ├── test_patch_executor.py         # Patch executor, state delta и snapshot'ы
 ├── test_program_graph_ops.py      # Операции с программными графами, execution order
 └── test_runtime_batch.py          # Пакетное выполнение программ с JAX
@@ -118,6 +121,40 @@ foundry/
 - **Uncertainty Quantification**: Hessian-based uncertainty estimates
 - **Penalty Functions**: Регуляризация и constraint enforcement
 
+### Conflict Detection System (`test_conflict_detection.py`)
+
+**Цель:** Compile-time обнаружение и валидация конфликтов в программных графах.
+
+**Ключевые тесты:**
+- **Multiple Writers Detection**: Обнаружение конфликтов при записи в один slot несколькими механизмами
+- **Merge Rule Validation**: Проверка корректности merge rules (error/sum/override)
+- **Slot Registry Integration**: Валидация против slot registry и merge registry
+- **Conflict Report Generation**: Генерация отчетов о конфликтах с severity levels
+- **Strict Mode Validation**: Проверка unknown slots в strict режиме
+
+**Принципы:**
+- **Compile-time Safety**: Предотвращение runtime конфликтов через static analysis
+- **Merge Rule Enforcement**: Строгая валидация merge semantics
+- **Severity Classification**: blocker/warning уровни для разных типов конфликтов
+- **Issue Format Conversion**: Стандартизация отчетов для governance pipeline
+
+### Cost Estimation System (`test_cost_model.py`)
+
+**Цель:** Оценка стоимости выполнения программ и budget management.
+
+**Ключевые тесты:**
+- **Cost Estimation**: Расчет времени компиляции, runtime и memory usage
+- **Scaling Analysis**: Валидация масштабирования с количеством агентов и шагов времени
+- **Budget Enforcement**: Проверка соблюдения бюджетных ограничений
+- **Telemetry Calibration**: Обновление модели на основе реальных измерений
+- **Exponential Moving Average**: Калибровка через historical data
+
+**Принципы:**
+- **Mechanism-based Estimation**: Cost per mechanism с configurable multipliers
+- **Resource Prediction**: Memory, CPU time и compilation time estimates
+- **Budget Violations**: Detection и reporting превышений бюджета
+- **Self-calibrating**: Автоматическая калибровка через runtime telemetry
+
 ### Execution Components
 
 **Constraints Executor** (`test_constraints_executor.py`):
@@ -146,6 +183,12 @@ foundry/
 - **PyTree Structure**: Preservation при compilation
 - **Serialization Safety**: Stable serialization/deserialization
 - **Performance Consistency**: No regression в compiled execution
+
+**NaN Guard** (`test_nan_guard.py`):
+- **Runtime Monitoring**: Detection NaN/Inf значений в state arrays
+- **Diagnostic Reports**: Подробные отчеты с sample indices и cause detection
+- **Profile-based Configuration**: Different guard profiles (strict/fast/mvp)
+- **Check Interval Control**: Configurable frequency проверки для performance trade-off
 
 ### Advanced Execution
 
@@ -185,6 +228,10 @@ pytest tests/foundry/test_agent_simulation_step*.py -v
 # Калибровка и оптимизация
 pytest tests/foundry/test_calibrator_*.py -v
 
+# Конфликт детекция и cost estimation
+pytest tests/foundry/test_conflict_detection.py -v
+pytest tests/foundry/test_cost_model.py -v
+
 # Execution компоненты
 pytest tests/foundry/test_*executor*.py -v
 pytest tests/foundry/test_*batch*.py -v
@@ -192,6 +239,7 @@ pytest tests/foundry/test_*batch*.py -v
 # Математическая валидация
 pytest tests/foundry/test_gradients.py -v
 pytest tests/foundry/test_jit_stability.py -v
+pytest tests/foundry/test_nan_guard.py -v
 ```
 
 ## Конфигурация окружения
@@ -281,6 +329,30 @@ pytest tests/foundry/test_calibrator_mvp.py::test_calibrator_recovers_income_tax
 pytest tests/foundry/test_adaptive_agents.py -v --tb=short
 ```
 
+**Conflict detection failures:**
+```bash
+# Проверьте slot registry и merge rules
+pytest tests/foundry/test_conflict_detection.py::TestConflictDetectionBasics::test_multi_writer_error_rule_conflict -v
+# Проверьте strict mode validation
+pytest tests/foundry/test_conflict_detection.py::TestConflictDetectionEdgeCases::test_unknown_slot_strict_mode -v
+```
+
+**Cost model calibration issues:**
+```bash
+# Проверьте mechanism registry alignment
+pytest tests/foundry/test_cost_model.py::TestCostModelBasics::test_multiplier_keys_match_registry -v
+# Проверьте telemetry updates
+pytest tests/foundry/test_cost_model.py::TestCostModelCalibration::test_update_from_telemetry -v
+```
+
+**NaN guard detection failures:**
+```bash
+# Проверьте JAX array handling
+pytest tests/foundry/test_nan_guard.py::TestNaNGuardBasics::test_enabled_guard_catches_nan -v
+# Проверьте profile configuration
+pytest tests/foundry/test_nan_guard.py::TestNaNGuardProfileFactory::test_strict_profile_enabled -v
+```
+
 **Plugin system registration failures:**
 ```bash
 # Проверьте capability declarations
@@ -328,8 +400,19 @@ pytest tests/foundry/test_gradients.py -v --tb=long
 - **Gradient Testing**: Autodiff vs finite differences comparison
 - **JIT Stability**: PyTree structure preservation
 - **Numerical Analysis**: NaN/Inf detection, stability monitoring
+- **NaN Guard**: Runtime numerical stability monitoring с diagnostics
 
 ### Calibration System
 - **Fidelity Control**: Multi-level precision management
 - **Uncertainty Quantification**: Hessian-based confidence intervals
 - **Optimization**: Gradient-based parameter fitting с constraints
+
+### Program Validation
+- **Conflict Detection**: Compile-time conflict analysis для program graphs
+- **Merge Rule Validation**: Slot conflict resolution и merge semantics
+- **Issue Reporting**: Standardized conflict reports для governance pipeline
+
+### Cost Estimation
+- **Performance Modeling**: Mechanism-based cost estimation
+- **Budget Management**: Resource constraint enforcement
+- **Telemetry Calibration**: Runtime performance learning

@@ -2,7 +2,7 @@
 
 **Policy Engine** — AI‑driven система проектирования, валидации, калибровки и исполнения политик. Архитектурно это “компиляторная труба”: от запроса пользователя/LLM до формально типизированных контрактов (IR), далее — компиляция в исполняемые графы, выполнение в JAX‑ядре и фиксация результатов в воспроизводимых артефактах.
 
-**Состояние документа (актуально на 2026‑01‑27):** архитектура v2.1.4 (Trinity Architecture v2.1.4, W3C PROV-O Integration, Evidence-Enhanced Fabric, Legal Validation System, Quality Gate Enforcement, Trust & Uncertainty Quantification, Hierarchical Agent System, Self-Healing Reflexion, Multi-Fidelity Simulation, Enhanced Environment Manifest, Agent Artifacts, Merge Determinism, Quality Indicators System, Fitness Reports, Quality Gate Pass), присутствуют переходные зоны/устаревшие интерфейсы (см. раздел "Legacy и переходные зоны").
+**Состояние документа (актуально на 2026‑01‑27):** архитектура v2.1.4 (Trinity Architecture v2.1.4, W3C PROV-O Integration, Evidence-Enhanced Fabric, Legal Validation System, Quality Gate Enforcement, Trust & Uncertainty Quantification, Hierarchical Agent System, Self-Healing Reflexion, Multi-Fidelity Simulation, Enhanced Environment Manifest, Agent Artifacts, Merge Determinism, Quality Indicators System, Fitness Reports, Quality Gate Pass, Conflict Detection, Cost Model, NaN Guard, Agent Simulation), присутствуют переходные зоны/устаревшие интерфейсы (см. раздел "Legacy и переходные зоны").
 
 ## Архитектурный обзор
 
@@ -46,12 +46,21 @@ Artifacts (CAS + Audit Trail + Evidence)
 
 **Trinity Bundle** обеспечивает типизированные ссылки на все три артефакта с валидацией совместимости. PolicySurfaceIR v2.x остается совместимым интерфейсом для обратной совместимости, с поддержкой автоматической миграции в Trinity формат. **Trinity Manifest** предоставляет полные метаданные эксперимента с полями для экспериментального названия, создателя, временных меток и заметок.
 
+### Advanced Foundry Features (Расширенные возможности Foundry)
+
+Современная архитектура включает специализированные компоненты для надежного и эффективного исполнения сложных симуляций:
+
+- **Conflict Detection**: Compile-time анализатор для обнаружения конфликтов записи в слоты перед JAX-компиляцией
+- **Cost Model**: Эвристическая модель оценки стоимости выполнения программ с самокалибровкой
+- **NaN Guard**: Runtime обнаружение и диагностика NaN/Inf значений для numerical stability
+- **Agent Simulation**: Комплексная симуляция поведенчески-гетерогенных агентов с ML, artifact system и environment fingerprinting
+
 ### Архитектурные законы (инварианты проекта)
 
 Проект опирается на набор инвариантов. Часть из них формализована инструментами в `tools/`, часть — пока соглашения, поддерживаемые тестами и код‑ревью.
 
 - **Закон A — Import Gate (границы модулей)**: `tools/lint_imports.py` запрещает критические обратные зависимости (`foundry → fabric`, `fabric → scientist`) и репортит циклы (по умолчанию не фейлит; `--fail-on-cycles` включает strict‑mode).
-- **Закон B — Foundry как JAX‑ядро без прямого I/O**: `tools/lint_foundry.py` запрещает импорт I/O/DB/network библиотек и вызовы `print()`/`open()` в `polisyos.foundry`. As‑is: сейчас `src/polisyos/foundry/agents.py` является исключением (использует `os`/`pathlib` для загрузки артефактов), поэтому “чистое ядро” следует искать в `src/polisyos/foundry/runtime.py`, `src/polisyos/foundry/executor.py`, `src/polisyos/foundry/patch_vm.py`, `src/polisyos/foundry/calibration/pure_executor.py`.
+- **Закон B — Foundry как JAX‑ядро без прямого I/O**: `tools/lint_foundry.py` запрещает импорт I/O/DB/network библиотек и вызовы `print()`/`open()` в `polisyos.foundry`. As‑is: сейчас `src/polisyos/foundry/agents.py` является исключением (использует `os`/`pathlib` для загрузки артефактов), поэтому “чистое ядро” следует искать в `src/polisyos/foundry/runtime.py`, `src/polisyos/foundry/executor.py`, `src/polisyos/foundry/patch_vm.py`, `src/polisyos/foundry/calibration/pure_executor.py`, `src/polisyos/foundry/conflict_checker.py`, `src/polisyos/foundry/cost_model.py`, `src/polisyos/foundry/runtime/nan_guard.py`.
 - **Закон C — контракты как источник истины**: структуры данных определены в `polisyos.ir` и `polisyos.core.contracts`, экспортируются в JSON Schema (`tools/gen_schema.py` → `policy_ir_schema.json`) и валидируются на границах.
 - **Закон D — воспроизводимость и аудит прогонов**: каждый прогон имеет `run_id`, детерминированные seed’ы (Treasury), audit trail (`runs/<run_id>/audit.jsonl`) и воспроизводимые артефакты в CAS.
 - **Закон E — evidence и provenance обязательны для данных**: `polisyos.fabric` фиксирует источники/трансформации (EvidenceBundle), а также immutable факты (Fact Log) с provenance/trust/legal метаданными.
@@ -748,11 +757,11 @@ RunManifest + seed + artifacts → Full reproducibility
 **Новые возможности (после обновлений):**
 - **Enhanced Environment Manifest**: Захват окружения с compatibility scoring, risk assessment и fingerprinting для reproducible симуляций
 - **Trinity Contracts**: Типизированные ссылки на ProblemFrame/PolicySpec/ModelSpec артефакты с TrinityManifest для метаданных
+- **Advanced Foundry Features**: Conflict Detection (compile-time анализ), Cost Model (оценка стоимости), NaN Guard (numerical stability)
 - **Scientist Contracts**: Контракты для FailureCard, PolicyIR и Critique артефактов
 - **Enhanced Registry**: Автоматическая сборка registry bundles из IR модуля
 - **Trace Sinks**: JSON Lines логирование с structured events и metadata
 - **Legal Contracts**: Стабильные контракты для legal validation subsystem (NormPack, NormRule, RuleBackend, RuleType)
-- **Provenance Contracts**: Контракты для W3C PROV-O provenance tracking с entities, activities и agents
 - **Provenance Contracts**: Контракты для W3C PROV-O provenance tracking с entities, activities и agents
 
 **Архитектурные особенности:**
@@ -1097,7 +1106,7 @@ pytest tests/ -x --tb=short
 # Только contract тесты (быстрые, без зависимостей)
 pytest tests/contract/ -v
 
-# Foundry тесты (JAX, симуляции, калибровка)
+# Foundry тесты (JAX, симуляции, калибровка, agent simulation, conflict detection, cost model, nan guard)
 pytest tests/foundry/ -v
 
 # Integration тесты (workflow, scientist + fabric + foundry)
@@ -1273,7 +1282,7 @@ python tools/diagnostics/generate_ir_schema.py
 - **[`src/polisyos/common/README.md`](src/polisyos/common/README.md)**: JAX environment setup (CPU-first для macOS), структурированное логирование через Loguru, детерминированные миграции схем, hardware safeguards
 
 ### 🧪 Testing Framework (Тестовая инфраструктура)
-- **[`tests/README.md`](tests/README.md)**: Contract тесты (IR валидация, Trinity, legal norms), core phase 0 (CAS, canonical JSON, environment manifests), fabric (evidence, trust, provenance, quality indicators, fitness reports), foundry (JAX, calibration, agent simulation, plugins), integration (end-to-end workflows, UDF calibration), runtime (artifact management), scientist (governance, legal compliance, agent protocols, reflexion)
+- **[`tests/README.md`](tests/README.md)**: Contract тесты (IR валидация, Trinity, legal norms), core phase 0 (CAS, canonical JSON, environment manifests), fabric (evidence, trust, provenance, quality indicators, fitness reports), foundry (JAX, calibration, agent simulation, plugins, conflict detection, cost model, nan guard, merge determinism), integration (end-to-end workflows, UDF calibration), runtime (artifact management), scientist (governance, legal compliance, agent protocols, reflexion)
 
 ### 🔨 Developer Tools (Инструменты разработчика)
 - **[`tools/README.md`](tools/README.md)**: Архитектурные линтеры (lint_imports.py - Закон A, lint_foundry.py - Закон B), генерация JSON Schema, миграции артефактов, бенчмарки производительности, демонстрационные скрипты, диагностика системы, scan_fabric.py (bootstrap data contracts), migrate_to_trinity.py (миграция в Trinity формат), capture_env.py (environment manifests), visualize_provenance.py (визуализация provenance графов)

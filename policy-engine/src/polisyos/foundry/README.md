@@ -135,7 +135,7 @@ Agent simulation позволяет моделировать:
 
 ## Архитектура
 
-Foundry состоит из следующих основных слоев (актуально на 2026-01-27):
+Foundry состоит из следующих основных слоев (актуально на 2026-01-27, обновлено с conflict detection, cost modeling, nan guard):
 
 ### 1. Core Layer (Ядро)
 ```
@@ -160,10 +160,13 @@ patch_vm.py         # Patch-based виртуальная машина и merge r
 runtime/            # Runtime модули для исполнения программ
 ├── __init__.py     # Чистые JAX функции для исполнения (step, run_scan, execute_program_batch)
 ├── fingerprint.py  # Environment fingerprinting для воспроизводимости
+├── nan_guard.py    # Защита от NaN/Inf значений во время исполнения
 executor.py         # Исполнение программ с constraints и state management
 constraints_engine.py # Движок ограничений и валидации
 trace.py            # Система трассировки исполнения
 merge_engine.py     # Движок для слияния патчей и состояний
+conflict_checker.py # Compile-time проверка конфликтов
+cost_model.py       # Модель оценки стоимости выполнения
 ```
 
 ### 4. Domain Layer (Модель предметной области)
@@ -356,6 +359,149 @@ report = CalibrationReport(
 - **L-BFGS**: Квазиньютоновский метод для точной оптимизации
 - **SLSQP**: Sequential Least Squares Programming с ограничениями
 
+## Compile-time Conflict Detection (Проверка конфликтов на этапе компиляции)
+
+### Обзор
+
+Модуль `conflict_checker` предоставляет статический анализатор для обнаружения конфликтов записи в слоты перед JAX-компиляцией. Анализатор работает на чистом Python и интегрируется с существующей семантикой MergeEngine.
+
+### Основные компоненты
+
+#### CompileTimeConflictChecker (Анализатор конфликтов)
+
+```python
+from polisyos.foundry.conflict_checker import CompileTimeConflictChecker, ConflictReport
+
+# Создание анализатора
+checker = CompileTimeConflictChecker(
+    slot_registry=slot_registry,
+    merge_registry=merge_registry,
+    strict_mode=True
+)
+
+# Анализ ProgramGraph
+report = checker.check(program_graph)
+
+# Результат анализа
+if report.has_blockers():
+    print(f"Найдено {len(report.conflicts)} блокирующих конфликтов")
+    for conflict in report.conflicts:
+        print(f"- {conflict.slot_id}: {conflict.suggestion}")
+```
+
+#### SlotConflict (Конфликт слота)
+
+```python
+@dataclass(frozen=True)
+class SlotConflict:
+    slot_id: str                    # Конфликтующий слот
+    writers: frozenset[str]         # Механизмы-писатели
+    conflict_kind: MergeConflictKind # Тип конфликта
+    location: str                   # Местоположение в ProgramGraph
+    suggestion: str                 # Рекомендация по исправлению
+    severity: str                   # "blocker", "warning", "info"
+```
+
+### Типы конфликтов
+
+- **MULTIPLE_WRITERS**: Несколько механизмов пишут в слот с правилом ERROR
+- **UNSUPPORTED_RULE**: Неподдерживаемое правило слияния
+- **MISSING_VALUE**: Слот не зарегистрирован в SlotRegistry
+
+### Интеграция в Compiler
+
+```python
+from polisyos.foundry.compiler import compile_surface_policy
+
+# Компиляция с проверкой конфликтов
+artifacts = compile_surface_policy(
+    store=store,
+    policy=policy_ir,
+    mechanism_registry=mechanism_registry,
+    slot_registry=slot_registry,
+    merge_registry=merge_registry,
+    strict_conflict_check=True  # Включает проверку конфликтов
+)
+```
+
+## Cost Model (Модель стоимости)
+
+### Обзор
+
+Модуль `cost_model` предоставляет эвристическую модель оценки стоимости выполнения программ с возможностью самокалибровки на основе телеметрии реальных запусков.
+
+### Основные возможности
+
+#### CostEstimate (Оценка стоимости)
+
+```python
+from polisyos.foundry.cost_model import CostModel, CostEstimate, CostBudget
+
+# Создание модели стоимости
+cost_model = CostModel()
+
+# Оценка стоимости выполнения
+estimate = cost_model.estimate(
+    program_graph=program_graph,
+    n_agents=1000,
+    time_steps=100,
+    budget=CostBudget(
+        max_total_ms=60000,
+        max_memory_mb=8192,
+        max_compile_ms=30000
+    )
+)
+
+print(f"Ожидаемое время: {estimate.estimated_total_ms}ms")
+print(f"Память: {estimate.estimated_memory_mb}MB")
+print(f"Уверенность: {estimate.confidence}")
+```
+
+#### CostBudget (Бюджет стоимости)
+
+```python
+@dataclass
+class CostBudget:
+    max_total_ms: int = 60000     # Максимальное общее время (мс)
+    max_memory_mb: int = 8192     # Максимальная память (MB)
+    max_compile_ms: int = 30000   # Максимальное время компиляции
+    max_per_mechanism_ms: int = 10000  # Максимум на механизм
+```
+
+### Самокалибровка
+
+```python
+# Обновление модели на основе реальных измерений
+cost_model.update_from_telemetry(
+    mechanism_type="income_tax",
+    actual_ms=25.0,
+    n_agents=1000
+)
+
+# Статус калибровки
+status = cost_model.get_calibration_status()
+print(f"Калибровано механизмов: {len(status['calibrated_mechanisms'])}")
+```
+
+### Интеграция в Compiler
+
+```python
+from polisyos.foundry.compiler import compile_surface_policy
+from polisyos.foundry.cost_model import CostBudget
+
+# Компиляция с бюджетом стоимости
+artifacts = compile_surface_policy(
+    store=store,
+    policy=policy_ir,
+    mechanism_registry=mechanism_registry,
+    slot_registry=slot_registry,
+    merge_registry=merge_registry,
+    cost_budget=CostBudget(max_total_ms=30000),
+    n_agents=1000,
+    time_steps=50
+)
+```
+
 ## Компилятор политик
 
 ### CompileArtifacts
@@ -370,7 +516,11 @@ artifacts = compile_surface_policy(
     policy=policy_ir,
     mechanism_registry=mechanism_registry,
     slot_registry=slot_registry,
-    merge_registry=merge_registry
+    merge_registry=merge_registry,
+    strict_conflict_check=True,      # Проверка конфликтов
+    cost_budget=CostBudget(),        # Бюджет стоимости
+    n_agents=1000,                   # Размер симуляции для оценки
+    time_steps=100                   # Длительность симуляции
 )
 
 # Доступные артефакты
@@ -379,6 +529,8 @@ program_ref = artifacts.program_ref         # Скомпилированный P
 exec_plan_ref = artifacts.exec_plan_ref     # План исполнения с топологической сортировкой
 slot_layout_ref = artifacts.slot_layout_ref # Layout слотов состояния (опционально)
 treasury_plan_ref = artifacts.treasury_plan_ref  # План детерминированного RNG (опционально)
+conflict_report = artifacts.conflict_report # Отчёт о конфликтах (опционально)
+cost_estimate = artifacts.cost_estimate     # Оценка стоимости (опционально)
 ```
 
 ### Program Graph
@@ -622,6 +774,45 @@ compatibility_score = fingerprint.compatibility_score(other_fingerprint)
 warnings = fingerprint.validate_for_tier()
 ```
 
+### NaN/Inf Guard (Защита от некорректных значений)
+
+Для STRICT профиля валидации предоставляется система обнаружения NaN и Inf значений с понятными диагностиками вместо криптичных JAX traceback'ов.
+
+```python
+from polisyos.foundry.runtime.nan_guard import NaNGuard, NaNGuardReport, create_nan_guard_for_profile
+
+# Создание guard для STRICT профиля
+guard = create_nan_guard_for_profile("strict")
+
+# Проверка состояния после каждого механизма
+for mechanism_id, patches in mechanism_outputs.items():
+    for slot_id, value in patches.items():
+        if not guard.check_array(value, slot_id, mechanism_id, time_step):
+            print(f"Обнаружены NaN/Inf в {slot_id} от {mechanism_id}")
+
+# Получение полного отчёта
+report = guard.get_report()
+if not report.ok:
+    print(f"Первая ошибка на шаге: {report.first_failure_step}")
+    for diagnostic in report.diagnostics:
+        print(f"- {diagnostic.slot_id}: {diagnostic.possible_cause}")
+```
+
+#### NaNDiagnostic (Диагностика NaN)
+
+```python
+@dataclass(frozen=True)
+class NaNDiagnostic:
+    slot_id: str           # Затронутый слот
+    mechanism_id: str      # Механизм, произведший значение
+    time_step: int         # Шаг симуляции
+    nan_count: int         # Количество NaN значений
+    inf_count: int         # Количество Inf значений
+    sample_indices: list[int]  # Примеры индексов проблемных значений
+    possible_cause: str    # Возможная причина проблемы
+    value_stats: dict      # Статистика валидных значений
+```
+
 ### Execution Flow
 
 Исполнение политики проходит через несколько фаз:
@@ -629,17 +820,27 @@ warnings = fingerprint.validate_for_tier()
 1. **Load Program**: Загрузка ProgramGraph из artifact store
 2. **Initialize State**: Инициализация начального состояния экономики
 3. **Execute Nodes**: Исполнение узлов в топологическом порядке
-4. **Merge Patches**: Применение патчей с merge rules
-5. **Check Constraints**: Валидация ограничений
+4. **NaN Guard Check**: Проверка на NaN/Inf (в STRICT режиме)
+5. **Merge Patches**: Применение патчей с merge rules
+6. **Check Constraints**: Валидация ограничений
 
 ### Runtime API
 
 ```python
 from polisyos.foundry.runtime import step, run_scan, execute_program_batch
+from polisyos.foundry.runtime.nan_guard import create_nan_guard_for_profile
+
+# Создание NaN guard для профиля валидации
+nan_guard = create_nan_guard_for_profile("strict")
 
 # Один шаг симуляции (чистая JAX функция)
-def step(state, controls, root_key, t: int, static_bundle=None):
+def step(state, controls, root_key, t: int, static_bundle=None, nan_guard=None):
     """Placeholder pure JAX step; returns state unchanged and empty trace."""
+    # Проверка на NaN/Inf после каждого механизма
+    if nan_guard and nan_guard.enabled:
+        for slot_id, value in state.items():
+            nan_guard.check_array(value, slot_id, "simulation", t)
+
     return state, {"t": t, "controls": controls}
 
 # Исполнение последовательности контролей через lax.scan
@@ -652,6 +853,9 @@ batch_results = execute_program_batch(
     root_key=root_key,                # Общий ключ для детерминизма
     static_bundle=static_bundle       # Скомпилированные компоненты
 )
+
+# Получение отчёта о NaN/Inf
+nan_report = nan_guard.get_report()
 ```
 
 ### Treasury System
@@ -1341,10 +1545,10 @@ with jax.profiler.trace("/tmp/jax-trace"):
 
 ### Потребители Foundry
 
-- **`scientist/`**: Использует компилятор для создания execution plans и калибратор для оптимизации параметров
-- **`runtime/`**: Управляет хранением результатов исполнения и обеспечивает аудит
-- **`ir/`**: Определяет механизм спецификации и calibration targets
-- **`tools/`**: Утилиты для миграции и работы с политиками
+- **`scientist/`**: Использует компилятор для создания execution plans, калибратор для оптимизации параметров, conflict checker для валидации, cost model для оценки ресурсов
+- **`runtime/`**: Управляет хранением результатов исполнения и обеспечивает аудит, использует nan_guard для обнаружения численных проблем
+- **`ir/`**: Определяет механизм спецификации и calibration targets, предоставляет registries для conflict checker
+- **`tools/`**: Утилиты для миграции и работы с политиками, интегрирует cost estimates и conflict reports
 
 ### Интеграция в Pipeline
 

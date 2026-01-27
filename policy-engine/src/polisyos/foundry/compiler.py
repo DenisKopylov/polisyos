@@ -21,9 +21,12 @@ from polisyos.core.contracts.foundry import (
 from polisyos.ir.kernel import MechanismTypeRegistry, MergeRuleRegistry, SlotRegistry, UnitsRegistry
 from polisyos.ir.kernel.mechanisms import resolve_mechanism_slots
 from polisyos.ir.surface import InterventionSpec, PolicySurfaceIR, schedule_range
+from polisyos.foundry.conflict_checker import CompileTimeConflictChecker, ConflictReport
+from polisyos.foundry.cost_model import CostBudget, CostEstimate, CostModel
 from polisyos.foundry.layout import SlotLayout, build_slot_layout
 from polisyos.foundry.treasury import TreasuryPlan, build_treasury_plan
 from polisyos.foundry.runtime.fingerprint import DeterminismTier, EnvironmentFingerprint
+from polisyos.scientist.governance.profiles import ProfileLevel, ValidationProfile
 
 
 @dataclass
@@ -56,6 +59,22 @@ class CompileArtifacts:
     exec_plan_ref: ExecPlanRef
     slot_layout_ref: ArtifactRef | None = None
     treasury_plan_ref: ArtifactRef | None = None
+    conflict_report: ConflictReport | None = None
+    cost_estimate: CostEstimate | None = None
+
+
+class CompileError(Exception):
+    """Raised when compilation fails due to conflicts or budget."""
+
+    def __init__(
+        self,
+        message: str,
+        conflict_report: ConflictReport | None = None,
+        cost_estimate: CostEstimate | None = None,
+    ):
+        super().__init__(message)
+        self.conflict_report = conflict_report
+        self.cost_estimate = cost_estimate
 
 
 def _as_policy_ref(ref: ArtifactRef | PolicySurfaceIRRef) -> PolicySurfaceIRRef:
@@ -101,7 +120,13 @@ def compile_surface_policy(
     units_registry: UnitsRegistry | None = None,
     policy_ref: ArtifactRef | None = None,
     simulation_config: SimulationConfig | None = None,
+    profile: ValidationProfile | None = None,
+    cost_budget: CostBudget | None = None,
+    n_agents: int = 1000,
+    time_steps: int = 100,
+    strict_conflict_check: bool = True,
 ) -> CompileArtifacts:
+    profile = profile or ValidationProfile.mvp()
     if policy_ref is None:
         policy_ref = put_policy_surface(
             store,
@@ -118,6 +143,31 @@ def compile_surface_policy(
         slot_registry=slot_registry,
         merge_registry=merge_registry,
     )
+
+    conflict_checker = CompileTimeConflictChecker(
+        slot_registry=slot_registry,
+        merge_registry=merge_registry,
+        strict_mode=strict_conflict_check,
+    )
+    conflict_report = conflict_checker.check(program_graph)
+    if not conflict_report.ok and strict_conflict_check:
+        raise CompileError(
+            f"Compile-time conflict detection failed: {len(conflict_report.conflicts)} conflicts",
+            conflict_report=conflict_report,
+        )
+
+    cost_model = CostModel()
+    cost_estimate = cost_model.estimate(
+        program_graph,
+        n_agents=n_agents,
+        time_steps=time_steps,
+        budget=cost_budget,
+    )
+    if cost_budget is not None and cost_estimate.exceeds_budget:
+        raise CompileError(
+            f"Cost estimate exceeds budget: {cost_estimate.budget_violations}",
+            cost_estimate=cost_estimate,
+        )
     program_inputs = _program_graph_inputs(program_graph, policy_ref, policy)
     program_ref = store.put_json(
         program_graph,
@@ -150,6 +200,7 @@ def compile_surface_policy(
         environment_fingerprint=env_fingerprint,
         determinism_tier=determinism_tier,
         random_seed=random_seed,
+        nan_guard_enabled=profile.level == ProfileLevel.STRICT,
     )
     exec_plan_payload_ref = store.put_json(
         exec_plan,
@@ -187,6 +238,8 @@ def compile_surface_policy(
         exec_plan_ref=exec_plan_ref,
         slot_layout_ref=slot_layout_ref,
         treasury_plan_ref=treasury_plan_ref,
+        conflict_report=conflict_report,
+        cost_estimate=cost_estimate,
     )
 
 

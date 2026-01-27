@@ -238,7 +238,7 @@ warnings_ref = WarningsRef(
 
 ## Foundry Contracts
 
-Foundry предоставляет 14 типов контрактов для симуляции и исполнения политик.
+Foundry предоставляет 14 типов контрактов для симуляции и исполнения политик, включая расширенные возможности conflict detection, cost modeling и runtime safety.
 
 ### PolicySurfaceIRRef
 
@@ -581,6 +581,120 @@ patch_set = PatchSet(
     schema_version="1.0",
     patches=[patch],
     notes=["Quarterly economic adjustments"]
+)
+```
+
+### Advanced Foundry Runtime Contracts
+
+Современные контракты Foundry включают расширенные возможности для compile-time validation, cost estimation и runtime safety, обеспечивая надежное и эффективное исполнение сложных симуляций.
+
+#### Conflict Detection Contracts
+
+**Назначение**: Контракты для результатов анализа конфликтов в ProgramGraph с actionable insights для разработчиков.
+
+##### SlotConflict
+
+```python
+from polisyos.foundry.conflict_checker import SlotConflict
+
+conflict = SlotConflict(
+    slot_id="user_balance",
+    writers=frozenset(["credit_mechanism", "debit_mechanism"]),
+    conflict_kind=MergeConflictKind.CONCURRENT_WRITE,
+    location="program_graph.nodes[3]",
+    suggestion="Consider using atomic operations or sequential execution",
+    severity="blocker"
+)
+```
+
+##### ConflictReport
+
+```python
+from polisyos.foundry.conflict_checker import ConflictReport
+
+report = ConflictReport(
+    schema_version="1.0",
+    ok=False,
+    conflicts=[conflict],
+    analysis_time_ms=45,
+    program_graph_fingerprint="abc123...",
+    recommendations=["Split conflicting mechanisms", "Use merge rules"]
+)
+```
+
+#### Cost Modeling Contracts
+
+**Назначение**: Контракты для оценки и управления стоимостью исполнения программ с budget tracking.
+
+##### CostEstimate
+
+```python
+from polisyos.foundry.cost_model import CostEstimate
+
+estimate = CostEstimate(
+    estimated_compile_ms=2500,
+    estimated_run_ms=75,
+    estimated_total_ms=2575,
+    estimated_memory_mb=512,
+    estimated_flops=500_000,
+    per_mechanism_costs={
+        "risk_mechanism": 1200,
+        "pricing_mechanism": 800,
+        "validation_mechanism": 575
+    },
+    exceeds_budget=False,
+    budget_utilization=0.85,
+    confidence="high"
+)
+```
+
+##### CostBudget
+
+```python
+from polisyos.foundry.cost_model import CostBudget
+
+budget = CostBudget(
+    max_compile_ms=5000,
+    max_run_ms=100,
+    max_memory_mb=1024,
+    max_flops=1_000_000,
+    priority="performance",
+    tags=["simulation", "production"]
+)
+```
+
+#### NaN Guard Contracts
+
+**Назначение**: Контракты для диагностики и отчетности о NaN/Inf значениях в runtime.
+
+##### NaNDiagnostic
+
+```python
+from polisyos.foundry.runtime.nan_guard import NaNDiagnostic
+
+diagnostic = NaNDiagnostic(
+    slot_id="market_price",
+    mechanism_id="pricing_mechanism",
+    time_step=150,
+    nan_count=3,
+    inf_count=0,
+    sample_indices=[42, 87, 156],
+    possible_cause="Division by zero in price calculation",
+    value_stats={"mean": 45.2, "std": 12.8, "min": 0.0, "max": 89.5}
+)
+```
+
+##### NaNGuardReport
+
+```python
+from polisyos.foundry.runtime.nan_guard import NaNGuardReport
+
+report = NaNGuardReport(
+    schema_version="1.0",
+    ok=False,
+    diagnostics=[diagnostic],
+    checks_performed=150,
+    first_failure_step=150
 )
 ```
 
@@ -1058,9 +1172,9 @@ def track_experiment_state(policy_refs: list[PolicyIRRef], critique_refs: list[C
 
 ### Разделение ответственности
 
-- **Contracts**: Определяют интерфейсы и типы данных для всех модулей (Fabric, Foundry, Scientist, Trinity)
+- **Contracts**: Определяют интерфейсы и типы данных для всех модулей (Fabric, Foundry, Scientist, Trinity) включая advanced runtime capabilities (conflict detection, cost modeling, NaN guard)
 - **Artifacts**: Предоставляют инфраструктуру хранения и CAS для всех артефактов
-- **Модули**: Реализуют логику, используя контракты для типобезопасного взаимодействия
+- **Модули**: Реализуют логику, используя контракты для типобезопасного взаимодействия с compile-time validation и runtime safety
 
 ### Trinity архитектура
 
@@ -1087,6 +1201,35 @@ def process_fabric_result(ref: FabricResultRef) -> None:
 
 # Runtime валидация
 result = FabricResult(**data)  # Pydantic validation
+```
+
+### Advanced Runtime Safety
+
+```python
+# Compile-time conflict detection
+def validate_program_graph(graph: ProgramGraph) -> ConflictReport:
+    """Compile-time validation предотвращает runtime конфликты."""
+    report = check_program_graph_conflicts(graph)
+    if not report.ok:
+        raise ValidationError(f"ProgramGraph conflicts: {report.conflicts}")
+    return report
+
+# Cost-aware execution planning
+def plan_execution_with_budget(graph: ProgramGraph, budget: CostBudget) -> ExecPlan:
+    """Cost modeling обеспечивает resource-aware планирование."""
+    estimate = estimate_program_cost(graph, budget)
+    if estimate.exceeds_budget:
+        raise BudgetExceededError(f"Cost estimate exceeds budget: {estimate.budget_violations}")
+    return create_exec_plan(graph, estimate)
+
+# Runtime numerical stability
+def safe_simulation_step(step: int, state: dict, nan_guard: NaNGuard) -> dict:
+    """NaN guard обеспечивает numerical stability."""
+    new_state = compute_simulation_step(state)
+    report = nan_guard.check_state_updates(new_state, step)
+    if not report.ok:
+        raise NumericalInstabilityError(f"NaN/Inf detected: {report.diagnostics}")
+    return new_state
 ```
 
 ### Межмодульное взаимодействие
@@ -1246,3 +1389,7 @@ def validate_policy_with_legal_rules(
 4. **Документируйте контракты**: Описывайте назначение и constraints каждого контракта
 5. **Версионируйте схемы**: Используйте семантическое версионирование для моделей данных
 6. **Используйте Scientist контракты для экспериментов**: Для управления жизненным циклом политик и отслеживания оценок используйте PolicyIRRef, CritiqueRef и FailureCardRef
+7. **Применяйте conflict detection**: Всегда анализируйте ProgramGraph на конфликты перед запуском симуляций
+8. **Используйте cost modeling**: Планируйте исполнение с учетом бюджетов на ресурсы и время
+9. **Внедряйте NaN guard**: Защищайте симуляции от numerical instability с помощью runtime проверок
+10. **Интегрируйте advanced contracts**: Используйте новые контракты Foundry для compile-time validation и runtime safety

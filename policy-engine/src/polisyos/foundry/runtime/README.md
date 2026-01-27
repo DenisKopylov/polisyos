@@ -18,6 +18,12 @@
 - **`DeterminismTier`** - Уровни гарантий детерминизма
 - **`configure_determinism`** - Настройка JAX для детерминизма
 
+### 3. NaN Guard (`nan_guard.py`)
+- **`NaNGuard`** - Обнаружение NaN/Inf значений во время исполнения
+- **`NaNDiagnostic`** - Диагностическая информация о численных проблемах
+- **`NaNGuardReport`** - Полный отчёт о проверках
+- **`create_nan_guard_for_profile`** - Фабричная функция для разных профилей валидации
+
 ## Core Runtime
 
 ### Основные функции исполнения
@@ -224,6 +230,122 @@ def configure_determinism(tier: DeterminismTier) -> dict[str, str]:
     return env_vars
 ```
 
+## NaN/Inf Guard (Защита от некорректных значений)
+
+### Обзор
+
+NaN Guard предоставляет runtime обнаружение NaN и Inf значений с понятными диагностиками вместо криптичных JAX traceback'ов. Включается только в STRICT профиле валидации для отладки.
+
+### Основные компоненты
+
+#### NaNGuard (Основной класс)
+
+```python
+from polisyos.foundry.runtime.nan_guard import NaNGuard
+
+# Создание guard
+guard = NaNGuard(
+    enabled=True,        # Включить проверки
+    check_interval=1,    # Проверять каждый шаг
+    max_diagnostics=100  # Максимум диагностик
+)
+
+# Проверка состояния
+is_valid = guard.check_state(
+    state={"agents.income": income_array},
+    slot_id="agents.income",
+    mechanism_id="income_tax",
+    time_step=42
+)
+
+if not is_valid:
+    print("Обнаружены NaN/Inf значения")
+```
+
+#### NaNDiagnostic (Диагностика)
+
+```python
+@dataclass(frozen=True)
+class NaNDiagnostic:
+    slot_id: str = ...           # Затронутый слот
+    mechanism_id: str = ...      # Механизм-источник
+    time_step: int = ...         # Шаг симуляции
+    nan_count: int = ...         # Количество NaN
+    inf_count: int = ...         # Количество Inf
+    sample_indices: list[int] = ...  # Примеры проблемных индексов
+    possible_cause: str = ...    # Возможная причина
+    value_stats: dict[str, float] = ...  # Статистика валидных значений
+```
+
+#### NaNGuardReport (Отчёт)
+
+```python
+report = guard.get_report()
+
+print(f"Всего проверок: {report.checks_performed}")
+print(f"Проблем не найдено: {report.ok}")
+if not report.ok:
+    print(f"Первая ошибка на шаге: {report.first_failure_step}")
+    for diagnostic in report.diagnostics:
+        print(f"- {diagnostic.slot_id}: {diagnostic.possible_cause}")
+```
+
+### Профили валидации
+
+```python
+from polisyos.foundry.runtime.nan_guard import create_nan_guard_for_profile
+
+# STRICT: полная проверка каждый шаг
+strict_guard = create_nan_guard_for_profile("strict")
+
+# MVP: проверка каждые 10 шагов, меньше диагностик
+mvp_guard = create_nan_guard_for_profile("mvp")
+
+# FAST: проверки отключены
+fast_guard = create_nan_guard_for_profile("fast")
+```
+
+### Эвристическая диагностика причин
+
+Guard использует паттерны для диагностики наиболее вероятных причин NaN/Inf:
+
+```python
+CAUSE_PATTERNS = {
+    "income": "Division by zero or negative sqrt in income calculation",
+    "utility": "Log of non-positive value in utility function",
+    "tax": "Tax rate outside [0, 1] range or division by zero",
+    "consumption": "Negative consumption leading to log(negative)",
+    "wealth": "Wealth went negative, causing downstream NaN",
+    "labor": "Labor supply outside valid bounds",
+    "price": "Price went to zero or negative",
+    "rate": "Interest/discount rate computation overflow",
+    "policy": "Policy network output outside valid action space",
+}
+```
+
+### Интеграция в Executor
+
+```python
+# В executor'е перед merge patches
+for mechanism_output in mechanism_outputs:
+    for slot_id, value in mechanism_output.patches.items():
+        guard.check_array(value, slot_id, mechanism_output.id, time_step)
+
+# После завершения симуляции
+nan_report = guard.get_report()
+if not nan_report.ok:
+    # Сохранить отчёт в artifact store
+    artifact = nan_report.to_artifact()
+    store.put_json(artifact, ...)
+```
+
+### Производительность
+
+- **Эффективность**: Использует `jnp.any()` для быстрого обнаружения проблем
+- **Низкая нагрузка**: Диагностика накапливается без прерывания compute graph
+- **Конфигурируемая частота**: `check_interval` позволяет балансировать между надёжностью и скоростью
+- **Ограничение диагностик**: `max_diagnostics` предотвращает переполнение памяти
+
 ## Применение в Artifact System
 
 ### Валидация окружения для политик агентов
@@ -283,14 +405,17 @@ Runtime модуль спроектирован с минимальными за
 2. **Детерминизм**: Полный контроль над источниками недетерминизма
 3. **Производительность**: JIT-компиляция и векторизация
 4. **Воспроизводимость**: Environment fingerprinting для проверки совместимости
-5. **Модульность**: Чёткое разделение между исполнением и fingerprinting
+5. **Надёжность**: NaN Guard для обнаружения численных проблем в STRICT режиме
+6. **Модульность**: Чёткое разделение между исполнением, fingerprinting и валидацией
 
 ## Связь с другими модулями
 
 - **`agent_sim.artifact`**: Использует fingerprinting для валидации политик
 - **`foundry.compiler`**: Компилирует программы для исполнения в runtime
-- **`foundry.executor`**: Вызывает runtime функции для исполнения
-- **`core.artifacts`**: Хранит артефакты с fingerprint метаданными
+- **`foundry.executor`**: Вызывает runtime функции и NaN Guard для валидации
+- **`foundry.conflict_checker`**: Compile-time проверка конфликтов дополняет runtime валидацию
+- **`foundry.cost_model`**: Оценивает стоимость выполнения для оптимизации
+- **`core.artifacts`**: Хранит артефакты с fingerprint и NaN Guard метаданными
 
 ---
 

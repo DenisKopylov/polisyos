@@ -188,6 +188,60 @@ core/
 - `Patch` / `PatchSet` - структурированные патчи с метаданными и confidence scoring
 - `PatchMeta` - метаданные патчей с source tracking и confidence levels
 
+### 4.1. Advanced Foundry Features (Расширенные возможности Foundry)
+
+#### Conflict Detection (Обнаружение конфликтов)
+
+**Назначение**: Compile-time анализ ProgramGraph для обнаружения потенциальных конфликтов между механизмами, которые могут привести к неопределенному поведению во время исполнения.
+
+**Основные компоненты**:
+- `SlotConflict` - описание конфликта с информацией о writers, типе конфликта и предложениями по исправлению
+- `ConflictReport` - полный отчет анализа с классификацией конфликтов и метриками
+- `check_program_graph_conflicts()` - функция анализа ProgramGraph на предмет конфликтов
+
+**Возможности**:
+- **Compile-time validation**: Проверка на конфликты перед запуском симуляции
+- **Multiple writers detection**: Обнаружение слотов с несколькими одновременными writers
+- **Conflict classification**: Классификация конфликтов (merge, overwrite, race condition)
+- **Actionable suggestions**: Предложения по исправлению с severity levels
+- **Integration с compliance**: Преобразование в Phase 9 compliance issues
+
+#### Cost Modeling (Моделирование стоимости)
+
+**Назначение**: Оценка стоимости исполнения программ с учетом ресурсов, времени и бюджета для оптимизации производительности и планирования.
+
+**Основные компоненты**:
+- `CostEstimate` - оценка стоимости с метриками уверенности и budget tracking
+- `CostBudget` - определение бюджетов на ресурсы и время
+- `estimate_program_cost()` - функция оценки стоимости ProgramGraph
+
+**Возможности**:
+- **Performance prediction**: Оценка времени компиляции и исполнения
+- **Resource estimation**: Прогноз использования памяти и FLOPs
+- **Budget tracking**: Отслеживание использования бюджета с предупреждениями о превышениях
+- **Confidence metrics**: Уровни уверенности оценок на основе исторических данных
+- **Per-mechanism breakdown**: Детализация стоимости по механизмам
+
+#### NaN Guard (Защита от NaN)
+
+**Назначение**: Runtime обнаружение и диагностика NaN/Inf значений для обеспечения numerical stability симуляций.
+
+**Основные компоненты**:
+- `NaNDiagnostic` - диагностическая информация о обнаруженных NaN/Inf
+- `NaNGuardReport` - полный отчет проверки с статистикой
+- `NaNGuard` - класс для интеграции в runtime с configurable поведением
+
+**Возможности**:
+- **Automatic detection**: Проверка всех slot значений на NaN/Inf
+- **Detailed diagnostics**: Информация о mechanism, time step и возможных причинах
+- **Statistical context**: Статистика не-NaN значений для диагностики
+- **Configurable behavior**: Настраиваемое поведение при обнаружении (warning, error, continue)
+- **Performance optimized**: Минимальный overhead на проверку
+
+### 4.2. Foundry Runtime Extensions
+
+**Обоснование новых возможностей**: Эти компоненты расширяют Foundry с инструментами для надежного и эффективного исполнения сложных симуляций. Conflict detection предотвращает runtime ошибки, cost modeling обеспечивает resource-aware планирование, а NaN guard гарантирует numerical stability в долгосрочных симуляциях.
+
 #### Trinity Contracts (Trinity - базовые спецификации)
 - `ProblemFrameRef` - ссылка на спецификацию проблемы (ProblemFrame)
 - `PolicySpecRef` - ссылка на спецификацию политики (PolicySpec)
@@ -293,8 +347,11 @@ Core является фундаментом всей системы PolisyOS и
 - **trace**: Детальная трассировка всех этапов исполнения, калибровки и симуляции
 - **canon**: Каноническая сериализация для обеспечения reproducible результатов
 - **artifacts.manifest**: Метаданные для всех артефактов симуляции
+- **foundry.conflict_checker**: Система обнаружения конфликтов в ProgramGraph с compile-time анализом slot conflicts
+- **foundry.cost_model**: Модель оценки стоимости исполнения с budget tracking и performance prediction
+- **foundry.runtime.nan_guard**: Runtime защита от NaN/Inf значений с диагностикой и отчетностью
 
-**Обоснование**: Foundry реализует сложную логику симуляции с advanced patch-based state management, где все состояния и результаты хранятся как артефакты для обеспечения traceability и reproducibility. EnvironmentManifest обеспечивает reproducible результаты путем фиксации всех факторов окружения с автоматическим compatibility scoring и risk assessment. Новые возможности включают поддержку обученных политик агентов (AgentPolicyRef), детерминизм исполнения с configurable tier (determinism_tier) и JAX-based runtime для эффективного выполнения симуляций.
+**Обоснование**: Foundry реализует сложную логику симуляции с advanced patch-based state management, где все состояния и результаты хранятся как артефакты для обеспечения traceability и reproducibility. EnvironmentManifest обеспечивает reproducible результаты путем фиксации всех факторов окружения с автоматическим compatibility scoring и risk assessment. Новые возможности включают поддержку обученных политик агентов (AgentPolicyRef), детерминизм исполнения с configurable tier (determinism_tier), JAX-based runtime для эффективного выполнения симуляций, compile-time conflict detection для предотвращения runtime ошибок, cost modeling для budget-aware исполнения и NaN guard для обеспечения numerical stability.
 
 #### Scientist (Оркестрация экспериментов) - Зависит от core
 - **run**: Контексты и манифесты выполнения экспериментов
@@ -602,6 +659,98 @@ bundle_ref = store.put_json(
 )
 ```
 
+### Работа с conflict detection в Foundry:
+
+```python
+from polisyos.foundry.conflict_checker import check_program_graph_conflicts
+from polisyos.core.contracts.foundry import ProgramGraph, ProgramNode, ProgramOp
+
+# Создание ProgramGraph с потенциальным конфликтом
+graph = ProgramGraph(
+    nodes=[
+        ProgramNode(
+            node_id="mechanism_a",
+            node_kind="mechanism",
+            mechanism_type="calculator",
+            outputs=["result"]
+        ),
+        ProgramNode(
+            node_id="mechanism_b",
+            node_kind="mechanism",
+            mechanism_type="updater",
+            outputs=["result"]  # Конфликт: два механизма пишут в один slot
+        )
+    ]
+)
+
+# Анализ конфликтов
+conflict_report = check_program_graph_conflicts(graph)
+
+if not conflict_report.ok:
+    for conflict in conflict_report.conflicts:
+        print(f"Conflict detected: {conflict.slot_id}")
+        print(f"Writers: {sorted(conflict.writers)}")
+        print(f"Suggestion: {conflict.suggestion}")
+```
+
+### Работа с cost modeling:
+
+```python
+from polisyos.foundry.cost_model import estimate_program_cost, CostBudget
+from polisyos.core.contracts.foundry import ProgramGraph
+
+# Определение бюджета
+budget = CostBudget(
+    max_compile_ms=5000,
+    max_run_ms=100,
+    max_memory_mb=1024,
+    max_flops=1_000_000
+)
+
+# Оценка стоимости ProgramGraph
+cost_estimate = estimate_program_cost(graph, budget)
+
+print(f"Estimated total time: {cost_estimate.estimated_total_ms}ms")
+print(f"Memory usage: {cost_estimate.estimated_memory_mb}MB")
+print(f"Budget utilization: {cost_estimate.budget_utilization:.1%}")
+
+if cost_estimate.exceeds_budget:
+    print("Budget violations:")
+    for violation in cost_estimate.budget_violations:
+        print(f"  - {violation}")
+```
+
+### Работа с NaN guard:
+
+```python
+from polisyos.foundry.runtime.nan_guard import NaNGuard, NaNGuardReport
+
+# Создание NaN guard с настройками
+nan_guard = NaNGuard(
+    enabled=True,
+    fail_on_nan=True,
+    check_frequency=10,  # Проверять каждые 10 шагов
+    sample_size=1000     # Размер выборки для диагностики
+)
+
+# Интеграция в simulation loop
+for step in range(1000):
+    # Выполнение шага симуляции
+    state_updates = run_simulation_step(step)
+
+    # Проверка на NaN/Inf
+    guard_report = nan_guard.check_state_updates(state_updates, step)
+
+    if not guard_report.ok:
+        print(f"NaN/Inf detected at step {step}:")
+        for diagnostic in guard_report.diagnostics:
+            print(f"  Slot '{diagnostic.slot_id}': {diagnostic.nan_count} NaN, {diagnostic.inf_count} Inf")
+            print(f"  Possible cause: {diagnostic.possible_cause}")
+
+        if nan_guard.fail_on_nan:
+            raise RuntimeError(f"NaN/Inf detected: {guard_report.diagnostics}")
+```
+
 ## Архитектурные принципы
 
 Модуль `core` следует принципам:
@@ -688,7 +837,7 @@ Core обеспечивает инфраструктуру для всего pip
 Core активно используется всеми модулями PolisyOS в production среде:
 
 - **Fabric**: Обрабатывает >100K артефактов в типичном ingestion pipeline с полным provenance tracking
-- **Foundry**: Хранит состояния симуляций, результаты калибровки и все артефакты исполнения политик
+- **Foundry**: Хранит состояния симуляций, результаты калибровки и все артефакты исполнения политик с compile-time conflict detection, cost modeling для resource-aware исполнения и NaN guard для numerical stability
 - **Scientist**: Оркестрирует эксперименты с сотнями артефактов, обеспечивая reproducible research
 - **Runtime**: Обеспечивает production-ready исполнение политик с полным аудитом операций
 - **IR**: Определяет контракты данных с использованием core для инфраструктуры хранения

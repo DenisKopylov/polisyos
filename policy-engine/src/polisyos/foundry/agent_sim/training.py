@@ -8,13 +8,17 @@ import jax
 import jax.numpy as jnp
 import optax
 
+from polisyos.common.logger import get_logger
+from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.foundry.agent_sim.actor_critic import ActorCritic, compute_log_prob, sample_actions
+from polisyos.foundry.agent_sim.artifact import AgentPolicyArtifact, store_policy_artifact
 from polisyos.foundry.agent_sim.executor import PureExecutor
 from polisyos.foundry.agent_sim.prng import get_mechanism_key
 from polisyos.foundry.agent_sim.rewards import compute_agent_reward
 from polisyos.foundry.agent_sim.rl import Trajectory, compute_returns_and_advantages, ppo_loss
 from polisyos.foundry.agent_sim.temporal import build_temporal_observations
 from polisyos.foundry.agent_sim.temporal_mechanisms import TemporalConsumptionMechanism
+from polisyos.foundry.runtime.fingerprint import DeterminismTier, EnvironmentFingerprint
 from polisyos.foundry.types import FidelityLevel
 
 
@@ -247,3 +251,74 @@ def train_actor_critic_jit(
 
     trainer = create_jit_trainer(actor_critic, make_executor, initial_state, jit_config)
     return trainer(rng_key)
+
+
+def train_actor_critic_with_artifact(
+    actor_critic: ActorCritic,
+    initial_state,
+    config: TrainingConfig,
+    *,
+    make_executor: Callable[[ActorCritic], PureExecutor],
+    run_id: str,
+    tier: DeterminismTier = DeterminismTier.NONDETERMINISTIC,
+    seed: int = 42,
+    cas: FileSystemCAS | None = None,
+) -> tuple[ActorCritic, dict, AgentPolicyArtifact]:
+    """
+    Train actor-critic and produce immutable artifact.
+
+    Returns:
+        Tuple of (trained_policy, metrics_dict, artifact)
+    """
+    log = get_logger(__name__)
+
+    fingerprint = EnvironmentFingerprint.capture(tier, seed)
+    for warning in fingerprint.validate_for_tier():
+        log.warning("[%s] %s", run_id, warning)
+
+    rng_key = jax.random.PRNGKey(seed)
+    trained_policy, metrics = train_actor_critic_jit(
+        actor_critic,
+        initial_state,
+        config,
+        make_executor=make_executor,
+        rng_key=rng_key,
+    )
+
+    final_loss = metrics.get("final_loss", 0.0)
+    best_loss = metrics.get("best_loss", final_loss)
+
+    artifact = AgentPolicyArtifact.from_trained_policy(
+        policy=trained_policy,
+        run_id=run_id,
+        steps=int(config.n_episodes) * int(config.steps_per_episode),
+        loss=float(final_loss),
+        fingerprint=fingerprint,
+        best_loss=float(best_loss) if best_loss is not None else None,
+        extended_metrics={
+            "total_episodes": int(config.n_episodes),
+            "learning_rate": config.learning_rate,
+            "ppo_epochs": int(config.ppo_epochs),
+        },
+    )
+
+    if cas is not None:
+        weights_ref, manifest_ref = _store_artifact_in_cas(cas, artifact)
+        log.info(
+            "[%s] Artifact stored: %s (weights=%s, manifest=%s, loss=%.4f)",
+            run_id,
+            artifact.artifact_id,
+            weights_ref.artifact_id,
+            manifest_ref.artifact_id,
+            artifact.metrics.final_loss,
+        )
+
+    return trained_policy, metrics, artifact
+
+
+def _store_artifact_in_cas(
+    cas: FileSystemCAS,
+    artifact: AgentPolicyArtifact,
+):
+    """Store artifact weights and manifest in CAS."""
+    return store_policy_artifact(cas, artifact)

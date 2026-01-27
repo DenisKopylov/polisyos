@@ -2,7 +2,7 @@
 
 **Policy Engine** — AI‑driven система проектирования, валидации, калибровки и исполнения политик. Архитектурно это “компиляторная труба”: от запроса пользователя/LLM до формально типизированных контрактов (IR), далее — компиляция в исполняемые графы, выполнение в JAX‑ядре и фиксация результатов в воспроизводимых артефактах.
 
-**Состояние документа (актуально на 2026‑01‑27):** архитектура v2.1.4 (Trinity Architecture, Provenance Tracking, W3C PROV-O Integration, Evidence-Enhanced Fabric, Legal Validation System, Quality Gate Enforcement, Trust & Uncertainty Quantification, Hierarchical Agent System, Self-Healing Reflexion, Multi-Fidelity Simulation, Enhanced Environment Manifest), присутствуют переходные зоны/устаревшие интерфейсы (см. раздел “Legacy и переходные зоны”).
+**Состояние документа (актуально на 2026‑01‑27):** архитектура v2.1.4 (Trinity Architecture v2.1.4, W3C PROV-O Integration, Evidence-Enhanced Fabric, Legal Validation System, Quality Gate Enforcement, Trust & Uncertainty Quantification, Hierarchical Agent System, Self-Healing Reflexion, Multi-Fidelity Simulation, Enhanced Environment Manifest, Agent Artifacts, Merge Determinism, Quality Indicators System, Fitness Reports, Quality Gate Pass), присутствуют переходные зоны/устаревшие интерфейсы (см. раздел "Legacy и переходные зоны").
 
 ## Архитектурный обзор
 
@@ -36,15 +36,15 @@ Artifacts (CAS + Audit Trail + Evidence)
 
 **Архитектурная метафора**: Policy Engine - это "компилятор политик", где LLM выступает frontend компилятором, IR - промежуточным представлением, Foundry - оптимизирующим бэкендом, а Fabric - runtime системой данных.
 
-### Trinity архитектура IR
+### Trinity архитектура IR v2.1.4
 
-Система IR реализует **Trinity архитектуру** - разделение на три независимых артефакта, каждый из которых отвечает за отдельный аспект моделирования политики:
+Система IR реализует **Trinity архитектуру v2.1.4** - разделение на три независимых артефакта, каждый из которых отвечает за отдельный аспект моделирования политики:
 
 - **ProblemFrame ("Why")**: Определение проблемы, целей, KPI и ограничений (неизменен в рамках эксперимента)
 - **PolicySpec ("What")**: Спецификация политики, интервенций и параметров (итерируется при оптимизации)
 - **ModelSpec ("How")**: Конфигурация модели мира, агентов, данных и предположений (для sensitivity analysis)
 
-**Trinity Bundle** обеспечивает типизированные ссылки на все три артефакта с валидацией совместимости. PolicySurfaceIR v2.x остается совместимым интерфейсом для обратной совместимости, с поддержкой автоматической миграции в Trinity формат.
+**Trinity Bundle** обеспечивает типизированные ссылки на все три артефакта с валидацией совместимости. PolicySurfaceIR v2.x остается совместимым интерфейсом для обратной совместимости, с поддержкой автоматической миграции в Trinity формат. **Trinity Manifest** предоставляет полные метаданные эксперимента с полями для экспериментального названия, создателя, временных меток и заметок.
 
 ### Архитектурные законы (инварианты проекта)
 
@@ -142,6 +142,7 @@ common → (никого)                                      # фундаме�
 - **JAX 0.4.x+**: численные вычисления, JIT-компиляция и автоматическое дифференцирование
 - **JAXlib**: низкоуровневые примитивы для JAX (CPU/GPU/TPU поддержка)
 - **JAX Metal**: опциональный backend для Apple Silicon (macOS M1/M2/M3)
+- **Agent Simulation**: Комплексная симуляция агентов с ML, artifact system и environment fingerprinting
 - **Equinox**: объектно-ориентированная обертка для JAX-модулей
 - **Optax**: градиентная оптимизация и калибровка параметров
 - **Jaxtyping**: статическая типизация форм массивов JAX
@@ -154,7 +155,10 @@ common → (никого)                                      # фундаме�
 - **pandas**: ETL трансформации и анализ данных
 - **Parquet**: columnar storage формат для больших датасетов
 - **Pydantic v2**: строгие схемы данных и валидация
-- **W3C PROV-O**: стандартизированная система provenance tracking
+- **W3C PROV-O**: стандартизированная система provenance tracking с entities, activities и agents
+- **Data Contract Catalog**: Metric-level система контрактов для type safety с hash-locked bindings
+- **Quality Indicators System**: Многофакторная оценка качества данных (missingness, staleness, coverage, outliers)
+- **Fact Log System**: Immutable факты с provenance tracking и детерминированные ID
 
 ### IR & Contracts (Промежуточное представление)
 - **Pydantic v2**: строгие контракты и валидация структур данных
@@ -171,8 +175,9 @@ common → (никого)                                      # фундаме�
 - **MockLLM**: локальный LLM-адаптер для тестирования без API ключей
 - **PyMOO 0.6.x+**: многокритериальная оптимизация (NSGA-II, genetic algorithms)
 - **Hierarchical Agent System**: PI → Drafter → Formalizer → Critic с протоколами и runtime поведением
-- **Self-Healing Agents**: Reflexion system с FailureCard recovery и intelligent routing
-- **Short-Term Memory**: persistence состояния между agent attempts с hint accumulation
+- **Self-Healing Agents**: Reflexion system с FailureCard recovery, ShortTermMemory и intelligent routing с backoff logic
+- **Multi-Agent Workflow**: Интегрированная система с critique-based refinement, convergence tracking и memory persistence
+- **Legal Validation System**: Pluggable backends для оценки юридических норм с protocol-based architecture
 
 ### Runtime & Infrastructure
 - **Loguru**: структурированное логирование с JSON сериализацией
@@ -198,23 +203,26 @@ common → (никого)                                      # фундаме�
 ### Новые компоненты (после крупных изменений)
 
 #### 🏗️ Архитектурная эволюция
-- **Trinity Architecture**: Разделение IR на ProblemFrame ("Why"), PolicySpec ("What"), ModelSpec ("How") с типизированными TrinityBundle ссылками
+- **Trinity Architecture v2.1.4**: Разделение IR на ProblemFrame ("Why"), PolicySpec ("What"), ModelSpec ("How") с типизированными TrinityBundle ссылками и TrinityManifest для метаданных экспериментов
 - **W3C PROV-O Integration**: Стандартизированная система provenance tracking с entities, activities и agents
 - **Legal Validation System**: Pluggable backends для оценки юридических норм (NormPack, RuleBackend, RuleType)
-- **Quality Gate Enforcement**: Автоматическая валидация качества данных перед симуляциями (QualityIndicators, DataFitnessReport)
+- **Quality Gate Enforcement**: Автоматическая валидация качества данных перед симуляциями (QualityIndicators, DataFitnessReport, QualityGatePass)
+- **Enhanced Environment Manifest**: Захват окружения с compatibility scoring, risk assessment и fingerprinting для reproducible симуляций
 
 #### 🤖 AI & Agent Systems
 - **Hierarchical Agent System**: PI декомпозиция → Drafter генерация → Formalizer трансформация → Critic валидация
-- **Self-Healing Agents**: Reflexion system с FailureCard recovery, ShortTermMemory и intelligent routing
-- **Multi-Agent Workflow**: Интегрированная система агентов с critique-based refinement и convergence tracking
+- **Self-Healing Agents**: Reflexion system с FailureCard recovery, ShortTermMemory и intelligent routing с backoff logic
+- **Multi-Agent Workflow**: Интегрированная система агентов с critique-based refinement, convergence tracking и memory persistence
 - **Agent Protocols**: Стандартизированные интерфейсы для PI/Drafter/Formalizer/Critic агентов с runtime поведением
+- **Agent Artifacts**: Artifact system для политик агентов с environment fingerprinting и hot-swap compatibility
 
 #### 📊 Data Management & Quality
-- **Data Contract Catalog**: Metric-level система контрактов для type safety с hash-locked bindings и disambiguation
-- **Quality Indicators System**: Многофакторная оценка качества данных (missingness, staleness, coverage, outliers)
-- **Data Fitness Reports**: Человекочитаемые отчеты о пригодности данных с configurable thresholds
+- **Data Contract Catalog**: Metric-level система контрактов для type safety с hash-locked bindings, metric search и disambiguation
+- **Quality Indicators System**: Многофакторная оценка качества данных (missingness, staleness, coverage, schema drift, outliers) с configurable thresholds
+- **Data Fitness Reports**: Человекочитаемые отчеты о пригодности данных с human-readable summaries и quality gate integration
 - **Fact Log System**: Immutable факты с provenance tracking и детерминированные ID
 - **Materializer Engine**: Incremental материализация реляционных представлений из Fact Log с consistency guarantees
+- **Evidence Bundles**: Криптографически verifiable доказательства происхождения данных с ingestion pipeline integration
 
 #### 🔐 Trust & Evidence
 - **Evidence Bundles**: Криптографически verifiable доказательства происхождения данных
@@ -224,10 +232,10 @@ common → (никого)                                      # фундаме�
 
 #### ⚡ Simulation & Execution
 - **Multi-Fidelity Simulation**: Fluid/relaxed/hard уровни точности с fidelity control
-- **Patch-based Execution**: UpdateOp и Merge Rules (SUM/OVERRIDE/PRIORITY/ERROR) для state management
-- **Agent Simulation**: Пошаговая симуляция с ML моделями, социальными связями и демографией
+- **Patch-based Execution**: UpdateOp и Merge Rules (SUM/OVERRIDE/PRIORITY/ERROR) для state management с artifact-based патчами
+- **Agent Simulation**: Пошаговая симуляция с ML моделями, социальными связями, демографией и artifact system
 - **Plugin System**: Capability-based registry с composite executors для domain extensions
-- **Calibration MVP**: Полная система калибровки с Hessian uncertainty quantification
+- **Calibration MVP**: Полная система калибровки с Hessian uncertainty quantification и merge determinism
 
 #### 🎯 Governance & Compliance
 - **Budget Controls**: Compute/Evidence/Legitimacy/Complexity бюджеты с runtime enforcement
@@ -250,6 +258,10 @@ common → (никого)                                      # фундаме�
 - **Enhanced Kernel Registries**: Расширенная система фундаментальных реестров (механизмы, слоты, units, trust policies)
 - **Enhanced Monitoring**: Метрики, трекинг экспериментов и визуализация для agent simulation
 - **Failure Card System**: Структурированные артефакты ошибок с recovery mechanisms
+- **Agent Artifacts**: Artifact system для политик агентов с environment fingerprinting и hot-swap compatibility
+- **Merge Determinism**: Детерминированные операции merge и state consistency для reproducible симуляций
+- **Quality Indicators System**: Многофакторная оценка качества данных (missingness, staleness, coverage, outliers)
+- **Fitness Reports**: Человекочитаемые отчеты о пригодности данных с configurable thresholds
 
 ### Подготовлено, но сейчас не задействовано в коде
 - **Diffrax**: ODE/SDE solver (для дифференциальных моделей)
@@ -446,13 +458,93 @@ policy-engine/
 │   │   ├── io/                       # Интерфейсы хранения (DuckDB, Kùzu)
 │   │   └── udf/                      # Unified Data Fabric - безопасный слой запросов
 │   ├── foundry/                      # JAX математическое ядро (симуляция)
+│   │   ├── __init__.py               # Пустой инициализатор
+│   │   ├── base.py                   # Абстрактный класс Mechanism и ComplexMechanism
+│   │   ├── types.py                  # FidelityLevel enum (уровни точности)
+│   │   ├── utils.py                  # Дифференцируемые утилиты (soft_step, soft_clamp, gradient_health)
+│   │   ├── loss.py                   # Функции потерь для оптимизации политик
+│   │   ├── agent_metrics.py          # Метрики для анализа агентов
 │   │   ├── compiler.py               # Компиляция IR в ProgramGraph + ExecPlan
-│   │   ├── runtime.py                # Patch-based execution с JAX
+│   │   ├── layout.py                 # Slot layout для state management
+│   │   ├── treasury.py               # Deterministic RNG management
+│   │   ├── patch_vm.py               # Patch-based виртуальная машина и merge rules
+│   │   ├── runtime/                  # Runtime модули для исполнения программ
+│   │   │   ├── __init__.py           # Чистые JAX функции для исполнения (step, run_scan, execute_program_batch)
+│   │   │   └── fingerprint.py        # Environment fingerprinting для воспроизводимости
+│   │   ├── executor.py               # Исполнение программ с constraints и state management
+│   │   ├── constraints_engine.py     # Движок ограничений и валидации
+│   │   ├── trace.py                  # Система трассировки исполнения
+│   │   ├── merge_engine.py           # Движок для слияния патчей и состояний
 │   │   ├── domain/                   # Экономическая модель (GlobalState, AgentState)
-│   │   ├── mechanism/                # Экономические механизмы (IncomeTax, LaborMarket)
-│   │   ├── calibration/              # Калибровка параметров через Optax
-│   │   ├── agent_sim/                # Агентная симуляция с нейронными сетями
-│   │   └── plugins/                  # Plugin system для расширения доменов
+│   │   ├── agents.py                 # Адаптивные агенты с нейронными сетями (AdaptiveAgentMechanism)
+│   │   ├── base.py                   # Абстрактный класс Mechanism и ComplexMechanism
+│   │   ├── fiscal.py                 # Налоговые механизмы (IncomeTax, TaxSubsidy)
+│   │   ├── labor.py                  # Механизм рынка труда (LaborMarketMechanism)
+│   │   ├── queue.py                  # Механизм очередей с multi-fidelity (QueueMechanism)
+│   │   ├── registry.py               # Регистрация и фабрика механизмов
+│   │   ├── specs.py                  # Спецификации механизмов с валидацией
+│   │   ├── agent_sim/                # Комплексная симуляция агентов с ML
+│   │   │   ├── __init__.py
+│   │   │   ├── actor_critic.py       # Actor-Critic архитектуры для RL
+│   │   │   ├── analysis.py           # Анализ поведения агентов
+│   │   │   ├── credit_assignment.py  # Назначение кредитов в обучении
+│   │   │   ├── dashboard.py          # Дашборд для мониторинга
+│   │   │   ├── demographics.py       # Демографические метрики
+│   │   │   ├── distribution_executor.py # Исполнение распределений
+│   │   │   ├── distribution_mechanisms.py # Механизмы распределения
+│   │   │   ├── distributions.py      # Метрики неравенства (Gini, Palma ratio)
+│   │   │   ├── evolution.py          # Эволюционные алгоритмы (CMA-ES)
+│   │   │   ├── executor.py           # Исполнитель для симуляции агентов
+│   │   │   ├── experiment.py         # Настройка экспериментов
+│   │   │   ├── government_policy.py  # Политики правительства
+│   │   │   ├── graph_executor.py     # Исполнение на графах
+│   │   │   ├── graph_mechanisms.py   # Механизмы для графов
+│   │   │   ├── graph_observations.py # Наблюдения на графах
+│   │   │   ├── graphs.py             # Графовые структуры социальных связей
+│   │   │   ├── jit_training.py       # JIT-компиляция обучения
+│   │   │   ├── mechanism.py          # Базовые механизмы симуляции
+│   │   │   ├── mechanisms.py         # Специфические механизмы
+│   │   │   ├── artifact.py           # Artifact system для политик агентов
+│   │   │   ├── metrics.py            # Сбор метрик обучения
+│   │   │   ├── modes.py              # Режимы обучения (bilevel, MPC)
+│   │   │   ├── mpc.py                # Model Predictive Control
+│   │   │   ├── policy.py             # Политики агентов
+│   │   │   ├── population_executor.py # Исполнение для популяции
+│   │   │   ├── population_mechanisms.py # Механизмы популяции
+│   │   │   ├── population.py         # Управление популяцией
+│   │   │   ├── prng.py               # Генерация псевдослучайных чисел
+│   │   │   ├── README.md             # Документация симуляции агентов
+│   │   │   ├── rewards.py            # Функции вознаграждения
+│   │   │   ├── rl.py                 # PPO и другие алгоритмы обучения
+│   │   │   ├── state.py              # Расширенные состояния агентов
+│   │   │   ├── temporal_executor.py  # Временное исполнение
+│   │   │   ├── temporal_mechanisms.py # Временные механизмы
+│   │   │   ├── temporal.py           # Временные аспекты
+│   │   │   ├── training.py           # Обучение моделей
+│   │   │   └── visualization.py      # Визуализация результатов
+│   │   ├── calibration/              # Калибровка моделей
+│   │   │   ├── __init__.py           # Инициализатор калибровки
+│   │   │   ├── bijectors.py          # Биекции для ограничения параметров (sigmoid, softplus)
+│   │   │   ├── calibrator.py         # Основной класс Calibrator для оптимизации параметров
+│   │   │   ├── loss.py               # Функции потерь (MSE, Huber, weighted loss)
+│   │   │   ├── preflight.py          # Подготовка данных и конфигурации для калибровки
+│   │   │   ├── pure_executor.py      # Чистый JAX executor для калибровки (без side effects)
+│   │   │   └── report.py             # Отчёты калибровки (метрики качества, неопределённости)
+│   │   └── plugins/                  # Плагины доменов
+│   │       ├── __init__.py           # Инициализатор плагинов
+│   │       ├── api.py                # High-level PolisySimulator API
+│   │       ├── cli.py                # Command-line interface
+│   │       ├── composite.py          # Мульти-доменные симуляции
+│   │       ├── core.py               # Протоколы плагинов и реестр
+│   │       ├── discovery.py          # Автообнаружение плагинов
+│   │       ├── economics/            # Экономический домен
+│   │       │   ├── __init__.py
+│   │       │   ├── mechanisms.py     # Экономические механизмы
+│   │       │   ├── objectives.py     # Целевые функции (GDP, Gini, etc.)
+│   │       │   ├── plugin.py         # EconomicsPlugin с механизмами
+│   │       │   ├── rewards.py        # Функции вознаграждения
+│   │       │   └── state.py          # Состояние экономического домена
+│   │       └── README.md             # Документация плагинов
 │   ├── scientist/                    # AI оркестрация экспериментов
 │   │   ├── agent/                    # Иерархическая система агентов + Self-Healing
 │   │   │   ├── protocols.py          # AgentRole, ProblemFrame, SubTask, CritiqueReport
@@ -510,13 +602,69 @@ policy-engine/
 ├── tests/                            # Тестовая инфраструктура
 │   ├── conftest.py                   # Конфигурация pytest и JAX setup
 │   ├── contract/                     # Тесты контрактов IR (валидация схем, Trinity, миграции)
-│   ├── core_phase0/                  # Тесты фундаментальных компонентов core
-│   ├── fabric/                       # Тесты data layer (catalog, ingestion, evidence, trust)
-│   ├── foundry/                      # Тесты математического ядра (JAX, симуляции)
-│   ├── integration/                  # End-to-end тесты (calibration UDF, workflow)
-│   ├── ir/                           # Тесты загрузчиков и трансформаций IR
-│   ├── runtime/                      # Тесты управления жизненным циклом
-│   └── scientist/                    # Тесты AI компонентов и оркестрации (governance, agents)
+│   │   ├── test_ir_contract.py       # PolicySurfaceIR, селекторы, валидация, TranslatableString
+│   │   ├── test_ir_migrations.py     # Миграции схем IR между версиями
+│   │   ├── test_trinity_contracts.py # Trinity артефакты: ProblemFrame, PolicySpec, ModelSpec
+│   │   ├── test_trinity_migration.py # Миграция между Surface IR и Trinity форматами
+│   │   ├── test_fabric_gates.py      # Входные фильтры и предусловия Fabric layer
+│   │   ├── test_kernel_models.py     # Валидация моделей ядра IR (slots, units, merge rules, time semantics)
+│   │   └── test_surface_ir.py        # Surface IR, линкер, semantic fingerprinting, validation reports
+│   ├── core_phase0/                  # Тесты фундаментальных компонентов core (Phase 0)
+│   │   ├── conftest.py               # Специфичная конфигурация для core тестов
+│   │   ├── test_artifact_store.py    # FileSystemCAS, дедупликация, верификация integrity
+│   │   ├── test_canon_json.py        # Каноническая JSON сериализация, детерминированные хэши
+│   │   ├── test_environment_manifest.py # Захват и сравнение environment манифестов
+│   │   ├── test_registry_bundle.py   # Сборка и загрузка registry bundles
+│   │   └── test_run_context.py       # Контекст выполнения и артефакты producer'а
+│   ├── demos/                        # Демо-тесты для проверки функциональности
+│   │   └── run_laffer_demo.py        # Тест запуска демо Laffer curve из tools/demos/
+│   ├── fabric/                       # Тесты компонентов Fabric layer
+│   │   ├── test_data_catalog.py      # Data Contract catalog system, contract validation, metric bindings, search
+│   │   ├── test_evidence_bundle.py   # Evidence bundles, ingestion pipeline, provenance tracking
+│   │   ├── test_provenance.py        # Provenance subsystem, entities, graphs, PROV-O export, persistence
+│   │   ├── test_trust_two_pass.py    # Trust system, uncertainty bounds, двухпроходное сравнение
+│   │   └── test_quality_indicators.py # Quality indicators system, fitness reports, quality gate pass integration
+│   ├── foundry/                      # Тесты симуляционных компонентов JAX-ядра
+│   │   ├── agent_sim/                # Тесты симуляции агентов
+│   │   │   └── test_monitoring.py    # MetricsCollector, ExperimentTracker, DashboardGenerator, визуализация
+│   │   ├── plugins/                  # Тесты плагинной системы Foundry
+│   │   │   └── test_plugin_system.py # PluginRegistry, CompositeExecutor, EconomicsPlugin, domain configs
+│   │   ├── test_adaptive_agents.py   # Адаптивные агенты и их поведение
+│   │   ├── test_agent_artifact.py    # AgentPolicyArtifact, EnvironmentFingerprint, hot-swap compatibility
+│   │   ├── test_agent_simulation_step1.py # Шаг 1 симуляции агентов
+│   │   ├── test_agent_simulation_step2.py # Шаг 2 симуляции агентов
+│   │   ├── test_agent_simulation_step3.py # Шаг 3 симуляции агентов
+│   │   ├── test_agent_simulation_step4.py # Шаг 4 симуляции агентов
+│   │   ├── test_agent_simulation_step5.py # Шаг 5 симуляции агентов
+│   │   ├── test_agent_simulation_step6.py # Шаг 6 симуляции агентов
+│   │   ├── test_calibrator_fidelity.py # Управление fidelity уровнями (fluid/relaxed/hard/temperature)
+│   │   ├── test_calibrator_mvp.py    # Полноценная калибровка параметров с оптимизацией
+│   │   ├── test_constraints_executor.py # Исполнение ограничений (budget guards, validation)
+│   │   ├── test_fiscal.py            # Фискальные механизмы (налоги, субсидии)
+│   │   ├── test_global_state.py      # Глобальное состояние симуляции и его эволюция
+│   │   ├── test_gradients.py         # Градиенты политик (JAX autodiff, Equinox)
+│   │   ├── test_health.py            # Проверки здоровья системы и детекция аномалий
+│   │   ├── test_jit_stability.py     # JIT-стабильность PyTree структур
+│   │   ├── test_merge_determinism.py # Детерминизм операций merge и state consistency
+│   │   ├── test_patch_executor.py    # Patch executor, state delta и snapshot'ы
+│   │   ├── test_program_graph_ops.py # Операции с программными графами, execution order
+│   │   └── test_runtime_batch.py     # Пакетное выполнение программ с JAX
+│   ├── integration/                  # Интеграционные тесты end-to-end сценариев
+│   │   ├── test_calibration_udf.py   # Калибровка параметров с UDF движком и историческими данными
+│   │   ├── test_workflow_smoke.py    # Полный smoke-test pipeline (draft → simulate → governor → decision)
+│   │   └── test_workflow_llm.py      # Интеграция с LLM компонентами и языковыми моделями
+│   ├── ir/                           # Тесты компонентов IR layer
+│   │   └── test_loaders.py           # Загрузчики политик из различных форматов, norm_pack структуры
+│   ├── runtime/                      # Тесты runtime компонентов
+│   │   └── test_runtime_manifest_paths.py # Управление runs, артефакты, пути
+│   └── scientist/                    # Тесты компонентов scientist
+│       ├── governance/               # Тесты governance layer (validation pipeline, legal compliance)
+│       │   ├── test_legal_pass.py    # LegalPass, RuleBackend, NormPack validation
+│       │   └── test_validation_pipeline.py # ValidationPipeline, profiles, compliance issues
+│       ├── test_agent_protocols.py   # Протоколы агентов: PI, Drafter, Formalizer, Critic
+│       ├── test_compiler.py          # Компилятор политик из IR
+│       ├── test_multi_agent_workflow.py # Multi-agent workflow с critique system и памятью
+│       └── test_reflexion_loop.py    # Reflexion loop, failure cards, recovery mechanisms
 └── tools/                            # Инструменты разработчика и демонстрации
     ├── benchmarks/                   # Бенчмарки производительности (JAX, симуляции)
     ├── demos/                        # Демонстрационные скрипты возможностей
@@ -599,11 +747,12 @@ RunManifest + seed + artifacts → Full reproducibility
 
 **Новые возможности (после обновлений):**
 - **Enhanced Environment Manifest**: Захват окружения с compatibility scoring, risk assessment и fingerprinting для reproducible симуляций
-- **Trinity Contracts**: Типизированные ссылки на ProblemFrame/PolicySpec/ModelSpec артефакты
+- **Trinity Contracts**: Типизированные ссылки на ProblemFrame/PolicySpec/ModelSpec артефакты с TrinityManifest для метаданных
 - **Scientist Contracts**: Контракты для FailureCard, PolicyIR и Critique артефактов
 - **Enhanced Registry**: Автоматическая сборка registry bundles из IR модуля
 - **Trace Sinks**: JSON Lines логирование с structured events и metadata
-- **Legal Contracts**: Стабильные контракты для legal validation subsystem (NormPack, NormRule, RuleBackend)
+- **Legal Contracts**: Стабильные контракты для legal validation subsystem (NormPack, NormRule, RuleBackend, RuleType)
+- **Provenance Contracts**: Контракты для W3C PROV-O provenance tracking с entities, activities и agents
 - **Provenance Contracts**: Контракты для W3C PROV-O provenance tracking с entities, activities и agents
 
 **Архитектурные особенности:**
@@ -643,9 +792,9 @@ RunManifest + seed + artifacts → Full reproducibility
 **Архитектурная роль**: Единая система обработки и хранения данных для AI-driven симуляции политик. Fabric обеспечивает полный жизненный цикл данных от сырых CSV до высокопроизводительных UDF запросов с криптографической верификацией происхождения и quality gate enforcement.
 
 **Ключевые компоненты:**
-- **Data Contract Catalog**: Metric-level система контрактов для type safety с hash-locked bindings и disambiguation
-- **Quality Indicators System**: Многофакторная оценка качества данных (missingness, staleness, coverage, outliers)
-- **Data Fitness Reports**: Человекочитаемые отчеты о пригодности данных с configurable thresholds
+- **Data Contract Catalog**: Metric-level система контрактов для type safety с hash-locked bindings, metric search и disambiguation
+- **Quality Indicators System**: Многофакторная оценка качества данных (missingness, staleness, coverage, schema drift, outliers) с configurable thresholds
+- **Data Fitness Reports**: Человекочитаемые отчеты о пригодности данных с human-readable summaries и quality gate integration
 - **Quality Gate Pass**: Интеграция с governance system для блокировки низкокачественных данных
 - **Data Ingestion Pipeline**: Полный ETL-конвейер (raw → staging → curated) с evidence tracking
 - **UDF Engine**: Безопасный компилируемый слой запросов с multi-pass compilation и Arrow support
@@ -681,9 +830,9 @@ RunManifest + seed + artifacts → Full reproducibility
 - **Runtime Layer**: Patch-based execution с UpdateOp и Merge Rules (SUM/OVERRIDE/PRIORITY/ERROR)
 - **Domain Layer**: Экономическая модель (GlobalState, AgentState, FirmState, MarketState) с Jaxtyping
 - **Mechanism Layer**: Экономические механизмы с multi-fidelity (fluid/relaxed/hard уровни точности)
-- **Calibration Layer**: Полная система калибровки параметров с Optax, bijectors и uncertainty quantification
+- **Calibration Layer**: Полная система калибровки параметров с Optax, bijectors, uncertainty quantification и Hessian analysis
 - **Treasury System**: Детерминированное управление RNG для reproducible симуляций
-- **Agent Simulation**: Гетерогенные агенты с нейронными сетями, социальными связями и демографией
+- **Agent Simulation**: Гетерогенные агенты с нейронными сетями, социальными связями, демографией и artifact system с environment fingerprinting
 
 **Технологии:**
 - JAX/Equinox (дифференцируемые вычисления и JIT-компиляция)
@@ -715,17 +864,17 @@ RunManifest + seed + artifacts → Full reproducibility
 
 **Новые возможности (после обновлений):**
 - **Hierarchical Agent System**: PI декомпозиция → Drafter генерация → Formalizer трансформация → Critic валидация
-- **Self-Healing & Reflexion**: FailureCard recovery, ShortTermMemory, intelligent routing с backoff logic
-- **Multi-Agent Workflow**: Интегрированная система с critique-based refinement и convergence tracking
+- **Self-Healing & Reflexion**: FailureCard recovery, ShortTermMemory, intelligent routing с backoff logic и escalation logic
+- **Multi-Agent Workflow**: Интегрированная система с critique-based refinement, convergence tracking и memory persistence
 - **Budget Controls**: Compute/Evidence/Legitimacy/Complexity бюджеты с runtime enforcement
 - **FSM Orchestration**: Конечный автомат с 9 фазами и self-healing cycles
 - **Human Gates**: Асинхронная система GateRequest/GateDecision для approvals
 - **Job Specifications**: Structured execution с reproducible hashing и distributed execution
 - **Decision Packet**: Comprehensive артефакт с fabric_result, evidence_ref, uncertainty quantification
 - **Governance Pipeline**: Модульная система validation passes с telemetry и short-circuit логикой
-- **Legal Validation System**: Pluggable backends (NormPack, RuleBackend, RuleType)
-- **Quality Gate Pass**: Интеграция с Fabric quality indicators для data validation
-- **Validation Profiles**: Fast/mvp/strict профили с configurable passes
+- **Legal Validation System**: Pluggable backends (NormPack, RuleBackend, RuleType) с protocol-based architecture
+- **Quality Gate Pass**: Интеграция с Fabric quality indicators для data validation и gate enforcement
+- **Validation Profiles**: Fast/mvp/strict профили с configurable passes и profile-based execution
 
 **Технологии:**
 - LangGraph (декларативный workflow с FSM и 9 фазами)
@@ -816,9 +965,9 @@ Policy Engine строго следует **Закону A** (направлен
 
 **Foundry** реализует execution engine, изолированный от data layer согласно **Закону B**:
 
-- **Scientist**: `foundry.compiler` (compile_surface_policy), `foundry.executor` (execute_program_graph), `foundry.calibration` (параметр optimization), `foundry.agent_sim` (моделирование агентов)
+- **Scientist**: `foundry.compiler` (compile_surface_policy), `foundry.executor` (execute_program_graph), `foundry.calibration` (параметр optimization), `foundry.agent_sim` (моделирование агентов с artifact system)
 - **Runtime**: Косвенная интеграция через логирование результатов симуляций и калибровки
-- **Core**: `core.contracts.foundry` (ProgramGraph, ExecPlan, StateDelta), `core.artifacts` (хранение скомпилированных артефактов)
+- **Core**: `core.contracts.foundry` (ProgramGraph, ExecPlan, StateDelta, PatchOp, UpdateOp), `core.artifacts` (хранение скомпилированных артефактов), `core.artifacts.environment` (environment fingerprinting для reproducible симуляций)
 - **IR**: `ir.kernel` (реестры механизмов, слотов, merge rules), `ir.calibration` (контракты калибровки), `ir.trinity` (ModelSpec)
 
 #### Scientist Layer - оркестрация
@@ -838,6 +987,15 @@ Policy Engine строго следует **Закону A** (направлен
 - **Scientist**: Основной потребитель API (start_run, log_artifact, finalize_run)
 - **Fabric**: Логирование результатов UDF через runtime artifacts
 - **Foundry**: Логирование результатов симуляций через runtime artifacts
+
+#### Legal Layer - compliance и валидация норм
+
+**Legal** обеспечивает проверку соответствия политик юридическим нормам:
+
+- **IR**: Определяет контракты нормативных документов (`ir.norm_pack`: NormPack, NormRule, NormRef, RuleType)
+- **Core**: Предоставляет стабильные контракты legal subsystem (`core.contracts.legal`)
+- **Scientist**: Реализует legal validation passes (`scientist.governance.passes.legal_pass`)
+- **Runtime**: Логирует результаты legal compliance в audit trail
 
 #### Common Layer - фундаментальные утилиты
 
@@ -1185,10 +1343,11 @@ python tools/diagnostics/generate_ir_schema.py
 ### Новые возможности (2026-01-27)
 
 #### 🏗️ Архитектурные улучшения
-- **Trinity Architecture**: Полная поддержка ProblemFrame/PolicySpec/ModelSpec с типизированными ссылками
-- **W3C PROV-O Integration**: Стандартизированная система provenance tracking
-- **Legal Validation System**: Pluggable backends для оценки юридических норм
-- **Quality Gate Enforcement**: Автоматическая валидация качества данных перед симуляциями
+- **Trinity Architecture v2.1.4**: Полная поддержка ProblemFrame/PolicySpec/ModelSpec с типизированными ссылками и TrinityManifest
+- **W3C PROV-O Integration**: Стандартизированная система provenance tracking с entities, activities и agents
+- **Legal Validation System**: Pluggable backends для оценки юридических норм с protocol-based architecture
+- **Quality Gate Enforcement**: Автоматическая валидация качества данных перед симуляциями с QualityGatePass
+- **Enhanced Environment Manifest**: Захват окружения с compatibility scoring, risk assessment и fingerprinting
 
 #### 📊 Data Management & Quality
 - **Data Contract Catalog**: Metric-level система контрактов с hash-locked bindings

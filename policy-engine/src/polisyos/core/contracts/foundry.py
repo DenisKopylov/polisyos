@@ -43,6 +43,25 @@ class ExecConfigRef(ArtifactRef):
     media_type: Literal["application/json"] = "application/json"
 
 
+class AgentPolicyRef(ArtifactRef):
+    """
+    Typed reference to an AgentPolicyArtifact in CAS.
+
+    Used in simulation configs to reference trained policies without
+    embedding full weights in configuration files.
+    """
+
+    kind: Literal["foundry.agent_policy"] = "foundry.agent_policy"
+    media_type: Literal["application/octet-stream"] = "application/octet-stream"
+
+    policy_type: str = Field(description="ActorCritic, MLP, etc.")
+    determinism_tier: str = Field(
+        description="strict_cpu, best_effort_gpu, nondeterministic"
+    )
+    training_steps: int = Field(ge=0, description="Steps when artifact was created")
+    env_hash: str = Field(description="16-char environment fingerprint hash")
+
+
 class StateDeltaRef(ArtifactRef):
     kind: Literal["foundry.state_delta"] = "foundry.state_delta"
     media_type: Literal["application/json"] = "application/json"
@@ -147,6 +166,18 @@ class ExecPlan(BaseModel):
     environment_ref: EnvironmentManifestRef | None = Field(
         default=None,
         description="Reference to captured environment at plan creation time",
+    )
+    environment_fingerprint: str | None = Field(
+        default=None,
+        description="Fingerprint of critical environment factors",
+    )
+    determinism_tier: str | None = Field(
+        default=None,
+        description="Determinism tier for reproducibility expectations",
+    )
+    random_seed: int | None = Field(
+        default=None,
+        description="Random seed associated with determinism tier",
     )
     mode: Literal["dev", "perf", "audit"] = "dev"
     jit: bool = True

@@ -45,6 +45,9 @@
 - **`dashboard.py`** - Дашборд для мониторинга
 - **`visualization.py`** - Визуализация результатов
 
+### 9. Artifact System (Artifact Layer)
+- **`artifact.py`** - Хранение и загрузка обученных политик агентов с проверкой совместимости окружения
+
 ## Основные концепции
 
 ### Agent State (Состояние агента)
@@ -128,6 +131,42 @@ loss = ppo_loss(
     value_loss_coef=0.5,
     entropy_coef=0.01
 )
+```
+
+### Артефакты политики (AgentPolicyArtifact)
+
+Артефакт политики фиксирует веса, метрики обучения и `EnvironmentFingerprint`,
+чтобы можно было проверять совместимость окружения перед загрузкой и безопасно
+делать hot-swap политик с одинаковыми I/O.
+
+```python
+from pathlib import Path
+
+from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.foundry.agent_sim.training import train_actor_critic_with_artifact
+from polisyos.foundry.runtime.fingerprint import DeterminismTier
+
+cas = FileSystemCAS(Path("./cas"))
+
+trained, metrics, artifact = train_actor_critic_with_artifact(
+    actor_critic=model,
+    initial_state=state,
+    config=training_config,
+    make_executor=make_executor,
+    run_id="run_20240127_001",
+    tier=DeterminismTier.BEST_EFFORT_GPU,
+    seed=42,
+    cas=cas,
+)
+
+# Проверка совместимости перед загрузкой
+from polisyos.foundry.runtime.fingerprint import EnvironmentFingerprint
+
+current = EnvironmentFingerprint.capture(
+    tier=DeterminismTier.BEST_EFFORT_GPU,
+    seed=42
+)
+ok, score, warnings = artifact.validate_environment(current)
 ```
 
 ## Графовые структуры

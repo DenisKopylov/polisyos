@@ -174,7 +174,8 @@ core/
 - `PolicySurfaceIRRef` - ссылка на IR поверхности политики
 - `ProgramGraph` / `ProgramGraphRef` - граф программы с узлами и операциями (механизмы, операции)
 - `LoweredIR` / `LoweredIRRef` - пониженное IR для исполнения
-- `ExecPlan` / `ExecPlanRef` - план исполнения с конфигурацией и environment tracking
+- `ExecPlan` / `ExecPlanRef` - план исполнения с конфигурацией, environment tracking, determinism tier и random seed
+- `AgentPolicyRef` - ссылка на артефакт обученной политики агента с типом политики, determinism tier и метаданными обучения
 - `StateSnapshot` / `StateSnapshotRef` - снимок состояния симуляции с schema tracking
 - `StateDelta` / `StateDeltaRef` - дельта изменений состояния (patch-based updates)
 - `TreasurySeed` / `TreasurySeedRef` - детерминированный seed для RNG
@@ -293,7 +294,7 @@ Core является фундаментом всей системы PolisyOS и
 - **canon**: Каноническая сериализация для обеспечения reproducible результатов
 - **artifacts.manifest**: Метаданные для всех артефактов симуляции
 
-**Обоснование**: Foundry реализует сложную логику симуляции с advanced patch-based state management, где все состояния и результаты хранятся как артефакты для обеспечения traceability и reproducibility. EnvironmentManifest обеспечивает reproducible результаты путем фиксации всех факторов окружения с автоматическим compatibility scoring и risk assessment.
+**Обоснование**: Foundry реализует сложную логику симуляции с advanced patch-based state management, где все состояния и результаты хранятся как артефакты для обеспечения traceability и reproducibility. EnvironmentManifest обеспечивает reproducible результаты путем фиксации всех факторов окружения с автоматическим compatibility scoring и risk assessment. Новые возможности включают поддержку обученных политик агентов (AgentPolicyRef), детерминизм исполнения с configurable tier (determinism_tier) и JAX-based runtime для эффективного выполнения симуляций.
 
 #### Scientist (Оркестрация экспериментов) - Зависит от core
 - **run**: Контексты и манифесты выполнения экспериментов

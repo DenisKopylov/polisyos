@@ -183,6 +183,7 @@ from .training import (
     collect_trajectory,
     train_actor_critic,
     train_actor_critic_jit,
+    train_actor_critic_with_artifact,
 )
 from .vfi import OfflineVFI, VFILookupTable
 
@@ -361,6 +362,7 @@ __all__ = [
     "sync_graph_with_population",
     "train_actor_critic",
     "train_actor_critic_jit",
+    "train_actor_critic_with_artifact",
     "training_loss_metrics",
     "train_government_policy",
 ]

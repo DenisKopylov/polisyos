@@ -1,6 +1,6 @@
 # Complete Policy Engine Architecture
 
-> **Last updated:** January 27, 2026 (added Data Quality Framework with quality indicators, fitness reports, and quality gate validation)
+> **Last updated:** January 27, 2026 (added Runtime module with Environment Fingerprinting, Agent Policy Artifacts system, and comprehensive monitoring/test coverage for agent simulation and plugin system)
 >
 > This document contains the complete architecture of the Policy Engine project with detailed descriptions of all files in the `src/`, `tests/`, and `tools/` directories.
 
@@ -75,7 +75,7 @@ policy-engine/
 │   │   │   ├── __init__.py           # Exports contracts API
 │   │   │   ├── compiler.py           # Compiler contracts (CompileReportRef, LinkReportRef)
 │   │   │   ├── fabric.py             # Fabric contracts (6 reference types + data models, quality indicators)
-│   │   │   ├── foundry.py            # Foundry contracts (13 reference types + execution models)
+│   │   │   ├── foundry.py            # Foundry contracts (16 reference types + execution models, agent policy artifacts)
 │   │   │   ├── scientist.py          # Scientist contracts (FailureCardRef, PolicyIRRef, CritiqueRef)
 │   │   │   ├── trinity.py            # Trinity contracts (ProblemFrame, PolicySpec, ModelSpec, TrinityBundle)
 │   │   │   ├── legal.py              # Legal compliance contracts (NormPack, NormRule, RuleBackend)
@@ -146,9 +146,10 @@ policy-engine/
 │   │   ├── __init__.py               # Exports Foundry module public API
 │   │   ├── agent_metrics.py          # Agent-level metrics for simulation analysis
 │   │   ├── agent_sim/                # Heterogeneous agent simulation with neural networks
-│   │   │   ├── __init__.py           # Exports agent simulation API
+│   │   │   ├── __init__.py           # Exports agent simulation API (37+ components including monitoring, artifacts, fingerprinting)
 │   │   │   ├── actor_critic.py       # Actor-Critic architectures for reinforcement learning
 │   │   │   ├── analysis.py           # Post-simulation analysis and statistical evaluation
+│   │   │   ├── artifact.py           # Immutable, content-addressable artifacts for trained agent policies
 │   │   │   ├── credit_assignment.py  # Multi-agent credit assignment and reward distribution
 │   │   │   ├── dashboard.py          # Real-time simulation monitoring dashboard
 │   │   │   ├── demographics.py       # Agent lifecycle processes (birth, aging, death, migration)
@@ -197,6 +198,10 @@ policy-engine/
 │   │   ├── compiler.py               # IR compilation to ProgramGraph + ExecPlan
 │   │   ├── constraints_engine.py     # Policy constraint validation and enforcement engine
 │   │   ├── domain/                   # Economic domain model (GlobalState, AgentState)
+│   │   ├── runtime/                  # Patch-based execution runtime with JAX and environment fingerprinting
+│   │   │   ├── __init__.py           # Exports runtime module public API (step, run_scan, execute_program_batch)
+│   │   │   ├── fingerprint.py        # Environment fingerprinting and determinism tier configuration
+│   │   │   └── README.md             # Runtime module documentation and environment fingerprinting system
 │   │   │   ├── __init__.py           # Exports domain model API
 │   │   │   ├── README.md             # Domain model documentation and state evolution
 │   │   │   ├── schema.py             # Economic model schemas and validation
@@ -377,8 +382,10 @@ policy-engine/
 │   │   └── test_trust_two_pass.py    # Trust system validation with uncertainty bounds analysis
 │   ├── foundry/                      # Mathematical core unit tests (JAX, simulations)
 │   │   ├── agent_sim/                # Agent simulation testing suite
+│   │   │   ├── README.md             # Agent simulation monitoring tests documentation
 │   │   │   └── test_monitoring.py    # MetricsCollector, ExperimentTracker, DashboardGenerator testing
 │   │   ├── plugins/                  # Plugin system integration tests
+│   │   │   ├── README.md             # Foundry plugin system tests documentation
 │   │   │   └── test_plugin_system.py # PluginRegistry, CompositeExecutor, EconomicsPlugin domain configs
 │   │   ├── README.md                 # Foundry testing documentation and JAX integration patterns
 │   │   ├── test_adaptive_agents.py   # Adaptive agent behavior and learning algorithm validation
@@ -412,6 +419,7 @@ policy-engine/
 │   ├── runtime/                      # Experiment lifecycle management testing
 │   │   ├── README.md                 # Runtime testing documentation and lifecycle validation
 │   │   └── test_runtime_manifest_paths.py # Runtime manifests with portable path resolution
+│   └── test_agent_artifact.py        # AgentPolicyArtifact round-trip serialization, environment fingerprinting, hot-swap validation
 │   └── scientist/                    # AI components and orchestration testing
 │       ├── governance/               # Governance layer testing
 │       │   ├── test_legal_pass.py    # Legal validation pass testing and backend integration
@@ -504,3 +512,50 @@ The Trinity Framework represents a major architectural evolution that decomposes
 - **Composability**: Mix and match different problem frames, policies, and models for experimentation
 - **Traceability**: Clear provenance tracking from problem definition through execution
 - **Reproducibility**: Deterministic experiment setup with explicit assumptions and constraints
+
+## Runtime Module & Environment Fingerprinting
+
+The Runtime module introduces a comprehensive environment fingerprinting system and low-level execution primitives for reproducible neural network policy deployment.
+
+### Runtime Module (`foundry/runtime/`)
+
+**Purpose**: Provides pure JAX execution primitives and environment capture for deterministic policy deployment.
+
+#### Core Execution Functions
+- **`step`**: Pure JAX function for single simulation step execution
+- **`run_scan`**: Efficient sequential execution using `jax.lax.scan`
+- **`execute_program_batch`**: Parallel batch execution with deterministic RNG layout
+
+#### Environment Fingerprinting (`fingerprint.py`)
+- **`EnvironmentFingerprint`**: Lightweight environment capture (<1KB JSON, <100ms capture)
+- **`DeterminismTier`**: Three-tier determinism guarantee system (STRICT_CPU, BEST_EFFORT_GPU, NONDETERMINISTIC)
+- **`configure_determinism`**: JAX/XLA configuration for specified determinism levels
+
+### Agent Policy Artifacts (`agent_sim/artifact.py`)
+
+**Purpose**: Immutable, content-addressable artifacts for trained neural network policies with full provenance tracking.
+
+#### Key Features
+- **Content-Addressable Storage**: SHA256-based artifact identification and integrity verification
+- **Environment Validation**: Compatibility scoring between training and deployment environments
+- **Hot-Swap Safety**: I/O shape validation for runtime policy replacement
+- **Provenance Tracking**: Complete audit trail (training run, steps, loss, environment fingerprint)
+
+#### Artifact Components
+- **`AgentPolicyArtifact`**: Generic artifact container for trained policies
+- **`TrainingMetrics`**: Comprehensive training provenance information
+- **`IOShapeSpec`**: I/O compatibility specification for safe hot-swapping
+
+### Integration with Artifact System
+
+**Storage**: Policies stored as separate weights/manifest artifacts in CAS
+**Loading**: Environment validation before policy deployment
+**Compatibility**: Automated compatibility scoring between environments
+**Hot-Swap**: Runtime policy replacement with shape validation
+
+### Benefits
+- **Bit-Exact Reproducibility**: Environment fingerprinting ensures identical computation results
+- **Safe Deployment**: Compatibility validation prevents incompatible policy deployment
+- **Provenance Tracking**: Complete audit trail from training through deployment
+- **Performance**: JIT-compiled execution with minimal overhead
+- **Scalability**: Batch execution primitives for parallel simulation

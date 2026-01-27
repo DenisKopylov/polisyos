@@ -238,7 +238,7 @@ warnings_ref = WarningsRef(
 
 ## Foundry Contracts
 
-Foundry предоставляет 13 типов контрактов для симуляции и исполнения политик.
+Foundry предоставляет 14 типов контрактов для симуляции и исполнения политик.
 
 ### PolicySurfaceIRRef
 
@@ -330,7 +330,7 @@ lowered_ref = LoweredIRRef(
 from polisyos.core.contracts.foundry import ExecPlan, ExecPlanRef
 from polisyos.core.artifacts.environment import EnvironmentManifestRef
 
-# План исполнения с environment tracking
+# План исполнения с environment tracking, determinism tier и random seed
 exec_plan = ExecPlan(
     program_ref=graph_ref,
     order=["init", "compute", "finalize"],
@@ -339,10 +339,13 @@ exec_plan = ExecPlan(
         kind="foundry.environment_manifest",
         media_type="application/json"
     ),
+    environment_fingerprint="env_fingerprint_hash",
+    determinism_tier="best_effort_gpu",
+    random_seed=42,
     mode="perf",
     jit=True,
     max_steps=10000,
-    notes=["Performance optimized execution"]
+    notes=["Performance optimized execution with determinism guarantees"]
 )
 
 # Ссылка
@@ -350,6 +353,24 @@ exec_plan_ref = ExecPlanRef(
     artifact_id=plan_id,
     kind="foundry.exec_plan",
     media_type="application/json"
+)
+```
+
+### AgentPolicyRef
+
+Ссылка на артефакт обученной политики агента с метаданными обучения и determinism guarantees.
+
+```python
+from polisyos.core.contracts.foundry import AgentPolicyRef
+
+policy_ref = AgentPolicyRef(
+    artifact_id=policy_artifact_id,
+    kind="foundry.agent_policy",
+    media_type="application/octet-stream",
+    policy_type="ActorCritic",
+    determinism_tier="best_effort_gpu",
+    training_steps=10000,
+    env_hash="abcd1234efgh5678"
 )
 ```
 
@@ -428,6 +449,22 @@ config_ref = ExecConfigRef(
     artifact_id=config_id,
     kind="foundry.exec_config",
     media_type="application/json"
+)
+```
+
+#### AgentPolicyRef
+
+```python
+from polisyos.core.contracts.foundry import AgentPolicyRef
+
+policy_ref = AgentPolicyRef(
+    artifact_id=policy_artifact_id,
+    kind="foundry.agent_policy",
+    media_type="application/octet-stream",
+    policy_type="ActorCritic",
+    determinism_tier="best_effort_gpu",
+    training_steps=10000,
+    env_hash="abcd1234efgh5678"
 )
 ```
 

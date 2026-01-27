@@ -43,6 +43,8 @@ Foundry **не знает** про LLM и работает исключител�
 - **Распределения доходов**: Метрики неравенства (Gini, Palma ratio)
 - **Эволюционные алгоритмы**: CMA-ES для оптимизации параметров
 - **Временные аспекты**: Обработка последовательных данных и памяти
+- **Artifact system**: Хранение и загрузка обученных политик агентов с проверкой совместимости окружения
+- **Environment fingerprinting**: Захват и валидация окружения для воспроизводимости результатов
 
 ### Основные компоненты
 
@@ -99,6 +101,28 @@ gini_coefficient = compute_gini(agent_incomes)
 palma_ratio = compute_palma_ratio(agent_incomes)  # top10% / bottom40%
 ```
 
+#### Artifact System для политик агентов
+```python
+from polisyos.foundry.agent_sim.artifact import AgentPolicyArtifact
+from polisyos.foundry.runtime.fingerprint import EnvironmentFingerprint, DeterminismTier
+
+# Создание артефакта обученной политики
+artifact = AgentPolicyArtifact.from_trained_policy(
+    policy=trained_actor_critic,
+    run_id="run_20240127_001",
+    steps=10000,
+    loss=0.023,
+    fingerprint=EnvironmentFingerprint.capture(
+        tier=DeterminismTier.BEST_EFFORT_GPU,
+        seed=42
+    ),
+)
+
+# Проверка совместимости окружения перед загрузкой
+current = EnvironmentFingerprint.capture(tier=DeterminismTier.BEST_EFFORT_GPU, seed=42)
+ok, score, warnings = artifact.validate_environment(current)
+```
+
 ### Применение в политике
 
 Agent simulation позволяет моделировать:
@@ -107,10 +131,11 @@ Agent simulation позволяет моделировать:
 - **Неравенство** и его динамику во времени
 - **Демографические изменения** и их экономические последствия
 - **Обучение агентов** новым стратегиям поведения
+- **Hot-swap политик** с проверкой совместимости окружения
 
 ## Архитектура
 
-Foundry состоит из следующих основных слоев (актуально на 2026-01-26):
+Foundry состоит из следующих основных слоев (актуально на 2026-01-27):
 
 ### 1. Core Layer (Ядро)
 ```
@@ -132,7 +157,9 @@ treasury.py         # Deterministic RNG management
 ### 3. Runtime Layer (Исполнение)
 ```
 patch_vm.py         # Patch-based виртуальная машина и merge rules
-runtime.py          # Чистые JAX функции для исполнения (step, run_scan, execute_program_batch)
+runtime/            # Runtime модули для исполнения программ
+├── __init__.py     # Чистые JAX функции для исполнения (step, run_scan, execute_program_batch)
+├── fingerprint.py  # Environment fingerprinting для воспроизводимости
 executor.py         # Исполнение программ с constraints и state management
 constraints_engine.py # Движок ограничений и валидации
 trace.py            # Система трассировки исполнения
@@ -181,6 +208,7 @@ agent_sim/          # Комплексная симуляция агентов �
 ├── jit_training.py # JIT-компиляция обучения
 ├── mechanism.py    # Базовые механизмы симуляции
 ├── mechanisms.py   # Специфические механизмы
+├── artifact.py     # Artifact system для политик агентов
 ├── metrics.py      # Сбор метрик обучения
 ├── modes.py        # Режимы обучения (bilevel, MPC)
 ├── mpc.py          # Model Predictive Control
@@ -575,6 +603,24 @@ tensor_value = _load_tensor(store, tensor_ref)
 ```
 
 ## Runtime Execution
+
+### Environment Fingerprinting
+
+Для обеспечения воспроизводимости результатов обучения агентских политик используется система захвата и валидации окружения (Environment Fingerprinting):
+
+```python
+from polisyos.foundry.runtime.fingerprint import EnvironmentFingerprint, DeterminismTier
+
+# Захват текущего окружения
+fingerprint = EnvironmentFingerprint.capture(
+    tier=DeterminismTier.BEST_EFFORT_GPU,
+    seed=42
+)
+
+# Проверка совместимости окружений
+compatibility_score = fingerprint.compatibility_score(other_fingerprint)
+warnings = fingerprint.validate_for_tier()
+```
 
 ### Execution Flow
 

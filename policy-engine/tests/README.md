@@ -2,7 +2,7 @@
 
 Тестовая инфраструктура для Policy Engine - AI-driven Policy Simulation System. Тесты обеспечивают качество кода, валидируют архитектурные границы и проверяют корректность работы всех компонентов системы.
 
-**Последнее обновление:** Январь 2026 (добавлены quality indicators system, fitness reports и quality gate pass)
+**Последнее обновление:** 27 января 2026 (добавлены agent artifacts, merge determinism, quality indicators system, fitness reports и quality gate pass)
 **Актуальная версия архитектуры:** v2.1.4 (Provenance Tracking, PROV-O Integration, Evidence-Enhanced Fabric)
 
 ## Архитектурный контекст
@@ -48,6 +48,7 @@ tests/
 │   ├── plugins/                   # Тесты плагинной системы Foundry
 │   │   └── test_plugin_system.py  # PluginRegistry, CompositeExecutor, EconomicsPlugin, domain configs
 │   ├── test_adaptive_agents.py    # Адаптивные агенты и их поведение
+│   ├── test_agent_artifact.py      # AgentPolicyArtifact, EnvironmentFingerprint, hot-swap compatibility
 │   ├── test_agent_simulation_step1.py # Шаг 1 симуляции агентов
 │   ├── test_agent_simulation_step2.py # Шаг 2 симуляции агентов
 │   ├── test_agent_simulation_step3.py # Шаг 3 симуляции агентов
@@ -62,6 +63,7 @@ tests/
 │   ├── test_gradients.py          # Градиенты политик (JAX autodiff, Equinox)
 │   ├── test_health.py             # Проверки здоровья системы и детекция аномалий
 │   ├── test_jit_stability.py      # JIT-стабильность PyTree структур
+│   ├── test_merge_determinism.py  # Детерминизм операций merge и state consistency
 │   ├── test_patch_executor.py     # Patch executor, state delta и snapshot'ы
 │   ├── test_program_graph_ops.py  # Операции с программными графами, execution order
 │   └── test_runtime_batch.py      # Пакетное выполнение программ с JAX
@@ -131,8 +133,10 @@ tests/
 
 **Ключевые тесты:**
 - **Agent Simulation**: Пошаговая симуляция агентов (step1-step6), метрики, трекинг экспериментов, визуализация обучения
+- **Agent Artifacts**: AgentPolicyArtifact, EnvironmentFingerprint, hot-swap compatibility, determinism tier validation
 - **Plugin System**: PluginRegistry, CompositeExecutor, EconomicsPlugin, domain configurations и capability system
 - **Adaptive Agents**: Поведение адаптивных агентов и их реакция на политики
+- **Merge Determinism**: Детерминированные merge operations, state consistency, conflict resolution
 - **Calibrator Fidelity**: Управление уровнями fidelity (fluid/relaxed/hard/temperature) для trade-off точность/производительность
 - **Calibrator MVP**: Полноценная система калибровки параметров с оптимизацией, uncertainty quantification и penalty functions
 - **Constraints Executor**: Исполнение ограничений (budget guards, validation, runtime checks)
@@ -154,6 +158,8 @@ tests/
 - **State Consistency**: Корректность state delta, snapshot'ов и rollback механизмов
 - **Graph Execution**: Правильный порядок операций в программных графах с dependency tracking
 - **Uncertainty Quantification**: Все калибровки предоставляют оценки неопределенности через Hessian analysis
+- **Artifact Determinism**: Round-trip serialization с environment fingerprint validation
+- **Merge Consistency**: Детерминированные merge operations с guaranteed state evolution
 
 ### Demo Tests (`demos/`)
 
@@ -347,6 +353,12 @@ pytest tests/demos/run_laffer_demo.py
 
 # Адаптивные агенты и их поведение
 pytest tests/foundry/test_adaptive_agents.py
+
+# Agent artifacts и environment fingerprinting
+pytest tests/foundry/test_agent_artifact.py
+
+# Merge determinism и state consistency
+pytest tests/foundry/test_merge_determinism.py
 
 # Калибровка fidelity (управление точностью)
 pytest tests/foundry/test_calibrator_fidelity.py

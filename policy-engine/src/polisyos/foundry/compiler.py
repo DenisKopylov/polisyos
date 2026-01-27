@@ -7,6 +7,7 @@ from typing import Iterable
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.common.logger import get_logger
 from polisyos.core.contracts.foundry import (
     ExecPlan,
     ExecPlanRef,
@@ -22,6 +23,30 @@ from polisyos.ir.kernel.mechanisms import resolve_mechanism_slots
 from polisyos.ir.surface import InterventionSpec, PolicySurfaceIR, schedule_range
 from polisyos.foundry.layout import SlotLayout, build_slot_layout
 from polisyos.foundry.treasury import TreasuryPlan, build_treasury_plan
+from polisyos.foundry.runtime.fingerprint import DeterminismTier, EnvironmentFingerprint
+
+
+@dataclass
+class SimulationConfig:
+    """
+    Simulation determinism configuration captured at compile time.
+    """
+
+    determinism_tier: DeterminismTier = DeterminismTier.NONDETERMINISTIC
+    random_seed: int = 42
+    environment_fingerprint: EnvironmentFingerprint | None = None
+
+    def __post_init__(self) -> None:
+        if self.environment_fingerprint is None:
+            self.environment_fingerprint = EnvironmentFingerprint.capture(
+                tier=self.determinism_tier,
+                seed=self.random_seed,
+            )
+        warnings = self.environment_fingerprint.validate_for_tier()
+        if warnings:
+            log = get_logger(__name__)
+            for warning in warnings:
+                log.warning("Determinism config issue: %s", warning)
 
 
 @dataclass
@@ -75,6 +100,7 @@ def compile_surface_policy(
     merge_registry: MergeRuleRegistry,
     units_registry: UnitsRegistry | None = None,
     policy_ref: ArtifactRef | None = None,
+    simulation_config: SimulationConfig | None = None,
 ) -> CompileArtifacts:
     if policy_ref is None:
         policy_ref = put_policy_surface(
@@ -105,7 +131,26 @@ def compile_surface_policy(
     program_graph_ref = ProgramGraphRef(artifact_id=program_ref.artifact_id)
 
     order = _build_exec_order(program_graph)
-    exec_plan = ExecPlan(program_ref=program_graph_ref, order=order)
+    env_fingerprint = None
+    determinism_tier = None
+    random_seed = None
+    if simulation_config is not None:
+        if simulation_config.environment_fingerprint is None:
+            simulation_config.environment_fingerprint = EnvironmentFingerprint.capture(
+                tier=simulation_config.determinism_tier,
+                seed=simulation_config.random_seed,
+            )
+        env_fingerprint = simulation_config.environment_fingerprint.compute_hash()
+        determinism_tier = simulation_config.determinism_tier.value
+        random_seed = simulation_config.random_seed
+
+    exec_plan = ExecPlan(
+        program_ref=program_graph_ref,
+        order=order,
+        environment_fingerprint=env_fingerprint,
+        determinism_tier=determinism_tier,
+        random_seed=random_seed,
+    )
     exec_plan_payload_ref = store.put_json(
         exec_plan,
         PutOptions(

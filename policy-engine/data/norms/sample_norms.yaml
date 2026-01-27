@@ -1,0 +1,158 @@
+# Sample norms demonstrating safe expression syntax
+# Phase 18: NormPack MVP — Safe Expression Rules
+#
+# Expression Syntax:
+#   - Boolean: and, or, not
+#   - Comparison: ==, !=, <, <=, >, >=
+#   - Arithmetic: +, -, *, /, //, %
+#   - Variables: Must exist in evaluation context
+#   - Literals: Numbers, strings, True, False
+#
+# FORBIDDEN:
+#   - Function calls: len(), max(), etc.
+#   - Attribute access: obj.attr
+#   - Imports: import os
+#   - Loops/comprehensions
+
+norms:
+  # ============================================
+  # Maastricht Treaty Criteria (EU)
+  # ============================================
+
+  - norm_id: "MAASTRICHT_DEFICIT"
+    provision_refs:
+      - provision_id: "TEU_Art126"
+        source_document: "Treaty on European Union"
+        version: "2012"
+    rule_type: "prohibition"
+    description: "Budget deficit must not exceed 3% of GDP"
+    backend_refs: ["expr_ast"]
+    metadata:
+      when: "has_budget_data"
+      must_not: "budget_deficit_pct > 3.0"
+      message: "Deficit {budget_deficit_pct:.2f}% exceeds Maastricht limit (3%)"
+
+  - norm_id: "MAASTRICHT_DEBT"
+    provision_refs:
+      - provision_id: "TEU_Art126"
+        source_document: "Treaty on European Union"
+        version: "2012"
+    rule_type: "prohibition"
+    description: "Government debt must not exceed 60% of GDP"
+    backend_refs: ["expr_ast"]
+    metadata:
+      when: "has_debt_data"
+      must_not: "debt_gdp_ratio > 60.0"
+      message: "Debt ratio {debt_gdp_ratio:.1f}% exceeds Maastricht limit (60%)"
+
+  # ============================================
+  # US Budget Control Act
+  # ============================================
+
+  - norm_id: "BUDGET_DEFICIT_LIMIT"
+    provision_refs:
+      - provision_id: "BCA_2011_101"
+        source_document: "Budget Control Act 2011"
+    rule_type: "prohibition"
+    description: "Budget deficit must not exceed statutory limits"
+    backend_refs: ["expr_ast"]
+    metadata:
+      when: "fiscal_year_complete"
+      must_not: "deficit_billions > max_deficit_billions"
+      message: "Deficit ${deficit_billions}B exceeds limit ${max_deficit_billions}B"
+
+  # ============================================
+  # Labor Standards
+  # ============================================
+
+  - norm_id: "MIN_WAGE_FLOOR"
+    provision_refs:
+      - provision_id: "FLSA_206"
+        source_document: "Fair Labor Standards Act"
+        version: "2024"
+    rule_type: "obligation"
+    description: "Minimum wage must be at least federal minimum"
+    backend_refs: ["expr_ast"]
+    metadata:
+      when: "has_wage_policy"
+      must: "min_wage_hourly >= federal_min_wage"
+      message: "Minimum wage ${min_wage_hourly}/hr below federal ${federal_min_wage}/hr"
+
+  # ============================================
+  # Tax Policy
+  # ============================================
+
+  - norm_id: "PROGRESSIVE_TAX"
+    provision_refs:
+      - provision_id: "IRC_1"
+        source_document: "Internal Revenue Code"
+    rule_type: "obligation"
+    description: "Tax rates must be progressive (higher brackets = higher rates)"
+    backend_refs: ["expr_ast"]
+    metadata:
+      when: "has_tax_policy and num_brackets > 1"
+      must: "top_marginal_rate > bottom_marginal_rate"
+      message: "Tax structure is not progressive: top rate <= bottom rate"
+
+  - norm_id: "MAX_TAX_RATE"
+    provision_refs:
+      - provision_id: "CONST_AMEND_16"
+        source_document: "US Constitution Amendment XVI"
+    rule_type: "prohibition"
+    description: "Tax rates should not exceed confiscatory levels"
+    backend_refs: ["expr_ast"]
+    metadata:
+      when: "has_tax_policy"
+      must_not: "top_marginal_rate > 70.0"
+      message: "Top marginal rate {top_marginal_rate}% exceeds 70% threshold"
+
+  # ============================================
+  # Complex Conditions
+  # ============================================
+
+  - norm_id: "INFLATION_ADJUSTED_SPENDING"
+    provision_refs:
+      - provision_id: "CBPP_2023"
+        source_document: "Center on Budget Policy Priorities"
+    rule_type: "obligation"
+    description: "Real spending growth should not exceed economic growth"
+    backend_refs: ["expr_ast"]
+    metadata:
+      when: "has_economic_data and inflation_rate > 0"
+      must: "real_spending_growth <= real_gdp_growth + 1.0"
+      message: "Spending growth {real_spending_growth}% outpaces GDP growth {real_gdp_growth}%"
+
+  # ============================================
+  # Ukrainian Budget Code Examples
+  # ============================================
+
+  - norm_id: "UA_DEFICIT_LIMIT"
+    provision_refs:
+      - provision_id: "BKU_Art14"
+        source_document: "Budget Code of Ukraine"
+        version: "2024"
+    rule_type: "prohibition"
+    description: "State budget deficit must not exceed 3% of GDP"
+    backend_refs: ["expr_ast"]
+    metadata:
+      when: "jurisdiction == 'UA' and has_budget_data"
+      must_not: "deficit_gdp_pct > 3.0"
+      message: "Дефіцит {deficit_gdp_pct:.2f}% перевищує ліміт 3%"
+
+  # ============================================
+  # Fallback: Stub Backend (for complex norms)
+  # ============================================
+
+  - norm_id: "COMPLEX_LEGAL_INTERPRETATION"
+    provision_refs:
+      - provision_id: "EXAMPLE_COMPLEX"
+        source_document: "Hypothetical Complex Statute"
+    rule_type: "obligation"
+    description: "Complex norm requiring LLM interpretation"
+    backend_refs: ["llm"]
+    metadata:
+      legal_text: |
+        The implementing agency shall ensure that all policy
+        interventions are consistent with the principles of
+        proportionality and subsidiarity.
+      # No expr_ast expressions - handled by LLM backend

@@ -142,7 +142,9 @@ scientist/
 
 - **`backends/base.py`**: `RuleBackend` протокол для реализации различных движков проверки норм
 - **`backends/stub.py`**: Stub реализация для тестирования, возвращает "not implemented" для всех норм
-- **`README.md`**: Документация по архитектуре legal validation
+- **`backends/expr_ast.py`**: Продвинутый AST-based backend для безопасной оценки expression-based норм
+- **`ast_policy.py`**: Новые структуры политик для legal validation (в разработке)
+- **`README.md`**: Детальная документация по архитектуре legal validation и backends
 
 **Нормативные структуры (IR Layer)**:
 - **`ir/norm_pack.py`**: `NormPack`, `NormRule`, `NormRef` модели для представления юридических норм
@@ -152,6 +154,11 @@ scientist/
 - **Obligation**: Обязательства (должно выполняться)
 - **Prohibition**: Запреты (нельзя нарушать)
 - **Permission**: Разрешения (можно делать при определенных условиях)
+
+**Pluggable Backends**:
+- **StubBackend**: Для тестирования и development
+- **ExprASTBackend**: Для безопасной оценки выражений через AST
+- **LLM Backend**: Планируемая интеграция с Claude/GPT для комплексных норм
 
 ### 🎼 Orchestrator Layer (оркестрация/orchestrator)
 
@@ -1484,7 +1491,7 @@ research_budget = {
 
 ### 🚧 Частично реализованные компоненты
 
-- **Governance Layer**: Полная система validation passes (включая legal compliance и quality gate) с pipeline orchestration, профилями и telemetry. Preflight/postflight с GateRequest/GateDecision интеграцией (готовы для UI integration)
+- **Governance Layer**: Полная система validation passes (включая legal compliance и quality gate) с pipeline orchestration, профилями и telemetry. Preflight/postflight с GateRequest/GateDecision интеграцией (готовы для UI integration). Legal backends: StubBackend (готов), ExprASTBackend (готов), LLM Backend (планируется)
 - **Data Quality Assessment**: Полная система оценки качества данных через QualityIndicators, QualityLevel, QualityThresholds с integration в Fabric layer и governance pipeline
 - **DoE Layer**: Базовые модели ScenarioSweep, AblationPlan, SensitivityPlan без полной интеграции в workflow (готовы для расширения)
 - **Optimization**: Градиентная оптимизация через Optax с gradient health monitoring и uncertainty quantification (нужна интеграция с multi-objective optimization)

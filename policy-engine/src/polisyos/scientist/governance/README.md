@@ -161,8 +161,20 @@ class RuleBackend(Protocol):
 - Позволяет тестировать LegalPass интеграцию без rule engine
 - Указывает на будущие реализации (AST, LLM backends)
 
+##### ExprASTBackend (expr_ast.py)
+Продвинутая реализация на базе AST для безопасной оценки норм:
+- **Safe evaluation**: AST parsing предотвращает code injection
+- **Expression support**: Поддержка математических и логических выражений
+- **Policy introspection**: Доступ к параметрам PolicySurfaceIR
+- **Error recovery**: Graceful handling evaluation errors
+
+##### AST Policy Structures (ast_policy.py)
+Новые структуры политик для legal validation (в разработке):
+- Расширенные AST узлы для legal evaluation
+- Type-safe структуры для policy introspection
+- Интеграция с ExprASTBackend
+
 ##### Будущие backends:
-- **AST Backend**: Безопасная AST интерпретация condition expressions
 - **LLM Backend**: Claude-based evaluation для комплексных текстовых норм
 
 ### 📊 Quality Gate Pass (quality_gate_pass.py)

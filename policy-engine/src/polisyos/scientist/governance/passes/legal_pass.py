@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import List, TYPE_CHECKING
+from typing import Dict, List, TYPE_CHECKING
 
 from polisyos.scientist.governance.passes.base import (
     ComplianceIssue,
@@ -9,10 +9,19 @@ from polisyos.scientist.governance.passes.base import (
 )
 from polisyos.scientist.governance.profiles import ProfileLevel
 from polisyos.scientist.governance.legal.backends.stub import StubBackend
+from polisyos.scientist.governance.legal.backends.expr_ast import (
+    ExpressionASTBackend,
+)
 
 if TYPE_CHECKING:
     from polisyos.ir.norm_pack import NormPack
     from polisyos.scientist.governance.legal.backends.base import RuleBackend
+
+
+_BACKEND_REGISTRY: Dict[str, type] = {
+    "stub": StubBackend,
+    "expr_ast": ExpressionASTBackend,
+}
 
 
 class LegalPass(ValidatorPass):
@@ -27,15 +36,29 @@ class LegalPass(ValidatorPass):
 
     def __init__(
         self,
-        backend: "RuleBackend | None" = None,
+        backend: "RuleBackend | str | None" = None,
         enabled: bool = False,
     ):
         """
         Args:
-            backend: Rule evaluation backend (defaults to StubBackend)
+            backend: Rule evaluation backend.
+                     - None: Uses StubBackend
+                     - str: Looks up in registry ("expr_ast", "stub")
+                     - RuleBackend: Uses directly
             enabled: Force enable regardless of profile
         """
-        self._backend = backend or StubBackend()
+        if backend is None:
+            self._backend = StubBackend()
+        elif isinstance(backend, str):
+            backend_cls = _BACKEND_REGISTRY.get(backend)
+            if backend_cls is None:
+                raise ValueError(
+                    f"Unknown backend: {backend}. "
+                    f"Available: {list(_BACKEND_REGISTRY.keys())}"
+                )
+            self._backend = backend_cls()
+        else:
+            self._backend = backend
         self._enabled = enabled
 
     @property

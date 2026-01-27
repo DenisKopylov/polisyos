@@ -2,7 +2,7 @@
 
 Валидация компонентов scientist layer - протоколов агентов, компилятора политик, ИИ-компонентов, optimization loop и workflow engines.
 
-**Последнее обновление:** Январь 2026 (добавлены legal pass тесты, norm pack validation, decision card system, run timeline tracking, decision packet v2, search loop system, workflow engines)
+**Последнее обновление:** Январь 2026 (добавлены Phase 18: Safe Expression Evaluation, AST Policy validation, norm execution security, legal AST backends, expression evaluators, governance security testing, legal pass тесты, norm pack validation, decision card system, run timeline tracking, decision packet v2, search loop system, workflow engines)
 **Уровень:** Scientist Layer (AI & Compilation & Optimization)
 **Зависимости:** JAX, Core artifacts, IR structures, Legal contracts, Search objectives, Workflow engines
 
@@ -14,8 +14,9 @@ Scientist layer обеспечивает компиляцию политик и�
 
 ```
 scientist/
-├── governance/                # Тесты governance layer (validation pipeline, legal compliance)
+├── governance/                # Тесты governance layer (validation pipeline, legal compliance, Phase 18 security)
 │   ├── test_legal_pass.py     # LegalPass, RuleBackend, NormPack validation
+│   ├── test_norm_execution.py # Phase 18: Safe expression evaluation, AST policy, security validation
 │   └── test_validation_pipeline.py # ValidationPipeline, profiles, compliance issues
 ├── search/                    # Тесты search loop system (Phase 17 optimization)
 │   ├── conftest.py            # Специфичная конфигурация для search тестов
@@ -64,6 +65,24 @@ scientist/
 - **Backend Abstraction**: Pluggable rule evaluation через RuleBackend protocol
 - **Norm Pack Contracts**: Structured legal norms с jurisdiction, effective dates, rule types
 - **Compliance Issues**: Structured feedback с severity levels и remediation guidance
+
+### Phase 18 Safe Expression Evaluation (`governance/test_norm_execution.py`)
+
+**Цель:** Валидация безопасной оценки выражений, AST policy enforcement, security validation и safe expression evaluators.
+
+**Ключевые тесты:**
+- **Security Rejection**: Отвержение опасных конструкций (imports, eval, exec, file operations, builtins, class escapes)
+- **AST Policy Validation**: AST limits enforcement, node counting, depth limits, forbidden construct detection
+- **Safe Expression Evaluator**: Математическая корректность, variable binding, error handling, type safety
+- **Backend Integration**: ExpressionASTBackend integration, norm evaluation, compliance checking
+- **Edge Cases**: Division by zero, missing variables, type mismatches, overflow conditions
+
+**Принципы:**
+- **Security First**: Все dangerous constructs отвергаются до evaluation
+- **AST Analysis**: Static analysis выражений перед execution для security guarantees
+- **Limited Scope**: Только безопасные mathematical operations и variable references
+- **Error Containment**: Graceful handling ошибок без system compromise
+- **Type Safety**: Strict type checking и validation для всех operations
 
 ### Search Loop System (`search/test_search_loop.py`)
 
@@ -214,6 +233,7 @@ pytest tests/scientist/ -v
 pytest tests/scientist/governance/ -v
 pytest tests/scientist/governance/test_validation_pipeline.py -v
 pytest tests/scientist/governance/test_legal_pass.py -v
+pytest tests/scientist/governance/test_norm_execution.py -v
 
 # Конкретные компоненты
 pytest tests/scientist/test_agent_protocols.py -v
@@ -263,6 +283,7 @@ pytest tests/scientist/test_reflexion_loop.py::TestFailureCardConverters -v
 - **Compliance Issues**: Structured feedback для policy refinement
 - **Validation Profiles**: Configurable validation levels (fast/mvp/strict)
 - **Legal Validation**: LegalPass с rule backend evaluation и norm pack validation
+- **Phase 18 Security**: Safe expression evaluation, AST policy enforcement, security validation, forbidden construct rejection
 
 **IR Layer** (`ir/`):
 - **Policy Surface**: Surface IR как input для compilation
@@ -623,6 +644,16 @@ def test_composite_stopping_criteria():
 
 ### Распространенные проблемы
 
+**Phase 18 expression evaluation failures:**
+```bash
+# Проверьте что dangerous constructs правильно отвергаются
+pytest tests/scientist/governance/test_norm_execution.py::TestSecurityRejection -v
+# Проверьте AST policy validation
+pytest tests/scientist/governance/test_norm_execution.py::TestASTPolicy -v
+# Проверьте safe expression evaluators
+pytest tests/scientist/governance/test_norm_execution.py::TestSafeExpressionEvaluator -v
+```
+
 **Legal pass profile issues:**
 ```bash
 # LegalPass runs only in STRICT profile by default
@@ -763,6 +794,13 @@ pytest tests/scientist/search/test_search_loop.py::TestWorkflowEngineAbstraction
 - **Pass Context**: Shared state между validation passes
 - **Custom Passes**: Extensible system для domain-specific validation
 - **Legal Pass**: Profile-based legal validation с pluggable rule backends
+
+### Phase 18 Security Components
+- **Safe Expression Evaluation**: AST-based security validation для mathematical expressions в norm rules
+- **AST Policy System**: Static analysis выражений, forbidden construct rejection, node limits enforcement
+- **Expression Evaluators**: Safe computation environment с variable binding и type checking
+- **Security Validation**: Attack vector prevention, builtin blocking, class escape detection
+- **Norm Execution Backend**: AST-based rule evaluation для legal compliance checking
 
 ### Legal Components
 - **Norm Pack Structures**: NormPack, NormRule, NormRef для представления юридических норм

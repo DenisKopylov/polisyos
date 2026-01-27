@@ -3,7 +3,7 @@ from __future__ import annotations
 from enum import Enum
 from typing import Any, Dict, List
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 
 class RuleType(str, Enum):
@@ -33,8 +33,32 @@ class NormRule(BaseModel):
     description: str
     backend_refs: List[str] = Field(default_factory=list)
     condition_expr: str | None = None
+    metadata: Dict[str, Any] = Field(
+        default_factory=dict,
+        description=(
+            "Backend-specific rule data. For expr_ast backend: "
+            "'when' (applicability), 'must' (obligation), "
+            "'must_not' (prohibition)"
+        ),
+    )
 
     model_config = ConfigDict(extra="forbid", frozen=True)
+
+    @model_validator(mode="after")
+    def validate_expressions(self) -> "NormRule":
+        """Validate expression syntax at construction time."""
+        from polisyos.scientist.governance.legal.ast_policy import ASTPolicy
+
+        for key in ("when", "must", "must_not"):
+            expr = self.metadata.get(key)
+            if expr is not None:
+                is_valid, error = ASTPolicy.validate(expr)
+                if not is_valid:
+                    raise ValueError(
+                        f"Invalid expression in metadata['{key}']: {error}"
+                    )
+
+        return self
 
 
 class NormPack(BaseModel):

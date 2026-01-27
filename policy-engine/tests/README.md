@@ -2,8 +2,8 @@
 
 Тестовая инфраструктура для Policy Engine - AI-driven Policy Simulation System. Тесты обеспечивают качество кода, валидируют архитектурные границы и проверяют корректность работы всех компонентов системы.
 
-**Последнее обновление:** 27 января 2026 (добавлены search loop system, workflow engines, Phase 17 optimization, two-stage filtering, conflict detection, cost model, NaN guard, agent artifacts, merge determinism, quality indicators system, fitness reports, quality gate pass, decision card system, run timeline tracking, decision packet v2)
-**Актуальная версия архитектуры:** v2.1.4 (Provenance Tracking, PROV-O Integration, Evidence-Enhanced Fabric)
+**Последнее обновление:** 27 января 2026 (добавлены Phase 18: Safe Expression Evaluation, AST Policy validation, norm execution security, legal AST backends, expression evaluators, governance security testing, AST limits enforcement, Phase 17 search loop system, workflow engines, two-stage filtering, conflict detection, cost model, NaN guard, agent artifacts, merge determinism, quality indicators system, fitness reports, quality gate pass, decision card system, run timeline tracking, decision packet v2)
+**Актуальная версия архитектуры:** v2.2.0 (Phase 18 Security, Safe Expression Evaluation, AST Policy Enforcement, Legal AST Backends)
 
 ## Архитектурный контекст
 
@@ -79,8 +79,9 @@ tests/
 ├── runtime/                       # Тесты runtime компонентов
 │   └── test_runtime_manifest_paths.py # Управление runs, артефакты, пути
 └── scientist/                     # Тесты компонентов scientist
-    ├── governance/                # Тесты governance layer (validation pipeline, legal compliance)
+    ├── governance/                # Тесты governance layer (validation pipeline, legal compliance, Phase 18 security)
     │   ├── test_legal_pass.py     # LegalPass, RuleBackend, NormPack validation
+    │   ├── test_norm_execution.py # Phase 18: Safe expression evaluation, AST policy, security validation
     │   └── test_validation_pipeline.py # ValidationPipeline, profiles, compliance issues
     ├── search/                    # Тесты search loop system (Phase 17 optimization)
     │   ├── conftest.py            # Специфичная конфигурация для search тестов
@@ -263,7 +264,7 @@ tests/
 **Цель**: Валидация компонентов ИИ, протоколов агентов, компиляции политик, систем recovery, governance layer и optimization loop.
 
 **Ключевые тесты:**
-- **Governance Layer**: Validation pipeline, compliance checks, pre/post-flight governance, legal validation passes, quality gate pass
+- **Governance Layer**: Validation pipeline, compliance checks, pre/post-flight governance, legal validation passes, quality gate pass, Phase 18 safe expression evaluation, AST policy validation, security enforcement
 - **Search Loop System**: Phase 17 optimization с two-stage filtering, SearchController, stopping criteria, objective functions
 - **Agent Protocols**: Валидация протоколов PI/Drafter/Formalizer/Critic агентов с runtime поведением
 - **Policy Compiler**: Компиляция IR в исполняемые модели foundry
@@ -351,6 +352,7 @@ pytest tests/scientist/ -v
 # Governance layer тесты
 pytest tests/scientist/governance/ -v                 # Validation pipeline
 pytest tests/scientist/governance/test_legal_pass.py -v # Legal validation pass
+pytest tests/scientist/governance/test_norm_execution.py -v # Phase 18 safe expression evaluation
 
 # Search loop system тесты (Phase 17 optimization)
 pytest tests/scientist/search/ -v                    # SearchController, two-stage filtering
@@ -474,6 +476,7 @@ pytest tests/runtime/test_runtime_manifest_paths.py
 - **Short-Term Memory**: Persistence состояния агентов между попытками с hint accumulation
 - **Multi-Agent Workflow**: Интегрированная система workflow с critique-based refinement
 - **Legal Validation System**: Pluggable backends для оценки юридических норм с protocol-based architecture
+- **Phase 18 Safe Expression Evaluation**: AST-based security validation, forbidden construct rejection, safe expression evaluators, AST limits enforcement
 - **Norm Pack Contracts**: Структурированные представления юридических норм (NormPack, NormRule, NormRef)
 - **Rule Backend System**: Extensible evaluators для разных типов правил (AST, LLM, Stub implementations)
 - **Search Loop System**: Phase 17 optimization с two-stage filtering, iterative policy refinement, objective functions
@@ -642,6 +645,17 @@ pytest tests/runtime/test_runtime_manifest_paths.py
 - **Contract Tests**: Data snapshot validation и assumption tracking
 - **Foundry**: Calibration targets и model configuration
 
+### Phase 18 Security Integration
+**AST Policy** → Expression security and validation
+- **Governance Tests**: Security rejection testing, AST limits enforcement, forbidden construct validation
+- **Norm Execution**: Safe expression evaluation, mathematical operations validation, variable binding security
+- **Legal Backends**: AST-based rule evaluation, expression parsing and execution safety
+
+**Expression Evaluators** → Safe computation environment
+- **Security Tests**: Attack vector rejection, builtin function blocking, class escape prevention
+- **Evaluation Tests**: Mathematical correctness, variable resolution, error handling
+- **Backend Integration**: AST policy enforcement, safe expression execution, validation results
+
 ### CI/CD интеграция
 - Unit тесты запускаются на каждый PR
 - Integration тесты - по расписанию или на release
@@ -685,6 +699,16 @@ pytest --profile
 ## Troubleshooting
 
 ### Распространенные проблемы
+
+**Phase 18 expression evaluation failures:**
+```bash
+# Проверьте что dangerous constructs правильно отвергаются
+pytest tests/scientist/governance/test_norm_execution.py::TestSecurityRejection -v
+# Проверьте AST policy validation
+pytest tests/scientist/governance/test_norm_execution.py::TestASTPolicy -v
+# Проверьте safe expression evaluators
+pytest tests/scientist/governance/test_norm_execution.py::TestSafeExpressionEvaluator -v
+```
 
 **JAX memory allocation errors:**
 ```bash

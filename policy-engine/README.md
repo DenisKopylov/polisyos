@@ -2,7 +2,7 @@
 
 **Policy Engine** — AI‑driven система проектирования, валидации, калибровки и исполнения политик. Архитектурно это “компиляторная труба”: от запроса пользователя/LLM до формально типизированных контрактов (IR), далее — компиляция в исполняемые графы, выполнение в JAX‑ядре и фиксация результатов в воспроизводимых артефактах.
 
-**Состояние документа (актуально на 2026‑01‑26):** архитектура v2.1.2 (Trinity Migration, Agent Protocols, Environment Manifest, Enhanced Monitoring, Self-Healing Agents, Reflexion System, Multi-Agent Workflow, Failure Card Recovery, Trust System, Materializer Engine, Plugin Architecture, Agent Simulation), присутствуют переходные зоны/устаревшие интерфейсы (см. раздел “Legacy и переходные зоны”).
+**Состояние документа (актуально на 2026‑01‑27):** архитектура v2.1.3 (Legal Validation, Norm Pack Contracts, Rule Backend System, Trinity Architecture, Enhanced Governance, Legal Compliance, Kernel Registry Extensions, Fact Log Integration), присутствуют переходные зоны/устаревшие интерфейсы (см. раздел “Legacy и переходные зоны”).
 
 ## Архитектурный обзор
 
@@ -209,6 +209,13 @@ common → (никого)                                      # фундаме�
 - **Decision Packet**: Полный артефакт с evidence, uncertainty и provenance tracking
 - **Governance Layer**: Модульная система validation passes (budget/safety/privacy/schema) с pipeline orchestration
 - **Validation Profiles**: Предопределенные профили валидации (fast/mvp/strict) с telemetry и tracing
+- **Legal Validation System**: Pluggable backends для оценки юридических норм с protocol-based architecture
+- **Norm Pack Contracts**: Структурированные представления юридических норм (NormPack, NormRule, NormRef)
+- **Rule Backend System**: Extensible evaluators для разных типов правил (AST, LLM, Stub implementations)
+- **Legal Compliance Passes**: Модульная валидация политик против нормативных требований
+- **Trinity Contracts**: Типизированные ссылки на ProblemFrame/PolicySpec/ModelSpec артефакты
+- **Enhanced Kernel Registries**: Расширенная система фундаментальных реестров (механизмы, слоты, units, trust policies)
+- **Fact Log Integration**: Семантическая сеть фактов с provenance tracking и trust policies
 
 ### Подготовлено, но сейчас не задействовано в коде
 - **Diffrax**: ODE/SDE solver (для дифференциальных моделей)
@@ -525,7 +532,7 @@ RunManifest + seed + artifacts → Full reproducibility
 - **Artifacts**: Content-Addressable Storage (CAS) с SHA256 хешированием, дедупликацией и верификацией целостности
 - **Environment Manifest**: Захват и сравнение вычислительных окружений с compatibility scoring (CPU/GPU/OS/Python/JAX)
 - **Canonical JSON**: Детерминированная сериализация с запретом float чисел и reproducible хешами
-- **Contracts**: Типизированные контракты межмодульного взаимодействия (Trinity, Foundry, Fabric, Scientist)
+- **Contracts**: Типизированные контракты межмодульного взаимодействия (Trinity, Foundry, Fabric, Scientist, Legal)
 - **Compiler Reports**: Управление отчетами компиляции и линковки политик
 - **Registry System**: Сборка и загрузка реестров компонентов с artifact persistence
 - **Trace**: Распределенная система трассировки с span-based моделированием и JSON Lines
@@ -537,6 +544,7 @@ RunManifest + seed + artifacts → Full reproducibility
 - **Scientist Contracts**: Контракты для FailureCard, PolicyIR и Critique артефактов
 - **Enhanced Registry**: Автоматическая сборка registry bundles из IR модуля
 - **Trace Sinks**: JSON Lines логирование с structured events и metadata
+- **Legal Contracts**: Стабильные контракты для legal validation subsystem (NormPack, NormRule, RuleBackend)
 
 **Архитектурные особенности:**
 - Не зависит ни от одного модуля системы (чистый фундамент)
@@ -560,6 +568,8 @@ RunManifest + seed + artifacts → Full reproducibility
 - **Loaders & Migrations**: Универсальная загрузка политик с автораспознаванием версий
 - **Calibration**: Контракты оптимизации параметров относительно исторических данных
 - **Validation**: Структурированные отчеты о проблемах с diff между версиями
+- **Norm Pack Contracts**: Структурированные представления юридических норм (NormPack, NormRule, NormRef, RuleType)
+- **Legal Rule System**: Pluggable backends для оценки юридических норм с protocol-based architecture
 
 **Архитектурные особенности:**
 - Не имеет зависимостей от других модулей (чистый контракт)
@@ -631,7 +641,8 @@ RunManifest + seed + artifacts → Full reproducibility
 - **Kernel Layer**: FSM с 9 фазами, бюджеты (Compute/Evidence/Legitimacy/Complexity), guards, human gates
 - **Compute Layer**: Job specifications (JobSpec/JobKey/JobResult), distributed backends (LocalBackend/RayBackend)
 - **Design of Experiments**: ScenarioSweep, AblationPlan, SensitivityPlan для systematic research
-- **Governance Layer**: Preflight/postflight проверки + validation pipeline с модульными passes
+- **Governance Layer**: Preflight/postflight проверки + validation pipeline с модульными passes (budget/safety/privacy/schema/legal)
+- **Legal Compliance Layer**: Pluggable backends для оценки юридических норм с protocol-based architecture
 - **Orchestrator Layer**: LangGraph workflow с 9 узлами, self-healing циклами и conditional routing
 - **Decision Packet**: Полный артефакт эксперимента с evidence, uncertainty и provenance tracking
 - **Publisher**: Финализация результатов в DecisionPacket с comprehensive audit trail
@@ -645,7 +656,8 @@ RunManifest + seed + artifacts → Full reproducibility
 - **Human Gates**: Асинхронная система GateRequest/GateDecision для approvals
 - **Job Specifications**: Structured execution с reproducible hashing и distributed execution
 - **Decision Packet**: Comprehensive артефакт с fabric_result, evidence_ref, uncertainty quantification
-- **Governance Pipeline**: Модульная система validation passes (budget/safety/privacy/schema) с telemetry
+- **Governance Pipeline**: Модульная система validation passes (budget/safety/privacy/schema/legal) с telemetry
+- **Legal Validation System**: Pluggable backends для оценки юридических норм (NormPack, RuleBackend, RuleType)
 - **Validation Profiles**: Предопределенные профили валидации (fast/mvp/strict) с short-circuit логикой
 
 **Технологии:**
@@ -764,6 +776,15 @@ Policy Engine строго следует **Закону A** (направлен
 - **Все модули**: `common.logger` (структурированное логирование), `common.config` (конфигурация)
 - **IR**: `common.migrations` (система миграций схем)
 - **Runtime**: Косвенная зависимость через другие модули
+
+#### Legal Layer - compliance и валидация норм
+
+**Legal** обеспечивает проверку соответствия политик юридическим нормам:
+
+- **IR**: Определяет контракты нормативных документов (`ir.norm_pack`: NormPack, NormRule, NormRef, RuleType)
+- **Core**: Предоставляет стабильные контракты legal subsystem (`core.contracts.legal`)
+- **Scientist**: Реализует legal validation passes (`scientist.governance.passes.legal_pass`)
+- **Runtime**: Логирует результаты legal compliance в audit trail
 
 ### Поток данных в компиляторной трубе (с Trinity архитектурой)
 
@@ -888,6 +909,8 @@ pytest tests/integration/ -v
 - **Decision Packet**: Полный артефакт с evidence, uncertainty и provenance tracking
 - **Governance Pipeline**: Модульная система validation passes с short-circuit логикой и telemetry
 - **Validation Profiles**: Fast/mvp/strict профили валидации с configurable passes
+- **Legal Validation System**: Pluggable backends для оценки юридических норм с protocol-based architecture
+- **Norm Pack Contracts**: Структурированные представления юридических норм (NormPack, NormRule, NormRef)
 
 ### 🔬 Продвинутое симуляционное ядро
 
@@ -1014,7 +1037,7 @@ python tools/diagnostics/generate_ir_schema.py
 - **[`src/polisyos/common/README.md`](src/polisyos/common/README.md)**: JAX environment setup (CPU-first для macOS), структурированное логирование через Loguru, детерминированные миграции схем, hardware safeguards
 
 ### 🧪 Testing Framework (Тестовая инфраструктура)
-- **[`tests/README.md`](tests/README.md)**: Contract тесты (IR валидация), core phase 0 (CAS, canonical JSON), fabric (evidence, trust), foundry (JAX, calibration), integration (end-to-end workflows), runtime (artifact management), governance (validation pipeline)
+- **[`tests/README.md`](tests/README.md)**: Contract тесты (IR валидация), core phase 0 (CAS, canonical JSON), fabric (evidence, trust), foundry (JAX, calibration), integration (end-to-end workflows), runtime (artifact management), governance (validation pipeline, legal compliance)
 
 ### 🔨 Developer Tools (Инструменты разработчика)
 - **[`tools/README.md`](tools/README.md)**: Архитектурные линтеры (lint_imports.py - Закон A, lint_foundry.py - Закон B), генерация JSON Schema, миграции артефактов, бенчмарки производительности, демонстрационные скрипты, диагностика системы
@@ -1031,6 +1054,7 @@ python tools/diagnostics/generate_ir_schema.py
 - **Закон G**: Uncertainty quantification (оценки неопределённости в калибровке/отчётах)
 - **Закон H**: Governance и бюджеты (FSM, guards, human gates)
 - **Закон I**: Trust + privacy (access tiers, privacy passes, trust policies)
+- **Закон J**: Legal compliance (norm packs, rule backends, validation passes)
 
 ## Контрибьютинг
 
@@ -1071,6 +1095,12 @@ python tools/diagnostics/generate_ir_schema.py
 ### Переходные зоны в `runtime`
 
 - **`ArtifactRef.path`**: Поддерживается для старых артефактов, но для новых рекомендуется `relative_path` для переносимости директорий `runs/`
+
+### Новые компоненты (активно развиваемые)
+
+- **Legal Validation System**: Полноценная система проверки соответствия политик юридическим нормам с pluggable backends (RuleBackend, NormPack, NormRule)
+- **Trinity Architecture**: Активно используется в scientist модуле для структурирования экспериментов (ProblemFrame, PolicySpec, ModelSpec)
+- **Enhanced Kernel Registries**: Расширенная система фундаментальных реестров с новыми типами (механизмы, слоты, trust policies, legal norms)
 
 ---
 

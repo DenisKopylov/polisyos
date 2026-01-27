@@ -27,7 +27,8 @@ core/
 │   ├── fabric.py       # Контракты Fabric (6 типов ссылок + модели данных)
 │   ├── foundry.py      # Контракты Foundry (13 типов ссылок + модели исполнения)
 │   ├── scientist.py    # Контракты Scientist (FailureCardRef, PolicyIRRef, CritiqueRef)
-│   └── trinity.py      # Trinity контракты (ProblemFrame, PolicySpec, ModelSpec)
+│   ├── trinity.py      # Trinity контракты (ProblemFrame, PolicySpec, ModelSpec)
+│   └── legal.py        # Legal compliance контракты (NormPack, NormRule, RuleType, RuleBackend)
 ├── registry/           # Сборка и загрузка реестров компонентов
 │   ├── builder.py      # Сборка реестров (build_default_registry_bundle, build_registry_bundle)
 │   └── loader.py       # Загрузка реестров (load_registry_bundle_content, load_registry_bundle_payload)
@@ -194,12 +195,20 @@ core/
 - `PolicyIRRef` - ссылка на PolicySurfaceIR с версией и статусом
 - `CritiqueRef` - ссылка на артефакт оценки критика с вердиктом
 
+#### Legal Contracts (Legal - compliance и валидация)
+- `NormPack` - пакет нормативных правил и ограничений
+- `NormRef` - ссылка на нормативное правило
+- `NormRule` - определение отдельного правила
+- `RuleType` - типы нормативных правил
+- `RuleBackend` - интерфейс для реализации движков валидации
+
 **Функционал**:
 - Типизированные ссылки на артефакты с проверкой kind и media_type
 - Структурированные модели данных для межмодульного обмена
 - Обеспечение контрактов с валидацией через Pydantic
 - Поддержка provenance через ссылки на входные артефакты
 - Интеграция с системой трассировки и метаданных
+- Legal compliance контракты для валидации политик и правил
 
 ### 5. Registry (Реестр)
 
@@ -299,11 +308,19 @@ Core является фундаментом всей системы PolisyOS и
 
 **Обоснование**: Runtime отвечает за развертывание и исполнение политик в production.
 
+#### Scientist/Governance/Legal (Правовая валидация) - Зависит от core
+- **contracts.legal**: Полный набор legal контрактов (NormPack, NormRule, RuleType, RuleBackend)
+- **artifacts**: Хранение нормативных правил как артефактов
+- **trace**: Трассировка всех операций legal валидации
+
+**Обоснование**: Legal модуль использует контракты core для стандартизации интерфейсов валидации политик и обеспечения compliance через pluggable rule backends.
+
 ### Обратные зависимости на Core:
 - **Core как фундамент**: все модули системы зависят от компонентов core
 - **Артефакты**: являются универсальным механизмом хранения для всех результатов
 - **Трассировка**: интегрируется во все контексты выполнения и операции
 - **Контракты**: определяют стандартизированные интерфейсы между всеми модулями
+- **Legal контракты**: обеспечивают compliance валидацию через pluggable rule backends
 - **Каноническая сериализация**: обеспечивает воспроизводимость во всей системе
 - **Реестры**: используются для загрузки компонентов во всех модулях
 

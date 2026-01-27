@@ -15,6 +15,8 @@ from .passes.schema_pass import SchemaPass
 from .passes.safety_pass import SafetyPass
 from .passes.privacy_pass import PrivacyPass
 from .passes.budget_pass import BudgetPass
+from .passes.legal_pass import LegalPass
+from .legal.backends.stub import StubBackend
 
 
 DEFAULT_PIPELINE = ValidationPipeline([
@@ -22,6 +24,7 @@ DEFAULT_PIPELINE = ValidationPipeline([
     SchemaPass(),
     PrivacyPass(),
     SafetyPass(),
+    LegalPass(backend=StubBackend()),
 ])
 
 

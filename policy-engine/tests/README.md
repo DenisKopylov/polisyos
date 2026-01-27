@@ -2,8 +2,8 @@
 
 Тестовая инфраструктура для Policy Engine - AI-driven Policy Simulation System. Тесты обеспечивают качество кода, валидируют архитектурные границы и проверяют корректность работы всех компонентов системы.
 
-**Последнее обновление:** Январь 2026 (добавлены тесты governance layer и validation pipeline)
-**Актуальная версия архитектуры:** v2.1.2 (Trinity Migration, Agent Protocols, Environment Manifest, Enhanced Monitoring)
+**Последнее обновление:** Январь 2026 (добавлены legal pass, norm pack структуры и legal validation backends)
+**Актуальная версия архитектуры:** v2.1.3 (Legal Validation, Norm Pack Contracts, Rule Backend System)
 
 ## Архитектурный контекст
 
@@ -67,11 +67,12 @@ tests/
 │   ├── test_workflow_smoke.py     # Полный smoke-test pipeline (draft → simulate → governor → decision)
 │   └── test_workflow_llm.py       # Интеграция с LLM компонентами и языковыми моделями
 ├── ir/                            # Тесты компонентов IR layer
-│   └── test_loaders.py            # Загрузчики политик из различных форматов
+│   └── test_loaders.py            # Загрузчики политик из различных форматов, norm_pack структуры
 ├── runtime/                       # Тесты runtime компонентов
 │   └── test_runtime_manifest_paths.py # Управление runs, артефакты, пути
 └── scientist/                     # Тесты компонентов scientist
-    ├── governance/                # Тесты governance layer (validation pipeline)
+    ├── governance/                # Тесты governance layer (validation pipeline, legal compliance)
+    │   ├── test_legal_pass.py     # LegalPass, RuleBackend, NormPack validation
     │   └── test_validation_pipeline.py # ValidationPipeline, profiles, compliance issues
     ├── test_agent_protocols.py    # Протоколы агентов: PI, Drafter, Formalizer, Critic
     ├── test_compiler.py           # Компилятор политик из IR
@@ -231,7 +232,7 @@ tests/
 **Цель**: Валидация компонентов ИИ, протоколов агентов, компиляции политик, систем recovery и governance layer.
 
 **Ключевые тесты:**
-- **Governance Layer**: Validation pipeline, compliance checks, pre/post-flight governance
+- **Governance Layer**: Validation pipeline, compliance checks, pre/post-flight governance, legal validation passes
 - **Agent Protocols**: Валидация протоколов PI/Drafter/Formalizer/Critic агентов с runtime поведением
 - **Policy Compiler**: Компиляция IR в исполняемые модели foundry
 - **Agent Pipeline**: Полный pipeline от user request до PolicySurfaceIR через агентов
@@ -313,6 +314,7 @@ pytest tests/scientist/ -v
 
 # Governance layer тесты
 pytest tests/scientist/governance/ -v                 # Validation pipeline
+pytest tests/scientist/governance/test_legal_pass.py -v # Legal validation pass
 
 # Новые компоненты scientist layer
 pytest tests/scientist/test_multi_agent_workflow.py -v  # Multi-agent workflow
@@ -378,7 +380,7 @@ pytest tests/runtime/test_runtime_manifest_paths.py
 - **JAX/Equinox/Optax**: Для тестирования математических компонентов, симуляций, градиентов и оптимизации
 - **pandas/PyArrow**: Работа с тестовыми данными, ETL и columnar storage
 - **DuckDB/Kuzu**: Интеграционные тесты с базами данных, графовыми и реляционными данными
-- **Pydantic v2**: Строгая валидация структур данных и контрактов
+- **Pydantic v2**: Строгая валидация структур данных и контрактов, включая legal norm schemas
 - **pathlib**: Работа с файловой системой в core/runtime тестах
 - **hashlib**: SHA256 хэширование для artifact integrity и content addressing
 - **UDF Engine**: User Defined Functions для сложных запросов к данным с security passes
@@ -394,6 +396,9 @@ pytest tests/runtime/test_runtime_manifest_paths.py
 - **Reflexion Orchestrator**: Автоматический оркестратор retry loops с backoff и decision making
 - **Short-Term Memory**: Persistence состояния агентов между попытками с hint accumulation
 - **Multi-Agent Workflow**: Интегрированная система workflow с critique-based refinement
+- **Legal Validation System**: Pluggable backends для оценки юридических норм с protocol-based architecture
+- **Norm Pack Contracts**: Структурированные представления юридических норм (NormPack, NormRule, NormRef)
+- **Rule Backend System**: Extensible evaluators для разных типов правил (AST, LLM, Stub implementations)
 - **Environment Manifest**: Захват и сравнение вычислительных окружений для reproducibility
 
 ## Принципы тестирования
@@ -513,6 +518,19 @@ pytest tests/runtime/test_runtime_manifest_paths.py
 - **Short-Term Memory**: State persistence между agent attempts с hint accumulation
 - **Reflexion Orchestrator**: Автоматический retry management с escalation logic
 - **Trinity Migration**: Seamless transition между Surface IR и Trinity formats
+
+### Legal Validation System
+**Norm Pack Contracts** → Legal rule definitions and evaluation
+- **IR Layer**: NormPack, NormRule, NormRef структуры для представления юридических норм
+- **Core Contracts**: Стабильные экспорты legal типов через core/contracts/legal.py
+- **Scientist Governance**: LegalPass для валидации политик против юридических норм
+- **Rule Backends**: Pluggable backends (StubBackend, будущие AST/LLM evaluators)
+
+**Legal Compliance Evaluation** → Policy validation against legal frameworks
+- **Governance Layer**: LegalPass с configurable backends и profile-based execution
+- **Rule Types**: Obligation/Prohibition/Permission классификация норм
+- **Jurisdiction Support**: Multi-jurisdiction norm packs с effective dates
+- **Backend System**: Extensible rule evaluation с protocol-based architecture
 
 ### Trinity Architecture Integration
 **ProblemFrame** → Policy context and constraints
@@ -720,6 +738,12 @@ python -c "from polisyos.foundry.plugins.core import PluginRegistry; from polisy
 
 # Проверка agent simulation
 python -c "from polisyos.foundry.agent_sim import MetricsCollector, ExperimentTracker; print('Agent simulation OK')"
+
+# Проверка legal validation system
+python -c "from polisyos.scientist.governance.passes.legal_pass import LegalPass; from polisyos.ir.norm_pack import NormPack; print('Legal validation OK')"
+
+# Проверка norm pack contracts
+python -c "from polisyos.core.contracts.legal import NormPack, NormRule, RuleType; print('Norm pack contracts OK')"
 
 # Проверка Trinity architecture
 python -c "from polisyos.ir.trinity import TrinityBundle; from polisyos.ir.problem_frame import ProblemFrame; print('Trinity architecture OK')"

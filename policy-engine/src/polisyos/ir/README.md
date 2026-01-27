@@ -2,7 +2,7 @@
 
 **IR (Intermediate Representation)** - это промежуточное представление политик и симуляций в системе Policy Engine. Модуль определяет канонические контракты данных, обеспечивая единообразие коммуникации между всеми компонентами системы: от LLM-агентов до JAX-симуляций.
 
-**Обновлено**: документация актуализирована для отражения текущего состояния на 2026-01-26, включая новую архитектуру Trinity (ProblemFrame, PolicySpec, ModelSpec), расширенную систему Kernel реестров и интеграцию с Fact Log.
+**Обновлено**: документация актуализирована для отражения текущего состояния на 2026-01-27, включая новую архитектуру Trinity (ProblemFrame, PolicySpec, ModelSpec), расширенную систему Kernel реестров, интеграцию с Fact Log и новые контракты для нормативных документов (NormPack).
 
 ## Архитектурная роль
 
@@ -80,7 +80,7 @@ PolicySurfaceIR v2.x остается совместимым интерфейс�
 ir/
 ├── __init__.py              # Экспорт основных типов данных и функций
 ├── types.py                  # Перечисления, базовые типы и утилиты
-├── trinity.py                # Trinity артефакты (ProblemFrame, PolicySpec, ModelSpec)
+├── trinity.py                # Trinity артефакты (ProblemFrame, PolicySpec, ModelSpec, TrinityBundle)
 ├── problem_frame.py          # ProblemFrame: определение проблемы и целей
 ├── policy_spec.py            # PolicySpec: спецификация политики и интервенций
 ├── model_spec.py             # ModelSpec: конфигурация модели мира
@@ -92,6 +92,7 @@ ir/
 ├── predicate.py              # Реестры предикатов для запросов данных
 ├── loaders.py                # Универсальная загрузка политик с автораспознаванием версий
 ├── calibration.py            # Контракты калибровки политик относительно данных
+├── norm_pack.py              # Контракты для нормативных документов (NormPack, NormRule, NormRef)
 ├── kernel/                   # Kernel: фундаментальные реестры и типы
 │   ├── __init__.py          # Экспорт всех kernel компонентов
 │   ├── base.py              # KernelModel, паттерны ID, утилиты валидации
@@ -113,6 +114,29 @@ ir/
 ```
 
 ## Trinity артефакты
+
+Система Trinity представляет политику как три независимых артефакта, каждый из которых отвечает за отдельный аспект моделирования. Эта архитектура обеспечивает разделение ответственности и позволяет независимо оптимизировать различные аспекты политики.
+
+### TrinityBundle - контейнер артефактов
+
+**TrinityBundle** объединяет все три артефакта для совместного использования и транспортировки:
+
+```python
+from polisyos.ir.trinity import TrinityBundle, ProblemFrame, PolicySpec, ModelSpec
+
+# Создание полного Trinity Bundle
+bundle = TrinityBundle(
+    problem_frame=problem_frame,
+    policy_spec=policy_spec,
+    model_spec=model_spec,
+    source_schema_version="2.0"  # Исходная версия PolicySurfaceIR
+)
+
+# Сериализация для хранения
+import json
+with open('policy_bundle.json', 'w') as f:
+    json.dump(bundle.model_dump(), f, indent=2, ensure_ascii=False)
+```
 
 ### 1. ProblemFrame (`problem_frame.py`) - "Why" артефакт
 
@@ -166,76 +190,181 @@ problem_frame = ProblemFrame(
 
 **PolicySpec** определяет, какие действия предпринимаются - интервенции, механизмы и их параметры. Этот артефакт изменяется при оптимизации политики.
 
+**Ключевые компоненты:**
+- **InterventionSpec**: Спецификация отдельных интервенций с параметрами, расписанием и целями
+- **MechanismBinding**: Связывание интервенций с механизмами Foundry
+- **implementation_notes**: Технические заметки по реализации
+- **policy_labels**: Метки для категоризации и фильтрации
+
 ```python
-from polisyos.ir.policy_spec import PolicySpec, InterventionSpec, MechanismBinding
+from polisyos.ir.policy_spec import PolicySpec, InterventionSpec, MechanismBinding, ParameterSpec
 from polisyos.ir.surface import ScheduleSpec, SelectorPredicate
+from polisyos.ir.types import TranslatableString
 
 policy_spec = PolicySpec(
     schema_version="1.0",
     interventions=[
         InterventionSpec(
-            intervention_id="basic_income",
-            name=TranslatableString(en="Universal Basic Income"),
+            intervention_id="progressive_tax",
+            name=TranslatableString(en="Progressive Income Tax", ua="Прогресивний податок"),
+            kind="income_tax_mechanism",
             target=SelectorPredicate(
-                field="income",
-                operator="<",
-                value=500
+                field="annual_income",
+                operator=">",
+                value=10000
             ),
             schedule=ScheduleSpec(
                 start_step=0,
-                end_step=120  # 10 years
+                end_step=120,  # 10 лет
+                frequency="annual"
             ),
             params={
-                "amount": 200.0,
-                "frequency": "monthly"
+                "tax_brackets": [
+                    {"min_income": 0, "max_income": 10000, "rate": 0.0},
+                    {"min_income": 10000, "max_income": 50000, "rate": 0.15},
+                    {"min_income": 50000, "rate": 0.25}
+                ],
+                "deductions": ["standard_deduction", "mortgage_interest"]
+            }
+        ),
+        InterventionSpec(
+            intervention_id="corporate_subsidies",
+            name=TranslatableString(en="Green Energy Subsidies"),
+            kind="subsidy_mechanism",
+            target=SelectorPredicate(
+                field="industry",
+                operator="in",
+                value=["renewable_energy", "clean_tech"]
+            ),
+            schedule=ScheduleSpec(
+                start_step=12,  # Начать через год
+                end_step=120,
+                frequency="quarterly"
+            ),
+            params={
+                "subsidy_rate": 0.3,  # 30% от инвестиций
+                "max_subsidy": 1000000,
+                "eligibility_criteria": ["employment_creation", "co2_reduction"]
             }
         )
     ],
     mechanism_bindings=[
         MechanismBinding(
-            binding_id="income_transfer",
-            mechanism_id="transfer_mechanism",
-            intervention_ids=["basic_income"]
+            binding_id="tax_collection",
+            mechanism_id="income_tax_mechanism",
+            intervention_ids=["progressive_tax"]
+        ),
+        MechanismBinding(
+            binding_id="subsidy_program",
+            mechanism_id="subsidy_mechanism",
+            intervention_ids=["corporate_subsidies"]
         )
+    ],
+    implementation_notes=[
+        "Progressive tax requires annual income data aggregation",
+        "Subsidies need quarterly business performance metrics",
+        "Both mechanisms require integration with existing tax system"
+    ],
+    policy_labels=[
+        "fiscal_policy",
+        "green_transition",
+        "income_redistribution"
     ]
 )
 ```
 
 ### 3. ModelSpec (`model_spec.py`) - "How" артефакт
 
-**ModelSpec** определяет, как моделируется мир - агенты, окружение, данные и предположения. Используется для sensitivity analysis с разными конфигурациями.
+**ModelSpec** определяет, как моделируется мир - агенты, окружение, данные и предположения. Этот артефакт используется для sensitivity analysis с разными конфигурациями моделирования.
+
+**Ключевые компоненты:**
+- **data_snapshot_ref**: Ссылка на моментальный снимок данных для симуляции
+- **registry_bundle_ref**: Ссылка на реестры механизмов и единиц
+- **time_semantics**: Конфигурация временных параметров
+- **assumptions**: Явные предположения модели для анализа чувствительности
+- **model_notes**: Технические заметки по моделированию
+- **model_labels**: Метки для категоризации конфигураций
 
 ```python
 from polisyos.ir.model_spec import ModelSpec, AgentTypeConfig, EnvironmentConfig, AssumptionSpec
-from polisyos.ir.types import AssumptionType
+from polisyos.ir.types import AssumptionType, FidelityLevel
+from polisyos.ir.surface import TimeSemantics
 
 model_spec = ModelSpec(
     schema_version="1.0",
-    fidelity_level=FidelityLevel.FULL_DISCRETE,
-    agent_types=[
-        AgentTypeConfig(
-            type_id="household",
-            count=10000,
-            attributes={
-                "income_distribution": "pareto",
-                "consumption_propensity": 0.8
-            }
-        )
-    ],
-    environment=EnvironmentConfig(
-        time_horizon=120,  # months
-        random_seed=42,
-        parameters={
-            "inflation_rate": 0.02,
-            "interest_rate": 0.05
-        }
+    data_snapshot_ref="sha256:abc123def456789...",  # CAS reference to data
+    registry_bundle_ref="sha256:fed789ghi012345...", # CAS reference to registries
+    time_semantics=TimeSemantics(
+        time_unit="month",
+        total_steps=120,
+        step_size=1,
+        start_date="2024-01-01"
     ),
     assumptions=[
         AssumptionSpec(
-            assumption_id="rational_agents",
+            assumption_id="rational_households",
             type=AssumptionType.BEHAVIORAL,
-            description="Agents make rational economic decisions"
+            description="Households optimize utility based on income and consumption"
+        ),
+        AssumptionSpec(
+            assumption_id="perfect_information",
+            type=AssumptionType.INFORMATIONAL,
+            description="All agents have complete information about market conditions"
+        ),
+        AssumptionSpec(
+            assumption_id="sticky_prices",
+            type=AssumptionType.STRUCTURAL,
+            description="Prices adjust slowly to market changes (menu costs)"
         )
+    ],
+    model_notes=[
+        "Uses quarterly GDP data from national statistics office",
+        "Inflation expectations based on historical adaptive model",
+        "Unemployment follows Okun's law with coefficient 2.0"
+    ],
+    model_labels=[
+        "baseline_economy",
+        "rational_expectations",
+        "menu_costs"
+    ]
+)
+
+# Альтернативная конфигурация для sensitivity analysis
+alternative_model = ModelSpec(
+    schema_version="1.0",
+    data_snapshot_ref="sha256:xyz789...",  # Different data snapshot
+    registry_bundle_ref="sha256:fed789ghi012345...",
+    time_semantics=TimeSemantics(
+        time_unit="month",
+        total_steps=120,
+        step_size=1,
+        start_date="2024-01-01"
+    ),
+    assumptions=[
+        AssumptionSpec(
+            assumption_id="bounded_rationality",
+            type=AssumptionType.BEHAVIORAL,
+            description="Households use heuristics and have limited cognitive capacity"
+        ),
+        AssumptionSpec(
+            assumption_id="information_asymmetry",
+            type=AssumptionType.INFORMATIONAL,
+            description="Some agents have better access to information than others"
+        ),
+        AssumptionSpec(
+            assumption_id="flexible_prices",
+            type=AssumptionType.STRUCTURAL,
+            description="Prices adjust instantly to clear markets"
+        )
+    ],
+    model_notes=[
+        "Same economic data but different behavioral assumptions",
+        "Tests robustness of policy recommendations"
+    ],
+    model_labels=[
+        "sensitivity_analysis",
+        "bounded_rationality",
+        "flexible_prices"
     ]
 )
 ```
@@ -742,7 +871,84 @@ calibration = CalibrationConfig(
 )
 ```
 
-### 11. Kernel: фундаментальные реестры (`kernel/`)
+### 11. Контракты нормативных документов (`norm_pack.py`)
+
+#### NormPack - пакеты нормативных документов
+
+Система контрактов для представления нормативных документов и их применения к политикам. NormPack позволяет структурированно описывать юридические нормы, регуляторные требования и правила, которые должны учитываться при оценке политик.
+
+**Ключевые особенности:**
+- Деонтическая классификация норм (обязанности, запреты, разрешения)
+- Ссылки на конкретные положения нормативных документов
+- Связь с backend-механизмами Foundry для реализации норм
+- Условные выражения для применения норм
+
+```python
+from polisyos.ir.norm_pack import NormPack, NormRule, NormRef, RuleType
+
+# Создание пакета норм
+norm_pack = NormPack(
+    pack_id="tax_regulation_2024",
+    jurisdiction="Ukraine",
+    effective_date="2024-01-01",
+    norms=[
+        NormRule(
+            norm_id="income_tax_limit",
+            provision_refs=[
+                NormRef(
+                    provision_id="article_167_1",
+                    source_document="Tax_Code_Ukraine",
+                    version="2024"
+                )
+            ],
+            rule_type=RuleType.OBLIGATION,
+            description="Income tax rate cannot exceed 18% for individuals",
+            backend_refs=["income_tax_mechanism"],
+            condition_expr="income > 50000"  # Условное применение
+        ),
+        NormRule(
+            norm_id="minimum_wage",
+            provision_refs=[
+                NormRef(
+                    provision_id="article_95",
+                    source_document="Labor_Code_Ukraine",
+                    version="2023"
+                )
+            ],
+            rule_type=RuleType.PROHIBITION,
+            description="Employer cannot pay less than minimum wage",
+            backend_refs=["wage_mechanism"],
+            condition_expr="employment_status == 'employed'"
+        )
+    ],
+    metadata={
+        "regulator": "Ministry_of_Finance",
+        "review_date": "2024-12-31"
+    }
+)
+```
+
+#### Компоненты NormPack
+
+**NormRule** - отдельное правило в пакете норм:
+- `norm_id`: Уникальный идентификатор правила
+- `provision_refs`: Ссылки на положения нормативных документов
+- `rule_type`: Деонтическая классификация (обязанность/запрет/разрешение)
+- `description`: Человекочитаемое описание правила
+- `backend_refs`: Ссылки на механизмы Foundry для реализации
+- `condition_expr`: Условное выражение для применения правила
+
+**NormRef** - ссылка на положение нормативного документа:
+- `provision_id`: Идентификатор положения (статья, пункт)
+- `source_document`: Название документа
+- `version`: Версия документа
+
+**RuleType** - деонтическая классификация:
+- `OBLIGATION`: Должен (обязанность)
+- `PROHIBITION`: Не должен (запрет)
+- `PERMISSION`: Может (разрешение)
+
+### 13. Kernel: фундаментальные реестры (`kernel/`)
 
 #### Архитектурная роль Kernel
 
@@ -778,7 +984,7 @@ slot = DEFAULT_SLOT_REGISTRY.slots["agents.income"]
 unit = DEFAULT_UNITS_REGISTRY.units["usd"]
 ```
 
-### 12. Система версий (`migrations/`)
+### 14. Система версий (`migrations/`)
 
 #### Детерминированные миграции
 
@@ -800,10 +1006,39 @@ major, minor = parse_version("2.1")
 is_major = is_major_bump("2.0", "2.1")  # False для minor изменений
 ```
 
+#### Trinity миграция (`trinity_migration.py`)
+
+Специальная система миграции для преобразования PolicySurfaceIR в Trinity артефакты (ProblemFrame, PolicySpec, ModelSpec):
+
+```python
+from polisyos.ir.migrations.trinity_migration import (
+    split_surface_ir, merge_to_surface_ir, split_to_bundle,
+    TrinityBundle, _compute_source_ref
+)
+
+# Разделение PolicySurfaceIR на Trinity артефакты
+surface_policy = PolicySurfaceIR(...)  # Исходная политика v2.x
+
+problem_frame, policy_spec, model_spec = split_surface_ir(surface_policy)
+
+# Или создание полного bundle
+bundle = split_to_bundle(surface_policy)
+
+# Обратное слияние для совместимости
+reconstructed = merge_to_surface_ir(problem_frame, policy_spec, model_spec)
+```
+
+**Логика разделения:**
+- **ProblemFrame**: Цели, ограничения, stakeholders из advisory.entities
+- **PolicySpec**: Интервенции, параметры, расписания
+- **ModelSpec**: Ссылки на данные, реестры, предположения
+
 #### Поддерживаемые версии
 
-- **v2.x**: PolicySurfaceIR (текущая версия, обратная совместимость в рамках 2.x)
-- **v1.x**: Устаревший PolicyIR (конвертация через `load_policy()`)
+- **Trinity 1.0**: ProblemFrame, PolicySpec, ModelSpec (новая архитектура)
+- **PolicySurfaceIR 2.x**: Унаследованный интерфейс с миграцией в Trinity
+- **PolicySurfaceIR 2.0**: Текущая стабильная версия
+- **PolicySurfaceIR 1.x**: Устаревший PolicyIR (конвертация через `load_policy()`)
 - **v0.x**: Устаревшие форматы (требуют ручной миграции)
     "adaptive_agent": MechanismTypeSpec(
         mechanism_id="adaptive_agent",
@@ -1065,19 +1300,25 @@ MAX_ID_LEN = 64             # Длина идентификаторов
 
 ```python
 from polisyos.ir import ProblemFrame, PolicySpec, ModelSpec
+from polisyos.ir.trinity import TrinityBundle
 
 # Создание полного набора Trinity артефактов
-trinity_bundle = {
-    "problem_frame": problem_frame,
-    "policy_spec": policy_spec,
-    "model_spec": model_spec
-}
+bundle = TrinityBundle(
+    problem_frame=problem_frame,
+    policy_spec=policy_spec,
+    model_spec=model_spec,
+    source_schema_version="2.0"
+)
 
 # Сериализация для хранения
 import json
-for artifact_name, artifact in trinity_bundle.items():
-    with open(f"{artifact_name}.json", 'w') as f:
-        json.dump(artifact.model_dump(), f, indent=2, ensure_ascii=False)
+with open('policy_bundle.json', 'w') as f:
+    json.dump(bundle.model_dump(), f, indent=2, ensure_ascii=False)
+
+# Доступ к отдельным артефактам
+pf = bundle.problem_frame
+ps = bundle.policy_spec
+ms = bundle.model_spec
 ```
 
 ### Базовый импорт
@@ -1086,13 +1327,24 @@ for artifact_name, artifact in trinity_bundle.items():
 # Основные типы (рекомендуемый импорт через __init__.py)
 from polisyos.ir import (
     # Trinity артефакты
-    ProblemFrame, PolicySpec, ModelSpec,
+    ProblemFrame, PolicySpec, ModelSpec, TrinityBundle,
+    # Контракты нормативных документов
+    NormPack, NormRule, NormRef, RuleType,
     # Унаследованные интерфейсы
     PolicySurfaceIR, load_policy, CalibrationConfig, CalibrationTarget,
     DataViewRequest, DataViewType, AccessTier, DataFilter
 )
 
 # Полный импорт для доступа ко всем компонентам
+from polisyos.ir.trinity import (
+    TrinityBundle, SharedMetadata,
+    ProblemFrame, PolicySpec, ModelSpec
+)
+
+from polisyos.ir.norm_pack import (
+    NormPack, NormRule, NormRef, RuleType
+)
+
 from polisyos.ir.surface import (
     PolicySurfaceIR, PolicySemantic, PolicyAdvisory,
     InterventionSpec, ObjectiveSpec, ConstraintSpec,
@@ -1114,6 +1366,9 @@ from polisyos.ir.fact_log import Fact, FactBatch, FactProvenance, FactTrust, Fac
 from polisyos.ir.validation import ValidationReport, build_validation_report
 from polisyos.ir.calibration import (
     CalibrationConfig, CalibrationTarget, TargetAlignConfig, TargetLossConfig
+)
+from polisyos.ir.migrations.trinity_migration import (
+    split_surface_ir, merge_to_surface_ir, split_to_bundle
 )
 ```
 

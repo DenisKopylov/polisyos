@@ -39,7 +39,8 @@ scientist/
 ├── compute/         # Спецификации задач и execution backends
 ├── doe/            # Design of Experiments
 ├── governance/     # Preflight/postflight проверки + passes pipeline
-│   ├── passes/     # Модульные проверки (budget, safety, privacy, schema)
+│   ├── legal/      # Legal compliance validation backends
+│   ├── passes/     # Модульные проверки (budget, safety, privacy, schema, legal)
 │   ├── pipeline.py # Orchestrator for validation passes
 │   ├── profiles.py # Validation profiles (fast/mvp/strict)
 │   └── telemetry.py# Validation tracing и metrics
@@ -118,7 +119,24 @@ scientist/
 - **`safety_pass.py`**: Проверка безопасности механизмов и селекторов политики
 - **`privacy_pass.py`**: Контроль приватности данных (PII tiers, access control)
 - **`schema_pass.py`**: Валидация структуры IR и compliance с PolicySurfaceIR schema
+- **`legal_pass.py`**: Проверка соответствия политик юридическим нормам (GDPR, конституционные ограничения)
 - **`base.py`**: Базовые классы `ValidatorPass`, `PassContext`, `ComplianceIssue` для создания кастомных проверок
+
+#### Legal Compliance Layer (`legal/`)
+Система проверки соответствия политик юридическим нормам с поддержкой pluggable backends:
+
+- **`backends/base.py`**: `RuleBackend` протокол для реализации различных движков проверки норм
+- **`backends/stub.py`**: Stub реализация для тестирования, возвращает "not implemented" для всех норм
+- **`README.md`**: Документация по архитектуре legal validation
+
+**Нормативные структуры (IR Layer)**:
+- **`ir/norm_pack.py`**: `NormPack`, `NormRule`, `NormRef` модели для представления юридических норм
+- **`core/contracts/legal.py`**: Стабильные контракты для legal validation subsystem
+
+**Поддержка типов норм**:
+- **Obligation**: Обязательства (должно выполняться)
+- **Prohibition**: Запреты (нельзя нарушать)
+- **Permission**: Разрешения (можно делать при определенных условиях)
 
 ### 🎼 Orchestrator Layer (оркестрация/orchestrator)
 
@@ -254,10 +272,11 @@ Workflow управляется конечным автоматом состоя
 - **Budget Controls**: `ComputeBudget`, `EvidenceBudget`, `LegitimacyBudget`, `ComplexityBudget`
 - **FSM Guards**: Проверки переходов между состояниями и валидация артефактов
 - **Human Gates**: Система `GateRequest`/`GateDecision` для человеческого одобрения
-- **Validation Pipeline**: Модульная система проверок с passes (budget, safety, privacy, schema)
+- **Validation Pipeline**: Модульная система проверок с passes (budget, safety, privacy, schema, legal)
 - **Validation Profiles**: Конфигурируемые профили валидации (fast/mvp/strict)
 - **Preflight/Postflight Checks**: Автоматические проверки безопасности с telemetry
 - **Policy Safety**: Валидация запрещенных механизмов и селекторов
+- **Legal Compliance**: Проверка соответствия политик юридическим нормам (GDPR, конституционные ограничения)
 - **Audit Trail**: Полный лог всех операций для compliance
 
 ### 🔄 Reproducibility & Artifacts
@@ -1113,6 +1132,7 @@ Scientist является верхним уровнем в архитектур
 - **Run Context**: `RunContext` - контекст выполнения экспериментов
 - **Canon**: `from_canonical_bytes` - детерминированная сериализация для reproducible хешей
 - **Contracts**: `ExecPlan`, `ExecPlanRef`, `ProgramGraph`, `ProgramGraphRef` - типизированные ссылки на артефакты Foundry
+- **Legal Contracts**: `NormPack`, `NormRule`, `NormRef`, `RuleType`, `RuleBackend` - стабильные контракты для legal validation
 
 ### 🔗 IR (Intermediate Representation)
 - **Surface IR**: `PolicySurfaceIR` - основной контракт политик (v2.0) с семантикой и advisory
@@ -1121,6 +1141,7 @@ Scientist является верхним уровнем в архитектур
 - **Linker**: `link_policy` - валидация и связывание политик с реестрами
 - **Calibration**: `CalibrationConfig` - контракты калибровки политик
 - **Data Views**: `DataViewRequest`, `DataViewType`, `AccessTier` - запросы данных с PII control
+- **Legal Norms**: `NormPack`, `NormRule`, `NormRef`, `RuleType` - структуры для представления юридических норм
 
 ### 🔗 Fabric (Unified Data Fabric)
 - **IO Layer**: `SimulationDB`, `GraphStore` - доступ к реляционным и графовым данным
@@ -1226,7 +1247,7 @@ tests/scientist/
 ├── test_agent_*.py         # Agent layer (protocols, pi, drafter, formalizer, critic)
 ├── test_kernel_*.py        # Kernel layer (FSM, budgets, guards, human_gate)
 ├── test_compute_*.py       # Compute layer (job_spec, runner)
-├── test_governance_*.py    # Governance layer (preflight, postflight, passes, pipeline)
+├── test_governance_*.py    # Governance layer (preflight, postflight, passes, pipeline, legal)
 ├── test_doe_*.py          # Design of Experiments (designs)
 ├── test_orchestrator_*.py  # Orchestrator layer (workflow, state, flow_nodes)
 ├── test_publisher.py       # Publisher layer
@@ -1261,7 +1282,7 @@ pytest tests/scientist/ -x --tb=short
 - **Agent Layer**: Протоколы агентов, иерархическая система (PI→Drafter→Formalizer→Critic), mock реализации всех ролей
 - **Kernel Layer**: FSM transitions, budget enforcement, guards, human gates
 - **Compute Layer**: Job specifications, execution backends, reproducible hashing
-- **Governance**: Preflight/postflight checks, validation passes, pipeline orchestration, profiles, telemetry
+- **Governance**: Preflight/postflight checks, validation passes (budget, safety, privacy, schema, legal), pipeline orchestration, profiles, telemetry
 - **Orchestrator**: Workflow execution, state management, decision packets
 - **DoE**: Experiment designs, scenario generation, statistical analysis
 - **Integration**: Полный цикл агентов, end-to-end workflow testing
@@ -1357,7 +1378,7 @@ research_budget = {
 
 ### 🚧 Частично реализованные компоненты
 
-- **Governance Layer**: Полная система validation passes с pipeline orchestration, профилями и telemetry. Preflight/postflight с GateRequest/GateDecision интеграцией (готовы для UI integration)
+- **Governance Layer**: Полная система validation passes (включая legal compliance) с pipeline orchestration, профилями и telemetry. Preflight/postflight с GateRequest/GateDecision интеграцией (готовы для UI integration)
 - **DoE Layer**: Базовые модели ScenarioSweep, AblationPlan, SensitivityPlan без полной интеграции в workflow (готовы для расширения)
 - **Optimization**: Градиентная оптимизация через Optax с gradient health monitoring и uncertainty quantification (нужна интеграция с multi-objective optimization)
 

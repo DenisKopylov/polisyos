@@ -2,9 +2,9 @@
 
 Валидация компонентов scientist layer - протоколов агентов, компилятора политик и ИИ-компонентов.
 
-**Последнее обновление:** Январь 2026 (добавлены тесты governance layer и validation pipeline)
+**Последнее обновление:** Январь 2026 (добавлены legal pass тесты и norm pack validation)
 **Уровень:** Scientist Layer (AI & Compilation)
-**Зависимости:** JAX, Core artifacts, IR structures
+**Зависимости:** JAX, Core artifacts, IR structures, Legal contracts
 
 ## Архитектурный контекст
 
@@ -14,7 +14,8 @@ Scientist layer обеспечивает компиляцию политик и�
 
 ```
 scientist/
-├── governance/                # Тесты governance layer
+├── governance/                # Тесты governance layer (validation pipeline, legal compliance)
+│   ├── test_legal_pass.py     # LegalPass, RuleBackend, NormPack validation
 │   └── test_validation_pipeline.py # ValidationPipeline, profiles, compliance issues
 ├── test_agent_protocols.py    # Протоколы агентов: PI, Drafter, Formalizer, Critic
 ├── test_compiler.py           # Компилятор политик из IR
@@ -40,6 +41,22 @@ scientist/
 - **Issue Classification**: Blocker/warning/error severity levels с remediation guidance
 - **Profile Configuration**: Fast (basic), mvp (balanced), strict (comprehensive) profiles
 - **Context Management**: PassContext предоставляет shared state между passes
+
+### Legal Pass (`governance/test_legal_pass.py`)
+
+**Цель:** Валидация legal validation pass, rule backends, norm pack структур и compliance evaluation.
+
+**Ключевые тесты:**
+- **Legal Pass Execution**: Profile-based execution (FAST/MVP/STRICT), backend delegation, force enable
+- **Rule Backend Protocol**: StubBackend implementation, protocol conformance, runtime type checking
+- **Norm Pack Validation**: Schema validation, JSON/dict roundtrip, rule structure integrity
+- **Backend Injection**: Custom backend injection, mock testing, evaluation delegation
+
+**Принципы:**
+- **Profile-Based Execution**: LegalPass runs only in STRICT profile by default (configurable)
+- **Backend Abstraction**: Pluggable rule evaluation через RuleBackend protocol
+- **Norm Pack Contracts**: Structured legal norms с jurisdiction, effective dates, rule types
+- **Compliance Issues**: Structured feedback с severity levels и remediation guidance
 
 ### Agent Protocols (`test_agent_protocols.py`)
 
@@ -115,6 +132,7 @@ pytest tests/scientist/ -v
 # Governance layer тесты
 pytest tests/scientist/governance/ -v
 pytest tests/scientist/governance/test_validation_pipeline.py -v
+pytest tests/scientist/governance/test_legal_pass.py -v
 
 # Конкретные компоненты
 pytest tests/scientist/test_agent_protocols.py -v
@@ -143,10 +161,12 @@ pytest tests/scientist/test_reflexion_loop.py::TestFailureCardConverters -v
 - **Validation Pipeline**: Pre/post-flight checks для safety и compliance
 - **Compliance Issues**: Structured feedback для policy refinement
 - **Validation Profiles**: Configurable validation levels (fast/mvp/strict)
+- **Legal Validation**: LegalPass с rule backend evaluation и norm pack validation
 
 **IR Layer** (`ir/`):
 - **Policy Surface**: Surface IR как input для compilation
 - **Semantic Models**: Policy semantics для compilation
+- **Norm Pack**: Legal norm structures (NormPack, NormRule, NormRef) для legal validation
 
 **Foundry Layer** (`foundry/`):
 - **Execution Engine**: Running скомпилированных программ
@@ -155,6 +175,7 @@ pytest tests/scientist/test_reflexion_loop.py::TestFailureCardConverters -v
 **Core Layer** (`core/`):
 - **Registry Bundles**: Centralized registries для compilation
 - **Artifact Storage**: Persistence compiled programs
+- **Legal Contracts**: Stable exports legal типов через core/contracts/legal.py
 
 ### Потребители Scientist Layer
 
@@ -168,6 +189,7 @@ pytest tests/scientist/test_reflexion_loop.py::TestFailureCardConverters -v
 
 - **Закон B**: Компиляторная труба (NL → LLM → IR → Compilation → Runtime)
 - **Закон C**: Governance gates (pre-flight validation перед execution, post-flight review)
+- **Закон L**: Legal compliance (policies валидируются против applicable legal norms)
 - **Registry Consistency**: Compilation использует consistent registry bundles
 - **Execution Correctness**: Compiled programs preserve policy semantics
 - **State Safety**: Safe state transformations через execution
@@ -189,7 +211,8 @@ pytest tests/scientist/test_reflexion_loop.py::TestFailureCardConverters -v
 6. Для reflexion loop: тестируйте failure scenarios, recovery paths, escalation logic
 7. Для multi-agent workflow: проверяйте state persistence, critique integration, memory management
 8. Для failure cards: валидируйте schema compliance, converter accuracy, severity classification
-9. Используйте fixtures для shared state (base_state, recoverable_failure_card, fatal_failure_card)
+9. Для legal pass: тестируйте profile-based execution, backend delegation, norm pack validation
+10. Используйте fixtures для shared state (base_state, recoverable_failure_card, fatal_failure_card, sample_norm_pack)
 
 ### Структура scientist теста
 
@@ -269,11 +292,89 @@ def test_compliance_issue_schema():
     assert issue.issue_id == "test_issue"
     assert issue.severity == IssueSeverity.WARNING
     assert issue.category == "safety"
+
+def test_legal_pass_with_custom_backend(sample_norm_pack: NormPack) -> None:
+    """Тестирование LegalPass с custom backend."""
+    from polisyos.scientist.governance.passes.legal_pass import LegalPass
+    from polisyos.scientist.governance.passes.base import ComplianceIssue, IssueSeverity
+    from polisyos.scientist.governance.profiles import ValidationProfile
+    from unittest.mock import MagicMock
+
+    # Setup: create mock backend
+    mock_backend = MagicMock()
+    mock_backend.evaluate.return_value = [
+        ComplianceIssue(
+            pass_id="legal",
+            path=["test"],
+            message="Legal violation detected",
+            severity=IssueSeverity.ERROR,
+            code="LEGAL_001"
+        )
+    ]
+
+    legal_pass = LegalPass(backend=mock_backend, enabled=True)
+
+    # Create context
+    ctx = PassContext(
+        ir=None,
+        state={"norm_pack": sample_norm_pack},
+        profile=ValidationProfile.strict(),
+        run_id="test-legal-001"
+    )
+
+    # Execute: run legal validation
+    issues = legal_pass.validate(ctx)
+
+    # Verify: backend was called and returned expected issues
+    mock_backend.evaluate.assert_called_once()
+    assert len(issues) == 1
+    assert issues[0].code == "LEGAL_001"
+    assert issues[0].severity == IssueSeverity.ERROR
+
+def test_norm_pack_rule_types(sample_norm_pack: NormPack) -> None:
+    """Тестирование различных типов правил в NormPack."""
+    from polisyos.ir.norm_pack import RuleType
+
+    # Verify: norm pack contains different rule types
+    obligations = [r for r in sample_norm_pack.norms if r.rule_type == RuleType.OBLIGATION]
+    prohibitions = [r for r in sample_norm_pack.norms if r.rule_type == RuleType.PROHIBITION]
+
+    assert len(obligations) > 0, "Should have obligation rules"
+    assert len(prohibitions) > 0, "Should have prohibition rules"
+
+    # Verify: obligations have proper structure
+    for obligation in obligations:
+        assert obligation.norm_id.startswith("GDPR-")
+        assert len(obligation.backend_refs) > 0
 ```
 
 ## Troubleshooting
 
 ### Распространенные проблемы
+
+**Legal pass profile issues:**
+```bash
+# LegalPass runs only in STRICT profile by default
+pytest tests/scientist/governance/test_legal_pass.py::test_legal_pass_skips_in_fast_profile -v
+# Use enabled=True to force execution in other profiles
+pytest tests/scientist/governance/test_legal_pass.py::test_legal_pass_force_enabled_runs_in_fast -v
+```
+
+**Norm pack validation failures:**
+```bash
+# Проверьте schema compliance
+pytest tests/scientist/governance/test_legal_pass.py::test_norm_pack_json_roundtrip -v
+# Проверьте rule structure
+pytest tests/scientist/governance/test_legal_pass.py::test_norm_pack_rule_types -v
+```
+
+**Backend protocol issues:**
+```bash
+# Проверьте backend implementation
+pytest tests/scientist/governance/test_legal_pass.py::test_stub_backend_returns_info_issues -v
+# Проверьте protocol conformance
+pytest tests/scientist/governance/test_legal_pass.py::test_stub_backend_is_runtime_checkable -v
+```
 
 **Compilation failures:**
 ```bash
@@ -325,6 +426,7 @@ pytest tests/scientist/test_multi_agent_workflow.py::TestShortTermMemory::test_s
 - **JAX**: Execution compiled programs
 - **Core Artifacts**: Registry bundles и artifact storage
 - **IR Structures**: Policy surface для compilation
+- **Legal Contracts**: Norm pack structures и rule evaluation contracts
 
 ### Compilation Infrastructure
 - **Policy Compiler**: IR → executable transformation
@@ -350,3 +452,11 @@ pytest tests/scientist/test_multi_agent_workflow.py::TestShortTermMemory::test_s
 - **Validation Profiles**: Fast/mvp/strict конфигурации для разных validation levels
 - **Pass Context**: Shared state между validation passes
 - **Custom Passes**: Extensible system для domain-specific validation
+- **Legal Pass**: Profile-based legal validation с pluggable rule backends
+
+### Legal Components
+- **Norm Pack Structures**: NormPack, NormRule, NormRef для представления юридических норм
+- **Rule Backend System**: Protocol-based architecture для pluggable rule evaluators
+- **Stub Backend**: Reference implementation возвращающая INFO issues для всех норм
+- **Rule Types**: Deontic classification (Obligation/Prohibition/Permission) для норм
+- **Jurisdiction Support**: Multi-jurisdiction norm packs с effective dates и provision references

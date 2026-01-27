@@ -12,6 +12,7 @@ contracts/
 ├── compiler.py     # Контракты компилятора
 ├── fabric.py       # Контракты Fabric (обработка данных)
 ├── foundry.py      # Контракты Foundry (симуляция)
+├── legal.py        # Legal compliance контракты
 ├── scientist.py    # Контракты Scientist (эксперименты и агенты)
 └── trinity.py      # Trinity контракты (базовые спецификации)
 ```
@@ -574,6 +575,98 @@ model_ref = ModelSpecRef(
 )
 ```
 
+## Legal Contracts (Контракты Legal)
+
+Legal контракты определяют интерфейсы для compliance валидации политик и интеграции с pluggable rule backends. Эти контракты обеспечивают стандартизацию legal validation в системе PolisyOS.
+
+### NormPack
+
+Пакет нормативных правил и ограничений для валидации политик.
+
+```python
+from polisyos.ir.norm_pack import NormPack
+
+# Создание пакета норм
+norm_pack = NormPack(
+    schema_version="1.0",
+    norms=[
+        NormRule(
+            rule_id="budget_deficit_limit",
+            rule_type=RuleType.CONSTRAINT,
+            description="Бюджетный дефицит не должен превышать 5%",
+            expression="budget_deficit <= 0.05"
+        )
+    ]
+)
+```
+
+### NormRef
+
+Ссылка на нормативное правило в системе артефактов.
+
+```python
+from polisyos.ir.norm_pack import NormRef
+
+norm_ref = NormRef(
+    rule_id="budget_deficit_limit",
+    version="1.0"
+)
+```
+
+### NormRule
+
+Определение отдельного нормативного правила с логикой валидации.
+
+```python
+from polisyos.ir.norm_pack import NormRule, RuleType
+
+rule = NormRule(
+    rule_id="privacy_data_retention",
+    rule_type=RuleType.PRIVACY,
+    description="Персональные данные должны храниться не более 7 лет",
+    expression="data_retention_days <= 2555",  # 7 * 365
+    severity="high"
+)
+```
+
+### RuleType
+
+Типы нормативных правил для категоризации.
+
+```python
+from polisyos.ir.norm_pack import RuleType
+
+# Доступные типы правил
+types = [
+    RuleType.CONSTRAINT,    # Ограничения на параметры политики
+    RuleType.PRIVACY,       # Правила приватности данных
+    RuleType.ETHICS,        # Этические ограничения
+    RuleType.LEGAL,         # Правовые требования
+    RuleType.SAFETY         # Правила безопасности
+]
+```
+
+### RuleBackend
+
+Интерфейс для реализации движков валидации правил.
+
+```python
+from polisyos.scientist.governance.legal.backends.base import RuleBackend
+
+class CustomRuleBackend(RuleBackend):
+    """Кастомный backend для валидации правил."""
+
+    def validate_rule(self, rule: NormRule, context: dict) -> ValidationResult:
+        """Валидация отдельного правила."""
+        # Реализация логики валидации
+        pass
+
+    def validate_pack(self, norm_pack: NormPack, context: dict) -> list[ValidationResult]:
+        """Валидация пакета норм."""
+        # Реализация логики валидации пакета
+        pass
+```
+
 ### TrinityBundle
 
 Пакет содержащий ссылки на все три Trinity артефакта с информацией о совместимости.
@@ -871,6 +964,103 @@ def scientist_experiment_workflow(
     )
 
     return policy_ref
+```
+
+### Работа с Legal контрактами
+
+```python
+from polisyos.core.contracts.legal import NormPack, NormRule, RuleType, RuleBackend
+from polisyos.scientist.governance.legal.backends.base import ValidationResult
+
+# Создание пакета норм для валидации политики
+def create_policy_validation_pack() -> NormPack:
+    """Создание пакета норм для валидации экономической политики."""
+
+    return NormPack(
+        schema_version="1.0",
+        norms=[
+            NormRule(
+                rule_id="budget_balance",
+                rule_type=RuleType.CONSTRAINT,
+                description="Бюджетный баланс должен быть положительным",
+                expression="budget_balance >= 0",
+                severity="critical"
+            ),
+            NormRule(
+                rule_id="inflation_control",
+                rule_type=RuleType.ECONOMIC,
+                description="Инфляция не должна превышать 5%",
+                expression="inflation_rate <= 0.05",
+                severity="high"
+            ),
+            NormRule(
+                rule_id="privacy_retention",
+                rule_type=RuleType.PRIVACY,
+                description="Данные о доходах хранятся не более 7 лет",
+                expression="income_data_retention_years <= 7",
+                severity="medium"
+            )
+        ]
+    )
+
+# Использование RuleBackend для валидации
+class EconomicRuleBackend(RuleBackend):
+    """Backend для экономических правил валидации."""
+
+    def validate_rule(self, rule: NormRule, context: dict) -> ValidationResult:
+        """Валидация экономического правила."""
+
+        try:
+            # Простая интерпретация выражений (в реальности использовать безопасный eval)
+            result = self._evaluate_expression(rule.expression, context)
+
+            return ValidationResult(
+                rule_id=rule.rule_id,
+                passed=result,
+                message=f"Rule {rule.rule_id}: {'passed' if result else 'failed'}",
+                details={"expression": rule.expression, "context": context}
+            )
+        except Exception as e:
+            return ValidationResult(
+                rule_id=rule.rule_id,
+                passed=False,
+                message=f"Validation error: {str(e)}",
+                details={"error": str(e)}
+            )
+
+    def _evaluate_expression(self, expression: str, context: dict) -> bool:
+        """Безопасная оценка выражения (упрощенная версия)."""
+        # В реальности использовать restricted eval или AST
+        return True  # Placeholder
+
+# Интеграция с governance
+def validate_policy_with_legal_rules(
+    policy_results: dict,
+    norm_pack: NormPack,
+    backend: RuleBackend
+) -> dict:
+    """Валидация результатов политики с использованием legal контрактов."""
+
+    validation_results = []
+
+    for norm in norm_pack.norms:
+        result = backend.validate_rule(norm, policy_results)
+        validation_results.append(result)
+
+    # Анализ результатов
+    passed = sum(1 for r in validation_results if r.passed)
+    total = len(validation_results)
+
+    return {
+        "validation_results": validation_results,
+        "passed_rules": passed,
+        "total_rules": total,
+        "compliance_rate": passed / total if total > 0 else 0,
+        "critical_failures": [
+            r for r in validation_results
+            if not r.passed and norm_pack.get_rule(r.rule_id).severity == "critical"
+        ]
+    }
 ```
 
 ## Производительность

@@ -18,13 +18,21 @@ governance/
 ├── pipeline.py          # Orchestrator for validation passes с short-circuit логикой
 ├── profiles.py          # ValidationProfile presets (fast/mvp/strict)
 ├── telemetry.py         # ValidationTrace/PassSpan для мониторинга производительности
+├── legal/               # Legal compliance validation backends
+│   ├── __init__.py
+│   ├── README.md        # Documentation for legal validation
+│   └── backends/        # Pluggable rule evaluation backends
+│       ├── __init__.py
+│       ├── base.py      # RuleBackend protocol contract
+│       └── stub.py      # Stub implementation for testing
 └── passes/
     ├── __init__.py
     ├── base.py          # ValidatorPass, PassContext, ComplianceIssue базовые классы
     ├── budget_pass.py   # Контроль бюджетов (compute, evidence, legitimacy, complexity)
     ├── privacy_pass.py  # Контроль приватности (PII tiers, access control)
     ├── safety_pass.py   # Проверка безопасности механизмов и селекторов
-    └── schema_pass.py   # Валидация структуры IR и PolicySurfaceIR compliance
+    ├── schema_pass.py   # Валидация структуры IR и PolicySurfaceIR compliance
+    └── legal_pass.py    # Legal compliance validation against norms
 ```
 
 ## Компоненты
@@ -104,6 +112,57 @@ def postflight_checks(
 
 #### Кастомные профили:
 Возможно создание custom профилей с специфическими passes и thresholds для особых требований.
+
+### ⚖️ Legal Pass (legal_pass.py)
+
+Проверка соответствия политик юридическим нормам с поддержкой pluggable backends:
+
+#### LegalPass
+```python
+class LegalPass(ValidatorPass):
+    """
+    Validates policy against legal norms.
+
+    Default behavior: Only runs in STRICT profile.
+    Can be force-enabled via constructor for testing.
+
+    Delegates actual rule evaluation to injected RuleBackend.
+    """
+```
+
+**Ключевые особенности:**
+- **Profile-aware**: Запускается только в `STRICT` профиле по умолчанию
+- **Force-enable**: Можно принудительно включить через конструктор
+- **Backend delegation**: Делегирует проверку норм инжектированному `RuleBackend`
+- **NormPack integration**: Работает с `NormPack` структурами из IR layer
+
+#### Legal Validation Backends (legal/backends/)
+
+Модульная система backends для оценки юридических норм:
+
+##### RuleBackend Protocol (base.py)
+```python
+@runtime_checkable
+class RuleBackend(Protocol):
+    @property
+    def backend_id(self) -> str: ...
+
+    def evaluate(
+        self,
+        norm_pack: "NormPack",
+        context: dict,
+    ) -> List[ComplianceIssue]: ...
+```
+
+##### StubBackend (stub.py)
+Базовая реализация для тестирования:
+- Возвращает INFO-level "not implemented" issues для всех норм
+- Позволяет тестировать LegalPass интеграцию без rule engine
+- Указывает на будущие реализации (AST, LLM backends)
+
+##### Будущие backends:
+- **AST Backend**: Безопасная AST интерпретация condition expressions
+- **LLM Backend**: Claude-based evaluation для комплексных текстовых норм
 
 ## Архитектура Governance
 
@@ -280,6 +339,61 @@ result = pipeline.run(state)
 print(f"Profile: {result.profile_name}")
 print(f"Duration: {result.total_duration}s")
 print(f"Passed: {len(result.passed_passes)}/{len(result.total_passes)}")
+```
+
+### Работа с Legal Pass
+
+```python
+from polisyos.scientist.governance.passes.legal_pass import LegalPass
+from polisyos.scientist.governance.legal.backends.stub import StubBackend
+from polisyos.ir.norm_pack import NormPack, NormRule, NormRef, RuleType
+
+# Создание LegalPass с кастомным backend
+legal_pass = LegalPass(backend=StubBackend())
+
+# Или принудительное включение для тестирования
+legal_pass_force = LegalPass(backend=StubBackend(), enabled=True)
+
+# Создание NormPack для тестирования
+norm_pack = NormPack(
+    pack_id="gdpr_test_pack",
+    jurisdiction="EU",
+    effective_date="2024-01-01",
+    norms=[
+        NormRule(
+            norm_id="GDPR-5-1-a",
+            provision_refs=[
+                NormRef(
+                    provision_id="Art.5.1.a",
+                    source_document="EU/GDPR/2016"
+                )
+            ],
+            rule_type=RuleType.OBLIGATION,
+            description="Data must be processed lawfully",
+            backend_refs=["ast", "llm"]
+        )
+    ]
+)
+
+# Использование в state
+state_with_norms = {
+    "run_id": "test_legal",
+    "norm_pack": norm_pack,
+    "policy_ir": valid_policy_ir
+}
+
+# LegalPass автоматически найдет norm_pack в state
+issues = legal_pass.validate(PassContext(
+    ir=valid_policy_ir,
+    state=state_with_norms,
+    profile=get_profile("strict"),  # Legal pass работает только в strict
+    run_id="test_legal"
+))
+
+# StubBackend вернет INFO issues для каждой нормы
+print(f"Legal validation issues: {len(issues)}")
+for issue in issues:
+    print(f"- {issue.code}: {issue.message}")
 ```
 
 ### Кастомные проверки
@@ -468,6 +582,7 @@ pytest tests/scientist/test_governance_postflight.py -v
 # Validation pipeline и passes
 pytest tests/scientist/test_governance_pipeline.py -v
 pytest tests/scientist/test_governance_passes.py -v
+pytest tests/scientist/test_governance_legal_pass.py -v  # Legal compliance validation
 
 # Profiles и telemetry
 pytest tests/scientist/test_governance_profiles.py -v
@@ -521,6 +636,40 @@ def test_validation_pipeline_integration():
     # Проверка telemetry
     trace = result.validation_trace
     assert len(trace.pass_spans) == len(result.total_passes)
+
+def test_legal_pass_integration():
+    """Тестирование LegalPass интеграции с pipeline."""
+    from polisyos.scientist.governance.passes.legal_pass import LegalPass
+    from polisyos.ir.norm_pack import NormPack, NormRule, RuleType
+
+    # Создание test norm pack
+    norm_pack = NormPack(
+        pack_id="test_legal",
+        jurisdiction="TEST",
+        norms=[
+            NormRule(
+                norm_id="TEST-1",
+                rule_type=RuleType.OBLIGATION,
+                description="Test legal requirement"
+            )
+        ]
+    )
+
+    state = {
+        "run_id": "test_legal_integration",
+        "norm_pack": norm_pack
+    }
+
+    # Тестирование в strict профиле
+    profile = get_profile("strict")
+    pipeline = ValidationPipeline(profile=profile)
+    result = pipeline.run(state)
+
+    # Legal pass должен выполниться и вернуть issues от StubBackend
+    legal_issues = [span for span in result.validation_trace.pass_spans
+                   if span.pass_id == "legal"]
+    assert len(legal_issues) == 1
+    assert legal_issues[0].issues_count == 1  # Один issue от StubBackend
 
 def test_full_governance_workflow():
     """Тестирование полного governance workflow с pipeline."""

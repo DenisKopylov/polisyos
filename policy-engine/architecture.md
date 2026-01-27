@@ -1,6 +1,6 @@
 # Complete Policy Engine Architecture
 
-> **Last updated:** January 26, 2026 (added governance validation pipeline system)
+> **Last updated:** January 27, 2026 (added legal validation system and norm pack contracts)
 >
 > This document contains the complete architecture of the Policy Engine project with detailed descriptions of all files in the `src/`, `tests/`, and `tools/` directories.
 
@@ -78,6 +78,7 @@ policy-engine/
 │   │   │   ├── foundry.py            # Foundry contracts (13 reference types + execution models)
 │   │   │   ├── scientist.py          # Scientist contracts (FailureCardRef, PolicyIRRef, CritiqueRef)
 │   │   │   ├── trinity.py            # Trinity contracts (ProblemFrame, PolicySpec, ModelSpec, TrinityBundle)
+│   │   │   ├── legal.py              # Legal compliance contracts (NormPack, NormRule, RuleBackend)
 │   │   │   └── README.md             # Inter-module contracts documentation
 │   │   ├── README.md                 # Core module architecture and responsibilities
 │   │   ├── registry/                 # Component registry building and loading system
@@ -250,6 +251,7 @@ policy-engine/
 │   │   ├── model_spec.py             # ModelSpec implementation with data snapshots and time semantics
 │   │   ├── policy_spec.py            # PolicySpec implementation with interventions and parameters
 │   │   ├── problem_frame.py          # ProblemFrame implementation with KPIs and success criteria
+│   │   ├── norm_pack.py              # Normative packages for legal compliance validation (NormPack, NormRule, NormRef)
 │   │   ├── types.py                  # IR-specific type definitions and annotations
 │   │   ├── units.py                  # Unit conversion and measurement utilities
 │   │   └── validation.py             # IR structure validation and error reporting
@@ -289,6 +291,7 @@ policy-engine/
 │       │   │   ├── __init__.py       # Exports validation passes API
 │       │   │   ├── base.py           # Base classes for validation passes and compliance issues
 │       │   │   ├── budget_pass.py    # Budget constraint validation (compute, evidence, complexity)
+│       │   │   ├── legal_pass.py     # Legal norm compliance validation with pluggable backends
 │       │   │   ├── privacy_pass.py   # Privacy and data protection validation
 │       │   │   ├── safety_pass.py    # Policy safety and mechanism validation
 │       │   │   └── schema_pass.py    # Policy schema validation and structure checks
@@ -297,6 +300,13 @@ policy-engine/
 │       │   ├── preflight.py          # Pre-execution safety checks and validation
 │       │   ├── profiles.py           # Validation profiles (fast/mvp/strict) with configurable passes
 │       │   ├── telemetry.py          # Validation tracing and performance monitoring
+│       │   ├── legal/                # Legal validation backends for norm evaluation
+│       │   │   ├── __init__.py       # Exports legal backends API
+│       │   │   ├── backends/         # Pluggable rule evaluation backends
+│       │   │   │   ├── __init__.py   # Exports backends API
+│       │   │   │   ├── base.py       # RuleBackend protocol and evaluation contracts
+│       │   │   │   └── stub.py       # StubBackend implementation for Phase 10 reference
+│       │   │   └── README.md         # Legal validation backend documentation and architecture
 │       │   └── README.md             # Governance system documentation and policies
 │       ├── kernel/                   # Core orchestration (FSM, budgets, guards, human gates)
 │       │   ├── __init__.py           # Exports kernel API
@@ -387,6 +397,7 @@ policy-engine/
 │   │   └── test_runtime_manifest_paths.py # Runtime manifests with portable path resolution
 │   └── scientist/                    # AI components and orchestration testing
 │       ├── governance/               # Governance layer testing
+│       │   ├── test_legal_pass.py    # Legal validation pass testing and backend integration
 │       │   └── test_validation_pipeline.py # Validation pipeline orchestration and compliance testing
 │       ├── README.md                 # Scientist testing documentation and AI validation
 │       ├── test_agent_protocols.py   # Agent communication protocols and interface validation

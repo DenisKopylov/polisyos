@@ -2,7 +2,7 @@
 
 ## Обзор
 
-Папка `data/` представляет собой **Unified Data Fabric** (UDF) - унифицированную систему управления данными Policy Engine. Это сердце системы симуляции политик, обеспечивающее безопасный, структурированный и воспроизводимый доступ к данным.
+Папка `data/` представляет собой **Unified Data Fabric** (UDF) - унифицированную систему управления данными Policy Engine. Это сердце системы симуляции политик, обеспечивающее безопасный, структурированный и воспроизводимый доступ к данным. Архитектура поддерживает полный жизненный цикл данных от сырых исходников до готовых аналитических датасетов.
 
 ## Архитектура данных
 
@@ -13,68 +13,81 @@ Raw → Staging → Curated
 ```
 
 #### `raw/`: Исходные данные
-- **Назначение**: Неизменяемые исходные данные
-- **Формат**: CSV файлы
-- **Содержимое**:
-  - `agents.csv` - характеристики агентов (экономические субъекты)
-  - `macro.csv` - макроэкономические показатели
-  - `interactions.csv` - взаимодействия между агентами
+- **Назначение**: Неизменяемые исходные данные из внешних источников
+- **Формат**: CSV файлы, JSON, другие форматы
+- **Текущее состояние**: Пустая директория (`.gitkeep`)
+- **Назначение**: Хранилище для загрузки внешних данных перед обработкой
 
 #### `staging/`: Промежуточная обработка
-- **Назначение**: Нормализованные данные после первичной валидации
-- **Формат**: Parquet (эффективное columnar-хранилище)
-- **Процессы**: Валидация схем, очистка данных, нормализация типов
+- **Назначение**: Нормализованные данные после первичной валидации и очистки
+- **Формат**: Apache Parquet (эффективное columnar-хранилище)
+- **Текущие датасеты**:
+  - `agents.parquet` - характеристики агентов (экономические субъекты)
+  - `macro.parquet` - макроэкономические показатели по шагам симуляции
+  - `interactions.parquet` - взаимодействия между агентами
+- **Процессы**: Валидация схем, очистка данных, нормализация типов, базовая трансформация
 
-#### `curated/`: Финальные данные
-- **Назначение**: Готовые к использованию данные с полной метаданными
-- **Формат**: Parquet + JSON манифесты
-- **Особенности**: Entity resolution, reconciliation, quality metrics
+#### `curated/`: Финальные аналитические данные
+- **Назначение**: Готовые к использованию данные с полной метаданными и качественными метриками
+- **Формат**: Parquet + JSON манифесты + контракты данных
+- **Текущие компоненты**:
+  - Dataset манифесты (`*_manifest.json`) - метаданные качества и происхождения
+  - Data contracts (`data_contracts.json`) - семантические контракты метрик
+  - UDF схема (`udf_schema.json`) - конфигурация безопасного доступа к данным
+  - Entity resolution манифест (`entity_resolution_manifest.json`)
+- **Особенности**: Entity resolution, reconciliation, quality metrics, provenance tracking
+
+#### `norms/`: Правовые нормы и правила
+- **Назначение**: Хранилище нормативных правил для compliance-проверок политик
+- **Формат**: YAML файлы с декларативными правилами
+- **Текущие файлы**:
+  - `sample_norms.yaml` - примеры норм из различных юрисдикций (EU Maastricht Treaty, US Budget Control Act, Ukrainian Budget Code, etc.)
+- **Связь с системой**: Интегрируется с `scientist.governance.legal` модулем для валидации политик
+- **Поддерживаемые бэкенды**: `expr_ast` (выражения), `llm` (LLM-интерпретация), `stub` (заглушка)
 
 ## Основные сущности данных
 
 ### Agents (Агенты)
-```csv
-agent_id,agent_type,age,income,savings,is_employed
-agent_1,agent,30,900.0,10.0,True
-agent_2,agent,40,1100.0,50.0,True
-```
-
-**Поля**:
-- `agent_id`: Уникальный идентификатор агента
-- `agent_type`: Тип агента (agent, firm, government)
-- `age`: Возраст
-- `income`: Доход
-- `savings`: Сбережения
-- `is_employed`: Статус занятости
-
-### Macro (Макроэкономические показатели)
-```csv
-run_id,step,gdp,unemployment_rate,inflation_rate,avg_price,avg_income,government_balance
-demo_run,0,1000.0,0.05,1.0,1.2,900.0,0.0
-```
+Экономические субъекты в симуляции с поведенческими характеристиками.
 
 **Поля**:
 - `run_id`: Идентификатор прогона симуляции
 - `step`: Шаг симуляции
-- `gdp`: ВВП
-- `unemployment_rate`: Уровень безработицы
-- `inflation_rate`: Уровень инфляции
-- `avg_price`: Средняя цена
-- `avg_income`: Средний доход
-- `government_balance`: Баланс бюджета
+- `agent_id`: Уникальный идентификатор агента
+- `age`: Возраст агента
+- `income`: Текущий доход
+- `savings`: Накопления
+- `is_employed`: Статус занятости (boolean)
 
-### Interactions (Взаимодействия)
-```csv
-from_id,to_id,step,amount,type
-agent_1,agent_2,0,100.0,paid_tax
-```
+**PII уровень**: Высокий (agent_id - sensitive)
+
+### Macro History (Макроэкономические показатели)
+Временные ряды макроэкономических индикаторов по шагам симуляции.
 
 **Поля**:
-- `from_id`: Отправитель
-- `to_id`: Получатель
+- `run_id`: Идентификатор прогона симуляции
 - `step`: Шаг симуляции
-- `amount`: Сумма
-- `type`: Тип взаимодействия (paid_tax, transfer, etc.)
+- `gdp`: ВВП (номинальный)
+- `unemployment_rate`: Уровень безработицы (доля)
+- `inflation_rate`: Уровень инфляции (процент)
+- `avg_price`: Средняя цена товаров
+- `avg_income`: Средний доход по популяции
+- `government_balance`: Баланс государственного бюджета
+
+**PII уровень**: Низкий (публичные макроданные)
+
+### Interactions (Взаимодействия)
+Экономические транзакции и взаимодействия между агентами.
+
+**Поля**:
+- `run_id`: Идентификатор прогона симуляции
+- `from_id`: Идентификатор отправителя
+- `to_id`: Идентификатор получателя
+- `step`: Шаг симуляции
+- `amount`: Сумма транзакции
+- `type`: Тип взаимодействия (paid_tax, transfer, subsidy, etc.)
+
+**PII уровень**: Средний (идентификаторы агентов)
 
 ## Метаданные и манифесты
 
@@ -135,40 +148,101 @@ agent_1,agent_2,0,100.0,paid_tax
   "allowed_columns": {
     "macro_history": [
       "run_id", "step", "gdp", "unemployment_rate",
-      "inflation_rate", "avg_price", "avg_income", "government_balance"
+      "inflation_rate", "avg_price", "avg_income", "government_balance",
+      "timestamp"
     ],
     "agents_snapshot": [
       "run_id", "step", "agent_id", "age", "income", "savings", "is_employed"
     ]
-  }
-}
-```
-
-### Классификация полей по PII
-```json
-{
+  },
+  "allowed_relation_types": ["paid_tax", "transfer"],
   "field_classification": {
     "macro_history": {
       "run_id": "internal",
       "step": "public",
       "gdp": "public",
-      "agent_id": "sensitive"
+      "unemployment_rate": "public",
+      "inflation_rate": "public",
+      "avg_price": "public",
+      "avg_income": "public",
+      "government_balance": "public",
+      "timestamp": "internal"
+    },
+    "agents_snapshot": {
+      "run_id": "internal",
+      "step": "internal",
+      "agent_id": "sensitive",
+      "age": "internal",
+      "income": "internal",
+      "savings": "internal",
+      "is_employed": "internal"
     }
   }
 }
 ```
 
 **Уровни доступа**:
-- `public`: Открытые данные
-- `internal`: Внутренние данные (для анализа)
-- `sensitive`: Чувствительные данные (требуют специального разрешения)
+- `public`: Открытые данные (доступны всем)
+- `internal`: Внутренние данные (для анализа и разработки)
+- `sensitive`: Чувствительные данные (требуют специального разрешения, PII)
 
-### Разрешенные типы отношений
+### Data Contracts
+Семантические контракты метрик для стандартизации и валидации:
+
 ```json
 {
-  "allowed_relation_types": ["paid_tax", "transfer"]
+  "contracts": [
+    {
+      "metric_id": "us.macro.gdp_nominal",
+      "display_name": "Nominal GDP",
+      "dtype": "float",
+      "unit": "billion_usd",
+      "pii_tier": "none",
+      "source_table": "macro_history",
+      "source_column": "gdp"
+    }
+  ]
 }
 ```
+
+## Правовые нормы (Norms)
+
+### Обзор
+Папка `norms/` содержит декларативные правила для compliance-проверок политик. Нормы интегрируются с системой governance для автоматической валидации предлагаемых политик на соответствие юридическим требованиям.
+
+### Структура норм
+```yaml
+norms:
+  - norm_id: "MAASTRICHT_DEFICIT"
+    provision_refs:
+      - provision_id: "TEU_Art126"
+        source_document: "Treaty on European Union"
+        version: "2012"
+    rule_type: "prohibition"
+    description: "Budget deficit must not exceed 3% of GDP"
+    backend_refs: ["expr_ast"]
+    metadata:
+      when: "has_budget_data"
+      must_not: "budget_deficit_pct > 3.0"
+      message: "Deficit {budget_deficit_pct:.2f}% exceeds Maastricht limit (3%)"
+```
+
+### Поддерживаемые типы норм
+- **Obligation**: Политика должна удовлетворять условию (`must`)
+- **Prohibition**: Политика не должна нарушать условие (`must_not`)
+- **Permission**: Политика может выполнять действие (редко используется)
+
+### Бэкенды исполнения
+- **`expr_ast`**: Безопасные математические выражения (рекомендуемый)
+- **`llm`**: Интерпретация через LLM для сложных норм
+- **`stub`**: Заглушка для тестирования
+
+### Примеры норм
+- Maastricht Treaty критерии (EU budget rules)
+- US Budget Control Act (deficit limits)
+- Ukrainian Budget Code (fiscal constraints)
+- Labor standards (minimum wage)
+- Tax policy (progressive taxation)
 
 ## Процесс обработки данных
 
@@ -230,6 +304,13 @@ def stage_to_curated(staging_path: Path) -> DatasetManifest:
 
 ## Работа с данными
 
+### Текущее состояние
+В данный момент папка содержит демо-данные для тестирования системы:
+
+- **Staging**: Нормализованные Parquet файлы (agents, macro, interactions)
+- **Curated**: Манифесты, data contracts, UDF schema
+- **Norms**: Примеры правовых норм для различных юрисдикций
+
 ### Добавление новых данных
 
 1. **Поместите CSV в `raw/`**
@@ -237,64 +318,122 @@ def stage_to_curated(staging_path: Path) -> DatasetManifest:
 cp my_new_data.csv data/raw/
 ```
 
-2. **Запустите ingestion**
+2. **Запустите ingestion pipeline**
 ```bash
-python tools/demos/run_ingest_demo.py
+python -m polisyos.fabric.ingestion --input data/raw/my_new_data.csv
 ```
 
-3. **Проверьте результат**
+3. **Проверьте результат в staging/curated/**
 ```bash
-ls -la data/curated/
+ls -la data/staging/ data/curated/
+```
+
+### Работа с нормами
+
+1. **Добавьте нормы в `norms/`**
+```bash
+# Создайте новый YAML файл или добавьте в существующий
+vim data/norms/custom_norms.yaml
+```
+
+2. **Протестируйте валидацию**
+```bash
+python -c "
+from polisyos.ir.norm_pack import NormPack
+pack = NormPack.from_yaml('data/norms/sample_norms.yaml')
+print(f'Loaded {len(pack.norms)} norms')
+"
 ```
 
 ### Проверка качества данных
 
 ```bash
-# Проверка manifests
+# Проверка dataset манифестов
 python -c "
 import json
 with open('data/curated/agents_manifest.json') as f:
     manifest = json.load(f)
-    print(f'Quality: {manifest[\"quality\"]}')
+    print(f'Quality metrics: {manifest[\"quality\"]}')
+    print(f'PII flags: {manifest[\"pii_flags\"]}')
+"
+
+# Валидация data contracts
+python -c "
+from polisyos.fabric.catalog.contract import DataContractRegistry
+registry = DataContractRegistry.from_json('data/curated/data_contracts.json')
+print(f'Loaded {len(registry.contracts)} contracts')
 "
 ```
 
-### Доступ через UDF
+### Доступ через UDF (User Defined Functions)
 
 ```python
 from polisyos.fabric.udf.engine import UDFEngine
 from polisyos.ir.data_views import DataViewRequest, DataViewType
 
-# Создание запроса к данным
+# Создание безопасного запроса к данным
 request = DataViewRequest(
     view_type=DataViewType.PANEL,
     dataset="macro_history",
     columns=["gdp", "unemployment_rate"],
-    filters=[{"field": "run_id", "op": "eq", "value": "demo_run"}]
+    filters=[{"field": "run_id", "op": "eq", "value": "demo_run"}],
+    access_tier="public"  # Уровень доступа к PII
 )
 
-# Выполнение запроса
+# Выполнение запроса с проверками безопасности
 engine = UDFEngine()
 result = engine.execute_view(request)
+print(f"Retrieved {len(result.data)} rows")
+```
+
+### Работа с нормами в governance
+
+```python
+from polisyos.ir.norm_pack import NormPack
+from polisyos.scientist.governance.passes.legal_pass import LegalPass
+
+# Загрузка норм
+norms = NormPack.from_yaml('data/norms/sample_norms.yaml')
+
+# Создание LegalPass для валидации политик
+legal_pass = LegalPass(backend="expr_ast", enabled=True)
+
+# Валидация политики против норм
+issues = legal_pass.validate_policy(policy_ir, norms)
+for issue in issues:
+    print(f"Legal issue: {issue.message}")
 ```
 
 ## Связанные компоненты
 
-### Fabric Layer
-- `fabric/ingestion.py` - основной пайплайн обработки
-- `fabric/manifest.py` - генерация манифестов
-- `fabric/schema.py` - Pydantic схемы валидации
-- `fabric/io/db.py` - DuckDB адаптер
-- `fabric/io/graph_store.py` - Kùzu адаптер
+### Fabric Layer (Data Processing)
+- `fabric/ingestion.py` - ETL пайплайн (CSV → Parquet → Curated)
+- `fabric/manifest.py` - генерация dataset манифестов с метаданными
+- `fabric/schema.py` - Pydantic схемы валидации данных
+- `fabric/io/db.py` - DuckDB адаптер для аналитических запросов
+- `fabric/io/graph_store.py` - Kùzu адаптер для графовых данных
+- `fabric/evidence.py` - криптографически верифицируемые evidence bundles
+- `fabric/fitness_report.py` - оценка качества данных
+- `fabric/catalog/` - система контрактов метрик
 
-### UDF Layer
-- `udf/config.py` - конфигурация доступа (PII tiers)
-- `udf/compiler.py` - компилятор DataView запросов
-- `udf/engine.py` - исполнение запросов
-- `udf/schema.py` - схемы запросов
+### UDF Layer (Secure Queries)
+- `udf/config.py` - конфигурация уровней доступа (PII tiers)
+- `udf/compiler.py` - компилятор DataView запросов с security checks
+- `udf/engine.py` - безопасное исполнение UDF запросов
+- `udf/schema.py` - схемы запросов и валидация
+- `udf/passes/` - компиляторные проходы (privacy, typecheck, etc.)
 
-### IR Layer
-- `ir/data_views.py` - декларативные запросы к данным
+### Governance & Legal Layer
+- `scientist/governance/legal/` - система compliance-проверок
+- `scientist/governance/passes/legal_pass.py` - LegalPass для валидации политик
+- `scientist/governance/legal/backends/expr_ast.py` - AST бэкенд для выражений
+- `scientist/governance/legal/ast_policy.py` - политика безопасности AST
+- `ir/norm_pack.py` - структуры данных для норм (NormPack, NormRule)
+
+### IR Layer (Intermediate Representation)
+- `ir/data_views.py` - декларативные запросы к данным (DataViewRequest)
+- `ir/norm_pack.py` - структуры для правовых норм
+- `core/contracts/legal.py` - контракты между модулями
 
 ## Безопасность и PII
 
@@ -372,36 +511,116 @@ python -c "import pandas as pd; pd.read_csv('data/raw/problem.csv').dtypes"
 
 ### Добавление нового датасета
 
-1. **Создайте Pydantic схему** в `fabric/schema.py`
+1. **Создайте Pydantic схему** в `src/polisyos/fabric/schema.py`
 ```python
+from pydantic import BaseModel
+from datetime import datetime
+
 class NewDatasetRow(BaseModel):
     id: str
     value: float
     timestamp: datetime
+    category: str | None = None
+
+    class Config:
+        extra = "forbid"
 ```
 
 2. **Добавьте в UDF schema** `data/curated/udf_schema.json`
 ```json
 {
   "allowed_columns": {
-    "new_dataset": ["id", "value", "timestamp"]
+    "new_dataset": ["id", "value", "timestamp", "category"]
+  },
+  "field_classification": {
+    "new_dataset": {
+      "id": "internal",
+      "value": "public",
+      "timestamp": "public",
+      "category": "public"
+    }
   }
 }
 ```
 
-3. **Обновите ingestion pipeline** в `fabric/ingestion.py`
+3. **Создайте data contract** в `data/curated/data_contracts.json`
+```json
+{
+  "metric_id": "custom.new_value",
+  "display_name": "New Value Metric",
+  "dtype": "float",
+  "source_table": "new_dataset",
+  "source_column": "value",
+  "pii_tier": "none"
+}
+```
 
-### Кастомная валидация
+4. **Обновите ingestion pipeline** в `src/polisyos/fabric/ingestion.py`
+
+### Добавление новых норм
+
+1. **Создайте YAML файл норм** в `data/norms/`
+```yaml
+norms:
+  - norm_id: "CUSTOM_RULE"
+    provision_refs:
+      - provision_id: "CUSTOM_LAW_1"
+        source_document: "Custom Regulation"
+    rule_type: "obligation"
+    backend_refs: ["expr_ast"]
+    metadata:
+      when: "has_custom_data"
+      must: "custom_value <= max_allowed"
+      message: "Custom value {custom_value} exceeds limit {max_allowed}"
+```
+
+2. **Реализуйте бэкенд** если нужен новый тип выражений
+```python
+# В src/polisyos/scientist/governance/legal/backends/
+class CustomBackend(RuleBackend):
+    def evaluate_rule(self, rule: NormRule, context: Dict) -> bool:
+        # Ваша логика оценки правила
+        pass
+```
+
+### Кастомная валидация данных
 
 ```python
-def custom_validation(df: pd.DataFrame) -> pd.DataFrame:
-    # Ваша логика валидации
-    return df[df['value'] > 0]  # Пример: только положительные значения
+from polisyos.fabric.quality import DataQualityValidator
+
+class CustomValidator(DataQualityValidator):
+    def validate(self, df: pd.DataFrame) -> ValidationResult:
+        # Кастомная логика валидации
+        issues = []
+        if (df['value'] <= 0).any():
+            issues.append("All values must be positive")
+
+        return ValidationResult(
+            is_valid=len(issues) == 0,
+            issues=issues,
+            metrics={'negative_values': (df['value'] <= 0).sum()}
+        )
 ```
 
 ## Ссылки
 
-- [Architecture Overview](../../architecture.md)
-- [Fabric Documentation](../src/polisyos/fabric/README.md)
-- [UDF Documentation](../src/polisyos/fabric/udf/README.md)
+### Архитектура и дизайн
+- [Complete Architecture Overview](../../architecture.md)
+- [Policy Engine README](../../README.md)
+- [Fabric Layer Documentation](../src/polisyos/fabric/README.md)
+- [UDF System Documentation](../src/polisyos/fabric/udf/README.md)
+
+### Governance & Legal
+- [Legal Compliance System](../src/polisyos/scientist/governance/README.md)
+- [NormPack IR Documentation](../src/polisyos/ir/README.md)
+- [Legal Backends](../src/polisyos/scientist/governance/legal/README.md)
+
+### Инструменты и демо
 - [Ingestion Demo](../tools/demos/run_ingest_demo.py)
+- [Data Diagnostics](../tools/diagnostics/check_setup.py)
+- [Schema Generation](../tools/gen_schema.py)
+
+### Спецификации
+- [Policy IR Schema](../../policy_ir_schema.json)
+- [Data Contracts Schema](../src/polisyos/fabric/catalog/README.md)
+- [UDF Security Model](../src/polisyos/fabric/udf/README.md)

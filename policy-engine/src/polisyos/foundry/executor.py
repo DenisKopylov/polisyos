@@ -554,6 +554,13 @@ def load_state_snapshot(
     blob = np.load(BytesIO(data))
     flat = {key: blob[key] for key in blob.files}
     nested = _nest_state(flat)
+    try:
+        cpu_devices = list(jax.devices("cpu"))
+    except Exception:
+        cpu_devices = []
+    if cpu_devices:
+        with jax.default_device(cpu_devices[0]):
+            return _build_dataclass(GlobalState, nested)
     return _build_dataclass(GlobalState, nested)
 
 

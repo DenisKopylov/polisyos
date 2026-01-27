@@ -17,7 +17,11 @@ from polisyos.foundry.types import FidelityLevel
 
 def _tree_shapes(tree):
     def shape_or_none(x):
-        return getattr(x, "shape", None)
+        if hasattr(x, "shape"):
+            return x.shape
+        if isinstance(x, (int, float, bool)):
+            return ()
+        return None
 
     return jax.tree_util.tree_map(shape_or_none, tree)
 

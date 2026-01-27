@@ -240,7 +240,7 @@ class MetricSearcher:
 
         if len(results) >= 2:
             second = results[1]
-            if (best.confidence - second.confidence) < 0.15 and second.confidence > 0.5:
+            if (best.confidence - second.confidence) < 0.2 and second.confidence > 0.5:
                 return True
 
         return False

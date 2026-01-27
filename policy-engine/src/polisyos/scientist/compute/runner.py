@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+import jax
 import jax.numpy as jnp
 
 from polisyos.core.canon import CanonSpec
@@ -190,14 +191,33 @@ def run_job(
         return JobResult(job_key=job_key, issues=issues, warnings=["missing inputs for execution"])
 
     try:
-        result = backend.run(
-            cas_root=cas_root,
-            program_ref=spec.program_ref,
-            exec_plan_ref=spec.exec_plan_ref,
-            base_state=base_state,
-            registry_content=registry_content,
-            seed=spec.seed,
-        )
+        try:
+            cpu_device = jax.devices("cpu")[0]
+        except Exception:
+            cpu_device = None
+        try:
+            prefer_cpu = any(device.platform == "metal" for device in jax.devices())
+        except Exception:
+            prefer_cpu = False
+        if cpu_device is not None and prefer_cpu:
+            with jax.default_device(cpu_device):
+                result = backend.run(
+                    cas_root=cas_root,
+                    program_ref=spec.program_ref,
+                    exec_plan_ref=spec.exec_plan_ref,
+                    base_state=base_state,
+                    registry_content=registry_content,
+                    seed=spec.seed,
+                )
+        else:
+            result = backend.run(
+                cas_root=cas_root,
+                program_ref=spec.program_ref,
+                exec_plan_ref=spec.exec_plan_ref,
+                base_state=base_state,
+                registry_content=registry_content,
+                seed=spec.seed,
+            )
     except Exception as exc:
         error_type = "runtime"
         loc = ["runtime"]

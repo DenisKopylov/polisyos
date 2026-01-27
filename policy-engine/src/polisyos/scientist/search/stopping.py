@@ -153,7 +153,7 @@ class ImprovementPlateau(StoppingCriterion):
             return StoppingCondition(
                 should_stop=True,
                 reason=(
-                    f"No improvement above {self._min_improvement:.2%} "
+                    f"Improvement plateau: no improvement above {self._min_improvement:.2%} "
                     f"for {self._patience} iterations"
                 ),
                 details={

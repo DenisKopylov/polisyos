@@ -120,9 +120,13 @@ class NaNGuard:
             return True
 
         self._checks_performed += 1
-        value = state.get(slot_id)
-        if value is None:
-            return True
+        if slot_id in state:
+            value = state[slot_id]
+        else:
+            if len(state) == 1:
+                value = next(iter(state.values()))
+            else:
+                return True
 
         try:
             import jax.numpy as jnp

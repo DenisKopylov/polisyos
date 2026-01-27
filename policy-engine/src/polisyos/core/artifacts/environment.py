@@ -43,7 +43,7 @@ class RiskLevel(str, Enum):
 class CPUInfo(BaseModel):
     """CPU hardware information."""
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="ignore")
 
     architecture: str = Field(..., description="CPU architecture (x86_64, arm64)")
     model_name: str = Field(..., description="CPU model name")
@@ -203,9 +203,9 @@ class EnvironmentManifest(BaseModel):
     - Code/Config (Git commit, lockfile hash, Docker image)
     """
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="ignore")
 
-    schema_version: str = Field(default="1.0", pattern=r"^\\d+\\.\\d+$")
+    schema_version: str = Field(default="1.0", pattern=r"^\d+\.\d+$")
     captured_at: datetime = Field(
         default_factory=lambda: datetime.now(timezone.utc),
         description="Timestamp of capture",

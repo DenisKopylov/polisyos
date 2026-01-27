@@ -271,7 +271,11 @@ class TrainingVisualizer:
         ax.plot([0, 1], [0, 1], "k--", alpha=0.5, label="Perfect Equality")
         ax.fill_between(cumulative_pop, cumulative_pop, cumulative_wealth, alpha=0.3)
 
-        gini = 1 - 2 * np.trapz(cumulative_wealth, cumulative_pop)
+        if hasattr(np, "trapezoid"):
+            area = np.trapezoid(cumulative_wealth, cumulative_pop)
+        else:  # pragma: no cover
+            area = np.trapz(cumulative_wealth, cumulative_pop)
+        gini = 1 - 2 * area
         ax.set_xlabel("Cumulative Population Share")
         ax.set_ylabel("Cumulative Wealth Share")
         ax.set_title(f"Lorenz Curve (Gini: {gini:.3f})")

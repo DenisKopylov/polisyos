@@ -838,6 +838,18 @@ wheels = [
 ]
 
 [[package]]
+name = "hypothesis"
+version = "6.151.2"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "sortedcontainers" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/05/13/69648b6f8c41600ce922386f084f5921fef55912dc980ded8ff4948ea626/hypothesis-6.151.2.tar.gz", hash = "sha256:fc91f88a77074b31c7ab871eebab3d2e0210fd3095f1d1ecbd9440c1c6bc06d9", size = 475491, upload-time = "2026-01-26T06:45:41.447Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/cb/3b/a6b9ecf082dd4d736bb553f7d9ad907a64373f41d0b57eb0be21acf157ee/hypothesis-6.151.2-py3-none-any.whl", hash = "sha256:909d2b5f0dc80640561bb2c3859f3c56a52ed8d1cc589e5e6450362ced8c31a0", size = 542937, upload-time = "2026-01-26T06:45:39.133Z" },
+]
+
+[[package]]
 name = "identify"
 version = "2.6.15"
 source = { registry = "https://pypi.org/simple" }
@@ -2421,6 +2433,7 @@ dependencies = [
     { name = "diffrax" },
     { name = "duckdb" },
     { name = "equinox" },
+    { name = "hypothesis" },
     { name = "jax" },
     { name = "jax-metal" },
     { name = "jaxlib" },
@@ -2442,6 +2455,7 @@ dependencies = [
 
 [package.optional-dependencies]
 dev = [
+    { name = "hypothesis" },
     { name = "jupyterlab" },
     { name = "matplotlib" },
     { name = "mypy" },
@@ -2452,6 +2466,7 @@ dev = [
 
 [package.dev-dependencies]
 dev = [
+    { name = "hypothesis" },
     { name = "mypy" },
     { name = "pre-commit" },
     { name = "pytest" },
@@ -2465,6 +2480,8 @@ requires-dist = [
     { name = "diffrax", specifier = ">=0.5.0" },
     { name = "duckdb", specifier = ">=0.9.2" },
     { name = "equinox", specifier = ">=0.11.0" },
+    { name = "hypothesis", specifier = ">=6.151.2" },
+    { name = "hypothesis", marker = "extra == 'dev'", specifier = ">=6.0.0" },
     { name = "jax", specifier = ">=0.4.20" },
     { name = "jax-metal", specifier = ">=0.1.1" },
     { name = "jaxlib", specifier = ">=0.4.20" },
@@ -2493,6 +2510,7 @@ provides-extras = ["dev"]
 
 [package.metadata.requires-dev]
 dev = [
+    { name = "hypothesis", specifier = ">=6.0.0" },
     { name = "mypy", specifier = ">=1.19.1" },
     { name = "pre-commit", specifier = ">=4.5.1" },
     { name = "pytest", specifier = ">=7.4.0" },
@@ -3369,6 +3387,15 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/44/cd/a040c4b3119bbe532e5b0732286f805445375489fceaec1f48306068ee3b/smmap-5.0.2.tar.gz", hash = "sha256:26ea65a03958fa0c8a1c7e8c7a58fdc77221b8910f6be2131affade476898ad5", size = 22329, upload-time = "2025-01-02T07:14:40.909Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/04/be/d09147ad1ec7934636ad912901c5fd7667e1c858e19d355237db0d0cd5e4/smmap-5.0.2-py3-none-any.whl", hash = "sha256:b30115f0def7d7531d22a0fb6502488d879e75b260a9db4d0819cfb25403af5e", size = 24303, upload-time = "2025-01-02T07:14:38.724Z" },
+]
+
+[[package]]
+name = "sortedcontainers"
+version = "2.4.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/e8/c4/ba2f8066cceb6f23394729afe52f3bf7adec04bf9ed2c820b39e19299111/sortedcontainers-2.4.0.tar.gz", hash = "sha256:25caa5a06cc30b6b83d11423433f65d1f9d76c4c6a0c90e3379eaa43b9bfdb88", size = 30594, upload-time = "2021-05-16T22:03:42.897Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/32/46/9cb0e58b2deb7f82b84065f37f3bffeb12413f947f9388e4cac22c4621ce/sortedcontainers-2.4.0-py2.py3-none-any.whl", hash = "sha256:a163dcaede0f1c021485e957a39245190e74249897e2ae4b2aa38595db237ee0", size = 29575, upload-time = "2021-05-16T22:03:41.177Z" },
 ]
 
 [[package]]

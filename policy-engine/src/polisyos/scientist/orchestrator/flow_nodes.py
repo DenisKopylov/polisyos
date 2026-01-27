@@ -263,14 +263,27 @@ def _ensure_context_snapshot(
     graph = GraphStore(str(graph_path)) if graph_path else None
     udf = UDFEngine(db, graph) if graph is not None else UDFEngine(db)
     try:
-        world_state = load_initial_state(udf, baseline_run_id, step=0)
+        try:
+            cpu_devices = list(jax.devices("cpu"))
+        except Exception:
+            cpu_devices = []
+        if cpu_devices:
+            with jax.default_device(cpu_devices[0]):
+                world_state = load_initial_state(udf, baseline_run_id, step=0)
+                snapshot_ref = put_state_snapshot(
+                    store,
+                    state=world_state,
+                    step=int(world_state.step),
+                )
+        else:
+            world_state = load_initial_state(udf, baseline_run_id, step=0)
+            snapshot_ref = put_state_snapshot(
+                store,
+                state=world_state,
+                step=int(world_state.step),
+            )
     finally:
         db.close()
-    snapshot_ref = put_state_snapshot(
-        store,
-        state=world_state,
-        step=int(world_state.step),
-    )
     updated_policy = policy.model_copy(
         update={
             "semantic": policy.semantic.model_copy(
@@ -1814,9 +1827,6 @@ def train_agents_node(state: ExperimentState) -> ExperimentState:
     state = _ensure_run(state)
     if state.get("pruned") or _blocked_by_feedback(state):
         return append_audit(state, "train_agents", "skipped", {"reason": "feedback_blocked"})
-    state = _check_budget(state, "sim")
-    if state.get("pruned"):
-        return state
 
     policy = state.get("ir")
     if policy is None:
@@ -1824,24 +1834,7 @@ def train_agents_node(state: ExperimentState) -> ExperimentState:
         feedback: GovernorFeedback = {"verdict": "NEEDS_REVISION", "issues": [issue]}
         return append_audit({**state, "feedback": feedback}, "train_agents", "missing_ir", {})
 
-    state = _ensure_registry_bundle(state)
-    try:
-        state, policy = _ensure_context_snapshot(state, policy)
-    except Exception as exc:
-        issue = _make_issue(["semantic", "context_snapshot_ref"], str(exc), "runtime")
-        feedback: GovernorFeedback = {"verdict": "NEEDS_REVISION", "issues": [issue]}
-        return append_audit({**state, "feedback": feedback}, "train_agents", "context_missing", {})
-
     store = FileSystemCAS(_cas_root(state))
-    try:
-        world_state = load_state_snapshot(
-            store, snapshot_ref=ArtifactID.model_validate(policy.semantic.context_snapshot_ref)
-        )
-    except Exception as exc:
-        issue = _make_issue(["semantic", "context_snapshot_ref"], str(exc), "runtime")
-        feedback: GovernorFeedback = {"verdict": "NEEDS_REVISION", "issues": [issue]}
-        return append_audit({**state, "feedback": feedback}, "train_agents", "context_load_failed", {})
-
     program_graph_ref = state.get("program_graph_ref")
     exec_plan_ref = state.get("exec_plan_ref")
     if not program_graph_ref or not exec_plan_ref:
@@ -1866,6 +1859,27 @@ def train_agents_node(state: ExperimentState) -> ExperimentState:
     ]
     if not agent_nodes:
         return append_audit(state, "train_agents", "skipped", {"reason": "no_adaptive_agent"})
+
+    state = _check_budget(state, "sim")
+    if state.get("pruned"):
+        return state
+
+    state = _ensure_registry_bundle(state)
+    try:
+        state, policy = _ensure_context_snapshot(state, policy)
+    except Exception as exc:
+        issue = _make_issue(["semantic", "context_snapshot_ref"], str(exc), "runtime")
+        feedback: GovernorFeedback = {"verdict": "NEEDS_REVISION", "issues": [issue]}
+        return append_audit({**state, "feedback": feedback}, "train_agents", "context_missing", {})
+
+    try:
+        world_state = load_state_snapshot(
+            store, snapshot_ref=ArtifactID.model_validate(policy.semantic.context_snapshot_ref)
+        )
+    except Exception as exc:
+        issue = _make_issue(["semantic", "context_snapshot_ref"], str(exc), "runtime")
+        feedback: GovernorFeedback = {"verdict": "NEEDS_REVISION", "issues": [issue]}
+        return append_audit({**state, "feedback": feedback}, "train_agents", "context_load_failed", {})
 
     config = state.get("agent_training_config") or {}
     steps = int(config.get("steps", 50))

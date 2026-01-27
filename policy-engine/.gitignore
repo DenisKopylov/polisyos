@@ -12,3 +12,16 @@ data/curated/*
 # Databases files
 *.duckdb
 *.kuzu
+# --- PolicyOS Generated Artifacts ---
+
+# Hypothesis testing database & constants
+.hypothesis/
+
+# Custom artifacts (sha256, etc)
+.polisyos/
+
+# Application logs
+logs/
+
+# Test runs (keep local, do not commit)
+runs/

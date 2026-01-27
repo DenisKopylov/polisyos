@@ -62,7 +62,7 @@ class MockFormalizerAgent:
                 "objectives": [
                     {
                         "objective_id": f"obj_{base_hash}",
-                        "metric_id": "improvement_rate",
+                        "metric_id": "avg_income",
                         "direction": "maximize",
                         "weight": "1.0",
                     }
@@ -70,7 +70,7 @@ class MockFormalizerAgent:
                 "interventions": self._build_interventions(draft, intervention_kind, base_hash),
                 "constraints": [
                     {
-                        "constraint_id": f"budget_{base_hash}",
+                        "constraint_id": "min_balance",
                         "value": {"amount": "-5000", "currency": "USD"},
                     }
                 ],

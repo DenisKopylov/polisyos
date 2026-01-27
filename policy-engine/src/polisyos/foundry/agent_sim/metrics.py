@@ -103,25 +103,34 @@ class MetricsBuffer:
         return self.replace(write_idx=self.write_idx + int(step))
 
 
-@chex.dataclass(frozen=True)
+@chex.dataclass(frozen=True, init=False, mappable_dataclass=False)
 class MetricsCollector:
     definitions: tuple[MetricDefinition, ...]
     buffer: MetricsBuffer
     step_counter: jnp.ndarray
 
-    def __init__(self, definitions: Sequence[MetricDefinition], max_history: int = 10000):
+    def __init__(
+        self,
+        definitions: Sequence[MetricDefinition],
+        max_history: int = 10000,
+        buffer: MetricsBuffer | None = None,
+        step_counter: jnp.ndarray | None = None,
+    ):
         object.__setattr__(self, "definitions", tuple(definitions))
-        scalar_names = [
-            d.name for d in self.definitions if d.metric_type == MetricType.SCALAR
-        ]
-        histogram_names = [
-            d.name for d in self.definitions if d.metric_type == MetricType.HISTOGRAM
-        ]
-        buffer = MetricsBuffer.create(
-            scalar_names, histogram_names, max_size=max_history
-        )
+        if buffer is None:
+            scalar_names = [
+                d.name for d in self.definitions if d.metric_type == MetricType.SCALAR
+            ]
+            histogram_names = [
+                d.name for d in self.definitions if d.metric_type == MetricType.HISTOGRAM
+            ]
+            buffer = MetricsBuffer.create(
+                scalar_names, histogram_names, max_size=max_history
+            )
         object.__setattr__(self, "buffer", buffer)
-        object.__setattr__(self, "step_counter", jnp.array(0, dtype=jnp.int32))
+        if step_counter is None:
+            step_counter = jnp.array(0, dtype=jnp.int32)
+        object.__setattr__(self, "step_counter", step_counter)
 
     def collect(self, state: GlobalState) -> "MetricsCollector":
         buffer = self.buffer

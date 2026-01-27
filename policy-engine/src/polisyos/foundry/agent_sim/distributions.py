@@ -9,8 +9,6 @@ import jax
 import jax.numpy as jnp
 from jaxtyping import Array, Bool, Float, Int
 
-from polisyos.foundry.agent_sim.rewards import UtilityFunction
-
 if TYPE_CHECKING:
     from polisyos.foundry.agent_sim.state import GlobalState
 
@@ -644,6 +642,8 @@ def compute_distribution_aware_reward(
     next_state: "GlobalState",
     config: RewardConfig,
 ) -> jnp.ndarray:
+    from polisyos.foundry.agent_sim.rewards import UtilityFunction
+
     agents = next_state.agents
     base_reward = UtilityFunction.crra(agents.consumption, agents.risk_aversion)
     base_reward = base_reward + agents.utility_adjustment

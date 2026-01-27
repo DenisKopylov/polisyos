@@ -29,6 +29,7 @@ dependencies = [
     "chex>=0.1.91",
     "streamlit>=1.52.2",
     "plotly>=6.5.0",
+    "hypothesis>=6.151.2",
 ]
 
 [project.optional-dependencies]

@@ -414,12 +414,14 @@ def from_validation_error(
         if not isinstance(issue, dict):
             continue
         loc = issue.get("loc") or issue.get("location") or []
+        field_path = ".".join(str(item) for item in loc) if isinstance(loc, list) else str(loc)
+        constraint_id = issue.get("constraint_id") or field_path or "unknown"
         message = issue.get("message") or issue.get("msg") or "Validation failed"
         violations.append(
             ConstraintViolation(
-                constraint_id=issue.get("loc", "unknown") if isinstance(loc, list) else str(loc),
+                constraint_id=str(constraint_id),
                 constraint_type=issue.get("error_type", "validation"),
-                field_path=".".join(str(item) for item in loc) if isinstance(loc, list) else str(loc),
+                field_path=field_path,
                 message=message,
             )
         )
@@ -479,11 +481,13 @@ def from_governor_feedback(
 
     source = FailureSource.GOVERNOR_POLICY
     for issue in issues:
-        issue_text = str(issue).lower()
-        if "safety" in issue_text:
+        if not isinstance(issue, dict):
+            continue
+        error_type = str(issue.get("error_type", "")).lower()
+        if error_type == "safety":
             source = FailureSource.GOVERNOR_SAFETY
             break
-        if "budget" in issue_text:
+        if error_type == "budget":
             source = FailureSource.GOVERNOR_BUDGET
             break
 

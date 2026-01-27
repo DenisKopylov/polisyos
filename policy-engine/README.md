@@ -272,7 +272,29 @@ This section explains *what each major directory is for* without listing the ful
 ### Option A: uv (recommended)
 
 ```bash
-uv sync --dev
+# Create/sync the local virtualenv in .venv from uv.lock
+# (use --frozen to avoid lockfile drift)
+uv sync --frozen --extra dev
+
+# Minimal (runtime-only) environment:
+# uv sync --frozen --no-dev
+```
+
+#### Activate the environment (optional)
+
+If you prefer a classic workflow, activate `.venv` and run commands directly:
+
+```bash
+source .venv/bin/activate
+python -V
+```
+
+#### Run without activation (recommended)
+
+You can also avoid activation and run everything via `uv run`:
+
+```bash
+uv run python -V
 ```
 
 ### Option B: pip (fallback)
@@ -281,6 +303,21 @@ uv sync --dev
 python -m venv .venv
 source .venv/bin/activate
 pip install -e .[dev]
+```
+
+### Environment variables (.env)
+
+Local defaults and runtime switches can be set via `.env` (loaded by `python-dotenv`):
+
+```bash
+# if you don't already have one:
+cp env_example.txt .env
+```
+
+### Smoke check (recommended)
+
+```bash
+uv run python tools/diagnostics/check_setup.py
 ```
 
 ### macOS + JAX note
@@ -293,7 +330,7 @@ Import `jax_bootstrap.py` before importing `jax` in local scripts.
 `run_experiment.py` is a convenience entrypoint that builds a Scientist workflow and invokes it with a minimal state.
 
 ```bash
-python run_experiment.py "Design a tax policy that reduces inequality without increasing deficit" \
+uv run python run_experiment.py "Design a tax policy that reduces inequality without increasing deficit" \
   --db-path integration.duckdb \
   --runtime-base-dir runs
 ```
@@ -301,22 +338,22 @@ python run_experiment.py "Design a tax policy that reduces inequality without in
 ### Run the dashboard
 
 ```bash
-streamlit run dashboard.py
+uv run streamlit run dashboard.py
 ```
 
 ### Run tests
 
 ```bash
-pytest
+uv run pytest
 ```
 
 ### Run linters
 
 ```bash
-ruff check .
-mypy .
-python tools/lint_imports.py
-python tools/lint_foundry.py
+uv run ruff check .
+uv run mypy .
+uv run python tools/lint_imports.py
+uv run python tools/lint_foundry.py
 ```
 
 ---

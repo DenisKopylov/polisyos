@@ -170,16 +170,27 @@ class ActorCritic(eqx.Module):
 
     def _forward(self, observations: jnp.ndarray) -> tuple[jnp.ndarray, jnp.ndarray]:
         shared_features = self.shared(observations)
+        if shared_features.ndim == 1:
+            actor_hidden = self.actor_hidden(shared_features)
+            actor_hidden = self.actor_norm(actor_hidden)
+            actor_hidden = jax.nn.gelu(actor_hidden)
+            action_out = self.actor_out(actor_hidden)
 
-        actor_hidden = self.actor_hidden(shared_features)
-        actor_hidden = self.actor_norm(actor_hidden)
+            critic_hidden = self.critic_hidden(shared_features)
+            critic_hidden = self.critic_norm(critic_hidden)
+            critic_hidden = jax.nn.gelu(critic_hidden)
+            value = self.critic_out(critic_hidden)
+            return action_out, jnp.squeeze(value, axis=-1)
+
+        actor_hidden = jax.vmap(self.actor_hidden)(shared_features)
+        actor_hidden = jax.vmap(self.actor_norm)(actor_hidden)
         actor_hidden = jax.nn.gelu(actor_hidden)
-        action_out = self.actor_out(actor_hidden)
+        action_out = jax.vmap(self.actor_out)(actor_hidden)
 
-        critic_hidden = self.critic_hidden(shared_features)
-        critic_hidden = self.critic_norm(critic_hidden)
+        critic_hidden = jax.vmap(self.critic_hidden)(shared_features)
+        critic_hidden = jax.vmap(self.critic_norm)(critic_hidden)
         critic_hidden = jax.nn.gelu(critic_hidden)
-        value = self.critic_out(critic_hidden)
+        value = jax.vmap(self.critic_out)(critic_hidden)
 
         return action_out, jnp.squeeze(value, axis=-1)
 

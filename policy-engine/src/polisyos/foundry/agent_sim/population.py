@@ -413,7 +413,8 @@ def batch_create_agents(
 
 def batch_remove_agents(state: "GlobalState", removal_mask: jnp.ndarray) -> "GlobalState":
     removal_mask = removal_mask & state.agents.active
-    slot_indices = jnp.arange(state.population_manager.max_agents, dtype=jnp.int32)
+    max_agents = state.agents.active.shape[0]
+    slot_indices = jnp.arange(max_agents, dtype=jnp.int32)
     manager = free_multiple_slots(state.population_manager, slot_indices, removal_mask)
 
     active = state.agents.active & ~removal_mask

@@ -20,7 +20,12 @@ def _manifest_path(base_dir: Path, run_id: str) -> Path:
 
 def _load_manifest(base_dir: Path, run_id: str) -> RunManifest:
     path = _manifest_path(base_dir, run_id)
-    return RunManifest.model_validate_json(path.read_text(encoding="utf-8"))
+    try:
+        return RunManifest.model_validate_json(path.read_text(encoding="utf-8"))
+    except FileNotFoundError:
+        manifest = RunManifest(run_id=run_id, run_root=str(base_dir))
+        _write_manifest(base_dir, manifest)
+        return manifest
 
 
 def _write_manifest(base_dir: Path, manifest: RunManifest) -> Path:

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import Literal
+from typing import Any, Literal
 
 from pydantic import Field, model_validator
 
@@ -26,6 +26,34 @@ class ConflictResolution(str, Enum):
     AGGREGATE = "aggregate"
 
 
+EXPECTED_ALGEBRA_PROPERTIES = {
+    MergeRuleKind.SUM: {
+        "commutativity": True,
+        "associativity": True,
+        "idempotency": False,
+        "allowed_types": ["int", "decimal", "array"],
+    },
+    MergeRuleKind.OVERRIDE: {
+        "commutativity": False,
+        "associativity": False,
+        "idempotency": True,
+        "allowed_types": None,
+    },
+    MergeRuleKind.PRIORITY: {
+        "commutativity": True,
+        "associativity": True,
+        "idempotency": True,
+        "allowed_types": None,
+    },
+    MergeRuleKind.ERROR: {
+        "commutativity": True,
+        "associativity": True,
+        "idempotency": True,
+        "allowed_types": None,
+    },
+}
+
+
 class MergeRuleRef(KernelModel):
     """Reference to a merge rule in the registry."""
 
@@ -44,19 +72,19 @@ class MergeRuleSpec(KernelModel):
 
     rule_id: str = Field(..., pattern=ID_PATTERN)
     kind: MergeRuleKind
-    commutativity: bool = Field(
-        default=True,
+    commutativity: bool | None = Field(
+        default=None,
         description="Whether merge(a,b) == merge(b,a). Required for order-independent execution.",
     )
-    associativity: bool = Field(
-        default=True,
+    associativity: bool | None = Field(
+        default=None,
         description=(
             "Whether merge(merge(a,b),c) == merge(a,merge(b,c)). "
             "Required for parallel reduction."
         ),
     )
-    idempotency: bool = Field(
-        default=False,
+    idempotency: bool | None = Field(
+        default=None,
         description="Whether merge(a,a) == a. Enables deduplication.",
     )
     conflict_resolution: ConflictResolution = Field(
@@ -75,36 +103,30 @@ class MergeRuleSpec(KernelModel):
     )
     description: str | None = Field(None, max_length=200)
 
+    @model_validator(mode="before")
+    @classmethod
+    def apply_kind_defaults(cls, data: Any) -> Any:
+        if not isinstance(data, dict):
+            return data
+        kind = data.get("kind")
+        if kind is None:
+            return data
+        try:
+            kind_enum = kind if isinstance(kind, MergeRuleKind) else MergeRuleKind(kind)
+        except Exception:
+            return data
+        props = EXPECTED_ALGEBRA_PROPERTIES.get(kind_enum)
+        if not props:
+            return data
+        for field_name in ("commutativity", "associativity", "idempotency"):
+            if data.get(field_name) is None:
+                data[field_name] = props[field_name]
+        return data
+
     @model_validator(mode="after")
     def validate_algebra_properties(self) -> "MergeRuleSpec":
         """Ensure algebraic properties match the rule kind."""
-        expected = {
-            MergeRuleKind.SUM: {
-                "commutativity": True,
-                "associativity": True,
-                "idempotency": False,
-                "allowed_types": ["int", "decimal", "array"],
-            },
-            MergeRuleKind.OVERRIDE: {
-                "commutativity": False,
-                "associativity": False,
-                "idempotency": True,
-                "allowed_types": None,
-            },
-            MergeRuleKind.PRIORITY: {
-                "commutativity": True,
-                "associativity": True,
-                "idempotency": True,
-                "allowed_types": None,
-            },
-            MergeRuleKind.ERROR: {
-                "commutativity": True,
-                "associativity": True,
-                "idempotency": True,
-                "allowed_types": None,
-            },
-        }
-        props = expected[self.kind]
+        props = EXPECTED_ALGEBRA_PROPERTIES[self.kind]
         if self.commutativity != props["commutativity"]:
             raise ValueError(
                 f"MergeRuleKind.{self.kind.name} requires commutativity={props['commutativity']}"

@@ -74,3 +74,30 @@ class CritiqueRef(ArtifactRef):
 
     verdict: str = Field(description="Critic's verdict: approve, revise, reject")
     ir_ref: str = Field(description="CAS hash of the evaluated IR")
+
+
+class TimelineRef(ArtifactRef):
+    """
+    Reference to a stored RunTimeline artifact.
+
+    Note: In Scientist contracts we use CAS-addressed references (cas_hash).
+    """
+
+    ref_type: Literal["run_timeline"] = "run_timeline"
+    artifact_type: Literal["run_timeline"] = "run_timeline"
+
+    # Denormalized for quick filtering
+    run_id: str = Field(description="Associated run id")
+    event_count: int = Field(ge=0, description="Number of timeline events")
+    total_duration_ms: int = Field(ge=0, description="Total run duration, ms")
+
+
+class DecisionCardRef(ArtifactRef):
+    """Reference to a stored DecisionCard artifact."""
+
+    ref_type: Literal["decision_card"] = "decision_card"
+    artifact_type: Literal["decision_card"] = "decision_card"
+
+    run_id: str = Field(description="Associated run id")
+    verdict: str = Field(description="Decision verdict")
+    generated_at: str = Field(description="Card generation timestamp (ISO 8601)")

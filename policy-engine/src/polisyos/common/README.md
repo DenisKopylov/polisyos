@@ -1,6 +1,6 @@
 # Common: Общие компоненты Policy Engine
 
-> **Последнее обновление:** 26 января 2026 г. (обновление документации)
+> **Последнее обновление:** 27 января 2026 г. (обновление связей с модулями scientist/orchestrator)
 
 Модуль `polisyos.common` содержит фундаментальные утилиты и конфигурации, используемые во всех слоях архитектуры Policy Engine. Эти компоненты обеспечивают базовую инфраструктуру без зависимостей от бизнес-логики.
 
@@ -41,6 +41,10 @@ common/
 - **fabric/udf/engine.py** - логирование в UDF движке через `logger`
 - **fabric/udf/compiler.py** - логирование компиляции UDF через `logger`
 - **scientist/orchestrator/data_loader.py** - логирование загрузки данных экспериментов
+- **foundry/compiler.py** - логирование операций компиляции через `get_logger`
+- **foundry/agent_sim/artifact.py** - логирование артефактов симуляции агентов через `get_logger`
+- **foundry/agent_sim/training.py** - логирование обучения агентов через `get_logger`
+- **foundry/executor.py** - логирование выполнения экспериментов через `get_logger`
 
 #### Миграции (`migrations/`):
 - **ir/migrations/** - расширенная обертка над `common.migrations` для Policy IR артефактов
@@ -401,6 +405,10 @@ def migrate_policy_ir(data: dict, target_version: str | None = None) -> dict:
 - **`fabric/udf/compiler.py`** - компиляция UDF
 - **`scientist/orchestrator/data_loader.py`** - загрузка данных экспериментов
 - **`scientist/_legacy/compiler.py`** - компиляция экспериментов (legacy)
+- **`foundry/compiler.py`** - операции компиляции в Foundry
+- **`foundry/agent_sim/artifact.py`** - артефакты симуляции агентов
+- **`foundry/agent_sim/training.py`** - обучение агентов
+- **`foundry/executor.py`** - выполнение экспериментов
 
 #### Миграции (migrations):
 - **`ir/migrations/__init__.py`** - расширенная обертка для миграций Policy IR с дополнительной логикой версий
@@ -411,7 +419,7 @@ def migrate_policy_ir(data: dict, target_version: str | None = None) -> dict:
 
 - **core:** Использует логирование для операций с артефактами и регистрами
 - **fabric:** Зависит от логирования для всех I/O операций и UDF движка
-- **foundry:** Использует логирование в симуляциях и калибровке
+- **foundry:** Активно использует логирование в компиляции, симуляциях агентов, обучении и выполнении экспериментов
 - **ir:** Зависит от миграций для версионирования схем Policy IR и Trinity преобразований
 - **runtime:** Использует логирование для аудита прогонов
 - **scientist:** Зависит от логирования в оркестрации экспериментов и агентов
@@ -427,10 +435,18 @@ def migrate_policy_ir(data: dict, target_version: str | None = None) -> dict:
 
 2. **Анализ зависимостей:** Убедиться, что `common` не импортирует другие слои:
    ```bash
-   grep -r "from polisyos\.\(scientist\|fabric\|foundry\|runtime\)" src/polisyos/common/
+   grep -r "from polisyos\.\(scientist\|fabric\|foundry\|runtime\|ir\|core\)" src/polisyos/common/
    ```
 
 3. **Тестирование изоляции:** `common` должен работать автономно без зависимостей от других модулей
+
+4. **Проверка новых связей:** Отслеживать расширение использования в модулях foundry и scientist:
+   ```bash
+   # Проверить новые импорты common в foundry
+   grep -r "from polisyos.common" src/polisyos/foundry/
+   # Проверить новые импорты common в scientist
+   grep -r "from polisyos.common" src/polisyos/scientist/
+   ```
 
 ## Контрибьютинг
 

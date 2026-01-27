@@ -3,7 +3,19 @@ import sys
 from pathlib import Path
 
 import pytest
-from loguru import logger
+try:
+    from loguru import logger  # type: ignore
+except ModuleNotFoundError:  # pragma: no cover
+    import logging
+
+    class _LoggerShim:
+        def remove(self) -> None:
+            return None
+
+        def add(self, _sink, level: str = "ERROR") -> None:
+            logging.basicConfig(level=getattr(logging, level, logging.ERROR))
+
+    logger = _LoggerShim()
 
 # Ensure `policy-engine/src` is on sys.path so imports like `import polisyos...` work under pytest.
 PROJECT_ROOT = Path(__file__).resolve().parents[1]

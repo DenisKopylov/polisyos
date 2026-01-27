@@ -73,6 +73,7 @@ from polisyos.scientist.kernel.human_gate import GateDecision, GateRequest
 from polisyos.scientist.orchestrator.audit import append_audit
 from polisyos.scientist.orchestrator.data_loader import load_initial_state
 from polisyos.scientist.orchestrator.decision_packet import build_decision_packet
+from polisyos.scientist.orchestrator.run_timeline import RunTimeline, TimelineEventType
 from polisyos.scientist.orchestrator.run_record import ReproMode, build_run_record
 from polisyos.scientist.orchestrator.state import ExperimentState, GovernorFeedback
 
@@ -81,6 +82,129 @@ DEFAULT_BUDGET = {
     "max_sim_runs": 1.0,
     "max_wall_time_s": 120.0,
 }
+
+_TIMELINE_STATE_KEY = "_timeline_data"
+
+
+def _get_or_create_timeline(state: ExperimentState) -> RunTimeline:
+    """
+    Load timeline from state or create a new one.
+
+    Timeline is stored in state as a serialized artifact (dict) to keep ExperimentState JSON-like.
+    """
+    existing = state.get(_TIMELINE_STATE_KEY)
+    if isinstance(existing, dict):
+        try:
+            return RunTimeline.from_artifact(existing)
+        except Exception:
+            pass
+    run_id = state.get("run_id") or "unknown"
+    timeline = RunTimeline(run_id=run_id)
+    timeline.record_run_start()
+    return timeline
+
+
+def _save_timeline(state: ExperimentState, timeline: RunTimeline) -> ExperimentState:
+    return {**state, _TIMELINE_STATE_KEY: timeline.to_artifact()}
+
+
+def _artifact_id_from_ref(value: Any) -> Optional[str]:
+    """
+    Best-effort extraction of artifact identifier from various ref payloads.
+    """
+    if value is None:
+        return None
+    if isinstance(value, str):
+        return value
+    if isinstance(value, dict):
+        # Runtime artifacts typically use artifact_id.
+        if "artifact_id" in value and value["artifact_id"]:
+            return str(value["artifact_id"])
+        # CAS references may use cas_hash.
+        if "cas_hash" in value and value["cas_hash"]:
+            return str(value["cas_hash"])
+        # Runtime manifest refs may use path.
+        if "path" in value and value["path"]:
+            return str(value["path"])
+    return None
+
+
+def _record_artifacts_created(
+    timeline: RunTimeline,
+    *,
+    phase: str,
+    node_id: str,
+    before: ExperimentState,
+    after: ExperimentState,
+) -> None:
+    keys = [
+        # Common orchestrator refs
+        "policy_ir_ref",
+        "program_graph_ref",
+        "exec_plan_ref",
+        "registry_bundle_ref",
+        "compile_report_ref",
+        "link_report_ref",
+        "agent_training_report_ref",
+        "agent_weights_ref",
+        # Simulation outputs
+        "simulation_results_ref",
+        "state_delta_ref",
+        "metrics_ref",
+        "state_snapshot_ref",
+        "environment_ref",
+        # Calibration outputs
+        "calibration_report_ref",
+        "calibration_config_ref",
+        "calibrated_params_ref",
+    ]
+    for key in keys:
+        if after.get(key) and not before.get(key):
+            artifact_id = _artifact_id_from_ref(after.get(key))
+            if artifact_id:
+                timeline.record(
+                    TimelineEventType.ARTIFACT_CREATED,
+                    phase=phase,
+                    node_id=node_id,
+                    artifact_ref=artifact_id,
+                    details={"key": key},
+                )
+
+
+def _record_validation_events(
+    timeline: RunTimeline,
+    *,
+    phase: str,
+    node_id: str,
+    state: ExperimentState,
+) -> None:
+    trace = state.get("validation_trace")
+    if not isinstance(trace, dict):
+        return
+    for span in trace.get("spans") or []:
+        if not isinstance(span, dict):
+            continue
+        pass_id = span.get("pass_id")
+        blocker_count = int(span.get("blocker_count", 0) or 0)
+        issue_count = int(span.get("issue_count", 0) or 0)
+        duration_ms = span.get("duration_ms")
+        details = {"pass_id": pass_id, "issues": issue_count, "blockers": blocker_count}
+        if blocker_count > 0:
+            timeline.record(
+                TimelineEventType.VALIDATION_FAIL,
+                phase=phase,
+                node_id=node_id,
+                details=details,
+                duration_ms=int(duration_ms) if isinstance(duration_ms, (int, float)) else None,
+            )
+        else:
+            timeline.record(
+                TimelineEventType.VALIDATION_PASS,
+                phase=phase,
+                node_id=node_id,
+                details=details,
+                duration_ms=int(duration_ms) if isinstance(duration_ms, (int, float)) else None,
+            )
 
 
 def _runtime_base_dir(state: ExperimentState) -> Path:
@@ -1320,7 +1444,7 @@ def draft_ir_node(state: ExperimentState) -> ExperimentState:
     return _generate_ir(state, repair=False)
 
 
-def validate_ir_node(state: ExperimentState) -> ExperimentState:
+def _validate_ir_node_impl(state: ExperimentState) -> ExperimentState:
     state = _ensure_run(state)
     if state.get("pruned"):
         return state
@@ -1338,6 +1462,28 @@ def validate_ir_node(state: ExperimentState) -> ExperimentState:
         return append_audit({**updated_state, "feedback": feedback}, "validate_ir", "invalid", {})
 
     return append_audit({**updated_state, "feedback": None}, "validate_ir", "valid", {})
+
+
+def validate_ir_node(state: ExperimentState) -> ExperimentState:
+    before = state
+    timeline = _get_or_create_timeline(state)
+    timeline.transition_phase("FRAME")
+    timeline.record(TimelineEventType.NODE_ENTER, phase="FRAME", node_id="validate_ir")
+    try:
+        result = _validate_ir_node_impl(state)
+        _record_validation_events(timeline, phase="FRAME", node_id="validate_ir", state=result)
+        timeline.record(TimelineEventType.NODE_EXIT, phase="FRAME", node_id="validate_ir")
+        return _save_timeline(result, timeline)
+    except Exception as exc:
+        timeline.record(
+            TimelineEventType.ERROR,
+            phase="FRAME",
+            node_id="validate_ir",
+            details={"error": str(exc), "error_type": type(exc).__name__},
+        )
+        # Preserve timeline best-effort for downstream handlers if they catch.
+        _save_timeline(before, timeline)
+        raise
 
 
 def _has_revisions(issues: list[dict]) -> bool:
@@ -2145,7 +2291,7 @@ def train_agents_node(state: ExperimentState) -> ExperimentState:
     )
 
 
-def run_sim_node(state: ExperimentState) -> ExperimentState:
+def _run_sim_node_impl(state: ExperimentState) -> ExperimentState:
     state = _ensure_run(state)
     if state.get("pruned") or _blocked_by_feedback(state):
         return append_audit(state, "run_sim", "skipped", {"reason": "feedback_blocked"})
@@ -2320,6 +2466,33 @@ def run_sim_node(state: ExperimentState) -> ExperimentState:
         "completed",
         results,
     )
+
+
+def run_sim_node(state: ExperimentState) -> ExperimentState:
+    before = state
+    timeline = _get_or_create_timeline(state)
+    timeline.transition_phase("EXECUTE")
+    timeline.record(TimelineEventType.NODE_ENTER, phase="EXECUTE", node_id="run_sim")
+    try:
+        result = _run_sim_node_impl(state)
+        _record_artifacts_created(
+            timeline,
+            phase="EXECUTE",
+            node_id="run_sim",
+            before=before,
+            after=result,
+        )
+        timeline.record(TimelineEventType.NODE_EXIT, phase="EXECUTE", node_id="run_sim")
+        return _save_timeline(result, timeline)
+    except Exception as exc:
+        timeline.record(
+            TimelineEventType.ERROR,
+            phase="EXECUTE",
+            node_id="run_sim",
+            details={"error": str(exc), "error_type": type(exc).__name__},
+        )
+        _save_timeline(before, timeline)
+        raise
 
 
 def run_calibration_node(state: ExperimentState) -> ExperimentState:
@@ -2600,7 +2773,7 @@ def analyze_node(state: ExperimentState) -> ExperimentState:
     return append_audit({**state, "analysis": analysis}, "analyze", "ok", {})
 
 
-def governor_node(state: ExperimentState) -> ExperimentState:
+def _governor_node_impl(state: ExperimentState) -> ExperimentState:
     if state.get("pruned") or _blocked_by_feedback(state):
         return append_audit(state, "governor", "skipped", {"reason": "feedback_blocked"})
     results = state.get("simulation_results") or {}
@@ -2682,7 +2855,41 @@ def governor_node(state: ExperimentState) -> ExperimentState:
     return append_audit({**state, "feedback": feedback}, "governor", "verdict", feedback)
 
 
-def pack_decision_node(state: ExperimentState) -> ExperimentState:
+def governor_node(state: ExperimentState) -> ExperimentState:
+    before = state
+    timeline = _get_or_create_timeline(state)
+    timeline.transition_phase("POSTFLIGHT_GOV")
+    timeline.record(TimelineEventType.NODE_ENTER, phase="POSTFLIGHT_GOV", node_id="governor")
+    try:
+        result = _governor_node_impl(state)
+        if result.get("gate_request") and not before.get("gate_request"):
+            details = {}
+            gate_req = result.get("gate_request")
+            if isinstance(gate_req, dict):
+                details = {
+                    "reason": gate_req.get("reason"),
+                    "details": gate_req.get("details"),
+                }
+            timeline.record(
+                TimelineEventType.HUMAN_GATE,
+                phase="POSTFLIGHT_GOV",
+                node_id="governor",
+                details=details,
+            )
+        timeline.record(TimelineEventType.NODE_EXIT, phase="POSTFLIGHT_GOV", node_id="governor")
+        return _save_timeline(result, timeline)
+    except Exception as exc:
+        timeline.record(
+            TimelineEventType.ERROR,
+            phase="POSTFLIGHT_GOV",
+            node_id="governor",
+            details={"error": str(exc), "error_type": type(exc).__name__},
+        )
+        _save_timeline(before, timeline)
+        raise
+
+
+def _pack_decision_node_impl(state: ExperimentState) -> ExperimentState:
     state = _ensure_run(state)
     run_record = state.get("run_record")
     if run_record is None:
@@ -2703,7 +2910,15 @@ def pack_decision_node(state: ExperimentState) -> ExperimentState:
         )
         state = {**state, "run_record": run_record}
 
-    packet = build_decision_packet(state, run_record)
+    # Phase 16: include RunTimeline + DecisionCard if timeline is present in state.
+    timeline_obj = None
+    timeline_data = state.get(_TIMELINE_STATE_KEY)
+    if isinstance(timeline_data, dict):
+        try:
+            timeline_obj = RunTimeline.from_artifact(timeline_data)
+        except Exception:
+            timeline_obj = None
+    packet = build_decision_packet(state, run_record, timeline=timeline_obj, include_card=True)
     log_artifact(
         run_id=state["run_id"],
         artifact_type="decision_packet",
@@ -2745,3 +2960,47 @@ def pack_decision_node(state: ExperimentState) -> ExperimentState:
         "completed",
         {"status": status},
     )
+
+
+def pack_decision_node(state: ExperimentState) -> ExperimentState:
+    before = state
+    timeline = _get_or_create_timeline(state)
+    timeline.transition_phase("DECIDE")
+    timeline.record(TimelineEventType.NODE_ENTER, phase="DECIDE", node_id="pack_decision")
+    try:
+        # Ensure impl sees the latest timeline.
+        state_with_tl = _save_timeline(state, timeline)
+        result = _pack_decision_node_impl(state_with_tl)
+
+        # Record that a DecisionPacket artifact was produced (deterministic ref string).
+        run_id = result.get("run_id") or before.get("run_id") or "unknown"
+        timeline.record(
+            TimelineEventType.ARTIFACT_CREATED,
+            phase="DECIDE",
+            node_id="pack_decision",
+            artifact_ref=f"decision_packet/{run_id}",
+        )
+
+        timeline.record(TimelineEventType.NODE_EXIT, phase="DECIDE", node_id="pack_decision")
+
+        # Mark run end (best-effort).
+        success = True
+        feedback = result.get("feedback")
+        if isinstance(feedback, dict):
+            verdict = (feedback.get("verdict") or "").upper()
+            if verdict == "REJECT":
+                success = False
+        if result.get("pruned"):
+            success = False
+        timeline.record_run_end(success=success)
+
+        return _save_timeline(result, timeline)
+    except Exception as exc:
+        timeline.record(
+            TimelineEventType.ERROR,
+            phase="DECIDE",
+            node_id="pack_decision",
+            details={"error": str(exc), "error_type": type(exc).__name__},
+        )
+        _save_timeline(before, timeline)
+        raise

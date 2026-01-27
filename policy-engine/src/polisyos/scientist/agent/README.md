@@ -28,7 +28,7 @@ agent/
 
 ### Self-Healing система (Reflexion Pattern)
 
-Agent Layer реализует паттерн Reflexion для автономного исправления ошибок и self-healing workflows:
+Agent Layer реализует паттерн Reflexion для автономного исправления ошибок и self-healing workflows. Система интегрирована с orchestrator layer для timeline tracking и decision card summaries:
 
 #### FailureCard (failure_card.py)
 
@@ -72,6 +72,8 @@ class FailureCard(BaseModel):
 - Content-addressable hashing для reproducible tracking
 - Форматирование для LLM context injection
 - Конвертеры из Critic feedback, validation errors, governor feedback
+- Интеграция с RunTimeline для event tracking исправлений
+- Включение в DecisionCard summaries для compliance reporting
 
 #### ShortTermMemory (memory.py)
 
@@ -121,10 +123,15 @@ class ReflexionOrchestrator:
 
 **Self-Healing Workflow:**
 ```
-Detect Failure → Evaluate → Route → Inject Context → Retry
-      ↓              ↓         ↓         ↓              ↓
-FailureCard → Decision → Target → Prompt Context → Attempt
+Detect Failure → Evaluate → Route → Inject Context → Retry → Log to Timeline
+      ↓              ↓         ↓         ↓              ↓              ↓
+FailureCard → Decision → Target → Prompt Context → Attempt → RunTimeline Event
 ```
+
+**Интеграция с Orchestrator:**
+- Все failure events логируются в RunTimeline как `TimelineEventType.REFLEXION`
+- DecisionCard включает summary исправлений в compliance report
+- Timeline tracking позволяет анализировать эффективность self-healing
 
 ### Иерархическая архитектура
 
@@ -462,6 +469,28 @@ elif decision == ReflexionDecision.ESCALATE_TO_HUMAN:
 await orchestrator.apply_backoff(attempt=2)
 ```
 
+### Интеграция с Timeline Tracking
+
+```python
+# Интеграция с RunTimeline для observability
+from polisyos.scientist.orchestrator.run_timeline import RunTimeline, TimelineEventType
+
+timeline = RunTimeline(run_id="exp_001")
+
+# Логирование reflexion events
+timeline.record(TimelineEventType.REFLEXION, "FRAME",
+               node_id="repair_ir",
+               details={"failure_card_id": failure_card.card_id,
+                       "decision": decision.value,
+                       "attempt": 2})
+
+# Логирование исправлений
+timeline.record(TimelineEventType.NODE_ENTER, "FRAME",
+               node_id="formalizer_retry",
+               details={"remediation_target": "formalizer",
+                       "failure_reason": "schema_error"})
+```
+
 ### Работа с иерархической системой агентов
 
 ```python
@@ -754,9 +783,10 @@ class SpecialistAgent(Protocol):
 
 - **IR Layer**: `PolicySurfaceIR` для формальных структур политик
 - **Kernel Layer**: FSM phases, guards, human gates для контроля выполнения
-- **Orchestrator**: Workflow orchestration, state management, decision packets
+- **Orchestrator**: Workflow orchestration, state management, decision packets, RunTimeline для event tracking, DecisionCard для summaries
 - **Fabric Layer**: Data access для context-aware генерации
 - **Foundry**: Mechanism registry и compilation для policy execution
+- **Core**: TraceRecord integration через timeline для unified observability
 
 ## Troubleshooting
 

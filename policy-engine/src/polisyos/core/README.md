@@ -26,7 +26,7 @@ core/
 │   ├── compiler.py     # Контракты компилятора (CompileReportRef, LinkReportRef)
 │   ├── fabric.py       # Контракты Fabric (6 типов ссылок + модели данных)
 │   ├── foundry.py      # Контракты Foundry (13 типов ссылок + модели исполнения)
-│   ├── scientist.py    # Контракты Scientist (FailureCardRef, PolicyIRRef, CritiqueRef)
+│   ├── scientist.py    # Контракты Scientist (ArtifactRef, FailureCardRef, PolicyIRRef, CritiqueRef, TimelineRef, DecisionCardRef)
 │   ├── trinity.py      # Trinity контракты (ProblemFrame, PolicySpec, ModelSpec)
 │   └── legal.py        # Legal compliance контракты (NormPack, NormRule, RuleType, RuleBackend)
 ├── registry/           # Сборка и загрузка реестров компонентов
@@ -254,6 +254,8 @@ core/
 - `FailureCardRef` - ссылка на FailureCard с информацией об ошибках экспериментов (attempt_number, error_code, source_step, can_retry)
 - `PolicyIRRef` - ссылка на PolicySurfaceIR с версией и статусом (version, status)
 - `CritiqueRef` - ссылка на артефакт оценки критика с вердиктом (verdict, ir_ref)
+- `TimelineRef` - ссылка на RunTimeline артефакт с метаданными о событиях (run_id, event_count, total_duration_ms)
+- `DecisionCardRef` - ссылка на DecisionCard артефакт с вердиктом и метаданными (run_id, verdict, generated_at)
 
 #### Legal Contracts (Legal - compliance и валидация)
 - `NormPack` - пакет нормативных правил и ограничений
@@ -269,6 +271,8 @@ core/
 - Поддержка provenance через ссылки на входные артефакты
 - Интеграция с системой трассировки и метаданных
 - Legal compliance контракты для валидации политик и правил
+- Timeline tracking контракты для observability экспериментов
+- Decision card контракты для deterministic summarization результатов
 
 ### 5. Registry (Реестр)
 
@@ -357,12 +361,12 @@ Core является фундаментом всей системы PolisyOS и
 - **run**: Контексты и манифесты выполнения экспериментов
 - **artifacts**: Хранение всех результатов экспериментов и моделей
 - **contracts.trinity**: Trinity контракты (ProblemFrame, PolicySpec, ModelSpec) для структурирования экспериментов
-- **contracts.scientist**: Scientist контракты (FailureCardRef, PolicyIRRef, CritiqueRef) для управления жизненным циклом политик и оценок
+- **contracts.scientist**: Полный набор Scientist контрактов (ArtifactRef, FailureCardRef, PolicyIRRef, CritiqueRef, TimelineRef, DecisionCardRef) для типобезопасного управления жизненным циклом экспериментов
 - **trace**: Трассировка всех этапов workflow (draft → compile → execute → analyze)
 - **registry**: Загрузка реестров компонентов для каждого эксперимента
 - **contracts**: Ссылки на все типы артефактов в decision packets
 
-**Обоснование**: Scientist оркестрирует полный жизненный цикл от LLM до оптимизированных политик, используя Trinity контракты для структурирования экспериментов по трем базовым аспектам (проблема, политика, модель) и Scientist контракты для типобезопасного управления артефактами экспериментов, включая обработку ошибок и оценок политик.
+**Обоснование**: Scientist оркестрирует полный жизненный цикл от LLM до оптимизированных политик, используя Trinity контракты для структурирования экспериментов и расширенный набор Scientist контрактов для timeline tracking, decision card generation и comprehensive observability экспериментов с полным provenance tracking.
 
 #### Runtime (Исполнение в production) - Зависит от core
 - **artifacts**: Доступ к развернутым артефактам политик

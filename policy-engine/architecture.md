@@ -1,6 +1,6 @@
 # Complete Policy Engine Architecture
 
-> **Last updated:** January 27, 2026 (added Runtime module with Environment Fingerprinting, Agent Policy Artifacts system, comprehensive monitoring/test coverage for agent simulation and plugin system, compile-time conflict detection, cost estimation model, and NaN/Inf runtime guards)
+> **Last updated:** January 27, 2026 (added Runtime module with Environment Fingerprinting, Agent Policy Artifacts system, comprehensive monitoring/test coverage for agent simulation and plugin system, compile-time conflict detection, cost estimation model, NaN/Inf runtime guards, DecisionCard human-readable summaries, RunTimeline observability artifacts, and enhanced Scientist contracts)
 >
 > This document contains the complete architecture of the Policy Engine project with detailed descriptions of all files in the `src/`, `tests/`, and `tools/` directories.
 
@@ -45,7 +45,7 @@ policy-engine/
 │   │   ├── __init__.py               # Exports configuration and logging interfaces
 │   │   ├── config.py                 # Centralized application configuration and environment setup
 │   │   ├── jax_env.py                # Safe JAX backend configuration for macOS compatibility
-│   │   ├── logger.py                 # Unified structured logging interface using Loguru
+│   │   ├── logger.py                 # Unified structured logging interface (Loguru with fallback to standard logging)
 │   │   ├── migrations/               # Deterministic artifact versioning and schema evolution
 │   │   │   ├── __init__.py           # Exports migration system API
 │   │   │   ├── base.py               # Core migration system with version management
@@ -76,7 +76,7 @@ policy-engine/
 │   │   │   ├── compiler.py           # Compiler contracts (CompileReportRef, LinkReportRef)
 │   │   │   ├── fabric.py             # Fabric contracts (6 reference types + data models, quality indicators)
 │   │   │   ├── foundry.py            # Foundry contracts (16 reference types + execution models, agent policy artifacts)
-│   │   │   ├── scientist.py          # Scientist contracts (FailureCardRef, PolicyIRRef, CritiqueRef)
+│   │   │   ├── scientist.py          # Scientist contracts (FailureCardRef, PolicyIRRef, CritiqueRef, TimelineRef, DecisionCardRef)
 │   │   │   ├── trinity.py            # Trinity contracts (ProblemFrame, PolicySpec, ModelSpec, TrinityBundle)
 │   │   │   ├── legal.py              # Legal compliance contracts (NormPack, NormRule, RuleBackend)
 │   │   │   └── README.md             # Inter-module contracts documentation
@@ -342,13 +342,15 @@ policy-engine/
 │       │   ├── audit.py              # Operation audit trail and compliance tracking
 │       │   ├── compiler.py           # Workflow compilation and optimization
 │       │   ├── data_loader.py        # Experiment data loading and preprocessing
-│       │   ├── decision_packet.py    # Structured decision packets for workflow communication
+│       │   ├── decision_card.py      # Human-readable summaries of experiment results
+│       │   ├── decision_packet.py    # Structured decision packets for workflow communication (DecisionPacket with run_timeline, decision_card, validation_trace)
 │       │   ├── flow_nodes.py         # Workflow graph nodes and execution logic
 │       │   ├── nodes.py              # Base workflow node implementations
 │       │   ├── optimizer.py          # Workflow optimization and parallelization
 │       │   ├── README.md             # Orchestrator documentation and 9-phase workflow
 │       │   ├── registry.py           # Component registry for workflow extensibility
 │       │   ├── run_record.py         # Experiment run records and state persistence
+│       │   ├── run_timeline.py       # Timeline artifact for observability and tracing
 │       │   ├── state.py              # Workflow state management and transitions
 │       │   ├── workflow.py           # Main workflow orchestrator with LangGraph integration
 │       │   └── workflow_compiler.py  # Workflow compilation to executable graphs
@@ -433,8 +435,11 @@ policy-engine/
 │       ├── README.md                 # Scientist testing documentation and AI validation
 │       ├── test_agent_protocols.py   # Agent communication protocols and interface validation
 │       ├── test_compiler.py          # Scientist workflow compiler testing and optimization
+│       ├── test_decision_card.py     # DecisionCard deterministic generation and markdown rendering
+│       ├── test_decision_packet_v2.py # DecisionPacket v1.1 with timeline and card support
 │       ├── test_multi_agent_workflow.py # Multi-agent workflow integration and memory persistence testing
-│       └── test_reflexion_loop.py    # Reflexion loop and FailureCard system validation
+│       ├── test_reflexion_loop.py    # Reflexion loop and FailureCard system validation
+│       └── test_run_timeline.py      # RunTimeline event recording and analytics
 └── tools/                            # Developer tools and demonstrations ensuring architecture compliance
     ├── benchmarks/                   # Performance benchmarks for JAX and simulation components
     │   ├── bench_domain.py           # Economic domain model benchmark (JAX + Equinox + GlobalState allocation)
@@ -572,6 +577,99 @@ The Runtime module introduces a comprehensive environment fingerprinting system 
 - **Provenance Tracking**: Complete audit trail from training through deployment
 - **Performance**: JIT-compiled execution with minimal overhead
 - **Scalability**: Batch execution primitives for parallel simulation
+
+## DecisionCard & RunTimeline Artifacts
+
+The Scientist module introduces comprehensive observability and human-readable reporting through two new artifact types that enhance experiment transparency and result communication.
+
+### DecisionCard (`scientist/orchestrator/decision_card.py`)
+
+**Purpose**: Deterministic human-readable summaries of experiment results with structured formatting for stakeholders and audit trails.
+
+#### Key Features
+- **Deterministic Generation**: Same DecisionPacket always produces identical DecisionCard
+- **Markdown Rendering**: Human-readable format with emojis, tables, and structured sections
+- **Compliance Summary**: Blocker/warning/info counts with failed pass identification
+- **Key Metrics Display**: Formatted economic indicators with baseline deltas
+- **Artifact References**: Links to PolicyIR, simulation results, and evidence bundles
+- **Source Hash Tracking**: Deterministic fingerprint for result verification
+
+#### DecisionCard Components
+- **`Verdict`**: APPROVE/REJECT/NEEDS_REVISION/PENDING/UNKNOWN with emoji indicators
+- **`Confidence`**: HIGH/MEDIUM/LOW based on blocker/warning counts
+- **`IssuesSummary`**: Structured compliance issues with blocker counting
+- **`KeyMetric`**: Formatted metric display with units and baseline deltas
+- **`ArtifactReference`**: Typed references to experiment artifacts
+
+### RunTimeline (`scientist/orchestrator/run_timeline.py`)
+
+**Purpose**: Event-based timeline artifacts for observability, debugging, and performance analysis throughout experiment execution.
+
+#### Key Features
+- **Append-Only Design**: Thread-safe event recording with automatic indexing
+- **Event Classification**: 12 event types (run_start, phase transitions, node execution, artifacts, validation, errors)
+- **Phase Tracking**: Automatic phase start/end timing with duration calculation
+- **Node Profiling**: Execution time tracking for workflow nodes
+- **Validation Summary**: Pass/failure counts with detailed error analysis
+- **Artifact Lifecycle**: Complete tracking of artifact creation and references
+- **Trace Integration**: Automatic conversion to core TraceRecord format
+
+#### Timeline Events
+- **`RUN_START/RUN_END`**: Experiment lifecycle boundaries
+- **`PHASE_START/PHASE_END`**: Workflow phase transitions with duration
+- **`NODE_ENTER/NODE_EXIT`**: Individual node execution tracking
+- **`ARTIFACT_CREATED`**: New artifact generation events
+- **`VALIDATION_PASS/VALIDATION_FAIL`**: Governance validation results
+- **`HUMAN_GATE/REFLEXION/ERROR`**: Self-healing and error events
+
+#### Timeline Analytics
+- **Phase Durations**: Per-phase execution times for bottleneck identification
+- **Node Performance**: Execution time distribution across workflow nodes
+- **Error Analysis**: Comprehensive error tracking with context
+- **Validation Metrics**: Governance pass/failure ratios
+- **Artifact Inventory**: Complete catalog of generated artifacts
+
+### Integration with DecisionPacket
+
+**Enhanced DecisionPacket** now includes three new optional fields for comprehensive experiment documentation:
+
+- **`run_timeline`**: Serialized RunTimeline artifact for observability
+- **`decision_card`**: Cached deterministic DecisionCard (generated on-demand)
+- **`validation_trace`**: Phase 9 telemetry data from governance validation
+
+#### DecisionPacket Enhancement
+```python
+class DecisionPacket(BaseModel):
+    # Existing fields...
+    run_timeline: Optional[Dict[str, Any]] = None      # Timeline observability data
+    validation_trace: Optional[Dict[str, Any]] = None  # Governance telemetry
+    decision_card: Optional[Dict[str, Any]] = None     # Cached human-readable summary
+```
+
+### Scientist Contracts Enhancement
+
+**New contract types** added to `core/contracts/scientist.py` for type-safe artifact references:
+
+- **`TimelineRef`**: References to stored RunTimeline artifacts with run metadata
+- **`DecisionCardRef`**: References to DecisionCard artifacts with verdict and generation info
+
+#### Contract Integration
+```python
+# New contract exports in contracts/__init__.py
+from .scientist import (
+    TimelineRef,      # Timeline artifact references
+    DecisionCardRef,  # DecisionCard artifact references
+    # ... existing contracts
+)
+```
+
+### Benefits
+- **Enhanced Observability**: Complete event timeline for experiment debugging and optimization
+- **Stakeholder Communication**: Human-readable summaries with structured compliance reporting
+- **Audit Trail Enhancement**: Deterministic summaries with source hash verification
+- **Performance Analysis**: Detailed timing and bottleneck identification
+- **Result Transparency**: Clear verdict communication with confidence metrics
+- **Artifact Provenance**: Complete lifecycle tracking from generation to consumption
 
 ## Compile-time Analysis & Validation
 

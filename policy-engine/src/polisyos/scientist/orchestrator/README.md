@@ -17,7 +17,9 @@ orchestrator/
 ├── state.py                      # ExperimentState и типы данных
 ├── flow_nodes.py                 # Реализации узлов workflow (1450+ строк)
 ├── decision_packet.py            # Итоговый артефакт эксперимента
+├── decision_card.py              # Human-readable summaries результатов
 ├── run_record.py                 # Метаданные для воспроизводимости
+├── run_timeline.py               # Timeline artifact для observability
 ├── audit.py                      # Система аудита и логирования
 ├── data_loader.py                # Загрузка данных из Fabric
 ├── nodes.py                      # Устаревшие узлы (deprecated)
@@ -227,6 +229,101 @@ class DecisionPacket(BaseModel):
     uncertainty_ref: UncertaintyBoundsRef | None = None
 ```
 
+### 🎯 Decision Card (decision_card.py)
+
+Детерминированные human-readable summaries результатов экспериментов:
+
+#### DecisionCard
+Структура для презентации результатов:
+```python
+@dataclass
+class DecisionCard:
+    run_id: str
+    generated_at: datetime
+    schema_version: str = "1.0"
+
+    verdict: str = Verdict.UNKNOWN
+    confidence: str = Confidence.LOW
+
+    policy_summary: str = "No policy defined"
+    intervention_count: int = 0
+
+    key_metrics: List[KeyMetric] = field(default_factory=list)
+    issues: IssuesSummary = field(default_factory=lambda: IssuesSummary(0, 0, 0))
+
+    total_duration_ms: int = 0
+    phase_count: int = 0
+
+    references: List[ArtifactReference] = field(default_factory=list)
+    source_hash: Optional[str] = None
+```
+
+**Ключевые возможности:**
+- Детерминированное создание из DecisionPacket
+- Markdown rendering для отчетов
+- Автоматическое извлечение key metrics (GDP, unemployment, etc.)
+- Compliance summary с blocker/warning counts
+- Artifact references для traceability
+- Source hashing для reproducibility
+
+#### Verdict и Confidence
+```python
+class Verdict:
+    APPROVE = "APPROVE"
+    REJECT = "REJECT"
+    NEEDS_REVISION = "NEEDS_REVISION"
+    PENDING = "PENDING"
+    UNKNOWN = "UNKNOWN"
+
+class Confidence:
+    HIGH = "HIGH"    # No blockers/warnings
+    MEDIUM = "MEDIUM"  # Warnings present
+    LOW = "LOW"     # Blockers present
+```
+
+### 📊 Run Timeline (run_timeline.py)
+
+Timeline artifact для observability и tracing экспериментов:
+
+#### RunTimeline
+Append-only timeline с event tracking:
+```python
+@dataclass
+class RunTimeline:
+    run_id: str
+    events: List[TimelineEvent] = field(default_factory=list)
+    start_time: Optional[datetime] = None
+    end_time: Optional[datetime] = None
+
+    # Thread-safe recording
+    _lock: RLock = field(default_factory=RLock)
+```
+
+#### TimelineEvent Types
+```python
+class TimelineEventType(Enum):
+    RUN_START = "run_start"
+    PHASE_START = "phase_start"
+    PHASE_END = "phase_end"
+    NODE_ENTER = "node_enter"
+    NODE_EXIT = "node_exit"
+    ARTIFACT_CREATED = "artifact_created"
+    VALIDATION_PASS = "validation_pass"
+    VALIDATION_FAIL = "validation_fail"
+    HUMAN_GATE = "human_gate"
+    REFLEXION = "reflexion"
+    ERROR = "error"
+    RUN_END = "run_end"
+```
+
+**Ключевые возможности:**
+- Thread-safe append-only recording
+- Phase transition tracking с duration calculation
+- Node execution timing
+- Error и validation event aggregation
+- Artifact creation tracking
+- Export в core TraceRecord format
+
 #### build_decision_packet()
 Создание decision packet из experiment state:
 ```python
@@ -385,6 +482,86 @@ if packet.evidence_ref:
     print(f"Evidence bundle: {packet.evidence_ref.bundle_id}")
 ```
 
+### Работа с Decision Card
+
+```python
+from polisyos.scientist.orchestrator.decision_card import DecisionCard, Verdict
+
+# Создание из DecisionPacket
+decision_card = DecisionCard.from_packet(decision_packet)
+
+# Markdown отчет
+markdown_report = decision_card.render_markdown()
+print(markdown_report)
+
+# Анализ результатов
+print(f"Verdict: {decision_card.verdict}")
+print(f"Confidence: {decision_card.confidence}")
+print(f"Duration: {decision_card._format_duration()}")
+
+# Key metrics
+for metric in decision_card.key_metrics:
+    print(f"{metric.name}: {metric.formatted} {metric.unit or ''}")
+
+# Compliance status
+issues = decision_card.issues
+print(f"Blockers: {issues.blocker_count}, Warnings: {issues.warning_count}")
+if issues.blocked_passes:
+    print(f"Failed passes: {', '.join(issues.blocked_passes)}")
+
+# Artifact references
+for ref in decision_card.references:
+    print(f"{ref.label}: {ref.ref}")
+
+# Сериализация для storage
+card_dict = decision_card.to_dict()
+card_from_dict = DecisionCard.from_dict(card_dict)
+```
+
+### Работа с Run Timeline
+
+```python
+from polisyos.scientist.orchestrator.run_timeline import RunTimeline, TimelineEventType
+
+# Создание timeline
+timeline = RunTimeline(run_id="exp_001")
+
+# Запуск эксперимента
+timeline.record_run_start()
+timeline.transition_phase("FRAME")
+
+# Запись событий узлов
+timeline.record(TimelineEventType.NODE_ENTER, "FRAME", node_id="draft_ir")
+timeline.record(TimelineEventType.ARTIFACT_CREATED, "FRAME",
+               artifact_ref="run/exp_001/policy_ir", node_id="draft_ir")
+timeline.record(TimelineEventType.NODE_EXIT, "FRAME", node_id="draft_ir")
+
+# Переход фаз
+timeline.transition_phase("EXECUTE")
+timeline.record(TimelineEventType.NODE_ENTER, "EXECUTE", node_id="run_sim")
+
+# Запись ошибок
+timeline.record(TimelineEventType.ERROR, "EXECUTE",
+               node_id="run_sim", details={"error": "Simulation timeout"})
+
+# Завершение
+timeline.record_run_end(success=False)
+
+# Анализ результатов
+print(f"Total duration: {timeline.total_duration_ms}ms")
+print(f"Phase durations: {timeline.get_phase_duration('FRAME')}ms")
+print(f"Node durations: {timeline.get_node_durations()}")
+print(f"Errors: {len(timeline.get_errors())}")
+print(f"Artifacts created: {timeline.get_artifacts()}")
+print(f"Validation summary: {timeline.get_validation_summary()}")
+
+# Экспорт как artifact
+timeline_artifact = timeline.to_artifact()
+
+# Конвертация в TraceRecords для unified logging
+trace_records = timeline.to_trace_records()
+```
+
 ### Audit Trail анализ
 
 ```python
@@ -534,14 +711,15 @@ def test_workflow_execution_mock():
 
 ## Связанные компоненты
 
-- **Agent**: `draft_ir_node` использует `drafter.py`
-- **Kernel**: FSM phases, guards, human gates
-- **Compute**: `run_sim_node` использует `run_job`
-- **Governance**: Preflight/postflight integration
-- **IR**: PolicySurfaceIR валидация и compilation
-- **Fabric**: Data loading и evidence bundles
-- **Foundry**: Model compilation и simulation execution
-- **Runtime**: Lifecycle management и artifact storage
+- **Agent**: `draft_ir_node` использует `drafter.py`, Self-Healing system интегрируется с timeline events
+- **Kernel**: FSM phases, guards, human gates - все transitions логируются в RunTimeline
+- **Compute**: `run_sim_node` использует `run_job`, execution events tracked in timeline
+- **Governance**: Preflight/postflight integration, validation passes create timeline events
+- **IR**: PolicySurfaceIR валидация и compilation - results summarized in DecisionCard
+- **Fabric**: Data loading и evidence bundles - references included in DecisionCard
+- **Foundry**: Model compilation и simulation execution - artifacts tracked in timeline
+- **Runtime**: Lifecycle management и artifact storage, DecisionCard и RunTimeline сохраняются как artifacts
+- **Core**: TraceRecord integration через `timeline.to_trace_records()` для unified observability
 
 ## Troubleshooting
 

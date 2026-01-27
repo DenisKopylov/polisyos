@@ -45,6 +45,9 @@ scientist/
 │   ├── profiles.py # Validation profiles (fast/mvp/strict)
 │   └── telemetry.py# Validation tracing и metrics
 ├── orchestrator/   # Workflow orchestration и state management
+│   ├── decision_card.py    # Human-readable summaries результатов экспериментов
+│   ├── run_timeline.py     # Timeline artifact для observability и tracing
+│   └── [другие файлы...]
 └── publisher.py    # Финализация результатов
 ```
 
@@ -147,7 +150,9 @@ scientist/
 - **`state.py`**: `ExperimentState` (TypedDict с 90+ полями) - центральная структура данных эксперимента с полями для всех этапов workflow
 - **`flow_nodes.py`**: Полные реализации всех узлов workflow (1450+ строк кода) с интеграцией Foundry, Fabric, Core и всех компонентов системы
 - **`decision_packet.py`**: Итоговый артефакт прогона (`DecisionPacket`) с полной информацией о эксперименте, включая fabric_result, evidence_ref и uncertainty quantification
+- **`decision_card.py`**: Детерминированные human-readable summaries результатов (`DecisionCard`) с метриками, compliance статусом и artifact references для презентации результатов экспериментов
 - **`run_record.py`**: Детальные записи для воспроизводимости (`RunRecord` с метаданными окружения, seed, версиями библиотек)
+- **`run_timeline.py`**: Timeline artifact для observability и tracing (`RunTimeline`) с event-based tracking всех операций, phase transitions и performance metrics
 - **`audit.py`**: Комплексная система аудита и логирования всех операций с append_audit функцией
 - **`data_loader.py`**: Загрузка и подготовка начальных данных из Fabric layer через SimulationDB и GraphStore
 - **`nodes.py`**: Устаревшие узлы workflow (deprecated, заменен flow_nodes.py)
@@ -283,6 +288,8 @@ Workflow управляется конечным автоматом состоя
 ### 🔄 Reproducibility & Artifacts
 - **RunRecord**: Детальные метаданные о прогоне (seed, backend, версии библиотек, флаги, environment)
 - **DecisionPacket**: Итоговый артефакт с IR, результатами, аудитом, evidence и uncertainty bounds
+- **DecisionCard**: Human-readable summary результатов с key metrics, compliance status и deterministic formatting для презентации
+- **RunTimeline**: Event-based timeline всех операций с phase tracking, node durations и error analysis для observability
 - **Artifact Management**: Content-addressable storage (CAS) с SHA256-based addressing
 - **Parent/Child Relationships**: Связи между экспериментами для воспроизводимости
 - **Evidence Bundles**: Криптографически verifiable доказательства происхождения данных
@@ -457,6 +464,52 @@ job_spec = JobSpec(
 )
 
 job_key = JobKey.from_spec(job_spec)
+```
+
+#### Decision Card (Human-Readable Summaries)
+```python
+from polisyos.scientist.orchestrator.decision_card import DecisionCard
+
+# Создание DecisionCard из DecisionPacket
+decision_card = DecisionCard.from_packet(decision_packet)
+
+# Markdown представление для отчетов
+markdown_report = decision_card.render_markdown()
+print(markdown_report)
+
+# Доступ к key metrics
+for metric in decision_card.key_metrics:
+    print(f"{metric.name}: {metric.formatted} {metric.unit or ''}")
+
+# Compliance summary
+print(f"Blockers: {decision_card.issues.blocker_count}")
+print(f"Verdict: {decision_card.verdict}")
+```
+
+#### Run Timeline (Observability & Tracing)
+```python
+from polisyos.scientist.orchestrator.run_timeline import RunTimeline, TimelineEventType
+
+# Создание timeline для эксперимента
+timeline = RunTimeline(run_id="exp_001")
+timeline.record_run_start()
+
+# Запись phase transitions
+timeline.transition_phase("FRAME")
+timeline.record(TimelineEventType.NODE_ENTER, "FRAME", node_id="draft_ir")
+
+# Запись completion
+timeline.record(TimelineEventType.NODE_EXIT, "FRAME", node_id="draft_ir")
+timeline.record_run_end(success=True)
+
+# Анализ результатов
+print(f"Total duration: {timeline.total_duration_ms}ms")
+print(f"Phase durations: {timeline.get_phase_duration('FRAME')}ms")
+print(f"Node durations: {timeline.get_node_durations()}")
+print(f"Errors: {len(timeline.get_errors())}")
+
+# Экспорт как artifact
+timeline_artifact = timeline.to_artifact()
 ```
 
 ### Работа с иерархической системой агентов
@@ -1382,7 +1435,7 @@ research_budget = {
 - **Agent Layer**: Полная иерархическая система агентов (PI → Drafter → Formalizer → Critic) с протоколами, mock реализациями всех ролей, структурированными артефактами (ProblemFrame, SubTask, CritiqueReport) + Self-Healing система (FailureCard, ShortTermMemory, ReflexionOrchestrator)
 - **Kernel Layer**: Полная реализация FSM с 9 фазами, все модели бюджетов (Compute, Evidence, Legitimacy, Complexity), guards, human_gate и advance_phase guards
 - **Compute Layer**: JobSpec/JobKey/JobResult модели, LocalBackend и RayBackend (skeleton) для выполнения через Foundry executor, поддержка distributed execution
-- **Orchestrator Layer**: Полный workflow на LangGraph (1450+ строк в flow_nodes.py), ExperimentState с 90+ полями, DecisionPacket с evidence и uncertainty, audit trail
+- **Orchestrator Layer**: Полный workflow на LangGraph (1450+ строк в flow_nodes.py), ExperimentState с 90+ полями, DecisionPacket с evidence и uncertainty, DecisionCard summaries, RunTimeline для observability, audit trail
 - **Publisher Layer**: Полная публикация через build_decision_packet с интеграцией всех артефактов
 - **Workflow Integration**: Полная интеграция со всеми модулями (Core, IR, Fabric, Foundry, Runtime)
 
@@ -1398,7 +1451,7 @@ research_budget = {
 - **End-to-End Workflow**: Полный цикл от естественного языка до DecisionPacket с иерархической системой агентов и evidence tracking
 - **Budget Controls**: Полный контроль ресурсов (LLM calls, sim runs, wall time, evidence queries, complexity)
 - **FSM Management**: Строгие переходы между фазами с guards, human gates и self-healing циклами
-- **Artifact Management**: Полная поддержка CAS с SHA256 addressing, RunRecord для воспроизводимости
+- **Artifact Management**: Полная поддержка CAS с SHA256 addressing, RunRecord для воспроизводимости, DecisionCard для human-readable summaries, RunTimeline для observability
 - **Audit Trail**: Комплексное JSON Lines логирование всех операций с provenance tracking
 - **Agent Training**: Система обучения адаптивных агентов с continuous actions и gradient monitoring
 - **Uncertainty Quantification**: Оценки неопределенности через Hessian analysis и confidence bounds

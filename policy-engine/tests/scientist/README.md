@@ -2,7 +2,7 @@
 
 Валидация компонентов scientist layer - протоколов агентов, компилятора политик и ИИ-компонентов.
 
-**Последнее обновление:** Январь 2026 (добавлены legal pass тесты и norm pack validation)
+**Последнее обновление:** Январь 2026 (добавлены legal pass тесты, norm pack validation, decision card system, run timeline tracking, decision packet v2)
 **Уровень:** Scientist Layer (AI & Compilation)
 **Зависимости:** JAX, Core artifacts, IR structures, Legal contracts
 
@@ -19,8 +19,11 @@ scientist/
 │   └── test_validation_pipeline.py # ValidationPipeline, profiles, compliance issues
 ├── test_agent_protocols.py    # Протоколы агентов: PI, Drafter, Formalizer, Critic
 ├── test_compiler.py           # Компилятор политик из IR
+├── test_decision_card.py      # DecisionCard, Verdict, Confidence, KeyMetric, IssuesSummary
+├── test_decision_packet_v2.py # DecisionPacket v2 с timeline и decision card поддержкой
 ├── test_multi_agent_workflow.py # Multi-agent workflow с critique system и памятью
-└── test_reflexion_loop.py     # Reflexion loop, failure cards, recovery mechanisms
+├── test_reflexion_loop.py     # Reflexion loop, failure cards, recovery mechanisms
+└── test_run_timeline.py       # RunTimeline, TimelineEventType, timeline tracking
 ```
 
 ## Категории тестов
@@ -107,6 +110,61 @@ scientist/
 - **Memory State**: Persistence hints и attempt history
 - **Error Recovery**: Graceful handling critique failures
 
+### Decision Card System (`test_decision_card.py`)
+
+**Цель:** Валидация системы генерации детерминированных decision cards из decision packets.
+
+**Ключевые тесты:**
+- **Decision Card Generation**: Создание cards из packets с deterministic fields (source_hash, verdict, confidence, policy_summary)
+- **Verdict System**: Валидация verdict types (APPROVE/REJECT/NEEDS_REVISION/PENDING/UNKNOWN) и их transitions
+- **Confidence Evaluation**: Confidence calculation из blocker/warning counts (HIGH/MEDIUM/LOW)
+- **Key Metrics Extraction**: Извлечение и formatting key metrics (GDP Change, Gini Coefficient) с units и deltas
+- **Issues Summary**: Агрегация issues по severity (blocker/warning/info) и blocked passes tracking
+- **Markdown Rendering**: Deterministic markdown generation для human-readable reports
+
+**Принципы:**
+- **Deterministic Generation**: Cards генерируются детерминировано из packet data без side effects
+- **Source Hash Stability**: Source hash остается consistent для identical packets
+- **Confidence Logic**: Zero blockers = HIGH, zero warnings = MEDIUM, any blockers = LOW
+- **JSON Serialization**: Cards полностью serializable для persistence и artifact storage
+- **Human-Readable Format**: Markdown rendering для stakeholder communication
+
+### Decision Packet v2 (`test_decision_packet_v2.py`)
+
+**Цель:** Валидация обновленной версии decision packet с timeline и decision card интеграцией.
+
+**Ключевые тесты:**
+- **Timeline Integration**: Включение run timeline в decision packet с event tracking
+- **Decision Card Generation**: On-demand генерация decision cards из packet data
+- **Schema Version Bumping**: Валидация schema version transitions (1.0 → 1.1)
+- **End-to-End Workflow**: Полный workflow simulation с timeline recording и card generation
+- **Artifact Reconstruction**: Восстановление timeline из serialized artifacts
+
+**Принципы:**
+- **Timeline Mandatory**: Run timeline included в packet для execution tracking
+- **Lazy Card Generation**: Decision cards генерируются on-demand или cached для performance
+- **Schema Evolution**: Backward compatible schema versions с migration support
+- **Artifact Consistency**: Timeline и card artifacts consistent с packet data
+- **Performance Optimization**: Lazy evaluation для expensive operations
+
+### Run Timeline (`test_run_timeline.py`)
+
+**Цель:** Валидация системы event-based tracking для run execution timeline.
+
+**Ключевые тесты:**
+- **Event Recording**: Запись timeline events (PHASE_START/END, NODE_ENTER/EXIT, ARTIFACT_CREATED, etc.)
+- **Phase Duration**: Расчет duration для phases с millisecond precision
+- **Artifact Serialization**: JSON serialization timeline для persistence и artifact storage
+- **Error Filtering**: Фильтрация и извлечение error events из timeline
+- **Node Duration Tracking**: Расчет execution times для individual nodes
+
+**Принципы:**
+- **Event Ordering**: Events ordered chronologically с parent-child relationships
+- **Duration Calculation**: Automatic duration calculation для phases и nodes
+- **Thread Safety**: RLock-based thread safety для concurrent event recording
+- **Artifact Format**: Deterministic artifact format для reconstruction и analysis
+- **Performance Monitoring**: Built-in support для performance analysis и bottleneck detection
+
 ### Reflexion Loop (`test_reflexion_loop.py`)
 
 **Цель:** Валидация системы reflexion с failure cards, recovery mechanisms и escalation logic.
@@ -139,6 +197,18 @@ pytest tests/scientist/test_agent_protocols.py -v
 pytest tests/scientist/test_compiler.py -v
 pytest tests/scientist/test_multi_agent_workflow.py -v
 pytest tests/scientist/test_reflexion_loop.py -v
+
+# Decision card system
+pytest tests/scientist/test_decision_card.py::TestDecisionCard -v
+pytest tests/scientist/test_decision_card.py -k "deterministic_core_fields or render_markdown" -v
+
+# Decision packet v2
+pytest tests/scientist/test_decision_packet_v2.py::TestDecisionPacketV2 -v
+pytest tests/scientist/test_decision_packet_v2.py -k "end_to_end_workflow" -v
+
+# Run timeline system
+pytest tests/scientist/test_run_timeline.py::TestRunTimeline -v
+pytest tests/scientist/test_run_timeline.py -k "phase_duration or artifact_serialization" -v
 
 # Agent pipeline testing
 pytest tests/scientist/test_agent_protocols.py::TestAgentPipeline -v
@@ -177,6 +247,23 @@ pytest tests/scientist/test_reflexion_loop.py::TestFailureCardConverters -v
 - **Artifact Storage**: Persistence compiled programs
 - **Legal Contracts**: Stable exports legal типов через core/contracts/legal.py
 
+**Decision Card System** (`orchestrator/decision_card.py`):
+- **Decision Packet**: Decision cards генерируются из decision packets для human-readable summaries
+- **Integration Layer**: Cards используются в end-to-end pipelines для stakeholder communication
+- **Governance Layer**: Cards интегрируются с validation feedback для comprehensive reporting
+
+**Run Timeline System** (`orchestrator/run_timeline.py`):
+- **Flow Nodes**: Timeline recording интегрировано в flow execution nodes (FRAME/EXECUTE phases)
+- **Decision Packet**: Timeline artifacts included в decision packets для execution tracking
+- **Integration Layer**: Timeline data используется для performance analysis и debugging
+- **Core Artifacts**: Timeline artifacts persisted в artifact store для reproducibility
+
+**Decision Packet v2** (`orchestrator/decision_packet.py`):
+- **Decision Card**: On-demand генерация decision cards для packet consumers
+- **Run Timeline**: Timeline integration для comprehensive execution tracking
+- **Integration Layer**: Enhanced packets используются в end-to-end workflows
+- **Fabric Layer**: Timeline data feeds в provenance tracking и evidence bundles
+
 ### Потребители Scientist Layer
 
 **Integration Layer** (`integration/`):
@@ -184,6 +271,8 @@ pytest tests/scientist/test_reflexion_loop.py::TestFailureCardConverters -v
 - **Workflow Orchestration**: AI-powered policy workflows
 - **Reflexion Loop**: Error recovery и retry mechanisms для end-to-end scenarios
 - **Failure Cards**: Error handling integration с governor и validation feedback
+- **Decision Cards**: Human-readable summaries для stakeholders и decision makers
+- **Timeline Tracking**: Execution monitoring и performance analysis для end-to-end runs
 
 ### Архитектурные инварианты
 
@@ -208,11 +297,14 @@ pytest tests/scientist/test_reflexion_loop.py::TestFailureCardConverters -v
 3. Валидируйте execution correctness compiled programs
 4. Тестируйте error handling в compilation pipeline
 5. Для governance layer: тестируйте validation pipeline, compliance issues, custom passes
-6. Для reflexion loop: тестируйте failure scenarios, recovery paths, escalation logic
-7. Для multi-agent workflow: проверяйте state persistence, critique integration, memory management
-8. Для failure cards: валидируйте schema compliance, converter accuracy, severity classification
-9. Для legal pass: тестируйте profile-based execution, backend delegation, norm pack validation
-10. Используйте fixtures для shared state (base_state, recoverable_failure_card, fatal_failure_card, sample_norm_pack)
+6. Для decision card system: проверяйте deterministic generation, verdict/confidence logic, key metrics extraction, markdown rendering
+7. Для run timeline: тестируйте event recording, duration calculations, artifact serialization, error filtering, thread safety
+8. Для decision packet v2: валидируйте timeline integration, lazy card generation, schema versioning, artifact reconstruction
+9. Для reflexion loop: тестируйте failure scenarios, recovery paths, escalation logic
+10. Для multi-agent workflow: проверяйте state persistence, critique integration, memory management
+11. Для failure cards: валидируйте schema compliance, converter accuracy, severity classification
+12. Для legal pass: тестируйте profile-based execution, backend delegation, norm pack validation
+13. Используйте fixtures для shared state (base_state, recoverable_failure_card, fatal_failure_card, sample_norm_pack, mock_packet)
 
 ### Структура scientist теста
 
@@ -439,6 +531,13 @@ pytest tests/scientist/test_multi_agent_workflow.py::TestShortTermMemory::test_s
 - **Reflexion Orchestrator**: Decision engine для retry/abort/escalation logic
 - **Recovery Mechanisms**: Converters для critic/validation/governor feedback
 - **Backoff Configuration**: Exponential backoff с configurable delays
+
+### Decision & Timeline Components
+- **Decision Card System**: Детерминированная генерация decision cards с verdict/confidence evaluation, key metrics extraction, issues summarization
+- **Run Timeline System**: Event-based tracking системы для runs с phase/node durations, artifact creation, validation events
+- **Decision Packet v2**: Обновленная версия decision packet с timeline integration и on-demand decision card generation
+- **Timeline Events**: Structured event types (PHASE_START/END, NODE_ENTER/EXIT, ARTIFACT_CREATED, VALIDATION_PASS/FAIL, ERROR)
+- **Confidence Algorithm**: Rule-based confidence calculation из blocker/warning counts для decision quality assessment
 
 ### Multi-Agent Components
 - **Short-Term Memory**: Agent state persistence с hint accumulation

@@ -2,7 +2,7 @@
 
 Тестовая инфраструктура для Policy Engine - AI-driven Policy Simulation System. Тесты обеспечивают качество кода, валидируют архитектурные границы и проверяют корректность работы всех компонентов системы.
 
-**Последнее обновление:** 27 января 2026 (добавлены conflict detection, cost model, NaN guard, agent artifacts, merge determinism, quality indicators system, fitness reports и quality gate pass)
+**Последнее обновление:** 27 января 2026 (добавлены conflict detection, cost model, NaN guard, agent artifacts, merge determinism, quality indicators system, fitness reports, quality gate pass, decision card system, run timeline tracking, decision packet v2)
 **Актуальная версия архитектуры:** v2.1.4 (Provenance Tracking, PROV-O Integration, Evidence-Enhanced Fabric)
 
 ## Архитектурный контекст
@@ -84,8 +84,11 @@ tests/
     │   └── test_validation_pipeline.py # ValidationPipeline, profiles, compliance issues
     ├── test_agent_protocols.py    # Протоколы агентов: PI, Drafter, Formalizer, Critic
     ├── test_compiler.py           # Компилятор политик из IR
+    ├── test_decision_card.py      # DecisionCard, Verdict, Confidence, KeyMetric, IssuesSummary
+    ├── test_decision_packet_v2.py # DecisionPacket v2 с timeline и decision card поддержкой
     ├── test_multi_agent_workflow.py # Multi-agent workflow с critique system и памятью
-    └── test_reflexion_loop.py     # Reflexion loop, failure cards, recovery mechanisms
+    ├── test_reflexion_loop.py     # Reflexion loop, failure cards, recovery mechanisms
+    └── test_run_timeline.py       # RunTimeline, TimelineEventType, timeline tracking
 ```
 
 ## Категории тестов
@@ -260,6 +263,9 @@ tests/
 - **Agent Protocols**: Валидация протоколов PI/Drafter/Formalizer/Critic агентов с runtime поведением
 - **Policy Compiler**: Компиляция IR в исполняемые модели foundry
 - **Agent Pipeline**: Полный pipeline от user request до PolicySurfaceIR через агентов
+- **Decision Card System**: Генерация детерминированных decision cards с verdict/confidence, key metrics и issues summary
+- **Decision Packet v2**: Обновленная версия decision packet с timeline и decision card поддержкой
+- **Run Timeline**: Система тракинга timeline выполнения runs с event tracking, phase/node durations, artifact creation
 - **Reflexion Loop**: Тестирование цикла draft → critique → refine с convergence
 - **Multi-Agent Workflow**: Интеграция multi-agent системы с critique system и памятью агентов
 - **Failure Cards**: Система обработки ошибок, recovery mechanisms и escalation logic
@@ -341,6 +347,9 @@ pytest tests/scientist/governance/ -v                 # Validation pipeline
 pytest tests/scientist/governance/test_legal_pass.py -v # Legal validation pass
 
 # Новые компоненты scientist layer
+pytest tests/scientist/test_decision_card.py -v       # Decision card system
+pytest tests/scientist/test_decision_packet_v2.py -v  # Decision packet v2 с timeline
+pytest tests/scientist/test_run_timeline.py -v        # Run timeline tracking
 pytest tests/scientist/test_multi_agent_workflow.py -v  # Multi-agent workflow
 pytest tests/scientist/test_reflexion_loop.py -v       # Reflexion loop и failure cards
 ```
@@ -445,6 +454,9 @@ pytest tests/runtime/test_runtime_manifest_paths.py
 - **Trinity Architecture**: Разделение политик на ProblemFrame/PolicySpec/ModelSpec с типизированными ссылками
 - **Agent Protocols**: Стандартизированные интерфейсы для PI/Drafter/Formalizer/Critic агентов
 - **Failure Card System**: Система обработки ошибок с recovery mechanisms и escalation logic
+- **Decision Card System**: Детерминированная генерация decision cards с verdict/confidence evaluation, key metrics extraction, issues summarization
+- **Run Timeline System**: Event-based tracking системы для runs с phase/node durations, artifact creation, validation events
+- **Decision Packet v2**: Обновленная версия decision packet с timeline integration и on-demand decision card generation
 - **Reflexion Orchestrator**: Автоматический оркестратор retry loops с backoff и decision making
 - **Short-Term Memory**: Persistence состояния агентов между попытками с hint accumulation
 - **Multi-Agent Workflow**: Интегрированная система workflow с critique-based refinement

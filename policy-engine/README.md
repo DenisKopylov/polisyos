@@ -2,7 +2,7 @@
 
 **Policy Engine** — AI‑driven система проектирования, валидации, калибровки и исполнения политик. Архитектурно это “компиляторная труба”: от запроса пользователя/LLM до формально типизированных контрактов (IR), далее — компиляция в исполняемые графы, выполнение в JAX‑ядре и фиксация результатов в воспроизводимых артефактах.
 
-**Состояние документа (актуально на 2026‑01‑27):** архитектура v2.1.4 (Trinity Architecture v2.1.4, W3C PROV-O Integration, Evidence-Enhanced Fabric, Legal Validation System, Quality Gate Enforcement, Trust & Uncertainty Quantification, Hierarchical Agent System, Self-Healing Reflexion, Multi-Fidelity Simulation, Enhanced Environment Manifest, Agent Artifacts, Merge Determinism, Quality Indicators System, Fitness Reports, Quality Gate Pass, Conflict Detection, Cost Model, NaN Guard, Agent Simulation), присутствуют переходные зоны/устаревшие интерфейсы (см. раздел "Legacy и переходные зоны").
+**Состояние документа (актуально на 2026‑01‑27):** архитектура v2.1.4 (Trinity Architecture v2.1.4, W3C PROV-O Integration, Evidence-Enhanced Fabric, Legal Validation System, Quality Gate Enforcement, Trust & Uncertainty Quantification, Hierarchical Agent System, Self-Healing Reflexion, Multi-Fidelity Simulation, Enhanced Environment Manifest, Agent Artifacts, Merge Determinism, Quality Indicators System, Fitness Reports, Quality Gate Pass, Conflict Detection, Cost Model, NaN Guard, Agent Simulation, Decision Card System, Run Timeline Tracking, Decision Packet v2), присутствуют переходные зоны/устаревшие интерфейсы (см. раздел "Legacy и переходные зоны").
 
 ## Архитектурный обзор
 
@@ -245,6 +245,9 @@ common → (никого)                                      # фундаме�
 - **Agent Simulation**: Пошаговая симуляция с ML моделями, социальными связями, демографией и artifact system
 - **Plugin System**: Capability-based registry с composite executors для domain extensions
 - **Calibration MVP**: Полная система калибровки с Hessian uncertainty quantification и merge determinism
+- **Conflict Detection**: Compile-time анализатор для обнаружения конфликтов записи в слоты перед JAX-компиляцией
+- **Cost Model**: Эвристическая модель оценки стоимости выполнения программ с самокалибровкой
+- **NaN Guard**: Runtime обнаружение и диагностика NaN/Inf значений для numerical stability
 
 #### 🎯 Governance & Compliance
 - **Budget Controls**: Compute/Evidence/Legitimacy/Complexity бюджеты с runtime enforcement
@@ -253,6 +256,9 @@ common → (никого)                                      # фундаме�
 - **Governance Pipeline**: Модульная система validation passes с telemetry и tracing
 - **Validation Profiles**: Fast/mvp/strict профили валидации с configurable passes
 - **Legal Compliance Passes**: Модульная валидация политик против нормативных требований
+- **Decision Card System**: Детерминированные human-readable summaries результатов экспериментов с verdict/confidence, key metrics и issues summary
+- **Run Timeline Tracking**: Event-based tracking системы для runs с phase/node durations, artifact creation и performance metrics для observability
+- **Decision Packet v2**: Обновленная версия decision packet с timeline integration и on-demand decision card generation
 
 #### 🔧 Infrastructure & Runtime
 - **Enhanced Environment Manifest**: Захват окружения с compatibility scoring, risk assessment и fingerprinting
@@ -271,6 +277,9 @@ common → (никого)                                      # фундаме�
 - **Merge Determinism**: Детерминированные операции merge и state consistency для reproducible симуляций
 - **Quality Indicators System**: Многофакторная оценка качества данных (missingness, staleness, coverage, outliers)
 - **Fitness Reports**: Человекочитаемые отчеты о пригодности данных с configurable thresholds
+- **Conflict Detection**: Compile-time валидация программных графов на предмет конфликтов с merge rules
+- **Cost Model**: Оценка стоимости выполнения с budget constraints и telemetry-based calibration
+- **NaN Guard**: Runtime monitoring численной стабильности с diagnostics и cause detection
 
 ### Подготовлено, но сейчас не задействовано в коде
 - **Diffrax**: ODE/SDE solver (для дифференциальных моделей)
@@ -860,15 +869,16 @@ RunManifest + seed + artifacts → Full reproducibility
 **Архитектурная роль**: "Мозг" Policy Engine - система оркестрации полного жизненного цикла экспериментов с экономическими политиками. Scientist интегрирует иерархическую систему LLM-агентов, дифференцируемые симуляции, governance controls и legal compliance для автоматического проектирования, валидации и оптимизации политик.
 
 **Ключевые компоненты:**
-- **Agent Layer**: Иерархическая система агентов (PI → Drafter → Formalizer → Critic) с self-healing через Reflexion
-- **Self-Healing System**: FailureCard, ShortTermMemory, ReflexionOrchestrator с intelligent routing
+- **Agent Layer (protocols.py)**: Иерархическая система агентов (PI → Drafter → Formalizer → Critic) с self-healing через Reflexion
+- **Self-Healing System**: FailureCard, ShortTermMemory, ReflexionOrchestrator с intelligent routing и backoff logic
 - **Kernel Layer**: FSM с 9 фазами, бюджеты (Compute/Evidence/Legitimacy/Complexity), guards, human gates
 - **Compute Layer**: Job specifications (JobSpec/JobKey/JobResult), distributed backends (LocalBackend/RayBackend)
 - **Design of Experiments**: ScenarioSweep, AblationPlan, SensitivityPlan для systematic research
-- **Governance Layer**: Validation pipeline с модульными passes (budget/safety/privacy/schema/legal/quality)
+- **Governance Layer**: Validation pipeline с модульными passes (budget/safety/privacy/schema/legal/quality), profiles (fast/mvp/strict)
 - **Legal Validation System**: Pluggable backends для оценки юридических норм (NormPack, RuleBackend, RuleType)
-- **Orchestrator Layer**: LangGraph workflow с 9 узлами, self-healing циклами и conditional routing
-- **Decision Packet**: Полный артефакт с evidence, uncertainty, provenance и fabric_result
+- **Orchestrator Layer**: LangGraph workflow с 9 узлами, self-healing циклами и conditional routing, DecisionPacket v2
+- **Decision Card System**: Human-readable summaries результатов экспериментов с verdict/confidence, key metrics, issues summary
+- **Run Timeline Tracking**: Event-based tracking системы для runs с phase/node durations, artifact creation, performance metrics
 - **Publisher**: Финализация результатов с comprehensive audit trail
 
 **Новые возможности (после обновлений):**
@@ -879,7 +889,9 @@ RunManifest + seed + artifacts → Full reproducibility
 - **FSM Orchestration**: Конечный автомат с 9 фазами и self-healing cycles
 - **Human Gates**: Асинхронная система GateRequest/GateDecision для approvals
 - **Job Specifications**: Structured execution с reproducible hashing и distributed execution
-- **Decision Packet**: Comprehensive артефакт с fabric_result, evidence_ref, uncertainty quantification
+- **Decision Packet v2**: Comprehensive артефакт с fabric_result, evidence_ref, uncertainty quantification и timeline integration
+- **Decision Card System**: Детерминированные human-readable summaries с verdict/confidence, key metrics и issues summary
+- **Run Timeline Tracking**: Event-based tracking для observability с phase/node durations и performance metrics
 - **Governance Pipeline**: Модульная система validation passes с telemetry и short-circuit логикой
 - **Legal Validation System**: Pluggable backends (NormPack, RuleBackend, RuleType) с protocol-based architecture
 - **Quality Gate Pass**: Интеграция с Fabric quality indicators для data validation и gate enforcement
@@ -972,22 +984,21 @@ Policy Engine строго следует **Закону A** (направлен
 
 #### Foundry Layer - математическое ядро и симуляции
 
-**Foundry** реализует execution engine, изолированный от data layer согласно **Закону B**:
+**Foundry** реализует execution engine, изолированный от data layer согласно **Закону B**. Детальные зависимости согласно `src/polisyos/core/README.md`:
 
-- **Scientist**: `foundry.compiler` (compile_surface_policy), `foundry.executor` (execute_program_graph), `foundry.calibration` (параметр optimization), `foundry.agent_sim` (моделирование агентов с artifact system)
-- **Runtime**: Косвенная интеграция через логирование результатов симуляций и калибровки
-- **Core**: `core.contracts.foundry` (ProgramGraph, ExecPlan, StateDelta, PatchOp, UpdateOp), `core.artifacts` (хранение скомпилированных артефактов), `core.artifacts.environment` (environment fingerprinting для reproducible симуляций)
-- **IR**: `ir.kernel` (реестры механизмов, слотов, merge rules), `ir.calibration` (контракты калибровки), `ir.trinity` (ModelSpec)
+- **Core**: `core.contracts.foundry` (ProgramGraph, ExecPlan, StateDelta, PatchOp, UpdateOp, Patch, PatchSet, PatchMeta), `core.artifacts` (CAS для всех артефактов симуляции), `core.artifacts.environment` (EnvironmentManifest с fingerprinting), `core.run.RunContext` (контексты выполнения), `core.trace` (детальная трассировка), `core.canon` (каноническая сериализация для reproducible результатов), `core.contracts.foundry` (расширенные контракты: ConflictDetection, CostModel, NaN Guard)
+- **IR**: `ir.kernel` (реестры механизмов, слотов, merge rules), `ir.calibration` (CalibrationConfig), `ir.trinity` (ModelSpec)
+- **Scientist**: `foundry.compiler` (compile_surface_policy), `foundry.executor` (execute_program_graph), `foundry.calibration` (parameter optimization), `foundry.agent_sim` (artifact system), `foundry.runtime.nan_guard` (numerical stability), `foundry.conflict_checker` (compile-time validation), `foundry.cost_model` (performance estimation)
 
 #### Scientist Layer - оркестрация
 
-**Scientist** координирует работу всех компонентов:
+**Scientist** координирует работу всех компонентов согласно детальной информации из `src/polisyos/scientist/README.md`:
 
-- **IR**: Генерация и валидация политик
-- **Fabric**: Запросы baseline данных через UDF
-- **Foundry**: Компиляция и исполнение политик
-- **Runtime**: Управление жизненным циклом экспериментов
-- **Core**: Хранение артефактов и provenance tracking
+- **Core**: `core.run` (RunContext), `core.artifacts` (CAS storage), `core.contracts.trinity/scientist/legal` (типизированные контракты), `core.trace` (audit trail), `core.registry` (реестры компонентов), `core.contracts.foundry` (ProgramGraph, ExecPlan), `core.canon` (каноническая сериализация)
+- **IR**: `ir.trinity` (ProblemFrame/PolicySpec/ModelSpec), `ir.loaders` (универсальная загрузка), `ir.calibration` (CalibrationConfig), `ir.norm_pack` (NormPack, NormRule)
+- **Fabric**: `fabric.udf.engine` (UDFEngine), `fabric.catalog` (contract validation), `fabric.registry` (ManifestRegistry), `fabric.quality` (quality indicators), `fabric.evidence` (evidence bundles), `fabric.trust` (uncertainty bounds)
+- **Foundry**: `foundry.compiler` (compile_surface_policy), `foundry.executor` (execute_program_graph), `foundry.calibration` (parameter optimization), `foundry.agent_sim` (artifact system), `foundry.runtime.nan_guard` (numerical stability), `foundry.conflict_checker` (compile-time validation), `foundry.cost_model` (performance estimation)
+- **Runtime**: Управление жизненным циклом экспериментов через API (start_run, log_artifact, finalize_run)
 
 #### Runtime Layer - управление жизненным циклом
 
@@ -1008,11 +1019,12 @@ Policy Engine строго следует **Закону A** (направлен
 
 #### Common Layer - фундаментальные утилиты
 
-**Common** предоставляет базовые сервисы всем модулям:
+**Common** предоставляет базовые сервисы всем модулям согласно информации из `src/polisyos/common/README.md`:
 
-- **Все модули**: `common.logger` (структурированное логирование), `common.config` (конфигурация)
-- **IR**: `common.migrations` (система миграций схем)
-- **Runtime**: Косвенная зависимость через другие модули
+- **Логирование (`logger.py`, `get_logger`)**: Активно используется в fabric/ingestion.py, fabric/io/db.py, fabric/io/graph_store.py, fabric/materializer.py, fabric/udf/engine.py, fabric/udf/compiler.py, scientist/orchestrator/data_loader.py, foundry/compiler.py, foundry/agent_sim/artifact.py, foundry/agent_sim/training.py, foundry/executor.py
+- **Конфигурация (`config.py`)**: JAX environment setup, hardware safeguards, logging infrastructure - используется через jax_bootstrap.py и во всем проекте
+- **Миграции (`migrations/`)**: Используется в ir/migrations/ для миграций Policy IR и Trinity форматов
+- **Все модули**: Структурированное логирование с контекстом модуля через Loguru, JAX backend selection для macOS
 
 #### Legal Layer - compliance и валидация норм
 
@@ -1219,24 +1231,43 @@ mypy src/
 
 ### Тестирование
 
+Проект имеет комплексную тестовую инфраструктуру, охватывающую все архитектурные слои согласно принципам из `tests/README.md`. Тесты обеспечивают качество кода, валидируют архитектурные границы и проверяют корректность работы всех компонентов системы.
+
+#### Категории тестов по архитектурным слоям:
+
+**Contract Tests (`contract/`)**: Валидация контрактов IR и схем, включая Trinity артефакты, миграции, kernel models и fabric gates
+**Core Phase 0 Tests (`core_phase0/`)**: Тестирование фундаментальных компонентов core layer - artifact store, канонической сериализации и registry систем
+**Fabric Tests (`fabric/`)**: Комплексная валидация Data Contract catalog, evidence bundles, provenance system, trust two-pass comparison и quality indicators
+**Foundry Tests (`foundry/`)**: Тестирование JAX-ядра с agent simulation, plugin system, conflict detection, cost model, NaN guard, merge determinism и calibration
+**IR Tests (`ir/`)**: Валидация загрузчиков и трансформаций PolicySurfaceIR структур
+**Runtime Tests (`runtime/`)**: Тестирование runtime API, manifest paths и artifact management
+**Scientist Tests (`scientist/`)**: Тестирование agent protocols, governance pipeline, legal compliance, decision card system, run timeline tracking и multi-agent workflow
+
+#### Запуск тестов:
+
 ```bash
-# Полный тест-свит с категориями
+# Полный тест-свит с категориями (быстрые unit + медленные integration)
 pytest tests/ -x --tb=short
 
-# Только быстрые unit тесты
+# Только быстрые unit тесты (foundry + contract + core)
 pytest -m "not integration"
 
-# Только интеграционные тесты
+# Только интеграционные тесты (end-to-end с БД)
 pytest -m integration
 
-# Тесты контрактов (IR и схемы)
-pytest tests/contract/
+# По категориям модулей
+pytest tests/contract/ -v         # Contract тесты (IR, Trinity, migrations)
+pytest tests/core_phase0/ -v      # Core infrastructure (CAS, canon, manifests)
+pytest tests/fabric/ -v           # Fabric layer (evidence, trust, provenance, quality)
+pytest tests/foundry/ -v          # Foundry JAX core (agent sim, plugins, conflict detection, cost model, nan guard)
+pytest tests/ir/ -v               # IR layer (loaders, transformations)
+pytest tests/runtime/ -v          # Runtime API (manifests, artifacts)
+pytest tests/scientist/ -v        # Scientist layer (agents, governance, legal, decision systems)
 
-# Тесты симуляционного ядра
-pytest tests/foundry/
-
-# Тесты governance layer
-pytest tests/scientist/governance/ -v
+# Новые компоненты scientist
+pytest tests/scientist/test_decision_card.py -v      # Decision card system
+pytest tests/scientist/test_decision_packet_v2.py -v # Decision packet v2
+pytest tests/scientist/test_run_timeline.py -v       # Run timeline tracking
 
 # Производительность и регрессии
 python tools/benchmarks/bench_domain.py

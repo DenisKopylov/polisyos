@@ -12,8 +12,8 @@ contracts/
 ├── compiler.py     # Контракты компилятора
 ├── fabric.py       # Контракты Fabric (обработка данных)
 ├── foundry.py      # Контракты Foundry (симуляция)
-├── legal.py        # Legal compliance контракты (новый)
-├── scientist.py    # Контракты Scientist (эксперименты и агенты)
+├── legal.py        # Legal compliance контракты
+├── scientist.py    # Контракты Scientist (ArtifactRef, FailureCardRef, PolicyIRRef, CritiqueRef, TimelineRef, DecisionCardRef)
 └── trinity.py      # Trinity контракты (базовые спецификации)
 ```
 
@@ -813,6 +813,40 @@ critique_ref = CritiqueRef(
 )
 ```
 
+### TimelineRef
+
+Ссылка на RunTimeline артефакт с метаданными о событиях эксперимента.
+
+```python
+from polisyos.core.contracts.scientist import TimelineRef
+
+timeline_ref = TimelineRef(
+    ref_type="run_timeline",
+    cas_hash="sha256:abcd1234...",
+    artifact_type="run_timeline",
+    run_id="exp_001_20241215",                 # ID эксперимента
+    event_count=150,                           # количество событий
+    total_duration_ms=45000                     # общая длительность в мс
+)
+```
+
+### DecisionCardRef
+
+Ссылка на DecisionCard артефакт - детерминированную сводку результатов эксперимента.
+
+```python
+from polisyos.core.contracts.scientist import DecisionCardRef
+
+card_ref = DecisionCardRef(
+    ref_type="decision_card",
+    cas_hash="sha256:efgh5678...",
+    artifact_type="decision_card",
+    run_id="exp_001_20241215",                 # ID эксперимента
+    verdict="APPROVE",                         # вердикт оценки
+    generated_at="2024-12-15T14:30:00Z"        # время генерации
+)
+```
+
 ### ProblemFrameRef
 
 Ссылка на спецификацию проблемы (ProblemFrame) - определение контекста и требований к политике.
@@ -1124,7 +1158,7 @@ def create_trinity_bundle_for_experiment(
 ### Работа с Scientist контрактами
 
 ```python
-from polisyos.core.contracts.scientist import FailureCardRef, PolicyIRRef, CritiqueRef
+from polisyos.core.contracts.scientist import FailureCardRef, PolicyIRRef, CritiqueRef, TimelineRef, DecisionCardRef
 from polisyos.scientist.agent.failure_card import FailureCard
 
 # Создание ссылки на FailureCard
@@ -1168,13 +1202,80 @@ def track_experiment_state(policy_refs: list[PolicyIRRef], critique_refs: list[C
     }
 ```
 
+# Работа с Timeline и Decision Card контрактами
+
+```python
+from polisyos.core.contracts.scientist import TimelineRef, DecisionCardRef
+
+# Создание ссылки на Timeline
+def create_timeline_ref(run_id: str, cas_hash: str, event_count: int, duration_ms: int) -> TimelineRef:
+    """Создание ссылки на RunTimeline артефакт"""
+    return TimelineRef(
+        cas_hash=cas_hash,
+        run_id=run_id,
+        event_count=event_count,
+        total_duration_ms=duration_ms
+    )
+
+# Создание ссылки на Decision Card
+def create_decision_card_ref(run_id: str, cas_hash: str, verdict: str, generated_at: str) -> DecisionCardRef:
+    """Создание ссылки на DecisionCard артефакт"""
+    return DecisionCardRef(
+        cas_hash=cas_hash,
+        run_id=run_id,
+        verdict=verdict,
+        generated_at=generated_at
+    )
+
+# Расширенное отслеживание состояния эксперимента
+def track_experiment_state_with_timeline(
+    policy_refs: list[PolicyIRRef],
+    critique_refs: list[CritiqueRef],
+    timeline_refs: list[TimelineRef],
+    decision_cards: list[DecisionCardRef]
+) -> dict:
+    """Отслеживание состояния эксперимента с timeline и decision cards"""
+
+    # Группировка по вердиктам критика
+    approved = [ref for ref in critique_refs if ref.verdict == "approve"]
+    revisions = [ref for ref in critique_refs if ref.verdict == "revise"]
+    rejected = [ref for ref in critique_refs if ref.verdict == "reject"]
+
+    # Статистика по timeline
+    total_events = sum(ref.event_count for ref in timeline_refs)
+    avg_duration = sum(ref.total_duration_ms for ref in timeline_refs) / len(timeline_refs) if timeline_refs else 0
+
+    # Статистика по decision cards
+    verdicts = {}
+    for card in decision_cards:
+        verdicts[card.verdict] = verdicts.get(card.verdict, 0) + 1
+
+    return {
+        "policies": {
+            "total": len(policy_refs),
+            "latest_version": max((ref.version for ref in policy_refs), default=0)
+        },
+        "critiques": {
+            "approved": len(approved),
+            "pending_revision": len(revisions),
+            "rejected": len(rejected)
+        },
+        "timeline": {
+            "total_runs": len(timeline_refs),
+            "total_events": total_events,
+            "avg_duration_ms": avg_duration
+        },
+        "decisions": verdicts
+    }
+```
+
 ## Архитектурная роль
 
 ### Разделение ответственности
 
-- **Contracts**: Определяют интерфейсы и типы данных для всех модулей (Fabric, Foundry, Scientist, Trinity) включая advanced runtime capabilities (conflict detection, cost modeling, NaN guard)
+- **Contracts**: Определяют интерфейсы и типы данных для всех модулей (Fabric, Foundry, Scientist, Trinity) включая advanced runtime capabilities (conflict detection, cost modeling, NaN guard) и timeline tracking с decision cards для observability экспериментов
 - **Artifacts**: Предоставляют инфраструктуру хранения и CAS для всех артефактов
-- **Модули**: Реализуют логику, используя контракты для типобезопасного взаимодействия с compile-time validation и runtime safety
+- **Модули**: Реализуют логику, используя контракты для типобезопасного взаимодействия с compile-time validation, runtime safety и comprehensive observability
 
 ### Trinity архитектура
 

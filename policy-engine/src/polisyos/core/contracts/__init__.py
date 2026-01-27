@@ -34,8 +34,14 @@ from .foundry import (
     TreasurySeed,
     TreasurySeedRef,
 )
-from .legal import NormPack, NormRef, NormRule, RuleType, RuleBackend
-from .scientist import CritiqueRef, FailureCardRef, PolicyIRRef
+try:
+    # Legal contracts may pull in optional heavy dependencies.
+    from .legal import NormPack, NormRef, NormRule, RuleType, RuleBackend
+
+    _LEGAL_EXPORTS = ["NormPack", "NormRef", "NormRule", "RuleType", "RuleBackend"]
+except ModuleNotFoundError:  # pragma: no cover
+    _LEGAL_EXPORTS = []
+from .scientist import CritiqueRef, DecisionCardRef, FailureCardRef, PolicyIRRef, TimelineRef
 from .trinity import (
     ModelSpecRef,
     PolicySpecRef,
@@ -81,14 +87,11 @@ __all__ = [
     "FailureCardRef",
     "PolicyIRRef",
     "CritiqueRef",
+    "TimelineRef",
+    "DecisionCardRef",
     "ProblemFrameRef",
     "PolicySpecRef",
     "ModelSpecRef",
     "TrinityBundle",
     "TrinityManifest",
-    "NormPack",
-    "NormRef",
-    "NormRule",
-    "RuleType",
-    "RuleBackend",
-]
+] + _LEGAL_EXPORTS

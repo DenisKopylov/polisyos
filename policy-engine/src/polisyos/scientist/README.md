@@ -120,6 +120,7 @@ scientist/
 - **`privacy_pass.py`**: Контроль приватности данных (PII tiers, access control)
 - **`schema_pass.py`**: Валидация структуры IR и compliance с PolicySurfaceIR schema
 - **`legal_pass.py`**: Проверка соответствия политик юридическим нормам (GDPR, конституционные ограничения)
+- **`quality_gate_pass.py`**: Валидация качества данных перед симуляцией (интеграция с Fabric quality indicators)
 - **`base.py`**: Базовые классы `ValidatorPass`, `PassContext`, `ComplianceIssue` для создания кастомных проверок
 
 #### Legal Compliance Layer (`legal/`)
@@ -288,6 +289,13 @@ Workflow управляется конечным автоматом состоя
 - **Fabric Result**: Результаты Fabric layer с evidence references и uncertainty bounds
 - **Audit Trail**: Полный JSON Lines лог всех операций с provenance tracking и timestamps
 - **Deterministic Seeds**: Полная воспроизводимость через fixed seeds и canonical serialization
+
+### 📊 Data Quality & Fitness Assessment
+- **Quality Indicators**: Объективные метрики качества данных (`missingness`, `staleness_days`, `coverage`, `row_count`, `schema_drift`, `outlier_ratio`)
+- **Quality Levels**: Классификация качества (EXCELLENT/GOOD/ACCEPTABLE/POOR/UNUSABLE) с configurable thresholds для разных профилей (FAST/MVP/STRICT)
+- **Data Fitness Reports**: Структурированные отчеты о пригодности данных для симуляции с human-readable failure reasons и summary statistics
+- **Quality Gate Pass**: Автоматическая валидация качества данных перед запуском симуляции с integration в governance pipeline
+- **Profile-based Assessment**: Разные thresholds качества для различных сценариев использования (быстрая итерация vs production compliance)
 
 ### ⚙️ Compute & Experiment Design
 - **Job Specifications**: `JobSpec`, `JobKey`, `JobResult` для структурированных задач
@@ -1149,6 +1157,8 @@ Scientist является верхним уровнем в архитектур
 - **Calibration**: `Calibrator`, `CalibratorInputs`, `extract_fabric_series`, `put_calibration_config`, `put_calibration_report` - полная система калибровки с uncertainty quantification
 - **Trust System**: Политики доверия с statistical verification и uncertainty bounds
 - **Evidence Bundles**: Криптографически verifiable доказательства происхождения данных
+- **Quality Assessment**: `QualityIndicators`, `QualityLevel`, `QualityThresholds`, `compute_quality_indicators` - объективная оценка качества данных с coverage, missingness, staleness метриками
+- **Data Fitness Reports**: `DataFitnessReport`, `MetricFitness` - human-readable отчеты о пригодности данных для симуляции с failure reasons и profile-based thresholds
 
 ### 🔗 Foundry (JAX Simulation Engine)
 - **Compiler**: `compile_surface_policy`, `put_policy_surface` - компиляция IR в ProgramGraph + ExecPlan
@@ -1378,7 +1388,8 @@ research_budget = {
 
 ### 🚧 Частично реализованные компоненты
 
-- **Governance Layer**: Полная система validation passes (включая legal compliance) с pipeline orchestration, профилями и telemetry. Preflight/postflight с GateRequest/GateDecision интеграцией (готовы для UI integration)
+- **Governance Layer**: Полная система validation passes (включая legal compliance и quality gate) с pipeline orchestration, профилями и telemetry. Preflight/postflight с GateRequest/GateDecision интеграцией (готовы для UI integration)
+- **Data Quality Assessment**: Полная система оценки качества данных через QualityIndicators, QualityLevel, QualityThresholds с integration в Fabric layer и governance pipeline
 - **DoE Layer**: Базовые модели ScenarioSweep, AblationPlan, SensitivityPlan без полной интеграции в workflow (готовы для расширения)
 - **Optimization**: Градиентная оптимизация через Optax с gradient health monitoring и uncertainty quantification (нужна интеграция с multi-objective optimization)
 
@@ -1392,6 +1403,7 @@ research_budget = {
 - **Agent Training**: Система обучения адаптивных агентов с continuous actions и gradient monitoring
 - **Uncertainty Quantification**: Оценки неопределенности через Hessian analysis и confidence bounds
 - **Evidence Integration**: Криптографически verifiable доказательства с Fabric layer integration
+- **Data Quality Validation**: Автоматическая оценка качества данных перед симуляцией с configurable thresholds и human-readable reports
 - **Mock Testing**: Полная поддержка тестирования без внешних зависимостей
 
 ### 🔄 Архитектурные принципы соблюдены

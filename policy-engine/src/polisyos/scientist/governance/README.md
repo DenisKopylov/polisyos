@@ -32,7 +32,8 @@ governance/
     ├── privacy_pass.py  # Контроль приватности (PII tiers, access control)
     ├── safety_pass.py   # Проверка безопасности механизмов и селекторов
     ├── schema_pass.py   # Валидация структуры IR и PolicySurfaceIR compliance
-    └── legal_pass.py    # Legal compliance validation against norms
+    ├── legal_pass.py    # Legal compliance validation against norms
+    └── quality_gate_pass.py # Data quality validation before simulation
 ```
 
 ## Компоненты
@@ -106,9 +107,9 @@ def postflight_checks(
   - Подходит для development и production
 
 - **`strict`**: Полный набор проверок без оптимизаций
-  - Все доступные passes
+  - Все доступные passes включая Quality Gate Pass
   - Short-circuit: disabled
-  - Максимальная безопасность и compliance
+  - Максимальная безопасность, compliance и качество данных
 
 #### Кастомные профили:
 Возможно создание custom профилей с специфическими passes и thresholds для особых требований.
@@ -164,6 +165,118 @@ class RuleBackend(Protocol):
 - **AST Backend**: Безопасная AST интерпретация condition expressions
 - **LLM Backend**: Claude-based evaluation для комплексных текстовых норм
 
+### 📊 Quality Gate Pass (quality_gate_pass.py)
+
+Проверка качества данных перед запуском симуляции с интеграцией Fabric quality assessment:
+
+#### QualityGatePass
+```python
+class QualityGatePass(ValidatorPass):
+    """
+    Validates data quality before simulation execution.
+
+    Behavior by profile:
+    - FAST: Skip entirely (not in pass_ids)
+    - MVP: Skip entirely (not in pass_ids)
+    - STRICT: Run and block on POOR or UNUSABLE quality
+    """
+
+    def __init__(
+        self,
+        *,
+        force_run: bool = False,
+        critical_metrics: list[str] | None = None,
+    ) -> None:
+        self._force_run = force_run
+        self._critical_metrics = critical_metrics
+```
+
+**Ключевые особенности:**
+- **Profile-aware**: Запускается только в `STRICT` профиле по умолчанию (можно принудительно включить)
+- **Fabric integration**: Использует `QualityIndicators`, `QualityLevel`, `QualityThresholds` из Fabric layer
+- **Data Fitness Reports**: Создает `DataFitnessReport` с human-readable summary и failure reasons
+- **Evidence Bundle support**: Автоматически извлекает метрики из evidence bundles или вычисляет их on-demand
+- **Critical metrics**: Возможность указать список критически важных метрик для дополнительной проверки
+- **Multi-source data**: Поддержка данных из evidence bundles, state refs и catalog registry
+
+#### Data Quality Components (Fabric Integration)
+
+**QualityIndicators**: Объективные метрики качества данных
+```python
+@dataclass
+class QualityIndicators:
+    metric_id: str
+    missingness: float        # Доля пропущенных значений (0.0-1.0)
+    staleness_days: int       # Дни с момента последнего обновления
+    coverage: float          # Покрытие ожидаемого диапазона (0.0-1.0)
+    row_count: int           # Количество строк
+    schema_drift: bool       # Изменения в схеме данных
+    outlier_ratio: float     # Доля выбросов
+    computed_at: datetime    # Время вычисления
+```
+
+**QualityLevel**: Классификация уровня качества
+```python
+class QualityLevel(Enum):
+    EXCELLENT = "excellent"   # Отличное качество
+    GOOD = "good"            # Хорошее качество
+    ACCEPTABLE = "acceptable" # Приемлемое качество
+    POOR = "poor"            # Плохое качество
+    UNUSABLE = "unusable"    # Непригодное качество
+```
+
+**QualityThresholds**: Конфигурируемые пороги для разных профилей
+```python
+@dataclass(frozen=True)
+class QualityThresholds:
+    missingness_excellent: float = 0.01    # <1% пропусков = excellent
+    missingness_good: float = 0.05         # <5% пропусков = good
+    staleness_excellent: int = 7           # <7 дней = excellent
+    coverage_excellent: float = 0.99       # >99% покрытия = excellent
+    min_row_count: int = 10                # Минимум 10 строк
+
+    @classmethod
+    def for_profile(cls, profile_level: str) -> "QualityThresholds":
+        """Возвращает thresholds для профиля (FAST/MVP/STRICT)"""
+```
+
+#### DataFitnessReport: Человеко-читаемые отчеты
+
+```python
+@dataclass
+class DataFitnessReport:
+    run_id: str
+    profile: str = "mvp"
+    metrics: List[MetricFitness] = field(default_factory=list)
+    overall_passed: bool = True
+
+    def add_metric(self, fitness: MetricFitness) -> None:
+        """Добавить оценку метрики"""
+
+    def generate_summary(self) -> str:
+        """Сгенерировать ASCII summary"""
+
+    def generate_markdown_summary(self) -> str:
+        """Сгенерировать Markdown summary для документации"""
+```
+
+#### MetricFitness: Оценка отдельных метрик
+
+```python
+@dataclass
+class MetricFitness:
+    metric_id: str
+    indicators: QualityIndicators
+    level: QualityLevel
+    fail_reasons: List[str] = field(default_factory=list)
+    profile_used: str = "mvp"
+
+    @property
+    def passed(self) -> bool:
+        """True если уровень качества приемлемый"""
+        return self.level.is_passing()
+```
+
 ## Архитектура Governance
 
 ### Многоуровневый контроль с модульной архитектурой
@@ -184,6 +297,7 @@ class RuleBackend(Protocol):
 │  │   │ Safety Pass                │ │ │
 │  │   │ Privacy Pass               │ │ │
 │  │   │ Budget Pass                │ │ │
+│  │   │ Quality Gate Pass          │ │ │
 │  │   └─────────────────────────────┘ │ │
 │  │                                 │ │
 │  │   • Modular Design             │ │
@@ -394,6 +508,106 @@ issues = legal_pass.validate(PassContext(
 print(f"Legal validation issues: {len(issues)}")
 for issue in issues:
     print(f"- {issue.code}: {issue.message}")
+```
+
+### Работа с Quality Gate Pass
+
+```python
+from polisyos.scientist.governance.passes.quality_gate_pass import QualityGatePass
+from polisyos.fabric.quality import QualityIndicators, QualityLevel, QualityThresholds
+from polisyos.fabric.fitness_report import DataFitnessReport, MetricFitness
+
+# Создание QualityGatePass с кастомными настройками
+quality_pass = QualityGatePass(
+    force_run=True,  # Принудительно включить (иначе только в STRICT профиле)
+    critical_metrics=["gdp", "unemployment"]  # Критически важные метрики
+)
+
+# Создание тестовых quality indicators
+indicators = QualityIndicators(
+    metric_id="gdp_data",
+    missingness=0.02,        # 2% пропусков
+    staleness_days=3,        # 3 дня с обновления
+    coverage=0.95,          # 95% покрытия
+    row_count=1000,         # 1000 строк
+    schema_drift=False,     # Схема не изменилась
+    outlier_ratio=0.03      # 3% выбросов
+)
+
+# Создание mock evidence bundle
+evidence_bundle = {
+    "sources": [{"artifact_id": "gdp_data"}],
+    "quality_indicators": {
+        "gdp_data": indicators.to_dict()
+    }
+}
+
+# Тестовое состояние с evidence bundle
+state_with_data = {
+    "run_id": "test_quality",
+    "evidence_bundle": evidence_bundle,
+    "policy_ir": valid_policy_ir
+}
+
+# Запуск quality gate validation
+issues = quality_pass.validate(PassContext(
+    ir=valid_policy_ir,
+    state=state_with_data,
+    profile=get_profile("strict"),  # Quality pass работает только в strict
+    run_id="test_quality"
+))
+
+# Проверка результатов
+if issues:
+    print(f"Quality issues found: {len(issues)}")
+    for issue in issues:
+        print(f"- {issue.code}: {issue.message}")
+        if issue.suggestion:
+            print(f"  Suggestion: {issue.suggestion}")
+else:
+    print("✅ All quality checks passed")
+
+# Получение fitness report из state
+fitness_report = state_with_data.get("data_fitness_report")
+if fitness_report:
+    print(f"Fitness report: {fitness_report.overall_passed}")
+    print(f"Summary:\n{fitness_report.generate_summary()}")
+```
+
+### Работа с Quality Components
+
+```python
+from polisyos.fabric.quality import QualityIndicators, QualityLevel, QualityThresholds, compute_quality_indicators
+import pandas as pd
+
+# Вычисление quality indicators из DataFrame
+df = pd.DataFrame({
+    "gdp": [1000, 1050, 1100, None, 1200],  # Одна строка с пропуском
+    "year": [2020, 2021, 2022, 2023, 2024]
+})
+
+indicators = compute_quality_indicators(
+    df=df,
+    metric_id="gdp_metric",
+    last_updated=pd.Timestamp("2024-01-15"),  # 10 дней назад
+    expected_row_count=5
+)
+
+print(f"Missingness: {indicators.missingness:.1%}")
+print(f"Staleness: {indicators.staleness_days} days")
+print(f"Coverage: {indicators.coverage:.1%}")
+
+# Определение уровня качества
+thresholds = QualityThresholds.for_profile("strict")
+level = indicators.overall_level(thresholds)
+print(f"Quality level: {level.value}")
+
+# Получение причин неудач
+if not level.is_passing():
+    reasons = indicators.get_failure_reasons(thresholds)
+    print("Failure reasons:")
+    for reason in reasons:
+        print(f"- {reason}")
 ```
 
 ### Кастомные проверки

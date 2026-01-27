@@ -2,7 +2,7 @@
 
 Тестовая инфраструктура для Policy Engine - AI-driven Policy Simulation System. Тесты обеспечивают качество кода, валидируют архитектурные границы и проверяют корректность работы всех компонентов системы.
 
-**Последнее обновление:** Январь 2026 (добавлены provenance subsystem, PROV-O экспорт и provenance tracking в Fabric layer)
+**Последнее обновление:** Январь 2026 (добавлены quality indicators system, fitness reports и quality gate pass)
 **Актуальная версия архитектуры:** v2.1.4 (Provenance Tracking, PROV-O Integration, Evidence-Enhanced Fabric)
 
 ## Архитектурный контекст
@@ -40,7 +40,8 @@ tests/
 │   ├── test_data_catalog.py       # Data Contract catalog system, contract validation, metric bindings, search
 │   ├── test_evidence_bundle.py    # Evidence bundles, ingestion pipeline, provenance tracking
 │   ├── test_provenance.py         # Provenance subsystem, entities, graphs, PROV-O export, persistence
-│   └── test_trust_two_pass.py     # Trust system, uncertainty bounds, двухпроходное сравнение
+│   ├── test_trust_two_pass.py     # Trust system, uncertainty bounds, двухпроходное сравнение
+│   └── test_quality_indicators.py # Quality indicators system, fitness reports, quality gate pass integration
 ├── foundry/                       # Тесты симуляционных компонентов JAX-ядра
 │   ├── agent_sim/                 # Тесты симуляции агентов
 │   │   └── test_monitoring.py     # MetricsCollector, ExperimentTracker, DashboardGenerator, визуализация
@@ -184,13 +185,16 @@ tests/
 
 ### Fabric Tests (`fabric/`)
 
-**Цель**: Комплексная валидация компонентов Fabric layer - data catalog system, ingestion pipeline, evidence bundles, trust system и materialization engine.
+**Цель**: Комплексная валидация компонентов Fabric layer - data catalog system, ingestion pipeline, evidence bundles, trust system, materialization engine, quality indicators и fitness reports.
 
 **Ключевые тесты:**
 - **Data Contract Catalog**: Валидация контрактов данных, metric bindings, registry system, поиск и разрешение метрик с disambiguation
 - **Evidence Bundle**: Создание, валидация и persistence evidence артефактов после ingestion с provenance tracking
 - **Provenance System**: Тестирование provenance подсистемы - entities, graphs, PROV-O экспорт, persistence и интеграция с evidence bundles
 - **Trust & Uncertainty**: Двухпроходное сравнение данных, оценка uncertainty bounds, статистическая верификация доверия
+- **Quality Indicators**: Система оценки качества данных - missingness, staleness, coverage, schema drift, outlier detection с configurable thresholds
+- **Fitness Reports**: Генерация отчетов о пригодности данных для симуляции с human-readable summaries и quality gate integration
+- **Quality Gate Pass**: Интеграция quality validation в governance pipeline с блокировкой на низком качестве данных
 
 **Принципы:**
 - **Evidence Mandatory**: Evidence bundles обязательны в FabricResult контрактах (Law E enforcement)
@@ -199,6 +203,10 @@ tests/
 - **Ingestion Pipeline**: Полная интеграция raw → staging → curated трансформации с data quality checks
 - **Trust Policies**: Многоуровневые политики доверия к источникам данных с cryptographic verification
 - **Materialization Engine**: Incremental updates реляционных представлений из Fact Log с consistency guarantees
+- **Quality Assessment**: Многофакторная оценка качества (missingness, staleness, coverage, outliers) с weighted scoring
+- **Fitness Levels**: Пятиуровневая классификация (EXCELLENT/GOOD/ACCEPTABLE/POOR/UNUSABLE) с configurable thresholds
+- **Profile-based Validation**: Разные профили качества (FAST/MVP/STRICT) для различных сценариев использования
+- **Quality Gate Enforcement**: Автоматическая блокировка симуляции при низком качестве данных в strict режиме
 
 ### IR Tests (`ir/`)
 
@@ -236,7 +244,7 @@ tests/
 **Цель**: Валидация компонентов ИИ, протоколов агентов, компиляции политик, систем recovery и governance layer.
 
 **Ключевые тесты:**
-- **Governance Layer**: Validation pipeline, compliance checks, pre/post-flight governance, legal validation passes
+- **Governance Layer**: Validation pipeline, compliance checks, pre/post-flight governance, legal validation passes, quality gate pass
 - **Agent Protocols**: Валидация протоколов PI/Drafter/Formalizer/Critic агентов с runtime поведением
 - **Policy Compiler**: Компиляция IR в исполняемые модели foundry
 - **Agent Pipeline**: Полный pipeline от user request до PolicySurfaceIR через агентов
@@ -373,6 +381,9 @@ pytest tests/fabric/test_provenance.py
 # Trust и uncertainty bounds
 pytest tests/fabric/test_trust_two_pass.py
 
+# Quality indicators и fitness reports
+pytest tests/fabric/test_quality_indicators.py
+
 # Policy loaders
 pytest tests/ir/test_loaders.py
 
@@ -398,6 +409,10 @@ pytest tests/runtime/test_runtime_manifest_paths.py
 - **Fact Log System**: Immutable факты с provenance tracking и детерминированные ID
 - **Materializer Engine**: Инкрементальная материализация реляционных представлений
 - **Trust System**: Статистическая верификация доверия к данным с evidence bundles
+- **Quality Indicators System**: Многофакторная оценка качества данных (missingness, staleness, coverage, outliers) с pandas/DuckDB computation
+- **Fitness Reports**: Генерация human-readable отчетов о пригодности данных с ASCII/markdown форматами
+- **Quality Thresholds**: Configurable профили качества (FAST/MVP/STRICT) с различными tolerance уровнями
+- **Quality Gate Pass**: Governance pass для валидации качества данных перед симуляцией
 - **Plugin System**: Модульная архитектура с capability-based plugin registry и composite executors
 - **Agent Simulation**: Пошаговая симуляция агентов с метриками, трекингом экспериментов и визуализацией
 - **Trinity Architecture**: Разделение политик на ProblemFrame/PolicySpec/ModelSpec с типизированными ссылками

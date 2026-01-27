@@ -80,6 +80,7 @@ class EvidenceBundle(BaseModel):
     trust_policy_id: str | None = None
     notes: list[str] = Field(default_factory=list)
     provenance_ref: ProvenanceCoreRefModel | None = None
+    quality_indicators: dict[str, dict] | None = None
 
 
 class UncertaintyBounds(BaseModel):

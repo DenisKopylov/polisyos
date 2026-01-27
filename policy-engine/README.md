@@ -2,7 +2,7 @@
 
 **Policy Engine** — AI‑driven система проектирования, валидации, калибровки и исполнения политик. Архитектурно это “компиляторная труба”: от запроса пользователя/LLM до формально типизированных контрактов (IR), далее — компиляция в исполняемые графы, выполнение в JAX‑ядре и фиксация результатов в воспроизводимых артефактах.
 
-**Состояние документа (актуально на 2026‑01‑27):** архитектура v2.1.4 (Provenance Tracking, PROV-O Integration, Evidence-Enhanced Fabric, Trinity Contracts, Legal Contracts, Enhanced Environment Manifest), присутствуют переходные зоны/устаревшие интерфейсы (см. раздел “Legacy и переходные зоны”).
+**Состояние документа (актуально на 2026‑01‑27):** архитектура v2.1.4 (Trinity Architecture, Provenance Tracking, W3C PROV-O Integration, Evidence-Enhanced Fabric, Legal Validation System, Quality Gate Enforcement, Trust & Uncertainty Quantification, Hierarchical Agent System, Self-Healing Reflexion, Multi-Fidelity Simulation, Enhanced Environment Manifest), присутствуют переходные зоны/устаревшие интерфейсы (см. раздел “Legacy и переходные зоны”).
 
 ## Архитектурный обзор
 
@@ -44,7 +44,7 @@ Artifacts (CAS + Audit Trail + Evidence)
 - **PolicySpec ("What")**: Спецификация политики, интервенций и параметров (итерируется при оптимизации)
 - **ModelSpec ("How")**: Конфигурация модели мира, агентов, данных и предположений (для sensitivity analysis)
 
-PolicySurfaceIR v2.x остается совместимым интерфейсом для обратной совместимости.
+**Trinity Bundle** обеспечивает типизированные ссылки на все три артефакта с валидацией совместимости. PolicySurfaceIR v2.x остается совместимым интерфейсом для обратной совместимости, с поддержкой автоматической миграции в Trinity формат.
 
 ### Архитектурные законы (инварианты проекта)
 
@@ -59,6 +59,8 @@ PolicySurfaceIR v2.x остается совместимым интерфейс�
 - **Закон G — uncertainty quantification**: калибровка и trust‑подсистема возвращают bounds/оценки неопределённости (артефакты + отчёты).
 - **Закон H — governance и бюджеты**: `polisyos.scientist` ограничивает вычисления и внешние вызовы (budgets), выполняет preflight/postflight и поддерживает human gates при необходимости.
 - **Закон I — trust + privacy**: уровни доступа к данным (AccessTier), privacy passes в UDF компиляции, trust policies (two‑pass compare, uncertainty bounds).
+- **Закон J — legal compliance**: политики должны соответствовать юридическим нормам через pluggable rule backends (NormPack, RuleType, LegalPass).
+- **Закон K — quality gate enforcement**: данные должны проходить quality validation перед использованием в симуляциях (QualityIndicators, DataFitnessReport, QualityGatePass).
 
 ### Архитектурные слои и зависимости
 
@@ -148,22 +150,29 @@ common → (никого)                                      # фундаме�
 ### Data Layer (Unified Data Fabric)
 - **DuckDB 0.9.x+**: встраиваемая аналитическая БД для временных рядов и OLAP запросов
 - **Kùzu 0.0.x+**: встраиваемая графовая БД для моделирования взаимодействий агентов
-- **PyArrow 10.x+**: эффективная передача и обработка columnar данных
+- **PyArrow 10.x+**: эффективная передача и обработка columnar данных с high-performance processing
 - **pandas**: ETL трансформации и анализ данных
 - **Parquet**: columnar storage формат для больших датасетов
 - **Pydantic v2**: строгие схемы данных и валидация
+- **W3C PROV-O**: стандартизированная система provenance tracking
 
 ### IR & Contracts (Промежуточное представление)
 - **Pydantic v2**: строгие контракты и валидация структур данных
 - **JSON Schema**: автоматический экспорт схем для внешних интеграций
 - **difflib**: генерация отчетов об изменениях при валидации
 - **Canonical JSON**: детерминированная сериализация для reproducible хешей и content addressing
+- **Trinity Contracts**: типизированные ссылки на ProblemFrame/PolicySpec/ModelSpec артефакты
+- **Legal Contracts**: стабильные контракты для legal validation subsystem (NormPack, NormRule, RuleType)
+- **Patch-based Contracts**: UpdateOp, Merge Rules и state management (SUM/OVERRIDE/PRIORITY/ERROR)
 
 ### Scientist & AI (Интеллектуальное ядро)
-- **LangGraph**: декларативный workflow с конечными автоматами состояний
+- **LangGraph**: декларативный workflow с конечными автоматами состояний и 9 фазами
 - **LangChain**: интеграция с LLM провайдерами (OpenAI, Anthropic, локальные модели)
 - **MockLLM**: локальный LLM-адаптер для тестирования без API ключей
 - **PyMOO 0.6.x+**: многокритериальная оптимизация (NSGA-II, genetic algorithms)
+- **Hierarchical Agent System**: PI → Drafter → Formalizer → Critic с протоколами и runtime поведением
+- **Self-Healing Agents**: Reflexion system с FailureCard recovery и intelligent routing
+- **Short-Term Memory**: persistence состояния между agent attempts с hint accumulation
 
 ### Runtime & Infrastructure
 - **Loguru**: структурированное логирование с JSON сериализацией
@@ -172,55 +181,75 @@ common → (никого)                                      # фундаме�
 - **hashlib**: контроль целостности данных и детерминированные ID
 - **Run Manifest**: паспорт эксперимента с метаданными, бюджетами и артефактами
 - **Audit Trail**: JSON Lines логирование всех операций с provenance tracking
+- **Environment Manifest**: захват окружения с compatibility scoring и risk assessment
+- **Job Specifications**: structured execution с reproducible hashing и distributed backends
+- **Decision Packet**: полный артефакт с evidence, uncertainty и provenance tracking
 
 ### Quality & Development Tools
 - **Ruff**: быстрый линтер и форматер (замена Black + Flake8 + Isort + PyUpgrade)
 - **MyPy**: строгая статическая типизация с постепенным внедрением
-- **Pytest**: unit/integration/contract тесты с расширенными fixtures
+- **Pytest**: unit/integration/contract тесты с расширенными fixtures и категориями
 - **Pre-commit**: git hooks для quality gates (dev зависимости)
 - **JupyterLab + Matplotlib + Seaborn + Plotly**: исследовательская визуализация и ноутбуки
+- **Quality Indicators**: автоматическая оценка качества данных (missingness, staleness, coverage)
+- **Data Fitness Reports**: человекочитаемые отчеты о пригодности данных
+- **Legal Validation Tools**: pluggable backends для оценки юридических норм
 
 ### Новые компоненты (после крупных изменений)
-- **Data Contract Catalog**: Metric-level система контрактов для type safety и предотвращения hallucination имен метрик с hash-locked bindings
-- **Trinity Architecture**: Разделение IR на ProblemFrame ("Why"), PolicySpec ("What"), ModelSpec ("How")
+
+#### 🏗️ Архитектурная эволюция
+- **Trinity Architecture**: Разделение IR на ProblemFrame ("Why"), PolicySpec ("What"), ModelSpec ("How") с типизированными TrinityBundle ссылками
+- **W3C PROV-O Integration**: Стандартизированная система provenance tracking с entities, activities и agents
+- **Legal Validation System**: Pluggable backends для оценки юридических норм (NormPack, RuleBackend, RuleType)
+- **Quality Gate Enforcement**: Автоматическая валидация качества данных перед симуляциями (QualityIndicators, DataFitnessReport)
+
+#### 🤖 AI & Agent Systems
+- **Hierarchical Agent System**: PI декомпозиция → Drafter генерация → Formalizer трансформация → Critic валидация
+- **Self-Healing Agents**: Reflexion system с FailureCard recovery, ShortTermMemory и intelligent routing
+- **Multi-Agent Workflow**: Интегрированная система агентов с critique-based refinement и convergence tracking
 - **Agent Protocols**: Стандартизированные интерфейсы для PI/Drafter/Formalizer/Critic агентов с runtime поведением
-- **Environment Manifest**: Захват и сравнение вычислительных окружений с compatibility scoring
-- **Enhanced Monitoring**: Метрики, трекинг экспериментов и визуализация для agent simulation
-- **Self-Healing Agents**: Reflexion system с FailureCard recovery и intelligent routing
-- **Multi-Agent Workflow**: Интегрированная система агентов с critique-based refinement
-- **Failure Card System**: Структурированные артефакты ошибок с recovery mechanisms
-- **Short-Term Memory**: Persistence состояния между agent attempts с hint accumulation
-- **Reflexion Orchestrator**: Автоматический retry management с backoff и decision making
-- **Fact Log System**: immutable факты с provenance tracking и evidence bundles
-- **Evidence Bundles**: Криптографически verifiable доказательства с trust policies
-- **UDF Compilation Pipeline**: Безопасная компиляция SQL/Cypher запросов с whitelist
-- **Trust System**: Statistical verification и multi-tier evidence validation
-- **Materializer Engine**: Incremental материализация реляционных представлений из Fact Log
-- **Plugin System**: Capability-based registry с composite executors для domain extensions
+
+#### 📊 Data Management & Quality
+- **Data Contract Catalog**: Metric-level система контрактов для type safety с hash-locked bindings и disambiguation
+- **Quality Indicators System**: Многофакторная оценка качества данных (missingness, staleness, coverage, outliers)
+- **Data Fitness Reports**: Человекочитаемые отчеты о пригодности данных с configurable thresholds
+- **Fact Log System**: Immutable факты с provenance tracking и детерминированные ID
+- **Materializer Engine**: Incremental материализация реляционных представлений из Fact Log с consistency guarantees
+
+#### 🔐 Trust & Evidence
+- **Evidence Bundles**: Криптографически verifiable доказательства происхождения данных
+- **Trust System**: Statistical verification с two-pass comparison и uncertainty bounds
+- **Provenance Tracking**: W3C PROV-O compliant система с entities, activities и agents
+- **Evidence-Enhanced Fabric**: Полная интеграция evidence в data pipeline с cryptographic verification
+
+#### ⚡ Simulation & Execution
+- **Multi-Fidelity Simulation**: Fluid/relaxed/hard уровни точности с fidelity control
+- **Patch-based Execution**: UpdateOp и Merge Rules (SUM/OVERRIDE/PRIORITY/ERROR) для state management
 - **Agent Simulation**: Пошаговая симуляция с ML моделями, социальными связями и демографией
-- **Patch-based Execution**: UpdateOp и Merge Rules (SUM/OVERRIDE/PRIORITY/ERROR)
-- **Treasury System**: Детерминированное RNG управление для reproducible симуляций
+- **Plugin System**: Capability-based registry с composite executors для domain extensions
 - **Calibration MVP**: Полная система калибровки с Hessian uncertainty quantification
+
+#### 🎯 Governance & Compliance
+- **Budget Controls**: Compute/Evidence/Legitimacy/Complexity бюджеты с runtime enforcement
+- **Human Gates**: Асинхронная система GateRequest/GateDecision для approvals
+- **FSM Orchestration**: Конечный автомат состояний с 9 фазами и self-healing cycles
+- **Governance Pipeline**: Модульная система validation passes с telemetry и tracing
+- **Validation Profiles**: Fast/mvp/strict профили валидации с configurable passes
+- **Legal Compliance Passes**: Модульная валидация политик против нормативных требований
+
+#### 🔧 Infrastructure & Runtime
+- **Enhanced Environment Manifest**: Захват окружения с compatibility scoring, risk assessment и fingerprinting
+- **Treasury System**: Детерминированное RNG управление для reproducible симуляций
 - **Runtime API**: Жизненный цикл прогонов с portable artifacts и audit trail
 - **Job Specifications**: Structured execution с reproducible hashing и distributed backends
 - **Design of Experiments**: ScenarioSweep, AblationPlan, SensitivityPlan для systematic research
-- **FSM Orchestration**: Конечный автомат состояний с 9 фазами и self-healing cycles
-- **Budget Controls**: Compute/Evidence/Legitimacy/Complexity бюджеты с enforcement
-- **Human Gates**: Асинхронная система GateRequest/GateDecision для approvals
 - **Decision Packet**: Полный артефакт с evidence, uncertainty и provenance tracking
-- **Governance Layer**: Модульная система validation passes (budget/safety/privacy/schema) с pipeline orchestration
-- **Validation Profiles**: Предопределенные профили валидации (fast/mvp/strict) с telemetry и tracing
-- **Legal Validation System**: Pluggable backends для оценки юридических норм с protocol-based architecture
-- **Norm Pack Contracts**: Структурированные представления юридических норм (NormPack, NormRule, NormRef)
-- **Rule Backend System**: Extensible evaluators для разных типов правил (AST, LLM, Stub implementations)
-- **Legal Compliance Passes**: Модульная валидация политик против нормативных требований
-- **Trinity Contracts**: Типизированные ссылки на ProblemFrame/PolicySpec/ModelSpec артефакты
+
+#### 🛠️ Development Tools
+- **UDF Compilation Pipeline**: Безопасная компиляция SQL/Cypher запросов с whitelist и privacy passes
 - **Enhanced Kernel Registries**: Расширенная система фундаментальных реестров (механизмы, слоты, units, trust policies)
-- **Fact Log Integration**: Семантическая сеть фактов с provenance tracking и trust policies
-- **Provenance Tracking System**: W3C PROV-O compliant система отслеживания происхождения данных с entities, activities и agents
-- **Evidence-Enhanced Fabric**: Криптографически verifiable evidence bundles с provenance графами и trust policies
-- **Enhanced Environment Manifest**: Захват окружения с compatibility scoring, risk assessment и fingerprinting для reproducible симуляций
-- **Legal Contracts**: Стабильные контракты для legal validation subsystem с pluggable rule backends
+- **Enhanced Monitoring**: Метрики, трекинг экспериментов и визуализация для agent simulation
+- **Failure Card System**: Структурированные артефакты ошибок с recovery mechanisms
 
 ### Подготовлено, но сейчас не задействовано в коде
 - **Diffrax**: ODE/SDE solver (для дифференциальных моделей)
@@ -365,9 +394,10 @@ policy-engine/
 │   │   ├── contracts/                # Контракты между модулями системы
 │   │   │   ├── compiler.py           # CompileReportRef, LinkReportRef
 │   │   │   ├── fabric.py             # FabricResult, EvidenceBundle, UncertaintyBounds
-│   │   │   ├── foundry.py            # ProgramGraph, ExecPlan, StateDelta, TreasurySeed
+│   │   │   ├── foundry.py            # ProgramGraph, ExecPlan, StateDelta, TreasurySeed, PatchOp, UpdateOp
 │   │   │   ├── scientist.py          # FailureCardRef, PolicyIRRef, CritiqueRef
-│   │   │   └── trinity.py            # TrinityBundle, ProblemFrameRef, PolicySpecRef, ModelSpecRef
+│   │   │   ├── trinity.py            # TrinityBundle, ProblemFrameRef, PolicySpecRef, ModelSpecRef
+│   │   │   └── legal.py              # Legal contracts (NormPack, NormRule, RuleType, RuleBackend)
 │   │   ├── registry/                 # Сборка и загрузка реестров компонентов
 │   │   │   ├── builder.py            # build_default_registry_bundle, build_registry_bundle
 │   │   │   └── loader.py             # load_registry_bundle_content, load_registry_bundle_payload
@@ -383,14 +413,15 @@ policy-engine/
 │   │   ├── policy_spec.py            # PolicySpec: спецификация политики и интервенций
 │   │   ├── model_spec.py             # ModelSpec: конфигурация модели мира
 │   │   ├── surface.py                # PolicySurfaceIR v2.0 (совместимый интерфейс)
-│   │   ├── kernel/                   # Фундаментальные реестры (механизмы, слоты, units)
+│   │   ├── kernel/                   # Фундаментальные реестры (механизмы, слоты, units, trust policies)
 │   │   ├── data_views.py             # Запросы данных (PANEL/SNAPSHOT/NETWORK)
 │   │   ├── linker.py                 # Валидация и линковка политик
 │   │   ├── fact_log.py               # Immutable факты с provenance
 │   │   ├── loaders.py                # Универсальная загрузка политик с автораспознаванием
 │   │   ├── calibration.py            # Контракты калибровки параметров
+│   │   ├── norm_pack.py              # Структурированные представления юридических норм
 │   │   └── migrations/               # Миграции между версиями IR
-│   ├── fabric/                       # Unified Data Fabric (данные + evidence)
+│   ├── fabric/                       # Unified Data Fabric (данные + evidence + quality)
 │   │   ├── catalog/                  # Metric-level data contract catalog
 │   │   │   ├── binding.py            # MetricBinding - hash-locked ссылки на метрики
 │   │   │   ├── contract.py           # DataContract модели (DataContract, DataContractCollection)
@@ -398,11 +429,22 @@ policy-engine/
 │   │   │   ├── search.py             # MetricSearcher - поиск метрик с disambiguation
 │   │   │   └── validate.py           # Валидация контрактов (load_contract_collection)
 │   │   ├── ingestion.py              # ETL pipeline (CSV → DuckDB + Kùzu)
-│   │   ├── udf/                      # User Defined Functions (безопасные запросы)
-│   │   ├── materializer.py           # Полноценная материализация Fact Log в реляционные таблицы
+│   │   ├── schema.py                 # Pydantic модели данных (AgentRow, InteractionRow, MacroRow)
+│   │   ├── manifest.py               # Метаданные и качество данных (DatasetManifest, QualityMetrics)
+│   │   ├── registry.py               # Управление манифестами датасетов (ManifestRegistry)
+│   │   ├── config.py                 # Правила нормализации и reconciliation
 │   │   ├── evidence.py               # Криптографически verifiable evidence bundles
+│   │   ├── materializer.py           # Incremental материализация из Fact Log
+│   │   ├── segment_manifest.py       # Управление сегментами Fact Log
+│   │   ├── fact_writer.py            # Запись фактов в каноническом формате
 │   │   ├── trust.py                  # Политики доверия с statistical verification
-│   │   └── io/                       # Интерфейсы хранения (DuckDB, Kùzu)
+│   │   ├── quality.py                # Система оценки качества данных (QualityIndicators, QualityLevel)
+│   │   ├── fitness_report.py         # Отчеты о пригодности данных (DataFitnessReport, MetricFitness)
+│   │   ├── provenance/               # W3C PROV-O provenance tracking система
+│   │   │   ├── core.py               # Базовые модели provenance (Entity/Activity/Agent)
+│   │   │   └── export_provo.py       # Экспорт в W3C PROV-O JSON-LD/N-Quads форматы
+│   │   ├── io/                       # Интерфейсы хранения (DuckDB, Kùzu)
+│   │   └── udf/                      # Unified Data Fabric - безопасный слой запросов
 │   ├── foundry/                      # JAX математическое ядро (симуляция)
 │   │   ├── compiler.py               # Компиляция IR в ProgramGraph + ExecPlan
 │   │   ├── runtime.py                # Patch-based execution с JAX
@@ -436,11 +478,14 @@ policy-engine/
 │   │   ├── doe/                      # Design of Experiments
 │   │   │   └── designs.py            # ScenarioSweep, AblationPlan, SensitivityPlan
 │   │   ├── governance/               # Preflight/postflight проверки + validation pipeline
-│   │   │   ├── passes/               # Модульные проверки (budget, safety, privacy, schema)
+│   │   │   ├── legal/                # Legal compliance validation backends
+│   │   │   ├── passes/               # Модульные проверки (budget, safety, privacy, schema, legal, quality)
 │   │   │   │   ├── budget_pass.py    # Контроль бюджетов (compute, evidence, legitimacy, complexity)
 │   │   │   │   ├── safety_pass.py    # Проверка безопасности механизмов и селекторов
 │   │   │   │   ├── privacy_pass.py   # Контроль приватности (PII tiers, access control)
 │   │   │   │   ├── schema_pass.py    # Валидация структуры IR и PolicySurfaceIR compliance
+│   │   │   │   ├── legal_pass.py     # Проверка соответствия политик юридическим нормам
+│   │   │   │   ├── quality_gate_pass.py # Валидация качества данных перед симуляцией
 │   │   │   │   └── base.py           # Базовые классы ValidatorPass, PassContext, ComplianceIssue
 │   │   │   ├── pipeline.py           # Orchestrator for validation passes с short-circuit логикой
 │   │   │   ├── profiles.py           # Validation profiles (fast/mvp/strict)
@@ -593,21 +638,23 @@ RunManifest + seed + artifacts → Full reproducibility
 - Детерминированные ID для артефактов через canonical JSON
 - Безопасность типов через строгие ограничения и валидации
 
-### `polisyos.fabric` — Unified Data Fabric (данные + evidence)
+### `polisyos.fabric` — Unified Data Fabric (данные + evidence + quality)
 
-**Архитектурная роль**: Единая система обработки и хранения данных для AI-driven симуляции политик. Fabric обеспечивает полный жизненный цикл данных от сырых CSV до высокопроизводительных UDF запросов с криптографической верификацией происхождения.
+**Архитектурная роль**: Единая система обработки и хранения данных для AI-driven симуляции политик. Fabric обеспечивает полный жизненный цикл данных от сырых CSV до высокопроизводительных UDF запросов с криптографической верификацией происхождения и quality gate enforcement.
 
 **Ключевые компоненты:**
-- **Data Contract Catalog**: Metric-level система контрактов для type safety и предотвращения hallucination имен метрик с hash-locked bindings
-- **Data Ingestion Pipeline**: Полный ETL-конвейер (raw → staging → curated) с evidence tracking и quality metrics
-- **UDF Engine**: Безопасный компилируемый слой запросов с multi-pass compilation (resolution/typecheck/privacy/lowering)
-- **Fact Log System**: Immutable факты с provenance tracking, детерминированными ID и сегментацией
-- **Evidence Bundles**: Криптографически verifiable доказательства происхождения данных
+- **Data Contract Catalog**: Metric-level система контрактов для type safety с hash-locked bindings и disambiguation
+- **Quality Indicators System**: Многофакторная оценка качества данных (missingness, staleness, coverage, outliers)
+- **Data Fitness Reports**: Человекочитаемые отчеты о пригодности данных с configurable thresholds
+- **Quality Gate Pass**: Интеграция с governance system для блокировки низкокачественных данных
+- **Data Ingestion Pipeline**: Полный ETL-конвейер (raw → staging → curated) с evidence tracking
+- **UDF Engine**: Безопасный компилируемый слой запросов с multi-pass compilation и Arrow support
+- **Fact Log System**: Immutable факты с provenance tracking и детерминированные ID
+- **Materializer Engine**: Incremental материализация реляционных представлений из Fact Log
+- **Evidence Bundles**: Криптографически verifiable доказательства с trust policies
+- **Trust System**: Statistical verification с two-pass comparison и uncertainty bounds
+- **Provenance System**: W3C PROV-O compliant система с entities, activities и agents
 - **Entity Resolution**: Нормализация идентификаторов агентов с confidence scoring
-- **Materializer Engine**: Полноценная система материализации реляционных представлений из Fact Log с incremental updates
-- **Trust System**: Многоуровневые политики доверия с statistical verification
-- **Provenance System**: W3C PROV-O compliant система отслеживания происхождения с entities, activities и agents
-- **Evidence-Enhanced Operations**: Все операции с полным provenance tracking и cryptographic verification и uncertainty bounds
 
 **Технологии:**
 - DuckDB (аналитическое хранилище временных рядов)
@@ -615,12 +662,15 @@ RunManifest + seed + artifacts → Full reproducibility
 - PyArrow/Parquet (эффективная передача columnar данных)
 - Pandas (ETL трансформации)
 - Pydantic (строгая типизация и валидация)
+- W3C PROV-O (стандартизированная provenance система)
 
 **Архитектурные особенности:**
 - Multi-backend storage (реляционное + графовое)
 - Evidence обязательны для всех результатов (Law E enforcement)
+- Quality gate enforcement перед симуляциями (Law K)
 - UDF whitelist с privacy passes и access tiers
 - Lazy materialization из Fact Log для производительности
+- Cryptographic verification всех evidence bundles
 
 ### `polisyos.foundry` — JAX‑ядро исполнения (compiler + runtime + calibration)
 
@@ -647,23 +697,21 @@ RunManifest + seed + artifacts → Full reproducibility
 - Multi-fidelity механизмы для trade-off точность/производительность
 - Agent-based симуляции с reinforcement learning
 
-### `polisyos.scientist` — AI Policy Scientist (оркестрация эксперимента)
+### `polisyos.scientist` — AI Policy Scientist (оркестрация + governance + agents)
 
-**Архитектурная роль**: "Мозг" Policy Engine - система оркестрации полного жизненного цикла экспериментов с экономическими политиками. Scientist интегрирует иерархическую систему LLM-агентов, дифференцируемые симуляции и governance controls для автоматического проектирования и оптимизации политик.
+**Архитектурная роль**: "Мозг" Policy Engine - система оркестрации полного жизненного цикла экспериментов с экономическими политиками. Scientist интегрирует иерархическую систему LLM-агентов, дифференцируемые симуляции, governance controls и legal compliance для автоматического проектирования, валидации и оптимизации политик.
 
 **Ключевые компоненты:**
 - **Agent Layer**: Иерархическая система агентов (PI → Drafter → Formalizer → Critic) с self-healing через Reflexion
-- **Failure Card System**: Структурированные артефакты ошибок с recovery mechanisms и intelligent routing
-- **Short-Term Memory**: Persistence состояния агентов между attempts с hint accumulation
-- **Reflexion Orchestrator**: Автоматический retry management с backoff и decision making
+- **Self-Healing System**: FailureCard, ShortTermMemory, ReflexionOrchestrator с intelligent routing
 - **Kernel Layer**: FSM с 9 фазами, бюджеты (Compute/Evidence/Legitimacy/Complexity), guards, human gates
 - **Compute Layer**: Job specifications (JobSpec/JobKey/JobResult), distributed backends (LocalBackend/RayBackend)
 - **Design of Experiments**: ScenarioSweep, AblationPlan, SensitivityPlan для systematic research
-- **Governance Layer**: Preflight/postflight проверки + validation pipeline с модульными passes (budget/safety/privacy/schema/legal)
-- **Legal Compliance Layer**: Pluggable backends для оценки юридических норм с protocol-based architecture
+- **Governance Layer**: Validation pipeline с модульными passes (budget/safety/privacy/schema/legal/quality)
+- **Legal Validation System**: Pluggable backends для оценки юридических норм (NormPack, RuleBackend, RuleType)
 - **Orchestrator Layer**: LangGraph workflow с 9 узлами, self-healing циклами и conditional routing
-- **Decision Packet**: Полный артефакт эксперимента с evidence, uncertainty и provenance tracking
-- **Publisher**: Финализация результатов в DecisionPacket с comprehensive audit trail
+- **Decision Packet**: Полный артефакт с evidence, uncertainty, provenance и fabric_result
+- **Publisher**: Финализация результатов с comprehensive audit trail
 
 **Новые возможности (после обновлений):**
 - **Hierarchical Agent System**: PI декомпозиция → Drafter генерация → Formalizer трансформация → Critic валидация
@@ -674,24 +722,27 @@ RunManifest + seed + artifacts → Full reproducibility
 - **Human Gates**: Асинхронная система GateRequest/GateDecision для approvals
 - **Job Specifications**: Structured execution с reproducible hashing и distributed execution
 - **Decision Packet**: Comprehensive артефакт с fabric_result, evidence_ref, uncertainty quantification
-- **Governance Pipeline**: Модульная система validation passes (budget/safety/privacy/schema/legal) с telemetry
-- **Legal Validation System**: Pluggable backends для оценки юридических норм (NormPack, RuleBackend, RuleType)
-- **Validation Profiles**: Предопределенные профили валидации (fast/mvp/strict) с short-circuit логикой
+- **Governance Pipeline**: Модульная система validation passes с telemetry и short-circuit логикой
+- **Legal Validation System**: Pluggable backends (NormPack, RuleBackend, RuleType)
+- **Quality Gate Pass**: Интеграция с Fabric quality indicators для data validation
+- **Validation Profiles**: Fast/mvp/strict профили с configurable passes
 
 **Технологии:**
-- LangGraph (декларативный workflow с FSM)
+- LangGraph (декларативный workflow с FSM и 9 фазами)
 - LangChain (интеграция LLM провайдеров)
 - PyMOO (multi-objective оптимизация)
 - Optax (градиентная оптимизация политик)
 - Pydantic (строгая типизация экспериментального state)
 
 **Архитектурные особенности:**
-- Self-healing циклы для исправления ошибок валидации через Reflexion pattern
+- Self-healing циклы для исправления ошибок через Reflexion pattern
 - Multi-fidelity симуляции с adjustable precision и uncertainty quantification
 - Budget enforcement на всех уровнях (LLM calls, sim runs, wall time, evidence queries)
 - Human gates для критических решений с approval workflow
 - End-to-end audit trail с provenance tracking и structured events
 - Hierarchical agent coordination с failure recovery и memory persistence
+- Legal compliance integration с pluggable rule backends
+- Quality gate enforcement перед симуляциями
 
 ### `polisyos.runtime` — жизненный цикл прогонов (runs/<run_id>)
 
@@ -808,13 +859,17 @@ Policy Engine строго следует **Закону A** (направлен
 ### Поток данных в компиляторной трубе (с Trinity архитектурой)
 
 ```
-User Request → Scientist.orchestrator → IR.trinity → Fabric.udf → Foundry.compiler → Foundry.calibration → Runtime.api → Artifacts
-     ↓              ↓                      ↓            ↓             ↓                ↓              ↓
-   MockAgent    ExperimentState       ProblemFrame   DataViewRequest  ProgramGraph    ExecResult    RunManifest
-     ↓              ↓                      ↓            ↓             ↓                ↓              ↓
-   LLM API      LangGraph Workflow   PolicySpec     UDF Result     StateDelta     Metrics       Audit Trail
-     ↓              ↓                      ↓            ↓             ↓                ↓              ↓
-   Agent Protocols Trinity Migration ModelSpec    Evidence Bundle Uncertainty Bounds  DecisionPacket
+User Request → Scientist.orchestrator → IR.trinity → Fabric.quality → Fabric.udf → Foundry.compiler → Foundry.calibration → Runtime.api → Artifacts
+    ↓              ↓                      ↓            ↓             ↓                ↓              ↓              ↓
+   Agent Pipeline ExperimentState     ProblemFrame QualityGate     DataViewRequest  ProgramGraph    ExecResult    RunManifest
+    ↓              ↓                      ↓            ↓             ↓                ↓              ↓              ↓
+   Hierarchical   LangGraph 9-phase   PolicySpec   DataFitnessReport UDF Result     StateDelta     Metrics       Audit Trail
+   Agents         Workflow             ↓            ↓             ↓                ↓              ↓              ↓
+   ↓              ↓                    ModelSpec   Evidence Bundle Uncertainty Bounds DecisionPacket ← Fabric Result
+   Self-Healing   ↓                    ↓            ↓             ↓                ↓              ↓
+   Reflexion      Governance           TrinityBundle Provenance    Trust Policies   Patch-based    Evidence Ref
+    ↓              ↓                    ↓            ↓             ↓                ↓              ↓
+   FailureCard    Budget Controls      Migration    W3C PROV-O    Legal Validation  Execution      Uncertainty
 ```
 
 ### Архитектурные гарантии
@@ -1060,7 +1115,7 @@ python tools/diagnostics/generate_ir_schema.py
 - **[`src/polisyos/common/README.md`](src/polisyos/common/README.md)**: JAX environment setup (CPU-first для macOS), структурированное логирование через Loguru, детерминированные миграции схем, hardware safeguards
 
 ### 🧪 Testing Framework (Тестовая инфраструктура)
-- **[`tests/README.md`](tests/README.md)**: Contract тесты (IR валидация), core phase 0 (CAS, canonical JSON), fabric (evidence, trust), foundry (JAX, calibration), integration (end-to-end workflows), runtime (artifact management), governance (validation pipeline, legal compliance)
+- **[`tests/README.md`](tests/README.md)**: Contract тесты (IR валидация, Trinity, legal norms), core phase 0 (CAS, canonical JSON, environment manifests), fabric (evidence, trust, provenance, quality indicators, fitness reports), foundry (JAX, calibration, agent simulation, plugins), integration (end-to-end workflows, UDF calibration), runtime (artifact management), scientist (governance, legal compliance, agent protocols, reflexion)
 
 ### 🔨 Developer Tools (Инструменты разработчика)
 - **[`tools/README.md`](tools/README.md)**: Архитектурные линтеры (lint_imports.py - Закон A, lint_foundry.py - Закон B), генерация JSON Schema, миграции артефактов, бенчмарки производительности, демонстрационные скрипты, диагностика системы, scan_fabric.py (bootstrap data contracts), migrate_to_trinity.py (миграция в Trinity формат), capture_env.py (environment manifests), visualize_provenance.py (визуализация provenance графов)
@@ -1129,13 +1184,52 @@ python tools/diagnostics/generate_ir_schema.py
 
 ### Новые возможности (2026-01-27)
 
-- **Data Catalog System**: Новая подсистема data contracts в `fabric.catalog/`
-- **scan_fabric.py**: Bootstrap утилита для автоматической генерации data contracts
-- **Provenance Tracking System**: W3C PROV-O compliant система отслеживания происхождения данных
-- **Evidence-Enhanced Fabric**: Криптографически verifiable evidence bundles с provenance графами
-- **Trinity Migration**: Поддержка миграции в новый Trinity формат (ProblemFrame, PolicySpec, ModelSpec)
-- **visualize_provenance.py**: Инструмент для визуализации и верификации provenance графов
+#### 🏗️ Архитектурные улучшения
+- **Trinity Architecture**: Полная поддержка ProblemFrame/PolicySpec/ModelSpec с типизированными ссылками
+- **W3C PROV-O Integration**: Стандартизированная система provenance tracking
+- **Legal Validation System**: Pluggable backends для оценки юридических норм
+- **Quality Gate Enforcement**: Автоматическая валидация качества данных перед симуляциями
+
+#### 📊 Data Management & Quality
+- **Data Contract Catalog**: Metric-level система контрактов с hash-locked bindings
+- **Quality Indicators System**: Многофакторная оценка качества данных (missingness, staleness, coverage, outliers)
+- **Data Fitness Reports**: Человекочитаемые отчеты о пригодности данных с configurable thresholds
+- **Fact Log System**: Immutable факты с provenance tracking и детерминированные ID
+- **Materializer Engine**: Incremental материализация реляционных представлений из Fact Log
 - **Enhanced Environment Manifest**: Захват окружения с compatibility scoring и risk assessment
+
+#### 🤖 AI & Agent Systems
+- **Hierarchical Agent System**: PI → Drafter → Formalizer → Critic с протоколами
+- **Self-Healing Agents**: Reflexion system с FailureCard recovery и intelligent routing
+- **Multi-Agent Workflow**: Интегрированная система с critique-based refinement
+- **Agent Protocols**: Стандартизированные интерфейсы с runtime поведением
+
+#### 🔐 Trust & Evidence
+- **Evidence Bundles**: Криптографически verifiable доказательства происхождения
+- **Trust System**: Statistical verification с two-pass comparison и uncertainty bounds
+- **Provenance Tracking**: W3C PROV-O compliant система с entities, activities и agents
+- **Evidence-Enhanced Fabric**: Полная интеграция evidence в data pipeline
+
+#### ⚡ Simulation & Execution
+- **Multi-Fidelity Simulation**: Fluid/relaxed/hard уровни точности с fidelity control
+- **Patch-based Execution**: UpdateOp и Merge Rules для state management
+- **Agent Simulation**: Пошаговая симуляция с ML моделями и социальными связями
+- **Plugin System**: Capability-based registry с composite executors
+
+#### 🎯 Governance & Compliance
+- **Budget Controls**: Compute/Evidence/Legitimacy/Complexity бюджеты
+- **Human Gates**: Асинхронная система GateRequest/GateDecision
+- **FSM Orchestration**: Конечный автомат с 9 фазами и self-healing cycles
+- **Governance Pipeline**: Модульная система validation passes
+- **Legal Compliance Passes**: Валидация политик против нормативных требований
+
+#### 🛠️ Development Tools
+- **UDF Compilation Pipeline**: Безопасная компиляция SQL/Cypher запросов
+- **Enhanced Kernel Registries**: Расширенная система фундаментальных реестров
+- **Enhanced Monitoring**: Метрики, трекинг экспериментов и визуализация
+- **Failure Card System**: Структурированные артефакты ошибок с recovery
+- **scan_fabric.py**: Bootstrap утилита для генерации data contracts
+- **visualize_provenance.py**: Инструмент для визуализации provenance графов
 
 ---
 

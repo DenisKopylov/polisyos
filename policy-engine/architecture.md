@@ -1,6 +1,6 @@
 # Complete Policy Engine Architecture
 
-> **Last updated:** January 27, 2026 (added W3C PROV-O provenance tracking system and visualization tools)
+> **Last updated:** January 27, 2026 (added Data Quality Framework with quality indicators, fitness reports, and quality gate validation)
 >
 > This document contains the complete architecture of the Policy Engine project with detailed descriptions of all files in the `src/`, `tests/`, and `tools/` directories.
 
@@ -74,7 +74,7 @@ policy-engine/
 │   │   ├── contracts/                # Type-safe contracts between system modules
 │   │   │   ├── __init__.py           # Exports contracts API
 │   │   │   ├── compiler.py           # Compiler contracts (CompileReportRef, LinkReportRef)
-│   │   │   ├── fabric.py             # Fabric contracts (6 reference types + data models)
+│   │   │   ├── fabric.py             # Fabric contracts (6 reference types + data models, quality indicators)
 │   │   │   ├── foundry.py            # Foundry contracts (13 reference types + execution models)
 │   │   │   ├── scientist.py          # Scientist contracts (FailureCardRef, PolicyIRRef, CritiqueRef)
 │   │   │   ├── trinity.py            # Trinity contracts (ProblemFrame, PolicySpec, ModelSpec, TrinityBundle)
@@ -108,6 +108,8 @@ policy-engine/
 │   │   ├── config.py                 # Fabric layer configuration and data source setup (FabricConfig, CatalogConfig)
 │   │   ├── evidence.py               # Cryptographically verifiable evidence bundles for data provenance
 │   │   ├── fact_writer.py            # Immutable fact writer for audit trails and provenance
+│   │   ├── fitness_report.py         # Data quality fitness assessment and human-readable reports
+│   │   ├── quality.py                # Quality indicators, thresholds, and level determination system
 │   │   ├── ingestion.py              # Full ETL pipeline (CSV → DuckDB + Kùzu with validation)
 │   │   ├── io/                       # Multi-backend storage interfaces (DuckDB + Kùzu)
 │   │   │   ├── __init__.py           # Exports IO interfaces API
@@ -304,6 +306,7 @@ policy-engine/
 │       │   │   ├── budget_pass.py    # Budget constraint validation (compute, evidence, complexity)
 │       │   │   ├── legal_pass.py     # Legal norm compliance validation with pluggable backends
 │       │   │   ├── privacy_pass.py   # Privacy and data protection validation
+│       │   │   ├── quality_gate_pass.py # Data quality validation before simulation execution
 │       │   │   ├── safety_pass.py    # Policy safety and mechanism validation
 │       │   │   └── schema_pass.py    # Policy schema validation and structure checks
 │       │   ├── pipeline.py           # Validation pipeline orchestrator with short-circuit logic
@@ -370,6 +373,7 @@ policy-engine/
 │   │   ├── test_data_catalog.py      # Data contract catalog system (contracts, bindings, search, registry)
 │   │   ├── test_evidence_bundle.py   # Evidence bundles, ingestion pipeline, provenance tracking
 │   │   ├── test_provenance.py        # Provenance subsystem, entities, graphs, PROV-O export, persistence
+│   │   ├── test_quality_indicators.py # Quality indicators calculation, fitness reports, and quality gate validation
 │   │   └── test_trust_two_pass.py    # Trust system validation with uncertainty bounds analysis
 │   ├── foundry/                      # Mathematical core unit tests (JAX, simulations)
 │   │   ├── agent_sim/                # Agent simulation testing suite

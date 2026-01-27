@@ -1,6 +1,6 @@
 # Polisyos Fabric: Unified Data Fabric
 
-**Fabric** — это унифицированная система обработки и хранения данных для AI-driven симуляции экономической политики. Модуль обеспечивает полный жизненный цикл данных: от сырых CSV файлов до высокопроизводительных запросов через Unified Data Fabric (UDF).
+**Fabric** — это унифицированная система обработки и хранения данных для AI-driven симуляции экономической политики. Модуль обеспечивает полный жизненный цикл данных: от сырых CSV файлов до высокопроизводительных запросов через Unified Data Fabric (UDF), с автоматической оценкой качества данных и гарантией целостности через evidence tracking.
 
 ## Архитектурная роль
 
@@ -24,11 +24,13 @@ NL → LLM → IR (AST) → Compilation → Runtime (UDF + Foundry) → Artifact
 1. **Data Ingestion Pipeline**: Полный ETL-конвейер от CSV до хранилищ с валидацией и evidence tracking
 2. **Fact Log System**: Immutable хранение фактов в каноническом формате для audit trail
 3. **Multi-Backend Storage**: Реляционное (DuckDB) + графовое (Kùzu) хранение данных
-4. **Data Quality Management**: Автоматическая оценка качества, reconciliation, dataset manifests
-5. **Entity Resolution**: Нормализация и дедупликация идентификаторов агентов
-6. **Evidence System**: Криптографически verifiable доказательства происхождения данных
-7. **Unified Data Fabric**: Безопасный компилируемый слой запросов с whitelist и privacy controls
-8. **Materialization Engine**: Восстановление реляционных представлений из immutable фактов
+4. **Data Quality Management**: Автоматическая оценка качества, reconciliation, dataset manifests, quality gates
+5. **Data Fitness Assessment**: Многоуровневая оценка пригодности данных для симуляции с threshold-based validation
+6. **Entity Resolution**: Нормализация и дедупликация идентификаторов агентов
+7. **Evidence System**: Криптографически verifiable доказательства происхождения данных
+8. **Unified Data Fabric**: Безопасный компилируемый слой запросов с whitelist и privacy controls
+9. **Materialization Engine**: Восстановление реляционных представлений из immutable фактов
+10. **Quality Gate Validation**: Интеграция с governance system для блокировки низкокачественных данных
 
 ## Технологический стек
 
@@ -75,6 +77,8 @@ fabric/
 ├── segment_manifest.py      # Управление сегментами Fact Log (write_segment_manifest)
 ├── fact_writer.py           # Запись фактов в каноническом формате (build_fact, facts_from_dataframe)
 ├── trust.py                 # Политики доверия (two_pass_compare, persist_uncertainty_bounds, UncertaintyBounds)
+├── quality.py               # Система оценки качества данных (QualityIndicators, QualityLevel, QualityThresholds)
+├── fitness_report.py        # Отчеты о пригодности данных (DataFitnessReport, MetricFitness)
 ├── provenance/              # W3C PROV-O provenance tracking система
 │   ├── __init__.py          # Экспорт всех provenance компонентов
 │   ├── core.py              # Базовые модели provenance (ProvenanceCoreGraph, Entity/Activity/Agent)
@@ -383,7 +387,210 @@ UDF конфигурация загружается из `data/curated/udf_schem
 }
 ```
 
-### 8. Fact Log System (Фактовая система)
+### 8. Data Quality Assessment System (`quality.py`, `fitness_report.py`)
+
+Комплексная система оценки качества данных для обеспечения пригодности данных к симуляциям экономической политики.
+
+#### Quality Indicators (`QualityIndicators`)
+Объективные метрики качества данных, вычисляемые из датасетов:
+
+```python
+@dataclass
+class QualityIndicators:
+    """Качественные метрики датасета или метрики."""
+
+    metric_id: str
+    missingness: float          # Доля пропущенных значений (0.0-1.0)
+    staleness_days: int         # Дней с момента последнего обновления
+    coverage: float             # Покрытие ожидаемых записей (0.0-1.0)
+    row_count: int              # Общее количество строк
+    schema_drift: bool = False  # Изменение схемы с baseline
+    outlier_ratio: float = 0.0  # Доля выбросов (IQR-based)
+    computed_at: datetime       # Время вычисления
+    computation_method: str     # Метод вычисления ("pandas"/"duckdb")
+```
+
+**Ключевые метрики:**
+- **Missingness**: Доля null значений - основной индикатор полноты данных
+- **Staleness**: Актуальность данных - время с последнего обновления
+- **Coverage**: Географическое/временное покрытие относительно ожидаемого
+- **Schema Drift**: Изменения структуры данных со времени baseline
+- **Outlier Ratio**: Доля статистических выбросов для числовых колонок
+
+#### Quality Levels (`QualityLevel`)
+Упорядоченная классификация качества с семантикой для принятия решений:
+
+```python
+@total_ordering
+class QualityLevel(Enum):
+    EXCELLENT = "excellent"    # Отличное качество - полное доверие
+    GOOD = "good"             # Хорошее качество - высокая уверенность
+    ACCEPTABLE = "acceptable" # Приемлемое качество - допустимо для MVP
+    POOR = "poor"             # Плохое качество - требует внимания
+    UNUSABLE = "unusable"     # Непригодное качество - блокирует использование
+```
+
+**Правила переходов:**
+- EXCELLENT: missingness ≤ 1%, staleness ≤ 7 дней, coverage ≥ 99%
+- GOOD: missingness ≤ 5%, staleness ≤ 30 дней, coverage ≥ 95%
+- ACCEPTABLE: missingness ≤ 10%, staleness ≤ 60 дней, coverage ≥ 85%
+- POOR: Любые значения хуже acceptable с некоторыми компенсациями
+- UNUSABLE: Недостаточно строк или критические проблемы
+
+#### Quality Thresholds (`QualityThresholds`)
+Настраиваемые пороги для разных профилей валидации:
+
+```python
+@dataclass(frozen=True)
+class QualityThresholds:
+    """Конфигурируемые пороги качества для разных профилей."""
+
+    missingness_excellent: float = 0.01    # 1% для excellent
+    missingness_good: float = 0.05         # 5% для good
+    missingness_acceptable: float = 0.10   # 10% для acceptable
+    missingness_poor: float = 0.20         # 20% для poor
+
+    staleness_excellent: int = 7           # 7 дней
+    staleness_good: int = 30               # 30 дней
+    staleness_acceptable: int = 60         # 60 дней
+    staleness_poor: int = 90               # 90 дней
+
+    coverage_excellent: float = 0.99       # 99%
+    coverage_good: float = 0.95            # 95%
+    coverage_acceptable: float = 0.85      # 85%
+    coverage_poor: float = 0.70            # 70%
+
+    min_row_count: int = 10                # Минимум строк
+    schema_drift_penalty: int = 2          # Штраф за schema drift
+    outlier_ratio_warning: float = 0.05    # Предупреждение о выбросах
+
+    @classmethod
+    def for_profile(cls, profile: str) -> "QualityThresholds":
+        """Возвращает пороги для профиля: 'fast', 'mvp', 'strict'."""
+```
+
+**Профили порогов:**
+- **FAST**: Либеральные пороги для быстрой итерации (missingness_acceptable=20%)
+- **MVP**: Сбалансированные пороги для стандартной валидации
+- **STRICT**: Строгие пороги для production/регуляторных требований (missingness_acceptable=5%)
+
+#### Data Fitness Report (`DataFitnessReport`)
+Человекочитаемые отчеты о качестве данных для принятия решений:
+
+```python
+@dataclass
+class DataFitnessReport:
+    """Отчет о пригодности данных для симуляции."""
+
+    run_id: str
+    profile: str = "mvp"
+    metrics: List[MetricFitness] = field(default_factory=list)
+    overall_passed: bool = True
+    summary: str = ""
+    computed_at: datetime = field(default_factory=datetime.utcnow)
+
+    def add_metric(self, fitness: MetricFitness) -> None:
+        """Добавить оценку качества метрики."""
+
+    def generate_summary(self) -> str:
+        """Сгенерировать ASCII summary для логов."""
+
+    def generate_markdown_summary(self) -> str:
+        """Сгенерировать Markdown summary для документации."""
+```
+
+#### Metric Fitness (`MetricFitness`)
+Оценка пригодности отдельной метрики с объяснениями:
+
+```python
+@dataclass
+class MetricFitness:
+    """Оценка пригодности одной метрики."""
+
+    metric_id: str
+    indicators: QualityIndicators
+    level: QualityLevel
+    fail_reasons: List[str] = field(default_factory=list)
+    profile_used: str = "mvp"
+
+    @property
+    def passed(self) -> bool:
+        """Прошла ли метрика quality gate."""
+        return self.level.is_passing()
+```
+
+**Функции оценки качества:**
+- `compute_quality_indicators()`: Вычисление из pandas DataFrame
+- `compute_quality_from_duckdb()`: Вычисление напрямую из DuckDB (для больших датасетов)
+- `get_cached_quality_indicators()`: Получение предвычисленных индикаторов из catalog
+
+### 9. Quality Gate Validation (`scientist/governance/passes/quality_gate_pass.py`)
+
+Интеграция системы качества данных с governance framework для блокировки низкокачественных данных перед симуляцией.
+
+#### QualityGatePass
+Validator pass, который оценивает качество данных и блокирует выполнение при обнаружении проблем:
+
+```python
+class QualityGatePass(ValidatorPass):
+    """
+    Валидирует качество данных перед выполнением симуляции.
+
+    Поведение по профилям:
+    - FAST: Пропускается (не входит в pass_ids)
+    - MVP: Пропускается (не входит в pass_ids)
+    - STRICT: Запускается и блокирует на POOR/UNUSABLE качестве
+    """
+
+    def __init__(
+        self,
+        *,
+        force_run: bool = False,
+        critical_metrics: list[str] | None = None,
+    ) -> None:
+        self._force_run = force_run
+        self._critical_metrics = critical_metrics
+
+    def validate(self, ctx: PassContext) -> List[ComplianceIssue]:
+        """Выполнить валидацию качества данных."""
+```
+
+**Логика валидации:**
+1. **Определение метрик**: Извлечение списка метрик из evidence bundle или явного списка
+2. **Получение индикаторов**: Вычисление или получение из кэша quality indicators
+3. **Оценка пригодности**: Применение threshold-based scoring для каждой метрики
+4. **Формирование отчета**: Создание DataFitnessReport с детальными объяснениями
+5. **Блокировка проблем**: Генерация ComplianceIssue для низкокачественных данных
+
+#### Поведение по профилям
+- **FAST**: Полностью пропускается для быстрой итерации
+- **MVP**: Пропускается для баланса скорость/качество
+- **STRICT**: Блокирует на POOR и UNUSABLE качестве
+
+#### Типы проблем качества
+- **QUALITY_UNUSABLE**: Метрика имеет UNUSABLE уровень (BLOCKER)
+- **QUALITY_POOR**: Метрика имеет POOR уровень (BLOCKER в STRICT, WARNING в других)
+- **INDICATORS_UNAVAILABLE**: Невозможно вычислить индикаторы (WARNING)
+
+#### Интеграция с governance
+QualityGatePass интегрируется в validation pipeline scientist модуля:
+
+```python
+# scientist/governance/profiles.py - включение quality gate
+@dataclass
+class ValidationProfile:
+    @classmethod
+    def strict(cls) -> "ValidationProfile":
+        return cls(
+            level=ProfileLevel.STRICT,
+            pass_ids=["budget", "evidence", "quality", ...],  # Включает quality
+            thresholds={"quality_missingness_acceptable": 0.05}
+        )
+```
+
+**DataFitnessReport** прикрепляется к PassContext state для использования в DecisionPacket.
+
+### 11. Fact Log System (Фактовая система)
 
 Immutable система хранения фактов для полного audit trail и воспроизводимости:
 
@@ -473,7 +680,7 @@ def materialize_duckdb_from_fact_log(fact_dir: Path, db: SimulationDB) -> None:
 - **Distributed Storage**: Поддержка распределенного хранения фактов
 - **Data Lineage**: Полная traceability от сырых данных до результатов
 
-### 9. Evidence System (`evidence.py`)
+### 12. Evidence System (`evidence.py`)
 
 Криптографически verifiable система доказательств происхождения данных:
 
@@ -508,7 +715,7 @@ def persist_evidence_bundle(
 
 **Интеграция с CAS:** Evidence bundles хранятся в Content Addressable Storage для immutable persistence.
 
-### 10. Trust System (`trust.py`)
+### 13. Trust System (`trust.py`)
 
 Система политик доверия для источников данных и верификации качества:
 
@@ -540,7 +747,7 @@ def persist_uncertainty_bounds(
 
 **Интеграция:** Используется в Fact Writer и Evidence Bundles для маркировки уровня доверия к данным. Поддерживает статистическую верификацию и сохранение результатов сравнения в Content Addressable Storage.
 
-### 11. Provenance System (`provenance/`)
+### 14. Provenance System (`provenance/`)
 
 Стандартизированная система отслеживания происхождения данных на основе W3C PROV-O спецификации:
 
@@ -1124,6 +1331,168 @@ except ValueError as e:
     print(f"Reconciliation failed: {e}")
 ```
 
+### Оценка качества данных
+
+```python
+from polisyos.fabric.quality import (
+    compute_quality_indicators, QualityIndicators, QualityLevel, QualityThresholds
+)
+from polisyos.fabric.fitness_report import DataFitnessReport, MetricFitness
+import pandas as pd
+
+# Загрузка датасета
+agents_df = pd.read_csv("data/curated/agents.csv")
+
+# Вычисление quality indicators
+indicators = compute_quality_indicators(
+    df=agents_df,
+    metric_id="agents_dataset",
+    expected_row_count=10000,  # Ожидаемое количество строк
+    last_updated=pd.Timestamp("2024-01-15"),  # Последнее обновление
+)
+
+print(f"Качество данных для {indicators.metric_id}:")
+print(f"  Пропущенные значения: {indicators.missingness:.1%}")
+print(f"  Устаревание: {indicators.staleness_days} дней")
+print(f"  Покрытие: {indicators.coverage:.1%}")
+print(f"  Количество строк: {indicators.row_count}")
+
+# Оценка уровня качества
+thresholds = QualityThresholds.for_profile("mvp")
+level = indicators.overall_level(thresholds)
+print(f"  Уровень качества: {level.value.upper()}")
+
+# Получение объяснений проблем
+if not level.is_passing():
+    reasons = indicators.get_failure_reasons(thresholds)
+    print("  Проблемы:")
+    for reason in reasons:
+        print(f"    - {reason}")
+```
+
+### Создание Fitness Report
+
+```python
+from polisyos.fabric.fitness_report import DataFitnessReport, MetricFitness
+
+# Создание отчета о качестве данных
+report = DataFitnessReport(run_id="simulation_run_001", profile="strict")
+
+# Добавление оценки для каждой метрики
+for metric_id, indicators in quality_indicators_dict.items():
+    thresholds = QualityThresholds.for_profile("strict")
+    fitness = MetricFitness.from_indicators(
+        indicators=indicators,
+        thresholds=thresholds,
+        profile="strict"
+    )
+    report.add_metric(fitness)
+
+# Генерация summary
+summary = report.generate_summary()
+print("Отчет о качестве данных:")
+print(summary)
+
+# Markdown версия для документации
+markdown_report = report.generate_markdown_summary()
+with open("data_quality_report.md", "w") as f:
+    f.write(markdown_report)
+
+print(f"\nОбщий результат: {'ПРОЙДЕНО' if report.overall_passed else 'НЕ ПРОЙДЕНО'}")
+print(f"Прошло метрик: {report.passed_metrics}/{report.total_metrics}")
+```
+
+### Кастомные пороги качества
+
+```python
+from polisyos.fabric.quality import QualityThresholds
+
+# Создание строгих порогов для production
+strict_thresholds = QualityThresholds(
+    missingness_acceptable=0.05,  # Максимум 5% пропусков
+    staleness_acceptable=30,      # Максимум 30 дней устаревания
+    coverage_acceptable=0.95,     # Минимум 95% покрытия
+    min_row_count=1000,           # Минимум 1000 строк
+)
+
+# Или модификация существующих порогов
+custom_thresholds = QualityThresholds.for_profile("mvp").with_overrides({
+    "missingness_acceptable": 0.08,  # Более либеральный для нашего случая
+    "staleness_acceptable": 45,      # Более долгий период приемлемости
+})
+
+# Использование кастомных порогов
+indicators = compute_quality_indicators(df=my_data, metric_id="custom_metric")
+level = indicators.overall_level(custom_thresholds)
+print(f"Уровень качества с кастомными порогами: {level.value}")
+```
+
+### Интеграция с Data Contract Registry
+
+```python
+from polisyos.fabric.catalog import DataContractRegistry
+from polisyos.fabric.quality import get_cached_quality_indicators
+
+# Загрузка registry с контрактами
+registry = DataContractRegistry(Path("data/curated"))
+
+# Получение предвычисленных quality indicators из контракта
+for metric_id in ["us.macro.gdp", "us.macro.unemployment_rate"]:
+    cached_indicators = get_cached_quality_indicators(metric_id, registry)
+    if cached_indicators:
+        print(f"Кэшированные индикаторы для {metric_id}:")
+        print(f"  Missingness: {cached_indicators.missingness:.2%}")
+        print(f"  Staleness: {cached_indicators.staleness_days} дней")
+    else:
+        print(f"Индикаторы качества для {metric_id} не найдены в кэше")
+```
+
+### Quality Gate Validation в Governance Pipeline
+
+```python
+from polisyos.scientist.governance.passes.quality_gate_pass import QualityGatePass
+from polisyos.scientist.governance.passes.base import PassContext
+from polisyos.scientist.governance.profiles import ValidationProfile
+
+# Создание quality gate pass
+quality_pass = QualityGatePass(
+    force_run=True,  # Принудительный запуск независимо от профиля
+    critical_metrics=["agents", "macro"]  # Критические метрики для проверки
+)
+
+# Настройка контекста валидации
+profile = ValidationProfile.strict()
+ctx = PassContext(
+    ir=None,
+    state={
+        "evidence_bundle": evidence_bundle,  # Из предыдущих шагов
+        "catalog_registry": catalog_registry,  # Registry с контрактами
+    },
+    registry_bundle=None,
+    profile=profile,
+    run_id="validation_run_001"
+)
+
+# Запуск валидации качества
+issues = quality_pass.validate(ctx)
+
+# Проверка результатов
+blockers = [issue for issue in issues if issue.severity.name == "BLOCKER"]
+if blockers:
+    print(f"Блокирующие проблемы качества: {len(blockers)}")
+    for issue in blockers:
+        print(f"  - {issue.message}")
+        if issue.suggestion:
+            print(f"    Совет: {issue.suggestion}")
+else:
+    print("Все проверки качества пройдены")
+
+# Получение fitness report
+if "data_fitness_report" in ctx.state:
+    report = ctx.state["data_fitness_report"]
+    print(f"Отчет качества: {report.passed_metrics}/{report.total_metrics} метрик прошло")
+```
+
 ## Интеграция с системой
 
 ### Архитектурные принципы
@@ -1138,6 +1507,8 @@ runtime → common (инфраструктура)
 ```
 
 **Новые компоненты и связи:**
+- **Data Quality Assessment System**: Многоуровневая оценка пригодности данных (QualityIndicators, QualityLevel, QualityThresholds, DataFitnessReport)
+- **Quality Gate Validation**: Интеграция с governance system для блокировки низкокачественных данных (QualityGatePass)
 - **Data Contract Catalog**: Metric-level type safety с hash-locked bindings для Scientist агента
 - **Fact Log System**: Полная интеграция с `ir.fact_log` для immutable хранения фактов
 - **Evidence System**: Использование `core.contracts.fabric` и `core.artifacts` для verifiable доказательств
@@ -1510,6 +1881,9 @@ python tools/diagnostics/generate_ir_schema.py
 - **Reproducibility**: Восстановление любого состояния через Fact Log
 
 **Новые возможности:**
+- **Data Quality Assessment System**: Комплексная оценка пригодности данных с QualityIndicators, QualityLevel и configurable thresholds
+- **Quality Gate Validation**: Интеграция с governance system для блокировки низкокачественных данных перед симуляцией
+- **Data Fitness Reports**: Человекочитаемые отчеты о качестве данных с детальными объяснениями проблем
 - **Fact Log System**: Complete immutable audit trail с deterministic fact IDs
 - **Evidence Bundles**: Cryptographically verifiable provenance tracking
 - **Provenance System**: W3C PROV-O compliant lineage tracking для полного audit trail

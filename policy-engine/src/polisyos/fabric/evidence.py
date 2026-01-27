@@ -12,6 +12,7 @@ from polisyos.core.contracts.fabric import (
     ProvenanceCoreRefModel,
 )
 from polisyos.fabric.provenance.core import ProvenanceCoreGraph, ProvenanceCoreRef
+from polisyos.fabric.quality import QualityIndicators
 
 
 def build_evidence_bundle(
@@ -21,6 +22,7 @@ def build_evidence_bundle(
     trust_policy_id: str | None = None,
     notes: list[str] | None = None,
     provenance_ref: ProvenanceCoreRef | None = None,
+    quality_indicators: dict[str, QualityIndicators] | None = None,
 ) -> EvidenceBundle:
     prov_model = None
     if provenance_ref is not None:
@@ -29,12 +31,19 @@ def build_evidence_bundle(
             stable_id=provenance_ref.stable_id,
             artifact_id=provenance_ref.artifact_id,
         )
+    quality_payload = None
+    if quality_indicators is not None:
+        quality_payload = {
+            metric_id: indicators.to_dict()
+            for metric_id, indicators in quality_indicators.items()
+        }
     return EvidenceBundle(
         sources=sources or [],
         transforms=transforms or [],
         trust_policy_id=trust_policy_id,
         notes=notes or [],
         provenance_ref=prov_model,
+        quality_indicators=quality_payload,
     )
 
 

@@ -34,6 +34,7 @@ from .foundry import (
     TreasurySeed,
     TreasurySeedRef,
 )
+from .legal import NormPack, NormRef, NormRule, RuleType, RuleBackend
 from .scientist import CritiqueRef, FailureCardRef, PolicyIRRef
 from .trinity import (
     ModelSpecRef,
@@ -85,4 +86,9 @@ __all__ = [
     "ModelSpecRef",
     "TrinityBundle",
     "TrinityManifest",
+    "NormPack",
+    "NormRef",
+    "NormRule",
+    "RuleType",
+    "RuleBackend",
 ]

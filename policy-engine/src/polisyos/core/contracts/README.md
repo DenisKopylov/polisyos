@@ -12,7 +12,7 @@ contracts/
 ├── compiler.py     # Контракты компилятора
 ├── fabric.py       # Контракты Fabric (обработка данных)
 ├── foundry.py      # Контракты Foundry (симуляция)
-├── legal.py        # Legal compliance контракты
+├── legal.py        # Legal compliance контракты (новый)
 ├── scientist.py    # Контракты Scientist (эксперименты и агенты)
 └── trinity.py      # Trinity контракты (базовые спецификации)
 ```
@@ -122,7 +122,7 @@ plan_ref = QueryPlanRef(
 ```python
 from polisyos.core.contracts.fabric import EvidenceBundle, EvidenceBundleRef, EvidenceStep, ProvenanceCoreRefModel
 
-# Пакет доказательств с provenance tracking
+# Пакет доказательств с provenance tracking и quality indicators
 evidence = EvidenceBundle(
     sources=[source1_ref, source2_ref],
     transforms=[
@@ -135,7 +135,12 @@ evidence = EvidenceBundle(
         stable_id="evidence_v2",
         artifact_id=provenance_artifact_id
     ),
-    notes=["All sources verified", "Statistical validation passed", "Provenance tracked"]
+    quality_indicators={
+        "completeness": {"score": 0.95, "method": "coverage_analysis"},
+        "consistency": {"score": 0.89, "method": "statistical_tests"},
+        "timeliness": {"score": 0.92, "method": "freshness_check"}
+    },
+    notes=["All sources verified", "Statistical validation passed", "Provenance tracked", "Quality indicators computed"]
 )
 
 # Ссылка на пакет
@@ -544,7 +549,49 @@ patch_set = PatchSet(
 
 ## Trinity Contracts (Базовые спецификации)
 
-Trinity контракты определяют ссылки на три фундаментальные спецификации системы PolisyOS: ProblemFrame (проблема), PolicySpec (политика), ModelSpec (модель). Эти контракты обеспечивают структурированный подход к экспериментам и политикам.
+Trinity контракты определяют ссылки на три фундаментальные спецификации системы PolisyOS: ProblemFrame (проблема), PolicySpec (политика), ModelSpec (модель). Эти контракты обеспечивают структурированный подход к экспериментам и политикам, следуя паттерну "триединства" для разделения concerns между "Почему" (ProblemFrame), "Что" (PolicySpec) и "Как" (ModelSpec).
+
+### ProblemFrameRef
+
+Ссылка на спецификацию проблемы (ProblemFrame) - определение контекста и требований к политике.
+
+```python
+from polisyos.core.contracts.trinity import ProblemFrameRef
+
+problem_ref = ProblemFrameRef(
+    artifact_id=problem_frame_id,
+    kind="ir.problem_frame",        # literal type
+    media_type="application/json"   # literal type
+)
+```
+
+### PolicySpecRef
+
+Ссылка на спецификацию политики (PolicySpec) - определение структуры и поведения политики.
+
+```python
+from polisyos.core.contracts.trinity import PolicySpecRef
+
+policy_ref = PolicySpecRef(
+    artifact_id=policy_spec_id,
+    kind="ir.policy_spec",          # literal type
+    media_type="application/json"   # literal type
+)
+```
+
+### ModelSpecRef
+
+Ссылка на спецификацию модели (ModelSpec) - определение модели мира и ее компонентов.
+
+```python
+from polisyos.core.contracts.trinity import ModelSpecRef
+
+model_ref = ModelSpecRef(
+    artifact_id=model_spec_id,
+    kind="ir.model_spec",           # literal type
+    media_type="application/json"   # literal type
+)
+```
 
 ## Scientist Contracts (Контракты Scientist)
 
@@ -666,7 +713,7 @@ Legal контракты определяют интерфейсы для compli
 Пакет нормативных правил и ограничений для валидации политик.
 
 ```python
-from polisyos.ir.norm_pack import NormPack
+from polisyos.core.contracts.legal import NormPack, NormRule, RuleType
 
 # Создание пакета норм
 norm_pack = NormPack(
@@ -687,7 +734,7 @@ norm_pack = NormPack(
 Ссылка на нормативное правило в системе артефактов.
 
 ```python
-from polisyos.ir.norm_pack import NormRef
+from polisyos.core.contracts.legal import NormRef
 
 norm_ref = NormRef(
     rule_id="budget_deficit_limit",
@@ -700,7 +747,7 @@ norm_ref = NormRef(
 Определение отдельного нормативного правила с логикой валидации.
 
 ```python
-from polisyos.ir.norm_pack import NormRule, RuleType
+from polisyos.core.contracts.legal import NormRule, RuleType
 
 rule = NormRule(
     rule_id="privacy_data_retention",
@@ -716,7 +763,7 @@ rule = NormRule(
 Типы нормативных правил для категоризации.
 
 ```python
-from polisyos.ir.norm_pack import RuleType
+from polisyos.core.contracts.legal import RuleType
 
 # Доступные типы правил
 types = [
@@ -733,7 +780,7 @@ types = [
 Интерфейс для реализации движков валидации правил.
 
 ```python
-from polisyos.scientist.governance.legal.backends.base import RuleBackend
+from polisyos.core.contracts.legal import RuleBackend
 
 class CustomRuleBackend(RuleBackend):
     """Кастомный backend для валидации правил."""

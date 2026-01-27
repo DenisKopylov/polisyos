@@ -43,6 +43,9 @@ class ValidationProfile:
                 "budget_ratio": 0.9,
                 "max_interventions": 15,
                 "max_graph_cost": 15000,
+                "quality_missingness_acceptable": 0.20,
+                "quality_staleness_acceptable": 120,
+                "quality_coverage_acceptable": 0.70,
             },
             short_circuit_on_blocker=True,
         )
@@ -63,6 +66,9 @@ class ValidationProfile:
                 "budget_ratio": 0.8,
                 "max_interventions": 10,
                 "max_graph_cost": 10000,
+                "quality_missingness_acceptable": 0.10,
+                "quality_staleness_acceptable": 60,
+                "quality_coverage_acceptable": 0.85,
             },
             short_circuit_on_blocker=True,
         )
@@ -83,6 +89,10 @@ class ValidationProfile:
                 "budget_ratio": 0.7,
                 "max_interventions": 5,
                 "max_graph_cost": 5000,
+                "quality_missingness_acceptable": 0.05,
+                "quality_staleness_acceptable": 14,
+                "quality_coverage_acceptable": 0.95,
+                "quality_min_row_count": 100,
             },
             short_circuit_on_blocker=False,
         )

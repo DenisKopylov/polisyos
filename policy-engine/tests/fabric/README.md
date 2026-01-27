@@ -2,8 +2,8 @@
 
 Комплексная валидация компонентов Fabric layer - ingestion pipeline, evidence bundles, trust system и materialization engine.
 
-**Последнее обновление:** Январь 2026
-**Уровень:** Fabric Layer (Data Ingestion & Trust & Provenance)
+**Последнее обновление:** Январь 2026 (добавлены quality indicators system, fitness reports)
+**Уровень:** Fabric Layer (Data Ingestion & Trust & Provenance & Quality)
 **Зависимости:** Core artifacts, DuckDB, Kuzu, pandas
 
 ## Архитектурный контекст
@@ -17,7 +17,8 @@ fabric/
 ├── test_data_catalog.py           # Data Contract catalog system, contract validation, metric bindings, search
 ├── test_evidence_bundle.py        # Evidence bundles, ingestion pipeline, provenance tracking
 ├── test_provenance.py             # Provenance subsystem, entities, graphs, PROV-O export, persistence
-└── test_trust_two_pass.py         # Trust system, uncertainty bounds, двухпроходное сравнение
+├── test_trust_two_pass.py         # Trust system, uncertainty bounds, двухпроходное сравнение
+└── test_quality_indicators.py     # Quality indicators system, fitness reports, quality gate pass integration
 ```
 
 ## Категории тестов
@@ -73,6 +74,30 @@ fabric/
 - **Cryptographic Verification**: Криптографические гарантии целостности данных
 - **Trust Levels**: Иерархическая система уровней доверия к источникам
 
+### Quality Indicators System (`test_quality_indicators.py`)
+
+**Цель:** Комплексная валидация системы оценки качества данных - quality indicators, fitness reports, quality gate pass и их интеграции с governance pipeline.
+
+**Ключевые тесты:**
+- **Quality Indicators Calculation**: Точная валидация вычисления quality indicators (missingness, staleness, coverage, outlier ratio) из pandas DataFrames
+- **Quality Level Scoring**: Валидация алгоритма определения quality levels (EXCELLENT/GOOD/ACCEPTABLE/POOR/UNUSABLE) с weighted scoring
+- **Quality Thresholds Profiles**: Тестирование профилей качества (FAST/MVP/STRICT) с различными tolerance уровнями и overrides
+- **Fitness Report Generation**: Создание и валидация human-readable fitness reports с ASCII/markdown форматами
+- **Quality Gate Pass Integration**: Интеграция quality validation в governance pipeline с блокировкой на низком качестве данных
+- **Schema Drift Detection**: Обнаружение изменений в схеме данных между baseline и текущими колонками
+- **Outlier Ratio Calculation**: Вычисление доли выбросов через IQR метод для числовых колонок
+- **DuckDB Quality Computation**: Валидация вычисления quality indicators напрямую из DuckDB для больших датасетов
+
+**Принципы:**
+- **Multi-dimensional Assessment**: Оценка качества по нескольким измерениям (missingness, staleness, coverage, outliers) с weighted scoring
+- **Profile-based Thresholds**: Разные профили качества (FAST/MVP/STRICT) для различных сценариев использования и tolerance уровней
+- **Fitness Classification**: Пятиуровневая классификация качества с четкими критериями перехода между уровнями
+- **Schema Stability**: Мониторинг изменений схемы данных с penalty за schema drift
+- **Outlier Detection**: Статистическое обнаружение выбросов через IQR метод с configurable sensitivity
+- **Governance Integration**: Автоматическая блокировка симуляции при низком качестве данных в strict режиме
+- **Report Generation**: Создание human-readable отчетов для UI, logging и audit trails в ASCII и Markdown форматах
+- **Evidence-based Quality**: Интеграция quality indicators с evidence bundles для end-to-end traceability
+
 ### Provenance System (`test_provenance.py`)
 
 **Цель:** Комплексная валидация provenance подсистемы - tracking происхождения данных, activity graphs, PROV-O экспорт и persistence.
@@ -102,6 +127,9 @@ pytest tests/fabric/test_data_catalog.py -v
 pytest tests/fabric/test_evidence_bundle.py -v
 pytest tests/fabric/test_provenance.py -v
 pytest tests/fabric/test_trust_two_pass.py -v
+
+# Quality indicators system, fitness reports
+pytest tests/fabric/test_quality_indicators.py -v
 ```
 
 ## Связи с другими модулями
@@ -262,6 +290,52 @@ head tmp_path/raw/*.csv
 pytest tests/fabric/test_evidence_bundle.py -v --tb=long
 ```
 
+**Quality indicators calculation failures:**
+```bash
+# Проверьте вычисление quality indicators
+pytest tests/fabric/test_quality_indicators.py::TestQualityIndicatorsCalculation -v
+# Валидируйте missingness calculation
+pytest tests/fabric/test_quality_indicators.py::TestQualityIndicatorsCalculation::test_missingness_calculation_half_nulls -v
+```
+
+**Quality level scoring issues:**
+```bash
+# Проверьте quality level determination
+pytest tests/fabric/test_quality_indicators.py::TestQualityLevelScoring -v
+# Валидируйте excellent quality classification
+pytest tests/fabric/test_quality_indicators.py::TestQualityLevelScoring::test_excellent_quality -v
+```
+
+**Fitness report generation failures:**
+```bash
+# Проверьте генерацию fitness reports
+pytest tests/fabric/test_quality_indicators.py::TestDataFitnessReport -v
+# Валидируйте report summary format
+pytest tests/fabric/test_quality_indicators.py::TestDataFitnessReport::test_generate_summary_format -v
+```
+
+**Quality gate pass integration issues:**
+```bash
+# Проверьте integration с governance pipeline
+pytest tests/fabric/test_quality_indicators.py::TestQualityGatePassIntegration -v
+# Валидируйте strict profile blocking
+pytest tests/fabric/test_quality_indicators.py::TestQualityGatePassIntegration::test_strict_profile_blocks_on_poor_quality -v
+```
+
+**Schema drift detection failures:**
+```bash
+# Проверьте обнаружение schema drift
+pytest tests/fabric/test_quality_indicators.py::TestQualityIndicatorsCalculation::test_schema_drift_detection -v
+# Убедитесь что baseline_columns корректно заданы
+```
+
+**Outlier ratio calculation issues:**
+```bash
+# Проверьте вычисление outlier ratio
+pytest tests/fabric/test_quality_indicators.py::TestQualityIndicatorsCalculation::test_outlier_ratio_calculation -v
+# Валидируйте что есть числовые колонки для анализа
+```
+
 ## Технологии и зависимости
 
 ### Core Dependencies
@@ -279,6 +353,10 @@ pytest tests/fabric/test_evidence_bundle.py -v --tb=long
 - **Provenance System**: Tracking происхождения данных с PROV-O стандартами и activity graphs
 - **Trust Engine**: Статистическая верификация доверия к данным
 - **Materializer Engine**: Инкрементальная материализация представлений
+- **Quality Indicators System**: Многофакторная оценка качества данных (missingness, staleness, coverage, outliers) с pandas/DuckDB computation
+- **Fitness Reports**: Генерация human-readable отчетов о пригодности данных с ASCII/markdown форматами
+- **Quality Thresholds**: Configurable профили качества (FAST/MVP/STRICT) с различными tolerance уровнями
+- **Quality Gate Pass**: Governance pass для валидации качества данных перед симуляцией
 
 ### Integration Points
 - **Core Artifacts**: Immutable хранение всех fabric результатов и catalog контрактов

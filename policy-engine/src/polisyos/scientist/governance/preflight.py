@@ -16,6 +16,7 @@ from .passes.safety_pass import SafetyPass
 from .passes.privacy_pass import PrivacyPass
 from .passes.budget_pass import BudgetPass
 from .passes.legal_pass import LegalPass
+from .passes.quality_gate_pass import QualityGatePass
 from .legal.backends.stub import StubBackend
 
 
@@ -25,6 +26,7 @@ DEFAULT_PIPELINE = ValidationPipeline([
     PrivacyPass(),
     SafetyPass(),
     LegalPass(backend=StubBackend()),
+    QualityGatePass(),
 ])
 
 

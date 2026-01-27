@@ -2,7 +2,7 @@
 
 Тестовая инфраструктура для Policy Engine - AI-driven Policy Simulation System. Тесты обеспечивают качество кода, валидируют архитектурные границы и проверяют корректность работы всех компонентов системы.
 
-**Последнее обновление:** 27 января 2026 (добавлены conflict detection, cost model, NaN guard, agent artifacts, merge determinism, quality indicators system, fitness reports, quality gate pass, decision card system, run timeline tracking, decision packet v2)
+**Последнее обновление:** 27 января 2026 (добавлены search loop system, workflow engines, Phase 17 optimization, two-stage filtering, conflict detection, cost model, NaN guard, agent artifacts, merge determinism, quality indicators system, fitness reports, quality gate pass, decision card system, run timeline tracking, decision packet v2)
 **Актуальная версия архитектуры:** v2.1.4 (Provenance Tracking, PROV-O Integration, Evidence-Enhanced Fabric)
 
 ## Архитектурный контекст
@@ -82,6 +82,10 @@ tests/
     ├── governance/                # Тесты governance layer (validation pipeline, legal compliance)
     │   ├── test_legal_pass.py     # LegalPass, RuleBackend, NormPack validation
     │   └── test_validation_pipeline.py # ValidationPipeline, profiles, compliance issues
+    ├── search/                    # Тесты search loop system (Phase 17 optimization)
+    │   ├── conftest.py            # Специфичная конфигурация для search тестов
+    │   ├── test_search_loop.py    # SearchController, two-stage filtering, stopping criteria, objectives
+    │   └── __init__.py
     ├── test_agent_protocols.py    # Протоколы агентов: PI, Drafter, Formalizer, Critic
     ├── test_compiler.py           # Компилятор политик из IR
     ├── test_decision_card.py      # DecisionCard, Verdict, Confidence, KeyMetric, IssuesSummary
@@ -256,10 +260,11 @@ tests/
 
 ### Scientist Tests (`scientist/`)
 
-**Цель**: Валидация компонентов ИИ, протоколов агентов, компиляции политик, систем recovery и governance layer.
+**Цель**: Валидация компонентов ИИ, протоколов агентов, компиляции политик, систем recovery, governance layer и optimization loop.
 
 **Ключевые тесты:**
 - **Governance Layer**: Validation pipeline, compliance checks, pre/post-flight governance, legal validation passes, quality gate pass
+- **Search Loop System**: Phase 17 optimization с two-stage filtering, SearchController, stopping criteria, objective functions
 - **Agent Protocols**: Валидация протоколов PI/Drafter/Formalizer/Critic агентов с runtime поведением
 - **Policy Compiler**: Компиляция IR в исполняемые модели foundry
 - **Agent Pipeline**: Полный pipeline от user request до PolicySurfaceIR через агентов
@@ -270,6 +275,7 @@ tests/
 - **Multi-Agent Workflow**: Интеграция multi-agent системы с critique system и памятью агентов
 - **Failure Cards**: Система обработки ошибок, recovery mechanisms и escalation logic
 - **Short-Term Memory**: Persistence состояния и hints между попытками агентов
+- **Workflow Engines**: Абстракция workflow execution с поддержкой LangGraph, SimpleLoop и будущих реализаций
 
 ## Конфигурация окружения (conftest.py)
 
@@ -345,6 +351,13 @@ pytest tests/scientist/ -v
 # Governance layer тесты
 pytest tests/scientist/governance/ -v                 # Validation pipeline
 pytest tests/scientist/governance/test_legal_pass.py -v # Legal validation pass
+
+# Search loop system тесты (Phase 17 optimization)
+pytest tests/scientist/search/ -v                    # SearchController, two-stage filtering
+pytest tests/scientist/search/test_search_loop.py -v # Optimization flow, stopping criteria
+pytest tests/scientist/search/test_search_loop.py::TestOptimizationFlow -v # Quadratic optimization
+pytest tests/scientist/search/test_search_loop.py::TestTwoStageFiltering -v # Cheap/expensive stages
+pytest tests/scientist/search/test_search_loop.py::TestWorkflowEngineAbstraction -v # Engine protocols
 
 # Новые компоненты scientist layer
 pytest tests/scientist/test_decision_card.py -v       # Decision card system
@@ -463,6 +476,11 @@ pytest tests/runtime/test_runtime_manifest_paths.py
 - **Legal Validation System**: Pluggable backends для оценки юридических норм с protocol-based architecture
 - **Norm Pack Contracts**: Структурированные представления юридических норм (NormPack, NormRule, NormRef)
 - **Rule Backend System**: Extensible evaluators для разных типов правил (AST, LLM, Stub implementations)
+- **Search Loop System**: Phase 17 optimization с two-stage filtering, iterative policy refinement, objective functions
+- **Workflow Engines**: Абстрактная архитектура workflow execution (LangGraph, SimpleLoop, future Temporal/Prefect)
+- **Stopping Criteria**: Composite stopping conditions (MaxIterations, MaxWallTime, ImprovementPlateau) для optimization loops
+- **Candidate Generators**: Protocol-based generation новых policy candidates с history awareness
+- **Two-Stage Filtering**: Cheap/expensive evaluation pipeline для cost-effective optimization
 - **Environment Manifest**: Захват и сравнение вычислительных окружений для reproducibility
 - **Conflict Detection System**: Compile-time валидация программных графов на предмет конфликтов с merge rules
 - **Cost Model**: Оценка стоимости выполнения с budget constraints и telemetry-based calibration
@@ -480,6 +498,8 @@ pytest tests/runtime/test_runtime_manifest_paths.py
 - **Закон G**: Uncertainty quantification (все калибровки предоставляют оценки неопределенности)
 - **Закон H**: Evidence обязательны (data провода фиксируют provenance/evidence)
 - **Закон I**: Trust policies (многоуровневые политики доверия к источникам данных)
+- **Закон O**: Optimization convergence (search loops converge к optimal policies или escalate)
+- **Закон P**: Two-stage efficiency (cheap filtering prevents expensive evaluation waste)
 
 ### Качественные требования
 - **Unit Tests**: Покрывают все публичные API foundry и core компонентов
@@ -642,6 +662,7 @@ pytest tests/runtime/test_runtime_manifest_paths.py
 9. Для plugin system тестов проверяйте capability system, composite executors и domain configs
 10. Для agent simulation тестов валидируйте метрики, экспериментальный трекинг и визуализацию
 11. Для demo тестов проверяйте интеграцию с tools/ и корректность path resolution
+12. Для search тестов: тестируйте optimization convergence, two-stage filtering efficiency, stopping criteria, objective evaluation, workflow engine abstraction
 
 ### Отладка тестов
 ```bash

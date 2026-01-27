@@ -1,14 +1,14 @@
 # Scientist Tests
 
-Валидация компонентов scientist layer - протоколов агентов, компилятора политик и ИИ-компонентов.
+Валидация компонентов scientist layer - протоколов агентов, компилятора политик, ИИ-компонентов, optimization loop и workflow engines.
 
-**Последнее обновление:** Январь 2026 (добавлены legal pass тесты, norm pack validation, decision card system, run timeline tracking, decision packet v2)
-**Уровень:** Scientist Layer (AI & Compilation)
-**Зависимости:** JAX, Core artifacts, IR structures, Legal contracts
+**Последнее обновление:** Январь 2026 (добавлены legal pass тесты, norm pack validation, decision card system, run timeline tracking, decision packet v2, search loop system, workflow engines)
+**Уровень:** Scientist Layer (AI & Compilation & Optimization)
+**Зависимости:** JAX, Core artifacts, IR structures, Legal contracts, Search objectives, Workflow engines
 
 ## Архитектурный контекст
 
-Scientist layer обеспечивает компиляцию политик из IR в executable формы и управляет AI-компонентами. Тесты валидируют policy compilation pipeline и integration с ИИ.
+Scientist layer обеспечивает компиляцию политик из IR в executable формы, управляет AI-компонентами и реализует optimization loop для policy refinement. Тесты валидируют policy compilation pipeline, AI integration, search optimization и workflow abstraction.
 
 ## Структура тестов
 
@@ -17,6 +17,10 @@ scientist/
 ├── governance/                # Тесты governance layer (validation pipeline, legal compliance)
 │   ├── test_legal_pass.py     # LegalPass, RuleBackend, NormPack validation
 │   └── test_validation_pipeline.py # ValidationPipeline, profiles, compliance issues
+├── search/                    # Тесты search loop system (Phase 17 optimization)
+│   ├── conftest.py            # Специфичная конфигурация для search тестов
+│   ├── test_search_loop.py    # SearchController, two-stage filtering, stopping criteria, objectives
+│   └── __init__.py
 ├── test_agent_protocols.py    # Протоколы агентов: PI, Drafter, Formalizer, Critic
 ├── test_compiler.py           # Компилятор политик из IR
 ├── test_decision_card.py      # DecisionCard, Verdict, Confidence, KeyMetric, IssuesSummary
@@ -60,6 +64,25 @@ scientist/
 - **Backend Abstraction**: Pluggable rule evaluation через RuleBackend protocol
 - **Norm Pack Contracts**: Structured legal norms с jurisdiction, effective dates, rule types
 - **Compliance Issues**: Structured feedback с severity levels и remediation guidance
+
+### Search Loop System (`search/test_search_loop.py`)
+
+**Цель:** Валидация Phase 17 optimization - iterative policy refinement с two-stage filtering, stopping criteria и objective functions.
+
+**Ключевые тесты:**
+- **Optimization Flow**: SearchController convergence к optimal policies (quadratic minimization example)
+- **Two-Stage Filtering**: Cheap stage rejection prevents expensive evaluation waste, efficiency validation
+- **Stopping Criteria**: MaxIterations/MaxWallTime/ImprovementPlateau triggers, composite logic
+- **Workflow Engine Abstraction**: Protocol compliance, SimpleLoopEngine step-by-step execution
+- **Objectives Evaluation**: GDP growth maximization, composite objectives weighting, normalization
+- **Candidate Generation**: History-aware generation, convergence toward optimal solutions
+
+**Принципы:**
+- **Two-Stage Efficiency**: Cheap filtering (Stage A) prevents expensive simulation (Stage B) calls
+- **Convergence Guarantee**: Search loops find optimal policies или escalate appropriately
+- **Composite Stopping**: Multiple criteria prevent infinite loops с graceful degradation
+- **Engine Abstraction**: WorkflowEngine protocol enables LangGraph/Temporal/Prefect migration
+- **Objective Normalization**: Unified minimization convention для multi-objective optimization
 
 ### Agent Protocols (`test_agent_protocols.py`)
 
@@ -210,6 +233,14 @@ pytest tests/scientist/test_decision_packet_v2.py -k "end_to_end_workflow" -v
 pytest tests/scientist/test_run_timeline.py::TestRunTimeline -v
 pytest tests/scientist/test_run_timeline.py -k "phase_duration or artifact_serialization" -v
 
+# Search loop system testing (Phase 17 optimization)
+pytest tests/scientist/search/test_search_loop.py::TestOptimizationFlow -v          # Quadratic convergence
+pytest tests/scientist/search/test_search_loop.py::TestTwoStageFiltering -v         # Cheap/expensive stages
+pytest tests/scientist/search/test_search_loop.py::TestStoppingCriteria -v          # MaxIterations, Plateau
+pytest tests/scientist/search/test_search_loop.py::TestWorkflowEngineAbstraction -v # Engine protocols
+pytest tests/scientist/search/test_search_loop.py::TestObjectives -v                # GDP growth, composite
+pytest tests/scientist/search/test_search_loop.py::TestIntegration -v               # End-to-end search
+
 # Agent pipeline testing
 pytest tests/scientist/test_agent_protocols.py::TestAgentPipeline -v
 
@@ -264,6 +295,19 @@ pytest tests/scientist/test_reflexion_loop.py::TestFailureCardConverters -v
 - **Integration Layer**: Enhanced packets используются в end-to-end workflows
 - **Fabric Layer**: Timeline data feeds в provenance tracking и evidence bundles
 
+**Search Loop System** (`search/`):
+- **Foundry Layer**: Expensive stage evaluation через simulation execution
+- **IR Layer**: Policy candidates generation и semantic validation
+- **Core Layer**: Artifact storage для search results и intermediate policies
+- **Fabric Layer**: Trust evaluation для simulation results в expensive stage
+- **Integration Layer**: End-to-end optimization workflows с calibration targets
+
+**Workflow Engines** (`workflow/`):
+- **Scientist Layer**: Abstraction для multi-agent orchestration (LangGraph implementation)
+- **Integration Layer**: Engine factory для different workflow backends
+- **Runtime Layer**: Execution context и state management для workflows
+- **Core Layer**: Artifact persistence для workflow state и results
+
 ### Потребители Scientist Layer
 
 **Integration Layer** (`integration/`):
@@ -279,6 +323,8 @@ pytest tests/scientist/test_reflexion_loop.py::TestFailureCardConverters -v
 - **Закон B**: Компиляторная труба (NL → LLM → IR → Compilation → Runtime)
 - **Закон C**: Governance gates (pre-flight validation перед execution, post-flight review)
 - **Закон L**: Legal compliance (policies валидируются против applicable legal norms)
+- **Закон O**: Optimization convergence (search loops converge к optimal policies или escalate)
+- **Закон P**: Two-stage efficiency (cheap filtering prevents expensive evaluation waste)
 - **Registry Consistency**: Compilation использует consistent registry bundles
 - **Execution Correctness**: Compiled programs preserve policy semantics
 - **State Safety**: Safe state transformations через execution
@@ -287,6 +333,8 @@ pytest tests/scientist/test_reflexion_loop.py::TestFailureCardConverters -v
 - **Memory Persistence**: Agent state persists across workflow attempts с hint accumulation
 - **Critique Integration**: Critique system provides actionable feedback для всех agents
 - **Reflexion Convergence**: Retry loops converge или escalate для human intervention
+- **Engine Abstraction**: WorkflowEngine protocol enables seamless backend migration
+- **Candidate Refinement**: Each iteration improves policy quality через history awareness
 
 ## Разработка и расширение
 
@@ -304,7 +352,8 @@ pytest tests/scientist/test_reflexion_loop.py::TestFailureCardConverters -v
 10. Для multi-agent workflow: проверяйте state persistence, critique integration, memory management
 11. Для failure cards: валидируйте schema compliance, converter accuracy, severity classification
 12. Для legal pass: тестируйте profile-based execution, backend delegation, norm pack validation
-13. Используйте fixtures для shared state (base_state, recoverable_failure_card, fatal_failure_card, sample_norm_pack, mock_packet)
+13. Для search loop system: тестируйте convergence к known optima, two-stage filtering efficiency, stopping criteria triggers, objective evaluation correctness, candidate generation quality, workflow engine abstraction
+14. Используйте fixtures для shared state (base_state, recoverable_failure_card, fatal_failure_card, sample_norm_pack, mock_packet, mock_candidate_generator, quadratic_objective)
 
 ### Структура scientist теста
 
@@ -438,6 +487,136 @@ def test_norm_pack_rule_types(sample_norm_pack: NormPack) -> None:
     for obligation in obligations:
         assert obligation.norm_id.startswith("GDPR-")
         assert len(obligation.backend_refs) > 0
+
+def test_search_convergence_to_known_optimum(mock_candidate_generator, quadratic_objective):
+    """Тестирование convergence к known optimum (x=0 для f(x)=x^2)."""
+    from polisyos.scientist.search.controller import SearchController, SearchConfig
+    from polisyos.scientist.search.stopping import MaxIterations
+
+    def stage_a_evaluator(candidate, context):
+        return 0.0, True  # Always pass cheap stage
+
+    def stage_b_evaluator(candidate, context):
+        x = candidate.get("x", 1.0)
+        return {
+            "simulation_results": {"x": x, "objective_value": x**2},
+            "feedback": {"verdict": "APPROVE"}
+        }
+
+    config = SearchConfig(
+        stopping=MaxIterations(20),
+        objective=quadratic_objective,
+    )
+
+    controller = SearchController(
+        config=config,
+        candidate_generator=mock_candidate_generator,
+        stage_a_evaluator=stage_a_evaluator,
+        stage_b_evaluator=stage_b_evaluator,
+    )
+
+    result = controller.run({"user_request": "Minimize quadratic function"})
+
+    # Verify: converged close to x=0
+    assert result.best_candidate is not None
+    assert abs(result.best_candidate["x"]) < 0.01, f"Failed to converge, best x: {result.best_candidate['x']}"
+    assert result.best_objective < 0.001, f"Objective too high: {result.best_objective}"
+
+def test_two_stage_filtering_prevents_expensive_calls(mock_candidate_generator, quadratic_objective):
+    """Тестирование что Stage A rejection предотвращает Stage B вызовы."""
+    from polisyos.scientist.search.controller import SearchController, SearchConfig
+    from polisyos.scientist.search.stopping import MaxIterations
+
+    stage_b_call_count = [0]
+
+    def stage_a_evaluator(candidate, context):
+        return 1.0, False  # Always reject in cheap stage
+
+    def stage_b_evaluator(candidate, context):
+        stage_b_call_count[0] += 1
+        return {"simulation_results": {}, "feedback": {"verdict": "APPROVE"}}
+
+    config = SearchConfig(
+        stopping=MaxIterations(5),
+        objective=quadratic_objective,
+        enable_stage_a=True,
+    )
+
+    controller = SearchController(
+        config=config,
+        candidate_generator=mock_candidate_generator,
+        stage_a_evaluator=stage_a_evaluator,
+        stage_b_evaluator=stage_b_evaluator,
+    )
+
+    result = controller.run({"user_request": "Test filtering"})
+
+    # Verify: Stage B never called due to Stage A rejection
+    assert stage_b_call_count[0] == 0, "Stage B was called despite Stage A rejection!"
+    assert result.stage_a_evaluations == 5
+    assert result.stage_b_evaluations == 0
+
+def test_workflow_engine_step_execution():
+    """Тестирование step-by-step выполнения SimpleLoopEngine."""
+    from polisyos.scientist.workflow.engine_simple import SimpleLoopEngine
+
+    execution_order = []
+
+    def node_a(state):
+        execution_order.append("a")
+        return {**state, "phase": "a_completed"}
+
+    def node_b(state):
+        execution_order.append("b")
+        return {**state, "phase": "b_completed"}
+
+    def node_c(state):
+        execution_order.append("c")
+        return {**state, "phase": "c_completed"}
+
+    engine = SimpleLoopEngine([
+        ("node_a", node_a),
+        ("node_b", node_b),
+        ("node_c", node_c),
+    ])
+
+    # Test step-by-step execution
+    state = {"initial": True}
+
+    state, done = engine.step(state)
+    assert execution_order == ["a"]
+    assert state["phase"] == "a_completed"
+    assert not done
+
+    state, done = engine.step(state)
+    assert execution_order == ["a", "b"]
+    assert state["phase"] == "b_completed"
+    assert not done
+
+    state, done = engine.step(state)
+    assert execution_order == ["a", "b", "c"]
+    assert state["phase"] == "c_completed"
+    assert done
+
+def test_composite_stopping_criteria():
+    """Тестирование composite stopping criteria."""
+    from polisyos.scientist.search.stopping import CompositeStoppingCriterion, MaxIterations, MaxWallTime
+    import time
+
+    composite = CompositeStoppingCriterion([
+        MaxIterations(100),  # Won't trigger
+        MaxWallTime(0.01),   # Will trigger after sleep
+    ])
+
+    history = [{"objective_value": 1.0} for _ in range(5)]
+
+    # Sleep to trigger wall time criterion
+    time.sleep(0.02)
+
+    result = composite.check(history, {})
+
+    assert result.should_stop, "Composite should stop when ANY criterion triggers"
+    assert "wall_time" in result.details.get("triggered_by", "").lower()
 ```
 
 ## Troubleshooting
@@ -512,6 +691,38 @@ pytest tests/scientist/test_multi_agent_workflow.py::TestMultiAgentWorkflow::tes
 pytest tests/scientist/test_multi_agent_workflow.py::TestShortTermMemory::test_serialization_roundtrip -v
 ```
 
+**Search loop convergence failures:**
+```bash
+# Проверьте convergence к known optima
+pytest tests/scientist/search/test_search_loop.py::TestOptimizationFlow::test_search_finds_quadratic_minimum -v
+# Проверьте objective evaluation
+pytest tests/scientist/search/test_search_loop.py::TestObjectives::test_gdp_objective_maximizes -v
+```
+
+**Two-stage filtering issues:**
+```bash
+# Проверьте что Stage A rejection prevents Stage B calls
+pytest tests/scientist/search/test_search_loop.py::TestTwoStageFiltering::test_stage_a_rejection_skips_stage_b -v
+# Проверьте Stage A evaluation logic
+pytest tests/scientist/search/test_search_loop.py::TestTwoStageFiltering::test_cheap_stage_rejects_invalid_params -v
+```
+
+**Stopping criteria failures:**
+```bash
+# Проверьте MaxIterations stopping
+pytest tests/scientist/search/test_search_loop.py::TestStoppingCriteria::test_max_iterations_stops_exactly -v
+# Проверьте composite criteria
+pytest tests/scientist/search/test_search_loop.py::TestStoppingCriteria::test_composite_stops_on_first_trigger -v
+```
+
+**Workflow engine issues:**
+```bash
+# Проверьте SimpleLoopEngine execution
+pytest tests/scientist/search/test_search_loop.py::TestWorkflowEngineAbstraction::test_simple_engine_runs_to_completion -v
+# Проверьте step-by-step execution
+pytest tests/scientist/search/test_search_loop.py::TestWorkflowEngineAbstraction::test_simple_engine_step_by_step -v
+```
+
 ## Технологии и зависимости
 
 ### Core Dependencies
@@ -559,3 +770,18 @@ pytest tests/scientist/test_multi_agent_workflow.py::TestShortTermMemory::test_s
 - **Stub Backend**: Reference implementation возвращающая INFO issues для всех норм
 - **Rule Types**: Deontic classification (Obligation/Prohibition/Permission) для норм
 - **Jurisdiction Support**: Multi-jurisdiction norm packs с effective dates и provision references
+
+### Search & Optimization Components
+- **Search Loop System**: Phase 17 optimization с iterative policy refinement и convergence guarantees
+- **Two-Stage Filtering**: Cheap/expensive evaluation pipeline для computational efficiency
+- **Stopping Criteria**: Composite conditions (iterations/wall-time/plateau) для loop termination
+- **Objective Functions**: GDP growth, inequality reduction, budget balance objectives с weighting
+- **Candidate Generators**: History-aware generation новых policy candidates для refinement
+- **Workflow Engines**: Abstract engine protocol supporting LangGraph, SimpleLoop, future Temporal/Prefect
+
+### Optimization Infrastructure
+- **SearchController**: Orchestrator для optimization loops с result tracking и status management
+- **SearchConfig**: Configuration для stopping criteria, objectives, iteration limits
+- **CandidateGenerator Protocol**: Extensible interface для различных generation strategies
+- **SearchResult**: Structured results с best candidate, iteration history, stopping reason
+- **SearchIteration**: Per-iteration tracking objective values, stage evaluations, timing

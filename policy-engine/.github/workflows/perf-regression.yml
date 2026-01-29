@@ -1,0 +1,37 @@
+name: Performance Regression
+
+on:
+  pull_request:
+    paths:
+      - 'src/polisyos/foundry/**'
+      - 'src/polisyos/core/artifacts/**'
+      - 'src/polisyos/core/observability/**'
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install -e ".[dev]"
+          pip install pytest-benchmark
+
+      - name: Run benchmarks
+        run: |
+          pytest tests/performance/test_overhead.py \
+            --benchmark-enable \
+            --benchmark-json=benchmark.json \
+            --benchmark-compare
+
+      - name: Check regression
+        run: |
+          python tools/check_perf_regression.py benchmark.json \
+            --threshold 0.05

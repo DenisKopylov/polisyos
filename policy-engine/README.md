@@ -68,22 +68,31 @@ These are the “laws” the codebase is designed to uphold (some enforced by to
 
 ## Dependency model (how layers depend)
 
-The system is organized as a set of layers with intentionally **directed dependencies**:
+The system is organized as a set of layers with intentionally **directed dependencies** (Law A):
 
 - **Scientist** → IR, Fabric, Foundry, Runtime, Core, Common
   Orchestration sits at the top and is allowed to depend on most layers. Includes hierarchical agent system (PI→Drafter→Formalizer→Critic), FSM-based workflow orchestration, self-healing reflexion patterns, governance passes pipeline, Phase 18 safe expression evaluation, legal compliance validation, search loop system with two-stage filtering, workflow engines (LangGraph/SimpleLoop), LLM tracing infrastructure, decision card system, run timeline tracking, and multi-agent workflow orchestration with Phase 2 instrumentation (flow node tracing, LLM client instrumentation, governance pipeline spans, end-to-end workflow tracing).
+
 - **Fabric** → IR, Core, Common
-  Data layer depends on contracts and infrastructure, but not on orchestration. Includes unified data fabric with evidence bundles, provenance tracking, trust quantification, quality indicators system, fitness reports, quality gate pass integration, data contract catalog system, ingestion pipeline, and trust two-pass comparison.
+  Data layer depends on contracts and infrastructure, but not on orchestration. Includes unified data fabric with evidence bundles, provenance tracking, trust quantification, quality indicators system, fitness reports, quality gate pass integration, data contract catalog system, ingestion pipeline, trust two-pass comparison, and materializer engine for incremental updates.
+
 - **Foundry** → IR, Core, Common
-  Execution core depends on contracts and infrastructure, but not on data storage/orchestration. Includes JAX-based simulation engine with conflict detection, cost modeling, NaN guard for numerical stability, agent artifacts, merge determinism, patch-based state management, plugin system, adaptive agents, calibrator fidelity control, gradient health monitoring, and runtime batch execution.
+  Execution core depends on contracts and infrastructure, but not on data storage/orchestration. Includes JAX-based simulation engine with compile-time conflict detection, cost modeling, NaN guard for numerical stability, agent artifacts with environment fingerprinting, merge determinism, patch-based state management, plugin system with capability-based registry, adaptive agents with learning metrics, calibrator fidelity control, gradient health monitoring, and runtime batch execution.
+
 - **Runtime** → IR, Core, Common
-  Run lifecycle management depends on contracts and infrastructure. Provides portable run manifests, artifact management, audit trail logging, and full observability integration.
+  Run lifecycle management depends on contracts and infrastructure. Provides portable run manifests, artifact management, audit trail logging, and full observability integration with PolicyOSTracer and MetricsRegistry.
+
 - **IR** → Core, Common
-  Contracts depend on canonicalization/typing infrastructure. Includes Trinity IR (ProblemFrame/PolicySpec/ModelSpec), PolicySurfaceIR compatibility layer with migration support, norm pack contracts for legal compliance, and kernel registries.
+  Contracts depend on canonicalization/typing infrastructure. Includes Trinity IR (ProblemFrame/PolicySpec/ModelSpec), PolicySurfaceIR compatibility layer with migration support, norm pack contracts for legal compliance, kernel registries, and legal AST backends with pluggable rule evaluation.
+
 - **Core** → Common
-  Infrastructure depends only on minimal utilities. Includes comprehensive observability system (PolicyOSTracer singleton, MetricsRegistry, @traced decorator, log-trace correlation, context propagation), content-addressable storage, canonical JSON serialization, conflict detection, cost modeling, NaN guard, Trinity contracts, legal compliance contracts, and environment manifest system.
+  Infrastructure depends only on minimal utilities. Includes comprehensive observability system (PolicyOSTracer singleton, MetricsRegistry, @traced decorator, log-trace correlation, context propagation), content-addressable storage, canonical JSON serialization, conflict detection, cost modeling, NaN guard, Trinity contracts, legal compliance contracts, and environment manifest system with compatibility scoring.
+
 - **Common** → (none)
   Foundational utilities should remain dependency-light. Includes OpenTelemetry-integrated logging, JAX environment configuration, migration system with Trinity format support, and path utilities.
+
+**Tools Layer** → All layers (diagnostics, linting, migration, benchmarking)
+Developer tools provide cross-cutting capabilities: architectural linting (Law A/B enforcement), schema generation (Law C), performance regression detection, migration utilities, observability diagnostics, and demo scripts for all system components.
 
 **Enforcement**:
 - `tools/lint_imports.py` checks for forbidden imports and cycles (Law A).
@@ -129,6 +138,8 @@ At a high level, Policy Engine runs an experiment as a staged pipeline:
    - Trust quantification with uncertainty bounds and two-pass comparison
    - Quality indicators (missingness, staleness, coverage, outliers) with fitness reports
    - Quality gate enforcement blocking execution on poor data quality
+   - Data contract catalog system for structured data access
+   - Materializer engine for incremental relational view updates
 
 6. **Compilation (Foundry with conflict detection + cost modeling)**
    Foundry compiles policy IR into executable representation (`ProgramGraph` + `ExecPlan`), performs comprehensive static checks:
@@ -195,8 +206,8 @@ The IR kernel defines registries that make policies composable and checkable:
 
 ### Foundry: compilation and execution core
 
-- **Compiler**: IR → executable graph/plan with conflict detection and cost estimation.
-- **Static checks**: compile-time conflict detection (multiple writers, merge rules), cost modeling with budget tracking, performance prediction.
+- **Compiler**: IR → executable graph/plan with compile-time conflict detection and cost estimation.
+- **Static checks**: compile-time conflict detection (multiple writers, merge rules), cost modeling with budget tracking, performance prediction, NaN guard for numerical stability monitoring.
 - **Deterministic merge**: patch-based execution and merge rules for stable state updates with state consistency validation.
 - **Runtime safety**: NaN/Inf guard for numerical stability, environment fingerprinting, agent artifacts with determinism tier validation.
 - **Advanced features**: Agent simulation with learning metrics, plugin system with capability-based registry, adaptive agents, merge determinism, patch executor with state deltas and snapshots.
@@ -213,7 +224,7 @@ Typical passes include:
 - **Budget pass**: enforces resource budgets (time/complexity/limits) for the workflow with cost modeling integration.
 - **Privacy pass**: enforces access tiers and privacy rules for data views/UDFs with trust quantification.
 - **Quality gate pass**: blocks execution when required data quality indicators are not met, integrates with quality indicators system and fitness reports.
-- **Legal pass**: evaluates norm packs via pluggable backends (AST, LLM, Stub) with Phase 18 safe expression evaluation and AST policy enforcement.
+- **Legal pass**: evaluates norm packs via pluggable backends (AST, LLM, Stub) with Phase 18 safe expression evaluation, AST policy validation, and security testing.
 
 ### Legal compliance: NormPacks and safe evaluation (Phase 18)
 
@@ -226,7 +237,7 @@ Phase 18 introduced **safe expression evaluation** with comprehensive security:
 - **`SafeExpressionEvaluator`**: interprets a safe AST subset (no `eval`/`exec`, no calls, no attribute access, no builtin functions).
 - **`ExpressionASTBackend`**: integrates rule evaluation with the LegalPass pipeline and governance security testing.
 - **Security features**: AST limits enforcement, mathematical operations validation, variable binding security, class escape prevention.
-- **AST Policy Enforcement**: Forbidden construct rejection, resource limits (nodes/depth/length/names), mathematical correctness validation.
+- **AST Policy Enforcement**: Forbidden construct rejection, resource limits (nodes/depth/length/names), mathematical correctness validation, norm execution security.
 
 ### Decision outputs
 
@@ -241,11 +252,12 @@ Phase 18 introduced **safe expression evaluation** with comprehensive security:
 - **Workflow engines**: LangGraph-based declarative orchestration and SimpleLoopEngine with conditional routing, state management, and unified WorkflowEngine interface.
 - **Search framework**: Two-stage filtering (cheap/expensive evaluation), composite objectives, and intelligent stopping criteria for policy optimization.
 - **FSM kernel**: Phase-based state machine with 9 phases, budget controls, guards, and human gate integration.
+- **Phase 2 instrumentation**: End-to-end workflow tracing with flow node tracing, LLM client instrumentation, and governance pipeline spans.
 
 ### Governance and compliance
 
 - **Governance passes**: Modular validation pipeline (schema, safety, privacy, legal, quality gate) with pluggable backends and telemetry.
-- **Legal compliance (Phase 18)**: AST-based safe expression evaluation with ASTPolicy validation, SafeExpressionEvaluator, and pluggable rule backends.
+- **Legal compliance (Phase 18)**: AST-based safe expression evaluation with ASTPolicy validation, SafeExpressionEvaluator, pluggable rule backends, and governance security testing.
 - **Quality assessment**: QualityIndicators system with fitness reports, configurable thresholds, and quality gate enforcement.
 - **Trust quantification**: Multi-tier evidence validation with uncertainty bounds and statistical verification.
 
@@ -269,12 +281,12 @@ This section explains *what each major directory is for* without listing the ful
 - **`src/polisyos/core`**: infrastructure layer (CAS artifacts, canonical JSON, typed contracts, comprehensive observability system, registries, run context, conflict detection, cost modeling, NaN guard, Trinity contracts, legal contracts).
 - **`src/polisyos/ir`**: canonical policy/data contracts (Trinity + PolicySurfaceIR), loaders/migrations, kernel registries, validation.
 - **`src/polisyos/fabric`**: Unified Data Fabric (ingestion, data contracts, UDF system, evidence/provenance, quality/trust).
-- **`src/polisyos/foundry`**: execution core (compile IR to executable plans; run JAX simulations; calibration; determinism tools).
+- **`src/polisyos/foundry`**: execution core (compile IR to executable plans; run JAX simulations; calibration; conflict detection; cost modeling; NaN guard; agent artifacts; patch-based execution).
 - **`src/polisyos/scientist`**: orchestration “brain” (hierarchical agent system with PI→Drafter→Formalizer→Critic, FSM-based workflow orchestration, self-healing reflexion patterns, governance passes pipeline, Phase 18 legal compliance, search loop system with two-stage filtering, workflow engines, LLM tracing infrastructure, decision card system, run timeline tracking, Phase 2 instrumentation).
 - **`src/polisyos/runtime`**: run lifecycle APIs and portable run manifests (where run artifacts are stored and referenced).
 
 - **`data/`**: local data workspace, plus normative packs in `data/norms/`.
-- **`tools/`**: developer utilities (custom linters, migrations, diagnostics, demos, benchmarks).
+- **`tools/`**: developer utilities (custom linters, migrations, diagnostics, demos, benchmarks, environment capture, performance regression detection, schema generation, fabric scanning, provenance visualization).
 - **`tests/`**: unit/contract/integration test suite.
 - **`docs/`**: ADRs and contract specs.
 
@@ -453,8 +465,8 @@ uv run python tools/lint_foundry.py
 - The system prefers deterministic serialization and content-addressing for robust provenance and caching with full distributed tracing support.
 - **Environment manifests** capture system state for reproducible simulations with compatibility scoring and risk assessment.
 - **Evidence bundles** and **trust metrics** provide cryptographic verification of data provenance and quality.
-- **Core observability**: PolicyOSTracer singleton, MetricsRegistry, @traced decorators, log-trace correlation, and context propagation across all components.
-- **Run timeline tracking**: Event-based timeline system with phase durations, node timings, artifact creation, and validation outcomes for comprehensive audit trails.
+- **Core observability**: PolicyOSTracer singleton, MetricsRegistry, @traced decorators, log-trace correlation, context propagation, LLM tracing, and end-to-end workflow tracing across all components.
+- **Run timeline tracking**: Event-based timeline system with phase durations, node timings, artifact creation, validation outcomes, and performance metrics for comprehensive audit trails.
 
 ---
 
@@ -467,11 +479,11 @@ Policy Engine includes comprehensive testing infrastructure ensuring quality acr
 Following the compiler pipeline architecture, tests are organized by responsibility:
 
 - **Contract Tests**: IR schema validation, Trinity contracts, migrations, kernel models, linker validation
-- **Core Phase 0 Tests**: Artifact store, canonical JSON, observability system (PolicyOSTracer, MetricsRegistry, @traced), environment manifests, log correlation, context propagation
-- **Fabric Tests**: Data catalog system, evidence bundles, provenance, trust quantification, quality indicators, fitness reports, quality gate pass
-- **Foundry Tests**: JAX simulation engine, agent artifacts, plugin system, adaptive agents, merge determinism, NaN guard, cost model, conflict detection, gradient health, calibrator systems
-- **Scientist Tests**: Hierarchical agent system (PI→Drafter→Formalizer→Critic), governance passes pipeline, Phase 18 legal compliance, search loop system, workflow engines, LLM tracing, decision outputs, instrumentation
-- **Integration Tests**: End-to-end workflows, calibration UDF integration, LLM workflow orchestration, real database testing
+- **Core Phase 0 Tests**: Artifact store, canonical JSON, observability system (PolicyOSTracer, MetricsRegistry, @traced), environment manifests, log correlation, context propagation, decorators, propagation, tracer
+- **Fabric Tests**: Data catalog system, evidence bundles, provenance, trust quantification, quality indicators, fitness reports, quality gate pass, trust two-pass
+- **Foundry Tests**: JAX simulation engine, agent artifacts, plugin system, adaptive agents, merge determinism, NaN guard, cost model, conflict detection, gradient health, calibrator systems, jit compilation tracker, jit stability, patch executor, program graph ops, runtime batch
+- **Scientist Tests**: Hierarchical agent system (PI→Drafter→Formalizer→Critic), governance passes pipeline, Phase 18 legal compliance, search loop system, workflow engines, LLM tracing, decision outputs, Phase 2 instrumentation, decision card, decision packet v2, run timeline, multi-agent workflow, reflexion loop
+- **Integration Tests**: End-to-end workflows, calibration UDF integration, LLM workflow orchestration, real database testing, workflow smoke test, workflow LLM
 - **Runtime Tests**: Run lifecycle management, artifact paths, manifest portability
 
 ### Test execution
@@ -495,7 +507,7 @@ pytest tests/scientist/ -v      # Agent orchestration + governance
 # Specific components
 pytest tests/scientist/governance/ -v  # Legal compliance + Phase 18 security
 pytest tests/scientist/search/ -v      # Optimization loop system
-pytest tests/scientist/integration/ -v # End-to-end workflow tracing
+pytest tests/scientist/integration/ -v # End-to-end workflow tracing + Phase 2 instrumentation
 ```
 
 ### Key testing principles
@@ -503,6 +515,6 @@ pytest tests/scientist/integration/ -v # End-to-end workflow tracing
 - **CPU Enforcement**: All tests force CPU execution for consistent results across CI/CD environments
 - **Mock Systems**: Comprehensive mock implementations for testing without external dependencies (LLM APIs, databases)
 - **Architectural Validation**: Tests enforce dependency laws and boundary contracts
-- **Phase 18 Security**: Extensive testing of AST policy validation, safe expression evaluation, and security boundaries
-- **Observability Coverage**: Full testing of tracing, metrics, log correlation, and context propagation
+- **Phase 18 Security**: Extensive testing of AST policy validation, safe expression evaluation, security boundaries, norm execution security, and governance security testing
+- **Observability Coverage**: Full testing of tracing, metrics, log correlation, context propagation, Phase 2 instrumentation, and workflow tracing
 - **Quality Gates**: Data quality validation prevents execution on poor-quality inputs

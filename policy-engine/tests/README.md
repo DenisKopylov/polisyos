@@ -70,6 +70,7 @@ tests/
 │   ├── test_global_state.py       # Глобальное состояние симуляции и его эволюция
 │   ├── test_gradients.py          # Градиенты политик (JAX autodiff, Equinox)
 │   ├── test_health.py             # Проверки здоровья системы и детекция аномалий
+│   ├── test_jit_compilation_tracker.py # JIT compilation tracking и optimization metrics
 │   ├── test_jit_stability.py      # JIT-стабильность PyTree структур
 │   ├── test_merge_determinism.py  # Детерминизм операций merge и state consistency
 │   ├── test_nan_guard.py          # NaN/Inf detection guard (runtime numerical stability)
@@ -82,6 +83,8 @@ tests/
 │   └── test_workflow_llm.py       # Интеграция с LLM компонентами и языковыми моделями
 ├── ir/                            # Тесты компонентов IR layer
 │   └── test_loaders.py            # Загрузчики политик из различных форматов, norm_pack структуры
+├── performance/                   # Тесты производительности и регрессии
+│   └── test_overhead.py            # Overhead валидация (simulation <2%, CAS I/O <5%, calibration <3%)
 ├── runtime/                       # Тесты runtime компонентов
 │   └── test_runtime_manifest_paths.py # Управление runs, артефакты, пути
 └── scientist/                     # Тесты компонентов scientist
@@ -277,6 +280,20 @@ tests/
 - **Audit Trail**: JSON Lines логирование всех операций с timestamps и metadata
 - **Run Manifest**: Паспорт эксперимента с детерминированными seed'ами и reproducible execution
 
+### Performance Tests (`performance/`)
+
+**Цель:** Валидация производительности и обнаружение регрессий в ключевых компонентах системы.
+
+**Ключевые тесты:**
+- **Overhead Validation**: Измерение overhead системы обсервабилити (simulation <2%, CAS I/O <5%, calibration <3%)
+- **Benchmarking Framework**: Стандартизированные benchmarks с warmup и statistical analysis
+- **Regression Detection**: Автоматическое обнаружение performance degradation
+
+**Принципы:**
+- **Acceptable Thresholds**: Предопределенные SLA для каждого типа операций
+- **Statistical Reliability**: Множественные runs с confidence intervals
+- **Cross-platform Consistency**: Reproducible benchmarks через CPU enforcement
+- **Continuous Monitoring**: Integration с CI/CD для ongoing performance tracking
 
 ### Scientist Tests (`scientist/`)
 
@@ -362,6 +379,9 @@ pytest tests/ir/ -v
 
 # Runtime тесты (run management, artifacts)
 pytest tests/runtime/ -v
+
+# Performance тесты (overhead validation)
+pytest tests/performance/ -v
 
 # Интеграционные тесты (медленные, с БД)
 pytest tests/integration/ -v
@@ -466,6 +486,9 @@ pytest tests/ir/test_loaders.py
 # Runtime manifest paths
 pytest tests/runtime/test_runtime_manifest_paths.py
 
+# Performance validation (overhead thresholds)
+pytest tests/performance/test_overhead.py -v
+
 # Core Phase 0: Observability system
 pytest tests/core_phase0/test_observability.py -v        # Integration workflow tracing
 pytest tests/core_phase0/test_tracer.py -v              # PolicyOSTracer singleton
@@ -527,6 +550,8 @@ pytest tests/core_phase0/test_propagation.py -v         # Context propagation
 - **@traced Decorator**: Автоматическая трассировка функций с phase/node/agent атрибутами
 - **Log Correlation**: Trace context injection в лог записи для distributed tracing
 - **Context Propagation**: Распространение trace context между потоками и сервисами через headers
+- **Performance Benchmarking**: Statistical benchmarking framework с overhead thresholds и regression detection
+- **Overhead Validation**: SLA enforcement для simulation (<2%), CAS I/O (<5%) и calibration (<3%) operations
 
 ## Принципы тестирования
 
@@ -542,6 +567,7 @@ pytest tests/core_phase0/test_propagation.py -v         # Context propagation
 - **Закон I**: Trust policies (многоуровневые политики доверия к источникам данных)
 - **Закон O**: Optimization convergence (search loops converge к optimal policies или escalate)
 - **Закон P**: Two-stage efficiency (cheap filtering prevents expensive evaluation waste)
+- **Закон Q**: Performance SLA (overhead thresholds enforced: simulation <2%, CAS I/O <5%, calibration <3%)
 
 ### Качественные требования
 - **Unit Tests**: Покрывают все публичные API foundry и core компонентов
@@ -711,7 +737,7 @@ pytest tests/core_phase0/test_propagation.py -v         # Context propagation
 ## Разработка и расширение
 
 ### Добавление новых тестов
-1. Определите категорию (contract/core_phase0/demos/fabric/foundry/ir/runtime/integration/scientist)
+1. Определите категорию (contract/core_phase0/demos/fabric/foundry/ir/runtime/integration/scientist/performance)
 2. Следуйте naming convention: `test_*.py`
 3. Используйте fixtures из соответствующего `conftest.py`
 4. Маркируйте медленные тесты `@pytest.mark.integration`
@@ -729,6 +755,7 @@ pytest tests/core_phase0/test_propagation.py -v         # Context propagation
 16. Для log correlation тестов: проверяйте trace context injection, TraceContextFilter, log record enrichment
 17. Для decorator тестов: тестируйте sync/async functions, custom attributes, span naming, exception handling
 18. Для propagation тестов: валидируйте header injection/extraction, thread context preservation, service boundary crossing
+19. Для performance тестов: используйте statistical benchmarking с warmup, валидируйте overhead thresholds, форсируйте CPU для reproducible results
 
 ### Отладка тестов
 ```bash
@@ -962,6 +989,15 @@ pytest tests/scientist/test_instrumentation.py::TestGovernanceInstrumentation::t
 pytest tests/scientist/integration/test_workflow_tracing.py::test_full_workflow_trace_consistency -v
 # Проверьте phase validation
 pytest tests/scientist/integration/test_workflow_tracing.py -v
+```
+
+**Performance regression issues:**
+```bash
+# Проверьте overhead thresholds
+pytest tests/performance/test_overhead.py -v
+# Убедитесь что JAX_PLATFORM_NAME=cpu для reproducible benchmarks
+export JAX_PLATFORM_NAME=cpu
+pytest tests/performance/test_overhead.py::test_simulation_overhead -v
 ```
 
 ### Полезные команды диагностики

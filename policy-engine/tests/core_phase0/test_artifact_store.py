@@ -76,3 +76,47 @@ def test_corruption_detection(store: FileSystemCAS):
     rep = store.verify(ref.artifact_id)
     assert rep.ok is False
     assert rep.error == "sha256 mismatch"
+
+
+def test_cas_metrics_emission(store: FileSystemCAS):
+    from polisyos.core.observability import get_tracer
+
+    class DummyCounter:
+        def __init__(self) -> None:
+            self.calls: list[tuple[int, dict[str, str]]] = []
+
+        def add(self, value: int, attrs: dict[str, str]) -> None:
+            self.calls.append((value, attrs))
+
+    class DummyHistogram:
+        def __init__(self) -> None:
+            self.calls: list[tuple[float, dict[str, str]]] = []
+
+        def record(self, value: float, attrs: dict[str, str]) -> None:
+            self.calls.append((value, attrs))
+
+    class DummyMetrics:
+        artifact_cache_hits_total = DummyCounter()
+        artifact_cache_misses_total = DummyCounter()
+        artifact_io_bytes = DummyHistogram()
+        artifact_io_duration_seconds = DummyHistogram()
+        artifact_operations_total = DummyCounter()
+
+    store._hpc_enabled = True
+    store._tracer = get_tracer()
+    store._metrics = DummyMetrics()
+
+    data = b"metrics-test"
+    ref = store.put_bytes(
+        data,
+        PutOptions(kind="test.metrics", media_type="application/octet-stream"),
+    )
+
+    assert store.has(ref.artifact_id)
+    _ = store.get_bytes(ref.artifact_id)
+
+    metrics = store._metrics
+    assert metrics.artifact_operations_total.calls
+    assert metrics.artifact_io_bytes.calls
+    assert metrics.artifact_io_duration_seconds.calls
+    assert metrics.artifact_cache_hits_total.calls

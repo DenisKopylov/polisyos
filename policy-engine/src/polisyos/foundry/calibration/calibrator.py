@@ -1,8 +1,10 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from contextlib import nullcontext
+from dataclasses import dataclass, field
 from datetime import datetime, timezone
 import json
+import time
 from typing import Any, Callable, Dict, Mapping, Sequence
 
 import jax
@@ -11,6 +13,8 @@ import jax.numpy as jnp
 import numpy as np
 import optax
 
+from polisyos.core.observability import get_metrics, get_tracer
+from polisyos.core.observability.config import is_hpc_observability_enabled
 from polisyos.core.contracts.foundry import ExecPlan, ProgramGraph
 from polisyos.foundry.calibration.bijectors import (
     from_unconstrained,
@@ -79,6 +83,90 @@ class ConstraintHandle:
     operator: str
     path: str
     value: float
+
+
+@dataclass
+class CalibrationMetricsCollector:
+    """
+    Batched metrics collector for calibration loops.
+
+    Design:
+    - Collects metrics in memory during optimization
+    - Emits to OTel every N steps (configurable)
+    - Final flush on convergence
+    """
+
+    optimizer_name: str
+    emit_interval: int = 10
+    enabled: bool = True
+
+    _step_durations: list[tuple[float, bool]] = field(default_factory=list)
+    _losses: list[float] = field(default_factory=list)
+    _grad_norms: list[float] = field(default_factory=list)
+    _current_step: int = 0
+    _metrics_cached: Any = None
+
+    def record_step(
+        self,
+        step: int,
+        duration_seconds: float,
+        loss: float,
+        grad_norm: float,
+        is_warmup: bool,
+    ) -> None:
+        if not self.enabled:
+            return
+        self._step_durations.append((duration_seconds, is_warmup))
+        self._losses.append(loss)
+        self._grad_norms.append(grad_norm)
+        self._current_step = step
+
+        if len(self._step_durations) >= self.emit_interval:
+            self._flush()
+
+    def _get_metrics(self):
+        if self._metrics_cached is None:
+            self._metrics_cached = get_metrics()
+        return self._metrics_cached
+
+    def _flush(self) -> None:
+        if not self.enabled or not self._step_durations:
+            return
+
+        metrics = self._get_metrics()
+        attrs = {"optimizer": self.optimizer_name}
+
+        if metrics.calibration_step_duration_seconds:
+            for duration, is_warmup in self._step_durations:
+                metrics.calibration_step_duration_seconds.record(
+                    duration,
+                    {**attrs, "is_warmup": "true" if is_warmup else "false"},
+                )
+
+        if self._losses and metrics.calibration_loss:
+            metrics.calibration_loss.set(self._losses[-1], attrs)
+
+        if self._grad_norms and metrics.calibration_grad_norm:
+            metrics.calibration_grad_norm.set(self._grad_norms[-1], attrs)
+
+        self._step_durations.clear()
+        self._losses.clear()
+        self._grad_norms.clear()
+
+    def finalize(self, convergence_reason: str, total_steps: int) -> None:
+        if not self.enabled:
+            return
+        self._flush()
+
+        metrics = self._get_metrics()
+        if metrics.calibration_convergence_steps:
+            metrics.calibration_convergence_steps.record(
+                total_steps,
+                {
+                    "optimizer": self.optimizer_name,
+                    "convergence_reason": convergence_reason,
+                },
+            )
 
 
 def _selector_key(value: Any) -> str:
@@ -402,6 +490,27 @@ class Calibrator:
                 optax.adam(cfg.learning_rate),
             )
         opt_state = opt.init(u)
+        optimizer_name = "adam"
+        hpc_enabled = is_hpc_observability_enabled()
+        collector = CalibrationMetricsCollector(
+            optimizer_name=optimizer_name,
+            emit_interval=10,
+            enabled=hpc_enabled,
+        )
+        tracer = get_tracer() if hpc_enabled else None
+        span_cm = (
+            tracer.start_as_current_span(
+                "calibration.run",
+                attributes={
+                    "calibration.optimizer": optimizer_name,
+                    "calibration.max_steps": cfg.max_steps,
+                    "calibration.learning_rate": cfg.learning_rate,
+                    "calibration.early_stop_patience": cfg.early_stop_patience,
+                },
+            )
+            if tracer is not None
+            else nullcontext()
+        )
 
         def _expand_group_values(values: Sequence[jnp.ndarray]) -> list[Any]:
             expanded = list(base_values)
@@ -581,40 +690,74 @@ class Calibrator:
         best_loss = float("inf")
         patience = 0
         init_base_vec = None
+        early_stop_triggered = False
+        grad_failure = False
 
-        for step in range(cfg.max_steps):
-            step_idx = jnp.array(step, dtype=jnp.int32)
-            (
-                u_state,
-                weights_state,
-                opt_state,
-                loss_val,
-                aux,
-                grad_norm,
-                grads_finite,
-            ) = step_fn(u_state, weights_state, opt_state, step_idx)
-            loss_float = float(loss_val)
-            loss_history.append(loss_float)
-            grad_norm_history.append(float(grad_norm))
-            if not bool(grads_finite):
-                diagnostics.append(f"Non-finite gradients at step {step}")
-                break
-            base_vec, _, _ = aux
-            if cfg.grad_norm.enabled and step % cfg.grad_norm.update_every == 0:
-                if init_base_vec is None:
-                    init_base_vec = base_vec
-                weights_state, _ = gradnorm_update(
-                    u_state, weights_state, base_vec, init_base_vec, step_idx
-                )
-            if step >= cfg.early_stop_min_steps and cfg.early_stop_patience > 0:
-                if loss_float + cfg.early_stop_min_delta < best_loss:
-                    best_loss = loss_float
-                    patience = 0
-                else:
-                    patience += 1
-                if patience >= cfg.early_stop_patience:
-                    diagnostics.append(f"Early stopping at step {step}")
+        with span_cm as span:
+            for step in range(cfg.max_steps):
+                step_idx = jnp.array(step, dtype=jnp.int32)
+                step_start = time.perf_counter() if hpc_enabled else None
+                (
+                    u_state,
+                    weights_state,
+                    opt_state,
+                    loss_val,
+                    aux,
+                    grad_norm,
+                    grads_finite,
+                ) = step_fn(u_state, weights_state, opt_state, step_idx)
+                if hpc_enabled:
+                    jax.block_until_ready(loss_val)
+                    duration = time.perf_counter() - (step_start or 0.0)
+
+                loss_float = float(loss_val)
+                grad_norm_float = float(grad_norm)
+                loss_history.append(loss_float)
+                grad_norm_history.append(grad_norm_float)
+
+                if hpc_enabled:
+                    collector.record_step(
+                        step=step,
+                        duration_seconds=duration,
+                        loss=loss_float,
+                        grad_norm=grad_norm_float,
+                        is_warmup=step == 0,
+                    )
+
+                if not bool(grads_finite):
+                    diagnostics.append(f"Non-finite gradients at step {step}")
+                    grad_failure = True
                     break
+                base_vec, _, _ = aux
+                if cfg.grad_norm.enabled and step % cfg.grad_norm.update_every == 0:
+                    if init_base_vec is None:
+                        init_base_vec = base_vec
+                    weights_state, _ = gradnorm_update(
+                        u_state, weights_state, base_vec, init_base_vec, step_idx
+                    )
+                if step >= cfg.early_stop_min_steps and cfg.early_stop_patience > 0:
+                    if loss_float + cfg.early_stop_min_delta < best_loss:
+                        best_loss = loss_float
+                        patience = 0
+                    else:
+                        patience += 1
+                    if patience >= cfg.early_stop_patience:
+                        diagnostics.append(f"Early stopping at step {step}")
+                        early_stop_triggered = True
+                        break
+
+            convergence_reason = "max_steps"
+            if grad_failure:
+                convergence_reason = "grad_vanish"
+            elif early_stop_triggered:
+                convergence_reason = "early_stop"
+
+            if hpc_enabled:
+                total_steps = len(loss_history)
+                collector.finalize(convergence_reason, total_steps)
+                if span is not None:
+                    span.set_attribute("calibration.convergence_reason", convergence_reason)
+                    span.set_attribute("calibration.total_steps", total_steps)
 
         final_theta_groups = from_unconstrained(u_state, group_bijectors)
         final_theta = _expand_group_values(final_theta_groups)

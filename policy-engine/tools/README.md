@@ -63,6 +63,10 @@ tools/
 │   # - Снимок окружения для воспроизводимости
 │   # - Сравнение двух окружений с оценкой риска
 │   # - Валидация манифестов
+├── check_perf_regression.py    # Проверка регрессий производительности
+│   # - Анализ pytest-benchmark JSON результатов
+│   # - Сравнение с baseline для выявления регрессий
+│   # - Конфигурируемые thresholds для различных метрик
 ├── gen_schema.py               # Генератор JSON Schema из Pydantic моделей
 │   # - Генерация и валидация JSON Schema по Закону C
 │   # - Работа с PolicySurfaceIR и всеми IR моделями
@@ -277,6 +281,43 @@ python -m tools.capture_env validate env.json
 - **MEDIUM:** Возможные проблемы совместимости
 - **LOW:** Минорные изменения
 - **INFO:** Информационные изменения
+
+## Проверка регрессий производительности
+
+### check_perf_regression.py - Анализ регрессий производительности
+
+Инструмент для анализа результатов pytest-benchmark и выявления регрессий производительности согласно **Закону D** ("Воспроизводимость и аудит"). Сравнивает текущие результаты бенчмарков с baseline для автоматического выявления degradation производительности.
+
+**Функциональность:**
+- **Загрузка результатов:** Чтение JSON файлов из pytest-benchmark
+- **Сравнение с baseline:** Автоматический поиск последнего baseline файла
+- **Анализ регрессий:** Выявление замедлений выше заданного threshold
+- **Конфигурируемые thresholds:** Настраиваемый процент регрессии
+
+**Режимы работы:**
+
+```bash
+# Проверка регрессий с автоматическим поиском baseline
+python tools/check_perf_regression.py benchmark_results.json
+
+# С явным указанием baseline файла
+python tools/check_perf_regression.py benchmark_results.json --baseline baseline.json
+
+# Кастомный threshold регрессии (по умолчанию 5%)
+python tools/check_perf_regression.py benchmark_results.json --threshold 0.10
+```
+
+**Вывод при регрессии:**
+```
+Performance regressions detected:
+- test_simulation_step: 1.2500s vs 1.0000s (+25.00%)
+- test_data_ingestion: 0.8500s vs 0.8000s (+6.25%)
+```
+
+**Интеграция с:**
+- `pytest-benchmark` JSON формат результатов
+- CI/CD пайплайны для автоматического мониторинга
+- `polisyos.common.logger` для структурированного логирования
 
 ## Миграции
 
@@ -778,6 +819,7 @@ VERIFICATION FAILED:
 | `scan_fabric.py` | `fabric.catalog.*`, `ir.contracts` | Bootstrap data contracts для Unified Data Fabric | E (evidence и provenance) |
 | `visualize_provenance.py` | `core.artifacts.*` | Визуализация provenance графов | E (evidence и provenance) |
 | `capture_env.py` | `core.artifacts.environment` | Закон D (воспроизводимость окружения) | D (воспроизводимость) |
+| `check_perf_regression.py` | - | Закон D (регрессионное тестирование производительности) | D (воспроизводимость) |
 | `migrate_to_trinity.py` | `ir.trinity`, `ir.migrations.trinity_migration` | Закон C (Trinity формат миграции) | C (контракты) |
 
 ### Детальные архитектурные связи
@@ -880,6 +922,7 @@ jobs:
         python tools/benchmarks/bench_domain.py --n-agents 10000
         python tools/benchmarks/bench_simulation.py --n-steps 50 --n-agents 1000
         python tools/diagnostics/check_udf_perf.py
+        python tools/check_perf_regression.py benchmark_results.json --threshold 0.05
 
     - name: Integration smoke tests
       run: |
@@ -1061,6 +1104,40 @@ dot -V
 python tools/visualize_provenance.py evidence.json --format dot | dot -Tpng -o graph.png
 ```
 
+### check_perf_regression.py не может загрузить benchmark JSON
+```bash
+# Проверь существование файла
+ls -la benchmark_results.json
+
+# Проверь JSON структуру
+python -c "import json; data=json.load(open('benchmark_results.json')); print('benchmarks' in data)"
+
+# Для pytest-benchmark файлов проверь формат
+python -c "import json; data=json.load(open('benchmark_results.json')); print(data.keys())"
+```
+
+### Нет baseline файла для сравнения
+```bash
+# Создай baseline вручную
+cp benchmark_results.json .benchmarks/baseline.json
+
+# Или укажи явный путь
+python tools/check_perf_regression.py current.json --baseline path/to/baseline.json
+
+# Автоматический поиск baseline в стандартных директориях:
+# - .benchmarks/*.json (отсортировано по времени модификации)
+# - benchmarks/*.json
+```
+
+### Ложные регрессии из-за шума
+```bash
+# Увеличь threshold для нестабильных тестов
+python tools/check_perf_regression.py results.json --threshold 0.15  # 15% вместо 5%
+
+# Проверь статистику в benchmark JSON
+python -c "import json; data=json.load(open('results.json')); print(data['benchmarks'][0]['stats'])"
+```
+
 ## Разработка новых инструментов
 
 ### Принципы дизайна
@@ -1158,7 +1235,7 @@ POLICY_ENGINE_LOG_LEVEL=DEBUG python tools/diagnostics/check_setup.py
 
 ## Архитектурная актуальность
 
-Данная документация отражает текущее состояние Policy Engine на **2026-01-26** и соответствует принципам, описанным в `architecture.md`.
+Данная документация отражает текущее состояние Policy Engine на **2026-01-29** и соответствует принципам, описанным в `architecture.md`.
 
 ### Ключевые архитектурные достижения
 
@@ -1179,14 +1256,15 @@ POLICY_ENGINE_LOG_LEVEL=DEBUG python tools/diagnostics/check_setup.py
 - **Демонстрация**: `demos/` - валидация функциональности
 - **Bootstrap**: `scan_fabric.py` - быстрая генерация data contracts из существующих данных
 
-### Новые возможности (2026-01-27)
+### Новые возможности (2026-01-29)
 
 - **Data Catalog System**: Новая подсистема data contracts в `fabric.catalog/`
 - **scan_fabric.py**: Bootstrap утилита для автоматической генерации data contracts
 - **Enhanced Evidence Tracking**: Улучшенная система provenance и evidence bundles
 - **Trinity Migration**: Поддержка миграции в новый Trinity формат (ProblemFrame, PolicySpec, ModelSpec)
 - **visualize_provenance.py**: Инструмент для визуализации и верификации provenance графов
+- **check_perf_regression.py**: Автоматическая проверка регрессий производительности на основе pytest-benchmark результатов
 
 ---
 
-*Инструменты протестированы на Python 3.11+ с JAX 0.4.x, DuckDB, Kuzu и полным технологическим стеком Policy Engine. Документация обновлена для отражения актуального состояния на 2026-01-27.*
+*Инструменты протестированы на Python 3.11+ с JAX 0.4.x, DuckDB, Kuzu и полным технологическим стеком Policy Engine. Документация обновлена для отражения актуального состояния на 2026-01-29.*

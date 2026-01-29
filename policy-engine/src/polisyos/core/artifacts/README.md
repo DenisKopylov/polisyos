@@ -298,3 +298,118 @@ if not report.ok:
 - **Environment capture**: <2s для полного захвата окружения с hardware detection
 - **Fingerprinting**: <1ms для быстрого сравнения окружений
 - **Compatibility scoring**: Автоматическая оценка совместимости окружений
+- **HPC Observability**: Интеграция с трассировкой и метриками для Phase 3 операций
+
+## Связи с другими модулями
+
+### Core (Observability)
+Интеграция с модулем observability для трассировки операций CAS и метрик производительности:
+
+```python
+# Автоматическая трассировка операций чтения/записи
+store = FileSystemCAS(Path("/tmp/artifacts"))
+data = store.get_json(artifact_id)  # Создает span "cas.get_bytes"
+```
+
+### Fabric (Обработка данных)
+Хранение всех результатов обработки данных с provenance tracking:
+
+```python
+# Fabric сохраняет результаты как артефакты
+fabric_result_ref = store.put_json(
+    fabric_result_data,
+    PutOptions(
+        kind="fabric.result_bundle",
+        producer=ProducerInfo(component="fabric_processor")
+    )
+)
+```
+
+### Foundry (Симуляция и исполнение)
+Хранение состояний симуляций, конфигураций и результатов:
+
+```python
+# Сохранение состояния симуляции
+state_ref = store.put_json(
+    state_snapshot.model_dump(),
+    PutOptions(
+        kind="foundry.state_snapshot",
+        producer=ProducerInfo(component="simulation_engine")
+    )
+)
+
+# Environment manifest для reproducible симуляций
+env_ref = store.put_json(
+    environment_manifest.model_dump(),
+    PutOptions(
+        kind="foundry.environment_manifest",
+        producer=ProducerInfo(component="environment_capture")
+    )
+)
+```
+
+### Scientist (Оркестрация экспериментов)
+Хранение всех артефактов экспериментов для reproducible research:
+
+```python
+# Сохранение результатов эксперимента
+experiment_ref = store.put_json(
+    experiment_results,
+    PutOptions(
+        kind="scientist.experiment_results",
+        producer=ProducerInfo(component="experiment_runner")
+    )
+)
+```
+
+### Runtime (Production исполнение)
+Доступ к развернутым артефактам политик:
+
+```python
+# Загрузка обученной политики для production
+policy_data = store.get_json(policy_ref.artifact_id)
+trained_policy = Policy.from_dict(policy_data)
+```
+
+### Trinity (Базовые спецификации)
+Хранение Trinity артефактов (ProblemFrame, PolicySpec, ModelSpec):
+
+```python
+# Сохранение Trinity bundle
+trinity_ref = store.put_json(
+    trinity_bundle.model_dump(),
+    PutOptions(
+        kind="scientist.trinity_bundle",
+        producer=ProducerInfo(component="experiment_setup")
+    )
+)
+```
+
+## Интеграция с HPC Observability
+
+### Автоматическая трассировка
+При включенной `POLISYOS_HPC_OBSERVABILITY_ENABLED=true` все операции CAS автоматически трассируются:
+
+- **get_bytes/get_json**: span "cas.get_bytes" с атрибутами размера и ID
+- **put_bytes/put_json**: span "cas.put_bytes" с атрибутами размера и типа
+- **verify**: span "cas.verify" с результатом верификации
+
+### Метрики производительности
+Автоматический сбор метрик для мониторинга:
+
+- `polisyos_artifact_operations_total`: Счетчик операций по типу
+- `polisyos_artifact_io_bytes`: Гистограмма размеров передаваемых данных
+- `polisyos_artifact_io_duration_seconds`: Время выполнения операций
+- `polisyos_artifact_cache_hits_total`: Попадания в кеш
+- `polisyos_artifact_cache_misses_total`: Промахи кеша
+
+### Настройка интеграции
+```python
+from polisyos.core.artifacts.store import FileSystemCAS
+
+# HPC observability включается автоматически через переменные окружения
+store = FileSystemCAS(Path("/tmp/artifacts"))
+
+# Все операции теперь трассируются и метрикуются
+data = store.get_json(artifact_id)
+```

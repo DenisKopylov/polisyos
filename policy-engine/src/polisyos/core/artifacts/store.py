@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import os
+import time
 import uuid
 from dataclasses import dataclass
 from pathlib import Path
@@ -10,6 +11,8 @@ from typing import Any
 from pydantic import BaseModel
 
 from ..canon.canon_json import CanonSpec, to_canonical_bytes
+from ..observability import get_metrics, get_tracer
+from ..observability.config import is_hpc_observability_enabled
 from .ids import ArtifactID
 from .manifest import (
     ArtifactManifest,
@@ -54,6 +57,9 @@ class FileSystemCAS:
         self.root = root
         self.base = root / "artifacts" / "sha256"
         self.base.mkdir(parents=True, exist_ok=True)
+        self._hpc_enabled = is_hpc_observability_enabled()
+        self._tracer = get_tracer() if self._hpc_enabled else None
+        self._metrics = get_metrics() if self._hpc_enabled else None
 
     def _paths(self, artifact_id: ArtifactID) -> tuple[Path, Path]:
         hex64 = artifact_id.hex
@@ -65,11 +71,62 @@ class FileSystemCAS:
 
     def has(self, artifact_id: ArtifactID) -> bool:
         blob, manifest = self._paths(artifact_id)
-        return blob.exists() and manifest.exists()
+        exists = blob.exists() and manifest.exists()
+        if self._hpc_enabled and self._metrics:
+            if exists and self._metrics.artifact_cache_hits_total:
+                self._metrics.artifact_cache_hits_total.add(1, {"kind": "existence_check"})
+            elif not exists and self._metrics.artifact_cache_misses_total:
+                self._metrics.artifact_cache_misses_total.add(1, {"kind": "existence_check"})
+        return exists
 
     def get_bytes(self, artifact_id: ArtifactID) -> bytes:
         blob, _ = self._paths(artifact_id)
-        return blob.read_bytes()
+        if not self._hpc_enabled or self._tracer is None:
+            return blob.read_bytes()
+
+        short_id = f"{artifact_id.hex[:16]}..."
+        with self._tracer.start_as_current_span(
+            "cas.get_bytes",
+            attributes={
+                "cas.artifact_id": short_id,
+                "cas.operation": "read",
+            },
+        ) as span:
+            start = time.perf_counter()
+            if not blob.exists():
+                duration = time.perf_counter() - start
+                if self._metrics and self._metrics.artifact_cache_misses_total:
+                    self._metrics.artifact_cache_misses_total.add(1, {"kind": "blob"})
+                if self._metrics and self._metrics.artifact_io_duration_seconds:
+                    self._metrics.artifact_io_duration_seconds.record(
+                        duration,
+                        {"operation": "read", "kind": "blob", "cache_hit": "false"},
+                    )
+                span.set_attribute("cas.cache_hit", False)
+                span.set_attribute("cas.duration_seconds", duration)
+                raise FileNotFoundError(f"Artifact not found: {artifact_id.hex}")
+
+            data = blob.read_bytes()
+            duration = time.perf_counter() - start
+            byte_size = len(data)
+
+            if self._metrics and self._metrics.artifact_cache_hits_total:
+                self._metrics.artifact_cache_hits_total.add(1, {"kind": "blob"})
+            if self._metrics and self._metrics.artifact_io_bytes:
+                self._metrics.artifact_io_bytes.record(
+                    byte_size, {"operation": "read", "kind": "blob"}
+                )
+            if self._metrics and self._metrics.artifact_io_duration_seconds:
+                self._metrics.artifact_io_duration_seconds.record(
+                    duration,
+                    {"operation": "read", "kind": "blob", "cache_hit": "true"},
+                )
+
+            span.set_attribute("cas.cache_hit", True)
+            span.set_attribute("cas.byte_size", byte_size)
+            span.set_attribute("cas.duration_seconds", duration)
+
+            return data
 
     def get_manifest(self, artifact_id: ArtifactID) -> ArtifactManifest:
         _, manp = self._paths(artifact_id)
@@ -81,30 +138,97 @@ class FileSystemCAS:
         blob, manp = self._paths(aid)
         blob.parent.mkdir(parents=True, exist_ok=True)
 
-        if not blob.exists():
-            self._atomic_write(blob, data)
+        if not self._hpc_enabled or self._tracer is None:
+            if not blob.exists():
+                self._atomic_write(blob, data)
 
-        if not manp.exists():
-            manifest = ArtifactManifest(
-                artifact_id=aid,
-                kind=opts.kind,
-                media_type=opts.media_type,
-                byte_size=len(data),
-                artifact_schema=opts.schema,
-                canon=opts.canon,
-                inputs=list(opts.inputs or []),
-                producer=opts.producer,
-                env=opts.env,
-                integrity=IntegrityInfo(sha256=sha),
-            )
-            man_bytes = manifest.model_dump_json(
-                by_alias=True,
-                exclude_none=True,
-                indent=None,
-            ).encode("utf-8")
-            self._atomic_write(manp, man_bytes)
+            if not manp.exists():
+                manifest = ArtifactManifest(
+                    artifact_id=aid,
+                    kind=opts.kind,
+                    media_type=opts.media_type,
+                    byte_size=len(data),
+                    artifact_schema=opts.schema,
+                    canon=opts.canon,
+                    inputs=list(opts.inputs or []),
+                    producer=opts.producer,
+                    env=opts.env,
+                    integrity=IntegrityInfo(sha256=sha),
+                )
+                man_bytes = manifest.model_dump_json(
+                    by_alias=True,
+                    exclude_none=True,
+                    indent=None,
+                ).encode("utf-8")
+                self._atomic_write(manp, man_bytes)
 
-        return ArtifactRef(artifact_id=aid, kind=opts.kind, media_type=opts.media_type)
+            return ArtifactRef(artifact_id=aid, kind=opts.kind, media_type=opts.media_type)
+
+        short_id = f"{aid.hex[:16]}..."
+        byte_size = len(data)
+        with self._tracer.start_as_current_span(
+            "cas.put",
+            attributes={
+                "cas.artifact_id": short_id,
+                "cas.operation": "write",
+                "cas.kind": opts.kind,
+                "cas.byte_size": byte_size,
+            },
+        ) as span:
+            start = time.perf_counter()
+            deduplicated = blob.exists()
+
+            if not deduplicated:
+                self._atomic_write(blob, data)
+
+            if not manp.exists():
+                manifest = ArtifactManifest(
+                    artifact_id=aid,
+                    kind=opts.kind,
+                    media_type=opts.media_type,
+                    byte_size=byte_size,
+                    artifact_schema=opts.schema,
+                    canon=opts.canon,
+                    inputs=list(opts.inputs or []),
+                    producer=opts.producer,
+                    env=opts.env,
+                    integrity=IntegrityInfo(sha256=sha),
+                )
+                man_bytes = manifest.model_dump_json(
+                    by_alias=True,
+                    exclude_none=True,
+                    indent=None,
+                ).encode("utf-8")
+                self._atomic_write(manp, man_bytes)
+
+            duration = time.perf_counter() - start
+
+            if self._metrics and self._metrics.artifact_operations_total:
+                self._metrics.artifact_operations_total.add(
+                    1, {"operation": "write", "kind": opts.kind}
+                )
+            if self._metrics and self._metrics.artifact_cache_hits_total and deduplicated:
+                self._metrics.artifact_cache_hits_total.add(1, {"kind": "dedup"})
+            if self._metrics and self._metrics.artifact_cache_misses_total and not deduplicated:
+                self._metrics.artifact_cache_misses_total.add(1, {"kind": "dedup"})
+            if self._metrics and self._metrics.artifact_io_bytes:
+                self._metrics.artifact_io_bytes.record(
+                    byte_size, {"operation": "write", "kind": opts.kind}
+                )
+            if self._metrics and self._metrics.artifact_io_duration_seconds:
+                self._metrics.artifact_io_duration_seconds.record(
+                    duration,
+                    {
+                        "operation": "write",
+                        "kind": opts.kind,
+                        "cache_hit": "true" if deduplicated else "false",
+                    },
+                )
+
+            span.set_attribute("cas.deduplicated", deduplicated)
+            span.set_attribute("cas.duration_seconds", duration)
+
+            return ArtifactRef(artifact_id=aid, kind=opts.kind, media_type=opts.media_type)
 
     def put_json(
         self,
@@ -127,6 +251,21 @@ class FileSystemCAS:
         return self.put_bytes(data, opts2)
 
     def verify(self, artifact_id: ArtifactID) -> VerificationReport:
+        if not self._hpc_enabled or self._tracer is None:
+            return self._verify_impl(artifact_id)
+
+        short_id = f"{artifact_id.hex[:16]}..."
+        with self._tracer.start_as_current_span(
+            "cas.verify",
+            attributes={"cas.artifact_id": short_id},
+        ) as span:
+            report = self._verify_impl(artifact_id)
+            span.set_attribute("cas.verified", report.ok)
+            if report.byte_size is not None:
+                span.set_attribute("cas.byte_size", report.byte_size)
+            return report
+
+    def _verify_impl(self, artifact_id: ArtifactID) -> VerificationReport:
         try:
             blob, manp = self._paths(artifact_id)
             if not blob.exists():

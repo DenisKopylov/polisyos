@@ -29,6 +29,7 @@ import time
 from typing import Any, Optional
 
 from opentelemetry import metrics
+from opentelemetry.metrics import Observation
 from opentelemetry.sdk.metrics import MeterProvider
 from opentelemetry.sdk.metrics.export import (
     ConsoleMetricExporter,
@@ -70,6 +71,44 @@ class HistogramTimer:
             self._histogram.record(duration, attrs)
 
 
+class GaugeProxy:
+    """
+    Simple observable gauge wrapper with a set() API.
+
+    Stores the latest value per attribute set and exposes them
+    via an observable gauge callback.
+    """
+
+    def __init__(
+        self,
+        meter: metrics.Meter,
+        *,
+        name: str,
+        description: str,
+        unit: str,
+    ) -> None:
+        self._lock = threading.Lock()
+        self._values: dict[tuple[tuple[str, Any], ...], float] = {}
+
+        def _callback(_options: Any) -> list[Observation]:
+            with self._lock:
+                items = list(self._values.items())
+            return [Observation(value, dict(attrs)) for attrs, value in items]
+
+        self._gauge = meter.create_observable_gauge(
+            name=name,
+            callbacks=[_callback],
+            description=description,
+            unit=unit,
+        )
+
+    def set(self, value: float, attributes: Optional[dict[str, Any]] = None) -> None:
+        attrs = attributes or {}
+        key = tuple(sorted(attrs.items()))
+        with self._lock:
+            self._values[key] = float(value)
+
+
 class MetricsRegistry:
     """
     Singleton registry for all PolicyOS metrics.
@@ -85,11 +124,22 @@ class MetricsRegistry:
     workflow_runs_total: Optional[metrics.Counter] = None
     simulation_duration_seconds: Optional[metrics.Histogram] = None
     simulation_steps_total: Optional[metrics.Counter] = None
+    simulation_compile_seconds: Optional[metrics.Histogram] = None
+    simulation_steps_per_second: Optional[GaugeProxy] = None
+    simulation_batch_size: Optional[metrics.Histogram] = None
     llm_calls_total: Optional[metrics.Counter] = None
     llm_tokens_total: Optional[metrics.Counter] = None
     active_runs: Optional[metrics.UpDownCounter] = None
     validation_issues_total: Optional[metrics.Counter] = None
     artifact_operations_total: Optional[metrics.Counter] = None
+    artifact_io_bytes: Optional[metrics.Histogram] = None
+    artifact_io_duration_seconds: Optional[metrics.Histogram] = None
+    artifact_cache_hits_total: Optional[metrics.Counter] = None
+    artifact_cache_misses_total: Optional[metrics.Counter] = None
+    calibration_loss: Optional[GaugeProxy] = None
+    calibration_grad_norm: Optional[GaugeProxy] = None
+    calibration_step_duration_seconds: Optional[metrics.Histogram] = None
+    calibration_convergence_steps: Optional[metrics.Histogram] = None
     governance_pass_duration_seconds: Optional[metrics.Histogram] = None
 
     def __new__(cls) -> "MetricsRegistry":
@@ -198,6 +248,28 @@ class MetricsRegistry:
             unit="1",
         )
 
+        # Simulation compile time histogram (JIT warmup)
+        self.simulation_compile_seconds = self._meter.create_histogram(
+            name="polisyos_simulation_compile_seconds",
+            description="JIT compilation time for simulation functions",
+            unit="s",
+        )
+
+        # Simulation throughput gauge
+        self.simulation_steps_per_second = GaugeProxy(
+            self._meter,
+            name="polisyos_simulation_steps_per_second",
+            description="Effective simulation throughput",
+            unit="1/s",
+        )
+
+        # Simulation batch size histogram
+        self.simulation_batch_size = self._meter.create_histogram(
+            name="polisyos_simulation_batch_size",
+            description="Batch dimension for vectorized execution",
+            unit="1",
+        )
+
         # LLM calls counter
         self.llm_calls_total = self._meter.create_counter(
             name="polisyos_llm_calls_total",
@@ -233,11 +305,61 @@ class MetricsRegistry:
             unit="1",
         )
 
+        # Artifact I/O payload sizes
+        self.artifact_io_bytes = self._meter.create_histogram(
+            name="polisyos_artifact_io_bytes",
+            description="Payload size for CAS operations",
+            unit="bytes",
+        )
+
+        # Artifact I/O durations
+        self.artifact_io_duration_seconds = self._meter.create_histogram(
+            name="polisyos_artifact_io_duration_seconds",
+            description="CAS I/O operation latency",
+            unit="s",
+        )
+
+        # Artifact cache hit/miss counters
+        self.artifact_cache_hits_total = self._meter.create_counter(
+            name="polisyos_artifact_cache_hits_total",
+            description="CAS cache hit count",
+            unit="1",
+        )
+        self.artifact_cache_misses_total = self._meter.create_counter(
+            name="polisyos_artifact_cache_misses_total",
+            description="CAS cache miss count",
+            unit="1",
+        )
+
         # Governance pass duration
         self.governance_pass_duration_seconds = self._meter.create_histogram(
             name="polisyos_governance_pass_duration_seconds",
             description="Duration of governance validation passes",
             unit="s",
+        )
+
+        # Calibration gauges and histograms
+        self.calibration_loss = GaugeProxy(
+            self._meter,
+            name="polisyos_calibration_loss",
+            description="Current calibration loss value",
+            unit="1",
+        )
+        self.calibration_grad_norm = GaugeProxy(
+            self._meter,
+            name="polisyos_calibration_grad_norm",
+            description="Gradient L2 norm during calibration",
+            unit="1",
+        )
+        self.calibration_step_duration_seconds = self._meter.create_histogram(
+            name="polisyos_calibration_step_duration_seconds",
+            description="Duration per optimization step",
+            unit="s",
+        )
+        self.calibration_convergence_steps = self._meter.create_histogram(
+            name="polisyos_calibration_convergence_steps",
+            description="Steps to convergence",
+            unit="1",
         )
 
     def time_simulation(

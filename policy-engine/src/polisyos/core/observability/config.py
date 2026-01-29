@@ -9,6 +9,7 @@ Environment Variables:
     OTEL_EXPORTER_OTLP_PROTOCOL: Protocol (grpc or http/protobuf)
     OTEL_SERVICE_NAME: Override service name
     POLISYOS_OTEL_ENABLED: Enable/disable OTel (default: true)
+    POLISYOS_HPC_OBSERVABILITY_ENABLED: Enable/disable Phase 3 HPC observability (default: true)
     POLISYOS_OTEL_CONSOLE_EXPORT: Enable console span export for debugging
     POLISYOS_METRICS_PORT: Prometheus metrics port (default: 9464)
 """
@@ -53,6 +54,14 @@ class OTelConfig(BaseModel):
     # Global toggle
     enabled: bool = Field(
         default_factory=lambda: os.getenv("POLISYOS_OTEL_ENABLED", "true").lower() == "true"
+    )
+
+    # Phase 3 HPC observability toggle
+    hpc_observability_enabled: bool = Field(
+        default_factory=lambda: os.getenv(
+            "POLISYOS_HPC_OBSERVABILITY_ENABLED", "true"
+        ).lower()
+        == "true"
     )
 
     # Service identification
@@ -132,6 +141,11 @@ def get_default_config() -> OTelConfig:
     """
 
     return OTelConfig()
+
+
+def is_hpc_observability_enabled() -> bool:
+    """Fast check for Phase 3 HPC observability toggle."""
+    return os.getenv("POLISYOS_HPC_OBSERVABILITY_ENABLED", "true").lower() == "true"
 
 
 def get_resource_config(config: OTelConfig) -> ResourceConfig:

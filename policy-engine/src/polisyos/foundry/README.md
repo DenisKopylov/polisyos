@@ -1,22 +1,22 @@
 # Polisyos Foundry: Policy Execution Engine
 
-**Foundry** - это высокопроизводительный execution engine для дифференцируемого исполнения экономических политик в системе Policy Engine. Модуль предоставляет компилятор политик, patch-based runtime, калибровку параметров и математическую основу для моделирования и оптимизации экономических механизмов с использованием современных дифференцируемых вычислений.
+**Foundry** - высокопроизводительный execution engine для дифференцируемого исполнения экономических политик в Policy Engine. Предоставляет компилятор политик, patch-based runtime, калибровку параметров и математическую основу для моделирования экономических механизмов.
 
 ## Роль в архитектуре
 
-Foundry является **policy execution backend** в архитектуре Policy Engine, отвечая за компиляцию, калибровку и исполнение политик:
+Foundry - **policy execution backend** Policy Engine, отвечающий за компиляцию, калибровку и исполнение политик:
 
 ```
 NL → LLM → IR (AST) → Foundry Compiler → Foundry Calibration → Foundry Runtime → Artifacts
 ```
 
-Foundry **не знает** про LLM и работает исключительно с:
-- ✅ JAX для дифференцируемых вычислений и JIT-компиляции
-- ✅ Экономическими механизмами (налоги, субсидии, рынок труда, очереди)
-- ✅ Многоуровневыми симуляциями (multi-fidelity)
+Работает исключительно с JAX-технологиями:
+- ✅ Дифференцируемые вычисления и JIT-компиляция
+- ✅ Экономические механизмы (налоги, субсидии, рынок труда, очереди)
+- ✅ Multi-fidelity симуляции
 - ✅ Slot-based state management и patch operations
 - ✅ Program graphs и execution plans
-- ✅ Калибровкой параметров на реальных данных
+- ✅ Калибровка параметров на реальных данных
 - ✅ Constraints engine для валидации ограничений
 - ❌ Никаких БД, LLM или сетевых вызовов
 
@@ -30,114 +30,60 @@ Foundry **не знает** про LLM и работает исключител�
 
 ## Agent Simulation (Симуляция агентов)
 
-### Обзор
-
-Модуль `agent_sim` предоставляет высокоуровневый фреймворк для симуляции поведенчески-гетерогенных агентов в экономических моделях. Реализует современные подходы к моделированию агентов с использованием глубокого обучения, графовых структур и эволюционных алгоритмов.
+Модуль `agent_sim` (32 модуля) предоставляет комплексный фреймворк для симуляции поведенчески-гетерогенных агентов с использованием ML, графовых структур и эволюционных алгоритмов.
 
 ### Ключевые возможности
 
-- **Гетерогенные агенты**: Агенты с различными предпочтениями, демографией и поведением
-- **Нейронные сети**: Actor-Critic архитектуры для обучения политик агентов
-- **Графовые структуры**: Моделирование социальных сетей и взаимодействий
-- **Демографические процессы**: Рождение, старение, смерть и миграция
-- **Распределения доходов**: Метрики неравенства (Gini, Palma ratio)
+- **Гетерогенные агенты**: Различные предпочтения, демография и поведение
+- **Нейронные сети**: Actor-Critic архитектуры для обучения политик
+- **Графовые структуры**: Социальные сети и взаимодействия агентов
+- **Демографические процессы**: Рождение, старение, миграция
+- **Метрики неравенства**: Gini, Palma ratio для анализа распределений
 - **Эволюционные алгоритмы**: CMA-ES для оптимизации параметров
-- **Временные аспекты**: Обработка последовательных данных и памяти
-- **Artifact system**: Хранение и загрузка обученных политик агентов с проверкой совместимости окружения
-- **Environment fingerprinting**: Захват и валидация окружения для воспроизводимости результатов
+- **Временные аспекты**: Обработка последовательных данных
+- **Artifact system**: Хранение политик с проверкой совместимости окружения
 
 ### Основные компоненты
 
-#### Agent State (Состояние агента)
 ```python
+# Agent State с демографией и финансами
 @chex.dataclass(frozen=True)
 class AgentState:
-    active: Bool[Array, "n_agents"]           # Активность агента
-    agent_id: Int[Array, "n_agents"]          # Уникальный ID
-    wealth: Float[Array, "n_agents"]          # Богатство
-    income: Float[Array, "n_agents"]          # Доход
-    consumption: Float[Array, "n_agents"]     # Потребление
-    employed: Bool[Array, "n_agents"]         # Статус занятости
-    age: Int[Array, "n_agents"]               # Возраст
-    skill_level: Float[Array, "n_agents"]     # Уровень навыков
-    risk_aversion: Float[Array, "n_agents"]   # Отношение к риску
-    n_connections: Int[Array, "n_agents"]     # Социальные связи
-```
+    active: Bool[Array, "n_agents"]
+    wealth: Float[Array, "n_agents"]
+    income: Float[Array, "n_agents"]
+    employed: Bool[Array, "n_agents"]
+    age: Int[Array, "n_agents"]
+    skill_level: Float[Array, "n_agents"]
+    risk_aversion: Float[Array, "n_agents"]
 
-#### Actor-Critic обучение
-```python
+# Actor-Critic обучение агентов
 from polisyos.foundry.agent_sim import ActorCritic, train_actor_critic
-
-# Создание модели
 model = ActorCritic(obs_dim=10, action_dim=5, hidden_dims=[64, 32])
 
-# Обучение агентов
-trained_model = train_actor_critic(
-    model=model,
-    mechanisms=[consumption_mechanism, labor_mechanism],
-    n_episodes=1000
-)
-```
-
-#### Графовые структуры
-```python
-from polisyos.foundry.agent_sim import create_scale_free_graph
-
-# Создание сети социальных связей
-social_graph = create_scale_free_graph(n_nodes=1000, m=3)
-
-# Агенты взаимодействуют через граф
-influenced_opinions = social_graph.aggregate_messages(
-    node_features=agent_opinions,
-    edge_features=influence_strengths
-)
-```
-
-#### Метрики неравенства
-```python
+# Метрики неравенства
 from polisyos.foundry.agent_sim import compute_gini, compute_palma_ratio
-
-gini_coefficient = compute_gini(agent_incomes)
-palma_ratio = compute_palma_ratio(agent_incomes)  # top10% / bottom40%
 ```
 
-#### Artifact System для политик агентов
+### Artifact System
 ```python
 from polisyos.foundry.agent_sim.artifact import AgentPolicyArtifact
-from polisyos.foundry.runtime.fingerprint import EnvironmentFingerprint, DeterminismTier
 
-# Создание артефакта обученной политики
+# Создание артефакта с fingerprint окружения
 artifact = AgentPolicyArtifact.from_trained_policy(
-    policy=trained_actor_critic,
-    run_id="run_20240127_001",
-    steps=10000,
-    loss=0.023,
-    fingerprint=EnvironmentFingerprint.capture(
-        tier=DeterminismTier.BEST_EFFORT_GPU,
-        seed=42
-    ),
+    policy=trained_policy,
+    fingerprint=EnvironmentFingerprint.capture(tier=DeterminismTier.BEST_EFFORT_GPU, seed=42)
 )
 
-# Проверка совместимости окружения перед загрузкой
-current = EnvironmentFingerprint.capture(tier=DeterminismTier.BEST_EFFORT_GPU, seed=42)
-ok, score, warnings = artifact.validate_environment(current)
+# Валидация совместимости перед загрузкой
+ok, score, warnings = artifact.validate_environment(current_fingerprint)
 ```
 
-### Применение в политике
+## Архитектура (актуально на 2026-01-29)
 
-Agent simulation позволяет моделировать:
-- **Поведенческие реакции** на экономические политики
-- **Распространение информации** через социальные сети
-- **Неравенство** и его динамику во времени
-- **Демографические изменения** и их экономические последствия
-- **Обучение агентов** новым стратегиям поведения
-- **Hot-swap политик** с проверкой совместимости окружения
+Foundry состоит из следующих основных слоев:
 
-## Архитектура
-
-Foundry состоит из следующих основных слоев (актуально на 2026-01-27, обновлено с conflict detection, cost modeling, nan guard):
-
-### 1. Core Layer (Ядро)
+### Core Layer (Ядро)
 ```
 __init__.py         # Пустой инициализатор
 base.py             # Абстрактный класс Mechanism и ComplexMechanism
@@ -147,29 +93,29 @@ loss.py             # Функции потерь для оптимизации 
 agent_metrics.py    # Метрики для анализа агентов
 ```
 
-### 2. Compiler Layer (Компилятор)
+### Compiler Layer (Компилятор)
 ```
 compiler.py         # Компиляция политик в ProgramGraph
 layout.py           # Slot layout для state management
 treasury.py         # Deterministic RNG management
-```
-
-### 3. Runtime Layer (Исполнение)
-```
-patch_vm.py         # Patch-based виртуальная машина и merge rules
-runtime/            # Runtime модули для исполнения программ
-├── __init__.py     # Чистые JAX функции для исполнения (step, run_scan, execute_program_batch)
-├── fingerprint.py  # Environment fingerprinting для воспроизводимости
-├── nan_guard.py    # Защита от NaN/Inf значений во время исполнения
-executor.py         # Исполнение программ с constraints и state management
-constraints_engine.py # Движок ограничений и валидации
-trace.py            # Система трассировки исполнения
-merge_engine.py     # Движок для слияния патчей и состояний
 conflict_checker.py # Compile-time проверка конфликтов
 cost_model.py       # Модель оценки стоимости выполнения
 ```
 
-### 4. Domain Layer (Модель предметной области)
+### Runtime Layer (Исполнение)
+```
+patch_vm.py         # Patch-based виртуальная машина и merge rules
+executor.py         # Исполнение программ с constraints и state management
+constraints_engine.py # Движок ограничений и валидации
+trace.py            # Система трассировки исполнения
+merge_engine.py     # Движок для слияния патчей и состояний
+runtime/            # Runtime модули для исполнения программ
+├── __init__.py     # Чистые JAX функции (step, run_scan, execute_program_batch)
+├── fingerprint.py  # Environment fingerprinting для воспроизводимости
+└── nan_guard.py    # Защита от NaN/Inf значений во время исполнения
+```
+
+### Domain Layer (Модель предметной области)
 ```
 domain/
 ├── __init__.py     # Инициализатор домена
@@ -177,28 +123,27 @@ domain/
 └── schema.py       # Pydantic схемы конфигурации
 ```
 
-### 5. Mechanism Layer (Механизмы)
+### Mechanisms Layer (Механизмы)
 ```
-agents.py           # Адаптивные агенты с нейронными сетями (AdaptiveAgentMechanism)
-base.py             # Абстрактный класс Mechanism и ComplexMechanism
+agents.py           # Адаптивные агенты с нейронными сетями
 fiscal.py           # Налоговые механизмы (IncomeTax, TaxSubsidy)
-labor.py            # Механизм рынка труда (LaborMarketMechanism)
-queue.py            # Механизм очередей с multi-fidelity (QueueMechanism)
+labor.py            # Механизм рынка труда
+queue.py            # Механизм очередей с multi-fidelity
 registry.py         # Регистрация и фабрика механизмов
 specs.py            # Спецификации механизмов с валидацией
 ```
 
-### 6. Agent Simulation Layer (Симуляция агентов)
+### Agent Simulation Layer (Симуляция агентов)
 ```
-agent_sim/          # Комплексная симуляция агентов с ML
+agent_sim/          # Комплексная симуляция агентов с ML (32 модуля)
 ├── __init__.py
 ├── actor_critic.py # Actor-Critic архитектуры для RL
 ├── analysis.py     # Анализ поведения агентов
+├── artifact.py     # Artifact system для политик агентов
 ├── credit_assignment.py # Назначение кредитов в обучении
 ├── dashboard.py    # Дашборд для мониторинга
 ├── demographics.py # Демографические метрики
 ├── distribution_executor.py # Исполнение распределений
-├── distribution_mechanisms.py # Механизмы распределения
 ├── distributions.py # Метрики неравенства (Gini, Palma ratio)
 ├── evolution.py    # Эволюционные алгоритмы (CMA-ES)
 ├── executor.py     # Исполнитель для симуляции агентов
@@ -206,47 +151,40 @@ agent_sim/          # Комплексная симуляция агентов �
 ├── government_policy.py # Политики правительства
 ├── graph_executor.py # Исполнение на графах
 ├── graph_mechanisms.py # Механизмы для графов
-├── graph_observations.py # Наблюдения на графах
 ├── graphs.py       # Графовые структуры социальных связей
 ├── jit_training.py # JIT-компиляция обучения
 ├── mechanism.py    # Базовые механизмы симуляции
 ├── mechanisms.py   # Специфические механизмы
-├── artifact.py     # Artifact system для политик агентов
 ├── metrics.py      # Сбор метрик обучения
 ├── modes.py        # Режимы обучения (bilevel, MPC)
 ├── mpc.py          # Model Predictive Control
 ├── policy.py       # Политики агентов
-├── population_executor.py # Исполнение для популяции
-├── population_mechanisms.py # Механизмы популяции
 ├── population.py   # Управление популяцией
 ├── prng.py         # Генерация псевдослучайных чисел
-├── README.md       # Документация симуляции агентов
 ├── rewards.py      # Функции вознаграждения
 ├── rl.py           # PPO и другие алгоритмы обучения
 ├── state.py        # Расширенные состояния агентов
-├── temporal_executor.py # Временное исполнение
-├── temporal_mechanisms.py # Временные механизмы
 ├── temporal.py     # Временные аспекты
 ├── training.py     # Обучение моделей
 └── visualization.py # Визуализация результатов
 ```
 
-### 7. Calibration Layer (Калибровка моделей)
+### Calibration Layer (Калибровка моделей)
 ```
-calibration/
+calibration/        # Автоматическая калибровка параметров (7 модулей)
 ├── __init__.py     # Инициализатор калибровки
-├── bijectors.py    # Биекции для ограничения параметров (sigmoid, softplus)
-├── calibrator.py   # Основной класс Calibrator для оптимизации параметров
+├── bijectors.py    # Биекции для ограничения параметров
+├── calibrator.py   # Основной класс Calibrator для оптимизации
 ├── loss.py         # Функции потерь (MSE, Huber, weighted loss)
-├── preflight.py    # Подготовка данных и конфигурации для калибровки
-├── pure_executor.py # Чистый JAX executor для калибровки (без side effects)
-├── README.md       # Документация калибровки
-└── report.py       # Отчёты калибровки (метрики качества, неопределённости)
+├── preflight.py    # Подготовка данных и конфигурации
+├── pure_executor.py # Чистый JAX executor без side effects
+├── report.py       # Отчёты калибровки (метрики качества, неопределённости)
+└── README.md       # Подробная документация калибровки
 ```
 
-### 8. Plugins Layer (Плагины доменов)
+### Plugins Layer (Плагины доменов)
 ```
-plugins/
+plugins/            # Расширяемая система плагинов (12 модулей)
 ├── __init__.py     # Инициализатор плагинов
 ├── api.py          # High-level PolisySimulator API
 ├── cli.py          # Command-line interface
@@ -263,143 +201,60 @@ plugins/
 └── README.md       # Документация плагинов
 ```
 
-## Калибровка моделей (Calibration)
+## Calibration (Калибровка моделей)
 
-### Обзор
-
-Calibration Layer предоставляет инструменты для автоматической калибровки параметров экономических моделей на реальных данных. Модуль использует градиентную оптимизацию для подбора параметров механизмов, обеспечивая соответствие моделируемых показателей реальным данным.
+Модуль `calibration` (7 модулей) предоставляет инструменты для автоматической калибровки параметров экономических моделей на реальных данных с использованием градиентной оптимизации.
 
 ### Основные компоненты
 
-#### Calibrator (Калибратор)
 ```python
-from polisyos.foundry.calibration.calibrator import Calibrator, CalibratorInputs
-from polisyos.foundry.calibration.report import CalibrationReport
+from polisyos.foundry.calibration import Calibrator, CalibratorInputs
 
-# Входные данные для калибровки
+# Конфигурация и запуск калибровки
 inputs = CalibratorInputs(
-    config=calibration_config,        # Конфигурация калибровки
-    program_graph=program_graph,      # Скомпилированная политика
-    exec_plan=exec_plan,              # План исполнения
-    base_state=initial_state,         # Начальное состояние экономики
-    mechanism_registry=mechanism_registry,
-    slot_registry=slot_registry,
-    merge_registry=merge_registry,
-    raw_targets=real_data_targets     # Реальные данные для сравнения
+    config=calibration_config,
+    program_graph=program_graph,
+    exec_plan=exec_plan,
+    base_state=initial_state,
+    raw_targets=real_data_targets
 )
 
-# Запуск калибровки
 calibrator = Calibrator()
 report = calibrator.calibrate(inputs)
-
-print(f"Total loss: {report.total_loss}")
-print(f"Calibrated params: {report.calibrated_params}")
 ```
 
-#### Функции потерь
-```python
-from polisyos.foundry.calibration.loss import loss_components, compute_base_loss
+### Функционал
 
-# Вычисление потерь по нескольким целям
-total_loss, per_target_loss, per_target_base = loss_components(
-    predicted=predicted_values,     # Предсказанные значения
-    targets=real_values,            # Конфигурация потерь (MSE/Huber)
-    configs=target_configs,         # Масштабы для относительных ошибок
-    scales=target_scales,           # Веса целей
-    weights=target_weights          # Реальные значения
-)
-```
-
-#### Биекции параметров
-```python
-from polisyos.foundry.calibration.bijectors import make_bijector, to_unconstrained, from_unconstrained
-
-# Создание биекции для ограничения параметра [0, 1]
-bijector = make_bijector(lower=0.0, upper=1.0)
-
-# Преобразование в unconstrained пространство для оптимизации
-unconstrained = to_unconstrained([param_value], [bijector])
-
-# Обратное преобразование
-constrained = from_unconstrained(unconstrained, [bijector])
-```
-
-### Отчёт калибровки
-
-```python
-from polisyos.foundry.calibration.report import CalibrationReport
-
-report = CalibrationReport(
-    calibrated_params={"tax_mechanism.rate": 0.23},  # Калиброванные параметры
-    total_loss=0.034,                                # Общая потеря
-    per_target_loss={"gdp": 0.012, "unemployment": 0.022},  # Потери по целям
-    series_comparison={                             # Сравнение временных рядов
-        "gdp": CalibrationSeriesComparison(
-            time=[1, 2, 3, 4],
-            real=[100, 102, 105, 108],
-            model=[99, 101, 104, 107]
-        )
-    },
-    fit_quality=CalibrationFitQuality(...),         # Метрики качества подгонки
-    uncertainties=CalibrationUncertainty(...)       # Оценки неопределённости
-)
-```
+- **Функции потерь**: MSE, Huber, weighted loss для разных целей
+- **Биекции параметров**: Ограничение параметров (sigmoid, softplus для [0,1] и [0,∞))
+- **Оптимизаторы**: Adam, L-BFGS, SLSQP
+- **Отчёты**: Метрики качества (R², RMSE, MAE), временные ряды, неопределённости
+- **Валидация**: Проверка ограничений и физической корректности
 
 ### Процесс калибровки
 
-1. **Подготовка** (Preflight): Валидация конфигурации, подготовка данных
-2. **Компиляция**: Создание оптимизируемой функции с автоматическим дифференцированием
+1. **Preflight**: Валидация конфигурации и подготовка данных
+2. **Компиляция**: Создание оптимизируемой функции с автодифференцированием
 3. **Оптимизация**: Градиентный спуск с биекциями для ограниченных параметров
-4. **Анализ**: Вычисление метрик качества и оценок неопределённости
+4. **Анализ**: Метрики качества и оценки неопределённости
 5. **Отчёт**: Сохранение результатов в artifact store
 
-### Поддерживаемые оптимизаторы
+## Compile-time Conflict Detection
 
-- **Adam**: Адаптивная оптимизация (рекомендуется)
-- **L-BFGS**: Квазиньютоновский метод для точной оптимизации
-- **SLSQP**: Sequential Least Squares Programming с ограничениями
+Модуль `conflict_checker` предоставляет статический анализатор для обнаружения конфликтов записи в слоты перед JAX-компиляцией. Работает на чистом Python и интегрируется с MergeEngine.
 
-## Compile-time Conflict Detection (Проверка конфликтов на этапе компиляции)
-
-### Обзор
-
-Модуль `conflict_checker` предоставляет статический анализатор для обнаружения конфликтов записи в слоты перед JAX-компиляцией. Анализатор работает на чистом Python и интегрируется с существующей семантикой MergeEngine.
-
-### Основные компоненты
-
-#### CompileTimeConflictChecker (Анализатор конфликтов)
+### Основные возможности
 
 ```python
-from polisyos.foundry.conflict_checker import CompileTimeConflictChecker, ConflictReport
+from polisyos.foundry.conflict_checker import CompileTimeConflictChecker
 
-# Создание анализатора
-checker = CompileTimeConflictChecker(
-    slot_registry=slot_registry,
-    merge_registry=merge_registry,
-    strict_mode=True
-)
-
-# Анализ ProgramGraph
+# Создание анализатора и проверка ProgramGraph
+checker = CompileTimeConflictChecker(slot_registry, merge_registry, strict_mode=True)
 report = checker.check(program_graph)
 
-# Результат анализа
 if report.has_blockers():
-    print(f"Найдено {len(report.conflicts)} блокирующих конфликтов")
     for conflict in report.conflicts:
-        print(f"- {conflict.slot_id}: {conflict.suggestion}")
-```
-
-#### SlotConflict (Конфликт слота)
-
-```python
-@dataclass(frozen=True)
-class SlotConflict:
-    slot_id: str                    # Конфликтующий слот
-    writers: frozenset[str]         # Механизмы-писатели
-    conflict_kind: MergeConflictKind # Тип конфликта
-    location: str                   # Местоположение в ProgramGraph
-    suggestion: str                 # Рекомендация по исправлению
-    severity: str                   # "blocker", "warning", "info"
+        print(f"Конфликт в {conflict.slot_id}: {conflict.suggestion}")
 ```
 
 ### Типы конфликтов
@@ -408,98 +263,33 @@ class SlotConflict:
 - **UNSUPPORTED_RULE**: Неподдерживаемое правило слияния
 - **MISSING_VALUE**: Слот не зарегистрирован в SlotRegistry
 
-### Интеграция в Compiler
-
-```python
-from polisyos.foundry.compiler import compile_surface_policy
-
-# Компиляция с проверкой конфликтов
-artifacts = compile_surface_policy(
-    store=store,
-    policy=policy_ir,
-    mechanism_registry=mechanism_registry,
-    slot_registry=slot_registry,
-    merge_registry=merge_registry,
-    strict_conflict_check=True  # Включает проверку конфликтов
-)
-```
-
 ## Cost Model (Модель стоимости)
 
-### Обзор
-
-Модуль `cost_model` предоставляет эвристическую модель оценки стоимости выполнения программ с возможностью самокалибровки на основе телеметрии реальных запусков.
+Модуль `cost_model` предоставляет эвристическую модель оценки стоимости выполнения программ с самокалибровкой на основе телеметрии.
 
 ### Основные возможности
-
-#### CostEstimate (Оценка стоимости)
 
 ```python
 from polisyos.foundry.cost_model import CostModel, CostEstimate, CostBudget
 
-# Создание модели стоимости
-cost_model = CostModel()
-
 # Оценка стоимости выполнения
+cost_model = CostModel()
 estimate = cost_model.estimate(
     program_graph=program_graph,
     n_agents=1000,
     time_steps=100,
-    budget=CostBudget(
-        max_total_ms=60000,
-        max_memory_mb=8192,
-        max_compile_ms=30000
-    )
+    budget=CostBudget(max_total_ms=60000, max_memory_mb=8192)
 )
 
-print(f"Ожидаемое время: {estimate.estimated_total_ms}ms")
-print(f"Память: {estimate.estimated_memory_mb}MB")
-print(f"Уверенность: {estimate.confidence}")
-```
-
-#### CostBudget (Бюджет стоимости)
-
-```python
-@dataclass
-class CostBudget:
-    max_total_ms: int = 60000     # Максимальное общее время (мс)
-    max_memory_mb: int = 8192     # Максимальная память (MB)
-    max_compile_ms: int = 30000   # Максимальное время компиляции
-    max_per_mechanism_ms: int = 10000  # Максимум на механизм
+print(f"Время: {estimate.estimated_total_ms}ms, Уверенность: {estimate.confidence}")
 ```
 
 ### Самокалибровка
 
 ```python
-# Обновление модели на основе реальных измерений
-cost_model.update_from_telemetry(
-    mechanism_type="income_tax",
-    actual_ms=25.0,
-    n_agents=1000
-)
-
-# Статус калибровки
+# Обновление на основе реальных измерений
+cost_model.update_from_telemetry(mechanism_type="income_tax", actual_ms=25.0, n_agents=1000)
 status = cost_model.get_calibration_status()
-print(f"Калибровано механизмов: {len(status['calibrated_mechanisms'])}")
-```
-
-### Интеграция в Compiler
-
-```python
-from polisyos.foundry.compiler import compile_surface_policy
-from polisyos.foundry.cost_model import CostBudget
-
-# Компиляция с бюджетом стоимости
-artifacts = compile_surface_policy(
-    store=store,
-    policy=policy_ir,
-    mechanism_registry=mechanism_registry,
-    slot_registry=slot_registry,
-    merge_registry=merge_registry,
-    cost_budget=CostBudget(max_total_ms=30000),
-    n_agents=1000,
-    time_steps=50
-)
 ```
 
 ## Компилятор политик
@@ -569,18 +359,14 @@ print(f"Execution order: {exec_plan.order}")  # ['node1', 'node2', 'merge1', ...
 
 ## Executor (Исполнитель программ)
 
-### Обзор
-
-Executor предоставляет высокоуровневый API для исполнения скомпилированных ProgramGraph'ов с поддержкой constraints, state management и детального логирования.
+Executor предоставляет высокоуровневый API для исполнения скомпилированных ProgramGraph'ов с поддержкой constraints, state management и логирования.
 
 ### Основные функции
 
-#### Исполнение с constraints
 ```python
-from polisyos.foundry.executor import execute_with_constraints
-from polisyos.foundry.constraints_engine import ConstraintResult
+from polisyos.foundry.executor import execute_with_constraints, execute_single_step, execute_batch
 
-# Исполнение с проверкой ограничений
+# Исполнение с constraints
 result = execute_with_constraints(
     program_graph=program_graph,
     initial_state=initial_state,
@@ -592,235 +378,114 @@ result = execute_with_constraints(
     merge_registry=merge_registry
 )
 
-# Результат содержит финальное состояние и информацию о violations
-final_state = result.final_state
-constraint_result = result.constraint_result
-
-if constraint_result.violations:
-    print(f"Found {len(constraint_result.violations)} constraint violations")
-    for violation in constraint_result.violations:
-        print(f"- {violation}")
-```
-
-#### Step-by-step исполнение
-```python
-from polisyos.foundry.executor import execute_single_step
-
-# Исполнение одного узла графа
+# Step-by-step исполнение
 step_result = execute_single_step(
     node_id="tax_mechanism_1",
     program_graph=program_graph,
     current_state=current_state,
     store=store,
-    mechanism_registry=mechanism_registry,
-    slot_registry=slot_registry,
-    merge_registry=merge_registry,
-    treasury_plan=treasury_plan
+    mechanism_registry=mechanism_registry
 )
 
-# Результат шага
-new_state = step_result.final_state
-patches_applied = step_result.patches_applied
-metrics = step_result.metrics
-```
-
-#### Batch исполнение
-```python
-from polisyos.foundry.executor import execute_batch
-
-# Исполнение для нескольких сценариев
+# Batch исполнение для нескольких сценариев
 batch_result = execute_batch(
     program_graph=program_graph,
-    initial_states=[state1, state2, state3],  # Разные начальные условия
+    initial_states=[state1, state2, state3],
     exec_plan=exec_plan,
-    store=store,
-    mechanism_registry=mechanism_registry,
-    slot_registry=slot_registry,
-    merge_registry=merge_registry
+    store=store
 )
-
-# Результаты для каждого сценария
-for i, result in enumerate(batch_result.results):
-    print(f"Scenario {i}: GDP = {result.final_state.gdp}")
 ```
 
 ### State Management
 
-Executor управляет state transitions через **StateDelta** и **StateSnapshot**:
-
-```python
-from polisyos.core.contracts.foundry import StateDelta, StateSnapshot
-
-# StateDelta - изменения состояния между шагами
-delta = StateDelta(
-    step_from=0,
-    step_to=1,
-    slot_deltas={
-        "agents.income": tensor_ref_increase,
-        "government.balance": tensor_ref_decrease
-    }
-)
-
-# StateSnapshot - полное состояние на момент времени
-snapshot = StateSnapshot(
-    step=1,
-    state_ref=state_artifact_ref,
-    metadata={"simulation_id": "sim_001"}
-)
-```
-
-### Metrics и логирование
-
-```python
-from polisyos.core.contracts.foundry import Metrics
-
-# Метрики исполнения
-execution_metrics = Metrics(
-    execution_time=1.23,           # Время исполнения в секундах
-    nodes_executed=15,             # Количество выполненных узлов
-    patches_applied=42,            # Количество применённых патчей
-    constraints_checked=8,         # Количество проверенных ограничений
-    memory_peak=512.5              # Пиковое использование памяти (MB)
-)
-```
+Управляет state transitions через StateDelta и StateSnapshot, отслеживает метрики исполнения (время, память, patches applied).
 
 ## Patch-based Execution
 
+Foundry использует slot-based архитектуру с patch-based изменениями состояния.
+
 ### Slot System
 
-Вместо прямых изменений состояния Foundry использует **slot-based** архитектуру:
+Механизмы записывают в слоты вместо прямого изменения state:
 
 ```python
-# Механизмы записывают в слоты вместо прямого изменения state
 slots_written = ["agents.income", "government.balance"]
 slots_read = ["agents.income", "market.unemployment_rate"]
 ```
 
 ### Patch Operations
 
-Механизмы генерируют **патчи** вместо прямых изменений:
+Механизмы генерируют патчи вместо прямых изменений:
 
 ```python
 from polisyos.core.contracts.foundry import PatchOp
 
-# Вместо: state.agents.income += tax_amount
-# Механизм генерирует:
 patches = [
-    PatchOp(
-        slot_id="agents.income",
-        op="add",
-        value_ref=tax_amount_tensor_ref,
-        notes=["income_tax_mechanism"]
-    )
+    PatchOp(slot_id="agents.income", op="add", value_ref=tax_amount_ref)
 ]
 ```
 
 ### Merge Rules
 
-При конфликтах патчей применяются **merge rules** из **patch_vm** модуля:
+При конфликтах применяются merge rules из patch_vm:
 
 ```python
 from polisyos.foundry.patch_vm import merge_patch_records
 from polisyos.ir.kernel import MergeRuleKind
 
-# Поддерживаемые виды merge rules
-merge_kinds = [
-    MergeRuleKind.SUM,        # Складывать изменения (для балансов)
-    MergeRuleKind.OVERRIDE,   # Перезаписывать по приоритету
-    MergeRuleKind.PRIORITY,   # Выбирать по явному приоритету
-    MergeRuleKind.ERROR       # Запрещать конфликты
-]
-
-# Применение merge rules к патчам
-merged_patches = merge_patch_records(
-    store=artifact_store,
-    patch_records=patch_records_from_mechanisms,
-    slot_registry=slot_registry,
-    merge_registry=merge_registry
-)
+# SUM, OVERRIDE, PRIORITY, ERROR
+merged_patches = merge_patch_records(store, patch_records, slot_registry, merge_registry)
 ```
 
 ### Artifact-based патчи
 
-Patch VM сохраняет значения патчей как артефакты:
-
-```python
-from polisyos.foundry.patch_vm import _put_tensor, _load_tensor
-
-# Сохранение тензора патча в artifact store
-tensor_ref = _put_tensor(store, jnp.array([100.0, 200.0, 300.0]))
-
-# Загрузка тензора из artifact store
-tensor_value = _load_tensor(store, tensor_ref)
-```
+Значения патчей сохраняются как артефакты в store для воспроизводимости.
 
 ## Runtime Execution
 
-### Environment Fingerprinting
+Runtime модуль предоставляет низкоуровневые компоненты для исполнения программ и обеспечения воспроизводимости.
 
-Для обеспечения воспроизводимости результатов обучения агентских политик используется система захвата и валидации окружения (Environment Fingerprinting):
+### Environment Fingerprinting
 
 ```python
 from polisyos.foundry.runtime.fingerprint import EnvironmentFingerprint, DeterminismTier
 
-# Захват текущего окружения
-fingerprint = EnvironmentFingerprint.capture(
-    tier=DeterminismTier.BEST_EFFORT_GPU,
-    seed=42
-)
+# Захват окружения для воспроизводимости
+fingerprint = EnvironmentFingerprint.capture(tier=DeterminismTier.BEST_EFFORT_GPU, seed=42)
 
 # Проверка совместимости окружений
 compatibility_score = fingerprint.compatibility_score(other_fingerprint)
 warnings = fingerprint.validate_for_tier()
 ```
 
-### NaN/Inf Guard (Защита от некорректных значений)
+### NaN/Inf Guard
 
-Для STRICT профиля валидации предоставляется система обнаружения NaN и Inf значений с понятными диагностиками вместо криптичных JAX traceback'ов.
+Система обнаружения NaN/Inf значений с диагностиками:
 
 ```python
-from polisyos.foundry.runtime.nan_guard import NaNGuard, NaNGuardReport, create_nan_guard_for_profile
+from polisyos.foundry.runtime.nan_guard import create_nan_guard_for_profile
 
 # Создание guard для STRICT профиля
 guard = create_nan_guard_for_profile("strict")
 
-# Проверка состояния после каждого механизма
+# Проверка состояния
 for mechanism_id, patches in mechanism_outputs.items():
     for slot_id, value in patches.items():
-        if not guard.check_array(value, slot_id, mechanism_id, time_step):
-            print(f"Обнаружены NaN/Inf в {slot_id} от {mechanism_id}")
+        guard.check_array(value, slot_id, mechanism_id, time_step)
 
-# Получение полного отчёта
+# Отчёт о проблемах
 report = guard.get_report()
 if not report.ok:
-    print(f"Первая ошибка на шаге: {report.first_failure_step}")
     for diagnostic in report.diagnostics:
-        print(f"- {diagnostic.slot_id}: {diagnostic.possible_cause}")
-```
-
-#### NaNDiagnostic (Диагностика NaN)
-
-```python
-@dataclass(frozen=True)
-class NaNDiagnostic:
-    slot_id: str           # Затронутый слот
-    mechanism_id: str      # Механизм, произведший значение
-    time_step: int         # Шаг симуляции
-    nan_count: int         # Количество NaN значений
-    inf_count: int         # Количество Inf значений
-    sample_indices: list[int]  # Примеры индексов проблемных значений
-    possible_cause: str    # Возможная причина проблемы
-    value_stats: dict      # Статистика валидных значений
+        print(f"NaN/Inf в {diagnostic.slot_id}: {diagnostic.possible_cause}")
 ```
 
 ### Execution Flow
 
-Исполнение политики проходит через несколько фаз:
-
-1. **Load Program**: Загрузка ProgramGraph из artifact store
-2. **Initialize State**: Инициализация начального состояния экономики
-3. **Execute Nodes**: Исполнение узлов в топологическом порядке
-4. **NaN Guard Check**: Проверка на NaN/Inf (в STRICT режиме)
+1. **Load Program**: ProgramGraph из artifact store
+2. **Initialize State**: Начальное состояние экономики
+3. **Execute Nodes**: Узлы в топологическом порядке
+4. **NaN Guard Check**: Проверка на NaN/Inf (STRICT режим)
 5. **Merge Patches**: Применение патчей с merge rules
 6. **Check Constraints**: Валидация ограничений
 
@@ -828,53 +493,21 @@ class NaNDiagnostic:
 
 ```python
 from polisyos.foundry.runtime import step, run_scan, execute_program_batch
-from polisyos.foundry.runtime.nan_guard import create_nan_guard_for_profile
 
-# Создание NaN guard для профиля валидации
-nan_guard = create_nan_guard_for_profile("strict")
-
-# Один шаг симуляции (чистая JAX функция)
+# Чистые JAX функции для исполнения
 def step(state, controls, root_key, t: int, static_bundle=None, nan_guard=None):
-    """Placeholder pure JAX step; returns state unchanged and empty trace."""
-    # Проверка на NaN/Inf после каждого механизма
-    if nan_guard and nan_guard.enabled:
-        for slot_id, value in state.items():
-            nan_guard.check_array(value, slot_id, "simulation", t)
-
+    # Один шаг симуляции
     return state, {"t": t, "controls": controls}
 
-# Исполнение последовательности контролей через lax.scan
-traces = run_scan(initial_state, controls_seq, root_key, static_bundle=static_bundle)
-
-# Batch исполнение для нескольких начальных состояний
-batch_results = execute_program_batch(
-    initial_states=batch_states,      # [batch_size, ...] состояния
-    controls_seq=controls_seq,        # [batch_size, time_steps, ...] контролы
-    root_key=root_key,                # Общий ключ для детерминизма
-    static_bundle=static_bundle       # Скомпилированные компоненты
-)
-
-# Получение отчёта о NaN/Inf
-nan_report = nan_guard.get_report()
-```
-
-### Treasury System
-
-Для детерминированного исполнения используется **Treasury** - система управления RNG:
-
-```python
-from polisyos.foundry.treasury import build_treasury_plan
-
-# Каждый узел получает deterministic salt
-treasury = build_treasury_plan(program_graph, root_seed=42)
-node_rng = jax.random.key(treasury.node_salts[node_id])
+# Batch исполнение
+batch_results = execute_program_batch(initial_states, controls_seq, root_key, static_bundle)
 ```
 
 ## Основные понятия
 
-### Fidelity Levels (Уровни точности)
+### Fidelity Levels
 
-Foundry поддерживает три уровня точности симуляции для баланса между скоростью оптимизации и реалистичностью:
+Три уровня точности симуляции:
 
 ```python
 from polisyos.foundry.types import FidelityLevel
@@ -887,195 +520,53 @@ class FidelityLevel(str, Enum):
 
 ### Mechanism (Механизм)
 
-Абстрактный базовый класс для всех экономических механизмов политики. Современные механизмы работают через **patch system**:
+Базовый класс для экономических механизмов с patch-first архитектурой:
 
 ```python
 from polisyos.foundry.base import Mechanism
-from polisyos.core.contracts.foundry import UpdateOp
 
 class Mechanism(eqx.Module):
     fidelity: FidelityLevel = FidelityLevel.SURROGATE_FLUID
-    debug_mode: bool = False
 
-    @abstractmethod
-    def init_state(self, state: GlobalState, key: jax.Array) -> tuple[GlobalState, jax.Array]:
-        """Инициализация состояния механизма"""
-
-    @abstractmethod
-    def step(self, state: GlobalState, key: jax.Array) -> tuple[GlobalState, jax.Array]:
-        """Один шаг механизма (legacy direct state changes)"""
-
-    def emit_patches(
-        self,
-        state: GlobalState,
-        key: jax.Array,
-        *,
-        target_mask=None,
-    ) -> tuple[dict[str, list[UpdateOp]] | None, jax.Array]:
-        """
-        Patch-first execution path. Генерирует патчи вместо прямых изменений.
-        """
-        return None, key
-
-    def invariants(self, state: GlobalState) -> bool:
-        """Проверка физической корректности"""
-        return True
+    def emit_patches(self, state, key, *, target_mask=None):
+        """Генерирует патчи вместо прямых изменений состояния"""
+        return patches, key
 ```
 
-### GlobalState (Глобальное состояние)
+### GlobalState
 
 Экономическая модель с агентами, фирмами и рынком:
 
 ```python
 @chex.dataclass(frozen=True)
 class GlobalState:
-    step: Int[Array, ""]                     # Текущий шаг симуляции
-    agents: AgentState                       # Состояние агентов
-    firms: FirmState                         # Состояние фирм
-    market: MarketState                      # Состояние рынка
+    step: Int[Array, ""]                     # Текущий шаг
+    agents: AgentState                       # Агенты (демография, финансы, занятость)
+    firms: FirmState                         # Фирмы (производство, финансы, рынок)
+    market: MarketState                      # Рынок (цены, занятость, ставки)
     government_balance: Float[Array, ""]     # Баланс правительства
     gdp: Float[Array, ""]                    # ВВП
 ```
 
-#### AgentState (Агенты)
-```python
-@chex.dataclass(frozen=True)
-class AgentState:
-    # Демография и Навыки
-    age: Int[Array, "n_agents"]               # Возраст
-    skill_level: Float[Array, "n_agents"]     # Влияет на зарплату
-
-    # Финансы
-    income: Float[Array, "n_agents"]          # Фактический доход
-    reported_income: Float[Array, "n_agents"] # Декларируемый доход (для налогов)
-    savings: Float[Array, "n_agents"]         # Сбережения
-    consumption: Float[Array, "n_agents"]     # Сколько потратил
-    risk_aversion: Float[Array, "n_agents"]   # Отношение к риску (0-1)
-
-    # Работа
-    is_employed: Bool[Array, "n_agents"]      # Статус занятости
-    employer_id: Int[Array, "n_agents"]       # ID фирмы (0..M-1) или -1
-```
-
-#### FirmState (Фирмы)
-```python
-@chex.dataclass(frozen=True)
-class FirmState:
-    # Статика
-    sector_id: Int[Array, "n_firms"]          # 0=IT, 1=Agro...
-
-    # Производственные факторы
-    productivity: Float[Array, "n_firms"]     # Технологичность (A)
-    capital: Float[Array, "n_firms"]          # Станки/Софт (K)
-    labor_count: Float[Array, "n_firms"]      # Текущий штат (L)
-
-    # Финансы
-    cash: Float[Array, "n_firms"]             # Деньги на зарплаты
-    inventory: Float[Array, "n_firms"]        # Товары на складе
-    debt: Float[Array, "n_firms"]             # Долги
-
-    # Рынок
-    wage_offer: Float[Array, "n_firms"]       # Зарплатное предложение
-    price: Float[Array, "n_firms"]            # Цена товара фирмы
-```
-
-#### MarketState (Рынок)
-```python
-@chex.dataclass(frozen=True)
-class MarketState:
-    # Агрегаты
-    avg_price: Float[Array, ""]               # CPI (Индекс цен)
-    total_supply: Float[Array, ""]            # Всего товаров
-    total_demand: Float[Array, ""]            # Всего денег у покупателей
-
-    avg_wage: Float[Array, ""]
-    unemployment_rate: Float[Array, ""]
-    interest_rate: Float[Array, ""]           # Ставка ЦБ
-```
-
 ## Доступные механизмы
 
-### Налоговые механизмы (fiscal.py)
+### Основные механизмы
 
-Налоговые механизмы работают с **reported_income** (декларируемым доходом) вместо фактического дохода.
+- **IncomeTax**: Подоходный налог на reported_income
+- **TaxSubsidy**: Налоговые субсидии
+- **LaborMarketMechanism**: Рынок труда с вероятностным распределением занятости
+- **AdaptiveAgentMechanism**: Агенты с ML (нейронные сети, гибкие наблюдения/действия)
+- **QueueMechanism**: Многоуровневые очереди с разными fidelity
 
-#### IncomeTax (Подоходный налог)
 ```python
 from polisyos.foundry.fiscal import IncomeTax
-
-tax = IncomeTax(rate=0.2, n_agents=1000)  # 20% налог
-patches, key = tax.emit_patches(state, key)
-# Налог рассчитывается на reported_income: tax_amount = reported_income * rate
-```
-
-#### TaxSubsidy (Налоговые субсидии)
-```python
-from polisyos.foundry.fiscal import TaxSubsidy
-
-subsidy = TaxSubsidy(rate=0.1, n_agents=1000)  # 10% субсидия
-patches, key = subsidy.emit_patches(state, key)
-```
-
-### LaborMarketMechanism (Механизм рынка труда)
-
-Механизм моделирования рынка труда с вероятностным распределением занятости:
-
-```python
 from polisyos.foundry.labor import LaborMarketMechanism
-
-labor_market = LaborMarketMechanism(
-    employment_threshold=0.5,  # Порог занятости (0-1)
-    fidelity=FidelityLevel.SURROGATE_FLUID
-)
-
-patches, key = labor_market.emit_patches(state, key)
-```
-
-### AdaptiveAgentMechanism (Адаптивные агенты)
-
-Механизм моделирования агентов с обучением на основе нейронных сетей. Агенты наблюдают состояние экономики и принимают решения через обученные политики.
-
-```python
 from polisyos.foundry.agents import AdaptiveAgentMechanism
 
-# Создание механизма с MLP политикой
-agent_mech = AdaptiveAgentMechanism(
-    observation_space=["agents.income", "agents.savings", "market.unemployment_rate"],
-    action_space={
-        "type": "continuous",
-        "affects": ["agents.reported_income"],
-        "dim": 1,
-        "range": [0.0, 1.0]  # Масштаб для reported_income = income * scale
-    },
-    policy_model={"hidden_layers": [64, 32], "activation": "relu"},
-    learning_rate=0.01,
-    stochastic=True
-)
-
-patches, key = agent_mech.emit_patches(state, key)
-```
-
-#### Особенности:
-- **Нейронные сети**: Политики реализованы через MLP с настраиваемой архитектурой
-- **Гибкие наблюдения**: Можно наблюдать любые поля состояния экономики
-- **Разные типы действий**: Непрерывные (continuous) или дискретные (discrete) действия
-- **Масштабирование**: Поддержка диапазонов и нормализации для действий
-- **Стохастичность**: Опциональная случайность в принятии решений
-
-### QueueMechanism (Механизм очередей)
-
-Многоуровневый механизм очередей с поддержкой разных fidelity:
-
-```python
-from polisyos.foundry.queue import QueueMechanism
-
-queue = QueueMechanism(
-    service_rate=0.8,      # Скорость обслуживания
-    arrival_rate=1.0,      # Скорость поступления
-    fidelity=FidelityLevel.RELAXED_DISCRETE
-)
-
-patches, key = queue.emit_patches(state, key)
+# Примеры использования
+tax = IncomeTax(rate=0.2, n_agents=1000)
+labor = LaborMarketMechanism(employment_threshold=0.5)
+agent = AdaptiveAgentMechanism(observation_space=["agents.income"], action_space={"type": "continuous"})
 ```
 
 ## Движок симуляции
@@ -1534,23 +1025,19 @@ with jax.profiler.trace("/tmp/jax-trace"):
 
 ### Зависимости Foundry
 
-- **`ir/`**: Policy Surface IR, контракты механизмов, slot/merge registries, calibration configs
-- **`core/artifacts`**: Artifact storage и CAS для компиляции, исполнения и калибровки
-- **`core/contracts`**: Foundry-specific типы (PatchOp, ProgramGraph, ExecPlan, etc.)
-- **`core/canon`**: Каноническая сериализация для артефактов
-- **`ir/calibration`**: Конфигурации и типы для калибровки моделей
-- **`ir/kernel`**: SlotRegistry, MergeRuleRegistry, MechanismTypeRegistry
-- **`ir/surface`**: PolicySurfaceIR для компиляции политик
-- **`core/artifacts/environment`**: Захват окружения для воспроизводимости
+- **`ir/`**: Policy Surface IR, контракты механизмов, registries (slot/merge/mechanism)
+- **`core/artifacts`**: Artifact storage и CAS для компиляции/исполнения/калибровки
+- **`core/contracts`**: Foundry-типы (PatchOp, ProgramGraph, ExecPlan, etc.)
+- **`core/canon`**: Каноническая сериализация артефактов
 
 ### Потребители Foundry
 
-- **`scientist/`**: Использует компилятор для создания execution plans, калибратор для оптимизации параметров, conflict checker для валидации, cost model для оценки ресурсов
-- **`runtime/`**: Управляет хранением результатов исполнения и обеспечивает аудит, использует nan_guard для обнаружения численных проблем
-- **`ir/`**: Определяет механизм спецификации и calibration targets, предоставляет registries для conflict checker
-- **`tools/`**: Утилиты для миграции и работы с политиками, интегрирует cost estimates и conflict reports
+- **`scientist/`**: Компилятор, калибратор, conflict checker, cost model
+- **`runtime/`**: Хранение результатов, аудит, NaN guard
+- **`ir/`**: Спецификации механизмов и calibration targets
+- **`tools/`**: Миграция политик, cost estimates, conflict reports
 
-### Интеграция в Pipeline
+### Pipeline интеграции
 
 ```
 scientist/ → ir/ → foundry.compiler → foundry.calibration → foundry.runtime → artifacts
@@ -1558,8 +1045,6 @@ scientist/ → ir/ → foundry.compiler → foundry.calibration → foundry.runt
                tools/ (migration)          foundry.executor (constraints)
                      ↓                           ↓
                core/artifacts (CAS)        core/contracts (types)
-                     ↓                           ↓
-               core/canon (serialization)  ir/kernel (registries)
 ```
 
 ## Соглашения по коду

@@ -34,6 +34,7 @@ foundry/
 ├── test_global_state.py           # Глобальное состояние симуляции и его эволюция
 ├── test_gradients.py              # Градиенты политик (JAX autodiff, Equinox)
 ├── test_health.py                 # Проверки здоровья системы и детекция аномалий
+├── test_jit_compilation_tracker.py # JIT compilation tracking и optimization metrics
 ├── test_jit_stability.py          # JIT-стабильность PyTree структур
 ├── test_merge_determinism.py      # Детерминизм операций merge и state consistency
 ├── test_nan_guard.py              # NaN/Inf detection guard (runtime numerical stability)
@@ -184,6 +185,12 @@ foundry/
 - **Serialization Safety**: Stable serialization/deserialization
 - **Performance Consistency**: No regression в compiled execution
 
+**JIT Compilation Tracker** (`test_jit_compilation_tracker.py`):
+- **First Call Detection**: Tracking initial compilation vs cached execution
+- **Signature Key Generation**: Unique identification функций по input shapes
+- **Shape Distinction**: Different signatures для различных input dimensions
+- **Optimization Metrics**: Compilation caching и performance optimization
+
 **NaN Guard** (`test_nan_guard.py`):
 - **Runtime Monitoring**: Detection NaN/Inf значений в state arrays
 - **Diagnostic Reports**: Подробные отчеты с sample indices и cause detection
@@ -238,6 +245,7 @@ pytest tests/foundry/test_*batch*.py -v
 
 # Математическая валидация
 pytest tests/foundry/test_gradients.py -v
+pytest tests/foundry/test_jit_compilation_tracker.py -v
 pytest tests/foundry/test_jit_stability.py -v
 pytest tests/foundry/test_nan_guard.py -v
 ```
@@ -373,6 +381,14 @@ pytest tests/foundry/test_merge_determinism.py -v
 pytest tests/foundry/test_merge_determinism.py -v --tb=short
 ```
 
+**JIT compilation tracker failures:**
+```bash
+# Проверьте signature key generation
+pytest tests/foundry/test_jit_compilation_tracker.py::test_jit_tracker_marks_first_call -v
+# Проверьте shape distinction
+pytest tests/foundry/test_jit_compilation_tracker.py::test_jit_tracker_distinguishes_shapes -v
+```
+
 **Gradient computation failures:**
 ```bash
 # Сравните с finite differences
@@ -399,6 +415,7 @@ pytest tests/foundry/test_gradients.py -v --tb=long
 ### Mathematical Validation
 - **Gradient Testing**: Autodiff vs finite differences comparison
 - **JIT Stability**: PyTree structure preservation
+- **JIT Compilation Tracking**: First-call detection, signature key generation, optimization metrics
 - **Numerical Analysis**: NaN/Inf detection, stability monitoring
 - **NaN Guard**: Runtime numerical stability monitoring с diagnostics
 

@@ -141,10 +141,10 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │       │   ├── observability/  # Production-grade telemetry system (OpenTelemetry tracing, metrics, logs, propagation).
 │       │   │   ├── README.md  # Documentation for this directory/module.
 │       │   │   ├── __init__.py  # Python package initializer (public exports live here).
-│       │   │   ├── config.py  # OpenTelemetry configuration and resource attributes.
+│       │   │   ├── config.py  # OpenTelemetry configuration and resource attributes + HPC observability control.
 │       │   │   ├── decorators.py  # @traced decorator for automatic function instrumentation.
 │       │   │   ├── logs.py  # Structured logging with trace correlation.
-│       │   │   ├── metrics.py  # Prometheus-compatible metrics registry and timers.
+│       │   │   ├── metrics.py  # Prometheus-compatible metrics registry and timers + CAS operation metrics.
 │       │   │   ├── propagation.py  # Trace context propagation across threads/services.
 │       │   │   └── tracer.py  # PolicyOSTracer singleton with OpenTelemetry integration.
 │       │   ├── README.md  # Documentation for this directory/module.
@@ -238,15 +238,15 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │       │   │   ├── training.py  # Python module implementing 'training'.
 │       │   │   ├── vfi.py  # Python module implementing 'vfi'.
 │       │   │   └── visualization.py  # Python module implementing 'visualization'.
-│       │   ├── calibration/  # Parameter calibration subsystem.
+│       │   ├── calibration/  # Parameter calibration subsystem (gradient-based optimization).
 │       │   │   ├── README.md  # Documentation for this directory/module.
 │       │   │   ├── __init__.py  # Python package initializer (public exports live here).
-│       │   │   ├── bijectors.py  # Python module implementing 'bijectors'.
-│       │   │   ├── calibrator.py  # Python module implementing 'calibrator'.
-│       │   │   ├── loss.py  # Python module implementing 'loss'.
-│       │   │   ├── preflight.py  # Python module implementing 'preflight'.
-│       │   │   ├── pure_executor.py  # Python module implementing 'pure_executor'.
-│       │   │   └── report.py  # Python module implementing 'report'.
+│       │   │   ├── bijectors.py  # Bijectors for parameter constraint enforcement (sigmoid, softplus).
+│       │   │   ├── calibrator.py  # Calibrator class for parameter optimization.
+│       │   │   ├── loss.py  # Loss functions (MSE, Huber, weighted loss).
+│       │   │   ├── preflight.py  # Data preparation and configuration validation.
+│       │   │   ├── pure_executor.py  # JAX pure executor for calibration runs.
+│       │   │   └── report.py  # Calibration reports with fit quality metrics.
 │       │   ├── domain/  # Economic domain state schemas and types.
 │       │   │   ├── README.md  # Documentation for this directory/module.
 │       │   │   ├── __init__.py  # Python package initializer (public exports live here).
@@ -269,7 +269,8 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │       │   │   └── discovery.py  # Python module implementing 'discovery'.
 │       │   ├── runtime/  # Runtime utilities (determinism fingerprinting, NaN guard).
 │       │   │   ├── README.md  # Documentation for this directory/module.
-│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   │   ├── api.py  # Runtime run lifecycle API (start/finalize/log artifacts).
+│       │   │   │   └── manifest.py  # Portable runtime manifest and path resolution helpers.
 │       │   │   ├── fingerprint.py  # Environment fingerprinting and determinism tier controls.
 │       │   │   └── nan_guard.py  # Runtime NaN/Inf detection and diagnostics.
 │       │   ├── README.md  # Documentation for this directory/module.
@@ -490,6 +491,7 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │   │   ├── test_global_state.py  # Pytest module exercising global state.
 │   │   ├── test_gradients.py  # Pytest module exercising gradients.
 │   │   ├── test_health.py  # Pytest module exercising health.
+│   │   ├── test_jit_compilation_tracker.py # JIT compilation tracking и optimization metrics
 │   │   ├── test_jit_stability.py  # Pytest module exercising jit stability.
 │   │   ├── test_merge_determinism.py  # Pytest module exercising merge determinism.
 │   │   ├── test_nan_guard.py  # Pytest module exercising nan guard.
@@ -532,6 +534,9 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │   │   └── test_run_timeline.py  # Pytest module exercising run timeline.
 │   ├── README.md  # Documentation for this directory/module.
 │   └── conftest.py  # Pytest shared fixtures and configuration.
+├── performance/  # Performance validation tests (observability overhead SLA enforcement).
+│   ├── README.md  # Documentation for performance tests.
+│   └── test_overhead.py  # Overhead validation for simulation, CAS I/O, calibration operations.
 ├── tools/  # Developer tooling: linters, migrations, diagnostics, benchmarks, demos.
 │   ├── benchmarks/  # Performance benchmarks.
 │   │   ├── README.md  # Documentation for this directory/module.
@@ -549,6 +554,7 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │   │   ├── README.md  # Documentation for this directory/module.
 │   │   ├── check_setup.py  # Diagnostics script.
 │   │   ├── check_udf_perf.py  # Diagnostics script.
+│   │   ├── check_perf_regression.py # Performance regression analysis from pytest-benchmark results.
 │   │   └── generate_ir_schema.py  # Diagnostics script.
 │   ├── README.md  # Documentation for this directory/module.
 │   ├── capture_env.py  # Capture environment details into a reproducibility manifest.

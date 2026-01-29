@@ -1,4 +1,4 @@
-# Policy Engine (PolisyOS)
+# Policy Engine (PolisyOS) v2.3.0
 
 Policy Engine is an **AI-driven policy operating system** for designing, validating, calibrating, and executing public-policy interventions as reproducible computational experiments.
 
@@ -10,8 +10,11 @@ It is built around a **compiler pipeline** mindset:
 - enforce governance (quality, privacy, legal compliance),
 - persist everything as content-addressed artifacts with auditability.
 
-This README describes **the project laws**, **data/decision flows**, **business logic**, **dependency logic**, **technologies**, and **key abstractions**.  
+This README describes **the project laws**, **data/decision flows**, **business logic**, **dependency logic**, **technologies**, and **key abstractions**.
 For a file-by-file map of the repository, see `architecture.md`.
+
+**Latest Update:** January 29, 2026 (Core Observability: PolicyOSTracer, MetricsRegistry, @traced decorator, log-trace correlation, context propagation, Phase 18: Safe Expression Evaluation, AST Policy validation, norm execution security, legal AST backends, expression evaluators, governance security testing, AST limits enforcement, Phase 17 search loop system, workflow engines, two-stage filtering, conflict detection, cost model, NaN guard, agent artifacts, merge determinism, quality indicators system, fitness reports, quality gate pass, decision card system, run timeline tracking, decision packet v2)
+**Current Architecture Version:** v2.3.0 (Core Observability, Phase 18 Security, Safe Expression Evaluation, AST Policy Enforcement, Legal AST Backends)
 
 ---
 
@@ -67,20 +70,20 @@ These are the “laws” the codebase is designed to uphold (some enforced by to
 
 The system is organized as a set of layers with intentionally **directed dependencies**:
 
-- **Scientist** → IR, Fabric, Foundry, Runtime, Core, Common  
-  Orchestration sits at the top and is allowed to depend on most layers.
-- **Fabric** → IR, Core, Common  
-  Data layer depends on contracts and infrastructure, but not on orchestration.
-- **Foundry** → IR, Core, Common  
-  Execution core depends on contracts and infrastructure, but not on data storage/orchestration.
-- **Runtime** → IR, Core, Common  
-  Run lifecycle management depends on contracts and infrastructure.
-- **IR** → Core, Common  
-  Contracts depend on canonicalization/typing infrastructure.
-- **Core** → Common  
-  Infrastructure depends only on minimal utilities.
-- **Common** → (none)  
-  Foundational utilities should remain dependency-light.
+- **Scientist** → IR, Fabric, Foundry, Runtime, Core, Common
+  Orchestration sits at the top and is allowed to depend on most layers. Includes governance layer with Phase 18 safe expression evaluation, legal compliance passes, decision card system, run timeline tracking, and multi-agent workflow orchestration.
+- **Fabric** → IR, Core, Common
+  Data layer depends on contracts and infrastructure, but not on orchestration. Includes unified data fabric with evidence bundles, provenance tracking, trust quantification, quality indicators system, fitness reports, and quality gate pass integration.
+- **Foundry** → IR, Core, Common
+  Execution core depends on contracts and infrastructure, but not on data storage/orchestration. Includes JAX-based simulation engine with conflict detection, cost modeling, NaN guard for numerical stability, agent artifacts, merge determinism, and patch-based state management.
+- **Runtime** → IR, Core, Common
+  Run lifecycle management depends on contracts and infrastructure. Provides portable run manifests and full observability integration.
+- **IR** → Core, Common
+  Contracts depend on canonicalization/typing infrastructure. Includes Trinity IR (ProblemFrame/PolicySpec/ModelSpec) and PolicySurfaceIR compatibility layer with migration support.
+- **Core** → Common
+  Infrastructure depends only on minimal utilities. Includes comprehensive observability system (PolicyOSTracer, MetricsRegistry, log-trace correlation), content-addressable storage, canonical JSON serialization, conflict detection, cost modeling, NaN guard, Trinity contracts, and legal compliance contracts.
+- **Common** → (none)
+  Foundational utilities should remain dependency-light. Includes OpenTelemetry-integrated logging, JAX environment configuration, and migration system with Trinity format support.
 
 **Enforcement**:
 - `tools/lint_imports.py` checks for forbidden imports and cycles (Law A).
@@ -163,10 +166,11 @@ The IR kernel defines registries that make policies composable and checkable:
 
 ### Foundry: compilation and execution core
 
-- **Compiler**: IR → executable graph/plan.
-- **Static checks**: conflict detection and cost estimation before expensive execution.
-- **Deterministic merge**: patch-based execution and merge rules for stable state updates.
-- **Runtime safety**: NaN/Inf guard, environment fingerprinting.
+- **Compiler**: IR → executable graph/plan with conflict detection and cost estimation.
+- **Static checks**: compile-time conflict detection (multiple writers, merge rules), cost modeling with budget tracking, performance prediction.
+- **Deterministic merge**: patch-based execution and merge rules for stable state updates with state consistency validation.
+- **Runtime safety**: NaN/Inf guard for numerical stability, environment fingerprinting, agent artifacts with determinism tier validation.
+- **Advanced features**: Agent simulation with learning metrics, plugin system with capability-based registry, adaptive agents, merge determinism, patch executor with state deltas and snapshots.
 
 ### Governance: passes and issues
 
@@ -175,29 +179,40 @@ Governance is a pass pipeline that returns structured issues:
 - Validation profiles select which passes run and at what strictness.
 
 Typical passes include:
-- **Schema pass**: verifies IR structural validity and required fields.
-- **Safety pass**: checks for unsafe/invalid mechanism configurations and execution risks.
-- **Budget pass**: enforces resource budgets (time/complexity/limits) for the workflow.
-- **Privacy pass**: enforces access tiers and privacy rules for data views/UDFs.
-- **Quality gate pass**: blocks execution when required data quality indicators are not met.
-- **Legal pass**: evaluates norm packs via pluggable backends and emits compliance issues.
+- **Schema pass**: verifies IR structural validity and required fields with Trinity contract validation.
+- **Safety pass**: checks for unsafe/invalid mechanism configurations and execution risks including conflict detection.
+- **Budget pass**: enforces resource budgets (time/complexity/limits) for the workflow with cost modeling integration.
+- **Privacy pass**: enforces access tiers and privacy rules for data views/UDFs with trust quantification.
+- **Quality gate pass**: blocks execution when required data quality indicators are not met, integrates with quality indicators system and fitness reports.
+- **Legal pass**: evaluates norm packs via pluggable backends (AST, LLM, Stub) with Phase 18 safe expression evaluation and AST policy enforcement.
 
 ### Legal compliance: NormPacks and safe evaluation (Phase 18)
 
-- **`NormPack`**: a collection of normative rules for a jurisdiction/context.
-- **`NormRule`**: rule type (obligation/prohibition/permission), human description, backend references, metadata.
-- **Rule backends**: pluggable evaluation engines.
+- **`NormPack`**: a collection of normative rules for a jurisdiction/context with effective dates and metadata.
+- **`NormRule`**: rule type (obligation/prohibition/permission), human description, backend references, metadata, jurisdiction context.
+- **Rule backends**: pluggable evaluation engines with protocol-based architecture.
 
-Phase 18 introduced **safe expression evaluation**:
-- **`ASTPolicy`**: allowlist-based validator and resource limits (deny by default).
-- **`SafeExpressionEvaluator`**: interprets a safe AST subset (no `eval`/`exec`, no calls, no attribute access).
-- **`ExpressionASTBackend`**: integrates rule evaluation with the LegalPass pipeline.
+Phase 18 introduced **safe expression evaluation** with comprehensive security:
+- **`ASTPolicy`**: allowlist-based validator and resource limits (deny by default) with attack vector rejection.
+- **`SafeExpressionEvaluator`**: interprets a safe AST subset (no `eval`/`exec`, no calls, no attribute access, no builtin functions).
+- **`ExpressionASTBackend`**: integrates rule evaluation with the LegalPass pipeline and governance security testing.
+- **Security features**: AST limits enforcement, mathematical operations validation, variable binding security, class escape prevention.
+- **AST Policy Enforcement**: Forbidden construct rejection, resource limits (nodes/depth/length/names), mathematical correctness validation.
 
 ### Decision outputs
 
-- **DecisionPacket**: structured output container (policy IR, results, validations, references).
-- **DecisionCard**: deterministic human-readable summary derived from a DecisionPacket.
-- **RunTimeline**: event timeline for observability (phases, node timings, artifacts, validation outcomes).
+- **DecisionPacket**: structured output container (policy IR, results, validations, references) with v2 support and timeline integration.
+- **DecisionCard**: deterministic human-readable summary derived from a DecisionPacket with verdict/confidence evaluation, key metrics extraction, and issues summarization.
+- **RunTimeline**: comprehensive event timeline for observability (phases, node timings, artifacts, validation outcomes) with event-based tracking and phase duration monitoring.
+
+### Core Observability System
+
+Production-grade telemetry and monitoring infrastructure:
+- **Distributed tracing**: PolicyOSTracer singleton with OpenTelemetry integration, span hierarchy, lazy initialization, and PolicyOS-specific attributes.
+- **Metrics collection**: Prometheus-compatible MetricsRegistry with histogram timers, counters, and workflow metrics recording.
+- **Log correlation**: Automatic injection of trace_id and span_id into logs via TraceContextFilter with structured JSON logging.
+- **Context propagation**: Thread-safe trace context propagation across async operations and service boundaries via headers.
+- **Instrumentation**: Zero-configuration @traced decorator for automatic span creation with sync/async support, custom attributes, and exception capture.
 
 ---
 
@@ -206,7 +221,7 @@ Phase 18 introduced **safe expression evaluation**:
 This section explains *what each major directory is for* without listing the full file tree.
 
 - **`src/polisyos/common`**: minimal shared utilities (configuration, logging, JAX env defaults, migrations).
-- **`src/polisyos/core`**: infrastructure layer (CAS artifacts, canonical JSON, typed contracts, tracing, registries, run context).
+- **`src/polisyos/core`**: infrastructure layer (CAS artifacts, canonical JSON, typed contracts, comprehensive observability system, registries, run context, conflict detection, cost modeling, NaN guard, Trinity contracts, legal contracts).
 - **`src/polisyos/ir`**: canonical policy/data contracts (Trinity + PolicySurfaceIR), loaders/migrations, kernel registries, validation.
 - **`src/polisyos/fabric`**: Unified Data Fabric (ingestion, data contracts, UDF system, evidence/provenance, quality/trust).
 - **`src/polisyos/foundry`**: execution core (compile IR to executable plans; run JAX simulations; calibration; determinism tools).
@@ -254,6 +269,8 @@ This section explains *what each major directory is for* without listing the ful
 
 - **loguru** (structured logging)
 - **python-dotenv** (local environment variable loading)
+- **opentelemetry-api** / **opentelemetry-sdk** (distributed tracing and telemetry)
+- **prometheus_client** (metrics collection and exposition)
 
 ### Dev tooling
 
@@ -366,10 +383,11 @@ uv run python tools/lint_foundry.py
 
 ### Expression safety model (Phase 18)
 
-- Expressions are **validated** by an allowlist-based AST policy (**deny by default**).
-- Only a safe subset is supported (boolean ops, comparisons, basic arithmetic, literals, variable names).
-- Function calls, attribute access, subscripts, imports, comprehensions, lambdas, and dunder names are forbidden.
-- Resource limits (nodes/depth/length/names) mitigate denial-of-service style expressions.
+- Expressions are **validated** by an allowlist-based AST policy (**deny by default**) with comprehensive attack vector rejection.
+- Only a safe subset is supported (boolean ops, comparisons, basic arithmetic, literals, variable names, mathematical operations).
+- Function calls, attribute access, subscripts, imports, comprehensions, lambdas, dunder names, builtin functions, and class escapes are forbidden.
+- Resource limits (nodes/depth/length/names) mitigate denial-of-service style expressions with AST limits enforcement.
+- Security testing includes mathematical correctness validation, variable binding security, and expression evaluator robustness.
 
 ### How legal evaluation works
 
@@ -382,6 +400,8 @@ uv run python tools/lint_foundry.py
 
 ## Reproducibility and artifacts
 
-- **CAS storage** lives under `.polisyos/artifacts/sha256/` (blobs and manifests).
-- **Run products** are written under `runs/<run_id>/` by default (manifests, audits, artifacts; exact layout evolves with the runtime API).
-- The system prefers deterministic serialization and content-addressing for robust provenance and caching.
+- **CAS storage** lives under `.polisyos/artifacts/sha256/` (blobs and manifests) with comprehensive observability integration.
+- **Run products** are written under `runs/<run_id>/` by default (manifests, audits, artifacts, decision cards, run timelines; exact layout evolves with the runtime API).
+- The system prefers deterministic serialization and content-addressing for robust provenance and caching with full distributed tracing support.
+- **Environment manifests** capture system state for reproducible simulations with compatibility scoring and risk assessment.
+- **Evidence bundles** and **trust metrics** provide cryptographic verification of data provenance and quality.

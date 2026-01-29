@@ -1,848 +1,983 @@
-# Complete Policy Engine Architecture
+# Policy Engine (PolisyOS) v2.3.0
 
-> **Last updated:** January 27, 2026 (added Runtime module with Environment Fingerprinting, Agent Policy Artifacts system, comprehensive monitoring/test coverage for agent simulation and plugin system, compile-time conflict detection, cost estimation model, NaN/Inf runtime guards, DecisionCard human-readable summaries, RunTimeline observability artifacts, enhanced Scientist contracts, Search Framework for iterative policy optimization with two-stage evaluation, and Workflow Engines abstraction layer for declarative experiment orchestration)
->
-> This document contains the complete architecture of the Policy Engine project with detailed descriptions of all files in the `src/`, `tests/`, and `tools/` directories.
+Policy Engine is an **AI-driven policy operating system** for designing, validating, calibrating, and executing public-policy interventions as reproducible computational experiments.
 
-## Project Structure
+It is built around a **compiler pipeline** mindset:
+- start from a natural-language policy intent,
+- produce typed policy contracts (IR),
+- compile them into executable program graphs,
+- run simulations in a JAX-based engine,
+- enforce governance (quality, privacy, legal compliance),
+- persist everything as content-addressed artifacts with auditability.
+
+This README describes **the project laws**, **data/decision flows**, **business logic**, **dependency logic**, **technologies**, and **key abstractions**.
+For a file-by-file map of the repository, see `architecture.md`.
+
+**Latest Update:** January 29, 2026 (Core Observability: PolicyOSTracer, MetricsRegistry, @traced decorator, log-trace correlation, context propagation, Phase 18: Safe Expression Evaluation, AST Policy validation, norm execution security, legal AST backends, expression evaluators, governance security testing, AST limits enforcement, Phase 17 search loop system, workflow engines, two-stage filtering, conflict detection, cost model, NaN guard, agent artifacts, merge determinism, quality indicators system, fitness reports, quality gate pass, decision card system, run timeline tracking, decision packet v2)
+**Current Architecture Version:** v2.3.0 (Core Observability, Phase 18 Security, Safe Expression Evaluation, AST Policy Enforcement, Legal AST Backends)
+
+---
+
+## Core promise (what the system guarantees)
+
+- **Typed contracts at boundaries**: IR and contracts define the shape of every major artifact; runtime components validate at boundaries.
+- **Reproducibility-first execution**: runs and artifacts are content-addressed, traceable, and (where feasible) deterministic.
+- **Governance before and after execution**: preflight/postflight checks gate unsafe, invalid, low-quality, privacy-violating, or legally non-compliant policies.
+- **Separation of concerns**: data layer (Fabric) is isolated from orchestration (Scientist) and from pure execution core (Foundry).
+
+---
+
+## Project laws (invariants)
+
+These are the “laws” the codebase is designed to uphold (some enforced by tooling/tests, some by convention and review).
+
+- **Law A — Import Gate (architectural boundaries)**  
+  Critical reverse dependencies are forbidden (e.g., Foundry must not depend on Fabric; Fabric must not depend on Scientist). Cycles are surfaced by tooling.
+
+- **Law B — Foundry is a JAX core (no direct I/O)**  
+  Foundry aims to be a pure execution kernel: no DB/network/file I/O and no side-effectful debugging calls in core code. Purity is supported by custom linting.
+
+- **Law C — Contracts are the single source of truth**  
+  IR (in `polisyos.ir`) and typed inter-module contracts (in `polisyos.core.contracts`) define canonical data models. JSON Schemas are generated from these models.
+
+- **Law D — Every run is auditable and (as much as possible) reproducible**  
+  A run has an ID, controlled randomness, a trace/audit trail, and content-addressed artifacts.
+
+- **Law E — Evidence and provenance are mandatory for data**  
+  Fabric records provenance/evidence for datasets and transformations (PROV-O integration), and can materialize immutable fact logs.
+
+- **Law F — Fidelity control**  
+  The system supports trading off speed vs accuracy via fidelity settings in simulation/calibration subsystems.
+
+- **Law G — Uncertainty quantification is first-class**  
+  Trust and calibration can return uncertainty bounds, and artifacts record these results.
+
+- **Law H — Governance and budgets bound computation and risk**  
+  Scientist controls budgets, validation profiles, and escalation mechanisms (including human gates where applicable).
+
+- **Law I — Trust + privacy are enforced in data access**  
+  Access tiers and privacy checks apply to data views and UDFs; trust policies reason about uncertainty and data quality.
+
+- **Law J — Legal compliance is a pluggable evaluation layer**  
+  Normative rules are expressed as `NormPack`s; evaluation is delegated to backends (e.g., safe AST expression backend).
+
+- **Law K — Quality gate enforcement**  
+  Data must pass configured quality checks before being used in simulations or decision-making.
+
+---
+
+## Dependency model (how layers depend)
+
+The system is organized as a set of layers with intentionally **directed dependencies**:
+
+- **Scientist** → IR, Fabric, Foundry, Runtime, Core, Common
+  Orchestration sits at the top and is allowed to depend on most layers. Includes governance layer with Phase 18 safe expression evaluation, legal compliance passes, decision card system, run timeline tracking, and multi-agent workflow orchestration.
+- **Fabric** → IR, Core, Common
+  Data layer depends on contracts and infrastructure, but not on orchestration. Includes unified data fabric with evidence bundles, provenance tracking, trust quantification, quality indicators system, fitness reports, and quality gate pass integration.
+- **Foundry** → IR, Core, Common
+  Execution core depends on contracts and infrastructure, but not on data storage/orchestration. Includes JAX-based simulation engine with conflict detection, cost modeling, NaN guard for numerical stability, agent artifacts, merge determinism, and patch-based state management.
+- **Runtime** → IR, Core, Common
+  Run lifecycle management depends on contracts and infrastructure. Provides portable run manifests and full observability integration.
+- **IR** → Core, Common
+  Contracts depend on canonicalization/typing infrastructure. Includes Trinity IR (ProblemFrame/PolicySpec/ModelSpec) and PolicySurfaceIR compatibility layer with migration support.
+- **Core** → Common
+  Infrastructure depends only on minimal utilities. Includes comprehensive observability system (PolicyOSTracer, MetricsRegistry, log-trace correlation), content-addressable storage, canonical JSON serialization, conflict detection, cost modeling, NaN guard, Trinity contracts, and legal compliance contracts.
+- **Common** → (none)
+  Foundational utilities should remain dependency-light. Includes OpenTelemetry-integrated logging, JAX environment configuration, and migration system with Trinity format support.
+
+**Enforcement**:
+- `tools/lint_imports.py` checks for forbidden imports and cycles (Law A).
+- `tools/lint_foundry.py` checks Foundry purity (Law B).
+
+---
+
+## End-to-end flow (business logic)
+
+At a high level, Policy Engine runs an experiment as a staged pipeline:
+
+1. **Intent intake** (`user_request`)  
+   A natural-language request describes a policy intervention, constraints, goals, and context.
+
+2. **Scientist orchestration (agent + workflow + search)**  
+   Scientist orchestrates a workflow (optionally graph-based via LangGraph) that can:
+   - draft policies,
+   - formalize them into typed IR,
+   - critique and repair them (self-healing reflexion),
+   - optimize parameters via search (two-stage evaluation).
+
+3. **IR construction (Trinity + kernel registries)**  
+   Policies are represented as typed IR. The modern representation is Trinity:
+   - `ProblemFrame` (“why / what success means”)
+   - `PolicySpec` (“what intervention we change”)
+   - `ModelSpec` (“how/where the model and data are configured”)
+
+4. **Validation & linking**  
+   IR is validated (schema, types, constraints), then linked against kernel registries (mechanisms, slots, merge rules, units, metrics).
+
+5. **Data views & Fabric execution**  
+   Fabric produces data views (via UDF compilation and execution) and attaches provenance/evidence/quality metadata.
+
+6. **Compilation (Foundry)**  
+   Foundry compiles policy IR into an executable representation (e.g., `ProgramGraph` + `ExecPlan`), performs static checks (e.g., conflict detection), and prepares runtime execution.
+
+7. **Simulation execution (Foundry runtime)**  
+   Foundry executes the compiled plan in JAX (step/scan/batch), using deterministic merge semantics and runtime safety tools (e.g., NaN/Inf guard).
+
+8. **Governance (preflight/postflight)**  
+   Governance evaluates:
+   - legality (norm packs),
+   - privacy (data access and transformations),
+   - quality gates (data readiness),
+   - budgets/safety constraints.
+
+9. **Artifactization**  
+   Results are persisted as content-addressed artifacts and packaged into decision outputs (DecisionPacket, DecisionCard, RunTimeline).
+
+---
+
+## Key abstractions (what to learn first)
+
+### Trinity IR
+
+- **`ProblemFrame`**: problem definition, KPIs, success criteria, constraints.
+- **`PolicySpec`**: interventions, parameters, schedules, implementation hints.
+- **`ModelSpec`**: model assumptions, time semantics, data snapshots, registry bundles.
+- **`TrinityBundle`**: a typed container referencing the three artifacts plus metadata.
+
+### PolicySurfaceIR (legacy-compatible surface)
+
+`PolicySurfaceIR` remains as a compatibility layer and a “single object” surface representation in some paths; migrations and loaders bridge it to/from Trinity.
+
+### Kernel registries (IR kernel)
+
+The IR kernel defines registries that make policies composable and checkable:
+- mechanism registry (what can execute),
+- slot registry (what state exists),
+- merge rules (how concurrent updates resolve deterministically),
+- units/metrics/time semantics registries.
+
+### Fabric: contracts, provenance, evidence, trust
+
+- **Data contracts** describe metric-level datasets and access tiers.
+- **Evidence bundles** and **provenance graphs** record where data came from and how it was transformed.
+- **Quality indicators** quantify data readiness; quality gates block execution on poor inputs.
+- **Trust policies** reason about uncertainty and bounds.
+- **UDF system** compiles safe, typed “data views” used by the rest of the engine.
+
+### Foundry: compilation and execution core
+
+- **Compiler**: IR → executable graph/plan with conflict detection and cost estimation.
+- **Static checks**: compile-time conflict detection (multiple writers, merge rules), cost modeling with budget tracking, performance prediction.
+- **Deterministic merge**: patch-based execution and merge rules for stable state updates with state consistency validation.
+- **Runtime safety**: NaN/Inf guard for numerical stability, environment fingerprinting, agent artifacts with determinism tier validation.
+- **Advanced features**: Agent simulation with learning metrics, plugin system with capability-based registry, adaptive agents, merge determinism, patch executor with state deltas and snapshots.
+
+### Governance: passes and issues
+
+Governance is a pass pipeline that returns structured issues:
+- **`ComplianceIssue`**: message, severity, code, path, suggestion, optional input value.
+- Validation profiles select which passes run and at what strictness.
+
+Typical passes include:
+- **Schema pass**: verifies IR structural validity and required fields with Trinity contract validation.
+- **Safety pass**: checks for unsafe/invalid mechanism configurations and execution risks including conflict detection.
+- **Budget pass**: enforces resource budgets (time/complexity/limits) for the workflow with cost modeling integration.
+- **Privacy pass**: enforces access tiers and privacy rules for data views/UDFs with trust quantification.
+- **Quality gate pass**: blocks execution when required data quality indicators are not met, integrates with quality indicators system and fitness reports.
+- **Legal pass**: evaluates norm packs via pluggable backends (AST, LLM, Stub) with Phase 18 safe expression evaluation and AST policy enforcement.
+
+### Legal compliance: NormPacks and safe evaluation (Phase 18)
+
+- **`NormPack`**: a collection of normative rules for a jurisdiction/context with effective dates and metadata.
+- **`NormRule`**: rule type (obligation/prohibition/permission), human description, backend references, metadata, jurisdiction context.
+- **Rule backends**: pluggable evaluation engines with protocol-based architecture.
+
+Phase 18 introduced **safe expression evaluation** with comprehensive security:
+- **`ASTPolicy`**: allowlist-based validator and resource limits (deny by default) with attack vector rejection.
+- **`SafeExpressionEvaluator`**: interprets a safe AST subset (no `eval`/`exec`, no calls, no attribute access, no builtin functions).
+- **`ExpressionASTBackend`**: integrates rule evaluation with the LegalPass pipeline and governance security testing.
+- **Security features**: AST limits enforcement, mathematical operations validation, variable binding security, class escape prevention.
+- **AST Policy Enforcement**: Forbidden construct rejection, resource limits (nodes/depth/length/names), mathematical correctness validation.
+
+### Decision outputs
+
+- **DecisionPacket**: structured output container (policy IR, results, validations, references) with v2 support and timeline integration.
+- **DecisionCard**: deterministic human-readable summary derived from a DecisionPacket with verdict/confidence evaluation, key metrics extraction, and issues summarization.
+- **RunTimeline**: comprehensive event timeline for observability (phases, node timings, artifacts, validation outcomes) with event-based tracking and phase duration monitoring.
+
+### Core Observability System
+
+Production-grade telemetry and monitoring infrastructure:
+- **Distributed tracing**: PolicyOSTracer singleton with OpenTelemetry integration, span hierarchy, lazy initialization, and PolicyOS-specific attributes.
+- **Metrics collection**: Prometheus-compatible MetricsRegistry with histogram timers, counters, and workflow metrics recording.
+- **Log correlation**: Automatic injection of trace_id and span_id into logs via TraceContextFilter with structured JSON logging.
+- **Context propagation**: Thread-safe trace context propagation across async operations and service boundaries via headers.
+- **Instrumentation**: Zero-configuration @traced decorator for automatic span creation with sync/async support, custom attributes, and exception capture.
+
+---
+
+## Codebase tour (directories by responsibility)
+
+This section explains *what each major directory is for* without listing the full file tree.
+
+- **`src/polisyos/common`**: minimal shared utilities (configuration, logging, JAX env defaults, migrations).
+- **`src/polisyos/core`**: infrastructure layer (CAS artifacts, canonical JSON, typed contracts, comprehensive observability system, registries, run context, conflict detection, cost modeling, NaN guard, Trinity contracts, legal contracts).
+- **`src/polisyos/ir`**: canonical policy/data contracts (Trinity + PolicySurfaceIR), loaders/migrations, kernel registries, validation.
+- **`src/polisyos/fabric`**: Unified Data Fabric (ingestion, data contracts, UDF system, evidence/provenance, quality/trust).
+- **`src/polisyos/foundry`**: execution core (compile IR to executable plans; run JAX simulations; calibration; determinism tools).
+- **`src/polisyos/scientist`**: orchestration “brain” (agents, workflow engines, governance passes, search/optimization, publishing).
+- **`src/polisyos/runtime`**: run lifecycle APIs and portable run manifests (where run artifacts are stored and referenced).
+
+- **`data/`**: local data workspace, plus normative packs in `data/norms/`.
+- **`tools/`**: developer utilities (custom linters, migrations, diagnostics, demos, benchmarks).
+- **`tests/`**: unit/contract/integration test suite.
+- **`docs/`**: ADRs and contract specs.
+
+---
+
+## Full file tree
 
 ```
-policy-engine/
-├── pyproject.toml / uv.lock          # Project dependencies and build configuration managed by uv
-├── README.md                         # Main project documentation with architecture overview
-├── env_example.txt                   # Template for environment variables and API keys
-├── install.sh                        # Automated installation script for all dependencies
-├── policy_ir_schema.json             # Generated JSON Schema for PolicySurfaceIR validation
-├── model_spec_schema.json            # Generated JSON Schema for ModelSpec validation (Trinity)
-├── policy_spec_schema.json           # Generated JSON Schema for PolicySpec validation (Trinity)
-├── problem_frame_schema.json         # Generated JSON Schema for ProblemFrame validation (Trinity)
-├── .env                              # API keys and environment configuration (not in Git!)
-├── .polisyos/                        # Content-Addressable Storage (CAS) for artifacts
-│   └── artifacts/sha256/...          # SHA256-addressed artifacts (blobs, manifests) for reproducibility
-├── data/                             # Data pipeline directories with ETL processing stages
-│   ├── raw/                          # Raw CSV files and source datasets from external sources
-│   ├── staging/                      # Intermediate Parquet files after ETL transformations
-│   ├── curated/                      # Final processed data ready for analysis
-│   │   ├── *.duckdb                  # Analytical databases (DuckDB) for OLAP queries
-│   │   ├── *.kuzu                    # Graph databases (Kùzu) for relationship analysis
-│   │   ├── fact_log/                 # Immutable facts with provenance tracking
-│   │   ├── udf_schema.json           # UDF whitelist configuration and access tier definitions
-│   │   └── manifests/                # Dataset manifests with quality metadata and statistics
-│   └── manifests/                    # Global dataset manifests for data governance
-├── logs/                             # Structured JSON Lines logs for monitoring and debugging
-├── runs/                             # Runtime experiment results with full reproducibility
-│   └── <run_id>/                     # Each directory represents a single experiment run
-│       ├── manifest.json             # RunManifest with metadata, artifacts, and provenance
-│       ├── audit.jsonl               # Complete audit trail of all operations and decisions
-│       └── artifacts/                # Structured experiment outputs and results
-│           ├── policy_ir/            # Policy IR artifacts and configurations
-│           ├── simulation_results/   # Simulation metrics and outcome data
-│           ├── data_views/           # Results of UDF query executions
-│           └── registry_bundle/      # Registry bundles for experiment reproducibility
-├── src/polisyos/                     # Core system modules source code
-│   ├── __init__.py                   # Empty package initializer (marks directory as Python package)
-│   ├── common/                       # Fundamental utilities with no external dependencies
-│   │   ├── __init__.py               # Exports configuration and logging interfaces
-│   │   ├── config.py                 # Centralized application configuration and environment setup
-│   │   ├── jax_env.py                # Safe JAX backend configuration for macOS compatibility
-│   │   ├── logger.py                 # Unified structured logging interface (Loguru with fallback to standard logging)
-│   │   ├── migrations/               # Deterministic artifact versioning and schema evolution
-│   │   │   ├── __init__.py           # Exports migration system API
-│   │   │   ├── base.py               # Core migration system with version management
-│   │   │   ├── manifest.py           # Dataset Manifest migration logic and transformations
-│   │   │   ├── policy_ir.py          # Policy IR schema migrations between versions
-│   │   │   └── README.md             # Migration system documentation and usage examples
-│   │   └── README.md                 # Common module documentation and architectural role
-│   ├── core/                         # Fundamental artifacts infrastructure and inter-module contracts
-│   │   ├── __init__.py               # Exports core module public API
-│   │   ├── artifacts/                # Content-addressable artifact management and storage system
-│   │   │   ├── __init__.py           # Exports artifacts management API
-│   │   │   ├── environment.py        # Environment manifest structures for reproducible execution contexts
-│   │   │   ├── ids.py                # Unique artifact identifiers (ArtifactID) with SHA256 hashing
-│   │   │   ├── manifest.py           # Artifact metadata structures (ArtifactManifest, ArtifactRef)
-│   │   │   ├── README.md             # Artifact system documentation and CAS principles
-│   │   │   ├── registry.py           # Component registry bundles for reproducible deployments
-│   │   │   └── store.py              # FileSystem CAS implementation with integrity verification
-│   │   ├── canon/                    # Canonical JSON serialization for deterministic hashing
-│   │   │   ├── __init__.py           # Exports canonical JSON serialization API
-│   │   │   ├── canon_json.py         # Deterministic JSON serialization (CanonSpec, to_canonical_bytes)
-│   │   │   └── README.md             # Canonical serialization documentation and usage
-│   │   ├── compiler/                 # Compilation and linking reports management
-│   │   │   ├── __init__.py           # Exports compilation reports API
-│   │   │   ├── README.md             # Compilation reports documentation
-│   │   │   └── report.py             # Compilation report management (CompileReport, put_compile_report)
-│   │   ├── contracts/                # Type-safe contracts between system modules
-│   │   │   ├── __init__.py           # Exports contracts API
-│   │   │   ├── compiler.py           # Compiler contracts (CompileReportRef, LinkReportRef)
-│   │   │   ├── fabric.py             # Fabric contracts (6 reference types + data models, quality indicators)
-│   │   │   ├── foundry.py            # Foundry contracts (16 reference types + execution models, agent policy artifacts)
-│   │   │   ├── scientist.py          # Scientist contracts (FailureCardRef, PolicyIRRef, CritiqueRef, TimelineRef, DecisionCardRef)
-│   │   │   ├── trinity.py            # Trinity contracts (ProblemFrame, PolicySpec, ModelSpec, TrinityBundle)
-│   │   │   ├── legal.py              # Legal compliance contracts (NormPack, NormRule, RuleBackend)
-│   │   │   └── README.md             # Inter-module contracts documentation
-│   │   ├── README.md                 # Core module architecture and responsibilities
-│   │   ├── registry/                 # Component registry building and loading system
-│   │   │   ├── __init__.py           # Exports registry management API
-│   │   │   ├── builder.py            # Registry bundle building (build_default_registry_bundle, build_registry_bundle)
-│   │   │   ├── loader.py             # Registry bundle loading (load_registry_bundle_content, load_registry_bundle_payload)
-│   │   │   └── README.md             # Registry system documentation and bundle formats
-│   │   ├── run/                      # Execution contexts and run manifests management
-│   │   │   ├── __init__.py           # Exports run context API
-│   │   │   ├── context.py            # Execution context management (RunContext)
-│   │   │   ├── manifest.py           # Run manifest structures (RunManifest)
-│   │   │   └── README.md             # Execution contexts documentation
-│   │   └── trace/                    # Distributed tracing and operation logging system
-│   │     ├── __init__.py             # Exports tracing API
-│   │     ├── README.md               # Tracing system documentation and usage
-│   │     ├── record.py               # Trace record structures (TraceRecord)
-│   │     └── sink.py                 # Trace output sinks (JsonlTraceSink, TraceSink)
-│   ├── fabric/                       # Unified Data Fabric (data processing + cryptographic evidence)
-│   │   ├── __init__.py               # Exports Fabric module public API (run_ingestion, catalog components)
-│   │   ├── catalog/                  # Metric-level data contract catalog system
-│   │   │   ├── __init__.py           # Exports catalog API (DataContract, MetricBinding, DataContractRegistry)
-│   │   │   ├── binding.py            # MetricBinding - hash-locked immutable references to contracts
-│   │   │   ├── contract.py           # DataContract models and validation (DataType, Granularity, PIITier)
-│   │   │   ├── registry.py           # DataContractRegistry with hash validation and contract loading
-│   │   │   ├── search.py             # MetricSearcher with fuzzy matching and disambiguation
-│   │   │   └── validate.py           # Contract validation from JSON and collection loading
-│   │   ├── config.py                 # Fabric layer configuration and data source setup (FabricConfig, CatalogConfig)
-│   │   ├── evidence.py               # Cryptographically verifiable evidence bundles for data provenance
-│   │   ├── fact_writer.py            # Immutable fact writer for audit trails and provenance
-│   │   ├── fitness_report.py         # Data quality fitness assessment and human-readable reports
-│   │   ├── quality.py                # Quality indicators, thresholds, and level determination system
-│   │   ├── ingestion.py              # Full ETL pipeline (CSV → DuckDB + Kùzu with validation)
-│   │   ├── io/                       # Multi-backend storage interfaces (DuckDB + Kùzu)
-│   │   │   ├── __init__.py           # Exports IO interfaces API
-│   │   │   ├── db.py                 # DuckDB interface for analytical queries and aggregations
-│   │   │   ├── graph_store.py        # Kùzu interface for graph data and relationship queries
-│   │   │   └── README.md             # IO interfaces documentation and performance characteristics
-│   │   ├── manifest.py               # Dataset manifests with quality metadata and statistics
-│   │   ├── materializer.py           # Fact Log materialization into relational tables
-│   │   ├── README.md                 # Fabric module architecture and data processing pipeline
-│   │   ├── registry.py               # UDF function registry with security and access control
-│   │   ├── schema.py                 # Fabric data schemas and type definitions
-│   │   ├── segment_manifest.py       # Segment manifests for data partitioning and optimization
-│   │   ├── trust.py                  # Trust policies with statistical verification and uncertainty bounds
-│   │   ├── provenance/               # W3C PROV-O provenance tracking system
-│   │   │   ├── __init__.py          # Exports provenance API
-│   │   │   ├── core.py               # ProvenanceCoreGraph and entity models (ProvenanceEntity, ProvenanceActivity, ProvenanceAgent)
-│   │   │   └── export_provo.py       # PROV-O JSON-LD and N-Quads export
-│   │   └── udf/                      # User Defined Functions (secure compiled queries)
-│   │       ├── __init__.py           # Exports UDF system API
-│   │       ├── compiler.py           # UDF query compilation with security checks
-│   │       ├── config.py             # UDF whitelist configuration and access tier management
-│   │       ├── engine.py             # UDF execution engine with query optimization
-│   │       ├── passes/               # UDF compiler passes for optimization and validation
-│   │       │   ├── __init__.py       # Exports compiler passes API
-│   │       │   ├── lowering.py       # UDF lowering to SQL/Python execution primitives
-│   │       │   ├── merge.py          # Query optimization merging and deduplication
-│   │       │   ├── privacy.py        # Privacy-preserving transformations and checks
-│   │       │   ├── resolution.py     # UDF dependency resolution and linking
-│   │       │   └── typecheck.py      # Static type checking for UDF expressions
-│   │       ├── plan.py               # UDF query planning and execution optimization
-│   │       ├── README.md             # UDF system documentation and security model
-│   │       └── schema.py             # UDF query schemas and validation rules
-│   ├── foundry/                      # JAX mathematical core (differentiable policy simulation)
-│   │   ├── __init__.py               # Exports Foundry module public API
-│   │   ├── agent_metrics.py          # Agent-level metrics for simulation analysis
-│   │   ├── agent_sim/                # Heterogeneous agent simulation with neural networks
-│   │   │   ├── __init__.py           # Exports agent simulation API (37+ components including monitoring, artifacts, fingerprinting)
-│   │   │   ├── actor_critic.py       # Actor-Critic architectures for reinforcement learning
-│   │   │   ├── analysis.py           # Post-simulation analysis and statistical evaluation
-│   │   │   ├── artifact.py           # Immutable, content-addressable artifacts for trained agent policies
-│   │   │   ├── credit_assignment.py  # Multi-agent credit assignment and reward distribution
-│   │   │   ├── dashboard.py          # Real-time simulation monitoring dashboard
-│   │   │   ├── demographics.py       # Agent lifecycle processes (birth, aging, death, migration)
-│   │   │   ├── distribution_executor.py # Distributed simulation execution across multiple workers
-│   │   │   ├── distribution_mechanisms.py # Resource distribution mechanisms and algorithms
-│   │   │   ├── distributions.py      # Statistical distributions for agent heterogeneity
-│   │   │   ├── evolution.py          # Evolutionary algorithms for agent adaptation
-│   │   │   ├── executor.py           # Main agent simulation executor with JAX compilation
-│   │   │   ├── experiment.py         # Experiment management and parameter sweeping
-│   │   │   ├── government_policy.py  # Government policy interventions in simulations
-│   │   │   ├── graph_executor.py     # Graph-based executor for network interactions
-│   │   │   ├── graph_mechanisms.py   # Graph-aware economic mechanisms
-│   │   │   ├── graph_observations.py # Graph-structured observation spaces
-│   │   │   ├── graphs.py             # Agent social network structures and dynamics
-│   │   │   ├── jit_training.py       # JIT-compiled agent training loops
-│   │   │   ├── mechanism.py          # Core economic mechanism implementations
-│   │   │   ├── mechanisms.py         # Collection of economic mechanisms (taxes, subsidies, queues)
-│   │   │   ├── metrics.py            # Simulation metrics and inequality measures
-│   │   │   ├── modes.py              # Simulation execution modes (single/multi-fidelity)
-│   │   │   ├── mpc.py                # Model Predictive Control for agent decision making
-│   │   │   ├── policy.py             # Agent behavioral policies and decision rules
-│   │   │   ├── population_executor.py # Population-level simulation executor
-│   │   │   ├── population_mechanisms.py # Population-wide economic mechanisms
-│   │   │   ├── population.py         # Population dynamics and demographic management
-│   │   │   ├── prng.py               # Pseudorandom number generation for reproducibility
-│   │   │   ├── README.md             # Agent simulation documentation and neural architectures
-│   │   │   ├── rewards.py            # Agent reward systems and incentive structures
-│   │   │   ├── rl.py                 # Reinforcement learning algorithms for agents
-│   │   │   ├── state.py              # Agent state representations and transitions
-│   │   │   ├── temporal_executor.py  # Temporal simulation executor for time-series analysis
-│   │   │   ├── temporal_mechanisms.py # Time-aware economic mechanisms
-│   │   │   ├── temporal.py           # Temporal aspects and memory in simulations
-│   │   │   ├── training.py           # Agent training procedures and curriculum learning
-│   │   │   └── vfi.py                # Value Function Iteration for dynamic programming
-│   │   ├── agents.py                 # Base agent definitions and state structures
-│   │   ├── base.py                   # Core Foundry components and utilities
-│   │   ├── calibration/              # Parameter calibration using Optax optimization
-│   │   │   ├── __init__.py           # Exports calibration API
-│   │   │   ├── bijectors.py          # Parameter transformation bijectors for constrained optimization
-│   │   │   ├── calibrator.py         # Main parameter calibrator with Optax integration
-│   │   │   ├── loss.py               # Calibration loss functions and metrics
-│   │   │   ├── preflight.py          # Calibration preflight checks and validation
-│   │   │   ├── pure_executor.py      # Pure functional executor for calibration runs
-│   │   │   ├── README.md             # Calibration system documentation and algorithms
-│   │   │   └── report.py             # Calibration reports with convergence analysis
-│   │   ├── compiler.py               # IR compilation to ProgramGraph + ExecPlan
-│   ├── conflict_checker.py        # Compile-time conflict detection and resolution analysis
-│   ├── cost_model.py              # Execution cost estimation with self-calibration
-│   │   ├── constraints_engine.py     # Policy constraint validation and enforcement engine
-│   │   ├── domain/                   # Economic domain model (GlobalState, AgentState)
-│   │   ├── runtime/                  # Patch-based execution runtime with JAX and environment fingerprinting
-│   │   │   ├── __init__.py           # Exports runtime module public API (step, run_scan, execute_program_batch)
-│   │   │   ├── fingerprint.py        # Environment fingerprinting and determinism tier configuration
-│   │   │   ├── nan_guard.py          # Runtime NaN/Inf detection with diagnostics for STRICT validation
-│   │   │   └── README.md             # Runtime module documentation and environment fingerprinting system
-│   │   │   ├── __init__.py           # Exports domain model API
-│   │   │   ├── README.md             # Domain model documentation and state evolution
-│   │   │   ├── schema.py             # Economic model schemas and validation
-│   │   │   └── state.py              # Global and agent state representations
-│   │   ├── executor.py               # Main simulation executor with JAX compilation
-│   │   ├── fiscal.py                 # Fiscal policy mechanisms and tax implementations
-│   │   ├── labor.py                  # Labor market mechanisms and employment dynamics
-│   │   ├── layout.py                 # Simulation component layout and memory management
-│   │   ├── loss.py                   # Policy optimization loss functions
-│   │   ├── merge_engine.py           # CRDT-inspired merge engine for deterministic state updates
-│   │   ├── patch_vm.py               # Patch-based virtual machine for incremental updates
-│   │   ├── plugins/                  # Plugin system for domain extension and customization
-│   │   │   ├── __init__.py           # Exports plugin system API
-│   │   │   ├── api.py                # Plugin API interfaces and contracts
-│   │   │   ├── cli.py                # Command-line interface for plugin management
-│   │   │   ├── composite.py          # Composite plugins for complex domain extensions
-│   │   │   ├── core.py               # Core plugin system infrastructure
-│   │   │   ├── discovery.py          # Automatic plugin discovery and loading
-│   │   │   ├── economics/            # Economic domain plugins
-│   │   │   │   ├── __init__.py       # Exports economics plugin API
-│   │   │   │   ├── mechanisms.py     # Economic mechanism plugin implementations
-│   │   │   │   ├── objectives.py     # Plugin objective functions and metrics
-│   │   │   │   ├── plugin.py         # Base economics plugin class
-│   │   │   │   └── rewards.py        # Plugin reward system implementations
-│   │   │   └── README.md             # Plugin system documentation and extension guide
-│   │   ├── queue.py                  # Queue mechanisms and resource allocation algorithms
-│   │   ├── README.md                 # Foundry module documentation and JAX integration
-│   │   ├── registry.py               # Foundry component registry and dependency injection
-│   │   ├── runtime.py                # Patch-based execution runtime with JAX
-│   │   ├── specs.py                  # Simulation specifications and parameter definitions
-│   │   ├── trace.py                  # Execution tracing and debugging utilities
-│   │   ├── treasury.py               # Treasury management and government budget tracking
-│   │   ├── types.py                  # Foundry-specific type definitions and annotations
-│   │   └── utils.py                  # Foundry utility functions and helper classes
-│   ├── ir/                           # Intermediate Representation (canonical contracts)
-│   │   ├── __init__.py               # Exports IR module public API
-│   │   ├── calibration.py            # Parameter calibration contracts and specifications
-│   │   ├── data_views.py             # Data query contracts (PANEL/SNAPSHOT/NETWORK views)
-│   │   ├── fact_log.py               # Immutable facts with cryptographic provenance tracking
-│   │   ├── kernel/                   # Fundamental registries (mechanisms, slots, units, metrics)
-│   │   │   ├── __init__.py           # Exports kernel API
-│   │   │   ├── base.py               # Core kernel definitions and type system
-│   │   │   ├── constraints.py        # Policy constraint definitions and validation
-│   │   │   ├── mechanisms.py         # Registry of economic mechanisms and interventions
-│   │   │   ├── merge_rules.py        # Policy merging rules and conflict resolution
-│   │   │   ├── metrics.py            # System metrics and measurement definitions
-│   │   │   ├── numbers.py            # Numerical type definitions and precision handling
-│   │   │   ├── README.md             # Kernel documentation and registry specifications
-│   │   │   ├── selector_fields.py    # Policy selector field definitions and validation
-│   │   │   ├── slots.py              # System state slots and data flow definitions
-│   │   │   ├── time_semantics.py     # Temporal semantics and time-aware operations
-│   │   │   ├── trust.py              # Trust policies and evidence validation rules
-│   │   │   ├── units.py              # Measurement units and dimensional analysis
-│   │   │   └── values.py             # Value types and data representations
-│   │   ├── linker.py                 # Policy validation and linking against kernel registries
-│   │   ├── loaders.py                # Universal policy loading with auto-detection
-│   │   ├── migrations/               # Deterministic migrations between IR versions
-│   │   │   ├── __init__.py           # Exports IR migration API
-│   │   │   ├── trinity_migration.py  # Migration utilities for Trinity framework adoption
-│   │   │   └── README.md             # IR migration documentation and version compatibility
-│   │   ├── predicate.py              # Policy predicates and conditional logic
-│   │   ├── README.md                 # IR module documentation and contract specifications
-│   │   ├── surface.py                # PolicySurfaceIR v2.0 (main policy contract)
-│   │   ├── trinity.py                # Trinity framework (ProblemFrame, PolicySpec, ModelSpec, TrinityBundle)
-│   │   ├── model_spec.py             # ModelSpec implementation with data snapshots and time semantics
-│   │   ├── policy_spec.py            # PolicySpec implementation with interventions and parameters
-│   │   ├── problem_frame.py          # ProblemFrame implementation with KPIs and success criteria
-│   │   ├── norm_pack.py              # Normative packages for legal compliance validation (NormPack, NormRule, NormRef)
-│   │   ├── types.py                  # IR-specific type definitions and annotations
-│   │   ├── units.py                  # Unit conversion and measurement utilities
-│   │   └── validation.py             # IR structure validation and error reporting
-│   ├── runtime/                      # Experiment lifecycle management and reproducibility
-│   │   ├── __init__.py               # Exports runtime module public API
-│   │   ├── api.py                    # Core runtime API (start_run, finalize_run, log_artifact)
-│   │   ├── manifest.py               # Run manifests with portable artifact references
-│   │   └── README.md                 # Runtime API documentation and lifecycle management
-│   └── scientist/                    # AI-driven experiment orchestration and policy design
-│       ├── __init__.py               # Exports scientist module public API
-│       ├── agent/                    # LLM-based agents (Drafter, MockAgent, PolicyGenerator)
-│       │   ├── __init__.py           # Exports agent API
-│       │   ├── base.py               # Base agent class with common functionality
-│       │   ├── critic.py             # Critic agent for policy evaluation and critique generation
-│       │   ├── drafter.py            # Drafter agent for policy generation from natural language
-│       │   ├── failure_card.py       # Structured artifacts for self-healing workflow failures
-│       │   ├── formalizer.py         # Formalizer agent for mathematical formalization of policies
-│       │   ├── memory.py             # Short-term memory for Reflexion workflow conversation tracking
-│       │   ├── pi.py                 # Policy Iteration agent for optimization and refinement
-│       │   ├── prompt.py             # Prompt management and template system
-│       │   ├── prompts.py            # Curated collection of LLM prompts and templates
-│       │   ├── protocols.py          # Agent communication protocols and interfaces
-│       │   ├── reflexion.py          # Self-healing workflow orchestrator with intelligent routing
-│       │   └── README.md             # Agent system documentation and LLM integration
-│       ├── compute/                  # Task specifications and execution backends
-│       │   ├── __init__.py           # Exports compute API
-│       │   ├── job_spec.py           # Job specifications and resource requirements
-│       │   ├── README.md             # Compute system documentation
-│       │   └── runner.py             # Task runner with backend abstraction
-│       ├── doe/                      # Design of Experiments (ScenarioSweep, AblationPlan)
-│       │   ├── __init__.py           # Exports DoE API
-│       │   ├── designs.py            # Experiment design patterns and parameter sweeps
-│       │   └── README.md             # Design of Experiments documentation
-│       ├── governance/               # Preflight/postflight validation and safety checks
-│       │   ├── __init__.py           # Exports governance API
-│       │   ├── passes/               # Modular validation passes system
-│       │   │   ├── __init__.py       # Exports validation passes API
-│       │   │   ├── base.py           # Base classes for validation passes and compliance issues
-│       │   │   ├── budget_pass.py    # Budget constraint validation (compute, evidence, complexity)
-│       │   │   ├── legal_pass.py     # Legal norm compliance validation with pluggable backends
-│       │   │   ├── privacy_pass.py   # Privacy and data protection validation
-│       │   │   ├── quality_gate_pass.py # Data quality validation before simulation execution
-│       │   │   ├── safety_pass.py    # Policy safety and mechanism validation
-│       │   │   └── schema_pass.py    # Policy schema validation and structure checks
-│       │   ├── pipeline.py           # Validation pipeline orchestrator with short-circuit logic
-│       │   ├── postflight.py         # Post-execution validation and result verification
-│       │   ├── preflight.py          # Pre-execution safety checks and validation
-│       │   ├── profiles.py           # Validation profiles (fast/mvp/strict) with configurable passes
-│       │   ├── telemetry.py          # Validation tracing and performance monitoring
-│       │   ├── legal/                # Legal validation backends for norm evaluation
-│       │   │   ├── __init__.py       # Exports legal backends API
-│       │   │   ├── backends/         # Pluggable rule evaluation backends
-│       │   │   │   ├── __init__.py   # Exports backends API
-│       │   │   │   ├── base.py       # RuleBackend protocol and evaluation contracts
-│       │   │   │   └── stub.py       # StubBackend implementation for Phase 10 reference
-│       │   │   └── README.md         # Legal validation backend documentation and architecture
-│       │   └── README.md             # Governance system documentation and policies
-│       ├── kernel/                   # Core orchestration (FSM, budgets, guards, human gates)
-│       │   ├── __init__.py           # Exports kernel API
-│       │   ├── budgets.py            # Resource budget management and allocation
-│       │   ├── fsm.py                # Finite State Machine for experiment orchestration (with SEARCH phases)
-│       │   ├── guards.py             # Safety guards and execution constraints
-│       │   ├── human_gate.py         # Human-in-the-loop decision gates
-│       │   └── README.md             # Kernel documentation and orchestration patterns
-│       ├── search/                   # Iterative policy optimization with two-stage evaluation
-│       │   ├── __init__.py           # Exports search framework API
-│       │   ├── controller.py         # SearchController and optimization loop management
-│       │   ├── objective.py          # Multi-objective optimization definitions and evaluation
-│       │   ├── stages.py             # Cheap/expensive stage evaluation implementations
-│       │   ├── stopping.py           # Intelligent stopping criteria and plateau detection
-│       │   └── README.md             # Search framework documentation and two-stage evaluation
-│       ├── workflow/                 # Workflow engine abstraction layer for experiment orchestration
-│       │   ├── __init__.py           # Exports workflow engines API with lazy loading
-│       │   ├── engine_base.py        # Base abstractions (WorkflowEngine protocol, factory pattern)
-│       │   ├── engine_simple.py      # SimpleLoopEngine for sequential workflow execution
-│       │   ├── engine_langgraph.py   # LangGraphEngine for complex graph-based workflows
-│       │   └── README.md             # Workflow engines documentation and protocol-based design
-│       ├── orchestrator/             # LangGraph workflow orchestration with 9 phases
-│       │   ├── __init__.py           # Exports orchestrator API
-│       │   ├── audit.py              # Operation audit trail and compliance tracking
-│       │   ├── compiler.py           # Workflow compilation and optimization
-│       │   ├── data_loader.py        # Experiment data loading and preprocessing
-│       │   ├── decision_card.py      # Human-readable summaries of experiment results
-│       │   ├── decision_packet.py    # Structured decision packets for workflow communication (DecisionPacket with run_timeline, decision_card, validation_trace)
-│       │   ├── flow_nodes.py         # Workflow graph nodes and execution logic
-│       │   ├── nodes.py              # Base workflow node implementations
-│       │   ├── optimizer.py          # Workflow optimization and parallelization
-│       │   ├── README.md             # Orchestrator documentation and 9-phase workflow
-│       │   ├── registry.py           # Component registry for workflow extensibility
-│       │   ├── run_record.py         # Experiment run records and state persistence
-│       │   ├── run_timeline.py       # Timeline artifact for observability and tracing
-│       │   ├── state.py              # Workflow state management and transitions
-│       │   ├── workflow.py           # Main workflow orchestrator with LangGraph integration
-│       │   └── workflow_compiler.py  # Workflow compilation to executable graphs
-│       ├── publisher.py              # Result publishing and experiment finalization
-│       └── README.md                 # Scientist module documentation and AI orchestration
-├── tests/                            # Comprehensive test suite ensuring system quality and architecture compliance
-│   ├── conftest.py                   # Pytest configuration and JAX setup for all tests
-│   ├── contract/                     # Contract tests validating IR schemas and migrations
-│   │   ├── README.md                 # Contract testing documentation and validation patterns
-│   │   ├── test_fabric_gates.py      # Fabric layer input validation and precondition testing
-│   │   ├── test_ir_contract.py       # PolicySurfaceIR validation, selectors, TranslatableString handling
-│   │   ├── test_ir_migrations.py     # IR schema migrations between versions and compatibility
-│   │   ├── test_kernel_models.py     # Kernel model validation (slots, units, merge rules, time semantics)
-│   │   ├── test_surface_ir.py        # Surface IR validation, linker testing, semantic fingerprinting
-│   │   ├── test_trinity_contracts.py # Trinity framework contracts (ProblemFrame, PolicySpec, ModelSpec)
-│   │   └── test_trinity_migration.py # Trinity migration utilities and round-trip compatibility
-│   ├── core_phase0/                  # Phase 0 tests for fundamental core components
-│   │   ├── conftest.py               # Core-specific test configuration and fixtures
-│   │   ├── README.md                 # Core testing documentation and Phase 0 architecture
-│   │   ├── test_artifact_store.py    # FileSystemCAS testing, deduplication, integrity verification
-│   │   ├── test_canon_json.py        # Canonical JSON serialization testing, deterministic hashing
-│   │   ├── test_environment_manifest.py # Environment manifest structures and reproducible contexts
-│   │   ├── test_registry_bundle.py   # Registry bundle building and loading verification
-│   │   └── test_run_context.py       # Run context testing and artifact producer validation
-│   ├── demos/                        # Demo integration tests for end-to-end functionality
-│   │   ├── README.md                 # Demo testing documentation and integration patterns
-│   │   └── run_laffer_demo.py        # Laffer curve demo execution test from tools/demos/
-│   ├── fabric/                       # Data layer integration tests (ingestion, evidence, trust)
-│   │   ├── README.md                 # Fabric testing documentation and data pipeline validation
-│   │   ├── test_data_catalog.py      # Data contract catalog system (contracts, bindings, search, registry)
-│   │   ├── test_evidence_bundle.py   # Evidence bundles, ingestion pipeline, provenance tracking
-│   │   ├── test_provenance.py        # Provenance subsystem, entities, graphs, PROV-O export, persistence
-│   │   ├── test_quality_indicators.py # Quality indicators calculation, fitness reports, and quality gate validation
-│   │   └── test_trust_two_pass.py    # Trust system validation with uncertainty bounds analysis
-│   ├── foundry/                      # Mathematical core unit tests (JAX, simulations)
-│   │   ├── agent_sim/                # Agent simulation testing suite
-│   │   │   ├── README.md             # Agent simulation monitoring tests documentation
-│   │   │   └── test_monitoring.py    # MetricsCollector, ExperimentTracker, DashboardGenerator testing
-│   │   ├── plugins/                  # Plugin system integration tests
-│   │   │   ├── README.md             # Foundry plugin system tests documentation
-│   │   │   └── test_plugin_system.py # PluginRegistry, CompositeExecutor, EconomicsPlugin domain configs
-│   │   ├── README.md                 # Foundry testing documentation and JAX integration patterns
-│   │   ├── test_adaptive_agents.py   # Adaptive agent behavior and learning algorithm validation
-│   │   ├── test_agent_simulation_step1.py # Agent simulation step 1 validation
-│   │   ├── test_agent_simulation_step2.py # Agent simulation step 2 validation
-│   │   ├── test_agent_simulation_step3.py # Agent simulation step 3 validation
-│   │   ├── test_agent_simulation_step4.py # Agent simulation step 4 validation
-│   │   ├── test_agent_simulation_step5.py # Agent simulation step 5 validation
-│   │   ├── test_agent_simulation_step6.py # Agent simulation step 6 validation
-│   │   ├── test_calibrator_fidelity.py # Parameter calibrator fidelity and accuracy testing
-│   │   ├── test_calibrator_mvp.py     # Minimum viable calibrator functionality testing
-│   │   ├── test_constraints_executor.py # Policy constraints executor validation
-│   │   ├── test_fiscal.py             # Fiscal policy mechanisms and tax system testing
-│   │   ├── test_global_state.py       # Global economic state management and evolution
-│   │   ├── test_gradients.py          # Gradient computation and automatic differentiation
-│   │   ├── test_health.py             # Simulation health checks and stability monitoring
-│   │   ├── test_jit_stability.py      # JIT compilation stability and performance validation
-│   │   ├── test_merge_determinism.py  # Merge engine determinism and CRDT-inspired state updates
-│   │   ├── test_patch_executor.py     # Patch-based execution engine testing
-│   │   ├── test_program_graph_ops.py  # Program graph operations and transformations
-│   │   ├── test_runtime_batch.py      # Batch runtime execution and parallel processing
-│   │   ├── test_conflict_detection.py # Compile-time conflict detection and resolution analysis testing
-│   │   ├── test_cost_model.py         # Execution cost estimation model testing
-│   │   └── test_nan_guard.py          # NaN/Inf runtime guard testing
-│   ├── integration/                  # End-to-end integration tests (calibration UDF, workflow)
-│   │   ├── README.md                 # Integration testing documentation and system validation
-│   │   ├── test_calibration_udf.py   # Parameter calibration through UDF system integration
-│   │   ├── test_workflow_llm.py      # LLM-driven workflow integration and policy generation
-│   │   └── test_workflow_smoke.py    # Basic workflow smoke tests and orchestration validation
-│   ├── ir/                           # IR loading and transformation testing
-│   │   ├── README.md                 # IR testing documentation and validation patterns
-│   │   └── test_loaders.py           # Universal policy loader testing with auto-detection
-│   ├── README.md                     # Complete test suite documentation and architecture
-│   ├── runtime/                      # Experiment lifecycle management testing
-│   │   ├── README.md                 # Runtime testing documentation and lifecycle validation
-│   │   └── test_runtime_manifest_paths.py # Runtime manifests with portable path resolution
-│   └── test_agent_artifact.py        # AgentPolicyArtifact round-trip serialization, environment fingerprinting, hot-swap validation
-│   └── scientist/                    # AI components and orchestration testing
-│       ├── governance/               # Governance layer testing
-│       │   ├── test_legal_pass.py    # Legal validation pass testing and backend integration
-│       │   └── test_validation_pipeline.py # Validation pipeline orchestration and compliance testing
-│       ├── README.md                 # Scientist testing documentation and AI validation
-│       ├── search/                   # Search framework testing and optimization validation
-│       │   ├── __init__.py           # Search testing configuration and fixtures
-│       │   ├── conftest.py           # Pytest fixtures for search component testing
-│       │   └── test_search_loop.py   # SearchController, two-stage evaluation, stopping criteria validation
-│       ├── test_agent_protocols.py   # Agent communication protocols and interface validation
-│       ├── test_compiler.py          # Scientist workflow compiler testing and optimization
-│       ├── test_decision_card.py     # DecisionCard deterministic generation and markdown rendering
-│       ├── test_decision_packet_v2.py # DecisionPacket v1.1 with timeline and card support
-│       ├── test_multi_agent_workflow.py # Multi-agent workflow integration and memory persistence testing
-│       ├── test_reflexion_loop.py    # Reflexion loop and FailureCard system validation
-│       └── test_run_timeline.py      # RunTimeline event recording and analytics
-└── tools/                            # Developer tools and demonstrations ensuring architecture compliance
-    ├── benchmarks/                   # Performance benchmarks for JAX and simulation components
-    │   ├── bench_domain.py           # Economic domain model benchmark (JAX + Equinox + GlobalState allocation)
-    │   ├── bench_simulation.py       # Full simulation pipeline benchmark with economic cycles
-    │   └── README.md                 # Benchmarking documentation and performance analysis
-    ├── demos/                        # Demonstration scripts showcasing system capabilities
-    │   ├── README.md                 # Demo scripts documentation and usage examples
-    │   ├── run_export_demo.py        # Simulation results export demo (Parquet, JSON, CSV, HDF5)
-    │   ├── run_ingest_demo.py        # Complete ingestion pipeline demo (CSV → DuckDB + Kuzu)
-    │   ├── run_laffer_demo.py        # Laffer curve economic policy demonstration
-    │   ├── run_optimizer_demo.py     # Multi-objective policy optimization demo (NSGA-II)
-    │   ├── run_udf_hybrid_demo.py    # Hybrid queries demo (SQL + Python UDF with ML)
-    │   └── run_udf_query_demo.py     # UDF queries demo on Unified Data Fabric
-    ├── diagnostics/                  # System diagnostics and performance analysis tools
-    │   ├── check_setup.py            # Comprehensive component installation verification
-    │   ├── check_udf_perf.py         # UDF performance profiling and optimization analysis
-    │   ├── generate_ir_schema.py     # JSON Schema generation from Pydantic models
-    │   └── README.md                 # Diagnostic tools documentation and troubleshooting
-    ├── gen_schema.py                 # JSON Schema generation utility from Pydantic models
-    ├── lint_foundry.py               # Mathematical core purity linter (Law B compliance)
-    ├── lint_imports.py               # Architectural dependency linter (Law A compliance)
-    ├── scan_fabric.py                # Bootstrap utility to scan DuckDB files and generate draft data contracts
-    ├── capture_env.py                # Environment capture and manifest generation tool
-    ├── visualize_provenance.py       # Provenance graph visualization and verification tool
-    ├── migrate_ir.py                 # Specialized Policy IR migration tool
-    ├── migrate.py                    # Universal artifact migration tool
-    ├── migrate_to_trinity.py         # Batch migration tool for Trinity framework adoption
-    ├── README.md                     # Developer tools documentation and best practices
-    └── run_mechanism_design.py       # End-to-end differentiable mechanism design demonstration
+policy-engine/  # Project root (Policy Engine / PolisyOS).
+├── .polisyos/  # Local Content-Addressable Storage (CAS) root used by the artifact system.
+│   └── artifacts/  # CAS artifact storage (sha256 fanout).
+│       └── sha256/  # CAS blobs/manifests addressed by SHA-256.
+│           ├── 02/  # Directory.
+│           │   └── 2c/  # Directory.
+│           │       ├── 022c70fa0335c562e3bdff195cb06114d21b717e8bb616d8ed454571159b8f5e.blob  # CAS payload blob (content-addressed).
+│           │       └── 022c70fa0335c562e3bdff195cb06114d21b717e8bb616d8ed454571159b8f5e.manifest.json  # CAS manifest describing the corresponding blob.
+│           ├── 35/  # Directory.
+│           │   └── 91/  # Directory.
+│           │       ├── 3591f9b5f324774444b147e01be817a4f1a48cfb409a209fa8719c775aa8f972.blob  # CAS payload blob (content-addressed).
+│           │       └── 3591f9b5f324774444b147e01be817a4f1a48cfb409a209fa8719c775aa8f972.manifest.json  # CAS manifest describing the corresponding blob.
+│           ├── 37/  # Directory.
+│           │   └── 24/  # Directory.
+│           │       ├── 37241e31e7efa2c325006e46ca6531f95c8c7a2298ddf54d78610762f9a3ee1a.blob  # CAS payload blob (content-addressed).
+│           │       └── 37241e31e7efa2c325006e46ca6531f95c8c7a2298ddf54d78610762f9a3ee1a.manifest.json  # CAS manifest describing the corresponding blob.
+│           ├── 3b/  # Directory.
+│           │   └── 90/  # Directory.
+│           │       ├── 3b906e5c1c5b745efa00557a8d2452e11513792b44a29853885661988f48fb13.blob  # CAS payload blob (content-addressed).
+│           │       └── 3b906e5c1c5b745efa00557a8d2452e11513792b44a29853885661988f48fb13.manifest.json  # CAS manifest describing the corresponding blob.
+│           ├── 59/  # Directory.
+│           │   └── 7b/  # Directory.
+│           │       ├── 597bf89c30c026760bb21645d9ae2083b67ee4701c5406e1a55746eff778671d.blob  # CAS payload blob (content-addressed).
+│           │       └── 597bf89c30c026760bb21645d9ae2083b67ee4701c5406e1a55746eff778671d.manifest.json  # CAS manifest describing the corresponding blob.
+│           ├── 70/  # Directory.
+│           │   └── 26/  # Directory.
+│           │       ├── 702664ce8617112cd5e6dad3ef205051a31aca495bbb42bde1350f14c2a90d91.blob  # CAS payload blob (content-addressed).
+│           │       └── 702664ce8617112cd5e6dad3ef205051a31aca495bbb42bde1350f14c2a90d91.manifest.json  # CAS manifest describing the corresponding blob.
+│           ├── 78/  # Directory.
+│           │   └── b9/  # Directory.
+│           │       ├── 78b99187607043dde9528ccc8792b34c6eaa021bde2fc7fcdeee6fbe4fae3c80.blob  # CAS payload blob (content-addressed).
+│           │       └── 78b99187607043dde9528ccc8792b34c6eaa021bde2fc7fcdeee6fbe4fae3c80.manifest.json  # CAS manifest describing the corresponding blob.
+│           ├── 82/  # Directory.
+│           │   └── 73/  # Directory.
+│           │       ├── 82731c31ba603a46760bb47a3696fdbd5cb5c884d286ba8408e3d017a89cdd77.blob  # CAS payload blob (content-addressed).
+│           │       └── 82731c31ba603a46760bb47a3696fdbd5cb5c884d286ba8408e3d017a89cdd77.manifest.json  # CAS manifest describing the corresponding blob.
+│           ├── ad/  # Directory.
+│           │   └── 54/  # Directory.
+│           │       ├── ad5475e67654ccf8dcb5ea87f89384f68d36326aec3743dcdb1f6e5e4cda815a.blob  # CAS payload blob (content-addressed).
+│           │       └── ad5475e67654ccf8dcb5ea87f89384f68d36326aec3743dcdb1f6e5e4cda815a.manifest.json  # CAS manifest describing the corresponding blob.
+│           ├── d5/  # Directory.
+│           │   └── 39/  # Directory.
+│           │       ├── d5390a939cf74bcb7af3da921bc53cdcaee56da0fb591c90f4eb9daa7dddc23d.blob  # CAS payload blob (content-addressed).
+│           │       └── d5390a939cf74bcb7af3da921bc53cdcaee56da0fb591c90f4eb9daa7dddc23d.manifest.json  # CAS manifest describing the corresponding blob.
+│           ├── e4/  # Directory.
+│           │   └── 2f/  # Directory.
+│           │       ├── e42fef1b12dc244f395cf96e35c2e9d9a4e5c283554f97276d21524e22220ede.blob  # CAS payload blob (content-addressed).
+│           │       └── e42fef1b12dc244f395cf96e35c2e9d9a4e5c283554f97276d21524e22220ede.manifest.json  # CAS manifest describing the corresponding blob.
+│           └── ea/  # Directory.
+│               └── a7/  # Directory.
+│                   ├── eaa7fda75fa39b2c8a4a4ee537b20958dd53005e469a12e45816177358a442ae.blob  # CAS payload blob (content-addressed).
+│                   └── eaa7fda75fa39b2c8a4a4ee537b20958dd53005e469a12e45816177358a442ae.manifest.json  # CAS manifest describing the corresponding blob.
+├── .vscode/  # Editor workspace configuration (VSCode/Cursor).
+│   └── settings.json  # Workspace editor settings (formatting, linting, etc.).
+├── data/  # Data workspace (raw/staging) and reference datasets.
+│   ├── norms/  # Norm packs (YAML) for legal compliance evaluation.
+│   │   └── sample_norms.yaml  # Sample norm pack demonstrating safe expression rules (Phase 18).
+│   ├── raw/  # Raw input datasets (placeholder).
+│   │   └── .gitkeep  # Placeholder to keep empty directory in Git.
+│   ├── staging/  # ETL intermediate outputs (Parquet fixtures).
+│   │   ├── .gitkeep  # Placeholder to keep empty directory in Git.
+│   │   ├── agents.parquet  # Parquet dataset snapshot (staging fixture).
+│   │   ├── interactions.parquet  # Parquet dataset snapshot (staging fixture).
+│   │   └── macro.parquet  # Parquet dataset snapshot (staging fixture).
+│   └── README.md  # Data layout and ETL conventions for the local data workspace.
+├── docs/  # Design notes and specifications.
+│   ├── adr/  # Architecture Decision Records (ADRs).
+│   │   ├── 0001-remove-legacy-foundry-engine.md  # Architecture Decision Record (ADR).
+│   │   ├── 0002-scientist-flow-nodes-only.md  # Architecture Decision Record (ADR).
+│   │   └── 0003-ir-v1-deprecate-remove.md  # Architecture Decision Record (ADR).
+│   └── contracts/  # Contract semantics documentation (Trinity, merge semantics).
+│       ├── MERGE_SEMANTICS.md  # Contract semantics documentation.
+│       └── TRINITY.md  # Contract semantics documentation.
+├── examples/  # Small runnable examples.
+│   └── ir_base_demo.py  # File.
+├── logs/  # Local logs (fixtures / developer artifacts).
+│   └── system.log  # Example/system log file (fixture).
+├── src/  # Python sources and build metadata.
+│   ├── policy_engine.egg-info/  # Build metadata produced by packaging tools.
+│   │   ├── PKG-INFO  # Packaged project metadata (generated).
+│   │   ├── SOURCES.txt  # Packaged file list (generated).
+│   │   ├── dependency_links.txt  # Build metadata file (generated).
+│   │   ├── entry_points.txt  # Console script entry points (generated).
+│   │   ├── requires.txt  # Dependency requirements (generated).
+│   │   └── top_level.txt  # Top-level import package names (generated).
+│   └── polisyos/  # Main Python package implementing the policy OS.
+│       ├── common/  # Shared utilities: config, logging with trace correlation, JAX env defaults, migrations.
+│       │   ├── migrations/  # Deterministic migrations for schema-managed artifacts.
+│       │   │   ├── README.md  # Documentation for this directory/module.
+│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   ├── base.py  # Migration framework primitives (versioning, dispatch).
+│       │   │   ├── manifest.py  # Dataset manifest migrations.
+│       │   │   └── policy_ir.py  # Policy IR migrations.
+│       │   ├── README.md  # Documentation for this directory/module.
+│       │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   ├── config.py  # Central configuration (pydantic-settings) and environment wiring.
+│       │   ├── jax_env.py  # JAX environment defaults and macOS backend safety toggles.
+│       │   └── logger.py  # Structured logging setup (Loguru) with OpenTelemetry trace correlation.
+│       ├── core/  # Infrastructure: artifacts/CAS, canonical JSON, contracts, tracing, registry, run context.
+│       │   ├── artifacts/  # Artifact system: IDs, manifests, environment manifests, CAS store.
+│       │   │   ├── README.md  # Documentation for this directory/module.
+│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   ├── environment.py  # Environment manifest models for reproducible execution contexts.
+│       │   │   ├── ids.py  # Content-addressed identifiers (SHA-256) and ID helpers.
+│       │   │   ├── manifest.py  # Artifact manifest models (refs, metadata).
+│       │   │   ├── registry.py  # Registry bundle artifacts and helpers.
+│       │   │   └── store.py  # Filesystem-backed CAS store implementation.
+│       │   ├── canon/  # Canonical JSON serialization (deterministic hashing).
+│       │   │   ├── README.md  # Documentation for this directory/module.
+│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   └── canon_json.py  # Canonical JSON serialization used for deterministic hashing.
+│       │   ├── compiler/  # Compilation reporting utilities.
+│       │   │   ├── README.md  # Documentation for this directory/module.
+│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   └── report.py  # Compile report data models and persistence helpers.
+│       │   ├── contracts/  # Typed inter-module contracts (Foundry/Fabric/Scientist/Trinity/Legal).
+│       │   │   ├── README.md  # Documentation for this directory/module.
+│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   ├── compiler.py  # Compiler-related typed references and models.
+│       │   │   ├── fabric.py  # Fabric-related typed references (evidence, results, bounds).
+│       │   │   ├── foundry.py  # Foundry-related typed references (ProgramGraph, ExecPlan, etc.).
+│       │   │   ├── legal.py  # Legal contracts: NormPack/NormRule/RuleBackend/RuleType.
+│       │   │   ├── scientist.py  # Scientist contracts: critique, failure cards, timelines, decision cards.
+│       │   │   └── trinity.py  # Trinity contracts: ProblemFrame/PolicySpec/ModelSpec + bundle/refs.
+│       │   ├── registry/  # Registry bundle builder/loader (reproducible components).
+│       │   │   ├── README.md  # Documentation for this directory/module.
+│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   ├── builder.py  # Build registry bundles from available components.
+│       │   │   └── loader.py  # Load registry bundles (content and payload).
+│       │   ├── run/  # Run context and run manifest models.
+│       │   │   ├── README.md  # Documentation for this directory/module.
+│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   ├── context.py  # RunContext: execution context for a single run.
+│       │   │   └── manifest.py  # Run manifest models and serialization.
+│       │   ├── trace/  # Structured tracing records and sinks.
+│       │   │   ├── README.md  # Documentation for this directory/module.
+│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   ├── record.py  # TraceRecord model for structured tracing.
+│       │   │   └── sink.py  # Trace sinks (e.g., JSONL sink).
+│       │   ├── observability/  # Production-grade telemetry system (OpenTelemetry tracing, metrics, logs, propagation).
+│       │   │   ├── README.md  # Documentation for this directory/module.
+│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   ├── config.py  # OpenTelemetry configuration and resource attributes.
+│       │   │   ├── decorators.py  # @traced decorator for automatic function instrumentation.
+│       │   │   ├── logs.py  # Structured logging with trace correlation.
+│       │   │   ├── metrics.py  # Prometheus-compatible metrics registry and timers.
+│       │   │   ├── propagation.py  # Trace context propagation across threads/services.
+│       │   │   └── tracer.py  # PolicyOSTracer singleton with OpenTelemetry integration.
+│       │   ├── README.md  # Documentation for this directory/module.
+│       │   └── __init__.py  # Python package initializer (public exports live here).
+│       ├── fabric/  # Unified Data Fabric: ingestion, catalog, evidence, quality, trust, UDF queries.
+│       │   ├── catalog/  # Metric-level data contracts and bindings registry.
+│       │   │   ├── README.md  # Documentation for this directory/module.
+│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   ├── binding.py  # MetricBinding: hash-locked binding between names and contracts.
+│       │   │   ├── contract.py  # DataContract models and validation (types, granularity, PII tiers).
+│       │   │   ├── registry.py  # DataContractRegistry: load/validate/search contracts.
+│       │   │   ├── search.py  # Metric search and fuzzy disambiguation utilities.
+│       │   │   └── validate.py  # Helpers to validate contract collections.
+│       │   ├── io/  # DuckDB/Kùzu storage backends.
+│       │   │   ├── README.md  # Documentation for this directory/module.
+│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   ├── db.py  # DuckDB backend for analytical queries and tables.
+│       │   │   └── graph_store.py  # Kùzu backend for graph storage and queries.
+│       │   ├── provenance/  # W3C PROV-O provenance graph and exporters.
+│       │   │   ├── README.md  # Documentation for this directory/module.
+│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   ├── core.py  # PROV-O graph core models and relationships.
+│       │   │   └── export_provo.py  # Export provenance graphs to PROV-O formats.
+│       │   ├── udf/  # Secure UDF compilation/execution layer for data views.
+│       │   │   ├── passes/  # UDF compiler passes (lowering, typing, privacy, etc.).
+│       │   │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   │   ├── lowering.py  # Lower UDF IR into backend-executable primitives.
+│       │   │   │   ├── merge.py  # Optimize/merge UDF plans and remove duplicates.
+│       │   │   │   ├── privacy.py  # Privacy enforcement pass for UDF queries.
+│       │   │   │   ├── resolution.py  # Resolve dependencies and link UDF components.
+│       │   │   │   └── typecheck.py  # Static type checker for UDF expressions.
+│       │   │   ├── README.md  # Documentation for this directory/module.
+│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   ├── compiler.py  # UDF compiler with security/type checks and pass pipeline.
+│       │   │   ├── config.py  # UDF allowlist configuration and access tier policies.
+│       │   │   ├── engine.py  # UDF execution engine (planning + execution).
+│       │   │   ├── plan.py  # UDF query planning and optimization.
+│       │   │   └── schema.py  # UDF IR/schema validation for query definitions.
+│       │   ├── README.md  # Documentation for this directory/module.
+│       │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   ├── config.py  # Fabric configuration (paths, backends, catalog settings).
+│       │   ├── evidence.py  # Evidence bundle models and cryptographic/provenance scaffolding.
+│       │   ├── fact_writer.py  # Immutable fact writer for audit/provenance-friendly logs.
+│       │   ├── fitness_report.py  # Human-readable data fitness reports.
+│       │   ├── ingestion.py  # ETL ingestion pipeline (raw → staging → queryable stores).
+│       │   ├── manifest.py  # Dataset manifest models (quality/provenance metadata).
+│       │   ├── materializer.py  # Materialize fact logs into relational/graph views.
+│       │   ├── quality.py  # Quality indicators, thresholds, and quality level evaluation.
+│       │   ├── registry.py  # UDF/function registry (allowlists, access tiers).
+│       │   ├── schema.py  # Fabric schema/types shared across ingestion and UDF.
+│       │   ├── segment_manifest.py  # Segment manifest models (partitioning, optimization metadata).
+│       │   └── trust.py  # Trust policies and uncertainty quantification utilities.
+│       ├── foundry/  # JAX execution core: compilation, runtime, simulation, calibration, determinism tools.
+│       │   ├── agent_sim/  # Agent-based simulation subsystem.
+│       │   │   ├── README.md  # Documentation for this directory/module.
+│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   ├── actor_critic.py  # Python module implementing 'actor_critic'.
+│       │   │   ├── analysis.py  # Python module implementing 'analysis'.
+│       │   │   ├── artifact.py  # Python module implementing 'artifact'.
+│       │   │   ├── credit_assignment.py  # Python module implementing 'credit_assignment'.
+│       │   │   ├── dashboard.py  # Python module implementing 'dashboard'.
+│       │   │   ├── demographics.py  # Python module implementing 'demographics'.
+│       │   │   ├── distribution_executor.py  # Python module implementing 'distribution_executor'.
+│       │   │   ├── distribution_mechanisms.py  # Python module implementing 'distribution_mechanisms'.
+│       │   │   ├── distributions.py  # Python module implementing 'distributions'.
+│       │   │   ├── evolution.py  # Python module implementing 'evolution'.
+│       │   │   ├── executor.py  # Python module implementing 'executor'.
+│       │   │   ├── experiment.py  # Python module implementing 'experiment'.
+│       │   │   ├── government_policy.py  # Python module implementing 'government_policy'.
+│       │   │   ├── graph_executor.py  # Python module implementing 'graph_executor'.
+│       │   │   ├── graph_mechanisms.py  # Python module implementing 'graph_mechanisms'.
+│       │   │   ├── graph_observations.py  # Python module implementing 'graph_observations'.
+│       │   │   ├── graphs.py  # Python module implementing 'graphs'.
+│       │   │   ├── jit_training.py  # Python module implementing 'jit_training'.
+│       │   │   ├── mechanism.py  # Python module implementing 'mechanism'.
+│       │   │   ├── mechanisms.py  # Python module implementing 'mechanisms'.
+│       │   │   ├── metrics.py  # Python module implementing 'metrics'.
+│       │   │   ├── modes.py  # Python module implementing 'modes'.
+│       │   │   ├── mpc.py  # Python module implementing 'mpc'.
+│       │   │   ├── policy.py  # Python module implementing 'policy'.
+│       │   │   ├── population.py  # Python module implementing 'population'.
+│       │   │   ├── population_executor.py  # Python module implementing 'population_executor'.
+│       │   │   ├── population_mechanisms.py  # Python module implementing 'population_mechanisms'.
+│       │   │   ├── prng.py  # Python module implementing 'prng'.
+│       │   │   ├── rewards.py  # Python module implementing 'rewards'.
+│       │   │   ├── rl.py  # Python module implementing 'rl'.
+│       │   │   ├── state.py  # Python module implementing 'state'.
+│       │   │   ├── temporal.py  # Python module implementing 'temporal'.
+│       │   │   ├── temporal_executor.py  # Python module implementing 'temporal_executor'.
+│       │   │   ├── temporal_mechanisms.py  # Python module implementing 'temporal_mechanisms'.
+│       │   │   ├── training.py  # Python module implementing 'training'.
+│       │   │   ├── vfi.py  # Python module implementing 'vfi'.
+│       │   │   └── visualization.py  # Python module implementing 'visualization'.
+│       │   ├── calibration/  # Parameter calibration subsystem.
+│       │   │   ├── README.md  # Documentation for this directory/module.
+│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   ├── bijectors.py  # Python module implementing 'bijectors'.
+│       │   │   ├── calibrator.py  # Python module implementing 'calibrator'.
+│       │   │   ├── loss.py  # Python module implementing 'loss'.
+│       │   │   ├── preflight.py  # Python module implementing 'preflight'.
+│       │   │   ├── pure_executor.py  # Python module implementing 'pure_executor'.
+│       │   │   └── report.py  # Python module implementing 'report'.
+│       │   ├── domain/  # Economic domain state schemas and types.
+│       │   │   ├── README.md  # Documentation for this directory/module.
+│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   ├── schema.py  # Python module implementing 'schema'.
+│       │   │   └── state.py  # Python module implementing 'state'.
+│       │   ├── plugins/  # Plugin system for extending the domain/mechanisms/objectives.
+│       │   │   ├── economics/  # Economics plugin implementations.
+│       │   │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   │   ├── mechanisms.py  # Python module implementing 'mechanisms'.
+│       │   │   │   ├── objectives.py  # Python module implementing 'objectives'.
+│       │   │   │   ├── plugin.py  # Python module implementing 'plugin'.
+│       │   │   │   ├── rewards.py  # Python module implementing 'rewards'.
+│       │   │   │   └── state.py  # Python module implementing 'state'.
+│       │   │   ├── README.md  # Documentation for this directory/module.
+│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   ├── api.py  # Python module implementing 'api'.
+│       │   │   ├── cli.py  # Python module implementing 'cli'.
+│       │   │   ├── composite.py  # Python module implementing 'composite'.
+│       │   │   ├── core.py  # Python module implementing 'core'.
+│       │   │   └── discovery.py  # Python module implementing 'discovery'.
+│       │   ├── runtime/  # Runtime utilities (determinism fingerprinting, NaN guard).
+│       │   │   ├── README.md  # Documentation for this directory/module.
+│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   ├── fingerprint.py  # Environment fingerprinting and determinism tier controls.
+│       │   │   └── nan_guard.py  # Runtime NaN/Inf detection and diagnostics.
+│       │   ├── README.md  # Documentation for this directory/module.
+│       │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   ├── agent_metrics.py  # Python module implementing 'agent_metrics'.
+│       │   ├── agents.py  # Python module implementing 'agents'.
+│       │   ├── base.py  # Python module implementing 'base'.
+│       │   ├── compiler.py  # Compile IR policies into ProgramGraph and ExecPlan.
+│       │   ├── conflict_checker.py  # Static conflict detection on slot writes (pre-JAX).
+│       │   ├── constraints_engine.py  # Constraint evaluation and enforcement engine for policies.
+│       │   ├── cost_model.py  # Heuristic cost model for compile/runtime budgeting.
+│       │   ├── executor.py  # Execute compiled programs (JAX step/scan/batch).
+│       │   ├── fiscal.py  # Python module implementing 'fiscal'.
+│       │   ├── labor.py  # Python module implementing 'labor'.
+│       │   ├── layout.py  # Python module implementing 'layout'.
+│       │   ├── loss.py  # Python module implementing 'loss'.
+│       │   ├── merge_engine.py  # Deterministic merge semantics (CRDT-inspired) for state updates.
+│       │   ├── patch_vm.py  # Patch-based virtual machine for incremental updates.
+│       │   ├── queue.py  # Python module implementing 'queue'.
+│       │   ├── registry.py  # Foundry component registry and dependency injection utilities.
+│       │   ├── specs.py  # Python module implementing 'specs'.
+│       │   ├── trace.py  # Python module implementing 'trace'.
+│       │   ├── treasury.py  # RNG/seed treasury for reproducible stochastic simulations.
+│       │   ├── types.py  # Core Foundry types (fidelity levels, specs, typing helpers).
+│       │   └── utils.py  # Python module implementing 'utils'.
+│       ├── ir/  # Canonical IR contracts: PolicySurfaceIR, Trinity artifacts, kernel registries, loaders, validation.
+│       │   ├── kernel/  # IR kernel registries: mechanisms, slots, units, merge rules, time semantics.
+│       │   │   ├── README.md  # Documentation for this directory/module.
+│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   ├── base.py  # Python module implementing 'base'.
+│       │   │   ├── constraints.py  # Python module implementing 'constraints'.
+│       │   │   ├── mechanisms.py  # Python module implementing 'mechanisms'.
+│       │   │   ├── merge_rules.py  # Python module implementing 'merge_rules'.
+│       │   │   ├── metrics.py  # Python module implementing 'metrics'.
+│       │   │   ├── numbers.py  # Python module implementing 'numbers'.
+│       │   │   ├── selector_fields.py  # Python module implementing 'selector_fields'.
+│       │   │   ├── slots.py  # Python module implementing 'slots'.
+│       │   │   ├── time_semantics.py  # Python module implementing 'time_semantics'.
+│       │   │   ├── trust.py  # Python module implementing 'trust'.
+│       │   │   ├── units.py  # Python module implementing 'units'.
+│       │   │   └── values.py  # Python module implementing 'values'.
+│       │   ├── migrations/  # IR format migrations and Trinity bridging utilities.
+│       │   │   ├── README.md  # Documentation for this directory/module.
+│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   └── trinity_migration.py  # Python module implementing 'trinity_migration'.
+│       │   ├── README.md  # Documentation for this directory/module.
+│       │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   ├── calibration.py  # Python module implementing 'calibration'.
+│       │   ├── data_views.py  # Python module implementing 'data_views'.
+│       │   ├── fact_log.py  # Python module implementing 'fact_log'.
+│       │   ├── linker.py  # Validate and link IR against kernel registries.
+│       │   ├── loaders.py  # Universal policy loader (auto-detect versions/formats).
+│       │   ├── model_spec.py  # ModelSpec models (data snapshots, assumptions, time semantics).
+│       │   ├── norm_pack.py  # NormPack/NormRule contracts and validation (incl. safe expression checks).
+│       │   ├── policy_spec.py  # PolicySpec models (interventions/parameters).
+│       │   ├── predicate.py  # Python module implementing 'predicate'.
+│       │   ├── problem_frame.py  # ProblemFrame models (goals/KPIs/constraints).
+│       │   ├── surface.py  # PolicySurfaceIR (canonical policy contract, legacy-compatible surface).
+│       │   ├── trinity.py  # Trinity artifacts and bundle (ProblemFrame/PolicySpec/ModelSpec).
+│       │   ├── types.py  # Python module implementing 'types'.
+│       │   ├── units.py  # Python module implementing 'units'.
+│       │   └── validation.py  # Python module implementing 'validation'.
+│       ├── runtime/  # Run lifecycle API and portable run manifests.
+│       │   ├── README.md  # Documentation for this directory/module.
+│       │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   ├── api.py  # Runtime run lifecycle API (start/finalize/log artifacts).
+│       │   └── manifest.py  # Portable runtime manifest and path resolution helpers.
+│       ├── scientist/  # Orchestration layer: agents, workflows, governance passes, search optimization.
+│       │   ├── agent/  # Hierarchical agent system (PI/Drafter/Formalizer/Critic + reflexion).
+│       │   │   ├── README.md  # Documentation for this directory/module.
+│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   ├── base.py  # Python module implementing 'base'.
+│       │   │   ├── critic.py  # Python module implementing 'critic'.
+│       │   │   ├── drafter.py  # Python module implementing 'drafter'.
+│       │   │   ├── failure_card.py  # Python module implementing 'failure_card'.
+│       │   │   ├── formalizer.py  # Python module implementing 'formalizer'.
+│       │   │   ├── memory.py  # Python module implementing 'memory'.
+│       │   │   ├── pi.py  # Python module implementing 'pi'.
+│       │   │   ├── prompt.py  # Python module implementing 'prompt'.
+│       │   │   ├── prompts.py  # Python module implementing 'prompts'.
+│       │   │   ├── protocols.py  # Python module implementing 'protocols'.
+│       │   │   └── reflexion.py  # Self-healing reflexion loop (repair attempts, pruning).
+│       │   ├── compute/  # Compute backends abstraction (runner + job specs).
+│       │   │   ├── README.md  # Documentation for this directory/module.
+│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   ├── job_spec.py  # Python module implementing 'job_spec'.
+│       │   │   └── runner.py  # Python module implementing 'runner'.
+│       │   ├── doe/  # Design of Experiments utilities.
+│       │   │   ├── README.md  # Documentation for this directory/module.
+│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   └── designs.py  # Python module implementing 'designs'.
+│       │   ├── governance/  # Preflight/postflight validation pipeline and compliance checks.
+│       │   │   ├── legal/  # Legal compliance subsystem (norm packs, backends, security policy).
+│       │   │   │   ├── backends/  # Pluggable legal rule backends.
+│       │   │   │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   │   │   ├── base.py  # Python module implementing 'base'.
+│       │   │   │   │   ├── expr_ast.py  # Safe AST interpreter and Legal RuleBackend implementation (no eval/exec).
+│       │   │   │   │   └── stub.py  # Python module implementing 'stub'.
+│       │   │   │   ├── README.md  # Documentation for this directory/module.
+│       │   │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   │   └── ast_policy.py  # AST allowlist policy and resource limits for safe expression validation.
+│       │   │   ├── passes/  # Validation passes (schema, safety, legal, privacy, quality gate, budgets).
+│       │   │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   │   ├── base.py  # Python module implementing 'base'.
+│       │   │   │   ├── budget_pass.py  # Python module implementing 'budget_pass'.
+│       │   │   │   ├── legal_pass.py  # Python module implementing 'legal_pass'.
+│       │   │   │   ├── privacy_pass.py  # Python module implementing 'privacy_pass'.
+│       │   │   │   ├── quality_gate_pass.py  # Python module implementing 'quality_gate_pass'.
+│       │   │   │   ├── safety_pass.py  # Python module implementing 'safety_pass'.
+│       │   │   │   └── schema_pass.py  # Python module implementing 'schema_pass'.
+│       │   │   ├── README.md  # Documentation for this directory/module.
+│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   ├── pipeline.py  # Governance pipeline orchestrator for validation passes.
+│       │   │   ├── postflight.py  # Post-execution validation entrypoint.
+│       │   │   ├── preflight.py  # Pre-execution validation entrypoint.
+│       │   │   ├── profiles.py  # Validation profiles (fast/mvp/strict) selecting passes and limits.
+│       │   │   └── telemetry.py  # Governance telemetry capture (timings, summaries).
+│       │   ├── kernel/  # Scientist kernel (FSM, budgets, guards, human gates).
+│       │   │   ├── README.md  # Documentation for this directory/module.
+│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   ├── budgets.py  # Python module implementing 'budgets'.
+│       │   │   ├── fsm.py  # Python module implementing 'fsm'.
+│       │   │   ├── guards.py  # Python module implementing 'guards'.
+│       │   │   └── human_gate.py  # Python module implementing 'human_gate'.
+│       │   ├── orchestrator/  # Workflow orchestration: nodes, state, audit, decision packet/card, timeline.
+│       │   │   ├── README.md  # Documentation for this directory/module.
+│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   ├── audit.py  # Python module implementing 'audit'.
+│       │   │   ├── compiler.py  # Python module implementing 'compiler'.
+│       │   │   ├── data_loader.py  # Python module implementing 'data_loader'.
+│       │   │   ├── decision_card.py  # DecisionCard: deterministic human-readable summary artifact.
+│       │   │   ├── decision_packet.py  # DecisionPacket: structured run output container (artifacts + validations).
+│       │   │   ├── flow_nodes.py  # Workflow node implementations and routing logic.
+│       │   │   ├── nodes.py  # Python module implementing 'nodes'.
+│       │   │   ├── optimizer.py  # Python module implementing 'optimizer'.
+│       │   │   ├── registry.py  # Python module implementing 'registry'.
+│       │   │   ├── run_record.py  # Python module implementing 'run_record'.
+│       │   │   ├── run_timeline.py  # RunTimeline: event timeline artifact for observability.
+│       │   │   ├── state.py  # Python module implementing 'state'.
+│       │   │   └── workflow.py  # Build and run the main Scientist workflow graph.
+│       │   ├── search/  # Search/optimization framework.
+│       │   │   ├── README.md  # Documentation for this directory/module.
+│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   ├── controller.py  # SearchController: optimization loop coordination.
+│       │   │   ├── objective.py  # Python module implementing 'objective'.
+│       │   │   ├── stages.py  # Two-stage evaluation (cheap vs expensive) for optimization.
+│       │   │   └── stopping.py  # Stopping criteria for search/optimization.
+│       │   ├── workflow/  # Workflow engine abstractions.
+│       │   │   ├── README.md  # Documentation for this directory/module.
+│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   ├── engine_base.py  # Python module implementing 'engine_base'.
+│       │   │   ├── engine_langgraph.py  # LangGraph-based workflow engine implementation.
+│       │   │   └── engine_simple.py  # Simple sequential workflow engine implementation.
+│       │   ├── README.md  # Documentation for this directory/module.
+│       │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   └── publisher.py  # Publish/finalize results (artifacts, summaries).
+│       └── __init__.py  # Python package initializer (public exports live here).
+├── tests/  # Test suite.
+│   ├── contract/  # Contract and schema tests for IR/Trinity/kernel.
+│   │   ├── README.md  # Documentation for this directory/module.
+│   │   ├── test_fabric_gates.py  # Pytest module exercising fabric gates.
+│   │   ├── test_ir_contract.py  # Pytest module exercising ir contract.
+│   │   ├── test_ir_migrations.py  # Pytest module exercising ir migrations.
+│   │   ├── test_kernel_models.py  # Pytest module exercising kernel models.
+│   │   ├── test_surface_ir.py  # Pytest module exercising surface ir.
+│   │   ├── test_trinity_contracts.py  # Pytest module exercising trinity contracts.
+│   │   └── test_trinity_migration.py  # Pytest module exercising trinity migration.
+│   ├── core_phase0/  # Core infrastructure tests (CAS, canonical JSON, registry bundles, observability system).
+│   │   ├── README.md  # Documentation for this directory/module.
+│   │   ├── conftest.py  # Pytest shared fixtures and configuration.
+│   │   ├── test_artifact_store.py  # Pytest module exercising artifact store.
+│   │   ├── test_canon_json.py  # Pytest module exercising canon json.
+│   │   ├── test_decorators.py  # Pytest module exercising @traced decorator for automatic instrumentation.
+│   │   ├── test_environment_manifest.py  # Pytest module exercising environment manifest.
+│   │   ├── test_logs.py  # Pytest module exercising log-trace correlation.
+│   │   ├── test_metrics.py  # Pytest module exercising metrics registry and timers.
+│   │   ├── test_observability.py  # Pytest module exercising integrated observability workflows.
+│   │   ├── test_propagation.py  # Pytest module exercising trace context propagation.
+│   │   ├── test_registry_bundle.py  # Pytest module exercising registry bundle.
+│   │   ├── test_run_context.py  # Pytest module exercising run context.
+│   │   └── test_tracer.py  # Pytest module exercising PolicyOSTracer singleton.
+│   ├── demos/  # Demo smoke tests.
+│   │   ├── README.md  # Documentation for this directory/module.
+│   │   └── run_laffer_demo.py  # File.
+│   ├── fabric/  # Fabric tests.
+│   │   ├── README.md  # Documentation for this directory/module.
+│   │   ├── test_data_catalog.py  # Pytest module exercising data catalog.
+│   │   ├── test_evidence_bundle.py  # Pytest module exercising evidence bundle.
+│   │   ├── test_provenance.py  # Pytest module exercising provenance.
+│   │   ├── test_quality_indicators.py  # Pytest module exercising quality indicators.
+│   │   └── test_trust_two_pass.py  # Pytest module exercising trust two pass.
+│   ├── foundry/  # Foundry tests.
+│   │   ├── agent_sim/  # Agent simulation monitoring tests.
+│   │   │   ├── README.md  # Documentation for this directory/module.
+│   │   │   └── test_monitoring.py  # Pytest module exercising monitoring.
+│   │   ├── plugins/  # Plugin system tests.
+│   │   │   ├── README.md  # Documentation for this directory/module.
+│   │   │   └── test_plugin_system.py  # Pytest module exercising plugin system.
+│   │   ├── README.md  # Documentation for this directory/module.
+│   │   ├── test_adaptive_agents.py  # Pytest module exercising adaptive agents.
+│   │   ├── test_agent_artifact.py  # Pytest module exercising agent artifact.
+│   │   ├── test_agent_simulation_step1.py  # Pytest module exercising agent simulation step1.
+│   │   ├── test_agent_simulation_step2.py  # Pytest module exercising agent simulation step2.
+│   │   ├── test_agent_simulation_step3.py  # Pytest module exercising agent simulation step3.
+│   │   ├── test_agent_simulation_step4.py  # Pytest module exercising agent simulation step4.
+│   │   ├── test_agent_simulation_step5.py  # Pytest module exercising agent simulation step5.
+│   │   ├── test_agent_simulation_step6.py  # Pytest module exercising agent simulation step6.
+│   │   ├── test_calibrator_fidelity.py  # Pytest module exercising calibrator fidelity.
+│   │   ├── test_calibrator_mvp.py  # Pytest module exercising calibrator mvp.
+│   │   ├── test_conflict_detection.py  # Pytest module exercising conflict detection.
+│   │   ├── test_constraints_executor.py  # Pytest module exercising constraints executor.
+│   │   ├── test_cost_model.py  # Pytest module exercising cost model.
+│   │   ├── test_fiscal.py  # Pytest module exercising fiscal.
+│   │   ├── test_global_state.py  # Pytest module exercising global state.
+│   │   ├── test_gradients.py  # Pytest module exercising gradients.
+│   │   ├── test_health.py  # Pytest module exercising health.
+│   │   ├── test_jit_stability.py  # Pytest module exercising jit stability.
+│   │   ├── test_merge_determinism.py  # Pytest module exercising merge determinism.
+│   │   ├── test_nan_guard.py  # Pytest module exercising nan guard.
+│   │   ├── test_patch_executor.py  # Pytest module exercising patch executor.
+│   │   ├── test_program_graph_ops.py  # Pytest module exercising program graph ops.
+│   │   └── test_runtime_batch.py  # Pytest module exercising runtime batch.
+│   ├── integration/  # Cross-module integration tests.
+│   │   ├── README.md  # Documentation for this directory/module.
+│   │   ├── test_calibration_udf.py  # Pytest module exercising calibration udf.
+│   │   ├── test_workflow_llm.py  # Pytest module exercising workflow llm.
+│   │   └── test_workflow_smoke.py  # Pytest module exercising workflow smoke.
+│   ├── ir/  # IR tests.
+│   │   ├── README.md  # Documentation for this directory/module.
+│   │   └── test_loaders.py  # Pytest module exercising loaders.
+│   ├── runtime/  # Runtime tests.
+│   │   ├── README.md  # Documentation for this directory/module.
+│   │   └── test_runtime_manifest_paths.py  # Pytest module exercising runtime manifest paths.
+│   ├── scientist/  # Scientist tests.
+│   │   ├── governance/  # Governance/legal compliance tests (safe expressions, passes).
+│   │   │   ├── README.md  # Documentation for this directory/module.
+│   │   │   ├── test_legal_pass.py  # Pytest module exercising legal pass.
+│   │   │   ├── test_norm_execution.py  # Pytest module exercising norm execution.
+│   │   │   └── test_validation_pipeline.py  # Pytest module exercising validation pipeline.
+│   │   ├── search/  # Search framework tests.
+│   │   │   ├── README.md  # Documentation for this directory/module.
+│   │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│   │   │   ├── conftest.py  # Pytest shared fixtures and configuration.
+│   │   │   └── test_search_loop.py  # Pytest module exercising search loop.
+│   │   ├── README.md  # Documentation for this directory/module.
+│   │   ├── test_agent_protocols.py  # Pytest module exercising agent protocols.
+│   │   ├── test_compiler.py  # Pytest module exercising compiler.
+│   │   ├── test_decision_card.py  # Pytest module exercising decision card.
+│   │   ├── test_decision_packet_v2.py  # Pytest module exercising decision packet v2.
+│   │   ├── test_multi_agent_workflow.py  # Pytest module exercising multi agent workflow.
+│   │   ├── test_reflexion_loop.py  # Pytest module exercising reflexion loop.
+│   │   └── test_run_timeline.py  # Pytest module exercising run timeline.
+│   ├── README.md  # Documentation for this directory/module.
+│   └── conftest.py  # Pytest shared fixtures and configuration.
+├── tools/  # Developer tooling: linters, migrations, diagnostics, benchmarks, demos.
+│   ├── benchmarks/  # Performance benchmarks.
+│   │   ├── README.md  # Documentation for this directory/module.
+│   │   ├── bench_domain.py  # Benchmark script.
+│   │   └── bench_simulation.py  # Benchmark script.
+│   ├── demos/  # Runnable demo scripts.
+│   │   ├── README.md  # Documentation for this directory/module.
+│   │   ├── run_export_demo.py  # Demo script.
+│   │   ├── run_ingest_demo.py  # Demo script.
+│   │   ├── run_laffer_demo.py  # Demo script.
+│   │   ├── run_optimizer_demo.py  # Demo script.
+│   │   ├── run_udf_hybrid_demo.py  # Demo script.
+│   │   └── run_udf_query_demo.py  # Demo script.
+│   ├── diagnostics/  # Diagnostics scripts.
+│   │   ├── README.md  # Documentation for this directory/module.
+│   │   ├── check_setup.py  # Diagnostics script.
+│   │   ├── check_udf_perf.py  # Diagnostics script.
+│   │   └── generate_ir_schema.py  # Diagnostics script.
+│   ├── README.md  # Documentation for this directory/module.
+│   ├── capture_env.py  # Capture environment details into a reproducibility manifest.
+│   ├── gen_schema.py  # Generate JSON Schema snapshots from Pydantic models.
+│   ├── lint_foundry.py  # Foundry purity linter (Law B enforcement).
+│   ├── lint_imports.py  # Architecture import-boundary linter (Law A enforcement).
+│   ├── migrate.py  # File.
+│   ├── migrate_ir.py  # Migrate Policy IR artifacts between schema versions.
+│   ├── migrate_to_trinity.py  # Batch migration utilities from Surface IR to Trinity artifacts.
+│   ├── run_mechanism_design.py  # End-to-end differentiable mechanism design demo/driver.
+│   ├── scan_fabric.py  # Scan data stores and draft Fabric data contracts.
+│   └── visualize_provenance.py  # Visualize and verify provenance graphs.
+├── .gitignore  # Git ignore rules for the project workspace.
+├── .pre-commit-config.yaml  # Pre-commit hooks configuration (formatting/linting checks).
+├── Dockerfile.reproducible  # Reproducible container build definition.
+├── README.md  # Main project README (high-level concepts, flows, and usage).
+├── architecture.md  # Project file-by-file structure reference (this document).
+├── dashboard.py  # Streamlit dashboard entrypoint for visualizing runs and artifacts.
+├── env_example.txt  # Environment variables template.
+├── install.sh  # Bootstrap installer script (dev setup).
+├── jax_bootstrap.py  # Applies safe JAX environment defaults before importing jax.
+├── migrate.py  # CLI tool to migrate schema-managed artifacts to target versions.
+├── model_spec_schema.json  # Generated JSON Schema snapshot for ModelSpec.
+├── policy_ir_schema.json  # Generated JSON Schema snapshot for PolicySurfaceIR.
+├── policy_spec_schema.json  # Generated JSON Schema snapshot for PolicySpec.
+├── problem_frame_schema.json  # Generated JSON Schema snapshot for ProblemFrame.
+├── pyproject.toml  # Project metadata, dependencies, and tool configuration.
+├── run_experiment.py  # CLI entrypoint to run a Scientist workflow for an experiment.
+└── uv.lock  # Locked dependency graph for uv.
 ```
 
-## Architectural Principles
+## Technology stack and dependencies
 
-This document follows the same architectural principles as the main project README.md:
+### Language runtime
 
-- **Law A (Dependencies)**: Unidirectional dependencies (flowing inward through architecture layers)
-- **Law B (Compiler Pipeline)**: NL → LLM → IR → Compilation → Runtime execution flow
-- **Law C (Contracts)**: IR as single source of truth for all system contracts
-- **Law D (Reproducibility)**: Full reproducibility through CAS artifacts and complete audit trails
-- **Law E (Evidence)**: Cryptographically verifiable evidence for all results and decisions
-- **Law F (Trinity)**: Orthogonal decomposition of experiments into ProblemFrame, PolicySpec, and ModelSpec
+- **Python**: `>=3.11`
+- **Pydantic v2**: contracts and validation
 
-## Description Legend
+### Numerical core
 
-Each file in the architecture includes a detailed description of its functionality following these patterns:
-- **Core Components**: `__init__.py` - exports module's public API interfaces
-- **README Files**: Comprehensive documentation for modules, subsystems, and usage patterns
-- **Executable Files**: Detailed description of primary functionality and integration points
-- **Test Files**: Specific testing scope, validation targets, and key verification checks
+- **JAX / jaxlib**
+- **jax-metal** (optional, Apple Silicon backend)
+- **Equinox**, **Optax**, **Diffrax**
+- **Chex**, **Jaxtyping**
 
-## Trinity Framework
+### Data layer
 
-The Trinity Framework represents a major architectural evolution that decomposes policy experiments into three orthogonal components:
+- **DuckDB** (analytical store)
+- **Kùzu** (graph store)
+- **PyArrow**, **pandas**
+- **W3C PROV-O style provenance** (implemented in Fabric provenance subsystem)
 
-### ProblemFrame ("What")
-- **Purpose**: Defines the problem space, success criteria, and stakeholder context
-- **Contents**: KPIs, constraints, actors, problem statement, and success criteria tags
-- **Immutability**: Fixed within an experiment context for reproducible evaluation
-- **Files**: `ir/problem_frame.py`, `problem_frame_schema.json`
+### Orchestration and optimization
 
-### PolicySpec ("How")
-- **Purpose**: Specifies policy interventions, parameters, and implementation details
-- **Contents**: Intervention actions with schedules, implementation notes, and policy labels
-- **Iterability**: Subject to optimization and iterative refinement during experiments
-- **Files**: `ir/policy_spec.py`, `policy_spec_schema.json`
+- **LangGraph**, **LangChain**
+- **pymoo** (multi-objective optimization)
 
-### ModelSpec ("Where")
-- **Purpose**: Configures the computational model, data sources, and simulation assumptions
-- **Contents**: Data snapshots, registry bundles, time semantics, and model assumptions
-- **Role**: The "laboratory bench" providing the experimental environment
-- **Files**: `ir/model_spec.py`, `model_spec_schema.json`
+### UI / visualization
 
-### TrinityBundle
-- **Purpose**: Container for transporting and processing complete Trinity specifications
-- **Integration**: Used as DecisionPacket input in orchestration workflows
-- **Migration**: Supports round-trip compatibility with legacy PolicySurfaceIR format
-- **Files**: `ir/trinity.py`, `ir/migrations/trinity_migration.py`, `tools/migrate_to_trinity.py`
+- **Streamlit**, **Plotly** (dashboarding)
 
-### Benefits
-- **Separation of Concerns**: Orthogonal decomposition enables focused optimization of each aspect
-- **Composability**: Mix and match different problem frames, policies, and models for experimentation
-- **Traceability**: Clear provenance tracking from problem definition through execution
-- **Reproducibility**: Deterministic experiment setup with explicit assumptions and constraints
+### Observability / configuration
 
-## Runtime Module & Environment Fingerprinting
+- **loguru** (structured logging)
+- **python-dotenv** (local environment variable loading)
+- **opentelemetry-api** / **opentelemetry-sdk** (distributed tracing and telemetry)
+- **prometheus_client** (metrics collection and exposition)
 
-The Runtime module introduces a comprehensive environment fingerprinting system and low-level execution primitives for reproducible neural network policy deployment.
+### Dev tooling
 
-### Runtime Module (`foundry/runtime/`)
+- **pytest**, **hypothesis**
+- **ruff**, **mypy**
+- **pre-commit**
 
-**Purpose**: Provides pure JAX execution primitives and environment capture for deterministic policy deployment.
+---
 
-#### Core Execution Functions
-- **`step`**: Pure JAX function for single simulation step execution
-- **`run_scan`**: Efficient sequential execution using `jax.lax.scan`
-- **`execute_program_batch`**: Parallel batch execution with deterministic RNG layout
+## Running the system
 
-#### Environment Fingerprinting (`fingerprint.py`)
-- **`EnvironmentFingerprint`**: Lightweight environment capture (<1KB JSON, <100ms capture)
-- **`DeterminismTier`**: Three-tier determinism guarantee system (STRICT_CPU, BEST_EFFORT_GPU, NONDETERMINISTIC)
-- **`configure_determinism`**: JAX/XLA configuration for specified determinism levels
+### Prerequisites
 
-#### Runtime NaN/Inf Guard (`nan_guard.py`)
-- **`NaNGuard`**: Runtime detection of NaN/Inf values with human-readable diagnostics
-- **`NaNDiagnostic`**: Structured diagnostic information for numerical issues
-- **`create_nan_guard_for_profile`**: Profile-based guard configuration (disabled/fast/mvp/strict)
-- **Performance**: Efficient `jnp.any()` checks with configurable frequency
-- **Integration**: Only enabled in STRICT validation profile for debugging
+- Python `>=3.11`
 
-### Agent Policy Artifacts (`agent_sim/artifact.py`)
+### Option A: uv (recommended)
 
-**Purpose**: Immutable, content-addressable artifacts for trained neural network policies with full provenance tracking.
+```bash
+# Create/sync the local virtualenv in .venv from uv.lock
+# (use --frozen to avoid lockfile drift)
+uv sync --frozen --extra dev
 
-#### Key Features
-- **Content-Addressable Storage**: SHA256-based artifact identification and integrity verification
-- **Environment Validation**: Compatibility scoring between training and deployment environments
-- **Hot-Swap Safety**: I/O shape validation for runtime policy replacement
-- **Provenance Tracking**: Complete audit trail (training run, steps, loss, environment fingerprint)
-
-#### Artifact Components
-- **`AgentPolicyArtifact`**: Generic artifact container for trained policies
-- **`TrainingMetrics`**: Comprehensive training provenance information
-- **`IOShapeSpec`**: I/O compatibility specification for safe hot-swapping
-
-### Integration with Artifact System
-
-**Storage**: Policies stored as separate weights/manifest artifacts in CAS
-**Loading**: Environment validation before policy deployment
-**Compatibility**: Automated compatibility scoring between environments
-**Hot-Swap**: Runtime policy replacement with shape validation
-
-### Benefits
-- **Bit-Exact Reproducibility**: Environment fingerprinting ensures identical computation results
-- **Safe Deployment**: Compatibility validation prevents incompatible policy deployment
-- **Provenance Tracking**: Complete audit trail from training through deployment
-- **Performance**: JIT-compiled execution with minimal overhead
-- **Scalability**: Batch execution primitives for parallel simulation
-
-## DecisionCard & RunTimeline Artifacts
-
-The Scientist module introduces comprehensive observability and human-readable reporting through two new artifact types that enhance experiment transparency and result communication.
-
-### DecisionCard (`scientist/orchestrator/decision_card.py`)
-
-**Purpose**: Deterministic human-readable summaries of experiment results with structured formatting for stakeholders and audit trails.
-
-#### Key Features
-- **Deterministic Generation**: Same DecisionPacket always produces identical DecisionCard
-- **Markdown Rendering**: Human-readable format with emojis, tables, and structured sections
-- **Compliance Summary**: Blocker/warning/info counts with failed pass identification
-- **Key Metrics Display**: Formatted economic indicators with baseline deltas
-- **Artifact References**: Links to PolicyIR, simulation results, and evidence bundles
-- **Source Hash Tracking**: Deterministic fingerprint for result verification
-
-#### DecisionCard Components
-- **`Verdict`**: APPROVE/REJECT/NEEDS_REVISION/PENDING/UNKNOWN with emoji indicators
-- **`Confidence`**: HIGH/MEDIUM/LOW based on blocker/warning counts
-- **`IssuesSummary`**: Structured compliance issues with blocker counting
-- **`KeyMetric`**: Formatted metric display with units and baseline deltas
-- **`ArtifactReference`**: Typed references to experiment artifacts
-
-### RunTimeline (`scientist/orchestrator/run_timeline.py`)
-
-**Purpose**: Event-based timeline artifacts for observability, debugging, and performance analysis throughout experiment execution.
-
-#### Key Features
-- **Append-Only Design**: Thread-safe event recording with automatic indexing
-- **Event Classification**: 12 event types (run_start, phase transitions, node execution, artifacts, validation, errors)
-- **Phase Tracking**: Automatic phase start/end timing with duration calculation
-- **Node Profiling**: Execution time tracking for workflow nodes
-- **Validation Summary**: Pass/failure counts with detailed error analysis
-- **Artifact Lifecycle**: Complete tracking of artifact creation and references
-- **Trace Integration**: Automatic conversion to core TraceRecord format
-
-#### Timeline Events
-- **`RUN_START/RUN_END`**: Experiment lifecycle boundaries
-- **`PHASE_START/PHASE_END`**: Workflow phase transitions with duration
-- **`NODE_ENTER/NODE_EXIT`**: Individual node execution tracking
-- **`ARTIFACT_CREATED`**: New artifact generation events
-- **`VALIDATION_PASS/VALIDATION_FAIL`**: Governance validation results
-- **`HUMAN_GATE/REFLEXION/ERROR`**: Self-healing and error events
-
-#### Timeline Analytics
-- **Phase Durations**: Per-phase execution times for bottleneck identification
-- **Node Performance**: Execution time distribution across workflow nodes
-- **Error Analysis**: Comprehensive error tracking with context
-- **Validation Metrics**: Governance pass/failure ratios
-- **Artifact Inventory**: Complete catalog of generated artifacts
-
-### Integration with DecisionPacket
-
-**Enhanced DecisionPacket** now includes three new optional fields for comprehensive experiment documentation:
-
-- **`run_timeline`**: Serialized RunTimeline artifact for observability
-- **`decision_card`**: Cached deterministic DecisionCard (generated on-demand)
-- **`validation_trace`**: Phase 9 telemetry data from governance validation
-
-#### DecisionPacket Enhancement
-```python
-class DecisionPacket(BaseModel):
-    # Existing fields...
-    run_timeline: Optional[Dict[str, Any]] = None      # Timeline observability data
-    validation_trace: Optional[Dict[str, Any]] = None  # Governance telemetry
-    decision_card: Optional[Dict[str, Any]] = None     # Cached human-readable summary
+# Minimal (runtime-only) environment:
+# uv sync --frozen --no-dev
 ```
 
-### Scientist Contracts Enhancement
+#### Activate the environment (optional)
 
-**New contract types** added to `core/contracts/scientist.py` for type-safe artifact references:
+If you prefer a classic workflow, activate `.venv` and run commands directly:
 
-- **`TimelineRef`**: References to stored RunTimeline artifacts with run metadata
-- **`DecisionCardRef`**: References to DecisionCard artifacts with verdict and generation info
-
-#### Contract Integration
-```python
-# New contract exports in contracts/__init__.py
-from .scientist import (
-    TimelineRef,      # Timeline artifact references
-    DecisionCardRef,  # DecisionCard artifact references
-    # ... existing contracts
-)
+```bash
+source .venv/bin/activate
+python -V
 ```
 
-### Benefits
-- **Enhanced Observability**: Complete event timeline for experiment debugging and optimization
-- **Stakeholder Communication**: Human-readable summaries with structured compliance reporting
-- **Audit Trail Enhancement**: Deterministic summaries with source hash verification
-- **Performance Analysis**: Detailed timing and bottleneck identification
-- **Result Transparency**: Clear verdict communication with confidence metrics
-- **Artifact Provenance**: Complete lifecycle tracking from generation to consumption
+#### Run without activation (recommended)
 
-## Search Framework & Workflow Engines
+You can also avoid activation and run everything via `uv run`:
 
-The Scientist module introduces advanced optimization and orchestration capabilities through two new architectural components that enable efficient policy parameter optimization and flexible experiment management.
-
-### Search Framework (`scientist/search/`)
-
-**Purpose**: Intelligent iterative optimization framework for economic policy parameters using two-stage evaluation to balance speed and accuracy.
-
-#### Two-Stage Evaluation Architecture
-
-The framework implements a sophisticated two-stage evaluation pipeline:
-
-1. **Cheap Stage**: Fast preliminary evaluation using proxy models or simplified simulations
-2. **Expensive Stage**: Comprehensive evaluation through full Foundry executor with detailed economic metrics
-
-#### Key Components
-
-- **`SearchController`**: Central optimization orchestrator managing the complete search lifecycle
-- **`CompositeObjective`**: Multi-objective optimization supporting weighted combinations of economic goals
-- **`OptimizationDirection`**: Bidirectional optimization (MAXIMIZE/MINIMIZE) for different policy targets
-- **`Intelligent Stopping Criteria`**: Advanced termination logic including plateau detection and target achievement
-- **`Correlation Tracking`**: Quality monitoring between cheap and expensive stage predictions
-
-#### Supported Objectives
-
-- **GDPGrowthObjective**: Economic growth maximization
-- **InequalityObjective**: Income inequality minimization
-- **EmploymentObjective**: Employment rate optimization
-- **BudgetDeficitObjective**: Fiscal balance maintenance
-- **Composite Objectives**: Weighted combinations of multiple targets
-
-#### Stopping Criteria Types
-
-- **MaxIterations**: Fixed iteration limits
-- **MaxWallTime**: Time-based termination
-- **ImprovementPlateau**: Convergence detection
-- **TargetAchieved**: Goal attainment triggers
-- **Composite Criteria**: Logical combinations of conditions
-
-### Workflow Engines (`scientist/workflow/`)
-
-**Purpose**: Protocol-based abstraction layer for workflow execution engines, enabling pluggable implementations from simple sequential execution to complex graph-based orchestration.
-
-#### Engine Architecture
-
-Built on dependency inversion principles with protocol-based design:
-
-- **`WorkflowEngine` Protocol**: Unified interface for all engine implementations
-- **`WorkflowEngineFactory`**: Factory pattern for engine instantiation
-- **Pluggable Architecture**: Easy substitution of implementations without client code changes
-
-#### Engine Implementations
-
-##### SimpleLoopEngine
-- **Purpose**: Lightweight sequential workflow execution
-- **Use Cases**: Unit testing, development iteration, cheap stage evaluations
-- **Features**: Zero external dependencies, minimal overhead, step-by-step execution
-- **Performance**: ~10-100μs per node, suitable for fast iterations
-
-##### LangGraphEngine
-- **Purpose**: Complex graph-based workflow orchestration with conditional routing
-- **Use Cases**: Production experiments requiring branching and state management
-- **Features**: Declarative graph definition, conditional routing, error recovery, observability
-- **Performance**: ~1-10ms per node, optimized for complex workflows
-
-#### Protocol Benefits
-
-- **Testability**: Mock implementations for isolated testing
-- **Flexibility**: Migration between engines (SimpleLoop → LangGraph → Temporal)
-- **Consistency**: Unified interface across different workflow complexities
-- **Future-Proofing**: Support for emerging orchestration technologies
-
-### FSM Enhancement (Search Phases)
-
-The kernel FSM has been extended with new phases to support search-based optimization workflows:
-
-- **`SEARCH_INIT`**: Search parameter initialization and configuration
-- **`SEARCH_ITERATE`**: Iterative optimization loop with candidate evaluation
-- **`SEARCH_COMPLETE`**: Search termination and result finalization
-
-#### Phase Transitions
-
-```python
-SEARCH_INIT → {SEARCH_ITERATE, DECIDE}
-SEARCH_ITERATE → {SEARCH_ITERATE, SEARCH_COMPLETE, FRAME}
-SEARCH_COMPLETE → DECIDE
+```bash
+uv run python -V
 ```
 
-### Integration Benefits
+### Option B: pip (fallback)
 
-- **Optimization Efficiency**: Two-stage evaluation reduces computational costs while maintaining accuracy
-- **Workflow Flexibility**: Protocol-based design enables seamless engine substitution
-- **Scalability**: Support for both lightweight testing and production-grade orchestration
-- **Observability**: Complete tracing and monitoring across optimization iterations
-- **Extensibility**: Plugin architecture for custom objectives, stages, and engines
+```bash
+python -m venv .venv
+source .venv/bin/activate
+pip install -e .[dev]
+```
 
-### Future Capabilities
+### Environment variables (.env)
 
-- **Bayesian Optimization**: Gaussian process-based efficient search
-- **Multi-Fidelity Methods**: Variable precision evaluation strategies
-- **Distributed Search**: Cluster-based parallel optimization
-- **Meta-Learning**: Adaptive strategy optimization
-- **Workflow Templates**: Reusable orchestration patterns
+Local defaults and runtime switches can be set via `.env` (loaded by `python-dotenv`):
 
-## Compile-time Analysis & Validation
+```bash
+# if you don't already have one:
+cp env_example.txt .env
+```
 
-The compile-time analysis system provides static validation and optimization analysis before JAX compilation, ensuring reliable and efficient policy execution.
+### Smoke check (recommended)
 
-### Conflict Detection (`foundry/conflict_checker.py`)
+```bash
+uv run python tools/diagnostics/check_setup.py
+```
 
-**Purpose**: Static analysis of ProgramGraph for slot conflicts before runtime execution.
+### macOS + JAX note
 
-#### Key Features
-- **Compile-time Analysis**: Pure Python analysis of mechanism slot interactions
-- **Merge Rule Validation**: Verifies merge rules are properly registered and configured
-- **Conflict Classification**: Uses MergeEngine semantics to classify conflict types
-- **Actionable Diagnostics**: Provides specific suggestions for conflict resolution
-- **Performance**: O(n*m) complexity where n=nodes, m=avg slots per node (<10ms typical)
+On macOS, JAX may auto-select an experimental Metal backend that can crash in some environments.  
+Import `jax_bootstrap.py` before importing `jax` in local scripts.
 
-#### Conflict Types Detected
-- **Missing Slot Registration**: Unregistered slots in SlotRegistry
-- **Missing Merge Rules**: Unregistered merge rules in MergeRuleRegistry
-- **Multiple Writers**: Slots with multiple mechanisms writing without proper merge rules
-- **Unsupported Merge Rules**: Invalid merge rule configurations
+### Run an experiment workflow
 
-#### Integration with Governance
-- **Compliance Issues**: Converts conflicts to Phase 9 ComplianceIssue format
-- **Severity Levels**: Blocker, warning, and info classifications
-- **Location Tracking**: Precise path information for debugging
+`run_experiment.py` is a convenience entrypoint that builds a Scientist workflow and invokes it with a minimal state.
 
-### Cost Estimation Model (`foundry/cost_model.py`)
+```bash
+uv run python run_experiment.py "Design a tax policy that reduces inequality without increasing deficit" \
+  --db-path integration.duckdb \
+  --runtime-base-dir runs
+```
 
-**Purpose**: Heuristic cost estimation with self-calibration for execution planning and budget control.
+### Run the dashboard
 
-#### Key Features
-- **Multi-dimensional Estimation**: Compile time, runtime, memory usage, and FLOPs
-- **Self-calibrating Model**: Learns from telemetry to improve accuracy over time
-- **Budget Enforcement**: Validates execution against configurable resource constraints
-- **Mechanism-specific Costs**: Differentiated costs for different mechanism types
-- **Agent Scaling**: Accounts for agent count and time step scaling
+```bash
+uv run streamlit run dashboard.py
+```
 
-#### Cost Components
-- **Compile Time**: JAX/XLA compilation overhead estimation
-- **Runtime**: Per-step execution cost with mechanism and agent scaling
-- **Memory**: Peak memory usage based on agent count and slot requirements
-- **FLOPs**: Floating point operation estimates for performance analysis
+### Run tests
 
-#### Budget Controls
-- **Time Limits**: Total execution, per-mechanism, and compile time budgets
-- **Memory Limits**: Peak memory consumption constraints
-- **Utilization Tracking**: Fraction of budget consumed with violation detection
+```bash
+uv run pytest
+```
 
-### Integration Benefits
-- **Pre-execution Validation**: Catches issues before expensive JAX compilation
-- **Resource Planning**: Informed decisions about execution feasibility
-- **Debugging Support**: Clear diagnostics for conflict resolution
-- **Performance Optimization**: Cost-guided optimization decisions
-- **System Reliability**: Prevents runtime failures through static analysis
+### Run linters
+
+```bash
+uv run ruff check .
+uv run mypy .
+uv run python tools/lint_imports.py
+uv run python tools/lint_foundry.py
+```
+
+---
+
+## Working with legal norms (NormPacks)
+
+### Where norms live
+
+- `data/norms/sample_norms.yaml` contains example norms for the Phase 18 safe-expression backend.
+
+### Expression safety model (Phase 18)
+
+- Expressions are **validated** by an allowlist-based AST policy (**deny by default**) with comprehensive attack vector rejection.
+- Only a safe subset is supported (boolean ops, comparisons, basic arithmetic, literals, variable names, mathematical operations).
+- Function calls, attribute access, subscripts, imports, comprehensions, lambdas, dunder names, builtin functions, and class escapes are forbidden.
+- Resource limits (nodes/depth/length/names) mitigate denial-of-service style expressions with AST limits enforcement.
+- Security testing includes mathematical correctness validation, variable binding security, and expression evaluator robustness.
+
+### How legal evaluation works
+
+- A `NormPack` is selected/attached (by workflow or configuration).
+- Governance runs the legal pass.
+- The selected backend (e.g., `expr_ast`) evaluates `NormRule.metadata.when/must/must_not` against a provided context.
+- Violations become `ComplianceIssue`s with severity and suggestions.
+
+---
+
+## Reproducibility and artifacts
+
+- **CAS storage** lives under `.polisyos/artifacts/sha256/` (blobs and manifests) with comprehensive observability integration.
+- **Run products** are written under `runs/<run_id>/` by default (manifests, audits, artifacts, decision cards, run timelines; exact layout evolves with the runtime API).
+- The system prefers deterministic serialization and content-addressing for robust provenance and caching with full distributed tracing support.
+- **Environment manifests** capture system state for reproducible simulations with compatibility scoring and risk assessment.
+- **Evidence bundles** and **trust metrics** provide cryptographic verification of data provenance and quality.

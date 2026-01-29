@@ -29,6 +29,13 @@ core/
 │   ├── scientist.py    # Контракты Scientist (ArtifactRef, FailureCardRef, PolicyIRRef, CritiqueRef, TimelineRef, DecisionCardRef)
 │   ├── trinity.py      # Trinity контракты (ProblemFrame, PolicySpec, ModelSpec)
 │   └── legal.py        # Legal compliance контракты (NormPack, NormRule, RuleType, RuleBackend)
+├── observability/      # Production-grade телеметрия и мониторинг
+│   ├── config.py       # Конфигурация OpenTelemetry (OTelConfig, ResourceConfig)
+│   ├── decorators.py   # Декораторы для автоматической трассировки (@traced, @traced_method)
+│   ├── logs.py         # Структурированное логирование с trace correlation (TraceContextFilter, StructuredFormatter)
+│   ├── metrics.py      # Prometheus-совместимые метрики (MetricsRegistry, HistogramTimer)
+│   ├── propagation.py  # Распространение контекста трассировки (inject_headers, extract_headers)
+│   └── tracer.py       # OpenTelemetry трассировщик (PolicyOSTracer, get_tracer)
 ├── registry/           # Сборка и загрузка реестров компонентов
 │   ├── builder.py      # Сборка реестров (build_default_registry_bundle, build_registry_bundle)
 │   └── loader.py       # Загрузка реестров (load_registry_bundle_content, load_registry_bundle_payload)
@@ -318,6 +325,67 @@ core/
 - Ссылки на артефакты в записях трассировки
 - Метрики и предупреждения в записях
 
+### 8. Observability (Наблюдаемость)
+
+**Назначение**: Production-grade система телеметрии, предоставляющая унифицированные возможности наблюдения: распределенную трассировку с OpenTelemetry, Prometheus-совместимые метрики, структурированное логирование с корреляцией трассировки и инструменты распространения контекста.
+
+**Основные компоненты**:
+
+#### Configuration (Конфигурация)
+- `OTelConfig` - централизованная конфигурация OpenTelemetry с поддержкой переменных окружения
+- `ResourceConfig` - атрибуты ресурса для идентификации сервиса (имя, версия, окружение)
+- `get_default_config()` - функция получения конфигурации по умолчанию
+
+#### Tracer (Трассировщик)
+- `PolicyOSTracer` - singleton-обертка для OpenTelemetry TracerProvider с ленивой инициализацией
+- `get_tracer()` - глобальный доступ к трассировщику
+- `get_current_trace_context()` - получение текущего контекста трассировки
+
+#### Decorators (Декораторы)
+- `@traced` - автоматическое создание спанов вокруг функций с поддержкой async/sync
+- `@traced_method` - специализированный декоратор для методов классов
+- Автоматический захват аргументов, результатов и исключений
+
+#### Logs (Логирование)
+- `TraceContextFilter` - фильтр логирования, добавляющий trace_id и span_id
+- `StructuredFormatter` - JSON-форматтер для структурированного логирования
+- `configure_otel_logging_handler()` - интеграция с существующей системой логирования
+- `get_trace_context_dict()` - получение контекста трассировки для логов
+
+#### Metrics (Метрики)
+- `MetricsRegistry` - singleton-реестр метрик с Prometheus-совместимыми экспортерами
+- `HistogramTimer` - контекстный менеджер для измерения времени выполнения
+- `get_metrics()` - глобальный доступ к реестру метрик
+
+#### Propagation (Распространение контекста)
+- `inject_headers()` / `extract_headers()` - инъекция/экстракция контекста в HTTP заголовки
+- `propagate_context()` - контекстный менеджер для распространения контекста
+- `with_trace_context()` - обертка функций для захвата контекста
+- `TracedExecutorWrapper` - обертка для ThreadPoolExecutor с распространением трассировки
+
+**Ключевые возможности**:
+- **Распределенная трассировка**: span-based моделирование с поддержкой OpenTelemetry
+- **Корреляция логов и трассировки**: автоматическая инъекция trace_id в логи
+- **Prometheus метрики**: готовые метрики для workflow, симуляций, LLM вызовов
+- **Zero-configuration instrumentation**: простые декораторы для автоматической трассировки
+- **Контекстная пропаганда**: распространение трассировки через потоки, async задачи и сервисы
+- **Production-ready**: поддержка batching, sampling, graceful fallback
+- **Semantic conventions**: специализированные атрибуты для PolicyOS (phase, agent, node)
+
+**Экспортеры и интеграции**:
+- **OTLP gRPC/HTTP**: для Jaeger, Tempo, DataDog и других OTLP коллекторов
+- **Prometheus**: встроенный HTTP сервер для сбора метрик
+- **Console**: для отладки и разработки
+- **JSON structured logging**: совместимый с ELK stack, Loki, CloudWatch
+
+**Функционал**:
+- Автоматическое создание спанов для функций с атрибутами PolicyOS (phase, agent, node)
+- Захват исключений и установка статусов ошибок в спанах
+- Измерение производительности с гистограммами и счетчиками
+- Корреляция между логами, метриками и трассировкой через trace_id/span_id
+- Распространение контекста через thread boundaries и async operations
+- Конфигурируемое поведение (включение/отключение, sampling, экспортеры)
+
 ## Связи с другими модулями
 
 ### Архитектурные принципы зависимостей
@@ -372,8 +440,9 @@ Core является фундаментом всей системы PolisyOS и
 - **artifacts**: Доступ к развернутым артефактам политик
 - **contracts**: Взаимодействие с откомпилированными политиками
 - **run**: Контексты выполнения в production среде
+- **observability**: Полная телеметрия production execution с distributed tracing, metrics и structured logging
 
-**Обоснование**: Runtime отвечает за развертывание и исполнение политик в production.
+**Обоснование**: Runtime отвечает за развертывание и исполнение политик в production с полным observability coverage.
 
 #### Scientist/Governance/Legal (Правовая валидация) - Зависит от core
 - **contracts.legal**: Полный набор legal контрактов (NormPack, NormRule, RuleType, RuleBackend)
@@ -390,6 +459,7 @@ Core является фундаментом всей системы PolisyOS и
 - **Legal контракты**: обеспечивают compliance валидацию через pluggable rule backends
 - **Каноническая сериализация**: обеспечивает воспроизводимость во всей системе
 - **Реестры**: используются для загрузки компонентов во всех модулях
+- **Observability**: обеспечивает унифицированную телеметрию во всех модулях системы с distributed tracing, metrics и structured logging для полного observability coverage
 
 ## Примеры использования
 
@@ -697,6 +767,78 @@ if not conflict_report.ok:
         print(f"Suggestion: {conflict.suggestion}")
 ```
 
+### Работа с observability (трассировка, метрики, логи):
+
+```python
+from polisyos.core.observability import (
+    get_tracer, get_metrics, traced, configure_otel_logging_handler
+)
+from polisyos.common.logger import get_logger
+
+# Настройка логирования с trace correlation
+configure_otel_logging_handler()
+logger = get_logger(__name__)
+
+# Использование декоратора для автоматической трассировки
+@traced(phase="EXECUTE", node="policy_simulation")
+def run_policy_simulation(policy_config: dict, simulation_steps: int) -> dict:
+    tracer = get_tracer()
+    metrics = get_metrics()
+
+    logger.info("Starting policy simulation", extra={"simulation_steps": simulation_steps})
+
+    with metrics.time_simulation({"policy_type": policy_config.get("type", "unknown")}):
+        # Основная логика симуляции
+        result = perform_simulation(policy_config, simulation_steps)
+
+        # Запись метрик
+        metrics.record_workflow_run("success", "EXECUTE", "simulation_agent")
+
+        # Создание дочернего спана для пост-обработки
+        with tracer.start_as_current_span("post_processing") as span:
+            span.set_attribute("result_size", len(result))
+            processed_result = post_process_result(result)
+
+        return processed_result
+
+# Распространение контекста через thread boundaries
+from concurrent.futures import ThreadPoolExecutor
+from polisyos.core.observability.propagation import TracedExecutorWrapper
+
+def run_parallel_simulations(configs: list[dict]) -> list[dict]:
+    with ThreadPoolExecutor() as executor:
+        traced_executor = TracedExecutorWrapper(executor)
+        # Все задачи в thread pool наследуют trace context
+        futures = traced_executor.map(run_policy_simulation, configs, [1000] * len(configs))
+        return list(futures)
+
+# Работа с метриками LLM
+def call_llm_api(model: str, prompt: str, max_tokens: int = 1000) -> str:
+    metrics = get_metrics()
+
+    try:
+        with get_tracer().start_as_current_span("llm_call", attributes={
+            "model": model,
+            "max_tokens": max_tokens
+        }) as span:
+            response = make_api_call(model, prompt, max_tokens)
+            span.set_attribute("response_length", len(response))
+
+        # Запись метрик LLM
+        metrics.record_llm_call(
+            model=model,
+            status="success",
+            prompt_tokens=len(prompt.split()),
+            completion_tokens=len(response.split())
+        )
+
+        return response
+
+    except Exception as e:
+        metrics.record_llm_call(model=model, status="error")
+        raise
+```
+
 ### Работа с cost modeling:
 
 ```python
@@ -784,6 +926,13 @@ for step in range(1000):
 - Метаданные о происхождении и окружении
 - Аудитные записи для compliance
 
+### 6. Production-grade Observability
+- Distributed tracing с OpenTelemetry для полного visibility
+- Prometheus-compatible metrics для мониторинга и алертинга
+- Structured logging с trace correlation для отладки
+- Zero-configuration instrumentation через декораторы
+- Контекстная пропаганда через thread/async boundaries
+
 ## Интеграция в общую архитектуру PolisyOS
 
 ### Положение в технологическом стеке
@@ -840,11 +989,11 @@ Core обеспечивает инфраструктуру для всего pip
 
 Core активно используется всеми модулями PolisyOS в production среде:
 
-- **Fabric**: Обрабатывает >100K артефактов в типичном ingestion pipeline с полным provenance tracking
-- **Foundry**: Хранит состояния симуляций, результаты калибровки и все артефакты исполнения политик с compile-time conflict detection, cost modeling для resource-aware исполнения и NaN guard для numerical stability
-- **Scientist**: Оркестрирует эксперименты с сотнями артефактов, обеспечивая reproducible research
-- **Runtime**: Обеспечивает production-ready исполнение политик с полным аудитом операций
-- **IR**: Определяет контракты данных с использованием core для инфраструктуры хранения
+- **Fabric**: Обрабатывает >100K артефактов в типичном ingestion pipeline с полным provenance tracking и observability через distributed tracing и metrics
+- **Foundry**: Хранит состояния симуляций, результаты калибровки и все артефакты исполнения политик с compile-time conflict detection, cost modeling для resource-aware исполнения, NaN guard для numerical stability и полной телеметрией через observability module
+- **Scientist**: Оркестрирует эксперименты с сотнями артефактов, обеспечивая reproducible research с comprehensive observability coverage (workflow metrics, LLM call tracking, validation issues)
+- **Runtime**: Обеспечивает production-ready исполнение политик с полным аудитом операций и distributed tracing для всех execution paths
+- **IR**: Определяет контракты данных с использованием core для инфраструктуры хранения и observability для tracing всех compilation operations
 
 ### Производительность и надежность
 
@@ -860,7 +1009,7 @@ Core активно используется всеми модулями PolisyO
 
 - **Надежность**: через CAS с криптографической верификацией целостности
 - **Воспроизводимость**: через детерминированную каноническую сериализацию
-- **Наблюдаемость**: через распределенную систему трассировки с span-based моделированием
+- **Наблюдаемость**: через production-grade телеметрию с distributed tracing, metrics и structured logging
 - **Модульность**: через строго типизированные контракты между компонентами
 - **Масштабируемость**: через эффективное хранение и кеширование артефактов
 - **Аудитоспособность**: через полный провенанс и метаданные операций

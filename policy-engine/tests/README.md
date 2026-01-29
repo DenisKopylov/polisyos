@@ -2,8 +2,8 @@
 
 Тестовая инфраструктура для Policy Engine - AI-driven Policy Simulation System. Тесты обеспечивают качество кода, валидируют архитектурные границы и проверяют корректность работы всех компонентов системы.
 
-**Последнее обновление:** 27 января 2026 (добавлены Phase 18: Safe Expression Evaluation, AST Policy validation, norm execution security, legal AST backends, expression evaluators, governance security testing, AST limits enforcement, Phase 17 search loop system, workflow engines, two-stage filtering, conflict detection, cost model, NaN guard, agent artifacts, merge determinism, quality indicators system, fitness reports, quality gate pass, decision card system, run timeline tracking, decision packet v2)
-**Актуальная версия архитектуры:** v2.2.0 (Phase 18 Security, Safe Expression Evaluation, AST Policy Enforcement, Legal AST Backends)
+**Последнее обновление:** 29 января 2026 (добавлены Core Observability: PolicyOSTracer, MetricsRegistry, @traced decorator, log-trace correlation, context propagation, Phase 18: Safe Expression Evaluation, AST Policy validation, norm execution security, legal AST backends, expression evaluators, governance security testing, AST limits enforcement, Phase 17 search loop system, workflow engines, two-stage filtering, conflict detection, cost model, NaN guard, agent artifacts, merge determinism, quality indicators system, fitness reports, quality gate pass, decision card system, run timeline tracking, decision packet v2)
+**Актуальная версия архитектуры:** v2.3.0 (Core Observability, Phase 18 Security, Safe Expression Evaluation, AST Policy Enforcement, Legal AST Backends)
 
 ## Архитектурный контекст
 
@@ -27,13 +27,19 @@ tests/
 │   ├── test_fabric_gates.py       # Входные фильтры и предусловия Fabric layer
 │   ├── test_kernel_models.py      # Валидация моделей ядра IR (slots, units, merge rules, time semantics)
 │   └── test_surface_ir.py         # Surface IR, линкер, semantic fingerprinting, validation reports
-├── core_phase0/                   # Тесты базовых компонентов core (Phase 0)
+├── core_phase0/                   # Тесты базовых компонентов core (Phase 0 + Observability)
 │   ├── conftest.py                # Специфичная конфигурация для core тестов
 │   ├── test_artifact_store.py     # FileSystemCAS, дедупликация, верификация integrity
 │   ├── test_canon_json.py         # Каноническая JSON сериализация, детерминированные хэши
+│   ├── test_decorators.py         # @traced декоратор для автоматической трассировки функций
 │   ├── test_environment_manifest.py # Захват и сравнение environment манифестов
+│   ├── test_logs.py               # Корреляция логов с trace context
+│   ├── test_metrics.py            # MetricsRegistry singleton, histogram timers, counters
+│   ├── test_observability.py      # Интеграционные сценарии обсервабилити, workflow tracing
+│   ├── test_propagation.py        # Распространение trace context между потоками/сервисами
 │   ├── test_registry_bundle.py    # Сборка и загрузка registry bundles
-│   └── test_run_context.py        # Контекст выполнения и артефакты producer'а
+│   ├── test_run_context.py        # Контекст выполнения и артефакты producer'а
+│   └── test_tracer.py             # PolicyOSTracer singleton и core tracing behaviors
 ├── demos/                         # Демо-тесты для проверки функциональности
 │   └── run_laffer_demo.py         # Тест запуска демо Laffer curve из tools/demos/
 ├── fabric/                        # Тесты компонентов Fabric layer
@@ -122,7 +128,7 @@ tests/
 
 ### Core Phase 0 Tests (`core_phase0/`)
 
-**Цель**: Тестирование фундаментальных компонентов core layer - artifact store, канонической сериализации и registry систем.
+**Цель**: Тестирование фундаментальных компонентов core layer - artifact store, канонической сериализации, registry систем и системы обсервабилити.
 
 **Ключевые тесты:**
 - **Artifact Store**: FileSystemCAS, дедупликация контента, верификация integrity
@@ -130,6 +136,12 @@ tests/
 - **Environment Manifest**: Захват и сравнение окружений (CPU/GPU/OS/Python/JAX), compatibility scoring
 - **Registry Bundle**: Сборка и загрузка registry bundles из artifact store
 - **Run Context**: Контекст выполнения, артефакты и метаданные producer'а
+- **Observability System**: Интеграционные сценарии workflow tracing, span hierarchy, trace correlation
+- **Tracer**: PolicyOSTracer singleton, lazy initialization, span creation, nested spans
+- **Metrics Registry**: Singleton pattern, histogram timers, counter recording, workflow metrics
+- **Log Correlation**: Trace context в логах, TraceContextFilter, log-trace correlation
+- **Decorators**: @traced decorator для автоматической трассировки функций, async support, custom attributes
+- **Context Propagation**: Распространение trace context между потоками/сервисами, header injection/extraction
 
 **Принципы:**
 - Content-addressable storage: SHA256-based addressing, дедупликация
@@ -137,6 +149,10 @@ tests/
 - Type safety: Запрет float значений, использование Decimal для денег
 - Artifact immutability: Артефакты неизменяемы после создания
 - Producer tracking: Метаданные о создателе и окружении
+- Distributed tracing: OpenTelemetry-based tracing с PolicyOS extensions
+- Log correlation: Автоматическое добавление trace_id в лог записи
+- Context propagation: Сохранение trace context при асинхронных операциях и межсервисных вызовах
+- Metrics collection: Структурированный сбор метрик производительности и бизнес-метрик
 
 ### Foundry Tests (`foundry/`)
 
@@ -325,7 +341,7 @@ pytest --cov=polisyos --cov-report=html
 # Контрактные тесты (быстрые, без зависимостей)
 pytest tests/contract/ -v
 
-# Core Phase 0 тесты (базовые компоненты)
+# Core Phase 0 тесты (базовые компоненты + обсервабилити)
 pytest tests/core_phase0/ -v
 
 # Demo тесты (интеграция с tools/demos)
@@ -440,6 +456,14 @@ pytest tests/ir/test_loaders.py
 
 # Runtime manifest paths
 pytest tests/runtime/test_runtime_manifest_paths.py
+
+# Core Phase 0: Observability system
+pytest tests/core_phase0/test_observability.py -v        # Integration workflow tracing
+pytest tests/core_phase0/test_tracer.py -v              # PolicyOSTracer singleton
+pytest tests/core_phase0/test_metrics.py -v             # Metrics registry
+pytest tests/core_phase0/test_logs.py -v                # Log-trace correlation
+pytest tests/core_phase0/test_decorators.py -v          # @traced decorator
+pytest tests/core_phase0/test_propagation.py -v         # Context propagation
 ```
 
 ## Технологии и зависимости
@@ -488,6 +512,12 @@ pytest tests/runtime/test_runtime_manifest_paths.py
 - **Conflict Detection System**: Compile-time валидация программных графов на предмет конфликтов с merge rules
 - **Cost Model**: Оценка стоимости выполнения с budget constraints и telemetry-based calibration
 - **NaN Guard**: Runtime monitoring численной стабильности с diagnostics и cause detection
+- **Observability System**: Интегрированная система трассировки, метрик и логов на базе OpenTelemetry
+- **PolicyOSTracer**: Singleton tracer с lazy initialization и PolicyOS-specific span attributes
+- **Metrics Registry**: Централизованный сбор метрик производительности и workflow статистики
+- **@traced Decorator**: Автоматическая трассировка функций с phase/node/agent атрибутами
+- **Log Correlation**: Trace context injection в лог записи для distributed tracing
+- **Context Propagation**: Распространение trace context между потоками и сервисами через headers
 
 ## Принципы тестирования
 
@@ -528,6 +558,13 @@ pytest tests/runtime/test_runtime_manifest_paths.py
 - **IR Kernel**: Слоты, механизмы, ограничения
 - **Foundry**: Доступ к registry для компиляции
 - **Fabric**: Registry-driven материализация
+
+**Observability System** → Распределенная трассировка и мониторинг
+- **Scientist**: Workflow tracing через все фазы (draft → validate → execute → decide)
+- **Foundry**: Simulation metrics, performance monitoring, error tracking
+- **Fabric**: Data ingestion tracing, evidence bundle provenance
+- **IR**: Policy compilation tracing, validation passes
+- **Runtime**: Execution context tracking, artifact lifecycle tracing
 
 ### Contract Layer (`contract/`)
 **IR Contracts** → Валидация структур данных
@@ -677,6 +714,12 @@ pytest tests/runtime/test_runtime_manifest_paths.py
 10. Для agent simulation тестов валидируйте метрики, экспериментальный трекинг и визуализацию
 11. Для demo тестов проверяйте интеграцию с tools/ и корректность path resolution
 12. Для search тестов: тестируйте optimization convergence, two-stage filtering efficiency, stopping criteria, objective evaluation, workflow engine abstraction
+13. Для observability тестов: тестируйте span hierarchy, trace correlation, context propagation, singleton patterns, decorator behavior
+14. Для tracer тестов: проверяйте lazy initialization, span creation, nested spans, attribute setting
+15. Для metrics тестов: валидируйте singleton pattern, histogram recording, counter increments, workflow metrics
+16. Для log correlation тестов: проверяйте trace context injection, TraceContextFilter, log record enrichment
+17. Для decorator тестов: тестируйте sync/async functions, custom attributes, span naming, exception handling
+18. Для propagation тестов: валидируйте header injection/extraction, thread context preservation, service boundary crossing
 
 ### Отладка тестов
 ```bash
@@ -851,6 +894,47 @@ pytest tests/scientist/test_reflexion_loop.py::TestFailureCardConverters -v
 pytest tests/scientist/test_reflexion_loop.py::TestStateManagement -v
 ```
 
+**Observability system initialization failures:**
+```bash
+# Проверьте singleton initialization
+pytest tests/core_phase0/test_tracer.py::TestPolicyOSTracer::test_lazy_initialization -v
+pytest tests/core_phase0/test_metrics.py::TestMetricsRegistry::test_singleton_pattern -v
+```
+
+**Trace context propagation issues:**
+```bash
+# Проверьте header injection/extraction
+pytest tests/core_phase0/test_propagation.py::TestContextPropagation::test_inject_extract_headers -v
+# Проверьте thread context preservation
+pytest tests/core_phase0/test_propagation.py::TestContextPropagation::test_with_trace_context_wrapper -v
+```
+
+**@traced decorator failures:**
+```bash
+# Проверьте basic decoration
+pytest tests/core_phase0/test_decorators.py::TestTracedDecorator::test_basic_decoration -v
+# Проверьте async functions
+pytest tests/core_phase0/test_decorators.py::TestTracedDecorator::test_async_decoration -v
+# Проверьте custom attributes
+pytest tests/core_phase0/test_decorators.py::TestTracedDecorator::test_custom_attributes -v
+```
+
+**Log correlation issues:**
+```bash
+# Проверьте trace context in logs
+pytest tests/core_phase0/test_logs.py::TestLogCorrelation::test_trace_context_in_logs -v
+# Проверьте context dict extraction
+pytest tests/core_phase0/test_logs.py::TestLogCorrelation::test_get_trace_context_dict -v
+```
+
+**Workflow tracing failures:**
+```bash
+# Проверьте full workflow trace
+pytest tests/core_phase0/test_observability.py::TestIntegrationScenarios::test_full_workflow_trace -v
+# Проверьте span hierarchy
+pytest tests/core_phase0/test_observability.py::TestIntegrationScenarios::test_span_hierarchy -v
+```
+
 ### Полезные команды диагностики
 
 ```bash
@@ -913,4 +997,19 @@ python -c "from polisyos.fabric.catalog.contract import DataContract, DataContra
 
 # Проверка environment manifest
 python -c "from polisyos.core.artifacts.environment import capture_environment; print('Environment manifest OK')"
+
+# Проверка observability system
+python -c "from polisyos.core.observability import get_tracer, get_metrics, traced; print('Observability system OK')"
+
+# Проверка tracer singleton
+python -c "from polisyos.core.observability import get_tracer; t1 = get_tracer(); t2 = get_tracer(); assert t1 is t2; print('Tracer singleton OK')"
+
+# Проверка metrics registry
+python -c "from polisyos.core.observability import get_metrics; m1 = get_metrics(); m2 = get_metrics(); assert m1 is m2; print('Metrics registry OK')"
+
+# Проверка log correlation
+python -c "from polisyos.core.observability.logs import TraceContextFilter, get_trace_context_dict; print('Log correlation OK')"
+
+# Проверка context propagation
+python -c "from polisyos.core.observability import inject_headers, extract_headers; print('Context propagation OK')"
 ```

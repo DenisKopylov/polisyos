@@ -1,6 +1,6 @@
 # Common: Общие компоненты Policy Engine
 
-> **Последнее обновление:** 27 января 2026 г. (обновление связей с модулями scientist/orchestrator)
+> **Последнее обновление:** 29 января 2026 г. (интеграция с OpenTelemetry observability)
 
 Модуль `polisyos.common` содержит фундаментальные утилиты и конфигурации, используемые во всех слоях архитектуры Policy Engine. Эти компоненты обеспечивают базовую инфраструктуру без зависимостей от бизнес-логики.
 
@@ -34,6 +34,7 @@ common/
 Модуль `common` активно используется в следующих компонентах:
 
 #### Логирование (`logger.py`, `get_logger`):
+- **core/observability/logs.py** - структурированное логирование с trace correlation через `get_logger`
 - **fabric/ingestion.py** - логирование операций ingestion данных
 - **fabric/io/db.py** - логирование операций с DuckDB через `logger`
 - **fabric/io/graph_store.py** - логирование операций с графовым хранилищем через `get_logger`
@@ -198,9 +199,9 @@ from polisyos.common.jax_env import apply_jax_env_defaults
 apply_jax_env_defaults()
 ```
 
-### `logger.py` - Структурированное логирование с контекстом модуля
+### `logger.py` - Структурированное логирование с контекстом модуля и трассировки
 
-**Цель:** Единый интерфейс логирования с автоматическим контекстом модуля.
+**Цель:** Единый интерфейс логирования с автоматическим контекстом модуля и интеграцией OpenTelemetry.
 
 #### API:
 
@@ -210,7 +211,7 @@ from polisyos.common.logger import get_logger
 # Получение логгера с контекстом модуля
 log = get_logger(__name__)
 
-# Использование
+# Использование (теперь включает trace_id и span_id автоматически)
 log.info("Operation completed", extra_data={"key": "value"})
 log.error("Something went wrong", error_details={"code": 500})
 ```
@@ -218,9 +219,24 @@ log.error("Something went wrong", error_details={"code": 500})
 #### Особенности:
 
 - **Контекст модуля:** Автоматически привязывает имя модуля через `logger.bind(module=module_name)`
+- **OpenTelemetry интеграция:** Автоматически добавляет `trace_id` и `span_id` из активного контекста трассировки
 - **Loguru backend:** Мощная система логирования с уровнями, форматированием и сериализацией
-- **JSON сериализация:** Файловые логи сериализуются в JSON для машинного парсинга
+- **JSON сериализация:** Файловые логи сериализуются в JSON для машинного парсинга с trace correlation
 - **Настройка в config.py:** Логгер настраивается в `config.py` для избежания циклических импортов
+
+#### OpenTelemetry интеграция:
+
+```python
+# Логи автоматически включают trace context
+from polisyos.core.observability import get_tracer
+
+tracer = get_tracer()
+with tracer.start_as_current_span("operation"):
+    log = get_logger(__name__)
+    log.info("This log will include trace_id and span_id")
+```
+
+Логи теперь содержат поля `trace_id` и `span_id`, что позволяет коррелировать логи с distributed traces в системах мониторинга.
 
 ### `migrations/` - Система версионирования артефактов
 
@@ -315,6 +331,21 @@ apply_jax_env_defaults()  # Безопасная настройка JAX backend
 
 ### Использование в модулях проекта:
 
+#### Логирование с OpenTelemetry интеграцией:
+
+```python
+# В core/observability (производственная телеметрия)
+from polisyos.common.logger import get_logger
+from polisyos.core.observability import get_tracer
+
+tracer = get_tracer()
+log = get_logger(__name__)
+
+with tracer.start_as_current_span("operation"):
+    log.info("Operation with trace context", operation_id="123")
+    # Лог автоматически включает trace_id и span_id
+```
+
 #### Логирование в fabric модулях:
 
 ```python
@@ -352,9 +383,11 @@ def migrate_policy_ir(data: dict, target_version: str | None = None) -> dict:
 - `loguru` - структурированное логирование с JSON сериализацией
 - `python-dotenv` - загрузка переменных окружения из `.env` файла
 - `multiprocessing` - определение количества CPU ядер для автонастройки
+- `opentelemetry-api` - API для интеграции с OpenTelemetry (опционально, для trace correlation)
 
 ### Development:
 - Все зависимости определены в `pyproject.toml` корневой директории проекта
+- OpenTelemetry зависимости доступны в optional-dependencies: `observability`
 
 ## Тестирование
 
@@ -374,6 +407,7 @@ def migrate_policy_ir(data: dict, target_version: str | None = None) -> dict:
 - JSON сериализация для аудита
 - Ротация логов (не растут бесконечно)
 - Структурированные сообщения для анализа
+- Trace correlation для связывания логов с distributed traces
 
 ### Migration Safety:
 - Детерминированные преобразования
@@ -397,6 +431,7 @@ def migrate_policy_ir(data: dict, target_version: str | None = None) -> dict:
 ### Активное использование в модулях проекта:
 
 #### Логирование (logger/get_logger):
+- **`core/observability/logs.py`** - структурированное логирование с trace correlation для production telemetry
 - **`fabric/ingestion.py`** - операции ingestion данных
 - **`fabric/io/db.py`** - операции с DuckDB
 - **`fabric/io/graph_store.py`** - операции с графовым хранилищем
@@ -417,7 +452,7 @@ def migrate_policy_ir(data: dict, target_version: str | None = None) -> dict:
 
 ### Архитектурные связи:
 
-- **core:** Использует логирование для операций с артефактами и регистрами
+- **core:** Использует логирование для операций с артефактами и регистрами; `core/observability` расширяет логирование trace correlation
 - **fabric:** Зависит от логирования для всех I/O операций и UDF движка
 - **foundry:** Активно использует логирование в компиляции, симуляциях агентов, обучении и выполнении экспериментов
 - **ir:** Зависит от миграций для версионирования схем Policy IR и Trinity преобразований

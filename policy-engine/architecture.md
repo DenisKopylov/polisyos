@@ -85,7 +85,7 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │   │   ├── requires.txt  # Dependency requirements (generated).
 │   │   └── top_level.txt  # Top-level import package names (generated).
 │   └── polisyos/  # Main Python package implementing the policy OS.
-│       ├── common/  # Shared utilities: config, logging, JAX env defaults, migrations.
+│       ├── common/  # Shared utilities: config, logging with trace correlation, JAX env defaults, migrations.
 │       │   ├── migrations/  # Deterministic migrations for schema-managed artifacts.
 │       │   │   ├── README.md  # Documentation for this directory/module.
 │       │   │   ├── __init__.py  # Python package initializer (public exports live here).
@@ -96,7 +96,7 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │       │   ├── __init__.py  # Python package initializer (public exports live here).
 │       │   ├── config.py  # Central configuration (pydantic-settings) and environment wiring.
 │       │   ├── jax_env.py  # JAX environment defaults and macOS backend safety toggles.
-│       │   └── logger.py  # Structured logging setup (Loguru) and adapters.
+│       │   └── logger.py  # Structured logging setup (Loguru) with OpenTelemetry trace correlation.
 │       ├── core/  # Infrastructure: artifacts/CAS, canonical JSON, contracts, tracing, registry, run context.
 │       │   ├── artifacts/  # Artifact system: IDs, manifests, environment manifests, CAS store.
 │       │   │   ├── README.md  # Documentation for this directory/module.
@@ -138,6 +138,15 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │       │   │   ├── __init__.py  # Python package initializer (public exports live here).
 │       │   │   ├── record.py  # TraceRecord model for structured tracing.
 │       │   │   └── sink.py  # Trace sinks (e.g., JSONL sink).
+│       │   ├── observability/  # Production-grade telemetry system (OpenTelemetry tracing, metrics, logs, propagation).
+│       │   │   ├── README.md  # Documentation for this directory/module.
+│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   ├── config.py  # OpenTelemetry configuration and resource attributes.
+│       │   │   ├── decorators.py  # @traced decorator for automatic function instrumentation.
+│       │   │   ├── logs.py  # Structured logging with trace correlation.
+│       │   │   ├── metrics.py  # Prometheus-compatible metrics registry and timers.
+│       │   │   ├── propagation.py  # Trace context propagation across threads/services.
+│       │   │   └── tracer.py  # PolicyOSTracer singleton with OpenTelemetry integration.
 │       │   ├── README.md  # Documentation for this directory/module.
 │       │   └── __init__.py  # Python package initializer (public exports live here).
 │       ├── fabric/  # Unified Data Fabric: ingestion, catalog, evidence, quality, trust, UDF queries.
@@ -428,14 +437,20 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │   │   ├── test_surface_ir.py  # Pytest module exercising surface ir.
 │   │   ├── test_trinity_contracts.py  # Pytest module exercising trinity contracts.
 │   │   └── test_trinity_migration.py  # Pytest module exercising trinity migration.
-│   ├── core_phase0/  # Core infrastructure tests (CAS, canonical JSON, registry bundles).
+│   ├── core_phase0/  # Core infrastructure tests (CAS, canonical JSON, registry bundles, observability system).
 │   │   ├── README.md  # Documentation for this directory/module.
 │   │   ├── conftest.py  # Pytest shared fixtures and configuration.
 │   │   ├── test_artifact_store.py  # Pytest module exercising artifact store.
 │   │   ├── test_canon_json.py  # Pytest module exercising canon json.
+│   │   ├── test_decorators.py  # Pytest module exercising @traced decorator for automatic instrumentation.
 │   │   ├── test_environment_manifest.py  # Pytest module exercising environment manifest.
+│   │   ├── test_logs.py  # Pytest module exercising log-trace correlation.
+│   │   ├── test_metrics.py  # Pytest module exercising metrics registry and timers.
+│   │   ├── test_observability.py  # Pytest module exercising integrated observability workflows.
+│   │   ├── test_propagation.py  # Pytest module exercising trace context propagation.
 │   │   ├── test_registry_bundle.py  # Pytest module exercising registry bundle.
-│   │   └── test_run_context.py  # Pytest module exercising run context.
+│   │   ├── test_run_context.py  # Pytest module exercising run context.
+│   │   └── test_tracer.py  # Pytest module exercising PolicyOSTracer singleton.
 │   ├── demos/  # Demo smoke tests.
 │   │   ├── README.md  # Documentation for this directory/module.
 │   │   └── run_laffer_demo.py  # File.

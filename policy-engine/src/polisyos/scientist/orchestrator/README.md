@@ -13,13 +13,13 @@ Orchestrator Layer управляет полным жизненным цикло
 ```
 orchestrator/
 ├── __init__.py                    # Пустой (для будущего использования)
-├── workflow.py                   # Основной LangGraph workflow
-├── state.py                      # ExperimentState и типы данных
-├── flow_nodes.py                 # Реализации узлов workflow (1450+ строк)
-├── decision_packet.py            # Итоговый артефакт эксперимента
+├── workflow.py                   # Основной LangGraph workflow с self-healing
+├── state.py                      # ExperimentState и типы данных (90+ полей)
+├── flow_nodes.py                 # Реализации узлов workflow (3200+ строк)
+├── decision_packet.py            # Итоговый артефакт эксперимента с evidence
 ├── decision_card.py              # Human-readable summaries результатов
 ├── run_record.py                 # Метаданные для воспроизводимости
-├── run_timeline.py               # Timeline artifact для observability
+├── run_timeline.py               # Timeline artifact для observability и tracing
 ├── audit.py                      # Система аудита и логирования
 ├── data_loader.py                # Загрузка данных из Fabric
 ├── nodes.py                      # Устаревшие узлы (deprecated)
@@ -149,9 +149,79 @@ class RepairAttempt(TypedDict):
 
 ### 🏗️ Flow Nodes (flow_nodes.py)
 
-Реализации всех узлов workflow (1450+ строк кода):
+Реализации всех узлов workflow (3200+ строк кода) с поддержкой self-healing и hierarchical agent system:
 
-#### draft_ir_node
+#### Self-Healing Agent Nodes
+
+##### reflexion_node
+Управление self-healing workflow:
+```python
+def reflexion_node(state: ExperimentState) -> ExperimentState:
+    """Оркестрация Reflexion loop для исправления ошибок."""
+    # 1. Оценка failure через ReflexionOrchestrator
+    # 2. Intelligent routing (Formalizer/Drafter/Human)
+    # 3. Context injection для retry attempts
+    # 4. Timeline logging исправлений
+```
+
+##### pi_decompose_node
+Декомпозиция задач через PI Agent:
+```python
+def pi_decompose_node(state: ExperimentState) -> ExperimentState:
+    """Декомпозиция высокоуровневых задач на подзадачи."""
+    # 1. Вызов PI Agent (Mock или LLM)
+    # 2. Создание ProblemFrame артефакта
+    # 3. Генерация SubTask с зависимостями
+    # 4. State updates для следующих агентов
+```
+
+##### drafter_node
+Генерация черновиков через Drafter Agent:
+```python
+def drafter_node(state: ExperimentState) -> ExperimentState:
+    """Генерация естественных черновиков политик."""
+    # 1. Получение ProblemFrame от PI
+    # 2. Вызов Drafter Agent (Mock или LLM)
+    # 3. Создание DraftResult артефакта
+    # 4. Timeline logging
+```
+
+##### formalize_node
+Преобразование в IR через Formalizer Agent:
+```python
+def formalize_node(state: ExperimentState) -> ExperimentState:
+    """Преобразование черновиков в PolicySurfaceIR."""
+    # 1. Получение DraftResult от Drafter
+    # 2. Вызов Formalizer Agent (Mock или LLM)
+    # 3. Схема валидация и типизация
+    # 4. State updates с IR
+```
+
+##### critic_review_node
+Валидация через Critic Agent:
+```python
+def critic_review_node(state: ExperimentState) -> ExperimentState:
+    """Комплексная валидация и критика политик."""
+    # 1. Получение IR от Formalizer
+    # 2. Вызов Critic Agent (Mock или LLM)
+    # 3. Генерация CritiqueReport
+    # 4. Feedback generation для governor
+```
+
+##### reflexion_repair_node
+Исправление ошибок в self-healing цикле:
+```python
+def reflexion_repair_node(state: ExperimentState) -> ExperimentState:
+    """Исправление ошибок с context injection."""
+    # 1. Получение FailureCard из reflexion_node
+    # 2. Context injection в LLM prompts
+    # 3. Retry attempt с исправлениями
+    # 4. State updates и logging
+```
+
+#### Legacy Workflow Nodes
+
+##### draft_ir_node
 Генерация политики из natural language:
 ```python
 def draft_ir_node(state: ExperimentState) -> ExperimentState:
@@ -194,6 +264,17 @@ def run_sim_node(state: ExperimentState) -> ExperimentState:
     # 2. Вызов compute.run_job
     # 3. Обработка результатов
     # 4. State updates
+```
+
+#### run_calibration_node
+Калибровка параметров политики:
+```python
+def run_calibration_node(state: ExperimentState) -> ExperimentState:
+    """Калибровка параметров через Fabric calibrator."""
+    # 1. Извлечение series из fabric data
+    # 2. Оптимизация параметров через Optax
+    # 3. Uncertainty quantification через Hessian
+    # 4. Сохранение calibrated parameters
 ```
 
 #### governor_node
@@ -709,17 +790,29 @@ def test_workflow_execution_mock():
     assert packet.run_id == "mock_test_001"
 ```
 
+### Test Coverage
+
+- **Workflow Execution**: LangGraph orchestration, conditional routing, self-healing cycles
+- **Self-Healing Nodes**: reflexion_node, pi_decompose_node, drafter_node, formalize_node, critic_review_node, reflexion_repair_node
+- **State Management**: ExperimentState updates, TypedDict validation, 90+ field handling
+- **Decision Artifacts**: DecisionPacket creation, DecisionCard generation, evidence integration
+- **Timeline & Audit**: RunTimeline event tracking, audit trail logging, observability
+- **Data Loading**: Fabric integration, SimulationDB/GraphStore access
+- **Calibration**: Parameter optimization, uncertainty quantification, Hessian analysis
+- **Integration**: End-to-end workflow testing, LLM integration, mock testing
+
 ## Связанные компоненты
 
-- **Agent**: `draft_ir_node` использует `drafter.py`, Self-Healing system интегрируется с timeline events
+- **Agent**: Hierarchical agent system (PI→Drafter→Formalizer→Critic), FailureCard integration, ShortTermMemory, ReflexionOrchestrator
 - **Kernel**: FSM phases, guards, human gates - все transitions логируются в RunTimeline
 - **Compute**: `run_sim_node` использует `run_job`, execution events tracked in timeline
 - **Governance**: Preflight/postflight integration, validation passes create timeline events
 - **IR**: PolicySurfaceIR валидация и compilation - results summarized in DecisionCard
-- **Fabric**: Data loading и evidence bundles - references included in DecisionCard
-- **Foundry**: Model compilation и simulation execution - artifacts tracked in timeline
+- **Fabric**: Data loading, calibration через `extract_fabric_series`, evidence bundles и uncertainty quantification
+- **Foundry**: Model compilation, simulation execution, agent training с continuous actions
 - **Runtime**: Lifecycle management и artifact storage, DecisionCard и RunTimeline сохраняются как artifacts
 - **Core**: TraceRecord integration через `timeline.to_trace_records()` для unified observability
+- **LLM Layer**: TracedLLMClient для monitoring LLM calls в agent nodes
 
 ## Troubleshooting
 

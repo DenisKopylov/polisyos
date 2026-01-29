@@ -2,9 +2,9 @@
 
 Валидация компонентов scientist layer - протоколов агентов, компилятора политик, ИИ-компонентов, optimization loop и workflow engines.
 
-**Последнее обновление:** Январь 2026 (добавлены Phase 18: Safe Expression Evaluation, AST Policy validation, norm execution security, legal AST backends, expression evaluators, governance security testing, legal pass тесты, norm pack validation, decision card system, run timeline tracking, decision packet v2, search loop system, workflow engines)
-**Уровень:** Scientist Layer (AI & Compilation & Optimization)
-**Зависимости:** JAX, Core artifacts, IR structures, Legal contracts, Search objectives, Workflow engines
+**Последнее обновление:** Январь 2026 (добавлены Phase 18: Safe Expression Evaluation, AST Policy validation, norm execution security, legal AST backends, expression evaluators, governance security testing, legal pass тесты, norm pack validation, decision card system, run timeline tracking, decision packet v2, search loop system, workflow engines, Phase 2 instrumentation: flow node tracing, LLM client instrumentation, governance pipeline spans, end-to-end workflow tracing)
+**Уровень:** Scientist Layer (AI & Compilation & Optimization & Instrumentation)
+**Зависимости:** JAX, Core artifacts, IR structures, Legal contracts, Search objectives, Workflow engines, OpenTelemetry tracing
 
 ## Архитектурный контекст
 
@@ -18,6 +18,8 @@ scientist/
 │   ├── test_legal_pass.py     # LegalPass, RuleBackend, NormPack validation
 │   ├── test_norm_execution.py # Phase 18: Safe expression evaluation, AST policy, security validation
 │   └── test_validation_pipeline.py # ValidationPipeline, profiles, compliance issues
+├── integration/               # Интеграционные тесты scientist layer (Phase 2 instrumentation)
+│   └── test_workflow_tracing.py # End-to-end workflow tracing, trace consistency, phase validation
 ├── search/                    # Тесты search loop system (Phase 17 optimization)
 │   ├── conftest.py            # Специфичная конфигурация для search тестов
 │   ├── test_search_loop.py    # SearchController, two-stage filtering, stopping criteria, objectives
@@ -26,6 +28,7 @@ scientist/
 ├── test_compiler.py           # Компилятор политик из IR
 ├── test_decision_card.py      # DecisionCard, Verdict, Confidence, KeyMetric, IssuesSummary
 ├── test_decision_packet_v2.py # DecisionPacket v2 с timeline и decision card поддержкой
+├── test_instrumentation.py    # Phase 2 instrumentation tests (flow nodes, LLM client, governance tracing)
 ├── test_multi_agent_workflow.py # Multi-agent workflow с critique system и памятью
 ├── test_reflexion_loop.py     # Reflexion loop, failure cards, recovery mechanisms
 └── test_run_timeline.py       # RunTimeline, TimelineEventType, timeline tracking
@@ -83,6 +86,22 @@ scientist/
 - **Limited Scope**: Только безопасные mathematical operations и variable references
 - **Error Containment**: Graceful handling ошибок без system compromise
 - **Type Safety**: Strict type checking и validation для всех operations
+
+### Integration Tests (`integration/test_workflow_tracing.py`)
+
+**Цель:** End-to-end валидация workflow tracing, trace consistency и phase validation в полном scientist pipeline.
+
+**Ключевые тесты:**
+- **Workflow Trace Consistency**: Валидация что полный workflow run_experiment() создает consistent trace IDs
+- **Phase Validation**: Проверка что все expected phases присутствуют в trace (FRAME, DRAFT, VALIDATE, EXECUTE, DECIDE)
+- **Run ID Consistency**: Убеждение что все spans имеют одинаковый run_id с initial state
+- **Integration Markers**: Тесты маркированы pytest.mark.integration для раздельного запуска
+
+**Принципы:**
+- **Full Pipeline Coverage**: Тесты покрывают полный end-to-end workflow scientist layer
+- **Trace Integrity**: Все spans в workflow должны иметь consistent trace context
+- **Phase Completeness**: Workflow должен проходить через все architectural phases
+- **Integration Isolation**: Тесты запускаются только при POLISYOS_RUN_INTEGRATION=1
 
 ### Search Loop System (`search/test_search_loop.py`)
 
@@ -223,6 +242,24 @@ scientist/
 - **Escalation Paths**: Automatic escalation to human для complex failures
 - **Audit Trail**: Complete failure history с content hashing
 
+### Phase 2 Instrumentation (`test_instrumentation.py`)
+
+**Цель:** Валидация instrumentation системы - flow node tracing, LLM client instrumentation, governance pipeline spans.
+
+**Ключевые тесты:**
+- **Flow Node Instrumentation**: Span creation для drafter_node, validate_ir_node с phase/agent attributes
+- **LLM Client Tracing**: TracedLLMClient с token tracking (prompt/completion), async support, error handling
+- **Governance Pipeline Spans**: Validation pipeline span creation per pass с issue count tracking
+- **Trace Consistency**: Trace ID consistency across workflow steps, nested span hierarchy
+- **Attribute Validation**: Polisyos-specific span attributes (phase, agent.name, run_id, validation.issue_count)
+
+**Принципы:**
+- **Distributed Tracing**: OpenTelemetry-based tracing с PolicyOS extensions
+- **Span Hierarchy**: Proper parent-child relationships между workflow spans
+- **Attribute Enrichment**: Rich span attributes для observability и debugging
+- **Performance Overhead**: Minimal tracing overhead с lazy initialization
+- **Token Accounting**: Accurate LLM token tracking для cost monitoring
+
 ## Запуск тестов
 
 ```bash
@@ -234,6 +271,10 @@ pytest tests/scientist/governance/ -v
 pytest tests/scientist/governance/test_validation_pipeline.py -v
 pytest tests/scientist/governance/test_legal_pass.py -v
 pytest tests/scientist/governance/test_norm_execution.py -v
+
+# Integration тесты (Phase 2 instrumentation)
+pytest tests/scientist/integration/ -v               # End-to-end workflow tracing
+pytest tests/scientist/integration/test_workflow_tracing.py -v # Trace consistency, phase validation
 
 # Конкретные компоненты
 pytest tests/scientist/test_agent_protocols.py -v
@@ -272,6 +313,11 @@ pytest tests/scientist/test_multi_agent_workflow.py::TestShortTermMemory -v
 pytest tests/scientist/test_reflexion_loop.py::TestReflexionOrchestrator -v
 pytest tests/scientist/test_reflexion_loop.py::TestFailureCardSchema -v
 pytest tests/scientist/test_reflexion_loop.py::TestFailureCardConverters -v
+
+# Phase 2 instrumentation testing
+pytest tests/scientist/test_instrumentation.py::TestFlowNodeInstrumentation -v     # Flow node spans, trace consistency
+pytest tests/scientist/test_instrumentation.py::TestLLMClientInstrumentation -v   # LLM client tracing, token tracking
+pytest tests/scientist/test_instrumentation.py::TestGovernanceInstrumentation -v  # Governance pipeline spans
 ```
 
 ## Связи с другими модулями
@@ -329,6 +375,13 @@ pytest tests/scientist/test_reflexion_loop.py::TestFailureCardConverters -v
 - **Runtime Layer**: Execution context и state management для workflows
 - **Core Layer**: Artifact persistence для workflow state и results
 
+**Phase 2 Instrumentation** (`orchestrator/flow_nodes.py`, `scientist/llm/traced_client.py`, `governance/pipeline.py`):
+- **Core Observability**: PolicyOSTracer singleton, distributed tracing infrastructure
+- **Scientist Orchestrator**: Flow node span creation, agent/phase attribute enrichment
+- **LLM Integration**: TracedLLMClient для token tracking и model attribution
+- **Governance Pipeline**: Validation pass span creation, issue count tracking
+- **Integration Layer**: End-to-end workflow trace validation и consistency checking
+
 ### Потребители Scientist Layer
 
 **Integration Layer** (`integration/`):
@@ -338,6 +391,13 @@ pytest tests/scientist/test_reflexion_loop.py::TestFailureCardConverters -v
 - **Failure Cards**: Error handling integration с governor и validation feedback
 - **Decision Cards**: Human-readable summaries для stakeholders и decision makers
 - **Timeline Tracking**: Execution monitoring и performance analysis для end-to-end runs
+- **Workflow Tracing**: End-to-end trace validation для full scientist pipeline execution
+
+**Observability & Monitoring Systems**:
+- **Distributed Tracing**: Trace collection и analysis для scientist workflow execution
+- **Performance Monitoring**: Span duration tracking для bottleneck identification
+- **LLM Usage Tracking**: Token consumption monitoring для cost optimization
+- **Governance Audit**: Compliance validation span tracking для audit trails
 
 ### Архитектурные инварианты
 
@@ -346,6 +406,9 @@ pytest tests/scientist/test_reflexion_loop.py::TestFailureCardConverters -v
 - **Закон L**: Legal compliance (policies валидируются против applicable legal norms)
 - **Закон O**: Optimization convergence (search loops converge к optimal policies или escalate)
 - **Закон P**: Two-stage efficiency (cheap filtering prevents expensive evaluation waste)
+- **Закон T**: Trace consistency (all workflow spans share consistent trace context)
+- **Закон I**: Instrumentation coverage (all major workflow components are instrumented)
+- **Закон M**: Minimal overhead (tracing adds minimal performance overhead)
 - **Registry Consistency**: Compilation использует consistent registry bundles
 - **Execution Correctness**: Compiled programs preserve policy semantics
 - **State Safety**: Safe state transformations через execution
@@ -374,7 +437,9 @@ pytest tests/scientist/test_reflexion_loop.py::TestFailureCardConverters -v
 11. Для failure cards: валидируйте schema compliance, converter accuracy, severity classification
 12. Для legal pass: тестируйте profile-based execution, backend delegation, norm pack validation
 13. Для search loop system: тестируйте convergence к known optima, two-stage filtering efficiency, stopping criteria triggers, objective evaluation correctness, candidate generation quality, workflow engine abstraction
-14. Используйте fixtures для shared state (base_state, recoverable_failure_card, fatal_failure_card, sample_norm_pack, mock_packet, mock_candidate_generator, quadratic_objective)
+14. Для instrumentation тестов: тестируйте span creation, attribute enrichment, trace consistency, LLM token tracking, governance pipeline spans
+15. Для integration тестов: тестируйте end-to-end workflow tracing, phase validation, trace consistency, full pipeline coverage
+16. Используйте fixtures для shared state (base_state, recoverable_failure_card, fatal_failure_card, sample_norm_pack, mock_packet, mock_candidate_generator, quadratic_objective, minimal_state, in_memory_exporter)
 
 ### Структура scientist теста
 
@@ -817,9 +882,57 @@ pytest tests/scientist/search/test_search_loop.py::TestWorkflowEngineAbstraction
 - **Candidate Generators**: History-aware generation новых policy candidates для refinement
 - **Workflow Engines**: Abstract engine protocol supporting LangGraph, SimpleLoop, future Temporal/Prefect
 
+### Phase 2 Instrumentation Components
+- **Flow Node Tracing**: Automatic span creation для scientist orchestrator flow nodes
+- **LLM Client Instrumentation**: TracedLLMClient с token accounting и model attribution
+- **Governance Pipeline Tracing**: Span creation per validation pass с issue count tracking
+- **Trace Consistency Validation**: End-to-end trace integrity checking across workflow execution
+- **OpenTelemetry Integration**: PolicyOS extensions для distributed tracing infrastructure
+- **Performance Monitoring**: Span duration tracking для workflow bottleneck identification
+
 ### Optimization Infrastructure
 - **SearchController**: Orchestrator для optimization loops с result tracking и status management
 - **SearchConfig**: Configuration для stopping criteria, objectives, iteration limits
 - **CandidateGenerator Protocol**: Extensible interface для различных generation strategies
 - **SearchResult**: Structured results с best candidate, iteration history, stopping reason
 - **SearchIteration**: Per-iteration tracking objective values, stage evaluations, timing
+
+## Troubleshooting
+
+### Распространенные проблемы
+
+**Instrumentation failures:**
+```bash
+# Проверьте flow node span creation
+pytest tests/scientist/test_instrumentation.py::TestFlowNodeInstrumentation::test_drafter_node_creates_span -v
+# Проверьте trace consistency
+pytest tests/scientist/test_instrumentation.py::TestFlowNodeInstrumentation::test_trace_id_consistency_across_workflow -v
+# Проверьте LLM client token tracking
+pytest tests/scientist/test_instrumentation.py::TestLLMClientInstrumentation::test_traced_llm_client_records_tokens -v
+# Проверьте governance pipeline spans
+pytest tests/scientist/test_instrumentation.py::TestGovernanceInstrumentation::test_validation_pipeline_creates_spans_per_pass -v
+```
+
+**Workflow tracing integration issues:**
+```bash
+# Проверьте end-to-end trace consistency
+pytest tests/scientist/integration/test_workflow_tracing.py::test_full_workflow_trace_consistency -v
+# Проверьте phase validation
+pytest tests/scientist/integration/test_workflow_tracing.py -v
+```
+
+**Instrumentation overhead issues:**
+```bash
+# Проверьте что tracing не влияет на performance
+pytest tests/scientist/test_instrumentation.py -k "span" --durations=10
+# Проверьте memory usage с tracing enabled
+pytest tests/scientist/test_instrumentation.py --memray
+```
+
+**Trace context propagation issues:**
+```bash
+# Проверьте trace context в async operations
+pytest tests/scientist/test_instrumentation.py::TestFlowNodeInstrumentation::test_trace_id_consistency_across_workflow -v
+# Проверьте span attribute enrichment
+pytest tests/scientist/test_instrumentation.py::TestFlowNodeInstrumentation::test_validate_ir_node_records_issues -v
+```

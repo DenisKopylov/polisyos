@@ -1,28 +1,31 @@
 from __future__ import annotations
 
 import asyncio
+import hashlib
 from decimal import Decimal
 from io import BytesIO
 import json
 import time
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 import equinox as eqx
 import jax
 import jax.numpy as jnp
 import optax
+from opentelemetry.trace import SpanKind, Status, StatusCode
 from pydantic import ValidationError
 
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
-from polisyos.core.canon import from_canonical_bytes
+from polisyos.core.canon import from_canonical_bytes, to_canonical_bytes
 from polisyos.core.compiler import CompileReport, put_compile_report, put_link_report
 from polisyos.core.registry import build_default_registry_bundle, load_registry_bundle_content
 from polisyos.core.run.context import RunContext
 from polisyos.core.contracts.foundry import ExecPlan, ExecPlanRef, ProgramGraph, ProgramGraphRef
+from polisyos.core.observability import get_metrics, get_tracer
 from polisyos.fabric.io.db import SimulationDB
 from polisyos.fabric.io.graph_store import GraphStore
 from polisyos.fabric.udf.engine import UDFEngine
@@ -84,6 +87,63 @@ DEFAULT_BUDGET = {
 }
 
 _TIMELINE_STATE_KEY = "_timeline_data"
+
+# --- Observability semantic conventions ---
+ATTR_RUN_ID = "polisyos.run_id"
+ATTR_PHASE = "polisyos.phase"
+ATTR_AGENT = "polisyos.agent.name"
+ATTR_NODE = "polisyos.node.name"
+ATTR_REVISION_COUNT = "polisyos.revision_count"
+ATTR_VERDICT = "polisyos.verdict"
+
+
+def _truncate_text(value: str, max_len: int = 200) -> str:
+    if len(value) <= max_len:
+        return value
+    return value[:max_len] + "..."
+
+
+def _extract_span_attributes(
+    state: ExperimentState,
+    extras: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    """
+    Safely extract span attributes from ExperimentState.
+
+    Defensive: if state is malformed, we still return minimal attributes.
+    """
+    attrs: dict[str, Any] = {}
+
+    run_id = state.get("run_id")
+    if run_id:
+        attrs[ATTR_RUN_ID] = str(run_id)
+
+    ir = state.get("ir")
+    if ir is not None:
+        try:
+            if hasattr(ir, "model_dump"):
+                payload = ir.model_dump(mode="json")
+                digest = hashlib.sha256(to_canonical_bytes(payload)).hexdigest()[:12]
+                attrs["polisyos.policy.hash"] = digest
+                schema_version = payload.get("schema_version")
+                if schema_version:
+                    attrs["polisyos.ir.schema_version"] = str(schema_version)
+            if hasattr(ir, "schema_version"):
+                attrs["polisyos.ir.schema_version"] = str(getattr(ir, "schema_version"))
+        except Exception:
+            pass
+
+    revision_count = state.get("revision_count")
+    if revision_count is not None:
+        try:
+            attrs[ATTR_REVISION_COUNT] = int(revision_count)
+        except Exception:
+            pass
+
+    if extras:
+        attrs.update(extras)
+
+    return attrs
 
 
 def _get_or_create_timeline(state: ExperimentState) -> RunTimeline:
@@ -813,101 +873,120 @@ def reflexion_node(state: ExperimentState) -> ExperimentState:
     Reflexion node: Evaluate failure and decide next action.
     """
     state = _ensure_run(state)
-    if state.get("pruned"):
-        return state
-
-    orchestrator = _get_reflexion_orchestrator()
-    run_id = state.get("run_id") or "unknown"
-
-    card = _get_or_create_failure_card(state)
-    if card is None:
-        return {**state, "reflexion_decision": ReflexionDecision.PASS_THROUGH.value}
-
-    new_state = set_current_failure_card(state, card)
-    decision = orchestrator.evaluate_failure(card, new_state)
-
-    new_state = {
-        **new_state,
-        "reflexion_decision": decision.value,
-        "reflexion_cycle_count": new_state.get("reflexion_cycle_count", 0) + 1,
-        "reflexion_attempt": card.attempt_number,
-    }
-
-    new_state = add_failure_to_history(new_state, card)
-
-    if run_id:
-        log_artifact(
-            run_id=run_id,
-            artifact_type="failure_card",
-            payload=card.model_dump(mode="json"),
-            media_type="application/json",
-            step="reflexion",
-            base_dir=_runtime_base_dir(new_state),
-        )
-
-    if decision in (
-        ReflexionDecision.RETURN_TO_FORMALIZER,
-        ReflexionDecision.RETURN_TO_DRAFTER,
-    ):
-        retry_context = orchestrator.prepare_retry_context(card, new_state)
-        new_state["retry_context"] = retry_context
-        new_state = increment_retry_count(new_state)
-        new_state["feedback"] = None
-
-        hints = _extract_remediation_hints(card)
-        if hints:
-            new_state["reflexion_hints"] = hints
-
-        log_artifact(
-            run_id=run_id,
-            artifact_type="reflexion_retry",
-            payload={
-                "card": card.model_dump(mode="json"),
-                "decision": decision.value,
-                "attempt": card.attempt_number,
-            },
-            media_type="application/json",
-            step="reflexion",
-            base_dir=_runtime_base_dir(new_state),
-        )
-
-    if decision in (
-        ReflexionDecision.ABORT_WITH_REPORT,
-        ReflexionDecision.ESCALATE_TO_HUMAN,
-    ):
-        new_state["pruned"] = True
-        new_state = _create_terminal_report(new_state, card, decision)
-        if decision == ReflexionDecision.ESCALATE_TO_HUMAN:
-            new_state["human_intervention_payload"] = {
-                "failure_card": card.model_dump(mode="json"),
-                "decision": decision.value,
-            }
-
-        log_artifact(
-            run_id=run_id,
-            artifact_type="reflexion_terminal",
-            payload={
-                "card": card.model_dump(mode="json"),
-                "decision": decision.value,
-                "failure_history": new_state.get("failure_history", []),
-            },
-            media_type="application/json",
-            step="reflexion",
-            base_dir=_runtime_base_dir(new_state),
-        )
-
-    new_state = append_audit(
-        new_state,
-        "reflexion",
-        decision.value,
+    tracer = get_tracer()
+    span_attrs = _extract_span_attributes(
+        state,
         {
-            "error_code": card.error_code,
-            "attempt": card.attempt_number,
-            "can_retry": card.can_retry,
+            ATTR_PHASE: "VALIDATE",
+            ATTR_AGENT: "reflexion",
+            ATTR_NODE: "reflexion",
         },
     )
+    with tracer.start_as_current_span(
+        "reflexion_node",
+        attributes=span_attrs,
+        kind=SpanKind.INTERNAL,
+    ) as span:
+        if state.get("pruned"):
+            span.set_attribute("polisyos.pruned", True)
+            span.set_status(Status(StatusCode.OK))
+            return state
 
-    return new_state
+        orchestrator = _get_reflexion_orchestrator()
+        run_id = state.get("run_id") or "unknown"
+
+        card = _get_or_create_failure_card(state)
+        if card is None:
+            span.set_status(Status(StatusCode.OK))
+            return {**state, "reflexion_decision": ReflexionDecision.PASS_THROUGH.value}
+
+        span.set_attribute("polisyos.reflexion_attempt", card.attempt_number)
+        new_state = set_current_failure_card(state, card)
+        decision = orchestrator.evaluate_failure(card, new_state)
+
+        new_state = {
+            **new_state,
+            "reflexion_decision": decision.value,
+            "reflexion_cycle_count": new_state.get("reflexion_cycle_count", 0) + 1,
+            "reflexion_attempt": card.attempt_number,
+        }
+
+        new_state = add_failure_to_history(new_state, card)
+
+        if run_id:
+            log_artifact(
+                run_id=run_id,
+                artifact_type="failure_card",
+                payload=card.model_dump(mode="json"),
+                media_type="application/json",
+                step="reflexion",
+                base_dir=_runtime_base_dir(new_state),
+            )
+
+        if decision in (
+            ReflexionDecision.RETURN_TO_FORMALIZER,
+            ReflexionDecision.RETURN_TO_DRAFTER,
+        ):
+            retry_context = orchestrator.prepare_retry_context(card, new_state)
+            new_state["retry_context"] = retry_context
+            new_state = increment_retry_count(new_state)
+            new_state["feedback"] = None
+
+            hints = _extract_remediation_hints(card)
+            if hints:
+                new_state["reflexion_hints"] = hints
+
+            log_artifact(
+                run_id=run_id,
+                artifact_type="reflexion_retry",
+                payload={
+                    "card": card.model_dump(mode="json"),
+                    "decision": decision.value,
+                    "attempt": card.attempt_number,
+                },
+                media_type="application/json",
+                step="reflexion",
+                base_dir=_runtime_base_dir(new_state),
+            )
+
+        if decision in (
+            ReflexionDecision.ABORT_WITH_REPORT,
+            ReflexionDecision.ESCALATE_TO_HUMAN,
+        ):
+            new_state["pruned"] = True
+            new_state = _create_terminal_report(new_state, card, decision)
+            if decision == ReflexionDecision.ESCALATE_TO_HUMAN:
+                new_state["human_intervention_payload"] = {
+                    "failure_card": card.model_dump(mode="json"),
+                    "decision": decision.value,
+                }
+
+            log_artifact(
+                run_id=run_id,
+                artifact_type="reflexion_terminal",
+                payload={
+                    "card": card.model_dump(mode="json"),
+                    "decision": decision.value,
+                    "failure_history": new_state.get("failure_history", []),
+                },
+                media_type="application/json",
+                step="reflexion",
+                base_dir=_runtime_base_dir(new_state),
+            )
+
+        new_state = append_audit(
+            new_state,
+            "reflexion",
+            decision.value,
+            {
+                "error_code": card.error_code,
+                "attempt": card.attempt_number,
+                "can_retry": card.can_retry,
+            },
+        )
+
+        span.set_status(Status(StatusCode.OK))
+        return new_state
 
 
 def _get_or_create_failure_card(state: ExperimentState) -> FailureCard | None:
@@ -1073,225 +1152,338 @@ def _create_terminal_report(
 def pi_decompose_node(state: ExperimentState) -> ExperimentState:
     """PI node: user request -> ProblemFrame + sub-task DAG."""
     state = _ensure_run(state)
-    if state.get("pruned"):
-        return state
-
-    if state.get("ir") is not None and not state.get("user_request"):
-        return append_audit(state, "pi_decompose", "skip_existing_ir", {"reason": "ir_present"})
-
-    if state.get("problem_frame") and state.get("sub_tasks"):
-        return append_audit(state, "pi_decompose", "skip_existing", {"reason": "already_set"})
-
+    tracer = get_tracer()
     user_request = state.get("user_request")
-    if not user_request:
-        issue = _make_issue(["user_request"], "Missing user_request", "input")
-        feedback: GovernorFeedback = {"verdict": "REJECT", "issues": [issue]}
-        return append_audit(
-            {**state, "feedback": feedback, "problem_frame": None},
-            "pi_decompose",
-            "missing_user_request",
-            {},
-        )
+    extras = {
+        ATTR_PHASE: "FRAME",
+        ATTR_AGENT: "pi",
+        ATTR_NODE: "pi_decompose",
+    }
+    if user_request:
+        extras["polisyos.user_request"] = _truncate_text(str(user_request))
 
-    llm_client = state.get("llm_client")
-    agent = state.get("pi_agent")
-    if agent is None:
-        agent = LLMPIAgent(llm_client) if llm_client else MockPIAgent()
-
-    if llm_client:
-        state = _check_budget(state, "llm")
+    span_attrs = _extract_span_attributes(state, extras)
+    with tracer.start_as_current_span(
+        "pi_decompose_node",
+        attributes=span_attrs,
+        kind=SpanKind.INTERNAL,
+    ) as span:
         if state.get("pruned"):
+            span.set_attribute("polisyos.pruned", True)
+            span.set_status(Status(StatusCode.OK))
             return state
 
-    try:
-        problem_frame = _run_async(agent.create_problem_frame(user_request))
-        _run_async(agent.hold_problem_frame(problem_frame))
-        sub_tasks = _run_async(agent.decompose_task(user_request))
-    except Exception as exc:
-        issue = _make_issue(["problem_frame"], str(exc), "pi")
-        feedback: GovernorFeedback = {"verdict": "REJECT", "issues": [issue]}
-        return append_audit(
-            {**state, "feedback": feedback, "problem_frame": None, "last_error": str(exc)},
-            "pi_decompose",
-            "failed",
-            {"error": str(exc)},
+        if state.get("ir") is not None and not state.get("user_request"):
+            span.set_attribute("polisyos.skipped", True)
+            span.set_status(Status(StatusCode.OK))
+            return append_audit(
+                state, "pi_decompose", "skip_existing_ir", {"reason": "ir_present"}
+            )
+
+        if state.get("problem_frame") and state.get("sub_tasks"):
+            span.set_attribute("polisyos.skipped", True)
+            span.set_status(Status(StatusCode.OK))
+            return append_audit(state, "pi_decompose", "skip_existing", {"reason": "already_set"})
+
+        if not user_request:
+            issue = _make_issue(["user_request"], "Missing user_request", "input")
+            feedback: GovernorFeedback = {"verdict": "REJECT", "issues": [issue]}
+            span.set_attribute(ATTR_VERDICT, "REJECT")
+            span.set_status(Status(StatusCode.ERROR, "missing_user_request"))
+            return append_audit(
+                {**state, "feedback": feedback, "problem_frame": None},
+                "pi_decompose",
+                "missing_user_request",
+                {},
+            )
+
+        llm_client = state.get("llm_client")
+        agent = state.get("pi_agent")
+        if agent is None:
+            agent = LLMPIAgent(llm_client) if llm_client else MockPIAgent()
+
+        if llm_client:
+            state = _check_budget(state, "llm")
+            if state.get("pruned"):
+                span.set_attribute("polisyos.pruned", True)
+                span.set_attribute("polisyos.prune_reason", "budget_exceeded")
+                span.set_status(Status(StatusCode.OK))
+                return state
+
+        try:
+            problem_frame = _run_async(agent.create_problem_frame(user_request))
+            _run_async(agent.hold_problem_frame(problem_frame))
+            sub_tasks = _run_async(agent.decompose_task(user_request))
+        except Exception as exc:
+            issue = _make_issue(["problem_frame"], str(exc), "pi")
+            feedback: GovernorFeedback = {"verdict": "REJECT", "issues": [issue]}
+            span.set_attribute(ATTR_VERDICT, "REJECT")
+            span.set_status(Status(StatusCode.ERROR, str(exc)))
+            span.record_exception(exc)
+            return append_audit(
+                {**state, "feedback": feedback, "problem_frame": None, "last_error": str(exc)},
+                "pi_decompose",
+                "failed",
+                {"error": str(exc)},
+            )
+
+        memory = _load_short_term_memory(state)
+        memory.add_turn(TurnRole.USER, user_request)
+        memory.add_turn(
+            TurnRole.PI, json.dumps(_problem_frame_payload(problem_frame), ensure_ascii=True)
         )
 
-    memory = _load_short_term_memory(state)
-    memory.add_turn(TurnRole.USER, user_request)
-    memory.add_turn(
-        TurnRole.PI, json.dumps(_problem_frame_payload(problem_frame), ensure_ascii=True)
-    )
-
-    task_payloads = [_sub_task_payload(task) for task in sub_tasks]
-    new_state = {
-        **state,
-        "problem_frame": _problem_frame_payload(problem_frame),
-        "sub_tasks": task_payloads,
-        "short_term_memory": memory.to_dict(),
-        "reflexion_hints": memory.get_hints(),
-        "last_error": None,
-    }
-    return append_audit(
-        new_state,
-        "pi_decompose",
-        "problem_frame_created",
-        {"task_count": len(task_payloads)},
-    )
+        task_payloads = [_sub_task_payload(task) for task in sub_tasks]
+        new_state = {
+            **state,
+            "problem_frame": _problem_frame_payload(problem_frame),
+            "sub_tasks": task_payloads,
+            "short_term_memory": memory.to_dict(),
+            "reflexion_hints": memory.get_hints(),
+            "last_error": None,
+        }
+        span.set_status(Status(StatusCode.OK))
+        return append_audit(
+            new_state,
+            "pi_decompose",
+            "problem_frame_created",
+            {"task_count": len(task_payloads)},
+        )
 
 
 def drafter_node(state: ExperimentState) -> ExperimentState:
     """Drafter node: ProblemFrame -> DraftResult."""
     state = _ensure_run(state)
-    if state.get("pruned"):
-        return state
-
-    problem_frame = _problem_frame_from_state(state)
-    if not problem_frame:
-        issue = _make_issue(["problem_frame"], "ProblemFrame is missing", "input")
-        feedback: GovernorFeedback = {"verdict": "REJECT", "issues": [issue]}
-        return append_audit(
-            {**state, "feedback": feedback, "draft_result": None},
-            "drafter",
-            "missing_problem_frame",
-            {},
-        )
-
-    llm_client = state.get("llm_client")
-    agent = state.get("drafter_agent")
-    if agent is None:
-        agent = LLMDrafterAgent(llm_client) if llm_client else MockDrafterAgent()
-
-    if llm_client:
-        state = _check_budget(state, "llm")
+    tracer = get_tracer()
+    span_attrs = _extract_span_attributes(
+        state,
+        {
+            ATTR_PHASE: "DRAFT",
+            ATTR_AGENT: "drafter",
+            ATTR_NODE: "drafter",
+        },
+    )
+    with tracer.start_as_current_span(
+        "drafter_node",
+        attributes=span_attrs,
+        kind=SpanKind.INTERNAL,
+    ) as span:
         if state.get("pruned"):
+            span.set_attribute("polisyos.pruned", True)
+            span.set_status(Status(StatusCode.OK))
             return state
 
-    memory = _load_short_term_memory(state)
-    retry_context = state.get("retry_context") or {}
-    if retry_context.get("failure_context"):
-        memory.add_turn(TurnRole.SYSTEM, retry_context["failure_context"])
-    hints = state.get("reflexion_hints") or memory.get_hints()
+        problem_frame = _problem_frame_from_state(state)
+        if not problem_frame:
+            issue = _make_issue(["problem_frame"], "ProblemFrame is missing", "input")
+            feedback: GovernorFeedback = {"verdict": "REJECT", "issues": [issue]}
+            span.set_attribute(ATTR_VERDICT, "REJECT")
+            span.set_status(Status(StatusCode.ERROR, "missing_problem_frame"))
+            return append_audit(
+                {**state, "feedback": feedback, "draft_result": None},
+                "drafter",
+                "missing_problem_frame",
+                {},
+            )
 
-    try:
-        draft = _run_async(agent.draft_policy(problem_frame, hints=hints))
-        memory.add_turn(TurnRole.DRAFTER, draft.narrative[:800])
-        new_state = {
-            **state,
-            "draft_result": _draft_result_payload(draft),
-            "short_term_memory": memory.to_dict(),
-            "last_error": None,
-        }
-        new_state = set_current_failure_card(new_state, None)
-        return append_audit(
-            new_state, "drafter", "draft_created", {"draft_id": draft.draft_id}
-        )
-    except Exception as exc:
-        issue = _make_issue(["draft_result"], str(exc), "draft")
-        feedback: GovernorFeedback = {"verdict": "NEEDS_REVISION", "issues": [issue]}
-        new_state = {**state, "draft_result": None, "feedback": feedback, "last_error": str(exc)}
-        return append_audit(new_state, "drafter", "draft_failed", {"error": str(exc)})
+        llm_client = state.get("llm_client")
+        agent = state.get("drafter_agent")
+        if agent is None:
+            agent = LLMDrafterAgent(llm_client) if llm_client else MockDrafterAgent()
+
+        if llm_client:
+            state = _check_budget(state, "llm")
+            if state.get("pruned"):
+                span.set_attribute("polisyos.pruned", True)
+                span.set_attribute("polisyos.prune_reason", "budget_exceeded")
+                span.set_status(Status(StatusCode.OK))
+                return state
+
+        memory = _load_short_term_memory(state)
+        retry_context = state.get("retry_context") or {}
+        if retry_context.get("failure_context"):
+            memory.add_turn(TurnRole.SYSTEM, retry_context["failure_context"])
+        hints = state.get("reflexion_hints") or memory.get_hints()
+
+        try:
+            draft = _run_async(agent.draft_policy(problem_frame, hints=hints))
+            span.set_attribute("polisyos.draft_id", draft.draft_id)
+            memory.add_turn(TurnRole.DRAFTER, draft.narrative[:800])
+            new_state = {
+                **state,
+                "draft_result": _draft_result_payload(draft),
+                "short_term_memory": memory.to_dict(),
+                "last_error": None,
+            }
+            new_state = set_current_failure_card(new_state, None)
+            span.set_status(Status(StatusCode.OK))
+            return append_audit(
+                new_state, "drafter", "draft_created", {"draft_id": draft.draft_id}
+            )
+        except Exception as exc:
+            issue = _make_issue(["draft_result"], str(exc), "draft")
+            feedback: GovernorFeedback = {"verdict": "NEEDS_REVISION", "issues": [issue]}
+            span.set_attribute(ATTR_VERDICT, "NEEDS_REVISION")
+            span.set_status(Status(StatusCode.ERROR, str(exc)))
+            span.record_exception(exc)
+            new_state = {**state, "draft_result": None, "feedback": feedback, "last_error": str(exc)}
+            return append_audit(new_state, "drafter", "draft_failed", {"error": str(exc)})
 
 
 def formalize_node(state: ExperimentState) -> ExperimentState:
     """Formalizer node: DraftResult -> PolicySurfaceIR."""
     state = _ensure_run(state)
-    if state.get("pruned"):
-        return state
-
-    draft = _draft_result_from_state(state)
-    if not draft:
-        issue = _make_issue(["draft_result"], "DraftResult is missing", "input")
-        feedback: GovernorFeedback = {"verdict": "REJECT", "issues": [issue]}
-        return append_audit(
-            {**state, "feedback": feedback, "ir": None},
-            "formalize",
-            "missing_draft",
-            {},
-        )
-
-    llm_client = state.get("llm_client")
-    agent = state.get("formalizer_agent")
-    if agent is None:
-        agent = LLMFormalizerAgent(llm_client) if llm_client else MockFormalizerAgent()
-
-    if llm_client:
-        state = _check_budget(state, "llm")
+    tracer = get_tracer()
+    span_attrs = _extract_span_attributes(
+        state,
+        {
+            ATTR_PHASE: "DRAFT",
+            ATTR_AGENT: "formalizer",
+            ATTR_NODE: "formalize",
+        },
+    )
+    with tracer.start_as_current_span(
+        "formalize_node",
+        attributes=span_attrs,
+        kind=SpanKind.INTERNAL,
+    ) as span:
         if state.get("pruned"):
+            span.set_attribute("polisyos.pruned", True)
+            span.set_status(Status(StatusCode.OK))
             return state
 
-    try:
-        ir = _run_async(agent.formalize(draft))
-        memory = _load_short_term_memory(state)
-        memory.add_turn(TurnRole.FORMALIZER, _summarize_ir(ir))
-        new_state = {
-            **state,
-            "ir": ir,
-            "short_term_memory": memory.to_dict(),
-            "last_error": None,
-        }
-        return append_audit(new_state, "formalize", "ir_generated", {"valid": True})
-    except Exception as exc:
-        new_state = {**state, "ir": None, "last_error": str(exc)}
-        return append_audit(
-            new_state, "formalize", "ir_invalid", {"error": str(exc)}
-        )
+        draft = _draft_result_from_state(state)
+        if not draft:
+            issue = _make_issue(["draft_result"], "DraftResult is missing", "input")
+            feedback: GovernorFeedback = {"verdict": "REJECT", "issues": [issue]}
+            span.set_attribute(ATTR_VERDICT, "REJECT")
+            span.set_status(Status(StatusCode.ERROR, "missing_draft"))
+            return append_audit(
+                {**state, "feedback": feedback, "ir": None},
+                "formalize",
+                "missing_draft",
+                {},
+            )
+
+        llm_client = state.get("llm_client")
+        agent = state.get("formalizer_agent")
+        if agent is None:
+            agent = LLMFormalizerAgent(llm_client) if llm_client else MockFormalizerAgent()
+
+        if llm_client:
+            state = _check_budget(state, "llm")
+            if state.get("pruned"):
+                span.set_attribute("polisyos.pruned", True)
+                span.set_attribute("polisyos.prune_reason", "budget_exceeded")
+                span.set_status(Status(StatusCode.OK))
+                return state
+
+        try:
+            ir = _run_async(agent.formalize(draft))
+            schema_version = getattr(ir, "schema_version", None)
+            if schema_version is not None:
+                span.set_attribute("polisyos.ir.schema_version", str(schema_version))
+            memory = _load_short_term_memory(state)
+            memory.add_turn(TurnRole.FORMALIZER, _summarize_ir(ir))
+            new_state = {
+                **state,
+                "ir": ir,
+                "short_term_memory": memory.to_dict(),
+                "last_error": None,
+            }
+            span.set_status(Status(StatusCode.OK))
+            return append_audit(new_state, "formalize", "ir_generated", {"valid": True})
+        except Exception as exc:
+            span.set_status(Status(StatusCode.ERROR, str(exc)))
+            span.record_exception(exc)
+            new_state = {**state, "ir": None, "last_error": str(exc)}
+            return append_audit(
+                new_state, "formalize", "ir_invalid", {"error": str(exc)}
+            )
 
 
 def critic_review_node(state: ExperimentState) -> ExperimentState:
     """Critic node: PolicySurfaceIR + ProblemFrame -> CritiqueReport."""
     state = _ensure_run(state)
-    if state.get("pruned"):
-        return state
-
-    ir = state.get("ir")
-    problem_frame = _problem_frame_from_state(state)
-    if ir is None or problem_frame is None:
-        issue = _make_issue(["ir"], "IR or ProblemFrame missing", "input")
-        feedback: GovernorFeedback = {"verdict": "NEEDS_REVISION", "issues": [issue]}
-        return append_audit(
-            {**state, "feedback": feedback, "critique_report": None},
-            "critic_review",
-            "missing_inputs",
-            {},
-        )
-
-    llm_client = state.get("llm_client")
-    agent = state.get("critic_agent")
-    if agent is None:
-        agent = LLMCriticAgent(llm_client) if llm_client else MockCriticAgent()
-
-    if llm_client:
-        state = _check_budget(state, "llm")
+    tracer = get_tracer()
+    span_attrs = _extract_span_attributes(
+        state,
+        {
+            ATTR_PHASE: "VALIDATE",
+            ATTR_AGENT: "critic",
+            ATTR_NODE: "critic_review",
+        },
+    )
+    with tracer.start_as_current_span(
+        "critic_review_node",
+        attributes=span_attrs,
+        kind=SpanKind.INTERNAL,
+    ) as span:
         if state.get("pruned"):
+            span.set_attribute("polisyos.pruned", True)
+            span.set_status(Status(StatusCode.OK))
             return state
 
-    try:
-        report = _run_async(agent.critique(ir, problem_frame))
-        report_payload = _critique_report_payload(report)
-        memory = _load_short_term_memory(state)
-        memory.add_turn(TurnRole.CRITIC, json.dumps(report_payload, ensure_ascii=True))
-        new_state = {
-            **state,
-            "critique_report": report_payload,
-            "short_term_memory": memory.to_dict(),
-            "last_error": None,
-        }
-        return append_audit(
-            new_state,
-            "critic_review",
-            "critique_complete",
-            {"verdict": report_payload.get("verdict")},
-        )
-    except Exception as exc:
-        issue = _make_issue(["critique_report"], str(exc), "critic")
-        feedback: GovernorFeedback = {"verdict": "NEEDS_REVISION", "issues": [issue]}
-        return append_audit(
-            {**state, "feedback": feedback, "critique_report": None, "last_error": str(exc)},
-            "critic_review",
-            "critique_failed",
-            {"error": str(exc)},
-        )
+        ir = state.get("ir")
+        problem_frame = _problem_frame_from_state(state)
+        if ir is None or problem_frame is None:
+            issue = _make_issue(["ir"], "IR or ProblemFrame missing", "input")
+            feedback: GovernorFeedback = {"verdict": "NEEDS_REVISION", "issues": [issue]}
+            span.set_attribute(ATTR_VERDICT, "NEEDS_REVISION")
+            span.set_status(Status(StatusCode.ERROR, "missing_inputs"))
+            return append_audit(
+                {**state, "feedback": feedback, "critique_report": None},
+                "critic_review",
+                "missing_inputs",
+                {},
+            )
+
+        llm_client = state.get("llm_client")
+        agent = state.get("critic_agent")
+        if agent is None:
+            agent = LLMCriticAgent(llm_client) if llm_client else MockCriticAgent()
+
+        if llm_client:
+            state = _check_budget(state, "llm")
+            if state.get("pruned"):
+                span.set_attribute("polisyos.pruned", True)
+                span.set_attribute("polisyos.prune_reason", "budget_exceeded")
+                span.set_status(Status(StatusCode.OK))
+                return state
+
+        try:
+            report = _run_async(agent.critique(ir, problem_frame))
+            report_payload = _critique_report_payload(report)
+            verdict = report_payload.get("verdict")
+            if verdict:
+                span.set_attribute(ATTR_VERDICT, str(verdict))
+            memory = _load_short_term_memory(state)
+            memory.add_turn(TurnRole.CRITIC, json.dumps(report_payload, ensure_ascii=True))
+            new_state = {
+                **state,
+                "critique_report": report_payload,
+                "short_term_memory": memory.to_dict(),
+                "last_error": None,
+            }
+            span.set_status(Status(StatusCode.OK))
+            return append_audit(
+                new_state,
+                "critic_review",
+                "critique_complete",
+                {"verdict": report_payload.get("verdict")},
+            )
+        except Exception as exc:
+            issue = _make_issue(["critique_report"], str(exc), "critic")
+            feedback: GovernorFeedback = {"verdict": "NEEDS_REVISION", "issues": [issue]}
+            span.set_attribute(ATTR_VERDICT, "NEEDS_REVISION")
+            span.set_status(Status(StatusCode.ERROR, str(exc)))
+            span.record_exception(exc)
+            return append_audit(
+                {**state, "feedback": feedback, "critique_report": None, "last_error": str(exc)},
+                "critic_review",
+                "critique_failed",
+                {"error": str(exc)},
+            )
 
 
 def reflexion_repair_node(state: ExperimentState) -> ExperimentState:
@@ -1452,9 +1644,35 @@ def _generate_ir(state: ExperimentState, *, repair: bool) -> ExperimentState:
 
 
 def draft_ir_node(state: ExperimentState) -> ExperimentState:
-    if state.get("ir") is not None and not state.get("feedback"):
-        return append_audit(state, "drafter", "skip_existing_ir", {"reason": "ir_present"})
-    return _generate_ir(state, repair=False)
+    tracer = get_tracer()
+    span_attrs = _extract_span_attributes(
+        state,
+        {
+            ATTR_PHASE: "DRAFT",
+            ATTR_AGENT: "drafter",
+            ATTR_NODE: "draft_ir",
+            "polisyos.ir.repair": False,
+        },
+    )
+    with tracer.start_as_current_span(
+        "draft_ir_node",
+        attributes=span_attrs,
+        kind=SpanKind.INTERNAL,
+    ) as span:
+        if state.get("ir") is not None and not state.get("feedback"):
+            span.set_attribute("polisyos.skipped", True)
+            span.set_status(Status(StatusCode.OK))
+            return append_audit(state, "drafter", "skip_existing_ir", {"reason": "ir_present"})
+        result = _generate_ir(state, repair=False)
+        feedback = result.get("feedback") or {}
+        verdict = feedback.get("verdict")
+        if verdict:
+            span.set_attribute(ATTR_VERDICT, verdict)
+        if verdict in {"REJECT", "NEEDS_REVISION"}:
+            span.set_status(Status(StatusCode.ERROR, "draft_ir_failed"))
+        else:
+            span.set_status(Status(StatusCode.OK))
+        return result
 
 
 def _validate_ir_node_impl(state: ExperimentState) -> ExperimentState:
@@ -1478,25 +1696,74 @@ def _validate_ir_node_impl(state: ExperimentState) -> ExperimentState:
 
 
 def validate_ir_node(state: ExperimentState) -> ExperimentState:
-    before = state
-    timeline = _get_or_create_timeline(state)
-    timeline.transition_phase("FRAME")
-    timeline.record(TimelineEventType.NODE_ENTER, phase="FRAME", node_id="validate_ir")
-    try:
-        result = _validate_ir_node_impl(state)
-        _record_validation_events(timeline, phase="FRAME", node_id="validate_ir", state=result)
-        timeline.record(TimelineEventType.NODE_EXIT, phase="FRAME", node_id="validate_ir")
-        return _save_timeline(result, timeline)
-    except Exception as exc:
-        timeline.record(
-            TimelineEventType.ERROR,
-            phase="FRAME",
-            node_id="validate_ir",
-            details={"error": str(exc), "error_type": type(exc).__name__},
-        )
-        # Preserve timeline best-effort for downstream handlers if they catch.
-        _save_timeline(before, timeline)
-        raise
+    tracer = get_tracer()
+    metrics = get_metrics()
+    span_attrs = _extract_span_attributes(
+        state,
+        {
+            ATTR_PHASE: "FRAME",
+            ATTR_AGENT: "governor",
+            ATTR_NODE: "validate_ir",
+            "polisyos.validation.profile": "mvp",
+        },
+    )
+    with tracer.start_as_current_span(
+        "validate_ir_node",
+        attributes=span_attrs,
+        kind=SpanKind.INTERNAL,
+    ) as span:
+        before = state
+        timeline = _get_or_create_timeline(state)
+        timeline.transition_phase("FRAME")
+        timeline.record(TimelineEventType.NODE_ENTER, phase="FRAME", node_id="validate_ir")
+        try:
+            result = _validate_ir_node_impl(state)
+            run_id = result.get("run_id") or state.get("run_id")
+            if run_id:
+                span.set_attribute(ATTR_RUN_ID, str(run_id))
+
+            feedback = result.get("feedback")
+            issues = []
+            verdict = None
+            if isinstance(feedback, dict):
+                verdict = feedback.get("verdict")
+                issues = feedback.get("issues") or []
+            if verdict:
+                span.set_attribute(ATTR_VERDICT, verdict)
+
+            for issue in issues:
+                if not isinstance(issue, dict):
+                    continue
+                severity = issue.get("severity", "warning")
+                pass_id = issue.get("error_type", "unknown")
+                error_type = issue.get("code")
+                metrics.record_validation_issue(
+                    severity=str(severity),
+                    pass_id=str(pass_id),
+                    error_type=str(error_type) if error_type else None,
+                )
+
+            span.set_attribute("polisyos.validation.issue_count", len(issues))
+            if verdict in {"REJECT", "NEEDS_REVISION"}:
+                span.set_status(Status(StatusCode.ERROR, "validation_failed"))
+            else:
+                span.set_status(Status(StatusCode.OK))
+
+            _record_validation_events(timeline, phase="FRAME", node_id="validate_ir", state=result)
+            timeline.record(TimelineEventType.NODE_EXIT, phase="FRAME", node_id="validate_ir")
+            return _save_timeline(result, timeline)
+        except Exception as exc:
+            span.set_status(Status(StatusCode.ERROR, str(exc)))
+            span.record_exception(exc)
+            timeline.record(
+                TimelineEventType.ERROR,
+                phase="FRAME",
+                node_id="validate_ir",
+                details={"error": str(exc), "error_type": type(exc).__name__},
+            )
+            # Preserve timeline best-effort for downstream handlers if they catch.
+            _save_timeline(before, timeline)
+            raise
 
 
 def _has_revisions(issues: list[dict]) -> bool:
@@ -1511,111 +1778,173 @@ def _has_revisions(issues: list[dict]) -> bool:
 
 
 def repair_ir_node(state: ExperimentState) -> ExperimentState:
-    if state.get("pruned"):
-        return state
-    max_attempts = state.get("max_repair_attempts") or 3
-    revision_count = state.get("revision_count") or 0
-    if revision_count >= max_attempts:
-        return _prune(state, "max_repair_attempts", "Exceeded max_repair_attempts")
-    state = {**state, "revision_count": revision_count + 1}
-
-    ir = state.get("ir")
-    if ir is None:
-        return _generate_ir(state, repair=True)
-
-    card_payload = state.get("current_failure_card")
-    card = FailureCard.model_validate(card_payload) if card_payload else None
-
-    llm_client = state.get("llm_client")
-    agent = state.get("formalizer_agent")
-    if agent is None:
-        agent = LLMFormalizerAgent(llm_client) if llm_client else MockFormalizerAgent()
-
-    if llm_client:
-        state = _check_budget(state, "llm")
+    tracer = get_tracer()
+    span_attrs = _extract_span_attributes(
+        state,
+        {
+            ATTR_PHASE: "DRAFT",
+            ATTR_AGENT: "formalizer",
+            ATTR_NODE: "repair_ir",
+            "polisyos.ir.repair": True,
+        },
+    )
+    with tracer.start_as_current_span(
+        "repair_ir_node",
+        attributes=span_attrs,
+        kind=SpanKind.INTERNAL,
+    ) as span:
         if state.get("pruned"):
+            span.set_attribute("polisyos.pruned", True)
+            span.set_status(Status(StatusCode.OK))
             return state
+        max_attempts = state.get("max_repair_attempts") or 3
+        revision_count = state.get("revision_count") or 0
+        if revision_count >= max_attempts:
+            span.set_attribute("polisyos.pruned", True)
+            span.set_attribute("polisyos.prune_reason", "max_repair_attempts")
+            span.set_status(Status(StatusCode.OK))
+            return _prune(state, "max_repair_attempts", "Exceeded max_repair_attempts")
+        state = {**state, "revision_count": revision_count + 1}
 
-    errors = []
-    hint = None
-    if card:
-        errors = [violation.message for violation in card.violations if violation.message]
-        if not errors:
-            errors = [card.violation_summary]
-        hint = card.remediation_advice or card.governor_advice
+        ir = state.get("ir")
+        if ir is None:
+            result = _generate_ir(state, repair=True)
+            feedback = result.get("feedback") or {}
+            verdict = feedback.get("verdict")
+            if verdict:
+                span.set_attribute(ATTR_VERDICT, verdict)
+            if verdict in {"REJECT", "NEEDS_REVISION"}:
+                span.set_status(Status(StatusCode.ERROR, "repair_ir_failed"))
+            else:
+                span.set_status(Status(StatusCode.OK))
+            return result
 
-    try:
-        repaired = _run_async(agent.repair_ir(ir, errors, hint=hint))
-        memory = _load_short_term_memory(state)
-        memory.add_turn(TurnRole.FORMALIZER, _summarize_ir(repaired))
-        new_state = {
-            **state,
-            "ir": repaired,
-            "short_term_memory": memory.to_dict(),
-            "last_error": None,
-        }
-        new_state = set_current_failure_card(new_state, None)
-        return append_audit(new_state, "repair_ir", "ir_repaired", {"errors": len(errors)})
-    except Exception as exc:
-        issue = _make_issue(["ir"], str(exc), "formalizer")
-        feedback: GovernorFeedback = {"verdict": "NEEDS_REVISION", "issues": [issue]}
-        new_state = {
-            **state,
-            "feedback": feedback,
-            "last_error": str(exc),
-        }
-        return append_audit(new_state, "repair_ir", "repair_failed", {"error": str(exc)})
+        card_payload = state.get("current_failure_card")
+        card = FailureCard.model_validate(card_payload) if card_payload else None
+
+        llm_client = state.get("llm_client")
+        agent = state.get("formalizer_agent")
+        if agent is None:
+            agent = LLMFormalizerAgent(llm_client) if llm_client else MockFormalizerAgent()
+
+        if llm_client:
+            state = _check_budget(state, "llm")
+            if state.get("pruned"):
+                span.set_attribute("polisyos.pruned", True)
+                span.set_attribute("polisyos.prune_reason", "budget_exceeded")
+                span.set_status(Status(StatusCode.OK))
+                return state
+
+        errors = []
+        hint = None
+        if card:
+            errors = [violation.message for violation in card.violations if violation.message]
+            if not errors:
+                errors = [card.violation_summary]
+            hint = card.remediation_advice or card.governor_advice
+
+        try:
+            repaired = _run_async(agent.repair_ir(ir, errors, hint=hint))
+            memory = _load_short_term_memory(state)
+            memory.add_turn(TurnRole.FORMALIZER, _summarize_ir(repaired))
+            new_state = {
+                **state,
+                "ir": repaired,
+                "short_term_memory": memory.to_dict(),
+                "last_error": None,
+            }
+            new_state = set_current_failure_card(new_state, None)
+            span.set_status(Status(StatusCode.OK))
+            return append_audit(new_state, "repair_ir", "ir_repaired", {"errors": len(errors)})
+        except Exception as exc:
+            issue = _make_issue(["ir"], str(exc), "formalizer")
+            feedback: GovernorFeedback = {"verdict": "NEEDS_REVISION", "issues": [issue]}
+            span.set_attribute(ATTR_VERDICT, "NEEDS_REVISION")
+            span.set_status(Status(StatusCode.ERROR, str(exc)))
+            span.record_exception(exc)
+            new_state = {
+                **state,
+                "feedback": feedback,
+                "last_error": str(exc),
+            }
+            return append_audit(new_state, "repair_ir", "repair_failed", {"error": str(exc)})
 
 
 def compile_data_views_node(state: ExperimentState) -> ExperimentState:
     state = _ensure_run(state)
-    if state.get("pruned") or _blocked_by_feedback(state):
-        return append_audit(state, "compile_data_views", "skipped", {"reason": "feedback_blocked"})
+    tracer = get_tracer()
+    span_attrs = _extract_span_attributes(
+        state,
+        {
+            ATTR_PHASE: "EXECUTE",
+            ATTR_AGENT: "fabric",
+            ATTR_NODE: "compile_data_views",
+        },
+    )
+    with tracer.start_as_current_span(
+        "compile_data_views_node",
+        attributes=span_attrs,
+        kind=SpanKind.INTERNAL,
+    ) as span:
+        if state.get("pruned") or _blocked_by_feedback(state):
+            span.set_attribute("polisyos.skipped", True)
+            span.set_status(Status(StatusCode.OK))
+            return append_audit(
+                state, "compile_data_views", "skipped", {"reason": "feedback_blocked"}
+            )
 
-    requests_raw = state.get("data_view_requests") or []
-    if not requests_raw:
-        log_artifact(
-            run_id=state["run_id"],
-            artifact_type="data_view_plans",
-            payload={"status": "skipped", "reason": "no_data_view_requests"},
-            media_type="application/json",
-            step="compile_data_views",
-            base_dir=_runtime_base_dir(state),
-        )
-        return append_audit(state, "compile_data_views", "skipped", {})
+        requests_raw = state.get("data_view_requests") or []
+        if not requests_raw:
+            log_artifact(
+                run_id=state["run_id"],
+                artifact_type="data_view_plans",
+                payload={"status": "skipped", "reason": "no_data_view_requests"},
+                media_type="application/json",
+                step="compile_data_views",
+                base_dir=_runtime_base_dir(state),
+            )
+            span.set_attribute("polisyos.skipped", True)
+            span.set_status(Status(StatusCode.OK))
+            return append_audit(state, "compile_data_views", "skipped", {})
 
-    db_path = state.get("db_path") or "integration.duckdb"
-    graph_path = state.get("graph_path")
-    db = SimulationDB(db_path)
-    graph = GraphStore(str(graph_path)) if graph_path else None
-    udf = UDFEngine(db, graph) if graph is not None else UDFEngine(db)
-    plans: List[Dict[str, Any]] = []
-    try:
-        for req_payload in requests_raw:
-            if hasattr(req_payload, "model_dump"):
-                req_payload = req_payload.model_dump()
-            req = DataViewRequest.model_validate(req_payload)
-            plan = udf.compile(req)
-            plans.append(plan.__dict__)
-        new_state = {**state, "data_view_plans": plans}
-        log_artifact(
-            run_id=state["run_id"],
-            artifact_type="data_view_plans",
-            payload=plans,
-            media_type="application/json",
-            step="compile_data_views",
-            base_dir=_runtime_base_dir(state),
-        )
-        return append_audit(new_state, "compile_data_views", "compiled", {"count": len(plans)})
-    except Exception as exc:
-        issue = _make_issue(["data_views"], str(exc), "data")
-        feedback: GovernorFeedback = {"verdict": "REJECT", "issues": [issue]}
-        return append_audit({**state, "feedback": feedback}, "compile_data_views", "failed", {})
-    finally:
-        db.close()
+        db_path = state.get("db_path") or "integration.duckdb"
+        graph_path = state.get("graph_path")
+        db = SimulationDB(db_path)
+        graph = GraphStore(str(graph_path)) if graph_path else None
+        udf = UDFEngine(db, graph) if graph is not None else UDFEngine(db)
+        plans: List[Dict[str, Any]] = []
+        try:
+            for req_payload in requests_raw:
+                if hasattr(req_payload, "model_dump"):
+                    req_payload = req_payload.model_dump()
+                req = DataViewRequest.model_validate(req_payload)
+                plan = udf.compile(req)
+                plans.append(plan.__dict__)
+            new_state = {**state, "data_view_plans": plans}
+            log_artifact(
+                run_id=state["run_id"],
+                artifact_type="data_view_plans",
+                payload=plans,
+                media_type="application/json",
+                step="compile_data_views",
+                base_dir=_runtime_base_dir(state),
+            )
+            span.set_status(Status(StatusCode.OK))
+            return append_audit(
+                new_state, "compile_data_views", "compiled", {"count": len(plans)}
+            )
+        except Exception as exc:
+            issue = _make_issue(["data_views"], str(exc), "data")
+            feedback: GovernorFeedback = {"verdict": "REJECT", "issues": [issue]}
+            span.set_attribute(ATTR_VERDICT, "REJECT")
+            span.set_status(Status(StatusCode.ERROR, str(exc)))
+            span.record_exception(exc)
+            return append_audit({**state, "feedback": feedback}, "compile_data_views", "failed", {})
+        finally:
+            db.close()
 
 
-def compile_model_node(state: ExperimentState) -> ExperimentState:
+def _compile_model_node_impl(state: ExperimentState) -> ExperimentState:
     state = _ensure_run(state)
     if state.get("pruned") or _blocked_by_feedback(state):
         return append_audit(state, "compile_model", "skipped", {"reason": "feedback_blocked"})
@@ -1823,7 +2152,42 @@ def compile_model_node(state: ExperimentState) -> ExperimentState:
         return append_audit({**state, "feedback": feedback}, "compile_model", "failed", {})
 
 
-def train_agents_node(state: ExperimentState) -> ExperimentState:
+def compile_model_node(state: ExperimentState) -> ExperimentState:
+    tracer = get_tracer()
+    span_attrs = _extract_span_attributes(
+        state,
+        {
+            ATTR_PHASE: "EXECUTE",
+            ATTR_AGENT: "foundry",
+            ATTR_NODE: "compile_model",
+        },
+    )
+    with tracer.start_as_current_span(
+        "compile_model_node",
+        attributes=span_attrs,
+        kind=SpanKind.INTERNAL,
+    ) as span:
+        try:
+            result = _compile_model_node_impl(state)
+            run_id = result.get("run_id")
+            if run_id:
+                span.set_attribute(ATTR_RUN_ID, str(run_id))
+            feedback = result.get("feedback")
+            verdict = feedback.get("verdict") if isinstance(feedback, dict) else None
+            if verdict:
+                span.set_attribute(ATTR_VERDICT, verdict)
+            if verdict in {"REJECT", "NEEDS_REVISION"}:
+                span.set_status(Status(StatusCode.ERROR, "compile_failed"))
+            else:
+                span.set_status(Status(StatusCode.OK))
+            return result
+        except Exception as exc:
+            span.set_status(Status(StatusCode.ERROR, str(exc)))
+            span.record_exception(exc)
+            raise
+
+
+def _train_agents_node_impl(state: ExperimentState) -> ExperimentState:
     state = _ensure_run(state)
     if state.get("pruned") or _blocked_by_feedback(state):
         return append_audit(state, "train_agents", "skipped", {"reason": "feedback_blocked"})
@@ -2305,6 +2669,41 @@ def train_agents_node(state: ExperimentState) -> ExperimentState:
     )
 
 
+def train_agents_node(state: ExperimentState) -> ExperimentState:
+    tracer = get_tracer()
+    span_attrs = _extract_span_attributes(
+        state,
+        {
+            ATTR_PHASE: "EXECUTE",
+            ATTR_AGENT: "foundry",
+            ATTR_NODE: "train_agents",
+        },
+    )
+    with tracer.start_as_current_span(
+        "train_agents_node",
+        attributes=span_attrs,
+        kind=SpanKind.INTERNAL,
+    ) as span:
+        try:
+            result = _train_agents_node_impl(state)
+            run_id = result.get("run_id")
+            if run_id:
+                span.set_attribute(ATTR_RUN_ID, str(run_id))
+            feedback = result.get("feedback")
+            verdict = feedback.get("verdict") if isinstance(feedback, dict) else None
+            if verdict:
+                span.set_attribute(ATTR_VERDICT, verdict)
+            if verdict in {"REJECT", "NEEDS_REVISION"}:
+                span.set_status(Status(StatusCode.ERROR, "train_agents_failed"))
+            else:
+                span.set_status(Status(StatusCode.OK))
+            return result
+        except Exception as exc:
+            span.set_status(Status(StatusCode.ERROR, str(exc)))
+            span.record_exception(exc)
+            raise
+
+
 def _run_sim_node_impl(state: ExperimentState) -> ExperimentState:
     state = _ensure_run(state)
     if state.get("pruned") or _blocked_by_feedback(state):
@@ -2483,30 +2882,81 @@ def _run_sim_node_impl(state: ExperimentState) -> ExperimentState:
 
 
 def run_sim_node(state: ExperimentState) -> ExperimentState:
-    before = state
-    timeline = _get_or_create_timeline(state)
-    timeline.transition_phase("EXECUTE")
-    timeline.record(TimelineEventType.NODE_ENTER, phase="EXECUTE", node_id="run_sim")
-    try:
-        result = _run_sim_node_impl(state)
-        _record_artifacts_created(
-            timeline,
-            phase="EXECUTE",
-            node_id="run_sim",
-            before=before,
-            after=result,
-        )
-        timeline.record(TimelineEventType.NODE_EXIT, phase="EXECUTE", node_id="run_sim")
-        return _save_timeline(result, timeline)
-    except Exception as exc:
-        timeline.record(
-            TimelineEventType.ERROR,
-            phase="EXECUTE",
-            node_id="run_sim",
-            details={"error": str(exc), "error_type": type(exc).__name__},
-        )
-        _save_timeline(before, timeline)
-        raise
+    tracer = get_tracer()
+    metrics = get_metrics()
+    span_attrs = _extract_span_attributes(
+        state,
+        {
+            ATTR_PHASE: "EXECUTE",
+            ATTR_AGENT: "foundry",
+            ATTR_NODE: "run_sim",
+        },
+    )
+    with tracer.start_as_current_span(
+        "run_sim_node",
+        attributes=span_attrs,
+        kind=SpanKind.INTERNAL,
+    ) as span:
+        before = state
+        timeline = _get_or_create_timeline(state)
+        timeline.transition_phase("EXECUTE")
+        timeline.record(TimelineEventType.NODE_ENTER, phase="EXECUTE", node_id="run_sim")
+        run_id = state.get("run_id") or "unknown"
+        seed = state.get("random_seed")
+        if seed is not None:
+            span.set_attribute("polisyos.simulation.seed", int(seed))
+        try:
+            with metrics.time_simulation({"node": "run_sim", "run_id": str(run_id)}):
+                result = _run_sim_node_impl(state)
+
+            resolved_run_id = result.get("run_id") or state.get("run_id")
+            if resolved_run_id:
+                span.set_attribute(ATTR_RUN_ID, str(resolved_run_id))
+
+            results_payload = result.get("simulation_results") or {}
+            steps = (
+                results_payload.get("steps")
+                or results_payload.get("total_steps")
+                or results_payload.get("step_count")
+            )
+            if steps is not None:
+                try:
+                    steps_value = int(steps)
+                    span.set_attribute("polisyos.simulation.steps", steps_value)
+                    if metrics.simulation_steps_total:
+                        metrics.simulation_steps_total.add(steps_value, {"node": "run_sim"})
+                except Exception:
+                    pass
+
+            feedback = result.get("feedback")
+            verdict = feedback.get("verdict") if isinstance(feedback, dict) else None
+            if verdict:
+                span.set_attribute(ATTR_VERDICT, verdict)
+            if verdict in {"REJECT", "NEEDS_REVISION"}:
+                span.set_status(Status(StatusCode.ERROR, "simulation_failed"))
+            else:
+                span.set_status(Status(StatusCode.OK))
+
+            _record_artifacts_created(
+                timeline,
+                phase="EXECUTE",
+                node_id="run_sim",
+                before=before,
+                after=result,
+            )
+            timeline.record(TimelineEventType.NODE_EXIT, phase="EXECUTE", node_id="run_sim")
+            return _save_timeline(result, timeline)
+        except Exception as exc:
+            span.set_status(Status(StatusCode.ERROR, str(exc)))
+            span.record_exception(exc)
+            timeline.record(
+                TimelineEventType.ERROR,
+                phase="EXECUTE",
+                node_id="run_sim",
+                details={"error": str(exc), "error_type": type(exc).__name__},
+            )
+            _save_timeline(before, timeline)
+            raise
 
 
 def run_calibration_node(state: ExperimentState) -> ExperimentState:
@@ -2771,20 +3221,38 @@ def run_calibration_node(state: ExperimentState) -> ExperimentState:
 
 
 def analyze_node(state: ExperimentState) -> ExperimentState:
-    if state.get("pruned") or _blocked_by_feedback(state):
-        return append_audit(state, "analyze", "skipped", {"reason": "feedback_blocked"})
-    results = state.get("simulation_results") or {}
-    analysis = {"status": "ok", "metrics": results}
-    if state.get("run_id"):
-        log_artifact(
-            run_id=state["run_id"],
-            artifact_type="analysis",
-            payload=analysis,
-            media_type="application/json",
-            step="analyze",
-            base_dir=_runtime_base_dir(state),
-        )
-    return append_audit({**state, "analysis": analysis}, "analyze", "ok", {})
+    tracer = get_tracer()
+    metrics = get_metrics()
+    span_attrs = _extract_span_attributes(
+        state,
+        {
+            ATTR_PHASE: "DECIDE",
+            ATTR_AGENT: "analyst",
+            ATTR_NODE: "analyze",
+        },
+    )
+    with tracer.start_as_current_span(
+        "analyze_node",
+        attributes=span_attrs,
+        kind=SpanKind.INTERNAL,
+    ) as span:
+        if state.get("pruned") or _blocked_by_feedback(state):
+            span.set_attribute("polisyos.skipped", True)
+            span.set_status(Status(StatusCode.OK))
+            return append_audit(state, "analyze", "skipped", {"reason": "feedback_blocked"})
+        results = state.get("simulation_results") or {}
+        analysis = {"status": "ok", "metrics": results}
+        if state.get("run_id"):
+            log_artifact(
+                run_id=state["run_id"],
+                artifact_type="analysis",
+                payload=analysis,
+                media_type="application/json",
+                step="analyze",
+                base_dir=_runtime_base_dir(state),
+            )
+        span.set_status(Status(StatusCode.OK))
+        return append_audit({**state, "analysis": analysis}, "analyze", "ok", {})
 
 
 def _governor_node_impl(state: ExperimentState) -> ExperimentState:
@@ -2870,37 +3338,84 @@ def _governor_node_impl(state: ExperimentState) -> ExperimentState:
 
 
 def governor_node(state: ExperimentState) -> ExperimentState:
-    before = state
-    timeline = _get_or_create_timeline(state)
-    timeline.transition_phase("POSTFLIGHT_GOV")
-    timeline.record(TimelineEventType.NODE_ENTER, phase="POSTFLIGHT_GOV", node_id="governor")
-    try:
-        result = _governor_node_impl(state)
-        if result.get("gate_request") and not before.get("gate_request"):
-            details = {}
-            gate_req = result.get("gate_request")
-            if isinstance(gate_req, dict):
-                details = {
-                    "reason": gate_req.get("reason"),
-                    "details": gate_req.get("details"),
-                }
+    tracer = get_tracer()
+    metrics = get_metrics()
+    span_attrs = _extract_span_attributes(
+        state,
+        {
+            ATTR_PHASE: "DECIDE",
+            ATTR_AGENT: "governor",
+            ATTR_NODE: "governor",
+        },
+    )
+    with tracer.start_as_current_span(
+        "governor_node",
+        attributes=span_attrs,
+        kind=SpanKind.INTERNAL,
+    ) as span:
+        before = state
+        timeline = _get_or_create_timeline(state)
+        timeline.transition_phase("POSTFLIGHT_GOV")
+        timeline.record(TimelineEventType.NODE_ENTER, phase="POSTFLIGHT_GOV", node_id="governor")
+        try:
+            result = _governor_node_impl(state)
+            run_id = result.get("run_id") or state.get("run_id")
+            if run_id:
+                span.set_attribute(ATTR_RUN_ID, str(run_id))
+
+            feedback = result.get("feedback")
+            issues = []
+            verdict = None
+            if isinstance(feedback, dict):
+                verdict = feedback.get("verdict")
+                issues = feedback.get("issues") or []
+            if verdict:
+                span.set_attribute(ATTR_VERDICT, verdict)
+
+            for issue in issues:
+                if not isinstance(issue, dict):
+                    continue
+                severity = issue.get("severity", "warning")
+                pass_id = issue.get("error_type", "unknown")
+                error_type = issue.get("code")
+                metrics.record_validation_issue(
+                    severity=str(severity),
+                    pass_id=str(pass_id),
+                    error_type=str(error_type) if error_type else None,
+                )
+
+            if verdict in {"REJECT", "NEEDS_REVISION"}:
+                span.set_status(Status(StatusCode.ERROR, "governor_rejected"))
+            else:
+                span.set_status(Status(StatusCode.OK))
+
+            if result.get("gate_request") and not before.get("gate_request"):
+                details = {}
+                gate_req = result.get("gate_request")
+                if isinstance(gate_req, dict):
+                    details = {
+                        "reason": gate_req.get("reason"),
+                        "details": gate_req.get("details"),
+                    }
+                timeline.record(
+                    TimelineEventType.HUMAN_GATE,
+                    phase="POSTFLIGHT_GOV",
+                    node_id="governor",
+                    details=details,
+                )
+            timeline.record(TimelineEventType.NODE_EXIT, phase="POSTFLIGHT_GOV", node_id="governor")
+            return _save_timeline(result, timeline)
+        except Exception as exc:
+            span.set_status(Status(StatusCode.ERROR, str(exc)))
+            span.record_exception(exc)
             timeline.record(
-                TimelineEventType.HUMAN_GATE,
+                TimelineEventType.ERROR,
                 phase="POSTFLIGHT_GOV",
                 node_id="governor",
-                details=details,
+                details={"error": str(exc), "error_type": type(exc).__name__},
             )
-        timeline.record(TimelineEventType.NODE_EXIT, phase="POSTFLIGHT_GOV", node_id="governor")
-        return _save_timeline(result, timeline)
-    except Exception as exc:
-        timeline.record(
-            TimelineEventType.ERROR,
-            phase="POSTFLIGHT_GOV",
-            node_id="governor",
-            details={"error": str(exc), "error_type": type(exc).__name__},
-        )
-        _save_timeline(before, timeline)
-        raise
+            _save_timeline(before, timeline)
+            raise
 
 
 def _pack_decision_node_impl(state: ExperimentState) -> ExperimentState:
@@ -2977,44 +3492,76 @@ def _pack_decision_node_impl(state: ExperimentState) -> ExperimentState:
 
 
 def pack_decision_node(state: ExperimentState) -> ExperimentState:
-    before = state
-    timeline = _get_or_create_timeline(state)
-    timeline.transition_phase("DECIDE")
-    timeline.record(TimelineEventType.NODE_ENTER, phase="DECIDE", node_id="pack_decision")
-    try:
-        # Ensure impl sees the latest timeline.
-        state_with_tl = _save_timeline(state, timeline)
-        result = _pack_decision_node_impl(state_with_tl)
+    tracer = get_tracer()
+    metrics = get_metrics()
+    span_attrs = _extract_span_attributes(
+        state,
+        {
+            ATTR_PHASE: "DECIDE",
+            ATTR_AGENT: "orchestrator",
+            ATTR_NODE: "pack_decision",
+        },
+    )
+    with tracer.start_as_current_span(
+        "pack_decision_node",
+        attributes=span_attrs,
+        kind=SpanKind.INTERNAL,
+    ) as span:
+        before = state
+        timeline = _get_or_create_timeline(state)
+        timeline.transition_phase("DECIDE")
+        timeline.record(TimelineEventType.NODE_ENTER, phase="DECIDE", node_id="pack_decision")
+        try:
+            # Ensure impl sees the latest timeline.
+            state_with_tl = _save_timeline(state, timeline)
+            result = _pack_decision_node_impl(state_with_tl)
+            run_id = result.get("run_id") or state.get("run_id")
+            if run_id:
+                span.set_attribute(ATTR_RUN_ID, str(run_id))
 
-        # Record that a DecisionPacket artifact was produced (deterministic ref string).
-        run_id = result.get("run_id") or before.get("run_id") or "unknown"
-        timeline.record(
-            TimelineEventType.ARTIFACT_CREATED,
-            phase="DECIDE",
-            node_id="pack_decision",
-            artifact_ref=f"decision_packet/{run_id}",
-        )
+            feedback = result.get("feedback")
+            verdict = feedback.get("verdict") if isinstance(feedback, dict) else None
+            final_verdict = verdict or "UNKNOWN"
+            span.set_attribute("polisyos.final_verdict", final_verdict)
+            span.set_attribute(ATTR_VERDICT, final_verdict)
 
-        timeline.record(TimelineEventType.NODE_EXIT, phase="DECIDE", node_id="pack_decision")
+            status = "success"
+            if result.get("pruned") or final_verdict in {"REJECT", "HUMAN_GATE"}:
+                status = "failure"
+            metrics.record_workflow_run(status, "DECIDE", "orchestrator")
+            result = {**result, "_workflow_metrics_recorded": True}
 
-        # Mark run end (best-effort).
-        success = True
-        feedback = result.get("feedback")
-        if isinstance(feedback, dict):
-            verdict = (feedback.get("verdict") or "").upper()
-            if verdict == "REJECT":
+            # Record that a DecisionPacket artifact was produced (deterministic ref string).
+            run_id = result.get("run_id") or before.get("run_id") or "unknown"
+            timeline.record(
+                TimelineEventType.ARTIFACT_CREATED,
+                phase="DECIDE",
+                node_id="pack_decision",
+                artifact_ref=f"decision_packet/{run_id}",
+            )
+
+            timeline.record(TimelineEventType.NODE_EXIT, phase="DECIDE", node_id="pack_decision")
+
+            # Mark run end (best-effort).
+            success = True
+            if isinstance(feedback, dict):
+                verdict_upper = (feedback.get("verdict") or "").upper()
+                if verdict_upper == "REJECT":
+                    success = False
+            if result.get("pruned"):
                 success = False
-        if result.get("pruned"):
-            success = False
-        timeline.record_run_end(success=success)
+            timeline.record_run_end(success=success)
 
-        return _save_timeline(result, timeline)
-    except Exception as exc:
-        timeline.record(
-            TimelineEventType.ERROR,
-            phase="DECIDE",
-            node_id="pack_decision",
-            details={"error": str(exc), "error_type": type(exc).__name__},
-        )
-        _save_timeline(before, timeline)
-        raise
+            span.set_status(Status(StatusCode.OK))
+            return _save_timeline(result, timeline)
+        except Exception as exc:
+            span.set_status(Status(StatusCode.ERROR, str(exc)))
+            span.record_exception(exc)
+            timeline.record(
+                TimelineEventType.ERROR,
+                phase="DECIDE",
+                node_id="pack_decision",
+                details={"error": str(exc), "error_type": type(exc).__name__},
+            )
+            _save_timeline(before, timeline)
+            raise

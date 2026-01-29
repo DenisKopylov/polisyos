@@ -12,12 +12,12 @@ Agent Layer реализует иерархическую систему спе�
 
 ```
 agent/
-├── __init__.py           # Экспорт протоколов, ролей и mock реализаций
+├── __init__.py           # Экспорт протоколов, ролей и mock/LLM реализаций
 ├── protocols.py          # Протоколы агентов и поддерживающие типы данных
-├── pi.py                 # Principal Investigator (PI) Agent
-├── drafter.py            # Drafter Agent для генерации черновиков
-├── formalizer.py         # Formalizer Agent для преобразования в IR
-├── critic.py             # Critic Agent для валидации и критики
+├── pi.py                 # Principal Investigator (PI) Agent (MockPIAgent, LLMPIAgent)
+├── drafter.py            # Drafter Agent для генерации черновиков (MockDrafterAgent, LLMDrafterAgent, MockLLM)
+├── formalizer.py         # Formalizer Agent для преобразования в IR (MockFormalizerAgent, LLMFormalizerAgent)
+├── critic.py             # Critic Agent для валидации и критики (MockCriticAgent, LLMCriticAgent)
 ├── failure_card.py       # Структурированные артефакты для self-healing
 ├── memory.py             # Кратковременная память для Reflexion
 ├── reflexion.py          # Оркестратор self-healing workflow
@@ -229,6 +229,13 @@ class MockPIAgent:
     ) -> list[SubTask]:
         # Анализ запроса и создание подзадач
         # Возврат списка SubTask с target_agent, priority, dependencies
+
+class LLMPIAgent:
+    async def decompose_task(
+        self, request: str, *, context: dict | None = None
+    ) -> list[SubTask]:
+        # Использование LLM для интеллектуальной декомпозиции задач
+        # Анализ домена, создание ProblemFrame, генерация SubTask с зависимостями
 ```
 
 ### 📝 Drafter Agent (drafter.py)
@@ -248,6 +255,13 @@ class MockDrafterAgent:
     ) -> DraftResult:
         # Генерация естественного описания политики
         # Возврат DraftResult с narrative и metadata
+
+class LLMDrafterAgent:
+    async def draft(
+        self, problem_frame: ProblemFrame, *, context: dict | None = None
+    ) -> DraftResult:
+        # Интеграция с LLM для генерации policy drafts
+        # Контекстуализация требований и экономических trade-offs
 ```
 
 ### 🔧 Formalizer Agent (formalizer.py)
@@ -267,6 +281,13 @@ class MockFormalizerAgent:
     ) -> "PolicySurfaceIR":
         # Преобразование draft в структурированный IR
         # Возврат валидного PolicySurfaceIR объекта
+
+class LLMFormalizerAgent:
+    async def formalize(
+        self, draft: DraftResult, *, schema_version: str = "2.0"
+    ) -> "PolicySurfaceIR":
+        # LLM-powered преобразование natural language drafts в формальный IR
+        # Схема валидация и типизация параметров через LLM reasoning
 ```
 
 ### ⚖️ Critic Agent (critic.py)
@@ -287,6 +308,13 @@ class MockCriticAgent:
     ) -> CritiqueReport:
         # Комплексная валидация политики
         # Возврат CritiqueReport с verdict и issues
+
+class LLMCriticAgent:
+    async def critique(
+        self, ir: "PolicySurfaceIR", problem_frame: ProblemFrame, *, depth: str = "standard"
+    ) -> CritiqueReport:
+        # LLM-powered валидация и критика политик
+        # Проверка alignment, completeness, consistency, feasibility
 ```
 
 ### 🔄 Legacy поддержка (base.py)
@@ -495,15 +523,24 @@ timeline.record(TimelineEventType.NODE_ENTER, "FRAME",
 
 ```python
 from polisyos.scientist.agent import (
+    # Mock implementations (for testing)
     MockPIAgent, MockDrafterAgent, MockFormalizerAgent, MockCriticAgent,
+    # LLM-powered implementations (for production)
+    LLMPIAgent, LLMDrafterAgent, LLMFormalizerAgent, LLMCriticAgent,
     ProblemFrame, AgentRole, TaskPriority
 )
 
-# Создание агентов
+# Создание mock агентов (для тестирования)
 pi_agent = MockPIAgent()
 drafter_agent = MockDrafterAgent()
 formalizer_agent = MockFormalizerAgent()
 critic_agent = MockCriticAgent()
+
+# Или создание LLM агентов (для production)
+# pi_agent = LLMPIAgent()
+# drafter_agent = LLMDrafterAgent()
+# formalizer_agent = LLMFormalizerAgent()
+# critic_agent = LLMCriticAgent()
 
 # 1. PI Agent декомпозирует задачу
 subtasks = await pi_agent.decompose_task(
@@ -601,10 +638,10 @@ pytest tests/scientist/integration/test_workflow_smoke.py -v
 ### Test Coverage
 
 - **Протоколы**: Валидация интерфейсов и типов данных
-- **PI Agent**: Декомпозиция задач, создание ProblemFrame
-- **Drafter Agent**: Генерация черновиков, контекстуализация
-- **Formalizer Agent**: IR генерация, схема валидация
-- **Critic Agent**: Многоуровневая валидация, critique reports
+- **PI Agent**: Декомпозиция задач, создание ProblemFrame (MockPIAgent, LLMPIAgent)
+- **Drafter Agent**: Генерация черновиков, контекстуализация (MockDrafterAgent, LLMDrafterAgent, MockLLM)
+- **Formalizer Agent**: IR генерация, схема валидация (MockFormalizerAgent, LLMFormalizerAgent)
+- **Critic Agent**: Многоуровневая валидация, critique reports (MockCriticAgent, LLMCriticAgent)
 - **FailureCard**: Создание, классификация, formatting для LLM
 - **ShortTermMemory**: Conversation tracking, attempt recording, hints accumulation
 - **ReflexionOrchestrator**: Failure evaluation, routing decisions, backoff logic

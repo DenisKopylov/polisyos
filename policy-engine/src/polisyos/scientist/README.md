@@ -59,6 +59,8 @@ scientist/
 │   ├── engine_base.py    # Базовые абстракции workflow
 │   ├── engine_simple.py  # Простой loop-based движок
 │   └── engine_langgraph.py # LangGraph-based декларативный workflow
+├── llm/            # LLM tracing и monitoring
+│   └── traced_client.py  # Traced LLM client для observability
 └── publisher.py    # Финализация результатов
 ```
 
@@ -194,6 +196,12 @@ scientist/
 - **`engine_simple.py`**: `SimpleLoopEngine` - простой движок на базе циклов для базовых сценариев workflow
 - **`engine_langgraph.py`**: `LangGraphEngine` - продвинутый декларативный движок на базе LangGraph для комплексных workflow с conditional routing, state management и observability
 
+### 🤖 LLM Layer (трассировка LLM/llm)
+
+Инфраструктура для мониторинга, трассировки и отладки взаимодействий с LLM:
+
+- **`traced_client.py`**: `TracedLLMClient` - wrapper для LLM клиентов с автоматической трассировкой через OpenTelemetry. Предоставляет унифицированный интерфейс для разных провайдеров (OpenAI, Anthropic, etc.) с встроенной observability
+
 ### 📚 Legacy Layer (Устаревший код)
 
 Содержит устаревшие реализации для обратной совместимости:
@@ -293,6 +301,15 @@ Workflow управляется конечным автоматом состоя
 - **Backoff & Retry Logic**: Exponential backoff с configurable delays и attempt limits
 - **Ping-pong Detection**: Предотвращение бесконечных циклов между агентами
 - **Context Injection**: Автоматическое включение failure context в LLM prompts
+
+### 🤖 LLM Tracing (мониторинг LLM)
+
+- **TracedLLMClient**: Унифицированный интерфейс для разных LLM провайдеров с автоматической трассировкой
+- **OpenTelemetry Integration**: Полная интеграция с observability stack для мониторинга LLM вызовов
+- **Performance Monitoring**: Отслеживание latency, token usage, cost и error rates
+- **Request/Response Logging**: Структурированное логирование всех LLM взаимодействий
+- **Provider Agnostic**: Поддержка OpenAI, Anthropic и других провайдеров через единый интерфейс
+- **Debug Capabilities**: Детальная трассировка для отладки LLM-related проблем
 
 ### 🔍 Search Framework (поисковая оптимизация)
 - **Two-Stage Evaluation**: Быстрая предварительная оценка (cheap stage) с корреляционным трекингом для предсказания результатов дорогой симуляции (expensive stage)
@@ -1281,6 +1298,11 @@ Scientist является верхним уровнем в архитектур
 - **Logger**: `logger` - структурированное логирование с контекстом модуля через Loguru
 - **Config**: Централизованная конфигурация и JAX environment setup
 
+### 🔗 LLM Layer (Tracing Infrastructure)
+- **TracedLLMClient**: Унифицированный интерфейс для LLM взаимодействий с OpenTelemetry tracing
+- **Observability Integration**: Полная интеграция с observability stack для мониторинга LLM performance
+- **Provider Abstractions**: Поддержка множественных LLM провайдеров через единый интерфейс
+
 ## Troubleshooting
 
 ### Budget превышения
@@ -1360,6 +1382,7 @@ tests/scientist/
 ├── test_compute_*.py       # Compute layer (job_spec, runner)
 ├── test_governance_*.py    # Governance layer (preflight, postflight, passes, pipeline, legal)
 ├── test_doe_*.py          # Design of Experiments (designs)
+├── test_llm_*.py          # LLM layer (traced_client, observability)
 ├── test_orchestrator_*.py  # Orchestrator layer (workflow, state, flow_nodes)
 ├── test_publisher.py       # Publisher layer
 └── integration/
@@ -1376,6 +1399,7 @@ pytest tests/scientist/test_agent_*.py -v      # Agent layer
 pytest tests/scientist/test_kernel_*.py -v     # Kernel (FSM, budgets, guards)
 pytest tests/scientist/test_compute_*.py -v    # Compute layer
 pytest tests/scientist/test_governance_*.py -v # Governance
+pytest tests/scientist/test_llm_*.py -v        # LLM layer (tracing, observability)
 pytest tests/scientist/test_orchestrator_*.py -v # Orchestrator
 
 # Integration tests для полного workflow
@@ -1486,6 +1510,7 @@ research_budget = {
 - **Orchestrator Layer**: Полный workflow на LangGraph (1450+ строк в flow_nodes.py), ExperimentState с 90+ полями, DecisionPacket с evidence и uncertainty, DecisionCard summaries, RunTimeline для observability, audit trail
 - **Search Layer**: Полный фреймворк итеративной оптимизации с SearchController, двухстадийной оценкой (cheap/expensive stages), composite objectives и интеллектуальными критериями остановки
 - **Workflow Layer**: Полные абстракции и реализации движков (SimpleLoopEngine, LangGraphEngine) с унифицированным интерфейсом для декларативного управления процессами
+- **LLM Layer**: Полная инфраструктура tracing и monitoring для LLM взаимодействий через TracedLLMClient с OpenTelemetry интеграцией
 - **Publisher Layer**: Полная публикация через build_decision_packet с интеграцией всех артефактов
 - **Workflow Integration**: Полная интеграция со всеми модулями (Core, IR, Fabric, Foundry, Runtime)
 

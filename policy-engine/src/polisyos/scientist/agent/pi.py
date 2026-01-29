@@ -22,6 +22,7 @@ from polisyos.scientist.agent.protocols import (
     TaskPriority,
     TaskStatus,
 )
+from polisyos.scientist.llm import TracedLLMClient
 
 if TYPE_CHECKING:
     from polisyos.scientist.agent.protocols import CriticAgent, DrafterAgent, FormalizerAgent
@@ -187,8 +188,12 @@ class LLMPIAgent:
         drafter: "DrafterAgent | None" = None,
         formalizer: "FormalizerAgent | None" = None,
         critic: "CriticAgent | None" = None,
+        model_name: str | None = None,
     ) -> None:
-        self._llm = llm_client
+        if llm_client is not None and not isinstance(llm_client, TracedLLMClient):
+            self._llm = TracedLLMClient(llm_client, model_name=model_name)
+        else:
+            self._llm = llm_client
         self._drafter = drafter
         self._formalizer = formalizer
         self._critic = critic

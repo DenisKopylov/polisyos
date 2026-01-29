@@ -3,6 +3,9 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Dict, List, Optional, Tuple
 
+from opentelemetry.trace import Status, StatusCode
+
+from polisyos.core.observability import get_metrics, get_tracer
 from .passes.base import ValidatorPass, PassContext, ComplianceIssue, IssueSeverity
 from .profiles import ValidationProfile
 from .telemetry import ValidationTrace, PassSpan
@@ -27,6 +30,9 @@ class ValidationPipeline:
         ctx: PassContext,
         profile: ValidationProfile,
     ) -> Tuple[List[ComplianceIssue], ValidationTrace]:
+        tracer = get_tracer()
+        metrics = get_metrics()
+
         trace = ValidationTrace(run_id=ctx.run_id, profile=profile.level.value)
         all_issues: List[ComplianceIssue] = []
 
@@ -35,43 +41,109 @@ class ValidationPipeline:
             key=lambda p: p.estimated_cost_ms,
         )
 
-        for validator in ordered_passes:
-            span = PassSpan(pass_id=validator.pass_id, start_time=datetime.utcnow())
+        with tracer.start_as_current_span(
+            "governance.validation_pipeline",
+            attributes={
+                "polisyos.run_id": ctx.run_id,
+                "polisyos.phase": "VALIDATE",
+                "polisyos.validation.profile": profile.level.value,
+                "polisyos.validation.pass_count": len(ordered_passes),
+            },
+        ) as pipeline_span:
+            for validator in ordered_passes:
+                with tracer.start_as_current_span(
+                    f"governance.pass.{validator.pass_id}",
+                    attributes={
+                        "polisyos.pass_id": validator.pass_id,
+                        "polisyos.pass.estimated_cost_ms": validator.estimated_cost_ms,
+                    },
+                ) as pass_span:
+                    span = PassSpan(pass_id=validator.pass_id, start_time=datetime.utcnow())
 
-            if ctx.ir:
-                try:
-                    span.set_inputs_hash(ctx.ir.model_dump(mode="json"))
-                except Exception:
-                    pass
+                    if ctx.ir:
+                        try:
+                            span.set_inputs_hash(ctx.ir.model_dump(mode="json"))
+                        except Exception:
+                            pass
 
-            try:
-                issues = validator.validate(ctx)
-                span.issue_count = len(issues)
-                span.blocker_count = sum(1 for issue in issues if issue.severity == IssueSeverity.BLOCKER)
-                span.warning_count = sum(1 for issue in issues if issue.severity == IssueSeverity.WARNING)
-                all_issues.extend(issues)
-            except Exception as exc:
-                span.error = str(exc)
-                all_issues.append(
-                    ComplianceIssue(
-                        pass_id=validator.pass_id,
-                        path=["_internal", "pass_error"],
-                        message=f"Pass '{validator.pass_id}' failed: {exc}",
-                        severity=IssueSeverity.BLOCKER,
-                        code="PASS_EXECUTION_ERROR",
-                    )
+                    with metrics.time_governance_pass({"pass_id": validator.pass_id}):
+                        try:
+                            issues = validator.validate(ctx)
+                            span.issue_count = len(issues)
+                            span.blocker_count = sum(
+                                1 for issue in issues if issue.severity == IssueSeverity.BLOCKER
+                            )
+                            span.warning_count = sum(
+                                1 for issue in issues if issue.severity == IssueSeverity.WARNING
+                            )
+                            for issue in issues:
+                                metrics.record_validation_issue(
+                                    severity=issue.severity.value,
+                                    pass_id=validator.pass_id,
+                                    error_type=issue.code,
+                                )
+                            all_issues.extend(issues)
+
+                            pass_span.set_attribute(
+                                "polisyos.validation.issue_count", len(issues)
+                            )
+                            pass_span.set_attribute(
+                                "polisyos.validation.blocker_count", span.blocker_count
+                            )
+                            if span.blocker_count > 0:
+                                pass_span.set_status(
+                                    Status(StatusCode.ERROR, "blockers_found")
+                                )
+                            else:
+                                pass_span.set_status(Status(StatusCode.OK))
+
+                        except Exception as exc:
+                            span.error = str(exc)
+                            pass_span.set_status(Status(StatusCode.ERROR, str(exc)))
+                            pass_span.record_exception(exc)
+                            metrics.record_validation_issue(
+                                severity="blocker",
+                                pass_id=validator.pass_id,
+                                error_type="PASS_EXECUTION_ERROR",
+                            )
+                            all_issues.append(
+                                ComplianceIssue(
+                                    pass_id=validator.pass_id,
+                                    path=["_internal", "pass_error"],
+                                    message=f"Pass '{validator.pass_id}' failed: {exc}",
+                                    severity=IssueSeverity.BLOCKER,
+                                    code="PASS_EXECUTION_ERROR",
+                                )
+                            )
+                            span.blocker_count = 1
+                        finally:
+                            span.close()
+                            trace.add_span(span)
+
+                    if profile.short_circuit_on_blocker and span.blocker_count > 0:
+                        pipeline_span.set_attribute(
+                            "polisyos.validation.short_circuited", True
+                        )
+                        pipeline_span.set_status(
+                            Status(StatusCode.ERROR, "short_circuit_on_blocker")
+                        )
+                        trace.complete(short_circuited=True)
+                        return all_issues, trace
+
+            pipeline_span.set_attribute("polisyos.validation.total_issues", len(all_issues))
+            pipeline_span.set_attribute("polisyos.validation.short_circuited", False)
+            total_blockers = sum(
+                1 for issue in all_issues if issue.severity == IssueSeverity.BLOCKER
+            )
+            if total_blockers > 0:
+                pipeline_span.set_status(
+                    Status(StatusCode.ERROR, f"{total_blockers} blockers")
                 )
-                span.blocker_count = 1
-            finally:
-                span.close()
-                trace.add_span(span)
+            else:
+                pipeline_span.set_status(Status(StatusCode.OK))
 
-            if profile.short_circuit_on_blocker and span.blocker_count > 0:
-                trace.complete(short_circuited=True)
-                return all_issues, trace
-
-        trace.complete(short_circuited=False)
-        return all_issues, trace
+            trace.complete(short_circuited=False)
+            return all_issues, trace
 
     def get_pass(self, pass_id: str) -> Optional[ValidatorPass]:
         """Retrieve a specific pass by ID."""

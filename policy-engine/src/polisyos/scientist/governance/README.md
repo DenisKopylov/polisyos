@@ -20,11 +20,13 @@ governance/
 ├── telemetry.py         # ValidationTrace/PassSpan для мониторинга производительности
 ├── legal/               # Legal compliance validation backends
 │   ├── __init__.py
+│   ├── ast_policy.py    # AST-based policy structures for legal validation
 │   ├── README.md        # Documentation for legal validation
 │   └── backends/        # Pluggable rule evaluation backends
 │       ├── __init__.py
 │       ├── base.py      # RuleBackend protocol contract
-│       └── stub.py      # Stub implementation for testing
+│       ├── stub.py      # Stub implementation for testing
+│       └── expr_ast.py  # AST-based backend for safe expression evaluation
 └── passes/
     ├── __init__.py
     ├── base.py          # ValidatorPass, PassContext, ComplianceIssue базовые классы
@@ -168,14 +170,22 @@ class RuleBackend(Protocol):
 - **Policy introspection**: Доступ к параметрам PolicySurfaceIR
 - **Error recovery**: Graceful handling evaluation errors
 
+##### ExprASTBackend (expr_ast.py)
+Продвинутая реализация на базе AST для безопасной оценки норм:
+- **Safe evaluation**: AST parsing предотвращает code injection
+- **Expression support**: Поддержка математических и логических выражений
+- **Policy introspection**: Доступ к параметрам PolicySurfaceIR
+- **Error recovery**: Graceful handling evaluation errors
+
 ##### AST Policy Structures (ast_policy.py)
-Новые структуры политик для legal validation (в разработке):
+Новые структуры политик для legal validation:
 - Расширенные AST узлы для legal evaluation
 - Type-safe структуры для policy introspection
 - Интеграция с ExprASTBackend
+- Поддержка expression-based норм с безопасной оценкой
 
 ##### Будущие backends:
-- **LLM Backend**: Claude-based evaluation для комплексных текстовых норм
+- **LLM Backend**: Claude/GPT-based evaluation для комплексных текстовых норм
 
 ### 📊 Quality Gate Pass (quality_gate_pass.py)
 

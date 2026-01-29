@@ -16,6 +16,7 @@ from pydantic import ValidationError
 from polisyos.ir.surface import PolicySurfaceIR
 from polisyos.scientist.agent.prompts import get_formalizer_prompt
 from polisyos.scientist.agent.protocols import DraftResult, FormalizerAgent
+from polisyos.scientist.llm import TracedLLMClient
 
 if TYPE_CHECKING:
     pass
@@ -230,8 +231,11 @@ class LLMFormalizerAgent:
 
     MAX_RETRIES = 2
 
-    def __init__(self, llm_client: Any) -> None:
-        self._llm = llm_client
+    def __init__(self, llm_client: Any, model_name: str | None = None) -> None:
+        if llm_client is not None and not isinstance(llm_client, TracedLLMClient):
+            self._llm = TracedLLMClient(llm_client, model_name=model_name)
+        else:
+            self._llm = llm_client
 
     async def formalize(
         self,

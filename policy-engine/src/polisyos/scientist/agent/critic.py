@@ -21,6 +21,7 @@ from polisyos.scientist.agent.protocols import (
     CritiqueSeverity,
     ProblemFrame,
 )
+from polisyos.scientist.llm import TracedLLMClient
 
 if TYPE_CHECKING:
     from polisyos.ir.surface import PolicySurfaceIR
@@ -319,8 +320,11 @@ class LLMCriticAgent:
     Performs adversarial review of IR against ProblemFrame.
     """
 
-    def __init__(self, llm_client: Any) -> None:
-        self._llm = llm_client
+    def __init__(self, llm_client: Any, model_name: str | None = None) -> None:
+        if llm_client is not None and not isinstance(llm_client, TracedLLMClient):
+            self._llm = TracedLLMClient(llm_client, model_name=model_name)
+        else:
+            self._llm = llm_client
 
     async def critique(
         self,

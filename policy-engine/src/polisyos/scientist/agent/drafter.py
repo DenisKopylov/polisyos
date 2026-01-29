@@ -21,6 +21,7 @@ from polisyos.scientist.agent.protocols import (
     DraftResult,
     ProblemFrame,
 )
+from polisyos.scientist.llm import TracedLLMClient
 from polisyos.scientist.orchestrator.audit import append_audit
 from polisyos.scientist.orchestrator.state import ExperimentState
 
@@ -307,8 +308,11 @@ class MockDrafterAgent:
 class LLMDrafterAgent:
     """LLM-powered drafter agent for producing DraftResult artifacts."""
 
-    def __init__(self, llm_client: Any) -> None:
-        self._llm = llm_client
+    def __init__(self, llm_client: Any, model_name: str | None = None) -> None:
+        if llm_client is not None and not isinstance(llm_client, TracedLLMClient):
+            self._llm = TracedLLMClient(llm_client, model_name=model_name)
+        else:
+            self._llm = llm_client
 
     async def draft_policy(
         self,

@@ -2,8 +2,8 @@
 
 Тестовая инфраструктура для Policy Engine - AI-driven Policy Simulation System. Тесты обеспечивают качество кода, валидируют архитектурные границы и проверяют корректность работы всех компонентов системы.
 
-**Последнее обновление:** 29 января 2026 (добавлены Core Observability: PolicyOSTracer, MetricsRegistry, @traced decorator, log-trace correlation, context propagation, Phase 18: Safe Expression Evaluation, AST Policy validation, norm execution security, legal AST backends, expression evaluators, governance security testing, AST limits enforcement, Phase 17 search loop system, workflow engines, two-stage filtering, conflict detection, cost model, NaN guard, agent artifacts, merge determinism, quality indicators system, fitness reports, quality gate pass, decision card system, run timeline tracking, decision packet v2)
-**Актуальная версия архитектуры:** v2.3.0 (Core Observability, Phase 18 Security, Safe Expression Evaluation, AST Policy Enforcement, Legal AST Backends)
+**Последнее обновление:** 29 января 2026 (добавлены Core Observability: PolicyOSTracer, MetricsRegistry, @traced decorator, log-trace correlation, context propagation, Phase 18: Safe Expression Evaluation, AST Policy validation, norm execution security, legal AST backends, expression evaluators, governance security testing, AST limits enforcement, Phase 17 search loop system, workflow engines, two-stage filtering, conflict detection, cost model, NaN guard, agent artifacts, merge determinism, quality indicators system, fitness reports, quality gate pass, decision card system, run timeline tracking, decision packet v2, Phase 2 instrumentation: flow node tracing, LLM client instrumentation, governance pipeline spans, end-to-end workflow tracing)
+**Актуальная версия архитектуры:** v2.4.0 (Core Observability, Phase 18 Security, Safe Expression Evaluation, AST Policy Enforcement, Legal AST Backends, Phase 2 Instrumentation, End-to-End Workflow Tracing)
 
 ## Архитектурный контекст
 
@@ -89,6 +89,8 @@ tests/
     │   ├── test_legal_pass.py     # LegalPass, RuleBackend, NormPack validation
     │   ├── test_norm_execution.py # Phase 18: Safe expression evaluation, AST policy, security validation
     │   └── test_validation_pipeline.py # ValidationPipeline, profiles, compliance issues
+    ├── integration/               # Интеграционные тесты scientist layer (Phase 2 instrumentation)
+    │   └── test_workflow_tracing.py # End-to-end workflow tracing, trace consistency, phase validation
     ├── search/                    # Тесты search loop system (Phase 17 optimization)
     │   ├── conftest.py            # Специфичная конфигурация для search тестов
     │   ├── test_search_loop.py    # SearchController, two-stage filtering, stopping criteria, objectives
@@ -97,6 +99,7 @@ tests/
     ├── test_compiler.py           # Компилятор политик из IR
     ├── test_decision_card.py      # DecisionCard, Verdict, Confidence, KeyMetric, IssuesSummary
     ├── test_decision_packet_v2.py # DecisionPacket v2 с timeline и decision card поддержкой
+    ├── test_instrumentation.py    # Phase 2 instrumentation tests (flow nodes, LLM client, governance tracing)
     ├── test_multi_agent_workflow.py # Multi-agent workflow с critique system и памятью
     ├── test_reflexion_loop.py     # Reflexion loop, failure cards, recovery mechanisms
     └── test_run_timeline.py       # RunTimeline, TimelineEventType, timeline tracking
@@ -277,7 +280,7 @@ tests/
 
 ### Scientist Tests (`scientist/`)
 
-**Цель**: Валидация компонентов ИИ, протоколов агентов, компиляции политик, систем recovery, governance layer и optimization loop.
+**Цель**: Валидация компонентов ИИ, протоколов агентов, компиляции политик, систем recovery, governance layer, optimization loop и instrumentation.
 
 **Ключевые тесты:**
 - **Governance Layer**: Validation pipeline, compliance checks, pre/post-flight governance, legal validation passes, quality gate pass, Phase 18 safe expression evaluation, AST policy validation, security enforcement
@@ -293,6 +296,7 @@ tests/
 - **Failure Cards**: Система обработки ошибок, recovery mechanisms и escalation logic
 - **Short-Term Memory**: Persistence состояния и hints между попытками агентов
 - **Workflow Engines**: Абстракция workflow execution с поддержкой LangGraph, SimpleLoop и будущих реализаций
+- **Phase 2 Instrumentation**: Flow node tracing, LLM client instrumentation, governance pipeline spans, trace consistency, end-to-end workflow tracing
 
 ## Конфигурация окружения (conftest.py)
 
@@ -370,6 +374,10 @@ pytest tests/scientist/governance/ -v                 # Validation pipeline
 pytest tests/scientist/governance/test_legal_pass.py -v # Legal validation pass
 pytest tests/scientist/governance/test_norm_execution.py -v # Phase 18 safe expression evaluation
 
+# Integration тесты (Phase 2 instrumentation)
+pytest tests/scientist/integration/ -v               # End-to-end workflow tracing
+pytest tests/scientist/integration/test_workflow_tracing.py -v # Trace consistency, phase validation
+
 # Search loop system тесты (Phase 17 optimization)
 pytest tests/scientist/search/ -v                    # SearchController, two-stage filtering
 pytest tests/scientist/search/test_search_loop.py -v # Optimization flow, stopping criteria
@@ -383,6 +391,7 @@ pytest tests/scientist/test_decision_packet_v2.py -v  # Decision packet v2 с ti
 pytest tests/scientist/test_run_timeline.py -v        # Run timeline tracking
 pytest tests/scientist/test_multi_agent_workflow.py -v  # Multi-agent workflow
 pytest tests/scientist/test_reflexion_loop.py -v       # Reflexion loop и failure cards
+pytest tests/scientist/test_instrumentation.py -v      # Phase 2 instrumentation tests
 ```
 
 ### Специфические сценарии
@@ -935,6 +944,26 @@ pytest tests/core_phase0/test_observability.py::TestIntegrationScenarios::test_f
 pytest tests/core_phase0/test_observability.py::TestIntegrationScenarios::test_span_hierarchy -v
 ```
 
+**Instrumentation failures:**
+```bash
+# Проверьте flow node span creation
+pytest tests/scientist/test_instrumentation.py::TestFlowNodeInstrumentation::test_drafter_node_creates_span -v
+# Проверьте trace consistency
+pytest tests/scientist/test_instrumentation.py::TestFlowNodeInstrumentation::test_trace_id_consistency_across_workflow -v
+# Проверьте LLM client token tracking
+pytest tests/scientist/test_instrumentation.py::TestLLMClientInstrumentation::test_traced_llm_client_records_tokens -v
+# Проверьте governance pipeline spans
+pytest tests/scientist/test_instrumentation.py::TestGovernanceInstrumentation::test_validation_pipeline_creates_spans_per_pass -v
+```
+
+**Workflow tracing integration issues:**
+```bash
+# Проверьте end-to-end trace consistency
+pytest tests/scientist/integration/test_workflow_tracing.py::test_full_workflow_trace_consistency -v
+# Проверьте phase validation
+pytest tests/scientist/integration/test_workflow_tracing.py -v
+```
+
 ### Полезные команды диагностики
 
 ```bash
@@ -1012,4 +1041,10 @@ python -c "from polisyos.core.observability.logs import TraceContextFilter, get_
 
 # Проверка context propagation
 python -c "from polisyos.core.observability import inject_headers, extract_headers; print('Context propagation OK')"
+
+# Проверка instrumentation system
+python -c "from polisyos.scientist.orchestrator import flow_nodes; from polisyos.scientist.llm.traced_client import TracedLLMClient; print('Instrumentation system OK')"
+
+# Проверка workflow tracing integration
+python -c "from polisyos.scientist import run_experiment; print('Workflow tracing integration OK')"
 ```

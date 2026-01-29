@@ -342,12 +342,12 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │       │   │   ├── README.md  # Documentation for this directory/module.
 │       │   │   ├── __init__.py  # Python package initializer (public exports live here).
 │       │   │   ├── base.py  # Python module implementing 'base'.
-│       │   │   ├── critic.py  # Python module implementing 'critic'.
-│       │   │   ├── drafter.py  # Python module implementing 'drafter'.
+│       │   │   ├── critic.py  # Critic agent with TracedLLMClient integration.
+│       │   │   ├── drafter.py  # Drafter agent with TracedLLMClient integration.
 │       │   │   ├── failure_card.py  # Python module implementing 'failure_card'.
-│       │   │   ├── formalizer.py  # Python module implementing 'formalizer'.
+│       │   │   ├── formalizer.py  # Formalizer agent with TracedLLMClient integration.
 │       │   │   ├── memory.py  # Python module implementing 'memory'.
-│       │   │   ├── pi.py  # Python module implementing 'pi'.
+│       │   │   ├── pi.py  # PI agent with TracedLLMClient integration.
 │       │   │   ├── prompt.py  # Python module implementing 'prompt'.
 │       │   │   ├── prompts.py  # Python module implementing 'prompts'.
 │       │   │   ├── protocols.py  # Python module implementing 'protocols'.
@@ -394,6 +394,10 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │       │   │   ├── fsm.py  # Python module implementing 'fsm'.
 │       │   │   ├── guards.py  # Python module implementing 'guards'.
 │       │   │   └── human_gate.py  # Python module implementing 'human_gate'.
+│       │   ├── llm/  # LLM layer: tracing и monitoring для LLM взаимодействий.
+│       │   │   ├── README.md  # Documentation for this directory/module.
+│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   └── traced_client.py  # TracedLLMClient с OpenTelemetry интеграцией.
 │       │   ├── orchestrator/  # Workflow orchestration: nodes, state, audit, decision packet/card, timeline.
 │       │   │   ├── README.md  # Documentation for this directory/module.
 │       │   │   ├── __init__.py  # Python package initializer (public exports live here).
@@ -514,11 +518,15 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │   │   │   ├── __init__.py  # Python package initializer (public exports live here).
 │   │   │   ├── conftest.py  # Pytest shared fixtures and configuration.
 │   │   │   └── test_search_loop.py  # Pytest module exercising search loop.
+│   │   ├── integration/  # Integration tests for workflow tracing.
+│   │   │   └── test_workflow_tracing.py  # Integration test for end-to-end workflow tracing.
 │   │   ├── README.md  # Documentation for this directory/module.
+│   │   ├── conftest.py  # Pytest shared fixtures and configuration.
 │   │   ├── test_agent_protocols.py  # Pytest module exercising agent protocols.
 │   │   ├── test_compiler.py  # Pytest module exercising compiler.
 │   │   ├── test_decision_card.py  # Pytest module exercising decision card.
 │   │   ├── test_decision_packet_v2.py  # Pytest module exercising decision packet v2.
+│   │   ├── test_instrumentation.py  # Phase 2 instrumentation tests for Scientist workflow.
 │   │   ├── test_multi_agent_workflow.py  # Pytest module exercising multi agent workflow.
 │   │   ├── test_reflexion_loop.py  # Pytest module exercising reflexion loop.
 │   │   └── test_run_timeline.py  # Pytest module exercising run timeline.

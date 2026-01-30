@@ -221,6 +221,9 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │       │   │   ├── __init__.py  # Python package initializer (public exports live here).
 │       │   │   ├── base.py  # BaseConnector protocol and core types (ConnectionConfig, FetchRequest, etc.).
 │       │   │   ├── capabilities.py  # Capability validation utilities and protocol compliance checking.
+│       │   │   ├── discovery.py  # Connector discovery via entry points and dev-only paths.
+│       │   │   ├── pool.py  # Connection pooling with health checks and eviction.
+│       │   │   ├── registry.py  # Connector registry with indices and lazy loading.
 │       │   │   └── types.py  # Connector error types and supporting data structures.
 │       ├── foundry/  # JAX execution core: compilation, runtime, simulation, calibration, determinism tools.
 │       │   ├── agent_sim/  # Agent-based simulation subsystem.
@@ -487,7 +490,8 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │   ├── fabric/  # Fabric tests.
 │   │   ├── connectors/  # Connector protocol compliance tests.
 │   │   │   ├── __init__.py  # Python package initializer (public exports live here).
-│   │   │   └── test_protocol_compliance.py  # Pytest module exercising connector protocol compliance.
+│   │   │   ├── test_protocol_compliance.py  # Pytest module exercising connector protocol compliance.
+│   │   │   └── test_registry.py  # Pytest module exercising registry, pooling, and discovery.
 │   │   ├── README.md  # Documentation for this directory/module.
 │   │   ├── test_data_catalog.py  # Pytest module exercising data catalog.
 │   │   ├── test_evidence_bundle.py  # Pytest module exercising evidence bundle.

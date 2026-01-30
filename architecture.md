@@ -13,7 +13,7 @@ It is built around a **compiler pipeline** mindset:
 This README describes **the project laws**, **data/decision flows**, **business logic**, **dependency logic**, **technologies**, and **key abstractions**.
 For a file-by-file map of the repository, see `architecture.md`.
 
-**Latest Update:** January 30, 2026 (Trinity IR Architecture, Data Connectors System Phase 2.1, Quality Gate Validation, Data Contract Catalog, Provenance System v2.0, Fact Log Integration, AST Policy Security, Performance Regression Detection, Core Observability v2.0, Phase 18 Security v2.1)
+**Latest Update:** January 30, 2026 (Trinity IR Architecture, Data Connectors System Phase 2.2, Quality Gate Validation, Data Contract Catalog, Provenance System v2.0, Fact Log Integration, AST Policy Security, Performance Regression Detection, Core Observability v2.0, Phase 18 Security v2.1)
 **Current Architecture Version:** v2.4.1 (Trinity IR Architecture, Data Connectors System, Quality Gate Validation, Data Contract Catalog, Provenance System v2.0, Fact Log Integration, AST Policy Security, Performance Regression Detection, Core Observability v2.0, Phase 18 Security v2.1)
 
 ---
@@ -74,7 +74,7 @@ The system is organized as a set of layers with intentionally **directed depende
   Orchestration sits at the top and is allowed to depend on most layers. Includes hierarchical agent system (PI→Drafter→Formalizer→Critic), FSM-based workflow orchestration, self-healing reflexion patterns, governance passes pipeline, Phase 18 safe expression evaluation, legal compliance validation, search loop system with two-stage filtering, workflow engines (LangGraph/SimpleLoop), LLM tracing infrastructure, decision card system, run timeline tracking, and multi-agent workflow orchestration with Phase 2 instrumentation (flow node tracing, LLM client instrumentation, governance pipeline spans, end-to-end workflow tracing).
 
 - **Fabric** → IR, Core, Common
-  Data layer depends on contracts and infrastructure, but not on orchestration. Includes unified data fabric with Phase 2.1 data connectors system (capability-based protocol, trust levels, version strategies), evidence bundles with cryptographic verification, W3C PROV-O compliant provenance tracking, trust quantification with statistical verification, quality indicators system (missingness/staleness/coverage/outlier detection), fitness reports with configurable thresholds, quality gate validation integration with governance pipeline, data contract catalog with hash-locked bindings, ingestion pipeline with entity resolution, trust two-pass comparison, fact log system with immutable facts and deterministic IDs, materializer engine for incremental updates, and CAS integration with Arrow support.
+  Data layer depends on contracts and infrastructure, but not on orchestration. Includes unified data fabric with Phase 2.2 data connectors system (capability-based protocol, registry with lazy loading, discovery, connection pooling), evidence bundles with cryptographic verification, W3C PROV-O compliant provenance tracking, trust quantification with statistical verification, quality indicators system (missingness/staleness/coverage/outlier detection), fitness reports with configurable thresholds, quality gate validation integration with governance pipeline, data contract catalog with hash-locked bindings, ingestion pipeline with entity resolution, trust two-pass comparison, fact log system with immutable facts and deterministic IDs, materializer engine for incremental updates, and CAS integration with Arrow support.
 
 - **Foundry** → IR, Core, Common
   Execution core depends on contracts and infrastructure, but not on data storage/orchestration. Includes JAX-based simulation engine with compile-time conflict detection, cost modeling, NaN guard for numerical stability, agent artifacts with environment fingerprinting, merge determinism, patch-based state management, plugin system with capability-based registry, adaptive agents with learning metrics, calibrator fidelity control, gradient health monitoring, and runtime batch execution.
@@ -145,7 +145,7 @@ At a high level, Policy Engine runs an experiment as a staged pipeline:
    - Provenance system with W3C PROV-O compliance and complete lineage tracking
    - Fact log system with immutable facts, deterministic IDs, and semantic network
    - Materializer engine for incremental relational view updates from fact log
-   - Data connectors system (Phase 2.1) with capability-based protocol and external data integration
+   - Data connectors system (Phase 2.2) with protocol, registry, discovery, pooling, and external data integration
 
 6. **Compilation (Foundry with conflict detection + cost modeling)**
    Foundry compiles policy IR into executable representation (`ProgramGraph` + `ExecPlan`), performs comprehensive static checks:
@@ -211,7 +211,7 @@ The IR kernel defines registries that make policies composable and checkable:
 - **Quality gate validation** blocks execution on poor data quality through governance pipeline integration.
 - **Trust policies** provide statistical verification with uncertainty bounds and two-pass comparison.
 - **Fact log system** enables immutable audit trails with deterministic fact IDs and semantic networks.
-- **Data connectors** (Phase 2.1) support capability-based protocol for external data source integration.
+- **Data connectors** (Phase 2.2) support capability-based protocol plus registry, discovery, and pooling.
 - **Materializer engine** performs incremental updates from fact log to relational views.
 - **UDF system** compiles safe, typed "data views" with Arrow support and multi-backend execution.
 
@@ -292,7 +292,7 @@ This section explains *what each major directory is for* without listing the ful
 - **`src/polisyos/common`**: minimal shared utilities (configuration, logging, JAX env defaults, migrations).
 - **`src/polisyos/core`**: infrastructure layer (CAS artifacts, canonical JSON, typed contracts, comprehensive observability system, registries, run context, conflict detection, cost modeling, NaN guard, Trinity contracts, legal contracts).
 - **`src/polisyos/ir`**: canonical policy/data contracts (Trinity + PolicySurfaceIR), loaders/migrations, kernel registries, validation.
-- **`src/polisyos/fabric`**: Unified Data Fabric (Phase 2.1 data connectors, data contract catalog, evidence bundles, provenance system v2.0, quality indicators, fact log, materializer engine, trust policies, UDF compilation pipeline).
+- **`src/polisyos/fabric`**: Unified Data Fabric (Phase 2.2 data connectors, data contract catalog, evidence bundles, provenance system v2.0, quality indicators, fact log, materializer engine, trust policies, UDF compilation pipeline).
 - **`src/polisyos/foundry`**: execution core (compile IR to executable plans; run JAX simulations; calibration; conflict detection; cost modeling; NaN guard; agent artifacts; patch-based execution).
 - **`src/polisyos/scientist`**: orchestration “brain” (hierarchical agent system with PI→Drafter→Formalizer→Critic, FSM-based workflow orchestration, self-healing reflexion patterns, governance passes pipeline, Phase 18 legal compliance, search loop system with two-stage filtering, workflow engines, LLM tracing infrastructure, decision card system, run timeline tracking, Phase 2 instrumentation).
 - **`src/polisyos/runtime`**: run lifecycle APIs and portable run manifests (where run artifacts are stored and referenced).
@@ -523,11 +523,14 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │       │   ├── schema.py  # Fabric schema/types shared across ingestion and UDF.
 │       │   ├── segment_manifest.py  # Segment manifest models (partitioning, optimization metadata).
 │       │   └── trust.py  # Trust policies and uncertainty quantification utilities.
-│       │   ├── connectors/  # External data source connectors with protocol compliance and capability system.
+│       │   ├── connectors/  # External data source connectors with protocol compliance and registry system.
 │       │   │   ├── README.md  # Documentation for this directory/module.
 │       │   │   ├── __init__.py  # Python package initializer (public exports live here).
 │       │   │   ├── base.py  # BaseConnector protocol and core types (ConnectionConfig, FetchRequest, etc.).
 │       │   │   ├── capabilities.py  # Capability validation utilities and protocol compliance checking.
+│       │   │   ├── discovery.py  # Connector discovery via entry points and dev-only paths.
+│       │   │   ├── pool.py  # Connection pooling with health checks and eviction.
+│       │   │   ├── registry.py  # Connector registry with indices and lazy loading.
 │       │   │   └── types.py  # Connector error types and supporting data structures.
 │       ├── foundry/  # JAX execution core: compilation, runtime, simulation, calibration, determinism tools.
 │       │   ├── agent_sim/  # Agent-based simulation subsystem.
@@ -792,9 +795,10 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │   │   ├── README.md  # Documentation for this directory/module.
 │   │   └── run_laffer_demo.py  # File.
 │   ├── fabric/  # Fabric tests.
-│   │   ├── connectors/  # Connector protocol compliance tests.
+│   │   ├── connectors/  # Connector protocol compliance and registry tests.
 │   │   │   ├── __init__.py  # Python package initializer (public exports live here).
-│   │   │   └── test_protocol_compliance.py  # Pytest module exercising connector protocol compliance.
+│   │   │   ├── test_protocol_compliance.py  # Pytest module exercising connector protocol compliance.
+│   │   │   └── test_registry.py  # Pytest module exercising registry, pooling, and discovery.
 │   │   ├── README.md  # Documentation for this directory/module.
 │   │   ├── test_data_catalog.py  # Pytest module exercising data catalog.
 │   │   ├── test_evidence_bundle.py  # Pytest module exercising evidence bundle.

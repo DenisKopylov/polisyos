@@ -30,6 +30,7 @@ dependencies = [
     # Utils
     "python-dotenv>=1.0.0",
     "loguru>=0.7.2",
+    "packaging>=23.0",
     "jax-metal>=0.1.1",
     "chex>=0.1.91",
     "streamlit>=1.52.2",

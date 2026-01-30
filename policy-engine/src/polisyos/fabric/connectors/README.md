@@ -1,6 +1,7 @@
 # Data Fabric Connectors
 
-**Phase 2.1: Protocol Foundation & Capability System**
+**Phase 2.1: Protocol Foundation & Capability System**  
+**Phase 2.2: Registry Architecture & Lazy Loading**
 
 This package provides the foundational abstractions for connecting to external
 sources in the PolicyOS data fabric layer. The connector system uses a
@@ -35,6 +36,13 @@ implemented without inheriting a base class.
 │  │ ├── types.py        # Error hierarchy & supporting types    ││
 │  │ │   • ConnectorError, CapabilityError, etc.                 ││
 │  │ │   • DatasetDescriptor, FreshnessResult                    ││
+│  │ ├── registry.py     # ConnectorRegistry singleton           ││
+│  │ │   • Lazy loading + instance caching                        ││
+│  │ │   • Secondary indices for capability queries              ││
+│  │ ├── pool.py         # ConnectionPool + lifecycle mgmt        ││
+│  │ │   • Health checks, eviction, concurrency limits           ││
+│  │ ├── discovery.py    # Plugin discovery via entry points      ││
+│  │ │   • Dev-only path discovery gated by env flag             ││
 │  │ └── __init__.py     # Public API                            ││
 │  └─────────────────────────────────────────────────────────────┘│
 └─────────────────────────────────────────────────────────────────┘
@@ -126,6 +134,47 @@ if violations:
     raise ConfigurationError(f"Protocol violations: {violations}")
 ```
 
+### Connector Registry (Phase 2.2)
+
+```python
+from polisyos.fabric.connectors import ConnectorRegistry, ConnectorCapability
+
+registry = ConnectorRegistry.get_instance()
+
+# Register and lazily instantiate
+registry.register(MyConnector)
+connector = registry.get("myorg.mydata")
+
+# Query by capability
+streaming = list(registry.query(capabilities=ConnectorCapability.STREAMING))
+```
+
+### Connection Pooling (Phase 2.2)
+
+```python
+from polisyos.fabric.connectors import PoolConfig
+
+handle = await registry.get_connection("myorg.mydata")
+await registry.release_connection("myorg.mydata", handle)
+
+stats = registry.stats
+print(stats.active_pools)
+```
+
+Pools are keyed by `(connector_fqid, config_fingerprint)` to prevent credential
+mixing across tenants or base URLs.
+
+### Discovery (Phase 2.2)
+
+Entry points can be registered in `pyproject.toml`:
+
+```toml
+[project.entry-points."polisyos.connectors"]
+world_bank = "mypackage.connectors:WorldBankConnector"
+```
+
+Filesystem path discovery is **dev-only** and gated by `POLISYOS_ALLOW_CONNECTOR_PATHS=1`.
+
 ## Capability Reference
 
 | Capability | Description | Required Method |
@@ -171,7 +220,6 @@ pytest tests/fabric/connectors/test_protocol_compliance.py -v
 
 ## Future Phases
 
-- Phase 2.2: Registry and Discovery System
 - Phase 2.3: Schema Contracts and Inference
 - Phase 2.4: Caching Layer with CAS Integration
 - Phase 2.5: Federation and Multi-source Queries

@@ -30,6 +30,15 @@ from opentelemetry.sdk.trace.export import (
     ConsoleSpanExporter,
     SimpleSpanProcessor,
 )
+from opentelemetry.sdk.trace.sampling import (
+    ALWAYS_OFF,
+    ALWAYS_ON,
+    Decision,
+    ParentBased,
+    Sampler,
+    SamplingResult,
+    TraceIdRatioBased,
+)
 from opentelemetry.trace import SpanKind, Status, StatusCode, Tracer
 from opentelemetry.trace.propagation.tracecontext import TraceContextTextMapPropagator
 
@@ -37,6 +46,54 @@ from .config import OTelConfig, get_default_config, get_resource_config
 
 if TYPE_CHECKING:
     from opentelemetry.sdk.trace.export import SpanExporter
+
+
+class ErrorAwareSampler(Sampler):
+    """
+    Composite sampler that respects ratio but always samples known errors.
+
+    Limitation: head sampling cannot see errors that happen after the decision.
+    This only captures spans created with error attributes from the start.
+    """
+
+    def __init__(self, ratio: float) -> None:
+        self._base = TraceIdRatioBased(ratio)
+        self._description = f"ErrorAwareSampler(ratio={ratio})"
+
+    def should_sample(
+        self,
+        parent_context: Context | None,
+        trace_id: int,
+        name: str,
+        kind: SpanKind | None = None,
+        attributes: dict[str, Any] | None = None,
+        links: list[Any] | None = None,
+        trace_state: Any | None = None,
+    ) -> SamplingResult:
+        error_value = attributes.get("error") if attributes else None
+        is_error = False
+        if isinstance(error_value, str):
+            is_error = error_value.lower() == "true"
+        elif isinstance(error_value, bool):
+            is_error = error_value
+
+        if is_error:
+            return SamplingResult(
+                decision=Decision.RECORD_AND_SAMPLE,
+                attributes=attributes,
+            )
+
+        try:
+            return self._base.should_sample(
+                parent_context, trace_id, name, kind, attributes, links, trace_state
+            )
+        except TypeError:
+            return self._base.should_sample(
+                parent_context, trace_id, name, kind, attributes, links
+            )
+
+    def get_description(self) -> str:
+        return self._description
 
 
 class PolicyOSTracer:
@@ -103,8 +160,11 @@ class PolicyOSTracer:
             resource_config = get_resource_config(self._config)
             resource = Resource.create(resource_config.to_attributes())
 
+            # Configure sampler (Phase 4)
+            sampler = self._create_sampler()
+
             # Create TracerProvider
-            self._provider = TracerProvider(resource=resource)
+            self._provider = TracerProvider(resource=resource, sampler=sampler)
 
             # Configure exporters
             self._configure_exporters()
@@ -141,6 +201,36 @@ class PolicyOSTracer:
                     export_timeout_millis=self._config.batch_export_timeout_millis,
                 )
                 self._provider.add_span_processor(processor)
+
+    def _create_sampler(self) -> Sampler:
+        """
+        Create a ParentBased sampler with optional error-aware root sampling.
+
+        Strategy:
+        - Root spans: Sample based on ratio (e.g., 1% in prod)
+        - Child spans: Follow parent's decision (ParentBased)
+        - Errors: Best-effort always-sample when error attribute is present
+        """
+        ratio = self._config.sampling_ratio if self._config else 1.0
+
+        if ratio >= 1.0:
+            return ALWAYS_ON
+        if ratio <= 0.0:
+            return ALWAYS_OFF
+
+        root_sampler: Sampler
+        if self._config and self._config.always_sample_errors:
+            root_sampler = ErrorAwareSampler(ratio)
+        else:
+            root_sampler = TraceIdRatioBased(ratio)
+
+        return ParentBased(
+            root=root_sampler,
+            remote_parent_sampled=ALWAYS_ON,
+            remote_parent_not_sampled=ALWAYS_OFF,
+            local_parent_sampled=ALWAYS_ON,
+            local_parent_not_sampled=ALWAYS_OFF,
+        )
 
     def _create_otlp_exporter(self) -> Optional["SpanExporter"]:
         """Create OTLP exporter based on configuration."""

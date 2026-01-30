@@ -51,6 +51,9 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │               └── a7/  # Directory.
 │                   ├── eaa7fda75fa39b2c8a4a4ee537b20958dd53005e469a12e45816177358a442ae.blob  # CAS payload blob (content-addressed).
 │                   └── eaa7fda75fa39b2c8a4a4ee537b20958dd53005e469a12e45816177358a442ae.manifest.json  # CAS manifest describing the corresponding blob.
+├── .github/  # GitHub Actions workflows and automation.
+│   └── workflows/  # CI/CD pipeline definitions.
+│       └── perf.yml  # Performance regression testing workflow (pytest-benchmark comparison).
 ├── .vscode/  # Editor workspace configuration (VSCode/Cursor).
 │   └── settings.json  # Workspace editor settings (formatting, linting, etc.).
 ├── data/  # Data workspace (raw/staging) and reference datasets.
@@ -76,6 +79,22 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │   └── ir_base_demo.py  # File.
 ├── logs/  # Local logs (fixtures / developer artifacts).
 │   └── system.log  # Example/system log file (fixture).
+├── ops/  # Operations infrastructure: monitoring, observability, alerting stack.
+│   ├── docker-compose.observability.yml  # Docker Compose configuration for observability stack.
+│   ├── grafana/  # Grafana dashboards and provisioning.
+│   │   ├── dashboards/  # JSON dashboard definitions.
+│   │   │   ├── executive-overview.json  # Executive dashboard for cost/performance overview.
+│   │   │   ├── foundry-hpc.json  # HPC simulation performance dashboard.
+│   │   │   └── scientist-agents.json  # Agent workflow performance dashboard.
+│   │   ├── provisioning/  # Grafana provisioning configuration.
+│   │   │   └── dashboards.yml  # Automatic dashboard provisioning.
+│   │   └── README.md  # Grafana setup documentation.
+│   ├── prometheus/  # Prometheus configuration and alerting rules.
+│   │   ├── alerts.yml  # Alerting rules for cost, performance, and system issues.
+│   │   ├── prometheus.yml  # Main Prometheus scrape configuration.
+│   │   ├── recording_rules.yml  # Metric pre-computation rules.
+│   │   └── README.md  # Prometheus setup documentation.
+│   └── README.md  # Operations infrastructure documentation.
 ├── src/  # Python sources and build metadata.
 │   ├── policy_engine.egg-info/  # Build metadata produced by packaging tools.
 │   │   ├── PKG-INFO  # Packaged project metadata (generated).
@@ -142,7 +161,7 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │       │   │   ├── README.md  # Documentation for this directory/module.
 │       │   │   ├── __init__.py  # Python package initializer (public exports live here).
 │       │   │   ├── config.py  # OpenTelemetry configuration and resource attributes + HPC observability control.
-│       │   │   ├── decorators.py  # @traced decorator for automatic function instrumentation.
+│       │   │   ├── decorators.py  # @traced and @traced_method decorators for automatic function instrumentation.
 │       │   │   ├── logs.py  # Structured logging with trace correlation.
 │       │   │   ├── metrics.py  # Prometheus-compatible metrics registry and timers + CAS operation metrics.
 │       │   │   ├── propagation.py  # Trace context propagation across threads/services.
@@ -554,7 +573,7 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │   │   ├── README.md  # Documentation for this directory/module.
 │   │   ├── check_setup.py  # Diagnostics script.
 │   │   ├── check_udf_perf.py  # Diagnostics script.
-│   │   ├── check_perf_regression.py # Performance regression analysis from pytest-benchmark results.
+│   │   ├── check_perf_regression.py  # Performance regression checker for CI/CD (pytest-benchmark comparison).
 │   │   └── generate_ir_schema.py  # Diagnostics script.
 │   ├── README.md  # Documentation for this directory/module.
 │   ├── capture_env.py  # Capture environment details into a reproducibility manifest.

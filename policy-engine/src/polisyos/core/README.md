@@ -8,8 +8,6 @@
 
 ## Архитектура
 
-Модуль `core` состоит из следующих основных компонентов:
-
 ```
 core/
 ├── artifacts/          # Управление артефактами и их хранением
@@ -25,9 +23,9 @@ core/
 ├── contracts/          # Контракты между модулями системы
 │   ├── compiler.py     # Контракты компилятора (CompileReportRef, LinkReportRef)
 │   ├── fabric.py       # Контракты Fabric (6 типов ссылок + модели данных)
-│   ├── foundry.py      # Контракты Foundry (13 типов ссылок + модели исполнения)
+│   ├── foundry.py      # Контракты Foundry (15+ типов ссылок + модели исполнения, AgentPolicy, Patch-based state management)
 │   ├── scientist.py    # Контракты Scientist (ArtifactRef, FailureCardRef, PolicyIRRef, CritiqueRef, TimelineRef, DecisionCardRef)
-│   ├── trinity.py      # Trinity контракты (ProblemFrame, PolicySpec, ModelSpec)
+│   ├── trinity.py      # Trinity контракты (ProblemFrame, PolicySpec, ModelSpec, TrinityBundle)
 │   └── legal.py        # Legal compliance контракты (NormPack, NormRule, RuleType, RuleBackend)
 ├── observability/      # Production-grade телеметрия и мониторинг
 │   ├── config.py       # Конфигурация OpenTelemetry (OTelConfig, ResourceConfig)
@@ -175,98 +173,38 @@ core/
 - `FabricResult` / `FabricResultRef` - результат обработки с полными метаданными
 - `UncertaintyBounds` / `UncertaintyBoundsRef` - границы неопределенности
 - `WarningsBundle` / `WarningsRef` - пакет предупреждений
-- `ProvenanceCoreRefModel` - модель для отслеживания происхождения данных
 
 #### Foundry Contracts (Foundry - симуляция и исполнение политик)
 - `PolicySurfaceIRRef` - ссылка на IR поверхности политики
-- `ProgramGraph` / `ProgramGraphRef` - граф программы с узлами и операциями (механизмы, операции)
+- `ProgramGraph` / `ProgramGraphRef` - граф программы с узлами и операциями
 - `LoweredIR` / `LoweredIRRef` - пониженное IR для исполнения
-- `ExecPlan` / `ExecPlanRef` - план исполнения с конфигурацией, environment tracking, determinism tier и random seed
-- `AgentPolicyRef` - ссылка на артефакт обученной политики агента с типом политики, determinism tier и метаданными обучения
-- `StateSnapshot` / `StateSnapshotRef` - снимок состояния симуляции с schema tracking
-- `StateDelta` / `StateDeltaRef` - дельта изменений состояния (patch-based updates)
+- `ExecPlan` / `ExecPlanRef` - план исполнения с environment tracking и determinism
+- `AgentPolicyRef` - ссылка на обученную политику агента с determinism guarantees
+- `StateSnapshot` / `StateSnapshotRef` - снимок состояния симуляции
+- `StateDelta` / `StateDeltaRef` - дельта изменений состояния
 - `TreasurySeed` / `TreasurySeedRef` - детерминированный seed для RNG
-- `ExecConfig` / `ExecConfigRef` - конфигурация исполнения (JAX, ресурсы, параметры)
+- `ExecConfig` / `ExecConfigRef` - конфигурация исполнения
 - `Metrics` / `MetricsRef` - метрики выполнения и калибровки
-- `ConstraintReportRef` - отчет о проверке ограничений
-- `CalibrationReportRef` - отчет калибровки параметров
-- `TraceSliceRef` - срез трассировки исполнения в формате JSONL
-- `PatchOp` / `UpdateOp` - операции для patch-based state management
-- `Patch` / `PatchSet` - структурированные патчи с метаданными и confidence scoring
-- `PatchMeta` - метаданные патчей с source tracking и confidence levels
-
-### 4.1. Advanced Foundry Features (Расширенные возможности Foundry)
-
-#### Conflict Detection (Обнаружение конфликтов)
-
-**Назначение**: Compile-time анализ ProgramGraph для обнаружения потенциальных конфликтов между механизмами, которые могут привести к неопределенному поведению во время исполнения.
-
-**Основные компоненты**:
-- `SlotConflict` - описание конфликта с информацией о writers, типе конфликта и предложениями по исправлению
-- `ConflictReport` - полный отчет анализа с классификацией конфликтов и метриками
-- `check_program_graph_conflicts()` - функция анализа ProgramGraph на предмет конфликтов
-
-**Возможности**:
-- **Compile-time validation**: Проверка на конфликты перед запуском симуляции
-- **Multiple writers detection**: Обнаружение слотов с несколькими одновременными writers
-- **Conflict classification**: Классификация конфликтов (merge, overwrite, race condition)
-- **Actionable suggestions**: Предложения по исправлению с severity levels
-- **Integration с compliance**: Преобразование в Phase 9 compliance issues
-
-#### Cost Modeling (Моделирование стоимости)
-
-**Назначение**: Оценка стоимости исполнения программ с учетом ресурсов, времени и бюджета для оптимизации производительности и планирования.
-
-**Основные компоненты**:
-- `CostEstimate` - оценка стоимости с метриками уверенности и budget tracking
-- `CostBudget` - определение бюджетов на ресурсы и время
-- `estimate_program_cost()` - функция оценки стоимости ProgramGraph
-
-**Возможности**:
-- **Performance prediction**: Оценка времени компиляции и исполнения
-- **Resource estimation**: Прогноз использования памяти и FLOPs
-- **Budget tracking**: Отслеживание использования бюджета с предупреждениями о превышениях
-- **Confidence metrics**: Уровни уверенности оценок на основе исторических данных
-- **Per-mechanism breakdown**: Детализация стоимости по механизмам
-
-#### NaN Guard (Защита от NaN)
-
-**Назначение**: Runtime обнаружение и диагностика NaN/Inf значений для обеспечения numerical stability симуляций.
-
-**Основные компоненты**:
-- `NaNDiagnostic` - диагностическая информация о обнаруженных NaN/Inf
-- `NaNGuardReport` - полный отчет проверки с статистикой
-- `NaNGuard` - класс для интеграции в runtime с configurable поведением
-
-**Возможности**:
-- **Automatic detection**: Проверка всех slot значений на NaN/Inf
-- **Detailed diagnostics**: Информация о mechanism, time step и возможных причинах
-- **Statistical context**: Статистика не-NaN значений для диагностики
-- **Configurable behavior**: Настраиваемое поведение при обнаружении (warning, error, continue)
-- **Performance optimized**: Минимальный overhead на проверку
-
-### 4.2. Foundry Runtime Extensions
-
-**Обоснование новых возможностей**: Эти компоненты расширяют Foundry с инструментами для надежного и эффективного исполнения сложных симуляций. Conflict detection предотвращает runtime ошибки, cost modeling обеспечивает resource-aware планирование, а NaN guard гарантирует numerical stability в долгосрочных симуляциях.
+- `TraceSliceRef` - срез трассировки исполнения
+- **Patch-based State Management**: `PatchOp`, `UpdateOp`, `Patch`, `PatchSet` с confidence scoring
+- **Advanced Runtime**: `ConstraintReportRef`, `CalibrationReportRef` для compile-time validation
 
 #### Trinity Contracts (Trinity - базовые спецификации)
-- `ProblemFrameRef` - ссылка на спецификацию проблемы (ProblemFrame)
-- `PolicySpecRef` - ссылка на спецификацию политики (PolicySpec)
-- `ModelSpecRef` - ссылка на спецификацию модели (ModelSpec)
+- `ProblemFrameRef` - ссылка на спецификацию проблемы
+- `PolicySpecRef` - ссылка на спецификацию политики
+- `ModelSpecRef` - ссылка на спецификацию модели
 - `TrinityBundle` - пакет из трех Trinity артефактов с валидацией совместимости
-- `TrinityManifest` - манифест с метаданными Trinity эксперимента и полными полями
+- `TrinityManifest` - манифест с метаданными Trinity эксперимента
 
 #### Scientist Contracts (Scientist - эксперименты и агенты)
-- `ArtifactRef` - базовый класс для всех ссылок на артефакты с CAS хешированием
-- `FailureCardRef` - ссылка на FailureCard с информацией об ошибках экспериментов (attempt_number, error_code, source_step, can_retry)
-- `PolicyIRRef` - ссылка на PolicySurfaceIR с версией и статусом (version, status)
-- `CritiqueRef` - ссылка на артефакт оценки критика с вердиктом (verdict, ir_ref)
-- `TimelineRef` - ссылка на RunTimeline артефакт с метаданными о событиях (run_id, event_count, total_duration_ms)
-- `DecisionCardRef` - ссылка на DecisionCard артефакт с вердиктом и метаданными (run_id, verdict, generated_at)
+- `FailureCardRef` - ссылка на FailureCard с информацией об ошибках
+- `PolicyIRRef` - ссылка на PolicySurfaceIR с версией и статусом
+- `CritiqueRef` - ссылка на артефакт оценки критика с вердиктом
+- `TimelineRef` - ссылка на RunTimeline с метаданными о событиях
+- `DecisionCardRef` - ссылка на DecisionCard с вердиктом и метаданными
 
 #### Legal Contracts (Legal - compliance и валидация)
 - `NormPack` - пакет нормативных правил и ограничений
-- `NormRef` - ссылка на нормативное правило
 - `NormRule` - определение отдельного правила
 - `RuleType` - типы нормативных правил
 - `RuleBackend` - интерфейс для реализации движков валидации
@@ -274,12 +212,11 @@ core/
 **Функционал**:
 - Типизированные ссылки на артефакты с проверкой kind и media_type
 - Структурированные модели данных для межмодульного обмена
-- Обеспечение контрактов с валидацией через Pydantic
 - Поддержка provenance через ссылки на входные артефакты
 - Интеграция с системой трассировки и метаданных
-- Legal compliance контракты для валидации политик и правил
-- Timeline tracking контракты для observability экспериментов
-- Decision card контракты для deterministic summarization результатов
+- Legal compliance контракты для валидации политик
+- Timeline tracking для observability экспериментов
+- Decision cards для deterministic summarization результатов
 
 ### 5. Registry (Реестр)
 
@@ -412,29 +349,24 @@ Core является фундаментом всей системы PolisyOS и
 **Обоснование**: Fabric работает с данными как с артефактами и использует контракты core для типобезопасного обмена.
 
 #### Foundry (Симуляция и исполнение политик) - Зависит от core
-- **contracts.foundry**: Полный набор контрактов Foundry (ProgramGraph, ExecPlan, StateDelta, StateSnapshot, PatchOp, UpdateOp, Patch, PatchSet, etc.)
-- **artifacts.store.FileSystemCAS**: Хранение всех артефактов симуляции (состояния, метрики, конфигурации)
-- **artifacts.environment**: EnvironmentManifest для reproducible симуляций с fingerprinting окружения и compatibility scoring
-- **run.RunContext**: Контексты выполнения симуляций с интегрированной трассировкой
-- **trace**: Детальная трассировка всех этапов исполнения, калибровки и симуляции
-- **canon**: Каноническая сериализация для обеспечения reproducible результатов
-- **artifacts.manifest**: Метаданные для всех артефактов симуляции
-- **foundry.conflict_checker**: Система обнаружения конфликтов в ProgramGraph с compile-time анализом slot conflicts
-- **foundry.cost_model**: Модель оценки стоимости исполнения с budget tracking и performance prediction
-- **foundry.runtime.nan_guard**: Runtime защита от NaN/Inf значений с диагностикой и отчетностью
+- **contracts.foundry**: Полный набор контрактов Foundry (ProgramGraph, ExecPlan, StateDelta, StateSnapshot, AgentPolicy, Patch-based state management)
+- **artifacts.store.FileSystemCAS**: Хранение всех артефактов симуляции
+- **artifacts.environment**: EnvironmentManifest для reproducible симуляций с fingerprinting и compatibility scoring
+- **run.RunContext**: Контексты выполнения симуляций с трассировкой
+- **trace**: Детальная трассировка всех этапов исполнения
+- **canon**: Каноническая сериализация для reproducible результатов
 
-**Обоснование**: Foundry реализует сложную логику симуляции с advanced patch-based state management, где все состояния и результаты хранятся как артефакты для обеспечения traceability и reproducibility. EnvironmentManifest обеспечивает reproducible результаты путем фиксации всех факторов окружения с автоматическим compatibility scoring и risk assessment. Новые возможности включают поддержку обученных политик агентов (AgentPolicyRef), детерминизм исполнения с configurable tier (determinism_tier), JAX-based runtime для эффективного выполнения симуляций, compile-time conflict detection для предотвращения runtime ошибок, cost modeling для budget-aware исполнения и NaN guard для обеспечения numerical stability.
+**Обоснование**: Foundry реализует сложную логику симуляции с patch-based state management, где все состояния хранятся как артефакты для обеспечения traceability. EnvironmentManifest обеспечивает reproducible результаты с compatibility scoring. Новые возможности включают AgentPolicy контракты, детерминизм исполнения, JAX runtime, compile-time conflict detection, cost modeling и NaN guard.
 
 #### Scientist (Оркестрация экспериментов) - Зависит от core
 - **run**: Контексты и манифесты выполнения экспериментов
 - **artifacts**: Хранение всех результатов экспериментов и моделей
-- **contracts.trinity**: Trinity контракты (ProblemFrame, PolicySpec, ModelSpec) для структурирования экспериментов
-- **contracts.scientist**: Полный набор Scientist контрактов (ArtifactRef, FailureCardRef, PolicyIRRef, CritiqueRef, TimelineRef, DecisionCardRef) для типобезопасного управления жизненным циклом экспериментов
-- **trace**: Трассировка всех этапов workflow (draft → compile → execute → analyze)
-- **registry**: Загрузка реестров компонентов для каждого эксперимента
-- **contracts**: Ссылки на все типы артефактов в decision packets
+- **contracts.trinity**: Trinity контракты (ProblemFrame, PolicySpec, ModelSpec, TrinityBundle) для структурирования экспериментов
+- **contracts.scientist**: Scientist контракты (FailureCardRef, PolicyIRRef, CritiqueRef, TimelineRef, DecisionCardRef) для управления жизненным циклом
+- **trace**: Трассировка всех этапов workflow
+- **registry**: Загрузка реестров компонентов
 
-**Обоснование**: Scientist оркестрирует полный жизненный цикл от LLM до оптимизированных политик, используя Trinity контракты для структурирования экспериментов и расширенный набор Scientist контрактов для timeline tracking, decision card generation и comprehensive observability экспериментов с полным provenance tracking.
+**Обоснование**: Scientist оркестрирует жизненный цикл экспериментов, используя Trinity контракты для структурирования и Scientist контракты для timeline tracking, decision cards и observability с полным provenance tracking.
 
 #### Runtime (Исполнение в production) - Зависит от core
 - **artifacts**: Доступ к развернутым артефактам политик
@@ -442,7 +374,7 @@ Core является фундаментом всей системы PolisyOS и
 - **run**: Контексты выполнения в production среде
 - **observability**: Полная телеметрия production execution с distributed tracing, metrics и structured logging
 
-**Обоснование**: Runtime отвечает за развертывание и исполнение политик в production с полным observability coverage.
+**Обоснование**: Runtime отвечает за развертывание и исполнение политик в production с полным observability coverage через distributed tracing и metrics.
 
 #### Scientist/Governance/Legal (Правовая валидация) - Зависит от core
 - **contracts.legal**: Полный набор legal контрактов (NormPack, NormRule, RuleType, RuleBackend)
@@ -452,14 +384,14 @@ Core является фундаментом всей системы PolisyOS и
 **Обоснование**: Legal модуль использует контракты core для стандартизации интерфейсов валидации политик и обеспечения compliance через pluggable rule backends.
 
 ### Обратные зависимости на Core:
-- **Core как фундамент**: все модули системы зависят от компонентов core
-- **Артефакты**: являются универсальным механизмом хранения для всех результатов
-- **Трассировка**: интегрируется во все контексты выполнения и операции
-- **Контракты**: определяют стандартизированные интерфейсы между всеми модулями
-- **Legal контракты**: обеспечивают compliance валидацию через pluggable rule backends
-- **Каноническая сериализация**: обеспечивает воспроизводимость во всей системе
-- **Реестры**: используются для загрузки компонентов во всех модулях
-- **Observability**: обеспечивает унифицированную телеметрию во всех модулях системы с distributed tracing, metrics и structured logging для полного observability coverage
+- **Артефакты**: универсальный механизм хранения для всех результатов
+- **Трассировка**: интегрируется во все контексты выполнения
+- **Контракты**: стандартизированные интерфейсы между модулями
+- **Environment manifests**: reproducible симуляции с compatibility scoring
+- **Каноническая сериализация**: воспроизводимость во всей системе
+- **Observability**: унифицированная телеметрия с distributed tracing и metrics
+- **Legal контракты**: compliance валидация через pluggable backends
+- **Trinity контракты**: структурирование экспериментов
 
 ## Примеры использования
 
@@ -589,13 +521,12 @@ metrics = loaded_bundle.metrics
 constraints = loaded_bundle.constraints
 ```
 
-### Захват и сравнение окружений для reproducible симуляций:
+### Работа с Environment Manifest:
 
 ```python
-from polisyos.core.artifacts.environment import capture_environment, compare_environments
-from pathlib import Path
+from polisyos.core.artifacts.environment import capture_environment
 
-# Захват текущего окружения
+# Захват окружения для reproducible симуляций
 env_manifest = capture_environment(
     project_root=Path("/path/to/project"),
     include_git=True,
@@ -603,377 +534,35 @@ env_manifest = capture_environment(
     include_system_libraries=True
 )
 
-# Сохранение как артефакт
-env_ref = store.put_json(
-    env_manifest.model_dump(),
-    PutOptions(
-        kind="foundry.environment_manifest",
-        media_type="application/json",
-        producer=ProducerInfo(component="environment_capture", version="1.0.0")
-    )
-)
-
-# Сравнение с сохраненным окружением
-saved_env_data = store.get_json(saved_env_ref.artifact_id)
-saved_env = EnvironmentManifest(**saved_env_data)
-
-compatibility = env_manifest.compatibility_score(saved_env)
-print(f"Environment compatibility: {compatibility}")
-
-if compatibility < 0.8:
-    diffs = compare_environments(env_manifest, saved_env)
-    print("Critical differences found:")
-    for diff in diffs:
-        if diff.risk_level.name == "CRITICAL":
-            print(f"  {diff.field_name}: {diff.explanation}")
-```
-
-### Работа с patch-based state management в Foundry:
-
-```python
-from polisyos.core.contracts.foundry import PatchOp, UpdateOp, Patch, PatchSet, PatchMeta, StateDelta
-
-# Создание patch-based state update
-patch_ops = [
-    PatchOp(
-        slot_id="user_balance",
-        op="add",
-        value_ref=balance_update_ref,
-        mask_scope="per_agent"
-    ),
-    PatchOp(
-        slot_id="system_interest_rate",
-        op="set",
-        value_ref=rate_ref
-    )
-]
-
-update_ops = [
-    UpdateOp(
-        slot_id="market_price",
-        op="clamp",
-        value_ref=new_price_ref,
-        min_ref=min_price_ref,
-        max_ref=max_price_ref
-    )
-]
-
-# Создание патча с метаданными
-patch = Patch(
-    schema_version="1.0",
-    meta=PatchMeta(
-        source_node_id="price_update_mechanism",
-        step=100,
-        confidence=0.95,
-        tags=["market_update", "price_adjustment"]
-    ),
-    ops=update_ops
-)
-
-# Создание patch set для batch updates
-patch_set = PatchSet(
-    schema_version="1.0",
-    patches=[patch],
-    notes=["Monthly market price adjustment"]
-)
-
-# State delta с patch-based updates
-state_delta = StateDelta(
-    base_ref=previous_state_ref,
-    patch_ref=patch_set_ref,
-    ops=patch_ops,
-    notes=["Combined market and user updates"]
-)
-```
-
-### Работа с Trinity контрактами:
-
-```python
-from polisyos.core.contracts.trinity import ProblemFrameRef, PolicySpecRef, ModelSpecRef, TrinityBundle, TrinityManifest
-
-# Создание Trinity bundle для эксперимента
-trinity_bundle = TrinityBundle(
-    problem_frame_ref=ProblemFrameRef(
-        artifact_id=problem_id,
-        kind="ir.problem_frame",
-        media_type="application/json"
-    ),
-    policy_spec_ref=PolicySpecRef(
-        artifact_id=policy_id,
-        kind="ir.policy_spec",
-        media_type="application/json"
-    ),
-    model_spec_ref=ModelSpecRef(
-        artifact_id=model_id,
-        kind="ir.model_spec",
-        media_type="application/json"
-    ),
-    compatible=True,
-    compatibility_notes=["All specs validated", "Compatible versions"]
-)
-
-# Создание манифеста эксперимента
-manifest = TrinityManifest(
-    manifest_id="exp_credit_risk_001",
-    bundle=trinity_bundle,
-    experiment_name="Credit Risk Policy Optimization",
-    created_by="alice@finance.com",
-    created_at="2024-01-15T10:00:00Z",
-    notes=["First experiment with neural risk model", "Focus on fraud detection"]
-)
-
-# Сохранение Trinity bundle
-bundle_ref = store.put_json(
-    trinity_bundle.model_dump(),
-    PutOptions(
-        kind="scientist.trinity_bundle",
-        media_type="application/json",
-        producer=ProducerInfo(component="experiment_setup", version="1.0.0")
-    )
-)
-```
-
-### Работа с conflict detection в Foundry:
-
-```python
-from polisyos.foundry.conflict_checker import check_program_graph_conflicts
-from polisyos.core.contracts.foundry import ProgramGraph, ProgramNode, ProgramOp
-
-# Создание ProgramGraph с потенциальным конфликтом
-graph = ProgramGraph(
-    nodes=[
-        ProgramNode(
-            node_id="mechanism_a",
-            node_kind="mechanism",
-            mechanism_type="calculator",
-            outputs=["result"]
-        ),
-        ProgramNode(
-            node_id="mechanism_b",
-            node_kind="mechanism",
-            mechanism_type="updater",
-            outputs=["result"]  # Конфликт: два механизма пишут в один slot
-        )
-    ]
-)
-
-# Анализ конфликтов
-conflict_report = check_program_graph_conflicts(graph)
-
-if not conflict_report.ok:
-    for conflict in conflict_report.conflicts:
-        print(f"Conflict detected: {conflict.slot_id}")
-        print(f"Writers: {sorted(conflict.writers)}")
-        print(f"Suggestion: {conflict.suggestion}")
+# Fingerprinting для быстрого сравнения
+fingerprint = env_manifest.fingerprint
+compatibility = env_manifest.compatibility_score(other_env)
 ```
 
 ### Работа с observability (трассировка, метрики, логи):
 
 ```python
-from polisyos.core.observability import (
-    get_tracer, get_metrics, traced, configure_otel_logging_handler
-)
-from polisyos.common.logger import get_logger
+from polisyos.core.observability import get_tracer, get_metrics, traced
 
-# Настройка логирования с trace correlation
-configure_otel_logging_handler()
-logger = get_logger(__name__)
-
-# Использование декоратора для автоматической трассировки
 @traced(phase="EXECUTE", node="policy_simulation")
-def run_policy_simulation(policy_config: dict, simulation_steps: int) -> dict:
+def run_policy_simulation(config: dict) -> dict:
     tracer = get_tracer()
     metrics = get_metrics()
 
-    logger.info("Starting policy simulation", extra={"simulation_steps": simulation_steps})
-
-    with metrics.time_simulation({"policy_type": policy_config.get("type", "unknown")}):
-        # Основная логика симуляции
-        result = perform_simulation(policy_config, simulation_steps)
-
-        # Запись метрик
+    with metrics.time_simulation({"policy_type": config.get("type", "unknown")}):
+        result = perform_simulation(config)
         metrics.record_workflow_run("success", "EXECUTE", "simulation_agent")
-
-        # Создание дочернего спана для пост-обработки
-        with tracer.start_as_current_span("post_processing") as span:
-            span.set_attribute("result_size", len(result))
-            processed_result = post_process_result(result)
-
-        return processed_result
-
-# Распространение контекста через thread boundaries
-from concurrent.futures import ThreadPoolExecutor
-from polisyos.core.observability.propagation import TracedExecutorWrapper
-
-def run_parallel_simulations(configs: list[dict]) -> list[dict]:
-    with ThreadPoolExecutor() as executor:
-        traced_executor = TracedExecutorWrapper(executor)
-        # Все задачи в thread pool наследуют trace context
-        futures = traced_executor.map(run_policy_simulation, configs, [1000] * len(configs))
-        return list(futures)
-
-# Работа с метриками LLM
-def call_llm_api(model: str, prompt: str, max_tokens: int = 1000) -> str:
-    metrics = get_metrics()
-
-    try:
-        with get_tracer().start_as_current_span("llm_call", attributes={
-            "model": model,
-            "max_tokens": max_tokens
-        }) as span:
-            response = make_api_call(model, prompt, max_tokens)
-            span.set_attribute("response_length", len(response))
-
-        # Запись метрик LLM
-        metrics.record_llm_call(
-            model=model,
-            status="success",
-            prompt_tokens=len(prompt.split()),
-            completion_tokens=len(response.split())
-        )
-
-        return response
-
-    except Exception as e:
-        metrics.record_llm_call(model=model, status="error")
-        raise
-```
-
-### Работа с cost modeling:
-
-```python
-from polisyos.foundry.cost_model import estimate_program_cost, CostBudget
-from polisyos.core.contracts.foundry import ProgramGraph
-
-# Определение бюджета
-budget = CostBudget(
-    max_compile_ms=5000,
-    max_run_ms=100,
-    max_memory_mb=1024,
-    max_flops=1_000_000
-)
-
-# Оценка стоимости ProgramGraph
-cost_estimate = estimate_program_cost(graph, budget)
-
-print(f"Estimated total time: {cost_estimate.estimated_total_ms}ms")
-print(f"Memory usage: {cost_estimate.estimated_memory_mb}MB")
-print(f"Budget utilization: {cost_estimate.budget_utilization:.1%}")
-
-if cost_estimate.exceeds_budget:
-    print("Budget violations:")
-    for violation in cost_estimate.budget_violations:
-        print(f"  - {violation}")
-```
-
-### Работа с NaN guard:
-
-```python
-from polisyos.foundry.runtime.nan_guard import NaNGuard, NaNGuardReport
-
-# Создание NaN guard с настройками
-nan_guard = NaNGuard(
-    enabled=True,
-    fail_on_nan=True,
-    check_frequency=10,  # Проверять каждые 10 шагов
-    sample_size=1000     # Размер выборки для диагностики
-)
-
-# Интеграция в simulation loop
-for step in range(1000):
-    # Выполнение шага симуляции
-    state_updates = run_simulation_step(step)
-
-    # Проверка на NaN/Inf
-    guard_report = nan_guard.check_state_updates(state_updates, step)
-
-    if not guard_report.ok:
-        print(f"NaN/Inf detected at step {step}:")
-        for diagnostic in guard_report.diagnostics:
-            print(f"  Slot '{diagnostic.slot_id}': {diagnostic.nan_count} NaN, {diagnostic.inf_count} Inf")
-            print(f"  Possible cause: {diagnostic.possible_cause}")
-
-        if nan_guard.fail_on_nan:
-            raise RuntimeError(f"NaN/Inf detected: {guard_report.diagnostics}")
+        return result
 ```
 
 ## Архитектурные принципы
 
-Модуль `core` следует принципам:
-
-### 1. Content-Addressable Storage (CAS)
-- Все артефакты адресуются по содержимому (SHA256 хеш)
-- Автоматическая дедупликация и верификация целостности
-- Неизменяемость артефактов после создания
-
-### 2. Типобезопасные контракты
-- Строгая типизация через Pydantic модели
-- Литеральные типы для kind и media_type артефактов
-- Валидация данных на границах модулей
-
-### 3. Детерминированная сериализация
-- Канонический JSON для воспроизводимых хешей
-- Запрет float чисел в пользу Decimal
-- Сортировка ключей и фиксированные разделители
-
-### 4. Распределенная трассировка
-- Span-based трассировка с parent-child отношениями
-- Структурированные события с метаданными
-- Интеграция с контекстами выполнения
-
-### 5. Провенанс и аудит
-- Полный трекинг зависимостей между артефактами
-- Метаданные о происхождении и окружении
-- Аудитные записи для compliance
-
-### 6. Production-grade Observability
-- Distributed tracing с OpenTelemetry для полного visibility
-- Prometheus-compatible metrics для мониторинга и алертинга
-- Structured logging с trace correlation для отладки
-- Zero-configuration instrumentation через декораторы
-- Контекстная пропаганда через thread/async boundaries
-
-## Интеграция в общую архитектуру PolisyOS
-
-### Положение в технологическом стеке
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    User Interface (NL)                      │
-├─────────────────────────────────────────────────────────────┤
-│                 Scientist (AI Policy Design)                │
-│           ┌─────────────────────────────────────┐           │
-│           │         IR (Contracts)             │           │
-│           └─────────────────────────────────────┘           │
-├─────────────────────────────────────────────────────────────┤
-│    Core (Infrastructure & Protocols) ← ТЕКУЩИЙ МОДУЛЬ      │
-│  ┌─────────────────────────────────────────────────────┐    │
-│  │ Artifacts • Contracts • CAS • Canonical JSON • Trace │    │
-│  └─────────────────────────────────────────────────────┘    │
-├─────────────────────────────────────────────────────────────┤
-│            Runtime Layer (Fabric + Foundry)                 │
-│  ┌─────────────────────────────────────────────────────┐    │
-│  │   Fabric (Data)   ←   Foundry (Simulation)   ←   Core   │
-│  └─────────────────────────────────────────────────────┘    │
-└─────────────────────────────────────────────────────────────┘
-```
-
-### Роль в pipeline обработки
-
-Core обеспечивает инфраструктуру для всего pipeline PolisyOS:
-
-1. **IR Layer**: Определяет контракты данных, использует core для сериализации
-2. **Fabric Layer**: Обрабатывает данные как артефакты через CAS
-3. **Foundry Layer**: Выполняет симуляции с трассировкой через RunContext
-4. **Scientist Layer**: Оркестрирует эксперименты, используя все компоненты core
-5. **Runtime Layer**: Развертывает политики через артефакты core
-
-### Принципы интеграции
-
-- **Zero dependencies**: Core не зависит ни от одного модуля
-- **Universal contracts**: Все межмодульные взаимодействия через core contracts
-- **Artifact-centric**: Все результаты - это артефакты с provenance
-- **Trace everywhere**: Все операции трассируются для observability
+- **Content-Addressable Storage**: SHA256 хеширование, дедупликация, верификация целостности
+- **Типобезопасные контракты**: Pydantic модели, литеральные типы, валидация данных
+- **Детерминированная сериализация**: Канонический JSON, Decimal вместо float
+- **Distributed tracing**: Span-based трассировка с OpenTelemetry
+- **Environment manifests**: Reproducible симуляции с compatibility scoring
+- **Production observability**: Metrics, structured logging, context propagation
 
 ## Текущее состояние и развитие
 
@@ -1005,16 +594,12 @@ Core активно используется всеми модулями PolisyO
 
 ## Заключение
 
-Модуль `core` предоставляет фундаментальную инфраструктуру для всей системы PolisyOS, обеспечивая:
+Модуль `core` предоставляет фундаментальную инфраструктуру для PolisyOS:
 
-- **Надежность**: через CAS с криптографической верификацией целостности
-- **Воспроизводимость**: через детерминированную каноническую сериализацию
-- **Наблюдаемость**: через production-grade телеметрию с distributed tracing, metrics и structured logging
-- **Модульность**: через строго типизированные контракты между компонентами
-- **Масштабируемость**: через эффективное хранение и кеширование артефактов
-- **Аудитоспособность**: через полный провенанс и метаданные операций
-- **Legal compliance**: через стандартизированные контракты для валидации политик и pluggable rule backends
+- **Надежность**: CAS с криптографической верификацией
+- **Воспроизводимость**: Каноническая сериализация + environment manifests
+- **Наблюдаемость**: Distributed tracing, metrics, structured logging
+- **Модульность**: Типизированные контракты (Fabric, Foundry, Trinity, Scientist, Legal)
+- **Масштабируемость**: Эффективное хранение и кеширование артефактов
 
-Все компоненты модуля спроектированы для работы в распределенной среде, обеспечивают высокую степень надежности, отслеживаемости и соответствия требованиям enterprise-grade систем.
-
-**Статус**: Production-ready, активно используется во всех компонентах PolisyOS.
+**Статус**: Production-ready, используется во всех модулях PolisyOS.

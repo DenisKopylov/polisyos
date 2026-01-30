@@ -44,6 +44,10 @@ tools/
 │       # - Гибридные SQL + Python запросы
 │       # - Kuzu графовые запросы с UDF
 ├── diagnostics/                # Диагностика и анализ системы
+│   ├── check_perf_regression.py# Проверка регрессий производительности
+│   │   # - Анализ pytest-benchmark JSON результатов
+│   │   # - Сравнение с baseline для выявления регрессий
+│   │   # - Конфигурируемые thresholds для различных метрик
 │   ├── check_setup.py          # Комплексная проверка установки компонентов
 │   │   # - JAX экосистема (платформа, устройства, базовые операции)
 │   │   # - Базы данных (DuckDB, Kuzu)
@@ -132,6 +136,12 @@ python tools/scan_fabric.py data/curated/
 
 # Визуализация provenance графов
 python tools/visualize_provenance.py evidence.json --verify
+
+# Проверка регрессий производительности
+python tools/check_perf_regression.py benchmark_results.json
+
+# Миграция в Trinity формат
+python tools/migrate_to_trinity.py data/policies/ --dry-run
 
 # Демонстрации возможностей
 python tools/demos/run_ingest_demo.py  # Полный ingestion пайплайн
@@ -319,6 +329,15 @@ Performance regressions detected:
 - CI/CD пайплайны для автоматического мониторинга
 - `polisyos.common.logger` для структурированного логирования
 
+### diagnostics/check_perf_regression.py - Альтернативная версия в diagnostics
+
+Расширенная версия инструмента проверки регрессий производительности, интегрированная в папку diagnostics. Предоставляет дополнительные возможности анализа и интеграции с другими диагностическими инструментами.
+
+```bash
+# Использование версии из diagnostics
+python tools/diagnostics/check_perf_regression.py benchmark_results.json --verbose
+```
+
 ## Миграции
 
 ### migrate_ir.py - Миграция Policy IR артефактов
@@ -382,8 +401,10 @@ python tools/migrate.py policy_ir policy.yml migrated_policy.json --to v2.5.0
 - Создание резервных копий перед миграцией
 - Детальная отчетность о процессе миграции
 
+**Режимы работы:**
+
 ```bash
-# Dry-run миграция директории
+# Dry-run миграция директории (без изменений)
 python tools/migrate_to_trinity.py data/policies/ --dry-run
 
 # Миграция с резервным копированием и верификацией
@@ -391,12 +412,22 @@ python tools/migrate_to_trinity.py data/policies/ --backup --verify
 
 # Миграция одиночного файла
 python tools/migrate_to_trinity.py policy.yaml --output trinity_policy.yaml
+
+# Batch миграция с отчетом
+python tools/migrate_to_trinity.py data/policies/ --report migration_report.json
 ```
 
 **Верификация миграции:**
 - Семантическое сравнение отпечатков (fingerprint matching)
 - Проверка структурной целостности Trinity bundle
 - Валидация обратной совместимости (merge back to SurfaceIR)
+- Генерация детальных отчетов о преобразованиях
+
+**Интеграция с модулями:**
+- `polisyos.ir.trinity.*` - Trinity формат структуры
+- `polisyos.ir.migrations.trinity_migration` - логика миграции
+- `polisyos.ir.loaders` - загрузка и сохранение политик
+- Pydantic модели для валидации
 
 ## Диагностика
 
@@ -450,6 +481,44 @@ python tools/diagnostics/check_udf_perf.py
 # - CPU нагрузка
 # - DuckDB vs Kuzu сравнение
 ```
+
+### check_perf_regression.py - Проверка регрессий производительности
+
+Инструмент для анализа результатов pytest-benchmark и выявления регрессий производительности в CI/CD пайплайнах.
+
+#### Функциональность
+
+**Анализ результатов:**
+- Загрузка JSON файлов из pytest-benchmark
+- Сравнение с baseline (автоматический поиск или явное указание)
+- Выявление замедлений выше заданного threshold
+- Конфигурируемые thresholds для различных метрик
+
+**Режимы работы:**
+
+```bash
+# Проверка с автоматическим поиском baseline
+python tools/diagnostics/check_perf_regression.py benchmark_results.json
+
+# С явным указанием baseline файла
+python tools/diagnostics/check_perf_regression.py current.json --baseline baseline.json
+
+# Кастомный threshold регрессии (по умолчанию 5%)
+python tools/diagnostics/check_perf_regression.py results.json --threshold 0.10
+```
+
+**Вывод при регрессии:**
+```
+Performance regressions detected:
+- test_simulation_step: 1.2500s vs 1.0000s (+25.00%)
+- test_data_ingestion: 0.8500s vs 0.8000s (+6.25%)
+```
+
+#### Интеграция с модулями
+
+- `pytest-benchmark` JSON формат результатов
+- CI/CD пайплайны для автоматического мониторинга
+- `polisyos.common.logger` для структурированного логирования
 
 ### generate_ir_schema.py - Генератор IR схем
 
@@ -642,30 +711,47 @@ python tools/demos/run_export_demo.py
 
 ### run_mechanism_design.py - Дифференцируемый механизм дизайна
 
-Полнофункциональная демонстрация end-to-end механизма дизайна с дифференцируемой оптимизацией политик через JAX градиенты.
+Полнофункциональная демонстрация end-to-end механизма дизайна с дифференцируемой оптимизацией политик через JAX градиенты. Показывает полный цикл от спецификации политики до оптимизации через градиентный спуск.
 
-**Возможности:**
+**Ключевые возможности:**
 - Обучение агентных политик с reinforcement learning (5000 агентов)
 - Дифференцируемая оптимизация налоговой ставки через градиентный спуск
 - Полный цикл: PolicySurfaceIR → Foundry компиляция → JAX оптимизация
 - Демонстрация кривой Лаффера с автоматическим поиском оптимума
+- Стабилизированные градиенты для надежной сходимости
 
-**Интеграция с:**
-- `polisyos.foundry.compiler.compile_surface_policy`
-- `polisyos.foundry.agents.AgentPolicy`
+**Модель поведения агентов:**
+- Агенты с гетерогенными предпочтениями к риску
+- Рациональный выбор между compliance и tax evasion
+- Поведенческая реакция на изменения налоговой политики
+- Обучение через reinforcement learning с JAX градиентами
+
+**Интеграция с модулями:**
+- `polisyos.foundry.compiler.compile_surface_policy` - компиляция IR в executable
+- `polisyos.foundry.agents.AgentPolicy` - агентные политики
+- `polisyos.foundry.domain.state.GlobalState` - симуляционное состояние
 - JAX градиенты и автоматическое дифференцирование
-- `polisyos.core.artifacts.store.FileSystemCAS`
+- `polisyos.core.artifacts.store.FileSystemCAS` - хранение артефактов
+
+**Примеры использования:**
 
 ```bash
-# Дифференцируемый механизм дизайна с обучением агентов
+# Полная демонстрация механизма дизайна
 python tools/run_mechanism_design.py
 
-# Вывод:
+# С кастомными параметрами
+python tools/run_mechanism_design.py --n-agents 10000 --learning-rate 0.01
+
+# Вывод включает:
 # - Обучение агентных политик (500 итераций)
 # - Таблица рациональности агентов (риск ↔ налоговая стратегия)
 # - Оптимизация налоговой ставки через градиенты
 # - Финальный оптимум (~30-55% по кривой Лаффера)
+# - Метрики сходимости и стабильности обучения
 ```
+
+**Архитектурное значение:**
+Демонстрирует **Закон B** (компиляторная архитектура) в действии - полный цикл от высокоуровневой спецификации политики до оптимизации через градиенты, с чистым разделением между IR, компилятором и математическим ядром.
 
 ### scan_fabric.py - Сканер DuckDB и генератор data contracts
 
@@ -690,18 +776,23 @@ Bootstrap утилита для быстрого старта работы с Un
 - `polisyos.ir.contracts.DataContract` - структура контрактов
 - JSON Schema валидация
 
+**Примеры использования:**
+
 ```bash
 # Сканирование директории с DuckDB файлами
 python tools/scan_fabric.py data/curated/
 
-# Сканирование с verbose выводом
+# Сканирование с verbose выводом и деталями
 python tools/scan_fabric.py data/curated/ -v
 
 # Вывод в конкретный файл
 python tools/scan_fabric.py data/curated/ -o my_contracts.json
 
 # Использование кастомного glob паттерна
-python tools/scan_fabric.py data/ -glob "*.db"
+python tools/scan_fabric.py data/ -glob "**/*.duckdb"
+
+# Сканирование с интерактивным режимом
+python tools/scan_fabric.py data/curated/ --interactive
 ```
 
 **Вывод:**
@@ -731,6 +822,77 @@ Next steps:
   "source_column": "income"
 }
 ```
+
+**Архитектурное значение:**
+Инструмент реализует **Закон E** (Evidence и provenance обязательны), предоставляя автоматизированную генерацию data contracts - основы для provenance tracking и evidence collection в Unified Data Fabric.
+
+### visualize_provenance.py - Визуализация и верификация provenance графов
+
+Инструмент для визуализации и верификации provenance графов согласно **Закону E** ("Evidence и provenance обязательны"). Позволяет анализировать происхождение данных, выявлять проблемы в графах зависимостей и генерировать визуализации для отладки.
+
+**Функциональность:**
+
+**Загрузка графов:**
+- Загрузка из файлов JSON или evidence bundles
+- Разрешение provenance_ref через CAS систему
+- Поддержка различных форматов хранения
+
+**Верификация целостности:**
+- Проверка на orphaned nodes (узлы без связей)
+- Выявление dangling references (ссылки на несуществующие узлы)
+- Детекция циклов в wasDerivedFrom отношениях
+- Валидация всех обязательных полей
+
+**Визуализация:**
+- Экспорт в Graphviz DOT формат для визуализации
+- Цветовое кодирование по типам узлов (entities, activities, agents)
+- Стилизация отношений (derived, generated, used, attributed, associated)
+- Генерация PNG/SVG через Graphviz
+
+**Экспорт:**
+- JSON дамп графов с форматированием
+- DOT файлы для Graphviz визуализации
+- Поддержка stdout и файлового вывода
+
+**Примеры использования:**
+
+```bash
+# Генерация DOT файла из evidence bundle
+python tools/visualize_provenance.py evidence.json --format dot > graph.dot
+dot -Tpng graph.dot -o graph.png
+
+# Верификация графа с CAS разрешением
+python tools/visualize_provenance.py provenance.json --cas-root .polisyos --verify
+
+# Экспорт в JSON формат
+python tools/visualize_provenance.py graph.json --format json --output graph_pretty.json
+
+# Детальная верификация с verbose выводом
+python tools/visualize_provenance.py evidence.json --verify --verbose
+```
+
+**Типы отношений в provenance:**
+- `wasDerivedFrom` - трансформация данных (синие сплошные линии)
+- `wasGeneratedBy` - генерация данных активностью (зеленые пунктирные)
+- `used` - использование данных активностью (оранжевые точечные)
+- `wasAttributedTo` - атрибуция агенту (фиолетовые сплошные)
+- `wasAssociatedWith` - ассоциация агента с активностью (фиолетовые пунктирные)
+
+**Интеграция с модулями:**
+- `polisyos.core.artifacts.ids.ArtifactID` - идентификаторы артефактов
+- `polisyos.core.artifacts.store.FileSystemCAS` - Content Addressable Storage
+- JSON Schema валидация provenance структур
+
+**Примеры вывода верификации:**
+```
+VERIFICATION FAILED:
+  - ORPHANED: Node 'data_entity_123' not connected to any edge
+  - DANGLING: Edge source 'activity_456' not found in nodes
+  - CYCLE: Circular dependency detected in wasDerivedFrom edges
+```
+
+**Архитектурное значение:**
+Критический инструмент для **Закона E**, обеспечивающий целостность и traceability данных в системе. Позволяет визуально анализировать и верифицировать provenance графы, выявляя проблемы в data lineage и evidence collection.
 
 ### visualize_provenance.py - Визуализация и верификация provenance графов
 
@@ -805,8 +967,11 @@ VERIFICATION FAILED:
 | `gen_schema.py` | `ir.contract` | Закон C (контракты как источник истины) | C (контракты) |
 | `migrate_ir.py` | `ir.migrations`, `common.migrations` | Закон C (детерминированные миграции) | C (контракты) |
 | `migrate.py` | `common.migrations` | Закон C (миграции артефактов) | C (контракты) |
+| `migrate_to_trinity.py` | `ir.trinity`, `ir.migrations.trinity_migration` | Закон C (Trinity формат миграции) | C (контракты) |
 | `check_setup.py` | `common.config`, все модули | Системная интеграция и готовность | - |
 | `check_udf_perf.py` | `fabric.*`, `ir.data_views` | Производительность Unified Data Fabric | - |
+| `check_perf_regression.py` | - | Закон D (регрессионное тестирование производительности) | D (воспроизводимость) |
+| `diagnostics/check_perf_regression.py` | - | Закон D (расширенная проверка регрессий) | D (воспроизводимость) |
 | `generate_ir_schema.py` | `ir.*` (все Pydantic модели) | Валидность IR структур данных | C (контракты) |
 | `bench_domain.py` | `foundry.domain.*`, `common.logger` | Масштабируемость JAX доменной модели | - |
 | `bench_simulation.py` | `foundry.*` | Полный симуляционный пайплайн | - |
@@ -819,8 +984,6 @@ VERIFICATION FAILED:
 | `scan_fabric.py` | `fabric.catalog.*`, `ir.contracts` | Bootstrap data contracts для Unified Data Fabric | E (evidence и provenance) |
 | `visualize_provenance.py` | `core.artifacts.*` | Визуализация provenance графов | E (evidence и provenance) |
 | `capture_env.py` | `core.artifacts.environment` | Закон D (воспроизводимость окружения) | D (воспроизводимость) |
-| `check_perf_regression.py` | - | Закон D (регрессионное тестирование производительности) | D (воспроизводимость) |
-| `migrate_to_trinity.py` | `ir.trinity`, `ir.migrations.trinity_migration` | Закон C (Trinity формат миграции) | C (контракты) |
 
 ### Детальные архитектурные связи
 
@@ -931,6 +1094,7 @@ jobs:
         python tools/scan_fabric.py data/demo_udf.duckdb --output /tmp/test_contracts.json
         python tools/visualize_provenance.py /tmp/test_provenance.json --verify || echo "No provenance file for testing"
         python tools/demos/run_optimizer_demo.py --quick
+        python tools/migrate_to_trinity.py /tmp/test_policy.yaml --dry-run || echo "Trinity migration test skipped"
 
   nightly-benchmarks:
     runs-on: ubuntu-latest
@@ -1235,7 +1399,7 @@ POLICY_ENGINE_LOG_LEVEL=DEBUG python tools/diagnostics/check_setup.py
 
 ## Архитектурная актуальность
 
-Данная документация отражает текущее состояние Policy Engine на **2026-01-29** и соответствует принципам, описанным в `architecture.md`.
+Данная документация отражает текущее состояние Policy Engine на **2026-01-30** и соответствует принципам, описанным в `architecture.md`.
 
 ### Ключевые архитектурные достижения
 
@@ -1256,15 +1420,19 @@ POLICY_ENGINE_LOG_LEVEL=DEBUG python tools/diagnostics/check_setup.py
 - **Демонстрация**: `demos/` - валидация функциональности
 - **Bootstrap**: `scan_fabric.py` - быстрая генерация data contracts из существующих данных
 
-### Новые возможности (2026-01-29)
+### Новые возможности (2026-01-30)
 
 - **Data Catalog System**: Новая подсистема data contracts в `fabric.catalog/`
 - **scan_fabric.py**: Bootstrap утилита для автоматической генерации data contracts
 - **Enhanced Evidence Tracking**: Улучшенная система provenance и evidence bundles
 - **Trinity Migration**: Поддержка миграции в новый Trinity формат (ProblemFrame, PolicySpec, ModelSpec)
+- **migrate_to_trinity.py**: Специализированный инструмент для batch миграции политик в Trinity формат
 - **visualize_provenance.py**: Инструмент для визуализации и верификации provenance графов
 - **check_perf_regression.py**: Автоматическая проверка регрессий производительности на основе pytest-benchmark результатов
+- **capture_env.py**: CLI инструмент для захвата и сравнения Environment Manifest
+- **run_mechanism_design.py**: End-to-end демонстрация дифференцируемого механизма дизайна
+- **diagnostics/check_perf_regression.py**: Расширенная версия проверки регрессий в diagnostics
 
 ---
 
-*Инструменты протестированы на Python 3.11+ с JAX 0.4.x, DuckDB, Kuzu и полным технологическим стеком Policy Engine. Документация обновлена для отражения актуального состояния на 2026-01-29.*
+*Инструменты протестированы на Python 3.11+ с JAX 0.4.x, DuckDB, Kuzu и полным технологическим стеком Policy Engine. Документация обновлена для отражения актуального состояния на 2026-01-30.*

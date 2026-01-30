@@ -2,8 +2,8 @@
 
 Тестовая инфраструктура для Policy Engine - AI-driven Policy Simulation System. Тесты обеспечивают качество кода, валидируют архитектурные границы и проверяют корректность работы всех компонентов системы.
 
-**Последнее обновление:** 29 января 2026 (добавлены Core Observability: PolicyOSTracer, MetricsRegistry, @traced decorator, log-trace correlation, context propagation, Phase 18: Safe Expression Evaluation, AST Policy validation, norm execution security, legal AST backends, expression evaluators, governance security testing, AST limits enforcement, Phase 17 search loop system, workflow engines, two-stage filtering, conflict detection, cost model, NaN guard, agent artifacts, merge determinism, quality indicators system, fitness reports, quality gate pass, decision card system, run timeline tracking, decision packet v2, Phase 2 instrumentation: flow node tracing, LLM client instrumentation, governance pipeline spans, end-to-end workflow tracing)
-**Актуальная версия архитектуры:** v2.4.0 (Core Observability, Phase 18 Security, Safe Expression Evaluation, AST Policy Enforcement, Legal AST Backends, Phase 2 Instrumentation, End-to-End Workflow Tracing)
+**Последнее обновление:** 30 января 2026 (добавлены perf-regression CI workflow, diagnostics tools, check_perf_regression.py скрипт, ops/ директория с инструментами)
+**Актуальная версия архитектуры:** v2.4.1 (Performance Regression Detection, Enhanced Diagnostics, Core Observability v2.0, Phase 18 Security v2.1)
 
 ## Архитектурный контекст
 
@@ -87,6 +87,10 @@ tests/
 │   └── test_overhead.py            # Overhead валидация (simulation <2%, CAS I/O <5%, calibration <3%)
 ├── runtime/                       # Тесты runtime компонентов
 │   └── test_runtime_manifest_paths.py # Управление runs, артефакты, пути
+├── tools/                         # Инструменты тестирования и диагностики
+│   └── diagnostics/                # Диагностические скрипты и утилиты
+│       └── check_perf_regression.py # Проверка performance регрессии
+└── ops/                           # Операционные инструменты и скрипты
 └── scientist/                     # Тесты компонентов scientist
     ├── governance/                # Тесты governance layer (validation pipeline, legal compliance, Phase 18 security)
     │   ├── test_legal_pass.py     # LegalPass, RuleBackend, NormPack validation
@@ -275,10 +279,38 @@ tests/
 
 **Принципы:**
 - **Relative Paths**: Относительные пути для portability артефактов между окружениями
-- **Directory Portability**: Переносимость каталогов без потери доступа к артефактам
+- **Directory Portability**: Переносимость каталогов без потери доступа к артефактов
 - **Path Resolution**: Корректное разрешение путей для разных типов артефактов (models, data, logs)
 - **Audit Trail**: JSON Lines логирование всех операций с timestamps и metadata
 - **Run Manifest**: Паспорт эксперимента с детерминированными seed'ами и reproducible execution
+
+### Tools Tests (`tools/`)
+
+**Цель**: Тестирование диагностических инструментов, скриптов и утилит для разработки и поддержки.
+
+**Ключевые тесты:**
+- **Diagnostics Scripts**: Валидация диагностических утилит (check_perf_regression.py)
+- **Setup Validation**: Проверка корректности установки зависимостей и окружения
+- **Performance Tools**: Инструменты для анализа и сравнения производительности
+
+**Принципы:**
+- **Integration Testing**: Тесты проверяют интеграцию tools с основной системой
+- **Path Resolution**: Корректное разрешение путей к инструментам и зависимостям
+- **Cross-platform Compatibility**: Работа инструментов в разных окружениях (Linux/macOS/Windows)
+
+### Operations Tests (`ops/`)
+
+**Цель**: Тестирование операционных скриптов и автоматизации для CI/CD и развертывания.
+
+**Ключевые компоненты:**
+- **CI/CD Scripts**: Автоматизация для continuous integration и deployment
+- **Performance Regression**: Детекция регрессии производительности в CI pipeline
+- **Workflow Automation**: Скрипты для автоматизации рутинных операций
+
+**Принципы:**
+- **Automation**: Скрипты для автоматизации тестирования и развертывания
+- **Reliability**: Высокая надежность для использования в production pipeline
+- **Monitoring**: Интеграция с системами мониторинга и alerting
 
 ### Performance Tests (`performance/`)
 
@@ -489,6 +521,12 @@ pytest tests/runtime/test_runtime_manifest_paths.py
 # Performance validation (overhead thresholds)
 pytest tests/performance/test_overhead.py -v
 
+# Tools diagnostics
+pytest tests/tools/ -v
+
+# Ops automation scripts
+pytest tests/ops/ -v
+
 # Core Phase 0: Observability system
 pytest tests/core_phase0/test_observability.py -v        # Integration workflow tracing
 pytest tests/core_phase0/test_tracer.py -v              # PolicyOSTracer singleton
@@ -551,6 +589,8 @@ pytest tests/core_phase0/test_propagation.py -v         # Context propagation
 - **Log Correlation**: Trace context injection в лог записи для distributed tracing
 - **Context Propagation**: Распространение trace context между потоками и сервисами через headers
 - **Performance Benchmarking**: Statistical benchmarking framework с overhead thresholds и regression detection
+- **Performance Regression Detection**: Automated CI/CD workflows для обнаружения degradation производительности
+- **Diagnostic Tools**: Python scripts для валидации setup и troubleshooting
 - **Overhead Validation**: SLA enforcement для simulation (<2%), CAS I/O (<5%) и calibration (<3%) operations
 
 ## Принципы тестирования
@@ -690,6 +730,17 @@ pytest tests/core_phase0/test_propagation.py -v         # Context propagation
 - **Reflexion Orchestrator**: Автоматический retry management с escalation logic
 - **Trinity Migration**: Seamless transition между Surface IR и Trinity formats
 
+### Tools & Operations Layer
+**Diagnostic Tools** → Development and maintenance utilities
+- **Performance Regression**: Automated detection of performance degradation
+- **Setup Validation**: Dependency and environment verification scripts
+- **Diagnostic Scripts**: check_perf_regression.py для анализа производительности
+
+**CI/CD Automation** → Deployment and testing automation
+- **Performance Workflows**: GitHub Actions для regression detection
+- **Ops Scripts**: Автоматизация операционных задач
+- **Monitoring Integration**: Связь с системами наблюдения и оповещений
+
 ### Legal Validation System
 **Norm Pack Contracts** → Legal rule definitions and evaluation
 - **IR Layer**: NormPack, NormRule, NormRef структуры для представления юридических норм
@@ -756,6 +807,8 @@ pytest tests/core_phase0/test_propagation.py -v         # Context propagation
 17. Для decorator тестов: тестируйте sync/async functions, custom attributes, span naming, exception handling
 18. Для propagation тестов: валидируйте header injection/extraction, thread context preservation, service boundary crossing
 19. Для performance тестов: используйте statistical benchmarking с warmup, валидируйте overhead thresholds, форсируйте CPU для reproducible results
+20. Для tools тестов: проверяйте интеграцию с основной системой, path resolution, cross-platform compatibility
+21. Для ops тестов: валидируйте automation scripts, reliability, monitoring integration
 
 ### Отладка тестов
 ```bash

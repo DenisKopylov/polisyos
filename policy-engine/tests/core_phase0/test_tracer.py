@@ -2,8 +2,12 @@
 from __future__ import annotations
 
 import pytest
+from opentelemetry.sdk.trace.sampling import ALWAYS_OFF, ALWAYS_ON, Decision
+from opentelemetry.trace import SpanKind
 
 from polisyos.core.observability import get_tracer
+from polisyos.core.observability.config import OTelConfig
+from polisyos.core.observability.tracer import ErrorAwareSampler, PolicyOSTracer
 
 
 class TestPolicyOSTracer:
@@ -95,3 +99,45 @@ class TestPolicyOSTracer:
             assert len(trace_id) == 32  # 128-bit hex
             assert span_id is not None
             assert len(span_id) == 16  # 64-bit hex
+
+
+class TestSamplerBehavior:
+    """Tests for sampling configuration and error-aware behavior."""
+
+    def test_error_aware_sampler_samples_error(self):
+        sampler = ErrorAwareSampler(0.0)
+        result = sampler.should_sample(
+            None,
+            trace_id=1,
+            name="error_span",
+            kind=SpanKind.INTERNAL,
+            attributes={"error": "true"},
+            links=[],
+        )
+        assert result.decision is Decision.RECORD_AND_SAMPLE
+
+    def test_create_sampler_respects_ratio_bounds(self, reset_singleton):
+        tracer = PolicyOSTracer()
+
+        tracer._config = OTelConfig(sampling_ratio=1.0, always_sample_errors=True)
+        sampler = tracer._create_sampler()
+        assert sampler is ALWAYS_ON
+
+        tracer._config = OTelConfig(sampling_ratio=0.0, always_sample_errors=True)
+        sampler = tracer._create_sampler()
+        assert sampler is ALWAYS_OFF
+
+    def test_parent_based_sampler_respects_error_override(self, reset_singleton):
+        tracer = PolicyOSTracer()
+        tracer._config = OTelConfig(sampling_ratio=0.01, always_sample_errors=True)
+        sampler = tracer._create_sampler()
+
+        result = sampler.should_sample(
+            None,
+            trace_id=42,
+            name="error_span",
+            kind=SpanKind.INTERNAL,
+            attributes={"error": "true"},
+            links=[],
+        )
+        assert result.decision is Decision.RECORD_AND_SAMPLE

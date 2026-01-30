@@ -2,43 +2,30 @@
 
 Валидация производительности и обнаружение регрессий в ключевых компонентах Policy Engine.
 
-**Последнее обновление:** 29 января 2026
-**Уровень:** Performance Validation (Phase 3)
+**Последнее обновление:** 30 января 2026
+**Уровень:** Performance Validation (Phase 3 + Regression Detection)
 **Зависимости:** JAX, NumPy, Core Observability, Foundry Runtime
 
 ## Архитектурный контекст
 
-Performance тесты обеспечивают что система обсервабилити не создает значительного overhead на критически важные операции. Тесты валидируют SLA (Service Level Agreements) для различных типов workloads:
-
-- **Simulation Operations**: < 2% overhead
-- **CAS I/O Operations**: < 5% overhead
-- **Calibration Operations**: < 3% overhead
+Performance тесты обеспечивают что система обсервабилити не создает значительного overhead. Валидируют SLA для workloads: simulation (<2%), CAS I/O (<5%), calibration (<3%). Включают automated regression detection в CI/CD.
 
 ## Структура тестов
 
 ```
 performance/
-└── test_overhead.py          # Overhead валидация для simulation, CAS I/O, calibration
+└── test_overhead.py          # Overhead валидация + regression detection (simulation, CAS I/O, calibration)
 ```
 
 ## Категории тестов
 
 ### Overhead Validation (`test_overhead.py`)
 
-**Цель:** Измерение и валидация overhead системы обсервабилити на ключевых операциях.
+**Цель:** Измерение overhead системы обсервабилити и обнаружение регрессий.
 
-**Ключевые тесты:**
-- **Simulation Overhead**: Валидация что tracing/metrics/logging добавляют <2% к simulation операциям
-- **CAS I/O Overhead**: Проверка что observability overhead <5% для content-addressable storage операций
-- **Calibration Overhead**: Убеждение что overhead <3% для parameter optimization операций
-- **Statistical Benchmarking**: Множественные runs с confidence intervals для reliable measurements
+**Ключевые тесты:** Simulation overhead (<2%), CAS I/O overhead (<5%), calibration overhead (<3%), statistical benchmarking, regression detection.
 
-**Принципы:**
-- **Acceptable Thresholds**: Предопределенные SLA для каждого типа операций
-- **Statistical Reliability**: Bootstrap confidence intervals для measurement accuracy
-- **Reproducible Benchmarks**: CPU enforcement и deterministic inputs
-- **Warmup Phases**: Proper JIT compilation и caching перед measurements
-- **Cross-platform Consistency**: Identical results across different environments
+**Принципы:** Acceptable thresholds, statistical reliability, reproducible benchmarks, warmup phases, cross-platform consistency.
 
 ## Конфигурация окружения
 
@@ -71,6 +58,21 @@ pytest tests/performance/ -v
 pytest tests/performance/test_overhead.py::TestSimulationOverhead -v
 pytest tests/performance/test_overhead.py::TestCASOverhead -v
 pytest tests/performance/test_overhead.py::TestCalibrationOverhead -v
+
+# Regression detection
+pytest tests/performance/test_overhead.py::TestRegressionDetection -v
+```
+
+### CI Benchmarking & Regression Detection
+
+Для regression сравнения используется `pytest-benchmark` в том же файле:
+
+```bash
+pytest tests/performance/test_overhead.py \
+  --benchmark-only \
+  --benchmark-json=current.json \
+  --benchmark-warmup=on \
+  --benchmark-min-rounds=10
 ```
 
 ## Связи с другими модулями
@@ -90,9 +92,14 @@ pytest tests/performance/test_overhead.py::TestCalibrationOverhead -v
 - **CAS Operations**: Content-addressable storage I/O overhead
 - **FileSystemCAS**: Artifact persistence performance
 
+**Tools & Diagnostics** (`tools/`):
+- **Performance Regression**: Automated detection с check_perf_regression.py
+- **CI/CD Integration**: GitHub Actions workflows для continuous monitoring
+
 ### Архитектурные инварианты
 
 - **Закон Q**: Performance SLA (overhead thresholds enforced)
+- **Закон R**: Regression Detection (automated performance monitoring в CI/CD)
 - **Observability Transparency**: Tracing/metrics должны быть performance-neutral
 - **Regression Prevention**: Automatic detection performance degradation
 - **Benchmark Reproducibility**: Deterministic results across environments
@@ -169,5 +176,6 @@ pytest tests/performance/test_overhead.py -v
 
 ### Integration с CI/CD
 - **Threshold Enforcement**: Automatic failure на SLA violations
-- **Historical Tracking**: Performance regression detection
+- **Regression Detection**: Automated performance monitoring workflows
+- **Historical Tracking**: Performance regression detection с GitHub Actions
 - **Environment Consistency**: Reproducible results validation

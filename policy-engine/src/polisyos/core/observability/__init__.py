@@ -29,6 +29,8 @@ Environment Variables:
     POLISYOS_OTEL_ENABLED: Enable/disable OTel (default: true)
     POLISYOS_METRICS_PORT: Prometheus metrics port (default: 9464)
     POLISYOS_OTEL_CONSOLE_EXPORT: Enable console export for debugging
+    POLISYOS_TRACE_SAMPLING_RATIO: Trace sampling ratio (default: 1.0)
+    POLISYOS_ALWAYS_SAMPLE_ERRORS: Force sampling for spans created as errors (default: true)
 """
 
 from .config import OTelConfig, get_default_config

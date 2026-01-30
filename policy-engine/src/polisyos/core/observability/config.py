@@ -12,6 +12,8 @@ Environment Variables:
     POLISYOS_HPC_OBSERVABILITY_ENABLED: Enable/disable Phase 3 HPC observability (default: true)
     POLISYOS_OTEL_CONSOLE_EXPORT: Enable console span export for debugging
     POLISYOS_METRICS_PORT: Prometheus metrics port (default: 9464)
+    POLISYOS_TRACE_SAMPLING_RATIO: Trace sampling ratio (default: 1.0)
+    POLISYOS_ALWAYS_SAMPLE_ERRORS: Force sampling for spans created as errors (default: true)
 """
 from __future__ import annotations
 
@@ -101,8 +103,18 @@ class OTelConfig(BaseModel):
         == "true"
     )
 
-    # Sampling configuration
-    sampling_ratio: float = Field(default=1.0)  # 100% for dev, reduce in prod
+    # Sampling configuration (Phase 4)
+    sampling_ratio: float = Field(
+        default_factory=lambda: float(os.getenv("POLISYOS_TRACE_SAMPLING_RATIO", "1.0")),
+        ge=0.0,
+        le=1.0,
+        description="Trace sampling ratio. 1.0=all, 0.01=1% (recommended for prod)",
+    )
+    always_sample_errors: bool = Field(
+        default_factory=lambda: os.getenv("POLISYOS_ALWAYS_SAMPLE_ERRORS", "true").lower()
+        == "true",
+        description="Force sample spans created with error attributes (best-effort)",
+    )
 
 
 @dataclass

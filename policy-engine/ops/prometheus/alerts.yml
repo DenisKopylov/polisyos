@@ -1,0 +1,174 @@
+groups:
+  - name: polisyos.cost
+    rules:
+      - alert: HighLLMCost
+        # Configurable via POLISYOS_LLM_BUDGET_HOURLY env var (default: $50)
+        expr: |
+          (
+            sum(rate(polisyos_llm_tokens_total{type="prompt"}[1h])) * 0.00001 +
+            sum(rate(polisyos_llm_tokens_total{type="completion"}[1h])) * 0.00003
+          ) * 3600 > 50
+        for: 5m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: "LLM cost exceeds budget"
+          description: |
+            Estimated LLM cost {{ $value | printf "%.2f" }} USD/hour exceeds
+            budget threshold. Check for runaway experiments or inefficient prompts.
+          runbook_url: "https://docs.polisyos.internal/runbooks/high-llm-cost"
+
+      - alert: HighLLMCostCritical
+        expr: |
+          (
+            sum(rate(polisyos_llm_tokens_total{type="prompt"}[1h])) * 0.00001 +
+            sum(rate(polisyos_llm_tokens_total{type="completion"}[1h])) * 0.00003
+          ) * 3600 > 100
+        for: 5m
+        labels:
+          severity: critical
+          team: platform
+        annotations:
+          summary: "LLM cost CRITICAL - immediate action required"
+          description: "Cost {{ $value | printf \"%.2f\" }} USD/hour. Consider pausing experiments."
+
+  - name: polisyos.agents
+    rules:
+      - alert: AgentErrorSpike
+        # Error rate > 5% over 5 minutes
+        expr: |
+          sum(rate(polisyos_workflow_runs_total{status="error"}[5m]))
+          /
+          sum(rate(polisyos_workflow_runs_total[5m]))
+          > 0.05
+        for: 5m
+        labels:
+          severity: warning
+          team: scientist
+        annotations:
+          summary: "Agent workflow error rate elevated"
+          description: |
+            Error rate {{ $value | printf "%.1f" }}% exceeds 5% threshold.
+            Check governance validation logs and LLM responses.
+
+      - alert: AgentErrorSpikeCritical
+        expr: |
+          sum(rate(polisyos_workflow_runs_total{status="error"}[5m]))
+          /
+          sum(rate(polisyos_workflow_runs_total[5m]))
+          > 0.20
+        for: 2m
+        labels:
+          severity: critical
+          team: scientist
+        annotations:
+          summary: "Agent error rate CRITICAL (>20%)"
+          description: "Immediate investigation required. Possible LLM API degradation."
+
+      - alert: GovernancePassSlowdown
+        # p95 governance pass duration > 30s
+        expr: |
+          histogram_quantile(0.95,
+            sum by (le, pass_id) (rate(polisyos_governance_pass_duration_seconds_bucket[5m]))
+          ) > 30
+        for: 10m
+        labels:
+          severity: warning
+          team: scientist
+        annotations:
+          summary: "Governance pass {{ $labels.pass_id }} is slow"
+          description: "p95 latency {{ $value | printf \"%.1f\" }}s exceeds 30s threshold."
+
+  - name: polisyos.simulation
+    rules:
+      - alert: SimulationStall
+        # Active runs exist but throughput is zero
+        expr: |
+          polisyos_active_runs > 0
+          and
+          polisyos_simulation_steps_per_second == 0
+        for: 5m
+        labels:
+          severity: critical
+          team: foundry
+        annotations:
+          summary: "Simulation stalled - active runs but no progress"
+          description: |
+            {{ $value }} active runs detected but simulation throughput is zero.
+            Possible causes: deadlock, OOM, GPU hang.
+          runbook_url: "https://docs.polisyos.internal/runbooks/simulation-stall"
+
+      - alert: JITRecompilationStorm
+        # More than 10 JIT compilations per minute (indicates cache thrashing)
+        expr: |
+          sum(rate(polisyos_simulation_compile_seconds_count[1m])) * 60 > 10
+        for: 5m
+        labels:
+          severity: warning
+          team: foundry
+        annotations:
+          summary: "Excessive JIT recompilation detected"
+          description: |
+            {{ $value | printf "%.0f" }} compilations/minute detected.
+            This indicates JAX trace cache misses. Check for:
+            - Dynamic shapes in simulation inputs
+            - Changing batch sizes
+            - Memory pressure causing cache eviction
+
+      - alert: JITRecompilationStormCritical
+        expr: |
+          sum(rate(polisyos_simulation_compile_seconds_count[1m])) * 60 > 30
+        for: 2m
+        labels:
+          severity: critical
+          team: foundry
+        annotations:
+          summary: "JIT recompilation storm - performance severely degraded"
+          description: "{{ $value | printf \"%.0f\" }} compilations/minute. Simulation is recompiling constantly."
+
+      - alert: LowCacheHitRatio
+        # CAS cache hit ratio below 70%
+        expr: |
+          sum(rate(polisyos_artifact_cache_hits_total[5m]))
+          /
+          (
+            sum(rate(polisyos_artifact_cache_hits_total[5m])) +
+            sum(rate(polisyos_artifact_cache_misses_total[5m]))
+          ) < 0.7
+        for: 15m
+        labels:
+          severity: warning
+          team: foundry
+        annotations:
+          summary: "CAS cache hit ratio degraded"
+          description: |
+            Cache hit ratio {{ $value | printf "%.1f" }}% below 70%.
+            Consider increasing cache size or investigating artifact churn.
+
+  - name: polisyos.calibration
+    rules:
+      - alert: CalibrationDiverging
+        # Gradient norm exploding (> 1000)
+        expr: polisyos_calibration_grad_norm > 1000
+        for: 2m
+        labels:
+          severity: warning
+          team: foundry
+        annotations:
+          summary: "Calibration gradient explosion"
+          description: "Gradient norm {{ $value | printf \"%.0f\" }} indicates divergence. Check learning rate."
+
+      - alert: CalibrationStuck
+        # Loss not decreasing for 30 minutes
+        expr: |
+          increase(polisyos_calibration_loss[30m]) >= 0
+          and
+          polisyos_active_runs > 0
+        for: 30m
+        labels:
+          severity: warning
+          team: foundry
+        annotations:
+          summary: "Calibration not converging"
+          description: "Loss has not decreased in 30 minutes. Check for local minima or learning rate issues."

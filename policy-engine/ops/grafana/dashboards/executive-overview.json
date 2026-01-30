@@ -1,0 +1,100 @@
+{
+  "uid": "polisyos-executive",
+  "title": "PolicyOS - Executive Overview",
+  "tags": ["polisyos", "executive"],
+  "timezone": "browser",
+  "refresh": "30s",
+  "schemaVersion": 38,
+  "version": 1,
+  "templating": {
+    "list": [
+      {
+        "name": "environment",
+        "type": "custom",
+        "current": { "text": "production", "value": "production" },
+        "options": [
+          { "text": "production", "value": "production" },
+          { "text": "staging", "value": "staging" }
+        ]
+      }
+    ]
+  },
+  "panels": [
+    {
+      "id": 1,
+      "title": "Estimated LLM Cost (USD/hour)",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 0 },
+      "targets": [
+        {
+          "expr": "sum(rate(polisyos_llm_tokens_total{type=\"prompt\"}[1h])) * 0.00001 * 3600 + sum(rate(polisyos_llm_tokens_total{type=\"completion\"}[1h])) * 0.00003 * 3600",
+          "legendFormat": "USD/hour"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyUSD",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 10 },
+              { "color": "red", "value": 50 }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 2,
+      "title": "Policy Acceptance Rate",
+      "type": "gauge",
+      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 0 },
+      "targets": [
+        {
+          "expr": "sum(rate(polisyos_workflow_runs_total{status=\"success\"}[1h])) / sum(rate(polisyos_workflow_runs_total[1h]))",
+          "legendFormat": "Acceptance Rate"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "min": 0,
+          "max": 1,
+          "thresholds": {
+            "mode": "percentage",
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "yellow", "value": 70 },
+              { "color": "green", "value": 90 }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 3,
+      "title": "Active Experiments",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 6, "x": 12, "y": 0 },
+      "targets": [
+        {
+          "expr": "polisyos_active_runs",
+          "legendFormat": "Active"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Workflow Throughput",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 18, "x": 0, "y": 4 },
+      "targets": [
+        {
+          "expr": "sum(rate(polisyos_workflow_runs_total[5m])) * 3600",
+          "legendFormat": "Workflows/hour"
+        }
+      ]
+    }
+  ]
+}

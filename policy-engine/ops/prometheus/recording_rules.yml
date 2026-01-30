@@ -1,0 +1,35 @@
+groups:
+  - name: polisyos.recording
+    interval: 30s
+    rules:
+      # Pre-computed LLM cost
+      - record: polisyos:llm_cost_per_hour:rate1h
+        expr: |
+          (
+            sum(rate(polisyos_llm_tokens_total{type="prompt"}[1h])) * 0.00001 +
+            sum(rate(polisyos_llm_tokens_total{type="completion"}[1h])) * 0.00003
+          ) * 3600
+
+      # Pre-computed acceptance rate
+      - record: polisyos:workflow_acceptance_rate:rate1h
+        expr: |
+          sum(rate(polisyos_workflow_runs_total{status="success"}[1h]))
+          /
+          sum(rate(polisyos_workflow_runs_total[1h]))
+
+      # Pre-computed cache hit ratio
+      - record: polisyos:cas_cache_hit_ratio:rate5m
+        expr: |
+          sum(rate(polisyos_artifact_cache_hits_total[5m]))
+          /
+          (
+            sum(rate(polisyos_artifact_cache_hits_total[5m])) +
+            sum(rate(polisyos_artifact_cache_misses_total[5m]))
+          )
+
+      # Pre-computed error rate
+      - record: polisyos:workflow_error_rate:rate5m
+        expr: |
+          sum(rate(polisyos_workflow_runs_total{status="error"}[5m]))
+          /
+          sum(rate(polisyos_workflow_runs_total[5m]))

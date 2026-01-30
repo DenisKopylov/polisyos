@@ -45,8 +45,14 @@ observability = [
     "opentelemetry-exporter-prometheus>=0.41b0",
     "prometheus-client>=0.17.0",
 ]
+test = [
+    "pytest>=7.4.0",
+    "pytest-benchmark>=4.0.0",
+    "hypothesis>=6.0.0",
+]
 dev = [
     "pytest>=7.4.0",
+    "pytest-benchmark>=4.0.0",
     "hypothesis>=6.0.0",
     "mypy>=1.7.0",
     "ruff>=0.1.6",
@@ -101,10 +107,16 @@ markers = [
 ]
 
 [dependency-groups]
+test = [
+    "pytest>=7.4.0",
+    "pytest-benchmark>=4.0.0",
+    "hypothesis>=6.0.0",
+]
 dev = [
     "mypy>=1.19.1",
     "pre-commit>=4.5.1",
     "pytest>=7.4.0",
+    "pytest-benchmark>=4.0.0",
     "hypothesis>=6.0.0",
     "ruff>=0.14.10",
     "types-requests>=2.32.4.20250913",

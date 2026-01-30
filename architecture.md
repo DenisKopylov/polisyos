@@ -13,8 +13,8 @@ It is built around a **compiler pipeline** mindset:
 This README describes **the project laws**, **data/decision flows**, **business logic**, **dependency logic**, **technologies**, and **key abstractions**.
 For a file-by-file map of the repository, see `architecture.md`.
 
-**Latest Update:** January 29, 2026 (Core Observability: PolicyOSTracer, MetricsRegistry, @traced decorator, log-trace correlation, context propagation, Phase 18: Safe Expression Evaluation, AST Policy validation, norm execution security, legal AST backends, expression evaluators, governance security testing, AST limits enforcement, Phase 17 search loop system, workflow engines, two-stage filtering, conflict detection, cost model, NaN guard, agent artifacts, merge determinism, quality indicators system, fitness reports, quality gate pass, decision card system, run timeline tracking, decision packet v2, Phase 2 instrumentation: flow node tracing, LLM client instrumentation, governance pipeline spans, end-to-end workflow tracing)
-**Current Architecture Version:** v2.4.0 (Core Observability, Phase 18 Security, Safe Expression Evaluation, AST Policy Enforcement, Legal AST Backends, Phase 2 Instrumentation, End-to-End Workflow Tracing)
+**Latest Update:** January 30, 2026 (Performance Regression Detection, Enhanced Diagnostics, Core Observability v2.0, Phase 18 Security v2.1, Tools Ecosystem Expansion, Ops Infrastructure)
+**Current Architecture Version:** v2.4.1 (Performance Regression Detection, Core Observability v2.0, Phase 18 Security v2.1, Tools Ecosystem, Ops Infrastructure, Enhanced Diagnostics)
 
 ---
 
@@ -91,8 +91,11 @@ The system is organized as a set of layers with intentionally **directed depende
 - **Common** → (none)
   Foundational utilities should remain dependency-light. Includes OpenTelemetry-integrated logging, JAX environment configuration, migration system with Trinity format support, and path utilities.
 
-**Tools Layer** → All layers (diagnostics, linting, migration, benchmarking)
-Developer tools provide cross-cutting capabilities: architectural linting (Law A/B enforcement), schema generation (Law C), performance regression detection, migration utilities, observability diagnostics, and demo scripts for all system components.
+**Tools Layer** → All layers (diagnostics, linting, migration, benchmarking, demos)
+Developer tools provide cross-cutting capabilities: architectural linting (Law A/B enforcement), schema generation (Law C), performance regression detection, migration utilities, observability diagnostics, demo scripts for all system components, diagnostic tools, provenance visualization, fabric scanning, and environment capture.
+
+**Ops Layer** → Core, Tools (monitoring, alerting, visualization)
+Operational infrastructure provides production-grade monitoring and observability: Docker Compose observability stack (Prometheus + Grafana), performance metrics collection, alerting rules, executive dashboards, and CI/CD integration for performance regression detection.
 
 **Enforcement**:
 - `tools/lint_imports.py` checks for forbidden imports and cycles (Law A).
@@ -286,11 +289,10 @@ This section explains *what each major directory is for* without listing the ful
 - **`src/polisyos/runtime`**: run lifecycle APIs and portable run manifests (where run artifacts are stored and referenced).
 
 - **`data/`**: local data workspace, plus normative packs in `data/norms/`.
-- **`tools/`**: developer utilities (custom linters, migrations, diagnostics, demos, benchmarks, environment capture, performance regression detection, schema generation, fabric scanning, provenance visualization).
-- **`tests/`**: unit/contract/integration test suite.
-- **`docs/`**: ADRs and contract specs.
-
----
+- **`tools/`**: comprehensive developer toolkit (architectural linters, schema generators, migration tools, diagnostic scripts, performance benchmarks, demo scripts, provenance visualizers, fabric scanners, environment capture utilities).
+- **`ops/`**: operational infrastructure (Docker Compose observability stack, Prometheus configuration, Grafana dashboards, alerting rules, monitoring automation).
+- **`tests/`**: extensive test suite (contract tests, core observability tests, fabric tests, foundry tests, scientist tests, integration tests, performance tests).
+- **`docs/`**: ADRs and contract specifications.
 
 ## Full file tree
 
@@ -347,6 +349,9 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │               └── a7/  # Directory.
 │                   ├── eaa7fda75fa39b2c8a4a4ee537b20958dd53005e469a12e45816177358a442ae.blob  # CAS payload blob (content-addressed).
 │                   └── eaa7fda75fa39b2c8a4a4ee537b20958dd53005e469a12e45816177358a442ae.manifest.json  # CAS manifest describing the corresponding blob.
+├── .github/  # GitHub Actions workflows and automation.
+│   └── workflows/  # CI/CD pipeline definitions.
+│       └── perf.yml  # Performance regression testing workflow (pytest-benchmark comparison).
 ├── .vscode/  # Editor workspace configuration (VSCode/Cursor).
 │   └── settings.json  # Workspace editor settings (formatting, linting, etc.).
 ├── data/  # Data workspace (raw/staging) and reference datasets.
@@ -372,6 +377,22 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │   └── ir_base_demo.py  # File.
 ├── logs/  # Local logs (fixtures / developer artifacts).
 │   └── system.log  # Example/system log file (fixture).
+├── ops/  # Operations infrastructure: monitoring, observability, alerting stack.
+│   ├── docker-compose.observability.yml  # Docker Compose configuration for observability stack.
+│   ├── grafana/  # Grafana dashboards and provisioning.
+│   │   ├── dashboards/  # JSON dashboard definitions.
+│   │   │   ├── executive-overview.json  # Executive dashboard for cost/performance overview.
+│   │   │   ├── foundry-hpc.json  # HPC simulation performance dashboard.
+│   │   │   └── scientist-agents.json  # Agent workflow performance dashboard.
+│   │   ├── provisioning/  # Grafana provisioning configuration.
+│   │   │   └── dashboards.yml  # Automatic dashboard provisioning.
+│   │   └── README.md  # Grafana setup documentation.
+│   ├── prometheus/  # Prometheus configuration and alerting rules.
+│   │   ├── alerts.yml  # Alerting rules for cost, performance, and system issues.
+│   │   ├── prometheus.yml  # Main Prometheus scrape configuration.
+│   │   ├── recording_rules.yml  # Metric pre-computation rules.
+│   │   └── README.md  # Prometheus setup documentation.
+│   └── README.md  # Operations infrastructure documentation.
 ├── src/  # Python sources and build metadata.
 │   ├── policy_engine.egg-info/  # Build metadata produced by packaging tools.
 │   │   ├── PKG-INFO  # Packaged project metadata (generated).
@@ -438,7 +459,7 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │       │   │   ├── README.md  # Documentation for this directory/module.
 │       │   │   ├── __init__.py  # Python package initializer (public exports live here).
 │       │   │   ├── config.py  # OpenTelemetry configuration and resource attributes + HPC observability control.
-│       │   │   ├── decorators.py  # @traced decorator for automatic function instrumentation.
+│       │   │   ├── decorators.py  # @traced and @traced_method decorators for automatic function instrumentation.
 │       │   │   ├── logs.py  # Structured logging with trace correlation.
 │       │   │   ├── metrics.py  # Prometheus-compatible metrics registry and timers + CAS operation metrics.
 │       │   │   ├── propagation.py  # Trace context propagation across threads/services.
@@ -850,7 +871,7 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │   │   ├── README.md  # Documentation for this directory/module.
 │   │   ├── check_setup.py  # Diagnostics script.
 │   │   ├── check_udf_perf.py  # Diagnostics script.
-│   │   ├── check_perf_regression.py # Performance regression analysis from pytest-benchmark results.
+│   │   ├── check_perf_regression.py  # Performance regression checker for CI/CD (pytest-benchmark comparison).
 │   │   └── generate_ir_schema.py  # Diagnostics script.
 │   ├── README.md  # Documentation for this directory/module.
 │   ├── capture_env.py  # Capture environment details into a reproducibility manifest.
@@ -881,6 +902,7 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 ├── run_experiment.py  # CLI entrypoint to run a Scientist workflow for an experiment.
 └── uv.lock  # Locked dependency graph for uv.
 ```
+
 ---
 
 ## Technology stack and dependencies
@@ -922,9 +944,15 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 
 ### Dev tooling
 
-- **pytest**, **hypothesis**
+- **pytest**, **pytest-benchmark**, **hypothesis**
 - **ruff**, **mypy**
 - **pre-commit**
+
+### Operational monitoring
+
+- **Docker Compose** (observability stack orchestration)
+- **Prometheus** (metrics collection and alerting)
+- **Grafana** (dashboards and visualization)
 
 ---
 
@@ -985,6 +1013,27 @@ cp env_example.txt .env
 uv run python tools/diagnostics/check_setup.py
 ```
 
+### Performance regression check
+
+```bash
+# Run performance benchmarks
+uv run pytest tests/performance/ --benchmark-json=results.json
+
+# Check for regressions against baseline
+uv run python tools/diagnostics/check_perf_regression.py results.json
+```
+
+### Operational monitoring setup
+
+```bash
+# Start observability stack (Prometheus + Grafana)
+cd ops && docker-compose -f docker-compose.observability.yml up -d
+
+# Access monitoring:
+# Prometheus: http://localhost:9090
+# Grafana: http://localhost:3000 (admin/admin)
+```
+
 ### macOS + JAX note
 
 On macOS, JAX may auto-select an experimental Metal backend that can crash in some environments.  
@@ -1015,10 +1064,16 @@ uv run pytest
 ### Run linters
 
 ```bash
+# Code quality
 uv run ruff check .
 uv run mypy .
+
+# Architecture compliance
 uv run python tools/lint_imports.py
 uv run python tools/lint_foundry.py
+
+# Schema validation
+uv run python tools/gen_schema.py --check
 ```
 
 ---
@@ -1049,6 +1104,44 @@ uv run python tools/lint_foundry.py
 
 ---
 
+## Operational monitoring and observability
+
+Policy Engine includes comprehensive production-grade monitoring infrastructure for tracking performance, detecting issues, and ensuring system reliability.
+
+### Monitoring stack
+
+**Components:**
+- **Prometheus**: Metrics collection, alerting, and time-series database
+- **Grafana**: Dashboards for executive overview, HPC performance, and agent analytics
+- **Docker Compose**: Containerized observability stack with service dependencies
+
+**Monitored metrics:**
+- LLM costs and token consumption (budget alerts: $50/hour, $100/hour critical)
+- Agent workflow performance and success rates (failure thresholds: 5%, 20%)
+- HPC simulation throughput and JIT compilation efficiency
+- Calibration convergence and gradient health monitoring
+
+### Quick start monitoring
+
+```bash
+# Launch monitoring stack
+cd ops && docker-compose -f docker-compose.observability.yml up -d
+
+# Configure PolicyOS metrics export
+export POLISYOS_METRICS_PORT=9464
+export POLISYOS_LLM_BUDGET_HOURLY=50
+
+# Access interfaces
+# Prometheus: http://localhost:9090
+# Grafana: http://localhost:3000 (admin/admin)
+```
+
+### CI/CD integration
+
+Performance regression detection is integrated into CI/CD pipelines with automated benchmarking against baseline commits and configurable alert thresholds for latency, throughput, and overhead metrics.
+
+---
+
 ## Reproducibility and artifacts
 
 - **CAS storage** lives under `.polisyos/artifacts/sha256/` (blobs and manifests) with comprehensive observability integration.
@@ -1058,6 +1151,8 @@ uv run python tools/lint_foundry.py
 - **Evidence bundles** and **trust metrics** provide cryptographic verification of data provenance and quality.
 - **Core observability**: PolicyOSTracer singleton, MetricsRegistry, @traced decorators, log-trace correlation, context propagation, LLM tracing, and end-to-end workflow tracing across all components.
 - **Run timeline tracking**: Event-based timeline system with phase durations, node timings, artifact creation, validation outcomes, and performance metrics for comprehensive audit trails.
+- **Performance regression detection**: Automated CI/CD workflows with pytest-benchmark integration, statistical analysis, and configurable thresholds for overhead validation (simulation <2%, CAS I/O <5%, calibration <3%).
+- **Enhanced diagnostics**: Comprehensive setup validation, UDF performance profiling, schema generation, provenance visualization, and fabric scanning tools.
 
 ---
 
@@ -1109,6 +1204,5 @@ pytest tests/scientist/integration/ -v # End-to-end workflow tracing + Phase 2 i
 - **Phase 18 Security**: Extensive testing of AST policy validation, safe expression evaluation, security boundaries, norm execution security, and governance security testing
 - **Observability Coverage**: Full testing of tracing, metrics, log correlation, context propagation, Phase 2 instrumentation, and workflow tracing
 - **Quality Gates**: Data quality validation prevents execution on poor-quality inputs
-
 
 ---

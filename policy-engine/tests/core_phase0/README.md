@@ -2,49 +2,41 @@
 
 Тесты фундаментальных компонентов core layer - базовые примитивы и система обсервабилити для всей системы Policy Engine.
 
-**Последнее обновление:** 29 января 2026
-**Уровень:** Core Phase 0 (фундаментальные примитивы + Observability)
+**Последнее обновление:** 30 января 2026
+**Уровень:** Core Phase 0 (фундаментальные примитивы + Observability v2.0)
 **Зависимости:** Только стандартная библиотека Python, pathlib, hashlib, opentelemetry
 
 ## Архитектурный контекст
 
-Core Phase 0 представляет собой фундаментальную инфраструктуру, на которой строятся все остальные компоненты системы. Эти тесты обеспечивают корректность базовых примитивов хранения, сериализации, управления метаданными и распределенной обсервабилити (tracing, metrics, logging).
+Core Phase 0 - фундаментальная инфраструктура системы. Обеспечивает корректность базовых примитивов: content-addressable storage, канонической сериализации, environment capture, registry систем и распределенной обсервабилити (tracing, metrics, logging, context propagation).
 
 ## Структура тестов
 
 ```
 core_phase0/
-├── conftest.py                    # Специфичные fixtures для core тестов + observability fixtures
-├── test_artifact_store.py         # FileSystemCAS, дедупликация, верификация integrity
+├── conftest.py                    # Специфичные fixtures для core + observability
+├── test_artifact_store.py         # FileSystemCAS, дедупликация, integrity checks
 ├── test_canon_json.py             # Каноническая JSON сериализация, детерминированные хэши
-├── test_decorators.py             # @traced декоратор для автоматической трассировки функций
+├── test_decorators.py             # @traced декоратор для автоматической трассировки
 ├── test_environment_manifest.py   # Захват и сравнение environment манифестов
 ├── test_logs.py                   # Корреляция логов с trace context
-├── test_metrics.py                # MetricsRegistry singleton, histogram timers, counters
-├── test_observability.py          # Интеграционные сценарии обсервабилити, workflow tracing
-├── test_propagation.py            # Распространение trace context между потоками/сервисами
+├── test_metrics.py                # MetricsRegistry singleton, timers, counters
+├── test_observability.py          # Интеграционные сценарии workflow tracing
+├── test_propagation.py            # Распространение trace context между потоками
 ├── test_registry_bundle.py        # Сборка и загрузка registry bundles
 ├── test_run_context.py            # Контекст выполнения и артефакты producer'а
-└── test_tracer.py                 # PolicyOSTracer singleton и core tracing behaviors
+└── test_tracer.py                 # PolicyOSTracer singleton и tracing behaviors
 ```
 
 ## Категории тестов
 
 ### Artifact Store (`test_artifact_store.py`)
 
-**Цель:** Валидация content-addressable storage с дедупликацией и integrity checks.
+**Цель:** Content-addressable storage с дедупликацией и integrity checks.
 
-**Ключевые тесты:**
-- **Roundtrip Operations**: `put_bytes` → `get_bytes` с верификацией SHA256
-- **Content Deduplication**: Идентичный контент производит одинаковые artifact ID
-- **Canonical JSON Deduplication**: Нормализованная сериализация предотвращает дубликаты
-- **Manifest Persistence**: Сохранение и загрузка метаданных артефактов
+**Ключевые тесты:** Roundtrip operations, content deduplication, canonical JSON deduplication, manifest persistence.
 
-**Принципы:**
-- **SHA256 Addressing**: Content-addressable storage с криптографической integrity
-- **Immutable Artifacts**: Артефакты неизменяемы после создания
-- **Deduplication**: Автоматическое обнаружение и переиспользование идентичного контента
-- **Metadata Tracking**: Полная provenance информация для каждого артефакта
+**Принципы:** SHA256 addressing, immutable artifacts, automatic deduplication, full provenance tracking.
 
 ### Canonical JSON (`test_canon_json.py`)
 
@@ -67,143 +59,73 @@ core_phase0/
 
 **Цель:** Централизованное управление метаданными и конфигурациями системы.
 
-**Ключевые тесты:**
-- **Bundle Construction**: Сборка полного registry bundle из компонентов
-- **Artifact Persistence**: Все registry компоненты сохраняются как артефакты
-- **Reference Integrity**: Корректные ссылки между компонентами bundle
+**Ключевые тесты:** Bundle construction, artifact persistence, reference integrity.
 
-**Принципы:**
-- **Centralized Metadata**: Единое место для всех системных конфигураций
-- **Version Tracking**: Полная traceability версий registry компонентов
-- **Artifact-based Storage**: Registry данные immutable и versioned
+**Принципы:** Centralized metadata, version tracking, artifact-based storage.
 
 ### Environment Manifest (`test_environment_manifest.py`)
 
-**Цель:** Захват и сравнение вычислительных окружений для обеспечения reproducibility.
+**Цель:** Захват и сравнение вычислительных окружений для reproducibility.
 
-**Ключевые тесты:**
-- **Environment Capture**: Захват CPU/GPU/OS/Python/JAX информации без приватных данных
-- **Manifest Fingerprinting**: Детерминированные SHA256 fingerprints для environment comparison
-- **Compatibility Scoring**: Автоматическое определение compatibility между окружениями с risk levels
-- **Component Validation**: Валидация отдельных компонентов (CPU info, GPU info, OS info, etc.)
+**Ключевые тесты:** Environment capture, manifest fingerprinting, compatibility scoring, component validation.
 
-**Принципы:**
-- **Deterministic Fingerprinting**: Стабильные хэши независимо от порядка компонентов
-- **Privacy Protection**: Исключение hostname, username и других приватных данных
-- **Risk-based Comparison**: Классификация различий по уровням риска (CRITICAL/HIGH/MEDIUM/LOW/INFO)
-- **Performance Bounds**: Быстрый capture (< 2 сек) для CI/CD интеграции
+**Принципы:** Deterministic fingerprinting, privacy protection, risk-based comparison, fast capture (<2s).
 
 ### Run Context (`test_run_context.py`)
 
 **Цель:** Управление жизненным циклом выполнения и метаданными producer'ов.
 
-**Ключевые тесты:**
-- **Context Initialization**: Создание run context с producer метаданными
-- **Trace Emission**: Запись операций в audit trail
-- **Manifest Writing**: Сохранение run manifest с детерминированными seed'ами
-- **Path Resolution**: Корректное разрешение относительных путей артефактов
+**Ключевые тесты:** Context initialization, trace emission, manifest writing, path resolution.
 
-**Принципы:**
-- **Producer Tracking**: Полная информация о создателе и окружении
-- **Audit Trail**: JSON Lines логирование всех операций с timestamps
-- **Reproducible Execution**: Детерминированные seed'ы для воспроизводимости
-- **Portable Paths**: Относительные пути для переносимости между окружениями
+**Принципы:** Producer tracking, audit trail, reproducible execution, portable paths.
 
 ### Observability System (`test_observability.py`)
 
 **Цель:** Интеграционные сценарии полной системы обсервабилити с workflow tracing.
 
-**Ключевые тесты:**
-- **Full Workflow Trace**: Полный цикл policy workflow (draft → validate → execute → decide) с tracing
-- **Span Hierarchy**: Корректная иерархия spans и trace correlation
-- **Workflow Metrics**: Интеграция метрик в traced operations
-- **Trace Correlation**: Единый trace_id для всего workflow
+**Ключевые тесты:** Full workflow trace, span hierarchy, workflow metrics, trace correlation.
 
-**Принципы:**
-- **End-to-End Tracing**: Полное покрытие workflow операций
-- **Hierarchical Spans**: Логическая структура parent/child spans
-- **Distributed Correlation**: Trace context preservation across operations
-- **Performance Monitoring**: Метрики интегрированы в tracing infrastructure
+**Принципы:** End-to-end tracing, hierarchical spans, distributed correlation, performance monitoring.
 
 ### Tracer (`test_tracer.py`)
 
-**Цель:** Валидация PolicyOSTracer singleton и core tracing behaviors.
+**Цель:** PolicyOSTracer singleton и core tracing behaviors.
 
-**Ключевые тесты:**
-- **Singleton Pattern**: Гарантия единственного экземпляра tracer'а
-- **Lazy Initialization**: Инициализация только при первом использовании
-- **Span Creation**: Создание spans с корректными атрибутами
-- **Nested Spans**: Корректная вложенность и иерархия spans
-- **Attribute Setting**: PolicyOS-specific атрибуты (phase, node, agent, run_id)
+**Ключевые тесты:** Singleton pattern, lazy initialization, span creation, nested spans, attribute setting.
 
-**Принципы:**
-- **Singleton Guarantee**: Один tracer на всю систему
-- **Lazy Loading**: Экономия ресурсов при инициализации
-- **OpenTelemetry Compatibility**: Стандартные OTEL интерфейсы
-- **PolicyOS Extensions**: Специфические атрибуты для policy workflows
+**Принципы:** Singleton guarantee, lazy loading, OTEL compatibility, PolicyOS extensions.
 
 ### Metrics Registry (`test_metrics.py`)
 
-**Цель:** Тестирование централизованного реестра метрик производительности и workflow статистики.
+**Цель:** Централизованный реестр метрик производительности и workflow статистики.
 
-**Ключевые тесты:**
-- **Singleton Pattern**: Гарантия единственного экземпляра metrics registry
-- **Histogram Timers**: Запись duration метрик для операций
-- **Counter Recording**: Инкремент счетчиков для различных событий
-- **Workflow Metrics**: Специфические метрики для policy workflows
+**Ключевые тесты:** Singleton pattern, histogram timers, counter recording, workflow metrics.
 
-**Принципы:**
-- **Centralized Collection**: Единая точка сбора всех метрик
-- **Performance Monitoring**: Duration и throughput metrics
-- **Business Metrics**: Workflow completion, success rates
-- **Statistical Aggregation**: Histogram-based распределения
+**Принципы:** Centralized collection, performance monitoring, business metrics, statistical aggregation.
 
 ### Log Correlation (`test_logs.py`)
 
 **Цель:** Корреляция лог записей с trace context для distributed tracing.
 
-**Ключевые тесты:**
-- **Trace Context in Logs**: Автоматическое добавление trace_id в лог records
-- **TraceContextFilter**: Фильтр для enrichment лог записей
-- **Context Dict Extraction**: Получение текущего trace context
+**Ключевые тесты:** Trace context in logs, TraceContextFilter, context dict extraction.
 
-**Принципы:**
-- **Distributed Tracing**: Trace context в каждом лог сообщении
-- **Correlation IDs**: Связывание логов с traces для debugging
-- **Standard Format**: Совместимый с OTEL trace format
-- **Non-Intrusive**: Минимальное влияние на performance logging'а
+**Принципы:** Distributed tracing, correlation IDs, standard format, non-intrusive.
 
 ### Decorators (`test_decorators.py`)
 
-**Цель:** Тестирование @traced декоратора для автоматической трассировки функций.
+**Цель:** @traced декоратор для автоматической трассировки функций.
 
-**Ключевые тесты:**
-- **Basic Decoration**: Создание spans для decorated функций
-- **Async Support**: Работа с async/await функциями
-- **Custom Attributes**: Применение phase/node/agent атрибутов
-- **Exception Handling**: Корректная обработка исключений в spans
+**Ключевые тесты:** Basic decoration, async support, custom attributes, exception handling.
 
-**Принципы:**
-- **Zero-Config Tracing**: Автоматическая трассировка без boilerplate
-- **Async Compatibility**: Поддержка async функций и корутин
-- **Semantic Attributes**: Богатые метаданные для policy operations
-- **Error Propagation**: Исключения правильно отражаются в spans
+**Принципы:** Zero-config tracing, async compatibility, semantic attributes, error propagation.
 
 ### Context Propagation (`test_propagation.py`)
 
 **Цель:** Распространение trace context между потоками и сервисами.
 
-**Ключевые тесты:**
-- **Header Injection/Extraction**: Round-trip через HTTP headers
-- **Thread Context**: Сохранение context при thread transitions
-- **Service Boundaries**: Context preservation across service calls
-- **with_trace_context**: Wrapper для сохранения context
+**Ключевые тесты:** Header injection/extraction, thread context, service boundaries, with_trace_context wrapper.
 
-**Принципы:**
-- **Distributed Tracing**: Context через network boundaries
-- **Thread Safety**: Context preservation в multi-threaded environments
-- **Standard Headers**: Совместимый с W3C Trace Context format
-- **Asynchronous Operations**: Context в async workflows
+**Принципы:** Distributed tracing, thread safety, standard headers, async operations.
 
 ## Конфигурация окружения (conftest.py)
 

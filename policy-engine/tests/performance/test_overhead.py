@@ -63,6 +63,22 @@ def benchmark_function(
     return float(np.mean(times)), float(np.std(times)), last_result  # type: ignore[return-value]
 
 
+@pytest.fixture
+def benchmark_inputs():
+    """Smaller inputs for CI benchmark regression checks."""
+    key = jax.random.PRNGKey(7)
+    batch_size = 8
+    n_steps = 20
+    state_dim = 32
+
+    initial_states = jax.random.normal(key, (batch_size, state_dim))
+    controls_seq = jax.random.normal(
+        jax.random.split(key)[0], (batch_size, n_steps, 8)
+    )
+
+    return initial_states, controls_seq, key
+
+
 class TestSimulationOverhead:
     """Tests for simulation instrumentation overhead."""
 
@@ -271,6 +287,36 @@ class TestCalibrationOverhead:
         print(f"\nCalibration metrics overhead: {overhead*100:.2f}%")
 
         assert overhead < self.OVERHEAD_THRESHOLD
+
+
+class TestRegressionBenchmarks:
+    """Benchmarks for CI regression comparison (pytest-benchmark)."""
+
+    def test_benchmark_run_scan(self, benchmark, benchmark_inputs):
+        initial_states, controls_seq, key = benchmark_inputs
+
+        from polisyos.foundry.runtime import run_scan
+
+        _block_until_ready(run_scan(initial_states[0], controls_seq[0], key))
+
+        def target():
+            return _block_until_ready(run_scan(initial_states[0], controls_seq[0], key))
+
+        benchmark(target)
+
+    def test_benchmark_execute_program_batch(self, benchmark, benchmark_inputs):
+        initial_states, controls_seq, key = benchmark_inputs
+
+        from polisyos.foundry.runtime import execute_program_batch
+
+        _block_until_ready(execute_program_batch(initial_states, controls_seq, key))
+
+        def target():
+            return _block_until_ready(
+                execute_program_batch(initial_states, controls_seq, key)
+            )
+
+        benchmark(target)
 
 
 @pytest.fixture(scope="module", autouse=True)

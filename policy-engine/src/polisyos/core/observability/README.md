@@ -18,13 +18,13 @@
 
 ```
 observability/
+├── __init__.py        # Экспорт основных функций и quick start
 ├── config.py          # Конфигурация OpenTelemetry (OTelConfig, ResourceConfig)
 ├── tracer.py          # OpenTelemetry трассировщик (PolicyOSTracer, get_tracer)
 ├── decorators.py      # Декораторы для автоматической трассировки (@traced, @traced_method)
-├── logs.py            # Структурированное логирование с trace correlation
+├── logs.py            # Структурированное логирование с trace correlation (TraceContextFilter, StructuredFormatter)
 ├── metrics.py         # Prometheus-совместимые метрики (MetricsRegistry, HistogramTimer)
-├── propagation.py     # Распространение контекста трассировки
-└── __init__.py        # Экспорт основных функций
+└── propagation.py     # Распространение контекста трассировки (inject_headers, extract_headers, TracedExecutorWrapper)
 ```
 
 ## Быстрый старт
@@ -54,6 +54,8 @@ def run_simulation():
 - `OTEL_EXPORTER_OTLP_PROTOCOL` - Протокол (grpc или http/protobuf)
 - `POLISYOS_OTEL_CONSOLE_EXPORT` (default: `false`) - Консольный экспорт для отладки
 - `POLISYOS_METRICS_PORT` (default: `9464`) - Порт для Prometheus метрик
+- `POLISYOS_TRACE_SAMPLING_RATIO` (default: `1.0`) - Доля трасс, сохраняемых в tracing
+- `POLISYOS_ALWAYS_SAMPLE_ERRORS` (default: `true`) - Best-effort выборка спанов с ошибками
 
 ### Основные классы конфигурации
 
@@ -72,6 +74,21 @@ config = OTelConfig(
     metrics_port=9464
 )
 ```
+
+### Trace Sampling (Phase 4)
+
+Для контроля стоимости трассировки используйте head-based sampling:
+
+- **development**: `POLISYOS_TRACE_SAMPLING_RATIO=1.0`
+- **staging**: `POLISYOS_TRACE_SAMPLING_RATIO=0.1`
+- **production**: `POLISYOS_TRACE_SAMPLING_RATIO=0.01`
+
+Политика sampling: Root span выбирается по `TraceIdRatioBased`, дочерние спаны
+наследуют решение (ParentBased). При `POLISYOS_ALWAYS_SAMPLE_ERRORS=true`
+спаны, создаваемые с атрибутом `error=true`, принудительно сохраняются.
+
+**Ограничение:** head sampling не видит ошибки, возникающие после решения о
+выборке; для полного покрытия используйте tail-sampling в OTel Collector.
 
 #### ResourceConfig
 Атрибуты ресурса для идентификации сервиса:

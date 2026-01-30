@@ -1,0 +1,59 @@
+{
+  "uid": "polisyos-scientist",
+  "title": "PolicyOS - Scientist Agent Performance",
+  "tags": ["polisyos", "scientist", "agents"],
+  "timezone": "browser",
+  "schemaVersion": 38,
+  "version": 1,
+  "panels": [
+    {
+      "id": 1,
+      "title": "Governance Pass Duration (p95)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum by (le, pass_id) (rate(polisyos_governance_pass_duration_seconds_bucket[5m])))",
+          "legendFormat": "{{pass_id}}"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "s" } }
+    },
+    {
+      "id": 2,
+      "title": "Validation Failures by Pass",
+      "type": "barchart",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "targets": [
+        {
+          "expr": "sum by (pass_id) (increase(polisyos_validation_issues_total{severity=\"error\"}[1h]))",
+          "legendFormat": "{{pass_id}}"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "LLM Token Consumption by Model",
+      "type": "piechart",
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 8 },
+      "targets": [
+        {
+          "expr": "sum by (model) (increase(polisyos_llm_tokens_total[1h]))",
+          "legendFormat": "{{model}}"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "LLM Calls by Status",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 16, "x": 8, "y": 8 },
+      "targets": [
+        {
+          "expr": "sum by (status) (rate(polisyos_llm_calls_total[5m]))",
+          "legendFormat": "{{status}}"
+        }
+      ]
+    }
+  ]
+}

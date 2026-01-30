@@ -2,7 +2,7 @@
 
 Комплексная валидация компонентов Fabric layer - ingestion pipeline, evidence bundles, trust system и materialization engine.
 
-**Последнее обновление:** Январь 2026 (добавлены quality indicators system, fitness reports)
+**Последнее обновление:** Январь 2026 (добавлены quality indicators system, fitness reports, connectors/ с тестами protocol compliance для data fabric connectors)
 **Уровень:** Fabric Layer (Data Ingestion & Trust & Provenance & Quality)
 **Зависимости:** Core artifacts, DuckDB, Kuzu, pandas
 
@@ -14,6 +14,9 @@ Fabric layer отвечает за ingestion и обработку внешни�
 
 ```
 fabric/
+├── connectors/                    # Тесты протокола подключения данных (Data Fabric Connectors)
+│   ├── __init__.py                # Пакет connectors тестов
+│   └── test_protocol_compliance.py # Protocol compliance, capability validation, error hierarchy, connector metadata
 ├── test_data_catalog.py           # Data Contract catalog system, contract validation, metric bindings, search
 ├── test_evidence_bundle.py        # Evidence bundles, ingestion pipeline, provenance tracking
 ├── test_provenance.py             # Provenance subsystem, entities, graphs, PROV-O export, persistence
@@ -22,6 +25,31 @@ fabric/
 ```
 
 ## Категории тестов
+
+### Data Fabric Connectors (`connectors/test_protocol_compliance.py`)
+
+**Цель:** Комплексная валидация протокола подключения данных, capability-based архитектуры, error handling и metadata specification для data fabric connectors.
+
+**Ключевые тесты:**
+- **Protocol Compliance Validation**: Валидация что connectors реализуют все required attributes (connector_id, capabilities, metadata) и methods (connect, disconnect, health_check, fetch), проверка capability-method consistency, strict vs lenient validation modes
+- **Capability System**: @requires_capability decorator для блокировки вызовов методов при отсутствии capabilities, capability error handling с детальными сообщениями, describe_capabilities utility для анализа capability bitmasks
+- **Error Hierarchy**: Структурированная иерархия ошибок наследуемых от ConnectorError (CapabilityError, ConfigurationError, FetchError, RateLimitError), error serialization в dict формат для logging
+- **Connection Management**: ConnectionConfig immutability, credential redaction для безопасного logging, connection handle creation, async lifecycle management (connect/disconnect/health_check)
+- **Fetch Operations**: FetchRequest hashing для deterministic cache keys, pagination support, filter normalization (порядок не влияет на hash), FetchResult validation с completeness checks
+- **Data Versioning**: VersionStrategy enum (TIMESTAMP/CONTENT_HASH/REVISION), version comparison logic, автоматическая UTC coercion для timestamps, immutability guarantees
+- **Connector Metadata**: ConnectorMetadataSpec validation с pattern checks для connector_id и version, fully qualified ID generation, capability checking methods, trust level и quality tier validation
+- **Validation Framework**: ValidationResult для success/failure states, ValidationIssue с severity levels (ERROR/WARNING), issue aggregation и reporting
+- **Capability Helpers**: capabilities_from_flags/flags_from_capabilities для bitmask conversion, roundtrip consistency validation, proper handling capability enums
+
+**Принципы:**
+- **Protocol Enforcement**: Strict validation required interface для interoperability между различными data sources
+- **Capability-Based Security**: Runtime capability checking предотвращает вызов unsupported operations
+- **Immutable Configurations**: Thread-safe design через immutable configs и requests
+- **Structured Error Handling**: Consistent error types с rich context для debugging и monitoring
+- **Deterministic Behavior**: Stable hashing для caching и request deduplication
+- **Version Strategy Flexibility**: Support различных versioning подходов для разных типов data sources
+- **Metadata Standardization**: Consistent metadata format для discovery и capability negotiation
+- **Async-First Architecture**: All operations async для scalability и non-blocking I/O
 
 ### Data Contract Catalog (`test_data_catalog.py`)
 
@@ -123,6 +151,7 @@ fabric/
 pytest tests/fabric/ -v
 
 # Конкретные компоненты
+pytest tests/fabric/connectors/test_protocol_compliance.py -v # Data fabric connectors protocol
 pytest tests/fabric/test_data_catalog.py -v
 pytest tests/fabric/test_evidence_bundle.py -v
 pytest tests/fabric/test_provenance.py -v
@@ -139,6 +168,7 @@ pytest tests/fabric/test_quality_indicators.py -v
 **Core Layer** (`core/`):
 - **Artifact Store**: Хранение evidence bundles, trust metrics и catalog контрактов
 - **Canonical JSON**: Нормализованная сериализация для детерминированных хэшей контрактов
+- **Data Fabric Connectors**: IR layer определяет connector capabilities и metadata schemas
 
 **Runtime Layer** (`runtime/`):
 - **Ingestion Jobs**: Управление жизненным циклом ingestion процессов
@@ -166,6 +196,7 @@ pytest tests/fabric/test_quality_indicators.py -v
 - **Закон E**: Evidence обязательны (FabricResult всегда содержит evidence_ref)
 - **Закон H**: Evidence обязательны (data провода фиксируют provenance/evidence)
 - **Закон I**: Trust policies (многоуровневые политики доверия к источникам данных)
+- **Data Fabric Connectors Protocol**: Стандартизированный интерфейс для data source integration с capability-based access control
 - **Materialization Engine**: Инкрементальная материализация реляционных представлений
 
 ## Разработка и расширение
@@ -344,6 +375,13 @@ pytest tests/fabric/test_quality_indicators.py::TestQualityIndicatorsCalculation
 - **pandas**: Data manipulation и ETL operations
 
 ### Fabric-Specific Components
+- **Data Fabric Connectors Protocol**: Стандартизированный async интерфейс для data source integration с capability-based access control, error hierarchy и metadata specification
+- **Connector Capabilities System**: Bitmask-based capability flags (FULL_FETCH, STREAMING, CATALOG_BROWSE, etc.) с runtime validation через @requires_capability decorator
+- **Connector Metadata Specification**: Структурированные метаданные connectors (trust levels, quality tiers, version strategies) с validation patterns
+- **Data Version Management**: Version strategies (TIMESTAMP/CONTENT_HASH/REVISION) с comparison logic и UTC timestamp handling
+- **Fetch Request Hashing**: Deterministic cache keys для request deduplication с filter normalization и pagination support
+- **Connection Configuration**: Immutable configs с credential redaction для безопасного handling sensitive data
+- **Validation Framework**: Structured validation results с severity levels и issue aggregation для connector compliance checking
 - **Data Contract Catalog**: Структурированные контракты данных с типами, гранулярностью и PII уровнями
 - **Metric Binding System**: Hash-интегрированные привязки метрик к контрактам
 - **Metric Searcher**: Fuzzy search и disambiguation для разрешения метрик

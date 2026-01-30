@@ -1,4 +1,5 @@
 from polisyos.ir.calibration import CalibrationConfig, CalibrationTarget
+from polisyos.ir.connectors import ConnectorCapability, TrustLevel, QualityTier, ConnectorMetadataSpec
 from polisyos.ir.data_views import AccessTier, DataFilter, DataViewRequest, DataViewType
 from polisyos.ir.loaders import load_policy
 from polisyos.ir.model_spec import (
@@ -30,10 +31,14 @@ from polisyos.ir.surface import PolicySurfaceIR
 
 __all__ = [
     "AccessTier",
+    "ConnectorCapability",
+    "ConnectorMetadataSpec",
     "DataFilter",
     "DataViewRequest",
     "DataViewType",
     "PolicySurfaceIR",
+    "QualityTier",
+    "TrustLevel",
     "load_policy",
     "CalibrationConfig",
     "CalibrationTarget",

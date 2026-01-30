@@ -2,7 +2,7 @@
 
 **IR (Intermediate Representation)** - это промежуточное представление политик и симуляций в системе Policy Engine. Модуль определяет канонические контракты данных, обеспечивая единообразие коммуникации между всеми компонентами системы: от LLM-агентов до JAX-симуляций.
 
-**Обновлено**: документация актуализирована для отражения текущего состояния на 2026-01-27, включая полную реализацию Trinity архитектуры (ProblemFrame, PolicySpec, ModelSpec), расширенную систему Kernel реестров, интеграцию с Fact Log, новые контракты для нормативных документов (NormPack) и безопасную систему оценки выражений AST Policy.
+**Обновлено**: документация актуализирована для отражения текущего состояния на 2026-01-30, включая полную реализацию Trinity архитектуры (ProblemFrame, PolicySpec, ModelSpec), расширенную систему Kernel реестров, интеграцию с Fact Log, новые контракты для нормативных документов (NormPack), безопасную систему оценки выражений AST Policy, и контракты коннекторов данных (connectors.py) для интеграции с внешними источниками.
 
 ## Архитектурная роль
 
@@ -33,7 +33,7 @@ NL/Request → Scientist (LLM + Workflow) → IR (contracts) → Compilation →
 1. **IR v1.0**: Простые контракты с базовой валидацией (`PolicyIR`)
 2. **IR v2.0**: Разделение на semantic и advisory части (`PolicySurfaceIR`)
 3. **IR v2.1**: Расширенная система с kernel-реестрами, линкером и Fact Log
-4. **Текущая версия (Trinity)**: Разделение на три независимых артефакта (ProblemFrame, PolicySpec, ModelSpec)
+4. **Текущая версия (Trinity + Connectors)**: Разделение на три независимых артефакта (ProblemFrame, PolicySpec, ModelSpec) плюс контракты для интеграции с внешними источниками данных
 
 **Текущая архитектура реализует Trinity паттерн с полной реализацией:**
 - **ProblemFrame**: "Why" - постоянные аспекты проблемы (реализовано в `problem_frame.py`)
@@ -58,6 +58,7 @@ PolicySurfaceIR v2.x остается совместимым интерфейс�
 12. **Предикаты**: Определение фильтров для доступа к данным симуляции
 13. **AST Policy**: Безопасная оценка выражений с валидацией синтаксиса
 14. **Norm Compliance**: Валидация политик на соответствие нормативным документам
+15. **Data Connectors**: Контракты для интеграции с внешними источниками данных
 
 ### Ключевые обязанности
 
@@ -82,6 +83,7 @@ PolicySurfaceIR v2.x остается совместимым интерфейс�
 ir/
 ├── __init__.py              # Экспорт основных типов данных и функций
 ├── types.py                  # Перечисления, базовые типы и утилиты
+├── connectors.py             # Контракты коннекторов для интеграции с внешними источниками данных
 ├── trinity.py                # Trinity артефакты (ProblemFrame, PolicySpec, ModelSpec, TrinityBundle)
 ├── problem_frame.py          # ProblemFrame: определение проблемы и целей
 ├── policy_spec.py            # PolicySpec: спецификация политики и интервенций
@@ -986,7 +988,65 @@ slot = DEFAULT_SLOT_REGISTRY.slots["agents.income"]
 unit = DEFAULT_UNITS_REGISTRY.units["usd"]
 ```
 
-### 14. Система версий (`migrations/`)
+### 14. Контракты коннекторов данных (`connectors.py`)
+
+#### Архитектурная роль
+
+**Connectors** определяет канонические контракты для интеграции с внешними источниками данных в системе PolicyOS. Модуль устанавливает стандарты для коннекторов, обеспечивая единообразие интерфейсов и метаданных для всех типов источников данных.
+
+**Ключевые особенности:**
+- **Capability System**: Декларативная система возможностей коннекторов с битовой маской
+- **Trust & Quality**: Уровни доверия и качества данных от источников
+- **Versioning**: Детерминированное версионирование данных с поддержкой разных стратегий
+- **Metadata Schema**: Стандартизированные метаданные коннекторов
+
+#### Основные компоненты
+
+```python
+from polisyos.ir.connectors import (
+    ConnectorCapability, TrustLevel, QualityTier,
+    VersionStrategy, DataVersion, ConnectorMetadataSpec,
+    capabilities_from_flags, flags_from_capabilities
+)
+
+# Определение возможностей коннектора
+caps = (
+    ConnectorCapability.FULL_FETCH |
+    ConnectorCapability.STREAMING |
+    ConnectorCapability.DATE_RANGE_FILTER
+)
+
+# Спецификация метаданных коннектора
+metadata = ConnectorMetadataSpec(
+    connector_id="worldbank_wdi",
+    version="1.0.0",
+    namespace="worldbank",
+    source_name="World Bank World Development Indicators",
+    source_organization="World Bank",
+    trust_level=TrustLevel.HIGH,
+    quality_tier=QualityTier.GOLD,
+    capabilities=capabilities_from_flags(caps),
+    description="Comprehensive development indicators database"
+)
+
+# Версионирование данных
+version = DataVersion(
+    strategy=VersionStrategy.TIMESTAMP,
+    value="2024-01-01T00:00:00Z",
+    timestamp=datetime(2024, 1, 1, tzinfo=timezone.utc),
+    content_hash="sha256:abc123..."
+)
+```
+
+#### Связь с Fabric Layer
+
+Контракты из `ir.connectors` используются в `fabric.connectors` для реализации протокола SourceConnector:
+
+- **IR Level**: Декларативные контракты (ConnectorCapability, ConnectorMetadataSpec)
+- **Fabric Level**: Исполняемые протоколы (SourceConnector, FetchRequest, FetchResult)
+- **Runtime Level**: Кэширование и оркестрация запросов к источникам
+
+### 15. Система версий (`migrations/`)
 
 #### Детерминированные миграции
 
@@ -1529,6 +1589,8 @@ from polisyos.ir import (
     ProblemFrame, PolicySpec, ModelSpec, TrinityBundle,
     # Контракты нормативных документов
     NormPack, NormRule, NormRef, RuleType,
+    # Контракты коннекторов данных
+    ConnectorCapability, TrustLevel, QualityTier, ConnectorMetadataSpec,
     # Унаследованные интерфейсы
     PolicySurfaceIR, load_policy, CalibrationConfig, CalibrationTarget,
     DataViewRequest, DataViewType, AccessTier, DataFilter
@@ -1542,6 +1604,11 @@ from polisyos.ir.trinity import (
 
 from polisyos.ir.norm_pack import (
     NormPack, NormRule, NormRef, RuleType
+)
+
+from polisyos.ir.connectors import (
+    ConnectorCapability, TrustLevel, QualityTier, VersionStrategy,
+    DataVersion, ConnectorMetadataSpec, capabilities_from_flags, flags_from_capabilities
 )
 
 from polisyos.ir.surface import (
@@ -1768,6 +1835,7 @@ python tools/diagnostics/validate_policy.py policy.json
 ```bash
 # Контрактные тесты IR (ядро системы)
 pytest tests/contract/test_ir_surface.py      # PolicySurfaceIR и компоненты
+pytest tests/contract/test_ir_connectors.py    # Контракты коннекторов данных
 pytest tests/contract/test_ir_linker.py       # Линкер и валидация политик
 pytest tests/contract/test_ir_loaders.py      # Загрузчики и конвертация версий
 pytest tests/contract/test_ir_calibration.py  # Калибровка политик
@@ -1813,7 +1881,7 @@ IR является фундаментом всей системы и испол
 
 - **Scientist**: Генерирует Trinity артефакты (ProblemFrame, PolicySpec, ModelSpec) или PolicySurfaceIR, использует линкер для валидации, типы из `types.py` и загрузчики из `loaders.py`. Интегрируется с AST Policy для безопасной оценки выражений в governance passes
 - **Foundry**: Компилирует `InterventionSpec` из PolicySpec в JAX-механизмы, использует kernel-реестры для линковки, калибровку из `calibration.py` для оптимизации, работает с ModelSpec для конфигурации симуляции
-- **Fabric**: Обрабатывает `DataViewRequest` для запросов данных, использует предикаты из `predicate.py`, контракты фактов из `fact_log.py` для семантической сети, работает с ModelSpec для понимания структуры данных
+- **Fabric**: Обрабатывает `DataViewRequest` для запросов данных, использует предикаты из `predicate.py`, контракты фактов из `fact_log.py` для семантической сети, работает с ModelSpec для понимания структуры данных. Использует контракты коннекторов из `connectors.py` для стандартизации интерфейсов внешних источников данных
 - **Core**: Предоставляет базовую инфраструктуру, использует `Fact` и `FactBatch` для построения семантической сети знаний, интегрируется с ModelSpec для загрузки данных
 - **Runtime**: Хранит артефакты Trinity и PolicySurfaceIR для аудита, использует `CalibrationConfig` для управления оптимизацией, сохраняет метаданные из всех артефактов
 - **Common**: Использует систему миграций из `common.migrations` для версионирования схем, включая Trinity миграции

@@ -168,7 +168,7 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │       │   │   └── tracer.py  # PolicyOSTracer singleton with OpenTelemetry integration.
 │       │   ├── README.md  # Documentation for this directory/module.
 │       │   └── __init__.py  # Python package initializer (public exports live here).
-│       ├── fabric/  # Unified Data Fabric: ingestion, catalog, evidence, quality, trust, UDF queries.
+│       ├── fabric/  # Unified Data Fabric: ingestion, catalog, evidence, quality, trust, UDF queries, external connectors.
 │       │   ├── catalog/  # Metric-level data contracts and bindings registry.
 │       │   │   ├── README.md  # Documentation for this directory/module.
 │       │   │   ├── __init__.py  # Python package initializer (public exports live here).
@@ -216,6 +216,12 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │       │   ├── schema.py  # Fabric schema/types shared across ingestion and UDF.
 │       │   ├── segment_manifest.py  # Segment manifest models (partitioning, optimization metadata).
 │       │   └── trust.py  # Trust policies and uncertainty quantification utilities.
+│       │   ├── connectors/  # External data source connectors with protocol compliance and capability system.
+│       │   │   ├── README.md  # Documentation for this directory/module.
+│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   ├── base.py  # BaseConnector protocol and core types (ConnectionConfig, FetchRequest, etc.).
+│       │   │   ├── capabilities.py  # Capability validation utilities and protocol compliance checking.
+│       │   │   └── types.py  # Connector error types and supporting data structures.
 │       ├── foundry/  # JAX execution core: compilation, runtime, simulation, calibration, determinism tools.
 │       │   ├── agent_sim/  # Agent-based simulation subsystem.
 │       │   │   ├── README.md  # Documentation for this directory/module.
@@ -479,6 +485,9 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │   │   ├── README.md  # Documentation for this directory/module.
 │   │   └── run_laffer_demo.py  # File.
 │   ├── fabric/  # Fabric tests.
+│   │   ├── connectors/  # Connector protocol compliance tests.
+│   │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│   │   │   └── test_protocol_compliance.py  # Pytest module exercising connector protocol compliance.
 │   │   ├── README.md  # Documentation for this directory/module.
 │   │   ├── test_data_catalog.py  # Pytest module exercising data catalog.
 │   │   ├── test_evidence_bundle.py  # Pytest module exercising evidence bundle.

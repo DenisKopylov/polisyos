@@ -1,20 +1,7 @@
-from polisyos.fabric.ingestion import run_ingestion
-from polisyos.fabric.catalog import (
-    ContractHashMismatchError,
-    ContractNotFoundError,
-    ContractValidationError,
-    DataContract,
-    DataContractCollection,
-    DataContractRegistry,
-    DataType,
-    Granularity,
-    MetricBinding,
-    MetricSearcher,
-    PIITier,
-    SearchResponse,
-    SearchResult,
-    load_contract_collection,
-)
+from __future__ import annotations
+
+import importlib
+from typing import Any
 
 __all__ = [
     "ContractHashMismatchError",
@@ -33,3 +20,35 @@ __all__ = [
     "load_contract_collection",
     "run_ingestion",
 ]
+
+_LAZY_IMPORTS: dict[str, tuple[str, str]] = {
+    "run_ingestion": ("polisyos.fabric.ingestion", "run_ingestion"),
+    "ContractHashMismatchError": ("polisyos.fabric.catalog", "ContractHashMismatchError"),
+    "ContractNotFoundError": ("polisyos.fabric.catalog", "ContractNotFoundError"),
+    "ContractValidationError": ("polisyos.fabric.catalog", "ContractValidationError"),
+    "DataContract": ("polisyos.fabric.catalog", "DataContract"),
+    "DataContractCollection": ("polisyos.fabric.catalog", "DataContractCollection"),
+    "DataContractRegistry": ("polisyos.fabric.catalog", "DataContractRegistry"),
+    "DataType": ("polisyos.fabric.catalog", "DataType"),
+    "Granularity": ("polisyos.fabric.catalog", "Granularity"),
+    "MetricBinding": ("polisyos.fabric.catalog", "MetricBinding"),
+    "MetricSearcher": ("polisyos.fabric.catalog", "MetricSearcher"),
+    "PIITier": ("polisyos.fabric.catalog", "PIITier"),
+    "SearchResponse": ("polisyos.fabric.catalog", "SearchResponse"),
+    "SearchResult": ("polisyos.fabric.catalog", "SearchResult"),
+    "load_contract_collection": ("polisyos.fabric.catalog", "load_contract_collection"),
+}
+
+
+def __getattr__(name: str) -> Any:
+    if name in _LAZY_IMPORTS:
+        module_name, attr = _LAZY_IMPORTS[name]
+        module = importlib.import_module(module_name)
+        value = getattr(module, attr)
+        globals()[name] = value
+        return value
+    raise AttributeError(f"module 'polisyos.fabric' has no attribute '{name}'")
+
+
+def __dir__() -> list[str]:
+    return sorted(list(globals().keys()) + list(_LAZY_IMPORTS.keys()))

@@ -13,8 +13,8 @@ It is built around a **compiler pipeline** mindset:
 This README describes **the project laws**, **data/decision flows**, **business logic**, **dependency logic**, **technologies**, and **key abstractions**.
 For a file-by-file map of the repository, see `architecture.md`.
 
-**Latest Update:** January 30, 2026 (Performance Regression Detection, Enhanced Diagnostics, Core Observability v2.0, Phase 18 Security v2.1, Tools Ecosystem Expansion, Ops Infrastructure)
-**Current Architecture Version:** v2.4.1 (Performance Regression Detection, Core Observability v2.0, Phase 18 Security v2.1, Tools Ecosystem, Ops Infrastructure, Enhanced Diagnostics)
+**Latest Update:** January 30, 2026 (Trinity IR Architecture, Data Connectors System Phase 2.1, Quality Gate Validation, Data Contract Catalog, Provenance System v2.0, Fact Log Integration, AST Policy Security, Performance Regression Detection, Core Observability v2.0, Phase 18 Security v2.1)
+**Current Architecture Version:** v2.4.1 (Trinity IR Architecture, Data Connectors System, Quality Gate Validation, Data Contract Catalog, Provenance System v2.0, Fact Log Integration, AST Policy Security, Performance Regression Detection, Core Observability v2.0, Phase 18 Security v2.1)
 
 ---
 
@@ -74,7 +74,7 @@ The system is organized as a set of layers with intentionally **directed depende
   Orchestration sits at the top and is allowed to depend on most layers. Includes hierarchical agent system (PI→Drafter→Formalizer→Critic), FSM-based workflow orchestration, self-healing reflexion patterns, governance passes pipeline, Phase 18 safe expression evaluation, legal compliance validation, search loop system with two-stage filtering, workflow engines (LangGraph/SimpleLoop), LLM tracing infrastructure, decision card system, run timeline tracking, and multi-agent workflow orchestration with Phase 2 instrumentation (flow node tracing, LLM client instrumentation, governance pipeline spans, end-to-end workflow tracing).
 
 - **Fabric** → IR, Core, Common
-  Data layer depends on contracts and infrastructure, but not on orchestration. Includes unified data fabric with evidence bundles, provenance tracking, trust quantification, quality indicators system, fitness reports, quality gate pass integration, data contract catalog system, ingestion pipeline, trust two-pass comparison, and materializer engine for incremental updates.
+  Data layer depends on contracts and infrastructure, but not on orchestration. Includes unified data fabric with Phase 2.1 data connectors system (capability-based protocol, trust levels, version strategies), evidence bundles with cryptographic verification, W3C PROV-O compliant provenance tracking, trust quantification with statistical verification, quality indicators system (missingness/staleness/coverage/outlier detection), fitness reports with configurable thresholds, quality gate validation integration with governance pipeline, data contract catalog with hash-locked bindings, ingestion pipeline with entity resolution, trust two-pass comparison, fact log system with immutable facts and deterministic IDs, materializer engine for incremental updates, and CAS integration with Arrow support.
 
 - **Foundry** → IR, Core, Common
   Execution core depends on contracts and infrastructure, but not on data storage/orchestration. Includes JAX-based simulation engine with compile-time conflict detection, cost modeling, NaN guard for numerical stability, agent artifacts with environment fingerprinting, merge determinism, patch-based state management, plugin system with capability-based registry, adaptive agents with learning metrics, calibrator fidelity control, gradient health monitoring, and runtime batch execution.
@@ -83,7 +83,7 @@ The system is organized as a set of layers with intentionally **directed depende
   Run lifecycle management depends on contracts and infrastructure. Provides portable run manifests, artifact management, audit trail logging, and full observability integration with PolicyOSTracer and MetricsRegistry.
 
 - **IR** → Core, Common
-  Contracts depend on canonicalization/typing infrastructure. Includes Trinity IR (ProblemFrame/PolicySpec/ModelSpec), PolicySurfaceIR compatibility layer with migration support, norm pack contracts for legal compliance, kernel registries, and legal AST backends with pluggable rule evaluation.
+  Contracts depend on canonicalization/typing infrastructure. Includes Trinity IR architecture (ProblemFrame for problem definition, PolicySpec for interventions, ModelSpec for simulation configuration), PolicySurfaceIR compatibility layer with migration support, data connectors contracts for external data sources integration, AST policy system for safe expression evaluation with resource limits and security validation, norm pack contracts for legal compliance with deontic logic support, kernel registries (mechanisms/slots/units/merge rules/constraints/metrics/trust), fact log semantic network contracts, and legal AST backends with pluggable rule evaluation.
 
 - **Core** → Common
   Infrastructure depends only on minimal utilities. Includes comprehensive observability system (PolicyOSTracer singleton, MetricsRegistry, @traced decorator, log-trace correlation, context propagation), content-addressable storage, canonical JSON serialization, conflict detection, cost modeling, NaN guard, Trinity contracts, legal compliance contracts, and environment manifest system with compatibility scoring.
@@ -135,14 +135,17 @@ At a high level, Policy Engine runs an experiment as a staged pipeline:
    - Budget enforcement (compute, evidence, legitimacy, complexity limits)
    Then linked against kernel registries (mechanisms, slots, merge rules, units, metrics).
 
-5. **Data views & Fabric execution (evidence + trust + quality)**
+5. **Data views & Fabric execution (evidence + trust + quality + provenance)**
    Fabric produces data views (via UDF compilation and execution) and attaches comprehensive metadata:
-   - Evidence bundles with cryptographic provenance verification
-   - Trust quantification with uncertainty bounds and two-pass comparison
-   - Quality indicators (missingness, staleness, coverage, outliers) with fitness reports
-   - Quality gate enforcement blocking execution on poor data quality
-   - Data contract catalog system for structured data access
-   - Materializer engine for incremental relational view updates
+   - Evidence bundles with cryptographic provenance verification and CAS storage
+   - Trust quantification with uncertainty bounds, statistical verification, and two-pass comparison
+   - Quality indicators system (missingness, staleness, coverage, schema drift, outlier detection) with fitness reports and configurable thresholds
+   - Quality gate validation integration with governance pipeline for blocking poor quality data
+   - Data contract catalog with hash-locked bindings and fuzzy search with disambiguation
+   - Provenance system with W3C PROV-O compliance and complete lineage tracking
+   - Fact log system with immutable facts, deterministic IDs, and semantic network
+   - Materializer engine for incremental relational view updates from fact log
+   - Data connectors system (Phase 2.1) with capability-based protocol and external data integration
 
 6. **Compilation (Foundry with conflict detection + cost modeling)**
    Foundry compiles policy IR into executable representation (`ProgramGraph` + `ExecPlan`), performs comprehensive static checks:
@@ -180,12 +183,12 @@ At a high level, Policy Engine runs an experiment as a staged pipeline:
 
 ## Key abstractions (what to learn first)
 
-### Trinity IR
+### Trinity IR Architecture
 
-- **`ProblemFrame`**: problem definition, KPIs, success criteria, constraints.
-- **`PolicySpec`**: interventions, parameters, schedules, implementation hints.
-- **`ModelSpec`**: model assumptions, time semantics, data snapshots, registry bundles.
-- **`TrinityBundle`**: a typed container referencing the three artifacts plus metadata.
+- **`ProblemFrame`**: "Why" artifact - problem definition, KPIs, success criteria, constraints, stakeholders (constant throughout experiment).
+- **`PolicySpec`**: "What" artifact - interventions, parameters, schedules, implementation hints (iterated during optimization).
+- **`ModelSpec`**: "How" artifact - model assumptions, time semantics, data snapshots, registry bundles (varied for sensitivity analysis).
+- **`TrinityBundle`**: typed container referencing the three artifacts plus metadata and migration support.
 
 ### PolicySurfaceIR (legacy-compatible surface)
 
@@ -199,13 +202,18 @@ The IR kernel defines registries that make policies composable and checkable:
 - merge rules (how concurrent updates resolve deterministically),
 - units/metrics/time semantics registries.
 
-### Fabric: contracts, provenance, evidence, trust
+### Fabric: contracts, provenance, evidence, trust, quality
 
-- **Data contracts** describe metric-level datasets and access tiers.
-- **Evidence bundles** and **provenance graphs** record where data came from and how it was transformed.
-- **Quality indicators** quantify data readiness; quality gates block execution on poor inputs.
-- **Trust policies** reason about uncertainty and bounds.
-- **UDF system** compiles safe, typed “data views” used by the rest of the engine.
+- **Data contracts** describe metric-level datasets with hash-locked bindings and fuzzy search with disambiguation.
+- **Evidence bundles** provide cryptographic verification with CAS storage and deterministic artifact IDs.
+- **Provenance system** implements W3C PROV-O compliance with complete lineage tracking and semantic graphs.
+- **Quality indicators system** (missingness/staleness/coverage/outliers) with fitness reports and configurable thresholds.
+- **Quality gate validation** blocks execution on poor data quality through governance pipeline integration.
+- **Trust policies** provide statistical verification with uncertainty bounds and two-pass comparison.
+- **Fact log system** enables immutable audit trails with deterministic fact IDs and semantic networks.
+- **Data connectors** (Phase 2.1) support capability-based protocol for external data source integration.
+- **Materializer engine** performs incremental updates from fact log to relational views.
+- **UDF system** compiles safe, typed "data views" with Arrow support and multi-backend execution.
 
 ### Foundry: compilation and execution core
 
@@ -251,6 +259,7 @@ Phase 18 introduced **safe expression evaluation** with comprehensive security:
 ### Scientist orchestration abstractions
 
 - **Agent hierarchy**: PI→Drafter→Formalizer→Critic protocol-based system with structured problem decomposition and self-healing capabilities.
+- **Trinity IR generation**: Creates ProblemFrame (constant), PolicySpec (iterated), and ModelSpec (varied) artifacts for comprehensive policy representation.
 - **Self-healing reflexion**: FailureCard system with ShortTermMemory, intelligent routing, and ReflexionOrchestrator for automated error recovery.
 - **Workflow engines**: LangGraph-based declarative orchestration and SimpleLoopEngine with conditional routing, state management, and unified WorkflowEngine interface.
 - **Search framework**: Two-stage filtering (cheap/expensive evaluation), composite objectives, and intelligent stopping criteria for policy optimization.
@@ -283,7 +292,7 @@ This section explains *what each major directory is for* without listing the ful
 - **`src/polisyos/common`**: minimal shared utilities (configuration, logging, JAX env defaults, migrations).
 - **`src/polisyos/core`**: infrastructure layer (CAS artifacts, canonical JSON, typed contracts, comprehensive observability system, registries, run context, conflict detection, cost modeling, NaN guard, Trinity contracts, legal contracts).
 - **`src/polisyos/ir`**: canonical policy/data contracts (Trinity + PolicySurfaceIR), loaders/migrations, kernel registries, validation.
-- **`src/polisyos/fabric`**: Unified Data Fabric (ingestion, data contracts, UDF system, evidence/provenance, quality/trust).
+- **`src/polisyos/fabric`**: Unified Data Fabric (Phase 2.1 data connectors, data contract catalog, evidence bundles, provenance system v2.0, quality indicators, fact log, materializer engine, trust policies, UDF compilation pipeline).
 - **`src/polisyos/foundry`**: execution core (compile IR to executable plans; run JAX simulations; calibration; conflict detection; cost modeling; NaN guard; agent artifacts; patch-based execution).
 - **`src/polisyos/scientist`**: orchestration “brain” (hierarchical agent system with PI→Drafter→Formalizer→Critic, FSM-based workflow orchestration, self-healing reflexion patterns, governance passes pipeline, Phase 18 legal compliance, search loop system with two-stage filtering, workflow engines, LLM tracing infrastructure, decision card system, run timeline tracking, Phase 2 instrumentation).
 - **`src/polisyos/runtime`**: run lifecycle APIs and portable run manifests (where run artifacts are stored and referenced).
@@ -466,7 +475,7 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │       │   │   └── tracer.py  # PolicyOSTracer singleton with OpenTelemetry integration.
 │       │   ├── README.md  # Documentation for this directory/module.
 │       │   └── __init__.py  # Python package initializer (public exports live here).
-│       ├── fabric/  # Unified Data Fabric: ingestion, catalog, evidence, quality, trust, UDF queries.
+│       ├── fabric/  # Unified Data Fabric: ingestion, catalog, evidence, quality, trust, UDF queries, external connectors.
 │       │   ├── catalog/  # Metric-level data contracts and bindings registry.
 │       │   │   ├── README.md  # Documentation for this directory/module.
 │       │   │   ├── __init__.py  # Python package initializer (public exports live here).
@@ -514,6 +523,12 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │       │   ├── schema.py  # Fabric schema/types shared across ingestion and UDF.
 │       │   ├── segment_manifest.py  # Segment manifest models (partitioning, optimization metadata).
 │       │   └── trust.py  # Trust policies and uncertainty quantification utilities.
+│       │   ├── connectors/  # External data source connectors with protocol compliance and capability system.
+│       │   │   ├── README.md  # Documentation for this directory/module.
+│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   ├── base.py  # BaseConnector protocol and core types (ConnectionConfig, FetchRequest, etc.).
+│       │   │   ├── capabilities.py  # Capability validation utilities and protocol compliance checking.
+│       │   │   └── types.py  # Connector error types and supporting data structures.
 │       ├── foundry/  # JAX execution core: compilation, runtime, simulation, calibration, determinism tools.
 │       │   ├── agent_sim/  # Agent-based simulation subsystem.
 │       │   │   ├── README.md  # Documentation for this directory/module.
@@ -777,6 +792,9 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │   │   ├── README.md  # Documentation for this directory/module.
 │   │   └── run_laffer_demo.py  # File.
 │   ├── fabric/  # Fabric tests.
+│   │   ├── connectors/  # Connector protocol compliance tests.
+│   │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│   │   │   └── test_protocol_compliance.py  # Pytest module exercising connector protocol compliance.
 │   │   ├── README.md  # Documentation for this directory/module.
 │   │   ├── test_data_catalog.py  # Pytest module exercising data catalog.
 │   │   ├── test_evidence_bundle.py  # Pytest module exercising evidence bundle.
@@ -1164,12 +1182,12 @@ Policy Engine includes comprehensive testing infrastructure ensuring quality acr
 
 Following the compiler pipeline architecture, tests are organized by responsibility:
 
-- **Contract Tests**: IR schema validation, Trinity contracts, migrations, kernel models, linker validation
+- **Contract Tests**: IR schema validation, Trinity contracts, migrations, kernel models, linker validation, data connectors contracts
 - **Core Phase 0 Tests**: Artifact store, canonical JSON, observability system (PolicyOSTracer, MetricsRegistry, @traced), environment manifests, log correlation, context propagation, decorators, propagation, tracer
-- **Fabric Tests**: Data catalog system, evidence bundles, provenance, trust quantification, quality indicators, fitness reports, quality gate pass, trust two-pass
+- **Fabric Tests**: Data connectors protocol compliance, data contract catalog (hash-locked bindings, fuzzy search), evidence bundles with CAS integration, provenance system (W3C PROV-O), trust quantification with statistical verification, quality indicators system (missingness/staleness/coverage/outliers), fitness reports with configurable thresholds, quality gate pass integration, fact log semantic network, materializer engine incremental updates, trust two-pass comparison
 - **Foundry Tests**: JAX simulation engine, agent artifacts, plugin system, adaptive agents, merge determinism, NaN guard, cost model, conflict detection, gradient health, calibrator systems, jit compilation tracker, jit stability, patch executor, program graph ops, runtime batch
-- **Scientist Tests**: Hierarchical agent system (PI→Drafter→Formalizer→Critic), governance passes pipeline, Phase 18 legal compliance, search loop system, workflow engines, LLM tracing, decision outputs, Phase 2 instrumentation, decision card, decision packet v2, run timeline, multi-agent workflow, reflexion loop
-- **Integration Tests**: End-to-end workflows, calibration UDF integration, LLM workflow orchestration, real database testing, workflow smoke test, workflow LLM
+- **Scientist Tests**: Hierarchical agent system (PI→Drafter→Formalizer→Critic), Trinity IR generation, governance passes pipeline, Phase 18 legal compliance with AST policy, search loop system, workflow engines, LLM tracing, decision outputs, Phase 2 instrumentation, decision card, decision packet v2, run timeline, multi-agent workflow, reflexion loop
+- **Integration Tests**: End-to-end workflows, calibration UDF integration, LLM workflow orchestration, real database testing, workflow smoke test, workflow LLM, data connectors integration
 - **Runtime Tests**: Run lifecycle management, artifact paths, manifest portability
 
 ### Test execution
@@ -1204,5 +1222,3 @@ pytest tests/scientist/integration/ -v # End-to-end workflow tracing + Phase 2 i
 - **Phase 18 Security**: Extensive testing of AST policy validation, safe expression evaluation, security boundaries, norm execution security, and governance security testing
 - **Observability Coverage**: Full testing of tracing, metrics, log correlation, context propagation, Phase 2 instrumentation, and workflow tracing
 - **Quality Gates**: Data quality validation prevents execution on poor-quality inputs
-
----

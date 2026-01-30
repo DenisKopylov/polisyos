@@ -1,6 +1,6 @@
 # Polisyos Fabric: Unified Data Fabric
 
-**Fabric** — это унифицированная система обработки и хранения данных для AI-driven симуляции экономической политики. Модуль обеспечивает полный жизненный цикл данных: от сырых CSV файлов до высокопроизводительных запросов через Unified Data Fabric (UDF), с автоматической оценкой качества данных и гарантией целостности через evidence tracking.
+**Fabric** — это унифицированная система обработки и хранения данных для AI-driven симуляции экономической политики. Модуль обеспечивает полный жизненный цикл данных: от сырых CSV файлов до высокопроизводительных запросов через Unified Data Fabric (UDF), с автоматической оценкой качества данных, криптографически verifiable provenance tracking и support для внешних data connectors.
 
 ## Архитектурная роль
 
@@ -22,15 +22,18 @@ NL → LLM → IR (AST) → Compilation → Runtime (UDF + Foundry) → Artifact
 ### Ключевые обязанности
 
 1. **Data Ingestion Pipeline**: Полный ETL-конвейер от CSV до хранилищ с валидацией и evidence tracking
-2. **Fact Log System**: Immutable хранение фактов в каноническом формате для audit trail
-3. **Multi-Backend Storage**: Реляционное (DuckDB) + графовое (Kùzu) хранение данных
-4. **Data Quality Management**: Автоматическая оценка качества, reconciliation, dataset manifests, quality gates
-5. **Data Fitness Assessment**: Многоуровневая оценка пригодности данных для симуляции с threshold-based validation
-6. **Entity Resolution**: Нормализация и дедупликация идентификаторов агентов
-7. **Evidence System**: Криптографически verifiable доказательства происхождения данных
-8. **Unified Data Fabric**: Безопасный компилируемый слой запросов с whitelist и privacy controls
-9. **Materialization Engine**: Восстановление реляционных представлений из immutable фактов
-10. **Quality Gate Validation**: Интеграция с governance system для блокировки низкокачественных данных
+2. **Data Connectors System**: Protocol-based подключение к внешним источникам данных (Phase 2.1)
+3. **Data Contract Catalog**: Metric-level type safety с hash-locked bindings для Scientist agent
+4. **Fact Log System**: Immutable хранение фактов в каноническом формате для audit trail
+5. **Provenance Tracking**: W3C PROV-O compliant lineage tracking для полного audit trail
+6. **Multi-Backend Storage**: Реляционное (DuckDB) + графовое (Kùzu) хранение данных
+7. **Data Quality Management**: Автоматическая оценка качества, reconciliation, dataset manifests, quality gates
+8. **Data Fitness Assessment**: Многоуровневая оценка пригодности данных для симуляции с threshold-based validation
+9. **Entity Resolution**: Нормализация и дедупликация идентификаторов агентов
+10. **Evidence System**: Криптографически verifiable доказательства происхождения данных
+11. **Unified Data Fabric**: Безопасный компилируемый слой запросов с whitelist и privacy controls
+12. **Materialization Engine**: Восстановление реляционных представлений из immutable фактов
+13. **Quality Gate Validation**: Интеграция с governance system для блокировки низкокачественных данных
 
 ## Технологический стек
 
@@ -59,14 +62,23 @@ NL → LLM → IR (AST) → Compilation → Runtime (UDF + Foundry) → Artifact
 
 ```
 fabric/
-├── __init__.py              # Экспорт run_ingestion и catalog API (главный API)
+├── __init__.py              # Экспорт основного API (run_ingestion, catalog, connectors)
+├── connectors/              # Phase 2.1: Protocol Foundation & Capability System
+│   ├── __init__.py          # Экспорт connector API и типов
+│   ├── base.py              # SourceConnector Protocol, FetchRequest/Result
+│   ├── capabilities.py      # Capability validation и decorators
+│   └── types.py             # Error hierarchy и supporting types
 ├── catalog/                 # Metric-level data contract catalog
 │   ├── __init__.py          # Экспорт всех catalog компонентов
-│   ├── binding.py           # MetricBinding - hash-locked ссылки на метрики (MetricBinding)
-│   ├── contract.py          # DataContract модели (DataContract, DataContractCollection, DataType, Granularity, PIITier)
-│   ├── registry.py          # DataContractRegistry - реестр контрактов с валидацией
-│   ├── search.py            # MetricSearcher - поиск метрик с disambiguation (SearchResponse, SearchResult)
-│   └── validate.py          # Валидация контрактов (load_contract_collection, ContractValidationError)
+│   ├── binding.py           # MetricBinding - hash-locked ссылки на метрики
+│   ├── contract.py          # DataContract модели и коллекции
+│   ├── registry.py          # DataContractRegistry - реестр контрактов
+│   ├── search.py            # MetricSearcher - fuzzy search с disambiguation
+│   └── validate.py          # Валидация контрактов из JSON
+├── provenance/              # W3C PROV-O provenance tracking система
+│   ├── __init__.py          # Экспорт provenance компонентов
+│   ├── core.py              # ProvenanceCoreGraph, Entity/Activity/Agent модели
+│   └── export_provo.py      # Экспорт в PROV-O JSON-LD/N-Quads
 ├── ingestion.py             # Главный ETL pipeline с Fact Log и evidence
 ├── schema.py                # Pydantic модели данных (AgentRow, InteractionRow, MacroRow)
 ├── manifest.py              # Метаданные и качество данных (DatasetManifest, QualityMetrics)
@@ -79,10 +91,6 @@ fabric/
 ├── trust.py                 # Политики доверия (two_pass_compare, persist_uncertainty_bounds, UncertaintyBounds)
 ├── quality.py               # Система оценки качества данных (QualityIndicators, QualityLevel, QualityThresholds)
 ├── fitness_report.py        # Отчеты о пригодности данных (DataFitnessReport, MetricFitness)
-├── provenance/              # W3C PROV-O provenance tracking система
-│   ├── __init__.py          # Экспорт всех provenance компонентов
-│   ├── core.py              # Базовые модели provenance (ProvenanceCoreGraph, Entity/Activity/Agent)
-│   └── export_provo.py      # Экспорт в W3C PROV-O JSON-LD/N-Quads форматы
 ├── io/                      # Интерфейсы хранения данных
 │   ├── __init__.py          # Экспорт адаптеров хранения
 │   ├── db.py                # DuckDB адаптер (SimulationDB)
@@ -105,7 +113,36 @@ fabric/
 
 ## Ключевые компоненты
 
-### 1. Data Contract Catalog (`catalog/`)
+### 1. Data Connectors System (`connectors/`)
+
+**Phase 2.1: Protocol Foundation & Capability System** - унифицированный интерфейс для подключения к внешним источникам данных с capability-based security и protocol compliance validation.
+
+#### SourceConnector Protocol
+```python
+class MyConnector(SourceConnector[list[dict]]):
+    connector_id: ClassVar[str] = "myorg.mydata"
+    capabilities: ClassVar[ConnectorCapability] = (
+        ConnectorCapability.FULL_FETCH | ConnectorCapability.CATALOG_BROWSE
+    )
+
+    async def connect(self, config: ConnectionConfig) -> ConnectionHandle: ...
+    async def fetch(self, handle: ConnectionHandle, request: FetchRequest) -> FetchResult[list[dict]]: ...
+```
+
+#### Capability System
+Поддержка 15+ capabilities: FULL_FETCH, STREAMING, DATE_RANGE_FILTER, SCHEMA_INTROSPECTION, FRESHNESS_CHECK, CUSTOM_QUERY, etc. С runtime validation через `@requires_capability` decorator.
+
+#### FetchRequest with Deterministic Keys
+`FetchRequest` генерирует `query_key` (для логического запроса) и `request_key` (с пагинацией) для эффективного кэширования в CAS.
+
+**Ключевые возможности:**
+- **Protocol Compliance**: Runtime валидация через `validate_protocol_compliance()`
+- **Capability-based Security**: Проверка доступных операций на этапе исполнения
+- **Deterministic Caching**: Стабильные ключи для Content Addressable Storage
+- **Error Hierarchy**: Специфичные ошибки (RateLimitError, SchemaError, etc.)
+- **Async Support**: Асинхронные операции для высокопроизводительного доступа
+
+### 2. Data Contract Catalog (`catalog/`)
 
 Metric-level система контрактов для обеспечения type safety и предотвращения hallucination имен метрик:
 
@@ -165,7 +202,36 @@ class MetricSearcher:
 - Disambiguation UI для ambiguous queries
 - Integration с UDF для type-safe queries
 
-### 2. Data Ingestion Pipeline (`ingestion.py`)
+### 3. Provenance System (`provenance/`)
+
+**W3C PROV-O compliant система отслеживания происхождения данных** для полного audit trail от сырых данных до результатов симуляций.
+
+#### PROV-O Data Model
+Полная реализация W3C PROV-O спецификации:
+- **Entities**: Dataset, Metric, Snapshot, Fact Segment, Query Result
+- **Activities**: Ingest, Query, ETL, Validation, Simulation Step, Aggregation
+- **Agents**: System, User, Model, Scheduler
+
+#### ProvenanceCoreGraph
+Легковесная внутренняя модель для быстрого анализа:
+```python
+graph = ProvenanceCoreGraph(graph_id="query_run_001")
+graph.add_entity(ProvenanceEntity(entity_id="dataset_001", entity_type=EntityType.DATASET, ...))
+graph.add_derivation("query_result", "dataset_001")  # PROV-O wasDerivedFrom
+```
+
+#### Экспорт в стандарты
+- **JSON-LD**: Для семантического веба и linked data
+- **N-Quads**: Для загрузки в RDF triple stores
+
+**Ключевые возможности:**
+- **Deterministic IDs**: SHA256-based стабильные идентификаторы для CAS
+- **Complete Lineage**: Отслеживание полного пути трансформации данных
+- **Audit Trail**: Криптографически verifiable provenance chain
+- **Multi-format Export**: JSON-LD и N-Quads для разных потребителей
+- **Integration с FabricResult**: Каждый результат запроса включает provenance
+
+### 4. Data Ingestion Pipeline (`ingestion.py`)
 
 Комплексный ETL-конвейер, обеспечивающий загрузку, валидацию и обработку данных с полным evidence tracking:
 
@@ -183,7 +249,7 @@ class MetricSearcher:
 5. **Evidence**: Создание криптографически verifiable доказательств происхождения
 6. **Манифесты**: Генерация метаданных качества и reconciliation отчетов
 
-### 2. Схемы данных (`schema.py`)
+### 5. Схемы данных (`schema.py`)
 
 Pydantic v2 модели для строгой типизации и валидации:
 
@@ -215,7 +281,7 @@ class MacroRow(BaseModel):
     government_balance: float  # Баланс правительства
 ```
 
-### 3. Data Quality & Manifests (`manifest.py`, `registry.py`)
+### 6. Data Quality & Manifests (`manifest.py`, `registry.py`)
 
 #### Dataset Manifest
 Метаданные для каждого загруженного датасета:
@@ -246,7 +312,7 @@ class DatasetManifest(BaseModel):
 - Проверка reconciliation status
 - Требование обязательных датасетов
 
-### 4. Entity Resolution (`ingestion.py`, `config.py`)
+### 7. Entity Resolution (`ingestion.py`, `config.py`)
 
 Нормализация идентификаторов агентов для обеспечения консистентности:
 
@@ -264,7 +330,7 @@ NORMALIZATION_RULES = [
 2. **Confidence Scoring**: Оценка уверенности в matching
 3. **Mapping Table**: Сохранение соответствий для аудита
 
-### 5. Reconciliation (`ingestion.py`, `config.py`)
+### 8. Reconciliation (`ingestion.py`, `config.py`)
 
 Проверка баланса финансовых транзакций:
 
@@ -283,7 +349,7 @@ RECONCILIATION_RULES = {
 - Генерация отчета с per-type breakdown
 - В warn-only режиме (`reconciliation_strict=False`) несоответствия логируются и не блокируют ingestion
 
-### 6. Storage Adapters (`io/`)
+### 9. Storage Adapters (`io/`)
 
 #### DuckDB Adapter (`db.py`)
 ```python
@@ -311,7 +377,7 @@ class GraphStore:
 - **Узлы (Nodes)**: Agent(id, type)
 - **Ребра (Relationships)**: Interaction(step, amount, type)
 
-### 7. Unified Data Fabric (`udf/`)
+### 10. Unified Data Fabric (`udf/`)
 
 Безопасный слой запросов к разнородным данным с компиляторным пайплайном:
 
@@ -1427,6 +1493,120 @@ level = indicators.overall_level(custom_thresholds)
 print(f"Уровень качества с кастомными порогами: {level.value}")
 ```
 
+### Работа с Data Connectors
+
+```python
+from polisyos.fabric.connectors import (
+    SourceConnector, FetchRequest, FetchResult,
+    ConnectorCapability, ConnectionConfig, ConnectionHandle,
+    validate_protocol_compliance
+)
+from datetime import datetime, timezone
+
+# Создание кастомного connector
+class WorldBankConnector(SourceConnector[list[dict]]):
+    connector_id = "worldbank.wdi"
+    capabilities = (
+        ConnectorCapability.FULL_FETCH |
+        ConnectorCapability.DATE_RANGE_FILTER |
+        ConnectorCapability.SCHEMA_INTROSPECTION
+    )
+
+    async def connect(self, config: ConnectionConfig) -> ConnectionHandle:
+        # Реализация подключения к World Bank API
+        return ConnectionHandle(connection_id="wb_api_v1")
+
+    async def fetch(
+        self, handle: ConnectionHandle, request: FetchRequest
+    ) -> FetchResult[list[dict]]:
+        # Реализация fetch логики
+        return FetchResult(
+            data=[{"country": "USA", "gdp": 25000000000000, "year": 2023}],
+            evidence_ref=None,
+            request_key=request.request_key
+        )
+
+# Валидация protocol compliance
+violations = validate_protocol_compliance(WorldBankConnector)
+if violations:
+    raise ConfigurationError(f"Protocol violations: {violations}")
+
+# Использование connector
+connector = WorldBankConnector()
+handle = await connector.connect(ConnectionConfig(api_key="your_key"))
+
+request = FetchRequest(
+    dataset_id="worldbank.wdi.GDP.MKTP.CD",
+    date_start=datetime(2020, 1, 1, tzinfo=timezone.utc),
+    date_end=datetime(2023, 12, 31, tzinfo=timezone.utc)
+)
+
+result = await connector.fetch(handle, request)
+print(f"Fetched {len(result.data)} records")
+print(f"Request key: {result.request_key}")  # Для CAS кэширования
+```
+
+### Работа с Provenance System
+
+```python
+from polisyos.fabric.provenance import (
+    ProvenanceCoreGraph, ProvenanceEntity, ProvenanceActivity, ProvenanceAgent,
+    EntityType, ActivityType, AgentType, export_to_provo_jsonld
+)
+
+# Создание provenance графа для запроса
+graph = ProvenanceCoreGraph(graph_id="udf_query_001")
+
+# Добавление сущностей
+macro_data = ProvenanceEntity(
+    entity_id="macro_dataset_v1",
+    entity_type=EntityType.DATASET,
+    label="Macroeconomic Dataset",
+    created_at=datetime.utcnow()
+)
+
+query_result = ProvenanceEntity(
+    entity_id="gdp_analysis_result",
+    entity_type=EntityType.QUERY_RESULT,
+    label="GDP Analysis Result",
+    created_at=datetime.utcnow()
+)
+
+# Добавление активности
+udf_query = ProvenanceActivity(
+    activity_id="udf_query_exec",
+    activity_type=ActivityType.QUERY,
+    label="UDF Query Execution",
+    started_at=datetime.utcnow(),
+    query_hash="sha256:abc123..."
+)
+
+# Добавление агента
+scientist_agent = ProvenanceAgent(
+    agent_id="scientist_system",
+    agent_type=AgentType.SYSTEM,
+    label="PolicyOS Scientist Agent"
+)
+
+graph.add_entity(macro_data)
+graph.add_entity(query_result)
+graph.add_activity(udf_query)
+graph.add_agent(scientist_agent)
+
+# Установление PROV-O связей
+graph.add_derivation("gdp_analysis_result", "macro_dataset_v1")  # wasDerivedFrom
+graph.add_usage("udf_query_exec", "macro_dataset_v1")            # used
+graph.add_generation("gdp_analysis_result", "udf_query_exec")    # wasGeneratedBy
+graph.add_association("udf_query_exec", "scientist_system")      # wasAssociatedWith
+
+# Анализ lineage
+ancestors = graph.get_ancestors("gdp_analysis_result")
+print(f"Result depends on {len(ancestors)} source entities")
+
+# Экспорт в JSON-LD для аудита
+prov_jsonld = export_to_provo_jsonld(graph, base_uri="https://polisyos.io/provenance/")
+```
+
 ### Интеграция с Data Contract Registry
 
 ```python
@@ -1507,9 +1687,11 @@ runtime → common (инфраструктура)
 ```
 
 **Новые компоненты и связи:**
+- **Data Connectors System (Phase 2.1)**: Protocol-based подключение к внешним источникам с capability validation
 - **Data Quality Assessment System**: Многоуровневая оценка пригодности данных (QualityIndicators, QualityLevel, QualityThresholds, DataFitnessReport)
 - **Quality Gate Validation**: Интеграция с governance system для блокировки низкокачественных данных (QualityGatePass)
 - **Data Contract Catalog**: Metric-level type safety с hash-locked bindings для Scientist агента
+- **Provenance System**: W3C PROV-O compliant lineage tracking для полного audit trail
 - **Fact Log System**: Полная интеграция с `ir.fact_log` для immutable хранения фактов
 - **Evidence System**: Использование `core.contracts.fabric` и `core.artifacts` для verifiable доказательств
 - **UDF Compilation Pipeline**: Многофазный компилятор с passes для security и optimization
@@ -1706,12 +1888,22 @@ pytest tests/core_phase0/test_canon_json.py      # Канонический JSON
 # Интеграционные тесты
 pytest tests/integration/test_workflow_smoke.py  # Полный workflow с Fabric
 
+# Новые компоненты
+pytest tests/fabric/connectors/test_protocol_compliance.py  # Data Connectors
+pytest tests/fabric/test_provenance_core.py    # Provenance Core модели
+pytest tests/fabric/test_provenance_export.py  # PROV-O экспорт
+pytest tests/fabric/test_catalog_contracts.py  # Data Contract Catalog
+pytest tests/fabric/test_catalog_search.py     # Metric Search
+pytest tests/fabric/test_catalog_registry.py   # Contract Registry
+
 # Foundry интеграция
 pytest tests/foundry/test_fiscal.py           # Fiscal с UDF данными
 pytest tests/foundry/test_constraints_executor.py  # Constraints с данными Fabric
 
 # Специфические тесты новых компонентов
 pytest tests/contract/test_fabric_gates.py   # Evidence bundles и контракты
+pytest tests/integration/test_catalog_scientist_integration.py  # Catalog + Scientist
+pytest tests/integration/test_catalog_udf_integration.py  # Catalog + UDF
 # Fact Log тестируется через integration тесты
 ```
 

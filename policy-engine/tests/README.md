@@ -2,7 +2,7 @@
 
 Тестовая инфраструктура для Policy Engine - AI-driven Policy Simulation System. Тесты обеспечивают качество кода, валидируют архитектурные границы и проверяют корректность работы всех компонентов системы.
 
-**Последнее обновление:** 30 января 2026 (добавлены perf-regression CI workflow, diagnostics tools, check_perf_regression.py скрипт, ops/ директория с инструментами)
+**Последнее обновление:** 30 января 2026 (добавлены perf-regression CI workflow, diagnostics tools, check_perf_regression.py скрипт, ops/ директория с инструментами, fabric/connectors/ с тестами protocol compliance для data fabric connectors)
 **Актуальная версия архитектуры:** v2.4.1 (Performance Regression Detection, Enhanced Diagnostics, Core Observability v2.0, Phase 18 Security v2.1)
 
 ## Архитектурный контекст
@@ -43,6 +43,9 @@ tests/
 ├── demos/                         # Демо-тесты для проверки функциональности
 │   └── run_laffer_demo.py         # Тест запуска демо Laffer curve из tools/demos/
 ├── fabric/                        # Тесты компонентов Fabric layer
+│   ├── connectors/                # Тесты протокола подключения данных (Data Fabric Connectors)
+│   │   ├── __init__.py            # Пакет connectors тестов
+│   │   └── test_protocol_compliance.py # Protocol compliance, capability validation, error hierarchy, connector metadata
 │   ├── test_data_catalog.py       # Data Contract catalog system, contract validation, metric bindings, search
 │   ├── test_evidence_bundle.py    # Evidence bundles, ingestion pipeline, provenance tracking
 │   ├── test_provenance.py         # Provenance subsystem, entities, graphs, PROV-O export, persistence
@@ -231,9 +234,10 @@ tests/
 
 ### Fabric Tests (`fabric/`)
 
-**Цель**: Комплексная валидация компонентов Fabric layer - data catalog system, ingestion pipeline, evidence bundles, trust system, materialization engine, quality indicators и fitness reports.
+**Цель**: Комплексная валидация компонентов Fabric layer - data catalog system, ingestion pipeline, evidence bundles, trust system, materialization engine, quality indicators, fitness reports и data fabric connectors protocol.
 
 **Ключевые тесты:**
+- **Data Fabric Connectors**: Protocol compliance, capability validation, error hierarchy, connection handling, metadata specification, version strategies, trust levels, quality tiers
 - **Data Contract Catalog**: Валидация контрактов данных, metric bindings, registry system, поиск и разрешение метрик с disambiguation
 - **Evidence Bundle**: Создание, валидация и persistence evidence артефактов после ingestion с provenance tracking
 - **Provenance System**: Тестирование provenance подсистемы - entities, graphs, PROV-O экспорт, persistence и интеграция с evidence bundles
@@ -253,6 +257,31 @@ tests/
 - **Fitness Levels**: Пятиуровневая классификация (EXCELLENT/GOOD/ACCEPTABLE/POOR/UNUSABLE) с configurable thresholds
 - **Profile-based Validation**: Разные профили качества (FAST/MVP/STRICT) для различных сценариев использования
 - **Quality Gate Enforcement**: Автоматическая блокировка симуляции при низком качестве данных в strict режиме
+
+### Data Fabric Connectors (`fabric/connectors/test_protocol_compliance.py`)
+
+**Цель**: Валидация протокола подключения данных, capability-based архитектуры, error handling и metadata specification для data fabric connectors.
+
+**Ключевые тесты:**
+- **Protocol Compliance**: Валидация что connectors реализуют все required attributes и methods, capability-method consistency, strict vs lenient validation modes
+- **Capability System**: Validation capability flags, @requires_capability decorator, capability error handling, describe_capabilities utility
+- **Error Hierarchy**: ConnectorError inheritance, structured error types (CapabilityError, ConfigurationError, FetchError, RateLimitError), error serialization
+- **Connection Management**: ConnectionConfig immutability, credential redaction, connection handle creation, async lifecycle management
+- **Fetch Operations**: FetchRequest hashing, pagination support, filter normalization, cache key generation, FetchResult validation
+- **Data Versioning**: VersionStrategy enum (TIMESTAMP/CONTENT_HASH/REVISION), version comparison, UTC timestamp coercion, immutability
+- **Connector Metadata**: ConnectorMetadataSpec validation, fully qualified IDs, capability checking, version pattern enforcement
+- **Validation Framework**: ValidationResult creation, ValidationIssue severity levels, success/failure states, issue aggregation
+- **Capability Helpers**: capabilities_from_flags/flags_from_capabilities conversion, roundtrip consistency, bitmask operations
+
+**Принципы:**
+- **Protocol Enforcement**: Strict validation required attributes (connector_id, capabilities, metadata) и methods (connect, disconnect, health_check, fetch)
+- **Capability-Based Access**: @requires_capability decorator блокирует вызовы методов при отсутствии capabilities
+- **Immutable Configurations**: ConnectionConfig и FetchRequest неизменяемы после создания для thread safety
+- **Structured Error Handling**: Все ошибки наследуются от ConnectorError с to_dict() serialization для logging
+- **Deterministic Hashing**: FetchRequest имеет stable cache_key независимо от порядка filters и параметров
+- **Version Strategy Flexibility**: Поддержка различных стратегий versioning (timestamp, content hash, revision numbers)
+- **Metadata Validation**: Pattern validation для connector_id и version, capability consistency checks
+- **Async-First Design**: Все connector методы async с proper lifecycle management
 
 ### IR Tests (`ir/`)
 
@@ -497,6 +526,9 @@ pytest tests/integration/test_workflow_llm.py
 # Smoke test (минимальный полный цикл)
 pytest tests/integration/test_workflow_smoke.py
 
+# Data fabric connectors protocol
+pytest tests/fabric/connectors/test_protocol_compliance.py -v
+
 # Data contract catalog system
 pytest tests/fabric/test_data_catalog.py
 
@@ -605,6 +637,7 @@ pytest tests/core_phase0/test_propagation.py -v         # Context propagation
 - **Закон G**: Uncertainty quantification (все калибровки предоставляют оценки неопределенности)
 - **Закон H**: Evidence обязательны (data провода фиксируют provenance/evidence)
 - **Закон I**: Trust policies (многоуровневые политики доверия к источникам данных)
+- **Data Fabric Connectors**: Protocol compliance для data connectors с capability-based architecture
 - **Закон O**: Optimization convergence (search loops converge к optimal policies или escalate)
 - **Закон P**: Two-stage efficiency (cheap filtering prevents expensive evaluation waste)
 - **Закон Q**: Performance SLA (overhead thresholds enforced: simulation <2%, CAS I/O <5%, calibration <3%)
@@ -1109,6 +1142,9 @@ python -c "from polisyos.scientist.agent.memory import ShortTermMemory; print('S
 
 # Проверка multi-agent workflow
 python -c "from polisyos.scientist.orchestrator.workflow import build_workflow; print('Multi-agent workflow OK')"
+
+# Проверка data fabric connectors protocol
+python -c "from polisyos.fabric.connectors.base import BaseConnector; from polisyos.fabric.connectors.types import ConnectorCapability, ConnectorError; from polisyos.fabric.connectors.capabilities import validate_protocol_compliance; print('Data fabric connectors OK')"
 
 # Проверка data contract catalog system
 python -c "from polisyos.fabric.catalog.contract import DataContract, DataContractCollection; from polisyos.fabric.catalog.registry import DataContractRegistry; from polisyos.fabric.catalog.search import MetricSearcher; print('Data contract catalog OK')"

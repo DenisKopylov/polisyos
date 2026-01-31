@@ -398,6 +398,99 @@ class FetchResult(BaseModel, Generic[DataT]):
             and len(self.quality_flags) == 0
         )
 
+    def validate_against_schema(
+        self,
+        registry: "SchemaRegistry",
+        strict: bool = False,
+    ) -> list[str]:
+        """
+        Validate fetched data against its declared schema.
+
+        Args:
+            registry: Schema registry to look up schema
+            strict: If True, fail on extra columns
+
+        Returns:
+            List of validation errors (empty if valid)
+        """
+        import pandas as pd
+
+        from polisyos.fabric.connectors.contracts import (
+            SchemaRegistry,
+            SchemaVersion,
+            validate_dataframe_against_schema,
+        )
+
+        if not isinstance(registry, SchemaRegistry):
+            raise TypeError("registry must be a SchemaRegistry instance")
+
+        schema = registry.get(
+            self.schema_id,
+            SchemaVersion.parse(self.schema_version),
+        )
+
+        if isinstance(self.data, pd.DataFrame):
+            df = self.data
+        elif isinstance(self.data, list):
+            df = pd.DataFrame(self.data)
+        else:
+            return [
+                "Cannot validate: data is not a DataFrame or list of dicts",
+            ]
+
+        return validate_dataframe_against_schema(df, schema, strict)
+
+    def coerce_against_schema(
+        self,
+        registry: "SchemaRegistry",
+        *,
+        strict: bool = False,
+        normalize_columns: bool = True,
+        drop_extra: bool = False,
+    ) -> "CoercionResult":
+        """
+        Coerce fetched data to its declared schema.
+
+        Returns a CoercionResult with the coerced DataFrame and any issues.
+        """
+        import pandas as pd
+
+        from polisyos.fabric.connectors.contracts import (
+            CoercionResult,
+            SchemaRegistry,
+            SchemaVersion,
+            coerce_dataframe_to_schema,
+        )
+
+        if not isinstance(registry, SchemaRegistry):
+            raise TypeError("registry must be a SchemaRegistry instance")
+
+        schema = registry.get(
+            self.schema_id,
+            SchemaVersion.parse(self.schema_version),
+        )
+
+        if isinstance(self.data, pd.DataFrame):
+            df = self.data
+        elif isinstance(self.data, list):
+            df = pd.DataFrame(self.data)
+        else:
+            return CoercionResult(
+                dataframe=pd.DataFrame(),
+                errors=("Cannot coerce: data is not a DataFrame or list of dicts",),
+                warnings=(),
+                coerced_columns=(),
+                dropped_columns=(),
+            )
+
+        return coerce_dataframe_to_schema(
+            df,
+            schema,
+            strict=strict,
+            normalize_columns=normalize_columns,
+            drop_extra=drop_extra,
+        )
+
 
 # ============================================================================
 # Source Connector Protocol

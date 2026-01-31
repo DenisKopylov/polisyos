@@ -90,6 +90,29 @@ from polisyos.fabric.connectors.discovery import (
     get_discovery_errors,
 )
 
+# Caching layer (Phase 2.7)
+from polisyos.fabric.connectors.cache import (
+    CacheMetadata,
+    CachePolicy,
+    CacheStats,
+    CachedFetchResult,
+    CachingConnectorProxy,
+    ConnectorCacheStore,
+    InvalidationEvent,
+    InvalidationOrchestrator,
+    InvalidationStrategy,
+    InvalidationTrigger,
+    LRUPolicy,
+    PolicyRegistry,
+    PrefetchJob,
+    PrefetchScheduler,
+    SizeBoundedPolicy,
+    SmartExpiryPolicy,
+    StaticDataPolicy,
+    TTLPolicy,
+    VolatileDataPolicy,
+)
+
 __all__ = [
     # === IR Contracts ===
     "ConnectorCapability",
@@ -161,6 +184,26 @@ __all__ = [
     "discover_connectors",
     "discover_connectors_from_modules",
     "get_discovery_errors",
+    # === Caching Layer (Phase 2.7) ===
+    "ConnectorCacheStore",
+    "CachingConnectorProxy",
+    "CachedFetchResult",
+    "CacheMetadata",
+    "CacheStats",
+    "CachePolicy",
+    "TTLPolicy",
+    "StaticDataPolicy",
+    "VolatileDataPolicy",
+    "SmartExpiryPolicy",
+    "LRUPolicy",
+    "SizeBoundedPolicy",
+    "PolicyRegistry",
+    "InvalidationStrategy",
+    "InvalidationEvent",
+    "InvalidationTrigger",
+    "InvalidationOrchestrator",
+    "PrefetchScheduler",
+    "PrefetchJob",
     "get_registry",
 ]
 

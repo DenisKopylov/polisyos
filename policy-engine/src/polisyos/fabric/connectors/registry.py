@@ -18,7 +18,7 @@ import threading
 from collections import defaultdict
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
-from typing import TYPE_CHECKING, Callable, ClassVar, Iterator
+from typing import TYPE_CHECKING, Any, Callable, ClassVar, Iterator
 
 from packaging.version import parse as parse_version
 
@@ -248,6 +248,11 @@ class ConnectorRegistry:
         # Bootstrapped flag
         self._bootstrapped = False
 
+        # Optional caching integration
+        self._cache_store = None
+        self._enable_caching = True
+        self._cache_wrappers: dict[str, Any] = {}
+
     @classmethod
     def get_instance(cls, *, bootstrap: bool = True) -> "ConnectorRegistry":
         """
@@ -302,6 +307,20 @@ class ConnectorRegistry:
                 pass  # Best effort cleanup
 
         logger.info("ConnectorRegistry singleton reset")
+
+    def configure_cache(
+        self,
+        cache_store: Any | None,
+        *,
+        enable_caching: bool = True,
+        reset_wrappers: bool = True,
+    ) -> None:
+        """Configure optional connector caching behavior."""
+        with self._instance_lock:
+            self._cache_store = cache_store
+            self._enable_caching = enable_caching
+            if reset_wrappers:
+                self._cache_wrappers.clear()
 
     def _bootstrap(self) -> None:
         """
@@ -521,6 +540,8 @@ class ConnectorRegistry:
         self,
         connector_id: str,
         version: str | None = None,
+        *,
+        enable_cache: bool = True,
     ) -> "SourceConnector":
         """
         Get connector instance by ID.
@@ -530,6 +551,7 @@ class ConnectorRegistry:
         Args:
             connector_id: Short ID (e.g., "world_bank") or fully qualified ID
             version: Optional version constraint (e.g., "1.0.0")
+            enable_cache: If True and caching is configured, wrap connector in cache proxy
 
         Returns:
             Instantiated connector implementing SourceConnector protocol
@@ -558,7 +580,25 @@ class ConnectorRegistry:
         with self._instance_lock:
             self._get_count += 1
 
-        return entry.instance
+        connector = entry.instance
+
+        if self._enable_caching and enable_cache and self._cache_store is not None:
+            try:
+                from polisyos.fabric.connectors.cache.proxy import CachingConnectorProxy
+
+                if isinstance(connector, CachingConnectorProxy):
+                    return connector
+
+                with self._instance_lock:
+                    cached = self._cache_wrappers.get(fqid)
+                    if cached is None:
+                        cached = CachingConnectorProxy(connector, self._cache_store)
+                        self._cache_wrappers[fqid] = cached
+                return cached
+            except Exception:
+                return connector
+
+        return connector
 
     def get_metadata(self, connector_id: str) -> ConnectorMetadataSpec:
         """

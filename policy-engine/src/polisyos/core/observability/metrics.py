@@ -136,6 +136,13 @@ class MetricsRegistry:
     artifact_io_duration_seconds: Optional[metrics.Histogram] = None
     artifact_cache_hits_total: Optional[metrics.Counter] = None
     artifact_cache_misses_total: Optional[metrics.Counter] = None
+    connector_cache_operations_total: Optional[metrics.Counter] = None
+    connector_cache_latency_seconds: Optional[metrics.Histogram] = None
+    connector_cache_entries_total: Optional[GaugeProxy] = None
+    connector_cache_size_bytes: Optional[GaugeProxy] = None
+    connector_cache_hit_rate: Optional[GaugeProxy] = None
+    connector_cache_evictions_total: Optional[metrics.Counter] = None
+    connector_cache_prefetch_jobs_total: Optional[metrics.Counter] = None
     calibration_loss: Optional[GaugeProxy] = None
     calibration_grad_norm: Optional[GaugeProxy] = None
     calibration_step_duration_seconds: Optional[metrics.Histogram] = None
@@ -328,6 +335,46 @@ class MetricsRegistry:
         self.artifact_cache_misses_total = self._meter.create_counter(
             name="polisyos_artifact_cache_misses_total",
             description="CAS cache miss count",
+            unit="1",
+        )
+
+        # Connector cache metrics
+        self.connector_cache_operations_total = self._meter.create_counter(
+            name="polisyos_connector_cache_operations_total",
+            description="Total connector cache operations by operation and status",
+            unit="1",
+        )
+        self.connector_cache_latency_seconds = self._meter.create_histogram(
+            name="polisyos_connector_cache_latency_seconds",
+            description="Connector cache operation latency",
+            unit="s",
+        )
+        self.connector_cache_entries_total = GaugeProxy(
+            self._meter,
+            name="polisyos_connector_cache_entries_total",
+            description="Total cached entries per namespace",
+            unit="1",
+        )
+        self.connector_cache_size_bytes = GaugeProxy(
+            self._meter,
+            name="polisyos_connector_cache_size_bytes",
+            description="Total cache size in bytes per namespace",
+            unit="By",
+        )
+        self.connector_cache_hit_rate = GaugeProxy(
+            self._meter,
+            name="polisyos_connector_cache_hit_rate",
+            description="Cache hit rate per namespace",
+            unit="1",
+        )
+        self.connector_cache_evictions_total = self._meter.create_counter(
+            name="polisyos_connector_cache_evictions_total",
+            description="Connector cache evictions by reason",
+            unit="1",
+        )
+        self.connector_cache_prefetch_jobs_total = self._meter.create_counter(
+            name="polisyos_connector_cache_prefetch_jobs_total",
+            description="Connector cache prefetch jobs by status",
             unit="1",
         )
 

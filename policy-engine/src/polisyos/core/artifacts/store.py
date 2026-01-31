@@ -53,6 +53,8 @@ class FileSystemCAS:
       <root>/artifacts/sha256/ab/cd/<hex>.manifest.json
     """
 
+    CONNECTOR_CACHE_NAMESPACE = "connector_cache"
+
     def __init__(self, root: Path):
         self.root = root
         self.base = root / "artifacts" / "sha256"

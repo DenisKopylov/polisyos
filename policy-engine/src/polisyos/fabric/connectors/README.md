@@ -124,6 +124,10 @@ print(request.query_key)
 print(request.request_key)
 ```
 
+Execution hints:
+
+- `FetchRequest.retryable=False` disables automatic retries for non-idempotent operations.
+
 ### Protocol Compliance Validation
 
 ```python

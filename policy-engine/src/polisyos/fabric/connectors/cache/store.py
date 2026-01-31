@@ -91,6 +91,7 @@ def _request_to_payload(request: FetchRequest) -> dict[str, Any]:
         "page_size": request.page_size,
         "page_token": request.page_token,
         "min_quality_tier": request.min_quality_tier.value,
+        "retryable": request.retryable,
     }
 
 
@@ -112,6 +113,7 @@ def _payload_to_request(payload: dict[str, Any]) -> FetchRequest:
         page_size=payload.get("page_size"),
         page_token=payload.get("page_token"),
         min_quality_tier=QualityTier(min_quality),
+        retryable=payload.get("retryable"),
     )
 
 
@@ -301,6 +303,9 @@ class ResultSerializer:
             "total_count": result.total_count,
             "fetch_duration_ms": result.fetch_duration_ms,
             "bytes_transferred": result.bytes_transferred,
+            "resilience": result.resilience.model_dump(mode="json")
+            if result.resilience
+            else None,
         }
 
         envelope_bytes = to_canonical_bytes(envelope, _canon_spec_allow_floats())
@@ -333,6 +338,15 @@ class ResultSerializer:
             except Exception:
                 evidence_ref = None
 
+        resilience_info = envelope.get("resilience")
+        if resilience_info is not None:
+            try:
+                from polisyos.fabric.connectors.base import ResilienceInfo
+
+                resilience_info = ResilienceInfo.model_validate(resilience_info)
+            except Exception:
+                resilience_info = None
+
         return FetchResult(
             data=data,
             row_count=envelope["row_count"],
@@ -350,6 +364,7 @@ class ResultSerializer:
             total_count=envelope.get("total_count"),
             fetch_duration_ms=envelope.get("fetch_duration_ms", 0.0),
             bytes_transferred=envelope.get("bytes_transferred", 0),
+            resilience=resilience_info,
         )
 
 
@@ -780,6 +795,66 @@ class ConnectorCacheStore:
         self._record_latency("get", latency)
         self._record_metric("get", "hit", metric_connector)
         self._update_cache_gauges()
+
+        return CachedFetchResult(result=result, metadata=metadata)
+
+    def get_any(
+        self,
+        request: FetchRequest,
+        *,
+        connector_id: str | None = None,
+        max_staleness_seconds: float | None = None,
+    ) -> CachedFetchResult | None:
+        """
+        Retrieve cached data regardless of freshness, optionally bounded by max staleness.
+
+        This is intended for resilience fallbacks where stale data is acceptable.
+        """
+        start = time.perf_counter()
+        cache_key = request.cache_key
+
+        try:
+            entry = self._index.get_entry(cache_key)
+        except Exception as exc:
+            logger.warning("Cache index lookup failed", error=str(exc))
+            self._record_metric("get_any", "error", connector_id)
+            return None
+
+        if entry is None:
+            self._record_metric("get_any", "miss", connector_id)
+            return None
+
+        metadata = entry.to_metadata()
+
+        if max_staleness_seconds is not None:
+            age_seconds = (_utc_now() - metadata.cached_at).total_seconds()
+            if age_seconds > max_staleness_seconds:
+                self._record_metric("get_any", "stale", connector_id)
+                return None
+
+        if not self._cas.has(metadata.payload_artifact_id):
+            logger.warning("Cache payload missing in CAS", cache_key=cache_key)
+            self._index.delete_entry(cache_key)
+            self._record_metric("get_any", "miss", connector_id)
+            return None
+
+        try:
+            payload_bytes = self._cas.get_bytes(metadata.payload_artifact_id)
+            result = ResultSerializer.deserialize(payload_bytes)
+        except Exception as exc:
+            logger.warning("Cache payload load failed", cache_key=cache_key, error=str(exc))
+            self._index.delete_entry(cache_key)
+            self._record_metric("get_any", "error", connector_id)
+            return None
+
+        try:
+            self._index.update_access(cache_key)
+        except Exception:
+            pass
+
+        latency = time.perf_counter() - start
+        self._record_latency("get_any", latency)
+        self._record_metric("get_any", "hit", connector_id)
 
         return CachedFetchResult(result=result, metadata=metadata)
 

@@ -113,6 +113,32 @@ from polisyos.fabric.connectors.cache import (
     VolatileDataPolicy,
 )
 
+# Resilience layer (Phase 2.9)
+from polisyos.fabric.connectors.resilience import (
+    AdaptiveRateLimiter,
+    CacheFallback,
+    CircuitBreaker,
+    CircuitBreakerConfig,
+    CircuitOpenError,
+    CircuitState,
+    FallbackChain,
+    FallbackStrategy,
+    MockFallback,
+    RaiseFallback,
+    RateLimiter,
+    RateLimiterConfig,
+    ResilienceConfig,
+    RetryExhaustedError,
+    RetryPolicy,
+    apply_resilience,
+    resolve_resilience_config,
+    is_retryable_error,
+    with_circuit_breaker,
+    with_fallback,
+    with_rate_limit,
+    with_retry,
+)
+
 __all__ = [
     # === IR Contracts ===
     "ConnectorCapability",
@@ -204,6 +230,29 @@ __all__ = [
     "InvalidationOrchestrator",
     "PrefetchScheduler",
     "PrefetchJob",
+    # === Resilience Layer (Phase 2.9) ===
+    "RetryPolicy",
+    "RetryExhaustedError",
+    "is_retryable_error",
+    "with_retry",
+    "CircuitBreaker",
+    "CircuitBreakerConfig",
+    "CircuitState",
+    "CircuitOpenError",
+    "with_circuit_breaker",
+    "RateLimiter",
+    "AdaptiveRateLimiter",
+    "RateLimiterConfig",
+    "with_rate_limit",
+    "FallbackStrategy",
+    "FallbackChain",
+    "CacheFallback",
+    "MockFallback",
+    "RaiseFallback",
+    "with_fallback",
+    "ResilienceConfig",
+    "resolve_resilience_config",
+    "apply_resilience",
     "get_registry",
 ]
 

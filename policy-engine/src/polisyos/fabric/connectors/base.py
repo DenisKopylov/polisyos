@@ -199,6 +199,9 @@ class FetchRequest:
     # Quality requirements
     min_quality_tier: QualityTier = QualityTier.UNVERIFIED
 
+    # Execution hints
+    retryable: bool | None = None
+
     def __post_init__(self) -> None:
         object.__setattr__(self, "date_start", _coerce_datetime(self.date_start))
         object.__setattr__(self, "date_end", _coerce_datetime(self.date_end))
@@ -278,6 +281,7 @@ class FetchRequest:
             page_size=page_size if page_size is not None else self.page_size,
             page_token=page_token,
             min_quality_tier=self.min_quality_tier,
+            retryable=self.retryable,
         )
 
     def with_filter(self, field: str, *values: str) -> "FetchRequest":
@@ -297,7 +301,36 @@ class FetchRequest:
             page_size=self.page_size,
             page_token=self.page_token,
             min_quality_tier=self.min_quality_tier,
+            retryable=self.retryable,
         )
+
+
+class ResilienceInfo(BaseModel):
+    """Metadata describing resilience behavior applied to a fetch result."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    fallback_used: bool = Field(
+        default=False,
+        description="Whether a fallback strategy produced this result",
+    )
+    fallback_strategy: str | None = Field(
+        default=None,
+        description="Name of fallback strategy that succeeded",
+    )
+    retry_attempts: int | None = Field(
+        default=None,
+        ge=1,
+        description="Retry attempt number that succeeded (if any)",
+    )
+    rate_limited: bool | None = Field(
+        default=None,
+        description="Whether a rate limiter delayed the request",
+    )
+    circuit_state: str | None = Field(
+        default=None,
+        description="Circuit breaker state observed during execution",
+    )
 
 
 class FetchResult(BaseModel, Generic[DataT]):
@@ -373,6 +406,11 @@ class FetchResult(BaseModel, Generic[DataT]):
         default=0,
         ge=0,
         description="Number of bytes transferred",
+    )
+
+    resilience: ResilienceInfo | None = Field(
+        default=None,
+        description="Resilience metadata (fallbacks, retries, etc.)",
     )
 
     @field_validator("fetched_at", "source_updated_at", mode="after")

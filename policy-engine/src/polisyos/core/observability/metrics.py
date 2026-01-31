@@ -143,6 +143,16 @@ class MetricsRegistry:
     connector_cache_hit_rate: Optional[GaugeProxy] = None
     connector_cache_evictions_total: Optional[metrics.Counter] = None
     connector_cache_prefetch_jobs_total: Optional[metrics.Counter] = None
+    connector_retry_attempts_total: Optional[metrics.Counter] = None
+    connector_retry_delay_seconds: Optional[metrics.Histogram] = None
+    connector_circuit_state: Optional[GaugeProxy] = None
+    connector_circuit_trips_total: Optional[metrics.Counter] = None
+    connector_circuit_rejected_requests_total: Optional[metrics.Counter] = None
+    connector_rate_limit_wait_seconds: Optional[metrics.Histogram] = None
+    connector_rate_limit_throttled_total: Optional[metrics.Counter] = None
+    connector_rate_limit_tokens: Optional[GaugeProxy] = None
+    connector_fallback_triggered_total: Optional[metrics.Counter] = None
+    connector_fallback_success_total: Optional[metrics.Counter] = None
     calibration_loss: Optional[GaugeProxy] = None
     calibration_grad_norm: Optional[GaugeProxy] = None
     calibration_step_duration_seconds: Optional[metrics.Histogram] = None
@@ -375,6 +385,60 @@ class MetricsRegistry:
         self.connector_cache_prefetch_jobs_total = self._meter.create_counter(
             name="polisyos_connector_cache_prefetch_jobs_total",
             description="Connector cache prefetch jobs by status",
+            unit="1",
+        )
+
+        # Connector resilience metrics
+        self.connector_retry_attempts_total = self._meter.create_counter(
+            name="polisyos_connector_retry_attempts_total",
+            description="Total retry attempts by connector and attempt number",
+            unit="1",
+        )
+        self.connector_retry_delay_seconds = self._meter.create_histogram(
+            name="polisyos_connector_retry_delay_seconds",
+            description="Delay applied before retry attempts",
+            unit="s",
+        )
+        self.connector_circuit_state = GaugeProxy(
+            self._meter,
+            name="polisyos_connector_circuit_state",
+            description="Circuit breaker state (0=closed,1=open,2=half_open)",
+            unit="1",
+        )
+        self.connector_circuit_trips_total = self._meter.create_counter(
+            name="polisyos_connector_circuit_trips_total",
+            description="Circuit breaker trips by circuit_id",
+            unit="1",
+        )
+        self.connector_circuit_rejected_requests_total = self._meter.create_counter(
+            name="polisyos_connector_circuit_rejected_requests_total",
+            description="Requests rejected due to open circuit",
+            unit="1",
+        )
+        self.connector_rate_limit_wait_seconds = self._meter.create_histogram(
+            name="polisyos_connector_rate_limit_wait_seconds",
+            description="Wait time imposed by rate limiter",
+            unit="s",
+        )
+        self.connector_rate_limit_throttled_total = self._meter.create_counter(
+            name="polisyos_connector_rate_limit_throttled_total",
+            description="Total rate limit throttling events",
+            unit="1",
+        )
+        self.connector_rate_limit_tokens = GaugeProxy(
+            self._meter,
+            name="polisyos_connector_rate_limit_tokens",
+            description="Current token bucket level",
+            unit="1",
+        )
+        self.connector_fallback_triggered_total = self._meter.create_counter(
+            name="polisyos_connector_fallback_triggered_total",
+            description="Fallback strategy executions",
+            unit="1",
+        )
+        self.connector_fallback_success_total = self._meter.create_counter(
+            name="polisyos_connector_fallback_success_total",
+            description="Fallback strategy successes",
             unit="1",
         )
 

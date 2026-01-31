@@ -28,6 +28,7 @@ if TYPE_CHECKING:
         HealthStatus,
         SourceConnector,
     )
+    from polisyos.fabric.connectors.resilience import CircuitBreaker
 
 logger = get_logger(__name__)
 
@@ -179,6 +180,7 @@ class ConnectionPool(Generic[ConnectorT]):
         config: "ConnectionConfig",
         pool_config: PoolConfig | None = None,
         pool_id: str | None = None,
+        circuit_breaker: "CircuitBreaker | None" = None,
     ) -> None:
         """
         Initialize connection pool.
@@ -193,6 +195,7 @@ class ConnectionPool(Generic[ConnectorT]):
         self._connection_config = config
         self._config = pool_config or PoolConfig()
         self._pool_id = pool_id or f"pool-{uuid4().hex[:8]}"
+        self._circuit_breaker = circuit_breaker
 
         # Connection storage
         self._idle: deque[PooledConnection] = deque()
@@ -247,6 +250,16 @@ class ConnectionPool(Generic[ConnectorT]):
         """
         if self._closed:
             raise PoolClosedError(self._pool_id)
+
+        if self._circuit_breaker is not None and self._circuit_breaker.is_open():
+            from polisyos.fabric.connectors.resilience import CircuitOpenError
+
+            opened_at = self._circuit_breaker.opened_at or datetime.now(timezone.utc)
+            raise CircuitOpenError(
+                self._circuit_breaker.circuit_id,
+                opened_at,
+                self._circuit_breaker.config.timeout_seconds,
+            )
 
         start_time = datetime.now(timezone.utc)
 

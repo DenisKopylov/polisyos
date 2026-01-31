@@ -532,6 +532,45 @@ class ConnectorRegistry:
             for tag in entry.metadata.tags:
                 self._by_tag[tag].discard(fqid)
 
+    def _apply_resilience_if_configured(
+        self,
+        connector: "SourceConnector",
+        entry: ConnectorEntry,
+    ) -> "SourceConnector":
+        """
+        Apply resilience wrappers to connector fetch if configured.
+
+        Resilience is opt-in via metadata.resilience_config or connector.resilience_config.
+        """
+        if getattr(connector, "_resilience_wrapped", False):
+            return connector
+
+        config = getattr(connector, "resilience_config", None)
+        if config is None:
+            config = entry.metadata.resilience_config
+
+        if config is None:
+            return connector
+
+        try:
+            from polisyos.fabric.connectors.resilience import apply_resilience
+
+            connector.fetch = apply_resilience(  # type: ignore[method-assign]
+                connector.fetch,
+                config=config,
+                cache_store=self._cache_store,
+            )
+            setattr(connector, "_resilience_wrapped", True)
+        except Exception as exc:
+            logger.warning(
+                "Failed to apply resilience wrappers",
+                connector_id=entry.fqid,
+                error=str(exc),
+                error_type=type(exc).__name__,
+            )
+
+        return connector
+
     # =========================================================================
     # Retrieval (O(1) Lookup)
     # =========================================================================
@@ -581,6 +620,7 @@ class ConnectorRegistry:
             self._get_count += 1
 
         connector = entry.instance
+        connector = self._apply_resilience_if_configured(connector, entry)
 
         if self._enable_caching and enable_cache and self._cache_store is not None:
             try:
@@ -969,11 +1009,41 @@ class ConnectorRegistry:
 
         if pool is None:
             pool_config = PoolConfig(max_size=effective_config.max_connections)
+            breaker = None
+            try:
+                if entry.metadata.resilience_config is not None:
+                    from polisyos.fabric.connectors.resilience import (
+                        CircuitBreaker,
+                        resolve_resilience_config,
+                    )
+
+                    resolved = resolve_resilience_config(
+                        entry.metadata.resilience_config,
+                        cache_store=self._cache_store,
+                    )
+                    if resolved is not None:
+                        circuit = resolved.circuit_breaker
+                        if isinstance(circuit, CircuitBreaker):
+                            breaker = circuit
+                        elif circuit is not None:
+                            breaker = CircuitBreaker(
+                                circuit_id=f"pool:{fqid}:{fingerprint[:8]}",
+                                config=circuit,
+                            )
+            except Exception as exc:
+                logger.warning(
+                    "Failed to configure pool circuit breaker",
+                    connector_id=fqid,
+                    error=str(exc),
+                    error_type=type(exc).__name__,
+                )
+
             new_pool = ConnectionPool(
                 connector_factory=entry.factory,
                 config=effective_config,
                 pool_config=pool_config,
                 pool_id=f"pool-{fqid}-{fingerprint[:8]}",
+                circuit_breaker=breaker,
             )
             with self._instance_lock:
                 pool = self._connection_pools.get(pool_key)

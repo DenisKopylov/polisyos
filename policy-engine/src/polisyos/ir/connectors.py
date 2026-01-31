@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 from enum import Enum, Flag, IntEnum, auto
-from typing import TypeAlias
+from typing import Any, TypeAlias
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
@@ -172,6 +172,12 @@ class ConnectorMetadataSpec(BaseModel):
         default=0,
         ge=0,
         description="Bitmask of ConnectorCapability flags",
+    )
+
+    # Resilience configuration (optional, connector-level)
+    resilience_config: dict[str, Any] | None = Field(
+        default=None,
+        description="Optional resilience configuration for connector fetch operations",
     )
 
     # Observability and freshness hints

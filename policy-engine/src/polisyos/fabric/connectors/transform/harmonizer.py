@@ -6,7 +6,7 @@ vectorized pandas operations for performance.
 """
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import datetime, timezone
 
 import pandas as pd
@@ -60,9 +60,7 @@ class CodeHarmonizationTransform(DataTransform):
         result = data.copy() if copy_policy == CopyPolicy.COPY else data
 
         if self.dimension not in result.columns:
-            raise TransformError(
-                f"Dimension '{self.dimension}' not found in data"
-            )
+            raise TransformError(f"Dimension '{self.dimension}' not found in data")
 
         series = result[self.dimension]
         null_mask = series.isna()
@@ -75,9 +73,7 @@ class CodeHarmonizationTransform(DataTransform):
         unmapped_codes = sorted(series[unmapped_mask].astype(str).unique().tolist())
 
         if unmapped_codes and self.strict:
-            raise TransformError(
-                f"Unmapped codes in '{self.dimension}': {unmapped_codes}"
-            )
+            raise TransformError(f"Unmapped codes in '{self.dimension}': {unmapped_codes}")
 
         if self.drop_unmapped:
             result[self.dimension] = mapped
@@ -94,9 +90,7 @@ class CodeHarmonizationTransform(DataTransform):
         if unmapped_codes and self.warn_unmapped:
             preview = unmapped_codes[:10]
             suffix = "..." if len(unmapped_codes) > 10 else ""
-            warnings.append(
-                f"Found {len(unmapped_codes)} unmapped codes: {preview}{suffix}"
-            )
+            warnings.append(f"Found {len(unmapped_codes)} unmapped codes: {preview}{suffix}")
 
         lineage = TransformLineage(
             stage_name=self.name,

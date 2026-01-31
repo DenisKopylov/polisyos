@@ -16,17 +16,17 @@ from polisyos.fabric.connectors.contracts.schema import (
     DataSchema,
     TimeGranularity,
 )
-from polisyos.fabric.connectors.types.temporal import (
-    AggregationMethod,
-    TemporalType,
-    infer_temporal_type,
-)
 from polisyos.fabric.connectors.transform.pipeline import (
     CopyPolicy,
     DataTransform,
     TransformContext,
     TransformError,
     TransformLineage,
+)
+from polisyos.fabric.connectors.types.temporal import (
+    AggregationMethod,
+    TemporalType,
+    infer_temporal_type,
 )
 
 __all__ = [
@@ -60,9 +60,7 @@ class AggregationTransform(DataTransform):
 
     def __post_init__(self) -> None:
         self.temporal_context = self._normalize_temporal_context(self.temporal_context)
-        self.additivity_context = self._normalize_additivity_context(
-            self.additivity_context
-        )
+        self.additivity_context = self._normalize_additivity_context(self.additivity_context)
 
     @property
     def name(self) -> str:
@@ -107,9 +105,7 @@ class AggregationTransform(DataTransform):
             parameters={
                 "group_by": [str(g) for g in self.group_by],
                 "aggregations": agg_dict,
-                "temporal_types": {
-                    k: v.value for k, v in self.temporal_context.items()
-                },
+                "temporal_types": {k: v.value for k, v in self.temporal_context.items()},
                 "additivity": resolved_additivity,
                 "time_collapsing": time_collapsing,
                 **time_details,
@@ -258,9 +254,7 @@ class AggregationTransform(DataTransform):
 
         for field, agg_method in self.aggregations.items():
             method = (
-                agg_method.value
-                if isinstance(agg_method, AggregationMethod)
-                else str(agg_method)
+                agg_method.value if isinstance(agg_method, AggregationMethod) else str(agg_method)
             )
             method = method.lower()
 
@@ -269,10 +263,7 @@ class AggregationTransform(DataTransform):
 
             if method == AggregationMethod.SUM.value:
                 if additivity == Additivity.NON_ADDITIVE:
-                    msg = (
-                        f"Cannot sum non-additive variable '{field}'. "
-                        "Using 'first' instead."
-                    )
+                    msg = f"Cannot sum non-additive variable '{field}'. " "Using 'first' instead."
                     if self.strict:
                         raise TransformError(msg)
                     corrections.append(f"{field}: sum → first (non-additive)")
@@ -294,14 +285,9 @@ class AggregationTransform(DataTransform):
                     continue
 
                 if additivity is None and time_collapsing:
-                    warnings.append(
-                        f"Additivity unknown for '{field}'. Verify SUM over time."
-                    )
+                    warnings.append(f"Additivity unknown for '{field}'. Verify SUM over time.")
 
-            if (
-                temporal_type == TemporalType.PARAMETER
-                and method not in ("first", "last")
-            ):
+            if temporal_type == TemporalType.PARAMETER and method not in ("first", "last"):
                 warnings.append(
                     f"Parameter '{field}' should be constant; "
                     f"consider 'first' or 'last' aggregation."

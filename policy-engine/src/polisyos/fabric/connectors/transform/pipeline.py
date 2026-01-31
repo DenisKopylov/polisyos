@@ -6,12 +6,12 @@ inspired by fabric/udf/passes, but operating on DataFrames instead of queries.
 """
 from __future__ import annotations
 
+import graphlib
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from enum import Enum
 from typing import Any, Callable, Sequence
-import graphlib
 
 import pandas as pd
 
@@ -512,9 +512,7 @@ class TransformPipeline:
         """Add validation stage."""
         from polisyos.fabric.connectors.transform.validator import ValidationTransform
 
-        return self.add_stage(
-            ValidationTransform(rules=list(rules), strict=strict)
-        )
+        return self.add_stage(ValidationTransform(rules=list(rules), strict=strict))
 
     # ------------------------------------------------------------------
     # Compilation and Execution
@@ -607,9 +605,7 @@ class CompiledPipeline:
 
             output_warnings = stage.transform.validate_output(current_data, context)
             if output_warnings:
-                all_warnings.extend(
-                    f"[{stage.name}] {w}" for w in output_warnings
-                )
+                all_warnings.extend(f"[{stage.name}] {w}" for w in output_warnings)
 
         now = datetime.now(timezone.utc)
         combined_lineage = TransformLineage(

@@ -10,6 +10,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
+
 import pandas as pd
 
 from polisyos.fabric.connectors.transform.pipeline import (
@@ -71,9 +72,7 @@ class NormalizationTransform(DataTransform):
                 result[field] = self._convert_units(result[field], from_unit, to_unit)
                 conversion_log[field] = f"{from_unit} → {to_unit}"
             except Exception as exc:
-                raise TransformError(
-                    f"Unit conversion failed for field '{field}': {exc}"
-                ) from exc
+                raise TransformError(f"Unit conversion failed for field '{field}': {exc}") from exc
 
         # Step 3: Type casting (explicit)
         cast_log: dict[str, str] = {}
@@ -84,9 +83,7 @@ class NormalizationTransform(DataTransform):
                 result[field] = self._safe_cast(result[field], target_dtype)
                 cast_log[field] = target_dtype
             except Exception as exc:
-                raise TransformError(
-                    f"Type cast failed for field '{field}': {exc}"
-                ) from exc
+                raise TransformError(f"Type cast failed for field '{field}': {exc}") from exc
 
         # Step 4: Type casting based on target schema (optional)
         if self.cast_to_schema and context.target_schema:
@@ -164,9 +161,7 @@ class NormalizationTransform(DataTransform):
 
             from_u = Unit.parse(from_unit)
             to_u = Unit.parse(to_unit)
-            return series.apply(
-                lambda x: from_u.convert_to(x, to_u) if pd.notna(x) else x
-            )
+            return series.apply(lambda x: from_u.convert_to(x, to_u) if pd.notna(x) else x)
         except ImportError:
             return self._simple_unit_conversion(series, from_unit, to_unit)
 
@@ -186,13 +181,11 @@ class NormalizationTransform(DataTransform):
         from_prefix = from_unit[0] if from_unit[0] in prefix_scale else ""
         to_prefix = to_unit[0] if to_unit[0] in prefix_scale else ""
 
-        from_base = from_unit[len(from_prefix):]
-        to_base = to_unit[len(to_prefix):]
+        from_base = from_unit[len(from_prefix) :]
+        to_base = to_unit[len(to_prefix) :]
 
         if from_base != to_base:
-            raise TransformError(
-                f"Cannot convert between different units: {from_unit} → {to_unit}"
-            )
+            raise TransformError(f"Cannot convert between different units: {from_unit} → {to_unit}")
 
         from_scale = prefix_scale.get(from_prefix, 1)
         to_scale = prefix_scale.get(to_prefix, 1)
@@ -208,9 +201,8 @@ class NormalizationTransform(DataTransform):
         """Safely cast series to target dtype."""
         try:
             from polisyos.fabric.connectors.types.coercion import safe_cast
-            return series.apply(
-                lambda x: safe_cast(x, target_dtype) if pd.notna(x) else x
-            )
+
+            return series.apply(lambda x: safe_cast(x, target_dtype) if pd.notna(x) else x)
         except ImportError:
             return self._pandas_safe_cast(series, target_dtype)
 
@@ -223,8 +215,7 @@ class NormalizationTransform(DataTransform):
             if series.dtype in ("float", "float64"):
                 if not (series.dropna() % 1 == 0).all():
                     raise TransformError(
-                        f"Cannot safely cast {series.name} to int: "
-                        "would lose decimal places"
+                        f"Cannot safely cast {series.name} to int: " "would lose decimal places"
                     )
             return pd.to_numeric(series, errors="coerce").astype("Int64")
         if target_dtype in ("float", "float64"):

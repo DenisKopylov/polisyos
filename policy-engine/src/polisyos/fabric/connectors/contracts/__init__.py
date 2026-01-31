@@ -13,6 +13,29 @@ Key Components:
 - SchemaEvolution: Change detection and compatibility checking
 - SchemaRegistry: Schema storage and version management
 """
+from polisyos.fabric.connectors.contracts.evolution import (
+    ChangeType,
+    EvolutionReport,
+    SchemaChange,
+    SchemaEvolution,
+)
+from polisyos.fabric.connectors.contracts.inference import (
+    CoercionResult,
+    InferenceConfig,
+    InferenceResult,
+    SchemaHints,
+    SchemaInference,
+    coerce_dataframe_to_schema,
+    infer_schema,
+    validate_dataframe_against_schema,
+)
+from polisyos.fabric.connectors.contracts.registry import (
+    FileBackedSchemaRegistry,
+    SchemaNotFoundError,
+    SchemaRegistration,
+    SchemaRegistry,
+    SchemaVersionConflictError,
+)
 from polisyos.fabric.connectors.contracts.schema import (
     Additivity,
     DataSchema,
@@ -26,29 +49,6 @@ from polisyos.fabric.connectors.contracts.schema import (
     SemanticType,
     TimeGranularity,
     TypeCoercionError,
-)
-from polisyos.fabric.connectors.contracts.inference import (
-    CoercionResult,
-    InferenceConfig,
-    InferenceResult,
-    SchemaHints,
-    SchemaInference,
-    coerce_dataframe_to_schema,
-    infer_schema,
-    validate_dataframe_against_schema,
-)
-from polisyos.fabric.connectors.contracts.evolution import (
-    ChangeType,
-    EvolutionReport,
-    SchemaChange,
-    SchemaEvolution,
-)
-from polisyos.fabric.connectors.contracts.registry import (
-    FileBackedSchemaRegistry,
-    SchemaNotFoundError,
-    SchemaRegistration,
-    SchemaRegistry,
-    SchemaVersionConflictError,
 )
 
 __all__ = [

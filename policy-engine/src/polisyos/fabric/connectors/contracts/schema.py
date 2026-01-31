@@ -19,7 +19,7 @@ import re
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
-from typing import Any, Mapping, Sequence, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Mapping, Sequence
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
@@ -774,16 +774,12 @@ class FieldSpec(BaseModel):
             bounds=(min_bound, max_bound),
             allowed_values=merged_allowed,
             pattern=self.pattern if self.pattern == other.pattern else None,
-            max_length=self.max_length
-            if self.max_length == other.max_length
-            else None,
+            max_length=self.max_length if self.max_length == other.max_length else None,
             precision=self.precision if self.precision == other.precision else None,
             scale=self.scale if self.scale == other.scale else None,
             description=self.description or other.description,
             source_name=self.source_name or other.source_name,
-            expected_completeness=min(
-                self.expected_completeness, other.expected_completeness
-            ),
+            expected_completeness=min(self.expected_completeness, other.expected_completeness),
             tags=self.tags | other.tags,
         )
 
@@ -841,9 +837,7 @@ def _field_hash_payload(field: FieldSpec) -> dict[str, Any]:
         "additivity": field.additivity.value if field.additivity else None,
         "nullable": field.nullable,
         "bounds": [_number_token(field.bounds[0]), _number_token(field.bounds[1])],
-        "allowed_values": _sorted_list(field.allowed_values)
-        if field.allowed_values
-        else None,
+        "allowed_values": _sorted_list(field.allowed_values) if field.allowed_values else None,
         "pattern": field.pattern,
         "max_length": field.max_length,
         "precision": field.precision,
@@ -950,25 +944,17 @@ class DataSchema(BaseModel):
 
         for grain_field in self.grain_dims:
             if grain_field not in field_names:
-                raise ValueError(
-                    f"Grain dimension '{grain_field}' not found in schema"
-                )
+                raise ValueError(f"Grain dimension '{grain_field}' not found in schema")
 
         if self.time_dimension and self.time_dimension not in field_names:
-            raise ValueError(
-                f"Time dimension '{self.time_dimension}' not found in schema"
-            )
+            raise ValueError(f"Time dimension '{self.time_dimension}' not found in schema")
 
         if self.geo_dimension and self.geo_dimension not in field_names:
-            raise ValueError(
-                f"Geo dimension '{self.geo_dimension}' not found in schema"
-            )
+            raise ValueError(f"Geo dimension '{self.geo_dimension}' not found in schema")
 
         for null_field in self.allowed_null_fields:
             if null_field not in field_names:
-                raise ValueError(
-                    f"Allowed null field '{null_field}' not found in schema"
-                )
+                raise ValueError(f"Allowed null field '{null_field}' not found in schema")
 
         return self
 
@@ -1051,13 +1037,9 @@ class DataSchema(BaseModel):
             "primary_key": list(self.primary_key),
             "grain_dims": list(self.grain_dims),
             "time_dimension": self.time_dimension,
-            "time_granularity": self.time_granularity.value
-            if self.time_granularity
-            else None,
+            "time_granularity": self.time_granularity.value if self.time_granularity else None,
             "geo_dimension": self.geo_dimension,
-            "geo_granularity": self.geo_granularity.value
-            if self.geo_granularity
-            else None,
+            "geo_granularity": self.geo_granularity.value if self.geo_granularity else None,
             "required_completeness": _float_token(self.required_completeness),
             "allowed_null_fields": _sorted_list(self.allowed_null_fields),
             "tags": _sorted_list(self.tags),
@@ -1079,9 +1061,7 @@ class DataSchema(BaseModel):
 
         selected_names = {f.name for f in selected}
         new_pk = tuple(pk for pk in self.primary_key if pk in selected_names)
-        new_time = (
-            self.time_dimension if self.time_dimension in selected_names else None
-        )
+        new_time = self.time_dimension if self.time_dimension in selected_names else None
         new_geo = self.geo_dimension if self.geo_dimension in selected_names else None
 
         return DataSchema(
@@ -1172,6 +1152,4 @@ class SchemaCompatibilityError(SchemaError):
         self.source_schema = source_schema
         self.target_schema = target_schema
         self.reason = reason
-        super().__init__(
-            f"Schema '{source_schema}' incompatible with '{target_schema}': {reason}"
-        )
+        super().__init__(f"Schema '{source_schema}' incompatible with '{target_schema}': {reason}")

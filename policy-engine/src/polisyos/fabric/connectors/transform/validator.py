@@ -84,15 +84,11 @@ class RangeRule:
         if self.min_value is not None:
             below = (series < self.min_value).sum()
             if below > 0:
-                violations.append(
-                    f"Field '{self.field}' has {below} values below {self.min_value}"
-                )
+                violations.append(f"Field '{self.field}' has {below} values below {self.min_value}")
         if self.max_value is not None:
             above = (series > self.max_value).sum()
             if above > 0:
-                violations.append(
-                    f"Field '{self.field}' has {above} values above {self.max_value}"
-                )
+                violations.append(f"Field '{self.field}' has {above} values above {self.max_value}")
         return violations
 
 
@@ -120,9 +116,7 @@ class ValidationTransform(DataTransform):
             warnings.extend(rule.validate(data, context))
 
         if warnings and self.strict:
-            raise TransformError(
-                "Validation failed: " + "; ".join(warnings)
-            )
+            raise TransformError("Validation failed: " + "; ".join(warnings))
 
         result = data.copy() if copy_policy == CopyPolicy.COPY else data
 

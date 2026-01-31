@@ -42,9 +42,7 @@ class FilterTransform(DataTransform):
             try:
                 mask = data.eval(self.condition)
             except Exception as exc:
-                raise TransformError(
-                    f"Filter condition failed: {self.condition}: {exc}"
-                ) from exc
+                raise TransformError(f"Filter condition failed: {self.condition}: {exc}") from exc
         else:
             try:
                 mask = self.condition(data)
@@ -66,9 +64,7 @@ class FilterTransform(DataTransform):
         drop_pct = dropped / len(data) if len(data) else 0.0
         warnings: list[str] = []
         if drop_pct > self.max_drop_pct:
-            warnings.append(
-                f"Filter dropped {drop_pct:.1%} of rows (>{self.max_drop_pct:.1%})"
-            )
+            warnings.append(f"Filter dropped {drop_pct:.1%} of rows (>{self.max_drop_pct:.1%})")
 
         lineage = TransformLineage(
             stage_name=self.name,

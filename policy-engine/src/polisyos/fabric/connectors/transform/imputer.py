@@ -92,8 +92,7 @@ class ImputationTransform(DataTransform):
             fields_to_impute = [
                 col
                 for col in result.columns
-                if pd.api.types.is_numeric_dtype(result[col])
-                and result[col].isna().any()
+                if pd.api.types.is_numeric_dtype(result[col]) and result[col].isna().any()
             ]
 
         imputation_stats: dict[str, Any] = {}
@@ -123,9 +122,7 @@ class ImputationTransform(DataTransform):
                     "imputed": missing_count,
                 }
             except Exception as exc:
-                raise TransformError(
-                    f"Imputation failed for field '{field}': {exc}"
-                ) from exc
+                raise TransformError(f"Imputation failed for field '{field}': {exc}") from exc
 
         lineage = TransformLineage(
             stage_name=self.name,
@@ -252,21 +249,15 @@ def validate_imputation_quality(
 
     orig_mean = orig_clean.mean()
     imputed_mean = imputed.mean()
-    mean_change_pct = (
-        abs(imputed_mean - orig_mean) / orig_mean if orig_mean != 0 else 0
-    )
+    mean_change_pct = abs(imputed_mean - orig_mean) / orig_mean if orig_mean != 0 else 0
 
     orig_std = orig_clean.std()
     imputed_std = imputed.std()
-    std_change_pct = (
-        abs(imputed_std - orig_std) / orig_std if orig_std != 0 else 0
-    )
+    std_change_pct = abs(imputed_std - orig_std) / orig_std if orig_std != 0 else 0
 
     orig_min, orig_max = orig_clean.min(), orig_clean.max()
     imputed_values = imputed[original.isna()]
-    outliers_introduced = int(
-        ((imputed_values < orig_min) | (imputed_values > orig_max)).sum()
-    )
+    outliers_introduced = int(((imputed_values < orig_min) | (imputed_values > orig_max)).sum())
 
     return {
         "mean_change_pct": float(mean_change_pct),

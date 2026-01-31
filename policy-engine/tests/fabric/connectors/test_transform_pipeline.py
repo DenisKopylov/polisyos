@@ -5,7 +5,9 @@ import pandas as pd
 import pytest
 
 try:
-    from hypothesis import given, settings, strategies as st
+    from hypothesis import given, settings
+    from hypothesis import strategies as st
+
     HYPOTHESIS_AVAILABLE = True
 except ModuleNotFoundError:  # pragma: no cover - optional dependency
     HYPOTHESIS_AVAILABLE = False
@@ -50,9 +52,7 @@ def sample_schema_daily() -> DataSchema:
 
 def test_builder_pattern_chaining() -> None:
     pipeline = (
-        TransformPipeline()
-        .normalize(field_mappings={"A": "a"})
-        .impute_missing(strategy="linear")
+        TransformPipeline().normalize(field_mappings={"A": "a"}).impute_missing(strategy="linear")
     )
 
     assert len(pipeline._stages) == 2
@@ -112,11 +112,13 @@ def test_warning_propagation_from_apply() -> None:
 
 
 def test_stock_sum_over_time_corrected(sample_schema_daily: DataSchema) -> None:
-    data = pd.DataFrame({
-        "date": pd.date_range("2024-01-01", periods=31, freq="D"),
-        "inventory": [1000] * 31,
-        "sales": [10] * 31,
-    })
+    data = pd.DataFrame(
+        {
+            "date": pd.date_range("2024-01-01", periods=31, freq="D"),
+            "inventory": [1000] * 31,
+            "sales": [10] * 31,
+        }
+    )
 
     pipeline = TransformPipeline().aggregate(
         by=[pd.Grouper(key="date", freq="MS")],
@@ -133,12 +135,14 @@ def test_stock_sum_over_time_corrected(sample_schema_daily: DataSchema) -> None:
 
 
 def test_stock_sum_across_entities_allowed(sample_schema_daily: DataSchema) -> None:
-    data = pd.DataFrame({
-        "date": ["2024-01-01"] * 2 + ["2024-01-02"] * 2,
-        "store_id": ["A", "B", "A", "B"],
-        "inventory": [100, 200, 150, 250],
-        "sales": [1, 2, 3, 4],
-    })
+    data = pd.DataFrame(
+        {
+            "date": ["2024-01-01"] * 2 + ["2024-01-02"] * 2,
+            "store_id": ["A", "B", "A", "B"],
+            "inventory": [100, 200, 150, 250],
+            "sales": [1, 2, 3, 4],
+        }
+    )
 
     pipeline = TransformPipeline().aggregate(
         by=["date"],
@@ -171,10 +175,12 @@ def test_non_additive_sum_corrected() -> None:
         time_granularity=TimeGranularity.DAILY,
     )
 
-    data = pd.DataFrame({
-        "date": pd.date_range("2024-01-01", periods=5, freq="D"),
-        "price_index": [1.0, 1.1, 1.2, 1.1, 1.0],
-    })
+    data = pd.DataFrame(
+        {
+            "date": pd.date_range("2024-01-01", periods=5, freq="D"),
+            "price_index": [1.0, 1.1, 1.2, 1.1, 1.0],
+        }
+    )
 
     pipeline = TransformPipeline().aggregate(
         by=["date"],
@@ -186,14 +192,13 @@ def test_non_additive_sum_corrected() -> None:
 
 
 if HYPOTHESIS_AVAILABLE:
+
     @settings(max_examples=150)
     @given(
         data=st.data(),
         n_rows=st.integers(min_value=10, max_value=200),
     )
-    def test_aggregation_never_increases_row_count(
-        data: st.DataObject, n_rows: int
-    ) -> None:
+    def test_aggregation_never_increases_row_count(data: st.DataObject, n_rows: int) -> None:
         groups = data.draw(
             st.lists(
                 st.integers(min_value=0, max_value=10),
@@ -224,5 +229,6 @@ if HYPOTHESIS_AVAILABLE:
         result = pipeline.apply(df, TransformContext())
         assert len(result.data) <= n_rows
 else:
+
     def test_aggregation_never_increases_row_count() -> None:  # pragma: no cover
         pytest.skip("hypothesis not installed")

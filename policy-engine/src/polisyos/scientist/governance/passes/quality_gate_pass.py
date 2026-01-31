@@ -57,6 +57,16 @@ class QualityGatePass(ValidatorPass):
         report = DataFitnessReport(run_id=ctx.run_id, profile=profile_level)
         ctx.state["data_fitness_report"] = report
 
+        data_quality_report = ctx.state.get("data_quality_report")
+        if data_quality_report is not None:
+            self._validate_from_quality_report(
+                data_quality_report=data_quality_report,
+                ctx=ctx,
+                issues=issues,
+            )
+            report.generate_summary()
+            return issues
+
         evidence_bundle = ctx.state.get("evidence_bundle")
         if evidence_bundle is None:
             issues.append(
@@ -218,3 +228,100 @@ class QualityGatePass(ValidatorPass):
                 return None
 
         return None
+
+    def _validate_from_quality_report(
+        self,
+        data_quality_report: Any,
+        ctx: PassContext,
+        issues: List[ComplianceIssue],
+    ) -> None:
+        from polisyos.ir.connectors import QualityTier
+
+        profile_level = ctx.profile.level.value
+
+        if data_quality_report.tier == QualityTier.BRONZE:
+            severity = (
+                IssueSeverity.BLOCKER
+                if profile_level == "strict"
+                else IssueSeverity.WARNING
+            )
+
+            violation_summary: list[str] = []
+            for violation in data_quality_report.violations[:3]:
+                field = violation.field_name or "unknown"
+                violation_summary.append(f"{field}: {violation.message}")
+
+            issues.append(
+                ComplianceIssue(
+                    pass_id=self.pass_id,
+                    path=["data", "quality"],
+                    message=(
+                        f"Data quality {data_quality_report.grade} "
+                        f"(score: {data_quality_report.score:.2f}) is below threshold"
+                    ),
+                    severity=severity,
+                    code="QUALITY_BRONZE_TIER",
+                    suggestion=(
+                        "Address top violations: " + "; ".join(violation_summary)
+                        if violation_summary
+                        else "Investigate data quality violations"
+                    ),
+                )
+            )
+
+        if not data_quality_report.freshness_status.is_fresh:
+            severity = (
+                IssueSeverity.WARNING
+                if profile_level in ("fast", "mvp")
+                else IssueSeverity.BLOCKER
+            )
+
+            age_days = 0
+            if data_quality_report.freshness_status.data_age_seconds is not None:
+                age_days = data_quality_report.freshness_status.data_age_seconds // 86400
+
+            issues.append(
+                ComplianceIssue(
+                    pass_id=self.pass_id,
+                    path=["data", "freshness"],
+                    message=data_quality_report.freshness_status.message,
+                    severity=severity,
+                    code="DATA_STALENESS",
+                    suggestion=f"Data last updated {age_days} days ago",
+                )
+            )
+
+        critical_violations = [
+            v for v in data_quality_report.violations if v.severity == "error"
+        ]
+        if critical_violations:
+            for violation in critical_violations[:5]:
+                issues.append(
+                    ComplianceIssue(
+                        pass_id=self.pass_id,
+                        path=["data", "violations", violation.field_name or "unknown"],
+                        message=violation.message,
+                        severity=(
+                            IssueSeverity.BLOCKER
+                            if profile_level == "strict"
+                            else IssueSeverity.WARNING
+                        ),
+                        code=f"QUALITY_{violation.rule_type.upper()}",
+                        suggestion=(
+                            f"Expected: {violation.expected}, Actual: {violation.actual}"
+                        ),
+                    )
+                )
+
+        try:
+            indicators = QualityIndicators.from_quality_report(data_quality_report)
+            fitness = MetricFitness.from_indicators(
+                indicators=indicators,
+                thresholds=self._get_thresholds_from_profile(ctx.profile),
+                profile=profile_level,
+            )
+            report = ctx.state.get("data_fitness_report")
+            if report:
+                report.add_metric(fitness)
+        except Exception:
+            return None

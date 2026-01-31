@@ -232,6 +232,50 @@ class QualityIndicators:
 
         return reasons
 
+    @classmethod
+    def from_quality_report(
+        cls,
+        report: "DataQualityReport",
+    ) -> "QualityIndicators":
+        """
+        Create QualityIndicators from a DataQualityReport.
+
+        This enables connector-specific quality metrics to flow
+        into the existing governance system.
+        """
+        staleness_days = 0
+        if report.freshness_status.data_age_seconds is not None:
+            staleness_days = report.freshness_status.data_age_seconds // 86400
+        elif report.freshness_status.cache_age_seconds:
+            staleness_days = report.freshness_status.cache_age_seconds // 86400
+
+        missingness = max(0.0, min(1.0, 1.0 - report.completeness_score))
+
+        coverage = 1.0
+        schema_drift = False
+
+        outlier_ratio = 0.0
+        if report.violations:
+            bounds_violations = [
+                v
+                for v in report.violations
+                if "minimum" in v.message.lower() or "maximum" in v.message.lower()
+            ]
+            if bounds_violations:
+                outlier_ratio = min(0.2, len(bounds_violations) * 0.02)
+
+        return cls(
+            metric_id=report.dataset_id,
+            missingness=missingness,
+            staleness_days=int(staleness_days),
+            coverage=coverage,
+            row_count=report.row_count,
+            schema_drift=schema_drift,
+            outlier_ratio=outlier_ratio,
+            computed_at=report.validated_at,
+            computation_method="connector_quality_validator",
+        )
+
     def to_dict(self) -> dict[str, Any]:
         """Serialize for JSON storage."""
         return {

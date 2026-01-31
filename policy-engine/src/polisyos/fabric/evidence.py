@@ -117,3 +117,33 @@ def persist_evidence_bundle(
         ),
     )
     return EvidenceBundleRef.model_validate(ref.model_dump())
+
+
+def build_composite_evidence_bundle(
+    *,
+    source_bundles: list[EvidenceBundle],
+    composition_strategy,
+    merge_log: list,
+    store: FileSystemCAS,
+    composed_by: str = "FederationEngine",
+    deterministic: bool = True,
+    deterministic_seed: str | None = None,
+) -> EvidenceBundle:
+    """
+    Create a composite evidence bundle from multiple source bundles.
+
+    Delegates to federation.evidence_aggregation for implementation.
+    """
+    from polisyos.fabric.connectors.federation.evidence_aggregation import (
+        build_composite_evidence_bundle as _build_composite,
+    )
+
+    return _build_composite(
+        source_bundles=source_bundles,
+        composition_strategy=composition_strategy,
+        merge_log=merge_log,
+        store=store,
+        composed_by=composed_by,
+        deterministic=deterministic,
+        deterministic_seed=deterministic_seed,
+    )

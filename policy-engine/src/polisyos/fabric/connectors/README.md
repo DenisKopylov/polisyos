@@ -222,4 +222,4 @@ pytest tests/fabric/connectors/test_protocol_compliance.py -v
 
 - Phase 2.3: Schema Contracts and Inference
 - Phase 2.4: Caching Layer with CAS Integration
-- Phase 2.5: Federation and Multi-source Queries
+- Phase 2.8: Federation and Multi-source Composition

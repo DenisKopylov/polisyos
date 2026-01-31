@@ -174,6 +174,17 @@ class ConnectorMetadataSpec(BaseModel):
         description="Bitmask of ConnectorCapability flags",
     )
 
+    # Observability and freshness hints
+    last_updated: datetime | None = Field(
+        default=None,
+        description="Timestamp of last known data update (UTC recommended)",
+    )
+    observed_latency_ms: float | None = Field(
+        default=None,
+        ge=0.0,
+        description="Observed average latency in milliseconds",
+    )
+
     # Documentation
     description: str = Field(
         default="",
@@ -198,6 +209,15 @@ class ConnectorMetadataSpec(BaseModel):
     def has_capability(self, cap: ConnectorCapability) -> bool:
         """Check if connector has a specific capability."""
         return bool(self.capabilities & cap.value)
+
+    @field_validator("last_updated", mode="after")
+    @classmethod
+    def _ensure_last_updated_tz(cls, value: datetime | None) -> datetime | None:
+        if value is None:
+            return None
+        if value.tzinfo is None:
+            return value.replace(tzinfo=timezone.utc)
+        return value
 
     def with_capabilities(self, *caps: ConnectorCapability) -> ConnectorMetadataSpec:
         """Create a new spec with additional capabilities."""

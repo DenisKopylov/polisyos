@@ -134,6 +134,7 @@ class DataQualityReport:
     row_count: int = 0
     sampled: bool = False
     sample_size: int | None = None
+    avg_latency_ms: float | None = None
 
     def to_evidence(self) -> dict[str, Any]:
         """

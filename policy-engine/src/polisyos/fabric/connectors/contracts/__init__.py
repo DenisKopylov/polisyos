@@ -14,6 +14,7 @@ Key Components:
 - SchemaRegistry: Schema storage and version management
 """
 from polisyos.fabric.connectors.contracts.schema import (
+    Additivity,
     DataSchema,
     FieldSpec,
     GeoGranularity,
@@ -55,6 +56,7 @@ __all__ = [
     "DataSchema",
     "SchemaType",
     "FieldSpec",
+    "Additivity",
     "SchemaVersion",
     "SemanticType",
     "TimeGranularity",

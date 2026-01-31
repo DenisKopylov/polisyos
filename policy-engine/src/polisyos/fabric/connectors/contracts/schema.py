@@ -350,6 +350,28 @@ class SemanticType(str, Enum):
         return bounds.get(self, (None, None))
 
 
+class Additivity(str, Enum):
+    """
+    Additivity semantics for aggregation across dimensions.
+
+    - additive: can sum across time and entities
+    - semi_additive: can sum across entities, not time
+    - non_additive: should not be summed
+    """
+
+    ADDITIVE = "additive"
+    SEMI_ADDITIVE = "semi_additive"
+    NON_ADDITIVE = "non_additive"
+
+    @property
+    def additive_over_time(self) -> bool:
+        return self == Additivity.ADDITIVE
+
+    @property
+    def additive_over_entities(self) -> bool:
+        return self in (Additivity.ADDITIVE, Additivity.SEMI_ADDITIVE)
+
+
 class TimeGranularity(str, Enum):
     """Temporal granularity of time-series data."""
 
@@ -377,6 +399,38 @@ class TimeGranularity(str, Enum):
             TimeGranularity.FISCAL_YEAR: "YS",  # Customize with fiscal_year_start
         }
         return mapping[self]
+
+    @property
+    def approximate_days(self) -> float | None:
+        """Approximate day length for comparison."""
+        day_mapping = {
+            TimeGranularity.SECOND: 1 / 86400,
+            TimeGranularity.MINUTE: 1 / 1440,
+            TimeGranularity.HOURLY: 1 / 24,
+            TimeGranularity.DAILY: 1,
+            TimeGranularity.WEEKLY: 7,
+            TimeGranularity.MONTHLY: 30.44,
+            TimeGranularity.QUARTERLY: 91.31,
+            TimeGranularity.ANNUAL: 365.25,
+            TimeGranularity.FISCAL_YEAR: 365.25,
+        }
+        return day_mapping.get(self)
+
+    def is_finer_than(self, other: "TimeGranularity") -> bool:
+        """Check if this granularity is finer (higher frequency) than another."""
+        self_days = self.approximate_days
+        other_days = other.approximate_days
+        if self_days is None or other_days is None:
+            return False
+        return self_days < other_days
+
+    def is_coarser_than(self, other: "TimeGranularity") -> bool:
+        """Check if this granularity is coarser (lower frequency) than another."""
+        self_days = self.approximate_days
+        other_days = other.approximate_days
+        if self_days is None or other_days is None:
+            return False
+        return self_days > other_days
 
 
 class GeoGranularity(str, Enum):
@@ -528,6 +582,10 @@ class FieldSpec(BaseModel):
         default=None,
         description="Semantic meaning for validation and inference",
     )
+    additivity: Additivity | None = Field(
+        default=None,
+        description="Additivity semantics for aggregation (additive/semi/non)",
+    )
 
     # Constraints
     nullable: bool = Field(default=True, description="Whether NULL values are allowed")
@@ -643,6 +701,10 @@ class FieldSpec(BaseModel):
             if self.semantic_type != other.semantic_type:
                 return False
 
+        if self.additivity and other.additivity:
+            if self.additivity != other.additivity:
+                return False
+
         if self.unit and other.unit:
             if self.unit.unit_id != other.unit.unit_id:
                 return False
@@ -669,6 +731,13 @@ class FieldSpec(BaseModel):
                 raise ValueError(
                     "Cannot widen fields with conflicting semantic types: "
                     f"{self.semantic_type} vs {other.semantic_type}"
+                )
+
+        if self.additivity and other.additivity:
+            if self.additivity != other.additivity:
+                raise ValueError(
+                    "Cannot widen fields with conflicting additivity: "
+                    f"{self.additivity} vs {other.additivity}"
                 )
 
         if self.data_type.is_compatible_with(other.data_type):
@@ -700,6 +769,7 @@ class FieldSpec(BaseModel):
             unit=self.unit or other.unit,
             display_unit=self.display_unit or other.display_unit,
             semantic_type=self.semantic_type or other.semantic_type,
+            additivity=self.additivity or other.additivity,
             nullable=self.nullable or other.nullable,
             bounds=(min_bound, max_bound),
             allowed_values=merged_allowed,
@@ -768,6 +838,7 @@ def _field_hash_payload(field: FieldSpec) -> dict[str, Any]:
         "unit": _unit_id(field.unit),
         "display_unit": field.display_unit,
         "semantic_type": field.semantic_type.value if field.semantic_type else None,
+        "additivity": field.additivity.value if field.additivity else None,
         "nullable": field.nullable,
         "bounds": [_number_token(field.bounds[0]), _number_token(field.bounds[1])],
         "allowed_values": _sorted_list(field.allowed_values)
@@ -813,6 +884,10 @@ class DataSchema(BaseModel):
     primary_key: tuple[str, ...] = Field(
         default=(),
         description="Fields comprising the primary key",
+    )
+    grain_dims: tuple[str, ...] = Field(
+        default=(),
+        description="Dimensions that define record grain (entity keys)",
     )
 
     # Temporal semantics
@@ -873,6 +948,12 @@ class DataSchema(BaseModel):
             if pk_field not in field_names:
                 raise ValueError(f"Primary key field '{pk_field}' not found in schema")
 
+        for grain_field in self.grain_dims:
+            if grain_field not in field_names:
+                raise ValueError(
+                    f"Grain dimension '{grain_field}' not found in schema"
+                )
+
         if self.time_dimension and self.time_dimension not in field_names:
             raise ValueError(
                 f"Time dimension '{self.time_dimension}' not found in schema"
@@ -907,6 +988,12 @@ class DataSchema(BaseModel):
     def field_names(self) -> list[str]:
         """Get ordered list of field names."""
         return [f.name for f in self.fields]
+
+    def effective_grain_dims(self) -> tuple[str, ...]:
+        """Return grain dimensions, falling back to primary_key if unspecified."""
+        if self.grain_dims:
+            return self.grain_dims
+        return self.primary_key
 
     def numeric_fields(self) -> list[FieldSpec]:
         """Get fields that can be used in numeric computations."""
@@ -962,6 +1049,7 @@ class DataSchema(BaseModel):
         canonical_dict = {
             "fields": [_field_hash_payload(f) for f in self.fields],
             "primary_key": list(self.primary_key),
+            "grain_dims": list(self.grain_dims),
             "time_dimension": self.time_dimension,
             "time_granularity": self.time_granularity.value
             if self.time_granularity
@@ -1001,6 +1089,7 @@ class DataSchema(BaseModel):
             version=self.version,
             fields=selected,
             primary_key=new_pk,
+            grain_dims=tuple(g for g in self.grain_dims if g in selected_names),
             time_dimension=new_time,
             time_granularity=self.time_granularity if new_time else None,
             geo_dimension=new_geo,
@@ -1022,6 +1111,7 @@ class DataSchema(BaseModel):
             version=self.version.bump_minor(),
             fields=self.fields + (field,),
             primary_key=self.primary_key,
+            grain_dims=self.grain_dims,
             time_dimension=self.time_dimension,
             time_granularity=self.time_granularity,
             geo_dimension=self.geo_dimension,

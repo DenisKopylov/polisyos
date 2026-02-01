@@ -6,6 +6,11 @@ Each exception includes context attributes for structured logging and diagnostic
 """
 from __future__ import annotations
 
+from typing import TYPE_CHECKING, Sequence
+
+if TYPE_CHECKING:
+    from polisyos.foundry.methods.resolution import ResolutionPolicy, VersionConstraint
+
 
 class FoundryMethodError(Exception):
     """
@@ -55,6 +60,71 @@ class MethodAlreadyRegisteredError(FoundryMethodError):
     def __init__(self, fqn: str) -> None:
         self.fqn = fqn
         super().__init__(f"Method already registered: {fqn}")
+
+
+class ResolutionError(FoundryMethodError):
+    """
+    Error during version resolution.
+
+    Raised when no version can be found that satisfies the resolution
+    policy and constraints. Provides detailed context for debugging
+    resolution failures.
+
+    Attributes:
+        policy: The resolution policy that was attempted
+        requested: The requested version (if any)
+        available: List of available versions
+        constraint: The version constraint (if any)
+        reason: Human-readable explanation
+    """
+
+    def __init__(
+        self,
+        policy: ResolutionPolicy,
+        requested: str | None,
+        available: Sequence[str],
+        constraint: VersionConstraint | None = None,
+        reason: str | None = None,
+    ) -> None:
+        self.policy = policy
+        self.requested = requested
+        self.available = list(available)
+        self.constraint = constraint
+
+        if reason:
+            self.reason = reason
+        else:
+            self.reason = self._build_reason()
+
+        super().__init__(self.reason)
+
+    def _build_reason(self) -> str:
+        if not self.available:
+            return "No versions available"
+
+        avail_str = ", ".join(sorted(self.available)[:5])
+        if len(self.available) > 5:
+            avail_str += f" ... ({len(self.available)} total)"
+
+        from polisyos.foundry.methods.resolution import ResolutionPolicy
+
+        if self.policy == ResolutionPolicy.EXACT:
+            return (
+                f"Exact version '{self.requested}' not found. "
+                f"Available: [{avail_str}]"
+            )
+        if self.policy == ResolutionPolicy.PINNED:
+            return (
+                f"Pinned version '{self.requested}' not available. "
+                f"Available: [{avail_str}]"
+            )
+        if self.policy == ResolutionPolicy.LATEST_COMPATIBLE:
+            constraint_str = str(self.constraint) if self.constraint else "unspecified"
+            return (
+                f"No compatible version found for constraint {constraint_str}. "
+                f"Available: [{avail_str}]"
+            )
+        return f"Resolution failed with policy {self.policy.name}"
 
 
 class SlotConnectionError(FoundryMethodError):

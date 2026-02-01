@@ -1,7 +1,7 @@
 """
 Foundry Methods Core Types & Protocol.
 
-Phase 3.1 Public API.
+Phase 3.2 Public API.
 """
 from __future__ import annotations
 
@@ -26,6 +26,7 @@ from polisyos.foundry.methods.exceptions import (
     MethodDefinitionError,
     MethodNotFoundError,
     MethodAlreadyRegisteredError,
+    ResolutionError,
     SlotConnectionError,
     UnitMismatchError,
     ShapeMismatchError,
@@ -34,6 +35,22 @@ from polisyos.foundry.methods.exceptions import (
     ParameterValidationError,
     ArtifactError,
     LawViolationError,
+)
+
+from polisyos.foundry.methods.resolution import (
+    ResolutionPolicy,
+    VersionConstraint,
+    resolve_version,
+    find_compatible_versions,
+    compare_versions,
+    is_compatible_upgrade,
+)
+
+from polisyos.foundry.methods.registry import (
+    MethodEntry,
+    MethodRegistry,
+    RegistrySnapshot,
+    get_registry,
 )
 
 __all__ = [
@@ -54,6 +71,7 @@ __all__ = [
     "MethodDefinitionError",
     "MethodNotFoundError",
     "MethodAlreadyRegisteredError",
+    "ResolutionError",
     "SlotConnectionError",
     "UnitMismatchError",
     "ShapeMismatchError",
@@ -62,6 +80,16 @@ __all__ = [
     "ParameterValidationError",
     "ArtifactError",
     "LawViolationError",
+    "ResolutionPolicy",
+    "VersionConstraint",
+    "resolve_version",
+    "find_compatible_versions",
+    "compare_versions",
+    "is_compatible_upgrade",
+    "MethodEntry",
+    "MethodRegistry",
+    "RegistrySnapshot",
+    "get_registry",
 ]
 
-__version__ = "3.1.0"
+__version__ = "3.2.0"

@@ -121,6 +121,7 @@ class ConnectionHandle:
     config: ConnectionConfig
     created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     session_id: str = field(default_factory=lambda: str(uuid4()))
+    state: dict[str, Any] = field(default_factory=dict, compare=False, hash=False, repr=False)
 
     @property
     def age_seconds(self) -> float:
@@ -406,6 +407,10 @@ class FetchResult(BaseModel, Generic[DataT]):
         default=0,
         ge=0,
         description="Number of bytes transferred",
+    )
+    not_modified: bool = Field(
+        default=False,
+        description="True when the source signaled no changes (e.g., HTTP 304)",
     )
 
     resilience: ResilienceInfo | None = Field(

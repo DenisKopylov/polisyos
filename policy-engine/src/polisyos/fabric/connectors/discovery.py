@@ -37,9 +37,7 @@ ENTRY_POINT_GROUP = "polisyos.connectors"
 
 # Built-in connector modules to discover at startup
 BUILTIN_CONNECTOR_MODULES: tuple[str, ...] = (
-    "polisyos.fabric.connectors.reference.static_csv",
-    "polisyos.fabric.connectors.reference.rest_json",
-    "polisyos.fabric.connectors.reference.sdmx",
+    "polisyos.fabric.connectors.reference",
 )
 
 # Filesystem path discovery is dev-only
@@ -258,13 +256,18 @@ class ConnectorDiscovery:
         try:
             module = importlib.import_module(module_path)
 
-            for name in dir(module):
-                obj = getattr(module, name)
+            names = getattr(module, "__all__", None)
+            restrict_to_module = names is None
+            if names is None:
+                names = dir(module)
+
+            for name in names:
+                obj = getattr(module, name, None)
 
                 # Skip non-classes and imported classes
                 if not isinstance(obj, type):
                     continue
-                if getattr(obj, "__module__", None) != module_path:
+                if restrict_to_module and getattr(obj, "__module__", None) != module_path:
                     continue
 
                 if self._is_valid_connector(obj):

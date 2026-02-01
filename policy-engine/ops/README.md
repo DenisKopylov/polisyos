@@ -1,130 +1,120 @@
 # Операционная инфраструктура (Operations)
 
-Директория `ops` содержит инфраструктуру для мониторинга, наблюдаемости и alerting системы PolicyOS. Предоставляет production-ready стек для трекинга производительности, обнаружения проблем и визуализации метрик.
+Директория `ops` содержит production-ready стек для мониторинга, наблюдаемости и alerting системы PolicyOS. Обеспечивает комплексный трекинг производительности, автоматическое обнаружение проблем и визуализацию метрик.
 
 ## Архитектура
 
 ```
 ops/
 ├── docker-compose.observability.yml    # Docker Compose для запуска стека мониторинга
-├── prometheus/                         # Конфигурация Prometheus и alerting
-│   ├── prometheus.yml                  # Основная конфигурация сбора метрик
-│   ├── alerts.yml                      # Правила алертинга
-│   ├── recording_rules.yml             # Правила предвычисления метрик
-│   └── README.md                       # Документация Prometheus
-├── grafana/                            # Дашборды и конфигурация визуализации
+├── prometheus/                         # Конфигурация Prometheus (сбор метрик, алертинг)
+│   ├── prometheus.yml                  # Основная конфигурация (15s scrape interval)
+│   ├── alerts.yml                      # Правила алертинга (cost, agents, simulation)
+│   ├── recording_rules.yml             # Предвычисление метрик (30s interval)
+│   └── README.md                       # Детальная документация Prometheus
+├── grafana/                            # Дашборды и визуализация
 │   ├── dashboards/                     # JSON определения дашбордов
-│   │   ├── executive-overview.json     # Обзор для руководства
-│   │   ├── foundry-hpc.json           # Производительность HPC
-│   │   └── scientist-agents.json       # Производительность агентов
+│   │   ├── executive-overview.json     # Обзор для руководства (cost, acceptance)
+│   │   ├── foundry-hpc.json           # HPC производительность (throughput, cache)
+│   │   └── scientist-agents.json       # Агенты (governance, LLM usage)
 │   ├── provisioning/
-│   │   └── dashboards.yml              # Автоматическое provisioning дашбордов
-│   └── README.md                       # Документация Grafana
+│   │   └── dashboards.yml              # Автозагрузка дашбордов
+│   └── README.md                       # Детальная документация Grafana
 └── README.md                           # Эта документация
 ```
 
 ## Функционал
 
-### Запуск стека мониторинга
-
+### Быстрый запуск
 ```bash
-# Запуск полного observability стека
+cd ops
 docker-compose -f docker-compose.observability.yml up -d
-
-# Prometheus будет доступен на http://localhost:9090
-# Grafana будет доступен на http://localhost:3000 (admin/admin)
+# Prometheus: http://localhost:9090, Grafana: http://localhost:3000 (admin/admin)
 ```
 
 ### Метрики и алертинг
 
-**Собираемые метрики:**
-- **Стоимость LLM**: Потребление токенов и долларовые расходы
-- **Производительность агентов**: Успешность workflow, время governance-проверок
-- **HPC симуляции**: Throughput, JIT-компиляция, кеширование артефактов
-- **Калибровка**: Loss, градиенты, сходимость
+**Ключевые метрики:**
+- **LLM Cost**: Токены → USD (prompt: $0.00001, completion: $0.00003)
+- **Agents**: Workflow success rate, governance latency, error rates
+- **HPC**: Simulation throughput, JIT compilation, cache hit ratio
+- **Calibration**: Loss convergence, gradient norms
 
-**Система алертинга:**
-- Превышение бюджета LLM (>50$/час, >100$/час критично)
-- Высокая ошибка workflow (>5%, >20% критично)
-- Проблемы симуляций (застревание, низкий cache hit ratio)
-- Проблемы калибровки (расходящиеся градиенты)
+**Алертинг (severity levels: warning/critical):**
+- LLM budget exceeded (>$50/h warning, >$100/h critical)
+- Agent error spikes (>5% warning, >20% critical)
+- Simulation stalls, JIT recompilation storms
+- Calibration divergence, convergence issues
 
 ### Дашборды
-
-**Executive Overview**: Ключевые метрики для руководства (стоимость, производительность)
-
-**Scientist Agent Performance**: Детальная аналитика работы агентов, governance pipeline, LLM использование
-
-**Foundry HPC Performance**: Производительность симуляций, JAX runtime, кеширование артефактов
+- **Executive Overview**: Cost & performance для руководства
+- **Scientist Agent Performance**: Governance pipeline, LLM usage analysis
+- **Foundry HPC Performance**: JAX runtime, simulation throughput, caching
 
 ## Особенности модулей
 
 ### Prometheus
-- **Scrape interval**: 15 секунд для оперативного мониторинга
-- **Recording rules**: Предвычисление сложных метрик для производительности
-- **Alerting rules**: Автоматическое обнаружение проблем с эскалацией по severity
-- **Multi-target**: Сбор метрик из PolicyOS и самого Prometheus
+- **15s scrape interval** для оперативного мониторинга
+- **Recording rules** (30s) для предвычисления сложных метрик
+- **Multi-level alerting** с эскалацией (warning → critical)
+- **Self-monitoring** + PolicyOS metrics collection
 
 ### Grafana
-- **Автоматическое provisioning**: Дашборды загружаются автоматически при старте
-- **Ролевая аналитика**: Специализированные дашборды для разных пользователей
-- **Real-time**: Обновление каждые 30 секунд
-- **Templating**: Фильтрация по environment (production/staging)
+- **Auto-provisioning** дашбордов при запуске
+- **Role-based dashboards** для разных команд (executive/scientist/foundry)
+- **30s refresh** для real-time monitoring
+- **Environment templating** (production/staging filtering)
 
 ### Docker Compose
-- **Service dependencies**: Правильный порядок запуска (Prometheus → Grafana)
-- **Volume mounting**: Конфигурационные файлы монтируются read-only
-- **Port mapping**: Стандартные порты для локальной разработки
+- **Dependency management** (Prometheus → Grafana startup order)
+- **Read-only volumes** для конфигурационных файлов
+- **Standard ports** (9090 Prometheus, 3000 Grafana)
 
-## Связь с другими модулями
+## Связь с модулями PolicyOS
 
 ### Core/Observability
-- **Источник метрик**: Модуль `observability` экспортирует метрики на порт 9464
-- **Trace correlation**: Метрики коррелируют с distributed tracing
-- **Zero-configuration**: Метрики доступны автоматически при запуске PolicyOS
+- **Metrics source**: `observability` модуль экспортирует на `:9464/metrics`
+- **Zero-config**: Метрики доступны автоматически при запуске
+- **Trace correlation**: Интеграция с distributed tracing (OTLP)
 
 ### Foundry (HPC)
-- **JIT monitoring**: Трекинг компиляции JAX программ
-- **Simulation metrics**: Throughput, cache efficiency, calibration progress
-- **Performance alerts**: Обнаружение проблем производительности
+- **JAX monitoring**: JIT compilation tracking, cache hit ratios
+- **Simulation metrics**: Throughput, artifact caching, calibration progress
+- **Performance alerts**: Stalls, recompilation storms, convergence issues
 
 ### Scientist (Agents)
-- **Workflow tracking**: Метрики успешности экспериментов
-- **LLM cost monitoring**: Контроль расходов на AI
-- **Governance metrics**: Время и качество проверок
+- **Workflow metrics**: Success rates, governance pipeline latency
+- **LLM monitoring**: Token consumption, cost tracking
+- **Error detection**: Automated alerting on workflow failures
 
-### Runtime (Production)
-- **Production monitoring**: Полная наблюдаемость в production среде
-- **Alert integration**: Автоматические оповещения о проблемах
+### Production Runtime
+- **Full observability**: Production-grade monitoring stack
+- **Alert integration**: Automated notifications via teams/channels
 
 ## Быстрый старт
 
-1. **Запуск мониторинга:**
+1. **Запуск стека:**
    ```bash
-   cd ops
-   docker-compose -f docker-compose.observability.yml up -d
+   cd ops && docker-compose -f docker-compose.observability.yml up -d
    ```
 
-2. **Проверка метрик:**
-   - Prometheus: http://localhost:9090/targets
+2. **Доступ к интерфейсам:**
+   - Prometheus: http://localhost:9090 (targets, alerts, rules)
    - Grafana: http://localhost:3000 (admin/admin)
 
 3. **PolicyOS с метриками:**
    ```bash
    export POLISYOS_METRICS_PORT=9464
-   python -m polisyos.core.observability  # или любой модуль PolicyOS
+   python -m polisyos.core.observability
    ```
 
 ## Конфигурация
 
-### Переменные окружения
-- `POLISYOS_METRICS_PORT=9464` - Порт экспорта метрик
-- `POLISYOS_LLM_BUDGET_HOURLY=50` - Бюджет LLM в долларах/час
+### Environment Variables
+- `POLISYOS_METRICS_PORT=9464` - Metrics export port
+- `POLISYOS_LLM_BUDGET_HOURLY=50` - LLM hourly budget (USD)
 
-### Кастомизация алертов
-- Редактируйте `prometheus/alerts.yml` для изменения порогов
-- Перезапустите Prometheus после изменений
-
-### Добавление дашбордов
-- Добавьте JSON файлы в `grafana/dashboards/`
-- Grafana автоматически загрузит их при следующем запуске
+### Кастомизация
+- **Alerts**: Edit `prometheus/alerts.yml`, restart Prometheus
+- **Dashboards**: Add JSON to `grafana/dashboards/`, auto-loaded on restart
+- **Recording rules**: Modify `prometheus/recording_rules.yml` for custom metrics

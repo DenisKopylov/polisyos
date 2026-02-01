@@ -1,20 +1,18 @@
-# Artifacts Module
+# Artifacts (CAS хранилище)
 
 ## Обзор
 
-Модуль `artifacts` предоставляет инфраструктуру для управления артефактами системы PolisyOS - неизменяемыми объектами с метаданными, хранящимися в Content-Addressable Storage (CAS). Модуль обеспечивает надежное хранение, верификацию и provenance tracking всех результатов вычислений в системе.
+Content-Addressable Storage для неизменяемых артефактов. SHA256 хеширование, дедупликация, provenance tracking, reproducible симуляции через EnvironmentManifest.
 
 ## Архитектура
 
-Модуль состоит из следующих компонентов:
-
 ```
 artifacts/
-├── ids.py          # Уникальные идентификаторы артефактов
-├── manifest.py     # Метаданные и манифесты артефактов
-├── environment.py  # Манифесты окружения для reproducible симуляций
-├── registry.py     # Пакеты реестров компонентов
-└── store.py        # Реализация хранилища артефактов
+├── ids.py          # ArtifactID - SHA256 идентификаторы
+├── manifest.py     # ArtifactManifest, ArtifactRef
+├── environment.py  # EnvironmentManifest с fingerprinting
+├── registry.py     # RegistryBundle
+└── store.py        # FileSystemCAS, PutOptions, VerificationReport
 ```
 
 ## Основные компоненты

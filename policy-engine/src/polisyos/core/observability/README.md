@@ -1,30 +1,18 @@
-# Observability (Наблюдаемость)
+# Observability (Телеметрия)
 
-Модуль `observability` предоставляет production-grade систему телеметрии для PolicyOS, включая распределенную трассировку с OpenTelemetry, Prometheus-совместимые метрики, структурированное логирование с корреляцией трассировки и инструменты распространения контекста через thread/async границы.
-
-## Обзор
-
-Модуль обеспечивает унифицированные возможности наблюдения за всей системой PolicyOS:
-
-- **Распределенная трассировка**: span-based моделирование с поддержкой OpenTelemetry
-- **Prometheus метрики**: готовые метрики для workflow, симуляций, LLM вызовов и HPC операций
-- **Структурированное логирование**: JSON-формат с автоматической инъекцией trace_id/span_id
-- **Zero-configuration instrumentation**: простые декораторы для автоматической трассировки
-- **Контекстная пропаганда**: распространение трассировки через потоки, async задачи и сервисы
+Production-grade система телеметрии: OpenTelemetry трассировка, Prometheus метрики, структурированное логирование с trace correlation, декораторы для zero-configuration instrumentation.
 
 ## Архитектура
 
-Модуль состоит из следующих компонентов:
-
 ```
 observability/
-├── __init__.py        # Экспорт основных функций и quick start
-├── config.py          # Конфигурация OpenTelemetry (OTelConfig, ResourceConfig)
-├── tracer.py          # OpenTelemetry трассировщик (PolicyOSTracer, get_tracer)
-├── decorators.py      # Декораторы для автоматической трассировки (@traced, @traced_method)
-├── logs.py            # Структурированное логирование с trace correlation (TraceContextFilter, StructuredFormatter)
-├── metrics.py         # Prometheus-совместимые метрики (MetricsRegistry, HistogramTimer)
-└── propagation.py     # Распространение контекста трассировки (inject_headers, extract_headers, TracedExecutorWrapper)
+├── __init__.py        # Quick start и экспорт
+├── config.py          # OTelConfig, ResourceConfig
+├── tracer.py          # PolicyOSTracer, get_tracer
+├── decorators.py      # @traced, @traced_method
+├── logs.py            # TraceContextFilter, StructuredFormatter
+├── metrics.py         # MetricsRegistry, HistogramTimer
+└── propagation.py     # inject_headers, TracedExecutorWrapper
 ```
 
 ## Быстрый старт
@@ -32,267 +20,34 @@ observability/
 ```python
 from polisyos.core.observability import get_tracer, get_metrics, traced
 
-# Получение глобальных экземпляров
-tracer = get_tracer()
-metrics = get_metrics()
-
-# Использование декоратора для автоматической трассировки
 @traced(phase="EXECUTE", node="run_sim")
 def run_simulation():
-    with metrics.time_simulation({"node": "run_sim"}):
-        # Логика симуляции
+    with get_metrics().time_simulation({"node": "run_sim"}):
         pass
 ```
 
 ## Конфигурация
 
-### Переменные окружения
+Переменные окружения: `POLISYOS_OTEL_ENABLED`, `OTEL_EXPORTER_OTLP_ENDPOINT`, `POLISYOS_METRICS_PORT`, `POLISYOS_TRACE_SAMPLING_RATIO`.
 
-- `POLISYOS_OTEL_ENABLED` (default: `true`) - Включение/отключение OpenTelemetry
-- `POLISYOS_HPC_OBSERVABILITY_ENABLED` (default: `true`) - Включение HPC observability (Phase 3)
-- `OTEL_EXPORTER_OTLP_ENDPOINT` - OTLP collector endpoint
-- `OTEL_EXPORTER_OTLP_PROTOCOL` - Протокол (grpc или http/protobuf)
-- `POLISYOS_OTEL_CONSOLE_EXPORT` (default: `false`) - Консольный экспорт для отладки
-- `POLISYOS_METRICS_PORT` (default: `9464`) - Порт для Prometheus метрик
-- `POLISYOS_TRACE_SAMPLING_RATIO` (default: `1.0`) - Доля трасс, сохраняемых в tracing
-- `POLISYOS_ALWAYS_SAMPLE_ERRORS` (default: `true`) - Best-effort выборка спанов с ошибками
-
-### Основные классы конфигурации
-
-#### OTelConfig
-Централизованная конфигурация OpenTelemetry с поддержкой переменных окружения:
-
-```python
-from polisyos.core.observability.config import OTelConfig
-
-config = OTelConfig(
-    enabled=True,
-    hpc_observability_enabled=True,
-    service_name="policy-engine",
-    trace_exporter="otlp_grpc",
-    metrics_exporter="prometheus",
-    metrics_port=9464
-)
-```
-
-### Trace Sampling (Phase 4)
-
-Для контроля стоимости трассировки используйте head-based sampling:
-
-- **development**: `POLISYOS_TRACE_SAMPLING_RATIO=1.0`
-- **staging**: `POLISYOS_TRACE_SAMPLING_RATIO=0.1`
-- **production**: `POLISYOS_TRACE_SAMPLING_RATIO=0.01`
-
-Политика sampling: Root span выбирается по `TraceIdRatioBased`, дочерние спаны
-наследуют решение (ParentBased). При `POLISYOS_ALWAYS_SAMPLE_ERRORS=true`
-спаны, создаваемые с атрибутом `error=true`, принудительно сохраняются.
-
-**Ограничение:** head sampling не видит ошибки, возникающие после решения о
-выборке; для полного покрытия используйте tail-sampling в OTel Collector.
-
-#### ResourceConfig
-Атрибуты ресурса для идентификации сервиса:
-
-```python
-from polisyos.core.observability.config import ResourceConfig
-
-resource = ResourceConfig(
-    service_name="policy-engine",
-    service_version="1.0.0",
-    deployment_environment="production",
-    determinism_tier="REPRODUCIBLE"
-)
-```
+Классы: `OTelConfig` (централизованная конфигурация), `ResourceConfig` (атрибуты сервиса). Trace sampling с head-based политикой.
 
 ## Компоненты
 
-### 1. Tracer (Трассировщик)
+### Tracer
+`PolicyOSTracer` singleton с ленивой инициализацией. `get_tracer()` для глобального доступа.
 
-#### PolicyOSTracer
-Singleton-обертка для OpenTelemetry TracerProvider с ленивой инициализацией.
+### Decorators
+`@traced(phase="...", node="...")` для автоматической трассировки функций. `@traced_method` для классов.
 
-```python
-from polisyos.core.observability import get_tracer
+### Logs
+`TraceContextFilter` добавляет trace_id/span_id. `StructuredFormatter` для JSON логов.
 
-tracer = get_tracer()
+### Metrics
+`MetricsRegistry` с Prometheus экспортерами. Метрики: workflow, simulation, LLM calls, artifacts, calibration.
 
-# Создание дочернего спана
-with tracer.start_as_current_span("operation_name") as span:
-    span.set_attribute("custom.attribute", "value")
-    # Операция
-    pass
-```
-
-#### get_tracer()
-Глобальный доступ к трассировщику:
-
-```python
-tracer = get_tracer()
-current_context = tracer.get_current_trace_context()
-```
-
-### 2. Decorators (Декораторы)
-
-#### @traced
-Автоматическое создание спанов вокруг функций с поддержкой async/sync:
-
-```python
-from polisyos.core.observability import traced
-
-@traced(phase="FABRIC", node="data_processor")
-def process_data(input_data: dict) -> dict:
-    # Функция автоматически трассируется
-    return {"result": "processed"}
-
-@traced(phase="FOUNDRY", node="simulator", attributes={"simulation_type": "agent"})
-async def run_async_simulation(params: dict) -> dict:
-    # Async функция тоже поддерживается
-    return {"status": "completed"}
-```
-
-#### @traced_method
-Специализированный декоратор для методов классов:
-
-```python
-class DataProcessor:
-    @traced_method(phase="FABRIC", node="validator")
-    def validate_input(self, data: dict) -> bool:
-        return len(data) > 0
-```
-
-### 3. Logs (Логирование)
-
-#### TraceContextFilter
-Фильтр логирования, добавляющий trace_id и span_id:
-
-```python
-import logging
-from polisyos.core.observability.logs import TraceContextFilter, StructuredFormatter
-
-# Настройка структурированного логирования
-logger = logging.getLogger(__name__)
-handler = logging.StreamHandler()
-
-# Добавление фильтра для trace correlation
-handler.addFilter(TraceContextFilter())
-
-# JSON форматтер
-handler.setFormatter(StructuredFormatter())
-logger.addHandler(handler)
-logger.setLevel(logging.INFO)
-
-# Логи автоматически включают trace_id и span_id
-logger.info("Processing started", extra={"user_id": 123})
-```
-
-#### StructuredFormatter
-JSON-форматтер для структурированного логирования совместимый с ELK stack.
-
-#### configure_otel_logging_handler()
-Интеграция с существующей системой логирования:
-
-```python
-from polisyos.core.observability.logs import configure_otel_logging_handler
-
-# Настройка интеграции
-configure_otel_logging_handler()
-```
-
-### 4. Metrics (Метрики)
-
-#### MetricsRegistry
-Singleton-реестр метрик с Prometheus-совместимыми экспортерами:
-
-```python
-from polisyos.core.observability import get_metrics
-
-metrics = get_metrics()
-
-# Счетчики
-metrics.workflow_runs_total.add(1, {"status": "success", "phase": "EXECUTE"})
-metrics.llm_calls_total.add(1, {"model": "gpt-4", "status": "success"})
-
-# Гистограммы
-with metrics.time_simulation({"node": "run_sim"}):
-    run_simulation()
-
-# Gauges
-metrics.active_runs.add(1)  # Увеличить
-metrics.active_runs.add(-1)  # Уменьшить
-```
-
-#### Доступные метрики
-
-- `polisyos_workflow_runs_total` (Counter) - Общее количество запусков workflow по статусу
-- `polisyos_simulation_duration_seconds` (Histogram) - Время выполнения симуляций
-- `polisyos_simulation_steps_total` (Counter) - Общее количество шагов симуляции
-- `polisyos_simulation_compile_seconds` (Histogram) - Время компиляции симуляций
-- `polisyos_simulation_steps_per_second` (Gauge) - Шаги симуляции в секунду
-- `polisyos_llm_calls_total` (Counter) - Вызовы LLM API по модели и статусу
-- `polisyos_llm_tokens_total` (Counter) - Потребленные токены LLM по типу
-- `polisyos_active_runs` (UpDownCounter) - Активные эксперименты
-- `polisyos_validation_issues_total` (Counter) - Проблемы валидации по severity
-- `polisyos_artifact_operations_total` (Counter) - Операции с артефактами CAS
-- `polisyos_artifact_io_bytes` (Histogram) - Байты ввода-вывода артефактов
-- `polisyos_artifact_cache_hits_total` (Counter) - Попадания в кеш артефактов
-- `polisyos_artifact_cache_misses_total` (Counter) - Промахи кеша артефактов
-- `polisyos_calibration_loss` (Gauge) - Потери калибровки
-- `polisyos_calibration_grad_norm` (Gauge) - Норма градиента калибровки
-- `polisyos_governance_pass_duration_seconds` (Histogram) - Время проходов governance
-
-#### HistogramTimer
-Контекстный менеджер для измерения времени выполнения:
-
-```python
-timer = HistogramTimer(metrics.simulation_duration_seconds, {"node": "simulator"})
-
-with timer:
-    run_expensive_operation()
-```
-
-### 5. Propagation (Распространение контекста)
-
-#### inject_headers() / extract_headers()
-Инъекция/экстракция контекста в HTTP заголовки:
-
-```python
-from polisyos.core.observability.propagation import inject_headers, extract_headers
-
-# Инъекция в заголовки
-headers = {}
-inject_headers(headers)
-
-# Экстракция из заголовков
-extract_headers(headers)
-```
-
-#### propagate_context()
-Контекстный менеджер для распространения контекста:
-
-```python
-from polisyos.core.observability.propagation import propagate_context
-
-with propagate_context(headers):
-    # Контекст трассировки восстановлен
-    pass
-```
-
-#### TracedExecutorWrapper
-Обертка для ThreadPoolExecutor с распространением трассировки:
-
-```python
-from concurrent.futures import ThreadPoolExecutor
-from polisyos.core.observability.propagation import TracedExecutorWrapper
-
-def worker_task(task_id: int):
-    # Trace context наследуется автоматически
-    return f"Task {task_id} completed"
-
-with ThreadPoolExecutor() as executor:
-    traced_executor = TracedExecutorWrapper(executor)
-    # Все задачи в thread pool наследуют trace context
-    futures = traced_executor.map(worker_task, range(10))
-```
+### Propagation
+`inject_headers()`, `extract_headers()`, `propagate_context()`, `TracedExecutorWrapper` для распространения контекста через границы.
 
 ## Инструментация по фазам
 

@@ -14,7 +14,7 @@ Compute Layer определяет интерфейсы и спецификац�
 compute/
 ├── __init__.py           # Экспорт основных компонентов
 ├── job_spec.py          # Спецификации задач (JobSpec, JobKey, JobResult)
-└── runner.py            # Execution backends (LocalBackend, RayBackend)
+└── runner.py            # Execution backends (LocalBackend, RayBackend skeleton)
 ```
 
 ## Компоненты

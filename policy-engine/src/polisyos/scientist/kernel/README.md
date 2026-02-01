@@ -14,7 +14,7 @@ Kernel Layer обеспечивает контроль выполнения, б�
 kernel/
 ├── __init__.py           # Экспорт основных компонентов
 ├── budgets.py            # Модели бюджетов (Compute, Evidence, Legitimacy, Complexity)
-├── fsm.py               # Конечный автомат состояний (Phase, KernelState)
+├── fsm.py               # Конечный автомат состояний (Phase, KernelState, ALLOWED_TRANSITIONS)
 ├── guards.py            # Проверки переходов между состояниями
 └── human_gate.py        # Асинхронные human gates для одобрения
 ```

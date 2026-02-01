@@ -2,7 +2,7 @@
 
 Валидация search loop system - Phase 17 optimization, two-stage filtering, stopping criteria, objective functions, candidate generation.
 
-**Последнее обновление:** Январь 2026 (Phase 17 optimization, two-stage filtering, search controller, stopping criteria, workflow engines)
+**Последнее обновление:** 1 февраля 2026 (Phase 17 optimization, two-stage filtering, search controller, stopping criteria, workflow engines)
 **Уровень:** Search Layer (Optimization & Refinement)
 **Зависимости:** JAX, Core artifacts, IR structures, Foundry execution, Fabric trust, Workflow engines
 

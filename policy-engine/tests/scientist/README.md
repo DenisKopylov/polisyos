@@ -2,7 +2,7 @@
 
 Валидация компонентов scientist layer - протоколов агентов, компилятора политик, ИИ-компонентов, optimization loop и workflow engines.
 
-**Последнее обновление:** Январь 2026 (добавлены Phase 18: Safe Expression Evaluation, AST Policy validation, norm execution security, legal AST backends, expression evaluators, governance security testing, legal pass тесты, norm pack validation, decision card system, run timeline tracking, decision packet v2, search loop system, workflow engines, Phase 2 instrumentation: flow node tracing, LLM client instrumentation, governance pipeline spans, end-to-end workflow tracing)
+**Последнее обновление:** 1 февраля 2026 (добавлены Phase 18: Safe Expression Evaluation, AST Policy validation, norm execution security, legal AST backends, expression evaluators, governance security testing, legal pass тесты, norm pack validation, decision card system, run timeline tracking, decision packet v2, search loop system, workflow engines, Phase 2 instrumentation: flow node tracing, LLM client instrumentation, governance pipeline spans, end-to-end workflow tracing)
 **Уровень:** Scientist Layer (AI & Compilation & Optimization & Instrumentation)
 **Зависимости:** JAX, Core artifacts, IR structures, Legal contracts, Search objectives, Workflow engines, OpenTelemetry tracing
 

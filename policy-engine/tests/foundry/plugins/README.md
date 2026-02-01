@@ -2,7 +2,7 @@
 
 Тесты модульной плагинной архитектуры Foundry layer с capability-based plugin registry.
 
-**Последнее обновление:** Январь 2026
+**Последнее обновление:** 1 февраля 2026
 **Уровень:** Foundry Layer / Plugin System
 **Зависимости:** JAX, Plugin API, Core registry
 

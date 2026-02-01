@@ -1,6 +1,6 @@
 # Migrations: Система версионирования артефактов
 
-> **Последнее обновление:** 26 января 2026 г.
+> **Последнее обновление:** 1 февраля 2026 г. (добавлена TRINITY_CURRENT_VERSION в API)
 
 Модуль `polisyos.common.migrations` предоставляет детерминированную систему версионирования артефактов Policy Engine. Система обеспечивает безопасные преобразования данных между версиями схем с обнаружением циклов миграций.
 
@@ -104,6 +104,8 @@ POLICY_IR_CURRENT_VERSION = "2.0"
 TRINITY_CURRENT_VERSION = "1.0"
 ```
 
+**Доступность в API:** Все версии теперь экспортируются через публичный API модуля в `__init__.py`.
+
 #### Особенности версионирования
 
 - **Policy IR v2.0** является стабильной основной версией для PolicySurfaceIR
@@ -154,11 +156,13 @@ migrated = migrate_artifact(manifest_data, "dataset_manifest", "1.0")
 # Результат: {"schema_version": "1.0", "dataset_name": "test"}
 
 # Trinity миграции - преобразование между форматами
+from polisyos.common.migrations import TRINITY_CURRENT_VERSION, POLICY_IR_CURRENT_VERSION
+
 # PolicySurfaceIR → TrinityBundle
-trinity_bundle = migrate_artifact(policy_surface_data, "policy_surface_to_trinity", "1.0")
+trinity_bundle = migrate_artifact(policy_surface_data, "policy_surface_to_trinity", TRINITY_CURRENT_VERSION)
 
 # TrinityBundle → PolicySurfaceIR
-policy_surface_data = migrate_artifact(trinity_bundle, "trinity_to_policy_surface", "2.0")
+policy_surface_data = migrate_artifact(trinity_bundle, "trinity_to_policy_surface", POLICY_IR_CURRENT_VERSION)
 ```
 
 ### Регистрация новых миграций

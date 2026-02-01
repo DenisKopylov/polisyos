@@ -40,7 +40,7 @@ search/
 ├── __init__.py          # Экспорт основных компонентов
 ├── controller.py        # SearchController и управление поиском
 ├── objective.py         # Определение целей оптимизации
-├── stages.py            # Стадии оценки кандидатов
+├── stages.py            # Стадии оценки кандидатов (cheap/expensive)
 └── stopping.py          # Критерии остановки поиска
 ```
 

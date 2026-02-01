@@ -2,7 +2,7 @@
 
 Тестовая инфраструктура для Policy Engine - AI-driven Policy Simulation System. Тесты обеспечивают качество кода, валидируют архитектурные границы и проверяют корректность работы всех компонентов системы.
 
-**Последнее обновление:** 30 января 2026 (добавлены perf-regression CI workflow, diagnostics tools, check_perf_regression.py скрипт, ops/ директория с инструментами, fabric/connectors/ с тестами protocol compliance для data fabric connectors)
+**Последнее обновление:** 1 февраля 2026 (обновлена структура документации согласно актуальному состоянию тестовой инфраструктуры)
 **Актуальная версия архитектуры:** v2.4.1 (Performance Regression Detection, Enhanced Diagnostics, Core Observability v2.0, Phase 18 Security v2.1)
 
 ## Архитектурный контекст
@@ -20,6 +20,7 @@
 tests/
 ├── conftest.py                    # Конфигурация pytest и настройка окружения
 ├── contract/                      # Тесты контрактов IR и схем валидации
+│   ├── README.md                  # Документация contract тестов
 │   ├── test_ir_contract.py        # PolicySurfaceIR, селекторы, валидация, TranslatableString
 │   ├── test_ir_migrations.py      # Миграции схем IR между версиями
 │   ├── test_trinity_contracts.py  # Trinity артефакты: ProblemFrame, PolicySpec, ModelSpec
@@ -28,6 +29,7 @@ tests/
 │   ├── test_kernel_models.py      # Валидация моделей ядра IR (slots, units, merge rules, time semantics)
 │   └── test_surface_ir.py         # Surface IR, линкер, semantic fingerprinting, validation reports
 ├── core_phase0/                   # Тесты базовых компонентов core (Phase 0 + Observability)
+│   ├── README.md                  # Документация core phase 0 тестов
 │   ├── conftest.py                # Специфичная конфигурация для core тестов
 │   ├── test_artifact_store.py     # FileSystemCAS, дедупликация, верификация integrity
 │   ├── test_canon_json.py         # Каноническая JSON сериализация, детерминированные хэши
@@ -41,20 +43,40 @@ tests/
 │   ├── test_run_context.py        # Контекст выполнения и артефакты producer'а
 │   └── test_tracer.py             # PolicyOSTracer singleton и core tracing behaviors
 ├── demos/                         # Демо-тесты для проверки функциональности
+│   ├── README.md                  # Документация демо-тестов
 │   └── run_laffer_demo.py         # Тест запуска демо Laffer curve из tools/demos/
 ├── fabric/                        # Тесты компонентов Fabric layer
+│   ├── README.md                  # Документация fabric тестов
 │   ├── connectors/                # Тесты протокола подключения данных (Data Fabric Connectors)
 │   │   ├── __init__.py            # Пакет connectors тестов
-│   │   └── test_protocol_compliance.py # Protocol compliance, capability validation, error hierarchy, connector metadata
+│   │   ├── conftest.py            # Специфичная конфигурация для connector тестов
+│   │   ├── reference/             # Тесты reference implementations
+│   │   │   ├── test_rest_json.py  # REST JSON connector reference tests
+│   │   │   ├── test_sdmx.py       # SDMX connector reference tests
+│   │   │   └── test_static_csv.py # Static CSV connector reference tests
+│   │   ├── test_cache_system.py   # Cache system для connectors
+│   │   ├── test_federation.py     # Federation capabilities для connectors
+│   │   ├── test_harness.py        # Test harness для connector development
+│   │   ├── test_integration.py    # Integration tests для connectors
+│   │   ├── test_protocol_compliance.py # Protocol compliance, capability validation, error hierarchy, connector metadata
+│   │   ├── test_quality_system.py # Quality system integration для connectors
+│   │   ├── test_registry.py       # Registry system для connectors
+│   │   ├── test_resilience.py     # Resilience и error handling для connectors
+│   │   ├── test_schema_system.py  # Schema system для connectors
+│   │   ├── test_transform_pipeline.py # Transform pipeline для connectors
+│   │   └── test_type_system.py    # Type system для connectors
 │   ├── test_data_catalog.py       # Data Contract catalog system, contract validation, metric bindings, search
 │   ├── test_evidence_bundle.py    # Evidence bundles, ingestion pipeline, provenance tracking
 │   ├── test_provenance.py         # Provenance subsystem, entities, graphs, PROV-O export, persistence
-│   ├── test_trust_two_pass.py     # Trust system, uncertainty bounds, двухпроходное сравнение
-│   └── test_quality_indicators.py # Quality indicators system, fitness reports, quality gate pass integration
+│   ├── test_quality_indicators.py # Quality indicators system, fitness reports, quality gate pass integration
+│   └── test_trust_two_pass.py     # Trust system, uncertainty bounds, двухпроходное сравнение
 ├── foundry/                       # Тесты симуляционных компонентов JAX-ядра
+│   ├── README.md                  # Документация foundry тестов
 │   ├── agent_sim/                 # Тесты симуляции агентов
+│   │   ├── README.md              # Документация agent simulation тестов
 │   │   └── test_monitoring.py     # MetricsCollector, ExperimentTracker, DashboardGenerator, визуализация
 │   ├── plugins/                   # Тесты плагинной системы Foundry
+│   │   ├── README.md              # Документация plugin system тестов
 │   │   └── test_plugin_system.py  # PluginRegistry, CompositeExecutor, EconomicsPlugin, domain configs
 │   ├── test_adaptive_agents.py    # Адаптивные агенты и их поведение
 │   ├── test_agent_artifact.py      # AgentPolicyArtifact, EnvironmentFingerprint, hot-swap compatibility
@@ -81,30 +103,38 @@ tests/
 │   ├── test_program_graph_ops.py  # Операции с программными графами, execution order
 │   └── test_runtime_batch.py      # Пакетное выполнение программ с JAX
 ├── integration/                   # Интеграционные тесты end-to-end сценариев
+│   ├── README.md                  # Документация integration тестов
 │   ├── test_calibration_udf.py    # Калибровка параметров с UDF движком и историческими данными
 │   ├── test_workflow_smoke.py     # Полный smoke-test pipeline (draft → simulate → governor → decision)
 │   └── test_workflow_llm.py       # Интеграция с LLM компонентами и языковыми моделями
 ├── ir/                            # Тесты компонентов IR layer
+│   ├── README.md                  # Документация IR тестов
 │   └── test_loaders.py            # Загрузчики политик из различных форматов, norm_pack структуры
 ├── performance/                   # Тесты производительности и регрессии
+│   ├── README.md                  # Документация performance тестов
 │   └── test_overhead.py            # Overhead валидация (simulation <2%, CAS I/O <5%, calibration <3%)
 ├── runtime/                       # Тесты runtime компонентов
+│   ├── README.md                  # Документация runtime тестов
 │   └── test_runtime_manifest_paths.py # Управление runs, артефакты, пути
 ├── tools/                         # Инструменты тестирования и диагностики
 │   └── diagnostics/                # Диагностические скрипты и утилиты
 │       └── check_perf_regression.py # Проверка performance регрессии
 └── ops/                           # Операционные инструменты и скрипты
 └── scientist/                     # Тесты компонентов scientist
+    ├── README.md                  # Документация scientist тестов
+    ├── conftest.py                # Конфигурация для scientist тестов
     ├── governance/                # Тесты governance layer (validation pipeline, legal compliance, Phase 18 security)
+    │   ├── README.md              # Документация governance тестов
     │   ├── test_legal_pass.py     # LegalPass, RuleBackend, NormPack validation
     │   ├── test_norm_execution.py # Phase 18: Safe expression evaluation, AST policy, security validation
     │   └── test_validation_pipeline.py # ValidationPipeline, profiles, compliance issues
     ├── integration/               # Интеграционные тесты scientist layer (Phase 2 instrumentation)
     │   └── test_workflow_tracing.py # End-to-end workflow tracing, trace consistency, phase validation
     ├── search/                    # Тесты search loop system (Phase 17 optimization)
+    │   ├── README.md              # Документация search тестов
+    │   ├── __init__.py            # Пакет search тестов
     │   ├── conftest.py            # Специфичная конфигурация для search тестов
-    │   ├── test_search_loop.py    # SearchController, two-stage filtering, stopping criteria, objectives
-    │   └── __init__.py
+    │   └── test_search_loop.py    # SearchController, two-stage filtering, stopping criteria, objectives
     ├── test_agent_protocols.py    # Протоколы агентов: PI, Drafter, Formalizer, Critic
     ├── test_compiler.py           # Компилятор политик из IR
     ├── test_decision_card.py      # DecisionCard, Verdict, Confidence, KeyMetric, IssuesSummary

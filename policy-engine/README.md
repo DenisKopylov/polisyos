@@ -1,4 +1,4 @@
-# Policy Engine (PolisyOS) v2.4.0
+# Policy Engine (PolisyOS) v2.4.2
 
 Policy Engine is an **AI-driven policy operating system** for designing, validating, calibrating, and executing public-policy interventions as reproducible computational experiments.
 
@@ -13,8 +13,8 @@ It is built around a **compiler pipeline** mindset:
 This README describes **the project laws**, **data/decision flows**, **business logic**, **dependency logic**, **technologies**, and **key abstractions**.
 For a file-by-file map of the repository, see `architecture.md`.
 
-**Latest Update:** January 30, 2026 (Trinity IR Architecture, Data Connectors System Phase 2.2, Quality Gate Validation, Data Contract Catalog, Provenance System v2.0, Fact Log Integration, AST Policy Security, Performance Regression Detection, Core Observability v2.0, Phase 18 Security v2.1)
-**Current Architecture Version:** v2.4.1 (Trinity IR Architecture, Data Connectors System Phase 2.2, Quality Gate Validation, Data Contract Catalog, Provenance System v2.0, Fact Log Integration, AST Policy Security, Performance Regression Detection, Core Observability v2.0, Phase 18 Security v2.1)
+**Latest Update:** February 1, 2026 (Enhanced Agent Simulation System, Advanced Calibration Framework, Self-Healing Workflow Architecture, Data Connectors Phase 2.2 Complete, Quality Assessment System v2.1, Fact Log System Integration, Legal Compliance AST Backend, Core Observability v2.1, Runtime Environment Fingerprinting, Trinity IR Migration System)
+**Current Architecture Version:** v2.4.2 (Enhanced Agent Simulation System, Advanced Calibration Framework, Self-Healing Workflow Architecture, Data Connectors Phase 2.2 Complete, Quality Assessment System v2.1, Fact Log System Integration, Legal Compliance AST Backend, Core Observability v2.1, Runtime Environment Fingerprinting, Trinity IR Migration System)
 
 ---
 
@@ -24,6 +24,12 @@ For a file-by-file map of the repository, see `architecture.md`.
 - **Reproducibility-first execution**: runs and artifacts are content-addressed, traceable, and (where feasible) deterministic.
 - **Governance before and after execution**: preflight/postflight checks gate unsafe, invalid, low-quality, privacy-violating, or legally non-compliant policies.
 - **Separation of concerns**: data layer (Fabric) is isolated from orchestration (Scientist) and from pure execution core (Foundry).
+
+---
+
+## Developer docs
+
+- Data connector contribution guide: `docs/connectors/CONTRIBUTING.md`
 
 ---
 
@@ -71,13 +77,13 @@ These are the “laws” the codebase is designed to uphold (some enforced by to
 The system is organized as a set of layers with intentionally **directed dependencies** (Law A):
 
 - **Scientist** → IR, Fabric, Foundry, Runtime, Core, Common
-  Orchestration sits at the top and is allowed to depend on most layers. Includes hierarchical agent system (PI→Drafter→Formalizer→Critic), FSM-based workflow orchestration, self-healing reflexion patterns, governance passes pipeline, Phase 18 safe expression evaluation, legal compliance validation, search loop system with two-stage filtering, workflow engines (LangGraph/SimpleLoop), LLM tracing infrastructure, decision card system, run timeline tracking, and multi-agent workflow orchestration with Phase 2 instrumentation (flow node tracing, LLM client instrumentation, governance pipeline spans, end-to-end workflow tracing).
+  Orchestration sits at the top and is allowed to depend on most layers. Includes hierarchical agent system with protocols and self-healing (PI→Drafter→Formalizer→Critic with FailureCard routing and ShortTermMemory), FSM-based workflow orchestration with 9 phases and guards, governance passes pipeline with legal compliance (AST Policy backend, NormPack evaluation, safe expression evaluation), search framework with two-stage filtering and intelligent stopping criteria, workflow engines (LangGraph declarative orchestration, SimpleLoop for basic processes), LLM tracing infrastructure with TracedLLMClient and OpenTelemetry integration, decision packet system with evidence references and uncertainty bounds, decision card summaries, run timeline tracking with event-based observability, multi-agent workflow orchestration with Phase 2 instrumentation, kernel layer with budgets (Compute/Evidence/Legitimacy/Complexity) and human gates, compute layer with job specifications and distributed execution backends, and comprehensive governance with preflight/postflight checks and validation profiles.
 
 - **Fabric** → IR, Core, Common
-  Data layer depends on contracts and infrastructure, but not on orchestration. Includes unified data fabric with Phase 2.2 data connectors system (capability-based protocol, registry with lazy loading, discovery, connection pooling), evidence bundles with cryptographic verification, W3C PROV-O compliant provenance tracking, trust quantification with statistical verification, quality indicators system (missingness/staleness/coverage/outlier detection), fitness reports with configurable thresholds, quality gate validation integration with governance pipeline, data contract catalog with hash-locked bindings, ingestion pipeline with entity resolution, trust two-pass comparison, fact log system with immutable facts and deterministic IDs, materializer engine for incremental updates, and CAS integration with Arrow support.
+  Data layer depends on contracts and infrastructure, but not on orchestration. Includes unified data fabric with Phase 2.2 data connectors system (capability-based protocol, registry with lazy loading, discovery, connection pooling, federation, resilience patterns), evidence bundles with cryptographic verification, W3C PROV-O compliant provenance tracking v2.0, trust quantification with statistical verification and two-pass comparison, quality indicators system v2.1 (missingness/staleness/coverage/outlier/schema drift detection), fitness reports with configurable thresholds and quality gate validation, data contract catalog with hash-locked bindings and fuzzy search with disambiguation, ingestion pipeline with entity resolution and reconciliation, fact log system with immutable facts, deterministic IDs and semantic network, materializer engine for incremental relational updates, trust policies with statistical verification, and CAS integration with Arrow support for high-performance columnar data.
 
 - **Foundry** → IR, Core, Common
-  Execution core depends on contracts and infrastructure, but not on data storage/orchestration. Includes JAX-based simulation engine with compile-time conflict detection, cost modeling, NaN guard for numerical stability, agent artifacts with environment fingerprinting, merge determinism, patch-based state management, plugin system with capability-based registry, adaptive agents with learning metrics, calibrator fidelity control, gradient health monitoring, and runtime batch execution.
+  Execution core depends on contracts and infrastructure, but not on data storage/orchestration. Includes JAX-based simulation engine with advanced agent simulation system (32 modules: actor-critic architectures, demographics, evolution algorithms, graph mechanisms, temporal processing), compile-time conflict detection and cost modeling, NaN guard for numerical stability, agent artifacts with environment fingerprinting and determinism tier validation, merge determinism with patch-based state management, plugin system with capability-based registry, adaptive agents with learning metrics and continuous action spaces, calibrator with bijectors and loss functions (MSE/Huber/weighted), gradient health monitoring and uncertainty quantification, runtime batch execution, and comprehensive test suite covering all simulation components.
 
 - **Runtime** → IR, Core, Common
   Run lifecycle management depends on contracts and infrastructure. Provides portable run manifests, artifact management, audit trail logging, and full observability integration with PolicyOSTracer and MetricsRegistry.
@@ -118,42 +124,46 @@ At a high level, Policy Engine runs an experiment as a staged pipeline:
    - Search loop system: Two-stage filtering (cheap/expensive evaluation) with composite objectives and intelligent stopping criteria
    - Phase 2 instrumentation: End-to-end tracing of flow nodes, LLM client interactions, and governance pipeline spans
 
-3. **IR construction (Trinity + kernel registries + legal norms)**
-   Policies are represented as typed IR. The modern representation is Trinity:
-   - `ProblemFrame` ("why / what success means")
-   - `PolicySpec` ("what intervention we change")
-   - `ModelSpec` ("how/where the model and data are configured")
-   - `NormPack` ("legal compliance rules with jurisdiction context")
+3. **IR construction (Trinity + kernel registries + legal norms + data connectors)**
+   Policies are represented as typed IR with Trinity architecture for clean separation of concerns:
+   - `ProblemFrame` ("why / what success means" - constant throughout experiment)
+   - `PolicySpec` ("what intervention we change" - iterated during optimization)
+   - `ModelSpec` ("how/where the model and data are configured" - varied for sensitivity analysis)
+   - `TrinityBundle` (typed container with migration support between versions)
+   - `NormPack` ("legal compliance rules with jurisdiction context and AST evaluation")
+   - `Data Connectors` ("capability-based protocol for external data sources integration")
 
-4. **Validation & linking (governance passes pipeline)**
-   IR is validated through modular governance passes including:
-   - Schema validation (Trinity contracts, PolicySurfaceIR compatibility)
-   - Safety checks (mechanism validation, constraint enforcement)
-   - Privacy controls (PII tiers, access control)
-   - Legal compliance (Phase 18 AST-based safe expression evaluation)
-   - Quality gates (data readiness via quality indicators system)
-   - Budget enforcement (compute, evidence, legitimacy, complexity limits)
+4. **Validation & linking (governance passes pipeline + quality assessment)**
+   IR is validated through comprehensive governance passes including:
+   - Schema validation (Trinity contracts, PolicySurfaceIR compatibility, migration support)
+   - Safety checks (mechanism validation, constraint enforcement, compile-time conflict detection)
+   - Privacy controls (PII tiers, access control, data contract validation)
+   - Legal compliance (Phase 18 AST-based safe expression evaluation, NormPack validation)
+   - Quality gates (data readiness via quality indicators system v2.1 with configurable thresholds)
+   - Trust validation (statistical verification, evidence bundles, provenance tracking)
+   - Budget enforcement (compute, evidence, legitimacy, complexity limits with multi-tier controls)
    Then linked against kernel registries (mechanisms, slots, merge rules, units, metrics).
 
-5. **Data views & Fabric execution (evidence + trust + quality + provenance)**
+5. **Data views & Fabric execution (evidence + trust + quality + provenance + connectors)**
    Fabric produces data views (via UDF compilation and execution) and attaches comprehensive metadata:
-   - Evidence bundles with cryptographic provenance verification and CAS storage
-   - Trust quantification with uncertainty bounds, statistical verification, and two-pass comparison
-   - Quality indicators system (missingness, staleness, coverage, schema drift, outlier detection) with fitness reports and configurable thresholds
-   - Quality gate validation integration with governance pipeline for blocking poor quality data
-   - Data contract catalog with hash-locked bindings and fuzzy search with disambiguation
-   - Provenance system with W3C PROV-O compliance and complete lineage tracking
-   - Fact log system with immutable facts, deterministic IDs, and semantic network
-   - Materializer engine for incremental relational view updates from fact log
-   - Data connectors system (Phase 2.2) with protocol, registry, discovery, pooling, and external data integration
+   - Evidence bundles with cryptographic provenance verification, CAS storage, and deterministic artifact IDs
+   - Trust quantification with uncertainty bounds, statistical verification, two-pass comparison, and configurable policies
+   - Quality indicators system v2.1 (missingness, staleness, coverage, schema drift, outlier detection) with fitness reports, configurable thresholds, and quality gate validation integration
+   - Data contract catalog with hash-locked bindings, fuzzy search with disambiguation, and schema evolution support
+   - Provenance system v2.0 with W3C PROV-O compliance, complete lineage tracking, and multi-format export (JSON-LD, N-Quads)
+   - Fact log system with immutable facts, deterministic IDs, semantic network, and incremental materialization
+   - Materializer engine for incremental relational view updates from fact log with schema evolution and type inference
+   - Data connectors system (Phase 2.2 complete) with capability-based protocol, registry with lazy loading, discovery, connection pooling, federation, resilience patterns (circuit breaker, retry), and quality assurance for external data sources
 
-6. **Compilation (Foundry with conflict detection + cost modeling)**
-   Foundry compiles policy IR into executable representation (`ProgramGraph` + `ExecPlan`), performs comprehensive static checks:
-   - Conflict detection (multiple writers, merge rules validation)
-   - Cost modeling with budget tracking and performance prediction
-   - NaN guard for numerical stability monitoring
-   - Agent artifacts with environment fingerprinting and determinism tier validation
-   - Patch-based execution planning with state delta management
+6. **Compilation (Foundry with advanced agent simulation + calibration)**
+   Foundry compiles policy IR into executable representation (`ProgramGraph` + `ExecPlan`), performs comprehensive static checks and supports advanced simulation features:
+   - Conflict detection (multiple writers, merge rules validation, compile-time analysis)
+   - Cost modeling with budget tracking, performance prediction, and samokalirovka
+   - NaN guard for numerical stability monitoring with diagnostics
+   - Agent artifacts with environment fingerprinting, determinism tier validation, and compatibility scoring
+   - Patch-based execution planning with state delta management and merge determinism
+   - Advanced agent simulation (32 modules: actor-critic, demographics, evolution algorithms, graph mechanisms)
+   - Calibration framework with bijectors, loss functions (MSE/Huber/weighted), and uncertainty quantification
 
 7. **Simulation execution (Foundry runtime with safety + monitoring)**
    Foundry executes the compiled plan in JAX (step/scan/batch) with runtime safeguards:
@@ -163,32 +173,35 @@ At a high level, Policy Engine runs an experiment as a staged pipeline:
    - Adaptive agents with learning metrics and continuous action spaces
    - Gradient health monitoring and uncertainty quantification
 
-8. **Governance (preflight/postflight with legal compliance)**
-   Governance evaluates through comprehensive validation pipeline:
-   - Legality (norm packs via pluggable backends: AST expression evaluation, LLM analysis)
-   - Privacy (data access tiers and transformation controls)
-   - Quality gates (data readiness with configurable thresholds)
-   - Budget/safety constraints with human gate escalation
-   - Phase 18 security (AST policy validation, safe expression execution)
+8. **Governance (preflight/postflight with legal compliance + quality gates)**
+   Governance evaluates through comprehensive validation pipeline with modular passes:
+   - Legality (norm packs via pluggable backends: AST expression evaluation, safe expression evaluator, LLM analysis)
+   - Privacy (data access tiers, transformation controls, PII classification)
+   - Quality gates (data readiness via quality indicators system v2.1 with fitness reports and configurable thresholds)
+   - Trust validation (statistical verification, evidence bundles, provenance compliance)
+   - Budget/safety constraints with human gate escalation and multi-tier controls
+   - Phase 18 security (AST policy validation, safe expression execution, resource limits enforcement)
 
-9. **Artifactization & observability**
-   Results are persisted as content-addressed artifacts with full observability:
-   - DecisionPacket v2 with evidence references, uncertainty bounds, and timeline integration
-   - DecisionCard with deterministic human-readable summaries and key metrics extraction
-   - RunTimeline with event-based tracking, phase durations, and performance metrics
-   - Core observability integration (PolicyOSTracer, MetricsRegistry, @traced instrumentation)
-   - Comprehensive audit trail with provenance tracking and reproducible execution
+9. **Artifactization & observability (CAS + runtime + core observability)**
+   Results are persisted as content-addressed artifacts with comprehensive observability and audit capabilities:
+   - DecisionPacket v2 with evidence references, uncertainty bounds, fabric result integration, and timeline tracking
+   - DecisionCard with deterministic human-readable summaries, key metrics extraction, compliance status, and artifact cross-references
+   - RunTimeline with event-based tracking, phase durations, node timings, artifact creation events, validation outcomes, and performance metrics
+   - RunManifest with environment manifests for reproducible simulations, budget usage tracking, and pruning reasons
+   - Core observability v2.1 (PolicyOSTracer singleton, MetricsRegistry, @traced decorators, log-trace correlation, context propagation, LLM tracing, distributed tracing)
+   - Runtime infrastructure with audit trails (JSON Lines), artifact management, and environment fingerprinting
+   - Comprehensive provenance tracking with W3C PROV-O compliance and evidence bundle verification
 
 ---
 
 ## Key abstractions (what to learn first)
 
-### Trinity IR Architecture
+### Trinity IR Architecture v2.4.2
 
-- **`ProblemFrame`**: "Why" artifact - problem definition, KPIs, success criteria, constraints, stakeholders (constant throughout experiment).
-- **`PolicySpec`**: "What" artifact - interventions, parameters, schedules, implementation hints (iterated during optimization).
-- **`ModelSpec`**: "How" artifact - model assumptions, time semantics, data snapshots, registry bundles (varied for sensitivity analysis).
-- **`TrinityBundle`**: typed container referencing the three artifacts plus metadata and migration support.
+- **`ProblemFrame`**: "Why" artifact - problem definition, KPIs, success criteria, constraints, stakeholders (constant throughout experiment with stakeholder analysis and constraint modeling).
+- **`PolicySpec`**: "What" artifact - interventions, parameters, schedules, implementation hints, mechanism bindings (iterated during optimization with policy labels and implementation notes).
+- **`ModelSpec`**: "How" artifact - model assumptions, time semantics, data snapshots, registry bundles, model notes and labels (varied for sensitivity analysis with assumption tracking).
+- **`TrinityBundle`**: typed container referencing the three artifacts plus metadata, migration support, and source schema version tracking.
 
 ### PolicySurfaceIR (legacy-compatible surface)
 
@@ -201,6 +214,27 @@ The IR kernel defines registries that make policies composable and checkable:
 - slot registry (what state exists),
 - merge rules (how concurrent updates resolve deterministically),
 - units/metrics/time semantics registries.
+
+### Quality Assessment System v2.1
+
+- **`QualityIndicators`**: Objective metrics (missingness, staleness, coverage, schema drift, outlier ratio) computed from datasets with computation methods and timestamps.
+- **`QualityLevel`**: Ordered classification (EXCELLENT/GOOD/ACCEPTABLE/POOR/UNUSABLE) with semantic meaning for decision making.
+- **`QualityThresholds`**: Configurable thresholds for different profiles (FAST/MVP/STRICT) with per-metric limits and warning levels.
+- **`DataFitnessReport`**: Human-readable reports with failure reasons, summary statistics, and profile-based assessment for data suitability validation.
+
+### Fact Log System
+
+- **`Fact`**: Immutable knowledge representation with subject-predicate-object structure, provenance tracking, trust policies, and legal metadata.
+- **`FactBatch`**: Collection of facts for batch processing with segment management and deterministic ID generation.
+- **`FactProvenance`**: Complete lineage tracking with source artifacts, ingestion runs, and collection timestamps.
+- **`FactLog`**: Semantic network of facts with deterministic IDs, temporal validity, and incremental materialization support.
+
+### Data Connectors System (Phase 2.2)
+
+- **`SourceConnector`**: Protocol-based interface for external data sources with capability declarations and async operations.
+- **`ConnectorCapability`**: Bitmask system for 15+ capabilities (FULL_FETCH, STREAMING, DATE_RANGE_FILTER, SCHEMA_INTROSPECTION, etc.).
+- **`ConnectorRegistry`**: Singleton registry with lazy loading, plugin discovery, and connection pooling.
+- **`FetchRequest/FetchResult`**: Typed request/response structures with evidence bundles and deterministic caching keys.
 
 ### Fabric: contracts, provenance, evidence, trust, quality
 
@@ -292,10 +326,10 @@ This section explains *what each major directory is for* without listing the ful
 - **`src/polisyos/common`**: minimal shared utilities (configuration, logging, JAX env defaults, migrations).
 - **`src/polisyos/core`**: infrastructure layer (CAS artifacts, canonical JSON, typed contracts, comprehensive observability system, registries, run context, conflict detection, cost modeling, NaN guard, Trinity contracts, legal contracts).
 - **`src/polisyos/ir`**: canonical policy/data contracts (Trinity + PolicySurfaceIR), loaders/migrations, kernel registries, validation.
-- **`src/polisyos/fabric`**: Unified Data Fabric (Phase 2.2 data connectors, data contract catalog, evidence bundles, provenance system v2.0, quality indicators, fact log, materializer engine, trust policies, UDF compilation pipeline).
-- **`src/polisyos/foundry`**: execution core (compile IR to executable plans; run JAX simulations; calibration; conflict detection; cost modeling; NaN guard; agent artifacts; patch-based execution).
-- **`src/polisyos/scientist`**: orchestration “brain” (hierarchical agent system with PI→Drafter→Formalizer→Critic, FSM-based workflow orchestration, self-healing reflexion patterns, governance passes pipeline, Phase 18 legal compliance, search loop system with two-stage filtering, workflow engines, LLM tracing infrastructure, decision card system, run timeline tracking, Phase 2 instrumentation).
-- **`src/polisyos/runtime`**: run lifecycle APIs and portable run manifests (where run artifacts are stored and referenced).
+- **`src/polisyos/fabric`**: Unified Data Fabric (Phase 2.2 data connectors with capability-based protocol, federation, resilience patterns; data contract catalog with hash-locked bindings; evidence bundles with cryptographic verification; provenance system v2.0 with W3C PROV-O compliance; quality indicators system v2.1 with configurable thresholds; fact log system with immutable facts and semantic network; materializer engine for incremental updates; trust policies with statistical verification; UDF compilation pipeline with security passes).
+- **`src/polisyos/foundry`**: execution core (compile IR to executable plans with advanced agent simulation system; run JAX simulations with 32 modules for demographics, evolution algorithms, graph mechanisms; calibration framework with bijectors and loss functions; compile-time conflict detection and cost modeling; NaN guard with diagnostics; agent artifacts with environment fingerprinting; patch-based execution with merge determinism; plugin system with capability-based registry).
+- **`src/polisyos/scientist`**: orchestration “brain” (hierarchical agent system with protocols and self-healing via FailureCard routing; FSM-based workflow orchestration with 9 phases and guards; governance passes pipeline with legal compliance via AST backends; search framework with two-stage filtering and intelligent stopping criteria; workflow engines with LangGraph declarative orchestration; LLM tracing infrastructure with TracedLLMClient; decision packet system with evidence references; decision card summaries; run timeline tracking with event-based observability; kernel layer with multi-tier budgets; compute layer with job specifications; doe designs for experiment planning).
+- **`src/polisyos/runtime`**: run lifecycle APIs and portable run manifests (where run artifacts are stored and referenced with environment manifests for reproducibility, audit trails in JSON Lines format, budget usage tracking, and artifact management with relative paths for portability).
 
 - **`data/`**: local data workspace, plus normative packs in `data/norms/`.
 - **`tools/`**: comprehensive developer toolkit (architectural linters, schema generators, migration tools, diagnostic scripts, performance benchmarks, demo scripts, provenance visualizers, fabric scanners, environment capture utilities).
@@ -321,15 +355,16 @@ This section explains *what each major directory is for* without listing the ful
 
 ### Data layer
 
-- **DuckDB** (analytical store)
-- **Kùzu** (graph store)
-- **PyArrow**, **pandas**
-- **W3C PROV-O style provenance** (implemented in Fabric provenance subsystem)
+- **DuckDB** (analytical store with incremental materialization)
+- **Kùzu** (graph store for social network analysis)
+- **PyArrow**, **pandas** (high-performance data processing)
+- **W3C PROV-O style provenance** (implemented in Fabric provenance subsystem v2.0 with JSON-LD/N-Quads export)
 
 ### Orchestration and optimization
 
-- **LangGraph**, **LangChain**
-- **pymoo** (multi-objective optimization)
+- **LangGraph**, **LangChain** (workflow orchestration and LLM integration)
+- **pymoo** (multi-objective optimization for policy search)
+- **CMA-ES** (evolution algorithms for agent simulation)
 
 ### UI / visualization
 
@@ -337,16 +372,18 @@ This section explains *what each major directory is for* without listing the ful
 
 ### Observability / configuration
 
-- **loguru** (structured logging)
+- **loguru** (structured logging with trace correlation)
 - **python-dotenv** (local environment variable loading)
 - **opentelemetry-api** / **opentelemetry-sdk** (distributed tracing and telemetry)
 - **prometheus_client** (metrics collection and exposition)
+- **hashlib** (deterministic ID generation for artifacts and facts)
 
 ### Dev tooling
 
-- **pytest**, **pytest-benchmark**, **hypothesis**
-- **ruff**, **mypy**
-- **pre-commit**
+- **pytest**, **pytest-benchmark**, **hypothesis** (testing and benchmarking)
+- **ruff**, **mypy** (code quality and type checking)
+- **pre-commit** (automated code quality checks)
+- **difflib** (structured diff generation for validation reports)
 
 ### Operational monitoring
 
@@ -512,14 +549,19 @@ Policy Engine includes comprehensive production-grade monitoring infrastructure 
 
 **Components:**
 - **Prometheus**: Metrics collection, alerting, and time-series database
-- **Grafana**: Dashboards for executive overview, HPC performance, and agent analytics
+- **Grafana**: Dashboards for executive overview, HPC performance, and agent analytics with PolicyOS-specific visualizations
 - **Docker Compose**: Containerized observability stack with service dependencies
+- **Core Observability v2.1**: PolicyOSTracer singleton, MetricsRegistry, @traced decorators, log-trace correlation, context propagation, LLM tracing, distributed tracing
 
 **Monitored metrics:**
 - LLM costs and token consumption (budget alerts: $50/hour, $100/hour critical)
 - Agent workflow performance and success rates (failure thresholds: 5%, 20%)
-- HPC simulation throughput and JIT compilation efficiency
-- Calibration convergence and gradient health monitoring
+- HPC simulation throughput and JIT compilation efficiency with gradient health monitoring
+- Calibration convergence and uncertainty quantification
+- Governance pipeline latency and pass success rates
+- Quality gate validation outcomes and data fitness scores
+- Evidence bundle verification and provenance tracking
+- Runtime execution with environment fingerprinting and reproducibility checks
 
 ### Quick start monitoring
 

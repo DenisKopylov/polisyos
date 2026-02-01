@@ -2,7 +2,7 @@
 
 **Kernel** - это фундаментальный слой типизированных определений и реестров системы IR, обеспечивающий type safety и единообразие интерпретации компонентов Policy Engine.
 
-**Обновлено**: документация актуализирована для отражения текущего состояния на 2026-01-26, включая новые реестры (constraints, metrics, selector_fields, trust) и расширенную систему типов.
+**Обновлено**: документация актуализирована для отражения текущего состояния на 2026-02-01, включая полную реализацию новых реестров (constraints, metrics, selector_fields, trust), типизированные значения (numbers.py, values.py), и расширенную систему типов с reject float политикой.
 
 ## Архитектурная роль
 
@@ -187,7 +187,59 @@ class RateUnit(UnitSpec):
     base: Literal["ratio", "percent"] = "ratio"
 ```
 
-### 5. Правила слияния (`merge_rules.py`)
+### 4.1. Типизированные числовые значения (`numbers.py`)
+
+Строгая типизация числовых значений с автоматической валидацией и защитой от использования float:
+
+```python
+from polisyos.ir.kernel import DecimalValue, NonNegativeDecimal, PositiveDecimal
+
+# Базовые типы с reject float валидацией
+DecimalValue = Annotated[Decimal, BeforeValidator(reject_float)]
+NonNegativeDecimal = Annotated[Decimal, BeforeValidator(reject_float), Field(ge=0)]
+PositiveDecimal = Annotated[Decimal, BeforeValidator(reject_float), Field(gt=0)]
+
+# Использование
+income: DecimalValue = Decimal("50000.50")  # ✅ Корректно
+balance: NonNegativeDecimal = Decimal("1000.00")  # ≥ 0
+count: PositiveDecimal = Decimal("5")  # > 0
+
+# income: float = 50000.50  # ❌ Ошибка валидации
+```
+
+### 4.2. Типизированные значения (`values.py`)
+
+Специализированные типы значений с единицами измерения и бизнес-логикой:
+
+```python
+from polisyos.ir.kernel import MoneyValue, RateValue, CountValue, DurationValue
+
+# Денежные величины
+salary = MoneyValue(
+    amount=Decimal("50000"),
+    currency="UAH",
+    nominal_year=2024
+)
+
+# Процентные ставки с конвертацией
+tax_rate = RateValue.ratio(Decimal("0.15"))  # 15% как отношение 0.15
+tax_rate_percent = RateValue(base="percent", value=Decimal("15"))  # 15% как процент
+
+# Конвертация между базами
+ratio_value = tax_rate.as_ratio()  # Decimal("0.15")
+
+# Количества и продолжительности
+employees = CountValue(value=100, label="IT specialists")
+duration = DurationValue(value=12, unit="month")  # 12 месяцев
+```
+
+**Ключевые особенности:**
+- Автоматическая валидация диапазонов значений
+- Строгая типизация с reject float политикой
+- Бизнес-логика валидации (валюты, единицы времени)
+- Интеграция с системой единиц измерения
+
+### 6. Правила слияния (`merge_rules.py`)
 
 #### MergeRuleRegistry
 
@@ -227,26 +279,6 @@ DEFAULT_MERGE_RULE_REGISTRY = MergeRuleRegistry(
         ),
     }
 )
-```
-
-### 6. Типизированные значения (`values.py`)
-
-#### Строго типизированные значения
-
-```python
-from polisyos.ir.kernel import MoneyValue, RateValue, CountValue, DurationValue
-
-# Денежная величина с валютой и годом
-salary = MoneyValue(amount=50000.0, currency="UAH", nominal_year=2024)
-
-# Процентная ставка
-tax_rate = RateValue.ratio(0.15)  # 15%
-
-# Количество
-employees = CountValue(value=100)
-
-# Продолжительность
-duration = DurationValue(value=12, unit="month")
 ```
 
 ### 7. Политики доверия (`trust.py`)
@@ -398,7 +430,7 @@ from polisyos.ir.kernel import (
 # Типы и модели
 from polisyos.ir.kernel import (
     MechanismTypeSpec, SlotSpec, UnitRef,
-    MoneyValue, RateValue, CountValue,
+    MoneyValue, RateValue, CountValue, DurationValue,
     MergeRuleRef, TrustPolicySpec,
     ConstraintSpec, MetricSpec, SelectorFieldSpec,
     DecimalValue, NonNegativeDecimal, PositiveDecimal,

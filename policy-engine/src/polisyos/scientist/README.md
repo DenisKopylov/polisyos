@@ -36,32 +36,74 @@ Scientist построен как многоуровневая система о
 
 ```
 scientist/
-├── agent/           # Иерархическая система агентов + Self-Healing (Reflexion)
-├── kernel/          # FSM, бюджеты, guards, human gates
-├── compute/         # Спецификации задач и execution backends
-├── doe/            # Design of Experiments
-├── governance/     # Preflight/postflight проверки + passes pipeline
-│   ├── legal/      # Legal compliance validation backends
-│   ├── passes/     # Модульные проверки (budget, safety, privacy, schema, legal)
-│   ├── pipeline.py # Orchestrator for validation passes
-│   ├── profiles.py # Validation profiles (fast/mvp/strict)
-│   └── telemetry.py# Validation tracing и metrics
-├── orchestrator/   # Workflow orchestration и state management
-│   ├── decision_card.py    # Human-readable summaries результатов экспериментов
-│   ├── run_timeline.py     # Timeline artifact для observability и tracing
-│   └── [другие файлы...]
-├── search/         # Фреймворк итеративной оптимизации политик
-│   ├── controller.py # SearchController для управления поиском
-│   ├── objective.py  # Определение целей оптимизации
-│   ├── stages.py     # Стадии оценки кандидатов (cheap/expensive)
-│   └── stopping.py   # Критерии остановки поиска
-├── workflow/       # Движки рабочих процессов
-│   ├── engine_base.py    # Базовые абстракции workflow
-│   ├── engine_simple.py  # Простой loop-based движок
-│   └── engine_langgraph.py # LangGraph-based декларативный workflow
-├── llm/            # LLM tracing и monitoring
-│   └── traced_client.py  # Traced LLM client для observability
-└── publisher.py    # Финализация результатов
+├── agent/              # Иерархическая система агентов + Self-Healing (Reflexion)
+│   ├── protocols.py    # Протоколы агентов и типы данных (AgentRole, ProblemFrame, SubTask, CritiqueReport)
+│   ├── pi.py           # Principal Investigator (PI) Agent - декомпозиция задач
+│   ├── drafter.py      # Drafter Agent - генерация черновиков политик
+│   ├── formalizer.py   # Formalizer Agent - формализация в PolicySurfaceIR
+│   ├── critic.py       # Critic Agent - валидация и критика политик
+│   ├── failure_card.py # Структурированные артефакты для self-healing
+│   ├── memory.py       # Кратковременная память для Reflexion
+│   ├── reflexion.py    # Оркестратор self-healing workflow
+│   ├── prompts.py      # Системные промпты для LLM
+│   ├── prompt.py       # Альтернативные промпты (legacy)
+│   └── base.py         # Legacy поддержка (BaseAgent, MockAgent)
+├── kernel/             # FSM, бюджеты, guards, human gates
+│   ├── budgets.py      # Модели бюджетов (Compute, Evidence, Legitimacy, Complexity)
+│   ├── fsm.py          # Конечный автомат состояний (Phase, KernelState, ALLOWED_TRANSITIONS)
+│   ├── guards.py       # Проверки переходов между состояниями
+│   └── human_gate.py   # Асинхронные human gates для одобрения
+├── compute/            # Спецификации задач и execution backends
+│   ├── job_spec.py     # Спецификации задач (JobSpec, JobKey, JobResult)
+│   └── runner.py       # Execution backends (LocalBackend, RayBackend)
+├── doe/               # Design of Experiments
+│   └── designs.py     # Модели дизайнов экспериментов (ScenarioSweep, AblationPlan, SensitivityPlan)
+├── governance/        # Preflight/postflight проверки + passes pipeline
+│   ├── preflight.py   # Preflight validation pipeline
+│   ├── postflight.py  # Postflight validation pipeline
+│   ├── pipeline.py    # Orchestrator for validation passes с short-circuit логикой
+│   ├── profiles.py    # Validation profiles (fast/mvp/strict)
+│   ├── telemetry.py   # ValidationTrace/PassSpan для мониторинга производительности
+│   ├── legal/         # Legal compliance validation backends
+│   │   ├── ast_policy.py     # AST-based policy structures для legal validation
+│   │   ├── backends/         # Pluggable rule evaluation backends
+│   │   │   ├── base.py       # RuleBackend protocol contract
+│   │   │   ├── stub.py       # Stub implementation для тестирования
+│   │   │   └── expr_ast.py   # AST-based backend для safe expression evaluation
+│   │   └── README.md         # Документация по legal validation
+│   └── passes/        # Модульные проверки
+│       ├── base.py           # ValidatorPass, PassContext, ComplianceIssue базовые классы
+│       ├── budget_pass.py    # Контроль бюджетов (compute, evidence, legitimacy, complexity)
+│       ├── privacy_pass.py   # Контроль приватности (PII tiers, access control)
+│       ├── safety_pass.py    # Проверка безопасности механизмов и селекторов
+│       ├── schema_pass.py    # Валидация структуры IR и PolicySurfaceIR compliance
+│       ├── legal_pass.py     # Legal compliance validation против норм
+│       └── quality_gate_pass.py # Data quality validation перед симуляцией
+├── orchestrator/      # Workflow orchestration и state management
+│   ├── workflow.py            # Основной LangGraph workflow с self-healing
+│   ├── state.py               # ExperimentState и типы данных (90+ полей)
+│   ├── flow_nodes.py          # Реализации узлов workflow (3200+ строк)
+│   ├── decision_packet.py     # Итоговый артефакт эксперимента с evidence
+│   ├── decision_card.py       # Human-readable summaries результатов
+│   ├── run_record.py          # Метаданные для воспроизводимости
+│   ├── run_timeline.py        # Timeline artifact для observability и tracing
+│   ├── audit.py               # Система аудита и логирования
+│   ├── data_loader.py         # Загрузка данных из Fabric
+│   ├── nodes.py               # Устаревшие узлы (deprecated, заменен flow_nodes.py)
+│   ├── optimizer.py           # Оптимизация параметров (placeholder)
+│   └── registry.py            # Управление реестрами (placeholder)
+├── search/            # Фреймворк итеративной оптимизации политик
+│   ├── controller.py  # SearchController и управление поиском
+│   ├── objective.py   # Определение целей оптимизации
+│   ├── stages.py      # Стадии оценки кандидатов (cheap/expensive)
+│   └── stopping.py    # Критерии остановки поиска
+├── workflow/          # Движки рабочих процессов
+│   ├── engine_base.py # Базовые абстракции (WorkflowEngine, WorkflowEngineFactory)
+│   ├── engine_simple.py # SimpleLoopEngine для последовательных процессов
+│   └── engine_langgraph.py # LangGraphEngine для комплексных workflow
+├── llm/               # LLM tracing и monitoring
+│   └── traced_client.py # TracedLLMClient с OpenTelemetry интеграцией
+└── publisher.py       # Финализация результатов
 ```
 
 ### 🤖 Agent Layer (агенты/agent)
@@ -1507,7 +1549,7 @@ research_budget = {
 - **Agent Layer**: Полная иерархическая система агентов (PI → Drafter → Formalizer → Critic) с протоколами, mock реализациями всех ролей, структурированными артефактами (ProblemFrame, SubTask, CritiqueReport) + Self-Healing система (FailureCard, ShortTermMemory, ReflexionOrchestrator)
 - **Kernel Layer**: Полная реализация FSM с 9 фазами, все модели бюджетов (Compute, Evidence, Legitimacy, Complexity), guards, human_gate и advance_phase guards
 - **Compute Layer**: JobSpec/JobKey/JobResult модели, LocalBackend и RayBackend (skeleton) для выполнения через Foundry executor, поддержка distributed execution
-- **Orchestrator Layer**: Полный workflow на LangGraph (1450+ строк в flow_nodes.py), ExperimentState с 90+ полями, DecisionPacket с evidence и uncertainty, DecisionCard summaries, RunTimeline для observability, audit trail
+- **Orchestrator Layer**: Полный workflow на LangGraph (3200+ строк в flow_nodes.py), ExperimentState с 90+ полями, DecisionPacket с evidence и uncertainty, DecisionCard summaries, RunTimeline для observability, audit trail
 - **Search Layer**: Полный фреймворк итеративной оптимизации с SearchController, двухстадийной оценкой (cheap/expensive stages), composite objectives и интеллектуальными критериями остановки
 - **Workflow Layer**: Полные абстракции и реализации движков (SimpleLoopEngine, LangGraphEngine) с унифицированным интерфейсом для декларативного управления процессами
 - **LLM Layer**: Полная инфраструктура tracing и monitoring для LLM взаимодействий через TracedLLMClient с OpenTelemetry интеграцией

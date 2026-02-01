@@ -12,12 +12,12 @@ Agent Layer реализует иерархическую систему спе�
 
 ```
 agent/
-├── __init__.py           # Экспорт протоколов, ролей и mock/LLM реализаций
-├── protocols.py          # Протоколы агентов и поддерживающие типы данных
-├── pi.py                 # Principal Investigator (PI) Agent (MockPIAgent, LLMPIAgent)
-├── drafter.py            # Drafter Agent для генерации черновиков (MockDrafterAgent, LLMDrafterAgent, MockLLM)
-├── formalizer.py         # Formalizer Agent для преобразования в IR (MockFormalizerAgent, LLMFormalizerAgent)
-├── critic.py             # Critic Agent для валидации и критики (MockCriticAgent, LLMCriticAgent)
+├── __init__.py           # Экспорт основных компонентов
+├── protocols.py          # Протоколы агентов и типы данных (AgentRole, ProblemFrame, SubTask, CritiqueReport)
+├── pi.py                 # Principal Investigator (PI) Agent - декомпозиция задач
+├── drafter.py            # Drafter Agent - генерация черновиков политик
+├── formalizer.py         # Formalizer Agent - формализация в PolicySurfaceIR
+├── critic.py             # Critic Agent - валидация и критика политик
 ├── failure_card.py       # Структурированные артефакты для self-healing
 ├── memory.py             # Кратковременная память для Reflexion
 ├── reflexion.py          # Оркестратор self-healing workflow
@@ -630,6 +630,10 @@ pytest tests/scientist/test_agent_drafter.py -v   # Drafter Agent
 pytest tests/scientist/test_agent_formalizer.py -v # Formalizer Agent
 pytest tests/scientist/test_agent_critic.py -v    # Critic Agent
 
+# Self-Healing компоненты
+pytest tests/scientist/test_agent_failure_card.py -v
+pytest tests/scientist/test_agent_reflexion.py -v
+
 # Integration testing
 pytest tests/scientist/integration/test_agent_hierarchy.py -v
 pytest tests/scientist/integration/test_workflow_smoke.py -v
@@ -642,9 +646,7 @@ pytest tests/scientist/integration/test_workflow_smoke.py -v
 - **Drafter Agent**: Генерация черновиков, контекстуализация (MockDrafterAgent, LLMDrafterAgent, MockLLM)
 - **Formalizer Agent**: IR генерация, схема валидация (MockFormalizerAgent, LLMFormalizerAgent)
 - **Critic Agent**: Многоуровневая валидация, critique reports (MockCriticAgent, LLMCriticAgent)
-- **FailureCard**: Создание, классификация, formatting для LLM
-- **ShortTermMemory**: Conversation tracking, attempt recording, hints accumulation
-- **ReflexionOrchestrator**: Failure evaluation, routing decisions, backoff logic
+- **Self-Healing**: FailureCard, ShortTermMemory, ReflexionOrchestrator
 - **Integration**: Полный цикл агентов, self-healing workflows, error recovery
 
 ## Расширение

@@ -2,7 +2,7 @@
 
 Валидация governance layer - validation pipeline, legal compliance, Phase 18 security validation, safe expression evaluation.
 
-**Последнее обновление:** Январь 2026 (добавлены Phase 18: Safe Expression Evaluation, AST Policy validation, norm execution security, legal AST backends)
+**Последнее обновление:** 1 февраля 2026 (добавлены Phase 18: Safe Expression Evaluation, AST Policy validation, norm execution security, legal AST backends)
 **Уровень:** Governance Layer (Validation & Compliance & Security)
 **Зависимости:** Core contracts, IR structures, Legal norms, AST policy, Expression evaluators
 

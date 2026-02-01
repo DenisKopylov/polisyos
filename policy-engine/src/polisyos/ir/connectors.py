@@ -6,11 +6,20 @@ these contracts.
 """
 from __future__ import annotations
 
+from dataclasses import dataclass
+import hashlib
 from datetime import datetime, timezone
 from enum import Enum, Flag, IntEnum, auto
-from typing import Any, TypeAlias
+from typing import Any, Generic, TypeAlias, TypeVar, TYPE_CHECKING
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
+if TYPE_CHECKING:
+    from polisyos.core.contracts.fabric import EvidenceBundleRef
+
+try:
+    from polisyos.core.contracts.fabric import EvidenceBundleRef
+except Exception:  # pragma: no cover - optional at runtime
+    EvidenceBundleRef = Any  # type: ignore[assignment]
 
 
 class ConnectorCapability(Flag):
@@ -118,6 +127,371 @@ class DataVersion(BaseModel):
 
         return self.timestamp > other.timestamp
 
+
+DataT = TypeVar("DataT")
+
+
+@dataclass(frozen=True, slots=True)
+class FetchRequest:
+    """Immutable, hashable fetch request specification."""
+
+    dataset_id: str
+
+    # Temporal bounds
+    date_start: datetime | None = None
+    date_end: datetime | None = None
+    as_of: datetime | None = None
+
+    # Dimension filters (immutable mapping)
+    filters: tuple[tuple[str, tuple[str, ...]], ...] = ()
+
+    # Incremental fetch
+    incremental_since: DataVersion | None = None
+
+    # Output preferences
+    include_metadata: bool = True
+    include_schema: bool = True
+
+    # Pagination
+    page_size: int | None = None
+    page_token: str | None = None
+
+    # Quality requirements
+    min_quality_tier: QualityTier = QualityTier.UNVERIFIED
+
+    # Execution hints
+    retryable: bool | None = None
+
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "date_start", _coerce_datetime(self.date_start))
+        object.__setattr__(self, "date_end", _coerce_datetime(self.date_end))
+        object.__setattr__(self, "as_of", _coerce_datetime(self.as_of))
+        object.__setattr__(self, "filters", _normalize_filters(self.filters))
+
+    @property
+    def query_key(self) -> str:
+        """Hash identifying the logical data request (pagination excluded)."""
+        from polisyos.core.canon import to_canonical_bytes
+
+        incremental_dump = (
+            self.incremental_since.model_dump(mode="json")
+            if self.incremental_since
+            else None
+        )
+        canonical_data = {
+            "dataset_id": self.dataset_id,
+            "date_start": self.date_start,
+            "date_end": self.date_end,
+            "as_of": self.as_of,
+            "filters": {key: list(values) for key, values in self.filters},
+            "incremental_since": incremental_dump,
+            "min_quality_tier": self.min_quality_tier.value,
+        }
+        canonical_bytes = to_canonical_bytes(canonical_data)
+        hash_hex = hashlib.sha256(canonical_bytes).hexdigest()
+        return f"sha256:{hash_hex}"
+
+    @property
+    def request_key(self) -> str:
+        """Hash for the full request (includes pagination and output prefs)."""
+        from polisyos.core.canon import to_canonical_bytes
+
+        incremental_dump = (
+            self.incremental_since.model_dump(mode="json")
+            if self.incremental_since
+            else None
+        )
+        canonical_data = {
+            "dataset_id": self.dataset_id,
+            "date_start": self.date_start,
+            "date_end": self.date_end,
+            "as_of": self.as_of,
+            "filters": {key: list(values) for key, values in self.filters},
+            "incremental_since": incremental_dump,
+            "min_quality_tier": self.min_quality_tier.value,
+            "include_metadata": self.include_metadata,
+            "include_schema": self.include_schema,
+            "page_size": self.page_size,
+            "page_token": self.page_token,
+        }
+        canonical_bytes = to_canonical_bytes(canonical_data)
+        hash_hex = hashlib.sha256(canonical_bytes).hexdigest()
+        return f"sha256:{hash_hex}"
+
+    @property
+    def cache_key(self) -> str:
+        """CAS-compatible cache key for the full request."""
+        return self.request_key
+
+    def with_pagination(
+        self,
+        page_size: int | None = None,
+        page_token: str | None = None,
+    ) -> "FetchRequest":
+        """Create a new request with updated pagination parameters."""
+        return FetchRequest(
+            dataset_id=self.dataset_id,
+            date_start=self.date_start,
+            date_end=self.date_end,
+            as_of=self.as_of,
+            filters=self.filters,
+            incremental_since=self.incremental_since,
+            include_metadata=self.include_metadata,
+            include_schema=self.include_schema,
+            page_size=page_size if page_size is not None else self.page_size,
+            page_token=page_token,
+            min_quality_tier=self.min_quality_tier,
+            retryable=self.retryable,
+        )
+
+    def with_filter(self, field: str, *values: str) -> "FetchRequest":
+        """Create a new request with an additional or replaced filter."""
+        current = {key: list(vals) for key, vals in self.filters}
+        current[field] = list(values)
+        new_filters = tuple((key, tuple(vals)) for key, vals in current.items())
+        return FetchRequest(
+            dataset_id=self.dataset_id,
+            date_start=self.date_start,
+            date_end=self.date_end,
+            as_of=self.as_of,
+            filters=new_filters,
+            incremental_since=self.incremental_since,
+            include_metadata=self.include_metadata,
+            include_schema=self.include_schema,
+            page_size=self.page_size,
+            page_token=self.page_token,
+            min_quality_tier=self.min_quality_tier,
+            retryable=self.retryable,
+        )
+
+
+class ResilienceInfo(BaseModel):
+    """Metadata describing resilience behavior applied to a fetch result."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    fallback_used: bool = Field(
+        default=False,
+        description="Whether a fallback strategy produced this result",
+    )
+    fallback_strategy: str | None = Field(
+        default=None,
+        description="Name of fallback strategy that succeeded",
+    )
+    retry_attempts: int | None = Field(
+        default=None,
+        ge=1,
+        description="Retry attempt number that succeeded (if any)",
+    )
+    rate_limited: bool | None = Field(
+        default=None,
+        description="Whether a rate limiter delayed the request",
+    )
+    circuit_state: str | None = Field(
+        default=None,
+        description="Circuit breaker state observed during execution",
+    )
+
+
+class FetchResult(BaseModel, Generic[DataT]):
+    """Immutable result of a fetch operation."""
+
+    model_config = ConfigDict(
+        frozen=True,
+        extra="forbid",
+        arbitrary_types_allowed=True,
+    )
+
+    # Data payload
+    data: DataT = Field(description="The fetched data (type depends on connector)")
+    row_count: int = Field(ge=0, description="Number of rows in the result")
+
+    # Schema
+    schema_id: str = Field(description="Identifier of the data schema")
+    schema_version: str = Field(
+        pattern=r"^\\d+\\.\\d+(\\.\\d+)?$",
+        description="Version of the data schema",
+    )
+
+    # Version & provenance
+    version: DataVersion = Field(description="Version information for this data snapshot")
+    fetched_at: datetime = Field(description="When the fetch was performed (UTC)")
+    source_updated_at: datetime | None = Field(
+        default=None,
+        description="When the source data was last updated",
+    )
+
+    # Evidence (Law E)
+    evidence_ref: EvidenceBundleRef | None = Field(
+        default=None,
+        description="Reference to evidence bundle for provenance tracking",
+    )
+
+    # Quality indicators
+    completeness: float = Field(
+        ge=0.0,
+        le=1.0,
+        description="Fraction of requested data that was returned",
+    )
+    quality_tier: QualityTier = Field(
+        default=QualityTier.UNVERIFIED,
+        description="Quality tier of the returned data",
+    )
+    quality_flags: frozenset[str] = Field(
+        default=frozenset(),
+        description="Quality issue flags",
+    )
+
+    # Pagination
+    has_more: bool = Field(
+        default=False,
+        description="Whether more pages are available",
+    )
+    next_page_token: str | None = Field(
+        default=None,
+        description="Token for fetching the next page",
+    )
+    total_count: int | None = Field(
+        default=None,
+        description="Total number of rows (if known)",
+    )
+
+    # Performance metrics
+    fetch_duration_ms: float = Field(
+        default=0.0,
+        ge=0.0,
+        description="Time taken to fetch data in milliseconds",
+    )
+    bytes_transferred: int = Field(
+        default=0,
+        ge=0,
+        description="Number of bytes transferred",
+    )
+    not_modified: bool = Field(
+        default=False,
+        description="True when the source signaled no changes (e.g., HTTP 304)",
+    )
+
+    resilience: ResilienceInfo | None = Field(
+        default=None,
+        description="Resilience metadata (fallbacks, retries, etc.)",
+    )
+
+    @field_validator("fetched_at", "source_updated_at", mode="after")
+    @classmethod
+    def _ensure_tz_aware(cls, value: datetime | None) -> datetime | None:
+        if value is None:
+            return None
+        if value.tzinfo is None:
+            return value.replace(tzinfo=timezone.utc)
+        return value
+
+    @property
+    def is_complete(self) -> bool:
+        """Check if this result contains all available data."""
+        return not self.has_more
+
+    @property
+    def is_high_quality(self) -> bool:
+        """Check if data meets high quality standards."""
+        return (
+            self.quality_tier >= QualityTier.SILVER
+            and self.completeness >= 0.95
+            and len(self.quality_flags) == 0
+        )
+
+    def validate_against_schema(
+        self,
+        registry: "SchemaRegistry",
+        strict: bool = False,
+    ) -> list[str]:
+        """
+        Validate fetched data against its declared schema.
+
+        Args:
+            registry: Schema registry to look up schema
+            strict: If True, fail on extra columns
+
+        Returns:
+            List of validation errors (empty if valid)
+        """
+        import pandas as pd
+
+        from polisyos.fabric.connectors.contracts import (
+            SchemaRegistry,
+            SchemaVersion,
+            validate_dataframe_against_schema,
+        )
+
+        if not isinstance(registry, SchemaRegistry):
+            raise TypeError("registry must be a SchemaRegistry instance")
+
+        schema = registry.get(
+            self.schema_id,
+            SchemaVersion.parse(self.schema_version),
+        )
+
+        if isinstance(self.data, pd.DataFrame):
+            df = self.data
+        elif isinstance(self.data, list):
+            df = pd.DataFrame(self.data)
+        else:
+            return [
+                "Cannot validate: data is not a DataFrame or list of dicts",
+            ]
+
+        return validate_dataframe_against_schema(df, schema, strict)
+
+    def coerce_against_schema(
+        self,
+        registry: "SchemaRegistry",
+        *,
+        strict: bool = False,
+        normalize_columns: bool = True,
+        drop_extra: bool = False,
+    ) -> "CoercionResult":
+        """
+        Coerce fetched data to its declared schema.
+
+        Returns a CoercionResult with the coerced DataFrame and any issues.
+        """
+        import pandas as pd
+
+        from polisyos.fabric.connectors.contracts import (
+            CoercionResult,
+            SchemaRegistry,
+            SchemaVersion,
+            coerce_dataframe_to_schema,
+        )
+
+        if not isinstance(registry, SchemaRegistry):
+            raise TypeError("registry must be a SchemaRegistry instance")
+
+        schema = registry.get(
+            self.schema_id,
+            SchemaVersion.parse(self.schema_version),
+        )
+
+        if isinstance(self.data, pd.DataFrame):
+            df = self.data
+        elif isinstance(self.data, list):
+            df = pd.DataFrame(self.data)
+        else:
+            return CoercionResult(
+                dataframe=pd.DataFrame(),
+                errors=("Cannot coerce: data is not a DataFrame or list of dicts",),
+                warnings=(),
+                coerced_columns=(),
+                dropped_columns=(),
+            )
+
+        return coerce_dataframe_to_schema(
+            df,
+            schema,
+            strict=strict,
+            normalize_columns=normalize_columns,
+            drop_extra=drop_extra,
+        )
 
 class ConnectorMetadataSpec(BaseModel):
     """Immutable connector metadata specification (IR-level contract)."""
@@ -251,3 +625,33 @@ def flags_from_capabilities(bitmask: int) -> list[ConnectorCapability]:
         if bitmask & cap.value:
             result.append(cap)
     return result
+
+
+def _coerce_datetime(value: datetime | None) -> datetime | None:
+    if value is None:
+        return None
+    if value.tzinfo is None:
+        return value.replace(tzinfo=timezone.utc)
+    return value
+
+
+def _normalize_filters(
+    filters: tuple[tuple[str, tuple[str, ...]], ...],
+) -> tuple[tuple[str, tuple[str, ...]], ...]:
+    """Normalize filters into a sorted, de-duplicated mapping-like tuple."""
+    if not filters:
+        return ()
+
+    merged: dict[str, set[str]] = {}
+    for key, values in filters:
+        key = str(key)
+        merged.setdefault(key, set()).update(str(v) for v in values)
+
+    normalized = []
+    for key in sorted(merged.keys()):
+        normalized.append((key, tuple(sorted(merged[key]))))
+
+    return tuple(normalized)
+
+
+FetchResult.model_rebuild()

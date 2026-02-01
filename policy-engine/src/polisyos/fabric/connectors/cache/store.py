@@ -30,7 +30,7 @@ import pandas as pd
 from pydantic import BaseModel, ConfigDict, field_validator
 
 from polisyos.common.logger import get_logger
-from polisyos.core.artifacts import ArtifactID, FileSystemCAS, PutOptions, SchemaInfo
+from polisyos.core.artifacts import ArtifactID, ArtifactRef, FileSystemCAS, PutOptions, SchemaInfo
 from polisyos.core.canon.canon_json import CanonSpec, from_canonical_bytes, to_canonical_bytes
 from polisyos.core.observability import get_metrics
 from polisyos.fabric.connectors.base import FetchRequest, FetchResult
@@ -161,6 +161,14 @@ class CacheMetadata(BaseModel):
         if value.tzinfo is None:
             return value.replace(tzinfo=timezone.utc)
         return value
+
+    @property
+    def payload_ref(self) -> ArtifactRef:
+        return ArtifactRef(
+            artifact_id=self.payload_artifact_id,
+            kind=CACHE_PAYLOAD_KIND,
+            media_type=self.payload_media_type,
+        )
 
 
 class CacheEntry(BaseModel):

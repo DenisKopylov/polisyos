@@ -6,7 +6,7 @@
 
 ## Архитектура
 
-Модуль состоит из следующих основных компонентов:
+Модуль состоит из 32 модулей, организованных в следующие слои:
 
 ### 1. Состояние системы (State Layer)
 - **`state.py`** - Определение состояний агентов, политики и глобального состояния
@@ -22,23 +22,52 @@
 - **`population_mechanisms.py`** - Демографические механизмы (рождение, смерть, старение)
 - **`graph_mechanisms.py`** - Социальные механизмы через графовые сети
 - **`distribution_mechanisms.py`** - Механизмы перераспределения
+- **`temporal_mechanisms.py`** - Временные механизмы
 
 ### 4. Графовые структуры (Graph Layer)
 - **`graphs.py`** - Создание и управление графами (scale-free, spatial, random)
 - **`graph_executor.py`** - Исполнение на графовых структурах
+- **`graph_observations.py`** - Наблюдения на графах
 
 ### 5. Распределения и метрики (Analysis Layer)
 - **`distributions.py`** - Вычисление неравенства (Gini, Palma ratio)
 - **`demographics.py`** - Демографические метрики и анализ
 - **`metrics.py`** - Сбор и анализ метрик обучения
+- **`analysis.py`** - Анализ поведения агентов
+- **`dashboard.py`** - Дашборд для мониторинга
+- **`visualization.py`** - Визуализация результатов
 
 ### 6. Эволюционные алгоритмы (Evolution Layer)
 - **`evolution.py`** - CMA-ES и эволюционные стратегии
 - **`modes.py`** - Разные режимы обучения (bilevel, MPC)
+- **`mpc.py`** - Model Predictive Control
 
 ### 7. Временные аспекты (Temporal Layer)
 - **`temporal.py`** - Временные наблюдения и маски
 - **`temporal_executor.py`** - Исполнение с учётом времени
+
+### 8. Исполнение и обучение (Execution Layer)
+- **`executor.py`** - Исполнитель для симуляции агентов
+- **`distribution_executor.py`** - Исполнение распределений
+- **`population_executor.py`** - Исполнитель для популяции
+- **`experiment.py`** - Настройка экспериментов
+- **`jit_training.py`** - JIT-компиляция обучения
+- **`training.py`** - Обучение моделей
+
+### 9. Политики и правительство (Policy Layer)
+- **`policy.py`** - Политики агентов
+- **`government_policy.py`** - Политики правительства
+
+### 10. Случайность и кредиты (Utility Layer)
+- **`prng.py`** - Генерация псевдослучайных чисел
+- **`credit_assignment.py`** - Назначение кредитов в обучении
+- **`mechanism.py`** - Базовые механизмы симуляции
+
+### 11. Artifact System (Artifact Layer)
+- **`artifact.py`** - Хранение и загрузка обученных политик агентов с проверкой совместимости окружения
+
+### 12. Value Function Iteration (VFI Layer)
+- **`vfi.py`** - Value Function Iteration для решения динамических задач
 
 ### 8. Визуализация и анализ (Analysis Layer)
 - **`analysis.py`** - Анализ поведения агентов

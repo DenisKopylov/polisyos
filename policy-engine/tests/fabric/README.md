@@ -2,7 +2,7 @@
 
 Комплексная валидация компонентов Fabric layer - ingestion pipeline, evidence bundles, trust system и materialization engine.
 
-**Последнее обновление:** Январь 2026 (добавлены quality indicators system, fitness reports, connectors/ с тестами protocol compliance для data fabric connectors)
+**Последнее обновление:** 1 февраля 2026 (добавлены расширенные тесты connectors с reference implementations, cache system, federation, harness, integration, quality system, registry, resilience, schema system, transform pipeline, type system)
 **Уровень:** Fabric Layer (Data Ingestion & Trust & Provenance & Quality)
 **Зависимости:** Core artifacts, DuckDB, Kuzu, pandas
 

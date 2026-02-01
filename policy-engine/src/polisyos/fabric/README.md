@@ -22,18 +22,23 @@ NL → LLM → IR (AST) → Compilation → Runtime (UDF + Foundry) → Artifact
 ### Ключевые обязанности
 
 1. **Data Ingestion Pipeline**: Полный ETL-конвейер от CSV до хранилищ с валидацией и evidence tracking
-2. **Data Connectors System**: Protocol-based подключение к внешним источникам данных (Phase 2.1)
-3. **Data Contract Catalog**: Metric-level type safety с hash-locked bindings для Scientist agent
-4. **Fact Log System**: Immutable хранение фактов в каноническом формате для audit trail
-5. **Provenance Tracking**: W3C PROV-O compliant lineage tracking для полного audit trail
-6. **Multi-Backend Storage**: Реляционное (DuckDB) + графовое (Kùzu) хранение данных
-7. **Data Quality Management**: Автоматическая оценка качества, reconciliation, dataset manifests, quality gates
-8. **Data Fitness Assessment**: Многоуровневая оценка пригодности данных для симуляции с threshold-based validation
-9. **Entity Resolution**: Нормализация и дедупликация идентификаторов агентов
-10. **Evidence System**: Криптографически verifiable доказательства происхождения данных
-11. **Unified Data Fabric**: Безопасный компилируемый слой запросов с whitelist и privacy controls
-12. **Materialization Engine**: Восстановление реляционных представлений из immutable фактов
-13. **Quality Gate Validation**: Интеграция с governance system для блокировки низкокачественных данных
+2. **Data Connectors System**: Protocol-based подключение к внешним источникам данных с federation, caching, quality assessment и resilience (Phase 2.1-2.5)
+3. **Connector Federation**: Cross-connector composition и evidence aggregation для комплексных data pipelines
+4. **Connector Caching**: CAS-based caching с invalidation, prefetching и intelligent proxy layer
+5. **Data Quality Management**: Автоматическая оценка качества (completeness, consistency, freshness), reconciliation, dataset manifests, quality gates
+6. **Data Transformation Pipeline**: ETL трансформации с aggregation, filtering, harmonization, imputation и validation
+7. **Contract Evolution**: Schema evolution tracking, migration utilities и contract registry для API stability
+8. **Type System**: Безопасная type coercion, dimensional data handling и unit conversion
+9. **Data Contract Catalog**: Metric-level type safety с hash-locked bindings для Scientist agent
+10. **Fact Log System**: Immutable хранение фактов в каноническом формате для audit trail
+11. **Provenance Tracking**: W3C PROV-O compliant lineage tracking для полного audit trail
+12. **Multi-Backend Storage**: Реляционное (DuckDB) + графовое (Kùzu) хранение данных
+13. **Data Fitness Assessment**: Многоуровневая оценка пригодности данных для симуляции с threshold-based validation
+14. **Entity Resolution**: Нормализация и дедупликация идентификаторов агентов
+15. **Evidence System**: Криптографически verifiable доказательства происхождения данных
+16. **Unified Data Fabric**: Безопасный компилируемый слой запросов с whitelist и privacy controls
+17. **Materialization Engine**: Восстановление реляционных представлений из immutable фактов
+18. **Quality Gate Validation**: Интеграция с governance system для блокировки низкокачественных данных
 
 ## Технологический стек
 
@@ -63,11 +68,69 @@ NL → LLM → IR (AST) → Compilation → Runtime (UDF + Foundry) → Artifact
 ```
 fabric/
 ├── __init__.py              # Экспорт основного API (run_ingestion, catalog, connectors)
-├── connectors/              # Phase 2.1: Protocol Foundation & Capability System
+├── _connector_bridge.py     # Мост для интеграции коннекторов с другими системами
+├── connectors/              # Phase 2.1+: Расширенная система коннекторов
 │   ├── __init__.py          # Экспорт connector API и типов
 │   ├── base.py              # SourceConnector Protocol, FetchRequest/Result
 │   ├── capabilities.py      # Capability validation и decorators
-│   └── types.py             # Error hierarchy и supporting types
+│   ├── types.py             # Error hierarchy и supporting types
+│   ├── discovery.py         # Plugin discovery via entry points
+│   ├── pool.py              # ConnectionPool + lifecycle management
+│   ├── registry.py          # ConnectorRegistry singleton для управления коннекторами
+│   ├── cache/               # Система кэширования запросов
+│   │   ├── __init__.py
+│   │   ├── store.py         # CAS-based кэширование
+│   │   ├── invalidation.py  # Инвалидация кэша
+│   │   ├── policy.py        # Политики кэширования
+│   │   ├── prefetch.py      # Предварительная загрузка
+│   │   └── proxy.py         # Прокси для кэширования
+│   ├── contracts/           # Контракты для коннекторов
+│   │   ├── __init__.py
+│   │   ├── evolution.py     # Эволюция контрактов
+│   │   ├── inference.py     # Вывод схем
+│   │   ├── registry.py      # Реестр контрактов
+│   │   └── schema.py        # Схемы данных
+│   ├── federation/          # Федеративные запросы
+│   │   ├── __init__.py
+│   │   ├── composer.py      # Композиция запросов
+│   │   ├── evidence_aggregation.py  # Агрегация доказательств
+│   │   ├── planner.py       # Планирование запросов
+│   │   ├── ranker.py        # Ранжирование результатов
+│   │   └── resolver.py      # Разрешение зависимостей
+│   │   └── types.py         # Типы для федерации
+│   ├── quality/             # Качество данных коннекторов
+│   │   ├── __init__.py
+│   │   ├── completeness.py  # Проверка полноты
+│   │   ├── consistency.py   # Проверка консистентности
+│   │   ├── freshness.py     # Проверка актуальности
+│   │   ├── report.py        # Отчеты о качестве
+│   │   └── validator.py     # Валидация качества
+│   ├── reference/           # Ссылочные реализации
+│   │   ├── __init__.py
+│   │   ├── rest_json.py     # REST JSON коннектор
+│   │   ├── sdmx.py          # SDMX коннектор
+│   │   └── static_csv.py    # Статический CSV коннектор
+│   ├── resilience/          # Устойчивость коннекторов
+│   │   ├── __init__.py
+│   │   ├── circuit_breaker.py  # Circuit breaker pattern
+│   │   ├── fallback.py      # Fallback механизмы
+│   │   ├── rate_limiter.py  # Ограничение скорости
+│   │   └── retry.py         # Повторные попытки
+│   ├── testing/             # Тестирование коннекторов
+│   │   ├── __init__.py
+│   │   ├── contracts.py     # Тестовые контракты
+│   │   ├── fixtures.py      # Тестовые данные
+│   │   ├── harness.py       # Тестовый harness
+│   │   └── simulator.py     # Симулятор коннекторов
+│   └── transform/           # Трансформации данных
+│       ├── __init__.py
+│       ├── aggregator.py    # Агрегация данных
+│       ├── filter.py        # Фильтрация
+│       ├── harmonizer.py    # Гармонизация схем
+│       ├── imputer.py       # Заполнение пропусков
+│       ├── normalizer.py    # Нормализация
+│       ├── pipeline.py      # Трансформационный pipeline
+│       └── validator.py     # Валидация трансформаций
 ├── catalog/                 # Metric-level data contract catalog
 │   ├── __init__.py          # Экспорт всех catalog компонентов
 │   ├── binding.py           # MetricBinding - hash-locked ссылки на метрики
@@ -115,7 +178,7 @@ fabric/
 
 ### 1. Data Connectors System (`connectors/`)
 
-**Phase 2.1: Protocol Foundation & Capability System** - унифицированный интерфейс для подключения к внешним источникам данных с capability-based security и protocol compliance validation.
+**Phase 2.1+: Расширенная система коннекторов** - унифицированный интерфейс для подключения к внешним источникам данных с capability-based security, protocol compliance validation, кэшированием, федерацией и качеством данных.
 
 #### SourceConnector Protocol
 ```python
@@ -129,16 +192,33 @@ class MyConnector(SourceConnector[list[dict]]):
     async def fetch(self, handle: ConnectionHandle, request: FetchRequest) -> FetchResult[list[dict]]: ...
 ```
 
+#### Расширенные компоненты:
+- **Cache System (`cache/`)**: CAS-based кэширование с политиками инвалидации и prefetch
+- **Contracts (`contracts/`)**: Эволюция контрактов и вывод схем данных
+- **Federation (`federation/`)**: Композиция запросов к множественным источникам
+- **Quality (`quality/`)**: Оценка полноты, консистентности и актуальности данных
+- **Resilience (`resilience/`)**: Circuit breaker, fallback и rate limiting
+- **Testing (`testing/`)**: Тестовые harness и симуляторы коннекторов
+- **Transform (`transform/`)**: Pipeline трансформаций (агрегация, фильтрация, гармонизация)
+
 #### Capability System
 Поддержка 15+ capabilities: FULL_FETCH, STREAMING, DATE_RANGE_FILTER, SCHEMA_INTROSPECTION, FRESHNESS_CHECK, CUSTOM_QUERY, etc. С runtime validation через `@requires_capability` decorator.
 
-#### FetchRequest with Deterministic Keys
-`FetchRequest` генерирует `query_key` (для логического запроса) и `request_key` (с пагинацией) для эффективного кэширования в CAS.
+#### Registry & Pool Management
+```python
+registry = ConnectorRegistry.get_instance()
+registry.register(MyConnector)
+handle = await registry.get_connection("myorg.mydata")
+```
 
 **Ключевые возможности:**
 - **Protocol Compliance**: Runtime валидация через `validate_protocol_compliance()`
 - **Capability-based Security**: Проверка доступных операций на этапе исполнения
 - **Deterministic Caching**: Стабильные ключи для Content Addressable Storage
+- **Federated Queries**: Композиция данных из множественных источников
+- **Quality Assurance**: Автоматическая оценка качества получаемых данных
+- **Resilience Patterns**: Circuit breaker, retry и fallback механизмы
+- **Connection Pooling**: Управление жизненным циклом соединений
 - **Error Hierarchy**: Специфичные ошибки (RateLimitError, SchemaError, etc.)
 - **Async Support**: Асинхронные операции для высокопроизводительного доступа
 

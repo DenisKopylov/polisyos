@@ -72,6 +72,8 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │   │   ├── 0001-remove-legacy-foundry-engine.md  # Architecture Decision Record (ADR).
 │   │   ├── 0002-scientist-flow-nodes-only.md  # Architecture Decision Record (ADR).
 │   │   └── 0003-ir-v1-deprecate-remove.md  # Architecture Decision Record (ADR).
+│   ├── connectors/  # Connector development documentation.
+│   │   └── CONTRIBUTING.md  # Guide for contributing data connectors to Policy OS.
 │   └── contracts/  # Contract semantics documentation (Trinity, merge semantics).
 │       ├── MERGE_SEMANTICS.md  # Contract semantics documentation.
 │       └── TRINITY.md  # Contract semantics documentation.
@@ -115,6 +117,7 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │       │   ├── __init__.py  # Python package initializer (public exports live here).
 │       │   ├── config.py  # Central configuration (pydantic-settings) and environment wiring.
 │       │   ├── jax_env.py  # JAX environment defaults and macOS backend safety toggles.
+│       │   ├── async_tools.py  # Asynchronous utilities for sync/async code bridging.
 │       │   └── logger.py  # Structured logging setup (Loguru) with OpenTelemetry trace correlation.
 │       ├── core/  # Infrastructure: artifacts/CAS, canonical JSON, contracts, tracing, registry, run context.
 │       │   ├── artifacts/  # Artifact system: IDs, manifests, environment manifests, CAS store.
@@ -204,6 +207,7 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │       │   │   └── schema.py  # UDF IR/schema validation for query definitions.
 │       │   ├── README.md  # Documentation for this directory/module.
 │       │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   ├── _connector_bridge.py  # Connector bridge for Scientist layer isolation (Law A enforcement).
 │       │   ├── config.py  # Fabric configuration (paths, backends, catalog settings).
 │       │   ├── evidence.py  # Evidence bundle models and cryptographic/provenance scaffolding.
 │       │   ├── fact_writer.py  # Immutable fact writer for audit/provenance-friendly logs.
@@ -224,7 +228,68 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │       │   │   ├── discovery.py  # Connector discovery via entry points and dev-only paths.
 │       │   │   ├── pool.py  # Connection pooling with health checks and eviction.
 │       │   │   ├── registry.py  # Connector registry with indices and lazy loading.
-│       │   │   └── types.py  # Connector error types and supporting data structures.
+│       │   │   ├── cache/  # CAS-based caching system with invalidation and prefetching.
+│       │   │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   │   ├── invalidation.py  # Cache invalidation strategies and policies.
+│       │   │   │   ├── policy.py  # Cache policies and TTL management.
+│       │   │   │   ├── prefetch.py  # Intelligent prefetching for performance optimization.
+│       │   │   │   ├── proxy.py  # Caching proxy layer for connectors.
+│       │   │   │   └── store.py  # CAS store implementation for connector caching.
+│       │   │   ├── contracts/  # Contract evolution and schema management for connectors.
+│       │   │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   │   ├── evolution.py  # Contract evolution and migration utilities.
+│       │   │   │   ├── inference.py  # Schema inference from data sources.
+│       │   │   │   ├── registry.py  # Contract registry and validation.
+│       │   │   │   └── schema.py  # Schema management and validation utilities.
+│       │   │   ├── federation/  # Cross-connector federation and composition.
+│       │   │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   │   ├── composer.py  # Federation composition logic.
+│       │   │   │   ├── evidence_aggregation.py  # Evidence aggregation across federated sources.
+│       │   │   │   ├── planner.py  # Federation query planning.
+│       │   │   │   ├── ranker.py  # Source ranking and selection for federation.
+│       │   │   │   ├── resolver.py  # Federation resolution and conflict handling.
+│       │   │   │   └── types.py  # Federation type definitions.
+│       │   │   ├── quality/  # Data quality assessment and validation.
+│       │   │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   │   ├── completeness.py  # Data completeness validation.
+│       │   │   │   ├── consistency.py  # Data consistency checks.
+│       │   │   │   ├── freshness.py  # Data freshness assessment.
+│       │   │   │   ├── report.py  # Quality assessment reports.
+│       │   │   │   └── validator.py  # Quality validation utilities.
+│       │   │   ├── reference/  # Reference connector implementations.
+│       │   │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   │   ├── rest_json.py  # REST/JSON connector reference implementation.
+│       │   │   │   ├── sdmx.py  # SDMX connector reference implementation.
+│       │   │   │   └── static_csv.py  # Static CSV connector reference implementation.
+│       │   │   ├── resilience/  # Resilience patterns for connector operations.
+│       │   │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   │   ├── circuit_breaker.py  # Circuit breaker pattern implementation.
+│       │   │   │   ├── fallback.py  # Fallback handling for connector failures.
+│       │   │   │   ├── rate_limiter.py  # Rate limiting for connector requests.
+│       │   │   │   └── retry.py  # Retry logic for connector operations.
+│       │   │   ├── testing/  # Testing infrastructure for connectors.
+│       │   │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   │   ├── contracts.py  # Testing contract definitions.
+│       │   │   │   ├── fixtures.py  # Test fixtures for connector testing.
+│       │   │   │   ├── harness.py  # ConnectorTestHarness for protocol compliance.
+│       │   │   │   └── simulator.py  # APISimulator for offline testing.
+│       │   │   ├── transform/  # Data transformation and processing pipeline.
+│       │   │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   │   ├── aggregator.py  # Data aggregation utilities.
+│       │   │   │   ├── filter.py  # Data filtering and selection.
+│       │   │   │   ├── harmonizer.py  # Data harmonization across sources.
+│       │   │   │   ├── imputer.py  # Missing data imputation.
+│       │   │   │   ├── normalizer.py  # Data normalization utilities.
+│       │   │   │   ├── pipeline.py  # Transformation pipeline orchestration.
+│       │   │   │   ├── README.md  # Documentation for this directory/module.
+│       │   │   │   └── validator.py  # Data validation during transformation.
+│       │   │   └── types/  # Type system and data type utilities.
+│       │   │       ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │       ├── coercion.py  # Type coercion utilities.
+│       │   │       ├── connector_types.py  # Connector-specific type definitions.
+│       │   │       ├── dimensions.py  # Dimensional data type handling.
+│       │   │       ├── temporal.py  # Temporal data type utilities.
+│       │   │       └── units.py  # Unit conversion and validation.
 │       ├── foundry/  # JAX execution core: compilation, runtime, simulation, calibration, determinism tools.
 │       │   ├── agent_sim/  # Agent-based simulation subsystem.
 │       │   │   ├── README.md  # Documentation for this directory/module.
@@ -490,6 +555,7 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │   ├── fabric/  # Fabric tests.
 │   │   ├── connectors/  # Connector protocol compliance tests.
 │   │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│   │   │   ├── test_integration.py  # Phase 2.12 Integration & Governance verification suite.
 │   │   │   ├── test_protocol_compliance.py  # Pytest module exercising connector protocol compliance.
 │   │   │   └── test_registry.py  # Pytest module exercising registry, pooling, and discovery.
 │   │   ├── README.md  # Documentation for this directory/module.
@@ -582,6 +648,9 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │   │   ├── run_optimizer_demo.py  # Demo script.
 │   │   ├── run_udf_hybrid_demo.py  # Demo script.
 │   │   └── run_udf_query_demo.py  # Demo script.
+│   ├── connectors/  # Connector development tools.
+│   │   ├── lint_connectors.py  # Law A/B enforcement linter for connectors.
+│   │   └── scaffold.py  # Connector scaffold generator for new implementations.
 │   ├── diagnostics/  # Diagnostics scripts.
 │   │   ├── README.md  # Documentation for this directory/module.
 │   │   ├── check_setup.py  # Diagnostics script.

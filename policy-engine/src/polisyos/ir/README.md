@@ -2,7 +2,7 @@
 
 **IR (Intermediate Representation)** - это промежуточное представление политик и симуляций в системе Policy Engine. Модуль определяет канонические контракты данных, обеспечивая единообразие коммуникации между всеми компонентами системы: от LLM-агентов до JAX-симуляций.
 
-**Обновлено**: документация актуализирована для отражения текущего состояния на 2026-01-30, включая полную реализацию Trinity архитектуры (ProblemFrame, PolicySpec, ModelSpec), расширенную систему Kernel реестров, интеграцию с Fact Log, новые контракты для нормативных документов (NormPack), безопасную систему оценки выражений AST Policy, и контракты коннекторов данных (connectors.py) для интеграции с внешними источниками.
+**Обновлено**: документация актуализирована для отражения текущего состояния на 2026-02-01, включая полную реализацию Trinity архитектуры (ProblemFrame, PolicySpec, ModelSpec), расширенную систему Kernel реестров с новыми компонентами (constraints, metrics, selector_fields, trust, numbers, values), интеграцию с Fact Log, новые контракты для нормативных документов (NormPack), безопасную систему оценки выражений AST Policy, контракты коннекторов данных (connectors.py) для интеграции с внешними источниками, асинхронные утилиты (async_tools.py), и систему миграции Trinity.
 
 ## Архитектурная роль
 
@@ -47,18 +47,20 @@ PolicySurfaceIR v2.x остается совместимым интерфейс�
 1. **Trinity артефакты**: Три независимых контракта (ProblemFrame, PolicySpec, ModelSpec)
 2. **Канонические схемы**: Pydantic-модели для всех артефактов системы
 3. **Валидация данных**: Строгие ограничения и проверки корректности
-4. **Версионирование**: Детерминированные миграции схем
+4. **Версионирование**: Детерминированные миграции схем, включая Trinity миграцию
 5. **Многоязычность**: Поддержка локализации интерфейсов
-6. **Безопасность**: Анти-runaway лимиты на размеры и глубину
-7. **Линковка**: Валидация политик относительно kernel-реестров механизмов и слотов
+6. **Безопасность**: Анти-runaway лимиты на размеры и глубину, безопасная AST оценка
+7. **Линковка**: Валидация политик относительно расширенных kernel-реестров
 8. **Fact Log**: Семантическая сеть фактов с provenance tracking и trust policies
-9. **Kernel реестры**: Фундаментальные реестры типов, единиц, слотов и механизмов
+9. **Kernel реестры**: Фундаментальные реестры типов, единиц, слотов, механизмов, ограничений, метрик, селекторных полей и политик доверия
 10. **Калибровка**: Настройки оптимизации политик относительно исторических данных
 11. **Запросы данных**: Структурированные запросы к результатам симуляции
 12. **Предикаты**: Определение фильтров для доступа к данным симуляции
 13. **AST Policy**: Безопасная оценка выражений с валидацией синтаксиса
 14. **Norm Compliance**: Валидация политик на соответствие нормативным документам
 15. **Data Connectors**: Контракты для интеграции с внешними источниками данных
+16. **Типизированные значения**: Строго типизированные значения (MoneyValue, RateValue, CountValue, DurationValue)
+17. **Асинхронные утилиты**: Инструменты для безопасной работы с асинхронным кодом
 
 ### Ключевые обязанности
 
@@ -114,6 +116,7 @@ ir/
 ├── migrations/
 │   ├── __init__.py          # API миграций между версиями схем
 │   └── trinity_migration.py # Миграция PolicySurfaceIR → Trinity артефактов
+├── async_tools.py           # Асинхронные утилиты (run_coro_sync) - находится в common/
 └── units.py                 # Устаревшие утилиты для работы с единицами измерения (дубликат kernel/units.py)
 ```
 
@@ -963,10 +966,10 @@ Kernel предоставляет фундаментальный слой тип
 - **Slot Registry**: Определения слотов состояния агентов и сущностей с типизацией, scope и правилами слияния
 - **Units Registry**: Типизированная система единиц измерения (валюты, проценты, количества)
 - **Merge Rules Registry**: Правила разрешения конфликтов при пересекающихся интервенциях
-- **Constraints Registry**: Ограничения на применение политик
-- **Metrics Registry**: Спецификации метрик оптимизации
-- **Selector Fields Registry**: Доступные поля для фильтрации сущностей в селекторах
-- **Trust Registry**: Политики доверия к источникам данных
+- **Constraints Registry**: Ограничения на применение политик (accounting, non_negative, budget, legal)
+- **Metrics Registry**: Спецификации метрик оптимизации с агрегацией и нормализацией
+- **Selector Fields Registry**: Доступные поля для фильтрации сущностей в селекторах с типизацией
+- **Trust Registry**: Политики доверия к источникам данных с уровнями confidence и validation rules
 
 **Особенности Kernel:**
 - Все реестры имеют версионирование (schema_version)
@@ -974,6 +977,7 @@ Kernel предоставляет фундаментальный слой тип
 - Поддержка type safety через Pydantic модели
 - Интеграция с системой единиц измерения
 - Расширяемая архитектура для новых типов компонентов
+- Строгая типизация значений с reject float policy
 
 ```python
 from polisyos.ir.kernel import (
@@ -1046,7 +1050,64 @@ version = DataVersion(
 - **Fabric Level**: Исполняемые протоколы (SourceConnector, FetchRequest, FetchResult)
 - **Runtime Level**: Кэширование и оркестрация запросов к источникам
 
-### 15. Система версий (`migrations/`)
+### 14. Типизированные значения (`kernel/numbers.py`, `kernel/values.py`)
+
+#### Строгая типизация числовых значений
+
+Kernel предоставляет строго типизированные числовые значения с автоматической валидацией и защитой от использования float:
+
+```python
+from polisyos.ir.kernel import DecimalValue, NonNegativeDecimal, PositiveDecimal
+
+# Типизированные decimal значения с reject float
+income: DecimalValue = Decimal("50000.50")  # ✅ Правильно
+# income: float = 50000.50  # ❌ Ошибка валидации
+
+# Ограниченные диапазоны
+balance: NonNegativeDecimal = Decimal("1000.00")  # ≥ 0
+count: PositiveDecimal = Decimal("5")  # > 0
+```
+
+#### Специализированные типы значений
+
+```python
+from polisyos.ir.kernel import MoneyValue, RateValue, CountValue, DurationValue
+
+# Денежные величины с валютой и номинальным годом
+salary = MoneyValue(amount=Decimal("50000"), currency="UAH", nominal_year=2024)
+
+# Процентные ставки с автоматической конвертацией
+tax_rate = RateValue.ratio(Decimal("0.15"))  # 15% как отношение
+tax_rate_percent = RateValue(base="percent", value=Decimal("15"))  # 15% как процент
+
+# Количества и продолжительности
+employees = CountValue(value=100, label="IT specialists")
+duration = DurationValue(value=12, unit="month")  # 12 месяцев
+```
+
+### 15. Асинхронные утилиты (`common/async_tools.py`)
+
+#### Безопасная работа с корутинами
+
+Утилиты для безопасного запуска асинхронного кода из синхронного контекста:
+
+```python
+from polisyos.common.async_tools import run_coro_sync
+
+async def async_operation():
+    # Асинхронная операция
+    return await some_async_call()
+
+# Безопасный запуск из sync кода
+result = run_coro_sync(async_operation())
+```
+
+**Особенности:**
+- Автоматическое обнаружение активного event loop
+- ThreadPoolExecutor для случаев с running loop
+- Graceful fallback к asyncio.run()
+
+### 16. Система версий (`migrations/`)
 
 #### Детерминированные миграции
 
@@ -1068,9 +1129,9 @@ major, minor = parse_version("2.1")
 is_major = is_major_bump("2.0", "2.1")  # False для minor изменений
 ```
 
-#### Trinity миграция (`trinity_migration.py`)
+#### Trinity миграция (`migrations/trinity_migration.py`)
 
-Специальная система миграции для преобразования PolicySurfaceIR в Trinity артефакты (ProblemFrame, PolicySpec, ModelSpec):
+Специальная система миграции для преобразования PolicySurfaceIR в Trinity артефакты (ProblemFrame, PolicySpec, ModelSpec). Реализует структурное разделение политики на независимые компоненты:
 
 ```python
 from polisyos.ir.migrations.trinity_migration import (
@@ -1097,9 +1158,9 @@ reconstructed = merge_to_surface_ir(problem_frame, policy_spec, model_spec)
 
 #### Поддерживаемые версии
 
-- **Trinity 1.0**: ProblemFrame, PolicySpec, ModelSpec (новая архитектура)
-- **PolicySurfaceIR 2.x**: Унаследованный интерфейс с миграцией в Trinity
-- **PolicySurfaceIR 2.0**: Текущая стабильная версия
+- **Trinity 1.0**: ProblemFrame, PolicySpec, ModelSpec (новая архитектура с trinity_migration.py)
+- **PolicySurfaceIR 2.x**: Унаследованный интерфейс с автоматической миграцией в Trinity
+- **PolicySurfaceIR 2.0**: Текущая стабильная версия с полной поддержкой
 - **PolicySurfaceIR 1.x**: Устаревший PolicyIR (конвертация через `load_policy()`)
 - **v0.x**: Устаревшие форматы (требуют ручной миграции)
     "adaptive_agent": MechanismTypeSpec(
@@ -1596,6 +1657,9 @@ from polisyos.ir import (
     DataViewRequest, DataViewType, AccessTier, DataFilter
 )
 
+# Асинхронные утилиты
+from polisyos.common.async_tools import run_coro_sync
+
 # Полный импорт для доступа ко всем компонентам
 from polisyos.ir.trinity import (
     TrinityBundle, SharedMetadata,
@@ -1621,10 +1685,13 @@ from polisyos.ir.surface import (
 from polisyos.ir.kernel import (
     MechanismTypeRegistry, SlotRegistry, UnitsRegistry,
     SelectorFieldRegistry, TrustRegistry, ConstraintRegistry,
-    MoneyValue, RateValue, CountValue,
+    MoneyValue, RateValue, CountValue, DurationValue,
     MergeRuleRegistry, MetricRegistry,
+    DecimalValue, NonNegativeDecimal, PositiveDecimal,
     DEFAULT_MECHANISM_REGISTRY, DEFAULT_SLOT_REGISTRY,
-    DEFAULT_UNITS_REGISTRY, DEFAULT_CONSTRAINT_REGISTRY
+    DEFAULT_UNITS_REGISTRY, DEFAULT_CONSTRAINT_REGISTRY,
+    DEFAULT_METRIC_REGISTRY, DEFAULT_SELECTOR_FIELD_REGISTRY,
+    DEFAULT_TRUST_REGISTRY, DEFAULT_MERGE_RULE_REGISTRY
 )
 
 from polisyos.ir.linker import link_policy, LinkReport, LinkIssue
@@ -1861,8 +1928,9 @@ pytest tests/unit/test_ir_units.py            # Система единиц из
 **Ключевые тестовые сценарии:**
 - **Contract tests**: Проверяют совместимость API и behavior контрактов
 - **Integration tests**: Валидируют взаимодействие IR с другими модулями
-- **Unit tests**: Покрывают edge cases и error handling
-- **Migration tests**: Гарантируют backward compatibility при изменениях схем
+- **Unit tests**: Покрывают edge cases и error handling, включая новые kernel реестры и типы
+- **Migration tests**: Гарантируют backward compatibility при изменениях схем, включая Trinity миграцию
+- **Async tests**: Тестирование асинхронных утилит и интеграций
 
 ## Архитектурные принципы
 
@@ -1884,7 +1952,7 @@ IR является фундаментом всей системы и испол
 - **Fabric**: Обрабатывает `DataViewRequest` для запросов данных, использует предикаты из `predicate.py`, контракты фактов из `fact_log.py` для семантической сети, работает с ModelSpec для понимания структуры данных. Использует контракты коннекторов из `connectors.py` для стандартизации интерфейсов внешних источников данных
 - **Core**: Предоставляет базовую инфраструктуру, использует `Fact` и `FactBatch` для построения семантической сети знаний, интегрируется с ModelSpec для загрузки данных
 - **Runtime**: Хранит артефакты Trinity и PolicySurfaceIR для аудита, использует `CalibrationConfig` для управления оптимизацией, сохраняет метаданные из всех артефактов
-- **Common**: Использует систему миграций из `common.migrations` для версионирования схем, включая Trinity миграции
+- **Common**: Использует систему миграций из `common.migrations` для версионирования схем, включая Trinity миграции; предоставляет `async_tools.py` для асинхронных операций
 - **Legal (Scientist/Governance)**: Использует `NormPack` и `NormRule` для определения нормативных документов, AST Policy для безопасной оценки выражений в правилах compliance, ExpressionASTBackend для интеграции с Legal Pass pipeline
 
 ### Архитектурные контракты

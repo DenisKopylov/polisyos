@@ -1,44 +1,24 @@
-# Contracts Module (Контракты)
+# Contracts (Типизированные контракты)
 
 ## Обзор
 
-Модуль `contracts` определяет типизированные контракты взаимодействия между различными модулями системы PolisyOS. Контракты обеспечивают типобезопасность, стандартизацию интерфейсов и четкое разделение ответственности между модулями через строго типизированные ссылки на артефакты.
+Типизированные контракты взаимодействия между модулями PolisyOS. Обеспечивают типобезопасность, стандартизацию интерфейсов и provenance tracking через строго типизированные ссылки на артефакты.
 
 ## Архитектура
 
 ```
 contracts/
-├── __init__.py     # Экспорт всех контрактов
-├── compiler.py     # Контракты компилятора
-├── fabric.py       # Контракты Fabric (обработка данных)
-├── foundry.py      # Контракты Foundry (симуляция)
+├── compiler.py     # CompileReportRef, LinkReportRef
+├── fabric.py       # Fabric контракты (6 типов)
+├── foundry.py      # Foundry контракты (15+ типов с patch-based state)
 ├── legal.py        # Legal compliance контракты
-├── scientist.py    # Контракты Scientist (ArtifactRef, FailureCardRef, PolicyIRRef, CritiqueRef, TimelineRef, DecisionCardRef)
-└── trinity.py      # Trinity контракты (базовые спецификации)
+├── scientist.py    # Scientist контракты (ArtifactRef, FailureCardRef, etc.)
+└── trinity.py      # Trinity контракты (ProblemFrame, PolicySpec, ModelSpec)
 ```
 
-## Принципы контрактов
+## Принципы
 
-### Типизированные ссылки
-
-Все контракты наследуются от `ArtifactRef` с литеральными типами для kind и media_type:
-
-```python
-class FabricResultRef(ArtifactRef):
-    kind: Literal["fabric.result_bundle"] = "fabric.result_bundle"
-    media_type: Literal["application/json"] = "application/json"
-```
-
-### Разделение данных и ссылок
-
-- **ArtifactRef**: Ссылка на артефакт с типизацией
-- **Модели данных**: Структурированные данные (Pydantic модели)
-
-### Строгая типизация
-
-- `extra="forbid"` предотвращает неожиданные поля
-- Литеральные типы для compile-time проверок
-- Валидация через Pydantic
+Типизированные ссылки с `Literal` типами для kind/media_type, разделение данных и ссылок, строгая типизация с `extra="forbid"`.
 
 ## Compiler Contracts
 

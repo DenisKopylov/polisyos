@@ -1,132 +1,91 @@
 # Grafana Dashboards (Визуализация)
 
-Директория содержит конфигурацию Grafana и JSON-определения дашбордов для визуализации метрик PolicyOS. Предоставляет ролевые дашборды для разных пользователей системы.
+Директория содержит конфигурацию Grafana и JSON-определения дашбордов для визуализации метрик PolicyOS. Предоставляет ролевые дашборды с автоматическим provisioning.
 
 ## Структура
 
 ```
 grafana/
-├── dashboards/                     # JSON определения дашбордов
-│   ├── executive-overview.json     # Обзор для руководства
-│   ├── foundry-hpc.json           # Производительность HPC
-│   └── scientist-agents.json       # Производительность агентов
+├── dashboards/                     # JSON дашборды (3 шт.)
+│   ├── executive-overview.json     # Executive overview (cost, acceptance)
+│   ├── foundry-hpc.json           # HPC performance (throughput, cache)
+│   └── scientist-agents.json       # Agent performance (governance, LLM)
 └── provisioning/
-    └── dashboards.yml              # Автоматическое provisioning
+    └── dashboards.yml              # Auto-provisioning конфигурация
 ```
 
 ## Дашборды
 
 ### Executive Overview
-**Цель**: Высокоуровневый обзор для руководства и стейкхолдеров
-
-**Метрики:**
-- Стоимость LLM (USD/час) с порогами warning/critical
-- Общий acceptance rate workflow
-- Активные эксперименты и симуляции
-
-**Особенности:**
-- 30-секундное обновление
-- Templating по environment (production/staging)
-- Threshold-based coloring (зеленый/желтый/красный)
+**Цель**: Высокоуровневый обзор для руководства
+- **Метрики**: LLM cost (USD/h с thresholds), acceptance rate, active runs
+- **Особенности**: 30s refresh, environment templating, color-coded thresholds
 
 ### Scientist Agent Performance
-**Цель**: Детальная аналитика работы AI агентов и экспериментов
-
-**Метрики:**
-- Governance pass duration (p95) по типам проверок
-- Workflow acceptance/error rates
-- LLM token consumption по типам (prompt/completion)
-- Error rate агентов с трендами
-
-**Особенности:**
-- Timeline view для governance pipeline
-- Heatmaps для error patterns
-- Drill-down по конкретным экспериментам
+**Цель**: Аналитика работы AI агентов
+- **Метрики**: Governance latency (p95), workflow success/error rates, LLM token usage
+- **Особенности**: Timeline governance pipeline, error heatmaps, experiment drill-down
 
 ### Foundry HPC Performance
-**Цель**: Мониторинг производительности HPC симуляций и JAX runtime
-
-**Метрики:**
-- Simulation throughput (steps/second)
-- JIT compilation time и частота
-- Cache hit ratio для артефактов
-- Calibration loss и gradient norms
-- Memory/CPU utilization (при наличии)
-
-**Особенности:**
-- Real-time throughput monitoring
-- Alert integration для performance degradation
-- Historical trends для capacity planning
+**Цель**: Мониторинг HPC симуляций и JAX
+- **Метрики**: Simulation throughput, JIT compilation stats, cache hit ratios, calibration metrics
+- **Особенности**: Real-time monitoring, performance alerts, capacity planning trends
 
 ## Provisioning
 
-### Автоматическая загрузка
-Дашборды автоматически загружаются при запуске Grafana через `provisioning/dashboards.yml`:
+### Автозагрузка
+Дашборды автоматически загружаются при запуске через `provisioning/dashboards.yml`. Конфигурация монтируется в контейнер read-only.
 
-```yaml
-providers:
-  - name: polisyos
-    folder: PolicyOS
-    type: file
-    options:
-      path: /etc/grafana/dashboards  # Монтируется из host
-```
-
-### Добавление новых дашбордов
-
-1. **Создайте JSON файл** в `dashboards/` с уникальным `uid`
-2. **Установите folder** в "PolicyOS"
-3. **Перезапустите Grafana** или используйте hot reload
-4. **Проверьте** в интерфейсе Grafana
+### Добавление дашбордов
+1. Создайте JSON в `dashboards/` с уникальным `uid`
+2. Установите `folder: "PolicyOS"`
+3. Перезапустите Grafana для загрузки
+4. Проверьте в интерфейсе (admin/admin)
 
 ## Интеграция с Prometheus
 
 ### Data Source
-Grafana автоматически подключается к Prometheus на `prometheus:9090` (service name в docker-compose).
+Автоматическое подключение к `prometheus:9090` через docker-compose service discovery.
 
-### Query Examples
-
+### Примеры запросов
 ```promql
-# Стоимость LLM
-sum(rate(polisyos_llm_tokens_total{type="prompt"}[1h])) * 0.00001 * 3600 +
-sum(rate(polisyos_llm_tokens_total{type="completion"}[1h])) * 0.00003 * 3600
+# LLM cost (USD/hour)
+(sum(rate(polisyos_llm_tokens_total{type="prompt"}[1h])) * 0.00001 +
+ sum(rate(polisyos_llm_tokens_total{type="completion"}[1h])) * 0.00003) * 3600
 
 # Acceptance rate
 sum(rate(polisyos_workflow_runs_total{status="success"}[1h])) /
 sum(rate(polisyos_workflow_runs_total[1h]))
 
-# Governance latency
+# Governance p95 latency
 histogram_quantile(0.95, sum by (le, pass_id) (rate(polisyos_governance_pass_duration_seconds_bucket[5m])))
 ```
 
 ## Кастомизация
 
-### Темы и настройки
-- **Default theme**: Light (для readability)
-- **Time range**: Last 1 hour (для оперативного мониторинга)
-- **Refresh**: 30 seconds (баланс между real-time и нагрузкой)
+### Настройки по умолчанию
+- **Theme**: Light для лучшей читаемости
+- **Time range**: Last 1 hour для оперативного мониторинга
+- **Refresh**: 30s (баланс real-time/производительности)
 
-### Alert Integration
-Дашборды показывают метрики, которые используются в алертах Prometheus. При срабатывании алертов можно быстро перейти из alert manager в соответствующий дашборд.
-
-### Permissions
-- **Admin access**: Полный доступ к редактированию
-- **Viewer access**: Read-only для dashboard consumption
-- **Folder organization**: Все дашборды в папке "PolicyOS"
+### Permissions & Organization
+- **Admin**: Полный доступ к редактированию
+- **Viewer**: Read-only для просмотра
+- **Folder**: Все дашборды в "PolicyOS"
 
 ## Troubleshooting
 
 ### Дашборды не загружаются
-1. Проверьте volume mounts в docker-compose
-2. Проверьте JSON syntax: `jq . dashboard.json`
-3. Проверьте Grafana logs: `docker logs grafana`
+- Проверьте volume mounts в docker-compose.yml
+- Валидируйте JSON: `jq . dashboard.json`
+- Проверьте logs: `docker logs grafana`
 
-### Метрики не отображаются
-1. Проверьте Prometheus targets: `/targets`
-2. Проверьте query в Grafana query inspector
-3. Проверьте time range и label filters
+### Метрики отсутствуют
+- Проверьте Prometheus targets (`/targets`)
+- Валидируйте queries в query inspector
+- Проверьте time range и label filters
 
 ### Performance issues
-- Увеличьте refresh interval при высокой нагрузке
-- Используйте recording rules для complex queries
-- Рассмотрите dashboard sharding для большого количества panels
+- Увеличьте refresh interval при нагрузке
+- Используйте recording rules для сложных запросов
+- Рассмотрите sharding для большого количества panels

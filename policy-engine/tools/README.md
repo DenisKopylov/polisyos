@@ -17,6 +17,12 @@ tools/
 │       # - Механизмы политик (TaxSubsidy, IncomeTax, Queue)
 │       # - JAX JIT оптимизации для больших состояний
 │       # - Полная интеграция foundry модуля
+├── connectors/                 # Инструменты для работы с коннекторами данных
+│   └── scaffold.py             # Генератор скелетов коннекторов
+│       # - Автоматическая генерация BaseConnector наследников
+│       # - Поддержка REST, CSV, SQL, SDMX типов
+│       # - Генерация соответствующих тестов
+│       # - Интеграция с ConnectorTestHarness
 ├── demos/                      # Демонстрационные скрипты возможностей
 │   ├── run_export_demo.py      # Экспорт результатов симуляции в разные форматы
 │   │   # - Экспорт в Parquet, JSON, CSV, HDF5
@@ -75,6 +81,14 @@ tools/
 │   # - Генерация и валидация JSON Schema по Закону C
 │   # - Работа с PolicySurfaceIR и всеми IR моделями
 │   # - Детерминированная генерация для CI/CD
+├── lint_connectors.py          # Линтер коннекторов данных
+│   # - Проверка соблюдения архитектурных законов в коннекторах
+│   # - Валидация базовых интерфейсов и контрактов
+│   # - Анализ зависимостей и изоляции коннекторов
+├── lint_connectors.py          # Линтер коннекторов данных
+│   # - Проверка соблюдения архитектурных законов в коннекторах
+│   # - Валидация базовых интерфейсов и контрактов
+│   # - Анализ зависимостей и изоляции коннекторов
 ├── lint_foundry.py             # Архитектурный линтер foundry модуля
 │   # - Обеспечение чистоты математического ядра (Закон B)
 │   # - Запрет импортов IO/сетевых библиотек в foundry
@@ -124,6 +138,7 @@ python tools/diagnostics/check_setup.py
 # Линтинг архитектуры
 python tools/lint_imports.py
 python tools/lint_foundry.py
+python tools/lint_connectors.py
 
 # Снимок окружения
 python -m tools.capture_env capture --output env.json
@@ -184,6 +199,54 @@ python tools/lint_imports.py --fail-on-type-checking
 - Fabric не может импортировать scientist (LLM/orchestration нарушает data layer)
 - Обратные зависимости нарушают Закон A
 - Циклические импорты между пакетами
+
+### lint_connectors.py - Линтер коннекторов данных
+
+Специализированный линтер для проверки архитектурной корректности коннекторов данных согласно **Законам A и E**. Обеспечивает изоляцию коннекторов и соблюдение контрактов данных.
+
+**Проверяемые аспекты:**
+
+**Архитектурная изоляция:**
+- Коннекторы не могут импортировать scientist.* (LLM нарушает data layer)
+- Запрещены прямые импорты fabric.* (кроме типов)
+- Соблюдение направленного графа зависимостей (Закон A)
+
+**Интерфейсная корректность:**
+- Наследование от BaseConnector
+- Реализация обязательных методов (connect, disconnect, fetch, health_check)
+- Правильные сигнатуры методов и возвращаемые типы
+
+**Контрактная валидность:**
+- Наличие metadata с правильной структурой
+- Валидные connector_id и namespace
+- Правильные capability declarations
+- Соответствие TrustLevel и QualityTier
+
+**Закон E (Evidence и provenance):**
+- FetchResult должен содержать provenance_ref
+- Корректная генерация DataVersion
+- Интеграция с CAS системой для evidence tracking
+
+```bash
+# Линтинг всех коннекторов
+python tools/lint_connectors.py
+
+# Проверка конкретного коннектора
+python tools/lint_connectors.py --connector custom.my_connector
+
+# Детальный вывод с предупреждениями
+python tools/lint_connectors.py --verbose
+
+# Проверка только интерфейсов
+python tools/lint_connectors.py --check-interfaces-only
+```
+
+**Обнаруживаемые нарушения:**
+- Неправильные импорты нарушающие архитектуру
+- Отсутствующие обязательные методы
+- Некорректные metadata declarations
+- Нарушения capability contracts
+- Отсутствие provenance в fetch результатах
 
 ### lint_foundry.py - Архитектурный линтер foundry модуля
 
@@ -964,6 +1027,7 @@ VERIFICATION FAILED:
 |------------|----------------------|---------------------|---------------------|
 | `lint_imports.py` | `core.*` | Закон A (направленный граф зависимостей) | A (направленные зависимости) |
 | `lint_foundry.py` | `foundry.*` (только структура) | Закон B (чистота математического ядра) | B (компиляторная архитектура) |
+| `lint_connectors.py` | `fabric.connectors.*` | Законы A, E (изоляция коннекторов и provenance) | A, E |
 | `gen_schema.py` | `ir.contract` | Закон C (контракты как источник истины) | C (контракты) |
 | `migrate_ir.py` | `ir.migrations`, `common.migrations` | Закон C (детерминированные миграции) | C (контракты) |
 | `migrate.py` | `common.migrations` | Закон C (миграции артефактов) | C (контракты) |
@@ -1420,7 +1484,7 @@ POLICY_ENGINE_LOG_LEVEL=DEBUG python tools/diagnostics/check_setup.py
 - **Демонстрация**: `demos/` - валидация функциональности
 - **Bootstrap**: `scan_fabric.py` - быстрая генерация data contracts из существующих данных
 
-### Новые возможности (2026-01-30)
+### Новые возможности (2026-02-01)
 
 - **Data Catalog System**: Новая подсистема data contracts в `fabric.catalog/`
 - **scan_fabric.py**: Bootstrap утилита для автоматической генерации data contracts
@@ -1432,7 +1496,9 @@ POLICY_ENGINE_LOG_LEVEL=DEBUG python tools/diagnostics/check_setup.py
 - **capture_env.py**: CLI инструмент для захвата и сравнения Environment Manifest
 - **run_mechanism_design.py**: End-to-end демонстрация дифференцируемого механизма дизайна
 - **diagnostics/check_perf_regression.py**: Расширенная версия проверки регрессий в diagnostics
+- **lint_connectors.py**: Архитектурный линтер для коннекторов данных с проверкой Законов A и E
+- **connectors/scaffold.py**: Генератор скелетов коннекторов с автоматической поддержкой REST, CSV, SQL, SDMX типов
 
 ---
 
-*Инструменты протестированы на Python 3.11+ с JAX 0.4.x, DuckDB, Kuzu и полным технологическим стеком Policy Engine. Документация обновлена для отражения актуального состояния на 2026-01-30.*
+*Инструменты протестированы на Python 3.11+ с JAX 0.4.x, DuckDB, Kuzu и полным технологическим стеком Policy Engine. Документация обновлена для отражения актуального состояния на 2026-02-01.*

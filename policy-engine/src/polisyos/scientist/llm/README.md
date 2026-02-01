@@ -12,7 +12,7 @@ LLM Layer предоставляет унифицированный интерф
 
 ```
 llm/
-├── __init__.py              # Экспорт TracedLLMClient
+├── __init__.py              # Экспорт основных компонентов
 └── traced_client.py         # TracedLLMClient с OpenTelemetry интеграцией
 ```
 

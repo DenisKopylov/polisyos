@@ -12,7 +12,7 @@ Orchestrator Layer управляет полным жизненным цикло
 
 ```
 orchestrator/
-├── __init__.py                    # Пустой (для будущего использования)
+├── __init__.py                    # Экспорт основных компонентов
 ├── workflow.py                   # Основной LangGraph workflow с self-healing
 ├── state.py                      # ExperimentState и типы данных (90+ полей)
 ├── flow_nodes.py                 # Реализации узлов workflow (3200+ строк)
@@ -22,7 +22,7 @@ orchestrator/
 ├── run_timeline.py               # Timeline artifact для observability и tracing
 ├── audit.py                      # Система аудита и логирования
 ├── data_loader.py                # Загрузка данных из Fabric
-├── nodes.py                      # Устаревшие узлы (deprecated)
+├── nodes.py                      # Устаревшие узлы (deprecated, заменен flow_nodes.py)
 ├── optimizer.py                  # Оптимизация параметров (placeholder)
 └── registry.py                   # Управление реестрами (placeholder)
 ```

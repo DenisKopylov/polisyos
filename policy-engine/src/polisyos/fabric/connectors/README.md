@@ -1,12 +1,15 @@
 # Data Fabric Connectors
 
-**Phase 2.1: Protocol Foundation & Capability System**  
+**Phase 2.1+: Расширенная система коннекторов**
+**Phase 2.1: Protocol Foundation & Capability System**
 **Phase 2.2: Registry Architecture & Lazy Loading**
+**Phase 2.3+: Federation, Quality, Resilience & Advanced Features**
 
-This package provides the foundational abstractions for connecting to external
+This package provides comprehensive abstractions for connecting to external
 sources in the PolicyOS data fabric layer. The connector system uses a
 **Protocol-based design** for structural subtyping, allowing connectors to be
-implemented without inheriting a base class.
+implemented without inheriting a base class, with advanced features for
+federation, caching, quality assurance, and resilience.
 
 ## Architecture Overview
 
@@ -33,9 +36,10 @@ implemented without inheriting a base class.
 │  │ ├── capabilities.py # Validation utilities                  ││
 │  │ │   • @requires_capability decorator                        ││
 │  │ │   • validate_protocol_compliance()                        ││
-│  │ ├── types.py        # Error hierarchy & supporting types    ││
+│  │ ├── types.py        # Extended error hierarchy & types      ││
 │  │ │   • ConnectorError, CapabilityError, etc.                 ││
 │  │ │   • DatasetDescriptor, FreshnessResult                    ││
+│  │ │   • Coercion, dimensions, temporal, units                 ││
 │  │ ├── registry.py     # ConnectorRegistry singleton           ││
 │  │ │   • Lazy loading + instance caching                        ││
 │  │ │   • Secondary indices for capability queries              ││
@@ -43,6 +47,33 @@ implemented without inheriting a base class.
 │  │ │   • Health checks, eviction, concurrency limits           ││
 │  │ ├── discovery.py    # Plugin discovery via entry points      ││
 │  │ │   • Dev-only path discovery gated by env flag             ││
+│  │ ├── cache/          # CAS-based caching system              ││
+│  │ │   ├── store.py    # Content Addressable Storage           ││
+│  │ │   ├── policy.py   # Caching policies & invalidation       ││
+│  │ │   └── proxy.py    # Proxy layer for caching               ││
+│  │ ├── contracts/      # Contract evolution & schema inference ││
+│  │ │   ├── evolution.py # Contract versioning                  ││
+│  │ │   ├── inference.py # Automatic schema inference           ││
+│  │ │   └── registry.py # Contract registry                     ││
+│  │ ├── federation/     # Federated query composition           ││
+│  │ │   ├── composer.py # Query composition across sources      ││
+│  │ │   ├── planner.py  # Federated query planning              ││
+│  │ │   └── resolver.py # Dependency resolution                 ││
+│  │ ├── quality/        # Data quality assessment                ││
+│  │ │   ├── completeness.py # Completeness validation           ││
+│  │ │   ├── freshness.py # Data freshness checks                ││
+│  │ │   └── validator.py # Quality validation pipeline          ││
+│  │ ├── resilience/     # Fault tolerance patterns              ││
+│  │ │   ├── circuit_breaker.py # Circuit breaker pattern        ││
+│  │ │   ├── fallback.py # Fallback mechanisms                   ││
+│  │ │   └── retry.py    # Retry strategies                      ││
+│  │ ├── testing/        # Testing harness & simulation          ││
+│  │ │   ├── harness.py  # Test harness for connectors           ││
+│  │ │   └── simulator.py # Connector simulation                 ││
+│  │ ├── transform/      # Data transformation pipeline          ││
+│  │ │   ├── aggregator.py # Data aggregation                    ││
+│  │ │   ├── harmonizer.py # Schema harmonization                ││
+│  │ │   └── pipeline.py # Transformation pipeline               ││
 │  │ └── __init__.py     # Public API                            ││
 │  └─────────────────────────────────────────────────────────────┘│
 └─────────────────────────────────────────────────────────────────┘
@@ -136,6 +167,56 @@ from polisyos.fabric.connectors import validate_protocol_compliance
 violations = validate_protocol_compliance(MyConnector)
 if violations:
     raise ConfigurationError(f"Protocol violations: {violations}")
+```
+
+### Advanced Components (Phase 2.3+)
+
+#### Caching System (`cache/`)
+CAS-based кэширование с политиками инвалидации и prefetch для оптимизации производительности:
+```python
+from polisyos.fabric.connectors.cache import CacheStore, CachePolicy
+
+cache = CacheStore()
+policy = CachePolicy(ttl_hours=24, max_size_mb=100)
+```
+
+#### Federation (`federation/`)
+Композиция запросов к множественным источникам данных с dependency resolution:
+```python
+from polisyos.fabric.connectors.federation import QueryComposer, FederatedPlanner
+
+composer = QueryComposer()
+plan = composer.compose([source1, source2, source3])
+```
+
+#### Quality Assessment (`quality/`)
+Оценка качества данных коннекторов (completeness, consistency, freshness):
+```python
+from polisyos.fabric.connectors.quality import QualityValidator
+
+validator = QualityValidator()
+report = validator.validate(dataset, QualityThresholds())
+```
+
+#### Resilience Patterns (`resilience/`)
+Fault tolerance с circuit breaker, fallback и retry механизмами:
+```python
+from polisyos.fabric.connectors.resilience import CircuitBreaker, RetryStrategy
+
+breaker = CircuitBreaker(failure_threshold=5, recovery_timeout=60)
+retry = RetryStrategy(max_attempts=3, backoff=ExponentialBackoff())
+```
+
+#### Data Transformation (`transform/`)
+Pipeline трансформаций данных (агрегация, гармонизация, нормализация):
+```python
+from polisyos.fabric.connectors.transform import TransformationPipeline
+
+pipeline = TransformationPipeline([
+    Harmonizer(),
+    Imputer(strategy='mean'),
+    Normalizer()
+])
 ```
 
 ### Connector Registry (Phase 2.2)

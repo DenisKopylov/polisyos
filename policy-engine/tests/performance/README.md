@@ -2,7 +2,7 @@
 
 Валидация производительности и обнаружение регрессий в ключевых компонентах Policy Engine.
 
-**Последнее обновление:** 30 января 2026
+**Последнее обновление:** 1 февраля 2026
 **Уровень:** Performance Validation (Phase 3 + Regression Detection)
 **Зависимости:** JAX, NumPy, Core Observability, Foundry Runtime
 

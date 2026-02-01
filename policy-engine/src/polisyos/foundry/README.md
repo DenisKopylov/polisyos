@@ -1,6 +1,6 @@
 # Polisyos Foundry: Policy Execution Engine
 
-**Foundry** - высокопроизводительный execution engine для дифференцируемого исполнения экономических политик в Policy Engine. Предоставляет компилятор политик, patch-based runtime, калибровку параметров и математическую основу для моделирования экономических механизмов.
+**Foundry** - высокопроизводительный execution engine для дифференцируемого исполнения экономических политик в Policy Engine. Предоставляет компилятор политик, patch-based runtime, калибровку параметров, симуляцию агентов с ML и математическую основу для моделирования экономических механизмов.
 
 ## Роль в архитектуре
 
@@ -13,11 +13,12 @@ NL → LLM → IR (AST) → Foundry Compiler → Foundry Calibration → Foundry
 Работает исключительно с JAX-технологиями:
 - ✅ Дифференцируемые вычисления и JIT-компиляция
 - ✅ Экономические механизмы (налоги, субсидии, рынок труда, очереди)
-- ✅ Multi-fidelity симуляции
+- ✅ Multi-fidelity симуляции и Agent Simulation с ML
 - ✅ Slot-based state management и patch operations
 - ✅ Program graphs и execution plans
 - ✅ Калибровка параметров на реальных данных
 - ✅ Constraints engine для валидации ограничений
+- ✅ Plugin-архитектура для доменов (экономика, здравоохранение, etc.)
 - ❌ Никаких БД, LLM или сетевых вызовов
 
 ## Технологический стек
@@ -26,7 +27,9 @@ NL → LLM → IR (AST) → Foundry Compiler → Foundry Calibration → Foundry
 - **Equinox**: OOP-обертка для JAX-модулей
 - **Jaxtyping**: Статическая проверка размерностей тензоров
 - **Chex**: Дополнительные проверки типов и форм
+- **Optax**: Оптимизация и градиентные методы
 - **Pydantic**: Валидация конфигураций и схем
+- **Loguru**: Структурированное логирование
 
 ## Agent Simulation (Симуляция агентов)
 
@@ -79,7 +82,7 @@ artifact = AgentPolicyArtifact.from_trained_policy(
 ok, score, warnings = artifact.validate_environment(current_fingerprint)
 ```
 
-## Архитектура (актуально на 2026-01-29)
+## Архитектура (актуально на 2026-02-01)
 
 Foundry состоит из следующих основных слоев:
 
@@ -91,24 +94,27 @@ types.py            # FidelityLevel enum (уровни точности)
 utils.py            # Дифференцируемые утилиты (soft_step, soft_clamp, gradient_health)
 loss.py             # Функции потерь для оптимизации политик
 agent_metrics.py    # Метрики для анализа агентов
-```
-
-### Compiler Layer (Компилятор)
-```
+agents.py           # Адаптивные агенты с нейронными сетями
+base.py             # Абстрактный класс Mechanism
 compiler.py         # Компиляция политик в ProgramGraph
-layout.py           # Slot layout для state management
-treasury.py         # Deterministic RNG management
 conflict_checker.py # Compile-time проверка конфликтов
+constraints_engine.py # Движок ограничений и валидации
 cost_model.py       # Модель оценки стоимости выполнения
+executor.py         # Исполнитель программ с constraints
+fiscal.py           # Налоговые механизмы (IncomeTax, TaxSubsidy)
+labor.py            # Механизм рынка труда
+layout.py           # Slot layout для state management
+merge_engine.py     # Движок слияния патчей и состояний
+patch_vm.py         # Patch-based виртуальная машина
+queue.py            # Механизм очередей
+registry.py         # Регистрация и фабрика механизмов
+specs.py            # Спецификации механизмов с валидацией
+trace.py            # Система трассировки исполнения
+treasury.py         # Deterministic RNG management
 ```
 
 ### Runtime Layer (Исполнение)
 ```
-patch_vm.py         # Patch-based виртуальная машина и merge rules
-executor.py         # Исполнение программ с constraints и state management
-constraints_engine.py # Движок ограничений и валидации
-trace.py            # Система трассировки исполнения
-merge_engine.py     # Движок для слияния патчей и состояний
 runtime/            # Runtime модули для исполнения программ
 ├── __init__.py     # Чистые JAX функции (step, run_scan, execute_program_batch)
 ├── fingerprint.py  # Environment fingerprinting для воспроизводимости
@@ -129,8 +135,6 @@ agents.py           # Адаптивные агенты с нейронными 
 fiscal.py           # Налоговые механизмы (IncomeTax, TaxSubsidy)
 labor.py            # Механизм рынка труда
 queue.py            # Механизм очередей с multi-fidelity
-registry.py         # Регистрация и фабрика механизмов
-specs.py            # Спецификации механизмов с валидацией
 ```
 
 ### Agent Simulation Layer (Симуляция агентов)
@@ -144,6 +148,7 @@ agent_sim/          # Комплексная симуляция агентов �
 ├── dashboard.py    # Дашборд для мониторинга
 ├── demographics.py # Демографические метрики
 ├── distribution_executor.py # Исполнение распределений
+├── distribution_mechanisms.py # Механизмы перераспределения
 ├── distributions.py # Метрики неравенства (Gini, Palma ratio)
 ├── evolution.py    # Эволюционные алгоритмы (CMA-ES)
 ├── executor.py     # Исполнитель для симуляции агентов
@@ -151,6 +156,7 @@ agent_sim/          # Комплексная симуляция агентов �
 ├── government_policy.py # Политики правительства
 ├── graph_executor.py # Исполнение на графах
 ├── graph_mechanisms.py # Механизмы для графов
+├── graph_observations.py # Наблюдения на графах
 ├── graphs.py       # Графовые структуры социальных связей
 ├── jit_training.py # JIT-компиляция обучения
 ├── mechanism.py    # Базовые механизмы симуляции
@@ -160,12 +166,17 @@ agent_sim/          # Комплексная симуляция агентов �
 ├── mpc.py          # Model Predictive Control
 ├── policy.py       # Политики агентов
 ├── population.py   # Управление популяцией
+├── population_executor.py # Исполнитель для популяции
+├── population_mechanisms.py # Демографические механизмы
 ├── prng.py         # Генерация псевдослучайных чисел
 ├── rewards.py      # Функции вознаграждения
 ├── rl.py           # PPO и другие алгоритмы обучения
 ├── state.py        # Расширенные состояния агентов
 ├── temporal.py     # Временные аспекты
+├── temporal_executor.py # Исполнение с учётом времени
+├── temporal_mechanisms.py # Временные механизмы
 ├── training.py     # Обучение моделей
+├── vfi.py          # Value Function Iteration
 └── visualization.py # Визуализация результатов
 ```
 
@@ -178,8 +189,7 @@ calibration/        # Автоматическая калибровка пара
 ├── loss.py         # Функции потерь (MSE, Huber, weighted loss)
 ├── preflight.py    # Подготовка данных и конфигурации
 ├── pure_executor.py # Чистый JAX executor без side effects
-├── report.py       # Отчёты калибровки (метрики качества, неопределённости)
-└── README.md       # Подробная документация калибровки
+└── report.py       # Отчёты калибровки (метрики качества, неопределённости)
 ```
 
 ### Plugins Layer (Плагины доменов)
@@ -191,14 +201,13 @@ plugins/            # Расширяемая система плагинов (12
 ├── composite.py    # Мульти-доменные симуляции
 ├── core.py         # Протоколы плагинов и реестр
 ├── discovery.py    # Автообнаружение плагинов
-├── economics/      # Экономический домен
-│   ├── __init__.py
-│   ├── mechanisms.py # Экономические механизмы
-│   ├── objectives.py # Целевые функции (GDP, Gini, etc.)
-│   ├── plugin.py   # EconomicsPlugin с механизмами
-│   ├── rewards.py  # Функции вознаграждения
-│   └── state.py    # Состояние экономического домена
-└── README.md       # Документация плагинов
+└── economics/      # Экономический домен
+    ├── __init__.py
+    ├── mechanisms.py # Экономические механизмы
+    ├── objectives.py # Целевые функции (GDP, Gini, etc.)
+    ├── plugin.py   # EconomicsPlugin с механизмами
+    ├── rewards.py  # Функции вознаграждения
+    └── state.py    # Состояние экономического домена
 ```
 
 ## Calibration (Калибровка моделей)
@@ -567,6 +576,24 @@ from polisyos.foundry.agents import AdaptiveAgentMechanism
 tax = IncomeTax(rate=0.2, n_agents=1000)
 labor = LaborMarketMechanism(employment_threshold=0.5)
 agent = AdaptiveAgentMechanism(observation_space=["agents.income"], action_space={"type": "continuous"})
+```
+
+### Механизмы через Registry
+
+```python
+from polisyos.foundry.registry import MECHANISM_REGISTRY, create_mechanism
+
+# Доступные механизмы в registry
+available_mechanisms = {
+    "adaptive_agent": "AdaptiveAgentMechanism", # Адаптивные агенты с ML
+    "tax_subsidy": "TaxSubsidy",           # Налоговые субсидии
+    "income_tax": "IncomeTax",             # Подоходный налог
+    "labor_market": "LaborMarketMechanism", # Рынок труда
+    "queue": "QueueMechanism"              # Механизм очередей
+}
+
+# Создание механизма через registry
+mechanism = create_mechanism(intervention, n_agents=1000, n_firms=100)
 ```
 
 ## Движок симуляции

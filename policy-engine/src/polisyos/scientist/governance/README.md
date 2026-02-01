@@ -20,22 +20,22 @@ governance/
 ├── telemetry.py         # ValidationTrace/PassSpan для мониторинга производительности
 ├── legal/               # Legal compliance validation backends
 │   ├── __init__.py
-│   ├── ast_policy.py    # AST-based policy structures for legal validation
-│   ├── README.md        # Documentation for legal validation
+│   ├── ast_policy.py    # AST-based policy structures для legal validation
+│   ├── README.md        # Документация по legal validation
 │   └── backends/        # Pluggable rule evaluation backends
 │       ├── __init__.py
 │       ├── base.py      # RuleBackend protocol contract
-│       ├── stub.py      # Stub implementation for testing
-│       └── expr_ast.py  # AST-based backend for safe expression evaluation
-└── passes/
+│       ├── stub.py      # Stub implementation для тестирования
+│       └── expr_ast.py  # AST-based backend для safe expression evaluation
+└── passes/              # Модульные проверки
     ├── __init__.py
     ├── base.py          # ValidatorPass, PassContext, ComplianceIssue базовые классы
     ├── budget_pass.py   # Контроль бюджетов (compute, evidence, legitimacy, complexity)
     ├── privacy_pass.py  # Контроль приватности (PII tiers, access control)
     ├── safety_pass.py   # Проверка безопасности механизмов и селекторов
     ├── schema_pass.py   # Валидация структуры IR и PolicySurfaceIR compliance
-    ├── legal_pass.py    # Legal compliance validation against norms
-    └── quality_gate_pass.py # Data quality validation before simulation
+    ├── legal_pass.py    # Legal compliance validation против норм
+    └── quality_gate_pass.py # Data quality validation перед симуляцией
 ```
 
 ## Компоненты

@@ -1,6 +1,6 @@
 # Runtime Module (`polisyos.runtime`)
 
-*Документация актуализирована на 2026-01-26 в соответствии с текущим состоянием кода и интеграциями.*
+*Документация актуализирована на 2026-02-01 в соответствии с текущим состоянием кода и интеграциями.*
 
 ## Обзор
 
@@ -13,6 +13,16 @@
 - **Переносимость**: Артефакты используют относительные пути и могут быть перемещены между директориями
 
 Согласно **Закону D архитектуры** ("Любой прогон — воспроизводим и аудируем"), runtime является единственной точкой входа для создания и управления запусками.
+
+## Текущее состояние
+
+Runtime — это **стабильный, production-ready модуль** с активной интеграцией в основные компоненты системы:
+
+- **4 ключевых файла**: `__init__.py`, `api.py`, `manifest.py`, `README.md`
+- **6 публичных функций**: `start_run`, `log_artifact`, `append_audit`, `update_budget_usage`, `finalize_run`, `resolve_artifact_path`
+- **2 Pydantic модели**: `RunManifest`, `ArtifactRef` с строгой валидацией
+- **3 основных интеграции**: Orchestrator (workflow), Governance (preflight), Environment (capture)
+- **Полная трассировка**: От NL input до симуляции результатов через структурированные артефакты
 
 ## Архитектурная роль
 
@@ -42,6 +52,12 @@ runtime/
 ├── manifest.py          # Pydantic модели данных (RunManifest, ArtifactRef)
 └── README.md           # Эта документация
 ```
+
+**Ключевые особенности:**
+- **Чистая инфраструктура**: Нет зависимостей от scientist/fabric/foundry
+- **Строгая типизация**: Все модели с Pydantic валидацией (`extra="forbid"`)
+- **Переносимость**: Поддержка относительных путей и run_root для перемещения директорий
+- **Идемпотентность**: Все операции безопасны для повторного выполнения
 
 ### Публичный API
 
@@ -803,6 +819,8 @@ Runtime обеспечивает соблюдение **Закона D**:
 - **Scientist/Orchestrator**: Основной потребитель runtime API
   - `scientist.orchestrator.flow_nodes` - управление жизненным циклом экспериментов
   - `scientist.orchestrator.audit` - синхронизация audit trail
+- **Scientist/Governance**: Интеграция с preflight проверками
+  - `scientist.governance.preflight` - логирование результатов governance checks
 - **Fabric/UDF**: Косвенная интеграция через логирование результатов UDF запросов
 - **Foundry**: Косвенная интеграция через логирование результатов симуляции
 - **Core/Artifacts/Environment**: Интеграция с захватом окружения
@@ -817,6 +835,7 @@ graph TD
     A[scientist.orchestrator.flow_nodes] --> B[runtime.api]
     A --> C[runtime.manifest]
     D[scientist.orchestrator.audit] --> B
+    I[scientist.governance.preflight] --> B
     B --> E[filesystem: runs/&lt;run_id&gt;/]
     C --> E
     F[fabric.udf] -.-> B

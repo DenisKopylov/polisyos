@@ -18,11 +18,13 @@ __all__ = [
     "PIITier",
     "SearchResponse",
     "SearchResult",
+    "fabric_get_data",
     "load_contract_collection",
     "run_ingestion",
 ]
 
 _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
+    "fabric_get_data": ("polisyos.fabric._connector_bridge", "fabric_get_data"),
     "run_ingestion": ("polisyos.fabric.ingestion", "run_ingestion"),
     "ContractHashMismatchError": ("polisyos.fabric.catalog", "ContractHashMismatchError"),
     "ContractNotFoundError": ("polisyos.fabric.catalog", "ContractNotFoundError"),

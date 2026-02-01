@@ -32,7 +32,7 @@
 
 ```
 workflow/
-├── __init__.py              # Экспорт основных компонентов с lazy loading
+├── __init__.py              # Экспорт основных компонентов
 ├── engine_base.py           # Базовые абстракции (WorkflowEngine, WorkflowEngineFactory)
 ├── engine_simple.py         # SimpleLoopEngine для последовательных процессов
 └── engine_langgraph.py      # LangGraphEngine для комплексных workflow

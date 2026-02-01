@@ -1,172 +1,36 @@
-# Run Module (Контексты выполнения)
+# Run (Контексты выполнения)
 
 ## Обзор
 
-Модуль `run` предоставляет инфраструктуру для управления контекстами и манифестами выполнения операций в системе PolisyOS. RunContext обеспечивает унифицированный способ запуска операций с автоматической трассировкой, управлением жизненным циклом и сбором метаданных. Модуль интегрируется с системой артефактов и трассировки для обеспечения наблюдаемости и воспроизводимости.
+Инфраструктура для управления контекстами выполнения с автоматической трассировкой, управлением жизненным циклом и сбором метаданных. Обеспечивает наблюдаемость и воспроизводимость операций.
 
 ## Архитектура
 
 ```
 run/
-├── context.py     # RunContext - основной класс для управления выполнением
-├── manifest.py    # RunManifest - метаданные о запуске
-└── __init__.py    # Экспорт основных компонентов
+├── context.py     # RunContext - управление выполнением
+├── manifest.py    # RunManifest - метаданные запусков
+└── __init__.py    # Экспорт компонентов
 ```
 
-## Основные компоненты
+## Компоненты
 
 ### RunManifest
-
-Манифест выполнения содержит метаданные о запуске операции.
-
-```python
-from polisyos.core.run.manifest import RunManifest
-from polisyos.core.artifacts.manifest import ProducerInfo, EnvInfo, ArtifactRef
-
-manifest = RunManifest(
-    run_id="R_1234567890abcdef",
-    started_at=datetime.now(),
-    producer=ProducerInfo(
-        component="policy_simulator",
-        version="2.1.0",
-        git=GitInfo(commit="abc123def", dirty=False)
-    ),
-    env=EnvInfo(
-        python="3.11.5",
-        platform="linux",
-        deps_lock_hash="sha256:..."
-    ),
-    registry_bundle=registry_bundle_ref,
-    inputs=[input_data_ref, config_ref],
-    outputs=[simulation_result_ref, metrics_ref],
-    status="completed",
-    trace_ref=trace_artifact_ref
-)
-```
+Метаданные о запуске: run_id, timestamps, producer info, env, registry bundle, inputs/outputs, status, trace_ref.
 
 ### RunContext
+Основной класс управления выполнением с интегрированной трассировкой.
 
-Основной класс для управления контекстом выполнения с интегрированной трассировкой.
+## Жизненный цикл
 
-```python
-from polisyos.core.run.context import RunContext
-from polisyos.core.artifacts.store import FileSystemCAS
-from pathlib import Path
+1. Инициализация: `RunContext.start()` с автоматической генерацией run_id
+2. Регистрация: `ctx.add_input()`, `ctx.add_output()` для provenance tracking
+3. Трассировка: `ctx.emit(phase, event, metrics={}, inputs=[], outputs=[])`
+4. Завершение: `ctx.finish(success=True/False)`
 
-store = FileSystemCAS(Path("/tmp/artifacts"))
+## Трассировка
 
-# Создание контекста выполнения
-ctx = RunContext.start(
-    store=store,
-    registry_bundle=registry_bundle_ref,
-    producer=ProducerInfo(component="simulation_engine", version="1.0.0"),
-    run_dir=Path("/tmp/runs/my_simulation")
-)
-
-print(f"Run ID: {ctx.run_manifest.run_id}")
-print(f"Started at: {ctx.run_manifest.started_at}")
-```
-
-## Жизненный цикл выполнения
-
-### 1. Инициализация контекста
-
-```python
-from polisyos.core.run.context import RunContext
-
-# Автоматическая генерация run_id
-ctx = RunContext.start(
-    store=store,
-    registry_bundle=registry_bundle_ref,
-    producer=ProducerInfo(component="my_component", version="1.0.0")
-)
-
-# Или с кастомным run_id
-ctx = RunContext.start(
-    store=store,
-    registry_bundle=registry_bundle_ref,
-    run_id="custom_run_001"
-)
-```
-
-### 2. Регистрация входов и выходов
-
-```python
-# Регистрация входных артефактов
-ctx.add_input(input_data_ref)
-ctx.add_input(config_ref)
-
-# Выполнение операций с трассировкой
-ctx.emit("data_processing", "STARTED")
-processed_data_ref = process_data(ctx, input_data_ref)
-ctx.add_output(processed_data_ref)
-
-ctx.emit("simulation", "STARTED", inputs=[processed_data_ref])
-result_ref = run_simulation(ctx, processed_data_ref, config_ref)
-ctx.add_output(result_ref)
-```
-
-### 3. Завершение выполнения
-
-```python
-# Автоматическое завершение (рекомендуется)
-ctx.finish(success=True)
-
-# Или ручное завершение с кодом
-ctx.finish(success=False, error_msg="Simulation diverged")
-```
-
-## Трассировка операций
-
-### Автоматическая трассировка
-
-```python
-# Трассировка с метриками
-ctx.emit(
-    "computation",
-    "batch_processed",
-    inputs=[batch_ref],
-    outputs=[result_ref],
-    metrics={
-        "batch_size": 1000,
-        "processing_time_ms": 450,
-        "memory_mb": 256,
-        "cpu_percent": 85
-    }
-)
-
-# Трассировка ошибок
-ctx.emit(
-    "validation",
-    "constraint_violation",
-    metrics={"violations_count": 5}
-)
-```
-
-### Структура записей трассировки
-
-Каждая запись содержит:
-
-```python
-TraceRecord(
-    ts=datetime.now(),                    # Временная метка
-    run_id="R_1234567890abcdef",          # ID запуска
-    phase="computation",                  # Фаза выполнения
-    event="batch_processed",              # Событие
-    span_id=None,                         # Для распределенной трассировки
-    parent_span_id=None,                  # Иерархия операций
-    refs={                                # Ссылки на артефакты
-        "inputs": [input_ref],
-        "outputs": [output_ref]
-    },
-    metrics={                             # Метрики выполнения
-        "processing_time_ms": 450,
-        "memory_mb": 256
-    },
-    warnings=[],                          # Предупреждения
-    errors=[]                             # Ошибки
-)
-```
+Автоматическая трассировка через `ctx.emit()` с метриками, артефактными ссылками, предупреждениями и ошибками. Создает TraceRecord с полными метаданными.
 
 ## Управление артефактами
 

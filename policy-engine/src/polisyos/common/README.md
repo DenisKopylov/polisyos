@@ -1,6 +1,6 @@
 # Common: Общие компоненты Policy Engine
 
-> **Последнее обновление:** 29 января 2026 г. (интеграция с OpenTelemetry observability)
+> **Последнее обновление:** 1 февраля 2026 г. (добавлен async_tools.py, обновлены связи модулей)
 
 Модуль `polisyos.common` содержит фундаментальные утилиты и конфигурации, используемые во всех слоях архитектуры Policy Engine. Эти компоненты обеспечивают базовую инфраструктуру без зависимостей от бизнес-логики.
 
@@ -9,6 +9,7 @@
 ```
 common/
 ├── __init__.py              # Пустой - модуль не экспортирует публичный API
+├── async_tools.py           # Утилиты для работы с асинхронным кодом
 ├── config.py                # Централизованная конфигурация приложения
 ├── jax_env.py               # Безопасная настройка JAX backend для macOS
 ├── logger.py                # Единый интерфейс структурированного логирования
@@ -47,6 +48,10 @@ common/
 - **foundry/agent_sim/training.py** - логирование обучения агентов через `get_logger`
 - **foundry/executor.py** - логирование выполнения экспериментов через `get_logger`
 
+#### Асинхронные утилиты (`async_tools.py`, `run_coro_sync`):
+- **fabric/_connector_bridge.py** - безопасное выполнение асинхронных операций в коннекторах
+- **fabric/ingestion.py** - выполнение асинхронных операций ingestion из синхронного контекста
+
 #### Миграции (`migrations/`):
 - **ir/migrations/** - расширенная обертка над `common.migrations` для Policy IR артефактов
 - **ir/trinity.py** - использование миграций для преобразования между PolicySurfaceIR и Trinity форматами
@@ -77,6 +82,7 @@ Common обеспечивает:
 ### Корневые файлы:
 
 - **`__init__.py`** - пустой (модуль не экспортирует публичный API напрямую)
+- **`async_tools.py`** - утилиты для безопасного выполнения асинхронного кода из синхронного контекста
 - **`config.py`** - централизованная конфигурация приложения
 - **`jax_env.py`** - безопасная настройка JAX backend для macOS
 - **`logger.py`** - единый интерфейс структурированного логирования
@@ -237,6 +243,53 @@ with tracer.start_as_current_span("operation"):
 ```
 
 Логи теперь содержат поля `trace_id` и `span_id`, что позволяет коррелировать логи с distributed traces в системах мониторинга.
+
+### `async_tools.py` - Утилиты для асинхронного программирования
+
+**Цель:** Безопасное выполнение асинхронного кода из синхронного контекста с обработкой активных event loops.
+
+#### Проблема:
+
+В проекте возникает необходимость выполнять асинхронные операции из синхронного кода, особенно в коннекторах fabric. Прямое использование `asyncio.run()` может конфликтовать с уже запущенными event loops.
+
+#### Решение:
+
+```python
+def run_coro_sync(coro: Awaitable[T]) -> T:
+    """Run a coroutine from sync code, safely handling active event loops."""
+    try:
+        loop = asyncio.get_running_loop()
+    except RuntimeError:
+        loop = None
+
+    if loop and loop.is_running():
+        # Если уже есть запущенный event loop, используем ThreadPoolExecutor
+        with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
+            future = pool.submit(asyncio.run, coro)
+            return future.result()
+
+    return asyncio.run(coro)
+```
+
+#### Особенности:
+
+- **Обнаружение активных loops:** Проверяет наличие уже запущенного event loop
+- **Thread-safe:** Использует ThreadPoolExecutor для безопасного выполнения в многопоточной среде
+- **Fallback:** Падает назад на стандартный `asyncio.run()` если loop не запущен
+- **Типизированный:** Поддерживает дженерики для корректной типизации
+
+#### Использование:
+
+```python
+from polisyos.common.async_tools import run_coro_sync
+
+# В синхронном коде
+async def async_operation():
+    return await some_async_call()
+
+# Безопасное выполнение
+result = run_coro_sync(async_operation())
+```
 
 ### `migrations/` - Система версионирования артефактов
 
@@ -429,6 +482,10 @@ def migrate_policy_ir(data: dict, target_version: str | None = None) -> dict:
 ## Связанные компоненты
 
 ### Активное использование в модулях проекта:
+
+#### Асинхронные утилиты (async_tools/run_coro_sync):
+- **`fabric/_connector_bridge.py`** - безопасное выполнение асинхронных операций в синхронном контексте
+- **`fabric/ingestion.py`** - выполнение асинхронных операций ingestion из синхронного кода
 
 #### Логирование (logger/get_logger):
 - **`core/observability/logs.py`** - структурированное логирование с trace correlation для production telemetry

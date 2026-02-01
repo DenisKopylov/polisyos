@@ -53,6 +53,30 @@ from polisyos.foundry.methods.registry import (
     get_registry,
 )
 
+from polisyos.foundry.methods.types.checker import (
+    AdapterPlan,
+    IncompatibilityReason,
+    ShapeAdapter,
+    ShapeAdapterKind,
+    SlotCompatibility,
+    TypeAdapter,
+    TypeAdapterKind,
+    UnitAdapter,
+    UnitAdapterKind,
+    check_multiple_compatibility,
+    check_slot_compatibility,
+    find_compatible_slots,
+)
+
+from polisyos.foundry.methods.linker import (
+    SlotLinker,
+    SlotBinding,
+    LinkResult,
+    LinkerConfig,
+    link_methods,
+    check_linkable,
+)
+
 __all__ = [
     "FoundryMethod",
     "MethodSignature",
@@ -90,6 +114,24 @@ __all__ = [
     "MethodRegistry",
     "RegistrySnapshot",
     "get_registry",
+    "AdapterPlan",
+    "IncompatibilityReason",
+    "ShapeAdapter",
+    "ShapeAdapterKind",
+    "SlotCompatibility",
+    "TypeAdapter",
+    "TypeAdapterKind",
+    "UnitAdapter",
+    "UnitAdapterKind",
+    "check_multiple_compatibility",
+    "check_slot_compatibility",
+    "find_compatible_slots",
+    "SlotLinker",
+    "SlotBinding",
+    "LinkResult",
+    "LinkerConfig",
+    "link_methods",
+    "check_linkable",
 ]
 
-__version__ = "3.2.0"
+__version__ = "3.3.0"

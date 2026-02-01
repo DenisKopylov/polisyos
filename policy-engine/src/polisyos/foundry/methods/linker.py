@@ -5,8 +5,9 @@ All validation happens at link time (Python layer) before any JAX compilation.
 """
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import Iterator, Mapping, Sequence
+from uuid import UUID
 
 from polisyos.foundry.methods.base import MethodSignature, SlotSpec
 from polisyos.foundry.methods.exceptions import (
@@ -39,6 +40,8 @@ class SlotBinding:
     target_method: str
     target_slot: str
     compatibility: SlotCompatibility
+    source_node_id: UUID | None = None
+    target_node_id: UUID | None = None
 
     @property
     def requires_conversion(self) -> bool:
@@ -65,6 +68,9 @@ class SlotBinding:
             f"{self.target_method}:{self.target_slot}{conv})"
         )
 
+    def with_node_ids(self, source_id: UUID, target_id: UUID) -> SlotBinding:
+        return replace(self, source_node_id=source_id, target_node_id=target_id)
+
 
 @dataclass(frozen=True, slots=True)
 class LinkResult:
@@ -75,6 +81,8 @@ class LinkResult:
     bindings: tuple[SlotBinding, ...]
     warnings: tuple[str, ...] = ()
     unconnected_inputs: tuple[str, ...] = ()
+    source_id: UUID | None = None
+    target_id: UUID | None = None
 
     @property
     def requires_conversions(self) -> bool:
@@ -104,6 +112,12 @@ class LinkResult:
 
     def iter_bindings(self) -> Iterator[SlotBinding]:
         return iter(self.bindings)
+
+    def with_node_ids(self, source_id: UUID, target_id: UUID) -> LinkResult:
+        if not self.bindings:
+            return replace(self, source_id=source_id, target_id=target_id)
+        updated = tuple(b.with_node_ids(source_id, target_id) for b in self.bindings)
+        return replace(self, bindings=updated, source_id=source_id, target_id=target_id)
 
     def __repr__(self) -> str:
         return (
@@ -366,11 +380,14 @@ class SlotLinker:
         links: Sequence[LinkResult],
     ) -> list[str]:
         issues: list[str] = []
-        all_connected: set[tuple[str, str]] = set()
+        all_connected: set[tuple[UUID | str, str]] = set()
 
         for link in links:
             for binding in link.bindings:
-                key = (binding.target_method, binding.target_slot)
+                key = (
+                    binding.target_node_id if binding.target_node_id is not None else binding.target_method,
+                    binding.target_slot,
+                )
                 if key in all_connected:
                     issues.append(
                         f"Slot {binding.target_slot} in {binding.target_method} "

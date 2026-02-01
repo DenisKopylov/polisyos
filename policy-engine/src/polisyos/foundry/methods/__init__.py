@@ -77,6 +77,13 @@ from polisyos.foundry.methods.linker import (
     check_linkable,
 )
 
+from polisyos.foundry.methods.composer import (
+    MethodNode,
+    CompositionDAG,
+    MethodComposer,
+    CompiledMethodChain,
+)
+
 __all__ = [
     "FoundryMethod",
     "MethodSignature",
@@ -132,6 +139,10 @@ __all__ = [
     "LinkerConfig",
     "link_methods",
     "check_linkable",
+    "MethodNode",
+    "CompositionDAG",
+    "MethodComposer",
+    "CompiledMethodChain",
 ]
 
-__version__ = "3.3.0"
+__version__ = "3.4.0"

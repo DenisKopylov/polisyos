@@ -43,6 +43,21 @@ class ExecConfigRef(ArtifactRef):
     media_type: Literal["application/json"] = "application/json"
 
 
+class MethodArtifactRef(ArtifactRef):
+    kind: Literal["foundry.method_artifact"] = "foundry.method_artifact"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class ChainArtifactRef(ArtifactRef):
+    kind: Literal["foundry.chain_artifact"] = "foundry.chain_artifact"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class ExecutionEvidenceRef(ArtifactRef):
+    kind: Literal["foundry.execution_evidence"] = "foundry.execution_evidence"
+    media_type: Literal["application/json"] = "application/json"
+
+
 class AgentPolicyRef(ArtifactRef):
     """
     Typed reference to an AgentPolicyArtifact in CAS.

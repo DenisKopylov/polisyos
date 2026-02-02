@@ -102,6 +102,22 @@ from polisyos.foundry.methods.specialization import (
     specialization_from_signature_and_state,
 )
 
+from polisyos.foundry.methods.artifacts import (
+    MethodArtifact,
+    ChainArtifact,
+    ExecutionEvidence,
+    SlotBindingRecord,
+    MethodTiming,
+    DeviceInfo,
+    ChainNodeRecord,
+    SourceFingerprint,
+    compute_source_hash,
+    compute_source_fingerprint,
+    store_method_artifact,
+    store_chain_artifact,
+    store_execution_evidence,
+)
+
 __all__ = [
     "FoundryMethod",
     "MethodSignature",
@@ -173,6 +189,19 @@ __all__ = [
     "build_specialization",
     "compute_static_params_hash",
     "specialization_from_signature_and_state",
+    "MethodArtifact",
+    "ChainArtifact",
+    "ExecutionEvidence",
+    "SlotBindingRecord",
+    "MethodTiming",
+    "DeviceInfo",
+    "ChainNodeRecord",
+    "SourceFingerprint",
+    "compute_source_hash",
+    "compute_source_fingerprint",
+    "store_method_artifact",
+    "store_chain_artifact",
+    "store_execution_evidence",
 ]
 
 __version__ = "3.5.0"

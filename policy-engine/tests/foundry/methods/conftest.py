@@ -4,7 +4,8 @@ Test fixtures for Foundry Methods test suite.
 from __future__ import annotations
 
 import os
-from typing import Any, NamedTuple
+from pathlib import Path
+from typing import Any, Callable, NamedTuple
 
 import pytest
 
@@ -25,6 +26,14 @@ from polisyos.foundry.methods import (
     foundry_method,
 )
 from polisyos.foundry.methods.types.units import Units
+from polisyos.foundry.methods.testing import (
+    GoldenStore,
+    GoldenVerificationResult,
+    MethodTestSuite,
+    VerificationStatus,
+    create_sample_params,
+    create_sample_state,
+)
 
 
 @pytest.fixture
@@ -197,7 +206,7 @@ def sample_state() -> FlatTaxState:
 
 @pytest.fixture
 def sample_params() -> dict[str, Any]:
-    return {"tax_rate": 0.18}
+    return {"tax_rate": jnp.array(0.18, dtype=jnp.float32)}
 
 
 @pytest.fixture
@@ -215,3 +224,146 @@ def valid_method_class(flat_tax_signature: MethodSignature):
             return state._replace(tax_due=tax)
 
     return FlatTax
+
+
+# =============================================================================
+# Testing Infrastructure Fixtures (Phase 3.8)
+# =============================================================================
+
+
+@pytest.fixture(scope="session")
+def methods_test_root() -> Path:
+    """Absolute path to tests/foundry/methods/."""
+    return Path(__file__).resolve().parent
+
+
+@pytest.fixture(scope="session")
+def golden_records_path(methods_test_root: Path) -> Path:
+    """Path to golden records directory."""
+    path = methods_test_root / "golden_records"
+    path.mkdir(exist_ok=True)
+    return path
+
+
+@pytest.fixture(scope="session")
+def golden_store(golden_records_path: Path) -> GoldenStore:
+    """Session-scoped golden store for shared golden records."""
+    return GoldenStore(golden_records_path)
+
+
+@pytest.fixture
+def temp_golden_store(tmp_path: Path) -> GoldenStore:
+    """Function-scoped golden store for isolated tests."""
+    return GoldenStore(tmp_path / "golden_records")
+
+
+@pytest.fixture
+def sample_fiscal_state():
+    return create_sample_state("fiscal", n_agents=100, seed=42)
+
+
+@pytest.fixture
+def sample_fiscal_params():
+    return create_sample_params("fiscal")
+
+
+@pytest.fixture
+def sample_agent_state():
+    return create_sample_state("agent", n_agents=100, seed=42)
+
+
+@pytest.fixture
+def sample_agent_params():
+    return create_sample_params("agent")
+
+
+@pytest.fixture
+def sample_scalar_state():
+    return create_sample_state("scalar", seed=42)
+
+
+@pytest.fixture
+def sample_scalar_params():
+    return create_sample_params("scalar")
+
+
+@pytest.fixture
+def golden_check(golden_store: GoldenStore) -> Callable[[str, Any, dict[str, Any], Any], GoldenVerificationResult]:
+    """
+    Fixture providing a callable for golden record verification.
+
+    Environment variables:
+        GOLDEN_UPDATE=1: Update golden records instead of verifying
+        GOLDEN_STRICT=1: Require exact output hash match
+    """
+
+    def check(
+        method_fqn: str,
+        state: Any,
+        params: dict[str, Any],
+        output: Any,
+        *,
+        update: bool = False,
+        strict_output: bool | None = None,
+    ) -> GoldenVerificationResult:
+        env_update = os.environ.get("GOLDEN_UPDATE", "").lower() in ("1", "true", "yes")
+        if env_update:
+            update = True
+
+        if strict_output is None:
+            strict_output = os.environ.get("GOLDEN_STRICT", "").lower() in ("1", "true", "yes")
+
+        if update:
+            record, was_existing = golden_store.update_or_create(
+                method_fqn, state, params, output
+            )
+            action = "Updated" if was_existing else "Created"
+            return GoldenVerificationResult(
+                status=VerificationStatus.PASSED,
+                message=f"{action} golden record for {method_fqn}",
+                expected_hash=record.output_hash,
+                actual_hash=record.output_hash,
+            )
+
+        return golden_store.verify(
+            method_fqn,
+            state,
+            params,
+            output,
+            strict_output=strict_output,
+        )
+
+    return check
+
+
+@pytest.fixture
+def method_suite(valid_method_class) -> MethodTestSuite:
+    return MethodTestSuite(valid_method_class)
+
+
+@pytest.fixture
+def assert_suite_passes():
+    def _assert(method_class, state: Any, params: dict[str, Any], *, skip_grad: bool = False):
+        suite = MethodTestSuite(method_class)
+        result = suite.run_all(state, params, skip_grad=skip_grad)
+        if not result.passed:
+            failures = result.failures()
+            failure_msgs = "\n".join(f"  - {f}" for f in failures)
+            raise AssertionError(
+                f"Method {result.method_fqn} failed {len(failures)} checks:\n{failure_msgs}"
+            )
+        return result
+
+    return _assert
+
+
+@pytest.fixture
+def isolated_registry():
+    from polisyos.foundry.methods.registry import MethodRegistry
+
+    MethodRegistry.reset_instance()
+    registry = MethodRegistry.get_instance()
+
+    yield registry
+
+    MethodRegistry.reset_instance()

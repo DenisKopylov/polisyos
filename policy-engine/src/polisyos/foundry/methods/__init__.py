@@ -53,6 +53,20 @@ from polisyos.foundry.methods.registry import (
     get_registry,
 )
 
+from polisyos.foundry.methods.discovery import (
+    DISCOVERY_MODULE_PREFIX,
+    ENTRY_POINT_GROUP,
+    DiscoveryError,
+    DiscoveryReport,
+    DiscoverySource,
+    DuplicatePolicy,
+    EntryPointSource,
+    FileSystemSource,
+    MethodDiscovery,
+    bootstrap_registry,
+    is_foundry_method,
+)
+
 from polisyos.foundry.methods.types.checker import (
     AdapterPlan,
     IncompatibilityReason,
@@ -155,6 +169,17 @@ __all__ = [
     "MethodRegistry",
     "RegistrySnapshot",
     "get_registry",
+    "DISCOVERY_MODULE_PREFIX",
+    "ENTRY_POINT_GROUP",
+    "DiscoveryError",
+    "DiscoveryReport",
+    "DiscoverySource",
+    "DuplicatePolicy",
+    "EntryPointSource",
+    "FileSystemSource",
+    "MethodDiscovery",
+    "bootstrap_registry",
+    "is_foundry_method",
     "AdapterPlan",
     "IncompatibilityReason",
     "ShapeAdapter",

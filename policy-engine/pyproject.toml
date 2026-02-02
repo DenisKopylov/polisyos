@@ -66,6 +66,9 @@ dev = [
 [project.scripts]
 polisy = "polisyos.foundry.plugins.cli:main"
 
+[project.entry-points."polisyos.methods"]
+# Method plugins can register entry points here.
+
 # --- Tool Configurations ---
 
 # 1. Настройка Ruff (Линтер + Форматер)

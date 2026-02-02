@@ -84,6 +84,24 @@ from polisyos.foundry.methods.composer import (
     CompiledMethodChain,
 )
 
+from polisyos.foundry.methods.compiler import (
+    MethodCompiler,
+    CompiledMethod,
+    CompilationCache,
+    CompiledChainExecutor,
+    get_global_cache,
+    reset_global_cache,
+)
+
+from polisyos.foundry.methods.specialization import (
+    Specialization,
+    ShapeSpec,
+    BackendSpec,
+    build_specialization,
+    compute_static_params_hash,
+    specialization_from_signature_and_state,
+)
+
 __all__ = [
     "FoundryMethod",
     "MethodSignature",
@@ -143,6 +161,18 @@ __all__ = [
     "CompositionDAG",
     "MethodComposer",
     "CompiledMethodChain",
+    "MethodCompiler",
+    "CompiledMethod",
+    "CompilationCache",
+    "CompiledChainExecutor",
+    "get_global_cache",
+    "reset_global_cache",
+    "Specialization",
+    "ShapeSpec",
+    "BackendSpec",
+    "build_specialization",
+    "compute_static_params_hash",
+    "specialization_from_signature_and_state",
 ]
 
-__version__ = "3.4.0"
+__version__ = "3.5.0"

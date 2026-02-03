@@ -3,13 +3,19 @@ import os
 import shutil
 from pathlib import Path
 
-import kuzu
 from polisyos.common.logger import get_logger
 
 logger = get_logger(__name__)
 
+
 class GraphStore:
     def __init__(self, db_path: str = "simulation.kuzu", clear_on_start: bool = False):
+        try:
+            import kuzu  # type: ignore
+        except Exception as exc:
+            raise RuntimeError(
+                "Kuzu graph backend not available. Install extra 'kuzu' to enable."
+            ) from exc
         self.db_path = db_path
         if clear_on_start and os.path.exists(db_path):
             path = Path(db_path)

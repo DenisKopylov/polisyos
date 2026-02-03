@@ -37,8 +37,8 @@ class UDFEngine:
         cas_root: Path | str = Path(".polisyos"),
     ):
         self.db = db
-        # Если граф не передан, создаем дефолтный (для удобства)
-        self.graph = graph if graph else GraphStore()
+        # Если граф не передан, network view недоступен
+        self.graph = graph
         curated_path = Path(curated_dir)
         self.fact_dir = (
             Path(fact_dir)
@@ -128,6 +128,10 @@ class UDFEngine:
     def _execute_network(self, plan: DataViewPlan, *, as_arrow: bool = False):
         if not plan.cypher:
             raise ValueError("Network plan missing Cypher")
+        if self.graph is None:
+            raise ValueError(
+                "Graph backend not available; install extra 'kuzu' or pass GraphStore."
+            )
         logger.debug(f"Cypher: {plan.cypher}")
         try:
             df = self.graph.query(plan.cypher, plan.cypher_params)

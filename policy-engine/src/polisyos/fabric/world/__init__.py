@@ -34,6 +34,9 @@ from polisyos.fabric.world.store import (
 from polisyos.fabric.world.materialize import (
     MergeStrategy,
     WorldArtifactReadError,
+    WorldKuzuCopyError,
+    WorldKuzuImportError,
+    WorldKuzuNotAvailable,
     WorldMaterializationError,
     WorldMaterializeSegmentStats,
     WorldMaterializeStats,
@@ -42,8 +45,10 @@ from polisyos.fabric.world.materialize import (
     WorldSegmentHashMismatch,
     apply_world_segment,
     ensure_world_materialized,
+    ensure_world_kuzu_schema,
     ensure_world_schema,
     materialize_world_duckdb_from_fact_log,
+    materialize_world_kuzu_from_duckdb,
 )
 
 __all__ = [
@@ -78,6 +83,9 @@ __all__ = [
     "write_world_fact_segment",
     "MergeStrategy",
     "WorldArtifactReadError",
+    "WorldKuzuCopyError",
+    "WorldKuzuImportError",
+    "WorldKuzuNotAvailable",
     "WorldMaterializationError",
     "WorldMaterializeSegmentStats",
     "WorldMaterializeStats",
@@ -86,6 +94,8 @@ __all__ = [
     "WorldSegmentHashMismatch",
     "apply_world_segment",
     "ensure_world_materialized",
+    "ensure_world_kuzu_schema",
     "ensure_world_schema",
     "materialize_world_duckdb_from_fact_log",
+    "materialize_world_kuzu_from_duckdb",
 ]

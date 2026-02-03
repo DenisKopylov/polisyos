@@ -2,7 +2,6 @@ from pathlib import Path
 
 import pytest
 from polisyos.fabric.io.db import SimulationDB
-from polisyos.fabric.io.graph_store import GraphStore
 from polisyos.fabric.manifest import CoverageMetrics, DatasetManifest, QualityMetrics
 from polisyos.fabric.registry import ManifestRegistry
 from polisyos.fabric.udf.compiler import ViewCompiler
@@ -101,9 +100,8 @@ def test_fabric_gate_requires_evidence(tmp_path: Path) -> None:
         field_classification=DEFAULT_FIELD_CLASSIFICATION,
     )
     db = SimulationDB(str(tmp_path / "db.duckdb"))
-    graph = GraphStore(str(tmp_path / "graph.kuzu"), clear_on_start=True)
     engine = UDFEngine(
-        db, graph, curated_dir=tmp_path, schema=schema, cas_root=tmp_path / ".polisyos"
+        db, curated_dir=tmp_path, schema=schema, cas_root=tmp_path / ".polisyos"
     )
 
     req = DataViewRequest(

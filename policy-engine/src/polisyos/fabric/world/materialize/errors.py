@@ -21,8 +21,23 @@ class WorldArtifactReadError(WorldMaterializationError):
     """Raised when CAS artifacts are missing or invalid."""
 
 
+class WorldKuzuNotAvailable(WorldMaterializationError):
+    """Raised when Kuzu is required but not available."""
+
+
+class WorldKuzuImportError(WorldMaterializationError):
+    """Raised when Kuzu import fails unexpectedly."""
+
+
+class WorldKuzuCopyError(WorldMaterializationError):
+    """Raised when Kuzu COPY operations fail."""
+
+
 __all__ = [
     "WorldArtifactReadError",
+    "WorldKuzuCopyError",
+    "WorldKuzuImportError",
+    "WorldKuzuNotAvailable",
     "WorldMaterializationError",
     "WorldMergeConflict",
     "WorldSchemaError",

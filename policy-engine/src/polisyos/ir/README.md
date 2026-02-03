@@ -40,7 +40,7 @@ NL/Request → Scientist (LLM + Workflow) → IR (contracts) → Compilation →
 - **PolicySpec**: "What" - изменяемые аспекты политики (реализовано в `policy_spec.py`)
 - **ModelSpec**: "How" - конфигурация моделирования (реализовано в `model_spec.py`)
 
-PolicySurfaceIR v2.x остается совместимым интерфейсом для обратной совместимости.
+PolicySurfaceIR v2.x остается совместимым интерфейсом для обратной совместимости (**DEPRECATED**; используйте Trinity).
 
 ### Ключевые обязанности
 
@@ -98,11 +98,13 @@ ir/
 ├── queries.py                # Контракты запросов к миру (QueryScope, DocQuery, ClaimQuery, NormQuery)
 ├── validation.py             # Утилиты валидации и отчетов об ошибках
 ├── fact_log.py               # Контракты для семантической сети фактов
-├── linker.py                 # Линкер политик с валидацией по реестрам
+├── linker/                   # Линкер (legacy link_policy + Trinity link_trinity)
 ├── predicate.py              # Реестры предикатов для запросов данных
 ├── loaders.py                # Универсальная загрузка политик с автораспознаванием версий
 ├── calibration.py            # Контракты калибровки политик относительно данных
 ├── norm_pack.py              # Контракты для нормативных документов (NormPack, NormRule, NormRef)
+├── citations.py              # Контракты цитирования источников (CitationRef)
+├── applicability.py          # Контракты применимости норм (NormApplicability)
 ├── registry_fragments.py     # Фрагменты реестров + контракт composer
 ├── kernel/                   # Kernel: фундаментальные реестры и типы
 │   ├── __init__.py          # Экспорт всех kernel компонентов
@@ -384,9 +386,9 @@ alternative_model = ModelSpec(
 
 ### 1. Surface контракты (`surface.py`) - v2.0
 
-#### PolicySurfaceIR - legacy контракт совместимости
+#### PolicySurfaceIR - legacy контракт совместимости (DEPRECATED)
 
-Legacy контракт системы, разделяющий политику на исполняемую (semantic) и advisory части. PolicySurfaceIR сохраняется для обратной совместимости; канонический контракт политики — Trinity (ProblemFrame/PolicySpec/ModelSpec).
+Legacy контракт системы, разделяющий политику на исполняемую (semantic) и advisory части. PolicySurfaceIR сохраняется для обратной совместимости; канонический контракт политики — Trinity (ProblemFrame/PolicySpec/ModelSpec). **Новый функционал должен попадать в Trinity, не в legacy.**
 
 **Ключевые особенности:**
 - Разделение на semantic (исполняемая логика) и advisory (человекочитаемые метаданные) части
@@ -736,11 +738,15 @@ payload = {"subject": "agent_john", "predicate": "has_income", "value": 50000}
 fact_id = build_fact_id(payload)  # sha256:...
 ```
 
-### 7. Линкер политик (`linker.py`)
+### 7. Линкер политик (`linker/`)
 
 #### Валидация и линковка политик
 
 Система проверки корректности политик относительно kernel-реестров. Линкер обеспечивает, что все ссылки в политике (механизмы, слоты, метрики, ограничения) существуют в соответствующих реестрах и имеют корректные параметры. Выполняет комплексную валидацию с учетом зависимостей между компонентами.
+
+**DEPRECATED**: `link_policy()` относится к legacy PolicySurfaceIR. Для Trinity используйте `link_trinity()`.
+
+#### Legacy: link_policy (PolicySurfaceIR)
 
 ```python
 from polisyos.ir.linker import link_policy, LinkReport
@@ -767,20 +773,58 @@ if not report.ok:
         print(f"  Path: {'.'.join(str(p) for p in issue.path)}")
 ```
 
-#### Типы проблем линковки
+#### Trinity: link_trinity (канонический линкер)
+
+```python
+from polisyos.ir.linker import link_trinity
+from polisyos.ir.registry_fragments import RegistryBundle
+from polisyos.ir.trinity import TrinityBundle
+from polisyos.ir.kernel import (
+    DEFAULT_MECHANISM_REGISTRY,
+    DEFAULT_SLOT_REGISTRY,
+    DEFAULT_MERGE_RULE_REGISTRY,
+    DEFAULT_METRIC_REGISTRY,
+    DEFAULT_CONSTRAINT_REGISTRY,
+    DEFAULT_SELECTOR_FIELD_REGISTRY,
+    DEFAULT_UNITS_REGISTRY,
+)
+
+registries = RegistryBundle(
+    mechanisms=DEFAULT_MECHANISM_REGISTRY,
+    slots=DEFAULT_SLOT_REGISTRY,
+    merge_rules=DEFAULT_MERGE_RULE_REGISTRY,
+    metrics=DEFAULT_METRIC_REGISTRY,
+    constraints=DEFAULT_CONSTRAINT_REGISTRY,
+    selector_fields=DEFAULT_SELECTOR_FIELD_REGISTRY,
+    units=DEFAULT_UNITS_REGISTRY,
+)
+
+linked, report = link_trinity(bundle, registries)
+if not report.ok:
+    for issue in report.issues:
+        print(issue.code, issue.path, issue.ids)
+```
+
+#### Типы проблем линковки (стабильные коды LinkIssueCode)
 
 - `unknown_mechanism`: Механизм интервенции не найден в реестре
 - `missing_param`: Отсутствует обязательный параметр механизма
-- `param_type_mismatch`: Тип параметра не соответствует спецификации
-- `param_range_violation`: Значение параметра вне допустимого диапазона
-- `param_unit_mismatch`: Единица измерения параметра некорректна
-- `unknown_slot`: Слот состояния не найден в реестре
-- `slot_type_mismatch`: Несоответствие типов слота
-- `slot_scope_mismatch`: Слот не доступен в данном scope
+- `unknown_param`: Неизвестный параметр механизма
+- `param_type`: Тип параметра не соответствует спецификации
+- `param_enum`: Значение параметра вне допустимого перечисления
+- `param_range`: Значение параметра вне допустимого диапазона
+- `unknown_unit`: Единица измерения не найдена в реестре
+- `unit_mismatch`: Единица измерения не соответствует типу параметра
+- `missing_slot`: Слот состояния не найден в реестре
+- `unknown_metric`: Метрика оптимизации не найдена в реестре
+- `unknown_selector_field`: Неизвестное поле селектора
+- `selector_scope_mismatch`: Селектор использует несовместимые scope
+- `unknown_merge_rule`: Правило слияния не найдено в реестре
 - `merge_rule_conflict`: Конфликт правил слияния состояний
-- `constraint_violation`: Нарушение ограничений политики
-- `metric_not_found`: Метрика оптимизации не найдена в реестре
-- `unit_conversion_error`: Ошибка конвертации единиц измерения
+- `unknown_constraint`: Ограничение не найдено в реестре
+- `incompatible_constraint`: Несовместимое ограничение (тип/валюта/единица)
+- `unknown_actor`: Неизвестный actor id в применимости нормы
+- `unknown_jurisdiction`: Неизвестная юрисдикция в применимости нормы
 
 ### 8. Реестры предикатов (`predicate.py`)
 
@@ -892,6 +936,8 @@ calibration = CalibrationConfig(
 
 ```python
 from polisyos.ir.norm_pack import NormPack, NormRule, NormRef, RuleType
+from polisyos.ir.citations import CitationRef, DocumentRef, FragmentLocator, AnchorKind
+from polisyos.ir.applicability import NormApplicability, IdSelector, ApplicabilityEntitySelector
 
 # Создание пакета норм
 norm_pack = NormPack(
@@ -904,14 +950,32 @@ norm_pack = NormPack(
             provision_refs=[
                 NormRef(
                     provision_id="article_167_1",
-                    source_document="Tax_Code_Ukraine",
-                    version="2024"
+                    citations=[
+                        CitationRef(
+                            doc=DocumentRef(
+                                doc_id="lex.tax_code_ua",
+                                doc_version_id="docv_2024",
+                            ),
+                            locator=FragmentLocator(
+                                anchor_kind=AnchorKind.ARTICLE,
+                                anchor_path="Art. 167(1)",
+                            ),
+                        )
+                    ]
                 )
             ],
             rule_type=RuleType.OBLIGATION,
             description="Income tax rate cannot exceed 18% for individuals",
             backend_refs=["expr_ast"],
-            applicability={"jurisdiction": "UA", "concepts": ["income"]},
+            applicability=NormApplicability(
+                jurisdiction=IdSelector(any_of=["ua"]),
+                subject=ApplicabilityEntitySelector(
+                    actors=IdSelector(any_of=["employer"])
+                ),
+                object=ApplicabilityEntitySelector(
+                    concepts=IdSelector(any_of=["income"])
+                ),
+            ),
             backend_metadata={"when": "income > 50000"}
         ),
         NormRule(
@@ -919,14 +983,29 @@ norm_pack = NormPack(
             provision_refs=[
                 NormRef(
                     provision_id="article_95",
-                    source_document="Labor_Code_Ukraine",
-                    version="2023"
+                    citations=[
+                        CitationRef(
+                            doc=DocumentRef(
+                                doc_id="lex.labor_code_ua",
+                                doc_version_id="docv_2023",
+                            ),
+                            locator=FragmentLocator(
+                                anchor_kind=AnchorKind.ARTICLE,
+                                anchor_path="Art. 95",
+                            ),
+                        )
+                    ]
                 )
             ],
             rule_type=RuleType.PROHIBITION,
             description="Employer cannot pay less than minimum wage",
             backend_refs=["expr_ast"],
-            applicability={"jurisdiction": "UA", "concepts": ["wage"]},
+            applicability=NormApplicability(
+                jurisdiction=IdSelector(any_of=["ua"]),
+                object=ApplicabilityEntitySelector(
+                    concepts=IdSelector(any_of=["wage"])
+                ),
+            ),
             backend_metadata={"when": "employment_status == 'employed'"}
         )
     ],
@@ -949,8 +1028,8 @@ norm_pack = NormPack(
 
 **NormRef** - ссылка на положение нормативного документа:
 - `provision_id`: Идентификатор положения (статья, пункт)
-- `source_document`: Название документа
-- `version`: Версия документа
+- `citations`: Список `CitationRef` с точными ссылками на фрагменты
+- `source_document`/`version`: **DEPRECATED** (legacy поля)
 
 **RuleType** - деонтическая классификация:
 - `OBLIGATION`: Должен (обязанность)
@@ -1502,7 +1581,7 @@ from polisyos.ir.kernel import (
     DEFAULT_TRUST_REGISTRY, DEFAULT_MERGE_RULE_REGISTRY
 )
 
-from polisyos.ir.linker import link_policy, LinkReport, LinkIssue
+from polisyos.ir.linker import link_policy, link_trinity, LinkReport, LinkIssue
 from polisyos.ir.fact_log import Fact, FactBatch, FactProvenance, FactTrust, FactLegal
 from polisyos.ir.validation import ValidationReport, build_validation_report
 from polisyos.ir.calibration import (

@@ -533,5 +533,5 @@ Kernel (реестры) ← Linker ← Surface (PolicySurfaceIR)
 
 **См. также:**
 - [IR README](../../../../ir/README.md) - общая архитектура IR
-- [Linker](../linker.py) - использование kernel-реестров
+- [Linker](../linker/) - использование kernel-реестров (legacy link_policy + Trinity link_trinity)
 - [Surface](../surface.py) - интеграция с kernel-типами

@@ -4,8 +4,10 @@ import ast
 from enum import Enum
 from typing import Any
 
-from pydantic import Field
+from pydantic import Field, model_validator
 
+from polisyos.ir.applicability import NormApplicability
+from polisyos.ir.citations import CitationRef
 from polisyos.ir.kernel.base import ID_PATTERN, KernelModel
 
 SCHEMA_VERSION_PATTERN = r"^\d+\.\d+$"
@@ -24,20 +26,25 @@ class NormRef(KernelModel):
 
     schema_version: str = Field("1.0", pattern=SCHEMA_VERSION_PATTERN)
     provision_id: str = Field(..., pattern=ID_PATTERN)
-    source_document: str
-    version: str | None = None
+    citations: list[CitationRef] = Field(default_factory=list)
+    source_document: str | None = Field(
+        default=None,
+        description="DEPRECATED: use citations instead",
+    )
+    version: str | None = Field(
+        default=None,
+        description="DEPRECATED: use citations instead",
+    )
 
+    @classmethod
+    def _legacy_hint(cls) -> str:
+        return "citations or source_document must be provided"
 
-class Applicability(KernelModel):
-    """Structured applicability metadata (declarative only)."""
-
-    scope: str | None = None
-    jurisdiction: str | None = None
-    valid_from: str | None = None
-    valid_to: str | None = None
-    actors: list[str] = Field(default_factory=list)
-    concepts: list[str] = Field(default_factory=list)
-    notes: list[str] = Field(default_factory=list)
+    @model_validator(mode="after")
+    def validate_ref(self) -> "NormRef":
+        if not self.citations and not self.source_document:
+            raise ValueError(self._legacy_hint())
+        return self
 
 
 class BackendExpr(KernelModel):
@@ -57,7 +64,7 @@ class NormRule(KernelModel):
     provision_refs: list[NormRef] = Field(default_factory=list)
     rule_type: RuleType
     description: str
-    applicability: Applicability = Field(default_factory=Applicability)
+    applicability: NormApplicability = Field(default_factory=NormApplicability)
     backend_refs: list[str] = Field(default_factory=list)
     backend_exprs: list[BackendExpr] = Field(default_factory=list)
     backend_metadata: dict[str, Any] = Field(
@@ -92,7 +99,7 @@ __all__ = [
     "NormRef",
     "NormRule",
     "RuleType",
-    "Applicability",
+    "NormApplicability",
     "BackendExpr",
     "parse_expr_syntax",
 ]

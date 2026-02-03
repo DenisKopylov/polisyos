@@ -2,11 +2,9 @@ from __future__ import annotations
 
 import re
 from decimal import Decimal, InvalidOperation
-from typing import Any, Literal
+from typing import Any
 
-from pydantic import Field
-
-from polisyos.ir.kernel.base import ARTIFACT_ID_PATTERN, KernelModel
+from polisyos.ir.kernel.base import ARTIFACT_ID_PATTERN
 from polisyos.ir.kernel.constraints import ConstraintRegistry
 from polisyos.ir.kernel.mechanisms import (
     MechanismTypeRegistry,
@@ -36,21 +34,7 @@ from polisyos.ir.surface import (
     SelectorPredicate,
     schedule_range,
 )
-
-
-class LinkIssue(KernelModel):
-    severity: Literal["error", "warning"] = "error"
-    code: str
-    message: str
-    path: list[str | int] = Field(default_factory=list)
-    data: dict[str, Any] = Field(default_factory=dict)
-
-
-class LinkReport(KernelModel):
-    schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
-    ok: bool
-    issues: list[LinkIssue] = Field(default_factory=list)
-    notes: list[str] = Field(default_factory=list)
+from .reports import LinkIssue, LinkReport
 
 
 def link_policy(

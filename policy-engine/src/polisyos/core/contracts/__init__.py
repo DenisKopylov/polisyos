@@ -36,9 +36,25 @@ from .foundry import (
 )
 try:
     # Legal contracts may pull in optional heavy dependencies.
-    from .legal import NormPack, NormRef, NormRule, RuleType, RuleBackend
+    from .legal import (
+        ComplianceIssue,
+        IssueSeverity,
+        NormPack,
+        NormRef,
+        NormRule,
+        RuleBackend,
+        RuleType,
+    )
 
-    _LEGAL_EXPORTS = ["NormPack", "NormRef", "NormRule", "RuleType", "RuleBackend"]
+    _LEGAL_EXPORTS = [
+        "NormPack",
+        "NormRef",
+        "NormRule",
+        "RuleType",
+        "RuleBackend",
+        "ComplianceIssue",
+        "IssueSeverity",
+    ]
 except ModuleNotFoundError:  # pragma: no cover
     _LEGAL_EXPORTS = []
 from .scientist import CritiqueRef, DecisionCardRef, FailureCardRef, PolicyIRRef, TimelineRef

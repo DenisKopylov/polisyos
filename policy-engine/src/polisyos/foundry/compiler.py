@@ -24,9 +24,9 @@ from polisyos.ir.surface import InterventionSpec, PolicySurfaceIR, schedule_rang
 from polisyos.foundry.conflict_checker import CompileTimeConflictChecker, ConflictReport
 from polisyos.foundry.cost_model import CostBudget, CostEstimate, CostModel
 from polisyos.foundry.layout import SlotLayout, build_slot_layout
+from polisyos.foundry.profiles import FoundryCompileProfile
 from polisyos.foundry.treasury import TreasuryPlan, build_treasury_plan
 from polisyos.foundry.runtime.fingerprint import DeterminismTier, EnvironmentFingerprint
-from polisyos.scientist.governance.profiles import ProfileLevel, ValidationProfile
 
 
 @dataclass
@@ -120,13 +120,13 @@ def compile_surface_policy(
     units_registry: UnitsRegistry | None = None,
     policy_ref: ArtifactRef | None = None,
     simulation_config: SimulationConfig | None = None,
-    profile: ValidationProfile | None = None,
+    profile: FoundryCompileProfile | None = None,
     cost_budget: CostBudget | None = None,
     n_agents: int = 1000,
     time_steps: int = 100,
     strict_conflict_check: bool = True,
 ) -> CompileArtifacts:
-    profile = profile or ValidationProfile.mvp()
+    profile = profile or FoundryCompileProfile.mvp()
     if policy_ref is None:
         policy_ref = put_policy_surface(
             store,
@@ -200,7 +200,7 @@ def compile_surface_policy(
         environment_fingerprint=env_fingerprint,
         determinism_tier=determinism_tier,
         random_seed=random_seed,
-        nan_guard_enabled=profile.level == ProfileLevel.STRICT,
+        nan_guard_enabled=profile.nan_guard_enabled,
     )
     exec_plan_payload_ref = store.put_json(
         exec_plan,

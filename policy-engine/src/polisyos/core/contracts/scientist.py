@@ -8,12 +8,18 @@ the content-addressable architecture.
 
 from __future__ import annotations
 
-from typing import Literal, TYPE_CHECKING
+from typing import Any, Literal, Protocol
 
 from pydantic import BaseModel, Field
 
-if TYPE_CHECKING:
-    from polisyos.scientist.agent.failure_card import FailureCard
+class FailureCardLike(Protocol):
+    """Minimal FailureCard surface required to build FailureCardRef."""
+
+    content_hash: str
+    attempt_number: int
+    error_code: str
+    source_step: Any
+    can_retry: bool
 
 
 class ArtifactRef(BaseModel):
@@ -45,13 +51,14 @@ class FailureCardRef(ArtifactRef):
     can_retry: bool = Field(description="Whether this failure allowed retry")
 
     @classmethod
-    def from_card(cls, card: "FailureCard") -> "FailureCardRef":
+    def from_card(cls, card: FailureCardLike) -> "FailureCardRef":
         """Create a reference from a FailureCard instance."""
+        source_step = getattr(card.source_step, "value", card.source_step)
         return cls(
             cas_hash=card.content_hash,
             attempt_number=card.attempt_number,
             error_code=card.error_code,
-            source_step=card.source_step.value,
+            source_step=str(source_step),
             can_retry=card.can_retry,
         )
 

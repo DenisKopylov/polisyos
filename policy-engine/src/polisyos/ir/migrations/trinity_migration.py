@@ -3,7 +3,7 @@ from __future__ import annotations
 import hashlib
 from typing import Tuple
 
-from polisyos.core.canon.canon_json import to_canonical_bytes
+from polisyos.ir.canon import to_canonical_bytes
 from polisyos.ir.surface import PolicyAdvisory, PolicySemantic, PolicySurfaceIR
 from polisyos.ir.trinity import (
     ModelSpec,

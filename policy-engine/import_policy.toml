@@ -1,0 +1,22 @@
+[policy]
+version = "1"
+internal_prefix = "polisyos"
+src_root = "src"
+
+[roots]
+known = ["common","ir","core","fabric","foundry","scientist","runtime","scholar","lex"]
+
+[internal.allow]
+common = ["common"]
+ir = ["ir"]
+core = ["core","ir","common"]
+fabric = ["fabric","core","ir","common"]
+foundry = ["foundry","core","ir","common"]
+scientist = ["*"]
+runtime = ["runtime","core","ir","common"]
+scholar = ["scholar","ir","core","fabric","common"]
+lex = ["lex","ir","core","fabric","common"]
+
+[external.allow.ir]
+# Top-level external modules allowed in IR (stdlib is always allowed).
+modules = ["pydantic","typing_extensions"]

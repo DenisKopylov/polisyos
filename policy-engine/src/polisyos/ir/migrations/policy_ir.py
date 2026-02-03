@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from polisyos.common.migrations.base import register_migration
+from polisyos.ir.migrations.base import register_migration
 
 POLICY_IR_CURRENT_VERSION = "2.0"
 TRINITY_CURRENT_VERSION = "1.0"
@@ -36,3 +36,11 @@ def migrate_trinity_to_surface(data: dict) -> dict:
         bundle.model_spec,
     )
     return ir.model_dump()
+
+
+__all__ = [
+    "POLICY_IR_CURRENT_VERSION",
+    "TRINITY_CURRENT_VERSION",
+    "migrate_surface_to_trinity",
+    "migrate_trinity_to_surface",
+]

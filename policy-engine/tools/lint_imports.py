@@ -3,29 +3,12 @@ from __future__ import annotations
 
 import argparse
 import ast
+import datetime
+import fnmatch
+import sys
+import tomllib
 from dataclasses import dataclass
 from pathlib import Path
-
-INTERNAL_PREFIX = "polisyos"
-FORBIDDEN_MODULE_PREFIXES = {
-    "polisyos.scientist._legacy",
-    "polisyos.foundry._legacy",
-}
-
-LAYER_BY_PREFIX = {
-    "polisyos.core": "core",
-    "polisyos.ir": "ir",
-    "polisyos.foundry": "foundry",
-    "polisyos.fabric": "fabric",
-    "polisyos.scientist": "scientist",
-    "polisyos.runtime": "runtime",
-    "polisyos.common": "common",
-}
-
-FORBIDDEN_LAYER_EDGES = {
-    ("foundry", "fabric"),
-    ("fabric", "scientist"),
-}
 
 
 @dataclass(frozen=True)
@@ -35,6 +18,45 @@ class ImportRef:
     target_module: str
     lineno: int
     in_type_checking: bool
+
+
+@dataclass(frozen=True)
+class PolicyConfig:
+    version: str
+    internal_prefix: str
+    src_root: Path
+    known_roots: set[str]
+    internal_allow: dict[str, set[str]]
+    external_allow: dict[str, set[str]]
+
+
+@dataclass(frozen=True)
+class ImportException:
+    exception_id: str
+    owner: str
+    reason: str
+    expires: datetime.date
+    source_glob: str
+    import_root: str | None
+    import_module_prefix: str | None
+    source_module_prefix: str | None
+    external_module: str | None
+
+
+@dataclass(frozen=True)
+class ExceptionMatch:
+    exception: ImportException
+    ref: ImportRef
+    message: str
+
+
+@dataclass(frozen=True)
+class Violation:
+    ref: ImportRef
+    code: str
+    message: str
+    exception: ImportException | None = None
+    expired_exception: ImportException | None = None
 
 
 def is_type_checking_test(node: ast.AST) -> bool:
@@ -62,10 +84,19 @@ def resolve_import_module(
 
 
 class ImportCollector(ast.NodeVisitor):
-    def __init__(self, source_file: Path, source_module: str, is_package: bool) -> None:
+    def __init__(
+        self,
+        source_file: Path,
+        source_module: str,
+        is_package: bool,
+        internal_prefix: str,
+        known_roots: set[str],
+    ) -> None:
         self.source_file = source_file
         self.source_module = source_module
         self.is_package = is_package
+        self.internal_prefix = internal_prefix
+        self.known_roots = known_roots
         self.imports: list[ImportRef] = []
         self.internal_targets: set[str] = set()
         self._type_checking_stack: list[bool] = [False]
@@ -91,12 +122,18 @@ class ImportCollector(ast.NodeVisitor):
 
     def visit_ImportFrom(self, node: ast.ImportFrom) -> None:
         module = resolve_import_module(self.source_module, self.is_package, node)
-        if module:
-            self._record_import(module, node.lineno)
+        if not module:
+            return
+        if module == self.internal_prefix:
+            for alias in node.names:
+                if alias.name == "*":
+                    self._record_import(module, node.lineno)
+                    continue
+                self._record_import(f"{module}.{alias.name}", node.lineno)
+            return
+        self._record_import(module, node.lineno)
 
     def _record_import(self, module: str, lineno: int) -> None:
-        if module != INTERNAL_PREFIX and not module.startswith(f"{INTERNAL_PREFIX}."):
-            return
         self.imports.append(
             ImportRef(
                 source_file=self.source_file,
@@ -106,26 +143,20 @@ class ImportCollector(ast.NodeVisitor):
                 in_type_checking=self.in_type_checking,
             )
         )
-        self.internal_targets.add(module)
+        if module == self.internal_prefix or module.startswith(f"{self.internal_prefix}."):
+            self.internal_targets.add(module)
 
 
-def layer_for_module(module: str) -> str | None:
-    for prefix, layer in sorted(
-        LAYER_BY_PREFIX.items(), key=lambda item: len(item[0]), reverse=True
-    ):
-        if module == prefix or module.startswith(f"{prefix}."):
-            return layer
-    return None
-
-
-def module_name_for_path(src_root: Path, file_path: Path) -> tuple[str, bool] | None:
+def module_name_for_path(
+    src_root: Path, file_path: Path, internal_prefix: str
+) -> tuple[str, bool] | None:
     relative = file_path.relative_to(src_root)
     parts = list(relative.parts)
     if not parts:
         return None
-    if parts[0] != INTERNAL_PREFIX:
-        if src_root.name == INTERNAL_PREFIX:
-            parts = [INTERNAL_PREFIX] + parts
+    if parts[0] != internal_prefix:
+        if src_root.name == internal_prefix:
+            parts = [internal_prefix] + parts
         else:
             return None
     if parts[-1] == "__init__.py":
@@ -144,26 +175,31 @@ def iter_py_files(src_root: Path) -> list[Path]:
     return files
 
 
-def parse_imports(src_root: Path) -> tuple[list[ImportRef], dict[Path, int], dict[str, set[str]]]:
+def parse_imports(
+    config: PolicyConfig,
+) -> tuple[list[ImportRef], dict[Path, int], dict[str, set[str]]]:
     imports: list[ImportRef] = []
     internal_counts: dict[Path, int] = {}
     module_graph: dict[str, set[str]] = {}
 
-    for file_path in iter_py_files(src_root):
-        result = module_name_for_path(src_root, file_path)
+    for file_path in iter_py_files(config.src_root):
+        result = module_name_for_path(config.src_root, file_path, config.internal_prefix)
         if result is None:
             continue
         module_name, is_package = result
         module_graph.setdefault(module_name, set())
         tree = ast.parse(file_path.read_text(encoding="utf-8"))
-        collector = ImportCollector(file_path, module_name, is_package)
+        collector = ImportCollector(
+            file_path, module_name, is_package, config.internal_prefix, config.known_roots
+        )
         collector.visit(tree)
         imports.extend(collector.imports)
         internal_counts[file_path] = len(collector.internal_targets)
         for ref in collector.imports:
             if ref.in_type_checking:
                 continue
-            module_graph[module_name].add(ref.target_module)
+            if ref.target_module.startswith(f"{config.internal_prefix}."):
+                module_graph[module_name].add(ref.target_module)
 
     return imports, internal_counts, module_graph
 
@@ -226,55 +262,357 @@ def format_path(root: Path, path: Path) -> str:
         return str(path)
 
 
+def read_policy(path: Path) -> PolicyConfig:
+    if not path.exists():
+        raise ValueError(f"Policy file not found: {path}")
+    data = tomllib.loads(path.read_text(encoding="utf-8"))
+    policy = data.get("policy") or {}
+    internal_prefix = policy.get("internal_prefix")
+    src_root = policy.get("src_root")
+    version = policy.get("version", "unknown")
+    if not internal_prefix or not src_root:
+        raise ValueError("policy.internal_prefix and policy.src_root are required")
+
+    roots = data.get("roots") or {}
+    known_list = roots.get("known") or []
+    known_roots = set(known_list)
+    if not known_roots:
+        raise ValueError("roots.known must list at least one root")
+
+    internal_allow = data.get("internal", {}).get("allow", {})
+    internal_allow_map: dict[str, set[str]] = {}
+    for root in known_roots:
+        allowed = internal_allow.get(root, [])
+        internal_allow_map[root] = set(allowed)
+
+    external_allow = data.get("external", {}).get("allow", {})
+    external_allow_map: dict[str, set[str]] = {}
+    for root, values in external_allow.items():
+        modules = values.get("modules") if isinstance(values, dict) else values
+        if modules is None:
+            modules = []
+        external_allow_map[root] = set(modules)
+
+    return PolicyConfig(
+        version=version,
+        internal_prefix=internal_prefix,
+        src_root=Path(src_root),
+        known_roots=known_roots,
+        internal_allow=internal_allow_map,
+        external_allow=external_allow_map,
+    )
+
+
+def read_exceptions(path: Path | None) -> list[ImportException]:
+    if path is None:
+        return []
+    if not path.exists():
+        return []
+    data = tomllib.loads(path.read_text(encoding="utf-8"))
+    exceptions = data.get("exception", [])
+    results: list[ImportException] = []
+    for item in exceptions:
+        exception_id = item.get("id")
+        owner = item.get("owner")
+        reason = item.get("reason")
+        expires_raw = item.get("expires")
+        source_glob = item.get("source_glob")
+        import_root = item.get("import_root")
+        import_module_prefix = item.get("import_module_prefix")
+        source_module_prefix = item.get("source_module_prefix")
+        external_module = item.get("external_module")
+
+        if not exception_id or not owner or not reason or not expires_raw or not source_glob:
+            raise ValueError(f"Invalid exception entry (missing fields): {item}")
+
+        if external_module and (import_root or import_module_prefix):
+            raise ValueError(
+                f"Exception {exception_id} cannot mix external_module with internal selectors"
+            )
+
+        if not external_module and not import_root and not import_module_prefix:
+            raise ValueError(
+                f"Exception {exception_id} must define import_root, import_module_prefix, or external_module"
+            )
+
+        try:
+            expires = datetime.date.fromisoformat(str(expires_raw))
+        except ValueError as exc:
+            raise ValueError(
+                f"Exception {exception_id} has invalid expires date: {expires_raw}"
+            ) from exc
+
+        results.append(
+            ImportException(
+                exception_id=exception_id,
+                owner=owner,
+                reason=reason,
+                expires=expires,
+                source_glob=source_glob,
+                import_root=import_root,
+                import_module_prefix=import_module_prefix,
+                source_module_prefix=source_module_prefix,
+                external_module=external_module,
+            )
+        )
+
+    return results
+
+
+def root_for_module(module: str, internal_prefix: str) -> str | None:
+    parts = module.split(".")
+    if len(parts) < 2:
+        return None
+    if parts[0] != internal_prefix:
+        return None
+    return parts[1]
+
+
+def is_internal_module(module: str, internal_prefix: str) -> bool:
+    return module == internal_prefix or module.startswith(f"{internal_prefix}.")
+
+
+def stdlib_modules() -> set[str]:
+    modules = set(getattr(sys, "stdlib_module_names", set()))
+    modules.update(sys.builtin_module_names)
+    return modules
+
+
+def exception_matches(
+    exception: ImportException,
+    ref: ImportRef,
+    *,
+    rel_path: str,
+    target_module: str,
+    target_root: str | None,
+    external_top: str | None,
+) -> bool:
+    if not fnmatch.fnmatch(rel_path, exception.source_glob):
+        return False
+    if exception.source_module_prefix and not ref.source_module.startswith(
+        exception.source_module_prefix
+    ):
+        return False
+    if exception.external_module:
+        return external_top == exception.external_module
+    if exception.import_root and target_root != exception.import_root:
+        return False
+    if exception.import_module_prefix and not target_module.startswith(
+        exception.import_module_prefix
+    ):
+        return False
+    return True
+
+
+def format_allowed_internal(allowed: set[str]) -> str:
+    if "*" in allowed:
+        return "*"
+    return "{" + ", ".join(sorted(allowed)) + "}"
+
+
+def format_allowed_external(allowed: set[str]) -> str:
+    if not allowed:
+        return "stdlib"
+    return "stdlib + {" + ", ".join(sorted(allowed)) + "}"
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(
         description="Check internal import boundaries and report cycles."
     )
-    parser.add_argument("--src-root", type=Path, default=Path("src"), help="Source root")
-    parser.add_argument("--top", type=int, default=10, help="Show top N god files")
-    parser.add_argument("--fail-on-cycles", action="store_true", help="Fail on import cycles")
     parser.add_argument(
-        "--fail-on-type-checking",
-        action="store_true",
-        help="Fail on forbidden edges inside TYPE_CHECKING blocks",
+        "--policy",
+        type=Path,
+        default=Path("import_policy.toml"),
+        help="Path to import policy TOML",
     )
     parser.add_argument(
-        "--fail-on-legacy",
+        "--exceptions",
+        type=Path,
+        default=Path("import_exceptions.toml"),
+        help="Path to import exceptions TOML",
+    )
+    parser.add_argument("--top", type=int, default=10, help="Show top N god files")
+    parser.add_argument(
+        "--fail-on-cycles", action="store_true", help="Fail on import cycles"
+    )
+    parser.add_argument(
+        "--allow-type-checking",
         action="store_true",
-        help="Fail when importing polisyos.*._legacy modules anywhere",
+        help="Ignore violations inside TYPE_CHECKING blocks",
     )
     args = parser.parse_args()
 
-    if not args.src_root.exists():
-        print(f"Source root not found: {args.src_root}")
+    try:
+        config = read_policy(args.policy)
+        exceptions = read_exceptions(args.exceptions)
+    except Exception as exc:
+        print(f"Config error: {exc}")
         return 2
 
-    imports, internal_counts, module_graph = parse_imports(args.src_root)
-    runtime_forbidden: list[ImportRef] = []
-    type_checking_forbidden: list[ImportRef] = []
-    legacy_forbidden: list[ImportRef] = []
-    legacy_type_forbidden: list[ImportRef] = []
+    if not config.src_root.exists():
+        print(f"Source root not found: {config.src_root}")
+        return 2
+
+    imports, internal_counts, module_graph = parse_imports(config)
+
+    repo_root = config.src_root.parent
+    today = datetime.date.today()
+    stdlib = stdlib_modules()
+
+    violations: list[Violation] = []
+    allowed_exceptions: list[ExceptionMatch] = []
+    expired_exceptions: list[ExceptionMatch] = []
+    unknown_roots: set[str] = set()
 
     for ref in imports:
-        if any(
-            ref.target_module == prefix or ref.target_module.startswith(f"{prefix}.")
-            for prefix in FORBIDDEN_MODULE_PREFIXES
-        ):
-            if ref.in_type_checking:
-                legacy_type_forbidden.append(ref)
-            else:
-                legacy_forbidden.append(ref)
+        if ref.in_type_checking and args.allow_type_checking:
             continue
 
-        src_layer = layer_for_module(ref.source_module)
-        dst_layer = layer_for_module(ref.target_module)
-        if not src_layer or not dst_layer:
+        source_root = root_for_module(ref.source_module, config.internal_prefix)
+        if source_root and source_root not in config.known_roots:
+            unknown_roots.add(source_root)
             continue
-        if (src_layer, dst_layer) in FORBIDDEN_LAYER_EDGES:
-            if ref.in_type_checking:
-                type_checking_forbidden.append(ref)
-            else:
-                runtime_forbidden.append(ref)
+
+        is_internal = is_internal_module(ref.target_module, config.internal_prefix)
+        target_root = None
+        external_top = None
+        if is_internal:
+            target_root = root_for_module(ref.target_module, config.internal_prefix)
+            if target_root and target_root not in config.known_roots:
+                unknown_roots.add(target_root)
+                continue
+        else:
+            external_top = ref.target_module.split(".")[0]
+
+        if source_root is None:
+            continue
+
+        rel_path = format_path(repo_root, ref.source_file)
+
+        if is_internal:
+            if target_root is None:
+                continue
+
+            if ref.target_module.startswith(f"{config.internal_prefix}.scientist._legacy"):
+                if source_root != "scientist":
+                    message = (
+                        f"{rel_path}:{ref.lineno} [ARCH003] forbidden legacy import: "
+                        f"{source_root} -> scientist._legacy via {ref.target_module}"
+                    )
+                    violation = Violation(ref=ref, code="ARCH003", message=message)
+                    matched = False
+                    for exc in exceptions:
+                        if exception_matches(
+                            exc,
+                            ref,
+                            rel_path=rel_path,
+                            target_module=ref.target_module,
+                            target_root=target_root,
+                            external_top=None,
+                        ):
+                            matched = True
+                            if exc.expires < today:
+                                violations.append(
+                                    Violation(
+                                        ref=ref,
+                                        code="ARCH003",
+                                        message=message,
+                                        expired_exception=exc,
+                                    )
+                                )
+                                expired_exceptions.append(
+                                    ExceptionMatch(
+                                        exception=exc,
+                                        ref=ref,
+                                        message=message,
+                                    )
+                                )
+                            else:
+                                allowed_exceptions.append(
+                                    ExceptionMatch(
+                                        exception=exc,
+                                        ref=ref,
+                                        message=message,
+                                    )
+                                )
+                            break
+                    if not matched:
+                        violations.append(violation)
+                continue
+
+            if source_root == "ir":
+                allowed = {"ir"}
+                if target_root not in allowed:
+                    message = (
+                        f"{rel_path}:{ref.lineno} [ARCH001] forbidden internal import: "
+                        f"{source_root} -> {target_root} via {ref.target_module} "
+                        f"(allowed={format_allowed_internal(allowed)})"
+                    )
+                    violation = _apply_exceptions(
+                        ref,
+                        message,
+                        exceptions,
+                        rel_path,
+                        target_root,
+                        today,
+                        allowed_exceptions,
+                        expired_exceptions,
+                    )
+                    if violation:
+                        violations.append(violation)
+                continue
+
+            allowed = config.internal_allow.get(source_root, set())
+            if "*" in allowed or target_root in allowed:
+                continue
+
+            message = (
+                f"{rel_path}:{ref.lineno} [ARCH001] forbidden internal import: "
+                f"{source_root} -> {target_root} via {ref.target_module} "
+                f"(allowed={format_allowed_internal(allowed)})"
+            )
+            violation = _apply_exceptions(
+                ref,
+                message,
+                exceptions,
+                rel_path,
+                target_root,
+                today,
+                allowed_exceptions,
+                expired_exceptions,
+            )
+            if violation:
+                violations.append(violation)
+            continue
+
+        if source_root == "ir":
+            allowed_external = config.external_allow.get("ir", set())
+            if external_top in stdlib or external_top in allowed_external:
+                continue
+            message = (
+                f"{rel_path}:{ref.lineno} [ARCH002] forbidden external import in ir: "
+                f"{external_top} (allowed={format_allowed_external(allowed_external)})"
+            )
+            violation = _apply_exceptions(
+                ref,
+                message,
+                exceptions,
+                rel_path,
+                None,
+                today,
+                allowed_exceptions,
+                expired_exceptions,
+                external_top=external_top,
+            )
+            if violation:
+                violations.append(violation)
+
+    if unknown_roots:
+        print("Config error: unknown internal roots encountered:")
+        for root in sorted(unknown_roots):
+            print(f"- {root}")
+        return 2
 
     package_graph: dict[str, set[str]] = {}
     for source, targets in module_graph.items():
@@ -289,52 +627,40 @@ def main() -> int:
     sccs = strongly_connected_components(package_graph)
     cycles = [sorted(group) for group in sccs if len(group) > 1]
 
-    repo_root = args.src_root.parent
-
     print("Import gate report")
     print("")
-    if runtime_forbidden:
-        print("Forbidden edges (runtime):")
-        for ref in runtime_forbidden:
-            src_layer = layer_for_module(ref.source_module)
-            dst_layer = layer_for_module(ref.target_module)
-            file_path = format_path(repo_root, ref.source_file)
-            print(f"- {file_path}:{ref.lineno} {src_layer} -> {dst_layer} via {ref.target_module}")
+    print(f"Policy: {format_path(Path.cwd(), args.policy)} (v{config.version})")
+    print(f"Exceptions: {format_path(Path.cwd(), args.exceptions)}")
+    print("")
+
+    if violations:
+        print("Violations:")
+        for violation in [v for v in violations if v is not None]:
+            if violation is None:
+                continue
+            print(f"- {violation.message}")
+            if violation.expired_exception:
+                exc = violation.expired_exception
+                print(
+                    f"  expired exception {exc.exception_id} (expires {exc.expires})"
+                )
         print("")
     else:
-        print("Forbidden edges (runtime): none")
+        print("Violations: none")
         print("")
 
-    if type_checking_forbidden:
-        print("Forbidden edges (TYPE_CHECKING):")
-        for ref in type_checking_forbidden:
-            src_layer = layer_for_module(ref.source_module)
-            dst_layer = layer_for_module(ref.target_module)
-            file_path = format_path(repo_root, ref.source_file)
-            print(f"- {file_path}:{ref.lineno} {src_layer} -> {dst_layer} via {ref.target_module}")
+    if allowed_exceptions:
+        print("Allowed exceptions:")
+        for match in allowed_exceptions:
+            exc = match.exception
+            file_path = format_path(repo_root, match.ref.source_file)
+            print(
+                f"- {file_path}:{match.ref.lineno} {exc.exception_id} "
+                f"(expires {exc.expires}) {exc.reason}"
+            )
         print("")
     else:
-        print("Forbidden edges (TYPE_CHECKING): none")
-        print("")
-
-    if legacy_forbidden:
-        print("Forbidden legacy imports (runtime):")
-        for ref in legacy_forbidden:
-            file_path = format_path(repo_root, ref.source_file)
-            print(f"- {file_path}:{ref.lineno} imports {ref.target_module}")
-        print("")
-    else:
-        print("Forbidden legacy imports (runtime): none")
-        print("")
-
-    if legacy_type_forbidden:
-        print("Forbidden legacy imports (TYPE_CHECKING):")
-        for ref in legacy_type_forbidden:
-            file_path = format_path(repo_root, ref.source_file)
-            print(f"- {file_path}:{ref.lineno} imports {ref.target_module}")
-        print("")
-    else:
-        print("Forbidden legacy imports (TYPE_CHECKING): none")
+        print("Allowed exceptions: none")
         print("")
 
     if cycles:
@@ -354,15 +680,49 @@ def main() -> int:
         print(f"- {format_path(repo_root, path)}: {count}")
 
     exit_code = 0
-    if runtime_forbidden:
-        exit_code = 1
-    if args.fail_on_type_checking and (type_checking_forbidden or legacy_type_forbidden):
-        exit_code = 1
-    if args.fail_on_legacy and legacy_forbidden:
+    if violations:
         exit_code = 1
     if args.fail_on_cycles and cycles:
         exit_code = 1
     return exit_code
+
+
+def _apply_exceptions(
+    ref: ImportRef,
+    message: str,
+    exceptions: list[ImportException],
+    rel_path: str,
+    target_root: str | None,
+    today: datetime.date,
+    allowed_exceptions: list[ExceptionMatch],
+    expired_exceptions: list[ExceptionMatch],
+    *,
+    external_top: str | None = None,
+) -> Violation | None:
+    for exc in exceptions:
+        if exception_matches(
+            exc,
+            ref,
+            rel_path=rel_path,
+            target_module=ref.target_module,
+            target_root=target_root,
+            external_top=external_top,
+        ):
+            if exc.expires < today:
+                expired_exceptions.append(
+                    ExceptionMatch(exception=exc, ref=ref, message=message)
+                )
+                return Violation(
+                    ref=ref,
+                    code="ARCH000",
+                    message=message,
+                    expired_exception=exc,
+                )
+            allowed_exceptions.append(
+                ExceptionMatch(exception=exc, ref=ref, message=message)
+            )
+            return None
+    return Violation(ref=ref, code="ARCH000", message=message)
 
 
 if __name__ == "__main__":

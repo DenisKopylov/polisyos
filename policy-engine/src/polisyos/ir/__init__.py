@@ -1,33 +1,7 @@
-from polisyos.ir.calibration import CalibrationConfig, CalibrationTarget
-from polisyos.ir.connectors import ConnectorCapability, TrustLevel, QualityTier, ConnectorMetadataSpec
-from polisyos.ir.data_views import AccessTier, DataFilter, DataViewRequest, DataViewType
-from polisyos.ir.loaders import load_policy
-from polisyos.ir.model_spec import (
-    AgentConfig,
-    AgentTypeConfig,
-    AssumptionSpec,
-    AssumptionType,
-    EnvironmentConfig,
-    EnvironmentParam,
-    FidelityLevel,
-    ModelSpec,
-)
-from polisyos.ir.policy_spec import (
-    InterventionSpec as PolicyInterventionSpec,
-    MechanismBinding,
-    ParameterSpec,
-    PolicySpec,
-)
-from polisyos.ir.problem_frame import (
-    ConstraintSpec as ProblemConstraintSpec,
-    ConstraintType,
-    KPISpec,
-    ProblemDomain,
-    ProblemFrame,
-    StakeholderSpec,
-    SuccessCriterion,
-)
-from polisyos.ir.surface import PolicySurfaceIR
+from __future__ import annotations
+
+import importlib
+from typing import Any
 
 __all__ = [
     "AccessTier",
@@ -62,3 +36,51 @@ __all__ = [
     "EnvironmentConfig",
     "EnvironmentParam",
 ]
+
+_LAZY_IMPORTS: dict[str, tuple[str, str]] = {
+    "CalibrationConfig": ("polisyos.ir.calibration", "CalibrationConfig"),
+    "CalibrationTarget": ("polisyos.ir.calibration", "CalibrationTarget"),
+    "ConnectorCapability": ("polisyos.ir.connectors", "ConnectorCapability"),
+    "ConnectorMetadataSpec": ("polisyos.ir.connectors", "ConnectorMetadataSpec"),
+    "QualityTier": ("polisyos.ir.connectors", "QualityTier"),
+    "TrustLevel": ("polisyos.ir.connectors", "TrustLevel"),
+    "AccessTier": ("polisyos.ir.data_views", "AccessTier"),
+    "DataFilter": ("polisyos.ir.data_views", "DataFilter"),
+    "DataViewRequest": ("polisyos.ir.data_views", "DataViewRequest"),
+    "DataViewType": ("polisyos.ir.data_views", "DataViewType"),
+    "load_policy": ("polisyos.ir.loaders", "load_policy"),
+    "PolicySurfaceIR": ("polisyos.ir.surface", "PolicySurfaceIR"),
+    "AgentConfig": ("polisyos.ir.model_spec", "AgentConfig"),
+    "AgentTypeConfig": ("polisyos.ir.model_spec", "AgentTypeConfig"),
+    "AssumptionSpec": ("polisyos.ir.model_spec", "AssumptionSpec"),
+    "AssumptionType": ("polisyos.ir.model_spec", "AssumptionType"),
+    "EnvironmentConfig": ("polisyos.ir.model_spec", "EnvironmentConfig"),
+    "EnvironmentParam": ("polisyos.ir.model_spec", "EnvironmentParam"),
+    "FidelityLevel": ("polisyos.ir.model_spec", "FidelityLevel"),
+    "ModelSpec": ("polisyos.ir.model_spec", "ModelSpec"),
+    "MechanismBinding": ("polisyos.ir.policy_spec", "MechanismBinding"),
+    "ParameterSpec": ("polisyos.ir.policy_spec", "ParameterSpec"),
+    "PolicyInterventionSpec": ("polisyos.ir.policy_spec", "InterventionSpec"),
+    "PolicySpec": ("polisyos.ir.policy_spec", "PolicySpec"),
+    "ConstraintType": ("polisyos.ir.problem_frame", "ConstraintType"),
+    "KPISpec": ("polisyos.ir.problem_frame", "KPISpec"),
+    "ProblemConstraintSpec": ("polisyos.ir.problem_frame", "ConstraintSpec"),
+    "ProblemDomain": ("polisyos.ir.problem_frame", "ProblemDomain"),
+    "ProblemFrame": ("polisyos.ir.problem_frame", "ProblemFrame"),
+    "StakeholderSpec": ("polisyos.ir.problem_frame", "StakeholderSpec"),
+    "SuccessCriterion": ("polisyos.ir.problem_frame", "SuccessCriterion"),
+}
+
+
+def __getattr__(name: str) -> Any:
+    if name in _LAZY_IMPORTS:
+        module_name, attr = _LAZY_IMPORTS[name]
+        module = importlib.import_module(module_name)
+        value = getattr(module, attr)
+        globals()[name] = value
+        return value
+    raise AttributeError(f"module 'polisyos.ir' has no attribute '{name}'")
+
+
+def __dir__() -> list[str]:
+    return sorted(list(globals().keys()) + list(_LAZY_IMPORTS.keys()))

@@ -5,42 +5,15 @@ import os
 import platform
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
-from enum import Enum
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from polisyos.core.artifacts.environment import EnvironmentManifest
 
-
-class DeterminismTier(str, Enum):
-    """
-    Determinism guarantee levels for simulation runs.
-
-    STRICT_CPU: Bit-for-bit reproducibility on same CPU architecture.
-                Uses deterministic ops, disables parallelism, fixed XLA flags.
-                Trade-off: 2-5x slower training.
-
-    BEST_EFFORT_GPU: Near-deterministic on same GPU model.
-                     Uses cudnn deterministic algorithms where available.
-                     May vary across different GPU models or CUDA versions.
-                     Trade-off: ~10% slower than non-deterministic GPU.
-
-    NONDETERMINISTIC: No determinism guarantees.
-                      Fastest mode for hyperparameter search / exploration.
-                      Results may vary between identical runs.
-    """
-
-    STRICT_CPU = "strict_cpu"
-    BEST_EFFORT_GPU = "best_effort_gpu"
-    NONDETERMINISTIC = "nondeterministic"
-
-    def requires_deterministic_ops(self) -> bool:
-        """Whether JAX deterministic ops should be enabled."""
-        return self in (DeterminismTier.STRICT_CPU, DeterminismTier.BEST_EFFORT_GPU)
-
-    def allows_gpu(self) -> bool:
-        """Whether GPU execution is permitted under this tier."""
-        return self != DeterminismTier.STRICT_CPU
+from polisyos.core.observability.determinism import (
+    DeterminismTier,
+    get_determinism_tier as _get_determinism_tier,
+)
 
 
 @dataclass(frozen=True, slots=True)
@@ -282,6 +255,11 @@ def _get_cudnn_version() -> str | None:
     except Exception:
         pass
     return None
+
+
+def get_determinism_tier() -> DeterminismTier | None:
+    """Compatibility shim for determinism tier lookup."""
+    return _get_determinism_tier()
 
 
 def configure_determinism(tier: DeterminismTier) -> dict[str, str]:

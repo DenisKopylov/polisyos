@@ -1,0 +1,10 @@
+# Import gate exceptions (temporary, with expiry).
+#
+# Example:
+# [[exception]]
+# id = "E1-IR-CONNECTORS-CORE"
+# owner = "ir"
+# reason = "Temporary until canonicalization moved"
+# expires = "2026-03-31"
+# source_glob = "src/polisyos/ir/connectors.py"
+# import_root = "core"

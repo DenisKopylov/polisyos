@@ -167,15 +167,10 @@ def get_resource_config(config: OTelConfig) -> ResourceConfig:
     Attempts to load determinism tier from runtime fingerprint if available.
     """
 
-    determinism_tier = "UNKNOWN"
-    try:
-        from polisyos.foundry.runtime.fingerprint import get_determinism_tier
+    from polisyos.core.observability.determinism import get_determinism_tier
 
-        determinism_tier = get_determinism_tier().value
-    except ImportError:
-        pass
-    except Exception:
-        pass
+    tier = get_determinism_tier()
+    determinism_tier = tier.value if tier else "UNKNOWN"
 
     return ResourceConfig(
         service_name=config.service_name,

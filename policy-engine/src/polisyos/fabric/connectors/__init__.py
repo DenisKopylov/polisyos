@@ -139,6 +139,12 @@ from polisyos.fabric.connectors.resilience import (
     with_retry,
 )
 
+# Validation helpers (schema coercion)
+from polisyos.fabric.connectors.validation import (
+    coerce_fetch_result_against_schema,
+    validate_fetch_result_against_schema,
+)
+
 __all__ = [
     # === IR Contracts ===
     "ConnectorCapability",
@@ -253,6 +259,9 @@ __all__ = [
     "ResilienceConfig",
     "resolve_resilience_config",
     "apply_resilience",
+    # === Validation Helpers ===
+    "validate_fetch_result_against_schema",
+    "coerce_fetch_result_against_schema",
     "get_registry",
 ]
 

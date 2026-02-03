@@ -2,56 +2,13 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from enum import Enum
 from typing import List, Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from polisyos.ir.surface import PolicySurfaceIR
     from polisyos.scientist.governance.profiles import ValidationProfile
 
-
-class IssueSeverity(Enum):
-    """Severity levels for compliance issues."""
-
-    INFO = "info"
-    WARNING = "warning"
-    BLOCKER = "blocker"
-
-
-@dataclass(frozen=True)
-class ComplianceIssue:
-    """
-    Immutable compliance issue from a validation pass.
-
-    Attributes:
-        pass_id: Identifier of the pass that raised this issue
-        path: JSON path to the problematic field
-        message: Human-readable description of the issue
-        severity: Issue severity level
-        code: Machine-readable error code
-        suggestion: Optional fix suggestion
-        input_value: The actual value that caused the issue
-    """
-
-    pass_id: str
-    path: List[str | int]
-    message: str
-    severity: IssueSeverity
-    code: Optional[str] = None
-    suggestion: Optional[str] = None
-    input_value: Optional[str] = None
-
-    def to_dict(self) -> dict:
-        """Convert to dictionary format compatible with GovernorFeedback."""
-        return {
-            "loc": self.path,
-            "message": self.message,
-            "error_type": self.pass_id,
-            "input_value": self.input_value,
-            "severity": self.severity.value,
-            "code": self.code,
-            "suggestion": self.suggestion,
-        }
+from polisyos.core.contracts.legal import ComplianceIssue, IssueSeverity
 
 
 @dataclass

@@ -6,6 +6,7 @@ from typing import Literal
 from pydantic import BaseModel, ConfigDict, Field
 
 from ..artifacts.manifest import ArtifactRef, WarningRecord
+from polisyos.ir.refs import EvidenceBundleRef
 
 
 class DataViewRequestRef(ArtifactRef):
@@ -20,11 +21,6 @@ class QueryPlanRef(ArtifactRef):
 
 class FabricResultRef(ArtifactRef):
     kind: Literal["fabric.result_bundle"] = "fabric.result_bundle"
-    media_type: Literal["application/json"] = "application/json"
-
-
-class EvidenceBundleRef(ArtifactRef):
-    kind: Literal["fabric.evidence_bundle"] = "fabric.evidence_bundle"
     media_type: Literal["application/json"] = "application/json"
 
 

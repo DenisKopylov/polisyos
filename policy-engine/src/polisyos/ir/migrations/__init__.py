@@ -2,9 +2,9 @@ from __future__ import annotations
 
 import re
 
-from polisyos.common.migrations.base import migrate_artifact
-from polisyos.common.migrations.base import register_migration as _register_migration
-from polisyos.common.migrations.policy_ir import POLICY_IR_CURRENT_VERSION
+from polisyos.ir.migrations.base import migrate_artifact
+from polisyos.ir.migrations.base import register_migration as _register_migration
+from polisyos.ir.migrations.policy_ir import POLICY_IR_CURRENT_VERSION
 
 IR_ARTIFACT = "policy_ir"
 IR_CURRENT_VERSION = POLICY_IR_CURRENT_VERSION

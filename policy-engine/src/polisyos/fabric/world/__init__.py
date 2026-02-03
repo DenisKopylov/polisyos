@@ -31,6 +31,20 @@ from polisyos.fabric.world.store import (
     validate_world_facts,
     write_world_fact_segment,
 )
+from polisyos.fabric.world.materialize import (
+    MergeStrategy,
+    WorldArtifactReadError,
+    WorldMaterializationError,
+    WorldMaterializeSegmentStats,
+    WorldMaterializeStats,
+    WorldMergeConflict,
+    WorldSchemaError,
+    WorldSegmentHashMismatch,
+    apply_world_segment,
+    ensure_world_materialized,
+    ensure_world_schema,
+    materialize_world_duckdb_from_fact_log,
+)
 
 __all__ = [
     "SEGMENTS_INDEX_NAME",
@@ -62,4 +76,16 @@ __all__ = [
     "validate_world_event_id",
     "validate_world_facts",
     "write_world_fact_segment",
+    "MergeStrategy",
+    "WorldArtifactReadError",
+    "WorldMaterializationError",
+    "WorldMaterializeSegmentStats",
+    "WorldMaterializeStats",
+    "WorldMergeConflict",
+    "WorldSchemaError",
+    "WorldSegmentHashMismatch",
+    "apply_world_segment",
+    "ensure_world_materialized",
+    "ensure_world_schema",
+    "materialize_world_duckdb_from_fact_log",
 ]

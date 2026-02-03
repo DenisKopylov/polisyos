@@ -2,7 +2,7 @@
 
 **IR (Intermediate Representation)** - это промежуточное представление политик и симуляций в системе Policy Engine. Модуль определяет канонические контракты данных, обеспечивая единообразие коммуникации между всеми компонентами системы: от LLM-агентов до JAX-симуляций.
 
-**Обновлено**: документация актуализирована для отражения текущего состояния на 2026-02-01, включая полную реализацию Trinity архитектуры (ProblemFrame, PolicySpec, ModelSpec), расширенную систему Kernel реестров с новыми компонентами (constraints, metrics, selector_fields, trust, numbers, values), интеграцию с Fact Log, новые контракты для нормативных документов (NormPack), безопасную систему оценки выражений AST Policy, контракты коннекторов данных (connectors.py) для интеграции с внешними источниками, асинхронные утилиты (async_tools.py), и систему миграции Trinity.
+**Обновлено**: документация актуализирована для отражения текущего состояния на 2026-02-01, включая полную реализацию Trinity архитектуры (ProblemFrame, PolicySpec, ModelSpec), расширенную систему Kernel реестров с новыми компонентами (constraints, metrics, selector_fields, trust, numbers, values), интеграцию с Fact Log, новые контракты для нормативных документов (NormPack), контракты коннекторов данных (connectors.py) для интеграции с внешними источниками, асинхронные утилиты (async_tools.py), и систему миграции Trinity.
 
 ## Архитектурная роль
 
@@ -49,14 +49,14 @@ PolicySurfaceIR v2.x остается совместимым интерфейс�
 3. **Валидация данных**: Строгие ограничения и проверки корректности
 4. **Версионирование**: Детерминированные миграции схем, включая Trinity миграцию
 5. **Многоязычность**: Поддержка локализации интерфейсов
-6. **Безопасность**: Анти-runaway лимиты на размеры и глубину, безопасная AST оценка
+6. **Безопасность**: Анти-runaway лимиты на размеры и глубину
 7. **Линковка**: Валидация политик относительно расширенных kernel-реестров
 8. **Fact Log**: Семантическая сеть фактов с provenance tracking и trust policies
 9. **Kernel реестры**: Фундаментальные реестры типов, единиц, слотов, механизмов, ограничений, метрик, селекторных полей и политик доверия
 10. **Калибровка**: Настройки оптимизации политик относительно исторических данных
 11. **Запросы данных**: Структурированные запросы к результатам симуляции
 12. **Предикаты**: Определение фильтров для доступа к данным симуляции
-13. **AST Policy**: Безопасная оценка выражений с валидацией синтаксиса
+13. **Registry Fragments**: Детеминированная композиция доменных вкладов в реестры
 14. **Norm Compliance**: Валидация политик на соответствие нормативным документам
 15. **Data Connectors**: Контракты для интеграции с внешними источниками данных
 16. **Типизированные значения**: Строго типизированные значения (MoneyValue, RateValue, CountValue, DurationValue)
@@ -86,19 +86,24 @@ ir/
 ├── __init__.py              # Экспорт основных типов данных и функций
 ├── types.py                  # Перечисления, базовые типы и утилиты
 ├── connectors.py             # Контракты коннекторов для интеграции с внешними источниками данных
-├── trinity.py                # Trinity артефакты (ProblemFrame, PolicySpec, ModelSpec, TrinityBundle)
+├── trinity/                  # Канонический Trinity пакет (ProblemFrame, PolicySpec, ModelSpec, TrinityBundle)
 ├── problem_frame.py          # ProblemFrame: определение проблемы и целей
 ├── policy_spec.py            # PolicySpec: спецификация политики и интервенций
 ├── model_spec.py             # ModelSpec: конфигурация модели мира
-├── surface.py                # PolicySurfaceIR (v2.x) - совместимый интерфейс
+├── surface.py                # Legacy shim для PolicySurfaceIR (v2.x)
+├── legacy/                   # Устаревшие контракты и миграции
+├── selector_expr.py          # Селекторы для таргетинга интервенций
+├── schedule.py               # Контракт расписаний
 ├── data_views.py             # Модели запросов данных (DataViewRequest, DataViewType)
+├── queries.py                # Контракты запросов к миру (QueryScope, DocQuery, ClaimQuery, NormQuery)
 ├── validation.py             # Утилиты валидации и отчетов об ошибках
 ├── fact_log.py               # Контракты для семантической сети фактов
 ├── linker.py                 # Линкер политик с валидацией по реестрам
 ├── predicate.py              # Реестры предикатов для запросов данных
 ├── loaders.py                # Универсальная загрузка политик с автораспознаванием версий
 ├── calibration.py            # Контракты калибровки политик относительно данных
-├── norm_pack.py              # Контракты для нормативных документов (NormPack, NormRule, NormRef) с AST валидацией
+├── norm_pack.py              # Контракты для нормативных документов (NormPack, NormRule, NormRef)
+├── registry_fragments.py     # Фрагменты реестров + контракт composer
 ├── kernel/                   # Kernel: фундаментальные реестры и типы
 │   ├── __init__.py          # Экспорт всех kernel компонентов
 │   ├── base.py              # KernelModel, паттерны ID, утилиты валидации
@@ -115,7 +120,7 @@ ir/
 │   └── values.py            # Типизированные значения (MoneyValue, RateValue, etc.)
 ├── migrations/
 │   ├── __init__.py          # API миграций между версиями схем
-│   └── trinity_migration.py # Миграция PolicySurfaceIR → Trinity артефактов
+│   └── trinity_migration.py # Legacy shim (реэкспорт из ir.legacy.migrations)
 ├── async_tools.py           # Асинхронные утилиты (run_coro_sync) - находится в common/
 └── units.py                 # Устаревшие утилиты для работы с единицами измерения (дубликат kernel/units.py)
 ```
@@ -136,7 +141,6 @@ bundle = TrinityBundle(
     problem_frame=problem_frame,
     policy_spec=policy_spec,
     model_spec=model_spec,
-    source_schema_version="2.0"  # Исходная версия PolicySurfaceIR
 )
 
 # Сериализация для хранения
@@ -380,9 +384,9 @@ alternative_model = ModelSpec(
 
 ### 1. Surface контракты (`surface.py`) - v2.0
 
-#### PolicySurfaceIR - основной контракт системы
+#### PolicySurfaceIR - legacy контракт совместимости
 
-Текущий основной контракт системы, разделяющий политику на исполняемую (semantic) и advisory части. PolicySurfaceIR является центральным контрактом, используемым всеми компонентами системы для обмена данными о политиках.
+Legacy контракт системы, разделяющий политику на исполняемую (semantic) и advisory части. PolicySurfaceIR сохраняется для обратной совместимости; канонический контракт политики — Trinity (ProblemFrame/PolicySpec/ModelSpec).
 
 **Ключевые особенности:**
 - Разделение на semantic (исполняемая логика) и advisory (человекочитаемые метаданные) части
@@ -812,26 +816,22 @@ registry = PredicateRegistry(
 
 #### Универсальная загрузка политик
 
-Система загрузки поддерживает автоматическое распознавание версий политик и конвертацию между форматами. Основная функция `load_policy()` принимает любые поддерживаемые форматы политик и возвращает унифицированный `PolicySurfaceIR`:
+Система загрузки поддерживает автоматическое распознавание форматов и конвертацию между legacy PolicySurfaceIR и каноническим TrinityBundle. Основная функция `load_policy()` принимает любые поддерживаемые форматы политик:
 
 ```python
-from polisyos.ir.loaders import load_policy
+from polisyos.ir.loaders import load_policy, load_trinity_bundle
 
 # Автоматическая загрузка с распознаванием версии
-policy = load_policy(input_data)  # Возвращает PolicySurfaceIR
+policy = load_policy(input_data)  # Возвращает PolicySurfaceIR (legacy)
+bundle = load_policy(input_data, as_trinity=True)  # Возвращает TrinityBundle
 
-# Поддерживает как v1.0 (PolicyRequestIR), так и v2.0 (PolicySurfaceIR)
-# Автоматически конвертирует v1.0 в v2.0 при необходимости
+# Для миграций можно получить MigrationReport
+bundle, report = load_trinity_bundle(input_data)
 ```
 
 #### Конвертация версий
 
-```python
-from polisyos.ir.loaders import _coerce_v1_to_surface
-
-# Ручная конвертация из v1.0 в v2.0
-surface_policy = _coerce_v1_to_surface(v1_data)
-```
+Миграции legacy → Trinity выполняются в `polisyos.ir.legacy.migrations.*` и не имеют побочных эффектов.
 
 ### 10. Калибровка политик (`calibration.py`)
 
@@ -887,8 +887,8 @@ calibration = CalibrationConfig(
 **Ключевые особенности:**
 - Деонтическая классификация норм (обязанности, запреты, разрешения)
 - Ссылки на конкретные положения нормативных документов
-- Связь с backend-механизмами Foundry для реализации норм
-- Условные выражения для применения норм
+- Декларативная применимость (jurisdiction, actors, concepts)
+- Backend hints/exprs без интерпретации внутри IR
 
 ```python
 from polisyos.ir.norm_pack import NormPack, NormRule, NormRef, RuleType
@@ -910,8 +910,9 @@ norm_pack = NormPack(
             ],
             rule_type=RuleType.OBLIGATION,
             description="Income tax rate cannot exceed 18% for individuals",
-            backend_refs=["income_tax_mechanism"],
-            condition_expr="income > 50000"  # Условное применение
+            backend_refs=["expr_ast"],
+            applicability={"jurisdiction": "UA", "concepts": ["income"]},
+            backend_metadata={"when": "income > 50000"}
         ),
         NormRule(
             norm_id="minimum_wage",
@@ -924,8 +925,9 @@ norm_pack = NormPack(
             ],
             rule_type=RuleType.PROHIBITION,
             description="Employer cannot pay less than minimum wage",
-            backend_refs=["wage_mechanism"],
-            condition_expr="employment_status == 'employed'"
+            backend_refs=["expr_ast"],
+            applicability={"jurisdiction": "UA", "concepts": ["wage"]},
+            backend_metadata={"when": "employment_status == 'employed'"}
         )
     ],
     metadata={
@@ -942,8 +944,8 @@ norm_pack = NormPack(
 - `provision_refs`: Ссылки на положения нормативных документов
 - `rule_type`: Деонтическая классификация (обязанность/запрет/разрешение)
 - `description`: Человекочитаемое описание правила
-- `backend_refs`: Ссылки на механизмы Foundry для реализации
-- `condition_expr`: Условное выражение для применения правила
+- `backend_refs`: Идентификаторы backend'ов, способных оценивать норму
+- `backend_metadata`: Backend-специфичные данные (например, when/must/must_not)
 
 **NormRef** - ссылка на положение нормативного документа:
 - `provision_id`: Идентификатор положения (статья, пункт)
@@ -1129,26 +1131,21 @@ major, minor = parse_version("2.1")
 is_major = is_major_bump("2.0", "2.1")  # False для minor изменений
 ```
 
-#### Trinity миграция (`migrations/trinity_migration.py`)
+#### Trinity миграция (legacy → canonical)
 
 Специальная система миграции для преобразования PolicySurfaceIR в Trinity артефакты (ProblemFrame, PolicySpec, ModelSpec). Реализует структурное разделение политики на независимые компоненты:
 
 ```python
-from polisyos.ir.migrations.trinity_migration import (
-    split_surface_ir, merge_to_surface_ir, split_to_bundle,
-    TrinityBundle, _compute_source_ref
+from polisyos.ir.legacy.migrations.surface_to_trinity import (
+    migrate_surface_ir_to_trinity,
+    migrate_trinity_to_surface_ir,
 )
 
 # Разделение PolicySurfaceIR на Trinity артефакты
 surface_policy = PolicySurfaceIR(...)  # Исходная политика v2.x
 
-problem_frame, policy_spec, model_spec = split_surface_ir(surface_policy)
-
-# Или создание полного bundle
-bundle = split_to_bundle(surface_policy)
-
-# Обратное слияние для совместимости
-reconstructed = merge_to_surface_ir(problem_frame, policy_spec, model_spec)
+bundle, report = migrate_surface_ir_to_trinity(surface_policy)
+reconstructed, report = migrate_trinity_to_surface_ir(bundle)
 ```
 
 **Логика разделения:**
@@ -1158,7 +1155,7 @@ reconstructed = merge_to_surface_ir(problem_frame, policy_spec, model_spec)
 
 #### Поддерживаемые версии
 
-- **Trinity 1.0**: ProblemFrame, PolicySpec, ModelSpec (новая архитектура с trinity_migration.py)
+- **Trinity 1.0**: ProblemFrame, PolicySpec, ModelSpec (канонический контракт)
 - **PolicySurfaceIR 2.x**: Унаследованный интерфейс с автоматической миграцией в Trinity
 - **PolicySurfaceIR 2.0**: Текущая стабильная версия с полной поддержкой
 - **PolicySurfaceIR 1.x**: Устаревший PolicyIR (конвертация через `load_policy()`)
@@ -1398,202 +1395,14 @@ registry = MergeRuleRegistry(
 )
 ```
 
-## AST Policy: Безопасная оценка выражений
+## Expression Handling (IR Only)
 
-### Архитектурная роль
+IR хранит выражения как декларативные строки и не импортирует backend-движки
+для их оценки. Проверка семантики и выполнение выражений происходят в Lex/Scientist.
 
-**AST Policy** обеспечивает безопасную оценку выражений в нормативных документах и политиках. Система использует whitelist-подход с AST-анализом для предотвращения выполнения вредоносного кода.
-
-**Ключевые особенности:**
-- **Безопасность**: Только whitelist AST-узлы разрешены
-- **Валидация**: Синтаксическая проверка выражений при создании
-- **Производительность**: Прямой AST walking без eval/exec
-- **Изоляция**: Контекстно-изолированная оценка переменных
-
-### AST Policy компоненты
-
-#### ASTLimits - ограничения ресурсов
-
-```python
-@dataclass(frozen=True)
-class ASTLimits:
-    """Resource limits to prevent DoS attacks."""
-
-    MAX_NODES: int = 100
-    MAX_DEPTH: int = 10
-    MAX_EXPRESSION_LENGTH: int = 1024
-    MAX_NAMES: int = 20
-```
-
-#### ASTPolicy - политика безопасности
-
-```python
-class ASTPolicy:
-    """
-    Defines which AST nodes are allowed in safe expression evaluation.
-
-    Design Philosophy:
-    - Explicit whitelist (default DENY)
-    - No function calls, imports, or attribute access
-    - Resource limits to prevent DoS
-    """
-
-    ALLOWED_NODES: FrozenSet[type] = frozenset({
-        # Expression wrapper
-        ast.Expression,
-
-        # Boolean operations
-        ast.BoolOp, ast.And, ast.Or,
-
-        # Unary operations
-        ast.UnaryOp, ast.Not, ast.USub,
-
-        # Binary operations
-        ast.BinOp, ast.Add, ast.Sub, ast.Mult, ast.Div, ast.FloorDiv,
-        ast.Mod, ast.Pow,
-
-        # Comparisons
-        ast.Compare, ast.Eq, ast.NotEq, ast.Lt, ast.LtE, ast.Gt, ast.GtE,
-
-        # Literals
-        ast.Constant, ast.Num, ast.Str, ast.Name, ast.Load,
-
-        # Boolean literals
-        ast.NameConstant,  # True, False, None
-    })
-```
-
-#### SafeExpressionEvaluator - безопасный интерпретатор
-
-```python
-class SafeExpressionEvaluator:
-    """
-    Safe interpreter for AST-subset expressions.
-
-    Evaluates expressions by walking the AST and manually
-    implementing each allowed operation.
-
-    Properties:
-        - No side effects
-        - No function calls
-        - No attribute access
-        - Context-isolated variable lookup
-    """
-
-    def evaluate(self, expression: str, context: Dict[str, Any]) -> Any:
-        """Evaluate expression in safe context."""
-        # 1. Parse to AST
-        tree = ast.parse(expression, mode='eval')
-
-        # 2. Validate against policy
-        ASTPolicy.validate_ast(tree, limits=self.limits)
-
-        # 3. Evaluate safely
-        return self._eval_node(tree.body, context)
-```
-
-#### ExpressionASTBackend - интеграция с Legal Pass
-
-```python
-class ExpressionASTBackend:
-    """
-    RuleBackend implementation using AST-based expression evaluation.
-
-    Integrates with LegalPass pipeline for norm compliance checking.
-    """
-
-    def check_rule(self, rule: NormRule, context: Dict[str, Any]) -> ComplianceIssue | None:
-        """Check single rule compliance using safe expression evaluation."""
-        evaluator = SafeExpressionEvaluator(context)
-
-        # Check applicability condition
-        if rule.metadata.get("when"):
-            applicable = evaluator.evaluate(rule.metadata["when"], context)
-            if not applicable:
-                return None
-
-        # Check obligations
-        if rule.metadata.get("must"):
-            satisfied = evaluator.evaluate(rule.metadata["must"], context)
-            if not satisfied:
-                return ComplianceIssue(...)
-
-        # Check prohibitions
-        if rule.metadata.get("must_not"):
-            violated = evaluator.evaluate(rule.metadata["must_not"], context)
-            if violated:
-                return ComplianceIssue(...)
-
-        return None
-```
-
-### Интеграция с NormPack
-
-NormPack теперь включает валидацию AST-выражений:
-
-```python
-class NormRule(BaseModel):
-    norm_id: str
-    provision_refs: List[NormRef] = Field(default_factory=list)
-    rule_type: RuleType
-    description: str
-    backend_refs: List[str] = Field(default_factory=list)
-    condition_expr: str | None = None
-    metadata: Dict[str, Any] = Field(
-        default_factory=dict,
-        description=(
-            "Backend-specific rule data. For expr_ast backend: "
-            "'when' (applicability), 'must' (obligation), "
-            "'must_not' (prohibition)"
-        ),
-    )
-
-    @model_validator(mode="after")
-    def validate_expressions(self) -> "NormRule":
-        """Validate expression syntax at construction time."""
-        from polisyos.scientist.governance.legal.ast_policy import ASTPolicy
-
-        for key in ("when", "must", "must_not"):
-            expr = self.metadata.get(key)
-            if expr is not None:
-                is_valid, error = ASTPolicy.validate(expr)
-                if not is_valid:
-                    raise ValueError(
-                        f"Invalid expression in metadata['{key}']: {error}"
-                    )
-
-        return self
-```
-
-### Безопасность и ограничения
-
-**Запрещенные конструкции:**
-- Функциональные вызовы (`len()`, `max()`, `print()`)
-- Импорты (`__import__`, `from ... import`)
-- Доступ к атрибутам (`obj.attr`, `obj.method()`)
-- Индексация (`list[0]`, `dict['key']`)
-- Циклы и условные операторы
-- Создание объектов и списков
-
-**Разрешенные операции:**
-- Арифметические операции (`+`, `-`, `*`, `/`, `//`, `%`, `**`)
-- Сравнения (`==`, `!=`, `<`, `<=`, `>`, `>=`)
-- Логические операции (`and`, `or`, `not`)
-- Литералы (числа, строки, булевы значения)
-- Доступ к переменным из контекста
-
-### Тестирование безопасности
-
-```bash
-# Security tests - verify forbidden constructs are rejected
-pytest tests/scientist/governance/test_norm_execution.py::TestSecurityRejection
-
-# Policy tests - verify ASTPolicy validation rules
-pytest tests/scientist/governance/test_norm_execution.py::TestASTPolicy
-
-# Evaluation tests - verify correct evaluation logic
-pytest tests/scientist/governance/test_norm_execution.py::TestSafeEvaluation
-```
+Для синтаксической проверки выражений в IR доступен helper
+`polisyos.ir.norm_pack.parse_expr_syntax`, который вызывает `ast.parse(expr, mode=\"eval\")`
+и возвращает только статус/ошибку.
 
 ## Ограничения безопасности
 
@@ -1627,7 +1436,6 @@ bundle = TrinityBundle(
     problem_frame=problem_frame,
     policy_spec=policy_spec,
     model_spec=model_spec,
-    source_schema_version="2.0"
 )
 
 # Сериализация для хранения
@@ -1662,7 +1470,7 @@ from polisyos.common.async_tools import run_coro_sync
 
 # Полный импорт для доступа ко всем компонентам
 from polisyos.ir.trinity import (
-    TrinityBundle, SharedMetadata,
+    TrinityBundle,
     ProblemFrame, PolicySpec, ModelSpec
 )
 
@@ -1700,8 +1508,8 @@ from polisyos.ir.validation import ValidationReport, build_validation_report
 from polisyos.ir.calibration import (
     CalibrationConfig, CalibrationTarget, TargetAlignConfig, TargetLossConfig
 )
-from polisyos.ir.migrations.trinity_migration import (
-    split_surface_ir, merge_to_surface_ir, split_to_bundle
+from polisyos.ir.legacy.migrations.surface_to_trinity import (
+    migrate_surface_ir_to_trinity, migrate_trinity_to_surface_ir
 )
 ```
 
@@ -1947,13 +1755,13 @@ IR строго следует архитектурным законам про�
 
 IR является фундаментом всей системы и используется всеми модулями Policy Engine:
 
-- **Scientist**: Генерирует Trinity артефакты (ProblemFrame, PolicySpec, ModelSpec) или PolicySurfaceIR, использует линкер для валидации, типы из `types.py` и загрузчики из `loaders.py`. Интегрируется с AST Policy для безопасной оценки выражений в governance passes
+- **Scientist**: Генерирует Trinity артефакты (ProblemFrame, PolicySpec, ModelSpec) или PolicySurfaceIR, использует линкер для валидации, типы из `types.py` и загрузчики из `loaders.py`.
 - **Foundry**: Компилирует `InterventionSpec` из PolicySpec в JAX-механизмы, использует kernel-реестры для линковки, калибровку из `calibration.py` для оптимизации, работает с ModelSpec для конфигурации симуляции
 - **Fabric**: Обрабатывает `DataViewRequest` для запросов данных, использует предикаты из `predicate.py`, контракты фактов из `fact_log.py` для семантической сети, работает с ModelSpec для понимания структуры данных. Использует контракты коннекторов из `connectors.py` для стандартизации интерфейсов внешних источников данных
 - **Core**: Предоставляет базовую инфраструктуру, использует `Fact` и `FactBatch` для построения семантической сети знаний, интегрируется с ModelSpec для загрузки данных
 - **Runtime**: Хранит артефакты Trinity и PolicySurfaceIR для аудита, использует `CalibrationConfig` для управления оптимизацией, сохраняет метаданные из всех артефактов
 - **Common**: Использует систему миграций из `common.migrations` для версионирования схем, включая Trinity миграции; предоставляет `async_tools.py` для асинхронных операций
-- **Legal (Scientist/Governance)**: Использует `NormPack` и `NormRule` для определения нормативных документов, AST Policy для безопасной оценки выражений в правилах compliance, ExpressionASTBackend для интеграции с Legal Pass pipeline
+- **Legal (Scientist/Governance)**: Использует `NormPack` и `NormRule` для определения нормативных документов и backend-движки для оценки выражений в правилах compliance
 
 ### Архитектурные контракты
 
@@ -1965,9 +1773,9 @@ PolicySurfaceIR (legacy)                              kernel/     calibration.py
 loaders.py (migration)                             surface.py     executor.py
 
                      ↓                                    ↓
-                  Fabric → DataViewRequest → Runtime   Legal Pass → AST Policy
+                  Fabric → DataViewRequest → Runtime   Legal Pass → Backend
                      ↓                                    ↓
-                Fact Log → Semantic Network → Core   NormPack → ExpressionASTBackend
+                Fact Log → Semantic Network → Core   NormPack → Expression Backend
 ```
 
 **Trinity Workflow:**
@@ -1986,7 +1794,6 @@ Foundry compilation → Simulation → Analysis
 - [Примеры использования](../../../examples/ir_base_demo.py)
 - [Kernel реестры](kernel/README.md) - фундаментальные реестры и типы
 - [Migrations](migrations/README.md) - система версионирования схем
-- [AST Policy](../../scientist/governance/legal/ast_policy.py) - безопасная оценка выражений
 - [Expression AST Backend](../../scientist/governance/legal/backends/expr_ast.py) - интеграция с Legal Pass
 - [Fabric](../fabric/README.md) - система данных
 - [Scientist](../scientist/README.md) - генерация политик

@@ -19,4 +19,4 @@ lex = ["lex","ir","core","fabric","common"]
 
 [external.allow.ir]
 # Top-level external modules allowed in IR (stdlib is always allowed).
-modules = ["pydantic","typing_extensions"]
+modules = ["pydantic","typing_extensions","yaml"]

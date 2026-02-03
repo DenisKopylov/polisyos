@@ -302,21 +302,21 @@ class TestExpressionASTBackend:
             jurisdiction="TEST",
             norms=[
                 NormRule(
-                    norm_id="DEFICIT_LIMIT",
+                    norm_id="deficit_limit",
                     rule_type=RuleType.PROHIBITION,
                     description="Deficit must not exceed 3%",
                     backend_refs=["expr_ast"],
-                    metadata={
+                    backend_metadata={
                         "when": "has_budget_data",
                         "must_not": "deficit_pct > 3.0",
                     },
                 ),
                 NormRule(
-                    norm_id="MIN_WAGE",
+                    norm_id="min_wage",
                     rule_type=RuleType.OBLIGATION,
                     description="Minimum wage must meet federal floor",
                     backend_refs=["expr_ast"],
-                    metadata={
+                    backend_metadata={
                         "when": "has_wage_policy",
                         "must": "min_wage >= federal_min",
                     },
@@ -357,7 +357,7 @@ class TestExpressionASTBackend:
         blockers = [i for i in issues if i.severity == IssueSeverity.BLOCKER]
 
         assert len(blockers) == 1
-        assert blockers[0].code == "DEFICIT_LIMIT"
+        assert blockers[0].code == "deficit_limit"
         assert "Prohibition violated" in blockers[0].message
 
     def test_rule_not_applicable(self, sample_norm_pack: NormPack) -> None:
@@ -384,11 +384,11 @@ class TestExpressionASTBackend:
             jurisdiction="TEST",
             norms=[
                 NormRule(
-                    norm_id="LLM_ONLY",
+                    norm_id="llm_only",
                     rule_type=RuleType.OBLIGATION,
                     description="Complex norm for LLM backend",
                     backend_refs=["llm"],
-                    metadata={"legal_text": "Complex interpretation needed"},
+                    backend_metadata={"legal_text": "Complex interpretation needed"},
                 ),
             ],
         )

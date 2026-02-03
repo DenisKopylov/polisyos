@@ -20,16 +20,16 @@ from polisyos.scientist.governance.profiles import ValidationProfile
 def sample_norm_pack() -> NormPack:
     """Create a sample NormPack for testing."""
     return NormPack(
-        pack_id="test-pack-001",
+        pack_id="test_pack_001",
         jurisdiction="EU",
         effective_date="2024-01-01",
         norms=[
             NormRule(
-                norm_id="GDPR-5-1-a",
+                norm_id="gdpr_5_1_a",
                 provision_refs=[
                     NormRef(
-                        provision_id="Art.5.1.a",
-                        source_document="EU/GDPR/2016",
+                        provision_id="art_5_1_a",
+                        source_document="eu_gdpr_2016",
                     )
                 ],
                 rule_type=RuleType.OBLIGATION,
@@ -37,11 +37,11 @@ def sample_norm_pack() -> NormPack:
                 backend_refs=["ast", "llm"],
             ),
             NormRule(
-                norm_id="GDPR-5-1-b",
+                norm_id="gdpr_5_1_b",
                 provision_refs=[
                     NormRef(
-                        provision_id="Art.5.1.b",
-                        source_document="EU/GDPR/2016",
+                        provision_id="art_5_1_b",
+                        source_document="eu_gdpr_2016",
                     )
                 ],
                 rule_type=RuleType.PROHIBITION,

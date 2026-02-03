@@ -5,7 +5,7 @@ from typing import Any
 from pydantic import Field
 
 from polisyos.ir.kernel.base import ARTIFACT_ID_PATTERN, KernelModel
-from polisyos.ir.surface import (
+from polisyos.ir.legacy.surface import (
     AdvisoryEntity,
     ConstraintSpec,
     InterventionSpec,

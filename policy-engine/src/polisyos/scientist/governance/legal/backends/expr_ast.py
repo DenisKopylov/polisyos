@@ -214,7 +214,7 @@ class ExpressionASTBackend:
 
     Integrates SafeExpressionEvaluator with the LegalPass pipeline.
 
-    Rule Format (in NormRule.metadata):
+    Rule Format (in NormRule.backend_metadata):
         when: <expression>      # Applicability condition (optional)
         must: <expression>      # Obligation (for rule_type=OBLIGATION)
         must_not: <expression>  # Prohibition (for rule_type=PROHIBITION)
@@ -275,7 +275,7 @@ class ExpressionASTBackend:
         Returns list of issues (0 if compliant, 1+ if violation/error).
         """
         try:
-            metadata = getattr(norm, "metadata", {}) or {}
+            metadata = getattr(norm, "backend_metadata", {}) or {}
             when_expr = metadata.get("when")
             must_expr = metadata.get("must")
             must_not_expr = metadata.get("must_not")

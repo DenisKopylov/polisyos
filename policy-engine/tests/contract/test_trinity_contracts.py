@@ -31,6 +31,7 @@ from polisyos.ir.policy_spec import (
     MechanismBinding,
     PolicySpec,
 )
+from polisyos.ir.trinity import TrinityBundle as IRTrinityBundle
 from polisyos.ir.problem_frame import (
     ConstraintSpec,
     ConstraintType,
@@ -413,6 +414,26 @@ class TestTypedReferences:
         assert bundle.problem_frame_ref.kind == "ir.problem_frame"
         assert bundle.policy_spec_ref.kind == "ir.policy_spec"
         assert bundle.model_spec_ref.kind == "ir.model_spec"
+
+
+class TestIRTrinityBundle:
+    """Tests for canonical IR TrinityBundle payload."""
+
+    def test_ir_bundle_schema(self) -> None:
+        bundle = IRTrinityBundle(
+            problem_frame=ProblemFrame(
+                problem_id="pf_test",
+                domain=ProblemDomain.FISCAL,
+            ),
+            policy_spec=PolicySpec(
+                policy_id="ps_test",
+            ),
+            model_spec=ModelSpec(
+                model_id="ms_test",
+                data_snapshot_ref="sha256:" + "0" * 64,
+            ),
+        )
+        assert bundle.schema_version == "1.0"
 
 
 # =============================================================================

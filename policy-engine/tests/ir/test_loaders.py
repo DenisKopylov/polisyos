@@ -1,5 +1,5 @@
 from polisyos.ir.loaders import load_policy
-from polisyos.ir.surface import PolicySurfaceIR
+from polisyos.ir.legacy.surface import PolicySurfaceIR
 
 ZERO_REF = "sha256:" + "0" * 64
 

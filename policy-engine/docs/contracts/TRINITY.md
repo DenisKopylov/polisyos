@@ -62,7 +62,8 @@ Minimal PolicySpec:
 from decimal import Decimal
 
 from polisyos.ir.policy_spec import PolicySpec, InterventionSpec
-from polisyos.ir.surface import ScheduleSpec, SelectorPredicate
+from polisyos.ir.schedule import ScheduleSpec
+from polisyos.ir.selector_expr import SelectorPredicate
 
 policy = PolicySpec(
     policy_id="progressive_tax_v1",
@@ -112,20 +113,18 @@ bundle = TrinityBundle(
 )
 ```
 
-## Migration Path (Phase 2 Preview)
+## Migration Path (Phase 2)
 PolicySurfaceIR is deprecated but still supported for backward compatibility.
-Phase 2 will introduce explicit split/merge utilities:
+Canonical migration utilities live under `polisyos.ir.legacy.migrations`:
 
 ```python
-def split_surface_ir(surface: PolicySurfaceIR) -> tuple[ProblemFrame, PolicySpec, ModelSpec]:
-    ...
+from polisyos.ir.legacy.migrations.surface_to_trinity import (
+    migrate_surface_ir_to_trinity,
+    migrate_trinity_to_surface_ir,
+)
 
-def merge_to_surface_ir(
-    problem: ProblemFrame,
-    policy: PolicySpec,
-    model: ModelSpec,
-) -> PolicySurfaceIR:
-    ...
+bundle, report = migrate_surface_ir_to_trinity(surface_ir)
+surface_ir, report = migrate_trinity_to_surface_ir(bundle)
 ```
 
 ## JSON Schema Snapshots

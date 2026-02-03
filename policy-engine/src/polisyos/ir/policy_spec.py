@@ -15,8 +15,8 @@ from polisyos.ir.kernel.values import ParamValue
 from polisyos.ir.types import TranslatableString
 
 # Import selector types from surface.py (to be moved later or re-exported)
-from polisyos.ir.surface import (
-    ScheduleSpec,
+from polisyos.ir.schedule import ScheduleSpec
+from polisyos.ir.selector_expr import (
     SelectorAll,
     SelectorAny,
     SelectorExpr,

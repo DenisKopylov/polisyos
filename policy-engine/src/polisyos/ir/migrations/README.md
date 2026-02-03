@@ -2,7 +2,7 @@
 
 **Migrations** - система детерминированных миграций между версиями схем Policy IR, обеспечивающая обратную совместимость и воспроизводимость артефактов.
 
-**Обновлено**: документация актуализирована для отражения текущего состояния на 2026-02-01, включая полную реализацию Trinity миграции (trinity_migration.py) для преобразования PolicySurfaceIR в Trinity артефакты.
+**Обновлено**: документация актуализирована для отражения текущего состояния на 2026-02-01, включая реализацию Trinity миграции (legacy/migrations/surface_to_trinity.py) для преобразования PolicySurfaceIR в Trinity артефакты.
 
 ## Архитектурная роль
 
@@ -18,7 +18,7 @@ Migrations обеспечивает:
 ```
 migrations/
 ├── __init__.py              # API миграций для Policy IR
-└── trinity_migration.py     # Миграция PolicySurfaceIR → Trinity артефактов
+└── trinity_migration.py     # Legacy shim (реэкспорт из ir.legacy.migrations)
 ```
 
 ## Основные компоненты
@@ -129,42 +129,27 @@ migrated = migrate_policy_ir(data, target_version="2.1")
 migrated = migrate_policy_ir(data, target_version="3.0", allow_major=True)
 ```
 
-### 4. Trinity миграция (`trinity_migration.py`)
+### 4. Trinity миграция (legacy → canonical)
 
 #### Миграция PolicySurfaceIR → Trinity артефактов
 
 Система миграции для преобразования устаревшего PolicySurfaceIR в новые Trinity артефакты (ProblemFrame, PolicySpec, ModelSpec). Реализует структурное разделение с автоматическим распределением данных по артефактам:
 
 ```python
-from polisyos.ir.migrations.trinity_migration import (
-    migrate_surface_to_trinity, TrinityBundle,
-    split_surface_ir, merge_to_surface_ir, split_to_bundle,
-    _partition_labels, _compute_source_ref
+from polisyos.ir.legacy.migrations.surface_to_trinity import (
+    migrate_surface_ir_to_trinity,
+    migrate_trinity_to_surface_ir,
 )
+from polisyos.ir.legacy.surface import PolicySurfaceIR
 
 # Основные функции миграции
 surface_policy = PolicySurfaceIR(...)  # Загруженная политика v2.x
 
-# Полная миграция в bundle
-trinity_bundle = migrate_surface_to_trinity(surface_policy)
-# Или split_to_bundle для альтернативного API
-bundle = split_to_bundle(surface_policy)
+# Миграция в canonical TrinityBundle (и отчет)
+bundle, report = migrate_surface_ir_to_trinity(surface_policy)
 
-# Разделение на отдельные артефакты
-problem_frame, policy_spec, model_spec = split_surface_ir(surface_policy)
-
-# Обратное слияние для совместимости
-reconstructed = merge_to_surface_ir(problem_frame, policy_spec, model_spec)
-
-# Получение отдельных артефактов
-problem_frame = trinity_bundle.problem_frame
-policy_spec = trinity_bundle.policy_spec
-model_spec = trinity_bundle.model_spec
-
-# Сохранение для дальнейшего использования
-for artifact_name, artifact in trinity_bundle.as_dict().items():
-    with open(f"{artifact_name}.json", 'w') as f:
-        json.dump(artifact.model_dump(), f, indent=2)
+# Обратная миграция для совместимости
+reconstructed, report = migrate_trinity_to_surface_ir(bundle)
 ```
 
 #### Логика разделения
@@ -172,21 +157,19 @@ for artifact_name, artifact in trinity_bundle.as_dict().items():
 Миграция автоматически разделяет содержимое PolicySurfaceIR по Trinity артефактам на основе семантического анализа:
 
 **ProblemFrame (постоянные аспекты):**
-- Цели и KPI (из semantic.objectives)
-- Ограничения политики (из semantic.constraints)
+- Цели (из semantic.objectives)
+- Ограничения политики (из semantic.constraints → hard_constraints)
 - Заинтересованные стороны (из advisory.entities)
-- Критерии успеха (из metadata.success_criteria)
 
 **PolicySpec (изменяемые аспекты политики):**
 - Интервенции и их параметры (из semantic.interventions)
-- Механизмы привязки (из semantic.mechanism_bindings)
 - Метки политики (из advisory.labels с префиксом "policy:")
-- Заметки по реализации (из semantic.implementation_notes)
+- Заметки по реализации (из semantic.notes, префикс [policy])
 
 **ModelSpec (конфигурация моделирования):**
 - Ссылка на данные (из semantic.context_snapshot_ref)
 - Ссылка на реестры (из semantic.registry_bundle_ref)
-- Предположения модели (из metadata.assumptions)
+- Временная семантика (из semantic.time_semantics)
 - Метки модели (из advisory.labels с префиксом "model:")
 - Настройки времени (восстанавливаются из интервенций)
 
@@ -354,14 +337,14 @@ print(f"Текущая версия IR: {IR_CURRENT_VERSION}")
 ### Trinity миграция
 
 ```python
-from polisyos.ir.migrations.trinity_migration import migrate_surface_to_trinity
-from polisyos.ir.surface import PolicySurfaceIR
+from polisyos.ir.legacy.migrations.surface_to_trinity import migrate_surface_ir_to_trinity
+from polisyos.ir.legacy.surface import PolicySurfaceIR
 
 # Загрузка существующей политики
 surface_policy = PolicySurfaceIR.model_validate(json_data)
 
 # Миграция в Trinity артефакты
-trinity_bundle = migrate_surface_to_trinity(surface_policy)
+trinity_bundle, report = migrate_surface_ir_to_trinity(surface_policy)
 
 # Использование отдельных артефактов
 problem_frame = trinity_bundle.problem_frame
@@ -374,12 +357,9 @@ model_spec = trinity_bundle.model_spec
 ```python
 from polisyos.ir.loaders import load_policy
 
-# load_policy автоматически использует миграции для конвертации версий
-policy = load_policy(legacy_data)  # Автоматически конвертирует 1.x -> 2.x
-
-# Для Trinity миграции используйте отдельную функцию
-from polisyos.ir.migrations.trinity_migration import migrate_surface_to_trinity
-trinity_bundle = migrate_surface_to_trinity(policy)
+# load_policy автоматически использует миграции для конвертации legacy → Trinity
+policy = load_policy(legacy_data)  # PolicySurfaceIR (legacy)
+bundle = load_policy(legacy_data, as_trinity=True)  # TrinityBundle (canonical)
 ```
 
 ## Безопасность и ограничения

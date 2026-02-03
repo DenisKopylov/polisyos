@@ -20,11 +20,11 @@ from typing import Iterator
 
 import yaml
 
-from polisyos.ir.loaders import load_policy
-from polisyos.ir.migrations.trinity_migration import (
-    is_trinity_migrated,
-    merge_to_surface_ir,
-    split_to_bundle,
+from polisyos.ir.loaders import load_trinity_bundle
+from polisyos.ir.legacy.migrations.surface_to_trinity import (
+    is_legacy_trinity_bundle_payload,
+    is_trinity_bundle_payload,
+    migrate_trinity_to_surface_ir,
 )
 
 
@@ -120,7 +120,7 @@ def verify_migration(original_data: dict, trinity_data: dict) -> tuple[bool, str
     Returns:
         (success, message) tuple
     """
-    from polisyos.ir.surface import PolicySurfaceIR
+    from polisyos.ir.legacy.surface import PolicySurfaceIR
     from polisyos.ir.trinity import TrinityBundle
 
     try:
@@ -130,11 +130,7 @@ def verify_migration(original_data: dict, trinity_data: dict) -> tuple[bool, str
 
         # Load migrated and merge back
         bundle = TrinityBundle.model_validate(trinity_data)
-        merged_ir = merge_to_surface_ir(
-            bundle.problem_frame,
-            bundle.policy_spec,
-            bundle.model_spec,
-        )
+        merged_ir, _ = migrate_trinity_to_surface_ir(bundle)
         merged_fingerprint = merged_ir.semantic_fingerprint_payload()
 
         # Compare semantic fingerprints
@@ -165,19 +161,23 @@ def migrate_file(
     try:
         data = load_file(input_path)
 
-        # Check if already migrated
-        if is_trinity_migrated(data):
-            report.add_skip(input_path, "Already in Trinity format")
+        # Check if already canonical Trinity bundle
+        if is_trinity_bundle_payload(data) and not is_legacy_trinity_bundle_payload(data):
+            report.add_skip(input_path, "Already in canonical Trinity format")
             return True
 
         # Check if it is a policy file
-        if "semantic" not in data and "schema_version" not in data:
+        if not (
+            "semantic" in data
+            or "schema_version" in data
+            or is_trinity_bundle_payload(data)
+            or is_legacy_trinity_bundle_payload(data)
+        ):
             report.add_skip(input_path, "Not a PolicySurfaceIR file")
             return True
 
-        # Perform migration
-        ir = load_policy(data, as_trinity=False)
-        bundle = split_to_bundle(ir)
+        # Perform migration (legacy surface or legacy bundle)
+        bundle, _migration_report = load_trinity_bundle(data)
         trinity_data = bundle.model_dump()
 
         # Verify if requested

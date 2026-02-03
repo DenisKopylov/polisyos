@@ -155,7 +155,7 @@ class ProgramEdge(BaseModel):
 class ProgramGraph(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    ir_ref: PolicySurfaceIRRef
+    ir_ref: ArtifactRef
     nodes: list[ProgramNode] = Field(default_factory=list)
     edges: list[ProgramEdge] = Field(default_factory=list)
     entrypoints: list[str] = Field(default_factory=list)
@@ -206,6 +206,109 @@ class ExecPlan(BaseModel):
     mode: Literal["dev", "perf", "audit"] = "dev"
     jit: bool = True
     max_steps: int | None = None
+    notes: list[str] = Field(default_factory=list)
+
+
+class FoundryValidationFlags(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    strict_schema: bool = True
+    strict_link: bool = True
+    allow_extra_params: bool = False
+    strict_conflict_check: bool = True
+    allow_legacy_units: bool = False
+
+
+class FoundryCompileConfig(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
+
+    mode: Literal["dev", "perf", "audit"] = "dev"
+    jit: bool = True
+    max_steps: int | None = None
+    nan_guard_enabled: bool = False
+
+    determinism_tier: str | None = None
+    random_seed: int | None = None
+
+    cost_budget_max_total_ms: int | None = None
+    cost_budget_max_memory_mb: int | None = None
+    cost_budget_max_compile_ms: int | None = None
+    cost_budget_max_per_mechanism_ms: int | None = None
+
+    estimate_n_agents: int | None = None
+    estimate_time_steps: int | None = None
+
+
+class CompileRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
+
+    input_kind: Literal["auto", "surface", "trinity"] = "auto"
+    policy_ref: ArtifactRef
+
+    registry_bundle_ref: ArtifactRef | None = None
+    compile_config: FoundryCompileConfig = Field(default_factory=FoundryCompileConfig)
+    validation_flags: FoundryValidationFlags = Field(default_factory=FoundryValidationFlags)
+
+    notes: list[str] = Field(default_factory=list)
+
+
+class DerivedArtifact(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    role: str
+    ref: ArtifactRef
+
+
+class CompileResult(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
+    ok: bool
+
+    exec_plan_ref: ExecPlanRef | None = None
+    compile_report_ref: ArtifactRef
+
+    derived_refs: list[DerivedArtifact] = Field(default_factory=list)
+    notes: list[str] = Field(default_factory=list)
+
+
+class FoundryExecConfig(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
+    seed: int = 0
+    mode: Literal["dev", "perf", "audit"] = "dev"
+    max_steps: int | None = None
+    deterministic: bool = True
+    capture_env: bool = False
+
+
+class ExecuteRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
+
+    exec_plan_ref: ExecPlanRef
+    data_snapshot_ref: ArtifactRef | None = None
+    state_snapshot_ref: StateSnapshotRef | None = None
+
+    registry_bundle_ref: ArtifactRef | None = None
+    exec_config: FoundryExecConfig = Field(default_factory=FoundryExecConfig)
+    notes: list[str] = Field(default_factory=list)
+
+
+class ExecuteResult(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
+    ok: bool
+
+    simulation_result_ref: SimulationResultRef | None = None
+    derived_refs: list[DerivedArtifact] = Field(default_factory=list)
     notes: list[str] = Field(default_factory=list)
 
 

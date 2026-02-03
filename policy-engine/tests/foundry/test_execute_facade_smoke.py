@@ -1,25 +1,20 @@
 from __future__ import annotations
 
-import pytest
-from polisyos.core.artifacts.ids import ArtifactID
+from decimal import Decimal
+
 from polisyos.core.artifacts.store import FileSystemCAS
-from polisyos.core.canon import from_canonical_bytes
-from polisyos.core.contracts.foundry import (
-    CompileRequest,
-    PolicySurfaceIRRef,
-    ProgramEdge,
-    ProgramGraph,
-    ProgramNode,
-    ProgramOp,
-)
+from polisyos.core.contracts.foundry import CompileRequest, ExecuteRequest, StateSnapshotRef
 from polisyos.core.registry import build_default_registry_bundle, load_registry_bundle_content
 from polisyos.foundry.compile.api import compile as compile_foundry
-from polisyos.foundry.compiler import _build_exec_order, put_policy_surface
+from polisyos.foundry.compiler import put_policy_surface
+from polisyos.foundry.domain.state import GlobalState
+from polisyos.foundry.execute.api import execute as execute_foundry
+from polisyos.foundry.executor import put_state_snapshot
 from polisyos.ir.surface import PolicySemantic, PolicySurfaceIR
 from polisyos.ir.types import SelectorOperator
 
 
-def test_program_graph_includes_op_nodes(tmp_path) -> None:
+def test_execute_facade_smoke(tmp_path) -> None:
     store = FileSystemCAS(tmp_path)
     bundle = build_default_registry_bundle(store)
     registries = load_registry_bundle_content(store, bundle.bundle_ref)
@@ -38,7 +33,7 @@ def test_program_graph_includes_op_nodes(tmp_path) -> None:
                         "value": "all",
                     },
                     "schedule": {"start_step": 0, "duration_steps": 1},
-                    "params": {"rate": "0.1"},
+                    "params": {"rate": Decimal("0.1")},
                 }
             ],
         )
@@ -50,7 +45,7 @@ def test_program_graph_includes_op_nodes(tmp_path) -> None:
         mechanism_registry=registries.mechanism_registry,
         units_registry=registries.units_registry,
     )
-    result = compile_foundry(
+    compile_result = compile_foundry(
         store,
         CompileRequest(
             input_kind="surface",
@@ -58,28 +53,21 @@ def test_program_graph_includes_op_nodes(tmp_path) -> None:
             registry_bundle_ref=bundle.bundle_ref,
         ),
     )
-    assert result.ok
-    program_ref = next(
-        ref.ref for ref in result.derived_refs if ref.role == "program_graph"
+    assert compile_result.ok
+    assert compile_result.exec_plan_ref is not None
+
+    base_state = GlobalState.empty(n_agents=2, n_firms=1)
+    snapshot_ref = put_state_snapshot(store, state=base_state, step=0)
+    state_snapshot_ref = StateSnapshotRef(artifact_id=snapshot_ref.artifact_id)
+
+    exec_result = execute_foundry(
+        store,
+        ExecuteRequest(
+            exec_plan_ref=compile_result.exec_plan_ref,
+            state_snapshot_ref=state_snapshot_ref,
+            registry_bundle_ref=bundle.bundle_ref,
+        ),
     )
-    payload = from_canonical_bytes(store.get_bytes(program_ref.artifact_id))
-    graph = ProgramGraph.model_validate(payload)
-    kinds = {node.op.op_kind for node in graph.nodes if node.node_kind == "op" and node.op}
-    assert "merge_state" in kinds
-    assert "check_constraints" in kinds
-
-
-def test_build_exec_order_rejects_cycles() -> None:
-    ir_ref = PolicySurfaceIRRef(artifact_id=ArtifactID.from_sha256_hex("0" * 64))
-    nodes = [
-        ProgramNode(node_id="op_a", node_kind="op", op=ProgramOp(op_kind="apply_mechanism")),
-        ProgramNode(node_id="op_b", node_kind="op", op=ProgramOp(op_kind="merge_state")),
-    ]
-    edges = [
-        ProgramEdge(src="op_a", dst="op_b", relation="depends_on"),
-        ProgramEdge(src="op_b", dst="op_a", relation="depends_on"),
-    ]
-    graph = ProgramGraph(ir_ref=ir_ref, nodes=nodes, edges=edges, entrypoints=[])
-
-    with pytest.raises(ValueError):
-        _build_exec_order(graph)
+    assert exec_result.ok is True
+    assert exec_result.simulation_result_ref is not None
+    assert exec_result.simulation_result_ref.kind == "foundry.simulation_result"

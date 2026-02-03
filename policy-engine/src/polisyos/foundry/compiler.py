@@ -3,12 +3,18 @@ from __future__ import annotations
 from dataclasses import dataclass
 from graphlib import TopologicalSorter
 from typing import Iterable
+import warnings
 
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.common.logger import get_logger
+from polisyos.core.canon import from_canonical_bytes
+from polisyos.core.compiler.report import CompileReport
 from polisyos.core.contracts.foundry import (
+    CompileRequest,
+    FoundryCompileConfig,
+    FoundryValidationFlags,
     ExecPlan,
     ExecPlanRef,
     PolicySurfaceIRRef,
@@ -27,6 +33,13 @@ from polisyos.foundry.layout import SlotLayout, build_slot_layout
 from polisyos.foundry.profiles import FoundryCompileProfile
 from polisyos.foundry.treasury import TreasuryPlan, build_treasury_plan
 from polisyos.foundry.runtime.fingerprint import DeterminismTier, EnvironmentFingerprint
+from polisyos.core.registry import build_registry_bundle
+from polisyos.ir.kernel import (
+    DEFAULT_CONSTRAINT_REGISTRY,
+    DEFAULT_METRIC_REGISTRY,
+    DEFAULT_SELECTOR_FIELD_REGISTRY,
+)
+from polisyos.foundry.compile.api import compile as compile_facade
 
 
 @dataclass
@@ -91,6 +104,11 @@ def put_policy_surface(
     mechanism_registry: MechanismTypeRegistry | None = None,
     units_registry: UnitsRegistry | None = None,
 ) -> PolicySurfaceIRRef:
+    warnings.warn(
+        "put_policy_surface is deprecated; prefer creating CAS refs upstream",
+        DeprecationWarning,
+        stacklevel=2,
+    )
     payload = (
         policy.semantic_fingerprint_payload(
             mechanism_registry=mechanism_registry,
@@ -125,7 +143,17 @@ def compile_surface_policy(
     n_agents: int = 1000,
     time_steps: int = 100,
     strict_conflict_check: bool = True,
+    constraint_registry=None,
+    selector_field_registry=None,
+    metric_registry=None,
+    registry_bundle_ref: ArtifactRef | None = None,
 ) -> CompileArtifacts:
+    warnings.warn(
+        "compile_surface_policy is deprecated; use polisyos.foundry.compile.api.compile",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+
     profile = profile or FoundryCompileProfile.mvp()
     if policy_ref is None:
         policy_ref = put_policy_surface(
@@ -135,111 +163,83 @@ def compile_surface_policy(
             units_registry=units_registry,
         )
     policy_ref = _as_policy_ref(policy_ref)
-    program_graph = _build_program_graph(
-        policy,
-        policy_ref,
-        store,
-        mechanism_registry=mechanism_registry,
-        slot_registry=slot_registry,
-        merge_registry=merge_registry,
-    )
 
-    conflict_checker = CompileTimeConflictChecker(
-        slot_registry=slot_registry,
-        merge_registry=merge_registry,
-        strict_mode=strict_conflict_check,
-    )
-    conflict_report = conflict_checker.check(program_graph)
-    if not conflict_report.ok and strict_conflict_check:
-        raise CompileError(
-            f"Compile-time conflict detection failed: {len(conflict_report.conflicts)} conflicts",
-            conflict_report=conflict_report,
-        )
-
-    cost_model = CostModel()
-    cost_estimate = cost_model.estimate(
-        program_graph,
-        n_agents=n_agents,
-        time_steps=time_steps,
-        budget=cost_budget,
-    )
-    if cost_budget is not None and cost_estimate.exceeds_budget:
-        raise CompileError(
-            f"Cost estimate exceeds budget: {cost_estimate.budget_violations}",
-            cost_estimate=cost_estimate,
-        )
-    program_inputs = _program_graph_inputs(program_graph, policy_ref, policy)
-    program_ref = store.put_json(
-        program_graph,
-        PutOptions(
-            kind="foundry.program_graph",
+    if registry_bundle_ref is None and policy.semantic.registry_bundle_ref:
+        registry_bundle_ref = ArtifactRef(
+            artifact_id=ArtifactID.model_validate(policy.semantic.registry_bundle_ref),
+            kind="core.registry_bundle",
             media_type="application/json",
-            schema=SchemaInfo(name="polisyos.core.ProgramGraph", version="0.1.0"),
-            inputs=program_inputs,
-        ),
-    )
-    program_graph_ref = ProgramGraphRef(artifact_id=program_ref.artifact_id)
+        )
 
-    order = _build_exec_order(program_graph)
-    env_fingerprint = None
+    if registry_bundle_ref is None:
+        constraint_registry = constraint_registry or DEFAULT_CONSTRAINT_REGISTRY
+        selector_field_registry = selector_field_registry or DEFAULT_SELECTOR_FIELD_REGISTRY
+        metric_registry = metric_registry or DEFAULT_METRIC_REGISTRY
+        bundle = build_registry_bundle(
+            store,
+            slot_registry=slot_registry,
+            merge_registry=merge_registry,
+            mechanism_registry=mechanism_registry,
+            constraint_registry=constraint_registry,
+            selector_field_registry=selector_field_registry,
+            metric_registry=metric_registry,
+            units_registry=units_registry,
+        )
+        registry_bundle_ref = bundle.bundle_ref
+
     determinism_tier = None
     random_seed = None
     if simulation_config is not None:
-        if simulation_config.environment_fingerprint is None:
-            simulation_config.environment_fingerprint = EnvironmentFingerprint.capture(
-                tier=simulation_config.determinism_tier,
-                seed=simulation_config.random_seed,
-            )
-        env_fingerprint = simulation_config.environment_fingerprint.compute_hash()
         determinism_tier = simulation_config.determinism_tier.value
         random_seed = simulation_config.random_seed
 
-    exec_plan = ExecPlan(
-        program_ref=program_graph_ref,
-        order=order,
-        environment_fingerprint=env_fingerprint,
+    compile_config = FoundryCompileConfig(
+        mode="dev",
+        jit=True,
+        max_steps=None,
+        nan_guard_enabled=profile.nan_guard_enabled,
         determinism_tier=determinism_tier,
         random_seed=random_seed,
-        nan_guard_enabled=profile.nan_guard_enabled,
+        cost_budget_max_total_ms=cost_budget.max_total_ms if cost_budget else None,
+        cost_budget_max_memory_mb=cost_budget.max_memory_mb if cost_budget else None,
+        cost_budget_max_compile_ms=cost_budget.max_compile_ms if cost_budget else None,
+        cost_budget_max_per_mechanism_ms=cost_budget.max_per_mechanism_ms if cost_budget else None,
+        estimate_n_agents=n_agents,
+        estimate_time_steps=time_steps,
     )
-    exec_plan_payload_ref = store.put_json(
-        exec_plan,
-        PutOptions(
-            kind="foundry.exec_plan",
-            media_type="application/json",
-            schema=SchemaInfo(name="polisyos.core.ExecPlan", version="0.1.0"),
-            inputs=[InputRef(artifact_id=program_graph_ref.artifact_id, role="program_graph")],
-        ),
+
+    validation_flags = FoundryValidationFlags(
+        strict_schema=True,
+        strict_link=True,
+        allow_extra_params=False,
+        strict_conflict_check=strict_conflict_check,
+        allow_legacy_units=False,
     )
-    exec_plan_ref = ExecPlanRef(artifact_id=exec_plan_payload_ref.artifact_id)
-    slot_layout = build_slot_layout(slot_registry)
-    slot_layout_ref = store.put_json(
-        slot_layout,
-        PutOptions(
-            kind="foundry.slot_layout",
-            media_type="application/json",
-            schema=SchemaInfo(name="polisyos.foundry.SlotLayout", version=slot_layout.schema_version),
-            inputs=[InputRef(artifact_id=program_graph_ref.artifact_id, role="program_graph")],
-        ),
+
+    request = CompileRequest(
+        input_kind="surface",
+        policy_ref=policy_ref,
+        registry_bundle_ref=registry_bundle_ref,
+        compile_config=compile_config,
+        validation_flags=validation_flags,
     )
-    treasury_plan = build_treasury_plan(program_graph)
-    treasury_plan_ref = store.put_json(
-        treasury_plan,
-        PutOptions(
-            kind="foundry.treasury_plan",
-            media_type="application/json",
-            schema=SchemaInfo(name="polisyos.foundry.TreasuryPlan", version=treasury_plan.schema_version),
-            inputs=[InputRef(artifact_id=program_ref.artifact_id, role="program_graph")],
-        ),
-    )
+    result = compile_facade(store, request)
+    report_payload = from_canonical_bytes(store.get_bytes(result.compile_report_ref.artifact_id))
+    report = CompileReport.model_validate(report_payload)
+    if not report.ok:
+        raise CompileError("Compile failed", conflict_report=None, cost_estimate=None)
+    if report.program_graph_ref is None or report.exec_plan_ref is None:
+        raise CompileError("Compile report missing artifacts")
+    program_ref = ProgramGraphRef(artifact_id=report.program_graph_ref.artifact_id)
+    exec_plan_ref = ExecPlanRef(artifact_id=report.exec_plan_ref.artifact_id)
     return CompileArtifacts(
         policy_ref=policy_ref,
-        program_ref=program_graph_ref,
+        program_ref=program_ref,
         exec_plan_ref=exec_plan_ref,
-        slot_layout_ref=slot_layout_ref,
-        treasury_plan_ref=treasury_plan_ref,
-        conflict_report=conflict_report,
-        cost_estimate=cost_estimate,
+        slot_layout_ref=report.slot_layout_ref,
+        treasury_plan_ref=report.treasury_plan_ref,
+        conflict_report=None,
+        cost_estimate=None,
     )
 
 

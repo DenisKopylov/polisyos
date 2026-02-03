@@ -21,10 +21,16 @@ from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import from_canonical_bytes, to_canonical_bytes
-from polisyos.core.compiler import CompileReport, put_compile_report, put_link_report
+from polisyos.core.compiler import CompileReport
 from polisyos.core.registry import build_default_registry_bundle, load_registry_bundle_content
 from polisyos.core.run.context import RunContext
-from polisyos.core.contracts.foundry import ExecPlan, ExecPlanRef, ProgramGraph, ProgramGraphRef
+from polisyos.core.contracts.foundry import (
+    CompileRequest,
+    ExecPlan,
+    ExecPlanRef,
+    ProgramGraph,
+    ProgramGraphRef,
+)
 from polisyos.core.observability import get_metrics, get_tracer
 from polisyos.fabric.io.db import SimulationDB
 from polisyos.fabric.io.graph_store import GraphStore
@@ -32,7 +38,8 @@ from polisyos.fabric.udf.engine import UDFEngine
 from polisyos.foundry.calibration import Calibrator, CalibratorInputs
 from polisyos.foundry.calibration.preflight import extract_fabric_series
 from polisyos.foundry.calibration.report import put_calibration_config, put_calibration_report
-from polisyos.foundry.compiler import compile_surface_policy, put_policy_surface
+from polisyos.foundry.compile.api import compile as compile_foundry
+from polisyos.foundry.compiler import put_policy_surface
 from polisyos.foundry.executor import load_state_snapshot, put_state_snapshot
 from polisyos.foundry.agent_metrics import normalize_action, policy_entropy, saturation_rate
 from polisyos.foundry.agents import build_observations, continuous_actions_from_logits
@@ -43,7 +50,7 @@ from polisyos.ir.calibration import CalibrationConfig
 from polisyos.ir.data_views import DataViewRequest
 from polisyos.foundry.merge_engine import MergeEngine, MergeRecord
 from polisyos.ir.kernel.values import CountValue, DurationValue, MoneyValue, RateValue
-from polisyos.ir.linker import link_policy
+from polisyos.ir.linker import LinkReport
 from polisyos.ir.surface import PolicySurfaceIR, ScheduleSpec, schedule_range
 from polisyos.ir.validation import ValidationIssue, build_validation_report, diff_payloads
 from polisyos.runtime import finalize_run, log_artifact, start_run, update_budget_usage
@@ -1983,164 +1990,115 @@ def _compile_model_node_impl(state: ExperimentState) -> ExperimentState:
             base_dir=_runtime_base_dir(state),
         )
 
-        link_inputs = [InputRef(artifact_id=policy_ref.artifact_id, role="ir")]
-        if bundle_ref is not None:
-            link_inputs.append(InputRef(artifact_id=bundle_ref.artifact_id, role="registry_bundle"))
-
-        link_report = link_policy(
-            ir,
-            registry_content.mechanism_registry,
-            slot_registry=registry_content.slot_registry,
-            merge_registry=registry_content.merge_registry,
-            constraint_registry=registry_content.constraint_registry,
-            metric_registry=registry_content.metric_registry,
-            selector_field_registry=registry_content.selector_field_registry,
-            units_registry=registry_content.units_registry,
+        compile_request = CompileRequest(
+            input_kind="surface",
+            policy_ref=policy_ref,
+            registry_bundle_ref=bundle_ref,
         )
-        link_ref = put_link_report(store, link_report, inputs=link_inputs)
+        compile_result = compile_foundry(store, compile_request)
+
         log_artifact(
             run_id=state["run_id"],
-            artifact_type="link_report_ref",
-            payload=link_ref.model_dump(),
+            artifact_type="compile_report_ref",
+            payload=compile_result.compile_report_ref.model_dump(),
             media_type="application/json",
             step="compile_model",
             base_dir=_runtime_base_dir(state),
         )
 
-        compile_inputs = [
-            InputRef(artifact_id=policy_ref.artifact_id, role="ir"),
-            InputRef(artifact_id=link_ref.artifact_id, role="link_report"),
-        ]
-        if bundle_ref is not None:
-            compile_inputs.append(
-                InputRef(artifact_id=bundle_ref.artifact_id, role="registry_bundle")
-            )
-
-        if not link_report.ok:
-            compile_report = CompileReport(
-                ok=False,
-                policy_ref=policy_ref,
-                registry_bundle_ref=bundle_ref,
-                link_report_ref=link_ref,
-            )
-            compile_ref = put_compile_report(store, compile_report, inputs=compile_inputs)
+        report_payload = from_canonical_bytes(
+            store.get_bytes(compile_result.compile_report_ref.artifact_id)
+        )
+        compile_report = CompileReport.model_validate(report_payload)
+        link_ref = compile_report.link_report_ref
+        if link_ref is not None:
             log_artifact(
                 run_id=state["run_id"],
-                artifact_type="compile_report_ref",
-                payload=compile_ref.model_dump(),
+                artifact_type="link_report_ref",
+                payload=link_ref.model_dump(),
                 media_type="application/json",
                 step="compile_model",
                 base_dir=_runtime_base_dir(state),
             )
+
+        if not compile_result.ok:
+            issues = []
+            if link_ref is not None:
+                link_payload = from_canonical_bytes(store.get_bytes(link_ref.artifact_id))
+                link_report = LinkReport.model_validate(link_payload)
+                issues = [issue.model_dump() for issue in link_report.issues]
             feedback: GovernorFeedback = {
                 "verdict": "NEEDS_REVISION",
-                "issues": [issue.model_dump() for issue in link_report.issues],
+                "issues": issues,
             }
             return append_audit(
                 {
                     **state,
                     "feedback": feedback,
                     "policy_ir_ref": policy_ref.model_dump(),
-                    "link_report_ref": link_ref.model_dump(),
-                    "compile_report_ref": compile_ref.model_dump(),
+                    "link_report_ref": link_ref.model_dump() if link_ref else None,
+                    "compile_report_ref": compile_result.compile_report_ref.model_dump(),
                 },
                 "compile_model",
-                "link_failed",
+                "compile_failed",
                 {},
             )
 
-        artifacts = compile_surface_policy(
-            store,
-            ir,
-            mechanism_registry=registry_content.mechanism_registry,
-            slot_registry=registry_content.slot_registry,
-            merge_registry=registry_content.merge_registry,
-            units_registry=registry_content.units_registry,
-            policy_ref=policy_ref,
-        )
-        log_artifact(
-            run_id=state["run_id"],
-            artifact_type="program_graph_ref",
-            payload=artifacts.program_ref.model_dump(),
-            media_type="application/json",
-            step="compile_model",
-            base_dir=_runtime_base_dir(state),
-        )
-        log_artifact(
-            run_id=state["run_id"],
-            artifact_type="exec_plan_ref",
-            payload=artifacts.exec_plan_ref.model_dump(),
-            media_type="application/json",
-            step="compile_model",
-            base_dir=_runtime_base_dir(state),
-        )
-        if artifacts.slot_layout_ref is not None:
+        program_ref = compile_report.program_graph_ref
+        exec_plan_ref = compile_report.exec_plan_ref
+        slot_layout_ref = compile_report.slot_layout_ref
+        treasury_plan_ref = compile_report.treasury_plan_ref
+
+        if program_ref is not None:
             log_artifact(
                 run_id=state["run_id"],
-                artifact_type="slot_layout_ref",
-                payload=artifacts.slot_layout_ref.model_dump(),
+                artifact_type="program_graph_ref",
+                payload=program_ref.model_dump(),
                 media_type="application/json",
                 step="compile_model",
                 base_dir=_runtime_base_dir(state),
             )
-        if artifacts.treasury_plan_ref is not None:
+        if exec_plan_ref is not None:
+            log_artifact(
+                run_id=state["run_id"],
+                artifact_type="exec_plan_ref",
+                payload=exec_plan_ref.model_dump(),
+                media_type="application/json",
+                step="compile_model",
+                base_dir=_runtime_base_dir(state),
+            )
+        if slot_layout_ref is not None:
+            log_artifact(
+                run_id=state["run_id"],
+                artifact_type="slot_layout_ref",
+                payload=slot_layout_ref.model_dump(),
+                media_type="application/json",
+                step="compile_model",
+                base_dir=_runtime_base_dir(state),
+            )
+        if treasury_plan_ref is not None:
             log_artifact(
                 run_id=state["run_id"],
                 artifact_type="treasury_plan_ref",
-                payload=artifacts.treasury_plan_ref.model_dump(),
+                payload=treasury_plan_ref.model_dump(),
                 media_type="application/json",
                 step="compile_model",
                 base_dir=_runtime_base_dir(state),
             )
 
-        compile_inputs.extend(
-            [
-                InputRef(artifact_id=artifacts.program_ref.artifact_id, role="program_graph"),
-                InputRef(artifact_id=artifacts.exec_plan_ref.artifact_id, role="exec_plan"),
-            ]
-        )
-        if artifacts.slot_layout_ref is not None:
-            compile_inputs.append(
-                InputRef(artifact_id=artifacts.slot_layout_ref.artifact_id, role="slot_layout")
-            )
-        if artifacts.treasury_plan_ref is not None:
-            compile_inputs.append(
-                InputRef(artifact_id=artifacts.treasury_plan_ref.artifact_id, role="treasury_plan")
-            )
-        compile_report = CompileReport(
-            ok=True,
-            policy_ref=artifacts.policy_ref,
-            registry_bundle_ref=bundle_ref,
-            link_report_ref=link_ref,
-            program_graph_ref=artifacts.program_ref,
-            exec_plan_ref=artifacts.exec_plan_ref,
-            slot_layout_ref=artifacts.slot_layout_ref,
-            treasury_plan_ref=artifacts.treasury_plan_ref,
-        )
-        compile_ref = put_compile_report(store, compile_report, inputs=compile_inputs)
-        log_artifact(
-            run_id=state["run_id"],
-            artifact_type="compile_report_ref",
-            payload=compile_ref.model_dump(),
-            media_type="application/json",
-            step="compile_model",
-            base_dir=_runtime_base_dir(state),
-        )
         return append_audit(
             {
                 **state,
                 "compiled_model": None,
-                "policy_ir_ref": artifacts.policy_ref.model_dump(),
-                "program_graph_ref": artifacts.program_ref.model_dump(),
-                "exec_plan_ref": artifacts.exec_plan_ref.model_dump(),
-                "slot_layout_ref": artifacts.slot_layout_ref.model_dump()
-                if artifacts.slot_layout_ref
+                "policy_ir_ref": policy_ref.model_dump(),
+                "program_graph_ref": program_ref.model_dump() if program_ref else None,
+                "exec_plan_ref": exec_plan_ref.model_dump() if exec_plan_ref else None,
+                "slot_layout_ref": slot_layout_ref.model_dump() if slot_layout_ref else None,
+                "treasury_plan_ref": treasury_plan_ref.model_dump()
+                if treasury_plan_ref
                 else None,
-                "treasury_plan_ref": artifacts.treasury_plan_ref.model_dump()
-                if artifacts.treasury_plan_ref
-                else None,
-                "link_report_ref": link_ref.model_dump(),
-                "compile_report_ref": compile_ref.model_dump(),
+                "link_report_ref": link_ref.model_dump() if link_ref else None,
+                "compile_report_ref": compile_result.compile_report_ref.model_dump(),
             },
             "compile_model",
             "ok",

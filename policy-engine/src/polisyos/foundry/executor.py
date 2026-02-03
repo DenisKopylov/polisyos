@@ -55,6 +55,7 @@ from polisyos.ir.surface import (
     SelectorPredicate,
     schedule_range,
 )
+from polisyos.ir.trinity import TrinityBundle
 from polisyos.ir.types import SelectorOperator
 
 
@@ -90,7 +91,7 @@ def execute_program_graph(
     seed: int = 0,
     base_ref: ArtifactRef | None = None,
     project_root: str | None = None,
-    capture_env: bool = True,
+    capture_env: bool = False,
 ) -> ExecuteArtifacts:
     env_manifest_ref: EnvironmentManifestRef | None = None
     env_fingerprint: str | None = None
@@ -137,12 +138,26 @@ def execute_program_graph(
     constraint_values: dict[str, Any] = {}
     if constraint_registry is not None:
         try:
-            policy_payload = from_canonical_bytes(store.get_bytes(program_graph.ir_ref.artifact_id))
-            policy = PolicySurfaceIR.model_validate(policy_payload)
-            constraint_values = {
-                constraint.constraint_id: constraint.value
-                for constraint in policy.semantic.constraints
-            }
+            ir_payload = from_canonical_bytes(store.get_bytes(program_graph.ir_ref.artifact_id))
+            if program_graph.ir_ref.kind == "ir.policy_surface":
+                policy = PolicySurfaceIR.model_validate(ir_payload)
+                constraint_values = {
+                    constraint.constraint_id: constraint.value
+                    for constraint in policy.semantic.constraints
+                }
+            elif program_graph.ir_ref.kind == "ir.trinity_bundle":
+                bundle = TrinityBundle.model_validate(ir_payload)
+                constraint_values = {
+                    constraint.constraint_id: constraint.value
+                    for constraint in (
+                        bundle.problem_frame.hard_constraints
+                        + bundle.problem_frame.soft_constraints
+                    )
+                }
+            else:
+                raise ValueError(
+                    f"Unsupported IR kind for constraints: {program_graph.ir_ref.kind}"
+                )
         except Exception as exc:  # pragma: no cover - defensive
             raise ValueError(f"Failed to load policy for constraints: {exc}") from exc
     constraint_events: list[dict[str, Any]] = []

@@ -6,9 +6,10 @@ import pytest
 import jax.numpy as jnp
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.canon import from_canonical_bytes
-from polisyos.core.contracts.foundry import Metrics, StateDelta
+from polisyos.core.contracts.foundry import CompileRequest, Metrics, StateDelta
 from polisyos.core.registry import build_default_registry_bundle, load_registry_bundle_content
-from polisyos.foundry.compiler import compile_surface_policy
+from polisyos.foundry.compile.api import compile as compile_foundry
+from polisyos.foundry.compiler import put_policy_surface
 from polisyos.foundry.domain.state import GlobalState
 from polisyos.foundry.executor import (
     apply_state_delta_and_snapshot,
@@ -17,6 +18,30 @@ from polisyos.foundry.executor import (
 )
 from polisyos.ir.surface import PolicySemantic, PolicySurfaceIR
 from polisyos.ir.types import SelectorOperator
+
+
+def _compile_policy(store: FileSystemCAS, policy: PolicySurfaceIR, bundle_ref, registries):
+    policy_ref = put_policy_surface(
+        store,
+        policy,
+        mechanism_registry=registries.mechanism_registry,
+        units_registry=registries.units_registry,
+    )
+    result = compile_foundry(
+        store,
+        CompileRequest(
+            input_kind="surface",
+            policy_ref=policy_ref,
+            registry_bundle_ref=bundle_ref,
+        ),
+    )
+    assert result.ok
+    program_ref = next(
+        ref.ref for ref in result.derived_refs if ref.role == "program_graph"
+    )
+    exec_plan_ref = result.exec_plan_ref
+    assert exec_plan_ref is not None
+    return program_ref, exec_plan_ref
 
 
 def test_patch_executor_emits_artifacts(tmp_path) -> None:
@@ -44,12 +69,8 @@ def test_patch_executor_emits_artifacts(tmp_path) -> None:
         )
     )
 
-    artifacts = compile_surface_policy(
-        store,
-        policy,
-        mechanism_registry=registries.mechanism_registry,
-        slot_registry=registries.slot_registry,
-        merge_registry=registries.merge_registry,
+    program_ref, exec_plan_ref = _compile_policy(
+        store, policy, bundle.bundle_ref, registries
     )
 
     base_state = GlobalState.empty(n_agents=4, n_firms=2)
@@ -61,8 +82,8 @@ def test_patch_executor_emits_artifacts(tmp_path) -> None:
     )
     exec_artifacts = execute_program_graph(
         store,
-        program_ref=artifacts.program_ref,
-        exec_plan_ref=artifacts.exec_plan_ref,
+        program_ref=program_ref,
+        exec_plan_ref=exec_plan_ref,
         base_state=base_state,
         mechanism_registry=registries.mechanism_registry,
         slot_registry=registries.slot_registry,
@@ -130,13 +151,8 @@ def test_patch_executor_respects_target_mask(tmp_path) -> None:
         )
     )
 
-    artifacts = compile_surface_policy(
-        store,
-        policy,
-        mechanism_registry=registries.mechanism_registry,
-        slot_registry=registries.slot_registry,
-        merge_registry=registries.merge_registry,
-        units_registry=registries.units_registry,
+    program_ref, exec_plan_ref = _compile_policy(
+        store, policy, bundle.bundle_ref, registries
     )
 
     base_state = GlobalState.empty(n_agents=2, n_firms=1)
@@ -149,8 +165,8 @@ def test_patch_executor_respects_target_mask(tmp_path) -> None:
 
     exec_artifacts = execute_program_graph(
         store,
-        program_ref=artifacts.program_ref,
-        exec_plan_ref=artifacts.exec_plan_ref,
+        program_ref=program_ref,
+        exec_plan_ref=exec_plan_ref,
         base_state=base_state,
         mechanism_registry=registries.mechanism_registry,
         slot_registry=registries.slot_registry,
@@ -197,13 +213,8 @@ def test_tax_subsidy_emits_patches_with_mask(tmp_path) -> None:
         )
     )
 
-    artifacts = compile_surface_policy(
-        store,
-        policy,
-        mechanism_registry=registries.mechanism_registry,
-        slot_registry=registries.slot_registry,
-        merge_registry=registries.merge_registry,
-        units_registry=registries.units_registry,
+    program_ref, exec_plan_ref = _compile_policy(
+        store, policy, bundle.bundle_ref, registries
     )
 
     base_state = GlobalState.empty(n_agents=2, n_firms=1)
@@ -213,8 +224,8 @@ def test_tax_subsidy_emits_patches_with_mask(tmp_path) -> None:
 
     exec_artifacts = execute_program_graph(
         store,
-        program_ref=artifacts.program_ref,
-        exec_plan_ref=artifacts.exec_plan_ref,
+        program_ref=program_ref,
+        exec_plan_ref=exec_plan_ref,
         base_state=base_state,
         mechanism_registry=registries.mechanism_registry,
         slot_registry=registries.slot_registry,

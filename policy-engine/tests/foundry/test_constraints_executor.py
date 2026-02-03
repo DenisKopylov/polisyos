@@ -6,7 +6,9 @@ import jax.numpy as jnp
 import pytest
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.registry import build_registry_bundle, load_registry_bundle_content
-from polisyos.foundry.compiler import compile_surface_policy
+from polisyos.core.contracts.foundry import CompileRequest
+from polisyos.foundry.compile.api import compile as compile_foundry
+from polisyos.foundry.compiler import put_policy_surface
 from polisyos.foundry.domain.state import GlobalState
 from polisyos.foundry.executor import execute_program_graph
 from polisyos.ir.kernel import (
@@ -44,7 +46,7 @@ def _registries_with_constraint(store: FileSystemCAS, operator: str):
         metric_registry=DEFAULT_METRIC_REGISTRY,
         units_registry=DEFAULT_UNITS_REGISTRY,
     )
-    return load_registry_bundle_content(store, bundle.bundle_ref)
+    return load_registry_bundle_content(store, bundle.bundle_ref), bundle.bundle_ref
 
 
 @pytest.mark.parametrize(
@@ -66,7 +68,7 @@ def test_constraint_operators(
     operator: str, state_value: float, constraint_value: float, should_pass: bool, tmp_path
 ) -> None:
     store = FileSystemCAS(tmp_path)
-    registries = _registries_with_constraint(store, operator)
+    registries, bundle_ref = _registries_with_constraint(store, operator)
 
     policy = PolicySurfaceIR(
         semantic=PolicySemantic(
@@ -81,14 +83,26 @@ def test_constraint_operators(
         )
     )
 
-    artifacts = compile_surface_policy(
+    policy_ref = put_policy_surface(
         store,
         policy,
         mechanism_registry=registries.mechanism_registry,
-        slot_registry=registries.slot_registry,
-        merge_registry=registries.merge_registry,
         units_registry=registries.units_registry,
     )
+    result = compile_foundry(
+        store,
+        CompileRequest(
+            input_kind="surface",
+            policy_ref=policy_ref,
+            registry_bundle_ref=bundle_ref,
+        ),
+    )
+    assert result.ok
+    program_ref = next(
+        ref.ref for ref in result.derived_refs if ref.role == "program_graph"
+    )
+    exec_plan_ref = result.exec_plan_ref
+    assert exec_plan_ref is not None
 
     base_state = GlobalState.empty(n_agents=1, n_firms=1).replace(
         government_balance=jnp.array(state_value, dtype=jnp.float32)
@@ -96,8 +110,8 @@ def test_constraint_operators(
 
     exec_kwargs = dict(
         store=store,
-        program_ref=artifacts.program_ref,
-        exec_plan_ref=artifacts.exec_plan_ref,
+        program_ref=program_ref,
+        exec_plan_ref=exec_plan_ref,
         base_state=base_state,
         mechanism_registry=registries.mechanism_registry,
         slot_registry=registries.slot_registry,

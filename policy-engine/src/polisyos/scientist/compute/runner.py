@@ -69,6 +69,7 @@ class LocalBackend(RunnerBackend):
             constraint_registry=registry_content.constraint_registry,
             step=int(base_state.step),
             seed=seed,
+            capture_env=False,
         )
         final_state, applied = apply_state_delta_and_snapshot(
             store,

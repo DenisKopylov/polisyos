@@ -3,14 +3,16 @@
 from __future__ import annotations
 
 import warnings
-import uuid
 from typing import Any, Mapping
 
 from opentelemetry.trace import Status, StatusCode
 
 from polisyos.core.observability import get_metrics, get_tracer
+from polisyos.core.run.context import new_run_id
+from polisyos.scientist.engine.state import ExperimentState
+from polisyos.scientist.workflows.builder import run_default_workflow
 
-__all__ = ["build_workflow", "run_experiment", "deprecated_import"]
+__all__ = ["build_workflow", "run_experiment", "run_experiment_langgraph", "deprecated_import"]
 
 
 def deprecated_import(message: str) -> None:
@@ -18,7 +20,7 @@ def deprecated_import(message: str) -> None:
     warnings.warn(message, DeprecationWarning, stacklevel=2)
 
 
-def run_experiment(state: Mapping[str, Any] | None = None) -> dict[str, Any]:
+def run_experiment(state: Mapping[str, Any] | ExperimentState | None = None) -> dict[str, Any]:
     """
     Official entrypoint to execute the Scientist workflow.
 
@@ -33,13 +35,22 @@ def run_experiment(state: Mapping[str, Any] | None = None) -> dict[str, Any]:
     dict[str, Any]
         Final ExperimentState produced by the workflow.
     """
-    workflow = build_workflow()
     tracer = get_tracer()
     metrics = get_metrics()
 
-    initial_state = dict(state or {})
-    run_id = initial_state.get("run_id") or f"R_{uuid.uuid4().hex[:8]}"
-    initial_state["run_id"] = run_id
+    if isinstance(state, ExperimentState):
+        initial_state = state
+    elif isinstance(state, Mapping):
+        extra_keys = set(state.keys()) - set(ExperimentState.model_fields.keys())
+        if extra_keys:
+            return run_experiment_langgraph(state)
+        initial_state = ExperimentState.model_validate(state or {"run_id": ""})
+        if not initial_state.run_id:
+            initial_state = ExperimentState.model_validate({**(state or {}), "run_id": new_run_id()})
+    else:
+        initial_state = ExperimentState.model_validate(state or {"run_id": ""})
+        if not initial_state.run_id:
+            initial_state = ExperimentState.model_validate({**(state or {}), "run_id": new_run_id()})
 
     with tracer.start_as_current_span(
         "experiment.workflow",
@@ -51,18 +62,10 @@ def run_experiment(state: Mapping[str, Any] | None = None) -> dict[str, Any]:
     ) as root_span:
         metrics.increment_active_runs()
         try:
-            final_state = workflow.invoke(initial_state)
-
-            feedback = final_state.get("feedback") if isinstance(final_state, dict) else None
-            verdict = feedback.get("verdict") if isinstance(feedback, dict) else None
-            if verdict:
-                root_span.set_attribute("polisyos.workflow.final_verdict", verdict)
-            if not final_state.get("_workflow_metrics_recorded"):
-                status = "success" if verdict == "APPROVE" else "failure"
-                metrics.record_workflow_run(status, "DECIDE", "orchestrator")
-
+            result = run_default_workflow(initial_state)
+            final_state = result.state
             root_span.set_status(Status(StatusCode.OK))
-            return final_state
+            return final_state.model_dump()
         except Exception as exc:
             root_span.set_status(Status(StatusCode.ERROR, str(exc)))
             root_span.record_exception(exc)
@@ -79,6 +82,21 @@ def build_workflow():
     This keeps lightweight modules (e.g. orchestrator artifacts) importable even if optional
     orchestration dependencies (like langgraph) are not installed in the current environment.
     """
+    deprecated_import(
+        "polisyos.scientist.build_workflow() is deprecated; use engine workflows in polisyos.scientist.workflows."
+    )
     from polisyos.scientist.orchestrator.workflow import build_workflow as _build_workflow
 
     return _build_workflow()
+
+
+def run_experiment_langgraph(state: Mapping[str, Any] | None = None) -> dict[str, Any]:
+    """Legacy LangGraph-based Scientist entrypoint (deprecated)."""
+    deprecated_import(
+        "polisyos.scientist.run_experiment_langgraph() is deprecated; use polisyos.scientist.run_experiment()."
+    )
+    workflow = build_workflow()
+    initial_state = dict(state or {})
+    if "run_id" not in initial_state:
+        initial_state["run_id"] = "R_legacy"
+    return workflow.invoke(initial_state)

@@ -63,6 +63,11 @@ class DecisionPacketRef(ScientistArtifactRef):
     media_type: Literal["application/json"] = "application/json"
 
 
+class GovernanceReportRef(ScientistArtifactRef):
+    kind: Literal["scientist.governance_report"] = "scientist.governance_report"
+    media_type: Literal["application/json"] = "application/json"
+
+
 class FailureCardRef(ScientistArtifactRef):
     """
     Typed reference to a FailureCard artifact in CAS.
@@ -144,6 +149,7 @@ __all__ = [
     "ScientistArtifactRef",
     "ExperimentStateRef",
     "DecisionPacketRef",
+    "GovernanceReportRef",
     "FailureCardLike",
     "FailureCardRef",
     "PolicyIRRef",

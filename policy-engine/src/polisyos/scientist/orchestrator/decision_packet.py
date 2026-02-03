@@ -10,6 +10,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from polisyos.core.contracts.fabric import EvidenceBundleRef, FabricResult, UncertaintyBoundsRef
 from polisyos.ir.surface import PolicySurfaceIR
+from polisyos.core.contracts.scientist import GovernanceReportRef
 from polisyos.scientist.orchestrator.decision_card import DecisionCard
 from polisyos.scientist.orchestrator.run_timeline import RunTimeline
 from polisyos.scientist.orchestrator.run_record import RunRecord
@@ -40,6 +41,7 @@ class DecisionPacket(BaseModel):
     audit_trail: List[Dict[str, Any]] = Field(default_factory=list)
     evidence_ref: EvidenceBundleRef | None = None
     uncertainty_ref: UncertaintyBoundsRef | None = None
+    governance_report_ref: GovernanceReportRef | None = None
 
     # Phase 16: New fields (all optional for backwards compatibility)
     run_timeline: Optional[Dict[str, Any]] = Field(
@@ -98,6 +100,7 @@ def build_decision_packet(
         fabric_result=state.get("fabric_result"),
         evidence_ref=_resolve_evidence(state),
         uncertainty_ref=_resolve_uncertainty(state),
+        governance_report_ref=_resolve_governance_report(state),
         feedback=state.get("feedback"),
         audit_trail=list(state.get("audit_trail") or []),
         run_timeline=timeline.to_artifact() if timeline else None,
@@ -132,6 +135,18 @@ def _resolve_uncertainty(state: ExperimentState) -> UncertaintyBoundsRef | None:
             return None
     if isinstance(state.get("fabric_result"), FabricResult):
         return state["fabric_result"].uncertainty_ref  # type: ignore[index]
+    return None
+
+
+def _resolve_governance_report(state: ExperimentState) -> GovernanceReportRef | None:
+    value = state.get("governance_report_ref")
+    if isinstance(value, GovernanceReportRef):
+        return value
+    if isinstance(value, dict):
+        try:
+            return GovernanceReportRef.model_validate(value)
+        except Exception:
+            return None
     return None
 
 

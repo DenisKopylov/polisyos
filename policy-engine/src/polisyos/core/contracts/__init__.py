@@ -67,6 +67,7 @@ from .scientist import (
     DecisionPacketRef,
     ExperimentStateRef,
     FailureCardRef,
+    GovernanceReportRef,
     PolicyIRRef,
     TimelineRef,
 )
@@ -132,6 +133,7 @@ __all__ = [
     "DecisionCardRef",
     "ExperimentStateRef",
     "DecisionPacketRef",
+    "GovernanceReportRef",
     "ProblemFrameRef",
     "PolicySpecRef",
     "ModelSpecRef",

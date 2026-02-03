@@ -1,0 +1,160 @@
+from __future__ import annotations
+
+from dataclasses import dataclass, field, replace
+from typing import Any
+
+from polisyos.core.components import Capability, ComponentId, ComponentMetadata
+from polisyos.core.contracts.foundry import ExecuteRequest, FoundryExecConfig, SimulationResult
+from polisyos.core.canon import from_canonical_bytes
+from polisyos.scientist.engine.context import ExecutionContext
+from polisyos.scientist.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
+from polisyos.scientist.engine.state import ExperimentState
+from polisyos.scientist.nodes.builtins import errors as node_errors
+from polisyos.scientist.nodes.builtins.state_keys import (
+    ARTIFACT_CONSTRAINT_REPORT_REF,
+    ARTIFACT_ENVIRONMENT_MANIFEST_REF,
+    ARTIFACT_EXEC_PLAN_REF,
+    ARTIFACT_METRICS_REF,
+    ARTIFACT_SIMULATION_RESULT_REF,
+    ARTIFACT_STATE_DELTA_REF,
+    ARTIFACT_STATE_SNAPSHOT_REF,
+    INPUT_DATA_SNAPSHOT_REF,
+    INPUT_REGISTRY_BUNDLE_REF,
+    INPUT_STATE_SNAPSHOT_REF,
+)
+
+_METADATA = ComponentMetadata(
+    component_id=ComponentId.parse("scientist.node_run_simulation@1.0.0"),
+    display_name="Run Simulation",
+    description="Execute Foundry exec plan against a data snapshot.",
+    tags=["builtin", "simulate"],
+    capabilities=Capability.SCIENTIST_NODE,
+)
+
+_SPEC = NodeSpec(
+    metadata=_METADATA,
+    state_reads=[
+        f"artifacts_index.{ARTIFACT_EXEC_PLAN_REF}",
+        f"inputs.{INPUT_DATA_SNAPSHOT_REF}",
+        f"inputs.{INPUT_STATE_SNAPSHOT_REF}",
+        f"inputs.{INPUT_REGISTRY_BUNDLE_REF}",
+    ],
+    state_writes=[
+        f"artifacts_index.{ARTIFACT_SIMULATION_RESULT_REF}",
+        f"artifacts_index.{ARTIFACT_METRICS_REF}",
+        f"artifacts_index.{ARTIFACT_STATE_DELTA_REF}",
+        f"artifacts_index.{ARTIFACT_STATE_SNAPSHOT_REF}",
+        f"artifacts_index.{ARTIFACT_CONSTRAINT_REPORT_REF}",
+        f"artifacts_index.{ARTIFACT_ENVIRONMENT_MANIFEST_REF}",
+    ],
+    produces=[
+        ARTIFACT_SIMULATION_RESULT_REF,
+        ARTIFACT_METRICS_REF,
+        ARTIFACT_STATE_DELTA_REF,
+        ARTIFACT_STATE_SNAPSHOT_REF,
+        ARTIFACT_CONSTRAINT_REPORT_REF,
+        ARTIFACT_ENVIRONMENT_MANIFEST_REF,
+    ],
+)
+
+
+@dataclass(frozen=True)
+class RunSimulationNode:
+    exec_config: FoundryExecConfig = field(default_factory=FoundryExecConfig)
+
+    @property
+    def spec(self) -> NodeSpec:
+        return _SPEC
+
+    def bind(self, params: dict[str, Any]) -> "RunSimulationNode":
+        if not params:
+            return self
+        config = self.exec_config.model_copy(deep=True)
+        for key, value in params.items():
+            if key in config.model_fields:
+                setattr(config, key, value)
+        return replace(self, exec_config=config)
+
+    def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
+        if ctx.foundry is None:
+            error = NodeError(
+                code=node_errors.ERROR_FOUNDATION_MISSING,
+                message="Foundry port is not configured",
+            )
+            return NodeOutcome(status="fail", state=state, error=error)
+
+        exec_plan_ref = state.artifacts_index.get(ARTIFACT_EXEC_PLAN_REF)
+        if exec_plan_ref is None:
+            error = NodeError(
+                code=node_errors.ERROR_MISSING_INPUT,
+                message="Missing exec_plan_ref for simulation",
+                details={"required": ARTIFACT_EXEC_PLAN_REF},
+            )
+            return NodeOutcome(status="fail", state=state, error=error)
+
+        data_snapshot_ref = state.inputs.get(INPUT_DATA_SNAPSHOT_REF)
+        state_snapshot_ref = state.inputs.get(INPUT_STATE_SNAPSHOT_REF)
+        if data_snapshot_ref is not None:
+            state_snapshot_ref = None
+        if data_snapshot_ref is None and state_snapshot_ref is None:
+            error = NodeError(
+                code=node_errors.ERROR_MISSING_INPUT,
+                message="Missing data_snapshot_ref or state_snapshot_ref for simulation",
+                details={"required": [INPUT_DATA_SNAPSHOT_REF, INPUT_STATE_SNAPSHOT_REF]},
+            )
+            return NodeOutcome(status="fail", state=state, error=error)
+
+        registry_ref = state.inputs.get(INPUT_REGISTRY_BUNDLE_REF)
+
+        request = ExecuteRequest(
+            exec_plan_ref=exec_plan_ref,
+            data_snapshot_ref=data_snapshot_ref,
+            state_snapshot_ref=state_snapshot_ref,
+            registry_bundle_ref=registry_ref,
+            exec_config=self.exec_config,
+        )
+
+        result = ctx.foundry.execute(ctx.store, request)
+
+        new_state = state.model_copy(deep=True)
+        artifacts = []
+
+        if result.simulation_result_ref is not None:
+            new_state.artifacts_index[ARTIFACT_SIMULATION_RESULT_REF] = result.simulation_result_ref
+            artifacts.append(result.simulation_result_ref)
+
+            try:
+                payload = from_canonical_bytes(ctx.store.get_bytes(result.simulation_result_ref.artifact_id))
+                sim_result = SimulationResult.model_validate(payload)
+                if sim_result.state_snapshot_ref is not None:
+                    new_state.artifacts_index[ARTIFACT_STATE_SNAPSHOT_REF] = sim_result.state_snapshot_ref
+            except Exception:
+                pass
+
+        for item in result.derived_refs:
+            artifacts.append(item.ref)
+            if item.role == "metrics":
+                new_state.artifacts_index[ARTIFACT_METRICS_REF] = item.ref
+            elif item.role == "state_delta":
+                new_state.artifacts_index[ARTIFACT_STATE_DELTA_REF] = item.ref
+            elif item.role == "constraint_report":
+                new_state.artifacts_index[ARTIFACT_CONSTRAINT_REPORT_REF] = item.ref
+            elif item.role == "environment_manifest":
+                new_state.artifacts_index[ARTIFACT_ENVIRONMENT_MANIFEST_REF] = item.ref
+
+        if not result.ok:
+            error = NodeError(
+                code=node_errors.ERROR_FOUNDRY_EXECUTE_FAILED,
+                message="Foundry execute failed",
+                details={"simulation_result_ref": getattr(result.simulation_result_ref, "model_dump", lambda: None)()},
+            )
+            event = NodeEvent(level="error", message="Foundry execute returned ok=False")
+            return NodeOutcome(
+                status="fail",
+                state=new_state,
+                artifacts=artifacts,
+                events=[event],
+                error=error,
+            )
+
+        return NodeOutcome(status="ok", state=new_state, artifacts=artifacts)

@@ -240,7 +240,7 @@ class FileSystemCAS:
     ) -> ArtifactRef:
         canon_spec = canon_spec or CanonSpec()
         data = to_canonical_bytes(obj, canon_spec)
-        canon = opts.canon or CanonInfo()
+        canon = opts.canon or CanonInfo.from_spec(canon_spec)
         opts2 = PutOptions(
             kind=opts.kind,
             media_type="application/json",

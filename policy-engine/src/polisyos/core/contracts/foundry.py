@@ -102,6 +102,11 @@ class TraceSliceRef(ArtifactRef):
     media_type: Literal["application/jsonl"] = "application/jsonl"
 
 
+class SimulationResultRef(ArtifactRef):
+    kind: Literal["foundry.simulation_result"] = "foundry.simulation_result"
+    media_type: Literal["application/json"] = "application/json"
+
+
 class ProgramNode(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -295,4 +300,16 @@ class Metrics(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     values: dict[str, int | str] = Field(default_factory=dict)
+    notes: list[str] = Field(default_factory=list)
+
+
+class SimulationResult(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    exec_plan_ref: ExecPlanRef
+    metrics_ref: MetricsRef
+    state_snapshot_ref: StateSnapshotRef | None = None
+    environment_ref: EnvironmentManifestRef | None = None
+    environment_fingerprint: str | None = None
+    trace_slice_ref: TraceSliceRef | None = None
     notes: list[str] = Field(default_factory=list)

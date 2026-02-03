@@ -2,7 +2,7 @@
 
 ## Обзор
 
-Модуль `core` - фундамент PolisyOS, предоставляющий базовую инфраструктуру: управление артефактами, каноническую сериализацию, контракты между модулями, трассировку и observability. Core является самым нижним слоем зависимостей, от которого зависят все остальные модули системы.
+Модуль `core` - фундамент PolisyOS, предоставляющий базовую инфраструктуру: управление артефактами, каноническую сериализацию, контракты между модулями, трассировку и observability. Core является нижним инфраструктурным слоем; он может импортировать типы из `polisyos.ir.*`, но не зависит от модулей верхнего уровня (Scientist/Fabric/Foundry/etc.).
 
 ## Архитектура
 
@@ -11,6 +11,7 @@ core/
 ├── artifacts/     # Content-Addressable Storage (CAS) для артефактов
 ├── canon/         # Детерминированная JSON сериализация
 ├── compiler/      # Отчеты компиляции и линковки
+├── components/    # Skeleton модели компонентов (ComponentId/Registry/Discovery)
 ├── contracts/     # Типизированные контракты между модулями
 ├── observability/ # Production-grade телеметрия (OTel, Prometheus)
 ├── registry/      # Управление реестрами компонентов
@@ -29,13 +30,16 @@ Content-Addressable Storage с SHA256 хешированием. Ключевые
 Детерминированная сериализация для стабильных хешей. Запрет float, сортировка ключей, поддержка Decimal/datetime. Функции: `to_canonical_bytes()`, `from_canonical_bytes()`.
 
 ### Contracts (Типизированные контракты)
-Межмодульные интерфейсы: Fabric (6 типов), Foundry (15+ типов с patch-based state, conflict detection, cost modeling), Scientist, Trinity, Legal. Литеральные типы для compile-time проверок.
+Межмодульные интерфейсы: Fabric (DataSnapshotRef), Foundry (SimulationResultRef), Scientist, Trinity, Lex/Scholar. Литеральные типы для compile-time проверок.
 
 ### Observability (Телеметрия)
 OpenTelemetry трассировка, Prometheus метрики, структурированное логирование с trace correlation. Декораторы `@traced`, `@traced_method`, propagation через thread/async границы.
 
 ### Registry (Реестры компонентов)
 Управление реестрами механизмов, метрик, ограничений. `build_default_registry_bundle()`, `load_registry_bundle_content()`.
+
+### Components (Component model skeleton)
+Минимальный ABI для идентичности компонентов: `ComponentId`, `ComponentMetadata`, `ComponentRegistry`, `Discovery`.
 
 ### Run (Контексты выполнения)
 `RunContext` с автоматической трассировкой и управлением жизненным циклом. `RunManifest` с метаданными запусков.
@@ -50,17 +54,14 @@ Span-based трассировка с `TraceRecord`, `JsonlTraceSink`. Подде
 
 ### Архитектурные принципы зависимостей
 
-Core является фундаментом всей системы PolisyOS и следует принципу "граф зависимостей направлен только внутрь" (Закон A). Все модули верхнего уровня зависят от core, но core не зависит ни от одного модуля.
+Core является фундаментом всей системы PolisyOS и следует принципу "граф зависимостей направлен только внутрь" (Закон A). Все модули верхнего уровня зависят от core, при этом core может импортировать только IR-слой и не зависит от Scientist/Fabric/Foundry/etc.
 
 ### Детальные зависимости от Core
 
-#### IR (Промежуточное представление) - Зависит от core
-- **canon.canon_json**: Каноническая сериализация для детерминированных хешей
-- **artifacts.ids.ArtifactID**: Адресация артефактов по содержимому
-- **artifacts.manifest**: Метаданные для всех IR артефактов
-- **contracts**: Определение ссылок на артефакты для IR компонентов
+#### IR (Промежуточное представление) - Не зависит от core
+- IR остаётся нулевой зависимостью; core может импортировать IR-типы для контракта портов.
 
-**Обоснование**: IR определяет контракты данных, но использует core для инфраструктуры хранения и сериализации.
+**Обоснование**: IR описывает данные и схемы, но не тянет инфраструктуру хранения/канонизации.
 
 #### Fabric (Обработка и агрегация данных) - Зависит от core
 - **artifacts.store.FileSystemCAS**: Хранение всех результатов обработки данных
@@ -99,12 +100,12 @@ Core является фундаментом всей системы PolisyOS и
 
 **Обоснование**: Runtime отвечает за развертывание и исполнение политик в production с полным observability coverage через distributed tracing и metrics.
 
-#### Scientist/Governance/Legal (Правовая валидация) - Зависит от core
-- **contracts.legal**: Полный набор legal контрактов (NormPack, NormRule, RuleType, RuleBackend)
+#### Scientist/Governance/Lex (Правовая валидация) - Зависит от core
+- **contracts.lex**: Набор Lex контрактов (NormPack, NormRule, RuleType, RuleBackend, ComplianceIssue)
 - **artifacts**: Хранение нормативных правил как артефактов
 - **trace**: Трассировка всех операций legal валидации
 
-**Обоснование**: Legal модуль использует контракты core для стандартизации интерфейсов валидации политик и обеспечения compliance через pluggable rule backends.
+**Обоснование**: Lex модуль использует контракты core для стандартизации интерфейсов валидации политик и обеспечения compliance через pluggable rule backends.
 
 ### Обратные зависимости на Core:
 - **Артефакты**: универсальный механизм хранения для всех результатов
@@ -113,7 +114,7 @@ Core является фундаментом всей системы PolisyOS и
 - **Environment manifests**: reproducible симуляции с compatibility scoring
 - **Каноническая сериализация**: воспроизводимость во всей системе
 - **Observability**: унифицированная телеметрия с distributed tracing и metrics
-- **Legal контракты**: compliance валидация через pluggable backends
+- **Lex контракты**: compliance валидация через pluggable backends
 - **Trinity контракты**: структурирование экспериментов
 
 ## Примеры использования
@@ -322,7 +323,7 @@ Core активно используется всеми модулями PolisyO
 - **Надежность**: CAS с криптографической верификацией
 - **Воспроизводимость**: Каноническая сериализация + environment manifests
 - **Наблюдаемость**: Distributed tracing, metrics, structured logging
-- **Модульность**: Типизированные контракты (Fabric, Foundry, Trinity, Scientist, Legal)
+- **Модульность**: Типизированные контракты (Fabric, Foundry, Trinity, Scientist, Lex/Scholar)
 - **Масштабируемость**: Эффективное хранение и кеширование артефактов
 
 **Статус**: Production-ready, используется во всех модулях PolisyOS.

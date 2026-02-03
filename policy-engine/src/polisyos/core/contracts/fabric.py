@@ -6,7 +6,6 @@ from typing import Literal
 from pydantic import BaseModel, ConfigDict, Field
 
 from ..artifacts.manifest import ArtifactRef, WarningRecord
-from polisyos.ir.refs import EvidenceBundleRef
 
 
 class DataViewRequestRef(ArtifactRef):
@@ -24,6 +23,11 @@ class FabricResultRef(ArtifactRef):
     media_type: Literal["application/json"] = "application/json"
 
 
+class EvidenceBundleRef(ArtifactRef):
+    kind: Literal["fabric.evidence_bundle"] = "fabric.evidence_bundle"
+    media_type: Literal["application/json"] = "application/json"
+
+
 class UncertaintyBoundsRef(ArtifactRef):
     kind: Literal["fabric.uncertainty_bounds"] = "fabric.uncertainty_bounds"
     media_type: Literal["application/json"] = "application/json"
@@ -31,6 +35,11 @@ class UncertaintyBoundsRef(ArtifactRef):
 
 class WarningsRef(ArtifactRef):
     kind: Literal["fabric.warnings"] = "fabric.warnings"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class DataSnapshotRef(ArtifactRef):
+    kind: Literal["fabric.data_snapshot"] = "fabric.data_snapshot"
     media_type: Literal["application/json"] = "application/json"
 
 
@@ -108,3 +117,15 @@ class FabricResult(BaseModel):
     uncertainty_ref: UncertaintyBoundsRef | None = None
     warnings_ref: WarningsRef | None = None
     stats: dict[str, int | str] = Field(default_factory=dict)
+
+
+class DataSnapshot(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    data_ref: ArtifactRef
+    data_schema_ref: ArtifactRef | None = None
+    evidence_ref: EvidenceBundleRef | None = None
+    uncertainty_ref: UncertaintyBoundsRef | None = None
+    warnings_ref: WarningsRef | None = None
+    stats: dict[str, int | str] = Field(default_factory=dict)
+    notes: list[str] = Field(default_factory=list)

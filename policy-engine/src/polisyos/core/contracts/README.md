@@ -11,8 +11,10 @@ contracts/
 ├── compiler.py     # CompileReportRef, LinkReportRef
 ├── fabric.py       # Fabric контракты (6 типов)
 ├── foundry.py      # Foundry контракты (15+ типов с patch-based state)
-├── legal.py        # Legal compliance контракты
-├── scientist.py    # Scientist контракты (ArtifactRef, FailureCardRef, etc.)
+├── lex.py          # Lex (legal) контракты и RuleBackend protocol
+├── legal.py        # DEPRECATED shim (реэкспорт lex)
+├── scholar.py      # Scholar контракты (ResearchIntent, KnowledgeBundleRef)
+├── scientist.py    # Scientist контракты (FailureCardRef, DecisionPacketRef, etc.)
 └── trinity.py      # Trinity контракты (ProblemFrame, PolicySpec, ModelSpec)
 ```
 
@@ -52,7 +54,7 @@ ref = LinkReportRef(
 
 ## Fabric Contracts
 
-Fabric предоставляет 6 типов контрактов для обработки и агрегации данных.
+Fabric предоставляет 7+ типов контрактов для обработки и агрегации данных.
 
 ### DataViewRequestRef
 
@@ -216,9 +218,26 @@ warnings_ref = WarningsRef(
 )
 ```
 
+### DataSnapshot & DataSnapshotRef
+
+Фиксированный снапшот данных для воспроизводимых вычислений.
+
+```python
+from polisyos.core.contracts.fabric import DataSnapshot, DataSnapshotRef
+
+snapshot = DataSnapshot(
+    data_ref=data_ref,
+    data_schema_ref=data_schema_ref,
+    evidence_ref=evidence_ref,
+    uncertainty_ref=uncertainty_ref,
+)
+
+snapshot_ref = DataSnapshotRef(artifact_id=snapshot_id)
+```
+
 ## Foundry Contracts
 
-Foundry предоставляет 14 типов контрактов для симуляции и исполнения политик, включая расширенные возможности conflict detection, cost modeling и runtime safety.
+Foundry предоставляет 15+ типов контрактов для симуляции и исполнения политик, включая расширенные возможности conflict detection, cost modeling и runtime safety.
 
 ### PolicySurfaceIRRef
 
@@ -481,6 +500,21 @@ trace_ref = TraceSliceRef(
 )
 ```
 
+#### SimulationResult & SimulationResultRef
+```python
+from polisyos.core.contracts.foundry import SimulationResult, SimulationResultRef
+
+result = SimulationResult(
+    exec_plan_ref=exec_plan_ref,
+    metrics_ref=metrics_ref,
+    state_snapshot_ref=state_snapshot_ref,
+    environment_ref=environment_ref,
+    trace_slice_ref=trace_ref,
+)
+
+result_ref = SimulationResultRef(artifact_id=simulation_result_id)
+```
+
 ### Validation Contracts
 
 #### ConstraintReportRef
@@ -724,40 +758,73 @@ model_ref = ModelSpecRef(
 )
 ```
 
+### TrinityBundle & TrinityBundleRef
+
+Полный bundle трёх спецификаций и ссылка на bundle как артефакт.
+
+```python
+from polisyos.core.contracts.trinity import TrinityBundle, TrinityBundleRef
+
+bundle = TrinityBundle(
+    problem_frame_ref=problem_ref,
+    policy_spec_ref=policy_ref,
+    model_spec_ref=model_ref,
+)
+
+bundle_ref = TrinityBundleRef(artifact_id=bundle_id)
+```
+
 ## Scientist Contracts (Контракты Scientist)
 
 Scientist контракты определяют типизированные ссылки на артефакты, используемые в Scientist layer для оркестрации экспериментов, оценки политик и управления жизненным циклом ИИ-агентов. Эти контракты наследуются от базового класса ArtifactRef и обеспечивают типобезопасное взаимодействие.
 
-### ArtifactRef (Базовый класс)
+### ScientistArtifactRef (Базовый класс)
 
-Базовый класс для всех ссылок на артефакты в Scientist layer с CAS хешированием.
+Базовый класс для всех ссылок на артефакты в Scientist layer.
 
 ```python
-from polisyos.core.contracts.scientist import ArtifactRef
+from polisyos.core.contracts.scientist import ScientistArtifactRef
 
-# Базовый класс для всех scientist ссылок
-artifact_ref = ArtifactRef(
-    ref_type="policy_ir",                      # Тип ссылки
-    cas_hash="sha256:abcd1234...",           # Content-addressable hash
-    artifact_type="policy_ir"                 # Тип артефакта
+artifact_ref = ScientistArtifactRef(
+    artifact_id="sha256:abcd1234...",
+    kind="scientist.policy_ir",
+    media_type="application/json",
 )
+```
+
+### ExperimentStateRef
+
+Ссылка на экспериментальное состояние (snapshot) как артефакт.
+
+```python
+from polisyos.core.contracts.scientist import ExperimentStateRef
+
+state_ref = ExperimentStateRef(artifact_id="sha256:state...")
+```
+
+### DecisionPacketRef
+
+Ссылка на DecisionPacket артефакт.
+
+```python
+from polisyos.core.contracts.scientist import DecisionPacketRef
+
+decision_ref = DecisionPacketRef(artifact_id="sha256:packet...")
 ```
 
 ### FailureCardRef
 
-Ссылка на FailureCard артефакт, содержащий информацию об ошибках и неудачах в процессе выполнения экспериментов.
+Ссылка на FailureCard артефакт, содержащий информацию об ошибках и неудачах.
 
 ```python
 from polisyos.core.contracts.scientist import FailureCardRef
 
 failure_ref = FailureCardRef(
-    ref_type="failure_card",
-    cas_hash="sha256:abcd1234...",
-    artifact_type="failure_card",
-    attempt_number=3,                          # номер попытки (≥1)
-    error_code="VALIDATION_ERROR",             # код ошибки для категоризации
-    source_step="policy_compilation",          # источник ошибки
-    can_retry=True                             # можно ли повторить
+    artifact_id="sha256:abcd1234...",
+    attempt_number=3,
+    error_code="VALIDATION_ERROR",
+    source_step="policy_compilation",
+    can_retry=True,
 )
 ```
 
@@ -769,27 +836,23 @@ failure_ref = FailureCardRef(
 from polisyos.core.contracts.scientist import PolicyIRRef
 
 policy_ir_ref = PolicyIRRef(
-    ref_type="policy_ir",
-    cas_hash="sha256:efgh5678...",
-    artifact_type="policy_ir",
-    version=2,                                 # номер ревизии (≥1)
-    status="validated"                         # статус: draft, validated, rejected
+    artifact_id="sha256:efgh5678...",
+    version=2,
+    status="validated",
 )
 ```
 
 ### CritiqueRef
 
-Ссылка на артефакт оценки критика (Critic evaluation) с вердиктом и ссылкой на оцененный IR.
+Ссылка на артефакт оценки критика (Critic evaluation).
 
 ```python
 from polisyos.core.contracts.scientist import CritiqueRef
 
 critique_ref = CritiqueRef(
-    ref_type="critique",
-    cas_hash="sha256:ijkl9012...",
-    artifact_type="critique",
-    verdict="revise",                          # вердикт: approve, revise, reject
-    ir_ref="sha256:efgh5678..."               # хеш оцененного IR
+    artifact_id="sha256:ijkl9012...",
+    verdict="revise",
+    ir_ref="sha256:efgh5678...",
 )
 ```
 
@@ -801,15 +864,12 @@ critique_ref = CritiqueRef(
 from polisyos.core.contracts.scientist import TimelineRef
 
 timeline_ref = TimelineRef(
-    ref_type="run_timeline",
-    cas_hash="sha256:abcd1234...",
-    artifact_type="run_timeline",
-    run_id="exp_001_20241215",                 # ID эксперимента
-    event_count=150,                           # количество событий
-    total_duration_ms=45000                     # общая длительность в мс
+    artifact_id="sha256:abcd1234...",
+    run_id="exp_001_20241215",
+    event_count=150,
+    total_duration_ms=45000,
 )
 ```
-
 ### DecisionCardRef
 
 Ссылка на DecisionCard артефакт - детерминированную сводку результатов эксперимента.
@@ -818,9 +878,7 @@ timeline_ref = TimelineRef(
 from polisyos.core.contracts.scientist import DecisionCardRef
 
 card_ref = DecisionCardRef(
-    ref_type="decision_card",
-    cas_hash="sha256:efgh5678...",
-    artifact_type="decision_card",
+    artifact_id="sha256:efgh5678...",
     run_id="exp_001_20241215",                 # ID эксперимента
     verdict="APPROVE",                         # вердикт оценки
     generated_at="2024-12-15T14:30:00Z"        # время генерации
@@ -869,588 +927,99 @@ model_ref = ModelSpecRef(
 )
 ```
 
-## Legal Contracts (Контракты Legal)
+## Lex Contracts (Контракты Lex)
 
-Legal контракты определяют интерфейсы для compliance валидации политик и интеграции с pluggable rule backends. Эти контракты обеспечивают стандартизацию legal validation в системе PolisyOS.
+Lex контракты определяют интерфейсы для compliance-валидации политик и интеграции с pluggable rule backends.
+`polisyos.core.contracts.legal` является DEPRECATED shim и реэкспортирует `polisyos.core.contracts.lex`.
 
-### NormPack
-
-Пакет нормативных правил и ограничений для валидации политик.
+### ComplianceIssue & IssueSeverity
 
 ```python
-from polisyos.core.contracts.legal import NormPack, NormRule, RuleType
+from polisyos.core.contracts.lex import ComplianceIssue, IssueSeverity
 
-# Создание пакета норм
-norm_pack = NormPack(
-    schema_version="1.0",
-    norms=[
-        NormRule(
-            rule_id="budget_deficit_limit",
-            rule_type=RuleType.CONSTRAINT,
-            description="Бюджетный дефицит не должен превышать 5%",
-            expression="budget_deficit <= 0.05"
-        )
-    ]
+issue = ComplianceIssue(
+    pass_id="legal",
+    path=["policy", "budget"],
+    message="Budget deficit exceeds 5%",
+    severity=IssueSeverity.BLOCKER,
+    code="BUDGET_DEFICIT",
 )
-```
-
-### NormRef
-
-Ссылка на нормативное правило в системе артефактов.
-
-```python
-from polisyos.core.contracts.legal import NormRef
-
-norm_ref = NormRef(
-    rule_id="budget_deficit_limit",
-    version="1.0"
-)
-```
-
-### NormRule
-
-Определение отдельного нормативного правила с логикой валидации.
-
-```python
-from polisyos.core.contracts.legal import NormRule, RuleType
-
-rule = NormRule(
-    rule_id="privacy_data_retention",
-    rule_type=RuleType.PRIVACY,
-    description="Персональные данные должны храниться не более 7 лет",
-    expression="data_retention_days <= 2555",  # 7 * 365
-    severity="high"
-)
-```
-
-### RuleType
-
-Типы нормативных правил для категоризации.
-
-```python
-from polisyos.core.contracts.legal import RuleType
-
-# Доступные типы правил
-types = [
-    RuleType.CONSTRAINT,    # Ограничения на параметры политики
-    RuleType.PRIVACY,       # Правила приватности данных
-    RuleType.ETHICS,        # Этические ограничения
-    RuleType.LEGAL,         # Правовые требования
-    RuleType.SAFETY         # Правила безопасности
-]
 ```
 
 ### RuleBackend
 
-Интерфейс для реализации движков валидации правил.
-
 ```python
-from polisyos.core.contracts.legal import RuleBackend
+from polisyos.core.contracts.lex import RuleBackend, ComplianceIssue
+from polisyos.core.contracts.lex import NormPack
 
 class CustomRuleBackend(RuleBackend):
-    """Кастомный backend для валидации правил."""
+    @property
+    def backend_id(self) -> str:
+        return "custom.v1"
 
-    def validate_rule(self, rule: NormRule, context: dict) -> ValidationResult:
-        """Валидация отдельного правила."""
-        # Реализация логики валидации
-        pass
-
-    def validate_pack(self, norm_pack: NormPack, context: dict) -> list[ValidationResult]:
-        """Валидация пакета норм."""
-        # Реализация логики валидации пакета
-        pass
+    def evaluate(self, norm_pack: NormPack, context: dict) -> list[ComplianceIssue]:
+        return []
 ```
 
-### TrinityBundle
-
-Пакет содержащий ссылки на все три Trinity артефакта с информацией о совместимости.
+### LegalContext
 
 ```python
+from polisyos.core.contracts.lex import LegalContext, FoundryRefs
 from polisyos.core.contracts.trinity import TrinityBundle
-
-# Создание Trinity bundle для эксперимента
-trinity_bundle = TrinityBundle(
-    problem_frame_ref=problem_ref,
-    policy_spec_ref=policy_ref,
-    model_spec_ref=model_ref,
-    compatible=True,
-    compatibility_notes=[
-        "All specifications validated",
-        "Compatible schema versions",
-        "No conflicting constraints"
-    ]
-)
-```
-
-### TrinityManifest
-
-Манифест эксперимента с метаданными Trinity артефактов.
-
-```python
-from polisyos.core.contracts.trinity import TrinityManifest
-
-manifest = TrinityManifest(
-    manifest_id="exp_001_policy_optimization",
-    bundle=trinity_bundle,
-    experiment_name="Credit Risk Policy Optimization",
-    created_by="alice@company.com",
-    created_at="2024-01-15T10:00:00Z",
-    notes=[
-        "First experiment with new risk model",
-        "Focus on fraud detection improvement"
-    ]
-)
-```
-
-## Использование контрактов
-
-### Создание типизированных ссылок
-
-```python
 from polisyos.core.contracts.fabric import FabricResultRef
-from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
-from polisyos.core.contracts.fabric import FabricResult
+from polisyos.core.contracts.foundry import ExecPlanRef, SimulationResultRef
 
-# Сохранение результата
-store = FileSystemCAS(Path("/tmp/artifacts"))
-result_data = FabricResult(...)
-
-result_ref = store.put_json(
-    result_data.model_dump(),
-    PutOptions(
-        kind="fabric.result_bundle",
-        media_type="application/json",
-        # ... другие опции
-    )
+ctx = LegalContext(
+    trinity=TrinityBundle(
+        problem_frame_ref=problem_frame_ref,
+        policy_spec_ref=policy_spec_ref,
+        model_spec_ref=model_spec_ref,
+    ),
+    fabric_results=[FabricResultRef(artifact_id=fabric_result_id)],
+    foundry=FoundryRefs(
+        exec_plan_ref=ExecPlanRef(artifact_id=exec_plan_id),
+        simulation_result_ref=SimulationResultRef(artifact_id=sim_result_id),
+    ),
+    jurisdiction="US-CA",
+    as_of_date="2026-02-03",
+    norm_pack_ref=norm_pack_ref,
 )
-
-# Создание типизированной ссылки
-typed_ref = FabricResultRef.from_artifact_ref(result_ref)
 ```
 
-### Валидация контрактов
+### LegalReportRef & ChangeProposalRef
 
 ```python
-def validate_fabric_result(store: FileSystemCAS, ref: FabricResultRef) -> bool:
-    """Валидация FabricResult контракта"""
+from polisyos.core.contracts.lex import LegalReportRef, ChangeProposalRef
 
-    # Загрузка данных
-    data = store.get_json(ref.artifact_id)
-    result = FabricResult(**data)
-
-    # Проверка обязательных ссылок
-    required_refs = [
-        result.request_ref,
-        result.plan_ref,
-        result.data_ref,
-        result.evidence_ref
-    ]
-
-    if any(ref is None for ref in required_refs):
-        return False
-
-    # Проверка существования артефактов
-    for artifact_ref in required_refs:
-        if artifact_ref is not None and not store.has(artifact_ref.artifact_id):
-            return False
-
-    return True
+report_ref = LegalReportRef(artifact_id=report_id)
+proposal_ref = ChangeProposalRef(artifact_id=proposal_id)
 ```
 
-### Работа с provenance
+## Scholar Contracts (Контракты Scholar)
+
+Scholar контракты задают ABI-стык для исследовательского обогащения (без реализации Scholar).
+
+### ResearchIntent
 
 ```python
-def trace_fabric_lineage(store: FileSystemCAS, result_ref: FabricResultRef) -> dict:
-    """Трассировка происхождения Fabric результата"""
+from polisyos.core.contracts.scholar import ResearchIntent, TimeWindow
 
-    result = FabricResult(**store.get_json(result_ref.artifact_id))
-
-    lineage = {
-        "result": str(result_ref.artifact_id),
-        "request": str(result.request_ref.artifact_id) if result.request_ref else None,
-        "plan": str(result.plan_ref.artifact_id) if result.plan_ref else None,
-        "data_sources": [
-            str(src.artifact_id) for src in result.sources
-        ],
-        "evidence": str(result.evidence_ref.artifact_id) if result.evidence_ref else None
-    }
-
-    return lineage
-```
-
-### Работа с Trinity контрактами
-
-```python
-def setup_experiment_context(store: FileSystemCAS, trinity_bundle: TrinityBundle) -> dict:
-    """Настройка контекста эксперимента на основе Trinity bundle"""
-
-    # Загрузка и валидация всех трех спецификаций
-    problem_frame = load_problem_frame(store, trinity_bundle.problem_frame_ref)
-    policy_spec = load_policy_spec(store, trinity_bundle.policy_spec_ref)
-    model_spec = load_model_spec(store, trinity_bundle.model_spec_ref)
-
-    # Проверка совместимости
-    if not trinity_bundle.compatible:
-        raise ValueError(f"Incompatible Trinity specs: {trinity_bundle.compatibility_notes}")
-
-    return {
-        "problem_frame": problem_frame,
-        "policy_spec": policy_spec,
-        "model_spec": model_spec,
-        "compatibility_verified": True
-    }
-```
-
-### Создание Trinity bundle для эксперимента
-
-```python
-def create_trinity_bundle_for_experiment(
-    store: FileSystemCAS,
-    problem_frame_id: str,
-    policy_spec_id: str,
-    model_spec_id: str
-) -> TrinityBundle:
-    """Создание валидного Trinity bundle"""
-
-    # Создание типизированных ссылок
-    problem_ref = ProblemFrameRef.from_artifact_ref(
-        ArtifactRef(artifact_id=problem_frame_id, kind="ir.problem_frame", media_type="application/json")
-    )
-    policy_ref = PolicySpecRef.from_artifact_ref(
-        ArtifactRef(artifact_id=policy_spec_id, kind="ir.policy_spec", media_type="application/json")
-    )
-    model_ref = ModelSpecRef.from_artifact_ref(
-        ArtifactRef(artifact_id=model_spec_id, kind="ir.model_spec", media_type="application/json")
-    )
-
-    # Валидация совместимости (упрощенная)
-    compatible = validate_trinity_compatibility(store, problem_ref, policy_ref, model_ref)
-
-    return TrinityBundle(
-        problem_frame_ref=problem_ref,
-        policy_spec_ref=policy_ref,
-        model_spec_ref=model_ref,
-        compatible=compatible,
-        compatibility_notes=["Validation completed"] if compatible else ["Compatibility issues found"]
-    )
-```
-
-### Работа с Scientist контрактами
-
-```python
-from polisyos.core.contracts.scientist import FailureCardRef, PolicyIRRef, CritiqueRef, TimelineRef, DecisionCardRef
-from polisyos.scientist.agent.failure_card import FailureCard
-
-# Создание ссылки на FailureCard
-def create_failure_card_ref(card: FailureCard) -> FailureCardRef:
-    """Создание типизированной ссылки на FailureCard"""
-    return FailureCardRef.from_card(card)
-
-# Создание ссылки на PolicyIR с метаданными
-def create_policy_ir_ref(cas_hash: str, version: int, status: str) -> PolicyIRRef:
-    """Создание ссылки на PolicyIR артефакт"""
-    return PolicyIRRef(
-        cas_hash=cas_hash,
-        version=version,
-        status=status
-    )
-
-# Создание ссылки на оценку критика
-def create_critique_ref(cas_hash: str, verdict: str, ir_hash: str) -> CritiqueRef:
-    """Создание ссылки на артефакт оценки критика"""
-    return CritiqueRef(
-        cas_hash=cas_hash,
-        verdict=verdict,
-        ir_ref=ir_hash
-    )
-
-# Управление состоянием эксперимента
-def track_experiment_state(policy_refs: list[PolicyIRRef], critique_refs: list[CritiqueRef]) -> dict:
-    """Отслеживание состояния эксперимента с помощью Scientist контрактов"""
-
-    # Группировка по вердиктам критика
-    approved = [ref for ref in critique_refs if ref.verdict == "approve"]
-    revisions = [ref for ref in critique_refs if ref.verdict == "revise"]
-    rejected = [ref for ref in critique_refs if ref.verdict == "reject"]
-
-    return {
-        "total_policies": len(policy_refs),
-        "approved": len(approved),
-        "pending_revision": len(revisions),
-        "rejected": len(rejected),
-        "latest_version": max((ref.version for ref in policy_refs), default=0)
-    }
-```
-
-# Работа с Timeline и Decision Card контрактами
-
-```python
-from polisyos.core.contracts.scientist import TimelineRef, DecisionCardRef
-
-# Создание ссылки на Timeline
-def create_timeline_ref(run_id: str, cas_hash: str, event_count: int, duration_ms: int) -> TimelineRef:
-    """Создание ссылки на RunTimeline артефакт"""
-    return TimelineRef(
-        cas_hash=cas_hash,
-        run_id=run_id,
-        event_count=event_count,
-        total_duration_ms=duration_ms
-    )
-
-# Создание ссылки на Decision Card
-def create_decision_card_ref(run_id: str, cas_hash: str, verdict: str, generated_at: str) -> DecisionCardRef:
-    """Создание ссылки на DecisionCard артефакт"""
-    return DecisionCardRef(
-        cas_hash=cas_hash,
-        run_id=run_id,
-        verdict=verdict,
-        generated_at=generated_at
-    )
-
-# Расширенное отслеживание состояния эксперимента
-def track_experiment_state_with_timeline(
-    policy_refs: list[PolicyIRRef],
-    critique_refs: list[CritiqueRef],
-    timeline_refs: list[TimelineRef],
-    decision_cards: list[DecisionCardRef]
-) -> dict:
-    """Отслеживание состояния эксперимента с timeline и decision cards"""
-
-    # Группировка по вердиктам критика
-    approved = [ref for ref in critique_refs if ref.verdict == "approve"]
-    revisions = [ref for ref in critique_refs if ref.verdict == "revise"]
-    rejected = [ref for ref in critique_refs if ref.verdict == "reject"]
-
-    # Статистика по timeline
-    total_events = sum(ref.event_count for ref in timeline_refs)
-    avg_duration = sum(ref.total_duration_ms for ref in timeline_refs) / len(timeline_refs) if timeline_refs else 0
-
-    # Статистика по decision cards
-    verdicts = {}
-    for card in decision_cards:
-        verdicts[card.verdict] = verdicts.get(card.verdict, 0) + 1
-
-    return {
-        "policies": {
-            "total": len(policy_refs),
-            "latest_version": max((ref.version for ref in policy_refs), default=0)
-        },
-        "critiques": {
-            "approved": len(approved),
-            "pending_revision": len(revisions),
-            "rejected": len(rejected)
-        },
-        "timeline": {
-            "total_runs": len(timeline_refs),
-            "total_events": total_events,
-            "avg_duration_ms": avg_duration
-        },
-        "decisions": verdicts
-    }
-```
-
-## Архитектурная роль
-
-### Разделение ответственности
-
-- **Contracts**: Определяют интерфейсы и типы данных для всех модулей (Fabric, Foundry, Scientist, Trinity) включая advanced runtime capabilities (conflict detection, cost modeling, NaN guard) и timeline tracking с decision cards для observability экспериментов
-- **Artifacts**: Предоставляют инфраструктуру хранения и CAS для всех артефактов
-- **Модули**: Реализуют логику, используя контракты для типобезопасного взаимодействия с compile-time validation, runtime safety и comprehensive observability
-
-### Trinity архитектура
-
-Trinity контракты реализуют паттерн "триединства" для структурирования экспериментов:
-
-- **ProblemFrame**: "Почему" - определение проблемы и требований
-- **PolicySpec**: "Что" - спецификация поведения политики
-- **ModelSpec**: "Как" - модель мира и механизмы исполнения
-
-Этот подход обеспечивает:
-- Структурированное описание экспериментов
-- Явное разделение concerns между компонентами
-- Возможность независимого развития каждого аспекта
-- Удобство анализа и воспроизводимости экспериментов
-
-### Типобезопасность
-
-```python
-# Compile-time проверка типов
-def process_fabric_result(ref: FabricResultRef) -> None:
-    # ref гарантированно имеет kind="fabric.result_bundle"
-    # и media_type="application/json"
-    pass
-
-# Runtime валидация
-result = FabricResult(**data)  # Pydantic validation
-```
-
-### Advanced Runtime Safety
-
-```python
-# Compile-time conflict detection
-def validate_program_graph(graph: ProgramGraph) -> ConflictReport:
-    """Compile-time validation предотвращает runtime конфликты."""
-    report = check_program_graph_conflicts(graph)
-    if not report.ok:
-        raise ValidationError(f"ProgramGraph conflicts: {report.conflicts}")
-    return report
-
-# Cost-aware execution planning
-def plan_execution_with_budget(graph: ProgramGraph, budget: CostBudget) -> ExecPlan:
-    """Cost modeling обеспечивает resource-aware планирование."""
-    estimate = estimate_program_cost(graph, budget)
-    if estimate.exceeds_budget:
-        raise BudgetExceededError(f"Cost estimate exceeds budget: {estimate.budget_violations}")
-    return create_exec_plan(graph, estimate)
-
-# Runtime numerical stability
-def safe_simulation_step(step: int, state: dict, nan_guard: NaNGuard) -> dict:
-    """NaN guard обеспечивает numerical stability."""
-    new_state = compute_simulation_step(state)
-    report = nan_guard.check_state_updates(new_state, step)
-    if not report.ok:
-        raise NumericalInstabilityError(f"NaN/Inf detected: {report.diagnostics}")
-    return new_state
-```
-
-### Межмодульное взаимодействие
-
-```python
-# Foundry получает результат от Fabric
-fabric_result = FabricResultRef(...)  # из Fabric
-
-# Foundry использует данные для симуляции
-state = StateSnapshot(
-    simulation_time=0,
-    state_data_ref=fabric_result.artifact_id,  # provenance link
-    metadata={"source": "fabric_ingestion"}
+intent = ResearchIntent(
+    domain="labor",
+    topic="minimum_wage",
+    jurisdictions=["US-CA"],
+    time_window=TimeWindow(start="2020-01-01", end="2025-12-31"),
+    required_outputs=["docs", "claims", "bundles"],
+    budgets={"max_docs": 200},
 )
-
-# Scientist координирует эксперименты, используя все типы контрактов
-def scientist_experiment_workflow(
-    trinity_bundle: TrinityBundle,
-    fabric_result: FabricResultRef,
-    foundry_metrics: MetricsRef
-) -> PolicyIRRef:
-    """Полный workflow эксперимента в Scientist"""
-
-    # 1. Использование Trinity bundle для контекста
-    context = setup_experiment_context(trinity_bundle)
-
-    # 2. Работа с данными из Fabric
-    data_context = integrate_fabric_data(fabric_result)
-
-    # 3. Мониторинг метрик из Foundry
-    performance_data = analyze_foundry_metrics(foundry_metrics)
-
-    # 4. Генерация и оценка политик
-    policy_ir = generate_policy_ir(context, data_context, performance_data)
-
-    # 5. Создание типизированной ссылки на результат
-    policy_ref = PolicyIRRef(
-        cas_hash=policy_ir.content_hash,
-        version=policy_ir.version,
-        status="draft"
-    )
-
-    return policy_ref
 ```
 
-### Работа с Legal контрактами
+### KnowledgeBundleRef
 
 ```python
-from polisyos.core.contracts.legal import NormPack, NormRule, RuleType, RuleBackend
-from polisyos.scientist.governance.legal.backends.base import ValidationResult
+from polisyos.core.contracts.scholar import KnowledgeBundleRef
 
-# Создание пакета норм для валидации политики
-def create_policy_validation_pack() -> NormPack:
-    """Создание пакета норм для валидации экономической политики."""
-
-    return NormPack(
-        schema_version="1.0",
-        norms=[
-            NormRule(
-                rule_id="budget_balance",
-                rule_type=RuleType.CONSTRAINT,
-                description="Бюджетный баланс должен быть положительным",
-                expression="budget_balance >= 0",
-                severity="critical"
-            ),
-            NormRule(
-                rule_id="inflation_control",
-                rule_type=RuleType.ECONOMIC,
-                description="Инфляция не должна превышать 5%",
-                expression="inflation_rate <= 0.05",
-                severity="high"
-            ),
-            NormRule(
-                rule_id="privacy_retention",
-                rule_type=RuleType.PRIVACY,
-                description="Данные о доходах хранятся не более 7 лет",
-                expression="income_data_retention_years <= 7",
-                severity="medium"
-            )
-        ]
-    )
-
-# Использование RuleBackend для валидации
-class EconomicRuleBackend(RuleBackend):
-    """Backend для экономических правил валидации."""
-
-    def validate_rule(self, rule: NormRule, context: dict) -> ValidationResult:
-        """Валидация экономического правила."""
-
-        try:
-            # Простая интерпретация выражений (в реальности использовать безопасный eval)
-            result = self._evaluate_expression(rule.expression, context)
-
-            return ValidationResult(
-                rule_id=rule.rule_id,
-                passed=result,
-                message=f"Rule {rule.rule_id}: {'passed' if result else 'failed'}",
-                details={"expression": rule.expression, "context": context}
-            )
-        except Exception as e:
-            return ValidationResult(
-                rule_id=rule.rule_id,
-                passed=False,
-                message=f"Validation error: {str(e)}",
-                details={"error": str(e)}
-            )
-
-    def _evaluate_expression(self, expression: str, context: dict) -> bool:
-        """Безопасная оценка выражения (упрощенная версия)."""
-        # В реальности использовать restricted eval или AST
-        return True  # Placeholder
-
-# Интеграция с governance
-def validate_policy_with_legal_rules(
-    policy_results: dict,
-    norm_pack: NormPack,
-    backend: RuleBackend
-) -> dict:
-    """Валидация результатов политики с использованием legal контрактов."""
-
-    validation_results = []
-
-    for norm in norm_pack.norms:
-        result = backend.validate_rule(norm, policy_results)
-        validation_results.append(result)
-
-    # Анализ результатов
-    passed = sum(1 for r in validation_results if r.passed)
-    total = len(validation_results)
-
-    return {
-        "validation_results": validation_results,
-        "passed_rules": passed,
-        "total_rules": total,
-        "compliance_rate": passed / total if total > 0 else 0,
-        "critical_failures": [
-            r for r in validation_results
-            if not r.passed and norm_pack.get_rule(r.rule_id).severity == "critical"
-        ]
-    }
+bundle_ref = KnowledgeBundleRef(artifact_id=bundle_id)
 ```
 
 ## Производительность

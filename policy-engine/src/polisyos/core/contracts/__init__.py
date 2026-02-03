@@ -5,6 +5,8 @@ from .fabric import (
     EvidenceBundleRef,
     FabricResult,
     FabricResultRef,
+    DataSnapshot,
+    DataSnapshotRef,
     QueryPlan,
     QueryPlanRef,
     UncertaintyBounds,
@@ -26,6 +28,8 @@ from .foundry import (
     PolicySurfaceIRRef,
     ProgramGraph,
     ProgramGraphRef,
+    SimulationResult,
+    SimulationResultRef,
     StateDelta,
     StateDeltaRef,
     StateSnapshot,
@@ -34,35 +38,36 @@ from .foundry import (
     TreasurySeed,
     TreasurySeedRef,
 )
-try:
-    # Legal contracts may pull in optional heavy dependencies.
-    from .legal import (
-        ComplianceIssue,
-        IssueSeverity,
-        NormPack,
-        NormRef,
-        NormRule,
-        RuleBackend,
-        RuleType,
-    )
-
-    _LEGAL_EXPORTS = [
-        "NormPack",
-        "NormRef",
-        "NormRule",
-        "RuleType",
-        "RuleBackend",
-        "ComplianceIssue",
-        "IssueSeverity",
-    ]
-except ModuleNotFoundError:  # pragma: no cover
-    _LEGAL_EXPORTS = []
-from .scientist import CritiqueRef, DecisionCardRef, FailureCardRef, PolicyIRRef, TimelineRef
+from .lex import (
+    ChangeProposal,
+    ChangeProposalRef,
+    ComplianceIssue,
+    IssueSeverity,
+    LegalContext,
+    LegalReport,
+    LegalReportRef,
+    NormPack,
+    NormRef,
+    NormRule,
+    RuleBackend,
+    RuleType,
+)
+from .scholar import KnowledgeBundle, KnowledgeBundleRef, ResearchIntent
+from .scientist import (
+    CritiqueRef,
+    DecisionCardRef,
+    DecisionPacketRef,
+    ExperimentStateRef,
+    FailureCardRef,
+    PolicyIRRef,
+    TimelineRef,
+)
 from .trinity import (
     ModelSpecRef,
     PolicySpecRef,
     ProblemFrameRef,
     TrinityBundle,
+    TrinityBundleRef,
     TrinityManifest,
 )
 
@@ -79,6 +84,8 @@ __all__ = [
     "EnvironmentManifestRef",
     "FabricResult",
     "FabricResultRef",
+    "DataSnapshot",
+    "DataSnapshotRef",
     "CalibrationReportRef",
     "LoweredIR",
     "LoweredIRRef",
@@ -87,6 +94,8 @@ __all__ = [
     "PolicySurfaceIRRef",
     "ProgramGraph",
     "ProgramGraphRef",
+    "SimulationResult",
+    "SimulationResultRef",
     "QueryPlan",
     "QueryPlanRef",
     "StateDelta",
@@ -105,9 +114,27 @@ __all__ = [
     "CritiqueRef",
     "TimelineRef",
     "DecisionCardRef",
+    "ExperimentStateRef",
+    "DecisionPacketRef",
     "ProblemFrameRef",
     "PolicySpecRef",
     "ModelSpecRef",
     "TrinityBundle",
+    "TrinityBundleRef",
     "TrinityManifest",
-] + _LEGAL_EXPORTS
+    "NormPack",
+    "NormRef",
+    "NormRule",
+    "RuleType",
+    "RuleBackend",
+    "ComplianceIssue",
+    "IssueSeverity",
+    "LegalContext",
+    "LegalReportRef",
+    "ChangeProposalRef",
+    "LegalReport",
+    "ChangeProposal",
+    "ResearchIntent",
+    "KnowledgeBundleRef",
+    "KnowledgeBundle",
+]

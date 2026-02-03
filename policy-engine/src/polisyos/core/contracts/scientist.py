@@ -8,10 +8,14 @@ the content-addressable architecture.
 
 from __future__ import annotations
 
-from typing import Any, Literal, Protocol
+from typing import Any, Literal, Protocol, runtime_checkable
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from ..artifacts.manifest import ArtifactRef
+
+
+@runtime_checkable
 class FailureCardLike(Protocol):
     """Minimal FailureCard surface required to build FailureCardRef."""
 
@@ -22,18 +26,44 @@ class FailureCardLike(Protocol):
     can_retry: bool
 
 
-class ArtifactRef(BaseModel):
-    """Base class for CAS artifact references."""
+class ScientistArtifactRef(ArtifactRef):
+    """Base class for Scientist artifact references.
 
-    ref_type: str = Field(description="Type discriminator for the reference")
-    cas_hash: str = Field(
-        pattern=r"^sha256:[a-f0-9]{64}$",
-        description="Content-addressable storage hash",
-    )
-    artifact_type: str = Field(description="Type of artifact being referenced")
+    Accepts legacy fields (cas_hash/ref_type/artifact_type) for backward compatibility.
+    """
+
+    model_config = ConfigDict(extra="forbid")
+
+    @model_validator(mode="before")
+    @classmethod
+    def _coerce_legacy_fields(cls, data: Any) -> Any:
+        if not isinstance(data, dict):
+            return data
+        if "artifact_id" not in data and data.get("cas_hash"):
+            data = dict(data)
+            data["artifact_id"] = data["cas_hash"]
+        if "kind" not in data:
+            legacy_type = data.get("ref_type") or data.get("artifact_type")
+            if legacy_type:
+                data = dict(data)
+                data["kind"] = f"scientist.{legacy_type}"
+        if "media_type" not in data:
+            data = dict(data)
+            data["media_type"] = "application/json"
+        return data
 
 
-class FailureCardRef(ArtifactRef):
+class ExperimentStateRef(ScientistArtifactRef):
+    kind: Literal["scientist.experiment_state"] = "scientist.experiment_state"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class DecisionPacketRef(ScientistArtifactRef):
+    kind: Literal["scientist.decision_packet"] = "scientist.decision_packet"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class FailureCardRef(ScientistArtifactRef):
     """
     Typed reference to a FailureCard artifact in CAS.
 
@@ -41,8 +71,8 @@ class FailureCardRef(ArtifactRef):
     embedding full FailureCard objects in workflow state.
     """
 
-    ref_type: Literal["failure_card"] = "failure_card"
-    artifact_type: Literal["failure_card"] = "failure_card"
+    kind: Literal["scientist.failure_card"] = "scientist.failure_card"
+    media_type: Literal["application/json"] = "application/json"
 
     # Denormalized fields for quick filtering without CAS lookup
     attempt_number: int = Field(ge=1, description="Which retry attempt this represents")
@@ -55,7 +85,7 @@ class FailureCardRef(ArtifactRef):
         """Create a reference from a FailureCard instance."""
         source_step = getattr(card.source_step, "value", card.source_step)
         return cls(
-            cas_hash=card.content_hash,
+            artifact_id=card.content_hash,
             attempt_number=card.attempt_number,
             error_code=card.error_code,
             source_step=str(source_step),
@@ -63,35 +93,35 @@ class FailureCardRef(ArtifactRef):
         )
 
 
-class PolicyIRRef(ArtifactRef):
+class PolicyIRRef(ScientistArtifactRef):
     """Reference to a PolicySurfaceIR artifact."""
 
-    ref_type: Literal["policy_ir"] = "policy_ir"
-    artifact_type: Literal["policy_ir"] = "policy_ir"
+    kind: Literal["scientist.policy_ir"] = "scientist.policy_ir"
+    media_type: Literal["application/json"] = "application/json"
 
     version: int = Field(ge=1, description="Revision number of this IR")
     status: str = Field(description="Current status: draft, validated, rejected")
 
 
-class CritiqueRef(ArtifactRef):
+class CritiqueRef(ScientistArtifactRef):
     """Reference to a Critic evaluation artifact."""
 
-    ref_type: Literal["critique"] = "critique"
-    artifact_type: Literal["critique"] = "critique"
+    kind: Literal["scientist.critique"] = "scientist.critique"
+    media_type: Literal["application/json"] = "application/json"
 
     verdict: str = Field(description="Critic's verdict: approve, revise, reject")
     ir_ref: str = Field(description="CAS hash of the evaluated IR")
 
 
-class TimelineRef(ArtifactRef):
+class TimelineRef(ScientistArtifactRef):
     """
     Reference to a stored RunTimeline artifact.
 
-    Note: In Scientist contracts we use CAS-addressed references (cas_hash).
+    Note: In Scientist contracts we use CAS-addressed references (artifact_id).
     """
 
-    ref_type: Literal["run_timeline"] = "run_timeline"
-    artifact_type: Literal["run_timeline"] = "run_timeline"
+    kind: Literal["scientist.run_timeline"] = "scientist.run_timeline"
+    media_type: Literal["application/json"] = "application/json"
 
     # Denormalized for quick filtering
     run_id: str = Field(description="Associated run id")
@@ -99,12 +129,25 @@ class TimelineRef(ArtifactRef):
     total_duration_ms: int = Field(ge=0, description="Total run duration, ms")
 
 
-class DecisionCardRef(ArtifactRef):
+class DecisionCardRef(ScientistArtifactRef):
     """Reference to a stored DecisionCard artifact."""
 
-    ref_type: Literal["decision_card"] = "decision_card"
-    artifact_type: Literal["decision_card"] = "decision_card"
+    kind: Literal["scientist.decision_card"] = "scientist.decision_card"
+    media_type: Literal["application/json"] = "application/json"
 
     run_id: str = Field(description="Associated run id")
     verdict: str = Field(description="Decision verdict")
     generated_at: str = Field(description="Card generation timestamp (ISO 8601)")
+
+
+__all__ = [
+    "ScientistArtifactRef",
+    "ExperimentStateRef",
+    "DecisionPacketRef",
+    "FailureCardLike",
+    "FailureCardRef",
+    "PolicyIRRef",
+    "CritiqueRef",
+    "TimelineRef",
+    "DecisionCardRef",
+]

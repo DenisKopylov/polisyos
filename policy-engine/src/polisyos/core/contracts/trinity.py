@@ -61,6 +61,17 @@ class ModelSpecRef(ArtifactRef):
     media_type: Literal["application/json"] = "application/json"
 
 
+class TrinityBundleRef(ArtifactRef):
+    """
+    Typed reference to a TrinityBundle artifact.
+
+    Used when the bundle itself is stored as a single artifact in CAS.
+    """
+
+    kind: Literal["ir.trinity_bundle"] = "ir.trinity_bundle"
+    media_type: Literal["application/json"] = "application/json"
+
+
 class TrinityBundle(BaseModel):
     """
     Bundle containing references to all three Trinity artifacts.

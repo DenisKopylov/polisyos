@@ -20,8 +20,9 @@ from polisyos.lex.corpus.versioning import (
 from polisyos.lex.legal_evaluation.change_proposals import (
     propose_changes_impl as _propose_changes_impl,
 )
-from polisyos.lex.legal_evaluation.evaluate import (
-    evaluate_legality_impl as _evaluate_legality_impl,
+from polisyos.lex.legal_evaluation.evaluator_registry import (
+    discover_and_bootstrap_evaluators,
+    get_evaluator_registry,
 )
 from polisyos.lex.normpack.assemble_pack import assemble_norm_pack as _assemble_norm_pack
 from polisyos.lex.types import (
@@ -133,12 +134,17 @@ def evaluate_legality(
     request: LegalEvaluationRequest,
     segment_name: str | None = None,
 ) -> tuple[LegalReportRef, list[ChangeProposalRef]]:
-    return _evaluate_legality_impl(
-        cas=cas,
-        fact_log_root=fact_log_root,
-        request=request,
-        segment_name=segment_name,
-    )
+    bootstrap_report = discover_and_bootstrap_evaluators()
+    if bootstrap_report.errors:
+        from polisyos.lex.errors import LexValidationError
+
+        raise LexValidationError(
+            "lex evaluator bootstrap failed",
+            details={"errors": bootstrap_report.errors},
+        )
+
+    evaluator = get_evaluator_registry().resolve(request.eval_policy_id)
+    return evaluator.evaluate(cas, fact_log_root, request, segment_name)
 
 
 def propose_changes(

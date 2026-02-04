@@ -9,7 +9,7 @@ from polisyos.core.registry import load_registry_bundle_content
 from polisyos.ir.linker import link_trinity
 from polisyos.ir.registry_fragments import RegistryBundle
 from polisyos.ir.trinity import TrinityBundle
-from polisyos.core.components import Capability, ComponentId, ComponentMetadata
+from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.canon import from_canonical_bytes
 
 from polisyos.scientist.engine.context import ExecutionContext
@@ -24,6 +24,8 @@ from polisyos.scientist.nodes.builtins.state_keys import (
 
 _METADATA = ComponentMetadata(
     component_id=ComponentId.parse("scientist.node_link_trinity@1.0.0"),
+    kind=ComponentKind.SCIENTIST_NODE,
+    abi_targets={"world_abi": "1.x"},
     display_name="Link Trinity",
     description="Validate Trinity bundle against registries and emit LinkReport.",
     tags=["builtin", "compile"],

@@ -232,6 +232,7 @@ class NormPackBuildResult:
     world_event_artifact_id: str
     world_segment_manifest: FactSegmentManifest
 
+    built_by: str = "pipeline:lex.normpack.assembly_v1"
     warnings: list[str] = field(default_factory=list)
 
 

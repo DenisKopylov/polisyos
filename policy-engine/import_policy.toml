@@ -4,7 +4,7 @@ internal_prefix = "polisyos"
 src_root = "src"
 
 [roots]
-known = ["common","ir","core","fabric","foundry","scientist","runtime","scholar","lex"]
+known = ["common","ir","core","fabric","foundry","scientist","runtime","scholar","lex","packs"]
 
 [internal.allow]
 common = ["common"]
@@ -16,6 +16,7 @@ scientist = ["*"]
 runtime = ["runtime","core","ir","common"]
 scholar = ["scholar","ir","core","fabric","common"]
 lex = ["lex","ir","core","fabric","common"]
+packs = ["*"]
 
 [external.allow.ir]
 # Top-level external modules allowed in IR (stdlib is always allowed).

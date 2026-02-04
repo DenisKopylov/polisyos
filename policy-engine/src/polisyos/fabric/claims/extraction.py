@@ -31,7 +31,7 @@ from polisyos.ir.world.event import (
 )
 from polisyos.ir.world.ids import claim_id_from_payload, world_event_id_from_payload
 
-from .backends import get_extractor
+from .backends import resolve_extractor
 from .canonicalize import canonical_unit, canonicalize_id
 from .citations import minimal_doc_citation
 from .errors import ClaimNotReadyError, ClaimValidationError
@@ -294,7 +294,7 @@ def extract_claims_from_doc(
     if opts.max_chunks is not None:
         contexts = contexts[: opts.max_chunks]
 
-    extractor = get_extractor(extractor_id)
+    resolved_extractor_id, extractor = resolve_extractor(extractor_id)
 
     warnings: list[tuple[str, str]] = []
     candidates: list[ClaimCandidate] = []
@@ -358,7 +358,7 @@ def extract_claims_from_doc(
     claim_set_payload: dict[str, Any] = {
         "schema_version": "1.0",
         "stage": "extract_v1",
-        "extractor_id": extractor_id,
+        "extractor_id": resolved_extractor_id,
         "doc_meta_artifact_id": doc_meta_artifact_id,
         "doc_source_id": meta.doc_source_id,
         "doc_version_id": meta.doc_version_id,

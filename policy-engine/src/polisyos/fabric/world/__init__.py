@@ -31,25 +31,29 @@ from polisyos.fabric.world.store import (
     validate_world_facts,
     write_world_fact_segment,
 )
-from polisyos.fabric.world.materialize import (
-    MergeStrategy,
-    WorldArtifactReadError,
-    WorldKuzuCopyError,
-    WorldKuzuImportError,
-    WorldKuzuNotAvailable,
-    WorldMaterializationError,
-    WorldMaterializeSegmentStats,
-    WorldMaterializeStats,
-    WorldMergeConflict,
-    WorldSchemaError,
-    WorldSegmentHashMismatch,
-    apply_world_segment,
-    ensure_world_materialized,
-    ensure_world_kuzu_schema,
-    ensure_world_schema,
-    materialize_world_duckdb_from_fact_log,
-    materialize_world_kuzu_from_duckdb,
-)
+try:
+    from polisyos.fabric.world.materialize import (
+        MergeStrategy,
+        WorldArtifactReadError,
+        WorldKuzuCopyError,
+        WorldKuzuImportError,
+        WorldKuzuNotAvailable,
+        WorldMaterializationError,
+        WorldMaterializeSegmentStats,
+        WorldMaterializeStats,
+        WorldMergeConflict,
+        WorldSchemaError,
+        WorldSegmentHashMismatch,
+        apply_world_segment,
+        ensure_world_materialized,
+        ensure_world_kuzu_schema,
+        ensure_world_schema,
+        materialize_world_duckdb_from_fact_log,
+        materialize_world_kuzu_from_duckdb,
+    )
+    _MATERIALIZE_AVAILABLE = True
+except ModuleNotFoundError:  # pragma: no cover - optional dependency path
+    _MATERIALIZE_AVAILABLE = False
 
 __all__ = [
     "SEGMENTS_INDEX_NAME",
@@ -81,21 +85,27 @@ __all__ = [
     "validate_world_event_id",
     "validate_world_facts",
     "write_world_fact_segment",
-    "MergeStrategy",
-    "WorldArtifactReadError",
-    "WorldKuzuCopyError",
-    "WorldKuzuImportError",
-    "WorldKuzuNotAvailable",
-    "WorldMaterializationError",
-    "WorldMaterializeSegmentStats",
-    "WorldMaterializeStats",
-    "WorldMergeConflict",
-    "WorldSchemaError",
-    "WorldSegmentHashMismatch",
-    "apply_world_segment",
-    "ensure_world_materialized",
-    "ensure_world_kuzu_schema",
-    "ensure_world_schema",
-    "materialize_world_duckdb_from_fact_log",
-    "materialize_world_kuzu_from_duckdb",
 ]
+
+if _MATERIALIZE_AVAILABLE:
+    __all__.extend(
+        [
+            "MergeStrategy",
+            "WorldArtifactReadError",
+            "WorldKuzuCopyError",
+            "WorldKuzuImportError",
+            "WorldKuzuNotAvailable",
+            "WorldMaterializationError",
+            "WorldMaterializeSegmentStats",
+            "WorldMaterializeStats",
+            "WorldMergeConflict",
+            "WorldSchemaError",
+            "WorldSegmentHashMismatch",
+            "apply_world_segment",
+            "ensure_world_materialized",
+            "ensure_world_kuzu_schema",
+            "ensure_world_schema",
+            "materialize_world_duckdb_from_fact_log",
+            "materialize_world_kuzu_from_duckdb",
+        ]
+    )

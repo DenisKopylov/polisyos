@@ -7,9 +7,10 @@ from pathlib import Path
 from typing import Any
 
 from polisyos.core.artifacts.ids import ArtifactID
-from polisyos.core.artifacts.manifest import InputRef, SchemaInfo
+from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.fabric.claims import resolve_conflicts
+from polisyos.fabric.claims.extractor_registry import discover_and_bootstrap_extractors
 from polisyos.fabric.claims.persist import load_claim, load_doc_meta, load_json_artifact
 from polisyos.fabric.io.db import SimulationDB
 from polisyos.fabric.world.store import (
@@ -43,6 +44,10 @@ from polisyos.ir.world.ids import (
 from polisyos.ir.world.trust import TrustAssessment
 from polisyos.lex.corpus.index import load_provision_index
 from polisyos.lex.errors import LexNotReadyError, LexValidationError
+from polisyos.lex.normpack.provider_registry import (
+    discover_and_bootstrap_providers,
+    get_norm_pack_provider_registry,
+)
 from polisyos.lex.normpack.applicability import applicability_key, build_norm_applicability
 from polisyos.lex.normpack.extract_norm_claims import ProvisionSelection, extract_norm_claims
 from polisyos.lex.normpack.policies import (
@@ -662,6 +667,107 @@ def assemble_norm_pack(
     if normalized_request.budgets.max_claims == 0:
         warnings.append("warning:max_claims_zero")
 
+    provider_bootstrap = discover_and_bootstrap_providers()
+    if provider_bootstrap.errors:
+        warnings.extend(
+            [f"warning:normpack_provider_bootstrap_error:{msg}" for msg in provider_bootstrap.errors]
+        )
+
+    provider_record = get_norm_pack_provider_registry().resolve(
+        jurisdiction=jurisdiction_norm,
+        domain=domain_norm,
+    )
+    if provider_record is not None:
+        try:
+            provided = provider_record.provider.get_static_norm_pack(
+                cas,
+                jurisdiction=jurisdiction_norm,
+                domain=domain_norm,
+                as_of=as_of_norm,
+            )
+            norm_pack_artifact_id: str
+            norm_pack: NormPack
+            if isinstance(provided, ArtifactRef):
+                norm_pack_artifact_id = str(provided.artifact_id)
+                payload = load_json_artifact(cas, norm_pack_artifact_id)
+                norm_pack = NormPack.model_validate(payload)
+            elif isinstance(provided, str):
+                norm_pack_artifact_id = provided
+                payload = load_json_artifact(cas, norm_pack_artifact_id)
+                norm_pack = NormPack.model_validate(payload)
+            else:
+                norm_pack = provided if isinstance(provided, NormPack) else NormPack.model_validate(provided)
+                norm_pack_artifact_id = persist_norm_pack(
+                    cas=cas,
+                    norm_pack=norm_pack,
+                    provision_index_artifact_ids=[],
+                    claim_set_artifact_ids=[],
+                    conflict_resolution_artifact_ids=[],
+                    trust_assessment_artifact_ids=[],
+                )
+
+            norm_pack_world_id, semantic_facts = emit_norm_pack_world_facts(
+                norm_pack_artifact_id=norm_pack_artifact_id,
+            )
+            counts = {
+                "docs": 0,
+                "provisions": 0,
+                "claims": 0,
+                "conflicts": 0,
+                "rules": len(norm_pack.norms),
+            }
+            world_event_id, world_event_artifact_id, world_segment_manifest = emit_norm_pack_assemble_event(
+                cas=cas,
+                fact_log_root=fact_log_root,
+                request=normalized_request,
+                jurisdiction_norm=jurisdiction_norm,
+                as_of_norm=as_of_norm,
+                domain_norm=domain_norm,
+                selected_doc_versions=[],
+                selected_fragment_ids=[],
+                norm_claim_ids=[],
+                conflict_set_ids=[],
+                trust_assessment_ids=[],
+                claim_set_artifact_ids=[],
+                provision_index_artifact_ids=[],
+                conflict_resolution_artifact_ids=[],
+                norm_pack_world_id=norm_pack_world_id,
+                semantic_facts=semantic_facts,
+                segment_name=segment_name or f"lex_normpack_provider_{run_suffix}",
+                counts=counts,
+            )
+            provider_warnings = sorted(set(warnings))
+            return NormPackBuildResult(
+                request=normalized_request,
+                jurisdiction_norm=jurisdiction_norm,
+                as_of_norm=as_of_norm,
+                domain_norm=domain_norm,
+                selected_doc_versions=[],
+                selected_fragment_ids=[],
+                claim_set_artifact_ids=[],
+                norm_claim_ids=[],
+                conflict_set_ids=[],
+                conflict_resolution_artifact_ids=[],
+                trust_assessment_ids=[],
+                norm_pack_artifact_id=norm_pack_artifact_id,
+                norm_pack_world_id=norm_pack_world_id,
+                world_event_id=world_event_id,
+                world_event_artifact_id=world_event_artifact_id,
+                world_segment_manifest=world_segment_manifest,
+                built_by=f"provider:{provider_record.component_id}",
+                warnings=provider_warnings,
+            )
+        except Exception as exc:
+            warnings.append(
+                f"warning:normpack_provider_failed:{provider_record.component_id}:{exc}"
+            )
+
+    extractor_bootstrap = discover_and_bootstrap_extractors()
+    if extractor_bootstrap.errors:
+        warnings.extend(
+            [f"warning:extractor_bootstrap_error:{msg}" for msg in extractor_bootstrap.errors]
+        )
+
     doc_source_ids = select_doc_sources(
         cas=cas,
         fact_log_root=fact_log_root,
@@ -899,6 +1005,7 @@ def assemble_norm_pack(
         world_event_id=world_event_id,
         world_event_artifact_id=world_event_artifact_id,
         world_segment_manifest=world_segment_manifest,
+        built_by=f"pipeline:{ASSEMBLY_PIPELINE_ID}",
         warnings=metadata_warnings,
     )
 

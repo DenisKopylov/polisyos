@@ -98,38 +98,55 @@ from polisyos.foundry.methods.composer import (
     CompiledMethodChain,
 )
 
-from polisyos.foundry.methods.compiler import (
-    MethodCompiler,
-    CompiledMethod,
-    CompilationCache,
-    CompiledChainExecutor,
-    get_global_cache,
-    reset_global_cache,
-)
+try:
+    from polisyos.foundry.methods.compiler import (
+        MethodCompiler,
+        CompiledMethod,
+        CompilationCache,
+        CompiledChainExecutor,
+        get_global_cache,
+        reset_global_cache,
+    )
+    _COMPILER_AVAILABLE = True
+except ModuleNotFoundError:  # pragma: no cover - optional dependency path
+    _COMPILER_AVAILABLE = False
 
-from polisyos.foundry.methods.specialization import (
-    Specialization,
-    ShapeSpec,
-    BackendSpec,
-    build_specialization,
-    compute_static_params_hash,
-    specialization_from_signature_and_state,
-)
+try:
+    from polisyos.foundry.methods.specialization import (
+        Specialization,
+        ShapeSpec,
+        BackendSpec,
+        build_specialization,
+        compute_static_params_hash,
+        specialization_from_signature_and_state,
+    )
+    _SPECIALIZATION_AVAILABLE = True
+except ModuleNotFoundError:  # pragma: no cover - optional dependency path
+    _SPECIALIZATION_AVAILABLE = False
 
-from polisyos.foundry.methods.artifacts import (
-    MethodArtifact,
-    ChainArtifact,
-    ExecutionEvidence,
-    SlotBindingRecord,
-    MethodTiming,
-    DeviceInfo,
-    ChainNodeRecord,
-    SourceFingerprint,
-    compute_source_hash,
-    compute_source_fingerprint,
-    store_method_artifact,
-    store_chain_artifact,
-    store_execution_evidence,
+try:
+    from polisyos.foundry.methods.artifacts import (
+        MethodArtifact,
+        ChainArtifact,
+        ExecutionEvidence,
+        SlotBindingRecord,
+        MethodTiming,
+        DeviceInfo,
+        ChainNodeRecord,
+        SourceFingerprint,
+        compute_source_hash,
+        compute_source_fingerprint,
+        store_method_artifact,
+        store_chain_artifact,
+        store_execution_evidence,
+    )
+    _ARTIFACTS_AVAILABLE = True
+except ModuleNotFoundError:  # pragma: no cover - optional dependency path
+    _ARTIFACTS_AVAILABLE = False
+from polisyos.foundry.methods.components_bridge import (
+    ComponentsBridgeError,
+    ComponentsBridgeReport,
+    bootstrap_method_registry_from_components,
 )
 
 __all__ = [
@@ -227,6 +244,52 @@ __all__ = [
     "store_method_artifact",
     "store_chain_artifact",
     "store_execution_evidence",
+    "ComponentsBridgeError",
+    "ComponentsBridgeReport",
+    "bootstrap_method_registry_from_components",
 ]
+
+if not _COMPILER_AVAILABLE:
+    for _name in [
+        "MethodCompiler",
+        "CompiledMethod",
+        "CompilationCache",
+        "CompiledChainExecutor",
+        "get_global_cache",
+        "reset_global_cache",
+    ]:
+        if _name in __all__:
+            __all__.remove(_name)
+
+if not _SPECIALIZATION_AVAILABLE:
+    for _name in [
+        "Specialization",
+        "ShapeSpec",
+        "BackendSpec",
+        "build_specialization",
+        "compute_static_params_hash",
+        "specialization_from_signature_and_state",
+    ]:
+        if _name in __all__:
+            __all__.remove(_name)
+
+if not _ARTIFACTS_AVAILABLE:
+    for _name in [
+        "MethodArtifact",
+        "ChainArtifact",
+        "ExecutionEvidence",
+        "SlotBindingRecord",
+        "MethodTiming",
+        "DeviceInfo",
+        "ChainNodeRecord",
+        "SourceFingerprint",
+        "compute_source_hash",
+        "compute_source_fingerprint",
+        "store_method_artifact",
+        "store_chain_artifact",
+        "store_execution_evidence",
+    ]:
+        if _name in __all__:
+            __all__.remove(_name)
 
 __version__ = "3.5.0"

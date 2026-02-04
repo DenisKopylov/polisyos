@@ -6,7 +6,7 @@ from pathlib import Path
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.canon import from_canonical_bytes
-from polisyos.core.components import Capability, ComponentId, ComponentMetadata
+from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.contracts.lex import LegalEvaluationRequest
 from polisyos.core.contracts.trinity import ModelSpecRef, PolicySpecRef, TrinityBundleRef
 from polisyos.lex.api import assemble_norm_pack, evaluate_legality
@@ -27,6 +27,8 @@ from polisyos.scientist.nodes.builtins.state_keys import (
 
 _METADATA = ComponentMetadata(
     component_id=ComponentId.parse("scientist.node_legal_check@1.0.0"),
+    kind=ComponentKind.SCIENTIST_NODE,
+    abi_targets={"world_abi": "1.x"},
     display_name="Legal Check",
     description="Evaluate policy legality and emit legal report/change proposals.",
     tags=["builtin", "governance", "lex"],

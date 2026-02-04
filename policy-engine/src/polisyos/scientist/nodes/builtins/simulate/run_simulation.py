@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field, replace
 from typing import Any
 
-from polisyos.core.components import Capability, ComponentId, ComponentMetadata
+from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.contracts.foundry import ExecuteRequest, FoundryExecConfig, SimulationResult
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.scientist.engine.context import ExecutionContext
@@ -25,6 +25,8 @@ from polisyos.scientist.nodes.builtins.state_keys import (
 
 _METADATA = ComponentMetadata(
     component_id=ComponentId.parse("scientist.node_run_simulation@1.0.0"),
+    kind=ComponentKind.SCIENTIST_NODE,
+    abi_targets={"world_abi": "1.x"},
     display_name="Run Simulation",
     description="Execute Foundry exec plan against a data snapshot.",
     tags=["builtin", "simulate"],

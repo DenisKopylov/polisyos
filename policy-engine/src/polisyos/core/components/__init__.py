@@ -1,24 +1,76 @@
 from .capabilities import Capability, Capabilities, capabilities_from_flags, flags_from_capabilities
-from .compliance import validate_component_id, validate_metadata
-from .discovery import ENTRY_POINT_GROUP, discover_dev_components, discover_entry_points
-from .ids import ComponentId
-from .metadata import ComponentMetadata
-from .protocols import ComponentProvider
-from .registry import ComponentRegistry, ConflictPolicy
+from .compliance import ComplianceIssue, HostAbi, has_errors, validate_component_id, validate_metadata
+from .discovery import (
+    DEFAULT_ENTRY_POINT_GROUPS,
+    ENTRY_POINT_GROUP,
+    ENTRY_POINT_GROUP_FOUNDRY_METHODS,
+    ENTRY_POINT_GROUP_IR_FRAGMENTS,
+    ENTRY_POINT_GROUP_LEX_EVALUATORS,
+    ENTRY_POINT_GROUP_LEX_EXTRACTORS,
+    ENTRY_POINT_GROUP_NORM_PACK_PROVIDERS,
+    ENTRY_POINT_GROUP_SCHOLAR_EXTRACTORS,
+    ENTRY_POINT_GROUP_SCIENTIST_NODES,
+    LEGACY_ENTRY_POINT_GROUP,
+    DiscoveryError,
+    DiscoveryPrecedencePolicy,
+    DiscoveryReport,
+    discover_components,
+    discover_dev_components,
+    discover_entry_points,
+)
+from .ids import ComponentId, SemVer, SemverRange, compare_semver
+from .metadata import ComponentDep, ComponentKind, ComponentMetadata
+from .protocols import Component, ComponentFactory, ComponentProvider, SupportsValidation
+from .registry import (
+    ComponentEntry,
+    ComponentRegistry,
+    ConflictPolicy,
+    DuplicateComponentIdPolicy,
+    ResolvePolicy,
+    SourcePrecedencePolicy,
+)
 
 __all__ = [
     "Capability",
     "Capabilities",
+    "Component",
+    "ComponentDep",
+    "ComponentEntry",
+    "ComponentFactory",
     "ComponentId",
+    "ComponentKind",
     "ComponentMetadata",
     "ComponentProvider",
     "ComponentRegistry",
+    "ComplianceIssue",
     "ConflictPolicy",
+    "DEFAULT_ENTRY_POINT_GROUPS",
+    "DiscoveryError",
+    "DiscoveryPrecedencePolicy",
+    "DiscoveryReport",
+    "DuplicateComponentIdPolicy",
     "ENTRY_POINT_GROUP",
-    "discover_entry_points",
+    "ENTRY_POINT_GROUP_FOUNDRY_METHODS",
+    "ENTRY_POINT_GROUP_IR_FRAGMENTS",
+    "ENTRY_POINT_GROUP_LEX_EVALUATORS",
+    "ENTRY_POINT_GROUP_LEX_EXTRACTORS",
+    "ENTRY_POINT_GROUP_NORM_PACK_PROVIDERS",
+    "ENTRY_POINT_GROUP_SCHOLAR_EXTRACTORS",
+    "ENTRY_POINT_GROUP_SCIENTIST_NODES",
+    "HostAbi",
+    "LEGACY_ENTRY_POINT_GROUP",
+    "ResolvePolicy",
+    "SemVer",
+    "SemverRange",
+    "SourcePrecedencePolicy",
+    "SupportsValidation",
+    "capabilities_from_flags",
+    "compare_semver",
+    "discover_components",
     "discover_dev_components",
+    "discover_entry_points",
+    "flags_from_capabilities",
+    "has_errors",
     "validate_component_id",
     "validate_metadata",
-    "capabilities_from_flags",
-    "flags_from_capabilities",
 ]

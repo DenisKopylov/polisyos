@@ -16,13 +16,15 @@ from polisyos.scientist.engine.registry import NodeRegistry
 from polisyos.scientist.engine.state import ExperimentState
 from polisyos.scientist.engine.workflow_spec import NodeInvocation, WorkflowSpec
 from polisyos.scientist.engine.builtins import builtin_nodes
-from polisyos.core.components import Capability, ComponentId, ComponentMetadata
+from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 
 
 class AlwaysFailNode:
     def __init__(self) -> None:
         metadata = ComponentMetadata(
             component_id=ComponentId.parse("scientist.node_fail@1.0.0"),
+            kind=ComponentKind.SCIENTIST_NODE,
+            abi_targets={"world_abi": "1.x"},
             display_name="Fail",
             description="Always fails",
             capabilities=Capability.SCIENTIST_NODE,

@@ -10,7 +10,7 @@ from polisyos.core.contracts.foundry import StateSnapshotRef
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
 from polisyos.scientist.engine.state import ExperimentState
-from polisyos.core.components import Capability, ComponentId, ComponentMetadata
+from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 
 from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.state_keys import (
@@ -21,6 +21,8 @@ from polisyos.scientist.nodes.builtins.state_keys import (
 
 _METADATA = ComponentMetadata(
     component_id=ComponentId.parse("scientist.node_build_data_snapshot@1.0.0"),
+    kind=ComponentKind.SCIENTIST_NODE,
+    abi_targets={"world_abi": "1.x"},
     display_name="Build Data Snapshot",
     description="Build or wrap a Fabric DataSnapshot for Foundry execution.",
     tags=["builtin", "data"],

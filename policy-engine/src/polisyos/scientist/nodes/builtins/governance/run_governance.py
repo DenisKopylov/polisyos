@@ -5,7 +5,7 @@ from typing import Any, Literal
 
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
-from polisyos.core.components import Capability, ComponentId, ComponentMetadata
+from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.contracts.scientist import GovernanceReportRef
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.protocol import NodeEvent, NodeOutcome, NodeSpec
@@ -15,6 +15,8 @@ from polisyos.scientist.nodes.builtins.state_keys import REPORT_GOVERNANCE_REPOR
 
 _METADATA = ComponentMetadata(
     component_id=ComponentId.parse("scientist.node_run_governance@1.0.0"),
+    kind=ComponentKind.SCIENTIST_NODE,
+    abi_targets={"world_abi": "1.x"},
     display_name="Run Governance",
     description="Evaluate governance gates and emit GovernanceReport.",
     tags=["builtin", "governance"],

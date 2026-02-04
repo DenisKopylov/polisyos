@@ -4,7 +4,7 @@ DEFAULT_SELECTION_POLICY_ID = "lex.versioning_v1.effective_range_then_published_
 DEFAULT_CONFLICT_POLICY_ID = "policy.conflicts.default_v1"
 DEFAULT_TRUST_POLICY_ID = "policy.trust.default_v1"
 
-DEFAULT_EXTRACTOR_ID = "lex.norm_extractor.regex_v1"
+DEFAULT_EXTRACTOR_ID = "lex.norm_extractor.regex_v1@1.0.0"
 
 NORM_PACK_KIND = "lex.norm_pack"
 NORM_CLAIM_SET_KIND = "lex.norms.claim_set"

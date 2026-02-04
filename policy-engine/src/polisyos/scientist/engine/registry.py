@@ -2,8 +2,14 @@ from __future__ import annotations
 
 from typing import Iterable
 
-from polisyos.core.components import Capability, ComponentId, ComponentMetadata
-from polisyos.core.components.discovery import discover_entry_points
+from polisyos.core.components import (
+    Capability,
+    ComponentId,
+    ComponentKind,
+    ComponentMetadata,
+    ENTRY_POINT_GROUP_SCIENTIST_NODES,
+    discover_components,
+)
 from polisyos.core.components.protocols import ComponentProvider
 
 from polisyos.scientist.engine.errors import UnknownNodeError
@@ -25,6 +31,8 @@ class NodeRegistry:
         if not isinstance(node, Node):
             raise TypeError("NodeRegistry.register expects a Node instance")
         spec = node.spec
+        if spec.metadata.kind != ComponentKind.SCIENTIST_NODE:
+            raise ValueError("NodeSpec.metadata.kind must be scientist_node")
         if not (spec.metadata.capabilities & Capability.SCIENTIST_NODE):
             raise ValueError("NodeSpec.metadata.capabilities must include SCIENTIST_NODE")
 
@@ -44,6 +52,8 @@ class NodeRegistry:
 
     def register_provider(self, provider: ComponentProvider) -> None:
         metadata = provider.metadata
+        if metadata.kind != ComponentKind.SCIENTIST_NODE:
+            raise ValueError("Provider metadata.kind must be scientist_node")
         if not (metadata.capabilities & Capability.SCIENTIST_NODE):
             raise ValueError("Provider metadata must include SCIENTIST_NODE capability")
         node = provider.create()
@@ -79,14 +89,14 @@ class NodeRegistry:
 
 
 def discover_nodes(registry: NodeRegistry) -> None:
-    """Discover nodes via core component entry points."""
-    for item in discover_entry_points():
-        if isinstance(item, ComponentProvider):
-            if item.metadata.capabilities & Capability.SCIENTIST_NODE:
-                registry.register_provider(item)
+    """Discover nodes via component discovery groups."""
+    report = discover_components(groups=[ENTRY_POINT_GROUP_SCIENTIST_NODES])
+    for item in report.components:
+        provider = item.component
+        if not isinstance(provider, ComponentProvider):
             continue
-        if isinstance(item, ComponentMetadata):
-            if not (item.capabilities & Capability.SCIENTIST_NODE):
-                continue
-            # Metadata-only discovery is not supported in v0 registry.
+        metadata = provider.metadata
+        if metadata.kind != ComponentKind.SCIENTIST_NODE:
             continue
+        if metadata.capabilities & Capability.SCIENTIST_NODE:
+            registry.register_provider(provider)

@@ -10,6 +10,10 @@ from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.contracts.scholar import BudgetsV1, ResearchIntent, SourceSpec, ThresholdsV1
 from polisyos.fabric.claims import extract_claims_from_doc, normalize_claims, resolve_conflicts
 from polisyos.fabric.claims.errors import ClaimPipelineError
+from polisyos.fabric.claims.extractor_registry import (
+    discover_and_bootstrap_extractors,
+    get_extractor_registry,
+)
 from polisyos.fabric.claims.persist import load_claim, load_doc_meta, load_json_artifact
 from polisyos.fabric.docs import DocSourceSpec, chunk_doc, ingest_doc_bytes, normalize_doc, structure_doc
 from polisyos.fabric.docs.errors import DocPipelineError
@@ -423,12 +427,30 @@ def enrich_topic(
     claim_ids_set: set[str] = set()
     claim_artifact_by_id: dict[str, str] = {}
     normalized_claim_set_artifact_ids: list[str] = []
+    extractor_ids_used: set[str] = set()
+
+    extractor_bootstrap_report = discover_and_bootstrap_extractors()
+    if extractor_bootstrap_report.errors:
+        raise ScholarClaimsError(
+            "claims extractor bootstrap failed",
+            details={"errors": extractor_bootstrap_report.errors},
+        )
 
     try:
         remaining_claim_budget = budgets.max_claims_total
         for idx, doc_ref in enumerate(docs_refs):
             if remaining_claim_budget is not None and remaining_claim_budget <= 0:
                 break
+
+            doc_meta = load_doc_meta(cas, doc_ref.doc_meta_artifact_id)
+            resolved_extractor_id, _ = get_extractor_registry().select(
+                domain=intent.domain,
+                jurisdiction=doc_meta.jurisdiction or intent.jurisdiction,
+                language=doc_meta.language,
+                mime=doc_meta.mime,
+                preferred_id=scholar_policy.claims.extractor_id,
+            )
+            extractor_ids_used.add(resolved_extractor_id)
 
             extract_options = replace(
                 scholar_policy.claims.extract_options,
@@ -438,7 +460,7 @@ def enrich_topic(
                 cas=cas,
                 fact_log_root=fact_log_root,
                 doc_meta_artifact_id=doc_ref.doc_meta_artifact_id,
-                extractor_id=scholar_policy.claims.extractor_id,
+                extractor_id=resolved_extractor_id,
                 options=extract_options,
                 segment_name=f"scholar_claims_extract_{idx}_{run_token}",
             )
@@ -559,7 +581,8 @@ def enrich_topic(
         selected_claim_ids.append(claim_id)
 
     policy_ids_used = {
-        "extractor_id": scholar_policy.claims.extractor_id,
+        "extractor_id": sorted(extractor_ids_used)[0] if extractor_ids_used else scholar_policy.claims.extractor_id,
+        "extractor_ids": ",".join(sorted(extractor_ids_used)),
         "conflict_policy_id": scholar_policy.conflict.policy_id,
         "trust_algorithm_version": scholar_policy.claims.resolve_options.trust_algorithm_version,
         "resolution_algorithm_version": (

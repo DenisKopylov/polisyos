@@ -1,76 +1,132 @@
 """
 PolicyOS Observability Module — Production-grade telemetry.
-
-This module provides unified observability capabilities:
-- Distributed tracing with OpenTelemetry
-- Prometheus-compatible metrics
-- Structured logging with trace correlation
-
-Quick Start:
-    from polisyos.core.observability import (
-        get_tracer,
-        get_metrics,
-        traced,
-        configure_otel_logging_handler,
-    )
-
-    # Configure logging with trace context
-    configure_otel_logging_handler()
-
-    # Use the @traced decorator
-    @traced(phase="EXECUTE", node="run_sim")
-    def run_simulation(config: SimConfig) -> SimResult:
-        metrics = get_metrics()
-        with metrics.time_simulation({"node": "run_sim"}):
-            return execute(config)
-
-Environment Variables:
-    OTEL_EXPORTER_OTLP_ENDPOINT: OTLP collector endpoint
-    POLISYOS_OTEL_ENABLED: Enable/disable OTel (default: true)
-    POLISYOS_METRICS_PORT: Prometheus metrics port (default: 9464)
-    POLISYOS_OTEL_CONSOLE_EXPORT: Enable console export for debugging
-    POLISYOS_TRACE_SAMPLING_RATIO: Trace sampling ratio (default: 1.0)
-    POLISYOS_ALWAYS_SAMPLE_ERRORS: Force sampling for spans created as errors (default: true)
 """
 
+from __future__ import annotations
+
 from .config import OTelConfig, get_default_config
-from .decorators import traced, traced_method
-from .logs import (
-    TraceContextFilter,
-    StructuredFormatter,
-    configure_otel_logging_handler,
-    get_trace_context_dict,
-)
-from .metrics import MetricsRegistry, get_metrics
-from .propagation import (
-    TracedExecutorWrapper,
-    extract_headers,
-    inject_headers,
-    propagate_context,
-    with_trace_context,
-)
-from .tracer import PolicyOSTracer, get_current_trace_context, get_tracer
+
+try:
+    from .decorators import traced, traced_method
+    from .logs import (
+        TraceContextFilter,
+        StructuredFormatter,
+        configure_otel_logging_handler,
+        get_trace_context_dict,
+    )
+    from .metrics import MetricsRegistry, get_metrics
+    from .propagation import (
+        TracedExecutorWrapper,
+        extract_headers,
+        inject_headers,
+        propagate_context,
+        with_trace_context,
+    )
+    from .tracer import PolicyOSTracer, get_current_trace_context, get_tracer
+except ModuleNotFoundError:  # pragma: no cover - optional runtime dependency
+    class _NoopMetric:
+        def add(self, value, attrs=None) -> None:
+            return None
+
+        def record(self, value, attrs=None) -> None:
+            return None
+
+    class MetricsRegistry:  # type: ignore[override]
+        def __getattr__(self, name: str):
+            return _NoopMetric()
+
+    class _NoopSpan:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, exc_type, exc, tb):
+            return False
+
+        def set_attribute(self, key, value) -> None:
+            return None
+
+        def set_status(self, status) -> None:
+            return None
+
+        def record_exception(self, exc) -> None:
+            return None
+
+    class PolicyOSTracer:  # type: ignore[override]
+        def start_as_current_span(self, name: str, attributes=None):
+            return _NoopSpan()
+
+    def get_tracer() -> PolicyOSTracer:
+        return PolicyOSTracer()
+
+    _METRICS = MetricsRegistry()
+
+    def get_metrics() -> MetricsRegistry:
+        return _METRICS
+
+    def traced(*args, **kwargs):
+        def _decorator(func):
+            return func
+
+        return _decorator
+
+    def traced_method(*args, **kwargs):
+        def _decorator(func):
+            return func
+
+        return _decorator
+
+    def configure_otel_logging_handler(*args, **kwargs) -> None:
+        return None
+
+    def get_trace_context_dict() -> dict[str, str]:
+        return {}
+
+    class StructuredFormatter:  # type: ignore[override]
+        pass
+
+    class TraceContextFilter:  # type: ignore[override]
+        pass
+
+    def inject_headers(headers: dict[str, str] | None = None) -> dict[str, str]:
+        return headers or {}
+
+    def extract_headers(headers: dict[str, str] | None = None):
+        return None
+
+    def propagate_context(*args, **kwargs):
+        return None
+
+    def with_trace_context(*args, **kwargs):
+        def _decorator(func):
+            return func
+
+        return _decorator
+
+    class TracedExecutorWrapper:  # type: ignore[override]
+        def __init__(self, executor):
+            self._executor = executor
+
+        def submit(self, fn, *args, **kwargs):
+            return self._executor.submit(fn, *args, **kwargs)
+
+    def get_current_trace_context() -> dict[str, str]:
+        return {}
+
 
 __all__ = [
-    # Configuration
     "OTelConfig",
     "get_default_config",
-    # Tracer
     "get_tracer",
     "get_current_trace_context",
     "PolicyOSTracer",
-    # Metrics
     "get_metrics",
     "MetricsRegistry",
-    # Decorators
     "traced",
     "traced_method",
-    # Logging
     "configure_otel_logging_handler",
     "get_trace_context_dict",
     "StructuredFormatter",
     "TraceContextFilter",
-    # Propagation
     "inject_headers",
     "extract_headers",
     "propagate_context",

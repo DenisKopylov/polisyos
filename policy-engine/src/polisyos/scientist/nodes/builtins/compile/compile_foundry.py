@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field, replace
 from typing import Any
 
-from polisyos.core.components import Capability, ComponentId, ComponentMetadata
+from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.contracts.foundry import CompileRequest, FoundryCompileConfig, FoundryValidationFlags
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
@@ -23,6 +23,8 @@ from polisyos.scientist.nodes.builtins.state_keys import (
 
 _METADATA = ComponentMetadata(
     component_id=ComponentId.parse("scientist.node_compile_foundry@1.0.0"),
+    kind=ComponentKind.SCIENTIST_NODE,
+    abi_targets={"world_abi": "1.x"},
     display_name="Compile Foundry",
     description="Compile Trinity (or legacy surface) policy into Foundry exec plan.",
     tags=["builtin", "compile"],

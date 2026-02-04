@@ -9,7 +9,7 @@ from typing import Any
 
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.fabric.claims import ClaimNormalizeOptions, normalize_claims
-from polisyos.fabric.claims.backends import get_extractor
+from polisyos.fabric.claims.backends import resolve_extractor
 from polisyos.fabric.claims.canonicalize import canonical_unit, canonicalize_id
 from polisyos.fabric.claims.citations import minimal_doc_citation
 from polisyos.fabric.claims.persist import load_doc_meta, load_json_artifact, persist_claim_set
@@ -270,7 +270,7 @@ def extract_norm_claims(
             warnings=[],
         )
 
-    extractor = get_extractor(extractor_id)
+    resolved_extractor_id, extractor = resolve_extractor(extractor_id)
     extract_options = ClaimExtractOptions(require_chunks=False, build_evidence=False)
 
     provisions_sorted = sorted(
@@ -327,7 +327,7 @@ def extract_norm_claims(
                     provision=provision,
                     jurisdiction_norm=jurisdiction_norm,
                     domain_norm=domain_norm,
-                    extractor_id=extractor_id,
+                    extractor_id=resolved_extractor_id,
                     warnings=warnings,
                 )
                 if claim is not None:

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import pytest
 
-from polisyos.core.components import Capability, ComponentId, ComponentMetadata
+from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.scientist.engine.errors import UnknownNodeError
 from polisyos.scientist.engine.protocol import NodeOutcome, NodeSpec
 from polisyos.scientist.engine.registry import NodeRegistry
@@ -15,6 +15,8 @@ class DummyNode:
     def __init__(self, component_id: str) -> None:
         metadata = ComponentMetadata(
             component_id=ComponentId.parse(component_id),
+            kind=ComponentKind.SCIENTIST_NODE,
+            abi_targets={"world_abi": "1.x"},
             display_name="Dummy",
             description="Dummy",
             capabilities=Capability.SCIENTIST_NODE,

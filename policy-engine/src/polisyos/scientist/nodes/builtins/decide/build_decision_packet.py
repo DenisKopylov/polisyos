@@ -11,7 +11,7 @@ from polisyos.core.contracts.foundry import Metrics
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.protocol import NodeOutcome, NodeSpec
 from polisyos.scientist.engine.state import ExperimentState
-from polisyos.core.components import Capability, ComponentId, ComponentMetadata
+from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.scientist.governance.report import GovernanceReport
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_DECISION_PACKET_REF,
@@ -23,6 +23,8 @@ from polisyos.scientist.orchestrator.run_record import build_run_record
 
 _METADATA = ComponentMetadata(
     component_id=ComponentId.parse("scientist.node_build_decision_packet@1.0.0"),
+    kind=ComponentKind.SCIENTIST_NODE,
+    abi_targets={"world_abi": "1.x"},
     display_name="Build Decision Packet",
     description="Create the DecisionPacket artifact from available reports and metrics.",
     tags=["builtin", "decide"],

@@ -1,44 +1,37 @@
 from __future__ import annotations
 
-from typing import Protocol
-
-from polisyos.ir.world.doc import DocMeta
+from polisyos.fabric.claims.extractor_registry import ClaimExtractorFn, get_extractor_registry
 
 from ..errors import ClaimUnsupportedExtractorError
-from ..types import ChunkContext, ClaimCandidate, ClaimExtractOptions
 from . import explicit_lines_v1, lex_norm_regex_v1, regex_numeric_v1
 
 
-class ClaimExtractorFn(Protocol):
-    def __call__(
-        self,
-        *,
-        ctx: ChunkContext,
-        meta: DocMeta,
-        normalized_text: str,
-        options: ClaimExtractOptions,
-    ) -> list[ClaimCandidate]: ...
-
-_EXTRACTOR_REGISTRY: dict[str, ClaimExtractorFn] = {
-    "explicit_lines_v1": explicit_lines_v1.extract,
-    "lex.norm_extractor.regex_v1": lex_norm_regex_v1.extract,
-    "regex_numeric_v1": regex_numeric_v1.extract,
-}
+def _ensure_legacy_registered() -> None:
+    registry = get_extractor_registry()
+    registry.register_legacy("explicit_lines_v1", explicit_lines_v1.extract)
+    registry.register_legacy("lex.norm_extractor.regex_v1", lex_norm_regex_v1.extract)
+    registry.register_legacy("regex_numeric_v1", regex_numeric_v1.extract)
 
 
 def get_extractor(extractor_id: str) -> ClaimExtractorFn:
-    extractor = _EXTRACTOR_REGISTRY.get(extractor_id)
-    if extractor is None:
-        raise ClaimUnsupportedExtractorError(f"unsupported extractor_id: {extractor_id}")
+    _, extractor = resolve_extractor(extractor_id)
     return extractor
 
 
+def resolve_extractor(extractor_id: str) -> tuple[str, ClaimExtractorFn]:
+    _ensure_legacy_registered()
+    return get_extractor_registry().resolve(extractor_id)
+
+
 def list_extractors() -> list[str]:
-    return sorted(_EXTRACTOR_REGISTRY)
+    _ensure_legacy_registered()
+    return get_extractor_registry().list_extractors()
 
 
 __all__ = [
     "ClaimExtractorFn",
+    "ClaimUnsupportedExtractorError",
     "get_extractor",
     "list_extractors",
+    "resolve_extractor",
 ]

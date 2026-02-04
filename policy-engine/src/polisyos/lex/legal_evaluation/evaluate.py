@@ -8,6 +8,7 @@ from typing import Any
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.components import ComponentId
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.contracts.lex import (
     ChangeProposalRef,
@@ -47,7 +48,6 @@ from polisyos.lex.legal_evaluation.context_builder import LegalContextBuilder
 from polisyos.lex.normpack.select_sources import normalize_as_of
 
 _ID_RE = re.compile(ID_PATTERN)
-_ALLOWED_EVAL_POLICIES = {"lex.eval.simple_v1"}
 
 
 def _artifact_ref_payload(ref: Any) -> dict[str, Any]:
@@ -181,12 +181,15 @@ def _normalize_request(
         )
 
     eval_policy_id = request.eval_policy_id.strip()
-    if _ID_RE.fullmatch(eval_policy_id) is None:
-        raise LexValidationError(
-            f"eval_policy_id must match {ID_PATTERN}: {request.eval_policy_id!r}"
-        )
-    if eval_policy_id not in _ALLOWED_EVAL_POLICIES:
-        raise LexValidationError(f"unsupported eval_policy_id: {eval_policy_id}")
+    if not eval_policy_id:
+        raise LexValidationError("eval_policy_id is required")
+    try:
+        _ = ComponentId.parse(eval_policy_id)
+    except Exception:
+        if _ID_RE.fullmatch(eval_policy_id) is None:
+            raise LexValidationError(
+                f"eval_policy_id must be base_id ({ID_PATTERN}) or ComponentId"
+            ) from None
 
     policy_spec_ref: PolicySpecRef | None = request.policy_spec_ref
     model_spec_ref: ModelSpecRef | None = request.model_spec_ref

@@ -6,6 +6,16 @@ from enum import IntFlag, auto
 class Capability(IntFlag):
     """Capabilities advertised by a component."""
 
+    # Type capabilities
+    IR_FRAGMENT = auto()
+    FOUNDRY_METHOD = auto()
+    SCHOLAR_EXTRACTOR = auto()
+    LEX_EXTRACTOR = auto()
+    LEX_EVALUATOR = auto()
+    SCIENTIST_NODE = auto()
+    NORM_PACK_PROVIDER = auto()
+
+    # Cross-cutting capabilities
     CAS_READ = auto()
     CAS_WRITE = auto()
     FABRIC_QUERY = auto()
@@ -14,7 +24,6 @@ class Capability(IntFlag):
     FOUNDRY_EXECUTE = auto()
     LEX_EVALUATE = auto()
     SCHOLAR_ENRICH = auto()
-    SCIENTIST_NODE = auto()
 
 
 Capabilities = Capability

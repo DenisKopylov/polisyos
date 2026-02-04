@@ -65,9 +65,29 @@ dev = [
 
 [project.scripts]
 polisy = "polisyos.foundry.plugins.cli:main"
+polisyos = "polisyos.core.components.cli:main"
 
 [project.entry-points."polisyos.methods"]
 # Method plugins can register entry points here.
+
+[project.entry-points."polisyos.ir_fragments"]
+"roads.core" = "polisyos.packs.roads.ir_fragments:roads_ir_fragment_component"
+"econ.core" = "polisyos.packs.econ.ir_fragments:econ_ir_fragment_component"
+
+[project.entry-points."polisyos.foundry_methods"]
+"roads.method" = "polisyos.packs.roads.foundry_methods:roads_method_component"
+
+[project.entry-points."polisyos.scholar_extractors"]
+"roads.extractor" = "polisyos.packs.roads.scholar_extractors:roads_extractor_component"
+
+[project.entry-points."polisyos.lex_extractors"]
+"roads.lex_regex" = "polisyos.packs.roads.scholar_extractors:lex_norm_regex_extractor_component"
+
+[project.entry-points."polisyos.lex_evaluators"]
+"roads.simple_eval" = "polisyos.packs.roads.lex_evaluators:lex_simple_evaluator_component"
+
+[project.entry-points."polisyos.norm_pack_providers"]
+"roads.norms" = "polisyos.packs.roads.norms_provider:roads_norms_provider_component"
 
 # --- Tool Configurations ---
 

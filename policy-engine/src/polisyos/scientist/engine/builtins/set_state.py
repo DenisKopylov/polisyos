@@ -3,13 +3,15 @@ from __future__ import annotations
 from dataclasses import dataclass
 from decimal import Decimal
 
-from polisyos.core.components import Capability, ComponentId, ComponentMetadata
+from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.protocol import NodeError, NodeOutcome, NodeSpec
 from polisyos.scientist.engine.state import ExperimentState, JsonScalar
 
 _SET_STATE_METADATA = ComponentMetadata(
     component_id=ComponentId.parse("scientist.node_set_state@1.0.0"),
+    kind=ComponentKind.SCIENTIST_NODE,
+    abi_targets={"world_abi": "1.x"},
     display_name="Set state",
     description="Set a key in ExperimentState.params.",
     tags=["builtin"],

@@ -2,6 +2,8 @@ from __future__ import annotations
 
 # Canonical input keys (ExperimentState.inputs)
 INPUT_TRINITY_BUNDLE_REF = "trinity_bundle_ref"
+INPUT_POLICY_SPEC_REF = "policy_spec_ref"
+INPUT_MODEL_SPEC_REF = "model_spec_ref"
 INPUT_REGISTRY_BUNDLE_REF = "registry_bundle_ref"
 INPUT_DATA_SNAPSHOT_REF = "data_snapshot_ref"
 INPUT_STATE_SNAPSHOT_REF = "state_snapshot_ref"
@@ -40,6 +42,8 @@ REPORT_GOVERNANCE_REPORT_REF = "governance_report_ref"
 
 __all__ = [
     "INPUT_TRINITY_BUNDLE_REF",
+    "INPUT_POLICY_SPEC_REF",
+    "INPUT_MODEL_SPEC_REF",
     "INPUT_REGISTRY_BUNDLE_REF",
     "INPUT_DATA_SNAPSHOT_REF",
     "INPUT_STATE_SNAPSHOT_REF",

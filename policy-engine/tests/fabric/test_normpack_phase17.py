@@ -112,6 +112,7 @@ def test_claim_to_norm_rule_mapping_is_deterministic() -> None:
     assert first[0].model_dump(mode="python") == second[0].model_dump(mode="python")
     assert first[0].norm_id == claim.claim_id
     assert [ref.provision_id for ref in first[0].provision_refs] == ["frag.a", "frag.b"]
+    assert first[0].backend_metadata["operator"] == "<="
 
     runtime_like = {"started_at", "ended_at", "event_id", "run_id", "trace_id"}
     assert not runtime_like.intersection(first[0].backend_metadata)
@@ -149,9 +150,7 @@ def test_norm_rule_sorting_is_deterministic() -> None:
         jurisdiction_norm="ua",
         conflict_set_by_winner={},
         trust_by_target={},
-        extractor_id_by_claim={
-            claim.claim_id: "lex.norm_extractor.regex_v1" for claim in claims
-        },
+        extractor_id_by_claim={claim.claim_id: "lex.norm_extractor.regex_v1" for claim in claims},
     )
     rules_2 = claims_to_norm_rules(
         claims_by_id=by_id,
@@ -159,9 +158,7 @@ def test_norm_rule_sorting_is_deterministic() -> None:
         jurisdiction_norm="ua",
         conflict_set_by_winner={},
         trust_by_target={},
-        extractor_id_by_claim={
-            claim.claim_id: "lex.norm_extractor.regex_v1" for claim in claims
-        },
+        extractor_id_by_claim={claim.claim_id: "lex.norm_extractor.regex_v1" for claim in claims},
     )
 
     assert [rule.norm_id for rule in rules_1] == [rule.norm_id for rule in rules_2]

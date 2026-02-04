@@ -1,10 +1,14 @@
 from __future__ import annotations
 
+from polisyos.core.contracts.lex import ChangeProposalRef, LegalEvaluationRequest, LegalReportRef
+
 from .api import (
     assemble_norm_pack,
     build_legal_structure,
     build_version_index,
+    evaluate_legality,
     ingest_legal_doc_bytes,
+    propose_changes,
     resolve_active_version,
 )
 from .errors import (
@@ -26,16 +30,19 @@ from .types import (
     LexStructureResult,
     LexVersionIndexOptions,
     LexVersionIndexResult,
+    NormPackBudgets,
     NormPackBuildRequest,
     NormPackBuildResult,
-    NormPackBudgets,
     WorldEventRefLike,
 )
 
 __all__ = [
     "ActiveVersionResult",
     "ActiveVersionStrategy",
+    "ChangeProposalRef",
     "LegalDocSource",
+    "LegalEvaluationRequest",
+    "LegalReportRef",
     "LexError",
     "LexIndexError",
     "LexIngestError",
@@ -56,6 +63,8 @@ __all__ = [
     "assemble_norm_pack",
     "build_legal_structure",
     "build_version_index",
+    "evaluate_legality",
     "ingest_legal_doc_bytes",
+    "propose_changes",
     "resolve_active_version",
 ]

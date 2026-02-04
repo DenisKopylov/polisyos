@@ -3,6 +3,11 @@ from __future__ import annotations
 from pathlib import Path
 
 from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.contracts.lex import (
+    ChangeProposalRef,
+    LegalEvaluationRequest,
+    LegalReportRef,
+)
 from polisyos.fabric.io.db import SimulationDB
 from polisyos.lex.corpus.ingest import ingest_legal_doc_bytes as _ingest_legal_doc_bytes
 from polisyos.lex.corpus.structure import build_legal_structure as _build_legal_structure
@@ -11,6 +16,12 @@ from polisyos.lex.corpus.versioning import (
 )
 from polisyos.lex.corpus.versioning import (
     resolve_active_version as _resolve_active_version,
+)
+from polisyos.lex.legal_evaluation.change_proposals import (
+    propose_changes_impl as _propose_changes_impl,
+)
+from polisyos.lex.legal_evaluation.evaluate import (
+    evaluate_legality_impl as _evaluate_legality_impl,
 )
 from polisyos.lex.normpack.assemble_pack import assemble_norm_pack as _assemble_norm_pack
 from polisyos.lex.types import (
@@ -115,10 +126,43 @@ def assemble_norm_pack(
     )
 
 
+def evaluate_legality(
+    *,
+    cas: FileSystemCAS,
+    fact_log_root: Path,
+    request: LegalEvaluationRequest,
+    segment_name: str | None = None,
+) -> tuple[LegalReportRef, list[ChangeProposalRef]]:
+    return _evaluate_legality_impl(
+        cas=cas,
+        fact_log_root=fact_log_root,
+        request=request,
+        segment_name=segment_name,
+    )
+
+
+def propose_changes(
+    *,
+    cas: FileSystemCAS,
+    fact_log_root: Path,
+    based_on_report_ref: LegalReportRef,
+    segment_name: str | None = None,
+) -> list[ChangeProposalRef]:
+    return _propose_changes_impl(
+        cas=cas,
+        fact_log_root=fact_log_root,
+        based_on_report_ref=based_on_report_ref,
+        segment_name=segment_name,
+    )
+
+
 __all__ = [
     "ActiveVersionResult",
     "ActiveVersionStrategy",
+    "ChangeProposalRef",
     "LegalDocSource",
+    "LegalEvaluationRequest",
+    "LegalReportRef",
     "LexIngestOptions",
     "LexIngestResult",
     "LexStructureOptions",
@@ -130,6 +174,8 @@ __all__ = [
     "assemble_norm_pack",
     "build_legal_structure",
     "build_version_index",
+    "evaluate_legality",
     "ingest_legal_doc_bytes",
+    "propose_changes",
     "resolve_active_version",
 ]

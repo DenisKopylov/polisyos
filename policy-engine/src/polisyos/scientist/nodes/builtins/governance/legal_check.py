@@ -1,0 +1,231 @@
+from __future__ import annotations
+
+from dataclasses import dataclass
+from pathlib import Path
+
+from polisyos.core.artifacts.ids import ArtifactID
+from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.core.canon import from_canonical_bytes
+from polisyos.core.components import Capability, ComponentId, ComponentMetadata
+from polisyos.core.contracts.lex import LegalEvaluationRequest
+from polisyos.core.contracts.trinity import ModelSpecRef, PolicySpecRef, TrinityBundleRef
+from polisyos.lex.api import assemble_norm_pack, evaluate_legality
+from polisyos.lex.types import NormPackBuildRequest
+from polisyos.scientist.engine.context import ExecutionContext
+from polisyos.scientist.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
+from polisyos.scientist.engine.state import ExperimentState
+from polisyos.scientist.nodes.builtins import errors as node_errors
+from polisyos.scientist.nodes.builtins.state_keys import (
+    ARTIFACT_SIMULATION_RESULT_REF,
+    INPUT_MODEL_SPEC_REF,
+    INPUT_NORM_PACK_REF,
+    INPUT_POLICY_SPEC_REF,
+    INPUT_TRINITY_BUNDLE_REF,
+    REPORT_CHANGE_PROPOSAL_REF,
+    REPORT_LEGAL_REPORT_REF,
+)
+
+_METADATA = ComponentMetadata(
+    component_id=ComponentId.parse("scientist.node_legal_check@1.0.0"),
+    display_name="Legal Check",
+    description="Evaluate policy legality and emit legal report/change proposals.",
+    tags=["builtin", "governance", "lex"],
+    capabilities=Capability.SCIENTIST_NODE,
+)
+
+_SPEC = NodeSpec(
+    metadata=_METADATA,
+    state_reads=[
+        f"inputs.{INPUT_TRINITY_BUNDLE_REF}",
+        f"inputs.{INPUT_POLICY_SPEC_REF}",
+        f"inputs.{INPUT_MODEL_SPEC_REF}",
+        f"inputs.{INPUT_NORM_PACK_REF}",
+        f"artifacts_index.{ARTIFACT_SIMULATION_RESULT_REF}",
+        "params.jurisdiction",
+        "params.as_of",
+        "params.strict_legal",
+    ],
+    state_writes=[
+        f"inputs.{INPUT_NORM_PACK_REF}",
+        f"reports_index.{REPORT_LEGAL_REPORT_REF}",
+        f"reports_index.{REPORT_CHANGE_PROPOSAL_REF}",
+    ],
+    produces=[REPORT_LEGAL_REPORT_REF, REPORT_CHANGE_PROPOSAL_REF],
+)
+
+
+def _coerce_trinity_ref(value: ArtifactRef | None) -> TrinityBundleRef | None:
+    if value is None:
+        return None
+    return TrinityBundleRef.model_validate(value.model_dump())
+
+
+def _coerce_policy_ref(value: ArtifactRef | None) -> PolicySpecRef | None:
+    if value is None:
+        return None
+    return PolicySpecRef.model_validate(value.model_dump())
+
+
+def _coerce_model_ref(value: ArtifactRef | None) -> ModelSpecRef | None:
+    if value is None:
+        return None
+    return ModelSpecRef.model_validate(value.model_dump())
+
+
+def _fact_log_root(ctx: ExecutionContext, state: ExperimentState) -> Path:
+    candidate = state.params.get("fact_log_root")
+    if isinstance(candidate, str) and candidate.strip():
+        return Path(candidate.strip())
+    return Path(ctx.store.root).parent
+
+
+def _read_compliance_grade(ctx: ExecutionContext, report_ref: ArtifactRef) -> str | None:
+    try:
+        payload = from_canonical_bytes(ctx.store.get_bytes(report_ref.artifact_id))
+    except Exception:
+        return None
+    if not isinstance(payload, dict):
+        return None
+    summary = payload.get("summary")
+    if not isinstance(summary, dict):
+        return None
+    grade = summary.get("compliance_grade")
+    if isinstance(grade, str):
+        return grade
+    return None
+
+
+@dataclass(frozen=True)
+class LegalCheckNode:
+    @property
+    def spec(self) -> NodeSpec:
+        return _SPEC
+
+    def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
+        simulation_result_ref = state.artifacts_index.get(ARTIFACT_SIMULATION_RESULT_REF)
+        if simulation_result_ref is None:
+            return NodeOutcome(
+                status="fail",
+                state=state,
+                error=NodeError(
+                    code=node_errors.ERROR_MISSING_INPUT,
+                    message="Missing simulation_result_ref for legal check",
+                    details={"required": ARTIFACT_SIMULATION_RESULT_REF},
+                ),
+            )
+
+        jurisdiction = state.params.get("jurisdiction")
+        as_of = state.params.get("as_of")
+        if not isinstance(jurisdiction, str) or not jurisdiction.strip():
+            return NodeOutcome(
+                status="fail",
+                state=state,
+                error=NodeError(
+                    code=node_errors.ERROR_MISSING_INPUT,
+                    message="Missing params.jurisdiction for legal check",
+                    details={"required": "params.jurisdiction"},
+                ),
+            )
+        if not isinstance(as_of, str) or not as_of.strip():
+            return NodeOutcome(
+                status="fail",
+                state=state,
+                error=NodeError(
+                    code=node_errors.ERROR_MISSING_INPUT,
+                    message="Missing params.as_of for legal check",
+                    details={"required": "params.as_of"},
+                ),
+            )
+
+        trinity_bundle_ref = _coerce_trinity_ref(state.inputs.get(INPUT_TRINITY_BUNDLE_REF))
+        policy_spec_ref = _coerce_policy_ref(state.inputs.get(INPUT_POLICY_SPEC_REF))
+        model_spec_ref = _coerce_model_ref(state.inputs.get(INPUT_MODEL_SPEC_REF))
+        if trinity_bundle_ref is None and policy_spec_ref is None:
+            return NodeOutcome(
+                status="fail",
+                state=state,
+                error=NodeError(
+                    code=node_errors.ERROR_MISSING_INPUT,
+                    message="Missing policy source: provide trinity_bundle_ref or policy_spec_ref",
+                    details={"required": [INPUT_TRINITY_BUNDLE_REF, INPUT_POLICY_SPEC_REF]},
+                ),
+            )
+
+        norm_pack_ref = state.inputs.get(INPUT_NORM_PACK_REF)
+        new_state = state.model_copy(deep=True)
+        fact_log_root = _fact_log_root(ctx, state)
+
+        if norm_pack_ref is None:
+            norm_request = NormPackBuildRequest(
+                jurisdiction=jurisdiction,
+                as_of=as_of,
+            )
+            norm_result = assemble_norm_pack(
+                cas=ctx.store,
+                fact_log_root=fact_log_root,
+                request=norm_request,
+            )
+            norm_pack_ref = ArtifactRef(
+                artifact_id=ArtifactID.model_validate(norm_result.norm_pack_artifact_id),
+                kind="lex.norm_pack",
+                media_type="application/json",
+            )
+            new_state.inputs[INPUT_NORM_PACK_REF] = norm_pack_ref
+
+        strict_legal = state.params.get("strict_legal", True)
+        strict = bool(strict_legal)
+
+        request = LegalEvaluationRequest(
+            jurisdiction=jurisdiction,
+            as_of=as_of,
+            trinity_bundle_ref=trinity_bundle_ref,
+            policy_spec_ref=policy_spec_ref,
+            model_spec_ref=model_spec_ref,
+            simulation_result_ref=simulation_result_ref,
+            norm_pack_ref=norm_pack_ref,
+            strict=strict,
+        )
+
+        try:
+            report_ref, proposal_refs = evaluate_legality(
+                cas=ctx.store,
+                fact_log_root=fact_log_root,
+                request=request,
+            )
+        except Exception as exc:
+            return NodeOutcome(
+                status="fail",
+                state=state,
+                error=NodeError(
+                    code="lex.evaluate_failed",
+                    message=f"Legal evaluation failed: {exc}",
+                ),
+            )
+
+        new_state.reports_index[REPORT_LEGAL_REPORT_REF] = report_ref
+        artifacts: list[ArtifactRef] = [report_ref]
+        if proposal_refs:
+            first = proposal_refs[0]
+            new_state.reports_index[REPORT_CHANGE_PROPOSAL_REF] = first
+            artifacts.extend(proposal_refs)
+
+        events: list[NodeEvent] = []
+        grade = _read_compliance_grade(ctx, report_ref)
+        if strict and grade is not None and grade != "pass":
+            events.append(
+                NodeEvent(
+                    level="warn",
+                    message=f"Legal compliance grade is {grade}",
+                    attrs={"strict_legal": True},
+                )
+            )
+
+        return NodeOutcome(
+            status="ok",
+            state=new_state,
+            artifacts=artifacts,
+            events=events,
+        )
+
+
+__all__ = ["LegalCheckNode"]

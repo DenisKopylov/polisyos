@@ -9,6 +9,8 @@ from polisyos.scientist.nodes.builtins import state_keys as keys
 
 _DEFAULT_KINDS: dict[str, str] = {
     keys.INPUT_TRINITY_BUNDLE_REF: "ir.trinity_bundle",
+    keys.INPUT_POLICY_SPEC_REF: "ir.policy_spec",
+    keys.INPUT_MODEL_SPEC_REF: "ir.model_spec",
     keys.INPUT_POLICY_IR_REF: "ir.policy_surface",
     keys.INPUT_REGISTRY_BUNDLE_REF: "core.registry_bundle",
     keys.INPUT_DATA_SNAPSHOT_REF: "fabric.data_snapshot",
@@ -75,6 +77,8 @@ def legacy_to_engine_state(legacy: Mapping[str, Any]) -> ExperimentState:
 
     for key in [
         keys.INPUT_TRINITY_BUNDLE_REF,
+        keys.INPUT_POLICY_SPEC_REF,
+        keys.INPUT_MODEL_SPEC_REF,
         keys.INPUT_POLICY_IR_REF,
         keys.INPUT_REGISTRY_BUNDLE_REF,
         keys.INPUT_DATA_SNAPSHOT_REF,
@@ -86,9 +90,13 @@ def legacy_to_engine_state(legacy: Mapping[str, Any]) -> ExperimentState:
             inputs[key] = ref
 
     # Legacy simulation_results_ref -> engine simulation_result_ref
-    sim_ref = _coerce_artifact_ref(legacy.get("simulation_results_ref"), key=keys.ARTIFACT_SIMULATION_RESULT_REF)
+    sim_ref = _coerce_artifact_ref(
+        legacy.get("simulation_results_ref"), key=keys.ARTIFACT_SIMULATION_RESULT_REF
+    )
     if sim_ref is None:
-        sim_ref = _coerce_artifact_ref(legacy.get(keys.ARTIFACT_SIMULATION_RESULT_REF), key=keys.ARTIFACT_SIMULATION_RESULT_REF)
+        sim_ref = _coerce_artifact_ref(
+            legacy.get(keys.ARTIFACT_SIMULATION_RESULT_REF), key=keys.ARTIFACT_SIMULATION_RESULT_REF
+        )
     if sim_ref is not None:
         artifacts[keys.ARTIFACT_SIMULATION_RESULT_REF] = sim_ref
 
@@ -146,7 +154,9 @@ def legacy_to_engine_state(legacy: Mapping[str, Any]) -> ExperimentState:
     )
 
 
-def apply_engine_to_legacy(engine_state: ExperimentState, legacy_state: Mapping[str, Any]) -> dict[str, Any]:
+def apply_engine_to_legacy(
+    engine_state: ExperimentState, legacy_state: Mapping[str, Any]
+) -> dict[str, Any]:
     updated = dict(legacy_state)
     updated["run_id"] = engine_state.run_id
 

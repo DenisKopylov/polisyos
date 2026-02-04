@@ -52,8 +52,8 @@ from polisyos.lex.normpack.policies import (
     CONFLICT_TRUST_ALGORITHM_VERSION,
     DEFAULT_EXTRACTOR_ID,
     DEFAULT_INCLUDED_PROVISION_KINDS,
-    DEFAULT_SELECTION_POLICY_ID,
     DEFAULT_PREVIEW_LIMIT,
+    DEFAULT_SELECTION_POLICY_ID,
     DOMAIN_KEYWORDS,
     NORM_PACK_KIND,
 )
@@ -63,9 +63,9 @@ from polisyos.lex.normpack.select_sources import (
     select_doc_sources,
 )
 from polisyos.lex.types import (
+    NormPackBudgets,
     NormPackBuildRequest,
     NormPackBuildResult,
-    NormPackBudgets,
     SelectedDocVersion,
 )
 
@@ -81,9 +81,7 @@ def _normalize_request(
 ) -> tuple[NormPackBuildRequest, str, str, str | None]:
     jurisdiction_norm = request.jurisdiction.strip().casefold()
     if _ID_RE.fullmatch(jurisdiction_norm) is None:
-        raise LexValidationError(
-            f"jurisdiction must match {ID_PATTERN}: {request.jurisdiction!r}"
-        )
+        raise LexValidationError(f"jurisdiction must match {ID_PATTERN}: {request.jurisdiction!r}")
 
     as_of_norm = normalize_as_of(request.as_of)
 
@@ -95,8 +93,7 @@ def _normalize_request(
 
     if request.selection_policy_id != DEFAULT_SELECTION_POLICY_ID:
         raise LexValidationError(
-            "unsupported selection_policy_id: "
-            f"{request.selection_policy_id}"
+            "unsupported selection_policy_id: " f"{request.selection_policy_id}"
         )
     for field_name, value in (
         ("selection_policy_id", request.selection_policy_id),
@@ -403,6 +400,17 @@ def claims_to_norm_rules(
         if isinstance(claim.props.get("lex"), dict) and bool(claim.props["lex"].get("must_not")):
             rule_type = RuleType.PROHIBITION
 
+        operator: str | None = None
+        lex_props = claim.props.get("lex")
+        if isinstance(lex_props, dict):
+            lex_operator = lex_props.get("operator")
+            if isinstance(lex_operator, str) and lex_operator.strip():
+                operator = lex_operator.strip()
+        if operator is None:
+            qualifier_operator = claim.qualifiers.get("op")
+            if isinstance(qualifier_operator, str) and qualifier_operator.strip():
+                operator = qualifier_operator.strip()
+
         description = claim.predicate_id
         if claim.unit_id:
             description = f"{description} {claim.value_text} [{claim.unit_id}]"
@@ -429,6 +437,7 @@ def claims_to_norm_rules(
 
         backend_metadata: dict[str, Any] = {
             "predicate_id": claim.predicate_id,
+            "operator": operator,
             "value_text": claim.value_text,
             "value_decimal": (
                 str(claim.value_decimal) if claim.value_decimal is not None else None
@@ -436,12 +445,8 @@ def claims_to_norm_rules(
             "unit_id": claim.unit_id,
             "source_claim_id": claim.claim_id,
             "conflict_set_id": conflict_set_by_winner.get(claim.claim_id),
-            "trust_score": (
-                str(trust_assessment.score) if trust_assessment is not None else None
-            ),
-            "trust_tier": (
-                trust_assessment.tier.value if trust_assessment is not None else None
-            ),
+            "trust_score": (str(trust_assessment.score) if trust_assessment is not None else None),
+            "trust_tier": (trust_assessment.tier.value if trust_assessment is not None else None),
             "extractor_id": extractor_id_by_claim.get(claim.claim_id),
         }
 

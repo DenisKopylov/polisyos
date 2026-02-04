@@ -12,11 +12,12 @@ from typing import Any, Literal, Protocol, runtime_checkable
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from polisyos.ir.norm_pack import NormPack, NormRef, NormRule, RuleType
+
 from ..artifacts.manifest import ArtifactRef
 from .fabric import FabricResultRef
 from .foundry import ExecPlanRef, SimulationResultRef
 from .trinity import ModelSpecRef, PolicySpecRef, ProblemFrameRef, TrinityBundle, TrinityBundleRef
-from polisyos.ir.norm_pack import NormPack, NormRef, NormRule, RuleType
 
 
 class IssueSeverity(str, Enum):
@@ -138,6 +139,24 @@ class ChangeProposalRef(ArtifactRef):
     media_type: Literal["application/json"] = "application/json"
 
 
+class LegalEvaluationRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
+
+    jurisdiction: str
+    as_of: str
+
+    trinity_bundle_ref: TrinityBundleRef | None = None
+    policy_spec_ref: PolicySpecRef | None = None
+    model_spec_ref: ModelSpecRef | None = None
+    simulation_result_ref: SimulationResultRef
+    norm_pack_ref: ArtifactRef
+
+    eval_policy_id: str = "lex.eval.simple_v1"
+    strict: bool = True
+
+
 class LegalReport(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -167,6 +186,7 @@ __all__ = [
     "FoundryRefs",
     "LegalReportRef",
     "ChangeProposalRef",
+    "LegalEvaluationRequest",
     "LegalReport",
     "ChangeProposal",
 ]

@@ -8,7 +8,7 @@ import pandas as pd
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.canon import from_canonical_bytes
-from polisyos.fabric.world.store import (
+from polisyos.fabric.world import (
     append_world_segment_index,
     emit_world_event_facts,
     emit_world_node_facts,

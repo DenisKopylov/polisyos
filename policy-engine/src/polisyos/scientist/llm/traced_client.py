@@ -9,9 +9,23 @@ Intercepts LLM calls to record:
 from __future__ import annotations
 
 import inspect
+from enum import Enum
 from typing import Any, Optional, Protocol, runtime_checkable
 
-from opentelemetry.trace import SpanKind, Status, StatusCode
+try:
+    from opentelemetry.trace import SpanKind, Status, StatusCode
+except ModuleNotFoundError:  # pragma: no cover - optional runtime dependency
+    class SpanKind(str, Enum):
+        CLIENT = "CLIENT"
+
+    class StatusCode(str, Enum):
+        OK = "OK"
+        ERROR = "ERROR"
+
+    class Status:  # type: ignore[override]
+        def __init__(self, status_code: StatusCode, description: str | None = None) -> None:
+            self.status_code = status_code
+            self.description = description
 
 from polisyos.core.observability import get_metrics, get_tracer
 

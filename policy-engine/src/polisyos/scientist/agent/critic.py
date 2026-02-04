@@ -1,8 +1,4 @@
-"""
-Mock Critic Agent.
-
-Implements the CriticAgent protocol with deterministic critique behavior.
-"""
+"""Critic agents for Trinity-first review."""
 
 from __future__ import annotations
 
@@ -10,8 +6,9 @@ import hashlib
 import json
 import uuid
 from datetime import datetime
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
+from polisyos.ir.trinity import TrinityBundle
 from polisyos.scientist.agent.prompts import get_critic_prompt
 from polisyos.scientist.agent.protocols import (
     CriticAgent,
@@ -23,12 +20,41 @@ from polisyos.scientist.agent.protocols import (
 )
 from polisyos.scientist.llm import TracedLLMClient
 
-if TYPE_CHECKING:
-    from polisyos.ir.surface import PolicySurfaceIR
+
+_COMMON_WORDS = {
+    "the",
+    "a",
+    "an",
+    "to",
+    "by",
+    "for",
+    "in",
+    "of",
+    "and",
+    "or",
+    "with",
+    "on",
+    "at",
+    "from",
+    "is",
+    "are",
+}
+
+
+def _to_trinity_bundle(ir: TrinityBundle) -> TrinityBundle:
+    if isinstance(ir, TrinityBundle):
+        return ir
+
+    raise TypeError(f"Unsupported IR type for critique: {type(ir)}")
+
+
+def _tokenize(text: str) -> set[str]:
+    tokens = {token.strip().lower() for token in text.replace("_", " ").split()}
+    return {token for token in tokens if token and token not in _COMMON_WORDS}
 
 
 class MockCriticAgent:
-    """Mock implementation of CriticAgent for testing."""
+    """Mock implementation of CriticAgent."""
 
     def __init__(
         self,
@@ -42,28 +68,28 @@ class MockCriticAgent:
 
     async def critique(
         self,
-        ir: "PolicySurfaceIR",
+        ir: TrinityBundle,
         problem_frame: ProblemFrame,
         *,
         depth: str = "standard",
     ) -> CritiqueReport:
         self._critique_count += 1
+        bundle = _to_trinity_bundle(ir)
 
         report_id = f"critique_{uuid.uuid4().hex[:8]}"
-        ir_ref = f"ir_{hashlib.sha256(str(ir.model_dump()).encode()).hexdigest()[:16]}"
+        ir_ref = f"bundle_{hashlib.sha256(bundle.model_dump_json().encode()).hexdigest()[:16]}"
 
         issues: list[CritiqueIssue] = []
+        issues.extend(await self._check_structure(bundle))
 
-        issues.extend(await self._check_structure(ir))
+        alignment_score = await self.check_alignment(bundle, problem_frame)
+        issues.extend(await self._check_alignment_issues(alignment_score))
 
-        alignment_score = await self.check_alignment(ir, problem_frame)
-        issues.extend(await self._check_alignment_issues(ir, problem_frame, alignment_score))
-
-        completeness_score, completeness_issues = await self._check_completeness(ir, problem_frame)
+        completeness_score, completeness_issues = await self._check_completeness(bundle)
         issues.extend(completeness_issues)
 
         if depth == "deep":
-            issues.extend(await self._deep_analysis(ir, problem_frame))
+            issues.extend(await self._deep_analysis(bundle))
 
         has_blockers = any(issue.severity == CritiqueSeverity.BLOCKER for issue in issues)
         has_warnings = any(issue.severity == CritiqueSeverity.WARNING for issue in issues)
@@ -75,9 +101,16 @@ class MockCriticAgent:
         else:
             verdict = self._default_verdict
 
-        blocker_penalty = sum(1 for issue in issues if issue.severity == CritiqueSeverity.BLOCKER) * 0.3
-        warning_penalty = sum(1 for issue in issues if issue.severity == CritiqueSeverity.WARNING) * 0.1
-        overall_quality = max(0.0, (alignment_score + completeness_score) / 2 - blocker_penalty - warning_penalty)
+        blocker_penalty = sum(
+            1 for issue in issues if issue.severity == CritiqueSeverity.BLOCKER
+        ) * 0.3
+        warning_penalty = sum(
+            1 for issue in issues if issue.severity == CritiqueSeverity.WARNING
+        ) * 0.1
+        overall_quality = max(
+            0.0,
+            (alignment_score + completeness_score) / 2 - blocker_penalty - warning_penalty,
+        )
 
         reflexion_hint = await self.generate_hint(issues) if issues else ""
 
@@ -95,212 +128,184 @@ class MockCriticAgent:
                 "depth": depth,
                 "mock_generated": True,
                 "critique_count": self._critique_count,
+                "artifact_kind": "trinity_bundle",
             },
             created_at=datetime.utcnow(),
         )
 
-    async def _check_structure(self, ir: "PolicySurfaceIR") -> list[CritiqueIssue]:
+    async def _check_structure(self, bundle: TrinityBundle) -> list[CritiqueIssue]:
         issues: list[CritiqueIssue] = []
-        issue_id = 0
 
-        if not ir.semantic.interventions:
+        if not bundle.policy_spec.interventions:
             issues.append(
                 CritiqueIssue(
-                    issue_id=f"struct_{issue_id}",
+                    issue_id="struct_interventions",
                     category=CritiqueCategory.COMPLETENESS,
                     severity=CritiqueSeverity.BLOCKER,
-                    message="No interventions defined in IR",
-                    location="semantic.interventions",
-                    suggestion="Add at least one intervention to address the policy goals",
+                    message="No interventions defined in policy_spec",
+                    location="policy_spec.interventions",
+                    suggestion="Add at least one intervention.",
                 )
             )
-            issue_id += 1
 
-        if not ir.semantic.objectives:
+        if not bundle.problem_frame.objectives:
             issues.append(
                 CritiqueIssue(
-                    issue_id=f"struct_{issue_id}",
+                    issue_id="struct_objectives",
                     category=CritiqueCategory.COMPLETENESS,
                     severity=CritiqueSeverity.WARNING,
-                    message="No objectives defined in IR",
-                    location="semantic.objectives",
-                    suggestion="Define explicit objectives to enable optimization",
+                    message="No objectives defined in problem_frame",
+                    location="problem_frame.objectives",
+                    suggestion="Define measurable objectives aligned to goals.",
                 )
             )
-            issue_id += 1
+
+        if not bundle.model_spec.data_snapshot_ref:
+            issues.append(
+                CritiqueIssue(
+                    issue_id="struct_data_snapshot",
+                    category=CritiqueCategory.SCHEMA,
+                    severity=CritiqueSeverity.BLOCKER,
+                    message="Missing model_spec.data_snapshot_ref",
+                    location="model_spec.data_snapshot_ref",
+                    suggestion="Set a valid data snapshot artifact reference.",
+                )
+            )
 
         return issues
 
-    async def _check_alignment_issues(
-        self,
-        ir: "PolicySurfaceIR",
-        problem_frame: ProblemFrame,
-        alignment_score: float,
-    ) -> list[CritiqueIssue]:
+    async def _check_alignment_issues(self, alignment_score: float) -> list[CritiqueIssue]:
         issues: list[CritiqueIssue] = []
-
         if alignment_score < 0.5:
             issues.append(
                 CritiqueIssue(
-                    issue_id="align_0",
+                    issue_id="align_blocker",
                     category=CritiqueCategory.ALIGNMENT,
                     severity=CritiqueSeverity.BLOCKER,
                     message=f"Low alignment with ProblemFrame (score: {alignment_score:.2f})",
-                    location="semantic",
-                    suggestion="Review the ProblemFrame goals and adjust interventions to better address them",
-                    evidence={"alignment_score": alignment_score, "threshold": self._alignment_threshold},
+                    location="policy_spec",
+                    suggestion="Revise interventions to target explicit problem goals.",
                 )
             )
         elif alignment_score < self._alignment_threshold:
             issues.append(
                 CritiqueIssue(
-                    issue_id="align_1",
+                    issue_id="align_warning",
                     category=CritiqueCategory.ALIGNMENT,
                     severity=CritiqueSeverity.WARNING,
                     message=f"Moderate alignment with ProblemFrame (score: {alignment_score:.2f})",
-                    location="semantic",
-                    suggestion="Consider strengthening the connection to stated goals",
-                    evidence={"alignment_score": alignment_score, "threshold": self._alignment_threshold},
+                    location="policy_spec",
+                    suggestion="Strengthen mapping between goals and interventions.",
                 )
             )
-
         return issues
 
     async def _check_completeness(
         self,
-        ir: "PolicySurfaceIR",
-        problem_frame: ProblemFrame,
+        bundle: TrinityBundle,
     ) -> tuple[float, list[CritiqueIssue]]:
         issues: list[CritiqueIssue] = []
         checks_passed = 0
         total_checks = 4
 
-        if ir.semantic.interventions:
+        if bundle.policy_spec.interventions:
             checks_passed += 1
-
-        if ir.semantic.objectives:
+        if bundle.problem_frame.objectives:
             checks_passed += 1
         else:
             issues.append(
                 CritiqueIssue(
-                    issue_id="comp_0",
+                    issue_id="comp_objectives",
                     category=CritiqueCategory.COMPLETENESS,
                     severity=CritiqueSeverity.INFO,
-                    message="Consider adding explicit objectives for better optimization",
-                    location="semantic.objectives",
-                    suggestion="Define measurable objectives based on ProblemFrame goals",
+                    message="Add explicit objectives for better optimization.",
+                    location="problem_frame.objectives",
                 )
             )
-
-        if ir.semantic.constraints:
+        if bundle.problem_frame.hard_constraints or bundle.problem_frame.soft_constraints:
+            checks_passed += 1
+        if bundle.model_spec.assumptions:
             checks_passed += 1
 
-        if ir.advisory and (ir.advisory.entities or ir.advisory.narrative):
-            checks_passed += 1
+        return checks_passed / total_checks, issues
 
-        completeness_score = checks_passed / total_checks
-        return completeness_score, issues
-
-    async def _deep_analysis(
-        self,
-        ir: "PolicySurfaceIR",
-        problem_frame: ProblemFrame,
-    ) -> list[CritiqueIssue]:
+    async def _deep_analysis(self, bundle: TrinityBundle) -> list[CritiqueIssue]:
         issues: list[CritiqueIssue] = []
-
-        for i, intervention in enumerate(ir.semantic.interventions):
-            params = intervention.params if hasattr(intervention, "params") else {}
-            rate = params.get("rate", "0")
-            try:
-                rate_float = float(rate)
-                if rate_float > 1.0:
+        for idx, intervention in enumerate(bundle.policy_spec.interventions):
+            for param_name, value in intervention.params.items():
+                if not isinstance(value, str):
+                    continue
+                try:
+                    numeric = float(value)
+                except Exception:
+                    continue
+                if param_name in {"rate", "tax_rate", "subsidy_rate"} and numeric > 1.0:
                     issues.append(
                         CritiqueIssue(
-                            issue_id=f"deep_{i}_rate",
+                            issue_id=f"deep_rate_{idx}_{param_name}",
                             category=CritiqueCategory.FEASIBILITY,
                             severity=CritiqueSeverity.WARNING,
-                            message=f"Intervention {i} has unrealistic rate: {rate_float}",
-                            location=f"semantic.interventions[{i}].params.rate",
-                            suggestion="Rates typically should be between 0 and 1",
+                            message=f"Intervention parameter {param_name}={numeric} is likely unrealistic.",
+                            location=f"policy_spec.interventions[{idx}].params.{param_name}",
+                            suggestion="Use rates in [0, 1] unless intentionally scaled.",
                         )
                     )
-            except (ValueError, TypeError):
-                continue
-
         return issues
 
     async def generate_hint(self, issues: list[CritiqueIssue]) -> str:
         if not issues:
-            return "The IR looks good. No major issues found."
+            return "No issues identified."
 
-        sorted_issues = sorted(issues, key=lambda issue: issue.severity.value)
-        hints: list[str] = []
+        blockers = [issue for issue in issues if issue.severity == CritiqueSeverity.BLOCKER]
+        warnings = [issue for issue in issues if issue.severity == CritiqueSeverity.WARNING]
 
-        blockers = [issue for issue in sorted_issues if issue.severity == CritiqueSeverity.BLOCKER]
+        lines: list[str] = []
         if blockers:
-            hints.append("CRITICAL ISSUES that must be fixed:")
-            for issue in blockers:
-                hint_text = f"- {issue.message}"
-                if issue.suggestion:
-                    hint_text += f" Suggestion: {issue.suggestion}"
-                hints.append(hint_text)
+            top = blockers[0]
+            lines.append(
+                f"Fix blocker first: {top.message} at {top.location or 'unknown location'}."
+            )
+            if top.suggestion:
+                lines.append(top.suggestion)
+        elif warnings:
+            top = warnings[0]
+            lines.append(f"Address warning: {top.message}")
+            if top.suggestion:
+                lines.append(top.suggestion)
+        else:
+            lines.append("Apply informational improvements and re-run critique.")
 
-        warnings = [issue for issue in sorted_issues if issue.severity == CritiqueSeverity.WARNING]
-        if warnings:
-            hints.append("\nIssues that should be addressed:")
-            for issue in warnings:
-                hint_text = f"- {issue.message}"
-                if issue.suggestion:
-                    hint_text += f" Suggestion: {issue.suggestion}"
-                hints.append(hint_text)
-
-        if not blockers and not warnings:
-            infos = [issue for issue in sorted_issues if issue.severity == CritiqueSeverity.INFO]
-            if infos:
-                hints.append("Suggestions for improvement:")
-                for issue in infos[:3]:
-                    hints.append(f"- {issue.message}")
-
-        return "\n".join(hints)
+        return " ".join(lines)
 
     async def check_alignment(
         self,
-        ir: "PolicySurfaceIR",
+        ir: TrinityBundle,
         problem_frame: ProblemFrame,
     ) -> float:
-        pf_keywords = set(problem_frame.problem_statement.lower().split())
+        bundle = _to_trinity_bundle(ir)
+
+        goal_tokens: set[str] = set()
+        goal_tokens.update(_tokenize(problem_frame.problem_statement))
         for goal in problem_frame.goals:
-            pf_keywords.update(goal.lower().split())
-
-        ir_keywords: set[str] = set()
-        for intervention in ir.semantic.interventions:
-            if hasattr(intervention, "kind") and intervention.kind:
-                ir_keywords.update(intervention.kind.lower().split("_"))
-
-        for objective in ir.semantic.objectives:
-            if hasattr(objective, "metric_id") and objective.metric_id:
-                ir_keywords.update(objective.metric_id.lower().split("_"))
-
-        if ir.advisory and ir.advisory.narrative:
-            ir_keywords.update(ir.advisory.narrative.lower().split()[:20])
-
-        if not pf_keywords:
+            goal_tokens.update(_tokenize(goal))
+        if not goal_tokens:
             return 0.8
 
-        common_words = {"the", "a", "an", "to", "by", "for", "in", "of", "and", "or"}
-        pf_keywords -= common_words
-        ir_keywords -= common_words
+        policy_tokens: set[str] = set()
+        for intervention in bundle.policy_spec.interventions:
+            policy_tokens.update(_tokenize(intervention.kind))
+            policy_tokens.update(_tokenize(intervention.intervention_id))
+            for key in intervention.params.keys():
+                policy_tokens.update(_tokenize(str(key)))
+        for objective in bundle.problem_frame.objectives:
+            policy_tokens.update(_tokenize(objective.metric_id))
 
-        if not pf_keywords:
-            return 0.8
+        if not policy_tokens:
+            return 0.0
 
-        overlap = len(pf_keywords & ir_keywords)
-        max_possible = min(len(pf_keywords), 10)
-
-        base_score = 0.6
-        overlap_score = (overlap / max_possible) * 0.4 if max_possible > 0 else 0
-
-        return min(1.0, base_score + overlap_score)
+        overlap = len(goal_tokens & policy_tokens)
+        score = overlap / max(min(len(goal_tokens), 10), 1)
+        return min(1.0, max(0.0, 0.6 + 0.4 * score))
 
     @property
     def critique_count(self) -> int:
@@ -314,11 +319,7 @@ class MockCriticAgent:
 
 
 class LLMCriticAgent:
-    """
-    LLM-powered Critic agent.
-
-    Performs adversarial review of IR against ProblemFrame.
-    """
+    """LLM-powered critic for Trinity bundles."""
 
     def __init__(self, llm_client: Any, model_name: str | None = None) -> None:
         if llm_client is not None and not isinstance(llm_client, TracedLLMClient):
@@ -328,15 +329,15 @@ class LLMCriticAgent:
 
     async def critique(
         self,
-        ir: "PolicySurfaceIR",
+        ir: TrinityBundle,
         problem_frame: ProblemFrame,
         *,
         depth: str = "standard",
     ) -> CritiqueReport:
-        """Review IR against the ProblemFrame."""
         prompt = get_critic_prompt()
+        bundle = _to_trinity_bundle(ir)
 
-        ir_json = ir.model_dump_json(indent=2)
+        bundle_json = bundle.model_dump_json(indent=2)
         pf_payload = {
             "frame_id": problem_frame.frame_id,
             "domain": problem_frame.domain,
@@ -351,8 +352,8 @@ class LLMCriticAgent:
 PROBLEM FRAME:
 {json.dumps(pf_payload, indent=2)}
 
-POLICY IR TO REVIEW:
-{ir_json}
+TRINITY BUNDLE TO REVIEW:
+{bundle_json}
 
 REVIEW DEPTH: {depth}
 
@@ -393,7 +394,7 @@ Provide your critique as a JSON object.
 
             ir_ref = data.get("ir_ref")
             if not ir_ref:
-                ir_ref = hashlib.sha256(ir_json.encode()).hexdigest()
+                ir_ref = hashlib.sha256(bundle_json.encode()).hexdigest()
 
             return CritiqueReport(
                 report_id=data.get("report_id", str(uuid.uuid4())),
@@ -405,6 +406,7 @@ Provide your critique as a JSON object.
                 completeness_score=float(data.get("completeness_score", 0.5)),
                 overall_quality=float(data.get("overall_quality", 0.5)),
                 reflexion_hint=data.get("reflexion_hint", ""),
+                metadata={"artifact_kind": "trinity_bundle", "depth": depth},
                 created_at=datetime.utcnow(),
             )
         except (json.JSONDecodeError, KeyError, ValueError) as exc:
@@ -422,10 +424,10 @@ Provide your critique as a JSON object.
                     )
                 ],
                 reflexion_hint="Unable to parse critique response. Please review manually.",
+                metadata={"artifact_kind": "trinity_bundle", "depth": depth},
             )
 
     async def generate_hint(self, issues: list[CritiqueIssue]) -> str:
-        """Generate a verbal hint from issues for Reflexion."""
         if not issues:
             return "No issues identified."
 
@@ -450,30 +452,10 @@ Provide your critique as a JSON object.
 
     async def check_alignment(
         self,
-        ir: "PolicySurfaceIR",
+        ir: TrinityBundle,
         problem_frame: ProblemFrame,
     ) -> float:
-        """Calculate alignment score between IR and ProblemFrame."""
-        goals = set(problem_frame.goals)
-        covered_goals = set()
-
-        for intervention in ir.semantic.interventions:
-            for goal in goals:
-                goal_lower = goal.lower()
-                if any(
-                    keyword in goal_lower
-                    for keyword in [
-                        intervention.kind,
-                        intervention.intervention_id,
-                        *intervention.params.keys(),
-                    ]
-                ):
-                    covered_goals.add(goal)
-
-        if not goals:
-            return 1.0
-
-        return len(covered_goals) / len(goals)
+        return await MockCriticAgent().check_alignment(ir, problem_frame)
 
 
 def create_mock_problem_frame(

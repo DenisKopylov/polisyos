@@ -26,7 +26,7 @@ _METADATA = ComponentMetadata(
     kind=ComponentKind.SCIENTIST_NODE,
     abi_targets={"world_abi": "1.x"},
     display_name="Compile Foundry",
-    description="Compile Trinity (or legacy surface) policy into Foundry exec plan.",
+    description="Compile Trinity policy into Foundry exec plan.",
     tags=["builtin", "compile"],
     capabilities=Capability.SCIENTIST_NODE,
 )
@@ -98,11 +98,21 @@ class CompileFoundryNode:
             )
             return NodeOutcome(status="fail", state=state, error=error)
 
+        if policy_ref.kind != "ir.trinity_bundle":
+            error = NodeError(
+                code=node_errors.ERROR_INVALID_STATE,
+                message="Unsupported policy kind for Foundry compile",
+                details={
+                    "expected_kind": "ir.trinity_bundle",
+                    "actual_kind": policy_ref.kind,
+                },
+            )
+            return NodeOutcome(status="fail", state=state, error=error)
+
         registry_ref = state.inputs.get(INPUT_REGISTRY_BUNDLE_REF)
-        input_kind = "trinity" if policy_ref.kind == "ir.trinity_bundle" else "surface"
 
         request = CompileRequest(
-            input_kind=input_kind,
+            input_kind="trinity",
             policy_ref=policy_ref,
             registry_bundle_ref=registry_ref,
             compile_config=self.compile_config,

@@ -59,13 +59,13 @@ class MockPIAgent:
             ),
             SubTask(
                 task_id=f"task_{base_hash}_formalize",
-                description="Convert draft to PolicySurfaceIR",
+                description="Convert draft to TrinityBundle (PolicySpec + ModelSpec)",
                 target_agent=AgentRole.FORMALIZER,
                 priority=TaskPriority.HIGH,
                 status=TaskStatus.PENDING,
                 dependencies=(f"task_{base_hash}_draft",),
                 inputs={},
-                expected_output="Valid PolicySurfaceIR object",
+                expected_output="Valid TrinityBundle object",
             ),
             SubTask(
                 task_id=f"task_{base_hash}_critique",

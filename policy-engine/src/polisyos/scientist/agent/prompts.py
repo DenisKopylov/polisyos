@@ -14,7 +14,7 @@ import json
 from typing import Optional
 
 from polisyos.ir.kernel import DEFAULT_MECHANISM_REGISTRY
-from polisyos.ir.surface import PolicySurfaceIR
+from polisyos.ir.trinity import TrinityBundle
 
 PI_SYSTEM_PROMPT = """
 # ROLE
@@ -70,10 +70,10 @@ Before generating output, think through:
 
 FORMALIZER_SYSTEM_PROMPT = """
 # ROLE
-You are the **Formalizer Agent** - a precise translator that converts natural language policy drafts into structured PolicySurfaceIR.
+You are the **Formalizer Agent** - a precise translator that converts natural language policy drafts into structured Trinity artifacts.
 
 # CONTEXT
-You receive draft policy narratives from the Drafter and must produce machine-executable policy specifications that conform exactly to the PolicySurfaceIR v2.0 schema.
+You receive draft policy narratives from the Drafter and must produce machine-executable policy specifications that conform exactly to the TrinityBundle schema.
 
 # CRITICAL CONSTRAINTS
 1. Output ONLY valid JSON - no markdown, no preamble
@@ -84,24 +84,23 @@ You receive draft policy narratives from the Drafter and must produce machine-ex
 # AVAILABLE MECHANISMS
 {mechanisms_json}
 
-# POLICYSURFACEIR SCHEMA (v2.0)
+# TRINITYBUNDLE SCHEMA (v1.x)
 {schema_json}
 
 # FORMALIZATION RULES
-- Map narrative goals -> objectives array with optimization_direction
-- Map policy actions -> interventions with mechanism kinds from registry
-- Map limitations -> constraints with valid operators (<=, >=, ==, in_range)
+- Build `problem_frame` from problem goals and constraints
+- Build `policy_spec` interventions with mechanism kinds from registry
+- Build `model_spec` with valid `data_snapshot_ref` and baseline simulation config
 - Ensure every intervention has: intervention_id, kind, target, schedule, params
-- Target selectors must reference valid entity fields
 
 # ERROR HANDLING
 If the draft is ambiguous:
 - Make reasonable assumptions based on domain knowledge
-- Document assumptions in advisory.notes
+- Document assumptions in model_spec.assumptions
 - Default to conservative parameter values
 
 # OUTPUT FORMAT
-Respond with ONLY the PolicySurfaceIR JSON object.
+Respond with ONLY the TrinityBundle JSON object.
 """
 
 CRITIC_SYSTEM_PROMPT = """
@@ -109,7 +108,7 @@ CRITIC_SYSTEM_PROMPT = """
 You are the **Critic Agent** - an adversarial reviewer ensuring policy quality, alignment, and feasibility.
 
 # CONTEXT
-You receive a PolicySurfaceIR and its originating ProblemFrame. Your job is to identify misalignments, gaps, inconsistencies, and potential risks.
+You receive a TrinityBundle and its originating ProblemFrame. Your job is to identify misalignments, gaps, inconsistencies, and potential risks.
 
 # CRITIQUE DIMENSIONS
 1. **ALIGNMENT**: Does the IR address the ProblemFrame's goals?
@@ -222,7 +221,7 @@ def get_drafter_prompt(hints: Optional[list[str]] = None) -> str:
 
 def get_formalizer_prompt() -> str:
     """System prompt for Formalizer agent with schema injection."""
-    schema = PolicySurfaceIR.model_json_schema()
+    schema = TrinityBundle.model_json_schema()
     mechanisms = DEFAULT_MECHANISM_REGISTRY.model_dump(mode="json")
     return FORMALIZER_SYSTEM_PROMPT.format(
         mechanisms_json=json.dumps(mechanisms, indent=2),

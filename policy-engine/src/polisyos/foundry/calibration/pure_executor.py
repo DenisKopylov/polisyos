@@ -21,14 +21,13 @@ from polisyos.ir.kernel import (
     SlotRegistry,
     SlotScope,
 )
-from polisyos.ir.surface import (
-    ScheduleSpec,
+from polisyos.ir.schedule import ScheduleSpec, schedule_range
+from polisyos.ir.selector_expr import (
     SelectorAll,
     SelectorAny,
     SelectorExpr,
     SelectorNot,
     SelectorPredicate,
-    schedule_range,
 )
 from polisyos.ir.types import SelectorOperator
 

@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Any
 
 from polisyos.core.artifacts.store import FileSystemCAS
-from polisyos.fabric.world.store import (
+from polisyos.fabric.world import (
     emit_claim_facts,
     emit_edge_fact,
     emit_world_event_facts,

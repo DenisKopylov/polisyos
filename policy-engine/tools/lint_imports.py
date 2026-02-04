@@ -494,50 +494,108 @@ def main() -> int:
             if target_root is None:
                 continue
 
-            if ref.target_module.startswith(f"{config.internal_prefix}.scientist._legacy"):
-                if source_root != "scientist":
+            target_parts = ref.target_module.split(".")
+            if source_root != target_root:
+                imports_internal_segment = any(
+                    part.startswith("_") for part in target_parts[2:]
+                )
+                if imports_internal_segment:
+                    message = (
+                        f"{rel_path}:{ref.lineno} [ARCH006] forbidden internal subpackage import: "
+                        f"{ref.source_module} -> {ref.target_module}. "
+                        "Cross-root imports must go through public facades."
+                    )
+                    violation = _apply_exceptions(
+                        ref,
+                        message,
+                        exceptions,
+                        rel_path,
+                        target_root,
+                        today,
+                        allowed_exceptions,
+                        expired_exceptions,
+                    )
+                    if violation:
+                        violations.append(violation)
+                    continue
+
+            legacy_prefix = f"{config.internal_prefix}.{target_root}._legacy"
+            if ref.target_module.startswith(legacy_prefix):
+                source_is_legacy = f".{source_root}._legacy" in ref.source_module
+                if source_root != target_root and not source_is_legacy:
                     message = (
                         f"{rel_path}:{ref.lineno} [ARCH003] forbidden legacy import: "
-                        f"{source_root} -> scientist._legacy via {ref.target_module}"
+                        f"{source_root} -> {target_root}._legacy via {ref.target_module}"
                     )
-                    violation = Violation(ref=ref, code="ARCH003", message=message)
-                    matched = False
-                    for exc in exceptions:
-                        if exception_matches(
-                            exc,
-                            ref,
-                            rel_path=rel_path,
-                            target_module=ref.target_module,
-                            target_root=target_root,
-                            external_top=None,
-                        ):
-                            matched = True
-                            if exc.expires < today:
-                                violations.append(
-                                    Violation(
-                                        ref=ref,
-                                        code="ARCH003",
-                                        message=message,
-                                        expired_exception=exc,
-                                    )
-                                )
-                                expired_exceptions.append(
-                                    ExceptionMatch(
-                                        exception=exc,
-                                        ref=ref,
-                                        message=message,
-                                    )
-                                )
-                            else:
-                                allowed_exceptions.append(
-                                    ExceptionMatch(
-                                        exception=exc,
-                                        ref=ref,
-                                        message=message,
-                                    )
-                                )
-                            break
-                    if not matched:
+                    violation = _apply_exceptions(
+                        ref,
+                        message,
+                        exceptions,
+                        rel_path,
+                        target_root,
+                        today,
+                        allowed_exceptions,
+                        expired_exceptions,
+                    )
+                    if violation:
+                        violations.append(violation)
+                continue
+
+            fabric_legacy_prefixes = (
+                f"{config.internal_prefix}.fabric.io.graph_store",
+                f"{config.internal_prefix}.fabric.materializer",
+                f"{config.internal_prefix}.fabric.schema",
+                f"{config.internal_prefix}.fabric.udf",
+            )
+            if any(
+                ref.target_module == prefix or ref.target_module.startswith(f"{prefix}.")
+                for prefix in fabric_legacy_prefixes
+            ):
+                source_is_fabric = ref.source_module.startswith(f"{config.internal_prefix}.fabric")
+                if not source_is_fabric:
+                    message = (
+                        f"{rel_path}:{ref.lineno} [ARCH005] forbidden legacy fabric import: "
+                        f"{ref.source_module} -> {ref.target_module}. "
+                        "Use polisyos.fabric.world or curated fabric entrypoints."
+                    )
+                    violation = _apply_exceptions(
+                        ref,
+                        message,
+                        exceptions,
+                        rel_path,
+                        target_root,
+                        today,
+                        allowed_exceptions,
+                        expired_exceptions,
+                    )
+                    if violation:
+                        violations.append(violation)
+                continue
+
+            is_fabric_world_deep_import = ref.target_module.startswith(
+                f"{config.internal_prefix}.fabric.world.store"
+            ) or ref.target_module.startswith(f"{config.internal_prefix}.fabric.world.materialize")
+            if is_fabric_world_deep_import:
+                source_is_allowed = ref.source_module.startswith(
+                    f"{config.internal_prefix}.fabric.world"
+                )
+                if not source_is_allowed:
+                    message = (
+                        f"{rel_path}:{ref.lineno} [ARCH004] forbidden deep import: "
+                        f"{ref.source_module} -> {ref.target_module}. "
+                        "Use polisyos.fabric.world facade exports."
+                    )
+                    violation = _apply_exceptions(
+                        ref,
+                        message,
+                        exceptions,
+                        rel_path,
+                        target_root,
+                        today,
+                        allowed_exceptions,
+                        expired_exceptions,
+                    )
+                    if violation:
                         violations.append(violation)
                 continue
 

@@ -8,7 +8,7 @@ from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.contracts.fabric import EvidenceStep
 from polisyos.fabric.evidence import build_evidence_bundle, persist_evidence_bundle
-from polisyos.fabric.world.store import (
+from polisyos.fabric.world import (
     append_world_segment_index,
     validate_claim_id,
     validate_doc_meta_ids,

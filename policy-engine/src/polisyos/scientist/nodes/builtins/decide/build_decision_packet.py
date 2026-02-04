@@ -1,11 +1,11 @@
 from __future__ import annotations
 
+from datetime import datetime, timezone
 from dataclasses import dataclass
-from typing import Any
 
 from polisyos.core.artifacts.manifest import InputRef, SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
-from polisyos.core.contracts.scientist import DecisionPacketRef, GovernanceReportRef
+from polisyos.core.contracts.scientist import DecisionPacketRef
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.contracts.foundry import Metrics
 from polisyos.scientist.engine.context import ExecutionContext
@@ -18,8 +18,6 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_METRICS_REF,
     REPORT_GOVERNANCE_REPORT_REF,
 )
-from polisyos.scientist.orchestrator.decision_packet import build_decision_packet
-from polisyos.scientist.orchestrator.run_record import build_run_record
 
 _METADATA = ComponentMetadata(
     component_id=ComponentId.parse("scientist.node_build_decision_packet@1.0.0"),
@@ -49,15 +47,20 @@ class BuildDecisionPacketNode:
 
     def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
         seed = int(state.params.get("random_seed", 0) or 0)
-        run_record = build_run_record(run_id=state.run_id, seed=seed)
-
-        legacy_state: dict[str, Any] = {
+        packet_payload: dict[str, object] = {
+            "schema_version": "2.0",
+            "generated_at": datetime.now(timezone.utc).isoformat(),
             "run_id": state.run_id,
-            "ir": None,
+            "run_record": {
+                "schema_version": "2.0",
+                "run_id": state.run_id,
+                "seed": seed,
+                "engine": "scientist.engine",
+            },
             "simulation_results": None,
-            "feedback": None,
-            "audit_trail": [],
-            "validation_trace": None,
+            "governance": None,
+            "artifacts": {},
+            "notes": [],
         }
 
         metrics_ref = state.artifacts_index.get(ARTIFACT_METRICS_REF)
@@ -65,27 +68,30 @@ class BuildDecisionPacketNode:
             try:
                 payload = from_canonical_bytes(ctx.store.get_bytes(metrics_ref.artifact_id))
                 metrics = Metrics.model_validate(payload)
-                legacy_state["simulation_results"] = dict(metrics.values)
+                packet_payload["simulation_results"] = dict(metrics.values)
+                packet_payload["artifacts"] = {
+                    **dict(packet_payload["artifacts"]),
+                    "metrics_ref": str(metrics_ref.artifact_id),
+                }
             except Exception:
-                legacy_state["simulation_results"] = None
+                packet_payload["simulation_results"] = None
 
         governance_ref = state.reports_index.get(REPORT_GOVERNANCE_REPORT_REF)
         if governance_ref is not None:
             try:
                 payload = from_canonical_bytes(ctx.store.get_bytes(governance_ref.artifact_id))
                 report = GovernanceReport.model_validate(payload)
-                legacy_state["feedback"] = {
-                    "verdict": report.verdict.upper(),
+                packet_payload["governance"] = {
+                    "verdict": report.verdict,
                     "issues": report.issues,
+                    "notes": report.notes,
+                }
+                packet_payload["artifacts"] = {
+                    **dict(packet_payload["artifacts"]),
+                    "governance_report_ref": str(governance_ref.artifact_id),
                 }
             except Exception:
-                legacy_state["feedback"] = None
-
-        packet = build_decision_packet(legacy_state, run_record, include_card=True)
-        if governance_ref is not None:
-            packet.governance_report_ref = GovernanceReportRef.model_validate(
-                governance_ref.model_dump()
-            )
+                packet_payload["governance"] = None
 
         inputs: list[InputRef] = []
         if metrics_ref is not None:
@@ -94,13 +100,13 @@ class BuildDecisionPacketNode:
             inputs.append(InputRef(artifact_id=governance_ref.artifact_id, role="governance_report"))
 
         packet_ref_payload = ctx.store.put_json(
-            packet,
+            packet_payload,
             PutOptions(
                 kind="scientist.decision_packet",
                 media_type="application/json",
                 schema=SchemaInfo(
                     name="polisyos.scientist.DecisionPacket",
-                    version=packet.schema_version,
+                    version="2.0",
                 ),
                 inputs=inputs or None,
             ),

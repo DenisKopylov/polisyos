@@ -70,11 +70,10 @@ class LangGraphEngine:
 
     @classmethod
     def from_existing_workflow(cls) -> "LangGraphEngine":
-        """Factory method to create from existing workflow definition."""
-        from polisyos.scientist.orchestrator.workflow import build_workflow
-
-        compiled = build_workflow()
-        return cls(compiled)
+        """Legacy adapter entrypoint removed."""
+        raise RuntimeError(
+            "LangGraph legacy workflow was removed. Use polisyos.scientist.run_experiment() engine DAG."
+        )
 
 
 class LangGraphEngineFactory:
@@ -87,7 +86,7 @@ class LangGraphEngineFactory:
         if self._build_func:
             graph = self._build_func()
         else:
-            from polisyos.scientist.orchestrator.workflow import build_workflow
-
-            graph = build_workflow()
+            raise RuntimeError(
+                "LangGraph legacy workflow was removed. Use scientist.workflows.default engine DAG."
+            )
         return LangGraphEngine(graph)

@@ -8,7 +8,7 @@ from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.contracts.scholar import EnrichmentReportRef, KnowledgeBundleRef
-from polisyos.fabric.world.store import (
+from polisyos.fabric.world import (
     append_world_segment_index,
     emit_world_event_facts,
     event_world_provenance_v1,

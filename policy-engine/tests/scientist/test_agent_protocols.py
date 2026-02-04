@@ -153,11 +153,14 @@ class TestProtocolSignatures:
 
     def test_formalizer_signature(self) -> None:
         sig = inspect.signature(FormalizerAgent.formalize)
+        assert sig.parameters["output_kind"].kind == inspect.Parameter.KEYWORD_ONLY
+        assert sig.parameters["output_kind"].default == "trinity"
         assert sig.parameters["schema_version"].kind == inspect.Parameter.KEYWORD_ONLY
-        assert sig.parameters["schema_version"].default == "2.0"
+        assert sig.parameters["schema_version"].default == "1.0"
 
         sig = inspect.signature(FormalizerAgent.repair_ir)
         assert sig.parameters["hint"].kind == inspect.Parameter.KEYWORD_ONLY
+        assert sig.parameters["output_kind"].kind == inspect.Parameter.KEYWORD_ONLY
 
     def test_critic_signature(self) -> None:
         sig = inspect.signature(CriticAgent.critique)
@@ -278,17 +281,17 @@ class TestDrafterAgentRuntime:
 
 
 class TestFormalizerAgentRuntime:
-    def test_formalize_returns_policy_surface_ir(
+    def test_formalize_returns_trinity_bundle(
         self,
         mock_formalizer: MockFormalizerAgent,
         sample_draft: DraftResult,
     ) -> None:
-        from polisyos.ir.surface import PolicySurfaceIR
+        from polisyos.ir.trinity import TrinityBundle
 
         ir = run(mock_formalizer.formalize(sample_draft))
-        assert isinstance(ir, PolicySurfaceIR)
-        assert ir.schema_version == "2.0"
-        assert ir.semantic is not None
+        assert isinstance(ir, TrinityBundle)
+        assert ir.schema_version == "1.0"
+        assert ir.policy_spec is not None
 
     def test_formalize_preserves_interventions(
         self,
@@ -296,8 +299,8 @@ class TestFormalizerAgentRuntime:
         sample_draft: DraftResult,
     ) -> None:
         ir = run(mock_formalizer.formalize(sample_draft))
-        assert ir.semantic.interventions
-        assert len(ir.semantic.interventions) > 0
+        assert ir.policy_spec.interventions
+        assert len(ir.policy_spec.interventions) > 0
 
     def test_validate_structure(self, mock_formalizer: MockFormalizerAgent) -> None:
         draft = create_mock_draft()
@@ -317,7 +320,13 @@ class TestFormalizerAgentRuntime:
             )
         )
         assert repaired is not None
-        assert repaired.semantic.time_semantics is not None
+
+    def test_formalize_surface_compat_mode(self, mock_formalizer: MockFormalizerAgent) -> None:
+        from polisyos.ir.legacy.surface import PolicySurfaceIR
+
+        draft = create_mock_draft()
+        ir = run(mock_formalizer.formalize(draft, output_kind="surface"))
+        assert isinstance(ir, PolicySurfaceIR)
 
 
 class TestCriticAgentRuntime:
@@ -391,7 +400,7 @@ class TestAgentPipeline:
         mock_formalizer: MockFormalizerAgent,
         mock_critic: MockCriticAgent,
     ) -> None:
-        from polisyos.ir.surface import PolicySurfaceIR
+        from polisyos.ir.trinity import TrinityBundle
 
         user_request = "Reduce poverty by 20% through targeted subsidies"
         tasks = run(mock_pi.decompose_task(user_request))
@@ -404,7 +413,7 @@ class TestAgentPipeline:
         assert draft.problem_frame_ref == problem_frame.frame_id
 
         ir = run(mock_formalizer.formalize(draft))
-        assert isinstance(ir, PolicySurfaceIR)
+        assert isinstance(ir, TrinityBundle)
         is_valid, errors = run(mock_formalizer.validate_structure(ir))
         assert is_valid, f"IR validation failed: {errors}"
 

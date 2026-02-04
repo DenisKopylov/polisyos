@@ -49,7 +49,7 @@ class SafetyPass(ValidatorPass):
         issues: List[ComplianceIssue] = []
         ir = ctx.ir
 
-        if ir is None or ir.semantic is None:
+        if ir is None:
             return issues
 
         registry_bundle = ctx.registry_bundle
@@ -67,7 +67,7 @@ class SafetyPass(ValidatorPass):
 
         known_mechanisms = _extract_mechanisms(registry_bundle)
 
-        for idx, intervention in enumerate(ir.semantic.interventions):
+        for idx, intervention in enumerate(ir.policy_spec.interventions):
             if intervention.kind not in known_mechanisms:
                 suggestion = None
                 if known_mechanisms:
@@ -75,7 +75,7 @@ class SafetyPass(ValidatorPass):
                 issues.append(
                     ComplianceIssue(
                         pass_id=self.pass_id,
-                        path=["semantic", "interventions", idx, "kind"],
+                        path=["policy_spec", "interventions", idx, "kind"],
                         message=f"Unknown mechanism type '{intervention.kind}'",
                         severity=IssueSeverity.BLOCKER,
                         code="UNKNOWN_MECHANISM",

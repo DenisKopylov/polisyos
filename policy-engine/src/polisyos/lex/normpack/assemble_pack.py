@@ -13,7 +13,7 @@ from polisyos.fabric.claims import resolve_conflicts
 from polisyos.fabric.claims.extractor_registry import discover_and_bootstrap_extractors
 from polisyos.fabric.claims.persist import load_claim, load_doc_meta, load_json_artifact
 from polisyos.fabric.io.db import SimulationDB
-from polisyos.fabric.world.store import (
+from polisyos.fabric.world import (
     append_world_segment_index,
     emit_world_event_facts,
     emit_world_node_facts,

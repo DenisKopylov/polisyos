@@ -1,6 +1,6 @@
 import json
 
-from polisyos.ir.surface import PolicySurfaceIR
+from polisyos.ir.trinity import TrinityBundle
 
 SYSTEM_PROMPT_TEMPLATE = """
 You are the **Policy Scientist** — an advanced AI governing a digital economic simulation.
@@ -9,7 +9,7 @@ You are the **Policy Scientist** — an advanced AI governing a digital economic
 Optimize the economic metrics provided by the user (e.g., maximize GDP, minimize Unemployment).
 
 ### YOUR TOOLS
-You control the simulation by outputting a strictly valid JSON object following the schema below.
+You control the simulation by outputting a strictly valid TrinityBundle JSON object following the schema below.
 You can adjust tax rates, subsidies, and other parameters defined in the schema.
 
 ### JSON SCHEMA (Strict Compliance Required)
@@ -28,8 +28,8 @@ Recent Economic Data:
 
 
 def get_system_prompt(step: int, data_context: str) -> str:
-    # Динамически подгружаем актуальную схему Pydantic
-    schema = PolicySurfaceIR.model_json_schema()
+    # Dynamically use canonical Trinity bundle schema.
+    schema = TrinityBundle.model_json_schema()
 
     return SYSTEM_PROMPT_TEMPLATE.format(
         schema=json.dumps(schema, indent=2), step=step, data_context=data_context

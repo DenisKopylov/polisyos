@@ -1,17 +1,23 @@
 from __future__ import annotations
 
-from polisyos.scientist.orchestrator.decision_packet import build_decision_packet
-from polisyos.scientist.orchestrator.state import ExperimentState
-from polisyos.scientist.orchestrator.run_record import build_run_record, ReproMode
+from datetime import datetime, timezone
+from typing import Any, Mapping
 
 
-def publish_decision(state: ExperimentState):
-    """Placeholder publisher v2."""
-    run_record = state.get("run_record") or build_run_record(
-        run_id=state.get("run_id", "unknown"),
-        parent_run_id=state.get("parent_run_id"),
-        seed=0,
-        repro_mode=ReproMode.FAST,
-        generator={"name": "policy-engine", "version": "0.1.0"},
-    )
-    return build_decision_packet(state, run_record)
+def publish_decision(state: Mapping[str, Any]) -> dict[str, Any]:
+    """Build a canonical decision packet payload from engine state."""
+    run_id = str(state.get("run_id") or "unknown")
+    return {
+        "schema_version": "2.0",
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "run_id": run_id,
+        "run_record": {
+            "schema_version": "2.0",
+            "run_id": run_id,
+            "seed": int(state.get("params", {}).get("random_seed", 0) or 0),
+            "engine": "scientist.engine",
+        },
+        "simulation_results": state.get("simulation_results"),
+        "governance": state.get("feedback"),
+        "notes": [],
+    }

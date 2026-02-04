@@ -5,15 +5,16 @@ from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.compiler.report import CompileReport, put_compile_report
 from polisyos.core.contracts.foundry import CompileRequest, CompileResult
 
-from .surface_compiler import compile_surface
-from .trinity_compiler import compile_trinity
-
 
 def compile(store: FileSystemCAS, request: CompileRequest) -> CompileResult:
     try:
         compiler = _resolve_compiler(request)
-        if compiler == "surface":
-            return compile_surface(store, request)
+        if compiler != "trinity":
+            raise ValueError(
+                f"Unsupported compiler '{compiler}'. Foundry supports Trinity input only."
+            )
+        from .trinity_compiler import compile_trinity
+
         return compile_trinity(store, request)
     except Exception as exc:
         return _compile_exception(store, request, exc)
@@ -22,13 +23,11 @@ def compile(store: FileSystemCAS, request: CompileRequest) -> CompileResult:
 def _resolve_compiler(request: CompileRequest) -> str:
     kind = request.policy_ref.kind
     if request.input_kind == "auto":
-        if kind == "ir.policy_surface":
-            return "surface"
         if kind == "ir.trinity_bundle":
             return "trinity"
         raise ValueError(f"Unsupported policy_ref.kind: {kind}")
-    if request.input_kind == "surface" and kind != "ir.policy_surface":
-        raise ValueError(f"policy_ref.kind mismatch: expected ir.policy_surface, got {kind}")
+    if request.input_kind == "surface":
+        raise ValueError("input_kind='surface' is no longer supported")
     if request.input_kind == "trinity" and kind != "ir.trinity_bundle":
         raise ValueError(f"policy_ref.kind mismatch: expected ir.trinity_bundle, got {kind}")
     return request.input_kind

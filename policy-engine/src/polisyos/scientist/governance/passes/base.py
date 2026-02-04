@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from typing import List, Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from polisyos.ir.surface import PolicySurfaceIR
+    from polisyos.ir.trinity import TrinityBundle
     from polisyos.scientist.governance.profiles import ValidationProfile
 
 from polisyos.core.contracts.legal import ComplianceIssue, IssueSeverity
@@ -20,7 +20,7 @@ class PassContext:
     validation profile, and run identification.
     """
 
-    ir: Optional["PolicySurfaceIR"]
+    ir: Optional["TrinityBundle"]
     state: dict
     registry_bundle: Optional[object]
     profile: "ValidationProfile"

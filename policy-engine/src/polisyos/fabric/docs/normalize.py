@@ -8,7 +8,7 @@ from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import from_canonical_bytes
-from polisyos.fabric.world.store import (
+from polisyos.fabric.world import (
     append_world_segment_index,
     emit_doc_meta_facts,
     emit_world_event_facts,
@@ -16,9 +16,9 @@ from polisyos.fabric.world.store import (
     persist_doc_meta,
     persist_world_event,
     stable_world_provenance_v1,
+    validate_doc_meta_ids,
     write_world_fact_segment,
 )
-from polisyos.fabric.world.store.validate import validate_doc_meta_ids
 from polisyos.ir.world.doc import DocMeta
 from polisyos.ir.world.event import (
     EventKind,

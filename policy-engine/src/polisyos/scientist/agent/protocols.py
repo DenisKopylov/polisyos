@@ -15,7 +15,7 @@ from enum import Enum
 from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
-    from polisyos.ir.surface import PolicySurfaceIR
+    from polisyos.ir.trinity import TrinityBundle
 
 
 # =============================================================================
@@ -277,35 +277,35 @@ class DrafterAgent(Protocol):
 
 @runtime_checkable
 class FormalizerAgent(Protocol):
-    """Formalizer agent protocol (draft to IR translator)."""
+    """Formalizer agent protocol (draft to Trinity artifacts)."""
 
     @abstractmethod
     async def formalize(
         self,
         draft: DraftResult,
         *,
-        schema_version: str = "2.0",
-    ) -> "PolicySurfaceIR":
-        """Convert a natural language draft to PolicySurfaceIR."""
+        schema_version: str = "1.0",
+    ) -> "TrinityBundle":
+        """Convert a natural language draft to canonical TrinityBundle."""
         ...
 
     @abstractmethod
     async def repair_ir(
         self,
-        ir: "PolicySurfaceIR",
+        ir: "TrinityBundle",
         errors: list[str],
         *,
         hint: str | None = None,
-    ) -> "PolicySurfaceIR":
-        """Repair an invalid IR based on validation errors."""
+    ) -> "TrinityBundle":
+        """Repair invalid Trinity artifacts based on validation errors."""
         ...
 
     @abstractmethod
     async def validate_structure(
         self,
-        ir: "PolicySurfaceIR",
+        ir: "TrinityBundle",
     ) -> tuple[bool, list[str]]:
-        """Validate IR structure without full semantic check."""
+        """Validate Trinity structure without full semantic check."""
         ...
 
 
@@ -316,12 +316,12 @@ class CriticAgent(Protocol):
     @abstractmethod
     async def critique(
         self,
-        ir: "PolicySurfaceIR",
+        ir: "TrinityBundle",
         problem_frame: ProblemFrame,
         *,
         depth: str = "standard",
     ) -> CritiqueReport:
-        """Review IR against the ProblemFrame."""
+        """Review Trinity artifacts against the ProblemFrame."""
         ...
 
     @abstractmethod
@@ -335,10 +335,10 @@ class CriticAgent(Protocol):
     @abstractmethod
     async def check_alignment(
         self,
-        ir: "PolicySurfaceIR",
+        ir: "TrinityBundle",
         problem_frame: ProblemFrame,
     ) -> float:
-        """Calculate alignment score between IR and ProblemFrame."""
+        """Calculate alignment score between Trinity artifacts and ProblemFrame."""
         ...
 
 

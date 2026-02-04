@@ -9,7 +9,7 @@ import pandas as pd
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.canon import from_canonical_bytes
-from polisyos.fabric.world.store import load_world_fact_manifests
+from polisyos.fabric.world import load_world_fact_manifests
 from polisyos.ir.world.abi import EdgeKind
 from polisyos.ir.world.doc import DocMeta
 from polisyos.ir.world.predicates import WORLD_ARTIFACT_ID, WORLD_KIND, rel

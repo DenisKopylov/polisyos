@@ -15,7 +15,7 @@ from polisyos.fabric.docs import (
     structure_doc,
 )
 from polisyos.fabric.docs.errors import DocPipelineError, DocValidationError
-from polisyos.fabric.world.store import (
+from polisyos.fabric.world import (
     append_world_segment_index,
     emit_doc_meta_facts,
     emit_world_event_facts,
@@ -25,7 +25,7 @@ from polisyos.fabric.world.store import (
     stable_world_provenance_v1,
     write_world_fact_segment,
 )
-from polisyos.fabric.world.store.validate import validate_doc_meta_ids
+from polisyos.fabric.world import validate_doc_meta_ids
 from polisyos.ir.world.doc import DocMeta
 from polisyos.ir.world.event import (
     EventKind,

@@ -11,10 +11,9 @@ import hashlib
 import json
 import uuid
 from datetime import datetime
-from typing import Any, TYPE_CHECKING
+from typing import Any
 
-from polisyos.ir.surface import PolicySurfaceIR
-from polisyos.scientist.agent.prompts import get_drafter_prompt, get_system_prompt
+from polisyos.scientist.agent.prompts import get_drafter_prompt
 from polisyos.scientist.agent.protocols import (
     CritiqueReport,
     DrafterAgent,
@@ -22,11 +21,6 @@ from polisyos.scientist.agent.protocols import (
     ProblemFrame,
 )
 from polisyos.scientist.llm import TracedLLMClient
-from polisyos.scientist.orchestrator.audit import append_audit
-from polisyos.scientist.orchestrator.state import ExperimentState
-
-if TYPE_CHECKING:
-    pass
 
 class MockLLM:
     def invoke(self, prompt: str) -> str:
@@ -400,89 +394,13 @@ Generate a draft JSON object.
         )
 
 
-def drafter_node(state: ExperimentState) -> ExperimentState:
-    """Узел Drafter: User Request -> Policy IR JSON."""
-    user_request = state.get("user_request")
-    if not user_request:
-        if state.get("ir") is not None:
-            print("   [Drafter] Skipping: IR already provided.")
-            return append_audit(
-                state, "drafter", "skip_existing_ir", {"reason": "missing_user_request"}
-            )
-        state = {**state, "last_error": "Missing required field: user_request", "ir": None}
-        return append_audit(state, "drafter", "invalid_input", {"reason": "missing_user_request"})
+def drafter_node(state: Any) -> Any:
+    """
+    Backward-compatible no-op node.
 
-    if state.get("ir") is not None and not (
-        state.get("feedback") and state["feedback"].get("verdict") == "NEEDS_REVISION"
-    ):
-        print(f"   [Drafter] Skipping: IR already provided for request: '{user_request}'")
-        return append_audit(state, "drafter", "skip_existing_ir", {"reason": "ir_present"})
-
-    print(f"   [Drafter] Processing request: '{user_request}'")
-    prior_feedback = state.get("feedback")
-    prior_issues = []
-    if prior_feedback and prior_feedback.get("verdict") == "NEEDS_REVISION":
-        prior_issues = prior_feedback.get("issues", [])
-        state = {**state, "revision_count": (state.get("revision_count") or 0) + 1}
-
-    system_prompt = get_system_prompt()
-    user_prompt = f"USER REQUEST: {user_request}"
-    full_prompt = f"{system_prompt}\n\n{user_prompt}"
-
-    llm = MockLLM()
-    response_text = llm.invoke(full_prompt)
-
-    try:
-        clean_json = response_text.strip().replace("```json", "").replace("```", "")
-        data = json.loads(clean_json)
-
-        ir = PolicySurfaceIR(**data)
-        print("   [Drafter] ✅ Generated valid IR.")
-        after_json = json.dumps(data, sort_keys=True)
-        new_state = {**state, "ir": ir, "last_ir_json": after_json, "last_error": None}
-        if prior_issues:
-            repair_log = list(state.get("repair_log") or [])
-            error_summary = "; ".join([i.get("message", "") for i in prior_issues])
-            repair_log.append(
-                {
-                    "repair_attempt": state.get("revision_count") or 1,
-                    "error_summary": error_summary,
-                    "diff_before_after": {"before": state.get("last_ir_json"), "after": after_json},
-                }
-            )
-            new_state["repair_log"] = repair_log
-        return append_audit(new_state, "drafter", "ir_generated", {"valid": True})
-
-    except Exception as e:
-        attempt = state.get("revision_count") or 0
-        if attempt == 0:
-            attempt = 1
-        before = state.get("last_ir_json")
-        error_summary = str(e)
-        diff = {"before": before, "after": clean_json}
-        repair_log = list(state.get("repair_log") or [])
-        repair_log.append(
-            {
-                "repair_attempt": attempt,
-                "error_summary": error_summary,
-                "diff_before_after": diff,
-            }
-        )
-        new_state = {
-            **state,
-            "ir": None,
-            "last_error": error_summary,
-            "revision_count": attempt,
-            "repair_log": repair_log,
-        }
-        new_state = append_audit(
-            new_state,
-            "drafter",
-            "ir_invalid",
-            {"attempt": attempt, "error_summary": error_summary},
-        )
-        print(f"   [Drafter] ❌ Failed to generate valid IR: {e}")
-        return new_state
+    Legacy LangGraph node flow was removed; canonical Scientist path uses engine DAG.
+    """
+    return state
 
 
 def _verify_protocol() -> None:

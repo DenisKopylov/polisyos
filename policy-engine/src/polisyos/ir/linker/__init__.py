@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from .legacy_surface import link_policy
 from .link_trinity import (
     LinkedIntervention,
     LinkedTrinityBundle,
@@ -18,7 +17,6 @@ __all__ = [
     "LinkedIntervention",
     "LinkedTrinityBundle",
     "TrinityBindings",
-    "link_policy",
     "link_trinity",
     "validate_norm_applicability_refs",
 ]

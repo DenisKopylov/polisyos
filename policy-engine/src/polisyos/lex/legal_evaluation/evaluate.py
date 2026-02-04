@@ -16,7 +16,7 @@ from polisyos.core.contracts.lex import (
     LegalReportRef,
 )
 from polisyos.core.contracts.trinity import ModelSpecRef, PolicySpecRef
-from polisyos.fabric.world.store import (
+from polisyos.fabric.world import (
     append_world_segment_index,
     emit_world_event_facts,
     emit_world_node_facts,

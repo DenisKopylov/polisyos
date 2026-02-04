@@ -59,8 +59,8 @@ class BudgetPass(ValidatorPass):
                 )
             )
 
-        if ir and ir.semantic:
-            num_interventions = len(ir.semantic.interventions)
+        if ir is not None:
+            num_interventions = len(ir.policy_spec.interventions)
             max_interventions = int(ctx.profile.thresholds.get("max_interventions", 10))
 
             if num_interventions > max_interventions:
@@ -76,9 +76,9 @@ class BudgetPass(ValidatorPass):
                 )
 
             time_steps = 1
-            if ir.semantic.time_semantics is not None:
-                if ir.semantic.time_semantics.step_count is not None:
-                    time_steps = ir.semantic.time_semantics.step_count
+            if ir.model_spec.time_semantics is not None:
+                if ir.model_spec.time_semantics.step_count is not None:
+                    time_steps = ir.model_spec.time_semantics.step_count
 
             estimated_cost = num_interventions * max(1, time_steps)
             max_graph_cost = int(ctx.profile.thresholds.get("max_graph_cost", 10000))
@@ -87,7 +87,7 @@ class BudgetPass(ValidatorPass):
                 issues.append(
                     ComplianceIssue(
                         pass_id=self.pass_id,
-                        path=["semantic", "time_semantics"],
+                        path=["model_spec", "time_semantics"],
                         message=f"Estimated graph cost {estimated_cost} exceeds limit {max_graph_cost}",
                         severity=IssueSeverity.WARNING,
                         code="GRAPH_COST_HIGH",

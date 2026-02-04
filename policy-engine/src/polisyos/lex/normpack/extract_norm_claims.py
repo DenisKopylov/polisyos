@@ -14,7 +14,7 @@ from polisyos.fabric.claims.canonicalize import canonical_unit, canonicalize_id
 from polisyos.fabric.claims.citations import minimal_doc_citation
 from polisyos.fabric.claims.persist import load_doc_meta, load_json_artifact, persist_claim_set
 from polisyos.fabric.claims.types import ChunkContext, ClaimCandidate, ClaimExtractOptions
-from polisyos.fabric.world.store import (
+from polisyos.fabric.world import (
     append_world_segment_index,
     emit_claim_facts,
     emit_world_event_facts,

@@ -14,7 +14,7 @@ from polisyos.fabric.claims.persist import (
     write_claims_world_segment,
 )
 from polisyos.fabric.io.db import SimulationDB
-from polisyos.fabric.world.store import (
+from polisyos.fabric.world import (
     emit_edge_fact,
     emit_world_event_facts,
     emit_world_node_facts,

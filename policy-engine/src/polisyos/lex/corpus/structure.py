@@ -9,7 +9,7 @@ from typing import Literal
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.canon import from_canonical_bytes
-from polisyos.fabric.world.store import (
+from polisyos.fabric.world import (
     append_world_segment_index,
     emit_doc_fragment_facts,
     emit_doc_meta_facts,
@@ -21,7 +21,7 @@ from polisyos.fabric.world.store import (
     stable_world_provenance_v1,
     write_world_fact_segment,
 )
-from polisyos.fabric.world.store.validate import validate_doc_meta_ids
+from polisyos.fabric.world import validate_doc_meta_ids
 from polisyos.ir.citations import AnchorKind, FragmentLocator
 from polisyos.ir.world.doc import DocFragment, DocMeta
 from polisyos.ir.world.event import (

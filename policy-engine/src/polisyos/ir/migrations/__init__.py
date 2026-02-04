@@ -22,37 +22,33 @@ def parse_version(version: str) -> tuple[int, int]:
 def is_major_bump(from_version: str, to_version: str) -> bool:
     from_major, _ = parse_version(from_version)
     to_major, _ = parse_version(to_version)
-    # Policy IR versioning treats the stabilization jump 0.x -> 1.x as a
-    # backwards-compatible migration path (tests rely on this).
-    if from_major == 0 and to_major == 1:
-        return False
     return to_major != from_major
 
 
 def register_migration(from_version: str, to_version: str):
-    """
-    Backwards-compatible shim that registers policy IR migrations
-    using the shared common.migrations registry.
-    """
+    """Register policy IR migration in shared registry."""
     parse_version(from_version)
     parse_version(to_version)
     return _register_migration(IR_ARTIFACT, from_version, to_version)
 
 
 def migrate_policy_ir(
-    data: dict, target_version: str | None = None, *, allow_major: bool = False
+    data: dict,
+    target_version: str | None = None,
+    *,
+    allow_major: bool = False,
 ) -> dict:
-    """
-    Migrate policy IR payload using the shared common.migrations registry.
-    """
+    """Migrate canonical Trinity payload versions."""
     if "schema_version" not in data:
         raise ValueError("Missing schema_version for policy IR")
-    current_version = data["schema_version"]
+
+    current_version = str(data["schema_version"])
+    if current_version.startswith("2.") or "semantic" in data:
+        raise ValueError(
+            "Legacy PolicySurfaceIR payloads are not supported by runtime migrations."
+        )
+
     target = target_version or IR_CURRENT_VERSION
-    if not str(current_version).startswith("2."):
-        raise ValueError("Legacy policy IR versions are not supported; expected 2.x PolicySurfaceIR.")
-    if not str(target).startswith("2."):
-        raise ValueError("Target policy IR version must be 2.x.")
     parse_version(current_version)
     parse_version(target)
 

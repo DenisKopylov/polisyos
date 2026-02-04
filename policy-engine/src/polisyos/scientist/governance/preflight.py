@@ -5,6 +5,7 @@ from typing import Optional, Tuple
 
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.registry import build_default_registry_bundle, load_registry_bundle_content
+from polisyos.ir.trinity import TrinityBundle
 from polisyos.runtime import log_artifact
 from polisyos.scientist.kernel.human_gate import GateRequest
 
@@ -48,14 +49,16 @@ def preflight_checks(
 
     updated_state = state
     registry_bundle = None
+    trinity_bundle = _extract_trinity_bundle(updated_state)
 
     if "safety" in profile.pass_ids:
         updated_state = _ensure_registry_bundle(updated_state)
-        registry_bundle = _load_registry_bundle(updated_state, updated_state.get("ir"))
+        registry_bundle = _load_registry_bundle(updated_state, trinity_bundle)
         updated_state = _ensure_policy_registry_ref(updated_state)
+        trinity_bundle = _extract_trinity_bundle(updated_state)
 
     ctx = PassContext(
-        ir=updated_state.get("ir"),
+        ir=trinity_bundle,
         state=updated_state,
         registry_bundle=registry_bundle,
         profile=profile,
@@ -121,8 +124,8 @@ def _ensure_registry_bundle(state: dict) -> dict:
 
 
 def _resolve_registry_bundle_id(state: dict, policy) -> str | None:
-    if policy and getattr(policy, "semantic", None) and policy.semantic.registry_bundle_ref:
-        return policy.semantic.registry_bundle_ref
+    if policy and getattr(policy, "model_spec", None) and policy.model_spec.registry_bundle_ref:
+        return policy.model_spec.registry_bundle_ref
     bundle_ref = state.get("registry_bundle_ref")
     if isinstance(bundle_ref, dict):
         return bundle_ref.get("artifact_id")
@@ -141,22 +144,44 @@ def _load_registry_bundle(state: dict, policy) -> object | None:
 
 
 def _ensure_policy_registry_ref(state: dict) -> dict:
-    policy = state.get("ir")
-    if not policy or not getattr(policy, "semantic", None):
+    policy = _extract_trinity_bundle(state)
+    if policy is None:
         return state
 
     bundle_id = _resolve_registry_bundle_id(state, policy)
     if not bundle_id:
         return state
 
-    if policy.semantic.registry_bundle_ref is None:
+    if policy.model_spec.registry_bundle_ref is None:
         updated_policy = policy.model_copy(
             update={
-                "semantic": policy.semantic.model_copy(
+                "model_spec": policy.model_spec.model_copy(
                     update={"registry_bundle_ref": bundle_id}
                 )
             }
         )
-        return {**state, "ir": updated_policy}
+        return _update_state_bundle(state, updated_policy)
 
     return state
+
+
+def _extract_trinity_bundle(state: dict) -> TrinityBundle | None:
+    value = state.get("trinity_bundle", state.get("ir"))
+    if value is None:
+        return None
+    if isinstance(value, TrinityBundle):
+        return value
+    if isinstance(value, dict):
+        try:
+            return TrinityBundle.model_validate(value)
+        except Exception:
+            return None
+    return None
+
+
+def _update_state_bundle(state: dict, bundle: TrinityBundle) -> dict:
+    if "trinity_bundle" in state:
+        return {**state, "trinity_bundle": bundle}
+    if "ir" in state:
+        return {**state, "ir": bundle}
+    return {**state, "trinity_bundle": bundle}

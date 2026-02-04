@@ -4,7 +4,7 @@ from typing import List
 
 from pydantic import ValidationError
 
-from polisyos.ir.surface import PolicySurfaceIR
+from polisyos.ir.trinity import TrinityBundle
 from polisyos.ir.validation import build_validation_report
 
 from .base import ValidatorPass, PassContext, ComplianceIssue, IssueSeverity
@@ -42,7 +42,7 @@ class SchemaPass(ValidatorPass):
 
         try:
             payload = ctx.ir.model_dump(mode="json")
-            PolicySurfaceIR.model_validate(payload)
+            TrinityBundle.model_validate(payload)
         except ValidationError as exc:
             report = build_validation_report(exc, before=payload, after=payload)
             for validation_issue in report.issues:
@@ -57,11 +57,11 @@ class SchemaPass(ValidatorPass):
                     )
                 )
 
-        if ctx.ir.semantic and not ctx.ir.semantic.interventions:
+        if not ctx.ir.policy_spec.interventions:
             issues.append(
                 ComplianceIssue(
                     pass_id=self.pass_id,
-                    path=["semantic", "interventions"],
+                    path=["policy_spec", "interventions"],
                     message="At least one intervention is required",
                     severity=IssueSeverity.BLOCKER,
                     code="NO_INTERVENTIONS",

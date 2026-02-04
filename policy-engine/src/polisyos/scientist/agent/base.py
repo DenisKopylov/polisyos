@@ -1,61 +1,70 @@
-from abc import ABC, abstractmethod
+from __future__ import annotations
 
-from polisyos.ir.surface import PolicySurfaceIR
+from abc import ABC, abstractmethod
+from dataclasses import dataclass
+
+from polisyos.ir.model_spec import AgentConfig, EnvironmentConfig, ModelSpec
+from polisyos.ir.policy_spec import InterventionSpec, PolicySpec
+from polisyos.ir.problem_frame import ObjectiveSpec, ProblemDomain, ProblemFrame
+from polisyos.ir.trinity import TrinityBundle
+
+__all__ = ["BaseAgent", "MockAgent"]
 
 
 class BaseAgent(ABC):
     @abstractmethod
-    def decide(self, step: int, context_df) -> PolicySurfaceIR:
-        """
-        Принимает данные (DataFrame), возвращает Решение (IR).
-        """
-        pass
+    def decide(self, step: int, context_df) -> TrinityBundle:
+        """Produce a canonical TrinityBundle decision artifact."""
+        raise NotImplementedError
 
 
+@dataclass
 class MockAgent(BaseAgent):
-    """
-    Притворяется LLM. Принимает решения на основе экономических показателей.
-    """
+    """Deterministic fallback agent for local testing."""
 
-    def decide(self, step: int, context_df) -> PolicySurfaceIR:
-        # Эмуляция "раздумий"
-        print(f"🤖 MockAgent is thinking... (Data shape: {context_df.shape})")
-
-        # Простая политика: если бюджет положительный, даем субсидии; если отрицательный - собираем налоги
-        # Также смотрим на безработицу
-        current_unempl = context_df["unemployment_rate"].iloc[-1] if not context_df.empty else 0.0
-
-        # Если это первый шаг и нет данных, начинаем с налогов
-        if context_df.empty or step == 1:
-            mech_type = "income_tax"
-            rate = 0.15  # Собираем налоги
-        elif current_unempl > 0.05:
-            mech_type = "tax_subsidy"
-            rate = 0.20  # Агрессивные субсидии при высокой безработице
-        else:
-            mech_type = "tax_subsidy"
-            rate = 0.10  # Умеренные субсидии
-
-        return PolicySurfaceIR(
-            schema_version="2.0",
-            semantic={
-                "context_snapshot_ref": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
-                "time_semantics": {"frequency": "M", "start_date": "2024-01-01", "step_count": 1},
-                "interventions": [
-                    {
-                        "intervention_id": f"policy_step_{step}",
-                        "kind": mech_type,
-                        "target": {
-                            "kind": "predicate",
-                            "field": "id",
-                            "operator": "==",
-                            "value": "all",
-                        },
-                        "schedule": {"start_step": 0, "duration_steps": 1},
-                        "params": {"rate": str(rate)},
-                    }
-                ],
-                "objectives": [],
-                "constraints": [],
-            },
+    def decide(self, step: int, context_df) -> TrinityBundle:
+        # Local fallback stays intentionally simple and deterministic.
+        problem_frame = ProblemFrame(
+            problem_id=f"problem_step_{step}",
+            domain=ProblemDomain.CUSTOM,
+            objectives=[
+                ObjectiveSpec(
+                    objective_id="objective_primary",
+                    metric_id="avg_income",
+                    direction="maximize",
+                )
+            ],
+            narrative=f"Auto-generated policy draft for step {step}",
+            labels=["scientist", "mock"],
+        )
+        policy_spec = PolicySpec(
+            policy_id=f"policy_step_{step}",
+            interventions=[
+                InterventionSpec(
+                    intervention_id=f"intervention_step_{step}",
+                    kind="tax_subsidy",
+                    target={
+                        "kind": "predicate",
+                        "field": "id",
+                        "operator": "==",
+                        "value": "all",
+                    },
+                    schedule={"start_step": 0, "duration_steps": 1},
+                    params={"rate": "0.1"},
+                )
+            ],
+            labels=["scientist", "mock"],
+        )
+        model_spec = ModelSpec(
+            model_id=f"model_step_{step}",
+            data_snapshot_ref=f"sha256:{'0' * 64}",
+            agent_config=AgentConfig(total_agents=1000, max_agents=1000),
+            environment_config=EnvironmentConfig(random_seed=42, stochastic=True),
+            labels=["scientist", "mock"],
+        )
+        return TrinityBundle(
+            schema_version="1.0",
+            problem_frame=problem_frame,
+            policy_spec=policy_spec,
+            model_spec=model_spec,
         )

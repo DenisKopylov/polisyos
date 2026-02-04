@@ -1,29 +1,214 @@
-"""
-Mock Formalizer Agent.
-
-Implements the FormalizerAgent protocol with deterministic IR outputs for tests.
-"""
+"""Formalizer agents: draft -> canonical Trinity artifacts."""
 
 from __future__ import annotations
 
 import hashlib
 import json
+import re
 from datetime import datetime
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 from pydantic import ValidationError
 
-from polisyos.ir.surface import PolicySurfaceIR
+from polisyos.ir.model_spec import (
+    AgentConfig,
+    AssumptionSpec,
+    AssumptionType,
+    EnvironmentConfig,
+    ModelSpec,
+)
+from polisyos.ir.policy_spec import InterventionSpec as TrinityInterventionSpec
+from polisyos.ir.policy_spec import ParameterSpec, PolicySpec
+from polisyos.ir.problem_frame import (
+    ConstraintType,
+    ObjectiveSpec,
+    ProblemDomain,
+    ProblemFrame as TrinityProblemFrame,
+)
+from polisyos.ir.trinity import TrinityBundle
 from polisyos.scientist.agent.prompts import get_formalizer_prompt
 from polisyos.scientist.agent.protocols import DraftResult, FormalizerAgent
 from polisyos.scientist.llm import TracedLLMClient
 
-if TYPE_CHECKING:
-    pass
+ZERO_ARTIFACT_REF = f"sha256:{'0' * 64}"
+_ID_RE = re.compile(r"^[a-z][a-z0-9_]*$")
+
+
+def _normalize_id(raw: str, *, prefix: str) -> str:
+    value = re.sub(r"[^a-z0-9_]+", "_", raw.lower()).strip("_")
+    value = re.sub(r"_+", "_", value)
+    if not value:
+        value = prefix
+    if not value[0].isalpha():
+        value = f"{prefix}_{value}"
+    if _ID_RE.fullmatch(value):
+        return value
+    digest = hashlib.sha256(raw.encode("utf-8")).hexdigest()[:10]
+    return f"{prefix}_{digest}"
+
+
+def _infer_domain(text: str) -> ProblemDomain:
+    lowered = text.lower()
+    if any(token in lowered for token in {"tax", "income", "poverty", "gdp", "budget"}):
+        return ProblemDomain.FISCAL
+    if any(token in lowered for token in {"health", "hospital", "medical"}):
+        return ProblemDomain.HEALTHCARE
+    if any(token in lowered for token in {"school", "education", "student"}):
+        return ProblemDomain.EDUCATION
+    return ProblemDomain.CUSTOM
+
+
+def _default_target() -> dict[str, Any]:
+    return {
+        "kind": "predicate",
+        "field": "id",
+        "operator": "==",
+        "value": "all",
+    }
+
+
+def _default_schedule() -> dict[str, Any]:
+    return {"start_step": 0, "duration_steps": 12}
+
+
+def _draft_interventions_to_policy_spec(
+    draft: DraftResult,
+    *,
+    policy_id: str,
+    schema_version: str,
+) -> PolicySpec:
+    interventions: list[TrinityInterventionSpec] = []
+    params_specs: list[ParameterSpec] = []
+
+    if draft.interventions:
+        raw_items = draft.interventions
+    else:
+        raw_items = [
+            {
+                "kind": "tax_subsidy",
+                "target": _default_target(),
+                "schedule": _default_schedule(),
+                "params": {"rate": "0.1"},
+            }
+        ]
+
+    for idx, raw_item in enumerate(raw_items):
+        item = dict(raw_item)
+        intervention_id = _normalize_id(
+            str(item.get("intervention_id") or item.get("name") or f"intervention_{idx + 1}"),
+            prefix="intervention",
+        )
+        kind = _normalize_id(
+            str(item.get("kind") or item.get("mechanism_type") or "tax_subsidy"),
+            prefix="mechanism",
+        )
+        params = item.get("params") or item.get("parameters") or {"rate": "0.1"}
+        if not isinstance(params, dict):
+            params = {"value": str(params)}
+
+        intervention = TrinityInterventionSpec.model_validate(
+            {
+                "intervention_id": intervention_id,
+                "kind": kind,
+                "target": item.get("target") or _default_target(),
+                "schedule": item.get("schedule") or _default_schedule(),
+                "params": params,
+                "notes": [str(item.get("description", "")).strip()] if item.get("description") else [],
+            }
+        )
+        interventions.append(intervention)
+
+        for param_key, param_value in intervention.params.items():
+            param_id = _normalize_id(f"{intervention_id}_{param_key}", prefix="param")
+            params_specs.append(
+                ParameterSpec(
+                    param_id=param_id,
+                    intervention_id=intervention_id,
+                    param_path=str(param_key),
+                    default_value=param_value,
+                )
+            )
+
+    return PolicySpec(
+        schema_version=schema_version,
+        policy_id=policy_id,
+        interventions=interventions,
+        parameters=params_specs,
+        labels=["scientist", "trinity"],
+        description=draft.rationale or None,
+    )
+
+
+def _build_trinity_bundle_from_draft(draft: DraftResult, *, schema_version: str) -> TrinityBundle:
+    digest = hashlib.sha256(draft.draft_id.encode("utf-8")).hexdigest()[:10]
+    problem_id = _normalize_id(draft.problem_frame_ref or f"problem_{digest}", prefix="problem")
+    policy_id = _normalize_id(f"policy_{digest}", prefix="policy")
+    model_id = _normalize_id(f"model_{digest}", prefix="model")
+
+    objectives = [
+        ObjectiveSpec(
+            objective_id="objective_primary",
+            metric_id="avg_income",
+            direction="maximize",
+        )
+    ]
+
+    problem_frame = TrinityProblemFrame(
+        schema_version=schema_version,
+        problem_id=problem_id,
+        domain=_infer_domain(draft.narrative),
+        objectives=objectives,
+        hard_constraints=[],
+        soft_constraints=[],
+        narrative=draft.narrative,
+        labels=["scientist", "trinity"],
+    )
+
+    policy_spec = _draft_interventions_to_policy_spec(
+        draft,
+        policy_id=policy_id,
+        schema_version=schema_version,
+    )
+
+    assumptions: list[AssumptionSpec] = []
+    if draft.rationale:
+        assumptions.append(
+            AssumptionSpec(
+                assumption_id="assumption_rationale",
+                assumption_type=AssumptionType.STRUCTURAL,
+                description=draft.rationale[:500],
+            )
+        )
+
+    model_spec = ModelSpec(
+        schema_version=schema_version,
+        model_id=model_id,
+        data_snapshot_ref=ZERO_ARTIFACT_REF,
+        agent_config=AgentConfig(total_agents=1000, max_agents=1000),
+        assumptions=assumptions,
+        environment_config=EnvironmentConfig(random_seed=42, stochastic=True),
+        labels=["scientist", "trinity"],
+    )
+
+    return TrinityBundle(
+        schema_version=schema_version,
+        problem_frame=problem_frame,
+        policy_spec=policy_spec,
+        model_spec=model_spec,
+    )
+
+
+def _to_trinity(ir: Any, *, schema_version: str = "1.0") -> TrinityBundle:
+    if isinstance(ir, TrinityBundle):
+        if ir.schema_version == schema_version:
+            return ir
+        return ir.model_copy(update={"schema_version": schema_version})
+
+    raise TypeError(f"Unsupported IR type for Trinity conversion: {type(ir)}")
 
 
 class MockFormalizerAgent:
-    """Mock implementation of FormalizerAgent for testing."""
+    """Mock implementation of FormalizerAgent for tests and fallback paths."""
 
     def __init__(self) -> None:
         self._formalization_count: int = 0
@@ -33,177 +218,63 @@ class MockFormalizerAgent:
         self,
         draft: DraftResult,
         *,
-        schema_version: str = "2.0",
-    ) -> "PolicySurfaceIR":
-        from polisyos.ir.surface import PolicySurfaceIR
-
+        schema_version: str = "1.0",
+    ) -> TrinityBundle:
         if not draft.draft_id:
             raise ValueError("Draft must have a valid draft_id")
 
         self._formalization_count += 1
-
-        base_hash = hashlib.sha256(draft.draft_id.encode()).hexdigest()[:8]
-
-        intervention_kind = "tax_subsidy"
-        narrative_lower = draft.narrative.lower()
-        if "tax" in narrative_lower and "subsidy" not in narrative_lower:
-            intervention_kind = "income_tax"
-        elif any(word in narrative_lower for word in ["ubi", "basic income", "transfer"]):
-            intervention_kind = "direct_transfer"
-
-        ir_data: dict[str, Any] = {
-            "schema_version": schema_version,
-            "semantic": {
-                "context_snapshot_ref": f"sha256:{'0' * 64}",
-                "time_semantics": {
-                    "frequency": "M",
-                    "start_date": "2024-01-01",
-                    "step_count": 12,
-                },
-                "objectives": [
-                    {
-                        "objective_id": f"obj_{base_hash}",
-                        "metric_id": "avg_income",
-                        "direction": "maximize",
-                        "weight": "1.0",
-                    }
-                ],
-                "interventions": self._build_interventions(draft, intervention_kind, base_hash),
-                "constraints": [
-                    {
-                        "constraint_id": "min_balance",
-                        "value": {"amount": "-5000", "currency": "USD"},
-                    }
-                ],
-            },
-            "advisory": {
-                "entities": [
-                    {
-                        "entity_id": "target_group",
-                        "entity_type": "agent",
-                        "name": {"en": "Target population", "ua": "Target population"},
-                    }
-                ],
-                "labels": ["mock_generated"],
-                "narrative": draft.rationale or "Auto-generated from draft",
-            },
-        }
-
-        return PolicySurfaceIR(**ir_data)
-
-    def _build_interventions(
-        self,
-        draft: DraftResult,
-        intervention_kind: str,
-        base_hash: str,
-    ) -> list[dict[str, Any]]:
-        interventions: list[dict[str, Any]] = []
-
-        if draft.interventions:
-            for i, intervention in enumerate(draft.interventions):
-                interventions.append(
-                    {
-                        "intervention_id": f"interv_{base_hash}_{i}",
-                        "kind": intervention.get("kind", intervention_kind),
-                        "target": intervention.get(
-                            "target",
-                            {
-                                "kind": "predicate",
-                                "field": "income",
-                                "operator": "<",
-                                "value": "1000",
-                            },
-                        ),
-                        "schedule": intervention.get(
-                            "schedule",
-                            {"start_step": 0, "duration_steps": 12},
-                        ),
-                        "params": intervention.get("params", {"rate": "0.15"}),
-                    }
-                )
-        else:
-            interventions.append(
-                {
-                    "intervention_id": f"interv_{base_hash}_0",
-                    "kind": intervention_kind,
-                    "target": {
-                        "kind": "predicate",
-                        "field": "income",
-                        "operator": "<",
-                        "value": "1000",
-                    },
-                    "schedule": {"start_step": 0, "duration_steps": 12},
-                    "params": {"rate": "0.15"},
-                }
-            )
-
-        return interventions
+        return _build_trinity_bundle_from_draft(draft, schema_version=schema_version)
 
     async def repair_ir(
         self,
-        ir: "PolicySurfaceIR",
+        ir: TrinityBundle,
         errors: list[str],
         *,
         hint: str | None = None,
-    ) -> "PolicySurfaceIR":
-        from polisyos.ir.surface import PolicySurfaceIR
-
+    ) -> TrinityBundle:
         self._repair_count += 1
 
-        ir_dict = ir.model_dump()
+        bundle = _to_trinity(ir)
+        bundle_data = bundle.model_dump(mode="python")
 
-        for error in errors:
-            error_lower = error.lower()
-            if "context_snapshot_ref" in error_lower:
-                ir_dict["semantic"]["context_snapshot_ref"] = f"sha256:{'0' * 64}"
-            if "time_semantics" in error_lower:
-                ir_dict["semantic"]["time_semantics"] = {
-                    "frequency": "M",
-                    "start_date": "2024-01-01",
-                    "step_count": 12,
+        lowered_errors = " ".join(error.lower() for error in errors)
+        if "intervention" in lowered_errors and not bundle_data["policy_spec"]["interventions"]:
+            bundle_data["policy_spec"]["interventions"] = [
+                {
+                    "intervention_id": "intervention_repair",
+                    "kind": "tax_subsidy",
+                    "target": _default_target(),
+                    "schedule": _default_schedule(),
+                    "params": {"rate": "0.1"},
                 }
-            if "intervention" in error_lower and not ir_dict["semantic"].get("interventions"):
-                ir_dict["semantic"]["interventions"] = [
-                    {
-                        "intervention_id": "default_repair",
-                        "kind": "tax_subsidy",
-                        "target": {
-                            "kind": "predicate",
-                            "field": "id",
-                            "operator": "==",
-                            "value": "all",
-                        },
-                        "schedule": {"start_step": 0, "duration_steps": 12},
-                        "params": {"rate": "0.1"},
-                    }
-                ]
+            ]
+        if "data_snapshot_ref" in lowered_errors or not bundle_data["model_spec"].get(
+            "data_snapshot_ref"
+        ):
+            bundle_data["model_spec"]["data_snapshot_ref"] = ZERO_ARTIFACT_REF
+        if hint:
+            notes = list(bundle_data["policy_spec"].get("notes") or [])
+            notes.append(f"repair_hint: {hint}")
+            bundle_data["policy_spec"]["notes"] = notes
 
-        return PolicySurfaceIR(**ir_dict)
+        repaired = TrinityBundle.model_validate(bundle_data)
+        return repaired
 
     async def validate_structure(
         self,
-        ir: "PolicySurfaceIR",
+        ir: TrinityBundle,
     ) -> tuple[bool, list[str]]:
         errors: list[str] = []
 
         try:
-            if not ir.schema_version:
-                errors.append("Missing schema_version")
-            if not ir.semantic:
-                errors.append("Missing semantic section")
-                return False, errors
-
-            semantic = ir.semantic
-            if hasattr(semantic, "context_snapshot_ref") and not semantic.context_snapshot_ref:
-                errors.append("Missing context_snapshot_ref")
-
-            if hasattr(semantic, "interventions"):
-                if not semantic.interventions:
-                    errors.append("No interventions defined")
-                else:
-                    for i, intervention in enumerate(semantic.interventions):
-                        if not getattr(intervention, "intervention_id", None):
-                            errors.append(f"Intervention {i} missing intervention_id")
+            bundle = _to_trinity(ir)
+            if not bundle.problem_frame.problem_id:
+                errors.append("Missing problem_frame.problem_id")
+            if not bundle.policy_spec.interventions:
+                errors.append("No interventions defined")
+            if not bundle.model_spec.data_snapshot_ref:
+                errors.append("Missing model_spec.data_snapshot_ref")
         except Exception as exc:
             errors.append(f"Validation error: {exc}")
 
@@ -223,11 +294,7 @@ class MockFormalizerAgent:
 
 
 class LLMFormalizerAgent:
-    """
-    LLM-powered Formalizer agent.
-
-    Converts DraftResult to PolicySurfaceIR with validation.
-    """
+    """LLM-powered Formalizer; Trinity-first."""
 
     MAX_RETRIES = 2
 
@@ -236,14 +303,14 @@ class LLMFormalizerAgent:
             self._llm = TracedLLMClient(llm_client, model_name=model_name)
         else:
             self._llm = llm_client
+        self._fallback = MockFormalizerAgent()
 
     async def formalize(
         self,
         draft: DraftResult,
         *,
-        schema_version: str = "2.0",
-    ) -> PolicySurfaceIR:
-        """Convert a natural language draft to PolicySurfaceIR."""
+        schema_version: str = "1.0",
+    ) -> TrinityBundle:
         prompt = get_formalizer_prompt()
 
         user_message = f"""
@@ -256,22 +323,27 @@ PROPOSED INTERVENTIONS:
 RATIONALE:
 {draft.rationale}
 
-Generate a valid PolicySurfaceIR v{schema_version} JSON.
+Generate a valid TrinityBundle v{schema_version} JSON.
 """
 
         last_error: str | None = None
         for attempt in range(self.MAX_RETRIES + 1):
+            attempt_message = user_message
             if last_error and attempt > 0:
-                user_message += (
+                attempt_message += (
                     f"\n\nPREVIOUS ERROR (attempt {attempt}):\n{last_error}\n"
                     "Please fix and try again."
                 )
 
-            response = await self._llm.generate(
-                system=prompt,
-                user=user_message,
-                response_format={"type": "json_object"},
-            )
+            try:
+                response = await self._llm.generate(
+                    system=prompt,
+                    user=attempt_message,
+                    response_format={"type": "json_object"},
+                )
+            except Exception as exc:
+                last_error = f"LLM call failed: {exc}"
+                continue
 
             content = response.content if hasattr(response, "content") else str(response)
             content = content.strip()
@@ -282,70 +354,37 @@ Generate a valid PolicySurfaceIR v{schema_version} JSON.
 
             try:
                 data = json.loads(content)
-                return PolicySurfaceIR(**data)
-            except json.JSONDecodeError as exc:
-                last_error = f"JSON parse error: {exc}"
-            except ValidationError as exc:
-                last_error = f"Schema validation error: {exc.errors()[:3]}"
+                bundle = TrinityBundle.model_validate(data)
+                if schema_version and bundle.schema_version != schema_version:
+                    bundle = bundle.model_copy(update={"schema_version": schema_version})
+                return bundle
+            except (json.JSONDecodeError, ValidationError, ValueError, TypeError) as exc:
+                last_error = str(exc)
 
-        raise ValueError(
-            f"Formalization failed after {self.MAX_RETRIES + 1} attempts: {last_error}"
+        # Fallback to deterministic formalizer if LLM output is unusable.
+        return await self._fallback.formalize(
+            draft,
+            schema_version=schema_version,
         )
 
     async def repair_ir(
         self,
-        ir: PolicySurfaceIR,
+        ir: TrinityBundle,
         errors: list[str],
         *,
         hint: str | None = None,
-    ) -> PolicySurfaceIR:
-        """Repair an invalid IR based on validation errors."""
-        prompt = get_formalizer_prompt()
-
-        ir_json = ir.model_dump_json(indent=2)
-        errors_text = "\n".join(f"- {error}" for error in errors)
-
-        user_message = f"""
-INVALID IR TO REPAIR:
-{ir_json}
-
-ERRORS TO FIX:
-{errors_text}
-"""
-        if hint:
-            user_message += f"\nHINT: {hint}"
-
-        user_message += "\n\nGenerate the CORRECTED PolicySurfaceIR JSON."
-
-        response = await self._llm.generate(
-            system=prompt,
-            user=user_message,
-            response_format={"type": "json_object"},
+    ) -> TrinityBundle:
+        return await self._fallback.repair_ir(
+            ir,
+            errors,
+            hint=hint,
         )
-
-        content = response.content if hasattr(response, "content") else str(response)
-        data = json.loads(content)
-        return PolicySurfaceIR(**data)
 
     async def validate_structure(
         self,
-        ir: PolicySurfaceIR,
+        ir: TrinityBundle,
     ) -> tuple[bool, list[str]]:
-        """Validate IR structure without full semantic check."""
-        errors: list[str] = []
-
-        if not ir.semantic.interventions:
-            errors.append("No interventions defined")
-
-        for i, intervention in enumerate(ir.semantic.interventions):
-            if not intervention.intervention_id:
-                errors.append(f"Intervention {i}: missing intervention_id")
-            if not intervention.kind:
-                errors.append(f"Intervention {i}: missing mechanism kind")
-            if not intervention.target:
-                errors.append(f"Intervention {i}: missing target selector")
-
-        return (len(errors) == 0, errors)
+        return await self._fallback.validate_structure(ir)
 
 
 def create_mock_draft(

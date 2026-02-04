@@ -10,7 +10,7 @@ from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.fabric.claims.errors import ClaimValidationError
 from polisyos.fabric.claims.persist import load_json_artifact, write_claims_world_segment
 from polisyos.fabric.io.db import SimulationDB
-from polisyos.fabric.world.store import (
+from polisyos.fabric.world import (
     emit_edge_fact,
     emit_world_event_facts,
     emit_world_node_facts,

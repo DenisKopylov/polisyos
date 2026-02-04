@@ -45,15 +45,13 @@ from polisyos.ir.kernel import (
     SlotScope,
 )
 from polisyos.ir.kernel.values import CountValue, DurationValue, MoneyValue, RateValue
-from polisyos.ir.surface import (
-    PolicySurfaceIR,
-    ScheduleSpec,
+from polisyos.ir.schedule import ScheduleSpec, schedule_range
+from polisyos.ir.selector_expr import (
     SelectorAll,
     SelectorAny,
     SelectorExpr,
     SelectorNot,
     SelectorPredicate,
-    schedule_range,
 )
 from polisyos.ir.trinity import TrinityBundle
 from polisyos.ir.types import SelectorOperator
@@ -139,13 +137,7 @@ def execute_program_graph(
     if constraint_registry is not None:
         try:
             ir_payload = from_canonical_bytes(store.get_bytes(program_graph.ir_ref.artifact_id))
-            if program_graph.ir_ref.kind == "ir.policy_surface":
-                policy = PolicySurfaceIR.model_validate(ir_payload)
-                constraint_values = {
-                    constraint.constraint_id: constraint.value
-                    for constraint in policy.semantic.constraints
-                }
-            elif program_graph.ir_ref.kind == "ir.trinity_bundle":
+            if program_graph.ir_ref.kind == "ir.trinity_bundle":
                 bundle = TrinityBundle.model_validate(ir_payload)
                 constraint_values = {
                     constraint.constraint_id: constraint.value

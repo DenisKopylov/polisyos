@@ -14,15 +14,12 @@ import asyncio
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from enum import Enum
-from typing import TYPE_CHECKING, Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 from loguru import logger
 
 from polisyos.core.contracts.scientist import FailureCardRef
 from polisyos.scientist.agent.failure_card import FailureCard, FailureSeverity, RemediationTarget
-
-if TYPE_CHECKING:
-    from polisyos.scientist.orchestrator.state import ExperimentState
 
 
 class ReflexionDecision(str, Enum):
@@ -65,7 +62,7 @@ class ReflexionOrchestrator:
     def evaluate_failure(
         self,
         card: FailureCard,
-        state: "ExperimentState",
+        state: dict[str, Any],
     ) -> ReflexionDecision:
         """
         Evaluate a failure and decide the next action.
@@ -138,7 +135,7 @@ class ReflexionOrchestrator:
     def prepare_retry_context(
         self,
         card: FailureCard,
-        state: "ExperimentState",
+        state: dict[str, Any],
         include_history: bool = True,
     ) -> Dict[str, Any]:
         context = {

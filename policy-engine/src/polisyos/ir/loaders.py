@@ -1,19 +1,10 @@
 from __future__ import annotations
 
 import json
-from typing import Any, Mapping, Union, overload
+from typing import Any, Mapping
 
-from polisyos.ir.legacy.surface import PolicySurfaceIR
-from polisyos.ir.legacy.trinity_v0 import TrinityBundle as LegacyTrinityBundle
-from polisyos.ir.trinity import TrinityBundle
 from polisyos.ir.migration_report import MigrationReport
-from polisyos.ir.legacy.migrations.surface_to_trinity import (
-    is_legacy_trinity_bundle_payload,
-    is_trinity_bundle_payload,
-    migrate_surface_ir_to_trinity,
-    migrate_trinity_bundle_v0_to_trinity,
-    migrate_trinity_to_surface_ir,
-)
+from polisyos.ir.trinity import TrinityBundle
 
 
 class PolicyLoadError(ValueError):
@@ -45,8 +36,10 @@ def _parse_bytes_payload(payload: bytes, *, fmt: str) -> Any:
 
 
 def _normalize_payload(payload: Any, *, fmt: str) -> Any:
-    if isinstance(payload, (str, bytes)):
-        return _parse_str_payload(payload, fmt=fmt) if isinstance(payload, str) else _parse_bytes_payload(payload, fmt=fmt)
+    if isinstance(payload, str):
+        return _parse_str_payload(payload, fmt=fmt)
+    if isinstance(payload, bytes):
+        return _parse_bytes_payload(payload, fmt=fmt)
     return payload
 
 
@@ -56,133 +49,59 @@ def _ensure_mapping(payload: Any) -> Mapping[str, Any]:
     return payload
 
 
-PolicyArtifacts = Union[PolicySurfaceIR, TrinityBundle]
+def _looks_like_legacy_surface(mapping: Mapping[str, Any]) -> bool:
+    if "semantic" in mapping or "advisory" in mapping:
+        return True
+    version = str(mapping.get("schema_version", ""))
+    return version.startswith("2.")
 
 
-@overload
-def load_policy(
-    payload: Any,
-    *,
-    as_trinity: bool = False,
-    auto_migrate: bool = True,
-    fmt: str = "auto",
-) -> PolicySurfaceIR: ...
-
-
-@overload
 def load_policy(
     payload: Any,
     *,
     as_trinity: bool = True,
     auto_migrate: bool = True,
     fmt: str = "auto",
-) -> TrinityBundle: ...
+) -> TrinityBundle:
+    """Load policy payload as canonical TrinityBundle.
 
-
-def load_policy(
-    payload: Any,
-    *,
-    as_trinity: bool = False,
-    auto_migrate: bool = True,
-    fmt: str = "auto",
-) -> PolicyArtifacts:
-    """Unified loader for legacy and canonical Trinity formats."""
-    # Typed inputs
-    if isinstance(payload, PolicySurfaceIR):
-        if as_trinity:
-            if not auto_migrate:
-                raise PolicyLoadError("Auto-migrate disabled for legacy PolicySurfaceIR")
-            bundle, _ = migrate_surface_ir_to_trinity(payload)
-            return bundle
-        return payload
-
-    if isinstance(payload, TrinityBundle):
-        if as_trinity:
-            return payload
-        if not auto_migrate:
-            raise PolicyLoadError("Auto-migrate disabled for TrinityBundle -> PolicySurfaceIR")
-        surface, _ = migrate_trinity_to_surface_ir(payload)
-        return surface
-
-    if isinstance(payload, LegacyTrinityBundle):
-        if not auto_migrate:
-            raise PolicyLoadError("Auto-migrate disabled for legacy TrinityBundle")
-        bundle, _ = migrate_trinity_bundle_v0_to_trinity(payload)
-        if as_trinity:
-            return bundle
-        surface, _ = migrate_trinity_to_surface_ir(bundle)
-        return surface
-
-    # Parse bytes/str
-    normalized = _normalize_payload(payload, fmt=fmt)
-    mapping = _ensure_mapping(normalized)
-
-    if is_trinity_bundle_payload(mapping) and "schema_version" in mapping:
-        bundle = TrinityBundle.model_validate(mapping)
-        if as_trinity:
-            return bundle
-        if not auto_migrate:
-            raise PolicyLoadError("Auto-migrate disabled for TrinityBundle -> PolicySurfaceIR")
-        surface, _ = migrate_trinity_to_surface_ir(bundle)
-        return surface
-
-    if is_legacy_trinity_bundle_payload(mapping):
-        if not auto_migrate:
-            raise PolicyLoadError("Auto-migrate disabled for legacy TrinityBundle")
-        legacy_bundle = LegacyTrinityBundle.model_validate(mapping)
-        bundle, _ = migrate_trinity_bundle_v0_to_trinity(legacy_bundle)
-        if as_trinity:
-            return bundle
-        surface, _ = migrate_trinity_to_surface_ir(bundle)
-        return surface
-
-    if "semantic" in mapping or str(mapping.get("schema_version", "")).startswith("2."):
-        legacy_ir = PolicySurfaceIR.model_validate(mapping)
-        if as_trinity:
-            if not auto_migrate:
-                raise PolicyLoadError("Auto-migrate disabled for legacy PolicySurfaceIR")
-            bundle, _ = migrate_surface_ir_to_trinity(legacy_ir)
-            return bundle
-        return legacy_ir
-
-    raise PolicyLoadError(
-        "Unsupported policy payload: expected PolicySurfaceIR (schema_version 2.x), "
-        "legacy TrinityBundle, or canonical TrinityBundle format."
-    )
+    Legacy PolicySurfaceIR loading was removed in Stage 3 cleanup.
+    """
+    if not as_trinity:
+        raise PolicyLoadError(
+            "Legacy PolicySurfaceIR output is removed. Use load_trinity()/load_policy(as_trinity=True)."
+        )
+    bundle, _ = load_trinity_bundle(payload, fmt=fmt, auto_migrate=auto_migrate)
+    return bundle
 
 
 def load_trinity_bundle(
     payload: Any,
     *,
     fmt: str = "auto",
+    auto_migrate: bool = True,
 ) -> tuple[TrinityBundle, MigrationReport | None]:
-    """Load payload as canonical TrinityBundle and return optional MigrationReport."""
+    """Load payload as canonical TrinityBundle and return optional migration report."""
     if isinstance(payload, TrinityBundle):
         return payload, None
-    if isinstance(payload, PolicySurfaceIR):
-        bundle, report = migrate_surface_ir_to_trinity(payload)
-        return bundle, report
-    if isinstance(payload, LegacyTrinityBundle):
-        bundle, report = migrate_trinity_bundle_v0_to_trinity(payload)
-        return bundle, report
 
     normalized = _normalize_payload(payload, fmt=fmt)
     mapping = _ensure_mapping(normalized)
 
-    if is_trinity_bundle_payload(mapping) and "schema_version" in mapping:
-        return TrinityBundle.model_validate(mapping), None
-    if is_legacy_trinity_bundle_payload(mapping):
-        legacy_bundle = LegacyTrinityBundle.model_validate(mapping)
-        bundle, report = migrate_trinity_bundle_v0_to_trinity(legacy_bundle)
-        return bundle, report
-    if "semantic" in mapping or str(mapping.get("schema_version", "")).startswith("2."):
-        legacy_ir = PolicySurfaceIR.model_validate(mapping)
-        bundle, report = migrate_surface_ir_to_trinity(legacy_ir)
-        return bundle, report
+    if _looks_like_legacy_surface(mapping):
+        raise PolicyLoadError(
+            "Legacy PolicySurfaceIR payload is no longer supported by runtime loaders. "
+            "Migrate payloads to TrinityBundle before loading."
+        )
 
-    raise PolicyLoadError(
-        "Unsupported policy payload for TrinityBundle loader."
-    )
+    try:
+        return TrinityBundle.model_validate(mapping), None
+    except Exception as exc:  # pragma: no cover - defensive path
+        if auto_migrate:
+            raise PolicyLoadError(
+                "Unsupported policy payload for TrinityBundle loader."
+            ) from exc
+        raise PolicyLoadError("Unsupported policy payload for TrinityBundle loader") from exc
 
 
 def load_trinity(payload: Any, *, fmt: str = "auto") -> TrinityBundle:
@@ -191,9 +110,11 @@ def load_trinity(payload: Any, *, fmt: str = "auto") -> TrinityBundle:
     return bundle
 
 
-def load_legacy(payload: Any, *, fmt: str = "auto") -> PolicySurfaceIR:
-    """Convenience function to always load as legacy PolicySurfaceIR."""
-    return load_policy(payload, as_trinity=False, fmt=fmt)
+def load_legacy(payload: Any, *, fmt: str = "auto") -> TrinityBundle:
+    raise PolicyLoadError(
+        "load_legacy() was removed with PolicySurfaceIR decommissioning. "
+        "Use load_trinity() and TrinityBundle payloads."
+    )
 
 
 __all__ = [

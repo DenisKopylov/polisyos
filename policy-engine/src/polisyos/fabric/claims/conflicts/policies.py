@@ -55,6 +55,7 @@ DEFAULT_POLICY = ConflictPolicy(
     },
     extractor_reliability={
         "explicit_lines_v1": Decimal("0.70"),
+        "lex.norm_extractor.regex_v1": Decimal("0.80"),
         "regex_numeric_v1": Decimal("0.55"),
     },
     agent_reliability={

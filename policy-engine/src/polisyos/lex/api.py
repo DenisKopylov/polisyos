@@ -3,6 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.fabric.io.db import SimulationDB
 from polisyos.lex.corpus.ingest import ingest_legal_doc_bytes as _ingest_legal_doc_bytes
 from polisyos.lex.corpus.structure import build_legal_structure as _build_legal_structure
 from polisyos.lex.corpus.versioning import (
@@ -11,6 +12,7 @@ from polisyos.lex.corpus.versioning import (
 from polisyos.lex.corpus.versioning import (
     resolve_active_version as _resolve_active_version,
 )
+from polisyos.lex.normpack.assemble_pack import assemble_norm_pack as _assemble_norm_pack
 from polisyos.lex.types import (
     ActiveVersionResult,
     ActiveVersionStrategy,
@@ -21,6 +23,8 @@ from polisyos.lex.types import (
     LexStructureResult,
     LexVersionIndexOptions,
     LexVersionIndexResult,
+    NormPackBuildRequest,
+    NormPackBuildResult,
 )
 
 
@@ -94,6 +98,23 @@ def resolve_active_version(
     )
 
 
+def assemble_norm_pack(
+    *,
+    cas: FileSystemCAS,
+    fact_log_root: Path,
+    request: NormPackBuildRequest,
+    db: SimulationDB | None = None,
+    segment_name: str | None = None,
+) -> NormPackBuildResult:
+    return _assemble_norm_pack(
+        cas=cas,
+        fact_log_root=fact_log_root,
+        request=request,
+        db=db,
+        segment_name=segment_name,
+    )
+
+
 __all__ = [
     "ActiveVersionResult",
     "ActiveVersionStrategy",
@@ -104,6 +125,9 @@ __all__ = [
     "LexStructureResult",
     "LexVersionIndexOptions",
     "LexVersionIndexResult",
+    "NormPackBuildRequest",
+    "NormPackBuildResult",
+    "assemble_norm_pack",
     "build_legal_structure",
     "build_version_index",
     "ingest_legal_doc_bytes",

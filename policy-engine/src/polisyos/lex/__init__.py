@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from .api import (
+    assemble_norm_pack,
     build_legal_structure,
     build_version_index,
     ingest_legal_doc_bytes,
@@ -25,6 +26,9 @@ from .types import (
     LexStructureResult,
     LexVersionIndexOptions,
     LexVersionIndexResult,
+    NormPackBuildRequest,
+    NormPackBuildResult,
+    NormPackBudgets,
     WorldEventRefLike,
 )
 
@@ -45,7 +49,11 @@ __all__ = [
     "LexVersionIndexOptions",
     "LexVersionIndexResult",
     "LexVersioningError",
+    "NormPackBuildRequest",
+    "NormPackBuildResult",
+    "NormPackBudgets",
     "WorldEventRefLike",
+    "assemble_norm_pack",
     "build_legal_structure",
     "build_version_index",
     "ingest_legal_doc_bytes",

@@ -177,6 +177,64 @@ class ResolveCandidate(BaseModel):
     effective_to: str | None = None
 
 
+@dataclass(frozen=True)
+class NormPackBudgets:
+    max_docs: int | None = None
+    max_provisions: int | None = None
+    max_claims: int | None = None
+
+
+@dataclass(frozen=True)
+class NormPackBuildRequest:
+    jurisdiction: str
+    as_of: str
+    domain: str | None = None
+    doc_source_ids: list[str] | None = None
+
+    selection_policy_id: str = "lex.versioning_v1.effective_range_then_published_at"
+    conflict_policy_id: str = "policy.conflicts.default_v1"
+    trust_policy_id: str = "policy.trust.default_v1"
+
+    budgets: NormPackBudgets = field(default_factory=NormPackBudgets)
+
+
+@dataclass(frozen=True)
+class SelectedDocVersion:
+    doc_source_id: str
+    doc_version_id: str
+    doc_meta_artifact_id: str
+    selection_policy_id: str
+    used_version_index_artifact_id: str | None
+    explanation: list[str] = field(default_factory=list)
+
+
+@dataclass(frozen=True)
+class NormPackBuildResult:
+    request: NormPackBuildRequest
+    jurisdiction_norm: str
+    as_of_norm: str
+    domain_norm: str | None
+
+    selected_doc_versions: list[SelectedDocVersion]
+    selected_fragment_ids: list[str]
+
+    claim_set_artifact_ids: list[str]
+    norm_claim_ids: list[str]
+
+    conflict_set_ids: list[str]
+    conflict_resolution_artifact_ids: list[str]
+    trust_assessment_ids: list[str]
+
+    norm_pack_artifact_id: str
+    norm_pack_world_id: str
+
+    world_event_id: str
+    world_event_artifact_id: str
+    world_segment_manifest: FactSegmentManifest
+
+    warnings: list[str] = field(default_factory=list)
+
+
 __all__ = [
     "ActiveVersionResult",
     "ActiveVersionStrategy",
@@ -191,6 +249,10 @@ __all__ = [
     "LexStructureResult",
     "LexVersionIndexOptions",
     "LexVersionIndexResult",
+    "NormPackBudgets",
+    "NormPackBuildRequest",
+    "NormPackBuildResult",
     "ResolveCandidate",
+    "SelectedDocVersion",
     "WorldEventRefLike",
 ]

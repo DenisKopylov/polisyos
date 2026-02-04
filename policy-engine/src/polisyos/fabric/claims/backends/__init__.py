@@ -6,7 +6,7 @@ from polisyos.ir.world.doc import DocMeta
 
 from ..errors import ClaimUnsupportedExtractorError
 from ..types import ChunkContext, ClaimCandidate, ClaimExtractOptions
-from . import explicit_lines_v1, regex_numeric_v1
+from . import explicit_lines_v1, lex_norm_regex_v1, regex_numeric_v1
 
 
 class ClaimExtractorFn(Protocol):
@@ -21,6 +21,7 @@ class ClaimExtractorFn(Protocol):
 
 _EXTRACTOR_REGISTRY: dict[str, ClaimExtractorFn] = {
     "explicit_lines_v1": explicit_lines_v1.extract,
+    "lex.norm_extractor.regex_v1": lex_norm_regex_v1.extract,
     "regex_numeric_v1": regex_numeric_v1.extract,
 }
 

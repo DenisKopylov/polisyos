@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import json
 import uuid
 from dataclasses import dataclass
 from typing import Iterable, Sequence
@@ -9,16 +8,17 @@ import pandas as pd
 
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.store import FileSystemCAS
-from polisyos.ir.canon import to_canonical_bytes
-from polisyos.ir.world.claim import Claim
-from polisyos.ir.world.doc import DocFragment, DocMeta
-from polisyos.ir.world.event import WorldEvent
+from polisyos.core.canon import from_canonical_bytes
 from polisyos.fabric.world.store.validate import (
     validate_claim_id,
     validate_doc_fragment_ids,
     validate_doc_meta_ids,
     validate_world_event_id,
 )
+from polisyos.ir.canon import to_canonical_bytes
+from polisyos.ir.world.claim import Claim
+from polisyos.ir.world.doc import DocFragment, DocMeta
+from polisyos.ir.world.event import WorldEvent
 
 from .errors import WorldArtifactReadError, WorldMergeConflict
 
@@ -53,8 +53,7 @@ def _canonical_json(value) -> str | None:
 def _load_json_artifact(cas: FileSystemCAS, artifact_id: str) -> dict:
     try:
         aid = ArtifactID.model_validate(artifact_id)
-        data = cas.get_bytes(aid)
-        payload = json.loads(data)
+        payload = from_canonical_bytes(cas.get_bytes(aid))
         if not isinstance(payload, dict):
             raise ValueError("artifact JSON must be an object")
         return payload
@@ -121,7 +120,8 @@ def _load_world_event(cas: FileSystemCAS, artifact_id: str) -> WorldEvent:
 
 
 def _register_df(conn, df: pd.DataFrame, *, prefix: str) -> str:
-    name = f"{prefix}_{uuid.uuid4().hex}"
+    safe_prefix = prefix.replace(".", "_").replace("-", "_")
+    name = f"{safe_prefix}_{uuid.uuid4().hex}"
     conn.register(name, df)
     return name
 
@@ -269,7 +269,9 @@ def _build_claim_rows(
                 "subject_id": claim.subject_id,
                 "subject_text": claim.subject_text,
                 "value_text": claim.value_text,
-                "value_decimal": str(claim.value_decimal) if claim.value_decimal is not None else None,
+                "value_decimal": (
+                    str(claim.value_decimal) if claim.value_decimal is not None else None
+                ),
                 "unit_id": claim.unit_id,
                 "confidence": str(claim.confidence) if claim.confidence is not None else None,
                 "source_kind": claim.source_kind.value,
@@ -322,8 +324,12 @@ def _update_claim_citations(
     if not touched_claim_ids and not touched_fragment_ids:
         return 0
 
-    claim_df = pd.DataFrame({"claim_id": list(touched_claim_ids)})
-    fragment_df = pd.DataFrame({"fragment_id": list(touched_fragment_ids)})
+    claim_df = pd.DataFrame(
+        {"claim_id": pd.Series(list(touched_claim_ids), dtype="string")}
+    )
+    fragment_df = pd.DataFrame(
+        {"fragment_id": pd.Series(list(touched_fragment_ids), dtype="string")}
+    )
 
     claim_name = _register_df(conn, claim_df, prefix="claim_ids")
     fragment_name = _register_df(conn, fragment_df, prefix="fragment_ids")
@@ -358,7 +364,12 @@ def _update_claim_citations(
     return 1
 
 
-def update_projections(conn, cas: FileSystemCAS, *, touched_node_ids: Sequence[str]) -> ProjectionUpdateStats:
+def update_projections(
+    conn,
+    cas: FileSystemCAS,
+    *,
+    touched_node_ids: Sequence[str],
+) -> ProjectionUpdateStats:
     stats = ProjectionUpdateStats()
     if not touched_node_ids:
         return stats

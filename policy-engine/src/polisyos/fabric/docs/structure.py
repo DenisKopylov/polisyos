@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import json
 import re
 from dataclasses import asdict
 from datetime import datetime, timezone
@@ -9,6 +8,7 @@ from pathlib import Path
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.canon import from_canonical_bytes
 from polisyos.fabric.world.store import (
     append_world_segment_index,
     emit_doc_fragment_facts,
@@ -47,7 +47,7 @@ _HEADING_HASH_RE = re.compile(r"^(#+)\s+(.*\S)")
 def _load_json_artifact(cas: FileSystemCAS, artifact_id: str) -> dict:
     try:
         aid = ArtifactID.model_validate(artifact_id)
-        payload = json.loads(cas.get_bytes(aid))
+        payload = from_canonical_bytes(cas.get_bytes(aid))
     except Exception as exc:  # pragma: no cover - defensive
         raise DocValidationError(f"failed to load artifact {artifact_id}: {exc}") from exc
     if not isinstance(payload, dict):
@@ -116,7 +116,7 @@ def _build_anchors(text: str, *, options: DocStructureOptions) -> list[dict]:
             }
         )
 
-    for line, start, end in _iter_lines_with_offsets(text):
+    for line, start, _end in _iter_lines_with_offsets(text):
         line_no_nl = line.rstrip("\n")
         if not line_no_nl.strip():
             continue

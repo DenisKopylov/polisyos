@@ -39,18 +39,18 @@ def sql_insert_world_facts(staging_table: str) -> str:
         segment_id
     )
     SELECT
-        fact_id,
-        schema_version,
-        subject_id,
-        predicate_id,
-        object_value,
-        target_id,
-        valid_time,
-        tx_time,
-        provenance_json,
-        trust_json,
-        legal_json,
-        segment_id
+        s.fact_id,
+        s.schema_version,
+        s.subject_id,
+        s.predicate_id,
+        s.object_value,
+        s.target_id,
+        s.valid_time,
+        s.tx_time,
+        s.provenance_json,
+        s.trust_json,
+        s.legal_json,
+        s.segment_id
     FROM {staging_table} s
     LEFT JOIN world.world_facts w
         ON w.fact_id = s.fact_id
@@ -84,17 +84,17 @@ def sql_insert_world_edges(staging_table: str) -> str:
         segment_id
     )
     SELECT
-        edge_id,
-        src_id,
-        predicate_id,
-        kind,
-        dst_id,
-        valid_time,
-        tx_time,
-        provenance_json,
-        trust_json,
-        legal_json,
-        segment_id
+        s.edge_id,
+        s.src_id,
+        s.predicate_id,
+        s.kind,
+        s.dst_id,
+        s.valid_time,
+        s.tx_time,
+        s.provenance_json,
+        s.trust_json,
+        s.legal_json,
+        s.segment_id
     FROM {staging_table} s
     LEFT JOIN world.world_edges w
         ON w.edge_id = s.edge_id
@@ -105,7 +105,7 @@ def sql_insert_world_edges(staging_table: str) -> str:
 def sql_insert_missing_nodes(touched_table: str) -> str:
     return f"""
     INSERT INTO world.world_nodes (node_id, kind)
-    SELECT t.node_id, 'unknown'
+    SELECT DISTINCT t.node_id, 'unknown'
     FROM {touched_table} t
     LEFT JOIN world.world_nodes n
         ON n.node_id = t.node_id
@@ -151,7 +151,7 @@ def sql_update_world_nodes(touched_table: str) -> str:
     props_cte = _sql_ranked_value(WORLD_PROPS_REF, "props_choice", touched_table)
     return f"""
     WITH
-    touched AS (SELECT node_id FROM {touched_table}),
+    touched AS (SELECT DISTINCT node_id FROM {touched_table}),
     kind_choice AS (
         SELECT subject_id, MAX(object_value) AS kind
         FROM world.world_facts
@@ -161,29 +161,30 @@ def sql_update_world_nodes(touched_table: str) -> str:
     ),
     {label_cte},
     {artifact_cte},
-    {props_cte},
-    merged AS (
-        SELECT
-            t.node_id,
-            k.kind,
-            l.label_choice_value AS label,
-            a.artifact_choice_value AS artifact_id,
-            p.props_choice_value AS props_ref
-        FROM touched t
-        LEFT JOIN kind_choice k ON k.subject_id = t.node_id
-        LEFT JOIN label_choice l ON l.subject_id = t.node_id
-        LEFT JOIN artifact_choice a ON a.subject_id = t.node_id
-        LEFT JOIN props_choice p ON p.subject_id = t.node_id
-    )
+    {props_cte}
     UPDATE world.world_nodes AS n
     SET
-        kind = COALESCE(m.kind, n.kind),
-        label = m.label,
-        artifact_id = m.artifact_id,
-        props_ref = m.props_ref,
+        kind = COALESCE(
+            (SELECT k.kind FROM kind_choice k WHERE k.subject_id = n.node_id),
+            n.kind
+        ),
+        label = (
+            SELECT l.label_choice_value
+            FROM label_choice l
+            WHERE l.subject_id = n.node_id
+        ),
+        artifact_id = (
+            SELECT a.artifact_choice_value
+            FROM artifact_choice a
+            WHERE a.subject_id = n.node_id
+        ),
+        props_ref = (
+            SELECT p.props_choice_value
+            FROM props_choice p
+            WHERE p.subject_id = n.node_id
+        ),
         updated_at = CURRENT_TIMESTAMP
-    FROM merged m
-    WHERE n.node_id = m.node_id
+    WHERE n.node_id IN (SELECT node_id FROM touched)
     """
 
 

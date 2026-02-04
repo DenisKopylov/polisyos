@@ -34,7 +34,6 @@ from .sql import (
 from .staging import stage_world_segment
 
 
-
 @dataclass
 class WorldMaterializeSegmentStats:
     segment_id: str
@@ -93,7 +92,8 @@ def ensure_world_materialized(
         if existing:
             if existing != manifest.sha256:
                 raise WorldSegmentHashMismatch(
-                    f"segment hash mismatch for {manifest.segment_id}: {existing} != {manifest.sha256}"
+                    "segment hash mismatch for "
+                    f"{manifest.segment_id}: {existing} != {manifest.sha256}"
                 )
             stats.segments_skipped += 1
             continue
@@ -150,7 +150,7 @@ def apply_world_segment(
             finally:
                 db.conn.unregister(facts_name)
 
-        touched_ids = staged.touched_node_ids
+        touched_ids = sorted(set(staged.touched_node_ids))
         nodes_touched = len(touched_ids)
         if nodes_touched:
             touched_df = pd.DataFrame({"node_id": touched_ids})

@@ -43,6 +43,20 @@ def _enum_value(value: Any) -> Any:
     return value
 
 
+def _normalize_payload_value(value: Any) -> Any:
+    value = _enum_value(value)
+    if isinstance(value, dict):
+        return {key: _normalize_payload_value(item) for key, item in value.items()}
+    if isinstance(value, list):
+        return [_normalize_payload_value(item) for item in value]
+    if isinstance(value, tuple):
+        return [_normalize_payload_value(item) for item in value]
+    model_dump = getattr(value, "model_dump", None)
+    if callable(model_dump):
+        return _normalize_payload_value(model_dump())
+    return value
+
+
 def _strip_none(payload: dict[str, Any]) -> dict[str, Any]:
     return {key: value for key, value in payload.items() if value is not None}
 
@@ -100,14 +114,17 @@ def claim_id_from_payload(*, claim_payload: dict[str, Any]) -> str:
         "qualifiers",
     ):
         if key in claim_payload:
-            payload[key] = claim_payload[key]
+            payload[key] = _normalize_payload_value(claim_payload[key])
     if source_kind == "doc":
         if "citations" in claim_payload:
-            payload["citations"] = claim_payload["citations"]
+            payload["citations"] = _normalize_payload_value(claim_payload["citations"])
     else:
         if "source_artifacts" in claim_payload:
-            payload["source_artifacts"] = claim_payload["source_artifacts"]
+            payload["source_artifacts"] = _normalize_payload_value(
+                claim_payload["source_artifacts"]
+            )
     payload = _strip_none(payload)
+    payload.setdefault("qualifiers", {})
     return stable_world_id_from_canon(prefix="claim", payload=payload)
 
 
@@ -123,10 +140,12 @@ def world_event_id_from_payload(*, event_payload: dict[str, Any]) -> str:
         "provenance_ref",
     ):
         if key in event_payload:
-            payload[key] = event_payload[key]
+            payload[key] = _normalize_payload_value(event_payload[key])
     if "event_kind" in payload:
         payload["event_kind"] = _enum_value(payload["event_kind"])
     payload = _strip_none(payload)
+    payload.setdefault("inputs", [])
+    payload.setdefault("outputs", [])
     return stable_world_id_from_canon(prefix="event", payload=payload)
 
 

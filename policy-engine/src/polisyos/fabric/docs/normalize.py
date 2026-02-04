@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import json
 from dataclasses import asdict
 from datetime import datetime, timezone
 from pathlib import Path
@@ -8,6 +7,7 @@ from pathlib import Path
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.canon import from_canonical_bytes
 from polisyos.fabric.world.store import (
     append_world_segment_index,
     emit_doc_meta_facts,
@@ -40,12 +40,11 @@ _NORMALIZED_SCHEMA = SchemaInfo(name="fabric.doc.normalized", version="1.0")
 
 
 def _decode_bytes(raw_bytes: bytes, options: DocNormalizeOptions) -> str:
-    last_exc: Exception | None = None
     for enc in options.encoding_order:
         try:
             return raw_bytes.decode(enc, errors=options.errors)
-        except Exception as exc:  # pragma: no cover - exercised via fallback
-            last_exc = exc
+        except Exception:  # pragma: no cover - exercised via fallback
+            pass
     # Deterministic fallback
     try:
         return raw_bytes.decode(options.encoding_order[0], errors="replace")
@@ -81,7 +80,7 @@ def _normalize_text(text: str, options: DocNormalizeOptions) -> str:
 def _load_json_artifact(cas: FileSystemCAS, artifact_id: str) -> dict:
     try:
         aid = ArtifactID.model_validate(artifact_id)
-        payload = json.loads(cas.get_bytes(aid))
+        payload = from_canonical_bytes(cas.get_bytes(aid))
     except Exception as exc:  # pragma: no cover - defensive
         raise DocValidationError(f"failed to load artifact {artifact_id}: {exc}") from exc
     if not isinstance(payload, dict):

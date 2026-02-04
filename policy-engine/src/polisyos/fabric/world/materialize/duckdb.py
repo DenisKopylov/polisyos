@@ -66,8 +66,67 @@ def ensure_world_schema(db: SimulationDB, *, ddl_path: Path | None = None) -> No
     ddl = ddl_path.read_text("utf-8")
     try:
         db.conn.execute(ddl)
+        _ensure_world_schema_migrations(db)
     except Exception as exc:  # pragma: no cover - defensive
         raise WorldSchemaError(f"failed to apply world DDL: {exc}") from exc
+
+
+def _column_exists(db: SimulationDB, table_name: str, column_name: str) -> bool:
+    rows = db.conn.execute(
+        """
+        SELECT 1
+        FROM information_schema.columns
+        WHERE table_schema = 'world'
+          AND table_name = ?
+          AND column_name = ?
+        LIMIT 1
+        """,
+        [table_name, column_name],
+    ).fetchall()
+    return bool(rows)
+
+
+def _ensure_column(
+    db: SimulationDB,
+    *,
+    table_name: str,
+    column_name: str,
+    ddl_type: str,
+) -> None:
+    if _column_exists(db, table_name, column_name):
+        return
+    db.conn.execute(
+        f"ALTER TABLE world.{table_name} ADD COLUMN {column_name} {ddl_type}"
+    )
+
+
+def _ensure_world_schema_migrations(db: SimulationDB) -> None:
+    # Idempotent online migrations for pre-phase14 databases.
+    for column_name, ddl_type in (
+        ("conflict_key", "VARCHAR"),
+        ("conflict_kind", "VARCHAR"),
+        ("winner_claim_id", "VARCHAR"),
+        ("resolution_policy_id", "VARCHAR"),
+        ("resolution_confidence", "VARCHAR"),
+        ("resolution_artifact_id", "VARCHAR"),
+        ("meta_artifact_id", "VARCHAR"),
+    ):
+        _ensure_column(
+            db,
+            table_name="conflict_sets",
+            column_name=column_name,
+            ddl_type=ddl_type,
+        )
+    for column_name, ddl_type in (
+        ("role", "VARCHAR"),
+        ("rank", "INTEGER"),
+    ):
+        _ensure_column(
+            db,
+            table_name="conflict_members",
+            column_name=column_name,
+            ddl_type=ddl_type,
+        )
 
 
 def ensure_world_materialized(

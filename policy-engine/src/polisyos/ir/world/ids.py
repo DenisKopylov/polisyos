@@ -11,6 +11,7 @@ from polisyos.ir.kernel.base import ARTIFACT_ID_PATTERN, ID_PATTERN
 
 _ARTIFACT_RE = re.compile(ARTIFACT_ID_PATTERN)
 _ID_RE = re.compile(ID_PATTERN)
+_SHA256_HEX_RE = re.compile(r"^[0-9a-f]{64}$")
 
 
 def _validate_prefix(prefix: str) -> None:
@@ -28,6 +29,12 @@ def artifact_id_to_world_id(*, prefix: str, artifact_id: str) -> str:
     _validate_prefix(prefix)
     hex_digest = sha256_hex_from_artifact_id(artifact_id)
     return f"{prefix}.sha256_{hex_digest}"
+
+
+def conflict_set_id_from_key(*, conflict_key: str) -> str:
+    if _SHA256_HEX_RE.fullmatch(conflict_key) is None:
+        raise ValueError("conflict_key must be a 64-char lowercase hex sha256 digest")
+    return f"cset.sha256_{conflict_key}"
 
 
 def stable_world_id_from_canon(*, prefix: str, payload: dict[str, Any]) -> str:
@@ -149,13 +156,57 @@ def world_event_id_from_payload(*, event_payload: dict[str, Any]) -> str:
     return stable_world_id_from_canon(prefix="event", payload=payload)
 
 
+def trust_assessment_id_from_payload(*, payload: dict[str, Any]) -> str:
+    clean_payload: dict[str, Any] = {}
+    for key in (
+        "policy_id",
+        "algorithm_version",
+        "target_world_id",
+        "score",
+        "tier",
+        "features",
+        "rationale",
+        "props",
+    ):
+        if key in payload:
+            clean_payload[key] = _normalize_payload_value(payload[key])
+    clean_payload = _strip_none(clean_payload)
+    clean_payload.setdefault("features", {})
+    clean_payload.setdefault("rationale", {})
+    clean_payload.setdefault("props", {})
+    return stable_world_id_from_canon(prefix="trust", payload=clean_payload)
+
+
+def quality_report_id_from_payload(*, payload: dict[str, Any]) -> str:
+    clean_payload: dict[str, Any] = {}
+    for key in (
+        "scope",
+        "run_event_id",
+        "policy_id",
+        "algorithm_version",
+        "metrics",
+        "issues",
+        "props",
+    ):
+        if key in payload:
+            clean_payload[key] = _normalize_payload_value(payload[key])
+    clean_payload = _strip_none(clean_payload)
+    clean_payload.setdefault("metrics", {})
+    clean_payload.setdefault("issues", [])
+    clean_payload.setdefault("props", {})
+    return stable_world_id_from_canon(prefix="quality", payload=clean_payload)
+
+
 __all__ = [
     "artifact_id_to_world_id",
     "claim_id_from_payload",
+    "conflict_set_id_from_key",
     "doc_fragment_id",
     "doc_source_id",
     "doc_version_id_from_raw_artifact",
+    "quality_report_id_from_payload",
     "sha256_hex_from_artifact_id",
     "stable_world_id_from_canon",
+    "trust_assessment_id_from_payload",
     "world_event_id_from_payload",
 ]

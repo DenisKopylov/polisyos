@@ -4,18 +4,28 @@ from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.ir.world.claim import Claim, ClaimSourceKind
+from polisyos.ir.world.conflict import ConflictSet
 from polisyos.ir.world.doc import DocFragment, DocMeta
 from polisyos.ir.world.event import WorldEvent
-
+from polisyos.ir.world.quality import QualityReport
+from polisyos.ir.world.trust import TrustAssessment
 
 _DOC_META_KIND = "fabric.world.doc_meta"
 _DOC_FRAGMENT_KIND = "fabric.world.doc_fragment"
 _CLAIM_KIND = "fabric.world.claim"
+_CONFLICT_SET_KIND = "fabric.world.conflict_set"
+_TRUST_ASSESSMENT_KIND = "fabric.world.trust_assessment"
+_QUALITY_REPORT_KIND = "fabric.world.quality_report"
 _WORLD_EVENT_KIND = "fabric.world.event"
 
 _DOC_META_SCHEMA = SchemaInfo(name="polisyos.ir.world.DocMeta", version="1.0")
 _DOC_FRAGMENT_SCHEMA = SchemaInfo(name="polisyos.ir.world.DocFragment", version="1.0")
 _CLAIM_SCHEMA = SchemaInfo(name="polisyos.ir.world.Claim", version="1.0")
+_CONFLICT_SET_SCHEMA = SchemaInfo(name="polisyos.ir.world.ConflictSet", version="1.0")
+_TRUST_ASSESSMENT_SCHEMA = SchemaInfo(
+    name="polisyos.ir.world.TrustAssessment", version="1.0"
+)
+_QUALITY_REPORT_SCHEMA = SchemaInfo(name="polisyos.ir.world.QualityReport", version="1.0")
 _WORLD_EVENT_SCHEMA = SchemaInfo(name="polisyos.ir.world.WorldEvent", version="1.0")
 
 
@@ -81,6 +91,41 @@ def persist_claim(store: FileSystemCAS, claim: Claim) -> ArtifactRef:
     )
 
 
+def persist_conflict_set(store: FileSystemCAS, conflict_set: ConflictSet) -> ArtifactRef:
+    return store.put_json(
+        conflict_set.model_dump(),
+        opts=PutOptions(
+            kind=_CONFLICT_SET_KIND,
+            media_type="application/json",
+            schema=_CONFLICT_SET_SCHEMA,
+        ),
+    )
+
+
+def persist_trust_assessment(
+    store: FileSystemCAS, assessment: TrustAssessment
+) -> ArtifactRef:
+    return store.put_json(
+        assessment.model_dump(),
+        opts=PutOptions(
+            kind=_TRUST_ASSESSMENT_KIND,
+            media_type="application/json",
+            schema=_TRUST_ASSESSMENT_SCHEMA,
+        ),
+    )
+
+
+def persist_quality_report(store: FileSystemCAS, report: QualityReport) -> ArtifactRef:
+    return store.put_json(
+        report.model_dump(),
+        opts=PutOptions(
+            kind=_QUALITY_REPORT_KIND,
+            media_type="application/json",
+            schema=_QUALITY_REPORT_SCHEMA,
+        ),
+    )
+
+
 def persist_world_event(store: FileSystemCAS, event: WorldEvent) -> ArtifactRef:
     inputs: list[InputRef] = []
     seen: set[str] = set()
@@ -109,7 +154,10 @@ def persist_world_event(store: FileSystemCAS, event: WorldEvent) -> ArtifactRef:
 
 __all__ = [
     "persist_claim",
+    "persist_conflict_set",
     "persist_doc_fragment",
     "persist_doc_meta",
+    "persist_quality_report",
+    "persist_trust_assessment",
     "persist_world_event",
 ]

@@ -1,5 +1,13 @@
 from __future__ import annotations
 
+from .conflicts import (
+    ConflictDetectOptions,
+    ConflictDetectResult,
+    ConflictResolveOptions,
+    ConflictResolveResult,
+    detect_conflicts,
+    resolve_conflicts,
+)
 from .errors import (
     ClaimNotReadyError,
     ClaimPipelineError,
@@ -21,6 +29,10 @@ __all__ = [
     "ClaimCandidate",
     "ClaimExtractOptions",
     "ClaimExtractResult",
+    "ConflictDetectOptions",
+    "ConflictDetectResult",
+    "ConflictResolveOptions",
+    "ConflictResolveResult",
     "ClaimNormalizeOptions",
     "ClaimNormalizeResult",
     "ClaimNotReadyError",
@@ -28,6 +40,8 @@ __all__ = [
     "ClaimUnsupportedExtractorError",
     "ClaimValidationError",
     "ChunkContext",
+    "detect_conflicts",
     "extract_claims_from_doc",
     "normalize_claims",
+    "resolve_conflicts",
 ]

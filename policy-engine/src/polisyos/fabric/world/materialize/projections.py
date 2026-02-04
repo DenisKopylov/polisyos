@@ -11,14 +11,20 @@ from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.fabric.world.store.validate import (
     validate_claim_id,
+    validate_conflict_set_id,
     validate_doc_fragment_ids,
     validate_doc_meta_ids,
+    validate_quality_report_id,
+    validate_trust_assessment_id,
     validate_world_event_id,
 )
 from polisyos.ir.canon import to_canonical_bytes
 from polisyos.ir.world.claim import Claim
+from polisyos.ir.world.conflict import ConflictSet
 from polisyos.ir.world.doc import DocFragment, DocMeta
 from polisyos.ir.world.event import WorldEvent
+from polisyos.ir.world.quality import QualityReport
+from polisyos.ir.world.trust import TrustAssessment
 
 from .errors import WorldArtifactReadError, WorldMergeConflict
 
@@ -29,8 +35,12 @@ class ProjectionUpdateStats:
     doc_sources: int = 0
     doc_fragments: int = 0
     claims: int = 0
+    conflict_sets: int = 0
+    trust_assessments: int = 0
+    quality_reports: int = 0
     world_events: int = 0
     claim_citations: int = 0
+    conflict_members: int = 0
 
     @property
     def total_updates(self) -> int:
@@ -39,8 +49,12 @@ class ProjectionUpdateStats:
             + self.doc_sources
             + self.doc_fragments
             + self.claims
+            + self.conflict_sets
+            + self.trust_assessments
+            + self.quality_reports
             + self.world_events
             + self.claim_citations
+            + self.conflict_members
         )
 
 
@@ -102,6 +116,48 @@ def _load_claim(cas: FileSystemCAS, artifact_id: str) -> Claim:
             raise
         raise WorldArtifactReadError(
             f"failed to load Claim artifact {artifact_id}: {exc}"
+        ) from exc
+
+
+def _load_conflict_set(cas: FileSystemCAS, artifact_id: str) -> ConflictSet:
+    try:
+        payload = _load_json_artifact(cas, artifact_id)
+        conflict_set = ConflictSet.model_validate(payload)
+        validate_conflict_set_id(conflict_set)
+        return conflict_set
+    except Exception as exc:
+        if isinstance(exc, WorldArtifactReadError):
+            raise
+        raise WorldArtifactReadError(
+            f"failed to load ConflictSet artifact {artifact_id}: {exc}"
+        ) from exc
+
+
+def _load_trust_assessment(cas: FileSystemCAS, artifact_id: str) -> TrustAssessment:
+    try:
+        payload = _load_json_artifact(cas, artifact_id)
+        assessment = TrustAssessment.model_validate(payload)
+        validate_trust_assessment_id(assessment)
+        return assessment
+    except Exception as exc:
+        if isinstance(exc, WorldArtifactReadError):
+            raise
+        raise WorldArtifactReadError(
+            f"failed to load TrustAssessment artifact {artifact_id}: {exc}"
+        ) from exc
+
+
+def _load_quality_report(cas: FileSystemCAS, artifact_id: str) -> QualityReport:
+    try:
+        payload = _load_json_artifact(cas, artifact_id)
+        report = QualityReport.model_validate(payload)
+        validate_quality_report_id(report)
+        return report
+    except Exception as exc:
+        if isinstance(exc, WorldArtifactReadError):
+            raise
+        raise WorldArtifactReadError(
+            f"failed to load QualityReport artifact {artifact_id}: {exc}"
         ) from exc
 
 
@@ -287,6 +343,94 @@ def _build_claim_rows(
     return rows
 
 
+def _build_conflict_set_rows(
+    cas: FileSystemCAS,
+    artifact_ids: Iterable[str],
+) -> list[dict]:
+    rows: list[dict] = []
+    for artifact_id in artifact_ids:
+        conflict_set = _load_conflict_set(cas, artifact_id)
+        rows.append(
+            {
+                "conflict_set_id": conflict_set.conflict_set_id,
+                "conflict_key": conflict_set.conflict_key,
+                "conflict_kind": conflict_set.conflict_kind.value,
+                "winner_claim_id": (
+                    conflict_set.resolution.winner_claim_id
+                    if conflict_set.resolution is not None
+                    else None
+                ),
+                "resolution_policy_id": (
+                    conflict_set.resolution.policy_id
+                    if conflict_set.resolution is not None
+                    else None
+                ),
+                "resolution_confidence": (
+                    str(conflict_set.resolution.confidence)
+                    if conflict_set.resolution is not None
+                    else None
+                ),
+                "resolution_artifact_id": (
+                    conflict_set.resolution.resolution_artifact_id
+                    if conflict_set.resolution is not None
+                    else None
+                ),
+                "meta_artifact_id": artifact_id,
+                "props_json": _canonical_json(conflict_set.props),
+            }
+        )
+    return rows
+
+
+def _build_trust_assessment_rows(
+    cas: FileSystemCAS,
+    artifact_ids: Iterable[str],
+) -> list[dict]:
+    rows: list[dict] = []
+    for artifact_id in artifact_ids:
+        assessment = _load_trust_assessment(cas, artifact_id)
+        rows.append(
+            {
+                "trust_assessment_id": assessment.trust_assessment_id,
+                "target_world_id": assessment.target_world_id,
+                "policy_id": assessment.policy_id,
+                "algorithm_version": assessment.algorithm_version,
+                "score": str(assessment.score),
+                "tier": assessment.tier.value,
+                "features_json": _canonical_json(assessment.features),
+                "rationale_json": _canonical_json(assessment.rationale),
+                "props_json": _canonical_json(assessment.props),
+                "meta_artifact_id": artifact_id,
+            }
+        )
+    return rows
+
+
+def _build_quality_report_rows(
+    cas: FileSystemCAS,
+    artifact_ids: Iterable[str],
+) -> list[dict]:
+    rows: list[dict] = []
+    for artifact_id in artifact_ids:
+        report = _load_quality_report(cas, artifact_id)
+        rows.append(
+            {
+                "quality_report_id": report.quality_report_id,
+                "scope": report.scope.value,
+                "run_event_id": report.run_event_id,
+                "policy_id": report.policy_id,
+                "algorithm_version": report.algorithm_version,
+                "metrics_json": _canonical_json(report.metrics),
+                "issues_json": _canonical_json(
+                    [issue.model_dump(mode="python") for issue in report.issues]
+                ),
+                "props_json": _canonical_json(report.props),
+                "meta_artifact_id": artifact_id,
+            }
+        )
+    return rows
+
+
 def _build_world_event_rows(
     cas: FileSystemCAS,
     artifact_ids: Iterable[str],
@@ -364,6 +508,63 @@ def _update_claim_citations(
     return 1
 
 
+def _update_conflict_members(
+    conn,
+    *,
+    touched_conflict_set_ids: Sequence[str],
+    touched_claim_ids: Sequence[str],
+) -> int:
+    if not touched_conflict_set_ids and not touched_claim_ids:
+        return 0
+
+    conflict_df = pd.DataFrame(
+        {"conflict_set_id": pd.Series(list(touched_conflict_set_ids), dtype="string")}
+    )
+    claim_df = pd.DataFrame(
+        {"claim_id": pd.Series(list(touched_claim_ids), dtype="string")}
+    )
+
+    conflict_name = _register_df(conn, conflict_df, prefix="conflict_set_ids")
+    claim_name = _register_df(conn, claim_df, prefix="claim_ids")
+    try:
+        conn.execute(
+            f"""
+            DELETE FROM world.conflict_members
+            WHERE conflict_set_id IN (SELECT conflict_set_id FROM {conflict_name})
+               OR claim_id IN (SELECT claim_id FROM {claim_name})
+            """
+        )
+
+        conn.execute(
+            f"""
+            INSERT INTO world.conflict_members (
+                conflict_set_id,
+                claim_id,
+                edge_id,
+                role,
+                rank
+            )
+            SELECT
+                dst_id AS conflict_set_id,
+                src_id AS claim_id,
+                MIN(edge_id) AS edge_id,
+                'member' AS role,
+                NULL AS rank
+            FROM world.world_edges
+            WHERE kind = 'claim.in_conflict_set'
+              AND (
+                dst_id IN (SELECT conflict_set_id FROM {conflict_name})
+                OR src_id IN (SELECT claim_id FROM {claim_name})
+              )
+            GROUP BY dst_id, src_id
+            """
+        )
+    finally:
+        conn.unregister(conflict_name)
+        conn.unregister(claim_name)
+    return 1
+
+
 def update_projections(
     conn,
     cas: FileSystemCAS,
@@ -418,6 +619,33 @@ def update_projections(
         claim_rows = _build_claim_rows(cas, claim_artifacts)
         stats.claims = _apply_rows(conn, "world.claims", "claim_id", claim_rows)
 
+    conflict_set_artifacts = _artifact_ids_for("conflict_set")
+    if conflict_set_artifacts:
+        conflict_set_rows = _build_conflict_set_rows(cas, conflict_set_artifacts)
+        stats.conflict_sets = _apply_rows(
+            conn, "world.conflict_sets", "conflict_set_id", conflict_set_rows
+        )
+
+    trust_assessment_artifacts = _artifact_ids_for("trust.assessment")
+    if trust_assessment_artifacts:
+        trust_rows = _build_trust_assessment_rows(cas, trust_assessment_artifacts)
+        stats.trust_assessments = _apply_rows(
+            conn,
+            "world.trust_assessments",
+            "trust_assessment_id",
+            trust_rows,
+        )
+
+    quality_report_artifacts = _artifact_ids_for("quality.report")
+    if quality_report_artifacts:
+        quality_rows = _build_quality_report_rows(cas, quality_report_artifacts)
+        stats.quality_reports = _apply_rows(
+            conn,
+            "world.quality_reports",
+            "quality_report_id",
+            quality_rows,
+        )
+
     event_artifacts = _artifact_ids_for("world.event")
     if event_artifacts:
         event_rows = _build_world_event_rows(cas, event_artifacts)
@@ -433,6 +661,14 @@ def update_projections(
         conn,
         touched_claim_ids=touched_claim_ids,
         touched_fragment_ids=touched_fragment_ids,
+    )
+    touched_conflict_set_ids = nodes_df[nodes_df["kind"] == "conflict_set"][
+        "node_id"
+    ].tolist()
+    stats.conflict_members = _update_conflict_members(
+        conn,
+        touched_conflict_set_ids=touched_conflict_set_ids,
+        touched_claim_ids=touched_claim_ids,
     )
 
     return stats

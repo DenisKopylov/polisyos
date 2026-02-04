@@ -7,13 +7,17 @@ from polisyos.ir.fact_log import Fact
 from polisyos.ir.kernel.base import ARTIFACT_ID_PATTERN, ID_PATTERN
 from polisyos.ir.world.abi import EdgeKind, NodeKind
 from polisyos.ir.world.claim import Claim
+from polisyos.ir.world.conflict import ConflictSet
 from polisyos.ir.world.doc import DocFragment, DocMeta
 from polisyos.ir.world.event import WorldEvent
 from polisyos.ir.world.ids import (
     claim_id_from_payload,
+    conflict_set_id_from_key,
     doc_fragment_id,
     doc_source_id,
     doc_version_id_from_raw_artifact,
+    quality_report_id_from_payload,
+    trust_assessment_id_from_payload,
     world_event_id_from_payload,
 )
 from polisyos.ir.world.predicates import (
@@ -23,6 +27,8 @@ from polisyos.ir.world.predicates import (
     WORLD_PROPS_REF,
     WORLD_REL_PREFIX,
 )
+from polisyos.ir.world.quality import QualityReport
+from polisyos.ir.world.trust import TrustAssessment
 
 from .errors import WorldFactError, WorldIDError
 
@@ -83,6 +89,38 @@ def validate_world_event_id(event: WorldEvent) -> None:
         raise WorldIDError(f"event_id mismatch: {event.event_id} != {expected}")
 
 
+def validate_conflict_set_id(conflict_set: ConflictSet) -> None:
+    expected = conflict_set_id_from_key(conflict_key=conflict_set.conflict_key)
+    if conflict_set.conflict_set_id != expected:
+        raise WorldIDError(
+            "conflict_set_id mismatch: "
+            f"{conflict_set.conflict_set_id} != {expected}"
+        )
+
+
+def validate_trust_assessment_id(assessment: TrustAssessment) -> None:
+    payload = assessment.model_dump()
+    payload.pop("schema_version", None)
+    payload.pop("trust_assessment_id", None)
+    expected = trust_assessment_id_from_payload(payload=payload)
+    if assessment.trust_assessment_id != expected:
+        raise WorldIDError(
+            "trust_assessment_id mismatch: "
+            f"{assessment.trust_assessment_id} != {expected}"
+        )
+
+
+def validate_quality_report_id(report: QualityReport) -> None:
+    payload = report.model_dump()
+    payload.pop("schema_version", None)
+    payload.pop("quality_report_id", None)
+    expected = quality_report_id_from_payload(payload=payload)
+    if report.quality_report_id != expected:
+        raise WorldIDError(
+            f"quality_report_id mismatch: {report.quality_report_id} != {expected}"
+        )
+
+
 def validate_fact_is_world_abi(fact: Fact, *, strict_edge_kinds: bool = False) -> None:
     if _ID_RE.fullmatch(fact.subject_id) is None:
         raise WorldFactError(f"subject_id '{fact.subject_id}' does not match {ID_PATTERN}")
@@ -137,9 +175,12 @@ def validate_world_facts(facts: list[Fact]) -> None:
 
 __all__ = [
     "validate_claim_id",
+    "validate_conflict_set_id",
     "validate_doc_fragment_ids",
     "validate_doc_meta_ids",
     "validate_fact_is_world_abi",
+    "validate_quality_report_id",
+    "validate_trust_assessment_id",
     "validate_world_event_id",
     "validate_world_facts",
 ]

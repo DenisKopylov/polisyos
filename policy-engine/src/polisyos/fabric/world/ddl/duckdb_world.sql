@@ -218,7 +218,13 @@ CREATE INDEX IF NOT EXISTS idx_claim_citations_fragment
 
 CREATE TABLE IF NOT EXISTS world.conflict_sets (
     conflict_set_id  VARCHAR PRIMARY KEY,
-    kind             VARCHAR,
+    conflict_key     VARCHAR,
+    conflict_kind    VARCHAR,
+    winner_claim_id  VARCHAR,
+    resolution_policy_id VARCHAR,
+    resolution_confidence VARCHAR,
+    resolution_artifact_id VARCHAR,
+    meta_artifact_id VARCHAR,
     props_json       VARCHAR,
     updated_at       TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -227,9 +233,55 @@ CREATE TABLE IF NOT EXISTS world.conflict_members (
     conflict_set_id  VARCHAR NOT NULL,
     claim_id         VARCHAR NOT NULL,
     edge_id          VARCHAR,
+    role             VARCHAR,
+    rank             INTEGER,
     PRIMARY KEY (conflict_set_id, claim_id)
 );
 
+CREATE INDEX IF NOT EXISTS idx_conflict_sets_kind
+    ON world.conflict_sets(conflict_kind);
 CREATE INDEX IF NOT EXISTS idx_conflict_members_claim
     ON world.conflict_members(claim_id);
 
+-- ------------------------------------------------------------
+-- Projections: trust assessments
+-- ------------------------------------------------------------
+
+CREATE TABLE IF NOT EXISTS world.trust_assessments (
+    trust_assessment_id VARCHAR PRIMARY KEY,
+    target_world_id     VARCHAR NOT NULL,
+    policy_id           VARCHAR NOT NULL,
+    algorithm_version   VARCHAR NOT NULL,
+    score               VARCHAR NOT NULL,
+    tier                VARCHAR NOT NULL,
+    features_json       VARCHAR,
+    rationale_json      VARCHAR,
+    props_json          VARCHAR,
+    meta_artifact_id    VARCHAR,
+    updated_at          TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_trust_assessments_target
+    ON world.trust_assessments(target_world_id);
+
+-- ------------------------------------------------------------
+-- Projections: quality reports
+-- ------------------------------------------------------------
+
+CREATE TABLE IF NOT EXISTS world.quality_reports (
+    quality_report_id VARCHAR PRIMARY KEY,
+    scope             VARCHAR NOT NULL,
+    run_event_id      VARCHAR NOT NULL,
+    policy_id         VARCHAR NOT NULL,
+    algorithm_version VARCHAR NOT NULL,
+    metrics_json      VARCHAR,
+    issues_json       VARCHAR,
+    props_json        VARCHAR,
+    meta_artifact_id  VARCHAR,
+    updated_at        TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_quality_reports_scope
+    ON world.quality_reports(scope);
+CREATE INDEX IF NOT EXISTS idx_quality_reports_event
+    ON world.quality_reports(run_event_id);

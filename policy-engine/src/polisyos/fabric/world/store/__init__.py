@@ -18,8 +18,11 @@ from polisyos.fabric.world.store.errors import (
 )
 from polisyos.fabric.world.store.persist import (
     persist_claim,
+    persist_conflict_set,
     persist_doc_fragment,
     persist_doc_meta,
+    persist_quality_report,
+    persist_trust_assessment,
     persist_world_event,
 )
 from polisyos.fabric.world.store.provenance import (
@@ -35,9 +38,12 @@ from polisyos.fabric.world.store.segments import (
 )
 from polisyos.fabric.world.store.validate import (
     validate_claim_id,
+    validate_conflict_set_id,
     validate_doc_fragment_ids,
     validate_doc_meta_ids,
     validate_fact_is_world_abi,
+    validate_quality_report_id,
+    validate_trust_assessment_id,
     validate_world_event_id,
     validate_world_facts,
 )
@@ -60,15 +66,21 @@ __all__ = [
     "event_world_provenance_v1",
     "load_world_fact_manifests",
     "persist_claim",
+    "persist_conflict_set",
     "persist_doc_fragment",
     "persist_doc_meta",
+    "persist_quality_report",
+    "persist_trust_assessment",
     "persist_fact_segment_manifest",
     "persist_world_event",
     "stable_world_provenance_v1",
     "validate_claim_id",
+    "validate_conflict_set_id",
     "validate_doc_fragment_ids",
     "validate_doc_meta_ids",
     "validate_fact_is_world_abi",
+    "validate_quality_report_id",
+    "validate_trust_assessment_id",
     "validate_world_event_id",
     "validate_world_facts",
     "write_world_fact_segment",

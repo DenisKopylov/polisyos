@@ -7,6 +7,7 @@ INPUT_DATA_SNAPSHOT_REF = "data_snapshot_ref"
 INPUT_STATE_SNAPSHOT_REF = "state_snapshot_ref"
 INPUT_DATA_VIEW_REQUEST_REF = "data_view_request_ref"
 INPUT_KNOWLEDGE_BUNDLE_REF = "knowledge_bundle_ref"
+INPUT_RESEARCH_INTENT_REF = "research_intent_ref"
 INPUT_NORM_PACK_REF = "norm_pack_ref"
 
 # Legacy compatibility inputs
@@ -44,6 +45,7 @@ __all__ = [
     "INPUT_STATE_SNAPSHOT_REF",
     "INPUT_DATA_VIEW_REQUEST_REF",
     "INPUT_KNOWLEDGE_BUNDLE_REF",
+    "INPUT_RESEARCH_INTENT_REF",
     "INPUT_NORM_PACK_REF",
     "INPUT_POLICY_IR_REF",
     "ARTIFACT_EXEC_PLAN_REF",

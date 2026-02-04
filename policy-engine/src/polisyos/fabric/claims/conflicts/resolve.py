@@ -132,6 +132,24 @@ def _query_doc_meta_artifacts(
     return {str(doc_version_id): str(artifact_id) for doc_version_id, artifact_id in rows}
 
 
+def _doc_meta_artifacts_from_claim_sets(
+    *,
+    cas: FileSystemCAS,
+    claim_set_artifact_ids: list[str],
+) -> dict[str, str]:
+    mapping: dict[str, str] = {}
+    for artifact_id in sorted(set(claim_set_artifact_ids)):
+        payload = load_json_artifact(cas, artifact_id)
+        doc_version_id = payload.get("doc_version_id")
+        doc_meta_artifact_id = payload.get("doc_meta_artifact_id")
+        if not isinstance(doc_version_id, str) or not isinstance(doc_meta_artifact_id, str):
+            continue
+        current = mapping.get(doc_version_id)
+        if current is None or doc_meta_artifact_id < current:
+            mapping[doc_version_id] = doc_meta_artifact_id
+    return mapping
+
+
 def _query_fragment_anchor_kinds(
     db: SimulationDB | None, fragment_ids: list[str]
 ) -> dict[str, str]:
@@ -465,6 +483,13 @@ def resolve_conflicts(
     )
 
     doc_meta_artifacts_by_doc = _query_doc_meta_artifacts(db, doc_version_ids)
+    if claim_set_artifact_ids:
+        fallback_doc_meta = _doc_meta_artifacts_from_claim_sets(
+            cas=cas,
+            claim_set_artifact_ids=claim_set_artifact_ids,
+        )
+        for doc_version_id, artifact_id in fallback_doc_meta.items():
+            doc_meta_artifacts_by_doc.setdefault(doc_version_id, artifact_id)
     missing_doc_versions = sorted(set(doc_version_ids) - set(doc_meta_artifacts_by_doc))
     doc_assessments_by_doc = score_doc_trust_assessments(
         cas=cas,
@@ -488,6 +513,9 @@ def resolve_conflicts(
     )
     agent_by_claim = _query_agent_ids_by_claim(db, member_claim_ids)
     fragment_anchor_kind_by_id = _query_fragment_anchor_kinds(db, fragment_ids)
+    if db is None and fragment_ids:
+        for fragment_id in fragment_ids:
+            fragment_anchor_kind_by_id.setdefault(fragment_id, "chunk")
 
     claim_assessments_by_claim, claim_breakdown_by_claim = score_claim_trust_assessments(
         claims_by_id=claims_by_id,
@@ -846,6 +874,9 @@ def resolve_conflicts(
         ],
         conflict_resolution_artifact_ids=sorted(set(resolution_artifact_ids)),
         trust_assessment_ids=sorted(trust_artifact_by_id),
+        trust_assessment_artifact_ids_by_id={
+            trust_id: trust_artifact_by_id[trust_id] for trust_id in sorted(trust_artifact_by_id)
+        },
         quality_report_id=quality_report.quality_report_id,
         quality_report_artifact_id=quality_artifact_id,
         world_event_id=event_id,

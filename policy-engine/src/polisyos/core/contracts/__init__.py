@@ -60,7 +60,16 @@ from .lex import (
     RuleBackend,
     RuleType,
 )
-from .scholar import KnowledgeBundle, KnowledgeBundleRef, ResearchIntent
+from .scholar import (
+    BudgetsV1,
+    KnowledgeBundle,
+    KnowledgeBundleRef,
+    ResearchIntent,
+    ResearchIntentRef,
+    SourceKind,
+    SourceSpec,
+    ThresholdsV1,
+)
 from .scientist import (
     CritiqueRef,
     DecisionCardRef,
@@ -153,6 +162,11 @@ __all__ = [
     "LegalReport",
     "ChangeProposal",
     "ResearchIntent",
+    "ResearchIntentRef",
     "KnowledgeBundleRef",
     "KnowledgeBundle",
+    "BudgetsV1",
+    "ThresholdsV1",
+    "SourceKind",
+    "SourceSpec",
 ]

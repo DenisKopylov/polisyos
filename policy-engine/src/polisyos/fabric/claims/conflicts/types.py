@@ -50,6 +50,7 @@ class ConflictResolveResult:
     conflict_set_artifact_ids: list[str]
     conflict_resolution_artifact_ids: list[str]
     trust_assessment_ids: list[str]
+    trust_assessment_artifact_ids_by_id: dict[str, str]
     quality_report_id: str | None
     quality_report_artifact_id: str | None
     world_event_id: str

@@ -1,0 +1,343 @@
+from __future__ import annotations
+
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Any
+
+from polisyos.core.artifacts.ids import ArtifactID
+from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.canon import from_canonical_bytes
+from polisyos.fabric.docs import (
+    DocSourceSpec,
+    chunk_doc,
+    ingest_doc_bytes,
+    normalize_doc,
+    structure_doc,
+)
+from polisyos.fabric.docs.errors import DocPipelineError, DocValidationError
+from polisyos.fabric.world.store import (
+    append_world_segment_index,
+    emit_doc_meta_facts,
+    emit_world_event_facts,
+    event_world_provenance_v1,
+    persist_doc_meta,
+    persist_world_event,
+    stable_world_provenance_v1,
+    write_world_fact_segment,
+)
+from polisyos.fabric.world.store.validate import validate_doc_meta_ids
+from polisyos.ir.world.doc import DocMeta
+from polisyos.ir.world.event import (
+    EventKind,
+    ProvActivity,
+    ProvActivityType,
+    ProvAgent,
+    ProvAgentType,
+    WorldEvent,
+    WorldObjectRef,
+)
+from polisyos.ir.world.ids import doc_source_id, world_event_id_from_payload
+from polisyos.lex.errors import LexError, LexIngestError, LexValidationError
+from polisyos.lex.types import (
+    LegalDocSource,
+    LexIngestOptions,
+    LexIngestResult,
+    WorldEventRefLike,
+)
+
+
+def _load_json_artifact(cas: FileSystemCAS, artifact_id: str) -> dict:
+    aid = ArtifactID.model_validate(artifact_id)
+    payload = from_canonical_bytes(cas.get_bytes(aid))
+    if not isinstance(payload, dict):
+        raise LexValidationError(f"artifact {artifact_id} payload must be a JSON object")
+    return payload
+
+
+def _load_doc_meta(cas: FileSystemCAS, artifact_id: str) -> DocMeta:
+    payload = _load_json_artifact(cas, artifact_id)
+    meta = DocMeta.model_validate(payload)
+    validate_doc_meta_ids(meta)
+    return meta
+
+
+def _to_doc_source_spec(source: LegalDocSource) -> DocSourceSpec:
+    return DocSourceSpec(
+        canonical_url=source.canonical_url,
+        official_id=source.official_id,
+        source_locator=None,
+        license=source.license,
+        retrieved_at=source.retrieved_at,
+        jurisdiction=source.jurisdiction,
+        language=source.language,
+        source_type=source.source_type,
+        title=source.title,
+        publisher=source.publisher,
+    )
+
+
+def _merge_lex_props(
+    *,
+    source: LegalDocSource,
+    current_props: dict[str, Any],
+    policy: str,
+) -> dict[str, Any]:
+    merged = dict(current_props)
+
+    existing_lex = merged.get("lex")
+    if isinstance(existing_lex, dict):
+        current_lex = dict(existing_lex)
+    else:
+        current_lex = {}
+
+    lex_props = {} if policy == "overwrite_lex" else current_lex
+    lex_props["schema_version"] = "1.0"
+    lex_props["corpus"] = "lex.corpus"
+    if source.source_url is not None:
+        lex_props["source_url"] = source.source_url
+    if source.published_at_iso is not None:
+        lex_props["published_at"] = source.published_at_iso
+    if source.effective_from_iso is not None:
+        lex_props["effective_from"] = source.effective_from_iso
+    if source.effective_to_iso is not None:
+        lex_props["effective_to"] = source.effective_to_iso
+    if source.jurisdiction is not None:
+        lex_props["jurisdiction"] = source.jurisdiction
+    if source.language is not None:
+        lex_props["language"] = source.language
+    lex_props["ingest"] = {"pipeline": "lex.corpus.ingest_v1"}
+
+    merged["lex"] = lex_props
+    return merged
+
+
+def _safe_doc_source_id(source: LegalDocSource) -> str | None:
+    try:
+        return doc_source_id(
+            canonical_url=source.canonical_url,
+            official_id=source.official_id,
+        )
+    except Exception:
+        return None
+
+
+def ingest_legal_doc_bytes(
+    *,
+    cas: FileSystemCAS,
+    fact_log_root: Path,
+    source: LegalDocSource,
+    raw_bytes: bytes,
+    mime: str,
+    options: LexIngestOptions | None = None,
+    segment_name: str | None = None,
+) -> LexIngestResult:
+    opts = options or LexIngestOptions()
+
+    try:
+        run_suffix = datetime.now(timezone.utc).strftime("%Y%m%d%H%M%S%f")
+        doc_source = _to_doc_source_spec(source)
+
+        fabric_ingest = ingest_doc_bytes(
+            cas=cas,
+            fact_log_root=fact_log_root,
+            source=doc_source,
+            raw_bytes=raw_bytes,
+            mime=mime,
+            options=opts.docs_ingest,
+            segment_name=f"{segment_name or 'lex_ingest_doc'}_{run_suffix}",
+        )
+
+        fabric_normalize = None
+        fabric_structure = None
+        fabric_chunk = None
+
+        current_meta_artifact_id = fabric_ingest.doc_meta_artifact_id
+
+        if opts.run_normalize:
+            fabric_normalize = normalize_doc(
+                cas=cas,
+                fact_log_root=fact_log_root,
+                doc_meta_artifact_id=current_meta_artifact_id,
+                options=opts.docs_normalize,
+                segment_name=f"{segment_name or 'lex_normalize_doc'}_{run_suffix}",
+            )
+            current_meta_artifact_id = fabric_normalize.doc_meta_artifact_id
+
+        if opts.run_structure:
+            fabric_structure = structure_doc(
+                cas=cas,
+                fact_log_root=fact_log_root,
+                doc_meta_artifact_id=current_meta_artifact_id,
+                options=opts.docs_structure,
+                segment_name=f"{segment_name or 'lex_structure_doc'}_{run_suffix}",
+            )
+            current_meta_artifact_id = fabric_structure.doc_meta_artifact_id
+
+        if opts.run_chunk:
+            fabric_chunk = chunk_doc(
+                cas=cas,
+                fact_log_root=fact_log_root,
+                doc_meta_artifact_id=current_meta_artifact_id,
+                options=opts.docs_chunk,
+                segment_name=f"{segment_name or 'lex_chunk_doc'}_{run_suffix}",
+            )
+            current_meta_artifact_id = fabric_chunk.doc_meta_artifact_id
+
+        meta_before = _load_doc_meta(cas, current_meta_artifact_id)
+        merged_props = _merge_lex_props(
+            source=source,
+            current_props=meta_before.props,
+            policy=opts.doc_props_merge_policy,
+        )
+
+        meta_after = meta_before.model_copy(update={"props": merged_props})
+        validate_doc_meta_ids(meta_after)
+
+        meta_ref = persist_doc_meta(cas, meta_after)
+        meta_artifact_id = str(meta_ref.artifact_id)
+
+        stable_prov = stable_world_provenance_v1()
+        facts = emit_doc_meta_facts(
+            meta_after,
+            meta_artifact_id=meta_artifact_id,
+            provenance=stable_prov,
+        )
+
+        world_events: list[WorldEventRefLike] = [
+            WorldEventRefLike(
+                event_id=fabric_ingest.world_event_id,
+                event_artifact_id=fabric_ingest.world_event_artifact_id,
+                event_kind=EventKind.FETCH_DOC.value,
+            )
+        ]
+        if fabric_normalize is not None:
+            world_events.append(
+                WorldEventRefLike(
+                    event_id=fabric_normalize.world_event_id,
+                    event_artifact_id=fabric_normalize.world_event_artifact_id,
+                    event_kind=EventKind.NORMALIZE_DOC.value,
+                )
+            )
+        if fabric_structure is not None:
+            world_events.append(
+                WorldEventRefLike(
+                    event_id=fabric_structure.world_event_id,
+                    event_artifact_id=fabric_structure.world_event_artifact_id,
+                    event_kind=EventKind.STRUCTURE_DOC.value,
+                )
+            )
+        if fabric_chunk is not None:
+            world_events.append(
+                WorldEventRefLike(
+                    event_id=fabric_chunk.world_event_id,
+                    event_artifact_id=fabric_chunk.world_event_artifact_id,
+                    event_kind=EventKind.CHUNK_DOC.value,
+                )
+            )
+
+        if opts.write_lex_meta_update_event:
+            now = datetime.now(timezone.utc)
+            agent = ProvAgent(
+                agent_id=opts.lex_agent_id,
+                agent_type=ProvAgentType.SYSTEM,
+                label="Lex Corpus",
+            )
+            activity = ProvActivity(
+                activity_id=opts.lex_activity_id,
+                activity_type=ProvActivityType.VALIDATE,
+                label="Lex ingest meta update",
+                started_at=now,
+                ended_at=now,
+                parameters={
+                    "pipeline": "lex.corpus.ingest_v1",
+                    "doc_props_merge_policy": opts.doc_props_merge_policy,
+                },
+            )
+            inputs = [
+                WorldObjectRef(artifact_id=current_meta_artifact_id),
+                WorldObjectRef(world_id=meta_after.doc_version_id),
+            ]
+            outputs = [WorldObjectRef(artifact_id=meta_artifact_id)]
+
+            event_payload = {
+                "event_kind": EventKind.VALIDATE,
+                "agent": agent,
+                "activity": activity,
+                "inputs": inputs,
+                "outputs": outputs,
+                "evidence_ref": None,
+                "provenance_ref": None,
+            }
+            event_id = world_event_id_from_payload(event_payload=event_payload)
+            event = WorldEvent(
+                event_id=event_id,
+                event_kind=EventKind.VALIDATE,
+                agent=agent,
+                activity=activity,
+                inputs=inputs,
+                outputs=outputs,
+                evidence_ref=None,
+                provenance_ref=None,
+                props={"pipeline": "lex.corpus.ingest_v1"},
+            )
+            event_ref = persist_world_event(cas, event)
+            event_artifact_id = str(event_ref.artifact_id)
+
+            facts.extend(
+                emit_world_event_facts(
+                    event,
+                    event_artifact_id=event_artifact_id,
+                    provenance=event_world_provenance_v1(event_id),
+                )
+            )
+            world_events.append(
+                WorldEventRefLike(
+                    event_id=event_id,
+                    event_artifact_id=event_artifact_id,
+                    event_kind=EventKind.VALIDATE.value,
+                )
+            )
+
+        manifest = write_world_fact_segment(
+            facts,
+            fact_log_root=fact_log_root,
+            segment_name=f"{segment_name or 'lex_ingest'}_{run_suffix}",
+        )
+        append_world_segment_index(manifest, fact_log_root=fact_log_root)
+
+        fabric_results: dict[str, Any] = {
+            "ingest": fabric_ingest,
+            "normalize": fabric_normalize,
+            "structure": fabric_structure,
+            "chunk": fabric_chunk,
+        }
+
+        return LexIngestResult(
+            doc_source_id=meta_after.doc_source_id,
+            doc_version_id=meta_after.doc_version_id,
+            raw_ref=meta_after.raw_ref,
+            normalized_ref=meta_after.normalized_ref,
+            structure_ref=meta_after.structure_ref,
+            chunks_ref=meta_after.chunks_ref,
+            doc_meta_artifact_id=meta_artifact_id,
+            world_events=world_events,
+            world_segments=[manifest],
+            fabric_results=fabric_results,
+        )
+    except LexError:
+        raise
+    except (DocValidationError, DocPipelineError) as exc:
+        raise LexValidationError(
+            f"failed to ingest legal document: {exc}",
+            doc_source_id=_safe_doc_source_id(source),
+            details={"mime": mime},
+        ) from exc
+    except Exception as exc:
+        raise LexIngestError(
+            f"failed to ingest legal document: {exc}",
+            doc_source_id=_safe_doc_source_id(source),
+            details={"mime": mime},
+        ) from exc
+
+
+__all__ = ["ingest_legal_doc_bytes"]

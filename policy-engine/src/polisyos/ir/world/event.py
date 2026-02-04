@@ -32,6 +32,7 @@ class EventKind(str, Enum):
     QUERY_WORLD = "query_world"
     SIMULATE = "simulate"
     VALIDATE = "validate"
+    KNOWLEDGE_BUNDLE_BUILD = "knowledge_bundle_build"
 
 
 class ProvAgentType(str, Enum):
@@ -59,6 +60,7 @@ class ProvActivityType(str, Enum):
     QUERY_WORLD = "query_world"
     SIMULATE = "simulate"
     VALIDATE = "validate"
+    KNOWLEDGE_BUNDLE_BUILD = "knowledge_bundle_build"
 
 
 class ProvAgent(KernelModel):

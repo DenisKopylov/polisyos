@@ -590,22 +590,6 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │       │   │   ├── state.py  # Python module implementing 'state'.
 │       │   │   ├── telemetry.py  # Python module implementing 'telemetry'.
 │       │   │   └── workflow_spec.py  # Python module implementing 'workflow_spec'.
-│       │   ├── orchestrator/  # Workflow orchestration: nodes, state, audit, decision packet/card, timeline.
-│       │   │   ├── README.md  # Documentation for this directory/module.
-│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
-│       │   │   ├── audit.py  # Python module implementing 'audit'.
-│       │   │   ├── compiler.py  # Python module implementing 'compiler'.
-│       │   │   ├── data_loader.py  # Python module implementing 'data_loader'.
-│       │   │   ├── decision_card.py  # DecisionCard: deterministic human-readable summary artifact.
-│       │   │   ├── decision_packet.py  # DecisionPacket: structured run output container (artifacts + validations).
-│       │   │   ├── flow_nodes.py  # Workflow node implementations and routing logic.
-│       │   │   ├── nodes.py  # Python module implementing 'nodes'.
-│       │   │   ├── optimizer.py  # Python module implementing 'optimizer'.
-│       │   │   ├── registry.py  # Python module implementing 'registry'.
-│       │   │   ├── run_record.py  # Python module implementing 'run_record'.
-│       │   │   ├── run_timeline.py  # RunTimeline: event timeline artifact for observability.
-│       │   │   ├── state.py  # Python module implementing 'state'.
-│       │   │   └── workflow.py  # Build and run the main Scientist workflow graph.
 │       │   ├── search/  # Search/optimization framework.
 │       │   │   ├── README.md  # Documentation for this directory/module.
 │       │   │   ├── __init__.py  # Python package initializer (public exports live here).

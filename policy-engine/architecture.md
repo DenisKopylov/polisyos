@@ -561,6 +561,7 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │       │   │   ├── postflight.py  # Post-execution validation entrypoint.
 │       │   │   ├── preflight.py  # Pre-execution validation entrypoint.
 │       │   │   ├── profiles.py  # Validation profiles (fast/mvp/strict) selecting passes and limits.
+│       │   │   ├── report.py  # Python module implementing 'report'.
 │       │   │   └── telemetry.py  # Governance telemetry capture (timings, summaries).
 │       │   ├── kernel/  # Scientist kernel (FSM, budgets, guards, human gates).
 │       │   │   ├── README.md  # Documentation for this directory/module.
@@ -574,8 +575,21 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │       │   │   ├── __init__.py  # Python package initializer (public exports live here).
 │       │   │   └── traced_client.py  # TracedLLMClient с OpenTelemetry интеграцией.
 │       │   ├── engine/  # Core engine for Scientist workflows.
+│       │   │   ├── builtins/  # Built-in workflow operations and primitives.
+│       │   │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   │   ├── emit_artifact.py  # Python module implementing 'emit_artifact'.
+│       │   │   │   ├── noop.py  # Python module implementing 'noop'.
+│       │   │   │   └── set_state.py  # Python module implementing 'set_state'.
 │       │   │   ├── README.md  # Documentation for this directory/module.
 │       │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   ├── context.py  # Python module implementing 'context'.
+│       │   │   ├── errors.py  # Python module implementing 'errors'.
+│       │   │   ├── executor.py  # Python module implementing 'executor'.
+│       │   │   ├── protocol.py  # Python module implementing 'protocol'.
+│       │   │   ├── registry.py  # Python module implementing 'registry'.
+│       │   │   ├── state.py  # Python module implementing 'state'.
+│       │   │   ├── telemetry.py  # Python module implementing 'telemetry'.
+│       │   │   └── workflow_spec.py  # Python module implementing 'workflow_spec'.
 │       │   ├── orchestrator/  # Workflow orchestration: nodes, state, audit, decision packet/card, timeline.
 │       │   │   ├── README.md  # Documentation for this directory/module.
 │       │   │   ├── __init__.py  # Python package initializer (public exports live here).
@@ -606,13 +620,38 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │       │   │   ├── engine_langgraph.py  # LangGraph-based workflow engine implementation.
 │       │   │   └── engine_simple.py  # Simple sequential workflow engine implementation.
 │       │   ├── nodes/  # Workflow node implementations and definitions.
+│       │   │   ├── builtins/  # Built-in workflow node implementations.
+│       │   │   │   ├── compile/  # Compilation-related workflow nodes.
+│       │   │   │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   │   │   ├── compile_foundry.py  # Python module implementing 'compile_foundry'.
+│       │   │   │   │   └── link_trinity.py  # Python module implementing 'link_trinity'.
+│       │   │   │   ├── data/  # Data processing workflow nodes.
+│       │   │   │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   │   │   ├── build_data_snapshot.py  # Python module implementing 'build_data_snapshot'.
+│       │   │   │   │   └── enrich_knowledge.py  # Python module implementing 'enrich_knowledge'.
+│       │   │   │   ├── decide/  # Decision-making workflow nodes.
+│       │   │   │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   │   │   └── build_decision_packet.py  # Python module implementing 'build_decision_packet'.
+│       │   │   │   ├── governance/  # Governance-related workflow nodes.
+│       │   │   │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   │   │   ├── legal_check.py  # Python module implementing 'legal_check'.
+│       │   │   │   │   └── run_governance.py  # Python module implementing 'run_governance'.
+│       │   │   │   ├── simulate/  # Simulation workflow nodes.
+│       │   │   │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   │   │   └── run_simulation.py  # Python module implementing 'run_simulation'.
+│       │   │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   │   ├── errors.py  # Python module implementing 'errors'.
+│       │   │   │   └── state_keys.py  # Python module implementing 'state_keys'.
 │       │   │   ├── README.md  # Documentation for this directory/module.
 │       │   │   ├── __init__.py  # Python package initializer (public exports live here).
 │       │   ├── workflows/  # Predefined workflow templates and configurations.
 │       │   │   ├── README.md  # Documentation for this directory/module.
 │       │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   ├── builder.py  # Python module implementing 'builder'.
+│       │   │   └── default.py  # Python module implementing 'default'.
 │       │   ├── README.md  # Documentation for this directory/module.
 │       │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   ├── foundry.py  # Python module implementing 'foundry'.
 │       │   └── publisher.py  # Publish/finalize results (artifacts, summaries).
 │       ├── scholar/  # Scholar layer for knowledge discovery and learning.
 │       │   ├── discover/  # Knowledge discovery and pattern recognition.

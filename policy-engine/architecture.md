@@ -53,6 +53,7 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │                   └── eaa7fda75fa39b2c8a4a4ee537b20958dd53005e469a12e45816177358a442ae.manifest.json  # CAS manifest describing the corresponding blob.
 ├── .github/  # GitHub Actions workflows and automation.
 │   └── workflows/  # CI/CD pipeline definitions.
+│       ├── arch.yml  # Architecture validation workflow.
 │       └── perf.yml  # Performance regression testing workflow (pytest-benchmark comparison).
 ├── .vscode/  # Editor workspace configuration (VSCode/Cursor).
 │   └── settings.json  # Workspace editor settings (formatting, linting, etc.).
@@ -190,6 +191,15 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │       │   │   ├── __init__.py  # Python package initializer (public exports live here).
 │       │   │   ├── core.py  # PROV-O graph core models and relationships.
 │       │   │   └── export_provo.py  # Export provenance graphs to PROV-O formats.
+│       │   ├── claims/  # Claims management and verification system.
+│       │   │   ├── README.md  # Documentation for this directory/module.
+│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   ├── docs/  # Documentation utilities and generators.
+│       │   │   ├── README.md  # Documentation for this directory/module.
+│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   ├── world/  # World model and simulation state management.
+│       │   │   ├── README.md  # Documentation for this directory/module.
+│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
 │       │   ├── udf/  # Secure UDF compilation/execution layer for data views.
 │       │   │   ├── passes/  # UDF compiler passes (lowering, typing, privacy, etc.).
 │       │   │   │   ├── __init__.py  # Python package initializer (public exports live here).
@@ -360,6 +370,19 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │       │   │   ├── composite.py  # Python module implementing 'composite'.
 │       │   │   ├── core.py  # Python module implementing 'core'.
 │       │   │   └── discovery.py  # Python module implementing 'discovery'.
+│       │   ├── compile/  # Compilation and build system for Foundry components.
+│       │   │   ├── README.md  # Documentation for this directory/module.
+│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   ├── engine/  # Core execution engine for Foundry simulations.
+│       │   │   ├── README.md  # Documentation for this directory/module.
+│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   └── engine.py  # Core simulation engine implementation.
+│       │   ├── execute/  # Execution orchestration and scheduling.
+│       │   │   ├── README.md  # Documentation for this directory/module.
+│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   ├── methods/  # Method implementations and optimization techniques.
+│       │   │   ├── README.md  # Documentation for this directory/module.
+│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
 │       │   ├── runtime/  # Runtime utilities (determinism fingerprinting, NaN guard).
 │       │   │   ├── README.md  # Documentation for this directory/module.
 │       │   │   │   ├── api.py  # Runtime run lifecycle API (start/finalize/log artifacts).
@@ -409,6 +432,15 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │       │   │   ├── README.md  # Documentation for this directory/module.
 │       │   │   ├── __init__.py  # Python package initializer (public exports live here).
 │       │   │   └── trinity_migration.py  # Python module implementing 'trinity_migration'.
+│       │   ├── linker/  # IR linking and dependency resolution system.
+│       │   │   ├── README.md  # Documentation for this directory/module.
+│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   ├── trinity/  # Trinity artifact processing and validation.
+│       │   │   ├── README.md  # Documentation for this directory/module.
+│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   ├── world/  # World model definitions and schemas.
+│       │   │   ├── README.md  # Documentation for this directory/module.
+│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
 │       │   ├── README.md  # Documentation for this directory/module.
 │       │   ├── __init__.py  # Python package initializer (public exports live here).
 │       │   ├── calibration.py  # Python module implementing 'calibration'.
@@ -492,6 +524,9 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │       │   │   ├── README.md  # Documentation for this directory/module.
 │       │   │   ├── __init__.py  # Python package initializer (public exports live here).
 │       │   │   └── traced_client.py  # TracedLLMClient с OpenTelemetry интеграцией.
+│       │   ├── engine/  # Core engine for Scientist workflows.
+│       │   │   ├── README.md  # Documentation for this directory/module.
+│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
 │       │   ├── orchestrator/  # Workflow orchestration: nodes, state, audit, decision packet/card, timeline.
 │       │   │   ├── README.md  # Documentation for this directory/module.
 │       │   │   ├── __init__.py  # Python package initializer (public exports live here).
@@ -521,9 +556,24 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │       │   │   ├── engine_base.py  # Python module implementing 'engine_base'.
 │       │   │   ├── engine_langgraph.py  # LangGraph-based workflow engine implementation.
 │       │   │   └── engine_simple.py  # Simple sequential workflow engine implementation.
+│       │   ├── nodes/  # Workflow node implementations and definitions.
+│       │   │   ├── README.md  # Documentation for this directory/module.
+│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   ├── workflows/  # Predefined workflow templates and configurations.
+│       │   │   ├── README.md  # Documentation for this directory/module.
+│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
 │       │   ├── README.md  # Documentation for this directory/module.
 │       │   ├── __init__.py  # Python package initializer (public exports live here).
 │       │   └── publisher.py  # Publish/finalize results (artifacts, summaries).
+│       ├── scholar/  # Scholar layer for knowledge discovery and learning.
+│       │   ├── discover/  # Knowledge discovery and pattern recognition.
+│       │   │   ├── README.md  # Documentation for this directory/module.
+│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   ├── orchestrator/  # Orchestration for scholarly workflows.
+│       │   │   ├── README.md  # Documentation for this directory/module.
+│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   ├── README.md  # Documentation for this directory/module.
+│       │   ├── __init__.py  # Python package initializer (public exports live here).
 │       └── __init__.py  # Python package initializer (public exports live here).
 ├── tests/  # Test suite.
 │   ├── contract/  # Contract and schema tests for IR/Trinity/kernel.

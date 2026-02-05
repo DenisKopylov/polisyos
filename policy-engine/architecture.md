@@ -137,6 +137,17 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │       │   │   ├── README.md  # Documentation for this directory/module.
 │       │   │   ├── __init__.py  # Python package initializer (public exports live here).
 │       │   │   └── report.py  # Compile report data models and persistence helpers.
+│       │   ├── components/  # Component system for extensible policy engine modules.
+│       │   │   ├── README.md  # Documentation for this directory/module.
+│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   ├── capabilities.py  # Python module implementing 'capabilities'.
+│       │   │   ├── cli.py  # Python module implementing 'cli'.
+│       │   │   ├── compliance.py  # Python module implementing 'compliance'.
+│       │   │   ├── discovery.py  # Python module implementing 'discovery'.
+│       │   │   ├── ids.py  # Python module implementing 'ids'.
+│       │   │   ├── metadata.py  # Python module implementing 'metadata'.
+│       │   │   ├── protocols.py  # Python module implementing 'protocols'.
+│       │   │   └── registry.py  # Python module implementing 'registry'.
 │       │   ├── contracts/  # Typed inter-module contracts (Foundry/Fabric/Scientist/Trinity/Legal).
 │       │   │   ├── README.md  # Documentation for this directory/module.
 │       │   │   ├── __init__.py  # Python package initializer (public exports live here).
@@ -144,11 +155,13 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │       │   │   ├── fabric.py  # Fabric-related typed references (evidence, results, bounds).
 │       │   │   ├── foundry.py  # Foundry-related typed references (ProgramGraph, ExecPlan, etc.).
 │       │   │   ├── legal.py  # Legal contracts: NormPack/NormRule/RuleBackend/RuleType.
+│       │   │   ├── lex.py  # Python module implementing 'lex'.
 │       │   │   ├── scientist.py  # Scientist contracts: critique, failure cards, timelines, decision cards.
 │       │   │   └── trinity.py  # Trinity contracts: ProblemFrame/PolicySpec/ModelSpec + bundle/refs.
 │       │   ├── registry/  # Registry bundle builder/loader (reproducible components).
 │       │   │   ├── README.md  # Documentation for this directory/module.
 │       │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   ├── builder_from_fragments.py  # Python module implementing 'builder_from_fragments'.
 │       │   │   ├── builder.py  # Build registry bundles from available components.
 │       │   │   └── loader.py  # Load registry bundles (content and payload).
 │       │   ├── run/  # Run context and run manifest models.
@@ -166,6 +179,7 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │       │   │   ├── __init__.py  # Python package initializer (public exports live here).
 │       │   │   ├── config.py  # OpenTelemetry configuration and resource attributes + HPC observability control.
 │       │   │   ├── decorators.py  # @traced and @traced_method decorators for automatic function instrumentation.
+│       │   │   ├── determinism.py  # Python module implementing 'determinism'.
 │       │   │   ├── logs.py  # Structured logging with trace correlation.
 │       │   │   ├── metrics.py  # Prometheus-compatible metrics registry and timers + CAS operation metrics.
 │       │   │   ├── propagation.py  # Trace context propagation across threads/services.

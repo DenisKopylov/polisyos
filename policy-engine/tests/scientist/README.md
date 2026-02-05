@@ -2,7 +2,7 @@
 
 Валидация компонентов scientist layer - протоколов агентов, компилятора политик, ИИ-компонентов, optimization loop и workflow engines.
 
-**Последнее обновление:** 1 февраля 2026 (добавлены Phase 18: Safe Expression Evaluation, AST Policy validation, norm execution security, legal AST backends, expression evaluators, governance security testing, legal pass тесты, norm pack validation, decision card system, run timeline tracking, decision packet v2, search loop system, workflow engines, Phase 2 instrumentation: flow node tracing, LLM client instrumentation, governance pipeline spans, end-to-end workflow tracing)
+**Последнее обновление:** 5 февраля 2026 (добавлены новые engine тесты E1.7, обновлена структура согласно актуальному состоянию Phase 18-19, Safe Expression Evaluation, AST Policy validation, norm execution security, legal AST backends, expression evaluators, governance security testing, legal pass тесты, norm pack validation, decision card system, run timeline tracking, decision packet v2, search loop system, workflow engines, Phase 2 instrumentation: flow node tracing, LLM client instrumentation, governance pipeline spans, end-to-end workflow tracing)
 **Уровень:** Scientist Layer (AI & Compilation & Optimization & Instrumentation)
 **Зависимости:** JAX, Core artifacts, IR structures, Legal contracts, Search objectives, Workflow engines, OpenTelemetry tracing
 
@@ -28,6 +28,10 @@ scientist/
 ├── test_compiler.py           # Компилятор политик из IR
 ├── test_decision_card.py      # DecisionCard, Verdict, Confidence, KeyMetric, IssuesSummary
 ├── test_decision_packet_v2.py # DecisionPacket v2 с timeline и decision card поддержкой
+├── test_engine_default_workflow_e1_7.py # Engine default workflow E1.7
+├── test_engine_executor_v0.py  # Engine executor v0
+├── test_engine_registry_v0.py  # Engine registry v0
+├── test_flow_nodes_legacy_shim_e1_7.py # Flow nodes legacy shim E1.7
 ├── test_instrumentation.py    # Phase 2 instrumentation tests (flow nodes, LLM client, governance tracing)
 ├── test_multi_agent_workflow.py # Multi-agent workflow с critique system и памятью
 ├── test_reflexion_loop.py     # Reflexion loop, failure cards, recovery mechanisms

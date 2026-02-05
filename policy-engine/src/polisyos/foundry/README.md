@@ -1,6 +1,13 @@
 # Polisyos Foundry: Policy Execution Engine
 
-**Foundry** - высокопроизводительный execution engine для дифференцируемого исполнения экономических политик в Policy Engine. Предоставляет компилятор политик, patch-based runtime, калибровку параметров, симуляцию агентов с ML и математическую основу для моделирования экономических механизмов.
+**Foundry** - высокопроизводительный execution engine для дифференцируемого исполнения экономических политик в Policy Engine. Включает:
+
+- **Compilation System**: Преобразование декларативных политик в оптимизированные графы выполнения
+- **Execution Engine**: Patch-based runtime с constraint validation и artifact tracking
+- **Methods Framework**: Декларативная система типобезопасных переиспользуемых методов
+- **Calibration Tools**: Автоматическая калибровка параметров на реальных данных
+- **Agent Simulation**: Комплексная симуляция гетерогенных агентов с ML и графовыми структурами
+- **Plugin Architecture**: Расширяемая система доменов (экономика, здравоохранение, климат)
 
 ## Роль в архитектуре
 
@@ -30,6 +37,42 @@ NL → LLM → IR (AST) → Foundry Compiler → Foundry Calibration → Foundry
 - **Optax**: Оптимизация и градиентные методы
 - **Pydantic**: Валидация конфигураций и схем
 - **Loguru**: Структурированное логирование
+
+## Compilation System (Система компиляции)
+
+Модуль `compile` предоставляет высокоуровневый компилятор политик из Trinity IR в исполняемые ProgramGraph и ExecPlan. Преобразует декларативные политики в оптимизированные графы с проверкой конфликтов и оценкой стоимости.
+
+### Ключевые возможности компиляции
+
+- **Trinity Compiler**: Преобразование IR политик в ProgramGraph
+- **Conflict Detection**: Compile-time обнаружение конфликтов записи
+- **Cost Estimation**: Оценка стоимости выполнения программ
+- **Topological Sorting**: Автоматическое упорядочение исполнения
+- **Artifact Generation**: Создание ExecPlan и вспомогательных артефактов
+
+## Execution System (Система исполнения)
+
+Модуль `execute` предоставляет высокоуровневый API для исполнения скомпилированных ProgramGraph с поддержкой state management, constraint validation и artifact tracking.
+
+### Ключевые возможности исполнения
+
+- **Program Execution**: Запуск скомпилированных политик
+- **State Management**: Управление изменениями состояния через snapshots
+- **Constraint Validation**: Проверка ограничений после исполнения
+- **Environment Tracking**: Захват fingerprint'ов окружения
+- **Artifact Persistence**: Полное сохранение результатов
+
+## Methods Framework (Фреймворк методов)
+
+Модуль `methods` предоставляет декларативную систему для определения, композиции и исполнения экономических методов Foundry с автоматической валидацией, версионированием и type safety.
+
+### Ключевые возможности методов
+
+- **Type-Safe Protocols**: Полная типизация с compile-time проверками
+- **Semantic Versioning**: Строгое версионирование методов
+- **Slot-based Linking**: Автоматическое связывание входов/выходов
+- **Composition DAG**: Графовая композиция цепочек методов
+- **Artifact System**: Полный tracking исполнения и зависимостей
 
 ## Agent Simulation (Симуляция агентов)
 
@@ -95,12 +138,11 @@ utils.py            # Дифференцируемые утилиты (soft_step
 loss.py             # Функции потерь для оптимизации политик
 agent_metrics.py    # Метрики для анализа агентов
 agents.py           # Адаптивные агенты с нейронными сетями
-base.py             # Абстрактный класс Mechanism
-compiler.py         # Компиляция политик в ProgramGraph
+compiler.py         # Устаревший компилятор (заменён compile/)
+executor.py         # Устаревший исполнитель (заменён engine/)
 conflict_checker.py # Compile-time проверка конфликтов
 constraints_engine.py # Движок ограничений и валидации
 cost_model.py       # Модель оценки стоимости выполнения
-executor.py         # Исполнитель программ с constraints
 fiscal.py           # Налоговые механизмы (IncomeTax, TaxSubsidy)
 labor.py            # Механизм рынка труда
 layout.py           # Slot layout для state management
@@ -119,6 +161,47 @@ runtime/            # Runtime модули для исполнения прог�
 ├── __init__.py     # Чистые JAX функции (step, run_scan, execute_program_batch)
 ├── fingerprint.py  # Environment fingerprinting для воспроизводимости
 └── nan_guard.py    # Защита от NaN/Inf значений во время исполнения
+```
+
+### Compilation Layer (Компиляция)
+```
+compile/            # Компилятор политик из Trinity IR
+├── __init__.py     # Ленивый импорт основного компилятора
+├── api.py          # Высокоуровневый API компиляции
+├── trinity_compiler.py # Основной компилятор Trinity политик
+└── _graph.py       # Построение ProgramGraph и топологической сортировки
+```
+
+### Execution Layer (Исполнение)
+```
+execute/            # Исполнитель скомпилированных программ
+├── __init__.py     # Экспорт основной функции execute
+└── api.py          # Высокоуровневый API исполнения
+```
+
+### Engine Layer (Исполнительный движок)
+```
+engine/             # Core execution engine (использует executor.py)
+└── README.md       # Документация execution engine
+```
+
+### Methods Layer (Система методов)
+```
+methods/            # Декларативная система методов Foundry
+├── __init__.py     # Экспорт всех компонентов
+├── base.py         # Базовые типы и протоколы методов
+├── registry.py     # Реестр методов с версионированием
+├── discovery.py    # Автообнаружение методов
+├── linker.py       # Связывание слотов между методами
+├── composer.py     # Композиция цепочек методов
+├── compiler.py     # Компиляция методов (опционально)
+├── specialization.py # Специализация методов (опционально)
+├── artifacts.py    # Artifact система (опционально)
+├── types/          # Система типов и совместимости
+│   └── checker.py  # Проверка совместимости типов
+├── exceptions.py   # Иерархия исключений
+├── resolution.py   # Разрешение версий
+└── components_bridge.py # Мост с legacy компонентами
 ```
 
 ### Domain Layer (Модель предметной области)

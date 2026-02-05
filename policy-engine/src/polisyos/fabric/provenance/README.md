@@ -432,6 +432,21 @@ def analyze_query_lineage(result: FabricResult, cas: FileSystemCAS):
 - **Evidence Bundles**: Содержат ProvenanceCoreRef для полного lineage
 - **CAS Storage**: Графы provenance хранятся immutable в Content Addressable Storage
 
+### Связь с Claims Processing
+- **Extraction Provenance**: Полный audit trail от документа до извлеченных claims
+- **Normalization Tracking**: Provenance для всех трансформаций claims
+- **Conflict Resolution**: Доказательства выбора между конфликтующими claims
+
+### Связь с Document Processing
+- **Ingestion Provenance**: От источника документа до нормализованного текста
+- **Chunking Audit**: Доказательства семантического разбиения на chunks
+- **Structure Analysis**: Provenance для извлеченных структурных элементов
+
+### Связь с World Model
+- **Materialization Provenance**: Audit trail для восстановления представлений
+- **Fact Emission**: Provenance для каждого эмитированного факта мира
+- **Projection Tracking**: Доказательства создания проекций данных
+
 ### Связь с UDF Engine
 - **Query Provenance**: Каждый запрос генерирует provenance граф
 - **Result Tracking**: FabricResult включает provenance для traceability

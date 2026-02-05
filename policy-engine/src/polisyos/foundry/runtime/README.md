@@ -1,4 +1,4 @@
-# Runtime Module (runtime)
+# Runtime Module (runtime) (актуально на 2026-02-05)
 
 Модуль `runtime` предоставляет низкоуровневые компоненты для исполнения программ и обеспечения воспроизводимости результатов. Включает чистые JAX функции и Environment Fingerprinting.
 
@@ -10,15 +10,17 @@
 - **`execute_program_batch`** - Batch исполнение для нескольких сценариев
 
 ### Environment Fingerprinting (`fingerprint.py`)
-- **`EnvironmentFingerprint`** - Захват и валидация окружения
-- **`DeterminismTier`** - Уровни гарантий детерминизма
-- **`configure_determinism`** - Настройка JAX для детерминизма
+- **`EnvironmentFingerprint`** - Захват и валидация окружения для воспроизводимости
+- **`DeterminismTier`** - Уровни гарантий детерминизма (STRICT_CPU, BEST_EFFORT_GPU, NONDETERMINISTIC)
+- **`configure_determinism`** - Настройка JAX/XLA для детерминизма
+- **Compatibility Scoring**: Оценка совместимости окружений
 
 ### NaN Guard (`nan_guard.py`)
-- **`NaNGuard`** - Обнаружение NaN/Inf значений
-- **`NaNDiagnostic`** - Диагностика численных проблем
-- **`NaNGuardReport`** - Полный отчёт о проверках
-- **`create_nan_guard_for_profile`** - Фабрика для профилей валидации
+- **`NaNGuard`** - Обнаружение NaN/Inf значений с диагностикой
+- **`NaNDiagnostic`** - Детальная диагностика численных проблем
+- **`NaNGuardReport`** - Полный отчёт о проверках с рекомендациями
+- **`create_nan_guard_for_profile`** - Фабрика профилей валидации (strict/mvp/fast)
+- **Performance Monitoring**: Баланс надёжности и производительности
 
 ## Core Runtime
 

@@ -261,6 +261,38 @@ class QueryBuilder:
         )
 ```
 
+### Интеграция с Claims Processing
+
+```python
+# claims/processing.py - контракты для извлеченных claims
+from polisyos.fabric.catalog import DataContractRegistry
+
+def validate_claim_contracts(claims: list[ClaimCandidate], registry: DataContractRegistry):
+    """Валидация извлеченных claims против контрактов."""
+    for claim in claims:
+        if claim.predicate_id in registry:
+            contract = registry.get(claim.predicate_id)
+            # Валидация типа данных, единиц измерения, etc.
+            validate_claim_against_contract(claim, contract)
+```
+
+### Интеграция с Document Processing
+
+```python
+# docs/processing.py - метаданные документов в catalog
+from polisyos.fabric.catalog.contract import DataContract
+
+# Контракты для метаданных документов
+doc_contract = DataContract(
+    metric_id="doc.metadata.page_count",
+    display_name="Document Page Count",
+    description="Number of pages in processed document",
+    dtype=DataType.INT,
+    source_system="document_processor",
+    pii_tier=PIITier.NONE
+)
+```
+
 ### Интеграция с Fabric Ingestion
 
 ```python
@@ -421,12 +453,15 @@ python tools/scan_fabric.py --generate-contracts
 
 ## Заключение
 
-**Data Contract Catalog** обеспечивает:
+**Data Contract Catalog** обеспечивает type safety для всей Fabric экосистемы:
 
 - **Type Safety**: Предотвращение hallucination через validated bindings
 - **Schema Evolution**: Безопасная миграция через contract versioning
 - **Privacy Compliance**: Multi-tier PII classification и access control
 - **Human Oversight**: Disambiguation UI для ambiguous queries
 - **Auditability**: Complete provenance tracking от контракта до использования
+- **Claims Integration**: Type-safe извлечение фактов из документов
+- **Document Metadata**: Структурированные контракты для document attributes
+- **World Model Schema**: Schema-compliant факты мира
 
-Catalog является критическим компонентом для безопасного и надежного AI-driven симуляций экономической политики, обеспечивая что Scientist agent работает только с validated, type-safe метриками.
+Catalog является фундаментом для trustworthy AI-driven симуляций экономической политики, обеспечивая semantic consistency и data integrity на всех уровнях системы.

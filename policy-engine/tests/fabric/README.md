@@ -2,7 +2,7 @@
 
 Комплексная валидация компонентов Fabric layer - ingestion pipeline, evidence bundles, trust system и materialization engine.
 
-**Последнее обновление:** 1 февраля 2026 (добавлены расширенные тесты connectors с reference implementations, cache system, federation, harness, integration, quality system, registry, resilience, schema system, transform pipeline, type system)
+**Последнее обновление:** 5 февраля 2026 (добавлены Phase 13-19 тесты, расширенные connectors тесты с reference implementations, cache system, federation, harness, integration, quality system, registry, resilience, schema system, transform pipeline, type system)
 **Уровень:** Fabric Layer (Data Ingestion & Trust & Provenance & Quality)
 **Зависимости:** Core artifacts, DuckDB, Kuzu, pandas
 
@@ -16,12 +16,39 @@ Fabric layer отвечает за ingestion и обработку внешни�
 fabric/
 ├── connectors/                    # Тесты протокола подключения данных (Data Fabric Connectors)
 │   ├── __init__.py                # Пакет connectors тестов
-│   └── test_protocol_compliance.py # Protocol compliance, capability validation, error hierarchy, connector metadata
+│   ├── conftest.py                # Специфичная конфигурация для connector тестов
+│   ├── reference/                 # Тесты reference implementations
+│   │   ├── test_rest_json.py      # REST JSON connector reference tests
+│   │   ├── test_sdmx.py           # SDMX connector reference tests
+│   │   └── test_static_csv.py     # Static CSV connector reference tests
+│   ├── test_cache_system.py       # Cache system для connectors
+│   ├── test_federation.py         # Federation capabilities для connectors
+│   ├── test_harness.py            # Test harness для connector development
+│   ├── test_integration.py        # Integration tests для connectors
+│   ├── test_protocol_compliance.py # Protocol compliance, capability validation, error hierarchy, connector metadata
+│   ├── test_quality_system.py     # Quality system integration для connectors
+│   ├── test_registry.py           # Registry system для connectors
+│   ├── test_resilience.py         # Resilience и error handling для connectors
+│   ├── test_schema_system.py      # Schema system для connectors
+│   ├── test_transform_pipeline.py # Transform pipeline для connectors
+│   └── test_type_system.py        # Type system для connectors
 ├── test_data_catalog.py           # Data Contract catalog system, contract validation, metric bindings, search
 ├── test_evidence_bundle.py        # Evidence bundles, ingestion pipeline, provenance tracking
 ├── test_provenance.py             # Provenance subsystem, entities, graphs, PROV-O export, persistence
 ├── test_trust_two_pass.py         # Trust system, uncertainty bounds, двухпроходное сравнение
-└── test_quality_indicators.py     # Quality indicators system, fitness reports, quality gate pass integration
+├── test_quality_indicators.py     # Quality indicators system, fitness reports, quality gate pass integration
+├── test_claims_pipeline_phase13.py # Claims pipeline Phase 13
+├── test_conflicts_phase14.py      # Conflicts Phase 14
+├── test_docs_pipeline_phase12.py # Docs pipeline Phase 12
+├── test_legal_evaluation_phase18.py # Legal evaluation Phase 18
+├── test_lex_corpus_phase16.py     # Lex corpus Phase 16
+├── test_normpack_phase17.py       # NormPack Phase 17
+├── test_scholar_extractor_components_phase19.py # Scholar extractor Phase 19
+├── test_scholar_mvp_phase15.py     # Scholar MVP Phase 15
+├── test_trust_phase14.py          # Trust Phase 14
+├── test_world_kuzu_phase11.py     # World Kuzu Phase 11
+├── test_world_materialization_phase10.py # World materialization Phase 10
+└── test_world_store_phase9.py      # World store Phase 9
 ```
 
 ## Категории тестов

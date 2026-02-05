@@ -1,6 +1,6 @@
 # Common: Общие компоненты Policy Engine
 
-> **Последнее обновление:** 1 февраля 2026 г. (добавлен async_tools.py, обновлены связи модулей)
+> **Последнее обновление:** 5 февраля 2026 г. (обновлена структура миграций, актуализированы связи модулей)
 
 Модуль `polisyos.common` содержит фундаментальные утилиты и конфигурации, используемые во всех слоях архитектуры Policy Engine. Эти компоненты обеспечивают базовую инфраструктуру без зависимостей от бизнес-логики.
 
@@ -17,7 +17,7 @@ common/
 │   ├── __init__.py         # Экспорт API миграций
 │   ├── base.py             # Ядро системы миграций
 │   ├── manifest.py         # Миграции Dataset Manifest
-│   └── policy_ir.py        # Миграции Policy IR
+│   └── README.md           # Документация системы миграций
 └── README.md               # Эта документация
 ```
 
@@ -36,30 +36,29 @@ common/
 
 #### Логирование (`logger.py`, `get_logger`):
 - **core/observability/logs.py** - структурированное логирование с trace correlation через `get_logger`
-- **fabric/ingestion.py** - логирование операций ingestion данных
+- **fabric/ingestion.py** - логирование операций ingestion данных через `get_logger`
 - **fabric/io/db.py** - логирование операций с DuckDB через `logger`
-- **fabric/io/graph_store.py** - логирование операций с графовым хранилищем через `get_logger`
-- **fabric/materializer.py** - логирование операций материализации данных
-- **fabric/udf/engine.py** - логирование в UDF движке через `logger`
-- **fabric/udf/compiler.py** - логирование компиляции UDF через `logger`
-- **scientist/orchestrator/data_loader.py** - логирование загрузки данных экспериментов
-- **foundry/compiler.py** - логирование операций компиляции через `get_logger`
+- **fabric/world/store/segments.py** - логирование операций хранения сегментов через `get_logger`
+- **fabric/catalog/search.py** - логирование операций поиска через `logger`
+- **fabric/catalog/registry.py** - логирование операций реестра через `logger`
+- **fabric/connectors/** (все компоненты) - логирование в коннекторах через `get_logger`
+- **foundry/executor.py** - логирование выполнения экспериментов через `get_logger`
 - **foundry/agent_sim/artifact.py** - логирование артефактов симуляции агентов через `get_logger`
 - **foundry/agent_sim/training.py** - логирование обучения агентов через `get_logger`
-- **foundry/executor.py** - логирование выполнения экспериментов через `get_logger`
 
 #### Асинхронные утилиты (`async_tools.py`, `run_coro_sync`):
 - **fabric/_connector_bridge.py** - безопасное выполнение асинхронных операций в коннекторах
 - **fabric/ingestion.py** - выполнение асинхронных операций ingestion из синхронного контекста
 
 #### Миграции (`migrations/`):
-- **ir/migrations/** - расширенная обертка над `common.migrations` для Policy IR артефактов
-- **ir/trinity.py** - использование миграций для преобразования между PolicySurfaceIR и Trinity форматами
-- **ir/migrations/trinity_migration.py** - вспомогательные функции для Trinity миграций
+- **ir/migrations/** - расширенная обертка над `common.migrations` для миграций артефактов
 
 #### Конфигурация (`config.py`):
 - **jax_bootstrap.py** - применение JAX настроек через side effects при импорте
 - **Весь проект** - косвенное использование через переменные окружения и настройки логирования
+
+#### JAX Environment (`jax_env.py`):
+- **jax_bootstrap.py** - безопасная настройка JAX backend для macOS
 
 ## Архитектурные принципы
 
@@ -92,7 +91,6 @@ Common обеспечивает:
 - **`__init__.py`** - экспорт API миграций
 - **`base.py`** - ядро системы миграций
 - **`manifest.py`** - миграции Dataset Manifest
-- **`policy_ir.py`** - миграции Policy IR
 
 ## Детальное описание модулей
 
@@ -320,12 +318,6 @@ result = run_coro_sync(async_operation())
    - Текущая версия: `MANIFEST_CURRENT_VERSION = "1.0"`
    - Миграция `0.9 → 1.0`: нормализация полей (`datasetName` → `dataset_name`, `rawHash` → `raw_hash`)
 
-3. **`policy_ir.py` - Миграции Policy IR и Trinity**
-   - Текущая версия Policy IR: `POLICY_IR_CURRENT_VERSION = "2.0"`
-   - Текущая версия Trinity: `TRINITY_CURRENT_VERSION = "1.0"`
-   - Миграции: преобразования между PolicySurfaceIR (v2.0) и Trinity форматом (v1.0)
-   - Двунаправленные миграции: `policy_surface_to_trinity` (2.0→1.0) и `trinity_to_policy_surface` (1.0→2.0)
-
 #### Пример использования:
 
 ```python
@@ -335,11 +327,6 @@ from polisyos.common.migrations import migrate_artifact
 manifest_data = {"schema_version": "0.9", "datasetName": "test"}
 migrated = migrate_artifact(manifest_data, "dataset_manifest", "1.0")
 # Результат: {"schema_version": "1.0", "dataset_name": "test"}
-
-# Trinity миграции - преобразование между форматами
-trinity_data = migrate_artifact(policy_surface_data, "policy_surface_to_trinity", "1.0")
-# Обратное преобразование
-policy_surface_data = migrate_artifact(trinity_data, "trinity_to_policy_surface", "2.0")
 ```
 
 ## Использование в проекте
@@ -424,10 +411,9 @@ def materialize(self, request):
 # В ir/migrations/__init__.py (расширенная обертка над common.migrations)
 from polisyos.common.migrations.base import migrate_artifact
 from polisyos.common.migrations.base import register_migration as _register_migration
-from polisyos.common.migrations.policy_ir import POLICY_IR_CURRENT_VERSION
 
 def migrate_policy_ir(data: dict, target_version: str | None = None) -> dict:
-    return migrate_artifact(data, "policy_ir", target_version or POLICY_IR_CURRENT_VERSION)
+    return migrate_artifact(data, "policy_ir", target_version or "2.0")
 ```
 
 ## Зависимости
@@ -503,16 +489,14 @@ def migrate_policy_ir(data: dict, target_version: str | None = None) -> dict:
 - **`foundry/executor.py`** - выполнение экспериментов
 
 #### Миграции (migrations):
-- **`ir/migrations/__init__.py`** - расширенная обертка для миграций Policy IR с дополнительной логикой версий
-- **`ir/trinity.py`** - использование миграций для преобразования между PolicySurfaceIR и Trinity форматами
-- **`ir/migrations/trinity_migration.py`** - вспомогательные функции `split_to_bundle` и `merge_to_surface_ir` для Trinity миграций
+- **`ir/migrations/__init__.py`** - расширенная обертка для миграций артефактов с дополнительной логикой версий
 
 ### Архитектурные связи:
 
 - **core:** Использует логирование для операций с артефактами и регистрами; `core/observability` расширяет логирование trace correlation
 - **fabric:** Зависит от логирования для всех I/O операций и UDF движка
 - **foundry:** Активно использует логирование в компиляции, симуляциях агентов, обучении и выполнении экспериментов
-- **ir:** Зависит от миграций для версионирования схем Policy IR и Trinity преобразований
+- **ir:** Зависит от миграций для версионирования схем артефактов
 - **runtime:** Использует логирование для аудита прогонов
 - **scientist:** Зависит от логирования в оркестрации экспериментов и агентов
 

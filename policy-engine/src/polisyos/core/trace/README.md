@@ -1,55 +1,50 @@
 # Trace (Система логирования и трассировки)
 
-## Обзор
-
-Модуль предоставляет span-based трассировку с поддержкой распределенного трекинга, provenance через артефактные ссылки и структурированное логирование.
+Span-based трассировка с поддержкой распределенного трекинга, provenance через артефактные ссылки и структурированное логирование.
 
 ## Архитектура
 
 ```
 trace/
-├── record.py     # TraceRecord - записи трассировки с метаданными
+├── record.py     # TraceRecord - записи с метаданными
 ├── sink.py       # TraceSink - интерфейс вывода (JsonlTraceSink)
 └── __init__.py   # Экспорт компонентов
 ```
 
 ## Компоненты
 
-### TraceRecord
-Структура записи с метаданными: временные метки, span_id, parent_span_id, ссылки на артефакты, метрики, предупреждения и ошибки.
-
-### TraceSink
-Протокол для вывода записей. Реализация: `JsonlTraceSink` для JSON Lines формата с потоковой записью.
+- **TraceRecord**: Запись с метаданными (timestamps, span_id, parent_span_id, артефактные ссылки, метрики, warnings, errors)
+- **TraceSink**: Протокол вывода записей. Реализация: `JsonlTraceSink` для JSONL формата
 
 ## Формат трассировки
 
-JSON Lines с полями: `ts`, `run_id`, `phase`, `event`, `span_id`, `parent_span_id`, `refs`, `metrics`, `warnings`, `errors`.
+JSONL с полями: `ts`, `run_id`, `phase`, `event`, `span_id`, `parent_span_id`, `refs`, `metrics`, `warnings`, `errors`
 
 ## Использование
 
-### В RunContext
-Автоматическая интеграция: `ctx.emit(phase, event, metrics={}, inputs=[], outputs=[])` записывает в JSONL файл.
-
-### Span-based трассировка
-Иерархическая структура с `span_id` и `parent_span_id` для распределенного трекинга.
-
-### Интеграция с модулями
-Используется в Fabric, Foundry, Scientist для трассировки операций с provenance через артефактные ссылки.
+- **RunContext**: `ctx.emit(phase, event, metrics={}, inputs=[], outputs=[])` записывает в JSONL
+- **Span-based**: Иерархическая структура с span_id/parent_span_id для distributed tracking
+- **Интеграция**: Fabric, Foundry, Scientist для provenance через артефактные ссылки
 
 ## Анализ трассировки
 
-Функции для загрузки и анализа: `load_trace_records()`, анализ производительности, поиск ошибок, реконструкция последовательности выполнения.
+Функции: `load_trace_records()`, анализ производительности, поиск ошибок, реконструкция последовательности.
 
 ## Кастомные реализации
 
-`RotatingTraceSink` (ротация файлов), `DatabaseTraceSink` (БД), `AsyncJsonlTraceSink` (асинхронная запись).
+- `RotatingTraceSink`: Ротация файлов
+- `DatabaseTraceSink`: Сохранение в БД
+- `AsyncJsonlTraceSink`: Асинхронная запись
 
 ## Производительность
 
-- Низкий overhead (<0.1ms на операцию)
-- JSONL формат для потоковой обработки
-- Поддержка миллионов записей
+- **Overhead**: <0.1ms на операцию
+- **Формат**: JSONL для потоковой обработки
+- **Масштаб**: Миллионы записей
 
 ## Лучшие практики
 
-Описательные phase/event имена, метрики производительности, span_id для иерархий, provenance через артефактные ссылки.
+- Описательные phase/event имена
+- Метрики производительности
+- span_id для иерархий
+- Provenance через артефактные ссылки

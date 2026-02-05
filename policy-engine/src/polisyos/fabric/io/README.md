@@ -211,6 +211,38 @@ centrality = graph.query("""
 
 ## Использование в системе
 
+### Интеграция с Claims Processing
+
+```python
+from polisyos.fabric.claims.persist import persist_claims_to_fact_log
+from polisyos.fabric.world.materialize import ensure_world_materialized
+
+# Сохранение claims в Fact Log
+segment_manifest = persist_claims_to_fact_log(
+    claims=normalized_claims,
+    fact_dir=Path("data/facts")
+)
+
+# Материализация claims в модель мира
+stats = ensure_world_materialized(
+    fact_dir=Path("data/facts"),
+    db_conn=duckdb_conn
+)
+```
+
+### Интеграция с Document Processing
+
+```python
+from polisyos.fabric.docs import ingest_doc_bytes
+from polisyos.fabric.world.store import persist_doc_meta
+
+# Обработка документа
+result = ingest_doc_bytes(pdf_bytes, source_spec)
+
+# Сохранение метаданных документа
+persist_doc_meta(result.doc_meta, duckdb_conn)
+```
+
 ### Интеграция с Fabric Ingestion
 
 ```python

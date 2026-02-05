@@ -2,7 +2,7 @@
 
 Валидация runtime API, управления жизненным циклом runs, артефактов и audit trail.
 
-**Последнее обновление:** 1 февраля 2026
+**Последнее обновление:** 5 февраля 2026
 **Уровень:** Runtime Layer (Execution Management)
 **Зависимости:** Core artifacts, Path manipulation
 

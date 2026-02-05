@@ -1,6 +1,6 @@
 # Migrations: Система версионирования артефактов
 
-> **Последнее обновление:** 1 февраля 2026 г. (добавлена TRINITY_CURRENT_VERSION в API)
+> **Последнее обновление:** 5 февраля 2026 г. (актуализирована структура, убраны несуществующие компоненты)
 
 Модуль `polisyos.common.migrations` предоставляет детерминированную систему версионирования артефактов Policy Engine. Система обеспечивает безопасные преобразования данных между версиями схем с обнаружением циклов миграций.
 
@@ -20,7 +20,6 @@ migrations/
 ├── __init__.py         # Публичный API миграций
 ├── base.py            # Ядро системы миграций
 ├── manifest.py        # Миграции Dataset Manifest
-├── policy_ir.py       # Миграции Policy IR
 └── README.md          # Эта документация
 ```
 
@@ -95,50 +94,30 @@ def migrate_manifest_0_9_to_1_0(data: dict) -> dict:
     return data
 ```
 
-### `policy_ir.py` - Миграции Policy IR и Trinity
+### `manifest.py` - Миграции Dataset Manifest
 
 #### Текущие версии
 
 ```python
-POLICY_IR_CURRENT_VERSION = "2.0"
-TRINITY_CURRENT_VERSION = "1.0"
+MANIFEST_CURRENT_VERSION = "1.0"
 ```
 
-**Доступность в API:** Все версии теперь экспортируются через публичный API модуля в `__init__.py`.
+**Доступность в API:** Версии экспортируются через публичный API модуля в `__init__.py`.
 
 #### Особенности версионирования
 
-- **Policy IR v2.0** является стабильной основной версией для PolicySurfaceIR
-- **Trinity v1.0** - новый формат артефактов с разделением на bundle компонентов
-- **Двунаправленные миграции** между PolicySurfaceIR (v2.0) и Trinity форматом (v1.0)
-- **Использование внешних функций** из `ir.migrations.trinity_migration` для сложных преобразований
-
-#### Доступные миграции Trinity
-
-```python
-@register_migration("policy_surface_to_trinity", "2.0", "1.0")
-def migrate_surface_to_trinity(data: dict) -> dict:
-    # Преобразование PolicySurfaceIR → TrinityBundle
-    # Использует ir.migrations.trinity_migration.split_to_bundle
-
-@register_migration("trinity_to_policy_surface", "1.0", "2.0")
-def migrate_trinity_to_surface(data: dict) -> dict:
-    # Преобразование TrinityBundle → PolicySurfaceIR
-    # Использует ir.migrations.trinity_migration.merge_to_surface_ir
-```
+- **Dataset Manifest v1.0** является стабильной версией с нормализованными именами полей
+- **Обратная совместимость** с версией 0.9 через автоматическую миграцию
 
 ## Публичный API (`__init__.py`)
 
 ```python
 from polisyos.common.migrations.base import migrate_artifact, register_migration
 from polisyos.common.migrations.manifest import MANIFEST_CURRENT_VERSION
-from polisyos.common.migrations.policy_ir import POLICY_IR_CURRENT_VERSION, TRINITY_CURRENT_VERSION
 
 __all__ = [
     "migrate_artifact",
     "register_migration",
-    "POLICY_IR_CURRENT_VERSION",
-    "TRINITY_CURRENT_VERSION",
     "MANIFEST_CURRENT_VERSION",
 ]
 ```
@@ -154,15 +133,6 @@ from polisyos.common.migrations import migrate_artifact
 manifest_data = {"schema_version": "0.9", "datasetName": "test"}
 migrated = migrate_artifact(manifest_data, "dataset_manifest", "1.0")
 # Результат: {"schema_version": "1.0", "dataset_name": "test"}
-
-# Trinity миграции - преобразование между форматами
-from polisyos.common.migrations import TRINITY_CURRENT_VERSION, POLICY_IR_CURRENT_VERSION
-
-# PolicySurfaceIR → TrinityBundle
-trinity_bundle = migrate_artifact(policy_surface_data, "policy_surface_to_trinity", TRINITY_CURRENT_VERSION)
-
-# TrinityBundle → PolicySurfaceIR
-policy_surface_data = migrate_artifact(trinity_bundle, "trinity_to_policy_surface", POLICY_IR_CURRENT_VERSION)
 ```
 
 ### Регистрация новых миграций
@@ -179,14 +149,7 @@ def migrate_my_artifact_1_0_to_2_0(data: dict) -> dict:
 
 ### Расширенная обертка в ir/migrations
 
-Модуль `ir/migrations/__init__.py` предоставляет расширенную обертку:
-
-```python
-from polisyos.ir.migrations import migrate_policy_ir
-
-# Дополнительная валидация версий Policy IR
-migrated = migrate_policy_ir(data, target_version="2.0", allow_major=True)
-```
+Модуль `ir/migrations/__init__.py` предоставляет расширенную обертку для миграций Policy IR артефактов с дополнительной логикой версий.
 
 ## Безопасность и валидация
 
@@ -230,16 +193,14 @@ except ValueError as e:
 
 ### Использование в других модулях
 
-- **`ir/migrations/__init__.py`** - расширенная обертка для Policy IR с дополнительной логикой версий
-- **`ir/trinity.py`** - использование миграций для преобразования между PolicySurfaceIR и Trinity форматами
-- **`ir/migrations/trinity_migration.py`** - вспомогательные функции `split_to_bundle` и `merge_to_surface_ir`
+- **`ir/migrations/__init__.py`** - расширенная обертка для миграций артефактов с дополнительной логикой версий
 - **`fabric/materializer.py`** - потенциальное использование для версионирования материализованных данных
 - **`core/artifacts/store.py`** - хранение артефактов с версиями
 
 ### Архитектурные связи
 
 - **common** - базовая инфраструктура миграций
-- **ir** - расширенное использование для Policy IR и Trinity артефактов с преобразованиями форматов
+- **ir** - расширенное использование для миграций артефактов Policy IR
 - **core** - хранение артефактов с поддержкой версий
 - **fabric** - материализация данных с учетом версий
 
@@ -282,6 +243,7 @@ def test_migrate_manifest_0_9_to_1_0():
 3. **Добавить экспорт** в `__init__.py`
 4. **Создать миграции** при необходимости
 5. **Обновить документацию** во всех README файлах
+6. **Добавить unit тесты** для новых миграций
 
 ## Проверка актуальности
 

@@ -2,7 +2,7 @@
 
 Комплексная валидация математических моделей, симуляций на JAX, компонентов исполнения, систем калибровки и плагинной архитектуры.
 
-**Последнее обновление:** 1 февраля 2026
+**Последнее обновление:** 5 февраля 2026
 **Уровень:** Foundry Layer (Simulation Engine)
 **Зависимости:** JAX, Equinox, Optax, Core artifacts, Fabric trust
 
@@ -19,6 +19,7 @@ foundry/
 ├── plugins/                       # Тесты плагинной системы Foundry
 │   └── test_plugin_system.py      # PluginRegistry, CompositeExecutor, EconomicsPlugin, domain configs
 ├── test_adaptive_agents.py        # Адаптивные агенты и их поведение
+├── test_agent_artifact.py         # AgentPolicyArtifact, EnvironmentFingerprint, hot-swap compatibility
 ├── test_agent_simulation_step1.py # Шаг 1 симуляции агентов
 ├── test_agent_simulation_step2.py # Шаг 2 симуляции агентов
 ├── test_agent_simulation_step3.py # Шаг 3 симуляции агентов

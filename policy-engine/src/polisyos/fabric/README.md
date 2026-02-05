@@ -30,15 +30,18 @@ NL → LLM → IR (AST) → Compilation → Runtime (UDF + Foundry) → Artifact
 7. **Contract Evolution**: Schema evolution tracking, migration utilities и contract registry для API stability
 8. **Type System**: Безопасная type coercion, dimensional data handling и unit conversion
 9. **Data Contract Catalog**: Metric-level type safety с hash-locked bindings для Scientist agent
-10. **Fact Log System**: Immutable хранение фактов в каноническом формате для audit trail
-11. **Provenance Tracking**: W3C PROV-O compliant lineage tracking для полного audit trail
-12. **Multi-Backend Storage**: Реляционное (DuckDB) + графовое (Kùzu) хранение данных
-13. **Data Fitness Assessment**: Многоуровневая оценка пригодности данных для симуляции с threshold-based validation
-14. **Entity Resolution**: Нормализация и дедупликация идентификаторов агентов
-15. **Evidence System**: Криптографически verifiable доказательства происхождения данных
-16. **Unified Data Fabric**: Безопасный компилируемый слой запросов с whitelist и privacy controls
-17. **Materialization Engine**: Восстановление реляционных представлений из immutable фактов
-18. **Quality Gate Validation**: Интеграция с governance system для блокировки низкокачественных данных
+10. **Claims Processing System**: Извлечение, нормализация и разрешение конфликтов claims из документов
+11. **Document Processing Pipeline**: Обработка различных форматов документов (PDF, HTML, plain text) с chunking и структуризацией
+12. **World Model Materialization**: Восстановление и материализация модели мира из Fact Log с поддержкой множественных представлений
+13. **Fact Log System**: Immutable хранение фактов в каноническом формате для audit trail
+14. **Provenance Tracking**: W3C PROV-O compliant lineage tracking для полного audit trail
+15. **Multi-Backend Storage**: Реляционное (DuckDB) + графовое (Kùzu) хранение данных
+16. **Data Fitness Assessment**: Многоуровневая оценка пригодности данных для симуляции с threshold-based validation
+17. **Entity Resolution**: Нормализация и дедупликация идентификаторов агентов
+18. **Evidence System**: Криптографически verifiable доказательства происхождения данных
+19. **Unified Data Fabric**: Безопасный компилируемый слой запросов с whitelist и privacy controls
+20. **Materialization Engine**: Восстановление реляционных представлений из immutable фактов
+21. **Quality Gate Validation**: Интеграция с governance system для блокировки низкокачественных данных
 
 ## Технологический стек
 
@@ -67,8 +70,32 @@ NL → LLM → IR (AST) → Compilation → Runtime (UDF + Foundry) → Artifact
 
 ```
 fabric/
-├── __init__.py              # Экспорт основного API (run_ingestion, catalog, connectors)
+├── __init__.py              # Экспорт основного API (run_ingestion, catalog, connectors, claims)
 ├── _connector_bridge.py     # Мост для интеграции коннекторов с другими системами
+├── claims/                  # Система обработки и верификации claims
+│   ├── __init__.py          # Экспорт claims API
+│   ├── canonicalize.py      # Канонизация и нормализация claims
+│   ├── citations.py         # Управление цитатами и ссылками
+│   ├── conflicts/           # Разрешение конфликтов claims
+│   │   ├── __init__.py
+│   │   ├── detect.py        # Обнаружение конфликтов
+│   │   ├── key.py           # Ключи для группировки конфликтов
+│   │   ├── policies.py      # Политики разрешения конфликтов
+│   │   ├── resolve.py       # Логика разрешения
+│   │   └── score_claims.py  # Оценка claims для разрешения
+│   │   └── score_docs.py    # Оценка документов
+│   │   └── types.py         # Типы для конфликтов
+│   ├── errors.py            # Специфичные ошибки claims
+│   ├── extraction.py        # Извлечение claims из текста
+│   ├── extractor_registry.py # Реестр экстракторов claims
+│   ├── normalize.py         # Нормализация claims
+│   ├── persist.py           # Сохранение claims
+│   └── types.py             # Основные типы данных claims
+│   └── backends/            # Backend реализации экстракторов
+│       ├── __init__.py
+│       ├── explicit_lines_v1.py # Явные линии claims
+│       ├── lex_norm_regex_v1.py # Лексическая нормализация
+│       └── regex_numeric_v1.py  # Регулярные выражения для чисел
 ├── connectors/              # Phase 2.1+: Расширенная система коннекторов
 │   ├── __init__.py          # Экспорт connector API и типов
 │   ├── base.py              # SourceConnector Protocol, FetchRequest/Result
@@ -138,10 +165,46 @@ fabric/
 │   ├── registry.py          # DataContractRegistry - реестр контрактов
 │   ├── search.py            # MetricSearcher - fuzzy search с disambiguation
 │   └── validate.py          # Валидация контрактов из JSON
+├── docs/                    # Система обработки документов
+│   ├── __init__.py          # Экспорт docs API
+│   ├── backends/            # Backend реализации для разных форматов
+│   │   ├── __init__.py
+│   │   ├── pdf.py           # Обработка PDF документов
+│   │   └── text_html.py     # Обработка HTML документов
+│   │   └── text_plain.py    # Обработка plain text
+│   ├── chunking.py          # Разбиение документов на chunks
+│   ├── errors.py            # Специфичные ошибки обработки документов
+│   ├── ingestion.py         # Загрузка документов в систему
+│   ├── normalize.py         # Нормализация текстового содержимого
+│   ├── structure.py         # Анализ структуры документов
+│   └── types.py             # Типы данных для документов
 ├── provenance/              # W3C PROV-O provenance tracking система
 │   ├── __init__.py          # Экспорт provenance компонентов
 │   ├── core.py              # ProvenanceCoreGraph, Entity/Activity/Agent модели
 │   └── export_provo.py      # Экспорт в PROV-O JSON-LD/N-Quads
+├── world/                   # Модель мира и материализация данных
+│   ├── __init__.py          # Экспорт world API
+│   ├── ddl/                 # DDL скрипты для инициализации хранилищ
+│   │   ├── duckdb_world.sql # DDL для DuckDB
+│   │   └── kuzu_world.cypher # DDL для Kùzu
+│   ├── materialize/         # Материализация реляционных представлений
+│   │   ├── __init__.py
+│   │   ├── duckdb.py        # Материализация в DuckDB
+│   │   ├── errors.py        # Специфичные ошибки материализации
+│   │   ├── kuzu.py          # Материализация в Kùzu
+│   │   ├── projections.py   # Проекции данных
+│   │   ├── rules.py         # Правила материализации
+│   │   ├── sql.py           # Генерация SQL запросов
+│   │   └── staging.py       # Staging area для материализации
+│   └── store/               # Хранение и управление сегментами мира
+│       ├── __init__.py
+│       ├── emit.py          # Эмиссия данных в хранилища
+│       ├── errors.py        # Специфичные ошибки хранения
+│       ├── ids.py           # Управление идентификаторами
+│       ├── persist.py       # Персистентность данных
+│       ├── provenance.py    # Provenance для сегментов мира
+│       ├── segments.py      # Управление сегментами
+│       └── validate.py      # Валидация данных мира
 ├── ingestion.py             # Главный ETL pipeline с Fact Log и evidence
 ├── schema.py                # Pydantic модели данных (AgentRow, InteractionRow, MacroRow)
 ├── manifest.py              # Метаданные и качество данных (DatasetManifest, QualityMetrics)
@@ -158,6 +221,10 @@ fabric/
 │   ├── __init__.py          # Экспорт адаптеров хранения
 │   ├── db.py                # DuckDB адаптер (SimulationDB)
 │   └── graph_store.py       # Kùzu графовый адаптер (GraphStore)
+├── world_query.py           # Запросы к модели мира
+├── demo_csv_ingestion.py    # Демо скрипт для ingestion CSV данных
+├── connectors_ingestion.py  # Интеграция с коннекторами
+├── fact_writer.py           # Запись фактов в каноническом формате
 └── udf/                     # Unified Data Fabric - безопасный слой запросов
     ├── __init__.py          # Экспорт UDF компонентов
     ├── engine.py            # UDF движок с CAS интеграцией (UDFEngine)
@@ -282,7 +349,97 @@ class MetricSearcher:
 - Disambiguation UI для ambiguous queries
 - Integration с UDF для type-safe queries
 
-### 3. Provenance System (`provenance/`)
+### 3. Claims Processing System (`claims/`)
+
+Комплексная система для извлечения, нормализации и разрешения конфликтов claims из документов:
+
+#### Архитектура Claims Processing
+- **Backend Registry**: Плагинируемая система экстракторов (explicit lines, regex patterns, lexical normalization)
+- **Canonicalization**: Приведение claims к каноническому формату с нормализацией
+- **Conflict Detection**: Обнаружение противоречий между claims с confidence scoring
+- **Conflict Resolution**: Политики разрешения конфликтов (majority vote, source priority, temporal precedence)
+- **Citation Management**: Связывание claims с источниками и контекстом
+
+#### Ключевые возможности
+- **Multi-format Support**: Поддержка различных форматов claims (explicit, implicit, probabilistic)
+- **Confidence Scoring**: Оценка уверенности для каждого claim
+- **Conflict Resolution Policies**: Настраиваемые стратегии разрешения противоречий
+- **Citation Tracking**: Полная traceability к исходным документам
+- **Incremental Processing**: Постепенная обработка больших коллекций документов
+
+#### Integration с другими компонентами
+```python
+from polisyos.fabric.claims import ClaimsProcessor, ConflictResolver
+
+# Обработка документа и извлечение claims
+processor = ClaimsProcessor()
+claims = processor.extract_from_document(document)
+
+# Разрешение конфликтов
+resolver = ConflictResolver()
+resolved_claims = resolver.resolve(claims, policy="majority_vote")
+```
+
+### 4. Document Processing System (`docs/`)
+
+Система обработки документов различных форматов для извлечения структурированной информации:
+
+#### Поддерживаемые форматы
+- **PDF Documents**: Текстовое извлечение с layout preservation
+- **HTML Documents**: Парсинг структуры и контента
+- **Plain Text**: Обработка неструктурированного текста
+
+#### Pipeline обработки
+1. **Ingestion**: Загрузка документов с метаданными
+2. **Normalization**: Приведение к единому формату и кодировке
+3. **Chunking**: Разбиение на семантически связанные фрагменты
+4. **Structure Analysis**: Извлечение структуры документа (заголовки, разделы, таблицы)
+5. **Content Extraction**: Извлечение ключевой информации и entities
+
+#### Ключевые возможности
+- **Adaptive Chunking**: Интеллектуальное разбиение документов на chunks
+- **Metadata Preservation**: Сохранение структуры и форматирования
+- **Format Detection**: Автоматическое определение типа документа
+- **Quality Assessment**: Оценка качества извлеченного контента
+- **Incremental Processing**: Поддержка больших документов через streaming
+
+### 5. World Model System (`world/`)
+
+Система материализации и управления моделью мира из Fact Log с поддержкой множественных представлений:
+
+#### Архитектура World Model
+- **DDL Management**: Автоматическая инициализация схем хранилищ (DuckDB, Kùzu)
+- **Materialization Engine**: Инкрементальная материализация реляционных представлений
+- **Projections**: Множественные проекции данных для разных use cases
+- **Staging Area**: Промежуточное хранение для сложных трансформаций
+
+#### Компоненты материализации
+- **DuckDB Materializer**: Реляционная материализация для аналитических запросов
+- **Kùzu Materializer**: Графовая материализация для сетевого анализа
+- **Projection Rules**: Правила трансформации фактов в реляционные таблицы
+- **Validation**: Проверка целостности материализованных данных
+
+#### Ключевые возможности
+- **Incremental Updates**: Материализация только новых фактов
+- **Multi-view Support**: Различные представления данных для разных потребителей
+- **Schema Evolution**: Автоматическая адаптация к изменениям в Fact Log
+- **Performance Optimization**: Оптимизированные индексы и структуры хранения
+- **Data Validation**: Проверка консистентности материализованных данных
+
+#### Integration с Fact Log
+```python
+from polisyos.fabric.world.materialize import WorldMaterializer
+
+# Материализация модели мира из Fact Log
+materializer = WorldMaterializer()
+materializer.materialize_from_fact_log(
+    fact_dir=Path("data/facts"),
+    target_store="duckdb",
+    incremental=True
+)
+```
+
+### 6. Provenance System (`provenance/`)
 
 **W3C PROV-O compliant система отслеживания происхождения данных** для полного audit trail от сырых данных до результатов симуляций.
 
@@ -311,7 +468,7 @@ graph.add_derivation("query_result", "dataset_001")  # PROV-O wasDerivedFrom
 - **Multi-format Export**: JSON-LD и N-Quads для разных потребителей
 - **Integration с FabricResult**: Каждый результат запроса включает provenance
 
-### 4. Data Ingestion Pipeline (`ingestion.py`)
+### 7. Data Ingestion Pipeline (`ingestion.py`)
 
 Комплексный ETL-конвейер, обеспечивающий загрузку, валидацию и обработку данных с полным evidence tracking:
 
@@ -329,7 +486,7 @@ graph.add_derivation("query_result", "dataset_001")  # PROV-O wasDerivedFrom
 5. **Evidence**: Создание криптографически verifiable доказательств происхождения
 6. **Манифесты**: Генерация метаданных качества и reconciliation отчетов
 
-### 5. Схемы данных (`schema.py`)
+### 8. Схемы данных (`schema.py`)
 
 Pydantic v2 модели для строгой типизации и валидации:
 
@@ -361,7 +518,7 @@ class MacroRow(BaseModel):
     government_balance: float  # Баланс правительства
 ```
 
-### 6. Data Quality & Manifests (`manifest.py`, `registry.py`)
+### 9. Data Quality & Manifests (`manifest.py`, `registry.py`)
 
 #### Dataset Manifest
 Метаданные для каждого загруженного датасета:
@@ -392,7 +549,7 @@ class DatasetManifest(BaseModel):
 - Проверка reconciliation status
 - Требование обязательных датасетов
 
-### 7. Entity Resolution (`ingestion.py`, `config.py`)
+### 10. Entity Resolution (`ingestion.py`, `config.py`)
 
 Нормализация идентификаторов агентов для обеспечения консистентности:
 
@@ -410,7 +567,7 @@ NORMALIZATION_RULES = [
 2. **Confidence Scoring**: Оценка уверенности в matching
 3. **Mapping Table**: Сохранение соответствий для аудита
 
-### 8. Reconciliation (`ingestion.py`, `config.py`)
+### 11. Reconciliation (`ingestion.py`, `config.py`)
 
 Проверка баланса финансовых транзакций:
 
@@ -429,7 +586,7 @@ RECONCILIATION_RULES = {
 - Генерация отчета с per-type breakdown
 - В warn-only режиме (`reconciliation_strict=False`) несоответствия логируются и не блокируют ingestion
 
-### 9. Storage Adapters (`io/`)
+### 12. Storage Adapters (`io/`)
 
 #### DuckDB Adapter (`db.py`)
 ```python
@@ -457,7 +614,7 @@ class GraphStore:
 - **Узлы (Nodes)**: Agent(id, type)
 - **Ребра (Relationships)**: Interaction(step, amount, type)
 
-### 10. Unified Data Fabric (`udf/`)
+### 13. Unified Data Fabric (`udf/`)
 
 Безопасный слой запросов к разнородным данным с компиляторным пайплайном:
 
@@ -533,7 +690,7 @@ UDF конфигурация загружается из `data/curated/udf_schem
 }
 ```
 
-### 8. Data Quality Assessment System (`quality.py`, `fitness_report.py`)
+### 14. Data Quality Assessment System (`quality.py`, `fitness_report.py`)
 
 Комплексная система оценки качества данных для обеспечения пригодности данных к симуляциям экономической политики.
 
@@ -670,7 +827,7 @@ class MetricFitness:
 - `compute_quality_from_duckdb()`: Вычисление напрямую из DuckDB (для больших датасетов)
 - `get_cached_quality_indicators()`: Получение предвычисленных индикаторов из catalog
 
-### 9. Quality Gate Validation (`scientist/governance/passes/quality_gate_pass.py`)
+### 15. Quality Gate Validation (`scientist/governance/passes/quality_gate_pass.py`)
 
 Интеграция системы качества данных с governance framework для блокировки низкокачественных данных перед симуляцией.
 
@@ -736,7 +893,7 @@ class ValidationProfile:
 
 **DataFitnessReport** прикрепляется к PassContext state для использования в DecisionPacket.
 
-### 11. Fact Log System (Фактовая система)
+### 16. Fact Log System (Фактовая система)
 
 Immutable система хранения фактов для полного audit trail и воспроизводимости:
 
@@ -826,7 +983,7 @@ def materialize_duckdb_from_fact_log(fact_dir: Path, db: SimulationDB) -> None:
 - **Distributed Storage**: Поддержка распределенного хранения фактов
 - **Data Lineage**: Полная traceability от сырых данных до результатов
 
-### 12. Evidence System (`evidence.py`)
+### 17. Evidence System (`evidence.py`)
 
 Криптографически verifiable система доказательств происхождения данных:
 
@@ -861,7 +1018,7 @@ def persist_evidence_bundle(
 
 **Интеграция с CAS:** Evidence bundles хранятся в Content Addressable Storage для immutable persistence.
 
-### 13. Trust System (`trust.py`)
+### 18. Trust System (`trust.py`)
 
 Система политик доверия для источников данных и верификации качества:
 
@@ -893,7 +1050,7 @@ def persist_uncertainty_bounds(
 
 **Интеграция:** Используется в Fact Writer и Evidence Bundles для маркировки уровня доверия к данным. Поддерживает статистическую верификацию и сохранение результатов сравнения в Content Addressable Storage.
 
-### 14. Provenance System (`provenance/`)
+### 19. Provenance System (`provenance/`)
 
 Стандартизированная система отслеживания происхождения данных на основе W3C PROV-O спецификации:
 
@@ -1767,6 +1924,9 @@ runtime → common (инфраструктура)
 ```
 
 **Новые компоненты и связи:**
+- **Claims Processing System**: Извлечение и разрешение конфликтов claims из документов с confidence scoring
+- **Document Processing System**: Многоформатная обработка документов (PDF, HTML, plain text) с intelligent chunking
+- **World Model System**: Материализация модели мира из Fact Log с поддержкой множественных представлений
 - **Data Connectors System (Phase 2.1)**: Protocol-based подключение к внешним источникам с capability validation
 - **Data Quality Assessment System**: Многоуровневая оценка пригодности данных (QualityIndicators, QualityLevel, QualityThresholds, DataFitnessReport)
 - **Quality Gate Validation**: Интеграция с governance system для блокировки низкокачественных данных (QualityGatePass)
@@ -2153,6 +2313,9 @@ python tools/diagnostics/generate_ir_schema.py
 - **Reproducibility**: Восстановление любого состояния через Fact Log
 
 **Новые возможности:**
+- **Claims Processing System**: Извлечение, нормализация и разрешение конфликтов claims из документов
+- **Document Processing System**: Многоформатная обработка документов с intelligent chunking и structure analysis
+- **World Model System**: Материализация и управление моделью мира с поддержкой множественных представлений
 - **Data Quality Assessment System**: Комплексная оценка пригодности данных с QualityIndicators, QualityLevel и configurable thresholds
 - **Quality Gate Validation**: Интеграция с governance system для блокировки низкокачественных данных перед симуляцией
 - **Data Fitness Reports**: Человекочитаемые отчеты о качестве данных с детальными объяснениями проблем

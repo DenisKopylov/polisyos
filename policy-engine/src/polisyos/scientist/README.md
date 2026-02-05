@@ -2,20 +2,20 @@
 
 **Иерархическая система агентов для проектирования экономических политик**
 
-Scientist - это "мозг" Policy Engine, реализующий иерархическую систему AI агентов для автоматического проектирования, валидации и оптимизации экономических политик. Модуль реализует полный цикл от естественного языка пользователя до оптимизированного пакета решений через координацию специализированных агентов.
+Scientist - это "мозг" Policy Engine, реализующий иерархическую систему AI агентов для автоматического проектирования, валидации и оптимизации экономических политик. Модуль обеспечивает полный цикл от естественного языка пользователя до оптимизированного пакета решений.
 
 ## Обзор модуля
 
 Модуль `scientist` реализует иерархическую систему AI агентов для управления полным жизненным циклом экспериментов с экономическими политиками. Он интегрирует:
 
-- **Иерархическую систему агентов** (PI → Drafter → Formalizer → Critic) для генерации и валидации политик
-- **Конечный автомат состояний (FSM)** для управления фазами эксперимента
-- **Дифференцируемые симуляции** через Foundry executor
-- **Governance и safety controls** для контроля качества и безопасности
+- **Иерархическая система агентов** (PI → Drafter → Formalizer → Critic) для генерации и валидации политик
+- **FSM управление** фазами эксперимента через kernel layer
+- **Дифференцируемые симуляции** через compute layer и Foundry executor
+- **Governance & safety** для контроля качества и compliance
 - **Design of Experiments (DoE)** для систематического исследования сценариев
 - **Search framework** для итеративной оптимизации политик
 - **Workflow engines** для декларативного управления процессами
-- **Content-addressable storage (CAS)** для reproducible артефактов
+- **CAS artifacts** для reproducible результатов
 
 ## Архитектура
 
@@ -36,132 +36,111 @@ Scientist построен как многоуровневая система о
 
 ```
 scientist/
-├── agent/              # Иерархическая система агентов + Self-Healing (Reflexion)
-│   ├── protocols.py    # Протоколы агентов и типы данных (AgentRole, ProblemFrame, SubTask, CritiqueReport)
-│   ├── pi.py           # Principal Investigator (PI) Agent - декомпозиция задач
-│   ├── drafter.py      # Drafter Agent - генерация черновиков политик
-│   ├── formalizer.py   # Formalizer Agent - формализация в PolicySurfaceIR
-│   ├── critic.py       # Critic Agent - валидация и критика политик
-│   ├── failure_card.py # Структурированные артефакты для self-healing
-│   ├── memory.py       # Кратковременная память для Reflexion
-│   ├── reflexion.py    # Оркестратор self-healing workflow
-│   ├── prompts.py      # Системные промпты для LLM
-│   ├── prompt.py       # Альтернативные промпты (legacy)
-│   └── base.py         # Legacy поддержка (BaseAgent, MockAgent)
-├── kernel/             # FSM, бюджеты, guards, human gates
-│   ├── budgets.py      # Модели бюджетов (Compute, Evidence, Legitimacy, Complexity)
-│   ├── fsm.py          # Конечный автомат состояний (Phase, KernelState, ALLOWED_TRANSITIONS)
-│   ├── guards.py       # Проверки переходов между состояниями
-│   └── human_gate.py   # Асинхронные human gates для одобрения
-├── compute/            # Спецификации задач и execution backends
-│   ├── job_spec.py     # Спецификации задач (JobSpec, JobKey, JobResult)
-│   └── runner.py       # Execution backends (LocalBackend, RayBackend)
-├── doe/               # Design of Experiments
-│   └── designs.py     # Модели дизайнов экспериментов (ScenarioSweep, AblationPlan, SensitivityPlan)
-├── governance/        # Preflight/postflight проверки + passes pipeline
-│   ├── preflight.py   # Preflight validation pipeline
-│   ├── postflight.py  # Postflight validation pipeline
-│   ├── pipeline.py    # Orchestrator for validation passes с short-circuit логикой
-│   ├── profiles.py    # Validation profiles (fast/mvp/strict)
-│   ├── telemetry.py   # ValidationTrace/PassSpan для мониторинга производительности
-│   ├── legal/         # Legal compliance validation backends
-│   │   ├── ast_policy.py     # AST-based policy structures для legal validation
-│   │   ├── backends/         # Pluggable rule evaluation backends
-│   │   │   ├── base.py       # RuleBackend protocol contract
-│   │   │   ├── stub.py       # Stub implementation для тестирования
-│   │   │   └── expr_ast.py   # AST-based backend для safe expression evaluation
-│   │   └── README.md         # Документация по legal validation
-│   └── passes/        # Модульные проверки
-│       ├── base.py           # ValidatorPass, PassContext, ComplianceIssue базовые классы
-│       ├── budget_pass.py    # Контроль бюджетов (compute, evidence, legitimacy, complexity)
-│       ├── privacy_pass.py   # Контроль приватности (PII tiers, access control)
-│       ├── safety_pass.py    # Проверка безопасности механизмов и селекторов
-│       ├── schema_pass.py    # Валидация структуры IR и PolicySurfaceIR compliance
-│       ├── legal_pass.py     # Legal compliance validation против норм
-│       └── quality_gate_pass.py # Data quality validation перед симуляцией
-├── orchestrator/      # Workflow orchestration и state management
-│   ├── workflow.py            # Основной LangGraph workflow с self-healing
-│   ├── state.py               # ExperimentState и типы данных (90+ полей)
-│   ├── flow_nodes.py          # Реализации узлов workflow (3200+ строк)
-│   ├── decision_packet.py     # Итоговый артефакт эксперимента с evidence
-│   ├── decision_card.py       # Human-readable summaries результатов
-│   ├── run_record.py          # Метаданные для воспроизводимости
-│   ├── run_timeline.py        # Timeline artifact для observability и tracing
-│   ├── audit.py               # Система аудита и логирования
-│   ├── data_loader.py         # Загрузка данных из Fabric
-│   ├── nodes.py               # Устаревшие узлы (deprecated, заменен flow_nodes.py)
-│   ├── optimizer.py           # Оптимизация параметров (placeholder)
-│   └── registry.py            # Управление реестрами (placeholder)
-├── search/            # Фреймворк итеративной оптимизации политик
-│   ├── controller.py  # SearchController и управление поиском
-│   ├── objective.py   # Определение целей оптимизации
-│   ├── stages.py      # Стадии оценки кандидатов (cheap/expensive)
-│   └── stopping.py    # Критерии остановки поиска
-├── workflow/          # Движки рабочих процессов
-│   ├── engine_base.py # Базовые абстракции (WorkflowEngine, WorkflowEngineFactory)
-│   ├── engine_simple.py # SimpleLoopEngine для последовательных процессов
-│   └── engine_langgraph.py # LangGraphEngine для комплексных workflow
-├── llm/               # LLM tracing и monitoring
-│   └── traced_client.py # TracedLLMClient с OpenTelemetry интеграцией
-└── publisher.py       # Финализация результатов
+├── __init__.py           # Основной API: run_experiment(), ExperimentState
+├── foundry.py            # Интеграция с Foundry для симуляций
+├── publisher.py          # Финализация и публикация результатов
+├── agent/                # Иерархическая система агентов + Self-Healing
+│   ├── protocols.py      # AgentRole, ProblemFrame, SubTask, CritiqueReport
+│   ├── pi.py             # PI Agent - декомпозиция задач
+│   ├── drafter.py        # Drafter Agent - генерация политик
+│   ├── formalizer.py     # Formalizer Agent - формализация в IR
+│   ├── critic.py         # Critic Agent - валидация политик
+│   ├── failure_card.py   # Self-healing артефакты
+│   ├── memory.py         # Conversation memory
+│   ├── reflexion.py      # Reflexion orchestrator
+│   ├── prompts.py        # LLM промпты
+│   └── base.py           # Legacy поддержка
+├── kernel/               # FSM, бюджеты, guards
+│   ├── budgets.py        # Compute/Evidence/Legitimacy/Complexity budgets
+│   ├── fsm.py            # Phase transitions, KernelState
+│   ├── guards.py         # State transition checks
+│   └── human_gate.py     # Human approval gates
+├── compute/              # Job specifications и execution
+│   ├── job_spec.py       # JobSpec, JobKey, JobResult
+│   └── runner.py         # LocalBackend, RayBackend skeleton
+├── doe/                  # Design of Experiments
+│   └── designs.py        # ScenarioSweep, AblationPlan, SensitivityPlan
+├── engine/               # Workflow execution engine
+│   ├── builtins/         # Встроенные узлы workflow
+│   ├── context.py        # Execution context
+│   ├── errors.py         # Engine-specific errors
+│   ├── executor.py       # WorkflowExecutor
+│   ├── protocol.py       # Node, NodeSpec protocols
+│   ├── registry.py       # NodeRegistry, discover_nodes
+│   ├── state.py          # ExperimentState (90+ полей)
+│   ├── telemetry.py      # Engine telemetry
+│   └── workflow_spec.py  # WorkflowSpec, NodeInvocation
+├── governance/           # Validation pipeline
+│   ├── preflight.py      # Preflight checks
+│   ├── postflight.py     # Postflight checks
+│   ├── pipeline.py       # Validation passes orchestrator
+│   ├── profiles.py       # fast/mvp/strict profiles
+│   ├── telemetry.py      # Validation telemetry
+│   ├── report.py         # Compliance reports
+│   ├── legal/            # Legal compliance
+│   └── passes/           # Modular validators
+├── llm/                  # LLM infrastructure
+│   └── traced_client.py  # TracedLLMClient с OpenTelemetry
+├── nodes/                # Workflow узлы
+│   ├── builtins/         # Built-in node implementations
+│   └── __init__.py       # Node exports
+├── search/               # Optimization framework
+│   ├── controller.py     # SearchController
+│   ├── objective.py      # Optimization objectives
+│   ├── stages.py         # Cheap/expensive evaluation stages
+│   └── stopping.py       # Stopping criteria
+├── workflow/             # Workflow engines
+│   ├── engine_base.py    # WorkflowEngine abstractions
+│   ├── engine_langgraph.py # LangGraph engine
+│   └── engine_simple.py  # Simple loop engine
+└── workflows/            # Workflow definitions
+    ├── builder.py        # Workflow builders
+    └── default.py        # Default workflow configuration
 ```
 
 ### 🤖 Agent Layer (агенты/agent)
 
-Реализует иерархическую систему AI агентов с self-healing возможностями:
+Иерархическая система AI агентов (PI → Drafter → Formalizer → Critic) с self-healing через Reflexion pattern.
 
-#### 🎯 Протокольная архитектура (protocols.py)
-- **`AgentRole`**: Перечисление ролей агентов (PI, DRAFTER, FORMALIZER, CRITIC)
-- **`ProblemFrame`**: Формализованное описание проблемы (immutable артефакт)
-- **`SubTask`**: Структура для декомпозиции задач с приоритетами и зависимостями
-- **`CritiqueReport`**: Структурированные отчеты о проблемах с категориями и severity
-
-#### 🔄 Self-Healing система (Reflexion Pattern)
-- **`FailureCard`**: Структурированные артефакты для фиксации и обработки ошибок
-- **`ShortTermMemory`**: Кратковременная память для conversation tracking и hints accumulation
-- **`ReflexionOrchestrator`**: Intelligent routing и backoff для self-healing workflows
-
-#### 🧠 Агенты по ролям
-- **`pi.py`**: Principal Investigator - декомпозиция высокоуровневых задач на подзадачи для других агентов
-- **`drafter.py`**: Drafter Agent - генерация черновиков политик из естественного языка
-- **`formalizer.py`**: Formalizer Agent - преобразование черновиков в структурированный PolicySurfaceIR
-- **`critic.py`**: Critic Agent - валидация и критика сгенерированных политик
-
-#### 🔧 Mock реализации для тестирования
-- **`MockPIAgent`**: Детерминированная декомпозиция задач
-- **`MockDrafterAgent`**: Генерация предопределенных черновиков политик
-- **`MockFormalizerAgent`**: Создание валидного IR из черновиков
-- **`MockCriticAgent`**: Предсказуемые отчеты о валидации
-
-#### 🔄 Legacy поддержка (base.py)
-- **`BaseAgent`**: Абстрактный класс для обратной совместимости
-- **`MockAgent`**: Простой эвристический агент для базовых сценариев
+**Ключевые компоненты:**
+- **`protocols.py`**: AgentRole, ProblemFrame, SubTask, CritiqueReport
+- **`pi.py`**: Principal Investigator - декомпозиция задач
+- **`drafter.py`**: Drafter Agent - генерация политик из NL
+- **`formalizer.py`**: Formalizer Agent - преобразование в PolicySurfaceIR
+- **`critic.py`**: Critic Agent - валидация и критика
+- **`failure_card.py`**: Self-healing артефакты
+- **`memory.py`**: Conversation tracking
+- **`reflexion.py`**: Intelligent error recovery
+- **`prompts.py`**: LLM промпты и системные инструкции
 
 ### 🎯 Kernel Layer (ядро/kernel)
 
-Обеспечивает контроль выполнения, безопасность и управление жизненным циклом экспериментов:
+FSM управление жизненным циклом экспериментов с бюджетами и safety controls.
 
-- **`budgets.py`**: Строгие модели бюджетов (`ComputeBudget`, `EvidenceBudget`, `LegitimacyBudget`, `ComplexityBudget`) с валидацией Pydantic. ComputeBudget контролирует LLM вызовы, симуляции и время выполнения
-- **`fsm.py`**: Конечный автомат состояний с 9 фазами (`Phase` enum) и строгими правилами переходов (`ALLOWED_TRANSITIONS`). Поддерживает self-healing циклы для исправления ошибок
-- **`guards.py`**: Система проверок переходов между состояниями и валидации артефактов для предотвращения некорректных состояний
-- **`human_gate.py`**: Асинхронная система человеческих ворот для одобрения критических решений (`GateRequest`, `GateDecision`)
+**Ключевые компоненты:**
+- **`budgets.py`**: Compute/Evidence/Legitimacy/Complexity бюджеты
+- **`fsm.py`**: 9 фаз эксперимента с transition guards
+- **`guards.py`**: State transition validation
+- **`human_gate.py`**: Human approval gates (GateRequest/GateDecision)
 
 ### 🔬 Compute Layer (вычисления/compute)
 
-Определяет интерфейсы и спецификации для запуска симуляций и распределенных вычислений:
+Спецификации задач и execution backends для reproducible симуляций.
 
-- **`job_spec.py`**: Детальные спецификации задач симуляции (`JobSpec`, `JobKey`, `JobResult`) с поддержкой артефактов, seed и метрик. JobKey генерируется как SHA256 хеш от спецификации для reproducible execution
-- **`runner.py`**: Интерфейс для запуска вычислительных задач с поддержкой разных бэкендов (`LocalBackend`, `RayBackend`). Интегрирован с Foundry executor для выполнения JAX программ с patch-based execution
+**Ключевые компоненты:**
+- **`job_spec.py`**: JobSpec/JobKey/JobResult для структурированных задач
+- **`runner.py`**: LocalBackend, RayBackend (skeleton) для выполнения
 
 ### 📊 Design of Experiments (DoE/doe)
 
-Планирование экспериментов и систематическое исследование сценариев политики:
+Систематическое исследование сценариев политики.
 
-- **`designs.py`**: Модели дизайнов экспериментов (`ScenarioSweep`, `AblationPlan`, `SensitivityPlan`) для сравнения политик и анализа чувствительности. Готовы для интеграции в workflow
+**Ключевые компоненты:**
+- **`designs.py`**: ScenarioSweep, AblationPlan, SensitivityPlan
 
 ### 🛡️ Governance Layer (управление/governance)
 
-Многоуровневый контроль качества, безопасности и соответствия требованиям с модульной системой проверок:
+Validation pipeline с preflight/postflight checks и modular passes.
 
 #### Core Components
 - **`preflight.py`**: Предварительные проверки безопасности и валидации перед запуском экспериментов (возвращает `GateRequest` при необходимости)
@@ -181,82 +160,62 @@ scientist/
 - **`quality_gate_pass.py`**: Валидация качества данных перед симуляцией (интеграция с Fabric quality indicators)
 - **`base.py`**: Базовые классы `ValidatorPass`, `PassContext`, `ComplianceIssue` для создания кастомных проверок
 
-#### Legal Compliance Layer (`legal/`)
-Система проверки соответствия политик юридическим нормам с поддержкой pluggable backends:
+**Legal compliance:**
+- **`legal/`**: AST-based backends для safe expression evaluation
+- **`passes/`**: Modular validators (budget, safety, privacy, schema, legal, quality)
 
-- **`backends/base.py`**: `RuleBackend` протокол для реализации различных движков проверки норм
-- **`backends/stub.py`**: Stub реализация для тестирования, возвращает "not implemented" для всех норм
-- **`backends/expr_ast.py`**: Продвинутый AST-based backend для безопасной оценки expression-based норм
-- **`ast_policy.py`**: Новые структуры политик для legal validation (в разработке)
-- **`README.md`**: Детальная документация по архитектуре legal validation и backends
+### 🎼 Engine Layer (движок/engine)
 
-**Нормативные структуры (IR Layer)**:
-- **`ir/norm_pack.py`**: `NormPack`, `NormRule`, `NormRef` модели для представления юридических норм
-- **`core/contracts/legal.py`**: Стабильные контракты для legal validation subsystem
+Workflow execution engine с pluggable nodes и state management.
 
-**Поддержка типов норм**:
-- **Obligation**: Обязательства (должно выполняться)
-- **Prohibition**: Запреты (нельзя нарушать)
-- **Permission**: Разрешения (можно делать при определенных условиях)
+**Ключевые компоненты:**
+- **`protocol.py`**: Node, NodeSpec, NodeOutcome protocols
+- **`registry.py`**: NodeRegistry, discover_nodes
+- **`executor.py`**: WorkflowExecutor
+- **`state.py`**: ExperimentState (90+ полей)
+- **`builtins/`**: Built-in workflow nodes
 
-**Pluggable Backends**:
-- **StubBackend**: Для тестирования и development
-- **ExprASTBackend**: Для безопасной оценки выражений через AST
-- **LLM Backend**: Планируемая интеграция с Claude/GPT для комплексных норм
-
-### 🎼 Orchestrator Layer (оркестрация/orchestrator)
+### 🔍 Search Layer (поиск/search)
 
 Управляет полным жизненным циклом экспериментов с использованием LangGraph для декларативного workflow:
 
 - **`workflow.py`**: Основной граф состояний LangGraph с 9 узлами и системой маршрутизации на основе состояния и фидбэка. Включает conditional edges для self-healing циклов
 - **`state.py`**: `ExperimentState` (TypedDict с 90+ полями) - центральная структура данных эксперимента с полями для всех этапов workflow
 - **`flow_nodes.py`**: Полные реализации всех узлов workflow (1450+ строк кода) с интеграцией Foundry, Fabric, Core и всех компонентов системы
-- **`decision_packet.py`**: Итоговый артефакт прогона (`DecisionPacket`) с полной информацией о эксперименте, включая fabric_result, evidence_ref и uncertainty quantification
-- **`decision_card.py`**: Детерминированные human-readable summaries результатов (`DecisionCard`) с метриками, compliance статусом и artifact references для презентации результатов экспериментов
-- **`run_record.py`**: Детальные записи для воспроизводимости (`RunRecord` с метаданными окружения, seed, версиями библиотек)
-- **`run_timeline.py`**: Timeline artifact для observability и tracing (`RunTimeline`) с event-based tracking всех операций, phase transitions и performance metrics
-- **`audit.py`**: Комплексная система аудита и логирования всех операций с append_audit функцией
-- **`data_loader.py`**: Загрузка и подготовка начальных данных из Fabric layer через SimulationDB и GraphStore
-- **`nodes.py`**: Устаревшие узлы workflow (deprecated, заменен flow_nodes.py)
-- **`optimizer.py`**: Градиентная оптимизация параметров политик с использованием Optax (placeholder)
-- **`registry.py`**: Управление реестрами компонентов и артефактов (placeholder)
-
 ### 🔍 Search Layer (поиск/search)
 
-Фреймворк для итеративной оптимизации политик с двухстадийной оценкой и интеллектуальными критериями остановки:
+Фреймворк итеративной оптимизации с двухстадийной оценкой.
 
-- **`controller.py`**: `SearchController` - основной контроллер поиска с управлением итерациями, статусами и историей оптимизации. Поддерживает `SearchIteration`, `SearchResult` и различные стратегии поиска
-- **`objective.py`**: Система определения целей оптимизации с `CompositeObjective`, `ObjectiveValue` и предустановленными целями (`GDPGrowthObjective`, `InequalityObjective`, `EmploymentObjective`, `BudgetDeficitObjective`). Поддерживает минимизацию и максимизацию с весами и порогами
-- **`stages.py`**: Двухстадийная система оценки кандидатов политик (`CheapStage`/`ExpensiveStage`) с `CorrelationTracker` для отслеживания качества предсказаний. `SearchStage` абстракция позволяет создавать кастомные стадии оценки
-- **`stopping.py`**: Интеллектуальные критерии остановки поиска с `CompositeStoppingCriterion`, `ImprovementPlateau`, `MaxIterations`, `MaxWallTime` и `TargetAchieved`. Поддерживает комбинацию критериев для гибкого управления поиском
+**Ключевые компоненты:**
+- **`controller.py`**: SearchController с iteration management
+- **`objective.py`**: Composite objectives (GDP, inequality, employment, budget)
+- **`stages.py`**: Cheap/expensive evaluation stages
+- **`stopping.py`**: Intelligent stopping criteria
 
 ### ⚙️ Workflow Layer (рабочие процессы/workflow)
 
-Абстракции и реализации движков рабочих процессов для декларативного управления экспериментами:
+Workflow engines для декларативного управления.
 
-- **`engine_base.py`**: Базовые абстракции `WorkflowEngine` и `WorkflowEngineFactory` для создания унифицированного интерфейса движков
-- **`engine_simple.py`**: `SimpleLoopEngine` - простой движок на базе циклов для базовых сценариев workflow
-- **`engine_langgraph.py`**: `LangGraphEngine` - продвинутый декларативный движок на базе LangGraph для комплексных workflow с conditional routing, state management и observability
+**Ключевые компоненты:**
+- **`engine_base.py`**: WorkflowEngine abstractions
+- **`engine_langgraph.py`**: LangGraph engine для complex workflows
+- **`engine_simple.py`**: Simple loop engine для basic scenarios
 
 ### 🤖 LLM Layer (трассировка LLM/llm)
 
-Инфраструктура для мониторинга, трассировки и отладки взаимодействий с LLM:
+Tracing и monitoring инфраструктура для LLM взаимодействий.
 
-- **`traced_client.py`**: `TracedLLMClient` - wrapper для LLM клиентов с автоматической трассировкой через OpenTelemetry. Предоставляет унифицированный интерфейс для разных провайдеров (OpenAI, Anthropic, etc.) с встроенной observability
+**Ключевые компоненты:**
+- **`traced_client.py`**: TracedLLMClient с OpenTelemetry integration
 
-### 📚 Legacy Layer (Устаревший код)
+### 📤 Publisher Layer (публикация)
 
-Содержит устаревшие реализации для обратной совместимости:
+Финализация и экспорт результатов экспериментов.
 
-- **_legacy/**: Папка с устаревшим кодом
-  - **compiler.py**: Legacy компилятор для старого `PolicyRequestIR` (deprecated, использовать Surface IR)
-  - **nodes.py**: Устаревшие узлы workflow (deprecated, использовать flow_nodes.py)
+**Ключевые компоненты:**
+- **`publisher.py`**: Build decision packet и финализация
+- **Workflows builder**: `workflows/builder.py`, `workflows/default.py`
 
-### 📤 Publisher Layer (Публикация)
-
-Финализация, публикация и экспорт результатов экспериментов:
-
-- **publisher.py**: Публикация решений и артефактов экспериментов с формированием финального `DecisionPacket` через build_decision_packet
 
 ## Workflow Pipeline
 
@@ -1291,54 +1250,14 @@ print(f"Audit trail: {len(decision_packet.audit_trail)} events")
 
 ## Связанные модули
 
-Scientist является верхним уровнем в архитектуре Policy Engine и зависит от всех нижних модулей. Следуя Закону A (направленный граф зависимостей), Scientist импортирует компоненты из:
+Scientist зависит от всех нижних модулей архитектуры Policy Engine:
 
-### 🔗 Core (Инфраструктурный фундамент)
-- **Artifacts**: `FileSystemCAS`, `ArtifactRef`, `PutOptions` - управление артефактами в CAS
-- **Compiler**: `CompileReport`, `put_compile_report`, `put_link_report` - логирование компиляции
-- **Registry**: `build_default_registry_bundle`, `load_registry_bundle_content` - сборка реестров компонентов
-- **Run Context**: `RunContext` - контекст выполнения экспериментов
-- **Canon**: `from_canonical_bytes` - детерминированная сериализация для reproducible хешей
-- **Contracts**: `ExecPlan`, `ExecPlanRef`, `ProgramGraph`, `ProgramGraphRef` - типизированные ссылки на артефакты Foundry
-- **Legal Contracts**: `NormPack`, `NormRule`, `NormRef`, `RuleType`, `RuleBackend` - стабильные контракты для legal validation
-
-### 🔗 IR (Intermediate Representation)
-- **Surface IR**: `PolicySurfaceIR` - основной контракт политик (v2.0) с семантикой и advisory
-- **Kernel Models**: `DEFAULT_MECHANISM_REGISTRY`, `MergeRuleKind`, `CountValue`, `DurationValue`, `MoneyValue`, `RateValue` - реестры фундаментальных типов
-- **Validation**: `ValidationIssue`, `build_validation_report`, `diff_payloads` - структурированные отчеты о проблемах
-- **Linker**: `link_policy` - валидация и связывание политик с реестрами
-- **Calibration**: `CalibrationConfig` - контракты калибровки политик
-- **Data Views**: `DataViewRequest`, `DataViewType`, `AccessTier` - запросы данных с PII control
-- **Legal Norms**: `NormPack`, `NormRule`, `NormRef`, `RuleType` - структуры для представления юридических норм
-
-### 🔗 Fabric (Unified Data Fabric)
-- **IO Layer**: `SimulationDB`, `GraphStore` - доступ к реляционным и графовым данным
-- **UDF Engine**: `UDFEngine` - безопасный компилируемый слой запросов с whitelist и PII gates
-- **Calibration**: `Calibrator`, `CalibratorInputs`, `extract_fabric_series`, `put_calibration_config`, `put_calibration_report` - полная система калибровки с uncertainty quantification
-- **Trust System**: Политики доверия с statistical verification и uncertainty bounds
-- **Evidence Bundles**: Криптографически verifiable доказательства происхождения данных
-- **Quality Assessment**: `QualityIndicators`, `QualityLevel`, `QualityThresholds`, `compute_quality_indicators` - объективная оценка качества данных с coverage, missingness, staleness метриками
-- **Data Fitness Reports**: `DataFitnessReport`, `MetricFitness` - human-readable отчеты о пригодности данных для симуляции с failure reasons и profile-based thresholds
-
-### 🔗 Foundry (JAX Simulation Engine)
-- **Compiler**: `compile_surface_policy`, `put_policy_surface` - компиляция IR в ProgramGraph + ExecPlan
-- **Executor**: `execute_program_graph`, `load_state_snapshot`, `put_state_snapshot` - patch-based execution
-- **Registry**: `create_mechanism_from_spec` - фабрика механизмов политик
-- **Domain**: `GlobalState`, `AgentState`, `FirmState`, `MarketState` - экономическая модель
-- **Fiscal**: `compute_tax` - налоговые расчеты
-- **Agent Metrics**: `normalize_action`, `policy_entropy`, `saturation_rate` - метрики поведения агентов
-- **Agents**: `build_observations`, `continuous_actions_from_logits` - система адаптивных агентов
-- **Loss Functions**: `policy_loss_fn` - функции потерь для оптимизации
-- **Utils**: `gradient_health_report` - диагностика градиентов
-
-### 🔗 Runtime (Lifecycle Management)
-- **API**: `start_run`, `finalize_run`, `log_artifact`, `update_budget_usage`, `append_audit` - управление жизненным циклом экспериментов
-- **Manifest**: `ArtifactRef.relative_path` - переносимые ссылки на артефакты
-- **Audit Trail**: JSON Lines логирование всех операций с временными метками
-
-### 🔗 Common (Infrastructure Utils)
-- **Logger**: `logger` - структурированное логирование с контекстом модуля через Loguru
-- **Config**: Централизованная конфигурация и JAX environment setup
+- **Core**: Artifacts, CAS, RunContext, Contracts
+- **IR**: PolicySurfaceIR, validation, linker, calibration
+- **Fabric**: Data access, UDF engine, calibration, quality assessment
+- **Foundry**: JAX compilation, execution, mechanism registry
+- **Runtime**: Lifecycle management, audit trail, manifests
+- **Common**: Logging, configuration, observability
 
 ### 🔗 LLM Layer (Tracing Infrastructure)
 - **TracedLLMClient**: Унифицированный интерфейс для LLM взаимодействий с OpenTelemetry tracing

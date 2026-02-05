@@ -6,32 +6,12 @@
 
 ```
 demos/
-├── run_export_demo.py      # Экспорт симуляционных данных в разные форматы
-│   # - Экспорт в Parquet, JSON, CSV, HDF5
-│   # - Поддержка downstream анализа
-│   # - Сохранение в DuckDB и Kuzu
-├── run_ingest_demo.py      # Полный ingestion пайплайн (CSV → DuckDB + Kuzu)
-│   # - Генерация тестовых данных (agents, interactions, macro)
-│   # - Pydantic валидация и Parquet конвертация
-│   # - Загрузка в DuckDB (аналитическое хранилище)
-│   # - Загрузка в Kuzu (графовая БД взаимодействий)
-│   # - Генерация manifests для reproducible runs
-├── run_laffer_demo.py      # Демонстрация кривой Лаффера
-│   # - Классическая кривая Лаффера (налоговые доходы)
-│   # - Поиск оптимальной налоговой ставки
-│   # - Экономическая теория в действии
-├── run_optimizer_demo.py   # Многокритериальная оптимизация политик (NSGA-II)
-│   # - Настройка целевых функций (GDP, inequality, unemployment)
-│   # - PyMOO NSGA-II оптимизация
-│   # - Pareto front анализ и визуализация
-├── run_udf_hybrid_demo.py  # Гибридные запросы (SQL + Python UDF)
-│   # - Комплексные агрегации с Python функциями
-│   # - Машинное обучение в SQL запросах
-│   # - Статистические и временные ряды функции
-└── run_udf_query_demo.py   # UDF запросы к Unified Data Fabric
-    # - Регистрация Python функций в DuckDB
-    # - Гибридные SQL + Python запросы
-    # - Kuzu графовые запросы с UDF
+├── run_ingest_demo.py      # Полный ingestion пайплайн
+├── run_udf_query_demo.py   # UDF запросы к Unified Data Fabric
+├── run_optimizer_demo.py   # Оптимизация политик (NSGA-II)
+├── run_laffer_demo.py      # Кривая Лаффера
+├── run_udf_hybrid_demo.py  # Гибридные SQL + Python запросы
+└── run_export_demo.py      # Экспорт симуляционных данных
 ```
 
 ## Быстрый старт
@@ -316,4 +296,4 @@ if __name__ == "__main__":
 
 ---
 
-*Демонстрации протестированы на Python 3.11+ с полным стеком Policy Engine. Документация актуальна на 2026-02-01.*
+*Демонстрации протестированы на Python 3.11+ с полным стеком Policy Engine. Документация актуальна на 2026-02-05.*

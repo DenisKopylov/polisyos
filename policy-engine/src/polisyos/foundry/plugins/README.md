@@ -1,4 +1,4 @@
-# PolisyOS Foundry Plugins
+# PolisyOS Foundry Plugins (актуально на 2026-02-05)
 
 ## Обзор
 
@@ -11,6 +11,7 @@
 - **`composite.py`** - Композитное состояние и исполнитель для мульти-доменных симуляций
 - **`discovery.py`** - Автообнаружение плагинов
 - **`api.py`** - High-level API `PolisySimulator`
+- **`cli.py`** - Command-line interface для запуска симуляций
 
 ### 2. Domain Plugins (Доменные плагины)
 - **`economics/`** - Экономический домен с гетерогенными агентами

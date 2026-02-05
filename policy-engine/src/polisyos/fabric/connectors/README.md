@@ -71,9 +71,14 @@ federation, caching, quality assurance, and resilience.
 │  │ │   ├── harness.py  # Test harness for connectors           ││
 │  │ │   └── simulator.py # Connector simulation                 ││
 │  │ ├── transform/      # Data transformation pipeline          ││
-│  │ │   ├── aggregator.py # Data aggregation                    ││
-│  │ │   ├── harmonizer.py # Schema harmonization                ││
-│  │ │   └── pipeline.py # Transformation pipeline               ││
+│  │ │   ├── __init__.py  # Transform API                         ││
+│  │ │   ├── aggregator.py # Data aggregation                     ││
+│  │ │   ├── filter.py    # Data filtering                        ││
+│  │ │   ├── harmonizer.py # Schema harmonization                 ││
+│  │ │   ├── imputer.py   # Missing value imputation              ││
+│  │ │   ├── normalizer.py # Data normalization                   ││
+│  │ │   ├── pipeline.py  # Transformation pipeline               ││
+│  │ │   └── validator.py # Transformation validation             ││
 │  │ └── __init__.py     # Public API                            ││
 │  └─────────────────────────────────────────────────────────────┘│
 └─────────────────────────────────────────────────────────────────┘
@@ -208,15 +213,26 @@ retry = RetryStrategy(max_attempts=3, backoff=ExponentialBackoff())
 ```
 
 #### Data Transformation (`transform/`)
-Pipeline трансформаций данных (агрегация, гармонизация, нормализация):
-```python
-from polisyos.fabric.connectors.transform import TransformationPipeline
+Комплексный pipeline трансформаций данных с поддержкой всех этапов ETL:
 
+```python
+from polisyos.fabric.connectors.transform import (
+    TransformationPipeline, Aggregator, Filter, Harmonizer,
+    Imputer, Normalizer, Validator
+)
+
+# Создание полного transformation pipeline
 pipeline = TransformationPipeline([
-    Harmonizer(),
-    Imputer(strategy='mean'),
-    Normalizer()
+    Filter(column='status', operator='!=', value='invalid'),  # Фильтрация
+    Harmonizer(target_schema=standard_schema),                # Гармонизация схемы
+    Imputer(strategy='mean', columns=['price', 'volume']),    # Заполнение пропусков
+    Normalizer(method='zscore', columns=['price']),           # Нормализация
+    Aggregator(group_by=['date'], operations={'volume': 'sum'}), # Агрегация
+    Validator(rules=[not_null_rule, range_rule])              # Валидация
 ])
+
+# Применение к данным
+transformed_data = pipeline.apply(raw_data)
 ```
 
 ### Connector Registry (Phase 2.2)

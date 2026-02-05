@@ -1,345 +1,192 @@
-# Policy Engine (PolisyOS) v2.4.2
+# Policy Engine (PolisyOS) — Architecture v2.5.0
 
 Policy Engine is an **AI-driven policy operating system** for designing, validating, calibrating, and executing public-policy interventions as reproducible computational experiments.
 
-It is built around a **compiler pipeline** mindset:
-- start from a natural-language policy intent,
-- produce typed policy contracts (IR),
-- compile them into executable program graphs,
-- run simulations in a JAX-based engine,
-- enforce governance (quality, privacy, legal compliance),
-- persist everything as content-addressed artifacts with auditability.
-
-This README describes **the project laws**, **data/decision flows**, **business logic**, **dependency logic**, **technologies**, and **key abstractions**.
-For a file-by-file map of the repository, see `architecture.md`.
-
-**Latest Update:** February 1, 2026 (Enhanced Agent Simulation System, Advanced Calibration Framework, Self-Healing Workflow Architecture, Data Connectors Phase 2.2 Complete, Quality Assessment System v2.1, Fact Log System Integration, Legal Compliance AST Backend, Core Observability v2.1, Runtime Environment Fingerprinting, Trinity IR Migration System)
-**Current Architecture Version:** v2.4.2 (Enhanced Agent Simulation System, Advanced Calibration Framework, Self-Healing Workflow Architecture, Data Connectors Phase 2.2 Complete, Quality Assessment System v2.1, Fact Log System Integration, Legal Compliance AST Backend, Core Observability v2.1, Runtime Environment Fingerprinting, Trinity IR Migration System)
+**Updated:** 2026-02-05  
+**Python package version:** see `pyproject.toml` (tracked independently from the architecture version).  
+**Repository map:** `architecture.md`
 
 ---
 
-## Core promise (what the system guarantees)
+## Architecture (at a glance)
 
-- **Typed contracts at boundaries**: IR and contracts define the shape of every major artifact; runtime components validate at boundaries.
-- **Reproducibility-first execution**: runs and artifacts are content-addressed, traceable, and (where feasible) deterministic.
-- **Governance before and after execution**: preflight/postflight checks gate unsafe, invalid, low-quality, privacy-violating, or legally non-compliant policies.
-- **Separation of concerns**: data layer (Fabric) is isolated from orchestration (Scientist) and from pure execution core (Foundry).
+```
+NL intent
+  → Scientist (agents + workflow + governance)
+  → IR (Trinity contracts + kernel registries)
+  → Fabric (UDF data views + evidence/provenance/quality/trust)
+  → Foundry (compile + calibrate + simulate; pure JAX)
+  → Runtime (runs/<run_id>/ manifests + audits + artifact refs)
+  → Decision artifacts (DecisionPacket / DecisionCard / RunTimeline)
+```
+
+Cross-cutting subsystems:
+- **Lex**: legal corpus → `NormPack` → legality evaluation (used in governance passes).
+- **Scholar**: sources → docs → claims → trust → knowledge bundles (feeds Fabric/IR workflows).
+- **Packs (Phase 19)**: built-in components (IR fragments / Foundry methods / Lex evaluators / Scholar extractors).
 
 ---
 
-## Developer docs
+## Module map (current)
 
-- Data connector contribution guide: `docs/connectors/CONTRIBUTING.md`
+`A → B` means “A may depend on B” (Law A). For details, follow the per-module READMEs.
+
+| Module | Responsibility | Depends on | Docs |
+| --- | --- | --- | --- |
+| `polisyos.common` | config, logging, async tools, migrations, macOS JAX env defaults | — | `src/polisyos/common/README.md` |
+| `polisyos.core` | CAS artifacts, canonical JSON, typed contracts, components/registries, run context, observability | common | `src/polisyos/core/README.md` |
+| `polisyos.ir` | **pure contracts**: Trinity, kernel registries, `NormPack`/connectors/world types, migrations/loaders | — | `src/polisyos/ir/README.md` |
+| `polisyos.fabric` | ingestion + connectors + UDF; evidence/provenance/trust/quality; fact log + materialization; docs/claims | ir, core, common | `src/polisyos/fabric/README.md` |
+| `polisyos.foundry` | compile+execute policies in JAX; methods framework; calibration; agent simulation; determinism & NaN guards | ir, core, common | `src/polisyos/foundry/README.md` |
+| `polisyos.runtime` | run lifecycle: `RunManifest`, audit trail, budgets, portable artifact refs (`runs/`) | core, common | `src/polisyos/runtime/README.md` |
+| `polisyos.lex` | legal docs: corpus, structure/versioning, `NormPack` assembly, legality evaluation | fabric, ir, core, common | `src/polisyos/lex/README.md` |
+| `polisyos.scholar` | knowledge enrichment: discovery→acquire→docs→claims→reconcile→trust→bundle | fabric, ir, core, common | `src/polisyos/scholar/README.md` |
+| `polisyos.scientist` | orchestration “brain”: agents, workflow engines, governance passes, search/DoE, decision packaging | ir, fabric, foundry, runtime, lex, core, common | `src/polisyos/scientist/README.md` |
+| `polisyos.packs` | built-in component packs (Phase 19): IR fragments, Foundry methods, Lex evaluators, Scholar extractors | core, ir, foundry, lex, fabric, common | `src/polisyos/packs/README.md` |
+
+Also:
+- **Tests:** `tests/README.md`
+- **Developer tools:** `tools/README.md`
+
+---
+
+## Key concepts (what to learn first)
+
+- **Trinity IR** (`ProblemFrame` + `PolicySpec` + `ModelSpec`): separation of *why / what / how*; `PolicySurfaceIR` is kept for compatibility (**deprecated**).
+- **Kernel registries** (IR): mechanisms, slots, merge rules, units, metrics, constraints, selector_fields, trust, numbers, values, time semantics.
+- **UDF (Unified Data Fabric)**: safe “data views” compiled through passes (typecheck, resolution, privacy, lowering, merge) and executed on DuckDB/Kùzu.
+- **CAS artifacts** (Core): content-addressed storage (SHA-256) + deterministic canonical JSON; everything important becomes an artifact.
+- **Evidence / provenance / trust / quality** (Fabric): evidence bundles, PROV-O lineage graphs, quality indicators + fitness reports, uncertainty bounds / two-pass comparisons.
+- **Governance passes** (Scientist): schema/safety/privacy/legal/quality gates before (and after) expensive compute.
+- **Runtime runs** (`polisyos.runtime`): portable `runs/<run_id>/` directory with manifest + audit trail + artifact refs (relative paths).
 
 ---
 
 ## Project laws (invariants)
 
-These are the “laws” the codebase is designed to uphold (some enforced by tooling/tests, some by convention and review).
-
-- **Law A — Import Gate (architectural boundaries)**  
-  Critical reverse dependencies are forbidden (e.g., Foundry must not depend on Fabric; Fabric must not depend on Scientist). Cycles are surfaced by tooling.
-
-- **Law B — Foundry is a JAX core (no direct I/O)**  
-  Foundry aims to be a pure execution kernel: no DB/network/file I/O and no side-effectful debugging calls in core code. Purity is supported by custom linting.
-
-- **Law C — Contracts are the single source of truth**  
-  IR (in `polisyos.ir`) and typed inter-module contracts (in `polisyos.core.contracts`) define canonical data models. JSON Schemas are generated from these models.
-
-- **Law D — Every run is auditable and (as much as possible) reproducible**  
-  A run has an ID, controlled randomness, a trace/audit trail, and content-addressed artifacts.
-
-- **Law E — Evidence and provenance are mandatory for data**  
-  Fabric records provenance/evidence for datasets and transformations (PROV-O integration), and can materialize immutable fact logs.
-
-- **Law F — Fidelity control**  
-  The system supports trading off speed vs accuracy via fidelity settings in simulation/calibration subsystems.
-
-- **Law G — Uncertainty quantification is first-class**  
-  Trust and calibration can return uncertainty bounds, and artifacts record these results.
-
-- **Law H — Governance and budgets bound computation and risk**  
-  Scientist controls budgets, validation profiles, and escalation mechanisms (including human gates where applicable).
-
-- **Law I — Trust + privacy are enforced in data access**  
-  Access tiers and privacy checks apply to data views and UDFs; trust policies reason about uncertainty and data quality.
-
-- **Law J — Legal compliance is a pluggable evaluation layer**  
-  Normative rules are expressed as `NormPack`s; evaluation is delegated to backends (e.g., safe AST expression backend).
-
-- **Law K — Quality gate enforcement**  
-  Data must pass configured quality checks before being used in simulations or decision-making.
+- **Law A — Import Gate:** dependencies go “down” the stack; cycles are forbidden (enforced by `tools/lint_imports.py`).
+- **Law B — Foundry is pure JAX:** no DB/network/file I/O in the execution core (enforced by `tools/lint_foundry.py`).
+- **Law C — Contracts are source of truth:** IR + typed inter-module contracts define canonical data; JSON Schemas are generated from them.
+- **Law D — Reproducibility:** every run is auditable; artifacts are content-addressed; determinism is tracked (environment fingerprints/manifests).
+- **Law E — Evidence & provenance:** data products carry evidence/provenance; fact log can materialize immutable audit trails.
+- **Law K — Quality gates:** low-quality or policy-violating inputs are blocked before execution.
 
 ---
 
-## Dependency model (how layers depend)
+## Docs index
 
-The system is organized as a set of layers with intentionally **directed dependencies** (Law A):
-
-- **Scientist** → IR, Fabric, Foundry, Runtime, Core, Common
-  Orchestration sits at the top and is allowed to depend on most layers. Includes hierarchical agent system with protocols and self-healing (PI→Drafter→Formalizer→Critic with FailureCard routing and ShortTermMemory), FSM-based workflow orchestration with 9 phases and guards, governance passes pipeline with legal compliance (AST Policy backend, NormPack evaluation, safe expression evaluation), search framework with two-stage filtering and intelligent stopping criteria, workflow engines (LangGraph declarative orchestration, SimpleLoop for basic processes), LLM tracing infrastructure with TracedLLMClient and OpenTelemetry integration, decision packet system with evidence references and uncertainty bounds, decision card summaries, run timeline tracking with event-based observability, multi-agent workflow orchestration with Phase 2 instrumentation, kernel layer with budgets (Compute/Evidence/Legitimacy/Complexity) and human gates, compute layer with job specifications and distributed execution backends, and comprehensive governance with preflight/postflight checks and validation profiles.
-
-- **Fabric** → IR, Core, Common
-  Data layer depends on contracts and infrastructure, but not on orchestration. Includes unified data fabric with Phase 2.2 data connectors system (capability-based protocol, registry with lazy loading, discovery, connection pooling, federation, resilience patterns), evidence bundles with cryptographic verification, W3C PROV-O compliant provenance tracking v2.0, trust quantification with statistical verification and two-pass comparison, quality indicators system v2.1 (missingness/staleness/coverage/outlier/schema drift detection), fitness reports with configurable thresholds and quality gate validation, data contract catalog with hash-locked bindings and fuzzy search with disambiguation, ingestion pipeline with entity resolution and reconciliation, fact log system with immutable facts, deterministic IDs and semantic network, materializer engine for incremental relational updates, trust policies with statistical verification, and CAS integration with Arrow support for high-performance columnar data.
-
-- **Foundry** → IR, Core, Common
-  Execution core depends on contracts and infrastructure, but not on data storage/orchestration. Includes JAX-based simulation engine with advanced agent simulation system (32 modules: actor-critic architectures, demographics, evolution algorithms, graph mechanisms, temporal processing), compile-time conflict detection and cost modeling, NaN guard for numerical stability, agent artifacts with environment fingerprinting and determinism tier validation, merge determinism with patch-based state management, plugin system with capability-based registry, adaptive agents with learning metrics and continuous action spaces, calibrator with bijectors and loss functions (MSE/Huber/weighted), gradient health monitoring and uncertainty quantification, runtime batch execution, and comprehensive test suite covering all simulation components.
-
-- **Runtime** → IR, Core, Common
-  Run lifecycle management depends on contracts and infrastructure. Provides portable run manifests, artifact management, audit trail logging, and full observability integration with PolicyOSTracer and MetricsRegistry.
-
-- **IR** → Core, Common
-  Contracts depend on canonicalization/typing infrastructure. Includes Trinity IR architecture (ProblemFrame for problem definition, PolicySpec for interventions, ModelSpec for simulation configuration), PolicySurfaceIR compatibility layer with migration support, data connectors contracts for external data sources integration, AST policy system for safe expression evaluation with resource limits and security validation, norm pack contracts for legal compliance with deontic logic support, kernel registries (mechanisms/slots/units/merge rules/constraints/metrics/trust), fact log semantic network contracts, and legal AST backends with pluggable rule evaluation.
-
-- **Core** → Common
-  Infrastructure depends only on minimal utilities. Includes comprehensive observability system (PolicyOSTracer singleton, MetricsRegistry, @traced decorator, log-trace correlation, context propagation), content-addressable storage, canonical JSON serialization, conflict detection, cost modeling, NaN guard, Trinity contracts, legal compliance contracts, and environment manifest system with compatibility scoring.
-
-- **Common** → (none)
-  Foundational utilities should remain dependency-light. Includes OpenTelemetry-integrated logging, JAX environment configuration, migration system with Trinity format support, and path utilities.
-
-**Tools Layer** → All layers (diagnostics, linting, migration, benchmarking, demos)
-Developer tools provide cross-cutting capabilities: architectural linting (Law A/B enforcement), schema generation (Law C), performance regression detection, migration utilities, observability diagnostics, demo scripts for all system components, diagnostic tools, provenance visualization, fabric scanning, and environment capture.
-
-**Ops Layer** → Core, Tools (monitoring, alerting, visualization)
-Operational infrastructure provides production-grade monitoring and observability: Docker Compose observability stack (Prometheus + Grafana), performance metrics collection, alerting rules, executive dashboards, and CI/CD integration for performance regression detection.
-
-**Enforcement**:
-- `tools/lint_imports.py` checks for forbidden imports and cycles (Law A).
-- `tools/lint_foundry.py` checks Foundry purity (Law B).
+- Repository structure: `architecture.md`
+- Trinity semantics: `docs/contracts/TRINITY.md`
+- Merge semantics: `docs/contracts/MERGE_SEMANTICS.md`
+- Connector contribution guide: `docs/connectors/CONTRIBUTING.md`
 
 ---
 
-## End-to-end flow (business logic)
+## Quickstart (local)
 
-At a high level, Policy Engine runs an experiment as a staged pipeline:
+Prereqs: Python `>=3.11`, `uv`.
 
-1. **Intent intake** (`user_request`)
-   A natural-language request describes a policy intervention, constraints, goals, and context.
+```bash
+cd policy-engine
+uv sync --frozen --extra dev
+cp env_example.txt .env  # optional local defaults
 
-2. **Scientist orchestration (hierarchical agents + FSM workflow + search)**
-   Scientist orchestrates a multi-agent workflow with FSM-based phase management that includes:
-   - Hierarchical agent system: PI Agent decomposes tasks → Drafter generates policy drafts → Formalizer creates IR → Critic validates and critiques
-   - Self-healing reflexion: FailureCard system with ShortTermMemory and ReflexionOrchestrator for intelligent repair routing
-   - Workflow engines: LangGraph-based declarative orchestration with conditional routing and state management
-   - Search loop system: Two-stage filtering (cheap/expensive evaluation) with composite objectives and intelligent stopping criteria
-   - Phase 2 instrumentation: End-to-end tracing of flow nodes, LLM client interactions, and governance pipeline spans
+# Smoke check
+uv run python tools/diagnostics/check_setup.py
 
-3. **IR construction (Trinity + kernel registries + legal norms + data connectors)**
-   Policies are represented as typed IR with Trinity architecture for clean separation of concerns:
-   - `ProblemFrame` ("why / what success means" - constant throughout experiment)
-   - `PolicySpec` ("what intervention we change" - iterated during optimization)
-   - `ModelSpec` ("how/where the model and data are configured" - varied for sensitivity analysis)
-   - `TrinityBundle` (typed container with migration support between versions)
-   - `NormPack` ("legal compliance rules with jurisdiction context and AST evaluation")
-   - `Data Connectors` ("capability-based protocol for external data sources integration")
+# Run tests
+uv run pytest
+```
 
-4. **Validation & linking (governance passes pipeline + quality assessment)**
-   IR is validated through comprehensive governance passes including:
-   - Schema validation (Trinity contracts, PolicySurfaceIR compatibility, migration support)
-   - Safety checks (mechanism validation, constraint enforcement, compile-time conflict detection)
-   - Privacy controls (PII tiers, access control, data contract validation)
-   - Legal compliance (Phase 18 AST-based safe expression evaluation, NormPack validation)
-   - Quality gates (data readiness via quality indicators system v2.1 with configurable thresholds)
-   - Trust validation (statistical verification, evidence bundles, provenance tracking)
-   - Budget enforcement (compute, evidence, legitimacy, complexity limits with multi-tier controls)
-   Then linked against kernel registries (mechanisms, slots, merge rules, units, metrics).
-
-5. **Data views & Fabric execution (evidence + trust + quality + provenance + connectors)**
-   Fabric produces data views (via UDF compilation and execution) and attaches comprehensive metadata:
-   - Evidence bundles with cryptographic provenance verification, CAS storage, and deterministic artifact IDs
-   - Trust quantification with uncertainty bounds, statistical verification, two-pass comparison, and configurable policies
-   - Quality indicators system v2.1 (missingness, staleness, coverage, schema drift, outlier detection) with fitness reports, configurable thresholds, and quality gate validation integration
-   - Data contract catalog with hash-locked bindings, fuzzy search with disambiguation, and schema evolution support
-   - Provenance system v2.0 with W3C PROV-O compliance, complete lineage tracking, and multi-format export (JSON-LD, N-Quads)
-   - Fact log system with immutable facts, deterministic IDs, semantic network, and incremental materialization
-   - Materializer engine for incremental relational view updates from fact log with schema evolution and type inference
-   - Data connectors system (Phase 2.2 complete) with capability-based protocol, registry with lazy loading, discovery, connection pooling, federation, resilience patterns (circuit breaker, retry), and quality assurance for external data sources
-
-6. **Compilation (Foundry with advanced agent simulation + calibration)**
-   Foundry compiles policy IR into executable representation (`ProgramGraph` + `ExecPlan`), performs comprehensive static checks and supports advanced simulation features:
-   - Conflict detection (multiple writers, merge rules validation, compile-time analysis)
-   - Cost modeling with budget tracking, performance prediction, and samokalirovka
-   - NaN guard for numerical stability monitoring with diagnostics
-   - Agent artifacts with environment fingerprinting, determinism tier validation, and compatibility scoring
-   - Patch-based execution planning with state delta management and merge determinism
-   - Advanced agent simulation (32 modules: actor-critic, demographics, evolution algorithms, graph mechanisms)
-   - Calibration framework with bijectors, loss functions (MSE/Huber/weighted), and uncertainty quantification
-
-7. **Simulation execution (Foundry runtime with safety + monitoring)**
-   Foundry executes the compiled plan in JAX (step/scan/batch) with runtime safeguards:
-   - Deterministic merge semantics with state consistency validation
-   - Runtime safety tools (NaN/Inf guard, numerical stability diagnostics)
-   - Plugin system with capability-based registry and composite executors
-   - Adaptive agents with learning metrics and continuous action spaces
-   - Gradient health monitoring and uncertainty quantification
-
-8. **Governance (preflight/postflight with legal compliance + quality gates)**
-   Governance evaluates through comprehensive validation pipeline with modular passes:
-   - Legality (norm packs via pluggable backends: AST expression evaluation, safe expression evaluator, LLM analysis)
-   - Privacy (data access tiers, transformation controls, PII classification)
-   - Quality gates (data readiness via quality indicators system v2.1 with fitness reports and configurable thresholds)
-   - Trust validation (statistical verification, evidence bundles, provenance compliance)
-   - Budget/safety constraints with human gate escalation and multi-tier controls
-   - Phase 18 security (AST policy validation, safe expression execution, resource limits enforcement)
-
-9. **Artifactization & observability (CAS + runtime + core observability)**
-   Results are persisted as content-addressed artifacts with comprehensive observability and audit capabilities:
-   - DecisionPacket v2 with evidence references, uncertainty bounds, fabric result integration, and timeline tracking
-   - DecisionCard with deterministic human-readable summaries, key metrics extraction, compliance status, and artifact cross-references
-   - RunTimeline with event-based tracking, phase durations, node timings, artifact creation events, validation outcomes, and performance metrics
-   - RunManifest with environment manifests for reproducible simulations, budget usage tracking, and pruning reasons
-   - Core observability v2.1 (PolicyOSTracer singleton, MetricsRegistry, @traced decorators, log-trace correlation, context propagation, LLM tracing, distributed tracing)
-   - Runtime infrastructure with audit trails (JSON Lines), artifact management, and environment fingerprinting
-   - Comprehensive provenance tracking with W3C PROV-O compliance and evidence bundle verification
+macOS note: import `jax_bootstrap.py` (which applies safe env defaults from `polisyos.common`) **before** importing `jax` in local scripts.
 
 ---
 
-## Key abstractions (what to learn first)
+## Running an experiment (example)
 
-### Trinity IR Architecture v2.4.2
+```bash
+uv run python run_experiment.py "Design a tax policy that reduces inequality without increasing deficit" \
+  --db-path integration.duckdb \
+  --runtime-base-dir runs
+```
 
-- **`ProblemFrame`**: "Why" artifact - problem definition, KPIs, success criteria, constraints, stakeholders (constant throughout experiment with stakeholder analysis and constraint modeling).
-- **`PolicySpec`**: "What" artifact - interventions, parameters, schedules, implementation hints, mechanism bindings (iterated during optimization with policy labels and implementation notes).
-- **`ModelSpec`**: "How" artifact - model assumptions, time semantics, data snapshots, registry bundles, model notes and labels (varied for sensitivity analysis with assumption tracking).
-- **`TrinityBundle`**: typed container referencing the three artifacts plus metadata, migration support, and source schema version tracking.
+Dashboard:
 
-### PolicySurfaceIR (legacy-compatible surface)
-
-`PolicySurfaceIR` remains as a compatibility layer and a “single object” surface representation in some paths; migrations and loaders bridge it to/from Trinity.
-
-### Kernel registries (IR kernel)
-
-The IR kernel defines registries that make policies composable and checkable:
-- mechanism registry (what can execute),
-- slot registry (what state exists),
-- merge rules (how concurrent updates resolve deterministically),
-- units/metrics/time semantics registries.
-
-### Quality Assessment System v2.1
-
-- **`QualityIndicators`**: Objective metrics (missingness, staleness, coverage, schema drift, outlier ratio) computed from datasets with computation methods and timestamps.
-- **`QualityLevel`**: Ordered classification (EXCELLENT/GOOD/ACCEPTABLE/POOR/UNUSABLE) with semantic meaning for decision making.
-- **`QualityThresholds`**: Configurable thresholds for different profiles (FAST/MVP/STRICT) with per-metric limits and warning levels.
-- **`DataFitnessReport`**: Human-readable reports with failure reasons, summary statistics, and profile-based assessment for data suitability validation.
-
-### Fact Log System
-
-- **`Fact`**: Immutable knowledge representation with subject-predicate-object structure, provenance tracking, trust policies, and legal metadata.
-- **`FactBatch`**: Collection of facts for batch processing with segment management and deterministic ID generation.
-- **`FactProvenance`**: Complete lineage tracking with source artifacts, ingestion runs, and collection timestamps.
-- **`FactLog`**: Semantic network of facts with deterministic IDs, temporal validity, and incremental materialization support.
-
-### Data Connectors System (Phase 2.2)
-
-- **`SourceConnector`**: Protocol-based interface for external data sources with capability declarations and async operations.
-- **`ConnectorCapability`**: Bitmask system for 15+ capabilities (FULL_FETCH, STREAMING, DATE_RANGE_FILTER, SCHEMA_INTROSPECTION, etc.).
-- **`ConnectorRegistry`**: Singleton registry with lazy loading, plugin discovery, and connection pooling.
-- **`FetchRequest/FetchResult`**: Typed request/response structures with evidence bundles and deterministic caching keys.
-
-### Fabric: contracts, provenance, evidence, trust, quality
-
-- **Data contracts** describe metric-level datasets with hash-locked bindings and fuzzy search with disambiguation.
-- **Evidence bundles** provide cryptographic verification with CAS storage and deterministic artifact IDs.
-- **Provenance system** implements W3C PROV-O compliance with complete lineage tracking and semantic graphs.
-- **Quality indicators system** (missingness/staleness/coverage/outliers) with fitness reports and configurable thresholds.
-- **Quality gate validation** blocks execution on poor data quality through governance pipeline integration.
-- **Trust policies** provide statistical verification with uncertainty bounds and two-pass comparison.
-- **Fact log system** enables immutable audit trails with deterministic fact IDs and semantic networks.
-- **Data connectors** (Phase 2.2) support capability-based protocol plus registry, discovery, and pooling.
-- **Materializer engine** performs incremental updates from fact log to relational views.
-- **UDF system** compiles safe, typed "data views" with Arrow support and multi-backend execution.
-
-### Foundry: compilation and execution core
-
-- **Compiler**: IR → executable graph/plan with compile-time conflict detection and cost estimation.
-- **Static checks**: compile-time conflict detection (multiple writers, merge rules), cost modeling with budget tracking, performance prediction, NaN guard for numerical stability monitoring.
-- **Deterministic merge**: patch-based execution and merge rules for stable state updates with state consistency validation.
-- **Runtime safety**: NaN/Inf guard for numerical stability, environment fingerprinting, agent artifacts with determinism tier validation.
-- **Advanced features**: Agent simulation with learning metrics, plugin system with capability-based registry, adaptive agents, merge determinism, patch executor with state deltas and snapshots.
-
-### Governance: passes and issues
-
-Governance is a pass pipeline that returns structured issues:
-- **`ComplianceIssue`**: message, severity, code, path, suggestion, optional input value.
-- Validation profiles select which passes run and at what strictness.
-
-Typical passes include:
-- **Schema pass**: verifies IR structural validity and required fields with Trinity contract validation.
-- **Safety pass**: checks for unsafe/invalid mechanism configurations and execution risks including conflict detection.
-- **Budget pass**: enforces resource budgets (time/complexity/limits) for the workflow with cost modeling integration.
-- **Privacy pass**: enforces access tiers and privacy rules for data views/UDFs with trust quantification.
-- **Quality gate pass**: blocks execution when required data quality indicators are not met, integrates with quality indicators system and fitness reports.
-- **Legal pass**: evaluates norm packs via pluggable backends (AST, LLM, Stub) with Phase 18 safe expression evaluation, AST policy validation, and security testing.
-
-### Legal compliance: NormPacks and safe evaluation (Phase 18)
-
-- **`NormPack`**: a collection of normative rules for a jurisdiction/context with effective dates and metadata.
-- **`NormRule`**: rule type (obligation/prohibition/permission), human description, backend references, metadata, jurisdiction context.
-- **Rule backends**: pluggable evaluation engines with protocol-based architecture.
-
-Phase 18 introduced **safe expression evaluation** with comprehensive security:
-- **`ASTPolicy`**: allowlist-based validator and resource limits (deny by default) with attack vector rejection.
-- **`SafeExpressionEvaluator`**: interprets a safe AST subset (no `eval`/`exec`, no calls, no attribute access, no builtin functions).
-- **`ExpressionASTBackend`**: integrates rule evaluation with the LegalPass pipeline and governance security testing.
-- **Security features**: AST limits enforcement, mathematical operations validation, variable binding security, class escape prevention.
-- **AST Policy Enforcement**: Forbidden construct rejection, resource limits (nodes/depth/length/names), mathematical correctness validation, norm execution security.
-
-### Decision outputs
-
-- **DecisionPacket v2**: enhanced structured output container with evidence references, uncertainty bounds, timeline integration, and comprehensive metadata tracking.
-- **DecisionCard**: deterministic human-readable summary with verdict/confidence evaluation, key metrics extraction, issues summarization, and artifact cross-references.
-- **RunTimeline**: event-based timeline system with phase tracking, node durations, artifact creation events, validation outcomes, and performance metrics for full observability.
-
-### Scientist orchestration abstractions
-
-- **Agent hierarchy**: PI→Drafter→Formalizer→Critic protocol-based system with structured problem decomposition and self-healing capabilities.
-- **Trinity IR generation**: Creates ProblemFrame (constant), PolicySpec (iterated), and ModelSpec (varied) artifacts for comprehensive policy representation.
-- **Self-healing reflexion**: FailureCard system with ShortTermMemory, intelligent routing, and ReflexionOrchestrator for automated error recovery.
-- **Workflow engines**: LangGraph-based declarative orchestration and SimpleLoopEngine with conditional routing, state management, and unified WorkflowEngine interface.
-- **Search framework**: Two-stage filtering (cheap/expensive evaluation), composite objectives, and intelligent stopping criteria for policy optimization.
-- **FSM kernel**: Phase-based state machine with 9 phases, budget controls, guards, and human gate integration.
-- **Phase 2 instrumentation**: End-to-end workflow tracing with flow node tracing, LLM client instrumentation, and governance pipeline spans.
-
-### Governance and compliance
-
-- **Governance passes**: Modular validation pipeline (schema, safety, privacy, legal, quality gate) with pluggable backends and telemetry.
-- **Legal compliance (Phase 18)**: AST-based safe expression evaluation with ASTPolicy validation, SafeExpressionEvaluator, pluggable rule backends, and governance security testing.
-- **Quality assessment**: QualityIndicators system with fitness reports, configurable thresholds, and quality gate enforcement.
-- **Trust quantification**: Multi-tier evidence validation with uncertainty bounds and statistical verification.
-
-### Core Observability System
-
-Production-grade telemetry and monitoring infrastructure:
-- **Distributed tracing**: PolicyOSTracer singleton with OpenTelemetry integration, span hierarchy, lazy initialization, and PolicyOS-specific attributes.
-- **Metrics collection**: Prometheus-compatible MetricsRegistry with histogram timers, counters, and workflow metrics recording.
-- **Log correlation**: Automatic injection of trace_id and span_id into logs via TraceContextFilter with structured JSON logging.
-- **Context propagation**: Thread-safe trace context propagation across async operations and service boundaries via headers.
-- **Instrumentation**: Zero-configuration @traced decorator for automatic span creation with sync/async support, custom attributes, and exception capture.
-- **LLM tracing**: TracedLLMClient with provider-agnostic interface, token tracking, and performance monitoring.
+```bash
+uv run streamlit run dashboard.py
+```
 
 ---
 
-## Codebase tour (directories by responsibility)
+## Tests
 
-This section explains *what each major directory is for* without listing the full file tree.
+Tests are organized by architectural layers (contracts/core/fabric/foundry/scientist/runtime) plus integration/performance suites. See `tests/README.md` for the full map.
 
-- **`src/polisyos/common`**: minimal shared utilities (configuration, logging, JAX env defaults, migrations).
-- **`src/polisyos/core`**: infrastructure layer (CAS artifacts, canonical JSON, typed contracts, comprehensive observability system, registries, run context, conflict detection, cost modeling, NaN guard, Trinity contracts, legal contracts).
-- **`src/polisyos/ir`**: canonical policy/data contracts (Trinity + PolicySurfaceIR), loaders/migrations, kernel registries, validation.
-- **`src/polisyos/fabric`**: Unified Data Fabric (Phase 2.2 data connectors with capability-based protocol, federation, resilience patterns; data contract catalog with hash-locked bindings; evidence bundles with cryptographic verification; provenance system v2.0 with W3C PROV-O compliance; quality indicators system v2.1 with configurable thresholds; fact log system with immutable facts and semantic network; materializer engine for incremental updates; trust policies with statistical verification; UDF compilation pipeline with security passes).
-- **`src/polisyos/foundry`**: execution core (compile IR to executable plans with advanced agent simulation system; run JAX simulations with 32 modules for demographics, evolution algorithms, graph mechanisms; calibration framework with bijectors and loss functions; compile-time conflict detection and cost modeling; NaN guard with diagnostics; agent artifacts with environment fingerprinting; patch-based execution with merge determinism; plugin system with capability-based registry).
-- **`src/polisyos/scientist`**: orchestration “brain” (hierarchical agent system with protocols and self-healing via FailureCard routing; FSM-based workflow orchestration with 9 phases and guards; governance passes pipeline with legal compliance via AST backends; search framework with two-stage filtering and intelligent stopping criteria; workflow engines with LangGraph declarative orchestration; LLM tracing infrastructure with TracedLLMClient; decision packet system with evidence references; decision card summaries; run timeline tracking with event-based observability; kernel layer with multi-tier budgets; compute layer with job specifications; doe designs for experiment planning).
-- **`src/polisyos/runtime`**: run lifecycle APIs and portable run manifests (where run artifacts are stored and referenced with environment manifests for reproducibility, audit trails in JSON Lines format, budget usage tracking, and artifact management with relative paths for portability).
+Common commands:
 
-- **`data/`**: local data workspace, plus normative packs in `data/norms/`.
-- **`tools/`**: comprehensive developer toolkit (architectural linters, schema generators, migration tools, diagnostic scripts, performance benchmarks, demo scripts, provenance visualizers, fabric scanners, environment capture utilities).
-- **`ops/`**: operational infrastructure (Docker Compose observability stack, Prometheus configuration, Grafana dashboards, alerting rules, monitoring automation).
-- **`tests/`**: extensive test suite (contract tests, core observability tests, fabric tests, foundry tests, scientist tests, integration tests, performance tests).
-- **`docs/`**: ADRs and contract specifications.
+```bash
+uv run pytest                      # all
+uv run pytest -m "not integration"  # unit-only
+uv run pytest -m integration        # integration-only
+uv run pytest tests/contract/ -v
+uv run pytest tests/core_phase0/ -v
+uv run pytest tests/fabric/ -v
+uv run pytest tests/foundry/ -v
+uv run pytest tests/scientist/ -v
+uv run pytest tests/runtime/ -v
+```
+
+Performance regression check:
+
+```bash
+uv run pytest tests/performance/ --benchmark-json=results.json
+uv run python tools/diagnostics/check_perf_regression.py results.json
+```
 
 ---
 
-## Full file tree
+## Tools
+
+See `tools/README.md` for the full catalog. Frequently used:
+
+```bash
+uv run python tools/lint_imports.py
+uv run python tools/lint_foundry.py
+uv run python tools/lint_connectors.py
+uv run python tools/gen_schema.py --check
+uv run python tools/migrate_to_trinity.py --help
+```
+
+---
+
+## Legal norms (NormPacks)
+
+- Example norms live in `data/norms/sample_norms.yaml`.
+- Legal evaluation uses pluggable backends; the safe-expression backend validates expressions via an allowlist AST policy (deny-by-default) and enforces resource limits.
+
+---
+
+## Observability & ops
+
+- **Tracing:** OpenTelemetry-based spans via `PolicyOSTracer` + `@traced`.
+- **Metrics:** Prometheus-friendly registry.
+- **Logs:** structured logs with trace/span correlation.
+
+Start the local observability stack:
+
+```bash
+cd policy-engine/ops
+docker-compose -f docker-compose.observability.yml up -d
+```
+
+---
+
+## Reproducibility & artifacts
+
+- CAS lives under `.polisyos/artifacts/` (by default); artifacts are addressed by SHA-256.
+- Runs are stored under `runs/<run_id>/` with a portable `RunManifest` and JSONL audit trail.
+- Environment fingerprints/manifests capture execution context and determinism tier.
+- Artifact/schema migrations live under `polisyos.common.migrations` and `polisyos.ir.migrations`.
 
 ```
 policy-engine/  # Project root (Policy Engine / PolisyOS).
@@ -396,6 +243,7 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │                   └── eaa7fda75fa39b2c8a4a4ee537b20958dd53005e469a12e45816177358a442ae.manifest.json  # CAS manifest describing the corresponding blob.
 ├── .github/  # GitHub Actions workflows and automation.
 │   └── workflows/  # CI/CD pipeline definitions.
+│       ├── arch.yml  # Architecture validation workflow.
 │       └── perf.yml  # Performance regression testing workflow (pytest-benchmark comparison).
 ├── .vscode/  # Editor workspace configuration (VSCode/Cursor).
 │   └── settings.json  # Workspace editor settings (formatting, linting, etc.).
@@ -479,6 +327,17 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │       │   │   ├── README.md  # Documentation for this directory/module.
 │       │   │   ├── __init__.py  # Python package initializer (public exports live here).
 │       │   │   └── report.py  # Compile report data models and persistence helpers.
+│       │   ├── components/  # Component system for extensible policy engine modules.
+│       │   │   ├── README.md  # Documentation for this directory/module.
+│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   ├── capabilities.py  # Python module implementing 'capabilities'.
+│       │   │   ├── cli.py  # Python module implementing 'cli'.
+│       │   │   ├── compliance.py  # Python module implementing 'compliance'.
+│       │   │   ├── discovery.py  # Python module implementing 'discovery'.
+│       │   │   ├── ids.py  # Python module implementing 'ids'.
+│       │   │   ├── metadata.py  # Python module implementing 'metadata'.
+│       │   │   ├── protocols.py  # Python module implementing 'protocols'.
+│       │   │   └── registry.py  # Python module implementing 'registry'.
 │       │   ├── contracts/  # Typed inter-module contracts (Foundry/Fabric/Scientist/Trinity/Legal).
 │       │   │   ├── README.md  # Documentation for this directory/module.
 │       │   │   ├── __init__.py  # Python package initializer (public exports live here).
@@ -486,11 +345,13 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │       │   │   ├── fabric.py  # Fabric-related typed references (evidence, results, bounds).
 │       │   │   ├── foundry.py  # Foundry-related typed references (ProgramGraph, ExecPlan, etc.).
 │       │   │   ├── legal.py  # Legal contracts: NormPack/NormRule/RuleBackend/RuleType.
+│       │   │   ├── lex.py  # Python module implementing 'lex'.
 │       │   │   ├── scientist.py  # Scientist contracts: critique, failure cards, timelines, decision cards.
 │       │   │   └── trinity.py  # Trinity contracts: ProblemFrame/PolicySpec/ModelSpec + bundle/refs.
 │       │   ├── registry/  # Registry bundle builder/loader (reproducible components).
 │       │   │   ├── README.md  # Documentation for this directory/module.
 │       │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   ├── builder_from_fragments.py  # Python module implementing 'builder_from_fragments'.
 │       │   │   ├── builder.py  # Build registry bundles from available components.
 │       │   │   └── loader.py  # Load registry bundles (content and payload).
 │       │   ├── run/  # Run context and run manifest models.
@@ -508,6 +369,7 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │       │   │   ├── __init__.py  # Python package initializer (public exports live here).
 │       │   │   ├── config.py  # OpenTelemetry configuration and resource attributes + HPC observability control.
 │       │   │   ├── decorators.py  # @traced and @traced_method decorators for automatic function instrumentation.
+│       │   │   ├── determinism.py  # Python module implementing 'determinism'.
 │       │   │   ├── logs.py  # Structured logging with trace correlation.
 │       │   │   ├── metrics.py  # Prometheus-compatible metrics registry and timers + CAS operation metrics.
 │       │   │   ├── propagation.py  # Trace context propagation across threads/services.
@@ -533,6 +395,69 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │       │   │   ├── __init__.py  # Python package initializer (public exports live here).
 │       │   │   ├── core.py  # PROV-O graph core models and relationships.
 │       │   │   └── export_provo.py  # Export provenance graphs to PROV-O formats.
+│       │   ├── claims/  # Claims management and verification system.
+│       │   │   ├── backends/  # Claims processing backend implementations.
+│       │   │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   │   ├── explicit_lines_v1.py  # Python module implementing 'explicit_lines_v1'.
+│       │   │   │   ├── lex_norm_regex_v1.py  # Python module implementing 'lex_norm_regex_v1'.
+│       │   │   │   └── regex_numeric_v1.py  # Python module implementing 'regex_numeric_v1'.
+│       │   │   ├── conflicts/  # Claims conflict detection and resolution.
+│       │   │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   │   ├── detect.py  # Python module implementing 'detect'.
+│       │   │   │   ├── key.py  # Python module implementing 'key'.
+│       │   │   │   ├── policies.py  # Python module implementing 'policies'.
+│       │   │   │   ├── resolve.py  # Python module implementing 'resolve'.
+│       │   │   │   ├── score_claims.py  # Python module implementing 'score_claims'.
+│       │   │   │   ├── score_docs.py  # Python module implementing 'score_docs'.
+│       │   │   │   └── types.py  # Python module implementing 'types'.
+│       │   │   ├── README.md  # Documentation for this directory/module.
+│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   ├── canonicalize.py  # Python module implementing 'canonicalize'.
+│       │   │   ├── citations.py  # Python module implementing 'citations'.
+│       │   │   ├── errors.py  # Python module implementing 'errors'.
+│       │   │   ├── extraction.py  # Python module implementing 'extraction'.
+│       │   │   ├── extractor_registry.py  # Python module implementing 'extractor_registry'.
+│       │   │   ├── normalize.py  # Python module implementing 'normalize'.
+│       │   │   ├── persist.py  # Python module implementing 'persist'.
+│       │   │   └── types.py  # Python module implementing 'types'.
+│       │   ├── docs/  # Documentation utilities and generators.
+│       │   │   ├── backends/  # Document processing backend implementations.
+│       │   │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   │   ├── pdf.py  # PDF document processing backend.
+│       │   │   │   ├── text_html.py  # HTML text processing backend.
+│       │   │   │   └── text_plain.py  # Plain text processing backend.
+│       │   │   ├── README.md  # Documentation for this directory/module.
+│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   ├── chunking.py  # Python module implementing 'chunking'.
+│       │   │   ├── errors.py  # Python module implementing 'errors'.
+│       │   │   ├── ingestion.py  # Python module implementing 'ingestion'.
+│       │   │   ├── normalize.py  # Python module implementing 'normalize'.
+│       │   │   ├── structure.py  # Python module implementing 'structure'.
+│       │   │   └── types.py  # Python module implementing 'types'.
+│       │   ├── world/  # World model and simulation state management.
+│       │   │   ├── ddl/  # Database schema definitions for world model.
+│       │   │   │   ├── duckdb_world.sql  # DuckDB schema for world model.
+│       │   │   │   └── kuzu_world.cypher  # Kùzu schema for world model.
+│       │   │   ├── materialize/  # World model materialization and processing.
+│       │   │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   │   ├── duckdb.py  # Python module implementing 'duckdb'.
+│       │   │   │   ├── errors.py  # Python module implementing 'errors'.
+│       │   │   │   ├── kuzu.py  # Python module implementing 'kuzu'.
+│       │   │   │   ├── projections.py  # Python module implementing 'projections'.
+│       │   │   │   ├── rules.py  # Python module implementing 'rules'.
+│       │   │   │   ├── sql.py  # Python module implementing 'sql'.
+│       │   │   │   └── staging.py  # Python module implementing 'staging'.
+│       │   │   ├── README.md  # Documentation for this directory/module.
+│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   ├── store/  # World model storage and persistence.
+│       │   │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   │   ├── emit.py  # Python module implementing 'emit'.
+│       │   │   │   ├── errors.py  # Python module implementing 'errors'.
+│       │   │   │   ├── ids.py  # Python module implementing 'ids'.
+│       │   │   │   ├── persist.py  # Python module implementing 'persist'.
+│       │   │   │   ├── provenance.py  # Python module implementing 'provenance'.
+│       │   │   │   ├── segments.py  # Python module implementing 'segments'.
+│       │   │   │   └── validate.py  # Python module implementing 'validate'.
 │       │   ├── udf/  # Secure UDF compilation/execution layer for data views.
 │       │   │   ├── passes/  # UDF compiler passes (lowering, typing, privacy, etc.).
 │       │   │   │   ├── __init__.py  # Python package initializer (public exports live here).
@@ -633,6 +558,17 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │       │   │       ├── dimensions.py  # Dimensional data type handling.
 │       │   │       ├── temporal.py  # Temporal data type utilities.
 │       │   │       └── units.py  # Unit conversion and validation.
+│       │   │   ├── types/  # Type system and data type utilities.
+│       │   │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   │   ├── coercion.py  # Type coercion utilities.
+│       │   │   │   ├── connector_types.py  # Connector-specific type definitions.
+│       │   │   │   ├── dimensions.py  # Dimensional data type handling.
+│       │   │   │   ├── temporal.py  # Temporal data type utilities.
+│       │   │   │   └── units.py  # Unit conversion and validation.
+│       │   │   └── validation.py  # Python module implementing 'validation'.
+│       │   ├── connectors_ingestion.py  # Python module implementing 'connectors_ingestion'.
+│       │   ├── demo_csv_ingestion.py  # Python module implementing 'demo_csv_ingestion'.
+│       │   └── world_query.py  # Python module implementing 'world_query'.
 │       ├── foundry/  # JAX execution core: compilation, runtime, simulation, calibration, determinism tools.
 │       │   ├── agent_sim/  # Agent-based simulation subsystem.
 │       │   │   ├── README.md  # Documentation for this directory/module.
@@ -703,10 +639,46 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │       │   │   ├── composite.py  # Python module implementing 'composite'.
 │       │   │   ├── core.py  # Python module implementing 'core'.
 │       │   │   └── discovery.py  # Python module implementing 'discovery'.
+│       │   ├── profiles.py  # Python module implementing 'profiles'.
+│       │   ├── compile/  # Compilation and build system for Foundry components.
+│       │   │   ├── README.md  # Documentation for this directory/module.
+│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   ├── _graph.py  # Python module implementing '_graph'.
+│       │   │   ├── api.py  # Python module implementing 'api'.
+│       │   │   └── trinity_compiler.py  # Python module implementing 'trinity_compiler'.
+│       │   ├── engine/  # Core execution engine for Foundry simulations.
+│       │   │   ├── README.md  # Documentation for this directory/module.
+│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   └── engine.py  # Core simulation engine implementation.
+│       │   ├── execute/  # Execution orchestration and scheduling.
+│       │   │   ├── README.md  # Documentation for this directory/module.
+│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   ├── methods/  # Method implementations and optimization techniques.
+│       │   │   ├── README.md  # Documentation for this directory/module.
+│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   ├── artifacts.py  # Python module implementing 'artifacts'.
+│       │   │   ├── base.py  # Python module implementing 'base'.
+│       │   │   ├── compiler.py  # Python module implementing 'compiler'.
+│       │   │   ├── components_bridge.py  # Python module implementing 'components_bridge'.
+│       │   │   ├── composer.py  # Python module implementing 'composer'.
+│       │   │   ├── discovery.py  # Python module implementing 'discovery'.
+│       │   │   ├── exceptions.py  # Python module implementing 'exceptions'.
+│       │   │   ├── linker.py  # Python module implementing 'linker'.
+│       │   │   ├── registry.py  # Python module implementing 'registry'.
+│       │   │   ├── resolution.py  # Python module implementing 'resolution'.
+│       │   │   ├── specialization.py  # Python module implementing 'specialization'.
+│       │   │   ├── testing/  # Testing infrastructure for methods.
+│       │   │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   │   ├── fixtures.py  # Python module implementing 'fixtures'.
+│       │   │   │   ├── golden.py  # Python module implementing 'golden'.
+│       │   │   │   └── suite.py  # Python module implementing 'suite'.
+│       │   │   ├── types/  # Type definitions for methods.
+│       │   │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   │   ├── checker.py  # Python module implementing 'checker'.
+│       │   │   │   └── units.py  # Python module implementing 'units'.
 │       │   ├── runtime/  # Runtime utilities (determinism fingerprinting, NaN guard).
 │       │   │   ├── README.md  # Documentation for this directory/module.
-│       │   │   │   ├── api.py  # Runtime run lifecycle API (start/finalize/log artifacts).
-│       │   │   │   └── manifest.py  # Portable runtime manifest and path resolution helpers.
+│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
 │       │   │   ├── fingerprint.py  # Environment fingerprinting and determinism tier controls.
 │       │   │   └── nan_guard.py  # Runtime NaN/Inf detection and diagnostics.
 │       │   ├── README.md  # Documentation for this directory/module.
@@ -751,7 +723,36 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │       │   ├── migrations/  # IR format migrations and Trinity bridging utilities.
 │       │   │   ├── README.md  # Documentation for this directory/module.
 │       │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   ├── base.py  # Python module implementing 'base'.
+│       │   │   ├── policy_ir.py  # Python module implementing 'policy_ir'.
 │       │   │   └── trinity_migration.py  # Python module implementing 'trinity_migration'.
+│       │   ├── linker/  # IR linking and dependency resolution system.
+│       │   │   ├── README.md  # Documentation for this directory/module.
+│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   ├── link_trinity.py  # Python module implementing 'link_trinity'.
+│       │   │   ├── reports.py  # Python module implementing 'reports'.
+│       │   │   └── types.py  # Python module implementing 'types'.
+│       │   ├── trinity/  # Trinity artifact processing and validation.
+│       │   │   ├── README.md  # Documentation for this directory/module.
+│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   └── loaders.py  # Python module implementing 'loaders'.
+│       │   ├── applicability.py  # Python module implementing 'applicability'.
+│       │   ├── canon.py  # Python module implementing 'canon'.
+│       │   ├── citations.py  # Python module implementing 'citations'.
+│       │   ├── connectors.py  # Python module implementing 'connectors'.
+│       │   ├── migration_report.py  # Python module implementing 'migration_report'.
+│       │   ├── world/  # World model definitions and schemas.
+│       │   │   ├── README.md  # Documentation for this directory/module.
+│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   ├── abi.py  # Python module implementing 'abi'.
+│       │   │   ├── claim.py  # Python module implementing 'claim'.
+│       │   │   ├── conflict.py  # Python module implementing 'conflict'.
+│       │   │   ├── doc.py  # Python module implementing 'doc'.
+│       │   │   ├── event.py  # Python module implementing 'event'.
+│       │   │   ├── ids.py  # Python module implementing 'ids'.
+│       │   │   ├── predicates.py  # Python module implementing 'predicates'.
+│       │   │   ├── quality.py  # Python module implementing 'quality'.
+│       │   │   └── trust.py  # Python module implementing 'trust'.
 │       │   ├── README.md  # Documentation for this directory/module.
 │       │   ├── __init__.py  # Python package initializer (public exports live here).
 │       │   ├── calibration.py  # Python module implementing 'calibration'.
@@ -769,6 +770,60 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │       │   ├── types.py  # Python module implementing 'types'.
 │       │   ├── units.py  # Python module implementing 'units'.
 │       │   └── validation.py  # Python module implementing 'validation'.
+│       │   ├── queries.py  # Python module implementing 'queries'.
+│       │   ├── refs.py  # Python module implementing 'refs'.
+│       │   ├── registry_fragments.py  # Python module implementing 'registry_fragments'.
+│       │   ├── schedule.py  # Python module implementing 'schedule'.
+│       │   └── selector_expr.py  # Python module implementing 'selector_expr'.
+│       ├── lex/  # Legal corpus and norm evaluation system.
+│       │   ├── corpus/  # Legal document corpus management and indexing.
+│       │   │   ├── README.md  # Documentation for this directory/module.
+│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   ├── index.py  # Python module implementing 'index'.
+│       │   │   ├── ingest.py  # Python module implementing 'ingest'.
+│       │   │   ├── structure.py  # Python module implementing 'structure'.
+│       │   │   └── versioning.py  # Python module implementing 'versioning'.
+│       │   ├── legal_evaluation/  # Legal rule evaluation and compliance checking.
+│       │   │   ├── backends/  # Legal evaluation backend implementations.
+│       │   │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   │   └── simple_v1.py  # Python module implementing 'simple_v1'.
+│       │   │   ├── README.md  # Documentation for this directory/module.
+│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   ├── change_proposals.py  # Python module implementing 'change_proposals'.
+│       │   │   ├── context_builder.py  # Python module implementing 'context_builder'.
+│       │   │   ├── evaluate.py  # Python module implementing 'evaluate'.
+│       │   │   ├── evaluator_registry.py  # Python module implementing 'evaluator_registry'.
+│       │   ├── normpack/  # Norm pack assembly and management.
+│       │   │   ├── README.md  # Documentation for this directory/module.
+│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   ├── applicability.py  # Python module implementing 'applicability'.
+│       │   │   ├── assemble_pack.py  # Python module implementing 'assemble_pack'.
+│       │   │   ├── extract_norm_claims.py  # Python module implementing 'extract_norm_claims'.
+│       │   │   ├── policies.py  # Python module implementing 'policies'.
+│       │   │   ├── provider_registry.py  # Python module implementing 'provider_registry'.
+│       │   │   └── select_sources.py  # Python module implementing 'select_sources'.
+│       │   ├── README.md  # Documentation for this directory/module.
+│       │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   ├── api.py  # Python module implementing 'api'.
+│       │   ├── errors.py  # Python module implementing 'errors'.
+│       │   └── types.py  # Python module implementing 'types'.
+│       ├── packs/  # Domain-specific policy packs and components.
+│       │   ├── econ/  # Economic policy pack.
+│       │   │   ├── README.md  # Documentation for this directory/module.
+│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   ├── components.py  # Python module implementing 'components'.
+│       │   │   └── ir_fragments.py  # Python module implementing 'ir_fragments'.
+│       │   ├── roads/  # Road infrastructure policy pack.
+│       │   │   ├── README.md  # Documentation for this directory/module.
+│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   ├── components.py  # Python module implementing 'components'.
+│       │   │   ├── foundry_methods.py  # Python module implementing 'foundry_methods'.
+│       │   │   ├── ir_fragments.py  # Python module implementing 'ir_fragments'.
+│       │   │   ├── lex_evaluators.py  # Python module implementing 'lex_evaluators'.
+│       │   │   ├── norms_provider.py  # Python module implementing 'norms_provider'.
+│       │   │   └── scholar_extractors.py  # Python module implementing 'scholar_extractors'.
+│       │   ├── README.md  # Documentation for this directory/module.
+│       │   ├── __init__.py  # Python package initializer (public exports live here).
 │       ├── runtime/  # Run lifecycle API and portable run manifests.
 │       │   ├── README.md  # Documentation for this directory/module.
 │       │   ├── __init__.py  # Python package initializer (public exports live here).
@@ -823,6 +878,7 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │       │   │   ├── postflight.py  # Post-execution validation entrypoint.
 │       │   │   ├── preflight.py  # Pre-execution validation entrypoint.
 │       │   │   ├── profiles.py  # Validation profiles (fast/mvp/strict) selecting passes and limits.
+│       │   │   ├── report.py  # Python module implementing 'report'.
 │       │   │   └── telemetry.py  # Governance telemetry capture (timings, summaries).
 │       │   ├── kernel/  # Scientist kernel (FSM, budgets, guards, human gates).
 │       │   │   ├── README.md  # Documentation for this directory/module.
@@ -835,22 +891,22 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │       │   │   ├── README.md  # Documentation for this directory/module.
 │       │   │   ├── __init__.py  # Python package initializer (public exports live here).
 │       │   │   └── traced_client.py  # TracedLLMClient с OpenTelemetry интеграцией.
-│       │   ├── orchestrator/  # Workflow orchestration: nodes, state, audit, decision packet/card, timeline.
+│       │   ├── engine/  # Core engine for Scientist workflows.
+│       │   │   ├── builtins/  # Built-in workflow operations and primitives.
+│       │   │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   │   ├── emit_artifact.py  # Python module implementing 'emit_artifact'.
+│       │   │   │   ├── noop.py  # Python module implementing 'noop'.
+│       │   │   │   └── set_state.py  # Python module implementing 'set_state'.
 │       │   │   ├── README.md  # Documentation for this directory/module.
 │       │   │   ├── __init__.py  # Python package initializer (public exports live here).
-│       │   │   ├── audit.py  # Python module implementing 'audit'.
-│       │   │   ├── compiler.py  # Python module implementing 'compiler'.
-│       │   │   ├── data_loader.py  # Python module implementing 'data_loader'.
-│       │   │   ├── decision_card.py  # DecisionCard: deterministic human-readable summary artifact.
-│       │   │   ├── decision_packet.py  # DecisionPacket: structured run output container (artifacts + validations).
-│       │   │   ├── flow_nodes.py  # Workflow node implementations and routing logic.
-│       │   │   ├── nodes.py  # Python module implementing 'nodes'.
-│       │   │   ├── optimizer.py  # Python module implementing 'optimizer'.
+│       │   │   ├── context.py  # Python module implementing 'context'.
+│       │   │   ├── errors.py  # Python module implementing 'errors'.
+│       │   │   ├── executor.py  # Python module implementing 'executor'.
+│       │   │   ├── protocol.py  # Python module implementing 'protocol'.
 │       │   │   ├── registry.py  # Python module implementing 'registry'.
-│       │   │   ├── run_record.py  # Python module implementing 'run_record'.
-│       │   │   ├── run_timeline.py  # RunTimeline: event timeline artifact for observability.
 │       │   │   ├── state.py  # Python module implementing 'state'.
-│       │   │   └── workflow.py  # Build and run the main Scientist workflow graph.
+│       │   │   ├── telemetry.py  # Python module implementing 'telemetry'.
+│       │   │   └── workflow_spec.py  # Python module implementing 'workflow_spec'.
 │       │   ├── search/  # Search/optimization framework.
 │       │   │   ├── README.md  # Documentation for this directory/module.
 │       │   │   ├── __init__.py  # Python package initializer (public exports live here).
@@ -864,9 +920,49 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │       │   │   ├── engine_base.py  # Python module implementing 'engine_base'.
 │       │   │   ├── engine_langgraph.py  # LangGraph-based workflow engine implementation.
 │       │   │   └── engine_simple.py  # Simple sequential workflow engine implementation.
+│       │   ├── nodes/  # Workflow node implementations and definitions.
+│       │   │   ├── builtins/  # Built-in workflow node implementations.
+│       │   │   │   ├── compile/  # Compilation-related workflow nodes.
+│       │   │   │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   │   │   ├── compile_foundry.py  # Python module implementing 'compile_foundry'.
+│       │   │   │   │   └── link_trinity.py  # Python module implementing 'link_trinity'.
+│       │   │   │   ├── data/  # Data processing workflow nodes.
+│       │   │   │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   │   │   ├── build_data_snapshot.py  # Python module implementing 'build_data_snapshot'.
+│       │   │   │   │   └── enrich_knowledge.py  # Python module implementing 'enrich_knowledge'.
+│       │   │   │   ├── decide/  # Decision-making workflow nodes.
+│       │   │   │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   │   │   └── build_decision_packet.py  # Python module implementing 'build_decision_packet'.
+│       │   │   │   ├── governance/  # Governance-related workflow nodes.
+│       │   │   │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   │   │   ├── legal_check.py  # Python module implementing 'legal_check'.
+│       │   │   │   │   └── run_governance.py  # Python module implementing 'run_governance'.
+│       │   │   │   ├── simulate/  # Simulation workflow nodes.
+│       │   │   │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   │   │   └── run_simulation.py  # Python module implementing 'run_simulation'.
+│       │   │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   │   ├── errors.py  # Python module implementing 'errors'.
+│       │   │   │   └── state_keys.py  # Python module implementing 'state_keys'.
+│       │   │   ├── README.md  # Documentation for this directory/module.
+│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   ├── workflows/  # Predefined workflow templates and configurations.
+│       │   │   ├── README.md  # Documentation for this directory/module.
+│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   ├── builder.py  # Python module implementing 'builder'.
+│       │   │   └── default.py  # Python module implementing 'default'.
 │       │   ├── README.md  # Documentation for this directory/module.
 │       │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   ├── foundry.py  # Python module implementing 'foundry'.
 │       │   └── publisher.py  # Publish/finalize results (artifacts, summaries).
+│       ├── scholar/  # Scholar layer for knowledge discovery and learning.
+│       │   ├── discover/  # Knowledge discovery and pattern recognition.
+│       │   │   ├── README.md  # Documentation for this directory/module.
+│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   ├── orchestrator/  # Orchestration for scholarly workflows.
+│       │   │   ├── README.md  # Documentation for this directory/module.
+│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   ├── README.md  # Documentation for this directory/module.
+│       │   ├── __init__.py  # Python package initializer (public exports live here).
 │       └── __init__.py  # Python package initializer (public exports live here).
 ├── tests/  # Test suite.
 │   ├── contract/  # Contract and schema tests for IR/Trinity/kernel.
@@ -1029,314 +1125,3 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 ├── run_experiment.py  # CLI entrypoint to run a Scientist workflow for an experiment.
 └── uv.lock  # Locked dependency graph for uv.
 ```
-
----
-
-## Technology stack and dependencies
-
-### Language runtime
-
-- **Python**: `>=3.11`
-- **Pydantic v2**: contracts and validation
-
-### Numerical core
-
-- **JAX / jaxlib**
-- **jax-metal** (optional, Apple Silicon backend)
-- **Equinox**, **Optax**, **Diffrax**
-- **Chex**, **Jaxtyping**
-
-### Data layer
-
-- **DuckDB** (analytical store with incremental materialization)
-- **Kùzu** (graph store for social network analysis)
-- **PyArrow**, **pandas** (high-performance data processing)
-- **W3C PROV-O style provenance** (implemented in Fabric provenance subsystem v2.0 with JSON-LD/N-Quads export)
-
-### Orchestration and optimization
-
-- **LangGraph**, **LangChain** (workflow orchestration and LLM integration)
-- **pymoo** (multi-objective optimization for policy search)
-- **CMA-ES** (evolution algorithms for agent simulation)
-
-### UI / visualization
-
-- **Streamlit**, **Plotly** (dashboarding)
-
-### Observability / configuration
-
-- **loguru** (structured logging with trace correlation)
-- **python-dotenv** (local environment variable loading)
-- **opentelemetry-api** / **opentelemetry-sdk** (distributed tracing and telemetry)
-- **prometheus_client** (metrics collection and exposition)
-- **hashlib** (deterministic ID generation for artifacts and facts)
-
-### Dev tooling
-
-- **pytest**, **pytest-benchmark**, **hypothesis** (testing and benchmarking)
-- **ruff**, **mypy** (code quality and type checking)
-- **pre-commit** (automated code quality checks)
-- **difflib** (structured diff generation for validation reports)
-
-### Operational monitoring
-
-- **Docker Compose** (observability stack orchestration)
-- **Prometheus** (metrics collection and alerting)
-- **Grafana** (dashboards and visualization)
-
----
-
-## Running the system
-
-### Prerequisites
-
-- Python `>=3.11`
-
-### Option A: uv (recommended)
-
-```bash
-# Create/sync the local virtualenv in .venv from uv.lock
-# (use --frozen to avoid lockfile drift)
-uv sync --frozen --extra dev
-
-# Minimal (runtime-only) environment:
-# uv sync --frozen --no-dev
-```
-
-#### Activate the environment (optional)
-
-If you prefer a classic workflow, activate `.venv` and run commands directly:
-
-```bash
-source .venv/bin/activate
-python -V
-```
-
-#### Run without activation (recommended)
-
-You can also avoid activation and run everything via `uv run`:
-
-```bash
-uv run python -V
-```
-
-### Option B: pip (fallback)
-
-```bash
-python -m venv .venv
-source .venv/bin/activate
-pip install -e .[dev]
-```
-
-### Environment variables (.env)
-
-Local defaults and runtime switches can be set via `.env` (loaded by `python-dotenv`):
-
-```bash
-# if you don't already have one:
-cp env_example.txt .env
-```
-
-### Smoke check (recommended)
-
-```bash
-uv run python tools/diagnostics/check_setup.py
-```
-
-### Performance regression check
-
-```bash
-# Run performance benchmarks
-uv run pytest tests/performance/ --benchmark-json=results.json
-
-# Check for regressions against baseline
-uv run python tools/diagnostics/check_perf_regression.py results.json
-```
-
-### Operational monitoring setup
-
-```bash
-# Start observability stack (Prometheus + Grafana)
-cd ops && docker-compose -f docker-compose.observability.yml up -d
-
-# Access monitoring:
-# Prometheus: http://localhost:9090
-# Grafana: http://localhost:3000 (admin/admin)
-```
-
-### macOS + JAX note
-
-On macOS, JAX may auto-select an experimental Metal backend that can crash in some environments.  
-Import `jax_bootstrap.py` before importing `jax` in local scripts.
-
-### Run an experiment workflow
-
-`run_experiment.py` is a convenience entrypoint that builds a Scientist workflow and invokes it with a minimal state.
-
-```bash
-uv run python run_experiment.py "Design a tax policy that reduces inequality without increasing deficit" \
-  --db-path integration.duckdb \
-  --runtime-base-dir runs
-```
-
-### Run the dashboard
-
-```bash
-uv run streamlit run dashboard.py
-```
-
-### Run tests
-
-```bash
-uv run pytest
-```
-
-### Run linters
-
-```bash
-# Code quality
-uv run ruff check .
-uv run mypy .
-
-# Architecture compliance
-uv run python tools/lint_imports.py
-uv run python tools/lint_foundry.py
-
-# Schema validation
-uv run python tools/gen_schema.py --check
-```
-
----
-
-## Working with legal norms (NormPacks)
-
-### Where norms live
-
-- `data/norms/sample_norms.yaml` contains example norms for the Phase 18 safe-expression backend.
-
-### Expression safety model (Phase 18)
-
-- Expressions are **validated** by an allowlist-based AST policy (**deny by default**) with comprehensive attack vector rejection.
-- Only a safe subset is supported (boolean ops, comparisons, basic arithmetic, literals, variable names, mathematical operations).
-- Function calls, attribute access, subscripts, imports, comprehensions, lambdas, dunder names, builtin functions, and class escapes are forbidden.
-- Resource limits (nodes/depth/length/names) mitigate denial-of-service style expressions with AST limits enforcement.
-- Security features include AST policy validation, safe expression evaluators, mathematical correctness validation, variable binding security, and expression evaluator robustness.
-- **ASTPolicy**: Allowlist-based validator with attack vector rejection and resource limits.
-- **SafeExpressionEvaluator**: Interprets safe AST subset with no `eval`/`exec`, no calls, no attribute access, no builtin functions.
-- **ExpressionASTBackend**: Integrates rule evaluation with LegalPass pipeline and governance security testing.
-
-### How legal evaluation works
-
-- A `NormPack` is selected/attached (by workflow or configuration).
-- Governance runs the legal pass.
-- The selected backend (e.g., `expr_ast`) evaluates `NormRule.metadata.when/must/must_not` against a provided context.
-- Violations become `ComplianceIssue`s with severity and suggestions.
-
----
-
-## Operational monitoring and observability
-
-Policy Engine includes comprehensive production-grade monitoring infrastructure for tracking performance, detecting issues, and ensuring system reliability.
-
-### Monitoring stack
-
-**Components:**
-- **Prometheus**: Metrics collection, alerting, and time-series database
-- **Grafana**: Dashboards for executive overview, HPC performance, and agent analytics with PolicyOS-specific visualizations
-- **Docker Compose**: Containerized observability stack with service dependencies
-- **Core Observability v2.1**: PolicyOSTracer singleton, MetricsRegistry, @traced decorators, log-trace correlation, context propagation, LLM tracing, distributed tracing
-
-**Monitored metrics:**
-- LLM costs and token consumption (budget alerts: $50/hour, $100/hour critical)
-- Agent workflow performance and success rates (failure thresholds: 5%, 20%)
-- HPC simulation throughput and JIT compilation efficiency with gradient health monitoring
-- Calibration convergence and uncertainty quantification
-- Governance pipeline latency and pass success rates
-- Quality gate validation outcomes and data fitness scores
-- Evidence bundle verification and provenance tracking
-- Runtime execution with environment fingerprinting and reproducibility checks
-
-### Quick start monitoring
-
-```bash
-# Launch monitoring stack
-cd ops && docker-compose -f docker-compose.observability.yml up -d
-
-# Configure PolicyOS metrics export
-export POLISYOS_METRICS_PORT=9464
-export POLISYOS_LLM_BUDGET_HOURLY=50
-
-# Access interfaces
-# Prometheus: http://localhost:9090
-# Grafana: http://localhost:3000 (admin/admin)
-```
-
-### CI/CD integration
-
-Performance regression detection is integrated into CI/CD pipelines with automated benchmarking against baseline commits and configurable alert thresholds for latency, throughput, and overhead metrics.
-
----
-
-## Reproducibility and artifacts
-
-- **CAS storage** lives under `.polisyos/artifacts/sha256/` (blobs and manifests) with comprehensive observability integration.
-- **Run products** are written under `runs/<run_id>/` by default (manifests, audits, artifacts, decision cards, run timelines; exact layout evolves with the runtime API).
-- The system prefers deterministic serialization and content-addressing for robust provenance and caching with full distributed tracing support.
-- **Environment manifests** capture system state for reproducible simulations with compatibility scoring and risk assessment.
-- **Evidence bundles** and **trust metrics** provide cryptographic verification of data provenance and quality.
-- **Core observability**: PolicyOSTracer singleton, MetricsRegistry, @traced decorators, log-trace correlation, context propagation, LLM tracing, and end-to-end workflow tracing across all components.
-- **Run timeline tracking**: Event-based timeline system with phase durations, node timings, artifact creation, validation outcomes, and performance metrics for comprehensive audit trails.
-- **Performance regression detection**: Automated CI/CD workflows with pytest-benchmark integration, statistical analysis, and configurable thresholds for overhead validation (simulation <2%, CAS I/O <5%, calibration <3%).
-- **Enhanced diagnostics**: Comprehensive setup validation, UDF performance profiling, schema generation, provenance visualization, and fabric scanning tools.
-
----
-
-## Testing infrastructure
-
-Policy Engine includes comprehensive testing infrastructure ensuring quality across all architectural layers:
-
-### Test architecture by layers
-
-Following the compiler pipeline architecture, tests are organized by responsibility:
-
-- **Contract Tests**: IR schema validation, Trinity contracts, migrations, kernel models, linker validation, data connectors contracts
-- **Core Phase 0 Tests**: Artifact store, canonical JSON, observability system (PolicyOSTracer, MetricsRegistry, @traced), environment manifests, log correlation, context propagation, decorators, propagation, tracer
-- **Fabric Tests**: Data connectors protocol compliance, data contract catalog (hash-locked bindings, fuzzy search), evidence bundles with CAS integration, provenance system (W3C PROV-O), trust quantification with statistical verification, quality indicators system (missingness/staleness/coverage/outliers), fitness reports with configurable thresholds, quality gate pass integration, fact log semantic network, materializer engine incremental updates, trust two-pass comparison
-- **Foundry Tests**: JAX simulation engine, agent artifacts, plugin system, adaptive agents, merge determinism, NaN guard, cost model, conflict detection, gradient health, calibrator systems, jit compilation tracker, jit stability, patch executor, program graph ops, runtime batch
-- **Scientist Tests**: Hierarchical agent system (PI→Drafter→Formalizer→Critic), Trinity IR generation, governance passes pipeline, Phase 18 legal compliance with AST policy, search loop system, workflow engines, LLM tracing, decision outputs, Phase 2 instrumentation, decision card, decision packet v2, run timeline, multi-agent workflow, reflexion loop
-- **Integration Tests**: End-to-end workflows, calibration UDF integration, LLM workflow orchestration, real database testing, workflow smoke test, workflow LLM, data connectors integration
-- **Runtime Tests**: Run lifecycle management, artifact paths, manifest portability
-
-### Test execution
-
-```bash
-# All tests (unit + integration)
-pytest
-
-# Fast unit tests only (no integration)
-pytest -m "not integration"
-
-# Integration tests only (with databases)
-pytest -m integration
-
-# By layer
-pytest tests/core_phase0/ -v    # Core infrastructure + observability
-pytest tests/fabric/ -v         # Data fabric + quality
-pytest tests/foundry/ -v        # JAX simulation engine
-pytest tests/scientist/ -v      # Agent orchestration + governance
-
-# Specific components
-pytest tests/scientist/governance/ -v  # Legal compliance + Phase 18 security
-pytest tests/scientist/search/ -v      # Optimization loop system
-pytest tests/scientist/integration/ -v # End-to-end workflow tracing + Phase 2 instrumentation
-```
-
-### Key testing principles
-
-- **CPU Enforcement**: All tests force CPU execution for consistent results across CI/CD environments
-- **Mock Systems**: Comprehensive mock implementations for testing without external dependencies (LLM APIs, databases)
-- **Architectural Validation**: Tests enforce dependency laws and boundary contracts
-- **Phase 18 Security**: Extensive testing of AST policy validation, safe expression evaluation, security boundaries, norm execution security, and governance security testing
-- **Observability Coverage**: Full testing of tracing, metrics, log correlation, context propagation, Phase 2 instrumentation, and workflow tracing
-- **Quality Gates**: Data quality validation prevents execution on poor-quality inputs
-

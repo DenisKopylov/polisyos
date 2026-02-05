@@ -1,28 +1,47 @@
 # Runtime Module (`polisyos.runtime`)
 
-*Документация актуализирована на 2026-02-01 в соответствии с текущим состоянием кода и интеграциями.*
+*Документация актуализирована на 2026-02-05 в соответствии с текущим состоянием кода и интеграциями.*
 
 ## Обзор
 
-Модуль `polisyos.runtime` предоставляет **инфраструктуру управления жизненным циклом экспериментов и запусков** в системе симуляции политик. Это чистый слой инфраструктуры, который обеспечивает:
+Модуль `polisyos.runtime` предоставляет **инфраструктуру управления жизненным циклом экспериментов** в системе симуляции политик. Чистый слой инфраструктуры обеспечивает воспроизводимость, аудит и структурированное хранение артефактов согласно **Закону D архитектуры**.
 
-- **Воспроизводимость**: Каждый прогон имеет уникальный `run_id` и полную трассировку
-- **Аудит**: Полный лог всех операций и решений в формате JSON Lines
-- **Артефакты**: Структурированное хранение результатов, IR, метрик симуляции с переносимыми ссылками
-- **Бюджеты**: Отслеживание использования ресурсов (compute, memory, time)
-- **Переносимость**: Артефакты используют относительные пути и могут быть перемещены между директориями
-
-Согласно **Закону D архитектуры** ("Любой прогон — воспроизводим и аудируем"), runtime является единственной точкой входа для создания и управления запусками.
+### Ключевые возможности
+- **Воспроизводимость**: Уникальный `run_id` и полная трассировка каждого прогона
+- **Аудит**: JSON Lines лог всех операций и решений
+- **Артефакты**: Структурированное хранение результатов с переносимыми ссылками
+- **Бюджеты**: Отслеживание использования ресурсов (compute, memory, time, LLM calls)
+- **Переносимость**: Относительные пути позволяют перемещать директории `runs/`
 
 ## Текущее состояние
 
-Runtime — это **стабильный, production-ready модуль** с активной интеграцией в основные компоненты системы:
+Runtime — **стабильный production-ready модуль** с активными интеграциями в основные компоненты системы:
 
-- **4 ключевых файла**: `__init__.py`, `api.py`, `manifest.py`, `README.md`
-- **6 публичных функций**: `start_run`, `log_artifact`, `append_audit`, `update_budget_usage`, `finalize_run`, `resolve_artifact_path`
-- **2 Pydantic модели**: `RunManifest`, `ArtifactRef` с строгой валидацией
-- **3 основных интеграции**: Orchestrator (workflow), Governance (preflight), Environment (capture)
-- **Полная трассировка**: От NL input до симуляции результатов через структурированные артефакты
+### Структура модуля
+```
+runtime/
+├── __init__.py          # Публичный API (7 экспортов: 1 модель + 6 функций)
+├── api.py               # Основные функции управления жизненным циклом
+├── manifest.py          # Pydantic модели данных (RunManifest, ArtifactRef)
+└── README.md           # Эта документация
+```
+
+### Публичный API
+```python
+from polisyos.runtime import (
+    RunManifest,                    # Модель паспорта эксперимента
+    append_audit,                   # Добавление записи в audit trail
+    finalize_run,                   # Завершение запуска с финальным статусом
+    log_artifact,                   # Логирование артефакта прогона
+    resolve_artifact_path,          # Разрешение пути к артефакту
+    start_run,                      # Инициализация нового запуска
+    update_budget_usage,            # Обновление использования бюджета
+)
+```
+
+### Ключевые модели
+- **`RunManifest`**: Полный "паспорт" эксперимента с метаданными, статусом, бюджетами и ссылками на артефакты
+- **`ArtifactRef`**: Переносимая ссылка на артефакт с поддержкой относительных путей
 
 ## Архитектурная роль
 
@@ -43,35 +62,11 @@ Runtime стоит в конце трубы, собирая все артефа�
 
 Runtime — это **чистая инфраструктура** без зависимостей от scientist/fabric/foundry, обеспечивающая соблюдение **Закона D** архитектуры Polisyos.
 
-### Текущая архитектура модуля
-
-```
-runtime/
-├── __init__.py          # Публичный API модуля с импортами всех функций
-├── api.py               # Основные функции управления жизненным циклом экспериментов
-├── manifest.py          # Pydantic модели данных (RunManifest, ArtifactRef)
-└── README.md           # Эта документация
-```
-
-**Ключевые особенности:**
-- **Чистая инфраструктура**: Нет зависимостей от scientist/fabric/foundry
-- **Строгая типизация**: Все модели с Pydantic валидацией (`extra="forbid"`)
-- **Переносимость**: Поддержка относительных путей и run_root для перемещения директорий
+### Ключевые особенности
+- **Строгая типизация**: Pydantic модели с `extra="forbid"`
+- **Переносимость**: Относительные пути и `run_root` для перемещения директорий
 - **Идемпотентность**: Все операции безопасны для повторного выполнения
-
-### Публичный API
-
-```python
-from polisyos.runtime import (
-    RunManifest,                    # Модель паспорта эксперимента
-    append_audit,                   # Добавление записи в audit trail
-    finalize_run,                   # Завершение запуска с финальным статусом
-    log_artifact,                   # Логирование артефакта прогона
-    resolve_artifact_path,          # Разрешение пути к артефакту
-    start_run,                      # Инициализация нового запуска
-    update_budget_usage,            # Обновление использования бюджета
-)
-```
+- **Автоматическое создание директорий**: Нет ошибок на отсутствующие пути
 
 ## Структура артефактов
 
@@ -105,22 +100,19 @@ class RunManifest(BaseModel):
     budget_usage: Dict[str, float] = Field(default_factory=dict)
     pruning_reason: Optional[Dict[str, Any]] = None
     artifacts: List[ArtifactRef] = Field(default_factory=list)
-    run_root: Optional[str] = None  # Корневая директория для разрешения путей
+    environment_ref: EnvironmentManifestRef | None = Field(default=None)
+    environment_fingerprint: str | None = Field(default=None)
+    run_root: Optional[str] = None
 
     model_config = ConfigDict(extra="forbid")
 ```
 
 **Ключевые поля:**
-- `run_id`: Уникальный идентификатор прогона (обычно 8 символов UUID)
-- `parent_run_id`: Ссылка на родительский прогон для иерархических экспериментов
+- `run_id`: Уникальный идентификатор прогона (8 символов UUID)
 - `status`: Текущий статус ("running", "completed", "pruned")
-- `generator`: Метаданные о компоненте, создавшем прогон
-- `budgets`: Лимиты ресурсов (compute, memory, time и т.д.)
-- `budget_usage`: Фактическое использование ресурсов
-- `pruning_reason`: Причина прерывания прогона (если применимо)
-- `artifacts`: Список всех артефактов прогона
-- `environment_ref`: Ссылка на манифест окружения для обеспечения воспроизводимости
-- `environment_fingerprint`: Хэш-сумма критически важных факторов окружения
+- `budgets`/`budget_usage`: Лимиты и использование ресурсов
+- `artifacts`: Список всех артефактов прогона с ссылками
+- `environment_ref`/`environment_fingerprint`: Захват окружения для воспроизводимости
 - `run_root`: Корневая директория для разрешения относительных путей
 
 ### ArtifactRef (ссылка на артефакт)
@@ -374,153 +366,31 @@ class ArtifactRef(BaseModel):
 
 ## Интеграция с компонентами
 
-Runtime является **центральной инфраструктурой** для всей системы, заменяя фрагментированные подходы хранения артефактов в отдельных компонентах.
+Runtime — **центральная инфраструктура** для всех компонентов системы, обеспечивающая единую точку хранения артефактов.
 
-### Scientist/Orchestrator
+### Ключевые интеграции
 
-Runtime является основной инфраструктурой для workflow в `scientist.orchestrator`. Интеграция происходит через:
+#### Scientist/Orchestrator (`scientist.orchestrator`)
+- **flow_nodes.py**: Управление жизненным циклом через `start_run()`, `log_artifact()`, `finalize_run()`
+- **audit.py**: Синхронизация audit trail между workflow и runtime
+- **Логирование**: IR, data views, simulation results, registry bundles
 
-#### `flow_nodes.py` - управление жизненным циклом экспериментов
+#### Governance/Preflight (`scientist.governance.preflight`)
+- Логирование результатов governance checks через `log_artifact()`
+- Интеграция с validation pipeline и quality gates
 
-Основные точки интеграции:
+#### Fabric/UDF (`fabric.*`)
+- Логирование результатов UDF запросов как `data_views` артефакты
+- Обеспечение трассировки всех data operations
 
-- **`start_run()`** - инициализация эксперимента в начале workflow
-- **`log_artifact()`** - логирование результатов на каждом этапе (IR, data views, simulation results, registry bundles)
-- **`finalize_run()`** - завершение эксперимента с финальным статусом
-- **`update_budget_usage()`** - отслеживание использования ресурсов
+#### Foundry (`foundry.*`)
+- Логирование результатов симуляции и метрик
+- Обновление бюджетов после симуляционных прогонов
 
-```python
-from polisyos.runtime import finalize_run, log_artifact, start_run, update_budget_usage
-
-def experiment_workflow(state: ExperimentState):
-    # Инициализация эксперимента
-    manifest = start_run(
-        generator={"component": "scientist.orchestrator", "workflow": "policy_experiment"},
-        budgets={"llm_calls": 3.0, "sim_runs": 1.0, "wall_time_s": 120.0},
-        base_dir=_runtime_base_dir(state)
-    )
-    state["run_id"] = manifest.run_id
-
-    # Логирование registry bundle для обеспечения воспроизводимости
-    log_artifact(
-        run_id=state["run_id"],
-        artifact_type="registry_bundle_ref",
-        payload=bundle.bundle_ref.model_dump(),
-        step="runtime",
-        base_dir=_runtime_base_dir(state)
-    )
-
-    # Логирование артефактов на этапах workflow
-    log_artifact(
-        run_id=state["run_id"],
-        artifact_type="policy_ir",
-        payload=policy_ir,
-        step="draft",
-        base_dir=_runtime_base_dir(state)
-    )
-
-    # Финализация эксперимента
-    finalize_run(run_id=state["run_id"], status="completed", base_dir=_runtime_base_dir(state))
-```
-
-#### `audit.py` - интеграция с audit trail
-
-Двунаправленная синхронизация audit trail между локальным состоянием workflow и runtime:
-
-```python
-from polisyos.runtime import append_audit as runtime_append_audit
-
-def append_audit(state: Dict[str, Any], node: str, action: str, details: Dict[str, Any]) -> Dict[str, Any]:
-    audit = state.get("audit_trail") or []
-    record = {
-        "timestamp": datetime.now(timezone.utc).isoformat(),
-        "node": node,
-        "action": action,
-        "details": details,
-    }
-    audit.append(record)
-
-    # Синхронная запись в runtime audit trail
-    run_id = state.get("run_id")
-    runtime_base_dir = state.get("runtime_base_dir")
-    if run_id:
-        base_dir = Path(runtime_base_dir) if runtime_base_dir else Path("runs")
-        runtime_append_audit(run_id=run_id, record=record, base_dir=base_dir)
-
-    return {**state, "audit_trail": audit}
-```
-
-### Fabric/UDF
-
-Результаты UDF запросов логируются как артефакты для обеспечения полной трассировки:
-
-```python
-# В compile_data_views_node (flow_nodes.py)
-def compile_data_views_node(state: ExperimentState):
-    # ... компиляция и исполнение UDF через fabric.udf ...
-    log_artifact(
-        run_id=state["run_id"],
-        artifact_type="data_views",
-        payload=udf_results,
-        step="compile_data",
-        base_dir=_runtime_base_dir(state)
-    )
-```
-
-### Foundry
-
-Результаты симуляции и метрики логируются через runtime для сохранения истории экспериментов:
-
-```python
-# В run_sim_node (flow_nodes.py)
-def run_sim_node(state: ExperimentState):
-    # ... запуск симуляции в foundry ...
-
-    # Логирование результатов симуляции
-    log_artifact(
-        run_id=state["run_id"],
-        artifact_type="simulation_results",
-        payload=simulation_metrics,
-        step="simulate",
-        base_dir=_runtime_base_dir(state)
-    )
-
-    # Обновление бюджета после симуляции
-    update_budget_usage(
-        run_id=state["run_id"],
-        budget_usage={"sim_runs": 1.0},
-        base_dir=_runtime_base_dir(state)
-    )
-```
-
-### Core/Artifacts/Environment
-
-Runtime интегрирован с системой захвата окружения для обеспечения воспроизводимости симуляций:
-
-```python
-# Захват и логирование environment manifest
-from polisyos.core.artifacts.environment import capture_environment_manifest
-
-# Захват полного манифеста окружения
-env_manifest = capture_environment_manifest()
-
-# Логирование через runtime API
-log_artifact(
-    run_id=run_id,
-    artifact_type="environment_ref",
-    payload={
-        "environment_ref": env_manifest.model_dump(),
-        "fingerprint": env_manifest.fingerprint
-    },
-    step="environment_capture",
-    base_dir=Path("runs")
-)
-```
-
-Интеграция обеспечивает:
-- **Автоматическое обновление** `environment_ref` и `environment_fingerprint` в `RunManifest`
-- **Полную трассировку** факторов окружения, влияющих на воспроизводимость
-- **Валидацию** совместимости окружений при повторных запусках
+#### Core/Environment (`core.artifacts.environment`)
+- Захват и логирование environment manifest для воспроизводимости
+- Автоматическое обновление `environment_ref` и `environment_fingerprint` в RunManifest
+- Валидация совместимости окружений
 
 ## Воспроизводимость и трассировка
 
@@ -578,230 +448,80 @@ except ValidationError:
 - **Воспроизводимость**: Полная трассировка для повторения
 - **Аудит**: JSON Lines лог всех операций
 
-## Текущие возможности и ограничения
+## Возможности и ограничения
 
-### Поддерживаемые типы артефактов
-
-Runtime поддерживает все основные типы артефактов системы Polisyos:
-- **Policy IR**: Semantic и advisory contracts в JSON формате
-- **Simulation Results**: Метрики и результаты симуляции из Foundry
-- **Data Views**: Результаты UDF запросов через Fabric
-- **Registry Bundles**: Ссылки на registry для обеспечения воспроизводимости
-- **Audit Trail**: Автоматически генерируемый JSON Lines лог
-- **Validation Reports**: Результаты валидации IR и линковки
-- **Gradient Health**: Метрики здоровья градиентов и сходимости
+### Поддерживаемые артефакты
+- `policy_ir`: Policy Surface IR в JSON формате
+- `simulation_results`: Метрики симуляции из Foundry
+- `data_views`: Результаты UDF запросов через Fabric
+- `registry_bundle_ref`: Registry bundles для воспроизводимости
+- `environment_ref`: Манифесты окружения
+- `audit_trail`: Автоматический JSON Lines лог
+- `validation_report`: Результаты валидации
+- `gradient_health`: Метрики здоровья градиентов
 
 ### Ограничения
+- Только файловая система (нет поддержки внешних хранилищ)
+- JSON Lines audit trail — последовательное чтение без индексов
+- Инфраструктура хранения, без бизнес-логики
 
-- Runtime не управляет бизнес-логикой — только инфраструктурой хранения
-- Все артефакты хранятся в файловой системе (нет поддержки внешних хранилищ)
-- JSON Lines audit trail не поддерживает произвольный поиск (только последовательное чтение)
-
-## Текущие паттерны использования
+## Основные паттерны использования
 
 ### Управление бюджетом в workflow
-
-Runtime интегрирован с системой бюджетов в `flow_nodes.py`:
-
 ```python
-DEFAULT_BUDGET = {
-    "max_llm_calls": 3.0,
-    "max_sim_runs": 1.0,
-    "max_wall_time_s": 120.0,
-}
-
-def _ensure_budget(state: ExperimentState) -> ExperimentState:
-    budget = dict(DEFAULT_BUDGET)
-    budget.update(state.get("budget") or {})
-    usage = state.get("budget_usage") or {"llm_calls": 0.0, "sim_runs": 0.0, "wall_time_s": 0.0}
-
-    # Синхронизация с runtime
-    run_id = state.get("run_id")
-    if run_id:
-        update_budget_usage(run_id=run_id, budget_usage=usage, base_dir=_runtime_base_dir(state))
-
-    return {**state, "budget": budget, "budget_usage": usage}
+# Синхронизация бюджетов с runtime
+update_budget_usage(run_id=run_id, budget_usage={"llm_calls": 3.0, "sim_runs": 1.0})
 ```
 
-### Структурированное хранение артефактов
-
-Все артефакты организованы по типам в директории запуска:
-
+### Структурированное хранение
 ```
 runs/<run_id>/
-├── manifest.json                    # RunManifest
-├── artifacts/
-│   ├── policy_ir/                  # Policy Surface IR
-│   ├── data_views/                 # Результаты UDF через Fabric
-│   ├── simulation_results/         # Метрики симуляции в Foundry
-│   └── registry_bundle_ref/        # Registry bundle для воспроизводимости
-├── audit.jsonl                     # Audit trail
+├── manifest.json              # RunManifest (паспорт прогона)
+├── artifacts/                 # Структурированные результаты
+│   ├── policy_ir/            # Policy Surface IR
+│   ├── simulation_results/   # Метрики симуляции
+│   └── data_views/           # Результаты UDF запросов
+├── audit.jsonl               # Audit trail (JSON Lines)
 └── ...
 ```
 
 ## Примеры использования
 
-### Полный цикл эксперимента
+### Пример полного цикла эксперимента
 
 ```python
-from polisyos.runtime import start_run, log_artifact, append_audit, finalize_run, update_budget_usage
-from pathlib import Path
+from polisyos.runtime import start_run, log_artifact, finalize_run
 
-# 1. Инициализация эксперимента
-manifest = start_run(
-    generator={"component": "scientist.orchestrator", "workflow": "policy_experiment"},
-    budgets={"llm_calls": 3.0, "sim_runs": 1.0, "wall_time_s": 120.0},
-    base_dir=Path("runs")
-)
+# Инициализация эксперимента
+manifest = start_run(budgets={"llm_calls": 3.0, "sim_runs": 1.0})
 run_id = manifest.run_id
 
-# 2. Захват и регистрация окружения для воспроизводимости
-from polisyos.core.artifacts.environment import capture_environment_manifest
+# Логирование артефактов на этапах
+log_artifact(run_id, "policy_ir", policy_ir, step="draft")
+log_artifact(run_id, "simulation_results", sim_results, step="simulate")
 
-env_manifest = capture_environment_manifest()
-log_artifact(
-    run_id=run_id,
-    artifact_type="environment_ref",
-    payload={
-        "environment_ref": env_manifest.model_dump(),
-        "fingerprint": env_manifest.fingerprint
-    },
-    step="environment_capture",
-    base_dir=Path("runs")
-)
-
-# 3. Регистрация registry bundle для воспроизводимости
-registry_bundle = {"bundle_ref": {...}, "mechanisms": [...], "slots": [...]}
-log_artifact(
-    run_id=run_id,
-    artifact_type="registry_bundle_ref",
-    payload=registry_bundle,
-    step="runtime",
-    base_dir=Path("runs")
-)
-
-# 3. Этап черновика IR
-append_audit(run_id=run_id, record={
-    "timestamp": "2024-01-01T10:00:00Z",
-    "event": "workflow_step_started",
-    "step": "draft_ir",
-    "details": {"input_length": 1500}
-}, base_dir=Path("runs"))
-
-policy_ir = {"semantic": {...}, "advisory": {...}}
-log_artifact(
-    run_id=run_id,
-    artifact_type="policy_ir",
-    payload=policy_ir,
-    step="draft",
-    base_dir=Path("runs")
-)
-
-# 3. Компиляция данных (UDF запросы)
-data_views = {"panels": [...], "networks": [...]}
-log_artifact(
-    run_id=run_id,
-    artifact_type="data_views",
-    payload=data_views,
-    step="compile_data",
-    base_dir=Path("runs")
-)
-
-# 4. Симуляция в Foundry
-simulation_result = {
-    "metrics": {"gdp": 1250.5, "unemployment": 0.045},
-    "timesteps": 100,
-    "converged": True
-}
-log_artifact(
-    run_id=run_id,
-    artifact_type="simulation_results",
-    payload=simulation_result,
-    step="simulate",
-    base_dir=Path("runs")
-)
-
-# Обновление бюджета после симуляции
-update_budget_usage(
-    run_id=run_id,
-    budget_usage={"sim_runs": 1.0},
-    base_dir=Path("runs")
-)
-
-# 5. Решение Governor
-append_audit(run_id=run_id, record={
-    "timestamp": "2024-01-01T10:15:00Z",
-    "event": "governor_decision",
-    "verdict": "approve",
-    "details": {"confidence": 0.85}
-}, base_dir=Path("runs"))
-
-# 6. Финализация
-finalize_run(run_id=run_id, status="completed", base_dir=Path("runs"))
-```
-
-### Прогоны с pruning
-
-```python
-# Превышение бюджета LLM вызовов
-update_budget_usage(run_id=run_id, budget_usage={"llm_calls": 4.0}, base_dir=Path("runs"))
-finalize_run(run_id=run_id, status="pruned", pruning_reason={
-    "type": "budget_exceeded",
-    "resource": "llm_calls",
-    "limit": 3.0,
-    "actual": 4.0
-}, base_dir=Path("runs"))
-
-# Превышение времени выполнения
-finalize_run(run_id=run_id, status="pruned", pruning_reason={
-    "type": "wall_time_exceeded",
-    "limit": 120.0,
-    "actual": 125.5
-}, base_dir=Path("runs"))
-
-# Валидация не пройдена
-finalize_run(run_id=run_id, status="pruned", pruning_reason={
-    "type": "validation_failed",
-    "issues": ["INVALID_IR_SCHEMA", "OBJECTIVE_NOT_MEASURABLE"]
-}, base_dir=Path("runs"))
+# Финализация с pruning при необходимости
+finalize_run(run_id, status="completed")  # или "pruned"
 ```
 
 ## Тестирование
 
 ### Unit тесты
-
-Основные unit тесты сосредоточены на корректности работы с путями и артефактами:
-
 ```bash
-# Тестирование API и путей
 pytest policy-engine/tests/runtime/test_runtime_manifest_paths.py -v
-
-# Тестирование логирования артефактов и разрешения путей
-pytest policy-engine/tests/runtime/test_runtime_manifest_paths.py::test_log_artifact_uses_relative_paths -v
-pytest policy-engine/tests/runtime/test_runtime_manifest_paths.py::test_resolve_artifact_path_handles_relative_and_absolute -v
 ```
 
 ### Integration тесты
-
-Runtime тестируется в составе полных workflow экспериментов:
-
 ```bash
-# Полный workflow с runtime интеграцией
 pytest policy-engine/tests/integration/test_workflow_smoke.py -k "workflow_with_runtime" -v
 pytest policy-engine/tests/integration/test_workflow_llm.py -v
-
-# Проверка отсутствия legacy артефактов
-pytest policy-engine/tests/integration/test_workflow_smoke.py::test_no_legacy_logs -v
 ```
 
-### Контрактные тесты
-
-Runtime тестируется как часть end-to-end workflow, где проверяется:
-- ✅ **Воспроизводимость**: Каждый прогон имеет уникальный run_id и полную трассировку
-- ✅ **Переносимость**: Директории `runs/` можно перемещать без потери ссылок
-- ✅ **Целостность audit trail**: Синхронизация между локальным и runtime audit
-- ✅ **Корректность бюджетов**: Отслеживание и enforcement лимитов ресурсов
-- ✅ **Отсутствие legacy артефактов**: Все компоненты используют runtime вместо старых подходов
+### Контрактные гарантии
+- ✅ Воспроизводимость: уникальный run_id и полная трассировка
+- ✅ Переносимость: директории `runs/` можно перемещать
+- ✅ Целостность audit trail и бюджетов
+- ✅ Отсутствие legacy артефактов
 
 ## Архитектурные гарантии
 
@@ -832,43 +552,24 @@ Runtime обеспечивает соблюдение **Закона D**:
 
 ```mermaid
 graph TD
-    A[scientist.orchestrator.flow_nodes] --> B[runtime.api]
-    A --> C[runtime.manifest]
-    D[scientist.orchestrator.audit] --> B
-    I[scientist.governance.preflight] --> B
-    B --> E[filesystem: runs/&lt;run_id&gt;/]
-    C --> E
-    F[fabric.udf] -.-> B
-    G[foundry.engine] -.-> B
-    H[core.artifacts.environment] --> C
-    H --> B
+    A[scientist.orchestrator] --> B[runtime.api]
+    C[scientist.governance] --> B
+    D[fabric.udf] -.-> B
+    E[foundry.engine] -.-> B
+    F[core.environment] --> B
+    B --> G[filesystem: runs/&lt;run_id&gt;/]
 ```
-
-### Модели данных
-
-Модуль предоставляет две ключевые Pydantic модели с строгой валидацией:
-
-- **`RunManifest`**: Полный "паспорт" эксперимента с метаданными, статусом, бюджетами и ссылками на артефакты
-  - Новые поля: `environment_ref` (ссылка на EnvironmentManifest) и `environment_fingerprint` (хэш окружения)
-- **`ArtifactRef`**: Переносимая ссылка на артефакт с поддержкой относительных путей
-
-Дополнительные модели из зависимых модулей:
-- **`EnvironmentManifestRef`**: Типизированная ссылка на артефакт манифеста окружения
-- **`EnvironmentManifest`**: Полная спецификация окружения для воспроизводимости
 
 ### Поток данных
-
 ```
-Scientist Workflow → Runtime API → File System (runs/<run_id>/) → Artifacts + Audit Trail
+Scientist Workflow → Runtime API → File System → Artifacts + Audit Trail
 ```
 
-### Ключевые особенности реализации
-
-- **Переносимость**: Использование `relative_path` в `ArtifactRef` позволяет перемещать директории `runs/` без потери ссылок
-- **Строгая схема**: Все модели используют `extra="forbid"` для предотвращения незапланированных полей
-- **Версионирование**: `schema_version` в `RunManifest` обеспечивает эволюцию формата
+### Ключевые особенности
+- **Переносимость**: Относительные пути позволяют перемещать директории
+- **Строгая схема**: Pydantic с `extra="forbid"`
 - **Идемпотентность**: Все операции безопасны для повторного выполнения
-- **Автоматическое создание директорий**: Нет ошибок на отсутствующие пути
+- **Версионирование**: `schema_version` для эволюции формата
 
 ## Тестирование
 
@@ -924,47 +625,4 @@ except ValidationError as e:
     append_audit(run_id, {"event": "artifact_validation_failed", "error": str(e)})
 ```
 
-## Миграция и совместимость
-
-### Поддержка переносимости
-
-Runtime обеспечивает полную переносимость директорий `runs/` благодаря комбинации `relative_path` и `run_root`:
-
-```python
-# Артефакты остаются доступными после перемещения
-original_base = Path("/original/runs")
-new_base = Path("/backup/runs")
-
-# Перемещение директории
-shutil.move(str(original_base / run_id), str(new_base / run_id))
-
-# Пути разрешаются корректно благодаря сохраненному run_root
-artifact_path = resolve_artifact_path(ref, base_dir=new_base)
-```
-
-**Механизм переносимости:**
-1. `relative_path` в `ArtifactRef` хранит путь относительно `run_root`
-2. `run_root` в `RunManifest` сохраняет оригинальную базовую директорию
-3. `resolve_artifact_path()` может восстановить абсолютный путь даже после перемещения
-
-### Обратная совместимость
-
-- `path` поле в `ArtifactRef` поддерживается для существующих артефактов
-- `relative_path` является рекомендуемым подходом для новых артефактов
-- `run_root` в `RunManifest` обеспечивает корректное разрешение путей при перемещении
-- Все операции идемпотентны — повторный вызов не ломает существующие артефакты
-
-## Версии и развитие
-
-### Текущая версия схемы: 1.0
-
-- `RunManifest.schema_version`: "1.0" с поддержкой семантического версионирования (major.minor)
-- `ArtifactRef.schema_version`: Опционально, для типизированных артефактов
-
-### Roadmap
-
-- **v1.1**: Добавление метрик производительности и health checks
-- **v2.0**: Поддержка внешних хранилищ артефактов (S3, GCS)
-- **v2.1**: Расширенная поддержка версионирования и отката артефактов
-
-Runtime — это **инфраструктурный фундамент** для надежной, трассируемой и воспроизводимой системы симуляции политик, обеспечивающий единый стандарт хранения и управления артефактами экспериментов.
+Runtime — **инфраструктурный фундамент** системы Polisyos, обеспечивающий **Закон D** через воспроизводимость, аудит, артефакты и бюджеты. Схема версии 1.0 с поддержкой переносимости и обратной совместимости.

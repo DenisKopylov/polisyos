@@ -2,8 +2,8 @@
 
 Тестовая инфраструктура для Policy Engine - AI-driven Policy Simulation System. Тесты обеспечивают качество кода, валидируют архитектурные границы и проверяют корректность работы всех компонентов системы.
 
-**Последнее обновление:** 1 февраля 2026 (обновлена структура документации согласно актуальному состоянию тестовой инфраструктуры)
-**Актуальная версия архитектуры:** v2.4.1 (Performance Regression Detection, Enhanced Diagnostics, Core Observability v2.0, Phase 18 Security v2.1)
+**Последнее обновление:** 5 февраля 2026 (обновлена структура документации согласно актуальному состоянию тестовой инфраструктуры с добавлением новых тестов Phase 19, расширенных fabric тестов и актуализации архитектуры)
+**Актуальная версия архитектуры:** v2.5.0 (Phase 19 Components, Enhanced Fabric Integration, Extended Contract Testing, Core Phase 0 Observability v2.0, Phase 18 Security v2.1)
 
 ## Архитектурный контекст
 
@@ -19,15 +19,35 @@
 ```
 tests/
 ├── conftest.py                    # Конфигурация pytest и настройка окружения
+├── test_arch_import_gate.py       # Архитектурные гейты импортов
+├── test_components_bridge_phase19.py # Bridge компоненты Phase 19
+├── test_components_discovery_phase19.py # Discovery компоненты Phase 19
+├── test_components_id_semver_phase19.py # Semantic versioning Phase 19
+├── test_public_api_facades.py     # Public API facades тесты
 ├── contract/                      # Тесты контрактов IR и схем валидации
-│   ├── README.md                  # Документация contract тестов
 │   ├── test_ir_contract.py        # PolicySurfaceIR, селекторы, валидация, TranslatableString
 │   ├── test_ir_migrations.py      # Миграции схем IR между версиями
 │   ├── test_trinity_contracts.py  # Trinity артефакты: ProblemFrame, PolicySpec, ModelSpec
 │   ├── test_trinity_migration.py  # Миграция между Surface IR и Trinity форматами
 │   ├── test_fabric_gates.py       # Входные фильтры и предусловия Fabric layer
 │   ├── test_kernel_models.py      # Валидация моделей ядра IR (slots, units, merge rules, time semantics)
-│   └── test_surface_ir.py         # Surface IR, линкер, semantic fingerprinting, validation reports
+│   ├── test_surface_ir.py         # Surface IR, линкер, semantic fingerprinting, validation reports
+│   ├── test_claims_pipeline_phase13.py # Claims pipeline Phase 13
+│   ├── test_conflicts_phase14.py  # Conflicts Phase 14
+│   ├── test_docs_pipeline_phase12.py # Docs pipeline Phase 12
+│   ├── test_evidence_bundle.py    # Evidence bundles, ingestion pipeline, provenance tracking
+│   ├── test_legal_evaluation_phase18.py # Legal evaluation Phase 18
+│   ├── test_lex_corpus_phase16.py # Lex corpus Phase 16
+│   ├── test_normpack_phase17.py   # NormPack Phase 17
+│   ├── test_provenance.py         # Provenance subsystem, entities, graphs, PROV-O export, persistence
+│   ├── test_quality_indicators.py # Quality indicators system, fitness reports, quality gate pass integration
+│   ├── test_scholar_extractor_components_phase19.py # Scholar extractor Phase 19
+│   ├── test_scholar_mvp_phase15.py # Scholar MVP Phase 15
+│   ├── test_trust_phase14.py      # Trust Phase 14
+│   ├── test_trust_two_pass.py     # Trust system, uncertainty bounds, двухпроходное сравнение
+│   ├── test_world_kuzu_phase11.py # World Kuzu Phase 11
+│   ├── test_world_materialization_phase10.py # World materialization Phase 10
+│   └── test_world_store_phase9.py # World store Phase 9
 ├── core_phase0/                   # Тесты базовых компонентов core (Phase 0 + Observability)
 │   ├── README.md                  # Документация core phase 0 тестов
 │   ├── conftest.py                # Специфичная конфигурация для core тестов
@@ -69,7 +89,19 @@ tests/
 │   ├── test_evidence_bundle.py    # Evidence bundles, ingestion pipeline, provenance tracking
 │   ├── test_provenance.py         # Provenance subsystem, entities, graphs, PROV-O export, persistence
 │   ├── test_quality_indicators.py # Quality indicators system, fitness reports, quality gate pass integration
-│   └── test_trust_two_pass.py     # Trust system, uncertainty bounds, двухпроходное сравнение
+│   ├── test_trust_two_pass.py     # Trust system, uncertainty bounds, двухпроходное сравнение
+│   ├── test_claims_pipeline_phase13.py # Claims pipeline Phase 13
+│   ├── test_conflicts_phase14.py  # Conflicts Phase 14
+│   ├── test_docs_pipeline_phase12.py # Docs pipeline Phase 12
+│   ├── test_legal_evaluation_phase18.py # Legal evaluation Phase 18
+│   ├── test_lex_corpus_phase16.py # Lex corpus Phase 16
+│   ├── test_normpack_phase17.py   # NormPack Phase 17
+│   ├── test_scholar_extractor_components_phase19.py # Scholar extractor Phase 19
+│   ├── test_scholar_mvp_phase15.py # Scholar MVP Phase 15
+│   ├── test_trust_phase14.py      # Trust Phase 14
+│   ├── test_world_kuzu_phase11.py # World Kuzu Phase 11
+│   ├── test_world_materialization_phase10.py # World materialization Phase 10
+│   └── test_world_store_phase9.py # World store Phase 9
 ├── foundry/                       # Тесты симуляционных компонентов JAX-ядра
 │   ├── README.md                  # Документация foundry тестов
 │   ├── agent_sim/                 # Тесты симуляции агентов
@@ -135,14 +167,18 @@ tests/
     │   ├── __init__.py            # Пакет search тестов
     │   ├── conftest.py            # Специфичная конфигурация для search тестов
     │   └── test_search_loop.py    # SearchController, two-stage filtering, stopping criteria, objectives
-    ├── test_agent_protocols.py    # Протоколы агентов: PI, Drafter, Formalizer, Critic
-    ├── test_compiler.py           # Компилятор политик из IR
-    ├── test_decision_card.py      # DecisionCard, Verdict, Confidence, KeyMetric, IssuesSummary
-    ├── test_decision_packet_v2.py # DecisionPacket v2 с timeline и decision card поддержкой
-    ├── test_instrumentation.py    # Phase 2 instrumentation tests (flow nodes, LLM client, governance tracing)
-    ├── test_multi_agent_workflow.py # Multi-agent workflow с critique system и памятью
-    ├── test_reflexion_loop.py     # Reflexion loop, failure cards, recovery mechanisms
-    └── test_run_timeline.py       # RunTimeline, TimelineEventType, timeline tracking
+├── test_agent_protocols.py    # Протоколы агентов: PI, Drafter, Formalizer, Critic
+├── test_compiler.py           # Компилятор политик из IR
+├── test_decision_card.py      # DecisionCard, Verdict, Confidence, KeyMetric, IssuesSummary
+├── test_decision_packet_v2.py # DecisionPacket v2 с timeline и decision card поддержкой
+├── test_engine_default_workflow_e1_7.py # Engine default workflow E1.7
+├── test_engine_executor_v0.py  # Engine executor v0
+├── test_engine_registry_v0.py  # Engine registry v0
+├── test_flow_nodes_legacy_shim_e1_7.py # Flow nodes legacy shim E1.7
+├── test_instrumentation.py    # Phase 2 instrumentation tests (flow nodes, LLM client, governance tracing)
+├── test_multi_agent_workflow.py # Multi-agent workflow с critique system и памятью
+├── test_reflexion_loop.py     # Reflexion loop, failure cards, recovery mechanisms
+└── test_run_timeline.py       # RunTimeline, TimelineEventType, timeline tracking
 ```
 
 ## Категории тестов

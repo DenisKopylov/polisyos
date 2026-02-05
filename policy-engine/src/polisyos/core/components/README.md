@@ -1,13 +1,10 @@
 # Components (Component Model v1)
 
-`polisyos.core.components` задает единый слой identity/discovery/compliance для расширений.
+Единый слой identity/discovery/compliance для расширений PolisyOS.
 
 ## ComponentId
 
-Формат: `seg(.seg)+@semver`
-
-- `seg`: `[a-z][a-z0-9_]*`
-- SemVer 2.0.0 (включая pre-release/build)
+Формат: `namespace.name@semver`
 
 ```python
 from polisyos.core.components import ComponentId
@@ -19,15 +16,10 @@ print(cid.name)        # flat_tax
 print(cid.version)     # 1.2.3
 ```
 
-## Metadata
+## ComponentMetadata
 
 ```python
-from polisyos.core.components import (
-    Capability,
-    ComponentKind,
-    ComponentMetadata,
-    ComponentId,
-)
+from polisyos.core.components import ComponentMetadata, ComponentKind, Capability
 
 metadata = ComponentMetadata(
     component_id=ComponentId.parse("roads.extractor.speed@1.0.0"),
@@ -43,14 +35,17 @@ metadata = ComponentMetadata(
 ## Discovery & Registry
 
 ```python
-from polisyos.core.components import (
-    ComponentRegistry,
-    ComponentEntry,
-    discover_components,
-)
+from polisyos.core.components import ComponentRegistry, discover_components
 
 report = discover_components()
 registry = ComponentRegistry()
-for row in report.components:
-    registry.register(ComponentEntry(metadata=row.metadata, component=row.component, source=row.source))
+for component in report.components:
+    registry.register(component)
 ```
+
+## Особенности
+
+- **Identity**: Уникальная идентификация через ComponentId
+- **Discovery**: Автоматическое обнаружение компонентов
+- **Compliance**: Проверка совместимости через abi_targets
+- **Metadata**: Богатые метаданные (domains, jurisdictions, capabilities)

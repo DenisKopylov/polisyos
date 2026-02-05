@@ -1,83 +1,85 @@
 # Registry (Реестры компонентов)
 
-## Обзор
-
-Инфраструктура для управления реестрами компонентов: механизмы, метрики, ограничения, правила объединения. Централизованное версионирование и хранение как артефактов.
+Инфраструктура управления реестрами: механизмы, метрики, ограничения, правила объединения. Централизованное версионирование как CAS артефакты.
 
 ## Архитектура
 
 ```
 registry/
-├── builder.py     # Сборка реестров из IR модуля
+├── builder.py     # Сборка реестров из IR
 ├── loader.py      # Загрузка и десериализация
 └── __init__.py    # Экспорт функций
 ```
 
 ## Типы реестров
 
-SlotRegistry, MechanismTypeRegistry, MetricRegistry, ConstraintRegistry, MergeRuleRegistry, SelectorFieldRegistry, UnitsRegistry, TrustRegistry, PredicateRegistry, PrivacyRegistry.
+- SlotRegistry, MechanismTypeRegistry, MetricRegistry, ConstraintRegistry
+- MergeRuleRegistry, SelectorFieldRegistry, UnitsRegistry, TrustRegistry
+- PredicateRegistry, PrivacyRegistry
 
 ## Основные функции
 
-### build_default_registry_bundle()
-Сборка стандартного пакета реестров из IR модуля.
-
-### build_registry_bundle()
-Сборка кастомного пакета с указанными реестрами.
-
-### load_registry_bundle()
-Загрузка ссылок на реестры.
-
-### load_registry_bundle_content()
-Загрузка полных объектов реестров с десериализацией.
+- **build_default_registry_bundle()**: Стандартный пакет реестров из IR
+- **build_registry_bundle()**: Кастомный пакет с указанными реестрами
+- **load_registry_bundle()**: Загрузка ссылок на реестры
+- **load_registry_bundle_content()**: Загрузка полных объектов реестров
 
 ## Структуры данных
 
-### RegistryBundlePayload
-Базовая структура ссылок на реестры (обязательные: slot, merge, constraint, mechanism; опциональные: metric, trust, units, etc.).
-
-### RegistryBundle
-Наследует от Payload + ссылка на сам пакет.
-
-### RegistryBundleContent
-Загруженные объекты реестров с полными данными.
+- **RegistryBundlePayload**: Ссылки на реестры (обязательные: slot, merge, constraint, mechanism)
+- **RegistryBundle**: Payload + ссылка на пакет
+- **RegistryBundleContent**: Загруженные объекты реестров
 
 ## Рабочий процесс
 
-1. Сборка: `build_default_registry_bundle()` или `build_registry_bundle()` с кастомными реестрами
+1. Сборка: `build_default_registry_bundle()` или `build_registry_bundle()`
 2. Сохранение: `bundle.save(store)` как артефакт
-3. Загрузка: `load_registry_bundle_content()` для использования в компиляции политик
+3. Загрузка: `load_registry_bundle_content()` для компиляции политик
 
 ## Интеграция
 
-IR: предоставляет определения реестров, используется для сборки
-Foundry: загружает для валидации и исполнения
-Scientist: управляет версиями в экспериментах
-Compiler: включает ссылки в CompileReport
+- **IR**: Определения реестров для сборки
+- **Foundry**: Загрузка для валидации и исполнения
+- **Scientist**: Управление версиями в экспериментах
+- **Compiler**: Ссылки в CompileReport
 
 ## Хранение и версионирование
 
-Реестры хранятся как CAS артефакты с schema versioning. Новые версии = новые артефакты. Bundle ссылается на конкретные версии.
+CAS артефакты с schema versioning. Новые версии = новые артефакты.
 
 ## Примеры
 
 ### Кастомный реестр
-Сборка пакета с кастомным MechanismTypeRegistry.
+
+```python
+# Сборка с кастомным MechanismTypeRegistry
+bundle = build_registry_bundle(store, custom_mechanism_registry)
+bundle_ref = bundle.save(store)
+```
 
 ### Валидация
-Проверка наличия обязательных реестров и версий схем.
 
-### Версионирование
-Создание новой версии с обновленными реестрами.
+```python
+# Проверка обязательных реестров
+content = load_registry_bundle_content(store, bundle_ref)
+assert content.slot_registry is not None
+assert content.mechanism_registry is not None
+```
 
 ## Производительность
 
-Ленивая загрузка, CAS кеширование, дедупликация. RegistryBundleContent использует dataclasses.
+Ленивая загрузка, CAS кеширование, дедупликация. Использует dataclasses.
 
 ## Лучшие практики
 
-Используйте стандартные реестры, версионируйте изменения, валидируйте перед использованием, тестируйте совместимость.
+- Стандартные реестры для совместимости
+- Версионируйте изменения
+- Валидируйте перед использованием
+- Тестируйте совместимость версий
 
 ## Отладка
 
-Функция `inspect_registry()` для проверки содержимого пакета реестров.
+```python
+# Проверка содержимого
+inspect_registry(bundle_content)
+```

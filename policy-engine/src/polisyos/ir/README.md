@@ -61,6 +61,9 @@ PolicySurfaceIR v2.x остается совместимым интерфейс�
 15. **Data Connectors**: Контракты для интеграции с внешними источниками данных
 16. **Типизированные значения**: Строго типизированные значения (MoneyValue, RateValue, CountValue, DurationValue)
 17. **Асинхронные утилиты**: Инструменты для безопасной работы с асинхронным кодом
+18. **World модель**: Семантическая модель мира с событиями, утверждениями и разрешением конфликтов
+19. **Каноническая сериализация**: Детерминированные хеши и сериализация для reproducible артефактов
+20. **Ссылки на артефакты**: Управление ссылками между компонентами системы
 
 ### Ключевые обязанности
 
@@ -87,18 +90,23 @@ ir/
 ├── types.py                  # Перечисления, базовые типы и утилиты
 ├── connectors.py             # Контракты коннекторов для интеграции с внешними источниками данных
 ├── trinity/                  # Канонический Trinity пакет (ProblemFrame, PolicySpec, ModelSpec, TrinityBundle)
+│   ├── __init__.py          # TrinityBundle и базовые типы
+│   └── loaders.py            # Загрузчики Trinity артефактов
 ├── problem_frame.py          # ProblemFrame: определение проблемы и целей
 ├── policy_spec.py            # PolicySpec: спецификация политики и интервенций
 ├── model_spec.py             # ModelSpec: конфигурация модели мира
 ├── surface.py                # Legacy shim для PolicySurfaceIR (v2.x)
-├── legacy/                   # Устаревшие контракты и миграции
 ├── selector_expr.py          # Селекторы для таргетинга интервенций
 ├── schedule.py               # Контракт расписаний
 ├── data_views.py             # Модели запросов данных (DataViewRequest, DataViewType)
 ├── queries.py                # Контракты запросов к миру (QueryScope, DocQuery, ClaimQuery, NormQuery)
 ├── validation.py             # Утилиты валидации и отчетов об ошибках
 ├── fact_log.py               # Контракты для семантической сети фактов
-├── linker/                   # Линкер (legacy link_policy + Trinity link_trinity)
+├── linker/                   # Линкер политик (link_trinity + legacy link_policy)
+│   ├── __init__.py          # API линкера
+│   ├── link_trinity.py      # Канонический линкер Trinity артефактов
+│   ├── reports.py           # Типы отчетов линковки
+│   └── types.py             # Вспомогательные типы
 ├── predicate.py              # Реестры предикатов для запросов данных
 ├── loaders.py                # Универсальная загрузка политик с автораспознаванием версий
 ├── calibration.py            # Контракты калибровки политик относительно данных
@@ -106,6 +114,17 @@ ir/
 ├── citations.py              # Контракты цитирования источников (CitationRef)
 ├── applicability.py          # Контракты применимости норм (NormApplicability)
 ├── registry_fragments.py     # Фрагменты реестров + контракт composer
+├── world/                    # World: семантическая модель мира и событий
+│   ├── __init__.py          # Экспорт всех world компонентов
+│   ├── abi.py               # ABI интерфейсы и типы (EdgeKind, NodeKind)
+│   ├── claim.py             # Модель утверждений (Claim)
+│   ├── conflict.py          # Разрешение конфликтов (ConflictSet, ConflictResolution)
+│   ├── doc.py               # Документные фрагменты (DocFragment, DocMeta)
+│   ├── event.py             # События мира (WorldEvent, ProvActivity)
+│   ├── ids.py               # Генерация детерминированных ID для world объектов
+│   ├── predicates.py        # Предикаты world графа
+│   ├── quality.py           # Качество и валидация (QualityReport, QualityIssue)
+│   └── trust.py             # Оценки доверия (TrustAssessment, TrustTier)
 ├── kernel/                   # Kernel: фундаментальные реестры и типы
 │   ├── __init__.py          # Экспорт всех kernel компонентов
 │   ├── base.py              # KernelModel, паттерны ID, утилиты валидации
@@ -123,8 +142,11 @@ ir/
 ├── migrations/
 │   ├── __init__.py          # API миграций между версиями схем
 │   └── trinity_migration.py # Legacy shim (реэкспорт из ir.legacy.migrations)
-├── async_tools.py           # Асинхронные утилиты (run_coro_sync) - находится в common/
-└── units.py                 # Устаревшие утилиты для работы с единицами измерения (дубликат kernel/units.py)
+├── canon.py                  # Каноническая сериализация для детерминированных хешей
+├── refs.py                   # Ссылки и идентификаторы (ArtifactRef, DataRef)
+├── problem_frame.py          # ProblemFrame: определение проблемы и целей
+├── migration_report.py       # Отчеты о миграциях политик
+└── units.py                  # Устаревшие утилиты для работы с единицами измерения (дубликат kernel/units.py)
 ```
 
 ## Trinity артефакты
@@ -744,6 +766,12 @@ fact_id = build_fact_id(payload)  # sha256:...
 
 Система проверки корректности политик относительно kernel-реестров. Линкер обеспечивает, что все ссылки в политике (механизмы, слоты, метрики, ограничения) существуют в соответствующих реестрах и имеют корректные параметры. Выполняет комплексную валидацию с учетом зависимостей между компонентами.
 
+**Ключевые компоненты:**
+- **link_trinity()**: Канонический линкер для Trinity артефактов (ProblemFrame, PolicySpec, ModelSpec)
+- **LinkReport**: Структурированные отчеты о проблемах линковки с кодами ошибок
+- **LinkedTrinityBundle**: Результат успешной линковки с привязанными реестрами
+- **LinkIssueCode**: Стабильные коды типов проблем линковки
+
 **DEPRECATED**: `link_policy()` относится к legacy PolicySurfaceIR. Для Trinity используйте `link_trinity()`.
 
 #### Legacy: link_policy (PolicySurfaceIR)
@@ -1036,7 +1064,28 @@ norm_pack = NormPack(
 - `PROHIBITION`: Не должен (запрет)
 - `PERMISSION`: Может (разрешение)
 
-### 13. Kernel: фундаментальные реестры (`kernel/`)
+### 13. World: семантическая модель мира (`world/`)
+
+#### Архитектурная роль World
+
+World определяет семантическую модель мира Policy Engine - событий, утверждений, конфликтов и их разрешения. World предоставляет унифицированную модель для представления эволюции мира во времени, включая provenance tracking, quality assessment и trust evaluation.
+
+**Ключевые компоненты:**
+- **WorldEvent**: События в мире с provenance tracking
+- **Claim**: Утверждения о состоянии мира с источниками
+- **ConflictSet**: Наборы конфликтующих утверждений и их разрешение
+- **DocFragment**: Документные фрагменты с метаданными
+- **QualityReport**: Оценки качества данных и процессов
+- **TrustAssessment**: Оценки доверия к источникам и данным
+
+**Особенности World:**
+- Детерминированная генерация ID для всех объектов
+- Семантическая сеть с типизированными отношениями
+- Поддержка provenance (происхождения) данных
+- Качественная оценка и валидация
+- Trust policies для источников данных
+
+### 14. Kernel: фундаментальные реестры (`kernel/`)
 
 #### Архитектурная роль Kernel
 
@@ -1073,7 +1122,7 @@ slot = DEFAULT_SLOT_REGISTRY.slots["agents.income"]
 unit = DEFAULT_UNITS_REGISTRY.units["usd"]
 ```
 
-### 14. Контракты коннекторов данных (`connectors.py`)
+### 15. Контракты коннекторов данных (`connectors.py`)
 
 #### Архитектурная роль
 
@@ -1131,7 +1180,7 @@ version = DataVersion(
 - **Fabric Level**: Исполняемые протоколы (SourceConnector, FetchRequest, FetchResult)
 - **Runtime Level**: Кэширование и оркестрация запросов к источникам
 
-### 14. Типизированные значения (`kernel/numbers.py`, `kernel/values.py`)
+### 16. Типизированные значения (`kernel/numbers.py`, `kernel/values.py`)
 
 #### Строгая типизация числовых значений
 
@@ -1166,7 +1215,7 @@ employees = CountValue(value=100, label="IT specialists")
 duration = DurationValue(value=12, unit="month")  # 12 месяцев
 ```
 
-### 15. Асинхронные утилиты (`common/async_tools.py`)
+### 17. Асинхронные утилиты (`common/async_tools.py`)
 
 #### Безопасная работа с корутинами
 
@@ -1188,7 +1237,7 @@ result = run_coro_sync(async_operation())
 - ThreadPoolExecutor для случаев с running loop
 - Graceful fallback к asyncio.run()
 
-### 16. Система версий (`migrations/`)
+### 18. Система версий (`migrations/`)
 
 #### Детерминированные миграции
 
@@ -1837,8 +1886,8 @@ IR является фундаментом всей системы и испол
 - **Scientist**: Генерирует Trinity артефакты (ProblemFrame, PolicySpec, ModelSpec) или PolicySurfaceIR, использует линкер для валидации, типы из `types.py` и загрузчики из `loaders.py`.
 - **Foundry**: Компилирует `InterventionSpec` из PolicySpec в JAX-механизмы, использует kernel-реестры для линковки, калибровку из `calibration.py` для оптимизации, работает с ModelSpec для конфигурации симуляции
 - **Fabric**: Обрабатывает `DataViewRequest` для запросов данных, использует предикаты из `predicate.py`, контракты фактов из `fact_log.py` для семантической сети, работает с ModelSpec для понимания структуры данных. Использует контракты коннекторов из `connectors.py` для стандартизации интерфейсов внешних источников данных
-- **Core**: Предоставляет базовую инфраструктуру, использует `Fact` и `FactBatch` для построения семантической сети знаний, интегрируется с ModelSpec для загрузки данных
-- **Runtime**: Хранит артефакты Trinity и PolicySurfaceIR для аудита, использует `CalibrationConfig` для управления оптимизацией, сохраняет метаданные из всех артефактов
+- **Core**: Предоставляет базовую инфраструктуру, использует `Fact` и `FactBatch` для построения семантической сети знаний, интегрируется с ModelSpec для загрузки данных, использует World модель для семантического представления эволюции мира
+- **Runtime**: Хранит артефакты Trinity и PolicySurfaceIR для аудита, использует `CalibrationConfig` для управления оптимизацией, сохраняет метаданные из всех артефактов, использует World events для provenance tracking
 - **Common**: Использует систему миграций из `common.migrations` для версионирования схем, включая Trinity миграции; предоставляет `async_tools.py` для асинхронных операций
 - **Legal (Scientist/Governance)**: Использует `NormPack` и `NormRule` для определения нормативных документов и backend-движки для оценки выражений в правилах compliance
 
@@ -1863,7 +1912,14 @@ ProblemFrame (constant) + PolicySpec (iterated) + ModelSpec (varied)
     ↓
   Linker validation
     ↓
-Foundry compilation → Simulation → Analysis
+Foundry compilation → Simulation → World Events → Analysis
+```
+
+**World Integration:**
+```
+Simulation Events → World Model (Claims, Conflicts, Quality)
+    ↓
+Provenance Tracking → Trust Assessment → Quality Reports
 ```
 
 ---
@@ -1872,6 +1928,8 @@ Foundry compilation → Simulation → Analysis
 - [Общая архитектура](../../../../architecture.md)
 - [Примеры использования](../../../examples/ir_base_demo.py)
 - [Kernel реестры](kernel/README.md) - фундаментальные реестры и типы
+- [World модель](world/) - семантическая модель мира
+- [Linker](linker/) - валидация и линковка политик
 - [Migrations](migrations/README.md) - система версионирования схем
 - [Expression AST Backend](../../scientist/governance/legal/backends/expr_ast.py) - интеграция с Legal Pass
 - [Fabric](../fabric/README.md) - система данных

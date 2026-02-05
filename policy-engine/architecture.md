@@ -458,6 +458,55 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │       │   ├── types.py  # Python module implementing 'types'.
 │       │   ├── units.py  # Python module implementing 'units'.
 │       │   └── validation.py  # Python module implementing 'validation'.
+│       ├── lex/  # Legal corpus and norm evaluation system.
+│       │   ├── corpus/  # Legal document corpus management and indexing.
+│       │   │   ├── README.md  # Documentation for this directory/module.
+│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   ├── index.py  # Python module implementing 'index'.
+│       │   │   ├── ingest.py  # Python module implementing 'ingest'.
+│       │   │   ├── structure.py  # Python module implementing 'structure'.
+│       │   │   └── versioning.py  # Python module implementing 'versioning'.
+│       │   ├── legal_evaluation/  # Legal rule evaluation and compliance checking.
+│       │   │   ├── backends/  # Legal evaluation backend implementations.
+│       │   │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   │   └── simple_v1.py  # Python module implementing 'simple_v1'.
+│       │   │   ├── README.md  # Documentation for this directory/module.
+│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   ├── change_proposals.py  # Python module implementing 'change_proposals'.
+│       │   │   ├── context_builder.py  # Python module implementing 'context_builder'.
+│       │   │   ├── evaluate.py  # Python module implementing 'evaluate'.
+│       │   │   ├── evaluator_registry.py  # Python module implementing 'evaluator_registry'.
+│       │   ├── normpack/  # Norm pack assembly and management.
+│       │   │   ├── README.md  # Documentation for this directory/module.
+│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   ├── applicability.py  # Python module implementing 'applicability'.
+│       │   │   ├── assemble_pack.py  # Python module implementing 'assemble_pack'.
+│       │   │   ├── extract_norm_claims.py  # Python module implementing 'extract_norm_claims'.
+│       │   │   ├── policies.py  # Python module implementing 'policies'.
+│       │   │   ├── provider_registry.py  # Python module implementing 'provider_registry'.
+│       │   │   └── select_sources.py  # Python module implementing 'select_sources'.
+│       │   ├── README.md  # Documentation for this directory/module.
+│       │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   ├── api.py  # Python module implementing 'api'.
+│       │   ├── errors.py  # Python module implementing 'errors'.
+│       │   └── types.py  # Python module implementing 'types'.
+│       ├── packs/  # Domain-specific policy packs and components.
+│       │   ├── econ/  # Economic policy pack.
+│       │   │   ├── README.md  # Documentation for this directory/module.
+│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   ├── components.py  # Python module implementing 'components'.
+│       │   │   └── ir_fragments.py  # Python module implementing 'ir_fragments'.
+│       │   ├── roads/  # Road infrastructure policy pack.
+│       │   │   ├── README.md  # Documentation for this directory/module.
+│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   ├── components.py  # Python module implementing 'components'.
+│       │   │   ├── foundry_methods.py  # Python module implementing 'foundry_methods'.
+│       │   │   ├── ir_fragments.py  # Python module implementing 'ir_fragments'.
+│       │   │   ├── lex_evaluators.py  # Python module implementing 'lex_evaluators'.
+│       │   │   ├── norms_provider.py  # Python module implementing 'norms_provider'.
+│       │   │   └── scholar_extractors.py  # Python module implementing 'scholar_extractors'.
+│       │   ├── README.md  # Documentation for this directory/module.
+│       │   ├── __init__.py  # Python package initializer (public exports live here).
 │       ├── runtime/  # Run lifecycle API and portable run manifests.
 │       │   ├── README.md  # Documentation for this directory/module.
 │       │   ├── __init__.py  # Python package initializer (public exports live here).

@@ -533,16 +533,36 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │       │   ├── migrations/  # IR format migrations and Trinity bridging utilities.
 │       │   │   ├── README.md  # Documentation for this directory/module.
 │       │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   ├── base.py  # Python module implementing 'base'.
+│       │   │   ├── policy_ir.py  # Python module implementing 'policy_ir'.
 │       │   │   └── trinity_migration.py  # Python module implementing 'trinity_migration'.
 │       │   ├── linker/  # IR linking and dependency resolution system.
 │       │   │   ├── README.md  # Documentation for this directory/module.
 │       │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   ├── link_trinity.py  # Python module implementing 'link_trinity'.
+│       │   │   ├── reports.py  # Python module implementing 'reports'.
+│       │   │   └── types.py  # Python module implementing 'types'.
 │       │   ├── trinity/  # Trinity artifact processing and validation.
 │       │   │   ├── README.md  # Documentation for this directory/module.
 │       │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   └── loaders.py  # Python module implementing 'loaders'.
+│       │   ├── applicability.py  # Python module implementing 'applicability'.
+│       │   ├── canon.py  # Python module implementing 'canon'.
+│       │   ├── citations.py  # Python module implementing 'citations'.
+│       │   ├── connectors.py  # Python module implementing 'connectors'.
+│       │   ├── migration_report.py  # Python module implementing 'migration_report'.
 │       │   ├── world/  # World model definitions and schemas.
 │       │   │   ├── README.md  # Documentation for this directory/module.
 │       │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   ├── abi.py  # Python module implementing 'abi'.
+│       │   │   ├── claim.py  # Python module implementing 'claim'.
+│       │   │   ├── conflict.py  # Python module implementing 'conflict'.
+│       │   │   ├── doc.py  # Python module implementing 'doc'.
+│       │   │   ├── event.py  # Python module implementing 'event'.
+│       │   │   ├── ids.py  # Python module implementing 'ids'.
+│       │   │   ├── predicates.py  # Python module implementing 'predicates'.
+│       │   │   ├── quality.py  # Python module implementing 'quality'.
+│       │   │   └── trust.py  # Python module implementing 'trust'.
 │       │   ├── README.md  # Documentation for this directory/module.
 │       │   ├── __init__.py  # Python package initializer (public exports live here).
 │       │   ├── calibration.py  # Python module implementing 'calibration'.
@@ -560,6 +580,11 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │       │   ├── types.py  # Python module implementing 'types'.
 │       │   ├── units.py  # Python module implementing 'units'.
 │       │   └── validation.py  # Python module implementing 'validation'.
+│       │   ├── queries.py  # Python module implementing 'queries'.
+│       │   ├── refs.py  # Python module implementing 'refs'.
+│       │   ├── registry_fragments.py  # Python module implementing 'registry_fragments'.
+│       │   ├── schedule.py  # Python module implementing 'schedule'.
+│       │   └── selector_expr.py  # Python module implementing 'selector_expr'.
 │       ├── lex/  # Legal corpus and norm evaluation system.
 │       │   ├── corpus/  # Legal document corpus management and indexing.
 │       │   │   ├── README.md  # Documentation for this directory/module.

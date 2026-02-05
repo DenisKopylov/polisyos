@@ -384,9 +384,13 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │       │   │   ├── composite.py  # Python module implementing 'composite'.
 │       │   │   ├── core.py  # Python module implementing 'core'.
 │       │   │   └── discovery.py  # Python module implementing 'discovery'.
+│       │   ├── profiles.py  # Python module implementing 'profiles'.
 │       │   ├── compile/  # Compilation and build system for Foundry components.
 │       │   │   ├── README.md  # Documentation for this directory/module.
 │       │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   ├── _graph.py  # Python module implementing '_graph'.
+│       │   │   ├── api.py  # Python module implementing 'api'.
+│       │   │   └── trinity_compiler.py  # Python module implementing 'trinity_compiler'.
 │       │   ├── engine/  # Core execution engine for Foundry simulations.
 │       │   │   ├── README.md  # Documentation for this directory/module.
 │       │   │   ├── __init__.py  # Python package initializer (public exports live here).
@@ -397,10 +401,29 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │       │   ├── methods/  # Method implementations and optimization techniques.
 │       │   │   ├── README.md  # Documentation for this directory/module.
 │       │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   ├── artifacts.py  # Python module implementing 'artifacts'.
+│       │   │   ├── base.py  # Python module implementing 'base'.
+│       │   │   ├── compiler.py  # Python module implementing 'compiler'.
+│       │   │   ├── components_bridge.py  # Python module implementing 'components_bridge'.
+│       │   │   ├── composer.py  # Python module implementing 'composer'.
+│       │   │   ├── discovery.py  # Python module implementing 'discovery'.
+│       │   │   ├── exceptions.py  # Python module implementing 'exceptions'.
+│       │   │   ├── linker.py  # Python module implementing 'linker'.
+│       │   │   ├── registry.py  # Python module implementing 'registry'.
+│       │   │   ├── resolution.py  # Python module implementing 'resolution'.
+│       │   │   ├── specialization.py  # Python module implementing 'specialization'.
+│       │   │   ├── testing/  # Testing infrastructure for methods.
+│       │   │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   │   ├── fixtures.py  # Python module implementing 'fixtures'.
+│       │   │   │   ├── golden.py  # Python module implementing 'golden'.
+│       │   │   │   └── suite.py  # Python module implementing 'suite'.
+│       │   │   ├── types/  # Type definitions for methods.
+│       │   │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   │   ├── checker.py  # Python module implementing 'checker'.
+│       │   │   │   └── units.py  # Python module implementing 'units'.
 │       │   ├── runtime/  # Runtime utilities (determinism fingerprinting, NaN guard).
 │       │   │   ├── README.md  # Documentation for this directory/module.
-│       │   │   │   ├── api.py  # Runtime run lifecycle API (start/finalize/log artifacts).
-│       │   │   │   └── manifest.py  # Portable runtime manifest and path resolution helpers.
+│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
 │       │   │   ├── fingerprint.py  # Environment fingerprinting and determinism tier controls.
 │       │   │   └── nan_guard.py  # Runtime NaN/Inf detection and diagnostics.
 │       │   ├── README.md  # Documentation for this directory/module.

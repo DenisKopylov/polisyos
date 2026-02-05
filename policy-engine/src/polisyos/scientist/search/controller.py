@@ -51,6 +51,8 @@ class SearchResult:
     total_duration_seconds: float
     stage_a_evaluations: int
     stage_b_evaluations: int
+    pareto_front: List[Dict[str, Any]] = field(default_factory=list)
+    telemetry: Dict[str, Any] = field(default_factory=dict)
 
 
 class CandidateGenerator(Protocol):
@@ -70,6 +72,19 @@ class CandidateGenerator(Protocol):
         """
 
 
+class BatchCandidateGenerator(CandidateGenerator, Protocol):
+    """Optional protocol for batch candidate generation."""
+
+    def generate_batch(
+        self,
+        history: List[SearchIteration],
+        current_best: Dict[str, Any] | None,
+        context: Dict[str, Any],
+        batch_size: int,
+    ) -> List[Dict[str, Any]]:
+        """Generate multiple candidates for parallel Stage B evaluation."""
+
+
 @dataclass
 class SearchConfig:
     """Configuration for the search controller."""
@@ -79,6 +94,8 @@ class SearchConfig:
     max_iterations_hard_limit: int = 100
     enable_stage_a: bool = True
     log_level: str = "INFO"
+    batch_size: int = 1
+    resource_arbiter: Any | None = None
 
 
 class SearchController:
@@ -138,8 +155,6 @@ class SearchController:
         iteration = 0
 
         while iteration < self._config.max_iterations_hard_limit:
-            iter_start = datetime.utcnow()
-
             stop_check = self._config.stopping.check(
                 [self._to_history_dict(h) for h in self._history],
                 {"iteration": iteration, "best_objective": self._best_objective},
@@ -150,64 +165,29 @@ class SearchController:
                 logger.info(f"Stopping: {stopping_reason}")
                 break
 
-            candidate = (
-                self._generator.generate(
-                    self._history,
-                    self._best_candidate,
-                    initial_context,
-                )
-                if iteration > 0 or initial_candidate is None
-                else initial_candidate
-            )
-
-            stage_a_passed = True
-            stage_a_score = 0.0
-
-            if self._config.enable_stage_a:
-                self._stage_a_count += 1
-                stage_a_score, stage_a_passed = self._stage_a(candidate, initial_context)
-
-                if not stage_a_passed:
-                    logger.debug(
-                        f"Iteration {iteration}: Stage A rejected (score={stage_a_score:.4f})"
-                    )
-
-            stage_b_result: Dict[str, Any] | None = None
-            objective_value = float("inf")
-            objective_details: List[ObjectiveValue] = []
-
-            if stage_a_passed:
-                self._stage_b_count += 1
-                stage_b_result = self._stage_b(candidate, initial_context)
-
-                sim_results = stage_b_result.get("simulation_results", {})
-
-                obj_eval = self._config.objective.evaluate(sim_results)
-                objective_value = obj_eval.raw_value
-                objective_details = self._config.objective.evaluate_detailed(sim_results)
-
-                if objective_value < self._best_objective:
-                    self._best_objective = objective_value
-                    self._best_candidate = candidate
-                    logger.info(
-                        f"Iteration {iteration}: New best objective = {objective_value:.6f}"
-                    )
-
-            iter_duration = (datetime.utcnow() - iter_start).total_seconds()
-
-            record = SearchIteration(
+            batch = self._generate_candidates(
                 iteration=iteration,
-                candidate=candidate,
-                objective_value=objective_value,
-                objective_details=objective_details,
-                is_promising=stage_a_passed
-                and (stage_b_result or {}).get("feedback", {}).get("verdict") == "APPROVE",
-                stage_a_passed=stage_a_passed,
-                stage_b_result=stage_b_result,
-                duration_seconds=iter_duration,
+                initial_candidate=initial_candidate,
+                context=initial_context,
             )
-            self._history.append(record)
-            iteration += 1
+            for candidate in batch:
+                if iteration >= self._config.max_iterations_hard_limit:
+                    break
+                self._evaluate_candidate(candidate, iteration=iteration, context=initial_context)
+                iteration += 1
+
+                stop_check = self._config.stopping.check(
+                    [self._to_history_dict(h) for h in self._history],
+                    {"iteration": iteration, "best_objective": self._best_objective},
+                )
+                if stop_check.should_stop:
+                    stopping_reason = stop_check.reason
+                    self._status = SearchStatus.STOPPED
+                    logger.info(f"Stopping: {stopping_reason}")
+                    break
+
+            if self._status == SearchStatus.STOPPED:
+                break
 
         if self._status == SearchStatus.RUNNING:
             self._status = SearchStatus.STOPPED
@@ -229,6 +209,92 @@ class SearchController:
             stage_a_evaluations=self._stage_a_count,
             stage_b_evaluations=self._stage_b_count,
         )
+
+    def _generate_candidates(
+        self,
+        iteration: int,
+        initial_candidate: Dict[str, Any] | None,
+        context: Dict[str, Any],
+    ) -> List[Dict[str, Any]]:
+        if iteration == 0 and initial_candidate is not None:
+            return [initial_candidate]
+
+        batch_size = max(1, int(self._config.batch_size))
+        can_batch = (
+            batch_size > 1
+            and hasattr(self._generator, "generate_batch")
+            and callable(getattr(self._generator, "generate_batch"))
+        )
+        if can_batch:
+            return getattr(self._generator, "generate_batch")(
+                self._history,
+                self._best_candidate,
+                context,
+                batch_size,
+            )
+        return [
+            self._generator.generate(
+                self._history,
+                self._best_candidate,
+                context,
+            )
+        ]
+
+    def _evaluate_candidate(
+        self,
+        candidate: Dict[str, Any],
+        iteration: int,
+        context: Dict[str, Any],
+    ) -> None:
+        iter_start = datetime.utcnow()
+
+        stage_a_passed = True
+        stage_a_score = 0.0
+
+        if self._config.enable_stage_a:
+            self._stage_a_count += 1
+            stage_a_score, stage_a_passed = self._stage_a(candidate, context)
+            if not stage_a_passed:
+                logger.debug(
+                    f"Iteration {iteration}: Stage A rejected (score={stage_a_score:.4f})"
+                )
+
+        stage_b_result: Dict[str, Any] | None = None
+        objective_value = float("inf")
+        objective_details: List[ObjectiveValue] = []
+
+        if stage_a_passed:
+            self._stage_b_count += 1
+            arbiter = self._config.resource_arbiter
+            if arbiter is not None:
+                with arbiter.acquire("jax"):
+                    stage_b_result = self._stage_b(candidate, context)
+            else:
+                stage_b_result = self._stage_b(candidate, context)
+
+            sim_results = stage_b_result.get("simulation_results", {})
+            obj_eval = self._config.objective.evaluate(sim_results)
+            objective_value = obj_eval.raw_value
+            objective_details = self._config.objective.evaluate_detailed(sim_results)
+
+            if objective_value < self._best_objective:
+                self._best_objective = objective_value
+                self._best_candidate = candidate
+                logger.info(f"Iteration {iteration}: New best objective = {objective_value:.6f}")
+
+        iter_duration = (datetime.utcnow() - iter_start).total_seconds()
+        record = SearchIteration(
+            iteration=iteration,
+            candidate=candidate,
+            objective_value=objective_value,
+            objective_details=objective_details,
+            is_promising=stage_a_passed
+            and (stage_b_result or {}).get("feedback", {}).get("verdict") == "APPROVE",
+            stage_a_passed=stage_a_passed,
+            stage_b_result=stage_b_result,
+            duration_seconds=iter_duration,
+        )
+        self._history.append(record)
 
     def _to_history_dict(self, iteration: SearchIteration) -> Dict[str, Any]:
         """Convert iteration to dict for stopping criteria."""

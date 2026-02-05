@@ -16,6 +16,7 @@ Search layer реализует Phase 17 optimization - iterative policy refinem
 search/
 ├── conftest.py            # Специфичная конфигурация для search тестов
 ├── test_search_loop.py    # SearchController, two-stage filtering, stopping criteria, objectives
+└── strategies/            # Advanced strategy tests (adapter, space, BO/MO fallbacks, batch)
 └── __init__.py
 ```
 

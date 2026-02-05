@@ -11,7 +11,8 @@ search/
 ├── controller.py    # SearchController с iteration management
 ├── objective.py     # Composite objectives (GDP, inequality, employment)
 ├── stages.py        # Cheap/expensive evaluation stages
-└── stopping.py      # Intelligent stopping criteria
+├── stopping.py      # Intelligent stopping criteria
+└── strategies/      # Advanced search strategies (random/grid/BO/MO + adapter)
 ```
 
 ## Ключевые компоненты
@@ -20,6 +21,7 @@ search/
 - **Composite Objectives**: Многокритериальная оптимизация с весами
 - **Two-Stage Evaluation**: Быстрая preliminary + дорогая accurate оценка
 - **Intelligent Stopping**: Plateau detection, max iterations, target achievement
+- **Advanced Strategies**: StrategyAdapter, SearchSpace, batch suggestion, Bayesian/MO hooks
 
 ## API Использование
 

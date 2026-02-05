@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from polisyos.scientist.search.controller import (
+    BatchCandidateGenerator,
     SearchConfig,
     SearchController,
     SearchIteration,
@@ -45,6 +46,7 @@ __all__ = [
     "SearchIteration",
     "SearchResult",
     "SearchStatus",
+    "BatchCandidateGenerator",
     "BaseObjective",
     "BudgetDeficitObjective",
     "CompositeObjective",
@@ -69,3 +71,40 @@ __all__ = [
     "StoppingPresets",
     "TargetAchieved",
 ]
+
+try:
+    from polisyos.scientist.search.strategies import (
+        AcquisitionType,
+        BaseSearchStrategy,
+        Evaluation,
+        EvaluationStatus,
+        GridSearchStrategy,
+        ParameterBounds,
+        ParameterType,
+        PolicyCandidate,
+        RandomSearchStrategy,
+        ScalarParameterCodec,
+        SearchSpace,
+        StrategyAdapter,
+        StrategyState,
+    )
+
+    __all__.extend(
+        [
+            "AcquisitionType",
+            "BaseSearchStrategy",
+            "Evaluation",
+            "EvaluationStatus",
+            "GridSearchStrategy",
+            "ParameterBounds",
+            "ParameterType",
+            "PolicyCandidate",
+            "RandomSearchStrategy",
+            "ScalarParameterCodec",
+            "SearchSpace",
+            "StrategyAdapter",
+            "StrategyState",
+        ]
+    )
+except Exception:  # pragma: no cover - optional dependency path
+    pass

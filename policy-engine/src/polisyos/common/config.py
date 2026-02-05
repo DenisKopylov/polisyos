@@ -41,6 +41,23 @@ else:
 
 logger.info(f"⚙️ Memory Safeguard: Preallocate={os.environ.get('XLA_PYTHON_CLIENT_PREALLOCATE')}")
 
+# --- SCIENTIST / TORCH SAFEGUARDS ---
+# Для MacBook Air M2 и аналогичных машин держим BO/GP на CPU по умолчанию.
+os.environ.setdefault("SCIENTIST_TORCH_DEVICE", "cpu")
+os.environ.setdefault("SCIENTIST_TORCH_NUM_THREADS", str(allowed_cores))
+os.environ.setdefault("SCIENTIST_TORCH_NUM_INTEROP_THREADS", "1")
+os.environ.setdefault("OMP_NUM_THREADS", str(allowed_cores))
+os.environ.setdefault("OPENBLAS_NUM_THREADS", str(allowed_cores))
+os.environ.setdefault("VECLIB_MAXIMUM_THREADS", str(allowed_cores))
+os.environ.setdefault("NUMEXPR_NUM_THREADS", str(allowed_cores))
+
+logger.info(
+    "⚙️ Scientist Torch defaults: device={}, threads={}, interop={}",
+    os.environ.get("SCIENTIST_TORCH_DEVICE"),
+    os.environ.get("SCIENTIST_TORCH_NUM_THREADS"),
+    os.environ.get("SCIENTIST_TORCH_NUM_INTEROP_THREADS"),
+)
+
 # --- APP SETTINGS ---
 LOG_LEVEL = os.getenv("LOG_LEVEL", "DEBUG")
 DUCKDB_MEMORY_LIMIT = os.getenv("DUCKDB_MEMORY_LIMIT", "4GB")

@@ -206,14 +206,68 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │       │   │   ├── core.py  # PROV-O graph core models and relationships.
 │       │   │   └── export_provo.py  # Export provenance graphs to PROV-O formats.
 │       │   ├── claims/  # Claims management and verification system.
+│       │   │   ├── backends/  # Claims processing backend implementations.
+│       │   │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   │   ├── explicit_lines_v1.py  # Python module implementing 'explicit_lines_v1'.
+│       │   │   │   ├── lex_norm_regex_v1.py  # Python module implementing 'lex_norm_regex_v1'.
+│       │   │   │   └── regex_numeric_v1.py  # Python module implementing 'regex_numeric_v1'.
+│       │   │   ├── conflicts/  # Claims conflict detection and resolution.
+│       │   │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   │   ├── detect.py  # Python module implementing 'detect'.
+│       │   │   │   ├── key.py  # Python module implementing 'key'.
+│       │   │   │   ├── policies.py  # Python module implementing 'policies'.
+│       │   │   │   ├── resolve.py  # Python module implementing 'resolve'.
+│       │   │   │   ├── score_claims.py  # Python module implementing 'score_claims'.
+│       │   │   │   ├── score_docs.py  # Python module implementing 'score_docs'.
+│       │   │   │   └── types.py  # Python module implementing 'types'.
 │       │   │   ├── README.md  # Documentation for this directory/module.
 │       │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   ├── canonicalize.py  # Python module implementing 'canonicalize'.
+│       │   │   ├── citations.py  # Python module implementing 'citations'.
+│       │   │   ├── errors.py  # Python module implementing 'errors'.
+│       │   │   ├── extraction.py  # Python module implementing 'extraction'.
+│       │   │   ├── extractor_registry.py  # Python module implementing 'extractor_registry'.
+│       │   │   ├── normalize.py  # Python module implementing 'normalize'.
+│       │   │   ├── persist.py  # Python module implementing 'persist'.
+│       │   │   └── types.py  # Python module implementing 'types'.
 │       │   ├── docs/  # Documentation utilities and generators.
+│       │   │   ├── backends/  # Document processing backend implementations.
+│       │   │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   │   ├── pdf.py  # PDF document processing backend.
+│       │   │   │   ├── text_html.py  # HTML text processing backend.
+│       │   │   │   └── text_plain.py  # Plain text processing backend.
 │       │   │   ├── README.md  # Documentation for this directory/module.
 │       │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   ├── chunking.py  # Python module implementing 'chunking'.
+│       │   │   ├── errors.py  # Python module implementing 'errors'.
+│       │   │   ├── ingestion.py  # Python module implementing 'ingestion'.
+│       │   │   ├── normalize.py  # Python module implementing 'normalize'.
+│       │   │   ├── structure.py  # Python module implementing 'structure'.
+│       │   │   └── types.py  # Python module implementing 'types'.
 │       │   ├── world/  # World model and simulation state management.
+│       │   │   ├── ddl/  # Database schema definitions for world model.
+│       │   │   │   ├── duckdb_world.sql  # DuckDB schema for world model.
+│       │   │   │   └── kuzu_world.cypher  # Kùzu schema for world model.
+│       │   │   ├── materialize/  # World model materialization and processing.
+│       │   │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   │   ├── duckdb.py  # Python module implementing 'duckdb'.
+│       │   │   │   ├── errors.py  # Python module implementing 'errors'.
+│       │   │   │   ├── kuzu.py  # Python module implementing 'kuzu'.
+│       │   │   │   ├── projections.py  # Python module implementing 'projections'.
+│       │   │   │   ├── rules.py  # Python module implementing 'rules'.
+│       │   │   │   ├── sql.py  # Python module implementing 'sql'.
+│       │   │   │   └── staging.py  # Python module implementing 'staging'.
 │       │   │   ├── README.md  # Documentation for this directory/module.
 │       │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   ├── store/  # World model storage and persistence.
+│       │   │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   │   ├── emit.py  # Python module implementing 'emit'.
+│       │   │   │   ├── errors.py  # Python module implementing 'errors'.
+│       │   │   │   ├── ids.py  # Python module implementing 'ids'.
+│       │   │   │   ├── persist.py  # Python module implementing 'persist'.
+│       │   │   │   ├── provenance.py  # Python module implementing 'provenance'.
+│       │   │   │   ├── segments.py  # Python module implementing 'segments'.
+│       │   │   │   └── validate.py  # Python module implementing 'validate'.
 │       │   ├── udf/  # Secure UDF compilation/execution layer for data views.
 │       │   │   ├── passes/  # UDF compiler passes (lowering, typing, privacy, etc.).
 │       │   │   │   ├── __init__.py  # Python package initializer (public exports live here).
@@ -314,6 +368,17 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │       │   │       ├── dimensions.py  # Dimensional data type handling.
 │       │   │       ├── temporal.py  # Temporal data type utilities.
 │       │   │       └── units.py  # Unit conversion and validation.
+│       │   │   ├── types/  # Type system and data type utilities.
+│       │   │   │   ├── __init__.py  # Python package initializer (public exports live here).
+│       │   │   │   ├── coercion.py  # Type coercion utilities.
+│       │   │   │   ├── connector_types.py  # Connector-specific type definitions.
+│       │   │   │   ├── dimensions.py  # Dimensional data type handling.
+│       │   │   │   ├── temporal.py  # Temporal data type utilities.
+│       │   │   │   └── units.py  # Unit conversion and validation.
+│       │   │   └── validation.py  # Python module implementing 'validation'.
+│       │   ├── connectors_ingestion.py  # Python module implementing 'connectors_ingestion'.
+│       │   ├── demo_csv_ingestion.py  # Python module implementing 'demo_csv_ingestion'.
+│       │   └── world_query.py  # Python module implementing 'world_query'.
 │       ├── foundry/  # JAX execution core: compilation, runtime, simulation, calibration, determinism tools.
 │       │   ├── agent_sim/  # Agent-based simulation subsystem.
 │       │   │   ├── README.md  # Documentation for this directory/module.

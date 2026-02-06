@@ -28,8 +28,8 @@ def _dummy_ref(kind: str, media_type: str = "application/json") -> ArtifactRef:
 
 def test_compile_request_canonical() -> None:
     req = CompileRequest(
-        input_kind="surface",
-        policy_ref=_dummy_ref("ir.policy_surface"),
+        input_kind="trinity",
+        policy_ref=_dummy_ref("ir.trinity_bundle"),
         registry_bundle_ref=_dummy_ref("core.registry_bundle"),
         compile_config=FoundryCompileConfig(),
         validation_flags=FoundryValidationFlags(),

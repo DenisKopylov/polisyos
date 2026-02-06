@@ -181,7 +181,7 @@ class ExprASTBackend:
 **Ключевые возможности AST Backend:**
 - **Safe evaluation**: AST parsing предотвращает code injection
 - **Expression support**: Поддержка математических и логических выражений
-- **Policy introspection**: Доступ к параметрам и структурам PolicySurfaceIR
+- **Policy introspection**: Доступ к параметрам и структурам TrinityBundle
 - **Error recovery**: Graceful handling evaluation errors
 
 ### 🚀 LLM Backend (Планируемый)
@@ -218,11 +218,11 @@ legal_pass = LegalPass(backend=StubBackend())
 state = {
     "run_id": "test_legal",
     "norm_pack": load_norm_pack("gdpr_norms"),
-    "policy_ir": policy_surface_ir
+    "policy_ir": trinity_bundle
 }
 
 issues = legal_pass.validate(PassContext(
-    ir=policy_surface_ir,
+    ir=trinity_bundle,
     state=state,
     profile=get_profile("strict"),  # Legal pass только в strict
     run_id="test_legal"
@@ -468,7 +468,7 @@ class ExtendedNormRule(NormRule):
 
 ### IR Layer Integration
 - **NormPack, NormRule**: Основные структуры данных из `ir/norm_pack.py`
-- **PolicySurfaceIR**: Интеграция с policy evaluation context
+- **TrinityBundle**: Интеграция с policy evaluation context
 
 ### Governance Layer Integration
 - **LegalPass**: Основной интеграционный компонент в `passes/legal_pass.py`

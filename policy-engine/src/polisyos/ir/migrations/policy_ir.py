@@ -13,26 +13,8 @@ def migrate_policy_ir_identity(data: dict) -> dict:
     bundle = TrinityBundle.model_validate(data)
     return bundle.model_dump(mode="python")
 
-
-def migrate_surface_to_trinity(data: dict) -> dict:
-    """Compatibility shim kept for tooling; Surface migration is removed in runtime."""
-    raise ValueError(
-        "PolicySurfaceIR runtime migration was removed in Stage 3. "
-        "Use offline migration tooling to produce TrinityBundle artifacts."
-    )
-
-
-def migrate_trinity_to_surface(data: dict) -> dict:
-    raise ValueError(
-        "Trinity -> PolicySurfaceIR migration was removed in Stage 3. "
-        "PolicySurfaceIR is fully decommissioned."
-    )
-
-
 __all__ = [
     "POLICY_IR_CURRENT_VERSION",
     "TRINITY_CURRENT_VERSION",
     "migrate_policy_ir_identity",
-    "migrate_surface_to_trinity",
-    "migrate_trinity_to_surface",
 ]

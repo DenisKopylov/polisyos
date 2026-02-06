@@ -46,5 +46,5 @@ draft = await drafter_agent.draft(subtasks[0])
 ## Связи
 
 - Интегрируется с **engine** layer через workflow nodes
-- Использует **IR** модуль для PolicySurfaceIR
+- Использует **IR** модуль для TrinityBundle
 - Поддерживает **llm** layer для LLM взаимодействий

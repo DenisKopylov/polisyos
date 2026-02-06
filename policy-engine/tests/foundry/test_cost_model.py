@@ -2,8 +2,8 @@
 from __future__ import annotations
 
 from polisyos.core.artifacts.ids import ArtifactID
+from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.contracts.foundry import (
-    PolicySurfaceIRRef,
     ProgramGraph,
     ProgramNode,
     ProgramOp,
@@ -12,8 +12,12 @@ from polisyos.foundry.cost_model import CostBudget, CostModel
 from polisyos.ir.kernel import DEFAULT_MECHANISM_REGISTRY
 
 
-def _make_ir_ref() -> PolicySurfaceIRRef:
-    return PolicySurfaceIRRef(artifact_id=ArtifactID.from_sha256_hex("0" * 64))
+def _make_ir_ref() -> ArtifactRef:
+    return ArtifactRef(
+        artifact_id=ArtifactID.from_sha256_hex("0" * 64),
+        kind="ir.trinity_bundle",
+        media_type="application/json",
+    )
 
 
 def _make_graph_with_mechanisms(n_mechanisms: int) -> ProgramGraph:

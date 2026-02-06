@@ -4,12 +4,12 @@ import jax.numpy as jnp
 import pytest
 
 from polisyos.core.artifacts.ids import ArtifactID
+from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.contracts.foundry import (
     ExecPlan,
     ProgramGraph,
     ProgramGraphRef,
     ProgramNode,
-    PolicySurfaceIRRef,
 )
 from polisyos.foundry.calibration.calibrator import Calibrator, CalibratorInputs
 from polisyos.foundry.domain.state import GlobalState
@@ -32,7 +32,11 @@ def _dummy_artifact() -> ArtifactID:
 
 def _build_graph(nodes: list[ProgramNode]) -> tuple[ProgramGraph, ExecPlan]:
     dummy_id = _dummy_artifact()
-    policy_ref = PolicySurfaceIRRef(artifact_id=dummy_id)
+    policy_ref = ArtifactRef(
+        artifact_id=dummy_id,
+        kind="ir.trinity_bundle",
+        media_type="application/json",
+    )
     program_ref = ProgramGraphRef(artifact_id=dummy_id)
     program_graph = ProgramGraph(ir_ref=policy_ref, nodes=nodes, edges=[], entrypoints=[])
     exec_plan = ExecPlan(program_ref=program_ref, order=[node.node_id for node in nodes])

@@ -19,8 +19,8 @@ Usage:
         return process(policy_ir)
 
     @traced(phase="VALIDATE", agent="governor")
-    async def validate_policy(ir: PolicySurfaceIR) -> ValidationResult:
-        return await run_validation(ir)
+    async def validate_policy(bundle: TrinityBundle) -> ValidationResult:
+        return await run_validation(bundle)
 """
 from __future__ import annotations
 

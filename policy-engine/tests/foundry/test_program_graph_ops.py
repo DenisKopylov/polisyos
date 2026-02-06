@@ -1,59 +1,75 @@
 from __future__ import annotations
 
+from decimal import Decimal
+
 import pytest
 from polisyos.core.artifacts.ids import ArtifactID
-from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
+from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.contracts.foundry import (
     CompileRequest,
-    PolicySurfaceIRRef,
     ProgramEdge,
     ProgramGraph,
     ProgramNode,
     ProgramOp,
 )
 from polisyos.core.registry import build_default_registry_bundle, load_registry_bundle_content
+from polisyos.foundry.compile._graph import build_exec_order
 from polisyos.foundry.compile.api import compile as compile_foundry
-from polisyos.foundry.compiler import _build_exec_order, put_policy_surface
-from polisyos.ir.surface import PolicySemantic, PolicySurfaceIR
+from polisyos.ir.model_spec import ModelSpec
+from polisyos.ir.policy_spec import InterventionSpec, PolicySpec
+from polisyos.ir.problem_frame import ProblemDomain, ProblemFrame
+from polisyos.ir.schedule import ScheduleSpec
+from polisyos.ir.selector_expr import SelectorPredicate
+from polisyos.ir.trinity import TrinityBundle
 from polisyos.ir.types import SelectorOperator
+
+
+def _put_trinity_bundle(store: FileSystemCAS, registry_bundle_ref: str) -> object:
+    bundle = TrinityBundle(
+        problem_frame=ProblemFrame(problem_id="problem_1", domain=ProblemDomain.FISCAL),
+        policy_spec=PolicySpec(
+            policy_id="policy_1",
+            interventions=[
+                InterventionSpec(
+                    intervention_id="tax_cut",
+                    kind="income_tax",
+                    target=SelectorPredicate(
+                        field="id",
+                        operator=SelectorOperator.EQUALS,
+                        value="all",
+                    ),
+                    schedule=ScheduleSpec(start_step=0, duration_steps=1),
+                    params={"rate": Decimal("0.1")},
+                )
+            ],
+        ),
+        model_spec=ModelSpec(
+            model_id="model_1",
+            data_snapshot_ref="sha256:0000000000000000000000000000000000000000000000000000000000000000",
+            registry_bundle_ref=registry_bundle_ref,
+        ),
+    )
+    return store.put_json(
+        bundle,
+        PutOptions(
+            kind="ir.trinity_bundle",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.ir.TrinityBundle", version=bundle.schema_version),
+        ),
+    )
 
 
 def test_program_graph_includes_op_nodes(tmp_path) -> None:
     store = FileSystemCAS(tmp_path)
     bundle = build_default_registry_bundle(store)
-    registries = load_registry_bundle_content(store, bundle.bundle_ref)
-
-    policy = PolicySurfaceIR(
-        semantic=PolicySemantic(
-            context_snapshot_ref="sha256:0000000000000000000000000000000000000000000000000000000000000000",
-            interventions=[
-                {
-                    "intervention_id": "tax_cut",
-                    "kind": "income_tax",
-                    "target": {
-                        "kind": "predicate",
-                        "field": "id",
-                        "operator": SelectorOperator.EQUALS,
-                        "value": "all",
-                    },
-                    "schedule": {"start_step": 0, "duration_steps": 1},
-                    "params": {"rate": "0.1"},
-                }
-            ],
-        )
-    )
-
-    policy_ref = put_policy_surface(
-        store,
-        policy,
-        mechanism_registry=registries.mechanism_registry,
-        units_registry=registries.units_registry,
-    )
+    load_registry_bundle_content(store, bundle.bundle_ref)
+    policy_ref = _put_trinity_bundle(store, str(bundle.bundle_ref.artifact_id))
     result = compile_foundry(
         store,
         CompileRequest(
-            input_kind="surface",
+            input_kind="trinity",
             policy_ref=policy_ref,
             registry_bundle_ref=bundle.bundle_ref,
         ),
@@ -70,7 +86,11 @@ def test_program_graph_includes_op_nodes(tmp_path) -> None:
 
 
 def test_build_exec_order_rejects_cycles() -> None:
-    ir_ref = PolicySurfaceIRRef(artifact_id=ArtifactID.from_sha256_hex("0" * 64))
+    ir_ref = ArtifactRef(
+        artifact_id=ArtifactID.from_sha256_hex("0" * 64),
+        kind="ir.trinity_bundle",
+        media_type="application/json",
+    )
     nodes = [
         ProgramNode(node_id="op_a", node_kind="op", op=ProgramOp(op_kind="apply_mechanism")),
         ProgramNode(node_id="op_b", node_kind="op", op=ProgramOp(op_kind="merge_state")),
@@ -82,4 +102,4 @@ def test_build_exec_order_rejects_cycles() -> None:
     graph = ProgramGraph(ir_ref=ir_ref, nodes=nodes, edges=edges, entrypoints=[])
 
     with pytest.raises(ValueError):
-        _build_exec_order(graph)
+        build_exec_order(graph)

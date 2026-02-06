@@ -136,13 +136,6 @@ python tools/check_perf_regression.py results.json --threshold 0.10
 
 ## Миграции
 
-### migrate_ir.py - Миграция Policy IR
-Детерминированные миграции Policy IR между версиями согласно **Закону C**.
-
-```bash
-python tools/migrate_ir.py input.json output.json --to v3.0.0
-```
-
 ### migrate.py - Универсальная миграция
 Миграция различных артефактов: dataset_manifest, policy_ir, run_manifest.
 
@@ -150,12 +143,9 @@ python tools/migrate_ir.py input.json output.json --to v3.0.0
 python tools/migrate.py policy_ir old.json new.json --to v2.5.0
 ```
 
-### migrate_to_trinity.py - Миграция в Trinity формат
-Конвертация PolicySurfaceIR в Trinity bundle (ProblemFrame, PolicySpec, ModelSpec).
-
-```bash
-python tools/migrate_to_trinity.py policies/ --backup --verify
-```
+### Legacy migration utilities
+`tools/migrate_ir.py` и `tools/migrate_to_trinity.py` удалены из активного toolchain в Phase 4.
+Историческая версия batch-скрипта сохранена в `docs/archive/migrate_to_trinity.py`.
 
 ## Диагностика
 
@@ -323,8 +313,8 @@ VERIFICATION FAILED:
 | `lint_imports.py` | `core.*` | Закон A (направленный граф зависимостей) |
 | `lint_foundry.py` | `foundry.*` | Закон B (чистота математического ядра) |
 | `lint_connectors.py` | `fabric.connectors.*` | Законы A, E (изоляция и provenance) |
-| `gen_schema.py` | `ir.contract` | Закон C (контракты как источник истины) |
-| `migrate_*` | `ir.migrations` | Закон C (детерминированные миграции) |
+| `gen_schema.py` | `ir.trinity` | Закон C (контракты как источник истины) |
+| `migrations/README.md` | `ir.migrations` | Закон C (детерминированные миграции) |
 | `capture_env.py` | `core.artifacts` | Закон D (воспроизводимость) |
 | `check_perf_regression.py` | - | Закон D (регрессионное тестирование) |
 | `scan_fabric.py` | `fabric.catalog` | Закон E (evidence и provenance) |
@@ -637,7 +627,7 @@ POLICY_ENGINE_LOG_LEVEL=DEBUG python tools/diagnostics/check_setup.py
 
 - **Диагностика**: `diagnostics/` - проверка готовности системы
 - **Качество**: `lint_*.py` - соблюдение архитектурных законов
-- **Эволюция**: `migrate_*.py`, `gen_schema.py` - безопасные изменения
+- **Эволюция**: `migrations/README.md.py`, `gen_schema.py` - безопасные изменения
 - **Производительность**: `benchmarks/` - регрессионное тестирование
 - **Демонстрация**: `demos/` - валидация функциональности
 - **Bootstrap**: `scan_fabric.py` - быстрая генерация data contracts из существующих данных

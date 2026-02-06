@@ -26,11 +26,13 @@ import jax.numpy as jnp
 import optax
 
 from polisyos.core.artifacts.ids import ArtifactID
+from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
-from polisyos.core.contracts.foundry import ExecPlan, ProgramGraph
+from polisyos.core.contracts.foundry import CompileRequest, ExecPlan, ProgramGraph
+from polisyos.core.registry import build_default_registry_bundle
 from polisyos.foundry.agents import AgentPolicy
 from polisyos.foundry.base import Mechanism
-from polisyos.foundry.compiler import compile_surface_policy
+from polisyos.foundry.compile.api import compile as compile_foundry
 from polisyos.foundry.registry import create_mechanism_from_spec
 from polisyos.foundry.domain.state import GlobalState
 from polisyos.ir.kernel import (
@@ -39,7 +41,12 @@ from polisyos.ir.kernel import (
     DEFAULT_SLOT_REGISTRY,
 )
 from polisyos.ir.kernel.merge_rules import MergeRuleKind
-from polisyos.ir.surface import PolicySurfaceIR
+from polisyos.ir.model_spec import ModelSpec
+from polisyos.ir.policy_spec import InterventionSpec, PolicySpec
+from polisyos.ir.problem_frame import ProblemDomain, ProblemFrame
+from polisyos.ir.schedule import ScheduleSpec
+from polisyos.ir.selector_expr import SelectorPredicate
+from polisyos.ir.trinity import TrinityBundle
 
 # --- CONFIG (TWEAKED) ---
 N_AGENTS = 5000
@@ -247,6 +254,7 @@ def main() -> None:
     tmp_dir = Path(tempfile.mkdtemp(prefix="polisyos-mech-design-"))
     os.environ["POLISYOS_CAS_ROOT"] = str(tmp_dir)
     store = FileSystemCAS(tmp_dir)
+    registry_bundle = build_default_registry_bundle(store)
     key = jax.random.PRNGKey(SEED)
 
     # Phase 1: train + save weights
@@ -258,18 +266,20 @@ def main() -> None:
         PutOptions(kind="foundry.context_snapshot", media_type="application/json"),
     )
 
-    # Phase 2: PolicySurfaceIR
-    policy_ir_dict = {
-        "schema_version": "2.0",
-        "semantic": {
-            "context_snapshot_ref": str(ctx_ref.artifact_id),
-            "interventions": [
-                {
-                    "intervention_id": "smart_pop",
-                    "kind": "adaptive_agent",
-                    "target": {"kind": "predicate", "field": "entity_type", "operator": "==", "value": "agent"},
-                    "schedule": {"start_step": 0, "duration_steps": 1},
-                    "params": {
+    trinity_bundle = TrinityBundle(
+        problem_frame=ProblemFrame(
+            problem_id="mechanism_design_problem",
+            domain=ProblemDomain.FISCAL,
+        ),
+        policy_spec=PolicySpec(
+            policy_id="mechanism_design_policy",
+            interventions=[
+                InterventionSpec(
+                    intervention_id="smart_pop",
+                    kind="adaptive_agent",
+                    target=SelectorPredicate(field="entity_type", operator="==", value="agent"),
+                    schedule=ScheduleSpec(start_step=0, duration_steps=1),
+                    params={
                         "observation_space": [
                             "agents.skill_level",
                             "agents.risk_aversion",
@@ -285,31 +295,45 @@ def main() -> None:
                         "weights_artifact": weights_id,
                         "stochastic": False,
                     },
-                },
-                {
-                    "intervention_id": "tax_gov",
-                    "kind": "income_tax",
-                    "target": {"kind": "predicate", "field": "entity_type", "operator": "==", "value": "agent"},
-                    "schedule": {"start_step": 0, "duration_steps": 1},
-                    "params": {"rate": "0.10"},
-                },
+                ),
+                InterventionSpec(
+                    intervention_id="tax_gov",
+                    kind="income_tax",
+                    target=SelectorPredicate(field="entity_type", operator="==", value="agent"),
+                    schedule=ScheduleSpec(start_step=0, duration_steps=1),
+                    params={"rate": "0.10"},
+                ),
             ],
-            "constraints": [],
-            "objectives": [],
-        },
-    }
-
-    print("\n>>> [Phase 2] Compilation (PolicySurfaceIR -> ProgramGraph/ExecPlan)...")
-    policy_ir = PolicySurfaceIR.model_validate(policy_ir_dict)
-    artifacts = compile_surface_policy(
-        store=store,
-        policy=policy_ir,
-        mechanism_registry=DEFAULT_MECHANISM_REGISTRY,
-        slot_registry=DEFAULT_SLOT_REGISTRY,
-        merge_registry=DEFAULT_MERGE_RULE_REGISTRY,
+        ),
+        model_spec=ModelSpec(
+            model_id="mechanism_design_model",
+            data_snapshot_ref=str(ctx_ref.artifact_id),
+            registry_bundle_ref=str(registry_bundle.bundle_ref.artifact_id),
+        ),
     )
-    program_graph = ProgramGraph.model_validate(_load_json(store, artifacts.program_ref.artifact_id))
-    exec_plan = ExecPlan.model_validate(_load_json(store, artifacts.exec_plan_ref.artifact_id))
+
+    print("\n>>> [Phase 2] Compilation (TrinityBundle -> ProgramGraph/ExecPlan)...")
+    trinity_ref = store.put_json(
+        trinity_bundle,
+        PutOptions(
+            kind="ir.trinity_bundle",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.ir.TrinityBundle", version=trinity_bundle.schema_version),
+        ),
+    )
+    compile_result = compile_foundry(
+        store,
+        CompileRequest(
+            input_kind="trinity",
+            policy_ref=trinity_ref,
+            registry_bundle_ref=registry_bundle.bundle_ref,
+        ),
+    )
+    if not compile_result.ok or compile_result.exec_plan_ref is None:
+        raise RuntimeError(f"Compilation failed: {compile_result.notes}")
+    program_ref = next(ref.ref for ref in compile_result.derived_refs if ref.role == "program_graph")
+    program_graph = ProgramGraph.model_validate(_load_json(store, program_ref.artifact_id))
+    exec_plan = ExecPlan.model_validate(_load_json(store, compile_result.exec_plan_ref.artifact_id))
 
     mech_node_ids = {
         node.node_id

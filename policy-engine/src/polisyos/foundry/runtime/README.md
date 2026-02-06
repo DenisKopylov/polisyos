@@ -193,7 +193,7 @@ is_valid, score, warnings = artifact.validate_environment(current_fingerprint)
 ## Связь с другими модулями
 
 - **`agent_sim.artifact`**: Валидация политик через fingerprinting
-- **`foundry.compiler`**: Компиляция программ для исполнения
+- **`foundry.compile.api`**: Компиляция программ для исполнения
 - **`foundry.executor`**: Вызов runtime функций и валидации
 - **`foundry.conflict_checker`**: Дополняет runtime валидацию
 - **`foundry.cost_model`**: Оценка стоимости выполнения

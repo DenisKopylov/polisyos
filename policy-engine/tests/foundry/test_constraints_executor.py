@@ -4,11 +4,11 @@ from decimal import Decimal
 
 import jax.numpy as jnp
 import pytest
-from polisyos.core.artifacts.store import FileSystemCAS
-from polisyos.core.registry import build_registry_bundle, load_registry_bundle_content
+from polisyos.core.artifacts.manifest import SchemaInfo
+from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.contracts.foundry import CompileRequest
+from polisyos.core.registry import build_registry_bundle, load_registry_bundle_content
 from polisyos.foundry.compile.api import compile as compile_foundry
-from polisyos.foundry.compiler import put_policy_surface
 from polisyos.foundry.domain.state import GlobalState
 from polisyos.foundry.executor import execute_program_graph
 from polisyos.ir.kernel import (
@@ -20,7 +20,11 @@ from polisyos.ir.kernel import (
     DEFAULT_UNITS_REGISTRY,
 )
 from polisyos.ir.kernel.constraints import ConstraintRegistry, ConstraintSpec
-from polisyos.ir.surface import PolicySemantic, PolicySurfaceIR
+from polisyos.ir.model_spec import ModelSpec
+from polisyos.ir.policy_spec import PolicySpec
+from polisyos.ir.problem_frame import ConstraintSpec as ProblemConstraintSpec
+from polisyos.ir.problem_frame import ConstraintType, ProblemDomain, ProblemFrame
+from polisyos.ir.trinity import TrinityBundle
 
 CTX_REF = "sha256:0000000000000000000000000000000000000000000000000000000000000000"
 
@@ -70,29 +74,38 @@ def test_constraint_operators(
     store = FileSystemCAS(tmp_path)
     registries, bundle_ref = _registries_with_constraint(store, operator)
 
-    policy = PolicySurfaceIR(
-        semantic=PolicySemantic(
-            context_snapshot_ref=CTX_REF,
-            constraints=[
-                {
-                    "constraint_id": "budget_guard",
-                    "value": Decimal(str(constraint_value)),
-                }
+    policy_bundle = TrinityBundle(
+        problem_frame=ProblemFrame(
+            problem_id="problem_1",
+            domain=ProblemDomain.FISCAL,
+            hard_constraints=[
+                ProblemConstraintSpec(
+                    constraint_id="budget_guard",
+                    constraint_type=ConstraintType.HARD,
+                    value=Decimal(str(constraint_value)),
+                )
             ],
-            interventions=[],
-        )
+        ),
+        policy_spec=PolicySpec(policy_id="policy_1", interventions=[]),
+        model_spec=ModelSpec(
+            model_id="model_1",
+            data_snapshot_ref=CTX_REF,
+            registry_bundle_ref=str(bundle_ref.artifact_id),
+        ),
     )
 
-    policy_ref = put_policy_surface(
-        store,
-        policy,
-        mechanism_registry=registries.mechanism_registry,
-        units_registry=registries.units_registry,
+    policy_ref = store.put_json(
+        policy_bundle,
+        PutOptions(
+            kind="ir.trinity_bundle",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.ir.TrinityBundle", version=policy_bundle.schema_version),
+        ),
     )
     result = compile_foundry(
         store,
         CompileRequest(
-            input_kind="surface",
+            input_kind="trinity",
             policy_ref=policy_ref,
             registry_bundle_ref=bundle_ref,
         ),

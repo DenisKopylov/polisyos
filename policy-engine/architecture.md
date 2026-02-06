@@ -514,7 +514,7 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │       │   ├── treasury.py  # RNG/seed treasury for reproducible stochastic simulations.
 │       │   ├── types.py  # Core Foundry types (fidelity levels, specs, typing helpers).
 │       │   └── utils.py  # Python module implementing 'utils'.
-│       ├── ir/  # Canonical IR contracts: PolicySurfaceIR, Trinity artifacts, kernel registries, loaders, validation.
+│       ├── ir/  # Canonical IR contracts: TrinityBundle, Trinity artifacts, kernel registries, loaders, validation.
 │       │   ├── kernel/  # IR kernel registries: mechanisms, slots, units, merge rules, time semantics.
 │       │   │   ├── README.md  # Documentation for this directory/module.
 │       │   │   ├── __init__.py  # Python package initializer (public exports live here).
@@ -575,7 +575,6 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │       │   ├── policy_spec.py  # PolicySpec models (interventions/parameters).
 │       │   ├── predicate.py  # Python module implementing 'predicate'.
 │       │   ├── problem_frame.py  # ProblemFrame models (goals/KPIs/constraints).
-│       │   ├── surface.py  # PolicySurfaceIR (canonical policy contract, legacy-compatible surface).
 │       │   ├── trinity.py  # Trinity artifacts and bundle (ProblemFrame/PolicySpec/ModelSpec).
 │       │   ├── types.py  # Python module implementing 'types'.
 │       │   ├── units.py  # Python module implementing 'units'.
@@ -781,7 +780,7 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │   │   ├── test_ir_contract.py  # Pytest module exercising ir contract.
 │   │   ├── test_ir_migrations.py  # Pytest module exercising ir migrations.
 │   │   ├── test_kernel_models.py  # Pytest module exercising kernel models.
-│   │   ├── test_surface_ir.py  # Pytest module exercising surface ir.
+│   │   ├── test_trinity_migration.py  # Pytest module exercising trinity ir.
 │   │   ├── test_trinity_contracts.py  # Pytest module exercising trinity contracts.
 │   │   └── test_trinity_migration.py  # Pytest module exercising trinity migration.
 │   ├── core_phase0/  # Core infrastructure tests (CAS, canonical JSON, registry bundles, observability system).
@@ -913,7 +912,7 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │   ├── lint_imports.py  # Architecture import-boundary linter (Law A enforcement).
 │   ├── migrate.py  # File.
 │   ├── migrate_ir.py  # Migrate Policy IR artifacts between schema versions.
-│   ├── migrate_to_trinity.py  # Batch migration utilities from Surface IR to Trinity artifacts.
+│   ├── migrate_to_trinity.py  # Batch migration utilities from Trinity IR to Trinity artifacts.
 │   ├── run_mechanism_design.py  # End-to-end differentiable mechanism design demo/driver.
 │   ├── scan_fabric.py  # Scan data stores and draft Fabric data contracts.
 │   └── visualize_provenance.py  # Visualize and verify provenance graphs.

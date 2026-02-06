@@ -59,7 +59,7 @@ result = FabricResult(request_ref=req_ref, plan_ref=plan_ref, data_ref=data_ref)
 15+ типов контрактов для симуляции и исполнения политик с patch-based state management, conflict detection, cost modeling и runtime safety.
 
 ### Core Contracts
-- **PolicySurfaceIRRef**: IR поверхности политики
+- **ArtifactRef**: Базовая typed-ссылка на CAS артефакт
 - **ProgramGraph & ProgramGraphRef**: Граф программы с узлами и операциями
 - **LoweredIR & LoweredIRRef**: Пониженное IR для исполнения
 - **ExecPlan & ExecPlanRef**: План исполнения с environment tracking
@@ -122,7 +122,7 @@ bundle = TrinityBundle(
 - **ExperimentStateRef**: Снапшоты экспериментального состояния
 - **DecisionPacketRef**: Пакеты решений
 - **FailureCardRef**: Карты неудач с метаданными (attempt_number, error_code, can_retry)
-- **PolicyIRRef**: PolicySurfaceIR с версиями и статусом
+- **TrinityIRRef**: TrinityBundle с версиями и статусом
 - **CritiqueRef**: Оценки критика
 - **TimelineRef**: Таймлайны экспериментов с event_count и duration
 - **DecisionCardRef**: Детерминированные сводки результатов (verdict, generated_at)

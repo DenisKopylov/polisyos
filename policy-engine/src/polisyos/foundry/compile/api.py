@@ -8,11 +8,7 @@ from polisyos.core.contracts.foundry import CompileRequest, CompileResult
 
 def compile(store: FileSystemCAS, request: CompileRequest) -> CompileResult:
     try:
-        compiler = _resolve_compiler(request)
-        if compiler != "trinity":
-            raise ValueError(
-                f"Unsupported compiler '{compiler}'. Foundry supports Trinity input only."
-            )
+        _resolve_compiler(request)
         from .trinity_compiler import compile_trinity
 
         return compile_trinity(store, request)
@@ -21,16 +17,17 @@ def compile(store: FileSystemCAS, request: CompileRequest) -> CompileResult:
 
 
 def _resolve_compiler(request: CompileRequest) -> str:
+    """Resolve compiler backend for Trinity-only Foundry pipeline."""
     kind = request.policy_ref.kind
+    if kind != "ir.trinity_bundle":
+        raise ValueError(
+            f"Unsupported policy_ref.kind: {kind}. Only 'ir.trinity_bundle' is accepted."
+        )
+    if request.input_kind == "trinity":
+        return "trinity"
     if request.input_kind == "auto":
-        if kind == "ir.trinity_bundle":
-            return "trinity"
-        raise ValueError(f"Unsupported policy_ref.kind: {kind}")
-    if request.input_kind == "surface":
-        raise ValueError("input_kind='surface' is no longer supported")
-    if request.input_kind == "trinity" and kind != "ir.trinity_bundle":
-        raise ValueError(f"policy_ref.kind mismatch: expected ir.trinity_bundle, got {kind}")
-    return request.input_kind
+        return "trinity"
+    raise ValueError(f"Unsupported input_kind: {request.input_kind}")
 
 
 def _compile_exception(

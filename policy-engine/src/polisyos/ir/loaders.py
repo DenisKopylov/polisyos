@@ -3,7 +3,6 @@ from __future__ import annotations
 import json
 from typing import Any, Mapping
 
-from polisyos.ir.migration_report import MigrationReport
 from polisyos.ir.trinity import TrinityBundle
 
 
@@ -49,28 +48,13 @@ def _ensure_mapping(payload: Any) -> Mapping[str, Any]:
     return payload
 
 
-def _looks_like_legacy_surface(mapping: Mapping[str, Any]) -> bool:
-    if "semantic" in mapping or "advisory" in mapping:
-        return True
-    version = str(mapping.get("schema_version", ""))
-    return version.startswith("2.")
-
-
 def load_policy(
     payload: Any,
     *,
-    as_trinity: bool = True,
     auto_migrate: bool = True,
     fmt: str = "auto",
 ) -> TrinityBundle:
-    """Load policy payload as canonical TrinityBundle.
-
-    Legacy PolicySurfaceIR loading was removed in Stage 3 cleanup.
-    """
-    if not as_trinity:
-        raise PolicyLoadError(
-            "Legacy PolicySurfaceIR output is removed. Use load_trinity()/load_policy(as_trinity=True)."
-        )
+    """Load policy payload as canonical TrinityBundle."""
     bundle, _ = load_trinity_bundle(payload, fmt=fmt, auto_migrate=auto_migrate)
     return bundle
 
@@ -80,7 +64,7 @@ def load_trinity_bundle(
     *,
     fmt: str = "auto",
     auto_migrate: bool = True,
-) -> tuple[TrinityBundle, MigrationReport | None]:
+) -> tuple[TrinityBundle, None]:
     """Load payload as canonical TrinityBundle and return optional migration report."""
     if isinstance(payload, TrinityBundle):
         return payload, None
@@ -88,19 +72,11 @@ def load_trinity_bundle(
     normalized = _normalize_payload(payload, fmt=fmt)
     mapping = _ensure_mapping(normalized)
 
-    if _looks_like_legacy_surface(mapping):
-        raise PolicyLoadError(
-            "Legacy PolicySurfaceIR payload is no longer supported by runtime loaders. "
-            "Migrate payloads to TrinityBundle before loading."
-        )
-
     try:
         return TrinityBundle.model_validate(mapping), None
-    except Exception as exc:  # pragma: no cover - defensive path
+    except Exception as exc:
         if auto_migrate:
-            raise PolicyLoadError(
-                "Unsupported policy payload for TrinityBundle loader."
-            ) from exc
+            raise PolicyLoadError("Payload is not a valid TrinityBundle.") from exc
         raise PolicyLoadError("Unsupported policy payload for TrinityBundle loader") from exc
 
 
@@ -110,17 +86,9 @@ def load_trinity(payload: Any, *, fmt: str = "auto") -> TrinityBundle:
     return bundle
 
 
-def load_legacy(payload: Any, *, fmt: str = "auto") -> TrinityBundle:
-    raise PolicyLoadError(
-        "load_legacy() was removed with PolicySurfaceIR decommissioning. "
-        "Use load_trinity() and TrinityBundle payloads."
-    )
-
-
 __all__ = [
     "PolicyLoadError",
     "load_policy",
     "load_trinity",
     "load_trinity_bundle",
-    "load_legacy",
 ]

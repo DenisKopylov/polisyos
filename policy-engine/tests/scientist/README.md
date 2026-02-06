@@ -133,7 +133,7 @@ scientist/
 **Ключевые тесты:**
 - **Protocol Conformance**: Проверка реализации интерфейсов PI/Drafter/Formalizer/Critic
 - **Runtime Behavior**: Тестирование async execution, delegation, task decomposition
-- **Pipeline Flow**: Полный workflow от user request до PolicySurfaceIR через агентов
+- **Pipeline Flow**: Полный workflow от user request до TrinityBundle через агентов
 - **Reflexion Loop**: Critique-based refinement с convergence guarantees
 - **Backward Compatibility**: Поддержка legacy MockAgent интерфейсов
 
@@ -149,7 +149,7 @@ scientist/
 
 **Ключевые тесты:**
 - **IR to Foundry Compilation**: Полный roundtrip IR → compilation → execution → state update
-- **Surface IR Roundtrip**: PolicySurfaceIR → executable program → GlobalState changes
+- **Surface IR Roundtrip**: TrinityBundle → executable program → GlobalState changes
 - **Registry Integration**: Корректное использование mechanism/slot/merge registries
 - **Execution Correctness**: Валидация что скомпилированные программы работают правильно
 

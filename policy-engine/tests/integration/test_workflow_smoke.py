@@ -3,7 +3,13 @@ from pathlib import Path
 import pandas as pd
 import pytest
 from polisyos.fabric.io.db import SimulationDB
-from polisyos.ir.surface import PolicySurfaceIR
+from polisyos.ir.model_spec import ModelSpec
+from polisyos.ir.policy_spec import InterventionSpec, PolicySpec
+from polisyos.ir.problem_frame import ConstraintSpec as ProblemConstraintSpec
+from polisyos.ir.problem_frame import ProblemDomain, ProblemFrame
+from polisyos.ir.schedule import ScheduleSpec
+from polisyos.ir.selector_expr import SelectorPredicate
+from polisyos.ir.trinity import TrinityBundle
 from polisyos.ir.types import SelectorOperator
 from polisyos.scientist.kernel.human_gate import GateDecision
 from polisyos.scientist.orchestrator.workflow import build_workflow
@@ -33,6 +39,44 @@ def _base_state(
         "simulation_results": None,
         "feedback": None,
     }
+
+
+def _build_ir(*, rate: str, min_balance: str | None = None) -> TrinityBundle:
+    hard_constraints: list[ProblemConstraintSpec] = []
+    if min_balance is not None:
+        hard_constraints.append(
+            ProblemConstraintSpec(
+                constraint_id="min_balance",
+                value={"amount": min_balance, "currency": "USD"},
+            )
+        )
+    return TrinityBundle(
+        problem_frame=ProblemFrame(
+            problem_id="workflow_smoke_problem",
+            domain=ProblemDomain.FISCAL,
+            hard_constraints=hard_constraints,
+        ),
+        policy_spec=PolicySpec(
+            policy_id="workflow_smoke_policy",
+            interventions=[
+                InterventionSpec(
+                    intervention_id="tax_sub",
+                    kind="tax_subsidy",
+                    target=SelectorPredicate(
+                        field="id",
+                        operator=SelectorOperator.EQUALS,
+                        value="any",
+                    ),
+                    schedule=ScheduleSpec(start_step=0, duration_steps=1),
+                    params={"rate": rate},
+                )
+            ],
+        ),
+        model_spec=ModelSpec(
+            model_id="workflow_smoke_model",
+            data_snapshot_ref="sha256:0000000000000000000000000000000000000000000000000000000000000000",
+        ),
+    )
 
 
 def test_workflow_smoke_approve(tmp_path: Path) -> None:
@@ -90,28 +134,7 @@ def test_workflow_smoke_approve(tmp_path: Path) -> None:
     ]
     _write_baseline(db_path, baseline_run_id, rows)
 
-    ir = PolicySurfaceIR(
-        semantic={
-            "context_snapshot_ref": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
-            "time_semantics": {"frequency": "M", "start_date": "2024-01-01", "step_count": 1},
-            "interventions": [
-                {
-                    "intervention_id": "tax_sub",
-                    "kind": "tax_subsidy",
-                    "target": {
-                        "kind": "predicate",
-                        "field": "id",
-                        "operator": SelectorOperator.EQUALS,
-                        "value": "any",
-                    },
-                    "schedule": {"start_step": 0, "duration_steps": 1},
-                    "params": {"rate": "0.1"},
-                }
-            ],
-            "objectives": [],
-            "constraints": [],
-        }
-    )
+    ir = _build_ir(rate="0.1")
 
     app = build_workflow()
     state = {
@@ -147,33 +170,7 @@ def test_workflow_budget_constraint_needs_revision(tmp_path: Path) -> None:
     ]
     _write_baseline(db_path, baseline_run_id, rows)
 
-    ir = PolicySurfaceIR(
-        semantic={
-            "context_snapshot_ref": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
-            "time_semantics": {"frequency": "M", "start_date": "2024-01-01", "step_count": 1},
-            "interventions": [
-                {
-                    "intervention_id": "sub",
-                    "kind": "tax_subsidy",
-                    "target": {
-                        "kind": "predicate",
-                        "field": "id",
-                        "operator": SelectorOperator.EQUALS,
-                        "value": "any",
-                    },
-                    "schedule": {"start_step": 0, "duration_steps": 1},
-                    "params": {"rate": "0.5"},
-                }
-            ],
-            "objectives": [],
-            "constraints": [
-                {
-                    "constraint_id": "min_balance",
-                    "value": {"amount": "-2000", "currency": "USD"},
-                }
-            ],
-        }
-    )
+    ir = _build_ir(rate="0.5", min_balance="-2000")
 
     app = build_workflow()
     state = {
@@ -217,28 +214,7 @@ def test_workflow_does_not_create_logs_dir(tmp_path: Path) -> None:
     ]
     _write_baseline(db_path, baseline_run_id, rows)
 
-    ir = PolicySurfaceIR(
-        semantic={
-            "context_snapshot_ref": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
-            "time_semantics": {"frequency": "M", "start_date": "2024-01-01", "step_count": 1},
-            "interventions": [
-                {
-                    "intervention_id": "tax_sub",
-                    "kind": "tax_subsidy",
-                    "target": {
-                        "kind": "predicate",
-                        "field": "id",
-                        "operator": SelectorOperator.EQUALS,
-                        "value": "any",
-                    },
-                    "schedule": {"start_step": 0, "duration_steps": 1},
-                    "params": {"rate": "0.1"},
-                }
-            ],
-            "objectives": [],
-            "constraints": [],
-        }
-    )
+    ir = _build_ir(rate="0.1")
 
     app = build_workflow()
     state = {
@@ -271,28 +247,7 @@ def test_workflow_human_gate_pending(tmp_path: Path) -> None:
     ]
     _write_baseline(db_path, baseline_run_id, rows)
 
-    ir = PolicySurfaceIR(
-        semantic={
-            "context_snapshot_ref": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
-            "time_semantics": {"frequency": "M", "start_date": "2024-01-01", "step_count": 1},
-            "interventions": [
-                {
-                    "intervention_id": "tax_sub",
-                    "kind": "tax_subsidy",
-                    "target": {
-                        "kind": "predicate",
-                        "field": "id",
-                        "operator": SelectorOperator.EQUALS,
-                        "value": "any",
-                    },
-                    "schedule": {"start_step": 0, "duration_steps": 1},
-                    "params": {"rate": "0.1"},
-                }
-            ],
-            "objectives": [],
-            "constraints": [],
-        }
-    )
+    ir = _build_ir(rate="0.1")
 
     app = build_workflow()
     state = {
@@ -325,28 +280,7 @@ def test_workflow_human_gate_approved(tmp_path: Path) -> None:
     ]
     _write_baseline(db_path, baseline_run_id, rows)
 
-    ir = PolicySurfaceIR(
-        semantic={
-            "context_snapshot_ref": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
-            "time_semantics": {"frequency": "M", "start_date": "2024-01-01", "step_count": 1},
-            "interventions": [
-                {
-                    "intervention_id": "tax_sub",
-                    "kind": "tax_subsidy",
-                    "target": {
-                        "kind": "predicate",
-                        "field": "id",
-                        "operator": SelectorOperator.EQUALS,
-                        "value": "any",
-                    },
-                    "schedule": {"start_step": 0, "duration_steps": 1},
-                    "params": {"rate": "0.1"},
-                }
-            ],
-            "objectives": [],
-            "constraints": [],
-        }
-    )
+    ir = _build_ir(rate="0.1")
 
     app = build_workflow()
     gate_decision = GateDecision(approved=True, actor="tester")

@@ -153,14 +153,11 @@ class TestProtocolSignatures:
 
     def test_formalizer_signature(self) -> None:
         sig = inspect.signature(FormalizerAgent.formalize)
-        assert sig.parameters["output_kind"].kind == inspect.Parameter.KEYWORD_ONLY
-        assert sig.parameters["output_kind"].default == "trinity"
         assert sig.parameters["schema_version"].kind == inspect.Parameter.KEYWORD_ONLY
         assert sig.parameters["schema_version"].default == "1.0"
 
         sig = inspect.signature(FormalizerAgent.repair_ir)
         assert sig.parameters["hint"].kind == inspect.Parameter.KEYWORD_ONLY
-        assert sig.parameters["output_kind"].kind == inspect.Parameter.KEYWORD_ONLY
 
     def test_critic_signature(self) -> None:
         sig = inspect.signature(CriticAgent.critique)
@@ -321,12 +318,10 @@ class TestFormalizerAgentRuntime:
         )
         assert repaired is not None
 
-    def test_formalize_surface_compat_mode(self, mock_formalizer: MockFormalizerAgent) -> None:
-        from polisyos.ir.legacy.surface import PolicySurfaceIR
-
+    def test_formalize_schema_version_override(self, mock_formalizer: MockFormalizerAgent) -> None:
         draft = create_mock_draft()
-        ir = run(mock_formalizer.formalize(draft, output_kind="surface"))
-        assert isinstance(ir, PolicySurfaceIR)
+        ir = run(mock_formalizer.formalize(draft, schema_version="1.0"))
+        assert ir.schema_version == "1.0"
 
 
 class TestCriticAgentRuntime:
@@ -449,6 +444,7 @@ class TestAgentPipeline:
 class TestBackwardCompatibility:
     def test_legacy_mock_agent_still_works(self) -> None:
         import pandas as pd
+        from polisyos.ir.trinity import TrinityBundle
 
         agent = MockAgent()
         context_df = pd.DataFrame(
@@ -459,9 +455,7 @@ class TestBackwardCompatibility:
         )
 
         ir = agent.decide(step=1, context_df=context_df)
-        from polisyos.ir.surface import PolicySurfaceIR
-
-        assert isinstance(ir, PolicySurfaceIR)
+        assert isinstance(ir, TrinityBundle)
 
     def test_legacy_base_agent_is_abstract(self) -> None:
         with pytest.raises(TypeError):

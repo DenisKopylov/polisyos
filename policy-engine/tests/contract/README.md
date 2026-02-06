@@ -14,20 +14,20 @@ Contract тесты обеспечивают корректность грани
 
 ```
 contract/
-├── test_ir_contract.py        # PolicySurfaceIR, селекторы, валидация, TranslatableString
+├── test_ir_contract.py        # TrinityBundle, селекторы, валидация, TranslatableString
 ├── test_ir_migrations.py      # Миграции схем IR между версиями
 ├── test_trinity_contracts.py  # Trinity артефакты: ProblemFrame, PolicySpec, ModelSpec
-├── test_trinity_migration.py  # Миграция между Surface IR и Trinity форматами
+├── test_trinity_migration.py  # Миграция между Trinity IR и Trinity форматами
 ├── test_fabric_gates.py       # Входные фильтры и предусловия Fabric layer
 ├── test_kernel_models.py      # Валидация моделей ядра IR (slots, units, merge rules, time semantics)
-└── test_surface_ir.py         # Surface IR, линкер, semantic fingerprinting, validation reports
+└── test_trinity_migration.py         # Trinity IR, линкер, semantic fingerprinting, validation reports
 ```
 
 ## Категории тестов
 
 ### IR Contract Validation (`test_ir_contract.py`)
 
-**Цель:** Полная валидация PolicySurfaceIR, селекторов, транслируемых строк, обязательных полей.
+**Цель:** Полная валидация TrinityBundle, селекторов, транслируемых строк, обязательных полей.
 
 **Ключевые тесты:**
 - **Required Fields Enforcement**: Валидация обязательных полей в IR структурах
@@ -109,11 +109,11 @@ contract/
 
 ### Trinity Migration (`test_trinity_migration.py`)
 
-**Цель:** Миграция между Surface IR и Trinity форматами с сохранением семантического fingerprint.
+**Цель:** Миграция между Trinity IR и Trinity форматами с сохранением семантического fingerprint.
 
 **Ключевые тесты:**
-- **Split Operations**: Surface IR → ProblemFrame + PolicySpec + ModelSpec
-- **Merge Operations**: Trinity components → Surface IR reconstruction
+- **Split Operations**: Trinity IR → ProblemFrame + PolicySpec + ModelSpec
+- **Merge Operations**: Trinity components → Trinity IR reconstruction
 - **Roundtrip Fidelity**: Zero data loss через split/merge cycles
 - **Semantic Preservation**: Fingerprint stability после миграции
 - **Loader Integration**: Universal loading через load_policy/load_trinity
@@ -121,15 +121,15 @@ contract/
 **Принципы:**
 - **Zero Data Loss**: Полная preservation всех semantic elements
 - **Idempotent Operations**: Multiple migrations не изменяют результат
-- **Backward Compatibility**: Support для legacy Surface IR форматов
+- **Backward Compatibility**: Support для legacy Trinity IR форматов
 - **Schema Evolution**: Safe transitions между IR версиями
 
-### Surface IR (`test_surface_ir.py`)
+### Trinity IR (`test_trinity_migration.py`)
 
-**Цель:** Тестирование Surface IR, линкера, семантических fingerprint'ов и validation reports.
+**Цель:** Тестирование Trinity IR, линкера, семантических fingerprint'ов и validation reports.
 
 **Ключевые тесты:**
-- **Surface IR Structure**: Валидация complete Surface IR structures
+- **Trinity IR Structure**: Валидация complete Trinity IR structures
 - **Linker Functionality**: Правильность policy linking с mechanisms/constraints
 - **Semantic Fingerprinting**: Детерминированные хэши независимо от key order
 - **Validation Reports**: Генерация comprehensive error reports с diff analysis
@@ -153,7 +153,7 @@ pytest tests/contract/test_trinity_contracts.py -v
 pytest tests/contract/test_trinity_migration.py -v
 pytest tests/contract/test_fabric_gates.py -v
 pytest tests/contract/test_kernel_models.py -v
-pytest tests/contract/test_surface_ir.py -v
+pytest tests/contract/test_trinity_migration.py -v
 ```
 
 ## Связи с другими модулями

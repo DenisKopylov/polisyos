@@ -152,7 +152,7 @@ print(f"R²: {report.fit_quality.r_squared:.3f}")
 ## Интеграция
 
 - **`scientist/`**: Вызов калибровки из экспериментов
-- **`foundry.compiler`**: Компиляция политик
+- **`foundry.compile.api`**: Компиляция политик
 - **`foundry.runtime`**: Исполнение калиброванных политик
 - **`core.artifacts`**: Сохранение результатов
 

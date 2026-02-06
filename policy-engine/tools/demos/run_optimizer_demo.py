@@ -14,9 +14,14 @@ import jax
 import pandas as pd
 
 from polisyos.fabric.io.db import SimulationDB
-from polisyos.scientist.orchestrator.workflow import build_workflow
-from polisyos.ir.surface import PolicySurfaceIR
+from polisyos.ir.model_spec import ModelSpec
+from polisyos.ir.policy_spec import InterventionSpec, PolicySpec
+from polisyos.ir.problem_frame import ConstraintSpec, ProblemDomain, ProblemFrame
+from polisyos.ir.schedule import ScheduleSpec
+from polisyos.ir.selector_expr import SelectorPredicate
+from polisyos.ir.trinity import TrinityBundle
 from polisyos.ir.types import SelectorOperator
+from polisyos.scientist.orchestrator.workflow import build_workflow
 
 
 def setup_data():
@@ -47,31 +52,32 @@ def main():
     # Максимальная безопасная субсидия: 500 / (10 агентов * 1000 доход) = 0.05 (5%)
     # Посмотрим, найдет ли AI эти 5%.
 
-    ir = PolicySurfaceIR(
-        semantic={
-            "context_snapshot_ref": "sha256:" + "0" * 64,
-            "interventions": [
-                {
-                    "intervention_id": "sub",
-                    "kind": "tax_subsidy",
-                    "target": {
-                        "kind": "predicate",
-                        "field": "id",
-                        "operator": SelectorOperator.EQUALS,
-                        "value": "any",
-                    },
-                    "schedule": {"start_step": 0, "duration_steps": 1},
-                    "params": {"rate": "0.0"},
-                }
+    ir = TrinityBundle(
+        problem_frame=ProblemFrame(
+            problem_id="optimizer_demo_problem",
+            domain=ProblemDomain.FISCAL,
+            hard_constraints=[ConstraintSpec(constraint_id="min_balance", value="-500")],
+        ),
+        policy_spec=PolicySpec(
+            policy_id="optimizer_demo_policy",
+            interventions=[
+                InterventionSpec(
+                    intervention_id="sub",
+                    kind="tax_subsidy",
+                    target=SelectorPredicate(
+                        field="id",
+                        operator=SelectorOperator.EQUALS,
+                        value="any",
+                    ),
+                    schedule=ScheduleSpec(start_step=0, duration_steps=1),
+                    params={"rate": "0.0"},
+                )
             ],
-            "objectives": [],
-            "constraints": [
-                {
-                    "constraint_id": "min_balance",
-                    "value": "-500",
-                }
-            ],
-        }
+        ),
+        model_spec=ModelSpec(
+            model_id="optimizer_demo_model",
+            data_snapshot_ref="sha256:" + "0" * 64,
+        ),
     )
 
     print("🤖 Initial Policy Rate: 0.0%")
@@ -91,7 +97,7 @@ def main():
 
     # 3. Результаты
     final_ir = result["ir"]
-    final_rate = float(final_ir.semantic.interventions[0].params["rate"])
+    final_rate = float(final_ir.policy_spec.interventions[0].params["rate"])
     stats = result["simulation_results"]
 
     print(f"\n✨ Optimized Policy Rate: {final_rate*100:.2f}%")

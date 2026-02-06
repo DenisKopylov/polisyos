@@ -2,53 +2,63 @@ from __future__ import annotations
 
 from decimal import Decimal
 
-from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.artifacts.manifest import SchemaInfo
+from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.contracts.foundry import CompileRequest, ExecuteRequest, StateSnapshotRef
 from polisyos.core.registry import build_default_registry_bundle, load_registry_bundle_content
 from polisyos.foundry.compile.api import compile as compile_foundry
-from polisyos.foundry.compiler import put_policy_surface
 from polisyos.foundry.domain.state import GlobalState
 from polisyos.foundry.execute.api import execute as execute_foundry
 from polisyos.foundry.executor import put_state_snapshot
-from polisyos.ir.surface import PolicySemantic, PolicySurfaceIR
+from polisyos.ir.model_spec import ModelSpec
+from polisyos.ir.policy_spec import InterventionSpec, PolicySpec
+from polisyos.ir.problem_frame import ProblemDomain, ProblemFrame
+from polisyos.ir.schedule import ScheduleSpec
+from polisyos.ir.selector_expr import SelectorPredicate
+from polisyos.ir.trinity import TrinityBundle
 from polisyos.ir.types import SelectorOperator
 
 
 def test_execute_facade_smoke(tmp_path) -> None:
     store = FileSystemCAS(tmp_path)
     bundle = build_default_registry_bundle(store)
-    registries = load_registry_bundle_content(store, bundle.bundle_ref)
-
-    policy = PolicySurfaceIR(
-        semantic=PolicySemantic(
-            context_snapshot_ref="sha256:0000000000000000000000000000000000000000000000000000000000000000",
+    load_registry_bundle_content(store, bundle.bundle_ref)
+    policy = TrinityBundle(
+        problem_frame=ProblemFrame(problem_id="problem_1", domain=ProblemDomain.FISCAL),
+        policy_spec=PolicySpec(
+            policy_id="policy_1",
             interventions=[
-                {
-                    "intervention_id": "tax_cut",
-                    "kind": "income_tax",
-                    "target": {
-                        "kind": "predicate",
-                        "field": "id",
-                        "operator": SelectorOperator.EQUALS,
-                        "value": "all",
-                    },
-                    "schedule": {"start_step": 0, "duration_steps": 1},
-                    "params": {"rate": Decimal("0.1")},
-                }
+                InterventionSpec(
+                    intervention_id="tax_cut",
+                    kind="income_tax",
+                    target=SelectorPredicate(
+                        field="id",
+                        operator=SelectorOperator.EQUALS,
+                        value="all",
+                    ),
+                    schedule=ScheduleSpec(start_step=0, duration_steps=1),
+                    params={"rate": Decimal("0.1")},
+                )
             ],
-        )
+        ),
+        model_spec=ModelSpec(
+            model_id="model_1",
+            data_snapshot_ref="sha256:0000000000000000000000000000000000000000000000000000000000000000",
+            registry_bundle_ref=str(bundle.bundle_ref.artifact_id),
+        ),
     )
-
-    policy_ref = put_policy_surface(
-        store,
+    policy_ref = store.put_json(
         policy,
-        mechanism_registry=registries.mechanism_registry,
-        units_registry=registries.units_registry,
+        PutOptions(
+            kind="ir.trinity_bundle",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.ir.TrinityBundle", version=policy.schema_version),
+        ),
     )
     compile_result = compile_foundry(
         store,
         CompileRequest(
-            input_kind="surface",
+            input_kind="trinity",
             policy_ref=policy_ref,
             registry_bundle_ref=bundle.bundle_ref,
         ),

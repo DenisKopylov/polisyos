@@ -154,7 +154,6 @@ src/polisyos/ir/model_spec.py
 src/polisyos/ir/policy_spec.py
 src/polisyos/ir/predicate.py
 src/polisyos/ir/problem_frame.py
-src/polisyos/ir/surface.py
 src/polisyos/ir/trinity.py
 src/polisyos/ir/types.py
 src/polisyos/ir/units.py

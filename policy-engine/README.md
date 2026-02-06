@@ -52,7 +52,7 @@ Also:
 
 ## Key concepts (what to learn first)
 
-- **Trinity IR** (`ProblemFrame` + `PolicySpec` + `ModelSpec`): separation of *why / what / how*; `PolicySurfaceIR` is kept for compatibility (**deprecated**).
+- **Trinity IR** (`ProblemFrame` + `PolicySpec` + `ModelSpec`): separation of *why / what / how* with `TrinityBundle` as canonical bundle format.
 - **Kernel registries** (IR): mechanisms, slots, merge rules, units, metrics, constraints, selector_fields, trust, numbers, values, time semantics.
 - **UDF (Unified Data Fabric)**: safe “data views” compiled through passes (typecheck, resolution, privacy, lowering, merge) and executed on DuckDB/Kùzu.
 - **CAS artifacts** (Core): content-addressed storage (SHA-256) + deterministic canonical JSON; everything important becomes an artifact.

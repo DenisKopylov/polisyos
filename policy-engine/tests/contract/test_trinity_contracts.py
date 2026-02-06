@@ -41,7 +41,8 @@ from polisyos.ir.problem_frame import (
     ProblemFrame,
     SuccessCriterion,
 )
-from polisyos.ir.surface import ScheduleSpec, SelectorPredicate
+from polisyos.ir.schedule import ScheduleSpec
+from polisyos.ir.selector_expr import SelectorNot, SelectorPredicate
 from polisyos.ir.types import EntityType, OptimizationDirection
 
 
@@ -268,8 +269,6 @@ class TestPolicySpec:
 
     def test_selector_depth_limit(self) -> None:
         """Test enforcement of selector depth limit."""
-        from polisyos.ir.surface import SelectorNot
-
         nested = SelectorPredicate(kind="predicate", field="id", operator="==", value="all")
         for _ in range(15):  # Exceeds MAX_SELECTOR_DEPTH=10
             nested = SelectorNot(kind="not", clause=nested)

@@ -12,9 +12,6 @@ INPUT_KNOWLEDGE_BUNDLE_REF = "knowledge_bundle_ref"
 INPUT_RESEARCH_INTENT_REF = "research_intent_ref"
 INPUT_NORM_PACK_REF = "norm_pack_ref"
 
-# Legacy compatibility inputs
-INPUT_POLICY_IR_REF = "policy_ir_ref"
-
 # Canonical artifact keys (ExperimentState.artifacts_index)
 ARTIFACT_EXEC_PLAN_REF = "exec_plan_ref"
 ARTIFACT_PROGRAM_GRAPH_REF = "program_graph_ref"
@@ -51,7 +48,6 @@ __all__ = [
     "INPUT_KNOWLEDGE_BUNDLE_REF",
     "INPUT_RESEARCH_INTENT_REF",
     "INPUT_NORM_PACK_REF",
-    "INPUT_POLICY_IR_REF",
     "ARTIFACT_EXEC_PLAN_REF",
     "ARTIFACT_PROGRAM_GRAPH_REF",
     "ARTIFACT_SIMULATION_RESULT_REF",

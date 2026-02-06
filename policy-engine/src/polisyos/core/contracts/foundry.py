@@ -7,12 +7,6 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 from ..artifacts.environment import EnvironmentManifestRef
 from ..artifacts.manifest import ArtifactRef
 
-
-class PolicySurfaceIRRef(ArtifactRef):
-    kind: Literal["ir.policy_surface"] = "ir.policy_surface"
-    media_type: Literal["application/json"] = "application/json"
-
-
 class ProgramGraphRef(ArtifactRef):
     kind: Literal["foundry.program_graph"] = "foundry.program_graph"
     media_type: Literal["application/json"] = "application/json"
@@ -173,7 +167,7 @@ class LoweredMechanism(BaseModel):
 class LoweredIR(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    ir_ref: PolicySurfaceIRRef
+    ir_ref: ArtifactRef
     mechanisms: list[LoweredMechanism] = Field(default_factory=list)
     notes: list[str] = Field(default_factory=list)
 
@@ -246,7 +240,7 @@ class CompileRequest(BaseModel):
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
 
-    input_kind: Literal["auto", "surface", "trinity"] = "auto"
+    input_kind: Literal["auto", "trinity"] = "auto"
     policy_ref: ArtifactRef
 
     registry_bundle_ref: ArtifactRef | None = None

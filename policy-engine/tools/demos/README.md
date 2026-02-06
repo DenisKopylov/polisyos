@@ -140,7 +140,7 @@ demo_udf.kuzu               # Графовая БД
 #### Интеграция с модулями
 
 - **`polisyos.scientist.orchestrator.workflow`** - оркестрация оптимизации
-- **`polisyos.ir.surface.PolicySurfaceIR`** - спецификация политик
+- **`polisyos.ir.TrinityBundle`** - спецификация политик
 - **PyMOO** - библиотека многокритериальной оптимизации
 
 ### run_udf_hybrid_demo.py - Продвинутые UDF запросы

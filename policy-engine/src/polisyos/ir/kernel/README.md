@@ -524,7 +524,7 @@ Kernel является фундаментом и не зависит от др�
 ### Архитектурные контракты
 
 ```
-Kernel (реестры) ← Linker ← Surface (PolicySurfaceIR)
+Kernel (реестры) ← Linker ← Surface (TrinityBundle)
        ↓
    Foundry (компиляция)    Calibration (оптимизация)
 ```

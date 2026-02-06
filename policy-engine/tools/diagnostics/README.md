@@ -153,7 +153,7 @@ python tools/diagnostics/check_udf_perf.py --baseline data/udf_perf_baseline.jso
 - Детерминированные результаты для CI/CD
 
 **Валидация структур:**
-- Проверка корректности PolicySurfaceIR
+- Проверка корректности TrinityBundle
 - Валидация вложенных структур (interventions, constraints)
 - Semantic validation (бизнес-логика)
 
@@ -177,7 +177,7 @@ python3 tools/gen_schema.py --output-dir schemas/snapshots
 
 #### Интеграция с модулями
 
-- **`polisyos.ir.surface.PolicySurfaceIR`** - основная IR модель
+- **`polisyos.ir.TrinityBundle`** - основная IR модель
 - **`polisyos.ir.validation.build_validation_report`** - отчеты об ошибках
 - **Pydantic v2** - генерация схем из type hints
 

@@ -45,7 +45,7 @@ def migrate_policy_ir(
     current_version = str(data["schema_version"])
     if current_version.startswith("2.") or "semantic" in data:
         raise ValueError(
-            "Legacy PolicySurfaceIR payloads are not supported by runtime migrations."
+            "Legacy non-Trinity payloads are not supported by runtime migrations."
         )
 
     target = target_version or IR_CURRENT_VERSION

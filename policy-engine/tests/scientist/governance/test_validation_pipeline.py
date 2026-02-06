@@ -1,6 +1,9 @@
 import pytest
 
-from polisyos.ir.surface import PolicySurfaceIR
+from polisyos.ir.model_spec import ModelSpec
+from polisyos.ir.policy_spec import InterventionSpec, PolicySpec
+from polisyos.ir.problem_frame import ProblemDomain, ProblemFrame
+from polisyos.ir.trinity import TrinityBundle
 from polisyos.ir.types import SelectorOperator
 from polisyos.scientist.governance.pipeline import ValidationPipeline
 from polisyos.scientist.governance.profiles import ValidationProfile, ProfileLevel
@@ -12,30 +15,31 @@ from polisyos.scientist.governance.passes.base import (
 )
 
 
-def _create_minimal_ir() -> PolicySurfaceIR:
-    payload = {
-        "schema_version": "2.0",
-        "semantic": {
-            "context_snapshot_ref": "sha256:" + "0" * 64,
-            "interventions": [
-                {
-                    "intervention_id": "tax_subsidy_1",
-                    "kind": "tax_subsidy",
-                    "target": {
+def _create_minimal_ir() -> TrinityBundle:
+    return TrinityBundle(
+        problem_frame=ProblemFrame(problem_id="problem_1", domain=ProblemDomain.FISCAL),
+        policy_spec=PolicySpec(
+            policy_id="policy_1",
+            interventions=[
+                InterventionSpec(
+                    intervention_id="tax_subsidy_1",
+                    kind="tax_subsidy",
+                    target={
                         "kind": "predicate",
                         "field": "id",
                         "operator": SelectorOperator.EQUALS,
                         "value": "all",
                     },
-                    "schedule": {"start_step": 0, "duration_steps": 1},
-                    "params": {"rate": "0.1"},
-                }
+                    schedule={"start_step": 0, "duration_steps": 1},
+                    params={"rate": "0.1"},
+                )
             ],
-            "objectives": [],
-            "constraints": [],
-        },
-    }
-    return PolicySurfaceIR.model_validate(payload)
+        ),
+        model_spec=ModelSpec(
+            model_id="model_1",
+            data_snapshot_ref="sha256:" + "0" * 64,
+        ),
+    )
 
 
 class AlwaysBlockerPass(ValidatorPass):

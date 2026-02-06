@@ -33,7 +33,6 @@ from .foundry import (
     LoweredIRRef,
     Metrics,
     MetricsRef,
-    PolicySurfaceIRRef,
     ProgramGraph,
     ProgramGraphRef,
     SimulationResult,
@@ -78,7 +77,7 @@ from .scientist import (
     ExperimentStateRef,
     FailureCardRef,
     GovernanceReportRef,
-    PolicyIRRef,
+    TrinityIRRef,
     TimelineRef,
 )
 from .trinity import (
@@ -115,7 +114,6 @@ __all__ = [
     "LoweredIRRef",
     "Metrics",
     "MetricsRef",
-    "PolicySurfaceIRRef",
     "ProgramGraph",
     "ProgramGraphRef",
     "CompileRequest",
@@ -137,7 +135,7 @@ __all__ = [
     "LinkReportRef",
     "CompileReportRef",
     "FailureCardRef",
-    "PolicyIRRef",
+    "TrinityIRRef",
     "CritiqueRef",
     "TimelineRef",
     "DecisionCardRef",

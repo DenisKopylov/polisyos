@@ -14,7 +14,6 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_PROGRAM_GRAPH_REF,
     ARTIFACT_SLOT_LAYOUT_REF,
     ARTIFACT_TREASURY_PLAN_REF,
-    INPUT_POLICY_IR_REF,
     INPUT_REGISTRY_BUNDLE_REF,
     INPUT_TRINITY_BUNDLE_REF,
     REPORT_COMPILE_REPORT_REF,
@@ -35,7 +34,6 @@ _SPEC = NodeSpec(
     metadata=_METADATA,
     state_reads=[
         f"inputs.{INPUT_TRINITY_BUNDLE_REF}",
-        f"inputs.{INPUT_POLICY_IR_REF}",
         f"inputs.{INPUT_REGISTRY_BUNDLE_REF}",
     ],
     state_writes=[
@@ -89,12 +87,10 @@ class CompileFoundryNode:
 
         policy_ref = state.inputs.get(INPUT_TRINITY_BUNDLE_REF)
         if policy_ref is None:
-            policy_ref = state.inputs.get(INPUT_POLICY_IR_REF)
-        if policy_ref is None:
             error = NodeError(
                 code=node_errors.ERROR_MISSING_INPUT,
                 message="Missing policy reference for compilation",
-                details={"required": [INPUT_TRINITY_BUNDLE_REF, INPUT_POLICY_IR_REF]},
+                details={"required": [INPUT_TRINITY_BUNDLE_REF]},
             )
             return NodeOutcome(status="fail", state=state, error=error)
 

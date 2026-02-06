@@ -551,7 +551,7 @@ result = chain.execute(initial_state, static_params, rng_key)
 ## Связь с другими модулями
 
 - **`foundry.base`**: Использует базовые механизмы
-- **`foundry.compiler`**: Компилирует методы в ProgramGraph
+- **`foundry.compile.api`**: Компилирует методы в ProgramGraph
 - **`foundry.runtime`**: Исполняет скомпилированные методы
 - **`core.artifacts`**: Хранит артефакты методов
 - **`scientist`**: Использует методы в экспериментах

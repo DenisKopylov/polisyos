@@ -98,8 +98,8 @@ class FailureCardRef(ScientistArtifactRef):
         )
 
 
-class PolicyIRRef(ScientistArtifactRef):
-    """Reference to a PolicySurfaceIR artifact."""
+class TrinityIRRef(ScientistArtifactRef):
+    """Reference to a canonical Trinity IR artifact."""
 
     kind: Literal["scientist.policy_ir"] = "scientist.policy_ir"
     media_type: Literal["application/json"] = "application/json"
@@ -152,7 +152,7 @@ __all__ = [
     "GovernanceReportRef",
     "FailureCardLike",
     "FailureCardRef",
-    "PolicyIRRef",
+    "TrinityIRRef",
     "CritiqueRef",
     "TimelineRef",
     "DecisionCardRef",

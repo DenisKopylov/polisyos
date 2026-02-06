@@ -25,13 +25,13 @@ tests/
 ├── test_components_id_semver_phase19.py # Semantic versioning Phase 19
 ├── test_public_api_facades.py     # Public API facades тесты
 ├── contract/                      # Тесты контрактов IR и схем валидации
-│   ├── test_ir_contract.py        # PolicySurfaceIR, селекторы, валидация, TranslatableString
+│   ├── test_ir_contract.py        # TrinityBundle, селекторы, валидация, TranslatableString
 │   ├── test_ir_migrations.py      # Миграции схем IR между версиями
 │   ├── test_trinity_contracts.py  # Trinity артефакты: ProblemFrame, PolicySpec, ModelSpec
-│   ├── test_trinity_migration.py  # Миграция между Surface IR и Trinity форматами
+│   ├── test_trinity_migration.py  # Миграция между Trinity IR и Trinity форматами
 │   ├── test_fabric_gates.py       # Входные фильтры и предусловия Fabric layer
 │   ├── test_kernel_models.py      # Валидация моделей ядра IR (slots, units, merge rules, time semantics)
-│   ├── test_surface_ir.py         # Surface IR, линкер, semantic fingerprinting, validation reports
+│   ├── test_trinity_migration.py         # Trinity IR, линкер, semantic fingerprinting, validation reports
 │   ├── test_claims_pipeline_phase13.py # Claims pipeline Phase 13
 │   ├── test_conflicts_phase14.py  # Conflicts Phase 14
 │   ├── test_docs_pipeline_phase12.py # Docs pipeline Phase 12
@@ -188,13 +188,13 @@ tests/
 **Цель**: Обеспечение корректности структур данных и API контрактов на всех уровнях IR, включая валидацию схем, миграции и границы между слоями.
 
 **Ключевые тесты:**
-- **IR Contract Validation**: Полная валидация `PolicySurfaceIR`, селекторов, транслируемых строк, обязательных полей
+- **IR Contract Validation**: Полная валидация `TrinityBundle`, селекторов, транслируемых строк, обязательных полей
 - **Trinity Contracts**: Валидация Trinity артефактов (ProblemFrame, PolicySpec, ModelSpec) с типизированными ссылками
-- **Trinity Migration**: Миграция между Surface IR и Trinity форматами с сохранением семантического fingerprint
+- **Trinity Migration**: Миграция между Trinity IR и Trinity форматами с сохранением семантического fingerprint
 - **Schema Migrations**: Тестирование миграций схем между версиями с сохранением совместимости
 - **Fabric Gates**: Проверка входных фильтров, предусловий и валидационных барьеров Fabric layer
 - **Kernel Models**: Комплексная валидация моделей ядра (slots, units, merge rules, time semantics, constraint registry)
-- **Surface IR**: Тестирование Surface IR, линкера, семантических fingerprint'ов и validation reports
+- **Trinity IR**: Тестирование Trinity IR, линкера, семантических fingerprint'ов и validation reports
 
 **Принципы:**
 - **Roundtrip тестирование**: `yaml → model → yaml` сохраняет канонический формат без потерь
@@ -354,10 +354,10 @@ tests/
 **Цель**: Валидация загрузчиков, преобразователей IR структур и универсального policy interface.
 
 **Ключевые тесты:**
-- **Policy Loaders**: Загрузка политик из различных форматов (PolicySurfaceIR объекты, словари, файлы) с type safety
+- **Policy Loaders**: Загрузка политик из различных форматов (TrinityBundle объекты, словари, файлы) с type safety
 
 **Принципы:**
-- **Pass-through**: Прозрачная обработка уже загруженных PolicySurfaceIR объектов
+- **Pass-through**: Прозрачная обработка уже загруженных TrinityBundle объектов
 - **Mapping Validation**: Строгая валидация структуры при загрузке из словарей/mapping'ов
 - **Schema Versioning**: Поддержка versioning схем с backward compatibility
 - **Universal Interface**: Единый интерфейс для всех форматов представления политик
@@ -431,7 +431,7 @@ tests/
 - **Search Loop System**: Phase 17 optimization с two-stage filtering, SearchController, stopping criteria, objective functions
 - **Agent Protocols**: Валидация протоколов PI/Drafter/Formalizer/Critic агентов с runtime поведением
 - **Policy Compiler**: Компиляция IR в исполняемые модели foundry
-- **Agent Pipeline**: Полный pipeline от user request до PolicySurfaceIR через агентов
+- **Agent Pipeline**: Полный pipeline от user request до TrinityBundle через агентов
 - **Decision Card System**: Генерация детерминированных decision cards с verdict/confidence, key metrics и issues summary
 - **Decision Packet v2**: Обновленная версия decision packet с timeline и decision card поддержкой
 - **Run Timeline**: Система тракинга timeline выполнения runs с event tracking, phase/node durations, artifact creation
@@ -742,14 +742,14 @@ pytest tests/core_phase0/test_propagation.py -v         # Context propagation
 
 ### Contract Layer (`contract/`)
 **IR Contracts** → Валидация структур данных
-- **Surface IR**: Семантическая модель политик
+- **Trinity IR**: Семантическая модель политик
 - **Kernel Models**: Базовые типы (MoneyValue, TimeSemantics, Slots)
 - **Linker**: Связывание политик с механизмами
 
 **Schema Validation** → Гарантии совместимости
 - **Migrations**: Безопасные переходы между версиями
 - **Fabric Gates**: Предусловия для обработки данных
-- **Surface IR**: Semantic fingerprinting для дедупликации
+- **Trinity IR**: Semantic fingerprinting для дедупликации
 
 ### Fabric Layer (`fabric/`)
 **Data Catalog System** → Metadata management and discovery
@@ -771,7 +771,7 @@ pytest tests/core_phase0/test_propagation.py -v         # Context propagation
 ### IR Layer (`ir/`)
 **Policy Loading & Transformation** → Universal policy interface
 - **Policy Loaders**: Загрузка из различных форматов (объекты, словари, файлы)
-- **Surface IR**: Семантическая модель политик
+- **Trinity IR**: Семантическая модель политик
 - **Contract Validation**: Валидация структур данных
 
 **Schema Management** → Version compatibility
@@ -827,7 +827,7 @@ pytest tests/core_phase0/test_propagation.py -v         # Context propagation
 - **Failure Cards**: Error handling и recovery mechanisms для LLM interactions
 - **Short-Term Memory**: State persistence между agent attempts с hint accumulation
 - **Reflexion Orchestrator**: Автоматический retry management с escalation logic
-- **Trinity Migration**: Seamless transition между Surface IR и Trinity formats
+- **Trinity Migration**: Seamless transition между Trinity IR и Trinity formats
 
 ### Tools & Operations Layer
 **Diagnostic Tools** → Development and maintenance utilities
@@ -856,7 +856,7 @@ pytest tests/core_phase0/test_propagation.py -v         # Context propagation
 ### Trinity Architecture Integration
 **ProblemFrame** → Policy context and constraints
 - **Contract Tests**: Schema validation и reference integrity
-- **IR Layer**: Migration between Surface IR и Trinity formats
+- **IR Layer**: Migration between Trinity IR и Trinity formats
 - **Scientist**: Problem decomposition и context для агентов
 
 **PolicySpec** → Intervention definitions

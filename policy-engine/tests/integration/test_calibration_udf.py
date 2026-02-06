@@ -4,7 +4,8 @@ import jax.numpy as jnp
 import pytest
 
 from polisyos.core.artifacts.ids import ArtifactID
-from polisyos.core.contracts.foundry import ExecPlan, ProgramGraph, ProgramGraphRef, ProgramNode, PolicySurfaceIRRef
+from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.core.contracts.foundry import ExecPlan, ProgramGraph, ProgramGraphRef, ProgramNode
 from polisyos.fabric.io.db import SimulationDB
 from polisyos.foundry.calibration.calibrator import Calibrator, CalibratorInputs
 from polisyos.foundry.domain.state import GlobalState
@@ -83,7 +84,11 @@ def test_calibrator_fetches_targets_from_udf(tmp_path: Path) -> None:
         )
 
         dummy_id = _dummy_artifact()
-        policy_ref = PolicySurfaceIRRef(artifact_id=dummy_id)
+        policy_ref = ArtifactRef(
+            artifact_id=dummy_id,
+            kind="ir.trinity_bundle",
+            media_type="application/json",
+        )
         program_ref = ProgramGraphRef(artifact_id=dummy_id)
         node = ProgramNode(
             node_id="tax",

@@ -2,43 +2,68 @@ from __future__ import annotations
 
 from decimal import Decimal
 
-import pytest
 import jax.numpy as jnp
-from polisyos.core.artifacts.store import FileSystemCAS
+import pytest
+
+from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
+from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.contracts.foundry import CompileRequest, Metrics, StateDelta
 from polisyos.core.registry import build_default_registry_bundle, load_registry_bundle_content
 from polisyos.foundry.compile.api import compile as compile_foundry
-from polisyos.foundry.compiler import put_policy_surface
 from polisyos.foundry.domain.state import GlobalState
-from polisyos.foundry.executor import (
-    apply_state_delta_and_snapshot,
-    execute_program_graph,
-    load_state_snapshot,
-)
-from polisyos.ir.surface import PolicySemantic, PolicySurfaceIR
+from polisyos.foundry.executor import apply_state_delta_and_snapshot, execute_program_graph
+from polisyos.ir.model_spec import ModelSpec
+from polisyos.ir.policy_spec import InterventionSpec, PolicySpec
+from polisyos.ir.problem_frame import ProblemDomain, ProblemFrame
+from polisyos.ir.schedule import ScheduleSpec
+from polisyos.ir.selector_expr import SelectorPredicate
+from polisyos.ir.trinity import TrinityBundle
 from polisyos.ir.types import SelectorOperator
 
+CTX_REF = "sha256:0000000000000000000000000000000000000000000000000000000000000000"
 
-def _compile_policy(store: FileSystemCAS, policy: PolicySurfaceIR, bundle_ref, registries):
-    policy_ref = put_policy_surface(
-        store,
-        policy,
-        mechanism_registry=registries.mechanism_registry,
-        units_registry=registries.units_registry,
+
+def _bundle_with_intervention(
+    intervention: InterventionSpec,
+    *,
+    registry_bundle_ref: ArtifactRef,
+) -> TrinityBundle:
+    return TrinityBundle(
+        problem_frame=ProblemFrame(problem_id="problem_1", domain=ProblemDomain.FISCAL),
+        policy_spec=PolicySpec(policy_id="policy_1", interventions=[intervention]),
+        model_spec=ModelSpec(
+            model_id="model_1",
+            data_snapshot_ref=CTX_REF,
+            registry_bundle_ref=str(registry_bundle_ref.artifact_id),
+        ),
+    )
+
+
+def _compile_policy(
+    store: FileSystemCAS,
+    bundle: TrinityBundle,
+    *,
+    registry_bundle_ref: ArtifactRef,
+):
+    policy_ref = store.put_json(
+        bundle,
+        PutOptions(
+            kind="ir.trinity_bundle",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.ir.TrinityBundle", version=bundle.schema_version),
+        ),
     )
     result = compile_foundry(
         store,
         CompileRequest(
-            input_kind="surface",
+            input_kind="trinity",
             policy_ref=policy_ref,
-            registry_bundle_ref=bundle_ref,
+            registry_bundle_ref=registry_bundle_ref,
         ),
     )
     assert result.ok
-    program_ref = next(
-        ref.ref for ref in result.derived_refs if ref.role == "program_graph"
-    )
+    program_ref = next(ref.ref for ref in result.derived_refs if ref.role == "program_graph")
     exec_plan_ref = result.exec_plan_ref
     assert exec_plan_ref is not None
     return program_ref, exec_plan_ref
@@ -49,28 +74,26 @@ def test_patch_executor_emits_artifacts(tmp_path) -> None:
     bundle = build_default_registry_bundle(store)
     registries = load_registry_bundle_content(store, bundle.bundle_ref)
 
-    policy = PolicySurfaceIR(
-        semantic=PolicySemantic(
-            context_snapshot_ref="sha256:0000000000000000000000000000000000000000000000000000000000000000",
-            interventions=[
-                {
-                    "intervention_id": "tax_cut",
-                    "kind": "income_tax",
-                    "target": {
-                        "kind": "predicate",
-                        "field": "id",
-                        "operator": SelectorOperator.EQUALS,
-                        "value": "all",
-                    },
-                    "schedule": {"start_step": 0, "duration_steps": 1},
-                    "params": {"rate": Decimal("0.1")},
-                }
-            ],
-        )
+    intervention = InterventionSpec(
+        intervention_id="tax_cut",
+        kind="income_tax",
+        target=SelectorPredicate(
+            field="id",
+            operator=SelectorOperator.EQUALS,
+            value="all",
+        ),
+        schedule=ScheduleSpec(start_step=0, duration_steps=1),
+        params={"rate": Decimal("0.1")},
+    )
+    trinity_bundle = _bundle_with_intervention(
+        intervention,
+        registry_bundle_ref=bundle.bundle_ref,
     )
 
     program_ref, exec_plan_ref = _compile_policy(
-        store, policy, bundle.bundle_ref, registries
+        store,
+        trinity_bundle,
+        registry_bundle_ref=bundle.bundle_ref,
     )
 
     base_state = GlobalState.empty(n_agents=4, n_firms=2)
@@ -94,9 +117,7 @@ def test_patch_executor_emits_artifacts(tmp_path) -> None:
     assert store.has(exec_artifacts.state_delta_ref.artifact_id)
     assert store.has(exec_artifacts.metrics_ref.artifact_id)
 
-    delta_payload = from_canonical_bytes(
-        store.get_bytes(exec_artifacts.state_delta_ref.artifact_id)
-    )
+    delta_payload = from_canonical_bytes(store.get_bytes(exec_artifacts.state_delta_ref.artifact_id))
     state_delta = StateDelta.model_validate(delta_payload)
     assert state_delta.ops
     for op in state_delta.ops:
@@ -122,37 +143,32 @@ def test_patch_executor_emits_artifacts(tmp_path) -> None:
     assert store.has(applied.state_snapshot_ref.artifact_id)
     assert float(jnp.mean(next_state.agents.income)) < float(jnp.mean(base_state.agents.income))
 
-    loaded_bytes = store.get_bytes(applied.state_snapshot_ref.artifact_id)
-    assert loaded_bytes
-
 
 def test_patch_executor_respects_target_mask(tmp_path) -> None:
     store = FileSystemCAS(tmp_path)
     bundle = build_default_registry_bundle(store)
     registries = load_registry_bundle_content(store, bundle.bundle_ref)
 
-    policy = PolicySurfaceIR(
-        semantic=PolicySemantic(
-            context_snapshot_ref="sha256:0000000000000000000000000000000000000000000000000000000000000000",
-            interventions=[
-                {
-                    "intervention_id": "tax_cut",
-                    "kind": "income_tax",
-                    "target": {
-                        "kind": "predicate",
-                        "field": "income",
-                        "operator": SelectorOperator.LESS_THAN,
-                        "value": "1000",
-                    },
-                    "schedule": {"start_step": 0, "duration_steps": 1},
-                    "params": {"rate": Decimal("0.1")},
-                }
-            ],
-        )
+    intervention = InterventionSpec(
+        intervention_id="tax_cut",
+        kind="income_tax",
+        target=SelectorPredicate(
+            field="income",
+            operator=SelectorOperator.LESS_THAN,
+            value=Decimal("1000"),
+        ),
+        schedule=ScheduleSpec(start_step=0, duration_steps=1),
+        params={"rate": Decimal("0.1")},
+    )
+    trinity_bundle = _bundle_with_intervention(
+        intervention,
+        registry_bundle_ref=bundle.bundle_ref,
     )
 
     program_ref, exec_plan_ref = _compile_policy(
-        store, policy, bundle.bundle_ref, registries
+        store,
+        trinity_bundle,
+        registry_bundle_ref=bundle.bundle_ref,
     )
 
     base_state = GlobalState.empty(n_agents=2, n_firms=1)
@@ -193,28 +209,26 @@ def test_tax_subsidy_emits_patches_with_mask(tmp_path) -> None:
     bundle = build_default_registry_bundle(store)
     registries = load_registry_bundle_content(store, bundle.bundle_ref)
 
-    policy = PolicySurfaceIR(
-        semantic=PolicySemantic(
-            context_snapshot_ref="sha256:0000000000000000000000000000000000000000000000000000000000000000",
-            interventions=[
-                {
-                    "intervention_id": "subsidy",
-                    "kind": "tax_subsidy",
-                    "target": {
-                        "kind": "predicate",
-                        "field": "id",
-                        "operator": SelectorOperator.LESS_THAN,
-                        "value": 1,
-                    },
-                    "schedule": {"start_step": 0, "duration_steps": 1},
-                    "params": {"rate": Decimal("0.1")},
-                }
-            ],
-        )
+    intervention = InterventionSpec(
+        intervention_id="subsidy",
+        kind="tax_subsidy",
+        target=SelectorPredicate(
+            field="id",
+            operator=SelectorOperator.LESS_THAN,
+            value=1,
+        ),
+        schedule=ScheduleSpec(start_step=0, duration_steps=1),
+        params={"rate": Decimal("0.1")},
+    )
+    trinity_bundle = _bundle_with_intervention(
+        intervention,
+        registry_bundle_ref=bundle.bundle_ref,
     )
 
     program_ref, exec_plan_ref = _compile_policy(
-        store, policy, bundle.bundle_ref, registries
+        store,
+        trinity_bundle,
+        registry_bundle_ref=bundle.bundle_ref,
     )
 
     base_state = GlobalState.empty(n_agents=2, n_firms=1)

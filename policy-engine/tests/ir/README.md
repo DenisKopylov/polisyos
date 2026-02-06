@@ -24,7 +24,7 @@ ir/
 **Цель:** Валидация универсального интерфейса для загрузки политик из различных форматов.
 
 **Ключевые тесты:**
-- **Pass-through Loading**: Прозрачная обработка уже загруженных PolicySurfaceIR объектов
+- **Pass-through Loading**: Прозрачная обработка уже загруженных TrinityBundle объектов
 - **Mapping Loading**: Загрузка из словарей/mapping с type safety
 - **Format Compatibility**: Поддержка различных representation formats
 - **Validation Integration**: Type checking и schema validation при загрузке
@@ -89,7 +89,7 @@ def test_load_policy_from_format():
     loaded = load_policy(policy_data)
 
     # Verify: check correctness и type
-    assert isinstance(loaded, PolicySurfaceIR)
+    assert isinstance(loaded, TrinityBundle)
     validate_policy_structure(loaded)
 ```
 

@@ -25,7 +25,7 @@ Scientist построен как многоуровневая система о
 
 - **Закон A (Dependencies)**: Однонаправленные зависимости (scientist зависит от всех нижних модулей, но не наоборот)
 - **Закон B (Compiler Pipeline)**: NL → LLM → IR → Compilation → Runtime
-- **Закон C (Contracts)**: Контракты как источник истины (PolicySurfaceIR v2.0)
+- **Закон C (Contracts)**: Контракты как источник истины (TrinityBundle v2.0)
 - **Закон D (Reproducibility)**: Полная воспроизводимость через RunRecord, deterministic seeds и CAS artifacts
 - **Закон E (Evidence)**: Все результаты должны иметь криптографически verifiable доказательства
 - **Закон F (Fidelity)**: Multi-fidelity simulation с adjustable precision
@@ -106,7 +106,7 @@ scientist/
 - **`protocols.py`**: AgentRole, ProblemFrame, SubTask, CritiqueReport
 - **`pi.py`**: Principal Investigator - декомпозиция задач
 - **`drafter.py`**: Drafter Agent - генерация политик из NL
-- **`formalizer.py`**: Formalizer Agent - преобразование в PolicySurfaceIR
+- **`formalizer.py`**: Formalizer Agent - преобразование в TrinityBundle
 - **`critic.py`**: Critic Agent - валидация и критика
 - **`failure_card.py`**: Self-healing артефакты
 - **`memory.py`**: Conversation tracking
@@ -155,7 +155,7 @@ Validation pipeline с preflight/postflight checks и modular passes.
 - **`budget_pass.py`**: Контроль бюджетов (compute, evidence, legitimacy, complexity)
 - **`safety_pass.py`**: Проверка безопасности механизмов и селекторов политики
 - **`privacy_pass.py`**: Контроль приватности данных (PII tiers, access control)
-- **`schema_pass.py`**: Валидация структуры IR и compliance с PolicySurfaceIR schema
+- **`schema_pass.py`**: Валидация структуры IR и compliance с TrinityBundle schema
 - **`legal_pass.py`**: Проверка соответствия политик юридическим нормам (GDPR, конституционные ограничения)
 - **`quality_gate_pass.py`**: Валидация качества данных перед симуляцией (интеграция с Fabric quality indicators)
 - **`base.py`**: Базовые классы `ValidatorPass`, `PassContext`, `ComplianceIssue` для создания кастомных проверок
@@ -290,7 +290,7 @@ Workflow управляется конечным автоматом состоя
 ### 🤖 Hierarchical Agent System
 - **PI Agent**: Декомпозиция высокоуровневых задач на специализированные подзадачи
 - **Drafter Agent**: Генерация естественных черновиков политик из пользовательских запросов
-- **Formalizer Agent**: Преобразование черновиков в формальный PolicySurfaceIR
+- **Formalizer Agent**: Преобразование черновиков в формальный TrinityBundle
 - **Critic Agent**: Многоуровневая валидация с категориями (alignment, completeness, consistency, feasibility)
 - **Mock Agents**: Полная система mock агентов для тестирования без LLM зависимостей
 - **Self-healing**: Автоматическое исправление через Reflexion pattern с FailureCard routing
@@ -400,7 +400,7 @@ result = workflow.invoke({
 class ExperimentState(TypedDict):
     # Входные данные
     user_request: str  # <--- НОВОЕ ПОЛЕ: "Reduce poverty"
-    ir: Optional[PolicySurfaceIR]
+    ir: Optional[TrinityBundle]
     last_ir_json: Optional[str]
     last_error: Optional[str]
 
@@ -1253,7 +1253,7 @@ print(f"Audit trail: {len(decision_packet.audit_trail)} events")
 Scientist зависит от всех нижних модулей архитектуры Policy Engine:
 
 - **Core**: Artifacts, CAS, RunContext, Contracts
-- **IR**: PolicySurfaceIR, validation, linker, calibration
+- **IR**: TrinityBundle, validation, linker, calibration
 - **Fabric**: Data access, UDF engine, calibration, quality assessment
 - **Foundry**: JAX compilation, execution, mechanism registry
 - **Runtime**: Lifecycle management, audit trail, manifests
@@ -1456,7 +1456,7 @@ research_budget = {
 ### 🏗️ Архитектурные улучшения
 
 - [ ] **Event Sourcing**: Переход audit trail на event log архитектуру
-- [ ] **Policy Templates**: Реиспользуемые паттерны политик на базе PolicySurfaceIR
+- [ ] **Policy Templates**: Реиспользуемые паттерны политик на базе TrinityBundle
 - [ ] **A/B Testing**: Статистическое сравнение политик (DoE основа готова)
 - [ ] **Version Control**: Git-подобное управление версиями политик
 - [ ] **Federated Learning**: Обучение на distributed данных с privacy preservation
@@ -1499,7 +1499,7 @@ research_budget = {
 
 - **Закон A**: Однонаправленные зависимости (scientist → ir/fabric/foundry/runtime/core)
 - **Закон B**: Foundry как чистое математическое ядро (чистые JAX функции без side effects)
-- **Закон C**: Контракты как источник истины (PolicySurfaceIR v2.0, DecisionPacket, evidence bundles)
+- **Закон C**: Контракты как источник истины (TrinityBundle v2.0, DecisionPacket, evidence bundles)
 - **Закон D**: Полная воспроизводимость через RunRecord, deterministic seeds и CAS artifacts
 - **Закон E**: Evidence обязательны (evidence bundles, provenance tracking, uncertainty quantification)
 - **Закон F**: Fidelity control (multi-fidelity simulation с adjustable precision)

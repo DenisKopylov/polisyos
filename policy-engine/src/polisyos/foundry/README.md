@@ -391,9 +391,9 @@ status = cost_model.get_calibration_status()
 Результат компиляции политики включает несколько артефактов:
 
 ```python
-from polisyos.foundry.compiler import compile_surface_policy, CompileArtifacts
+from polisyos.foundry.compile.api import compile, CompileArtifacts
 
-artifacts = compile_surface_policy(
+artifacts = compile(
     store=store,
     policy=policy_ir,
     mechanism_registry=mechanism_registry,
@@ -779,11 +779,11 @@ def policy_loss_fn(final_state: GlobalState, min_balance: float = -1000.0) -> fl
 ### Создание механизма через Intervention
 
 ```python
-from polisyos.ir.contract import Intervention
+from polisyos.ir.policy_spec import Intervention
 from polisyos.foundry.registry import create_mechanism
 
 # IR контракт из scientist
-intervention = Intervention(
+intervention = InterventionSpec(
     mechanism_type="income_tax",
     parameters={"rate": 0.15}
 )
@@ -888,15 +888,15 @@ trace_slice = TraceSlice(events=[event])
 ### Компиляция и исполнение политики
 
 ```python
-from polisyos.foundry.compiler import compile_surface_policy
+from polisyos.foundry.compile.api import compile
 from polisyos.foundry.runtime import execute_program
 from polisyos.core.artifacts.store import FileSystemCAS
 
 # Компиляция политики
 store = FileSystemCAS("/tmp/artifacts")
-artifacts = compile_surface_policy(
+artifacts = compile(
     store=store,
-    policy=policy_surface_ir,
+    policy=trinity_bundle,
     mechanism_registry=mechanism_registry,
     slot_registry=slot_registry,
     merge_registry=merge_registry
@@ -1150,7 +1150,7 @@ with jax.profiler.trace("/tmp/jax-trace"):
 ### Pipeline интеграции
 
 ```
-scientist/ → ir/ → foundry.compiler → foundry.calibration → foundry.runtime → artifacts
+scientist/ → ir/ → foundry.compile.api → foundry.calibration → foundry.runtime → artifacts
                      ↓                           ↓
                tools/ (migration)          foundry.executor (constraints)
                      ↓                           ↓

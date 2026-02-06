@@ -31,7 +31,7 @@ def default_workflow_spec() -> WorkflowSpec:
             ),
             NodeInvocation(
                 alias="run_simulation",
-                node_id="scientist.node_run_simulation@1.0.0",
+                node_id="scientist.node_run_simulation@1.0.1",
                 depends_on=["compile_foundry", "build_data_snapshot"],
             ),
             NodeInvocation(
@@ -41,7 +41,7 @@ def default_workflow_spec() -> WorkflowSpec:
             ),
             NodeInvocation(
                 alias="build_decision_packet",
-                node_id="scientist.node_build_decision_packet@1.0.0",
+                node_id="scientist.node_build_decision_packet@1.0.1",
                 depends_on=["start"],
             ),
         ],

@@ -26,7 +26,7 @@ from polisyos.scientist.nodes.builtins.state_keys import (
 )
 
 _METADATA = ComponentMetadata(
-    component_id=ComponentId.parse("scientist.node_legal_check@1.0.0"),
+    component_id=ComponentId.parse("scientist.node_legal_check@1.0.1"),
     kind=ComponentKind.SCIENTIST_NODE,
     abi_targets={"world_abi": "1.x"},
     display_name="Legal Check",
@@ -46,6 +46,7 @@ _SPEC = NodeSpec(
         "params.jurisdiction",
         "params.as_of",
         "params.strict_legal",
+        "params.fact_log_root",
     ],
     state_writes=[
         f"inputs.{INPUT_NORM_PACK_REF}",

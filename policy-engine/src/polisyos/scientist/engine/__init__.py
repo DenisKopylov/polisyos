@@ -12,6 +12,14 @@ from polisyos.scientist.engine.errors import (
     WorkflowSpecError,
 )
 from polisyos.scientist.engine.executor import WorkflowExecutor
+from polisyos.scientist.engine.idempotency import (
+    IDEMPOTENCY_CONTRACT_VERSION,
+    NodeCacheEntry,
+    NodeResultCache,
+    compute_idempotency_key,
+    compute_idempotency_payload,
+    extract_state_slice,
+)
 from polisyos.scientist.engine.protocol import (
     Node,
     NodeError,
@@ -44,4 +52,10 @@ __all__ = [
     "MissingDependencyError",
     "CycleDetectedError",
     "NodeExecutionError",
+    "IDEMPOTENCY_CONTRACT_VERSION",
+    "compute_idempotency_key",
+    "compute_idempotency_payload",
+    "extract_state_slice",
+    "NodeCacheEntry",
+    "NodeResultCache",
 ]

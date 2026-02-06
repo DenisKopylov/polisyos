@@ -11,6 +11,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
@@ -20,5 +22,9 @@ jobs:
           pip install -e ".[dev,test]"
       - name: Run import gate
         run: python tools/lint_imports.py --policy import_policy.toml --exceptions import_exceptions.toml
+      - name: Check Scientist state_reads contract
+        run: python tools/check_state_reads.py
+      - name: Require Scientist node version bumps
+        run: python tools/check_scientist_node_version_bump.py
       - name: Verify ABI schema snapshots
         run: python3 tools/gen_schema.py --check

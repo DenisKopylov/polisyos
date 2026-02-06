@@ -7,6 +7,7 @@ from typing import Any, Iterable
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
+from polisyos.core.canon import CanonViolation
 from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
 from polisyos.scientist.engine.context import ExecutionContext
@@ -16,6 +17,7 @@ from polisyos.scientist.engine.errors import (
     MissingDependencyError,
     WorkflowSpecError,
 )
+from polisyos.scientist.engine.idempotency import NodeResultCache, compute_idempotency_key
 from polisyos.scientist.engine.protocol import NodeError, NodeOutcome, NodeStatus
 from polisyos.scientist.engine.registry import NodeRegistry
 from polisyos.scientist.engine.state import ExperimentState
@@ -25,6 +27,18 @@ from polisyos.scientist.engine.telemetry import (
     start_node_span,
 )
 from polisyos.scientist.engine.workflow_spec import ErrorPolicy, NodeInvocation, WorkflowSpec
+
+_CACHE_BYPASS_DISABLED = 1
+_CACHE_BYPASS_KEY_ERROR = 2
+_CACHE_BYPASS_STORE_ERROR = 3
+
+_CACHE_DISABLED_NODE_IDS = frozenset(
+    {
+        "scientist.node_noop@1.0.0",
+        "scientist.node_set_state@1.0.0",
+        "scientist.node_emit_artifact@1.0.0",
+    }
+)
 
 
 class NodeRunRecord(BaseModel):
@@ -128,6 +142,10 @@ def _validate_dependencies(invocations: dict[str, NodeInvocation]) -> None:
                 raise MissingDependencyError(f"Missing dependency '{dep}' for node '{alias}'")
 
 
+def _should_cache(node_id: str) -> bool:
+    return node_id not in _CACHE_DISABLED_NODE_IDS
+
+
 def _topo_sort(invocations: dict[str, NodeInvocation]) -> list[str]:
     indegree: dict[str, int] = {alias: 0 for alias in invocations}
     edges: dict[str, list[str]] = {alias: [] for alias in invocations}
@@ -162,6 +180,7 @@ class WorkflowExecutor:
     def __init__(self, ctx: ExecutionContext, registry: NodeRegistry) -> None:
         self._ctx = ctx
         self._registry = registry
+        self._cache: NodeResultCache | None = None
 
     def execute(self, workflow: WorkflowSpec, state: ExperimentState) -> WorkflowExecutionResult:
         _validate_aliases(workflow.nodes)
@@ -180,6 +199,14 @@ class WorkflowExecutor:
         self._ctx.run.add_input(workflow_ref)
         state_input_ref = self._persist_state(initial_state)
         self._ctx.run.add_input(state_input_ref)
+        self._cache = NodeResultCache(self._ctx.store, run_id=state.run_id)
+        restored_entries = self._cache.seed_from_trace(self._ctx.run.trace_path)
+        if restored_entries:
+            self._ctx.logger.info(
+                "Recovered %s cached node outcomes for run_id=%s",
+                restored_entries,
+                state.run_id,
+            )
 
         records: list[NodeRunRecord] = []
         failed: set[str] = set()
@@ -216,31 +243,135 @@ class WorkflowExecutor:
             with start_node_span(self._ctx.tracer, span_attrs) as span:
                 self._ctx.run.emit(f"scientist.node.{alias}", "NODE_STARTED")
                 started = time.perf_counter()
-                try:
-                    raw_outcome = node.execute(self._ctx, state)
-                    outcome = NodeOutcome.model_validate(raw_outcome)
-                except ValidationError as exc:
-                    self._ctx.logger.exception("Node %s returned invalid outcome", alias)
-                    outcome = NodeOutcome(
-                        status="fail",
-                        state=state,
-                        error=NodeError(
-                            code="node.invalid_outcome",
-                            message="Node returned invalid outcome",
-                            details={"error": str(exc)},
-                        ),
+                node_id = str(inv.node_id)
+                cache_enabled = _should_cache(node_id)
+                cache_key: str | None = None
+                cache_hit = False
+                cache_stored = False
+                cache_bypass_reason: int | None = None
+                set_span_attribute(span, "polisyos.node.cache.enabled", cache_enabled)
+
+                if cache_enabled:
+                    try:
+                        cache_key = compute_idempotency_key(
+                            spec=node.spec,
+                            state=state,
+                            bind_params=inv.params,
+                        )
+                        set_span_attribute(
+                            span,
+                            "polisyos.node.idempotency_key_prefix",
+                            cache_key[:16],
+                        )
+                    except (CanonViolation, ValueError, TypeError) as exc:
+                        cache_bypass_reason = _CACHE_BYPASS_KEY_ERROR
+                        self._ctx.logger.warning(
+                            "Idempotency key generation failed for node %s: %s",
+                            alias,
+                            exc,
+                        )
+                    except Exception as exc:  # noqa: BLE001
+                        cache_bypass_reason = _CACHE_BYPASS_KEY_ERROR
+                        self._ctx.logger.warning(
+                            "Unexpected idempotency key generation failure for node %s: %s",
+                            alias,
+                            exc,
+                        )
+                else:
+                    cache_bypass_reason = _CACHE_BYPASS_DISABLED
+
+                if cache_bypass_reason is not None:
+                    self._ctx.run.emit(
+                        f"scientist.node.{alias}",
+                        "NODE_CACHE_BYPASS",
+                        metrics={
+                            "duration_ms": 0,
+                            "cache_bypass": 1,
+                            "reason_code": cache_bypass_reason,
+                        },
                     )
-                except Exception as exc:  # noqa: BLE001
-                    self._ctx.logger.exception("Node %s failed", alias)
-                    outcome = NodeOutcome(
-                        status="fail",
-                        state=state,
-                        error=NodeError(
-                            code="node.exception",
-                            message=str(exc),
-                            details={"type": exc.__class__.__name__},
-                        ),
+                    set_span_attribute(
+                        span,
+                        "polisyos.node.cache.bypass_reason",
+                        cache_bypass_reason,
                     )
+
+                cached_outcome: NodeOutcome | None = None
+                if cache_key is not None and self._cache is not None:
+                    cached_outcome = self._cache.get(cache_key)
+                    if cached_outcome is not None:
+                        cache_hit = True
+                        self._ctx.run.emit(
+                            f"scientist.node.{alias}",
+                            "NODE_CACHE_HIT",
+                            metrics={
+                                "duration_ms": int((time.perf_counter() - started) * 1000),
+                                "cache_hit": 1,
+                            },
+                        )
+
+                if cached_outcome is not None:
+                    outcome = cached_outcome
+                else:
+                    try:
+                        raw_outcome = node.execute(self._ctx, state)
+                        outcome = NodeOutcome.model_validate(raw_outcome)
+                    except ValidationError as exc:
+                        self._ctx.logger.exception("Node %s returned invalid outcome", alias)
+                        outcome = NodeOutcome(
+                            status="fail",
+                            state=state,
+                            error=NodeError(
+                                code="node.invalid_outcome",
+                                message="Node returned invalid outcome",
+                                details={"error": str(exc)},
+                            ),
+                        )
+                    except Exception as exc:  # noqa: BLE001
+                        self._ctx.logger.exception("Node %s failed", alias)
+                        outcome = NodeOutcome(
+                            status="fail",
+                            state=state,
+                            error=NodeError(
+                                code="node.exception",
+                                message=str(exc),
+                                details={"type": exc.__class__.__name__},
+                            ),
+                        )
+
+                    if outcome.status == "ok" and cache_key is not None and self._cache is not None:
+                        try:
+                            entry_ref = self._cache.put(cache_key, node_id=node_id, outcome=outcome)
+                            cache_stored = True
+                            self._ctx.run.emit(
+                                f"scientist.node.{alias}",
+                                "NODE_CACHE_STORE",
+                                outputs=[entry_ref],
+                                metrics={
+                                    "duration_ms": int((time.perf_counter() - started) * 1000),
+                                    "cache_store": 1,
+                                },
+                            )
+                        except Exception as exc:  # noqa: BLE001
+                            self._ctx.logger.warning(
+                                "Failed to persist node cache entry for %s: %s",
+                                alias,
+                                exc,
+                            )
+                            self._ctx.run.emit(
+                                f"scientist.node.{alias}",
+                                "NODE_CACHE_BYPASS",
+                                metrics={
+                                    "duration_ms": 0,
+                                    "cache_bypass": 1,
+                                    "reason_code": _CACHE_BYPASS_STORE_ERROR,
+                                },
+                            )
+                            set_span_attribute(
+                                span,
+                                "polisyos.node.cache.bypass_reason",
+                                _CACHE_BYPASS_STORE_ERROR,
+                            )
 
                 duration_ms = int((time.perf_counter() - started) * 1000)
                 state = outcome.state
@@ -249,6 +380,8 @@ class WorkflowExecutor:
                 add_span_events(span, outcome.events)
                 set_span_attribute(span, "polisyos.node.status", outcome.status)
                 set_span_attribute(span, "polisyos.node.duration_ms", duration_ms)
+                set_span_attribute(span, "polisyos.node.cache.hit", cache_hit)
+                set_span_attribute(span, "polisyos.node.cache.store", cache_stored)
 
                 status_event = {
                     "ok": "NODE_OK",

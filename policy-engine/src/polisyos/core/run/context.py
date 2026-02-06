@@ -23,6 +23,10 @@ class RunContext:
     run_manifest: RunManifest
     _trace_path: Path | None = None
 
+    @property
+    def trace_path(self) -> Path | None:
+        return self._trace_path
+
     @classmethod
     def start(
         cls,

@@ -20,7 +20,7 @@ from polisyos.scientist.nodes.builtins.state_keys import (
 )
 
 _METADATA = ComponentMetadata(
-    component_id=ComponentId.parse("scientist.node_build_decision_packet@1.0.0"),
+    component_id=ComponentId.parse("scientist.node_build_decision_packet@1.0.1"),
     kind=ComponentKind.SCIENTIST_NODE,
     abi_targets={"world_abi": "1.x"},
     display_name="Build Decision Packet",
@@ -31,7 +31,7 @@ _METADATA = ComponentMetadata(
 
 _SPEC = NodeSpec(
     metadata=_METADATA,
-    state_reads=["params", "reports_index", "artifacts_index"],
+    state_reads=["run_id", "params", "reports_index", "artifacts_index"],
     state_writes=[f"artifacts_index.{ARTIFACT_DECISION_PACKET_REF}"],
     produces=[ARTIFACT_DECISION_PACKET_REF],
 )

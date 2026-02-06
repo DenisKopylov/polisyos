@@ -25,7 +25,7 @@ from polisyos.scientist.nodes.builtins.state_keys import (
 )
 
 _METADATA = ComponentMetadata(
-    component_id=ComponentId.parse("scientist.node_run_simulation@1.0.0"),
+    component_id=ComponentId.parse("scientist.node_run_simulation@1.0.1"),
     kind=ComponentKind.SCIENTIST_NODE,
     abi_targets={"world_abi": "1.x"},
     display_name="Run Simulation",
@@ -41,6 +41,7 @@ _SPEC = NodeSpec(
         f"inputs.{INPUT_DATA_SNAPSHOT_REF}",
         f"inputs.{INPUT_STATE_SNAPSHOT_REF}",
         f"inputs.{INPUT_REGISTRY_BUNDLE_REF}",
+        "params.simulation_method",
     ],
     state_writes=[
         f"artifacts_index.{ARTIFACT_SIMULATION_RESULT_REF}",

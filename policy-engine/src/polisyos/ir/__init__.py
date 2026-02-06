@@ -38,6 +38,13 @@ __all__ = [
     "AgentTypeConfig",
     "EnvironmentConfig",
     "EnvironmentParam",
+    "GateContext",
+    "GateDecision",
+    "GateEvent",
+    "GateEventType",
+    "GatePriority",
+    "GateRequest",
+    "GateVerdict",
 ]
 
 _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
@@ -64,6 +71,13 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "EnvironmentParam": ("polisyos.ir.model_spec", "EnvironmentParam"),
     "FidelityLevel": ("polisyos.ir.model_spec", "FidelityLevel"),
     "ModelSpec": ("polisyos.ir.model_spec", "ModelSpec"),
+    "GateContext": ("polisyos.ir.gate", "GateContext"),
+    "GateDecision": ("polisyos.ir.gate", "GateDecision"),
+    "GateEvent": ("polisyos.ir.gate", "GateEvent"),
+    "GateEventType": ("polisyos.ir.gate", "GateEventType"),
+    "GatePriority": ("polisyos.ir.gate", "GatePriority"),
+    "GateRequest": ("polisyos.ir.gate", "GateRequest"),
+    "GateVerdict": ("polisyos.ir.gate", "GateVerdict"),
     "MechanismBinding": ("polisyos.ir.policy_spec", "MechanismBinding"),
     "ParameterSpec": ("polisyos.ir.policy_spec", "ParameterSpec"),
     "PolicyInterventionSpec": ("polisyos.ir.policy_spec", "InterventionSpec"),

@@ -1,0 +1,79 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "governance_profile": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Governance Profile"
+    },
+    "is_escalated": {
+      "default": false,
+      "title": "Is Escalated",
+      "type": "boolean"
+    },
+    "iteration": {
+      "default": 1,
+      "minimum": 1,
+      "title": "Iteration",
+      "type": "integer"
+    },
+    "node_alias": {
+      "title": "Node Alias",
+      "type": "string"
+    },
+    "phase": {
+      "title": "Phase",
+      "type": "string"
+    },
+    "policy_summary": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Policy Summary"
+    },
+    "risk_indicators": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Risk Indicators",
+      "type": "array"
+    },
+    "simulation_results": {
+      "anyOf": [
+        {
+          "additionalProperties": true,
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Simulation Results"
+    },
+    "workflow_id": {
+      "title": "Workflow Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "workflow_id",
+    "node_alias",
+    "phase"
+  ],
+  "title": "GateContext",
+  "type": "object"
+}

@@ -158,6 +158,12 @@ class MetricsRegistry:
     calibration_step_duration_seconds: Optional[metrics.Histogram] = None
     calibration_convergence_steps: Optional[metrics.Histogram] = None
     governance_pass_duration_seconds: Optional[metrics.Histogram] = None
+    slo_dag_runs_total: Optional[metrics.Counter] = None
+    slo_dag_duration_seconds: Optional[metrics.Histogram] = None
+    slo_run_cost_usd: Optional[metrics.Histogram] = None
+    slo_simulation_nan_total: Optional[metrics.Counter] = None
+    slo_simulation_runs_total: Optional[metrics.Counter] = None
+    slo_connector_requests_total: Optional[metrics.Counter] = None
 
     def __new__(cls) -> "MetricsRegistry":
         if cls._instance is None:
@@ -473,6 +479,38 @@ class MetricsRegistry:
             unit="1",
         )
 
+        # SLO metrics
+        self.slo_dag_runs_total = self._meter.create_counter(
+            name="polisyos_slo_dag_runs_total",
+            description="Scientist DAG runs by outcome",
+            unit="1",
+        )
+        self.slo_dag_duration_seconds = self._meter.create_histogram(
+            name="polisyos_slo_dag_duration_seconds",
+            description="Scientist DAG end-to-end duration",
+            unit="s",
+        )
+        self.slo_run_cost_usd = self._meter.create_histogram(
+            name="polisyos_slo_run_cost_usd",
+            description="Estimated Scientist run cost in USD",
+            unit="USD",
+        )
+        self.slo_simulation_nan_total = self._meter.create_counter(
+            name="polisyos_slo_simulation_nan_total",
+            description="NaN/Inf detections in simulations",
+            unit="1",
+        )
+        self.slo_simulation_runs_total = self._meter.create_counter(
+            name="polisyos_slo_simulation_runs_total",
+            description="Simulation runs for SLO denominator",
+            unit="1",
+        )
+        self.slo_connector_requests_total = self._meter.create_counter(
+            name="polisyos_slo_connector_requests_total",
+            description="Connector request outcomes",
+            unit="1",
+        )
+
     def time_simulation(
         self,
         attributes: Optional[dict[str, Any]] = None,
@@ -495,6 +533,15 @@ class MetricsRegistry:
         self._ensure_initialized()
         return HistogramTimer(self.governance_pass_duration_seconds, attributes)
 
+    def time_slo_dag(
+        self,
+        attributes: Optional[dict[str, Any]] = None,
+    ) -> HistogramTimer:
+        """Context manager for Scientist DAG SLO latency."""
+        self._ensure_initialized()
+        attrs = self._with_env(attributes)
+        return HistogramTimer(self.slo_dag_duration_seconds, attrs)
+
     def record_workflow_run(
         self,
         status: str,
@@ -509,6 +556,75 @@ class MetricsRegistry:
         if agent:
             attrs["agent"] = agent
         self.workflow_runs_total.add(1, attrs)
+
+    def record_slo_dag_run(
+        self,
+        status: str,
+        workflow_id: str,
+        env: str | None = None,
+    ) -> None:
+        """Record Scientist DAG run outcome for SLO tracking."""
+        self._ensure_initialized()
+        if self.slo_dag_runs_total is None:
+            return
+        attrs = {"status": status, "workflow_id": workflow_id}
+        attrs["env"] = env or self._default_env()
+        self.slo_dag_runs_total.add(1, attrs)
+
+    def record_slo_run_cost(
+        self,
+        cost_usd: float,
+        workflow_id: str,
+        env: str | None = None,
+    ) -> None:
+        """Record estimated run cost for SLO tracking."""
+        self._ensure_initialized()
+        if self.slo_run_cost_usd is None:
+            return
+        attrs = {"workflow_id": workflow_id, "env": env or self._default_env()}
+        self.slo_run_cost_usd.record(max(cost_usd, 0.0), attrs)
+
+    def record_slo_simulation_nan(
+        self,
+        method: str,
+        env: str | None = None,
+    ) -> None:
+        """Record a NaN/Inf detection event."""
+        self._ensure_initialized()
+        if self.slo_simulation_nan_total is None:
+            return
+        attrs = {"method": method, "env": env or self._default_env()}
+        self.slo_simulation_nan_total.add(1, attrs)
+
+    def record_slo_simulation_run(
+        self,
+        status: str,
+        method: str,
+        env: str | None = None,
+    ) -> None:
+        """Record simulation run status for SLO denominator."""
+        self._ensure_initialized()
+        if self.slo_simulation_runs_total is None:
+            return
+        attrs = {"status": status, "method": method, "env": env or self._default_env()}
+        self.slo_simulation_runs_total.add(1, attrs)
+
+    def record_slo_connector_request(
+        self,
+        status: str,
+        connector_id: str,
+        env: str | None = None,
+    ) -> None:
+        """Record connector request status for SLO error-rate tracking."""
+        self._ensure_initialized()
+        if self.slo_connector_requests_total is None:
+            return
+        attrs = {
+            "status": status,
+            "connector_id": connector_id,
+            "env": env or self._default_env(),
+        }
+        self.slo_connector_requests_total.add(1, attrs)
 
     def record_llm_call(
         self,
@@ -563,6 +679,16 @@ class MetricsRegistry:
         """Shutdown the meter provider."""
         if self._provider is not None:
             self._provider.shutdown()
+
+    def _default_env(self) -> str:
+        if self._config is not None:
+            return self._config.environment
+        return "unknown"
+
+    def _with_env(self, attributes: Optional[dict[str, Any]]) -> dict[str, Any]:
+        attrs: dict[str, Any] = dict(attributes or {})
+        attrs.setdefault("env", self._default_env())
+        return attrs
 
 
 # Module-level singleton accessor

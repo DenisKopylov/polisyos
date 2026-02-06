@@ -8,7 +8,9 @@ services:
     volumes:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - ./prometheus/alerts.yml:/etc/prometheus/alerts.yml:ro
+      - ./prometheus/slo_alerts.yml:/etc/prometheus/slo_alerts.yml:ro
       - ./prometheus/recording_rules.yml:/etc/prometheus/recording_rules.yml:ro
+      - ./prometheus/slo_recording_rules.yml:/etc/prometheus/slo_recording_rules.yml:ro
 
   grafana:
     image: grafana/grafana:10.4.3

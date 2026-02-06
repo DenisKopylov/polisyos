@@ -15,6 +15,7 @@ try:
         get_trace_context_dict,
     )
     from .metrics import MetricsRegistry, get_metrics
+    from .pricing import estimate_llm_cost_usd, pricing_table
     from .propagation import (
         TracedExecutorWrapper,
         extract_headers,
@@ -112,6 +113,17 @@ except ModuleNotFoundError:  # pragma: no cover - optional runtime dependency
     def get_current_trace_context() -> dict[str, str]:
         return {}
 
+    def pricing_table() -> dict[str, dict[str, float]]:
+        return {}
+
+    def estimate_llm_cost_usd(
+        *,
+        model: str,
+        prompt_tokens: int,
+        completion_tokens: int,
+    ) -> float:
+        return 0.0
+
 
 __all__ = [
     "OTelConfig",
@@ -132,4 +144,6 @@ __all__ = [
     "propagate_context",
     "with_trace_context",
     "TracedExecutorWrapper",
+    "pricing_table",
+    "estimate_llm_cost_usd",
 ]

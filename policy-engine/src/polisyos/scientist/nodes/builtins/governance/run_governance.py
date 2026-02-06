@@ -3,13 +3,16 @@ from __future__ import annotations
 from dataclasses import dataclass, replace
 from typing import Any, Literal
 
-from polisyos.core.artifacts.manifest import SchemaInfo
+from polisyos.core.artifacts.ids import ArtifactID
+from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.contracts.scientist import GovernanceReportRef
+from polisyos.ir.gate import GateContext, GateDecision, GatePriority, GateRequest, GateVerdict
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.protocol import NodeEvent, NodeOutcome, NodeSpec
 from polisyos.scientist.engine.state import ExperimentState
+from polisyos.scientist.kernel.gate_protocol import HumanGateProtocol
 from polisyos.scientist.governance.report import GovernanceReport
 from polisyos.scientist.nodes.builtins.state_keys import REPORT_GOVERNANCE_REPORT_REF
 
@@ -26,14 +29,18 @@ _METADATA = ComponentMetadata(
 _SPEC = NodeSpec(
     metadata=_METADATA,
     state_reads=["params"],
-    state_writes=[f"reports_index.{REPORT_GOVERNANCE_REPORT_REF}"],
+    state_writes=["params", f"reports_index.{REPORT_GOVERNANCE_REPORT_REF}"],
     produces=[REPORT_GOVERNANCE_REPORT_REF],
 )
+
+_DECISION_APPROVE = {"approve", "approved", "allow", "allowed"}
+_DECISION_REJECT = {"reject", "rejected", "deny", "denied"}
+_DECISION_ESCALATE = {"escalate", "escalated"}
 
 
 @dataclass(frozen=True)
 class RunGovernanceNode:
-    """Minimal governance node for E1.7 happy path."""
+    """Governance node with typed Human Gate protocol."""
 
     default_verdict: Literal["approve", "needs_revision", "reject", "human_gate"] = "approve"
 
@@ -50,16 +57,78 @@ class RunGovernanceNode:
     def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
         verdict = self.default_verdict
         issues: list[dict[str, Any]] = []
+        events: list[NodeEvent] = []
 
-        require_human_gate = bool(state.params.get("require_human_gate"))
-        gate_decision = state.params.get("gate_decision")
-        if require_human_gate and gate_decision is None:
+        protocol = HumanGateProtocol(ctx.run)
+        new_state = state.model_copy(deep=True)
+
+        require_human_gate = bool(new_state.params.get("require_human_gate"))
+        raw_gate_decision = new_state.params.get("gate_decision")
+        gate_request = _parse_gate_request(new_state.params.get("gate_request"))
+        gate_request_ref = _parse_gate_request_ref(new_state.params.get("gate_request_ref"))
+
+        if require_human_gate and raw_gate_decision is None:
+            if gate_request is None:
+                gate_request, gate_request_ref = _create_gate_request(
+                    protocol=protocol,
+                    state=new_state,
+                )
+                new_state.params["gate_request"] = gate_request.model_dump(mode="json")
+                if gate_request_ref is not None:
+                    new_state.params["gate_request_ref"] = str(gate_request_ref.artifact_id)
+                events.append(
+                    NodeEvent(level="info", message=f"Human gate requested: {gate_request.request_id}")
+                )
             verdict = "human_gate"
-        elif isinstance(gate_decision, str):
-            if gate_decision.lower() in {"reject", "rejected", "deny", "denied"}:
-                verdict = "reject"
-            elif gate_decision.lower() in {"approve", "approved", "allow"}:
-                verdict = "approve"
+
+        elif raw_gate_decision is not None:
+            decision = _parse_gate_decision(
+                raw_gate_decision,
+                run_id=new_state.run_id,
+                request_id=gate_request.request_id if gate_request else None,
+            )
+            if decision is None:
+                issues.append(
+                    {
+                        "code": "gate.decision.invalid",
+                        "message": "Invalid gate decision format",
+                    }
+                )
+                verdict = "human_gate"
+            else:
+                protocol.persist_decision(decision, request_ref=gate_request_ref)
+                new_state.params["gate_decision_typed"] = decision.model_dump(mode="json")
+                new_state.params.pop("gate_decision", None)
+
+                if decision.verdict == GateVerdict.REJECT:
+                    verdict = "reject"
+                elif decision.verdict == GateVerdict.APPROVE:
+                    verdict = "approve"
+                elif decision.verdict == GateVerdict.TIMEOUT:
+                    verdict = "reject"
+                elif decision.verdict == GateVerdict.ESCALATE:
+                    new_state.params["gate_escalated"] = True
+                    next_iteration = _as_int(new_state.params.get("gate_iteration")) + 1
+                    new_state.params["gate_iteration"] = next_iteration
+                    new_state.params.pop("gate_request", None)
+                    new_state.params.pop("gate_request_ref", None)
+                    next_request, next_request_ref = _create_gate_request(
+                        protocol=protocol,
+                        state=new_state,
+                    )
+                    new_state.params["gate_request"] = next_request.model_dump(mode="json")
+                    if next_request_ref is not None:
+                        new_state.params["gate_request_ref"] = str(next_request_ref.artifact_id)
+                    verdict = "human_gate"
+                    events.append(
+                        NodeEvent(
+                            level="warn",
+                            message=(
+                                "Gate escalated; new request created "
+                                f"(iteration={next_request.context.iteration})"
+                            ),
+                        )
+                    )
 
         report = GovernanceReport(verdict=verdict, issues=issues)
         report_ref_payload = ctx.store.put_json(
@@ -74,9 +143,141 @@ class RunGovernanceNode:
             ),
         )
         report_ref = GovernanceReportRef(artifact_id=report_ref_payload.artifact_id)
-
-        new_state = state.model_copy(deep=True)
         new_state.reports_index[REPORT_GOVERNANCE_REPORT_REF] = report_ref
 
-        event = NodeEvent(level="info", message=f"Governance verdict: {verdict}")
-        return NodeOutcome(status="ok", state=new_state, artifacts=[report_ref], events=[event])
+        events.append(NodeEvent(level="info", message=f"Governance verdict: {verdict}"))
+        return NodeOutcome(status="ok", state=new_state, artifacts=[report_ref], events=events)
+
+
+def _create_gate_request(
+    *,
+    protocol: HumanGateProtocol,
+    state: ExperimentState,
+) -> tuple[GateRequest, ArtifactRef | None]:
+    iteration = _as_int(state.params.get("gate_iteration"))
+    is_escalated = bool(state.params.get("gate_escalated"))
+    workflow_id = str(state.params.get("workflow_id", "scientist_default"))
+    phase = str(state.params.get("phase", "POSTFLIGHT_GOV"))
+    governance_profile_raw = state.params.get("governance_profile")
+    governance_profile = (
+        str(governance_profile_raw) if isinstance(governance_profile_raw, str) else None
+    )
+    timeout_seconds = _optional_int(state.params.get("gate_timeout_seconds"))
+
+    context = GateContext(
+        workflow_id=workflow_id,
+        node_alias="run_governance",
+        phase=phase,
+        governance_profile=governance_profile,
+        iteration=iteration,
+        is_escalated=is_escalated,
+    )
+    priority = GatePriority.CRITICAL if is_escalated else GatePriority.NORMAL
+    return protocol.request_gate(
+        run_id=state.run_id,
+        reason="Governance profile requires human approval",
+        context=context,
+        priority=priority,
+        timeout_seconds=timeout_seconds,
+        requested_by="scientist.node_run_governance",
+    )
+
+
+def _parse_gate_request(raw: Any) -> GateRequest | None:
+    if isinstance(raw, GateRequest):
+        return raw
+    if isinstance(raw, dict):
+        try:
+            return GateRequest.model_validate(raw)
+        except Exception:
+            return None
+    return None
+
+
+def _parse_gate_request_ref(raw: Any) -> ArtifactRef | None:
+    if not isinstance(raw, str):
+        return None
+    try:
+        artifact_id = ArtifactID.model_validate(raw)
+    except Exception:
+        return None
+    return ArtifactRef(
+        artifact_id=artifact_id,
+        kind="ir.gate_request",
+        media_type="application/json",
+    )
+
+
+def _parse_gate_decision(
+    raw: Any,
+    *,
+    run_id: str,
+    request_id: str | None,
+) -> GateDecision | None:
+    rid = request_id or "unknown"
+    if isinstance(raw, GateDecision):
+        return raw
+    if isinstance(raw, dict):
+        if "verdict" in raw:
+            try:
+                return GateDecision.model_validate(raw)
+            except Exception:
+                return None
+        if "approved" in raw:
+            approved = bool(raw.get("approved"))
+            verdict = GateVerdict.APPROVE if approved else GateVerdict.REJECT
+            actor = raw.get("actor")
+            reason_codes = raw.get("reason_codes")
+            notes = raw.get("notes")
+            return GateDecision(
+                request_id=rid,
+                run_id=run_id,
+                verdict=verdict,
+                approver_id=str(actor) if actor else "legacy",
+                reason_codes=_coerce_reason_codes(reason_codes),
+                comment=str(notes) if notes else None,
+            )
+    if isinstance(raw, str):
+        token = raw.strip().lower()
+        if token in _DECISION_APPROVE:
+            verdict = GateVerdict.APPROVE
+        elif token in _DECISION_REJECT:
+            verdict = GateVerdict.REJECT
+        elif token in _DECISION_ESCALATE:
+            verdict = GateVerdict.ESCALATE
+        else:
+            return None
+        return GateDecision(
+            request_id=rid,
+            run_id=run_id,
+            verdict=verdict,
+            approver_id="legacy",
+        )
+    return None
+
+
+def _coerce_reason_codes(raw: Any) -> list[str]:
+    if not isinstance(raw, list):
+        return []
+    values: list[str] = []
+    for item in raw:
+        if item is None:
+            continue
+        values.append(str(item))
+    return values
+
+
+def _as_int(raw: Any) -> int:
+    try:
+        value = int(raw)
+    except (TypeError, ValueError):
+        return 1
+    return value if value >= 1 else 1
+
+
+def _optional_int(raw: Any) -> int | None:
+    try:
+        value = int(raw)
+    except (TypeError, ValueError):
+        return None
+    return value if value > 0 else None

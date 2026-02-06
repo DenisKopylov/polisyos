@@ -1,0 +1,75 @@
+groups:
+  - name: polisyos.slo
+    rules:
+      - alert: SLO_DagSuccessRateBreach
+        expr: |
+          polisyos:slo_dag_success_rate:rate30m < 0.95
+          and on (workflow_id, env) polisyos:slo_dag_runs:rate30m > 0
+        for: 10m
+        labels:
+          severity: warning
+          team: scientist
+          slo: dag_success_rate
+        annotations:
+          summary: "SLO Breach: Scientist DAG success rate < 95%"
+          description: |
+            DAG success rate is {{ $value | printf "%.3f" }} for workflow={{ $labels.workflow_id }}
+            env={{ $labels.env }} over the last 30m. Target is >= 0.95.
+          runbook_url: "https://docs.polisyos.internal/runbooks/slo-dag-success"
+
+      - alert: SLO_DagSuccessRateCritical
+        expr: |
+          polisyos:slo_dag_success_rate:rate30m < 0.80
+          and on (workflow_id, env) polisyos:slo_dag_runs:rate30m > 0
+        for: 5m
+        labels:
+          severity: critical
+          team: scientist
+          slo: dag_success_rate
+        annotations:
+          summary: "CRITICAL SLO Breach: DAG success rate < 80%"
+          description: |
+            Immediate investigation required for workflow={{ $labels.workflow_id }}
+            env={{ $labels.env }}.
+
+      - alert: SLO_DagLatencyP99High
+        expr: polisyos:slo_dag_p99_latency_seconds:5m > 300
+        for: 15m
+        labels:
+          severity: warning
+          team: scientist
+          slo: dag_latency_p99
+        annotations:
+          summary: "SLO Breach: DAG p99 latency > 300s"
+          description: |
+            p99 latency {{ $value | printf "%.1f" }}s for workflow={{ $labels.workflow_id }}
+            env={{ $labels.env }}.
+
+      - alert: SLO_SimulationNanRateBreach
+        expr: |
+          polisyos:slo_simulation_nan_rate:rate5m > 0.001
+          and on (env) polisyos:slo_simulation_runs:rate30m > 0
+        for: 10m
+        labels:
+          severity: warning
+          team: foundry
+          slo: simulation_nan_rate
+        annotations:
+          summary: "SLO Breach: Simulation NaN rate > 0.1%"
+          description: |
+            NaN rate {{ $value | printf "%.4f" }} for env={{ $labels.env }}.
+
+      - alert: SLO_ConnectorErrorRateBreach
+        expr: |
+          polisyos:slo_connector_error_rate:rate5m > 0.01
+          and on (connector_id, env) polisyos:slo_connector_requests:rate30m > 0
+        for: 10m
+        labels:
+          severity: warning
+          team: fabric
+          slo: connector_error_rate
+        annotations:
+          summary: "SLO Breach: Connector error rate > 1%"
+          description: |
+            Connector {{ $labels.connector_id }} in env={{ $labels.env }}
+            has error rate {{ $value | printf "%.4f" }}.

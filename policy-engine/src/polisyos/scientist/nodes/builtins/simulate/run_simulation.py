@@ -6,6 +6,7 @@ from typing import Any
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.contracts.foundry import ExecuteRequest, FoundryExecConfig, SimulationResult
 from polisyos.core.canon import from_canonical_bytes
+from polisyos.core.observability import get_metrics
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
 from polisyos.scientist.engine.state import ExperimentState
@@ -78,11 +79,15 @@ class RunSimulationNode:
         return replace(self, exec_config=config)
 
     def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
+        metrics = get_metrics()
+        method = str(state.params.get("simulation_method", "foundry.execute"))
+
         if ctx.foundry is None:
             error = NodeError(
                 code=node_errors.ERROR_FOUNDATION_MISSING,
                 message="Foundry port is not configured",
             )
+            metrics.record_slo_simulation_run("error", method=method)
             return NodeOutcome(status="fail", state=state, error=error)
 
         exec_plan_ref = state.artifacts_index.get(ARTIFACT_EXEC_PLAN_REF)
@@ -92,6 +97,7 @@ class RunSimulationNode:
                 message="Missing exec_plan_ref for simulation",
                 details={"required": ARTIFACT_EXEC_PLAN_REF},
             )
+            metrics.record_slo_simulation_run("error", method=method)
             return NodeOutcome(status="fail", state=state, error=error)
 
         data_snapshot_ref = state.inputs.get(INPUT_DATA_SNAPSHOT_REF)
@@ -104,6 +110,7 @@ class RunSimulationNode:
                 message="Missing data_snapshot_ref or state_snapshot_ref for simulation",
                 details={"required": [INPUT_DATA_SNAPSHOT_REF, INPUT_STATE_SNAPSHOT_REF]},
             )
+            metrics.record_slo_simulation_run("error", method=method)
             return NodeOutcome(status="fail", state=state, error=error)
 
         registry_ref = state.inputs.get(INPUT_REGISTRY_BUNDLE_REF)
@@ -151,6 +158,7 @@ class RunSimulationNode:
                 details={"simulation_result_ref": getattr(result.simulation_result_ref, "model_dump", lambda: None)()},
             )
             event = NodeEvent(level="error", message="Foundry execute returned ok=False")
+            metrics.record_slo_simulation_run("error", method=method)
             return NodeOutcome(
                 status="fail",
                 state=new_state,
@@ -159,4 +167,17 @@ class RunSimulationNode:
                 error=error,
             )
 
+        if _has_nan_signal(result):
+            metrics.record_slo_simulation_run("nan", method=method)
+        else:
+            metrics.record_slo_simulation_run("ok", method=method)
         return NodeOutcome(status="ok", state=new_state, artifacts=artifacts)
+
+
+def _has_nan_signal(result: Any) -> bool:
+    notes = getattr(result, "notes", None)
+    if isinstance(notes, list):
+        for note in notes:
+            if isinstance(note, str) and "nan" in note.lower():
+                return True
+    return False

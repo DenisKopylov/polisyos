@@ -184,6 +184,34 @@ IR_ABI_MODELS: tuple[ABIModelEntry, ...] = (
         priority=Priority.P2,
         version_field=None,
     ),
+    ABIModelEntry(
+        abi_key="gate_context",
+        fqn="polisyos.ir.gate.GateContext",
+        module="ir",
+        schema_file="gate_context.schema.json",
+        priority=Priority.P1,
+    ),
+    ABIModelEntry(
+        abi_key="gate_request",
+        fqn="polisyos.ir.gate.GateRequest",
+        module="ir",
+        schema_file="gate_request.schema.json",
+        priority=Priority.P1,
+    ),
+    ABIModelEntry(
+        abi_key="gate_decision",
+        fqn="polisyos.ir.gate.GateDecision",
+        module="ir",
+        schema_file="gate_decision.schema.json",
+        priority=Priority.P1,
+    ),
+    ABIModelEntry(
+        abi_key="gate_event",
+        fqn="polisyos.ir.gate.GateEvent",
+        module="ir",
+        schema_file="gate_event.schema.json",
+        priority=Priority.P1,
+    ),
 )
 
 

@@ -12,6 +12,7 @@ Design goals:
 from __future__ import annotations
 
 import asyncio
+from functools import wraps
 import hashlib
 import json
 import threading
@@ -23,6 +24,7 @@ from typing import TYPE_CHECKING, Any, Callable, ClassVar, Iterator
 from packaging.version import parse as parse_version
 
 from polisyos.common.logger import get_logger
+from polisyos.core.observability import get_metrics
 from polisyos.ir.connectors import ConnectorCapability, ConnectorMetadataSpec, TrustLevel
 
 if TYPE_CHECKING:
@@ -571,6 +573,40 @@ class ConnectorRegistry:
 
         return connector
 
+    def _apply_slo_metrics_wrapper(
+        self,
+        connector: "SourceConnector",
+        *,
+        connector_id: str,
+    ) -> "SourceConnector":
+        if getattr(connector, "_slo_request_wrapped", False):
+            return connector
+
+        metrics = get_metrics()
+        original_fetch = connector.fetch
+
+        @wraps(original_fetch)
+        async def _wrapped_fetch(*args: Any, **kwargs: Any):
+            try:
+                result = await original_fetch(*args, **kwargs)
+            except Exception:
+                metrics.record_slo_connector_request("error", connector_id=connector_id)
+                raise
+            metrics.record_slo_connector_request("ok", connector_id=connector_id)
+            return result
+
+        try:
+            connector.fetch = _wrapped_fetch  # type: ignore[method-assign]
+            setattr(connector, "_slo_request_wrapped", True)
+        except Exception as exc:
+            logger.warning(
+                "Failed to wrap connector fetch with SLO metrics",
+                connector_id=connector_id,
+                error=str(exc),
+                error_type=type(exc).__name__,
+            )
+        return connector
+
     # =========================================================================
     # Retrieval (O(1) Lookup)
     # =========================================================================
@@ -634,11 +670,11 @@ class ConnectorRegistry:
                     if cached is None:
                         cached = CachingConnectorProxy(connector, self._cache_store)
                         self._cache_wrappers[fqid] = cached
-                return cached
+                return self._apply_slo_metrics_wrapper(cached, connector_id=fqid)
             except Exception:
-                return connector
+                return self._apply_slo_metrics_wrapper(connector, connector_id=fqid)
 
-        return connector
+        return self._apply_slo_metrics_wrapper(connector, connector_id=fqid)
 
     def get_metadata(self, connector_id: str) -> ConnectorMetadataSpec:
         """

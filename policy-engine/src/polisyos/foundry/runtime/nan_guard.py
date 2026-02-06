@@ -4,6 +4,8 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from polisyos.core.observability import get_metrics
+
 
 class NaNDiagnostic(BaseModel):
     """Diagnostic information when NaN/Inf detected."""
@@ -96,6 +98,7 @@ class NaNGuard:
         self._diagnostics: list[NaNDiagnostic] = []
         self._checks_performed = 0
         self._first_failure_step: int | None = None
+        self._metrics = get_metrics()
 
     @property
     def enabled(self) -> bool:
@@ -174,6 +177,7 @@ class NaNGuard:
                 if self._first_failure_step is None:
                     self._first_failure_step = time_step
 
+            self._metrics.record_slo_simulation_nan(method=mechanism_id)
             return False
 
         except Exception:

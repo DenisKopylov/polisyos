@@ -1,9 +1,20 @@
 from __future__ import annotations
 
 from datetime import datetime
+from enum import Enum
 from typing import Dict, List, Optional, Tuple
 
-from opentelemetry.trace import Status, StatusCode
+try:
+    from opentelemetry.trace import Status, StatusCode
+except ModuleNotFoundError:  # pragma: no cover - optional runtime dependency
+    class StatusCode(str, Enum):
+        OK = "OK"
+        ERROR = "ERROR"
+
+    class Status:  # type: ignore[override]
+        def __init__(self, status_code: StatusCode, description: str | None = None) -> None:
+            self.status_code = status_code
+            self.description = description
 
 from polisyos.core.observability import get_metrics, get_tracer
 from .passes.base import ValidatorPass, PassContext, ComplianceIssue, IssueSeverity

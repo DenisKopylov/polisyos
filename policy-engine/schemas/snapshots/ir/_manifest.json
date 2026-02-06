@@ -1,6 +1,6 @@
 {
-  "content_hash": "59e12ef92059f4e8ba2950c7c4aff2ce4692c0b810b9deaaf8c31de8ba19c7d0",
-  "generated_at": "2026-02-06T18:09:11+00:00",
+  "content_hash": "ceebb6bbb10a6726ba1ba1599d3937467e80e593d2974e80dc92531af8628ccd",
+  "generated_at": "2026-02-06T19:05:45+00:00",
   "generator_version": "1.0.0",
   "models": {
     "calibration_config": {
@@ -121,6 +121,54 @@
       "schema_version": "1.0",
       "sha256_full": "87230418cabb23456b5901a11db3484841fa5a1d18149524f1da996ddd1b403d",
       "sha256_semantic": "36405ae592c170aa3524ec12a97dff4ac0e35aea3e093fb271abb87b80934908",
+      "version_field": "schema_version"
+    },
+    "gate_context": {
+      "aliases": [],
+      "compat_mode": "strict",
+      "fqn": "polisyos.ir.gate.GateContext",
+      "lifecycle": "active",
+      "priority": "p1",
+      "schema_file": "gate_context.schema.json",
+      "schema_version": null,
+      "sha256_full": "168f3575ed1984c4bc50fd64306d8aac9b4cdaba8c46889766c75ab8d60d52a2",
+      "sha256_semantic": "2544d23d95256e7183c570e6ec4c70faf19d983349a4c14f90b62d235cf272a4",
+      "version_field": "schema_version"
+    },
+    "gate_decision": {
+      "aliases": [],
+      "compat_mode": "strict",
+      "fqn": "polisyos.ir.gate.GateDecision",
+      "lifecycle": "active",
+      "priority": "p1",
+      "schema_file": "gate_decision.schema.json",
+      "schema_version": "1.0",
+      "sha256_full": "1ead147449a079796f032433ac89b3a819c2e78e4084bad5b7ec1c43381812ff",
+      "sha256_semantic": "5d7cc82356c47ba0856575be64815bd248f142a711a60b770551b580a2e75882",
+      "version_field": "schema_version"
+    },
+    "gate_event": {
+      "aliases": [],
+      "compat_mode": "strict",
+      "fqn": "polisyos.ir.gate.GateEvent",
+      "lifecycle": "active",
+      "priority": "p1",
+      "schema_file": "gate_event.schema.json",
+      "schema_version": "1.0",
+      "sha256_full": "0aef8b859dd85a756d64d68f3d5865b6b81c3e639d7e942789147ee15287c315",
+      "sha256_semantic": "355cd6cd69d1d216586019bbeb34b58bd71fe59a058b3a81fac3bb5cf51bb10f",
+      "version_field": "schema_version"
+    },
+    "gate_request": {
+      "aliases": [],
+      "compat_mode": "strict",
+      "fqn": "polisyos.ir.gate.GateRequest",
+      "lifecycle": "active",
+      "priority": "p1",
+      "schema_file": "gate_request.schema.json",
+      "schema_version": "1.0",
+      "sha256_full": "e65b2274b2c0c468083082e04cabf187bfe4abab24d4b3286d92ad5032ebe043",
+      "sha256_semantic": "b8be9ae6a1cb679f094886a19d96e2698e925569dbf28336e98d7edc8ee75d02",
       "version_field": "schema_version"
     },
     "model_spec": {

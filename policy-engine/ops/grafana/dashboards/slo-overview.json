@@ -1,0 +1,229 @@
+{
+  "uid": "polisyos-slo-overview",
+  "title": "PolicyOS - SLO Overview",
+  "tags": ["polisyos", "slo"],
+  "timezone": "browser",
+  "refresh": "30s",
+  "schemaVersion": 38,
+  "version": 1,
+  "templating": {
+    "list": [
+      {
+        "name": "environment",
+        "type": "query",
+        "query": "label_values(polisyos_slo_dag_runs_total, env)",
+        "current": { "text": "development", "value": "development" },
+        "includeAll": false,
+        "multi": false
+      },
+      {
+        "name": "workflow_id",
+        "type": "query",
+        "query": "label_values(polisyos_slo_dag_runs_total{env=\"$environment\"}, workflow_id)",
+        "current": { "text": "scientist_default", "value": "scientist_default" },
+        "includeAll": true,
+        "multi": true
+      },
+      {
+        "name": "connector_id",
+        "type": "query",
+        "query": "label_values(polisyos_slo_connector_requests_total{env=\"$environment\"}, connector_id)",
+        "includeAll": true,
+        "multi": true
+      }
+    ]
+  },
+  "panels": [
+    {
+      "id": 1,
+      "title": "DAG Success Rate (30m)",
+      "type": "gauge",
+      "gridPos": { "h": 4, "w": 4, "x": 0, "y": 0 },
+      "targets": [
+        {
+          "expr": "avg(polisyos:slo_dag_success_rate:rate30m{env=\"$environment\",workflow_id=~\"$workflow_id\"})",
+          "legendFormat": "success"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "min": 0,
+          "max": 1,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "yellow", "value": 0.9 },
+              { "color": "green", "value": 0.95 }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 2,
+      "title": "Simulation NaN Rate (5m)",
+      "type": "gauge",
+      "gridPos": { "h": 4, "w": 4, "x": 4, "y": 0 },
+      "targets": [
+        {
+          "expr": "polisyos:slo_simulation_nan_rate:rate5m{env=\"$environment\"}",
+          "legendFormat": "nan_rate"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "min": 0,
+          "max": 0.01,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 0.0008 },
+              { "color": "red", "value": 0.001 }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 3,
+      "title": "Connector Error Rate (5m)",
+      "type": "gauge",
+      "gridPos": { "h": 4, "w": 4, "x": 8, "y": 0 },
+      "targets": [
+        {
+          "expr": "avg(polisyos:slo_connector_error_rate:rate5m{env=\"$environment\",connector_id=~\"$connector_id\"})",
+          "legendFormat": "error_rate"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "min": 0,
+          "max": 0.1,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 0.008 },
+              { "color": "red", "value": 0.01 }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 4,
+      "title": "DAG p99 Latency (5m)",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 3, "x": 12, "y": 0 },
+      "targets": [
+        {
+          "expr": "max(polisyos:slo_dag_p99_latency_seconds:5m{env=\"$environment\",workflow_id=~\"$workflow_id\"})",
+          "legendFormat": "p99"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 240 },
+              { "color": "red", "value": 300 }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 5,
+      "title": "Run Cost p95 (5m)",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 3, "x": 15, "y": 0 },
+      "targets": [
+        {
+          "expr": "max(polisyos:slo_run_cost_usd_p95:5m{env=\"$environment\",workflow_id=~\"$workflow_id\"})",
+          "legendFormat": "cost_p95"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyUSD",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 4.5 },
+              { "color": "red", "value": 5 }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 6,
+      "title": "DAG Success Rate Timeline",
+      "type": "timeseries",
+      "gridPos": { "h": 7, "w": 6, "x": 0, "y": 4 },
+      "targets": [
+        {
+          "expr": "polisyos:slo_dag_success_rate:rate30m{env=\"$environment\",workflow_id=~\"$workflow_id\"}",
+          "legendFormat": "{{workflow_id}}"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "title": "NaN Rate Timeline",
+      "type": "timeseries",
+      "gridPos": { "h": 7, "w": 6, "x": 6, "y": 4 },
+      "targets": [
+        {
+          "expr": "polisyos:slo_simulation_nan_rate:rate5m{env=\"$environment\"}",
+          "legendFormat": "{{env}}"
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "title": "Connector Error Rate Timeline",
+      "type": "timeseries",
+      "gridPos": { "h": 7, "w": 6, "x": 12, "y": 4 },
+      "targets": [
+        {
+          "expr": "polisyos:slo_connector_error_rate:rate5m{env=\"$environment\",connector_id=~\"$connector_id\"}",
+          "legendFormat": "{{connector_id}}"
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "title": "DAG Latency Distribution",
+      "type": "heatmap",
+      "gridPos": { "h": 7, "w": 9, "x": 0, "y": 11 },
+      "targets": [
+        {
+          "expr": "sum by (le) (rate(polisyos_slo_dag_duration_seconds_bucket{env=\"$environment\",workflow_id=~\"$workflow_id\"}[5m]))",
+          "format": "heatmap"
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "title": "Run Cost Distribution",
+      "type": "heatmap",
+      "gridPos": { "h": 7, "w": 9, "x": 9, "y": 11 },
+      "targets": [
+        {
+          "expr": "sum by (le) (rate(polisyos_slo_run_cost_usd_bucket{env=\"$environment\",workflow_id=~\"$workflow_id\"}[5m]))",
+          "format": "heatmap"
+        }
+      ]
+    }
+  ]
+}

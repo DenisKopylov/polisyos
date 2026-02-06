@@ -1,0 +1,152 @@
+{
+  "$defs": {
+    "GateContext": {
+      "additionalProperties": false,
+      "properties": {
+        "governance_profile": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Governance Profile"
+        },
+        "is_escalated": {
+          "default": false,
+          "title": "Is Escalated",
+          "type": "boolean"
+        },
+        "iteration": {
+          "default": 1,
+          "minimum": 1,
+          "title": "Iteration",
+          "type": "integer"
+        },
+        "node_alias": {
+          "title": "Node Alias",
+          "type": "string"
+        },
+        "phase": {
+          "title": "Phase",
+          "type": "string"
+        },
+        "policy_summary": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Policy Summary"
+        },
+        "risk_indicators": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Risk Indicators",
+          "type": "array"
+        },
+        "simulation_results": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Simulation Results"
+        },
+        "workflow_id": {
+          "title": "Workflow Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "workflow_id",
+        "node_alias",
+        "phase"
+      ],
+      "title": "GateContext",
+      "type": "object"
+    },
+    "GatePriority": {
+      "enum": [
+        "low",
+        "normal",
+        "high",
+        "critical"
+      ],
+      "title": "GatePriority",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "context": {
+      "$ref": "#/$defs/GateContext"
+    },
+    "priority": {
+      "$ref": "#/$defs/GatePriority",
+      "default": "normal"
+    },
+    "reason": {
+      "title": "Reason",
+      "type": "string"
+    },
+    "request_id": {
+      "title": "Request Id",
+      "type": "string"
+    },
+    "requested_at": {
+      "format": "date-time",
+      "title": "Requested At",
+      "type": "string"
+    },
+    "requested_by": {
+      "default": "system",
+      "title": "Requested By",
+      "type": "string"
+    },
+    "run_id": {
+      "title": "Run Id",
+      "type": "string"
+    },
+    "schema_version": {
+      "default": "1.0",
+      "pattern": "^\\d+\\.\\d+$",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "timeout_seconds": {
+      "anyOf": [
+        {
+          "minimum": 1,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Timeout Seconds"
+    }
+  },
+  "required": [
+    "request_id",
+    "run_id",
+    "reason",
+    "context"
+  ],
+  "title": "GateRequest",
+  "type": "object"
+}

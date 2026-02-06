@@ -1,0 +1,174 @@
+{
+  "$defs": {
+    "AccessTier": {
+      "enum": [
+        "public",
+        "internal",
+        "sensitive"
+      ],
+      "title": "AccessTier",
+      "type": "string"
+    },
+    "DataFilter": {
+      "additionalProperties": false,
+      "properties": {
+        "column": {
+          "title": "Column",
+          "type": "string"
+        },
+        "op": {
+          "pattern": "^(==|!=|>|<|>=|<=)$",
+          "title": "Op",
+          "type": "string"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "integer"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "boolean"
+            }
+          ],
+          "title": "Value"
+        }
+      },
+      "required": [
+        "column",
+        "op",
+        "value"
+      ],
+      "title": "DataFilter",
+      "type": "object"
+    },
+    "DataViewType": {
+      "enum": [
+        "panel",
+        "snapshot",
+        "network"
+      ],
+      "title": "DataViewType",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "access_tier": {
+      "$ref": "#/$defs/AccessTier"
+    },
+    "aggregation": {
+      "anyOf": [
+        {
+          "pattern": "^(mean|sum|count|min|max)$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": "mean",
+      "title": "Aggregation"
+    },
+    "ego_node_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Center node for network query",
+      "title": "Ego Node Id"
+    },
+    "filters": {
+      "items": {
+        "$ref": "#/$defs/DataFilter"
+      },
+      "title": "Filters",
+      "type": "array"
+    },
+    "hop_depth": {
+      "default": 1,
+      "description": "Search depth",
+      "maximum": 5,
+      "minimum": 1,
+      "title": "Hop Depth",
+      "type": "integer"
+    },
+    "metrics": {
+      "description": "List of columns to select.",
+      "items": {
+        "type": "string"
+      },
+      "title": "Metrics",
+      "type": "array"
+    },
+    "relation_types": {
+      "anyOf": [
+        {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Relation Types"
+    },
+    "request_id": {
+      "title": "Request Id",
+      "type": "string"
+    },
+    "run_id": {
+      "title": "Run Id",
+      "type": "string"
+    },
+    "step_end": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Step End"
+    },
+    "step_start": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Step Start"
+    },
+    "view_type": {
+      "$ref": "#/$defs/DataViewType"
+    }
+  },
+  "required": [
+    "request_id",
+    "run_id",
+    "view_type",
+    "metrics",
+    "access_tier"
+  ],
+  "title": "DataViewRequest",
+  "type": "object"
+}

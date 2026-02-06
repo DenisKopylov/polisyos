@@ -13,34 +13,6 @@
           "title": "Agent Types",
           "type": "array"
         },
-        "total_agents": {
-          "anyOf": [
-            {
-              "minimum": 0,
-              "type": "integer"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "description": "Total agent population",
-          "title": "Total Agents"
-        },
-        "max_agents": {
-          "anyOf": [
-            {
-              "minimum": 0,
-              "type": "integer"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "description": "Maximum agent capacity",
-          "title": "Max Agents"
-        },
         "interaction_topology": {
           "anyOf": [
             {
@@ -60,6 +32,20 @@
           "description": "Agent interaction topology",
           "title": "Interaction Topology"
         },
+        "max_agents": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Maximum agent capacity",
+          "title": "Max Agents"
+        },
         "network_graph_ref": {
           "anyOf": [
             {
@@ -73,6 +59,20 @@
           "default": null,
           "description": "Reference to network graph artifact",
           "title": "Network Graph Ref"
+        },
+        "total_agents": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Total agent population",
+          "title": "Total Agents"
         }
       },
       "title": "AgentConfig",
@@ -82,13 +82,54 @@
       "additionalProperties": false,
       "description": "Configuration for a type of agent in the simulation.\n\nDefines agent heterogeneity and behavioral parameters.",
       "properties": {
+        "adaptive": {
+          "default": false,
+          "description": "Whether agents use learned policies",
+          "title": "Adaptive",
+          "type": "boolean"
+        },
         "agent_type_id": {
           "pattern": "^[a-z][a-z0-9_]*$",
           "title": "Agent Type Id",
           "type": "string"
         },
+        "attribute_distributions": {
+          "additionalProperties": true,
+          "description": "Distribution specs for heterogeneous attributes",
+          "title": "Attribute Distributions",
+          "type": "object"
+        },
+        "discount_rate": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Discount Rate"
+        },
         "entity_type": {
           "$ref": "#/$defs/EntityType"
+        },
+        "max_population": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max Population"
         },
         "name": {
           "anyOf": [
@@ -100,6 +141,27 @@
             }
           ],
           "default": null
+        },
+        "notes": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 5,
+          "title": "Notes",
+          "type": "array"
+        },
+        "policy_model": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "RL policy model type if adaptive",
+          "title": "Policy Model"
         },
         "population_count": {
           "anyOf": [
@@ -136,33 +198,6 @@
           "default": null,
           "title": "Population Share"
         },
-        "max_population": {
-          "anyOf": [
-            {
-              "minimum": 0,
-              "type": "integer"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Max Population"
-        },
-        "utility_function": {
-          "anyOf": [
-            {
-              "pattern": "^[a-z][a-z0-9_]*$",
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "description": "Reference to utility function",
-          "title": "Utility Function"
-        },
         "risk_aversion": {
           "anyOf": [
             {
@@ -179,13 +214,10 @@
           "default": null,
           "title": "Risk Aversion"
         },
-        "discount_rate": {
+        "utility_function": {
           "anyOf": [
             {
-              "type": "number"
-            },
-            {
-              "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+              "pattern": "^[a-z][a-z0-9_]*$",
               "type": "string"
             },
             {
@@ -193,40 +225,8 @@
             }
           ],
           "default": null,
-          "title": "Discount Rate"
-        },
-        "attribute_distributions": {
-          "additionalProperties": true,
-          "description": "Distribution specs for heterogeneous attributes",
-          "title": "Attribute Distributions",
-          "type": "object"
-        },
-        "adaptive": {
-          "default": false,
-          "description": "Whether agents use learned policies",
-          "title": "Adaptive",
-          "type": "boolean"
-        },
-        "policy_model": {
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "description": "RL policy model type if adaptive",
-          "title": "Policy Model"
-        },
-        "notes": {
-          "items": {
-            "type": "string"
-          },
-          "maxItems": 5,
-          "title": "Notes",
-          "type": "array"
+          "description": "Reference to utility function",
+          "title": "Utility Function"
         }
       },
       "required": [
@@ -247,34 +247,6 @@
         },
         "assumption_type": {
           "$ref": "#/$defs/AssumptionType"
-        },
-        "description": {
-          "maxLength": 500,
-          "title": "Description",
-          "type": "string"
-        },
-        "value": {
-          "anyOf": [
-            {
-              "type": "number"
-            },
-            {
-              "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
-              "type": "string"
-            },
-            {
-              "type": "string"
-            },
-            {
-              "type": "boolean"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "description": "Quantified assumption value if applicable",
-          "title": "Value"
         },
         "confidence": {
           "anyOf": [
@@ -299,6 +271,25 @@
           "description": "Confidence in this assumption (0-1)",
           "title": "Confidence"
         },
+        "description": {
+          "maxLength": 500,
+          "title": "Description",
+          "type": "string"
+        },
+        "notes": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 5,
+          "title": "Notes",
+          "type": "array"
+        },
+        "sensitivity_flag": {
+          "default": false,
+          "description": "Flag for sensitivity analysis priority",
+          "title": "Sensitivity Flag",
+          "type": "boolean"
+        },
         "source": {
           "anyOf": [
             {
@@ -313,19 +304,28 @@
           "description": "Source/citation",
           "title": "Source"
         },
-        "sensitivity_flag": {
-          "default": false,
-          "description": "Flag for sensitivity analysis priority",
-          "title": "Sensitivity Flag",
-          "type": "boolean"
-        },
-        "notes": {
-          "items": {
-            "type": "string"
-          },
-          "maxItems": 5,
-          "title": "Notes",
-          "type": "array"
+        "value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+              "type": "string"
+            },
+            {
+              "type": "string"
+            },
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Quantified assumption value if applicable",
+          "title": "Value"
         }
       },
       "required": [
@@ -364,6 +364,13 @@
       "additionalProperties": false,
       "description": "Environment configuration for the simulation.",
       "properties": {
+        "parallel_worlds": {
+          "default": 1,
+          "description": "Number of parallel simulations",
+          "minimum": 1,
+          "title": "Parallel Worlds",
+          "type": "integer"
+        },
         "params": {
           "description": "Environment parameters",
           "items": {
@@ -391,13 +398,6 @@
           "description": "Whether simulation is stochastic",
           "title": "Stochastic",
           "type": "boolean"
-        },
-        "parallel_worlds": {
-          "default": 1,
-          "description": "Number of parallel simulations",
-          "minimum": 1,
-          "title": "Parallel Worlds",
-          "type": "integer"
         }
       },
       "title": "EnvironmentConfig",
@@ -407,10 +407,56 @@
       "additionalProperties": false,
       "description": "Environment/exogenous parameter specification.",
       "properties": {
+        "description": {
+          "anyOf": [
+            {
+              "maxLength": 200,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Description"
+        },
         "param_id": {
           "pattern": "^[a-z][a-z0-9_]*$",
           "title": "Param Id",
           "type": "string"
+        },
+        "time_series_ref": {
+          "anyOf": [
+            {
+              "pattern": "^sha256:[a-f0-9]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Reference to time series data",
+          "title": "Time Series Ref"
+        },
+        "time_varying": {
+          "default": false,
+          "description": "Whether value changes over time",
+          "title": "Time Varying",
+          "type": "boolean"
+        },
+        "unit_id": {
+          "anyOf": [
+            {
+              "pattern": "^[a-z][a-z0-9_]*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Unit Id"
         },
         "value": {
           "anyOf": [
@@ -429,52 +475,6 @@
             }
           ],
           "title": "Value"
-        },
-        "unit_id": {
-          "anyOf": [
-            {
-              "pattern": "^[a-z][a-z0-9_]*$",
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Unit Id"
-        },
-        "description": {
-          "anyOf": [
-            {
-              "maxLength": 200,
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Description"
-        },
-        "time_varying": {
-          "default": false,
-          "description": "Whether value changes over time",
-          "title": "Time Varying",
-          "type": "boolean"
-        },
-        "time_series_ref": {
-          "anyOf": [
-            {
-              "pattern": "^sha256:[a-f0-9]{64}$",
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "description": "Reference to time series data",
-          "title": "Time Series Ref"
         }
       },
       "required": [
@@ -508,8 +508,27 @@
     "TimeSemantics": {
       "additionalProperties": false,
       "properties": {
+        "end_date": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "End Date"
+        },
         "frequency": {
           "$ref": "#/$defs/TimeFrequency"
+        },
+        "notes": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Notes",
+          "type": "array"
         },
         "start_date": {
           "title": "Start Date",
@@ -527,25 +546,6 @@
           ],
           "default": null,
           "title": "Step Count"
-        },
-        "end_date": {
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "End Date"
-        },
-        "notes": {
-          "items": {
-            "type": "string"
-          },
-          "title": "Notes",
-          "type": "array"
         }
       },
       "required": [
@@ -565,12 +565,6 @@
           "title": "En",
           "type": "string"
         },
-        "ua": {
-          "description": "Ukrainian text for Reporting/UI",
-          "maxLength": 200,
-          "title": "Ua",
-          "type": "string"
-        },
         "ru": {
           "anyOf": [
             {
@@ -584,6 +578,12 @@
           "default": null,
           "description": "Russian text (optional)",
           "title": "Ru"
+        },
+        "ua": {
+          "description": "Ukrainian text for Reporting/UI",
+          "maxLength": 200,
+          "title": "Ua",
+          "type": "string"
         }
       },
       "required": [
@@ -597,50 +597,6 @@
   "additionalProperties": false,
   "description": "ModelSpec: The \"How\" artifact (WorldModel).\n\nSpecifies the world model configuration including data snapshots,\nagent configuration, assumptions, and environment parameters.\nMultiple ModelSpecs can test the same PolicySpec for sensitivity analysis.",
   "properties": {
-    "schema_version": {
-      "default": "1.0",
-      "pattern": "^\\d+\\.\\d+$",
-      "title": "Schema Version",
-      "type": "string"
-    },
-    "model_id": {
-      "description": "Unique model identifier",
-      "pattern": "^[a-z][a-z0-9_]*$",
-      "title": "Model Id",
-      "type": "string"
-    },
-    "data_snapshot_ref": {
-      "description": "Reference to DataSnapshot artifact (initial world state)",
-      "pattern": "^sha256:[a-f0-9]{64}$",
-      "title": "Data Snapshot Ref",
-      "type": "string"
-    },
-    "registry_bundle_ref": {
-      "anyOf": [
-        {
-          "pattern": "^sha256:[a-f0-9]{64}$",
-          "type": "string"
-        },
-        {
-          "type": "null"
-        }
-      ],
-      "default": null,
-      "description": "Reference to RegistryBundle for mechanisms/units",
-      "title": "Registry Bundle Ref"
-    },
-    "time_semantics": {
-      "anyOf": [
-        {
-          "$ref": "#/$defs/TimeSemantics"
-        },
-        {
-          "type": "null"
-        }
-      ],
-      "default": null,
-      "description": "Temporal configuration (step duration, discounting)"
-    },
     "agent_config": {
       "$ref": "#/$defs/AgentConfig",
       "description": "Agent population and behavior configuration"
@@ -653,15 +609,6 @@
       "maxItems": 100,
       "title": "Assumptions",
       "type": "array"
-    },
-    "environment_config": {
-      "$ref": "#/$defs/EnvironmentConfig",
-      "description": "Environment parameters and configuration"
-    },
-    "fidelity_level": {
-      "$ref": "#/$defs/FidelityLevel",
-      "default": "hybrid",
-      "description": "Simulation fidelity level"
     },
     "calibrated": {
       "default": false,
@@ -683,17 +630,11 @@
       "description": "Reference to calibration results",
       "title": "Calibration Ref"
     },
-    "name": {
-      "anyOf": [
-        {
-          "$ref": "#/$defs/TranslatableString"
-        },
-        {
-          "type": "null"
-        }
-      ],
-      "default": null,
-      "description": "Human-readable model name"
+    "data_snapshot_ref": {
+      "description": "Reference to DataSnapshot artifact (initial world state)",
+      "pattern": "^sha256:[a-f0-9]{64}$",
+      "title": "Data Snapshot Ref",
+      "type": "string"
     },
     "description": {
       "anyOf": [
@@ -708,6 +649,15 @@
       "default": null,
       "title": "Description"
     },
+    "environment_config": {
+      "$ref": "#/$defs/EnvironmentConfig",
+      "description": "Environment parameters and configuration"
+    },
+    "fidelity_level": {
+      "$ref": "#/$defs/FidelityLevel",
+      "default": "hybrid",
+      "description": "Simulation fidelity level"
+    },
     "labels": {
       "items": {
         "type": "string"
@@ -715,6 +665,64 @@
       "maxItems": 20,
       "title": "Labels",
       "type": "array"
+    },
+    "model_id": {
+      "description": "Unique model identifier",
+      "pattern": "^[a-z][a-z0-9_]*$",
+      "title": "Model Id",
+      "type": "string"
+    },
+    "name": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/TranslatableString"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Human-readable model name"
+    },
+    "notes": {
+      "items": {
+        "type": "string"
+      },
+      "maxItems": 50,
+      "title": "Notes",
+      "type": "array"
+    },
+    "registry_bundle_ref": {
+      "anyOf": [
+        {
+          "pattern": "^sha256:[a-f0-9]{64}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Reference to RegistryBundle for mechanisms/units",
+      "title": "Registry Bundle Ref"
+    },
+    "schema_version": {
+      "default": "1.0",
+      "pattern": "^\\d+\\.\\d+$",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "time_semantics": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/TimeSemantics"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Temporal configuration (step duration, discounting)"
     },
     "version_tag": {
       "anyOf": [
@@ -729,14 +737,6 @@
       "default": null,
       "description": "Semantic version tag",
       "title": "Version Tag"
-    },
-    "notes": {
-      "items": {
-        "type": "string"
-      },
-      "maxItems": 50,
-      "title": "Notes",
-      "type": "array"
     }
   },
   "required": [

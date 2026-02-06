@@ -4,6 +4,12 @@
       "additionalProperties": false,
       "description": "Policy intervention specification.\n\nDefines a single policy action with targeting, timing, and parameters.\nCompatible with existing InterventionSpec in surface.py.",
       "properties": {
+        "enabled": {
+          "default": true,
+          "description": "Whether intervention is active",
+          "title": "Enabled",
+          "type": "boolean"
+        },
         "intervention_id": {
           "pattern": "^[a-z][a-z0-9_]*$",
           "title": "Intervention Id",
@@ -14,6 +20,38 @@
           "pattern": "^[a-z][a-z0-9_]*$",
           "title": "Kind",
           "type": "string"
+        },
+        "notes": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 10,
+          "title": "Notes",
+          "type": "array"
+        },
+        "params": {
+          "additionalProperties": true,
+          "description": "Mechanism parameters",
+          "title": "Params",
+          "type": "object"
+        },
+        "priority": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Execution priority (lower = earlier)",
+          "title": "Priority"
+        },
+        "schedule": {
+          "$ref": "#/$defs/ScheduleSpec",
+          "description": "Timing of intervention"
         },
         "target": {
           "description": "Agent/entity selector expression",
@@ -41,44 +79,6 @@
             }
           ],
           "title": "Target"
-        },
-        "schedule": {
-          "$ref": "#/$defs/ScheduleSpec",
-          "description": "Timing of intervention"
-        },
-        "params": {
-          "additionalProperties": true,
-          "description": "Mechanism parameters",
-          "title": "Params",
-          "type": "object"
-        },
-        "priority": {
-          "anyOf": [
-            {
-              "minimum": 0,
-              "type": "integer"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "description": "Execution priority (lower = earlier)",
-          "title": "Priority"
-        },
-        "enabled": {
-          "default": true,
-          "description": "Whether intervention is active",
-          "title": "Enabled",
-          "type": "boolean"
-        },
-        "notes": {
-          "items": {
-            "type": "string"
-          },
-          "maxItems": 10,
-          "title": "Notes",
-          "type": "array"
         }
       },
       "required": [
@@ -99,11 +99,11 @@
           "title": "Binding Id",
           "type": "string"
         },
-        "mechanism_id": {
-          "description": "Reference to mechanism registry",
-          "pattern": "^[a-z][a-z0-9_]*$",
-          "title": "Mechanism Id",
-          "type": "string"
+        "config_overrides": {
+          "additionalProperties": true,
+          "description": "Mechanism-specific config overrides",
+          "title": "Config Overrides",
+          "type": "object"
         },
         "intervention_ids": {
           "description": "Interventions using this mechanism",
@@ -114,11 +114,11 @@
           "title": "Intervention Ids",
           "type": "array"
         },
-        "config_overrides": {
-          "additionalProperties": true,
-          "description": "Mechanism-specific config overrides",
-          "title": "Config Overrides",
-          "type": "object"
+        "mechanism_id": {
+          "description": "Reference to mechanism registry",
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "title": "Mechanism Id",
+          "type": "string"
         }
       },
       "required": [
@@ -133,35 +133,14 @@
       "additionalProperties": false,
       "description": "Tunable parameter specification with bounds and metadata.\n\nSupports calibration and sensitivity analysis.",
       "properties": {
-        "param_id": {
-          "pattern": "^[a-z][a-z0-9_]*$",
-          "title": "Param Id",
-          "type": "string"
+        "default_value": {
+          "description": "Default/initial value",
+          "title": "Default Value"
         },
         "intervention_id": {
           "pattern": "^[a-z][a-z0-9_]*$",
           "title": "Intervention Id",
           "type": "string"
-        },
-        "param_path": {
-          "description": "Dot-separated path to parameter within intervention.params",
-          "title": "Param Path",
-          "type": "string"
-        },
-        "default_value": {
-          "description": "Default/initial value",
-          "title": "Default Value"
-        },
-        "min_value": {
-          "anyOf": [
-            {},
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "description": "Minimum allowed value",
-          "title": "Min Value"
         },
         "max_value": {
           "anyOf": [
@@ -174,11 +153,26 @@
           "description": "Maximum allowed value",
           "title": "Max Value"
         },
-        "tunable": {
-          "default": true,
-          "description": "Whether parameter can be optimized",
-          "title": "Tunable",
-          "type": "boolean"
+        "min_value": {
+          "anyOf": [
+            {},
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Minimum allowed value",
+          "title": "Min Value"
+        },
+        "param_id": {
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "title": "Param Id",
+          "type": "string"
+        },
+        "param_path": {
+          "description": "Dot-separated path to parameter within intervention.params",
+          "title": "Param Path",
+          "type": "string"
         },
         "sensitivity_priority": {
           "default": 5,
@@ -187,6 +181,12 @@
           "minimum": 1,
           "title": "Sensitivity Priority",
           "type": "integer"
+        },
+        "tunable": {
+          "default": true,
+          "description": "Whether parameter can be optimized",
+          "title": "Tunable",
+          "type": "boolean"
         }
       },
       "required": [
@@ -201,10 +201,18 @@
     "ScheduleSpec": {
       "additionalProperties": false,
       "properties": {
-        "start_step": {
-          "minimum": 0,
-          "title": "Start Step",
-          "type": "integer"
+        "duration_steps": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Duration Steps"
         },
         "end_step": {
           "anyOf": [
@@ -219,18 +227,10 @@
           "default": null,
           "title": "End Step"
         },
-        "duration_steps": {
-          "anyOf": [
-            {
-              "minimum": 1,
-              "type": "integer"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Duration Steps"
+        "start_step": {
+          "minimum": 0,
+          "title": "Start Step",
+          "type": "integer"
         }
       },
       "required": [
@@ -242,12 +242,6 @@
     "SelectorAll": {
       "additionalProperties": false,
       "properties": {
-        "kind": {
-          "const": "all_of",
-          "default": "all_of",
-          "title": "Kind",
-          "type": "string"
-        },
         "clauses": {
           "items": {
             "discriminator": {
@@ -276,6 +270,12 @@
           },
           "title": "Clauses",
           "type": "array"
+        },
+        "kind": {
+          "const": "all_of",
+          "default": "all_of",
+          "title": "Kind",
+          "type": "string"
         }
       },
       "required": [
@@ -287,12 +287,6 @@
     "SelectorAny": {
       "additionalProperties": false,
       "properties": {
-        "kind": {
-          "const": "any_of",
-          "default": "any_of",
-          "title": "Kind",
-          "type": "string"
-        },
         "clauses": {
           "items": {
             "discriminator": {
@@ -321,6 +315,12 @@
           },
           "title": "Clauses",
           "type": "array"
+        },
+        "kind": {
+          "const": "any_of",
+          "default": "any_of",
+          "title": "Kind",
+          "type": "string"
         }
       },
       "required": [
@@ -332,12 +332,6 @@
     "SelectorNot": {
       "additionalProperties": false,
       "properties": {
-        "kind": {
-          "const": "not",
-          "default": "not",
-          "title": "Kind",
-          "type": "string"
-        },
         "clause": {
           "discriminator": {
             "mapping": {
@@ -363,6 +357,12 @@
             }
           ],
           "title": "Clause"
+        },
+        "kind": {
+          "const": "not",
+          "default": "not",
+          "title": "Kind",
+          "type": "string"
         }
       },
       "required": [
@@ -391,15 +391,15 @@
     "SelectorPredicate": {
       "additionalProperties": false,
       "properties": {
+        "field": {
+          "maxLength": 64,
+          "title": "Field",
+          "type": "string"
+        },
         "kind": {
           "const": "predicate",
           "default": "predicate",
           "title": "Kind",
-          "type": "string"
-        },
-        "field": {
-          "maxLength": 64,
-          "title": "Field",
           "type": "string"
         },
         "operator": {
@@ -468,12 +468,6 @@
           "title": "En",
           "type": "string"
         },
-        "ua": {
-          "description": "Ukrainian text for Reporting/UI",
-          "maxLength": 200,
-          "title": "Ua",
-          "type": "string"
-        },
         "ru": {
           "anyOf": [
             {
@@ -487,6 +481,12 @@
           "default": null,
           "description": "Russian text (optional)",
           "title": "Ru"
+        },
+        "ua": {
+          "description": "Ukrainian text for Reporting/UI",
+          "maxLength": 200,
+          "title": "Ua",
+          "type": "string"
         }
       },
       "required": [
@@ -500,11 +500,84 @@
   "additionalProperties": false,
   "description": "PolicySpec: The \"What\" artifact.\n\nSpecifies the policy interventions, mechanism bindings, and parameters.\nThis artifact is iterated during policy optimization while the ProblemFrame\nremains constant.",
   "properties": {
-    "schema_version": {
-      "default": "1.0",
-      "pattern": "^\\d+\\.\\d+$",
-      "title": "Schema Version",
-      "type": "string"
+    "description": {
+      "anyOf": [
+        {
+          "maxLength": 2000,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Description"
+    },
+    "global_schedule": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ScheduleSpec"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Global policy schedule (overrides individual if set)"
+    },
+    "interventions": {
+      "description": "Policy interventions/actions",
+      "items": {
+        "$ref": "#/$defs/InterventionSpec"
+      },
+      "maxItems": 100,
+      "title": "Interventions",
+      "type": "array"
+    },
+    "labels": {
+      "items": {
+        "type": "string"
+      },
+      "maxItems": 20,
+      "title": "Labels",
+      "type": "array"
+    },
+    "mechanism_bindings": {
+      "description": "Explicit mechanism bindings",
+      "items": {
+        "$ref": "#/$defs/MechanismBinding"
+      },
+      "maxItems": 100,
+      "title": "Mechanism Bindings",
+      "type": "array"
+    },
+    "name": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/TranslatableString"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Human-readable policy name"
+    },
+    "notes": {
+      "items": {
+        "type": "string"
+      },
+      "maxItems": 50,
+      "title": "Notes",
+      "type": "array"
+    },
+    "parameters": {
+      "description": "Tunable parameter specifications",
+      "items": {
+        "$ref": "#/$defs/ParameterSpec"
+      },
+      "title": "Parameters",
+      "type": "array"
     },
     "policy_id": {
       "description": "Unique policy identifier",
@@ -526,76 +599,11 @@
       "description": "Reference to ProblemFrame artifact this policy addresses",
       "title": "Problem Frame Ref"
     },
-    "interventions": {
-      "description": "Policy interventions/actions",
-      "items": {
-        "$ref": "#/$defs/InterventionSpec"
-      },
-      "maxItems": 100,
-      "title": "Interventions",
-      "type": "array"
-    },
-    "mechanism_bindings": {
-      "description": "Explicit mechanism bindings",
-      "items": {
-        "$ref": "#/$defs/MechanismBinding"
-      },
-      "maxItems": 100,
-      "title": "Mechanism Bindings",
-      "type": "array"
-    },
-    "parameters": {
-      "description": "Tunable parameter specifications",
-      "items": {
-        "$ref": "#/$defs/ParameterSpec"
-      },
-      "title": "Parameters",
-      "type": "array"
-    },
-    "global_schedule": {
-      "anyOf": [
-        {
-          "$ref": "#/$defs/ScheduleSpec"
-        },
-        {
-          "type": "null"
-        }
-      ],
-      "default": null,
-      "description": "Global policy schedule (overrides individual if set)"
-    },
-    "name": {
-      "anyOf": [
-        {
-          "$ref": "#/$defs/TranslatableString"
-        },
-        {
-          "type": "null"
-        }
-      ],
-      "default": null,
-      "description": "Human-readable policy name"
-    },
-    "description": {
-      "anyOf": [
-        {
-          "maxLength": 2000,
-          "type": "string"
-        },
-        {
-          "type": "null"
-        }
-      ],
-      "default": null,
-      "title": "Description"
-    },
-    "labels": {
-      "items": {
-        "type": "string"
-      },
-      "maxItems": 20,
-      "title": "Labels",
-      "type": "array"
+    "schema_version": {
+      "default": "1.0",
+      "pattern": "^\\d+\\.\\d+$",
+      "title": "Schema Version",
+      "type": "string"
     },
     "version_tag": {
       "anyOf": [
@@ -610,14 +618,6 @@
       "default": null,
       "description": "Semantic version tag",
       "title": "Version Tag"
-    },
-    "notes": {
-      "items": {
-        "type": "string"
-      },
-      "maxItems": 50,
-      "title": "Notes",
-      "type": "array"
     }
   },
   "required": [

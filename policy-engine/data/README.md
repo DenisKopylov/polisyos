@@ -621,6 +621,6 @@ class CustomValidator(DataQualityValidator):
 - [Schema Generation](../tools/gen_schema.py)
 
 ### Спецификации
-- [Policy IR Schema](../../policy_ir_schema.json)
+- [Policy IR Schema](../../schemas/snapshots/ir/trinity_bundle.schema.json)
 - [Data Contracts Schema](../src/polisyos/fabric/catalog/README.md)
 - [UDF Security Model](../src/polisyos/fabric/udf/README.md)

@@ -1,0 +1,71 @@
+{
+  "$defs": {
+    "ProvActivityType": {
+      "enum": [
+        "fetch_doc",
+        "normalize_doc",
+        "structure_doc",
+        "chunk_doc",
+        "extract_claims",
+        "normalize_claims",
+        "detect_conflicts",
+        "resolve_conflicts",
+        "assemble_norm_pack",
+        "evaluate_legality",
+        "ingest_dataset",
+        "query_world",
+        "simulate",
+        "validate",
+        "knowledge_bundle_build"
+      ],
+      "title": "ProvActivityType",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "activity_id": {
+      "pattern": "^[a-z][a-z0-9_.-]*$",
+      "title": "Activity Id",
+      "type": "string"
+    },
+    "activity_type": {
+      "$ref": "#/$defs/ProvActivityType"
+    },
+    "ended_at": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Ended At"
+    },
+    "label": {
+      "title": "Label",
+      "type": "string"
+    },
+    "parameters": {
+      "additionalProperties": true,
+      "title": "Parameters",
+      "type": "object"
+    },
+    "started_at": {
+      "format": "date-time",
+      "title": "Started At",
+      "type": "string"
+    }
+  },
+  "required": [
+    "activity_id",
+    "activity_type",
+    "label",
+    "started_at"
+  ],
+  "title": "ProvActivity",
+  "type": "object"
+}

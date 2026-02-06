@@ -1,0 +1,271 @@
+{
+  "$defs": {
+    "EventKind": {
+      "enum": [
+        "fetch_doc",
+        "normalize_doc",
+        "structure_doc",
+        "chunk_doc",
+        "extract_claims",
+        "normalize_claims",
+        "detect_conflicts",
+        "resolve_conflicts",
+        "assemble_norm_pack",
+        "evaluate_legality",
+        "ingest_dataset",
+        "query_world",
+        "simulate",
+        "validate",
+        "knowledge_bundle_build"
+      ],
+      "title": "EventKind",
+      "type": "string"
+    },
+    "ProvActivity": {
+      "additionalProperties": false,
+      "properties": {
+        "activity_id": {
+          "pattern": "^[a-z][a-z0-9_.-]*$",
+          "title": "Activity Id",
+          "type": "string"
+        },
+        "activity_type": {
+          "$ref": "#/$defs/ProvActivityType"
+        },
+        "ended_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Ended At"
+        },
+        "label": {
+          "title": "Label",
+          "type": "string"
+        },
+        "parameters": {
+          "additionalProperties": true,
+          "title": "Parameters",
+          "type": "object"
+        },
+        "started_at": {
+          "format": "date-time",
+          "title": "Started At",
+          "type": "string"
+        }
+      },
+      "required": [
+        "activity_id",
+        "activity_type",
+        "label",
+        "started_at"
+      ],
+      "title": "ProvActivity",
+      "type": "object"
+    },
+    "ProvActivityType": {
+      "enum": [
+        "fetch_doc",
+        "normalize_doc",
+        "structure_doc",
+        "chunk_doc",
+        "extract_claims",
+        "normalize_claims",
+        "detect_conflicts",
+        "resolve_conflicts",
+        "assemble_norm_pack",
+        "evaluate_legality",
+        "ingest_dataset",
+        "query_world",
+        "simulate",
+        "validate",
+        "knowledge_bundle_build"
+      ],
+      "title": "ProvActivityType",
+      "type": "string"
+    },
+    "ProvAgent": {
+      "additionalProperties": false,
+      "properties": {
+        "agent_id": {
+          "pattern": "^[a-z][a-z0-9_.-]*$",
+          "title": "Agent Id",
+          "type": "string"
+        },
+        "agent_type": {
+          "$ref": "#/$defs/ProvAgentType"
+        },
+        "component_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Component Id"
+        },
+        "label": {
+          "title": "Label",
+          "type": "string"
+        },
+        "metadata": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Metadata",
+          "type": "object"
+        },
+        "model_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Model Id"
+        }
+      },
+      "required": [
+        "agent_id",
+        "agent_type",
+        "label"
+      ],
+      "title": "ProvAgent",
+      "type": "object"
+    },
+    "ProvAgentType": {
+      "enum": [
+        "system",
+        "user",
+        "model",
+        "connector",
+        "extractor",
+        "scheduler",
+        "human_reviewer"
+      ],
+      "title": "ProvAgentType",
+      "type": "string"
+    },
+    "WorldObjectRef": {
+      "additionalProperties": false,
+      "properties": {
+        "artifact_id": {
+          "anyOf": [
+            {
+              "pattern": "^sha256:[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Artifact Id"
+        },
+        "world_id": {
+          "anyOf": [
+            {
+              "pattern": "^[a-z][a-z0-9_.-]*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "World Id"
+        }
+      },
+      "title": "WorldObjectRef",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "activity": {
+      "$ref": "#/$defs/ProvActivity"
+    },
+    "agent": {
+      "$ref": "#/$defs/ProvAgent"
+    },
+    "event_id": {
+      "pattern": "^[a-z][a-z0-9_.-]*$",
+      "title": "Event Id",
+      "type": "string"
+    },
+    "event_kind": {
+      "$ref": "#/$defs/EventKind"
+    },
+    "evidence_ref": {
+      "anyOf": [
+        {
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Evidence Ref"
+    },
+    "inputs": {
+      "items": {
+        "$ref": "#/$defs/WorldObjectRef"
+      },
+      "title": "Inputs",
+      "type": "array"
+    },
+    "outputs": {
+      "items": {
+        "$ref": "#/$defs/WorldObjectRef"
+      },
+      "title": "Outputs",
+      "type": "array"
+    },
+    "props": {
+      "additionalProperties": true,
+      "title": "Props",
+      "type": "object"
+    },
+    "provenance_ref": {
+      "anyOf": [
+        {
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Provenance Ref"
+    },
+    "schema_version": {
+      "default": "1.0",
+      "pattern": "^\\d+\\.\\d+$",
+      "title": "Schema Version",
+      "type": "string"
+    }
+  },
+  "required": [
+    "event_id",
+    "event_kind",
+    "agent",
+    "activity"
+  ],
+  "title": "WorldEvent",
+  "type": "object"
+}

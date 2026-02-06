@@ -22,9 +22,10 @@ tools/
 │   ├── check_setup.py          # Комплексная проверка установки
 │   ├── check_udf_perf.py       # Профилирование UDF производительности
 │   ├── check_perf_regression.py# Проверка регрессий производительности
-│   └── generate_ir_schema.py   # Генерация JSON Schema для IR
+│   └── generate_ir_schema.py   # DEPRECATED wrapper -> tools/gen_schema.py
 ├── capture_env.py              # Захват Environment Manifest
 ├── check_perf_regression.py    # Проверка регрессий производительности
+├── abi_diff.py                 # Семантический diff ABI schema snapshots
 ├── gen_schema.py               # Генератор JSON Schema из Pydantic
 ├── lint_connectors.py          # Линтер коннекторов данных
 ├── lint_foundry.py             # Архитектурный линтер foundry
@@ -86,14 +87,25 @@ python tools/lint_connectors.py --verbose
 ## Генерация схем
 
 ### gen_schema.py - Генератор JSON Schema
-Генерирует и валидирует JSON Schema из Pydantic моделей согласно **Закону C** (контракты - источник истины).
+Генерирует и валидирует ABI snapshots из Pydantic/Enum реестра согласно **Закону C** (контракты - источник истины).
 
 ```bash
-# Генерация схемы
-python tools/gen_schema.py --output schema.json
+# Генерация snapshots для всех ABI моделей
+python3 tools/gen_schema.py
 
 # Валидация (CI gate)
-python tools/gen_schema.py --check --output schema.json
+python3 tools/gen_schema.py --check
+```
+
+### abi_diff.py - Семантический ABI diff
+Сравнивает baseline/current snapshots, классифицирует breaking/non-breaking изменения и проверяет version bump правила.
+
+```bash
+python3 tools/abi_diff.py \
+  --baseline schemas/snapshots \
+  --current /tmp/current_schemas \
+  --output /tmp/abi_report.json \
+  --format github
 ```
 
 ## Захват окружения
@@ -162,10 +174,10 @@ python tools/diagnostics/check_udf_perf.py
 ```
 
 ### generate_ir_schema.py - Генерация IR схем
-Автоматическая генерация JSON Schema для IR компонентов.
+DEPRECATED. Скрипт сохранён как shim для обратной совместимости и проксирует вызов в `tools/gen_schema.py`.
 
 ```bash
-python tools/diagnostics/generate_ir_schema.py
+python3 tools/diagnostics/generate_ir_schema.py --check
 ```
 
 ## Бенчмарки
@@ -403,11 +415,11 @@ pip install --user -e .[dev]
 
 ### Schema validation fails
 ```bash
-# Перегенерируй схему
-python tools/gen_schema.py --output policy_ir_schema.json
+# Перегенерируй ABI snapshots
+python3 tools/gen_schema.py
 
-# Проверь diff с текущей версией
-python tools/gen_schema.py --check --output policy_ir_schema.json 2>&1 | head -20
+# Проверь consistency snapshots
+python3 tools/gen_schema.py --check
 ```
 
 ### Import violations detected
@@ -656,7 +668,7 @@ export PYTHONPATH="/path/to/policy-engine/src:$PYTHONPATH"
 export POLICY_ENGINE_ALLOW_JAX_METAL=0
 
 # Schema validation
-python tools/gen_schema.py --output schema.json
+python3 tools/gen_schema.py
 
 # Import violations
 python tools/lint_imports.py --verbose --top 20

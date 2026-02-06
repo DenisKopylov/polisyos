@@ -1810,8 +1810,8 @@ import json
 # Генерация схемы для PolicySurfaceIR
 schema = PolicySurfaceIR.model_json_schema()
 
-# Сохранение в файл
-with open('policy_ir_schema.json', 'w') as f:
+# Сохранение в файл в папку snapshots
+with open('schemas/snapshots/ir/trinity_bundle.schema.json', 'w') as f:
     json.dump(schema, f, indent=2, ensure_ascii=False)
 
 # Схема включает:

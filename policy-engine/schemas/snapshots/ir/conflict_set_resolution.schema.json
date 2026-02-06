@@ -1,0 +1,47 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "confidence": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+          "type": "string"
+        }
+      ],
+      "ge": 0,
+      "le": 1,
+      "title": "Confidence"
+    },
+    "policy_id": {
+      "pattern": "^[a-z][a-z0-9_.-]*$",
+      "title": "Policy Id",
+      "type": "string"
+    },
+    "rationale": {
+      "title": "Rationale",
+      "type": "string"
+    },
+    "resolution_artifact_id": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "title": "Resolution Artifact Id",
+      "type": "string"
+    },
+    "winner_claim_id": {
+      "pattern": "^[a-z][a-z0-9_.-]*$",
+      "title": "Winner Claim Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "winner_claim_id",
+    "policy_id",
+    "confidence",
+    "rationale",
+    "resolution_artifact_id"
+  ],
+  "title": "ConflictSetResolution",
+  "type": "object"
+}

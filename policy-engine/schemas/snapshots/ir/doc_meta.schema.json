@@ -1,0 +1,141 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "canonical_url": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Canonical Url"
+    },
+    "chunks_ref": {
+      "anyOf": [
+        {
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Chunks Ref"
+    },
+    "doc_source_id": {
+      "pattern": "^[a-z][a-z0-9_.-]*$",
+      "title": "Doc Source Id",
+      "type": "string"
+    },
+    "doc_version_id": {
+      "pattern": "^[a-z][a-z0-9_.-]*$",
+      "title": "Doc Version Id",
+      "type": "string"
+    },
+    "jurisdiction": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Jurisdiction"
+    },
+    "language": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Language"
+    },
+    "license": {
+      "title": "License",
+      "type": "string"
+    },
+    "mime": {
+      "title": "Mime",
+      "type": "string"
+    },
+    "normalized_ref": {
+      "anyOf": [
+        {
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Normalized Ref"
+    },
+    "official_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Official Id"
+    },
+    "props": {
+      "additionalProperties": true,
+      "title": "Props",
+      "type": "object"
+    },
+    "raw_ref": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "title": "Raw Ref",
+      "type": "string"
+    },
+    "retrieved_at": {
+      "format": "date-time",
+      "title": "Retrieved At",
+      "type": "string"
+    },
+    "schema_version": {
+      "default": "1.0",
+      "pattern": "^\\d+\\.\\d+$",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "structure_ref": {
+      "anyOf": [
+        {
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Structure Ref"
+    }
+  },
+  "required": [
+    "doc_source_id",
+    "doc_version_id",
+    "retrieved_at",
+    "mime",
+    "license",
+    "raw_ref"
+  ],
+  "title": "DocMeta",
+  "type": "object"
+}

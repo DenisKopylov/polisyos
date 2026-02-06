@@ -1,0 +1,31 @@
+{
+  "_comment": "Golden Record values for ABI-critical deterministic functions. Update only with explicit ABI decision.",
+  "canonical_bytes": {
+    "datetime_decimal_sha256": "3b76ef32c3eb21acb9b0b744903040ad80fdee9d494b58b5a7a37f71417c3b99",
+    "empty_dict_sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+    "nested_decimal_sha256": "d94eecfe98c08ee9a3089bef2bbdb7e78cc34d1dd4a9d70ccaacadab4744a56f",
+    "simple_dict_sha256": "458eb8b532aab9c2d9b5afe243f891172641c2285157feed8d05bcf2baabab59"
+  },
+  "cas": {
+    "put_bytes_artifact_id": "sha256:0fbe1f3fd61fe8a1625911f67697a5b203c9bc13faed6ee9f7f0a90d9feeb31f",
+    "put_bytes_sha256": "0fbe1f3fd61fe8a1625911f67697a5b203c9bc13faed6ee9f7f0a90d9feeb31f",
+    "put_json_artifact_id": "sha256:03a92f5740b46e3cfd6ec5bcd2cefee5166bdaf29314166ad8a3f4fb8514b1b7",
+    "put_json_reordered_artifact_id": "sha256:03a92f5740b46e3cfd6ec5bcd2cefee5166bdaf29314166ad8a3f4fb8514b1b7"
+  },
+  "provenance": {
+    "stable_id": "3f2d2aab22e19329"
+  },
+  "world_ids": {
+    "artifact_to_world_doc": "doc.sha256_abababababababababababababababababababababababababababababababab",
+    "claim_dataset": "claim.sha256_03c5b0ca877757e5ee59f237ac68cb63f3c090619900ab142bd74d664da45632",
+    "claim_doc": "claim.sha256_d5584d49ded428c0efc86d1da419aa134baa81b8b649d33f0bb100097605a257",
+    "conflict_set_id_64a": "cset.sha256_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "doc_fragment": "frag.sha256_5173a5e407b46e3f8d41c27b8c85c0533219de7e6514b5c033ccd43bc62b1fe3",
+    "doc_source_url": "doc.sha256_383cdb12e4f4384688c018b8717ec9c3b83177c9cb318e0bb3368745f7b25d47",
+    "doc_version_from_artifact": "docv.sha256_cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+    "quality_report": "quality.sha256_6cb7d9c73700613fb7d223bd622da8fc1bd5bc5c5ab03c4f499cac8e1c13e9c7",
+    "stable_world_id_test_payload": "test.sha256_e43abcf3375244839c012f9633f95862d232a95b00d5bc7348b3098b9fed7f32",
+    "trust_assessment": "trust.sha256_587389b95e4fe33f00f06936ffa53fd074912133a666fb5e1f402d4bdea303fa",
+    "world_event": "event.sha256_b1b7894fcfa910834c6ba89b9ba92cc779052abd6e15c942f52b5e8a204066e7"
+  }
+}

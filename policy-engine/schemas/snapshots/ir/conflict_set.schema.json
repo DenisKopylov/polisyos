@@ -1,0 +1,117 @@
+{
+  "$defs": {
+    "ConflictKind": {
+      "enum": [
+        "value_mismatch",
+        "unit_mismatch",
+        "definition_mismatch",
+        "temporal_mismatch",
+        "duplicate"
+      ],
+      "title": "ConflictKind",
+      "type": "string"
+    },
+    "ConflictSetResolution": {
+      "additionalProperties": false,
+      "properties": {
+        "confidence": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+              "type": "string"
+            }
+          ],
+          "ge": 0,
+          "le": 1,
+          "title": "Confidence"
+        },
+        "policy_id": {
+          "pattern": "^[a-z][a-z0-9_.-]*$",
+          "title": "Policy Id",
+          "type": "string"
+        },
+        "rationale": {
+          "title": "Rationale",
+          "type": "string"
+        },
+        "resolution_artifact_id": {
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "title": "Resolution Artifact Id",
+          "type": "string"
+        },
+        "winner_claim_id": {
+          "pattern": "^[a-z][a-z0-9_.-]*$",
+          "title": "Winner Claim Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "winner_claim_id",
+        "policy_id",
+        "confidence",
+        "rationale",
+        "resolution_artifact_id"
+      ],
+      "title": "ConflictSetResolution",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "conflict_key": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Conflict Key",
+      "type": "string"
+    },
+    "conflict_kind": {
+      "$ref": "#/$defs/ConflictKind"
+    },
+    "conflict_set_id": {
+      "pattern": "^[a-z][a-z0-9_.-]*$",
+      "title": "Conflict Set Id",
+      "type": "string"
+    },
+    "member_claim_ids": {
+      "items": {
+        "pattern": "^[a-z][a-z0-9_.-]*$",
+        "type": "string"
+      },
+      "minItems": 2,
+      "title": "Member Claim Ids",
+      "type": "array"
+    },
+    "props": {
+      "additionalProperties": true,
+      "title": "Props",
+      "type": "object"
+    },
+    "resolution": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ConflictSetResolution"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "schema_version": {
+      "default": "1.0",
+      "pattern": "^\\d+\\.\\d+$",
+      "title": "Schema Version",
+      "type": "string"
+    }
+  },
+  "required": [
+    "conflict_set_id",
+    "conflict_key",
+    "conflict_kind",
+    "member_claim_ids"
+  ],
+  "title": "ConflictSet",
+  "type": "object"
+}

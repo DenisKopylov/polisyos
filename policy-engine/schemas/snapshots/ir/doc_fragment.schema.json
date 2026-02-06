@@ -1,0 +1,156 @@
+{
+  "$defs": {
+    "AnchorKind": {
+      "enum": [
+        "article",
+        "section",
+        "clause",
+        "paragraph",
+        "page",
+        "table",
+        "figure",
+        "heading",
+        "chunk",
+        "other"
+      ],
+      "title": "AnchorKind",
+      "type": "string"
+    },
+    "FragmentLocator": {
+      "additionalProperties": false,
+      "description": "Declarative locator within a specific document version.",
+      "properties": {
+        "anchor_kind": {
+          "$ref": "#/$defs/AnchorKind"
+        },
+        "anchor_path": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Anchor Path"
+        },
+        "offset_end": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Offset End"
+        },
+        "offset_start": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Offset Start"
+        },
+        "page_end": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Page End"
+        },
+        "page_start": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Page Start"
+        },
+        "schema_version": {
+          "default": "1.0",
+          "pattern": "^\\d+\\.\\d+$",
+          "title": "Schema Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "anchor_kind"
+      ],
+      "title": "FragmentLocator",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "doc_version_id": {
+      "pattern": "^[a-z][a-z0-9_.-]*$",
+      "title": "Doc Version Id",
+      "type": "string"
+    },
+    "fragment_id": {
+      "pattern": "^[a-z][a-z0-9_.-]*$",
+      "title": "Fragment Id",
+      "type": "string"
+    },
+    "locator": {
+      "$ref": "#/$defs/FragmentLocator"
+    },
+    "props": {
+      "additionalProperties": true,
+      "title": "Props",
+      "type": "object"
+    },
+    "quote_preview": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Quote Preview"
+    },
+    "schema_version": {
+      "default": "1.0",
+      "pattern": "^\\d+\\.\\d+$",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "text_hash": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "title": "Text Hash",
+      "type": "string"
+    }
+  },
+  "required": [
+    "fragment_id",
+    "doc_version_id",
+    "locator",
+    "text_hash"
+  ],
+  "title": "DocFragment",
+  "type": "object"
+}

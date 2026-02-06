@@ -1,0 +1,21 @@
+{
+  "enum": [
+    "claim.cites",
+    "claim.contradicts",
+    "claim.derived_from",
+    "claim.in_conflict_set",
+    "claim.supports",
+    "conflict.resolves_to",
+    "doc.has_fragment",
+    "doc.has_version",
+    "prov.used",
+    "prov.was_associated_with",
+    "prov.was_attributed_to",
+    "prov.was_derived_from",
+    "prov.was_generated_by",
+    "report.about"
+  ],
+  "title": "EdgeKind",
+  "type": "string",
+  "x-fqn": "polisyos.ir.world.abi.EdgeKind"
+}

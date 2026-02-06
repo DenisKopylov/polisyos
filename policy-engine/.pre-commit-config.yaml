@@ -32,3 +32,10 @@ repos:
         require_serial: true
         # Исключаем папку tests из строгой проверки типов, если там много магии pytest
         exclude: ^tests/
+      - id: abi-schema-check
+        name: abi schema snapshots
+        entry: python3 tools/gen_schema.py --check
+        language: system
+        files: '^src/polisyos/(ir|fabric/world|core/canon|core/artifacts)/.*\.py$'
+        pass_filenames: false
+        require_serial: true

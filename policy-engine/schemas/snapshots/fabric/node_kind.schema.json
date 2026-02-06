@@ -1,0 +1,18 @@
+{
+  "enum": [
+    "artifact",
+    "claim",
+    "conflict_set",
+    "doc.fragment",
+    "doc.source",
+    "doc.version",
+    "prov.activity",
+    "prov.agent",
+    "quality.report",
+    "trust.assessment",
+    "world.event"
+  ],
+  "title": "NodeKind",
+  "type": "string",
+  "x-fqn": "polisyos.ir.world.abi.NodeKind"
+}

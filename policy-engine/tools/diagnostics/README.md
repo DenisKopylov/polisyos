@@ -165,10 +165,10 @@ python tools/diagnostics/check_udf_perf.py --baseline data/udf_perf_baseline.jso
 #### Примеры использования
 
 ```bash
-# Генерация схемы в текущую директорию
-python tools/diagnostics/generate_ir_schema.py
+# Генерация ABI snapshots
+python3 tools/gen_schema.py --output-dir schemas/snapshots
 
-# Результат: policy_ir_schema.json
+# Результат: snapshots в schemas/snapshots/ir/ и schemas/snapshots/fabric/
 ```
 
 #### Self-healing validation

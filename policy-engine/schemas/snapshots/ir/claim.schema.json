@@ -1,0 +1,460 @@
+{
+  "$defs": {
+    "AnchorKind": {
+      "enum": [
+        "article",
+        "section",
+        "clause",
+        "paragraph",
+        "page",
+        "table",
+        "figure",
+        "heading",
+        "chunk",
+        "other"
+      ],
+      "title": "AnchorKind",
+      "type": "string"
+    },
+    "CitationRef": {
+      "additionalProperties": false,
+      "description": "Citation-grade reference to a specific document fragment.",
+      "properties": {
+        "doc": {
+          "$ref": "#/$defs/DocumentRef"
+        },
+        "evidence_ref": {
+          "anyOf": [
+            {
+              "pattern": "^sha256:[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Evidence Ref"
+        },
+        "fragment_id": {
+          "anyOf": [
+            {
+              "pattern": "^[a-z][a-z0-9_.-]*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Fragment Id"
+        },
+        "locator": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/FragmentLocator"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "notes": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Notes",
+          "type": "array"
+        },
+        "props": {
+          "additionalProperties": true,
+          "title": "Props",
+          "type": "object"
+        },
+        "provenance_ref": {
+          "anyOf": [
+            {
+              "pattern": "^sha256:[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Provenance Ref"
+        },
+        "quote_hash": {
+          "anyOf": [
+            {
+              "pattern": "^sha256:[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Quote Hash"
+        },
+        "schema_version": {
+          "default": "1.0",
+          "pattern": "^\\d+\\.\\d+$",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "text_hash": {
+          "anyOf": [
+            {
+              "pattern": "^sha256:[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Text Hash"
+        }
+      },
+      "required": [
+        "doc"
+      ],
+      "title": "CitationRef",
+      "type": "object"
+    },
+    "ClaimSourceKind": {
+      "enum": [
+        "doc",
+        "dataset",
+        "simulation",
+        "expert",
+        "derived"
+      ],
+      "title": "ClaimSourceKind",
+      "type": "string"
+    },
+    "DocumentRef": {
+      "additionalProperties": false,
+      "description": "Document identity with optional version binding.",
+      "properties": {
+        "doc_id": {
+          "pattern": "^[a-z][a-z0-9_.-]*$",
+          "title": "Doc Id",
+          "type": "string"
+        },
+        "doc_version_id": {
+          "anyOf": [
+            {
+              "pattern": "^[a-z][a-z0-9_.-]*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Doc Version Id"
+        },
+        "doc_version_ref": {
+          "anyOf": [
+            {
+              "pattern": "^sha256:[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Doc Version Ref"
+        },
+        "schema_version": {
+          "default": "1.0",
+          "pattern": "^\\d+\\.\\d+$",
+          "title": "Schema Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "doc_id"
+      ],
+      "title": "DocumentRef",
+      "type": "object"
+    },
+    "FragmentLocator": {
+      "additionalProperties": false,
+      "description": "Declarative locator within a specific document version.",
+      "properties": {
+        "anchor_kind": {
+          "$ref": "#/$defs/AnchorKind"
+        },
+        "anchor_path": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Anchor Path"
+        },
+        "offset_end": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Offset End"
+        },
+        "offset_start": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Offset Start"
+        },
+        "page_end": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Page End"
+        },
+        "page_start": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Page Start"
+        },
+        "schema_version": {
+          "default": "1.0",
+          "pattern": "^\\d+\\.\\d+$",
+          "title": "Schema Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "anchor_kind"
+      ],
+      "title": "FragmentLocator",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "citations": {
+      "items": {
+        "$ref": "#/$defs/CitationRef"
+      },
+      "title": "Citations",
+      "type": "array"
+    },
+    "claim_id": {
+      "pattern": "^[a-z][a-z0-9_.-]*$",
+      "title": "Claim Id",
+      "type": "string"
+    },
+    "confidence": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+          "type": "string"
+        }
+      ],
+      "ge": 0,
+      "le": 1,
+      "title": "Confidence"
+    },
+    "domain": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Domain"
+    },
+    "jurisdiction": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Jurisdiction"
+    },
+    "predicate_id": {
+      "pattern": "^[a-z][a-z0-9_.-]*$",
+      "title": "Predicate Id",
+      "type": "string"
+    },
+    "props": {
+      "additionalProperties": true,
+      "title": "Props",
+      "type": "object"
+    },
+    "qualifiers": {
+      "additionalProperties": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "integer"
+          },
+          {
+            "type": "boolean"
+          }
+        ]
+      },
+      "title": "Qualifiers",
+      "type": "object"
+    },
+    "schema_version": {
+      "default": "1.0",
+      "pattern": "^\\d+\\.\\d+$",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "source_artifacts": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Source Artifacts",
+      "type": "array"
+    },
+    "source_kind": {
+      "$ref": "#/$defs/ClaimSourceKind"
+    },
+    "subject_id": {
+      "anyOf": [
+        {
+          "pattern": "^[a-z][a-z0-9_.-]*$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Subject Id"
+    },
+    "subject_text": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Subject Text"
+    },
+    "unit_id": {
+      "anyOf": [
+        {
+          "pattern": "^[a-z][a-z0-9_.-]*$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Unit Id"
+    },
+    "valid_from": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Valid From"
+    },
+    "valid_to": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Valid To"
+    },
+    "value_decimal": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Value Decimal"
+    },
+    "value_text": {
+      "title": "Value Text",
+      "type": "string"
+    }
+  },
+  "required": [
+    "claim_id",
+    "predicate_id",
+    "value_text",
+    "confidence",
+    "source_kind"
+  ],
+  "title": "Claim",
+  "type": "object"
+}

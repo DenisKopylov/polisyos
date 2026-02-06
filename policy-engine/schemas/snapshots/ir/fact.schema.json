@@ -1,0 +1,277 @@
+{
+  "$defs": {
+    "FactLegal": {
+      "additionalProperties": false,
+      "properties": {
+        "access_tier": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Access Tier"
+        },
+        "basis": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Basis"
+        },
+        "notes": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Notes",
+          "type": "array"
+        },
+        "pii_class": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Pii Class"
+        }
+      },
+      "title": "FactLegal",
+      "type": "object"
+    },
+    "FactProvenance": {
+      "additionalProperties": false,
+      "properties": {
+        "ingestion_run_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Ingestion Run Id"
+        },
+        "license": {
+          "title": "License",
+          "type": "string"
+        },
+        "notes": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Notes",
+          "type": "array"
+        },
+        "raw_hash": {
+          "title": "Raw Hash",
+          "type": "string"
+        },
+        "script_hash": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Script Hash"
+        },
+        "source_id": {
+          "pattern": "^[a-z][a-z0-9_.-]*$",
+          "title": "Source Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "source_id",
+        "license",
+        "raw_hash"
+      ],
+      "title": "FactProvenance",
+      "type": "object"
+    },
+    "FactTrust": {
+      "additionalProperties": false,
+      "properties": {
+        "confidence": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Confidence"
+        },
+        "method": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Method"
+        },
+        "notes": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Notes",
+          "type": "array"
+        },
+        "policy_id": {
+          "anyOf": [
+            {
+              "pattern": "^[a-z][a-z0-9_.-]*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Policy Id"
+        }
+      },
+      "title": "FactTrust",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "fact_id": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "title": "Fact Id",
+      "type": "string"
+    },
+    "legal": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/FactLegal"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "object_value": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "integer"
+        },
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "number"
+        },
+        {
+          "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Object Value"
+    },
+    "predicate_id": {
+      "pattern": "^[a-z][a-z0-9_.-]*$",
+      "title": "Predicate Id",
+      "type": "string"
+    },
+    "provenance": {
+      "$ref": "#/$defs/FactProvenance"
+    },
+    "schema_version": {
+      "default": "1.0",
+      "pattern": "^\\d+\\.\\d+$",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "subject_id": {
+      "pattern": "^[a-z][a-z0-9_.-]*$",
+      "title": "Subject Id",
+      "type": "string"
+    },
+    "target_id": {
+      "anyOf": [
+        {
+          "pattern": "^[a-z][a-z0-9_.-]*$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Target Id"
+    },
+    "trust": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/FactTrust"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "tx_time": {
+      "title": "Tx Time",
+      "type": "string"
+    },
+    "valid_time": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Valid Time"
+    }
+  },
+  "required": [
+    "fact_id",
+    "subject_id",
+    "predicate_id",
+    "provenance"
+  ],
+  "title": "Fact",
+  "type": "object"
+}

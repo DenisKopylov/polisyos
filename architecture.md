@@ -1117,10 +1117,9 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 ├── install.sh  # Bootstrap installer script (dev setup).
 ├── jax_bootstrap.py  # Applies safe JAX environment defaults before importing jax.
 ├── migrate.py  # CLI tool to migrate schema-managed artifacts to target versions.
-├── model_spec_schema.json  # Generated JSON Schema snapshot for ModelSpec.
-├── policy_ir_schema.json  # Generated JSON Schema snapshot for PolicySurfaceIR.
-├── policy_spec_schema.json  # Generated JSON Schema snapshot for PolicySpec.
-├── problem_frame_schema.json  # Generated JSON Schema snapshot for ProblemFrame.
+├── schemas/  # ABI schema registry and snapshots (see schemas/README.md).
+│   ├── snapshots/ir/  # Committed JSON Schema snapshots for IR artifacts.
+│   └── snapshots/fabric/  # Committed enum snapshots for Fabric world ABI.
 ├── pyproject.toml  # Project metadata, dependencies, and tool configuration.
 ├── run_experiment.py  # CLI entrypoint to run a Scientist workflow for an experiment.
 └── uv.lock  # Locked dependency graph for uv.

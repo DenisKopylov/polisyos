@@ -1,0 +1,103 @@
+{
+  "$defs": {
+    "TrustTier": {
+      "enum": [
+        "high",
+        "medium",
+        "low"
+      ],
+      "title": "TrustTier",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "algorithm_version": {
+      "title": "Algorithm Version",
+      "type": "string"
+    },
+    "features": {
+      "additionalProperties": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "integer"
+          },
+          {
+            "type": "boolean"
+          }
+        ]
+      },
+      "title": "Features",
+      "type": "object"
+    },
+    "policy_id": {
+      "pattern": "^[a-z][a-z0-9_.-]*$",
+      "title": "Policy Id",
+      "type": "string"
+    },
+    "props": {
+      "additionalProperties": true,
+      "title": "Props",
+      "type": "object"
+    },
+    "rationale": {
+      "anyOf": [
+        {
+          "additionalProperties": true,
+          "type": "object"
+        },
+        {
+          "items": {},
+          "type": "array"
+        }
+      ],
+      "title": "Rationale"
+    },
+    "schema_version": {
+      "default": "1.0",
+      "pattern": "^\\d+\\.\\d+$",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "score": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+          "type": "string"
+        }
+      ],
+      "ge": 0,
+      "le": 1,
+      "title": "Score"
+    },
+    "target_world_id": {
+      "pattern": "^[a-z][a-z0-9_.-]*$",
+      "title": "Target World Id",
+      "type": "string"
+    },
+    "tier": {
+      "$ref": "#/$defs/TrustTier"
+    },
+    "trust_assessment_id": {
+      "pattern": "^[a-z][a-z0-9_.-]*$",
+      "title": "Trust Assessment Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "trust_assessment_id",
+    "policy_id",
+    "algorithm_version",
+    "target_world_id",
+    "score",
+    "tier"
+  ],
+  "title": "TrustAssessment",
+  "type": "object"
+}

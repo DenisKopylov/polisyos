@@ -1,535 +1,202 @@
-# Common: Общие компоненты Policy Engine
+# Common: Инфраструктурный фундамент Policy Engine
 
-> **Последнее обновление:** 5 февраля 2026 г. (обновлена структура миграций, актуализированы связи модулей)
-
-Модуль `polisyos.common` содержит фундаментальные утилиты и конфигурации, используемые во всех слоях архитектуры Policy Engine. Эти компоненты обеспечивают базовую инфраструктуру без зависимостей от бизнес-логики.
+Модуль `polisyos.common` — нижний слой архитектуры, не зависящий ни от одного другого модуля проекта. Предоставляет четыре инфраструктурных сервиса: логирование, конфигурацию среды, async-мост и систему миграций артефактов. Содержит только стандартную библиотеку и минимальный набор внешних пакетов (loguru, python-dotenv, opentelemetry-api).
 
 ## Структура модуля
 
 ```
 common/
-├── __init__.py              # Пустой - модуль не экспортирует публичный API
-├── async_tools.py           # Утилиты для работы с асинхронным кодом
-├── config.py                # Централизованная конфигурация приложения
-├── jax_env.py               # Безопасная настройка JAX backend для macOS
-├── logger.py                # Единый интерфейс структурированного логирования
-├── migrations/              # Система версионирования артефактов
-│   ├── __init__.py         # Экспорт API миграций
-│   ├── base.py             # Ядро системы миграций
-│   ├── manifest.py         # Миграции Dataset Manifest
-│   └── README.md           # Документация системы миграций
-└── README.md               # Эта документация
+├── __init__.py              # Пустой — каждый компонент импортируется явно
+├── config.py                # Конфигурация JAX/CPU/DuckDB/Torch/логирования (side effects при импорте)
+├── jax_env.py               # Защита от Metal backend на macOS
+├── logger.py                # get_logger() с OpenTelemetry trace context
+├── async_tools.py           # run_coro_sync() — запуск корутин из синхронного кода
+└── migrations/
+    ├── __init__.py           # Экспорт: migrate_artifact, register_migration, MANIFEST_CURRENT_VERSION
+    ├── base.py               # Ядро миграций: реестр, цепочки, обнаружение циклов
+    └── manifest.py           # Dataset Manifest: миграция 0.9 → 1.0
 ```
 
 ## Роль в архитектуре
 
-Согласно [архитектуре проекта](../architecture.md), `common` является фундаментальным инфраструктурным слоем, который:
+`common` находится в основании графа зависимостей проекта (см. [architecture.md](../../../../architecture.md)):
 
-- **Не имеет зависимостей** от других слоев (scientist, fabric, foundry, ir)
-- **Предоставляет сервисы** всем слоям проекта
-- **Содержит только инфраструктуру** - конфигурации, логирование, миграции, JAX настройка
-- **Избегает тяжелых зависимостей** - только стандартная библиотека + минимальный набор пакетов (loguru, python-dotenv)
-
-### Текущие связи с модулями проекта
-
-Модуль `common` активно используется в следующих компонентах:
-
-#### Логирование (`logger.py`, `get_logger`):
-- **core/observability/logs.py** - структурированное логирование с trace correlation через `get_logger`
-- **fabric/ingestion.py** - логирование операций ingestion данных через `get_logger`
-- **fabric/io/db.py** - логирование операций с DuckDB через `logger`
-- **fabric/world/store/segments.py** - логирование операций хранения сегментов через `get_logger`
-- **fabric/catalog/search.py** - логирование операций поиска через `logger`
-- **fabric/catalog/registry.py** - логирование операций реестра через `logger`
-- **fabric/connectors/** (все компоненты) - логирование в коннекторах через `get_logger`
-- **foundry/executor.py** - логирование выполнения экспериментов через `get_logger`
-- **foundry/agent_sim/artifact.py** - логирование артефактов симуляции агентов через `get_logger`
-- **foundry/agent_sim/training.py** - логирование обучения агентов через `get_logger`
-
-#### Асинхронные утилиты (`async_tools.py`, `run_coro_sync`):
-- **fabric/_connector_bridge.py** - безопасное выполнение асинхронных операций в коннекторах
-- **fabric/ingestion.py** - выполнение асинхронных операций ingestion из синхронного контекста
-
-#### Миграции (`migrations/`):
-- **ir/migrations/** - расширенная обертка над `common.migrations` для миграций артефактов
-
-#### Конфигурация (`config.py`):
-- **jax_bootstrap.py** - применение JAX настроек через side effects при импорте
-- **Весь проект** - косвенное использование через переменные окружения и настройки логирования
-
-#### JAX Environment (`jax_env.py`):
-- **jax_bootstrap.py** - безопасная настройка JAX backend для macOS
-
-## Архитектурные принципы
-
-### Закон B: Ты строишь компилятор
-
-Common поддерживает компиляторную архитектуру, обеспечивая:
-- Детерминированные конфигурации (предсказуемость сред выполнения)
-- Структурированное логирование (аудит и трассировка)
-- Версионирование артефактов (миграции без потери данных)
-
-### Закон D: Любой прогон воспроизводим и аудируем
-
-Common обеспечивает:
-- Логирование всех операций с контекстом модуля
-- Сериализацию артефактов в JSON для машинного парсинга
-- Миграции для обратной совместимости схем
-
-## Структура модуля
-
-### Корневые файлы:
-
-- **`__init__.py`** - пустой (модуль не экспортирует публичный API напрямую)
-- **`async_tools.py`** - утилиты для безопасного выполнения асинхронного кода из синхронного контекста
-- **`config.py`** - централизованная конфигурация приложения
-- **`jax_env.py`** - безопасная настройка JAX backend для macOS
-- **`logger.py`** - единый интерфейс структурированного логирования
-
-### Подмодуль `migrations/`:
-
-- **`__init__.py`** - экспорт API миграций
-- **`base.py`** - ядро системы миграций
-- **`manifest.py`** - миграции Dataset Manifest
-
-## Детальное описание модулей
-
-### `config.py` - Конфигурация приложения и инфраструктуры
-
-**Цель:** Централизованная настройка всех зависимостей проекта с защитой от перегрузки системы.
-
-#### Функциональность:
-
-1. **JAX Environment Setup (Критично - выполняется ДО импорта JAX)**
-   - Принудительная установка CPU как платформы: `JAX_PLATFORM_NAME=cpu`
-   - Отключение 64-битных вычислений: `JAX_ENABLE_X64=false`
-   - Отключение большинства оптимизаций: `JAX_DISABLE_MOST_OPTIMIZATIONS=true`
-   - Отключение проверки утечек трассировщиков: `JAX_CHECK_TRACER_LEAKS=false`
-   - Отключение жадной аллокации памяти XLA: `XLA_PYTHON_CLIENT_PREALLOCATE=false`
-   - Автоматическая настройка CPU потоков: `intra_op_parallelism_threads={auto_cores}`
-
-2. **Hardware Safeguards (Защита железа)**
-   - Автоматическое определение количества ядер CPU через `multiprocessing.cpu_count()`
-   - Резерв 20% ядер для системы (минимум 1 ядро)
-   - Расчет безопасного количества ядер: `max(1, total_cores - reserved_cores)`
-   - Логирование выбранной конфигурации CPU для отладки
-
-3. **Memory Management**
-   - Отключение жадной аллокации памяти: `XLA_PYTHON_CLIENT_PREALLOCATE=false`
-   - Настройка параллелизма CPU: `intra_op_parallelism_threads={allowed_cores}`
-
-4. **Database Configuration**
-   - DuckDB память: 4GB по умолчанию (`DUCKDB_MEMORY_LIMIT`)
-   - DuckDB потоки: автоматически на основе доступных ядер CPU (`DUCKDB_THREADS`)
-
-5. **Logging Infrastructure**
-   - **Консоль:** Читаемый вывод для разработчиков с цветами и форматированием
-   - **Файл:** JSON сериализация в `logs/system.log` для аудита
-   - Ротация: 10MB с хранением 10 дней
-   - Уровни: DEBUG по умолчанию, настраивается через `LOG_LEVEL`
-
-#### Переменные окружения:
-
-```bash
-# JAX (автоматически устанавливаются)
-JAX_PLATFORM_NAME=cpu
-JAX_ENABLE_X64=false
-JAX_DISABLE_MOST_OPTIMIZATIONS=true
-JAX_CHECK_TRACER_LEAKS=false
-
-# Memory & CPU (автоматически настраиваются)
-XLA_PYTHON_CLIENT_PREALLOCATE=false
-XLA_FLAGS=--xla_cpu_multi_thread_eigen=true intra_op_parallelism_threads={auto_cores}
-
-# DuckDB
-DUCKDB_MEMORY_LIMIT=4GB              # Дефолт: 4GB
-DUCKDB_THREADS={auto_cores}          # Автоматически = доступным ядрам CPU
-
-# Логирование
-LOG_LEVEL=DEBUG                      # Уровень логирования (DEBUG, INFO, WARNING, ERROR)
+```
+common  ←  core, ir, fabric, foundry, scientist, runtime, lex, scholar
+   ↑
+   нет зависимостей вверх
 ```
 
-#### Важные детали:
+- Импортируется **всеми** слоями проекта, сам **ничего** не импортирует из polisyos
+- Содержит **только инфраструктуру** — конфигурации, утилиты, миграции
+- Запрещены тяжёлые зависимости (JAX, DuckDB, pandas, LLM) и бизнес-логика
 
-- **Импорт до JAX:** Должен быть импортирован ДО любого `import jax`
-- **Side effects:** Мутирует `os.environ` глобально для стабильности JAX
-- **Автокоррекция:** Сам определяет безопасные лимиты на основе доступного железа
-- **.env поддержка:** Загружает переменные из `.env` файла через `python-dotenv`
+## Компоненты
 
-### `jax_env.py` - JAX Backend Selection для macOS
+### `logger.py` — Структурированное логирование
 
-**Цель:** Предотвращение падений JAX на macOS с экспериментальным Metal backend.
-
-#### Проблема:
-
-На macOS JAX автоматически выбирает Metal backend, который в текущей версии вызывает падения даже на базовых операциях:
-```
-UNIMPLEMENTED: default_memory_space is not supported.
-```
-
-#### Решение:
-
-```python
-def apply_jax_env_defaults() -> None:
-    """Применяет безопасные настройки JAX для macOS."""
-    if sys.platform != "darwin":
-        return  # Только для macOS
-
-    # Если пользователь явно не разрешил Metal
-    if os.environ.get("POLICY_ENGINE_ALLOW_JAX_METAL") != "1":
-        # Принудительно CPU, если не запрошена другая платформа или Metal
-        requested = (os.environ.get("JAX_PLATFORMS") or
-                    os.environ.get("JAX_PLATFORM_NAME") or "").lower()
-        if not requested or "metal" in requested:
-            os.environ.setdefault("JAX_PLATFORMS", "cpu")
-            os.environ.setdefault("JAX_PLATFORM_NAME", "cpu")
-```
-
-#### Опциональное включение Metal:
-
-```bash
-# Явное разрешение Metal backend
-POLICY_ENGINE_ALLOW_JAX_METAL=1
-JAX_PLATFORMS=metal
-# или
-JAX_PLATFORM_NAME=metal
-```
-
-#### Использование:
-
-```python
-# В jax_bootstrap.py (импортируется перед любым JAX)
-from polisyos.common.jax_env import apply_jax_env_defaults
-apply_jax_env_defaults()
-```
-
-### `logger.py` - Структурированное логирование с контекстом модуля и трассировки
-
-**Цель:** Единый интерфейс логирования с автоматическим контекстом модуля и интеграцией OpenTelemetry.
-
-#### API:
+Единый интерфейс логирования с контекстом модуля и интеграцией OpenTelemetry.
 
 ```python
 from polisyos.common.logger import get_logger
-
-# Получение логгера с контекстом модуля
 log = get_logger(__name__)
-
-# Использование (теперь включает trace_id и span_id автоматически)
 log.info("Operation completed", extra_data={"key": "value"})
-log.error("Something went wrong", error_details={"code": 500})
 ```
 
-#### Особенности:
+**API:**
+- `get_logger(module_name)` — возвращает loguru logger с привязкой `module=module_name`. Автоматически добавляет `trace_id` и `span_id` из активного OpenTelemetry span
+- `logger` — глобальный экземпляр loguru (используется в 3 файлах fabric)
 
-- **Контекст модуля:** Автоматически привязывает имя модуля через `logger.bind(module=module_name)`
-- **OpenTelemetry интеграция:** Автоматически добавляет `trace_id` и `span_id` из активного контекста трассировки
-- **Loguru backend:** Мощная система логирования с уровнями, форматированием и сериализацией
-- **JSON сериализация:** Файловые логи сериализуются в JSON для машинного парсинга с trace correlation
-- **Настройка в config.py:** Логгер настраивается в `config.py` для избежания циклических импортов
+**Особенности:**
+- Если loguru не установлен — fallback на stdlib `logging`
+- Если OpenTelemetry не сконфигурирован — trace context опускается
+- Настройка логгера (handler'ы, форматы) выполняется в `config.py`, не здесь — для избежания циклических импортов
 
-#### OpenTelemetry интеграция:
+### `config.py` — Конфигурация среды выполнения
+
+Выполняется при импорте через side effects: устанавливает переменные окружения и настраивает loguru.
+
+**Критично:** должен быть импортирован **ДО** любого `import jax`.
 
 ```python
-# Логи автоматически включают trace context
-from polisyos.core.observability import get_tracer
-
-tracer = get_tracer()
-with tracer.start_as_current_span("operation"):
-    log = get_logger(__name__)
-    log.info("This log will include trace_id and span_id")
+from polisyos.common import config  # side effects на os.environ
 ```
 
-Логи теперь содержат поля `trace_id` и `span_id`, что позволяет коррелировать логи с distributed traces в системах мониторинга.
+**Группы настроек:**
 
-### `async_tools.py` - Утилиты для асинхронного программирования
+| Переменная | Значение | Назначение |
+|-----------|----------|------------|
+| `JAX_PLATFORM_NAME` | `cpu` | Принудительно CPU |
+| `JAX_ENABLE_X64` | `false` | Отключение 64-bit |
+| `JAX_DISABLE_MOST_OPTIMIZATIONS` | `true` | Стабильность |
+| `XLA_PYTHON_CLIENT_PREALLOCATE` | `false` | Без жадной аллокации |
+| `XLA_FLAGS` | `--xla_cpu_multi_thread_eigen=true intra_op_parallelism_threads={N}` | CPU параллелизм |
+| `SCIENTIST_TORCH_DEVICE` | `cpu` | PyTorch на CPU |
+| `SCIENTIST_TORCH_NUM_THREADS` | `{N}` | Потоки PyTorch |
+| `OMP_NUM_THREADS` | `{N}` | OpenMP потоки |
+| `OPENBLAS_NUM_THREADS` | `{N}` | OpenBLAS потоки |
+| `VECLIB_MAXIMUM_THREADS` | `{N}` | vecLib потоки |
+| `NUMEXPR_NUM_THREADS` | `{N}` | NumExpr потоки |
+| `DUCKDB_MEMORY_LIMIT` | `4GB` | Лимит памяти DuckDB |
+| `DUCKDB_THREADS` | `{N}` | Потоки DuckDB |
+| `LOG_LEVEL` | `DEBUG` | Уровень логирования |
 
-**Цель:** Безопасное выполнение асинхронного кода из синхронного контекста с обработкой активных event loops.
+`{N}` = `max(1, cpu_count - ceil(cpu_count * 0.2))` — 80% ядер CPU, минимум 1.
 
-#### Проблема:
+**Логирование:** консоль (stderr, цветной формат) + файл (`logs/system.log`, JSON, ротация 10MB, хранение 10 дней).
 
-В проекте возникает необходимость выполнять асинхронные операции из синхронного кода, особенно в коннекторах fabric. Прямое использование `asyncio.run()` может конфликтовать с уже запущенными event loops.
+### `jax_env.py` — macOS Metal защита
 
-#### Решение:
+На macOS JAX может автоматически выбрать Metal backend, который падает на базовых операциях. Функция `apply_jax_env_defaults()` принудительно переключает на CPU.
 
 ```python
-def run_coro_sync(coro: Awaitable[T]) -> T:
-    """Run a coroutine from sync code, safely handling active event loops."""
-    try:
-        loop = asyncio.get_running_loop()
-    except RuntimeError:
-        loop = None
-
-    if loop and loop.is_running():
-        # Если уже есть запущенный event loop, используем ThreadPoolExecutor
-        with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
-            future = pool.submit(asyncio.run, coro)
-            return future.result()
-
-    return asyncio.run(coro)
+from polisyos.common.jax_env import apply_jax_env_defaults
+apply_jax_env_defaults()  # Используется в jax_bootstrap.py
 ```
 
-#### Особенности:
+- Срабатывает только на macOS (`sys.platform == "darwin"`)
+- Opt-in для Metal: `POLICY_ENGINE_ALLOW_JAX_METAL=1`
+- Не импортируется модулями внутри `src/polisyos/` — используется только через `jax_bootstrap.py` в корне проекта
 
-- **Обнаружение активных loops:** Проверяет наличие уже запущенного event loop
-- **Thread-safe:** Использует ThreadPoolExecutor для безопасного выполнения в многопоточной среде
-- **Fallback:** Падает назад на стандартный `asyncio.run()` если loop не запущен
-- **Типизированный:** Поддерживает дженерики для корректной типизации
+### `async_tools.py` — Асинхронный мост
 
-#### Использование:
+Единственная функция `run_coro_sync(coro)` — безопасный запуск корутины из синхронного кода.
 
 ```python
 from polisyos.common.async_tools import run_coro_sync
-
-# В синхронном коде
-async def async_operation():
-    return await some_async_call()
-
-# Безопасное выполнение
-result = run_coro_sync(async_operation())
+result = run_coro_sync(some_async_operation())
 ```
 
-### `migrations/` - Система версионирования артефактов
+- Если event loop уже запущен — делегирует в `ThreadPoolExecutor(max_workers=1)`
+- Если нет — вызывает `asyncio.run()` напрямую
+- Типизирован через `TypeVar[T]` для корректного вывода типов
 
-**Цель:** Детерминированные преобразования артефактов между версиями схем с обнаружением циклов.
+## Подсистема миграций
 
-#### Архитектура:
+Детерминированная система версионирования артефактов с обнаружением циклов.
 
-- **Базовый фреймворк** (`base.py`): Регистрация и выполнение миграций
-- **Декораторная система:** `@register_migration(artifact, from_version, to_version)`
-- **Глобальный реестр:** `_MIGRATIONS` - словарь артефакт → версия → (целевая_версия, функция)
-- **Цикл обнаружения:** Предотвращает бесконечные циклы миграций через множество `visited`
+**Архитектура:** глобальный реестр `_MIGRATIONS[artifact][from_version] = (to_version, fn)`, декораторная регистрация, цепочечное применение.
 
-#### Компоненты:
+**Публичный API (`migrations/__init__.py`):**
 
-1. **`base.py` - Ядро системы миграций**
-   ```python
-   def register_migration(artifact: str, from_version: str, to_version: str):
-       def decorator(fn: MigrationFn) -> MigrationFn:
-           _MIGRATIONS.setdefault(artifact, {})[from_version] = (to_version, fn)
-           return fn
-       return decorator
+| Экспорт | Назначение |
+|---------|------------|
+| `migrate_artifact(data, artifact, target_version)` | Мигрирует dict от текущей `schema_version` до target. Требует поле `schema_version` в data |
+| `register_migration(artifact, from_ver, to_ver)` | Декоратор: регистрирует функцию `(dict) -> dict` в реестре |
+| `MANIFEST_CURRENT_VERSION` | `"1.0"` — текущая версия Dataset Manifest |
 
-   def migrate_artifact(data: dict, artifact: str, target_version: str) -> dict:
-       # Миграция с проверкой циклов и версий
-   ```
+**Текущие миграции:**
 
-2. **`manifest.py` - Миграции Dataset Manifest**
-   - Текущая версия: `MANIFEST_CURRENT_VERSION = "1.0"`
-   - Миграция `0.9 → 1.0`: нормализация полей (`datasetName` → `dataset_name`, `rawHash` → `raw_hash`)
+| Артефакт | Версии | Что делает |
+|----------|--------|------------|
+| `dataset_manifest` | 0.9 → 1.0 | Нормализация полей: `datasetName` → `dataset_name`, `rawHash` → `raw_hash` |
 
-#### Пример использования:
-
+**Пример:**
 ```python
 from polisyos.common.migrations import migrate_artifact
 
-# Миграция Dataset Manifest
-manifest_data = {"schema_version": "0.9", "datasetName": "test"}
-migrated = migrate_artifact(manifest_data, "dataset_manifest", "1.0")
-# Результат: {"schema_version": "1.0", "dataset_name": "test"}
+data = {"schema_version": "0.9", "datasetName": "test", "rawHash": "abc"}
+result = migrate_artifact(data, "dataset_manifest", "1.0")
+# {"schema_version": "1.0", "dataset_name": "test", "raw_hash": "abc"}
 ```
+
+**Добавление новой миграции:**
+1. Создать функцию в существующем или новом файле в `migrations/`
+2. Декорировать `@register_migration("artifact_name", "from", "to")`
+3. Экспортировать константу версии через `__init__.py`
+4. Добавить тест
+
+> **Примечание:** модуль `ir/migrations` содержит независимую копию фреймворка миграций и **не** импортирует из `common/migrations`.
 
 ## Использование в проекте
 
-### Порядок инициализации (критично для стабильности):
+Верифицированная карта импортов (33 импорта в 30 файлах):
 
-```python
-# 1. КРИТИЧНО: Конфигурация ДО любого импорта JAX!
-from polisyos.common import config  # Side effects на os.environ (JAX настройки)
+### `get_logger` — 22 файла
 
-# 2. JAX backend (опционально, для дополнительной защиты на macOS)
-from polisyos.common.jax_env import apply_jax_env_defaults
-apply_jax_env_defaults()  # Только если нужна дополнительная настройка
+**fabric/connectors/** (15 файлов):
+- `registry.py`, `discovery.py`, `pool.py`
+- `contracts/inference.py`, `contracts/registry.py`
+- `resilience/__init__.py`, `resilience/circuit_breaker.py`, `resilience/fallback.py`, `resilience/rate_limiter.py`, `resilience/retry.py`
+- `federation/composer.py`, `federation/planner.py`, `federation/ranker.py`, `federation/resolver.py`
+- `cache/store.py`, `cache/proxy.py`, `cache/prefetch.py`, `cache/invalidation.py`
 
-# 3. Логирование (теперь доступно через config)
-from polisyos.common.logger import get_logger
-log = get_logger(__name__)
-```
+**fabric/** (4 файла): `ingestion.py`, `_connector_bridge.py`, `world/store/segments.py`
 
-### Альтернативная инициализация через jax_bootstrap:
+**foundry/** (3 файла): `executor.py`, `agent_sim/training.py`, `agent_sim/artifact.py`
 
-```python
-# В jax_bootstrap.py (рекомендуемый способ для проектов с JAX)
-from polisyos.common.jax_env import apply_jax_env_defaults
-apply_jax_env_defaults()  # Применяет безопасные JAX настройки для macOS
+**core/** (1 файл): `observability/logs.py`
 
-# Затем в коде проекта:
-from polisyos.common import config  # Импорт config после jax_bootstrap
-from polisyos.common.logger import get_logger
-log = get_logger(__name__)
-```
+### `logger` (глобальный экземпляр) — 3 файла
+`fabric/io/db.py`, `fabric/catalog/registry.py`, `fabric/catalog/search.py`
 
-#### jax_bootstrap.py в проекте
+### `run_coro_sync` — 2 файла
+`fabric/_connector_bridge.py`, `fabric/ingestion.py`
 
-Файл `jax_bootstrap.py` в корне проекта выполняет инициализацию JAX перед любым импортом JAX:
+### `apply_jax_env_defaults` — 1 файл
+`jax_bootstrap.py` (корень проекта, вне `src/polisyos/`)
 
-```python
-# jax_bootstrap.py
-from polisyos.common.jax_env import apply_jax_env_defaults
-apply_jax_env_defaults()  # Безопасная настройка JAX backend
-```
+### `config.py` — 0 прямых импортов
+Активируется через side effects при `from polisyos.common import config`.
 
-### Использование в модулях проекта:
-
-#### Логирование с OpenTelemetry интеграцией:
-
-```python
-# В core/observability (производственная телеметрия)
-from polisyos.common.logger import get_logger
-from polisyos.core.observability import get_tracer
-
-tracer = get_tracer()
-log = get_logger(__name__)
-
-with tracer.start_as_current_span("operation"):
-    log.info("Operation with trace context", operation_id="123")
-    # Лог автоматически включает trace_id и span_id
-```
-
-#### Логирование в fabric модулях:
-
-```python
-# В fabric/io/db.py (операции с DuckDB)
-from polisyos.common.logger import logger
-
-def save_simulation_data(self, data):
-    logger.info("Saving simulation data", run_id=self.run_id)
-    # ... операции с БД ...
-
-# В fabric/materializer.py (материализация данных)
-from polisyos.common.logger import get_logger
-log = get_logger(__name__)
-
-def materialize(self, request):
-    log.info("Starting materialization", request_id=request.id)
-    # ... логика материализации ...
-```
-
-#### Миграции в ir модуле:
-
-```python
-# В ir/migrations/__init__.py (расширенная обертка над common.migrations)
-from polisyos.common.migrations.base import migrate_artifact
-from polisyos.common.migrations.base import register_migration as _register_migration
-
-def migrate_policy_ir(data: dict, target_version: str | None = None) -> dict:
-    return migrate_artifact(data, "policy_ir", target_version or "2.0")
-```
+### `migrations` — 0 внешних импортов
+Не импортируется модулями за пределами `common/`.
 
 ## Зависимости
 
-### Runtime:
-- `loguru` - структурированное логирование с JSON сериализацией
-- `python-dotenv` - загрузка переменных окружения из `.env` файла
-- `multiprocessing` - определение количества CPU ядер для автонастройки
-- `opentelemetry-api` - API для интеграции с OpenTelemetry (опционально, для trace correlation)
+**Runtime:**
+- `loguru` — структурированное логирование с JSON сериализацией
+- `python-dotenv` — загрузка переменных из `.env`
+- `opentelemetry-api` — trace context для логов (опционально, graceful degradation)
 
-### Development:
-- Все зависимости определены в `pyproject.toml` корневой директории проекта
-- OpenTelemetry зависимости доступны в optional-dependencies: `observability`
+**Stdlib:** `asyncio`, `concurrent.futures`, `multiprocessing`, `os`, `sys`, `logging`
 
-## Тестирование
+## Проверка актуальности
 
-Модуль тестируется через:
-- **Unit тесты:** `tests/common/` (если существуют)
-- **Integration:** `tools/diagnostics/check_setup.py`
-- **Contract тесты:** Проверка конфигураций и миграций
+```bash
+# Все внешние импорты common (кто использует)
+grep -rn "from polisyos.common" src/polisyos/ --include="*.py" | grep -v "common/"
 
-## Безопасность и производительность
-
-### Hardware Safeguards:
-- Автоматическое ограничение ресурсов
-- Предотвращение перегрузки системы
-- Адаптация под доступное железо
-
-### Logging Security:
-- JSON сериализация для аудита
-- Ротация логов (не растут бесконечно)
-- Структурированные сообщения для анализа
-- Trace correlation для связывания логов с distributed traces
-
-### Migration Safety:
-- Детерминированные преобразования
-- Обнаружение циклов
-- Версионирование схем
-
-## Архитектурные ограничения
-
-### Запрещено:
-- **Бизнес-логика:** Только инфраструктура и утилиты
-- **Тяжелые зависимости:** JAX, DuckDB, LLM, pandas, etc. (кроме базовых: loguru, python-dotenv)
-- **Слой-specific код:** Нейтральные компоненты, используемые всеми слоями
-
-### Разрешено:
-- **Конфигурации:** Настройки окружения и системных параметров
-- **Утилиты:** Логирование, миграции, JAX настройки
-- **Инфраструктура:** Базовые сервисы для всех компонентов проекта
-
-## Связанные компоненты
-
-### Активное использование в модулях проекта:
-
-#### Асинхронные утилиты (async_tools/run_coro_sync):
-- **`fabric/_connector_bridge.py`** - безопасное выполнение асинхронных операций в синхронном контексте
-- **`fabric/ingestion.py`** - выполнение асинхронных операций ingestion из синхронного кода
-
-#### Логирование (logger/get_logger):
-- **`core/observability/logs.py`** - структурированное логирование с trace correlation для production telemetry
-- **`fabric/ingestion.py`** - операции ingestion данных
-- **`fabric/io/db.py`** - операции с DuckDB
-- **`fabric/io/graph_store.py`** - операции с графовым хранилищем
-- **`fabric/materializer.py`** - операции материализации данных
-- **`fabric/udf/engine.py`** - UDF движок
-- **`fabric/udf/compiler.py`** - компиляция UDF
-- **`scientist/orchestrator/data_loader.py`** - загрузка данных экспериментов
-- **`scientist/_legacy/compiler.py`** - компиляция экспериментов (legacy)
-- **`foundry/compiler.py`** - операции компиляции в Foundry
-- **`foundry/agent_sim/artifact.py`** - артефакты симуляции агентов
-- **`foundry/agent_sim/training.py`** - обучение агентов
-- **`foundry/executor.py`** - выполнение экспериментов
-
-#### Миграции (migrations):
-- **`ir/migrations/__init__.py`** - расширенная обертка для миграций артефактов с дополнительной логикой версий
-
-### Архитектурные связи:
-
-- **core:** Использует логирование для операций с артефактами и регистрами; `core/observability` расширяет логирование trace correlation
-- **fabric:** Зависит от логирования для всех I/O операций и UDF движка
-- **foundry:** Активно использует логирование в компиляции, симуляциях агентов, обучении и выполнении экспериментов
-- **ir:** Зависит от миграций для версионирования схем артефактов
-- **runtime:** Использует логирование для аудита прогонов
-- **scientist:** Зависит от логирования в оркестрации экспериментов и агентов
-
-## Проверка актуальности документации
-
-Для поддержания актуальности этого README рекомендуется:
-
-1. **Проверка импортов:** Регулярно проверять использование `common` в проекте:
-   ```bash
-   grep -r "from polisyos.common" src/polisyos/
-   ```
-
-2. **Анализ зависимостей:** Убедиться, что `common` не импортирует другие слои:
-   ```bash
-   grep -r "from polisyos\.\(scientist\|fabric\|foundry\|runtime\|ir\|core\)" src/polisyos/common/
-   ```
-
-3. **Тестирование изоляции:** `common` должен работать автономно без зависимостей от других модулей
-
-4. **Проверка новых связей:** Отслеживать расширение использования в модулях foundry и scientist:
-   ```bash
-   # Проверить новые импорты common в foundry
-   grep -r "from polisyos.common" src/polisyos/foundry/
-   # Проверить новые импорты common в scientist
-   grep -r "from polisyos.common" src/polisyos/scientist/
-   ```
-
-## Контрибьютинг
-
-При добавлении новых компонентов в `common`:
-
-1. **Проверить зависимости:** Не добавлять тяжелые импорты (JAX, DuckDB, LLM и т.д.)
-2. **Тестировать изоляцию:** Работает без других слоев проекта
-3. **Обновить документацию:** Добавить описание нового компонента в этот README
-4. **Следовать принципам:** Только инфраструктура и утилиты, не бизнес-логика
-5. **Обновить связи:** Добавить информацию о новом использовании в раздел "Связанные компоненты"
+# Проверка изоляции (common НЕ должен импортировать другие слои)
+grep -rn "from polisyos\.\(scientist\|fabric\|foundry\|runtime\|ir\|core\|lex\|scholar\)" src/polisyos/common/
+```

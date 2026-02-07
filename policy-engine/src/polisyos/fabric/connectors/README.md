@@ -1,326 +1,172 @@
-# Data Fabric Connectors
+# Connectors — External Data Source System
 
-**Phase 2.1+: Расширенная система коннекторов**
-**Phase 2.1: Protocol Foundation & Capability System**
-**Phase 2.2: Registry Architecture & Lazy Loading**
-**Phase 2.3+: Federation, Quality, Resilience & Advanced Features**
+Protocol-based система подключения к внешним источникам данных с capability-driven security, кэшированием, resilience и federation.
 
-This package provides comprehensive abstractions for connecting to external
-sources in the PolicyOS data fabric layer. The connector system uses a
-**Protocol-based design** for structural subtyping, allowing connectors to be
-implemented without inheriting a base class, with advanced features for
-federation, caching, quality assurance, and resilience.
-
-## Architecture Overview
+## Архитектура
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                         IR Layer                                 │
-│  ┌─────────────────────────────────────────────────────────────┐│
-│  │ connectors.py                                                ││
-│  │ • ConnectorCapability (Flag Enum)                           ││
-│  │ • TrustLevel, QualityTier (IntEnums)                        ││
-│  │ • DataVersion, ConnectorMetadataSpec (Pydantic Models)       ││
-│  └─────────────────────────────────────────────────────────────┘│
-└─────────────────────────────────────────────────────────────────┘
-                              │
-                              ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                       Fabric Layer                               │
-│  ┌─────────────────────────────────────────────────────────────┐│
-│  │ fabric/connectors/                                          ││
-│  │ ├── base.py         # SourceConnector Protocol              ││
-│  │ │   • FetchRequest (frozen dataclass)                       ││
-│  │ │   • FetchResult[DataT] (Generic Pydantic model)           ││
-│  │ │   • ConnectionConfig/Handle                               ││
-│  │ ├── capabilities.py # Validation utilities                  ││
-│  │ │   • @requires_capability decorator                        ││
-│  │ │   • validate_protocol_compliance()                        ││
-│  │ ├── types.py        # Extended error hierarchy & types      ││
-│  │ │   • ConnectorError, CapabilityError, etc.                 ││
-│  │ │   • DatasetDescriptor, FreshnessResult                    ││
-│  │ │   • Coercion, dimensions, temporal, units                 ││
-│  │ ├── registry.py     # ConnectorRegistry singleton           ││
-│  │ │   • Lazy loading + instance caching                        ││
-│  │ │   • Secondary indices for capability queries              ││
-│  │ ├── pool.py         # ConnectionPool + lifecycle mgmt        ││
-│  │ │   • Health checks, eviction, concurrency limits           ││
-│  │ ├── discovery.py    # Plugin discovery via entry points      ││
-│  │ │   • Dev-only path discovery gated by env flag             ││
-│  │ ├── cache/          # CAS-based caching system              ││
-│  │ │   ├── store.py    # Content Addressable Storage           ││
-│  │ │   ├── policy.py   # Caching policies & invalidation       ││
-│  │ │   └── proxy.py    # Proxy layer for caching               ││
-│  │ ├── contracts/      # Contract evolution & schema inference ││
-│  │ │   ├── evolution.py # Contract versioning                  ││
-│  │ │   ├── inference.py # Automatic schema inference           ││
-│  │ │   └── registry.py # Contract registry                     ││
-│  │ ├── federation/     # Federated query composition           ││
-│  │ │   ├── composer.py # Query composition across sources      ││
-│  │ │   ├── planner.py  # Federated query planning              ││
-│  │ │   └── resolver.py # Dependency resolution                 ││
-│  │ ├── quality/        # Data quality assessment                ││
-│  │ │   ├── completeness.py # Completeness validation           ││
-│  │ │   ├── freshness.py # Data freshness checks                ││
-│  │ │   └── validator.py # Quality validation pipeline          ││
-│  │ ├── resilience/     # Fault tolerance patterns              ││
-│  │ │   ├── circuit_breaker.py # Circuit breaker pattern        ││
-│  │ │   ├── fallback.py # Fallback mechanisms                   ││
-│  │ │   └── retry.py    # Retry strategies                      ││
-│  │ ├── testing/        # Testing harness & simulation          ││
-│  │ │   ├── harness.py  # Test harness for connectors           ││
-│  │ │   └── simulator.py # Connector simulation                 ││
-│  │ ├── transform/      # Data transformation pipeline          ││
-│  │ │   ├── __init__.py  # Transform API                         ││
-│  │ │   ├── aggregator.py # Data aggregation                     ││
-│  │ │   ├── filter.py    # Data filtering                        ││
-│  │ │   ├── harmonizer.py # Schema harmonization                 ││
-│  │ │   ├── imputer.py   # Missing value imputation              ││
-│  │ │   ├── normalizer.py # Data normalization                   ││
-│  │ │   ├── pipeline.py  # Transformation pipeline               ││
-│  │ │   └── validator.py # Transformation validation             ││
-│  │ └── __init__.py     # Public API                            ││
-│  └─────────────────────────────────────────────────────────────┘│
-└─────────────────────────────────────────────────────────────────┘
+IR Layer (polisyos.ir.connectors)
+  ConnectorCapability, FetchRequest/FetchResult, DataVersion, QualityTier, TrustLevel
+        │
+        ▼
+Fabric Layer (polisyos.fabric.connectors)
+  ├── base.py          SourceConnector Protocol, ConnectionConfig/Handle
+  ├── capabilities.py  @requires_capability, validate_protocol_compliance()
+  ├── types.py         Error hierarchy, DatasetDescriptor, ValidationResult
+  ├── registry.py      ConnectorRegistry singleton (lazy loading, secondary indices)
+  ├── pool.py          ConnectionPool (health checks, eviction, concurrency)
+  ├── discovery.py     Plugin discovery via entry points
+  ├── validation.py    Schema coercion/validation для FetchResult
+  ├── cache/           CAS-based caching (7 файлов)
+  ├── resilience/      Circuit breaker, retry, rate limiter, fallback (5 файлов)
+  ├── federation/      Cross-connector query composition (7 файлов)
+  ├── quality/         Data quality validators (6 файлов)
+  ├── contracts/       Schema evolution и contract registry (4 файла)
+  ├── reference/       Эталонные реализации: REST JSON, SDMX, CSV (4 файла)
+  ├── testing/         Test harness, fixtures, simulator (5 файлов)
+  ├── transform/       DAG-based transformation pipeline (8 файлов)
+  └── types/           Type system: coercion, dimensions, temporal, units (6 файлов)
 ```
 
-## Key Components
+## SourceConnector Protocol
 
-### SourceConnector Protocol
+Structural subtyping — коннектор не обязан наследовать base class:
 
 ```python
-from polisyos.fabric.connectors import (
-    SourceConnector,
-    FetchRequest,
-    FetchResult,
-    ConnectorCapability,
-    ConnectionConfig,
-    ConnectionHandle,
-)
+@runtime_checkable
+class SourceConnector(Protocol[DataT]):
+    connector_id: ClassVar[str]
+    capabilities: ClassVar[ConnectorCapability]
+    metadata: ClassVar[ConnectorMetadataSpec]
 
-class MyConnector(SourceConnector[list[dict]]):
-    connector_id: ClassVar[str] = "myorg.mydata"
-    capabilities: ClassVar[ConnectorCapability] = (
-        ConnectorCapability.FULL_FETCH | ConnectorCapability.CATALOG_BROWSE
-    )
-    metadata: ClassVar[ConnectorMetadataSpec] = ConnectorMetadataSpec(...)
-
-    async def connect(self, config: ConnectionConfig) -> ConnectionHandle:
-        ...
-
-    async def disconnect(self, handle: ConnectionHandle) -> None:
-        ...
-
-    async def health_check(self, handle: ConnectionHandle) -> HealthStatus:
-        ...
-
-    async def fetch(
-        self, handle: ConnectionHandle, request: FetchRequest
-    ) -> FetchResult[list[dict]]:
-        ...
+    async def connect(self, config: ConnectionConfig) -> ConnectionHandle: ...
+    async def disconnect(self, handle: ConnectionHandle) -> None: ...
+    async def fetch(self, handle: ConnectionHandle, request: FetchRequest) -> FetchResult[DataT]: ...
+    async def health_check(self, handle: ConnectionHandle) -> HealthStatus: ...
 ```
 
-### Capability System
+Опциональные методы (capability-gated): `list_datasets()`, `stream_fetch()`, `check_freshness()`, `validate_data()`.
+
+`BaseConnector` — convenience base class с default реализациями.
+
+## ConnectorRegistry
+
+Singleton с lazy loading и capability-based queries:
 
 ```python
-from polisyos.ir.connectors import ConnectorCapability, capabilities_from_flags
-
-caps = (
-    ConnectorCapability.FULL_FETCH |
-    ConnectorCapability.STREAMING |
-    ConnectorCapability.DATE_RANGE_FILTER
-)
-```
-
-### FetchRequest and CAS Keys
-
-`FetchRequest` provides two deterministic hashes:
-
-- `query_key` identifies the logical data request (pagination excluded)
-- `request_key` includes pagination and output preferences
-- `cache_key` is an alias for `request_key`
-
-Filters are canonicalized as an order-insensitive mapping for stable keys.
-
-```python
-from polisyos.fabric.connectors import FetchRequest
-from datetime import datetime, timezone
-
-request = FetchRequest(
-    dataset_id="worldbank.wdi.GDP.MKTP.CD",
-    date_start=datetime(2020, 1, 1, tzinfo=timezone.utc),
-    date_end=datetime(2023, 12, 31, tzinfo=timezone.utc),
-    filters=(
-        ("country", ("USA", "DEU", "FRA")),
-        ("indicator", ("GDP.MKTP.CD",)),
-    ),
-)
-
-print(request.query_key)
-print(request.request_key)
-```
-
-Execution hints:
-
-- `FetchRequest.retryable=False` disables automatic retries for non-idempotent operations.
-
-### Protocol Compliance Validation
-
-```python
-from polisyos.fabric.connectors import validate_protocol_compliance
-
-violations = validate_protocol_compliance(MyConnector)
-if violations:
-    raise ConfigurationError(f"Protocol violations: {violations}")
-```
-
-### Advanced Components (Phase 2.3+)
-
-#### Caching System (`cache/`)
-CAS-based кэширование с политиками инвалидации и prefetch для оптимизации производительности:
-```python
-from polisyos.fabric.connectors.cache import CacheStore, CachePolicy
-
-cache = CacheStore()
-policy = CachePolicy(ttl_hours=24, max_size_mb=100)
-```
-
-#### Federation (`federation/`)
-Композиция запросов к множественным источникам данных с dependency resolution:
-```python
-from polisyos.fabric.connectors.federation import QueryComposer, FederatedPlanner
-
-composer = QueryComposer()
-plan = composer.compose([source1, source2, source3])
-```
-
-#### Quality Assessment (`quality/`)
-Оценка качества данных коннекторов (completeness, consistency, freshness):
-```python
-from polisyos.fabric.connectors.quality import QualityValidator
-
-validator = QualityValidator()
-report = validator.validate(dataset, QualityThresholds())
-```
-
-#### Resilience Patterns (`resilience/`)
-Fault tolerance с circuit breaker, fallback и retry механизмами:
-```python
-from polisyos.fabric.connectors.resilience import CircuitBreaker, RetryStrategy
-
-breaker = CircuitBreaker(failure_threshold=5, recovery_timeout=60)
-retry = RetryStrategy(max_attempts=3, backoff=ExponentialBackoff())
-```
-
-#### Data Transformation (`transform/`)
-Комплексный pipeline трансформаций данных с поддержкой всех этапов ETL:
-
-```python
-from polisyos.fabric.connectors.transform import (
-    TransformationPipeline, Aggregator, Filter, Harmonizer,
-    Imputer, Normalizer, Validator
-)
-
-# Создание полного transformation pipeline
-pipeline = TransformationPipeline([
-    Filter(column='status', operator='!=', value='invalid'),  # Фильтрация
-    Harmonizer(target_schema=standard_schema),                # Гармонизация схемы
-    Imputer(strategy='mean', columns=['price', 'volume']),    # Заполнение пропусков
-    Normalizer(method='zscore', columns=['price']),           # Нормализация
-    Aggregator(group_by=['date'], operations={'volume': 'sum'}), # Агрегация
-    Validator(rules=[not_null_rule, range_rule])              # Валидация
-])
-
-# Применение к данным
-transformed_data = pipeline.apply(raw_data)
-```
-
-### Connector Registry (Phase 2.2)
-
-```python
-from polisyos.fabric.connectors import ConnectorRegistry, ConnectorCapability
-
 registry = ConnectorRegistry.get_instance()
-
-# Register and lazily instantiate
-registry.register(MyConnector)
-connector = registry.get("myorg.mydata")
-
-# Query by capability
-streaming = list(registry.query(capabilities=ConnectorCapability.STREAMING))
+registry.register(connector, config=default_config)
+connector = registry.get("world_bank")
+entries = registry.query_entries(capabilities=ConnectorCapability.DATE_RANGE_FILTER)
 ```
 
-### Connection Pooling (Phase 2.2)
+**Connection lifecycle:** `get_connection()` → use → `release_connection()`. Pool автоматически управляет health checks и eviction.
+
+## Подсистемы
+
+### Cache (`cache/`)
+
+CAS-based кэширование с pluggable политиками:
+
+| Политика | Назначение |
+|----------|-----------|
+| `TTLPolicy` | Time-to-live expiration |
+| `StaticDataPolicy` | Для неизменяемых данных |
+| `VolatileDataPolicy` | Для быстро меняющихся данных |
+| `SmartExpiryPolicy` | Адаптивная на основе паттернов |
+| `LRUPolicy` | Least Recently Used eviction |
+| `SizeBoundedPolicy` | Ограничение по размеру |
+
+`CachingConnectorProxy` оборачивает коннектор, `InvalidationOrchestrator` управляет инвалидацией, `PrefetchScheduler` — предзагрузкой.
+
+### Resilience (`resilience/`)
+
+Паттерны отказоустойчивости:
+
+- **`CircuitBreaker`** — open/half-open/closed, configurable thresholds
+- **`RetryPolicy`** — exponential backoff, jitter, retryable error classification
+- **`RateLimiter`** / `AdaptiveRateLimiter` — token bucket, adaptive adjustments
+- **`FallbackStrategy`** — `CacheFallback`, `MockFallback`, `RaiseFallback`, `FallbackChain`
+
+Composable через `apply_resilience(config)` или отдельные декораторы `with_retry`, `with_circuit_breaker`, `with_rate_limit`, `with_fallback`.
+
+### Federation (`federation/`)
+
+Cross-connector запросы и агрегация:
+
+- **`planner.py`** — query plan: какие коннекторы нужны, в каком порядке
+- **`composer.py`** — composition: сборка результатов из нескольких коннекторов
+- **`resolver.py`** — dependency resolution между коннекторами
+- **`ranker.py`** — ранжирование коннекторов по quality/trust
+- **`evidence_aggregation.py`** — composite evidence bundles из нескольких источников
+
+### Quality (`quality/`)
+
+Валидация данных после fetch:
+
+- **`completeness.py`** — проверка полноты (null ratio, expected fields)
+- **`consistency.py`** — проверка консистентности (referential integrity, ranges)
+- **`freshness.py`** — проверка актуальности (data age, cache age)
+- **`validator.py`** — `DataQualityValidator` orchestrator
+- **`report.py`** — `DataQualityReport` → конвертируется в `QualityIndicators`
+
+### Transform (`transform/`)
+
+Composable DAG-based pipeline для трансформации данных после fetch:
 
 ```python
-from polisyos.fabric.connectors import PoolConfig
-
-handle = await registry.get_connection("myorg.mydata")
-await registry.release_connection("myorg.mydata", handle)
-
-stats = registry.stats
-print(stats.active_pools)
+pipeline = (
+    TransformPipeline()
+    .normalize(field_mappings={"GDP": "gdp_usd"})
+    .harmonize_codes("country", "ISO_3166_ALPHA3")
+    .aggregate(by=["country", "year"], aggregations={"gdp_usd": "sum"},
+               temporal_context={"gdp_usd": TemporalType.FLOW})
+    .impute_missing(strategy="linear")
+    .validate(rules=[CompletenessRule("gdp_usd", threshold=0.95)])
+)
+result = pipeline.apply(data)
 ```
 
-Pools are keyed by `(connector_fqid, config_fingerprint)` to prevent credential
-mixing across tenants or base URLs.
+Stock/flow-safe агрегация: additive (flows можно суммировать по времени), semi-additive (stocks — только по entities), non-additive (rates, indices — нельзя суммировать). DAG branching и joining. Lineage tracking для каждого шага.
 
-### Discovery (Phase 2.2)
+### Contracts (`contracts/`)
 
-Entry points can be registered in `pyproject.toml`:
+Schema evolution и управление контрактами коннекторов: schema inference из данных, evolution tracking (backward/forward compatibility), contract registry для API stability.
 
-```toml
-[project.entry-points."polisyos.connectors"]
-world_bank = "mypackage.connectors:WorldBankConnector"
-```
+### Types (`types/`)
 
-Filesystem path discovery is **dev-only** and gated by `POLISYOS_ALLOW_CONNECTOR_PATHS=1`.
+Система типов для данных коннекторов: type coercion, dimensional handling, temporal types, unit conversion.
 
-## Capability Reference
+### Reference (`reference/`)
 
-| Capability | Description | Required Method |
-|------------|-------------|-----------------|
-| `CATALOG_BROWSE` | List available datasets | `list_datasets` |
-| `FULL_FETCH` | Fetch entire dataset | `fetch` |
-| `INCREMENTAL_FETCH` | Fetch changes since timestamp | `fetch` |
-| `STREAMING` | Stream large datasets | `fetch_stream` |
-| `DATE_RANGE_FILTER` | Server-side date filtering | - |
-| `DIMENSION_FILTER` | Server-side dimension filtering | - |
-| `CUSTOM_QUERY` | Query language support | - |
-| `SCHEMA_INTROSPECTION` | Describe data schema | `get_dataset_schema` |
-| `FRESHNESS_CHECK` | Check staleness | `check_freshness` |
-| `PROVENANCE_METADATA` | Source/methodology info | - |
-| `REVISION_HISTORY` | Historical revisions | - |
-| `CONFIDENCE_INTERVALS` | Uncertainty bounds | - |
-| `RATE_LIMIT_AWARE` | Report rate limit status | - |
-| `RESUMABLE` | Resume interrupted fetches | - |
+Эталонные реализации коннекторов: `RestJsonConnector`, `SdmxConnector`, `StaticCsvConnector`.
+
+### Testing (`testing/`)
+
+Инфраструктура для тестирования коннекторов: `ConnectorTestHarness`, fixtures, `ConnectorSimulator`.
+
+## Capability System
+
+15+ capabilities как Flag Enum: `FULL_FETCH`, `STREAMING`, `DATE_RANGE_FILTER`, `CATALOG_BROWSE`, `SCHEMA_INTROSPECT`, `FRESHNESS_CHECK`, `DATA_VALIDATION`, etc.
+
+`@requires_capability` — decorator для capability-gated методов.
+`validate_protocol_compliance()` — проверка всех required methods/attributes.
 
 ## Error Hierarchy
 
 ```
-ConnectorError (base)
-├── CapabilityError      # Missing required capability
-├── ConfigurationError   # Invalid configuration
-├── ConnectionError      # Connection failures
-│   └── RateLimitError   # Rate limit exceeded
-├── FetchError           # Fetch operation failed
-└── SchemaError          # Schema validation failed
+ConnectorError
+├── CapabilityError      # Capability not supported
+├── ConfigurationError   # Invalid config
+├── ConnectionError      # Connection failed
+├── FetchError           # Fetch failed
+├── RateLimitError       # Rate limit exceeded
+└── SchemaError          # Schema mismatch
 ```
 
-## Architectural Constraints
+## Связи
 
-- **Law A (Dependency Direction)**: May import from `polisyos.ir`, `polisyos.core`
-- **Law D (Deterministic Caching)**: `FetchRequest` hashes use canonical JSON
-- **Law E (Evidence Tracking)**: `FetchResult.evidence_ref` links to evidence bundles
-
-## Testing
-
-```bash
-pytest tests/fabric/connectors/test_protocol_compliance.py -v
-```
-
-## Future Phases
-
-- Phase 2.3: Schema Contracts and Inference
-- Phase 2.4: Caching Layer with CAS Integration
-- Phase 2.8: Federation and Multi-source Composition
+- **IR** (`polisyos.ir.connectors`) — контракты: ConnectorCapability, FetchRequest/FetchResult, DataVersion
+- **fabric/ingestion.py** — `run_connectors_ingestion()` использует registry + cache + transform
+- **fabric/_connector_bridge.py** — `fabric_get_data()` — публичная точка для Scientist
+- **fabric/evidence.py** — `build_composite_evidence_bundle()` делегирует в federation

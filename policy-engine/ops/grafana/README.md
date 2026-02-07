@@ -1,91 +1,98 @@
-# Grafana Dashboards (Визуализация)
+# grafana — Dashboards & Visualization
 
-Директория содержит конфигурацию Grafana и JSON-определения дашбордов для визуализации метрик PolicyOS. Предоставляет ролевые дашборды с автоматическим provisioning.
+4 ролевых дашборда с auto-provisioning для визуализации метрик PolicyOS. Данные поступают из Prometheus (`prometheus:9090` через docker-compose service discovery).
 
-## Структура
+## Файлы
 
 ```
 grafana/
-├── dashboards/                     # JSON дашборды (3 шт.)
-│   ├── executive-overview.json     # Executive overview (cost, acceptance)
-│   ├── foundry-hpc.json           # HPC performance (throughput, cache)
-│   └── scientist-agents.json       # Agent performance (governance, LLM)
+├── dashboards/
+│   ├── executive-overview.json    # Руководство: cost, acceptance, throughput
+│   ├── scientist-agents.json      # Scientist: governance, LLM, validation
+│   ├── foundry-hpc.json           # Foundry: simulation, JIT, cache, calibration
+│   └── slo-overview.json          # SLO: success rates, latency, NaN, cost
 └── provisioning/
-    └── dashboards.yml              # Auto-provisioning конфигурация
+    └── dashboards.yml             # Auto-provisioning config (folder: PolicyOS)
 ```
 
 ## Дашборды
 
-### Executive Overview
-**Цель**: Высокоуровневый обзор для руководства
-- **Метрики**: LLM cost (USD/h с thresholds), acceptance rate, active runs
-- **Особенности**: 30s refresh, environment templating, color-coded thresholds
+### Executive Overview (`polisyos-executive`)
+**Аудитория:** руководство, product owners
+- **LLM Cost (USD/h)** — stat panel, thresholds: green <$10, yellow <$50, red >$50
+- **Policy Acceptance Rate** — gauge, thresholds: red <70%, yellow <90%, green >90%
+- **Active Experiments** — stat, текущие запуски
+- **Workflow Throughput** — timeseries, workflows/hour за 5m window
+- **Templating:** environment (production/staging)
 
-### Scientist Agent Performance
-**Цель**: Аналитика работы AI агентов
-- **Метрики**: Governance latency (p95), workflow success/error rates, LLM token usage
-- **Особенности**: Timeline governance pipeline, error heatmaps, experiment drill-down
+### Scientist Agent Performance (`polisyos-scientist`)
+**Аудитория:** data scientists, governance engineers
+- **Governance Pass Duration (p95)** — timeseries по pass_id
+- **Validation Failures by Pass** — barchart, increase за 1h
+- **LLM Token Consumption by Model** — piechart
+- **LLM Calls by Status** — timeseries (success/error/timeout)
 
-### Foundry HPC Performance
-**Цель**: Мониторинг HPC симуляций и JAX
-- **Метрики**: Simulation throughput, JIT compilation stats, cache hit ratios, calibration metrics
-- **Особенности**: Real-time monitoring, performance alerts, capacity planning trends
+### Foundry HPC Performance (`polisyos-foundry`)
+**Аудитория:** simulation engineers, ML engineers
+- **Simulation Throughput** — stat (steps/sec), thresholds: red <100, yellow <1000
+- **CAS Cache Hit Ratio** — gauge, threshold: red <70%, yellow <90%
+- **JIT Compilation Rate** — stat (compiles/min), red >20
+- **JIT Compilation Time** — heatmap по bucket distribution
+- **Simulation Duration Percentiles** — timeseries (p50, p95, p99)
+- **CAS I/O Latency** — timeseries (p95)
+- **Calibration Convergence** — timeseries (loss + grad norm)
+
+### SLO Overview (`polisyos-slo-overview`)
+**Аудитория:** platform team, SRE
+- **DAG Success Rate (30m)** — gauge, thresholds: red <90%, yellow <95%
+- **Simulation NaN Rate (5m)** — gauge, red >0.1%
+- **Connector Error Rate (5m)** — gauge, red >1%
+- **DAG p99 Latency** — stat, red >300s
+- **Run Cost p95** — stat (USD), red >$5
+- **DAG Success Rate Timeline** — timeseries by workflow_id
+- **NaN Rate Timeline** — timeseries by env
+- **Connector Error Rate Timeline** — timeseries by connector_id
+- **DAG Latency Distribution** — heatmap
+- **Run Cost Distribution** — heatmap
+- **Templating:** environment (query), workflow_id (multi-select), connector_id (multi-select)
 
 ## Provisioning
 
-### Автозагрузка
-Дашборды автоматически загружаются при запуске через `provisioning/dashboards.yml`. Конфигурация монтируется в контейнер read-only.
+Дашборды загружаются автоматически при старте контейнера через `provisioning/dashboards.yml`:
+- **Provider:** `polisyos`, folder `PolicyOS`
+- **Path:** `/etc/grafana/dashboards` (read-only volume mount)
+- **editable:** true — можно менять через UI, но изменения не сохраняются при рестарте
 
-### Добавление дашбордов
-1. Создайте JSON в `dashboards/` с уникальным `uid`
-2. Установите `folder: "PolicyOS"`
-3. Перезапустите Grafana для загрузки
-4. Проверьте в интерфейсе (admin/admin)
+## Общие настройки
 
-## Интеграция с Prometheus
+- **Refresh:** 30s (все дашборды)
+- **Schema version:** 38
+- **Timezone:** browser
+- **Data source:** Prometheus (auto-discovery через docker-compose)
+- **Credentials:** admin/admin (default)
 
-### Data Source
-Автоматическое подключение к `prometheus:9090` через docker-compose service discovery.
+## Добавление нового дашборда
 
-### Примеры запросов
+1. Создать JSON в `dashboards/` с уникальным `uid` (формат: `polisyos-<name>`)
+2. Установить `tags: ["polisyos", ...]` для группировки
+3. Перезапустить Grafana: `docker-compose restart grafana`
+4. Для использования recording rules вместо raw queries — см. `prometheus/recording_rules.yml`
+
+## Ключевые PromQL-паттерны
+
 ```promql
-# LLM cost (USD/hour)
+# LLM cost (USD/hour) — используется в Executive Overview
 (sum(rate(polisyos_llm_tokens_total{type="prompt"}[1h])) * 0.00001 +
  sum(rate(polisyos_llm_tokens_total{type="completion"}[1h])) * 0.00003) * 3600
 
-# Acceptance rate
+# Acceptance rate — или recording rule polisyos:workflow_acceptance_rate:rate1h
 sum(rate(polisyos_workflow_runs_total{status="success"}[1h])) /
 sum(rate(polisyos_workflow_runs_total[1h]))
 
 # Governance p95 latency
-histogram_quantile(0.95, sum by (le, pass_id) (rate(polisyos_governance_pass_duration_seconds_bucket[5m])))
+histogram_quantile(0.95,
+  sum by (le, pass_id) (rate(polisyos_governance_pass_duration_seconds_bucket[5m])))
+
+# SLO DAG success rate — recording rule (рекомендуется)
+polisyos:slo_dag_success_rate:rate30m{env="$environment", workflow_id=~"$workflow_id"}
 ```
-
-## Кастомизация
-
-### Настройки по умолчанию
-- **Theme**: Light для лучшей читаемости
-- **Time range**: Last 1 hour для оперативного мониторинга
-- **Refresh**: 30s (баланс real-time/производительности)
-
-### Permissions & Organization
-- **Admin**: Полный доступ к редактированию
-- **Viewer**: Read-only для просмотра
-- **Folder**: Все дашборды в "PolicyOS"
-
-## Troubleshooting
-
-### Дашборды не загружаются
-- Проверьте volume mounts в docker-compose.yml
-- Валидируйте JSON: `jq . dashboard.json`
-- Проверьте logs: `docker logs grafana`
-
-### Метрики отсутствуют
-- Проверьте Prometheus targets (`/targets`)
-- Валидируйте queries в query inspector
-- Проверьте time range и label filters
-
-### Performance issues
-- Увеличьте refresh interval при нагрузке
-- Используйте recording rules для сложных запросов
-- Рассмотрите sharding для большого количества panels

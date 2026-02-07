@@ -1,509 +1,224 @@
-# Agent Simulation Module (agent_sim)
+# Agent Simulation — симуляция гетерогенных агентов
 
-## Обзор
+JAX-based фреймворк для агентной симуляции экономики с RL-обучением, графовыми структурами, демографическими процессами и эволюционной оптимизацией. Полностью дифференцируем и JIT-компилируем.
 
-Модуль `agent_sim` предоставляет высокоуровневый фреймворк для симуляции поведенчески-гетерогенных агентов в экономических моделях. Модуль реализует современные подходы к моделированию агентов с использованием глубокого обучения, графовых структур и эволюционных алгоритмов.
+**38 модулей** | **PPO/CMA-ES** | **Social graphs** | **Dynamic population**
 
-## Архитектура (актуально на 2026-02-05)
+## Архитектура
 
-Модуль состоит из 32 модулей, организованных в следующие слои:
+Четыре уровня исполнителей с нарастающей функциональностью:
 
-### 1. Состояние системы (State Layer)
-- **`state.py`** - Определение состояний агентов, политики и глобального состояния
-- **`population.py`** - Управление популяцией агентов (рождение, смерть, миграция)
-
-### 2. Нейронные сети и RL (RL Layer)
-- **`actor_critic.py`** - Actor-Critic архитектуры для обучения политик
-- **`rl.py`** - PPO и другие алгоритмы reinforcement learning
-- **`training.py`** - JIT-компиляция обучения
-
-### 3. Механизмы симуляции (Mechanism Layer)
-- **`mechanisms.py`** - Базовые экономические механизмы
-- **`population_mechanisms.py`** - Демографические механизмы (рождение, смерть, старение)
-- **`graph_mechanisms.py`** - Социальные механизмы через графовые сети
-- **`distribution_mechanisms.py`** - Механизмы перераспределения
-- **`temporal_mechanisms.py`** - Временные механизмы
-
-### 4. Графовые структуры (Graph Layer)
-- **`graphs.py`** - Создание и управление графами (scale-free, spatial, random)
-- **`graph_executor.py`** - Исполнение на графовых структурах
-- **`graph_observations.py`** - Наблюдения на графах
-
-### 5. Распределения и метрики (Analysis Layer)
-- **`distributions.py`** - Вычисление неравенства (Gini, Palma ratio)
-- **`demographics.py`** - Демографические метрики и анализ
-- **`metrics.py`** - Сбор и анализ метрик обучения
-- **`analysis.py`** - Анализ поведения агентов
-- **`dashboard.py`** - Дашборд для мониторинга
-- **`visualization.py`** - Визуализация результатов
-
-### 6. Эволюционные алгоритмы (Evolution Layer)
-- **`evolution.py`** - CMA-ES и эволюционные стратегии
-- **`modes.py`** - Разные режимы обучения (bilevel, MPC)
-- **`mpc.py`** - Model Predictive Control
-
-### 7. Временные аспекты (Temporal Layer)
-- **`temporal.py`** - Временные наблюдения и маски
-- **`temporal_executor.py`** - Исполнение с учётом времени
-
-### 8. Исполнение и обучение (Execution Layer)
-- **`executor.py`** - Исполнитель для симуляции агентов
-- **`distribution_executor.py`** - Исполнение распределений
-- **`population_executor.py`** - Исполнитель для популяции
-- **`experiment.py`** - Настройка экспериментов
-- **`jit_training.py`** - JIT-компиляция обучения
-- **`training.py`** - Обучение моделей
-
-### 9. Политики и правительство (Policy Layer)
-- **`policy.py`** - Политики агентов
-- **`government_policy.py`** - Политики правительства
-
-### 10. Случайность и кредиты (Utility Layer)
-- **`prng.py`** - Генерация псевдослучайных чисел
-- **`credit_assignment.py`** - Назначение кредитов в обучении
-- **`mechanism.py`** - Базовые механизмы симуляции
-
-### 11. Artifact System (Artifact Layer)
-- **`artifact.py`** - Хранение и загрузка обученных политик агентов с проверкой совместимости окружения
-- **Environment Fingerprinting**: Захват окружения для воспроизводимости
-- **Policy Compatibility**: Валидация совместимости политик между окружениями
-- **Deterministic Artifacts**: Стабильные артефакты для reproducible ML
-
-### 12. Value Function Iteration (VFI Layer)
-- **`vfi.py`** - Value Function Iteration для решения динамических задач
-
-### 8. Визуализация и анализ (Analysis Layer)
-- **`analysis.py`** - Анализ поведения агентов
-- **`dashboard.py`** - Дашборд для мониторинга
-- **`visualization.py`** - Визуализация результатов
-
-## Основные концепции
-
-### Agent State (Состояние агента)
-
-```python
-@chex.dataclass(frozen=True)
-class AgentState:
-    active: Bool[Array, "n_agents"]           # Активен ли агент
-    agent_id: Int[Array, "n_agents"]          # Уникальный ID
-    birth_step: Int[Array, "n_agents"]        # Шаг рождения
-    parent_id: Int[Array, "n_agents"]         # ID родителя
-    wealth: Float[Array, "n_agents"]          # Богатство
-    income: Float[Array, "n_agents"]          # Доход
-    consumption: Float[Array, "n_agents"]     # Потребление
-    savings: Float[Array, "n_agents"]         # Сбережения
-    employed: Bool[Array, "n_agents"]         # Занят ли
-    retired: Bool[Array, "n_agents"]          # На пенсии
-    age: Int[Array, "n_agents"]               # Возраст
-    skill_level: Float[Array, "n_agents"]     # Уровень навыков
-    risk_aversion: Float[Array, "n_agents"]   # Отношение к риску
-    n_connections: Int[Array, "n_agents"]     # Количество связей
+```
+PureExecutor → DistributionAwareExecutor → GraphAwareExecutor → PopulationAwareExecutor
+  (механизмы)     + статистика неравенства    + социальные сети     + рождение/смерть
 ```
 
-### Global State (Глобальное состояние)
+Четыре режима обучения (Learning Modes):
+- **Mode A (Agent Adaptation)** — обучение агентной политики при фиксированной государственной
+- **Mode B (Policy Optimization)** — оптимизация государственной политики при фиксированных агентах
+- **Mode C (Calibration)** — калибровка параметров модели на эмпирических данных
+- **Bilevel** — чередование Mode A/B для равновесия Штакельберга
 
-```python
-@chex.dataclass(frozen=True)
-class GlobalState:
-    agents: AgentState                    # Состояние всех агентов
-    policy: PolicyState                  # Глобальные параметры политики
-    aggregates: AggregateState           # Агрегированные метрики
-    distributions: DistributionState     # Распределения доходов/богатства
-    graph: GraphState                    # Граф социальных связей
-    population_manager: PopulationManager # Управление популяцией
-    time_step: Int[Array, ""]            # Текущий временной шаг
-    rng_key: chex.PRNGKey               # Ключ для RNG
+## Слой данных
+
+### AgentState (`state.py`)
+
+Frozen chex-dataclass с 27 полями per agent: `active`, `agent_id`, `birth_step`, `parent_id`, `wealth`, `income`, `consumption`, `savings`, `debt`, `employed`, `retired`, `risk_aversion`, `discount_factor`, `skill_level`, `education_years`, `age`, `life_expectancy`, `fertility_rate`, `n_connections` и др.
+
+### PolicyState, AggregateState, GlobalState
+
+- **PolicyState** — скалярные параметры: `tax_rate`, `transfer_rate`, `interest_rate`
+- **AggregateState** — `total_wealth`, `mean_consumption`, `gini_coefficient`
+- **GlobalState** — композит всех state-компонентов + `time_step`, `simulation_horizon`, `rng_key`. Фабрика `empty()`, `compute_aggregates()` с Lorenz-curve Gini
+
+## Слой механизмов
+
+`Mechanism` ABC (`mechanism.py`): `MechanismSpec` (name, reads, writes, parameters, stochastic) + `apply(state, rng_key, fidelity)`.
+
+### Экономические (`mechanisms.py`, `distribution_mechanisms.py`)
+
+- **TaxationMechanism** — прогрессивное налогообложение: `base_rate + progressive_factor * log1p(income)`, clip [0, 0.6]
+- **ConsumptionMechanism** — нейросетевое потребление через `SharedPolicy`
+- **DistributionAwareTaxMechanism** — налоги с учетом income-rank из `DistributionState`
+- **TargetedTransferMechanism** — перераспределение ниже target-percentile (uniform или inverse-rank)
+- **RelativeConsumptionMechanism** — "keeping up with the Joneses" — utility adjustment от разрыва с пирами
+
+### Графовые (`graph_mechanisms.py`)
+
+- **SocialInfluenceMechanism** — `consumption_target` как средневзвешенное соседей
+- **InformationDiffusionMechanism** — распространение информации через сеть (decay + noise)
+- **NetworkLendingMechanism** — заимствования у богатых соседей с процентом
+- **LaborNetworkMechanism** — трудоустройство через рефералы от занятых соседей
+
+### Временные (`temporal_mechanisms.py`)
+
+- **TemporalConsumptionMechanism** — RL-driven потребление через `ActorCritic`. Temporal observations включают lifecycle features (retirement distance, life stage), policy features, seasonal signals
+
+### Демографические (`population_mechanisms.py`)
+
+- **AgingMechanism** — инкремент возраста, обновление фертильности (bell-curve), выход на пенсию
+- **BirthMechanism** — вероятностные рождения на основе fertility rate, наследование от родителей
+- **DeathMechanism** — смертность, распределение наследства выжившим
+- **MigrationMechanism** — иммиграция (новые агенты 20-50 лет) и эмиграция (по wealth/employment)
+- **InheritanceMechanism** — наследование с налогом, распределение детям (max-per-heir cap)
+- **GiftTransferMechanism** — inter-vivos трансферы от старших родителей к детям
+
+## Слой нейронных сетей
+
+### Actor-Critic (`actor_critic.py`)
+
+Equinox-модули для RL:
+- **NormalizedMLP** — LayerNorm между слоями, GELU activation, vmap для batch
+- **ValueNetwork** — trunk + linear head → скаляр per agent
+- **AdvantageNetwork** — dueling architecture (value + advantage heads)
+- **ActorCritic** — shared trunk, separate actor/critic heads. Continuous (Gaussian) и discrete (Categorical) action spaces. `sample_actions()` (reparameterization trick), `compute_log_prob()`, `compute_entropy()`
+
+### SharedPolicy (`policy.py`)
+
+Простая MLP без LayerNorm для Mode A. `build_observations()`: 6 agent features + 4 global features (tax_rate, interest_rate, sin/cos seasonal).
+
+### GovernmentPolicy (`government_policy.py`)
+
+Equinox-модуль для Mode B: 12-dim global observations → bounded policy parameters (tax_rate ∈ [0, 0.5], transfer_rate ∈ [0, 0.3], interest_rate ∈ [0, 0.2]) через sigmoid.
+
+## Слой обучения
+
+### RL Core (`rl.py`)
+
+- `Transition`, `Trajectory` — структуры данных
+- `compute_returns_and_advantages()` — GAE через `jax.lax.scan` в обратном порядке, с учетом active masks
+- `ppo_loss()` — clipped surrogate + value loss + entropy bonus. Диагностика: clip_fraction, mean_ratio
+
+### Training (`training.py`, `jit_training.py`)
+
+- `train_actor_critic()` — Python-loop: episodes × steps → trajectory → PPO update
+- `train_actor_critic_jit()` — полностью JIT-compiled через nested `jax.lax.scan`
+- `JITTrainingConfig` — hyperparams + credit_config + metrics collection
+- `train_actor_critic_with_artifact()` — обучение → `AgentPolicyArtifact` → CAS
+
+### Credit Assignment (`credit_assignment.py`)
+
+Multi-agent credit для shared-policy MARL:
+- `CreditMode`: INDIVIDUAL, SHARED, COUNTERFACTUAL, MEAN_FIELD, SHAPLEY_APPROX
+- `CentralizedCritic` — 12-dim global observations (population stats)
+
+### Rewards (`rewards.py`)
+
+- `UtilityFunction`: CRRA (`(c^(1-γ)-1)/(1-γ)`), CARA (`-exp(-γc)/γ`), Epstein-Zin (recursive, separation of risk aversion и IES)
+- `compute_agent_reward()`: utility(consumption) + 0.01·log(wealth) - 10·(bankruptcy) + utility_adjustment
+- `apply_discounting()` — reverse-scan discounted returns
+
+### Альтернативная оптимизация
+
+- **Evolution** (`evolution.py`) — Natural ES + CMA-ES (diagonal). Fitness через simulation rollouts
+- **VFI** (`vfi.py`) — Value Function Iteration на дискретных сетках (Bellman + convergence)
+- **MPC** (`mpc.py`) — Model Predictive Control: Monte Carlo forward rollouts → action selection
+- **HybridPlanner** — actor-critic (fast) + MPC (accurate), переключение по uncertainty
+
+## Графовая инфраструктура (`graphs.py`)
+
+Мультиплексные графы с 6 типами связей: SOCIAL_FRIEND, SOCIAL_FAMILY, ECONOMIC_EMPLOYER, ECONOMIC_LENDER, SPATIAL_NEIGHBOR, INFO_INFLUENCE.
+
+- `FixedSizeEdgeList` — JIT-compatible с active mask
+- Генераторы: Erdos-Renyi, Barabasi-Albert, Watts-Strogatz, spatial, scale-free
+- Message passing: `aggregate_messages()` (sum/mean/max), `scatter_messages()`, `segment_softmax()`, `apply_edge_attention()`, `multi_hop_aggregation()`
+- Analytics: `compute_degree_centrality()`, `compute_pagerank()` (iterative), `compute_graph_metrics()`
+- `DynamicGraphUpdater` — эволюция структуры с wealth-based homophily
+
+Обогащенные observations (`graph_observations.py`): +5 network features (neighbor wealth/consumption, degree, PageRank, wealth rank).
+
+## Динамическая популяция (`population.py`)
+
+Slot-allocator для JIT-compatible динамического количества агентов:
+
+- `PopulationManager` — free-stack аллокатор (`free_stack`, `free_top`, `n_active`)
+- `allocate_slot()` / `free_slot()` / `batch_create_agents()` / `batch_remove_agents()` — всё через `jax.lax.scan/cond`
+- `compute_death_mask()` — модель смертности: base hazard + age-exponential + wealth-protective + life-expectancy
+- `sync_graph_with_population()` — обновление графа при рождении/смерти
+
+## Распределения и неравенство (`distributions.py`)
+
+Крупнейший модуль (~710 строк) с дифференцируемыми и hard-реализациями:
+
+- `compute_gini()` / `compute_gini_soft()` / `compute_gini_proxy()` (MAD-based fast)
+- `soft_sort()` (Sinkhorn), `soft_rank()` (sigmoid pairwise)
+- Metrics: `compute_top_share()`, `compute_bottom_share()`, `compute_palma_ratio()`, `compute_percentile_ratios()`
+- Mobility: `compute_rank_correlation()`, `compute_transition_matrix()`
+- `DistributionState` — cached квантили, ранги, Gini, top-10/bottom-50 shares
+- `AdaptiveUpdateStrategy` — адаптивная частота обновления по скорости изменения Gini
+- `compute_distribution_aware_reward()` — reward с penalty за неравенство
+
+## Инструментарий
+
+### Analysis (`analysis.py`)
+
+- `BehaviorAnalyzer`: action statistics, k-means clustering агентов, mobility matrix, policy sensitivity (finite differences), counterfactual analysis
+
+### Experiment Tracking (`experiment.py`)
+
+- `ExperimentTracker` — filesystem-based registry с JSON-индексом
+- `ExperimentRun` — context manager, `log_metric()`, `log_artifact()` (Equinox/pickle), `get_rng_key()`
+
+### Artifact System (`artifact.py`)
+
+- `AgentPolicyArtifact` — immutable CAS-артефакт: serialized weights (SHA-256), training metrics, environment fingerprint, I/O spec
+- `can_hot_swap()` — проверка совместимости для runtime-замены политики
+- `validate_environment()` — проверка JAX/architecture/determinism tier
+
+### Metrics (`metrics.py`)
+
+JIT-compatible `MetricsCollector` с circular `MetricsBuffer`:
+- Standard: mean_wealth, gini_wealth, gdp, mean_consumption, n_active_agents, wealth/income distributions
+- Training: policy_loss, value_loss, entropy, mean_reward, mean_advantage
+
+### Demographics (`demographics.py`)
+
+`compute_demographic_metrics()`: age brackets, dependency ratio, life expectancy, fertility rate. `compute_intergenerational_mobility()`: parent-child wealth rank correlation.
+
+### Visualization (`visualization.py`, `dashboard.py`)
+
+- `TrainingVisualizer` — Matplotlib/Plotly: training curves, wealth distribution + Lorenz curve, agent trajectories, policy comparison, animated GIF
+- `DashboardGenerator` — Plotly HTML dashboard (3×2 subplots), comparison dashboards, markdown reports
+
+## Структура
+
 ```
-
-### Mechanisms (Механизмы)
-
-Механизмы определяют правила взаимодействия агентов и изменения состояния экономики:
-
-#### Демографические механизмы
-- **`AgingMechanism`** - Старение и выход на пенсию
-- **`BirthMechanism`** - Рождение новых агентов
-- **`DeathMechanism`** - Смерть агентов
-- **`MigrationMechanism`** - Миграция между регионами
-
-#### Экономические механизмы
-- **`ConsumptionMechanism`** - Потребление и сбережения
-- **`TaxationMechanism`** - Налогообложение
-- **`LaborMarketMechanism`** - Рынок труда
-
-#### Социальные механизмы
-- **`InformationDiffusionMechanism`** - Распространение информации
-- **`SocialInfluenceMechanism`** - Социальное влияние
-- **`NetworkLendingMechanism`** - Кредитование через сеть
-
-## Actor-Critic обучение
-
-### Архитектура сетей
-
-```python
-class ActorCritic(eqx.Module):
-    actor: ActorNetwork      # Политика (действия)
-    critic: CriticNetwork    # Функция ценности (V-функция)
-    advantage_net: AdvantageNetwork  # Преимущества (A-функция)
+agent_sim/
+├── state.py                  # AgentState (27 fields), PolicyState, GlobalState
+├── mechanism.py              # Mechanism ABC, MechanismSpec
+├── mechanisms.py             # TaxationMechanism, ConsumptionMechanism
+├── distribution_mechanisms.py # Distribution-aware tax, targeted transfers
+├── graph_mechanisms.py       # Social influence, info diffusion, lending, labor network
+├── temporal_mechanisms.py    # RL-driven temporal consumption
+├── population_mechanisms.py  # Aging, birth, death, migration, inheritance
+├── executor.py               # PureExecutor (topological sort, mechanism dispatch)
+├── distribution_executor.py  # + distribution tracking
+├── graph_executor.py         # + graph dynamics
+├── population_executor.py    # + lifecycle simulation
+├── temporal_executor.py      # Factory for temporal-aware executor
+├── actor_critic.py           # NormalizedMLP, ActorCritic (continuous/discrete)
+├── policy.py                 # SharedPolicy MLP, build_observations
+├── government_policy.py      # GovernmentPolicy network, training loop
+├── rl.py                     # Trajectory, GAE, PPO loss
+├── training.py               # Python-loop training
+├── jit_training.py           # JIT-compiled training via lax.scan
+├── rewards.py                # CRRA/CARA/Epstein-Zin utilities
+├── credit_assignment.py      # INDIVIDUAL/COUNTERFACTUAL/SHAPLEY credit modes
+├── evolution.py              # Natural ES + CMA-ES
+├── vfi.py                    # Value Function Iteration
+├── mpc.py                    # Model Predictive Control + HybridPlanner
+├── modes.py                  # Mode A/B/C/Bilevel orchestration
+├── graphs.py                 # Multiplex graphs, message passing, analytics
+├── graph_observations.py     # Network-enriched observations
+├── distributions.py          # Gini, Palma, soft_sort, distribution tracking
+├── population.py             # Slot allocator, birth/death, graph sync
+├── demographics.py           # Demographic metrics, intergenerational mobility
+├── temporal.py               # Temporal observation builder
+├── prng.py                   # Deterministic per-mechanism PRNG
+├── metrics.py                # JIT-compatible MetricsCollector
+├── analysis.py               # BehaviorAnalyzer, clustering, counterfactuals
+├── experiment.py             # ExperimentTracker, ExperimentRun
+├── artifact.py               # AgentPolicyArtifact (CAS, hot-swap, env validation)
+├── dashboard.py              # Plotly HTML dashboards
+└── visualization.py          # Matplotlib/Plotly charts and animations
 ```
-
-### Обучение PPO
-
-```python
-from polisyos.foundry.agent_sim.rl import ppo_loss
-
-# Вычисление PPO loss
-loss = ppo_loss(
-    log_probs=log_probs,
-    old_log_probs=old_log_probs,
-    advantages=advantages,
-    clip_ratio=0.2,
-    value_loss_coef=0.5,
-    entropy_coef=0.01
-)
-```
-
-### Артефакты политики (AgentPolicyArtifact)
-
-Артефакт политики фиксирует веса, метрики обучения и `EnvironmentFingerprint`,
-чтобы можно было проверять совместимость окружения перед загрузкой и безопасно
-делать hot-swap политик с одинаковыми I/O.
-
-```python
-from pathlib import Path
-
-from polisyos.core.artifacts.store import FileSystemCAS
-from polisyos.foundry.agent_sim.training import train_actor_critic_with_artifact
-from polisyos.foundry.runtime.fingerprint import DeterminismTier
-
-cas = FileSystemCAS(Path("./cas"))
-
-trained, metrics, artifact = train_actor_critic_with_artifact(
-    actor_critic=model,
-    initial_state=state,
-    config=training_config,
-    make_executor=make_executor,
-    run_id="run_20240127_001",
-    tier=DeterminismTier.BEST_EFFORT_GPU,
-    seed=42,
-    cas=cas,
-)
-
-# Проверка совместимости перед загрузкой
-from polisyos.foundry.runtime.fingerprint import EnvironmentFingerprint
-
-current = EnvironmentFingerprint.capture(
-    tier=DeterminismTier.BEST_EFFORT_GPU,
-    seed=42
-)
-ok, score, warnings = artifact.validate_environment(current)
-```
-
-## Графовые структуры
-
-### Типы графов
-
-```python
-from polisyos.foundry.agent_sim.graphs import (
-    create_random_graph,
-    create_scale_free_graph,
-    create_spatial_graph,
-    create_watts_strogatz_graph
-)
-
-# Создание scale-free графа (Барабаши-Альберт)
-graph = create_scale_free_graph(n_nodes=1000, m=3)
-
-# Создание пространственного графа
-spatial_graph = create_spatial_graph(
-    n_nodes=1000,
-    positions=positions,  # [n_nodes, 2]
-    threshold=0.1
-)
-```
-
-### Graph State
-
-```python
-@chex.dataclass(frozen=True)
-class GraphState:
-    edges: EdgeList                    # Список рёбер
-    node_features: Float[Array, "n_nodes d"]  # Признаки узлов
-    edge_features: Float[Array, "n_edges d"]  # Признаки рёбер
-    adjacency: SparseMatrix            # Матрица смежности
-```
-
-## Распределения и неравенство
-
-### Метрики неравенства
-
-```python
-from polisyos.foundry.agent_sim.distributions import (
-    compute_gini,
-    compute_palma_ratio,
-    compute_top_share,
-    compute_bottom_share
-)
-
-# Коэффициент Джини
-gini = compute_gini(incomes)
-
-# Соотношение Палма (топ 10% / bottom 40%)
-palma = compute_palma_ratio(incomes)
-
-# Доля топ 1%
-top_1_percent = compute_top_share(incomes, percentile=99)
-```
-
-### Distribution State
-
-```python
-@chex.dataclass(frozen=True)
-class DistributionState:
-    quantiles: Float[Array, "n_quantiles"]     # Квантили
-    quantile_values: Float[Array, "n_quantiles"]  # Значения квантилей
-    gini_coefficient: Float[Array, ""]         # Коэффициент Джини
-    palma_ratio: Float[Array, ""]              # Соотношение Палма
-    compressed_state: CompactDistributionState # Сжатое представление
-```
-
-## Эволюционные алгоритмы
-
-### CMA-ES оптимизация
-
-```python
-from polisyos.foundry.agent_sim.evolution import run_cma_es
-
-# Оптимизация параметров политики
-result = run_cma_es(
-    objective_fn=lambda params: evaluate_policy(params),
-    initial_mean=jnp.zeros(10),
-    initial_sigma=0.1,
-    population_size=50,
-    max_generations=100
-)
-```
-
-## Демографические механизмы
-
-### Жизненный цикл агента
-
-```python
-# Старение агентов
-aging_mech = AgingMechanism(
-    steps_per_year=12,
-    retirement_age=65,
-    fertility_start=20,
-    fertility_end=45
-)
-
-# Рождение новых агентов
-birth_mech = BirthMechanism(
-    max_births_per_step=50,
-    inheritance_config=InheritanceConfig(
-        wealth_inheritance_rate=0.3,
-        skill_inheritance_rate=0.5
-    )
-)
-```
-
-### Наследование
-
-```python
-@dataclass(frozen=True)
-class InheritanceConfig:
-    wealth_inheritance_rate: float = 0.3    # Доля наследуемого богатства
-    skill_inheritance_rate: float = 0.5     # Доля наследуемых навыков
-    minimum_inheritance: float = 1000.0     # Минимальное наследство
-```
-
-## Многоагентное обучение
-
-### Режимы обучения
-
-```python
-from polisyos.foundry.agent_sim.modes import (
-    run_mode_a,      # Одноуровневое обучение
-    run_bilevel,     # Двухуровневое (правительство + агенты)
-    run_mode_c       # Кооперативное обучение
-)
-
-# Двухуровневое обучение
-bilevel_result = run_bilevel(
-    config=BilevelConfig(
-        agent_population=1000,
-        government_lr=0.01,
-        agent_lr=0.001,
-        n_gov_steps=10,
-        n_agent_steps=50
-    )
-)
-```
-
-## Временные аспекты
-
-### Temporal Observations
-
-```python
-from polisyos.foundry.agent_sim.temporal import build_temporal_observations
-
-# Создание временных наблюдений
-temporal_obs = build_temporal_observations(
-    current_state=current_state,
-    history_states=history_buffer,  # [time_steps, batch_size, ...]
-    time_window=12,
-    include_differences=True,
-    include_momentum=True
-)
-```
-
-## Анализ и визуализация
-
-### Behavior Analysis
-
-```python
-from polisyos.foundry.agent_sim.analysis import BehaviorAnalyzer
-
-analyzer = BehaviorAnalyzer()
-clusters = analyzer.cluster_agents(
-    agent_states=states,
-    n_clusters=5,
-    features=['income', 'savings', 'consumption', 'risk_aversion']
-)
-
-# Анализ кластеров поведения
-for i, cluster in enumerate(clusters):
-    print(f"Cluster {i}: {len(cluster.agents)} agents")
-    print(f"  Avg income: {cluster.avg_income}")
-    print(f"  Consumption pattern: {cluster.consumption_pattern}")
-```
-
-### Dashboard
-
-```python
-from polisyos.foundry.agent_sim.dashboard import DashboardGenerator
-
-dashboard = DashboardGenerator()
-dashboard.add_metric("gdp", lambda state: state.gdp)
-dashboard.add_metric("unemployment", lambda state: state.unemployment_rate)
-dashboard.add_chart("income_distribution", plot_income_dist)
-
-# Генерация отчёта
-report = dashboard.generate_report(simulation_results)
-```
-
-## Производительность и оптимизации
-
-### JIT-компиляция
-
-```python
-from polisyos.foundry.agent_sim.jit_training import create_jit_trainer
-
-# JIT-компиляция обучения
-jit_trainer = create_jit_trainer(
-    model=actor_critic,
-    optimizer=optax.adam(1e-3),
-    loss_fn=ppo_loss,
-    batch_size=64
-)
-
-# Быстрое обучение
-loss = jit_trainer.step(params, batch)
-```
-
-### Параллельное исполнение
-
-```python
-from polisyos.foundry.agent_sim.population_executor import PopulationAwareExecutor
-
-executor = PopulationAwareExecutor()
-batch_results = executor.execute_batch(
-    mechanisms=[consumption_mech, labor_mech],
-    initial_states=batch_states,  # [batch_size, ...]
-    n_steps=100
-)
-```
-
-## Примеры использования
-
-### Базовая симуляция с обучением
-
-```python
-from polisyos.foundry.agent_sim import (
-    GlobalState, ActorCritic, train_actor_critic,
-    AgingMechanism, ConsumptionMechanism, LaborMarketMechanism
-)
-
-# Инициализация состояния
-state = GlobalState.empty(n_agents=1000, seed=42)
-
-# Создание механизмов
-mechanisms = [
-    AgingMechanism(),
-    ConsumptionMechanism(),
-    LaborMarketMechanism()
-]
-
-# Создание модели RL
-model = ActorCritic(
-    obs_dim=10,      # Размерность наблюдений
-    action_dim=5,    # Размерность действий
-    hidden_dims=[64, 32]
-)
-
-# Обучение модели
-trained_model = train_actor_critic(
-    model=model,
-    mechanisms=mechanisms,
-    initial_state=state,
-    n_episodes=1000,
-    episode_length=50
-)
-```
-
-### Симуляция с графовыми связями
-
-```python
-from polisyos.foundry.agent_sim import (
-    create_spatial_graph, InformationDiffusionMechanism,
-    SocialInfluenceMechanism
-)
-
-# Создание пространственного графа
-graph = create_spatial_graph(
-    n_nodes=1000,
-    positions=agent_positions,
-    threshold=0.05  # Максимальное расстояние для связи
-)
-
-# Добавление социальных механизмов
-social_mechanisms = [
-    InformationDiffusionMechanism(graph=graph),
-    SocialInfluenceMechanism(graph=graph, influence_strength=0.1)
-]
-
-# Симуляция с социальными взаимодействиями
-results = run_simulation(
-    mechanisms=mechanisms + social_mechanisms,
-    initial_state=state,
-    n_steps=200
-)
-```
-
-## Архитектурные принципы
-
-1. **Масштабируемость**: Поддержка тысяч агентов через векторизацию
-2. **Гибкость**: Плагинная архитектура для добавления новых механизмов
-3. **Производительность**: JIT-компиляция и оптимизации для GPU
-4. **Модульность**: Чёткое разделение между RL, механизмами и анализом
-5. **Расширяемость**: Простое добавление новых типов агентов и взаимодействий
-
-## Связь с другими модулями
-
-- **`foundry.compile.api`**: Компиляция политик в исполняемые графы
-- **`foundry.runtime`**: Исполнение скомпилированных политик
-- **`foundry.calibration`**: Калибровка параметров модели
-- **`foundry.plugins`**: Интеграция в мульти-доменные симуляции
-
----
-
-Модуль `agent_sim` предоставляет полный фреймворк для создания сложных симуляций поведенчески-гетерогенных агентов с современными методами машинного обучения и графового моделирования.

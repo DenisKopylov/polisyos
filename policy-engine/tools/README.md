@@ -1,41 +1,58 @@
-# Tools - Инструменты разработчика Policy Engine
+# Tools — Инструменты разработчика Policy Engine
 
-Коллекция утилит для разработки, тестирования, диагностики и демонстрации Policy Engine. Инструменты обеспечивают соблюдение архитектурных законов и предоставляют полный спектр возможностей от линтинга кода до end-to-end демонстраций политик.
+Standalone CLI-утилиты для обеспечения качества, диагностики, бенчмаркинга и демонстрации возможностей Policy Engine. Инструменты **потребляют** публичные API основного фреймворка, но никогда не импортируются из него — зависимость строго однонаправленная.
 
-## Структура папки
+## Роль в системе
+
+```
+polisyos.*  (source)          tools/  (consumers)
+  core   ←──────────────────  lint_imports, capture_env, visualize_provenance
+  fabric ←──────────────────  lint_connectors, scan_fabric, demos/*, diagnostics/*
+  foundry ←─────────────────  lint_foundry, benchmarks/*, run_mechanism_design
+  ir     ←──────────────────  gen_schema, abi_diff, demos/run_optimizer_demo
+  common ←──────────────────  migrate, benchmarks/*, diagnostics/check_setup
+```
+
+Инструменты не являются Python-пакетом (`__init__.py` отсутствует) — каждый скрипт запускается напрямую через `python tools/<script>.py`. Путь к `src/` добавляется через `sys.path.insert` внутри каждого скрипта.
+
+## Структура
 
 ```
 tools/
-├── benchmarks/                 # Бенчмарки производительности
-│   ├── bench_domain.py         # Тест доменной модели (JAX + Equinox)
-│   └── bench_simulation.py     # Тест полного симуляционного пайплайна
-├── connectors/                 # Инструменты для коннекторов данных
-│   └── scaffold.py             # Генератор скелетов коннекторов
-├── demos/                      # Демонстрационные скрипты
-│   ├── run_ingest_demo.py      # Полный ingestion пайплайн
-│   ├── run_udf_query_demo.py   # UDF запросы к Unified Data Fabric
-│   ├── run_optimizer_demo.py   # Оптимизация политик (NSGA-II)
-│   ├── run_laffer_demo.py      # Кривая Лаффера
-│   ├── run_udf_hybrid_demo.py  # Гибридные SQL + Python запросы
-│   └── run_export_demo.py      # Экспорт симуляционных данных
-├── diagnostics/                # Диагностика и анализ системы
-│   ├── check_setup.py          # Комплексная проверка установки
-│   ├── check_udf_perf.py       # Профилирование UDF производительности
-│   ├── check_perf_regression.py# Проверка регрессий производительности
-│   └── generate_ir_schema.py   # DEPRECATED wrapper -> tools/gen_schema.py
-├── capture_env.py              # Захват Environment Manifest
-├── check_perf_regression.py    # Проверка регрессий производительности
-├── abi_diff.py                 # Семантический diff ABI schema snapshots
-├── gen_schema.py               # Генератор JSON Schema из Pydantic
-├── lint_connectors.py          # Линтер коннекторов данных
-├── lint_foundry.py             # Архитектурный линтер foundry
-├── lint_imports.py             # Линтер межмодульных зависимостей
-├── migrate.py                  # Универсальная миграция артефактов
-├── migrate_ir.py               # Миграция Policy IR
-├── migrate_to_trinity.py       # Миграция в Trinity формат
-├── run_mechanism_design.py     # Демонстрация механизма дизайна
-├── scan_fabric.py              # Сканер DuckDB и генератор data contracts
-└── visualize_provenance.py     # Визуализация provenance графов
+├── abi_diff.py                            # Семантический diff ABI-схем
+├── capture_env.py                         # Захват/сравнение Environment Manifest
+├── check_perf_regression.py               # Детекция регрессий pytest-benchmark
+├── check_scientist_node_version_bump.py   # Проверка version bump в PR
+├── check_state_reads.py                   # AST-анализ обращений к state
+├── gen_schema.py                          # Pydantic → JSON Schema snapshots
+├── lint_connectors.py                     # Линтер коннекторов (Законы A, E)
+├── lint_foundry.py                        # Линтер чистоты foundry (Закон B)
+├── lint_imports.py                        # Валидатор межмодульных импортов (Закон A)
+├── migrate.py                             # Универсальная миграция артефактов
+├── run_mechanism_design.py                # E2E дифференцируемый mechanism design
+├── scan_fabric.py                         # DuckDB → data contracts bootstrap
+├── visualize_provenance.py                # Визуализация и верификация provenance-графов
+│
+├── benchmarks/
+│   ├── bench_domain.py                    # JAX доменная модель — масштабируемость
+│   └── bench_simulation.py                # Полный симуляционный пайплайн
+│
+├── connectors/
+│   └── scaffold.py                        # Генератор скелетов коннекторов
+│
+├── demos/
+│   ├── run_ingest_demo.py                 # CSV → DuckDB + Kuzu ingestion
+│   ├── run_udf_query_demo.py              # Гибридные SQL + Python UDF-запросы
+│   ├── run_udf_hybrid_demo.py             # Продвинутые UDF с ML/статистикой
+│   ├── run_optimizer_demo.py              # NSGA-II многокритериальная оптимизация
+│   ├── run_laffer_demo.py                 # Кривая Лаффера — экономическая модель
+│   └── run_export_demo.py                 # Экспорт в Parquet/JSON/CSV/HDF5
+│
+└── diagnostics/
+    ├── check_setup.py                     # Smoke-тест всех компонентов системы
+    ├── check_perf_regression.py           # Расширенный анализ регрессий
+    ├── check_udf_perf.py                  # Профилирование UDF-запросов
+    └── generate_ir_schema.py              # DEPRECATED shim → gen_schema.py
 ```
 
 ## Быстрый старт
@@ -43,627 +60,252 @@ tools/
 ```bash
 cd policy-engine/
 
-# Системная диагностика
+# 1. Проверка что всё установлено
 python tools/diagnostics/check_setup.py
 
-# Архитектурный линтинг
+# 2. Архитектурные проверки
 python tools/lint_imports.py
 python tools/lint_foundry.py
+python tools/lint_connectors.py
 
-# Генерация и валидация схем
+# 3. Валидация ABI-схем
 python tools/gen_schema.py --check
 
-# Демонстрации
+# 4. Запуск демо
 python tools/demos/run_ingest_demo.py
-python tools/run_mechanism_design.py
-
-# Бенчмарки
-python tools/benchmarks/bench_domain.py
 ```
 
 ## Архитектурные линтеры
 
-### lint_imports.py - Линтер межмодульных зависимостей
-Проверяет **Закон A** - направленный граф зависимостей только внутрь. Анализирует все Python файлы, строит граф импортов, выявляет запрещенные обратные зависимости и циклы.
+Линтеры обеспечивают соблюдение пяти архитектурных законов Policy Engine через статический анализ AST.
+
+### lint_imports.py — Закон A: направленный граф зависимостей
+
+Анализирует все Python-файлы проекта, строит граф импортов и выявляет запрещённые обратные зависимости. Поддерживает конфигурируемые исключения и детальные отчёты о нарушениях.
 
 ```bash
-python tools/lint_imports.py --verbose
+python tools/lint_imports.py              # базовая проверка
+python tools/lint_imports.py --verbose    # с детализацией нарушений
 ```
 
-### lint_foundry.py - Линтер foundry модуля
-Обеспечивает **Закон B** - чистоту математического ядра. Запрещает импорты IO/БД/сетевых библиотек в foundry.
+Ключевые типы: `ImportRef`, `PolicyConfig`, `ImportException`, `Violation`.
+
+### lint_foundry.py — Закон B: чистота математического ядра
+
+Запрещает IO/БД/сетевые импорты в `foundry/` — математическое ядро должно оставаться чистым и пригодным для JIT-компиляции.
 
 ```bash
 python tools/lint_foundry.py --verbose
 ```
 
-### lint_connectors.py - Линтер коннекторов данных
-Проверяет **Законы A и E** - архитектурную изоляцию и provenance tracking в коннекторах данных.
+### lint_connectors.py — Законы A и E: изоляция коннекторов
+
+Проверяет что коннекторы данных (`fabric/connectors/`) не нарушают границы слоёв и включают provenance tracking.
 
 ```bash
 python tools/lint_connectors.py --verbose
 ```
 
-## Генерация схем
+## Управление схемами и ABI
 
-### gen_schema.py - Генератор JSON Schema
-Генерирует и валидирует ABI snapshots из Pydantic/Enum реестра согласно **Закону C** (контракты - источник истины).
+### gen_schema.py — Закон C: контракты как источник истины
+
+Генерирует детерминированные JSON Schema snapshots из Pydantic-моделей реестра. В режиме `--check` служит CI-гейтом — если snapshot-файлы не совпадают с текущим кодом, сборка падает.
 
 ```bash
-# Генерация snapshots для всех ABI моделей
-python3 tools/gen_schema.py
-
-# Валидация (CI gate)
-python3 tools/gen_schema.py --check
+python tools/gen_schema.py                        # генерация snapshots
+python tools/gen_schema.py --check                # CI: валидация актуальности
+python tools/gen_schema.py --output-dir /tmp/out  # кастомный output
 ```
 
-### abi_diff.py - Семантический ABI diff
-Сравнивает baseline/current snapshots, классифицирует breaking/non-breaking изменения и проверяет version bump правила.
+### abi_diff.py — семантический diff ABI-схем
+
+Сравнивает baseline и current snapshots, классифицирует изменения как breaking/non-breaking, проверяет правила version bump. Самый крупный инструмент (853 строки).
 
 ```bash
-python3 tools/abi_diff.py \
+python tools/abi_diff.py \
   --baseline schemas/snapshots \
   --current /tmp/current_schemas \
   --output /tmp/abi_report.json \
   --format github
 ```
 
-## Захват окружения
+Ключевые типы: `ChangeKind`, `ModelSnapshot`, `SchemaChange`, `DiffReport`.
 
-### capture_env.py - Environment Manifest
-Захватывает, сравнивает и валидирует Environment Manifest согласно **Закону D** (воспроизводимость и аудит).
+## Воспроизводимость и аудит
+
+### capture_env.py — Закон D: Environment Manifest
+
+CLI с тремя командами: `capture` (снимок окружения), `compare` (diff двух снимков), `validate` (проверка корректности манифеста).
 
 ```bash
-# Захват окружения
 python -m tools.capture_env capture --output env.json
-
-# Сравнение с baseline
 python -m tools.capture_env compare baseline.json current.json
 ```
 
-## Проверка регрессий производительности
+Интеграция: `core.artifacts.environment.EnvironmentManifest`.
 
-### check_perf_regression.py - Анализ регрессий
-Анализирует результаты pytest-benchmark и выявляет регрессии производительности согласно **Закону D**.
+### check_perf_regression.py — Закон D: регрессионное тестирование
+
+Анализирует JSON-результаты pytest-benchmark, находит ближайший baseline и выявляет регрессии выше заданного порога.
 
 ```bash
-# Проверка с автоматическим baseline
-python tools/check_perf_regression.py results.json
-
-# С кастомным threshold
-python tools/check_perf_regression.py results.json --threshold 0.10
+python tools/check_perf_regression.py results.json --threshold 0.05
 ```
 
-## Миграции
+### migrate.py — миграция артефактов
 
-### migrate.py - Универсальная миграция
-Миграция различных артефактов: dataset_manifest, policy_ir, run_manifest.
+Универсальная миграция для типов артефактов: `dataset_manifest`, `policy_ir`, `run_manifest`.
 
 ```bash
 python tools/migrate.py policy_ir old.json new.json --to v2.5.0
 ```
 
-### Legacy migration utilities
-`tools/migrate_ir.py` и `tools/migrate_to_trinity.py` удалены из активного toolchain в Phase 4.
-Историческая версия batch-скрипта сохранена в `docs/archive/migrate_to_trinity.py`.
+Интеграция: `common.migrations.migrate_artifact`.
 
-## Диагностика
+## Статический анализ кода
 
-### check_setup.py - Системная проверка
-Комплексный smoke test всех компонентов Policy Engine.
+### check_state_reads.py — анализ обращений к state
 
-```bash
-python tools/diagnostics/check_setup.py
-```
+AST-based инструмент, который сканирует файлы `foundry/` и определяет какие ключи `state.*` читает каждый модуль. Используется для минимизации контрактов зависимостей между компонентами.
 
-### check_udf_perf.py - Профилирование UDF
-Анализ производительности пользовательских функций в Unified Data Fabric.
+Ключевые типы: `ReadRequirements`, `_StateReadVisitor`.
+
+### check_scientist_node_version_bump.py — контроль версий в PR
+
+Проверяет что при изменении builtin-файлов scientist-нод в PR присутствует соответствующий version bump в `ComponentId`. Предназначен для использования в CI при проверке pull requests.
 
 ```bash
-python tools/diagnostics/check_udf_perf.py
+python tools/check_scientist_node_version_bump.py --base main
 ```
 
-### generate_ir_schema.py - Генерация IR схем
-DEPRECATED. Скрипт сохранён как shim для обратной совместимости и проксирует вызов в `tools/gen_schema.py`.
+## Provenance и data contracts
+
+### visualize_provenance.py — Закон E: визуализация provenance-графов
+
+Загружает provenance-граф (JSON или CAS-ссылка), выполняет верификацию целостности (orphaned nodes, dangling references, циклы в `wasDerivedFrom`) и экспортирует в Graphviz DOT или JSON.
 
 ```bash
-python3 tools/diagnostics/generate_ir_schema.py --check
+python tools/visualize_provenance.py evidence.json --verify
+python tools/visualize_provenance.py evidence.json --format dot | dot -Tpng -o graph.png
+python tools/visualize_provenance.py prov.json --cas-root .polisyos --format json
 ```
 
-## Бенчмарки
+Интеграция: `core.artifacts.ids.ArtifactID`, `core.artifacts.store.FileSystemCAS`, `core.audit.prov_json`.
 
-### bench_domain.py - Доменная модель
-Тестирование масштабируемости JAX доменной модели foundry.
+### scan_fabric.py — bootstrap data contracts
 
-```bash
-python tools/benchmarks/bench_domain.py --n-agents 1000000
-```
-
-### bench_simulation.py - Симуляционное ядро
-Полносистемный бенчмарк симуляционного пайплайна.
-
-```bash
-python tools/benchmarks/bench_simulation.py --n-steps 100 --n-agents 10000
-```
-
-## Демонстрации
-
-### run_ingest_demo.py - Ingestion пайплайн
-Полная демонстрация Unified Data Fabric ingestion: CSV → DuckDB + Kuzu.
-
-```bash
-python tools/demos/run_ingest_demo.py
-```
-
-### run_udf_query_demo.py - UDF запросы
-Гибридные SQL + Python запросы к Unified Data Fabric.
-
-```bash
-python tools/demos/run_udf_query_demo.py
-```
-
-### run_optimizer_demo.py - Оптимизация политик
-Многокритериальная оптимизация с PyMOO NSGA-II.
-
-```bash
-python tools/demos/run_optimizer_demo.py
-```
-
-### run_laffer_demo.py - Кривая Лаффера
-Экономическая демонстрация зависимости доходов от налоговой ставки.
-
-```bash
-python tools/demos/run_laffer_demo.py
-```
-
-### run_mechanism_design.py - Дифференцируемый механизм дизайна
-End-to-end оптимизация политик через JAX градиенты.
-
-```bash
-python tools/run_mechanism_design.py
-```
-
-### run_export_demo.py - Экспорт данных
-Экспорт симуляционных результатов в Parquet, JSON, CSV, HDF5.
-
-```bash
-python tools/demos/run_export_demo.py
-```
-
-### scan_fabric.py - Генератор data contracts
-Сканирование DuckDB и автоматическая генерация data contracts.
+Сканирует DuckDB-файлы, извлекает схему таблиц и генерирует черновик data contracts для `fabric.catalog`. Полезен при первоначальной интеграции новых источников данных.
 
 ```bash
 python tools/scan_fabric.py data/ --output contracts.json
 ```
 
-### visualize_provenance.py - Визуализация provenance
-Визуализация и верификация provenance графов согласно Закону E.
+## Бенчмарки (`benchmarks/`)
+
+Два бенчмарка для регрессионного тестирования производительности foundry.
+
+| Скрипт | Что тестирует | Ключевые метрики |
+|--------|--------------|------------------|
+| `bench_domain.py` | `GlobalState` аллокация, JIT-компиляция, векторизованные операции | Память, время JIT, ms/step |
+| `bench_simulation.py` | Полный экономический цикл через `SimulationKernel` | steps/sec, agent-steps/sec, GDP/unemployment |
 
 ```bash
-python tools/visualize_provenance.py evidence.json --verify
+python tools/benchmarks/bench_domain.py --n-agents 1000000
+python tools/benchmarks/bench_simulation.py --n-steps 100 --n-agents 10000
 ```
 
-### visualize_provenance.py - Визуализация и верификация provenance графов
+Зависимости: `foundry.domain.state.GlobalState`, `foundry.engine.kernel.SimulationKernel`, JAX, Equinox.
 
-Инструмент для визуализации и верификации provenance графов согласно **Закону E** ("Evidence и provenance обязательны"). Позволяет анализировать происхождение данных, выявлять проблемы в графах зависимостей и генерировать визуализации для отладки.
+## Генератор коннекторов (`connectors/`)
 
-**Функциональность:**
+### scaffold.py — скелет нового коннектора
 
-**Загрузка графов:**
-- Загрузка из файлов JSON или evidence bundles
-- Разрешение provenance_ref через CAS систему
-- Поддержка различных форматов хранения
-
-**Верификация целостности:**
-- Проверка на orphaned nodes (узлы без связей)
-- Выявление dangling references (ссылки на несуществующие узлы)
-- Детекция циклов в wasDerivedFrom отношениях
-- Валидация всех обязательных полей
-
-**Визуализация:**
-- Экспорт в Graphviz DOT формат для визуализации
-- Цветовое кодирование по типам узлов (entities, activities, agents)
-- Стилизация отношений (derived, generated, used, attributed, associated)
-- Генерация PNG/SVG через Graphviz
-
-**Экспорт:**
-- JSON дамп графов с форматированием
-- DOT файлы для Graphviz визуализации
-- Поддержка stdout и файлового вывода
+Генерирует source-файл и тест для нового коннектора данных по выбранному типу: **REST**, **CSV**, **SQL**, **SDMX**. Сгенерированный код сразу проходит `ConnectorTestHarness`.
 
 ```bash
-# Генерация DOT файла из evidence bundle
-python tools/visualize_provenance.py evidence.json --format dot > graph.dot
-dot -Tpng graph.dot -o graph.png
+python tools/connectors/scaffold.py create --name WorldBankData --type REST
+# → src/polisyos/fabric/connectors/sources/world_bank_data.py
+# → tests/fabric/connectors/sources/test_world_bank_data.py
 
-# Верификация графа с CAS разрешением
-python tools/visualize_provenance.py provenance.json --cas-root .polisyos --verify
-
-# Экспорт в JSON формат
-python tools/visualize_provenance.py graph.json --format json --output graph_pretty.json
+python tools/connectors/scaffold.py create --name CensusData --type CSV --dry-run
 ```
 
-**Типы отношений в provenance:**
-- `wasDerivedFrom` - трансформация данных (синие сплошные линии)
-- `wasGeneratedBy` - генерация данных активностью (зеленые пунктирные)
-- `used` - использование данных активностью (оранжевые точечные)
-- `wasAttributedTo` - атрибуция агенту (фиолетовые сплошные)
-- `wasAssociatedWith` - ассоциация агента с активностью (фиолетовые пунктирные)
+Интеграция: `fabric.connectors.base.BaseConnector`, `fabric.connectors.testing.ConnectorTestHarness`, `ir.connectors`.
 
-**Интеграция с модулями:**
-- `polisyos.core.artifacts.ids.ArtifactID` - идентификаторы артефактов
-- `polisyos.core.artifacts.store.FileSystemCAS` - Content Addressable Storage
-- JSON Schema валидация provenance структур
+## Демонстрации (`demos/`)
 
-**Примеры вывода верификации:**
+End-to-end скрипты, демонстрирующие ключевые пайплайны Policy Engine. Каждый скрипт самодостаточен и генерирует необходимые тестовые данные.
+
+| Скрипт | Пайплайн | Основные модули |
+|--------|----------|----------------|
+| `run_ingest_demo.py` | CSV → Parquet → DuckDB + Kuzu | `fabric.ingestion`, `fabric.io.db`, `fabric.io.graph_store` |
+| `run_udf_query_demo.py` | Panel/Snapshot/Network UDF-запросы | `fabric.udf.engine`, `ir.data_views` |
+| `run_udf_hybrid_demo.py` | ML/статистика внутри SQL через UDF | DuckDB UDF API, Pandas, NumPy |
+| `run_optimizer_demo.py` | NSGA-II оптимизация политик | `scientist.orchestrator`, `ir.trinity`, PyMOO |
+| `run_laffer_demo.py` | Кривая Лаффера — tax rate vs revenue | `foundry.domain`, `foundry.engine` |
+| `run_export_demo.py` | Экспорт state в Parquet/JSON/CSV/HDF5 | `foundry.domain.state`, `foundry.engine.kernel` |
+
+`run_mechanism_design.py` (в корне tools) — отдельная E2E демонстрация дифференцируемого mechanism design через JAX-градиенты. Использует `core.contracts.foundry`, `foundry.compile.api`, `ir.kernel`.
+
+## Диагностика (`diagnostics/`)
+
+| Скрипт | Назначение | CI-роль |
+|--------|-----------|---------|
+| `check_setup.py` | Smoke-тест: JAX, Pydantic v2, DuckDB, Kuzu, все модули polisyos | Quality gate |
+| `check_perf_regression.py` | Расширенный анализ регрессий с автоматическим поиском baseline | Nightly |
+| `check_udf_perf.py` | Профилирование UDF: latency, throughput, DuckDB vs Kuzu | Performance gate |
+| `generate_ir_schema.py` | **DEPRECATED** — shim, проксирует в `tools/gen_schema.py` | — |
+
+```bash
+python tools/diagnostics/check_setup.py    # первая команда при настройке окружения
 ```
-VERIFICATION FAILED:
-  - ORPHANED: Node 'data_entity_123' not connected to any edge
-  - DANGLING: Edge source 'activity_456' not found in nodes
-  - CYCLE: Circular dependency detected in wasDerivedFrom edges
-```
 
-## Архитектурная интеграция
+## Матрица архитектурных законов
 
-Инструменты обеспечивают соблюдение архитектурных законов Policy Engine:
-
-| Инструмент | Модули | Архитектурный закон |
-|------------|--------|---------------------|
-| `lint_imports.py` | `core.*` | Закон A (направленный граф зависимостей) |
-| `lint_foundry.py` | `foundry.*` | Закон B (чистота математического ядра) |
-| `lint_connectors.py` | `fabric.connectors.*` | Законы A, E (изоляция и provenance) |
-| `gen_schema.py` | `ir.trinity` | Закон C (контракты как источник истины) |
-| `migrations/README.md` | `ir.migrations` | Закон C (детерминированные миграции) |
-| `capture_env.py` | `core.artifacts` | Закон D (воспроизводимость) |
-| `check_perf_regression.py` | - | Закон D (регрессионное тестирование) |
-| `scan_fabric.py` | `fabric.catalog` | Закон E (evidence и provenance) |
-| `visualize_provenance.py` | `core.artifacts` | Закон E (evidence и provenance) |
-
-### Архитектурные законы
-
-**Закон A**: Направленный граф зависимостей только внутрь
-**Закон B**: Чистота математического ядра foundry (без IO/side effects)
-**Закон C**: Контракты как источник истины (Pydantic + JSON Schema)
-**Закон D**: Воспроизводимость и аудит (manifests + trace)
-**Закон E**: Evidence и provenance обязательны
+| Закон | Описание | Инструменты |
+|-------|---------|-------------|
+| **A** | Направленный граф зависимостей (только внутрь) | `lint_imports.py`, `lint_connectors.py` |
+| **B** | Чистота математического ядра foundry (без IO) | `lint_foundry.py` |
+| **C** | Контракты — источник истины (Pydantic + JSON Schema) | `gen_schema.py`, `abi_diff.py` |
+| **D** | Воспроизводимость и аудит | `capture_env.py`, `check_perf_regression.py`, `migrate.py` |
+| **E** | Evidence и provenance обязательны | `visualize_provenance.py`, `scan_fabric.py`, `lint_connectors.py` |
 
 ## CI/CD интеграция
 
-Рекомендуемый pipeline качества:
+Рекомендуемый pipeline:
 
 ```yaml
-# Quality gate
+# Quality gate (каждый PR)
 - python tools/diagnostics/check_setup.py
-- python tools/lint_imports.py --fail-on-cycles
+- python tools/lint_imports.py
 - python tools/lint_foundry.py
+- python tools/lint_connectors.py
 - python tools/gen_schema.py --check
+- python tools/check_scientist_node_version_bump.py --base main
 
-# Performance regression
+# Performance (nightly)
 - python tools/check_perf_regression.py results.json --threshold 0.05
+- python tools/benchmarks/bench_domain.py --n-agents 1000000
+- python tools/benchmarks/bench_simulation.py --n-steps 100 --n-agents 10000
 
-# Integration tests
+# Smoke tests (integration)
 - python tools/demos/run_ingest_demo.py
 - python tools/demos/run_udf_query_demo.py
 ```
 
-## Разработка и расширение
-
-### Добавление нового инструмента
-
-1. **Следуйте паттернам:**
-   - Импорт sys.path manipulation для PYTHONPATH
-   - Использование polisyos.common.logger
-   - Argparse для CLI интерфейса
-   - Docstrings на русском
-
-2. **Категоризация:**
-   - `diagnostics/` - проверки и анализ
-   - `demos/` - демонстрации возможностей
-   - `benchmarks/` - производительность
-   - Корень - core утилиты
-
-3. **Качество кода:**
-   - Строгая типизация
-   - Линтеры проходят все проверки
-   - README обновляется
-
-### Отладка инструментов
+## Troubleshooting
 
 ```bash
-# Детальный вывод
+# PYTHONPATH — если ImportError при запуске инструмента
+export PYTHONPATH="$(pwd)/src:$PYTHONPATH"
+
+# JAX Metal на macOS — если зависает или segfault
+export POLICY_ENGINE_ALLOW_JAX_METAL=0
+
+# Schema drift — перегенерация ABI snapshots
+python tools/gen_schema.py && python tools/gen_schema.py --check
+
+# Детальный вывод любого линтера
 python tools/lint_imports.py --verbose
-
-# Сохранение логов
-POLICY_ENGINE_LOG_LEVEL=DEBUG python tools/diagnostics/check_setup.py 2>&1 | tee setup.log
-
-# Профилирование
-python -m cProfile tools/benchmarks/bench_domain.py
 ```
-
-## Troubleshooting
-
-### Import errors
-```bash
-# Проверь PYTHONPATH
-export PYTHONPATH="/path/to/policy-engine/src:$PYTHONPATH"
-python tools/diagnostics/check_setup.py
-```
-
-### JAX/Metal issues (macOS)
-```bash
-# Принудительно CPU
-export POLICY_ENGINE_ALLOW_JAX_METAL=0
-python tools/diagnostics/check_setup.py
-```
-
-### Permission issues
-```bash
-# Используй --user для pip
-pip install --user -e .[dev]
-```
-
-### Schema validation fails
-```bash
-# Перегенерируй ABI snapshots
-python3 tools/gen_schema.py
-
-# Проверь consistency snapshots
-python3 tools/gen_schema.py --check
-```
-
-### Import violations detected
-```bash
-# Детальный анализ нарушений
-python tools/lint_imports.py --verbose --top 20
-
-# Проверь конкретный файл
-python tools/lint_imports.py --src-root src | grep "problematic_file.py"
-```
-
-### Foundry linting fails
-```bash
-# Проверь запрещенные импорты
-python tools/lint_foundry.py --verbose
-
-# Исключи тестовые файлы если нужно
-python tools/lint_foundry.py --exclude "test_*"
-```
-
-### scan_fabric.py не находит DuckDB файлы
-```bash
-# Проверь наличие файлов
-ls -la data/curated/*.duckdb
-
-# Используй кастомный glob паттерн
-python tools/scan_fabric.py data/ -glob "**/*.duckdb"
-
-# Проверь права доступа
-python -c "import duckdb; print('DuckDB OK')"
-```
-
-### Некорректное определение типов/единиц
-```bash
-# Просмотри сгенерированные контракты
-python tools/scan_fabric.py data/curated/ -v
-
-# Ручная аннотация после генерации
-# Отредактируй draft_contracts.json вручную
-# Проверь units и pii_tiers
-```
-
-### visualize_provenance.py не может загрузить граф
-```bash
-# Проверь существование файла
-ls -la evidence.json
-
-# Для CAS артефактов проверь путь к .polisyos
-ls -la .polisyos/
-
-# Попробуй с verbose выводом
-python tools/visualize_provenance.py evidence.json --cas-root .polisyos --verify -v
-
-# Проверь JSON структуру
-python -c "import json; print(json.load(open('evidence.json'))['provenance_ref'])" 2>/dev/null || echo "No provenance_ref"
-```
-
-### DOT визуализация не работает
-```bash
-# Установи Graphviz
-# macOS: brew install graphviz
-# Ubuntu: apt-get install graphviz
-
-# Проверь установку
-dot -V
-
-# Сгенерируй и визуализируй
-python tools/visualize_provenance.py evidence.json --format dot | dot -Tpng -o graph.png
-```
-
-### check_perf_regression.py не может загрузить benchmark JSON
-```bash
-# Проверь существование файла
-ls -la benchmark_results.json
-
-# Проверь JSON структуру
-python -c "import json; data=json.load(open('benchmark_results.json')); print('benchmarks' in data)"
-
-# Для pytest-benchmark файлов проверь формат
-python -c "import json; data=json.load(open('benchmark_results.json')); print(data.keys())"
-```
-
-### Нет baseline файла для сравнения
-```bash
-# Создай baseline вручную
-cp benchmark_results.json .benchmarks/baseline.json
-
-# Или укажи явный путь
-python tools/check_perf_regression.py current.json --baseline path/to/baseline.json
-
-# Автоматический поиск baseline в стандартных директориях:
-# - .benchmarks/*.json (отсортировано по времени модификации)
-# - benchmarks/*.json
-```
-
-### Ложные регрессии из-за шума
-```bash
-# Увеличь threshold для нестабильных тестов
-python tools/check_perf_regression.py results.json --threshold 0.15  # 15% вместо 5%
-
-# Проверь статистику в benchmark JSON
-python -c "import json; data=json.load(open('results.json')); print(data['benchmarks'][0]['stats'])"
-```
-
-## Разработка новых инструментов
-
-### Принципы дизайна
-
-1. **Следуйте архитектуре:** Каждый инструмент должен соответствовать одному из архитектурных законов
-2. **Интегрируйтесь с модулями:** Используйте публичные API модулей, не нарушайте инкапсуляцию
-3. **CLI интерфейс:** Argparse с --help, структурированный вывод
-4. **Логирование:** Используйте `polisyos.common.logger`
-5. **Обработка ошибок:** Четкие exit codes, информативные сообщения
-
-### Категоризация инструментов
-
-- **`diagnostics/`** - анализ и проверка системы
-- **`demos/`** - демонстрация возможностей (создают тестовые данные)
-- **`benchmarks/`** - измерение производительности
-- **Корень** - core утилиты для разработки
-
-### Тестирование
-
-```bash
-# Добавьте тесты в tests/tools/
-# Следуйте паттернам существующих тестов
-pytest tests/tools/ -v
-```
-
-### Документация
-
-1. **Обновите этот README** - добавьте описание, примеры использования
-2. **Добавьте docstrings** - на русском, с примерами
-3. **Убедитесь в линтинге** - все инструменты проходят свои же проверки
-
-## Поддержка и совместимость
-
-### Системные требования
-
-- **Python:** 3.11+ (рекомендуется 3.11 или 3.12)
-- **JAX:** 0.4.x+ с соответствующими JAXlib
-- **Pydantic:** v2 only (критические изменения в v1→v2)
-- **Операционные системы:** Linux, macOS (Intel/Apple Silicon), Windows (WSL2)
-
-### Зависимости
-
-| Компонент | Версия | Примечание |
-|------------|--------|------------|
-| `jax` | 0.4.x+ | С JAXlib для целевой платформы |
-| `jaxlib` | Совместимая с JAX | CPU или GPU версия |
-| `equinox` | 0.11.x+ | Функциональное программирование |
-| `pydantic` | 2.x | Только v2, v1 не поддерживается |
-| `duckdb` | 0.9.x+ | Аналитическое хранилище |
-| `kuzu` | 0.0.x+ | Графовая база данных |
-| `pymoo` | 0.6.x+ | Многокритериальная оптимизация |
-
-### Известные ограничения и решения
-
-#### JAX и Apple Silicon (macOS)
-```bash
-# Принудительное использование CPU (рекомендуется для стабильности)
-export POLICY_ENGINE_ALLOW_JAX_METAL=0
-python tools/diagnostics/check_setup.py
-```
-
-#### PyYAML для YAML поддержки
-```bash
-# Опционально для миграций YAML файлов
-pip install PyYAML
-```
-
-#### Kuzu установка
-```bash
-# Требует C++ компилятора
-# На macOS: xcode-select --install
-# На Ubuntu: apt-get install build-essential
-pip install kuzu
-```
-
-#### Windows поддержка
-- Полная поддержка через WSL2
-- Native Windows: экспериментальная, возможны проблемы с JAX GPU
-
-### Тестирование совместимости
-
-```bash
-# Полная проверка системной совместимости
-python tools/diagnostics/check_setup.py
-
-# Проверка с детальным логированием
-POLICY_ENGINE_LOG_LEVEL=DEBUG python tools/diagnostics/check_setup.py
-```
-
-### Версионирование
-
-Инструменты следуют семантическому версионированию основного проекта. Критические изменения в API инструментов помечаются в changelog.
-
----
-
-## Архитектурная актуальность
-
-Данная документация отражает текущее состояние Policy Engine на **2026-01-30** и соответствует принципам, описанным в `architecture.md`.
-
-### Ключевые архитектурные достижения
-
-- **Закон A**: Гарантированная направленность зависимостей через автоматизированное тестирование
-- **Закон B**: Чистота математического ядра foundry с запретом IO операций
-- **Закон C**: Контракты как источник истины с детерминированными миграциями
-- **Закон D**: Полная воспроизводимость через manifests и trace систему
-- **Закон E**: Evidence и provenance обязательны для всех данных (новая система data contracts)
-
-### Интеграция с модулями
-
-Инструменты `tools/` обеспечивают качество всей экосистемы Policy Engine:
-
-- **Диагностика**: `diagnostics/` - проверка готовности системы
-- **Качество**: `lint_*.py` - соблюдение архитектурных законов
-- **Эволюция**: `migrations/README.md.py`, `gen_schema.py` - безопасные изменения
-- **Производительность**: `benchmarks/` - регрессионное тестирование
-- **Демонстрация**: `demos/` - валидация функциональности
-- **Bootstrap**: `scan_fabric.py` - быстрая генерация data contracts из существующих данных
-
-### Новые возможности (2026-02-01)
-
-- **Data Catalog System**: Новая подсистема data contracts в `fabric.catalog/`
-- **scan_fabric.py**: Bootstrap утилита для автоматической генерации data contracts
-- **Enhanced Evidence Tracking**: Улучшенная система provenance и evidence bundles
-- **Trinity Migration**: Поддержка миграции в новый Trinity формат (ProblemFrame, PolicySpec, ModelSpec)
-- **migrate_to_trinity.py**: Специализированный инструмент для batch миграции политик в Trinity формат
-- **visualize_provenance.py**: Инструмент для визуализации и верификации provenance графов
-- **check_perf_regression.py**: Автоматическая проверка регрессий производительности на основе pytest-benchmark результатов
-- **capture_env.py**: CLI инструмент для захвата и сравнения Environment Manifest
-- **run_mechanism_design.py**: End-to-end демонстрация дифференцируемого механизма дизайна
-- **diagnostics/check_perf_regression.py**: Расширенная версия проверки регрессий в diagnostics
-- **lint_connectors.py**: Архитектурный линтер для коннекторов данных с проверкой Законов A и E
-- **connectors/scaffold.py**: Генератор скелетов коннекторов с автоматической поддержкой REST, CSV, SQL, SDMX типов
-
-## Troubleshooting
-
-### Основные проблемы
-```bash
-# PYTHONPATH
-export PYTHONPATH="/path/to/policy-engine/src:$PYTHONPATH"
-
-# JAX Metal (macOS)
-export POLICY_ENGINE_ALLOW_JAX_METAL=0
-
-# Schema validation
-python3 tools/gen_schema.py
-
-# Import violations
-python tools/lint_imports.py --verbose --top 20
-```
-
----
-
-*Документация актуальна на 2026-02-05. Инструменты следуют архитектурным законам A, B, C, D, E Policy Engine.*

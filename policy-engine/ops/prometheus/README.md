@@ -1,146 +1,155 @@
-# Prometheus Configuration (Мониторинг и алертинг)
+# prometheus — Metrics Collection, Alerting & SLO
 
-Директория содержит конфигурацию Prometheus для сбора метрик, алертинга и предвычисления метрик PolicyOS. Обеспечивает комплексный мониторинг производительности и надежности.
+Конфигурация Prometheus для PolicyOS: scrape метрик, 16 alert rules (включая 5 SLO), 12 recording rules для предвычисления агрегатов.
 
-## Структура
+## Файлы
 
-```
-prometheus/
-├── prometheus.yml                  # Основная конфигурация (15s scrape/eval)
-├── alerts.yml                      # Alert rules (cost, agents, simulation)
-├── recording_rules.yml             # Recording rules (30s interval)
-└── README.md                       # Эта документация
-```
+| Файл | Назначение |
+|---|---|
+| `prometheus.yml` | Scrape config: 15s interval, targets polisyos (:9464) + self-monitoring (:9090) |
+| `alerts.yml` | 11 alert rules по 4 группам: cost, agents, simulation, calibration |
+| `slo_alerts.yml` | 5 SLO alert rules: DAG success rate, latency, NaN, connector errors |
+| `recording_rules.yml` | 4 recording rules (30s): LLM cost/h, acceptance rate, cache ratio, error rate |
+| `slo_recording_rules.yml` | 8 SLO recording rules (30s): success rates, percentiles, NaN rates |
 
-## Конфигурация сбора метрик
+## Scrape Configuration
 
-### Основные настройки
 ```yaml
 global:
-  scrape_interval: 15s     # Сбор метрик каждые 15 секунд
-  evaluation_interval: 15s # Оценка правил каждые 15 секунд
-
-rule_files:
-  - recording_rules.yml
-  - alerts.yml
+  scrape_interval: 15s
+  evaluation_interval: 15s
 
 scrape_configs:
-  - job_name: polisyos        # PolicyOS metrics
-    metrics_path: /metrics
-    targets: [host.docker.internal:9464]
-  - job_name: prometheus      # Self-monitoring
-    targets: [prometheus:9090]
+  - job_name: polisyos          # host.docker.internal:9464/metrics
+    labels: { environment: development }
+  - job_name: prometheus         # self-monitoring, prometheus:9090
 ```
 
-## Система алертинга
+Все rule-файлы подключаются через абсолютные пути в контейнере (`/etc/prometheus/*.yml`).
 
-### Alert Groups
+## Alert Rules
 
-#### polisyos.cost (LLM Budget)
-- `HighLLMCost`: >$50/h (warning), `HighLLMCostCritical`: >$100/h (critical)
-- **Formula**: `(prompt_tokens * 0.00001 + completion_tokens * 0.00003) * 3600`
+### alerts.yml — Operational Alerts (11 rules)
 
-#### polisyos.agents (Workflow & Governance)
-- `AgentErrorSpike`: Error rate >5% (warning), >20% (critical)
-- `GovernancePassSlowdown`: p95 latency >30s
+**polisyos.cost** (team: platform)
 
-#### polisyos.simulation (HPC Performance)
-- `SimulationStall`: Active runs with zero throughput >5m
-- `JITRecompilationStorm`: >10/min (warning), >30/min (critical)
-- `LowCacheHitRatio`: Cache hit ratio <70%
+| Alert | Условие | for | Severity |
+|---|---|---|---|
+| `HighLLMCost` | LLM cost >$50/h | 5m | warning |
+| `HighLLMCostCritical` | LLM cost >$100/h | 5m | critical |
 
-#### polisyos.calibration (ML Training)
-- `CalibrationDiverging`: Gradient norm >1000
-- `CalibrationStuck`: Loss unchanged >30m
+Формула cost: `(sum(rate(llm_tokens{prompt}[1h])) * 0.00001 + sum(rate(llm_tokens{completion}[1h])) * 0.00003) * 3600`
+
+**polisyos.agents** (team: scientist)
+
+| Alert | Условие | for | Severity |
+|---|---|---|---|
+| `AgentErrorSpike` | Error rate >5% за 5m | 5m | warning |
+| `AgentErrorSpikeCritical` | Error rate >20% за 5m | 2m | critical |
+| `GovernancePassSlowdown` | p95 latency >30s | 10m | warning |
+
+**polisyos.simulation** (team: foundry)
+
+| Alert | Условие | for | Severity |
+|---|---|---|---|
+| `SimulationStall` | Active runs >0 AND throughput ==0 | 5m | critical |
+| `JITRecompilationStorm` | >10 compilations/min | 5m | warning |
+| `JITRecompilationStormCritical` | >30 compilations/min | 2m | critical |
+| `LowCacheHitRatio` | CAS cache hit <70% | 15m | warning |
+
+**polisyos.calibration** (team: foundry)
+
+| Alert | Условие | for | Severity |
+|---|---|---|---|
+| `CalibrationDiverging` | Gradient norm >1000 | 2m | warning |
+| `CalibrationStuck` | Loss не снижается при active runs | 30m | warning |
+
+### slo_alerts.yml — SLO Alerts (5 rules)
+
+Все SLO-алерты используют recording rules из `slo_recording_rules.yml` и фильтруются по `(workflow_id, env)` или `(connector_id, env)`.
+
+| Alert | SLO Target | Условие | for | Severity |
+|---|---|---|---|---|
+| `SLO_DagSuccessRateBreach` | >=95% | rate30m <0.95 | 10m | warning |
+| `SLO_DagSuccessRateCritical` | >=80% | rate30m <0.80 | 5m | critical |
+| `SLO_DagLatencyP99High` | <300s | p99 >300s | 15m | warning |
+| `SLO_SimulationNanRateBreach` | <0.1% | NaN rate >0.001 | 10m | warning |
+| `SLO_ConnectorErrorRateBreach` | <1% | Error rate >0.01 | 10m | warning |
 
 ## Recording Rules
 
-### Предвычисленные метрики (30s interval)
-```yaml
-groups:
-  - name: polisyos.recording
-    rules:
-      - record: polisyos:llm_cost_per_hour:rate1h    # LLM cost USD/hour
-      - record: polisyos:workflow_acceptance_rate:rate1h  # Success rate
-      - record: polisyos:cas_cache_hit_ratio:rate5m       # Cache efficiency
-      - record: polisyos:workflow_error_rate:rate5m       # Error rate
-```
+### recording_rules.yml — Operational (4 rules, 30s interval)
 
-### Преимущества
-- **Performance**: Сложные расчеты выполняются каждые 30s вместо каждого query
-- **Consistency**: Единые расчеты для всех дашбордов
-- **Reliability**: Изоляция от временных проблем сбора метрик
+| Rule | Описание |
+|---|---|
+| `polisyos:llm_cost_per_hour:rate1h` | Estimated LLM cost в USD/hour |
+| `polisyos:workflow_acceptance_rate:rate1h` | Доля успешных workflow runs |
+| `polisyos:cas_cache_hit_ratio:rate5m` | CAS cache hit ratio |
+| `polisyos:workflow_error_rate:rate5m` | Доля ошибок workflow |
+
+### slo_recording_rules.yml — SLO (8 rules, 30s interval)
+
+| Rule | Описание |
+|---|---|
+| `polisyos:slo_dag_runs:rate30m` | DAG run throughput by (workflow_id, env) |
+| `polisyos:slo_dag_success_rate:rate5m` | DAG success rate 5m window |
+| `polisyos:slo_dag_success_rate:rate30m` | DAG success rate 30m window |
+| `polisyos:slo_dag_p99_latency_seconds:5m` | DAG p99 latency |
+| `polisyos:slo_run_cost_usd_p95:5m` | Run cost p95 |
+| `polisyos:slo_simulation_runs:rate30m` | Simulation throughput by env |
+| `polisyos:slo_simulation_nan_rate:rate5m` | Simulation NaN rate |
+| `polisyos:slo_connector_error_rate:rate5m` | Connector error rate by (connector_id, env) |
+
+SLO recording rules используют `clamp_min(..., 1e-9)` для защиты от деления на ноль.
 
 ## Метрики PolicyOS
 
-### Workflow & Governance
-- `polisyos_workflow_runs_total{status, phase}` - Workflow execution counter
-- `polisyos_governance_pass_duration_seconds{le, pass_id}` - Governance latency histogram
+Все метрики имеют префикс `polisyos_`. Источник: `core/observability/metrics.py`.
 
-### LLM Usage
-- `polisyos_llm_calls_total{model, status}` - LLM API calls counter
-- `polisyos_llm_tokens_total{type}` - Token consumption (prompt/completion)
+**Workflow & Governance:**
+- `workflow_runs_total{status, phase}` — counter
+- `governance_pass_duration_seconds{pass_id}` — histogram
+- `validation_issues_total{severity, pass_id}` — counter
 
-### HPC & Simulation
-- `polisyos_simulation_steps_per_second` - Simulation throughput gauge
-- `polisyos_simulation_compile_seconds{le}` - JIT compilation histogram
-- `polisyos_artifact_cache_hits_total/misses_total` - Cache statistics
+**LLM:**
+- `llm_calls_total{model, status}` — counter
+- `llm_tokens_total{type}` — counter (type: prompt/completion)
 
-### Calibration
-- `polisyos_calibration_loss` - Training loss gauge
-- `polisyos_calibration_grad_norm` - Gradient norm gauge
+**Simulation & HPC:**
+- `simulation_steps_per_second` — gauge
+- `simulation_duration_seconds` — histogram
+- `simulation_compile_seconds` — histogram (JIT)
+- `simulation_batch_size` — histogram
+- `artifact_cache_hits_total`, `artifact_cache_misses_total` — counters
+- `artifact_io_duration_seconds` — histogram
 
-## Конфигурация алертинга
+**Calibration:**
+- `calibration_loss` — gauge
+- `calibration_grad_norm` — gauge
+- `calibration_step_duration_seconds` — histogram
 
-### Severity Levels
-- **warning**: Требует внимания (non-critical)
-- **critical**: Требует немедленных действий
+**Connector Resilience:**
+- `connector_cache_operations_total{operation, status}` — counter
+- `connector_circuit_state{circuit_id}` — gauge (0=closed, 1=open, 2=half_open)
+- `connector_circuit_trips_total` — counter
+- `connector_retry_attempts_total` — counter
+- `connector_rate_limit_throttled_total` — counter
+- `connector_fallback_triggered_total`, `connector_fallback_success_total` — counters
 
-### Alert Labels
-```yaml
-labels:
-  severity: warning|critical
-  team: platform|scientist|foundry
-```
+**SLO:**
+- `slo_dag_runs_total{status, workflow_id, env}` — counter
+- `slo_dag_duration_seconds{workflow_id, env}` — histogram
+- `slo_run_cost_usd{workflow_id, env}` — histogram
+- `slo_simulation_nan_total{method, env}` — counter
+- `slo_simulation_runs_total{status, method, env}` — counter
+- `slo_connector_requests_total{status, connector_id, env}` — counter
 
 ## Кастомизация
 
-### Добавление алертов
-1. Добавьте правило в `alerts.yml` с `expr`, `for`, `labels`, `annotations`
-2. Перезапустите Prometheus: `docker-compose restart prometheus`
+**Добавление алерта:** добавить rule в `alerts.yml` (operational) или `slo_alerts.yml` (SLO) с `expr`, `for`, `labels{severity, team}`, `annotations`. Перезапуск: `docker-compose restart prometheus`.
 
-### Изменение порогов
-- **LLM budget**: `POLISYOS_LLM_BUDGET_HOURLY` env var
-- **Error rates**: Edit expressions в `alerts.yml`
-- **Latency thresholds**: Modify comparison values
+**Изменение порогов:** править числовые значения в `expr`-выражениях alert rules.
 
-### Новые метрики
-1. **PolicyOS code**: Use `observability/metrics.py`
-2. **Prometheus**: Add scrape target в `prometheus.yml`
-3. **Alerts**: Create rules based on new metrics
+**Новый recording rule:** добавить в соответствующий файл, убедиться что interval согласован (30s).
 
-## Мониторинг и отладка
-
-### Web Interface
-- **`/targets`**: Scrape target status
-- **`/rules`**: Active alerts & recording rules
-- **`/alerts`**: Current firing alerts
-- **`/graph`**: PromQL query testing
-
-### Performance Tuning
-- **Scrape interval**: 15s (operational monitoring), can increase to 30s
-- **Recording interval**: 30s (freshness/load balance)
-- **Retention**: Configure in `prometheus.yml` for storage management
-
-## Интеграция
-
-### С Grafana
-Автоматическое обнаружение через docker-compose service discovery.
-
-### С Alert Manager
-Для enterprise алертинга подключите внешний Alert Manager.
-
-### С Observability Stack
-- **Jaeger/Tempo**: Distributed tracing (OTLP integration)
-- **Loki**: Structured logging
-- **VictoriaMetrics**: Long-term metrics storage
+**Отладка:** Prometheus UI `/targets` (scrape status), `/rules` (active rules), `/alerts` (firing alerts), `/graph` (PromQL queries).

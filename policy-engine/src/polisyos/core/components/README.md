@@ -1,6 +1,20 @@
-# Components (Component Model v1)
+# Components — Component Model v1
 
-Единый слой identity/discovery/compliance для расширений PolisyOS.
+Единый слой identity, discovery, registry и compliance для расширений PolisyOS. Плагинная архитектура через Python entry points.
+
+## Архитектура
+
+```
+components/
+├── ids.py           # ComponentId, SemVer, SemverRange — идентификация и версионирование
+├── metadata.py      # ComponentMetadata, ComponentKind, ComponentDep — метаданные
+├── capabilities.py  # Capability flags — что компонент умеет
+├── protocols.py     # Component, ComponentFactory, ComponentProvider, SupportsValidation
+├── registry.py      # ComponentRegistry с conflict resolution policies
+├── discovery.py     # discover_components() через entry points
+├── compliance.py    # validate_component_id(), validate_metadata(), HostAbi checks
+└── cli.py           # CLI-интеграция
+```
 
 ## ComponentId
 
@@ -10,10 +24,10 @@
 from polisyos.core.components import ComponentId
 
 cid = ComponentId.parse("fiscal.taxation.flat_tax@1.2.3")
-print(cid.base_id)     # fiscal.taxation.flat_tax
-print(cid.namespace)   # fiscal.taxation
-print(cid.name)        # flat_tax
-print(cid.version)     # 1.2.3
+cid.base_id    # "fiscal.taxation.flat_tax"
+cid.namespace  # "fiscal.taxation"
+cid.name       # "flat_tax"
+cid.version    # SemVer(1, 2, 3)
 ```
 
 ## ComponentMetadata
@@ -32,20 +46,58 @@ metadata = ComponentMetadata(
 )
 ```
 
-## Discovery & Registry
+**ComponentKind:** определяет тип компонента (extractor, evaluator, foundry method, IR fragment и т.д.).
+
+## Discovery через Entry Points
+
+Автоматическое обнаружение компонентов через Python packaging entry points:
 
 ```python
-from polisyos.core.components import ComponentRegistry, discover_components
+from polisyos.core.components import discover_components, discover_entry_points
 
-report = discover_components()
-registry = ComponentRegistry()
-for component in report.components:
-    registry.register(component)
+report = discover_components()  # все компоненты из всех групп
 ```
 
-## Особенности
+**Entry point groups:**
+- `polisyos.components` — основная группа
+- `polisyos.ir_fragments` — IR-фрагменты
+- `polisyos.foundry_methods` — методы Foundry
+- `polisyos.lex_evaluators` / `polisyos.lex_extractors` — компоненты Lex
+- `polisyos.norm_pack_providers` — провайдеры нормативных пакетов
+- `polisyos.scholar_extractors` — extractors Scholar
+- `polisyos.scientist_nodes` — ноды Scientist
 
-- **Identity**: Уникальная идентификация через ComponentId
-- **Discovery**: Автоматическое обнаружение компонентов
-- **Compliance**: Проверка совместимости через abi_targets
-- **Metadata**: Богатые метаданные (domains, jurisdictions, capabilities)
+## ComponentRegistry
+
+Реестр с настраиваемым разрешением конфликтов:
+
+```python
+from polisyos.core.components import ComponentRegistry, ConflictPolicy
+
+registry = ComponentRegistry()
+registry.register(component)
+found = registry.get("fiscal.taxation.flat_tax@1.2.3")
+```
+
+**Policies:** `ConflictPolicy`, `DuplicateComponentIdPolicy`, `ResolvePolicy`, `SourcePrecedencePolicy`, `DiscoveryPrecedencePolicy`.
+
+## Compliance
+
+Валидация компонентов перед регистрацией:
+
+```python
+from polisyos.core.components.compliance import validate_metadata, has_errors
+
+issues = validate_metadata(metadata)
+if has_errors(issues):
+    raise ValueError(f"Invalid component: {issues}")
+```
+
+## Использование в системе
+
+| Модуль | Что использует |
+|--------|---------------|
+| **Lex** | `ComponentRegistry`, `discover_components` для norm_pack providers, evaluators, extractors |
+| **Fabric** | `ComponentRegistry` для extractor discovery |
+| **Packs** | `ComponentId`, `ComponentKind`, `ComponentMetadata`, `Capability` — регистрация компонентов |
+| **Scholar** | `ComponentMetadata` для extractor discovery |

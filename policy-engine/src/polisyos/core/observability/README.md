@@ -1,17 +1,19 @@
-# Observability (Телеметрия)
+# Observability — Телеметрия и мониторинг
 
-Production-grade телеметрия: OpenTelemetry трассировка, Prometheus метрики, структурированное логирование с trace correlation.
+Production-grade телеметрия: OpenTelemetry трассировка, Prometheus метрики, структурированное логирование, determinism tiers, LLM cost estimation. Graceful degradation при недоступности OTel.
 
 ## Архитектура
 
 ```
 observability/
-├── config.py          # OTelConfig, ResourceConfig
-├── tracer.py          # PolicyOSTracer, get_tracer
-├── decorators.py      # @traced, @traced_method
-├── logs.py            # TraceContextFilter, StructuredFormatter
-├── metrics.py         # MetricsRegistry, HistogramTimer
-└── propagation.py     # inject_headers, TracedExecutorWrapper
+├── config.py          # OTelConfig, ResourceConfig, env-based конфигурация
+├── tracer.py          # PolicyOSTracer singleton, get_tracer()
+├── decorators.py      # @traced, @traced_method — автоматическая трассировка
+├── logs.py            # TraceContextFilter, StructuredFormatter (JSON с trace correlation)
+├── metrics.py         # MetricsRegistry — Prometheus метрики (CAS, fabric, foundry, scientist, LLM)
+├── propagation.py     # Context propagation через thread/async границы
+├── determinism.py     # DeterminismTier — уровни гарантий детерминизма симуляций
+└── pricing.py         # LLM cost estimation (GPT-4o, Gemini Pro, configurable defaults)
 ```
 
 ## Быстрый старт
@@ -27,91 +29,85 @@ def run_simulation():
 
 ## Конфигурация
 
-Переменные окружения: `POLISYOS_OTEL_ENABLED`, `OTEL_EXPORTER_OTLP_ENDPOINT`, `POLISYOS_METRICS_PORT`, `POLISYOS_TRACE_SAMPLING_RATIO`.
+| Переменная | Назначение | По умолчанию |
+|------------|------------|--------------|
+| `POLISYOS_OTEL_ENABLED` | Включение OTel | `false` |
+| `OTEL_EXPORTER_OTLP_ENDPOINT` | OTLP gRPC/HTTP endpoint | — |
+| `POLISYOS_METRICS_PORT` | Prometheus HTTP порт | `9464` |
+| `POLISYOS_TRACE_SAMPLING_RATIO` | Сэмплирование трейсов | `1.0` |
+| `POLISYOS_HPC_OBSERVABILITY_ENABLED` | HPC метрики для CAS | `false` |
+| `POLISYOS_DETERMINISM_TIER` | Уровень детерминизма | — |
+| `POLISYOS_LLM_DEFAULT_INPUT_USD` | Override цены input токенов | — |
+| `POLISYOS_LLM_DEFAULT_OUTPUT_USD` | Override цены output токенов | — |
 
 ## Компоненты
 
-- **Tracer**: `PolicyOSTracer` singleton, `get_tracer()` для доступа
-- **Decorators**: `@traced(phase="...", node="...")` для автоматической трассировки
-- **Logs**: `TraceContextFilter`, `StructuredFormatter` для JSON логов с trace correlation
-- **Metrics**: `MetricsRegistry` с Prometheus (workflow, simulation, LLM calls, artifacts)
-- **Propagation**: Контекст propagation через thread/async границы
+### Tracing
 
-## Инструментация по фазам
+- `PolicyOSTracer` — singleton OTel tracer, `get_tracer()` для доступа
+- `@traced(phase="...", node="...")` / `@traced_method` — декораторы для автоматической трассировки функций/методов
+- `get_current_trace_context()` — текущий trace context для propagation
 
-- **Phase 2 (Scientist)**: Workflow nodes, LLM calls, governance pipeline, experiment tracking
-- **Phase 3 (Foundry)**: JAX runtime spans, calibration metrics, CAS I/O operations
+### Metrics
 
-## Экспортеры и интеграции
+`MetricsRegistry` — центральный реестр Prometheus-метрик по категориям:
+- CAS: операции, I/O размеры, кеш-хиты
+- Fabric: обработка данных
+- Foundry: JAX runtime, калибровка
+- Scientist: workflow nodes, governance pipeline
+- LLM: вызовы, токены, стоимость
 
-- **OTLP**: gRPC/HTTP для Jaeger, Tempo, DataDog
-- **Prometheus**: HTTP сервер на порту 9464
-- **Console**: Для отладки (stdout)
-- **Structured Logging**: JSON-формат для ELK, Loki, CloudWatch
+### Structured Logging
 
-## Связи с модулями
+- `TraceContextFilter` — добавляет trace_id/span_id в log records
+- `StructuredFormatter` — JSON-формат для ELK, Loki, CloudWatch
+- `configure_otel_logging_handler()` — автоматическая настройка
 
-- **Core (Artifacts)**: Трассировка CAS операций и метрики производительности
-- **Fabric**: Трассировка операций обработки данных
-- **Foundry**: Детальная трассировка исполнения, JAX runtime, метрики калибровки
-- **Scientist**: Workflow трассировка, LLM метрики, timeline tracking
-- **Runtime**: Production телеметрия с distributed tracing
+### Context Propagation
 
-## Производительность
+- `TracedExecutorWrapper` — propagation через thread pools
+- `inject_headers()` / `extract_headers()` — W3C trace context для HTTP
+- `with_trace_context` — async decorator для propagation в asyncio
 
-- **Overhead**: <0.1ms на операцию трассировки
-- **Lazy initialization**: Загрузка конфигурации по требованию
-- **Graceful fallback**: Работа при недоступности экспортеров
-- **Batch processing**: Оптимизированная отправка в production
-- **Sampling**: Конфигурируемое сэмплирование
+### Determinism Tiers
 
-## Примеры использования
+`DeterminismTier` — уровни гарантий воспроизводимости симуляций:
 
-### Логирование с трассировкой
-
-```python
-from polisyos.core.observability.logs import TraceContextFilter, StructuredFormatter
-
-logger = logging.getLogger(__name__)
-handler = logging.StreamHandler()
-handler.addFilter(TraceContextFilter())
-handler.setFormatter(StructuredFormatter())
-logger.addHandler(handler)
-logger.info("Experiment started", extra={"experiment_id": "exp_123"})
-```
-
-### Async контекст propagation
+| Tier | Описание | GPU | Exact reproducible |
+|------|----------|-----|-------------------|
+| `STRICT_CPU` | Bit-for-bit на одной CPU-архитектуре | нет | да |
+| `LIBRARY_DETERMINISTIC` | Deterministic ops в библиотеках | нет | да |
+| `BEST_EFFORT_GPU` | Near-deterministic на одной GPU-модели | да | нет |
+| `STATISTICAL` | CI-bounded воспроизводимость | да | нет |
+| `NONDETERMINISTIC` | Без гарантий | да | нет |
 
 ```python
-from polisyos.core.observability.propagation import with_trace_context
+from polisyos.core.observability.determinism import DeterminismTier, get_determinism_tier
 
-@with_trace_context
-async def main():
-    tasks = [async_worker(i) for i in range(10)]
-    results = await asyncio.gather(*tasks)
-    return results
+tier = get_determinism_tier()  # из POLISYOS_DETERMINISM_TIER
+if tier and tier.requires_deterministic_ops():
+    use_deterministic_algorithms()
 ```
 
-### Комплексная трассировка
+### LLM Pricing
+
+Оценка стоимости LLM-вызовов для бюджетирования в Scientist.
 
 ```python
-@traced(phase="FOUNDRY", node="calibration")
-def run_calibration_loop(model, dataset):
-    tracer = get_tracer()
-    metrics = get_metrics()
+from polisyos.core.observability.pricing import estimate_llm_cost_usd, pricing_table
 
-    for step in range(1000):
-        with tracer.start_as_current_span("calibration_step") as span:
-            span.set_attribute("step", step)
-            with metrics.time_calibration_step():
-                loss = train_step(model, dataset)
-                metrics.calibration_loss.set(loss, {"step": step})
-            if loss < 0.01:
-                span.set_attribute("converged", True)
-                break
-    return model
+cost = estimate_llm_cost_usd(model="gpt-4o", prompt_tokens=1000, completion_tokens=500)
 ```
 
-## Заключение
+Дефолтные цены: gpt-4o ($2.5e-6 input, $10e-6 output), gemini-pro ($1e-6, $4e-6). Переопределяемы через env.
 
-Production-grade телеметрия для PolisyOS: distributed tracing, Prometheus метрики, структурированное логирование. Минимальный overhead, graceful fallback, enterprise-ready.
+## Экспортеры
+
+- **OTLP**: gRPC/HTTP → Jaeger, Tempo, DataDog
+- **Prometheus**: HTTP на порту 9464
+- **Console**: stdout для отладки
+- **Structured Logging**: JSON → ELK, Loki, CloudWatch
+
+## Graceful Degradation
+
+При отсутствии OTel SDK модуль предоставляет noop-реализации — `get_tracer()`, `get_metrics()`, `@traced` работают без ошибок, просто не экспортируют данные.

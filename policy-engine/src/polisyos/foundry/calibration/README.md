@@ -1,161 +1,114 @@
-# Calibration Module (Калибровка моделей)
+# Calibration — градиентная калибровка параметров
 
-Модуль `calibration` предоставляет инструменты для автоматической калибровки параметров экономических моделей на реальных данных с использованием градиентной оптимизации.
+Автоматическая калибровка параметров экономических моделей на реальных данных через дифференцируемую оптимизацию (Adam/optax) с constraint penalties, prior regularization и Laplace-approximation uncertainty.
 
-## Архитектура (актуально на 2026-02-05)
+**8 модулей** | **JAX autodiff** | **Bijector-constrained** | **Hessian uncertainty**
 
-### Core компоненты
-- **`calibrator.py`** - Основной класс `Calibrator` для оптимизации параметров
-- **`pure_executor.py`** - Чистый JAX executor без side effects
+## Pipeline
 
-### Функции потерь и биекции
-- **`loss.py`** - Функции потерь (MSE, Huber, weighted loss)
-- **`bijectors.py`** - Биекции для ограничения параметров (sigmoid, softplus, exp)
-- **`preflight.py`** - Подготовка данных и конфигурации перед калибровкой
-- **`pure_executor.py`** - Чистый JAX executor без side effects для калибровки
-
-### Подготовка и анализ
-- **`preflight.py`** - Подготовка данных и конфигурации
-- **`report.py`** - Отчёты калибровки с метриками качества
-
-## Основные концепции
-
-### Calibrator (Калибратор)
-
-```python
-from polisyos.foundry.calibration.calibrator import Calibrator, CalibratorInputs
-
-@dataclass
-class CalibratorInputs:
-    config: CalibrationConfig              # Конфигурация калибровки
-    program_graph: ProgramGraph           # Скомпилированная политика
-    exec_plan: ExecPlan                   # План исполнения
-    base_state: GlobalState               # Начальное состояние экономики
-    raw_targets: Mapping[str, object]     # Реальные данные
-
-calibrator = Calibrator(inputs)
-report = calibrator.run()
+```
+CalibratorInputs → preflight (fetch, align, normalize targets)
+                 → compile_program (ProgramGraph → StaticBundle)
+                 → bijectors (constrained → unconstrained space)
+                 → JIT optimization loop (Adam + GradNorm + constraint penalty)
+                 → Hessian uncertainty (Laplace approximation)
+                 → CalibrationReport + UncertaintyEnvelopes
 ```
 
-### CalibrationConfig
+## Calibrator (`calibrator.py`)
 
-```python
-from polisyos.ir.calibration import CalibrationConfig, CalibrationTarget
+Основной класс `Calibrator.run()` — полный pipeline калибровки:
 
-config = CalibrationConfig(
-    trainable_params=[TrainableParamRef(path="tax_mechanism.rate", lower=0.0, upper=0.5)],
-    targets=[CalibrationTarget(name="gdp", data_source="real_gdp_data", time_window=(0, 120))],
-    optimizer=OptimizerConfig(algorithm="adam", learning_rate=0.01, max_steps=1000)
-)
+1. **Resolve** — загрузка bundle, targets, constraints, trainable groups
+2. **Bijectors** — трансформация в unconstrained пространство
+3. **JIT loop** — `optax.adam` с:
+   - GradNorm adaptive weight balancing для multi-target loss
+   - Constraint penalty (inequality/equality)
+   - Prior penalty (regularization)
+   - Early stopping с patience
+   - Non-finite gradient detection
+4. **Hessian** (опционально) — Laplace approximation: ковариационная матрица, condition number, rank deficiency, non-identifiability warnings
+5. **Report** — `CalibrationReport` с fit metrics, series comparisons, uncertainty envelopes
+
+`CalibratorInputs` — входные данные: config, program_graph, exec_plan, base_state, registries, parameter_loader, constraints, controls, target_fetcher.
+
+`CalibrationMetricsCollector` — batched OTel-метрики: step duration, loss, grad_norm.
+
+## Pure Executor (`pure_executor.py`)
+
+Side-effect-free исполнение для калибровки — компилирует ProgramGraph в `StaticBundle` для `jax.lax.scan`:
+
+- **compile_program()** — ProgramGraph + ExecPlan → StaticBundle. Парсинг selectors, fidelity modes (relaxed/discrete/hard), temperature injection, trainable parameter discovery
+- **StaticBundle** — все статические данные для чистого исполнения (nodes, registries, trainables)
+- **apply_trainable_values()** / **extract_trainable_values()** — обновление/извлечение trainable params через `eqx.tree_at`
+- **apply_nodes()** — single-step: механизмы → selector masks → merge (SUM/OVERRIDE/PRIORITY/ERROR)
+- **run_pure_scan()** — полная симуляция через `jax.lax.scan` → final state + metric traces
+
+## Bijectors (`bijectors.py`)
+
+Дифференцируемые трансформации для constraint handling:
+
+| Bounds | Bijection | Mapping |
+|---|---|---|
+| Без ограничений | identity | R → R |
+| Только lower | `lower + softplus(u)` | R → [lower, +∞) |
+| Только upper | `upper - softplus(u)` | R → (−∞, upper] |
+| Lower + upper | sigmoid с temperature=0.5 | R → [lower, upper] |
+
+`to_unconstrained()` / `from_unconstrained()` — batch-операции над вектором параметров.
+
+## Loss Functions (`loss.py`)
+
+- `compute_base_loss()` — MSE или Huber loss с relative normalization
+- `loss_components()` — декомпозиция на per-target компоненты с weights
+- `unified_loss()` — single-call total + per-target loss
+
+## Preflight (`preflight.py`)
+
+Подготовка данных перед калибровкой:
+
+- `fetch_targets()` — загрузка target data из Fabric (UDF engine или custom fetcher)
+- `prepare_targets()` — нормализация, resampling (linear interpolation/forward-fill), alignment по длине
+- `resolve_steps()` — определение количества шагов калибровки
+- `_compute_scale()` — scale для auto-normalization (mean/std/max/p95)
+
+## Report (`report.py`)
+
+Pydantic-модели результатов:
+
+- **CalibrationReport** — calibrated_params, total_loss, per_target_loss, loss_history, grad_norm_history, series_comparison, fit_quality, uncertainties, uncertainty_envelopes, diagnostics
+- **CalibrationFitQuality** — per_target и aggregate: MSE, RMSE, MAE, R², N
+- **CalibrationUncertainty** — Laplace: params, covariance, correlation, std, damping, hessian_rank, hessian_condition, non_identifiable
+- `put_calibration_config()` / `put_calibration_report()` — CAS persistence
+
+## Uncertainty Adapter (`uncertainty_adapter.py`)
+
+Конвертация Hessian-uncertainty в `UncertaintyEnvelope`:
+
+- `envelope_from_calibration_param()` — Normal envelope с z-score CI из std
+- `envelopes_from_calibration()` — envelopes для всех параметров в отчете
+
+## Зависимости
+
+- **core/observability** — метрики, трейсинг калибровки
+- **core/contracts/foundry** — ProgramGraph, ExecPlan
+- **core/artifacts** — CAS persistence отчетов
+- **ir/calibration** — CalibrationConfig, targets, TargetLossConfig, trainable params
+- **ir/uncertainty** — UncertaintyEnvelope, DistributionFamily
+- **foundry/merge_engine** — MergeEngine для apply_nodes
+- **foundry/registry** — создание механизмов из спецификаций
+- **foundry/domain/state** — GlobalState
+
+## Структура
+
 ```
-
-## Процесс калибровки
-
-1. **Preflight**: Загрузка и подготовка целевых данных
-2. **Компиляция**: Создание оптимизируемой функции с автодифференцированием
-3. **Оптимизация**: Градиентный спуск с биекциями для ограниченных параметров
-4. **Анализ**: Метрики качества и оценки неопределённости
-
-## Функции потерь и биекции
-
-### Функции потерь
-
-```python
-from polisyos.foundry.calibration.loss import loss_components
-
-total_loss, per_target_loss, per_target_base = loss_components(
-    predicted=predicted_values, targets=real_values,
-    configs=target_configs, scales=target_scales, weights=target_weights
-)
+calibration/
+├── __init__.py              # Public API
+├── calibrator.py            # Calibrator.run() — полный pipeline
+├── pure_executor.py         # StaticBundle, compile_program, run_pure_scan
+├── bijectors.py             # Differentiable parameter constraints
+├── loss.py                  # MSE/Huber loss с per-target decomposition
+├── preflight.py             # Target fetching, normalization, alignment
+├── report.py                # CalibrationReport, FitQuality, Uncertainty
+└── uncertainty_adapter.py   # Hessian → UncertaintyEnvelope conversion
 ```
-
-Поддержка: **MSE**, **Huber Loss**, **Weighted Loss**
-
-### Биекции параметров
-
-Ограничение параметров для физической корректности:
-
-```python
-from polisyos.foundry.calibration.bijectors import make_bijector, to_unconstrained, from_unconstrained
-
-bijector = make_bijector(lower=0.0, upper=1.0)  # Для [0,1] параметров
-unconstrained = to_unconstrained([0.2], [bijector])
-constrained = from_unconstrained(unconstrained, [bijector])
-```
-
-Поддержка: **sigmoid** (0,1), **softplus** (0,∞), **identity** (-∞,∞), **exp** (0,∞)
-
-## Отчёт калибровки
-
-```python
-@dataclass
-class CalibrationReport:
-    calibrated_params: dict[str, float]                    # Калиброванные параметры
-    total_loss: float                                       # Общая потеря
-    per_target_loss: dict[str, float]                       # Потери по целям
-    series_comparison: dict[str, CalibrationSeriesComparison]  # Сравнение рядов
-    fit_quality: CalibrationFitQuality                      # Метрики качества (R², RMSE, MAE, etc.)
-    uncertainties: CalibrationUncertainty                   # Оценки неопределённости
-```
-
-## Оптимизаторы
-
-```python
-@dataclass
-class OptimizerConfig:
-    algorithm: str = "adam"           # "adam", "lbfgs", "sgd"
-    learning_rate: float = 0.01       # Скорость обучения
-    max_steps: int = 1000             # Максимальное число шагов
-```
-
-**Adam** (рекомендуемый), **L-BFGS** (для точной оптимизации), **SGD**
-
-## Примеры использования
-
-### Базовая калибровка
-
-```python
-from polisyos.foundry.calibration import Calibrator, CalibratorInputs
-
-config = CalibrationConfig(
-    trainable_params=[TrainableParamRef(path="tax_mechanism.rate", lower=0.0, upper=0.4)],
-    targets=[CalibrationTarget(name="gdp_growth", data_source="world_bank_gdp")],
-    optimizer=OptimizerConfig(algorithm="adam", learning_rate=0.005, max_steps=500)
-)
-
-inputs = CalibratorInputs(config=config, program_graph=program_graph, exec_plan=exec_plan,
-                         base_state=initial_state, raw_targets=real_data)
-
-calibrator = Calibrator(inputs)
-report = calibrator.run()
-
-print(f"Калиброванная ставка: {report.calibrated_params['tax_mechanism.rate']:.3f}")
-print(f"R²: {report.fit_quality.r_squared:.3f}")
-```
-
-### Многоцелевая калибровка
-
-Калибровка нескольких параметров одновременно с весами целей для баланса оптимизации.
-
-## Продвинутые возможности
-
-- **Ограничения параметров**: Зависимости между параметрами
-- **Байесовская калибровка**: С учётом априорных распределений
-- **Временные ряды**: Сезонная корректировка и анализ
-
-## Производительность
-
-- **JIT-компиляция**: Максимальная скорость вычислений
-- **Векторизация**: Параллельная обработка батчей
-- **GPU поддержка**: Масштабирование на GPU
-
-## Интеграция
-
-- **`scientist/`**: Вызов калибровки из экспериментов
-- **`foundry.compile.api`**: Компиляция политик
-- **`foundry.runtime`**: Исполнение калиброванных политик
-- **`core.artifacts`**: Сохранение результатов
-
----
-
-Модуль `calibration` - полный фреймворк для калибровки экономических моделей на реальных данных.

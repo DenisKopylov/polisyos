@@ -1,935 +1,1084 @@
 ```
 policy-engine/  # Project root (Policy Engine / PolisyOS).
-├── .polisyos/  # Local Content-Addressable Storage (CAS) root used by the artifact system.
-│   └── artifacts/  # CAS artifact storage (sha256 fanout).
-│       └── sha256/  # CAS blobs/manifests addressed by SHA-256.
-│           ├── 02/  # Directory.
-│           │   └── 2c/  # Directory.
-│           │       ├── 022c70fa0335c562e3bdff195cb06114d21b717e8bb616d8ed454571159b8f5e.blob  # CAS payload blob (content-addressed).
-│           │       └── 022c70fa0335c562e3bdff195cb06114d21b717e8bb616d8ed454571159b8f5e.manifest.json  # CAS manifest describing the corresponding blob.
-│           ├── 35/  # Directory.
-│           │   └── 91/  # Directory.
-│           │       ├── 3591f9b5f324774444b147e01be817a4f1a48cfb409a209fa8719c775aa8f972.blob  # CAS payload blob (content-addressed).
-│           │       └── 3591f9b5f324774444b147e01be817a4f1a48cfb409a209fa8719c775aa8f972.manifest.json  # CAS manifest describing the corresponding blob.
-│           ├── 37/  # Directory.
-│           │   └── 24/  # Directory.
-│           │       ├── 37241e31e7efa2c325006e46ca6531f95c8c7a2298ddf54d78610762f9a3ee1a.blob  # CAS payload blob (content-addressed).
-│           │       └── 37241e31e7efa2c325006e46ca6531f95c8c7a2298ddf54d78610762f9a3ee1a.manifest.json  # CAS manifest describing the corresponding blob.
-│           ├── 3b/  # Directory.
-│           │   └── 90/  # Directory.
-│           │       ├── 3b906e5c1c5b745efa00557a8d2452e11513792b44a29853885661988f48fb13.blob  # CAS payload blob (content-addressed).
-│           │       └── 3b906e5c1c5b745efa00557a8d2452e11513792b44a29853885661988f48fb13.manifest.json  # CAS manifest describing the corresponding blob.
-│           ├── 59/  # Directory.
-│           │   └── 7b/  # Directory.
-│           │       ├── 597bf89c30c026760bb21645d9ae2083b67ee4701c5406e1a55746eff778671d.blob  # CAS payload blob (content-addressed).
-│           │       └── 597bf89c30c026760bb21645d9ae2083b67ee4701c5406e1a55746eff778671d.manifest.json  # CAS manifest describing the corresponding blob.
-│           ├── 70/  # Directory.
-│           │   └── 26/  # Directory.
-│           │       ├── 702664ce8617112cd5e6dad3ef205051a31aca495bbb42bde1350f14c2a90d91.blob  # CAS payload blob (content-addressed).
-│           │       └── 702664ce8617112cd5e6dad3ef205051a31aca495bbb42bde1350f14c2a90d91.manifest.json  # CAS manifest describing the corresponding blob.
-│           ├── 78/  # Directory.
-│           │   └── b9/  # Directory.
-│           │       ├── 78b99187607043dde9528ccc8792b34c6eaa021bde2fc7fcdeee6fbe4fae3c80.blob  # CAS payload blob (content-addressed).
-│           │       └── 78b99187607043dde9528ccc8792b34c6eaa021bde2fc7fcdeee6fbe4fae3c80.manifest.json  # CAS manifest describing the corresponding blob.
-│           ├── 82/  # Directory.
-│           │   └── 73/  # Directory.
-│           │       ├── 82731c31ba603a46760bb47a3696fdbd5cb5c884d286ba8408e3d017a89cdd77.blob  # CAS payload blob (content-addressed).
-│           │       └── 82731c31ba603a46760bb47a3696fdbd5cb5c884d286ba8408e3d017a89cdd77.manifest.json  # CAS manifest describing the corresponding blob.
-│           ├── ad/  # Directory.
-│           │   └── 54/  # Directory.
-│           │       ├── ad5475e67654ccf8dcb5ea87f89384f68d36326aec3743dcdb1f6e5e4cda815a.blob  # CAS payload blob (content-addressed).
-│           │       └── ad5475e67654ccf8dcb5ea87f89384f68d36326aec3743dcdb1f6e5e4cda815a.manifest.json  # CAS manifest describing the corresponding blob.
-│           ├── d5/  # Directory.
-│           │   └── 39/  # Directory.
-│           │       ├── d5390a939cf74bcb7af3da921bc53cdcaee56da0fb591c90f4eb9daa7dddc23d.blob  # CAS payload blob (content-addressed).
-│           │       └── d5390a939cf74bcb7af3da921bc53cdcaee56da0fb591c90f4eb9daa7dddc23d.manifest.json  # CAS manifest describing the corresponding blob.
-│           ├── e4/  # Directory.
-│           │   └── 2f/  # Directory.
-│           │       ├── e42fef1b12dc244f395cf96e35c2e9d9a4e5c283554f97276d21524e22220ede.blob  # CAS payload blob (content-addressed).
-│           │       └── e42fef1b12dc244f395cf96e35c2e9d9a4e5c283554f97276d21524e22220ede.manifest.json  # CAS manifest describing the corresponding blob.
-│           └── ea/  # Directory.
-│               └── a7/  # Directory.
-│                   ├── eaa7fda75fa39b2c8a4a4ee537b20958dd53005e469a12e45816177358a442ae.blob  # CAS payload blob (content-addressed).
-│                   └── eaa7fda75fa39b2c8a4a4ee537b20958dd53005e469a12e45816177358a442ae.manifest.json  # CAS manifest describing the corresponding blob.
-├── .github/  # GitHub Actions workflows and automation.
-│   └── workflows/  # CI/CD pipeline definitions.
-│       ├── arch.yml  # Architecture validation workflow.
-│       └── perf.yml  # Performance regression testing workflow (pytest-benchmark comparison).
-├── .vscode/  # Editor workspace configuration (VSCode/Cursor).
-│   └── settings.json  # Workspace editor settings (formatting, linting, etc.).
-├── data/  # Data workspace (raw/staging) and reference datasets.
-│   ├── norms/  # Norm packs (YAML) for legal compliance evaluation.
-│   │   └── sample_norms.yaml  # Sample norm pack demonstrating safe expression rules (Phase 18).
-│   ├── raw/  # Raw input datasets (placeholder).
-│   │   └── .gitkeep  # Placeholder to keep empty directory in Git.
-│   ├── staging/  # ETL intermediate outputs (Parquet fixtures).
-│   │   ├── .gitkeep  # Placeholder to keep empty directory in Git.
-│   │   ├── agents.parquet  # Parquet dataset snapshot (staging fixture).
-│   │   ├── interactions.parquet  # Parquet dataset snapshot (staging fixture).
-│   │   └── macro.parquet  # Parquet dataset snapshot (staging fixture).
-│   └── README.md  # Data layout and ETL conventions for the local data workspace.
-├── docs/  # Design notes and specifications.
-│   ├── adr/  # Architecture Decision Records (ADRs).
-│   │   ├── 0001-remove-legacy-foundry-engine.md  # Architecture Decision Record (ADR).
-│   │   ├── 0002-scientist-flow-nodes-only.md  # Architecture Decision Record (ADR).
-│   │   └── 0003-ir-v1-deprecate-remove.md  # Architecture Decision Record (ADR).
-│   ├── connectors/  # Connector development documentation.
-│   │   └── CONTRIBUTING.md  # Guide for contributing data connectors to Policy OS.
-│   └── contracts/  # Contract semantics documentation (Trinity, merge semantics).
-│       ├── MERGE_SEMANTICS.md  # Contract semantics documentation.
-│       └── TRINITY.md  # Contract semantics documentation.
-├── examples/  # Small runnable examples.
-│   └── ir_base_demo.py  # File.
-├── logs/  # Local logs (fixtures / developer artifacts).
-│   └── system.log  # Example/system log file (fixture).
-├── ops/  # Operations infrastructure: monitoring, observability, alerting stack.
-│   ├── docker-compose.observability.yml  # Docker Compose configuration for observability stack.
-│   ├── grafana/  # Grafana dashboards and provisioning.
-│   │   ├── dashboards/  # JSON dashboard definitions.
-│   │   │   ├── executive-overview.json  # Executive dashboard for cost/performance overview.
-│   │   │   ├── foundry-hpc.json  # HPC simulation performance dashboard.
-│   │   │   └── scientist-agents.json  # Agent workflow performance dashboard.
-│   │   ├── provisioning/  # Grafana provisioning configuration.
-│   │   │   └── dashboards.yml  # Automatic dashboard provisioning.
-│   │   └── README.md  # Grafana setup documentation.
-│   ├── prometheus/  # Prometheus configuration and alerting rules.
-│   │   ├── alerts.yml  # Alerting rules for cost, performance, and system issues.
-│   │   ├── prometheus.yml  # Main Prometheus scrape configuration.
-│   │   ├── recording_rules.yml  # Metric pre-computation rules.
-│   │   └── README.md  # Prometheus setup documentation.
-│   └── README.md  # Operations infrastructure documentation.
 ├── src/  # Python sources and build metadata.
-│   ├── policy_engine.egg-info/  # Build metadata produced by packaging tools.
-│   │   ├── PKG-INFO  # Packaged project metadata (generated).
-│   │   ├── SOURCES.txt  # Packaged file list (generated).
-│   │   ├── dependency_links.txt  # Build metadata file (generated).
-│   │   ├── entry_points.txt  # Console script entry points (generated).
-│   │   ├── requires.txt  # Dependency requirements (generated).
-│   │   └── top_level.txt  # Top-level import package names (generated).
-│   └── polisyos/  # Main Python package implementing the policy OS.
-│       ├── common/  # Shared utilities: config, logging with trace correlation, JAX env defaults, migrations.
-│       │   ├── migrations/  # Deterministic migrations for schema-managed artifacts.
-│       │   │   ├── README.md  # Documentation for this directory/module.
-│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
-│       │   │   ├── base.py  # Migration framework primitives (versioning, dispatch).
-│       │   │   ├── manifest.py  # Dataset manifest migrations.
-│       │   │   └── policy_ir.py  # Policy IR migrations.
-│       │   ├── README.md  # Documentation for this directory/module.
-│       │   ├── __init__.py  # Python package initializer (public exports live here).
-│       │   ├── config.py  # Central configuration (pydantic-settings) and environment wiring.
-│       │   ├── jax_env.py  # JAX environment defaults and macOS backend safety toggles.
-│       │   ├── async_tools.py  # Asynchronous utilities for sync/async code bridging.
-│       │   └── logger.py  # Structured logging setup (Loguru) with OpenTelemetry trace correlation.
-│       ├── core/  # Infrastructure: artifacts/CAS, canonical JSON, contracts, tracing, registry, run context.
-│       │   ├── artifacts/  # Artifact system: IDs, manifests, environment manifests, CAS store.
-│       │   │   ├── README.md  # Documentation for this directory/module.
-│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
-│       │   │   ├── environment.py  # Environment manifest models for reproducible execution contexts.
-│       │   │   ├── ids.py  # Content-addressed identifiers (SHA-256) and ID helpers.
-│       │   │   ├── manifest.py  # Artifact manifest models (refs, metadata).
-│       │   │   ├── registry.py  # Registry bundle artifacts and helpers.
-│       │   │   └── store.py  # Filesystem-backed CAS store implementation.
-│       │   ├── canon/  # Canonical JSON serialization (deterministic hashing).
-│       │   │   ├── README.md  # Documentation for this directory/module.
-│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
-│       │   │   └── canon_json.py  # Canonical JSON serialization used for deterministic hashing.
-│       │   ├── compiler/  # Compilation reporting utilities.
-│       │   │   ├── README.md  # Documentation for this directory/module.
-│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
-│       │   │   └── report.py  # Compile report data models and persistence helpers.
-│       │   ├── components/  # Component system for extensible policy engine modules.
-│       │   │   ├── README.md  # Documentation for this directory/module.
-│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
-│       │   │   ├── capabilities.py  # Python module implementing 'capabilities'.
-│       │   │   ├── cli.py  # Python module implementing 'cli'.
-│       │   │   ├── compliance.py  # Python module implementing 'compliance'.
-│       │   │   ├── discovery.py  # Python module implementing 'discovery'.
-│       │   │   ├── ids.py  # Python module implementing 'ids'.
-│       │   │   ├── metadata.py  # Python module implementing 'metadata'.
-│       │   │   ├── protocols.py  # Python module implementing 'protocols'.
-│       │   │   └── registry.py  # Python module implementing 'registry'.
-│       │   ├── contracts/  # Typed inter-module contracts (Foundry/Fabric/Scientist/Trinity/Legal).
-│       │   │   ├── README.md  # Documentation for this directory/module.
-│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
-│       │   │   ├── compiler.py  # Compiler-related typed references and models.
-│       │   │   ├── fabric.py  # Fabric-related typed references (evidence, results, bounds).
-│       │   │   ├── foundry.py  # Foundry-related typed references (ProgramGraph, ExecPlan, etc.).
-│       │   │   ├── legal.py  # Legal contracts: NormPack/NormRule/RuleBackend/RuleType.
-│       │   │   ├── lex.py  # Python module implementing 'lex'.
-│       │   │   ├── scientist.py  # Scientist contracts: critique, failure cards, timelines, decision cards.
-│       │   │   └── trinity.py  # Trinity contracts: ProblemFrame/PolicySpec/ModelSpec + bundle/refs.
-│       │   ├── registry/  # Registry bundle builder/loader (reproducible components).
-│       │   │   ├── README.md  # Documentation for this directory/module.
-│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
-│       │   │   ├── builder_from_fragments.py  # Python module implementing 'builder_from_fragments'.
-│       │   │   ├── builder.py  # Build registry bundles from available components.
-│       │   │   └── loader.py  # Load registry bundles (content and payload).
-│       │   ├── run/  # Run context and run manifest models.
-│       │   │   ├── README.md  # Documentation for this directory/module.
-│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
-│       │   │   ├── context.py  # RunContext: execution context for a single run.
-│       │   │   └── manifest.py  # Run manifest models and serialization.
-│       │   ├── trace/  # Structured tracing records and sinks.
-│       │   │   ├── README.md  # Documentation for this directory/module.
-│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
-│       │   │   ├── record.py  # TraceRecord model for structured tracing.
-│       │   │   └── sink.py  # Trace sinks (e.g., JSONL sink).
-│       │   ├── observability/  # Production-grade telemetry system (OpenTelemetry tracing, metrics, logs, propagation).
-│       │   │   ├── README.md  # Documentation for this directory/module.
-│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
-│       │   │   ├── config.py  # OpenTelemetry configuration and resource attributes + HPC observability control.
-│       │   │   ├── decorators.py  # @traced and @traced_method decorators for automatic function instrumentation.
-│       │   │   ├── determinism.py  # Python module implementing 'determinism'.
+│   └── polisyos/  # Main Python package.
+│       ├── __init__.py
+│       ├── common/  # Shared utilities: config, logging, JAX env, migrations.
+│       │   ├── __init__.py
+│       │   ├── async_tools.py  # Sync/async bridging utilities.
+│       │   ├── config.py  # Central pydantic-settings configuration.
+│       │   ├── jax_env.py  # JAX environment defaults, macOS backend safety.
+│       │   ├── logger.py  # Structured logging (Loguru) + OpenTelemetry correlation.
+│       │   └── migrations/  # Deterministic schema migrations.
+│       │       ├── __init__.py
+│       │       ├── base.py  # Migration framework primitives.
+│       │       └── manifest.py  # Dataset manifest migrations.
+│       ├── core/  # Infrastructure: CAS, contracts, tracing, registry, observability.
+│       │   ├── __init__.py
+│       │   ├── artifacts/  # Artifact system: CAS store, IDs, manifests.
+│       │   │   ├── __init__.py
+│       │   │   ├── environment.py  # Environment manifests for reproducibility.
+│       │   │   ├── graph.py  # Artifact dependency graph tracking.
+│       │   │   ├── ids.py  # SHA-256 content-addressed identifiers.
+│       │   │   ├── manifest.py  # Artifact manifest models.
+│       │   │   ├── registry.py  # Registry bundle artifacts.
+│       │   │   ├── signing.py  # Cryptographic artifact signing.
+│       │   │   └── store.py  # Filesystem-backed CAS store.
+│       │   ├── audit/  # Audit trail assembly, export, verification.
+│       │   │   ├── __init__.py
+│       │   │   ├── assembler.py  # Audit bundle assembly.
+│       │   │   ├── instructions_template.md  # Template for audit instructions.
+│       │   │   ├── models.py  # Audit data models.
+│       │   │   ├── prov_json.py  # PROV-JSON export for audit.
+│       │   │   ├── report.py  # Human-readable audit reports.
+│       │   │   ├── safe_tar.py  # Safe tar archive creation.
+│       │   │   ├── standalone_verifier_template.py  # Standalone verifier script.
+│       │   │   └── verifier.py  # Audit bundle verification.
+│       │   ├── canon/  # Canonical JSON serialization.
+│       │   │   ├── __init__.py
+│       │   │   └── canon_json.py  # Deterministic JSON for hashing.
+│       │   ├── compiler/  # Compilation reporting.
+│       │   │   ├── __init__.py
+│       │   │   └── report.py  # Compile report models.
+│       │   ├── components/  # Component system for extensible modules.
+│       │   │   ├── __init__.py
+│       │   │   ├── capabilities.py  # Component capability declarations.
+│       │   │   ├── cli.py  # Component CLI (polisyos command).
+│       │   │   ├── compliance.py  # Component compliance checks.
+│       │   │   ├── discovery.py  # Entry-point component discovery.
+│       │   │   ├── ids.py  # Component identity and semver.
+│       │   │   ├── metadata.py  # Component metadata models.
+│       │   │   ├── protocols.py  # Component protocol definitions.
+│       │   │   └── registry.py  # Component registry.
+│       │   ├── contracts/  # Typed inter-module contracts.
+│       │   │   ├── __init__.py
+│       │   │   ├── backtest.py  # Backtesting contracts.
+│       │   │   ├── causal.py  # Causal inference contracts.
+│       │   │   ├── compiler.py  # Compiler typed references.
+│       │   │   ├── distributional.py  # Distributional analysis contracts.
+│       │   │   ├── fabric.py  # Fabric evidence/bounds contracts.
+│       │   │   ├── foundry.py  # Foundry ProgramGraph/ExecPlan contracts.
+│       │   │   ├── hte.py  # Heterogeneous treatment effects contracts.
+│       │   │   ├── legal.py  # NormPack/NormRule/RuleBackend contracts.
+│       │   │   ├── lex.py  # Lex layer contracts.
+│       │   │   ├── scholar.py  # Scholar layer contracts.
+│       │   │   ├── scientist.py  # Scientist critique/failure/timeline contracts.
+│       │   │   ├── trinity.py  # Trinity ProblemFrame/PolicySpec/ModelSpec.
+│       │   │   └── uncertainty.py  # Uncertainty envelope contracts.
+│       │   ├── observability/  # OpenTelemetry tracing, metrics, logs.
+│       │   │   ├── __init__.py
+│       │   │   ├── config.py  # OTel configuration and resource attributes.
+│       │   │   ├── decorators.py  # @traced / @traced_method decorators.
+│       │   │   ├── determinism.py  # Determinism tracking.
 │       │   │   ├── logs.py  # Structured logging with trace correlation.
-│       │   │   ├── metrics.py  # Prometheus-compatible metrics registry and timers + CAS operation metrics.
-│       │   │   ├── propagation.py  # Trace context propagation across threads/services.
-│       │   │   └── tracer.py  # PolicyOSTracer singleton with OpenTelemetry integration.
-│       │   ├── README.md  # Documentation for this directory/module.
-│       │   └── __init__.py  # Python package initializer (public exports live here).
-│       ├── fabric/  # Unified Data Fabric: ingestion, catalog, evidence, quality, trust, UDF queries, external connectors.
-│       │   ├── catalog/  # Metric-level data contracts and bindings registry.
-│       │   │   ├── README.md  # Documentation for this directory/module.
-│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
-│       │   │   ├── binding.py  # MetricBinding: hash-locked binding between names and contracts.
-│       │   │   ├── contract.py  # DataContract models and validation (types, granularity, PII tiers).
-│       │   │   ├── registry.py  # DataContractRegistry: load/validate/search contracts.
-│       │   │   ├── search.py  # Metric search and fuzzy disambiguation utilities.
-│       │   │   └── validate.py  # Helpers to validate contract collections.
-│       │   ├── io/  # DuckDB/Kùzu storage backends.
-│       │   │   ├── README.md  # Documentation for this directory/module.
-│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
-│       │   │   ├── db.py  # DuckDB backend for analytical queries and tables.
-│       │   │   └── graph_store.py  # Kùzu backend for graph storage and queries.
-│       │   ├── provenance/  # W3C PROV-O provenance graph and exporters.
-│       │   │   ├── README.md  # Documentation for this directory/module.
-│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
-│       │   │   ├── core.py  # PROV-O graph core models and relationships.
-│       │   │   └── export_provo.py  # Export provenance graphs to PROV-O formats.
-│       │   ├── claims/  # Claims management and verification system.
-│       │   │   ├── backends/  # Claims processing backend implementations.
-│       │   │   │   ├── __init__.py  # Python package initializer (public exports live here).
-│       │   │   │   ├── explicit_lines_v1.py  # Python module implementing 'explicit_lines_v1'.
-│       │   │   │   ├── lex_norm_regex_v1.py  # Python module implementing 'lex_norm_regex_v1'.
-│       │   │   │   └── regex_numeric_v1.py  # Python module implementing 'regex_numeric_v1'.
-│       │   │   ├── conflicts/  # Claims conflict detection and resolution.
-│       │   │   │   ├── __init__.py  # Python package initializer (public exports live here).
-│       │   │   │   ├── detect.py  # Python module implementing 'detect'.
-│       │   │   │   ├── key.py  # Python module implementing 'key'.
-│       │   │   │   ├── policies.py  # Python module implementing 'policies'.
-│       │   │   │   ├── resolve.py  # Python module implementing 'resolve'.
-│       │   │   │   ├── score_claims.py  # Python module implementing 'score_claims'.
-│       │   │   │   ├── score_docs.py  # Python module implementing 'score_docs'.
-│       │   │   │   └── types.py  # Python module implementing 'types'.
-│       │   │   ├── README.md  # Documentation for this directory/module.
-│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
-│       │   │   ├── canonicalize.py  # Python module implementing 'canonicalize'.
-│       │   │   ├── citations.py  # Python module implementing 'citations'.
-│       │   │   ├── errors.py  # Python module implementing 'errors'.
-│       │   │   ├── extraction.py  # Python module implementing 'extraction'.
-│       │   │   ├── extractor_registry.py  # Python module implementing 'extractor_registry'.
-│       │   │   ├── normalize.py  # Python module implementing 'normalize'.
-│       │   │   ├── persist.py  # Python module implementing 'persist'.
-│       │   │   └── types.py  # Python module implementing 'types'.
-│       │   ├── docs/  # Documentation utilities and generators.
-│       │   │   ├── backends/  # Document processing backend implementations.
-│       │   │   │   ├── __init__.py  # Python package initializer (public exports live here).
-│       │   │   │   ├── pdf.py  # PDF document processing backend.
-│       │   │   │   ├── text_html.py  # HTML text processing backend.
-│       │   │   │   └── text_plain.py  # Plain text processing backend.
-│       │   │   ├── README.md  # Documentation for this directory/module.
-│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
-│       │   │   ├── chunking.py  # Python module implementing 'chunking'.
-│       │   │   ├── errors.py  # Python module implementing 'errors'.
-│       │   │   ├── ingestion.py  # Python module implementing 'ingestion'.
-│       │   │   ├── normalize.py  # Python module implementing 'normalize'.
-│       │   │   ├── structure.py  # Python module implementing 'structure'.
-│       │   │   └── types.py  # Python module implementing 'types'.
-│       │   ├── world/  # World model and simulation state management.
-│       │   │   ├── ddl/  # Database schema definitions for world model.
-│       │   │   │   ├── duckdb_world.sql  # DuckDB schema for world model.
-│       │   │   │   └── kuzu_world.cypher  # Kùzu schema for world model.
-│       │   │   ├── materialize/  # World model materialization and processing.
-│       │   │   │   ├── __init__.py  # Python package initializer (public exports live here).
-│       │   │   │   ├── duckdb.py  # Python module implementing 'duckdb'.
-│       │   │   │   ├── errors.py  # Python module implementing 'errors'.
-│       │   │   │   ├── kuzu.py  # Python module implementing 'kuzu'.
-│       │   │   │   ├── projections.py  # Python module implementing 'projections'.
-│       │   │   │   ├── rules.py  # Python module implementing 'rules'.
-│       │   │   │   ├── sql.py  # Python module implementing 'sql'.
-│       │   │   │   └── staging.py  # Python module implementing 'staging'.
-│       │   │   ├── README.md  # Documentation for this directory/module.
-│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
-│       │   │   ├── store/  # World model storage and persistence.
-│       │   │   │   ├── __init__.py  # Python package initializer (public exports live here).
-│       │   │   │   ├── emit.py  # Python module implementing 'emit'.
-│       │   │   │   ├── errors.py  # Python module implementing 'errors'.
-│       │   │   │   ├── ids.py  # Python module implementing 'ids'.
-│       │   │   │   ├── persist.py  # Python module implementing 'persist'.
-│       │   │   │   ├── provenance.py  # Python module implementing 'provenance'.
-│       │   │   │   ├── segments.py  # Python module implementing 'segments'.
-│       │   │   │   └── validate.py  # Python module implementing 'validate'.
-│       │   ├── udf/  # Secure UDF compilation/execution layer for data views.
-│       │   │   ├── passes/  # UDF compiler passes (lowering, typing, privacy, etc.).
-│       │   │   │   ├── __init__.py  # Python package initializer (public exports live here).
-│       │   │   │   ├── lowering.py  # Lower UDF IR into backend-executable primitives.
-│       │   │   │   ├── merge.py  # Optimize/merge UDF plans and remove duplicates.
-│       │   │   │   ├── privacy.py  # Privacy enforcement pass for UDF queries.
-│       │   │   │   ├── resolution.py  # Resolve dependencies and link UDF components.
-│       │   │   │   └── typecheck.py  # Static type checker for UDF expressions.
-│       │   │   ├── README.md  # Documentation for this directory/module.
-│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
-│       │   │   ├── compiler.py  # UDF compiler with security/type checks and pass pipeline.
-│       │   │   ├── config.py  # UDF allowlist configuration and access tier policies.
-│       │   │   ├── engine.py  # UDF execution engine (planning + execution).
-│       │   │   ├── plan.py  # UDF query planning and optimization.
-│       │   │   └── schema.py  # UDF IR/schema validation for query definitions.
-│       │   ├── README.md  # Documentation for this directory/module.
-│       │   ├── __init__.py  # Python package initializer (public exports live here).
-│       │   ├── _connector_bridge.py  # Connector bridge for Scientist layer isolation (Law A enforcement).
-│       │   ├── config.py  # Fabric configuration (paths, backends, catalog settings).
-│       │   ├── evidence.py  # Evidence bundle models and cryptographic/provenance scaffolding.
-│       │   ├── fact_writer.py  # Immutable fact writer for audit/provenance-friendly logs.
-│       │   ├── fitness_report.py  # Human-readable data fitness reports.
-│       │   ├── ingestion.py  # ETL ingestion pipeline (raw → staging → queryable stores).
-│       │   ├── manifest.py  # Dataset manifest models (quality/provenance metadata).
-│       │   ├── materializer.py  # Materialize fact logs into relational/graph views.
-│       │   ├── quality.py  # Quality indicators, thresholds, and quality level evaluation.
-│       │   ├── registry.py  # UDF/function registry (allowlists, access tiers).
-│       │   ├── schema.py  # Fabric schema/types shared across ingestion and UDF.
-│       │   ├── segment_manifest.py  # Segment manifest models (partitioning, optimization metadata).
-│       │   └── trust.py  # Trust policies and uncertainty quantification utilities.
-│       │   ├── connectors/  # External data source connectors with protocol compliance and capability system.
-│       │   │   ├── README.md  # Documentation for this directory/module.
-│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
-│       │   │   ├── base.py  # BaseConnector protocol and core types (ConnectionConfig, FetchRequest, etc.).
-│       │   │   ├── capabilities.py  # Capability validation utilities and protocol compliance checking.
-│       │   │   ├── discovery.py  # Connector discovery via entry points and dev-only paths.
-│       │   │   ├── pool.py  # Connection pooling with health checks and eviction.
-│       │   │   ├── registry.py  # Connector registry with indices and lazy loading.
-│       │   │   ├── cache/  # CAS-based caching system with invalidation and prefetching.
-│       │   │   │   ├── __init__.py  # Python package initializer (public exports live here).
-│       │   │   │   ├── invalidation.py  # Cache invalidation strategies and policies.
-│       │   │   │   ├── policy.py  # Cache policies and TTL management.
-│       │   │   │   ├── prefetch.py  # Intelligent prefetching for performance optimization.
-│       │   │   │   ├── proxy.py  # Caching proxy layer for connectors.
-│       │   │   │   └── store.py  # CAS store implementation for connector caching.
-│       │   │   ├── contracts/  # Contract evolution and schema management for connectors.
-│       │   │   │   ├── __init__.py  # Python package initializer (public exports live here).
-│       │   │   │   ├── evolution.py  # Contract evolution and migration utilities.
-│       │   │   │   ├── inference.py  # Schema inference from data sources.
-│       │   │   │   ├── registry.py  # Contract registry and validation.
-│       │   │   │   └── schema.py  # Schema management and validation utilities.
-│       │   │   ├── federation/  # Cross-connector federation and composition.
-│       │   │   │   ├── __init__.py  # Python package initializer (public exports live here).
-│       │   │   │   ├── composer.py  # Federation composition logic.
-│       │   │   │   ├── evidence_aggregation.py  # Evidence aggregation across federated sources.
+│       │   │   ├── metrics.py  # Prometheus-compatible metrics registry.
+│       │   │   ├── pricing.py  # Cost/pricing observability.
+│       │   │   ├── propagation.py  # Trace context propagation.
+│       │   │   └── tracer.py  # PolicyOSTracer singleton.
+│       │   ├── registry/  # Registry bundle builder/loader.
+│       │   │   ├── __init__.py
+│       │   │   ├── builder.py  # Build registry bundles.
+│       │   │   ├── builder_from_fragments.py  # Build from IR fragments.
+│       │   │   └── loader.py  # Load registry bundles.
+│       │   ├── run/  # Run context and manifest.
+│       │   │   ├── __init__.py
+│       │   │   ├── context.py  # RunContext for single execution.
+│       │   │   └── manifest.py  # Run manifest serialization.
+│       │   └── trace/  # Structured tracing records.
+│       │       ├── __init__.py
+│       │       ├── record.py  # TraceRecord model.
+│       │       └── sink.py  # Trace sinks (JSONL).
+│       ├── fabric/  # Unified Data Fabric: ingestion, catalog, evidence, quality, trust, UDF, connectors.
+│       │   ├── __init__.py
+│       │   ├── _connector_bridge.py  # Scientist→Fabric isolation (Law A).
+│       │   ├── config.py  # Fabric configuration.
+│       │   ├── connectors_ingestion.py  # Connector-based ingestion pipeline.
+│       │   ├── demo_csv_ingestion.py  # CSV ingestion demo.
+│       │   ├── evidence.py  # Evidence bundle models.
+│       │   ├── fact_writer.py  # Immutable fact writer.
+│       │   ├── fitness_report.py  # Data fitness reports.
+│       │   ├── ingestion.py  # ETL pipeline (raw→staging→stores).
+│       │   ├── manifest.py  # Dataset manifest models.
+│       │   ├── quality.py  # Quality indicators and thresholds.
+│       │   ├── registry.py  # UDF/function registry.
+│       │   ├── segment_manifest.py  # Segment manifest models.
+│       │   ├── trust.py  # Trust policies and uncertainty.
+│       │   ├── trust_adapter.py  # Trust→uncertainty bridge adapter.
+│       │   ├── world_query.py  # World model query interface.
+│       │   ├── catalog/  # Metric-level data contracts.
+│       │   │   ├── __init__.py
+│       │   │   ├── binding.py  # Hash-locked metric bindings.
+│       │   │   ├── contract.py  # DataContract models.
+│       │   │   ├── registry.py  # DataContractRegistry.
+│       │   │   ├── search.py  # Metric search/disambiguation.
+│       │   │   └── validate.py  # Contract collection validation.
+│       │   ├── claims/  # Claims management and verification.
+│       │   │   ├── __init__.py
+│       │   │   ├── canonicalize.py  # Claim canonicalization.
+│       │   │   ├── citations.py  # Citation tracking.
+│       │   │   ├── errors.py  # Claims error types.
+│       │   │   ├── extraction.py  # Claim extraction.
+│       │   │   ├── extractor_registry.py  # Extractor plugin registry.
+│       │   │   ├── normalize.py  # Claim normalization.
+│       │   │   ├── persist.py  # Claim persistence.
+│       │   │   ├── types.py  # Claim type definitions.
+│       │   │   ├── backends/  # Claim extraction backends.
+│       │   │   │   ├── __init__.py
+│       │   │   │   ├── explicit_lines_v1.py  # Explicit lines extractor.
+│       │   │   │   ├── lex_norm_regex_v1.py  # Lex norm regex extractor.
+│       │   │   │   └── regex_numeric_v1.py  # Regex numeric extractor.
+│       │   │   └── conflicts/  # Conflict detection and resolution.
+│       │   │       ├── __init__.py
+│       │   │       ├── detect.py  # Conflict detection.
+│       │   │       ├── key.py  # Conflict key generation.
+│       │   │       ├── policies.py  # Resolution policies.
+│       │   │       ├── resolve.py  # Conflict resolution.
+│       │   │       ├── score_claims.py  # Claim scoring.
+│       │   │       ├── score_docs.py  # Document scoring.
+│       │   │       ├── types.py  # Conflict type definitions.
+│       │   │       └── uncertainty_adapter.py  # Uncertainty integration.
+│       │   ├── connectors/  # External data source connectors.
+│       │   │   ├── __init__.py
+│       │   │   ├── base.py  # BaseConnector protocol.
+│       │   │   ├── capabilities.py  # Protocol compliance checking.
+│       │   │   ├── discovery.py  # Connector discovery.
+│       │   │   ├── pool.py  # Connection pooling.
+│       │   │   ├── registry.py  # Connector registry.
+│       │   │   ├── validation.py  # Input validation.
+│       │   │   ├── cache/  # CAS-based caching.
+│       │   │   │   ├── __init__.py
+│       │   │   │   ├── invalidation.py  # Cache invalidation.
+│       │   │   │   ├── policy.py  # TTL policies.
+│       │   │   │   ├── prefetch.py  # Prefetching.
+│       │   │   │   ├── proxy.py  # Caching proxy layer.
+│       │   │   │   └── store.py  # CAS cache store.
+│       │   │   ├── contracts/  # Schema evolution.
+│       │   │   │   ├── __init__.py
+│       │   │   │   ├── evolution.py  # Contract evolution.
+│       │   │   │   ├── inference.py  # Schema inference.
+│       │   │   │   ├── registry.py  # Contract registry.
+│       │   │   │   └── schema.py  # Schema management.
+│       │   │   ├── federation/  # Cross-connector federation.
+│       │   │   │   ├── __init__.py
+│       │   │   │   ├── composer.py  # Federation composition.
+│       │   │   │   ├── evidence_aggregation.py  # Evidence aggregation.
 │       │   │   │   ├── planner.py  # Federation query planning.
-│       │   │   │   ├── ranker.py  # Source ranking and selection for federation.
-│       │   │   │   ├── resolver.py  # Federation resolution and conflict handling.
-│       │   │   │   └── types.py  # Federation type definitions.
-│       │   │   ├── quality/  # Data quality assessment and validation.
-│       │   │   │   ├── __init__.py  # Python package initializer (public exports live here).
-│       │   │   │   ├── completeness.py  # Data completeness validation.
-│       │   │   │   ├── consistency.py  # Data consistency checks.
-│       │   │   │   ├── freshness.py  # Data freshness assessment.
-│       │   │   │   ├── report.py  # Quality assessment reports.
-│       │   │   │   └── validator.py  # Quality validation utilities.
+│       │   │   │   ├── ranker.py  # Source ranking.
+│       │   │   │   ├── resolver.py  # Conflict resolution.
+│       │   │   │   └── types.py  # Federation types.
+│       │   │   ├── quality/  # Data quality assessment.
+│       │   │   │   ├── __init__.py
+│       │   │   │   ├── completeness.py  # Completeness validation.
+│       │   │   │   ├── consistency.py  # Consistency checks.
+│       │   │   │   ├── freshness.py  # Freshness assessment.
+│       │   │   │   ├── report.py  # Quality reports.
+│       │   │   │   └── validator.py  # Quality validation.
 │       │   │   ├── reference/  # Reference connector implementations.
-│       │   │   │   ├── __init__.py  # Python package initializer (public exports live here).
-│       │   │   │   ├── rest_json.py  # REST/JSON connector reference implementation.
-│       │   │   │   ├── sdmx.py  # SDMX connector reference implementation.
-│       │   │   │   └── static_csv.py  # Static CSV connector reference implementation.
-│       │   │   ├── resilience/  # Resilience patterns for connector operations.
-│       │   │   │   ├── __init__.py  # Python package initializer (public exports live here).
-│       │   │   │   ├── circuit_breaker.py  # Circuit breaker pattern implementation.
-│       │   │   │   ├── fallback.py  # Fallback handling for connector failures.
-│       │   │   │   ├── rate_limiter.py  # Rate limiting for connector requests.
-│       │   │   │   └── retry.py  # Retry logic for connector operations.
-│       │   │   ├── testing/  # Testing infrastructure for connectors.
-│       │   │   │   ├── __init__.py  # Python package initializer (public exports live here).
-│       │   │   │   ├── contracts.py  # Testing contract definitions.
-│       │   │   │   ├── fixtures.py  # Test fixtures for connector testing.
-│       │   │   │   ├── harness.py  # ConnectorTestHarness for protocol compliance.
-│       │   │   │   └── simulator.py  # APISimulator for offline testing.
-│       │   │   ├── transform/  # Data transformation and processing pipeline.
-│       │   │   │   ├── __init__.py  # Python package initializer (public exports live here).
-│       │   │   │   ├── aggregator.py  # Data aggregation utilities.
-│       │   │   │   ├── filter.py  # Data filtering and selection.
-│       │   │   │   ├── harmonizer.py  # Data harmonization across sources.
+│       │   │   │   ├── __init__.py
+│       │   │   │   ├── rest_json.py  # REST/JSON connector.
+│       │   │   │   ├── sdmx.py  # SDMX connector.
+│       │   │   │   └── static_csv.py  # Static CSV connector.
+│       │   │   ├── resilience/  # Resilience patterns.
+│       │   │   │   ├── __init__.py
+│       │   │   │   ├── circuit_breaker.py  # Circuit breaker.
+│       │   │   │   ├── fallback.py  # Fallback handling.
+│       │   │   │   ├── rate_limiter.py  # Rate limiting.
+│       │   │   │   └── retry.py  # Retry logic.
+│       │   │   ├── testing/  # Connector test infrastructure.
+│       │   │   │   ├── __init__.py
+│       │   │   │   ├── contracts.py  # Test contracts.
+│       │   │   │   ├── fixtures.py  # Test fixtures.
+│       │   │   │   ├── harness.py  # ConnectorTestHarness.
+│       │   │   │   └── simulator.py  # APISimulator.
+│       │   │   ├── transform/  # Data transformation pipeline.
+│       │   │   │   ├── __init__.py
+│       │   │   │   ├── aggregator.py  # Data aggregation.
+│       │   │   │   ├── filter.py  # Data filtering.
+│       │   │   │   ├── harmonizer.py  # Data harmonization.
 │       │   │   │   ├── imputer.py  # Missing data imputation.
-│       │   │   │   ├── normalizer.py  # Data normalization utilities.
-│       │   │   │   ├── pipeline.py  # Transformation pipeline orchestration.
-│       │   │   │   ├── README.md  # Documentation for this directory/module.
-│       │   │   │   └── validator.py  # Data validation during transformation.
-│       │   │   └── types/  # Type system and data type utilities.
-│       │   │       ├── __init__.py  # Python package initializer (public exports live here).
-│       │   │       ├── coercion.py  # Type coercion utilities.
-│       │   │       ├── connector_types.py  # Connector-specific type definitions.
-│       │   │       ├── dimensions.py  # Dimensional data type handling.
-│       │   │       ├── temporal.py  # Temporal data type utilities.
-│       │   │       └── units.py  # Unit conversion and validation.
-│       │   │   ├── types/  # Type system and data type utilities.
-│       │   │   │   ├── __init__.py  # Python package initializer (public exports live here).
-│       │   │   │   ├── coercion.py  # Type coercion utilities.
-│       │   │   │   ├── connector_types.py  # Connector-specific type definitions.
-│       │   │   │   ├── dimensions.py  # Dimensional data type handling.
-│       │   │   │   ├── temporal.py  # Temporal data type utilities.
-│       │   │   │   └── units.py  # Unit conversion and validation.
-│       │   │   └── validation.py  # Python module implementing 'validation'.
-│       │   ├── connectors_ingestion.py  # Python module implementing 'connectors_ingestion'.
-│       │   ├── demo_csv_ingestion.py  # Python module implementing 'demo_csv_ingestion'.
-│       │   └── world_query.py  # Python module implementing 'world_query'.
-│       ├── foundry/  # JAX execution core: compilation, runtime, simulation, calibration, determinism tools.
+│       │   │   │   ├── normalizer.py  # Data normalization.
+│       │   │   │   ├── pipeline.py  # Pipeline orchestration.
+│       │   │   │   └── validator.py  # Transformation validation.
+│       │   │   └── types/  # Type system.
+│       │   │       ├── __init__.py
+│       │   │       ├── coercion.py  # Type coercion.
+│       │   │       ├── connector_types.py  # Connector types.
+│       │   │       ├── dimensions.py  # Dimensional data types.
+│       │   │       ├── temporal.py  # Temporal types.
+│       │   │       └── units.py  # Unit conversion.
+│       │   ├── docs/  # Document processing pipeline.
+│       │   │   ├── __init__.py
+│       │   │   ├── chunking.py  # Document chunking.
+│       │   │   ├── errors.py  # Document errors.
+│       │   │   ├── ingestion.py  # Document ingestion.
+│       │   │   ├── normalize.py  # Text normalization.
+│       │   │   ├── structure.py  # Structure extraction.
+│       │   │   ├── types.py  # Document types.
+│       │   │   └── backends/  # Format backends.
+│       │   │       ├── __init__.py
+│       │   │       ├── pdf.py  # PDF processing.
+│       │   │       ├── text_html.py  # HTML processing.
+│       │   │       └── text_plain.py  # Plain text processing.
+│       │   ├── io/  # Storage backends.
+│       │   │   ├── __init__.py
+│       │   │   └── db.py  # DuckDB backend.
+│       │   ├── provenance/  # W3C PROV-O provenance.
+│       │   │   ├── __init__.py
+│       │   │   ├── core.py  # PROV-O graph models.
+│       │   │   └── export_provo.py  # PROV-O export.
+│       │   └── world/  # World model and state management.
+│       │       ├── __init__.py
+│       │       ├── materialize/  # World materialization.
+│       │       │   ├── __init__.py
+│       │       │   ├── duckdb.py  # DuckDB materializer.
+│       │       │   ├── errors.py  # Materialization errors.
+│       │       │   ├── kuzu.py  # Kùzu materializer.
+│       │       │   ├── projections.py  # Projection definitions.
+│       │       │   ├── rules.py  # Materialization rules.
+│       │       │   ├── sql.py  # SQL generation.
+│       │       │   └── staging.py  # Staging pipeline.
+│       │       └── store/  # World persistence.
+│       │           ├── __init__.py
+│       │           ├── emit.py  # Event emission.
+│       │           ├── errors.py  # Store errors.
+│       │           ├── ids.py  # World entity IDs.
+│       │           ├── persist.py  # Persistence layer.
+│       │           ├── provenance.py  # Store provenance.
+│       │           ├── segments.py  # Segment management.
+│       │           └── validate.py  # Store validation.
+│       ├── foundry/  # JAX execution core: compilation, simulation, calibration, uncertainty.
+│       │   ├── __init__.py
+│       │   ├── agent_metrics.py  # Agent-level metrics collection.
+│       │   ├── agents.py  # Agent type definitions.
+│       │   ├── base.py  # Foundry base abstractions.
+│       │   ├── conflict_checker.py  # Static slot-write conflict detection.
+│       │   ├── constraints_engine.py  # Constraint evaluation engine.
+│       │   ├── cost_model.py  # Heuristic cost model.
+│       │   ├── executor.py  # JAX step/scan/batch executor.
+│       │   ├── fiscal.py  # Fiscal policy mechanisms.
+│       │   ├── labor.py  # Labor market mechanisms.
+│       │   ├── layout.py  # State layout management.
+│       │   ├── loss.py  # Loss function utilities.
+│       │   ├── merge_engine.py  # CRDT-inspired merge semantics.
+│       │   ├── patch_vm.py  # Patch-based virtual machine.
+│       │   ├── profiles.py  # Execution profiles.
+│       │   ├── queue.py  # Execution queue.
+│       │   ├── registry.py  # Foundry component registry.
+│       │   ├── specs.py  # Specification models.
+│       │   ├── trace.py  # Foundry tracing.
+│       │   ├── treasury.py  # RNG/seed treasury.
+│       │   ├── types.py  # Core Foundry types.
 │       │   ├── agent_sim/  # Agent-based simulation subsystem.
-│       │   │   ├── README.md  # Documentation for this directory/module.
-│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
-│       │   │   ├── actor_critic.py  # Python module implementing 'actor_critic'.
-│       │   │   ├── analysis.py  # Python module implementing 'analysis'.
-│       │   │   ├── artifact.py  # Python module implementing 'artifact'.
-│       │   │   ├── credit_assignment.py  # Python module implementing 'credit_assignment'.
-│       │   │   ├── dashboard.py  # Python module implementing 'dashboard'.
-│       │   │   ├── demographics.py  # Python module implementing 'demographics'.
-│       │   │   ├── distribution_executor.py  # Python module implementing 'distribution_executor'.
-│       │   │   ├── distribution_mechanisms.py  # Python module implementing 'distribution_mechanisms'.
-│       │   │   ├── distributions.py  # Python module implementing 'distributions'.
-│       │   │   ├── evolution.py  # Python module implementing 'evolution'.
-│       │   │   ├── executor.py  # Python module implementing 'executor'.
-│       │   │   ├── experiment.py  # Python module implementing 'experiment'.
-│       │   │   ├── government_policy.py  # Python module implementing 'government_policy'.
-│       │   │   ├── graph_executor.py  # Python module implementing 'graph_executor'.
-│       │   │   ├── graph_mechanisms.py  # Python module implementing 'graph_mechanisms'.
-│       │   │   ├── graph_observations.py  # Python module implementing 'graph_observations'.
-│       │   │   ├── graphs.py  # Python module implementing 'graphs'.
-│       │   │   ├── jit_training.py  # Python module implementing 'jit_training'.
-│       │   │   ├── mechanism.py  # Python module implementing 'mechanism'.
-│       │   │   ├── mechanisms.py  # Python module implementing 'mechanisms'.
-│       │   │   ├── metrics.py  # Python module implementing 'metrics'.
-│       │   │   ├── modes.py  # Python module implementing 'modes'.
-│       │   │   ├── mpc.py  # Python module implementing 'mpc'.
-│       │   │   ├── policy.py  # Python module implementing 'policy'.
-│       │   │   ├── population.py  # Python module implementing 'population'.
-│       │   │   ├── population_executor.py  # Python module implementing 'population_executor'.
-│       │   │   ├── population_mechanisms.py  # Python module implementing 'population_mechanisms'.
-│       │   │   ├── prng.py  # Python module implementing 'prng'.
-│       │   │   ├── rewards.py  # Python module implementing 'rewards'.
-│       │   │   ├── rl.py  # Python module implementing 'rl'.
-│       │   │   ├── state.py  # Python module implementing 'state'.
-│       │   │   ├── temporal.py  # Python module implementing 'temporal'.
-│       │   │   ├── temporal_executor.py  # Python module implementing 'temporal_executor'.
-│       │   │   ├── temporal_mechanisms.py  # Python module implementing 'temporal_mechanisms'.
-│       │   │   ├── training.py  # Python module implementing 'training'.
-│       │   │   ├── vfi.py  # Python module implementing 'vfi'.
-│       │   │   └── visualization.py  # Python module implementing 'visualization'.
-│       │   ├── calibration/  # Parameter calibration subsystem (gradient-based optimization).
-│       │   │   ├── README.md  # Documentation for this directory/module.
-│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
-│       │   │   ├── bijectors.py  # Bijectors for parameter constraint enforcement (sigmoid, softplus).
-│       │   │   ├── calibrator.py  # Calibrator class for parameter optimization.
-│       │   │   ├── loss.py  # Loss functions (MSE, Huber, weighted loss).
-│       │   │   ├── preflight.py  # Data preparation and configuration validation.
-│       │   │   ├── pure_executor.py  # JAX pure executor for calibration runs.
-│       │   │   └── report.py  # Calibration reports with fit quality metrics.
-│       │   ├── domain/  # Economic domain state schemas and types.
-│       │   │   ├── README.md  # Documentation for this directory/module.
-│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
-│       │   │   ├── schema.py  # Python module implementing 'schema'.
-│       │   │   └── state.py  # Python module implementing 'state'.
-│       │   ├── plugins/  # Plugin system for extending the domain/mechanisms/objectives.
-│       │   │   ├── economics/  # Economics plugin implementations.
-│       │   │   │   ├── __init__.py  # Python package initializer (public exports live here).
-│       │   │   │   ├── mechanisms.py  # Python module implementing 'mechanisms'.
-│       │   │   │   ├── objectives.py  # Python module implementing 'objectives'.
-│       │   │   │   ├── plugin.py  # Python module implementing 'plugin'.
-│       │   │   │   ├── rewards.py  # Python module implementing 'rewards'.
-│       │   │   │   └── state.py  # Python module implementing 'state'.
-│       │   │   ├── README.md  # Documentation for this directory/module.
-│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
-│       │   │   ├── api.py  # Python module implementing 'api'.
-│       │   │   ├── cli.py  # Python module implementing 'cli'.
-│       │   │   ├── composite.py  # Python module implementing 'composite'.
-│       │   │   ├── core.py  # Python module implementing 'core'.
-│       │   │   └── discovery.py  # Python module implementing 'discovery'.
-│       │   ├── profiles.py  # Python module implementing 'profiles'.
-│       │   ├── compile/  # Compilation and build system for Foundry components.
-│       │   │   ├── README.md  # Documentation for this directory/module.
-│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
-│       │   │   ├── _graph.py  # Python module implementing '_graph'.
-│       │   │   ├── api.py  # Python module implementing 'api'.
-│       │   │   └── trinity_compiler.py  # Python module implementing 'trinity_compiler'.
-│       │   ├── engine/  # Core execution engine for Foundry simulations.
-│       │   │   ├── README.md  # Documentation for this directory/module.
-│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
-│       │   │   └── engine.py  # Core simulation engine implementation.
-│       │   ├── execute/  # Execution orchestration and scheduling.
-│       │   │   ├── README.md  # Documentation for this directory/module.
-│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
-│       │   ├── methods/  # Method implementations and optimization techniques.
-│       │   │   ├── README.md  # Documentation for this directory/module.
-│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
-│       │   │   ├── artifacts.py  # Python module implementing 'artifacts'.
-│       │   │   ├── base.py  # Python module implementing 'base'.
-│       │   │   ├── compiler.py  # Python module implementing 'compiler'.
-│       │   │   ├── components_bridge.py  # Python module implementing 'components_bridge'.
-│       │   │   ├── composer.py  # Python module implementing 'composer'.
-│       │   │   ├── discovery.py  # Python module implementing 'discovery'.
-│       │   │   ├── exceptions.py  # Python module implementing 'exceptions'.
-│       │   │   ├── linker.py  # Python module implementing 'linker'.
-│       │   │   ├── registry.py  # Python module implementing 'registry'.
-│       │   │   ├── resolution.py  # Python module implementing 'resolution'.
-│       │   │   ├── specialization.py  # Python module implementing 'specialization'.
-│       │   │   ├── testing/  # Testing infrastructure for methods.
-│       │   │   │   ├── __init__.py  # Python package initializer (public exports live here).
-│       │   │   │   ├── fixtures.py  # Python module implementing 'fixtures'.
-│       │   │   │   ├── golden.py  # Python module implementing 'golden'.
-│       │   │   │   └── suite.py  # Python module implementing 'suite'.
-│       │   │   ├── types/  # Type definitions for methods.
-│       │   │   │   ├── __init__.py  # Python package initializer (public exports live here).
-│       │   │   │   ├── checker.py  # Python module implementing 'checker'.
-│       │   │   │   └── units.py  # Python module implementing 'units'.
-│       │   ├── runtime/  # Runtime utilities (determinism fingerprinting, NaN guard).
-│       │   │   ├── README.md  # Documentation for this directory/module.
-│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
-│       │   │   ├── fingerprint.py  # Environment fingerprinting and determinism tier controls.
-│       │   │   └── nan_guard.py  # Runtime NaN/Inf detection and diagnostics.
-│       │   ├── README.md  # Documentation for this directory/module.
-│       │   ├── __init__.py  # Python package initializer (public exports live here).
-│       │   ├── agent_metrics.py  # Python module implementing 'agent_metrics'.
-│       │   ├── agents.py  # Python module implementing 'agents'.
-│       │   ├── base.py  # Python module implementing 'base'.
-│       │   ├── compiler.py  # Compile IR policies into ProgramGraph and ExecPlan.
-│       │   ├── conflict_checker.py  # Static conflict detection on slot writes (pre-JAX).
-│       │   ├── constraints_engine.py  # Constraint evaluation and enforcement engine for policies.
-│       │   ├── cost_model.py  # Heuristic cost model for compile/runtime budgeting.
-│       │   ├── executor.py  # Execute compiled programs (JAX step/scan/batch).
-│       │   ├── fiscal.py  # Python module implementing 'fiscal'.
-│       │   ├── labor.py  # Python module implementing 'labor'.
-│       │   ├── layout.py  # Python module implementing 'layout'.
-│       │   ├── loss.py  # Python module implementing 'loss'.
-│       │   ├── merge_engine.py  # Deterministic merge semantics (CRDT-inspired) for state updates.
-│       │   ├── patch_vm.py  # Patch-based virtual machine for incremental updates.
-│       │   ├── queue.py  # Python module implementing 'queue'.
-│       │   ├── registry.py  # Foundry component registry and dependency injection utilities.
-│       │   ├── specs.py  # Python module implementing 'specs'.
-│       │   ├── trace.py  # Python module implementing 'trace'.
-│       │   ├── treasury.py  # RNG/seed treasury for reproducible stochastic simulations.
-│       │   ├── types.py  # Core Foundry types (fidelity levels, specs, typing helpers).
-│       │   └── utils.py  # Python module implementing 'utils'.
-│       ├── ir/  # Canonical IR contracts: TrinityBundle, Trinity artifacts, kernel registries, loaders, validation.
-│       │   ├── kernel/  # IR kernel registries: mechanisms, slots, units, merge rules, time semantics.
-│       │   │   ├── README.md  # Documentation for this directory/module.
-│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
-│       │   │   ├── base.py  # Python module implementing 'base'.
-│       │   │   ├── constraints.py  # Python module implementing 'constraints'.
-│       │   │   ├── mechanisms.py  # Python module implementing 'mechanisms'.
-│       │   │   ├── merge_rules.py  # Python module implementing 'merge_rules'.
-│       │   │   ├── metrics.py  # Python module implementing 'metrics'.
-│       │   │   ├── numbers.py  # Python module implementing 'numbers'.
-│       │   │   ├── selector_fields.py  # Python module implementing 'selector_fields'.
-│       │   │   ├── slots.py  # Python module implementing 'slots'.
-│       │   │   ├── time_semantics.py  # Python module implementing 'time_semantics'.
-│       │   │   ├── trust.py  # Python module implementing 'trust'.
-│       │   │   ├── units.py  # Python module implementing 'units'.
-│       │   │   └── values.py  # Python module implementing 'values'.
-│       │   ├── migrations/  # IR format migrations and Trinity bridging utilities.
-│       │   │   ├── README.md  # Documentation for this directory/module.
-│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
-│       │   │   ├── base.py  # Python module implementing 'base'.
-│       │   │   ├── policy_ir.py  # Python module implementing 'policy_ir'.
-│       │   │   └── trinity_migration.py  # Python module implementing 'trinity_migration'.
-│       │   ├── linker/  # IR linking and dependency resolution system.
-│       │   │   ├── README.md  # Documentation for this directory/module.
-│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
-│       │   │   ├── link_trinity.py  # Python module implementing 'link_trinity'.
-│       │   │   ├── reports.py  # Python module implementing 'reports'.
-│       │   │   └── types.py  # Python module implementing 'types'.
-│       │   ├── trinity/  # Trinity artifact processing and validation.
-│       │   │   ├── README.md  # Documentation for this directory/module.
-│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
-│       │   │   └── loaders.py  # Python module implementing 'loaders'.
-│       │   ├── applicability.py  # Python module implementing 'applicability'.
-│       │   ├── canon.py  # Python module implementing 'canon'.
-│       │   ├── citations.py  # Python module implementing 'citations'.
-│       │   ├── connectors.py  # Python module implementing 'connectors'.
-│       │   ├── migration_report.py  # Python module implementing 'migration_report'.
-│       │   ├── world/  # World model definitions and schemas.
-│       │   │   ├── README.md  # Documentation for this directory/module.
-│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
-│       │   │   ├── abi.py  # Python module implementing 'abi'.
-│       │   │   ├── claim.py  # Python module implementing 'claim'.
-│       │   │   ├── conflict.py  # Python module implementing 'conflict'.
-│       │   │   ├── doc.py  # Python module implementing 'doc'.
-│       │   │   ├── event.py  # Python module implementing 'event'.
-│       │   │   ├── ids.py  # Python module implementing 'ids'.
-│       │   │   ├── predicates.py  # Python module implementing 'predicates'.
-│       │   │   ├── quality.py  # Python module implementing 'quality'.
-│       │   │   └── trust.py  # Python module implementing 'trust'.
-│       │   ├── README.md  # Documentation for this directory/module.
-│       │   ├── __init__.py  # Python package initializer (public exports live here).
-│       │   ├── calibration.py  # Python module implementing 'calibration'.
-│       │   ├── data_views.py  # Python module implementing 'data_views'.
-│       │   ├── fact_log.py  # Python module implementing 'fact_log'.
-│       │   ├── linker.py  # Validate and link IR against kernel registries.
-│       │   ├── loaders.py  # Universal policy loader (auto-detect versions/formats).
-│       │   ├── model_spec.py  # ModelSpec models (data snapshots, assumptions, time semantics).
-│       │   ├── norm_pack.py  # NormPack/NormRule contracts and validation (incl. safe expression checks).
-│       │   ├── policy_spec.py  # PolicySpec models (interventions/parameters).
-│       │   ├── predicate.py  # Python module implementing 'predicate'.
-│       │   ├── problem_frame.py  # ProblemFrame models (goals/KPIs/constraints).
-│       │   ├── trinity.py  # Trinity artifacts and bundle (ProblemFrame/PolicySpec/ModelSpec).
-│       │   ├── types.py  # Python module implementing 'types'.
-│       │   ├── units.py  # Python module implementing 'units'.
-│       │   └── validation.py  # Python module implementing 'validation'.
-│       │   ├── queries.py  # Python module implementing 'queries'.
-│       │   ├── refs.py  # Python module implementing 'refs'.
-│       │   ├── registry_fragments.py  # Python module implementing 'registry_fragments'.
-│       │   ├── schedule.py  # Python module implementing 'schedule'.
-│       │   └── selector_expr.py  # Python module implementing 'selector_expr'.
-│       ├── lex/  # Legal corpus and norm evaluation system.
-│       │   ├── corpus/  # Legal document corpus management and indexing.
-│       │   │   ├── README.md  # Documentation for this directory/module.
-│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
-│       │   │   ├── index.py  # Python module implementing 'index'.
-│       │   │   ├── ingest.py  # Python module implementing 'ingest'.
-│       │   │   ├── structure.py  # Python module implementing 'structure'.
-│       │   │   └── versioning.py  # Python module implementing 'versioning'.
-│       │   ├── legal_evaluation/  # Legal rule evaluation and compliance checking.
-│       │   │   ├── backends/  # Legal evaluation backend implementations.
-│       │   │   │   ├── __init__.py  # Python package initializer (public exports live here).
-│       │   │   │   └── simple_v1.py  # Python module implementing 'simple_v1'.
-│       │   │   ├── README.md  # Documentation for this directory/module.
-│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
-│       │   │   ├── change_proposals.py  # Python module implementing 'change_proposals'.
-│       │   │   ├── context_builder.py  # Python module implementing 'context_builder'.
-│       │   │   ├── evaluate.py  # Python module implementing 'evaluate'.
-│       │   │   ├── evaluator_registry.py  # Python module implementing 'evaluator_registry'.
-│       │   ├── normpack/  # Norm pack assembly and management.
-│       │   │   ├── README.md  # Documentation for this directory/module.
-│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
-│       │   │   ├── applicability.py  # Python module implementing 'applicability'.
-│       │   │   ├── assemble_pack.py  # Python module implementing 'assemble_pack'.
-│       │   │   ├── extract_norm_claims.py  # Python module implementing 'extract_norm_claims'.
-│       │   │   ├── policies.py  # Python module implementing 'policies'.
-│       │   │   ├── provider_registry.py  # Python module implementing 'provider_registry'.
-│       │   │   └── select_sources.py  # Python module implementing 'select_sources'.
-│       │   ├── README.md  # Documentation for this directory/module.
-│       │   ├── __init__.py  # Python package initializer (public exports live here).
-│       │   ├── api.py  # Python module implementing 'api'.
-│       │   ├── errors.py  # Python module implementing 'errors'.
-│       │   └── types.py  # Python module implementing 'types'.
-│       ├── packs/  # Domain-specific policy packs and components.
+│       │   │   ├── __init__.py
+│       │   │   ├── actor_critic.py  # Actor-critic RL.
+│       │   │   ├── analysis.py  # Simulation analysis.
+│       │   │   ├── artifact.py  # Simulation artifacts.
+│       │   │   ├── credit_assignment.py  # Credit assignment.
+│       │   │   ├── dashboard.py  # Simulation dashboard.
+│       │   │   ├── demographics.py  # Demographic modeling.
+│       │   │   ├── distribution_executor.py  # Distribution execution.
+│       │   │   ├── distribution_mechanisms.py  # Distribution mechanisms.
+│       │   │   ├── distributions.py  # Distribution definitions.
+│       │   │   ├── evolution.py  # Evolutionary dynamics.
+│       │   │   ├── executor.py  # Simulation executor.
+│       │   │   ├── experiment.py  # Experiment management.
+│       │   │   ├── government_policy.py  # Government policy rules.
+│       │   │   ├── graph_executor.py  # Graph-based execution.
+│       │   │   ├── graph_mechanisms.py  # Graph mechanisms.
+│       │   │   ├── graph_observations.py  # Graph observations.
+│       │   │   ├── graphs.py  # Graph structures.
+│       │   │   ├── jit_training.py  # JIT-compiled training.
+│       │   │   ├── mechanism.py  # Single mechanism abstraction.
+│       │   │   ├── mechanisms.py  # Mechanism collection.
+│       │   │   ├── metrics.py  # Simulation metrics.
+│       │   │   ├── modes.py  # Simulation modes.
+│       │   │   ├── mpc.py  # Model predictive control.
+│       │   │   ├── policy.py  # Policy definitions.
+│       │   │   ├── population.py  # Population modeling.
+│       │   │   ├── population_executor.py  # Population executor.
+│       │   │   ├── population_mechanisms.py  # Population mechanisms.
+│       │   │   ├── prng.py  # PRNG management.
+│       │   │   ├── rewards.py  # Reward functions.
+│       │   │   ├── rl.py  # Reinforcement learning.
+│       │   │   ├── state.py  # Simulation state.
+│       │   │   ├── temporal.py  # Temporal dynamics.
+│       │   │   ├── temporal_executor.py  # Temporal executor.
+│       │   │   ├── temporal_mechanisms.py  # Temporal mechanisms.
+│       │   │   ├── training.py  # Training loops.
+│       │   │   ├── vfi.py  # Value function iteration.
+│       │   │   └── visualization.py  # Simulation visualization.
+│       │   ├── analysis/  # Post-simulation analysis.
+│       │   │   ├── __init__.py
+│       │   │   └── distributional.py  # Distributional impact analysis.
+│       │   ├── calibration/  # Gradient-based parameter calibration.
+│       │   │   ├── __init__.py
+│       │   │   ├── bijectors.py  # Parameter constraint bijectors.
+│       │   │   ├── calibrator.py  # Calibrator class.
+│       │   │   ├── loss.py  # Calibration loss functions.
+│       │   │   ├── preflight.py  # Pre-calibration validation.
+│       │   │   ├── pure_executor.py  # JAX pure executor.
+│       │   │   ├── report.py  # Calibration reports.
+│       │   │   └── uncertainty_adapter.py  # Uncertainty propagation adapter.
+│       │   ├── compile/  # Foundry compilation.
+│       │   │   ├── __init__.py
+│       │   │   ├── _graph.py  # Internal graph representation.
+│       │   │   ├── api.py  # Compilation public API.
+│       │   │   └── trinity_compiler.py  # Trinity→Foundry compiler.
+│       │   ├── domain/  # Economic domain schemas.
+│       │   │   ├── __init__.py
+│       │   │   ├── schema.py  # Domain schema definitions.
+│       │   │   └── state.py  # Domain state types.
+│       │   ├── execute/  # Execution orchestration.
+│       │   │   ├── __init__.py
+│       │   │   └── api.py  # Execution public API.
+│       │   ├── methods/  # Method implementations and catalog.
+│       │   │   ├── __init__.py
+│       │   │   ├── artifacts.py  # Method artifact management.
+│       │   │   ├── base.py  # Base method protocol.
+│       │   │   ├── compiler.py  # Method compiler.
+│       │   │   ├── components_bridge.py  # Component system bridge.
+│       │   │   ├── composer.py  # Method composition.
+│       │   │   ├── discovery.py  # Method discovery.
+│       │   │   ├── exceptions.py  # Method exceptions.
+│       │   │   ├── linker.py  # Method linker.
+│       │   │   ├── registry.py  # Method registry.
+│       │   │   ├── resolution.py  # Method resolution.
+│       │   │   ├── specialization.py  # Method specialization.
+│       │   │   ├── backends/  # Execution backends.
+│       │   │   │   ├── __init__.py
+│       │   │   │   ├── adapters.py  # Backend adapters.
+│       │   │   │   ├── chain_executor.py  # Chain execution.
+│       │   │   │   ├── dispatch.py  # Backend dispatch.
+│       │   │   │   ├── jax_runner.py  # JAX runner.
+│       │   │   │   ├── numpy_runner.py  # NumPy runner.
+│       │   │   │   ├── protocol.py  # Backend protocol.
+│       │   │   │   └── solver_runner.py  # Solver runner (OR-Tools/PuLP).
+│       │   │   ├── catalog/  # Built-in method catalog.
+│       │   │   │   ├── __init__.py
+│       │   │   │   ├── causal/  # Causal inference methods.
+│       │   │   │   │   ├── __init__.py
+│       │   │   │   │   ├── _common.py  # Shared causal utilities.
+│       │   │   │   │   ├── _econml_adapter.py  # EconML integration.
+│       │   │   │   │   ├── _registry_boot.py  # Auto-registration.
+│       │   │   │   │   ├── cate.py  # CATE estimation.
+│       │   │   │   │   ├── did.py  # Difference-in-differences.
+│       │   │   │   │   ├── dml.py  # Double machine learning.
+│       │   │   │   │   ├── meta_learners.py  # Meta-learner methods.
+│       │   │   │   │   ├── policy_learning.py  # Policy learning.
+│       │   │   │   │   ├── protocols.py  # Causal method protocols.
+│       │   │   │   │   ├── rdd.py  # Regression discontinuity.
+│       │   │   │   │   ├── scm.py  # Structural causal models.
+│       │   │   │   │   └── structural_time_series.py  # Structural time series.
+│       │   │   │   ├── econometrics/  # Econometric methods.
+│       │   │   │   │   ├── __init__.py
+│       │   │   │   │   ├── _registry_boot.py  # Auto-registration.
+│       │   │   │   │   ├── iv.py  # Instrumental variables.
+│       │   │   │   │   ├── panel.py  # Panel data models.
+│       │   │   │   │   ├── protocols.py  # Econometric protocols.
+│       │   │   │   │   └── timeseries.py  # Time series models.
+│       │   │   │   ├── microsim/  # Microsimulation methods.
+│       │   │   │   │   └── __init__.py
+│       │   │   │   └── optimization/  # Optimization methods.
+│       │   │   │       └── __init__.py
+│       │   │   ├── testing/  # Method testing infrastructure.
+│       │   │   │   ├── __init__.py
+│       │   │   │   ├── fixtures.py  # Test fixtures.
+│       │   │   │   ├── golden.py  # Golden-file testing.
+│       │   │   │   ├── jax_suite.py  # JAX backend test suite.
+│       │   │   │   ├── numpy_suite.py  # NumPy backend test suite.
+│       │   │   │   ├── solver_suite.py  # Solver backend test suite.
+│       │   │   │   └── suite.py  # General test suite.
+│       │   │   └── types/  # Method type system.
+│       │   │       ├── __init__.py
+│       │   │       ├── checker.py  # Type checker.
+│       │   │       └── units.py  # Unit types.
+│       │   ├── plugins/  # Plugin system.
+│       │   │   ├── __init__.py
+│       │   │   ├── api.py  # Plugin public API.
+│       │   │   ├── cli.py  # Plugin CLI (polisy command).
+│       │   │   ├── composite.py  # Composite plugins.
+│       │   │   ├── core.py  # Plugin core.
+│       │   │   ├── discovery.py  # Plugin discovery.
+│       │   │   └── economics/  # Economics plugin.
+│       │   │       ├── __init__.py
+│       │   │       ├── mechanisms.py  # Economic mechanisms.
+│       │   │       ├── objectives.py  # Economic objectives.
+│       │   │       ├── plugin.py  # Plugin definition.
+│       │   │       ├── rewards.py  # Economic rewards.
+│       │   │       └── state.py  # Economic state.
+│       │   ├── runtime/  # Runtime utilities.
+│       │   │   ├── __init__.py
+│       │   │   ├── fingerprint.py  # Environment fingerprinting.
+│       │   │   └── nan_guard.py  # NaN/Inf detection.
+│       │   └── uncertainty/  # Uncertainty propagation framework.
+│       │       ├── __init__.py
+│       │       ├── aggregator.py  # Uncertainty aggregation.
+│       │       ├── analytical.py  # Analytical propagation.
+│       │       ├── config.py  # Uncertainty configuration.
+│       │       ├── covariance.py  # Covariance tracking.
+│       │       ├── delta.py  # Delta method propagation.
+│       │       ├── dispatcher.py  # Method dispatch.
+│       │       ├── monte_carlo.py  # Monte Carlo propagation.
+│       │       └── protocol.py  # Uncertainty protocol.
+│       ├── ir/  # Canonical IR: TrinityBundle, kernel registries, loaders, validation.
+│       │   ├── __init__.py
+│       │   ├── applicability.py  # Policy applicability checks.
+│       │   ├── backtest.py  # Backtesting IR models.
+│       │   ├── calibration.py  # Calibration IR models.
+│       │   ├── canon.py  # Canonical representations.
+│       │   ├── causal.py  # Causal effect IR models.
+│       │   ├── citations.py  # Citation tracking models.
+│       │   ├── connectors.py  # Connector IR integration.
+│       │   ├── data_views.py  # Data view definitions.
+│       │   ├── distributional.py  # Distributional analysis IR.
+│       │   ├── fact_log.py  # Fact log IR models.
+│       │   ├── gate.py  # Gate context/decision IR models.
+│       │   ├── hte.py  # HTE result IR models.
+│       │   ├── loaders.py  # Universal policy loader.
+│       │   ├── migration_report.py  # Migration report models.
+│       │   ├── model_spec.py  # ModelSpec (data snapshots, assumptions).
+│       │   ├── norm_pack.py  # NormPack/NormRule contracts.
+│       │   ├── policy_spec.py  # PolicySpec (interventions).
+│       │   ├── predicate.py  # Predicate expressions.
+│       │   ├── problem_frame.py  # ProblemFrame (goals/KPIs).
+│       │   ├── queries.py  # IR query models.
+│       │   ├── refs.py  # IR reference types.
+│       │   ├── registry_fragments.py  # IR registry fragments.
+│       │   ├── schedule.py  # Schedule models.
+│       │   ├── selector_expr.py  # Selector expressions.
+│       │   ├── trinity.py  # Trinity artifacts and bundle.
+│       │   ├── types.py  # IR type definitions.
+│       │   ├── uncertainty.py  # Uncertainty envelope IR.
+│       │   ├── units.py  # Unit system models.
+│       │   ├── validation.py  # IR validation.
+│       │   ├── kernel/  # Kernel registries: mechanisms, slots, units, rules.
+│       │   │   ├── __init__.py
+│       │   │   ├── base.py  # Kernel base types.
+│       │   │   ├── constraints.py  # Kernel constraints.
+│       │   │   ├── mechanisms.py  # Mechanism registry.
+│       │   │   ├── merge_rules.py  # Merge rule registry.
+│       │   │   ├── metrics.py  # Kernel metrics.
+│       │   │   ├── numbers.py  # Numeric type registry.
+│       │   │   ├── selector_fields.py  # Selector field registry.
+│       │   │   ├── slots.py  # Slot registry.
+│       │   │   ├── time_semantics.py  # Time semantics registry.
+│       │   │   ├── trust.py  # Trust level registry.
+│       │   │   ├── units.py  # Unit registry.
+│       │   │   └── values.py  # Value type registry.
+│       │   ├── linker/  # IR linking and dependency resolution.
+│       │   │   ├── __init__.py
+│       │   │   ├── link_trinity.py  # Trinity linking.
+│       │   │   ├── reports.py  # Linker reports.
+│       │   │   └── types.py  # Linker types.
+│       │   ├── migrations/  # IR format migrations.
+│       │   │   ├── __init__.py
+│       │   │   ├── base.py  # Migration base.
+│       │   │   ├── policy_ir.py  # Policy IR migrations.
+│       │   │   └── trinity_migration.py  # Trinity migration.
+│       │   ├── trinity/  # Trinity artifact processing.
+│       │   │   ├── __init__.py
+│       │   │   └── loaders.py  # Trinity loaders.
+│       │   └── world/  # World model IR.
+│       │       ├── __init__.py
+│       │       ├── abi.py  # World ABI definitions.
+│       │       ├── claim.py  # Claim models.
+│       │       ├── conflict.py  # Conflict models.
+│       │       ├── doc.py  # Document models.
+│       │       ├── event.py  # Event models.
+│       │       ├── ids.py  # World entity IDs.
+│       │       ├── predicates.py  # World predicates.
+│       │       ├── quality.py  # Quality models.
+│       │       └── trust.py  # Trust models.
+│       ├── lex/  # Legal corpus and norm evaluation.
+│       │   ├── __init__.py
+│       │   ├── api.py  # Lex public API.
+│       │   ├── errors.py  # Lex error types.
+│       │   ├── types.py  # Lex type definitions.
+│       │   ├── corpus/  # Legal document corpus.
+│       │   │   ├── __init__.py
+│       │   │   ├── index.py  # Corpus indexing.
+│       │   │   ├── ingest.py  # Corpus ingestion.
+│       │   │   ├── structure.py  # Document structure.
+│       │   │   └── versioning.py  # Corpus versioning.
+│       │   ├── legal_evaluation/  # Legal rule evaluation.
+│       │   │   ├── __init__.py
+│       │   │   ├── change_proposals.py  # Legal change proposals.
+│       │   │   ├── context_builder.py  # Evaluation context.
+│       │   │   ├── evaluate.py  # Rule evaluation.
+│       │   │   ├── evaluator_registry.py  # Evaluator plugin registry.
+│       │   │   └── backends/  # Evaluation backends.
+│       │   │       ├── __init__.py
+│       │   │       └── simple_v1.py  # Simple evaluator.
+│       │   ├── normpack/  # Norm pack assembly.
+│       │   │   ├── __init__.py
+│       │   │   ├── applicability.py  # Norm applicability.
+│       │   │   ├── assemble_pack.py  # Pack assembly.
+│       │   │   ├── extract_norm_claims.py  # Norm claim extraction.
+│       │   │   ├── policies.py  # Norm policies.
+│       │   │   ├── provider_registry.py  # Provider registry.
+│       │   │   └── select_sources.py  # Source selection.
+│       │   └── simulator/  # Lex regulatory change simulator.
+│       │       ├── __init__.py
+│       │       ├── cli.py  # Simulator CLI.
+│       │       ├── diff.py  # Norm diff computation.
+│       │       ├── engine.py  # Simulation engine.
+│       │       ├── mutator.py  # Norm mutation.
+│       │       └── report.py  # Simulation reports.
+│       ├── packs/  # Domain-specific policy packs.
+│       │   ├── __init__.py
 │       │   ├── econ/  # Economic policy pack.
-│       │   │   ├── README.md  # Documentation for this directory/module.
-│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
-│       │   │   ├── components.py  # Python module implementing 'components'.
-│       │   │   └── ir_fragments.py  # Python module implementing 'ir_fragments'.
-│       │   ├── roads/  # Road infrastructure policy pack.
-│       │   │   ├── README.md  # Documentation for this directory/module.
-│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
-│       │   │   ├── components.py  # Python module implementing 'components'.
-│       │   │   ├── foundry_methods.py  # Python module implementing 'foundry_methods'.
-│       │   │   ├── ir_fragments.py  # Python module implementing 'ir_fragments'.
-│       │   │   ├── lex_evaluators.py  # Python module implementing 'lex_evaluators'.
-│       │   │   ├── norms_provider.py  # Python module implementing 'norms_provider'.
-│       │   │   └── scholar_extractors.py  # Python module implementing 'scholar_extractors'.
-│       │   ├── README.md  # Documentation for this directory/module.
-│       │   ├── __init__.py  # Python package initializer (public exports live here).
-│       ├── runtime/  # Run lifecycle API and portable run manifests.
-│       │   ├── README.md  # Documentation for this directory/module.
-│       │   ├── __init__.py  # Python package initializer (public exports live here).
-│       │   ├── api.py  # Runtime run lifecycle API (start/finalize/log artifacts).
-│       │   └── manifest.py  # Portable runtime manifest and path resolution helpers.
-│       ├── scientist/  # Orchestration layer: agents, workflows, governance passes, search optimization.
-│       │   ├── agent/  # Hierarchical agent system (PI/Drafter/Formalizer/Critic + reflexion).
-│       │   │   ├── README.md  # Documentation for this directory/module.
-│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
-│       │   │   ├── base.py  # Python module implementing 'base'.
-│       │   │   ├── critic.py  # Critic agent with TracedLLMClient integration.
-│       │   │   ├── drafter.py  # Drafter agent with TracedLLMClient integration.
-│       │   │   ├── failure_card.py  # Python module implementing 'failure_card'.
-│       │   │   ├── formalizer.py  # Formalizer agent with TracedLLMClient integration.
-│       │   │   ├── memory.py  # Python module implementing 'memory'.
-│       │   │   ├── pi.py  # PI agent with TracedLLMClient integration.
-│       │   │   ├── prompt.py  # Python module implementing 'prompt'.
-│       │   │   ├── prompts.py  # Python module implementing 'prompts'.
-│       │   │   ├── protocols.py  # Python module implementing 'protocols'.
-│       │   │   └── reflexion.py  # Self-healing reflexion loop (repair attempts, pruning).
-│       │   ├── compute/  # Compute backends abstraction (runner + job specs).
-│       │   │   ├── README.md  # Documentation for this directory/module.
-│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
-│       │   │   ├── job_spec.py  # Python module implementing 'job_spec'.
-│       │   │   └── runner.py  # Python module implementing 'runner'.
-│       │   ├── doe/  # Design of Experiments utilities.
-│       │   │   ├── README.md  # Documentation for this directory/module.
-│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
-│       │   │   └── designs.py  # Python module implementing 'designs'.
-│       │   ├── governance/  # Preflight/postflight validation pipeline and compliance checks.
-│       │   │   ├── legal/  # Legal compliance subsystem (norm packs, backends, security policy).
-│       │   │   │   ├── backends/  # Pluggable legal rule backends.
-│       │   │   │   │   ├── __init__.py  # Python package initializer (public exports live here).
-│       │   │   │   │   ├── base.py  # Python module implementing 'base'.
-│       │   │   │   │   ├── expr_ast.py  # Safe AST interpreter and Legal RuleBackend implementation (no eval/exec).
-│       │   │   │   │   └── stub.py  # Python module implementing 'stub'.
-│       │   │   │   ├── README.md  # Documentation for this directory/module.
-│       │   │   │   ├── __init__.py  # Python package initializer (public exports live here).
-│       │   │   │   └── ast_policy.py  # AST allowlist policy and resource limits for safe expression validation.
-│       │   │   ├── passes/  # Validation passes (schema, safety, legal, privacy, quality gate, budgets).
-│       │   │   │   ├── __init__.py  # Python package initializer (public exports live here).
-│       │   │   │   ├── base.py  # Python module implementing 'base'.
-│       │   │   │   ├── budget_pass.py  # Python module implementing 'budget_pass'.
-│       │   │   │   ├── legal_pass.py  # Python module implementing 'legal_pass'.
-│       │   │   │   ├── privacy_pass.py  # Python module implementing 'privacy_pass'.
-│       │   │   │   ├── quality_gate_pass.py  # Python module implementing 'quality_gate_pass'.
-│       │   │   │   ├── safety_pass.py  # Python module implementing 'safety_pass'.
-│       │   │   │   └── schema_pass.py  # Python module implementing 'schema_pass'.
-│       │   │   ├── README.md  # Documentation for this directory/module.
-│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
-│       │   │   ├── pipeline.py  # Governance pipeline orchestrator for validation passes.
-│       │   │   ├── postflight.py  # Post-execution validation entrypoint.
-│       │   │   ├── preflight.py  # Pre-execution validation entrypoint.
-│       │   │   ├── profiles.py  # Validation profiles (fast/mvp/strict) selecting passes and limits.
-│       │   │   ├── report.py  # Python module implementing 'report'.
-│       │   │   └── telemetry.py  # Governance telemetry capture (timings, summaries).
-│       │   ├── kernel/  # Scientist kernel (FSM, budgets, guards, human gates).
-│       │   │   ├── README.md  # Documentation for this directory/module.
-│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
-│       │   │   ├── budgets.py  # Python module implementing 'budgets'.
-│       │   │   ├── fsm.py  # Python module implementing 'fsm'.
-│       │   │   ├── guards.py  # Python module implementing 'guards'.
-│       │   │   └── human_gate.py  # Python module implementing 'human_gate'.
-│       │   ├── llm/  # LLM layer: tracing и monitoring для LLM взаимодействий.
-│       │   │   ├── README.md  # Documentation for this directory/module.
-│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
-│       │   │   └── traced_client.py  # TracedLLMClient с OpenTelemetry интеграцией.
-│       │   ├── engine/  # Core engine for Scientist workflows.
-│       │   │   ├── builtins/  # Built-in workflow operations and primitives.
-│       │   │   │   ├── __init__.py  # Python package initializer (public exports live here).
-│       │   │   │   ├── emit_artifact.py  # Python module implementing 'emit_artifact'.
-│       │   │   │   ├── noop.py  # Python module implementing 'noop'.
-│       │   │   │   └── set_state.py  # Python module implementing 'set_state'.
-│       │   │   ├── README.md  # Documentation for this directory/module.
-│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
-│       │   │   ├── context.py  # Python module implementing 'context'.
-│       │   │   ├── errors.py  # Python module implementing 'errors'.
-│       │   │   ├── executor.py  # Python module implementing 'executor'.
-│       │   │   ├── protocol.py  # Python module implementing 'protocol'.
-│       │   │   ├── registry.py  # Python module implementing 'registry'.
-│       │   │   ├── state.py  # Python module implementing 'state'.
-│       │   │   ├── telemetry.py  # Python module implementing 'telemetry'.
-│       │   │   └── workflow_spec.py  # Python module implementing 'workflow_spec'.
-│       │   ├── search/  # Search/optimization framework.
-│       │   │   ├── README.md  # Documentation for this directory/module.
-│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
-│       │   │   ├── controller.py  # SearchController: optimization loop coordination.
-│       │   │   ├── objective.py  # Python module implementing 'objective'.
-│       │   │   ├── stages.py  # Two-stage evaluation (cheap vs expensive) for optimization.
-│       │   │   └── stopping.py  # Stopping criteria for search/optimization.
-│       │   ├── workflow/  # Workflow engine abstractions.
-│       │   │   ├── README.md  # Documentation for this directory/module.
-│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
-│       │   │   ├── engine_base.py  # Python module implementing 'engine_base'.
-│       │   │   ├── engine_langgraph.py  # LangGraph-based workflow engine implementation.
-│       │   │   └── engine_simple.py  # Simple sequential workflow engine implementation.
-│       │   ├── nodes/  # Workflow node implementations and definitions.
-│       │   │   ├── builtins/  # Built-in workflow node implementations.
-│       │   │   │   ├── compile/  # Compilation-related workflow nodes.
-│       │   │   │   │   ├── __init__.py  # Python package initializer (public exports live here).
-│       │   │   │   │   ├── compile_foundry.py  # Python module implementing 'compile_foundry'.
-│       │   │   │   │   └── link_trinity.py  # Python module implementing 'link_trinity'.
-│       │   │   │   ├── data/  # Data processing workflow nodes.
-│       │   │   │   │   ├── __init__.py  # Python package initializer (public exports live here).
-│       │   │   │   │   ├── build_data_snapshot.py  # Python module implementing 'build_data_snapshot'.
-│       │   │   │   │   └── enrich_knowledge.py  # Python module implementing 'enrich_knowledge'.
-│       │   │   │   ├── decide/  # Decision-making workflow nodes.
-│       │   │   │   │   ├── __init__.py  # Python package initializer (public exports live here).
-│       │   │   │   │   └── build_decision_packet.py  # Python module implementing 'build_decision_packet'.
-│       │   │   │   ├── governance/  # Governance-related workflow nodes.
-│       │   │   │   │   ├── __init__.py  # Python package initializer (public exports live here).
-│       │   │   │   │   ├── legal_check.py  # Python module implementing 'legal_check'.
-│       │   │   │   │   └── run_governance.py  # Python module implementing 'run_governance'.
-│       │   │   │   ├── simulate/  # Simulation workflow nodes.
-│       │   │   │   │   ├── __init__.py  # Python package initializer (public exports live here).
-│       │   │   │   │   └── run_simulation.py  # Python module implementing 'run_simulation'.
-│       │   │   │   ├── __init__.py  # Python package initializer (public exports live here).
-│       │   │   │   ├── errors.py  # Python module implementing 'errors'.
-│       │   │   │   └── state_keys.py  # Python module implementing 'state_keys'.
-│       │   │   ├── README.md  # Documentation for this directory/module.
-│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
-│       │   ├── workflows/  # Predefined workflow templates and configurations.
-│       │   │   ├── README.md  # Documentation for this directory/module.
-│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
-│       │   │   ├── builder.py  # Python module implementing 'builder'.
-│       │   │   └── default.py  # Python module implementing 'default'.
-│       │   ├── README.md  # Documentation for this directory/module.
-│       │   ├── __init__.py  # Python package initializer (public exports live here).
-│       │   ├── foundry.py  # Python module implementing 'foundry'.
-│       │   └── publisher.py  # Publish/finalize results (artifacts, summaries).
-│       ├── scholar/  # Scholar layer for knowledge discovery and learning.
-│       │   ├── discover/  # Knowledge discovery and pattern recognition.
-│       │   │   ├── README.md  # Documentation for this directory/module.
-│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
-│       │   ├── orchestrator/  # Orchestration for scholarly workflows.
-│       │   │   ├── README.md  # Documentation for this directory/module.
-│       │   │   ├── __init__.py  # Python package initializer (public exports live here).
-│       │   ├── README.md  # Documentation for this directory/module.
-│       │   ├── __init__.py  # Python package initializer (public exports live here).
-│       └── __init__.py  # Python package initializer (public exports live here).
+│       │   │   ├── __init__.py
+│       │   │   ├── components.py  # Economic components.
+│       │   │   └── ir_fragments.py  # Economic IR fragments.
+│       │   └── roads/  # Road infrastructure pack.
+│       │       ├── __init__.py
+│       │       ├── components.py  # Road components.
+│       │       ├── foundry_methods.py  # Road simulation methods.
+│       │       ├── ir_fragments.py  # Road IR fragments.
+│       │       ├── lex_evaluators.py  # Road legal evaluators.
+│       │       ├── norms_provider.py  # Road norm provider.
+│       │       └── scholar_extractors.py  # Road claim extractors.
+│       ├── runtime/  # Run lifecycle and manifests.
+│       │   ├── __init__.py
+│       │   ├── api.py  # Runtime lifecycle API.
+│       │   ├── manifest.py  # Portable run manifests.
+│       │   └── replay.py  # Run replay infrastructure.
+│       ├── scholar/  # Knowledge discovery layer.
+│       │   ├── __init__.py
+│       │   ├── api.py  # Scholar public API.
+│       │   ├── errors.py  # Scholar errors.
+│       │   ├── policies.py  # Discovery policies.
+│       │   ├── types.py  # Scholar type definitions.
+│       │   ├── discover/  # Knowledge discovery.
+│       │   │   ├── __init__.py
+│       │   │   ├── http_fetch.py  # HTTP-based discovery.
+│       │   │   ├── local_files.py  # Local file discovery.
+│       │   │   └── manual.py  # Manual entry.
+│       │   └── orchestrator/  # Discovery orchestration.
+│       │       ├── __init__.py
+│       │       ├── bundle.py  # Knowledge bundle assembly.
+│       │       └── enrich.py  # Knowledge enrichment.
+│       └── scientist/  # Orchestration: agents, workflows, governance, search.
+│           ├── __init__.py
+│           ├── foundry.py  # Foundry integration bridge.
+│           ├── publisher.py  # Result publishing.
+│           ├── replay_backend.py  # Replay backend for re-execution.
+│           ├── agent/  # Hierarchical agent system.
+│           │   ├── __init__.py
+│           │   ├── base.py  # Base agent class.
+│           │   ├── critic.py  # Critic agent.
+│           │   ├── drafter.py  # Drafter agent.
+│           │   ├── failure_card.py  # Failure card generation.
+│           │   ├── formalizer.py  # Formalizer agent.
+│           │   ├── memory.py  # Agent memory.
+│           │   ├── pi.py  # PI agent.
+│           │   ├── prompt.py  # Prompt construction.
+│           │   ├── prompts.py  # Prompt templates.
+│           │   ├── protocols.py  # Agent protocols.
+│           │   └── reflexion.py  # Self-healing reflexion loop.
+│           ├── backtesting/  # Policy backtesting framework.
+│           │   ├── __init__.py
+│           │   ├── cli.py  # Backtesting CLI.
+│           │   ├── evaluator.py  # Backtest evaluator.
+│           │   ├── masking.py  # Temporal data masking.
+│           │   ├── orchestrator.py  # Backtest orchestrator.
+│           │   ├── plan.py  # Backtest plan generation.
+│           │   └── trust_scorer.py  # Trust-weighted scoring.
+│           ├── compute/  # Compute backend abstraction.
+│           │   ├── __init__.py
+│           │   ├── job_spec.py  # Job specifications.
+│           │   └── runner.py  # Job runner.
+│           ├── doe/  # Design of Experiments.
+│           │   ├── __init__.py
+│           │   ├── analysis.py  # DOE analysis.
+│           │   ├── designs.py  # Experimental designs.
+│           │   ├── sampling.py  # Sampling strategies.
+│           │   └── stress_report.py  # Stress test reports.
+│           ├── engine/  # Workflow engine.
+│           │   ├── __init__.py
+│           │   ├── checkpoint.py  # Workflow checkpointing.
+│           │   ├── context.py  # Execution context.
+│           │   ├── errors.py  # Engine errors.
+│           │   ├── executor.py  # Workflow executor.
+│           │   ├── idempotency.py  # Idempotent execution.
+│           │   ├── protocol.py  # Engine protocol.
+│           │   ├── registry.py  # Node registry.
+│           │   ├── state.py  # Workflow state.
+│           │   ├── telemetry.py  # Engine telemetry.
+│           │   ├── workflow_spec.py  # Workflow specification.
+│           │   └── builtins/  # Built-in operations.
+│           │       ├── __init__.py
+│           │       ├── emit_artifact.py  # Artifact emission.
+│           │       ├── noop.py  # No-op node.
+│           │       └── set_state.py  # State setter.
+│           ├── governance/  # Governance pipeline.
+│           │   ├── __init__.py
+│           │   ├── pipeline.py  # Pipeline orchestrator.
+│           │   ├── postflight.py  # Post-execution validation.
+│           │   ├── preflight.py  # Pre-execution validation.
+│           │   ├── profiles.py  # Validation profiles (fast/mvp/strict).
+│           │   ├── report.py  # Governance reports.
+│           │   ├── telemetry.py  # Governance telemetry.
+│           │   ├── legal/  # Legal compliance.
+│           │   │   ├── __init__.py
+│           │   │   ├── ast_policy.py  # AST allowlist policy.
+│           │   │   └── backends/  # Legal rule backends.
+│           │   │       ├── __init__.py
+│           │   │       ├── base.py  # Backend base.
+│           │   │       ├── expr_ast.py  # Safe AST interpreter.
+│           │   │       └── stub.py  # Stub backend.
+│           │   └── passes/  # Validation passes.
+│           │       ├── __init__.py
+│           │       ├── base.py  # Pass base class.
+│           │       ├── budget_pass.py  # Budget checks.
+│           │       ├── confidence_pass.py  # Confidence threshold checks.
+│           │       ├── equity_pass.py  # Equity/fairness checks.
+│           │       ├── legal_pass.py  # Legal compliance.
+│           │       ├── privacy_pass.py  # Privacy checks.
+│           │       ├── quality_gate_pass.py  # Quality gates.
+│           │       ├── safety_pass.py  # Safety checks.
+│           │       └── schema_pass.py  # Schema validation.
+│           ├── kernel/  # Scientist kernel.
+│           │   ├── __init__.py
+│           │   ├── budgets.py  # Budget management.
+│           │   ├── fsm.py  # Finite state machine.
+│           │   ├── gate_protocol.py  # Human gate protocol.
+│           │   ├── guards.py  # State transition guards.
+│           │   └── human_gate.py  # Human-in-the-loop gate.
+│           ├── llm/  # LLM integration.
+│           │   ├── __init__.py
+│           │   └── traced_client.py  # TracedLLMClient with OTel.
+│           ├── nodes/  # Workflow node implementations.
+│           │   ├── __init__.py
+│           │   └── builtins/  # Built-in nodes.
+│           │       ├── __init__.py
+│           │       ├── errors.py  # Node errors.
+│           │       ├── state_keys.py  # State key constants.
+│           │       ├── compile/  # Compilation nodes.
+│           │       │   ├── __init__.py
+│           │       │   ├── compile_foundry.py  # Foundry compilation.
+│           │       │   └── link_trinity.py  # Trinity linking.
+│           │       ├── data/  # Data processing nodes.
+│           │       │   ├── __init__.py
+│           │       │   ├── build_data_snapshot.py  # Data snapshot.
+│           │       │   └── enrich_knowledge.py  # Knowledge enrichment.
+│           │       ├── decide/  # Decision nodes.
+│           │       │   ├── __init__.py
+│           │       │   └── build_decision_packet.py  # Decision packet.
+│           │       ├── governance/  # Governance nodes.
+│           │       │   ├── __init__.py
+│           │       │   ├── legal_check.py  # Legal check node.
+│           │       │   └── run_governance.py  # Governance node.
+│           │       └── simulate/  # Simulation nodes.
+│           │           ├── __init__.py
+│           │           ├── propagate_uncertainty.py  # Uncertainty propagation.
+│           │           ├── run_causal_evaluation.py  # Causal evaluation.
+│           │           ├── run_distributional_analysis.py  # Distributional analysis.
+│           │           └── run_simulation.py  # Simulation execution.
+│           ├── orchestrator/  # High-level orchestration.
+│           │   ├── __init__.py
+│           │   └── decision_card.py  # Decision card generation.
+│           ├── search/  # Search/optimization framework.
+│           │   ├── __init__.py
+│           │   ├── adversarial.py  # Adversarial search.
+│           │   ├── controller.py  # SearchController.
+│           │   ├── objective.py  # Objective functions.
+│           │   ├── sensitivity_adapter.py  # Sensitivity analysis adapter.
+│           │   ├── stages.py  # Two-stage evaluation.
+│           │   ├── stopping.py  # Stopping criteria.
+│           │   └── strategies/  # Search strategies.
+│           │       ├── __init__.py
+│           │       ├── _deps.py  # Optional dependency checks.
+│           │       ├── acquisition.py  # Acquisition functions.
+│           │       ├── adapter.py  # Strategy adapter.
+│           │       ├── base.py  # Base strategy.
+│           │       ├── bayesian.py  # Bayesian optimization.
+│           │       ├── codec.py  # Space encoding/decoding.
+│           │       ├── errors.py  # Strategy errors.
+│           │       ├── grid.py  # Grid search.
+│           │       ├── multi_fidelity.py  # Multi-fidelity optimization.
+│           │       ├── multi_objective.py  # Multi-objective optimization.
+│           │       ├── normalization.py  # Objective normalization.
+│           │       ├── objective_adapter.py  # Objective adapter.
+│           │       ├── random.py  # Random search.
+│           │       ├── resource_arbiter.py  # Resource allocation.
+│           │       ├── rl_wrapper.py  # RL strategy wrapper.
+│           │       ├── runtime.py  # Runtime strategy utilities.
+│           │       ├── space.py  # Search space definitions.
+│           │       ├── surrogate.py  # Surrogate modeling.
+│           │       └── types.py  # Strategy types.
+│           ├── workflow/  # Workflow engines.
+│           │   ├── __init__.py
+│           │   ├── engine_base.py  # Engine base class.
+│           │   ├── engine_langgraph.py  # LangGraph engine.
+│           │   └── engine_simple.py  # Simple sequential engine.
+│           └── workflows/  # Predefined workflows.
+│               ├── __init__.py
+│               ├── builder.py  # Workflow builder.
+│               └── default.py  # Default workflow.
+├── schemas/  # ABI schema registry and snapshots.
+│   ├── __init__.py
+│   ├── abi_models.py  # ABI model definitions for schema generation.
+│   ├── README.md
+│   └── snapshots/
+│       ├── fabric/  # Fabric ABI snapshots.
+│       │   ├── _manifest.json  # Fabric schema manifest.
+│       │   ├── edge_kind.schema.json  # Edge kind enum.
+│       │   └── node_kind.schema.json  # Node kind enum.
+│       └── ir/  # IR model JSON Schema snapshots.
+│           ├── _manifest.json  # IR schema manifest.
+│           ├── backtest_report.schema.json  # Backtest report schema.
+│           ├── calibration_config.schema.json  # Calibration config.
+│           ├── causal_effect_report.schema.json  # Causal effect report.
+│           ├── claim.schema.json  # Claim schema.
+│           ├── conflict_resolution.schema.json  # Conflict resolution.
+│           ├── conflict_set.schema.json  # Conflict set.
+│           ├── conflict_set_resolution.schema.json  # Conflict set resolution.
+│           ├── data_view_request.schema.json  # Data view request.
+│           ├── distributional_report.schema.json  # Distributional report.
+│           ├── doc_fragment.schema.json  # Document fragment.
+│           ├── doc_meta.schema.json  # Document metadata.
+│           ├── fact.schema.json  # Fact schema.
+│           ├── fact_segment_manifest.schema.json  # Fact segment manifest.
+│           ├── gate_context.schema.json  # Gate context.
+│           ├── gate_decision.schema.json  # Gate decision.
+│           ├── gate_event.schema.json  # Gate event.
+│           ├── gate_request.schema.json  # Gate request.
+│           ├── hte_result.schema.json  # HTE result.
+│           ├── model_spec.schema.json  # ModelSpec.
+│           ├── norm_pack.schema.json  # NormPack.
+│           ├── norm_ref.schema.json  # Norm reference.
+│           ├── norm_rule.schema.json  # NormRule.
+│           ├── policy_recommendation.schema.json  # Policy recommendation.
+│           ├── policy_spec.schema.json  # PolicySpec.
+│           ├── problem_frame.schema.json  # ProblemFrame.
+│           ├── prov_activity.schema.json  # Provenance activity.
+│           ├── quality_report.schema.json  # Quality report.
+│           ├── trinity_bundle.schema.json  # TrinityBundle.
+│           ├── trust_assessment.schema.json  # Trust assessment.
+│           ├── uncertainty_envelope.schema.json  # Uncertainty envelope.
+│           └── world_event.schema.json  # World event.
+├── ops/  # Operations: monitoring, observability, alerting.
+│   ├── README.md
+│   ├── docker-compose.observability.yml  # Observability stack.
+│   ├── grafana/  # Grafana dashboards.
+│   │   ├── README.md
+│   │   ├── dashboards/
+│   │   │   ├── executive-overview.json  # Executive cost/performance.
+│   │   │   ├── foundry-hpc.json  # HPC simulation dashboard.
+│   │   │   ├── scientist-agents.json  # Agent workflow dashboard.
+│   │   │   └── slo-overview.json  # SLO tracking dashboard.
+│   │   └── provisioning/
+│   │       └── dashboards.yml  # Dashboard auto-provisioning.
+│   └── prometheus/  # Prometheus configuration.
+│       ├── README.md
+│       ├── alerts.yml  # Alerting rules.
+│       ├── prometheus.yml  # Scrape configuration.
+│       ├── recording_rules.yml  # Metric pre-computation.
+│       ├── slo_alerts.yml  # SLO alerting rules.
+│       └── slo_recording_rules.yml  # SLO recording rules.
 ├── tests/  # Test suite.
-│   ├── contract/  # Contract and schema tests for IR/Trinity/kernel.
-│   │   ├── README.md  # Documentation for this directory/module.
-│   │   ├── test_fabric_gates.py  # Pytest module exercising fabric gates.
-│   │   ├── test_ir_contract.py  # Pytest module exercising ir contract.
-│   │   ├── test_ir_migrations.py  # Pytest module exercising ir migrations.
-│   │   ├── test_kernel_models.py  # Pytest module exercising kernel models.
-│   │   ├── test_trinity_migration.py  # Pytest module exercising trinity ir.
-│   │   ├── test_trinity_contracts.py  # Pytest module exercising trinity contracts.
-│   │   └── test_trinity_migration.py  # Pytest module exercising trinity migration.
-│   ├── core_phase0/  # Core infrastructure tests (CAS, canonical JSON, registry bundles, observability system).
-│   │   ├── README.md  # Documentation for this directory/module.
-│   │   ├── conftest.py  # Pytest shared fixtures and configuration.
-│   │   ├── test_artifact_store.py  # Pytest module exercising artifact store.
-│   │   ├── test_canon_json.py  # Pytest module exercising canon json.
-│   │   ├── test_decorators.py  # Pytest module exercising @traced decorator for automatic instrumentation.
-│   │   ├── test_environment_manifest.py  # Pytest module exercising environment manifest.
-│   │   ├── test_logs.py  # Pytest module exercising log-trace correlation.
-│   │   ├── test_metrics.py  # Pytest module exercising metrics registry and timers.
-│   │   ├── test_observability.py  # Pytest module exercising integrated observability workflows.
-│   │   ├── test_propagation.py  # Pytest module exercising trace context propagation.
-│   │   ├── test_registry_bundle.py  # Pytest module exercising registry bundle.
-│   │   ├── test_run_context.py  # Pytest module exercising run context.
-│   │   └── test_tracer.py  # Pytest module exercising PolicyOSTracer singleton.
+│   ├── conftest.py  # Root fixtures.
+│   ├── test_arch_import_gate.py  # Import boundary enforcement.
+│   ├── test_components_bridge_phase19.py  # Component bridge tests.
+│   ├── test_components_discovery_phase19.py  # Component discovery tests.
+│   ├── test_components_id_semver_phase19.py  # Component ID/semver tests.
+│   ├── test_packs_discovery_phase19.py  # Pack discovery tests.
+│   ├── test_public_api_facades.py  # Public API facade tests.
+│   ├── contract/  # Contract and schema tests.
+│   │   ├── conftest.py
+│   │   ├── test_abi_diff_tool.py  # ABI diff tool tests.
+│   │   ├── test_applicability_contract.py  # Applicability contract tests.
+│   │   ├── test_citations_contract.py  # Citations contract tests.
+│   │   ├── test_fabric_gates.py  # Fabric gate contract tests.
+│   │   ├── test_foundry_facade_contracts.py  # Foundry facade tests.
+│   │   ├── test_gate_models.py  # Gate model tests.
+│   │   ├── test_gate_protocol.py  # Gate protocol tests.
+│   │   ├── test_golden_record_ids.py  # Golden record ID tests.
+│   │   ├── test_ir_migrations.py  # IR migration tests.
+│   │   ├── test_kernel_models.py  # Kernel model tests.
+│   │   ├── test_run_experiment_slo.py  # Run experiment SLO tests.
+│   │   ├── test_scientist_workflow_spec_contract.py  # Workflow spec tests.
+│   │   ├── test_slo_metrics.py  # SLO metrics tests.
+│   │   ├── test_trinity_contracts.py  # Trinity contract tests.
+│   │   ├── test_trinity_linker_contract.py  # Trinity linker tests.
+│   │   ├── test_trinity_migration.py  # Trinity migration tests.
+│   │   └── test_world_abi_contract.py  # World ABI tests.
+│   ├── core_phase0/  # Core infrastructure tests.
+│   │   ├── conftest.py
+│   │   ├── test_artifact_export_import.py  # Artifact export/import.
+│   │   ├── test_artifact_graph.py  # Artifact graph tracking.
+│   │   ├── test_artifact_store.py  # CAS store tests.
+│   │   ├── test_audit_export_verify.py  # Audit export/verify.
+│   │   ├── test_canon_json.py  # Canonical JSON tests.
+│   │   ├── test_cli_phase13.py  # CLI tests.
+│   │   ├── test_cli_resume.py  # CLI resume tests.
+│   │   ├── test_cli_signing.py  # CLI signing tests.
+│   │   ├── test_decorators.py  # @traced decorator tests.
+│   │   ├── test_environment_manifest.py  # Environment manifest tests.
+│   │   ├── test_logs.py  # Log-trace correlation tests.
+│   │   ├── test_metrics.py  # Metrics registry tests.
+│   │   ├── test_observability.py  # Observability workflow tests.
+│   │   ├── test_propagation.py  # Trace propagation tests.
+│   │   ├── test_registry_bundle.py  # Registry bundle tests.
+│   │   ├── test_run_context.py  # Run context tests.
+│   │   ├── test_signing.py  # Signing tests.
+│   │   ├── test_store_signing.py  # Store signing tests.
+│   │   └── test_tracer.py  # Tracer singleton tests.
 │   ├── demos/  # Demo smoke tests.
-│   │   ├── README.md  # Documentation for this directory/module.
-│   │   └── run_laffer_demo.py  # File.
+│   │   └── run_laffer_demo.py  # Laffer demo.
 │   ├── fabric/  # Fabric tests.
-│   │   ├── connectors/  # Connector protocol compliance tests.
-│   │   │   ├── __init__.py  # Python package initializer (public exports live here).
-│   │   │   ├── test_integration.py  # Phase 2.12 Integration & Governance verification suite.
-│   │   │   ├── test_protocol_compliance.py  # Pytest module exercising connector protocol compliance.
-│   │   │   └── test_registry.py  # Pytest module exercising registry, pooling, and discovery.
-│   │   ├── README.md  # Documentation for this directory/module.
-│   │   ├── test_data_catalog.py  # Pytest module exercising data catalog.
-│   │   ├── test_evidence_bundle.py  # Pytest module exercising evidence bundle.
-│   │   ├── test_provenance.py  # Pytest module exercising provenance.
-│   │   ├── test_quality_indicators.py  # Pytest module exercising quality indicators.
-│   │   └── test_trust_two_pass.py  # Pytest module exercising trust two pass.
+│   │   ├── test_claims_pipeline_phase13.py  # Claims pipeline tests.
+│   │   ├── test_conflict_uncertainty_adapter.py  # Conflict uncertainty adapter.
+│   │   ├── test_conflicts_phase14.py  # Conflict resolution tests.
+│   │   ├── test_data_catalog.py  # Data catalog tests.
+│   │   ├── test_docs_pipeline_phase12.py  # Docs pipeline tests.
+│   │   ├── test_evidence_bundle.py  # Evidence bundle tests.
+│   │   ├── test_legal_evaluation_phase18.py  # Legal evaluation tests.
+│   │   ├── test_lex_corpus_phase16.py  # Lex corpus tests.
+│   │   ├── test_normpack_phase17.py  # Normpack tests.
+│   │   ├── test_provenance.py  # Provenance tests.
+│   │   ├── test_quality_indicators.py  # Quality indicator tests.
+│   │   ├── test_scholar_extractor_components_phase19.py  # Scholar extractor tests.
+│   │   ├── test_scholar_mvp_phase15.py  # Scholar MVP tests.
+│   │   ├── test_trust_adapter.py  # Trust adapter tests.
+│   │   ├── test_trust_phase14.py  # Trust system tests.
+│   │   ├── test_trust_two_pass.py  # Two-pass trust tests.
+│   │   ├── test_world_kuzu_phase11.py  # Kùzu world tests.
+│   │   ├── test_world_materialization_phase10.py  # Materialization tests.
+│   │   ├── test_world_store_phase9.py  # World store tests.
+│   │   └── connectors/  # Connector tests.
+│   │       ├── __init__.py
+│   │       ├── conftest.py
+│   │       ├── test_cache_system.py  # Cache system tests.
+│   │       ├── test_federation.py  # Federation tests.
+│   │       ├── test_harness.py  # Test harness tests.
+│   │       ├── test_integration.py  # Integration tests.
+│   │       ├── test_protocol_compliance.py  # Protocol compliance.
+│   │       ├── test_quality_system.py  # Quality system tests.
+│   │       ├── test_registry.py  # Registry tests.
+│   │       ├── test_resilience.py  # Resilience tests.
+│   │       ├── test_schema_system.py  # Schema system tests.
+│   │       ├── test_transform_pipeline.py  # Transform pipeline tests.
+│   │       ├── test_type_system.py  # Type system tests.
+│   │       └── reference/  # Reference connector tests.
+│   │           ├── test_rest_json.py  # REST/JSON tests.
+│   │           ├── test_sdmx.py  # SDMX tests.
+│   │           └── test_static_csv.py  # Static CSV tests.
 │   ├── foundry/  # Foundry tests.
-│   │   ├── agent_sim/  # Agent simulation monitoring tests.
-│   │   │   ├── README.md  # Documentation for this directory/module.
-│   │   │   └── test_monitoring.py  # Pytest module exercising monitoring.
-│   │   ├── plugins/  # Plugin system tests.
-│   │   │   ├── README.md  # Documentation for this directory/module.
-│   │   │   └── test_plugin_system.py  # Pytest module exercising plugin system.
-│   │   ├── README.md  # Documentation for this directory/module.
-│   │   ├── test_adaptive_agents.py  # Pytest module exercising adaptive agents.
-│   │   ├── test_agent_artifact.py  # Pytest module exercising agent artifact.
-│   │   ├── test_agent_simulation_step1.py  # Pytest module exercising agent simulation step1.
-│   │   ├── test_agent_simulation_step2.py  # Pytest module exercising agent simulation step2.
-│   │   ├── test_agent_simulation_step3.py  # Pytest module exercising agent simulation step3.
-│   │   ├── test_agent_simulation_step4.py  # Pytest module exercising agent simulation step4.
-│   │   ├── test_agent_simulation_step5.py  # Pytest module exercising agent simulation step5.
-│   │   ├── test_agent_simulation_step6.py  # Pytest module exercising agent simulation step6.
-│   │   ├── test_calibrator_fidelity.py  # Pytest module exercising calibrator fidelity.
-│   │   ├── test_calibrator_mvp.py  # Pytest module exercising calibrator mvp.
-│   │   ├── test_conflict_detection.py  # Pytest module exercising conflict detection.
-│   │   ├── test_constraints_executor.py  # Pytest module exercising constraints executor.
-│   │   ├── test_cost_model.py  # Pytest module exercising cost model.
-│   │   ├── test_fiscal.py  # Pytest module exercising fiscal.
-│   │   ├── test_global_state.py  # Pytest module exercising global state.
-│   │   ├── test_gradients.py  # Pytest module exercising gradients.
-│   │   ├── test_health.py  # Pytest module exercising health.
-│   │   ├── test_jit_compilation_tracker.py # JIT compilation tracking и optimization metrics
-│   │   ├── test_jit_stability.py  # Pytest module exercising jit stability.
-│   │   ├── test_merge_determinism.py  # Pytest module exercising merge determinism.
-│   │   ├── test_nan_guard.py  # Pytest module exercising nan guard.
-│   │   ├── test_patch_executor.py  # Pytest module exercising patch executor.
-│   │   ├── test_program_graph_ops.py  # Pytest module exercising program graph ops.
-│   │   └── test_runtime_batch.py  # Pytest module exercising runtime batch.
+│   │   ├── test_adaptive_agents.py  # Adaptive agent tests.
+│   │   ├── test_agent_artifact.py  # Agent artifact tests.
+│   │   ├── test_agent_simulation_step1.py  # Agent sim step 1.
+│   │   ├── test_agent_simulation_step2.py  # Agent sim step 2.
+│   │   ├── test_agent_simulation_step3.py  # Agent sim step 3.
+│   │   ├── test_agent_simulation_step4.py  # Agent sim step 4.
+│   │   ├── test_agent_simulation_step5.py  # Agent sim step 5.
+│   │   ├── test_agent_simulation_step6.py  # Agent sim step 6.
+│   │   ├── test_calibration_uncertainty_adapter.py  # Calibration uncertainty.
+│   │   ├── test_calibrator_fidelity.py  # Calibrator fidelity tests.
+│   │   ├── test_calibrator_mvp.py  # Calibrator MVP tests.
+│   │   ├── test_compile_determinism.py  # Compile determinism.
+│   │   ├── test_compile_facade.py  # Compile facade tests.
+│   │   ├── test_conflict_detection.py  # Conflict detection tests.
+│   │   ├── test_constraints_executor.py  # Constraints executor tests.
+│   │   ├── test_cost_model.py  # Cost model tests.
+│   │   ├── test_execute_facade_smoke.py  # Execute facade smoke.
+│   │   ├── test_fiscal.py  # Fiscal tests.
+│   │   ├── test_global_state.py  # Global state tests.
+│   │   ├── test_gradients.py  # Gradient tests.
+│   │   ├── test_health.py  # Health check tests.
+│   │   ├── test_jit_compilation_tracker.py  # JIT tracker tests.
+│   │   ├── test_jit_stability.py  # JIT stability tests.
+│   │   ├── test_merge_determinism.py  # Merge determinism tests.
+│   │   ├── test_nan_guard.py  # NaN guard tests.
+│   │   ├── test_no_io_kernel.py  # No-IO kernel purity.
+│   │   ├── test_patch_executor.py  # Patch executor tests.
+│   │   ├── test_program_graph_ops.py  # Program graph ops tests.
+│   │   ├── test_runtime_batch.py  # Runtime batch tests.
+│   │   ├── test_uncertainty_propagation.py  # Uncertainty propagation.
+│   │   ├── agent_sim/  # Agent sim tests.
+│   │   │   └── test_monitoring.py  # Monitoring tests.
+│   │   ├── analysis/  # Analysis tests.
+│   │   │   └── test_distributional.py  # Distributional analysis tests.
+│   │   ├── methods/  # Method tests.
+│   │   │   ├── conftest.py
+│   │   │   ├── test_artifacts.py  # Method artifact tests.
+│   │   │   ├── test_base.py  # Base method tests.
+│   │   │   ├── test_compiler.py  # Method compiler tests.
+│   │   │   ├── test_composer.py  # Method composer tests.
+│   │   │   ├── test_discovery.py  # Method discovery tests.
+│   │   │   ├── test_linker.py  # Method linker tests.
+│   │   │   ├── test_metadata_assumptions.py  # Metadata/assumptions tests.
+│   │   │   ├── test_protocol.py  # Method protocol tests.
+│   │   │   ├── test_registry.py  # Method registry tests.
+│   │   │   ├── test_testing_infra.py  # Testing infra tests.
+│   │   │   ├── test_types.py  # Method type tests.
+│   │   │   ├── backends/
+│   │   │   │   └── test_backends.py  # Backend tests.
+│   │   │   └── catalog/
+│   │   │       ├── causal/  # Causal method tests.
+│   │   │       │   ├── test_did.py  # DID tests.
+│   │   │       │   ├── test_hte_methods.py  # HTE method tests.
+│   │   │       │   ├── test_protocols.py  # Causal protocol tests.
+│   │   │       │   ├── test_rdd.py  # RDD tests.
+│   │   │       │   ├── test_registration.py  # Registration tests.
+│   │   │       │   ├── test_scm.py  # SCM tests.
+│   │   │       │   └── test_structural_time_series.py  # STS tests.
+│   │   │       └── econometrics/  # Econometric method tests.
+│   │   │           ├── test_iv.py  # IV tests.
+│   │   │           ├── test_panel.py  # Panel data tests.
+│   │   │           ├── test_protocols.py  # Econometric protocol tests.
+│   │   │           ├── test_registration.py  # Registration tests.
+│   │   │           └── test_timeseries.py  # Time series tests.
+│   │   └── plugins/  # Plugin tests.
+│   │       └── test_plugin_system.py  # Plugin system tests.
 │   ├── integration/  # Cross-module integration tests.
-│   │   ├── README.md  # Documentation for this directory/module.
-│   │   ├── test_calibration_udf.py  # Pytest module exercising calibration udf.
-│   │   ├── test_workflow_llm.py  # Pytest module exercising workflow llm.
-│   │   └── test_workflow_smoke.py  # Pytest module exercising workflow smoke.
+│   │   ├── test_calibration_udf.py  # Calibration+UDF integration.
+│   │   ├── test_human_gate_audit.py  # Human gate+audit integration.
+│   │   ├── test_workflow_llm.py  # Workflow+LLM integration.
+│   │   └── test_workflow_smoke.py  # Workflow smoke tests.
 │   ├── ir/  # IR tests.
-│   │   ├── README.md  # Documentation for this directory/module.
-│   │   └── test_loaders.py  # Pytest module exercising loaders.
+│   │   ├── test_hte_backtest.py  # HTE+backtest IR tests.
+│   │   ├── test_loaders.py  # Loader tests.
+│   │   ├── test_queries_contracts.py  # Query contract tests.
+│   │   ├── test_registry_fragments.py  # Registry fragment tests.
+│   │   ├── test_registry_fragments_components_phase19.py  # Fragment component tests.
+│   │   ├── test_trinity_loaders.py  # Trinity loader tests.
+│   │   └── test_uncertainty.py  # Uncertainty IR tests.
+│   ├── lex/  # Lex tests.
+│   │   └── simulator/  # Lex simulator tests.
+│   │       ├── test_diff.py  # Norm diff tests.
+│   │       ├── test_engine.py  # Simulator engine tests.
+│   │       └── test_mutator.py  # Norm mutator tests.
+│   ├── performance/  # Performance tests.
+│   │   └── test_overhead.py  # Observability overhead SLA.
 │   ├── runtime/  # Runtime tests.
-│   │   ├── README.md  # Documentation for this directory/module.
-│   │   └── test_runtime_manifest_paths.py  # Pytest module exercising runtime manifest paths.
-│   ├── scientist/  # Scientist tests.
-│   │   ├── governance/  # Governance/legal compliance tests (safe expressions, passes).
-│   │   │   ├── README.md  # Documentation for this directory/module.
-│   │   │   ├── test_legal_pass.py  # Pytest module exercising legal pass.
-│   │   │   ├── test_norm_execution.py  # Pytest module exercising norm execution.
-│   │   │   └── test_validation_pipeline.py  # Pytest module exercising validation pipeline.
-│   │   ├── search/  # Search framework tests.
-│   │   │   ├── README.md  # Documentation for this directory/module.
-│   │   │   ├── __init__.py  # Python package initializer (public exports live here).
-│   │   │   ├── conftest.py  # Pytest shared fixtures and configuration.
-│   │   │   └── test_search_loop.py  # Pytest module exercising search loop.
-│   │   ├── integration/  # Integration tests for workflow tracing.
-│   │   │   └── test_workflow_tracing.py  # Integration test for end-to-end workflow tracing.
-│   │   ├── README.md  # Documentation for this directory/module.
-│   │   ├── conftest.py  # Pytest shared fixtures and configuration.
-│   │   ├── test_agent_protocols.py  # Pytest module exercising agent protocols.
-│   │   ├── test_compiler.py  # Pytest module exercising compiler.
-│   │   ├── test_decision_card.py  # Pytest module exercising decision card.
-│   │   ├── test_decision_packet_v2.py  # Pytest module exercising decision packet v2.
-│   │   ├── test_instrumentation.py  # Phase 2 instrumentation tests for Scientist workflow.
-│   │   ├── test_multi_agent_workflow.py  # Pytest module exercising multi agent workflow.
-│   │   ├── test_reflexion_loop.py  # Pytest module exercising reflexion loop.
-│   │   └── test_run_timeline.py  # Pytest module exercising run timeline.
-│   ├── README.md  # Documentation for this directory/module.
-│   └── conftest.py  # Pytest shared fixtures and configuration.
-├── performance/  # Performance validation tests (observability overhead SLA enforcement).
-│   ├── README.md  # Documentation for performance tests.
-│   └── test_overhead.py  # Overhead validation for simulation, CAS I/O, calibration operations.
-├── tools/  # Developer tooling: linters, migrations, diagnostics, benchmarks, demos.
+│   │   ├── test_replay_runtime.py  # Replay runtime tests.
+│   │   └── test_runtime_manifest_paths.py  # Manifest path tests.
+│   └── scientist/  # Scientist tests.
+│       ├── conftest.py
+│       ├── test_agent_protocols.py  # Agent protocol tests.
+│       ├── test_backtesting.py  # Backtesting tests.
+│       ├── test_causal_evaluation_node.py  # Causal evaluation node.
+│       ├── test_checkpoint.py  # Checkpoint tests.
+│       ├── test_compiler.py  # Compiler tests.
+│       ├── test_decision_card.py  # Decision card tests.
+│       ├── test_decision_card_uncertainty_render.py  # Uncertainty rendering.
+│       ├── test_decision_packet_distributional_econometrics.py  # Distributional+econometrics.
+│       ├── test_decision_packet_node_v3.py  # Decision packet v3.
+│       ├── test_decision_packet_v2.py  # Decision packet v2.
+│       ├── test_distributional_analysis_node.py  # Distributional analysis.
+│       ├── test_engine_default_workflow_e1_7.py  # Default workflow tests.
+│       ├── test_engine_executor_idempotency.py  # Idempotency tests.
+│       ├── test_engine_executor_v0.py  # Executor v0 tests.
+│       ├── test_engine_registry_v0.py  # Registry v0 tests.
+│       ├── test_flow_nodes_legacy_shim_e1_7.py  # Legacy shim tests.
+│       ├── test_idempotency.py  # Idempotency tests.
+│       ├── test_instrumentation.py  # Instrumentation tests.
+│       ├── test_multi_agent_workflow.py  # Multi-agent workflow.
+│       ├── test_propagate_uncertainty_node.py  # Uncertainty propagation node.
+│       ├── test_reflexion_loop.py  # Reflexion loop tests.
+│       ├── test_replay_backend.py  # Replay backend tests.
+│       ├── test_run_timeline.py  # Run timeline tests.
+│       ├── compute/
+│       │   └── test_runner_polyglot.py  # Polyglot runner tests.
+│       ├── doe/
+│       │   ├── test_sampling.py  # DOE sampling tests.
+│       │   └── test_sensitivity_plan.py  # Sensitivity plan tests.
+│       ├── governance/  # Governance tests.
+│       │   ├── test_confidence_pass.py  # Confidence pass tests.
+│       │   ├── test_equity_pass.py  # Equity pass tests.
+│       │   ├── test_legal_pass.py  # Legal pass tests.
+│       │   ├── test_norm_execution.py  # Norm execution tests.
+│       │   └── test_validation_pipeline.py  # Validation pipeline tests.
+│       ├── integration/  # Scientist integration tests.
+│       │   ├── test_checkpoint_resume.py  # Checkpoint+resume tests.
+│       │   └── test_workflow_tracing.py  # Workflow tracing tests.
+│       └── search/  # Search tests.
+│           ├── __init__.py
+│           ├── conftest.py
+│           ├── test_adversarial.py  # Adversarial search tests.
+│           ├── test_search_loop.py  # Search loop tests.
+│           └── strategies/  # Strategy tests.
+│               ├── __init__.py
+│               ├── conftest.py
+│               ├── test_adapter.py  # Adapter tests.
+│               ├── test_bayesian.py  # Bayesian tests.
+│               ├── test_controller_batch.py  # Controller batch tests.
+│               ├── test_multi_objective.py  # Multi-objective tests.
+│               ├── test_random_grid.py  # Random/grid tests.
+│               ├── test_resource_arbiter.py  # Resource arbiter tests.
+│               └── test_space_codec.py  # Space codec tests.
+├── tools/  # Developer tooling.
+│   ├── README.md
+│   ├── abi_diff.py  # ABI schema diff tool.
+│   ├── capture_env.py  # Environment reproducibility manifest.
+│   ├── check_perf_regression.py  # Performance regression checker.
+│   ├── check_scientist_node_version_bump.py  # Node version bump check.
+│   ├── check_state_reads.py  # State read pattern checker.
+│   ├── gen_schema.py  # JSON Schema snapshot generator.
+│   ├── lint_connectors.py  # Connector Law A/B linter.
+│   ├── lint_foundry.py  # Foundry purity linter (Law B).
+│   ├── lint_imports.py  # Architecture import-boundary linter (Law A).
+│   ├── migrate.py  # Migration runner.
+│   ├── run_mechanism_design.py  # Differentiable mechanism design demo.
+│   ├── scan_fabric.py  # Fabric data contract scanner.
+│   ├── visualize_provenance.py  # Provenance graph visualizer.
 │   ├── benchmarks/  # Performance benchmarks.
-│   │   ├── README.md  # Documentation for this directory/module.
-│   │   ├── bench_domain.py  # Benchmark script.
-│   │   └── bench_simulation.py  # Benchmark script.
-│   ├── demos/  # Runnable demo scripts.
-│   │   ├── README.md  # Documentation for this directory/module.
-│   │   ├── run_export_demo.py  # Demo script.
-│   │   ├── run_ingest_demo.py  # Demo script.
-│   │   ├── run_laffer_demo.py  # Demo script.
-│   │   ├── run_optimizer_demo.py  # Demo script.
-│   │   ├── run_udf_hybrid_demo.py  # Demo script.
-│   │   └── run_udf_query_demo.py  # Demo script.
-│   ├── connectors/  # Connector development tools.
-│   │   ├── lint_connectors.py  # Law A/B enforcement linter for connectors.
-│   │   └── scaffold.py  # Connector scaffold generator for new implementations.
-│   ├── diagnostics/  # Diagnostics scripts.
-│   │   ├── README.md  # Documentation for this directory/module.
-│   │   ├── check_setup.py  # Diagnostics script.
-│   │   ├── check_udf_perf.py  # Diagnostics script.
-│   │   ├── check_perf_regression.py  # Performance regression checker for CI/CD (pytest-benchmark comparison).
-│   │   └── generate_ir_schema.py  # Diagnostics script.
-│   ├── README.md  # Documentation for this directory/module.
-│   ├── capture_env.py  # Capture environment details into a reproducibility manifest.
-│   ├── gen_schema.py  # Generate JSON Schema snapshots from Pydantic models.
-│   ├── lint_foundry.py  # Foundry purity linter (Law B enforcement).
-│   ├── lint_imports.py  # Architecture import-boundary linter (Law A enforcement).
-│   ├── migrate.py  # File.
-│   ├── migrate_ir.py  # Migrate Policy IR artifacts between schema versions.
-│   ├── migrate_to_trinity.py  # Batch migration utilities from Trinity IR to Trinity artifacts.
-│   ├── run_mechanism_design.py  # End-to-end differentiable mechanism design demo/driver.
-│   ├── scan_fabric.py  # Scan data stores and draft Fabric data contracts.
-│   └── visualize_provenance.py  # Visualize and verify provenance graphs.
-├── .gitignore  # Git ignore rules for the project workspace.
-├── .pre-commit-config.yaml  # Pre-commit hooks configuration (formatting/linting checks).
-├── Dockerfile.reproducible  # Reproducible container build definition.
-├── README.md  # Main project README (high-level concepts, flows, and usage).
-├── architecture.md  # Project file-by-file structure reference (this document).
-├── dashboard.py  # Streamlit dashboard entrypoint for visualizing runs and artifacts.
-├── env_example.txt  # Environment variables template.
-├── install.sh  # Bootstrap installer script (dev setup).
-├── jax_bootstrap.py  # Applies safe JAX environment defaults before importing jax.
-├── migrate.py  # CLI tool to migrate schema-managed artifacts to target versions.
-├── schemas/  # ABI schema registry and generated snapshots (see schemas/README.md).
-│   ├── snapshots/ir/  # Per-model JSON Schema snapshots for IR artifacts.
-│   └── snapshots/fabric/  # Enum snapshots for Fabric world ABI.
-├── pyproject.toml  # Project metadata, dependencies, and tool configuration.
-├── run_experiment.py  # CLI entrypoint to run a Scientist workflow for an experiment.
-└── uv.lock  # Locked dependency graph for uv.
+│   │   ├── bench_domain.py  # Domain benchmark.
+│   │   └── bench_simulation.py  # Simulation benchmark.
+│   ├── connectors/  # Connector tools.
+│   │   └── scaffold.py  # Connector scaffold generator.
+│   ├── demos/  # Demo scripts.
+│   │   ├── run_export_demo.py  # Export demo.
+│   │   ├── run_ingest_demo.py  # Ingestion demo.
+│   │   ├── run_laffer_demo.py  # Laffer curve demo.
+│   │   ├── run_optimizer_demo.py  # Optimizer demo.
+│   │   ├── run_udf_hybrid_demo.py  # UDF hybrid demo.
+│   │   └── run_udf_query_demo.py  # UDF query demo.
+│   └── diagnostics/  # Diagnostic scripts.
+│       ├── check_perf_regression.py  # Perf regression check.
+│       ├── check_setup.py  # Setup diagnostics.
+│       ├── check_udf_perf.py  # UDF perf diagnostics.
+│       └── generate_ir_schema.py  # IR schema generator.
+├── data/  # Data workspace and reference datasets.
+│   ├── README.md
+│   ├── norms/  # Norm packs (YAML).
+│   │   └── sample_norms.yaml  # Sample norm pack.
+│   ├── raw/  # Raw input datasets.
+│   │   ├── .gitkeep
+│   │   ├── agents.csv  # Agent data.
+│   │   ├── interactions.csv  # Interaction data.
+│   │   └── macro.csv  # Macroeconomic data.
+│   ├── staging/  # ETL intermediate outputs.
+│   │   ├── .gitkeep
+│   │   ├── agents.parquet  # Staged agent data.
+│   │   ├── interactions.parquet  # Staged interactions.
+│   │   └── macro.parquet  # Staged macro data.
+│   └── curated/  # Curated datasets with manifests.
+│       ├── .gitkeep
+│       ├── agents.parquet  # Curated agent data.
+│       ├── agents_manifest.json  # Agent data manifest.
+│       ├── data_contracts.json  # Data contract definitions.
+│       ├── entity_resolution_manifest.json  # Entity resolution manifest.
+│       ├── interactions.parquet  # Curated interactions.
+│       ├── interactions_manifest.json  # Interactions manifest.
+│       ├── macro.parquet  # Curated macro data.
+│       ├── macro_manifest.json  # Macro data manifest.
+│       └── udf_schema.json  # UDF schema definitions.
+├── pyproject.toml  # Project metadata, deps, tool config.
+├── import_policy.toml  # Architecture import-boundary rules (Law A).
+├── import_exceptions.toml  # Temporary import gate exceptions.
+└── (root files)
+    ├── architecture.md  # This document.
+    ├── dashboard.py  # Streamlit dashboard entrypoint.
+    ├── env_example.txt  # Environment variables template.
+    ├── install.sh  # Bootstrap installer.
+    ├── jax_bootstrap.py  # JAX environment defaults.
+    ├── migrate.py  # Schema migration CLI.
+    ├── run_experiment.py  # Scientist workflow CLI.
+    ├── uv.lock  # Locked dependency graph.
+    ├── Dockerfile.reproducible  # Reproducible container build.
+    ├── .pre-commit-config.yaml  # Pre-commit hooks.
+    └── .gitignore  # Git ignore rules.
 ```

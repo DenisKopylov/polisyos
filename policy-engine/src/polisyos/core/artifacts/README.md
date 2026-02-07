@@ -1,49 +1,21 @@
-# Artifacts (CAS хранилище)
+# Artifacts — Content-Addressable Storage
 
-## Обзор
-
-Content-Addressable Storage с SHA256 хешированием для неизменяемых артефактов. Обеспечивает дедупликацию, provenance tracking и reproducible симуляции через EnvironmentManifest.
+CAS хранилище с SHA256 хешированием для неизменяемых артефактов. Дедупликация, provenance tracking, криптографические подписи Ed25519, environment manifests для reproducible симуляций, dependency graph traversal.
 
 ## Архитектура
 
 ```
 artifacts/
-├── ids.py          # ArtifactID (SHA256 идентификаторы)
-├── manifest.py     # ArtifactManifest, ArtifactRef, типизированные ссылки
-├── environment.py  # EnvironmentManifest с fingerprinting
-├── graph.py        # Dependency graph traversal для replay/completeness checks
-├── registry.py     # RegistryBundle
-└── store.py        # FileSystemCAS, PutOptions, verify + export/import subgraph
+├── ids.py          # ArtifactID — SHA256-based идентификатор ("sha256:<64hex>")
+├── manifest.py     # ArtifactManifest, ArtifactRef, ProducerInfo, SchemaInfo, InputRef
+├── store.py        # FileSystemCAS — CAS на файловой системе, PutOptions, verify, export/import
+├── signing.py      # Ed25519 подписи: Ed25519Signer/Verifier, KeyPair, detached signatures
+├── environment.py  # EnvironmentManifest — fingerprinting, compatibility scoring
+├── graph.py        # DependencyGraph — traversal, completeness checks, replay export
+└── registry.py     # RegistryBundle, RegistryBundlePayload
 ```
 
-## Основные компоненты
-
-### ArtifactID
-Уникальный SHA256-based идентификатор артефакта.
-
-```python
-from polisyos.core.artifacts.ids import ArtifactID
-artifact_id = ArtifactID.from_sha256_hex("a665a459...")
-```
-
-### ArtifactManifest
-Метаданные артефакта (производитель, схема, зависимости, provenance).
-
-### ArtifactRef
-Типизированная ссылка с проверкой kind/media_type.
-
-```python
-from polisyos.core.artifacts.manifest import ArtifactRef
-
-ref = ArtifactRef(
-    artifact_id=artifact_id,
-    kind="fabric.result_bundle",
-    media_type="application/json"
-)
-```
-
-### FileSystemCAS
-CAS реализация на файловой системе.
+## FileSystemCAS — основное хранилище
 
 ```python
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
@@ -53,141 +25,84 @@ ref = store.put_json(data, PutOptions(kind="result", producer=info))
 retrieved = store.get_json(ref.artifact_id)
 ```
 
-### RegistryBundle
-Пакет реестров компонентов системы.
+**Layout:** `/artifacts/sha256/ab/cd/abcdef...blob` + `.manifest.json` + `.sig`
 
-## Environment Manifest
+**Операции:** `put_json`, `put_bytes`, `get_json`, `get_bytes`, `get_manifest`, `verify`, `export_subgraph`, `import_subgraph`, `sign_artifact`, `verify_signature`, `sign_all_artifacts`, `verify_all_signatures`.
 
-### EnvironmentManifest
-Манифест окружения для reproducible симуляций с fingerprinting и compatibility scoring.
+## ArtifactManifest и типизированные ссылки
 
-```python
-from polisyos.core.artifacts.environment import capture_environment
+`ArtifactManifest` — полные метаданные артефакта:
+- `artifact_id`, `kind`, `media_type`, `byte_size`
+- `producer` (ProducerInfo), `schema` (SchemaInfo), `canon` (CanonInfo)
+- `inputs` (list[InputRef]) — provenance
+- `integrity` (IntegrityInfo), `env` (EnvInfo), `git` (GitInfo)
+- `warnings` (list[WarningRecord])
 
-env_manifest = capture_environment(
-    project_root=Path("/path/to/project"),
-    include_git=True,
-    include_dependencies=True
-)
+`ArtifactRef` — базовый класс для typed-ссылок. Контракты в `contracts/` наследуют его с `Literal` kind.
 
-# Компоненты: CPU, GPU, JAX, Git, Python, dependencies
-fingerprint = env_manifest.fingerprint  # Для быстрого сравнения
-compatibility = env_manifest.compatibility_score(other_env)
-```
+## Cryptographic Signatures (Ed25519)
 
-### Сравнение окружений
-
-```python
-from polisyos.core.artifacts.environment import compare_environments
-diffs = compare_environments(env1, env2)  # Анализ различий и рисков
-```
-
-### EnvironmentManifestRef
-Типизированная ссылка на манифест окружения.
-
-## Структуры метаданных
-
-- **ProducerInfo**: Компонент-производитель
-- **SchemaInfo**: Схема данных артефакта
-- **InputRef**: Ссылки на входные артефакты с ролями
-- **WarningRecord**: Предупреждения о проблемах
-
-## Layout хранилища
-
-Иерархическая структура: `/artifacts/sha256/ab/cd/abcdef.blob` и `.manifest.json`
-
-## Верификация
-
-```python
-report = store.verify(artifact_id)
-if not report.ok:
-    print(f"Verification failed: {report.error}")
-```
-
-### Cryptographic Signatures (Phase 6)
-
-CAS поддерживает detached sidecar подписи:
-
-```
-artifacts/sha256/ab/cd/<hex>.blob
-artifacts/sha256/ab/cd/<hex>.manifest.json
-artifacts/sha256/ab/cd/<hex>.sig
-```
-
-Подпись (`.sig`) создается Ed25519-ключом и подписывает canonical statement:
-- `artifact_id`
-- `blob_sha256`
-- `manifest_sha256`
-- `key_id`
-
-Пример API:
+Detached sidecar-подписи для артефактов:
 
 ```python
 from polisyos.core.artifacts.signing import Ed25519Signer, Ed25519Verifier
 
 signer = Ed25519Signer.from_env_or_file()
-sig = store.sign_artifact(artifact_id, signer, signer_identity="ci-prod")
+store.sign_artifact(artifact_id, signer, signer_identity="ci-prod")
 
 verifier = Ed25519Verifier(strict_identity=True)
 verifier.load_trust_dir(Path(".polisyos/keys/trusted"))
-verifier.load_revoked_dir(Path(".polisyos/keys/revoked"))
 result = store.verify_signature(artifact_id, verifier)
-assert result.status.value == "valid"
 ```
 
-Bulk verify/sign:
+**Bulk операции:** `store.verify_all_signatures(verifier, max_workers=8)`, `store.sign_all_artifacts(signer, only_unsigned=True)`.
+
+**Protocols:** `ArtifactSigner`, `ArtifactVerifier` — расширяемые интерфейсы.
+
+## EnvironmentManifest
+
+Захват полного окружения для reproducible симуляций:
 
 ```python
-verify_report = store.verify_all_signatures(verifier, max_workers=8)
-sign_report = store.sign_all_artifacts(signer, only_unsigned=True, max_workers=8)
+from polisyos.core.artifacts.environment import capture_environment, compare_environments
+
+env = capture_environment(project_root=Path("."), include_git=True, include_dependencies=True)
+fingerprint = env.fingerprint           # быстрое сравнение
+score = env.compatibility_score(other)  # 0.0-1.0
+diffs = compare_environments(env1, env2) # анализ различий и рисков
 ```
 
-### Dependency Graph и Replay Export
+**Компоненты:** CPUInfo, GPUInfo, OSInfo, PythonInfo, JAXInfo, GitInfo, DependencyInfo, ContainerInfo, SystemLibraryInfo.
+
+**RiskLevel:** LOW, MEDIUM, HIGH — оценка рисков при различиях окружений.
+
+## Dependency Graph
+
+Traversal зависимостей для replay/completeness checks:
 
 ```python
 from polisyos.core.artifacts.graph import resolve_dependency_graph
 
-graph = resolve_dependency_graph(store, packet_ref.artifact_id)
+graph = resolve_dependency_graph(store, root_id, max_depth=200, verify_integrity=True)
 assert graph.is_complete
+ids = graph.all_artifact_ids()
 
-bundle = store.export_subgraph(graph.all_artifact_ids(), Path("/tmp/replay_bundle.tar.gz"))
-restored = FileSystemCAS(Path("/tmp/offline_cas"))
+# Export/Import для офлайн replay
+bundle = store.export_subgraph(ids, Path("/tmp/replay.tar.gz"))
+restored = FileSystemCAS(Path("/tmp/offline"))
 restored.import_subgraph(bundle.output_path, verify_integrity=True)
 ```
 
+**NodeStatus:** PRESENT, MISSING, MISSING_BLOB, MISSING_MANIFEST, CORRUPTED, SKIPPED_MAX_DEPTH.
+
 ## Использование в системе
 
-- **Fabric**: Хранение результатов обработки с provenance tracking
-- **Foundry**: Состояния симуляций, environment manifests, результаты калибровки
-- **Scientist**: Артефакты экспериментов для reproducible research
-- **Runtime**: Доступ к развернутым политикам
-- **Environment**: Захват окружения для reproducible симуляций
-
-## Принципы
-
-- **Неизменяемость**: Артефакты неизменны после создания
-- **Адресация по содержимому**: ID = SHA256(содержимое)
-- **Дедупликация**: Одинаковые данные = одинаковый ID
-- **Верификация**: Криптографическая проверка целостности
-- **Provenance**: Полный трекинг зависимостей
-
-## Производительность
-
-- **Доступ**: <1ms на операцию чтения/записи
-- **Верификация**: Криптографическая проверка
-- **Масштабируемость**: Миллионы артефактов с дедупликацией
-- **Environment capture**: <2s с hardware detection
-- **Fingerprinting**: <1ms для сравнения окружений
-
-## Связи с модулями
-
-- **Core**: Интеграция с observability для трассировки CAS операций
-- **Fabric**: Хранение результатов обработки с provenance
-- **Foundry**: Состояния симуляций, environment manifests, результаты
-- **Scientist**: Артефакты экспериментов
-- **Runtime**: Доступ к развернутым политикам
-- **Trinity**: Хранение спецификаций (ProblemFrame, PolicySpec, ModelSpec)
-
-## HPC Observability
-
-Автоматическая трассировка всех CAS операций при `POLISYOS_HPC_OBSERVABILITY_ENABLED=true`. Метрики: операции, I/O размеры, продолжительность, кеш-хиты.
+| Модуль | Что использует |
+|--------|---------------|
+| **Fabric** | `store`, `ids`, evidence с provenance |
+| **Foundry** | `store`, environment manifests, результаты симуляций |
+| **Scientist** | `store`, `manifest`, артефакты экспериментов |
+| **Lex** | `store`, `ids`, corpus, normpack assembly |
+| **Runtime** | `environment`, `graph`, replay, `canon` |
+| **Audit** | `graph`, `signing`, `store`, `manifest` — сборка аудит-пакетов |
+| **Scholar** | `store`, `ids`, `manifest`, knowledge bundles |

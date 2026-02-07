@@ -3,6 +3,8 @@ from __future__ import annotations
 import argparse
 import importlib
 import json
+import sys
+import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -32,6 +34,8 @@ def main(argv: list[str] | None = None) -> int:
         return _cmd_scholar_enrich(args)
     if args.command == "lex" and args.lex_command == "normpack" and args.lex_normpack_command == "build":
         return _cmd_lex_normpack_build(args)
+    if args.command == "replay":
+        return _cmd_replay(args)
 
     parser.print_help()
     return 2
@@ -77,6 +81,57 @@ def _build_parser() -> argparse.ArgumentParser:
     build_normpack.add_argument("--as-of", default=datetime.now(timezone.utc).date().isoformat())
     build_normpack.add_argument("--cas-root", default=".polisyos/cas")
     build_normpack.add_argument("--fact-log-root", default=".polisyos/facts")
+
+    cmd_replay = components.add_parser("replay")
+    cmd_replay.add_argument("packet_ref", help="DecisionPacket ref (sha256:<hex> or <hex>)")
+    cmd_replay.add_argument("--cas-root", default=".polisyos", help="CAS root directory")
+    cmd_replay.add_argument(
+        "--mode",
+        choices=["bit_exact", "ci_bounded", "skip"],
+        default="bit_exact",
+        help="Verification mode",
+    )
+    cmd_replay.add_argument(
+        "--strategy",
+        choices=["auto", "foundry", "scientist"],
+        default="auto",
+        help="Replay execution strategy",
+    )
+    cmd_replay.add_argument(
+        "--check-only",
+        action="store_true",
+        help="Only run dependency completeness checks",
+    )
+    cmd_replay.add_argument(
+        "--export",
+        default=None,
+        metavar="PATH",
+        help="Export replay subgraph to tar.gz archive",
+    )
+    cmd_replay.add_argument(
+        "--bundle",
+        default=None,
+        metavar="PATH",
+        help="Import replay bundle from archive/directory and run against it",
+    )
+    cmd_replay.add_argument(
+        "--no-verify",
+        action="store_true",
+        help="Skip verification after replay execution",
+    )
+    cmd_replay.add_argument(
+        "--tolerance",
+        type=float,
+        default=1e-6,
+        help="Relative tolerance for ci_bounded mode",
+    )
+    cmd_replay.add_argument(
+        "--confidence-level",
+        type=float,
+        default=0.95,
+        help="Confidence level for ci_bounded reports",
+    )
+    cmd_replay.add_argument("--json", action="store_true")
 
     return parser
 
@@ -203,6 +258,199 @@ def _cmd_lex_normpack_build(args: argparse.Namespace) -> int:
     print(f"norm_pack_world_id={result.norm_pack_world_id}")
     print(f"built_by={result.built_by}")
     return 0
+
+
+def _cmd_replay(args: argparse.Namespace) -> int:
+    runtime_replay = importlib.import_module("polisyos.runtime.replay")
+    normalize_artifact_id = runtime_replay.normalize_artifact_id
+    completeness_check = runtime_replay.completeness_check
+    VerificationConfig = runtime_replay.VerificationConfig
+    VerificationMode = runtime_replay.VerificationMode
+    ReplayStrategy = runtime_replay.ReplayStrategy
+
+    if args.check_only and args.export:
+        print("ERROR: --check-only and --export cannot be used together", file=sys.stderr)
+        return 2
+
+    packet_ref = normalize_artifact_id(args.packet_ref)
+    if args.bundle:
+        with tempfile.TemporaryDirectory(prefix="polisyos-replay-") as tmp_dir:
+            store = FileSystemCAS(Path(tmp_dir))
+            import_report = store.import_subgraph(Path(args.bundle), verify_integrity=False)
+            return _cmd_replay_with_store(
+                args=args,
+                store=store,
+                packet_ref=packet_ref,
+                completeness_check=completeness_check,
+                VerificationConfig=VerificationConfig,
+                VerificationMode=VerificationMode,
+                ReplayStrategy=ReplayStrategy,
+                import_report=import_report,
+            )
+
+    store = FileSystemCAS(Path(args.cas_root))
+    return _cmd_replay_with_store(
+        args=args,
+        store=store,
+        packet_ref=packet_ref,
+        completeness_check=completeness_check,
+        VerificationConfig=VerificationConfig,
+        VerificationMode=VerificationMode,
+        ReplayStrategy=ReplayStrategy,
+        import_report=None,
+    )
+
+
+def _cmd_replay_with_store(
+    *,
+    args: argparse.Namespace,
+    store: FileSystemCAS,
+    packet_ref: Any,
+    completeness_check: Any,
+    VerificationConfig: Any,
+    VerificationMode: Any,
+    ReplayStrategy: Any,
+    import_report: Any,
+) -> int:
+    completeness = completeness_check(store, packet_ref)
+
+    if args.export:
+        if completeness.graph is None:
+            print("ERROR: dependency graph is unavailable", file=sys.stderr)
+            return 1
+        export_report = store.export_subgraph(
+            completeness.graph.all_artifact_ids(),
+            Path(args.export),
+            compress=True,
+            include_manifests=True,
+        )
+        if args.json:
+            payload: dict[str, Any] = {
+                "exported_artifacts": export_report.exported_artifacts,
+                "total_bytes": export_report.total_bytes,
+                "output_path": str(export_report.output_path),
+                "missing_artifacts": export_report.missing_artifacts,
+                "missing_manifests": export_report.missing_manifests,
+            }
+            if import_report is not None:
+                payload["bundle_import"] = {
+                    "imported_files": import_report.imported_files,
+                    "imported_artifacts": import_report.imported_artifacts,
+                }
+            print(json.dumps(payload, ensure_ascii=True, indent=2, sort_keys=True))
+        else:
+            print(
+                f"exported={export_report.exported_artifacts} "
+                f"bytes={export_report.total_bytes} "
+                f"path={export_report.output_path}"
+            )
+        return 0 if not export_report.missing_artifacts else 1
+
+    if args.check_only:
+        if args.json:
+            payload = {
+                "level": completeness.level.value,
+                "strategy": completeness.strategy.value,
+                "total_artifacts": completeness.total_artifacts,
+                "present_artifacts": completeness.present_artifacts,
+                "missing": [
+                    {
+                        "artifact_id": item.artifact_id,
+                        "role": item.role,
+                        "critical": item.critical,
+                        "status": item.status.value,
+                    }
+                    for item in completeness.missing
+                ],
+                "corrupted": [
+                    {
+                        "artifact_id": item.artifact_id,
+                        "role": item.role,
+                        "critical": item.critical,
+                        "status": item.status.value,
+                    }
+                    for item in completeness.corrupted
+                ],
+                "reason_codes": completeness.reason_codes,
+            }
+            if import_report is not None:
+                payload["bundle_import"] = {
+                    "imported_files": import_report.imported_files,
+                    "imported_artifacts": import_report.imported_artifacts,
+                    "verification_failed": import_report.verification_failed,
+                }
+            print(json.dumps(payload, ensure_ascii=True, indent=2, sort_keys=True))
+        else:
+            print(completeness.summary())
+        return 0 if completeness.ok else 1
+
+    mode_map = {
+        "bit_exact": VerificationMode.BIT_EXACT,
+        "ci_bounded": VerificationMode.CI_BOUNDED,
+        "skip": VerificationMode.SKIP,
+    }
+    strategy = None
+    if args.strategy != "auto":
+        strategy = ReplayStrategy(args.strategy)
+    config = VerificationConfig(
+        mode=mode_map[args.mode],
+        relative_tolerance=float(args.tolerance),
+        confidence_level=float(args.confidence_level),
+    )
+    replay_backend = importlib.import_module("polisyos.scientist.replay_backend")
+    replay_packet = replay_backend.replay_packet
+    result = replay_packet(
+        store,
+        packet_ref,
+        verify=not args.no_verify,
+        verification_config=config,
+        force_strategy=strategy,
+    )
+
+    if args.json:
+        payload = {
+            "success": result.success,
+            "run_id": result.run_id,
+            "strategy": result.strategy.value,
+            "original_packet_ref": result.original_packet_ref,
+            "replay_decision_packet_ref": result.replay_decision_packet_ref,
+            "replay_simulation_result_ref": result.replay_simulation_result_ref,
+            "errors": result.errors,
+            "warnings": result.warnings,
+            "completeness": {
+                "level": result.completeness.level.value if result.completeness else None,
+                "strategy": result.completeness.strategy.value if result.completeness else None,
+            }
+            if result.completeness
+            else None,
+            "verification": {
+                "passed": result.verification.passed if result.verification else None,
+                "mode": result.verification.mode.value if result.verification else None,
+                "details": result.verification.details if result.verification else None,
+            }
+            if result.verification
+            else None,
+        }
+        if import_report is not None:
+            payload["bundle_import"] = {
+                "imported_files": import_report.imported_files,
+                "imported_artifacts": import_report.imported_artifacts,
+                "verification_failed": import_report.verification_failed,
+            }
+        print(json.dumps(payload, ensure_ascii=True, indent=2, sort_keys=True))
+    else:
+        status = "SUCCESS" if result.success else "FAILED"
+        print(f"{status} run_id={result.run_id} strategy={result.strategy.value}")
+        if result.replay_simulation_result_ref:
+            print(f"simulation_result_ref={result.replay_simulation_result_ref}")
+        if result.replay_decision_packet_ref:
+            print(f"decision_packet_ref={result.replay_decision_packet_ref}")
+        for warning in result.warnings:
+            print(f"warning: {warning}")
+        for error in result.errors:
+            print(f"error: {error}")
+
+    return 0 if result.success else 1
 
 
 __all__ = ["main"]

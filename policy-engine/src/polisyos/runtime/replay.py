@@ -1,0 +1,580 @@
+from __future__ import annotations
+
+from dataclasses import dataclass, field
+from enum import Enum
+import random
+import re
+from typing import Any
+
+from polisyos.core.artifacts.environment import (
+    EnvironmentDiff,
+    EnvironmentManifest,
+    capture_environment,
+    compare_environments,
+)
+from polisyos.core.artifacts.graph import (
+    DependencyGraph,
+    NodeStatus,
+    resolve_dependency_graph,
+)
+from polisyos.core.artifacts.ids import ArtifactID
+from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.canon import from_canonical_bytes
+from polisyos.core.contracts.foundry import ExecPlan, Metrics, SimulationResult
+
+
+_SHA256_HEX_RE = re.compile(r"^[0-9a-f]{64}$")
+_SHA256_PREF_RE = re.compile(r"^sha256:[0-9a-f]{64}$")
+
+_SNAPSHOT_ROLES = frozenset(
+    {
+        "input.data_snapshot_ref",
+        "input.state_snapshot_ref",
+        "artifact.state_snapshot_ref",
+    }
+)
+
+
+class ReplayStrategy(str, Enum):
+    FOUNDRY = "foundry"
+    SCIENTIST = "scientist"
+    NONE = "none"
+
+
+class CompletenessLevel(str, Enum):
+    COMPLETE = "complete"
+    RECOVERABLE = "recoverable"
+    INCOMPLETE = "incomplete"
+
+
+class VerificationMode(str, Enum):
+    BIT_EXACT = "bit_exact"
+    CI_BOUNDED = "ci_bounded"
+    SKIP = "skip"
+
+
+@dataclass(frozen=True)
+class SeedResolution:
+    value: int
+    source: str
+
+
+@dataclass(frozen=True)
+class MissingArtifact:
+    artifact_id: str
+    role: str
+    kind: str | None
+    critical: bool
+    status: NodeStatus
+
+
+@dataclass
+class CompletenessReport:
+    level: CompletenessLevel
+    strategy: ReplayStrategy
+    total_artifacts: int
+    present_artifacts: int
+    missing: list[MissingArtifact] = field(default_factory=list)
+    corrupted: list[MissingArtifact] = field(default_factory=list)
+    total_size_bytes: int = 0
+    reason_codes: list[str] = field(default_factory=list)
+    graph: DependencyGraph | None = None
+
+    @property
+    def ok(self) -> bool:
+        return self.level == CompletenessLevel.COMPLETE
+
+    def summary(self) -> str:
+        lines = [
+            f"Completeness: {self.level.value}",
+            f"Strategy: {self.strategy.value}",
+            f"Artifacts: {self.present_artifacts}/{self.total_artifacts}",
+        ]
+        if self.reason_codes:
+            lines.append(f"Reasons: {', '.join(self.reason_codes)}")
+        if self.missing:
+            lines.append(f"Missing: {len(self.missing)}")
+        if self.corrupted:
+            lines.append(f"Corrupted: {len(self.corrupted)}")
+        return "\n".join(lines)
+
+
+@dataclass(frozen=True)
+class VerificationConfig:
+    mode: VerificationMode = VerificationMode.BIT_EXACT
+    relative_tolerance: float = 1e-6
+    confidence_level: float = 0.95
+
+
+@dataclass
+class VerificationResult:
+    passed: bool
+    mode: VerificationMode
+    details: dict[str, Any] = field(default_factory=dict)
+    original_ref: str | None = None
+    replay_ref: str | None = None
+
+
+@dataclass
+class ReplayPlan:
+    packet_ref: ArtifactID
+    strategy: ReplayStrategy
+    seed: SeedResolution
+    completeness: CompletenessReport
+    payload: dict[str, Any]
+
+
+def set_global_seeds(seed: int) -> None:
+    random.seed(seed)
+    try:
+        import numpy as np
+
+        np.random.seed(seed)
+    except Exception:
+        pass
+
+
+def normalize_artifact_id(value: str) -> ArtifactID:
+    if _SHA256_PREF_RE.fullmatch(value):
+        return ArtifactID.model_validate(value)
+    if _SHA256_HEX_RE.fullmatch(value):
+        return ArtifactID.from_sha256_hex(value)
+    raise ValueError(f"Invalid artifact reference: {value}")
+
+
+def try_parse_artifact_id(value: Any) -> ArtifactID | None:
+    if not isinstance(value, str):
+        return None
+    try:
+        return normalize_artifact_id(value)
+    except ValueError:
+        return None
+
+
+def determine_replay_strategy(payload: dict[str, Any]) -> ReplayStrategy:
+    inputs = payload.get("inputs") if isinstance(payload.get("inputs"), dict) else {}
+    artifacts = payload.get("artifacts") if isinstance(payload.get("artifacts"), dict) else {}
+    has_exec_plan = isinstance(artifacts.get("exec_plan_ref"), str)
+    has_registry = isinstance(inputs.get("registry_bundle_ref"), str)
+    has_snapshot = any(
+        isinstance(inputs.get(key), str)
+        for key in ("data_snapshot_ref", "state_snapshot_ref")
+    ) or isinstance(artifacts.get("state_snapshot_ref"), str)
+    has_trinity = isinstance(inputs.get("trinity_bundle_ref"), str)
+
+    if has_exec_plan and has_registry and has_snapshot:
+        return ReplayStrategy.FOUNDRY
+    if has_trinity and has_registry and has_snapshot:
+        return ReplayStrategy.SCIENTIST
+    return ReplayStrategy.NONE
+
+
+def resolve_effective_seed(
+    payload: dict[str, Any],
+    *,
+    store: FileSystemCAS | None = None,
+    default: int = 0,
+) -> SeedResolution:
+    replay_block = payload.get("replay")
+    if isinstance(replay_block, dict):
+        replay_seed = replay_block.get("effective_seed")
+        if isinstance(replay_seed, int):
+            return SeedResolution(value=replay_seed, source="payload.replay.effective_seed")
+
+    run_record = payload.get("run_record")
+    if isinstance(run_record, dict):
+        rr_seed = run_record.get("seed")
+        if isinstance(rr_seed, int):
+            return SeedResolution(value=rr_seed, source="payload.run_record.seed")
+
+    seed = payload.get("seed")
+    if isinstance(seed, int):
+        return SeedResolution(value=seed, source="payload.seed")
+
+    if store is not None:
+        artifacts = payload.get("artifacts") if isinstance(payload.get("artifacts"), dict) else {}
+        exec_plan_ref = try_parse_artifact_id(artifacts.get("exec_plan_ref"))
+        if exec_plan_ref is not None:
+            try:
+                plan_payload = from_canonical_bytes(store.get_bytes(exec_plan_ref))
+                plan = ExecPlan.model_validate(plan_payload)
+                if isinstance(plan.random_seed, int):
+                    return SeedResolution(value=plan.random_seed, source="exec_plan.random_seed")
+            except Exception:
+                pass
+
+    return SeedResolution(value=default, source="default")
+
+
+def compare_current_environment(
+    store: FileSystemCAS,
+    payload: dict[str, Any],
+) -> list[EnvironmentDiff]:
+    inputs = payload.get("inputs") if isinstance(payload.get("inputs"), dict) else {}
+    env_ref = try_parse_artifact_id(inputs.get("environment_manifest_ref"))
+    if env_ref is None:
+        return []
+    try:
+        original_payload = from_canonical_bytes(store.get_bytes(env_ref))
+        original_env = EnvironmentManifest.model_validate(original_payload)
+        current_env = capture_environment(include_git=False, include_dependencies=True)
+        return compare_environments(original_env, current_env)
+    except Exception:
+        return []
+
+
+def build_replay_plan(store: FileSystemCAS, packet_ref: ArtifactID) -> ReplayPlan:
+    payload = _load_packet_payload(store, packet_ref)
+    completeness = completeness_check(store, packet_ref, payload=payload)
+    strategy = determine_replay_strategy(payload)
+    seed = resolve_effective_seed(payload, store=store)
+    return ReplayPlan(
+        packet_ref=packet_ref,
+        strategy=strategy,
+        seed=seed,
+        completeness=completeness,
+        payload=payload,
+    )
+
+
+def completeness_check(
+    store: FileSystemCAS,
+    packet_ref: ArtifactID,
+    *,
+    payload: dict[str, Any] | None = None,
+    max_depth: int = 200,
+    max_nodes: int = 10_000,
+    verify_integrity: bool = True,
+) -> CompletenessReport:
+    reasons: list[str] = []
+    try:
+        packet_payload = payload or _load_packet_payload(store, packet_ref)
+    except Exception:
+        return CompletenessReport(
+            level=CompletenessLevel.INCOMPLETE,
+            strategy=ReplayStrategy.NONE,
+            total_artifacts=1,
+            present_artifacts=0,
+            missing=[
+                MissingArtifact(
+                    artifact_id=str(packet_ref),
+                    role="root",
+                    kind="scientist.decision_packet",
+                    critical=True,
+                    status=NodeStatus.MISSING,
+                )
+            ],
+            reason_codes=["packet_unreadable"],
+        )
+
+    strategy = determine_replay_strategy(packet_payload)
+    if strategy == ReplayStrategy.NONE:
+        reasons.append("strategy_unresolved")
+
+    graph = resolve_dependency_graph(
+        store,
+        packet_ref,
+        root_role="root",
+        max_depth=max_depth,
+        max_nodes=max_nodes,
+        verify_integrity=verify_integrity,
+    )
+    payload_refs = _extract_payload_refs(packet_payload)
+    roles_by_id: dict[str, set[str]] = {}
+    for role, artifact_id in payload_refs:
+        roles_by_id.setdefault(str(artifact_id), set()).add(role)
+        if artifact_id.hex in graph.nodes:
+            continue
+        subgraph = resolve_dependency_graph(
+            store,
+            artifact_id,
+            root_role=role,
+            max_depth=max_depth,
+            max_nodes=max_nodes,
+            verify_integrity=verify_integrity,
+        )
+        _merge_graph(graph, subgraph)
+
+    critical_roles = _critical_roles(strategy)
+    missing: list[MissingArtifact] = []
+    corrupted: list[MissingArtifact] = []
+
+    snapshot_status = _snapshot_presence_status(graph, roles_by_id)
+    for hex_id, node in graph.nodes.items():
+        if node.status == NodeStatus.PRESENT:
+            continue
+        role = _resolve_role(node, roles_by_id.get(str(node.artifact_id)))
+        critical = _is_critical_role(
+            role,
+            strategy=strategy,
+            critical_roles=critical_roles,
+            snapshot_status=snapshot_status,
+        )
+        item = MissingArtifact(
+            artifact_id=f"sha256:{hex_id}",
+            role=role,
+            kind=node.kind,
+            critical=critical,
+            status=node.status,
+        )
+        if node.status == NodeStatus.CORRUPTED:
+            corrupted.append(item)
+        else:
+            missing.append(item)
+
+    required_missing = _missing_required_roles(strategy, payload_refs, snapshot_status)
+    if required_missing:
+        reasons.extend(required_missing)
+    has_critical_missing = any(item.critical for item in missing) or len(corrupted) > 0
+    has_missing = len(missing) > 0
+    if strategy == ReplayStrategy.NONE or has_critical_missing or required_missing:
+        level = CompletenessLevel.INCOMPLETE
+    elif has_missing:
+        level = CompletenessLevel.RECOVERABLE
+    else:
+        level = CompletenessLevel.COMPLETE
+
+    present_count = sum(1 for node in graph.nodes.values() if node.status == NodeStatus.PRESENT)
+    return CompletenessReport(
+        level=level,
+        strategy=strategy,
+        total_artifacts=graph.total_artifacts,
+        present_artifacts=present_count,
+        missing=missing,
+        corrupted=corrupted,
+        total_size_bytes=graph.total_size_bytes,
+        reason_codes=sorted(set(reasons)),
+        graph=graph,
+    )
+
+
+def verify_replay(
+    store: FileSystemCAS,
+    *,
+    original_payload: dict[str, Any],
+    replay_simulation_ref: ArtifactID | None,
+    config: VerificationConfig,
+) -> VerificationResult:
+    if config.mode == VerificationMode.SKIP:
+        return VerificationResult(
+            passed=True,
+            mode=VerificationMode.SKIP,
+            details={"reason": "verification_skipped"},
+        )
+
+    original_sim_ref = _extract_simulation_result_ref(original_payload)
+    if config.mode == VerificationMode.BIT_EXACT:
+        if original_sim_ref is None or replay_simulation_ref is None:
+            return VerificationResult(
+                passed=False,
+                mode=VerificationMode.BIT_EXACT,
+                details={"reason": "missing_simulation_result_ref"},
+                original_ref=str(original_sim_ref) if original_sim_ref else None,
+                replay_ref=str(replay_simulation_ref) if replay_simulation_ref else None,
+            )
+        passed = original_sim_ref == replay_simulation_ref
+        return VerificationResult(
+            passed=passed,
+            mode=VerificationMode.BIT_EXACT,
+            details={"match": passed},
+            original_ref=str(original_sim_ref),
+            replay_ref=str(replay_simulation_ref),
+        )
+
+    if original_sim_ref is None or replay_simulation_ref is None:
+        return VerificationResult(
+            passed=False,
+            mode=VerificationMode.CI_BOUNDED,
+            details={"reason": "missing_simulation_result_ref"},
+            original_ref=str(original_sim_ref) if original_sim_ref else None,
+            replay_ref=str(replay_simulation_ref) if replay_simulation_ref else None,
+        )
+
+    original_metrics = _load_metrics_values(store, original_sim_ref)
+    replay_metrics = _load_metrics_values(store, replay_simulation_ref)
+    mismatches: dict[str, dict[str, Any]] = {}
+    tolerance = max(float(config.relative_tolerance), 0.0)
+    for key in sorted(set(original_metrics) | set(replay_metrics)):
+        if key not in original_metrics or key not in replay_metrics:
+            mismatches[key] = {"reason": "missing_key"}
+            continue
+        a_val = original_metrics[key]
+        b_val = replay_metrics[key]
+        if isinstance(a_val, (int, float)) and isinstance(b_val, (int, float)):
+            baseline = abs(float(a_val))
+            diff = abs(float(a_val) - float(b_val))
+            relative = diff / baseline if baseline > 1e-12 else diff
+            if relative > tolerance:
+                mismatches[key] = {
+                    "original": a_val,
+                    "replay": b_val,
+                    "relative_diff": relative,
+                    "tolerance": tolerance,
+                }
+            continue
+        if a_val != b_val:
+            mismatches[key] = {
+                "original": a_val,
+                "replay": b_val,
+                "reason": "non_numeric_mismatch",
+            }
+
+    return VerificationResult(
+        passed=len(mismatches) == 0,
+        mode=VerificationMode.CI_BOUNDED,
+        details={
+            "confidence_level": config.confidence_level,
+            "mismatches": mismatches,
+        },
+        original_ref=str(original_sim_ref),
+        replay_ref=str(replay_simulation_ref),
+    )
+
+
+def _load_packet_payload(store: FileSystemCAS, packet_ref: ArtifactID) -> dict[str, Any]:
+    payload = from_canonical_bytes(store.get_bytes(packet_ref))
+    if not isinstance(payload, dict):
+        raise ValueError(f"DecisionPacket payload must be object, got: {type(payload).__name__}")
+    return payload
+
+
+def _extract_payload_refs(payload: dict[str, Any]) -> list[tuple[str, ArtifactID]]:
+    refs: list[tuple[str, ArtifactID]] = []
+    for section_name, section_prefix in (("inputs", "input"), ("artifacts", "artifact")):
+        section = payload.get(section_name)
+        if not isinstance(section, dict):
+            continue
+        for role, value in section.items():
+            artifact_id = try_parse_artifact_id(value)
+            if artifact_id is None:
+                continue
+            refs.append((f"{section_prefix}.{role}", artifact_id))
+    return refs
+
+
+def _merge_graph(target: DependencyGraph, source: DependencyGraph) -> None:
+    for hex_id, src_node in source.nodes.items():
+        dst_node = target.nodes.get(hex_id)
+        if dst_node is None:
+            target.nodes[hex_id] = src_node
+            continue
+        if dst_node.status != NodeStatus.PRESENT and src_node.status == NodeStatus.PRESENT:
+            target.nodes[hex_id] = src_node
+            continue
+        if dst_node.role is None and src_node.role is not None:
+            dst_node.role = src_node.role
+    target.edges.extend(source.edges)
+
+
+def _critical_roles(strategy: ReplayStrategy) -> frozenset[str]:
+    if strategy == ReplayStrategy.FOUNDRY:
+        return frozenset(
+            {
+                "artifact.exec_plan_ref",
+                "input.registry_bundle_ref",
+            }
+        )
+    if strategy == ReplayStrategy.SCIENTIST:
+        return frozenset(
+            {
+                "input.trinity_bundle_ref",
+                "input.registry_bundle_ref",
+            }
+        )
+    return frozenset()
+
+
+def _resolve_role(node_role: str | None, payload_roles: set[str] | None) -> str:
+    if payload_roles:
+        return sorted(payload_roles)[0]
+    return node_role or "unknown"
+
+
+def _snapshot_presence_status(
+    graph: DependencyGraph,
+    roles_by_id: dict[str, set[str]],
+) -> dict[str, bool]:
+    status = {role: False for role in _SNAPSHOT_ROLES}
+    for artifact_ref, roles in roles_by_id.items():
+        node = graph.nodes.get(ArtifactID.model_validate(artifact_ref).hex)
+        if node is None or node.status != NodeStatus.PRESENT:
+            continue
+        for role in roles:
+            if role in status:
+                status[role] = True
+    return status
+
+
+def _is_critical_role(
+    role: str,
+    *,
+    strategy: ReplayStrategy,
+    critical_roles: frozenset[str],
+    snapshot_status: dict[str, bool],
+) -> bool:
+    if role in critical_roles:
+        return True
+    if role in _SNAPSHOT_ROLES:
+        return not any(snapshot_status.values())
+    return strategy == ReplayStrategy.NONE
+
+
+def _missing_required_roles(
+    strategy: ReplayStrategy,
+    payload_refs: list[tuple[str, ArtifactID]],
+    snapshot_status: dict[str, bool],
+) -> list[str]:
+    roles_present = {role for role, _ in payload_refs}
+    missing: list[str] = []
+    if strategy == ReplayStrategy.FOUNDRY:
+        for required in ("artifact.exec_plan_ref", "input.registry_bundle_ref"):
+            if required not in roles_present:
+                missing.append(f"missing_required_role:{required}")
+    if strategy == ReplayStrategy.SCIENTIST:
+        for required in ("input.trinity_bundle_ref", "input.registry_bundle_ref"):
+            if required not in roles_present:
+                missing.append(f"missing_required_role:{required}")
+    snapshot_roles_present = roles_present & _SNAPSHOT_ROLES
+    if strategy in (ReplayStrategy.FOUNDRY, ReplayStrategy.SCIENTIST):
+        if not snapshot_roles_present:
+            missing.append("missing_required_snapshot_ref")
+        elif not any(snapshot_status.values()):
+            missing.append("missing_all_snapshot_artifacts")
+    return missing
+
+
+def _extract_simulation_result_ref(payload: dict[str, Any]) -> ArtifactID | None:
+    artifacts = payload.get("artifacts")
+    if not isinstance(artifacts, dict):
+        return None
+    return try_parse_artifact_id(artifacts.get("simulation_result_ref"))
+
+
+def _load_metrics_values(store: FileSystemCAS, sim_ref: ArtifactID) -> dict[str, int | str]:
+    sim_payload = from_canonical_bytes(store.get_bytes(sim_ref))
+    simulation_result = SimulationResult.model_validate(sim_payload)
+    metrics_payload = from_canonical_bytes(store.get_bytes(simulation_result.metrics_ref.artifact_id))
+    metrics = Metrics.model_validate(metrics_payload)
+    return dict(metrics.values)
+
+
+__all__ = [
+    "CompletenessLevel",
+    "CompletenessReport",
+    "MissingArtifact",
+    "ReplayPlan",
+    "ReplayStrategy",
+    "SeedResolution",
+    "VerificationConfig",
+    "VerificationMode",
+    "VerificationResult",
+    "build_replay_plan",
+    "compare_current_environment",
+    "completeness_check",
+    "determine_replay_strategy",
+    "normalize_artifact_id",
+    "resolve_effective_seed",
+    "set_global_seeds",
+    "try_parse_artifact_id",
+    "verify_replay",
+]

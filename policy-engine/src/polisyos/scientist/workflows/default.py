@@ -41,7 +41,7 @@ def default_workflow_spec() -> WorkflowSpec:
             ),
             NodeInvocation(
                 alias="build_decision_packet",
-                node_id="scientist.node_build_decision_packet@1.0.1",
+                node_id="scientist.node_build_decision_packet@1.1.0",
                 depends_on=["start"],
             ),
         ],

@@ -1,10 +1,17 @@
 from __future__ import annotations
 
 import hashlib
+import json
 import os
+from pathlib import PurePosixPath
+import re
+import shutil
+import tarfile
 import time
 import uuid
+from collections.abc import Iterable
 from dataclasses import dataclass
+from io import BytesIO
 from pathlib import Path
 from typing import Any
 
@@ -46,6 +53,25 @@ class VerificationReport(BaseModel):
     error: str | None = None
 
 
+@dataclass(frozen=True)
+class ExportReport:
+    exported_artifacts: int
+    total_bytes: int
+    output_path: Path
+    missing_artifacts: list[str]
+    missing_manifests: list[str]
+
+
+@dataclass(frozen=True)
+class ImportReport:
+    imported_files: int
+    imported_artifacts: int
+    total_bytes: int
+    source: Path
+    skipped_entries: list[str]
+    verification_failed: list[str]
+
+
 class FileSystemCAS:
     """
     CAS layout:
@@ -70,6 +96,10 @@ class FileSystemCAS:
         blob = dirp / f"{hex64}.blob"
         manifest = dirp / f"{hex64}.manifest.json"
         return blob, manifest
+
+    def get_paths(self, artifact_id: ArtifactID) -> tuple[Path, Path]:
+        """Public path helper for CAS tooling."""
+        return self._paths(artifact_id)
 
     def has(self, artifact_id: ArtifactID) -> bool:
         blob, manifest = self._paths(artifact_id)
@@ -352,3 +382,215 @@ class FileSystemCAS:
             f.flush()
             os.fsync(f.fileno())
         os.replace(tmp, path)
+
+    def iter_artifact_ids(self) -> list[ArtifactID]:
+        ids: list[ArtifactID] = []
+        for manifest_path in sorted(self.base.rglob("*.manifest.json")):
+            name = manifest_path.name
+            if not name.endswith(".manifest.json"):
+                continue
+            hex64 = name[: -len(".manifest.json")]
+            if not re.fullmatch(r"[0-9a-f]{64}", hex64):
+                continue
+            ids.append(ArtifactID.from_sha256_hex(hex64))
+        return ids
+
+    def export_subgraph(
+        self,
+        artifact_ids: Iterable[ArtifactID],
+        target: Path,
+        *,
+        compress: bool = True,
+        include_manifests: bool = True,
+    ) -> ExportReport:
+        missing_artifacts: list[str] = []
+        missing_manifests: list[str] = []
+        total_bytes = 0
+        exported = 0
+
+        sorted_ids = sorted(list(artifact_ids), key=lambda aid: aid.hex)
+        if compress:
+            archive_path = self._normalize_archive_path(target)
+            archive_path.parent.mkdir(parents=True, exist_ok=True)
+            with tarfile.open(archive_path, "w:gz", format=tarfile.PAX_FORMAT) as tar:
+                for artifact_id in sorted_ids:
+                    blob_path, manifest_path = self._paths(artifact_id)
+                    if not blob_path.exists():
+                        missing_artifacts.append(str(artifact_id))
+                        continue
+                    arc_blob = str(blob_path.relative_to(self.root))
+                    tar.add(blob_path, arcname=arc_blob, recursive=False)
+                    total_bytes += blob_path.stat().st_size
+
+                    if include_manifests:
+                        if not manifest_path.exists():
+                            missing_manifests.append(str(artifact_id))
+                        else:
+                            arc_manifest = str(manifest_path.relative_to(self.root))
+                            tar.add(manifest_path, arcname=arc_manifest, recursive=False)
+                            total_bytes += manifest_path.stat().st_size
+                    exported += 1
+
+                meta_payload = {
+                    "schema_version": "1.0",
+                    "cas_layout": "artifacts/sha256/ab/cd/<hex>.(blob|manifest.json)",
+                    "exported_artifacts": exported,
+                    "requested_artifacts": len(sorted_ids),
+                }
+                meta_bytes = json.dumps(
+                    meta_payload,
+                    ensure_ascii=True,
+                    separators=(",", ":"),
+                    sort_keys=True,
+                ).encode("utf-8")
+                info = tarfile.TarInfo(name="export_manifest.json")
+                info.size = len(meta_bytes)
+                info.mtime = 0
+                tar.addfile(info, BytesIO(meta_bytes))
+                total_bytes += len(meta_bytes)
+            output_path = archive_path
+        else:
+            target.mkdir(parents=True, exist_ok=True)
+            for artifact_id in sorted_ids:
+                blob_path, manifest_path = self._paths(artifact_id)
+                if not blob_path.exists():
+                    missing_artifacts.append(str(artifact_id))
+                    continue
+                dst_blob = target / blob_path.relative_to(self.root)
+                dst_blob.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(blob_path, dst_blob)
+                total_bytes += blob_path.stat().st_size
+
+                if include_manifests:
+                    if not manifest_path.exists():
+                        missing_manifests.append(str(artifact_id))
+                    else:
+                        dst_manifest = target / manifest_path.relative_to(self.root)
+                        dst_manifest.parent.mkdir(parents=True, exist_ok=True)
+                        shutil.copy2(manifest_path, dst_manifest)
+                        total_bytes += manifest_path.stat().st_size
+                exported += 1
+
+            meta_path = target / "export_manifest.json"
+            meta_path.write_text(
+                json.dumps(
+                    {
+                        "schema_version": "1.0",
+                        "cas_layout": "artifacts/sha256/ab/cd/<hex>.(blob|manifest.json)",
+                        "exported_artifacts": exported,
+                        "requested_artifacts": len(sorted_ids),
+                    },
+                    ensure_ascii=True,
+                    indent=2,
+                    sort_keys=True,
+                ),
+                encoding="utf-8",
+            )
+            total_bytes += meta_path.stat().st_size
+            output_path = target
+
+        return ExportReport(
+            exported_artifacts=exported,
+            total_bytes=total_bytes,
+            output_path=output_path,
+            missing_artifacts=missing_artifacts,
+            missing_manifests=missing_manifests,
+        )
+
+    def import_subgraph(
+        self,
+        source: Path,
+        *,
+        verify_integrity: bool = False,
+    ) -> ImportReport:
+        imported_files = 0
+        imported_artifacts: set[str] = set()
+        total_bytes = 0
+        skipped_entries: list[str] = []
+        verification_failed: list[str] = []
+
+        if source.is_dir():
+            for path in sorted(source.rglob("*")):
+                if not path.is_file():
+                    continue
+                rel = path.relative_to(source)
+                if rel.parts and rel.parts[0] == "export_manifest.json":
+                    continue
+                dst = self.root / rel
+                dst.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(path, dst)
+                imported_files += 1
+                total_bytes += path.stat().st_size
+                artifact_id = self._artifact_id_from_member(str(rel))
+                if artifact_id is not None:
+                    imported_artifacts.add(str(artifact_id))
+        else:
+            with tarfile.open(source, "r:*") as tar:
+                for member in tar.getmembers():
+                    if not member.isfile():
+                        continue
+                    safe_path = self._safe_member_path(member.name)
+                    if safe_path is None:
+                        skipped_entries.append(member.name)
+                        continue
+                    if safe_path == PurePosixPath("export_manifest.json"):
+                        continue
+                    dst = self.root / Path(*safe_path.parts)
+                    dst.parent.mkdir(parents=True, exist_ok=True)
+                    extracted = tar.extractfile(member)
+                    if extracted is None:
+                        skipped_entries.append(member.name)
+                        continue
+                    with extracted, dst.open("wb") as handle:
+                        shutil.copyfileobj(extracted, handle)
+                    imported_files += 1
+                    total_bytes += int(member.size)
+                    artifact_id = self._artifact_id_from_member(str(safe_path))
+                    if artifact_id is not None:
+                        imported_artifacts.add(str(artifact_id))
+
+        if verify_integrity:
+            for artifact_ref in sorted(imported_artifacts):
+                report = self.verify(ArtifactID.model_validate(artifact_ref))
+                if not report.ok:
+                    verification_failed.append(artifact_ref)
+
+        return ImportReport(
+            imported_files=imported_files,
+            imported_artifacts=len(imported_artifacts),
+            total_bytes=total_bytes,
+            source=source,
+            skipped_entries=skipped_entries,
+            verification_failed=verification_failed,
+        )
+
+    @staticmethod
+    def _normalize_archive_path(path: Path) -> Path:
+        suffixes = path.suffixes
+        if len(suffixes) >= 2 and suffixes[-2:] == [".tar", ".gz"]:
+            return path
+        if path.suffix == ".tar":
+            return path.with_suffix(".tar.gz")
+        return Path(f"{path}.tar.gz")
+
+    @staticmethod
+    def _safe_member_path(name: str) -> PurePosixPath | None:
+        rel = PurePosixPath(name)
+        if rel.is_absolute():
+            return None
+        if any(part in ("..", "") for part in rel.parts):
+            return None
+        return rel
+
+    @staticmethod
+    def _artifact_id_from_member(path: str) -> ArtifactID | None:
+        file_name = Path(path).name
+        if file_name.endswith(".blob"):
+            hex64 = file_name[: -len(".blob")]
+        elif file_name.endswith(".manifest.json"):
+            hex64 = file_name[: -len(".manifest.json")]
+        else:
+            return None
+        if not re.fullmatch(r"[0-9a-f]{64}", hex64):
+            return None
+        return ArtifactID.from_sha256_hex(hex64)

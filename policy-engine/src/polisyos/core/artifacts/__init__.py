@@ -1,3 +1,10 @@
+from .graph import (
+    DependencyEdge,
+    DependencyGraph,
+    DependencyNode,
+    NodeStatus,
+    resolve_dependency_graph,
+)
 from .ids import ArtifactID
 from .manifest import (
     ArtifactManifest,
@@ -12,9 +19,19 @@ from .manifest import (
     WarningRecord,
 )
 from .registry import RegistryBundle
-from .store import FileSystemCAS, PutOptions, VerificationReport
+from .store import (
+    ExportReport,
+    FileSystemCAS,
+    ImportReport,
+    PutOptions,
+    VerificationReport,
+)
 
 __all__ = [
+    "DependencyEdge",
+    "DependencyGraph",
+    "DependencyNode",
+    "ExportReport",
     "ArtifactID",
     "ArtifactManifest",
     "ArtifactRef",
@@ -22,12 +39,15 @@ __all__ = [
     "EnvInfo",
     "FileSystemCAS",
     "GitInfo",
+    "ImportReport",
     "InputRef",
     "IntegrityInfo",
+    "NodeStatus",
     "ProducerInfo",
     "PutOptions",
     "RegistryBundle",
     "SchemaInfo",
     "VerificationReport",
     "WarningRecord",
+    "resolve_dependency_graph",
 ]

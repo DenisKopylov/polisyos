@@ -31,3 +31,19 @@ class RunManifest(BaseModel):
     errors: list[dict[str, Any]] = Field(default_factory=list)
 
     trace_ref: ArtifactRef | None = None
+    seed: int | None = Field(
+        default=None,
+        description="Deterministic seed for replayable runs.",
+    )
+    parent_run_id: str | None = Field(
+        default=None,
+        description="Parent run id for replay/resume lineage.",
+    )
+    replay_source_ref: ArtifactRef | None = Field(
+        default=None,
+        description="Original DecisionPacket reference when this run is a replay.",
+    )
+    environment_manifest_ref: ArtifactRef | None = Field(
+        default=None,
+        description="Captured environment manifest reference.",
+    )

@@ -11,8 +11,9 @@ artifacts/
 ├── ids.py          # ArtifactID (SHA256 идентификаторы)
 ├── manifest.py     # ArtifactManifest, ArtifactRef, типизированные ссылки
 ├── environment.py  # EnvironmentManifest с fingerprinting
+├── graph.py        # Dependency graph traversal для replay/completeness checks
 ├── registry.py     # RegistryBundle
-└── store.py        # FileSystemCAS, PutOptions, верификация
+└── store.py        # FileSystemCAS, PutOptions, verify + export/import subgraph
 ```
 
 ## Основные компоненты
@@ -101,6 +102,19 @@ diffs = compare_environments(env1, env2)  # Анализ различий и р�
 report = store.verify(artifact_id)
 if not report.ok:
     print(f"Verification failed: {report.error}")
+```
+
+### Dependency Graph и Replay Export
+
+```python
+from polisyos.core.artifacts.graph import resolve_dependency_graph
+
+graph = resolve_dependency_graph(store, packet_ref.artifact_id)
+assert graph.is_complete
+
+bundle = store.export_subgraph(graph.all_artifact_ids(), Path("/tmp/replay_bundle.tar.gz"))
+restored = FileSystemCAS(Path("/tmp/offline_cas"))
+restored.import_subgraph(bundle.output_path, verify_integrity=True)
 ```
 
 ## Использование в системе

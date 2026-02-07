@@ -13,6 +13,23 @@
 - **Бюджеты**: Отслеживание использования ресурсов (compute, memory, time, LLM calls)
 - **Переносимость**: Относительные пути позволяют перемещать директории `runs/`
 
+## Replay (Phase 5)
+
+Для воспроизводимости добавлен слой `polisyos.runtime.replay`:
+
+- `completeness_check(store, packet_ref)` — проверка полноты dependency graph,
+- `build_replay_plan(...)` — определение стратегии replay и effective seed,
+- `verify_replay(...)` — `bit_exact` и `ci_bounded` верификация результатов.
+
+CLI:
+
+```bash
+polisyos replay <packet_ref> --check-only
+polisyos replay <packet_ref> --mode bit_exact
+polisyos replay <packet_ref> --export /tmp/replay_bundle.tar.gz
+polisyos replay <packet_ref> --bundle /tmp/replay_bundle.tar.gz
+```
+
 ## Текущее состояние
 
 Runtime — **стабильный production-ready модуль** с активными интеграциями в основные компоненты системы:

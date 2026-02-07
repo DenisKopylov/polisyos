@@ -62,6 +62,10 @@ def main(argv: list[str] | None = None) -> int:
         return _cmd_sign(args)
     if args.command == "verify":
         return _cmd_verify(args)
+    if args.command == "audit" and args.audit_command == "export":
+        return _cmd_audit_export(args)
+    if args.command == "audit" and args.audit_command == "verify":
+        return _cmd_audit_verify(args)
 
     parser.print_help()
     return 2
@@ -218,6 +222,65 @@ def _build_parser() -> argparse.ArgumentParser:
     cmd_verify.add_argument("--quiet", action="store_true")
     cmd_verify.add_argument("--fail-unsigned", action="store_true")
     cmd_verify.add_argument("--strict-identity", action="store_true")
+
+    cmd_audit = components.add_parser("audit")
+    audit_sub = cmd_audit.add_subparsers(dest="audit_command")
+
+    audit_export = audit_sub.add_parser("export")
+    audit_export.add_argument("run_id")
+    audit_export.add_argument("--cas-root", default=".polisyos", help="CAS root directory")
+    audit_export.add_argument(
+        "--runs-dir",
+        default=".polisyos/runs",
+        help="Run manifests directory",
+    )
+    audit_export.add_argument("--output", "-o", default=None, help="Output archive path")
+    audit_export.add_argument(
+        "--profile",
+        choices=["full", "manifests_only"],
+        default="full",
+        help="Export profile",
+    )
+    audit_export.add_argument(
+        "--exclude-kinds",
+        default="",
+        help="Comma-separated artifact kinds to exclude",
+    )
+    audit_export.add_argument(
+        "--signing-policy",
+        choices=["strict", "warn", "skip"],
+        default="warn",
+    )
+    audit_export.add_argument("--no-visualization", action="store_true")
+    audit_export.add_argument("--json", action="store_true")
+
+    audit_verify = audit_sub.add_parser("verify")
+    audit_verify.add_argument("package", help="Path to audit package file or directory")
+    audit_verify.add_argument("--trusted-keys-dir", default=None, help="Directory with trusted PEM keys")
+    audit_verify.add_argument(
+        "--trusted-key",
+        action="append",
+        default=[],
+        help="Explicit trusted public key PEM path (repeatable)",
+    )
+    audit_verify.add_argument(
+        "--allow-package-keys",
+        action="store_true",
+        help="Treat package keys as trusted (not recommended)",
+    )
+    audit_verify.add_argument(
+        "--fail-unsigned",
+        action="store_true",
+        help="Fail verification when unsigned artifacts are present",
+    )
+    audit_verify.add_argument("--output", "-o", default=None, help="Report output path")
+    audit_verify.add_argument(
+        "--format",
+        choices=["markdown", "json"],
+        default="markdown",
+        help="Report format",
+    )
+    audit_verify.add_argument("--json", action="store_true")
 
     return parser
 
@@ -537,6 +600,98 @@ def _cmd_replay_with_store(
             print(f"error: {error}")
 
     return 0 if result.success else 1
+
+
+def _cmd_audit_export(args: argparse.Namespace) -> int:
+    audit_mod = importlib.import_module("polisyos.core.audit")
+    AuditPackageAssembler = audit_mod.AuditPackageAssembler
+    ExportOptions = audit_mod.ExportOptions
+    ExportProfile = audit_mod.ExportProfile
+    SigningPolicy = audit_mod.SigningPolicy
+
+    cas = FileSystemCAS(Path(args.cas_root))
+    exclude = frozenset(
+        item.strip()
+        for item in str(args.exclude_kinds).split(",")
+        if item.strip()
+    )
+    options = ExportOptions(
+        exclude_kinds=exclude,
+        profile=ExportProfile(args.profile),
+        include_visualization=not bool(args.no_visualization),
+        signing_policy=SigningPolicy(args.signing_policy),
+    )
+    assembler = AuditPackageAssembler(
+        cas=cas,
+        runs_dir=Path(args.runs_dir),
+        options=options,
+    )
+    try:
+        result = assembler.export(
+            run_id=args.run_id,
+            output_path=Path(args.output) if args.output else None,
+        )
+    except Exception as exc:
+        print(f"ERROR: audit export failed: {exc}", file=sys.stderr)
+        return 1
+
+    payload = {
+        "run_id": result.run_id,
+        "archive_path": str(result.archive_path),
+        "artifacts_exported": result.artifacts_exported,
+        "signatures_included": result.signatures_included,
+        "unsigned_artifacts": result.unsigned_artifacts,
+        "prov_entities": result.prov_entities,
+        "prov_activities": result.prov_activities,
+        "prov_agents": result.prov_agents,
+        "warnings": result.warnings,
+        "duration_seconds": round(result.duration_seconds, 3),
+    }
+    if args.json:
+        print(json.dumps(payload, ensure_ascii=True, indent=2, sort_keys=True))
+    else:
+        print(f"audit_package={result.archive_path}")
+        print(f"artifacts={result.artifacts_exported} signatures={result.signatures_included}")
+        if result.unsigned_artifacts:
+            print(f"unsigned={len(result.unsigned_artifacts)}")
+        for warning in result.warnings:
+            print(f"warning: {warning}")
+    return 0
+
+
+def _cmd_audit_verify(args: argparse.Namespace) -> int:
+    audit_mod = importlib.import_module("polisyos.core.audit")
+    AuditPackageVerifier = audit_mod.AuditPackageVerifier
+    render_markdown = audit_mod.render_markdown
+
+    trusted_keys = [Path(path) for path in args.trusted_key] if args.trusted_key else []
+    verifier = AuditPackageVerifier(
+        trusted_keys=trusted_keys,
+        trusted_keys_dir=Path(args.trusted_keys_dir) if args.trusted_keys_dir else None,
+        allow_package_keys=bool(args.allow_package_keys),
+        fail_unsigned=bool(args.fail_unsigned),
+    )
+    try:
+        report = verifier.verify(Path(args.package))
+    except Exception as exc:
+        print(f"ERROR: audit verify failed: {exc}", file=sys.stderr)
+        return 2
+
+    if args.format == "json":
+        text = json.dumps(report.to_dict(), ensure_ascii=True, indent=2, sort_keys=True)
+    else:
+        text = render_markdown(report)
+
+    if args.output:
+        Path(args.output).write_text(text, encoding="utf-8")
+        if not args.json:
+            print(f"written={args.output}")
+    else:
+        print(text)
+
+    if report.overall_status == "PASS":
+        return 0
+    return 1
 
 
 def _normalize_artifact_ref(value: str) -> ArtifactID:

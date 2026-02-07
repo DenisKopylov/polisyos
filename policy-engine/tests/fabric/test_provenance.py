@@ -20,6 +20,7 @@ from polisyos.fabric.provenance.core import (
     RelationType,
 )
 from polisyos.fabric.provenance.export_provo import (
+    export_to_prov_json,
     export_to_provo_jsonld,
     export_to_provo_nquads,
 )
@@ -269,6 +270,15 @@ class TestProvoExport:
         assert len(lines) > 0
         assert any("rdf-syntax-ns#type" in line for line in lines)
         assert any("prov#used" in line for line in lines)
+
+    def test_prov_json_export(self, simple_graph: ProvenanceCoreGraph) -> None:
+        prov_json = export_to_prov_json(simple_graph, run_id="R_test")
+
+        assert "prefix" in prov_json
+        assert "entity" in prov_json
+        assert "activity" in prov_json
+        assert "used" in prov_json
+        assert "bundle" in prov_json
 
 
 class TestProvenancePersistence:

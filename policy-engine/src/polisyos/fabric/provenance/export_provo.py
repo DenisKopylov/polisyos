@@ -3,14 +3,14 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Any
 
+from polisyos.core.audit.prov_json import ProvJsonConverter
 from polisyos.fabric.provenance.core import (
-    ProvenanceCoreGraph,
-    ProvenanceEntity,
     ProvenanceActivity,
     ProvenanceAgent,
+    ProvenanceCoreGraph,
     ProvenanceEdge,
+    ProvenanceEntity,
 )
-
 
 PROV_CONTEXT = {
     "@context": {
@@ -212,3 +212,18 @@ def export_to_provo_nquads(
         lines.append(f"{subj} {pred} {obj} .")
 
     return "\n".join(lines)
+
+
+def export_to_prov_json(
+    graph: ProvenanceCoreGraph,
+    *,
+    run_id: str | None = None,
+    include_bundle: bool = True,
+) -> dict[str, Any]:
+    """
+    Export provenance graph to W3C PROV-JSON.
+
+    This complements JSON-LD / N-Quads exporters and is intended for
+    external audit package generation.
+    """
+    return ProvJsonConverter(run_id=run_id, include_bundle=include_bundle).convert(graph)

@@ -1,0 +1,371 @@
+{
+  "$defs": {
+    "CausalMethod": {
+      "enum": [
+        "synthetic_control",
+        "difference_in_differences",
+        "regression_discontinuity",
+        "structural_time_series"
+      ],
+      "title": "CausalMethod",
+      "type": "string"
+    },
+    "DiagnosticTest": {
+      "additionalProperties": false,
+      "properties": {
+        "details": {
+          "additionalProperties": true,
+          "title": "Details",
+          "type": "object"
+        },
+        "p_value": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "P Value"
+        },
+        "passed": {
+          "title": "Passed",
+          "type": "boolean"
+        },
+        "statistic": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Statistic"
+        },
+        "test_name": {
+          "title": "Test Name",
+          "type": "string"
+        }
+      },
+      "required": [
+        "test_name",
+        "passed"
+      ],
+      "title": "DiagnosticTest",
+      "type": "object"
+    },
+    "EstimationStatus": {
+      "enum": [
+        "success",
+        "input_invalid",
+        "assumption_failed",
+        "numerical_failure"
+      ],
+      "title": "EstimationStatus",
+      "type": "string"
+    },
+    "PlaceboResult": {
+      "additionalProperties": false,
+      "properties": {
+        "effect_estimate": {
+          "title": "Effect Estimate",
+          "type": "number"
+        },
+        "rmspe_post": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Rmspe Post"
+        },
+        "rmspe_pre": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Rmspe Pre"
+        },
+        "rmspe_ratio": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Rmspe Ratio"
+        },
+        "unit_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "integer"
+            }
+          ],
+          "title": "Unit Id"
+        }
+      },
+      "required": [
+        "unit_id",
+        "effect_estimate"
+      ],
+      "title": "PlaceboResult",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "assumptions": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "title": "Assumptions",
+      "type": "object"
+    },
+    "confidence_interval": {
+      "anyOf": [
+        {
+          "maxItems": 2,
+          "minItems": 2,
+          "prefixItems": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Confidence Interval"
+    },
+    "confidence_level": {
+      "anyOf": [
+        {
+          "exclusiveMaximum": 1.0,
+          "exclusiveMinimum": 0.0,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": 0.95,
+      "title": "Confidence Level"
+    },
+    "diagnostics": {
+      "items": {
+        "$ref": "#/$defs/DiagnosticTest"
+      },
+      "title": "Diagnostics",
+      "type": "array"
+    },
+    "effect_size_cohen_d": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Effect Size Cohen D"
+    },
+    "estimand": {
+      "title": "Estimand",
+      "type": "string"
+    },
+    "inference_method": {
+      "title": "Inference Method",
+      "type": "string"
+    },
+    "metadata": {
+      "additionalProperties": true,
+      "title": "Metadata",
+      "type": "object"
+    },
+    "method": {
+      "$ref": "#/$defs/CausalMethod"
+    },
+    "method_params": {
+      "additionalProperties": true,
+      "title": "Method Params",
+      "type": "object"
+    },
+    "n_bootstrap_samples": {
+      "anyOf": [
+        {
+          "minimum": 1,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "N Bootstrap Samples"
+    },
+    "n_control": {
+      "minimum": 0,
+      "title": "N Control",
+      "type": "integer"
+    },
+    "n_treated": {
+      "minimum": 0,
+      "title": "N Treated",
+      "type": "integer"
+    },
+    "p_value": {
+      "anyOf": [
+        {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "P Value"
+    },
+    "placebo_p_value": {
+      "anyOf": [
+        {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Placebo P Value"
+    },
+    "placebo_results": {
+      "items": {
+        "$ref": "#/$defs/PlaceboResult"
+      },
+      "title": "Placebo Results",
+      "type": "array"
+    },
+    "point_estimate": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Point Estimate"
+    },
+    "post_periods": {
+      "minimum": 0,
+      "title": "Post Periods",
+      "type": "integer"
+    },
+    "pre_periods": {
+      "minimum": 0,
+      "title": "Pre Periods",
+      "type": "integer"
+    },
+    "pre_treatment_fit": {
+      "additionalProperties": {
+        "type": "number"
+      },
+      "title": "Pre Treatment Fit",
+      "type": "object"
+    },
+    "sample_size": {
+      "minimum": 0,
+      "title": "Sample Size",
+      "type": "integer"
+    },
+    "schema_version": {
+      "default": "1.0",
+      "pattern": "^\\d+\\.\\d+$",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "standard_error": {
+      "anyOf": [
+        {
+          "minimum": 0.0,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Standard Error"
+    },
+    "status": {
+      "$ref": "#/$defs/EstimationStatus",
+      "default": "success"
+    },
+    "status_reason": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Status Reason"
+    },
+    "time_effects": {
+      "additionalProperties": {
+        "items": {
+          "type": "number"
+        },
+        "type": "array"
+      },
+      "title": "Time Effects",
+      "type": "object"
+    }
+  },
+  "required": [
+    "method",
+    "estimand",
+    "inference_method",
+    "sample_size",
+    "n_treated",
+    "n_control",
+    "pre_periods",
+    "post_periods"
+  ],
+  "title": "CausalEffectReport",
+  "type": "object"
+}

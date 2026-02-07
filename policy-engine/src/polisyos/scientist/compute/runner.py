@@ -3,12 +3,14 @@ from __future__ import annotations
 import json
 import os
 from dataclasses import dataclass
+from enum import Enum
 from pathlib import Path
 from typing import Any, Mapping
 
 import jax
 import jax.numpy as jnp
 import numpy as np
+from pydantic import BaseModel
 
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
@@ -19,6 +21,8 @@ from polisyos.foundry.executor import (
     load_state_snapshot,
 )
 from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
+from polisyos.foundry.methods.discovery import bootstrap_registry
+from polisyos.foundry.methods.exceptions import MethodNotFoundError
 from polisyos.foundry.methods.registry import MethodRegistry
 from polisyos.ir.validation import ValidationIssue
 from polisyos.scientist.compute.job_spec import JobKey, JobResult, JobSpec
@@ -131,7 +135,11 @@ class MethodBackend:
         resolved_name = method_fqn
         if method_version and "@" not in method_fqn:
             resolved_name = f"{method_fqn}@{method_version}"
-        method_class = registry.get(resolved_name, version=method_version)
+        try:
+            method_class = registry.get(resolved_name, version=method_version)
+        except MethodNotFoundError:
+            bootstrap_registry(registry=registry, dev_mode=False)
+            method_class = registry.get(resolved_name, version=method_version)
         signature = method_class.signature
 
         dispatcher = MethodDispatcher.get_instance()
@@ -263,6 +271,10 @@ def _to_jsonable(value: Any) -> Any:
         return {str(k): _to_jsonable(v) for k, v in value.items()}
     if isinstance(value, (list, tuple)):
         return [_to_jsonable(v) for v in value]
+    if isinstance(value, BaseModel):
+        return value.model_dump(mode="json")
+    if isinstance(value, Enum):
+        return value.value
     if isinstance(value, np.ndarray):
         return value.tolist()
     if isinstance(value, np.generic):

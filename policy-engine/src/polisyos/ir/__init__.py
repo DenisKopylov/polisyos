@@ -50,6 +50,11 @@ __all__ = [
     "PropagationMethod",
     "UncertaintyEnvelope",
     "UncertaintySource",
+    "CausalMethod",
+    "EstimationStatus",
+    "CausalEffectReport",
+    "DiagnosticTest",
+    "PlaceboResult",
 ]
 
 _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
@@ -99,6 +104,11 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "SuccessCriterion": ("polisyos.ir.problem_frame", "SuccessCriterion"),
     "UncertaintyEnvelope": ("polisyos.ir.uncertainty", "UncertaintyEnvelope"),
     "UncertaintySource": ("polisyos.ir.uncertainty", "UncertaintySource"),
+    "CausalMethod": ("polisyos.ir.causal", "CausalMethod"),
+    "EstimationStatus": ("polisyos.ir.causal", "EstimationStatus"),
+    "CausalEffectReport": ("polisyos.ir.causal", "CausalEffectReport"),
+    "DiagnosticTest": ("polisyos.ir.causal", "DiagnosticTest"),
+    "PlaceboResult": ("polisyos.ir.causal", "PlaceboResult"),
 }
 
 

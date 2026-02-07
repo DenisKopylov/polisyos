@@ -14,12 +14,15 @@ from polisyos.core.contracts.fabric import DataSnapshot
 from polisyos.core.contracts.foundry import Metrics, SimulationResult
 from polisyos.core.contracts.scientist import DecisionPacketRef
 from polisyos.core.contracts.uncertainty import UncertaintyEnvelopeRef
+from polisyos.ir.causal import CausalEffectReport
 from polisyos.ir.uncertainty import load_uncertainty_envelope
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.protocol import NodeOutcome, NodeSpec
 from polisyos.scientist.engine.state import ExperimentState
 from polisyos.scientist.governance.report import GovernanceReport
 from polisyos.scientist.nodes.builtins.state_keys import (
+    ARTIFACT_CAUSAL_ENVELOPE_REF,
+    ARTIFACT_CAUSAL_REPORT_REF,
     ARTIFACT_DECISION_CARD_REF,
     ARTIFACT_DECISION_PACKET_REF,
     ARTIFACT_ENVIRONMENT_MANIFEST_REF,
@@ -41,7 +44,7 @@ from polisyos.scientist.nodes.builtins.state_keys import (
 )
 
 _METADATA = ComponentMetadata(
-    component_id=ComponentId.parse("scientist.node_build_decision_packet@1.1.0"),
+    component_id=ComponentId.parse("scientist.node_build_decision_packet@1.2.0"),
     kind=ComponentKind.SCIENTIST_NODE,
     abi_targets={"world_abi": "1.x"},
     display_name="Build Decision Packet",
@@ -118,6 +121,7 @@ class BuildDecisionPacketNode:
             "governance": None,
             "uncertainty": _build_uncertainty_section(ctx, state.inputs, state.artifacts_index),
             "uncertainty_bounds": None,
+            "causal": _build_causal_section(ctx, state.artifacts_index),
             "inputs": inputs_section,
             "artifacts": artifacts_section,
             "replay": {
@@ -222,6 +226,8 @@ def _build_artifacts_section(
         REPORT_GOVERNANCE_REPORT_REF: _ref_from_dict(reports_index, REPORT_GOVERNANCE_REPORT_REF),
         REPORT_COMPILE_REPORT_REF: _ref_from_dict(reports_index, REPORT_COMPILE_REPORT_REF),
         REPORT_LINK_REPORT_REF: _ref_from_dict(reports_index, REPORT_LINK_REPORT_REF),
+        ARTIFACT_CAUSAL_REPORT_REF: _ref_from_dict(artifacts_index, ARTIFACT_CAUSAL_REPORT_REF),
+        ARTIFACT_CAUSAL_ENVELOPE_REF: _ref_from_dict(artifacts_index, ARTIFACT_CAUSAL_ENVELOPE_REF),
         ARTIFACT_DECISION_CARD_REF: _ref_from_dict(artifacts_index, ARTIFACT_DECISION_CARD_REF),
     }
 
@@ -229,6 +235,44 @@ def _build_artifacts_section(
 def _ref_from_dict(index: dict[str, ArtifactRef], key: str) -> str | None:
     ref = index.get(key)
     return str(ref.artifact_id) if ref is not None else None
+
+
+def _build_causal_section(
+    ctx: ExecutionContext,
+    artifacts_index: dict[str, ArtifactRef],
+) -> dict[str, object] | None:
+    report_ref = artifacts_index.get(ARTIFACT_CAUSAL_REPORT_REF)
+    envelope_ref = artifacts_index.get(ARTIFACT_CAUSAL_ENVELOPE_REF)
+    if report_ref is None and envelope_ref is None:
+        return None
+
+    payload: dict[str, object] = {
+        "report_ref": str(report_ref.artifact_id) if report_ref is not None else None,
+        "envelope_ref": str(envelope_ref.artifact_id) if envelope_ref is not None else None,
+    }
+
+    if report_ref is not None:
+        try:
+            report_obj = from_canonical_bytes(ctx.store.get_bytes(report_ref.artifact_id))
+            report = CausalEffectReport.model_validate(report_obj)
+            payload.update(
+                {
+                    "method": report.method.value,
+                    "status": report.status.value,
+                    "status_reason": report.status_reason,
+                    "estimand": report.estimand,
+                    "point_estimate": report.point_estimate,
+                    "confidence_interval": report.confidence_interval,
+                    "p_value": report.p_value,
+                    "placebo_p_value": report.placebo_p_value,
+                    "inference_method": report.inference_method,
+                    "diagnostics": [diag.model_dump(mode="json") for diag in report.diagnostics],
+                }
+            )
+        except Exception:
+            payload["parse_warning"] = "causal_report_parse_failed"
+
+    return payload
 
 
 def _compute_replay_readiness(inputs_section: dict[str, str | None]) -> ReplayReadiness:
@@ -336,10 +380,17 @@ def _build_uncertainty_section(
         except Exception:
             warnings.append("simulation_result_uncertainty_parse_failed")
 
+    causal_env_ref = state_artifacts.get(ARTIFACT_CAUSAL_ENVELOPE_REF)
+    if causal_env_ref is not None:
+        envelope_refs.add(str(causal_env_ref.artifact_id))
+
     return {
         "envelope_refs": sorted(envelope_refs),
         "legacy_bounds_refs": sorted(legacy_bounds_refs),
         "output_envelope_refs": output_envelope_refs,
+        "causal_envelope_ref": str(causal_env_ref.artifact_id)
+        if causal_env_ref is not None
+        else None,
         "envelope_count": len(envelope_refs),
         "legacy_bounds_count": len(legacy_bounds_refs),
         "output_envelope_count": len(output_envelope_refs),
@@ -369,5 +420,18 @@ def _build_uncertainty_bounds(
         bounds[f"{metric_id}_point"] = float(env.point_estimate)
         if env.confidence_level is not None:
             bounds[f"{metric_id}_ci_level"] = float(env.confidence_level)
+
+    causal_ref = uncertainty_section.get("causal_envelope_ref")
+    if isinstance(causal_ref, str):
+        try:
+            ref = UncertaintyEnvelopeRef(artifact_id=ArtifactID.model_validate(causal_ref))
+            env = load_uncertainty_envelope(ctx.store, ref)
+            bounds["causal_effect_lower"] = float(env.confidence_interval[0])
+            bounds["causal_effect_upper"] = float(env.confidence_interval[1])
+            bounds["causal_effect_point"] = float(env.point_estimate)
+            if env.confidence_level is not None:
+                bounds["causal_effect_ci_level"] = float(env.confidence_level)
+        except Exception:
+            pass
 
     return bounds or None

@@ -30,25 +30,37 @@ class ConfidencePass(ValidatorPass):
         if store is None:
             return issues
 
+        envelope_refs: dict[str, Any] = {}
+
         sim_result_id = _resolve_simulation_result_id(ctx.state)
         if sim_result_id is None:
-            return issues
+            causal_ref = _resolve_causal_envelope_ref(ctx.state)
+            if causal_ref is None:
+                return issues
+            envelope_refs["causal_effect"] = causal_ref
+        else:
+            try:
+                payload = from_canonical_bytes(store.get_bytes(sim_result_id))
+                sim_result = SimulationResult.model_validate(payload)
+            except Exception as exc:
+                return [
+                    ComplianceIssue(
+                        pass_id=self.pass_id,
+                        path=["artifacts_index", "simulation_result_ref"],
+                        message=f"Failed to load SimulationResult: {exc}",
+                        severity=IssueSeverity.WARNING,
+                        code="CONFIDENCE_SIM_RESULT_LOAD_FAILED",
+                    )
+                ]
 
-        try:
-            payload = from_canonical_bytes(store.get_bytes(sim_result_id))
-            sim_result = SimulationResult.model_validate(payload)
-        except Exception as exc:
-            return [
-                ComplianceIssue(
-                    pass_id=self.pass_id,
-                    path=["artifacts_index", "simulation_result_ref"],
-                    message=f"Failed to load SimulationResult: {exc}",
-                    severity=IssueSeverity.WARNING,
-                    code="CONFIDENCE_SIM_RESULT_LOAD_FAILED",
-                )
-            ]
+            if sim_result.uncertainty_envelopes:
+                for metric_id, ref in sim_result.uncertainty_envelopes.items():
+                    envelope_refs[str(metric_id)] = ref
+            causal_ref = _resolve_causal_envelope_ref(ctx.state)
+            if causal_ref is not None:
+                envelope_refs["causal_effect"] = causal_ref
 
-        if not sim_result.uncertainty_envelopes:
+        if not envelope_refs:
             return issues
 
         max_ci_ratio = float(ctx.profile.thresholds.get("uncertainty_max_ci_width_ratio", 1.0))
@@ -59,7 +71,7 @@ class ConfidencePass(ValidatorPass):
 
         n_total = 0
         n_gate_eligible = 0
-        for metric_id, ref in sim_result.uncertainty_envelopes.items():
+        for metric_id, ref in envelope_refs.items():
             try:
                 env = load_uncertainty_envelope(store, ref)
             except Exception:
@@ -154,6 +166,18 @@ def _resolve_simulation_result_id(state: dict[str, Any]) -> ArtifactID | None:
             return None
     if hasattr(explicit, "artifact_id"):
         return explicit.artifact_id
+    return None
+
+
+def _resolve_causal_envelope_ref(state: dict[str, Any]) -> Any | None:
+    artifacts_index = state.get("artifacts_index")
+    if isinstance(artifacts_index, dict):
+        ref = artifacts_index.get("causal_envelope_ref")
+        if ref is not None and hasattr(ref, "artifact_id"):
+            return ref
+    explicit = state.get("causal_envelope_ref")
+    if explicit is not None and hasattr(explicit, "artifact_id"):
+        return explicit
     return None
 
 

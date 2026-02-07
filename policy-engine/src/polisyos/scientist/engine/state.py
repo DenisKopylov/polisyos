@@ -27,3 +27,7 @@ class ExperimentState(BaseModel):
     params: dict[str, JsonValue] = Field(default_factory=dict)
     budgets: dict[str, Decimal] = Field(default_factory=dict)
     last_checkpoint_ref: ArtifactRef | None = None
+
+    observational_data_ref: ArtifactRef | None = None
+    causal_method_fqn: str | None = None
+    causal_method_params: dict[str, JsonValue] = Field(default_factory=dict)

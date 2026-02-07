@@ -87,3 +87,17 @@ def test_confidence_pass_accepts_narrow_ci(tmp_path) -> None:
 
     issues = ConfidencePass().validate(ctx)
     assert not any(issue.severity == IssueSeverity.BLOCKER for issue in issues)
+
+
+def test_confidence_pass_reads_causal_envelope(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path)
+    causal_ref = persist_uncertainty_envelope(store, _normal_envelope(point=1.0, std=0.4))
+    ctx = PassContext(
+        ir=None,
+        state={"artifacts_index": {"causal_envelope_ref": causal_ref}, "_store": store},
+        registry_bundle=None,
+        profile=ValidationProfile.strict(),
+        run_id="R_confidence_causal",
+    )
+    issues = ConfidencePass().validate(ctx)
+    assert any(issue.severity == IssueSeverity.BLOCKER for issue in issues)

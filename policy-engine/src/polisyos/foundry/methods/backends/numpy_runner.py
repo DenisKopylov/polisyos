@@ -9,13 +9,13 @@ from typing import Any, Mapping
 import numpy as np
 
 from polisyos.core.observability.determinism import DeterminismTier
-from polisyos.foundry.methods.base import ComputeBackend, MethodSignature
 from polisyos.foundry.methods.backends.protocol import (
     MethodResult,
     MethodRunner,
     MethodTiming,
     ReproducibilityInfo,
 )
+from polisyos.foundry.methods.base import ComputeBackend, MethodSignature
 
 
 def _safe_version(package_name: str) -> str | None:
@@ -71,6 +71,17 @@ class NumpyRunner(MethodRunner):
         output = method_class.pure_step(state, resolved)
         wall_ms = (time.perf_counter() - started) * 1000
 
+        determinism_tier = DeterminismTier.LIBRARY_DETERMINISTIC
+        class_tier = getattr(method_class, "determinism_tier", None)
+        if isinstance(class_tier, DeterminismTier):
+            determinism_tier = class_tier
+        if isinstance(output, dict):
+            maybe_tier = output.get("__determinism_tier__")
+            if isinstance(maybe_tier, DeterminismTier):
+                determinism_tier = maybe_tier
+                output = dict(output)
+                output.pop("__determinism_tier__", None)
+
         versions = _capture_versions()
         fp_payload = {
             "backend": ComputeBackend.NUMPY.value,
@@ -86,11 +97,14 @@ class NumpyRunner(MethodRunner):
             timing=MethodTiming(wall_time_ms=wall_ms),
             reproducibility=ReproducibilityInfo(
                 backend=ComputeBackend.NUMPY,
-                determinism_tier=DeterminismTier.LIBRARY_DETERMINISTIC,
+                determinism_tier=determinism_tier,
                 seed=seed,
                 library_versions=versions,
                 fingerprint=fingerprint,
-                note="Deterministic within fixed dependency versions and seed.",
+                note=(
+                    "Statistical reproducibility within fixed dependency versions and seed."
+                    if determinism_tier is DeterminismTier.STATISTICAL
+                    else "Deterministic within fixed dependency versions and seed."
+                ),
             ),
         )
-

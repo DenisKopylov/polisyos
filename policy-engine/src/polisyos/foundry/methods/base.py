@@ -27,7 +27,6 @@ import numpy as np
 
 from polisyos.foundry.methods.exceptions import LawViolationError, MethodDefinitionError
 
-
 _SEMVER_RE = re.compile(
     r"^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)"
     r"(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$"
@@ -434,6 +433,7 @@ class MethodMetadata:
     tags: frozenset[str] = frozenset()
     citations: tuple[str, ...] = ()
     equations: Mapping[str, str] = field(default_factory=dict)
+    assumptions: Mapping[str, str] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
         if not isinstance(self.description, str):
@@ -445,6 +445,9 @@ class MethodMetadata:
         if not isinstance(self.equations, MappingProxyType):
             equations_copy = dict(self.equations)
             object.__setattr__(self, "equations", MappingProxyType(equations_copy))
+        if not isinstance(self.assumptions, MappingProxyType):
+            assumptions_copy = dict(self.assumptions)
+            object.__setattr__(self, "assumptions", MappingProxyType(assumptions_copy))
 
     def stable_digest(self) -> str:
         """Stable digest for provenance artifacts."""
@@ -456,10 +459,11 @@ class MethodMetadata:
             "tags": sorted(self.tags),
             "citations": list(self.citations),
             "equations": _stable_mapping(self.equations),
+            "assumptions": _stable_mapping(self.assumptions),
         }
 
     def __hash__(self) -> int:
-        return hash((self.description, self.tags, self.citations))
+        return hash((self.description, self.tags, self.citations, tuple(self.assumptions.items())))
 
 
 # ---------------------------------------------------------------------------
@@ -562,6 +566,7 @@ def foundry_method(
                 tags=existing.tags | frozenset(tags),
                 citations=existing.citations,
                 equations=existing.equations,
+                assumptions=existing.assumptions,
             )
 
         if _strict_mode_enabled():

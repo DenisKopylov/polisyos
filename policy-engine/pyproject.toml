@@ -103,6 +103,7 @@ polisyos = "polisyos.core.components.cli:main"
 
 [project.entry-points."polisyos.methods"]
 # Method plugins can register entry points here.
+causal = "polisyos.foundry.methods.catalog.causal._registry_boot:register_causal_methods"
 
 [project.entry-points."polisyos.ir_fragments"]
 "roads.core" = "polisyos.packs.roads.ir_fragments:roads_ir_fragment_component"

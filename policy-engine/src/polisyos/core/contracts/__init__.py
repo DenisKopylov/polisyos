@@ -1,3 +1,4 @@
+from .causal import CausalEffectReportRef
 from .compiler import CompileReportRef, LinkReportRef
 from .fabric import (
     DataSnapshot,
@@ -78,10 +79,9 @@ from .scientist import (
     ExperimentStateRef,
     FailureCardRef,
     GovernanceReportRef,
-    TrinityIRRef,
     TimelineRef,
+    TrinityIRRef,
 )
-from .uncertainty import UncertaintyEnvelopeRef
 from .trinity import (
     ModelSpecRef,
     PolicySpecRef,
@@ -90,6 +90,7 @@ from .trinity import (
     TrinityBundleRef,
     TrinityManifest,
 )
+from .uncertainty import UncertaintyEnvelopeRef
 
 __all__ = [
     "DataViewRequestRef",
@@ -173,4 +174,5 @@ __all__ = [
     "ThresholdsV1",
     "SourceKind",
     "SourceSpec",
+    "CausalEffectReportRef",
 ]

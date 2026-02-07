@@ -156,6 +156,13 @@ IR_ABI_MODELS: tuple[ABIModelEntry, ...] = (
         priority=Priority.P1,
     ),
     ABIModelEntry(
+        abi_key="uncertainty_envelope",
+        fqn="polisyos.ir.uncertainty.UncertaintyEnvelope",
+        module="ir",
+        schema_file="uncertainty_envelope.schema.json",
+        priority=Priority.P1,
+    ),
+    ABIModelEntry(
         abi_key="fact",
         fqn="polisyos.ir.fact_log.Fact",
         module="ir",

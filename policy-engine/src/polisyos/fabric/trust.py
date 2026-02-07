@@ -5,6 +5,8 @@ from decimal import Decimal
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.contracts.fabric import UncertaintyBounds, UncertaintyBoundsRef
+from polisyos.fabric.trust_adapter import envelope_from_trust_bounds
+from polisyos.ir.uncertainty import UncertaintyEnvelope
 
 
 def two_pass_compare(
@@ -17,6 +19,27 @@ def two_pass_compare(
     upper = Decimal(str(max(optimistic_value, pessimistic_value)))
     value = (lower + upper) / Decimal("2")
     return UncertaintyBounds(value=value, lower=lower, upper=upper, method=method)
+
+
+def two_pass_compare_with_envelope(
+    optimistic_value: float,
+    pessimistic_value: float,
+    *,
+    method: str = "two_pass_compare",
+    trust_policy_id: str | None = None,
+    assume_triangular: bool = False,
+) -> tuple[UncertaintyBounds, UncertaintyEnvelope]:
+    bounds = two_pass_compare(
+        optimistic_value=optimistic_value,
+        pessimistic_value=pessimistic_value,
+        method=method,
+    )
+    envelope = envelope_from_trust_bounds(
+        bounds,
+        trust_policy_id=trust_policy_id,
+        assume_triangular=assume_triangular,
+    )
+    return bounds, envelope
 
 
 def persist_uncertainty_bounds(

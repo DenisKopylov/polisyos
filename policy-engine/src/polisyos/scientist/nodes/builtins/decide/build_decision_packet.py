@@ -10,6 +10,7 @@ from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
+from polisyos.core.contracts.fabric import DataSnapshot
 from polisyos.core.contracts.foundry import Metrics
 from polisyos.core.contracts.scientist import DecisionPacketRef
 from polisyos.scientist.engine.context import ExecutionContext
@@ -101,18 +102,19 @@ class BuildDecisionPacketNode:
         strategy_hint = _determine_strategy_hint(inputs_section, artifacts_section)
 
         packet_payload: dict[str, object] = {
-            "schema_version": "3.0",
+            "schema_version": "3.1",
             "generated_at": datetime.now(timezone.utc).isoformat(),
             "run_id": state.run_id,
             "seed": seed,
             "run_record": {
-                "schema_version": "3.0",
+                "schema_version": "3.1",
                 "run_id": state.run_id,
                 "seed": seed,
                 "engine": "scientist.engine",
             },
             "simulation_results": None,
             "governance": None,
+            "uncertainty": _build_uncertainty_section(ctx, state.inputs),
             "inputs": inputs_section,
             "artifacts": artifacts_section,
             "replay": {
@@ -160,7 +162,7 @@ class BuildDecisionPacketNode:
                 media_type="application/json",
                 schema=SchemaInfo(
                     name="polisyos.scientist.DecisionPacket",
-                    version="3.0",
+                    version="3.1",
                 ),
                 inputs=inputs or None,
             ),
@@ -249,12 +251,27 @@ def _determine_strategy_hint(
 
 def _build_manifest_inputs(packet_payload: dict[str, object]) -> list[InputRef]:
     collected: dict[tuple[str, str], InputRef] = {}
-    for section_name, prefix in (("inputs", "input"), ("artifacts", "artifact")):
+    for section_name, prefix in (
+        ("inputs", "input"),
+        ("artifacts", "artifact"),
+        ("uncertainty", "uncertainty"),
+    ):
         section = packet_payload.get(section_name)
         if not isinstance(section, dict):
             continue
         for role, value in section.items():
             if not isinstance(value, str):
+                if not isinstance(value, list):
+                    continue
+                for index, nested in enumerate(value):
+                    if not isinstance(nested, str):
+                        continue
+                    artifact_id = ArtifactID.model_validate(nested)
+                    role_name = f"{prefix}.{role}[{index}]"
+                    collected[(artifact_id.hex, role_name)] = InputRef(
+                        artifact_id=artifact_id,
+                        role=role_name,
+                    )
                 continue
             artifact_id = ArtifactID.model_validate(value)
             role_name = f"{prefix}.{role}"
@@ -263,3 +280,32 @@ def _build_manifest_inputs(packet_payload: dict[str, object]) -> list[InputRef]:
                 role=role_name,
             )
     return list(collected.values())
+
+
+def _build_uncertainty_section(
+    ctx: ExecutionContext,
+    state_inputs: dict[str, ArtifactRef],
+) -> dict[str, object]:
+    envelope_refs: set[str] = set()
+    legacy_bounds_refs: set[str] = set()
+    warnings: list[str] = []
+
+    data_snapshot_ref = state_inputs.get(INPUT_DATA_SNAPSHOT_REF)
+    if data_snapshot_ref is not None:
+        try:
+            payload = from_canonical_bytes(ctx.store.get_bytes(data_snapshot_ref.artifact_id))
+            snapshot = DataSnapshot.model_validate(payload)
+            if snapshot.uncertainty_envelope_ref is not None:
+                envelope_refs.add(str(snapshot.uncertainty_envelope_ref.artifact_id))
+            if snapshot.uncertainty_ref is not None:
+                legacy_bounds_refs.add(str(snapshot.uncertainty_ref.artifact_id))
+        except Exception:
+            warnings.append("data_snapshot_uncertainty_parse_failed")
+
+    return {
+        "envelope_refs": sorted(envelope_refs),
+        "legacy_bounds_refs": sorted(legacy_bounds_refs),
+        "envelope_count": len(envelope_refs),
+        "legacy_bounds_count": len(legacy_bounds_refs),
+        "warnings": warnings,
+    }

@@ -23,6 +23,7 @@ from polisyos.fabric.world import (
     validate_conflict_set_id,
 )
 from polisyos.ir.canon import to_canonical_bytes
+from polisyos.ir.uncertainty import persist_uncertainty_envelope
 from polisyos.ir.world.abi import EdgeKind, NodeKind
 from polisyos.ir.world.conflict import (
     ConflictResolution,
@@ -64,6 +65,7 @@ from .policies import get_conflict_policy
 from .score_claims import score_claim_trust_assessments
 from .score_docs import score_doc_trust_assessments
 from .types import ConflictResolveOptions, ConflictResolveResult, RankedClaim
+from .uncertainty_adapter import envelope_from_conflict_resolution
 
 _CONFLICT_RESOLUTION_SCHEMA = SchemaInfo(name="fabric.claims.conflict_resolution", version="1.0")
 _Q4 = Decimal("0.0001")
@@ -565,6 +567,7 @@ def resolve_conflicts(
     winner_by_conflict: dict[str, str] = {}
     updated_conflict_artifacts: dict[str, str] = {}
     resolution_artifact_ids: list[str] = []
+    uncertainty_envelope_artifact_ids: list[str] = []
     contradict_edges = 0
     for conflict_set_id in ordered_conflict_set_ids:
         conflict_set = conflict_sets_by_id[conflict_set_id]
@@ -630,21 +633,34 @@ def resolve_conflicts(
         resolution_artifact_id = _persist_conflict_resolution(cas, resolution)
         resolution_artifact_ids.append(resolution_artifact_id)
 
+        resolution_view = ConflictSetResolution(
+            winner_claim_id=winner,
+            policy_id=policy_id,
+            confidence=winner_score,
+            rationale=f"winner={winner};score={winner_score};tie_break=lexicographic_claim_id",
+            resolution_artifact_id=resolution_artifact_id,
+        )
+        envelope = envelope_from_conflict_resolution(
+            resolution=resolution_view,
+            candidates=resolution.candidates,
+        )
+        envelope_artifact_id: str | None = None
+        if envelope is not None:
+            envelope_ref = persist_uncertainty_envelope(cas, envelope)
+            envelope_artifact_id = str(envelope_ref.artifact_id)
+            uncertainty_envelope_artifact_ids.append(envelope_artifact_id)
+
+        updated_props = dict(conflict_set.props)
+        if envelope_artifact_id is not None:
+            updated_props["uncertainty_envelope_artifact_id"] = envelope_artifact_id
+
         updated_conflict = ConflictSet(
             conflict_set_id=conflict_set.conflict_set_id,
             conflict_key=conflict_set.conflict_key,
             conflict_kind=conflict_set.conflict_kind,
             member_claim_ids=conflict_set.member_claim_ids,
-            resolution=ConflictSetResolution(
-                winner_claim_id=winner,
-                policy_id=policy_id,
-                confidence=winner_score,
-                rationale=(
-                    f"winner={winner};score={winner_score};tie_break=lexicographic_claim_id"
-                ),
-                resolution_artifact_id=resolution_artifact_id,
-            ),
-            props=conflict_set.props,
+            resolution=resolution_view,
+            props=updated_props,
         )
         updated_ref = persist_conflict_set(cas, updated_conflict)
         updated_artifact_id = str(updated_ref.artifact_id)
@@ -744,6 +760,8 @@ def resolve_conflicts(
             outputs.append(WorldObjectRef(artifact_id=artifact_id))
     for artifact_id in sorted(set(resolution_artifact_ids)):
         outputs.append(WorldObjectRef(artifact_id=artifact_id))
+    for artifact_id in sorted(set(uncertainty_envelope_artifact_ids)):
+        outputs.append(WorldObjectRef(artifact_id=artifact_id))
     for trust_id in sorted(trust_artifact_by_id):
         outputs.append(WorldObjectRef(world_id=trust_id))
         outputs.append(WorldObjectRef(artifact_id=trust_artifact_by_id[trust_id]))
@@ -799,6 +817,7 @@ def resolve_conflicts(
             "conflict_sets_resolved": len(winner_by_conflict),
             "trust_assessments_emitted": len(trust_artifact_by_id),
             "resolution_artifacts_emitted": len(resolution_artifact_ids),
+            "uncertainty_envelopes_emitted": len(uncertainty_envelope_artifact_ids),
             "contradict_edges_emitted": contradict_edges,
             "missing_doc_versions": len(missing_doc_versions),
         },
@@ -873,6 +892,7 @@ def resolve_conflicts(
             for conflict_set_id in ordered_conflict_set_ids
         ],
         conflict_resolution_artifact_ids=sorted(set(resolution_artifact_ids)),
+        uncertainty_envelope_artifact_ids=sorted(set(uncertainty_envelope_artifact_ids)),
         trust_assessment_ids=sorted(trust_artifact_by_id),
         trust_assessment_artifact_ids_by_id={
             trust_id: trust_artifact_by_id[trust_id] for trust_id in sorted(trust_artifact_by_id)

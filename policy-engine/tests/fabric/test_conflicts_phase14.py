@@ -13,6 +13,7 @@ from polisyos.fabric.claims import (
     normalize_claims,
     resolve_conflicts,
 )
+from polisyos.fabric.claims.persist import load_json_artifact
 from polisyos.fabric.claims.conflicts.key import conflict_key_v1
 from polisyos.fabric.docs import (
     DocChunkOptions,
@@ -172,6 +173,11 @@ def test_resolution_tie_break_deterministic(tmp_path: Path) -> None:
 
     winner = next(iter(resolved.winner_by_conflict_set.values()))
     assert winner == min(claim_ids)
+    assert len(resolved.uncertainty_envelope_artifact_ids) == len(resolved.conflict_set_ids)
+
+    for conflict_artifact_id in resolved.conflict_set_artifact_ids:
+        payload = load_json_artifact(cas, conflict_artifact_id)
+        assert "uncertainty_envelope_artifact_id" in payload["props"]
 
 
 def test_conflict_emits_world_facts(tmp_path: Path) -> None:

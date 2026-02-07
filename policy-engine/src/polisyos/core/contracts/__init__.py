@@ -81,6 +81,7 @@ from .scientist import (
     TrinityIRRef,
     TimelineRef,
 )
+from .uncertainty import UncertaintyEnvelopeRef
 from .trinity import (
     ModelSpecRef,
     PolicySpecRef,
@@ -144,6 +145,7 @@ __all__ = [
     "ExperimentStateRef",
     "DecisionPacketRef",
     "GovernanceReportRef",
+    "UncertaintyEnvelopeRef",
     "ProblemFrameRef",
     "PolicySpecRef",
     "ModelSpecRef",

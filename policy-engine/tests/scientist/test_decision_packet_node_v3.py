@@ -76,9 +76,10 @@ def test_build_decision_packet_node_emits_v3_payload_and_manifest_inputs(tmp_pat
     manifest = store.get_manifest(packet_ref.artifact_id)
     roles = {item.role for item in manifest.inputs}
 
-    assert payload["schema_version"] == "3.0"
+    assert payload["schema_version"] == "3.1"
     assert payload["seed"] == 123
     assert payload["replay"]["strategy_hint"] == "scientist"
+    assert payload["uncertainty"]["envelope_count"] == 0
     assert payload["inputs"]["trinity_bundle_ref"] == str(trinity_ref.artifact_id)
     assert payload["artifacts"]["metrics_ref"] == str(metrics_ref.artifact_id)
     assert payload["artifacts"]["governance_report_ref"] == str(governance_ref.artifact_id)

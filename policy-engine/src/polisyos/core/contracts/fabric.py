@@ -6,6 +6,7 @@ from typing import Literal
 from pydantic import BaseModel, ConfigDict, Field
 
 from ..artifacts.manifest import ArtifactRef, WarningRecord
+from .uncertainty import UncertaintyEnvelopeRef
 
 
 class DataViewRequestRef(ArtifactRef):
@@ -115,6 +116,7 @@ class FabricResult(BaseModel):
     trust_policy_id: str | None = None
     evidence_ref: EvidenceBundleRef
     uncertainty_ref: UncertaintyBoundsRef | None = None
+    uncertainty_envelope_ref: UncertaintyEnvelopeRef | None = None
     warnings_ref: WarningsRef | None = None
     stats: dict[str, int | str] = Field(default_factory=dict)
 
@@ -126,6 +128,7 @@ class DataSnapshot(BaseModel):
     data_schema_ref: ArtifactRef | None = None
     evidence_ref: EvidenceBundleRef | None = None
     uncertainty_ref: UncertaintyBoundsRef | None = None
+    uncertainty_envelope_ref: UncertaintyEnvelopeRef | None = None
     warnings_ref: WarningsRef | None = None
     stats: dict[str, int | str] = Field(default_factory=dict)
     notes: list[str] = Field(default_factory=list)

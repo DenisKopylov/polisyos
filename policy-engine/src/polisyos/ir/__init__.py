@@ -45,6 +45,11 @@ __all__ = [
     "GatePriority",
     "GateRequest",
     "GateVerdict",
+    "DistributionFamily",
+    "IntervalSemantics",
+    "PropagationMethod",
+    "UncertaintyEnvelope",
+    "UncertaintySource",
 ]
 
 _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
@@ -78,6 +83,9 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "GatePriority": ("polisyos.ir.gate", "GatePriority"),
     "GateRequest": ("polisyos.ir.gate", "GateRequest"),
     "GateVerdict": ("polisyos.ir.gate", "GateVerdict"),
+    "DistributionFamily": ("polisyos.ir.uncertainty", "DistributionFamily"),
+    "IntervalSemantics": ("polisyos.ir.uncertainty", "IntervalSemantics"),
+    "PropagationMethod": ("polisyos.ir.uncertainty", "PropagationMethod"),
     "MechanismBinding": ("polisyos.ir.policy_spec", "MechanismBinding"),
     "ParameterSpec": ("polisyos.ir.policy_spec", "ParameterSpec"),
     "PolicyInterventionSpec": ("polisyos.ir.policy_spec", "InterventionSpec"),
@@ -89,6 +97,8 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "ProblemFrame": ("polisyos.ir.problem_frame", "ProblemFrame"),
     "StakeholderSpec": ("polisyos.ir.problem_frame", "StakeholderSpec"),
     "SuccessCriterion": ("polisyos.ir.problem_frame", "SuccessCriterion"),
+    "UncertaintyEnvelope": ("polisyos.ir.uncertainty", "UncertaintyEnvelope"),
+    "UncertaintySource": ("polisyos.ir.uncertainty", "UncertaintySource"),
 }
 
 

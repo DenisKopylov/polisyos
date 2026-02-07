@@ -43,15 +43,18 @@ link_ref = LinkReportRef(artifact_id=id, kind="compiler.link_report")
 - **EvidenceBundle & EvidenceBundleRef**: Пакет доказательств с provenance и quality indicators
 - **FabricResult & FabricResultRef**: Результат обработки с метаданными
 - **UncertaintyBounds & UncertaintyBoundsRef**: Границы неопределенности
+- **UncertaintyEnvelopeRef**: Единый IR reference для `ir.uncertainty_envelope`
 - **WarningsBundle & WarningsRef**: Предупреждения о проблемах
 - **DataSnapshot & DataSnapshotRef**: Фиксированный снапшот данных
 
 ```python
 from polisyos.core.contracts.fabric import QueryPlan, EvidenceBundle, FabricResult
+from polisyos.core.contracts.uncertainty import UncertaintyEnvelopeRef
 
 plan = QueryPlan(request_ref=req_ref, steps=[...], trust_policy_id="strict")
 evidence = EvidenceBundle(sources=[...], transforms=[...], quality_indicators={...})
 result = FabricResult(request_ref=req_ref, plan_ref=plan_ref, data_ref=data_ref)
+env_ref = UncertaintyEnvelopeRef(artifact_id=id)
 ```
 
 ## Foundry Contracts

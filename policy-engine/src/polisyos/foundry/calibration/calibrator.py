@@ -37,6 +37,7 @@ from polisyos.foundry.calibration.report import (
     CalibrationSeriesComparison,
     CalibrationUncertainty,
 )
+from polisyos.foundry.calibration.uncertainty_adapter import envelopes_from_calibration
 from polisyos.foundry.domain.state import GlobalState
 from polisyos.ir.calibration import CalibrationConfig, CalibrationTarget, TrainableParamRef
 from polisyos.ir.kernel import (
@@ -921,7 +922,7 @@ class Calibrator:
                     diagnostics.append(f"Hessian computation failed: {exc}")
 
         fidelity_stats = _inspect_bundle_fidelity(bundle)
-        return CalibrationReport(
+        report = CalibrationReport(
             calibrated_params=calibrated_params,
             total_loss=final_total_loss,
             per_target_loss=per_target_final,
@@ -942,6 +943,11 @@ class Calibrator:
                 "fidelity_stats": fidelity_stats,
             },
         )
+        if report.uncertainties is not None:
+            envelopes = envelopes_from_calibration(report, confidence_level=0.95)
+            if envelopes:
+                report = report.model_copy(update={"uncertainty_envelopes": envelopes})
+        return report
 
 
 def _jax_platform() -> str:

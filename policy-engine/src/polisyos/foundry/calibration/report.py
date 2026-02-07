@@ -5,7 +5,9 @@ from typing import Any, Dict, List, Mapping
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec
+from polisyos.core.contracts.uncertainty import UncertaintyEnvelopeRef
 from polisyos.ir.calibration import CalibrationConfig
+from polisyos.ir.uncertainty import UncertaintyEnvelope
 
 from pydantic import BaseModel, Field, ConfigDict
 
@@ -66,6 +68,14 @@ class CalibrationReport(BaseModel):
     series_comparison: Mapping[str, CalibrationSeriesComparison] = Field(default_factory=dict)
     fit_quality: CalibrationFitQuality | None = None
     uncertainties: CalibrationUncertainty | None = None
+    uncertainty_envelopes: Mapping[str, UncertaintyEnvelope] | None = Field(
+        default=None,
+        description="Per-parameter uncertainty envelopes derived from calibration Hessian output.",
+    )
+    uncertainty_envelope_refs: Mapping[str, UncertaintyEnvelopeRef] | None = Field(
+        default=None,
+        description="Optional CAS references for persisted per-parameter uncertainty envelopes.",
+    )
     diagnostics: List[str] = Field(default_factory=list)
     execution_context: Dict[str, Any] = Field(
         default_factory=dict,

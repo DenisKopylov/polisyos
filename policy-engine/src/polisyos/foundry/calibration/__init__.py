@@ -9,6 +9,7 @@ from .report import (
     put_calibration_config,
     put_calibration_report,
 )
+from .uncertainty_adapter import envelope_from_calibration_param, envelopes_from_calibration
 
 __all__ = [
     "Calibrator",
@@ -21,6 +22,8 @@ __all__ = [
     "CalibrationFitMetrics",
     "CalibrationFitQuality",
     "CalibrationUncertainty",
+    "envelope_from_calibration_param",
+    "envelopes_from_calibration",
     "put_calibration_config",
     "put_calibration_report",
 ]

@@ -49,6 +49,7 @@ class ConflictResolveResult:
     winner_by_conflict_set: dict[str, str]
     conflict_set_artifact_ids: list[str]
     conflict_resolution_artifact_ids: list[str]
+    uncertainty_envelope_artifact_ids: list[str]
     trust_assessment_ids: list[str]
     trust_assessment_artifact_ids_by_id: dict[str, str]
     quality_report_id: str | None

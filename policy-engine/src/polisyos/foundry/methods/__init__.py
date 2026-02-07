@@ -7,6 +7,7 @@ from __future__ import annotations
 
 from polisyos.foundry.methods.base import (
     FoundryMethod,
+    ComputeBackend,
     MethodSignature,
     MethodMetadata,
     SlotSpec,
@@ -97,6 +98,17 @@ from polisyos.foundry.methods.composer import (
     MethodComposer,
     CompiledMethodChain,
 )
+from polisyos.foundry.methods.backends import (
+    BackendNotAvailableError,
+    ChainExecutionResult,
+    MethodDispatcher,
+    MethodResult,
+    MethodRunner,
+    MethodTiming,
+    ReproducibilityInfo,
+    SolverStatus,
+    execute_heterogeneous_chain,
+)
 
 try:
     from polisyos.foundry.methods.compiler import (
@@ -151,6 +163,7 @@ from polisyos.foundry.methods.components_bridge import (
 
 __all__ = [
     "FoundryMethod",
+    "ComputeBackend",
     "MethodSignature",
     "MethodMetadata",
     "SlotSpec",
@@ -219,6 +232,15 @@ __all__ = [
     "CompositionDAG",
     "MethodComposer",
     "CompiledMethodChain",
+    "BackendNotAvailableError",
+    "ChainExecutionResult",
+    "MethodDispatcher",
+    "MethodResult",
+    "MethodRunner",
+    "MethodTiming",
+    "ReproducibilityInfo",
+    "SolverStatus",
+    "execute_heterogeneous_chain",
     "MethodCompiler",
     "CompiledMethod",
     "CompilationCache",

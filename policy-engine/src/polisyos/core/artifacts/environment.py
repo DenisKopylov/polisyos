@@ -735,6 +735,26 @@ def _capture_container_info() -> ContainerInfo:
     )
 
 
+def _detect_compute_backends() -> dict[str, dict[str, str]]:
+    backends: dict[str, dict[str, str]] = {}
+    for package_name, backend_name in [
+        ("jax", "jax"),
+        ("jaxlib", "jaxlib"),
+        ("numpy", "numpy"),
+        ("scipy", "scipy"),
+        ("statsmodels", "statsmodels"),
+        ("linearmodels", "linearmodels"),
+        ("dowhy", "dowhy"),
+        ("econml", "econml"),
+        ("ortools", "ortools"),
+        ("pulp", "pulp"),
+    ]:
+        version = _safe_package_version(package_name)
+        if version:
+            backends[backend_name] = {"version": version}
+    return backends
+
+
 def _capture_system_libraries() -> dict[str, SystemLibraryInfo]:
     """Capture hashes of key system libraries."""
     if sys.platform != "linux":
@@ -834,6 +854,7 @@ def capture_environment(
     include_git: bool = True,
     include_dependencies: bool = True,
     include_system_libraries: bool = True,
+    include_compute_backends: bool = False,
     custom_metadata: dict[str, Any] | None = None,
 ) -> EnvironmentManifest:
     """
@@ -847,6 +868,9 @@ def capture_environment(
     jax_info = _capture_jax_info()
     system_libs = _capture_system_libraries() if include_system_libraries else {}
     expected_precision_loss = _estimate_precision_loss(cpu_info, gpu_info, jax_info)
+    metadata_payload = dict(custom_metadata or {})
+    if include_compute_backends:
+        metadata_payload["compute_backends"] = _detect_compute_backends()
 
     return EnvironmentManifest(
         cpu=cpu_info,
@@ -859,7 +883,7 @@ def capture_environment(
         container=_capture_container_info(),
         system_libraries=system_libs,
         expected_precision_loss=expected_precision_loss,
-        custom_metadata=custom_metadata or {},
+        custom_metadata=metadata_payload,
     )
 
 

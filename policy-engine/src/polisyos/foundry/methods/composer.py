@@ -546,3 +546,23 @@ class CompiledMethodChain:
             f"CompiledMethodChain(methods={len(self)}, "
             f"bindings={len(self.bindings)}, warnings={len(self.warnings)})"
         )
+
+    def execute_heterogeneous(
+        self,
+        *,
+        state: Any,
+        params_per_node: Mapping[UUID, Mapping[str, Any]] | None = None,
+        seed: int = 0,
+        registry: MethodRegistry | None = None,
+    ) -> Any:
+        from polisyos.foundry.methods.backends.chain_executor import (
+            execute_heterogeneous_chain,
+        )
+
+        return execute_heterogeneous_chain(
+            self,
+            state=state,
+            params_per_node=params_per_node,
+            seed=seed,
+            registry=registry,
+        )

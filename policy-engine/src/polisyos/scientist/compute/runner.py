@@ -1,21 +1,25 @@
 from __future__ import annotations
 
+import json
 import os
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
+from typing import Any, Mapping
 
 import jax
 import jax.numpy as jnp
+import numpy as np
 
-from polisyos.core.canon import CanonSpec
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.canon import CanonSpec
 from polisyos.foundry.executor import (
     apply_state_delta_and_snapshot,
     execute_program_graph,
     load_state_snapshot,
 )
+from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
+from polisyos.foundry.methods.registry import MethodRegistry
 from polisyos.ir.validation import ValidationIssue
 from polisyos.scientist.compute.job_spec import JobKey, JobResult, JobSpec
 
@@ -27,8 +31,14 @@ class ExecutionResult:
     final_state: Any
 
 
+@dataclass(frozen=True)
+class MethodExecutionArtifacts:
+    result_ref: ArtifactRef
+    evidence_ref: ArtifactRef
+
+
 class RunnerBackend:
-    """Backend interface for executing compiled programs."""
+    """Backend interface for executing compiled program jobs."""
 
     def run(
         self,
@@ -80,7 +90,9 @@ class LocalBackend(RunnerBackend):
             step=int(base_state.step),
         )
         return ExecutionResult(
-            exec_artifacts=exec_artifacts, applied=applied, final_state=final_state
+            exec_artifacts=exec_artifacts,
+            applied=applied,
+            final_state=final_state,
         )
 
 
@@ -98,6 +110,106 @@ class RayBackend(RunnerBackend):
         seed: int,
     ) -> ExecutionResult:
         raise NotImplementedError("RayBackend is not implemented yet.")
+
+
+class MethodBackend:
+    """Backend for method-based jobs via foundry.methods dispatcher."""
+
+    def run(
+        self,
+        *,
+        cas_root: Path,
+        method_fqn: str,
+        method_version: str | None,
+        input_state: Any,
+        method_params: Mapping[str, Any],
+        seed: int,
+        input_refs: Mapping[str, ArtifactRef] | None = None,
+    ) -> ExecutionResult:
+        store = FileSystemCAS(cas_root)
+        registry = MethodRegistry.get_instance()
+        resolved_name = method_fqn
+        if method_version and "@" not in method_fqn:
+            resolved_name = f"{method_fqn}@{method_version}"
+        method_class = registry.get(resolved_name, version=method_version)
+        signature = method_class.signature
+
+        dispatcher = MethodDispatcher.get_instance()
+        method_result = dispatcher.dispatch(
+            method_class=method_class,
+            signature=signature,
+            state=input_state,
+            params=method_params,
+            seed=seed,
+        )
+
+        result_payload = _to_jsonable(method_result.output)
+        result_inputs: list[InputRef] = []
+        for slot_name, ref in sorted((input_refs or {}).items(), key=lambda kv: kv[0]):
+            result_inputs.append(InputRef(artifact_id=ref.artifact_id, role=f"input:{slot_name}"))
+
+        result_ref = store.put_json(
+            result_payload,
+            PutOptions(
+                kind=f"scientist.method_result.{signature.namespace}",
+                media_type="application/json",
+                schema=SchemaInfo(
+                    name="polisyos.scientist.MethodResult",
+                    version="0.1.0",
+                ),
+                inputs=result_inputs,
+            ),
+            canon_spec=CanonSpec(forbid_floats=False),
+        )
+
+        evidence_payload = {
+            "method_fqn": signature.fqn,
+            "backend": signature.backend.value,
+            "timing": {
+                "wall_time_ms": method_result.timing.wall_time_ms,
+                "cpu_time_ms": method_result.timing.cpu_time_ms,
+                "compile_time_ms": method_result.timing.compile_time_ms,
+            },
+            "reproducibility": {
+                "tier": method_result.reproducibility.determinism_tier.value,
+                "seed": method_result.reproducibility.seed,
+                "library_versions": dict(
+                    sorted(method_result.reproducibility.library_versions.items())
+                ),
+                "solver_status": method_result.reproducibility.solver_status.value
+                if method_result.reproducibility.solver_status
+                else None,
+                "solver_gap": method_result.reproducibility.solver_gap,
+                "solver_iterations": method_result.reproducibility.solver_iterations,
+                "fingerprint": method_result.reproducibility.fingerprint,
+                "note": method_result.reproducibility.note,
+            },
+            "warnings": list(method_result.warnings),
+            "artifacts": _to_jsonable(method_result.artifacts),
+            "result_ref": str(result_ref.artifact_id),
+        }
+        evidence_ref = store.put_json(
+            evidence_payload,
+            PutOptions(
+                kind="scientist.method_evidence",
+                media_type="application/json",
+                schema=SchemaInfo(
+                    name="polisyos.scientist.MethodExecutionEvidence",
+                    version="0.1.0",
+                ),
+                inputs=[InputRef(artifact_id=result_ref.artifact_id, role="method_result")],
+            ),
+            canon_spec=CanonSpec(forbid_floats=False),
+        )
+
+        return ExecutionResult(
+            exec_artifacts=MethodExecutionArtifacts(
+                result_ref=result_ref,
+                evidence_ref=evidence_ref,
+            ),
+            applied=None,
+            final_state=method_result.output,
+        )
 
 
 def resolve_backend(kind: str | None) -> RunnerBackend:
@@ -137,31 +249,41 @@ def _summarize_state(state: Any) -> dict[str, Any]:
     return summary
 
 
-def run_job(
+def _load_input_refs(cas_root: Path, input_refs: Mapping[str, ArtifactRef]) -> Any:
+    store = FileSystemCAS(cas_root)
+    loaded: dict[str, Any] = {}
+    for slot_name, ref in input_refs.items():
+        payload = store.get_bytes(ref.artifact_id)
+        loaded[slot_name] = json.loads(payload.decode("utf-8"))
+    return loaded
+
+
+def _to_jsonable(value: Any) -> Any:
+    if isinstance(value, dict):
+        return {str(k): _to_jsonable(v) for k, v in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [_to_jsonable(v) for v in value]
+    if isinstance(value, np.ndarray):
+        return value.tolist()
+    if isinstance(value, np.generic):
+        return value.item()
+    if hasattr(value, "tolist") and callable(value.tolist):
+        try:
+            return value.tolist()
+        except Exception:
+            pass
+    return value
+
+
+def _run_legacy_job(
     spec: JobSpec,
     *,
-    backend: RunnerBackend | None = None,
-    registry_content: Any = None,
-    base_state: Any = None,
-    cas_root: Path | None = None,
+    job_key: JobKey,
+    backend: RunnerBackend,
+    registry_content: Any,
+    base_state: Any,
+    cas_root: Path | None,
 ) -> JobResult:
-    """
-    Execute a compiled job spec via the provided backend.
-
-    Parameters
-    ----------
-    spec: JobSpec
-        References to program graph, exec plan, and state snapshot.
-    backend: RunnerBackend
-        Execution backend (default LocalBackend).
-    registry_content: Any
-        Loaded registry bundle content (mechanism/slot/merge/constraint registries).
-    base_state: Any
-        Loaded state snapshot (GlobalState).
-    """
-    job_key = JobKey.from_spec(spec)
-    if backend is None:
-        backend = resolve_backend(None)
     issues: list[dict[str, Any]] = []
     if cas_root is None:
         issues.append(_issue_payload(["job_spec"], "cas_root is required", "runtime"))
@@ -171,6 +293,8 @@ def run_job(
         issues.append(
             _issue_payload(["job_spec", "exec_plan_ref"], "exec_plan_ref missing", "runtime")
         )
+    if spec.program_ref is None:
+        issues.append(_issue_payload(["job_spec", "program_ref"], "program_ref missing", "runtime"))
 
     store = FileSystemCAS(cas_root) if cas_root is not None else None
     if base_state is None and store is not None and spec.state_snapshot_ref is not None:
@@ -229,7 +353,7 @@ def run_job(
         return JobResult(job_key=job_key, issues=issues)
 
     summary_ref = None
-    if store is not None:
+    if store is not None and spec.program_ref is not None and spec.exec_plan_ref is not None:
         summary = _summarize_state(result.final_state)
         if summary:
             inputs = [
@@ -271,14 +395,14 @@ def run_job(
                         role="base_snapshot",
                     )
                 )
-            # Simulation summaries are numeric; allow canonical float encoding for determinism.
             summary_ref = store.put_json(
                 summary,
                 PutOptions(
                     kind="scientist.simulation_results",
                     media_type="application/json",
                     schema=SchemaInfo(
-                        name="polisyos.scientist.SimulationResults", version="0.1.0"
+                        name="polisyos.scientist.SimulationResults",
+                        version="0.1.0",
                     ),
                     inputs=inputs,
                 ),
@@ -297,4 +421,99 @@ def run_job(
         simulation_results_ref=summary_ref,
         final_state=result.final_state,
         warnings=[],
+    )
+
+
+def _run_method_job(
+    spec: JobSpec,
+    *,
+    job_key: JobKey,
+    cas_root: Path | None,
+    method_state: Any,
+    backend: MethodBackend,
+) -> JobResult:
+    issues: list[dict[str, Any]] = []
+    if cas_root is None:
+        issues.append(_issue_payload(["job_spec"], "cas_root is required", "runtime"))
+    if not spec.method_fqn:
+        issues.append(_issue_payload(["job_spec", "method_fqn"], "method_fqn missing", "runtime"))
+    if issues:
+        return JobResult(job_key=job_key, issues=issues)
+
+    loaded_state = method_state
+    if loaded_state is None and spec.input_refs and cas_root is not None:
+        try:
+            loaded_state = _load_input_refs(cas_root, spec.input_refs)
+        except Exception as exc:
+            return JobResult(
+                job_key=job_key,
+                issues=[_issue_payload(["job_spec", "input_refs"], str(exc), "runtime")],
+            )
+    if loaded_state is None:
+        loaded_state = {}
+
+    try:
+        result = backend.run(
+            cas_root=cas_root,
+            method_fqn=spec.method_fqn,
+            method_version=spec.method_version,
+            input_state=loaded_state,
+            method_params=spec.method_params,
+            seed=spec.seed,
+            input_refs=spec.input_refs,
+        )
+    except Exception as exc:
+        return JobResult(
+            job_key=job_key,
+            issues=[_issue_payload(["method_runner"], str(exc), "runtime")],
+        )
+
+    artifacts = result.exec_artifacts
+    warnings: list[str] = []
+    if isinstance(result.final_state, dict):
+        if "warnings" in result.final_state and isinstance(result.final_state["warnings"], list):
+            warnings = [str(item) for item in result.final_state["warnings"]]
+
+    return JobResult(
+        job_key=job_key,
+        simulation_results_ref=artifacts.result_ref,
+        method_result_ref=artifacts.result_ref,
+        method_evidence_ref=artifacts.evidence_ref,
+        final_state=result.final_state,
+        warnings=warnings,
+    )
+
+
+def run_job(
+    spec: JobSpec,
+    *,
+    backend: RunnerBackend | None = None,
+    registry_content: Any = None,
+    base_state: Any = None,
+    cas_root: Path | None = None,
+    method_state: Any = None,
+) -> JobResult:
+    """
+    Execute a job spec via either legacy program flow or method flow.
+    """
+    job_key = JobKey.from_spec(spec)
+
+    if spec.is_method_job:
+        method_backend = backend if isinstance(backend, MethodBackend) else MethodBackend()
+        return _run_method_job(
+            spec,
+            job_key=job_key,
+            cas_root=cas_root,
+            method_state=method_state,
+            backend=method_backend,
+        )
+
+    legacy_backend = backend if backend is not None else resolve_backend(None)
+    return _run_legacy_job(
+        spec,
+        job_key=job_key,
+        backend=legacy_backend,
+        registry_content=registry_content,
+        base_state=base_state,
+        cas_root=cas_root,
     )

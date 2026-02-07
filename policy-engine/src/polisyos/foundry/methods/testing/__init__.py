@@ -28,6 +28,15 @@ from polisyos.foundry.methods.testing.fixtures import (
     SampleStateFactory,
     SampleParamsFactory,
 )
+from polisyos.foundry.methods.testing.jax_suite import JaxMethodTestSuite
+from polisyos.foundry.methods.testing.numpy_suite import (
+    NumpyMethodTestSuite,
+    NumpySuiteResult,
+)
+from polisyos.foundry.methods.testing.solver_suite import (
+    SolverMethodTestSuite,
+    SolverSuiteResult,
+)
 
 __all__ = [
     "MethodTestSuite",
@@ -45,4 +54,9 @@ __all__ = [
     "create_sample_params",
     "SampleStateFactory",
     "SampleParamsFactory",
+    "JaxMethodTestSuite",
+    "NumpyMethodTestSuite",
+    "NumpySuiteResult",
+    "SolverMethodTestSuite",
+    "SolverSuiteResult",
 ]

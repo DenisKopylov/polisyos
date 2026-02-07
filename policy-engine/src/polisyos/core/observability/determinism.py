@@ -16,12 +16,30 @@ class DeterminismTier(str, Enum):
     STRICT_CPU = "strict_cpu"
     BEST_EFFORT_GPU = "best_effort_gpu"
     NONDETERMINISTIC = "nondeterministic"
+    LIBRARY_DETERMINISTIC = "library_deterministic"
+    STATISTICAL = "statistical"
 
     def requires_deterministic_ops(self) -> bool:
-        return self in (DeterminismTier.STRICT_CPU, DeterminismTier.BEST_EFFORT_GPU)
+        return self in (
+            DeterminismTier.STRICT_CPU,
+            DeterminismTier.BEST_EFFORT_GPU,
+            DeterminismTier.LIBRARY_DETERMINISTIC,
+        )
 
     def allows_gpu(self) -> bool:
-        return self != DeterminismTier.STRICT_CPU
+        return self not in (
+            DeterminismTier.STRICT_CPU,
+            DeterminismTier.LIBRARY_DETERMINISTIC,
+        )
+
+    def is_exact_reproducible(self) -> bool:
+        return self in (
+            DeterminismTier.STRICT_CPU,
+            DeterminismTier.LIBRARY_DETERMINISTIC,
+        )
+
+    def is_ci_bounded(self) -> bool:
+        return self == DeterminismTier.STATISTICAL
 
 
 def parse_determinism_tier(value: str | None) -> DeterminismTier | None:

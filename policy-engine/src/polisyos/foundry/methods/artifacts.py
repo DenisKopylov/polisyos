@@ -447,6 +447,10 @@ class DeviceInfo:
     precision: str
     jax_version: str
     jaxlib_version: str
+    backend: str = "jax"
+    library_versions: Mapping[str, str] = field(default_factory=dict)
+    solver_name: str = ""
+    solver_version: str = ""
 
     @classmethod
     def current(cls) -> "DeviceInfo":
@@ -463,6 +467,7 @@ class DeviceInfo:
             precision="float32",
             jax_version=jax.__version__,
             jaxlib_version=jaxlib.__version__,
+            backend="jax",
         )
 
     def to_dict(self) -> dict[str, Any]:
@@ -473,6 +478,10 @@ class DeviceInfo:
             "precision": self.precision,
             "jax_version": self.jax_version,
             "jaxlib_version": self.jaxlib_version,
+            "backend": self.backend,
+            "library_versions": dict(sorted(self.library_versions.items())),
+            "solver_name": self.solver_name,
+            "solver_version": self.solver_version,
         }
 
 

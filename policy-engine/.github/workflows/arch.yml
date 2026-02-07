@@ -22,6 +22,8 @@ jobs:
           pip install -e ".[dev,test]"
       - name: Run import gate
         run: python tools/lint_imports.py --policy import_policy.toml --exceptions import_exceptions.toml
+      - name: Run Foundry backend lint policy
+        run: python tools/lint_foundry.py --repo-root .
       - name: Check Scientist state_reads contract
         run: python tools/check_state_reads.py
       - name: Require Scientist node version bumps

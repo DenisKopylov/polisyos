@@ -41,6 +41,25 @@ dependencies = [
 
 [project.optional-dependencies]
 kuzu = ["kuzu>=0.1.0"]
+analytics = [
+    "scipy>=1.11.0",
+    "statsmodels>=0.14.0",
+    "linearmodels>=5.0",
+    "pandas>=2.0.0",
+]
+causal = [
+    "dowhy>=0.11",
+    "econml>=0.15",
+]
+solvers = [
+    "ortools>=9.8",
+    "pulp>=2.8",
+]
+methods-full = [
+    "policy-engine[analytics]",
+    "policy-engine[causal]",
+    "policy-engine[solvers]",
+]
 observability = [
     "opentelemetry-api>=1.20.0",
     "opentelemetry-sdk>=1.20.0",

@@ -98,6 +98,14 @@ class SlotType(Enum):
     TENSOR = auto()    # Arbitrary shape
 
 
+class ComputeBackend(str, Enum):
+    """Compute backend used to execute a method."""
+
+    JAX = "jax"
+    NUMPY = "numpy"
+    SOLVER = "solver"
+
+
 # ---------------------------------------------------------------------------
 # Core data types
 # ---------------------------------------------------------------------------
@@ -284,6 +292,7 @@ class MethodSignature:
 
     fidelity: FidelityLevel
     complexity: ComplexityClass
+    backend: ComputeBackend = ComputeBackend.JAX
 
     commutes_with: frozenset[str] = frozenset()
     conflicts_with: frozenset[str] = frozenset()
@@ -308,6 +317,8 @@ class MethodSignature:
             raise TypeError("output_slots must be a frozenset")
         if not isinstance(self.parameters, tuple):
             raise TypeError("parameters must be a tuple")
+        if not isinstance(self.backend, ComputeBackend):
+            raise TypeError("backend must be a ComputeBackend")
         if not isinstance(self.commutes_with, frozenset):
             raise TypeError("commutes_with must be a frozenset")
         if not isinstance(self.conflicts_with, frozenset):
@@ -329,6 +340,12 @@ class MethodSignature:
         _validate_method_refs("commutes_with", self.commutes_with)
         _validate_method_refs("conflicts_with", self.conflicts_with)
         _validate_method_refs("requires", self.requires)
+        if self.backend is not ComputeBackend.JAX:
+            if self.supports_jit or self.supports_vmap or self.supports_grad:
+                raise ValueError(
+                    "Non-JAX backend methods must set supports_jit=False, "
+                    "supports_vmap=False, supports_grad=False"
+                )
 
     @property
     def fqn(self) -> str:
@@ -378,7 +395,7 @@ class MethodSignature:
         return self.abi_digest()
 
     def _stable_dict(self) -> dict[str, Any]:
-        return {
+        payload = {
             "name": self.name,
             "namespace": self.namespace,
             "version": self.version,
@@ -394,10 +411,14 @@ class MethodSignature:
             "supports_vmap": self.supports_vmap,
             "supports_grad": self.supports_grad,
         }
+        # Keep digest stable for legacy methods.
+        if self.backend is not ComputeBackend.JAX:
+            payload["backend"] = self.backend.value
+        return payload
 
     def __hash__(self) -> int:
         """Process-local hash based on identity fields only."""
-        return hash((self.name, self.namespace, self.version))
+        return hash((self.name, self.namespace, self.version, self.backend))
 
 
 @dataclass(frozen=True, slots=True)

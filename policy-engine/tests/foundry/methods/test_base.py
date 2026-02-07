@@ -10,6 +10,7 @@ import pytest
 
 from polisyos.foundry.methods import (
     ComplexityClass,
+    ComputeBackend,
     FidelityLevel,
     MethodMetadata,
     MethodSignature,
@@ -160,6 +161,23 @@ class TestMethodSignatureValidation:
                 requires=frozenset({"not_a_fqn"}),
             )
 
+    def test_non_jax_backend_rejects_jax_flags(self, income_slot: SlotSpec, tax_slot: SlotSpec):
+        with pytest.raises(ValueError):
+            MethodSignature(
+                name="bad_non_jax",
+                namespace="test",
+                version="1.0.0",
+                input_slots=frozenset({income_slot}),
+                output_slots=frozenset({tax_slot}),
+                parameters=(),
+                fidelity=FidelityLevel.LOW,
+                complexity=ComplexityClass.O_1,
+                backend=ComputeBackend.NUMPY,
+                supports_jit=True,
+                supports_vmap=False,
+                supports_grad=False,
+            )
+
 
 class TestHashing:
     def test_identical_units_same_hash(self):
@@ -212,6 +230,23 @@ class TestStableDigests:
             complexity=flat_tax_signature.complexity,
         )
         assert flat_tax_signature.abi_digest() == sig2.abi_digest()
+
+    def test_signature_backend_default_keeps_legacy_digest(
+        self,
+        flat_tax_signature: MethodSignature,
+    ):
+        explicit_default = MethodSignature(
+            name=flat_tax_signature.name,
+            namespace=flat_tax_signature.namespace,
+            version=flat_tax_signature.version,
+            input_slots=flat_tax_signature.input_slots,
+            output_slots=flat_tax_signature.output_slots,
+            parameters=flat_tax_signature.parameters,
+            fidelity=flat_tax_signature.fidelity,
+            complexity=flat_tax_signature.complexity,
+            backend=ComputeBackend.JAX,
+        )
+        assert flat_tax_signature.abi_digest() == explicit_default.abi_digest()
 
 
 class TestProperties:

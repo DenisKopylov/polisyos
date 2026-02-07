@@ -6,7 +6,7 @@ import ast
 from dataclasses import dataclass
 from pathlib import Path
 
-BANNED_IMPORT_ROOTS = {
+STANDARD_BANNED_IMPORT_ROOTS = {
     "duckdb",
     "kuzu",
     "pandas",
@@ -25,6 +25,33 @@ BANNED_IMPORT_ROOTS = {
     "tempfile",
 }
 
+MIXED_BACKEND_DIRS = {
+    "methods/backends",
+    "methods/catalog",
+}
+
+NO_JAX_DIRS = {
+    "methods/catalog/causal",
+    "methods/catalog/microsim",
+    "methods/catalog/econometrics",
+    "methods/catalog/optimization",
+}
+
+MIXED_BACKEND_ALLOWED_IMPORTS = {
+    "numpy",
+    "scipy",
+    "statsmodels",
+    "linearmodels",
+    "pandas",
+    "dowhy",
+    "econml",
+    "ortools",
+    "pulp",
+    "sklearn",
+}
+
+NO_JAX_BANNED_IMPORTS = {"jax", "jaxlib", "equinox", "optax"}
+
 BANNED_BUILTINS = {"print", "open"}
 
 
@@ -35,20 +62,46 @@ class Violation:
     message: str
 
 
+def _policy_for_file(py_file: Path, foundry_root: Path) -> str:
+    try:
+        rel = py_file.relative_to(foundry_root)
+    except ValueError:
+        return "standard"
+    rel_str = str(rel).replace("\\", "/")
+
+    for no_jax_dir in NO_JAX_DIRS:
+        if rel_str.startswith(no_jax_dir):
+            return "no_jax"
+    for mixed_dir in MIXED_BACKEND_DIRS:
+        if rel_str.startswith(mixed_dir):
+            return "mixed"
+    return "standard"
+
+
+def _banned_import_roots(policy: str) -> set[str]:
+    if policy == "mixed":
+        return STANDARD_BANNED_IMPORT_ROOTS - MIXED_BACKEND_ALLOWED_IMPORTS
+    if policy == "no_jax":
+        return (STANDARD_BANNED_IMPORT_ROOTS - MIXED_BACKEND_ALLOWED_IMPORTS) | NO_JAX_BANNED_IMPORTS
+    return set(STANDARD_BANNED_IMPORT_ROOTS)
+
+
 class FoundryVisitor(ast.NodeVisitor):
-    def __init__(self, path: Path) -> None:
+    def __init__(self, path: Path, policy: str) -> None:
         self.path = path
+        self.policy = policy
         self.violations: list[Violation] = []
+        self._banned_roots = _banned_import_roots(policy)
 
     def visit_Import(self, node: ast.Import) -> None:
         for alias in node.names:
             root = alias.name.split(".")[0]
-            if root in BANNED_IMPORT_ROOTS:
+            if root in self._banned_roots:
                 self.violations.append(
                     Violation(
                         path=self.path,
                         lineno=node.lineno,
-                        message=f"banned import: {alias.name}",
+                        message=f"banned import ({self.policy}): {alias.name}",
                     )
                 )
 
@@ -56,12 +109,12 @@ class FoundryVisitor(ast.NodeVisitor):
         if not node.module:
             return
         root = node.module.split(".")[0]
-        if root in BANNED_IMPORT_ROOTS:
+        if root in self._banned_roots:
             self.violations.append(
                 Violation(
                     path=self.path,
                     lineno=node.lineno,
-                    message=f"banned import: {node.module}",
+                    message=f"banned import ({self.policy}): {node.module}",
                 )
             )
 
@@ -110,8 +163,9 @@ def main() -> int:
     violations: list[Violation] = []
     for root in roots:
         for path in iter_py_files(root):
+            policy = _policy_for_file(path, root)
             tree = ast.parse(path.read_text(encoding="utf-8"))
-            visitor = FoundryVisitor(path)
+            visitor = FoundryVisitor(path, policy)
             visitor.visit(tree)
             violations.extend(visitor.violations)
 
@@ -127,3 +181,4 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+

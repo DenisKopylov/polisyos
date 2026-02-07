@@ -104,6 +104,44 @@ if not report.ok:
     print(f"Verification failed: {report.error}")
 ```
 
+### Cryptographic Signatures (Phase 6)
+
+CAS поддерживает detached sidecar подписи:
+
+```
+artifacts/sha256/ab/cd/<hex>.blob
+artifacts/sha256/ab/cd/<hex>.manifest.json
+artifacts/sha256/ab/cd/<hex>.sig
+```
+
+Подпись (`.sig`) создается Ed25519-ключом и подписывает canonical statement:
+- `artifact_id`
+- `blob_sha256`
+- `manifest_sha256`
+- `key_id`
+
+Пример API:
+
+```python
+from polisyos.core.artifacts.signing import Ed25519Signer, Ed25519Verifier
+
+signer = Ed25519Signer.from_env_or_file()
+sig = store.sign_artifact(artifact_id, signer, signer_identity="ci-prod")
+
+verifier = Ed25519Verifier(strict_identity=True)
+verifier.load_trust_dir(Path(".polisyos/keys/trusted"))
+verifier.load_revoked_dir(Path(".polisyos/keys/revoked"))
+result = store.verify_signature(artifact_id, verifier)
+assert result.status.value == "valid"
+```
+
+Bulk verify/sign:
+
+```python
+verify_report = store.verify_all_signatures(verifier, max_workers=8)
+sign_report = store.sign_all_artifacts(signer, only_unsigned=True, max_workers=8)
+```
+
 ### Dependency Graph и Replay Export
 
 ```python

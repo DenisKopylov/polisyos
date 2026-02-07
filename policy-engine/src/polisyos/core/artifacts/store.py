@@ -3,16 +3,17 @@ from __future__ import annotations
 import hashlib
 import json
 import os
-from pathlib import PurePosixPath
 import re
 import shutil
 import tarfile
+import threading
 import time
 import uuid
 from collections.abc import Iterable
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from io import BytesIO
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from typing import Any
 
 from pydantic import BaseModel
@@ -30,6 +31,19 @@ from .manifest import (
     IntegrityInfo,
     ProducerInfo,
     SchemaInfo,
+)
+from .signing import (
+    ArtifactSigningResult,
+    BulkSigningReport,
+    BulkVerificationReport,
+    DetachedSignature,
+    Ed25519Signer,
+    Ed25519Verifier,
+    SignatureVerificationResult,
+    SignatureVerificationStatus,
+    SigningConfig,
+    SigningError,
+    load_signer_from_config,
 )
 
 
@@ -81,13 +95,21 @@ class FileSystemCAS:
 
     CONNECTOR_CACHE_NAMESPACE = "connector_cache"
 
-    def __init__(self, root: Path):
+    def __init__(
+        self,
+        root: Path,
+        *,
+        signing_config: SigningConfig | None = None,
+    ):
         self.root = root
         self.base = root / "artifacts" / "sha256"
         self.base.mkdir(parents=True, exist_ok=True)
         self._hpc_enabled = is_hpc_observability_enabled()
         self._tracer = get_tracer() if self._hpc_enabled else None
         self._metrics = get_metrics() if self._hpc_enabled else None
+        self._signing_config = signing_config or SigningConfig.from_env()
+        self._default_signer: Ed25519Signer | None = None
+        self._signer_lock = threading.Lock()
 
     def _paths(self, artifact_id: ArtifactID) -> tuple[Path, Path]:
         hex64 = artifact_id.hex
@@ -100,6 +122,37 @@ class FileSystemCAS:
     def get_paths(self, artifact_id: ArtifactID) -> tuple[Path, Path]:
         """Public path helper for CAS tooling."""
         return self._paths(artifact_id)
+
+    def _sig_path(self, artifact_id: ArtifactID) -> Path:
+        hex64 = artifact_id.hex
+        d1, d2 = hex64[:2], hex64[2:4]
+        return self.base / d1 / d2 / f"{hex64}.sig"
+
+    def _ensure_default_signer(self) -> Ed25519Signer:
+        if self._default_signer is not None:
+            return self._default_signer
+        with self._signer_lock:
+            if self._default_signer is None:
+                self._default_signer = load_signer_from_config(self._signing_config)
+        return self._default_signer
+
+    def _maybe_sign_on_put(self, artifact_id: ArtifactID) -> None:
+        config = self._signing_config
+        if not (config.enabled and config.sign_on_put):
+            return
+        try:
+            if self.has_signature(artifact_id):
+                return
+            signer = self._ensure_default_signer()
+            self.sign_artifact(
+                artifact_id,
+                signer,
+                signer_identity=config.default_identity,
+            )
+        except Exception as exc:
+            if config.sign_on_put_policy.strip().lower() == "warn":
+                return
+            raise SigningError(f"Failed to sign artifact on put: {exc}") from exc
 
     def has(self, artifact_id: ArtifactID) -> bool:
         blob, manifest = self._paths(artifact_id)
@@ -164,6 +217,193 @@ class FileSystemCAS:
         _, manp = self._paths(artifact_id)
         return ArtifactManifest.model_validate_json(manp.read_text("utf-8"))
 
+    def get_manifest_bytes(self, artifact_id: ArtifactID) -> bytes:
+        _, manp = self._paths(artifact_id)
+        return manp.read_bytes()
+
+    def put_signature(self, artifact_id: ArtifactID, signature: DetachedSignature) -> Path:
+        if signature.artifact_id != str(artifact_id):
+            raise ValueError("signature artifact_id mismatch")
+        path = self._sig_path(artifact_id)
+        payload = signature.model_dump_json(
+            by_alias=True,
+            exclude_none=True,
+            indent=2,
+        ).encode("utf-8")
+        self._atomic_write(path, payload)
+        return path
+
+    def get_signature(self, artifact_id: ArtifactID) -> DetachedSignature | None:
+        path = self._sig_path(artifact_id)
+        if not path.exists():
+            return None
+        return DetachedSignature.model_validate_json(path.read_text("utf-8"))
+
+    def has_signature(self, artifact_id: ArtifactID) -> bool:
+        return self._sig_path(artifact_id).exists()
+
+    def sign_artifact(
+        self,
+        artifact_id: ArtifactID,
+        signer: Ed25519Signer,
+        *,
+        signer_identity: str | None = None,
+    ) -> DetachedSignature:
+        blob_data = self.get_bytes(artifact_id)
+        manifest_data = self.get_manifest_bytes(artifact_id)
+        signature = signer.sign(
+            artifact_id,
+            blob_data,
+            manifest_data,
+            signer_identity=signer_identity,
+        )
+        self.put_signature(artifact_id, signature)
+        return signature
+
+    def verify_signature(
+        self,
+        artifact_id: ArtifactID,
+        verifier: Ed25519Verifier,
+        *,
+        strict_identity: bool | None = None,
+    ) -> SignatureVerificationResult:
+        integrity = self.verify(artifact_id)
+        if not integrity.ok:
+            return SignatureVerificationResult(
+                status=SignatureVerificationStatus.ERROR,
+                artifact_id=str(artifact_id),
+                message=f"Artifact integrity verification failed: {integrity.error}",
+            )
+        try:
+            signature = self.get_signature(artifact_id)
+        except Exception as exc:
+            return SignatureVerificationResult(
+                status=SignatureVerificationStatus.ERROR,
+                artifact_id=str(artifact_id),
+                message=f"Invalid signature sidecar format: {exc}",
+            )
+        if signature is None:
+            return SignatureVerificationResult(
+                status=SignatureVerificationStatus.UNSIGNED,
+                artifact_id=str(artifact_id),
+                message="No detached signature sidecar found",
+            )
+        try:
+            blob_data = self.get_bytes(artifact_id)
+            manifest_data = self.get_manifest_bytes(artifact_id)
+        except Exception as exc:
+            return SignatureVerificationResult(
+                status=SignatureVerificationStatus.ERROR,
+                artifact_id=str(artifact_id),
+                key_id=signature.key_id,
+                signer_identity=signature.signer_identity,
+                message=f"Artifact read error: {exc}",
+            )
+        return verifier.verify(
+            artifact_id,
+            blob_data,
+            manifest_data,
+            signature,
+            strict_identity=strict_identity,
+        )
+
+    def sign_all_artifacts(
+        self,
+        signer: Ed25519Signer,
+        *,
+        artifact_ids: Iterable[ArtifactID] | None = None,
+        signer_identity: str | None = None,
+        only_unsigned: bool = True,
+        max_workers: int = 8,
+    ) -> BulkSigningReport:
+        ids = list(artifact_ids) if artifact_ids is not None else self.iter_artifact_ids()
+        details: list[ArtifactSigningResult] = []
+        signer_lock = threading.Lock()
+
+        def _sign_one(aid: ArtifactID) -> ArtifactSigningResult:
+            if only_unsigned and self.has_signature(aid):
+                return ArtifactSigningResult(
+                    artifact_id=str(aid),
+                    status="skipped",
+                    message="already signed",
+                )
+            try:
+                blob_data = self.get_bytes(aid)
+                manifest_data = self.get_manifest_bytes(aid)
+                with signer_lock:
+                    signature = signer.sign(
+                        aid,
+                        blob_data,
+                        manifest_data,
+                        signer_identity=signer_identity,
+                    )
+                self.put_signature(aid, signature)
+                return ArtifactSigningResult(
+                    artifact_id=str(aid),
+                    status="signed",
+                    key_id=signature.key_id,
+                )
+            except Exception as exc:
+                return ArtifactSigningResult(
+                    artifact_id=str(aid),
+                    status="error",
+                    message=str(exc),
+                )
+
+        workers = max(1, int(max_workers))
+        with ThreadPoolExecutor(max_workers=workers) as executor:
+            for result in executor.map(_sign_one, ids):
+                details.append(result)
+
+        signed = sum(1 for item in details if item.status == "signed")
+        skipped = sum(1 for item in details if item.status == "skipped")
+        errors = sum(1 for item in details if item.status == "error")
+        return BulkSigningReport(
+            total=len(ids),
+            signed=signed,
+            skipped=skipped,
+            errors=errors,
+            details=details,
+        )
+
+    def verify_all_signatures(
+        self,
+        verifier: Ed25519Verifier,
+        *,
+        artifact_ids: Iterable[ArtifactID] | None = None,
+        max_workers: int = 8,
+        strict_identity: bool | None = None,
+    ) -> BulkVerificationReport:
+        ids = list(artifact_ids) if artifact_ids is not None else self.iter_artifact_ids()
+        details: list[SignatureVerificationResult] = []
+
+        def _verify_one(aid: ArtifactID) -> SignatureVerificationResult:
+            return self.verify_signature(aid, verifier, strict_identity=strict_identity)
+
+        workers = max(1, int(max_workers))
+        with ThreadPoolExecutor(max_workers=workers) as executor:
+            for result in executor.map(_verify_one, ids):
+                details.append(result)
+
+        valid = sum(1 for item in details if item.status == SignatureVerificationStatus.VALID)
+        unsigned = sum(1 for item in details if item.status == SignatureVerificationStatus.UNSIGNED)
+        invalid = sum(1 for item in details if item.status == SignatureVerificationStatus.INVALID)
+        untrusted = sum(
+            1 for item in details if item.status == SignatureVerificationStatus.UNTRUSTED
+        )
+        revoked = sum(1 for item in details if item.status == SignatureVerificationStatus.REVOKED)
+        errors = sum(1 for item in details if item.status == SignatureVerificationStatus.ERROR)
+        return BulkVerificationReport(
+            total=len(ids),
+            valid=valid,
+            unsigned=unsigned,
+            invalid=invalid,
+            untrusted=untrusted,
+            revoked=revoked,
+            errors=errors,
+            details=details,
+        )
+
     def put_bytes(self, data: bytes, opts: PutOptions) -> ArtifactRef:
         sha = hashlib.sha256(data).hexdigest()
         aid = ArtifactID.from_sha256_hex(sha)
@@ -194,6 +434,7 @@ class FileSystemCAS:
                 ).encode("utf-8")
                 self._atomic_write(manp, man_bytes)
 
+            self._maybe_sign_on_put(aid)
             return ArtifactRef(artifact_id=aid, kind=opts.kind, media_type=opts.media_type)
 
         short_id = f"{aid.hex[:16]}..."
@@ -260,6 +501,7 @@ class FileSystemCAS:
             span.set_attribute("cas.deduplicated", deduplicated)
             span.set_attribute("cas.duration_seconds", duration)
 
+            self._maybe_sign_on_put(aid)
             return ArtifactRef(artifact_id=aid, kind=opts.kind, media_type=opts.media_type)
 
     def put_json(
@@ -429,11 +671,16 @@ class FileSystemCAS:
                             arc_manifest = str(manifest_path.relative_to(self.root))
                             tar.add(manifest_path, arcname=arc_manifest, recursive=False)
                             total_bytes += manifest_path.stat().st_size
+                    sig_path = self._sig_path(artifact_id)
+                    if sig_path.exists():
+                        arc_sig = str(sig_path.relative_to(self.root))
+                        tar.add(sig_path, arcname=arc_sig, recursive=False)
+                        total_bytes += sig_path.stat().st_size
                     exported += 1
 
                 meta_payload = {
                     "schema_version": "1.0",
-                    "cas_layout": "artifacts/sha256/ab/cd/<hex>.(blob|manifest.json)",
+                    "cas_layout": "artifacts/sha256/ab/cd/<hex>.(blob|manifest.json|sig)",
                     "exported_artifacts": exported,
                     "requested_artifacts": len(sorted_ids),
                 }
@@ -469,6 +716,12 @@ class FileSystemCAS:
                         dst_manifest.parent.mkdir(parents=True, exist_ok=True)
                         shutil.copy2(manifest_path, dst_manifest)
                         total_bytes += manifest_path.stat().st_size
+                sig_path = self._sig_path(artifact_id)
+                if sig_path.exists():
+                    dst_sig = target / sig_path.relative_to(self.root)
+                    dst_sig.parent.mkdir(parents=True, exist_ok=True)
+                    shutil.copy2(sig_path, dst_sig)
+                    total_bytes += sig_path.stat().st_size
                 exported += 1
 
             meta_path = target / "export_manifest.json"
@@ -476,7 +729,7 @@ class FileSystemCAS:
                 json.dumps(
                     {
                         "schema_version": "1.0",
-                        "cas_layout": "artifacts/sha256/ab/cd/<hex>.(blob|manifest.json)",
+                        "cas_layout": "artifacts/sha256/ab/cd/<hex>.(blob|manifest.json|sig)",
                         "exported_artifacts": exported,
                         "requested_artifacts": len(sorted_ids),
                     },
@@ -589,6 +842,8 @@ class FileSystemCAS:
             hex64 = file_name[: -len(".blob")]
         elif file_name.endswith(".manifest.json"):
             hex64 = file_name[: -len(".manifest.json")]
+        elif file_name.endswith(".sig"):
+            hex64 = file_name[: -len(".sig")]
         else:
             return None
         if not re.fullmatch(r"[0-9a-f]{64}", hex64):

@@ -19,6 +19,8 @@ data/curated/*
 
 # Custom artifacts (sha256, etc)
 .polisyos/
+.polisyos/keys/*.pem
+.polisyos/keys/**/private*.pem
 
 # Application logs
 logs/

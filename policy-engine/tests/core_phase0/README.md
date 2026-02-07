@@ -16,6 +16,9 @@ Core Phase 0 - фундаментальная инфраструктура си�
 core_phase0/
 ├── conftest.py                    # Специфичные fixtures для core + observability
 ├── test_artifact_store.py         # FileSystemCAS, дедупликация, integrity checks
+├── test_signing.py                # Ed25519 signing/verifying, trust/revocation/identity binding
+├── test_store_signing.py          # CAS integration: .sig sidecar, bulk sign/verify, sign_on_put
+├── test_cli_signing.py            # CLI e2e: keygen/sign/verify
 ├── test_canon_json.py             # Каноническая JSON сериализация, детерминированные хэши
 ├── test_decorators.py             # @traced декоратор для автоматической трассировки
 ├── test_environment_manifest.py   # Захват и сравнение environment манифестов

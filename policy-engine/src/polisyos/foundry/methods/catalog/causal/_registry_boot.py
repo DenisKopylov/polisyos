@@ -9,13 +9,30 @@ from polisyos.foundry.methods.catalog.causal.structural_time_series import Struc
 
 
 def register_causal_methods() -> Sequence[type]:
-    return (
+    methods: list[type] = [
         SyntheticControlMethod,
         DifferenceInDifferences,
         RegressionDiscontinuity,
         StructuralTimeSeries,
-    )
+    ]
+    try:
+        from polisyos.foundry.methods.catalog.causal.cate import CausalForestEstimator
+        from polisyos.foundry.methods.catalog.causal.dml import DoubleMachineLearning
+        from polisyos.foundry.methods.catalog.causal.meta_learners import MetaLearnerEstimator
+        from polisyos.foundry.methods.catalog.causal.policy_learning import OptimalPolicyLearner
+
+        methods.extend(
+            [
+                CausalForestEstimator,
+                DoubleMachineLearning,
+                MetaLearnerEstimator,
+                OptimalPolicyLearner,
+            ]
+        )
+    except ModuleNotFoundError as exc:
+        if exc.name not in {"econml", "shap"}:
+            raise
+    return tuple(methods)
 
 
 __all__ = ["register_causal_methods"]
-

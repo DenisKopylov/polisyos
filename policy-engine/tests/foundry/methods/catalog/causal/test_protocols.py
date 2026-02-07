@@ -4,6 +4,7 @@ import numpy as np
 import pytest
 
 from polisyos.foundry.methods.catalog.causal.protocols import (
+    HTEObservationalData,
     PanelObservationalData,
     RDDObservationalData,
 )
@@ -75,3 +76,22 @@ def test_causal_effect_report_to_envelope_failure_returns_non_gate_eligible_enve
     assert env is not None
     assert env.gate_eligible is False
     assert env.is_heuristic_ci is True
+
+
+def test_hte_observational_data_validates_shapes():
+    data = HTEObservationalData(
+        outcome=np.arange(50, dtype=float),
+        treatment=np.array([0, 1] * 25, dtype=int),
+        covariates=np.ones((50, 3), dtype=float),
+    )
+    assert data.n_obs == 50
+    assert data.n_features == 3
+
+
+def test_hte_observational_data_rejects_non_binary_treatment():
+    with pytest.raises(ValueError, match="binary"):
+        HTEObservationalData(
+            outcome=np.arange(50, dtype=float),
+            treatment=np.arange(50, dtype=int),
+            covariates=np.ones((50, 2), dtype=float),
+        )

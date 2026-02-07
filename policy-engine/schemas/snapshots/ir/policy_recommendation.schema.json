@@ -1,0 +1,197 @@
+{
+  "$defs": {
+    "TargetingRule": {
+      "additionalProperties": false,
+      "properties": {
+        "cumulative_budget_share": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Cumulative Budget Share",
+          "type": "number"
+        },
+        "expected_cate": {
+          "title": "Expected Cate",
+          "type": "number"
+        },
+        "expected_cost_per_unit": {
+          "minimum": 0.0,
+          "title": "Expected Cost Per Unit",
+          "type": "number"
+        },
+        "metadata": {
+          "additionalProperties": true,
+          "title": "Metadata",
+          "type": "object"
+        },
+        "n_eligible_units": {
+          "minimum": 0,
+          "title": "N Eligible Units",
+          "type": "integer"
+        },
+        "predicate": {
+          "minLength": 1,
+          "title": "Predicate",
+          "type": "string"
+        },
+        "predicate_human": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Predicate Human"
+        },
+        "priority": {
+          "minimum": 1,
+          "title": "Priority",
+          "type": "integer"
+        },
+        "rule_id": {
+          "minLength": 1,
+          "title": "Rule Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "rule_id",
+        "predicate",
+        "priority",
+        "expected_cate",
+        "expected_cost_per_unit",
+        "n_eligible_units",
+        "cumulative_budget_share"
+      ],
+      "title": "TargetingRule",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "budget_constraint": {
+      "anyOf": [
+        {
+          "minimum": 0.0,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Budget Constraint"
+    },
+    "cas_artifact_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Cas Artifact Id"
+    },
+    "hte_result_ref": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Hte Result Ref"
+    },
+    "metadata": {
+      "additionalProperties": true,
+      "title": "Metadata",
+      "type": "object"
+    },
+    "n_targeted_units": {
+      "default": 0,
+      "minimum": 0,
+      "title": "N Targeted Units",
+      "type": "integer"
+    },
+    "n_total_units": {
+      "default": 0,
+      "minimum": 0,
+      "title": "N Total Units",
+      "type": "integer"
+    },
+    "optimization_objective": {
+      "default": "maximize_total_effect",
+      "title": "Optimization Objective",
+      "type": "string"
+    },
+    "schema_version": {
+      "default": "1.0",
+      "pattern": "^\\d+\\.\\d+$",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "targeting_efficiency": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Targeting Efficiency"
+    },
+    "targeting_rules": {
+      "items": {
+        "$ref": "#/$defs/TargetingRule"
+      },
+      "title": "Targeting Rules",
+      "type": "array"
+    },
+    "total_cost": {
+      "default": 0.0,
+      "title": "Total Cost",
+      "type": "number"
+    },
+    "total_expected_effect": {
+      "default": 0.0,
+      "title": "Total Expected Effect",
+      "type": "number"
+    },
+    "tree_depth": {
+      "anyOf": [
+        {
+          "minimum": 1,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Tree Depth"
+    },
+    "tree_n_leaves": {
+      "anyOf": [
+        {
+          "minimum": 1,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Tree N Leaves"
+    }
+  },
+  "title": "PolicyRecommendation",
+  "type": "object"
+}

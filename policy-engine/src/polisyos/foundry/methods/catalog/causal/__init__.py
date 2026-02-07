@@ -11,8 +11,17 @@ from polisyos.ir.causal import (
 )
 
 from ._registry_boot import register_causal_methods
+from .cate import CausalForestEstimator
 from .did import DifferenceInDifferences
-from .protocols import CausalEstimator, PanelObservationalData, RDDObservationalData
+from .dml import DoubleMachineLearning
+from .meta_learners import MetaLearnerEstimator
+from .policy_learning import OptimalPolicyLearner
+from .protocols import (
+    CausalEstimator,
+    HTEObservationalData,
+    PanelObservationalData,
+    RDDObservationalData,
+)
 from .rdd import RegressionDiscontinuity
 from .scm import SyntheticControlMethod
 from .structural_time_series import StructuralTimeSeries
@@ -35,11 +44,16 @@ __all__ = [
     "PlaceboResult",
     "CausalEstimator",
     "PanelObservationalData",
+    "HTEObservationalData",
     "RDDObservationalData",
     "SyntheticControlMethod",
     "DifferenceInDifferences",
     "RegressionDiscontinuity",
     "StructuralTimeSeries",
+    "CausalForestEstimator",
+    "DoubleMachineLearning",
+    "MetaLearnerEstimator",
+    "OptimalPolicyLearner",
     "register_causal_methods",
     "ensure_causal_methods_registered",
 ]

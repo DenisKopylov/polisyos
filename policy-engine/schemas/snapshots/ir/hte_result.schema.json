@@ -1,0 +1,339 @@
+{
+  "$defs": {
+    "CausalMethod": {
+      "enum": [
+        "synthetic_control",
+        "difference_in_differences",
+        "regression_discontinuity",
+        "structural_time_series",
+        "causal_forest",
+        "double_ml",
+        "s_learner",
+        "t_learner",
+        "x_learner",
+        "policy_tree"
+      ],
+      "title": "CausalMethod",
+      "type": "string"
+    },
+    "FeatureImportance": {
+      "additionalProperties": false,
+      "properties": {
+        "feature_name": {
+          "minLength": 1,
+          "title": "Feature Name",
+          "type": "string"
+        },
+        "importance_rank": {
+          "minimum": 1,
+          "title": "Importance Rank",
+          "type": "integer"
+        },
+        "importance_score": {
+          "title": "Importance Score",
+          "type": "number"
+        },
+        "metadata": {
+          "additionalProperties": true,
+          "title": "Metadata",
+          "type": "object"
+        },
+        "method": {
+          "default": "tree_based",
+          "title": "Method",
+          "type": "string"
+        }
+      },
+      "required": [
+        "feature_name",
+        "importance_score",
+        "importance_rank"
+      ],
+      "title": "FeatureImportance",
+      "type": "object"
+    },
+    "SubgroupEffect": {
+      "additionalProperties": false,
+      "properties": {
+        "cate_ci_lower": {
+          "title": "Cate Ci Lower",
+          "type": "number"
+        },
+        "cate_ci_upper": {
+          "title": "Cate Ci Upper",
+          "type": "number"
+        },
+        "cate_mean": {
+          "title": "Cate Mean",
+          "type": "number"
+        },
+        "cate_std": {
+          "minimum": 0.0,
+          "title": "Cate Std",
+          "type": "number"
+        },
+        "confidence_level": {
+          "default": 0.95,
+          "exclusiveMaximum": 1.0,
+          "exclusiveMinimum": 0.0,
+          "title": "Confidence Level",
+          "type": "number"
+        },
+        "is_significant": {
+          "default": false,
+          "title": "Is Significant",
+          "type": "boolean"
+        },
+        "metadata": {
+          "additionalProperties": true,
+          "title": "Metadata",
+          "type": "object"
+        },
+        "n_units": {
+          "minimum": 0,
+          "title": "N Units",
+          "type": "integer"
+        },
+        "p_value": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "P Value"
+        },
+        "subgroup_id": {
+          "minLength": 1,
+          "title": "Subgroup Id",
+          "type": "string"
+        },
+        "subgroup_label": {
+          "minLength": 1,
+          "title": "Subgroup Label",
+          "type": "string"
+        },
+        "subgroup_label_human": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Subgroup Label Human"
+        },
+        "subgroup_query": {
+          "minLength": 1,
+          "title": "Subgroup Query",
+          "type": "string"
+        }
+      },
+      "required": [
+        "subgroup_id",
+        "subgroup_label",
+        "subgroup_query",
+        "n_units",
+        "cate_mean",
+        "cate_std",
+        "cate_ci_lower",
+        "cate_ci_upper"
+      ],
+      "title": "SubgroupEffect",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "ate": {
+      "title": "Ate",
+      "type": "number"
+    },
+    "ate_ci_lower": {
+      "title": "Ate Ci Lower",
+      "type": "number"
+    },
+    "ate_ci_upper": {
+      "title": "Ate Ci Upper",
+      "type": "number"
+    },
+    "ate_p_value": {
+      "anyOf": [
+        {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Ate P Value"
+    },
+    "cas_artifact_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Cas Artifact Id"
+    },
+    "cate_ci_lower_values": {
+      "items": {
+        "type": "number"
+      },
+      "title": "Cate Ci Lower Values",
+      "type": "array"
+    },
+    "cate_ci_upper_values": {
+      "items": {
+        "type": "number"
+      },
+      "title": "Cate Ci Upper Values",
+      "type": "array"
+    },
+    "cate_std_values": {
+      "items": {
+        "type": "number"
+      },
+      "title": "Cate Std Values",
+      "type": "array"
+    },
+    "cate_values": {
+      "items": {
+        "type": "number"
+      },
+      "title": "Cate Values",
+      "type": "array"
+    },
+    "causal_effect_report_ref": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Causal Effect Report Ref"
+    },
+    "confidence_level": {
+      "default": 0.95,
+      "exclusiveMaximum": 1.0,
+      "exclusiveMinimum": 0.0,
+      "title": "Confidence Level",
+      "type": "number"
+    },
+    "econml_estimator_class": {
+      "default": "",
+      "title": "Econml Estimator Class",
+      "type": "string"
+    },
+    "econml_params": {
+      "additionalProperties": true,
+      "title": "Econml Params",
+      "type": "object"
+    },
+    "feature_display_map": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "title": "Feature Display Map",
+      "type": "object"
+    },
+    "feature_importances": {
+      "items": {
+        "$ref": "#/$defs/FeatureImportance"
+      },
+      "title": "Feature Importances",
+      "type": "array"
+    },
+    "feature_names": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Feature Names",
+      "type": "array"
+    },
+    "feature_transformations": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "title": "Feature Transformations",
+      "type": "object"
+    },
+    "metadata": {
+      "additionalProperties": true,
+      "title": "Metadata",
+      "type": "object"
+    },
+    "method": {
+      "$ref": "#/$defs/CausalMethod"
+    },
+    "model_fit_metrics": {
+      "additionalProperties": {
+        "type": "number"
+      },
+      "title": "Model Fit Metrics",
+      "type": "object"
+    },
+    "n_control": {
+      "default": 0,
+      "minimum": 0,
+      "title": "N Control",
+      "type": "integer"
+    },
+    "n_features": {
+      "default": 0,
+      "minimum": 0,
+      "title": "N Features",
+      "type": "integer"
+    },
+    "n_samples": {
+      "default": 0,
+      "minimum": 0,
+      "title": "N Samples",
+      "type": "integer"
+    },
+    "n_treated": {
+      "default": 0,
+      "minimum": 0,
+      "title": "N Treated",
+      "type": "integer"
+    },
+    "schema_version": {
+      "default": "1.0",
+      "pattern": "^\\d+\\.\\d+$",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "subgroup_effects": {
+      "items": {
+        "$ref": "#/$defs/SubgroupEffect"
+      },
+      "title": "Subgroup Effects",
+      "type": "array"
+    }
+  },
+  "required": [
+    "method",
+    "ate",
+    "ate_ci_lower",
+    "ate_ci_upper"
+  ],
+  "title": "HTEResult",
+  "type": "object"
+}

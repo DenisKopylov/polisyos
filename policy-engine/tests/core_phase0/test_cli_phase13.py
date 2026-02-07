@@ -139,3 +139,46 @@ def test_cli_sensitivity_run_json_output(tmp_path: Path, capsys, monkeypatch) ->
     payload = json.loads(out)
     assert payload["method"] == "morris"
     assert payload["cas_artifact_id"]
+
+
+def test_cli_backtest_json_output(tmp_path: Path, capsys) -> None:
+    history = {"tax_revenue": [10.0, 11.0, 12.0, 12.5]}
+    history_path = tmp_path / "history.json"
+    history_path.write_text(json.dumps(history), encoding="utf-8")
+
+    config = {
+        "plans": [
+            {
+                "plan_id": "bt_cli_1",
+                "plan_label": "CLI backtest",
+                "historical_data_path": str(history_path),
+                "intervention_step": 2,
+                "ground_truth_outcomes": {"tax_revenue": [12.6, 12.8]},
+                "target_metrics": ["tax_revenue"],
+                "prediction_source": "provided",
+                "predicted_outcomes": {"tax_revenue": [12.5, 12.7]},
+            }
+        ]
+    }
+    config_path = tmp_path / "backtest.json"
+    config_path.write_text(json.dumps(config), encoding="utf-8")
+
+    code = main(
+        [
+            "scientist",
+            "backtest",
+            "--config",
+            str(config_path),
+            "--format",
+            "json",
+            "--cas-root",
+            str(tmp_path / ".polisyos"),
+        ]
+    )
+    out = capsys.readouterr().out
+
+    assert code == 0
+    payload = json.loads(out)
+    assert payload["report_id"]
+    assert payload["n_scenarios"] == 1
+    assert payload["cas_artifact_id"]

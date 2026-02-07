@@ -36,7 +36,7 @@ def default_workflow_spec() -> WorkflowSpec:
             ),
             NodeInvocation(
                 alias="run_causal_evaluation",
-                node_id="scientist.node_run_causal_evaluation@1.0.0",
+                node_id="scientist.node_run_causal_evaluation@1.1.0",
                 depends_on=["build_data_snapshot"],
             ),
             NodeInvocation(
@@ -56,7 +56,7 @@ def default_workflow_spec() -> WorkflowSpec:
             ),
             NodeInvocation(
                 alias="build_decision_packet",
-                node_id="scientist.node_build_decision_packet@1.3.0",
+                node_id="scientist.node_build_decision_packet@1.4.0",
                 depends_on=["run_governance", "run_causal_evaluation"],
             ),
         ],

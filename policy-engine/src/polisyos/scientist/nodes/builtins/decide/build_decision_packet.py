@@ -9,20 +9,23 @@ from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
-from polisyos.core.contracts.distributional import DistributionalReportRef
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
+from polisyos.core.contracts.distributional import DistributionalReportRef
 from polisyos.core.contracts.fabric import DataSnapshot
 from polisyos.core.contracts.foundry import Metrics, SimulationResult
 from polisyos.core.contracts.scientist import DecisionPacketRef
 from polisyos.core.contracts.uncertainty import UncertaintyEnvelopeRef
+from polisyos.ir.backtest import load_backtest_report
 from polisyos.ir.causal import CausalEffectReport
 from polisyos.ir.distributional import load_distributional_report
+from polisyos.ir.hte import load_hte_result, load_policy_recommendation
 from polisyos.ir.uncertainty import load_uncertainty_envelope
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.protocol import NodeOutcome, NodeSpec
 from polisyos.scientist.engine.state import ExperimentState
 from polisyos.scientist.governance.report import GovernanceReport
 from polisyos.scientist.nodes.builtins.state_keys import (
+    ARTIFACT_BACKTEST_REPORT_REF,
     ARTIFACT_CAUSAL_ENVELOPE_REF,
     ARTIFACT_CAUSAL_REPORT_REF,
     ARTIFACT_DECISION_CARD_REF,
@@ -33,11 +36,13 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_ECONOMETRIC_RESULT_REF,
     ARTIFACT_ENVIRONMENT_MANIFEST_REF,
     ARTIFACT_EXEC_PLAN_REF,
+    ARTIFACT_HTE_RESULT_REF,
     ARTIFACT_METRICS_REF,
     ARTIFACT_NORM_IMPACT_REPORT_REF,
+    ARTIFACT_POLICY_RECOMMENDATION_REF,
     ARTIFACT_PROGRAM_GRAPH_REF,
-    ARTIFACT_SIMULATION_RESULT_REF,
     ARTIFACT_SENSITIVITY_RESULT_REF,
+    ARTIFACT_SIMULATION_RESULT_REF,
     ARTIFACT_STATE_SNAPSHOT_REF,
     ARTIFACT_STRESS_TEST_REPORT_REF,
     INPUT_DATA_SNAPSHOT_REF,
@@ -53,7 +58,7 @@ from polisyos.scientist.nodes.builtins.state_keys import (
 )
 
 _METADATA = ComponentMetadata(
-    component_id=ComponentId.parse("scientist.node_build_decision_packet@1.3.0"),
+    component_id=ComponentId.parse("scientist.node_build_decision_packet@1.4.0"),
     kind=ComponentKind.SCIENTIST_NODE,
     abi_targets={"world_abi": "1.x"},
     display_name="Build Decision Packet",
@@ -114,6 +119,7 @@ class BuildDecisionPacketNode:
         artifacts_section = _build_artifacts_section(state.artifacts_index, state.reports_index)
         readiness = _compute_replay_readiness(inputs_section)
         strategy_hint = _determine_strategy_hint(inputs_section, artifacts_section)
+        backtest_section = _build_backtest_section(ctx, state.artifacts_index)
 
         packet_payload: dict[str, object] = {
             "schema_version": "3.1",
@@ -131,6 +137,9 @@ class BuildDecisionPacketNode:
             "uncertainty": _build_uncertainty_section(ctx, state.inputs, state.artifacts_index),
             "uncertainty_bounds": None,
             "causal": _build_causal_section(ctx, state.artifacts_index),
+            "hte": _build_hte_section(ctx, state.artifacts_index),
+            "targeting": _build_targeting_section(ctx, state.artifacts_index),
+            "backtest": backtest_section,
             "distributional": _build_distributional_section(ctx, state.artifacts_index),
             "econometrics": _build_econometrics_section(ctx, state.artifacts_index),
             "norm_impact": _build_aux_artifact_section(
@@ -157,6 +166,11 @@ class BuildDecisionPacketNode:
             },
             "notes": [],
         }
+        if isinstance(backtest_section, dict):
+            packet_payload["trust_profile"] = {
+                "backtest_trust_score": backtest_section.get("trust_score"),
+                "backtest_trust_grade": backtest_section.get("trust_grade"),
+            }
 
         metrics_ref = state.artifacts_index.get(ARTIFACT_METRICS_REF)
         if metrics_ref is not None:
@@ -248,6 +262,11 @@ def _build_artifacts_section(
         REPORT_LINK_REPORT_REF: _ref_from_dict(reports_index, REPORT_LINK_REPORT_REF),
         ARTIFACT_CAUSAL_REPORT_REF: _ref_from_dict(artifacts_index, ARTIFACT_CAUSAL_REPORT_REF),
         ARTIFACT_CAUSAL_ENVELOPE_REF: _ref_from_dict(artifacts_index, ARTIFACT_CAUSAL_ENVELOPE_REF),
+        ARTIFACT_HTE_RESULT_REF: _ref_from_dict(artifacts_index, ARTIFACT_HTE_RESULT_REF),
+        ARTIFACT_POLICY_RECOMMENDATION_REF: _ref_from_dict(
+            artifacts_index, ARTIFACT_POLICY_RECOMMENDATION_REF
+        ),
+        ARTIFACT_BACKTEST_REPORT_REF: _ref_from_dict(artifacts_index, ARTIFACT_BACKTEST_REPORT_REF),
         ARTIFACT_DISTRIBUTIONAL_REPORT_REF: _ref_from_dict(
             artifacts_index, ARTIFACT_DISTRIBUTIONAL_REPORT_REF
         ),
@@ -313,6 +332,116 @@ def _build_causal_section(
         except Exception:
             payload["parse_warning"] = "causal_report_parse_failed"
 
+    return payload
+
+
+def _build_hte_section(
+    ctx: ExecutionContext,
+    artifacts_index: dict[str, ArtifactRef],
+) -> dict[str, object] | None:
+    hte_ref = artifacts_index.get(ARTIFACT_HTE_RESULT_REF)
+    if hte_ref is None:
+        return None
+    from polisyos.core.contracts.hte import HTEResultRef
+
+    payload: dict[str, object] = {"result_ref": str(hte_ref.artifact_id)}
+    try:
+        result = load_hte_result(
+            ctx.store,
+            HTEResultRef(artifact_id=hte_ref.artifact_id),
+        )
+        payload.update(
+            {
+                "method": result.method.value,
+                "ate": result.ate,
+                "ate_ci_lower": result.ate_ci_lower,
+                "ate_ci_upper": result.ate_ci_upper,
+                "n_samples": result.n_samples,
+                "n_features": result.n_features,
+                "n_subgroups": len(result.subgroup_effects),
+                "top_features": [
+                    item.model_dump(mode="json")
+                    for item in sorted(
+                        result.feature_importances, key=lambda x: x.importance_rank
+                    )[:5]
+                ],
+                "warnings": result.metadata.get("warnings", []),
+            }
+        )
+    except Exception:
+        payload["parse_warning"] = "hte_result_parse_failed"
+    return payload
+
+
+def _build_targeting_section(
+    ctx: ExecutionContext,
+    artifacts_index: dict[str, ArtifactRef],
+) -> dict[str, object] | None:
+    recommendation_ref = artifacts_index.get(ARTIFACT_POLICY_RECOMMENDATION_REF)
+    if recommendation_ref is None:
+        return None
+    from polisyos.core.contracts.hte import PolicyRecommendationRef
+
+    payload: dict[str, object] = {"recommendation_ref": str(recommendation_ref.artifact_id)}
+    try:
+        recommendation = load_policy_recommendation(
+            ctx.store,
+            PolicyRecommendationRef(artifact_id=recommendation_ref.artifact_id),
+        )
+        payload.update(
+            {
+                "budget_constraint": recommendation.budget_constraint,
+                "optimization_objective": recommendation.optimization_objective,
+                "n_targeted_units": recommendation.n_targeted_units,
+                "n_total_units": recommendation.n_total_units,
+                "total_expected_effect": recommendation.total_expected_effect,
+                "total_cost": recommendation.total_cost,
+                "targeting_efficiency": recommendation.targeting_efficiency,
+                "rules": [
+                    rule.model_dump(mode="json")
+                    for rule in sorted(recommendation.targeting_rules, key=lambda r: r.priority)
+                ],
+            }
+        )
+    except Exception:
+        payload["parse_warning"] = "policy_recommendation_parse_failed"
+    return payload
+
+
+def _build_backtest_section(
+    ctx: ExecutionContext,
+    artifacts_index: dict[str, ArtifactRef],
+) -> dict[str, object] | None:
+    backtest_ref = artifacts_index.get(ARTIFACT_BACKTEST_REPORT_REF)
+    if backtest_ref is None:
+        return None
+    from polisyos.core.contracts.backtest import BacktestReportRef
+
+    payload: dict[str, object] = {"report_ref": str(backtest_ref.artifact_id)}
+    try:
+        report = load_backtest_report(
+            ctx.store,
+            BacktestReportRef(artifact_id=backtest_ref.artifact_id),
+        )
+        payload.update(
+            {
+                "report_id": report.report_id,
+                "n_scenarios": report.n_scenarios,
+                "n_metrics_evaluated": report.n_metrics_evaluated,
+                "overall_rmse": report.overall_rmse,
+                "overall_mae": report.overall_mae,
+                "overall_mape": report.overall_mape,
+                "overall_coverage_probability": report.overall_coverage_probability,
+                "overall_bias_direction": report.overall_bias_direction.value,
+                "detected_biases": [
+                    bias.model_dump(mode="json") for bias in report.detected_biases
+                ],
+                "trust_score": report.trust_score,
+                "trust_grade": report.trust_grade,
+            }
+        )
+    except Exception:
+        payload["parse_warning"] = "backtest_report_parse_failed"
     return payload
 
 
@@ -482,6 +611,9 @@ def _build_manifest_inputs(packet_payload: dict[str, object]) -> list[InputRef]:
         ("inputs", "input"),
         ("artifacts", "artifact"),
         ("uncertainty", "uncertainty"),
+        ("hte", "hte"),
+        ("targeting", "targeting"),
+        ("backtest", "backtest"),
         ("distributional", "distributional"),
         ("econometrics", "econometrics"),
         ("norm_impact", "norm_impact"),

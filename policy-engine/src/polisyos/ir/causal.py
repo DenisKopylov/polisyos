@@ -26,6 +26,12 @@ class CausalMethod(str, Enum):
     DIFFERENCE_IN_DIFFERENCES = "difference_in_differences"
     REGRESSION_DISCONTINUITY = "regression_discontinuity"
     STRUCTURAL_TIME_SERIES = "structural_time_series"
+    CAUSAL_FOREST = "causal_forest"
+    DOUBLE_ML = "double_ml"
+    S_LEARNER = "s_learner"
+    T_LEARNER = "t_learner"
+    X_LEARNER = "x_learner"
+    POLICY_TREE = "policy_tree"
 
 
 class EstimationStatus(str, Enum):

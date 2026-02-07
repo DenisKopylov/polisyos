@@ -1,0 +1,466 @@
+{
+  "$defs": {
+    "BacktestScenario": {
+      "additionalProperties": false,
+      "properties": {
+        "coverage_probability": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Coverage Probability"
+        },
+        "data_source": {
+          "default": "",
+          "title": "Data Source",
+          "type": "string"
+        },
+        "intervention_date": {
+          "default": "",
+          "title": "Intervention Date",
+          "type": "string"
+        },
+        "jurisdiction": {
+          "default": "",
+          "title": "Jurisdiction",
+          "type": "string"
+        },
+        "mae": {
+          "anyOf": [
+            {
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Mae"
+        },
+        "mape": {
+          "anyOf": [
+            {
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Mape"
+        },
+        "metadata": {
+          "additionalProperties": true,
+          "title": "Metadata",
+          "type": "object"
+        },
+        "outcome_comparisons": {
+          "items": {
+            "$ref": "#/$defs/OutcomeComparison"
+          },
+          "title": "Outcome Comparisons",
+          "type": "array"
+        },
+        "rmse": {
+          "anyOf": [
+            {
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Rmse"
+        },
+        "scenario_id": {
+          "minLength": 1,
+          "title": "Scenario Id",
+          "type": "string"
+        },
+        "scenario_label": {
+          "minLength": 1,
+          "title": "Scenario Label",
+          "type": "string"
+        }
+      },
+      "required": [
+        "scenario_id",
+        "scenario_label"
+      ],
+      "title": "BacktestScenario",
+      "type": "object"
+    },
+    "BiasDirection": {
+      "enum": [
+        "optimistic",
+        "pessimistic",
+        "neutral",
+        "mixed"
+      ],
+      "title": "BiasDirection",
+      "type": "string"
+    },
+    "OutcomeComparison": {
+      "additionalProperties": false,
+      "properties": {
+        "absolute_error": {
+          "minimum": 0.0,
+          "title": "Absolute Error",
+          "type": "number"
+        },
+        "ci_lower": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Ci Lower"
+        },
+        "ci_upper": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Ci Upper"
+        },
+        "metric_name": {
+          "minLength": 1,
+          "title": "Metric Name",
+          "type": "string"
+        },
+        "relative_error": {
+          "anyOf": [
+            {
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Relative Error"
+        },
+        "within_ci": {
+          "default": false,
+          "title": "Within Ci",
+          "type": "boolean"
+        },
+        "y_pred": {
+          "title": "Y Pred",
+          "type": "number"
+        },
+        "y_true": {
+          "title": "Y True",
+          "type": "number"
+        }
+      },
+      "required": [
+        "metric_name",
+        "y_pred",
+        "y_true",
+        "absolute_error"
+      ],
+      "title": "OutcomeComparison",
+      "type": "object"
+    },
+    "SystematicBias": {
+      "additionalProperties": false,
+      "properties": {
+        "affected_metrics": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Affected Metrics",
+          "type": "array"
+        },
+        "bias_type": {
+          "minLength": 1,
+          "title": "Bias Type",
+          "type": "string"
+        },
+        "description": {
+          "default": "",
+          "title": "Description",
+          "type": "string"
+        },
+        "direction": {
+          "$ref": "#/$defs/BiasDirection"
+        },
+        "magnitude": {
+          "minimum": 0.0,
+          "title": "Magnitude",
+          "type": "number"
+        },
+        "metadata": {
+          "additionalProperties": true,
+          "title": "Metadata",
+          "type": "object"
+        },
+        "p_value": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "P Value"
+        },
+        "statistical_test": {
+          "default": "",
+          "title": "Statistical Test",
+          "type": "string"
+        }
+      },
+      "required": [
+        "bias_type",
+        "direction",
+        "magnitude"
+      ],
+      "title": "SystematicBias",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "backtest_config_ref": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Backtest Config Ref"
+    },
+    "cas_artifact_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Cas Artifact Id"
+    },
+    "decision_packet_ref": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Decision Packet Ref"
+    },
+    "detected_biases": {
+      "items": {
+        "$ref": "#/$defs/SystematicBias"
+      },
+      "title": "Detected Biases",
+      "type": "array"
+    },
+    "historical_data_ref": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Historical Data Ref"
+    },
+    "metadata": {
+      "additionalProperties": true,
+      "title": "Metadata",
+      "type": "object"
+    },
+    "model_spec_ref": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Model Spec Ref"
+    },
+    "n_metrics_evaluated": {
+      "default": 0,
+      "minimum": 0,
+      "title": "N Metrics Evaluated",
+      "type": "integer"
+    },
+    "n_scenarios": {
+      "default": 0,
+      "minimum": 0,
+      "title": "N Scenarios",
+      "type": "integer"
+    },
+    "overall_bias_direction": {
+      "$ref": "#/$defs/BiasDirection",
+      "default": "neutral"
+    },
+    "overall_coverage_probability": {
+      "anyOf": [
+        {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Overall Coverage Probability"
+    },
+    "overall_mae": {
+      "anyOf": [
+        {
+          "minimum": 0.0,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Overall Mae"
+    },
+    "overall_mape": {
+      "anyOf": [
+        {
+          "minimum": 0.0,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Overall Mape"
+    },
+    "overall_r_squared": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Overall R Squared"
+    },
+    "overall_rmse": {
+      "anyOf": [
+        {
+          "minimum": 0.0,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Overall Rmse"
+    },
+    "policy_spec_ref": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Policy Spec Ref"
+    },
+    "report_id": {
+      "minLength": 1,
+      "title": "Report Id",
+      "type": "string"
+    },
+    "scenarios": {
+      "items": {
+        "$ref": "#/$defs/BacktestScenario"
+      },
+      "title": "Scenarios",
+      "type": "array"
+    },
+    "schema_version": {
+      "default": "1.0",
+      "pattern": "^\\d+\\.\\d+$",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "trust_grade": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Trust Grade"
+    },
+    "trust_score": {
+      "anyOf": [
+        {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Trust Score"
+    }
+  },
+  "required": [
+    "report_id"
+  ],
+  "title": "BacktestReport",
+  "type": "object"
+}

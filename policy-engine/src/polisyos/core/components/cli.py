@@ -66,6 +66,8 @@ def main(argv: list[str] | None = None) -> int:
         return _cmd_scientist_sensitivity_run(args)
     if args.command == "scientist" and args.scientist_command == "stress-test":
         return _cmd_scientist_stress_test(args)
+    if args.command == "scientist" and args.scientist_command == "backtest":
+        return _cmd_scientist_backtest(args)
     if args.command == "replay":
         return _cmd_replay(args)
     if args.command == "resume":
@@ -151,6 +153,9 @@ def _build_parser() -> argparse.ArgumentParser:
     stress_test.add_argument("--output", default=None)
     stress_test.add_argument("--format", choices=["json"], default="json")
     stress_test.add_argument("--cas-root", default=".polisyos")
+
+    backtesting_cli = importlib.import_module("polisyos.scientist.backtesting.cli")
+    backtesting_cli.add_backtest_subparser(scientist_sub)
 
     cmd_replay = components.add_parser("replay")
     cmd_replay.add_argument("packet_ref", help="DecisionPacket ref (sha256:<hex> or <hex>)")
@@ -648,6 +653,19 @@ def _cmd_scientist_stress_test(args: argparse.Namespace) -> int:
     else:
         print(rendered)
     return 0
+
+
+def _cmd_scientist_backtest(args: argparse.Namespace) -> int:
+    try:
+        backtesting_cli = importlib.import_module("polisyos.scientist.backtesting.cli")
+        code, rendered = backtesting_cli.run_backtest_command(args)
+    except Exception as exc:
+        print(f"ERROR: backtest failed: {exc}", file=sys.stderr)
+        return 1
+
+    if rendered:
+        print(rendered)
+    return code
 
 
 def _validate_output_extension(output_path: str | None, output_format: str) -> None:

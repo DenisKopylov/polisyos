@@ -63,6 +63,16 @@ __all__ = [
     "WinnersLosersEntry",
     "WinnersLosersTable",
     "DistributionalReport",
+    "SubgroupEffect",
+    "FeatureImportance",
+    "HTEResult",
+    "TargetingRule",
+    "PolicyRecommendation",
+    "BiasDirection",
+    "OutcomeComparison",
+    "SystematicBias",
+    "BacktestScenario",
+    "BacktestReport",
 ]
 
 _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
@@ -125,6 +135,16 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "WinnersLosersEntry": ("polisyos.ir.distributional", "WinnersLosersEntry"),
     "WinnersLosersTable": ("polisyos.ir.distributional", "WinnersLosersTable"),
     "DistributionalReport": ("polisyos.ir.distributional", "DistributionalReport"),
+    "SubgroupEffect": ("polisyos.ir.hte", "SubgroupEffect"),
+    "FeatureImportance": ("polisyos.ir.hte", "FeatureImportance"),
+    "HTEResult": ("polisyos.ir.hte", "HTEResult"),
+    "TargetingRule": ("polisyos.ir.hte", "TargetingRule"),
+    "PolicyRecommendation": ("polisyos.ir.hte", "PolicyRecommendation"),
+    "BiasDirection": ("polisyos.ir.backtest", "BiasDirection"),
+    "OutcomeComparison": ("polisyos.ir.backtest", "OutcomeComparison"),
+    "SystematicBias": ("polisyos.ir.backtest", "SystematicBias"),
+    "BacktestScenario": ("polisyos.ir.backtest", "BacktestScenario"),
+    "BacktestReport": ("polisyos.ir.backtest", "BacktestReport"),
 }
 
 

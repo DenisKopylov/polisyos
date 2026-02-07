@@ -177,6 +177,27 @@ IR_ABI_MODELS: tuple[ABIModelEntry, ...] = (
         priority=Priority.P1,
     ),
     ABIModelEntry(
+        abi_key="hte_result",
+        fqn="polisyos.ir.hte.HTEResult",
+        module="ir",
+        schema_file="hte_result.schema.json",
+        priority=Priority.P1,
+    ),
+    ABIModelEntry(
+        abi_key="policy_recommendation",
+        fqn="polisyos.ir.hte.PolicyRecommendation",
+        module="ir",
+        schema_file="policy_recommendation.schema.json",
+        priority=Priority.P1,
+    ),
+    ABIModelEntry(
+        abi_key="backtest_report",
+        fqn="polisyos.ir.backtest.BacktestReport",
+        module="ir",
+        schema_file="backtest_report.schema.json",
+        priority=Priority.P1,
+    ),
+    ABIModelEntry(
         abi_key="fact",
         fqn="polisyos.ir.fact_log.Fact",
         module="ir",

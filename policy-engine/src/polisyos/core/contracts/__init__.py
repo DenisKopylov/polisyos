@@ -1,3 +1,4 @@
+from .backtest import BacktestReportRef
 from .causal import CausalEffectReportRef
 from .compiler import CompileReportRef, LinkReportRef
 from .distributional import DistributionalReportRef
@@ -47,6 +48,7 @@ from .foundry import (
     TreasurySeed,
     TreasurySeedRef,
 )
+from .hte import HTEResultRef, PolicyRecommendationRef
 from .lex import (
     ChangeProposal,
     ChangeProposalRef,
@@ -155,6 +157,9 @@ __all__ = [
     "SensitivityResultRef",
     "StressTestReportRef",
     "UncertaintyEnvelopeRef",
+    "BacktestReportRef",
+    "HTEResultRef",
+    "PolicyRecommendationRef",
     "ProblemFrameRef",
     "PolicySpecRef",
     "ModelSpecRef",

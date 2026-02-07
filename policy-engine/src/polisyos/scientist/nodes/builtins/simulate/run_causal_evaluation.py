@@ -7,11 +7,18 @@ from polisyos.core.artifacts.manifest import InputRef
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.foundry.methods.catalog.causal import (
+    HTEObservationalData,
     PanelObservationalData,
     RDDObservationalData,
     ensure_causal_methods_registered,
 )
 from polisyos.ir.causal import CausalEffectReport, persist_causal_effect_report
+from polisyos.ir.hte import (
+    HTEResult,
+    PolicyRecommendation,
+    persist_hte_result,
+    persist_policy_recommendation,
+)
 from polisyos.ir.uncertainty import UncertaintyEnvelope, persist_uncertainty_envelope
 from polisyos.scientist.compute.job_spec import JobSpec
 from polisyos.scientist.compute.runner import run_job
@@ -24,10 +31,12 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CAUSAL_METHOD_EVIDENCE_REF,
     ARTIFACT_CAUSAL_METHOD_RESULT_REF,
     ARTIFACT_CAUSAL_REPORT_REF,
+    ARTIFACT_HTE_RESULT_REF,
+    ARTIFACT_POLICY_RECOMMENDATION_REF,
 )
 
 _METADATA = ComponentMetadata(
-    component_id=ComponentId.parse("scientist.node_run_causal_evaluation@1.0.0"),
+    component_id=ComponentId.parse("scientist.node_run_causal_evaluation@1.1.0"),
     kind=ComponentKind.SCIENTIST_NODE,
     abi_targets={"world_abi": "1.x"},
     display_name="Run Causal Evaluation",
@@ -52,18 +61,26 @@ _SPEC = NodeSpec(
         f"artifacts_index.{ARTIFACT_CAUSAL_ENVELOPE_REF}",
         f"artifacts_index.{ARTIFACT_CAUSAL_METHOD_RESULT_REF}",
         f"artifacts_index.{ARTIFACT_CAUSAL_METHOD_EVIDENCE_REF}",
+        f"artifacts_index.{ARTIFACT_HTE_RESULT_REF}",
+        f"artifacts_index.{ARTIFACT_POLICY_RECOMMENDATION_REF}",
     ],
     produces=[
         ARTIFACT_CAUSAL_REPORT_REF,
         ARTIFACT_CAUSAL_ENVELOPE_REF,
         ARTIFACT_CAUSAL_METHOD_RESULT_REF,
         ARTIFACT_CAUSAL_METHOD_EVIDENCE_REF,
+        ARTIFACT_HTE_RESULT_REF,
+        ARTIFACT_POLICY_RECOMMENDATION_REF,
     ],
 )
 
 
 def _is_rdd_method(method_fqn: str) -> bool:
     return "regression_discontinuity" in method_fqn
+
+
+def _is_hte_method(method_fqn: str) -> bool:
+    return method_fqn.startswith("causal.hte.") or method_fqn.startswith("causal.targeting.")
 
 
 def _coerce_method_params(raw: Any) -> dict[str, Any]:
@@ -76,11 +93,13 @@ def _load_observational_data(
     ctx: ExecutionContext,
     state: ExperimentState,
     method_fqn: str,
-) -> PanelObservationalData | RDDObservationalData:
+) -> PanelObservationalData | RDDObservationalData | HTEObservationalData:
     assert state.observational_data_ref is not None
     payload = from_canonical_bytes(ctx.store.get_bytes(state.observational_data_ref.artifact_id))
     if _is_rdd_method(method_fqn):
         return RDDObservationalData.model_validate(payload)
+    if _is_hte_method(method_fqn):
+        return HTEObservationalData.model_validate(payload)
     return PanelObservationalData.model_validate(payload)
 
 
@@ -186,6 +205,26 @@ class RunCausalEvaluationNode:
                 inputs=input_refs or None,
             )
 
+        hte_ref = None
+        hte_raw = output.get("hte_result")
+        if hte_raw is not None:
+            hte_result = HTEResult.model_validate(hte_raw)
+            hte_ref = persist_hte_result(
+                ctx.store,
+                hte_result,
+                inputs=input_refs or None,
+            )
+
+        recommendation_ref = None
+        recommendation_raw = output.get("policy_recommendation")
+        if recommendation_raw is not None:
+            recommendation = PolicyRecommendation.model_validate(recommendation_raw)
+            recommendation_ref = persist_policy_recommendation(
+                ctx.store,
+                recommendation,
+                inputs=input_refs or None,
+            )
+
         new_state = state.model_copy(deep=True)
         new_state.artifacts_index[ARTIFACT_CAUSAL_REPORT_REF] = report_ref
         if envelope_ref is not None:
@@ -196,6 +235,10 @@ class RunCausalEvaluationNode:
             new_state.artifacts_index[ARTIFACT_CAUSAL_METHOD_EVIDENCE_REF] = (
                 result.method_evidence_ref
             )
+        if hte_ref is not None:
+            new_state.artifacts_index[ARTIFACT_HTE_RESULT_REF] = hte_ref
+        if recommendation_ref is not None:
+            new_state.artifacts_index[ARTIFACT_POLICY_RECOMMENDATION_REF] = recommendation_ref
 
         produced = [report_ref]
         if envelope_ref is not None:
@@ -204,6 +247,10 @@ class RunCausalEvaluationNode:
             produced.append(result.method_result_ref)
         if result.method_evidence_ref is not None:
             produced.append(result.method_evidence_ref)
+        if hte_ref is not None:
+            produced.append(hte_ref)
+        if recommendation_ref is not None:
+            produced.append(recommendation_ref)
 
         return NodeOutcome(
             status="ok",

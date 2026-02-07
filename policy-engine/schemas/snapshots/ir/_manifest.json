@@ -1,8 +1,20 @@
 {
-  "content_hash": "300b7d93fe254199a154f002f038420b8f9ed1361389a816f1342006466b9876",
-  "generated_at": "2026-02-07T14:19:33+00:00",
+  "content_hash": "57551dbc8227c86dc2e4fda55242d2306ab7c897b7b6ee975ad51a2c5b2dd5b6",
+  "generated_at": "2026-02-07T15:03:45+00:00",
   "generator_version": "1.0.0",
   "models": {
+    "backtest_report": {
+      "aliases": [],
+      "compat_mode": "strict",
+      "fqn": "polisyos.ir.backtest.BacktestReport",
+      "lifecycle": "active",
+      "priority": "p1",
+      "schema_file": "backtest_report.schema.json",
+      "schema_version": "1.0",
+      "sha256_full": "a4b1884cc1b87204698524594f22f2b053606ff87126c367364749227ff02b4c",
+      "sha256_semantic": "2738691d503e1e73772e0017fd6d3b73f17a8d006ed06de352ed972778fba7ba",
+      "version_field": "schema_version"
+    },
     "calibration_config": {
       "aliases": [],
       "compat_mode": "strict",
@@ -23,8 +35,8 @@
       "priority": "p1",
       "schema_file": "causal_effect_report.schema.json",
       "schema_version": "1.0",
-      "sha256_full": "3125f239550df56b93081b8af1f09377072aad8a564e7b3c6c82382031abdbbb",
-      "sha256_semantic": "d40c664626dbe71764bec601f7ddba35ecf15604f39c7208d87d042f3a78138c",
+      "sha256_full": "3cfaec020d2a00a905ac6493623faaff82bedf346ef4ff476a8b78adda68e7a4",
+      "sha256_semantic": "d61af06e6360a25a7230d8cc7d03c5eacedf40e82e2b88a53c4fbaf5ca08463e",
       "version_field": "schema_version"
     },
     "claim": {
@@ -195,6 +207,18 @@
       "sha256_semantic": "b8be9ae6a1cb679f094886a19d96e2698e925569dbf28336e98d7edc8ee75d02",
       "version_field": "schema_version"
     },
+    "hte_result": {
+      "aliases": [],
+      "compat_mode": "strict",
+      "fqn": "polisyos.ir.hte.HTEResult",
+      "lifecycle": "active",
+      "priority": "p1",
+      "schema_file": "hte_result.schema.json",
+      "schema_version": "1.0",
+      "sha256_full": "a4d1bf7220c4bccb0597349d38ac8ddc19d3221103f467de0856e7d3ff627c96",
+      "sha256_semantic": "4fe705ea143d0e44b1841279acc6780afced98642cac47d67f726b8a1d42953d",
+      "version_field": "schema_version"
+    },
     "model_spec": {
       "aliases": [],
       "compat_mode": "strict",
@@ -241,6 +265,18 @@
       "schema_version": "1.0",
       "sha256_full": "d0597d4e38535d3614e34df9927506888b4d3109cfbfc87376caef176fab79d2",
       "sha256_semantic": "d2a3999b42afa103f0e1382d45c8eb55387b345a7bf5ef283bbd49c5d52c5583",
+      "version_field": "schema_version"
+    },
+    "policy_recommendation": {
+      "aliases": [],
+      "compat_mode": "strict",
+      "fqn": "polisyos.ir.hte.PolicyRecommendation",
+      "lifecycle": "active",
+      "priority": "p1",
+      "schema_file": "policy_recommendation.schema.json",
+      "schema_version": "1.0",
+      "sha256_full": "7357183f909d134d086d4a2ed92bcf98b6409a2b8d1c6e61de1e6fdbf885e566",
+      "sha256_semantic": "f6613dff659fdb6466ca4cb0f1dbdc773e13741dbfffaa653582167b35188b8c",
       "version_field": "schema_version"
     },
     "policy_spec": {

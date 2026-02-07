@@ -183,6 +183,109 @@ class PanelObservationalData(BaseModel):
         )
 
 
+class HTEObservationalData(BaseModel):
+    """Cross-sectional observational data for HTE estimators."""
+
+    model_config = ConfigDict(extra="forbid", arbitrary_types_allowed=True)
+
+    outcome: Any  # shape: (n_obs,)
+    treatment: Any  # shape: (n_obs,)
+    covariates: Any  # shape: (n_obs, n_features)
+    confounders: Any | None = None  # shape: (n_obs, n_confounders)
+    feature_names: list[str] | None = None
+    confounder_names: list[str] | None = None
+    sample_ids: Any | None = None  # shape: (n_obs,)
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+    @field_validator(
+        "outcome",
+        "treatment",
+        "covariates",
+        "confounders",
+        "sample_ids",
+        mode="before",
+    )
+    @classmethod
+    def _coerce_numpy(cls, value: Any) -> Any:
+        if value is None:
+            return None
+        return _to_numpy(value)
+
+    @model_validator(mode="after")
+    def _validate_shapes(self) -> "HTEObservationalData":
+        if not isinstance(self.outcome, np.ndarray) or self.outcome.ndim != 1:
+            raise ValueError("outcome must be a 1D numpy array")
+        if not isinstance(self.treatment, np.ndarray) or self.treatment.ndim != 1:
+            raise ValueError("treatment must be a 1D numpy array")
+        if not isinstance(self.covariates, np.ndarray) or self.covariates.ndim != 2:
+            raise ValueError("covariates must be a 2D numpy array")
+
+        n_obs = self.outcome.shape[0]
+        if self.treatment.shape[0] != n_obs:
+            raise ValueError("treatment length must match outcome length")
+        if self.covariates.shape[0] != n_obs:
+            raise ValueError("covariates row count must match outcome length")
+        if n_obs < 40:
+            raise ValueError("HTE data requires at least 40 observations")
+        if self.covariates.shape[1] < 1:
+            raise ValueError("covariates must contain at least one feature")
+
+        if not np.isfinite(self.outcome).all():
+            raise ValueError("outcome contains non-finite values")
+        if not np.isin(self.treatment, [0, 1]).all():
+            raise ValueError("treatment vector must be binary (0/1)")
+        if not np.isfinite(self.covariates).all():
+            raise ValueError("covariates contains non-finite values")
+
+        if self.confounders is not None:
+            if not isinstance(self.confounders, np.ndarray) or self.confounders.ndim != 2:
+                raise ValueError("confounders must be a 2D numpy array")
+            if self.confounders.shape[0] != n_obs:
+                raise ValueError("confounders row count must match outcome length")
+            if not np.isfinite(self.confounders).all():
+                raise ValueError("confounders contains non-finite values")
+
+        if self.feature_names is not None and len(self.feature_names) != self.covariates.shape[1]:
+            raise ValueError("feature_names length must match covariates column count")
+
+        if (
+            self.confounders is not None
+            and self.confounder_names is not None
+            and len(self.confounder_names) != self.confounders.shape[1]
+        ):
+            raise ValueError("confounder_names length must match confounders column count")
+
+        if self.sample_ids is not None:
+            if not isinstance(self.sample_ids, np.ndarray) or self.sample_ids.ndim != 1:
+                raise ValueError("sample_ids must be a 1D array")
+            if self.sample_ids.shape[0] != n_obs:
+                raise ValueError("sample_ids length must match outcome length")
+
+        return self
+
+    @field_serializer(
+        "outcome",
+        "treatment",
+        "covariates",
+        "confounders",
+        "sample_ids",
+        mode="plain",
+        when_used="json",
+    )
+    def _serialize_numpy_fields(self, value: Any) -> Any:
+        if isinstance(value, np.ndarray):
+            return value.tolist()
+        return value
+
+    @property
+    def n_obs(self) -> int:
+        return int(self.outcome.shape[0])
+
+    @property
+    def n_features(self) -> int:
+        return int(self.covariates.shape[1])
+
+
 class RDDObservationalData(BaseModel):
     """Cross-sectional data for Regression Discontinuity Design."""
 
@@ -234,7 +337,7 @@ class CausalEstimator(Protocol):
 
     @staticmethod
     def pure_step(
-        state: PanelObservationalData | RDDObservationalData,
+        state: PanelObservationalData | RDDObservationalData | HTEObservationalData,
         params: Mapping[str, Any],
     ) -> dict[str, Any]:
         """
@@ -251,6 +354,7 @@ def envelope_from_report(report: CausalEffectReport) -> "UncertaintyEnvelope | N
 
 __all__ = [
     "PanelObservationalData",
+    "HTEObservationalData",
     "RDDObservationalData",
     "CausalEstimator",
     "CausalEffectReport",

@@ -5,7 +5,13 @@
         "synthetic_control",
         "difference_in_differences",
         "regression_discontinuity",
-        "structural_time_series"
+        "structural_time_series",
+        "causal_forest",
+        "double_ml",
+        "s_learner",
+        "t_learner",
+        "x_learner",
+        "policy_tree"
       ],
       "title": "CausalMethod",
       "type": "string"

@@ -12,7 +12,9 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.artifacts.manifest import SchemaInfo
+from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.canon import CanonSpec
 from polisyos.core.artifacts.signing import (
     DEFAULT_IDENTITIES_PATH,
     DEFAULT_PRIVATE_KEY_ENV,
@@ -54,6 +56,16 @@ def main(argv: list[str] | None = None) -> int:
         return _cmd_scholar_enrich(args)
     if args.command == "lex" and args.lex_command == "normpack" and args.lex_normpack_command == "build":
         return _cmd_lex_normpack_build(args)
+    if args.command == "lex" and args.lex_command == "impact":
+        return _cmd_lex_impact(args)
+    if (
+        args.command == "scientist"
+        and args.scientist_command == "sensitivity"
+        and args.scientist_sensitivity_command == "run"
+    ):
+        return _cmd_scientist_sensitivity_run(args)
+    if args.command == "scientist" and args.scientist_command == "stress-test":
+        return _cmd_scientist_stress_test(args)
     if args.command == "replay":
         return _cmd_replay(args)
     if args.command == "resume":
@@ -113,6 +125,32 @@ def _build_parser() -> argparse.ArgumentParser:
     build_normpack.add_argument("--as-of", default=datetime.now(timezone.utc).date().isoformat())
     build_normpack.add_argument("--cas-root", default=".polisyos/cas")
     build_normpack.add_argument("--fact-log-root", default=".polisyos/facts")
+
+    impact = lex_sub.add_parser("impact")
+    impact.add_argument("old_ref", help="Old NormPack artifact id or JSON file path")
+    impact.add_argument("new_ref", help="New NormPack artifact id or JSON file path")
+    impact.add_argument("--passes", default="legal,safety")
+    impact.add_argument("--profile", choices=["fast", "mvp", "strict"], default="strict")
+    impact.add_argument("--format", choices=["json", "md"], default="md")
+    impact.add_argument("--output", default=None)
+    impact.add_argument("--cas-root", default=".polisyos")
+
+    cmd_scientist = components.add_parser("scientist")
+    scientist_sub = cmd_scientist.add_subparsers(dest="scientist_command")
+
+    sensitivity = scientist_sub.add_parser("sensitivity")
+    sensitivity_sub = sensitivity.add_subparsers(dest="scientist_sensitivity_command")
+    sensitivity_run = sensitivity_sub.add_parser("run")
+    sensitivity_run.add_argument("--config", required=True, help="JSON config path")
+    sensitivity_run.add_argument("--output", default=None)
+    sensitivity_run.add_argument("--format", choices=["json"], default="json")
+    sensitivity_run.add_argument("--cas-root", default=".polisyos")
+
+    stress_test = scientist_sub.add_parser("stress-test")
+    stress_test.add_argument("--config", required=True, help="JSON config path")
+    stress_test.add_argument("--output", default=None)
+    stress_test.add_argument("--format", choices=["json"], default="json")
+    stress_test.add_argument("--cas-root", default=".polisyos")
 
     cmd_replay = components.add_parser("replay")
     cmd_replay.add_argument("packet_ref", help="DecisionPacket ref (sha256:<hex> or <hex>)")
@@ -426,6 +464,292 @@ def _cmd_lex_normpack_build(args: argparse.Namespace) -> int:
     print(f"norm_pack_world_id={result.norm_pack_world_id}")
     print(f"built_by={result.built_by}")
     return 0
+
+
+def _cmd_lex_impact(args: argparse.Namespace) -> int:
+    try:
+        _validate_output_extension(args.output, args.format)
+    except ValueError as exc:
+        print(f"ERROR: {exc}", file=sys.stderr)
+        return 2
+
+    lex_sim = importlib.import_module("polisyos.lex.simulator")
+    lex_sim_cli = importlib.import_module("polisyos.lex.simulator.cli")
+    governance_profiles = importlib.import_module("polisyos.scientist.governance.profiles")
+
+    ValidationProfile = governance_profiles.ValidationProfile
+    profile = getattr(ValidationProfile, args.profile)()
+
+    pass_ids = tuple(
+        token.strip()
+        for token in str(args.passes).split(",")
+        if token.strip()
+    )
+    if not pass_ids:
+        print("ERROR: --passes cannot be empty", file=sys.stderr)
+        return 2
+
+    cas = FileSystemCAS(Path(args.cas_root))
+    try:
+        old_pack = lex_sim_cli.load_norm_pack(cas, args.old_ref)
+        new_pack = lex_sim_cli.load_norm_pack(cas, args.new_ref)
+    except Exception as exc:
+        print(f"ERROR: failed to load NormPack(s): {exc}", file=sys.stderr)
+        return 1
+
+    analyzer = lex_sim.NormImpactAnalyzer(
+        cas=cas,
+        profile=profile,
+        passes=pass_ids,
+    )
+    report = analyzer.analyze(old_pack, new_pack)
+
+    rendered: str
+    if args.format == "json":
+        rendered = report.model_dump_json(indent=2)
+    else:
+        rendered = lex_sim_cli.render_impact_markdown(report)
+
+    if args.output:
+        Path(args.output).write_text(rendered, encoding="utf-8")
+        print(f"impact_report={args.output}")
+    else:
+        print(rendered)
+    return 0
+
+
+def _cmd_scientist_sensitivity_run(args: argparse.Namespace) -> int:
+    try:
+        _validate_output_extension(args.output, args.format)
+    except ValueError as exc:
+        print(f"ERROR: {exc}", file=sys.stderr)
+        return 2
+
+    payload = json.loads(Path(args.config).read_text(encoding="utf-8"))
+    doe_designs = importlib.import_module("polisyos.scientist.doe.designs")
+    doe_sampling = importlib.import_module("polisyos.scientist.doe.sampling")
+    doe_analysis = importlib.import_module("polisyos.scientist.doe.analysis")
+
+    plan_data = payload.get("plan", payload)
+    try:
+        plan = doe_designs.SensitivityPlan.model_validate(plan_data)
+    except Exception as exc:
+        print(f"ERROR: invalid sensitivity plan: {exc}", file=sys.stderr)
+        return 2
+
+    import numpy as np
+
+    if "samples" in payload:
+        samples = np.asarray(payload["samples"], dtype=float)
+    else:
+        try:
+            samples = doe_sampling.generate_sensitivity_samples(plan)
+        except Exception as exc:
+            print(f"ERROR: failed to generate sensitivity samples: {exc}", file=sys.stderr)
+            return 1
+
+    if "outputs" in payload:
+        outputs = np.asarray(payload["outputs"], dtype=float)
+    else:
+        try:
+            outputs = _evaluate_builtin_sensitivity_objective(samples, payload.get("objective"))
+        except Exception as exc:
+            print(f"ERROR: failed to evaluate built-in objective: {exc}", file=sys.stderr)
+            return 2
+
+    try:
+        result = doe_analysis.analyze_sensitivity(plan, samples, outputs)
+    except Exception as exc:
+        print(f"ERROR: sensitivity analysis failed: {exc}", file=sys.stderr)
+        return 1
+
+    cas = FileSystemCAS(Path(args.cas_root))
+    ref = cas.put_json(
+        result.model_dump(mode="json"),
+        PutOptions(
+            kind="scientist.sensitivity_result",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.scientist.SensitivityResult", version="1.0"),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+
+    out_payload = result.model_dump(mode="json")
+    out_payload["cas_artifact_id"] = str(ref.artifact_id)
+
+    rendered = json.dumps(out_payload, ensure_ascii=True, indent=2, sort_keys=True)
+    if args.output:
+        Path(args.output).write_text(rendered, encoding="utf-8")
+        print(f"sensitivity_report={args.output}")
+    else:
+        print(rendered)
+    return 0
+
+
+def _cmd_scientist_stress_test(args: argparse.Namespace) -> int:
+    try:
+        _validate_output_extension(args.output, args.format)
+    except ValueError as exc:
+        print(f"ERROR: {exc}", file=sys.stderr)
+        return 2
+
+    payload = json.loads(Path(args.config).read_text(encoding="utf-8"))
+    doe_designs = importlib.import_module("polisyos.scientist.doe.designs")
+    search_objective = importlib.import_module("polisyos.scientist.search.objective")
+    search_adversarial = importlib.import_module("polisyos.scientist.search.adversarial")
+
+    plan_data = payload.get("plan", payload)
+    try:
+        plan = doe_designs.AdversarialPlan.model_validate(plan_data)
+    except Exception as exc:
+        print(f"ERROR: invalid adversarial plan: {exc}", file=sys.stderr)
+        return 2
+
+    param_names = [item.name for item in plan.parameter_specs]
+    objective_spec = payload.get("objective") if isinstance(payload, dict) else None
+
+    objective_callable = _build_builtin_objective_callable(param_names, objective_spec)
+    composite_objective = search_objective.CompositeObjective(
+        [_CallableObjective(name="stress_objective", fn=objective_callable)]
+    )
+
+    class _RandomGenerator:
+        def __init__(self, specs: list[Any], seed: int | None):
+            import random
+
+            self._specs = specs
+            self._rng = random.Random(seed)
+
+        def generate(self, history: list[Any], current_best: dict[str, Any] | None, context: dict[str, Any]):
+            del history, current_best, context
+            candidate: dict[str, Any] = {"semantic": {"interventions": []}}
+            for spec in self._specs:
+                candidate[spec.name] = self._rng.uniform(spec.lower_bound, spec.upper_bound)
+            return candidate
+
+    def _stage_b(candidate: dict[str, Any], context: dict[str, Any]) -> dict[str, Any]:
+        del context
+        return {"simulation_results": {"stress_objective": objective_callable(candidate)}}
+
+    cas = FileSystemCAS(Path(args.cas_root))
+    report = search_adversarial.run_stress_test(
+        adversarial_plan=plan,
+        base_objective=composite_objective,
+        stage_b_evaluator=_stage_b,
+        candidate_generator=_RandomGenerator(plan.parameter_specs, plan.seed),
+        context={},
+        cas=cas,
+    )
+
+    rendered = json.dumps(report.model_dump(mode="json"), ensure_ascii=True, indent=2, sort_keys=True)
+    if args.output:
+        Path(args.output).write_text(rendered, encoding="utf-8")
+        print(f"stress_report={args.output}")
+    else:
+        print(rendered)
+    return 0
+
+
+def _validate_output_extension(output_path: str | None, output_format: str) -> None:
+    if not output_path:
+        return
+    expected = ".json" if output_format == "json" else ".md"
+    suffix = Path(output_path).suffix.lower()
+    if suffix and suffix != expected:
+        raise ValueError(
+            f"output extension '{suffix}' does not match --format {output_format!r} "
+            f"(expected '{expected}')"
+        )
+
+
+def _evaluate_builtin_sensitivity_objective(samples, objective_spec: Any):
+    import numpy as np
+
+    if objective_spec is None:
+        objective_type = "quadratic"
+        spec = {}
+    elif isinstance(objective_spec, str):
+        objective_type = objective_spec
+        spec = {}
+    elif isinstance(objective_spec, dict):
+        objective_type = str(objective_spec.get("type", "quadratic"))
+        spec = objective_spec
+    else:
+        raise ValueError("objective must be null, string, or object")
+
+    if objective_type == "ishigami":
+        if samples.shape[1] < 3:
+            raise ValueError("ishigami objective requires at least 3 parameters")
+        a = float(spec.get("a", 7.0))
+        b = float(spec.get("b", 0.1))
+        x1 = samples[:, 0]
+        x2 = samples[:, 1]
+        x3 = samples[:, 2]
+        return np.sin(x1) + a * (np.sin(x2) ** 2) + b * (x3**4) * np.sin(x1)
+
+    if objective_type == "quadratic":
+        return np.sum(samples**2, axis=1)
+
+    raise ValueError(f"unsupported built-in objective type: {objective_type}")
+
+
+def _build_builtin_objective_callable(
+    parameter_names: list[str],
+    objective_spec: Any,
+):
+    if objective_spec is None:
+        objective_spec = {"type": "quadratic"}
+    if isinstance(objective_spec, str):
+        objective_spec = {"type": objective_spec}
+    if not isinstance(objective_spec, dict):
+        raise ValueError("objective must be null, string, or object")
+
+    objective_type = str(objective_spec.get("type", "quadratic"))
+    center = objective_spec.get("center")
+    if not isinstance(center, dict):
+        center = {}
+    weights = objective_spec.get("weights")
+    if not isinstance(weights, dict):
+        weights = {}
+
+    def _objective(candidate: dict[str, Any]) -> float:
+        total = 0.0
+        for name in parameter_names:
+            value = float(candidate.get(name, 0.0))
+            c = float(center.get(name, 0.0))
+            w = float(weights.get(name, 1.0))
+            total += w * ((value - c) ** 2)
+        if objective_type == "negative_quadratic":
+            return -total
+        if objective_type == "quadratic":
+            return total
+        raise ValueError(f"unsupported built-in objective type: {objective_type}")
+
+    return _objective
+
+
+class _CallableObjective:
+    def __init__(self, name: str, fn):
+        self._name = name
+        self._fn = fn
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    @property
+    def direction(self):
+        objective_module = importlib.import_module("polisyos.scientist.search.objective")
+        return objective_module.OptimizationDirection.MINIMIZE
+
+    def evaluate(self, results: dict[str, Any]):
+        objective_module = importlib.import_module("polisyos.scientist.search.objective")
+        value = float(results.get("stress_objective", 0.0))
+        return objective_module.ObjectiveValue(
+            name=self._name,
+            raw_value=value,
+            direction=objective_module.OptimizationDirection.MINIMIZE,
+        )
 
 
 def _cmd_replay(args: argparse.Namespace) -> int:

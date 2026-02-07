@@ -12,6 +12,8 @@ search/
 ├── objective.py     # Composite objectives (GDP, inequality, employment)
 ├── stages.py        # Cheap/expensive evaluation stages
 ├── stopping.py      # Intelligent stopping criteria
+├── adversarial.py   # Stress-test/adversarial orchestration
+├── sensitivity_adapter.py # Sensitivity-aware candidate decorator
 └── strategies/      # Advanced search strategies (random/grid/BO/MO + adapter)
 ```
 

@@ -35,6 +35,19 @@ from .types import (
     NormPackBuildResult,
     WorldEventRefLike,
 )
+from .simulator import (
+    AffectedKPI,
+    ComplianceDelta,
+    ComplianceTransition,
+    MutationIntent,
+    NormChange,
+    NormChangeType,
+    NormDiff,
+    NormImpactAnalyzer,
+    NormImpactReport,
+    NormPackMutator,
+    diff_norm_packs,
+)
 
 __all__ = [
     "ActiveVersionResult",
@@ -59,6 +72,17 @@ __all__ = [
     "NormPackBuildRequest",
     "NormPackBuildResult",
     "NormPackBudgets",
+    "MutationIntent",
+    "NormPackMutator",
+    "NormChangeType",
+    "NormChange",
+    "NormDiff",
+    "NormImpactAnalyzer",
+    "NormImpactReport",
+    "ComplianceTransition",
+    "ComplianceDelta",
+    "AffectedKPI",
+    "diff_norm_packs",
     "WorldEventRefLike",
     "assemble_norm_pack",
     "build_legal_structure",

@@ -28,9 +28,12 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_ENVIRONMENT_MANIFEST_REF,
     ARTIFACT_EXEC_PLAN_REF,
     ARTIFACT_METRICS_REF,
+    ARTIFACT_NORM_IMPACT_REPORT_REF,
     ARTIFACT_PROGRAM_GRAPH_REF,
     ARTIFACT_SIMULATION_RESULT_REF,
+    ARTIFACT_SENSITIVITY_RESULT_REF,
     ARTIFACT_STATE_SNAPSHOT_REF,
+    ARTIFACT_STRESS_TEST_REPORT_REF,
     INPUT_DATA_SNAPSHOT_REF,
     INPUT_KNOWLEDGE_BUNDLE_REF,
     INPUT_NORM_PACK_REF,
@@ -122,6 +125,15 @@ class BuildDecisionPacketNode:
             "uncertainty": _build_uncertainty_section(ctx, state.inputs, state.artifacts_index),
             "uncertainty_bounds": None,
             "causal": _build_causal_section(ctx, state.artifacts_index),
+            "norm_impact": _build_aux_artifact_section(
+                ctx, state.artifacts_index, ARTIFACT_NORM_IMPACT_REPORT_REF
+            ),
+            "sensitivity": _build_aux_artifact_section(
+                ctx, state.artifacts_index, ARTIFACT_SENSITIVITY_RESULT_REF
+            ),
+            "stress_test": _build_aux_artifact_section(
+                ctx, state.artifacts_index, ARTIFACT_STRESS_TEST_REPORT_REF
+            ),
             "inputs": inputs_section,
             "artifacts": artifacts_section,
             "replay": {
@@ -229,6 +241,15 @@ def _build_artifacts_section(
         ARTIFACT_CAUSAL_REPORT_REF: _ref_from_dict(artifacts_index, ARTIFACT_CAUSAL_REPORT_REF),
         ARTIFACT_CAUSAL_ENVELOPE_REF: _ref_from_dict(artifacts_index, ARTIFACT_CAUSAL_ENVELOPE_REF),
         ARTIFACT_DECISION_CARD_REF: _ref_from_dict(artifacts_index, ARTIFACT_DECISION_CARD_REF),
+        ARTIFACT_NORM_IMPACT_REPORT_REF: _ref_from_dict(
+            artifacts_index, ARTIFACT_NORM_IMPACT_REPORT_REF
+        ),
+        ARTIFACT_SENSITIVITY_RESULT_REF: _ref_from_dict(
+            artifacts_index, ARTIFACT_SENSITIVITY_RESULT_REF
+        ),
+        ARTIFACT_STRESS_TEST_REPORT_REF: _ref_from_dict(
+            artifacts_index, ARTIFACT_STRESS_TEST_REPORT_REF
+        ),
     }
 
 
@@ -275,6 +296,26 @@ def _build_causal_section(
     return payload
 
 
+def _build_aux_artifact_section(
+    ctx: ExecutionContext,
+    artifacts_index: dict[str, ArtifactRef],
+    key: str,
+) -> dict[str, object] | None:
+    ref = artifacts_index.get(key)
+    if ref is None:
+        return None
+    payload: dict[str, object] = {"ref": str(ref.artifact_id)}
+    try:
+        artifact_obj = from_canonical_bytes(ctx.store.get_bytes(ref.artifact_id))
+        if isinstance(artifact_obj, dict):
+            payload["content"] = artifact_obj
+        else:
+            payload["content_type"] = type(artifact_obj).__name__
+    except Exception:
+        payload["parse_warning"] = "artifact_parse_failed"
+    return payload
+
+
 def _compute_replay_readiness(inputs_section: dict[str, str | None]) -> ReplayReadiness:
     missing_required = [key for key in _REQUIRED_INPUT_KEYS if inputs_section.get(key) is None]
     has_snapshot = bool(
@@ -313,6 +354,9 @@ def _build_manifest_inputs(packet_payload: dict[str, object]) -> list[InputRef]:
         ("inputs", "input"),
         ("artifacts", "artifact"),
         ("uncertainty", "uncertainty"),
+        ("norm_impact", "norm_impact"),
+        ("sensitivity", "sensitivity"),
+        ("stress_test", "stress_test"),
     ):
         section = packet_payload.get(section_name)
         _collect_manifest_refs(section, prefix, collected)

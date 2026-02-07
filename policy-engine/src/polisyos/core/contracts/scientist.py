@@ -156,6 +156,20 @@ class CheckpointRef(ScientistArtifactRef):
     node_alias: str = Field(description="Last completed node alias")
 
 
+class SensitivityResultRef(ScientistArtifactRef):
+    """Reference to a stored sensitivity analysis result artifact."""
+
+    kind: Literal["scientist.sensitivity_result"] = "scientist.sensitivity_result"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class StressTestReportRef(ScientistArtifactRef):
+    """Reference to a stored stress-test report artifact."""
+
+    kind: Literal["scientist.stress_test_report"] = "scientist.stress_test_report"
+    media_type: Literal["application/json"] = "application/json"
+
+
 __all__ = [
     "ScientistArtifactRef",
     "ExperimentStateRef",
@@ -168,4 +182,6 @@ __all__ = [
     "TimelineRef",
     "DecisionCardRef",
     "CheckpointRef",
+    "SensitivityResultRef",
+    "StressTestReportRef",
 ]

@@ -139,6 +139,16 @@ class ChangeProposalRef(ArtifactRef):
     media_type: Literal["application/json"] = "application/json"
 
 
+class NormDiffRef(ArtifactRef):
+    kind: Literal["lex.norm_diff"] = "lex.norm_diff"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class NormImpactReportRef(ArtifactRef):
+    kind: Literal["lex.norm_impact_report"] = "lex.norm_impact_report"
+    media_type: Literal["application/json"] = "application/json"
+
+
 class LegalEvaluationRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -186,6 +196,8 @@ __all__ = [
     "FoundryRefs",
     "LegalReportRef",
     "ChangeProposalRef",
+    "NormDiffRef",
+    "NormImpactReportRef",
     "LegalEvaluationRequest",
     "LegalReport",
     "ChangeProposal",

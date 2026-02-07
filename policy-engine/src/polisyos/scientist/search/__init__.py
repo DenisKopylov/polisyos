@@ -10,6 +10,12 @@ from polisyos.scientist.search.controller import (
     SearchResult,
     SearchStatus,
 )
+from polisyos.scientist.search.adversarial import (
+    NegatedCompositeObjective,
+    VulnerabilityFound,
+    run_stress_test,
+)
+from polisyos.scientist.search.sensitivity_adapter import SensitivityAwareCandidateGenerator
 from polisyos.scientist.search.objective import (
     BaseObjective,
     BudgetDeficitObjective,
@@ -70,6 +76,10 @@ __all__ = [
     "StoppingCriterion",
     "StoppingPresets",
     "TargetAchieved",
+    "NegatedCompositeObjective",
+    "VulnerabilityFound",
+    "run_stress_test",
+    "SensitivityAwareCandidateGenerator",
 ]
 
 try:

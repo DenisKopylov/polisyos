@@ -8,7 +8,10 @@ DoE предоставляет инструменты для планирова�
 
 ```
 doe/
-└── designs.py      # ScenarioSweep, AblationPlan, SensitivityPlan
+├── designs.py      # ScenarioSweep, AblationPlan, SensitivityPlan, AdversarialPlan
+├── sampling.py     # SALib sampling + adversarial sample generation
+├── analysis.py     # Sensitivity index analysis
+└── stress_report.py # Stress test report contracts
 ```
 
 ## Ключевые компоненты
@@ -16,6 +19,9 @@ doe/
 - **ScenarioSweep**: Сравнение разных наборов параметров политики
 - **AblationPlan**: Анализ вклада компонентов через их удаление
 - **SensitivityPlan**: Исследование чувствительности к параметрам
+- **AdversarialPlan**: Поиск worst-case сценариев
+- **SensitivityResult**: Ранжирование параметров по влиянию
+- **StressTestReport**: Сводка найденных уязвимостей
 
 ## API Использование
 

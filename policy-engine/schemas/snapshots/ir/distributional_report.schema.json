@@ -1,0 +1,391 @@
+{
+  "$defs": {
+    "CohortDimension": {
+      "enum": [
+        "income_quintile",
+        "income_decile",
+        "geography",
+        "age_group",
+        "gender",
+        "ethnicity",
+        "education",
+        "employment_status",
+        "custom"
+      ],
+      "title": "CohortDimension",
+      "type": "string"
+    },
+    "CohortImpact": {
+      "additionalProperties": false,
+      "properties": {
+        "cohort_id": {
+          "minLength": 1,
+          "title": "Cohort Id",
+          "type": "string"
+        },
+        "cohort_label": {
+          "minLength": 1,
+          "title": "Cohort Label",
+          "type": "string"
+        },
+        "impact_direction": {
+          "$ref": "#/$defs/ImpactDirection",
+          "default": "neutral"
+        },
+        "is_vulnerable": {
+          "default": false,
+          "title": "Is Vulnerable",
+          "type": "boolean"
+        },
+        "metadata": {
+          "additionalProperties": true,
+          "title": "Metadata",
+          "type": "object"
+        },
+        "metric_deltas": {
+          "additionalProperties": {
+            "type": "number"
+          },
+          "title": "Metric Deltas",
+          "type": "object"
+        },
+        "metric_values": {
+          "additionalProperties": {
+            "type": "number"
+          },
+          "title": "Metric Values",
+          "type": "object"
+        },
+        "population_share": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Population Share",
+          "type": "number"
+        }
+      },
+      "required": [
+        "cohort_id",
+        "cohort_label",
+        "population_share"
+      ],
+      "title": "CohortImpact",
+      "type": "object"
+    },
+    "DimensionBreakdown": {
+      "additionalProperties": false,
+      "properties": {
+        "cohorts": {
+          "items": {
+            "$ref": "#/$defs/CohortImpact"
+          },
+          "minItems": 2,
+          "title": "Cohorts",
+          "type": "array"
+        },
+        "dimension": {
+          "$ref": "#/$defs/CohortDimension"
+        },
+        "dimension_label": {
+          "minLength": 1,
+          "title": "Dimension Label",
+          "type": "string"
+        },
+        "gini_after": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Gini After"
+        },
+        "gini_before": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Gini Before"
+        },
+        "gini_delta": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Gini Delta"
+        },
+        "primary_metric": {
+          "minLength": 1,
+          "title": "Primary Metric",
+          "type": "string"
+        },
+        "primary_metric_unit": {
+          "$ref": "#/$defs/MetricUnit",
+          "default": "percent"
+        }
+      },
+      "required": [
+        "dimension",
+        "dimension_label",
+        "cohorts",
+        "primary_metric"
+      ],
+      "title": "DimensionBreakdown",
+      "type": "object"
+    },
+    "ImpactDirection": {
+      "enum": [
+        "positive",
+        "negative",
+        "neutral",
+        "mixed"
+      ],
+      "title": "ImpactDirection",
+      "type": "string"
+    },
+    "MetricUnit": {
+      "enum": [
+        "percent",
+        "ratio",
+        "absolute"
+      ],
+      "title": "MetricUnit",
+      "type": "string"
+    },
+    "WinnersLosersEntry": {
+      "additionalProperties": false,
+      "properties": {
+        "cohort_id": {
+          "title": "Cohort Id",
+          "type": "string"
+        },
+        "cohort_label": {
+          "title": "Cohort Label",
+          "type": "string"
+        },
+        "dimension": {
+          "$ref": "#/$defs/CohortDimension"
+        },
+        "impact_direction": {
+          "$ref": "#/$defs/ImpactDirection"
+        },
+        "is_vulnerable": {
+          "default": false,
+          "title": "Is Vulnerable",
+          "type": "boolean"
+        },
+        "key_metric": {
+          "default": "",
+          "title": "Key Metric",
+          "type": "string"
+        },
+        "key_metric_delta": {
+          "default": 0.0,
+          "title": "Key Metric Delta",
+          "type": "number"
+        },
+        "net_impact": {
+          "title": "Net Impact",
+          "type": "number"
+        },
+        "population_share": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Population Share",
+          "type": "number"
+        }
+      },
+      "required": [
+        "cohort_id",
+        "cohort_label",
+        "dimension",
+        "net_impact",
+        "impact_direction",
+        "population_share"
+      ],
+      "title": "WinnersLosersEntry",
+      "type": "object"
+    },
+    "WinnersLosersTable": {
+      "additionalProperties": false,
+      "properties": {
+        "canonical_dimension": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CohortDimension"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "losers": {
+          "items": {
+            "$ref": "#/$defs/WinnersLosersEntry"
+          },
+          "title": "Losers",
+          "type": "array"
+        },
+        "neutral": {
+          "items": {
+            "$ref": "#/$defs/WinnersLosersEntry"
+          },
+          "title": "Neutral",
+          "type": "array"
+        },
+        "winners": {
+          "items": {
+            "$ref": "#/$defs/WinnersLosersEntry"
+          },
+          "title": "Winners",
+          "type": "array"
+        }
+      },
+      "title": "WinnersLosersTable",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Distributional impact analysis report for policy evaluation.",
+  "properties": {
+    "breakdowns": {
+      "items": {
+        "$ref": "#/$defs/DimensionBreakdown"
+      },
+      "minItems": 1,
+      "title": "Breakdowns",
+      "type": "array"
+    },
+    "metadata": {
+      "additionalProperties": true,
+      "title": "Metadata",
+      "type": "object"
+    },
+    "methodology": {
+      "default": "agent_aggregation",
+      "title": "Methodology",
+      "type": "string"
+    },
+    "overall_gini_after": {
+      "anyOf": [
+        {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Overall Gini After"
+    },
+    "overall_gini_before": {
+      "anyOf": [
+        {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Overall Gini Before"
+    },
+    "overall_gini_delta": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Overall Gini Delta"
+    },
+    "palma_ratio_after": {
+      "anyOf": [
+        {
+          "minimum": 0.0,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Palma Ratio After"
+    },
+    "palma_ratio_before": {
+      "anyOf": [
+        {
+          "minimum": 0.0,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Palma Ratio Before"
+    },
+    "palma_ratio_delta": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Palma Ratio Delta"
+    },
+    "schema_version": {
+      "default": "1.0",
+      "pattern": "^\\d+\\.\\d+$",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "source_simulation_ref": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Source Simulation Ref"
+    },
+    "winners_losers": {
+      "$ref": "#/$defs/WinnersLosersTable"
+    }
+  },
+  "required": [
+    "breakdowns"
+  ],
+  "title": "DistributionalReport",
+  "type": "object"
+}

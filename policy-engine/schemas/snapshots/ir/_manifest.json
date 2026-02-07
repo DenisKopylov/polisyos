@@ -1,6 +1,6 @@
 {
-  "content_hash": "d1bf56df2141ab129c87b2811a3c4f65079a769940a625a58167e82c87d25428",
-  "generated_at": "2026-02-07T12:16:56+00:00",
+  "content_hash": "300b7d93fe254199a154f002f038420b8f9ed1361389a816f1342006466b9876",
+  "generated_at": "2026-02-07T14:19:33+00:00",
   "generator_version": "1.0.0",
   "models": {
     "calibration_config": {
@@ -86,6 +86,18 @@
       "sha256_full": "253b5073672af0fd84ce058faf60d11f5fb48313b16758714a8a8b968f39146f",
       "sha256_semantic": "eb919f16b783577960df37f6de0c0cba2233d275def2d7706734cd5f6df8ae9d",
       "version_field": null
+    },
+    "distributional_report": {
+      "aliases": [],
+      "compat_mode": "strict",
+      "fqn": "polisyos.ir.distributional.DistributionalReport",
+      "lifecycle": "active",
+      "priority": "p1",
+      "schema_file": "distributional_report.schema.json",
+      "schema_version": "1.0",
+      "sha256_full": "2d1a73112187591b2ee9fa6b9fbaac476b018c99915c87d0ee5d8d69410abfa5",
+      "sha256_semantic": "8a73ce82b7518972687569553fe3f4b3d5362127acb5ef033dfcca006e9c8d64",
+      "version_field": "schema_version"
     },
     "doc_fragment": {
       "aliases": [],

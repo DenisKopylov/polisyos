@@ -170,6 +170,13 @@ IR_ABI_MODELS: tuple[ABIModelEntry, ...] = (
         priority=Priority.P1,
     ),
     ABIModelEntry(
+        abi_key="distributional_report",
+        fqn="polisyos.ir.distributional.DistributionalReport",
+        module="ir",
+        schema_file="distributional_report.schema.json",
+        priority=Priority.P1,
+    ),
+    ABIModelEntry(
         abi_key="fact",
         fqn="polisyos.ir.fact_log.Fact",
         module="ir",

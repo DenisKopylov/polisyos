@@ -15,13 +15,14 @@ from polisyos.scientist.engine.protocol import NodeEvent, NodeOutcome, NodeSpec
 from polisyos.scientist.engine.state import ExperimentState
 from polisyos.scientist.governance.passes.base import PassContext
 from polisyos.scientist.governance.passes.confidence_pass import ConfidencePass
+from polisyos.scientist.governance.passes.equity_pass import EquityPass
 from polisyos.scientist.governance.profiles import ValidationProfile
 from polisyos.scientist.governance.report import GovernanceReport
 from polisyos.scientist.kernel.gate_protocol import HumanGateProtocol
 from polisyos.scientist.nodes.builtins.state_keys import REPORT_GOVERNANCE_REPORT_REF
 
 _METADATA = ComponentMetadata(
-    component_id=ComponentId.parse("scientist.node_run_governance@1.0.0"),
+    component_id=ComponentId.parse("scientist.node_run_governance@1.1.0"),
     kind=ComponentKind.SCIENTIST_NODE,
     abi_targets={"world_abi": "1.x"},
     display_name="Run Governance",
@@ -32,7 +33,11 @@ _METADATA = ComponentMetadata(
 
 _SPEC = NodeSpec(
     metadata=_METADATA,
-    state_reads=["params", "artifacts_index.simulation_result_ref"],
+    state_reads=[
+        "params",
+        "artifacts_index.simulation_result_ref",
+        "artifacts_index.distributional_report_ref",
+    ],
     state_writes=["params", f"reports_index.{REPORT_GOVERNANCE_REPORT_REF}"],
     produces=[REPORT_GOVERNANCE_REPORT_REF],
 )
@@ -138,11 +143,11 @@ class RunGovernanceNode:
                     )
 
         profile = _resolve_validation_profile(new_state.params.get("governance_profile"))
-        confidence_issues = _run_confidence_checks(ctx, new_state, profile)
-        if confidence_issues:
-            issues.extend([_issue_to_payload(issue) for issue in confidence_issues])
+        governance_issues = _run_governance_checks(ctx, new_state, profile)
+        if governance_issues:
+            issues.extend([_issue_to_payload(issue) for issue in governance_issues])
             blocker_count = sum(
-                1 for issue in confidence_issues if issue.severity == IssueSeverity.BLOCKER
+                1 for issue in governance_issues if issue.severity == IssueSeverity.BLOCKER
             )
             if blocker_count > 0 and verdict != "human_gate":
                 verdict = "reject"
@@ -323,13 +328,11 @@ def _resolve_validation_profile(raw: Any) -> ValidationProfile:
     return ValidationProfile.mvp()
 
 
-def _run_confidence_checks(
+def _run_governance_checks(
     ctx: ExecutionContext,
     state: ExperimentState,
     profile: ValidationProfile,
 ) -> list[ComplianceIssue]:
-    if "confidence" not in profile.pass_ids:
-        return []
     pass_ctx = PassContext(
         ir=None,
         state={
@@ -340,7 +343,12 @@ def _run_confidence_checks(
         profile=profile,
         run_id=state.run_id,
     )
-    return ConfidencePass().validate(pass_ctx)
+    issues: list[ComplianceIssue] = []
+    if "confidence" in profile.pass_ids:
+        issues.extend(ConfidencePass().validate(pass_ctx))
+    if "equity" in profile.pass_ids:
+        issues.extend(EquityPass().validate(pass_ctx))
+    return issues
 
 
 def _issue_to_payload(issue: ComplianceIssue) -> dict[str, Any]:

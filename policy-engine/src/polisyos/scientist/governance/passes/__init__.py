@@ -11,6 +11,7 @@ __all__ = [
     "ValidatorPass",
     "BudgetPass",
     "ConfidencePass",
+    "EquityPass",
     "LegalPass",
     "PrivacyPass",
     "QualityGatePass",
@@ -28,6 +29,10 @@ def __getattr__(name: str) -> Any:
         from .confidence_pass import ConfidencePass
 
         return ConfidencePass
+    if name == "EquityPass":
+        from .equity_pass import EquityPass
+
+        return EquityPass
     if name == "LegalPass":
         from .legal_pass import LegalPass
 

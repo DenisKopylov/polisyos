@@ -61,7 +61,7 @@ class ValidationProfile:
 
         return cls(
             level=ProfileLevel.MVP,
-            pass_ids=frozenset({"schema", "privacy", "budget", "safety"}),
+            pass_ids=frozenset({"schema", "privacy", "budget", "safety", "equity"}),
             thresholds={
                 "budget_ratio": 0.8,
                 "max_interventions": 10,
@@ -69,6 +69,9 @@ class ValidationProfile:
                 "quality_missingness_acceptable": 0.10,
                 "quality_staleness_acceptable": 60,
                 "quality_coverage_acceptable": 0.85,
+                "equity_gini_increase_max": 0.03,
+                "equity_vulnerable_loss_max_pct": -7.5,
+                "equity_max_losers_share": 0.70,
             },
             short_circuit_on_blocker=True,
         )
@@ -85,7 +88,16 @@ class ValidationProfile:
         return cls(
             level=ProfileLevel.STRICT,
             pass_ids=frozenset(
-                {"schema", "privacy", "budget", "safety", "legal", "quality", "confidence"}
+                {
+                    "schema",
+                    "privacy",
+                    "budget",
+                    "safety",
+                    "legal",
+                    "quality",
+                    "confidence",
+                    "equity",
+                }
             ),
             thresholds={
                 "budget_ratio": 0.7,
@@ -98,6 +110,9 @@ class ValidationProfile:
                 "uncertainty_max_ci_width_ratio": 0.5,
                 "uncertainty_max_ci_width_abs": 1e6,
                 "uncertainty_min_gate_eligible_ratio": 0.5,
+                "equity_gini_increase_max": 0.02,
+                "equity_vulnerable_loss_max_pct": -5.0,
+                "equity_max_losers_share": 0.60,
             },
             short_circuit_on_blocker=False,
         )

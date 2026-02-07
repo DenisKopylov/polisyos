@@ -40,18 +40,23 @@ def default_workflow_spec() -> WorkflowSpec:
                 depends_on=["build_data_snapshot"],
             ),
             NodeInvocation(
+                alias="run_distributional_analysis",
+                node_id="scientist.node_run_distributional_analysis@1.0.0",
+                depends_on=["run_simulation"],
+            ),
+            NodeInvocation(
                 alias="propagate_uncertainty",
                 node_id="scientist.node_propagate_uncertainty@1.0.0",
                 depends_on=["run_simulation"],
             ),
             NodeInvocation(
                 alias="run_governance",
-                node_id="scientist.node_run_governance@1.0.0",
-                depends_on=["propagate_uncertainty"],
+                node_id="scientist.node_run_governance@1.1.0",
+                depends_on=["propagate_uncertainty", "run_distributional_analysis"],
             ),
             NodeInvocation(
                 alias="build_decision_packet",
-                node_id="scientist.node_build_decision_packet@1.2.0",
+                node_id="scientist.node_build_decision_packet@1.3.0",
                 depends_on=["run_governance", "run_causal_evaluation"],
             ),
         ],

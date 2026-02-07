@@ -55,6 +55,14 @@ __all__ = [
     "CausalEffectReport",
     "DiagnosticTest",
     "PlaceboResult",
+    "CohortDimension",
+    "ImpactDirection",
+    "MetricUnit",
+    "CohortImpact",
+    "DimensionBreakdown",
+    "WinnersLosersEntry",
+    "WinnersLosersTable",
+    "DistributionalReport",
 ]
 
 _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
@@ -109,6 +117,14 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "CausalEffectReport": ("polisyos.ir.causal", "CausalEffectReport"),
     "DiagnosticTest": ("polisyos.ir.causal", "DiagnosticTest"),
     "PlaceboResult": ("polisyos.ir.causal", "PlaceboResult"),
+    "CohortDimension": ("polisyos.ir.distributional", "CohortDimension"),
+    "ImpactDirection": ("polisyos.ir.distributional", "ImpactDirection"),
+    "MetricUnit": ("polisyos.ir.distributional", "MetricUnit"),
+    "CohortImpact": ("polisyos.ir.distributional", "CohortImpact"),
+    "DimensionBreakdown": ("polisyos.ir.distributional", "DimensionBreakdown"),
+    "WinnersLosersEntry": ("polisyos.ir.distributional", "WinnersLosersEntry"),
+    "WinnersLosersTable": ("polisyos.ir.distributional", "WinnersLosersTable"),
+    "DistributionalReport": ("polisyos.ir.distributional", "DistributionalReport"),
 }
 
 

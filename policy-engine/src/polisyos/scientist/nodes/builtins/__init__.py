@@ -12,6 +12,7 @@ __all__ = [
     "CompileFoundryNode",
     "RunSimulationNode",
     "RunCausalEvaluationNode",
+    "RunDistributionalAnalysisNode",
     "PropagateUncertaintyNode",
     "LegalCheckNode",
     "RunGovernanceNode",
@@ -36,6 +37,9 @@ def builtin_nodes() -> list["Node"]:
     from polisyos.scientist.nodes.builtins.simulate.run_causal_evaluation import (
         RunCausalEvaluationNode,
     )
+    from polisyos.scientist.nodes.builtins.simulate.run_distributional_analysis import (
+        RunDistributionalAnalysisNode,
+    )
     from polisyos.scientist.nodes.builtins.simulate.run_simulation import RunSimulationNode
 
     return [
@@ -44,6 +48,7 @@ def builtin_nodes() -> list["Node"]:
         LinkTrinityNode(),
         CompileFoundryNode(),
         RunSimulationNode(),
+        RunDistributionalAnalysisNode(),
         RunCausalEvaluationNode(),
         PropagateUncertaintyNode(),
         LegalCheckNode(),
@@ -79,6 +84,12 @@ def __getattr__(name: str) -> Any:
         )
 
         return RunCausalEvaluationNode
+    if name == "RunDistributionalAnalysisNode":
+        from polisyos.scientist.nodes.builtins.simulate.run_distributional_analysis import (
+            RunDistributionalAnalysisNode,
+        )
+
+        return RunDistributionalAnalysisNode
     if name == "PropagateUncertaintyNode":
         from polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty import (
             PropagateUncertaintyNode,

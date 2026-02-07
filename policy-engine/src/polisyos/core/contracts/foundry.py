@@ -6,6 +6,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from ..artifacts.environment import EnvironmentManifestRef
 from ..artifacts.manifest import ArtifactRef
+from .distributional import DistributionalReportRef
 from .uncertainty import UncertaintyEnvelopeRef
 
 
@@ -412,6 +413,7 @@ class SimulationResult(BaseModel):
     environment_fingerprint: str | None = None
     trace_slice_ref: TraceSliceRef | None = None
     uncertainty_envelopes: Mapping[str, UncertaintyEnvelopeRef] | None = None
+    distributional_report_ref: DistributionalReportRef | None = None
     propagation_config_ref: ArtifactRef | None = None
     propagation_report_ref: ArtifactRef | None = None
     notes: list[str] = Field(default_factory=list)

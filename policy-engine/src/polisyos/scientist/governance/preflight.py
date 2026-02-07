@@ -13,6 +13,7 @@ from .legal.backends.stub import StubBackend
 from .passes.base import IssueSeverity, PassContext
 from .passes.budget_pass import BudgetPass
 from .passes.confidence_pass import ConfidencePass
+from .passes.equity_pass import EquityPass
 from .passes.legal_pass import LegalPass
 from .passes.privacy_pass import PrivacyPass
 from .passes.quality_gate_pass import QualityGatePass
@@ -26,6 +27,7 @@ DEFAULT_PIPELINE = ValidationPipeline([
     SchemaPass(),
     PrivacyPass(),
     SafetyPass(),
+    EquityPass(),
     LegalPass(backend=StubBackend()),
     QualityGatePass(),
     ConfidencePass(),

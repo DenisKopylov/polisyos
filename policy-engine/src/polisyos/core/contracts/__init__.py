@@ -1,5 +1,6 @@
 from .causal import CausalEffectReportRef
 from .compiler import CompileReportRef, LinkReportRef
+from .distributional import DistributionalReportRef
 from .fabric import (
     DataSnapshot,
     DataSnapshotRef,
@@ -141,6 +142,7 @@ __all__ = [
     "WarningsRef",
     "LinkReportRef",
     "CompileReportRef",
+    "DistributionalReportRef",
     "FailureCardRef",
     "TrinityIRRef",
     "CritiqueRef",

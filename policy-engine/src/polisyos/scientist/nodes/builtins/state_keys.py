@@ -11,6 +11,7 @@ INPUT_DATA_VIEW_REQUEST_REF = "data_view_request_ref"
 INPUT_KNOWLEDGE_BUNDLE_REF = "knowledge_bundle_ref"
 INPUT_RESEARCH_INTENT_REF = "research_intent_ref"
 INPUT_NORM_PACK_REF = "norm_pack_ref"
+INPUT_CALIBRATION_REPORT_REF = "calibration_report_ref"
 
 # Canonical artifact keys (ExperimentState.artifacts_index)
 ARTIFACT_EXEC_PLAN_REF = "exec_plan_ref"
@@ -25,6 +26,7 @@ ARTIFACT_SLOT_LAYOUT_REF = "slot_layout_ref"
 ARTIFACT_TREASURY_PLAN_REF = "treasury_plan_ref"
 ARTIFACT_DECISION_PACKET_REF = "decision_packet_ref"
 ARTIFACT_DECISION_CARD_REF = "decision_card_ref"
+ARTIFACT_PROPAGATION_REPORT_REF = "propagation_report_ref"
 
 # Legacy bridge (optional)
 ARTIFACT_SIMULATION_SUMMARY_REF = "simulation_summary_ref"
@@ -48,6 +50,7 @@ __all__ = [
     "INPUT_KNOWLEDGE_BUNDLE_REF",
     "INPUT_RESEARCH_INTENT_REF",
     "INPUT_NORM_PACK_REF",
+    "INPUT_CALIBRATION_REPORT_REF",
     "ARTIFACT_EXEC_PLAN_REF",
     "ARTIFACT_PROGRAM_GRAPH_REF",
     "ARTIFACT_SIMULATION_RESULT_REF",
@@ -60,6 +63,7 @@ __all__ = [
     "ARTIFACT_TREASURY_PLAN_REF",
     "ARTIFACT_DECISION_PACKET_REF",
     "ARTIFACT_DECISION_CARD_REF",
+    "ARTIFACT_PROPAGATION_REPORT_REF",
     "ARTIFACT_SIMULATION_SUMMARY_REF",
     "REPORT_LINK_REPORT_REF",
     "REPORT_COMPILE_REPORT_REF",

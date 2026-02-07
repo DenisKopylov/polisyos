@@ -11,6 +11,7 @@ __all__ = [
     "LinkTrinityNode",
     "CompileFoundryNode",
     "RunSimulationNode",
+    "PropagateUncertaintyNode",
     "LegalCheckNode",
     "RunGovernanceNode",
     "BuildDecisionPacketNode",
@@ -23,9 +24,14 @@ def builtin_nodes() -> list["Node"]:
     from polisyos.scientist.nodes.builtins.compile.link_trinity import LinkTrinityNode
     from polisyos.scientist.nodes.builtins.data.build_data_snapshot import BuildDataSnapshotNode
     from polisyos.scientist.nodes.builtins.data.enrich_knowledge import EnrichKnowledgeNode
-    from polisyos.scientist.nodes.builtins.decide.build_decision_packet import BuildDecisionPacketNode
+    from polisyos.scientist.nodes.builtins.decide.build_decision_packet import (
+        BuildDecisionPacketNode,
+    )
     from polisyos.scientist.nodes.builtins.governance.legal_check import LegalCheckNode
     from polisyos.scientist.nodes.builtins.governance.run_governance import RunGovernanceNode
+    from polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty import (
+        PropagateUncertaintyNode,
+    )
     from polisyos.scientist.nodes.builtins.simulate.run_simulation import RunSimulationNode
 
     return [
@@ -34,6 +40,7 @@ def builtin_nodes() -> list["Node"]:
         LinkTrinityNode(),
         CompileFoundryNode(),
         RunSimulationNode(),
+        PropagateUncertaintyNode(),
         LegalCheckNode(),
         RunGovernanceNode(),
         BuildDecisionPacketNode(),
@@ -61,6 +68,12 @@ def __getattr__(name: str) -> Any:
         from polisyos.scientist.nodes.builtins.simulate.run_simulation import RunSimulationNode
 
         return RunSimulationNode
+    if name == "PropagateUncertaintyNode":
+        from polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty import (
+            PropagateUncertaintyNode,
+        )
+
+        return PropagateUncertaintyNode
     if name == "LegalCheckNode":
         from polisyos.scientist.nodes.builtins.governance.legal_check import LegalCheckNode
 
@@ -70,7 +83,9 @@ def __getattr__(name: str) -> Any:
 
         return RunGovernanceNode
     if name == "BuildDecisionPacketNode":
-        from polisyos.scientist.nodes.builtins.decide.build_decision_packet import BuildDecisionPacketNode
+        from polisyos.scientist.nodes.builtins.decide.build_decision_packet import (
+            BuildDecisionPacketNode,
+        )
 
         return BuildDecisionPacketNode
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

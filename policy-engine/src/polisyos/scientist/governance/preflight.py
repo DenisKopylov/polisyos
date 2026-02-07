@@ -9,17 +9,17 @@ from polisyos.ir.trinity import TrinityBundle
 from polisyos.runtime import log_artifact
 from polisyos.scientist.kernel.human_gate import GateRequest
 
+from .legal.backends.stub import StubBackend
+from .passes.base import IssueSeverity, PassContext
+from .passes.budget_pass import BudgetPass
+from .passes.confidence_pass import ConfidencePass
+from .passes.legal_pass import LegalPass
+from .passes.privacy_pass import PrivacyPass
+from .passes.quality_gate_pass import QualityGatePass
+from .passes.safety_pass import SafetyPass
+from .passes.schema_pass import SchemaPass
 from .pipeline import ValidationPipeline
 from .profiles import ValidationProfile
-from .passes.base import PassContext, IssueSeverity
-from .passes.schema_pass import SchemaPass
-from .passes.safety_pass import SafetyPass
-from .passes.privacy_pass import PrivacyPass
-from .passes.budget_pass import BudgetPass
-from .passes.legal_pass import LegalPass
-from .passes.quality_gate_pass import QualityGatePass
-from .legal.backends.stub import StubBackend
-
 
 DEFAULT_PIPELINE = ValidationPipeline([
     BudgetPass(),
@@ -28,6 +28,7 @@ DEFAULT_PIPELINE = ValidationPipeline([
     SafetyPass(),
     LegalPass(backend=StubBackend()),
     QualityGatePass(),
+    ConfidencePass(),
 ])
 
 

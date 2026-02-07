@@ -35,19 +35,24 @@ def default_workflow_spec() -> WorkflowSpec:
                 depends_on=["compile_foundry", "build_data_snapshot"],
             ),
             NodeInvocation(
+                alias="propagate_uncertainty",
+                node_id="scientist.node_propagate_uncertainty@1.0.0",
+                depends_on=["run_simulation"],
+            ),
+            NodeInvocation(
                 alias="run_governance",
                 node_id="scientist.node_run_governance@1.0.0",
-                depends_on=["run_simulation"],
+                depends_on=["propagate_uncertainty"],
             ),
             NodeInvocation(
                 alias="build_decision_packet",
                 node_id="scientist.node_build_decision_packet@1.1.0",
-                depends_on=["start"],
+                depends_on=["run_governance"],
             ),
         ],
         notes=[
             "E1.7 default workflow spec (engine DAG)",
-            "Decision packet runs even if upstream nodes fail.",
+            "Decision packet is generated after governance and uncertainty propagation.",
         ],
     )
 

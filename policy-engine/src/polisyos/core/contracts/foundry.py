@@ -1,11 +1,13 @@
 from __future__ import annotations
 
-from typing import Any, Literal
+from typing import Any, Literal, Mapping
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from ..artifacts.environment import EnvironmentManifestRef
 from ..artifacts.manifest import ArtifactRef
+from .uncertainty import UncertaintyEnvelopeRef
+
 
 class ProgramGraphRef(ArtifactRef):
     kind: Literal["foundry.program_graph"] = "foundry.program_graph"
@@ -409,4 +411,7 @@ class SimulationResult(BaseModel):
     environment_ref: EnvironmentManifestRef | None = None
     environment_fingerprint: str | None = None
     trace_slice_ref: TraceSliceRef | None = None
+    uncertainty_envelopes: Mapping[str, UncertaintyEnvelopeRef] | None = None
+    propagation_config_ref: ArtifactRef | None = None
+    propagation_report_ref: ArtifactRef | None = None
     notes: list[str] = Field(default_factory=list)

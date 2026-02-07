@@ -6,9 +6,10 @@ from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.contracts.fabric import DataSnapshot
 from polisyos.core.contracts.foundry import (
     DerivedArtifact,
+    ExecPlan,
     ExecuteRequest,
     ExecuteResult,
-    ExecPlan,
+    MetricsRef,
     SimulationResult,
     SimulationResultRef,
     StateSnapshotRef,
@@ -59,7 +60,7 @@ def execute(store: FileSystemCAS, request: ExecuteRequest) -> ExecuteResult:
 
     sim_result = SimulationResult(
         exec_plan_ref=request.exec_plan_ref,
-        metrics_ref=exec_artifacts.metrics_ref,
+        metrics_ref=MetricsRef(artifact_id=exec_artifacts.metrics_ref.artifact_id),
         state_snapshot_ref=StateSnapshotRef(artifact_id=applied.state_snapshot_ref.artifact_id),
         environment_ref=exec_artifacts.environment_ref,
         environment_fingerprint=exec_artifacts.environment_fingerprint,
@@ -73,12 +74,12 @@ def execute(store: FileSystemCAS, request: ExecuteRequest) -> ExecuteResult:
     sim_result_ref = store.put_json(
         sim_result,
         PutOptions(
-            kind="foundry.simulation_result",
-            media_type="application/json",
-            schema=SchemaInfo(name="polisyos.core.SimulationResult", version="1.0"),
-            inputs=sim_inputs,
-        ),
-    )
+                kind="foundry.simulation_result",
+                media_type="application/json",
+                schema=SchemaInfo(name="polisyos.core.SimulationResult", version="1.1"),
+                inputs=sim_inputs,
+            ),
+        )
 
     derived_refs = [
         DerivedArtifact(role="metrics", ref=exec_artifacts.metrics_ref),
@@ -114,7 +115,8 @@ def _resolve_state_snapshot(store: FileSystemCAS, request: ExecuteRequest) -> St
     snapshot = DataSnapshot.model_validate(snapshot_payload)
     if snapshot.data_ref.kind != "foundry.state_snapshot":
         raise ValueError(
-            f"DataSnapshot.data_ref.kind must be foundry.state_snapshot, got {snapshot.data_ref.kind}"
+            "DataSnapshot.data_ref.kind must be foundry.state_snapshot, "
+            f"got {snapshot.data_ref.kind}"
         )
     return StateSnapshotRef(artifact_id=snapshot.data_ref.artifact_id)
 

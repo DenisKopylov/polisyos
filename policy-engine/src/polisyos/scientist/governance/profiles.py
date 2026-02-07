@@ -84,7 +84,9 @@ class ValidationProfile:
 
         return cls(
             level=ProfileLevel.STRICT,
-            pass_ids=frozenset({"schema", "privacy", "budget", "safety", "legal", "quality"}),
+            pass_ids=frozenset(
+                {"schema", "privacy", "budget", "safety", "legal", "quality", "confidence"}
+            ),
             thresholds={
                 "budget_ratio": 0.7,
                 "max_interventions": 5,
@@ -93,6 +95,9 @@ class ValidationProfile:
                 "quality_staleness_acceptable": 14,
                 "quality_coverage_acceptable": 0.95,
                 "quality_min_row_count": 100,
+                "uncertainty_max_ci_width_ratio": 0.5,
+                "uncertainty_max_ci_width_abs": 1e6,
+                "uncertainty_min_gate_eligible_ratio": 0.5,
             },
             short_circuit_on_blocker=False,
         )

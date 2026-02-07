@@ -8,11 +8,13 @@ from typing import Final
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
-from polisyos.core.canon import from_canonical_bytes
+from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.contracts.fabric import DataSnapshot
-from polisyos.core.contracts.foundry import Metrics
+from polisyos.core.contracts.foundry import Metrics, SimulationResult
 from polisyos.core.contracts.scientist import DecisionPacketRef
+from polisyos.core.contracts.uncertainty import UncertaintyEnvelopeRef
+from polisyos.ir.uncertainty import load_uncertainty_envelope
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.protocol import NodeOutcome, NodeSpec
 from polisyos.scientist.engine.state import ExperimentState
@@ -114,7 +116,8 @@ class BuildDecisionPacketNode:
             },
             "simulation_results": None,
             "governance": None,
-            "uncertainty": _build_uncertainty_section(ctx, state.inputs),
+            "uncertainty": _build_uncertainty_section(ctx, state.inputs, state.artifacts_index),
+            "uncertainty_bounds": None,
             "inputs": inputs_section,
             "artifacts": artifacts_section,
             "replay": {
@@ -153,6 +156,16 @@ class BuildDecisionPacketNode:
             except Exception:
                 packet_payload["governance"] = None
 
+        uncertainty_bounds = _build_uncertainty_bounds(
+            ctx,
+            (
+                packet_payload["uncertainty"]
+                if isinstance(packet_payload["uncertainty"], dict)
+                else {}
+            ),
+        )
+        packet_payload["uncertainty_bounds"] = uncertainty_bounds
+
         inputs = _build_manifest_inputs(packet_payload)
 
         packet_ref_payload = ctx.store.put_json(
@@ -166,6 +179,7 @@ class BuildDecisionPacketNode:
                 ),
                 inputs=inputs or None,
             ),
+            canon_spec=CanonSpec(forbid_floats=False),
         )
         packet_ref = DecisionPacketRef(artifact_id=packet_ref_payload.artifact_id)
 
@@ -257,37 +271,44 @@ def _build_manifest_inputs(packet_payload: dict[str, object]) -> list[InputRef]:
         ("uncertainty", "uncertainty"),
     ):
         section = packet_payload.get(section_name)
-        if not isinstance(section, dict):
-            continue
-        for role, value in section.items():
-            if not isinstance(value, str):
-                if not isinstance(value, list):
-                    continue
-                for index, nested in enumerate(value):
-                    if not isinstance(nested, str):
-                        continue
-                    artifact_id = ArtifactID.model_validate(nested)
-                    role_name = f"{prefix}.{role}[{index}]"
-                    collected[(artifact_id.hex, role_name)] = InputRef(
-                        artifact_id=artifact_id,
-                        role=role_name,
-                    )
-                continue
-            artifact_id = ArtifactID.model_validate(value)
-            role_name = f"{prefix}.{role}"
-            collected[(artifact_id.hex, role_name)] = InputRef(
-                artifact_id=artifact_id,
-                role=role_name,
-            )
+        _collect_manifest_refs(section, prefix, collected)
     return list(collected.values())
+
+
+def _collect_manifest_refs(
+    value: object,
+    role_prefix: str,
+    collected: dict[tuple[str, str], InputRef],
+) -> None:
+    if isinstance(value, str):
+        try:
+            artifact_id = ArtifactID.model_validate(value)
+        except Exception:
+            return
+        collected[(artifact_id.hex, role_prefix)] = InputRef(
+            artifact_id=artifact_id,
+            role=role_prefix,
+        )
+        return
+
+    if isinstance(value, list):
+        for idx, nested in enumerate(value):
+            _collect_manifest_refs(nested, f"{role_prefix}[{idx}]", collected)
+        return
+
+    if isinstance(value, dict):
+        for key, nested in value.items():
+            _collect_manifest_refs(nested, f"{role_prefix}.{key}", collected)
 
 
 def _build_uncertainty_section(
     ctx: ExecutionContext,
     state_inputs: dict[str, ArtifactRef],
+    state_artifacts: dict[str, ArtifactRef],
 ) -> dict[str, object]:
     envelope_refs: set[str] = set()
     legacy_bounds_refs: set[str] = set()
+    output_envelope_refs: dict[str, str] = {}
     warnings: list[str] = []
 
     data_snapshot_ref = state_inputs.get(INPUT_DATA_SNAPSHOT_REF)
@@ -302,10 +323,51 @@ def _build_uncertainty_section(
         except Exception:
             warnings.append("data_snapshot_uncertainty_parse_failed")
 
+    simulation_result_ref = state_artifacts.get(ARTIFACT_SIMULATION_RESULT_REF)
+    if simulation_result_ref is not None:
+        try:
+            payload = from_canonical_bytes(ctx.store.get_bytes(simulation_result_ref.artifact_id))
+            sim_result = SimulationResult.model_validate(payload)
+            if sim_result.uncertainty_envelopes:
+                for metric_id, ref in sim_result.uncertainty_envelopes.items():
+                    ref_str = str(ref.artifact_id)
+                    output_envelope_refs[str(metric_id)] = ref_str
+                    envelope_refs.add(ref_str)
+        except Exception:
+            warnings.append("simulation_result_uncertainty_parse_failed")
+
     return {
         "envelope_refs": sorted(envelope_refs),
         "legacy_bounds_refs": sorted(legacy_bounds_refs),
+        "output_envelope_refs": output_envelope_refs,
         "envelope_count": len(envelope_refs),
         "legacy_bounds_count": len(legacy_bounds_refs),
+        "output_envelope_count": len(output_envelope_refs),
         "warnings": warnings,
     }
+
+
+def _build_uncertainty_bounds(
+    ctx: ExecutionContext,
+    uncertainty_section: dict[str, object],
+) -> dict[str, float] | None:
+    output_refs = uncertainty_section.get("output_envelope_refs")
+    if not isinstance(output_refs, dict):
+        return None
+
+    bounds: dict[str, float] = {}
+    for metric_id, ref_str in output_refs.items():
+        if not isinstance(metric_id, str) or not isinstance(ref_str, str):
+            continue
+        try:
+            ref = UncertaintyEnvelopeRef(artifact_id=ArtifactID.model_validate(ref_str))
+            env = load_uncertainty_envelope(ctx.store, ref)
+        except Exception:
+            continue
+        bounds[f"{metric_id}_lower"] = float(env.confidence_interval[0])
+        bounds[f"{metric_id}_upper"] = float(env.confidence_interval[1])
+        bounds[f"{metric_id}_point"] = float(env.point_estimate)
+        if env.confidence_level is not None:
+            bounds[f"{metric_id}_ci_level"] = float(env.confidence_level)
+
+    return bounds or None

@@ -7,13 +7,17 @@ from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
+from polisyos.core.contracts.lex import ComplianceIssue, IssueSeverity
 from polisyos.core.contracts.scientist import GovernanceReportRef
 from polisyos.ir.gate import GateContext, GateDecision, GatePriority, GateRequest, GateVerdict
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.protocol import NodeEvent, NodeOutcome, NodeSpec
 from polisyos.scientist.engine.state import ExperimentState
-from polisyos.scientist.kernel.gate_protocol import HumanGateProtocol
+from polisyos.scientist.governance.passes.base import PassContext
+from polisyos.scientist.governance.passes.confidence_pass import ConfidencePass
+from polisyos.scientist.governance.profiles import ValidationProfile
 from polisyos.scientist.governance.report import GovernanceReport
+from polisyos.scientist.kernel.gate_protocol import HumanGateProtocol
 from polisyos.scientist.nodes.builtins.state_keys import REPORT_GOVERNANCE_REPORT_REF
 
 _METADATA = ComponentMetadata(
@@ -28,7 +32,7 @@ _METADATA = ComponentMetadata(
 
 _SPEC = NodeSpec(
     metadata=_METADATA,
-    state_reads=["params"],
+    state_reads=["params", "artifacts_index.simulation_result_ref"],
     state_writes=["params", f"reports_index.{REPORT_GOVERNANCE_REPORT_REF}"],
     produces=[REPORT_GOVERNANCE_REPORT_REF],
 )
@@ -77,7 +81,10 @@ class RunGovernanceNode:
                 if gate_request_ref is not None:
                     new_state.params["gate_request_ref"] = str(gate_request_ref.artifact_id)
                 events.append(
-                    NodeEvent(level="info", message=f"Human gate requested: {gate_request.request_id}")
+                    NodeEvent(
+                        level="info",
+                        message=f"Human gate requested: {gate_request.request_id}",
+                    )
                 )
             verdict = "human_gate"
 
@@ -129,6 +136,22 @@ class RunGovernanceNode:
                             ),
                         )
                     )
+
+        profile = _resolve_validation_profile(new_state.params.get("governance_profile"))
+        confidence_issues = _run_confidence_checks(ctx, new_state, profile)
+        if confidence_issues:
+            issues.extend([_issue_to_payload(issue) for issue in confidence_issues])
+            blocker_count = sum(
+                1 for issue in confidence_issues if issue.severity == IssueSeverity.BLOCKER
+            )
+            if blocker_count > 0 and verdict != "human_gate":
+                verdict = "reject"
+                events.append(
+                    NodeEvent(
+                        level="warn",
+                        message=f"Confidence gate blocked decision ({blocker_count} blocker(s))",
+                    )
+                )
 
         report = GovernanceReport(verdict=verdict, issues=issues)
         report_ref_payload = ctx.store.put_json(
@@ -281,3 +304,52 @@ def _optional_int(raw: Any) -> int | None:
     except (TypeError, ValueError):
         return None
     return value if value > 0 else None
+
+
+def _resolve_validation_profile(raw: Any) -> ValidationProfile:
+    if isinstance(raw, ValidationProfile):
+        return raw
+    if isinstance(raw, dict):
+        try:
+            return ValidationProfile.from_dict(raw)
+        except Exception:
+            return ValidationProfile.mvp()
+    if isinstance(raw, str):
+        token = raw.strip().lower()
+        if token == "fast":
+            return ValidationProfile.fast()
+        if token == "strict":
+            return ValidationProfile.strict()
+    return ValidationProfile.mvp()
+
+
+def _run_confidence_checks(
+    ctx: ExecutionContext,
+    state: ExperimentState,
+    profile: ValidationProfile,
+) -> list[ComplianceIssue]:
+    if "confidence" not in profile.pass_ids:
+        return []
+    pass_ctx = PassContext(
+        ir=None,
+        state={
+            "artifacts_index": state.artifacts_index,
+            "_store": ctx.store,
+        },
+        registry_bundle=None,
+        profile=profile,
+        run_id=state.run_id,
+    )
+    return ConfidencePass().validate(pass_ctx)
+
+
+def _issue_to_payload(issue: ComplianceIssue) -> dict[str, Any]:
+    return {
+        "pass_id": issue.pass_id,
+        "path": issue.path,
+        "message": issue.message,
+        "severity": issue.severity.value,
+        "code": issue.code,
+        "suggestion": issue.suggestion,
+        "input_value": issue.input_value,
+    }

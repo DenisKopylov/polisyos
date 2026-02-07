@@ -229,7 +229,8 @@ class MetricsRegistry:
             # Create MeterProvider
             self._provider = MeterProvider(
                 resource=resource,
-                metric_readers=readers if readers else None,
+                # OpenTelemetry SDK expects an iterable; None breaks on recent versions.
+                metric_readers=readers,
             )
             metrics.set_meter_provider(self._provider)
 

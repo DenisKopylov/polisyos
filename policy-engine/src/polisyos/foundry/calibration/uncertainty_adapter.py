@@ -69,6 +69,8 @@ def envelope_from_calibration_param(
             "damping": unc.damping,
             "method": unc.method,
             "non_identifiable": param_name in unc.non_identifiable,
+            "covariance_row": list(unc.covariance[idx]) if idx < len(unc.covariance) else None,
+            "covariance_params": list(unc.params),
         },
     )
 

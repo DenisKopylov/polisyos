@@ -1,10 +1,8 @@
-from .base import ComplianceIssue, IssueSeverity, PassContext, ValidatorPass  # noqa: F401
-from .budget_pass import BudgetPass  # noqa: F401
-from .legal_pass import LegalPass  # noqa: F401
-from .privacy_pass import PrivacyPass  # noqa: F401
-from .safety_pass import SafetyPass  # noqa: F401
-from .schema_pass import SchemaPass  # noqa: F401
-from .quality_gate_pass import QualityGatePass  # noqa: F401
+from __future__ import annotations
+
+from typing import Any
+
+from .base import ComplianceIssue, IssueSeverity, PassContext, ValidatorPass
 
 __all__ = [
     "ComplianceIssue",
@@ -12,9 +10,42 @@ __all__ = [
     "PassContext",
     "ValidatorPass",
     "BudgetPass",
+    "ConfidencePass",
     "LegalPass",
     "PrivacyPass",
+    "QualityGatePass",
     "SafetyPass",
     "SchemaPass",
-    "QualityGatePass",
 ]
+
+
+def __getattr__(name: str) -> Any:
+    if name == "BudgetPass":
+        from .budget_pass import BudgetPass
+
+        return BudgetPass
+    if name == "ConfidencePass":
+        from .confidence_pass import ConfidencePass
+
+        return ConfidencePass
+    if name == "LegalPass":
+        from .legal_pass import LegalPass
+
+        return LegalPass
+    if name == "PrivacyPass":
+        from .privacy_pass import PrivacyPass
+
+        return PrivacyPass
+    if name == "QualityGatePass":
+        from .quality_gate_pass import QualityGatePass
+
+        return QualityGatePass
+    if name == "SafetyPass":
+        from .safety_pass import SafetyPass
+
+        return SafetyPass
+    if name == "SchemaPass":
+        from .schema_pass import SchemaPass
+
+        return SchemaPass
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

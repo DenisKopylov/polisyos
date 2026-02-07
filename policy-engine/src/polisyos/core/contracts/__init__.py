@@ -71,6 +71,7 @@ from .scholar import (
     ThresholdsV1,
 )
 from .scientist import (
+    CheckpointRef,
     CritiqueRef,
     DecisionCardRef,
     DecisionPacketRef,
@@ -139,6 +140,7 @@ __all__ = [
     "CritiqueRef",
     "TimelineRef",
     "DecisionCardRef",
+    "CheckpointRef",
     "ExperimentStateRef",
     "DecisionPacketRef",
     "GovernanceReportRef",

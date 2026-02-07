@@ -235,6 +235,18 @@ class NodeResultCache:
                         continue
         return restored
 
+    def seed_from_entry_refs(self, refs: list[ArtifactRef] | tuple[ArtifactRef, ...]) -> int:
+        restored = 0
+        for ref in refs:
+            if ref.kind != "scientist.node_cache_entry":
+                continue
+            try:
+                if self.load_entry(ref):
+                    restored += 1
+            except Exception:
+                continue
+        return restored
+
 
 __all__ = [
     "IDEMPOTENCY_CONTRACT_VERSION",

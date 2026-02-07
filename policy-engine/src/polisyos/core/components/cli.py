@@ -56,6 +56,8 @@ def main(argv: list[str] | None = None) -> int:
         return _cmd_lex_normpack_build(args)
     if args.command == "replay":
         return _cmd_replay(args)
+    if args.command == "resume":
+        return _cmd_resume(args)
     if args.command == "keygen":
         return _cmd_keygen(args)
     if args.command == "sign":
@@ -162,6 +164,23 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Confidence level for ci_bounded reports",
     )
     cmd_replay.add_argument("--json", action="store_true")
+
+    cmd_resume = components.add_parser("resume")
+    cmd_resume.add_argument("run_id", help="Run ID to resume (e.g. R_abc123)")
+    cmd_resume.add_argument("--cas-root", default=".polisyos", help="CAS root directory")
+    cmd_resume.add_argument(
+        "--checkpoint-policy",
+        choices=["off", "strict", "best_effort"],
+        default="strict",
+        help="Checkpoint persistence policy during resumed execution",
+    )
+    cmd_resume.add_argument(
+        "--force",
+        action="store_true",
+        help="Attempt resume even if run lock metadata suggests another holder",
+    )
+    cmd_resume.add_argument("--dry-run", action="store_true", help="Only inspect checkpoint metadata")
+    cmd_resume.add_argument("--json", action="store_true")
 
     cmd_keygen = components.add_parser("keygen")
     cmd_keygen.add_argument(
@@ -600,6 +619,88 @@ def _cmd_replay_with_store(
             print(f"error: {error}")
 
     return 0 if result.success else 1
+
+
+def _cmd_resume(args: argparse.Namespace) -> int:
+    checkpoint = importlib.import_module("polisyos.scientist.engine.checkpoint")
+    normalize_checkpoint_policy = checkpoint.normalize_checkpoint_policy
+    resolve_latest_checkpoint = checkpoint.resolve_latest_checkpoint
+    resume_from_checkpoint = checkpoint.resume_from_checkpoint
+
+    cas = FileSystemCAS(Path(args.cas_root))
+    run_id = str(args.run_id)
+    policy = normalize_checkpoint_policy(args.checkpoint_policy)
+
+    try:
+        resolved = resolve_latest_checkpoint(cas, run_id)
+    except Exception as exc:
+        print(f"ERROR: failed to resolve checkpoint for run_id={run_id}: {exc}", file=sys.stderr)
+        return 1
+
+    if resolved is None:
+        print(f"ERROR: no checkpoint found for run_id={run_id}", file=sys.stderr)
+        return 1
+
+    head, checkpoint_artifact = resolved
+    summary = {
+        "run_id": run_id,
+        "sequence_number": head.sequence_number,
+        "node_alias": head.node_alias,
+        "checkpoint_ref": str(head.checkpoint_ref.artifact_id),
+        "workflow_id": checkpoint_artifact.metadata.workflow_id,
+        "workflow_fingerprint": checkpoint_artifact.metadata.workflow_fingerprint,
+        "fsm_phase": checkpoint_artifact.metadata.fsm_phase,
+        "updated_at": head.updated_at.isoformat(),
+        "writer_pid": head.writer_pid,
+        "writer_hostname": head.writer_hostname,
+        "completed_nodes_count": len(checkpoint_artifact.metadata.completed_nodes),
+    }
+
+    if not args.json:
+        print(f"run_id={summary['run_id']}")
+        print(f"checkpoint.sequence={summary['sequence_number']}")
+        print(f"checkpoint.node={summary['node_alias']}")
+        print(f"checkpoint.ref={summary['checkpoint_ref']}")
+        print(f"workflow.id={summary['workflow_id']}")
+        print(f"workflow.fingerprint={summary['workflow_fingerprint'][:16]}...")
+        print(f"fsm.phase={summary['fsm_phase']}")
+        print(f"checkpoint.updated_at={summary['updated_at']}")
+        print(
+            "checkpoint.writer="
+            f"{summary['writer_hostname']}:{summary['writer_pid']}"
+        )
+        print(f"completed_nodes={summary['completed_nodes_count']}")
+
+    if args.dry_run:
+        if args.json:
+            print(json.dumps(summary, ensure_ascii=True, indent=2, sort_keys=True))
+        return 0
+
+    try:
+        result = resume_from_checkpoint(
+            cas,
+            run_id,
+            checkpoint_policy=policy,
+            force_lock=bool(args.force),
+        )
+    except Exception as exc:
+        print(f"ERROR: resume failed for run_id={run_id}: {exc}", file=sys.stderr)
+        return 1
+
+    outcome = {
+        "run_id": run_id,
+        "status": result.report.status,
+        "run_ref": str(result.run_ref.artifact_id) if result.run_ref is not None else None,
+    }
+    if args.json:
+        payload = {"checkpoint": summary, "resume": outcome}
+        print(json.dumps(payload, ensure_ascii=True, indent=2, sort_keys=True))
+    else:
+        print(f"resume.status={result.report.status}")
+        if result.run_ref is not None:
+            print(f"run_ref={result.run_ref.artifact_id}")
+
+    return 0 if result.report.status == "ok" else 1
 
 
 def _cmd_audit_export(args: argparse.Namespace) -> int:

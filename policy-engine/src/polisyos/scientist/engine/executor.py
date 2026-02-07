@@ -3,13 +3,14 @@ from __future__ import annotations
 import logging
 import time
 from dataclasses import dataclass
-from typing import Any, Iterable
+from typing import TYPE_CHECKING, Any, Iterable
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from polisyos.core.canon import CanonViolation
 from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
+from polisyos.scientist.engine.checkpoint import compute_workflow_fingerprint
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.errors import (
     CycleDetectedError,
@@ -27,6 +28,9 @@ from polisyos.scientist.engine.telemetry import (
     start_node_span,
 )
 from polisyos.scientist.engine.workflow_spec import ErrorPolicy, NodeInvocation, WorkflowSpec
+
+if TYPE_CHECKING:
+    from polisyos.scientist.engine.checkpoint import CheckpointHook
 
 _CACHE_BYPASS_DISABLED = 1
 _CACHE_BYPASS_KEY_ERROR = 2
@@ -177,10 +181,19 @@ def _topo_sort(invocations: dict[str, NodeInvocation]) -> list[str]:
 class WorkflowExecutor:
     """Sequential workflow executor (v0)."""
 
-    def __init__(self, ctx: ExecutionContext, registry: NodeRegistry) -> None:
+    def __init__(
+        self,
+        ctx: ExecutionContext,
+        registry: NodeRegistry,
+        *,
+        checkpoint_hook: CheckpointHook | None = None,
+        checkpoint_cache_seed_refs: list[ArtifactRef] | None = None,
+    ) -> None:
         self._ctx = ctx
         self._registry = registry
         self._cache: NodeResultCache | None = None
+        self._checkpoint_hook = checkpoint_hook
+        self._checkpoint_cache_seed_refs = list(checkpoint_cache_seed_refs or [])
 
     def execute(self, workflow: WorkflowSpec, state: ExperimentState) -> WorkflowExecutionResult:
         _validate_aliases(workflow.nodes)
@@ -201,16 +214,25 @@ class WorkflowExecutor:
         self._ctx.run.add_input(state_input_ref)
         self._cache = NodeResultCache(self._ctx.store, run_id=state.run_id)
         restored_entries = self._cache.seed_from_trace(self._ctx.run.trace_path)
+        restored_from_checkpoint = self._cache.seed_from_entry_refs(self._checkpoint_cache_seed_refs)
         if restored_entries:
             self._ctx.logger.info(
                 "Recovered %s cached node outcomes for run_id=%s",
                 restored_entries,
                 state.run_id,
             )
+        if restored_from_checkpoint:
+            self._ctx.logger.info(
+                "Recovered %s cached node outcomes from checkpoint refs for run_id=%s",
+                restored_from_checkpoint,
+                state.run_id,
+            )
 
         records: list[NodeRunRecord] = []
         failed: set[str] = set()
         blocked: set[str] = set()
+        completed_nodes: list[str] = []
+        workflow_fingerprint = compute_workflow_fingerprint(workflow)
 
         for alias in order:
             inv = invocations[alias]
@@ -248,6 +270,7 @@ class WorkflowExecutor:
                 cache_key: str | None = None
                 cache_hit = False
                 cache_stored = False
+                cache_entry_ref: ArtifactRef | None = None
                 cache_bypass_reason: int | None = None
                 set_span_attribute(span, "polisyos.node.cache.enabled", cache_enabled)
 
@@ -342,6 +365,7 @@ class WorkflowExecutor:
                     if outcome.status == "ok" and cache_key is not None and self._cache is not None:
                         try:
                             entry_ref = self._cache.put(cache_key, node_id=node_id, outcome=outcome)
+                            cache_entry_ref = entry_ref
                             cache_stored = True
                             self._ctx.run.emit(
                                 f"scientist.node.{alias}",
@@ -400,6 +424,32 @@ class WorkflowExecutor:
 
                 if outcome.status == "fail":
                     failed.add(alias)
+
+                if outcome.status == "ok":
+                    completed_nodes.append(alias)
+                    if self._checkpoint_hook is not None:
+                        checkpoint_result = self._checkpoint_hook.on_node_complete(
+                            state=state,
+                            alias=alias,
+                            node_id=node_id,
+                            completed_nodes=list(completed_nodes),
+                            workflow_id=workflow.workflow_id,
+                            workflow_fingerprint=workflow_fingerprint,
+                            cache_entry_ref=cache_entry_ref,
+                        )
+                        if checkpoint_result is not None:
+                            state = state.model_copy(
+                                update={"last_checkpoint_ref": checkpoint_result.checkpoint_ref}
+                            )
+                            self._ctx.run.emit(
+                                "scientist.checkpoint",
+                                "CHECKPOINT_CREATED",
+                                outputs=[checkpoint_result.checkpoint_ref],
+                                metrics={
+                                    "sequence_number": checkpoint_result.sequence_number,
+                                    "duration_ms": checkpoint_result.duration_ms,
+                                },
+                            )
 
                 record = NodeRunRecord(
                     alias=alias,
@@ -469,7 +519,7 @@ class WorkflowExecutor:
                 media_type="application/json",
                 schema=SchemaInfo(
                     name="polisyos.scientist.engine.ExperimentState",
-                    version="1.0",
+                    version=state.schema_version,
                 ),
             ),
         )

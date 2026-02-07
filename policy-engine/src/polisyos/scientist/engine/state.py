@@ -17,7 +17,7 @@ class ExperimentState(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
+    schema_version: str = Field("1.1", pattern=r"^\d+\.\d+$")
     run_id: str
 
     inputs: dict[str, ArtifactRef] = Field(default_factory=dict)
@@ -26,3 +26,4 @@ class ExperimentState(BaseModel):
 
     params: dict[str, JsonValue] = Field(default_factory=dict)
     budgets: dict[str, Decimal] = Field(default_factory=dict)
+    last_checkpoint_ref: ArtifactRef | None = None

@@ -145,6 +145,17 @@ class DecisionCardRef(ScientistArtifactRef):
     generated_at: str = Field(description="Card generation timestamp (ISO 8601)")
 
 
+class CheckpointRef(ScientistArtifactRef):
+    """Reference to a stored Scientist checkpoint artifact."""
+
+    kind: Literal["scientist.checkpoint"] = "scientist.checkpoint"
+    media_type: Literal["application/json"] = "application/json"
+
+    run_id: str = Field(description="Associated run id")
+    sequence_number: int = Field(ge=0, description="Checkpoint sequence number")
+    node_alias: str = Field(description="Last completed node alias")
+
+
 __all__ = [
     "ScientistArtifactRef",
     "ExperimentStateRef",
@@ -156,4 +167,5 @@ __all__ = [
     "CritiqueRef",
     "TimelineRef",
     "DecisionCardRef",
+    "CheckpointRef",
 ]

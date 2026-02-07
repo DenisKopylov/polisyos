@@ -7,6 +7,12 @@ from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext, new_run_id
+from polisyos.scientist.engine.checkpoint import (
+    CASCheckpointHook,
+    CheckpointPolicy,
+    acquire_run_lock,
+    normalize_checkpoint_policy,
+)
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.executor import WorkflowExecutionResult, WorkflowExecutor
 from polisyos.scientist.engine.registry import NodeRegistry
@@ -81,6 +87,8 @@ def run_default_workflow(
     *,
     store: FileSystemCAS | None = None,
     registry_bundle_ref: ArtifactRef | None = None,
+    checkpoint_policy: CheckpointPolicy = "strict",
+    force_lock: bool = False,
     foundry: object | None = None,
     fabric: object | None = None,
     scholar: object | None = None,
@@ -89,6 +97,7 @@ def run_default_workflow(
     tracer: object | None = None,
 ) -> WorkflowExecutionResult:
     store = store or FileSystemCAS(DEFAULT_CAS_ROOT)
+    policy = normalize_checkpoint_policy(checkpoint_policy)
 
     state = initial_state.model_copy(deep=True)
     if not state.run_id:
@@ -105,22 +114,33 @@ def run_default_workflow(
     if foundry is None:
         foundry = DefaultFoundryPort()
 
-    ctx = build_execution_context(
-        store,
-        registry_bundle_ref,
-        run_id=state.run_id,
-        logger=logger,
-        tracer=tracer,
-        foundry=foundry,
-        fabric=fabric,
-        scholar=scholar,
-        lex=lex,
-    )
+    run_dir = store.root / "runs" / state.run_id
+    lock = acquire_run_lock(run_dir, run_id=state.run_id, mode="run", force=force_lock)
+    try:
+        ctx = build_execution_context(
+            store,
+            registry_bundle_ref,
+            run_id=state.run_id,
+            logger=logger,
+            tracer=tracer,
+            foundry=foundry,
+            fabric=fabric,
+            scholar=scholar,
+            lex=lex,
+        )
 
-    registry = build_registry_with_builtin_nodes()
-    executor = WorkflowExecutor(ctx, registry)
-    workflow = default_workflow_spec()
-    return executor.execute(workflow, state)
+        registry = build_registry_with_builtin_nodes()
+        checkpoint_hook = CASCheckpointHook(
+            store=store,
+            run_dir=run_dir,
+            sequence_start=0,
+            checkpoint_policy=policy,
+        )
+        executor = WorkflowExecutor(ctx, registry, checkpoint_hook=checkpoint_hook)
+        workflow = default_workflow_spec()
+        return executor.execute(workflow, state)
+    finally:
+        lock.release()
 
 
 __all__ = [

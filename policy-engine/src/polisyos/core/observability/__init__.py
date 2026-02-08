@@ -9,8 +9,8 @@ from .config import OTelConfig, get_default_config
 try:
     from .decorators import traced, traced_method
     from .logs import (
-        TraceContextFilter,
         StructuredFormatter,
+        TraceContextFilter,
         configure_otel_logging_handler,
         get_trace_context_dict,
     )
@@ -83,6 +83,21 @@ except ModuleNotFoundError:  # pragma: no cover - optional runtime dependency
             return None
 
         def set_cell_tenant_count(self, *, cell_id: str, tier: str, count: int) -> None:
+            return None
+
+        def record_authz_decision(self, *, policy: str, decision: str, cached: bool) -> None:
+            return None
+
+        def record_authz_latency(self, policy: str, duration_seconds: float) -> None:
+            return None
+
+        def record_authz_cache_hit(self, *, policy: str) -> None:
+            return None
+
+        def record_authz_error(self, *, policy: str, reason: str) -> None:
+            return None
+
+        def record_identity_failure(self, *, reason: str, provider: str) -> None:
             return None
 
     class _NoopSpan:

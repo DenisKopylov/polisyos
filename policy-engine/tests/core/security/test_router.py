@@ -2,9 +2,11 @@ from __future__ import annotations
 
 import pytest
 
-fastapi = pytest.importorskip("fastapi")
-from fastapi import FastAPI, Request
-from fastapi.testclient import TestClient
+try:  # pragma: no cover - optional dependency guard
+    from fastapi import FastAPI, Request
+    from fastapi.testclient import TestClient
+except ModuleNotFoundError:  # pragma: no cover
+    pytest.skip("fastapi is not installed", allow_module_level=True)
 
 from polisyos.core.security.cell import CellSpec, CellTier, TenantSpec
 from polisyos.core.security.registry import CellRegistry
@@ -51,8 +53,33 @@ def test_routing_success(app_with_router: tuple[FastAPI, list[str]]) -> None:
     assert "X-Cell-ID" in response.headers
 
 
+def test_routing_accepts_lowercase_header(app_with_router: tuple[FastAPI, list[str]]) -> None:
+    app, tenants = app_with_router
+    client = TestClient(app)
+    response = client.get("/test", headers={"x-tenant-id": tenants[0]})
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["tenant_id"] == tenants[0]
+
+
 def test_missing_header(app_with_router: tuple[FastAPI, list[str]]) -> None:
     app, _ = app_with_router
     client = TestClient(app)
     response = client.get("/test")
     assert response.status_code == 401
+
+
+def test_routing_rejects_authenticated_tenant_mismatch(
+    app_with_router: tuple[FastAPI, list[str]]
+) -> None:
+    app, tenants = app_with_router
+
+    @app.middleware("http")
+    async def inject_claim_tenant(request: Request, call_next):  # type: ignore[no-untyped-def]
+        request.state.authenticated_tenant_id = tenants[0]
+        return await call_next(request)
+
+    client = TestClient(app)
+    response = client.get("/test", headers={"X-Tenant-ID": tenants[1]})
+    assert response.status_code == 403
+    assert response.json()["error"] == "tenant_binding_mismatch"

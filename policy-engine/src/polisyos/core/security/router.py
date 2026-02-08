@@ -32,7 +32,7 @@ def resolve_routing(
     registry: CellRegistry,
     tenant_header: str = TENANT_HEADER,
 ) -> RoutingResult:
-    tenant_id = headers.get(tenant_header)
+    tenant_id = headers.get(tenant_header) or headers.get(tenant_header.lower())
     if not tenant_id:
         raise MissingTenantHeaderError(f"Missing required header: {tenant_header}")
 

@@ -5,10 +5,13 @@ import contextvars
 import functools
 from contextlib import contextmanager
 from dataclasses import dataclass
-from typing import Any, Callable, Iterator, ParamSpec, TypeVar
+from typing import TYPE_CHECKING, Callable, Iterator, ParamSpec, TypeVar
 
 from polisyos.core.security.db_backend import DatabaseBackend
 from polisyos.core.security.exceptions import TenantContextNotSetError
+
+if TYPE_CHECKING:
+    from polisyos.core.security.access_scope import AccessScope
 
 P = ParamSpec("P")
 R = TypeVar("R")
@@ -18,6 +21,9 @@ _current_tenant: contextvars.ContextVar[str | None] = contextvars.ContextVar(
 )
 _current_cell: contextvars.ContextVar[str | None] = contextvars.ContextVar(
     "current_cell", default=None
+)
+_current_access_scope: contextvars.ContextVar["AccessScope | None"] = contextvars.ContextVar(
+    "current_access_scope", default=None
 )
 
 
@@ -42,6 +48,22 @@ def get_current_tenant_id_or_none() -> str | None:
 
 def get_current_cell_id() -> str | None:
     return _current_cell.get()
+
+
+def set_current_access_scope(
+    scope: "AccessScope | None",
+) -> contextvars.Token["AccessScope | None"]:
+    return _current_access_scope.set(scope)
+
+
+def reset_current_access_scope(
+    token: contextvars.Token["AccessScope | None"],
+) -> None:
+    _current_access_scope.reset(token)
+
+
+def get_current_access_scope_or_none() -> "AccessScope | None":
+    return _current_access_scope.get()
 
 
 @contextmanager
@@ -80,4 +102,7 @@ __all__ = [
     "get_current_tenant_id",
     "get_current_tenant_id_or_none",
     "get_current_cell_id",
+    "get_current_access_scope_or_none",
+    "set_current_access_scope",
+    "reset_current_access_scope",
 ]

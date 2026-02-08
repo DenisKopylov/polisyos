@@ -32,6 +32,7 @@ from typing import Any, Callable, Optional, ParamSpec, TypeVar, Union, overload
 from opentelemetry.trace import SpanKind, Status, StatusCode
 
 from polisyos.core.security.tenant_context import (
+    get_current_access_scope_or_none,
     get_current_cell_id,
     get_current_tenant_id_or_none,
 )
@@ -107,6 +108,13 @@ def _attach_tenant_attributes(span: Any) -> None:
     cell_id = get_current_cell_id()
     if cell_id is not None:
         span.set_attribute("cell.id", cell_id)
+        span.set_attribute("tenant.cell_id", cell_id)
+
+    access_scope = get_current_access_scope_or_none()
+    if access_scope is not None:
+        for key, value in access_scope.to_otel_attributes().items():
+            if value != "":
+                span.set_attribute(key, value)
 
 
 @overload

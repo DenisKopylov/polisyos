@@ -1,0 +1,29 @@
+groups:
+  - name: polisyos_mtls
+    rules:
+      - alert: PlaintextConnectionDetected
+        expr: |
+          sum(
+            increase(
+              tcp_open_total{
+                tls="no_identity",
+                namespace=~"polisyos-cell-.*"
+              }[5m]
+            )
+          ) > 0
+        for: 0m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Plaintext connection detected in PolicyOS cell namespace"
+          description: "mTLS bypass detected. Investigate workload and mesh policy immediately."
+
+      - alert: MTLSCertificateExpiringSoon
+        expr: |
+          (identity_cert_expiry_timestamp_seconds - time()) < 3600
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Linkerd mTLS identity certificate expiring within one hour"
+          description: "Identity certificate rotation may be stalled. Verify Linkerd and SPIRE health."

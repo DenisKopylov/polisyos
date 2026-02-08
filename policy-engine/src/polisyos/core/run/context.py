@@ -5,6 +5,8 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 
+from polisyos.core.security.access_scope import AccessScope
+
 from ..artifacts.manifest import ArtifactRef, EnvInfo, InputRef, ProducerInfo, SchemaInfo
 from ..artifacts.store import FileSystemCAS, PutOptions
 from ..trace.record import TraceRecord
@@ -24,6 +26,7 @@ class RunContext:
     _trace_path: Path | None = None
     tenant_id: str | None = None
     cell_id: str | None = None
+    access_scope: AccessScope | None = None
 
     @property
     def trace_path(self) -> Path | None:
@@ -41,6 +44,7 @@ class RunContext:
         *,
         tenant_id: str | None = None,
         cell_id: str | None = None,
+        access_scope: AccessScope | None = None,
     ) -> "RunContext":
         run_id = run_id or new_run_id()
         run_dir = run_dir or (store.root / "runs" / run_id)
@@ -61,6 +65,7 @@ class RunContext:
             _trace_path=trace_path,
             tenant_id=tenant_id,
             cell_id=cell_id,
+            access_scope=access_scope,
         )
         ctx.emit("core", "RUN_STARTED")
         return ctx

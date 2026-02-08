@@ -1,4 +1,4 @@
-"""Security exception hierarchy for tenant isolation."""
+"""Security exception hierarchy for tenant isolation and Zero Trust authn/authz."""
 
 
 class TenantIsolationError(Exception):
@@ -30,3 +30,39 @@ class CellCapacityError(TenantIsolationError):
 
 class TenantContextNotSetError(TenantIsolationError):
     """Raised when tenant-scoped operation runs without active context."""
+
+
+class IdentityError(TenantIsolationError):
+    """Base exception for identity operations."""
+
+
+class IdentityNotAvailableError(IdentityError):
+    """Raised when service identity provider is unavailable."""
+
+
+class IdentityVerificationError(IdentityError):
+    """Raised when service identity verification fails."""
+
+
+class TokenValidationError(IdentityError):
+    """Raised when JWT token validation fails."""
+
+
+class MFARequiredError(TokenValidationError):
+    """Raised when MFA is required but not present in token claims."""
+
+
+class DelegationError(TenantIsolationError):
+    """Base exception for delegation-token handling."""
+
+
+class DelegationVerificationError(DelegationError):
+    """Raised when delegation token cannot be verified."""
+
+
+class AuthorizationError(TenantIsolationError):
+    """Base exception for authorization checks."""
+
+
+class AuthorizationDeniedError(AuthorizationError):
+    """Raised when authorization policy denies access."""

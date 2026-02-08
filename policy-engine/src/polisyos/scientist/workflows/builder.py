@@ -7,7 +7,12 @@ from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext, new_run_id
-from polisyos.core.security.tenant_context import get_current_cell_id, get_current_tenant_id_or_none
+from polisyos.core.security.tenant_context import (
+    get_current_access_scope_or_none,
+    get_current_cell_id,
+    get_current_tenant_id_or_none,
+)
+from polisyos.scientist.engine.builtins import builtin_nodes as engine_builtin_nodes
 from polisyos.scientist.engine.checkpoint import (
     CASCheckpointHook,
     CheckpointPolicy,
@@ -18,7 +23,6 @@ from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.executor import WorkflowExecutionResult, WorkflowExecutor
 from polisyos.scientist.engine.registry import NodeRegistry
 from polisyos.scientist.engine.state import ExperimentState
-from polisyos.scientist.engine.builtins import builtin_nodes as engine_builtin_nodes
 from polisyos.scientist.foundry import DefaultFoundryPort
 from polisyos.scientist.nodes.builtins import builtin_nodes as scientist_builtin_nodes
 from polisyos.scientist.nodes.builtins.state_keys import (
@@ -28,7 +32,6 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     INPUT_STATE_SNAPSHOT_REF,
 )
 from polisyos.scientist.workflows.default import default_workflow_spec
-
 
 DEFAULT_CAS_ROOT = Path(".polisyos")
 
@@ -56,6 +59,7 @@ def build_execution_context(
         run_id=run_id,
         tenant_id=get_current_tenant_id_or_none(),
         cell_id=get_current_cell_id(),
+        access_scope=get_current_access_scope_or_none(),
     )
     return ExecutionContext(
         store=store,
@@ -85,7 +89,8 @@ def _ensure_snapshot_bind(state: ExperimentState) -> None:
         and INPUT_DATA_VIEW_REQUEST_REF not in state.inputs
     ):
         raise ValueError(
-            "Missing snapshot input: provide data_snapshot_ref, state_snapshot_ref, or data_view_request_ref"
+            "Missing snapshot input: provide data_snapshot_ref, state_snapshot_ref, "
+            "or data_view_request_ref"
         )
 
 

@@ -178,6 +178,11 @@ class MetricsRegistry:
     cell_router_failures_total: Optional[metrics.Counter] = None
     security_incidents_total: Optional[metrics.Counter] = None
     cell_tenants_current: Optional[GaugeProxy] = None
+    authz_decisions_total: Optional[metrics.Counter] = None
+    authz_latency_seconds: Optional[metrics.Histogram] = None
+    authz_cache_hits_total: Optional[metrics.Counter] = None
+    authz_errors_total: Optional[metrics.Counter] = None
+    identity_failures_total: Optional[metrics.Counter] = None
 
     def __new__(cls) -> "MetricsRegistry":
         if cls._instance is None:
@@ -608,6 +613,31 @@ class MetricsRegistry:
             description="Current tenants assigned per cell",
             unit="1",
         )
+        self.authz_decisions_total = self._meter.create_counter(
+            name="polisyos_authz_decisions_total",
+            description="Authorization decisions by policy and outcome",
+            unit="1",
+        )
+        self.authz_latency_seconds = self._meter.create_histogram(
+            name="polisyos_authz_latency_seconds",
+            description="Authorization policy evaluation latency",
+            unit="s",
+        )
+        self.authz_cache_hits_total = self._meter.create_counter(
+            name="polisyos_authz_cache_hits_total",
+            description="Authorization cache hits by policy",
+            unit="1",
+        )
+        self.authz_errors_total = self._meter.create_counter(
+            name="polisyos_authz_errors_total",
+            description="Authorization errors with fail-closed denies",
+            unit="1",
+        )
+        self.identity_failures_total = self._meter.create_counter(
+            name="polisyos_identity_failures_total",
+            description="Identity validation and verification failures",
+            unit="1",
+        )
 
     def time_simulation(
         self,
@@ -847,6 +877,39 @@ class MetricsRegistry:
         if self.cell_tenants_current is None:
             return
         self.cell_tenants_current.set(float(max(count, 0)), {"cell_id": cell_id, "tier": tier})
+
+    def record_authz_decision(self, *, policy: str, decision: str, cached: bool) -> None:
+        self._ensure_initialized()
+        if self.authz_decisions_total is None:
+            return
+        self.authz_decisions_total.add(
+            1,
+            {"policy": policy, "decision": decision, "cached": str(cached).lower()},
+        )
+
+    def record_authz_latency(self, policy: str, duration_seconds: float) -> None:
+        self._ensure_initialized()
+        if self.authz_latency_seconds is None:
+            return
+        self.authz_latency_seconds.record(max(duration_seconds, 0.0), {"policy": policy})
+
+    def record_authz_cache_hit(self, *, policy: str) -> None:
+        self._ensure_initialized()
+        if self.authz_cache_hits_total is None:
+            return
+        self.authz_cache_hits_total.add(1, {"policy": policy})
+
+    def record_authz_error(self, *, policy: str, reason: str) -> None:
+        self._ensure_initialized()
+        if self.authz_errors_total is None:
+            return
+        self.authz_errors_total.add(1, {"policy": policy, "reason": reason})
+
+    def record_identity_failure(self, *, reason: str, provider: str) -> None:
+        self._ensure_initialized()
+        if self.identity_failures_total is None:
+            return
+        self.identity_failures_total.add(1, {"reason": reason, "provider": provider})
 
     def increment_active_runs(self) -> None:
         """Increment the active runs gauge."""

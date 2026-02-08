@@ -1,12 +1,17 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
 import re
+from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, Iterable, Mapping, Sequence
 
 import pandas as pd
 
 from polisyos.core.security.db_backend import DatabaseBackend
+from polisyos.fabric.security import (
+    apply_requested_column_guard,
+    mask_dataframe_columns,
+    normalize_allowed_columns,
+)
 
 if TYPE_CHECKING:
     from polisyos.fabric.io.db import SimulationDB
@@ -46,6 +51,7 @@ class WorldQueryRequest:
     where: Mapping[str, Any] | None = None
     order_by: tuple[str, ...] = ()
     limit: int = 1_000
+    allowed_columns: tuple[str, ...] | None = None
 
 
 def execute_world_query(
@@ -53,10 +59,19 @@ def execute_world_query(
     request: WorldQueryRequest,
 ) -> pd.DataFrame:
     table_sql = _resolve_table(request.table)
-    columns_sql = _compile_columns(request.columns)
+    allowed_columns = normalize_allowed_columns(request.allowed_columns)
+    try:
+        effective_columns = apply_requested_column_guard(
+            requested=request.columns,
+            allowed=allowed_columns,
+        )
+    except ValueError as exc:
+        raise WorldQueryError(str(exc)) from exc
+
+    columns_sql = _compile_columns(effective_columns)
     placeholder = _resolve_placeholder(db)
     where_sql, params = _compile_where(request.where, placeholder=placeholder)
-    order_by_sql = _compile_order_by(request.order_by)
+    order_by_sql = _compile_order_by(request.order_by, allowed_columns=allowed_columns)
     limit = _normalize_limit(request.limit)
 
     query = (
@@ -64,7 +79,8 @@ def execute_world_query(
         f"LIMIT {placeholder}"
     )
     params.append(limit)
-    return _execute_fetchdf(db, query, params)
+    frame = _execute_fetchdf(db, query, params)
+    return mask_dataframe_columns(frame, allowed=allowed_columns)
 
 
 def query_world_table(
@@ -75,6 +91,7 @@ def query_world_table(
     where: Mapping[str, Any] | None = None,
     order_by: Iterable[str] | None = None,
     limit: int = 1_000,
+    allowed_columns: Sequence[str] | None = None,
 ) -> pd.DataFrame:
     request = WorldQueryRequest(
         table=table,
@@ -82,6 +99,7 @@ def query_world_table(
         where=where,
         order_by=tuple(order_by or ()),
         limit=limit,
+        allowed_columns=tuple(allowed_columns) if allowed_columns is not None else None,
     )
     return execute_world_query(db, request)
 
@@ -92,6 +110,7 @@ def query_claims(
     where: Mapping[str, Any] | None = None,
     columns: Sequence[str] | None = None,
     limit: int = 1_000,
+    allowed_columns: Sequence[str] | None = None,
 ) -> pd.DataFrame:
     return query_world_table(
         db,
@@ -100,6 +119,7 @@ def query_claims(
         where=where,
         order_by=("claim_id ASC",),
         limit=limit,
+        allowed_columns=allowed_columns,
     )
 
 
@@ -109,6 +129,7 @@ def query_events(
     where: Mapping[str, Any] | None = None,
     columns: Sequence[str] | None = None,
     limit: int = 1_000,
+    allowed_columns: Sequence[str] | None = None,
 ) -> pd.DataFrame:
     return query_world_table(
         db,
@@ -117,6 +138,7 @@ def query_events(
         where=where,
         order_by=("updated_at DESC",),
         limit=limit,
+        allowed_columns=allowed_columns,
     )
 
 
@@ -162,7 +184,11 @@ def _compile_where(
     return " WHERE " + " AND ".join(parts), params
 
 
-def _compile_order_by(order_by: Iterable[str]) -> str:
+def _compile_order_by(
+    order_by: Iterable[str],
+    *,
+    allowed_columns: frozenset[str] | None = None,
+) -> str:
     parts: list[str] = []
     for entry in order_by:
         item = entry.strip()
@@ -178,6 +204,8 @@ def _compile_order_by(order_by: Iterable[str]) -> str:
             raise WorldQueryError(f"Invalid order_by expression: {entry!r}")
         if not _IDENT_RE.fullmatch(column):
             raise WorldQueryError(f"Invalid order_by column: {column!r}")
+        if allowed_columns is not None and column not in allowed_columns:
+            raise WorldQueryError(f"Unauthorized order_by column: {column!r}")
         direction_norm = direction.upper()
         if direction_norm not in {"ASC", "DESC"}:
             raise WorldQueryError(f"Invalid order_by direction: {direction!r}")

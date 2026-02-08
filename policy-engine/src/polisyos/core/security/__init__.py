@@ -1,31 +1,60 @@
-from polisyos.core.security.cell import CellAssignment, CellSpec, CellTier, IsolationLevel, TenantSpec
+from polisyos.core.security.access_scope import AccessScope
+from polisyos.core.security.authz import AuthzDecision, AuthzInput, AuthzResult, OPAClient
+from polisyos.core.security.cell import (
+    CellAssignment,
+    CellSpec,
+    CellTier,
+    IsolationLevel,
+    TenantSpec,
+)
 from polisyos.core.security.db_backend import (
     DatabaseBackend,
     DuckDBLegacyBackend,
     PostgresBackend,
 )
+from polisyos.core.security.delegation import DelegationContextClaims, DelegationTokenManager
 from polisyos.core.security.exceptions import (
+    AuthorizationDeniedError,
+    AuthorizationError,
     CellCapacityError,
     CrossTenantAccessError,
+    DelegationError,
+    DelegationVerificationError,
+    IdentityError,
+    IdentityNotAvailableError,
+    IdentityVerificationError,
+    MFARequiredError,
     TenantContextNotSetError,
     TenantIsolationError,
     TenantNotFoundError,
+    TokenValidationError,
 )
-from polisyos.core.security.registry import CellResolution, CellRegistry
+from polisyos.core.security.identity import (
+    PIIAccessLevel,
+    PolicyOSRole,
+    ServiceIdentity,
+    ServiceIdentityInfo,
+    SPIFFEIdentityProvider,
+    UserIdentityClaims,
+)
+from polisyos.core.security.registry import CellRegistry, CellResolution
 from polisyos.core.security.router import (
+    TENANT_HEADER,
     MissingTenantHeaderError,
     RoutingResult,
-    TENANT_HEADER,
     TenantRoutingError,
     resolve_routing,
 )
 from polisyos.core.security.settings import SecuritySettings, get_security_settings
 from polisyos.core.security.tenant_context import (
     TenantContext,
+    get_current_access_scope_or_none,
     get_current_cell_id,
     get_current_tenant_id,
     get_current_tenant_id_or_none,
     require_tenant_context,
+    reset_current_access_scope,
+    set_current_access_scope,
     tenant_scope,
 )
 
@@ -36,6 +65,19 @@ __all__ = [
     "CellTier",
     "IsolationLevel",
     "TenantSpec",
+    "AccessScope",
+    "PolicyOSRole",
+    "PIIAccessLevel",
+    "UserIdentityClaims",
+    "ServiceIdentity",
+    "ServiceIdentityInfo",
+    "SPIFFEIdentityProvider",
+    "DelegationContextClaims",
+    "DelegationTokenManager",
+    "AuthzDecision",
+    "AuthzInput",
+    "AuthzResult",
+    "OPAClient",
     "DatabaseBackend",
     "PostgresBackend",
     "DuckDBLegacyBackend",
@@ -44,6 +86,15 @@ __all__ = [
     "TenantNotFoundError",
     "CellCapacityError",
     "TenantContextNotSetError",
+    "IdentityError",
+    "IdentityNotAvailableError",
+    "IdentityVerificationError",
+    "TokenValidationError",
+    "MFARequiredError",
+    "DelegationError",
+    "DelegationVerificationError",
+    "AuthorizationError",
+    "AuthorizationDeniedError",
     "MissingTenantHeaderError",
     "TenantRoutingError",
     "CellRegistry",
@@ -53,6 +104,9 @@ __all__ = [
     "get_current_tenant_id",
     "get_current_tenant_id_or_none",
     "get_current_cell_id",
+    "get_current_access_scope_or_none",
+    "set_current_access_scope",
+    "reset_current_access_scope",
     "TENANT_HEADER",
     "RoutingResult",
     "resolve_routing",

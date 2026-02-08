@@ -9,12 +9,16 @@ from polisyos.core.observability import get_metrics
 from polisyos.core.security.exceptions import CrossTenantAccessError, TenantIsolationError
 from polisyos.core.security.registry import CellRegistry
 from polisyos.core.security.router import (
-    MissingTenantHeaderError,
     TENANT_HEADER,
+    MissingTenantHeaderError,
     TenantRoutingError,
     resolve_routing,
 )
-from polisyos.core.security.tenant_context import tenant_scope
+from polisyos.core.security.tenant_context import (
+    reset_current_access_scope,
+    set_current_access_scope,
+    tenant_scope,
+)
 
 logger = logging.getLogger("polisyos.security")
 
@@ -51,10 +55,40 @@ class CellRouterMiddleware(BaseHTTPMiddleware):  # type: ignore[misc]
         if path in {"/health", "/ready", "/metrics"}:
             return await call_next(request)
 
+        claims = getattr(request.state, "user_claims", None)
+        authenticated_tenant_id = (
+            getattr(claims, "tenant_id", None)
+            if claims is not None
+            else getattr(request.state, "authenticated_tenant_id", None)
+        )
+        header_tenant_id = request.headers.get(self._tenant_header)
+        if (
+            authenticated_tenant_id
+            and header_tenant_id
+            and header_tenant_id != authenticated_tenant_id
+        ):
+            _record_failure("tenant_binding_mismatch")
+            return JSONResponse(
+                status_code=403,
+                content={
+                    "error": "tenant_binding_mismatch",
+                    "detail": (
+                        f"Authenticated tenant {authenticated_tenant_id!r} "
+                        f"does not match header tenant {header_tenant_id!r}"
+                    ),
+                },
+            )
+
+        effective_tenant_id = authenticated_tenant_id or header_tenant_id
+        routing_headers = dict(request.headers)
+        if effective_tenant_id:
+            routing_headers[self._tenant_header] = effective_tenant_id
+            routing_headers[self._tenant_header.lower()] = effective_tenant_id
+
         start = time.perf_counter()
         try:
             routing = resolve_routing(
-                headers=request.headers,
+                headers=routing_headers,
                 registry=self._registry,
                 tenant_header=self._tenant_header,
             )
@@ -75,7 +109,25 @@ class CellRouterMiddleware(BaseHTTPMiddleware):  # type: ignore[misc]
         request.state.cell_id = routing.cell_id
         request.state.cell_tier = routing.cell_tier
 
+        token_claim_cell = getattr(claims, "cell_id", None) if claims is not None else None
+        if token_claim_cell and token_claim_cell != routing.cell_id:
+            _record_failure("cell_binding_mismatch")
+            return JSONResponse(
+                status_code=403,
+                content={
+                    "error": "cell_binding_mismatch",
+                    "detail": (
+                        f"Token is bound to cell {token_claim_cell!r}, "
+                        f"but routed cell is {routing.cell_id!r}"
+                    ),
+                },
+            )
+
+        scope_token = None
         try:
+            access_scope = getattr(request.state, "access_scope", None)
+            if access_scope is not None:
+                scope_token = set_current_access_scope(access_scope)
             with tenant_scope(None, tenant_id=routing.tenant_id, cell_id=routing.cell_id):
                 response = await call_next(request)
         except CrossTenantAccessError as exc:
@@ -90,6 +142,9 @@ class CellRouterMiddleware(BaseHTTPMiddleware):  # type: ignore[misc]
                 status_code=500,
                 content={"error": "tenant_isolation_error", "detail": str(exc)},
             )
+        finally:
+            if scope_token is not None:
+                reset_current_access_scope(scope_token)
 
         duration_seconds = time.perf_counter() - start
         _record_success(

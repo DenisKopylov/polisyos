@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spire-server
+  namespace: {{ .Values.namespace }}
+spec:
+  replicas: {{ .Values.server.replicas }}
+  selector:
+    matchLabels:
+      app: spire-server
+  template:
+    metadata:
+      labels:
+        app: spire-server
+    spec:
+      serviceAccountName: {{ .Values.server.serviceAccountName }}
+      containers:
+        - name: spire-server
+          image: {{ .Values.server.image }}
+          args:
+            - "run"
+            - "-config"
+            - "/run/spire/config/server.conf"
+          ports:
+            - name: grpc
+              containerPort: 8081
+          resources:
+            {{- toYaml .Values.server.resources | nindent 12 }}
+          volumeMounts:
+            - name: server-config
+              mountPath: /run/spire/config
+              readOnly: true
+            - name: server-data
+              mountPath: {{ .Values.server.dataDir }}
+      volumes:
+        - name: server-config
+          configMap:
+            name: spire-server-config
+        - name: server-data
+          emptyDir: {}

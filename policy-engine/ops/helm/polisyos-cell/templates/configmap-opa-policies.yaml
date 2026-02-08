@@ -1,0 +1,27 @@
+{{- if .Values.opa.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "polisyos-cell.fullname" . }}-opa-policies
+  namespace: {{ include "polisyos-cell.namespaceName" . }}
+  labels:
+    {{- include "polisyos-cell.labels" . | nindent 4 }}
+data:
+  {{- $chartPolicies := .Files.Glob "policies/*.rego" }}
+  {{- if gt (len $chartPolicies) 0 }}
+  {{- range $path, $content := $chartPolicies }}
+  {{ base $path }}: |
+{{ $content | toString | nindent 4 }}
+  {{- end }}
+  {{- else if .Values.opa.policies }}
+  {{- range $name, $policy := .Values.opa.policies }}
+  {{ $name }}: |
+{{ $policy | nindent 4 }}
+  {{- end }}
+  {{- else }}
+  decision.rego: |
+    package polisyos.authz.decision
+    import rego.v1
+    default allow := false
+  {{- end }}
+{{- end }}

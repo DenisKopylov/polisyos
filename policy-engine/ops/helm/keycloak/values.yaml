@@ -1,0 +1,18 @@
+namespace: infra
+replicas: 1
+image: quay.io/keycloak/keycloak:26.0.7
+
+service:
+  port: 8080
+
+admin:
+  username: admin
+  password: change-me
+
+resources:
+  requests:
+    cpu: 200m
+    memory: 768Mi
+  limits:
+    cpu: "1"
+    memory: 2Gi

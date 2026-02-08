@@ -1,0 +1,6 @@
+apiVersion: v2
+name: spire
+version: 0.1.0
+appVersion: "1.9.6"
+type: application
+description: SPIRE server and agent baseline for PolicyOS Zero Trust identity.

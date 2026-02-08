@@ -46,3 +46,13 @@ podSecurityStandard:
 rbac:
   create: true
   serviceAccountName: "polisyos-cell-sa"
+
+opa:
+  enabled: true
+  policies: {}
+
+linkerd:
+  enabled: true
+  strictMtls: true
+  trustedServiceAccounts: []
+  servers: []

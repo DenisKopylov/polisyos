@@ -1,0 +1,27 @@
+namespace: spire-system
+
+server:
+  image: ghcr.io/spiffe/spire-server:1.9.6
+  replicas: 1
+  trustDomain: polisyos.io
+  serviceAccountName: spire-server
+  dataDir: /run/spire/data
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+agent:
+  image: ghcr.io/spiffe/spire-agent:1.9.6
+  serviceAccountName: spire-agent
+  socketPath: /run/spire/sockets
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 200m
+      memory: 128Mi

@@ -10,6 +10,10 @@ Tenant isolation primitives for cell-based multi-tenant deployments.
 - `db_backend.py` — `DatabaseBackend` protocol with DuckDB/Postgres adapters
 - `router.py` — framework-agnostic routing helpers for request tenant resolution
 - `settings.py` — environment-driven settings for tenant-isolation behavior
+- `identity.py` — user/service identity models and JWT/SPIFFE provider
+- `access_scope.py` — immutable per-request access scope
+- `delegation.py` — signed delegation token for inter-service user context
+- `authz.py` — async OPA authorization client with fail-closed semantics
 
 ## Design goals
 

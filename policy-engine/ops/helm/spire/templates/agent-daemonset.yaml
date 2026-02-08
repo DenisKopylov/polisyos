@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: spire-agent
+  namespace: {{ .Values.namespace }}
+spec:
+  selector:
+    matchLabels:
+      app: spire-agent
+  template:
+    metadata:
+      labels:
+        app: spire-agent
+    spec:
+      hostNetwork: true
+      hostPID: true
+      serviceAccountName: {{ .Values.agent.serviceAccountName }}
+      containers:
+        - name: spire-agent
+          image: {{ .Values.agent.image }}
+          args:
+            - "run"
+            - "-config"
+            - "/run/spire/config/agent.conf"
+          volumeMounts:
+            - name: spire-agent-socket
+              mountPath: {{ .Values.agent.socketPath }}
+            - name: agent-config
+              mountPath: /run/spire/config
+              readOnly: true
+          resources:
+            {{- toYaml .Values.agent.resources | nindent 12 }}
+      volumes:
+        - name: spire-agent-socket
+          hostPath:
+            path: {{ .Values.agent.socketPath }}
+            type: DirectoryOrCreate
+        - name: agent-config
+          configMap:
+            name: spire-agent-config

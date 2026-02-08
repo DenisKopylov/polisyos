@@ -292,6 +292,12 @@ def _build_connector_provenance_graph(
             attributes["content_hash"] = ds["content_hash"]
         if ds.get("data_artifact_id"):
             attributes["data_artifact_id"] = ds["data_artifact_id"]
+        if ds.get("pii_max_severity"):
+            attributes["pii_max_severity"] = ds["pii_max_severity"]
+        if ds.get("pii_entities_total") is not None:
+            attributes["pii_entities_total"] = int(ds["pii_entities_total"])
+        if ds.get("pii_sampled") is not None:
+            attributes["pii_sampled"] = bool(ds["pii_sampled"])
 
         graph.add_entity(
             ProvenanceEntity(
@@ -328,6 +334,14 @@ def run_connectors_ingestion(
     cache_store = ConnectorCacheStore(cas_store, cache_registry) if cas_store else None
     pipeline = _load_transform_pipeline(spec.transform_dag)
     registry = ConnectorRegistry.get_instance()
+    pii_stage = None
+    try:
+        from polisyos.fabric.pii import PIIDetectionStage
+
+        pii_stage = PIIDetectionStage.from_env()
+    except Exception as exc:
+        logger.warning("connector_ingestion: failed to initialize PII stage: %s", exc)
+        pii_stage = None
 
     ingestion_started_at = datetime.now(timezone.utc)
     artifact_refs: list[ArtifactRef] = []
@@ -361,6 +375,16 @@ def run_connectors_ingestion(
 
         result: FetchResult[Any] = _sync_fetch(registry, connector_id, connector, request)
         result = _apply_transform_pipeline(result, pipeline)
+        if pii_stage is not None:
+            try:
+                result, _ = pii_stage.process_fetch_result(result)
+            except Exception as exc:
+                logger.warning(
+                    "connector_ingestion: PII scan failed for %s:%s: %s",
+                    connector_id,
+                    dataset_id,
+                    exc,
+                )
 
         payload_ref: ArtifactRef | None = None
         if cache_store is not None:
@@ -382,6 +406,16 @@ def run_connectors_ingestion(
                 "version_value": result.version.value,
                 "content_hash": result.version.content_hash,
                 "data_artifact_id": payload_ref.artifact_id.hex if payload_ref else None,
+                "pii_max_severity": (
+                    result.pii_scan.max_severity if result.pii_scan else None
+                ),
+                "pii_entities_total": (
+                    result.pii_scan.total_entities_found if result.pii_scan else None
+                ),
+                "pii_sampled": result.pii_scan.sampled if result.pii_scan else None,
+                "pii_scan": (
+                    result.pii_scan.model_dump(mode="json") if result.pii_scan else None
+                ),
             }
         )
 

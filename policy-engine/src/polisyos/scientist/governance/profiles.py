@@ -61,7 +61,9 @@ class ValidationProfile:
 
         return cls(
             level=ProfileLevel.MVP,
-            pass_ids=frozenset({"schema", "privacy", "budget", "safety", "equity"}),
+            pass_ids=frozenset(
+                {"schema", "privacy", "pii_check", "budget", "safety", "equity"}
+            ),
             thresholds={
                 "budget_ratio": 0.8,
                 "max_interventions": 10,
@@ -91,6 +93,7 @@ class ValidationProfile:
                 {
                     "schema",
                     "privacy",
+                    "pii_check",
                     "budget",
                     "safety",
                     "legal",

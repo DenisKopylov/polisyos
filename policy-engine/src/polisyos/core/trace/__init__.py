@@ -1,4 +1,4 @@
 from .record import TraceRecord
-from .sink import JsonlTraceSink, TraceSink
+from .sink import CompositeTraceSink, JsonlTraceSink, TraceSink
 
-__all__ = ["JsonlTraceSink", "TraceRecord", "TraceSink"]
+__all__ = ["CompositeTraceSink", "JsonlTraceSink", "TraceRecord", "TraceSink"]

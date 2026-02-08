@@ -313,6 +313,18 @@ def _build_parser() -> argparse.ArgumentParser:
         choices=["strict", "warn", "skip"],
         default="warn",
     )
+    audit_export.add_argument(
+        "--slsa-mode",
+        choices=["off", "local", "private", "public"],
+        default=None,
+        help="SLSA mode override (default comes from environment)",
+    )
+    audit_export.add_argument(
+        "--slsa-policy",
+        choices=["best_effort", "required"],
+        default=None,
+        help="SLSA policy override (default comes from environment)",
+    )
     audit_export.add_argument("--no-visualization", action="store_true")
     audit_export.add_argument("--json", action="store_true")
 
@@ -334,6 +346,11 @@ def _build_parser() -> argparse.ArgumentParser:
         "--fail-unsigned",
         action="store_true",
         help="Fail verification when unsigned artifacts are present",
+    )
+    audit_verify.add_argument(
+        "--require-slsa",
+        action="store_true",
+        help="Fail verification if SLSA evidence is missing or invalid",
     )
     audit_verify.add_argument("--output", "-o", default=None, help="Report output path")
     audit_verify.add_argument(
@@ -1063,6 +1080,8 @@ def _cmd_audit_export(args: argparse.Namespace) -> int:
         profile=ExportProfile(args.profile),
         include_visualization=not bool(args.no_visualization),
         signing_policy=SigningPolicy(args.signing_policy),
+        slsa_mode=args.slsa_mode,
+        slsa_policy=args.slsa_policy,
     )
     assembler = AuditPackageAssembler(
         cas=cas,
@@ -1113,6 +1132,7 @@ def _cmd_audit_verify(args: argparse.Namespace) -> int:
         trusted_keys_dir=Path(args.trusted_keys_dir) if args.trusted_keys_dir else None,
         allow_package_keys=bool(args.allow_package_keys),
         fail_unsigned=bool(args.fail_unsigned),
+        require_slsa=bool(args.require_slsa),
     )
     try:
         report = verifier.verify(Path(args.package))

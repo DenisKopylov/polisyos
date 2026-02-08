@@ -6,7 +6,9 @@ from typing import Any, Literal
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
+from polisyos.core.canon.canon_json import from_canonical_bytes
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
+from polisyos.core.contracts.fabric import DataSnapshot
 from polisyos.core.contracts.lex import ComplianceIssue, IssueSeverity
 from polisyos.core.contracts.scientist import GovernanceReportRef
 from polisyos.ir.gate import GateContext, GateDecision, GatePriority, GateRequest, GateVerdict
@@ -16,10 +18,12 @@ from polisyos.scientist.engine.state import ExperimentState
 from polisyos.scientist.governance.passes.base import PassContext
 from polisyos.scientist.governance.passes.confidence_pass import ConfidencePass
 from polisyos.scientist.governance.passes.equity_pass import EquityPass
+from polisyos.scientist.governance.passes.pii_check_pass import PIICheckPass
 from polisyos.scientist.governance.profiles import ValidationProfile
 from polisyos.scientist.governance.report import GovernanceReport
 from polisyos.scientist.kernel.gate_protocol import HumanGateProtocol
 from polisyos.scientist.nodes.builtins.state_keys import REPORT_GOVERNANCE_REPORT_REF
+from polisyos.scientist.nodes.builtins.state_keys import INPUT_DATA_SNAPSHOT_REF
 
 _METADATA = ComponentMetadata(
     component_id=ComponentId.parse("scientist.node_run_governance@1.1.0"),
@@ -154,7 +158,10 @@ class RunGovernanceNode:
                 events.append(
                     NodeEvent(
                         level="warn",
-                        message=f"Confidence gate blocked decision ({blocker_count} blocker(s))",
+                        message=(
+                            f"Governance checks blocked decision "
+                            f"({blocker_count} blocker(s))"
+                        ),
                     )
                 )
 
@@ -333,11 +340,14 @@ def _run_governance_checks(
     state: ExperimentState,
     profile: ValidationProfile,
 ) -> list[ComplianceIssue]:
+    pii_scan_results = _extract_pii_scan_results(ctx, state)
     pass_ctx = PassContext(
         ir=None,
         state={
             "artifacts_index": state.artifacts_index,
             "_store": ctx.store,
+            "tenant_tier": str(state.params.get("tenant_tier", "shared")),
+            "pii_scan_results": pii_scan_results,
         },
         registry_bundle=None,
         profile=profile,
@@ -348,7 +358,32 @@ def _run_governance_checks(
         issues.extend(ConfidencePass().validate(pass_ctx))
     if "equity" in profile.pass_ids:
         issues.extend(EquityPass().validate(pass_ctx))
+    if "pii_check" in profile.pass_ids:
+        issues.extend(PIICheckPass().validate(pass_ctx))
     return issues
+
+
+def _extract_pii_scan_results(
+    ctx: ExecutionContext,
+    state: ExperimentState,
+) -> dict[str, Any] | None:
+    existing = state.params.get("pii_scan_results")
+    if isinstance(existing, dict):
+        return existing
+
+    snapshot_ref = state.inputs.get(INPUT_DATA_SNAPSHOT_REF)
+    if snapshot_ref is None:
+        return None
+    try:
+        payload = from_canonical_bytes(ctx.store.get_bytes(snapshot_ref.artifact_id))
+        snapshot = DataSnapshot.model_validate(payload)
+    except Exception:
+        return None
+
+    summary = snapshot.pii_scan_summary
+    if isinstance(summary, dict):
+        return summary
+    return None
 
 
 def _issue_to_payload(issue: ComplianceIssue) -> dict[str, Any]:

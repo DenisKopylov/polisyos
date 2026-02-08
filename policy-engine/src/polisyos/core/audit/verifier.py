@@ -9,9 +9,13 @@ from pathlib import Path
 from typing import Any
 
 from cryptography.exceptions import InvalidSignature
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.asymmetric import ec
 from cryptography.hazmat.primitives.serialization import load_pem_public_key
+from cryptography.x509 import load_pem_x509_certificate
 
 from polisyos.core.artifacts.manifest import ArtifactManifest
+from polisyos.core.canon.canon_json import to_canonical_bytes
 from polisyos.core.artifacts.signing import (
     DetachedSignature,
     SignatureStatement,
@@ -33,11 +37,13 @@ class AuditPackageVerifier:
         trusted_keys_dir: Path | None = None,
         allow_package_keys: bool = False,
         fail_unsigned: bool = False,
+        require_slsa: bool = False,
     ) -> None:
         self._trusted_keys = trusted_keys or []
         self._trusted_keys_dir = trusted_keys_dir
         self._allow_package_keys = allow_package_keys
         self._fail_unsigned = fail_unsigned
+        self._require_slsa = require_slsa
 
     def verify(self, package_path: Path) -> VerificationReport:
         report = VerificationReport(package_path=str(package_path))
@@ -77,6 +83,7 @@ class AuditPackageVerifier:
             )
             report.provenance_validation = self._verify_provenance(pkg_dir, report, artifact_index)
             report.dependency_completeness = self._verify_completeness(pkg_dir, report)
+            report.slsa_verification = self._verify_slsa(pkg_dir, report, artifact_index)
             report.environment = self._load_environment(pkg_dir)
             report.finalize()
             return report
@@ -590,6 +597,245 @@ class AuditPackageVerifier:
                     report.add_failure("INCOMPLETE_CLOSURE", f"Missing generatedEntity in closure: {gen}")
                 else:
                     step.checks_passed += 1
+        step.status = _status_from_counts(step)
+        step.duration_ms = (time.perf_counter() - started) * 1000
+        return step
+
+    def _verify_slsa(
+        self,
+        pkg_dir: Path,
+        report: VerificationReport,
+        artifact_index: dict[str, dict[str, Path | ArtifactManifest]],
+    ) -> StepResult:
+        step = StepResult(step_name="SLSA Verification")
+        started = time.perf_counter()
+
+        slsa_dir = pkg_dir / "slsa"
+        if not slsa_dir.exists():
+            step.checks_skipped += 1
+            if self._require_slsa:
+                step.checks_failed += 1
+                report.add_failure(
+                    "SLSA_MISSING",
+                    "SLSA evidence is required but package has no slsa/ directory",
+                    path="slsa",
+                )
+            else:
+                report.add_warning(
+                    "SLSA_MISSING",
+                    "Package has no SLSA evidence (legacy package or SLSA disabled)",
+                    path="slsa",
+                )
+            step.status = _status_from_counts(step)
+            step.duration_ms = (time.perf_counter() - started) * 1000
+            return step
+
+        attestation_path = slsa_dir / "attestation.json"
+        if not attestation_path.exists():
+            step.checks_failed += 1
+            report.add_failure(
+                "SLSA_ATTESTATION_MISSING",
+                "Missing slsa/attestation.json",
+                path="slsa/attestation.json",
+            )
+            step.status = _status_from_counts(step)
+            step.duration_ms = (time.perf_counter() - started) * 1000
+            return step
+
+        try:
+            payload = json.loads(attestation_path.read_text("utf-8"))
+        except Exception as exc:
+            step.checks_failed += 1
+            report.add_failure(
+                "SLSA_ATTESTATION_INVALID_JSON",
+                f"Invalid attestation JSON: {exc}",
+                path="slsa/attestation.json",
+            )
+            step.status = _status_from_counts(step)
+            step.duration_ms = (time.perf_counter() - started) * 1000
+            return step
+
+        try:
+            from polisyos.core.security.slsa.models import InTotoStatement
+
+            statement = InTotoStatement.model_validate(payload)
+        except Exception as exc:
+            step.checks_failed += 1
+            report.add_failure(
+                "SLSA_ATTESTATION_INVALID_STRUCTURE",
+                f"Attestation structure validation failed: {exc}",
+                path="slsa/attestation.json",
+            )
+            step.status = _status_from_counts(step)
+            step.duration_ms = (time.perf_counter() - started) * 1000
+            return step
+
+        step.checks_passed += 1
+
+        root_hex = ""
+        try:
+            index_data = json.loads((pkg_dir / "index.json").read_text("utf-8"))
+            root_ref = index_data.get("artifacts", {}).get("root_artifact_id")
+            if isinstance(root_ref, str):
+                root_hex = root_ref.removeprefix("sha256:")
+        except Exception:
+            root_hex = ""
+
+        if not statement.subject:
+            step.checks_failed += 1
+            report.add_failure(
+                "SLSA_SUBJECT_MISSING",
+                "Attestation subject list is empty",
+                path="slsa/attestation.json",
+            )
+        else:
+            digest = statement.subject[0].digest.sha256
+            if root_hex and digest != root_hex:
+                step.checks_failed += 1
+                report.add_failure(
+                    "SLSA_SUBJECT_ROOT_MISMATCH",
+                    "Subject digest does not match root_artifact_id",
+                    path="slsa/attestation.json",
+                    expected=root_hex,
+                    actual=digest,
+                )
+            else:
+                step.checks_passed += 1
+
+        for dep in statement.predicate.build_definition.resolved_dependencies:
+            dep_hash = dep.digest.sha256
+            if dep_hash not in artifact_index:
+                step.checks_failed += 1
+                report.add_failure(
+                    "SLSA_DEPENDENCY_MISSING",
+                    f"Resolved dependency is missing from package: {dep_hash}",
+                    path="slsa/attestation.json",
+                )
+            else:
+                step.checks_passed += 1
+
+        canonical_payload = to_canonical_bytes(
+            statement.model_dump(mode="json", by_alias=True, exclude_none=True)
+        )
+        canonical_sha = hashlib.sha256(canonical_payload).hexdigest()
+
+        signature_path = slsa_dir / "signature.json"
+        if not signature_path.exists():
+            step.checks_skipped += 1
+            if self._require_slsa:
+                step.checks_failed += 1
+                report.add_failure(
+                    "SLSA_SIGNATURE_MISSING",
+                    "SLSA signature is required but slsa/signature.json is absent",
+                    path="slsa/signature.json",
+                )
+            else:
+                report.add_warning(
+                    "SLSA_SIGNATURE_MISSING",
+                    "SLSA signature is absent",
+                    path="slsa/signature.json",
+                )
+        else:
+            try:
+                sig_payload = json.loads(signature_path.read_text("utf-8"))
+            except Exception as exc:
+                step.checks_failed += 1
+                report.add_failure(
+                    "SLSA_SIGNATURE_INVALID_JSON",
+                    f"Invalid signature payload: {exc}",
+                    path="slsa/signature.json",
+                )
+            else:
+                signature_hex = sig_payload.get("signature_hex")
+                certificate_pem = sig_payload.get("certificate_pem")
+                payload_sha = sig_payload.get("payload_sha256")
+                if not isinstance(signature_hex, str) or not signature_hex:
+                    step.checks_failed += 1
+                    report.add_failure(
+                        "SLSA_SIGNATURE_MISSING_FIELD",
+                        "signature_hex missing in slsa/signature.json",
+                        path="slsa/signature.json",
+                    )
+                elif isinstance(payload_sha, str) and payload_sha != canonical_sha:
+                    step.checks_failed += 1
+                    report.add_failure(
+                        "SLSA_SIGNATURE_PAYLOAD_HASH_MISMATCH",
+                        "signature payload hash mismatch",
+                        path="slsa/signature.json",
+                        expected=canonical_sha,
+                        actual=payload_sha,
+                    )
+                elif not isinstance(certificate_pem, str) or not certificate_pem.strip():
+                    step.checks_failed += 1
+                    report.add_failure(
+                        "SLSA_SIGNATURE_CERT_MISSING",
+                        "certificate_pem missing in slsa/signature.json",
+                        path="slsa/signature.json",
+                    )
+                else:
+                    try:
+                        certificate = load_pem_x509_certificate(certificate_pem.encode("utf-8"))
+                        public_key = certificate.public_key()
+                        public_key.verify(
+                            bytes.fromhex(signature_hex),
+                            canonical_payload,
+                            ec.ECDSA(hashes.SHA256()),
+                        )
+                        step.checks_passed += 1
+                    except InvalidSignature:
+                        step.checks_failed += 1
+                        report.add_failure(
+                            "SLSA_SIGNATURE_INVALID",
+                            "SLSA signature verification failed",
+                            path="slsa/signature.json",
+                        )
+                    except Exception as exc:
+                        step.checks_failed += 1
+                        report.add_failure(
+                            "SLSA_SIGNATURE_VERIFY_ERROR",
+                            f"Error while verifying signature: {exc}",
+                            path="slsa/signature.json",
+                        )
+
+        transparency_path = slsa_dir / "transparency_entry.json"
+        if transparency_path.exists():
+            try:
+                transparency = json.loads(transparency_path.read_text("utf-8"))
+            except Exception as exc:
+                step.checks_failed += 1
+                report.add_failure(
+                    "SLSA_TRANSPARENCY_INVALID_JSON",
+                    f"Invalid transparency entry JSON: {exc}",
+                    path="slsa/transparency_entry.json",
+                )
+            else:
+                entry_hash = transparency.get("payload_sha256")
+                if isinstance(entry_hash, str) and entry_hash == canonical_sha:
+                    step.checks_passed += 1
+                else:
+                    step.checks_failed += 1
+                    report.add_failure(
+                        "SLSA_TRANSPARENCY_HASH_MISMATCH",
+                        "Transparency entry payload hash does not match attestation hash",
+                        path="slsa/transparency_entry.json",
+                        expected=canonical_sha,
+                        actual=str(entry_hash),
+                    )
+        elif self._require_slsa:
+            step.checks_failed += 1
+            report.add_failure(
+                "SLSA_TRANSPARENCY_MISSING",
+                "Transparency entry required but slsa/transparency_entry.json is absent",
+                path="slsa/transparency_entry.json",
+            )
+        else:
+            step.checks_skipped += 1
+            report.add_warning(
+                "SLSA_TRANSPARENCY_MISSING",
+                "Transparency entry is absent",
+                path="slsa/transparency_entry.json",
+            )
+
         step.status = _status_from_counts(step)
         step.duration_ms = (time.perf_counter() - started) * 1000
         return step

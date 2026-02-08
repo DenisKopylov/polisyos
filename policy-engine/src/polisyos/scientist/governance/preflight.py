@@ -16,6 +16,7 @@ from .passes.confidence_pass import ConfidencePass
 from .passes.equity_pass import EquityPass
 from .passes.legal_pass import LegalPass
 from .passes.privacy_pass import PrivacyPass
+from .passes.pii_check_pass import PIICheckPass
 from .passes.quality_gate_pass import QualityGatePass
 from .passes.safety_pass import SafetyPass
 from .passes.schema_pass import SchemaPass
@@ -26,6 +27,7 @@ DEFAULT_PIPELINE = ValidationPipeline([
     BudgetPass(),
     SchemaPass(),
     PrivacyPass(),
+    PIICheckPass(),
     SafetyPass(),
     EquityPass(),
     LegalPass(backend=StubBackend()),

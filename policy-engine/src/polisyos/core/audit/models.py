@@ -35,6 +35,8 @@ class ExportOptions:
     profile: ExportProfile = ExportProfile.FULL
     include_visualization: bool = True
     signing_policy: SigningPolicy = SigningPolicy.WARN
+    slsa_mode: str | None = None
+    slsa_policy: str | None = None
     max_depth: int = 200
     max_nodes: int = 10_000
 
@@ -94,6 +96,9 @@ class VerificationReport:
     )
     dependency_completeness: StepResult = field(
         default_factory=lambda: StepResult(step_name="Dependency Completeness")
+    )
+    slsa_verification: StepResult = field(
+        default_factory=lambda: StepResult(step_name="SLSA Verification")
     )
 
     artifacts_checked: int = 0
@@ -163,6 +168,7 @@ class VerificationReport:
             "signature_verification": asdict(self.signature_verification),
             "provenance_validation": asdict(self.provenance_validation),
             "dependency_completeness": asdict(self.dependency_completeness),
+            "slsa_verification": asdict(self.slsa_verification),
             "artifacts_checked": self.artifacts_checked,
             "artifacts_total": self.artifacts_total,
             "signatures_valid": self.signatures_valid,

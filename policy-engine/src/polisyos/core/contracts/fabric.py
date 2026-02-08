@@ -130,5 +130,6 @@ class DataSnapshot(BaseModel):
     uncertainty_ref: UncertaintyBoundsRef | None = None
     uncertainty_envelope_ref: UncertaintyEnvelopeRef | None = None
     warnings_ref: WarningsRef | None = None
+    pii_scan_summary: dict[str, Any] | None = None
     stats: dict[str, int | str] = Field(default_factory=dict)
     notes: list[str] = Field(default_factory=list)

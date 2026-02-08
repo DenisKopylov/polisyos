@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import secrets
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -10,7 +11,7 @@ from polisyos.core.security.access_scope import AccessScope
 from ..artifacts.manifest import ArtifactRef, EnvInfo, InputRef, ProducerInfo, SchemaInfo
 from ..artifacts.store import FileSystemCAS, PutOptions
 from ..trace.record import TraceRecord
-from ..trace.sink import JsonlTraceSink, TraceSink
+from ..trace.sink import CompositeTraceSink, JsonlTraceSink, TraceSink
 from .manifest import RunManifest
 
 
@@ -24,6 +25,7 @@ class RunContext:
     trace: TraceSink
     run_manifest: RunManifest
     _trace_path: Path | None = None
+    _audit_sink: object | None = None
     tenant_id: str | None = None
     cell_id: str | None = None
     access_scope: AccessScope | None = None
@@ -50,10 +52,28 @@ class RunContext:
         run_dir = run_dir or (store.root / "runs" / run_id)
         run_dir.mkdir(parents=True, exist_ok=True)
         trace_path = run_dir / "trace.jsonl"
+        trace_sink: TraceSink = JsonlTraceSink(trace_path)
+        audit_sink: object | None = None
+
+        if _audit_chain_enabled():
+            try:
+                from polisyos.core.security.audit_sink import (
+                    ChainedAuditSink,
+                    build_default_audit_backends_from_env,
+                )
+
+                audit_sink = ChainedAuditSink(
+                    chain_id=_build_audit_chain_id(run_id, tenant_id=tenant_id, cell_id=cell_id),
+                    local_path=run_dir / "audit.jsonl",
+                    backends=build_default_audit_backends_from_env(),
+                )
+                trace_sink = CompositeTraceSink([trace_sink, audit_sink])
+            except Exception:
+                audit_sink = None
 
         ctx = cls(
             store=store,
-            trace=JsonlTraceSink(trace_path),
+            trace=trace_sink,
             run_manifest=RunManifest(
                 run_id=run_id,
                 registry_bundle=registry_bundle,
@@ -63,6 +83,7 @@ class RunContext:
                 cell_id=cell_id,
             ),
             _trace_path=trace_path,
+            _audit_sink=audit_sink,
             tenant_id=tenant_id,
             cell_id=cell_id,
             access_scope=access_scope,
@@ -137,4 +158,24 @@ class RunContext:
             outputs=[run_ref],
             metrics={"status_ok": 1 if status == "ok" else 0},
         )
+        if self._audit_sink is not None and hasattr(self._audit_sink, "close"):
+            try:
+                self._audit_sink.close()
+            except Exception:
+                pass
         return run_ref
+
+
+def _audit_chain_enabled() -> bool:
+    return os.getenv("POLISYOS_AUDIT_CHAIN_ENABLED", "0").strip().lower() in {
+        "1",
+        "true",
+        "yes",
+        "on",
+    }
+
+
+def _build_audit_chain_id(run_id: str, *, tenant_id: str | None, cell_id: str | None) -> str:
+    tenant = tenant_id or "global"
+    cell = cell_id or "default"
+    return f"{tenant}:{cell}:{run_id}"

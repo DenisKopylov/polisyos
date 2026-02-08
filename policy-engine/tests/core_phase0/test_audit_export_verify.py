@@ -109,6 +109,49 @@ def test_audit_verify_requires_trust_anchor_by_default(tmp_path: Path) -> None:
     assert any(item.code == "UNTRUSTED_KEY" for item in report.failures)
 
 
+def test_audit_verify_require_slsa_fails_for_legacy_package(tmp_path: Path) -> None:
+    store, run_id, trusted_dir = _build_signed_run(tmp_path)
+    assembler = AuditPackageAssembler(
+        cas=store,
+        runs_dir=store.root / "runs",
+        options=ExportOptions(
+            profile=ExportProfile.FULL,
+            signing_policy=SigningPolicy.STRICT,
+            slsa_mode="off",
+        ),
+    )
+    result = assembler.export(run_id, tmp_path / "audit_no_slsa")
+
+    report = AuditPackageVerifier(
+        trusted_keys_dir=trusted_dir,
+        require_slsa=True,
+    ).verify(result.archive_path)
+    assert report.overall_status == "FAIL"
+    assert any(item.code == "SLSA_MISSING" for item in report.failures)
+
+
+def test_audit_export_with_local_slsa_and_verify(tmp_path: Path) -> None:
+    store, run_id, trusted_dir = _build_signed_run(tmp_path)
+    assembler = AuditPackageAssembler(
+        cas=store,
+        runs_dir=store.root / "runs",
+        options=ExportOptions(
+            profile=ExportProfile.FULL,
+            signing_policy=SigningPolicy.STRICT,
+            slsa_mode="local",
+            slsa_policy="required",
+        ),
+    )
+    result = assembler.export(run_id, tmp_path / "audit_with_slsa")
+
+    report = AuditPackageVerifier(
+        trusted_keys_dir=trusted_dir,
+        require_slsa=True,
+    ).verify(result.archive_path)
+    assert report.overall_status == "PASS"
+    assert report.slsa_verification.status == StepStatus.PASS
+
+
 def test_audit_verify_blocks_path_traversal_archive(tmp_path: Path) -> None:
     archive = tmp_path / "malicious.tar.gz"
     with tarfile.open(archive, "w:gz") as tar:

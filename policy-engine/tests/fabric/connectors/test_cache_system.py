@@ -17,7 +17,14 @@ from polisyos.fabric.connectors.cache import (
     TTLPolicy,
 )
 from polisyos.fabric.connectors.cache.store import ResultSerializer
-from polisyos.ir.connectors import ConnectorCapability, DataVersion, QualityTier, VersionStrategy
+from polisyos.ir.connectors import (
+    ConnectorCapability,
+    DataVersion,
+    PIIDetectedEntity,
+    PIIScanSummary,
+    QualityTier,
+    VersionStrategy,
+)
 from polisyos.fabric.connectors.base import ConnectionConfig, ConnectionHandle
 from polisyos.fabric.connectors.types import FreshnessResult, FreshnessStatus
 
@@ -64,6 +71,41 @@ def test_put_get_roundtrip(cache):
     assert metadata.payload_size_bytes != result.bytes_transferred
     data_bytes, _ = ResultSerializer.serialize(result)
     assert metadata.payload_size_bytes == len(data_bytes)
+
+
+def test_result_serializer_roundtrip_with_pii_scan() -> None:
+    result = _make_result(pd.DataFrame({"email": ["john@example.com"]}))
+    result = result.model_copy(
+        update={
+            "pii_scan": PIIScanSummary(
+                total_records_scanned=1,
+                total_entities_found=1,
+                max_severity="medium",
+                entities_by_type={"EMAIL_ADDRESS": 1},
+                entities_by_severity={"medium": 1},
+                entities=[
+                    PIIDetectedEntity(
+                        entity_type="EMAIL_ADDRESS",
+                        severity="medium",
+                        score=0.99,
+                        column="email",
+                        start=0,
+                        end=16,
+                        redacted_text="***",
+                    )
+                ],
+                scan_duration_ms=5.0,
+                sampled=False,
+                sample_rate=1.0,
+            )
+        }
+    )
+
+    payload, _ = ResultSerializer.serialize(result)
+    restored = ResultSerializer.deserialize(payload)
+    assert restored.pii_scan is not None
+    assert restored.pii_scan.total_entities_found == 1
+    assert restored.pii_scan.max_severity == "medium"
 
 
 def test_expired_entry_returns_none(tmp_path):

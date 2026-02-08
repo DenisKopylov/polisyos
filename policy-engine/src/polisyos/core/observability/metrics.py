@@ -183,6 +183,12 @@ class MetricsRegistry:
     authz_cache_hits_total: Optional[metrics.Counter] = None
     authz_errors_total: Optional[metrics.Counter] = None
     identity_failures_total: Optional[metrics.Counter] = None
+    audit_entries_total: Optional[metrics.Counter] = None
+    audit_sink_queue_depth: Optional[GaugeProxy] = None
+    audit_write_latency_seconds: Optional[metrics.Histogram] = None
+    audit_chain_tamper_detected_total: Optional[metrics.Counter] = None
+    audit_cold_tier_errors_total: Optional[metrics.Counter] = None
+    audit_tenant_boundary_violations_total: Optional[metrics.Counter] = None
 
     def __new__(cls) -> "MetricsRegistry":
         if cls._instance is None:
@@ -638,6 +644,37 @@ class MetricsRegistry:
             description="Identity validation and verification failures",
             unit="1",
         )
+        self.audit_entries_total = self._meter.create_counter(
+            name="polisyos_audit_entries_total",
+            description="Total chained audit entries emitted",
+            unit="1",
+        )
+        self.audit_sink_queue_depth = GaugeProxy(
+            self._meter,
+            name="polisyos_audit_sink_queue_depth",
+            description="Current chained-audit replication queue depth",
+            unit="1",
+        )
+        self.audit_write_latency_seconds = self._meter.create_histogram(
+            name="polisyos_audit_write_latency_seconds",
+            description="Latency of audit write operations by backend",
+            unit="s",
+        )
+        self.audit_chain_tamper_detected_total = self._meter.create_counter(
+            name="polisyos_audit_chain_tamper_detected_total",
+            description="Detected tamper events in chained audit verification",
+            unit="1",
+        )
+        self.audit_cold_tier_errors_total = self._meter.create_counter(
+            name="polisyos_audit_cold_tier_errors_total",
+            description="Cold tier audit write failures",
+            unit="1",
+        )
+        self.audit_tenant_boundary_violations_total = self._meter.create_counter(
+            name="polisyos_audit_tenant_boundary_violations_total",
+            description="Cross-tenant boundary violations recorded by security controls",
+            unit="1",
+        )
 
     def time_simulation(
         self,
@@ -910,6 +947,64 @@ class MetricsRegistry:
         if self.identity_failures_total is None:
             return
         self.identity_failures_total.add(1, {"reason": reason, "provider": provider})
+
+    def record_audit_entry(self, *, chain_id: str, event_type: str) -> None:
+        self._ensure_initialized()
+        if self.audit_entries_total is None:
+            return
+        self.audit_entries_total.add(1, {"chain_id": chain_id, "event_type": event_type})
+
+    def set_audit_queue_depth(self, *, chain_id: str, depth: int) -> None:
+        self._ensure_initialized()
+        if self.audit_sink_queue_depth is None:
+            return
+        self.audit_sink_queue_depth.set(float(max(depth, 0)), {"chain_id": chain_id})
+
+    def record_audit_write_latency(
+        self,
+        *,
+        backend: str,
+        duration_seconds: float,
+        status: str,
+    ) -> None:
+        self._ensure_initialized()
+        if self.audit_write_latency_seconds is None:
+            return
+        self.audit_write_latency_seconds.record(
+            max(duration_seconds, 0.0),
+            {"backend": backend, "status": status},
+        )
+
+    def record_audit_chain_tamper(self, *, chain_id: str, count: int = 1) -> None:
+        self._ensure_initialized()
+        if self.audit_chain_tamper_detected_total is None:
+            return
+        self.audit_chain_tamper_detected_total.add(max(1, int(count)), {"chain_id": chain_id})
+
+    def record_audit_cold_tier_error(self, *, bucket: str) -> None:
+        self._ensure_initialized()
+        if self.audit_cold_tier_errors_total is None:
+            return
+        self.audit_cold_tier_errors_total.add(1, {"bucket": bucket})
+
+    def record_tenant_boundary_violation(
+        self,
+        *,
+        source_tenant: str,
+        target_tenant: str,
+        resource_type: str,
+    ) -> None:
+        self._ensure_initialized()
+        if self.audit_tenant_boundary_violations_total is None:
+            return
+        self.audit_tenant_boundary_violations_total.add(
+            1,
+            {
+                "source_tenant": source_tenant,
+                "target_tenant": target_tenant,
+                "resource_type": resource_type,
+            },
+        )
 
     def increment_active_runs(self) -> None:
         """Increment the active runs gauge."""

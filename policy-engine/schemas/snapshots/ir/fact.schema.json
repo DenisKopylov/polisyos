@@ -45,9 +45,116 @@
           ],
           "default": null,
           "title": "Pii Class"
+        },
+        "pii_detected": {
+          "items": {
+            "$ref": "#/$defs/FactPIIEntity"
+          },
+          "title": "Pii Detected",
+          "type": "array"
+        },
+        "pii_max_severity": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Pii Max Severity"
+        },
+        "pii_scan_timestamp": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Pii Scan Timestamp"
         }
       },
       "title": "FactLegal",
+      "type": "object"
+    },
+    "FactPIIEntity": {
+      "additionalProperties": false,
+      "properties": {
+        "column": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Column"
+        },
+        "end": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "End"
+        },
+        "entity_type": {
+          "title": "Entity Type",
+          "type": "string"
+        },
+        "redacted_text": {
+          "default": "***",
+          "title": "Redacted Text",
+          "type": "string"
+        },
+        "score": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Score"
+        },
+        "severity": {
+          "title": "Severity",
+          "type": "string"
+        },
+        "start": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Start"
+        }
+      },
+      "required": [
+        "entity_type",
+        "severity"
+      ],
+      "title": "FactPIIEntity",
       "type": "object"
     },
     "FactProvenance": {

@@ -14,6 +14,7 @@ __all__ = [
     "EquityPass",
     "LegalPass",
     "PrivacyPass",
+    "PIICheckPass",
     "QualityGatePass",
     "SafetyPass",
     "SchemaPass",
@@ -41,6 +42,10 @@ def __getattr__(name: str) -> Any:
         from .privacy_pass import PrivacyPass
 
         return PrivacyPass
+    if name == "PIICheckPass":
+        from .pii_check_pass import PIICheckPass
+
+        return PIICheckPass
     if name == "QualityGatePass":
         from .quality_gate_pass import QualityGatePass
 

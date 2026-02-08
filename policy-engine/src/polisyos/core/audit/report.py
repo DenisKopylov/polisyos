@@ -78,6 +78,7 @@ def _steps(report: VerificationReport) -> list[StepResult]:
         report.signature_verification,
         report.provenance_validation,
         report.dependency_completeness,
+        report.slsa_verification,
     ]
 
 

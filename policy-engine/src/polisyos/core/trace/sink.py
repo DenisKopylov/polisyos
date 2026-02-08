@@ -22,3 +22,14 @@ class JsonlTraceSink:
             f.write(line)
             f.write("\n")
             f.flush()
+
+
+class CompositeTraceSink:
+    """Fan-out sink writing the same TraceRecord to multiple sinks."""
+
+    def __init__(self, sinks: list[TraceSink]):
+        self._sinks = list(sinks)
+
+    def emit(self, rec: TraceRecord) -> None:
+        for sink in self._sinks:
+            sink.emit(rec)

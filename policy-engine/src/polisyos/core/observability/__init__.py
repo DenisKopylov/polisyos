@@ -100,6 +100,36 @@ except ModuleNotFoundError:  # pragma: no cover - optional runtime dependency
         def record_identity_failure(self, *, reason: str, provider: str) -> None:
             return None
 
+        def record_audit_entry(self, *, chain_id: str, event_type: str) -> None:
+            return None
+
+        def set_audit_queue_depth(self, *, chain_id: str, depth: int) -> None:
+            return None
+
+        def record_audit_write_latency(
+            self,
+            *,
+            backend: str,
+            duration_seconds: float,
+            status: str,
+        ) -> None:
+            return None
+
+        def record_audit_chain_tamper(self, *, chain_id: str, count: int = 1) -> None:
+            return None
+
+        def record_audit_cold_tier_error(self, *, bucket: str) -> None:
+            return None
+
+        def record_tenant_boundary_violation(
+            self,
+            *,
+            source_tenant: str,
+            target_tenant: str,
+            resource_type: str,
+        ) -> None:
+            return None
+
     class _NoopSpan:
         def __enter__(self):
             return self

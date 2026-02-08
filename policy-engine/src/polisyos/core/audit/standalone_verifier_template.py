@@ -326,6 +326,112 @@ def _verify_signatures(
     return failures, warnings
 
 
+def _verify_slsa(
+    pkg_dir: Path,
+    artifacts: dict[str, dict[str, Any]],
+) -> tuple[list[str], list[str]]:
+    failures: list[str] = []
+    warnings: list[str] = []
+
+    slsa_dir = pkg_dir / "slsa"
+    if not slsa_dir.exists():
+        warnings.append("slsa evidence not found (legacy package or disabled mode)")
+        return failures, warnings
+
+    attestation_path = slsa_dir / "attestation.json"
+    if not attestation_path.exists():
+        failures.append("missing slsa/attestation.json")
+        return failures, warnings
+
+    try:
+        attestation = json.loads(attestation_path.read_text("utf-8"))
+    except Exception as exc:
+        failures.append(f"invalid slsa attestation json: {exc}")
+        return failures, warnings
+
+    if attestation.get("_type") != "https://in-toto.io/Statement/v1":
+        failures.append("invalid in-toto statement _type")
+    if attestation.get("predicateType") != "https://slsa.dev/provenance/v1":
+        failures.append("invalid in-toto predicateType")
+
+    subjects = attestation.get("subject", [])
+    if isinstance(subjects, list) and subjects:
+        first = subjects[0]
+        if isinstance(first, dict):
+            digest = first.get("digest", {})
+            if isinstance(digest, dict):
+                subject_sha = digest.get("sha256")
+                if isinstance(subject_sha, str):
+                    index_data = json.loads((pkg_dir / "index.json").read_text("utf-8"))
+                    root_ref = index_data.get("artifacts", {}).get("root_artifact_id", "")
+                    root_sha = (
+                        root_ref.removeprefix("sha256:")
+                        if isinstance(root_ref, str)
+                        else ""
+                    )
+                    if root_sha and subject_sha != root_sha:
+                        failures.append("slsa subject digest does not match root_artifact_id")
+                else:
+                    failures.append("slsa subject digest.sha256 missing")
+            else:
+                failures.append("slsa subject digest missing")
+        else:
+            failures.append("slsa subject entry malformed")
+    else:
+        failures.append("slsa subject list is empty")
+
+    predicate = attestation.get("predicate", {})
+    if isinstance(predicate, dict):
+        build_def = predicate.get("buildDefinition", {})
+        deps = build_def.get("resolved_dependencies", []) if isinstance(build_def, dict) else []
+        if isinstance(deps, list):
+            for dep in deps:
+                if not isinstance(dep, dict):
+                    failures.append("malformed slsa dependency descriptor")
+                    continue
+                digest = dep.get("digest", {})
+                if not isinstance(digest, dict):
+                    failures.append("malformed slsa dependency digest")
+                    continue
+                dep_sha = digest.get("sha256")
+                if not isinstance(dep_sha, str):
+                    failures.append("missing dependency digest.sha256")
+                    continue
+                if dep_sha not in artifacts:
+                    failures.append(f"slsa dependency missing from package: {dep_sha}")
+
+    signature_path = slsa_dir / "signature.json"
+    if not signature_path.exists():
+        warnings.append("slsa/signature.json is absent")
+    else:
+        try:
+            signature_payload = json.loads(signature_path.read_text("utf-8"))
+        except Exception as exc:
+            failures.append(f"invalid slsa signature payload: {exc}")
+        else:
+            payload_sha = signature_payload.get("payload_sha256")
+            canonical = _canonical_statement_bytes(attestation)
+            canonical_sha = hashlib.sha256(canonical).hexdigest()
+            if isinstance(payload_sha, str) and payload_sha != canonical_sha:
+                failures.append("slsa signature payload hash mismatch")
+
+    transparency_path = slsa_dir / "transparency_entry.json"
+    if transparency_path.exists():
+        try:
+            transparency = json.loads(transparency_path.read_text("utf-8"))
+        except Exception as exc:
+            failures.append(f"invalid slsa transparency payload: {exc}")
+        else:
+            entry_sha = transparency.get("payload_sha256")
+            canonical_sha = hashlib.sha256(_canonical_statement_bytes(attestation)).hexdigest()
+            if isinstance(entry_sha, str) and entry_sha != canonical_sha:
+                failures.append("slsa transparency hash mismatch")
+    else:
+        warnings.append("slsa/transparency_entry.json is absent")
+
+    return failures, warnings
+
+
 def main(argv: list[str] | None = None) -> int:
     argv = argv or sys.argv[1:]
     package = Path(argv[0]) if argv else Path.cwd().parent
@@ -364,6 +470,10 @@ def main(argv: list[str] | None = None) -> int:
     sig_failures, sig_warnings = _verify_signatures(pkg_dir, artifacts, profile=profile)
     failures.extend(sig_failures)
     warnings.extend(sig_warnings)
+
+    slsa_failures, slsa_warnings = _verify_slsa(pkg_dir, artifacts)
+    failures.extend(slsa_failures)
+    warnings.extend(slsa_warnings)
 
     if failures:
         print("FAIL")

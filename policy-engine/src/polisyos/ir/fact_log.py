@@ -29,11 +29,24 @@ class FactTrust(KernelModel):
     notes: list[str] = Field(default_factory=list)
 
 
+class FactPIIEntity(KernelModel):
+    entity_type: str
+    severity: str
+    score: float | None = Field(None, ge=0.0, le=1.0)
+    column: str | None = None
+    start: int | None = Field(None, ge=0)
+    end: int | None = Field(None, ge=0)
+    redacted_text: str = "***"
+
+
 class FactLegal(KernelModel):
     pii_class: str | None = None
     access_tier: str | None = None
     basis: str | None = None
     notes: list[str] = Field(default_factory=list)
+    pii_detected: list[FactPIIEntity] = Field(default_factory=list)
+    pii_scan_timestamp: str | None = None
+    pii_max_severity: str | None = None
 
 
 class Fact(KernelModel):

@@ -1,6 +1,6 @@
 {
-  "content_hash": "85ea46309dc8d56a0255a399f7548d696c090343341988331a514ee63daf7384",
-  "generated_at": "2026-02-08T15:35:51+00:00",
+  "content_hash": "dccad3100f32307d3cb25db4f6c40245861ea420417699c355285c647690274f",
+  "generated_at": "2026-02-08T18:29:42+00:00",
   "generator_version": "1.0.0",
   "models": {
     "backtest_report": {
@@ -143,8 +143,8 @@
       "priority": "p0",
       "schema_file": "fact.schema.json",
       "schema_version": "1.0",
-      "sha256_full": "f70d0b238a91e71b40e0adb7bb59abba835a08b7e02f06963b99fc163044481e",
-      "sha256_semantic": "166bec3872e449b329392189b4f243b32f8193d941bdcbe8aa21de85f42fc976",
+      "sha256_full": "acff0dc3b9733f1cfe9d8bbaa6bac52925e128b269d0114ccf3161f6e8521f04",
+      "sha256_semantic": "a1261fc02592bc1e9f5715b229503a11a0f35f23c1accf40cef596eb17bcc09d",
       "version_field": "schema_version"
     },
     "fact_segment_manifest": {
@@ -390,5 +390,5 @@
   },
   "module": "ir",
   "pydantic_version": "2.12.5",
-  "python_version": "3.14.0"
+  "python_version": "3.12.12"
 }

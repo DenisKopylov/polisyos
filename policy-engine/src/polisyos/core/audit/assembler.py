@@ -27,7 +27,7 @@ from polisyos.core.artifacts.signing import (
     load_signer_from_config,
 )
 from polisyos.core.artifacts.store import FileSystemCAS
-from polisyos.core.canon.canon_json import from_canonical_bytes
+from polisyos.core.canon.canon_json import from_canonical_bytes, to_canonical_bytes
 from polisyos.core.run.manifest import RunManifest
 from polisyos.core.trace.record import TraceRecord
 from polisyos.fabric.provenance.core import (
@@ -463,6 +463,8 @@ class AuditPackageAssembler:
                 "manifests_only": self._options.profile == ExportProfile.MANIFESTS_ONLY,
                 "exclude_kinds": sorted(self._options.exclude_kinds),
                 "signing_policy": self._options.signing_policy.value,
+                "slsa_mode": self._options.slsa_mode,
+                "slsa_policy": self._options.slsa_policy,
             },
         )
         if run_data.manifest.env is not None:
@@ -483,6 +485,14 @@ class AuditPackageAssembler:
                 )
             except Exception:
                 pass
+
+        slsa_info = self._build_slsa_bundle(
+            pkg_dir=pkg_dir,
+            run_data=run_data,
+            artifact_ids=artifact_ids,
+            decision_packet_id=decision_packet_id,
+            warnings=warnings,
+        )
 
         trace_path = run_data.run_dir / "trace.jsonl"
         if trace_path.exists():
@@ -560,8 +570,148 @@ class AuditPackageAssembler:
             pkg_sig=pkg_sig,
             manifests=manifests,
             warnings=warnings,
+            slsa=slsa_info,
         )
         _write_json(pkg_dir / "index.json", index)
+
+    def _build_slsa_bundle(
+        self,
+        *,
+        pkg_dir: Path,
+        run_data: _RunData,
+        artifact_ids: list[ArtifactID],
+        decision_packet_id: ArtifactID | None,
+        warnings: list[str],
+    ) -> dict[str, Any]:
+        from polisyos.core.security.slsa import (
+            FulcioClient,
+            RekorClient,
+            SLSAAttestationBuilder,
+            SLSAConfig,
+        )
+
+        try:
+            config = SLSAConfig.from_env().with_overrides(
+                mode=self._options.slsa_mode,
+                policy=self._options.slsa_policy,
+            )
+        except Exception as exc:
+            warnings.append(f"SLSA disabled due to invalid config: {exc}")
+            return {"enabled": False, "status": "disabled", "mode": "off"}
+
+        if not config.enabled:
+            return {"enabled": False, "status": "disabled", "mode": config.mode.value}
+
+        if decision_packet_id is None:
+            if config.require_success:
+                raise AuditAssemblyError(
+                    "SLSA policy is required but decision_packet artifact is missing"
+                )
+            warnings.append("SLSA skipped: decision_packet artifact was not found")
+            return {
+                "enabled": True,
+                "status": "skipped",
+                "mode": config.mode.value,
+                "reason": "decision_packet_missing",
+            }
+
+        slsa_dir = pkg_dir / "slsa"
+        slsa_dir.mkdir(parents=True, exist_ok=True)
+        internal_params: dict[str, Any] = {
+            "export_profile": self._options.profile.value,
+            "signing_policy": self._options.signing_policy.value,
+            "slsa_mode": config.mode.value,
+            "slsa_policy": config.policy.value,
+        }
+
+        try:
+            statement = SLSAAttestationBuilder(self._cas).build_attestation(
+                decision_packet_id=decision_packet_id,
+                run_manifest=run_data.manifest,
+                input_artifact_ids=[
+                    artifact_id
+                    for artifact_id in artifact_ids
+                    if artifact_id.hex != decision_packet_id.hex
+                ],
+                internal_parameters=internal_params,
+            )
+            attestation_payload = statement.model_dump(
+                mode="json",
+                by_alias=True,
+                exclude_none=True,
+            )
+            _write_json(slsa_dir / "attestation.json", attestation_payload)
+
+            payload_bytes = to_canonical_bytes(attestation_payload)
+            signer = FulcioClient(config)
+            signed = signer.sign(payload_bytes)
+            _write_json(
+                slsa_dir / "signature.json",
+                {
+                    "algorithm": signed.algorithm,
+                    "signature_hex": signed.signature_hex,
+                    "payload_sha256": signed.payload_sha256,
+                    "certificate_pem": signed.certificate_pem,
+                    "certificate_chain": signed.certificate_chain,
+                    "oidc_issuer": signed.oidc_issuer,
+                    "oidc_subject": signed.oidc_subject,
+                    "signed_at": signed.signed_at,
+                },
+            )
+
+            transparency = RekorClient(config).upload(
+                attestation_bytes=payload_bytes,
+                signature_hex=signed.signature_hex,
+                certificate_pem=signed.certificate_pem,
+            )
+            if transparency is not None:
+                _write_json(
+                    slsa_dir / "transparency_entry.json",
+                    {
+                        "mode": transparency.mode,
+                        "log_id": transparency.log_id,
+                        "log_index": transparency.log_index,
+                        "integrated_time": transparency.integrated_time,
+                        "payload_sha256": transparency.payload_sha256,
+                        "verification_url": transparency.verification_url,
+                        "created_at": transparency.created_at,
+                    },
+                )
+
+            return {
+                "enabled": True,
+                "status": "PASS",
+                "mode": config.mode.value,
+                "policy": config.policy.value,
+                "attestation_path": "slsa/attestation.json",
+                "signature_path": "slsa/signature.json",
+                "transparency_path": (
+                    "slsa/transparency_entry.json" if transparency is not None else None
+                ),
+                "transparency_log_index": (
+                    transparency.log_index if transparency is not None else None
+                ),
+            }
+        except Exception as exc:
+            _write_json(
+                slsa_dir / "error.json",
+                {
+                    "status": "degraded",
+                    "mode": config.mode.value,
+                    "policy": config.policy.value,
+                    "error": str(exc),
+                },
+            )
+            if config.require_success:
+                raise AuditAssemblyError(f"SLSA required policy failed: {exc}") from exc
+            warnings.append(f"SLSA degraded: {exc}")
+            return {
+                "enabled": True,
+                "status": "WARN",
+                "mode": config.mode.value,
+                "policy": config.policy.value,
+                "error": str(exc),
+            }
 
     def _maybe_sign_checksums(
         self,
@@ -605,13 +755,14 @@ class AuditPackageAssembler:
         self,
         *,
         run_data: _RunData,
-        artifact_ids: set[ArtifactID],
+        artifact_ids: list[ArtifactID],
         signatures: dict[str, DetachedSignature],
         prov_json: dict[str, Any],
         checksums: dict[str, str],
         pkg_sig: dict[str, Any] | None,
         manifests: dict[str, ArtifactManifest],
         warnings: list[str],
+        slsa: dict[str, Any],
     ) -> dict[str, Any]:
         created_at = datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
         root = _find_decision_packet_id(artifact_ids, manifests)
@@ -644,6 +795,7 @@ class AuditPackageAssembler:
                 "algorithm": "Ed25519",
                 "package_checksum_signature": pkg_sig is not None,
             },
+            "slsa": slsa,
             "integrity": {
                 "package_checksum_file": "verification/checksums.sha256",
                 "package_checksum_signature": (

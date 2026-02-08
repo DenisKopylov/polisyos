@@ -288,6 +288,36 @@ class ResilienceInfo(BaseModel):
     )
 
 
+class PIIDetectedEntity(BaseModel):
+    """Single redacted PII detection result."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    entity_type: str = Field(description="Detected entity type (Presidio/custom)")
+    severity: str = Field(description="PII severity level")
+    score: float = Field(ge=0.0, le=1.0)
+    column: str = ""
+    start: int = Field(ge=0, default=0)
+    end: int = Field(ge=0, default=0)
+    redacted_text: str = "***"
+
+
+class PIIScanSummary(BaseModel):
+    """Aggregated PII scan summary attached to connector fetch results."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    total_records_scanned: int = Field(default=0, ge=0)
+    total_entities_found: int = Field(default=0, ge=0)
+    max_severity: str = "none"
+    entities_by_type: dict[str, int] = Field(default_factory=dict)
+    entities_by_severity: dict[str, int] = Field(default_factory=dict)
+    entities: list[PIIDetectedEntity] = Field(default_factory=list)
+    scan_duration_ms: float = Field(default=0.0, ge=0.0)
+    sampled: bool = False
+    sample_rate: float = Field(default=1.0, ge=0.0, le=1.0)
+
+
 class FetchResult(BaseModel, Generic[DataT]):
     """Immutable result of a fetch operation."""
 
@@ -370,6 +400,10 @@ class FetchResult(BaseModel, Generic[DataT]):
     resilience: ResilienceInfo | None = Field(
         default=None,
         description="Resilience metadata (fallbacks, retries, etc.)",
+    )
+    pii_scan: PIIScanSummary | None = Field(
+        default=None,
+        description="Optional PII scan summary produced during ingestion",
     )
 
     @field_validator("fetched_at", "source_updated_at", mode="after")

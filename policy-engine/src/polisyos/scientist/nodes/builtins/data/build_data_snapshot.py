@@ -5,6 +5,7 @@ from typing import Any
 
 from polisyos.core.artifacts.manifest import InputRef, SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
+from polisyos.core.canon.canon_json import from_canonical_bytes
 from polisyos.core.contracts.fabric import DataSnapshot, DataSnapshotRef, DataViewRequestRef
 from polisyos.core.contracts.foundry import StateSnapshotRef
 from polisyos.scientist.engine.context import ExecutionContext
@@ -68,15 +69,22 @@ class BuildDataSnapshotNode:
                 inputs[INPUT_DATA_VIEW_REQUEST_REF].model_dump()
             )
             snapshot_ref = ctx.fabric.snapshot(ctx.store, request_ref)
+            pii_scan_summary = _read_snapshot_pii_summary(ctx, snapshot_ref)
             new_state = state.model_copy(deep=True)
             new_state.inputs[INPUT_DATA_SNAPSHOT_REF] = snapshot_ref
+            if pii_scan_summary is not None:
+                new_state.params["pii_scan_results"] = pii_scan_summary
             return NodeOutcome(status="ok", state=new_state, artifacts=[snapshot_ref])
 
         if INPUT_STATE_SNAPSHOT_REF in inputs:
             snapshot_ref = StateSnapshotRef.model_validate(
                 inputs[INPUT_STATE_SNAPSHOT_REF].model_dump()
             )
-            snapshot = DataSnapshot(data_ref=snapshot_ref)
+            pii_scan_summary = _coerce_pii_scan_summary(state.params.get("pii_scan_results"))
+            snapshot = DataSnapshot(
+                data_ref=snapshot_ref,
+                pii_scan_summary=pii_scan_summary,
+            )
             snapshot_ref_payload = ctx.store.put_json(
                 snapshot,
                 PutOptions(
@@ -89,6 +97,8 @@ class BuildDataSnapshotNode:
             data_snapshot_ref = DataSnapshotRef(artifact_id=snapshot_ref_payload.artifact_id)
             new_state = state.model_copy(deep=True)
             new_state.inputs[INPUT_DATA_SNAPSHOT_REF] = data_snapshot_ref
+            if pii_scan_summary is not None:
+                new_state.params["pii_scan_results"] = pii_scan_summary
             return NodeOutcome(status="ok", state=new_state, artifacts=[data_snapshot_ref])
 
         error = NodeError(
@@ -98,3 +108,32 @@ class BuildDataSnapshotNode:
         )
         event = NodeEvent(level="error", message="Data snapshot inputs missing")
         return NodeOutcome(status="fail", state=state, error=error, events=[event])
+
+
+def _read_snapshot_pii_summary(
+    ctx: ExecutionContext,
+    snapshot_ref: DataSnapshotRef,
+) -> dict[str, Any] | None:
+    try:
+        payload = from_canonical_bytes(ctx.store.get_bytes(snapshot_ref.artifact_id))
+        snapshot = DataSnapshot.model_validate(payload)
+    except Exception:
+        return None
+    return _coerce_pii_scan_summary(snapshot.pii_scan_summary)
+
+
+def _coerce_pii_scan_summary(value: Any) -> dict[str, Any] | None:
+    if not isinstance(value, dict):
+        return None
+    result = dict(value)
+    max_severity = result.get("max_severity")
+    if max_severity is None:
+        result["max_severity"] = "none"
+    else:
+        result["max_severity"] = str(max_severity).lower()
+    total = result.get("total_entities_found")
+    try:
+        result["total_entities_found"] = max(0, int(total))
+    except Exception:
+        result["total_entities_found"] = 0
+    return result

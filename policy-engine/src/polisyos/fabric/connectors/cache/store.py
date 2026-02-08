@@ -34,7 +34,7 @@ from polisyos.core.artifacts import ArtifactID, ArtifactRef, FileSystemCAS, PutO
 from polisyos.core.canon.canon_json import CanonSpec, from_canonical_bytes, to_canonical_bytes
 from polisyos.core.observability import get_metrics
 from polisyos.fabric.connectors.base import FetchRequest, FetchResult
-from polisyos.ir.connectors import DataVersion, QualityTier
+from polisyos.ir.connectors import DataVersion, PIIScanSummary, QualityTier
 
 from .policy import CachePolicy, PolicyRegistry
 
@@ -314,6 +314,9 @@ class ResultSerializer:
             "resilience": result.resilience.model_dump(mode="json")
             if result.resilience
             else None,
+            "pii_scan": result.pii_scan.model_dump(mode="json")
+            if result.pii_scan
+            else None,
         }
 
         envelope_bytes = to_canonical_bytes(envelope, _canon_spec_allow_floats())
@@ -355,6 +358,13 @@ class ResultSerializer:
             except Exception:
                 resilience_info = None
 
+        pii_scan = envelope.get("pii_scan")
+        if pii_scan is not None:
+            try:
+                pii_scan = PIIScanSummary.model_validate(pii_scan)
+            except Exception:
+                pii_scan = None
+
         return FetchResult(
             data=data,
             row_count=envelope["row_count"],
@@ -373,6 +383,7 @@ class ResultSerializer:
             fetch_duration_ms=envelope.get("fetch_duration_ms", 0.0),
             bytes_transferred=envelope.get("bytes_transferred", 0),
             resilience=resilience_info,
+            pii_scan=pii_scan,
         )
 
 

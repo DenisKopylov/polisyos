@@ -1,0 +1,51 @@
+groups:
+  - name: polisyos_audit_chain
+    interval: 30s
+    rules:
+      - alert: AuditChainTamperDetected
+        expr: polisyos_audit_chain_tamper_detected_total > 0
+        for: 0m
+        labels:
+          severity: critical
+          team: security
+        annotations:
+          summary: "Audit log chain tamper detected"
+          description: |
+            Chain {{ $labels.chain_id }} has {{ $value }} tampered entries.
+            Immediate investigation required.
+
+      - alert: AuditSinkQueueBackpressure
+        expr: polisyos_audit_sink_queue_depth > 8000
+        for: 5m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: "Audit sink queue near capacity"
+          description: |
+            Queue depth {{ $value }}/10000. Check backend connectivity.
+
+      - alert: TenantBoundaryViolation
+        expr: increase(polisyos_audit_tenant_boundary_violations_total[5m]) > 0
+        for: 0m
+        labels:
+          severity: critical
+          team: security
+        annotations:
+          summary: "Tenant boundary violation detected"
+          description: |
+            {{ $value }} cross-tenant access attempts in last 5 minutes.
+            Source tenant: {{ $labels.source_tenant }}
+            Target tenant: {{ $labels.target_tenant }}
+
+      - alert: AuditColdTierWriteFailure
+        expr: increase(polisyos_audit_cold_tier_errors_total[15m]) > 3
+        for: 5m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: "S3 Object Lock writes failing"
+          description: |
+            {{ $value }} cold tier write failures. Audit data may not meet
+            long-term retention requirements.

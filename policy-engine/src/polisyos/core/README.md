@@ -146,7 +146,7 @@ content = load_registry_bundle_content(store, bundle_ref)
   - `emit(phase, event, metrics, inputs, outputs)` — запись события в trace
   - `add_input(ref)` / `add_output(ref)` — регистрация артефактов для provenance
   - `finalize(success)` — завершение с сохранением трассировки
-- `RunManifest` (Pydantic) — метаданные запуска: run_id, timestamps, producer, inputs/outputs, status, trace_ref, seed, parent_run_id, environment_manifest_ref
+- `RunManifest` (Pydantic) — метаданные запуска: run_id, timestamps, producer, inputs/outputs, status, trace_ref, seed, parent_run_id, environment_manifest_ref, tee_attestation_ref, sbom_ref
 
 ```python
 from polisyos.core.run import RunContext

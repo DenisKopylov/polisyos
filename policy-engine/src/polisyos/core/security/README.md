@@ -14,6 +14,9 @@ Tenant isolation primitives for cell-based multi-tenant deployments.
 - `access_scope.py` — immutable per-request access scope
 - `delegation.py` — signed delegation token for inter-service user context
 - `authz.py` — async OPA authorization client with fail-closed semantics
+- `tee.py` — TEE attestation models/verifier abstraction (SEV-SNP + no-op)
+- `tee_middleware.py` — attestation gatekeeper with cache and metrics
+- `sbom.py` — SBOM generation/verification helpers (CycloneDX + vulnerability gate)
 
 ## Design goals
 

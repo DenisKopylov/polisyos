@@ -2,7 +2,7 @@ package polisyos.authz.delegation_guard
 
 import rego.v1
 
-default allow := true
+default allow := false
 
 allow if {
     object.get(input.identity, "principal_type", "user") != "user"
@@ -20,7 +20,7 @@ allow if {
 }
 
 trusted_delegator if {
-    startswith(input.peer.spiffe_id, "spiffe://")
+    startswith(object.get(input.peer, "spiffe_id", ""), "spiffe://")
 }
 
 deny_reasons contains "UNTRUSTED_DELEGATOR" if {

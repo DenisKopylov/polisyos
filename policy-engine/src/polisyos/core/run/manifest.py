@@ -55,3 +55,11 @@ class RunManifest(BaseModel):
         default=None,
         description="Captured environment manifest reference.",
     )
+    sbom_ref: ArtifactRef | None = Field(
+        default=None,
+        description="SBOM artifact reference captured for deployment provenance.",
+    )
+    tee_attestation_ref: ArtifactRef | None = Field(
+        default=None,
+        description="TEE attestation artifact reference for confidential execution.",
+    )

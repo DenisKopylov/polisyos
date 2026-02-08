@@ -3,6 +3,7 @@ from __future__ import annotations
 import gzip
 import hashlib
 import json
+import os
 import shutil
 import subprocess
 import tarfile
@@ -108,7 +109,10 @@ class AuditPackageAssembler:
             artifact_ids,
             manifests,
         )
-        prov_json = ProvJsonConverter(run_id=run_data.run_id, include_bundle=True).convert(merged_graph)
+        prov_json = ProvJsonConverter(
+            run_id=run_data.run_id,
+            include_bundle=True,
+        ).convert(merged_graph)
 
         timestamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
         archive_path = output_path or Path(
@@ -160,7 +164,8 @@ class AuditPackageAssembler:
                 except Exception:
                     raise AuditAssemblyError(f"Unsupported run manifest format: {exc}") from exc
                 raise AuditAssemblyError(
-                    "Legacy runtime RunManifest is not supported for audit export; use CAS-native runs."
+                    "Legacy runtime RunManifest is not supported for audit export; "
+                    "use CAS-native runs."
                 ) from exc
         else:
             manifest = self._load_manifest_from_trace(run_dir, run_id)
@@ -455,7 +460,10 @@ class AuditPackageAssembler:
         _write_json(pkg_dir / "provenance" / "prov.json", prov_json)
         _write_json(pkg_dir / "provenance" / "prov-core.json", merged_graph.to_dict())
 
-        _write_json(pkg_dir / "metadata" / "run_manifest.json", run_data.manifest.model_dump(mode="python"))
+        _write_json(
+            pkg_dir / "metadata" / "run_manifest.json",
+            run_data.manifest.model_dump(mode="python"),
+        )
         _write_json(
             pkg_dir / "metadata" / "export_opts.json",
             {
@@ -468,11 +476,17 @@ class AuditPackageAssembler:
             },
         )
         if run_data.manifest.env is not None:
-            _write_json(pkg_dir / "metadata" / "environment.json", run_data.manifest.env.model_dump())
+            _write_json(
+                pkg_dir / "metadata" / "environment.json",
+                run_data.manifest.env.model_dump(),
+            )
         if run_data.manifest.environment_manifest_ref is not None:
             env_id = run_data.manifest.environment_manifest_ref.artifact_id
             try:
-                _write_json(pkg_dir / "metadata" / "environment.json", self._load_json_payload(env_id))
+                _write_json(
+                    pkg_dir / "metadata" / "environment.json",
+                    self._load_json_payload(env_id),
+                )
             except Exception:
                 pass
 
@@ -491,6 +505,11 @@ class AuditPackageAssembler:
             run_data=run_data,
             artifact_ids=artifact_ids,
             decision_packet_id=decision_packet_id,
+            warnings=warnings,
+        )
+        sbom_info = self._attach_sbom(
+            pkg_dir=pkg_dir,
+            run_data=run_data,
             warnings=warnings,
         )
 
@@ -534,7 +553,10 @@ class AuditPackageAssembler:
         )
 
         dot_content = prov_json_to_dot(prov_json)
-        (pkg_dir / "visualization" / "provenance_graph.dot").write_text(dot_content, encoding="utf-8")
+        (pkg_dir / "visualization" / "provenance_graph.dot").write_text(
+            dot_content,
+            encoding="utf-8",
+        )
         if self._options.include_visualization and shutil.which("dot"):
             try:
                 subprocess.run(
@@ -551,7 +573,10 @@ class AuditPackageAssembler:
             except Exception:
                 warnings.append("Graphviz not available; skipped SVG rendering")
 
-        checksums = _compute_file_checksums(pkg_dir, exclude={"verification/checksums.sha256", "verification/checksums.sha256.sig"})
+        checksums = _compute_file_checksums(
+            pkg_dir,
+            exclude={"verification/checksums.sha256", "verification/checksums.sha256.sig"},
+        )
         _write_checksums(pkg_dir / "verification" / "checksums.sha256", checksums)
 
         pkg_sig = self._maybe_sign_checksums(
@@ -571,8 +596,68 @@ class AuditPackageAssembler:
             manifests=manifests,
             warnings=warnings,
             slsa=slsa_info,
+            sbom=sbom_info,
         )
         _write_json(pkg_dir / "index.json", index)
+
+    def _attach_sbom(
+        self,
+        *,
+        pkg_dir: Path,
+        run_data: _RunData,
+        warnings: list[str],
+    ) -> dict[str, Any]:
+        sbom_dir = pkg_dir / "sbom"
+        sbom_dir.mkdir(parents=True, exist_ok=True)
+
+        sbom_ref = run_data.manifest.sbom_ref
+        if sbom_ref is not None:
+            try:
+                sbom_data = self._load_json_payload(sbom_ref.artifact_id)
+                target = sbom_dir / "sbom.cdx.json"
+                _write_json(target, sbom_data)
+                metadata = self._extract_sbom_metadata(sbom_data)
+                return {
+                    "enabled": True,
+                    "status": "attached",
+                    "format": "cyclonedx-json",
+                    "path": "sbom/sbom.cdx.json",
+                    "cas_ref": sbom_ref.artifact_id.hex,
+                    **metadata,
+                }
+            except Exception as exc:  # noqa: BLE001
+                warnings.append(f"SBOM attach from CAS failed: {exc}")
+
+        env_path = os.getenv("POLISYOS_SBOM_PATH", "").strip()
+        if env_path:
+            path = Path(env_path)
+            if path.exists() and path.is_file():
+                try:
+                    shutil.copy2(path, sbom_dir / "sbom.cdx.json")
+                    content = json.loads(path.read_text(encoding="utf-8"))
+                    metadata = self._extract_sbom_metadata(content)
+                    return {
+                        "enabled": True,
+                        "status": "attached_from_env",
+                        "format": "cyclonedx-json",
+                        "path": "sbom/sbom.cdx.json",
+                        "source": str(path),
+                        **metadata,
+                    }
+                except Exception as exc:  # noqa: BLE001
+                    warnings.append(f"SBOM attach from env failed: {exc}")
+
+        warnings.append("SBOM not available for audit package")
+        return {"enabled": False, "status": "unavailable"}
+
+    def _extract_sbom_metadata(self, sbom_data: dict[str, Any]) -> dict[str, Any]:
+        serialized = json.dumps(sbom_data, sort_keys=True, separators=(",", ":")).encode("utf-8")
+        return {
+            "component_count": len(sbom_data.get("components", [])),
+            "vulnerability_count": len(sbom_data.get("vulnerabilities", [])),
+            "spec_version": sbom_data.get("specVersion", "unknown"),
+            "hash": hashlib.sha256(serialized).hexdigest(),
+        }
 
     def _build_slsa_bundle(
         self,
@@ -763,8 +848,14 @@ class AuditPackageAssembler:
         manifests: dict[str, ArtifactManifest],
         warnings: list[str],
         slsa: dict[str, Any],
+        sbom: dict[str, Any],
     ) -> dict[str, Any]:
-        created_at = datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+        created_at = (
+            datetime.now(timezone.utc)
+            .replace(microsecond=0)
+            .isoformat()
+            .replace("+00:00", "Z")
+        )
         root = _find_decision_packet_id(artifact_ids, manifests)
         files = [{"path": path, "sha256": sha} for path, sha in sorted(checksums.items())]
         return {
@@ -796,6 +887,7 @@ class AuditPackageAssembler:
                 "package_checksum_signature": pkg_sig is not None,
             },
             "slsa": slsa,
+            "sbom": sbom,
             "integrity": {
                 "package_checksum_file": "verification/checksums.sha256",
                 "package_checksum_signature": (

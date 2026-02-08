@@ -9,12 +9,18 @@ Rego policies for per-request authorization in PolicyOS.
 - `policies/data_classification.rego` — PII-tier checks and allowed column derivation.
 - `policies/delegation_guard.rego` — delegation safety checks for inter-service user context.
 - `policies/decision.rego` — composite decision entrypoint used by runtime middleware.
+- `policies/vulnerability.rego` — SBOM/CVE deployment vulnerability gate.
+- `policies/deploy.rego` — deployment decision entrypoint (separate from runtime authz).
 
 ## Evaluation entrypoint
 
 The runtime OPA client calls:
 
 - `data.polisyos.authz.decision`
+
+Deployment pipelines should call:
+
+- `data.polisyos.deploy.decision`
 
 Expected fields in decision result:
 

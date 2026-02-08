@@ -1,0 +1,196 @@
+{
+  "mapping_version": "1.1.0",
+  "framework": "NIST SP 800-53 Rev. 5",
+  "baseline": "HIGH",
+  "generated_at": "2026-02-08T00:00:00Z",
+  "controls": [
+    {
+      "control_id": "AC-2",
+      "control_name": "Account Management",
+      "status": "implemented",
+      "components": [
+        "src/polisyos/core/security/identity.py",
+        "ops/helm/spire/",
+        "src/polisyos/runtime/http/jwt_auth_middleware.py"
+      ],
+      "gaps": []
+    },
+    {
+      "control_id": "AC-3",
+      "control_name": "Access Enforcement",
+      "status": "implemented",
+      "components": [
+        "ops/opa/policies/role_access.rego",
+        "ops/opa/policies/data_classification.rego",
+        "ops/opa/policies/tenant_boundary.rego"
+      ],
+      "gaps": []
+    },
+    {
+      "control_id": "AC-4",
+      "control_name": "Information Flow Enforcement",
+      "status": "implemented",
+      "components": [
+        "src/polisyos/core/security/cell.py",
+        "ops/helm/polisyos-cell/templates/networkpolicy.yaml"
+      ],
+      "gaps": []
+    },
+    {
+      "control_id": "AU-2",
+      "control_name": "Event Logging",
+      "status": "implemented",
+      "components": [
+        "src/polisyos/core/security/audit_sink.py",
+        "src/polisyos/core/trace/",
+        "ops/prometheus/alerts.yml"
+      ],
+      "gaps": []
+    },
+    {
+      "control_id": "AU-10",
+      "control_name": "Non-repudiation",
+      "status": "implemented",
+      "components": [
+        "src/polisyos/core/audit/assembler.py",
+        "src/polisyos/core/security/slsa/",
+        "src/polisyos/core/artifacts/signing.py"
+      ],
+      "gaps": []
+    },
+    {
+      "control_id": "CA-8",
+      "control_name": "Penetration Testing",
+      "status": "partial",
+      "components": [
+        "ops/prometheus/",
+        "ops/grafana/"
+      ],
+      "gaps": [
+        "3PAO penetration test engagement is not yet completed"
+      ]
+    },
+    {
+      "control_id": "CM-14",
+      "control_name": "Signed Components",
+      "status": "implemented",
+      "components": [
+        "src/polisyos/core/security/slsa/",
+        "src/polisyos/core/artifacts/signing.py"
+      ],
+      "gaps": []
+    },
+    {
+      "control_id": "CP-9",
+      "control_name": "System Backup",
+      "status": "partial",
+      "components": [
+        "src/polisyos/core/artifacts/store.py"
+      ],
+      "gaps": [
+        "Formal backup/restore runbook is pending"
+      ]
+    },
+    {
+      "control_id": "IA-2",
+      "control_name": "Identification and Authentication",
+      "status": "implemented",
+      "components": [
+        "src/polisyos/core/security/identity.py",
+        "src/polisyos/runtime/http/jwt_auth_middleware.py"
+      ],
+      "gaps": []
+    },
+    {
+      "control_id": "IR-4",
+      "control_name": "Incident Handling",
+      "status": "partial",
+      "components": [
+        "ops/prometheus/alerts.yml"
+      ],
+      "gaps": [
+        "Formal incident response playbook and tabletop evidence are pending"
+      ]
+    },
+    {
+      "control_id": "PL-2",
+      "control_name": "System Security Plan",
+      "status": "partial",
+      "components": [
+        "docs/fedramp/nist-800-53-mapping.json",
+        "docs/fedramp/gap-analysis.md",
+        "docs/fedramp/poam.json"
+      ],
+      "gaps": [
+        "Full SSP narrative package is pending"
+      ]
+    },
+    {
+      "control_id": "RA-5",
+      "control_name": "Vulnerability Monitoring and Scanning",
+      "status": "implemented",
+      "components": [
+        "src/polisyos/core/security/sbom.py",
+        "ops/opa/policies/vulnerability.rego",
+        "policy-engine/.github/workflows/build-and-push.yml"
+      ],
+      "gaps": []
+    },
+    {
+      "control_id": "SC-8",
+      "control_name": "Transmission Confidentiality and Integrity",
+      "status": "implemented",
+      "components": [
+        "ops/helm/polisyos-cell/templates/server-policy.yaml"
+      ],
+      "gaps": []
+    },
+    {
+      "control_id": "SC-12",
+      "control_name": "Cryptographic Key Establishment and Management",
+      "status": "partial",
+      "components": [
+        "src/polisyos/core/artifacts/signing.py",
+        "src/polisyos/core/security/slsa/"
+      ],
+      "gaps": [
+        "HSM-backed root key management is pending"
+      ]
+    },
+    {
+      "control_id": "SC-28",
+      "control_name": "Protection of Information at Rest",
+      "status": "implemented",
+      "components": [
+        "src/polisyos/core/artifacts/store.py",
+        "src/polisyos/core/security/tee.py",
+        "src/polisyos/core/security/tee_middleware.py"
+      ],
+      "gaps": [
+        "CMEK support is pending"
+      ]
+    },
+    {
+      "control_id": "SI-7",
+      "control_name": "Software, Firmware, and Information Integrity",
+      "status": "implemented",
+      "components": [
+        "src/polisyos/core/security/sbom.py",
+        "src/polisyos/core/security/slsa/",
+        "src/polisyos/core/artifacts/store.py"
+      ],
+      "gaps": []
+    },
+    {
+      "control_id": "SR-4",
+      "control_name": "Provenance",
+      "status": "implemented",
+      "components": [
+        "src/polisyos/core/audit/",
+        "src/polisyos/fabric/provenance/",
+        "src/polisyos/core/security/slsa/"
+      ],
+      "gaps": []
+    }
+  ]
+}

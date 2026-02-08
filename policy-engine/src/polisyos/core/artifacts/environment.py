@@ -18,7 +18,6 @@ from pydantic import BaseModel, ConfigDict, Field, computed_field
 
 from .manifest import ArtifactRef
 
-
 DEFAULT_COMMAND_TIMEOUT = 1.5
 MAX_LIBRARY_BYTES = 64 * 1024 * 1024
 SYSTEM_LIBRARY_NAMES = (
@@ -165,7 +164,23 @@ class ContainerInfo(BaseModel):
     in_container: bool = Field(default=False, description="Running inside container")
     docker_image_sha: str | None = Field(default=None, description="Docker image SHA256")
     docker_image_tag: str | None = Field(default=None, description="Docker image tag")
-    container_runtime: str | None = Field(default=None, description="Container runtime (docker, podman)")
+    container_runtime: str | None = Field(
+        default=None,
+        description="Container runtime (docker, podman)",
+    )
+
+
+class TEEInfo(BaseModel):
+    """TEE attestation metadata captured during execution."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    platform: str | None = None
+    attestation_status: str = "not_applicable"
+    report_hash: str | None = None
+    measurement: str | None = None
+    tcb_version: str | None = None
+    verified_at: str | None = None
 
 
 class SystemLibraryInfo(BaseModel):
@@ -222,6 +237,7 @@ class EnvironmentManifest(BaseModel):
     git: GitInfo | None = None
     dependencies: DependencyInfo | None = None
     container: ContainerInfo | None = None
+    tee: TEEInfo | None = None
     system_libraries: dict[str, SystemLibraryInfo] = Field(
         default_factory=dict,
         description="Hashes of key system libraries",
@@ -848,6 +864,27 @@ def _estimate_precision_loss(cpu: CPUInfo, gpu: GPUInfo, jax_info: JAXInfo) -> s
     return None
 
 
+def _capture_tee_info() -> TEEInfo | None:
+    status = os.getenv("POLISYOS_TEE_ATTESTATION_STATUS", "").strip().lower()
+    platform_name = os.getenv("POLISYOS_TEE_PLATFORM", "").strip().lower() or None
+    report_hash = os.getenv("POLISYOS_TEE_REPORT_HASH", "").strip() or None
+    measurement = os.getenv("POLISYOS_TEE_MEASUREMENT", "").strip() or None
+    verified_at = os.getenv("POLISYOS_TEE_VERIFIED_AT", "").strip() or None
+    tcb_version = os.getenv("POLISYOS_TEE_TCB_VERSION", "").strip() or None
+
+    if not status and not platform_name and not report_hash:
+        return None
+
+    return TEEInfo(
+        platform=platform_name,
+        attestation_status=status or "unknown",
+        report_hash=report_hash,
+        measurement=measurement,
+        tcb_version=tcb_version,
+        verified_at=verified_at,
+    )
+
+
 def capture_environment(
     *,
     project_root: Path | str | None = None,
@@ -881,6 +918,7 @@ def capture_environment(
         git=_capture_git_info(root) if include_git else None,
         dependencies=_capture_dependency_info(root) if include_dependencies else None,
         container=_capture_container_info(),
+        tee=_capture_tee_info(),
         system_libraries=system_libs,
         expected_precision_loss=expected_precision_loss,
         custom_metadata=metadata_payload,

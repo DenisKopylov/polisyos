@@ -4,6 +4,21 @@ cell:
   region: "us-gov-west-1"
   isolationLevel: "namespace"
 
+confidentialCompute:
+  enabled: false
+  runtimeClassName: ""
+  vmSize: "Standard_DC16as_v5"
+  attestation:
+    enabled: true
+    verifyBeforeDataAccess: true
+    cacheAttestationSeconds: 300
+    requiredMeasurements: []
+    minTcbVersion: 0
+  nodePool:
+    minNodes: 2
+    maxNodes: 8
+    autoScaling: true
+
 nameOverride: ""
 fullnameOverride: ""
 
@@ -56,3 +71,7 @@ linkerd:
   strictMtls: true
   trustedServiceAccounts: []
   servers: []
+
+deployGate:
+  enabled: true
+  policyPath: "polisyos/deploy/decision"

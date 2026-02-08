@@ -1,0 +1,138 @@
+name: Build and SBOM
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+  id-token: write
+
+jobs:
+  build-sbom:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: policy-engine
+    env:
+      IMAGE_REF: ghcr.io/${{ github.repository }}/policy-engine:${{ github.sha }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install build dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -e ".[dev,test]"
+          pip install cyclonedx-bom uv
+
+      - name: Build container image
+        run: |
+          docker build -f Dockerfile.reproducible -t "$IMAGE_REF" .
+
+      - name: Install Syft and Grype
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b /usr/local/bin
+          curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh | sh -s -- -b /usr/local/bin
+
+      - name: Generate Python SBOM
+        run: |
+          uv export --format requirements-txt --output-file requirements-ci.txt
+          cyclonedx-py requirements \
+            --input-file requirements-ci.txt \
+            --output-format json \
+            --schema-version 1.5 \
+            --output-file sbom-python.cdx.json
+
+      - name: Generate Container SBOM
+        run: |
+          syft "$IMAGE_REF" --output cyclonedx-json=sbom-container.cdx.json --source-name "polisyos"
+
+      - name: Merge SBOMs
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          files = [
+              Path('sbom-python.cdx.json'),
+              Path('sbom-container.cdx.json'),
+          ]
+          merged = {
+              'bomFormat': 'CycloneDX',
+              'specVersion': '1.5',
+              'version': 1,
+              'components': [],
+              'vulnerabilities': [],
+          }
+          seen_components = set()
+          seen_vulns = set()
+          for path in files:
+              data = json.loads(path.read_text(encoding='utf-8'))
+              for comp in data.get('components', []):
+                  key = comp.get('bom-ref') or f"{comp.get('name')}@{comp.get('version')}"
+                  if key in seen_components:
+                      continue
+                  seen_components.add(key)
+                  merged['components'].append(comp)
+              for vuln in data.get('vulnerabilities', []):
+                  key = vuln.get('id') or json.dumps(vuln, sort_keys=True)
+                  if key in seen_vulns:
+                      continue
+                  seen_vulns.add(key)
+                  merged['vulnerabilities'].append(vuln)
+
+          Path('sbom-merged.cdx.json').write_text(
+              json.dumps(merged, ensure_ascii=False, indent=2, sort_keys=True),
+              encoding='utf-8',
+          )
+          PY
+
+      - name: Vulnerability scan (Grype)
+        env:
+          GRYPE_DB_CACHE_DIR: ${{ vars.GRYPE_DB_CACHE_DIR }}
+        run: |
+          grype sbom:sbom-merged.cdx.json --output json --file vulnerability-report.json
+
+      - name: Verify CVE threshold
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          from polisyos.core.security.sbom import SBOMVerifier
+
+          verifier = SBOMVerifier(cvss_threshold=7.0)
+          result = verifier.verify(
+              sbom_path=Path('sbom-merged.cdx.json'),
+              vulnerability_report_path=Path('vulnerability-report.json'),
+          )
+          if not result.allowed:
+              for reason in result.deny_reasons:
+                  print(reason)
+              raise SystemExit(1)
+          print('SBOM gate: PASS')
+          PY
+
+      - name: Install Cosign
+        run: |
+          curl -sSfL https://github.com/sigstore/cosign/releases/latest/download/cosign-linux-amd64 -o /usr/local/bin/cosign
+          chmod +x /usr/local/bin/cosign
+
+      - name: Sign SBOM blob
+        env:
+          COSIGN_EXPERIMENTAL: "1"
+        run: |
+          cosign sign-blob --bundle sbom-merged.cdx.json.bundle sbom-merged.cdx.json
+
+      - name: Upload SBOM artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom-artifacts
+          path: |
+            policy-engine/sbom-python.cdx.json
+            policy-engine/sbom-container.cdx.json
+            policy-engine/sbom-merged.cdx.json
+            policy-engine/sbom-merged.cdx.json.bundle
+            policy-engine/vulnerability-report.json

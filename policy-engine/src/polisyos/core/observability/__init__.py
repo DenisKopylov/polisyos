@@ -130,6 +130,29 @@ except ModuleNotFoundError:  # pragma: no cover - optional runtime dependency
         ) -> None:
             return None
 
+        def record_tee_attestation(self, *, platform: str, outcome: str) -> None:
+            return None
+
+        def record_tee_attestation_duration(
+            self,
+            *,
+            platform: str,
+            duration_seconds: float,
+        ) -> None:
+            return None
+
+        def record_tee_attestation_cache_hit(self, *, platform: str) -> None:
+            return None
+
+        def record_sbom_generation(self, *, source: str, outcome: str) -> None:
+            return None
+
+        def record_sbom_vulnerability_count(self, *, severity: str, count: int) -> None:
+            return None
+
+        def record_sbom_deployment_gate(self, *, decision: str) -> None:
+            return None
+
     class _NoopSpan:
         def __enter__(self):
             return self

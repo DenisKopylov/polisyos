@@ -135,6 +135,27 @@ _EXPORTS: dict[str, tuple[str, str]] = {
         "polisyos.core.security.settings",
         "get_security_settings",
     ),
+    "TEEPlatform": ("polisyos.core.security.tee", "TEEPlatform"),
+    "AttestationStatus": ("polisyos.core.security.tee", "AttestationStatus"),
+    "AttestationReport": ("polisyos.core.security.tee", "AttestationReport"),
+    "AttestationPolicy": ("polisyos.core.security.tee", "AttestationPolicy"),
+    "AttestationResult": ("polisyos.core.security.tee", "AttestationResult"),
+    "SEVSNPVerifier": ("polisyos.core.security.tee", "SEVSNPVerifier"),
+    "NoOpVerifier": ("polisyos.core.security.tee", "NoOpVerifier"),
+    "TEEGatekeeper": ("polisyos.core.security.tee_middleware", "TEEGatekeeper"),
+    "AttestationDeniedError": (
+        "polisyos.core.security.tee_middleware",
+        "AttestationDeniedError",
+    ),
+    "SBOMGenerator": ("polisyos.core.security.sbom", "SBOMGenerator"),
+    "SBOMVerifier": ("polisyos.core.security.sbom", "SBOMVerifier"),
+    "SBOMMetadata": ("polisyos.core.security.sbom", "SBOMMetadata"),
+    "SBOMVerificationResult": (
+        "polisyos.core.security.sbom",
+        "SBOMVerificationResult",
+    ),
+    "VulnerabilityRecord": ("polisyos.core.security.sbom", "VulnerabilityRecord"),
+    "VulnerabilitySeverity": ("polisyos.core.security.sbom", "VulnerabilitySeverity"),
 }
 
 __all__ = sorted(_EXPORTS)

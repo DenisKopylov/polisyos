@@ -1,0 +1,25 @@
+{{- if and .Values.confidentialCompute.enabled (eq .Values.cell.tier "dedicated") }}
+{{- $defaultName := printf "polisyos-confidential-%s" (default (include "polisyos-cell.fullname" .) .Values.cell.id) -}}
+apiVersion: node.k8s.io/v1
+kind: RuntimeClass
+metadata:
+  name: {{ default $defaultName .Values.confidentialCompute.runtimeClassName | quote }}
+  labels:
+    {{- include "polisyos-cell.labels" . | nindent 4 }}
+handler: kata-cc
+overhead:
+  podFixed:
+    memory: "256Mi"
+    cpu: "250m"
+scheduling:
+  nodeSelector:
+    polisyos.io/tee: "sev-snp"
+    {{- if .Values.cell.id }}
+    polisyos.io/cell-id: {{ .Values.cell.id | quote }}
+    {{- end }}
+  tolerations:
+    - key: "polisyos.io/confidential"
+      operator: "Equal"
+      value: "true"
+      effect: "NoSchedule"
+{{- end }}

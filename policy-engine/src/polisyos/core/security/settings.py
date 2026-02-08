@@ -33,6 +33,9 @@ def _parse_float(value: str | None, default: float) -> float:
 class SecuritySettings:
     """Runtime settings for tenant isolation and Zero Trust components."""
 
+    POLISYOS_ENV: str = "dev"  # dev|prod|airgap
+    POLISYOS_DB_BACKEND: str = ""  # postgres|duckdb (empty = auto by env profile)
+
     POLISYOS_MULTI_TENANT_ENABLED: bool = False
     POLISYOS_CELL_REGISTRY_PATH: str = ""
     POLISYOS_DEFAULT_CELL_TIER: str = "shared"
@@ -64,6 +67,27 @@ class SecuritySettings:
     POLISYOS_DELEGATION_TTL_SECONDS: int = 60
     POLISYOS_TRUSTED_DELEGATORS: str = ""
 
+    POLISYOS_PII_ENABLED: bool = True
+
+    POLISYOS_TEE_ENABLED: bool = False
+    POLISYOS_TEE_REQUIRED: bool = False
+    POLISYOS_TEE_PLATFORM: str = "sev-snp"
+    POLISYOS_TEE_REPORT_PATH: str = ""
+    POLISYOS_TEE_MAX_REPORT_AGE_SECONDS: int = 300
+    POLISYOS_TEE_MIN_TCB_VERSION: int = 0
+    POLISYOS_TEE_MIN_GUEST_SVN: int = 0
+    POLISYOS_TEE_EXPECTED_MEASUREMENTS: str = ""
+    POLISYOS_TEE_EXPECTED_HOST_DATA: str = ""
+    POLISYOS_TEE_REQUIRE_SIGNATURE_VALIDATION: bool = True
+    POLISYOS_TEE_CACHE_TTL_SECONDS: int = 300
+    POLISYOS_TEE_ENFORCE_TIERS: str = "dedicated"
+
+    POLISYOS_SBOM_ENABLED: bool = False
+    POLISYOS_SBOM_PATH: str = ""
+    POLISYOS_SBOM_CVSS_THRESHOLD: float = 7.0
+    POLISYOS_SBOM_GRYPE_DB_PATH: str = ""
+    POLISYOS_SBOM_ALLOWED_CVES: str = ""
+
     def allowed_regions(self) -> set[str]:
         return {
             region.strip()
@@ -85,6 +109,27 @@ class SecuritySettings:
             if item.strip()
         )
 
+    def tee_expected_measurements(self) -> tuple[str, ...]:
+        return tuple(
+            item.strip().lower()
+            for item in self.POLISYOS_TEE_EXPECTED_MEASUREMENTS.split(",")
+            if item.strip()
+        )
+
+    def tee_enforce_tiers(self) -> frozenset[str]:
+        return frozenset(
+            item.strip().lower()
+            for item in self.POLISYOS_TEE_ENFORCE_TIERS.split(",")
+            if item.strip()
+        )
+
+    def sbom_allowed_cves(self) -> frozenset[str]:
+        return frozenset(
+            item.strip().upper()
+            for item in self.POLISYOS_SBOM_ALLOWED_CVES.split(",")
+            if item.strip()
+        )
+
     @property
     def authz_enforce(self) -> bool:
         return self.POLISYOS_AUTHZ_MODE.strip().lower() == "enforce"
@@ -93,10 +138,58 @@ class SecuritySettings:
     def authz_shadow(self) -> bool:
         return self.POLISYOS_AUTHZ_MODE.strip().lower() == "shadow"
 
+    @property
+    def normalized_env(self) -> str:
+        env = self.POLISYOS_ENV.strip().lower()
+        if env in {"production", "prod"}:
+            return "prod"
+        if env in {"airgap", "air-gapped"}:
+            return "airgap"
+        return "dev"
+
+    @property
+    def is_prod(self) -> bool:
+        return self.normalized_env == "prod"
+
+    @property
+    def is_airgap(self) -> bool:
+        return self.normalized_env == "airgap"
+
+    @property
+    def is_dev(self) -> bool:
+        return self.normalized_env == "dev"
+
+    @property
+    def db_backend(self) -> str:
+        explicit = self.POLISYOS_DB_BACKEND.strip().lower()
+        if explicit:
+            return explicit
+        return "postgres" if self.is_prod else "duckdb"
+
+    @property
+    def tee_enabled(self) -> bool:
+        return self.POLISYOS_TEE_ENABLED or self.is_prod
+
+    @property
+    def tee_required(self) -> bool:
+        if self.POLISYOS_TEE_REQUIRED:
+            return True
+        return self.tee_enabled and self.is_prod
+
 
 @lru_cache(maxsize=1)
 def get_security_settings() -> SecuritySettings:
+    env_name = os.getenv("POLISYOS_ENV", "dev").strip().lower()
+    default_tee_enabled = env_name in {"prod", "production"}
+    default_tee_required = env_name in {"prod", "production"}
+    default_authn_enabled = env_name in {"prod", "production"}
+    default_authz_mode = "enforce" if env_name in {"prod", "production"} else "off"
+    default_pii_enabled = env_name in {"prod", "production", "airgap"}
+    default_sbom_enabled = env_name in {"prod", "production", "airgap"}
+
     return SecuritySettings(
+        POLISYOS_ENV=os.getenv("POLISYOS_ENV", "dev"),
+        POLISYOS_DB_BACKEND=os.getenv("POLISYOS_DB_BACKEND", ""),
         POLISYOS_MULTI_TENANT_ENABLED=_parse_bool(
             os.getenv("POLISYOS_MULTI_TENANT_ENABLED"),
             False,
@@ -111,8 +204,11 @@ def get_security_settings() -> SecuritySettings:
             os.getenv("POLISYOS_MULTI_TENANT_FAIL_CLOSED"),
             True,
         ),
-        POLISYOS_AUTHN_ENABLED=_parse_bool(os.getenv("POLISYOS_AUTHN_ENABLED"), False),
-        POLISYOS_AUTHZ_MODE=os.getenv("POLISYOS_AUTHZ_MODE", "off"),
+        POLISYOS_AUTHN_ENABLED=_parse_bool(
+            os.getenv("POLISYOS_AUTHN_ENABLED"),
+            default_authn_enabled,
+        ),
+        POLISYOS_AUTHZ_MODE=os.getenv("POLISYOS_AUTHZ_MODE", default_authz_mode),
         POLISYOS_EXTERNAL_TENANT_HEADER_FALLBACK=_parse_bool(
             os.getenv("POLISYOS_EXTERNAL_TENANT_HEADER_FALLBACK"),
             True,
@@ -142,6 +238,57 @@ def get_security_settings() -> SecuritySettings:
             60,
         ),
         POLISYOS_TRUSTED_DELEGATORS=os.getenv("POLISYOS_TRUSTED_DELEGATORS", ""),
+        POLISYOS_PII_ENABLED=_parse_bool(
+            os.getenv("POLISYOS_PII_ENABLED"),
+            default_pii_enabled,
+        ),
+        POLISYOS_TEE_ENABLED=_parse_bool(
+            os.getenv("POLISYOS_TEE_ENABLED"),
+            default_tee_enabled,
+        ),
+        POLISYOS_TEE_REQUIRED=_parse_bool(
+            os.getenv("POLISYOS_TEE_REQUIRED"),
+            default_tee_required,
+        ),
+        POLISYOS_TEE_PLATFORM=os.getenv("POLISYOS_TEE_PLATFORM", "sev-snp"),
+        POLISYOS_TEE_REPORT_PATH=os.getenv("POLISYOS_TEE_REPORT_PATH", ""),
+        POLISYOS_TEE_MAX_REPORT_AGE_SECONDS=_parse_int(
+            os.getenv("POLISYOS_TEE_MAX_REPORT_AGE_SECONDS"),
+            300,
+        ),
+        POLISYOS_TEE_MIN_TCB_VERSION=_parse_int(
+            os.getenv("POLISYOS_TEE_MIN_TCB_VERSION"),
+            0,
+        ),
+        POLISYOS_TEE_MIN_GUEST_SVN=_parse_int(
+            os.getenv("POLISYOS_TEE_MIN_GUEST_SVN"),
+            0,
+        ),
+        POLISYOS_TEE_EXPECTED_MEASUREMENTS=os.getenv(
+            "POLISYOS_TEE_EXPECTED_MEASUREMENTS",
+            "",
+        ),
+        POLISYOS_TEE_EXPECTED_HOST_DATA=os.getenv("POLISYOS_TEE_EXPECTED_HOST_DATA", ""),
+        POLISYOS_TEE_REQUIRE_SIGNATURE_VALIDATION=_parse_bool(
+            os.getenv("POLISYOS_TEE_REQUIRE_SIGNATURE_VALIDATION"),
+            True,
+        ),
+        POLISYOS_TEE_CACHE_TTL_SECONDS=_parse_int(
+            os.getenv("POLISYOS_TEE_CACHE_TTL_SECONDS"),
+            300,
+        ),
+        POLISYOS_TEE_ENFORCE_TIERS=os.getenv("POLISYOS_TEE_ENFORCE_TIERS", "dedicated"),
+        POLISYOS_SBOM_ENABLED=_parse_bool(
+            os.getenv("POLISYOS_SBOM_ENABLED"),
+            default_sbom_enabled,
+        ),
+        POLISYOS_SBOM_PATH=os.getenv("POLISYOS_SBOM_PATH", ""),
+        POLISYOS_SBOM_CVSS_THRESHOLD=_parse_float(
+            os.getenv("POLISYOS_SBOM_CVSS_THRESHOLD"),
+            7.0,
+        ),
+        POLISYOS_SBOM_GRYPE_DB_PATH=os.getenv("POLISYOS_SBOM_GRYPE_DB_PATH", ""),
+        POLISYOS_SBOM_ALLOWED_CVES=os.getenv("POLISYOS_SBOM_ALLOWED_CVES", ""),
     )
 
 

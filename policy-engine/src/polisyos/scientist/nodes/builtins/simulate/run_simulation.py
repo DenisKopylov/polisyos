@@ -3,9 +3,9 @@ from __future__ import annotations
 from dataclasses import dataclass, field, replace
 from typing import Any
 
+from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.contracts.foundry import ExecuteRequest, FoundryExecConfig, SimulationResult
-from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.observability import get_metrics
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
@@ -16,9 +16,11 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_ENVIRONMENT_MANIFEST_REF,
     ARTIFACT_EXEC_PLAN_REF,
     ARTIFACT_METRICS_REF,
+    ARTIFACT_SBOM_REF,
     ARTIFACT_SIMULATION_RESULT_REF,
     ARTIFACT_STATE_DELTA_REF,
     ARTIFACT_STATE_SNAPSHOT_REF,
+    ARTIFACT_TEE_ATTESTATION_REF,
     INPUT_DATA_SNAPSHOT_REF,
     INPUT_REGISTRY_BUNDLE_REF,
     INPUT_STATE_SNAPSHOT_REF,
@@ -50,6 +52,8 @@ _SPEC = NodeSpec(
         f"artifacts_index.{ARTIFACT_STATE_SNAPSHOT_REF}",
         f"artifacts_index.{ARTIFACT_CONSTRAINT_REPORT_REF}",
         f"artifacts_index.{ARTIFACT_ENVIRONMENT_MANIFEST_REF}",
+        f"artifacts_index.{ARTIFACT_TEE_ATTESTATION_REF}",
+        f"artifacts_index.{ARTIFACT_SBOM_REF}",
     ],
     produces=[
         ARTIFACT_SIMULATION_RESULT_REF,
@@ -58,6 +62,8 @@ _SPEC = NodeSpec(
         ARTIFACT_STATE_SNAPSHOT_REF,
         ARTIFACT_CONSTRAINT_REPORT_REF,
         ARTIFACT_ENVIRONMENT_MANIFEST_REF,
+        ARTIFACT_TEE_ATTESTATION_REF,
+        ARTIFACT_SBOM_REF,
     ],
 )
 
@@ -134,10 +140,14 @@ class RunSimulationNode:
             artifacts.append(result.simulation_result_ref)
 
             try:
-                payload = from_canonical_bytes(ctx.store.get_bytes(result.simulation_result_ref.artifact_id))
+                payload = from_canonical_bytes(
+                    ctx.store.get_bytes(result.simulation_result_ref.artifact_id)
+                )
                 sim_result = SimulationResult.model_validate(payload)
                 if sim_result.state_snapshot_ref is not None:
-                    new_state.artifacts_index[ARTIFACT_STATE_SNAPSHOT_REF] = sim_result.state_snapshot_ref
+                    new_state.artifacts_index[ARTIFACT_STATE_SNAPSHOT_REF] = (
+                        sim_result.state_snapshot_ref
+                    )
             except Exception:
                 pass
 
@@ -151,12 +161,23 @@ class RunSimulationNode:
                 new_state.artifacts_index[ARTIFACT_CONSTRAINT_REPORT_REF] = item.ref
             elif item.role == "environment_manifest":
                 new_state.artifacts_index[ARTIFACT_ENVIRONMENT_MANIFEST_REF] = item.ref
+                ctx.run.run_manifest.environment_manifest_ref = item.ref
+            elif item.role == "tee_attestation":
+                new_state.artifacts_index[ARTIFACT_TEE_ATTESTATION_REF] = item.ref
+                ctx.run.run_manifest.tee_attestation_ref = item.ref
+            elif item.role == "sbom":
+                new_state.artifacts_index[ARTIFACT_SBOM_REF] = item.ref
+                ctx.run.run_manifest.sbom_ref = item.ref
 
         if not result.ok:
             error = NodeError(
                 code=node_errors.ERROR_FOUNDRY_EXECUTE_FAILED,
                 message="Foundry execute failed",
-                details={"simulation_result_ref": getattr(result.simulation_result_ref, "model_dump", lambda: None)()},
+                details={
+                    "simulation_result_ref": getattr(
+                        result.simulation_result_ref, "model_dump", lambda: None
+                    )()
+                },
             )
             event = NodeEvent(level="error", message="Foundry execute returned ok=False")
             metrics.record_slo_simulation_run("error", method=method)

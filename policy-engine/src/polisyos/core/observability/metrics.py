@@ -189,6 +189,12 @@ class MetricsRegistry:
     audit_chain_tamper_detected_total: Optional[metrics.Counter] = None
     audit_cold_tier_errors_total: Optional[metrics.Counter] = None
     audit_tenant_boundary_violations_total: Optional[metrics.Counter] = None
+    tee_attestation_total: Optional[metrics.Counter] = None
+    tee_attestation_duration_seconds: Optional[metrics.Histogram] = None
+    tee_attestation_cache_hit_total: Optional[metrics.Counter] = None
+    sbom_generation_total: Optional[metrics.Counter] = None
+    sbom_vulnerability_count: Optional[metrics.Histogram] = None
+    sbom_deployment_gate_total: Optional[metrics.Counter] = None
 
     def __new__(cls) -> "MetricsRegistry":
         if cls._instance is None:
@@ -676,6 +682,37 @@ class MetricsRegistry:
             unit="1",
         )
 
+        self.tee_attestation_total = self._meter.create_counter(
+            name="polisyos_tee_attestation_total",
+            description="TEE attestation attempts by platform and outcome",
+            unit="1",
+        )
+        self.tee_attestation_duration_seconds = self._meter.create_histogram(
+            name="polisyos_tee_attestation_duration_seconds",
+            description="TEE attestation latency",
+            unit="s",
+        )
+        self.tee_attestation_cache_hit_total = self._meter.create_counter(
+            name="polisyos_tee_attestation_cache_hit_total",
+            description="TEE attestation cache reuse",
+            unit="1",
+        )
+        self.sbom_generation_total = self._meter.create_counter(
+            name="polisyos_sbom_generation_total",
+            description="SBOM generation attempts by source and outcome",
+            unit="1",
+        )
+        self.sbom_vulnerability_count = self._meter.create_histogram(
+            name="polisyos_sbom_vulnerability_count",
+            description="Vulnerability count observed per SBOM scan",
+            unit="1",
+        )
+        self.sbom_deployment_gate_total = self._meter.create_counter(
+            name="polisyos_sbom_deployment_gate_total",
+            description="Deployment gate decisions from SBOM policy",
+            unit="1",
+        )
+
     def time_simulation(
         self,
         attributes: Optional[dict[str, Any]] = None,
@@ -1005,6 +1042,45 @@ class MetricsRegistry:
                 "resource_type": resource_type,
             },
         )
+
+    def record_tee_attestation(self, *, platform: str, outcome: str) -> None:
+        self._ensure_initialized()
+        if self.tee_attestation_total is None:
+            return
+        self.tee_attestation_total.add(1, {"platform": platform, "outcome": outcome})
+
+    def record_tee_attestation_duration(self, *, platform: str, duration_seconds: float) -> None:
+        self._ensure_initialized()
+        if self.tee_attestation_duration_seconds is None:
+            return
+        self.tee_attestation_duration_seconds.record(
+            max(duration_seconds, 0.0),
+            {"platform": platform},
+        )
+
+    def record_tee_attestation_cache_hit(self, *, platform: str) -> None:
+        self._ensure_initialized()
+        if self.tee_attestation_cache_hit_total is None:
+            return
+        self.tee_attestation_cache_hit_total.add(1, {"platform": platform})
+
+    def record_sbom_generation(self, *, source: str, outcome: str) -> None:
+        self._ensure_initialized()
+        if self.sbom_generation_total is None:
+            return
+        self.sbom_generation_total.add(1, {"source": source, "outcome": outcome})
+
+    def record_sbom_vulnerability_count(self, *, severity: str, count: int) -> None:
+        self._ensure_initialized()
+        if self.sbom_vulnerability_count is None:
+            return
+        self.sbom_vulnerability_count.record(float(max(count, 0)), {"severity": severity})
+
+    def record_sbom_deployment_gate(self, *, decision: str) -> None:
+        self._ensure_initialized()
+        if self.sbom_deployment_gate_total is None:
+            return
+        self.sbom_deployment_gate_total.add(1, {"decision": decision})
 
     def increment_active_runs(self) -> None:
         """Increment the active runs gauge."""

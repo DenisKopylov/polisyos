@@ -204,3 +204,48 @@ groups:
         annotations:
           summary: "Cell routing p99 latency exceeds 10ms"
           description: "Routing p99 currently {{ $value | printf \"%.3f\" }}s."
+
+  - name: polisyos.phase4_security
+    rules:
+      - alert: TEEAttestationFailureRate
+        expr: |
+          rate(polisyos_tee_attestation_total{outcome="failed"}[5m])
+          /
+          rate(polisyos_tee_attestation_total[5m]) > 0.01
+        for: 5m
+        labels:
+          severity: critical
+          team: security
+        annotations:
+          summary: "TEE attestation failure rate above 1%"
+          description: "{{ $value | humanizePercentage }} of attestation attempts are failing."
+
+      - alert: TEEUnavailableOnConfidentialNode
+        expr: rate(polisyos_tee_attestation_total{outcome="unavailable"}[5m]) > 0
+        for: 1m
+        labels:
+          severity: critical
+          team: security
+        annotations:
+          summary: "TEE unavailable for confidential execution path"
+          description: "Confidential run path reports unavailable attestation."
+
+      - alert: SBOMCriticalCVEDetected
+        expr: polisyos_sbom_vulnerability_count{severity="critical"} > 0
+        for: 0m
+        labels:
+          severity: warning
+          team: security
+        annotations:
+          summary: "Critical CVE detected in SBOM scan"
+          description: "{{ $value }} critical vulnerabilities detected."
+
+      - alert: SBOMDeploymentGateDenySpike
+        expr: rate(polisyos_sbom_deployment_gate_total{decision="deny"}[1h]) > 5
+        for: 10m
+        labels:
+          severity: warning
+          team: security
+        annotations:
+          summary: "SBOM deployment gate denies are elevated"
+          description: "More than 5 deny decisions per hour from SBOM policy."

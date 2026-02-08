@@ -4,6 +4,7 @@ from collections import Counter
 from dataclasses import replace
 from pathlib import Path
 import time
+import warnings
 from typing import Any
 
 from polisyos.core.artifacts.store import FileSystemCAS
@@ -17,7 +18,7 @@ from polisyos.fabric.claims.extractor_registry import (
 from polisyos.fabric.claims.persist import load_claim, load_doc_meta, load_json_artifact
 from polisyos.fabric.docs import DocSourceSpec, chunk_doc, ingest_doc_bytes, normalize_doc, structure_doc
 from polisyos.fabric.docs.errors import DocPipelineError
-from polisyos.fabric.io.db import SimulationDB
+from polisyos.fabric.storage import DuckDBStorageAdapter, StoragePort
 from polisyos.ir.world.trust import TrustAssessment, TrustTier
 
 from polisyos.scholar.discover import fetch_url, normalize_seed_sources, read_local_file
@@ -292,9 +293,18 @@ def enrich_topic(
     cas: FileSystemCAS,
     fact_log_root: Path,
     intent: ResearchIntent,
-    db: SimulationDB | None = None,
+    storage: StoragePort | None = None,
+    db: Any | None = None,
     policy: ScholarPolicy | None = None,
 ) -> EnrichResultV1:
+    if db is not None and storage is None:
+        warnings.warn(
+            "scholar.enrich_topic(db=...) is deprecated; use storage=DuckDBStorageAdapter(db)",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        storage = _coerce_storage_from_db(db)
+
     scholar_policy = policy or ScholarPolicy()
     run_token = str(time.time_ns())
 
@@ -518,6 +528,7 @@ def enrich_topic(
         resolve_result = resolve_conflicts(
             cas=cas,
             fact_log_root=fact_log_root,
+            storage=storage,
             db=db,
             claim_ids=all_claim_ids,
             claim_set_artifact_ids=sorted(set(normalized_claim_set_artifact_ids)),
@@ -741,6 +752,14 @@ def enrich_topic(
         report=report,
         report_ref=report_ref,
     )
+
+
+def _coerce_storage_from_db(db: Any) -> StoragePort:
+    if isinstance(db, DuckDBStorageAdapter):
+        return db
+    if all(hasattr(db, attr) for attr in ("conn", "save_macro", "save_agents", "save_run_record")):
+        return DuckDBStorageAdapter(db)
+    raise TypeError("db must be SimulationDB-compatible to auto-wrap into DuckDBStorageAdapter")
 
 
 __all__ = ["enrich_topic"]

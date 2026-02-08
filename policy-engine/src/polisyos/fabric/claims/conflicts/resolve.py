@@ -10,6 +10,7 @@ from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.fabric.claims.errors import ClaimValidationError
 from polisyos.fabric.claims.persist import load_json_artifact, write_claims_world_segment
 from polisyos.fabric.io.db import SimulationDB
+from polisyos.fabric.storage import DuckDBStorageAdapter, StoragePort
 from polisyos.fabric.world import (
     emit_edge_fact,
     emit_world_event_facts,
@@ -361,6 +362,7 @@ def resolve_conflicts(
     *,
     cas: FileSystemCAS,
     fact_log_root: Path,
+    storage: StoragePort | None = None,
     db: SimulationDB | None = None,
     conflict_set_ids: list[str] | None = None,
     claim_ids: list[str] | None = None,
@@ -369,6 +371,7 @@ def resolve_conflicts(
     options: ConflictResolveOptions | None = None,
     segment_name: str | None = None,
 ) -> ConflictResolveResult:
+    resolved_db = _resolve_simulation_db(storage=storage, db=db)
     opts = options or ConflictResolveOptions()
     policy = get_conflict_policy(policy_id)
 
@@ -381,7 +384,8 @@ def resolve_conflicts(
         detect_result = detect_conflicts(
             cas=cas,
             fact_log_root=fact_log_root,
-            db=db,
+            storage=storage,
+            db=resolved_db,
             claim_ids=claim_ids,
             claim_set_artifact_ids=claim_set_artifact_ids,
             policy_id=policy_id,
@@ -397,8 +401,8 @@ def resolve_conflicts(
             conflict_sets_by_id[conflict_set.conflict_set_id] = conflict_set
             conflict_artifacts_by_id[conflict_set.conflict_set_id] = artifact_id
 
-    if db is not None:
-        db_artifacts = _query_conflict_set_artifacts(db, conflict_set_ids)
+    if resolved_db is not None:
+        db_artifacts = _query_conflict_set_artifacts(resolved_db, conflict_set_ids)
         for conflict_set_id, artifact_id in db_artifacts.items():
             if conflict_set_id in conflict_sets_by_id:
                 continue
@@ -414,7 +418,8 @@ def resolve_conflicts(
             fallback_detect = detect_conflicts(
                 cas=cas,
                 fact_log_root=fact_log_root,
-                db=db,
+                storage=storage,
+                db=resolved_db,
                 claim_ids=claim_ids,
                 claim_set_artifact_ids=claim_set_artifact_ids,
                 policy_id=policy_id,
@@ -453,10 +458,10 @@ def resolve_conflicts(
         claim_artifact_ids_by_id.update(
             _load_claim_refs_from_claim_sets(cas=cas, claim_set_artifact_ids=claim_set_artifact_ids)
         )
-    if db is not None:
-        claim_artifact_ids_by_id.update(_query_claim_artifacts_from_db(db, member_claim_ids))
-    if not claim_artifact_ids_by_id and db is not None:
-        claim_artifact_ids_by_id.update(_all_claim_artifacts_from_db(db))
+    if resolved_db is not None:
+        claim_artifact_ids_by_id.update(_query_claim_artifacts_from_db(resolved_db, member_claim_ids))
+    if not claim_artifact_ids_by_id and resolved_db is not None:
+        claim_artifact_ids_by_id.update(_all_claim_artifacts_from_db(resolved_db))
     claims_by_id = (
         _load_claims(
             cas=cas,
@@ -484,7 +489,7 @@ def resolve_conflicts(
         }
     )
 
-    doc_meta_artifacts_by_doc = _query_doc_meta_artifacts(db, doc_version_ids)
+    doc_meta_artifacts_by_doc = _query_doc_meta_artifacts(resolved_db, doc_version_ids)
     if claim_set_artifact_ids:
         fallback_doc_meta = _doc_meta_artifacts_from_claim_sets(
             cas=cas,
@@ -509,13 +514,13 @@ def resolve_conflicts(
     extractor_by_claim.update(
         _query_extractor_ids_by_claim_from_db(
             cas=cas,
-            db=db,
+            db=resolved_db,
             claim_ids=missing_extractors,
         )
     )
-    agent_by_claim = _query_agent_ids_by_claim(db, member_claim_ids)
-    fragment_anchor_kind_by_id = _query_fragment_anchor_kinds(db, fragment_ids)
-    if db is None and fragment_ids:
+    agent_by_claim = _query_agent_ids_by_claim(resolved_db, member_claim_ids)
+    fragment_anchor_kind_by_id = _query_fragment_anchor_kinds(resolved_db, fragment_ids)
+    if resolved_db is None and fragment_ids:
         for fragment_id in fragment_ids:
             fragment_anchor_kind_by_id.setdefault(fragment_id, "chunk")
 
@@ -787,7 +792,7 @@ def resolve_conflicts(
                 context_json={"doc_version_ids": missing_doc_versions},
             )
         )
-    if not claim_set_artifact_ids and db is None:
+    if not claim_set_artifact_ids and resolved_db is None:
         issues.append(
             QualityIssue(
                 code="subject_resolution_limited",
@@ -903,6 +908,23 @@ def resolve_conflicts(
         world_event_artifact_id=event_artifact_id,
         world_segment_manifest=manifest,
     )
+
+
+def _resolve_simulation_db(
+    *,
+    storage: StoragePort | None,
+    db: SimulationDB | None,
+) -> SimulationDB | None:
+    if db is not None:
+        return db
+    if storage is None:
+        return None
+    if isinstance(storage, DuckDBStorageAdapter):
+        return storage.raw_db
+    raw_db = getattr(storage, "raw_db", None)
+    if isinstance(raw_db, SimulationDB):
+        return raw_db
+    return None
 
 
 __all__ = [

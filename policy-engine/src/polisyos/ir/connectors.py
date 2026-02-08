@@ -6,13 +6,14 @@ these contracts.
 """
 from __future__ import annotations
 
-from dataclasses import dataclass
 import hashlib
+from dataclasses import dataclass
 from datetime import datetime, timezone
 from enum import Enum, Flag, IntEnum, auto
 from typing import Any, Generic, TypeAlias, TypeVar
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
+
 from polisyos.ir.refs import EvidenceBundleRef
 
 
@@ -303,7 +304,7 @@ class FetchResult(BaseModel, Generic[DataT]):
     # Schema
     schema_id: str = Field(description="Identifier of the data schema")
     schema_version: str = Field(
-        pattern=r"^\\d+\\.\\d+(\\.\\d+)?$",
+        pattern=r"^\d+\.\d+(\.\d+)?$",
         description="Version of the data schema",
     )
 

@@ -19,7 +19,7 @@ import threading
 from collections import defaultdict
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
-from typing import TYPE_CHECKING, Any, Callable, ClassVar, Iterator
+from typing import TYPE_CHECKING, Any, Callable, ClassVar, Iterator, Literal
 
 from packaging.version import parse as parse_version
 
@@ -34,6 +34,7 @@ if TYPE_CHECKING:
         HealthStatus,
         SourceConnector,
     )
+    from polisyos.fabric.connectors.contracts import ContractRegistry
     from polisyos.fabric.connectors.pool import ConnectionPool, PoolConfig
     from polisyos.fabric.connectors.types import DatasetDescriptor
 
@@ -254,6 +255,11 @@ class ConnectorRegistry:
         self._cache_store = None
         self._enable_caching = True
         self._cache_wrappers: dict[str, Any] = {}
+        self._contract_registry: "ContractRegistry | None" = None
+        self._contract_validation_mode: Literal["strict", "warn", "disabled"] = "warn"
+        self._contract_wrappers: dict[str, Any] = {}
+        self._schema_invalidation_callback_registered = False
+        self._bootstrap_contract_registry()
 
     @classmethod
     def get_instance(cls, *, bootstrap: bool = True) -> "ConnectorRegistry":
@@ -323,6 +329,120 @@ class ConnectorRegistry:
             self._enable_caching = enable_caching
             if reset_wrappers:
                 self._cache_wrappers.clear()
+            if cache_store is not None:
+                self._ensure_schema_invalidation_callback()
+
+    def configure_contracts(
+        self,
+        contract_registry: "ContractRegistry | None",
+        *,
+        validation_mode: Literal["strict", "warn", "disabled"] = "strict",
+        reset_wrappers: bool = True,
+    ) -> None:
+        """Configure optional contract validation and schema-aware caching."""
+        with self._instance_lock:
+            self._contract_registry = contract_registry
+            self._contract_validation_mode = validation_mode
+            if reset_wrappers:
+                self._contract_wrappers.clear()
+                self._cache_wrappers.clear()
+            self._schema_invalidation_callback_registered = False
+            self._ensure_schema_invalidation_callback()
+
+    def _bootstrap_contract_registry(self) -> None:
+        try:
+            from polisyos.fabric.connectors.contracts import ContractRegistry
+            from polisyos.fabric.connectors.sources._contracts import ALL_SOURCE_CONTRACTS
+
+            registry = ContractRegistry()
+            for contract in ALL_SOURCE_CONTRACTS:
+                registry.register(contract, allow_breaking=True)
+            self._contract_registry = registry
+        except Exception as exc:
+            logger.debug(
+                "Connector contract bootstrap skipped",
+                error=str(exc),
+                error_type=type(exc).__name__,
+            )
+
+    def _ensure_schema_invalidation_callback(self) -> None:
+        if (
+            self._schema_invalidation_callback_registered
+            or self._contract_registry is None
+            or self._cache_store is None
+        ):
+            return
+        try:
+            from polisyos.fabric.connectors.cache import SchemaChangeInvalidationTrigger
+
+            trigger = SchemaChangeInvalidationTrigger(self._cache_store)
+            self._contract_registry.register_callback(trigger.on_contract_registered)
+            self._schema_invalidation_callback_registered = True
+        except Exception as exc:
+            logger.warning(
+                "Failed to configure schema-aware cache invalidation callback",
+                error=str(exc),
+                error_type=type(exc).__name__,
+            )
+
+    def _apply_contract_validation_wrapper(
+        self,
+        connector: "SourceConnector",
+        *,
+        fqid: str,
+    ) -> "SourceConnector":
+        if self._contract_registry is None or self._contract_validation_mode == "disabled":
+            return connector
+        try:
+            if not self._contract_registry.get_for_connector(connector.connector_id):
+                return connector
+        except Exception:
+            return connector
+
+        try:
+            from polisyos.fabric.connectors.contracts import ContractValidatingProxy
+
+            with self._instance_lock:
+                wrapped = self._contract_wrappers.get(fqid)
+                if wrapped is None:
+                    wrapped = ContractValidatingProxy(
+                        connector,
+                        self._contract_registry,
+                        mode=self._contract_validation_mode,
+                    )
+                    self._contract_wrappers[fqid] = wrapped
+                return wrapped
+        except Exception as exc:
+            logger.warning(
+                "Failed to wrap connector with contract validator",
+                connector_id=fqid,
+                error=str(exc),
+                error_type=type(exc).__name__,
+            )
+            return connector
+
+    def _build_schema_hash_provider(
+        self,
+        *,
+        connector_short_id: str,
+    ) -> Callable[[Any, Any], str | None] | None:
+        if self._contract_registry is None:
+            return None
+        try:
+            from polisyos.fabric.connectors.cache import make_schema_hash_provider
+
+            return make_schema_hash_provider(
+                self._contract_registry,
+                connector_id=connector_short_id,
+            )
+        except Exception as exc:
+            logger.warning(
+                "Failed to configure schema hash provider",
+                connector_id=connector_short_id,
+                error=str(exc),
+                error_type=type(exc).__name__,
+            )
+            return None
 
     def _bootstrap(self) -> None:
         """
@@ -657,6 +777,7 @@ class ConnectorRegistry:
 
         connector = entry.instance
         connector = self._apply_resilience_if_configured(connector, entry)
+        connector = self._apply_contract_validation_wrapper(connector, fqid=fqid)
 
         if self._enable_caching and enable_cache and self._cache_store is not None:
             try:
@@ -668,7 +789,13 @@ class ConnectorRegistry:
                 with self._instance_lock:
                     cached = self._cache_wrappers.get(fqid)
                     if cached is None:
-                        cached = CachingConnectorProxy(connector, self._cache_store)
+                        cached = CachingConnectorProxy(
+                            connector,
+                            self._cache_store,
+                            schema_hash_provider=self._build_schema_hash_provider(
+                                connector_short_id=entry.short_id
+                            ),
+                        )
                         self._cache_wrappers[fqid] = cached
                 return self._apply_slo_metrics_wrapper(cached, connector_id=fqid)
             except Exception:

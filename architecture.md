@@ -31,6 +31,7 @@
 - [Observability и Ops](#observability-и-ops)
 - [Данные](#данные)
 - [Документация](#документация)
+- [Архитектура](#архитектура)
 
 ---
 
@@ -661,7 +662,7 @@ data/
 
 ---
 
-## Полная архитектура PolisyOS
+## Архитектура PolisyOS
 
 ```
 policy-engine/  # Project root (Policy Engine / PolisyOS).

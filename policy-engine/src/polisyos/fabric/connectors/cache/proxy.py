@@ -64,10 +64,12 @@ class CachingConnectorProxy(Generic[DataT]):
         return await self._connector.health_check(handle)
 
     async def list_datasets(self, handle: ConnectionHandle):
-        return await self._connector.list_datasets(handle)
+        async for dataset in self._connector.list_datasets(handle):
+            yield dataset
 
     async def fetch_stream(self, handle: ConnectionHandle, request: FetchRequest):
-        return await self._connector.fetch_stream(handle, request)
+        async for chunk in self._connector.fetch_stream(handle, request):
+            yield chunk
 
     async def check_freshness(self, handle: ConnectionHandle, dataset_id: str, cached_version):
         return await self._connector.check_freshness(handle, dataset_id, cached_version)

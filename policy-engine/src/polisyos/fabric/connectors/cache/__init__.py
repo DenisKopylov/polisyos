@@ -9,6 +9,7 @@ from .invalidation import (
     InvalidationOrchestrator,
     InvalidationStrategy,
     InvalidationTrigger,
+    SchemaChangeInvalidationTrigger,
 )
 from .policy import (
     CachePolicy,
@@ -22,6 +23,7 @@ from .policy import (
 )
 from .prefetch import PrefetchJob, PrefetchScheduler
 from .proxy import CachingConnectorProxy
+from .schema_aware import make_schema_hash_provider
 from .store import CacheMetadata, CacheStats, CachedFetchResult, ConnectorCacheStore
 
 __all__ = [
@@ -41,7 +43,9 @@ __all__ = [
     "InvalidationEvent",
     "InvalidationTrigger",
     "InvalidationOrchestrator",
+    "SchemaChangeInvalidationTrigger",
     "PrefetchScheduler",
     "PrefetchJob",
     "CachingConnectorProxy",
+    "make_schema_hash_provider",
 ]

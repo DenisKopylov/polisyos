@@ -106,11 +106,13 @@ from polisyos.fabric.connectors.cache import (
     PolicyRegistry,
     PrefetchJob,
     PrefetchScheduler,
+    SchemaChangeInvalidationTrigger,
     SizeBoundedPolicy,
     SmartExpiryPolicy,
     StaticDataPolicy,
     TTLPolicy,
     VolatileDataPolicy,
+    make_schema_hash_provider,
 )
 
 # Resilience layer (Phase 2.9)
@@ -234,8 +236,10 @@ __all__ = [
     "InvalidationEvent",
     "InvalidationTrigger",
     "InvalidationOrchestrator",
+    "SchemaChangeInvalidationTrigger",
     "PrefetchScheduler",
     "PrefetchJob",
+    "make_schema_hash_provider",
     # === Resilience Layer (Phase 2.9) ===
     "RetryPolicy",
     "RetryExhaustedError",

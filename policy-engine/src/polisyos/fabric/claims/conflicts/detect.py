@@ -14,6 +14,7 @@ from polisyos.fabric.claims.persist import (
     write_claims_world_segment,
 )
 from polisyos.fabric.io.db import SimulationDB
+from polisyos.fabric.storage import DuckDBStorageAdapter, StoragePort
 from polisyos.fabric.world import (
     emit_edge_fact,
     emit_world_event_facts,
@@ -133,6 +134,7 @@ def detect_conflicts(
     *,
     cas: FileSystemCAS,
     fact_log_root: Path,
+    storage: StoragePort | None = None,
     db: SimulationDB | None = None,
     claim_ids: list[str] | None = None,
     claim_set_artifact_ids: list[str] | None = None,
@@ -141,6 +143,7 @@ def detect_conflicts(
     segment_name: str | None = None,
 ) -> ConflictDetectResult:
     del policy_id  # conflict detection is policy-agnostic in v1
+    resolved_db = _resolve_simulation_db(storage=storage, db=db)
     opts = options or ConflictDetectOptions()
     refs_by_claim: dict[str, str] = {}
 
@@ -152,17 +155,17 @@ def detect_conflicts(
     selected_claim_ids: list[str]
     if claim_ids is not None:
         selected_claim_ids = sorted(set(claim_ids))
-        if db is not None:
-            refs_by_claim.update(_query_claim_artifacts_from_db(db, selected_claim_ids))
-        if db is None and not claim_set_artifact_ids:
+        if resolved_db is not None:
+            refs_by_claim.update(_query_claim_artifacts_from_db(resolved_db, selected_claim_ids))
+        if resolved_db is None and not claim_set_artifact_ids:
             raise ClaimValidationError(
                 "claim_ids require db or claim_set_artifact_ids to resolve claim artifacts"
             )
     else:
         if refs_by_claim:
             selected_claim_ids = sorted(refs_by_claim)
-        elif db is not None:
-            refs_by_claim.update(_all_claim_artifacts_from_db(db))
+        elif resolved_db is not None:
+            refs_by_claim.update(_all_claim_artifacts_from_db(resolved_db))
             selected_claim_ids = sorted(refs_by_claim)
         else:
             raise ClaimValidationError(
@@ -297,6 +300,23 @@ def detect_conflicts(
         world_event_artifact_id=event_artifact_id,
         world_segment_manifest=manifest,
     )
+
+
+def _resolve_simulation_db(
+    *,
+    storage: StoragePort | None,
+    db: SimulationDB | None,
+) -> SimulationDB | None:
+    if db is not None:
+        return db
+    if storage is None:
+        return None
+    if isinstance(storage, DuckDBStorageAdapter):
+        return storage.raw_db
+    raw_db = getattr(storage, "raw_db", None)
+    if isinstance(raw_db, SimulationDB):
+        return raw_db
+    return None
 
 
 __all__ = [

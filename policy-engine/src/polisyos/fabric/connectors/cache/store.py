@@ -994,6 +994,42 @@ class ConnectorCacheStore:
     def hard_delete(self, **filters: Any) -> int:
         return self.invalidate(strategy="hard_delete", **filters)
 
+    def invalidate_by_schema_hash(
+        self,
+        *,
+        connector_id: str,
+        exclude_hash: str,
+    ) -> int:
+        """
+        Mark entries stale when their schema_hash differs from exclude_hash.
+
+        Args:
+            connector_id: Connector whose entries are checked.
+            exclude_hash: New contract hash that remains valid.
+
+        Returns:
+            Number of invalidated entries.
+        """
+        if not connector_id:
+            return 0
+
+        cache_keys = self._index.list_by_filters(connector_id=connector_id)
+        if not cache_keys:
+            return 0
+
+        invalidated = 0
+        for cache_key in cache_keys:
+            entry = self._index.get_entry(cache_key)
+            if entry is None:
+                continue
+            if entry.schema_hash != exclude_hash:
+                self._index.mark_stale(cache_key)
+                invalidated += 1
+
+        if invalidated:
+            self._update_cache_gauges()
+        return invalidated
+
     def stats(self) -> CacheStats:
         total_entries, total_size, oldest_ts = self._index.stats()
         if oldest_ts is not None:

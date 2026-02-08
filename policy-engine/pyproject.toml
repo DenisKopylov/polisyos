@@ -110,6 +110,11 @@ polisyos = "polisyos.core.components.cli:main"
 causal = "polisyos.foundry.methods.catalog.causal._registry_boot:register_causal_methods"
 econometrics = "polisyos.foundry.methods.catalog.econometrics._registry_boot:register_econometric_methods"
 
+[project.entry-points."polisyos.connectors"]
+"worldbank.wdi" = "polisyos.fabric.connectors.sources:WorldBankConnector"
+"eurostat.data" = "polisyos.fabric.connectors.sources:EurostatConnector"
+"ukons.datasets" = "polisyos.fabric.connectors.sources:UKONSConnector"
+
 [project.entry-points."polisyos.ir_fragments"]
 "roads.core" = "polisyos.packs.roads.ir_fragments:roads_ir_fragment_component"
 "econ.core" = "polisyos.packs.econ.ir_fragments:econ_ir_fragment_component"

@@ -2,10 +2,11 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Any
 
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.contracts.scholar import KnowledgeBundleRef, ResearchIntent
-from polisyos.fabric.io.db import SimulationDB
+from polisyos.fabric.storage import StoragePort
 
 from polisyos.scholar.orchestrator.enrich import enrich_topic as _enrich_topic
 from polisyos.scholar.policies import ScholarPolicy
@@ -17,13 +18,15 @@ def enrich_topic(
     cas: FileSystemCAS,
     fact_log_root: Path,
     intent: ResearchIntent,
-    db: SimulationDB | None = None,
+    storage: StoragePort | None = None,
+    db: Any | None = None,
     policy: ScholarPolicy | None = None,
 ) -> EnrichResultV1:
     return _enrich_topic(
         cas=cas,
         fact_log_root=fact_log_root,
         intent=intent,
+        storage=storage,
         db=db,
         policy=policy,
     )
@@ -32,7 +35,8 @@ def enrich_topic(
 @dataclass(frozen=True)
 class ScholarService:
     fact_log_root: Path
-    db: SimulationDB | None = None
+    storage: StoragePort | None = None
+    db: Any | None = None
     policy: ScholarPolicy | None = None
 
     def enrich(self, store: FileSystemCAS, intent: ResearchIntent) -> KnowledgeBundleRef:
@@ -40,6 +44,7 @@ class ScholarService:
             cas=store,
             fact_log_root=self.fact_log_root,
             intent=intent,
+            storage=self.storage,
             db=self.db,
             policy=self.policy,
         )

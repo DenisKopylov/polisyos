@@ -9,6 +9,7 @@ from typing import Any
 
 from polisyos.common.logger import get_logger
 from polisyos.fabric.connectors.base import ConnectionHandle, SourceConnector
+from polisyos.fabric.connectors.contracts import ConnectorSchemaContract, EvolutionReport
 from polisyos.fabric.connectors.types import FreshnessStatus
 from polisyos.ir.connectors import ConnectorCapability, DataVersion
 
@@ -83,6 +84,39 @@ class InvalidationTrigger:
             pass
 
         return None
+
+
+class SchemaChangeInvalidationTrigger:
+    """
+    Cache invalidation callback for connector schema contract updates.
+
+    Register this callback in ContractRegistry.register_callback().
+    """
+
+    def __init__(self, cache_store: ConnectorCacheStore) -> None:
+        self._cache_store = cache_store
+
+    def on_contract_registered(
+        self,
+        contract: ConnectorSchemaContract,
+        report: EvolutionReport | None,
+    ) -> int:
+        if report is None or not report.changes:
+            return 0
+
+        invalidated = self._cache_store.invalidate_by_schema_hash(
+            connector_id=contract.connector_id,
+            exclude_hash=contract.content_hash,
+        )
+        logger.info(
+            "Schema-aware cache invalidation",
+            connector_id=contract.connector_id,
+            contract_id=contract.contract_id,
+            invalidated_entries=invalidated,
+            change_count=len(report.changes),
+            breaking_count=len(report.breaking_changes),
+        )
+        return invalidated
 
 
 class InvalidationOrchestrator:

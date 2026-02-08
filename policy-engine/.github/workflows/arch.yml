@@ -28,5 +28,9 @@ jobs:
         run: python tools/check_state_reads.py
       - name: Require Scientist node version bumps
         run: python tools/check_scientist_node_version_bump.py
+      - name: Verify Scholar storage boundary
+        run: python tools/lint/check_scholar_imports.py
+      - name: Verify connector contracts
+        run: python tools/connectors/check_contracts.py --check
       - name: Verify ABI schema snapshots
         run: python3 tools/gen_schema.py --check

@@ -38,6 +38,7 @@ ENTRY_POINT_GROUP = "polisyos.connectors"
 # Built-in connector modules to discover at startup
 BUILTIN_CONNECTOR_MODULES: tuple[str, ...] = (
     "polisyos.fabric.connectors.reference",
+    "polisyos.fabric.connectors.sources",
 )
 
 # Filesystem path discovery is dev-only

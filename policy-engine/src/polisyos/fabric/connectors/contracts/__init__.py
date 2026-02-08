@@ -19,6 +19,17 @@ from polisyos.fabric.connectors.contracts.evolution import (
     SchemaChange,
     SchemaEvolution,
 )
+from polisyos.fabric.connectors.contracts.contract import (
+    ConnectorSchemaContract,
+    FieldMapping,
+)
+from polisyos.fabric.connectors.contracts.contract_registry import (
+    ContractNotFoundError,
+    ContractRegistry,
+    ContractVersionError,
+    ContractViolationError,
+    build_contract_registry,
+)
 from polisyos.fabric.connectors.contracts.inference import (
     CoercionResult,
     InferenceConfig,
@@ -35,6 +46,10 @@ from polisyos.fabric.connectors.contracts.registry import (
     SchemaRegistration,
     SchemaRegistry,
     SchemaVersionConflictError,
+)
+from polisyos.fabric.connectors.contracts.validation_middleware import (
+    ContractValidatingProxy,
+    SchemaValidationMode,
 )
 from polisyos.fabric.connectors.contracts.schema import (
     Additivity,
@@ -75,6 +90,16 @@ __all__ = [
     "EvolutionReport",
     "SchemaChange",
     "SchemaEvolution",
+    # Connector-level contracts
+    "FieldMapping",
+    "ConnectorSchemaContract",
+    "ContractRegistry",
+    "ContractNotFoundError",
+    "ContractVersionError",
+    "ContractViolationError",
+    "build_contract_registry",
+    "ContractValidatingProxy",
+    "SchemaValidationMode",
     # Registry
     "FileBackedSchemaRegistry",
     "SchemaNotFoundError",

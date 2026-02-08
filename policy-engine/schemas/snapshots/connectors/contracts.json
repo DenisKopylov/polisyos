@@ -1,0 +1,700 @@
+{
+  "contracts": {
+    "eurostat.data.generic": {
+      "connector_id": "eurostat.data",
+      "content_hash": "sha256:0f6687e89da74186170d15a2b2aab4e6a14d2e845fb883adc09591e592ae78fa",
+      "contract": {
+        "completeness_scope": "full_dataset",
+        "completeness_window_rows": null,
+        "connector_id": "eurostat.data",
+        "contract_id": "eurostat.data.generic",
+        "created_by": "phase16",
+        "dataset_id": "*",
+        "description": "Wildcard contract for normalized Eurostat JSON-stat datasets.",
+        "expected_row_count_range": [
+          null,
+          null
+        ],
+        "field_completeness": {
+          "dataset_id": 1.0,
+          "dimensions_json": 1.0,
+          "observation_index": 1.0,
+          "value": 0.6
+        },
+        "field_mappings": [
+          {
+            "source_path": "id",
+            "target_field": "dimensions_json",
+            "transform": "json"
+          },
+          {
+            "source_path": "value",
+            "target_field": "value",
+            "transform": "float"
+          }
+        ],
+        "max_staleness_hours": null,
+        "min_completeness": 0.6,
+        "schema": {
+          "allowed_null_fields": [
+            "time_period",
+            "unit",
+            "value"
+          ],
+          "created_at": null,
+          "description": "Normalized JSON-stat output schema for Eurostat datasets.",
+          "fields": [
+            {
+              "additivity": null,
+              "allowed_values": null,
+              "bounds": [
+                null,
+                null
+              ],
+              "data_type": "string",
+              "description": "",
+              "display_unit": null,
+              "element_type": null,
+              "expected_completeness": 1.0,
+              "max_length": 128,
+              "name": "dataset_id",
+              "nullable": false,
+              "pattern": null,
+              "precision": null,
+              "scale": null,
+              "semantic_type": null,
+              "source_name": "",
+              "tags": [],
+              "unit": null
+            },
+            {
+              "additivity": null,
+              "allowed_values": null,
+              "bounds": [
+                null,
+                null
+              ],
+              "data_type": "int64",
+              "description": "",
+              "display_unit": null,
+              "element_type": null,
+              "expected_completeness": 1.0,
+              "max_length": null,
+              "name": "observation_index",
+              "nullable": false,
+              "pattern": null,
+              "precision": null,
+              "scale": null,
+              "semantic_type": "index",
+              "source_name": "",
+              "tags": [],
+              "unit": null
+            },
+            {
+              "additivity": null,
+              "allowed_values": null,
+              "bounds": [
+                null,
+                null
+              ],
+              "data_type": "string",
+              "description": "",
+              "display_unit": null,
+              "element_type": null,
+              "expected_completeness": 0.6,
+              "max_length": 32,
+              "name": "time_period",
+              "nullable": true,
+              "pattern": null,
+              "precision": null,
+              "scale": null,
+              "semantic_type": "temporal",
+              "source_name": "",
+              "tags": [],
+              "unit": null
+            },
+            {
+              "additivity": null,
+              "allowed_values": null,
+              "bounds": [
+                null,
+                null
+              ],
+              "data_type": "string",
+              "description": "",
+              "display_unit": null,
+              "element_type": null,
+              "expected_completeness": 0.0,
+              "max_length": 64,
+              "name": "unit",
+              "nullable": true,
+              "pattern": null,
+              "precision": null,
+              "scale": null,
+              "semantic_type": null,
+              "source_name": "",
+              "tags": [],
+              "unit": null
+            },
+            {
+              "additivity": "semi_additive",
+              "allowed_values": null,
+              "bounds": [
+                null,
+                null
+              ],
+              "data_type": "float64",
+              "description": "",
+              "display_unit": null,
+              "element_type": null,
+              "expected_completeness": 0.7,
+              "max_length": null,
+              "name": "value",
+              "nullable": true,
+              "pattern": null,
+              "precision": null,
+              "scale": null,
+              "semantic_type": null,
+              "source_name": "",
+              "tags": [],
+              "unit": null
+            },
+            {
+              "additivity": null,
+              "allowed_values": null,
+              "bounds": [
+                null,
+                null
+              ],
+              "data_type": "string",
+              "description": "",
+              "display_unit": null,
+              "element_type": null,
+              "expected_completeness": 1.0,
+              "max_length": 8192,
+              "name": "dimensions_json",
+              "nullable": false,
+              "pattern": null,
+              "precision": null,
+              "scale": null,
+              "semantic_type": null,
+              "source_name": "",
+              "tags": [],
+              "unit": null
+            }
+          ],
+          "geo_dimension": null,
+          "geo_granularity": null,
+          "grain_dims": [
+            "dataset_id",
+            "observation_index"
+          ],
+          "primary_key": [
+            "dataset_id",
+            "observation_index"
+          ],
+          "required_completeness": 0.7,
+          "schema_id": "eurostat.data.generic",
+          "source": "Eurostat",
+          "tags": [
+            "eurostat",
+            "jsonstat",
+            "macro"
+          ],
+          "time_dimension": "time_period",
+          "time_granularity": null,
+          "version": {
+            "major": 1,
+            "minor": 0,
+            "patch": 0
+          }
+        }
+      },
+      "dataset_id": "*",
+      "schema_version": "1.0.0"
+    },
+    "ukons.datasets.generic": {
+      "connector_id": "ukons.datasets",
+      "content_hash": "sha256:24762f7d20e2a4761cce5e53eecbb2af20e58e26f111fd6e57e1878a08aa78d2",
+      "contract": {
+        "completeness_scope": "full_dataset",
+        "completeness_window_rows": null,
+        "connector_id": "ukons.datasets",
+        "contract_id": "ukons.datasets.generic",
+        "created_by": "phase16",
+        "dataset_id": "*",
+        "description": "Wildcard contract for UK ONS observations endpoint.",
+        "expected_row_count_range": [
+          null,
+          null
+        ],
+        "field_completeness": {
+          "dataset_id": 1.0,
+          "dimensions_json": 1.0,
+          "observation": 0.5
+        },
+        "field_mappings": [
+          {
+            "source_path": "observations.*.observation",
+            "target_field": "observation",
+            "transform": null
+          },
+          {
+            "source_path": "observations.*.dimensions",
+            "target_field": "dimensions_json",
+            "transform": null
+          }
+        ],
+        "max_staleness_hours": null,
+        "min_completeness": 0.5,
+        "schema": {
+          "allowed_null_fields": [
+            "geography",
+            "observation",
+            "time_period"
+          ],
+          "created_at": null,
+          "description": "Normalized observations schema for ONS dataset endpoints.",
+          "fields": [
+            {
+              "additivity": null,
+              "allowed_values": null,
+              "bounds": [
+                null,
+                null
+              ],
+              "data_type": "string",
+              "description": "",
+              "display_unit": null,
+              "element_type": null,
+              "expected_completeness": 1.0,
+              "max_length": 128,
+              "name": "dataset_id",
+              "nullable": false,
+              "pattern": null,
+              "precision": null,
+              "scale": null,
+              "semantic_type": null,
+              "source_name": "",
+              "tags": [],
+              "unit": null
+            },
+            {
+              "additivity": "semi_additive",
+              "allowed_values": null,
+              "bounds": [
+                null,
+                null
+              ],
+              "data_type": "float64",
+              "description": "",
+              "display_unit": null,
+              "element_type": null,
+              "expected_completeness": 0.6,
+              "max_length": null,
+              "name": "observation",
+              "nullable": true,
+              "pattern": null,
+              "precision": null,
+              "scale": null,
+              "semantic_type": null,
+              "source_name": "",
+              "tags": [],
+              "unit": null
+            },
+            {
+              "additivity": null,
+              "allowed_values": null,
+              "bounds": [
+                null,
+                null
+              ],
+              "data_type": "string",
+              "description": "",
+              "display_unit": null,
+              "element_type": null,
+              "expected_completeness": 0.5,
+              "max_length": 64,
+              "name": "time_period",
+              "nullable": true,
+              "pattern": null,
+              "precision": null,
+              "scale": null,
+              "semantic_type": "temporal",
+              "source_name": "",
+              "tags": [],
+              "unit": null
+            },
+            {
+              "additivity": null,
+              "allowed_values": null,
+              "bounds": [
+                null,
+                null
+              ],
+              "data_type": "string",
+              "description": "",
+              "display_unit": null,
+              "element_type": null,
+              "expected_completeness": 0.5,
+              "max_length": 64,
+              "name": "geography",
+              "nullable": true,
+              "pattern": null,
+              "precision": null,
+              "scale": null,
+              "semantic_type": "code",
+              "source_name": "",
+              "tags": [],
+              "unit": null
+            },
+            {
+              "additivity": null,
+              "allowed_values": null,
+              "bounds": [
+                null,
+                null
+              ],
+              "data_type": "string",
+              "description": "",
+              "display_unit": null,
+              "element_type": null,
+              "expected_completeness": 1.0,
+              "max_length": 8192,
+              "name": "dimensions_json",
+              "nullable": false,
+              "pattern": null,
+              "precision": null,
+              "scale": null,
+              "semantic_type": null,
+              "source_name": "",
+              "tags": [],
+              "unit": null
+            }
+          ],
+          "geo_dimension": null,
+          "geo_granularity": null,
+          "grain_dims": [
+            "dataset_id",
+            "dimensions_json"
+          ],
+          "primary_key": [
+            "dataset_id",
+            "dimensions_json"
+          ],
+          "required_completeness": 0.6,
+          "schema_id": "ukons.datasets.generic",
+          "source": "UK Office for National Statistics",
+          "tags": [
+            "macro",
+            "ons",
+            "ukons"
+          ],
+          "time_dimension": "time_period",
+          "time_granularity": null,
+          "version": {
+            "major": 1,
+            "minor": 0,
+            "patch": 0
+          }
+        }
+      },
+      "dataset_id": "*",
+      "schema_version": "1.0.0"
+    },
+    "worldbank.wdi.generic": {
+      "connector_id": "worldbank.wdi",
+      "content_hash": "sha256:dc177a655ce7626034d56ec6aa2dced7f88a2e9f73ea30c2651eaef37b08d2d1",
+      "contract": {
+        "completeness_scope": "latest_window",
+        "completeness_window_rows": 2000,
+        "connector_id": "worldbank.wdi",
+        "contract_id": "worldbank.wdi.generic",
+        "created_by": "phase16",
+        "dataset_id": "*",
+        "description": "Wildcard contract for World Bank WDI indicators.",
+        "expected_row_count_range": [
+          null,
+          null
+        ],
+        "field_completeness": {
+          "country_code": 1.0,
+          "indicator_id": 1.0,
+          "value": 0.7,
+          "year": 1.0
+        },
+        "field_mappings": [
+          {
+            "source_path": "countryiso3code",
+            "target_field": "country_code",
+            "transform": null
+          },
+          {
+            "source_path": "country.value",
+            "target_field": "country_name",
+            "transform": null
+          },
+          {
+            "source_path": "indicator.id",
+            "target_field": "indicator_id",
+            "transform": null
+          },
+          {
+            "source_path": "indicator.value",
+            "target_field": "indicator_name",
+            "transform": null
+          },
+          {
+            "source_path": "date",
+            "target_field": "year",
+            "transform": "int"
+          },
+          {
+            "source_path": "value",
+            "target_field": "value",
+            "transform": "float"
+          },
+          {
+            "source_path": "unit",
+            "target_field": "unit",
+            "transform": null
+          },
+          {
+            "source_path": "decimal",
+            "target_field": "decimal",
+            "transform": "int"
+          }
+        ],
+        "max_staleness_hours": null,
+        "min_completeness": 0.7,
+        "schema": {
+          "allowed_null_fields": [
+            "country_name",
+            "decimal",
+            "indicator_name",
+            "unit",
+            "value"
+          ],
+          "created_at": null,
+          "description": "Generic annual schema for World Development Indicators (WDI).",
+          "fields": [
+            {
+              "additivity": null,
+              "allowed_values": null,
+              "bounds": [
+                null,
+                null
+              ],
+              "data_type": "string",
+              "description": "",
+              "display_unit": null,
+              "element_type": null,
+              "expected_completeness": 1.0,
+              "max_length": 3,
+              "name": "country_code",
+              "nullable": false,
+              "pattern": null,
+              "precision": null,
+              "scale": null,
+              "semantic_type": "code",
+              "source_name": "",
+              "tags": [],
+              "unit": null
+            },
+            {
+              "additivity": null,
+              "allowed_values": null,
+              "bounds": [
+                null,
+                null
+              ],
+              "data_type": "string",
+              "description": "",
+              "display_unit": null,
+              "element_type": null,
+              "expected_completeness": 0.95,
+              "max_length": 256,
+              "name": "country_name",
+              "nullable": true,
+              "pattern": null,
+              "precision": null,
+              "scale": null,
+              "semantic_type": null,
+              "source_name": "",
+              "tags": [],
+              "unit": null
+            },
+            {
+              "additivity": null,
+              "allowed_values": null,
+              "bounds": [
+                null,
+                null
+              ],
+              "data_type": "string",
+              "description": "",
+              "display_unit": null,
+              "element_type": null,
+              "expected_completeness": 1.0,
+              "max_length": 128,
+              "name": "indicator_id",
+              "nullable": false,
+              "pattern": null,
+              "precision": null,
+              "scale": null,
+              "semantic_type": null,
+              "source_name": "",
+              "tags": [],
+              "unit": null
+            },
+            {
+              "additivity": null,
+              "allowed_values": null,
+              "bounds": [
+                null,
+                null
+              ],
+              "data_type": "string",
+              "description": "",
+              "display_unit": null,
+              "element_type": null,
+              "expected_completeness": 0.95,
+              "max_length": 512,
+              "name": "indicator_name",
+              "nullable": true,
+              "pattern": null,
+              "precision": null,
+              "scale": null,
+              "semantic_type": null,
+              "source_name": "",
+              "tags": [],
+              "unit": null
+            },
+            {
+              "additivity": null,
+              "allowed_values": null,
+              "bounds": [
+                1960.0,
+                2100.0
+              ],
+              "data_type": "int64",
+              "description": "",
+              "display_unit": null,
+              "element_type": null,
+              "expected_completeness": 1.0,
+              "max_length": null,
+              "name": "year",
+              "nullable": false,
+              "pattern": null,
+              "precision": null,
+              "scale": null,
+              "semantic_type": "temporal",
+              "source_name": "",
+              "tags": [],
+              "unit": null
+            },
+            {
+              "additivity": "semi_additive",
+              "allowed_values": null,
+              "bounds": [
+                null,
+                null
+              ],
+              "data_type": "float64",
+              "description": "",
+              "display_unit": null,
+              "element_type": null,
+              "expected_completeness": 0.8,
+              "max_length": null,
+              "name": "value",
+              "nullable": true,
+              "pattern": null,
+              "precision": null,
+              "scale": null,
+              "semantic_type": null,
+              "source_name": "",
+              "tags": [],
+              "unit": null
+            },
+            {
+              "additivity": null,
+              "allowed_values": null,
+              "bounds": [
+                null,
+                null
+              ],
+              "data_type": "string",
+              "description": "",
+              "display_unit": null,
+              "element_type": null,
+              "expected_completeness": 0.0,
+              "max_length": 64,
+              "name": "unit",
+              "nullable": true,
+              "pattern": null,
+              "precision": null,
+              "scale": null,
+              "semantic_type": null,
+              "source_name": "",
+              "tags": [],
+              "unit": null
+            },
+            {
+              "additivity": null,
+              "allowed_values": null,
+              "bounds": [
+                null,
+                null
+              ],
+              "data_type": "int64",
+              "description": "",
+              "display_unit": null,
+              "element_type": null,
+              "expected_completeness": 0.0,
+              "max_length": null,
+              "name": "decimal",
+              "nullable": true,
+              "pattern": null,
+              "precision": null,
+              "scale": null,
+              "semantic_type": null,
+              "source_name": "",
+              "tags": [],
+              "unit": null
+            }
+          ],
+          "geo_dimension": "country_code",
+          "geo_granularity": null,
+          "grain_dims": [
+            "country_code",
+            "indicator_id",
+            "year"
+          ],
+          "primary_key": [
+            "country_code",
+            "indicator_id",
+            "year"
+          ],
+          "required_completeness": 0.8,
+          "schema_id": "worldbank.wdi.generic",
+          "source": "The World Bank Group",
+          "tags": [
+            "macro",
+            "wdi",
+            "worldbank"
+          ],
+          "time_dimension": "year",
+          "time_granularity": "annual",
+          "version": {
+            "major": 1,
+            "minor": 0,
+            "patch": 0
+          }
+        }
+      },
+      "dataset_id": "*",
+      "schema_version": "1.0.0"
+    }
+  },
+  "version": 1
+}

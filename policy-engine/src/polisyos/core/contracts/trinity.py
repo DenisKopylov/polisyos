@@ -45,6 +45,15 @@ class PolicySpecRef(ArtifactRef):
     media_type: Literal["application/json"] = "application/json"
 
 
+class PolicyPortfolioRef(ArtifactRef):
+    """
+    Typed reference to a PolicyPortfolio artifact.
+    """
+
+    kind: Literal["ir.policy_portfolio"] = "ir.policy_portfolio"
+    media_type: Literal["application/json"] = "application/json"
+
+
 class ModelSpecRef(ArtifactRef):
     """
     Typed reference to a ModelSpec (WorldModel) artifact.

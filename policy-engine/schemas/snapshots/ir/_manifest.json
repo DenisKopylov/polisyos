@@ -1,6 +1,6 @@
 {
-  "content_hash": "57551dbc8227c86dc2e4fda55242d2306ab7c897b7b6ee975ad51a2c5b2dd5b6",
-  "generated_at": "2026-02-07T15:03:45+00:00",
+  "content_hash": "85ea46309dc8d56a0255a399f7548d696c090343341988331a514ee63daf7384",
+  "generated_at": "2026-02-08T15:35:51+00:00",
   "generator_version": "1.0.0",
   "models": {
     "backtest_report": {
@@ -267,6 +267,18 @@
       "sha256_semantic": "d2a3999b42afa103f0e1382d45c8eb55387b345a7bf5ef283bbd49c5d52c5583",
       "version_field": "schema_version"
     },
+    "policy_portfolio": {
+      "aliases": [],
+      "compat_mode": "strict",
+      "fqn": "polisyos.ir.portfolio.PolicyPortfolio",
+      "lifecycle": "active",
+      "priority": "p0",
+      "schema_file": "policy_portfolio.schema.json",
+      "schema_version": "1.0",
+      "sha256_full": "dec6d4ba639478051fb948662dd91cb17d0ded60384ed744eb5c1d1d70bf90ba",
+      "sha256_semantic": "640ee562eea7f5176171db5eced0daa08f335cb1bf1b3c0238aeb83cefa781de",
+      "version_field": "schema_version"
+    },
     "policy_recommendation": {
       "aliases": [],
       "compat_mode": "strict",
@@ -299,8 +311,8 @@
       "priority": "p0",
       "schema_file": "problem_frame.schema.json",
       "schema_version": "1.0",
-      "sha256_full": "241b39a679ba791ffb6b0d90ffdb5683cace9b7b4e623da47dd0d7e2d85d907d",
-      "sha256_semantic": "050a5fdcd50030da3d215658f9018050ce2e9e0aca25dbc927b49c266b23872a",
+      "sha256_full": "9eb38552c61dc4a8ede81ec343e3b672d3de0c04c9c11c6b7cd3aa96ce3cccef",
+      "sha256_semantic": "8c8a3e4ff8b06087de72a51cc6c5712e22b6c33d5ad64beba3fa38f9232fcb4d",
       "version_field": "schema_version"
     },
     "prov_activity": {
@@ -335,8 +347,8 @@
       "priority": "p0",
       "schema_file": "trinity_bundle.schema.json",
       "schema_version": "1.0",
-      "sha256_full": "3d638f5408ded2d7809fd6af943bacbc9611840aa1cdbe9f7bfd611d9562abf0",
-      "sha256_semantic": "99d6a44e7032ef5ce11e2aed57da722316a2a09a63c292f46725a7265296a293",
+      "sha256_full": "0027d7b207765650cade5ae939eccd101aa90742b32ef9e32704152440401412",
+      "sha256_semantic": "85d2458b43d252921d400fe5c8049f3372b4381c19f47e96a620db8bcc89604e",
       "version_field": "schema_version"
     },
     "trust_assessment": {
@@ -378,5 +390,5 @@
   },
   "module": "ir",
   "pydantic_version": "2.12.5",
-  "python_version": "3.12.12"
+  "python_version": "3.14.0"
 }

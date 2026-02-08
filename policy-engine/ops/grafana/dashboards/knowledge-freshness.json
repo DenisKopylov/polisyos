@@ -1,0 +1,59 @@
+{
+  "uid": "polisyos-knowledge-freshness",
+  "title": "PolicyOS - Knowledge Freshness",
+  "tags": ["polisyos", "scholar", "freshness"],
+  "timezone": "browser",
+  "schemaVersion": 38,
+  "version": 1,
+  "panels": [
+    {
+      "id": 1,
+      "title": "Bundle Age (Top 10)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "targets": [
+        {
+          "expr": "topk(10, polisyos_knowledge_bundle_age_seconds)",
+          "legendFormat": "{{bundle_ref}}"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "s" } }
+    },
+    {
+      "id": 2,
+      "title": "Staleness Ratio",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "targets": [
+        {
+          "expr": "topk(10, polisyos_knowledge_bundle_staleness_ratio)",
+          "legendFormat": "{{bundle_ref}}"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Refresh Rate",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+      "targets": [
+        {
+          "expr": "sum by (reason) (rate(polisyos_knowledge_bundle_refresh_total[5m]))",
+          "legendFormat": "{{reason}}"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Status Breakdown",
+      "type": "piechart",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+      "targets": [
+        {
+          "expr": "sum by (status) (polisyos_knowledge_bundle_status)",
+          "legendFormat": "{{status}}"
+        }
+      ]
+    }
+  ]
+}

@@ -7,7 +7,11 @@ from typing import Any
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
-from polisyos.core.contracts.scholar import EnrichmentReportRef, KnowledgeBundleRef
+from polisyos.core.contracts.scholar import (
+    EnrichmentReportRef,
+    FreshnessMetadata,
+    KnowledgeBundleRef,
+)
 from polisyos.fabric.world import (
     append_world_segment_index,
     emit_world_event_facts,
@@ -67,6 +71,7 @@ def build_knowledge_bundle_payload(
     policy_ids_used: dict[str, str],
     created_by: dict[str, str],
     summary: dict[str, int | str | bool],
+    freshness: FreshnessMetadata | None = None,
 ) -> KnowledgeBundlePayloadV1:
     sorted_trust_artifacts = {
         key: trust_assessment_artifact_ids_by_id[key]
@@ -90,6 +95,8 @@ def build_knowledge_bundle_payload(
         policy_ids_used={key: policy_ids_used[key] for key in sorted(policy_ids_used)},
         created_by={key: created_by[key] for key in sorted(created_by)},
         summary={key: summary[key] for key in sorted(summary)},
+        freshness=freshness
+        or FreshnessMetadata(created_at=datetime(1970, 1, 1, tzinfo=timezone.utc)),
     )
 
 

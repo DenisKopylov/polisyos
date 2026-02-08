@@ -58,6 +58,13 @@ IR_ABI_MODELS: tuple[ABIModelEntry, ...] = (
         priority=Priority.P0,
     ),
     ABIModelEntry(
+        abi_key="policy_portfolio",
+        fqn="polisyos.ir.portfolio.PolicyPortfolio",
+        module="ir",
+        schema_file="policy_portfolio.schema.json",
+        priority=Priority.P0,
+    ),
+    ABIModelEntry(
         abi_key="model_spec",
         fqn="polisyos.ir.model_spec.ModelSpec",
         module="ir",

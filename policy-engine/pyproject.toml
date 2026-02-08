@@ -109,6 +109,7 @@ polisyos = "polisyos.core.components.cli:main"
 # Method plugins can register entry points here.
 causal = "polisyos.foundry.methods.catalog.causal._registry_boot:register_causal_methods"
 econometrics = "polisyos.foundry.methods.catalog.econometrics._registry_boot:register_econometric_methods"
+optimization = "polisyos.foundry.methods.catalog.optimization._registry_boot:register_optimization_methods"
 
 [project.entry-points."polisyos.connectors"]
 "worldbank.wdi" = "polisyos.fabric.connectors.sources:WorldBankConnector"

@@ -113,7 +113,16 @@ class ClaimExtractorRegistry:
         preferred_id: str | None,
     ) -> tuple[str, ClaimExtractorFn]:
         if preferred_id is not None and preferred_id.strip():
-            return self.resolve(preferred_id.strip())
+            normalized_preferred = preferred_id.strip()
+            try:
+                return self.resolve(normalized_preferred)
+            except ClaimUnsupportedExtractorError:
+                _ensure_builtin_legacy_extractors(self)
+                try:
+                    return self.resolve(normalized_preferred)
+                except ClaimUnsupportedExtractorError:
+                    # Fall through to auto-selection to preserve backward compatibility.
+                    pass
 
         candidates = list(self._components.values())
         if candidates:
@@ -131,6 +140,7 @@ class ClaimExtractorRegistry:
             selected = ranked[0]
             return selected.extractor_id, selected.fn
 
+        _ensure_builtin_legacy_extractors(self)
         if self._legacy:
             preferred_legacy = "explicit_lines_v1"
             if preferred_legacy in self._legacy:
@@ -148,6 +158,30 @@ class ClaimExtractorRegistry:
 
 
 _GLOBAL_REGISTRY = ClaimExtractorRegistry()
+
+
+def _ensure_builtin_legacy_extractors(registry: ClaimExtractorRegistry) -> None:
+    if (
+        "explicit_lines_v1" in registry._legacy
+        and "lex.norm_extractor.regex_v1" in registry._legacy
+        and "regex_numeric_v1" in registry._legacy
+    ):
+        return
+    try:
+        from polisyos.fabric.claims.backends import (
+            explicit_lines_v1,
+            lex_norm_regex_v1,
+            regex_numeric_v1,
+        )
+    except Exception:
+        return
+
+    if "explicit_lines_v1" not in registry._legacy:
+        registry.register_legacy("explicit_lines_v1", explicit_lines_v1.extract)
+    if "lex.norm_extractor.regex_v1" not in registry._legacy:
+        registry.register_legacy("lex.norm_extractor.regex_v1", lex_norm_regex_v1.extract)
+    if "regex_numeric_v1" not in registry._legacy:
+        registry.register_legacy("regex_numeric_v1", regex_numeric_v1.extract)
 
 
 def get_extractor_registry() -> ClaimExtractorRegistry:

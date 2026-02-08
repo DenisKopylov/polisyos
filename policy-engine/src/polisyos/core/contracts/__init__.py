@@ -68,6 +68,8 @@ from .lex import (
 )
 from .scholar import (
     BudgetsV1,
+    FreshnessMetadata,
+    FreshnessStatus,
     KnowledgeBundle,
     KnowledgeBundleRef,
     ResearchIntent,
@@ -91,6 +93,7 @@ from .scientist import (
 )
 from .trinity import (
     ModelSpecRef,
+    PolicyPortfolioRef,
     PolicySpecRef,
     ProblemFrameRef,
     TrinityBundle,
@@ -162,6 +165,7 @@ __all__ = [
     "PolicyRecommendationRef",
     "ProblemFrameRef",
     "PolicySpecRef",
+    "PolicyPortfolioRef",
     "ModelSpecRef",
     "TrinityBundle",
     "TrinityBundleRef",
@@ -185,6 +189,8 @@ __all__ = [
     "ResearchIntentRef",
     "KnowledgeBundleRef",
     "KnowledgeBundle",
+    "FreshnessMetadata",
+    "FreshnessStatus",
     "BudgetsV1",
     "ThresholdsV1",
     "SourceKind",

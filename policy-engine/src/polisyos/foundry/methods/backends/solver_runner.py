@@ -6,7 +6,7 @@ import time
 from importlib import metadata
 from typing import Any, Mapping
 
-from polisyos.core.canon import to_canonical_bytes
+from polisyos.core.canon import CanonSpec, to_canonical_bytes
 from polisyos.core.observability.determinism import DeterminismTier
 from polisyos.foundry.methods.base import ComputeBackend, MethodSignature
 from polisyos.foundry.methods.backends.protocol import (
@@ -47,7 +47,7 @@ def _resolve_params(signature: MethodSignature, params: Mapping[str, Any]) -> di
 
 def _assert_canonicalizable(payload: Any, *, label: str) -> None:
     try:
-        to_canonical_bytes(payload)
+        to_canonical_bytes(payload, CanonSpec(forbid_floats=False))
     except Exception as exc:
         raise TypeError(f"{label} is not canonical-serializable: {exc}") from exc
 
@@ -130,4 +130,3 @@ class SolverRunner(MethodRunner):
             artifacts=artifacts,
             warnings=tuple(str(item) for item in warnings),
         )
-

@@ -32,9 +32,43 @@ except ModuleNotFoundError:  # pragma: no cover - optional runtime dependency
         def record(self, value, attrs=None) -> None:
             return None
 
+        def set(self, value, attrs=None) -> None:
+            return None
+
     class MetricsRegistry:  # type: ignore[override]
         def __getattr__(self, name: str):
             return _NoopMetric()
+
+        def record_knowledge_freshness_check(
+            self,
+            *,
+            bundle_ref: str,
+            status: str,
+            age_seconds: float,
+            staleness_ratio: float,
+        ) -> None:
+            return None
+
+        def record_knowledge_refresh(self, *, reason: str) -> None:
+            return None
+
+        def record_optimization_solve(
+            self,
+            *,
+            method: str,
+            status: str,
+            duration_seconds: float,
+        ) -> None:
+            return None
+
+        def record_portfolio_search(
+            self,
+            *,
+            portfolio_id: str,
+            combinations_evaluated: int,
+            best_objective: float | None,
+        ) -> None:
+            return None
 
     class _NoopSpan:
         def __enter__(self):

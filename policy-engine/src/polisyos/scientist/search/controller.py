@@ -304,3 +304,90 @@ class SearchController:
             "is_promising": iteration.is_promising,
             "stage_a_passed": iteration.stage_a_passed,
         }
+
+    def run_portfolio_search(
+        self,
+        *,
+        portfolio: Any,
+        evaluator: Callable[[Any, Dict[str, Any]], Any],
+        mode: str = "enumerate",
+        max_evaluations: int = 100,
+        base_benefits: Dict[str, float] | None = None,
+        initial_context: Dict[str, Any] | None = None,
+    ) -> List[Any]:
+        """Run discrete portfolio optimization over policy combinations.
+
+        Returns a list of `PortfolioEvaluationResult`, sorted by objective descending.
+        """
+
+        from polisyos.core.observability import get_metrics
+        from polisyos.scientist.search.portfolio import (
+            PortfolioCombination,
+            PortfolioEvaluationResult,
+            PortfolioSearchMode,
+            PortfolioSearchSpace,
+        )
+
+        context = dict(initial_context or {})
+        base = dict(base_benefits or {})
+        max_evaluations = max(1, int(max_evaluations))
+
+        search_space = PortfolioSearchSpace(portfolio)
+        search_mode = PortfolioSearchMode(mode)
+        if search_mode is PortfolioSearchMode.ENUMERATE:
+            try:
+                combinations = search_space.enumerate_combinations()
+            except ValueError as exc:
+                logger.warning(
+                    "Portfolio enumeration capped ({}). Falling back to sampling mode.",
+                    exc,
+                )
+                combinations = search_space.sample_combinations(max_evaluations)
+        elif search_mode is PortfolioSearchMode.SAMPLE:
+            combinations = search_space.sample_combinations(max_evaluations)
+        else:
+            combinations = search_space.greedy_combinations(
+                base_benefits=base,
+                max_combinations=max_evaluations,
+            )
+
+        results: List[PortfolioEvaluationResult] = []
+        for combination in combinations[:max_evaluations]:
+            raw = evaluator(combination, context)
+            if isinstance(raw, PortfolioEvaluationResult):
+                result = raw
+            elif isinstance(raw, dict):
+                value = float(raw.get("objective_value", 0.0))
+                result = PortfolioEvaluationResult(
+                    combination=combination,
+                    objective_value=value,
+                    metrics=raw,
+                )
+            else:
+                result = PortfolioEvaluationResult(
+                    combination=combination,
+                    objective_value=float(raw),
+                    metrics={},
+                )
+            results.append(result)
+
+        results.sort(key=lambda item: item.objective_value, reverse=True)
+
+        metrics = get_metrics()
+        portfolio_id = str(getattr(portfolio, "portfolio_id", "portfolio"))
+        helper = getattr(metrics, "record_portfolio_search", None)
+        if callable(helper):
+            helper(
+                portfolio_id=portfolio_id,
+                combinations_evaluated=len(results),
+                best_objective=(float(results[0].objective_value) if results else None),
+            )
+        else:
+            counter = getattr(metrics, "portfolio_combinations_evaluated", None)
+            if counter is not None and hasattr(counter, "add"):
+                counter.add(len(results), {"portfolio_id": portfolio_id})
+            gauge = getattr(metrics, "portfolio_best_objective", None)
+            if results and gauge is not None and hasattr(gauge, "set"):
+                gauge.set(float(results[0].objective_value), {"portfolio_id": portfolio_id})
+
+        return results

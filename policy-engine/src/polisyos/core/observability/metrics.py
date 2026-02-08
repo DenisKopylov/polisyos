@@ -164,6 +164,15 @@ class MetricsRegistry:
     slo_simulation_nan_total: Optional[metrics.Counter] = None
     slo_simulation_runs_total: Optional[metrics.Counter] = None
     slo_connector_requests_total: Optional[metrics.Counter] = None
+    knowledge_bundle_age_seconds: Optional[GaugeProxy] = None
+    knowledge_bundle_staleness_ratio: Optional[GaugeProxy] = None
+    knowledge_bundle_status: Optional[GaugeProxy] = None
+    knowledge_bundle_refresh_total: Optional[metrics.Counter] = None
+    knowledge_bundle_check_duration_seconds: Optional[metrics.Histogram] = None
+    optimization_solve_duration_seconds: Optional[metrics.Histogram] = None
+    optimization_solve_status: Optional[metrics.Counter] = None
+    portfolio_combinations_evaluated: Optional[metrics.Counter] = None
+    portfolio_best_objective: Optional[GaugeProxy] = None
 
     def __new__(cls) -> "MetricsRegistry":
         if cls._instance is None:
@@ -512,6 +521,61 @@ class MetricsRegistry:
             unit="1",
         )
 
+        # Scholar freshness metrics
+        self.knowledge_bundle_age_seconds = GaugeProxy(
+            self._meter,
+            name="polisyos_knowledge_bundle_age_seconds",
+            description="Age of knowledge bundle in seconds",
+            unit="s",
+        )
+        self.knowledge_bundle_staleness_ratio = GaugeProxy(
+            self._meter,
+            name="polisyos_knowledge_bundle_staleness_ratio",
+            description="Knowledge bundle age divided by staleness threshold",
+            unit="1",
+        )
+        self.knowledge_bundle_status = GaugeProxy(
+            self._meter,
+            name="polisyos_knowledge_bundle_status",
+            description="Knowledge bundle status indicator by status label",
+            unit="1",
+        )
+        self.knowledge_bundle_refresh_total = self._meter.create_counter(
+            name="polisyos_knowledge_bundle_refresh_total",
+            description="Knowledge bundle refresh attempts",
+            unit="1",
+        )
+        self.knowledge_bundle_check_duration_seconds = self._meter.create_histogram(
+            name="polisyos_knowledge_bundle_check_duration_seconds",
+            description="Duration of bundle freshness checks",
+            unit="s",
+        )
+
+        # Optimization catalog metrics
+        self.optimization_solve_duration_seconds = self._meter.create_histogram(
+            name="polisyos_optimization_solve_duration_seconds",
+            description="Optimization solver execution duration",
+            unit="s",
+        )
+        self.optimization_solve_status = self._meter.create_counter(
+            name="polisyos_optimization_solve_status_total",
+            description="Optimization solver status counts",
+            unit="1",
+        )
+
+        # Portfolio search metrics
+        self.portfolio_combinations_evaluated = self._meter.create_counter(
+            name="polisyos_portfolio_combinations_evaluated_total",
+            description="Evaluated policy portfolio combinations",
+            unit="1",
+        )
+        self.portfolio_best_objective = GaugeProxy(
+            self._meter,
+            name="polisyos_portfolio_best_objective",
+            description="Best objective observed per portfolio search",
+            unit="1",
+        )
+
     def time_simulation(
         self,
         attributes: Optional[dict[str, Any]] = None,
@@ -557,6 +621,60 @@ class MetricsRegistry:
         if agent:
             attrs["agent"] = agent
         self.workflow_runs_total.add(1, attrs)
+
+    def record_knowledge_freshness_check(
+        self,
+        *,
+        bundle_ref: str,
+        status: str,
+        age_seconds: float,
+        staleness_ratio: float,
+    ) -> None:
+        self._ensure_initialized()
+        bundle_label = bundle_ref[:16]
+        if self.knowledge_bundle_age_seconds is not None:
+            self.knowledge_bundle_age_seconds.set(float(age_seconds), {"bundle_ref": bundle_label})
+        if self.knowledge_bundle_staleness_ratio is not None:
+            self.knowledge_bundle_staleness_ratio.set(
+                float(staleness_ratio),
+                {"bundle_ref": bundle_label},
+            )
+        if self.knowledge_bundle_status is not None:
+            self.knowledge_bundle_status.set(1.0, {"status": status})
+
+    def record_knowledge_refresh(self, *, reason: str) -> None:
+        self._ensure_initialized()
+        if self.knowledge_bundle_refresh_total is None:
+            return
+        self.knowledge_bundle_refresh_total.add(1, {"reason": reason})
+
+    def record_optimization_solve(
+        self,
+        *,
+        method: str,
+        status: str,
+        duration_seconds: float,
+    ) -> None:
+        self._ensure_initialized()
+        attrs = {"method": method, "status": status}
+        if self.optimization_solve_duration_seconds is not None:
+            self.optimization_solve_duration_seconds.record(float(duration_seconds), attrs)
+        if self.optimization_solve_status is not None:
+            self.optimization_solve_status.add(1, attrs)
+
+    def record_portfolio_search(
+        self,
+        *,
+        portfolio_id: str,
+        combinations_evaluated: int,
+        best_objective: float | None,
+    ) -> None:
+        self._ensure_initialized()
+        attrs = {"portfolio_id": portfolio_id}
+        if self.portfolio_combinations_evaluated is not None:
+            self.portfolio_combinations_evaluated.add(max(0, int(combinations_evaluated)), attrs)
+        if best_objective is not None and self.portfolio_best_objective is not None:
+            self.portfolio_best_objective.set(float(best_objective), attrs)
 
     def record_slo_dag_run(
         self,

@@ -41,6 +41,8 @@ _CACHE_DISABLED_NODE_IDS = frozenset(
         "scientist.node_noop@1.0.0",
         "scientist.node_set_state@1.0.0",
         "scientist.node_emit_artifact@1.0.0",
+        "scientist.node_enrich_knowledge@1.0.0",
+        "scientist.node_enrich_knowledge@1.1.0",
     }
 )
 
@@ -214,7 +216,9 @@ class WorkflowExecutor:
         self._ctx.run.add_input(state_input_ref)
         self._cache = NodeResultCache(self._ctx.store, run_id=state.run_id)
         restored_entries = self._cache.seed_from_trace(self._ctx.run.trace_path)
-        restored_from_checkpoint = self._cache.seed_from_entry_refs(self._checkpoint_cache_seed_refs)
+        restored_from_checkpoint = self._cache.seed_from_entry_refs(
+            self._checkpoint_cache_seed_refs
+        )
         if restored_entries:
             self._ctx.logger.info(
                 "Recovered %s cached node outcomes for run_id=%s",

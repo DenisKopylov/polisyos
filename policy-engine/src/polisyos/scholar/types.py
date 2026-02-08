@@ -8,6 +8,7 @@ from pydantic import BaseModel, ConfigDict, Field
 from polisyos.core.contracts.scholar import (
     BudgetsV1,
     EnrichmentReportRef,
+    FreshnessMetadata,
     KnowledgeBundleRef,
     SourceKind,
     SourceSpec,
@@ -86,6 +87,7 @@ class KnowledgeBundlePayloadV1(BaseModel):
     policy_ids_used: dict[str, str] = Field(default_factory=dict)
     created_by: dict[str, str] = Field(default_factory=dict)
     summary: dict[str, int | str | bool] = Field(default_factory=dict)
+    freshness: FreshnessMetadata = Field(default_factory=FreshnessMetadata)
 
 
 class EnrichmentReportV1(BaseModel):

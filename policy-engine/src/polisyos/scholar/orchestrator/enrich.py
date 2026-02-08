@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from collections import Counter
 from dataclasses import replace
+from datetime import datetime
 from pathlib import Path
 import time
 import warnings
@@ -16,7 +17,13 @@ from polisyos.fabric.claims.extractor_registry import (
     get_extractor_registry,
 )
 from polisyos.fabric.claims.persist import load_claim, load_doc_meta, load_json_artifact
-from polisyos.fabric.docs import DocSourceSpec, chunk_doc, ingest_doc_bytes, normalize_doc, structure_doc
+from polisyos.fabric.docs import (
+    DocSourceSpec,
+    chunk_doc,
+    ingest_doc_bytes,
+    normalize_doc,
+    structure_doc,
+)
 from polisyos.fabric.docs.errors import DocPipelineError
 from polisyos.fabric.storage import DuckDBStorageAdapter, StoragePort
 from polisyos.ir.world.trust import TrustAssessment, TrustTier
@@ -38,6 +45,7 @@ from polisyos.scholar.orchestrator.bundle import (
     persist_bundle_and_event,
 )
 from polisyos.scholar.policies import ScholarPolicy
+from polisyos.scholar.freshness import build_freshness_metadata
 from polisyos.scholar.types import (
     AcquireResult,
     ClaimsPipelineRefs,
@@ -286,6 +294,23 @@ def _doc_tiers_from_reconcile(
         if assessment.target_world_id.startswith("docv."):
             doc_tier_by_version[assessment.target_world_id] = assessment.tier
     return doc_tier_by_version, tiers_histogram
+
+
+def _max_source_freshness(
+    *,
+    cas: FileSystemCAS,
+    doc_meta_artifact_ids: list[str],
+) -> datetime | None:
+    latest: datetime | None = None
+    for artifact_id in sorted(set(doc_meta_artifact_ids)):
+        try:
+            doc_meta = load_doc_meta(cas, artifact_id)
+        except Exception:
+            continue
+        ts = doc_meta.retrieved_at
+        if latest is None or ts > latest:
+            latest = ts
+    return latest
 
 
 def enrich_topic(
@@ -592,7 +617,11 @@ def enrich_topic(
         selected_claim_ids.append(claim_id)
 
     policy_ids_used = {
-        "extractor_id": sorted(extractor_ids_used)[0] if extractor_ids_used else scholar_policy.claims.extractor_id,
+        "extractor_id": (
+            sorted(extractor_ids_used)[0]
+            if extractor_ids_used
+            else scholar_policy.claims.extractor_id
+        ),
         "extractor_ids": ",".join(sorted(extractor_ids_used)),
         "conflict_policy_id": scholar_policy.conflict.policy_id,
         "trust_algorithm_version": scholar_policy.claims.resolve_options.trust_algorithm_version,
@@ -645,6 +674,10 @@ def enrich_topic(
 
     selected_doc_meta_ids = sorted({doc.doc_meta_artifact_id for doc in selected_docs})
     selected_doc_source_ids = sorted({doc.doc_source_id for doc in selected_docs})
+    source_freshness_at = _max_source_freshness(
+        cas=cas,
+        doc_meta_artifact_ids=selected_doc_meta_ids,
+    )
 
     summary = {
         "docs_count": len(selected_doc_ids),
@@ -679,6 +712,12 @@ def enrich_topic(
             "pipeline": "discover-acquire-docs-claims-reconcile-bundle",
         },
         summary=summary,
+        freshness=build_freshness_metadata(
+            domain=intent.domain,
+            source_freshness_at=source_freshness_at,
+            policy=scholar_policy,
+            now=source_freshness_at,
+        ),
     )
 
     report_payload = EnrichmentReportV1(

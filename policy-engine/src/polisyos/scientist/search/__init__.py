@@ -16,6 +16,15 @@ from polisyos.scientist.search.adversarial import (
     run_stress_test,
 )
 from polisyos.scientist.search.sensitivity_adapter import SensitivityAwareCandidateGenerator
+from polisyos.scientist.search.portfolio import (
+    PortfolioCombination,
+    PortfolioEvaluationResult,
+    PortfolioSearchMode,
+    PortfolioSearchSpace,
+    PortfolioSweep,
+    PortfolioSweepConfig,
+    PortfolioSweepReport,
+)
 from polisyos.scientist.search.objective import (
     BaseObjective,
     BudgetDeficitObjective,
@@ -80,6 +89,13 @@ __all__ = [
     "VulnerabilityFound",
     "run_stress_test",
     "SensitivityAwareCandidateGenerator",
+    "PortfolioCombination",
+    "PortfolioEvaluationResult",
+    "PortfolioSearchMode",
+    "PortfolioSearchSpace",
+    "PortfolioSweep",
+    "PortfolioSweepConfig",
+    "PortfolioSweepReport",
 ]
 
 try:

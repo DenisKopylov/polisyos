@@ -6,6 +6,8 @@ Defines the minimal ABI boundary between Scholar and other modules.
 
 from __future__ import annotations
 
+from datetime import datetime, timezone
+from enum import Enum
 import re
 from typing import Any, Literal
 
@@ -152,17 +154,78 @@ class EnrichmentReportRef(ArtifactRef):
     media_type: Literal["application/json"] = "application/json"
 
 
+class FreshnessStatus(str, Enum):
+    """Freshness status for Scholar knowledge bundles."""
+
+    FRESH = "fresh"
+    STALE = "stale"
+    EXPIRED = "expired"
+    UNKNOWN = "unknown"
+
+
+class FreshnessMetadata(BaseModel):
+    """Temporal metadata for knowledge bundle freshness checks.
+
+    Notes:
+    - Thresholds are expressed in integer seconds to keep CAS payloads
+      canonical-JSON friendly without timedelta serialization.
+    - Mutable refresh bookkeeping is maintained in Scholar sidecar state
+      (`freshness_state/*`) to avoid mutating CAS artifacts on every check.
+      Legacy fields (`last_checked_at`, `last_refresh_attempt_at`) remain
+      for backward compatibility and migration.
+    """
+
+    model_config = ConfigDict(extra="forbid")
+
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    source_freshness_at: datetime | None = None
+    staleness_threshold_seconds: int = Field(default=30 * 24 * 3600, ge=1)
+    expiry_threshold_seconds: int = Field(default=90 * 24 * 3600, ge=1)
+    refresh_cooldown_seconds: int = Field(default=3600, ge=0)
+    last_checked_at: datetime | None = None
+    last_refresh_attempt_at: datetime | None = None
+    enrichment_count: int = Field(default=1, ge=1)
+    previous_bundle_ref: str | None = Field(
+        default=None,
+        pattern=r"^sha256:[a-f0-9]{64}$",
+    )
+
+    @model_validator(mode="after")
+    def _validate_thresholds(self) -> "FreshnessMetadata":
+        if self.expiry_threshold_seconds < self.staleness_threshold_seconds:
+            raise ValueError("expiry_threshold_seconds must be >= staleness_threshold_seconds")
+        return self
+
+    def reference_time(self) -> datetime:
+        return self.source_freshness_at or self.created_at
+
+    def age_seconds(self, now: datetime | None = None) -> int:
+        now_utc = now or datetime.now(timezone.utc)
+        return max(0, int((now_utc - self.reference_time()).total_seconds()))
+
+    def compute_status(self, now: datetime | None = None) -> FreshnessStatus:
+        age = self.age_seconds(now)
+        if age > self.expiry_threshold_seconds:
+            return FreshnessStatus.EXPIRED
+        if age > self.staleness_threshold_seconds:
+            return FreshnessStatus.STALE
+        return FreshnessStatus.FRESH
+
+
 class KnowledgeBundle(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     intent: ResearchIntent | None = None
     payload: dict[str, Any] = Field(default_factory=dict)
     notes: list[str] = Field(default_factory=list)
+    freshness: FreshnessMetadata = Field(default_factory=FreshnessMetadata)
 
 
 __all__ = [
     "BudgetsV1",
     "EnrichmentReportRef",
+    "FreshnessMetadata",
+    "FreshnessStatus",
     "KnowledgeBundle",
     "KnowledgeBundleRef",
     "ResearchIntent",

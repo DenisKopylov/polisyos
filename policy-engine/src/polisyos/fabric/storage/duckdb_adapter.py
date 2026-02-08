@@ -72,6 +72,11 @@ class DuckDBStorageAdapter(StoragePort):
         else:
             self._db.conn.execute("COMMIT")
 
+    @contextmanager
+    def tenant_scope(self, tenant_id: str) -> Iterator[StoragePort]:
+        del tenant_id
+        yield self
+
     def close(self) -> None:
         self._db.close()
 
@@ -136,4 +141,3 @@ def _validate_identifier(value: str, *, what: str) -> str:
 
 
 __all__ = ["DuckDBStorageAdapter"]
-

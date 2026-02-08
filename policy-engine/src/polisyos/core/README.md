@@ -15,6 +15,7 @@ core/
 ├── observability/  # OTel трассировка, Prometheus метрики, determinism tiers, LLM pricing
 ├── registry/       # Сборка и загрузка registry bundles из IR
 ├── run/            # Контексты выполнения с lifecycle и трассировкой
+├── security/       # Cell-based tenant isolation primitives and DB tenant context
 └── trace/          # TraceRecord / TraceSink для span-based JSONL логирования
 ```
 

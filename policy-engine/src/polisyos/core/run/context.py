@@ -22,6 +22,8 @@ class RunContext:
     trace: TraceSink
     run_manifest: RunManifest
     _trace_path: Path | None = None
+    tenant_id: str | None = None
+    cell_id: str | None = None
 
     @property
     def trace_path(self) -> Path | None:
@@ -36,6 +38,9 @@ class RunContext:
         env: EnvInfo | None = None,
         run_dir: Path | None = None,
         run_id: str | None = None,
+        *,
+        tenant_id: str | None = None,
+        cell_id: str | None = None,
     ) -> "RunContext":
         run_id = run_id or new_run_id()
         run_dir = run_dir or (store.root / "runs" / run_id)
@@ -50,8 +55,12 @@ class RunContext:
                 registry_bundle=registry_bundle,
                 producer=producer,
                 env=env,
+                tenant_id=tenant_id,
+                cell_id=cell_id,
             ),
             _trace_path=trace_path,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
         )
         ctx.emit("core", "RUN_STARTED")
         return ctx
@@ -69,6 +78,8 @@ class RunContext:
             run_id=self.run_manifest.run_id,
             phase=phase,
             event=event,
+            tenant_id=self.tenant_id,
+            cell_id=self.cell_id,
             refs={"inputs": inputs or [], "outputs": outputs or []},
             metrics=metrics or {},
         )

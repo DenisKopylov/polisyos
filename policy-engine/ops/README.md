@@ -7,6 +7,7 @@
 ```
 ops/
 ├── docker-compose.observability.yml   # Стек: Prometheus v2.50 + Grafana 10.4
+├── helm/polisyos-cell/                # Cell isolation chart (namespace + network + rbac + quota)
 ├── prometheus/                        # Сбор метрик, алертинг, SLO (6 файлов)
 │   ├── prometheus.yml                 # Scrape config (15s interval, 2 targets)
 │   ├── alerts.yml                     # 11 alert rules: cost, agents, simulation, calibration

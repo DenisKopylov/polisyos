@@ -29,6 +29,8 @@ class TraceRecord(BaseModel):
 
     span_id: str | None = None
     parent_span_id: str | None = None
+    tenant_id: str | None = None
+    cell_id: str | None = None
 
     refs: TraceRefs = Field(default_factory=TraceRefs)
     metrics: dict[str, float | int] = Field(default_factory=dict)

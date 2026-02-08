@@ -8,6 +8,7 @@
 runtime/
 ├── __init__.py      # Публичный API (17 экспортов)
 ├── api.py           # Lifecycle — start/finalize run, артефакты, аудит, бюджеты
+├── http/            # HTTP middleware (cell router for tenant routing)
 ├── manifest.py      # Pydantic-модели RunManifest, ArtifactRef
 └── replay.py        # Replay-планирование, completeness check, верификация
 ```

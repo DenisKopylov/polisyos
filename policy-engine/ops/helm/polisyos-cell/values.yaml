@@ -1,0 +1,48 @@
+cell:
+  id: ""
+  tier: "shared"
+  region: "us-gov-west-1"
+  isolationLevel: "namespace"
+
+nameOverride: ""
+fullnameOverride: ""
+
+resources:
+  requests:
+    cpu: "2"
+    memory: "4Gi"
+  limits:
+    cpu: "8"
+    memory: "16Gi"
+  pods: 20
+  services: 10
+  persistentvolumeclaims: 5
+
+networkPolicy:
+  enabled: true
+  allowedEgress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              app.kubernetes.io/component: monitoring
+      ports:
+        - port: 9090
+          protocol: TCP
+        - port: 4317
+          protocol: TCP
+    - to:
+        - namespaceSelector: {}
+      ports:
+        - port: 53
+          protocol: UDP
+        - port: 53
+          protocol: TCP
+
+podSecurityStandard:
+  enforce: "restricted"
+  audit: "restricted"
+  warn: "restricted"
+
+rbac:
+  create: true
+  serviceAccountName: "polisyos-cell-sa"

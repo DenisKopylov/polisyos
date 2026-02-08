@@ -33,3 +33,14 @@ groups:
           sum(rate(polisyos_workflow_runs_total{status="error"}[5m]))
           /
           sum(rate(polisyos_workflow_runs_total[5m]))
+
+      # Cell routing SLI
+      - record: polisyos:cell_routing_failures:rate5m
+        expr: |
+          sum(rate(polisyos_cell_routing_failures_total[5m]))
+
+      - record: polisyos:cell_routing_p99_seconds:5m
+        expr: |
+          histogram_quantile(0.99,
+            sum by (le, cell_id) (rate(polisyos_cell_routing_duration_seconds_bucket[5m]))
+          )

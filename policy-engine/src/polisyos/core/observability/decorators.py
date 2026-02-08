@@ -31,6 +31,11 @@ from typing import Any, Callable, Optional, ParamSpec, TypeVar, Union, overload
 
 from opentelemetry.trace import SpanKind, Status, StatusCode
 
+from polisyos.core.security.tenant_context import (
+    get_current_cell_id,
+    get_current_tenant_id_or_none,
+)
+
 from .tracer import get_tracer
 
 P = ParamSpec("P")
@@ -93,6 +98,15 @@ def _safe_attribute_value(
         return str_val
     except Exception:
         return f"<{type(value).__name__}>"
+
+
+def _attach_tenant_attributes(span: Any) -> None:
+    tenant_id = get_current_tenant_id_or_none()
+    if tenant_id is not None:
+        span.set_attribute("tenant.id", tenant_id)
+    cell_id = get_current_cell_id()
+    if cell_id is not None:
+        span.set_attribute("cell.id", cell_id)
 
 
 @overload
@@ -174,6 +188,7 @@ def traced(
                     attributes=attributes,
                     kind=kind,
                 ) as span:
+                    _attach_tenant_attributes(span)
                     try:
                         result = await fn(*args, **kwargs)
 
@@ -206,6 +221,7 @@ def traced(
                 attributes=attributes,
                 kind=kind,
             ) as span:
+                _attach_tenant_attributes(span)
                 try:
                     result = fn(*args, **kwargs)
 

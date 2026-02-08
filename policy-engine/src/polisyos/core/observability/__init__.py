@@ -70,6 +70,21 @@ except ModuleNotFoundError:  # pragma: no cover - optional runtime dependency
         ) -> None:
             return None
 
+        def record_cell_router_request(self, *, cell_id: str, tier: str, status: str) -> None:
+            return None
+
+        def record_cell_router_latency(self, *, cell_id: str, duration_seconds: float) -> None:
+            return None
+
+        def record_cell_router_failure(self, *, reason: str) -> None:
+            return None
+
+        def record_security_incident(self, *, incident_type: str, cell_id: str) -> None:
+            return None
+
+        def set_cell_tenant_count(self, *, cell_id: str, tier: str, count: int) -> None:
+            return None
+
     class _NoopSpan:
         def __enter__(self):
             return self

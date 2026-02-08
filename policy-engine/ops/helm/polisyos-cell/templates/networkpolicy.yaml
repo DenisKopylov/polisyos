@@ -1,0 +1,60 @@
+{{- if .Values.networkPolicy.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "polisyos-cell.fullname" . }}-deny-ingress
+  namespace: {{ include "polisyos-cell.namespaceName" . }}
+  labels:
+    {{- include "polisyos-cell.labels" . | nindent 4 }}
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+  ingress: []
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "polisyos-cell.fullname" . }}-deny-egress
+  namespace: {{ include "polisyos-cell.namespaceName" . }}
+  labels:
+    {{- include "polisyos-cell.labels" . | nindent 4 }}
+spec:
+  podSelector: {}
+  policyTypes:
+    - Egress
+  egress: []
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "polisyos-cell.fullname" . }}-allow-internal
+  namespace: {{ include "polisyos-cell.namespaceName" . }}
+  labels:
+    {{- include "polisyos-cell.labels" . | nindent 4 }}
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+        - podSelector: {}
+  egress:
+    - to:
+        - podSelector: {}
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "polisyos-cell.fullname" . }}-allow-egress
+  namespace: {{ include "polisyos-cell.namespaceName" . }}
+  labels:
+    {{- include "polisyos-cell.labels" . | nindent 4 }}
+spec:
+  podSelector: {}
+  policyTypes:
+    - Egress
+  egress:
+    {{- toYaml .Values.networkPolicy.allowedEgress | nindent 4 }}
+{{- end }}

@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ include "polisyos-cell.namespaceName" . }}
+  labels:
+    {{- include "polisyos-cell.labels" . | nindent 4 }}
+    pod-security.kubernetes.io/enforce: {{ .Values.podSecurityStandard.enforce | quote }}
+    pod-security.kubernetes.io/enforce-version: "latest"
+    pod-security.kubernetes.io/audit: {{ .Values.podSecurityStandard.audit | quote }}
+    pod-security.kubernetes.io/audit-version: "latest"
+    pod-security.kubernetes.io/warn: {{ .Values.podSecurityStandard.warn | quote }}
+    pod-security.kubernetes.io/warn-version: "latest"

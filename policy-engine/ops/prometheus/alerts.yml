@@ -172,3 +172,35 @@ groups:
         annotations:
           summary: "Calibration not converging"
           description: "Loss has not decreased in 30 minutes. Check for local minima or learning rate issues."
+
+  - name: polisyos.cell_isolation
+    rules:
+      - alert: CrossTenantAccessAttempt
+        expr: increase(polisyos_security_incidents_total{type="cross_tenant_access"}[5m]) > 0
+        for: 0m
+        labels:
+          severity: critical
+          team: security
+        annotations:
+          summary: "Cross-tenant access attempt detected"
+          description: "Cell {{ $labels.cell_id }} reported a cross-tenant access incident."
+
+      - alert: CellRoutingErrorRateHigh
+        expr: rate(polisyos_cell_routing_failures_total[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: "Cell routing failures are elevated"
+          description: "Routing failures {{ $value | printf \"%.3f\" }} req/s exceed threshold."
+
+      - alert: CellRoutingLatencyHigh
+        expr: histogram_quantile(0.99, sum by (le) (rate(polisyos_cell_routing_duration_seconds_bucket[5m]))) > 0.01
+        for: 5m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: "Cell routing p99 latency exceeds 10ms"
+          description: "Routing p99 currently {{ $value | printf \"%.3f\" }}s."

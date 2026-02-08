@@ -56,6 +56,7 @@ def run_simulation():
 - Foundry: JAX runtime, калибровка
 - Scientist: workflow nodes, governance pipeline
 - LLM: вызовы, токены, стоимость
+- Security/Cell isolation: routing latency/failures, incidents, tenants-per-cell
 
 ### Structured Logging
 

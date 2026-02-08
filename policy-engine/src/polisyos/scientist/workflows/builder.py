@@ -7,6 +7,7 @@ from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext, new_run_id
+from polisyos.core.security.tenant_context import get_current_cell_id, get_current_tenant_id_or_none
 from polisyos.scientist.engine.checkpoint import (
     CASCheckpointHook,
     CheckpointPolicy,
@@ -49,7 +50,13 @@ def build_execution_context(
     scholar: object | None = None,
     lex: object | None = None,
 ) -> ExecutionContext:
-    run = RunContext.start(store, registry_bundle_ref, run_id=run_id)
+    run = RunContext.start(
+        store,
+        registry_bundle_ref,
+        run_id=run_id,
+        tenant_id=get_current_tenant_id_or_none(),
+        cell_id=get_current_cell_id(),
+    )
     return ExecutionContext(
         store=store,
         run=run,

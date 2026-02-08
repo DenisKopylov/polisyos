@@ -224,6 +224,54 @@
           "format": "heatmap"
         }
       ]
+    },
+    {
+      "id": 11,
+      "title": "Cell Request Rate",
+      "type": "timeseries",
+      "gridPos": { "h": 6, "w": 6, "x": 0, "y": 18 },
+      "targets": [
+        {
+          "expr": "sum by (cell_id) (rate(polisyos_cell_request_total[5m]))",
+          "legendFormat": "{{cell_id}}"
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "title": "Cell Routing p99",
+      "type": "timeseries",
+      "gridPos": { "h": 6, "w": 4, "x": 6, "y": 18 },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.99, sum by (le, cell_id) (rate(polisyos_cell_routing_duration_seconds_bucket[5m])))",
+          "legendFormat": "{{cell_id}}"
+        }
+      ]
+    },
+    {
+      "id": 13,
+      "title": "Security Incidents",
+      "type": "stat",
+      "gridPos": { "h": 6, "w": 4, "x": 10, "y": 18 },
+      "targets": [
+        {
+          "expr": "sum(polisyos_security_incidents_total)",
+          "legendFormat": "incidents"
+        }
+      ]
+    },
+    {
+      "id": 14,
+      "title": "Tenants per Cell",
+      "type": "timeseries",
+      "gridPos": { "h": 6, "w": 4, "x": 14, "y": 18 },
+      "targets": [
+        {
+          "expr": "polisyos_cell_tenants_current",
+          "legendFormat": "{{cell_id}} {{tier}}"
+        }
+      ]
     }
   ]
 }

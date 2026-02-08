@@ -31,6 +31,14 @@ class RunManifest(BaseModel):
     errors: list[dict[str, Any]] = Field(default_factory=list)
 
     trace_ref: ArtifactRef | None = None
+    tenant_id: str | None = Field(
+        default=None,
+        description="Tenant identifier for tenant-scoped runs.",
+    )
+    cell_id: str | None = Field(
+        default=None,
+        description="Cell identifier for tenant-scoped runs.",
+    )
     seed: int | None = Field(
         default=None,
         description="Deterministic seed for replayable runs.",

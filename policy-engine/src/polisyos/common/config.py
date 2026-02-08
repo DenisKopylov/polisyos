@@ -63,6 +63,14 @@ LOG_LEVEL = os.getenv("LOG_LEVEL", "DEBUG")
 DUCKDB_MEMORY_LIMIT = os.getenv("DUCKDB_MEMORY_LIMIT", "4GB")
 # Используем allowed_cores как дефолт для DuckDB, если не задано иное
 DUCKDB_THREADS = int(os.getenv("DUCKDB_THREADS", allowed_cores))
+POLISYOS_MULTI_TENANT_ENABLED = os.getenv("POLISYOS_MULTI_TENANT_ENABLED", "false").lower() in {
+    "1",
+    "true",
+    "yes",
+    "on",
+}
+POLISYOS_CELL_REGISTRY_PATH = os.getenv("POLISYOS_CELL_REGISTRY_PATH", "")
+POLISYOS_DEFAULT_CELL_TIER = os.getenv("POLISYOS_DEFAULT_CELL_TIER", "shared")
 
 # --- LOGGER SETUP ---
 # Сбрасываем дефолтную конфигурацию

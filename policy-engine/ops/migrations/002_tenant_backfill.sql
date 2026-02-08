@@ -1,0 +1,35 @@
+-- 002_tenant_backfill.sql
+-- Phase 1 step 2: backfill tenant IDs before enforcing NOT NULL/RLS.
+--
+-- Prerequisite:
+--   CREATE TABLE IF NOT EXISTS public.tenant_backfill_map (
+--       table_name TEXT NOT NULL,
+--       row_pk TEXT NOT NULL,
+--       tenant_id UUID NOT NULL
+--   );
+--
+-- For legacy data without explicit tenant boundaries, run once with a dedicated
+-- migration tenant UUID per isolated deployment and document it in runbook.
+
+-- Example for world_facts using legacy tenant fallback:
+-- UPDATE world.world_facts SET tenant_id = '11111111-1111-1111-1111-111111111111'::uuid
+-- WHERE tenant_id IS NULL;
+
+-- Repeat for every tenant-scoped table:
+-- world.world_nodes
+-- world.world_edges
+-- world.world_events
+-- world.claims
+-- world.claim_citations
+-- world.doc_sources
+-- world.doc_versions
+-- world.doc_fragments
+-- world.conflict_sets
+-- world.conflict_members
+-- world.trust_assessments
+-- world.quality_reports
+-- public.macro_history
+-- public.agents_snapshot
+-- public.run_records
+
+-- Validation gate: all tables must have zero NULL tenant_id before migration 003.

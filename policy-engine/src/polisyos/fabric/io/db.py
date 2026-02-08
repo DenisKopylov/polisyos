@@ -126,6 +126,12 @@ class SimulationDB:
     def close(self):
         self.conn.close()
 
+    def as_backend(self):
+        """Return a DatabaseBackend-compatible adapter around this SimulationDB."""
+        from polisyos.core.security.db_backend import DuckDBLegacyBackend
+
+        return DuckDBLegacyBackend(self)
+
     def save_run_record(self, record: "RunRecord") -> None:
         payload = record.model_dump()
         generator = payload.pop("generator", {})

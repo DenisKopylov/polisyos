@@ -1,0 +1,18 @@
+PolicyOS cell chart installed.
+
+Namespace:
+  {{ include "polisyos-cell.namespaceName" . }}
+
+Cell:
+  id={{ .Values.cell.id }}
+  tier={{ .Values.cell.tier }}
+  region={{ .Values.cell.region }}
+
+IMPORTANT PRECHECK:
+  This chart assumes your cluster CNI enforces Kubernetes NetworkPolicy.
+  Supported examples: Calico, Cilium, Antrea.
+  If your CNI ignores NetworkPolicy, isolation guarantees are NOT met.
+
+Verify:
+  kubectl get networkpolicy -n {{ include "polisyos-cell.namespaceName" . }}
+  kubectl describe namespace {{ include "polisyos-cell.namespaceName" . }}

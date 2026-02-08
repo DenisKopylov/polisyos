@@ -173,6 +173,11 @@ class MetricsRegistry:
     optimization_solve_status: Optional[metrics.Counter] = None
     portfolio_combinations_evaluated: Optional[metrics.Counter] = None
     portfolio_best_objective: Optional[GaugeProxy] = None
+    cell_router_requests_total: Optional[metrics.Counter] = None
+    cell_router_latency_seconds: Optional[metrics.Histogram] = None
+    cell_router_failures_total: Optional[metrics.Counter] = None
+    security_incidents_total: Optional[metrics.Counter] = None
+    cell_tenants_current: Optional[GaugeProxy] = None
 
     def __new__(cls) -> "MetricsRegistry":
         if cls._instance is None:
@@ -576,6 +581,34 @@ class MetricsRegistry:
             unit="1",
         )
 
+        # Cell isolation metrics
+        self.cell_router_requests_total = self._meter.create_counter(
+            name="polisyos_cell_request_total",
+            description="Requests routed through tenant cell router",
+            unit="1",
+        )
+        self.cell_router_latency_seconds = self._meter.create_histogram(
+            name="polisyos_cell_routing_duration_seconds",
+            description="Tenant-to-cell routing latency",
+            unit="s",
+        )
+        self.cell_router_failures_total = self._meter.create_counter(
+            name="polisyos_cell_routing_failures_total",
+            description="Failed tenant-to-cell routing attempts",
+            unit="1",
+        )
+        self.security_incidents_total = self._meter.create_counter(
+            name="polisyos_security_incidents_total",
+            description="Security incidents detected by tenant isolation controls",
+            unit="1",
+        )
+        self.cell_tenants_current = GaugeProxy(
+            self._meter,
+            name="polisyos_cell_tenants_current",
+            description="Current tenants assigned per cell",
+            unit="1",
+        )
+
     def time_simulation(
         self,
         attributes: Optional[dict[str, Any]] = None,
@@ -781,6 +814,39 @@ class MetricsRegistry:
         if error_type:
             attrs["error_type"] = error_type
         self.validation_issues_total.add(1, attrs)
+
+    def record_cell_router_request(self, *, cell_id: str, tier: str, status: str) -> None:
+        self._ensure_initialized()
+        if self.cell_router_requests_total is None:
+            return
+        self.cell_router_requests_total.add(
+            1,
+            {"cell_id": cell_id, "tier": tier, "status": status},
+        )
+
+    def record_cell_router_latency(self, *, cell_id: str, duration_seconds: float) -> None:
+        self._ensure_initialized()
+        if self.cell_router_latency_seconds is None:
+            return
+        self.cell_router_latency_seconds.record(max(duration_seconds, 0.0), {"cell_id": cell_id})
+
+    def record_cell_router_failure(self, *, reason: str) -> None:
+        self._ensure_initialized()
+        if self.cell_router_failures_total is None:
+            return
+        self.cell_router_failures_total.add(1, {"reason": reason})
+
+    def record_security_incident(self, *, incident_type: str, cell_id: str) -> None:
+        self._ensure_initialized()
+        if self.security_incidents_total is None:
+            return
+        self.security_incidents_total.add(1, {"type": incident_type, "cell_id": cell_id})
+
+    def set_cell_tenant_count(self, *, cell_id: str, tier: str, count: int) -> None:
+        self._ensure_initialized()
+        if self.cell_tenants_current is None:
+            return
+        self.cell_tenants_current.set(float(max(count, 0)), {"cell_id": cell_id, "tier": tier})
 
     def increment_active_runs(self) -> None:
         """Increment the active runs gauge."""

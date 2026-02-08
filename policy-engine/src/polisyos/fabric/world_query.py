@@ -2,11 +2,20 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 import re
-from typing import Any, Iterable, Mapping, Sequence
+from typing import TYPE_CHECKING, Any, Iterable, Mapping, Sequence
 
 import pandas as pd
 
-from polisyos.fabric.io.db import SimulationDB
+from polisyos.core.security.db_backend import DatabaseBackend
+
+if TYPE_CHECKING:
+    from polisyos.fabric.io.db import SimulationDB
+else:
+    try:  # pragma: no cover - import guard for environments without duckdb
+        from polisyos.fabric.io.db import SimulationDB
+    except ModuleNotFoundError:  # pragma: no cover
+        class SimulationDB:  # type: ignore[no-redef]
+            pass
 
 _IDENT_RE = re.compile(r"^[a-z_][a-z0-9_]*$")
 _TABLES: dict[str, str] = {
@@ -39,20 +48,27 @@ class WorldQueryRequest:
     limit: int = 1_000
 
 
-def execute_world_query(db: SimulationDB, request: WorldQueryRequest) -> pd.DataFrame:
+def execute_world_query(
+    db: SimulationDB | DatabaseBackend,
+    request: WorldQueryRequest,
+) -> pd.DataFrame:
     table_sql = _resolve_table(request.table)
     columns_sql = _compile_columns(request.columns)
-    where_sql, params = _compile_where(request.where)
+    placeholder = _resolve_placeholder(db)
+    where_sql, params = _compile_where(request.where, placeholder=placeholder)
     order_by_sql = _compile_order_by(request.order_by)
     limit = _normalize_limit(request.limit)
 
-    query = f"SELECT {columns_sql} FROM {table_sql}{where_sql}{order_by_sql} LIMIT ?"
+    query = (
+        f"SELECT {columns_sql} FROM {table_sql}{where_sql}{order_by_sql} "
+        f"LIMIT {placeholder}"
+    )
     params.append(limit)
-    return db.conn.execute(query, params).fetchdf()
+    return _execute_fetchdf(db, query, params)
 
 
 def query_world_table(
-    db: SimulationDB,
+    db: SimulationDB | DatabaseBackend,
     *,
     table: str,
     columns: Sequence[str] | None = None,
@@ -71,7 +87,7 @@ def query_world_table(
 
 
 def query_claims(
-    db: SimulationDB,
+    db: SimulationDB | DatabaseBackend,
     *,
     where: Mapping[str, Any] | None = None,
     columns: Sequence[str] | None = None,
@@ -88,7 +104,7 @@ def query_claims(
 
 
 def query_events(
-    db: SimulationDB,
+    db: SimulationDB | DatabaseBackend,
     *,
     where: Mapping[str, Any] | None = None,
     columns: Sequence[str] | None = None,
@@ -125,7 +141,11 @@ def _compile_columns(columns: Sequence[str]) -> str:
     return ", ".join(compiled)
 
 
-def _compile_where(where: Mapping[str, Any] | None) -> tuple[str, list[Any]]:
+def _compile_where(
+    where: Mapping[str, Any] | None,
+    *,
+    placeholder: str,
+) -> tuple[str, list[Any]]:
     if not where:
         return "", []
     parts: list[str] = []
@@ -135,7 +155,7 @@ def _compile_where(where: Mapping[str, Any] | None) -> tuple[str, list[Any]]:
             continue
         if not _IDENT_RE.fullmatch(key):
             raise WorldQueryError(f"Invalid filter key: {key!r}")
-        parts.append(f"{key} = ?")
+        parts.append(f"{key} = {placeholder}")
         params.append(value)
     if not parts:
         return "", params
@@ -173,6 +193,26 @@ def _normalize_limit(limit: int) -> int:
     if limit > 100_000:
         raise WorldQueryError("limit must be <= 100000")
     return int(limit)
+
+
+def _resolve_placeholder(db: SimulationDB | DatabaseBackend) -> str:
+    if isinstance(db, SimulationDB):
+        return "?"
+    if isinstance(db, DatabaseBackend):
+        return db.placeholder
+    return "?"
+
+
+def _execute_fetchdf(
+    db: SimulationDB | DatabaseBackend,
+    sql: str,
+    params: Sequence[Any],
+) -> pd.DataFrame:
+    if isinstance(db, SimulationDB):
+        return db.conn.execute(sql, list(params)).fetchdf()
+    if isinstance(db, DatabaseBackend):
+        return db.fetchdf(sql, params)
+    raise TypeError(f"Unsupported db backend: {type(db)!r}")
 
 
 __all__ = [

@@ -1,0 +1,12 @@
+apiVersion: v2
+name: polisyos-cell
+description: PolicyOS Cell isolation primitives (namespace/network/rbac/quota)
+version: 0.1.0
+appVersion: "2.5.0"
+type: application
+keywords:
+  - polisyos
+  - multi-tenant
+  - cell
+maintainers:
+  - name: PolicyOS Security Team

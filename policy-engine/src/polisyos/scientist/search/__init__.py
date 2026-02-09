@@ -16,6 +16,11 @@ from polisyos.scientist.search.adversarial import (
     run_stress_test,
 )
 from polisyos.scientist.search.sensitivity_adapter import SensitivityAwareCandidateGenerator
+from polisyos.scientist.search.diversity import (
+    DiversityTracker,
+    ExclusionListBuilder,
+    enrich_context_with_diversity,
+)
 from polisyos.scientist.search.portfolio import (
     PortfolioCombination,
     PortfolioEvaluationResult,
@@ -89,6 +94,9 @@ __all__ = [
     "VulnerabilityFound",
     "run_stress_test",
     "SensitivityAwareCandidateGenerator",
+    "DiversityTracker",
+    "ExclusionListBuilder",
+    "enrich_context_with_diversity",
     "PortfolioCombination",
     "PortfolioEvaluationResult",
     "PortfolioSearchMode",

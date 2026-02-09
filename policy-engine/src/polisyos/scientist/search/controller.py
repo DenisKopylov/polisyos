@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
+import os
 from typing import Any, Callable, Dict, List, Protocol
 from uuid import uuid4
 
@@ -10,6 +11,12 @@ from loguru import logger
 
 from polisyos.scientist.search.objective import CompositeObjective, ObjectiveValue
 from polisyos.scientist.search.stopping import StoppingCriterion
+
+
+def _as_bool(raw: str | None, default: bool = False) -> bool:
+    if raw is None:
+        return default
+    return raw.strip().lower() in {"1", "true", "yes", "on"}
 
 
 class SearchStatus(str, Enum):
@@ -128,6 +135,18 @@ class SearchController:
 
         self._stage_a_count = 0
         self._stage_b_count = 0
+        self._diversity_enabled = _as_bool(
+            os.getenv("POLISYOS_SEARCH_DIVERSITY_ENABLED"),
+            default=False,
+        )
+        self._diversity_tracker = None
+        if self._diversity_enabled:
+            try:
+                from polisyos.scientist.search.diversity import DiversityTracker
+            except Exception:
+                self._diversity_enabled = False
+            else:
+                self._diversity_tracker = DiversityTracker()
 
     def run(
         self,
@@ -196,6 +215,12 @@ class SearchController:
             )
 
         total_duration = (datetime.utcnow() - start_time).total_seconds()
+        telemetry: Dict[str, Any] = {}
+        if self._diversity_tracker is not None:
+            telemetry["diversity_unique_mechanisms_total"] = (
+                self._diversity_tracker.unique_mechanisms_total
+            )
+            telemetry["diversity_ratio"] = self._diversity_tracker.diversity_ratio
 
         return SearchResult(
             search_id=search_id,
@@ -208,6 +233,7 @@ class SearchController:
             total_duration_seconds=total_duration,
             stage_a_evaluations=self._stage_a_count,
             stage_b_evaluations=self._stage_b_count,
+            telemetry=telemetry,
         )
 
     def _generate_candidates(
@@ -219,6 +245,15 @@ class SearchController:
         if iteration == 0 and initial_candidate is not None:
             return [initial_candidate]
 
+        effective_context = context
+        if self._diversity_enabled:
+            try:
+                from polisyos.scientist.search.diversity import enrich_context_with_diversity
+            except Exception:
+                effective_context = context
+            else:
+                effective_context = enrich_context_with_diversity(context, self._history)
+
         batch_size = max(1, int(self._config.batch_size))
         can_batch = (
             batch_size > 1
@@ -229,14 +264,14 @@ class SearchController:
             return getattr(self._generator, "generate_batch")(
                 self._history,
                 self._best_candidate,
-                context,
+                effective_context,
                 batch_size,
             )
         return [
             self._generator.generate(
                 self._history,
                 self._best_candidate,
-                context,
+                effective_context,
             )
         ]
 
@@ -295,6 +330,8 @@ class SearchController:
             duration_seconds=iter_duration,
         )
         self._history.append(record)
+        if self._diversity_tracker is not None:
+            self._diversity_tracker.record_iteration(candidate)
 
     def _to_history_dict(self, iteration: SearchIteration) -> Dict[str, Any]:
         """Convert iteration to dict for stopping criteria."""

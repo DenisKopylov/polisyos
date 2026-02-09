@@ -46,6 +46,8 @@ if TYPE_CHECKING:
         MultiPassLLMDrafter,
         create_drafter_agent,
     )
+    from polisyos.scientist.agent.rag import CASRAGIndex, RAGConfig
+    from polisyos.scientist.agent.code_verifier import CodeVerificationSandbox, SandboxConfig
     from polisyos.scientist.agent.formalizer import LLMFormalizerAgent, MockFormalizerAgent
     from polisyos.scientist.agent.memory import ShortTermMemory, TurnRole
     from polisyos.scientist.agent.pi import LLMPIAgent, MockPIAgent
@@ -67,6 +69,10 @@ __all__ = [
     "MultiPassLLMDrafter",
     "MultiPassConfig",
     "create_drafter_agent",
+    "CASRAGIndex",
+    "RAGConfig",
+    "CodeVerificationSandbox",
+    "SandboxConfig",
     "ProblemFrame",
     "SubTask",
     "DraftResult",
@@ -116,6 +122,13 @@ def __getattr__(name: str):
         "MultiPassConfig": ("polisyos.scientist.agent.drafter", "MultiPassConfig"),
         "create_drafter_agent": ("polisyos.scientist.agent.drafter", "create_drafter_agent"),
         "drafter_node": ("polisyos.scientist.agent.drafter", "drafter_node"),
+        "CASRAGIndex": ("polisyos.scientist.agent.rag", "CASRAGIndex"),
+        "RAGConfig": ("polisyos.scientist.agent.rag", "RAGConfig"),
+        "CodeVerificationSandbox": (
+            "polisyos.scientist.agent.code_verifier",
+            "CodeVerificationSandbox",
+        ),
+        "SandboxConfig": ("polisyos.scientist.agent.code_verifier", "SandboxConfig"),
         # formalizer
         "LLMFormalizerAgent": ("polisyos.scientist.agent.formalizer", "LLMFormalizerAgent"),
         "MockFormalizerAgent": ("polisyos.scientist.agent.formalizer", "MockFormalizerAgent"),

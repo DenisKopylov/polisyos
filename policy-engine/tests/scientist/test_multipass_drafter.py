@@ -24,6 +24,12 @@ from polisyos.scientist.agent.protocols import (
     DrafterAgent,
     ProblemFrame,
 )
+from polisyos.scientist.agent.rag import (
+    CASRAGIndex,
+    HashEmbeddingBackend,
+    ProblemFrameTextualizer,
+    RAGCaseEntry,
+)
 
 
 def run(coro):
@@ -119,6 +125,54 @@ def test_pass1_delegates_to_inner() -> None:
 
     assert result.problem_frame_ref == "pf_multipass_001"
     assert inner.draft_count == 1
+
+
+def test_pass1_injects_rag_few_shot_hint() -> None:
+    class RecordingDrafter(MockDrafterAgent):
+        def __init__(self) -> None:
+            super().__init__()
+            self.last_hints: list[str] = []
+
+        async def draft_policy(
+            self,
+            problem_frame: ProblemFrame,
+            *,
+            hints: list[str] | None = None,
+            prior_drafts=None,
+        ):
+            self.last_hints = list(hints or [])
+            return await super().draft_policy(
+                problem_frame,
+                hints=hints,
+                prior_drafts=prior_drafts,
+            )
+
+    embedder = HashEmbeddingBackend(dimension=32)
+    rag_index = CASRAGIndex(embedder, similarity_threshold=0.0)
+    rag_index.add_entry(
+        RAGCaseEntry(
+            decision_packet_ref="sha256:" + ("a" * 64),
+            trinity_bundle_ref="sha256:" + ("b" * 64),
+            run_id="run_rag_1",
+            domain="economic",
+            problem_text=ProblemFrameTextualizer.to_text(_problem_frame()),
+            problem_summary="Reduce poverty under budget constraints",
+            intervention_summary="tax_subsidy + income_tax",
+            lesson_learned="gdp_change=0.02",
+            confidence=0.9,
+            indexed_at=datetime.utcnow().isoformat(),
+        )
+    )
+
+    inner = RecordingDrafter()
+    agent = MultiPassLLMDrafter(
+        inner,
+        config=MultiPassConfig(max_passes=1, rag_enabled=True, rag_similarity_threshold=0.0),
+        rag_index=rag_index,
+    )
+    _ = run(agent.draft_policy(_problem_frame()))
+    assert inner.last_hints
+    assert any("SIMILAR PAST DECISIONS" in hint for hint in inner.last_hints)
 
 
 def test_all_four_passes_execute() -> None:
@@ -312,6 +366,41 @@ def test_memory_logging() -> None:
 
     assert "[SELF_CRITIQUE]" in history
     assert "Self-Critique:side_effects_check" in history
+
+
+def test_pass3_code_verification_adds_findings_to_memory() -> None:
+    llm = SequenceLLM(
+        [
+            '{"findings":[],"confidence_adjustment":0.0}',
+            (
+                '{"findings":[],"confidence_adjustment":0.0,'
+                '"verification_code":"assert sum(intervention_rates) <= 0.1, '
+                '\\\"Rates exceed threshold\\\""}'
+            ),
+            (
+                '{"narrative":"Consolidated with verifier feedback","interventions":[{"kind":"'
+                'tax_subsidy"}],"rationale":"updated","alternatives_considered":[],"confidence":0.6}'
+            ),
+        ]
+    )
+    memory = ShortTermMemory()
+    agent = MultiPassLLMDrafter(
+        MockDrafterAgent(),
+        config=MultiPassConfig(
+            max_passes=4,
+            early_exit_confidence=0.99,
+            code_verification_enabled=True,
+        ),
+        memory=memory,
+        llm_client=llm,
+    )
+
+    result = run(agent.draft_policy(_problem_frame()))
+
+    assert llm.call_count == 3
+    assert "Consolidated with verifier feedback" in result.narrative
+    history = memory.get_history_as_text()
+    assert "code_verification" in history
 
 
 def test_otel_spans_created(in_memory_exporter, monkeypatch) -> None:

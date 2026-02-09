@@ -303,13 +303,15 @@ Verify formal constraints only: budget, ranges, consistency, and overlap conflic
       "anchor": "constraint:<id>|intervention:<index>|field:<path>|none"
     }}
   ],
-  "confidence_adjustment": -0.10
+  "confidence_adjustment": -0.10,
+  "verification_code": "# Optional Python assertions. Variables available: interventions, constraints, total_budget, intervention_rates, intervention_costs, targets."
 }}
 
 # RULES
 - Focus on formal constraints only.
 - Use concrete numbers in violation descriptions.
 - Return empty findings list if all constraints pass.
+- If useful, provide `verification_code` with assert-statements for arithmetic checks.
 """
 
 

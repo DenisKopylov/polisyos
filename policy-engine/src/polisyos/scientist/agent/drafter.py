@@ -12,17 +12,26 @@ import hashlib
 import json
 import logging
 import os
+from pathlib import Path
 import time
 import uuid
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from datetime import datetime
 from enum import Enum
 from typing import Any, Iterable
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator
 
+from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.observability import get_metrics, get_tracer
 from polisyos.core.observability.pricing import estimate_llm_cost_usd
+from polisyos.scientist.agent.code_verifier import (
+    CodeVerificationSandbox,
+    DraftVariableExtractor,
+    SandboxConfig,
+    VerificationCodeExtractor,
+    VerificationStatus,
+)
 from polisyos.scientist.agent.memory import ShortTermMemory
 from polisyos.scientist.agent.prompts import get_drafter_prompt, get_self_critique_prompt
 from polisyos.scientist.agent.protocols import (
@@ -30,6 +39,13 @@ from polisyos.scientist.agent.protocols import (
     DrafterAgent,
     DraftResult,
     ProblemFrame,
+)
+from polisyos.scientist.agent.rag import (
+    CASRAGIndex,
+    RAGConfig,
+    build_default_embedder,
+    build_or_load_rag_index,
+    format_few_shot_block,
 )
 from polisyos.scientist.llm import TracedLLMClient
 
@@ -110,6 +126,7 @@ class PassExecution:
     duration_ms: int = 0
     parse_ok: bool = True
     confidence_adjustment: float | None = None
+    verification_code: str | None = None
 
 
 class MultiPassConfig(BaseModel):
@@ -127,6 +144,14 @@ class MultiPassConfig(BaseModel):
     critique_model: str | None = Field(default=None)
     enable_memory_logging: bool = Field(default=True)
     shadow_mode: bool = Field(default=False)
+    rag_enabled: bool = Field(default=False)
+    rag_top_k: int = Field(default=3, ge=1, le=10)
+    rag_similarity_threshold: float = Field(default=0.5, ge=0.0, le=1.0)
+    rag_domain_filter: bool = Field(default=True)
+    rag_max_few_shot_chars: int = Field(default=6000, ge=400, le=20000)
+    rag_freeze_snapshot_per_run: bool = Field(default=True)
+    code_verification_enabled: bool = Field(default=False)
+    code_verification_timeout_s: float = Field(default=5.0, gt=0.0, le=30.0)
 
     @field_validator("budget_limit_usd")
     @classmethod
@@ -178,6 +203,32 @@ class MultiPassConfig(BaseModel):
         if raw_mode:
             kwargs["shadow_mode"] = raw_mode.strip().lower() == "shadow"
 
+        raw_rag_enabled = os.getenv("POLISYOS_RAG_ENABLED")
+        if raw_rag_enabled is not None:
+            kwargs["rag_enabled"] = _as_bool(raw_rag_enabled, default=False)
+        raw_rag_top_k = os.getenv("POLISYOS_RAG_TOP_K")
+        if raw_rag_top_k:
+            kwargs["rag_top_k"] = int(raw_rag_top_k)
+        raw_rag_threshold = os.getenv("POLISYOS_RAG_THRESHOLD")
+        if raw_rag_threshold:
+            kwargs["rag_similarity_threshold"] = float(raw_rag_threshold)
+        raw_rag_domain = os.getenv("POLISYOS_RAG_DOMAIN_FILTER")
+        if raw_rag_domain is not None:
+            kwargs["rag_domain_filter"] = _as_bool(raw_rag_domain, default=True)
+        raw_rag_chars = os.getenv("POLISYOS_RAG_MAX_FEW_SHOT_CHARS")
+        if raw_rag_chars:
+            kwargs["rag_max_few_shot_chars"] = int(raw_rag_chars)
+        raw_rag_freeze = os.getenv("POLISYOS_RAG_FREEZE_SNAPSHOT_PER_RUN")
+        if raw_rag_freeze is not None:
+            kwargs["rag_freeze_snapshot_per_run"] = _as_bool(raw_rag_freeze, default=True)
+
+        raw_code_verif = os.getenv("POLISYOS_CODE_VERIFICATION_ENABLED")
+        if raw_code_verif is not None:
+            kwargs["code_verification_enabled"] = _as_bool(raw_code_verif, default=False)
+        raw_code_timeout = os.getenv("POLISYOS_CODE_VERIFICATION_TIMEOUT")
+        if raw_code_timeout:
+            kwargs["code_verification_timeout_s"] = float(raw_code_timeout)
+
         return cls(**kwargs)
 
 
@@ -197,6 +248,7 @@ class _CritiquePayload(BaseModel):
 
     findings: list[_FindingPayload] = Field(default_factory=list)
     confidence_adjustment: float | None = None
+    verification_code: str | None = None
 
 
 class _ConsolidationPayload(BaseModel):
@@ -604,11 +656,31 @@ class MultiPassLLMDrafter:
         config: MultiPassConfig | None = None,
         memory: ShortTermMemory | None = None,
         llm_client: Any | None = None,
+        rag_index: CASRAGIndex | None = None,
+        rag_config: RAGConfig | None = None,
+        code_verifier: CodeVerificationSandbox | None = None,
     ) -> None:
         self._inner = inner
         self._config = config or MultiPassConfig()
         self._memory = memory
         self._llm = self._resolve_llm(llm_client, inner)
+        self._rag_index = rag_index
+        self._rag_config = rag_config or RAGConfig(
+            enabled=self._config.rag_enabled,
+            similarity_threshold=self._config.rag_similarity_threshold,
+            top_k=self._config.rag_top_k,
+            domain_filter=self._config.rag_domain_filter,
+            max_few_shot_chars=self._config.rag_max_few_shot_chars,
+            freeze_snapshot_per_run=self._config.rag_freeze_snapshot_per_run,
+        )
+        self._frozen_rag_snapshot_ref: str | None = (
+            rag_index.snapshot_ref if rag_index is not None else None
+        )
+        self._code_verifier = code_verifier
+        if self._code_verifier is None and self._config.code_verification_enabled:
+            self._code_verifier = CodeVerificationSandbox(
+                SandboxConfig(timeout_seconds=self._config.code_verification_timeout_s)
+            )
 
     async def draft_policy(
         self,
@@ -798,6 +870,13 @@ class MultiPassLLMDrafter:
             if pass3.executed:
                 extra_llm_calls += 1
                 cumulative_cost_usd += pass3.cost_usd
+                if self._config.code_verification_enabled:
+                    pass3 = self._augment_pass3_with_code_verification(
+                        pass3,
+                        draft=current_draft,
+                        problem_frame=problem_frame,
+                    )
+                    pass_results[-1] = pass3
                 all_findings.extend(pass3.findings)
                 current_draft = self._update_confidence(
                     current_draft,
@@ -891,10 +970,33 @@ class MultiPassLLMDrafter:
                 "polisyos.drafter.pass_name": "naive_draft",
                 "polisyos.drafter.pass_number": 1,
             },
-        ):
+        ) as span:
+            effective_hints = list(hints or [])
+            if self._rag_config.enabled and self._rag_index is not None:
+                rag_results = self._rag_index.search(
+                    problem_frame,
+                    top_k=self._rag_config.top_k,
+                    domain_filter=self._rag_config.domain_filter,
+                    similarity_threshold=self._rag_config.similarity_threshold,
+                )
+                span.set_attribute("polisyos.drafter.rag_results", len(rag_results))
+                if rag_results:
+                    few_shot = format_few_shot_block(
+                        rag_results,
+                        max_chars=self._rag_config.max_few_shot_chars,
+                    )
+                    if few_shot:
+                        effective_hints.append(few_shot)
+                    top_similarity = rag_results[0].similarity
+                    span.set_attribute("polisyos.drafter.rag_top_similarity", top_similarity)
+                if self._rag_config.freeze_snapshot_per_run and self._frozen_rag_snapshot_ref:
+                    span.set_attribute(
+                        "polisyos.drafter.rag_snapshot_ref",
+                        self._frozen_rag_snapshot_ref,
+                    )
             draft = await self._inner.draft_policy(
                 problem_frame,
-                hints=hints,
+                hints=effective_hints or None,
                 prior_drafts=prior_drafts,
             )
             raw = draft.raw_llm_response
@@ -1052,9 +1154,11 @@ class MultiPassLLMDrafter:
                         timeout=self._config.pass_timeout_s,
                     )
                     content, prompt_tokens, completion_tokens = self._extract_response_data(response)
-                    findings, confidence_adjustment, parse_ok = self._parse_findings(
-                        content,
-                        pass_name=pass_name,
+                    findings, confidence_adjustment, parse_ok, verification_code = (
+                        self._parse_critique_payload(
+                            content,
+                            pass_name=pass_name,
+                        )
                     )
                     cost = self._estimate_cost(
                         model=self._critique_model_name(),
@@ -1075,6 +1179,7 @@ class MultiPassLLMDrafter:
                         duration_ms=int((time.perf_counter() - started) * 1000),
                         parse_ok=parse_ok,
                         confidence_adjustment=confidence_adjustment,
+                        verification_code=verification_code,
                     )
                 except Exception as exc:
                     last_error = exc
@@ -1083,6 +1188,84 @@ class MultiPassLLMDrafter:
             span.set_attribute("polisyos.drafter.pass_error", True)
             logger.warning("%s failed after retries: %s", pass_name, last_error)
             return self._skipped_pass(pass_name, pass_number, "pass_error")
+
+    def _augment_pass3_with_code_verification(
+        self,
+        pass3: PassExecution,
+        *,
+        draft: DraftResult,
+        problem_frame: ProblemFrame,
+    ) -> PassExecution:
+        if not pass3.executed:
+            return pass3
+        if self._code_verifier is None:
+            return pass3
+
+        verification_code = pass3.verification_code
+        if not verification_code:
+            verification_code = VerificationCodeExtractor.extract_from_llm_response(
+                pass3.raw_llm_response
+            )
+        if not verification_code:
+            return pass3
+
+        tracer = get_tracer()
+        with tracer.start_as_current_span(
+            "drafter.pass.code_verification",
+            attributes={
+                "polisyos.drafter.pass_name": "code_verification",
+                "polisyos.drafter.pass_number": 3,
+            },
+        ) as span:
+            variables = DraftVariableExtractor.extract(draft, problem_frame)
+            verification = self._code_verifier.execute(
+                verification_code,
+                variables=variables,
+            )
+            span.set_attribute("polisyos.drafter.code_verification_status", verification.status.value)
+            span.set_attribute("polisyos.drafter.code_verification_passed", verification.passed)
+            span.set_attribute(
+                "polisyos.drafter.code_verification_duration_ms",
+                verification.execution_time_ms,
+            )
+
+        if verification.status in {VerificationStatus.PASSED, VerificationStatus.SKIPPED}:
+            return pass3
+
+        extra_findings: list[PassFinding] = []
+        for idx, payload in enumerate(verification.to_findings()):
+            extra_findings.append(
+                PassFinding(
+                    finding_id=f"code_verification_{idx}",
+                    category=self._parse_category(payload.get("category", "other")),
+                    severity=self._parse_severity(payload.get("severity", "high")),
+                    description=str(payload.get("description", "Verification failed")),
+                    suggested_fix=str(payload.get("suggested_fix", "")),
+                    affected_intervention=(
+                        str(payload.get("affected_intervention"))
+                        if payload.get("affected_intervention")
+                        else None
+                    ),
+                    anchor=str(payload.get("anchor", "verification:code")),
+                    source_pass="code_verification",
+                )
+            )
+
+        if self._memory is not None and extra_findings:
+            self._memory.add_pass_findings(
+                "code_verification",
+                [finding.as_memory_dict() for finding in extra_findings],
+            )
+
+        merged_findings = list(pass3.findings) + extra_findings
+        updated_adjustment = pass3.confidence_adjustment
+        if extra_findings:
+            updated_adjustment = (updated_adjustment or 0.0) - (0.03 * len(extra_findings))
+        return replace(
+            pass3,
+            findings=merged_findings,
+            confidence_adjustment=updated_adjustment,
+        )
 
     async def _execute_consolidation_pass(
         self,
@@ -1239,17 +1422,29 @@ class MultiPassLLMDrafter:
         *,
         pass_name: str,
     ) -> tuple[list[PassFinding], float | None, bool]:
+        findings, confidence_adjustment, parse_ok, _verification_code = self._parse_critique_payload(
+            raw_response,
+            pass_name=pass_name,
+        )
+        return findings, confidence_adjustment, parse_ok
+
+    def _parse_critique_payload(
+        self,
+        raw_response: str,
+        *,
+        pass_name: str,
+    ) -> tuple[list[PassFinding], float | None, bool, str | None]:
         try:
             payload = _CritiquePayload.model_validate_json(raw_response)
         except ValidationError:
             try:
                 decoded = json.loads(raw_response)
             except json.JSONDecodeError:
-                return [], None, False
+                return [], None, False, None
             try:
                 payload = _CritiquePayload.model_validate(decoded)
             except ValidationError:
-                return [], None, False
+                return [], None, False, None
 
         findings: list[PassFinding] = []
         for idx, item in enumerate(payload.findings):
@@ -1267,7 +1462,10 @@ class MultiPassLLMDrafter:
                     source_pass=pass_name,
                 )
             )
-        return findings, payload.confidence_adjustment, True
+        verification_code = payload.verification_code.strip() if payload.verification_code else None
+        if verification_code == "":
+            verification_code = None
+        return findings, payload.confidence_adjustment, True, verification_code
 
     def _parse_consolidated_draft(
         self,
@@ -1497,7 +1695,46 @@ def create_drafter_agent(
     effective_config = config or MultiPassConfig.from_env()
     if mode == "shadow" and not effective_config.shadow_mode:
         effective_config = effective_config.model_copy(update={"shadow_mode": True})
-    return MultiPassLLMDrafter(inner, config=effective_config, memory=memory)
+
+    rag_config: RAGConfig | None = None
+    rag_index: CASRAGIndex | None = None
+    if effective_config.rag_enabled:
+        rag_config = RAGConfig.from_env().model_copy(
+            update={
+                "enabled": True,
+                "top_k": effective_config.rag_top_k,
+                "similarity_threshold": effective_config.rag_similarity_threshold,
+                "domain_filter": effective_config.rag_domain_filter,
+                "max_few_shot_chars": effective_config.rag_max_few_shot_chars,
+                "freeze_snapshot_per_run": effective_config.rag_freeze_snapshot_per_run,
+            }
+        )
+        try:
+            cas = FileSystemCAS(Path(rag_config.cas_root))
+            embedder = build_default_embedder(rag_config)
+            rag_index = build_or_load_rag_index(
+                cas,
+                config=rag_config,
+                embedder=embedder,
+            )
+        except Exception as exc:
+            logger.warning("RAG initialization failed, continuing without RAG: %s", exc)
+            rag_index = None
+
+    verifier: CodeVerificationSandbox | None = None
+    if effective_config.code_verification_enabled:
+        verifier = CodeVerificationSandbox(
+            SandboxConfig(timeout_seconds=effective_config.code_verification_timeout_s)
+        )
+
+    return MultiPassLLMDrafter(
+        inner,
+        config=effective_config,
+        memory=memory,
+        rag_index=rag_index,
+        rag_config=rag_config,
+        code_verifier=verifier,
+    )
 
 
 def drafter_node(state: Any) -> Any:

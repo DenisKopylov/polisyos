@@ -62,8 +62,8 @@ def run_queries(engine: UDFEngine, repeats: int) -> dict[str, float]:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="UDF performance regression gate.")
-    parser.add_argument("--db-path", type=Path, default=Path("demo_udf.duckdb"))
-    parser.add_argument("--kuzu-path", type=Path, default=Path("demo_udf.kuzu"))
+    parser.add_argument("--db-path", type=Path, default=Path("data/databases/demo_udf.duckdb"))
+    parser.add_argument("--kuzu-path", type=Path, default=Path("data/databases/demo_udf.kuzu"))
     parser.add_argument("--curated-dir", type=Path, default=Path("data/curated"))
     parser.add_argument("--baseline", type=Path, default=Path("data/curated/udf_perf_baseline.json"))
     parser.add_argument("--repeats", type=int, default=3)

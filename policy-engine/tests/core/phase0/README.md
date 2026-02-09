@@ -13,7 +13,7 @@ Core Phase 0 - фундаментальная инфраструктура си�
 ## Структура тестов
 
 ```
-core_phase0/
+core/phase0/
 ├── conftest.py                    # Специфичные fixtures для core + observability
 ├── test_artifact_store.py         # FileSystemCAS, дедупликация, integrity checks
 ├── test_signing.py                # Ed25519 signing/verifying, trust/revocation/identity binding
@@ -217,22 +217,22 @@ def in_memory_exporter(test_tracer_provider):
 
 ```bash
 # Все core phase 0 тесты (core + observability)
-pytest tests/core_phase0/ -v
+pytest tests/core/phase0/ -v
 
 # Core компоненты
-pytest tests/core_phase0/test_artifact_store.py -v
-pytest tests/core_phase0/test_canon_json.py -v
-pytest tests/core_phase0/test_registry_bundle.py -v
-pytest tests/core_phase0/test_run_context.py -v
-pytest tests/core_phase0/test_environment_manifest.py -v
+pytest tests/core/phase0/test_artifact_store.py -v
+pytest tests/core/phase0/test_canon_json.py -v
+pytest tests/core/phase0/test_registry_bundle.py -v
+pytest tests/core/phase0/test_run_context.py -v
+pytest tests/core/phase0/test_environment_manifest.py -v
 
 # Observability система
-pytest tests/core_phase0/test_observability.py -v     # Integration scenarios
-pytest tests/core_phase0/test_tracer.py -v           # PolicyOSTracer singleton
-pytest tests/core_phase0/test_metrics.py -v          # Metrics registry
-pytest tests/core_phase0/test_logs.py -v             # Log-trace correlation
-pytest tests/core_phase0/test_decorators.py -v       # @traced decorator
-pytest tests/core_phase0/test_propagation.py -v      # Context propagation
+pytest tests/core/phase0/test_observability.py -v     # Integration scenarios
+pytest tests/core/phase0/test_tracer.py -v           # PolicyOSTracer singleton
+pytest tests/core/phase0/test_metrics.py -v          # Metrics registry
+pytest tests/core/phase0/test_logs.py -v             # Log-trace correlation
+pytest tests/core/phase0/test_decorators.py -v       # @traced decorator
+pytest tests/core/phase0/test_propagation.py -v      # Context propagation
 ```
 
 ## Связи с другими модулями
@@ -283,10 +283,10 @@ pytest tests/core_phase0/test_propagation.py -v      # Context propagation
 
 ```bash
 # С подробным выводом для конкретного теста
-pytest tests/core_phase0/test_canon_json.py::test_golden_hash_is_stable -v -s
+pytest tests/core/phase0/test_canon_json.py::test_golden_hash_is_stable -v -s
 
 # С остановкой на первой ошибке
-pytest tests/core_phase0/ --tb=short -x
+pytest tests/core/phase0/ --tb=short -x
 ```
 
 ## Troubleshooting
@@ -296,87 +296,87 @@ pytest tests/core_phase0/ --tb=short -x
 **Artifact store integrity failures:**
 ```bash
 # Проверьте что SHA256 хэши совпадают
-pytest tests/core_phase0/test_artifact_store.py::test_put_get_roundtrip_and_verify -v
+pytest tests/core/phase0/test_artifact_store.py::test_put_get_roundtrip_and_verify -v
 ```
 
 **Canonical JSON serialization issues:**
 ```bash
 # Проверьте запрет на float значения
-pytest tests/core_phase0/test_canon_json.py::test_float_forbidden -v
+pytest tests/core/phase0/test_canon_json.py::test_float_forbidden -v
 ```
 
 **Registry bundle construction failures:**
 ```bash
 # Проверьте persistence всех компонентов
-pytest tests/core_phase0/test_registry_bundle.py -v
+pytest tests/core/phase0/test_registry_bundle.py -v
 ```
 
 **Environment manifest capture issues:**
 ```bash
 # Проверьте capture без приватных данных
-pytest tests/core_phase0/test_environment_manifest.py::TestCaptureEnvironment::test_capture_no_private_data -v
+pytest tests/core/phase0/test_environment_manifest.py::TestCaptureEnvironment::test_capture_no_private_data -v
 # Проверьте fingerprint determinism
-pytest tests/core_phase0/test_environment_manifest.py::TestEnvironmentManifest::test_manifest_fingerprint_deterministic -v
+pytest tests/core/phase0/test_environment_manifest.py::TestEnvironmentManifest::test_manifest_fingerprint_deterministic -v
 ```
 
 **Run context path resolution issues:**
 ```bash
 # Проверьте относительные пути
-pytest tests/core_phase0/test_run_context.py -v
+pytest tests/core/phase0/test_run_context.py -v
 ```
 
 **Observability system issues:**
 ```bash
 # Проверьте tracer singleton
-pytest tests/core_phase0/test_tracer.py::TestPolicyOSTracer::test_singleton_pattern -v
+pytest tests/core/phase0/test_tracer.py::TestPolicyOSTracer::test_singleton_pattern -v
 # Проверьте lazy initialization
-pytest tests/core_phase0/test_tracer.py::TestPolicyOSTracer::test_lazy_initialization -v
+pytest tests/core/phase0/test_tracer.py::TestPolicyOSTracer::test_lazy_initialization -v
 ```
 
 **Span creation failures:**
 ```bash
 # Проверьте span creation and attributes
-pytest tests/core_phase0/test_tracer.py::TestPolicyOSTracer::test_span_creation -v
+pytest tests/core/phase0/test_tracer.py::TestPolicyOSTracer::test_span_creation -v
 # Проверьте nested spans
-pytest tests/core_phase0/test_tracer.py::TestPolicyOSTracer::test_nested_spans -v
+pytest tests/core/phase0/test_tracer.py::TestPolicyOSTracer::test_nested_spans -v
 ```
 
 **Metrics registry issues:**
 ```bash
 # Проверьте singleton pattern
-pytest tests/core_phase0/test_metrics.py::TestMetricsRegistry::test_singleton_pattern -v
+pytest tests/core/phase0/test_metrics.py::TestMetricsRegistry::test_singleton_pattern -v
 # Проверьте histogram timer
-pytest tests/core_phase0/test_metrics.py::TestMetricsRegistry::test_histogram_timer -v
+pytest tests/core/phase0/test_metrics.py::TestMetricsRegistry::test_histogram_timer -v
 ```
 
 **@traced decorator issues:**
 ```bash
 # Проверьте basic decoration
-pytest tests/core_phase0/test_decorators.py::TestTracedDecorator::test_basic_decoration -v
+pytest tests/core/phase0/test_decorators.py::TestTracedDecorator::test_basic_decoration -v
 # Проверьте async decoration
-pytest tests/core_phase0/test_decorators.py::TestTracedDecorator::test_async_decoration -v
+pytest tests/core/phase0/test_decorators.py::TestTracedDecorator::test_async_decoration -v
 ```
 
 **Context propagation issues:**
 ```bash
 # Проверьте header round-trip
-pytest tests/core_phase0/test_propagation.py::TestContextPropagation::test_inject_extract_headers -v
+pytest tests/core/phase0/test_propagation.py::TestContextPropagation::test_inject_extract_headers -v
 # Проверьте thread context
-pytest tests/core_phase0/test_propagation.py::TestContextPropagation::test_with_trace_context_wrapper -v
+pytest tests/core/phase0/test_propagation.py::TestContextPropagation::test_with_trace_context_wrapper -v
 ```
 
 **Log correlation issues:**
 ```bash
 # Проверьте trace context in logs
-pytest tests/core_phase0/test_logs.py::TestLogCorrelation::test_trace_context_in_logs -v
+pytest tests/core/phase0/test_logs.py::TestLogCorrelation::test_trace_context_in_logs -v
 # Проверьте context dict extraction
-pytest tests/core_phase0/test_logs.py::TestLogCorrelation::test_get_trace_context_dict -v
+pytest tests/core/phase0/test_logs.py::TestLogCorrelation::test_get_trace_context_dict -v
 ```
 
 **Integration workflow issues:**
 ```bash
 # Проверьте full workflow tracing
-pytest tests/core_phase0/test_observability.py::TestIntegrationScenarios::test_full_workflow_trace -v
+pytest tests/core/phase0/test_observability.py::TestIntegrationScenarios::test_full_workflow_trace -v
 # Проверьте span hierarchy
-pytest tests/core_phase0/test_observability.py::TestIntegrationScenarios::test_span_hierarchy -v
+pytest tests/core/phase0/test_observability.py::TestIntegrationScenarios::test_span_hierarchy -v
 ```

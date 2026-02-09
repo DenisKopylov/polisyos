@@ -4,7 +4,7 @@ import numpy as np
 import pytest
 
 from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
-from polisyos.foundry.methods.catalog.econometrics import (
+from polisyos.foundry.methods.econometrics import (
     TimeSeriesData,
     ensure_econometric_methods_registered,
 )

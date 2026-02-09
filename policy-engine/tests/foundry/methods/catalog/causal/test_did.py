@@ -4,7 +4,7 @@ import numpy as np
 import pytest
 
 from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
-from polisyos.foundry.methods.catalog.causal import (
+from polisyos.foundry.methods.causal import (
     PanelObservationalData,
     ensure_causal_methods_registered,
 )

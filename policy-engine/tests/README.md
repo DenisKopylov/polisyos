@@ -14,7 +14,7 @@ core → runtime → ir → fabric → foundry → scientist
 
 | Каталог | Файлов | ~Строк | Покрытие |
 |---------|-------:|-------:|----------|
-| `core_phase0/` | 21 | 2 500 | Artifact store, observability, signing, CLI |
+| `core/phase0/` | 21 | 2 500 | Artifact store, observability, signing, CLI |
 | `runtime/` | 3 | 180 | Replay verification, manifest paths |
 | `ir/` | 8 | 620 | Policy loaders, registry fragments, uncertainty |
 | `contract/` | 20 | 2 800 | IR-контракты, ABI-совместимость, миграции |
@@ -48,7 +48,7 @@ tests/
 │   ├── test_run_experiment_slo.py          # Experiment SLO
 │   └── ...                                 # kernel_models, migrations, slo_metrics и др.
 │
-├── core_phase0/                            # Базовые компоненты
+├── core/phase0/                            # Базовые компоненты
 │   ├── conftest.py                         # OTel in-memory exporter, CAS fixtures
 │   ├── test_artifact_store.py              # FileSystemCAS, дедупликация, integrity
 │   ├── test_store_signing.py               # Cryptographic signing артефактов
@@ -83,9 +83,9 @@ tests/
 │   ├── test_conflict_uncertainty_adapter.py # Conflict → uncertainty
 │   ├── test_quality_indicators.py         # Missingness, staleness, coverage
 │   ├── test_world_*.py                    # World store, materialization, Kuzu
-│   ├── test_normpack_phase17.py           # NormPack pipeline
-│   ├── test_legal_evaluation_phase18.py   # Legal evaluation
-│   ├── test_claims_pipeline_phase13.py    # Claims extraction
+│   ├── test_normpack.py           # NormPack pipeline
+│   ├── test_legal_evaluation.py   # Legal evaluation
+│   ├── test_claims_pipeline.py    # Claims extraction
 │   └── ...                                # lex_corpus, docs_pipeline, scholar
 │
 ├── foundry/                                # Simulation Engine
@@ -179,7 +179,7 @@ tests/
 │   ├── test_loaders.py                    # Policy loaders
 │   ├── test_trinity_loaders.py            # TrinityBundle loading
 │   ├── test_registry_fragments.py         # Fragment persistence
-│   ├── test_registry_fragments_components_phase19.py
+│   ├── test_registry_fragments_components.py
 │   ├── test_hte_backtest.py               # HTE result + backtest report persistence
 │   ├── test_uncertainty.py                # UncertaintyEnvelope, CAS round-trip
 │   └── test_queries_contracts.py          # Query contracts
@@ -224,7 +224,7 @@ tests/
 - **Gate protocol** — контракты fabric gates и foundry facades
 - **SLO contracts** — метрики и SLO для experiment runs, kernel models (slots, units, merge rules)
 
-### core_phase0/ — Базовые компоненты (21 файл)
+### core/phase0/ — Базовые компоненты (21 файл)
 
 Фундамент всей системы: immutable storage, cryptographic integrity, distributed observability.
 
@@ -354,7 +354,7 @@ logger.add(lambda msg: print(msg), level="ERROR")
 
 | Файл | Фикстуры |
 |------|----------|
-| `core_phase0/conftest.py` | OTel in-memory exporter, `FileSystemCAS`, `ProducerInfo`, singleton reset |
+| `core/phase0/conftest.py` | OTel in-memory exporter, `FileSystemCAS`, `ProducerInfo`, singleton reset |
 | `scientist/conftest.py` | OTel setup, `MetricsRegistry` reset |
 | `fabric/connectors/conftest.py` | Connector protocol fixtures |
 | `foundry/methods/conftest.py` | Shared units (UAH, kWh), slots (income, tax, effective_rate) |
@@ -389,7 +389,7 @@ pytest tests/foundry/test_calibrator_mvp.py -v --tb=long
 
 | Тесты | Исходный код |
 |-------|-------------|
-| `tests/core_phase0/` | `src/polisyos/core/` — artifacts, observability, contracts |
+| `tests/core/phase0/` | `src/polisyos/core/` — artifacts, observability, contracts |
 | `tests/contract/` | `src/polisyos/ir/` + `src/polisyos/core/contracts/` |
 | `tests/fabric/` | `src/polisyos/fabric/` — connectors, catalog, claims, world |
 | `tests/foundry/` | `src/polisyos/foundry/` — methods, calibration, agent_sim |

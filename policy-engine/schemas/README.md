@@ -126,13 +126,13 @@ schemas/
 
 1. Создать Pydantic-модель в `src/polisyos/ir/` с полем `schema_version`
 2. Добавить `ABIModelEntry` в `abi_models.py` (выбрать priority и compat_mode)
-3. Запустить `python3 tools/gen_schema.py`
+3. Запустить `python3 tools/diagnostics/gen_schema.py`
 4. Закоммитить сгенерированные файлы в `snapshots/`
 
 ### Изменение существующей модели
 
 1. Внести изменения в Pydantic-модель
-2. Запустить `python3 tools/gen_schema.py` — увидеть diff в снапшотах
+2. Запустить `python3 tools/diagnostics/gen_schema.py` — увидеть diff в снапшотах
 3. Если изменение breaking и модель P0 — поднять major-версию (`1.0` → `2.0`)
 4. Закоммитить обновлённые снапшоты
 
@@ -140,16 +140,16 @@ schemas/
 
 ```bash
 # Регенерация всех снапшотов
-python3 tools/gen_schema.py
+python3 tools/diagnostics/gen_schema.py
 
 # Проверка актуальности (pre-commit / CI)
-python3 tools/gen_schema.py --check
+python3 tools/diagnostics/gen_schema.py --check
 
 # Генерация для конкретных моделей
-python3 tools/gen_schema.py --models policy_spec trinity_bundle
+python3 tools/diagnostics/gen_schema.py --models policy_spec trinity_bundle
 
 # Семантический diff с baseline
-python3 tools/abi_diff.py --baseline schemas/snapshots --current /tmp/new_schemas
+python3 tools/diagnostics/abi_diff.py --baseline schemas/snapshots --current /tmp/new_schemas
 ```
 
 ## CI-интеграция
@@ -183,8 +183,8 @@ python3 tools/abi_diff.py --baseline schemas/snapshots --current /tmp/new_schema
 |--------|---------------|
 | `ir` | **Источник** — Pydantic-модели, из которых генерируются схемы |
 | `fabric/world` | **Источник** — ABI-перечисления (EdgeKind, NodeKind) |
-| `tools/gen_schema.py` | **Генератор** — создаёт снапшоты из реестра |
-| `tools/abi_diff.py` | **Валидатор** — семантический diff и breaking change detection |
+| `tools/diagnostics/gen_schema.py` | **Генератор** — создаёт снапшоты из реестра |
+| `tools/diagnostics/abi_diff.py` | **Валидатор** — семантический diff и breaking change detection |
 | `foundry` | **Потребитель** — компиляция и исполнение Trinity-артефактов |
 | `lex` | **Потребитель** — правовая оценка через PolicySpec |
 | `scientist` | **Потребитель** — LLM-дизайн политик через TrinityBundle |

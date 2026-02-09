@@ -7,7 +7,7 @@ from polisyos.common.logger import logger
 
 
 class SimulationDB:
-    def __init__(self, db_path: str = "simulation.duckdb"):
+    def __init__(self, db_path: str = "data/databases/simulation.duckdb"):
         self.db_path = db_path
         self.conn = duckdb.connect(db_path)
         self._setup_db()

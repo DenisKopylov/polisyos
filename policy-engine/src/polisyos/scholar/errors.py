@@ -25,9 +25,7 @@ class ScholarError(PolicyOSError):
             category=self.default_category,
             details=details,
         )
-        self.stage = stage or self.default_stage
         self.source_identity = source_identity
-        self.details = details or {}
 
 
 class ScholarValidationError(ScholarError):

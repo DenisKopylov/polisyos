@@ -233,13 +233,13 @@ def main() -> int:
                 [
                     "Examples:",
                     "    # Scan curated directory",
-                    "    python tools/scan_fabric.py data/curated/",
+                    "    python tools/diagnostics/scan_fabric.py data/curated/",
                     "",
                     "    # Output to specific file",
-                    "    python tools/scan_fabric.py data/curated/ -o contracts.json",
+                    "    python tools/diagnostics/scan_fabric.py data/curated/ -o contracts.json",
                     "",
                     "    # Scan with verbose output",
-                    "    python tools/scan_fabric.py data/curated/ -v",
+                    "    python tools/diagnostics/scan_fabric.py data/curated/ -v",
                 ]
             )
         ),
@@ -295,7 +295,7 @@ def main() -> int:
     output = {
         "schema_version": "1.0",
         "generated_at": datetime.now(timezone.utc).isoformat(),
-        "generated_by": "tools/scan_fabric.py",
+        "generated_by": "tools/diagnostics/scan_fabric.py",
         "contracts": all_contracts,
     }
 

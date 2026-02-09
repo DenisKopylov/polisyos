@@ -264,5 +264,5 @@ pytest tests/contract/test_ir_linker.py
 pytest tests/unit/test_ir_kernel_*.py
 
 # Генерация и проверка JSON-схем
-python tools/gen_schema.py --check --output-dir schemas/snapshots
+python tools/diagnostics/gen_schema.py --check --output-dir schemas/snapshots
 ```

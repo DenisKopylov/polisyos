@@ -21,16 +21,16 @@ jobs:
         run: |
           pip install -e ".[dev,test]"
       - name: Run import gate
-        run: python tools/lint_imports.py --policy import_policy.toml --exceptions import_exceptions.toml
+        run: python tools/lint/lint_imports.py --policy import_policy.toml --exceptions import_exceptions.toml
       - name: Run Foundry backend lint policy
-        run: python tools/lint_foundry.py --repo-root .
+        run: python tools/lint/lint_foundry.py --repo-root .
       - name: Check Scientist state_reads contract
-        run: python tools/check_state_reads.py
+        run: python tools/diagnostics/check_state_reads.py
       - name: Require Scientist node version bumps
-        run: python tools/check_scientist_node_version_bump.py
+        run: python tools/diagnostics/check_scientist_node_version_bump.py
       - name: Verify Scholar storage boundary
         run: python tools/lint/check_scholar_imports.py
       - name: Verify connector contracts
         run: python tools/connectors/check_contracts.py --check
       - name: Verify ABI schema snapshots
-        run: python3 tools/gen_schema.py --check
+        run: python3 tools/diagnostics/gen_schema.py --check

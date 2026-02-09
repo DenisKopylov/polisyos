@@ -2,35 +2,17 @@ from __future__ import annotations
 
 import contextlib
 from dataclasses import dataclass
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 import json
 import os
 from pathlib import Path
 from typing import Any
 
+from polisyos.common.timestamps import parse_iso_datetime, to_iso_utc, utc_now
 from polisyos.core.canon import content_hash
 
-
-def _utc_now() -> datetime:
-    return datetime.now(timezone.utc)
-
-
 def _serialize_datetime(value: datetime | None) -> str | None:
-    if value is None:
-        return None
-    if value.tzinfo is None:
-        value = value.replace(tzinfo=timezone.utc)
-    return value.astimezone(timezone.utc).isoformat().replace("+00:00", "Z")
-
-
-def _parse_datetime(value: Any) -> datetime | None:
-    if not isinstance(value, str):
-        return None
-    normalized = value[:-1] + "+00:00" if value.endswith("Z") else value
-    try:
-        return datetime.fromisoformat(normalized)
-    except ValueError:
-        return None
+    return to_iso_utc(value) if value is not None else None
 
 
 @dataclass(frozen=True)
@@ -103,9 +85,9 @@ class FreshnessStateStore:
         if not isinstance(payload, dict):
             return FreshnessRuntimeState()
         return FreshnessRuntimeState(
-            last_checked_at=_parse_datetime(payload.get("last_checked_at")),
-            last_refresh_attempt_at=_parse_datetime(payload.get("last_refresh_attempt_at")),
-            next_retry_at=_parse_datetime(payload.get("next_retry_at")),
+            last_checked_at=parse_iso_datetime(payload.get("last_checked_at")),
+            last_refresh_attempt_at=parse_iso_datetime(payload.get("last_refresh_attempt_at")),
+            next_retry_at=parse_iso_datetime(payload.get("next_retry_at")),
             failed_refresh_count=max(0, int(payload.get("failed_refresh_count", 0) or 0)),
         )
 
@@ -125,7 +107,7 @@ class FreshnessStateStore:
         temp.replace(path)
 
     def record_check(self, key: str, *, now: datetime | None = None) -> FreshnessRuntimeState:
-        now_utc = now or _utc_now()
+        now_utc = now or utc_now()
         current = self.load(key)
         updated = FreshnessRuntimeState(
             last_checked_at=now_utc,
@@ -142,7 +124,7 @@ class FreshnessStateStore:
         *,
         now: datetime | None = None,
     ) -> FreshnessRuntimeState:
-        now_utc = now or _utc_now()
+        now_utc = now or utc_now()
         current = self.load(key)
         updated = FreshnessRuntimeState(
             last_checked_at=now_utc,
@@ -159,7 +141,7 @@ class FreshnessStateStore:
         *,
         now: datetime | None = None,
     ) -> FreshnessRuntimeState:
-        now_utc = now or _utc_now()
+        now_utc = now or utc_now()
         updated = FreshnessRuntimeState(
             last_checked_at=now_utc,
             last_refresh_attempt_at=now_utc,
@@ -176,7 +158,7 @@ class FreshnessStateStore:
         cooldown_seconds: int,
         now: datetime | None = None,
     ) -> FreshnessRuntimeState:
-        now_utc = now or _utc_now()
+        now_utc = now or utc_now()
         current = self.load(key)
         cooldown = max(0, int(cooldown_seconds))
         next_retry = now_utc + timedelta(seconds=cooldown) if cooldown > 0 else now_utc
@@ -201,7 +183,7 @@ class FreshnessStateStore:
             payload = {
                 "key": key,
                 "pid": os.getpid(),
-                "acquired_at": _serialize_datetime(_utc_now()),
+                "acquired_at": _serialize_datetime(utc_now()),
             }
             os.write(fd, json.dumps(payload, sort_keys=True).encode("utf-8"))
             os.fsync(fd)
@@ -212,7 +194,7 @@ class FreshnessStateStore:
             return lock
 
         if ttl_seconds > 0 and path.exists():
-            age = _utc_now().timestamp() - path.stat().st_mtime
+            age = utc_now().timestamp() - path.stat().st_mtime
             if age > float(ttl_seconds):
                 with contextlib.suppress(FileNotFoundError):
                     path.unlink()

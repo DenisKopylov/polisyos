@@ -25,8 +25,8 @@ Scientist DAG содержит дорогостоящие и нестабиль�
 4. Восстанавливать cache index при restart того же `run_id` через replay `NODE_CACHE_STORE` из trace JSONL.
 5. Не кэшировать outcomes со статусом `fail`.
 6. Добавить CI guards:
-   - `tools/check_state_reads.py`,
-   - `tools/check_scientist_node_version_bump.py`.
+   - `tools/diagnostics/check_state_reads.py`,
+   - `tools/diagnostics/check_scientist_node_version_bump.py`.
 
 ## Последствия
 

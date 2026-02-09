@@ -3,7 +3,7 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from polisyos.foundry.methods.catalog.causal.protocols import (
+from polisyos.foundry.methods.causal.protocols import (
     HTEObservationalData,
     PanelObservationalData,
     RDDObservationalData,

@@ -82,7 +82,7 @@ at registration time. Return `ValidationResult.success()` or a result with issue
 Before committing, verify your connector respects the architectural Laws:
 
 ```bash
-python tools/lint_connectors.py
+python tools/lint/lint_connectors.py
 ```
 
 This checks that your code does **not** import from:

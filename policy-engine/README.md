@@ -64,8 +64,8 @@ Also:
 
 ## Project laws (invariants)
 
-- **Law A — Import Gate:** dependencies go “down” the stack; cycles are forbidden (enforced by `tools/lint_imports.py`).
-- **Law B — Foundry is pure JAX:** no DB/network/file I/O in the execution core (enforced by `tools/lint_foundry.py`).
+- **Law A — Import Gate:** dependencies go "down" the stack; cycles are forbidden (enforced by `tools/lint/lint_imports.py`).
+- **Law B — Foundry is pure JAX:** no DB/network/file I/O in the execution core (enforced by `tools/lint/lint_foundry.py`).
 - **Law C — Contracts are source of truth:** IR + typed inter-module contracts define canonical data; JSON Schemas are generated from them.
 - **Law D — Reproducibility:** every run is auditable; artifacts are content-addressed; determinism is tracked (environment fingerprints/manifests).
 - **Law E — Evidence & provenance:** data products carry evidence/provenance; fact log can materialize immutable audit trails.
@@ -146,10 +146,10 @@ uv run python tools/diagnostics/check_perf_regression.py results.json
 See `tools/README.md` for the full catalog. Frequently used:
 
 ```bash
-uv run python tools/lint_imports.py
-uv run python tools/lint_foundry.py
-uv run python tools/lint_connectors.py
-uv run python tools/gen_schema.py --check
+uv run python tools/lint/lint_imports.py
+uv run python tools/lint/lint_foundry.py
+uv run python tools/lint/lint_connectors.py
+uv run python tools/diagnostics/gen_schema.py --check
 uv run python tools/migrate_to_trinity.py --help
 ```
 

@@ -26,10 +26,8 @@ class LexError(PolicyOSError):
             category=self.default_category,
             details=details,
         )
-        self.stage = stage or self.default_stage
         self.doc_source_id = doc_source_id
         self.doc_version_id = doc_version_id
-        self.details = details or {}
 
 
 class LexValidationError(LexError):

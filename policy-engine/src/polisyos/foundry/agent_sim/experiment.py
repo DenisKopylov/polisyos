@@ -11,6 +11,7 @@ import equinox as eqx
 import jax
 import jax.numpy as jnp
 
+from polisyos.common.serialization import stable_json_dumps, to_python_data
 from polisyos.core.canon import truncated_hash
 
 
@@ -40,7 +41,7 @@ class ExperimentConfig:
         return cls(**data)
 
     def config_hash(self) -> str:
-        config_str = json.dumps(self.to_dict(), sort_keys=True, default=_json_default)
+        config_str = stable_json_dumps(self.to_dict(), sort_keys=True, ensure_ascii=False)
         return truncated_hash(config_str, length=12)
 
 
@@ -103,21 +104,11 @@ class ExperimentTracker:
         )
 
     def register_run(self, run: ExperimentRun, result: ExperimentResult) -> None:
-        def _to_jsonable(value: Any):
-            if isinstance(value, jnp.ndarray):
-                return value.tolist()
-            if isinstance(value, (float, int)):
-                return float(value)
-            if isinstance(value, (list, tuple)):
-                return [
-                    float(v) if isinstance(v, (float, int, jnp.ndarray)) else v
-                    for v in value
-                ]
-            return value
-
         self.index["experiments"][run.run_id] = {
             "config": result.config.to_dict(),
-            "metrics": {k: _to_jsonable(v) for k, v in result.metrics.items()},
+            "metrics": {
+                k: to_python_data(v, sort_keys=True) for k, v in result.metrics.items()
+            },
             "duration": result.duration_seconds,
             "path": str(run.run_dir),
         }

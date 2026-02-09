@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from polisyos.foundry.methods.catalog.optimization import ensure_optimization_methods_registered
+from polisyos.foundry.methods.optimization import ensure_optimization_methods_registered
 from polisyos.foundry.methods.registry import MethodRegistry
 
 

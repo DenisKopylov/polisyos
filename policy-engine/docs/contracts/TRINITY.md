@@ -128,7 +128,7 @@ surface_ir, report = migrate_trinity_to_surface_ir(bundle)
 ```
 
 ## JSON Schema Snapshots
-Schema snapshots are generated via `tools/gen_schema.py` and stored under `schemas/snapshots/ir/`:
+Schema snapshots are generated via `tools/diagnostics/gen_schema.py` and stored under `schemas/snapshots/ir/`:
 - `trinity_bundle.schema.json`
 - `problem_frame.schema.json`
 - `policy_spec.schema.json`

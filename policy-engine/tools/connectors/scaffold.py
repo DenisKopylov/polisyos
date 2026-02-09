@@ -296,7 +296,7 @@ def _create(args: argparse.Namespace) -> int:
     print(f"   ID     : custom.{snake}")
     print("\nNext steps:")
     print(f"   1. Fill in the TODO sections in {source_path.name}")
-    print("   2. Run: python tools/lint_connectors.py")
+    print("   2. Run: python tools/lint/lint_connectors.py")
     print(f"   3. Run: pytest {test_path} -v")
     print("   4. Register in ConnectorRegistry (see docs/connectors/CONTRIBUTING.md)")
     return 0

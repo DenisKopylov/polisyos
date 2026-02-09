@@ -6,7 +6,7 @@ from typing import Any
 from polisyos.core.artifacts.manifest import InputRef
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
-from polisyos.foundry.methods.catalog.causal import (
+from polisyos.foundry.methods.causal import (
     HTEObservationalData,
     PanelObservationalData,
     RDDObservationalData,

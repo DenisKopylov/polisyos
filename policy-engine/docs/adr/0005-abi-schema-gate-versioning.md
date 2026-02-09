@@ -10,7 +10,7 @@
 
 До внедрения этого ADR:
 
-- `tools/gen_schema.py` был одиночным и ориентирован на устаревший `PolicySurfaceIR`.
+- `tools/diagnostics/gen_schema.py` был одиночным и ориентирован на устаревший `PolicySurfaceIR`.
 - Отсутствовал семантический diff breaking/non-breaking.
 - Не было автоматической проверки корректного version bump при breaking-изменениях.
 
@@ -18,11 +18,11 @@
 
 1. Реестр ABI-моделей хранится в `schemas/abi_models.py`.
 2. Snapshot-артефакты хранятся в `schemas/snapshots/{ir,fabric}` с `_manifest.json`.
-3. `tools/gen_schema.py`:
+3. `tools/diagnostics/gen_schema.py`:
    - генерирует snapshots по ABI registry,
    - поддерживает `--check`,
    - пишет manifest с полями `priority`, `compat_mode`, `schema_version`, `sha256_full`, `sha256_semantic`.
-4. `tools/abi_diff.py`:
+4. `tools/diagnostics/abi_diff.py`:
    - строит семантический diff,
    - классифицирует изменения,
    - проверяет major bump при breaking (`p0`),

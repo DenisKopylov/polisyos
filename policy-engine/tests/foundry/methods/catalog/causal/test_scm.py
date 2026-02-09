@@ -5,7 +5,7 @@ import pytest
 
 from polisyos.core.observability.determinism import DeterminismTier
 from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
-from polisyos.foundry.methods.catalog.causal import (
+from polisyos.foundry.methods.causal import (
     PanelObservationalData,
     ensure_causal_methods_registered,
 )

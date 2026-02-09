@@ -472,9 +472,9 @@ ID = SHA256(содержимое). Неизменяемость, дедупли�
 
 | Закон | Принцип | Enforcement |
 |-------|---------|-------------|
-| **A — Import Gate** | Зависимости строго «вниз» по стеку; циклы запрещены | `tools/lint_imports.py` |
-| **B — Foundry is Pure JAX** | Никаких БД/сетей/файлов в execution core | `tools/lint_foundry.py` |
-| **C — Contracts as Source of Truth** | IR + typed контракты определяют canonical data; JSON Schemas генерируются из них | `tools/gen_schema.py --check` |
+| **A — Import Gate** | Зависимости строго «вниз» по стеку; циклы запрещены | `tools/lint/lint_imports.py` |
+| **B — Foundry is Pure JAX** | Никаких БД/сетей/файлов в execution core | `tools/lint/lint_foundry.py` |
+| **C — Contracts as Source of Truth** | IR + typed контракты определяют canonical data; JSON Schemas генерируются из них | `tools/diagnostics/gen_schema.py --check` |
 | **D — Reproducibility** | Каждый run аудируем; артефакты content-addressed; determinism tracked | Runtime manifests, CAS |
 | **E — Evidence & Provenance** | Data products несут evidence/provenance; Fact Log immutable | W3C PROV-O |
 | **K — Quality Gates** | Некачественные или policy-violating данные блокируются до execution | Governance passes |
@@ -596,10 +596,10 @@ uv run python tools/diagnostics/check_perf_regression.py results.json
 
 | Инструмент | Назначение |
 |-----------|-----------|
-| `tools/lint_imports.py` | Валидация Law A (однонаправленные зависимости) |
-| `tools/lint_foundry.py` | Валидация Law B (Foundry без I/O) |
-| `tools/lint_connectors.py` | Валидация коннекторов |
-| `tools/gen_schema.py` | Генерация/проверка JSON Schema из IR-моделей |
+| `tools/lint/lint_imports.py` | Валидация Law A (однонаправленные зависимости) |
+| `tools/lint/lint_foundry.py` | Валидация Law B (Foundry без I/O) |
+| `tools/lint/lint_connectors.py` | Валидация коннекторов |
+| `tools/diagnostics/gen_schema.py` | Генерация/проверка JSON Schema из IR-моделей |
 | `tools/migrate_to_trinity.py` | Миграция артефактов |
 | `tools/diagnostics/check_setup.py` | Проверка установки |
 | `tools/diagnostics/check_perf_regression.py` | Performance regression |

@@ -9,8 +9,8 @@ on:
       - 'src/polisyos/core/canon/**'
       - 'src/polisyos/core/artifacts/**'
       - 'schemas/**'
-      - 'tools/gen_schema.py'
-      - 'tools/abi_diff.py'
+      - 'tools/diagnostics/gen_schema.py'
+      - 'tools/diagnostics/abi_diff.py'
 
 permissions:
   contents: read
@@ -44,7 +44,7 @@ jobs:
 
       - name: Generate current snapshots
         run: |
-          python3 tools/gen_schema.py --output-dir /tmp/current_schemas
+          python3 tools/diagnostics/gen_schema.py --output-dir /tmp/current_schemas
 
       - name: Extract baseline snapshots from base branch
         env:
@@ -62,7 +62,7 @@ jobs:
         id: abi_diff
         run: |
           set +e
-          python3 tools/abi_diff.py \
+          python3 tools/diagnostics/abi_diff.py \
             --baseline /tmp/baseline_schemas \
             --current /tmp/current_schemas \
             --output /tmp/abi_report.json \
@@ -93,7 +93,7 @@ jobs:
 
       - name: Verify committed snapshots are up-to-date
         run: |
-          python3 tools/gen_schema.py --check
+          python3 tools/diagnostics/gen_schema.py --check
 
       - name: Fail on blocking ABI verdict
         if: steps.abi_diff.outputs.verdict == 'FAIL'

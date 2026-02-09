@@ -618,7 +618,7 @@ class CustomValidator(DataQualityValidator):
 ### Инструменты и демо
 - [Fabric Layer Documentation](../src/polisyos/fabric/README.md)
 - [Data Diagnostics](../tools/diagnostics/check_setup.py)
-- [Schema Generation](../tools/gen_schema.py)
+- [Schema Generation](../tools/diagnostics/gen_schema.py)
 
 ### Спецификации
 - [Policy IR Schema](../../schemas/snapshots/ir/trinity_bundle.schema.json)

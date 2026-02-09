@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from polisyos.foundry.methods.catalog.econometrics import ensure_econometric_methods_registered
+from polisyos.foundry.methods.econometrics import ensure_econometric_methods_registered
 from polisyos.foundry.methods.registry import MethodRegistry
 
 

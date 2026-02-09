@@ -30,7 +30,7 @@
    - выбор компилятора **по kind входного ref** (`ir.policy_surface` vs `ir.trinity_bundle`) или явному `input_kind`.
 
 4) **“До зелёного” по зависимостям**:
-   - import gate (`tools/lint_imports.py` + `import_policy.toml`) зелёный
+   - import gate (`tools/lint/lint_imports.py` + `import_policy.toml`) зелёный
    - внутри Foundry нет импортов `polisyos.scientist.*` и реализаций `polisyos.fabric.*` (контракты `core.contracts.fabric` разрешены).
 
 ---
@@ -39,7 +39,7 @@
 
 ### 1.1 Import gate / Dependency-guard
 
-Источник правды: `policy-engine/docs/adr/0004-architecture-boundaries-import-gate.md`, `policy-engine/import_policy.toml`, `policy-engine/tools/lint_imports.py`, тест `policy-engine/tests/test_arch_import_gate.py`.
+Источник правды: `policy-engine/docs/adr/0004-architecture-boundaries-import-gate.md`, `policy-engine/import_policy.toml`, `policy-engine/tools/lint/lint_imports.py`, тест `policy-engine/tests/test_arch_import_gate.py`.
 
 Текущее правило: `foundry` может импортировать только `foundry|core|ir|common` (см. `import_policy.toml`).
 

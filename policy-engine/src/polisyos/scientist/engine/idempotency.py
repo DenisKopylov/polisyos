@@ -2,12 +2,14 @@ from __future__ import annotations
 
 import json
 from collections import OrderedDict
-from datetime import datetime, timezone
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from polisyos.common.serialization import to_python_data
+from polisyos.common.timestamps import utc_now
 from polisyos.core.artifacts.manifest import ArtifactRef, ProducerInfo, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec, content_hash, from_canonical_bytes, to_canonical_bytes
@@ -24,10 +26,6 @@ _IDEM_CANON = CanonSpec(
 )
 
 
-def _utc_now() -> datetime:
-    return datetime.now(timezone.utc).replace(microsecond=0)
-
-
 class NodeCacheEntry(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -36,7 +34,7 @@ class NodeCacheEntry(BaseModel):
     node_id: str
     idempotency_key: str = Field(..., min_length=64, max_length=64)
     outcome_ref: ArtifactRef
-    created_at: datetime = Field(default_factory=_utc_now)
+    created_at: datetime = Field(default_factory=lambda: utc_now(drop_microseconds=True))
 
 
 def _resolve_path(state: ExperimentState, path: str) -> Any:
@@ -52,21 +50,6 @@ def _resolve_path(state: ExperimentState, path: str) -> Any:
     return current
 
 
-def _serialize_value(value: Any) -> Any:
-    if value is None:
-        return None
-    if isinstance(value, BaseModel):
-        payload = value.model_dump(mode="python", by_alias=True, exclude_none=False)
-        return _serialize_value(payload)
-    if isinstance(value, dict):
-        return {k: _serialize_value(v) for k, v in sorted(value.items())}
-    if isinstance(value, (list, tuple)):
-        return [_serialize_value(v) for v in value]
-    if isinstance(value, set):
-        return [_serialize_value(v) for v in sorted(value)]
-    return value
-
-
 def extract_state_slice(
     state: ExperimentState,
     state_reads: list[str],
@@ -74,13 +57,13 @@ def extract_state_slice(
     slice_data: dict[str, Any] = {}
     for read_path in sorted(state_reads):
         value = _resolve_path(state, read_path)
-        slice_data[read_path] = _serialize_value(value)
+        slice_data[read_path] = to_python_data(value, sort_keys=True)
     return slice_data
 
 
 def _normalize_bind_params(bind_params: dict[str, Any] | None) -> dict[str, Any]:
     params = bind_params or {}
-    return {k: _serialize_value(v) for k, v in sorted(params.items())}
+    return {k: to_python_data(v, sort_keys=True) for k, v in sorted(params.items())}
 
 
 def compute_idempotency_payload(

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from polisyos.foundry.methods.catalog.causal import ensure_causal_methods_registered
+from polisyos.foundry.methods.causal import ensure_causal_methods_registered
 from polisyos.foundry.methods.registry import MethodRegistry
 
 

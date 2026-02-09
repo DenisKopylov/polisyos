@@ -18,7 +18,8 @@ st.title("🏛️ Policy Engine: Decision Control Plane")
 # 1. Подключение к БД
 @st.cache_resource
 def get_connection():
-    return duckdb.connect("simulation.duckdb", read_only=True)
+    db_path = REPO_ROOT / "data" / "databases" / "simulation.duckdb"
+    return duckdb.connect(str(db_path), read_only=True)
 
 
 try:

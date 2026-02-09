@@ -78,7 +78,7 @@ class DataContractRegistry:
         if not self.contracts_path.exists():
             logger.warning(
                 f"No data contracts file found at {self.contracts_path}. "
-                "Run `python tools/scan_fabric.py` to generate draft contracts."
+                "Run `python tools/diagnostics/scan_fabric.py` to generate draft contracts."
             )
             return
 

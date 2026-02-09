@@ -7,7 +7,9 @@ from pathlib import Path
 
 def test_arch_import_gate() -> None:
     repo_root = Path(__file__).resolve().parents[1]
-    script = repo_root / "tools" / "lint_imports.py"
+    script = repo_root / "tools" / "lint" / "lint_imports.py"
+    if not script.exists():
+        script = repo_root / "tools" / "lint_imports.py"
     policy = repo_root / "import_policy.toml"
     exceptions = repo_root / "import_exceptions.toml"
 
@@ -23,6 +25,7 @@ def test_arch_import_gate() -> None:
         capture_output=True,
         text=True,
         check=False,
+        cwd=repo_root,
     )
 
     assert result.returncode == 0, (

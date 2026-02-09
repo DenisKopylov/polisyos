@@ -37,18 +37,18 @@ fabric/
 ├── test_provenance.py             # Provenance subsystem, entities, graphs, PROV-O export, persistence
 ├── test_trust_two_pass.py         # Trust system, uncertainty bounds, двухпроходное сравнение
 ├── test_quality_indicators.py     # Quality indicators system, fitness reports, quality gate pass integration
-├── test_claims_pipeline_phase13.py # Claims pipeline Phase 13
-├── test_conflicts_phase14.py      # Conflicts Phase 14
-├── test_docs_pipeline_phase12.py # Docs pipeline Phase 12
-├── test_legal_evaluation_phase18.py # Legal evaluation Phase 18
-├── test_lex_corpus_phase16.py     # Lex corpus Phase 16
-├── test_normpack_phase17.py       # NormPack Phase 17
-├── test_scholar_extractor_components_phase19.py # Scholar extractor Phase 19
-├── test_scholar_mvp_phase15.py     # Scholar MVP Phase 15
-├── test_trust_phase14.py          # Trust Phase 14
-├── test_world_kuzu_phase11.py     # World Kuzu Phase 11
-├── test_world_materialization_phase10.py # World materialization Phase 10
-└── test_world_store_phase9.py      # World store Phase 9
+├── test_claims_pipeline.py # Claims pipeline Phase 13
+├── test_conflicts.py      # Conflicts Phase 14
+├── test_docs_pipeline.py # Docs pipeline Phase 12
+├── test_legal_evaluation.py # Legal evaluation Phase 18
+├── test_lex_corpus.py     # Lex corpus Phase 16
+├── test_normpack.py       # NormPack Phase 17
+├── test_scholar_extractor_components.py # Scholar extractor Phase 19
+├── test_scholar_mvp.py     # Scholar MVP Phase 15
+├── test_trust.py          # Trust Phase 14
+├── test_world_kuzu.py     # World Kuzu Phase 11
+├── test_world_materialization.py # World materialization Phase 10
+└── test_world_store.py      # World store Phase 9
 ```
 
 ## Категории тестов

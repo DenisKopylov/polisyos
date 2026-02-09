@@ -3,12 +3,10 @@ from __future__ import annotations
 import json
 import os
 from dataclasses import dataclass
-from enum import Enum
 from pathlib import Path
 from typing import Any, Mapping
 
 import numpy as np
-from pydantic import BaseModel
 
 try:  # pragma: no cover - optional dependency for local/dev environments
     import jax
@@ -17,6 +15,7 @@ except ModuleNotFoundError:  # pragma: no cover
     jax = None  # type: ignore[assignment]
     jnp = np  # type: ignore[assignment]
 
+from polisyos.common.serialization import to_python_data
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec
@@ -140,7 +139,7 @@ class MethodBackend:
             seed=seed,
         )
 
-        result_payload = _to_jsonable(method_result.output)
+        result_payload = to_python_data(method_result.output, sort_keys=True)
         result_inputs: list[InputRef] = []
         for slot_name, ref in sorted((input_refs or {}).items(), key=lambda kv: kv[0]):
             result_inputs.append(InputRef(artifact_id=ref.artifact_id, role=f"input:{slot_name}"))
@@ -182,7 +181,7 @@ class MethodBackend:
                 "note": method_result.reproducibility.note,
             },
             "warnings": list(method_result.warnings),
-            "artifacts": _to_jsonable(method_result.artifacts),
+            "artifacts": to_python_data(method_result.artifacts, sort_keys=True),
             "result_ref": str(result_ref.artifact_id),
         }
         evidence_ref = store.put_json(
@@ -255,27 +254,6 @@ def _load_input_refs(cas_root: Path, input_refs: Mapping[str, ArtifactRef]) -> A
         payload = store.get_bytes(ref.artifact_id)
         loaded[slot_name] = json.loads(payload.decode("utf-8"))
     return loaded
-
-
-def _to_jsonable(value: Any) -> Any:
-    if isinstance(value, dict):
-        return {str(k): _to_jsonable(v) for k, v in value.items()}
-    if isinstance(value, (list, tuple)):
-        return [_to_jsonable(v) for v in value]
-    if isinstance(value, BaseModel):
-        return value.model_dump(mode="json")
-    if isinstance(value, Enum):
-        return value.value
-    if isinstance(value, np.ndarray):
-        return value.tolist()
-    if isinstance(value, np.generic):
-        return value.item()
-    if hasattr(value, "tolist") and callable(value.tolist):
-        try:
-            return value.tolist()
-        except Exception:
-            pass
-    return value
 
 
 def _run_legacy_job(

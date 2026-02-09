@@ -9,8 +9,8 @@ from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
-from polisyos.foundry.methods.catalog.causal import PanelObservationalData
-from polisyos.foundry.methods.catalog.causal.protocols import HTEObservationalData
+from polisyos.foundry.methods.causal import PanelObservationalData
+from polisyos.foundry.methods.causal.protocols import HTEObservationalData
 from polisyos.ir.analytics.causal import CausalEffectReport, CausalMethod, EstimationStatus
 from polisyos.ir.analytics.hte import HTEResult
 from polisyos.scientist.compute.job_spec import JobKey, JobResult

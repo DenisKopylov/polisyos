@@ -16,8 +16,8 @@ from polisyos.core.contracts.foundry import (
 from polisyos.core.registry import load_registry_bundle_content
 from polisyos.foundry.conflict_checker import CompileTimeConflictChecker
 from polisyos.foundry.cost_model import CostBudget, CostModel
+from polisyos.foundry.domain.mechanisms import build_treasury_plan
 from polisyos.foundry.layout import build_slot_layout
-from polisyos.foundry.treasury import build_treasury_plan
 from polisyos.ir.linker import link_trinity
 from polisyos.ir.registry_fragments import RegistryBundle
 from polisyos.ir.trinity import TrinityBundle

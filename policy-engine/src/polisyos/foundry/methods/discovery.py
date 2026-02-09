@@ -14,19 +14,22 @@ Architecture Notes:
 from __future__ import annotations
 
 import contextlib
-import hashlib
 import importlib
 import importlib.metadata
 import inspect
 import logging
 import sys
-import traceback
 from dataclasses import dataclass, field
-from enum import Enum
 from pathlib import Path
 from types import ModuleType
 from typing import Any, Callable, Iterable, Iterator, Protocol, Sequence
 
+from polisyos.core.discovery import (
+    BaseDiscovery,
+    DuplicatePolicy,
+    discovery_module_name,
+    format_traceback,
+)
 from polisyos.foundry.methods.base import (
     FoundryMethod,
     MethodMetadata,
@@ -65,19 +68,6 @@ DISCOVERY_MODULE_PREFIX = "_polisyos_discovery_"
 """Prefix for dynamically imported dev-scan modules."""
 
 _logger = logging.getLogger(__name__)
-
-
-# =============================================================================
-# Discovery Report and Errors
-# =============================================================================
-
-
-class DuplicatePolicy(str, Enum):
-    """Policy for handling duplicate registrations during discovery."""
-
-    WARN = "warn"
-    ERROR = "error"
-    IGNORE = "ignore"
 
 
 @dataclass(slots=True)
@@ -292,7 +282,7 @@ class EntryPointSource:
                         item=ep.name,
                         error_type=type(exc).__name__,
                         message=str(exc),
-                        traceback=traceback.format_exc(),
+                        traceback=format_traceback(),
                         module_name=getattr(ep, "value", None),
                         entry_point=ep.name,
                     )
@@ -310,7 +300,10 @@ class EntryPointSource:
             entries = list(eps)
         except TypeError:
             all_eps = importlib.metadata.entry_points()
-            entries = list(all_eps.get(self._group, []))
+            if hasattr(all_eps, "select"):
+                entries = list(all_eps.select(group=self._group))
+            else:
+                entries = list(all_eps.get(self._group, []))
 
         return sorted(entries, key=lambda ep: (ep.name, ep.value))
 
@@ -452,7 +445,7 @@ class FileSystemSource:
                                 item=str(py_file),
                                 error_type=type(exc).__name__,
                                 message=f"{exc.msg} (line {exc.lineno or 0})",
-                                traceback=traceback.format_exc(),
+                                traceback=format_traceback(),
                                 file_path=str(py_file),
                             )
                         )
@@ -469,7 +462,7 @@ class FileSystemSource:
                                 item=str(py_file),
                                 error_type=type(exc).__name__,
                                 message=str(exc),
-                                traceback=traceback.format_exc(),
+                                traceback=format_traceback(),
                                 file_path=str(py_file),
                             )
                         )
@@ -481,7 +474,7 @@ class FileSystemSource:
                                 item=str(py_file),
                                 error_type=type(exc).__name__,
                                 message=str(exc),
-                                traceback=traceback.format_exc(),
+                                traceback=format_traceback(),
                                 file_path=str(py_file),
                             )
                         )
@@ -549,8 +542,12 @@ class FileSystemSource:
         if key in self._prefix_map:
             return self._prefix_map[key]
 
-        digest = hashlib.sha1(str(key).encode("utf-8")).hexdigest()[:10]
-        prefix = f"{DISCOVERY_MODULE_PREFIX}{digest}"
+        prefix = discovery_module_name(
+            key,
+            prefix=DISCOVERY_MODULE_PREFIX,
+            algorithm="sha1",
+            digest_length=10,
+        )
         self._prefix_map[key] = prefix
         return prefix
 
@@ -650,11 +647,23 @@ class MethodDiscovery:
 
     def discover_all(self, *, cleanup_modules: bool = False) -> DiscoveryReport:
         report = DiscoveryReport()
+        collector = BaseDiscovery[type[FoundryMethod], DiscoveryError](
+            sources=self._sources,
+            on_source_error=lambda source, exc: DiscoveryError(
+                source="source",
+                item=type(source).__name__,
+                error_type=type(exc).__name__,
+                message=str(exc),
+                traceback=format_traceback(),
+            ),
+        )
+        batches, sources_processed = collector.collect()
+        report.sources_processed = sources_processed
 
-        for source in self._sources:
-            report.sources_processed += 1
-            source_report = self._process_source(source)
-            report.merge(source_report)
+        for batch in batches:
+            for method_class in batch.items:
+                self._register_method(method_class, report)
+            report.errors.extend(batch.errors)
 
         if report.total_registered > 0:
             _logger.info(
@@ -682,7 +691,7 @@ class MethodDiscovery:
                     item=type(source).__name__,
                     error_type=type(exc).__name__,
                     message=str(exc),
-                    traceback=traceback.format_exc(),
+                    traceback=format_traceback(),
                 )
             )
             _logger.error("Source error (%s): %s", type(source).__name__, exc)
@@ -726,7 +735,7 @@ class MethodDiscovery:
                     item=fqn,
                     error_type=type(exc).__name__,
                     message=str(exc),
-                    traceback=traceback.format_exc(),
+                    traceback=format_traceback(),
                 )
             )
             _logger.error("Failed to register %s: %s", fqn, exc)

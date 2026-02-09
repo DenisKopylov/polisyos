@@ -9,22 +9,30 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Dict, Iterator
+from typing import Iterator
 
 from pydantic import ValidationError
 
 from polisyos.common.logger import logger
+from polisyos.core.errors import ErrorCategory, PolicyOSError
+from polisyos.core.registry.generic import GenericRegistry
 
 from .binding import MetricBinding
 from .contract import DataContract, DataContractCollection
 
 
-class ContractNotFoundError(Exception):
+class ContractNotFoundError(PolicyOSError):
     """Raised when a metric contract is not found."""
 
+    default_stage = "fabric.catalog"
+    default_category = ErrorCategory.VALIDATION
 
-class ContractHashMismatchError(Exception):
+
+class ContractHashMismatchError(PolicyOSError):
     """Raised when a binding's hash doesn't match the current contract."""
+
+    default_stage = "fabric.catalog"
+    default_category = ErrorCategory.VALIDATION
 
 
 class DataContractRegistry:
@@ -58,8 +66,8 @@ class DataContractRegistry:
         self.contracts_path = curated_dir / filename
         self._strict = strict
 
-        self._contracts: Dict[str, DataContract] = {}
-        self._bindings_cache: Dict[str, MetricBinding] = {}
+        self._contracts = GenericRegistry[str, DataContract](key_fn=lambda contract: contract.metric_id)
+        self._bindings_cache: dict[str, MetricBinding] = {}
         self._collection: DataContractCollection | None = None
 
         self._load_contracts()
@@ -91,10 +99,10 @@ class DataContractRegistry:
             return
 
         for contract in self._collection.contracts:
-            self._contracts[contract.metric_id] = contract
+            self._contracts.register(contract, override=True)
 
         logger.info(
-            f"Loaded {len(self._contracts)} data contracts from {self.contracts_path}"
+            f"Loaded {self._contracts.count} data contracts from {self.contracts_path}"
         )
 
     def get(self, metric_id: str) -> DataContract:
@@ -111,12 +119,13 @@ class DataContractRegistry:
             ContractNotFoundError: If metric_id not found
         """
 
-        if metric_id not in self._contracts:
+        contract = self._contracts.get(metric_id)
+        if contract is None:
             raise ContractNotFoundError(
                 f"No contract found for metric_id '{metric_id}'. "
-                f"Available: {list(self._contracts.keys())[:5]}..."
+                f"Available: {self.list_all()[:5]}..."
             )
-        return self._contracts[metric_id]
+        return contract
 
     def get_binding(self, metric_id: str) -> MetricBinding:
         """
@@ -164,17 +173,17 @@ class DataContractRegistry:
     def list_all(self) -> list[str]:
         """Return all metric_ids in the registry."""
 
-        return list(self._contracts.keys())
+        return self._contracts.keys()
 
     def __contains__(self, metric_id: str) -> bool:
         """Check if a metric_id exists in the registry."""
 
-        return metric_id in self._contracts
+        return self._contracts.get(metric_id) is not None
 
     def __len__(self) -> int:
         """Return number of contracts in the registry."""
 
-        return len(self._contracts)
+        return self._contracts.count
 
     def __iter__(self) -> Iterator[DataContract]:
         """Iterate over all contracts."""

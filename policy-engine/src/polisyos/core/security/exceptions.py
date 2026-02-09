@@ -1,8 +1,13 @@
 """Security exception hierarchy for tenant isolation and Zero Trust authn/authz."""
 
+from polisyos.core.errors import ErrorCategory, PolicyOSError
 
-class TenantIsolationError(Exception):
+
+class TenantIsolationError(PolicyOSError):
     """Base exception for tenant-isolation failures."""
+
+    default_stage = "core.security"
+    default_category = ErrorCategory.FATAL
 
 
 class CrossTenantAccessError(TenantIsolationError):
@@ -23,29 +28,43 @@ class CrossTenantAccessError(TenantIsolationError):
 class TenantNotFoundError(TenantIsolationError):
     """Raised when tenant cannot be resolved in registry."""
 
+    default_category = ErrorCategory.VALIDATION
+
 
 class CellCapacityError(TenantIsolationError):
     """Raised when shared cell reached tenant capacity."""
+
+    default_category = ErrorCategory.TRANSIENT
 
 
 class TenantContextNotSetError(TenantIsolationError):
     """Raised when tenant-scoped operation runs without active context."""
 
+    default_category = ErrorCategory.VALIDATION
+
 
 class IdentityError(TenantIsolationError):
     """Base exception for identity operations."""
+
+    default_stage = "core.security.identity"
 
 
 class IdentityNotAvailableError(IdentityError):
     """Raised when service identity provider is unavailable."""
 
+    default_category = ErrorCategory.TRANSIENT
+
 
 class IdentityVerificationError(IdentityError):
     """Raised when service identity verification fails."""
 
+    default_category = ErrorCategory.FATAL
+
 
 class TokenValidationError(IdentityError):
     """Raised when JWT token validation fails."""
+
+    default_category = ErrorCategory.VALIDATION
 
 
 class MFARequiredError(TokenValidationError):
@@ -55,14 +74,22 @@ class MFARequiredError(TokenValidationError):
 class DelegationError(TenantIsolationError):
     """Base exception for delegation-token handling."""
 
+    default_stage = "core.security.delegation"
+
 
 class DelegationVerificationError(DelegationError):
     """Raised when delegation token cannot be verified."""
+
+    default_category = ErrorCategory.VALIDATION
 
 
 class AuthorizationError(TenantIsolationError):
     """Base exception for authorization checks."""
 
+    default_stage = "core.security.authorization"
+
 
 class AuthorizationDeniedError(AuthorizationError):
     """Raised when authorization policy denies access."""
+
+    default_category = ErrorCategory.VALIDATION

@@ -13,7 +13,7 @@ from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
 from polisyos.foundry.domain.state import GlobalState
 from polisyos.foundry.executor import put_state_snapshot
-from polisyos.ir.distributional import CohortDimension, load_distributional_report
+from polisyos.ir.analytics.distributional import CohortDimension, load_distributional_report
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.state import ExperimentState
 from polisyos.scientist.nodes.builtins.simulate.run_distributional_analysis import (

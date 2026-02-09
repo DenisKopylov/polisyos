@@ -20,6 +20,7 @@ import tempfile
 from pydantic import BaseModel, ConfigDict, Field
 
 from polisyos.common.logger import get_logger
+from polisyos.core.errors import ErrorCategory, PolicyOSError
 from polisyos.fabric.connectors.contracts.schema import DataSchema, SchemaVersion
 from polisyos.fabric.connectors.contracts.evolution import SchemaEvolution, EvolutionReport
 
@@ -28,8 +29,11 @@ logger = get_logger(__name__)
 REGISTRY_SCHEMA_VERSION = "1.0"
 
 
-class SchemaNotFoundError(Exception):
+class SchemaNotFoundError(PolicyOSError):
     """Raised when a schema is not found in the registry."""
+
+    default_stage = "fabric.connectors.schema_registry"
+    default_category = ErrorCategory.VALIDATION
 
     def __init__(self, schema_id: str, version: SchemaVersion | None = None) -> None:
         self.schema_id = schema_id
@@ -40,8 +44,11 @@ class SchemaNotFoundError(Exception):
         super().__init__(msg)
 
 
-class SchemaVersionConflictError(Exception):
+class SchemaVersionConflictError(PolicyOSError):
     """Raised when registering a schema with conflicting version."""
+
+    default_stage = "fabric.connectors.schema_registry"
+    default_category = ErrorCategory.VALIDATION
 
     def __init__(
         self,

@@ -2,13 +2,13 @@
 
 from __future__ import annotations
 
-import hashlib
 import json
 import os
 import uuid
 from datetime import datetime
 from typing import Any
 
+from polisyos.core.canon import content_hash, truncated_hash
 from polisyos.ir.trinity import TrinityBundle
 from polisyos.scientist.agent.informed_critic import InformedCriticAgent, InformedCriticConfig
 from polisyos.scientist.agent.knowledge_base import CriticKnowledgeBase
@@ -88,7 +88,7 @@ class MockCriticAgent:
         bundle = _to_trinity_bundle(ir)
 
         report_id = f"critique_{uuid.uuid4().hex[:8]}"
-        ir_ref = f"bundle_{hashlib.sha256(bundle.model_dump_json().encode()).hexdigest()[:16]}"
+        ir_ref = f"bundle_{truncated_hash(bundle.model_dump_json(), length=16)}"
 
         issues: list[CritiqueIssue] = []
         issues.extend(await self._check_structure(bundle))
@@ -405,7 +405,7 @@ Provide your critique as a JSON object.
 
             ir_ref = data.get("ir_ref")
             if not ir_ref:
-                ir_ref = hashlib.sha256(bundle_json.encode()).hexdigest()
+                ir_ref = content_hash(bundle_json)
 
             return CritiqueReport(
                 report_id=data.get("report_id", str(uuid.uuid4())),

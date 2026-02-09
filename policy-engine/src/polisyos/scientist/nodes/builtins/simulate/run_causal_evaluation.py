@@ -12,14 +12,14 @@ from polisyos.foundry.methods.catalog.causal import (
     RDDObservationalData,
     ensure_causal_methods_registered,
 )
-from polisyos.ir.causal import CausalEffectReport, persist_causal_effect_report
-from polisyos.ir.hte import (
+from polisyos.ir.analytics.causal import CausalEffectReport, persist_causal_effect_report
+from polisyos.ir.analytics.hte import (
     HTEResult,
     PolicyRecommendation,
     persist_hte_result,
     persist_policy_recommendation,
 )
-from polisyos.ir.uncertainty import UncertaintyEnvelope, persist_uncertainty_envelope
+from polisyos.ir.analytics.uncertainty import UncertaintyEnvelope, persist_uncertainty_envelope
 from polisyos.scientist.compute.job_spec import JobSpec
 from polisyos.scientist.compute.runner import run_job
 from polisyos.scientist.engine.context import ExecutionContext

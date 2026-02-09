@@ -11,7 +11,7 @@ import numpy as np
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.canon import from_canonical_bytes
-from polisyos.ir.backtest import (
+from polisyos.ir.analytics.backtest import (
     BacktestReport,
     BacktestScenario,
     BiasDirection,

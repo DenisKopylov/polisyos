@@ -4,11 +4,11 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime, timezone
-import hashlib
 import json
 import re
 from typing import Any, Iterable, Protocol
 
+from polisyos.core.canon import content_hash
 from polisyos.ir.model_spec import ModelSpec
 from polisyos.ir.norm_pack import NormPack, RuleType
 from polisyos.scientist.agent.constraint_context import ConstraintContextAssembler
@@ -150,7 +150,7 @@ class PolicyConstitution:
             "source_norm_count": self.source_norm_count,
         }
         raw = json.dumps(payload, ensure_ascii=True, sort_keys=True, separators=(",", ":"))
-        return hashlib.sha256(raw.encode("utf-8")).hexdigest()
+        return content_hash(raw)
 
 
 class ConstitutionGenerator:

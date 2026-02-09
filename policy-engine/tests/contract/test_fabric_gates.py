@@ -12,7 +12,7 @@ from polisyos.fabric.udf.config import (
     UdfSchema,
 )
 from polisyos.fabric.udf.engine import UDFEngine
-from polisyos.ir.data_views import AccessTier, DataViewRequest, DataViewType
+from polisyos.ir.analytics.data_views import AccessTier, DataViewRequest, DataViewType
 
 
 def _write_manifest(curated_dir: Path, dataset_name: str) -> None:

@@ -9,11 +9,11 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 import fnmatch
-import hashlib
 from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from polisyos.core.canon import content_hash as compute_content_hash
 from polisyos.ir.canon import CanonSpec, to_canonical_bytes
 
 from .schema import DataSchema, SchemaVersion
@@ -137,9 +137,9 @@ class ConnectorSchemaContract(BaseModel):
             "max_staleness_hours": self.max_staleness_hours,
             "expected_row_count_range": list(self.expected_row_count_range),
         }
-        digest = hashlib.sha256(
+        digest = compute_content_hash(
             to_canonical_bytes(payload, spec=CanonSpec(forbid_floats=False))
-        ).hexdigest()
+        )
         return f"sha256:{digest}"
 
     def matches_dataset(self, dataset_id: str) -> bool:

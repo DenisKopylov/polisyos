@@ -9,7 +9,7 @@ from polisyos.core.contracts.fabric import DataSnapshot, DataSnapshotRef
 from polisyos.core.contracts.foundry import ExecPlanRef, Metrics, MetricsRef, SimulationResult
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
-from polisyos.ir.uncertainty import (
+from polisyos.ir.analytics.uncertainty import (
     DistributionFamily,
     IntervalSemantics,
     PropagationMethod,

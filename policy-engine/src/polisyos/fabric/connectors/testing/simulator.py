@@ -38,7 +38,6 @@ remains consistent with the documented structure.
 from __future__ import annotations
 
 import base64
-import hashlib
 import json
 import time
 from dataclasses import MISSING, dataclass
@@ -47,6 +46,8 @@ from pathlib import Path
 from typing import Any, Iterable
 from urllib.parse import parse_qsl, urlencode, urlparse, urlunparse
 from unittest.mock import patch
+
+from polisyos.core.canon import content_hash
 
 # ---------------------------------------------------------------------------
 # Enums & data objects
@@ -213,12 +214,18 @@ def _request_hash(method: str, url: str, body_kind: str, body: bytes) -> str:
     that two requests to the same endpoint with the same payload always
     map to the same fixture file, regardless of header ordering or timing.
     """
-    h = hashlib.sha256()
-    for part in (method.upper(), url, body_kind):
-        h.update(part.encode("utf-8"))
-        h.update(b"\0")
-    h.update(body)
-    return h.hexdigest()
+    payload = b"".join(
+        (
+            method.upper().encode("utf-8"),
+            b"\0",
+            url.encode("utf-8"),
+            b"\0",
+            body_kind.encode("utf-8"),
+            b"\0",
+            body,
+        )
+    )
+    return content_hash(payload)
 
 
 # ---------------------------------------------------------------------------

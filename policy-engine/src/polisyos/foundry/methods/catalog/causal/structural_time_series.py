@@ -25,7 +25,7 @@ from polisyos.foundry.methods.catalog.causal._common import (
     wrap_causal_output,
 )
 from polisyos.foundry.methods.catalog.causal.protocols import PanelObservationalData
-from polisyos.ir.causal import CausalMethod, DiagnosticTest, EstimationStatus
+from polisyos.ir.analytics.causal import CausalMethod, DiagnosticTest, EstimationStatus
 
 
 def _normal_two_sided_pvalue(z_score: float) -> float:

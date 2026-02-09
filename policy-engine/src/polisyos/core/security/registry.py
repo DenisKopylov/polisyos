@@ -7,6 +7,7 @@ from pathlib import Path
 
 from pydantic import BaseModel, ConfigDict
 
+from polisyos.core.registry.generic import GenericRegistry
 from polisyos.core.security.cell import CellAssignment, CellSpec, CellTier, TenantSpec
 from polisyos.core.security.exceptions import CellCapacityError, TenantNotFoundError
 
@@ -28,15 +29,17 @@ class CellRegistry:
 
     def __init__(self) -> None:
         self._lock = threading.RLock()
-        self._cells: dict[str, CellSpec] = {}
-        self._tenants: dict[str, TenantSpec] = {}
-        self._assignments: dict[str, CellAssignment] = {}
-        self._tenant_to_cell: dict[str, str] = {}
+        self._cells = GenericRegistry[str, CellSpec](key_fn=lambda spec: spec.cell_id)
+        self._tenants = GenericRegistry[str, TenantSpec](key_fn=lambda spec: spec.tenant_id)
+        self._assignments = GenericRegistry[str, CellAssignment](
+            key_fn=lambda assignment: assignment.tenant_id,
+            indexers={"cell_id": lambda assignment: assignment.cell_id},
+        )
         self._cell_tenant_counts: dict[str, int] = {}
 
     def register_cell(self, spec: CellSpec) -> None:
         with self._lock:
-            self._cells[spec.cell_id] = spec
+            self._cells.register(spec, override=True)
             self._cell_tenant_counts.setdefault(spec.cell_id, 0)
 
     def register_tenant(self, spec: TenantSpec, cell_id: str) -> CellAssignment:
@@ -53,7 +56,8 @@ class CellRegistry:
             if spec.tier == CellTier.DEDICATED and cell.tier != CellTier.DEDICATED:
                 raise ValueError("Dedicated tenant must be assigned to dedicated cell")
 
-            previous_cell = self._tenant_to_cell.get(spec.tenant_id)
+            previous_assignment = self._assignments.get(spec.tenant_id)
+            previous_cell = previous_assignment.cell_id if previous_assignment is not None else None
             current_count = self._cell_tenant_counts.get(cell_id, 0)
             if previous_cell == cell_id:
                 current_count = max(0, current_count - 1)
@@ -67,9 +71,8 @@ class CellRegistry:
                 )
 
             assignment = CellAssignment(tenant_id=spec.tenant_id, cell_id=cell_id)
-            self._tenants[spec.tenant_id] = spec
-            self._assignments[spec.tenant_id] = assignment
-            self._tenant_to_cell[spec.tenant_id] = cell_id
+            self._tenants.register(spec, override=True)
+            self._assignments.register(assignment, override=True)
             self._cell_tenant_counts[cell_id] = current_count + 1
             return assignment
 
@@ -79,10 +82,11 @@ class CellRegistry:
             if tenant is None:
                 raise TenantNotFoundError(f"Tenant {tenant_id} not found")
 
-            cell_id = self._tenant_to_cell.get(tenant_id)
-            if cell_id is None:
+            assignment = self._assignments.get(tenant_id)
+            if assignment is None:
                 raise TenantNotFoundError(f"Tenant {tenant_id} is not assigned")
 
+            cell_id = assignment.cell_id
             cell = self._cells.get(cell_id)
             if cell is None:
                 raise TenantNotFoundError(f"Cell {cell_id} not found")
@@ -111,18 +115,13 @@ class CellRegistry:
 
     def list_tenants_in_cell(self, cell_id: str) -> list[str]:
         with self._lock:
-            return [
-                tenant_id
-                for tenant_id, assigned_cell in self._tenant_to_cell.items()
-                if assigned_cell == cell_id
-            ]
+            return sorted(assignment.tenant_id for assignment in self._assignments.find("cell_id", cell_id))
 
     def replace_snapshot(self, *, cells: list[CellSpec], tenants: list[tuple[TenantSpec, str]]) -> None:
         with self._lock:
-            self._cells = {}
-            self._tenants = {}
-            self._assignments = {}
-            self._tenant_to_cell = {}
+            self._cells.clear()
+            self._tenants.clear()
+            self._assignments.clear()
             self._cell_tenant_counts = {}
             for cell in cells:
                 self.register_cell(cell)
@@ -132,12 +131,12 @@ class CellRegistry:
     @property
     def cell_count(self) -> int:
         with self._lock:
-            return len(self._cells)
+            return self._cells.count
 
     @property
     def tenant_count(self) -> int:
         with self._lock:
-            return len(self._tenants)
+            return self._tenants.count
 
     def load_from_json(self, path: Path) -> None:
         payload = json.loads(path.read_text(encoding="utf-8"))
@@ -158,7 +157,7 @@ class CellRegistry:
                 "tenants": [
                     {
                         **tenant.model_dump(mode="json"),
-                        "cell_id": self._tenant_to_cell[tenant.tenant_id],
+                        "cell_id": self._assignments.require(tenant.tenant_id).cell_id,
                     }
                     for tenant in self._tenants.values()
                 ],

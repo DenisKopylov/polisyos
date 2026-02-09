@@ -6,7 +6,7 @@ from typing import Callable, Mapping
 import jax
 import jax.numpy as jnp
 
-from polisyos.ir.uncertainty import DistributionFamily, PropagationMethod, UncertaintyEnvelope
+from polisyos.ir.analytics.uncertainty import DistributionFamily, PropagationMethod, UncertaintyEnvelope
 
 from .config import PropagationConfig
 from .delta import DeltaMethodPropagator

@@ -14,6 +14,7 @@ from typing import Any
 
 import pandas as pd
 
+from polisyos.core.evaluation import ThresholdBand, ThresholdMapper, WeightedScorer
 from polisyos.fabric.tabular import require_dataframe
 from polisyos.ir.connectors import QualityTier
 
@@ -36,17 +37,42 @@ class QualityScorer:
     )
     """
 
+    _tier_mapper = ThresholdMapper[QualityTier](
+        [
+            ThresholdBand(0.95, QualityTier.PLATINUM),
+            ThresholdBand(0.85, QualityTier.GOLD),
+            ThresholdBand(0.70, QualityTier.SILVER),
+            ThresholdBand(0.0, QualityTier.BRONZE),
+        ],
+        default=QualityTier.BRONZE,
+    )
+    _grade_mapper = ThresholdMapper[str](
+        [
+            ThresholdBand(0.97, "A+"),
+            ThresholdBand(0.93, "A"),
+            ThresholdBand(0.90, "A-"),
+            ThresholdBand(0.87, "B+"),
+            ThresholdBand(0.83, "B"),
+            ThresholdBand(0.80, "B-"),
+            ThresholdBand(0.77, "C+"),
+            ThresholdBand(0.73, "C"),
+            ThresholdBand(0.70, "C-"),
+            ThresholdBand(0.60, "D"),
+            ThresholdBand(0.0, "F"),
+        ],
+        default="F",
+    )
+
     def __init__(self, weights: dict[str, float] | None = None) -> None:
         defaults = {"freshness": 0.3, "completeness": 0.4, "consistency": 0.3}
         if weights:
             for key, value in weights.items():
                 if key in defaults and isinstance(value, (int, float)):
                     defaults[key] = float(value)
-        total = sum(defaults.values())
-        if total <= 0:
+        if sum(max(float(value), 0.0) for value in defaults.values()) <= 0:
             defaults = {"freshness": 0.3, "completeness": 0.4, "consistency": 0.3}
-            total = sum(defaults.values())
-        self.weights = {k: v / total for k, v in defaults.items()}
+        self._scorer = WeightedScorer(defaults)
+        self.weights = self._scorer.weights
 
     def compute_score(
         self,
@@ -64,45 +90,19 @@ class QualityScorer:
         }
         freshness_score = freshness_scores.get(freshness_status.level, 0.5)
 
-        score = (
-            self.weights["freshness"] * freshness_score
-            + self.weights["completeness"] * completeness_score
-            + self.weights["consistency"] * consistency_score
-        )
-
-        return max(0.0, min(1.0, score))
+        return self._scorer.score(
+            {
+                "freshness": freshness_score,
+                "completeness": completeness_score,
+                "consistency": consistency_score,
+            }
+        ).score
 
     def assign_tier(self, score: float) -> QualityTier:
-        if score >= 0.95:
-            return QualityTier.PLATINUM
-        if score >= 0.85:
-            return QualityTier.GOLD
-        if score >= 0.70:
-            return QualityTier.SILVER
-        return QualityTier.BRONZE
+        return self._tier_mapper.map(score)
 
     def assign_grade(self, score: float) -> str:
-        if score >= 0.97:
-            return "A+"
-        if score >= 0.93:
-            return "A"
-        if score >= 0.90:
-            return "A-"
-        if score >= 0.87:
-            return "B+"
-        if score >= 0.83:
-            return "B"
-        if score >= 0.80:
-            return "B-"
-        if score >= 0.77:
-            return "C+"
-        if score >= 0.73:
-            return "C"
-        if score >= 0.70:
-            return "C-"
-        if score >= 0.60:
-            return "D"
-        return "F"
+        return self._grade_mapper.map(score)
 
 
 class DataQualityValidator:

@@ -22,7 +22,6 @@ Design decisions
 from __future__ import annotations
 
 import asyncio
-import hashlib
 import inspect
 import json
 from datetime import datetime, timezone
@@ -30,6 +29,7 @@ from typing import Any, ClassVar, Type
 
 import pytest
 
+from polisyos.core.canon import content_hash
 from polisyos.fabric.connectors.base import (
     ConnectionConfig,
     ConnectionHandle,
@@ -115,7 +115,7 @@ def _stable_hash(data: Any, schema: DataSchema | None = None) -> str:
             payload = _sorted_records_by_pk(payload, schema.primary_key)
 
     canonical = json.dumps(payload, sort_keys=True, default=str)
-    return hashlib.sha256(canonical.encode()).hexdigest()
+    return content_hash(canonical)
 
 
 def _minimal_version() -> DataVersion:

@@ -32,7 +32,6 @@ Example ConnectionConfig
 """
 from __future__ import annotations
 
-import hashlib
 import io
 import time
 from datetime import datetime, timezone
@@ -40,6 +39,7 @@ from typing import Any, ClassVar
 
 import pandas as pd
 
+from polisyos.core.canon import content_hash
 from polisyos.fabric.connectors.base import (
     BaseConnector,
     ConnectionConfig,
@@ -325,8 +325,7 @@ class StaticCSVConnector(BaseConnector[pd.DataFrame]):
 
     @staticmethod
     def _content_hash(data: bytes) -> str:
-        digest = hashlib.sha256(data).hexdigest()
-        return f"sha256:{digest}"
+        return content_hash(data, prefix=True)
 
     def _current_version(
         self,

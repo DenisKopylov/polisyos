@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import hashlib
 import json
 import tempfile
 import time
@@ -15,6 +14,7 @@ from cryptography.hazmat.primitives.serialization import load_pem_public_key
 from cryptography.x509 import load_pem_x509_certificate
 
 from polisyos.core.artifacts.manifest import ArtifactManifest
+from polisyos.core.canon import content_hash, streaming_hash
 from polisyos.core.canon.canon_json import to_canonical_bytes
 from polisyos.core.artifacts.signing import (
     DetachedSignature,
@@ -717,7 +717,7 @@ class AuditPackageVerifier:
         canonical_payload = to_canonical_bytes(
             statement.model_dump(mode="json", by_alias=True, exclude_none=True)
         )
-        canonical_sha = hashlib.sha256(canonical_payload).hexdigest()
+        canonical_sha = content_hash(canonical_payload)
 
         signature_path = slsa_dir / "signature.json"
         if not signature_path.exists():
@@ -875,14 +875,8 @@ def _parse_checksums(path: Path) -> dict[str, str]:
 
 
 def _sha256_path(path: Path) -> str:
-    digest = hashlib.sha256()
     with path.open("rb") as handle:
-        while True:
-            chunk = handle.read(1024 * 1024)
-            if not chunk:
-                break
-            digest.update(chunk)
-    return digest.hexdigest()
+        return streaming_hash(iter(lambda: handle.read(1024 * 1024), b""))
 
 
 def _status_from_counts(step: StepResult) -> StepStatus:

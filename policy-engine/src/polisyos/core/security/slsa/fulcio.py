@@ -13,6 +13,8 @@ from cryptography.hazmat.primitives.asymmetric.ec import ECDSA, SECP256R1, gener
 from cryptography.hazmat.primitives.serialization import Encoding
 from cryptography.x509.oid import NameOID
 
+from polisyos.core.canon import content_hash
+
 from .config import SLSAConfig, SlsaMode
 
 
@@ -202,9 +204,7 @@ def _to_pem_if_needed(value: str) -> str:
 
 
 def _sha256(payload: bytes) -> str:
-    import hashlib
-
-    return hashlib.sha256(payload).hexdigest()
+    return content_hash(payload)
 
 
 

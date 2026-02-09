@@ -2,13 +2,13 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 from email.utils import parsedate_to_datetime
-import hashlib
 import json
 from typing import Any, AsyncIterator, ClassVar
 
 import aiohttp
 import pandas as pd
 
+from polisyos.core.canon import streaming_hash
 from polisyos.fabric.connectors.base import (
     BaseConnector,
     ConnectionConfig,
@@ -152,7 +152,7 @@ class WorldBankConnector(BaseConnector[pd.DataFrame]):
         countries = self._parse_countries(request)
         date_range = self._parse_date_range(request)
 
-        hasher = hashlib.sha256()
+        payload_chunks: list[bytes] = []
         all_records: list[dict[str, Any]] = []
         bytes_transferred = 0
         pages = 1
@@ -172,7 +172,7 @@ class WorldBankConnector(BaseConnector[pd.DataFrame]):
                 params=params,
                 connector_id=self.connector_id,
             )
-            hasher.update(raw)
+            payload_chunks.append(raw)
             bytes_transferred += len(raw)
 
             current_etag = headers.get("ETag")
@@ -204,7 +204,7 @@ class WorldBankConnector(BaseConnector[pd.DataFrame]):
 
         frame = self._normalize_records(all_records, indicator_id)
         now = datetime.now(timezone.utc)
-        content_hash = f"sha256:{hasher.hexdigest()}"
+        content_hash = streaming_hash(payload_chunks, prefix=True)
         version, source_updated_at = _build_version(
             etag=etag,
             last_modified=last_modified,

@@ -21,7 +21,7 @@ gates, and makes DecisionPacket uncertainty payloads inconsistent.
 
 ## Decision
 
-Introduce a single IR contract `UncertaintyEnvelope` in `polisyos.ir.uncertainty` with:
+Introduce a single IR contract `UncertaintyEnvelope` in `polisyos.ir.analytics.uncertainty` with:
 
 - core numeric fields: `point_estimate`, `confidence_interval`
 - semantics metadata: `interval_semantics`, `distribution_family`, `source`, `propagation_method`

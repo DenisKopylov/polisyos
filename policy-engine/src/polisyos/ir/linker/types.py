@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from polisyos.ir.applicability import IdSelector, NormApplicability
+from polisyos.ir.analytics.applicability import IdSelector, NormApplicability
 from polisyos.ir.registry_fragments import RegistryBundle
 
 from .reports import LinkIssue, LinkIssueCode, LinkSeverity

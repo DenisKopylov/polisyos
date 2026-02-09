@@ -20,7 +20,7 @@ from polisyos.fabric.world import (
     validate_conflict_set_id,
 )
 from polisyos.ir.canon import to_canonical_bytes
-from polisyos.ir.uncertainty import persist_uncertainty_envelope
+from polisyos.ir.analytics.uncertainty import persist_uncertainty_envelope
 from polisyos.ir.world.abi import EdgeKind, NodeKind
 from polisyos.ir.world.conflict import (
     ConflictResolution,

@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import hashlib
 import uuid
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -8,6 +7,7 @@ from typing import Iterable
 
 import pandas as pd
 
+from polisyos.core.canon import content_hash
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.fabric.io.db import SimulationDB
 from polisyos.fabric.world.store.segments import load_world_fact_manifests
@@ -266,7 +266,7 @@ def _register_df(conn, df: pd.DataFrame, *, prefix: str) -> str:
 
 
 def _verify_segment_hash(path: Path, expected_sha256: str) -> None:
-    digest = hashlib.sha256(path.read_bytes()).hexdigest()
+    digest = content_hash(path.read_bytes())
     if digest != expected_sha256:
         raise WorldSegmentHashMismatch(
             f"segment hash mismatch for {path}: {digest} != {expected_sha256}"

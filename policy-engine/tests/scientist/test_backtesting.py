@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 
-from polisyos.ir.backtest import BacktestScenario
+from polisyos.ir.analytics.backtest import BacktestScenario
 from polisyos.scientist.backtesting.orchestrator import BacktestOrchestrator
 from polisyos.scientist.backtesting.plan import HistoricalValidationPlan, PredictionSource
 from polisyos.scientist.backtesting.trust_scorer import TrustScorer

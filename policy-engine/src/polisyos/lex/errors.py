@@ -2,11 +2,14 @@ from __future__ import annotations
 
 from typing import Any
 
+from polisyos.core.errors import ErrorCategory, PolicyOSError
 
-class LexError(Exception):
+
+class LexError(PolicyOSError):
     """Base error for Lex corpus workflows."""
 
     default_stage = "lex"
+    default_category = ErrorCategory.FATAL
 
     def __init__(
         self,
@@ -17,7 +20,12 @@ class LexError(Exception):
         doc_version_id: str | None = None,
         details: dict[str, Any] | None = None,
     ) -> None:
-        super().__init__(message)
+        super().__init__(
+            message,
+            stage=stage or self.default_stage,
+            category=self.default_category,
+            details=details,
+        )
         self.stage = stage or self.default_stage
         self.doc_source_id = doc_source_id
         self.doc_version_id = doc_version_id
@@ -26,6 +34,7 @@ class LexError(Exception):
 
 class LexValidationError(LexError):
     default_stage = "validation"
+    default_category = ErrorCategory.VALIDATION
 
 
 class LexIngestError(LexError):

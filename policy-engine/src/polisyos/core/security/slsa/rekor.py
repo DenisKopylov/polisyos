@@ -8,6 +8,8 @@ from pathlib import Path
 
 import httpx
 
+from polisyos.core.canon import content_hash
+
 from .config import SLSAConfig, SlsaMode
 
 
@@ -165,9 +167,7 @@ class RekorClient:
 
 
 def _sha256(payload: bytes) -> str:
-    import hashlib
-
-    return hashlib.sha256(payload).hexdigest()
+    return content_hash(payload)
 
 
 

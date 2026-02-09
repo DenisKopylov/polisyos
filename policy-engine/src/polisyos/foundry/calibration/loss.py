@@ -4,7 +4,7 @@ from typing import Dict, Mapping, Tuple
 
 import jax.numpy as jnp
 
-from polisyos.ir.calibration import TargetLossConfig
+from polisyos.ir.analytics.calibration import TargetLossConfig
 
 
 def _huber(x: jnp.ndarray, delta: float = 1.0) -> jnp.ndarray:

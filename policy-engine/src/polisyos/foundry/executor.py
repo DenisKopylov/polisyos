@@ -45,8 +45,8 @@ from polisyos.ir.kernel import (
     SlotScope,
 )
 from polisyos.ir.kernel.values import CountValue, DurationValue, MoneyValue, RateValue
-from polisyos.ir.schedule import ScheduleSpec, schedule_range
-from polisyos.ir.selector_expr import (
+from polisyos.ir.governance.schedule import ScheduleSpec, schedule_range
+from polisyos.ir.governance.selector_expr import (
     SelectorAll,
     SelectorAny,
     SelectorExpr,

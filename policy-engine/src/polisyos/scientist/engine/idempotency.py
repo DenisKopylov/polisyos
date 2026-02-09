@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import hashlib
 import json
 from collections import OrderedDict
 from datetime import datetime, timezone
@@ -11,7 +10,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from polisyos.core.artifacts.manifest import ArtifactRef, ProducerInfo, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
-from polisyos.core.canon import CanonSpec, from_canonical_bytes, to_canonical_bytes
+from polisyos.core.canon import CanonSpec, content_hash, from_canonical_bytes, to_canonical_bytes
 from polisyos.scientist.engine.protocol import NodeOutcome, NodeSpec
 from polisyos.scientist.engine.state import ExperimentState
 
@@ -106,7 +105,7 @@ def compute_idempotency_key(
 ) -> str:
     payload = compute_idempotency_payload(spec=spec, state=state, bind_params=bind_params)
     canonical = to_canonical_bytes(payload, _IDEM_CANON)
-    return hashlib.sha256(canonical).hexdigest()
+    return content_hash(canonical)
 
 
 class NodeResultCache:

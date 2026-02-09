@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import hashlib
 import json
 import os
 from abc import abstractmethod
@@ -10,6 +9,8 @@ from pathlib import Path
 from typing import Protocol, runtime_checkable
 
 from pydantic import BaseModel, ConfigDict, Field
+
+from polisyos.core.canon import content_hash, truncated_hash
 
 
 class TEEPlatform(str, Enum):
@@ -280,12 +281,12 @@ def create_verifier(
 
 def _policy_digest(policy: AttestationPolicy) -> str:
     payload = json.dumps(policy.model_dump(mode="json"), sort_keys=True, separators=(",", ":"))
-    return hashlib.sha256(payload.encode("utf-8")).hexdigest()[:16]
+    return truncated_hash(payload, length=16)
 
 
 def _fallback_report_hash(report: AttestationReport) -> str:
     payload = json.dumps(report.model_dump(mode="json"), sort_keys=True, separators=(",", ":"))
-    return hashlib.sha256(payload.encode("utf-8")).hexdigest()
+    return content_hash(payload)
 
 
 def _report_data_matches_nonce(report_data_hex: str, nonce: bytes) -> bool:

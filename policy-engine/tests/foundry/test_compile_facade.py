@@ -8,8 +8,8 @@ from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.contracts.foundry import CompileRequest, ProgramGraph
 from polisyos.core.registry import build_default_registry_bundle, load_registry_bundle_content
 from polisyos.foundry.compile.api import compile as compile_foundry
-from polisyos.ir.policy_spec import InterventionSpec, PolicySpec
-from polisyos.ir.problem_frame import ProblemDomain, ProblemFrame
+from polisyos.ir.governance.policy_spec import InterventionSpec, PolicySpec
+from polisyos.ir.governance.problem_frame import ProblemDomain, ProblemFrame
 from polisyos.ir.model_spec import ModelSpec
 from polisyos.ir.trinity import TrinityBundle
 from polisyos.ir.types import SelectorOperator

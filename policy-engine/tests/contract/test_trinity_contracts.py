@@ -26,13 +26,13 @@ from polisyos.ir.model_spec import (
     FidelityLevel,
     ModelSpec,
 )
-from polisyos.ir.policy_spec import (
+from polisyos.ir.governance.policy_spec import (
     InterventionSpec,
     MechanismBinding,
     PolicySpec,
 )
 from polisyos.ir.trinity import TrinityBundle as IRTrinityBundle
-from polisyos.ir.problem_frame import (
+from polisyos.ir.governance.problem_frame import (
     ConstraintSpec,
     ConstraintType,
     KPISpec,
@@ -41,8 +41,8 @@ from polisyos.ir.problem_frame import (
     ProblemFrame,
     SuccessCriterion,
 )
-from polisyos.ir.schedule import ScheduleSpec
-from polisyos.ir.selector_expr import SelectorNot, SelectorPredicate
+from polisyos.ir.governance.schedule import ScheduleSpec
+from polisyos.ir.governance.selector_expr import SelectorNot, SelectorPredicate
 from polisyos.ir.types import EntityType, OptimizationDirection
 
 

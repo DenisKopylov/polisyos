@@ -3,9 +3,10 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
 from enum import Enum
-import hashlib
 import json
 from typing import Any
+
+from polisyos.core.canon import truncated_hash
 
 
 class Verdict(str, Enum):
@@ -279,7 +280,7 @@ def _compute_source_hash(packet: Any) -> str:
         "distributional": _read(packet, "distributional", None),
     }
     canonical = json.dumps(payload, sort_keys=True, default=str, ensure_ascii=True)
-    return hashlib.sha256(canonical.encode("utf-8")).hexdigest()[:16]
+    return truncated_hash(canonical, length=16)
 
 
 def _extract_verdict(feedback: Any) -> Verdict:

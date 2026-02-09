@@ -1,12 +1,20 @@
 from __future__ import annotations
 
+from polisyos.core.errors import ErrorCategory, PolicyOSError
 
-class EngineError(Exception):
+
+class EngineError(PolicyOSError):
     """Base class for Scientist engine errors."""
+
+    default_stage = "scientist.engine"
+    default_category = ErrorCategory.FATAL
 
 
 class WorkflowSpecError(EngineError):
     """Workflow spec validation/build errors."""
+
+    default_stage = "scientist.engine.workflow_spec"
+    default_category = ErrorCategory.VALIDATION
 
 
 class UnknownNodeError(WorkflowSpecError):

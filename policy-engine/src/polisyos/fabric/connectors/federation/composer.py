@@ -10,13 +10,13 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Any, Iterable
 from contextlib import contextmanager
-import hashlib
 import heapq
 import json
 
 import pandas as pd
 
 from polisyos.common.logger import get_logger
+from polisyos.core.canon import content_hash
 
 from polisyos.fabric.connectors.federation.resolver import ConflictResolver
 from polisyos.fabric.connectors.federation.types import (
@@ -128,7 +128,7 @@ class MergeLogCollector:
             "policy": entry.resolution_policy or "",
         }
         encoded = json.dumps(payload, sort_keys=True, default=str).encode("utf-8")
-        return int(hashlib.sha256(encoded).hexdigest(), 16)
+        return int(content_hash(encoded), 16)
 
     @staticmethod
     def _inc(bucket: dict[str, int], key: str) -> None:

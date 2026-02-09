@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import hashlib
 import uuid
 from datetime import datetime, timezone
 from enum import Enum
@@ -8,6 +7,7 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from polisyos.core.canon import content_hash
 from polisyos.core.canon.canon_json import to_canonical_bytes
 
 
@@ -70,7 +70,7 @@ class ChainedLogEntry(BaseModel):
 
     def compute_hash(self) -> str:
         body = self.model_dump(mode="json", exclude={"entry_hash"}, exclude_none=True)
-        return hashlib.sha256(to_canonical_bytes(body)).hexdigest()
+        return content_hash(to_canonical_bytes(body))
 
     @staticmethod
     def genesis_prev_hash() -> str:

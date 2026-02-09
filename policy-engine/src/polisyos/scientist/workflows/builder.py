@@ -23,7 +23,7 @@ from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.executor import WorkflowExecutionResult, WorkflowExecutor
 from polisyos.scientist.engine.registry import NodeRegistry
 from polisyos.scientist.engine.state import ExperimentState
-from polisyos.scientist.foundry import DefaultFoundryPort
+from polisyos.scientist.adapters.foundry_bridge import DefaultFoundryPort
 from polisyos.scientist.nodes.builtins import builtin_nodes as scientist_builtin_nodes
 from polisyos.scientist.nodes.builtins.state_keys import (
     INPUT_DATA_SNAPSHOT_REF,

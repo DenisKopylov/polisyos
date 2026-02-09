@@ -5,7 +5,7 @@ from decimal import Decimal
 from polisyos.core.contracts.fabric import UncertaintyBounds
 from polisyos.fabric.trust import two_pass_compare_with_envelope
 from polisyos.fabric.trust_adapter import envelope_from_trust_bounds
-from polisyos.ir.uncertainty import DistributionFamily, IntervalSemantics, UncertaintySource
+from polisyos.ir.analytics.uncertainty import DistributionFamily, IntervalSemantics, UncertaintySource
 
 
 def test_envelope_from_bounds_default_distribution() -> None:

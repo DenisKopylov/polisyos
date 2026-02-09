@@ -40,7 +40,7 @@ Minimal ProblemFrame:
 ```python
 from decimal import Decimal
 
-from polisyos.ir.problem_frame import ProblemFrame, ProblemDomain, ObjectiveSpec
+from polisyos.ir.governance.problem_frame import ProblemFrame, ProblemDomain, ObjectiveSpec
 from polisyos.ir.types import OptimizationDirection
 
 problem = ProblemFrame(
@@ -61,9 +61,9 @@ Minimal PolicySpec:
 ```python
 from decimal import Decimal
 
-from polisyos.ir.policy_spec import PolicySpec, InterventionSpec
-from polisyos.ir.schedule import ScheduleSpec
-from polisyos.ir.selector_expr import SelectorPredicate
+from polisyos.ir.governance.policy_spec import PolicySpec, InterventionSpec
+from polisyos.ir.governance.schedule import ScheduleSpec
+from polisyos.ir.governance.selector_expr import SelectorPredicate
 
 policy = PolicySpec(
     policy_id="progressive_tax_v1",

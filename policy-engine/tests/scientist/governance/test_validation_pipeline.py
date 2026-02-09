@@ -1,8 +1,8 @@
 import pytest
 
 from polisyos.ir.model_spec import ModelSpec
-from polisyos.ir.policy_spec import InterventionSpec, PolicySpec
-from polisyos.ir.problem_frame import ProblemDomain, ProblemFrame
+from polisyos.ir.governance.policy_spec import InterventionSpec, PolicySpec
+from polisyos.ir.governance.problem_frame import ProblemDomain, ProblemFrame
 from polisyos.ir.trinity import TrinityBundle
 from polisyos.ir.types import SelectorOperator
 from polisyos.scientist.governance.pipeline import ValidationPipeline

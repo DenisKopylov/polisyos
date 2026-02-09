@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import asyncio
-import hashlib
 import json
 import logging
 import time
@@ -10,6 +9,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any
 
+from polisyos.core.canon import truncated_hash
 from polisyos.core.observability import get_metrics
 from polisyos.core.security.access_scope import AccessScope
 
@@ -181,7 +181,7 @@ class AuthzInput:
 
     def cache_key(self) -> str:
         raw = json.dumps(self.to_opa_input(), sort_keys=True, separators=(",", ":"))
-        return hashlib.sha256(raw.encode("utf-8")).hexdigest()[:16]
+        return truncated_hash(raw, length=16)
 
 
 class OPAClient:

@@ -9,7 +9,7 @@ from polisyos.foundry.uncertainty.config import PropagationConfig
 from polisyos.foundry.uncertainty.delta import DeltaMethodPropagator
 from polisyos.foundry.uncertainty.dispatcher import PropagationDispatcher
 from polisyos.foundry.uncertainty.monte_carlo import MonteCarloPropagator
-from polisyos.ir.uncertainty import (
+from polisyos.ir.analytics.uncertainty import (
     DistributionFamily,
     IntervalSemantics,
     PropagationMethod,

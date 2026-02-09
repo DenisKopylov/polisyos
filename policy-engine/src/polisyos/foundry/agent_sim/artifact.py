@@ -16,7 +16,6 @@ Example:
     )
 """
 
-import hashlib
 import io
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
@@ -25,7 +24,7 @@ from typing import Any, Generic, TypeVar
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
-from polisyos.core.canon import from_canonical_bytes
+from polisyos.core.canon import content_hash, from_canonical_bytes
 from polisyos.foundry.runtime.fingerprint import (
     DeterminismTier,
     EnvironmentFingerprint,
@@ -139,7 +138,7 @@ class AgentPolicyArtifact(Generic[P]):
             raise ValueError(f"Failed to serialize policy: {exc}") from exc
 
         weights_bytes = buffer.getvalue()
-        weights_hash = hashlib.sha256(weights_bytes).hexdigest()
+        weights_hash = content_hash(weights_bytes)
 
         io_spec = _extract_io_spec(policy)
 
@@ -228,7 +227,7 @@ class AgentPolicyArtifact(Generic[P]):
             action_dim=io_data.get("action_dim"),
         )
 
-        weights_hash = manifest.get("weights_hash") or hashlib.sha256(weights_bytes).hexdigest()
+        weights_hash = manifest.get("weights_hash") or content_hash(weights_bytes)
 
         return cls(
             artifact_id=manifest.get("artifact_id", f"policy_{weights_hash[:16]}"),
@@ -448,7 +447,7 @@ def _load_artifact_from_cas(
         raise ValueError("Agent policy manifest missing weights_hash")
 
     weights_bytes = cas.get_bytes(ArtifactID.from_sha256_hex(weights_hash))
-    actual_hash = hashlib.sha256(weights_bytes).hexdigest()
+    actual_hash = content_hash(weights_bytes)
     if actual_hash != weights_hash:
         raise ValueError("Weights hash mismatch for agent policy artifact")
 

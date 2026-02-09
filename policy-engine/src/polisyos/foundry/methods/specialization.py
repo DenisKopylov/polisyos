@@ -6,7 +6,6 @@ capturing all compilation-affecting factors in a frozen dataclass.
 """
 from __future__ import annotations
 
-import hashlib
 from dataclasses import dataclass
 from decimal import Decimal
 from typing import Any, Mapping, Sequence
@@ -14,6 +13,7 @@ from typing import Any, Mapping, Sequence
 import jax
 import jax.numpy as jnp
 import numpy as np
+from polisyos.core.canon import content_hash, truncated_hash
 
 __all__ = [
     "ShapeSpec",
@@ -115,7 +115,7 @@ def _config_fingerprint() -> str:
             separators=(",", ":"),
             ensure_ascii=True,
         ).encode("utf-8")
-    return hashlib.sha256(canonical).hexdigest()[:16]
+    return truncated_hash(canonical, length=16)
 
 
 @dataclass(frozen=True, slots=True)
@@ -275,7 +275,7 @@ class Specialization:
             f"donate={','.join(str(i) for i in self.donate_argnums)}",
         ]
         combined = "|".join(components)
-        return hashlib.sha256(combined.encode("utf-8")).hexdigest()[:32]
+        return truncated_hash(combined, length=32)
 
     def _shapes_canonical_str(self) -> str:
         parts = [f"{name}:{spec.canonical_str}" for name, spec in self.input_shapes]
@@ -303,15 +303,16 @@ def _array_digest(value: Any) -> dict[str, Any]:
     if arr.dtype == object:
         raise TypeError("object dtype arrays are not supported in static params")
     arr = np.ascontiguousarray(arr)
-    digest = hashlib.sha256()
-    digest.update(arr.tobytes(order="C"))
-    digest.update(str(arr.dtype).encode("utf-8"))
-    digest.update(str(tuple(arr.shape)).encode("utf-8"))
+    payload = (
+        arr.tobytes(order="C")
+        + str(arr.dtype).encode("utf-8")
+        + str(tuple(arr.shape)).encode("utf-8")
+    )
     return {
         "_type": "array_digest",
         "dtype": str(arr.dtype),
         "shape": list(arr.shape),
-        "sha256": digest.hexdigest(),
+        "sha256": content_hash(payload),
     }
 
 
@@ -377,7 +378,7 @@ def compute_static_params_hash(params: Mapping[str, Any]) -> str:
             ensure_ascii=True,
         ).encode("utf-8")
 
-    return hashlib.sha256(canonical).hexdigest()[:32]
+    return truncated_hash(canonical, length=32)
 
 
 def build_specialization(

@@ -7,7 +7,7 @@ from typing import Any, Dict, List
 
 from loguru import logger
 
-from polisyos.scientist.workflow.engine_base import WorkflowEngine
+from polisyos.scientist.workflows.engine_base import WorkflowEngine
 
 
 @dataclass

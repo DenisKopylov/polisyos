@@ -3,8 +3,8 @@ from __future__ import annotations
 import asyncio
 
 from polisyos.ir.model_spec import ModelSpec
-from polisyos.ir.policy_spec import InterventionSpec, PolicySpec
-from polisyos.ir.problem_frame import ProblemDomain, ProblemFrame as IRProblemFrame
+from polisyos.ir.governance.policy_spec import InterventionSpec, PolicySpec
+from polisyos.ir.governance.problem_frame import ProblemDomain, ProblemFrame as IRProblemFrame
 from polisyos.ir.trinity import TrinityBundle
 from polisyos.scientist.agent.critic import MockCriticAgent
 from polisyos.scientist.agent.feasibility import BudgetImpactResult, PopulationQueryResult

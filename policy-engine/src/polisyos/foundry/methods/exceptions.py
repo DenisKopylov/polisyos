@@ -8,17 +8,22 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Sequence
 
+from polisyos.core.errors import ErrorCategory, PolicyOSError
+
 if TYPE_CHECKING:
     from polisyos.foundry.methods.resolution import ResolutionPolicy, VersionConstraint
 
 
-class FoundryMethodError(Exception):
+class FoundryMethodError(PolicyOSError):
     """
     Base exception for all Foundry method errors.
 
     All method-related exceptions inherit from this class,
     enabling catch-all handling when appropriate.
     """
+
+    default_stage = "foundry.methods"
+    default_category = ErrorCategory.FATAL
 
 
 class MethodDefinitionError(FoundryMethodError):
@@ -28,6 +33,8 @@ class MethodDefinitionError(FoundryMethodError):
     Raised by @foundry_method decorator when protocol requirements
     are not met (missing signature, pure_step not static, etc.).
     """
+
+    default_category = ErrorCategory.VALIDATION
 
 
 class MethodNotFoundError(FoundryMethodError):
@@ -40,6 +47,8 @@ class MethodNotFoundError(FoundryMethodError):
     Attributes:
         name: Requested method name or FQN
     """
+
+    default_category = ErrorCategory.VALIDATION
 
     def __init__(self, name: str) -> None:
         self.name = name
@@ -56,6 +65,8 @@ class MethodAlreadyRegisteredError(FoundryMethodError):
     Attributes:
         fqn: Fully qualified name of the duplicate method
     """
+
+    default_category = ErrorCategory.VALIDATION
 
     def __init__(self, fqn: str) -> None:
         self.fqn = fqn
@@ -77,6 +88,8 @@ class ResolutionError(FoundryMethodError):
         constraint: The version constraint (if any)
         reason: Human-readable explanation
     """
+
+    default_category = ErrorCategory.VALIDATION
 
     def __init__(
         self,
@@ -134,6 +147,8 @@ class SlotConnectionError(FoundryMethodError):
     Raised when slots cannot be connected in method composition.
     Subclasses provide specific failure reasons.
     """
+
+    default_category = ErrorCategory.VALIDATION
 
 
 class UnitMismatchError(SlotConnectionError):
@@ -209,6 +224,8 @@ class CyclicDependencyError(FoundryMethodError):
         cycle: List of method names forming the cycle
     """
 
+    default_category = ErrorCategory.VALIDATION
+
     def __init__(self, cycle: list[str]) -> None:
         self.cycle = cycle
         cycle_str = " -> ".join(cycle + [cycle[0]])
@@ -226,6 +243,8 @@ class CompilationError(FoundryMethodError):
         method_fqn: Fully qualified name of the method that failed
         reason: Detailed failure reason
     """
+
+    default_category = ErrorCategory.FATAL
 
     def __init__(self, method_fqn: str, reason: str) -> None:
         self.method_fqn = method_fqn
@@ -245,6 +264,8 @@ class ParameterValidationError(FoundryMethodError):
         reason: Why the value is invalid
     """
 
+    default_category = ErrorCategory.VALIDATION
+
     def __init__(self, param_name: str, value: object, reason: str) -> None:
         self.param_name = param_name
         self.value = value
@@ -263,6 +284,8 @@ class ArtifactError(FoundryMethodError):
         reason: Failure reason
     """
 
+    default_category = ErrorCategory.TRANSIENT
+
     def __init__(self, artifact_type: str, reason: str) -> None:
         self.artifact_type = artifact_type
         self.reason = reason
@@ -279,6 +302,8 @@ class LawViolationError(FoundryMethodError):
         law: Law identifier (e.g., "F")
         reason: Failure reason
     """
+
+    default_category = ErrorCategory.VALIDATION
 
     def __init__(self, law: str, reason: str) -> None:
         self.law = law

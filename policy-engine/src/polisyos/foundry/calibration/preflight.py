@@ -5,8 +5,8 @@ from typing import Any, Dict, Mapping, Tuple
 import numpy as np
 import jax.numpy as jnp
 
-from polisyos.ir.calibration import CalibrationConfig, CalibrationTarget
-from polisyos.ir.data_views import DataViewRequest
+from polisyos.ir.analytics.calibration import CalibrationConfig, CalibrationTarget
+from polisyos.ir.analytics.data_views import DataViewRequest
 
 
 def _normalize_raw_target(raw: object) -> tuple[np.ndarray, np.ndarray | None]:

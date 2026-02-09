@@ -4,8 +4,9 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
 from typing import Any
-import hashlib
 import json
+
+from polisyos.core.canon import truncated_hash
 
 
 class EntityType(Enum):
@@ -409,7 +410,7 @@ class ProvenanceCoreGraph:
         }
 
         content = json.dumps(canonical, sort_keys=True, separators=(",", ":"))
-        return hashlib.sha256(content.encode("utf-8")).hexdigest()[:16]
+        return truncated_hash(content, length=16)
 
     def to_dict(self) -> dict[str, Any]:
         """Serialize to dictionary for JSON/CAS storage."""

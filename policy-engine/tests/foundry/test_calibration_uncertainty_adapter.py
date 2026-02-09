@@ -8,7 +8,7 @@ from polisyos.foundry.calibration.uncertainty_adapter import (
     envelope_from_calibration_param,
     envelopes_from_calibration,
 )
-from polisyos.ir.uncertainty import IntervalSemantics, UncertaintySource
+from polisyos.ir.analytics.uncertainty import IntervalSemantics, UncertaintySource
 
 
 def test_envelope_from_calibration_param() -> None:

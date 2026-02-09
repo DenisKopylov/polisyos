@@ -14,7 +14,7 @@ if str(SRC_ROOT) not in sys.path:
 
 from polisyos.fabric.io.db import SimulationDB
 from polisyos.fabric.io.graph_store import GraphStore
-from polisyos.ir.data_views import AccessTier, DataFilter, DataViewRequest, DataViewType
+from polisyos.ir.analytics.data_views import AccessTier, DataFilter, DataViewRequest, DataViewType
 from polisyos.fabric.udf.engine import UDFEngine
 
 

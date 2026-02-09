@@ -1,10 +1,10 @@
 from __future__ import annotations
 
-import hashlib
 import re
 from datetime import datetime, timezone
 from typing import Any
 
+from polisyos.core.canon import truncated_hash
 from polisyos.fabric.provenance.core import (
     ActivityType,
     AgentType,
@@ -87,7 +87,7 @@ def _sanitize(value: str) -> str:
 
 
 def _edge_id(prefix: str, src: str, tgt: str, rel: str) -> str:
-    digest = hashlib.sha256(f"{src}|{tgt}|{rel}".encode("utf-8")).hexdigest()[:16]
+    digest = truncated_hash(f"{src}|{tgt}|{rel}", length=16)
     return f"_:{prefix}{digest}"
 
 

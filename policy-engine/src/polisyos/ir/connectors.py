@@ -6,7 +6,6 @@ these contracts.
 """
 from __future__ import annotations
 
-import hashlib
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from enum import Enum, Flag, IntEnum, auto
@@ -14,6 +13,7 @@ from typing import Any, Generic, TypeAlias, TypeVar
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
+from polisyos.core.canon import content_hash
 from polisyos.ir.refs import EvidenceBundleRef
 
 
@@ -183,7 +183,7 @@ class FetchRequest:
             "min_quality_tier": self.min_quality_tier.value,
         }
         canonical_bytes = to_canonical_bytes(canonical_data)
-        hash_hex = hashlib.sha256(canonical_bytes).hexdigest()
+        hash_hex = content_hash(canonical_bytes)
         return f"sha256:{hash_hex}"
 
     @property
@@ -210,7 +210,7 @@ class FetchRequest:
             "page_token": self.page_token,
         }
         canonical_bytes = to_canonical_bytes(canonical_data)
-        hash_hex = hashlib.sha256(canonical_bytes).hexdigest()
+        hash_hex = content_hash(canonical_bytes)
         return f"sha256:{hash_hex}"
 
     @property

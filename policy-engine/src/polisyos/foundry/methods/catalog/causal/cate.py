@@ -29,8 +29,8 @@ from polisyos.foundry.methods.catalog.causal._econml_adapter import (
     require_econml,
 )
 from polisyos.foundry.methods.catalog.causal.protocols import HTEObservationalData
-from polisyos.ir.causal import CausalMethod, EstimationStatus
-from polisyos.ir.hte import FeatureImportance, HTEResult, SubgroupEffect
+from polisyos.ir.analytics.causal import CausalMethod, EstimationStatus
+from polisyos.ir.analytics.hte import FeatureImportance, HTEResult, SubgroupEffect
 
 
 @foundry_method(

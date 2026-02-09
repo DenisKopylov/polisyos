@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Any, List
 
 from polisyos.core.contracts.lex import ComplianceIssue, IssueSeverity
-from polisyos.ir.distributional import DistributionalReport, MetricUnit, load_distributional_report
+from polisyos.ir.analytics.distributional import DistributionalReport, MetricUnit, load_distributional_report
 from polisyos.scientist.governance.profiles import ProfileLevel
 
 from .base import PassContext, ValidatorPass

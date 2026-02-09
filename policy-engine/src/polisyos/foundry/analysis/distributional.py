@@ -4,7 +4,7 @@ from typing import Any, Sequence
 
 import numpy as np
 
-from polisyos.ir.distributional import (
+from polisyos.ir.analytics.distributional import (
     CohortDimension,
     CohortImpact,
     DimensionBreakdown,

@@ -3,7 +3,9 @@ from __future__ import annotations
 from dataclasses import asdict
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Callable
 
+from polisyos.core.backends import BackendDispatcher, BackendNotAvailableError
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
@@ -37,6 +39,20 @@ from .errors import DocUnsupportedMimeError, DocValidationError
 from .types import DocNormalizeOptions, DocNormalizeResult
 
 _NORMALIZED_SCHEMA = SchemaInfo(name="fabric.doc.normalized", version="1.0")
+DocTextNormalizer = Callable[[str], str]
+
+
+def _resolve_text_normalizer(mime: str) -> DocTextNormalizer:
+    if mime == "text/html":
+        return normalize_html_visible_text_v1
+    if mime == "text/plain" or mime.startswith("text/"):
+        return normalize_plain_text_v1
+    raise BackendNotAvailableError(mime, reason="unsupported mime")
+
+
+_TEXT_NORMALIZER_DISPATCHER = BackendDispatcher[str, DocTextNormalizer](
+    factory=_resolve_text_normalizer
+)
 
 
 def _decode_bytes(raw_bytes: bytes, options: DocNormalizeOptions) -> str:
@@ -109,12 +125,11 @@ def normalize_doc(
     raw_bytes = cas.get_bytes(ArtifactID.model_validate(meta.raw_ref))
 
     decoded = _decode_bytes(raw_bytes, opts)
-    if meta.mime == "text/html":
-        extracted = normalize_html_visible_text_v1(decoded)
-    elif meta.mime == "text/plain" or meta.mime.startswith("text/"):
-        extracted = normalize_plain_text_v1(decoded)
-    else:
-        raise DocUnsupportedMimeError(f"unsupported mime type: {meta.mime}")
+    try:
+        normalizer = _TEXT_NORMALIZER_DISPATCHER.resolve(meta.mime)
+    except BackendNotAvailableError as exc:
+        raise DocUnsupportedMimeError(f"unsupported mime type: {meta.mime}") from exc
+    extracted = normalizer(decoded)
 
     normalized_text = _normalize_text(extracted, opts)
     stats = {

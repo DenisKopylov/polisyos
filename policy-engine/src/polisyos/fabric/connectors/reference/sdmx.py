@@ -39,7 +39,6 @@ Example ConnectionConfig
 """
 from __future__ import annotations
 
-import hashlib
 import time
 from datetime import datetime, timezone
 from typing import Any, AsyncIterator, ClassVar, Iterable
@@ -47,6 +46,7 @@ from typing import Any, AsyncIterator, ClassVar, Iterable
 import aiohttp
 import pandas as pd
 
+from polisyos.core.canon import content_hash as compute_content_hash
 from polisyos.fabric.connectors.base import (
     BaseConnector,
     ConnectionConfig,
@@ -362,7 +362,7 @@ class SDMXConnector(BaseConnector[pd.DataFrame]):
 
         df = _parse_sdmx_json(body)
 
-        content_hash = f"sha256:{hashlib.sha256(body.get('_raw', b'')).hexdigest()}"
+        content_hash = compute_content_hash(body.get("_raw", b""), prefix=True)
         last_modified = headers.get("Last-Modified")
         etag = headers.get("ETag")
 

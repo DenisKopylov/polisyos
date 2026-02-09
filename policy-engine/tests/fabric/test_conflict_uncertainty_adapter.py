@@ -5,7 +5,7 @@ from decimal import Decimal
 from polisyos.fabric.claims.conflicts.uncertainty_adapter import (
     envelope_from_conflict_resolution,
 )
-from polisyos.ir.uncertainty import IntervalSemantics, UncertaintySource
+from polisyos.ir.analytics.uncertainty import IntervalSemantics, UncertaintySource
 from polisyos.ir.world.conflict import ConflictResolutionCandidate, ConflictSetResolution
 
 

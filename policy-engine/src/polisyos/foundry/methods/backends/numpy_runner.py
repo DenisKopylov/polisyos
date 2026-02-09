@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import hashlib
 import json
 import time
 from importlib import metadata
@@ -8,6 +7,7 @@ from typing import Any, Mapping
 
 import numpy as np
 
+from polisyos.core.canon import truncated_hash
 from polisyos.core.observability.determinism import DeterminismTier
 from polisyos.foundry.methods.backends.protocol import (
     MethodResult,
@@ -88,9 +88,7 @@ class NumpyRunner(MethodRunner):
             "seed": seed,
             "versions": versions,
         }
-        fingerprint = hashlib.sha256(
-            json.dumps(fp_payload, sort_keys=True).encode("utf-8")
-        ).hexdigest()[:16]
+        fingerprint = truncated_hash(json.dumps(fp_payload, sort_keys=True), length=16)
 
         return MethodResult(
             output=output,

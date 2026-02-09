@@ -4,6 +4,8 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Iterable, Sequence
 
+from polisyos.core.registry.generic import GenericRegistry
+
 from .capabilities import Capability
 from .ids import ComponentId, SemVer, SemverRange
 from .metadata import ComponentKind, ComponentMetadata
@@ -38,7 +40,16 @@ class ComponentRegistry:
     """Multi-version registry for discovered components."""
 
     def __init__(self) -> None:
-        self._by_base_id: dict[str, dict[str, ComponentEntry]] = {}
+        self._entries = GenericRegistry[str, ComponentEntry](
+            key_fn=lambda entry: str(entry.metadata.component_id),
+            indexers={
+                "base_id": lambda entry: entry.metadata.component_id.base_id,
+                "kind": lambda entry: entry.metadata.kind,
+                "domain": lambda entry: entry.metadata.domains,
+                "jurisdiction": lambda entry: entry.metadata.jurisdictions,
+                "tag": lambda entry: entry.metadata.tags,
+            },
+        )
 
     def register(
         self,
@@ -47,43 +58,41 @@ class ComponentRegistry:
         on_duplicate: DuplicateComponentIdPolicy = DuplicateComponentIdPolicy.ERROR,
         source_precedence: SourcePrecedencePolicy | None = None,
     ) -> None:
-        base_id = entry.metadata.component_id.base_id
-        version = entry.metadata.component_id.version
+        component_id = str(entry.metadata.component_id)
 
-        versions = self._by_base_id.setdefault(base_id, {})
-        existing = versions.get(version)
+        existing = self._entries.get(component_id)
         if existing is None:
-            versions[version] = entry
+            self._entries.register(entry)
             return
 
         precedence = source_precedence or SourcePrecedencePolicy()
         if _should_replace(existing=existing, incoming=entry, precedence=precedence):
-            versions[version] = entry
+            self._entries.register(entry, override=True)
             return
 
         if on_duplicate == DuplicateComponentIdPolicy.IGNORE:
             return
         if on_duplicate == DuplicateComponentIdPolicy.WARN:
             return
-        raise ValueError(f"Duplicate component_id: {entry.metadata.component_id}")
+        raise ValueError(f"Duplicate component_id: {component_id}")
 
     def list_all(self) -> list[ComponentEntry]:
         rows: list[ComponentEntry] = []
-        for base_id in sorted(self._by_base_id):
+        for base_id in sorted(str(value) for value in self._entries.index_values("base_id")):
             rows.extend(self.list(base_id))
         return rows
 
     def list(self, base_id: str) -> list[ComponentEntry]:
-        versions = self._by_base_id.get(base_id, {})
-        ordered = sorted(versions.items(), key=lambda item: _version_sort_key(item[0]), reverse=True)
-        return [entry for _, entry in ordered]
+        rows = self._entries.find("base_id", base_id)
+        return sorted(
+            rows,
+            key=lambda entry: _version_sort_key(entry.metadata.component_id.version),
+            reverse=True,
+        )
 
     def get(self, component_id: ComponentId | str) -> ComponentEntry | None:
         comp = ComponentId.parse(component_id) if isinstance(component_id, str) else component_id
-        versions = self._by_base_id.get(comp.base_id)
-        if versions is None:
-            return None
-        return versions.get(comp.version)
+        return self._entries.get(str(comp))
 
     def resolve(
         self,
@@ -103,8 +112,7 @@ class ComponentRegistry:
             if isinstance(constraint, str):
                 constraint_str = constraint.strip()
                 if _is_exact_version(constraint_str):
-                    versions = self._by_base_id.get(base_id, {})
-                    return versions.get(constraint_str)
+                    return self._entries.get(f"{base_id}@{constraint_str}")
             if isinstance(constraint, SemverRange):
                 exacts = [entry for entry in entries if constraint.matches(entry.metadata.component_id.version)]
                 return exacts[0] if exacts else None
@@ -150,21 +158,22 @@ class ComponentRegistry:
         constraint: SemverRange | str | None = None,
         kind: ComponentKind | None = None,
     ) -> list[ComponentEntry]:
-        versions = self._by_base_id.get(base_id, {})
-        if not versions:
+        rows = self._entries.find("base_id", base_id)
+        if not rows:
             return []
 
         semver_range = _coerce_range(constraint)
-        rows: list[ComponentEntry] = []
-        for version, entry in versions.items():
+        filtered: list[ComponentEntry] = []
+        for entry in rows:
+            version = entry.metadata.component_id.version
             if kind is not None and entry.metadata.kind != kind:
                 continue
             if semver_range is not None and not semver_range.matches(version):
                 continue
-            rows.append(entry)
+            filtered.append(entry)
 
-        rows.sort(key=lambda item: _version_sort_key(item.metadata.component_id.version), reverse=True)
-        return rows
+        filtered.sort(key=lambda item: _version_sort_key(item.metadata.component_id.version), reverse=True)
+        return filtered
 
 
 # Backward compatibility names.

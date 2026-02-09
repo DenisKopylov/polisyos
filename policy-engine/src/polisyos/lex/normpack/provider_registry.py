@@ -17,6 +17,7 @@ from polisyos.core.components import (
     validate_metadata,
 )
 from polisyos.core.components.ids import SemVer
+from polisyos.core.registry.generic import GenericRegistry
 from polisyos.ir.norm_pack import NormPack
 
 
@@ -53,17 +54,25 @@ class ProviderBootstrapReport:
 
 class NormPackProviderRegistry:
     def __init__(self) -> None:
-        self._records: dict[str, ProviderRecord] = {}
+        self._records = GenericRegistry[str, ProviderRecord](
+            key_fn=lambda record: record.component_id,
+            indexers={
+                "base_id": lambda record: record.base_id,
+                "domains": lambda record: record.domains,
+                "jurisdictions": lambda record: record.jurisdictions,
+            },
+        )
 
     def register(self, record: ProviderRecord) -> None:
-        self._records[record.component_id] = record
+        self._records.register(record, override=True)
 
     def resolve(self, *, jurisdiction: str, domain: str | None) -> ProviderRecord | None:
-        if not self._records:
+        records = self._records.values()
+        if not records:
             return None
 
         ranked = sorted(
-            self._records.values(),
+            records,
             key=lambda row: _provider_score(row=row, jurisdiction=jurisdiction, domain=domain),
             reverse=True,
         )

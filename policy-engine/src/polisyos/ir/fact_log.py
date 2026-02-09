@@ -2,13 +2,13 @@
 
 from __future__ import annotations
 
-import hashlib
 from datetime import datetime, timezone
 from decimal import Decimal
 from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from polisyos.core.canon import content_hash
 from polisyos.ir.canon import to_canonical_bytes
 from polisyos.ir.kernel.base import ARTIFACT_ID_PATTERN, ID_PATTERN, KernelModel, reject_float
 
@@ -72,7 +72,7 @@ class Fact(KernelModel):
 def build_fact_id(payload: Any) -> str:
     """Compute deterministic fact_id as sha256 of canonical payload bytes."""
     canon = to_canonical_bytes(payload)
-    digest = hashlib.sha256(canon).hexdigest()
+    digest = content_hash(canon)
     return f"sha256:{digest}"
 
 

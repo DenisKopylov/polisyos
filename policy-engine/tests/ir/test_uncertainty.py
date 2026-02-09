@@ -4,7 +4,7 @@ import pytest
 from pydantic import ValidationError
 
 from polisyos.core.artifacts.store import FileSystemCAS
-from polisyos.ir.uncertainty import (
+from polisyos.ir.analytics.uncertainty import (
     DistributionFamily,
     IntervalSemantics,
     PropagationMethod,

@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import hashlib
 import json
 import re
 from datetime import datetime
@@ -10,6 +9,7 @@ from typing import Any
 
 from pydantic import ValidationError
 
+from polisyos.core.canon import truncated_hash
 from polisyos.ir.model_spec import (
     AgentConfig,
     AssumptionSpec,
@@ -17,9 +17,9 @@ from polisyos.ir.model_spec import (
     EnvironmentConfig,
     ModelSpec,
 )
-from polisyos.ir.policy_spec import InterventionSpec as TrinityInterventionSpec
-from polisyos.ir.policy_spec import ParameterSpec, PolicySpec
-from polisyos.ir.problem_frame import (
+from polisyos.ir.governance.policy_spec import InterventionSpec as TrinityInterventionSpec
+from polisyos.ir.governance.policy_spec import ParameterSpec, PolicySpec
+from polisyos.ir.governance.problem_frame import (
     ConstraintType,
     ObjectiveSpec,
     ProblemDomain,
@@ -43,7 +43,7 @@ def _normalize_id(raw: str, *, prefix: str) -> str:
         value = f"{prefix}_{value}"
     if _ID_RE.fullmatch(value):
         return value
-    digest = hashlib.sha256(raw.encode("utf-8")).hexdigest()[:10]
+    digest = truncated_hash(raw, length=10)
     return f"{prefix}_{digest}"
 
 
@@ -140,7 +140,7 @@ def _draft_interventions_to_policy_spec(
 
 
 def _build_trinity_bundle_from_draft(draft: DraftResult, *, schema_version: str) -> TrinityBundle:
-    digest = hashlib.sha256(draft.draft_id.encode("utf-8")).hexdigest()[:10]
+    digest = truncated_hash(draft.draft_id, length=10)
     problem_id = _normalize_id(draft.problem_frame_ref or f"problem_{digest}", prefix="problem")
     policy_id = _normalize_id(f"policy_{digest}", prefix="policy")
     model_id = _normalize_id(f"model_{digest}", prefix="model")

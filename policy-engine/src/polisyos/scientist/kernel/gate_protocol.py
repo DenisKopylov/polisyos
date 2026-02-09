@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import hashlib
-
 try:
     from opentelemetry import trace
 except ModuleNotFoundError:  # pragma: no cover - optional runtime dependency
@@ -41,8 +39,9 @@ except ModuleNotFoundError:  # pragma: no cover - optional runtime dependency
 
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, ProducerInfo, SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
+from polisyos.core.canon import content_hash
 from polisyos.core.run.context import RunContext
-from polisyos.ir.gate import (
+from polisyos.ir.governance.gate import (
     GateContext,
     GateDecision,
     GateEvent,
@@ -191,7 +190,7 @@ class HumanGateProtocol:
         context: GateContext,
     ) -> str:
         key = f"{run_id}:{context.phase}:{context.node_alias}:{context.iteration}"
-        return hashlib.sha256(key.encode("utf-8")).hexdigest()
+        return content_hash(key)
 
 
 def _extract_trace_correlation() -> dict[str, str | None]:

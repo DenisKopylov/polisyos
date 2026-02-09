@@ -6,8 +6,8 @@ from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts.uncertainty import UncertaintyEnvelopeRef
-from polisyos.ir.calibration import CalibrationConfig
-from polisyos.ir.uncertainty import UncertaintyEnvelope
+from polisyos.ir.analytics.calibration import CalibrationConfig
+from polisyos.ir.analytics.uncertainty import UncertaintyEnvelope
 
 from pydantic import BaseModel, Field, ConfigDict
 

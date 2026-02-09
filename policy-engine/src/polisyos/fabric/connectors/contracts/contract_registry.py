@@ -7,6 +7,8 @@ import threading
 from typing import Callable, Iterable, Iterator
 
 from polisyos.common.logger import get_logger
+from polisyos.core.errors import ErrorCategory, PolicyOSError
+from polisyos.core.registry.generic import GenericRegistry
 
 from .contract import ConnectorSchemaContract
 from .evolution import EvolutionReport, SchemaEvolution
@@ -15,8 +17,11 @@ from .schema import SchemaVersion
 logger = get_logger(__name__)
 
 
-class ContractNotFoundError(KeyError):
+class ContractNotFoundError(PolicyOSError):
     """Raised when a connector contract is not found."""
+
+    default_stage = "fabric.connectors.contract_registry"
+    default_category = ErrorCategory.VALIDATION
 
     def __init__(self, contract_id: str, version: SchemaVersion | None = None) -> None:
         self.contract_id = contract_id
@@ -27,12 +32,18 @@ class ContractNotFoundError(KeyError):
             super().__init__(f"Contract '{contract_id}' version '{version}' not found")
 
 
-class ContractVersionError(ValueError):
+class ContractVersionError(PolicyOSError):
     """Raised when contract versioning rules are violated."""
 
+    default_stage = "fabric.connectors.contract_registry"
+    default_category = ErrorCategory.VALIDATION
 
-class ContractViolationError(ValueError):
+
+class ContractViolationError(PolicyOSError):
     """Raised when breaking contract changes are registered without override."""
+
+    default_stage = "fabric.connectors.contract_registry"
+    default_category = ErrorCategory.VALIDATION
 
     def __init__(self, contract_id: str, report: EvolutionReport) -> None:
         self.contract_id = contract_id
@@ -47,6 +58,15 @@ class ContractViolationError(ValueError):
 ContractRegisteredCallback = Callable[[ConnectorSchemaContract, EvolutionReport | None], None]
 
 
+class _ContractHistory:
+    """Mutable contract history tracked per logical contract_id."""
+
+    def __init__(self, contract_id: str, connector_id: str) -> None:
+        self.contract_id = contract_id
+        self.connector_id = connector_id
+        self.versions: list[ConnectorSchemaContract] = []
+
+
 class ContractRegistry:
     """
     Thread-safe registry for connector schema contracts.
@@ -58,8 +78,10 @@ class ContractRegistry:
     """
 
     def __init__(self) -> None:
-        self._contracts: dict[str, list[ConnectorSchemaContract]] = {}
-        self._by_connector: dict[str, set[str]] = {}
+        self._contracts = GenericRegistry[str, _ContractHistory](
+            key_fn=lambda history: history.contract_id,
+            indexers={"connector_id": lambda history: history.connector_id},
+        )
         self._callbacks: list[ContractRegisteredCallback] = []
         self._evolution = SchemaEvolution()
         self._lock = threading.RLock()
@@ -91,18 +113,28 @@ class ContractRegistry:
         report: EvolutionReport | None = None
 
         with self._lock:
-            history = self._contracts.setdefault(contract.contract_id, [])
+            history = self._contracts.get(contract.contract_id)
+            if history is None:
+                history = _ContractHistory(
+                    contract_id=contract.contract_id,
+                    connector_id=contract.connector_id,
+                )
+                self._contracts.register(history)
+            elif history.connector_id != contract.connector_id:
+                raise ContractVersionError(
+                    f"{contract.contract_id}: connector_id changed "
+                    f"({history.connector_id} -> {contract.connector_id})"
+                )
 
-            if history:
-                previous = history[-1]
+            if history.versions:
+                previous = history.versions[-1]
                 report = self._evolution.compare(previous.schema, contract.schema)
                 self._validate_version_bump(previous, contract, report)
 
                 if report.breaking_changes and not allow_breaking:
                     raise ContractViolationError(contract.contract_id, report)
 
-            history.append(contract)
-            self._by_connector.setdefault(contract.connector_id, set()).add(contract.contract_id)
+            history.versions.append(contract)
             self._revision += 1
             callbacks = tuple(self._callbacks)
 
@@ -135,14 +167,14 @@ class ContractRegistry:
     ) -> ConnectorSchemaContract:
         with self._lock:
             history = self._contracts.get(contract_id)
-            if not history:
+            if history is None or not history.versions:
                 raise ContractNotFoundError(contract_id, None if version is None else self._parse(version))
 
             if version is None:
-                return history[-1]
+                return history.versions[-1]
 
             target = self._parse(version)
-            for contract in history:
+            for contract in history.versions:
                 if contract.schema_version == target:
                     return contract
             raise ContractNotFoundError(contract_id, target)
@@ -150,14 +182,15 @@ class ContractRegistry:
     def history(self, contract_id: str) -> tuple[ConnectorSchemaContract, ...]:
         with self._lock:
             history = self._contracts.get(contract_id)
-            if not history:
+            if history is None or not history.versions:
                 raise ContractNotFoundError(contract_id)
-            return tuple(history)
+            return tuple(history.versions)
 
     def get_for_connector(self, connector_id: str) -> list[ConnectorSchemaContract]:
         with self._lock:
-            ids = sorted(self._by_connector.get(connector_id, set()))
-            return [self._contracts[contract_id][-1] for contract_id in ids]
+            rows = self._contracts.find("connector_id", connector_id)
+            rows.sort(key=lambda row: row.contract_id)
+            return [row.versions[-1] for row in rows if row.versions]
 
     def resolve(self, connector_id: str, dataset_id: str) -> ConnectorSchemaContract | None:
         """
@@ -184,13 +217,13 @@ class ContractRegistry:
 
     def list_all(self) -> Iterator[ConnectorSchemaContract]:
         with self._lock:
-            latest = [history[-1] for history in self._contracts.values() if history]
+            latest = [history.versions[-1] for history in self._contracts.values() if history.versions]
         for contract in sorted(latest, key=lambda item: item.contract_id):
             yield contract
 
     def __len__(self) -> int:
         with self._lock:
-            return sum(len(history) for history in self._contracts.values())
+            return sum(len(history.versions) for history in self._contracts.values())
 
     def _validate_version_bump(
         self,

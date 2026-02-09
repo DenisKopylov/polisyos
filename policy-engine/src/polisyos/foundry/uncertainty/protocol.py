@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Callable, Mapping, Protocol
 
-from polisyos.ir.uncertainty import PropagationMethod, UncertaintyEnvelope
+from polisyos.ir.analytics.uncertainty import PropagationMethod, UncertaintyEnvelope
 
 
 @dataclass(frozen=True)

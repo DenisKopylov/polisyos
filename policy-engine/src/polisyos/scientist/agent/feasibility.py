@@ -14,7 +14,7 @@ from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.contracts.fabric import DataSnapshot
 from polisyos.ir.kernel import SelectorFieldRegistry
-from polisyos.ir.selector_expr import SelectorAll, SelectorAny, SelectorExpr, SelectorNot, SelectorPredicate
+from polisyos.ir.governance.selector_expr import SelectorAll, SelectorAny, SelectorExpr, SelectorNot, SelectorPredicate
 from polisyos.ir.types import SelectorOperator
 
 

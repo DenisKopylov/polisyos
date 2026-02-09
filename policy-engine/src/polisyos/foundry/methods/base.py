@@ -13,7 +13,6 @@ from __future__ import annotations
 
 import dataclasses
 import functools
-import hashlib
 import inspect
 import json
 import os
@@ -25,6 +24,7 @@ from typing import Any, Callable, ClassVar, Mapping, Protocol, TypeVar, runtime_
 
 import numpy as np
 
+from polisyos.core.canon import content_hash
 from polisyos.foundry.methods.exceptions import LawViolationError, MethodDefinitionError
 
 _SEMVER_RE = re.compile(
@@ -620,7 +620,7 @@ def _stable_float(value: float) -> str:
 def _stable_digest(data: Any) -> str:
     payload = _canonicalize(data)
     encoded = _canonical_json(payload).encode("utf-8")
-    return hashlib.blake2b(encoded, digest_size=32).hexdigest()
+    return content_hash(encoded, algorithm="blake2b", digest_size=32)
 
 
 def _canonical_json(data: Any) -> str:

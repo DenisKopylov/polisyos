@@ -35,10 +35,10 @@ scientist  (оркестрация)
 ### Структура модуля
 
 ```
-scientist/                          133 .py файлов
+scientist/                          145 .py файлов
 │
 ├── __init__.py                     # API: run_experiment(), ExperimentState
-├── foundry.py                      # DefaultFoundryPort — адаптер к Foundry
+├── adapters/foundry_bridge.py      # DefaultFoundryPort — адаптер к Foundry
 ├── publisher.py                    # Финализация и публикация результатов
 ├── replay_backend.py               # Replay-поддержка для воспроизводимости
 │
@@ -58,8 +58,7 @@ scientist/                          133 .py файлов
 ├── orchestrator/   ( 2 файла)      # DecisionCard — human-readable итоги
 ├── compute/        ( 3 файла)      # JobSpec, execution backends
 ├── llm/            ( 2 файла)      # TracedLLMClient, OpenTelemetry tracing
-├── workflow/       ( 4 файла)      # Workflow engine abstractions (Simple, LangGraph)
-└── workflows/      ( 3 файла)      # Workflow definitions и builders
+└── workflows/      ( 6 файлов)      # Workflow engines + default workflow builders
 ```
 
 ### Двухуровневая документация
@@ -135,13 +134,11 @@ graph TD
 
 **Orchestrator** (`orchestrator/`) — DecisionCard с human-readable summary результатов: verdict (APPROVE/REJECT/REVIEW), key metrics с confidence intervals, distributional summary (Gini, winners/losers), issues summary. Рендеринг в Markdown.
 
-**Compute** (`compute/`) — спецификации задач и execution backends. JobSpec определяет task с program_ref, seed, required_metrics. JobKey — content-addressed идентификатор (SHA256). LocalBackend выполняет через Foundry, RayBackend (skeleton) — для distributed execution.
+**Compute** (`compute/`) — спецификации задач и execution backends. JobSpec определяет task с program_ref, seed, required_metrics. JobKey — content-addressed идентификатор (SHA256). Для исполнения поддерживается только LocalBackend через Foundry.
 
 **LLM** (`llm/`) — TracedLLMClient оборачивает LLM-клиентов, автоматически создавая OpenTelemetry spans с метаданными (model, provider, token usage, latency). Поддержка OpenAI, Anthropic и custom providers.
 
-**Workflow** (`workflow/`) — абстракции workflow engines. WorkflowEngine — базовый интерфейс. SimpleLoopEngine — для последовательных workflow. LangGraphEngine — для сложных графов с conditional routing. WorkflowEngineFactory — создание по конфигурации.
-
-**Workflows** (`workflows/`) — pre-built workflow definitions. `run_default_workflow()` — основная entry point. `build_default_workflow()` и `build_search_workflow()` — factory-функции для WorkflowSpec.
+**Workflows** (`workflows/`) — абстракции workflow engines и pre-built workflow definitions. WorkflowEngine — базовый интерфейс. SimpleLoopEngine — для последовательных workflow. LangGraphEngine — для сложных графов с conditional routing. `run_default_workflow()` — основная entry point.
 
 ## Точки входа
 

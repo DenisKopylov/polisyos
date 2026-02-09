@@ -6,7 +6,7 @@ from typing import Mapping
 from pydantic import Field, model_validator
 
 from polisyos.ir.kernel.base import KernelModel
-from polisyos.ir.policy_spec import (
+from polisyos.ir.governance.policy_spec import (
     ARTIFACT_ID_PATTERN,
     ID_PATTERN,
     SCHEMA_VERSION_PATTERN,

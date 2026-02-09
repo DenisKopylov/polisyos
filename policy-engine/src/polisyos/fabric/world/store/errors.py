@@ -1,12 +1,19 @@
 from __future__ import annotations
 
+from polisyos.core.errors import ErrorCategory, PolicyOSError
 
-class WorldStoreError(Exception):
+
+class WorldStoreError(PolicyOSError):
     """Base error for world store operations."""
+
+    default_stage = "fabric.world.store"
+    default_category = ErrorCategory.FATAL
 
 
 class WorldValidationError(WorldStoreError):
     """Raised for validation failures in world store operations."""
+
+    default_category = ErrorCategory.VALIDATION
 
 
 class WorldIDError(WorldValidationError):
@@ -19,6 +26,8 @@ class WorldFactError(WorldValidationError):
 
 class WorldSegmentError(WorldStoreError):
     """Raised when segment IO or index operations fail."""
+
+    default_category = ErrorCategory.TRANSIENT
 
 
 __all__ = [

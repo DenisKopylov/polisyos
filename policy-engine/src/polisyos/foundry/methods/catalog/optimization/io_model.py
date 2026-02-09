@@ -19,7 +19,7 @@ from polisyos.foundry.methods.base import (
     foundry_method,
 )
 from polisyos.foundry.methods.backends.protocol import SolverStatus
-from polisyos.ir.uncertainty import (
+from polisyos.ir.analytics.uncertainty import (
     DistributionFamily,
     IntervalSemantics,
     PropagationMethod,

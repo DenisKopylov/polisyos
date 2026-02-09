@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from decimal import Decimal
 
-from polisyos.ir.uncertainty import (
+from polisyos.ir.analytics.uncertainty import (
     DistributionFamily,
     IntervalSemantics,
     PropagationMethod,

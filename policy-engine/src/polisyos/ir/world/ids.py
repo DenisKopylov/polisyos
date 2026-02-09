@@ -1,10 +1,10 @@
 from __future__ import annotations
 
-import hashlib
 import re
 from enum import Enum
 from typing import Any
 
+from polisyos.core.canon import content_hash
 from polisyos.ir.canon import to_canonical_bytes
 from polisyos.ir.citations import FragmentLocator
 from polisyos.ir.kernel.base import ARTIFACT_ID_PATTERN, ID_PATTERN
@@ -40,7 +40,7 @@ def conflict_set_id_from_key(*, conflict_key: str) -> str:
 def stable_world_id_from_canon(*, prefix: str, payload: dict[str, Any]) -> str:
     _validate_prefix(prefix)
     canonical = to_canonical_bytes(payload)
-    digest = hashlib.sha256(canonical).hexdigest()
+    digest = content_hash(canonical)
     return f"{prefix}.sha256_{digest}"
 
 

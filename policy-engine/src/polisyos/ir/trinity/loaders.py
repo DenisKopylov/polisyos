@@ -4,8 +4,8 @@ import json
 from typing import Any, Mapping
 
 from polisyos.ir.model_spec import ModelSpec
-from polisyos.ir.policy_spec import PolicySpec
-from polisyos.ir.problem_frame import ProblemFrame
+from polisyos.ir.governance.policy_spec import PolicySpec
+from polisyos.ir.governance.problem_frame import ProblemFrame
 from polisyos.ir.trinity import TRINITY_BUNDLE_SCHEMA_VERSION, TrinityBundle
 
 

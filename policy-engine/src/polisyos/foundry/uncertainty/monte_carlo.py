@@ -6,7 +6,7 @@ import jax
 import jax.numpy as jnp
 import jax.random as jrandom
 
-from polisyos.ir.uncertainty import (
+from polisyos.ir.analytics.uncertainty import (
     DistributionFamily,
     IntervalSemantics,
     PropagationMethod,

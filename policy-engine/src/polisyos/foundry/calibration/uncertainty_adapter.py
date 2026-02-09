@@ -5,7 +5,7 @@ from statistics import NormalDist
 from typing import Mapping
 
 from polisyos.foundry.calibration.report import CalibrationReport
-from polisyos.ir.uncertainty import (
+from polisyos.ir.analytics.uncertainty import (
     DistributionFamily,
     IntervalSemantics,
     PropagationMethod,

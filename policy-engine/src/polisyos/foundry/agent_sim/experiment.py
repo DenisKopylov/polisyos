@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import hashlib
 import json
 import pickle
 from dataclasses import asdict, dataclass, field
@@ -11,6 +10,8 @@ from typing import Any
 import equinox as eqx
 import jax
 import jax.numpy as jnp
+
+from polisyos.core.canon import truncated_hash
 
 
 def _json_default(value: Any):
@@ -40,7 +41,7 @@ class ExperimentConfig:
 
     def config_hash(self) -> str:
         config_str = json.dumps(self.to_dict(), sort_keys=True, default=_json_default)
-        return hashlib.sha256(config_str.encode()).hexdigest()[:12]
+        return truncated_hash(config_str, length=12)
 
 
 @dataclass

@@ -26,7 +26,7 @@ from polisyos.scientist.search.stopping import (
     MaxIterations,
     MaxWallTime,
 )
-from polisyos.scientist.workflow.engine_simple import SimpleLoopEngine
+from polisyos.scientist.workflows.engine_simple import SimpleLoopEngine
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -371,7 +371,7 @@ class TestWorkflowEngineAbstraction:
 
     def test_engine_protocol_compliance(self):
         """Verify engines satisfy WorkflowEngine protocol."""
-        from polisyos.scientist.workflow.engine_base import WorkflowEngine
+        from polisyos.scientist.workflows.engine_base import WorkflowEngine
 
         engine = SimpleLoopEngine([("test", lambda s: s)])
 

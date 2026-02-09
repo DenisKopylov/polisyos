@@ -376,8 +376,6 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │       │   │   │   │   ├── panel.py  # Panel data models.
 │       │   │   │   │   ├── protocols.py  # Econometric protocols.
 │       │   │   │   │   └── timeseries.py  # Time series models.
-│       │   │   │   ├── microsim/  # Microsimulation methods.
-│       │   │   │   │   └── __init__.py
 │       │   │   │   └── optimization/  # Optimization methods.
 │       │   │   │       └── __init__.py
 │       │   │   ├── testing/  # Method testing infrastructure.
@@ -560,7 +558,7 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │       │       └── enrich.py  # Knowledge enrichment.
 │       └── scientist/  # Orchestration: agents, workflows, governance, search.
 │           ├── __init__.py
-│           ├── foundry.py  # Foundry integration bridge.
+│           ├── adapters/foundry_bridge.py  # Foundry integration bridge.
 │           ├── publisher.py  # Result publishing.
 │           ├── replay_backend.py  # Replay backend for re-execution.
 │           ├── agent/  # Hierarchical agent system.
@@ -707,15 +705,16 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │           │       ├── space.py  # Search space definitions.
 │           │       ├── surrogate.py  # Surrogate modeling.
 │           │       └── types.py  # Strategy types.
-│           ├── workflow/  # Workflow engines.
+│           ├── adapters/  # External system bridges.
 │           │   ├── __init__.py
-│           │   ├── engine_base.py  # Engine base class.
-│           │   ├── engine_langgraph.py  # LangGraph engine.
-│           │   └── engine_simple.py  # Simple sequential engine.
-│           └── workflows/  # Predefined workflows.
+│           │   └── foundry_bridge.py  # Foundry adapter.
+│           └── workflows/  # Workflow engines and predefined builders.
 │               ├── __init__.py
 │               ├── builder.py  # Workflow builder.
-│               └── default.py  # Default workflow.
+│               ├── default.py  # Default workflow.
+│               ├── engine_base.py  # Engine base class.
+│               ├── engine_langgraph.py  # LangGraph engine.
+│               └── engine_simple.py  # Simple sequential engine.
 ├── schemas/  # ABI schema registry and snapshots.
 │   ├── __init__.py
 │   ├── abi_models.py  # ABI model definitions for schema generation.

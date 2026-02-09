@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from polisyos.foundry.methods.exceptions import MethodAlreadyRegisteredError
 from polisyos.foundry.methods.registry import MethodRegistry
-from polisyos.ir.causal import (
+from polisyos.ir.analytics.causal import (
     CausalEffectReport,
     CausalMethod,
     DiagnosticTest,

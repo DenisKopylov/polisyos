@@ -2,13 +2,13 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 from email.utils import parsedate_to_datetime
-import hashlib
 import json
 from typing import Any, AsyncIterator, ClassVar, Iterable
 
 import aiohttp
 import pandas as pd
 
+from polisyos.core.canon import content_hash as compute_content_hash
 from polisyos.fabric.connectors.base import (
     BaseConnector,
     ConnectionConfig,
@@ -150,7 +150,7 @@ class UKONSConnector(BaseConnector[pd.DataFrame]):
         )
         frame = self._parse_observations(payload, dataset_id)
         now = datetime.now(timezone.utc)
-        content_hash = f"sha256:{hashlib.sha256(raw).hexdigest()}"
+        content_hash = compute_content_hash(raw, prefix=True)
         version, source_updated_at = _build_version(
             etag=headers.get("ETag"),
             last_modified=headers.get("Last-Modified"),
@@ -404,4 +404,3 @@ def _parse_http_datetime(value: str | None) -> datetime | None:
 
 
 __all__ = ["UKONSConnector"]
-

@@ -3,11 +3,12 @@ from __future__ import annotations
 import contextlib
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
-import hashlib
 import json
 import os
 from pathlib import Path
 from typing import Any
+
+from polisyos.core.canon import content_hash
 
 
 def _utc_now() -> datetime:
@@ -83,7 +84,7 @@ class FreshnessStateStore:
         normalized = "|".join(part.strip() for part in parts if part and part.strip())
         if not normalized:
             return "global"
-        return hashlib.sha256(normalized.encode("utf-8")).hexdigest()
+        return content_hash(normalized)
 
     def _state_path(self, key: str) -> Path:
         return self._states / f"{key}.json"

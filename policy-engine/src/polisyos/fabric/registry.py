@@ -2,17 +2,19 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Dict
 
 from pydantic import ValidationError
 
+from polisyos.core.registry.generic import GenericRegistry
 from polisyos.fabric.manifest import DatasetManifest
 
 
 class ManifestRegistry:
     def __init__(self, curated_dir: Path) -> None:
         self.curated_dir = curated_dir
-        self._manifests: Dict[str, DatasetManifest] = {}
+        self._manifests = GenericRegistry[str, DatasetManifest](
+            key_fn=lambda manifest: manifest.dataset_name,
+        )
         self._load_manifests()
 
     def _load_manifests(self) -> None:
@@ -26,12 +28,12 @@ class ManifestRegistry:
                 raise ValueError(f"Invalid manifest {path}: {exc}") from exc
             except json.JSONDecodeError as exc:
                 raise ValueError(f"Invalid manifest JSON {path}: {exc}") from exc
-            self._manifests[manifest.dataset_name] = manifest
+            self._manifests.register(manifest, override=True)
 
     def require(self, dataset_name: str) -> DatasetManifest:
-        if dataset_name not in self._manifests:
+        manifest = self._manifests.get(dataset_name)
+        if manifest is None:
             raise ValueError(f"Missing DatasetManifest for '{dataset_name}' in {self.curated_dir}")
-        manifest = self._manifests[dataset_name]
         if manifest.reconciliation and manifest.reconciliation.status != "pass":
             raise ValueError(
                 f"Dataset '{dataset_name}' marked unusable: reconciliation {manifest.reconciliation.status}"

@@ -15,7 +15,7 @@ from polisyos.foundry.analysis.distributional import (
     build_income_quintile_breakdown,
 )
 from polisyos.foundry.executor import load_state_snapshot
-from polisyos.ir.distributional import persist_distributional_report
+from polisyos.ir.analytics.distributional import persist_distributional_report
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.protocol import NodeEvent, NodeOutcome, NodeSpec
 from polisyos.scientist.engine.state import ExperimentState

@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-import hashlib
 from datetime import datetime, timezone
 
-from polisyos.ir.applicability import IdSelector, NormApplicability, TimeWindow
+from polisyos.core.canon import content_hash
+from polisyos.ir.analytics.applicability import IdSelector, NormApplicability, TimeWindow
 from polisyos.ir.canon import to_canonical_bytes
 from polisyos.ir.world.claim import Claim
 
@@ -27,7 +27,7 @@ def build_norm_applicability(*, claim: Claim, jurisdiction_norm: str) -> NormApp
 
 def applicability_key(applicability: NormApplicability) -> str:
     payload = applicability.model_dump(mode="python")
-    digest = hashlib.sha256(to_canonical_bytes(payload)).hexdigest()
+    digest = content_hash(to_canonical_bytes(payload))
     return digest[:32]
 
 

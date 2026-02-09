@@ -342,7 +342,7 @@ Validation rules:
 #### 6.1.2 `NormRule.applicability`
 
 Replace embedded `Applicability` in `norm_pack.py` with:
-- `from polisyos.ir.applicability import NormApplicability`
+- `from polisyos.ir.analytics.applicability import NormApplicability`
 - `NormRule.applicability: NormApplicability = Field(default_factory=NormApplicability)`
 
 ### 6.2 Backward compatibility strategy
@@ -805,7 +805,7 @@ This section is the engineering breakdown for implementing E1.3.
 - Consider generating new schema snapshots for:
   - `polisyos.ir.norm_pack:NormPack`
   - `polisyos.ir.citations:CitationRef`
-  - `polisyos.ir.applicability:NormApplicability`
+  - `polisyos.ir.analytics.applicability:NormApplicability`
   - `polisyos.ir.linker.reports:LinkReport`
 
 If adding snapshots, document how to regenerate using:
@@ -819,7 +819,7 @@ python policy-engine/tools/gen_schema.py --model polisyos.ir.norm_pack:NormPack 
 E1.3 is complete when all are true:
 
 1. IR defines unified citation primitive (`polisyos.ir.citations`) that can express doc→version→fragment/anchor/offset and references evidence/provenance by artifact id.
-2. IR defines applicability as declarative data (`polisyos.ir.applicability`) with jurisdiction/time + subject/object + exceptions/conditions.
+2. IR defines applicability as declarative data (`polisyos.ir.analytics.applicability`) with jurisdiction/time + subject/object + exceptions/conditions.
 3. IR provides `link_trinity()` as a pure contract:
    - signature is stable
    - inputs are TrinityBundle + RegistryBundle

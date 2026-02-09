@@ -39,7 +39,7 @@ from polisyos.foundry.calibration.report import (
 )
 from polisyos.foundry.calibration.uncertainty_adapter import envelopes_from_calibration
 from polisyos.foundry.domain.state import GlobalState
-from polisyos.ir.calibration import CalibrationConfig, CalibrationTarget, TrainableParamRef
+from polisyos.ir.analytics.calibration import CalibrationConfig, CalibrationTarget, TrainableParamRef
 from polisyos.ir.kernel import (
     ConstraintRegistry,
     MechanismTypeRegistry,

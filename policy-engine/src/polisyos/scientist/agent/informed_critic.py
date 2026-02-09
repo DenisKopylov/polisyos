@@ -2,16 +2,16 @@
 
 from __future__ import annotations
 
-import hashlib
 from datetime import datetime
 from decimal import Decimal, InvalidOperation
 import os
 import uuid
 from typing import Any, Iterable
 
+from polisyos.core.canon import truncated_hash
 from polisyos.core.observability import get_metrics, get_tracer
 from polisyos.ir.norm_pack import RuleType
-from polisyos.ir.selector_expr import SelectorAll, SelectorAny, SelectorExpr, SelectorNot, SelectorPredicate
+from polisyos.ir.governance.selector_expr import SelectorAll, SelectorAny, SelectorExpr, SelectorNot, SelectorPredicate
 from polisyos.ir.trinity import TrinityBundle
 from pydantic import BaseModel, ConfigDict, Field
 from polisyos.scientist.agent.constraint_context import ConstraintContextAssembler
@@ -155,7 +155,7 @@ class InformedCriticAgent:
                     report_id=inner_report.report_id or f"critique_{uuid.uuid4().hex[:8]}",
                     ir_ref=(
                         inner_report.ir_ref
-                        or f"bundle_{hashlib.sha256(bundle.model_dump_json().encode()).hexdigest()[:16]}"
+                        or f"bundle_{truncated_hash(bundle.model_dump_json(), length=16)}"
                     ),
                     problem_frame_ref=inner_report.problem_frame_ref or problem_frame.frame_id,
                     verdict=verdict,
@@ -482,8 +482,7 @@ class InformedCriticAgent:
                 domain.lower(),
             ]
         )
-        digest = hashlib.sha256(material.encode("utf-8")).hexdigest()
-        return digest[:24]
+        return truncated_hash(material, length=24)
 
 
 __all__ = ["InformedCriticAgent", "InformedCriticConfig"]

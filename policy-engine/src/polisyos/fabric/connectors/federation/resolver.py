@@ -8,13 +8,13 @@ from __future__ import annotations
 
 from datetime import datetime
 from typing import Any
-import hashlib
 import json
 
 import numpy as np
 import pandas as pd
 
 from polisyos.common.logger import get_logger
+from polisyos.core.canon import content_hash
 
 from polisyos.fabric.connectors.federation.types import (
     AuditLevel,
@@ -404,7 +404,7 @@ class ConflictResolver:
                 "column": context.column or "",
             }
             encoded = json.dumps(payload, sort_keys=True, default=str).encode("utf-8")
-            return int(hashlib.sha256(encoded).hexdigest(), 16)
+            return int(content_hash(encoded), 16)
 
         return min(candidates, key=stable_key)
 

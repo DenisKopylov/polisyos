@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import hashlib
 import re
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timedelta, timezone
@@ -11,7 +10,7 @@ from typing import Any
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
-from polisyos.core.canon import from_canonical_bytes
+from polisyos.core.canon import from_canonical_bytes, truncated_hash
 
 FAILURE_INDEX_KIND = "scientist.failure_pattern_index"
 FAILURE_INDEX_SCHEMA = SchemaInfo(name=FAILURE_INDEX_KIND, version="1.1")
@@ -272,8 +271,7 @@ def build_failure_signature(
             domain.strip().lower() or "general",
         ]
     )
-    digest = hashlib.sha256(material.encode("utf-8")).hexdigest()
-    return f"sig_{digest[:20]}"
+    return f"sig_{truncated_hash(material, length=20)}"
 
 
 __all__ = [

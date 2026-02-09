@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-import hashlib
 import re
 from datetime import datetime, timezone
 from decimal import Decimal
 from typing import Any
 
+from polisyos.core.canon import content_hash
 from polisyos.ir.canon import to_canonical_bytes
 from polisyos.ir.world.claim import Claim
 from polisyos.ir.world.conflict import ConflictKind
@@ -55,7 +55,7 @@ def conflict_key_payload_v1(claim: Claim) -> dict[str, Any]:
 
 def conflict_key_v1(claim: Claim) -> str:
     canonical = to_canonical_bytes(conflict_key_payload_v1(claim))
-    return hashlib.sha256(canonical).hexdigest()
+    return content_hash(canonical)
 
 
 def value_signature_v1(claim: Claim) -> str:

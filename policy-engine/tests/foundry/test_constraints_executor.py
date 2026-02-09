@@ -21,9 +21,9 @@ from polisyos.ir.kernel import (
 )
 from polisyos.ir.kernel.constraints import ConstraintRegistry, ConstraintSpec
 from polisyos.ir.model_spec import ModelSpec
-from polisyos.ir.policy_spec import PolicySpec
-from polisyos.ir.problem_frame import ConstraintSpec as ProblemConstraintSpec
-from polisyos.ir.problem_frame import ConstraintType, ProblemDomain, ProblemFrame
+from polisyos.ir.governance.policy_spec import PolicySpec
+from polisyos.ir.governance.problem_frame import ConstraintSpec as ProblemConstraintSpec
+from polisyos.ir.governance.problem_frame import ConstraintType, ProblemDomain, ProblemFrame
 from polisyos.ir.trinity import TrinityBundle
 
 CTX_REF = "sha256:0000000000000000000000000000000000000000000000000000000000000000"

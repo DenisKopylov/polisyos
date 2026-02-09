@@ -8,7 +8,7 @@ from polisyos.foundry.methods.catalog.causal.protocols import (
     PanelObservationalData,
     RDDObservationalData,
 )
-from polisyos.ir.causal import CausalEffectReport, CausalMethod, EstimationStatus
+from polisyos.ir.analytics.causal import CausalEffectReport, CausalMethod, EstimationStatus
 
 
 def test_panel_observational_data_rejects_shape_mismatch():

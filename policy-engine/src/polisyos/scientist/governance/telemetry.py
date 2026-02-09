@@ -3,9 +3,9 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any, Dict, List, Optional
-import hashlib
 import json
 
+from polisyos.core.canon import truncated_hash
 from polisyos.core.trace import TraceRecord
 
 
@@ -39,7 +39,7 @@ class PassSpan:
     def set_inputs_hash(self, ir_payload: dict) -> None:
         """Compute and set hash of inputs for reproducibility."""
         content = json.dumps(ir_payload, sort_keys=True, default=str)
-        self.inputs_hash = hashlib.sha256(content.encode()).hexdigest()[:16]
+        self.inputs_hash = truncated_hash(content, length=16)
 
 
 @dataclass

@@ -9,6 +9,7 @@ from __future__ import annotations
 from datetime import datetime, timezone, timedelta
 
 from polisyos.common.logger import get_logger
+from polisyos.core.evaluation import WeightedScorer
 from polisyos.fabric.connectors.quality.report import DataQualityReport
 from polisyos.ir.connectors import ConnectorMetadataSpec, TrustLevel
 
@@ -36,6 +37,14 @@ class SourceRanker:
         """Initialize ranker with custom or default weights."""
         self.weights = weights or RankingWeights()
         self.weights.validate_sum()
+        self._scorer = WeightedScorer(
+            {
+                "trust": self.weights.trust,
+                "completeness": self.weights.completeness,
+                "freshness": self.weights.freshness,
+                "latency": self.weights.latency,
+            }
+        )
 
     def rank_sources(
         self,
@@ -115,20 +124,13 @@ class SourceRanker:
         )
         latency_score = self._calculate_latency_score(connector, quality_report)
 
-        total_score = (
-            self.weights.trust * trust_score
-            + self.weights.completeness * completeness_score
-            + self.weights.freshness * freshness_score
-            + self.weights.latency * latency_score
-        )
-
         component_scores = {
             "trust": trust_score,
             "completeness": completeness_score,
             "freshness": freshness_score,
             "latency": latency_score,
         }
-
+        total_score = self._scorer.score(component_scores).score
         return total_score, component_scores
 
     def _calculate_trust_score(self, connector: ConnectorMetadataSpec) -> float:

@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-import hashlib
 from pathlib import Path
 from urllib.parse import parse_qsl, urlencode, urlparse, urlunparse
 
+from polisyos.core.canon import content_hash
 from polisyos.core.contracts.scholar import SourceSpec
 
 from polisyos.scholar.errors import ScholarDiscoverError, ScholarValidationError
@@ -86,7 +86,7 @@ def _normalize_single_source(source: SourceSpec) -> SourceSpec:
                 stage="discover",
                 source_identity=source_identity_key(source),
             )
-        locator = f"bytes.sha256_{hashlib.sha256(source.data).hexdigest()}"
+        locator = f"bytes.sha256_{content_hash(source.data)}"
         return SourceSpec(
             kind="bytes",
             canonical_url=None,

@@ -10,7 +10,7 @@ from polisyos.foundry.analysis.distributional import (
     compute_gini,
     compute_palma_ratio,
 )
-from polisyos.ir.distributional import (
+from polisyos.ir.analytics.distributional import (
     CohortDimension,
     CohortImpact,
     DimensionBreakdown,

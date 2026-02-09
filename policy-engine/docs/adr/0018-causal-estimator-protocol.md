@@ -19,7 +19,7 @@ Scientist/Foundry flows.
 
 1. Causal methods are implemented as standard Foundry methods under:
    `polisyos.foundry.methods.catalog.causal`.
-2. Causal output contract is `polisyos.ir.causal.CausalEffectReport`.
+2. Causal output contract is `polisyos.ir.analytics.causal.CausalEffectReport`.
 3. `CausalEffectReport` carries:
    - static method metadata trace (`method`, `estimand`, assumptions)
    - dynamic diagnostics (`diagnostics`, placebo outputs, status)

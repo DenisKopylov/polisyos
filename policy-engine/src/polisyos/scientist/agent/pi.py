@@ -6,12 +6,12 @@ Implements the PIAgent protocol with deterministic outputs suitable for tests.
 
 from __future__ import annotations
 
-import hashlib
 import json
 import uuid
 from datetime import datetime
 from typing import TYPE_CHECKING, Any
 
+from polisyos.core.canon import truncated_hash
 from polisyos.scientist.agent.prompts import get_pi_prompt
 from polisyos.scientist.agent.protocols import (
     AgentRole,
@@ -44,7 +44,7 @@ class MockPIAgent:
         if not request or not request.strip():
             raise ValueError("Request cannot be empty")
 
-        base_hash = hashlib.sha256(request.encode()).hexdigest()[:8]
+        base_hash = truncated_hash(request, length=8)
 
         return [
             SubTask(
@@ -88,7 +88,7 @@ class MockPIAgent:
         if not request or not request.strip():
             raise ValueError("Request cannot be empty")
 
-        frame_id = f"pf_{hashlib.sha256(request.encode()).hexdigest()[:16]}"
+        frame_id = f"pf_{truncated_hash(request, length=16)}"
 
         domain = domain_hint or "economic"
         lowered = request.lower()

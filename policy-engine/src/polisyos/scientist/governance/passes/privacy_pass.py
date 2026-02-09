@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import List
 
-from polisyos.ir.data_views import AccessTier
+from polisyos.ir.analytics.data_views import AccessTier
 
 from .base import ValidatorPass, PassContext, ComplianceIssue, IssueSeverity
 

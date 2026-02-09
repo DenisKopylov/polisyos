@@ -7,24 +7,24 @@ from enum import Enum
 from pathlib import Path
 from typing import Any, Mapping
 
-import jax
-import jax.numpy as jnp
 import numpy as np
 from pydantic import BaseModel
+
+try:  # pragma: no cover - optional dependency for local/dev environments
+    import jax
+    import jax.numpy as jnp
+except ModuleNotFoundError:  # pragma: no cover
+    jax = None  # type: ignore[assignment]
+    jnp = np  # type: ignore[assignment]
 
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec
-from polisyos.foundry.executor import (
-    apply_state_delta_and_snapshot,
-    execute_program_graph,
-    load_state_snapshot,
-)
 from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
 from polisyos.foundry.methods.discovery import bootstrap_registry
 from polisyos.foundry.methods.exceptions import MethodNotFoundError
 from polisyos.foundry.methods.registry import MethodRegistry
-from polisyos.ir.validation import ValidationIssue
+from polisyos.ir.governance.validation import ValidationIssue
 from polisyos.scientist.compute.job_spec import JobKey, JobResult, JobSpec
 
 
@@ -70,6 +70,11 @@ class LocalBackend(RunnerBackend):
         registry_content: Any,
         seed: int,
     ) -> ExecutionResult:
+        from polisyos.foundry.executor import (
+            apply_state_delta_and_snapshot,
+            execute_program_graph,
+        )
+
         store = FileSystemCAS(cas_root)
         exec_artifacts = execute_program_graph(
             store,
@@ -98,22 +103,6 @@ class LocalBackend(RunnerBackend):
             applied=applied,
             final_state=final_state,
         )
-
-
-class RayBackend(RunnerBackend):
-    """Skeleton for future distributed execution."""
-
-    def run(
-        self,
-        *,
-        cas_root: Path,
-        program_ref: ArtifactRef,
-        exec_plan_ref: ArtifactRef,
-        base_state: Any,
-        registry_content: Any,
-        seed: int,
-    ) -> ExecutionResult:
-        raise NotImplementedError("RayBackend is not implemented yet.")
 
 
 class MethodBackend:
@@ -222,8 +211,10 @@ class MethodBackend:
 
 def resolve_backend(kind: str | None) -> RunnerBackend:
     backend_kind = (kind or os.getenv("POLISYOS_RUNNER_BACKEND") or "local").lower()
-    if backend_kind == "ray":
-        return RayBackend()
+    if backend_kind != "local":
+        raise ValueError(
+            f"Unsupported runner backend '{backend_kind}'. Only 'local' is available."
+        )
     return LocalBackend()
 
 
@@ -311,6 +302,8 @@ def _run_legacy_job(
     store = FileSystemCAS(cas_root) if cas_root is not None else None
     if base_state is None and store is not None and spec.state_snapshot_ref is not None:
         try:
+            from polisyos.foundry.executor import load_state_snapshot
+
             base_state = load_state_snapshot(store, snapshot_ref=spec.state_snapshot_ref)
         except Exception as exc:
             issues.append(
@@ -328,14 +321,17 @@ def _run_legacy_job(
         return JobResult(job_key=job_key, issues=issues, warnings=["missing inputs for execution"])
 
     try:
-        try:
-            cpu_device = jax.devices("cpu")[0]
-        except Exception:
-            cpu_device = None
-        try:
-            prefer_cpu = any(device.platform == "metal" for device in jax.devices())
-        except Exception:
-            prefer_cpu = False
+        cpu_device = None
+        prefer_cpu = False
+        if jax is not None:
+            try:
+                cpu_device = jax.devices("cpu")[0]
+            except Exception:
+                cpu_device = None
+            try:
+                prefer_cpu = any(device.platform == "metal" for device in jax.devices())
+            except Exception:
+                prefer_cpu = False
         if cpu_device is not None and prefer_cpu:
             with jax.default_device(cpu_device):
                 result = backend.run(

@@ -9,8 +9,8 @@ from polisyos.core.contracts.foundry import ExecPlan, ProgramGraph, ProgramGraph
 from polisyos.fabric.io.db import SimulationDB
 from polisyos.foundry.calibration.calibrator import Calibrator, CalibratorInputs
 from polisyos.foundry.domain.state import GlobalState
-from polisyos.ir.calibration import CalibrationConfig, CalibrationTarget
-from polisyos.ir.data_views import AccessTier, DataViewRequest, DataViewType
+from polisyos.ir.analytics.calibration import CalibrationConfig, CalibrationTarget
+from polisyos.ir.analytics.data_views import AccessTier, DataViewRequest, DataViewType
 from polisyos.ir.kernel.mechanisms import DEFAULT_MECHANISM_REGISTRY
 from polisyos.ir.kernel.merge_rules import DEFAULT_MERGE_RULE_REGISTRY
 from polisyos.ir.kernel.slots import DEFAULT_SLOT_REGISTRY

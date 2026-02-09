@@ -3,7 +3,7 @@ from __future__ import annotations
 import pytest
 from pydantic import ValidationError
 
-from polisyos.ir.applicability import (
+from polisyos.ir.analytics.applicability import (
     ApplicabilityEntitySelector,
     IdSelector,
     NormApplicability,

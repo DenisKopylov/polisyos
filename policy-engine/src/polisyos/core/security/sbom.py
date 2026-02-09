@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import hashlib
 import json
 import os
 import subprocess
@@ -11,6 +10,7 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from polisyos.core.canon import content_hash
 from polisyos.core.observability import get_metrics
 
 
@@ -322,7 +322,7 @@ def _extract_sbom_metadata(path: Path, *, source: str, generator: str) -> SBOMMe
         component_count=len(payload.get("components", [])),
         generator_tool=generator,
         source=source,
-        sbom_hash=hashlib.sha256(content).hexdigest(),
+        sbom_hash=content_hash(content),
     )
 
 

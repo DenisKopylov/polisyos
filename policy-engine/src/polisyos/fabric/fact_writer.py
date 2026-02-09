@@ -3,12 +3,12 @@ from __future__ import annotations
 import json
 import time
 from decimal import Decimal
-from hashlib import sha256
 from pathlib import Path
 from typing import Any
 
 import pandas as pd
 
+from polisyos.core.canon import content_hash
 from polisyos.fabric.segment_manifest import write_segment_manifest
 from polisyos.ir.fact_log import (
     Fact,
@@ -145,7 +145,7 @@ def write_fact_segment(
     df.to_parquet(segment_path, index=False)
 
     data = segment_path.read_bytes()
-    digest = sha256(data).hexdigest()
+    digest = content_hash(data)
 
     time_values = [r["valid_time"] for r in rows if r["valid_time"] is not None]
     time_start = min(time_values) if time_values else None

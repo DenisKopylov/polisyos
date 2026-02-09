@@ -6,7 +6,7 @@ from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.contracts.fabric import UncertaintyBounds, UncertaintyBoundsRef
 from polisyos.fabric.trust_adapter import envelope_from_trust_bounds
-from polisyos.ir.uncertainty import UncertaintyEnvelope
+from polisyos.ir.analytics.uncertainty import UncertaintyEnvelope
 
 
 def two_pass_compare(

@@ -1,12 +1,12 @@
 from __future__ import annotations
 
-import hashlib
 import json
 from typing import Any
 
 from pydantic import BaseModel, Field, model_validator
 
 from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.core.canon import content_hash
 
 
 class JobSpec(BaseModel):
@@ -49,7 +49,7 @@ class JobKey(BaseModel):
             for key in ("method_fqn", "method_version", "method_params", "input_refs"):
                 payload_obj.pop(key, None)
         payload = json.dumps(payload_obj, sort_keys=True)
-        digest = hashlib.sha256(payload.encode("utf-8")).hexdigest()
+        digest = content_hash(payload)
         return JobKey(value=f"job:{digest}")
 
 

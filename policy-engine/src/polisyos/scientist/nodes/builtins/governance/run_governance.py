@@ -11,7 +11,7 @@ from polisyos.core.components import Capability, ComponentId, ComponentKind, Com
 from polisyos.core.contracts.fabric import DataSnapshot
 from polisyos.core.contracts.lex import ComplianceIssue, IssueSeverity
 from polisyos.core.contracts.scientist import GovernanceReportRef
-from polisyos.ir.gate import GateContext, GateDecision, GatePriority, GateRequest, GateVerdict
+from polisyos.ir.governance.gate import GateContext, GateDecision, GatePriority, GateRequest, GateVerdict
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.protocol import NodeEvent, NodeOutcome, NodeSpec
 from polisyos.scientist.engine.state import ExperimentState

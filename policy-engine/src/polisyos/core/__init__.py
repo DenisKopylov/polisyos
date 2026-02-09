@@ -6,10 +6,14 @@ import importlib
 
 __all__ = [
     "artifacts",
+    "backends",
     "canon",
     "components",
     "contracts",
+    "discovery",
+    "evaluation",
     "errors",
+    "llm",
     "observability",
     "registry",
     "run",

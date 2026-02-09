@@ -14,10 +14,10 @@ from polisyos.foundry.compile.api import compile as compile_foundry
 from polisyos.foundry.domain.state import GlobalState
 from polisyos.foundry.executor import apply_state_delta_and_snapshot, execute_program_graph
 from polisyos.ir.model_spec import ModelSpec
-from polisyos.ir.policy_spec import InterventionSpec, PolicySpec
-from polisyos.ir.problem_frame import ProblemDomain, ProblemFrame
-from polisyos.ir.schedule import ScheduleSpec
-from polisyos.ir.selector_expr import SelectorPredicate
+from polisyos.ir.governance.policy_spec import InterventionSpec, PolicySpec
+from polisyos.ir.governance.problem_frame import ProblemDomain, ProblemFrame
+from polisyos.ir.governance.schedule import ScheduleSpec
+from polisyos.ir.governance.selector_expr import SelectorPredicate
 from polisyos.ir.trinity import TrinityBundle
 from polisyos.ir.types import SelectorOperator
 

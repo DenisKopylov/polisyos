@@ -14,9 +14,7 @@ Design Goals:
 """
 from __future__ import annotations
 
-import hashlib
 import importlib
-import importlib.metadata
 import importlib.util
 import os
 import sys
@@ -25,6 +23,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import TYPE_CHECKING, Iterator, Sequence
 
+from polisyos.core.discovery import discovery_module_name, list_entry_points
 from polisyos.common.logger import get_logger
 
 if TYPE_CHECKING:
@@ -183,12 +182,22 @@ class ConnectorDiscovery:
     def _discover_entry_points(self) -> Iterator[type["SourceConnector"]]:
         """Discover connectors registered via entry points."""
         try:
-            # Python 3.10+ API
-            eps = importlib.metadata.entry_points(group=ENTRY_POINT_GROUP)
-        except TypeError:
-            # Python 3.9 compatibility
-            all_eps = importlib.metadata.entry_points()
-            eps = all_eps.get(ENTRY_POINT_GROUP, [])
+            eps = list_entry_points(group=ENTRY_POINT_GROUP)
+        except Exception as e:
+            self._errors.append(
+                DiscoveryError(
+                    source="entrypoint",
+                    module_path=ENTRY_POINT_GROUP,
+                    error=str(e),
+                    error_type=type(e).__name__,
+                )
+            )
+            logger.warning(
+                "Failed to enumerate connector entry points",
+                group=ENTRY_POINT_GROUP,
+                error=str(e),
+            )
+            return
 
         for ep in eps:
             try:
@@ -401,9 +410,12 @@ class ConnectorDiscovery:
 
     def _unique_module_name(self, file_path: Path) -> str:
         """Generate a unique module name to avoid sys.modules collisions."""
-        payload = str(file_path.resolve()).encode("utf-8")
-        digest = hashlib.sha256(payload).hexdigest()[:12]
-        return f"polisyos_dyn_{digest}"
+        return discovery_module_name(
+            file_path,
+            prefix="polisyos_dyn_",
+            algorithm="sha256",
+            digest_length=12,
+        )
 
     def _is_valid_connector(self, obj: type) -> bool:
         """

@@ -2,7 +2,7 @@
 
 - **Дата**: 2026-02-06
 - **Статус**: Accepted
-- **Решение**: Вынести Human Gate контракты в `polisyos.ir.gate` и централизовать lifecycle в `HumanGateProtocol`.
+- **Решение**: Вынести Human Gate контракты в `polisyos.ir.governance.gate` и централизовать lifecycle в `HumanGateProtocol`.
 
 ## Контекст
 

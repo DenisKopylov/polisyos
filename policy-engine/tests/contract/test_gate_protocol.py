@@ -5,7 +5,7 @@ import json
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
-from polisyos.ir.gate import GateContext, GateVerdict
+from polisyos.ir.governance.gate import GateContext, GateVerdict
 from polisyos.scientist.kernel.gate_protocol import HumanGateProtocol
 
 

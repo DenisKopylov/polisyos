@@ -4,7 +4,7 @@ from typing import Mapping
 
 import jax.numpy as jnp
 
-from polisyos.ir.uncertainty import DistributionFamily, UncertaintyEnvelope
+from polisyos.ir.analytics.uncertainty import DistributionFamily, UncertaintyEnvelope
 
 
 def extract_std(env: UncertaintyEnvelope) -> float:

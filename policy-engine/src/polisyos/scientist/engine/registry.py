@@ -11,6 +11,7 @@ from polisyos.core.components import (
     discover_components,
 )
 from polisyos.core.components.protocols import ComponentProvider
+from polisyos.core.registry.generic import GenericRegistry
 
 from polisyos.scientist.engine.errors import UnknownNodeError
 from polisyos.scientist.engine.protocol import Node, NodeSpec
@@ -20,8 +21,12 @@ class NodeRegistry:
     """In-process registry for Scientist nodes."""
 
     def __init__(self) -> None:
-        self._nodes: dict[str, Node] = {}
-        self._component_keys: dict[str, str] = {}
+        self._nodes = GenericRegistry[str, Node](
+            key_fn=lambda node: str(node.spec.metadata.component_id),
+            indexers={
+                "component_key": lambda node: self._component_key(node.spec.metadata.component_id),
+            },
+        )
 
     @staticmethod
     def _component_key(component_id: ComponentId) -> str:
@@ -40,15 +45,18 @@ class NodeRegistry:
         node_id_str = str(node_id)
         component_key = self._component_key(node_id)
 
-        if node_id_str in self._nodes:
+        if self._nodes.get(node_id_str) is not None:
             raise ValueError(f"Duplicate node_id: {node_id_str}")
-        if component_key in self._component_keys and self._component_keys[component_key] != node_id_str:
+        component_versions = self._nodes.find("component_key", component_key)
+        if component_versions and any(
+            str(row.spec.metadata.component_id) != node_id_str for row in component_versions
+        ):
+            existing = str(component_versions[0].spec.metadata.component_id)
             raise ValueError(
-                f"Conflicting node versions for {component_key}: {self._component_keys[component_key]} vs {node_id_str}"
+                f"Conflicting node versions for {component_key}: {existing} vs {node_id_str}"
             )
 
-        self._nodes[node_id_str] = node
-        self._component_keys[component_key] = node_id_str
+        self._nodes.register(node)
 
     def register_provider(self, provider: ComponentProvider) -> None:
         metadata = provider.metadata

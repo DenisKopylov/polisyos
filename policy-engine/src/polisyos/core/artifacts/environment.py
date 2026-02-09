@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import hashlib
 import os
 import platform
 import re
@@ -15,6 +14,8 @@ from pathlib import Path
 from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, computed_field
+
+from polisyos.core.canon import content_hash, streaming_hash, truncated_hash
 
 from .manifest import ArtifactRef
 
@@ -63,7 +64,7 @@ class CPUInfo(BaseModel):
             f"{self.architecture}:{self.has_avx}:{self.has_avx2}:"
             f"{self.has_avx512}:{self.has_amx}:{self.has_neon}"
         )
-        return hashlib.sha256(flags.encode()).hexdigest()[:16]
+        return truncated_hash(flags, length=16)
 
 
 class GPUInfo(BaseModel):
@@ -278,7 +279,7 @@ class EnvironmentManifest(BaseModel):
             lib_fingerprint or "no-system-libs",
         ]
         combined = "|".join(critical_fields)
-        return hashlib.sha256(combined.encode()).hexdigest()[:32]
+        return truncated_hash(combined, length=32)
 
     def compatibility_score(self, other: "EnvironmentManifest") -> float:
         """
@@ -352,11 +353,8 @@ def _hash_file(path: Path, *, max_bytes: int | None = None) -> str | None:
             size = path.stat().st_size
             if size > max_bytes:
                 return None
-        hasher = hashlib.sha256()
         with open(path, "rb") as f:
-            for chunk in iter(lambda: f.read(8192), b""):
-                hasher.update(chunk)
-        return hasher.hexdigest()
+            return streaming_hash(iter(lambda: f.read(8192), b""))
     except (IOError, OSError):
         return None
 
@@ -1236,4 +1234,4 @@ def _fingerprint_system_libraries(libs: dict[str, SystemLibraryInfo]) -> str:
             parts.append(f"{name}:{info.sha256}")
         else:
             parts.append(f"{name}:nohash")
-    return hashlib.sha256("|".join(parts).encode()).hexdigest()[:16]
+    return truncated_hash("|".join(parts), length=16)

@@ -16,6 +16,7 @@ from polisyos.core.components import (
     validate_metadata,
 )
 from polisyos.core.components.ids import SemVer
+from polisyos.core.registry.generic import GenericRegistry
 from polisyos.fabric.claims.errors import ClaimUnsupportedExtractorError
 from polisyos.fabric.claims.types import ChunkContext, ClaimCandidate, ClaimExtractOptions
 from polisyos.ir.world.doc import DocMeta
@@ -51,8 +52,12 @@ class ExtractorBootstrapReport:
 class ClaimExtractorRegistry:
     def __init__(self) -> None:
         self._legacy: dict[str, ClaimExtractorFn] = {}
-        self._components: dict[str, ExtractorRecord] = {}
-        self._components_by_base: dict[str, list[ExtractorRecord]] = {}
+        self._components = GenericRegistry[str, ExtractorRecord](
+            key_fn=lambda row: row.extractor_id,
+            indexers={
+                "base_id": lambda row: row.extractor_id.rsplit("@", 1)[0],
+            },
+        )
 
     def register_legacy(self, extractor_id: str, fn: ClaimExtractorFn) -> None:
         self._legacy[extractor_id] = fn
@@ -73,20 +78,7 @@ class ClaimExtractorRegistry:
             kind=kind.value,
             metadata=metadata,
         )
-        self._components[component_id] = record
-
-        base_id = component_id.rsplit("@", 1)[0]
-        rows = [
-            row
-            for row in self._components_by_base.get(base_id, [])
-            if row.extractor_id != component_id
-        ]
-        rows.append(record)
-        rows.sort(
-            key=lambda row: SemVer.parse(row.extractor_id.rsplit("@", 1)[1]),
-            reverse=True,
-        )
-        self._components_by_base[base_id] = rows
+        self._components.register(record, override=True)
 
     def resolve(self, extractor_id: str) -> tuple[str, ClaimExtractorFn]:
         if extractor_id in self._legacy:
@@ -96,9 +88,13 @@ class ClaimExtractorRegistry:
         if direct is not None:
             return direct.extractor_id, direct.fn
 
-        rows = self._components_by_base.get(extractor_id.strip())
+        rows = self._components.find("base_id", extractor_id.strip())
         if rows:
-            selected = rows[0]
+            selected = sorted(
+                rows,
+                key=lambda row: SemVer.parse(row.extractor_id.rsplit("@", 1)[1]),
+                reverse=True,
+            )[0]
             return selected.extractor_id, selected.fn
 
         raise ClaimUnsupportedExtractorError(f"unsupported extractor_id: {extractor_id}")
@@ -124,7 +120,7 @@ class ClaimExtractorRegistry:
                     # Fall through to auto-selection to preserve backward compatibility.
                     pass
 
-        candidates = list(self._components.values())
+        candidates = self._components.values()
         if candidates:
             ranked = sorted(
                 candidates,
@@ -153,7 +149,7 @@ class ClaimExtractorRegistry:
     def list_extractors(self) -> list[str]:
         names = set(self._legacy.keys())
         names.update(self._components.keys())
-        names.update(self._components_by_base.keys())
+        names.update(str(value) for value in self._components.index_values("base_id"))
         return sorted(names)
 
 

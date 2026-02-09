@@ -3,7 +3,7 @@ from __future__ import annotations
 import pytest
 from pydantic import ValidationError
 
-from polisyos.ir.gate import GateContext, GateDecision, GateRequest, GateVerdict
+from polisyos.ir.governance.gate import GateContext, GateDecision, GateRequest, GateVerdict
 
 
 def test_gate_request_roundtrip() -> None:

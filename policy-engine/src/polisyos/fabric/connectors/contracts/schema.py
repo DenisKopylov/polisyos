@@ -14,7 +14,6 @@ Design principles:
 """
 from __future__ import annotations
 
-import hashlib
 import re
 from dataclasses import dataclass
 from datetime import datetime
@@ -23,6 +22,7 @@ from typing import TYPE_CHECKING, Any, Mapping, Sequence
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
+from polisyos.core.canon import content_hash as compute_content_hash
 from polisyos.ir.kernel.units import UnitRef
 
 if TYPE_CHECKING:
@@ -1046,7 +1046,7 @@ class DataSchema(BaseModel):
         }
 
         canonical = to_canonical_bytes(canonical_dict)
-        return f"sha256:{hashlib.sha256(canonical).hexdigest()}"
+        return compute_content_hash(canonical, prefix=True)
 
     @property
     def identity_key(self) -> tuple[str, str, str]:

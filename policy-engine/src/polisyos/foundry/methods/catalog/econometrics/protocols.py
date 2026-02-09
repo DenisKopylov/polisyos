@@ -7,7 +7,7 @@ import numpy as np
 from pydantic import BaseModel, ConfigDict, Field, field_serializer, field_validator, model_validator
 
 from polisyos.foundry.methods.base import MethodMetadata, MethodSignature
-from polisyos.ir.uncertainty import (
+from polisyos.ir.analytics.uncertainty import (
     DistributionFamily,
     IntervalSemantics,
     PropagationMethod,

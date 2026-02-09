@@ -9,13 +9,13 @@ from polisyos.core.contracts.foundry import StateSnapshotRef
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.foundry.domain.state import GlobalState
 from polisyos.foundry.executor import put_state_snapshot
-from polisyos.ir.policy_spec import InterventionSpec, PolicySpec
-from polisyos.ir.problem_frame import ProblemDomain, ProblemFrame
+from polisyos.ir.governance.policy_spec import InterventionSpec, PolicySpec
+from polisyos.ir.governance.problem_frame import ProblemDomain, ProblemFrame
 from polisyos.ir.model_spec import ModelSpec
 from polisyos.ir.trinity import TrinityBundle
 from polisyos.ir.types import SelectorOperator
 from polisyos.scientist.engine.state import ExperimentState
-from polisyos.scientist.foundry import DefaultFoundryPort
+from polisyos.scientist.adapters.foundry_bridge import DefaultFoundryPort
 from polisyos.scientist.workflows.builder import run_default_workflow
 
 

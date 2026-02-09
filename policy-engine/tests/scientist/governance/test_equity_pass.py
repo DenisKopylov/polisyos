@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from polisyos.core.artifacts.store import FileSystemCAS
-from polisyos.ir.distributional import (
+from polisyos.ir.analytics.distributional import (
     CohortDimension,
     CohortImpact,
     DimensionBreakdown,

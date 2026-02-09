@@ -26,7 +26,7 @@ from polisyos.foundry.methods.catalog.causal._common import (
     wrap_causal_output,
 )
 from polisyos.foundry.methods.catalog.causal.protocols import PanelObservationalData
-from polisyos.ir.causal import CausalMethod, DiagnosticTest, EstimationStatus, PlaceboResult
+from polisyos.ir.analytics.causal import CausalMethod, DiagnosticTest, EstimationStatus, PlaceboResult
 
 
 def _fit_scm_weights(

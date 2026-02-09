@@ -25,8 +25,8 @@ from polisyos.ir.surface import PolicySurfaceIR
 
 # after
 from polisyos.ir.trinity import TrinityBundle
-from polisyos.ir.problem_frame import ProblemFrame
-from polisyos.ir.policy_spec import PolicySpec
+from polisyos.ir.governance.problem_frame import ProblemFrame
+from polisyos.ir.governance.policy_spec import PolicySpec
 from polisyos.ir.model_spec import ModelSpec
 ```
 

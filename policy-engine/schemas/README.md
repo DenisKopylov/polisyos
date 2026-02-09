@@ -59,7 +59,7 @@ schemas/
 | Поле | Назначение |
 |------|-----------|
 | `abi_key` | Уникальный идентификатор модели |
-| `fqn` | Полный Python-путь к классу (`polisyos.ir.policy_spec.PolicySpec`) |
+| `fqn` | Полный Python-путь к классу (`polisyos.ir.governance.policy_spec.PolicySpec`) |
 | `module` | Целевая директория снапшотов: `ir` или `fabric` |
 | `priority` | Уровень строгости: P0 / P1 / P2 |
 | `compat_mode` | `strict` — любые добавления breaking; `tolerant` — optional-поля допустимы |

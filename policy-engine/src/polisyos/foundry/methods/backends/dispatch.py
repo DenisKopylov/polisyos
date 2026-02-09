@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from functools import lru_cache
 from typing import Any, Mapping
 
+from polisyos.core.backends import BackendDispatcher, BackendNotAvailableError as CoreBackendNotAvailableError
 from polisyos.foundry.methods.base import ComputeBackend, MethodSignature
 from polisyos.foundry.methods.backends.protocol import MethodResult, MethodRunner
 
@@ -27,7 +28,10 @@ class MethodDispatcher:
     _instance_lock = threading.Lock()
 
     def __init__(self) -> None:
-        self._runners: dict[ComputeBackend, MethodRunner] = {}
+        self._dispatcher = BackendDispatcher[ComputeBackend, MethodRunner](
+            factory=self._create_runner,
+            availability_check=lambda runner: runner.is_available(),
+        )
         self._runner_lock = threading.RLock()
 
     @classmethod
@@ -46,11 +50,11 @@ class MethodDispatcher:
     def register_runner(self, runner: MethodRunner) -> None:
         with self._runner_lock:
             for backend in runner.supported_backends:
-                self._runners[backend] = runner
+                self._dispatcher.register(backend, runner)
 
     def available_backends(self) -> frozenset[ComputeBackend]:
         with self._runner_lock:
-            return frozenset(self._runners.keys())
+            return self._dispatcher.available_backends()
 
     def dispatch(
         self,
@@ -71,19 +75,10 @@ class MethodDispatcher:
         )
 
     def _resolve_runner(self, backend: ComputeBackend) -> MethodRunner:
-        with self._runner_lock:
-            existing = self._runners.get(backend)
-        if existing is not None:
-            return existing
-
         try:
-            runner = self._create_runner(backend)
-        except ModuleNotFoundError as exc:
+            return self._dispatcher.resolve(backend)
+        except CoreBackendNotAvailableError as exc:
             raise BackendNotAvailableError(backend) from exc
-        if not runner.is_available():
-            raise BackendNotAvailableError(backend)
-        self.register_runner(runner)
-        return runner
 
     @staticmethod
     @lru_cache(maxsize=8)

@@ -259,7 +259,7 @@ from dataclasses import dataclass
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.contracts.lex import LegalEvaluationRequest
 from polisyos.ir.norm_pack import NormPack, NormRule
-from polisyos.ir.policy_spec import PolicySpec
+from polisyos.ir.governance.policy_spec import PolicySpec
 from polisyos.core.contracts.foundry import SimulationResult, Metrics
 
 

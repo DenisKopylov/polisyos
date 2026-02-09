@@ -14,7 +14,6 @@ All artifacts are:
 from __future__ import annotations
 
 import ast
-import hashlib
 import inspect
 import logging
 import subprocess
@@ -33,7 +32,12 @@ from polisyos.core.artifacts.manifest import (
     ProducerInfo,
     SchemaInfo,
 )
-from polisyos.core.canon import to_canonical_bytes
+from polisyos.core.canon import (
+    content_hash as compute_content_hash,
+    streaming_hash,
+    to_canonical_bytes,
+    truncated_hash,
+)
 
 from .specialization import Specialization
 
@@ -89,22 +93,19 @@ def _float_payload(value: float | None) -> dict[str, str] | None:
 
 
 def _artifact_id_from_bytes(payload: bytes) -> str:
-    return hashlib.sha256(payload).hexdigest()
+    return compute_content_hash(payload)
 
 
 def _compute_deterministic_hash(data: Mapping[str, Any]) -> str:
     """Compute deterministic hash of dictionary data."""
     canonical = to_canonical_bytes(dict(data))
-    return hashlib.sha256(canonical).hexdigest()[:HASH_TRUNCATE_LENGTH]
+    return truncated_hash(canonical, length=HASH_TRUNCATE_LENGTH)
 
 
 def _hash_file(path: Path) -> str | None:
     try:
-        digest = hashlib.sha256()
         with path.open("rb") as handle:
-            for chunk in iter(lambda: handle.read(1024 * 1024), b""):
-                digest.update(chunk)
-        return digest.hexdigest()
+            return streaming_hash(iter(lambda: handle.read(1024 * 1024), b""))
     except OSError:
         return None
 
@@ -179,7 +180,7 @@ def _normalized_source_hash(source: str) -> str | None:
         dumped = ast.dump(tree, include_attributes=False)
     except (SyntaxError, ValueError, TypeError):
         return None
-    return hashlib.sha256(dumped.encode("utf-8")).hexdigest()[:HASH_TRUNCATE_LENGTH]
+    return truncated_hash(dumped, length=HASH_TRUNCATE_LENGTH)
 
 
 def compute_source_hash(
@@ -200,7 +201,7 @@ def compute_source_hash(
     try:
         source = inspect.getsource(cls)
         source = source.replace("\r\n", "\n").replace("\r", "\n")
-        return hashlib.sha256(source.encode("utf-8")).hexdigest()[:HASH_TRUNCATE_LENGTH]
+        return truncated_hash(source, length=HASH_TRUNCATE_LENGTH)
     except (OSError, TypeError) as exc:
         logger.warning(
             "Could not retrieve source for %s: %s. Using fallback value.",
@@ -248,7 +249,7 @@ def compute_source_fingerprint(
     try:
         source = inspect.getsource(cls)
         source = source.replace("\r\n", "\n").replace("\r", "\n")
-        source_hash = hashlib.sha256(source.encode("utf-8")).hexdigest()[:HASH_TRUNCATE_LENGTH]
+        source_hash = truncated_hash(source, length=HASH_TRUNCATE_LENGTH)
         normalized_hash = _normalized_source_hash(source)
     except (OSError, TypeError) as exc:
         logger.warning(
@@ -617,7 +618,7 @@ class MethodArtifact:
     def to_manifest(self) -> ArtifactManifest:
         """Convert to CAS-storable manifest."""
         content = self.to_canonical_bytes()
-        content_hash = hashlib.sha256(content).hexdigest()
+        content_hash = compute_content_hash(content)
 
         return ArtifactManifest(
             artifact_id=ArtifactID.from_sha256_hex(content_hash),
@@ -801,7 +802,7 @@ class ChainArtifact:
             ),
         )
         content = to_canonical_bytes({"nodes": node_payload, "bindings": binding_payload})
-        return hashlib.sha256(content).hexdigest()[:HASH_TRUNCATE_LENGTH]
+        return truncated_hash(content, length=HASH_TRUNCATE_LENGTH)
 
     @staticmethod
     def _compute_chain_hash(
@@ -840,7 +841,7 @@ class ChainArtifact:
             ),
         )
         content = to_canonical_bytes({"nodes": node_payload, "bindings": binding_payload})
-        return hashlib.sha256(content).hexdigest()[:HASH_TRUNCATE_LENGTH]
+        return truncated_hash(content, length=HASH_TRUNCATE_LENGTH)
 
     def _identity_payload(self) -> dict[str, Any]:
         return {
@@ -862,7 +863,7 @@ class ChainArtifact:
     def to_manifest(self) -> ArtifactManifest:
         """Convert to CAS-storable manifest."""
         content = self.to_canonical_bytes()
-        content_hash = hashlib.sha256(content).hexdigest()
+        content_hash = compute_content_hash(content)
 
         return ArtifactManifest(
             artifact_id=ArtifactID.from_sha256_hex(content_hash),
@@ -1049,7 +1050,7 @@ class ExecutionEvidence:
     def to_manifest(self) -> ArtifactManifest:
         """Convert to CAS-storable manifest."""
         content = self.to_canonical_bytes()
-        content_hash = hashlib.sha256(content).hexdigest()
+        content_hash = compute_content_hash(content)
 
         inputs: list[InputRef] = [
             InputRef(artifact_id=_to_artifact_id(self.chain_artifact_id), role="chain")

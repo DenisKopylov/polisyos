@@ -23,7 +23,7 @@ from polisyos.runtime.replay import (
     verify_replay,
 )
 from polisyos.scientist.engine.state import ExperimentState
-from polisyos.scientist.foundry import DefaultFoundryPort
+from polisyos.scientist.adapters.foundry_bridge import DefaultFoundryPort
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_DECISION_PACKET_REF,
     ARTIFACT_SIMULATION_RESULT_REF,

@@ -5,7 +5,7 @@ from decimal import Decimal
 from polisyos.ir.kernel.values import MoneyValue, RateValue
 from polisyos.ir.model_spec import ModelSpec
 from polisyos.ir.norm_pack import NormPack, NormRef, NormRule, RuleType
-from polisyos.ir.problem_frame import (
+from polisyos.ir.governance.problem_frame import (
     ConstraintSpec,
     ConstraintType,
     ProblemDomain,

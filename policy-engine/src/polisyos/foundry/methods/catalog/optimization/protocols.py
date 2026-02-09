@@ -5,7 +5,7 @@ from typing import Any, Mapping, Protocol, runtime_checkable
 
 from polisyos.core.observability import get_metrics
 from polisyos.foundry.methods.backends.protocol import SolverStatus
-from polisyos.ir.uncertainty import UncertaintyEnvelope
+from polisyos.ir.analytics.uncertainty import UncertaintyEnvelope
 
 
 @dataclass(frozen=True, slots=True)

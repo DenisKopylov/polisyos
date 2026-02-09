@@ -9,8 +9,8 @@ from pydantic import Field
 
 from polisyos.ir.kernel.base import KernelModel
 from polisyos.ir.model_spec import ModelSpec
-from polisyos.ir.policy_spec import PolicySpec
-from polisyos.ir.problem_frame import ProblemFrame
+from polisyos.ir.governance.policy_spec import PolicySpec
+from polisyos.ir.governance.problem_frame import ProblemFrame
 
 TRINITY_BUNDLE_SCHEMA_VERSION = "1.0"
 SCHEMA_VERSION_PATTERN = r"^\d+\.\d+$"

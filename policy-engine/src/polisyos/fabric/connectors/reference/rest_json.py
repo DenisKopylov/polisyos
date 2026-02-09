@@ -40,7 +40,6 @@ Example ConnectionConfig
 from __future__ import annotations
 
 import json
-import hashlib
 import time
 from datetime import datetime, timezone
 from enum import Enum
@@ -48,6 +47,7 @@ from typing import Any, ClassVar
 
 import aiohttp
 
+from polisyos.core.canon import streaming_hash
 from polisyos.fabric.connectors.base import (
     BaseConnector,
     ConnectionConfig,
@@ -244,7 +244,7 @@ class GenericRESTConnector(BaseConnector[list[dict[str, Any]]]):
         all_rows: list[dict[str, Any]] = []
         start = time.monotonic()
         total_bytes = 0
-        hasher = hashlib.sha256()
+        payload_chunks: list[bytes] = []
 
         state = handle.state.setdefault("rest_json", {})
         state["rate_limit_remaining"] = None
@@ -283,7 +283,7 @@ class GenericRESTConnector(BaseConnector[list[dict[str, Any]]]):
                     params,
                 )
                 total_bytes += bytes_xferred
-                hasher.update(body["_raw"])
+                payload_chunks.append(body["_raw"])
 
                 page_etag = resp_headers.get("ETag")
                 if page_etag:
@@ -330,7 +330,7 @@ class GenericRESTConnector(BaseConnector[list[dict[str, Any]]]):
 
         duration_ms = (time.monotonic() - start) * 1000
         version = self._build_version(
-            hasher=hasher,
+            content_hash=streaming_hash(payload_chunks, prefix=True),
             etag=etag if not etag_mismatch else None,
             last_modified=last_modified if not last_modified_mismatch else None,
             fetched_at=datetime.now(timezone.utc),
@@ -365,13 +365,11 @@ class GenericRESTConnector(BaseConnector[list[dict[str, Any]]]):
     def _build_version(
         self,
         *,
-        hasher: hashlib._Hash,
+        content_hash: str,
         etag: str | None,
         last_modified: str | None,
         fetched_at: datetime,
     ) -> DataVersion:
-        content_hash = f"sha256:{hasher.hexdigest()}"
-
         if etag:
             return DataVersion(
                 strategy=VersionStrategy.ETAG,

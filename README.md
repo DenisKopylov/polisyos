@@ -382,10 +382,9 @@ INTAKE → FRAME → PREFLIGHT_GOV → PLAN → EXECUTE → POSTFLIGHT_GOV → D
 #### Вспомогательные слои
 
 - **orchestrator/** — DecisionCard с verdict (APPROVE/REJECT/REVIEW), Markdown rendering
-- **compute/** — JobSpec, content-addressed JobKey, LocalBackend / RayBackend (skeleton)
+- **compute/** — JobSpec, content-addressed JobKey, LocalBackend only
 - **llm/** — TracedLLMClient с OTel spans (OpenAI, Anthropic, custom)
-- **workflow/** — SimpleLoopEngine / LangGraphEngine, WorkflowEngineFactory
-- **workflows/** — `run_default_workflow()`, `build_search_workflow()`
+- **workflows/** — SimpleLoopEngine / LangGraphEngine, WorkflowEngineFactory, `run_default_workflow()`
 
 ---
 

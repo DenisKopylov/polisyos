@@ -15,11 +15,11 @@ from polisyos.core.contracts.fabric import DataSnapshot
 from polisyos.core.contracts.foundry import Metrics, SimulationResult
 from polisyos.core.contracts.scientist import DecisionPacketRef
 from polisyos.core.contracts.uncertainty import UncertaintyEnvelopeRef
-from polisyos.ir.backtest import load_backtest_report
-from polisyos.ir.causal import CausalEffectReport
-from polisyos.ir.distributional import load_distributional_report
-from polisyos.ir.hte import load_hte_result, load_policy_recommendation
-from polisyos.ir.uncertainty import load_uncertainty_envelope
+from polisyos.ir.analytics.backtest import load_backtest_report
+from polisyos.ir.analytics.causal import CausalEffectReport
+from polisyos.ir.analytics.distributional import load_distributional_report
+from polisyos.ir.analytics.hte import load_hte_result, load_policy_recommendation
+from polisyos.ir.analytics.uncertainty import load_uncertainty_envelope
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.protocol import NodeOutcome, NodeSpec
 from polisyos.scientist.engine.state import ExperimentState

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from polisyos.core.artifacts.store import FileSystemCAS
-from polisyos.ir.backtest import (
+from polisyos.ir.analytics.backtest import (
     BacktestReport,
     BacktestScenario,
     BiasDirection,
@@ -9,8 +9,8 @@ from polisyos.ir.backtest import (
     load_backtest_report,
     persist_backtest_report,
 )
-from polisyos.ir.causal import CausalMethod
-from polisyos.ir.hte import (
+from polisyos.ir.analytics.causal import CausalMethod
+from polisyos.ir.analytics.hte import (
     FeatureImportance,
     HTEResult,
     PolicyRecommendation,

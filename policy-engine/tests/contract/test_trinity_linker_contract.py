@@ -16,12 +16,12 @@ from polisyos.ir.kernel import (
 )
 from polisyos.ir.kernel.values import MoneyValue
 from polisyos.ir.linker import LinkIssueCode, link_trinity
-from polisyos.ir.policy_spec import InterventionSpec, PolicySpec
-from polisyos.ir.problem_frame import ConstraintSpec as ProblemConstraintSpec
-from polisyos.ir.problem_frame import ProblemDomain, ProblemFrame
+from polisyos.ir.governance.policy_spec import InterventionSpec, PolicySpec
+from polisyos.ir.governance.problem_frame import ConstraintSpec as ProblemConstraintSpec
+from polisyos.ir.governance.problem_frame import ProblemDomain, ProblemFrame
 from polisyos.ir.registry_fragments import RegistryBundle
-from polisyos.ir.schedule import ScheduleSpec
-from polisyos.ir.selector_expr import SelectorPredicate
+from polisyos.ir.governance.schedule import ScheduleSpec
+from polisyos.ir.governance.selector_expr import SelectorPredicate
 from polisyos.ir.trinity import TrinityBundle
 from polisyos.ir.model_spec import ModelSpec
 from polisyos.ir.kernel import DEFAULT_MECHANISM_REGISTRY, DEFAULT_METRIC_REGISTRY

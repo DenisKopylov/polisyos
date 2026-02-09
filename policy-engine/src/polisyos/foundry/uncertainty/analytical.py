@@ -4,7 +4,7 @@ import math
 from statistics import NormalDist
 from typing import Mapping
 
-from polisyos.ir.uncertainty import (
+from polisyos.ir.analytics.uncertainty import (
     DistributionFamily,
     IntervalSemantics,
     PropagationMethod,

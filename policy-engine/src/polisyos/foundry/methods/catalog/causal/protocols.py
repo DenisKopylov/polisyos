@@ -13,12 +13,12 @@ from pydantic import (
 )
 
 from polisyos.foundry.methods.base import MethodMetadata, MethodSignature
-from polisyos.ir.causal import CausalEffectReport
+from polisyos.ir.analytics.causal import CausalEffectReport
 
 if TYPE_CHECKING:
     import pandas as pd
 
-    from polisyos.ir.uncertainty import UncertaintyEnvelope
+    from polisyos.ir.analytics.uncertainty import UncertaintyEnvelope
 
 
 def _to_numpy(value: Any) -> np.ndarray:

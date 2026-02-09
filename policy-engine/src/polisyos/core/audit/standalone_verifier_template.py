@@ -1,28 +1,48 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
-import hashlib
 import json
 import shutil
 import sys
 import tarfile
 import tempfile
+from collections.abc import Iterable
 from pathlib import Path
 from typing import Any
 
 from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.primitives.serialization import Encoding, PublicFormat, load_pem_public_key
 
+try:
+    from polisyos.core.canon import content_hash, streaming_hash
+except Exception:  # pragma: no cover - template fallback for standalone runs
+    def content_hash(payload: bytes | str, *, prefix: bool = False) -> str:
+        raw = payload if isinstance(payload, bytes) else payload.encode("utf-8")
+        digest = __import__("hashlib").sha256(raw).hexdigest()
+        if prefix:
+            return f"sha256:{digest}"
+        return digest
+
+    def streaming_hash(chunks: Iterable[bytes], *, prefix: bool = False) -> str:
+        hasher = __import__("hashlib").sha256()
+        for chunk in chunks:
+            hasher.update(chunk)
+        digest = hasher.hexdigest()
+        if prefix:
+            return f"sha256:{digest}"
+        return digest
+
 
 def _sha256(path: Path) -> str:
-    digest = hashlib.sha256()
-    with path.open("rb") as handle:
-        while True:
-            chunk = handle.read(1024 * 1024)
-            if not chunk:
-                break
-            digest.update(chunk)
-    return digest.hexdigest()
+    def _chunks() -> Iterable[bytes]:
+        with path.open("rb") as handle:
+            while True:
+                chunk = handle.read(1024 * 1024)
+                if not chunk:
+                    return
+                yield chunk
+
+    return streaming_hash(_chunks())
 
 
 def _canonical_statement_bytes(statement: dict[str, Any]) -> bytes:
@@ -173,7 +193,7 @@ def _verify_checksum_signature(pkg_dir: Path) -> tuple[list[str], list[str]]:
 
 def _key_id(public_key: Any) -> str:
     raw = public_key.public_bytes(Encoding.Raw, PublicFormat.Raw)
-    return f"sha256:{hashlib.sha256(raw).hexdigest()}"
+    return content_hash(raw, prefix=True)
 
 
 def _load_package_keys(pkg_dir: Path) -> dict[str, Any]:
@@ -411,7 +431,7 @@ def _verify_slsa(
         else:
             payload_sha = signature_payload.get("payload_sha256")
             canonical = _canonical_statement_bytes(attestation)
-            canonical_sha = hashlib.sha256(canonical).hexdigest()
+            canonical_sha = content_hash(canonical)
             if isinstance(payload_sha, str) and payload_sha != canonical_sha:
                 failures.append("slsa signature payload hash mismatch")
 
@@ -423,7 +443,7 @@ def _verify_slsa(
             failures.append(f"invalid slsa transparency payload: {exc}")
         else:
             entry_sha = transparency.get("payload_sha256")
-            canonical_sha = hashlib.sha256(_canonical_statement_bytes(attestation)).hexdigest()
+            canonical_sha = content_hash(_canonical_statement_bytes(attestation))
             if isinstance(entry_sha, str) and entry_sha != canonical_sha:
                 failures.append("slsa transparency hash mismatch")
     else:

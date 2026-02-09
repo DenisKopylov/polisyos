@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import gzip
-import hashlib
 import json
 import os
 import shutil
@@ -28,6 +27,7 @@ from polisyos.core.artifacts.signing import (
     load_signer_from_config,
 )
 from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.canon import content_hash, streaming_hash
 from polisyos.core.canon.canon_json import from_canonical_bytes, to_canonical_bytes
 from polisyos.core.run.manifest import RunManifest
 from polisyos.core.trace.record import TraceRecord
@@ -656,7 +656,7 @@ class AuditPackageAssembler:
             "component_count": len(sbom_data.get("components", [])),
             "vulnerability_count": len(sbom_data.get("vulnerabilities", [])),
             "spec_version": sbom_data.get("specVersion", "unknown"),
-            "hash": hashlib.sha256(serialized).hexdigest(),
+            "hash": content_hash(serialized),
         }
 
     def _build_slsa_bundle(
@@ -1026,14 +1026,8 @@ def _compute_file_checksums(
 
 
 def _sha256_path(path: Path) -> str:
-    digest = hashlib.sha256()
     with path.open("rb") as handle:
-        while True:
-            chunk = handle.read(1024 * 1024)
-            if not chunk:
-                break
-            digest.update(chunk)
-    return digest.hexdigest()
+        return streaming_hash(iter(lambda: handle.read(1024 * 1024), b""))
 
 
 def _write_checksums(path: Path, checksums: dict[str, str]) -> None:

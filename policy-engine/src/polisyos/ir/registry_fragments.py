@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-import hashlib
 from typing import Any, Iterable, Literal, Sequence
 
 from pydantic import Field
 from typing_extensions import Annotated
 
+from polisyos.core.canon import content_hash
 from polisyos.ir.canon import to_canonical_bytes
 from polisyos.ir.kernel.base import ID_PATTERN, KernelModel
 from polisyos.ir.kernel.constraints import ConstraintRegistry
@@ -245,7 +245,7 @@ class RegistryComposeResult(KernelModel):
 
 def _hash_item(value: Any) -> str:
     canonical = to_canonical_bytes(value)
-    return f"sha256:{hashlib.sha256(canonical).hexdigest()}"
+    return content_hash(canonical, prefix=True)
 
 
 def _sorted_fragments(fragments: Sequence[RegistryFragment]) -> list[RegistryFragment]:
@@ -620,7 +620,7 @@ def compose_registry_fragments(request: RegistryComposeRequest) -> RegistryCompo
     deterministic_hash = None
     if composed is not None:
         canonical = to_canonical_bytes(composed.model_dump(mode="json"))
-        deterministic_hash = f"sha256:{hashlib.sha256(canonical).hexdigest()}"
+        deterministic_hash = content_hash(canonical, prefix=True)
 
     return RegistryComposeResult(
         composed=composed,

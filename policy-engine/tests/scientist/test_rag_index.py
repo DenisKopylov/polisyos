@@ -4,8 +4,8 @@ from datetime import datetime
 
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.ir.model_spec import ModelSpec
-from polisyos.ir.policy_spec import InterventionSpec, PolicySpec
-from polisyos.ir.problem_frame import ProblemDomain, ProblemFrame as IRProblemFrame
+from polisyos.ir.governance.policy_spec import InterventionSpec, PolicySpec
+from polisyos.ir.governance.problem_frame import ProblemDomain, ProblemFrame as IRProblemFrame
 from polisyos.ir.trinity import TrinityBundle
 from polisyos.scientist.agent.protocols import ProblemFrame as AgentProblemFrame
 from polisyos.scientist.agent.rag import (

@@ -9,7 +9,7 @@ from polisyos.foundry.methods.catalog.causal import (
     ensure_causal_methods_registered,
 )
 from polisyos.foundry.methods.registry import MethodRegistry
-from polisyos.ir.causal import EstimationStatus
+from polisyos.ir.analytics.causal import EstimationStatus
 
 
 @pytest.fixture(autouse=True)

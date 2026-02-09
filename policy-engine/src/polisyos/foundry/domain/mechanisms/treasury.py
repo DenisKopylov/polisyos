@@ -1,9 +1,8 @@
 from __future__ import annotations
 
-import hashlib
-
 from pydantic import BaseModel, Field
 
+from polisyos.core.canon import content_hash
 from polisyos.core.contracts.foundry import ProgramGraph
 
 
@@ -16,8 +15,8 @@ class TreasuryPlan(BaseModel):
 
 
 def stable_hash(value: str) -> int:
-    digest = hashlib.sha256(value.encode("utf-8")).digest()
-    return int.from_bytes(digest[:8], "big", signed=False)
+    digest_hex = content_hash(value)
+    return int(digest_hex[:16], 16)
 
 
 def build_treasury_plan(program: ProgramGraph, root_seed: int = 0) -> TreasuryPlan:

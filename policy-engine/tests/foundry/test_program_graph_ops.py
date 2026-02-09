@@ -18,10 +18,10 @@ from polisyos.core.registry import build_default_registry_bundle, load_registry_
 from polisyos.foundry.compile._graph import build_exec_order
 from polisyos.foundry.compile.api import compile as compile_foundry
 from polisyos.ir.model_spec import ModelSpec
-from polisyos.ir.policy_spec import InterventionSpec, PolicySpec
-from polisyos.ir.problem_frame import ProblemDomain, ProblemFrame
-from polisyos.ir.schedule import ScheduleSpec
-from polisyos.ir.selector_expr import SelectorPredicate
+from polisyos.ir.governance.policy_spec import InterventionSpec, PolicySpec
+from polisyos.ir.governance.problem_frame import ProblemDomain, ProblemFrame
+from polisyos.ir.governance.schedule import ScheduleSpec
+from polisyos.ir.governance.selector_expr import SelectorPredicate
 from polisyos.ir.trinity import TrinityBundle
 from polisyos.ir.types import SelectorOperator
 

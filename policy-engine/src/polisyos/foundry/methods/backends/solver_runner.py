@@ -1,12 +1,11 @@
 from __future__ import annotations
 
-import hashlib
 import json
 import time
 from importlib import metadata
 from typing import Any, Mapping
 
-from polisyos.core.canon import CanonSpec, to_canonical_bytes
+from polisyos.core.canon import CanonSpec, to_canonical_bytes, truncated_hash
 from polisyos.core.observability.determinism import DeterminismTier
 from polisyos.foundry.methods.base import ComputeBackend, MethodSignature
 from polisyos.foundry.methods.backends.protocol import (
@@ -98,9 +97,7 @@ class SolverRunner(MethodRunner):
             "versions": versions,
             "status": status.value,
         }
-        fingerprint = hashlib.sha256(
-            json.dumps(fp_payload, sort_keys=True).encode("utf-8")
-        ).hexdigest()[:16]
+        fingerprint = truncated_hash(json.dumps(fp_payload, sort_keys=True), length=16)
 
         warnings = solver_info.get("warnings", [])
         if isinstance(warnings, str):

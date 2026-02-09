@@ -27,8 +27,8 @@ from polisyos.foundry.methods.catalog.causal._econml_adapter import (
     require_econml,
 )
 from polisyos.foundry.methods.catalog.causal.protocols import HTEObservationalData
-from polisyos.ir.causal import CausalMethod, EstimationStatus
-from polisyos.ir.hte import PolicyRecommendation, TargetingRule
+from polisyos.ir.analytics.causal import CausalMethod, EstimationStatus
+from polisyos.ir.analytics.hte import PolicyRecommendation, TargetingRule
 
 
 def _extract_policy_tree_rules(

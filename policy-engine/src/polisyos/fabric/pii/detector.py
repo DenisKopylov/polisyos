@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import hashlib
 import logging
 import re
 import time
@@ -9,6 +8,8 @@ from typing import Any
 
 import pandas as pd
 from pydantic import BaseModel, Field
+
+from polisyos.core.canon import content_hash
 
 from .models import (
     PIIEntity,
@@ -284,7 +285,7 @@ class PresidioDetector:
             "sample_rate": self._config.sample_rate,
         }
         raw = repr(key_payload).encode("utf-8")
-        return hashlib.sha256(raw).hexdigest()
+        return content_hash(raw)
 
     def _aggregate(
         self,

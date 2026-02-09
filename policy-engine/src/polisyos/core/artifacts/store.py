@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import hashlib
 import json
 import os
 import re
@@ -18,6 +17,7 @@ from typing import Any
 
 from pydantic import BaseModel
 
+from ..canon import content_hash
 from ..canon.canon_json import CanonSpec, to_canonical_bytes
 from ..observability import get_metrics, get_tracer
 from ..observability.config import is_hpc_observability_enabled
@@ -405,7 +405,7 @@ class FileSystemCAS:
         )
 
     def put_bytes(self, data: bytes, opts: PutOptions) -> ArtifactRef:
-        sha = hashlib.sha256(data).hexdigest()
+        sha = content_hash(data)
         aid = ArtifactID.from_sha256_hex(sha)
         blob, manp = self._paths(aid)
         blob.parent.mkdir(parents=True, exist_ok=True)
@@ -558,7 +558,7 @@ class FileSystemCAS:
                 )
 
             data = blob.read_bytes()
-            actual = hashlib.sha256(data).hexdigest()
+            actual = content_hash(data)
             if actual != artifact_id.hex:
                 return VerificationReport(
                     ok=False,

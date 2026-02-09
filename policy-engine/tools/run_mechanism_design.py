@@ -42,10 +42,10 @@ from polisyos.ir.kernel import (
 )
 from polisyos.ir.kernel.merge_rules import MergeRuleKind
 from polisyos.ir.model_spec import ModelSpec
-from polisyos.ir.policy_spec import InterventionSpec, PolicySpec
-from polisyos.ir.problem_frame import ProblemDomain, ProblemFrame
-from polisyos.ir.schedule import ScheduleSpec
-from polisyos.ir.selector_expr import SelectorPredicate
+from polisyos.ir.governance.policy_spec import InterventionSpec, PolicySpec
+from polisyos.ir.governance.problem_frame import ProblemDomain, ProblemFrame
+from polisyos.ir.governance.schedule import ScheduleSpec
+from polisyos.ir.governance.selector_expr import SelectorPredicate
 from polisyos.ir.trinity import TrinityBundle
 
 # --- CONFIG (TWEAKED) ---

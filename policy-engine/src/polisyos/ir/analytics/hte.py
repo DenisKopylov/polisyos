@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, Any
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
-from polisyos.ir.causal import CausalMethod
+from polisyos.ir.analytics.causal import CausalMethod
 
 if TYPE_CHECKING:
     from polisyos.core.artifacts.manifest import InputRef

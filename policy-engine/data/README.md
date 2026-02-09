@@ -369,7 +369,7 @@ print(f'Loaded {len(registry.contracts)} contracts')
 
 ```python
 from polisyos.fabric.udf.engine import UDFEngine
-from polisyos.ir.data_views import DataViewRequest, DataViewType
+from polisyos.ir.analytics.data_views import DataViewRequest, DataViewType
 
 # Создание безопасного запроса к данным
 request = DataViewRequest(

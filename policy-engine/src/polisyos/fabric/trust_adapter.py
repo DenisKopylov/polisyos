@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from polisyos.core.contracts.fabric import UncertaintyBounds
-from polisyos.ir.uncertainty import (
+from polisyos.ir.analytics.uncertainty import (
     DistributionFamily,
     IntervalSemantics,
     PropagationMethod,

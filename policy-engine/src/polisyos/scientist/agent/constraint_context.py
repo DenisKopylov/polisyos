@@ -13,7 +13,7 @@ import re
 from typing import Any
 
 from polisyos.ir.kernel.values import CountValue, DurationValue, MoneyValue, RateValue
-from polisyos.ir.problem_frame import ConstraintSpec, ProblemFrame as IRProblemFrame
+from polisyos.ir.governance.problem_frame import ConstraintSpec, ProblemFrame as IRProblemFrame
 from polisyos.scientist.agent.protocols import ProblemFrame as AgentProblemFrame
 
 _BUDGET_HINT_RE = re.compile(

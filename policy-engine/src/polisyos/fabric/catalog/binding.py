@@ -7,12 +7,12 @@ its contract definition has not changed since the binding was created.
 """
 from __future__ import annotations
 
-import hashlib
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from polisyos.core.canon import truncated_hash
 from polisyos.fabric.connectors.contracts.schema import (
     DataSchema,
     SchemaType,
@@ -68,7 +68,7 @@ class MetricBinding:
         ).encode("utf-8")
 
         # SHA-256 truncated to 16 hex chars (64 bits) for compactness.
-        contract_hash = hashlib.sha256(contract_bytes).hexdigest()[:16]
+        contract_hash = truncated_hash(contract_bytes, length=16)
 
         return cls(
             metric_id=contract.metric_id,

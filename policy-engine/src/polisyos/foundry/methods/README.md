@@ -150,9 +150,9 @@ EconML-зависимые методы (CATE, DML, Meta-Learners, Policy Learnin
 | IV 2SLS/GMM | `InstrumentalVariablesEstimator` | linearmodels | Инструментальные переменные, first-stage F-stat |
 | ARIMA/VAR | `TimeSeriesEstimator` | statsmodels | Временные ряды, AIC/BIC диагностика |
 
-### Microsim / Optimization (`catalog/microsim/`, `catalog/optimization/`)
+### Optimization (`catalog/optimization/`)
 
-Placeholder-пакеты для будущих каталогов.
+Placeholder-пакет для будущего каталога.
 
 ## Testing — инфраструктура тестирования
 
@@ -232,7 +232,6 @@ methods/
 ├── catalog/
 │   ├── causal/           # SCM, DiD, RDD, STS, CATE, DML, Meta-Learners, PolicyTree
 │   ├── econometrics/     # Panel FE/RE, IV 2SLS/GMM, ARIMA/VAR
-│   ├── microsim/         # (placeholder)
 │   └── optimization/     # (placeholder)
 └── testing/
     ├── suite.py          # MethodTestSuite (protocol, JAX, numerical, determinism)

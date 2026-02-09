@@ -373,7 +373,7 @@ pytest tests/scientist/test_instrumentation.py::TestGovernanceInstrumentation -v
 - **Fabric Layer**: Trust evaluation для simulation results в expensive stage
 - **Integration Layer**: End-to-end optimization workflows с calibration targets
 
-**Workflow Engines** (`workflow/`):
+**Workflow Engines** (`workflows/`):
 - **Scientist Layer**: Abstraction для multi-agent orchestration (LangGraph implementation)
 - **Integration Layer**: Engine factory для different workflow backends
 - **Runtime Layer**: Execution context и state management для workflows
@@ -648,7 +648,7 @@ def test_two_stage_filtering_prevents_expensive_calls(mock_candidate_generator, 
 
 def test_workflow_engine_step_execution():
     """Тестирование step-by-step выполнения SimpleLoopEngine."""
-    from polisyos.scientist.workflow.engine_simple import SimpleLoopEngine
+    from polisyos.scientist.workflows.engine_simple import SimpleLoopEngine
 
     execution_order = []
 

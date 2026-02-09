@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-import hashlib
 from decimal import Decimal, InvalidOperation
 from typing import Any, Iterable
 
 from pydantic import Field
 
+from polisyos.core.canon import content_hash
 from polisyos.ir.canon import CanonViolation, to_canonical_bytes
 from polisyos.ir.kernel.base import ARTIFACT_ID_PATTERN, ID_PATTERN, KernelModel
 from polisyos.ir.kernel.mechanisms import ParamType, resolve_mechanism_slots
@@ -20,11 +20,11 @@ from polisyos.ir.kernel.units import (
     UnitsRegistry,
 )
 from polisyos.ir.kernel.values import CountValue, DurationValue, MoneyValue, RateValue
-from polisyos.ir.policy_spec import InterventionSpec
-from polisyos.ir.problem_frame import ConstraintSpec
+from polisyos.ir.governance.policy_spec import InterventionSpec
+from polisyos.ir.governance.problem_frame import ConstraintSpec
 from polisyos.ir.registry_fragments import RegistryBundle
-from polisyos.ir.schedule import ScheduleSpec, schedule_range
-from polisyos.ir.selector_expr import (
+from polisyos.ir.governance.schedule import ScheduleSpec, schedule_range
+from polisyos.ir.governance.selector_expr import (
     SelectorAll,
     SelectorAny,
     SelectorExpr,
@@ -394,7 +394,7 @@ def _digest(obj: Any, label: str, notes: list[str]) -> str | None:
     except CanonViolation as exc:
         notes.append(f"{label}_digest_unavailable: {exc}")
         return None
-    digest = hashlib.sha256(payload).hexdigest()
+    digest = content_hash(payload)
     return f"sha256:{digest}"
 
 

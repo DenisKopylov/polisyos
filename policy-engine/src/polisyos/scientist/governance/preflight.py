@@ -5,7 +5,7 @@ from typing import Optional, Tuple
 
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.registry import build_default_registry_bundle, load_registry_bundle_content
-from polisyos.ir.gate import GateContext, GateRequest
+from polisyos.ir.governance.gate import GateContext, GateRequest
 from polisyos.ir.trinity import TrinityBundle
 from polisyos.runtime import log_artifact
 

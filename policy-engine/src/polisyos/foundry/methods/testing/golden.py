@@ -6,7 +6,6 @@ regression detection across code and environment changes.
 """
 from __future__ import annotations
 
-import hashlib
 import json
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
@@ -17,6 +16,7 @@ from typing import Any
 import jax
 import numpy as np
 
+from polisyos.core.canon import content_hash, streaming_hash
 from polisyos.foundry.methods.specialization import BackendSpec
 
 try:  # JAX >= 0.4
@@ -210,50 +210,58 @@ def _quantize_array(arr: np.ndarray, rtol: float, atol: float) -> np.ndarray:
     return quantized.astype(arr.dtype, copy=False)
 
 
-def _update_hash_for_leaf(
-    digest: "hashlib._Hash",
+def _pack_hash_parts(parts: list[bytes]) -> bytes:
+    payload = bytearray()
+    for part in parts:
+        payload.extend(len(part).to_bytes(8, "big", signed=False))
+        payload.extend(part)
+    return bytes(payload)
+
+
+def _hash_leaf_payload(
     leaf: Any,
     *,
     rtol: float | None = None,
     atol: float | None = None,
-) -> None:
+) -> bytes:
+    parts: list[bytes] = []
+
     if _is_array_like(leaf):
         arr = np.asarray(leaf)
         if arr.dtype == object:
-            digest.update(b"object")
-            digest.update(repr(leaf).encode("utf-8"))
-            return
+            parts.extend([b"object", repr(leaf).encode("utf-8")])
+            return _pack_hash_parts(parts)
         if rtol is not None and atol is not None:
             arr = _quantize_array(arr, rtol, atol)
         arr = np.ascontiguousarray(arr)
-        digest.update(b"array")
-        digest.update(str(arr.dtype).encode("utf-8"))
-        digest.update(str(tuple(arr.shape)).encode("utf-8"))
-        digest.update(arr.tobytes(order="C"))
-        return
+        parts.extend(
+            [
+                b"array",
+                str(arr.dtype).encode("utf-8"),
+                str(tuple(arr.shape)).encode("utf-8"),
+                arr.tobytes(order="C"),
+            ]
+        )
+        return _pack_hash_parts(parts)
 
     if isinstance(leaf, bool):
-        digest.update(b"bool")
-        digest.update(b"1" if leaf else b"0")
-        return
+        parts.extend([b"bool", b"1" if leaf else b"0"])
+        return _pack_hash_parts(parts)
     if isinstance(leaf, int):
-        digest.update(b"int")
-        digest.update(str(leaf).encode("utf-8"))
-        return
+        parts.extend([b"int", str(leaf).encode("utf-8")])
+        return _pack_hash_parts(parts)
     if isinstance(leaf, float):
-        digest.update(b"float")
-        digest.update(float(leaf).hex().encode("utf-8"))
-        return
+        parts.extend([b"float", float(leaf).hex().encode("utf-8")])
+        return _pack_hash_parts(parts)
     if isinstance(leaf, str):
-        digest.update(b"str")
-        digest.update(leaf.encode("utf-8"))
-        return
+        parts.extend([b"str", leaf.encode("utf-8")])
+        return _pack_hash_parts(parts)
     if leaf is None:
-        digest.update(b"none")
-        return
+        parts.append(b"none")
+        return _pack_hash_parts(parts)
 
-    digest.update(b"repr")
-    digest.update(repr(leaf).encode("utf-8"))
+    parts.extend([b"repr", repr(leaf).encode("utf-8")])
+    return _pack_hash_parts(parts)
 
 
 def hash_pytree(tree: Any, *, rtol: float | None = None, atol: float | None = None) -> str:
@@ -267,17 +275,15 @@ def hash_pytree(tree: Any, *, rtol: float | None = None, atol: float | None = No
     leaf_items: list[tuple[bytes, bytes]] = []
     for path, leaf in paths_and_leaves:
         path_bytes = _path_to_bytes(path)
-        leaf_hasher = hashlib.sha256()
-        leaf_hasher.update(path_bytes)
-        _update_hash_for_leaf(leaf_hasher, leaf, rtol=rtol, atol=atol)
-        leaf_items.append((path_bytes, leaf_hasher.digest()))
+        leaf_payload = _hash_leaf_payload(leaf, rtol=rtol, atol=atol)
+        leaf_hash = bytes.fromhex(content_hash(_pack_hash_parts([path_bytes, leaf_payload])))
+        leaf_items.append((path_bytes, leaf_hash))
 
-    digest = hashlib.sha256()
-    for path_bytes, leaf_hash in sorted(leaf_items, key=lambda item: item[0]):
-        digest.update(path_bytes)
-        digest.update(leaf_hash)
-
-    return digest.hexdigest()[:HASH_LENGTH]
+    final_chunks = [
+        _pack_hash_parts([path_bytes, leaf_hash])
+        for path_bytes, leaf_hash in sorted(leaf_items, key=lambda item: item[0])
+    ]
+    return streaming_hash(final_chunks)[:HASH_LENGTH]
 
 
 def _infer_precision(*trees: Any, default: str = "float32") -> str:

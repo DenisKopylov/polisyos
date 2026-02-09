@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import hashlib
 import json
 import os
 import stat
@@ -23,6 +22,7 @@ from cryptography.hazmat.primitives.serialization import (
 )
 from pydantic import BaseModel, ConfigDict, Field, computed_field, model_validator
 
+from ..canon import content_hash
 from ..canon.canon_json import to_canonical_bytes
 from .ids import ArtifactID
 
@@ -270,11 +270,11 @@ def compute_key_id(public_key: Ed25519PublicKey) -> str:
     """Stable key id: sha256:<64hex> over raw public key bytes."""
 
     raw = public_key.public_bytes(Encoding.Raw, PublicFormat.Raw)
-    return f"sha256:{hashlib.sha256(raw).hexdigest()}"
+    return content_hash(raw, prefix=True)
 
 
 def hash_bytes(data: bytes) -> str:
-    return hashlib.sha256(data).hexdigest()
+    return content_hash(data)
 
 
 def canonical_statement_bytes(statement: SignatureStatement) -> bytes:

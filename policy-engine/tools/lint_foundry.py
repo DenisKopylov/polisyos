@@ -32,7 +32,6 @@ MIXED_BACKEND_DIRS = {
 
 NO_JAX_DIRS = {
     "methods/catalog/causal",
-    "methods/catalog/microsim",
     "methods/catalog/econometrics",
     "methods/catalog/optimization",
 }
@@ -181,4 +180,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

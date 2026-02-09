@@ -6,12 +6,11 @@ track provenance across multiple sources with deterministic identifiers.
 """
 from __future__ import annotations
 
-import hashlib
 import json
 from datetime import datetime, timezone
 from typing import Any
 
-from polisyos.core.canon import to_canonical_bytes
+from polisyos.core.canon import content_hash, to_canonical_bytes
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.contracts.fabric import (
     EvidenceBundle,
@@ -301,7 +300,7 @@ def _digest_composition(
     }
 
     canonical = to_canonical_bytes(payload)
-    return hashlib.sha256(canonical).hexdigest()
+    return content_hash(canonical)
 
 
 def _digest_merge_log(merge_log: list[MergeLogEntry]) -> str:
@@ -322,4 +321,4 @@ def _digest_merge_log(merge_log: list[MergeLogEntry]) -> str:
     )
 
     canonical = to_canonical_bytes(entries)
-    return hashlib.sha256(canonical).hexdigest()
+    return content_hash(canonical)

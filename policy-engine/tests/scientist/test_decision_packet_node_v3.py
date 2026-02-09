@@ -8,21 +8,21 @@ from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.contracts.foundry import ExecPlanRef, Metrics, MetricsRef, SimulationResult
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
-from polisyos.ir.backtest import BacktestReport, BacktestScenario, persist_backtest_report
-from polisyos.ir.causal import (
+from polisyos.ir.analytics.backtest import BacktestReport, BacktestScenario, persist_backtest_report
+from polisyos.ir.analytics.causal import (
     CausalEffectReport,
     CausalMethod,
     EstimationStatus,
     persist_causal_effect_report,
 )
-from polisyos.ir.hte import (
+from polisyos.ir.analytics.hte import (
     HTEResult,
     PolicyRecommendation,
     TargetingRule,
     persist_hte_result,
     persist_policy_recommendation,
 )
-from polisyos.ir.uncertainty import (
+from polisyos.ir.analytics.uncertainty import (
     DistributionFamily,
     IntervalSemantics,
     PropagationMethod,

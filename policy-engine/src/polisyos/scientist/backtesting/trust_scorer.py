@@ -2,11 +2,24 @@ from __future__ import annotations
 
 import numpy as np
 
-from polisyos.ir.backtest import BacktestScenario, SystematicBias
+from polisyos.core.evaluation import ThresholdBand, ThresholdMapper, WeightedScorer
+from polisyos.ir.analytics.backtest import BacktestScenario, SystematicBias
 
 
 class TrustScorer:
     """Aggregate backtest quality into trust score/grade."""
+
+    _scorer = WeightedScorer({"coverage": 0.5, "mape": 0.3, "bias": 0.2})
+    _grade_mapper = ThresholdMapper[str](
+        [
+            ThresholdBand(0.85, "A"),
+            ThresholdBand(0.70, "B"),
+            ThresholdBand(0.50, "C"),
+            ThresholdBand(0.30, "D"),
+            ThresholdBand(0.00, "F"),
+        ],
+        default="F",
+    )
 
     def compute(
         self,
@@ -43,31 +56,17 @@ class TrustScorer:
                 bias_penalty += 0.08
         bias_score = max(0.0, 1.0 - bias_penalty)
 
-        weighted = 0.0
-        normalizer = 0.0
-        if coverage_score is not None:
-            weighted += 0.5 * coverage_score
-            normalizer += 0.5
-        if mape_score is not None:
-            weighted += 0.3 * mape_score
-            normalizer += 0.3
-        weighted += 0.2 * bias_score
-        normalizer += 0.2
-
-        if normalizer <= 0:
+        result = self._scorer.score(
+            {
+                "coverage": coverage_score,
+                "mape": mape_score,
+                "bias": bias_score,
+            }
+        )
+        if not result.effective_weights:
             return None, None
-        trust_score = max(0.0, min(1.0, weighted / normalizer))
-
-        if trust_score >= 0.85:
-            grade = "A"
-        elif trust_score >= 0.70:
-            grade = "B"
-        elif trust_score >= 0.50:
-            grade = "C"
-        elif trust_score >= 0.30:
-            grade = "D"
-        else:
-            grade = "F"
+        trust_score = result.score
+        grade = self._grade_mapper.map(trust_score)
 
         # Coverage-first gate: under-covered models cannot receive high trust.
         if avg_coverage is not None and avg_coverage < 0.50 and grade in {"A", "B"}:

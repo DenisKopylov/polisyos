@@ -6,7 +6,7 @@ from typing import Any
 
 from pydantic import Field, model_validator
 
-from polisyos.ir.applicability import NormApplicability
+from polisyos.ir.analytics.applicability import NormApplicability
 from polisyos.ir.citations import CitationRef
 from polisyos.ir.kernel.base import ID_PATTERN, KernelModel
 

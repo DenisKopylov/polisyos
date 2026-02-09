@@ -1,14 +1,14 @@
 from __future__ import annotations
 
-import hashlib
 import importlib.util
 import os
 import sys
 from dataclasses import dataclass, field
-from enum import Enum
 from importlib import metadata
 from pathlib import Path
 from typing import Any, Iterable, Sequence
+
+from polisyos.core.discovery import DuplicatePolicy, discovery_module_name
 
 from .metadata import ComponentKind
 from .protocols import Component
@@ -37,12 +37,6 @@ ENTRY_POINT_KIND_BY_GROUP: dict[str, ComponentKind] = {
 DEFAULT_ENTRY_POINT_GROUPS: tuple[str, ...] = tuple(sorted(ENTRY_POINT_KIND_BY_GROUP.keys()))
 DEFAULT_DEV_SCAN_ROOT = Path(__file__).resolve().parents[2] / "packs"
 DISCOVERY_MODULE_PREFIX = "_polisyos_components_scan_"
-
-
-class DuplicatePolicy(str, Enum):
-    WARN = "warn"
-    ERROR = "error"
-    IGNORE = "ignore"
 
 
 @dataclass(slots=True, frozen=True)
@@ -388,9 +382,12 @@ def _discover_dev_path(path: Path, *, report: DiscoveryReport) -> list[Discovere
 
 
 def _module_name_for_path(path: Path) -> str:
-    digest = hashlib.sha1(str(path.resolve()).encode("utf-8")).hexdigest()
-    stem = path.parent.name.replace("-", "_")
-    return f"{DISCOVERY_MODULE_PREFIX}{stem}_{digest}"
+    return discovery_module_name(
+        path,
+        prefix=DISCOVERY_MODULE_PREFIX,
+        algorithm="sha1",
+        digest_length=40,
+    )
 
 
 def _load_module_from_file(path: Path, *, module_name: str, report: DiscoveryReport) -> Any | None:

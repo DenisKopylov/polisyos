@@ -44,11 +44,11 @@ Usage:
 from __future__ import annotations
 
 import threading
-from collections import defaultdict
 from dataclasses import dataclass, field
 from functools import cmp_to_key
 from typing import Any, Callable, Iterator, Mapping, Sequence
 
+from polisyos.core.registry.generic import GenericRegistry
 from polisyos.foundry.methods.base import (
     FoundryMethod,
     MethodMetadata,
@@ -172,15 +172,17 @@ class MethodRegistry:
 
     def _initialize(self) -> None:
         """Initialize registry state (called once during singleton creation)."""
-        self._methods: dict[str, MethodEntry] = {}
-
-        self._by_name: dict[str, set[str]] = defaultdict(set)
-        self._by_namespace: dict[str, set[str]] = defaultdict(set)
-        self._by_tag: dict[str, set[str]] = defaultdict(set)
-        self._by_input_slot: dict[str, set[str]] = defaultdict(set)
-        self._by_output_slot: dict[str, set[str]] = defaultdict(set)
-
-        self._versions: dict[str, list[str]] = defaultdict(list)
+        self._entries = GenericRegistry[str, MethodEntry](
+            key_fn=lambda entry: entry.fqn,
+            indexers={
+                "name": lambda entry: entry.signature.name,
+                "namespace": lambda entry: entry.signature.namespace,
+                "tag": lambda entry: entry.metadata.tags,
+                "input_slot": lambda entry: [slot.name for slot in entry.signature.input_slots],
+                "output_slot": lambda entry: [slot.name for slot in entry.signature.output_slots],
+                "base_name": lambda entry: f"{entry.signature.namespace}.{entry.signature.name}",
+            },
+        )
 
         self._default_policy: ResolutionPolicy = ResolutionPolicy.EXACT
 
@@ -277,7 +279,7 @@ class MethodRegistry:
         fqn = sig.fqn
 
         with self._reg_lock:
-            if fqn in self._methods and not override:
+            if self._entries.get(fqn) is not None and not override:
                 raise MethodAlreadyRegisteredError(fqn)
 
             entry = MethodEntry(
@@ -288,11 +290,7 @@ class MethodRegistry:
                 _cached_class=method_class,
             )
 
-            if fqn in self._methods:
-                self._remove_from_indices(self._methods[fqn])
-
-            self._methods[fqn] = entry
-            self._update_indices(entry)
+            self._entries.register(entry, override=override)
             self._registration_count += 1
             self._touch_modified()
 
@@ -327,7 +325,7 @@ class MethodRegistry:
         fqn = signature.fqn
 
         with self._reg_lock:
-            if fqn in self._methods and not override:
+            if self._entries.get(fqn) is not None and not override:
                 raise MethodAlreadyRegisteredError(fqn)
 
             entry = MethodEntry(
@@ -338,11 +336,7 @@ class MethodRegistry:
                 _cached_class=None,
             )
 
-            if fqn in self._methods:
-                self._remove_from_indices(self._methods[fqn])
-
-            self._methods[fqn] = entry
-            self._update_indices(entry)
+            self._entries.register(entry, override=override)
             self._registration_count += 1
             self._touch_modified()
 
@@ -359,69 +353,27 @@ class MethodRegistry:
             True if method was removed, False if not found
         """
         with self._reg_lock:
-            if fqn not in self._methods:
+            removed = self._entries.unregister(fqn)
+            if removed is None:
                 return False
 
-            entry = self._methods[fqn]
-            self._remove_from_indices(entry)
-            del self._methods[fqn]
             self._touch_modified()
-
             return True
 
     # ---------------------------------------------------------------------
     # Index Management (internal)
     # ---------------------------------------------------------------------
 
-    def _update_indices(self, entry: MethodEntry) -> None:
-        """Update all secondary indices for a new entry."""
-        sig = entry.signature
-        fqn = sig.fqn
-        base_name = f"{sig.namespace}.{sig.name}"
-
-        self._by_name[sig.name].add(fqn)
-        self._by_namespace[sig.namespace].add(fqn)
-
-        for tag in entry.metadata.tags:
-            self._by_tag[tag].add(fqn)
-
-        for slot in sig.input_slots:
-            self._by_input_slot[slot.name].add(fqn)
-
-        for slot in sig.output_slots:
-            self._by_output_slot[slot.name].add(fqn)
-
-        if sig.version not in self._versions[base_name]:
-            self._versions[base_name].append(sig.version)
-            self._versions[base_name] = self._sort_versions(self._versions[base_name])
-
-    def _remove_from_indices(self, entry: MethodEntry) -> None:
-        """Remove an entry from all secondary indices."""
-        sig = entry.signature
-        fqn = sig.fqn
-        base_name = f"{sig.namespace}.{sig.name}"
-
-        self._by_name[sig.name].discard(fqn)
-        self._by_namespace[sig.namespace].discard(fqn)
-
-        for tag in entry.metadata.tags:
-            self._by_tag[tag].discard(fqn)
-
-        for slot in sig.input_slots:
-            self._by_input_slot[slot.name].discard(fqn)
-
-        for slot in sig.output_slots:
-            self._by_output_slot[slot.name].discard(fqn)
-
-        remaining_versions = [v for v in self._versions[base_name] if v != sig.version]
-        if remaining_versions:
-            self._versions[base_name] = remaining_versions
-        else:
-            del self._versions[base_name]
-
     def _sort_versions(self, versions: list[str]) -> list[str]:
         """Sort version strings in descending order (newest first)."""
         return sorted(versions, key=cmp_to_key(compare_versions), reverse=True)
+
+    def _available_versions(self, base_name: str) -> list[str]:
+        rows = self._entries.find("base_name", base_name)
+        versions = sorted({row.signature.version for row in rows})
+        if not versions:
+            return []
+        return self._sort_versions(versions)
 
     def _touch_modified(self) -> None:
         """Update the last modified timestamp."""
@@ -453,14 +405,14 @@ class MethodRegistry:
 
         if "@" in name:
             with self._reg_lock:
-                entry = self._methods.get(name)
+                entry = self._entries.get(name)
             if entry is None:
                 raise MethodNotFoundError(name)
             return self._load_entry(entry)
 
         with self._reg_lock:
             base_name = self._resolve_base_name(name)
-            available = list(self._versions.get(base_name, []))
+            available = self._available_versions(base_name)
 
             if not available:
                 raise MethodNotFoundError(name)
@@ -478,7 +430,7 @@ class MethodRegistry:
                 raise MethodNotFoundError(f"{name}: {exc}") from exc
 
             fqn = f"{base_name}@{resolved}"
-            entry = self._methods.get(fqn)
+            entry = self._entries.get(fqn)
             if entry is None:
                 raise MethodNotFoundError(name)
 
@@ -491,14 +443,14 @@ class MethodRegistry:
         Does not trigger lazy loading.
         """
         with self._reg_lock:
-            return self._methods.get(fqn)
+            return self._entries.get(fqn)
 
     def get_signature(self, fqn: str) -> MethodSignature | None:
         """
         Get just the signature for an FQN (no loading).
         """
         with self._reg_lock:
-            entry = self._methods.get(fqn)
+            entry = self._entries.get(fqn)
             return entry.signature if entry else None
 
     def _resolve_base_name(self, name: str) -> str:
@@ -515,23 +467,20 @@ class MethodRegistry:
             MethodNotFoundError: If name not found or ambiguous
         """
         if "." in name:
-            if name in self._versions:
+            if self._available_versions(name):
                 return name
             raise MethodNotFoundError(name)
 
-        if name not in self._by_name:
+        rows = self._entries.find("name", name)
+        if not rows:
             raise MethodNotFoundError(name)
 
-        fqns = self._by_name[name]
-        if not fqns:
-            raise MethodNotFoundError(name)
-
-        base_names = {fqn.rsplit("@", 1)[0] for fqn in fqns}
+        base_names = {f"{row.signature.namespace}.{row.signature.name}" for row in rows}
 
         if len(base_names) == 1:
             return next(iter(base_names))
 
-        namespaces = sorted(self._methods[fqn].signature.namespace for fqn in fqns)
+        namespaces = sorted({row.signature.namespace for row in rows})
         raise MethodNotFoundError(
             f"Ambiguous name '{name}', found in namespaces: {namespaces}. "
             f"Please use fully qualified name (e.g., '{namespaces[0]}.{name}')"
@@ -573,30 +522,37 @@ class MethodRegistry:
         deterministic order (sorted by FQN).
         """
         with self._reg_lock:
-            candidates = set(self._methods.keys())
+            candidates = set(self._entries.keys())
 
             if namespace is not None:
-                candidates &= self._by_namespace.get(namespace, set())
+                candidates &= {entry.fqn for entry in self._entries.find("namespace", namespace)}
 
             if tags:
                 for tag in tags:
-                    candidates &= self._by_tag.get(tag, set())
+                    candidates &= {entry.fqn for entry in self._entries.find("tag", tag)}
 
             if input_slots:
                 for slot in input_slots:
-                    candidates &= self._by_input_slot.get(slot, set())
+                    candidates &= {entry.fqn for entry in self._entries.find("input_slot", slot)}
 
             if output_slots:
                 for slot in output_slots:
-                    candidates &= self._by_output_slot.get(slot, set())
+                    candidates &= {entry.fqn for entry in self._entries.find("output_slot", slot)}
 
             if name_pattern:
                 candidates = {
                     fqn for fqn in candidates
-                    if name_pattern in self._methods[fqn].signature.name
+                    if (
+                        (entry := self._entries.get(fqn)) is not None
+                        and name_pattern in entry.signature.name
+                    )
                 }
 
-            results = [self._methods[fqn].signature for fqn in sorted(candidates)]
+            results = []
+            for fqn in sorted(candidates):
+                entry = self._entries.get(fqn)
+                if entry is not None:
+                    results.append(entry.signature)
 
         for signature in results:
             yield signature
@@ -604,16 +560,22 @@ class MethodRegistry:
     def find_by_output_slot(self, slot_name: str) -> Iterator[MethodSignature]:
         """Find all methods that produce a given output slot."""
         with self._reg_lock:
-            fqns = list(self._by_output_slot.get(slot_name, set()))
-            results = [self._methods[fqn].signature for fqn in sorted(fqns)]
+            results = [
+                entry.signature for entry in sorted(
+                    self._entries.find("output_slot", slot_name), key=lambda row: row.fqn
+                )
+            ]
         for signature in results:
             yield signature
 
     def find_by_input_slot(self, slot_name: str) -> Iterator[MethodSignature]:
         """Find all methods that consume a given input slot."""
         with self._reg_lock:
-            fqns = list(self._by_input_slot.get(slot_name, set()))
-            results = [self._methods[fqn].signature for fqn in sorted(fqns)]
+            results = [
+                entry.signature for entry in sorted(
+                    self._entries.find("input_slot", slot_name), key=lambda row: row.fqn
+                )
+            ]
         for signature in results:
             yield signature
 
@@ -625,7 +587,7 @@ class MethodRegistry:
         a source output slot name.
         """
         with self._reg_lock:
-            source = self._methods.get(source_fqn)
+            source = self._entries.get(source_fqn)
             if source is None:
                 return
 
@@ -633,10 +595,16 @@ class MethodRegistry:
             matching_fqns: set[str] = set()
 
             for slot_name in output_names:
-                matching_fqns |= self._by_input_slot.get(slot_name, set())
+                matching_fqns |= {
+                    entry.fqn for entry in self._entries.find("input_slot", slot_name)
+                }
 
             matching_fqns.discard(source_fqn)
-            results = [self._methods[fqn].signature for fqn in sorted(matching_fqns)]
+            results = []
+            for fqn in sorted(matching_fqns):
+                entry = self._entries.get(fqn)
+                if entry is not None:
+                    results.append(entry.signature)
 
         for signature in results:
             yield signature
@@ -653,10 +621,7 @@ class MethodRegistry:
             List of MethodSignature, sorted by FQN
         """
         with self._reg_lock:
-            return [
-                self._methods[fqn].signature
-                for fqn in sorted(self._methods.keys())
-            ]
+            return [entry.signature for _, entry in sorted(self._entries.items(), key=lambda row: row[0])]
 
     def list_versions(self, base_name: str) -> list[str]:
         """
@@ -668,17 +633,17 @@ class MethodRegistry:
                     base_name = self._resolve_base_name(base_name)
                 except MethodNotFoundError:
                     return []
-            return list(self._versions.get(base_name, []))
+            return self._available_versions(base_name)
 
     def list_namespaces(self) -> list[str]:
         """List all registered namespaces."""
         with self._reg_lock:
-            return sorted(self._by_namespace.keys())
+            return sorted(str(value) for value in self._entries.index_values("namespace"))
 
     def list_tags(self) -> list[str]:
         """List all registered tags."""
         with self._reg_lock:
-            return sorted(self._by_tag.keys())
+            return sorted(str(value) for value in self._entries.index_values("tag"))
 
     def snapshot(self) -> RegistrySnapshot:
         """
@@ -687,7 +652,10 @@ class MethodRegistry:
         Useful for consistent iteration without holding locks.
         """
         with self._reg_lock:
-            return RegistrySnapshot(methods=self._methods, timestamp=self._last_modified)
+            return RegistrySnapshot(
+                methods=dict(self._entries.items()),
+                timestamp=self._last_modified,
+            )
 
     # ---------------------------------------------------------------------
     # Container Protocol
@@ -696,17 +664,17 @@ class MethodRegistry:
     def __len__(self) -> int:
         """Number of registered methods."""
         with self._reg_lock:
-            return len(self._methods)
+            return self._entries.count
 
     def __contains__(self, fqn: str) -> bool:
         """Check if FQN is registered."""
         with self._reg_lock:
-            return fqn in self._methods
+            return self._entries.get(fqn) is not None
 
     def __iter__(self) -> Iterator[str]:
         """Iterate over FQNs in deterministic order."""
         with self._reg_lock:
-            fqns = list(self._methods.keys())
+            fqns = self._entries.keys()
         return iter(sorted(fqns))
 
     # ---------------------------------------------------------------------
@@ -718,16 +686,18 @@ class MethodRegistry:
         Get registry statistics for debugging.
         """
         with self._reg_lock:
-            loaded_count = sum(1 for entry in self._methods.values() if entry.loaded)
+            entries = self._entries.values()
+            loaded_count = sum(1 for entry in entries if entry.loaded)
+            total_methods = len(entries)
             return {
-                "total_methods": len(self._methods),
+                "total_methods": total_methods,
                 "loaded_methods": loaded_count,
-                "lazy_methods": len(self._methods) - loaded_count,
-                "namespaces": len(self._by_namespace),
-                "tags": len(self._by_tag),
-                "input_slots": len(self._by_input_slot),
-                "output_slots": len(self._by_output_slot),
-                "base_names": len(self._versions),
+                "lazy_methods": total_methods - loaded_count,
+                "namespaces": len(self._entries.index_values("namespace")),
+                "tags": len(self._entries.index_values("tag")),
+                "input_slots": len(self._entries.index_values("input_slot")),
+                "output_slots": len(self._entries.index_values("output_slot")),
+                "base_names": len(self._entries.index_values("base_name")),
                 "registrations": self._registration_count,
                 "last_modified": self._last_modified,
             }

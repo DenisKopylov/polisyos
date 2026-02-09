@@ -12,6 +12,7 @@ from datetime import datetime
 from enum import Enum
 from typing import Any
 
+from polisyos.core.canon import content_hash
 from polisyos.ir.connectors import QualityTier
 
 
@@ -162,7 +163,6 @@ class DataQualityReport:
 
     def _compute_hash(self) -> str:
         """Compute content hash for CAS storage."""
-        import hashlib
         import json
 
         payload = {
@@ -181,7 +181,7 @@ class DataQualityReport:
         }
 
         content = json.dumps(payload, sort_keys=True)
-        return f"sha256:{hashlib.sha256(content.encode()).hexdigest()}"
+        return content_hash(content, prefix=True)
 
     def summary(self) -> str:
         """Generate human-readable summary."""

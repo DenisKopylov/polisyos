@@ -16,6 +16,7 @@ from polisyos.core.components import (
     validate_metadata,
 )
 from polisyos.core.components.ids import SemVer
+from polisyos.core.registry.generic import GenericRegistry
 from polisyos.core.contracts.lex import ChangeProposalRef, LegalEvaluationRequest, LegalReportRef
 from polisyos.lex.errors import LexValidationError
 
@@ -43,29 +44,23 @@ class EvaluatorBootstrapReport:
 
 class LexEvaluatorRegistry:
     def __init__(self) -> None:
-        self._by_id: dict[str, EvaluatorRecord] = {}
-        self._by_base: dict[str, list[EvaluatorRecord]] = {}
+        self._records = GenericRegistry[str, EvaluatorRecord](
+            key_fn=lambda record: record.component_id,
+            indexers={"base_id": lambda record: record.base_id},
+        )
 
     def register(self, record: EvaluatorRecord) -> None:
-        self._by_id[record.component_id] = record
-
-        rows = [
-            item
-            for item in self._by_base.get(record.base_id, [])
-            if item.component_id != record.component_id
-        ]
-        rows.append(record)
-        rows.sort(key=lambda row: SemVer.parse(row.version), reverse=True)
-        self._by_base[record.base_id] = rows
+        self._records.register(record, override=True)
 
     def resolve(self, eval_policy_id: str) -> EvaluatorRecord:
-        record = self._by_id.get(eval_policy_id)
+        record = self._records.get(eval_policy_id)
         if record is not None:
             return record
 
-        rows = self._by_base.get(eval_policy_id)
+        rows = self._records.find("base_id", eval_policy_id)
         if rows:
-            return rows[0]
+            ranked = sorted(rows, key=lambda row: SemVer.parse(row.version), reverse=True)
+            return ranked[0]
 
         raise LexValidationError(
             f"unsupported eval_policy_id: {eval_policy_id}",
@@ -73,8 +68,8 @@ class LexEvaluatorRegistry:
         )
 
     def list_ids(self) -> list[str]:
-        names = set(self._by_id.keys())
-        names.update(self._by_base.keys())
+        names = set(self._records.keys())
+        names.update(str(value) for value in self._records.index_values("base_id"))
         return sorted(names)
 
 

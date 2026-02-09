@@ -16,7 +16,6 @@ Design Principles:
 
 from __future__ import annotations
 
-import hashlib
 from datetime import datetime, timezone
 from enum import Enum
 from typing import Any, Dict, List, Optional
@@ -24,6 +23,7 @@ from uuid import UUID, uuid4
 
 from pydantic import BaseModel, Field, computed_field
 
+from polisyos.core.canon import content_hash
 
 class FailureSource(str, Enum):
     """Origin of the failure detection."""
@@ -166,7 +166,7 @@ class FailureCard(BaseModel):
     def content_hash(self) -> str:
         """Content-addressable hash for CAS storage."""
         content = f"{self.error_code}:{self.violation_summary}:{self.attempt_number}"
-        return f"sha256:{hashlib.sha256(content.encode()).hexdigest()}"
+        return content_hash(content, prefix=True)
 
     # === Methods ===
     def to_prompt_context(self, include_history: bool = False) -> str:

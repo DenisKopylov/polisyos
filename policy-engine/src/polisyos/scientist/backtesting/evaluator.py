@@ -4,7 +4,7 @@ from typing import Any
 
 import numpy as np
 
-from polisyos.ir.backtest import BacktestScenario, OutcomeComparison
+from polisyos.ir.analytics.backtest import BacktestScenario, OutcomeComparison
 
 
 class PredictionEvaluator:

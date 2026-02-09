@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import hashlib
 import os
 import platform
 from dataclasses import dataclass, field
@@ -10,6 +9,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from polisyos.core.artifacts.environment import EnvironmentManifest
 
+from polisyos.core.canon import truncated_hash
 from polisyos.core.observability.determinism import (
     DeterminismTier,
     get_determinism_tier as _get_determinism_tier,
@@ -137,7 +137,7 @@ class EnvironmentFingerprint:
                 str(self.random_seed),
             ]
         )
-        return hashlib.sha256(critical_fields.encode("utf-8")).hexdigest()[:16]
+        return truncated_hash(critical_fields, length=16)
 
     def compatibility_score(self, other: "EnvironmentFingerprint") -> float:
         """

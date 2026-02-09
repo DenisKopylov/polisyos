@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Optional, Tuple
 
-from polisyos.ir.gate import GateDecision, GateVerdict
+from polisyos.ir.governance.gate import GateDecision, GateVerdict
 
 from .preflight import preflight_checks
 from .profiles import ValidationProfile

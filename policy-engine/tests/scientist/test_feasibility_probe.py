@@ -11,7 +11,7 @@ from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.contracts.fabric import DataSnapshot
 from polisyos.foundry.agent_sim.state import GlobalState
 from polisyos.foundry.executor import put_state_snapshot
-from polisyos.ir.selector_expr import SelectorPredicate
+from polisyos.ir.governance.selector_expr import SelectorPredicate
 from polisyos.ir.types import SelectorOperator
 from polisyos.scientist.agent.feasibility import StateSnapshotFeasibilityProbe
 

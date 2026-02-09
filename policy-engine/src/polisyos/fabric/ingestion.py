@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import hashlib
 import json
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -12,6 +11,7 @@ from polisyos.common.async_tools import run_coro_sync
 from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.canon import content_hash
 from polisyos.core.contracts.fabric import EvidenceBundleRef
 from polisyos.fabric.connectors.cache.policy import (
     PolicyRegistry,
@@ -216,7 +216,7 @@ def _sync_fetch(
 def _manifest_fingerprint(spec: ConnectorManifestSpec) -> str:
     payload = spec.model_dump(mode="json", exclude_none=True)
     canonical = json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
-    return hashlib.sha256(canonical).hexdigest()
+    return content_hash(canonical)
 
 
 def _build_connector_provenance_graph(

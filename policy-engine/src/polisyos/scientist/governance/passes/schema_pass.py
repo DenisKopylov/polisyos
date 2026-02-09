@@ -5,7 +5,7 @@ from typing import List
 from pydantic import ValidationError
 
 from polisyos.ir.trinity import TrinityBundle
-from polisyos.ir.validation import build_validation_report
+from polisyos.ir.governance.validation import build_validation_report
 
 from .base import ValidatorPass, PassContext, ComplianceIssue, IssueSeverity
 

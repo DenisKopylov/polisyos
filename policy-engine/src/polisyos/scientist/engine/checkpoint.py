@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import hashlib
 import json
 import os
 import socket
@@ -15,7 +14,8 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
-from polisyos.core.canon import from_canonical_bytes, to_canonical_bytes
+from polisyos.core.canon import content_hash, from_canonical_bytes, to_canonical_bytes
+from polisyos.core.errors import ErrorCategory, PolicyOSError
 from polisyos.scientist.engine.state import ExperimentState
 from polisyos.scientist.engine.workflow_spec import WorkflowSpec
 
@@ -28,24 +28,35 @@ RUN_LOCK_FILENAME = "run.lock"
 CheckpointPolicy = Literal["off", "strict", "best_effort"]
 
 
-class CheckpointError(Exception):
+class CheckpointError(PolicyOSError):
     """Base class for checkpoint/resume errors."""
+
+    default_stage = "scientist.checkpoint"
+    default_category = ErrorCategory.FATAL
 
 
 class CheckpointNotFoundError(CheckpointError):
     """No checkpoint exists for a run_id."""
 
+    default_category = ErrorCategory.TRANSIENT
+
 
 class CheckpointCorruptedError(CheckpointError):
     """Checkpoint payload failed integrity or validation checks."""
+
+    default_category = ErrorCategory.FATAL
 
 
 class WorkflowMismatchError(CheckpointError):
     """Current workflow is incompatible with checkpoint metadata."""
 
+    default_category = ErrorCategory.VALIDATION
+
 
 class RunLockError(CheckpointError):
     """Run lock acquisition/release failed."""
+
+    default_category = ErrorCategory.TRANSIENT
 
 
 class CheckpointMetadata(BaseModel):
@@ -206,7 +217,7 @@ def normalize_checkpoint_policy(value: str | None) -> CheckpointPolicy:
 def compute_workflow_fingerprint(workflow: WorkflowSpec) -> str:
     payload = workflow.model_dump(mode="python", by_alias=True, exclude_none=False)
     canonical = to_canonical_bytes(payload)
-    return hashlib.sha256(canonical).hexdigest()
+    return content_hash(canonical)
 
 
 def _checkpoint_payload(

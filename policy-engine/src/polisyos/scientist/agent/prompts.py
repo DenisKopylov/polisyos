@@ -232,3 +232,153 @@ def get_formalizer_prompt() -> str:
 def get_critic_prompt() -> str:
     """System prompt for Critic agent."""
     return CRITIC_SYSTEM_PROMPT
+
+
+SIDE_EFFECTS_CHECK_PROMPT = """
+# ROLE
+You are a **Policy Side-Effects Reviewer**.
+
+# CONTEXT
+Review the current draft and identify concrete missing risks and negatively impacted groups.
+
+# PROBLEM FRAME SUMMARY
+{problem_frame_summary}
+
+# CURRENT DRAFT
+{draft_so_far}
+
+# KNOWN CONSTRAINTS
+{constraints_list}
+
+# OUTPUT FORMAT (STRICT JSON)
+{{
+  "findings": [
+    {{
+      "category": "side_effect|missing_group|equity_concern|feasibility_issue|other",
+      "severity": "low|medium|high|critical",
+      "description": "specific issue",
+      "suggested_fix": "specific fix",
+      "affected_intervention": "name or null",
+      "anchor": "constraint:<id>|intervention:<index>|field:<path>|none"
+    }}
+  ],
+  "confidence_adjustment": -0.05
+}}
+
+# RULES
+- Be specific and reference concrete draft elements.
+- Do not invent issues if the draft is strong.
+- Return empty findings list if no real issues are found.
+"""
+
+
+CONSTRAINT_VERIFY_PROMPT = """
+# ROLE
+You are a **Policy Constraint Auditor**.
+
+# CONTEXT
+Verify formal constraints only: budget, ranges, consistency, and overlap conflicts.
+
+# PROBLEM FRAME SUMMARY
+{problem_frame_summary}
+
+# CURRENT DRAFT
+{draft_so_far}
+
+# CONSTRAINTS
+{constraints_list}
+
+# FINDINGS FROM PREVIOUS PASS
+{previous_pass_findings}
+
+# OUTPUT FORMAT (STRICT JSON)
+{{
+  "findings": [
+    {{
+      "category": "budget_violation|parameter_error|target_overlap|constraint_conflict|other",
+      "severity": "low|medium|high|critical",
+      "description": "specific violation with numbers where possible",
+      "suggested_fix": "specific fix",
+      "affected_intervention": "name or null",
+      "anchor": "constraint:<id>|intervention:<index>|field:<path>|none"
+    }}
+  ],
+  "confidence_adjustment": -0.10
+}}
+
+# RULES
+- Focus on formal constraints only.
+- Use concrete numbers in violation descriptions.
+- Return empty findings list if all constraints pass.
+"""
+
+
+CONSOLIDATION_PROMPT = """
+# ROLE
+You are a **Policy Draft Consolidator**.
+
+# CONTEXT
+Integrate findings into a revised draft while preserving the original policy direction.
+
+# PROBLEM FRAME SUMMARY
+{problem_frame_summary}
+
+# CURRENT DRAFT
+{draft_so_far}
+
+# KNOWN CONSTRAINTS
+{constraints_list}
+
+# ALL FINDINGS TO ADDRESS
+{previous_pass_findings}
+
+# OUTPUT FORMAT (STRICT JSON)
+{{
+  "narrative": "updated narrative",
+  "interventions": [
+    {{
+      "name": "intervention name",
+      "description": "what it does",
+      "mechanism_type": "tax_subsidy|income_tax|adaptive_agent|etc",
+      "target_population": "who is affected",
+      "parameters": {{"key": "value"}},
+      "rationale": "why this intervention helps"
+    }}
+  ],
+  "rationale": "overall justification",
+  "alternatives_considered": ["..."],
+  "confidence": 0.0
+}}
+
+# RULES
+- Keep the core policy intent.
+- Resolve high and critical findings whenever possible.
+- If a finding cannot be resolved, state the trade-off in rationale.
+"""
+
+
+SELF_CRITIQUE_PROMPTS: dict[str, str] = {
+    "side_effects": SIDE_EFFECTS_CHECK_PROMPT,
+    "constraint_verify": CONSTRAINT_VERIFY_PROMPT,
+    "consolidation": CONSOLIDATION_PROMPT,
+}
+
+
+def get_self_critique_prompt(
+    *,
+    pass_type: str,
+    problem_frame_summary: str,
+    draft_so_far: str,
+    constraints_list: str,
+    previous_pass_findings: str,
+) -> str:
+    """Build self-critique prompt for a multipass drafter pass."""
+    template = SELF_CRITIQUE_PROMPTS.get(pass_type)
+    if template is None:
+        raise ValueError(f"Unknown self-critique pass type: {pass_type}")
+    return template.format(
+        problem_frame_summary=problem_frame_summary,
+        draft_so_far=draft_so_far,
+        constraints_list=constraints_list,
+        previous_pass_findings=previous_pass_findings,
+    )

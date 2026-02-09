@@ -54,6 +54,44 @@
           "legendFormat": "{{status}}"
         }
       ]
+    },
+    {
+      "id": 5,
+      "title": "Drafter Multipass Runs by Domain",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 16 },
+      "targets": [
+        {
+          "expr": "sum by (domain) (rate(polisyos_drafter_multipass_runs_total[5m]))",
+          "legendFormat": "{{domain}}"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Drafter Multipass Early Exit Ratio",
+      "type": "stat",
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 16 },
+      "targets": [
+        {
+          "expr": "sum(rate(polisyos_drafter_multipass_early_exit_total[1h])) / clamp_min(sum(rate(polisyos_drafter_multipass_runs_total[1h])), 1e-9)",
+          "legendFormat": "ratio"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "percentunit" } }
+    },
+    {
+      "id": 7,
+      "title": "Drafter Multipass Cost (p95)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 16 },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum by (le) (rate(polisyos_drafter_multipass_cost_usd_bucket[1h])))",
+          "legendFormat": "p95"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "currencyUSD" } }
     }
   ]
 }

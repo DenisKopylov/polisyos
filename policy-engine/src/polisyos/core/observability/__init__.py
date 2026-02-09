@@ -153,6 +153,28 @@ except ModuleNotFoundError:  # pragma: no cover - optional runtime dependency
         def record_sbom_deployment_gate(self, *, decision: str) -> None:
             return None
 
+        def record_drafter_multipass_run(
+            self,
+            *,
+            domain: str,
+            executed_passes: int,
+            total_findings: int,
+            total_cost_usd: float,
+            early_exit: bool,
+            budget_stop: bool,
+            shadow_mode: bool = False,
+        ) -> None:
+            return None
+
+        def record_drafter_multipass_pass(
+            self,
+            *,
+            pass_name: str,
+            duration_seconds: float,
+            executed: bool,
+        ) -> None:
+            return None
+
     class _NoopSpan:
         def __enter__(self):
             return self

@@ -38,7 +38,14 @@ if TYPE_CHECKING:
     # Optional exports (loaded lazily at runtime to avoid circular imports).
     from polisyos.scientist.agent.base import BaseAgent, MockAgent
     from polisyos.scientist.agent.critic import LLMCriticAgent, MockCriticAgent
-    from polisyos.scientist.agent.drafter import LLMDrafterAgent, MockDrafterAgent, MockLLM
+    from polisyos.scientist.agent.drafter import (
+        LLMDrafterAgent,
+        MockDrafterAgent,
+        MockLLM,
+        MultiPassConfig,
+        MultiPassLLMDrafter,
+        create_drafter_agent,
+    )
     from polisyos.scientist.agent.formalizer import LLMFormalizerAgent, MockFormalizerAgent
     from polisyos.scientist.agent.memory import ShortTermMemory, TurnRole
     from polisyos.scientist.agent.pi import LLMPIAgent, MockPIAgent
@@ -57,6 +64,9 @@ __all__ = [
     "MockCriticAgent",
     "LLMCriticAgent",
     "MockLLM",
+    "MultiPassLLMDrafter",
+    "MultiPassConfig",
+    "create_drafter_agent",
     "ProblemFrame",
     "SubTask",
     "DraftResult",
@@ -102,6 +112,9 @@ def __getattr__(name: str):
         "LLMDrafterAgent": ("polisyos.scientist.agent.drafter", "LLMDrafterAgent"),
         "MockDrafterAgent": ("polisyos.scientist.agent.drafter", "MockDrafterAgent"),
         "MockLLM": ("polisyos.scientist.agent.drafter", "MockLLM"),
+        "MultiPassLLMDrafter": ("polisyos.scientist.agent.drafter", "MultiPassLLMDrafter"),
+        "MultiPassConfig": ("polisyos.scientist.agent.drafter", "MultiPassConfig"),
+        "create_drafter_agent": ("polisyos.scientist.agent.drafter", "create_drafter_agent"),
         "drafter_node": ("polisyos.scientist.agent.drafter", "drafter_node"),
         # formalizer
         "LLMFormalizerAgent": ("polisyos.scientist.agent.formalizer", "LLMFormalizerAgent"),

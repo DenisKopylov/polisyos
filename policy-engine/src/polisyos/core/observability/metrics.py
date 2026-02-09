@@ -129,6 +129,13 @@ class MetricsRegistry:
     simulation_batch_size: Optional[metrics.Histogram] = None
     llm_calls_total: Optional[metrics.Counter] = None
     llm_tokens_total: Optional[metrics.Counter] = None
+    drafter_multipass_runs_total: Optional[metrics.Counter] = None
+    drafter_multipass_passes_total: Optional[metrics.Counter] = None
+    drafter_multipass_findings_total: Optional[metrics.Counter] = None
+    drafter_multipass_cost_usd: Optional[metrics.Histogram] = None
+    drafter_multipass_pass_duration_seconds: Optional[metrics.Histogram] = None
+    drafter_multipass_early_exit_total: Optional[metrics.Counter] = None
+    drafter_multipass_budget_stop_total: Optional[metrics.Counter] = None
     active_runs: Optional[metrics.UpDownCounter] = None
     validation_issues_total: Optional[metrics.Counter] = None
     artifact_operations_total: Optional[metrics.Counter] = None
@@ -336,6 +343,43 @@ class MetricsRegistry:
         self.llm_tokens_total = self._meter.create_counter(
             name="polisyos_llm_tokens_total",
             description="Total LLM tokens consumed",
+            unit="1",
+        )
+
+        # Drafter multipass metrics
+        self.drafter_multipass_runs_total = self._meter.create_counter(
+            name="polisyos_drafter_multipass_runs_total",
+            description="Total multipass drafter runs",
+            unit="1",
+        )
+        self.drafter_multipass_passes_total = self._meter.create_counter(
+            name="polisyos_drafter_multipass_passes_total",
+            description="Executed passes in multipass drafter runs",
+            unit="1",
+        )
+        self.drafter_multipass_findings_total = self._meter.create_counter(
+            name="polisyos_drafter_multipass_findings_total",
+            description="Findings discovered by multipass drafter",
+            unit="1",
+        )
+        self.drafter_multipass_cost_usd = self._meter.create_histogram(
+            name="polisyos_drafter_multipass_cost_usd",
+            description="Estimated cost per multipass drafter run",
+            unit="USD",
+        )
+        self.drafter_multipass_pass_duration_seconds = self._meter.create_histogram(
+            name="polisyos_drafter_multipass_pass_duration_seconds",
+            description="Duration of multipass drafter passes",
+            unit="s",
+        )
+        self.drafter_multipass_early_exit_total = self._meter.create_counter(
+            name="polisyos_drafter_multipass_early_exit_total",
+            description="Multipass drafter runs terminated by early-exit condition",
+            unit="1",
+        )
+        self.drafter_multipass_budget_stop_total = self._meter.create_counter(
+            name="polisyos_drafter_multipass_budget_stop_total",
+            description="Multipass drafter runs terminated by budget/call limits",
             unit="1",
         )
 
@@ -903,6 +947,55 @@ class MetricsRegistry:
                 self.llm_tokens_total.add(
                     completion_tokens, {**attrs, "type": "completion"}
                 )
+
+    def record_drafter_multipass_run(
+        self,
+        *,
+        domain: str,
+        executed_passes: int,
+        total_findings: int,
+        total_cost_usd: float,
+        early_exit: bool,
+        budget_stop: bool,
+        shadow_mode: bool = False,
+    ) -> None:
+        """Record aggregate metrics for one multipass drafter run."""
+        self._ensure_initialized()
+        attrs = {
+            "domain": domain or "unknown",
+            "shadow_mode": str(bool(shadow_mode)).lower(),
+        }
+        if self.drafter_multipass_runs_total is not None:
+            self.drafter_multipass_runs_total.add(1, attrs)
+        if self.drafter_multipass_passes_total is not None and executed_passes > 0:
+            self.drafter_multipass_passes_total.add(max(0, int(executed_passes)), attrs)
+        if self.drafter_multipass_findings_total is not None and total_findings > 0:
+            self.drafter_multipass_findings_total.add(max(0, int(total_findings)), attrs)
+        if self.drafter_multipass_cost_usd is not None:
+            self.drafter_multipass_cost_usd.record(max(0.0, float(total_cost_usd)), attrs)
+        if early_exit and self.drafter_multipass_early_exit_total is not None:
+            self.drafter_multipass_early_exit_total.add(1, attrs)
+        if budget_stop and self.drafter_multipass_budget_stop_total is not None:
+            self.drafter_multipass_budget_stop_total.add(1, attrs)
+
+    def record_drafter_multipass_pass(
+        self,
+        *,
+        pass_name: str,
+        duration_seconds: float,
+        executed: bool,
+    ) -> None:
+        """Record per-pass duration and findings for multipass drafter."""
+        self._ensure_initialized()
+        attrs = {
+            "pass_name": pass_name,
+            "executed": str(bool(executed)).lower(),
+        }
+        if self.drafter_multipass_pass_duration_seconds is not None:
+            self.drafter_multipass_pass_duration_seconds.record(
+                max(0.0, float(duration_seconds)),
+                attrs,
+            )
 
     def record_validation_issue(
         self,

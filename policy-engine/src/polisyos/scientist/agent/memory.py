@@ -17,6 +17,7 @@ class TurnRole(str, Enum):
     FORMALIZER = "formalizer"
     CRITIC = "critic"
     SYSTEM = "system"
+    SELF_CRITIQUE = "self_critique"
 
 
 @dataclass
@@ -77,6 +78,29 @@ class ShortTermMemory:
         if len(self._attempts) > self._max_attempts:
             self._attempts = self._attempts[-self._max_attempts :]
 
+    def add_pass_findings(
+        self,
+        pass_name: str,
+        findings: list[dict[str, str]],
+        cost_usd: float = 0.0,
+    ) -> None:
+        """Store multipass self-critique findings as a compact memory turn."""
+        if not findings:
+            return
+        top_findings = findings[:5]
+        summary = "; ".join(
+            f"{item.get('severity', '?').upper()}: {item.get('description', '')[:100]}"
+            for item in top_findings
+        )
+        content = f"[Self-Critique:{pass_name}] {summary}"
+        self.add_turn(
+            TurnRole.SELF_CRITIQUE,
+            content,
+            pass_name=pass_name,
+            findings_count=len(findings),
+            cost_usd=round(max(cost_usd, 0.0), 6),
+        )
+
     def get_hints(self) -> list[str]:
         """Get all accumulated hints from Critic reviews."""
         return self._hints.copy()
@@ -105,6 +129,7 @@ class ShortTermMemory:
                     "role": turn.role.value,
                     "content": turn.content,
                     "timestamp": turn.timestamp.isoformat(),
+                    "metadata": turn.metadata,
                 }
                 for turn in self._turns
             ],
@@ -115,6 +140,7 @@ class ShortTermMemory:
                     "ir_summary": attempt.ir_summary,
                     "critique_verdict": attempt.critique_verdict,
                     "critique_hint": attempt.critique_hint,
+                    "timestamp": attempt.timestamp.isoformat(),
                 }
                 for attempt in self._attempts
             ],
@@ -126,6 +152,19 @@ class ShortTermMemory:
         """Deserialize memory from dictionary."""
         memory = cls()
         for turn_data in data.get("turns", []):
-            memory.add_turn(turn_data["role"], turn_data["content"])
+            memory.add_turn(
+                turn_data["role"],
+                turn_data["content"],
+                **(turn_data.get("metadata") or {}),
+            )
+        for attempt_data in data.get("attempts", []):
+            if not isinstance(attempt_data, dict):
+                continue
+            memory.add_attempt(
+                attempt_data.get("draft_summary", ""),
+                attempt_data.get("ir_summary", ""),
+                attempt_data.get("critique_verdict", ""),
+                attempt_data.get("critique_hint", ""),
+            )
         memory._hints = data.get("hints", [])
         return memory

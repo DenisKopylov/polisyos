@@ -2,11 +2,15 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime, timezone
 from typing import Protocol
 
 import pandas as pd
 
+from polisyos.fabric.connectors.transform._common import (
+    build_lineage,
+    resolve_copy_policy,
+    stage_started_at,
+)
 from polisyos.fabric.connectors.transform.pipeline import (
     CopyPolicy,
     DataTransform,
@@ -108,8 +112,8 @@ class ValidationTransform(DataTransform):
         data: pd.DataFrame,
         context: TransformContext,
     ) -> tuple[pd.DataFrame, TransformLineage, list[str]]:
-        start_time = datetime.now(timezone.utc)
-        copy_policy = context.effective_copy_policy()
+        start_time = stage_started_at()
+        copy_policy = resolve_copy_policy(context)
 
         warnings: list[str] = []
         for rule in self.rules:
@@ -120,12 +124,11 @@ class ValidationTransform(DataTransform):
 
         result = data.copy() if copy_policy == CopyPolicy.COPY else data
 
-        lineage = TransformLineage(
+        lineage = build_lineage(
             stage_name=self.name,
             started_at=start_time,
-            completed_at=datetime.now(timezone.utc),
-            input_row_count=len(data),
-            output_row_count=len(result),
+            input_data=data,
+            output_data=result,
             parameters={
                 "rules": [rule.name for rule in self.rules],
                 "rule_count": len(self.rules),

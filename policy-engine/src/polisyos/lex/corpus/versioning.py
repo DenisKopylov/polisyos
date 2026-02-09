@@ -5,32 +5,27 @@ from pathlib import Path
 
 import pandas as pd
 
-from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.store import FileSystemCAS
-from polisyos.core.canon import from_canonical_bytes
 from polisyos.fabric.world import (
     append_world_segment_index,
-    emit_world_event_facts,
     emit_world_node_facts,
-    event_world_provenance_v1,
-    load_world_fact_manifests,
-    persist_world_event,
     stable_world_provenance_v1,
     write_world_fact_segment,
 )
+from polisyos.fabric.world.events import (
+    build_deterministic_world_event,
+    persist_world_event_with_facts,
+)
 from polisyos.ir.world.abi import EdgeKind, NodeKind
-from polisyos.ir.world.doc import DocMeta
 from polisyos.ir.world.event import (
     EventKind,
-    ProvActivity,
     ProvActivityType,
-    ProvAgent,
     ProvAgentType,
-    WorldEvent,
     WorldObjectRef,
 )
-from polisyos.ir.world.ids import world_event_id_from_payload
 from polisyos.ir.world.predicates import WORLD_ARTIFACT_ID, WORLD_PROPS_REF, rel
+from polisyos.lex.artifacts import load_doc_meta_artifact
+from polisyos.lex.common import latest_object_by_subject, parse_iso_date
 from polisyos.lex.corpus.index import (
     DocSourcePropsV1,
     VersionEntryV1,
@@ -46,6 +41,7 @@ from polisyos.lex.errors import (
     LexValidationError,
     LexVersioningError,
 )
+from polisyos.lex.factlog import load_world_facts
 from polisyos.lex.types import (
     ActiveVersionResult,
     ActiveVersionStrategy,
@@ -56,19 +52,6 @@ from polisyos.lex.types import (
 _FACT_COLUMNS = ["fact_id", "subject_id", "predicate_id", "object_value", "target_id", "tx_time"]
 
 
-def _load_json_artifact(cas: FileSystemCAS, artifact_id: str) -> dict:
-    aid = ArtifactID.model_validate(artifact_id)
-    payload = from_canonical_bytes(cas.get_bytes(aid))
-    if not isinstance(payload, dict):
-        raise LexValidationError(f"artifact {artifact_id} payload must be a JSON object")
-    return payload
-
-
-def _load_doc_meta(cas: FileSystemCAS, artifact_id: str) -> DocMeta:
-    payload = _load_json_artifact(cas, artifact_id)
-    return DocMeta.model_validate(payload)
-
-
 def _parse_iso_date(
     value: str | None,
     *,
@@ -76,65 +59,18 @@ def _parse_iso_date(
     issues: list[str],
     doc_version_id: str,
 ) -> date | None:
-    if value is None:
-        return None
-    raw = value.strip()
-    if not raw:
-        return None
-    try:
-        if len(raw) == 10 and raw.count("-") == 2:
-            return date.fromisoformat(raw)
-        return datetime.fromisoformat(raw.replace("Z", "+00:00")).date()
-    except Exception:
+    parsed = parse_iso_date(value)
+    if value is not None and value.strip() and parsed is None:
         issues.append(f"invalid_iso:{field}:{doc_version_id}")
-        return None
+    return parsed
 
 
 def _load_world_facts(fact_log_root: Path) -> pd.DataFrame:
-    manifests = load_world_fact_manifests(fact_log_root)
-    frames: list[pd.DataFrame] = []
-    for manifest in manifests:
-        path = Path(manifest.path)
-        if not path.exists():
-            continue
-        try:
-            frame = pd.read_parquet(path, columns=_FACT_COLUMNS)
-        except Exception as exc:  # pragma: no cover - defensive
-            raise LexVersioningError(f"failed to read fact segment {path}: {exc}") from exc
-        frames.append(frame)
-    if not frames:
-        return pd.DataFrame(columns=_FACT_COLUMNS)
-    return pd.concat(frames, ignore_index=True)
-
-
-def _latest_object_by_subject(
-    facts: pd.DataFrame,
-    *,
-    subject_ids: set[str],
-    predicate_id: str,
-) -> dict[str, str]:
-    if not subject_ids:
-        return {}
-    subset = facts[
-        (facts["predicate_id"] == predicate_id)
-        & (facts["subject_id"].isin(subject_ids))
-        & (facts["object_value"].notna())
-    ].copy()
-    if subset.empty:
-        return {}
-
-    subset["tx_time"] = subset["tx_time"].fillna("").astype(str)
-    subset["fact_id"] = subset["fact_id"].fillna("").astype(str)
-    subset = subset.sort_values(
-        by=["subject_id", "tx_time", "fact_id"],
-        ascending=[True, False, False],
+    return load_world_facts(
+        fact_log_root,
+        columns=_FACT_COLUMNS,
+        read_error_cls=LexVersioningError,
     )
-    subset = subset.drop_duplicates(subset=["subject_id"], keep="first")
-
-    out: dict[str, str] = {}
-    for _, row in subset.iterrows():
-        out[str(row["subject_id"])] = str(row["object_value"])
-    return out
 
 
 def _entry_sort_key(
@@ -199,7 +135,7 @@ def build_version_index(
                 doc_source_id=doc_source_id,
             )
 
-        latest_meta = _latest_object_by_subject(
+        latest_meta = latest_object_by_subject(
             facts,
             subject_ids=set(doc_version_ids),
             predicate_id=WORLD_ARTIFACT_ID,
@@ -217,7 +153,7 @@ def build_version_index(
                 quality_issues.append(f"missing_meta_artifact:{doc_version_id}")
                 continue
 
-            meta = _load_doc_meta(cas, meta_artifact_id)
+            meta = load_doc_meta_artifact(cas, meta_artifact_id)
             lex_props = meta.props.get("lex") if isinstance(meta.props, dict) else None
             if not isinstance(lex_props, dict):
                 lex_props = {}
@@ -327,25 +263,6 @@ def build_version_index(
                 )
             )
 
-        now = datetime.now(timezone.utc)
-        agent = ProvAgent(
-            agent_id=opts.lex_agent_id,
-            agent_type=ProvAgentType.SYSTEM,
-            label="Lex Corpus",
-        )
-        activity = ProvActivity(
-            activity_id=opts.lex_activity_id,
-            activity_type=ProvActivityType.VALIDATE,
-            label="Build legal version index",
-            started_at=now,
-            ended_at=now,
-            parameters={
-                "pipeline": "lex.corpus.versioning_v1",
-                "selection_policy_id": opts.selection_policy_id,
-                "versions_count": len(entries),
-            },
-        )
-
         input_refs = [WorldObjectRef(world_id=doc_source_id)]
         input_refs.extend(
             WorldObjectRef(world_id=doc_version_id)
@@ -358,40 +275,31 @@ def build_version_index(
             WorldObjectRef(artifact_id=version_index_artifact_id),
             WorldObjectRef(artifact_id=doc_source_props_artifact_id),
         ]
-
-        event_payload = {
-            "event_kind": EventKind.VALIDATE,
-            "agent": agent,
-            "activity": activity,
-            "inputs": input_refs,
-            "outputs": output_refs,
-            "evidence_ref": None,
-            "provenance_ref": None,
-        }
-        event_id = world_event_id_from_payload(event_payload=event_payload)
-        event = WorldEvent(
-            event_id=event_id,
+        event = build_deterministic_world_event(
             event_kind=EventKind.VALIDATE,
-            agent=agent,
-            activity=activity,
+            agent_id=opts.lex_agent_id,
+            agent_type=ProvAgentType.SYSTEM,
+            agent_label="Lex Corpus",
+            activity_id=opts.lex_activity_id,
+            activity_type=ProvActivityType.VALIDATE,
+            activity_label="Build legal version index",
+            activity_parameters={
+                "pipeline": "lex.corpus.versioning_v1",
+                "selection_policy_id": opts.selection_policy_id,
+                "versions_count": len(entries),
+            },
             inputs=input_refs,
             outputs=output_refs,
-            evidence_ref=None,
-            provenance_ref=None,
             props={
                 "pipeline": "lex.corpus.versioning_v1",
                 "selection_policy_id": opts.selection_policy_id,
             },
         )
-        event_ref = persist_world_event(cas, event)
-        event_artifact_id = str(event_ref.artifact_id)
-
-        facts_out.extend(
-            emit_world_event_facts(
-                event,
-                event_artifact_id=event_artifact_id,
-                provenance=event_world_provenance_v1(event_id),
-            )
+        event_id = event.event_id
+        event_artifact_id = persist_world_event_with_facts(
+            cas=cas,
+            event=event,
+            facts=facts_out,
         )
 
         segment_base = segment_name or "lex_version_index"

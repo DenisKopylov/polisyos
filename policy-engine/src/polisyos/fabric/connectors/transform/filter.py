@@ -2,11 +2,15 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime, timezone
 from typing import Callable
 
 import pandas as pd
 
+from polisyos.fabric.connectors.transform._common import (
+    build_lineage,
+    resolve_copy_policy,
+    stage_started_at,
+)
 from polisyos.fabric.connectors.transform.pipeline import (
     CopyPolicy,
     DataTransform,
@@ -35,8 +39,8 @@ class FilterTransform(DataTransform):
         data: pd.DataFrame,
         context: TransformContext,
     ) -> tuple[pd.DataFrame, TransformLineage, list[str]]:
-        start_time = datetime.now(timezone.utc)
-        copy_policy = context.effective_copy_policy()
+        start_time = stage_started_at()
+        copy_policy = resolve_copy_policy(context)
 
         if isinstance(self.condition, str):
             try:
@@ -66,12 +70,11 @@ class FilterTransform(DataTransform):
         if drop_pct > self.max_drop_pct:
             warnings.append(f"Filter dropped {drop_pct:.1%} of rows (>{self.max_drop_pct:.1%})")
 
-        lineage = TransformLineage(
+        lineage = build_lineage(
             stage_name=self.name,
             started_at=start_time,
-            completed_at=datetime.now(timezone.utc),
-            input_row_count=len(data),
-            output_row_count=len(result),
+            input_data=data,
+            output_data=result,
             parameters={
                 "condition": self.condition if isinstance(self.condition, str) else "<callable>",
                 "keep": self.keep,

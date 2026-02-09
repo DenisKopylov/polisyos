@@ -1,20 +1,19 @@
 from __future__ import annotations
 
-from datetime import date, datetime
+from datetime import date
 from pathlib import Path
 from typing import Any
 
 import pandas as pd
 
-from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.store import FileSystemCAS
-from polisyos.core.canon import from_canonical_bytes
-from polisyos.fabric.world import load_world_fact_manifests
 from polisyos.ir.world.abi import EdgeKind
-from polisyos.ir.world.doc import DocMeta
 from polisyos.ir.world.predicates import WORLD_ARTIFACT_ID, WORLD_KIND, rel
+from polisyos.lex.artifacts import load_doc_meta_artifact
+from polisyos.lex.common import latest_object_by_subject, parse_iso_date
 from polisyos.lex.corpus.versioning import resolve_active_version
 from polisyos.lex.errors import LexNotReadyError, LexValidationError
+from polisyos.lex.factlog import load_world_facts
 from polisyos.lex.types import ActiveVersionStrategy, NormPackBuildRequest, SelectedDocVersion
 
 _FACT_COLUMNS = [
@@ -28,74 +27,12 @@ _FACT_COLUMNS = [
 
 
 def _load_world_facts(fact_log_root: Path) -> pd.DataFrame:
-    manifests = load_world_fact_manifests(fact_log_root)
-    frames: list[pd.DataFrame] = []
-    for manifest in manifests:
-        path = Path(manifest.path)
-        if not path.exists():
-            continue
-        frame = pd.read_parquet(path, columns=_FACT_COLUMNS)
-        frames.append(frame)
-    if not frames:
-        return pd.DataFrame(columns=_FACT_COLUMNS)
-    return pd.concat(frames, ignore_index=True)
-
-
-def _load_doc_meta(cas: FileSystemCAS, artifact_id: str) -> DocMeta:
-    aid = ArtifactID.model_validate(artifact_id)
-    payload = from_canonical_bytes(cas.get_bytes(aid))
-    if not isinstance(payload, dict):
-        raise LexValidationError(f"doc meta artifact {artifact_id} payload must be JSON object")
-    return DocMeta.model_validate(payload)
-
-
-def _latest_object_by_subject(
-    facts: pd.DataFrame,
-    *,
-    subject_ids: set[str],
-    predicate_id: str,
-) -> dict[str, str]:
-    if not subject_ids:
-        return {}
-    subset = facts[
-        (facts["predicate_id"] == predicate_id)
-        & (facts["subject_id"].isin(subject_ids))
-        & (facts["object_value"].notna())
-    ].copy()
-    if subset.empty:
-        return {}
-
-    subset["tx_time"] = subset["tx_time"].fillna("").astype(str)
-    subset["fact_id"] = subset["fact_id"].fillna("").astype(str)
-    subset = subset.sort_values(
-        by=["subject_id", "tx_time", "fact_id"],
-        ascending=[True, False, False],
-    )
-    subset = subset.drop_duplicates(subset=["subject_id"], keep="first")
-
-    out: dict[str, str] = {}
-    for _, row in subset.iterrows():
-        out[str(row["subject_id"])] = str(row["object_value"])
-    return out
-
-
-def _parse_iso_date(value: str | None) -> date | None:
-    if value is None:
-        return None
-    raw = value.strip()
-    if not raw:
-        return None
-    try:
-        if len(raw) == 10 and raw.count("-") == 2:
-            return date.fromisoformat(raw)
-        return datetime.fromisoformat(raw.replace("Z", "+00:00")).date()
-    except Exception:
-        return None
+    return load_world_facts(fact_log_root, columns=_FACT_COLUMNS)
 
 
 def _is_lex_corpus_doc(cas: FileSystemCAS, artifact_id: str) -> bool:
     try:
-        meta = _load_doc_meta(cas, artifact_id)
+        meta = load_doc_meta_artifact(cas, artifact_id, payload_label="doc meta artifact")
     except Exception:
         return False
     lex_props = meta.props.get("lex") if isinstance(meta.props, dict) else None
@@ -105,7 +42,7 @@ def _is_lex_corpus_doc(cas: FileSystemCAS, artifact_id: str) -> bool:
 
 
 def normalize_as_of(as_of: str) -> str:
-    parsed = _parse_iso_date(as_of)
+    parsed = parse_iso_date(as_of)
     if parsed is None:
         raise LexValidationError(f"invalid as_of ISO value: {as_of}")
     return parsed.isoformat()
@@ -145,7 +82,7 @@ def select_doc_sources(
                 for values in versions_by_source.values()
                 for version_id in values
             }
-            latest_meta_by_version = _latest_object_by_subject(
+            latest_meta_by_version = latest_object_by_subject(
                 facts,
                 subject_ids=all_versions,
                 predicate_id=WORLD_ARTIFACT_ID,
@@ -189,7 +126,7 @@ def _fallback_select_active_version(
     if not doc_version_ids:
         return None, explanations
 
-    latest_meta_by_version = _latest_object_by_subject(
+    latest_meta_by_version = latest_object_by_subject(
         facts,
         subject_ids=set(doc_version_ids),
         predicate_id=WORLD_ARTIFACT_ID,
@@ -201,7 +138,7 @@ def _fallback_select_active_version(
         if artifact_id is None:
             continue
         try:
-            meta = _load_doc_meta(cas, artifact_id)
+            meta = load_doc_meta_artifact(cas, artifact_id, payload_label="doc meta artifact")
         except Exception:
             continue
         lex_props = meta.props.get("lex") if isinstance(meta.props, dict) else None
@@ -211,13 +148,13 @@ def _fallback_select_active_version(
         effective_to_raw = lex_props.get("effective_to")
         published_at_raw = lex_props.get("published_at")
 
-        effective_from = _parse_iso_date(
+        effective_from = parse_iso_date(
             effective_from_raw if isinstance(effective_from_raw, str) else None
         )
-        effective_to = _parse_iso_date(
+        effective_to = parse_iso_date(
             effective_to_raw if isinstance(effective_to_raw, str) else None
         )
-        published_at = _parse_iso_date(
+        published_at = parse_iso_date(
             published_at_raw if isinstance(published_at_raw, str) else None
         )
 
@@ -382,7 +319,11 @@ def select_active_doc_versions(
             used_version_index_artifact_id = None
 
         try:
-            meta = _load_doc_meta(cas, chosen_doc_meta_artifact_id)
+            meta = load_doc_meta_artifact(
+                cas,
+                chosen_doc_meta_artifact_id,
+                payload_label="doc meta artifact",
+            )
         except Exception:
             warnings.append(f"warning:doc_meta_not_loadable:{doc_source_id}")
             continue

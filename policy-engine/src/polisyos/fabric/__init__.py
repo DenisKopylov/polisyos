@@ -10,7 +10,6 @@ __all__ = [
     "query_events",
     "query_world_table",
     "run_connectors_ingestion",
-    "run_ingestion",
     "WorldQueryError",
     "WorldQueryRequest",
     "world",
@@ -19,15 +18,12 @@ __all__ = [
 _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "fabric_get_data": ("polisyos.fabric._connector_bridge", "fabric_get_data"),
     "execute_world_query": ("polisyos.fabric.world_query", "execute_world_query"),
-    "run_ingestion": ("polisyos.fabric.ingestion", "run_ingestion"),
     "run_connectors_ingestion": ("polisyos.fabric.ingestion", "run_connectors_ingestion"),
     "query_claims": ("polisyos.fabric.world_query", "query_claims"),
     "query_events": ("polisyos.fabric.world_query", "query_events"),
     "query_world_table": ("polisyos.fabric.world_query", "query_world_table"),
     "WorldQueryError": ("polisyos.fabric.world_query", "WorldQueryError"),
     "WorldQueryRequest": ("polisyos.fabric.world_query", "WorldQueryRequest"),
-    # Kept for compatibility; not part of public __all__ ABI.
-    "run_demo_csv_ingestion": ("polisyos.fabric.ingestion", "run_demo_csv_ingestion"),
     "ContractHashMismatchError": ("polisyos.fabric.catalog", "ContractHashMismatchError"),
     "ContractNotFoundError": ("polisyos.fabric.catalog", "ContractNotFoundError"),
     "ContractValidationError": ("polisyos.fabric.catalog", "ContractValidationError"),

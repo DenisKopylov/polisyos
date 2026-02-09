@@ -6,7 +6,6 @@ This is one of the MOST CRITICAL modules in Phase 2.5.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
 from typing import Any
 
 import pandas as pd
@@ -17,11 +16,15 @@ from polisyos.fabric.connectors.contracts.schema import (
     TimeGranularity,
 )
 from polisyos.fabric.connectors.transform.pipeline import (
-    CopyPolicy,
     DataTransform,
     TransformContext,
     TransformError,
     TransformLineage,
+)
+from polisyos.fabric.connectors.transform._common import (
+    build_lineage,
+    copy_if_needed,
+    stage_started_at,
 )
 from polisyos.fabric.connectors.types.temporal import (
     AggregationMethod,
@@ -71,8 +74,8 @@ class AggregationTransform(DataTransform):
         data: pd.DataFrame,
         context: TransformContext,
     ) -> tuple[pd.DataFrame, TransformLineage, list[str]]:
-        start_time = datetime.now(timezone.utc)
-        result = data.copy() if context.effective_copy_policy() == CopyPolicy.COPY else data
+        start_time = stage_started_at()
+        result, _ = copy_if_needed(data, context)
 
         if self.auto_infer_temporal:
             self._infer_missing_temporal_types(result, context)
@@ -96,12 +99,11 @@ class AggregationTransform(DataTransform):
             aggregated = result.agg(agg_dict)
             result = aggregated.to_frame().T if isinstance(aggregated, pd.Series) else aggregated
 
-        lineage = TransformLineage(
+        lineage = build_lineage(
             stage_name=self.name,
             started_at=start_time,
-            completed_at=datetime.now(timezone.utc),
-            input_row_count=len(data),
-            output_row_count=len(result),
+            input_data=data,
+            output_data=result,
             parameters={
                 "group_by": [str(g) for g in self.group_by],
                 "aggregations": agg_dict,

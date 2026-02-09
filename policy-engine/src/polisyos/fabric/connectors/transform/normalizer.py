@@ -9,10 +9,14 @@ Handles:
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
 
 import pandas as pd
 
+from polisyos.fabric.connectors.transform._common import (
+    build_lineage,
+    copy_if_needed,
+    stage_started_at,
+)
 from polisyos.fabric.connectors.transform.pipeline import (
     CopyPolicy,
     DataTransform,
@@ -48,9 +52,8 @@ class NormalizationTransform(DataTransform):
         data: pd.DataFrame,
         context: TransformContext,
     ) -> tuple[pd.DataFrame, TransformLineage, list[str]]:
-        start_time = datetime.now(timezone.utc)
-        copy_policy = context.effective_copy_policy()
-        result = data.copy() if copy_policy == CopyPolicy.COPY else data
+        start_time = stage_started_at()
+        result, copy_policy = copy_if_needed(data, context)
 
         # Step 1: Rename columns
         if self.field_mappings:
@@ -102,12 +105,11 @@ class NormalizationTransform(DataTransform):
                         f"Schema cast failed for field '{field_spec.name}': {exc}"
                     ) from exc
 
-        lineage = TransformLineage(
+        lineage = build_lineage(
             stage_name=self.name,
             started_at=start_time,
-            completed_at=datetime.now(timezone.utc),
-            input_row_count=len(data),
-            output_row_count=len(result),
+            input_data=data,
+            output_data=result,
             parameters={
                 "field_mappings": self.field_mappings,
                 "unit_conversions": conversion_log,

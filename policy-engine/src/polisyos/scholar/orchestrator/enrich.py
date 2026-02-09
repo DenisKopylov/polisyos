@@ -16,7 +16,12 @@ from polisyos.fabric.claims.extractor_registry import (
     discover_and_bootstrap_extractors,
     get_extractor_registry,
 )
-from polisyos.fabric.claims.persist import load_claim, load_doc_meta, load_json_artifact
+from polisyos.fabric.claims.persist import (
+    claim_artifact_ids_by_claim_id,
+    load_claim,
+    load_doc_meta,
+    load_json_artifact,
+)
 from polisyos.fabric.docs import (
     DocSourceSpec,
     chunk_doc,
@@ -460,7 +465,6 @@ def enrich_topic(
 
     claim_refs: list[ClaimsPipelineRefs] = []
     claim_ids_set: set[str] = set()
-    claim_artifact_by_id: dict[str, str] = {}
     normalized_claim_set_artifact_ids: list[str] = []
     extractor_ids_used: set[str] = set()
 
@@ -524,25 +528,15 @@ def enrich_topic(
             normalized_claim_set_artifact_ids.append(normalized.claim_set_artifact_id)
             claim_ids_set.update(normalized.claim_ids)
 
-            payload = load_json_artifact(cas, normalized.claim_set_artifact_id)
-            rows = payload.get("claims")
-            if isinstance(rows, list):
-                for row in rows:
-                    if not isinstance(row, dict):
-                        continue
-                    claim_id = row.get("claim_id")
-                    artifact_id = row.get("claim_artifact_id")
-                    if not isinstance(claim_id, str) or not isinstance(artifact_id, str):
-                        continue
-                    current = claim_artifact_by_id.get(claim_id)
-                    if current is None or artifact_id < current:
-                        claim_artifact_by_id[claim_id] = artifact_id
-
             if remaining_claim_budget is not None:
                 remaining_claim_budget -= len(normalized.claim_ids)
     except ClaimPipelineError as exc:
         raise ScholarClaimsError(f"claims stage failed: {exc}") from exc
 
+    claim_artifact_by_id = claim_artifact_ids_by_claim_id(
+        cas=cas,
+        claim_set_artifact_ids=normalized_claim_set_artifact_ids,
+    )
     all_claim_ids = sorted(claim_ids_set)
     claims_by_id = {
         claim_id: load_claim(cas, claim_artifact_by_id[claim_id])

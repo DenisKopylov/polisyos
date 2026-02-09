@@ -117,8 +117,6 @@ ref = run_connectors_ingestion(
 
 Pipeline: normalize manifest → build cache registry → load transform pipeline → fetch each dataset → apply transforms → persist to CAS → build provenance graph → create evidence bundle.
 
-`run_ingestion()` — transitional facade (deprecated), делегирует в `run_connectors_ingestion()`.
-
 ### World Query (`world_query.py`)
 
 Типобезопасные запросы к материализованной модели мира:

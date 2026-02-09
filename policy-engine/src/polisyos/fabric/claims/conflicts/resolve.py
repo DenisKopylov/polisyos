@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
 from decimal import ROUND_HALF_UP, Decimal
 from pathlib import Path
 
@@ -13,13 +12,10 @@ from polisyos.fabric.io.db import SimulationDB
 from polisyos.fabric.storage import DuckDBStorageAdapter, StoragePort
 from polisyos.fabric.world import (
     emit_edge_fact,
-    emit_world_event_facts,
     emit_world_node_facts,
-    event_world_provenance_v1,
     persist_conflict_set,
     persist_quality_report,
     persist_trust_assessment,
-    persist_world_event,
     stable_world_provenance_v1,
     validate_conflict_set_id,
 )
@@ -35,17 +31,12 @@ from polisyos.ir.world.conflict import (
 )
 from polisyos.ir.world.event import (
     EventKind,
-    ProvActivity,
     ProvActivityType,
-    ProvAgent,
-    ProvAgentType,
-    WorldEvent,
     WorldObjectRef,
 )
 from polisyos.ir.world.ids import (
     quality_report_id_from_payload,
     trust_assessment_id_from_payload,
-    world_event_id_from_payload,
 )
 from polisyos.ir.world.quality import (
     QualityIssue,
@@ -67,6 +58,7 @@ from .score_claims import score_claim_trust_assessments
 from .score_docs import score_doc_trust_assessments
 from .types import ConflictResolveOptions, ConflictResolveResult, RankedClaim
 from .uncertainty_adapter import envelope_from_conflict_resolution
+from ..world_events import build_claims_world_event, persist_claims_world_event
 
 _CONFLICT_RESOLUTION_SCHEMA = SchemaInfo(name="fabric.claims.conflict_resolution", version="1.0")
 _Q4 = Decimal("0.0001")
@@ -733,19 +725,6 @@ def resolve_conflicts(
             )
         )
 
-    now = datetime.now(timezone.utc)
-    agent = ProvAgent(
-        agent_id=opts.agent_id,
-        agent_type=ProvAgentType.EXTRACTOR,
-        label="Fabric Claims",
-    )
-    activity = ProvActivity(
-        activity_id=opts.activity_id,
-        activity_type=ProvActivityType.RESOLVE_CONFLICTS,
-        label="Resolve claim conflicts",
-        started_at=now,
-        ended_at=now,
-    )
     inputs: list[WorldObjectRef] = [
         WorldObjectRef(world_id=claim_id) for claim_id in member_claim_ids
     ]
@@ -771,16 +750,17 @@ def resolve_conflicts(
         outputs.append(WorldObjectRef(world_id=trust_id))
         outputs.append(WorldObjectRef(artifact_id=trust_artifact_by_id[trust_id]))
 
-    event_payload = {
-        "event_kind": EventKind.RESOLVE_CONFLICTS,
-        "agent": agent,
-        "activity": activity,
-        "inputs": inputs,
-        "outputs": outputs,
-        "evidence_ref": None,
-        "provenance_ref": None,
-    }
-    event_id = world_event_id_from_payload(event_payload=event_payload)
+    event = build_claims_world_event(
+        event_kind=EventKind.RESOLVE_CONFLICTS,
+        activity_type=ProvActivityType.RESOLVE_CONFLICTS,
+        activity_id=opts.activity_id,
+        activity_label="Resolve claim conflicts",
+        agent_id=opts.agent_id,
+        inputs=inputs,
+        outputs=outputs,
+        props={"policy_id": policy_id, "policy_version": policy.policy_version},
+    )
+    event_id = event.event_id
 
     issues: list[QualityIssue] = []
     if missing_doc_versions:
@@ -860,26 +840,7 @@ def resolve_conflicts(
         )
     )
 
-    event = WorldEvent(
-        event_id=event_id,
-        event_kind=EventKind.RESOLVE_CONFLICTS,
-        agent=agent,
-        activity=activity,
-        inputs=inputs,
-        outputs=outputs,
-        evidence_ref=None,
-        provenance_ref=None,
-        props={"policy_id": policy_id, "policy_version": policy.policy_version},
-    )
-    event_ref = persist_world_event(cas, event)
-    event_artifact_id = str(event_ref.artifact_id)
-    facts.extend(
-        emit_world_event_facts(
-            event,
-            event_artifact_id=event_artifact_id,
-            provenance=event_world_provenance_v1(event_id),
-        )
-    )
+    event_artifact_id = persist_claims_world_event(cas=cas, event=event, facts=facts)
 
     manifest = write_claims_world_segment(
         facts=facts,

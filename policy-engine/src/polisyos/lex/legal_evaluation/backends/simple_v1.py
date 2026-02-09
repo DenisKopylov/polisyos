@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-import re
 from dataclasses import dataclass
 from decimal import Decimal, InvalidOperation
 from typing import Any, Literal
 
 from polisyos.ir.norm_pack import NormRule
+from polisyos.lex.common import collapse_ws
 from polisyos.lex.legal_evaluation.context_builder import RuleObservation
 
 FindingStatus = Literal["PASS", "FAIL", "UNKNOWN", "NOT_APPLICABLE"]
@@ -15,12 +15,8 @@ _NUMERIC_OPERATORS = {"<", "<=", "=", ">=", ">"}
 _BOOL_TEXT_OPERATORS = {"="}
 
 
-def _collapse_ws(text: str) -> str:
-    return re.sub(r"\s+", " ", text.strip())
-
-
 def _normalize_text(text: str) -> str:
-    return _collapse_ws(text).casefold()
+    return collapse_ws(text).casefold()
 
 
 def _parse_decimal(raw: str) -> Decimal | None:

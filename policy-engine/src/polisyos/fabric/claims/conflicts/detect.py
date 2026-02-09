@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
 from decimal import Decimal
 from pathlib import Path
 from typing import Iterable
@@ -9,19 +8,16 @@ from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.fabric.claims.errors import ClaimValidationError
 from polisyos.fabric.claims.persist import (
+    claim_artifact_ids_by_claim_id,
     load_claim,
-    load_json_artifact,
     write_claims_world_segment,
 )
 from polisyos.fabric.io.db import SimulationDB
 from polisyos.fabric.storage import DuckDBStorageAdapter, StoragePort
 from polisyos.fabric.world import (
     emit_edge_fact,
-    emit_world_event_facts,
     emit_world_node_facts,
-    event_world_provenance_v1,
     persist_conflict_set,
-    persist_world_event,
     stable_world_provenance_v1,
 )
 from polisyos.ir.world.abi import EdgeKind, NodeKind
@@ -29,17 +25,14 @@ from polisyos.ir.world.claim import Claim
 from polisyos.ir.world.conflict import ConflictKind, ConflictSet
 from polisyos.ir.world.event import (
     EventKind,
-    ProvActivity,
     ProvActivityType,
-    ProvAgent,
-    ProvAgentType,
-    WorldEvent,
     WorldObjectRef,
 )
-from polisyos.ir.world.ids import conflict_set_id_from_key, world_event_id_from_payload
+from polisyos.ir.world.ids import conflict_set_id_from_key
 
 from .key import compare_v1, conflict_key_v1
 from .types import ConflictDetectOptions, ConflictDetectResult
+from ..world_events import build_claims_world_event, persist_claims_world_event
 
 
 def _query_claim_artifacts_from_db(db: SimulationDB, claim_ids: Iterable[str]) -> dict[str, str]:
@@ -64,23 +57,10 @@ def _load_claim_refs_from_claim_sets(
     cas: FileSystemCAS,
     claim_set_artifact_ids: Iterable[str],
 ) -> dict[str, str]:
-    mapping: dict[str, str] = {}
-    for claim_set_artifact_id in sorted(set(claim_set_artifact_ids)):
-        payload = load_json_artifact(cas, claim_set_artifact_id)
-        claim_rows = payload.get("claims")
-        if not isinstance(claim_rows, list):
-            continue
-        for row in claim_rows:
-            if not isinstance(row, dict):
-                continue
-            claim_id = row.get("claim_id")
-            claim_artifact_id = row.get("claim_artifact_id")
-            if not isinstance(claim_id, str) or not isinstance(claim_artifact_id, str):
-                continue
-            current = mapping.get(claim_id)
-            if current is None or claim_artifact_id < current:
-                mapping[claim_id] = claim_artifact_id
-    return mapping
+    return claim_artifact_ids_by_claim_id(
+        cas=cas,
+        claim_set_artifact_ids=list(claim_set_artifact_ids),
+    )
 
 
 def _all_claim_artifacts_from_db(db: SimulationDB) -> dict[str, str]:
@@ -149,7 +129,7 @@ def detect_conflicts(
 
     if claim_set_artifact_ids:
         refs_by_claim.update(
-            _load_claim_refs_from_claim_sets(cas=cas, claim_set_artifact_ids=claim_set_artifact_ids)
+            claim_artifact_ids_by_claim_id(cas=cas, claim_set_artifact_ids=claim_set_artifact_ids)
         )
 
     selected_claim_ids: list[str]
@@ -232,19 +212,6 @@ def detect_conflicts(
         outputs.append(WorldObjectRef(world_id=conflict_set.conflict_set_id))
         outputs.append(WorldObjectRef(artifact_id=conflict_artifact_id))
 
-    now = datetime.now(timezone.utc)
-    agent = ProvAgent(
-        agent_id=opts.agent_id,
-        agent_type=ProvAgentType.EXTRACTOR,
-        label="Fabric Claims",
-    )
-    activity = ProvActivity(
-        activity_id=opts.activity_id,
-        activity_type=ProvActivityType.DETECT_CONFLICTS,
-        label="Detect claim conflicts",
-        started_at=now,
-        ended_at=now,
-    )
     inputs: list[WorldObjectRef] = [
         WorldObjectRef(world_id=claim_id) for claim_id in selected_claim_ids
     ]
@@ -252,36 +219,17 @@ def detect_conflicts(
         ArtifactID.model_validate(artifact_id)
         inputs.append(WorldObjectRef(artifact_id=artifact_id))
 
-    event_payload = {
-        "event_kind": EventKind.DETECT_CONFLICTS,
-        "agent": agent,
-        "activity": activity,
-        "inputs": inputs,
-        "outputs": outputs,
-        "evidence_ref": None,
-        "provenance_ref": None,
-    }
-    event_id = world_event_id_from_payload(event_payload=event_payload)
-    event = WorldEvent(
-        event_id=event_id,
+    event = build_claims_world_event(
         event_kind=EventKind.DETECT_CONFLICTS,
-        agent=agent,
-        activity=activity,
+        activity_type=ProvActivityType.DETECT_CONFLICTS,
+        activity_id=opts.activity_id,
+        activity_label="Detect claim conflicts",
+        agent_id=opts.agent_id,
         inputs=inputs,
         outputs=outputs,
-        evidence_ref=None,
-        provenance_ref=None,
-        props={},
     )
-    event_ref = persist_world_event(cas, event)
-    event_artifact_id = str(event_ref.artifact_id)
-    facts.extend(
-        emit_world_event_facts(
-            event,
-            event_artifact_id=event_artifact_id,
-            provenance=event_world_provenance_v1(event_id),
-        )
-    )
+    event_id = event.event_id
+    event_artifact_id = persist_claims_world_event(cas=cas, event=event, facts=facts)
 
     manifest = write_claims_world_segment(
         facts=facts,

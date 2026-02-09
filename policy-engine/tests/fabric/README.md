@@ -245,12 +245,11 @@ pytest tests/fabric/test_quality_indicators.py -v
 
 ```python
 def test_ingestion_creates_evidence(tmp_path: Path) -> None:
-    # Setup: create raw data
-    raw_dir = tmp_path / "raw"
-    raw_dir.mkdir()
+    # Setup: create connector manifest
+    manifest = {"datasets": [{"connector_id": "test.integration_mock", "dataset_id": "test.integration_mock.agents"}]}
 
     # Execute: run ingestion
-    result = run_ingestion(raw_dir=raw_dir, ...)
+    result = run_connectors_ingestion(connector_manifest=manifest, source="integration_test", license_name="MIT")
 
     # Verify: check evidence bundle
     assert result.evidence_ref is not None
@@ -297,7 +296,7 @@ pytest tests/fabric/test_data_catalog.py::TestDataContractRegistry::test_registr
 **Evidence bundle creation failures:**
 ```bash
 # Проверьте что ingestion pipeline завершается успешно
-pytest tests/fabric/test_evidence_bundle.py::test_run_ingestion_writes_evidence -v
+pytest tests/fabric/connectors/test_integration.py::TestEndToEndConnectorFlow::test_evidence_bundle_is_produced -v
 # Убедитесь что raw/staging/curated директории существуют
 ```
 

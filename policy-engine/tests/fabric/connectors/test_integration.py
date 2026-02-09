@@ -115,7 +115,7 @@ class TestEndToEndConnectorFlow:
         assert all("agent_id" in row for row in result.data)
 
     def test_evidence_bundle_is_produced(self, tmp_path: Path) -> None:
-        from polisyos.fabric.ingestion import _run_connector_ingestion
+        from polisyos.fabric.ingestion import run_connectors_ingestion
         from polisyos.core.artifacts.ids import ArtifactID
         from polisyos.core.artifacts.store import FileSystemCAS
 
@@ -160,8 +160,8 @@ class TestEndToEndConnectorFlow:
             "polisyos.fabric.ingestion.ConnectorRegistry.get_instance",
             return_value=dummy_registry,
         ):
-            evidence_ref = _run_connector_ingestion(
-                manifest=manifest,
+            evidence_ref = run_connectors_ingestion(
+                connector_manifest=manifest,
                 cas_root=cas_root,
                 source="integration_test",
                 license_name="MIT",
@@ -212,28 +212,6 @@ class TestEndToEndConnectorFlow:
             "Law A violation: data_loader.py imports fabric.connectors directly: "
             f"{forbidden_imports}"
         )
-
-    def test_connector_manifest_none_preserves_legacy_path(self) -> None:
-        from polisyos.fabric.ingestion import run_ingestion
-        from unittest.mock import patch
-
-        with patch("polisyos.fabric.ingestion.ConnectorRegistry") as mock_reg:
-            try:
-                run_ingestion(
-                    raw_dir=Path("/nonexistent"),
-                    staging_dir=Path("/nonexistent"),
-                    curated_dir=Path("/nonexistent"),
-                    db_path=Path("/nonexistent"),
-                    kuzu_path=Path("/nonexistent"),
-                    source="test",
-                    license_name="MIT",
-                    connector_manifest=None,
-                    cas_root=None,
-                )
-            except Exception:
-                pass
-
-            mock_reg.get_instance.assert_not_called()
 
 
 class TestLintConnectors:

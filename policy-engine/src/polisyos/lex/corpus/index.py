@@ -5,11 +5,10 @@ from typing import Literal
 from pydantic import BeforeValidator, ConfigDict, Field, model_validator
 from typing_extensions import Annotated
 
-from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
-from polisyos.core.canon import from_canonical_bytes
 from polisyos.ir.kernel.base import ARTIFACT_ID_PATTERN, ID_PATTERN, KernelModel, reject_floats_deep
+from polisyos.lex.artifacts import load_json_artifact as lex_load_json_artifact
 from polisyos.lex.errors import LexIndexError
 
 PROVISION_INDEX_KIND = "lex.corpus.provision_index"
@@ -95,17 +94,6 @@ class DocSourcePropsV1(KernelModel):
     notes: list[str] = Field(default_factory=list)
 
 
-def _load_json_artifact(cas: FileSystemCAS, artifact_id: str) -> dict:
-    try:
-        aid = ArtifactID.model_validate(artifact_id)
-        payload = from_canonical_bytes(cas.get_bytes(aid))
-    except Exception as exc:  # pragma: no cover - defensive
-        raise LexIndexError(f"failed to read artifact {artifact_id}: {exc}") from exc
-    if not isinstance(payload, dict):
-        raise LexIndexError(f"artifact {artifact_id} payload must be a JSON object")
-    return payload
-
-
 def persist_provision_index(cas: FileSystemCAS, payload: ProvisionIndexV1) -> str:
     try:
         ref = cas.put_json(
@@ -153,7 +141,12 @@ def persist_doc_source_props(cas: FileSystemCAS, payload: DocSourcePropsV1) -> s
 
 def load_provision_index(cas: FileSystemCAS, artifact_id: str) -> ProvisionIndexV1:
     try:
-        payload = _load_json_artifact(cas, artifact_id)
+        payload = lex_load_json_artifact(
+            cas,
+            artifact_id,
+            error_cls=LexIndexError,
+            wrap_read_errors=True,
+        )
         return ProvisionIndexV1.model_validate(payload)
     except LexIndexError:
         raise
@@ -163,7 +156,12 @@ def load_provision_index(cas: FileSystemCAS, artifact_id: str) -> ProvisionIndex
 
 def load_version_index(cas: FileSystemCAS, artifact_id: str) -> VersionIndexV1:
     try:
-        payload = _load_json_artifact(cas, artifact_id)
+        payload = lex_load_json_artifact(
+            cas,
+            artifact_id,
+            error_cls=LexIndexError,
+            wrap_read_errors=True,
+        )
         return VersionIndexV1.model_validate(payload)
     except LexIndexError:
         raise
@@ -173,7 +171,12 @@ def load_version_index(cas: FileSystemCAS, artifact_id: str) -> VersionIndexV1:
 
 def load_doc_source_props(cas: FileSystemCAS, artifact_id: str) -> DocSourcePropsV1:
     try:
-        payload = _load_json_artifact(cas, artifact_id)
+        payload = lex_load_json_artifact(
+            cas,
+            artifact_id,
+            error_cls=LexIndexError,
+            wrap_read_errors=True,
+        )
         return DocSourcePropsV1.model_validate(payload)
     except LexIndexError:
         raise

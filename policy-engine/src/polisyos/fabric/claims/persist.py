@@ -47,6 +47,29 @@ def load_claim(cas: FileSystemCAS, artifact_id: str) -> Claim:
     return claim
 
 
+def claim_artifact_ids_by_claim_id(
+    cas: FileSystemCAS,
+    claim_set_artifact_ids: list[str],
+) -> dict[str, str]:
+    mapping: dict[str, str] = {}
+    for artifact_id in sorted(set(claim_set_artifact_ids)):
+        payload = load_json_artifact(cas, artifact_id)
+        claim_rows = payload.get("claims")
+        if not isinstance(claim_rows, list):
+            continue
+        for row in claim_rows:
+            if not isinstance(row, dict):
+                continue
+            claim_id = row.get("claim_id")
+            claim_artifact_id = row.get("claim_artifact_id")
+            if not isinstance(claim_id, str) or not isinstance(claim_artifact_id, str):
+                continue
+            current = mapping.get(claim_id)
+            if current is None or claim_artifact_id < current:
+                mapping[claim_id] = claim_artifact_id
+    return mapping
+
+
 def persist_claim_set(
     *,
     cas: FileSystemCAS,
@@ -134,6 +157,7 @@ def canonical_json_text(value: object) -> str:
 
 __all__ = [
     "canonical_json_text",
+    "claim_artifact_ids_by_claim_id",
     "load_claim",
     "load_doc_meta",
     "load_json_artifact",

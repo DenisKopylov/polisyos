@@ -1031,9 +1031,7 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │   │   └── scaffold.py  # Connector scaffold generator.
 │   ├── demos/  # Demo scripts.
 │   │   ├── run_export_demo.py  # Export demo.
-│   │   ├── run_ingest_demo.py  # Ingestion demo.
 │   │   ├── run_laffer_demo.py  # Laffer curve demo.
-│   │   ├── run_optimizer_demo.py  # Optimizer demo.
 │   │   ├── run_udf_hybrid_demo.py  # UDF hybrid demo.
 │   │   └── run_udf_query_demo.py  # UDF query demo.
 │   └── diagnostics/  # Diagnostic scripts.
@@ -1076,7 +1074,6 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
     ├── install.sh  # Bootstrap installer.
     ├── jax_bootstrap.py  # JAX environment defaults.
     ├── migrate.py  # Schema migration CLI.
-    ├── run_experiment.py  # Scientist workflow CLI.
     ├── uv.lock  # Locked dependency graph.
     ├── Dockerfile.reproducible  # Reproducible container build.
     ├── .pre-commit-config.yaml  # Pre-commit hooks.

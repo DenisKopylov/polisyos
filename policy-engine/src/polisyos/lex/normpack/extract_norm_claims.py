@@ -17,13 +17,14 @@ from polisyos.fabric.claims.types import ChunkContext, ClaimCandidate, ClaimExtr
 from polisyos.fabric.world import (
     append_world_segment_index,
     emit_claim_facts,
-    emit_world_event_facts,
-    event_world_provenance_v1,
     persist_claim,
-    persist_world_event,
     stable_world_provenance_v1,
     validate_claim_id,
     write_world_fact_segment,
+)
+from polisyos.fabric.world.events import (
+    build_deterministic_world_event,
+    persist_world_event_with_facts,
 )
 from polisyos.ir.fact_log import FactSegmentManifest
 from polisyos.ir.kernel.base import ID_PATTERN, reject_floats_deep
@@ -31,14 +32,12 @@ from polisyos.ir.world.claim import Claim, ClaimSourceKind
 from polisyos.ir.world.doc import DocMeta
 from polisyos.ir.world.event import (
     EventKind,
-    ProvActivity,
     ProvActivityType,
-    ProvAgent,
     ProvAgentType,
-    WorldEvent,
     WorldObjectRef,
 )
-from polisyos.ir.world.ids import claim_id_from_payload, world_event_id_from_payload
+from polisyos.ir.world.ids import claim_id_from_payload
+from polisyos.lex.common import collapse_ws
 from polisyos.lex.normpack.policies import NORM_CLAIM_EXTRACT_PIPELINE_ID, NORM_CLAIM_SET_KIND
 
 _ID_RE = re.compile(ID_PATTERN)
@@ -71,10 +70,6 @@ class NormClaimExtractResult:
     world_event_artifact_ids: list[str]
     world_segment_manifest: FactSegmentManifest | None
     warnings: list[str] = field(default_factory=list)
-
-
-def _collapse_ws(text: str) -> str:
-    return re.sub(r"\s+", " ", text.strip())
 
 
 def _to_datetime_utc(value: str | None) -> datetime | None:
@@ -312,7 +307,7 @@ def extract_norm_claims(
                 doc_version_id=doc_version_id,
                 offset_start=provision.offset_start,
                 offset_end=provision.offset_end,
-                text_preview=_collapse_ws(chunk_text)[:240],
+                text_preview=collapse_ws(chunk_text)[:240],
             )
             candidates = extractor(
                 ctx=ctx,
@@ -420,19 +415,6 @@ def extract_norm_claims(
         )
         raw_claim_set_artifact_ids.append(claim_set_artifact_id)
 
-        now = datetime.now(timezone.utc)
-        agent = ProvAgent(
-            agent_id="prov.agent.lex_norms",
-            agent_type=ProvAgentType.EXTRACTOR,
-            label="Lex Norm Claims",
-        )
-        activity = ProvActivity(
-            activity_id="prov.activity.lex_norms.extract",
-            activity_type=ProvActivityType.EXTRACT_CLAIMS,
-            label="Extract norm claims",
-            started_at=now,
-            ended_at=now,
-        )
         inputs = [
             WorldObjectRef(artifact_id=per_doc[0].doc_meta_artifact_id),
             WorldObjectRef(artifact_id=meta.normalized_ref),
@@ -441,40 +423,22 @@ def extract_norm_claims(
         outputs = [WorldObjectRef(artifact_id=claim_set_artifact_id)] + [
             WorldObjectRef(world_id=claim.claim_id) for claim in doc_claims
         ]
-
-        event_payload = {
-            "event_kind": EventKind.EXTRACT_CLAIMS,
-            "agent": agent,
-            "activity": activity,
-            "inputs": inputs,
-            "outputs": outputs,
-            "evidence_ref": None,
-            "provenance_ref": None,
-        }
-        event_id = world_event_id_from_payload(event_payload=event_payload)
-        event = WorldEvent(
-            event_id=event_id,
+        event = build_deterministic_world_event(
             event_kind=EventKind.EXTRACT_CLAIMS,
-            agent=agent,
-            activity=activity,
+            agent_id="prov.agent.lex_norms",
+            agent_type=ProvAgentType.EXTRACTOR,
+            agent_label="Lex Norm Claims",
+            activity_id="prov.activity.lex_norms.extract",
+            activity_type=ProvActivityType.EXTRACT_CLAIMS,
+            activity_label="Extract norm claims",
             inputs=inputs,
             outputs=outputs,
-            evidence_ref=None,
-            provenance_ref=None,
             props={"pipeline": NORM_CLAIM_EXTRACT_PIPELINE_ID},
         )
-        event_ref = persist_world_event(cas, event)
-        event_artifact_id = str(event_ref.artifact_id)
+        event_id = event.event_id
+        event_artifact_id = persist_world_event_with_facts(cas=cas, event=event, facts=facts)
         world_event_ids.append(event_id)
         world_event_artifact_ids.append(event_artifact_id)
-
-        facts.extend(
-            emit_world_event_facts(
-                event,
-                event_artifact_id=event_artifact_id,
-                provenance=event_world_provenance_v1(event_id),
-            )
-        )
 
     manifest: FactSegmentManifest | None = None
     if facts:

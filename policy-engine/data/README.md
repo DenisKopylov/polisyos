@@ -492,7 +492,7 @@ print(f'Manifest valid: {manifest.is_valid()}')
 **Ошибка "Manifest not found"**
 ```
 Решение: Запустите ingestion для нужного датасета
-python tools/demos/run_ingest_demo.py
+через API `run_connectors_ingestion()` из `polisyos.fabric.ingestion`
 ```
 
 **Ошибка "PII access denied"**
@@ -616,7 +616,7 @@ class CustomValidator(DataQualityValidator):
 - [Legal Backends](../src/polisyos/scientist/governance/legal/README.md)
 
 ### Инструменты и демо
-- [Ingestion Demo](../tools/demos/run_ingest_demo.py)
+- [Fabric Layer Documentation](../src/polisyos/fabric/README.md)
 - [Data Diagnostics](../tools/diagnostics/check_setup.py)
 - [Schema Generation](../tools/gen_schema.py)
 

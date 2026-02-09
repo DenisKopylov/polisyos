@@ -7,12 +7,15 @@ vectorized pandas operations for performance.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime, timezone
 
 import pandas as pd
 
+from polisyos.fabric.connectors.transform._common import (
+    build_lineage,
+    copy_if_needed,
+    stage_started_at,
+)
 from polisyos.fabric.connectors.transform.pipeline import (
-    CopyPolicy,
     DataTransform,
     TransformContext,
     TransformError,
@@ -55,9 +58,8 @@ class CodeHarmonizationTransform(DataTransform):
         data: pd.DataFrame,
         context: TransformContext,
     ) -> tuple[pd.DataFrame, TransformLineage, list[str]]:
-        start_time = datetime.now(timezone.utc)
-        copy_policy = context.effective_copy_policy()
-        result = data.copy() if copy_policy == CopyPolicy.COPY else data
+        start_time = stage_started_at()
+        result, _ = copy_if_needed(data, context)
 
         if self.dimension not in result.columns:
             raise TransformError(f"Dimension '{self.dimension}' not found in data")
@@ -92,12 +94,11 @@ class CodeHarmonizationTransform(DataTransform):
             suffix = "..." if len(unmapped_codes) > 10 else ""
             warnings.append(f"Found {len(unmapped_codes)} unmapped codes: {preview}{suffix}")
 
-        lineage = TransformLineage(
+        lineage = build_lineage(
             stage_name=self.name,
             started_at=start_time,
-            completed_at=datetime.now(timezone.utc),
-            input_row_count=len(data),
-            output_row_count=len(result),
+            input_data=data,
+            output_data=result,
             parameters={
                 "dimension": self.dimension,
                 "target_codelist": self.target_codelist,

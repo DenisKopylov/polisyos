@@ -104,11 +104,7 @@ macOS note: import `jax_bootstrap.py` (which applies safe env defaults from `pol
 
 ## Running an experiment (example)
 
-```bash
-uv run python run_experiment.py "Design a tax policy that reduces inequality without increasing deficit" \
-  --db-path integration.duckdb \
-  --runtime-base-dir runs
-```
+Legacy CLI `run_experiment.py` removed. Use the API entrypoint `polisyos.scientist.run_experiment()` with an `ExperimentState`-compatible payload.
 
 Dashboard:
 

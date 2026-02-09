@@ -1,5 +1,5 @@
 from __future__ import annotations
 
-from polisyos.core.contracts.legal import RuleBackend
+from polisyos.core.contracts.lex import RuleBackend
 
 __all__ = ["RuleBackend"]

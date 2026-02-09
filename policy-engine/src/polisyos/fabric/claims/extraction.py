@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import re
 from dataclasses import asdict
-from datetime import datetime, timezone
 from decimal import Decimal
 from pathlib import Path
 from typing import Any
@@ -10,10 +9,7 @@ from typing import Any
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.fabric.world import (
     emit_claim_facts,
-    emit_world_event_facts,
-    event_world_provenance_v1,
     persist_claim,
-    persist_world_event,
     stable_world_provenance_v1,
     validate_claim_id,
 )
@@ -22,14 +18,10 @@ from polisyos.ir.world.claim import Claim, ClaimSourceKind
 from polisyos.ir.world.doc import DocMeta
 from polisyos.ir.world.event import (
     EventKind,
-    ProvActivity,
     ProvActivityType,
-    ProvAgent,
-    ProvAgentType,
-    WorldEvent,
     WorldObjectRef,
 )
-from polisyos.ir.world.ids import claim_id_from_payload, world_event_id_from_payload
+from polisyos.ir.world.ids import claim_id_from_payload
 
 from .backends import resolve_extractor
 from .canonicalize import canonical_unit, canonicalize_id
@@ -49,6 +41,7 @@ from .types import (
     ClaimExtractOptions,
     ClaimExtractResult,
 )
+from .world_events import build_claims_world_event, persist_claims_world_event
 
 _ID_RE = re.compile(ID_PATTERN)
 
@@ -410,19 +403,6 @@ def extract_claims_from_doc(
             schema_version=opts.evidence_schema_version,
         )
 
-    now = datetime.now(timezone.utc)
-    agent = ProvAgent(
-        agent_id=opts.agent_id,
-        agent_type=ProvAgentType.EXTRACTOR,
-        label="Fabric Claims",
-    )
-    activity = ProvActivity(
-        activity_id=opts.activity_id,
-        activity_type=ProvActivityType.EXTRACT_CLAIMS,
-        label="Extract claims",
-        started_at=now,
-        ended_at=now,
-    )
     inputs_refs = [
         WorldObjectRef(artifact_id=doc_meta_artifact_id),
         WorldObjectRef(artifact_id=meta.normalized_ref),
@@ -431,37 +411,18 @@ def extract_claims_from_doc(
     outputs = [WorldObjectRef(artifact_id=claim_set_artifact_id)] + [
         WorldObjectRef(world_id=claim.claim_id) for claim in deduped_claims
     ]
-    event_payload = {
-        "event_kind": EventKind.EXTRACT_CLAIMS,
-        "agent": agent,
-        "activity": activity,
-        "inputs": inputs_refs,
-        "outputs": outputs,
-        "evidence_ref": evidence_ref,
-        "provenance_ref": None,
-    }
-    event_id = world_event_id_from_payload(event_payload=event_payload)
-    event = WorldEvent(
-        event_id=event_id,
+    event = build_claims_world_event(
         event_kind=EventKind.EXTRACT_CLAIMS,
-        agent=agent,
-        activity=activity,
+        activity_type=ProvActivityType.EXTRACT_CLAIMS,
+        activity_id=opts.activity_id,
+        activity_label="Extract claims",
+        agent_id=opts.agent_id,
         inputs=inputs_refs,
         outputs=outputs,
         evidence_ref=evidence_ref,
-        provenance_ref=None,
-        props={},
     )
-    event_ref = persist_world_event(cas, event)
-    event_artifact_id = str(event_ref.artifact_id)
-
-    facts.extend(
-        emit_world_event_facts(
-            event,
-            event_artifact_id=event_artifact_id,
-            provenance=event_world_provenance_v1(event_id),
-        )
-    )
+    event_id = event.event_id
+    event_artifact_id = persist_claims_world_event(cas=cas, event=event, facts=facts)
 
     manifest = write_claims_world_segment(
         facts=facts,

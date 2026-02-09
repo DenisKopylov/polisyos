@@ -4,9 +4,8 @@ import os
 from dataclasses import dataclass
 from typing import Any
 
-import pandas as pd
-
 from polisyos.common.logger import get_logger
+from polisyos.fabric.tabular import payload_to_dataframe
 from polisyos.ir.connectors import FetchResult
 
 from .detector import PresidioConfig, PresidioDetector
@@ -44,7 +43,7 @@ class PIIDetectionStage:
         *,
         text_columns: list[str] | None = None,
     ) -> tuple[FetchResult[Any], PIIScanResult]:
-        df = _result_to_dataframe(result.data)
+        df = payload_to_dataframe(result.data)
         if df is None:
             summary = PIIScanResult(total_records_scanned=0, total_entities_found=0)
             return result.model_copy(update={"pii_scan": summary}), summary
@@ -81,24 +80,11 @@ class PIIDetectionStage:
         return updated, scan
 
 
-
-def _result_to_dataframe(payload: Any) -> pd.DataFrame | None:
-    if isinstance(payload, pd.DataFrame):
-        return payload
-    if isinstance(payload, list):
-        return pd.DataFrame(payload)
-    if hasattr(payload, "to_pandas"):
-        return payload.to_pandas()
-    return None
-
-
-
 def _env_bool(name: str, default: bool) -> bool:
     raw = os.getenv(name)
     if raw is None:
         return default
     return raw.strip().lower() in {"1", "true", "yes", "on"}
-
 
 
 def _env_int(name: str, default: int) -> int:
@@ -109,7 +95,6 @@ def _env_int(name: str, default: int) -> int:
         return int(raw)
     except ValueError:
         return default
-
 
 
 def _env_float(name: str, default: float) -> float:

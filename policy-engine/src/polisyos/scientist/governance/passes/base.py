@@ -8,7 +8,7 @@ if TYPE_CHECKING:
     from polisyos.ir.trinity import TrinityBundle
     from polisyos.scientist.governance.profiles import ValidationProfile
 
-from polisyos.core.contracts.legal import ComplianceIssue, IssueSeverity
+from polisyos.core.contracts.lex import ComplianceIssue, IssueSeverity
 
 
 @dataclass

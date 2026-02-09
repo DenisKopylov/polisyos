@@ -2,12 +2,10 @@ from __future__ import annotations
 
 import hashlib
 import json
-import warnings
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
-import pandas as pd
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from polisyos.common.async_tools import run_coro_sync
@@ -38,6 +36,7 @@ from polisyos.fabric.provenance.core import (
     ProvenanceCoreGraph,
     ProvenanceEntity,
 )
+from polisyos.fabric.tabular import payload_to_dataframe
 from polisyos.ir.connectors import FetchRequest, FetchResult
 
 logger = get_logger(__name__)
@@ -62,6 +61,13 @@ class ConnectorManifestSpec(BaseModel):
     transform_dag: str | None = None
     cache_policy: str | None = None
     retry_policy: dict[str, Any] | None = None
+
+
+def _canon_scalar(value: Any) -> Any:
+    """Convert non-canonical scalars (e.g. float) to canonical-friendly values."""
+    if isinstance(value, float):
+        return str(value)
+    return value
 
 
 def _load_manifest_file(path: Path) -> dict[str, Any]:
@@ -159,16 +165,6 @@ def _load_transform_pipeline(transform_dag: str | None) -> Any | None:
     return pipeline
 
 
-def _result_to_dataframe(payload: Any) -> pd.DataFrame | None:
-    if isinstance(payload, pd.DataFrame):
-        return payload
-    if isinstance(payload, list):
-        return pd.DataFrame(payload)
-    if hasattr(payload, "to_pandas"):
-        return payload.to_pandas()
-    return None
-
-
 def _apply_transform_pipeline(
     result: FetchResult[Any],
     pipeline: Any | None,
@@ -176,7 +172,7 @@ def _apply_transform_pipeline(
     if pipeline is None:
         return result
 
-    df = _result_to_dataframe(result.data)
+    df = payload_to_dataframe(result.data)
     if df is None:
         logger.warning("transform_dag skipped (unsupported payload type)")
         return result
@@ -399,7 +395,7 @@ def run_connectors_ingestion(
                 "fetched_at": result.fetched_at.isoformat(),
                 "cache_key": request.cache_key,
                 "row_count": result.row_count,
-                "completeness": result.completeness,
+                "completeness": _canon_scalar(result.completeness),
                 "schema_id": result.schema_id,
                 "schema_version": result.schema_version,
                 "version_strategy": result.version.strategy.value,
@@ -446,62 +442,8 @@ def run_connectors_ingestion(
     return persist_evidence_bundle(cas_store, evidence_bundle)
 
 
-def run_demo_csv_ingestion(
-    *,
-    raw_dir: Path,
-    staging_dir: Path,
-    curated_dir: Path,
-    db_path: Path,
-    kuzu_path: Path,
-    source: str,
-    license_name: str,
-    clear_on_start: bool = False,
-    reconciliation_tolerance: float = 1e-6,
-    reconciliation_strict: bool = True,
-    cas_root: Path | None = Path(".polisyos"),
-) -> EvidenceBundleRef | None:
-    raise RuntimeError(
-        "run_demo_csv_ingestion() was removed from Fabric core in Stage 3. "
-        "Use tools/demos scripts for demo CSV workflows and world materialization."
-    )
-
-
-def run_ingestion(
-    raw_dir: Path,
-    staging_dir: Path,
-    curated_dir: Path,
-    db_path: Path,
-    kuzu_path: Path,
-    source: str,
-    license_name: str,
-    clear_on_start: bool = False,
-    reconciliation_tolerance: float = 1e-6,
-    reconciliation_strict: bool = True,
-    cas_root: Path | None = Path(".polisyos"),
-    connector_manifest: dict[str, Any] | Path | str | ConnectorManifestSpec | None = None,
-) -> EvidenceBundleRef | None:
-    """Transitional facade kept for compatibility; connectors mode only."""
-    warnings.warn(
-        "polisyos.fabric.run_ingestion is transitional. Use run_connectors_ingestion().",
-        DeprecationWarning,
-        stacklevel=2,
-    )
-    if connector_manifest is None:
-        raise ValueError(
-            "run_ingestion() now requires connector_manifest; demo CSV mode was removed from Fabric core."
-        )
-    return run_connectors_ingestion(
-        connector_manifest=connector_manifest,
-        source=source,
-        license_name=license_name,
-        cas_root=cas_root,
-    )
-
-
 __all__ = [
     "ConnectorManifestSpec",
     "DatasetFetchSpec",
     "run_connectors_ingestion",
-    "run_demo_csv_ingestion",
-    "run_ingestion",
 ]

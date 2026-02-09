@@ -11,16 +11,22 @@ from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.fabric.claims import resolve_conflicts
 from polisyos.fabric.claims.extractor_registry import discover_and_bootstrap_extractors
-from polisyos.fabric.claims.persist import load_claim, load_doc_meta, load_json_artifact
+from polisyos.fabric.claims.persist import (
+    claim_artifact_ids_by_claim_id,
+    load_claim,
+    load_doc_meta,
+    load_json_artifact,
+)
 from polisyos.fabric.io.db import SimulationDB
 from polisyos.fabric.world import (
     append_world_segment_index,
-    emit_world_event_facts,
     emit_world_node_facts,
-    event_world_provenance_v1,
-    persist_world_event,
     stable_world_provenance_v1,
     write_world_fact_segment,
+)
+from polisyos.fabric.world.events import (
+    build_deterministic_world_event,
+    persist_world_event_with_facts,
 )
 from polisyos.ir.kernel.base import ID_PATTERN
 from polisyos.ir.norm_pack import NormPack, NormRef, NormRule, RuleType
@@ -29,20 +35,17 @@ from polisyos.ir.world.claim import Claim
 from polisyos.ir.world.conflict import ConflictSet
 from polisyos.ir.world.event import (
     EventKind,
-    ProvActivity,
     ProvActivityType,
-    ProvAgent,
     ProvAgentType,
-    WorldEvent,
     WorldObjectRef,
 )
 from polisyos.ir.world.ids import (
     artifact_id_to_world_id,
     stable_world_id_from_canon,
-    world_event_id_from_payload,
 )
 from polisyos.ir.world.trust import TrustAssessment
 from polisyos.lex.corpus.index import load_provision_index
+from polisyos.lex.common import collapse_ws
 from polisyos.lex.errors import LexNotReadyError, LexValidationError
 from polisyos.lex.normpack.provider_registry import (
     discover_and_bootstrap_providers,
@@ -75,10 +78,6 @@ from polisyos.lex.types import (
 )
 
 _ID_RE = re.compile(ID_PATTERN)
-
-
-def _collapse_ws(text: str) -> str:
-    return re.sub(r"\s+", " ", text.strip())
 
 
 def _normalize_request(
@@ -145,7 +144,7 @@ def _normalize_request(
 
 def _build_provision_preview(*, normalized_text: str, start: int, end: int) -> str:
     preview = normalized_text[start:end]
-    return _collapse_ws(preview).casefold()[:DEFAULT_PREVIEW_LIMIT]
+    return collapse_ws(preview).casefold()[:DEFAULT_PREVIEW_LIMIT]
 
 
 def _domain_match(
@@ -263,30 +262,6 @@ def _select_provisions(
 
     selected_fragment_ids = sorted({row.fragment_id for row in selected})
     return selected, selected_fragment_ids, sorted(set(warnings))
-
-
-def _claim_artifact_map(
-    *,
-    cas: FileSystemCAS,
-    claim_set_artifact_ids: list[str],
-) -> dict[str, str]:
-    mapping: dict[str, str] = {}
-    for artifact_id in sorted(set(claim_set_artifact_ids)):
-        payload = load_json_artifact(cas, artifact_id)
-        claim_rows = payload.get("claims")
-        if not isinstance(claim_rows, list):
-            continue
-        for row in claim_rows:
-            if not isinstance(row, dict):
-                continue
-            claim_id = row.get("claim_id")
-            claim_artifact_id = row.get("claim_artifact_id")
-            if not isinstance(claim_id, str) or not isinstance(claim_artifact_id, str):
-                continue
-            current = mapping.get(claim_id)
-            if current is None or claim_artifact_id < current:
-                mapping[claim_id] = claim_artifact_id
-    return mapping
 
 
 def _load_claims_by_id(
@@ -561,20 +536,6 @@ def emit_norm_pack_assemble_event(
     segment_name: str | None,
     counts: dict[str, int],
 ) -> tuple[str, str, Any]:
-    now = datetime.now(timezone.utc)
-    agent = ProvAgent(
-        agent_id="prov.agent.lex_normpack",
-        agent_type=ProvAgentType.SYSTEM,
-        label="Lex NormPack",
-    )
-    activity = ProvActivity(
-        activity_id="prov.activity.lex_normpack.assemble",
-        activity_type=ProvActivityType.ASSEMBLE_NORM_PACK,
-        label="Assemble norm pack",
-        started_at=now,
-        ended_at=now,
-    )
-
     inputs: list[WorldObjectRef] = []
     for doc in sorted(selected_doc_versions, key=lambda row: row.doc_version_id):
         inputs.append(WorldObjectRef(world_id=doc.doc_version_id))
@@ -604,39 +565,21 @@ def emit_norm_pack_assemble_event(
         "trust_policy_id": request.trust_policy_id,
         "counts": counts,
     }
-
-    event_payload = {
-        "event_kind": EventKind.ASSEMBLE_NORM_PACK,
-        "agent": agent,
-        "activity": activity,
-        "inputs": inputs,
-        "outputs": outputs,
-        "evidence_ref": None,
-        "provenance_ref": None,
-    }
-    event_id = world_event_id_from_payload(event_payload=event_payload)
-    event = WorldEvent(
-        event_id=event_id,
+    event = build_deterministic_world_event(
         event_kind=EventKind.ASSEMBLE_NORM_PACK,
-        agent=agent,
-        activity=activity,
+        agent_id="prov.agent.lex_normpack",
+        agent_type=ProvAgentType.SYSTEM,
+        agent_label="Lex NormPack",
+        activity_id="prov.activity.lex_normpack.assemble",
+        activity_type=ProvActivityType.ASSEMBLE_NORM_PACK,
+        activity_label="Assemble norm pack",
         inputs=inputs,
         outputs=outputs,
-        evidence_ref=None,
-        provenance_ref=None,
         props=props,
     )
-    event_ref = persist_world_event(cas, event)
-    event_artifact_id = str(event_ref.artifact_id)
-
+    event_id = event.event_id
     facts = list(semantic_facts)
-    facts.extend(
-        emit_world_event_facts(
-            event,
-            event_artifact_id=event_artifact_id,
-            provenance=event_world_provenance_v1(event_id),
-        )
-    )
+    event_artifact_id = persist_world_event_with_facts(cas=cas, event=event, facts=facts)
 
     manifest = write_world_fact_segment(
         facts,
@@ -860,7 +803,7 @@ def assemble_norm_pack(
         winner_by_conflict_set=winner_by_conflict_set,
     )
 
-    claim_artifact_ids_by_id = _claim_artifact_map(
+    claim_artifact_ids_by_id = claim_artifact_ids_by_claim_id(
         cas=cas,
         claim_set_artifact_ids=claim_set_artifact_ids,
     )

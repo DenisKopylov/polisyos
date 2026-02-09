@@ -38,7 +38,7 @@ runs_df = conn.execute(
 ).fetchdf()
 
 if runs_df.empty:
-    st.warning("No simulation data found. Run 'run_experiment.py' first.")
+    st.warning("No simulation data found. Run a Scientist experiment first.")
     st.stop()
 
 selected_run_id = st.sidebar.selectbox("Select Simulation Run", runs_df["run_id"].tolist(), index=0)

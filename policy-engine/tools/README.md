@@ -9,7 +9,7 @@ polisyos.*  (source)          tools/  (consumers)
   core   ←──────────────────  lint_imports, capture_env, visualize_provenance
   fabric ←──────────────────  lint_connectors, scan_fabric, demos/*, diagnostics/*
   foundry ←─────────────────  lint_foundry, benchmarks/*, run_mechanism_design
-  ir     ←──────────────────  gen_schema, abi_diff, demos/run_optimizer_demo
+  ir     ←──────────────────  gen_schema, abi_diff, demos/*
   common ←──────────────────  migrate, benchmarks/*, diagnostics/check_setup
 ```
 
@@ -41,10 +41,8 @@ tools/
 │   └── scaffold.py                        # Генератор скелетов коннекторов
 │
 ├── demos/
-│   ├── run_ingest_demo.py                 # CSV → DuckDB + Kuzu ingestion
 │   ├── run_udf_query_demo.py              # Гибридные SQL + Python UDF-запросы
 │   ├── run_udf_hybrid_demo.py             # Продвинутые UDF с ML/статистикой
-│   ├── run_optimizer_demo.py              # NSGA-II многокритериальная оптимизация
 │   ├── run_laffer_demo.py                 # Кривая Лаффера — экономическая модель
 │   └── run_export_demo.py                 # Экспорт в Parquet/JSON/CSV/HDF5
 │
@@ -72,7 +70,7 @@ python tools/lint_connectors.py
 python tools/gen_schema.py --check
 
 # 4. Запуск демо
-python tools/demos/run_ingest_demo.py
+python tools/demos/run_udf_query_demo.py
 ```
 
 ## Архитектурные линтеры
@@ -239,10 +237,8 @@ End-to-end скрипты, демонстрирующие ключевые па�
 
 | Скрипт | Пайплайн | Основные модули |
 |--------|----------|----------------|
-| `run_ingest_demo.py` | CSV → Parquet → DuckDB + Kuzu | `fabric.ingestion`, `fabric.io.db`, `fabric.io.graph_store` |
 | `run_udf_query_demo.py` | Panel/Snapshot/Network UDF-запросы | `fabric.udf.engine`, `ir.data_views` |
 | `run_udf_hybrid_demo.py` | ML/статистика внутри SQL через UDF | DuckDB UDF API, Pandas, NumPy |
-| `run_optimizer_demo.py` | NSGA-II оптимизация политик | `scientist.orchestrator`, `ir.trinity`, PyMOO |
 | `run_laffer_demo.py` | Кривая Лаффера — tax rate vs revenue | `foundry.domain`, `foundry.engine` |
 | `run_export_demo.py` | Экспорт state в Parquet/JSON/CSV/HDF5 | `foundry.domain.state`, `foundry.engine.kernel` |
 
@@ -290,7 +286,6 @@ python tools/diagnostics/check_setup.py    # первая команда при 
 - python tools/benchmarks/bench_simulation.py --n-steps 100 --n-agents 10000
 
 # Smoke tests (integration)
-- python tools/demos/run_ingest_demo.py
 - python tools/demos/run_udf_query_demo.py
 ```
 

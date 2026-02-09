@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import re
 from dataclasses import dataclass
 from decimal import Decimal, InvalidOperation
 from typing import Any
@@ -15,12 +14,9 @@ from polisyos.core.contracts.lex import LegalEvaluationRequest
 from polisyos.core.contracts.trinity import PolicySpecRef
 from polisyos.ir.norm_pack import NormPack, NormRule
 from polisyos.ir.policy_spec import ParameterSpec, PolicySpec
+from polisyos.lex.common import collapse_ws
 from polisyos.lex.errors import LexNotReadyError, LexValidationError
 from polisyos.lex.normpack.applicability import applies_to_context
-
-
-def _collapse_ws(text: str) -> str:
-    return re.sub(r"\s+", " ", text.strip())
 
 
 def _decimal_from_string(value: str) -> Decimal | None:
@@ -153,7 +149,7 @@ def _observed_from_metric(
             policy_json_pointer=None,
         )
 
-    stripped = _collapse_ws(raw)
+    stripped = collapse_ws(raw)
     parsed = _decimal_from_string(stripped)
     if parsed is not None:
         value_decimal = _decimal_to_text(parsed)
@@ -231,7 +227,7 @@ def _parse_policy_value(
         )
 
     if isinstance(value, str):
-        stripped = _collapse_ws(value)
+        stripped = collapse_ws(value)
         parsed = _decimal_from_string(stripped)
         if parsed is not None:
             value_decimal = _decimal_to_text(parsed)

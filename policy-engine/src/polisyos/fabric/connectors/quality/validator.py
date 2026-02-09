@@ -14,6 +14,7 @@ from typing import Any
 
 import pandas as pd
 
+from polisyos.fabric.tabular import require_dataframe
 from polisyos.ir.connectors import QualityTier
 
 from .completeness import CompletenessAnalyzer, SamplingStrategy
@@ -189,17 +190,11 @@ class DataQualityValidator:
             return self._create_error_report(fetch_result, schema, str(exc))
 
     def _extract_dataframe(self, fetch_result: Any) -> pd.DataFrame:
-        data = fetch_result.data
-
-        if isinstance(data, pd.DataFrame):
-            return data
-        if isinstance(data, list):
-            return pd.DataFrame(data)
-        if isinstance(data, dict):
-            return pd.DataFrame(data)
-        if hasattr(data, "to_pandas"):
-            return data.to_pandas()
-        raise ValueError(f"Unsupported data type: {type(data)}")
+        return require_dataframe(
+            fetch_result.data,
+            allow_dict=True,
+            label="fetch_result.data",
+        )
 
     def _maybe_sample(self, data: pd.DataFrame) -> tuple[pd.DataFrame, bool]:
         if not SamplingStrategy.should_sample(len(data), self.sampling_threshold):

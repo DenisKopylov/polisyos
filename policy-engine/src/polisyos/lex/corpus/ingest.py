@@ -4,9 +4,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.store import FileSystemCAS
-from polisyos.core.canon import from_canonical_bytes
 from polisyos.fabric.docs import (
     DocSourceSpec,
     chunk_doc,
@@ -18,25 +16,23 @@ from polisyos.fabric.docs.errors import DocPipelineError, DocValidationError
 from polisyos.fabric.world import (
     append_world_segment_index,
     emit_doc_meta_facts,
-    emit_world_event_facts,
-    event_world_provenance_v1,
     persist_doc_meta,
-    persist_world_event,
     stable_world_provenance_v1,
     write_world_fact_segment,
 )
+from polisyos.fabric.world.events import (
+    build_deterministic_world_event,
+    persist_world_event_with_facts,
+)
 from polisyos.fabric.world import validate_doc_meta_ids
-from polisyos.ir.world.doc import DocMeta
 from polisyos.ir.world.event import (
     EventKind,
-    ProvActivity,
     ProvActivityType,
-    ProvAgent,
     ProvAgentType,
-    WorldEvent,
     WorldObjectRef,
 )
-from polisyos.ir.world.ids import doc_source_id, world_event_id_from_payload
+from polisyos.ir.world.ids import doc_source_id
+from polisyos.lex.artifacts import load_doc_meta_artifact
 from polisyos.lex.errors import LexError, LexIngestError, LexValidationError
 from polisyos.lex.types import (
     LegalDocSource,
@@ -44,21 +40,6 @@ from polisyos.lex.types import (
     LexIngestResult,
     WorldEventRefLike,
 )
-
-
-def _load_json_artifact(cas: FileSystemCAS, artifact_id: str) -> dict:
-    aid = ArtifactID.model_validate(artifact_id)
-    payload = from_canonical_bytes(cas.get_bytes(aid))
-    if not isinstance(payload, dict):
-        raise LexValidationError(f"artifact {artifact_id} payload must be a JSON object")
-    return payload
-
-
-def _load_doc_meta(cas: FileSystemCAS, artifact_id: str) -> DocMeta:
-    payload = _load_json_artifact(cas, artifact_id)
-    meta = DocMeta.model_validate(payload)
-    validate_doc_meta_ids(meta)
-    return meta
 
 
 def _to_doc_source_spec(source: LegalDocSource) -> DocSourceSpec:
@@ -183,7 +164,11 @@ def ingest_legal_doc_bytes(
             )
             current_meta_artifact_id = fabric_chunk.doc_meta_artifact_id
 
-        meta_before = _load_doc_meta(cas, current_meta_artifact_id)
+        meta_before = load_doc_meta_artifact(
+            cas,
+            current_meta_artifact_id,
+            validate_ids=True,
+        )
         merged_props = _merge_lex_props(
             source=source,
             current_props=meta_before.props,
@@ -236,60 +221,29 @@ def ingest_legal_doc_bytes(
             )
 
         if opts.write_lex_meta_update_event:
-            now = datetime.now(timezone.utc)
-            agent = ProvAgent(
-                agent_id=opts.lex_agent_id,
-                agent_type=ProvAgentType.SYSTEM,
-                label="Lex Corpus",
-            )
-            activity = ProvActivity(
-                activity_id=opts.lex_activity_id,
-                activity_type=ProvActivityType.VALIDATE,
-                label="Lex ingest meta update",
-                started_at=now,
-                ended_at=now,
-                parameters={
-                    "pipeline": "lex.corpus.ingest_v1",
-                    "doc_props_merge_policy": opts.doc_props_merge_policy,
-                },
-            )
             inputs = [
                 WorldObjectRef(artifact_id=current_meta_artifact_id),
                 WorldObjectRef(world_id=meta_after.doc_version_id),
             ]
             outputs = [WorldObjectRef(artifact_id=meta_artifact_id)]
-
-            event_payload = {
-                "event_kind": EventKind.VALIDATE,
-                "agent": agent,
-                "activity": activity,
-                "inputs": inputs,
-                "outputs": outputs,
-                "evidence_ref": None,
-                "provenance_ref": None,
-            }
-            event_id = world_event_id_from_payload(event_payload=event_payload)
-            event = WorldEvent(
-                event_id=event_id,
+            event = build_deterministic_world_event(
                 event_kind=EventKind.VALIDATE,
-                agent=agent,
-                activity=activity,
+                agent_id=opts.lex_agent_id,
+                agent_type=ProvAgentType.SYSTEM,
+                agent_label="Lex Corpus",
+                activity_id=opts.lex_activity_id,
+                activity_type=ProvActivityType.VALIDATE,
+                activity_label="Lex ingest meta update",
+                activity_parameters={
+                    "pipeline": "lex.corpus.ingest_v1",
+                    "doc_props_merge_policy": opts.doc_props_merge_policy,
+                },
                 inputs=inputs,
                 outputs=outputs,
-                evidence_ref=None,
-                provenance_ref=None,
                 props={"pipeline": "lex.corpus.ingest_v1"},
             )
-            event_ref = persist_world_event(cas, event)
-            event_artifact_id = str(event_ref.artifact_id)
-
-            facts.extend(
-                emit_world_event_facts(
-                    event,
-                    event_artifact_id=event_artifact_id,
-                    provenance=event_world_provenance_v1(event_id),
-                )
-            )
+            event_id = event.event_id
+            event_artifact_id = persist_world_event_with_facts(cas=cas, event=event, facts=facts)
             world_events.append(
                 WorldEventRefLike(
                     event_id=event_id,

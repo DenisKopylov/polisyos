@@ -150,8 +150,7 @@ graph TD
 from polisyos.scientist import run_experiment
 result = run_experiment({"user_request": "Reduce poverty through subsidies", ...})
 
-# CLI
-python run_experiment.py --user-request "..." --run-id "exp_001"
+# Legacy CLI run_experiment.py removed.
 
 # CLI subcommands (через core CLI)
 scientist sensitivity run ...

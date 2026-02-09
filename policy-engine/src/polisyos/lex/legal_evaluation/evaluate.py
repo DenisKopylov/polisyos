@@ -18,26 +18,24 @@ from polisyos.core.contracts.lex import (
 from polisyos.core.contracts.trinity import ModelSpecRef, PolicySpecRef
 from polisyos.fabric.world import (
     append_world_segment_index,
-    emit_world_event_facts,
     emit_world_node_facts,
-    event_world_provenance_v1,
-    persist_world_event,
     stable_world_provenance_v1,
     write_world_fact_segment,
+)
+from polisyos.fabric.world.events import (
+    build_deterministic_world_event,
+    persist_world_event_with_facts,
 )
 from polisyos.ir.kernel.base import ID_PATTERN
 from polisyos.ir.trinity import TrinityBundle as TrinityPayloadBundle
 from polisyos.ir.world.abi import NodeKind
 from polisyos.ir.world.event import (
     EventKind,
-    ProvActivity,
     ProvActivityType,
-    ProvAgent,
     ProvAgentType,
-    WorldEvent,
     WorldObjectRef,
 )
-from polisyos.ir.world.ids import artifact_id_to_world_id, world_event_id_from_payload
+from polisyos.ir.world.ids import artifact_id_to_world_id
 from polisyos.lex.errors import LexNotReadyError, LexValidationError
 from polisyos.lex.legal_evaluation.backends.simple_v1 import (
     RuleFinding,
@@ -440,38 +438,16 @@ def evaluate_legality_impl(
     ]
 
     event_time = datetime.fromisoformat(f"{as_of_norm}T00:00:00+00:00")
-    agent = ProvAgent(
+    event = build_deterministic_world_event(
+        event_kind=EventKind.EVALUATE_LEGALITY,
         agent_id="prov.agent.lex_legal_eval",
         agent_type=ProvAgentType.SYSTEM,
-        label="Lex Legal Evaluation",
-    )
-    activity = ProvActivity(
+        agent_label="Lex Legal Evaluation",
         activity_id="prov.activity.lex_legal_eval.evaluate",
         activity_type=ProvActivityType.EVALUATE_LEGALITY,
-        label="Evaluate legality",
-        started_at=event_time,
-        ended_at=event_time,
-    )
-    event_id = world_event_id_from_payload(
-        event_payload={
-            "event_kind": EventKind.EVALUATE_LEGALITY,
-            "agent": agent,
-            "activity": activity,
-            "inputs": inputs,
-            "outputs": outputs,
-            "evidence_ref": None,
-            "provenance_ref": None,
-        }
-    )
-    event = WorldEvent(
-        event_id=event_id,
-        event_kind=EventKind.EVALUATE_LEGALITY,
-        agent=agent,
-        activity=activity,
+        activity_label="Evaluate legality",
         inputs=inputs,
         outputs=outputs,
-        evidence_ref=None,
-        provenance_ref=None,
         props={
             "jurisdiction": jurisdiction_norm,
             "as_of": as_of_norm,
@@ -480,18 +456,12 @@ def evaluate_legality_impl(
             "counts": counts,
             "compliance_grade": compliance_grade,
         },
+        started_at=event_time,
+        ended_at=event_time,
     )
-    event_ref = persist_world_event(cas, event)
-    event_artifact_id = str(event_ref.artifact_id)
 
     facts = list(semantic_facts)
-    facts.extend(
-        emit_world_event_facts(
-            event,
-            event_artifact_id=event_artifact_id,
-            provenance=event_world_provenance_v1(event_id),
-        )
-    )
+    persist_world_event_with_facts(cas=cas, event=event, facts=facts)
     manifest = write_world_fact_segment(
         facts,
         fact_log_root=fact_log_root,

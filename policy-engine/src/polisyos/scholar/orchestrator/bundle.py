@@ -14,21 +14,19 @@ from polisyos.core.contracts.scholar import (
 )
 from polisyos.fabric.world import (
     append_world_segment_index,
-    emit_world_event_facts,
-    event_world_provenance_v1,
-    persist_world_event,
     write_world_fact_segment,
+)
+from polisyos.fabric.world.events import (
+    build_deterministic_world_event,
+    persist_world_event_with_facts,
 )
 from polisyos.ir.world.event import (
     EventKind,
-    ProvActivity,
     ProvActivityType,
-    ProvAgent,
     ProvAgentType,
-    WorldEvent,
     WorldObjectRef,
 )
-from polisyos.ir.world.ids import stable_world_id_from_canon, world_event_id_from_payload
+from polisyos.ir.world.ids import stable_world_id_from_canon
 
 from polisyos.scholar.types import EnrichmentReportV1, KnowledgeBundlePayloadV1
 
@@ -150,20 +148,6 @@ def persist_bundle_and_event(
         )
         report_ref = EnrichmentReportRef(artifact_id=report_artifact.artifact_id)
 
-    now = datetime.now(timezone.utc)
-    agent = ProvAgent(
-        agent_id="prov.agent.scholar",
-        agent_type=ProvAgentType.SYSTEM,
-        label="Scholar",
-    )
-    activity = ProvActivity(
-        activity_id="prov.activity.scholar.knowledge_bundle_build",
-        activity_type=ProvActivityType.KNOWLEDGE_BUNDLE_BUILD,
-        label="Build knowledge bundle",
-        started_at=now,
-        ended_at=now,
-    )
-
     inputs: list[WorldObjectRef] = [
         WorldObjectRef(world_id=world_id) for world_id in sorted(set(doc_version_ids))
     ]
@@ -181,36 +165,20 @@ def persist_bundle_and_event(
     ]
     if report_ref is not None:
         outputs.append(WorldObjectRef(artifact_id=str(report_ref.artifact_id)))
-
-    event_payload = {
-        "event_kind": EventKind.KNOWLEDGE_BUNDLE_BUILD,
-        "agent": agent,
-        "activity": activity,
-        "inputs": inputs,
-        "outputs": outputs,
-        "evidence_ref": None,
-        "provenance_ref": None,
-    }
-    event_id = world_event_id_from_payload(event_payload=event_payload)
-    event = WorldEvent(
-        event_id=event_id,
+    event = build_deterministic_world_event(
         event_kind=EventKind.KNOWLEDGE_BUNDLE_BUILD,
-        agent=agent,
-        activity=activity,
+        agent_id="prov.agent.scholar",
+        agent_type=ProvAgentType.SYSTEM,
+        agent_label="Scholar",
+        activity_id="prov.activity.scholar.knowledge_bundle_build",
+        activity_type=ProvActivityType.KNOWLEDGE_BUNDLE_BUILD,
+        activity_label="Build knowledge bundle",
         inputs=inputs,
         outputs=outputs,
-        evidence_ref=None,
-        provenance_ref=None,
         props={"bundle_id": bundle_payload.bundle_id},
     )
-
-    event_ref = persist_world_event(cas, event)
-    event_artifact_id = str(event_ref.artifact_id)
-    facts = emit_world_event_facts(
-        event,
-        event_artifact_id=event_artifact_id,
-        provenance=event_world_provenance_v1(event_id),
-    )
+    facts: list[Any] = []
+    persist_world_event_with_facts(cas=cas, event=event, facts=facts)
     manifest = write_world_fact_segment(
         facts,
         fact_log_root=fact_log_root,

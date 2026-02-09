@@ -31,3 +31,5 @@ class ExperimentState(BaseModel):
     observational_data_ref: ArtifactRef | None = None
     causal_method_fqn: str | None = None
     causal_method_params: dict[str, JsonValue] = Field(default_factory=dict)
+    critic_knowledge_base_ref: ArtifactRef | None = None
+    constitution_hash: str | None = Field(default=None, min_length=64, max_length=64)

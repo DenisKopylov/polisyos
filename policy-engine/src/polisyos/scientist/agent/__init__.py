@@ -37,7 +37,16 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     # Optional exports (loaded lazily at runtime to avoid circular imports).
     from polisyos.scientist.agent.base import BaseAgent, MockAgent
-    from polisyos.scientist.agent.critic import LLMCriticAgent, MockCriticAgent
+    from polisyos.scientist.agent.critic import (
+        LLMCriticAgent,
+        MockCriticAgent,
+        create_critic_agent,
+    )
+    from polisyos.scientist.agent.constitution import (
+        ConstitutionGenerator,
+        KnownPitfall,
+        PolicyConstitution,
+    )
     from polisyos.scientist.agent.drafter import (
         LLMDrafterAgent,
         MockDrafterAgent,
@@ -46,10 +55,24 @@ if TYPE_CHECKING:
         MultiPassLLMDrafter,
         create_drafter_agent,
     )
+    from polisyos.scientist.agent.failure_index import FailurePatternIndex
+    from polisyos.scientist.agent.feasibility import (
+        FeasibilityProbe,
+        NullFeasibilityProbe,
+        StateSnapshotFeasibilityProbe,
+    )
+    from polisyos.scientist.agent.feasibility_duckdb import DuckDBFeasibilityProbe
     from polisyos.scientist.agent.rag import CASRAGIndex, RAGConfig
     from polisyos.scientist.agent.code_verifier import CodeVerificationSandbox, SandboxConfig
     from polisyos.scientist.agent.formalizer import LLMFormalizerAgent, MockFormalizerAgent
+    from polisyos.scientist.agent.informed_critic import InformedCriticAgent, InformedCriticConfig
+    from polisyos.scientist.agent.knowledge_base import CriticKnowledgeBase
     from polisyos.scientist.agent.memory import ShortTermMemory, TurnRole
+    from polisyos.scientist.agent.norm_loader import (
+        CASNormPackLoader,
+        NormPackLoader,
+        StaticNormPackLoader,
+    )
     from polisyos.scientist.agent.pi import LLMPIAgent, MockPIAgent
 
 __all__ = [
@@ -65,10 +88,25 @@ __all__ = [
     "LLMFormalizerAgent",
     "MockCriticAgent",
     "LLMCriticAgent",
+    "create_critic_agent",
     "MockLLM",
     "MultiPassLLMDrafter",
     "MultiPassConfig",
     "create_drafter_agent",
+    "ConstitutionGenerator",
+    "PolicyConstitution",
+    "KnownPitfall",
+    "InformedCriticAgent",
+    "InformedCriticConfig",
+    "FeasibilityProbe",
+    "NullFeasibilityProbe",
+    "StateSnapshotFeasibilityProbe",
+    "DuckDBFeasibilityProbe",
+    "NormPackLoader",
+    "StaticNormPackLoader",
+    "CASNormPackLoader",
+    "CriticKnowledgeBase",
+    "FailurePatternIndex",
     "CASRAGIndex",
     "RAGConfig",
     "CodeVerificationSandbox",
@@ -113,6 +151,7 @@ def __getattr__(name: str):
         # critic
         "LLMCriticAgent": ("polisyos.scientist.agent.critic", "LLMCriticAgent"),
         "MockCriticAgent": ("polisyos.scientist.agent.critic", "MockCriticAgent"),
+        "create_critic_agent": ("polisyos.scientist.agent.critic", "create_critic_agent"),
         "create_mock_problem_frame": ("polisyos.scientist.agent.critic", "create_mock_problem_frame"),
         # drafter
         "LLMDrafterAgent": ("polisyos.scientist.agent.drafter", "LLMDrafterAgent"),
@@ -122,6 +161,40 @@ def __getattr__(name: str):
         "MultiPassConfig": ("polisyos.scientist.agent.drafter", "MultiPassConfig"),
         "create_drafter_agent": ("polisyos.scientist.agent.drafter", "create_drafter_agent"),
         "drafter_node": ("polisyos.scientist.agent.drafter", "drafter_node"),
+        # constitution
+        "ConstitutionGenerator": (
+            "polisyos.scientist.agent.constitution",
+            "ConstitutionGenerator",
+        ),
+        "PolicyConstitution": ("polisyos.scientist.agent.constitution", "PolicyConstitution"),
+        "KnownPitfall": ("polisyos.scientist.agent.constitution", "KnownPitfall"),
+        # informed critic
+        "InformedCriticAgent": (
+            "polisyos.scientist.agent.informed_critic",
+            "InformedCriticAgent",
+        ),
+        "InformedCriticConfig": (
+            "polisyos.scientist.agent.informed_critic",
+            "InformedCriticConfig",
+        ),
+        "FeasibilityProbe": ("polisyos.scientist.agent.feasibility", "FeasibilityProbe"),
+        "NullFeasibilityProbe": (
+            "polisyos.scientist.agent.feasibility",
+            "NullFeasibilityProbe",
+        ),
+        "StateSnapshotFeasibilityProbe": (
+            "polisyos.scientist.agent.feasibility",
+            "StateSnapshotFeasibilityProbe",
+        ),
+        "DuckDBFeasibilityProbe": (
+            "polisyos.scientist.agent.feasibility_duckdb",
+            "DuckDBFeasibilityProbe",
+        ),
+        "NormPackLoader": ("polisyos.scientist.agent.norm_loader", "NormPackLoader"),
+        "StaticNormPackLoader": ("polisyos.scientist.agent.norm_loader", "StaticNormPackLoader"),
+        "CASNormPackLoader": ("polisyos.scientist.agent.norm_loader", "CASNormPackLoader"),
+        "CriticKnowledgeBase": ("polisyos.scientist.agent.knowledge_base", "CriticKnowledgeBase"),
+        "FailurePatternIndex": ("polisyos.scientist.agent.failure_index", "FailurePatternIndex"),
         "CASRAGIndex": ("polisyos.scientist.agent.rag", "CASRAGIndex"),
         "RAGConfig": ("polisyos.scientist.agent.rag", "RAGConfig"),
         "CodeVerificationSandbox": (

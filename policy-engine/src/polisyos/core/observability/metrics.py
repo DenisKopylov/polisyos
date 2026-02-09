@@ -136,6 +136,13 @@ class MetricsRegistry:
     drafter_multipass_pass_duration_seconds: Optional[metrics.Histogram] = None
     drafter_multipass_early_exit_total: Optional[metrics.Counter] = None
     drafter_multipass_budget_stop_total: Optional[metrics.Counter] = None
+    constitution_generation_seconds: Optional[metrics.Histogram] = None
+    constitution_rules_total: Optional[metrics.Counter] = None
+    critic_preemptive_catches_total: Optional[metrics.Counter] = None
+    informed_critic_duration_seconds: Optional[metrics.Histogram] = None
+    feasibility_query_seconds: Optional[metrics.Histogram] = None
+    failure_pattern_index_size: Optional[GaugeProxy] = None
+    knowledge_base_gc_removed_total: Optional[metrics.Counter] = None
     active_runs: Optional[metrics.UpDownCounter] = None
     validation_issues_total: Optional[metrics.Counter] = None
     artifact_operations_total: Optional[metrics.Counter] = None
@@ -380,6 +387,42 @@ class MetricsRegistry:
         self.drafter_multipass_budget_stop_total = self._meter.create_counter(
             name="polisyos_drafter_multipass_budget_stop_total",
             description="Multipass drafter runs terminated by budget/call limits",
+            unit="1",
+        )
+        self.constitution_generation_seconds = self._meter.create_histogram(
+            name="polisyos_constitution_generation_seconds",
+            description="Time spent generating policy constitutions",
+            unit="s",
+        )
+        self.constitution_rules_total = self._meter.create_counter(
+            name="polisyos_constitution_rules_total",
+            description="Generated constitution rules by section type",
+            unit="1",
+        )
+        self.critic_preemptive_catches_total = self._meter.create_counter(
+            name="polisyos_critic_preemptive_catches_total",
+            description="Issues caught by informed critic prechecks",
+            unit="1",
+        )
+        self.informed_critic_duration_seconds = self._meter.create_histogram(
+            name="polisyos_informed_critic_duration_seconds",
+            description="Total runtime of informed critic (prechecks + inner critique)",
+            unit="s",
+        )
+        self.feasibility_query_seconds = self._meter.create_histogram(
+            name="polisyos_feasibility_query_seconds",
+            description="Latency of feasibility probe queries",
+            unit="s",
+        )
+        self.failure_pattern_index_size = GaugeProxy(
+            self._meter,
+            name="polisyos_failure_pattern_index_size",
+            description="Current number of entries in failure pattern index",
+            unit="1",
+        )
+        self.knowledge_base_gc_removed_total = self._meter.create_counter(
+            name="polisyos_knowledge_base_gc_removed_total",
+            description="Failure pattern entries removed by knowledge-base GC",
             unit="1",
         )
 
@@ -996,6 +1039,73 @@ class MetricsRegistry:
                 max(0.0, float(duration_seconds)),
                 attrs,
             )
+
+    def time_informed_critic(
+        self,
+        attributes: Optional[dict[str, Any]] = None,
+    ) -> HistogramTimer:
+        """Context manager for measuring informed critic end-to-end latency."""
+        self._ensure_initialized()
+        return HistogramTimer(self.informed_critic_duration_seconds, attributes)
+
+    def record_constitution_generated(
+        self,
+        *,
+        domain: str,
+        duration_seconds: float,
+        section_counts: dict[str, int] | None = None,
+    ) -> None:
+        """Record constitution generation latency and per-section rule counts."""
+        self._ensure_initialized()
+        attrs = {"domain": domain or "unknown"}
+        if self.constitution_generation_seconds is not None:
+            self.constitution_generation_seconds.record(max(0.0, float(duration_seconds)), attrs)
+        if self.constitution_rules_total is None:
+            return
+        for section_type, count in (section_counts or {}).items():
+            safe_count = max(0, int(count))
+            if safe_count <= 0:
+                continue
+            self.constitution_rules_total.add(
+                safe_count,
+                {**attrs, "section_type": str(section_type)},
+            )
+
+    def record_critic_preemptive_catch(self, *, catch_type: str, count: int = 1) -> None:
+        """Record a preemptive issue caught before governance pipeline."""
+        self._ensure_initialized()
+        if self.critic_preemptive_catches_total is None:
+            return
+        self.critic_preemptive_catches_total.add(
+            max(1, int(count)),
+            {"catch_type": catch_type or "unknown"},
+        )
+
+    def record_feasibility_query(self, *, duration_seconds: float, status: str) -> None:
+        """Record feasibility probe query latency."""
+        self._ensure_initialized()
+        if self.feasibility_query_seconds is None:
+            return
+        self.feasibility_query_seconds.record(
+            max(0.0, float(duration_seconds)),
+            {"status": status or "unknown"},
+        )
+
+    def set_failure_pattern_index_size(self, size: int) -> None:
+        """Set current failure pattern index size gauge."""
+        self._ensure_initialized()
+        if self.failure_pattern_index_size is None:
+            return
+        self.failure_pattern_index_size.set(float(max(0, int(size))))
+
+    def record_knowledge_base_gc_removed(self, count: int) -> None:
+        """Record number of stale patterns removed by GC."""
+        self._ensure_initialized()
+        if self.knowledge_base_gc_removed_total is None:
+            return
+        safe_count = max(0, int(count))
+        if safe_count > 0:
+            self.knowledge_base_gc_removed_total.add(safe_count)
 
     def record_validation_issue(
         self,

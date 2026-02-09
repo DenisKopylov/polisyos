@@ -4,11 +4,16 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import uuid
 from datetime import datetime
 from typing import Any
 
 from polisyos.ir.trinity import TrinityBundle
+from polisyos.scientist.agent.informed_critic import InformedCriticAgent, InformedCriticConfig
+from polisyos.scientist.agent.knowledge_base import CriticKnowledgeBase
+from polisyos.scientist.agent.norm_loader import NormPackLoader
+from polisyos.scientist.agent.feasibility import FeasibilityProbe
 from polisyos.scientist.agent.prompts import get_critic_prompt
 from polisyos.scientist.agent.protocols import (
     CriticAgent,
@@ -39,6 +44,12 @@ _COMMON_WORDS = {
     "is",
     "are",
 }
+
+
+def _as_bool(raw: str | None, default: bool = False) -> bool:
+    if raw is None:
+        return default
+    return raw.strip().lower() in {"1", "true", "yes", "on"}
 
 
 def _to_trinity_bundle(ir: TrinityBundle) -> TrinityBundle:
@@ -458,6 +469,48 @@ Provide your critique as a JSON object.
         return await MockCriticAgent().check_alignment(ir, problem_frame)
 
 
+def create_critic_agent(
+    llm_client: Any | None,
+    *,
+    model_name: str | None = None,
+    inner: CriticAgent | None = None,
+    informed_config: InformedCriticConfig | None = None,
+    norm_loader: NormPackLoader | None = None,
+    feasibility_probe: FeasibilityProbe | None = None,
+    knowledge_base: CriticKnowledgeBase | None = None,
+) -> CriticAgent:
+    """
+    Build critic according to feature flag `POLISYOS_INFORMED_CRITIC_ENABLED`.
+
+    Defaults:
+    - Base critic: `LLMCriticAgent` when llm client is provided, else `MockCriticAgent`.
+    - Informed wrapper: disabled unless env flag is enabled.
+    """
+    critic_mode = os.getenv("POLISYOS_CRITIC_MODE", "").strip().lower()
+    if inner is not None:
+        base_critic: CriticAgent = inner
+    elif critic_mode == "mock" or llm_client is None:
+        base_critic = MockCriticAgent()
+    else:
+        base_critic = LLMCriticAgent(llm_client, model_name=model_name)
+
+    informed_enabled = _as_bool(
+        os.getenv("POLISYOS_INFORMED_CRITIC_ENABLED"),
+        default=False,
+    )
+    if not informed_enabled:
+        return base_critic
+
+    config = informed_config or InformedCriticConfig.from_env()
+    return InformedCriticAgent(
+        inner=base_critic,
+        norm_loader=norm_loader,
+        feasibility_probe=feasibility_probe,
+        knowledge_base=knowledge_base,
+        config=config,
+    )
+
+
 def create_mock_problem_frame(
     *,
     frame_id: str | None = None,
@@ -483,3 +536,13 @@ def _verify_protocol() -> None:
 
 
 _verify_protocol()
+
+
+__all__ = [
+    "InformedCriticAgent",
+    "InformedCriticConfig",
+    "LLMCriticAgent",
+    "MockCriticAgent",
+    "create_critic_agent",
+    "create_mock_problem_frame",
+]

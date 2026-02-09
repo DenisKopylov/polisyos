@@ -35,6 +35,13 @@ except ModuleNotFoundError:  # pragma: no cover - optional runtime dependency
         def set(self, value, attrs=None) -> None:
             return None
 
+    class _NoopTimer:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, exc_type, exc, tb):
+            return False
+
     class MetricsRegistry:  # type: ignore[override]
         def __getattr__(self, name: str):
             return _NoopMetric()
@@ -173,6 +180,36 @@ except ModuleNotFoundError:  # pragma: no cover - optional runtime dependency
             duration_seconds: float,
             executed: bool,
         ) -> None:
+            return None
+
+        def time_informed_critic(self, attributes=None):
+            del attributes
+            return _NoopTimer()
+
+        def record_constitution_generated(
+            self,
+            *,
+            domain: str,
+            duration_seconds: float,
+            section_counts: dict[str, int] | None = None,
+        ) -> None:
+            del domain, duration_seconds, section_counts
+            return None
+
+        def record_critic_preemptive_catch(self, *, catch_type: str, count: int = 1) -> None:
+            del catch_type, count
+            return None
+
+        def record_feasibility_query(self, *, duration_seconds: float, status: str) -> None:
+            del duration_seconds, status
+            return None
+
+        def set_failure_pattern_index_size(self, size: int) -> None:
+            del size
+            return None
+
+        def record_knowledge_base_gc_removed(self, count: int) -> None:
+            del count
             return None
 
     class _NoopSpan:

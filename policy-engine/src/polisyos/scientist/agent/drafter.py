@@ -25,6 +25,8 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_valida
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.observability import get_metrics, get_tracer
 from polisyos.core.observability.pricing import estimate_llm_cost_usd
+from polisyos.ir.model_spec import ModelSpec
+from polisyos.ir.norm_pack import NormPack
 from polisyos.scientist.agent.code_verifier import (
     CodeVerificationSandbox,
     DraftVariableExtractor,
@@ -32,6 +34,8 @@ from polisyos.scientist.agent.code_verifier import (
     VerificationCodeExtractor,
     VerificationStatus,
 )
+from polisyos.scientist.agent.constitution import ConstitutionGenerator, PolicyConstitution
+from polisyos.scientist.agent.knowledge_base import CriticKnowledgeBase
 from polisyos.scientist.agent.memory import ShortTermMemory
 from polisyos.scientist.agent.prompts import get_drafter_prompt, get_self_critique_prompt
 from polisyos.scientist.agent.protocols import (
@@ -152,6 +156,13 @@ class MultiPassConfig(BaseModel):
     rag_freeze_snapshot_per_run: bool = Field(default=True)
     code_verification_enabled: bool = Field(default=False)
     code_verification_timeout_s: float = Field(default=5.0, gt=0.0, le=30.0)
+    constitution_enabled: bool = Field(default=True)
+    constitution_max_total_rules: int = Field(default=50, ge=1, le=120)
+    constitution_max_rules_per_section: int = Field(default=20, ge=1, le=50)
+    constitution_max_prompt_chars: int = Field(default=9000, ge=500, le=30000)
+    constitution_include_domain_rules: bool = Field(default=True)
+    constitution_enable_pitfalls: bool = Field(default=True)
+    constitution_pitfall_min_occurrences: int = Field(default=3, ge=1, le=20)
 
     @field_validator("budget_limit_usd")
     @classmethod
@@ -228,6 +239,40 @@ class MultiPassConfig(BaseModel):
         raw_code_timeout = os.getenv("POLISYOS_CODE_VERIFICATION_TIMEOUT")
         if raw_code_timeout:
             kwargs["code_verification_timeout_s"] = float(raw_code_timeout)
+
+        raw_constitution_enabled = os.getenv("POLISYOS_CONSTITUTION_ENABLED")
+        if raw_constitution_enabled is not None:
+            kwargs["constitution_enabled"] = _as_bool(raw_constitution_enabled, default=True)
+        raw_constitution_max_total_rules = os.getenv("POLISYOS_CONSTITUTION_MAX_TOTAL_RULES")
+        if raw_constitution_max_total_rules:
+            kwargs["constitution_max_total_rules"] = int(raw_constitution_max_total_rules)
+        raw_constitution_max_rules_section = os.getenv(
+            "POLISYOS_CONSTITUTION_MAX_RULES_PER_SECTION"
+        )
+        if raw_constitution_max_rules_section:
+            kwargs["constitution_max_rules_per_section"] = int(raw_constitution_max_rules_section)
+        raw_constitution_chars = os.getenv("POLISYOS_CONSTITUTION_MAX_PROMPT_CHARS")
+        if raw_constitution_chars:
+            kwargs["constitution_max_prompt_chars"] = int(raw_constitution_chars)
+        raw_constitution_domain = os.getenv("POLISYOS_CONSTITUTION_INCLUDE_DOMAIN_RULES")
+        if raw_constitution_domain is not None:
+            kwargs["constitution_include_domain_rules"] = _as_bool(
+                raw_constitution_domain,
+                default=True,
+            )
+        raw_constitution_pitfalls = os.getenv("POLISYOS_CONSTITUTION_ENABLE_PITFALLS")
+        if raw_constitution_pitfalls is not None:
+            kwargs["constitution_enable_pitfalls"] = _as_bool(
+                raw_constitution_pitfalls,
+                default=True,
+            )
+        raw_constitution_pitfall_threshold = os.getenv(
+            "POLISYOS_CONSTITUTION_PITFALL_MIN_OCCURRENCES"
+        )
+        if raw_constitution_pitfall_threshold:
+            kwargs["constitution_pitfall_min_occurrences"] = int(
+                raw_constitution_pitfall_threshold
+            )
 
         return cls(**kwargs)
 
@@ -558,6 +603,9 @@ class LLMDrafterAgent:
             raise ValueError("ProblemFrame must have a valid frame_id")
 
         prompt = get_drafter_prompt(hints=hints)
+        constitution_text = self._extract_constitution(problem_frame)
+        if constitution_text:
+            prompt = f"{constitution_text}\n\n{prompt}"
         pf_payload = {
             "frame_id": problem_frame.frame_id,
             "domain": problem_frame.domain,
@@ -636,6 +684,16 @@ Generate a draft JSON object.
             created_at=datetime.utcnow(),
         )
 
+    @staticmethod
+    def _extract_constitution(problem_frame: ProblemFrame) -> str:
+        context = getattr(problem_frame, "context", None)
+        if not isinstance(context, dict):
+            return ""
+        value = context.get("policy_constitution")
+        if not isinstance(value, str):
+            return ""
+        return value.strip()
+
 
 class MultiPassLLMDrafter:
     """
@@ -659,6 +717,10 @@ class MultiPassLLMDrafter:
         rag_index: CASRAGIndex | None = None,
         rag_config: RAGConfig | None = None,
         code_verifier: CodeVerificationSandbox | None = None,
+        constitution_generator: ConstitutionGenerator | None = None,
+        knowledge_base: CriticKnowledgeBase | None = None,
+        constitution_norm_pack: NormPack | None = None,
+        constitution_model_spec: ModelSpec | None = None,
     ) -> None:
         self._inner = inner
         self._config = config or MultiPassConfig()
@@ -681,6 +743,17 @@ class MultiPassLLMDrafter:
             self._code_verifier = CodeVerificationSandbox(
                 SandboxConfig(timeout_seconds=self._config.code_verification_timeout_s)
             )
+        self._constitution_gen = constitution_generator or ConstitutionGenerator(
+            max_rules_per_section=self._config.constitution_max_rules_per_section,
+            max_total_rules=self._config.constitution_max_total_rules,
+            max_prompt_chars=self._config.constitution_max_prompt_chars,
+            include_domain_rules=self._config.constitution_include_domain_rules,
+            pitfall_min_occurrences=self._config.constitution_pitfall_min_occurrences,
+        )
+        self._knowledge_base = knowledge_base
+        self._constitution_norm_pack = constitution_norm_pack
+        self._constitution_model_spec = constitution_model_spec
+        self._last_constitution_hash: str | None = None
 
     async def draft_policy(
         self,
@@ -972,6 +1045,41 @@ class MultiPassLLMDrafter:
             },
         ) as span:
             effective_hints = list(hints or [])
+            prepared_problem_frame = problem_frame
+
+            if self._config.constitution_enabled:
+                constitution_started = time.perf_counter()
+                constitution = self._build_constitution(problem_frame)
+                constitution_duration = max(0.0, time.perf_counter() - constitution_started)
+                if constitution is not None:
+                    constitution_text = constitution.to_system_prompt()
+                    self._last_constitution_hash = constitution.compute_hash()
+                    prepared_problem_frame = self._inject_constitution_context(
+                        problem_frame,
+                        constitution=constitution,
+                    )
+                    if prepared_problem_frame is problem_frame:
+                        effective_hints.append(constitution_text)
+                    span.set_attribute(
+                        "polisyos.constitution.hash",
+                        self._last_constitution_hash,
+                    )
+                    span.set_attribute(
+                        "polisyos.constitution.rules_count",
+                        constitution.total_rules,
+                    )
+                    metrics = get_metrics()
+                    metrics.record_constitution_generated(
+                        domain=constitution.domain,
+                        duration_seconds=constitution_duration,
+                        section_counts={
+                            section.section_type: len(section.rules)
+                            for section in constitution.sections
+                        },
+                    )
+                else:
+                    self._last_constitution_hash = None
+
             if self._rag_config.enabled and self._rag_index is not None:
                 rag_results = self._rag_index.search(
                     problem_frame,
@@ -995,7 +1103,7 @@ class MultiPassLLMDrafter:
                         self._frozen_rag_snapshot_ref,
                     )
             draft = await self._inner.draft_policy(
-                problem_frame,
+                prepared_problem_frame,
                 hints=effective_hints or None,
                 prior_drafts=prior_drafts,
             )
@@ -1342,6 +1450,43 @@ class MultiPassLLMDrafter:
             logger.warning("consolidation failed after retries: %s", last_error)
             return self._skipped_pass("consolidation", 4, "pass_error")
 
+    def _build_constitution(self, problem_frame: ProblemFrame) -> PolicyConstitution | None:
+        if not self._config.constitution_enabled:
+            return None
+        try:
+            known_pitfalls = None
+            if (
+                self._config.constitution_enable_pitfalls
+                and self._knowledge_base is not None
+            ):
+                known_pitfalls = self._knowledge_base.get_top_patterns(3)
+            return self._constitution_gen.generate(
+                problem_frame=problem_frame,
+                norm_pack=self._constitution_norm_pack,
+                model_spec=self._constitution_model_spec,
+                known_pitfalls=known_pitfalls,
+            )
+        except Exception as exc:
+            logger.warning("Constitution generation failed, continuing without it: %s", exc)
+            return None
+
+    def _inject_constitution_context(
+        self,
+        problem_frame: ProblemFrame,
+        *,
+        constitution: PolicyConstitution,
+    ) -> ProblemFrame:
+        context = getattr(problem_frame, "context", None)
+        if not isinstance(context, dict):
+            return problem_frame
+        updated_context = dict(context)
+        updated_context["policy_constitution"] = constitution.to_system_prompt()
+        updated_context["policy_constitution_hash"] = constitution.compute_hash()
+        try:
+            return replace(problem_frame, context=updated_context)
+        except Exception:
+            return problem_frame
+
     def _resolve_llm(self, llm_client: Any | None, inner: DrafterAgent) -> Any | None:
         if llm_client is not None:
             return self._normalize_critique_llm(llm_client)
@@ -1613,6 +1758,10 @@ class MultiPassLLMDrafter:
             return "default"
         return str(getattr(self._llm, "_model_name", "default"))
 
+    @property
+    def last_constitution_hash(self) -> str | None:
+        return self._last_constitution_hash
+
     def _finalize(
         self,
         *,
@@ -1678,6 +1827,10 @@ def create_drafter_agent(
     model_name: str | None = None,
     memory: ShortTermMemory | None = None,
     config: MultiPassConfig | None = None,
+    constitution_generator: ConstitutionGenerator | None = None,
+    knowledge_base: CriticKnowledgeBase | None = None,
+    constitution_norm_pack: NormPack | None = None,
+    constitution_model_spec: ModelSpec | None = None,
 ) -> DrafterAgent:
     """
     Build drafter according to feature flag `POLISYOS_DRAFTER_MULTIPASS_MODE`.
@@ -1734,6 +1887,10 @@ def create_drafter_agent(
         rag_index=rag_index,
         rag_config=rag_config,
         code_verifier=verifier,
+        constitution_generator=constitution_generator,
+        knowledge_base=knowledge_base,
+        constitution_norm_pack=constitution_norm_pack,
+        constitution_model_spec=constitution_model_spec,
     )
 
 

@@ -8,6 +8,7 @@ from typing import Any
 __all__ = [
     "artifacts",
     "backends",
+    "cache",
     "canon",
     "components",
     "contracts",
@@ -16,6 +17,7 @@ __all__ = [
     "errors",
     "llm",
     "observability",
+    "pipeline",
     "resilience",
     "registry",
     "run",

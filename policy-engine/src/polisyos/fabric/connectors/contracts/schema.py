@@ -1,8 +1,54 @@
-"""Decomposed module wrapper; implementation moved to `schema_parts`."""
+"""
+Data schema definitions for connector data contracts.
 
-from .schema_parts import *  # noqa: F401,F403
+This module provides the canonical type system that bridges:
+- Pandas DataFrames (data engineering)
+- DuckDB storage (analytical queries)
+- JAX arrays (scientific computing)
 
-try:
-    from .schema_parts import __all__ as __all__
-except ImportError:
-    pass
+Public API is assembled from private sub-modules:
+- _schema_errors:  exception hierarchy
+- _schema_types:   SchemaType, SemanticType, Additivity, TimeGranularity, GeoGranularity
+- _schema_field:   SchemaVersion, FieldSpec, FIELD_NAME_PATTERN
+- _schema_core:    DataSchema
+"""
+
+from polisyos.fabric.connectors.contracts._schema_core import DataSchema
+from polisyos.fabric.connectors.contracts._schema_errors import (
+    JaxTypeError,
+    SchemaCompatibilityError,
+    SchemaError,
+    TypeCoercionError,
+)
+from polisyos.fabric.connectors.contracts._schema_field import (
+    FIELD_NAME_PATTERN,
+    FieldSpec,
+    SchemaVersion,
+)
+from polisyos.fabric.connectors.contracts._schema_types import (
+    Additivity,
+    GeoGranularity,
+    SchemaType,
+    SemanticType,
+    TimeGranularity,
+)
+
+__all__ = [
+    # Types / enums
+    "Additivity",
+    "GeoGranularity",
+    "SchemaType",
+    "SemanticType",
+    "TimeGranularity",
+    # Errors
+    "JaxTypeError",
+    "SchemaCompatibilityError",
+    "SchemaError",
+    "TypeCoercionError",
+    # Versioning & field spec
+    "FIELD_NAME_PATTERN",
+    "FieldSpec",
+    "SchemaVersion",
+    # Core schema
+    "DataSchema",
+]

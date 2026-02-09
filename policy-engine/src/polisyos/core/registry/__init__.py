@@ -2,9 +2,12 @@ from __future__ import annotations
 
 from typing import Any
 
+from .base import BaseRegistry, DuplicateDecision
 from .generic import GenericRegistry, GenericRegistrySnapshot
 
 __all__ = [
+    "BaseRegistry",
+    "DuplicateDecision",
     "RegistryBundleContent",
     "FragmentPrecedencePolicy",
     "build_default_registry_bundle",

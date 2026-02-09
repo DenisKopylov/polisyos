@@ -6,7 +6,6 @@ inspired by fabric/udf/passes, but operating on DataFrames instead of queries.
 """
 from __future__ import annotations
 
-import graphlib
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
@@ -15,6 +14,11 @@ from typing import Any, Callable, Sequence
 
 import pandas as pd
 
+from polisyos.core.pipeline import (
+    DagPipeline as CoreDagPipeline,
+    PipelineCycleError,
+    UnknownStageError,
+)
 from polisyos.fabric.connectors.contracts.schema import DataSchema
 
 __all__ = [
@@ -222,44 +226,6 @@ class TransformStage:
 
 
 # =============================================================================
-# DAG Backend (stdlib graphlib)
-# =============================================================================
-
-
-class DagBackend:
-    """Minimal DAG backend using stdlib graphlib for stable ordering."""
-
-    def __init__(self) -> None:
-        self._deps: dict[str, list[str]] = {}
-
-    def add_node(self, name: str) -> None:
-        if name not in self._deps:
-            self._deps[name] = []
-
-    def add_edge(self, dependency: str, node: str) -> None:
-        if node not in self._deps:
-            self._deps[node] = []
-        self._deps[node].append(dependency)
-
-    def has_node(self, name: str) -> bool:
-        return name in self._deps
-
-    def nodes(self) -> list[str]:
-        return list(self._deps.keys())
-
-    def topological_sort(self) -> list[str]:
-        try:
-            sorter = graphlib.TopologicalSorter(self._deps)
-            return list(sorter.static_order())
-        except graphlib.CycleError as exc:
-            cycle = exc.args[1] if len(exc.args) > 1 else []
-            raise TransformError(
-                f"Pipeline contains cycles: {cycle}. "
-                "Transformations must form a directed acyclic graph."
-            ) from exc
-
-
-# =============================================================================
 # Pipeline Builder
 # =============================================================================
 
@@ -274,7 +240,7 @@ class TransformPipeline:
 
     def __init__(self, *, auto_chain: bool = True) -> None:
         self._stages: list[TransformStage] = []
-        self._graph = DagBackend()
+        self._graph = CoreDagPipeline[TransformStage](auto_chain=False)
         self._compiled: CompiledPipeline | None = None
         self._auto_chain = auto_chain
         self._tail: list[str] = []
@@ -323,12 +289,8 @@ class TransformPipeline:
             dependencies=resolved_deps,
             order_index=len(self._stages),
         )
-
         self._stages.append(stage)
-        self._graph.add_node(stage_name)
-
-        for dep in stage.dependencies:
-            self._graph.add_edge(dep, stage_name)
+        self._graph.add_stage(stage, name=stage_name, depends_on=stage.dependencies)
 
         self._compiled = None
         self._tail = [stage_name]
@@ -523,9 +485,13 @@ class TransformPipeline:
         if self._compiled is not None:
             return self._compiled
 
-        execution_order = self._graph.topological_sort()
-        stages = {stage.name: stage for stage in self._stages}
-        ordered_stages = [stages[name] for name in execution_order]
+        try:
+            compiled = self._graph.compile()
+        except (PipelineCycleError, UnknownStageError) as exc:
+            raise TransformError(str(exc)) from exc
+
+        ordered_stages = [stage.stage for stage in compiled.stages]
+        execution_order = list(compiled.execution_order)
 
         self._compiled = CompiledPipeline(
             stages=ordered_stages,

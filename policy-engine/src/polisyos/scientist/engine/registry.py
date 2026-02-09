@@ -3,25 +3,23 @@ from __future__ import annotations
 from typing import Iterable
 
 from polisyos.core.components import (
+    ENTRY_POINT_GROUP_SCIENTIST_NODES,
     Capability,
     ComponentId,
     ComponentKind,
-    ComponentMetadata,
-    ENTRY_POINT_GROUP_SCIENTIST_NODES,
     discover_components,
 )
 from polisyos.core.components.protocols import ComponentProvider
-from polisyos.core.registry.generic import GenericRegistry
-
+from polisyos.core.registry import BaseRegistry
 from polisyos.scientist.engine.errors import UnknownNodeError
 from polisyos.scientist.engine.protocol import Node, NodeSpec
 
 
-class NodeRegistry:
+class NodeRegistry(BaseRegistry[str, Node]):
     """In-process registry for Scientist nodes."""
 
     def __init__(self) -> None:
-        self._nodes = GenericRegistry[str, Node](
+        super().__init__(
             key_fn=lambda node: str(node.spec.metadata.component_id),
             indexers={
                 "component_key": lambda node: self._component_key(node.spec.metadata.component_id),
@@ -45,9 +43,9 @@ class NodeRegistry:
         node_id_str = str(node_id)
         component_key = self._component_key(node_id)
 
-        if self._nodes.get(node_id_str) is not None:
+        if super().get(node_id_str) is not None:
             raise ValueError(f"Duplicate node_id: {node_id_str}")
-        component_versions = self._nodes.find("component_key", component_key)
+        component_versions = self.find("component_key", component_key)
         if component_versions and any(
             str(row.spec.metadata.component_id) != node_id_str for row in component_versions
         ):
@@ -56,7 +54,7 @@ class NodeRegistry:
                 f"Conflicting node versions for {component_key}: {existing} vs {node_id_str}"
             )
 
-        self._nodes.register(node)
+        super().register(node)
 
     def register_provider(self, provider: ComponentProvider) -> None:
         metadata = provider.metadata
@@ -68,12 +66,15 @@ class NodeRegistry:
         if not isinstance(node, Node):
             raise TypeError("ComponentProvider.create() must return a Node instance")
         if str(metadata.component_id) != str(node.spec.metadata.component_id):
-            raise ValueError("Provider metadata component_id must match node.spec.metadata.component_id")
+            raise ValueError(
+                "Provider metadata component_id must match "
+                "node.spec.metadata.component_id"
+            )
         self.register(node)
 
     def get(self, node_id: ComponentId | str) -> Node:
         comp = ComponentId.parse(node_id) if isinstance(node_id, str) else node_id
-        node = self._nodes.get(str(comp))
+        node = super().get(str(comp))
         if node is None:
             raise UnknownNodeError(f"Unknown node_id: {comp}")
         return node
@@ -84,11 +85,14 @@ class NodeRegistry:
         capability: Capability | None = None,
         tag: str | None = None,
     ) -> list[NodeSpec]:
-        items: Iterable[Node] = self._nodes.values()
+        items: Iterable[Node] = self.values()
         results: list[NodeSpec] = []
         for node in items:
             spec = node.spec
-            if capability is not None and not (spec.metadata.capabilities & capability) == capability:
+            if (
+                capability is not None
+                and not (spec.metadata.capabilities & capability) == capability
+            ):
                 continue
             if tag is not None and tag not in spec.metadata.tags:
                 continue

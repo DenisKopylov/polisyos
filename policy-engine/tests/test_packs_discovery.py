@@ -63,28 +63,56 @@ def test_pack_install_like_import_dev_scan() -> None:
 def test_pack_discovery_entry_points_equivalent(monkeypatch) -> None:
     by_group = {
         ENTRY_POINT_GROUP_IR_FRAGMENTS: [
-            _FakeEntryPoint(group=ENTRY_POINT_GROUP_IR_FRAGMENTS, name="roads.ir", loader=lambda: roads_ir_fragment_component),
-            _FakeEntryPoint(group=ENTRY_POINT_GROUP_IR_FRAGMENTS, name="econ.ir", loader=lambda: econ_ir_fragment_component),
+            _FakeEntryPoint(
+                group=ENTRY_POINT_GROUP_IR_FRAGMENTS,
+                name="roads.ir",
+                loader=lambda: roads_ir_fragment_component,
+            ),
+            _FakeEntryPoint(
+                group=ENTRY_POINT_GROUP_IR_FRAGMENTS,
+                name="econ.ir",
+                loader=lambda: econ_ir_fragment_component,
+            ),
         ],
         ENTRY_POINT_GROUP_FOUNDRY_METHODS: [
-            _FakeEntryPoint(group=ENTRY_POINT_GROUP_FOUNDRY_METHODS, name="roads.method", loader=lambda: roads_method_component),
+            _FakeEntryPoint(
+                group=ENTRY_POINT_GROUP_FOUNDRY_METHODS,
+                name="roads.method",
+                loader=lambda: roads_method_component,
+            ),
         ],
         ENTRY_POINT_GROUP_SCHOLAR_EXTRACTORS: [
-            _FakeEntryPoint(group=ENTRY_POINT_GROUP_SCHOLAR_EXTRACTORS, name="roads.scholar", loader=lambda: roads_extractor_component),
+            _FakeEntryPoint(
+                group=ENTRY_POINT_GROUP_SCHOLAR_EXTRACTORS,
+                name="roads.scholar",
+                loader=lambda: roads_extractor_component,
+            ),
         ],
         ENTRY_POINT_GROUP_LEX_EXTRACTORS: [
-            _FakeEntryPoint(group=ENTRY_POINT_GROUP_LEX_EXTRACTORS, name="roads.lex", loader=lambda: lex_norm_regex_extractor_component),
+            _FakeEntryPoint(
+                group=ENTRY_POINT_GROUP_LEX_EXTRACTORS,
+                name="roads.lex",
+                loader=lambda: lex_norm_regex_extractor_component,
+            ),
         ],
         ENTRY_POINT_GROUP_LEX_EVALUATORS: [
-            _FakeEntryPoint(group=ENTRY_POINT_GROUP_LEX_EVALUATORS, name="roads.eval", loader=lambda: lex_simple_evaluator_component),
+            _FakeEntryPoint(
+                group=ENTRY_POINT_GROUP_LEX_EVALUATORS,
+                name="roads.eval",
+                loader=lambda: lex_simple_evaluator_component,
+            ),
         ],
         ENTRY_POINT_GROUP_NORM_PACK_PROVIDERS: [
-            _FakeEntryPoint(group=ENTRY_POINT_GROUP_NORM_PACK_PROVIDERS, name="roads.provider", loader=lambda: roads_norms_provider_component),
+            _FakeEntryPoint(
+                group=ENTRY_POINT_GROUP_NORM_PACK_PROVIDERS,
+                name="roads.provider",
+                loader=lambda: roads_norms_provider_component,
+            ),
         ],
     }
 
     monkeypatch.setattr(
-        "polisyos.core.components.discovery.metadata.entry_points",
+        "polisyos.core.discovery.base.metadata.entry_points",
         lambda: _FakeEntryPoints(by_group),
     )
 
@@ -94,8 +122,14 @@ def test_pack_discovery_entry_points_equivalent(monkeypatch) -> None:
     packs_root = repo_root / "src" / "polisyos" / "packs"
     dev_report = discover_components(groups=[], include_dev_scan=True, dev_scan_paths=[packs_root])
 
-    entry_set = {(str(item.metadata.component_id), item.metadata.kind.value) for item in entry_report.components}
-    dev_set = {(str(item.metadata.component_id), item.metadata.kind.value) for item in dev_report.components}
+    entry_set = {
+        (str(item.metadata.component_id), item.metadata.kind.value)
+        for item in entry_report.components
+    }
+    dev_set = {
+        (str(item.metadata.component_id), item.metadata.kind.value)
+        for item in dev_report.components
+    }
 
     # Entry-points in this test cover the same built-in components subset.
     assert entry_set.issubset(dev_set)

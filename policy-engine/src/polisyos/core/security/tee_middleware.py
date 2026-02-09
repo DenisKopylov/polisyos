@@ -3,6 +3,7 @@ from __future__ import annotations
 import os
 import time
 
+from polisyos.core.cache import TTLCache
 from polisyos.core.observability import get_metrics
 from polisyos.core.security.settings import SecuritySettings, get_security_settings
 from polisyos.core.security.tee import (
@@ -36,7 +37,10 @@ class TEEGatekeeper:
         self._enforce_tiers = frozenset(item.strip().lower() for item in enforce_tiers)
         self._verifier = verifier
         self._cache_ttl_seconds = max(0, cache_ttl_seconds)
-        self._cache: dict[str, tuple[AttestationResult, float]] = {}
+        self._cache = TTLCache[str, AttestationResult](
+            ttl_seconds=float(self._cache_ttl_seconds),
+            time_fn=time.monotonic,
+        )
 
     @classmethod
     def from_settings(
@@ -85,10 +89,9 @@ class TEEGatekeeper:
             return result
 
         cache_key = (node_id or os.getenv("HOSTNAME") or "default-node").strip()
-        cached = self._cache.get(cache_key)
-        now = time.monotonic()
-        if cached is not None and (now - cached[1]) < self._cache_ttl_seconds:
-            cached_result = cached[0].model_copy(update={"cached": True})
+        cached_result_raw = self._cache.get(cache_key)
+        if cached_result_raw is not None:
+            cached_result = cached_result_raw.model_copy(update={"cached": True})
             platform_label = cached_result.platform.value if cached_result.platform else "unknown"
             metrics.record_tee_attestation_cache_hit(platform=platform_label)
             metrics.record_tee_attestation(platform=platform_label, outcome="cache_hit")
@@ -109,7 +112,7 @@ class TEEGatekeeper:
             )
             result = AttestationResult(status=status, errors=[str(exc)])
 
-        self._cache[cache_key] = (result, now)
+        self._cache.set(cache_key, result)
         platform_label = result.platform.value if result.platform else "unknown"
         metrics.record_tee_attestation(platform=platform_label, outcome=result.status.value)
         metrics.record_tee_attestation_duration(

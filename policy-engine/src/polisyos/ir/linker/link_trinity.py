@@ -1,8 +1,16 @@
-"""Decomposed module wrapper; implementation moved to `link_trinity_parts`."""
+"""Trinity linker — binds interventions, mechanisms and constraints into a linked bundle."""
+from __future__ import annotations
 
-from .link_trinity_parts import *  # noqa: F401,F403
+from polisyos.ir.linker._trinity_models import (
+    LinkedIntervention,
+    LinkedTrinityBundle,
+    TrinityBindings,
+)
+from polisyos.ir.linker._trinity_linker import link_trinity
 
-try:
-    from .link_trinity_parts import __all__ as __all__
-except ImportError:
-    pass
+__all__ = [
+    "LinkedIntervention",
+    "LinkedTrinityBundle",
+    "TrinityBindings",
+    "link_trinity",
+]

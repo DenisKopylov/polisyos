@@ -46,9 +46,9 @@ from __future__ import annotations
 import threading
 from dataclasses import dataclass, field
 from functools import cmp_to_key
-from typing import Any, Callable, Iterator, Mapping, Sequence
+from typing import Any, Callable, Iterator, Mapping
 
-from polisyos.core.registry.generic import GenericRegistry
+from polisyos.core.registry import BaseRegistry
 from polisyos.foundry.methods.base import (
     FoundryMethod,
     MethodMetadata,
@@ -103,6 +103,30 @@ class MethodEntry:
     def fqn(self) -> str:
         """Convenience accessor for entry's FQN."""
         return self.signature.fqn
+
+
+class _MethodEntryStore(BaseRegistry[str, MethodEntry]):
+    def __init__(self) -> None:
+        super().__init__(
+            key_fn=lambda entry: entry.fqn,
+            indexers={
+                "name": lambda entry: entry.signature.name,
+                "namespace": lambda entry: entry.signature.namespace,
+                "tag": lambda entry: entry.metadata.tags,
+                "input_slot": lambda entry: [slot.name for slot in entry.signature.input_slots],
+                "output_slot": lambda entry: [slot.name for slot in entry.signature.output_slots],
+                "base_name": lambda entry: f"{entry.signature.namespace}.{entry.signature.name}",
+            },
+        )
+
+    def duplicate_error(
+        self,
+        *,
+        key: str,
+        existing: MethodEntry,
+        incoming: MethodEntry,
+    ) -> Exception:
+        return MethodAlreadyRegisteredError(key)
 
 
 class RegistrySnapshot:
@@ -172,17 +196,7 @@ class MethodRegistry:
 
     def _initialize(self) -> None:
         """Initialize registry state (called once during singleton creation)."""
-        self._entries = GenericRegistry[str, MethodEntry](
-            key_fn=lambda entry: entry.fqn,
-            indexers={
-                "name": lambda entry: entry.signature.name,
-                "namespace": lambda entry: entry.signature.namespace,
-                "tag": lambda entry: entry.metadata.tags,
-                "input_slot": lambda entry: [slot.name for slot in entry.signature.input_slots],
-                "output_slot": lambda entry: [slot.name for slot in entry.signature.output_slots],
-                "base_name": lambda entry: f"{entry.signature.namespace}.{entry.signature.name}",
-            },
-        )
+        self._entries = _MethodEntryStore()
 
         self._default_policy: ResolutionPolicy = ResolutionPolicy.EXACT
 
@@ -279,9 +293,6 @@ class MethodRegistry:
         fqn = sig.fqn
 
         with self._reg_lock:
-            if self._entries.get(fqn) is not None and not override:
-                raise MethodAlreadyRegisteredError(fqn)
-
             entry = MethodEntry(
                 signature=sig,
                 metadata=meta,
@@ -325,9 +336,6 @@ class MethodRegistry:
         fqn = signature.fqn
 
         with self._reg_lock:
-            if self._entries.get(fqn) is not None and not override:
-                raise MethodAlreadyRegisteredError(fqn)
-
             entry = MethodEntry(
                 signature=signature,
                 metadata=metadata,
@@ -621,7 +629,10 @@ class MethodRegistry:
             List of MethodSignature, sorted by FQN
         """
         with self._reg_lock:
-            return [entry.signature for _, entry in sorted(self._entries.items(), key=lambda row: row[0])]
+            return [
+                entry.signature
+                for _, entry in sorted(self._entries.items(), key=lambda row: row[0])
+            ]
 
     def list_versions(self, base_name: str) -> list[str]:
         """

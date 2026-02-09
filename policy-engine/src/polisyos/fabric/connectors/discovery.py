@@ -15,7 +15,6 @@ Design Goals:
 from __future__ import annotations
 
 import importlib
-import importlib.util
 import os
 import sys
 from dataclasses import dataclass, field
@@ -23,8 +22,12 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import TYPE_CHECKING, Iterator, Sequence
 
-from polisyos.core.discovery import discovery_module_name, list_entry_points
 from polisyos.common.logger import get_logger
+from polisyos.core.discovery import (
+    discovery_module_name,
+    list_entry_points,
+    load_module_from_file,
+)
 
 if TYPE_CHECKING:
     from polisyos.fabric.connectors.base import SourceConnector
@@ -367,13 +370,7 @@ class ConnectorDiscovery:
         module_name = self._unique_module_name(file_path)
 
         try:
-            spec = importlib.util.spec_from_file_location(module_name, file_path)
-            if spec is None or spec.loader is None:
-                return
-
-            module = importlib.util.module_from_spec(spec)
-            sys.modules[module_name] = module
-            spec.loader.exec_module(module)
+            module = load_module_from_file(file_path, module_name=module_name)
 
             for name in dir(module):
                 obj = getattr(module, name)
@@ -407,6 +404,8 @@ class ConnectorDiscovery:
                 file=str(file_path),
                 error=str(e),
             )
+        finally:
+            sys.modules.pop(module_name, None)
 
     def _unique_module_name(self, file_path: Path) -> str:
         """Generate a unique module name to avoid sys.modules collisions."""

@@ -8,6 +8,7 @@
 core/
 ├── artifacts/      # CAS хранилище, подписи Ed25519, environment manifests, dependency graph
 ├── audit/          # Сборка и верификация портативных аудит-пакетов (W3C PROV-JSON)
+├── cache/          # Единые in-memory кэши: Cache protocol, LRU, TTL
 ├── canon/          # Детерминированная JSON-сериализация (Decimal, datetime, запрет float)
 ├── compiler/       # Структуры отчетов компиляции/линковки политик
 ├── components/     # Component Model v1: identity, discovery, registry, compliance

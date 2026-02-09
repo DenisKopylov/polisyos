@@ -85,7 +85,7 @@ def test_discovery_entry_points_loads_components(monkeypatch) -> None:
     )
 
     monkeypatch.setattr(
-        "polisyos.core.components.discovery.metadata.entry_points",
+        "polisyos.core.discovery.base.metadata.entry_points",
         lambda: entry_points,
     )
 

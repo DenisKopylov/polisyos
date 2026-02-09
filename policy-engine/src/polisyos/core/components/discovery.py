@@ -1,14 +1,19 @@
 from __future__ import annotations
 
-import importlib.util
 import os
 import sys
 from dataclasses import dataclass, field
-from importlib import metadata
 from pathlib import Path
-from typing import Any, Iterable, Sequence
+from typing import Any, Iterable, Iterator, Sequence
 
-from polisyos.core.discovery import DuplicatePolicy, discovery_module_name
+from polisyos.core.discovery import (
+    BaseDiscovery,
+    DuplicatePolicy,
+    discovery_module_name,
+    format_traceback,
+    list_entry_points,
+    load_module_from_file,
+)
 
 from .metadata import ComponentKind
 from .protocols import Component
@@ -88,6 +93,42 @@ class DiscoveryReport:
         return len(self.errors) == 0
 
 
+@dataclass(slots=True)
+class _EntryPointSource:
+    group: str
+    errors: list[DiscoveryError] = field(default_factory=list)
+
+    def discover(self) -> Iterator[DiscoveredComponent]:
+        self.errors.clear()
+        return iter(_discover_group(group=self.group, errors=self.errors))
+
+
+@dataclass(slots=True)
+class _DevPathSource:
+    path: Path
+    errors: list[DiscoveryError] = field(default_factory=list)
+
+    def discover(self) -> Iterator[DiscoveredComponent]:
+        self.errors.clear()
+        return iter(_discover_dev_path(self.path, errors=self.errors))
+
+
+def _source_kind(source: object) -> str:
+    if isinstance(source, _EntryPointSource):
+        return "entry_point"
+    if isinstance(source, _DevPathSource):
+        return "dev_scan"
+    return type(source).__name__
+
+
+def _source_location(source: object) -> str | None:
+    if isinstance(source, _EntryPointSource):
+        return source.group
+    if isinstance(source, _DevPathSource):
+        return str(source.path)
+    return None
+
+
 def discover_components(
     *,
     groups: Sequence[str] | None = None,
@@ -103,11 +144,30 @@ def discover_components(
     if include_legacy_group and LEGACY_ENTRY_POINT_GROUP not in selected_groups:
         selected_groups.append(LEGACY_ENTRY_POINT_GROUP)
 
-    index: dict[str, DiscoveredComponent] = {}
+    sources: list[_EntryPointSource | _DevPathSource] = [
+        _EntryPointSource(group=group) for group in selected_groups
+    ]
+    if include_dev_scan:
+        paths = list(dev_scan_paths) if dev_scan_paths is not None else _default_dev_scan_paths()
+        sources.extend(_DevPathSource(path=Path(base)) for base in paths)
 
-    for group in selected_groups:
-        report.sources_processed += 1
-        for discovered in _discover_group(group=group, report=report):
+    index: dict[str, DiscoveredComponent] = {}
+    collector = BaseDiscovery[DiscoveredComponent, DiscoveryError](
+        sources=sources,
+        on_source_error=lambda source, exc: DiscoveryError(
+            source=_source_kind(source),
+            item=_source_location(source),
+            error_type=type(exc).__name__,
+            message=str(exc),
+            details={"traceback": format_traceback()},
+        ),
+    )
+    batches, sources_processed = collector.collect()
+    report.sources_processed = sources_processed
+
+    for batch in batches:
+        report.errors.extend(batch.errors)
+        for discovered in batch.items:
             _register_discovered(
                 discovered,
                 index=index,
@@ -116,22 +176,13 @@ def discover_components(
                 duplicate_policy=duplicate_policy,
             )
 
-    if include_dev_scan:
-        paths = list(dev_scan_paths) if dev_scan_paths is not None else _default_dev_scan_paths()
-        for base in paths:
-            report.sources_processed += 1
-            for discovered in _discover_dev_path(Path(base), report=report):
-                _register_discovered(
-                    discovered,
-                    index=index,
-                    report=report,
-                    precedence=precedence_policy,
-                    duplicate_policy=duplicate_policy,
-                )
-
     report.components = sorted(
         index.values(),
-        key=lambda item: (str(item.metadata.component_id), item.source.source_type, item.source.location),
+        key=lambda item: (
+            str(item.metadata.component_id),
+            item.source.source_type,
+            item.source.location,
+        ),
     )
     return report
 
@@ -227,15 +278,14 @@ def _choose_preferred(
     return left
 
 
-def _discover_group(*, group: str, report: DiscoveryReport) -> list[DiscoveredComponent]:
+def _discover_group(*, group: str, errors: list[DiscoveryError]) -> list[DiscoveredComponent]:
     discovered: list[DiscoveredComponent] = []
     expected_kind = ENTRY_POINT_KIND_BY_GROUP.get(group)
 
     try:
-        eps = metadata.entry_points()
-        group_eps = eps.select(group=group) if hasattr(eps, "select") else eps.get(group, [])
+        group_eps = list_entry_points(group=group)
     except Exception as exc:
-        report.errors.append(
+        errors.append(
             DiscoveryError(
                 source="entry_point",
                 item=group,
@@ -255,7 +305,7 @@ def _discover_group(*, group: str, report: DiscoveryReport) -> list[DiscoveredCo
         try:
             loaded = ep.load()
         except Exception as exc:
-            report.errors.append(
+            errors.append(
                 DiscoveryError(
                     source="entry_point",
                     item=ep.name,
@@ -268,7 +318,7 @@ def _discover_group(*, group: str, report: DiscoveryReport) -> list[DiscoveredCo
 
         component = _materialize_component(loaded)
         if component is None:
-            report.errors.append(
+            errors.append(
                 DiscoveryError(
                     source="entry_point",
                     item=ep.name,
@@ -281,7 +331,7 @@ def _discover_group(*, group: str, report: DiscoveryReport) -> list[DiscoveredCo
 
         metadata_obj = component.metadata
         if expected_kind is not None and metadata_obj.kind != expected_kind:
-            report.errors.append(
+            errors.append(
                 DiscoveryError(
                     source="entry_point",
                     item=ep.name,
@@ -323,7 +373,7 @@ def _default_dev_scan_paths() -> list[Path]:
     return list(unique.keys())
 
 
-def _discover_dev_path(path: Path, *, report: DiscoveryReport) -> list[DiscoveredComponent]:
+def _discover_dev_path(path: Path, *, errors: list[DiscoveryError]) -> list[DiscoveredComponent]:
     discovered: list[DiscoveredComponent] = []
 
     candidates: list[Path] = []
@@ -342,13 +392,13 @@ def _discover_dev_path(path: Path, *, report: DiscoveryReport) -> list[Discovere
             location=str(components_file),
         )
         module_name = _module_name_for_path(components_file)
-        module = _load_module_from_file(components_file, module_name=module_name, report=report)
+        module = _load_module_from_file(components_file, module_name=module_name, errors=errors)
         if module is None:
             continue
 
         declared = getattr(module, "__polisyos_components__", None)
         if not isinstance(declared, Iterable):
-            report.errors.append(
+            errors.append(
                 DiscoveryError(
                     source="dev_scan",
                     item=str(components_file),
@@ -361,7 +411,7 @@ def _discover_dev_path(path: Path, *, report: DiscoveryReport) -> list[Discovere
         for idx, item in enumerate(declared):
             component = _materialize_component(item)
             if component is None:
-                report.errors.append(
+                errors.append(
                     DiscoveryError(
                         source="dev_scan",
                         item=f"{components_file}:{idx}",
@@ -390,30 +440,22 @@ def _module_name_for_path(path: Path) -> str:
     )
 
 
-def _load_module_from_file(path: Path, *, module_name: str, report: DiscoveryReport) -> Any | None:
-    spec = importlib.util.spec_from_file_location(module_name, path)
-    if spec is None or spec.loader is None:
-        report.errors.append(
-            DiscoveryError(
-                source="dev_scan",
-                item=str(path),
-                error_type="ImportSpecError",
-                message="failed to create module spec",
-            )
-        )
-        return None
-
-    module = importlib.util.module_from_spec(spec)
+def _load_module_from_file(
+    path: Path,
+    *,
+    module_name: str,
+    errors: list[DiscoveryError],
+) -> Any | None:
     try:
-        sys.modules[module_name] = module
-        spec.loader.exec_module(module)
+        module = load_module_from_file(path, module_name=module_name)
     except Exception as exc:
-        report.errors.append(
+        errors.append(
             DiscoveryError(
                 source="dev_scan",
                 item=str(path),
                 error_type=type(exc).__name__,
                 message=str(exc),
+                details={"traceback": format_traceback()},
             )
         )
         return None

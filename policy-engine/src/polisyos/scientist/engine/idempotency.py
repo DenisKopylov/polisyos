@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-from collections import OrderedDict
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -12,6 +11,7 @@ from polisyos.common.serialization import to_python_data
 from polisyos.common.timestamps import utc_now
 from polisyos.core.artifacts.manifest import ArtifactRef, ProducerInfo, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.cache import LRUCache
 from polisyos.core.canon import CanonSpec, content_hash, from_canonical_bytes, to_canonical_bytes
 from polisyos.scientist.engine.protocol import NodeOutcome, NodeSpec
 from polisyos.scientist.engine.state import ExperimentState
@@ -102,7 +102,7 @@ class NodeResultCache:
         self._store = store
         self._run_id = run_id
         self._max_entries = max_entries
-        self._index: OrderedDict[str, ArtifactRef] = OrderedDict()
+        self._index: LRUCache[str, ArtifactRef] = LRUCache(max_size=max_entries)
 
     @property
     def run_id(self) -> str:
@@ -119,13 +119,7 @@ class NodeResultCache:
         self._index.clear()
 
     def prune(self, max_entries: int) -> int:
-        if max_entries < 0:
-            raise ValueError("max_entries must be >= 0")
-        removed = 0
-        while len(self._index) > max_entries:
-            self._index.popitem(last=False)
-            removed += 1
-        return removed
+        return self._index.prune(max_entries)
 
     def get(self, key: str) -> NodeOutcome | None:
         outcome_ref = self._index.get(key)
@@ -135,9 +129,8 @@ class NodeResultCache:
             payload = from_canonical_bytes(self._store.get_bytes(outcome_ref.artifact_id))
             outcome = NodeOutcome.model_validate(payload)
         except Exception:
-            self._index.pop(key, None)
+            self._index.delete(key)
             return None
-        self._index.move_to_end(key, last=True)
         return outcome
 
     def put(self, key: str, node_id: str, outcome: NodeOutcome) -> ArtifactRef:
@@ -165,8 +158,7 @@ class NodeResultCache:
                 producer=ProducerInfo(component="scientist.engine.idempotency", version="1.0.0"),
             ),
         )
-        self._index[key] = outcome_ref
-        self._index.move_to_end(key, last=True)
+        self._index.set(key, outcome_ref)
         if self._max_entries is not None:
             self.prune(self._max_entries)
         return entry_ref
@@ -176,8 +168,7 @@ class NodeResultCache:
         entry = NodeCacheEntry.model_validate(payload)
         if entry.run_id != self._run_id:
             return False
-        self._index[entry.idempotency_key] = entry.outcome_ref
-        self._index.move_to_end(entry.idempotency_key, last=True)
+        self._index.set(entry.idempotency_key, entry.outcome_ref)
         if self._max_entries is not None:
             self.prune(self._max_entries)
         return True

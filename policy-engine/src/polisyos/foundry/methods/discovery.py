@@ -678,30 +678,6 @@ class MethodDiscovery:
 
         return report
 
-    def _process_source(self, source: DiscoverySource) -> DiscoveryReport:
-        report = DiscoveryReport()
-
-        try:
-            for method_class in source.discover():
-                self._register_method(method_class, report)
-        except Exception as exc:
-            report.errors.append(
-                DiscoveryError(
-                    source="source",
-                    item=type(source).__name__,
-                    error_type=type(exc).__name__,
-                    message=str(exc),
-                    traceback=format_traceback(),
-                )
-            )
-            _logger.error("Source error (%s): %s", type(source).__name__, exc)
-        finally:
-            source_errors = getattr(source, "errors", None)
-            if source_errors:
-                report.errors.extend(source_errors)
-
-        return report
-
     def _register_method(
         self,
         method_class: type[FoundryMethod],

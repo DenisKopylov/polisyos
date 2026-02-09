@@ -27,3 +27,5 @@ logs/
 
 # Test runs (keep local, do not commit)
 runs/
+
+.polisyos/

@@ -9,6 +9,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any
 
+from polisyos.core.cache import TTLCache
 from polisyos.core.canon import truncated_hash
 from polisyos.core.observability import get_metrics
 from polisyos.core.security.access_scope import AccessScope
@@ -202,7 +203,11 @@ class OPAClient:
         self._cache_ttl = max(cache_ttl_seconds, 0.0)
         self._timeout = max(timeout_seconds, 0.1)
 
-        self._cache: dict[str, tuple[float, AuthzResult]] = {}
+        self._cache = TTLCache[str, AuthzResult](
+            ttl_seconds=self._cache_ttl,
+            max_size=self._cache_max_size,
+            time_fn=time.monotonic,
+        )
         self._session: Any = None
         self._lock = asyncio.Lock()
 
@@ -216,11 +221,9 @@ class OPAClient:
 
     async def check(self, authz_input: AuthzInput) -> AuthzResult:
         cache_key = authz_input.cache_key()
-        now = time.monotonic()
-
         cached = self._cache.get(cache_key)
-        if cached is not None and (now - cached[0]) < self._cache_ttl:
-            result = cached[1]
+        if cached is not None:
+            result = cached
             get_metrics().record_authz_cache_hit(policy=self._policy_path)
             return AuthzResult(
                 decision=result.decision,
@@ -287,10 +290,7 @@ class OPAClient:
         if self._cache_ttl <= 0.0:
             return
         async with self._lock:
-            if len(self._cache) >= self._cache_max_size:
-                oldest = min(self._cache.items(), key=lambda item: item[1][0])[0]
-                self._cache.pop(oldest, None)
-            self._cache[key] = (time.monotonic(), value)
+            self._cache.set(key, value)
 
     async def _query_opa(self, authz_input: AuthzInput) -> dict[str, Any]:
         await self._ensure_session()

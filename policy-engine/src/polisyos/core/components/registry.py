@@ -2,9 +2,9 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from enum import Enum
-from typing import Iterable, Sequence
+from typing import Sequence
 
-from polisyos.core.registry.generic import GenericRegistry
+from polisyos.core.registry import BaseRegistry
 
 from .capabilities import Capability
 from .ids import ComponentId, SemVer, SemverRange
@@ -36,11 +36,11 @@ class ComponentEntry:
     source: object | None = None
 
 
-class ComponentRegistry:
+class ComponentRegistry(BaseRegistry[str, ComponentEntry]):
     """Multi-version registry for discovered components."""
 
     def __init__(self) -> None:
-        self._entries = GenericRegistry[str, ComponentEntry](
+        super().__init__(
             key_fn=lambda entry: str(entry.metadata.component_id),
             indexers={
                 "base_id": lambda entry: entry.metadata.component_id.base_id,
@@ -60,14 +60,14 @@ class ComponentRegistry:
     ) -> None:
         component_id = str(entry.metadata.component_id)
 
-        existing = self._entries.get(component_id)
+        existing = self.get(component_id)
         if existing is None:
-            self._entries.register(entry)
+            super().register(entry)
             return
 
         precedence = source_precedence or SourcePrecedencePolicy()
         if _should_replace(existing=existing, incoming=entry, precedence=precedence):
-            self._entries.register(entry, override=True)
+            super().register(entry, override=True)
             return
 
         if on_duplicate == DuplicateComponentIdPolicy.IGNORE:
@@ -78,12 +78,12 @@ class ComponentRegistry:
 
     def list_all(self) -> list[ComponentEntry]:
         rows: list[ComponentEntry] = []
-        for base_id in sorted(str(value) for value in self._entries.index_values("base_id")):
+        for base_id in sorted(str(value) for value in self.index_values("base_id")):
             rows.extend(self.list(base_id))
         return rows
 
     def list(self, base_id: str) -> list[ComponentEntry]:
-        rows = self._entries.find("base_id", base_id)
+        rows = self.find("base_id", base_id)
         return sorted(
             rows,
             key=lambda entry: _version_sort_key(entry.metadata.component_id.version),
@@ -92,7 +92,7 @@ class ComponentRegistry:
 
     def get(self, component_id: ComponentId | str) -> ComponentEntry | None:
         comp = ComponentId.parse(component_id) if isinstance(component_id, str) else component_id
-        return self._entries.get(str(comp))
+        return super().get(str(comp))
 
     def resolve(
         self,
@@ -112,9 +112,13 @@ class ComponentRegistry:
             if isinstance(constraint, str):
                 constraint_str = constraint.strip()
                 if _is_exact_version(constraint_str):
-                    return self._entries.get(f"{base_id}@{constraint_str}")
+                    return super().get(f"{base_id}@{constraint_str}")
             if isinstance(constraint, SemverRange):
-                exacts = [entry for entry in entries if constraint.matches(entry.metadata.component_id.version)]
+                exacts = [
+                    entry
+                    for entry in entries
+                    if constraint.matches(entry.metadata.component_id.version)
+                ]
                 return exacts[0] if exacts else None
             return None
 
@@ -141,7 +145,11 @@ class ComponentRegistry:
                 continue
             if domain is not None and meta.domains and domain not in meta.domains:
                 continue
-            if jurisdiction is not None and meta.jurisdictions and jurisdiction not in meta.jurisdictions:
+            if (
+                jurisdiction is not None
+                and meta.jurisdictions
+                and jurisdiction not in meta.jurisdictions
+            ):
                 continue
             if capabilities is not None and (meta.capabilities & capabilities) != capabilities:
                 continue
@@ -158,7 +166,7 @@ class ComponentRegistry:
         constraint: SemverRange | str | None = None,
         kind: ComponentKind | None = None,
     ) -> list[ComponentEntry]:
-        rows = self._entries.find("base_id", base_id)
+        rows = self.find("base_id", base_id)
         if not rows:
             return []
 
@@ -172,7 +180,10 @@ class ComponentRegistry:
                 continue
             filtered.append(entry)
 
-        filtered.sort(key=lambda item: _version_sort_key(item.metadata.component_id.version), reverse=True)
+        filtered.sort(
+            key=lambda item: _version_sort_key(item.metadata.component_id.version),
+            reverse=True,
+        )
         return filtered
 
 

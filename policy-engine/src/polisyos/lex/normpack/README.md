@@ -1,79 +1,74 @@
 # normpack
 
-Сборка нормативных пакетов (`NormPack`) — структурированных коллекций юридических норм для конкретной юрисдикции, даты и домена.
+`lex.normpack` собирает `NormPack` для конкретных `jurisdiction + as_of (+ domain)`.
 
-## Pipeline
+## Назначение
 
-`assemble_norm_pack()` выполняет полный pipeline:
+Подсистема превращает структурированные положения документов (`ProvisionIndex`) в машиночитаемые нормы (`NormRule`) с применимостью, ссылками на источники и metadata для последующей legal evaluation.
 
+## Режимы сборки
+
+### 1) Provider path
+
+Если зарегистрирован `NormPackProvider` и локальные `doc_source` не выбраны, берется статический пакет через provider.
+
+### 2) Pipeline path
+
+Если provider недоступен/неприменим, запускается полный pipeline:
+
+```text
+select_doc_sources
+  -> select_active_doc_versions
+  -> select_provisions
+  -> extract_norm_claims
+  -> resolve_conflicts
+  -> claims_to_norm_rules
+  -> persist NormPack + world event
 ```
-select_sources → select_provisions → extract_norm_claims → resolve_conflicts → claims_to_norm_rules → NormPack
-```
 
-Альтернативный путь: если зарегистрирован `NormPackProvider` для юрисдикции/домена, он может предоставить готовый NormPack, минуя полный pipeline.
+## Ключевые модули
 
-## Модули
+### `assemble_pack.py`
 
-### assemble_pack.py
+Главный оркестратор. Делает:
+- нормализацию и валидацию запроса (`jurisdiction`, `as_of`, бюджеты, policy ids);
+- bootstrap providers/extractors через component registry;
+- выбор документов и provisions;
+- извлечение claims и conflict resolution;
+- построение детерминированного `pack_id` (`stable_world_id_from_canon`);
+- запись `NormPackBuildResult` с предупреждениями.
 
-Оркестратор pipeline. Ключевые этапы:
+### `select_sources.py`
 
-1. Нормализация запроса: валидация юрисдикции, домена, policy_id по паттерну `ID_PATTERN`
-2. Bootstrap providers и extractors (через entry points)
-3. Попытка получить NormPack от provider'а; при неудаче — полный pipeline
-4. Выбор provisions, извлечение claims, разрешение конфликтов
-5. Преобразование claims в `NormRule` с applicability и backend_metadata
-6. Персистенция NormPack в CAS, запись мирового события `ASSEMBLE_NORM_PACK`
+- `select_doc_sources`: берет явно переданные doc_source_ids или автонаходит источники `lex.corpus` в fact log;
+- `select_active_doc_versions`: пытается резолвить через `corpus.versioning.resolve_active_version`, при неготовности индекса использует fallback по фактам.
 
-`claims_to_norm_rules()` — маппинг Claim → NormRule: определяет rule_type (OBLIGATION/PROHIBITION), строит provision_refs из citations, применяет applicability (юрисдикция + time window).
+### `extract_norm_claims.py`
 
-### select_sources.py
+Извлекает `Claim` из выбранных provisions через extractor backend, дедуплицирует и опционально нормализует claim sets.
 
-Выбор документов и их актуальных версий:
+### `applicability.py`
 
-- `select_doc_sources()` — фильтрация doc_source по наличию `lex.corpus` в props; или использование явного списка `doc_source_ids`
-- `select_active_doc_versions()` — резолюция через `corpus.versioning.resolve_active_version()` с fallback на прямой анализ фактов, фильтрация по юрисдикции
-- `normalize_as_of()` — нормализация ISO-даты
+Строит `NormApplicability` (юрисдикция + окно валидности) и функции проверки применимости на дату.
 
-### extract_norm_claims.py
+### `provider_registry.py`
 
-Извлечение нормативных claims из текста provisions:
+Регистрирует и ранжирует `NormPackProvider` (по юрисдикции, домену, версии компонента).
 
-- Использует extractor из `fabric.claims.backends` (default: `lex.norm_extractor.regex_v1@1.0.0`)
-- Конвертирует `ClaimCandidate` → `Claim` с полными цитатами, юрисдикцией, temporal validity
-- Дедупликация по claim_id, применение max_claims бюджета
-- Опциональная нормализация через `fabric.claims.normalize_claims()`
+### `policies.py`
 
-### policies.py
+Константы pipeline: policy IDs, extractor ID, kinds артефактов, domain keywords, дефолтные ограничения.
 
-Константы и конфигурация:
+## Важные особенности
 
-- Политики: `DEFAULT_SELECTION_POLICY_ID`, `DEFAULT_CONFLICT_POLICY_ID`, `DEFAULT_TRUST_POLICY_ID`
-- Pipeline IDs: `ASSEMBLY_PIPELINE_ID`, `NORM_CLAIM_EXTRACT_PIPELINE_ID`
-- `DOMAIN_KEYWORDS` — словарь ключевых слов для фильтрации по доменам (roads, tax, labor)
-- `DEFAULT_INCLUDED_PROVISION_KINDS` — {article, point, subpoint} (part и paragraph опционально)
+- По умолчанию в selection идут `article`, `point`, `subpoint` (части/параграфы выключены по флагам в `policies.py`).
+- Domain-фильтрация основана на keyword matching (`citation_label` + текстовый preview).
+- Все отклонения и деградации маршрута собираются в `warnings` вместо немедленного падения pipeline.
 
-### applicability.py
+## Связь с другими директориями
 
-Определение применимости норм к контексту:
-
-- `build_norm_applicability()` — создаёт `NormApplicability` из Claim (юрисдикция + time window)
-- `applies_to_context()` — проверка: юрисдикция ∈ any_of И as_of ∈ [valid_from, valid_to]
-- `applicability_key()` — sha256-хеш для сортировки и дедупликации
-
-### provider_registry.py
-
-Плагинируемая система NormPack providers:
-
-- `NormPackProvider` (Protocol): `get_static_norm_pack(cas, jurisdiction, domain, as_of) → NormPack | ArtifactRef | str`
-- `NormPackProviderRegistry` — глобальный реестр, резолюция по scoring (jurisdiction match + domain match + semver)
-- Bootstrap через entry points `polisyos.norm_pack_providers`
-
-## Зависимости
-
-- `corpus` — ProvisionIndex, VersionIndex для выбора provisions
-- `fabric.claims` — extractors, normalize_claims, resolve_conflicts
-- `fabric.world` — мировые факты и события
-- `ir.norm_pack` — NormPack, NormRule, NormRef
-- `ir.world.claim` — Claim, ClaimSourceKind
-- `core.components` — ComponentRegistry, entry points discovery
+- Зависит от `policy-engine/src/polisyos/lex/corpus` (version/provision индексы).
+- Использует `polisyos.fabric.claims` для extraction/normalization/conflict resolution.
+- Производит `NormPack`, который потребляют:
+  - `policy-engine/src/polisyos/lex/legal_evaluation`
+  - `policy-engine/src/polisyos/lex/simulator`

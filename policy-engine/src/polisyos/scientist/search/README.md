@@ -1,48 +1,43 @@
-# Search Layer: Фреймворк оптимизации
+# Search Layer (`polisyos.scientist.search`)
 
-**Итеративная оптимизация политик с двухстадийной оценкой**
+`search` — опциональный контур итеративной оптимизации кандидатов политики.
 
-Search предоставляет фреймворк для итеративной оптимизации политик с intelligent stopping criteria.
+## Роль
 
-## Структура
+- управляет search-loop (`SearchController`);
+- оценивает кандидатов через cheap/expensive стадии;
+- считает objective и применяет stopping criteria;
+- поддерживает stress/adversarial и portfolio сценарии.
 
-```
-search/
-├── controller.py    # SearchController с iteration management
-├── objective.py     # Composite objectives (GDP, inequality, employment)
-├── stages.py        # Cheap/expensive evaluation stages
-├── stopping.py      # Intelligent stopping criteria
-├── adversarial.py   # Stress-test/adversarial orchestration
-├── sensitivity_adapter.py # Sensitivity-aware candidate decorator
-└── strategies/      # Advanced search strategies (random/grid/BO/MO + adapter)
-```
+Default `run_experiment()` этот слой автоматически не запускает.
 
-## Ключевые компоненты
+## Ключевые модули
 
-- **SearchController**: Управление полным циклом оптимизации
-- **Composite Objectives**: Многокритериальная оптимизация с весами
-- **Two-Stage Evaluation**: Быстрая preliminary + дорогая accurate оценка
-- **Intelligent Stopping**: Plateau detection, max iterations, target achievement
-- **Advanced Strategies**: StrategyAdapter, SearchSpace, batch suggestion, Bayesian/MO hooks
+- `controller.py` — `SearchController`, `SearchConfig`, `SearchResult`, `SearchIteration`.
+- `objective.py` — objective-модели (`CompositeObjective`, пресеты).
+- `stages.py` — `CheapStage`, `ExpensiveStage`, `CorrelationTracker`.
+- `stopping.py` — `MaxIterations`, `MaxWallTime`, `ImprovementPlateau`, `TargetAchieved`, пресеты.
+- `adversarial.py` — `run_stress_test()` (использует DoE `AdversarialPlan`).
+- `portfolio.py`, `diversity.py`, `sensitivity_adapter.py` — дополнительные контуры.
+- `strategies/` — стратегии генерации кандидатов (`random`, `grid`, adapter, optional Bayesian/MO).
 
-## API Использование
+## Минимальный API-контур
 
-```python
-from polisyos.scientist.search.controller import SearchController
-from polisyos.scientist.search.objective import GDPGrowthObjective
+`SearchController` ожидает:
 
-# Создание search controller
-controller = SearchController(
-    objectives=[GDPGrowthObjective(weight=0.7), InequalityObjective(weight=0.3)],
-    stopping_criteria=[MaxIterations(50), ImprovementPlateau(window=10)]
-)
+- `candidate_generator.generate(history, current_best, context)`;
+- `stage_a_evaluator(candidate, context) -> (score, passed)`;
+- `stage_b_evaluator(candidate, context) -> dict`.
 
-# Запуск оптимизации
-result = await controller.optimize(initial_candidates)
-```
+Далее запуск: `controller.run(initial_context, initial_candidate=None)`.
+
+## Особенности
+
+- есть batch-режим (если generator реализует `generate_batch`).
+- `strategies.bayesian` и `strategies.multi_objective` подключаются только при наличии тяжелых зависимостей (`torch/botorch/gpytorch`).
 
 ## Связи
 
-- Интегрируется с **engine** для workflow execution
-- Использует **compute** для parallel evaluation
-- Поддерживает **kernel** для budget management
+- `doe` — adversarial plans/sampling.
+- `core/components/_cli_scientist.py` — команда `scientist stress-test`.
+- `workflows.engine_base` — `ExpensiveStage` может запускать workflow engine.

@@ -1,45 +1,30 @@
-# Design of Experiments (DoE): Планирование экспериментов
+# DoE Layer (`polisyos.scientist.doe`)
 
-**Систематическое исследование сценариев политики**
+`doe` — дизайн и анализ экспериментальных планов (sensitivity/adversarial) для Scientist.
 
-DoE предоставляет инструменты для планирования экспериментов и систематического исследования сценариев политики через структурированные дизайны экспериментов.
+## Что внутри
 
-## Структура
+- `designs.py`
+  - `ScenarioSweep`, `AblationPlan`
+  - `SensitivityPlan`, `ParameterSpec`, `SensitivityMethod`
+  - `AdversarialPlan`, `AdversarialStrategy`
+  - `SensitivityResult`, `RunFailurePolicy`
+- `sampling.py`
+  - `generate_sensitivity_samples(plan)`
+  - `generate_adversarial_samples(plan)`
+- `analysis.py`
+  - `analyze_sensitivity(plan, samples, outputs)`
+- `stress_report.py`
+  - `StressTestReport`, `Vulnerability`, `VulnerabilityType`
 
-```
-doe/
-├── designs.py      # ScenarioSweep, AblationPlan, SensitivityPlan, AdversarialPlan
-├── sampling.py     # SALib sampling + adversarial sample generation
-├── analysis.py     # Sensitivity index analysis
-└── stress_report.py # Stress test report contracts
-```
+## Практические нюансы
 
-## Ключевые компоненты
+- `SensitivityPlan` требует `parameter_specs` (или legacy `parameters`), валидирует лимит ожидаемых запусков.
+- `generate_sensitivity_samples` использует SALib (MORRIS/SOBOL/FAST).
+- `analyze_sensitivity` умеет обрабатывать частично проваленные запуски через `RunFailurePolicy`.
+- `AdversarialPlan` используется слоем `search.adversarial` для stress-test loop.
 
-- **ScenarioSweep**: Сравнение разных наборов параметров политики
-- **AblationPlan**: Анализ вклада компонентов через их удаление
-- **SensitivityPlan**: Исследование чувствительности к параметрам
-- **AdversarialPlan**: Поиск worst-case сценариев
-- **SensitivityResult**: Ранжирование параметров по влиянию
-- **StressTestReport**: Сводка найденных уязвимостей
+## Где используется
 
-## API Использование
-
-```python
-from polisyos.scientist.doe.designs import ScenarioSweep, AblationPlan
-
-# Сравнение сценариев финансирования UBI
-scenarios = ScenarioSweep(scenarios=[
-    {"ubi_amount": 500, "funding": "income_tax"},
-    {"ubi_amount": 750, "funding": "wealth_tax"}
-])
-
-# Анализ ablation компонентов политики
-ablation = AblationPlan(targets=["tax_mechanism", "subsidy_mechanism"])
-```
-
-## Связи
-
-- Интегрируется с **engine** layer для multi-run execution
-- Поддерживает **kernel** для budget management
-- Использует **compute** для parallel scenario execution
+- CLI `polisyos scientist sensitivity run` (`core/components/_cli_scientist.py`).
+- CLI `polisyos scientist stress-test` (через `search.adversarial.run_stress_test`).

@@ -1,191 +1,200 @@
-# schemas — ABI Schema Gate
+# schemas — контрактные схемы и снапшоты
 
-Автоматизированная система контроля обратной совместимости публичных моделей данных.
-Отслеживает JSON Schema снапшоты Pydantic-моделей из `ir` и `fabric`, детектирует breaking changes
-и блокирует merge через CI при нарушении версионирования.
+Директория `schemas/` хранит зафиксированные контрактные артефакты, которые
+используются как стабильная граница между подсистемами (`ir`, `fabric`, `runtime`, `frontend`).
 
 ## Роль в системе
 
-`schemas` реализует **Architectural Law C** — «контракты как источник правды».
-Все компоненты, потребляющие IR-артефакты (Foundry, Lex, Scientist, Runtime),
-полагаются на стабильность схем. Данная подсистема гарантирует, что изменения
-в структуре моделей не сломают downstream-потребителей без явного версионного бампа.
+`schemas/` реализует Architectural Law C: контракты считаются источником правды.
+Здесь лежат не только ABI-снапшоты IR/Fabric, но и соседние контрактные артефакты:
 
-```
-Pydantic-модели (src/polisyos/ir/*, fabric/world/abi)
-        │
-        ▼
-  gen_schema.py ──► schemas/snapshots/{ir,fabric}/*.schema.json
-        │                       │
-        │                  git commit
-        │                       │
-        ▼                       ▼
-  pre-commit --check       CI: abi.yml
-                                │
-                           abi_diff.py
-                           (baseline vs current)
-                                │
-                      ┌─────────┴─────────┐
-                      │                   │
-                  PASS/WARN            FAIL
-                  (merge ok)     (блокирует merge)
-```
+- `snapshots/{ir,fabric}`: JSON Schema для ABI-моделей, проверяемые в pre-commit и CI.
+- `snapshots/connectors/contracts.json`: зафиксированные контракты источников данных.
+- `runtime_api_v1.openapi.json`: OpenAPI-спецификация Runtime API v1 для генерации фронтенд-клиента.
 
-## Структура
+## Структура директории
 
-```
+```text
 schemas/
-├── abi_models.py                    # Реестр отслеживаемых моделей (single source of truth)
+├── abi_models.py
+├── runtime_api_v1.openapi.json
 ├── __init__.py
 └── snapshots/
-    ├── ir/                          # 31 JSON Schema снапшот IR-моделей
-    │   ├── _manifest.json           # Метаданные: хеши, версии, приоритеты
-    │   ├── trinity_bundle.schema.json
-    │   ├── policy_spec.schema.json
-    │   └── ...
-    └── fabric/                      # 2 JSON Schema снапшота fabric-перечислений
-        ├── _manifest.json
-        ├── edge_kind.schema.json
-        └── node_kind.schema.json
+    ├── ir/
+    │   ├── _manifest.json
+    │   └── *.schema.json
+    ├── fabric/
+    │   ├── _manifest.json
+    │   └── *.schema.json
+    └── connectors/
+        └── contracts.json
 ```
 
-## Ключевые компоненты
+## Архитектура потоков
 
-### abi_models.py — реестр
+```text
+src/polisyos/ir + src/polisyos/fabric/world
+        │
+        ▼
+schemas/abi_models.py (реестр ABI)
+        │
+        ▼
+tools/diagnostics/gen_schema.py
+        │
+        ▼
+schemas/snapshots/{ir,fabric}
+        │
+        ├─ pre-commit: abi-schema-check
+        └─ CI: .github/workflows/abi.yml + tools/diagnostics/abi_diff.py
+```
 
-Единственный файл, который нужно редактировать при добавлении/удалении отслеживаемой модели.
-Определяет `ABIModelEntry` для каждой модели:
+```text
+src/polisyos/fabric/connectors/sources/_contracts/*
+        │
+        ▼
+tools/connectors/check_contracts.py
+        │
+        ▼
+schemas/snapshots/connectors/contracts.json
+        │
+        ▼
+CI: .github/workflows/arch.yml
+```
 
-| Поле | Назначение |
-|------|-----------|
-| `abi_key` | Уникальный идентификатор модели |
-| `fqn` | Полный Python-путь к классу (`polisyos.ir.governance.policy_spec.PolicySpec`) |
-| `module` | Целевая директория снапшотов: `ir` или `fabric` |
-| `priority` | Уровень строгости: P0 / P1 / P2 |
-| `compat_mode` | `strict` — любые добавления breaking; `tolerant` — optional-поля допустимы |
-| `version_field` | Поле для отслеживания версии (по умолчанию `schema_version`) |
-| `lifecycle` | `active` / `deprecated` |
-| `aliases` | Альтернативные имена для детекции переименований |
+```text
+src/polisyos/runtime/http/app.py
+        │
+        ▼
+tools/runtime/export_runtime_openapi.py
+        │
+        ▼
+schemas/runtime_api_v1.openapi.json
+        │
+        ▼
+tools/runtime/generate_runtime_client.py
+        ▼
+frontend/runtime-api-client/*
+```
 
-Вспомогательные функции:
-- `iter_abi_entries()` — все активные записи
-- `select_abi_entries(filters)` — фильтрация по abi_key, module, priority, FQN
+## Актуальное состояние (в текущем репозитории)
 
-### snapshots/ — коммитные снапшоты
+### 1) ABI snapshots (IR + Fabric)
 
-Генерируются автоматически из Pydantic-моделей. **Не редактируются вручную.**
+- Реестр: `abi_models.py` (`ABI_MODELS`) — single source of truth.
+- Всего ABI-моделей: `34`.
+- Разбивка по модулям: `ir=32`, `fabric=2`.
+- Приоритеты: `p0=18`, `p1=14`, `p2=2`.
+- Текущие `compat_mode`: все записи `strict`.
+- `version_field=None` только у: `data_view_request`, `edge_kind`, `node_kind`.
 
-Каждый `_manifest.json` содержит для каждой модели:
-- `sha256_full` — хеш полной схемы (включая метаданные)
-- `sha256_semantic` — хеш без title/description/$comment (для семантического сравнения)
-- `schema_version`, `priority`, `compat_mode`, `lifecycle`
+Ключевые P0-домены: Trinity (`trinity_bundle`), governance (`problem_frame`, `policy_spec`, `policy_portfolio`, `model_spec`), norm-system (`norm_pack`, `norm_rule`, `norm_ref`), world/fact/conflict/event модели, а также fabric enum-контракты (`edge_kind`, `node_kind`).
 
-## Каталог моделей
+### 2) Connector contracts snapshot
 
-### P0 — критические (breaking changes блокируют CI)
+- Файл: `snapshots/connectors/contracts.json`.
+- Формат: `version=1`.
+- Текущие контракты: `3` (`eurostat.data.generic`, `ukons.datasets.generic`, `worldbank.wdi.generic`).
+- Проверка эволюции версий выполняется через `SchemaEvolution` в `tools/connectors/check_contracts.py`.
 
-| Модель | Источник | Домен |
-|--------|----------|-------|
-| `trinity_bundle` | `ir.trinity.TrinityBundle` | Канонический бандл (ProblemFrame + PolicySpec + ModelSpec) |
-| `problem_frame` | `ir.problem_frame.ProblemFrame` | Формулировка проблемы («Зачем?») |
-| `policy_spec` | `ir.policy_spec.PolicySpec` | Спецификация политики («Что?») |
-| `model_spec` | `ir.model_spec.ModelSpec` | Спецификация модели («Как?») |
-| `norm_pack` | `ir.norm_pack.NormPack` | Пакет нормативных правил |
-| `norm_rule` | `ir.norm_pack.NormRule` | Отдельное нормативное правило |
-| `norm_ref` | `ir.norm_pack.NormRef` | Ссылка на норму |
-| `claim` | `ir.world.claim.Claim` | Утверждение в мировой модели |
-| `fact` / `fact_segment_manifest` | `ir.fact_log.*` | Факты и сегментные манифесты |
-| `conflict_set` / `conflict_resolution` / `conflict_set_resolution` | `ir.world.conflict.*` | Конфликты и резолюции |
-| `world_event` / `prov_activity` | `ir.world.event.*` | События и provenance |
-| `edge_kind` / `node_kind` | `ir.world.abi.*` | Fabric-перечисления графа (модуль `fabric`) |
+### 3) Runtime OpenAPI snapshot
 
-### P1 — важные (breaking changes → warning)
+- Файл: `runtime_api_v1.openapi.json`.
+- OpenAPI: `3.1.0`.
+- API title/version: `PolicyOS Runtime API` / `1.0.0`.
+- Сейчас описано `15` GET endpoints (runs/debug/artifacts/health surfaces).
+- Используется как вход для генерации `frontend/runtime-api-client/runtimeApiClient.{ts,js}`.
 
-| Модель | Источник | Домен |
-|--------|----------|-------|
-| `causal_effect_report` | `ir.causal` | Каузальный анализ |
-| `distributional_report` | `ir.distributional` | Дистрибуционный анализ |
-| `hte_result` / `policy_recommendation` | `ir.hte` | Гетерогенные эффекты и рекомендации |
-| `backtest_report` | `ir.backtest` | Бэктестинг политик |
-| `uncertainty_envelope` | `ir.uncertainty` | Конверты неопределённости |
-| `gate_context` / `gate_request` / `gate_decision` / `gate_event` | `ir.gate` | Governance gates |
-| `doc_fragment` / `doc_meta` | `ir.world.doc` | Документные фрагменты |
-| `trust_assessment` | `ir.world.trust` | Оценка доверия |
-| `quality_report` | `ir.world.quality` | Отчёты качества |
+## Ключевые модули и особенности
 
-### P2 — информационные
+### `abi_models.py`
 
-| Модель | Источник |
-|--------|----------|
-| `calibration_config` | `ir.calibration` |
-| `data_view_request` | `ir.data_views` |
+Реестр ABI-моделей (`ABIModelEntry`) с полями:
+`abi_key`, `fqn`, `module`, `schema_file`, `priority`, `compat_mode`,
+`version_field`, `lifecycle`, `aliases`, `allow_missing`.
 
-## Рабочий процесс
+Практически важно:
+- Добавление/удаление отслеживаемой ABI-модели делается здесь.
+- `select_abi_entries(...)` поддерживает фильтрацию по `abi_key/module/priority/fqn`.
 
-### Добавление новой модели
+### `snapshots/{ir,fabric}/*`
 
-1. Создать Pydantic-модель в `src/polisyos/ir/` с полем `schema_version`
-2. Добавить `ABIModelEntry` в `abi_models.py` (выбрать priority и compat_mode)
-3. Запустить `python3 tools/diagnostics/gen_schema.py`
-4. Закоммитить сгенерированные файлы в `snapshots/`
+- Автогенерируемые JSON Schema-файлы + `_manifest.json`.
+- `_manifest.json` включает `content_hash`, версии генератора/зависимостей и по-модельные хеши:
+  `sha256_full` и `sha256_semantic`.
+- Файлы в `snapshots/{ir,fabric}` вручную не редактируются.
 
-### Изменение существующей модели
+### `snapshots/connectors/contracts.json`
 
-1. Внести изменения в Pydantic-модель
-2. Запустить `python3 tools/diagnostics/gen_schema.py` — увидеть diff в снапшотах
-3. Если изменение breaking и модель P0 — поднять major-версию (`1.0` → `2.0`)
-4. Закоммитить обновлённые снапшоты
+- Коммитный baseline контрактов источников данных.
+- Валидируется на drift и корректный version bump (major/minor/patch) через `check_contracts.py`.
 
-### Команды
+### `runtime_api_v1.openapi.json`
+
+- Детерминированный экспорт OpenAPI из Runtime FastAPI app.
+- Источник для автоматической генерации клиентского SDK в `frontend/runtime-api-client/`.
+
+## Связи с другими директориями
+
+| Директория | Связь |
+|---|---|
+| `src/polisyos/ir` | Источник Pydantic-контрактов IR для `snapshots/ir` |
+| `src/polisyos/fabric/world` | Источник enum ABI (`edge_kind`, `node_kind`) для `snapshots/fabric` |
+| `src/polisyos/fabric/connectors/sources/_contracts` | Источник connector contracts для `snapshots/connectors/contracts.json` |
+| `src/polisyos/runtime/http` | Источник OpenAPI для `runtime_api_v1.openapi.json` |
+| `tools/diagnostics` | Генерация/проверка ABI snapshots (`gen_schema.py`, `abi_diff.py`) |
+| `tools/connectors` | Проверка и обновление connector contracts snapshot |
+| `tools/runtime` | Экспорт OpenAPI и генерация frontend runtime client |
+| `frontend/runtime-api-client` | Потребитель `runtime_api_v1.openapi.json` |
+| `.github/workflows/abi.yml` | ABI gate в PR (semantic diff + freshness check) |
+| `.github/workflows/arch.yml` | Дополнительный gate: connector contracts + ABI freshness |
+
+## Операционный регламент
+
+Работать из корня `policy-engine/`.
+
+### Обновить ABI snapshots
 
 ```bash
-# Регенерация всех снапшотов
 python3 tools/diagnostics/gen_schema.py
-
-# Проверка актуальности (pre-commit / CI)
 python3 tools/diagnostics/gen_schema.py --check
-
-# Генерация для конкретных моделей
-python3 tools/diagnostics/gen_schema.py --models policy_spec trinity_bundle
-
-# Семантический diff с baseline
-python3 tools/diagnostics/abi_diff.py --baseline schemas/snapshots --current /tmp/new_schemas
 ```
 
-## CI-интеграция
+Для локального сравнения baseline/current:
 
-**Pre-commit hook** (`abi-schema-check`): запускает `gen_schema.py --check` при изменениях
-в `src/polisyos/{ir,fabric/world,core/canon,core/artifacts}/**/*.py`.
+```bash
+python3 tools/diagnostics/gen_schema.py --output-dir /tmp/current_schemas
+python3 tools/diagnostics/abi_diff.py \
+  --baseline schemas/snapshots \
+  --current /tmp/current_schemas \
+  --format markdown
+```
 
-**GitHub workflow** (`.github/workflows/abi.yml`):
-1. Генерирует текущие снапшоты
-2. Извлекает baseline из target-ветки
-3. Запускает `abi_diff.py` — строит отчёт с классификацией 27 типов изменений
-4. Публикует sticky-комментарий в PR
-5. Блокирует merge при вердикте `FAIL` (P0 breaking без version bump)
+### Обновить connector contracts snapshot
 
-## Правила совместимости
+```bash
+python3 tools/connectors/check_contracts.py --check
+python3 tools/connectors/check_contracts.py --update
+```
 
-| Изменение | strict | tolerant |
-|-----------|--------|----------|
-| Удаление поля | breaking | breaking |
-| Добавление required-поля | breaking | breaking |
-| Добавление optional-поля | breaking | compatible |
-| Изменение типа поля | breaking | breaking |
-| Ужесточение constraint (minLength↑, maxLength↓) | breaking | breaking |
-| Удаление enum-значения | breaking | breaking |
-| Добавление enum-значения | compatible | compatible |
-| Изменение metadata (title, description) | compatible | compatible |
+### Обновить Runtime OpenAPI + frontend client
 
-## Связи с другими модулями
+```bash
+python3 tools/runtime/export_runtime_openapi.py --output schemas/runtime_api_v1.openapi.json
+python3 tools/runtime/generate_runtime_client.py \
+  --openapi schemas/runtime_api_v1.openapi.json \
+  --out-ts frontend/runtime-api-client/runtimeApiClient.ts \
+  --out-js frontend/runtime-api-client/runtimeApiClient.js
+```
 
-| Модуль | Характер связи |
-|--------|---------------|
-| `ir` | **Источник** — Pydantic-модели, из которых генерируются схемы |
-| `fabric/world` | **Источник** — ABI-перечисления (EdgeKind, NodeKind) |
-| `tools/diagnostics/gen_schema.py` | **Генератор** — создаёт снапшоты из реестра |
-| `tools/diagnostics/abi_diff.py` | **Валидатор** — семантический diff и breaking change detection |
-| `foundry` | **Потребитель** — компиляция и исполнение Trinity-артефактов |
-| `lex` | **Потребитель** — правовая оценка через PolicySpec |
-| `scientist` | **Потребитель** — LLM-дизайн политик через TrinityBundle |
-| `runtime` | **Потребитель** — исполнение политик |
+## Правила совместимости ABI (факт по текущей реализации)
+
+- `abi_diff.py` классифицирует `13` типов изменений (`model_added`, `model_removed`, `model_renamed`, `property_*`, `enum_*`, `constraint_changed`, `ref_changed`, `metadata_changed`).
+- Для P0 breaking-изменений требуется major bump `schema_version` в формате `MAJOR.MINOR` (например `1.3 -> 2.0`).
+- Приоритеты `p1/p2` не блокируют merge, но попадают в warnings.
+- Optional-поле в `strict` считается breaking; в `tolerant` может быть совместимым, но учитывается `additionalProperties`.
+
+## Чего не делать
+
+- Не редактировать `snapshots/{ir,fabric}` вручную.
+- Не менять `contracts.json` руками, если можно обновить через `check_contracts.py --update`.
+- Не обновлять OpenAPI-файл без синхронной регенерации frontend-клиента, если изменился контракт Runtime API.

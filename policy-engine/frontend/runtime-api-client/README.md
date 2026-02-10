@@ -1,22 +1,53 @@
-# Runtime API Client (v1)
+# `runtime-api-client` — сгенерированный клиент Runtime API v1
 
-Generated client package for Runtime HTTP API `/api/v1`.
+`runtime-api-client` хранит артефакты, которые генерируются из OpenAPI-схемы Runtime API.  
+Ручное редактирование `runtimeApiClient.ts/js` не предполагается.
 
-## Artifacts
+## Что лежит в директории
 
-- `runtimeApiClient.ts` — typed TypeScript client + contract types.
-- `runtimeApiClient.js` — ESM client for browser/runtime usage.
+- `runtimeApiClient.ts` — typed TypeScript-клиент + экспорт типов контрактов API.
+- `runtimeApiClient.js` — ESM-клиент для браузера/JS-runtime без TypeScript.
 
-## Regeneration
+## Источник истины
+
+Контракт клиента формируется цепочкой:
+
+```text
+Runtime API app -> OpenAPI schema -> generated client
+```
+
+Технически это:
+- `tools/runtime/export_runtime_openapi.py`
+- `schemas/runtime_api_v1.openapi.json`
+- `tools/runtime/generate_runtime_client.py`
+
+## Покрытие API (текущие группы методов)
+
+- Health: `health`, `ready`, `runtimeApiHealth`.
+- Runs: `listRuns`, `getRunDetails`, `getRunTimeline`, `getRunNodes`, `getRunLineage`.
+- Debug: `getNodeDebug`, `getGovernanceDebug`, `getRunErrors`.
+- Artifacts: `getArtifactManifest`, `getArtifactContent`, `getArtifactLineage`, `getArtifactSchema`.
+
+## Поведение и ограничения
+
+- Клиент нормализует `baseUrl` (убирает завершающий `/`).
+- Query-параметры сериализуются с поддержкой массивов и `Date -> ISO`.
+- На non-2xx ответах бросается `Error` со статусом и телом ответа.
+- Retry/circuit-breaker/auth-flow не встроены; для кастомизации доступны `headers` и `fetchImpl` в `RuntimeApiClientOptions`.
+- Клиент поддерживает read-only HTTP-поверхность Runtime API v1.
+
+## Регенерация
+
+Из корня `policy-engine/`:
 
 ```bash
-uv run --extra multi-tenant --extra test python tools/runtime/export_runtime_openapi.py \
+PYTHONPATH=src uv run python tools/runtime/export_runtime_openapi.py \
   --output schemas/runtime_api_v1.openapi.json
 
-uv run --extra multi-tenant --extra test python tools/runtime/generate_runtime_client.py \
+PYTHONPATH=src uv run python tools/runtime/generate_runtime_client.py \
   --openapi schemas/runtime_api_v1.openapi.json \
   --out-ts frontend/runtime-api-client/runtimeApiClient.ts \
   --out-js frontend/runtime-api-client/runtimeApiClient.js
 ```
 
-Generation is deterministic: same OpenAPI input produces byte-stable client outputs.
+Генерация детерминированная: одинаковый OpenAPI-вход должен давать byte-stable результат.

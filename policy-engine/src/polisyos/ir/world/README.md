@@ -1,123 +1,138 @@
-# ir.world — Семантическая модель мира
+# ir.world — Контракты семантической world-модели
 
-World определяет типизированную семантическую сеть знаний Policy Engine: документы, утверждения (claims), конфликты, события с provenance, оценки качества и доверия. Все объекты идентифицируются детерминированными content-addressed ID.
+`ir.world` описывает типизированные объекты графа знаний в Policy Engine: документы, claims, конфликты, provenance-события, trust/quality оценки и deterministic world IDs.
 
-9 Python-файлов, ~50 экспортируемых символов.
+Это **контрактный слой**, а не хранилище и не execution-движок.
 
-## Архитектурная роль
+## Роль в архитектуре
 
+```text
+Fabric pipelines (docs/claims/conflicts/materialization)
+            │
+            ▼
+      ir.world contracts
+            │
+            ├─► world persistence/query (DuckDB/Kuzu через fabric)
+            ├─► Lex (norm/legal pipelines)
+            └─► Scholar/Scientist (knowledge artifacts)
 ```
-Raw Data → Documents → Claims → Conflicts → Resolution → Knowledge Graph
-               ↓           ↓         ↓           ↓              ↓
-          Provenance     Trust    Validation   Consensus     Queryable
-```
 
-World — **граф знаний** с типизированными узлами (`NodeKind`) и рёбрами (`EdgeKind`). Fabric и Core используют эти типы для построения и запроса семантической сети; Scientist анализирует world state для формулировки политик.
+Подробнее про общий контекст IR: [`../README.md`](../README.md)
 
-## Структура
+## Состав директории
 
-```
+```text
 world/
-├── __init__.py       # Реэкспорт всех публичных символов
-├── abi.py            # NodeKind, EdgeKind, RESERVED_WORLD_PREFIXES_V1
-├── claim.py          # Claim, ClaimSourceKind
-├── event.py          # WorldEvent, ProvAgent, ProvActivity, EventKind
-├── conflict.py       # ConflictSet, ConflictResolution, ConflictKind
-├── doc.py            # DocFragment, DocMeta
-├── quality.py        # QualityReport, QualityIssue
-├── trust.py          # TrustAssessment, TrustTier
-├── predicates.py     # World-константы: WORLD_KIND, WORLD_LABEL, rel()
-└── ids.py            # Детерминированная генерация ID
+├── abi.py         # NodeKind / EdgeKind / reserved prefixes
+├── doc.py         # DocMeta / DocFragment
+├── claim.py       # Claim + source-kind rules
+├── conflict.py    # ConflictSet + ConflictResolution contracts
+├── event.py       # WorldEvent + provenance agent/activity
+├── trust.py       # TrustAssessment + tier/score contracts
+├── quality.py     # QualityReport + deterministic issue ordering
+├── ids.py         # stable world ID builders (sha256 over canonical payload)
+├── predicates.py  # world predicate constants and rel()
+└── __init__.py    # публичные re-exports
 ```
 
-## ABI: типы графа (`abi.py`)
+## Ключевые модели
 
-**NodeKind** — типы узлов: `ARTIFACT`, `DOC_SOURCE`, `DOC_VERSION`, `DOC_FRAGMENT`, `CLAIM`, `CONFLICT_SET`, `TRUST_ASSESSMENT`, `QUALITY_REPORT`, `WORLD_EVENT`, `PROV_AGENT`, `PROV_ACTIVITY`.
+### ABI графа (`abi.py`)
 
-**EdgeKind** — типы рёбер: `DOC_HAS_VERSION`, `DOC_HAS_FRAGMENT`, `CLAIM_CITES`, `CLAIM_DERIVED_FROM`, `CLAIM_IN_CONFLICT_SET`, `CONFLICT_RESOLVES_TO`, `CLAIM_SUPPORTS`, `CLAIM_CONTRADICTS`, `REPORT_ABOUT`, `PROV_USED`, `PROV_WAS_GENERATED_BY`, `PROV_WAS_DERIVED_FROM`, `PROV_WAS_ASSOCIATED_WITH`, `PROV_WAS_ATTRIBUTED_TO`.
+- `NodeKind`: `artifact`, `doc.source`, `doc.version`, `doc.fragment`, `claim`, `conflict_set`, `trust.assessment`, `quality.report`, `world.event`, `prov.*`.
+- `EdgeKind`: связи документов, claims, конфликтов и provenance.
+- `RESERVED_WORLD_PREFIXES_V1`: зарезервированные ID-префиксы (`doc`, `docv`, `frag`, `claim`, `cset`, `trust`, `quality`, `event`, ...).
 
-`RESERVED_WORLD_PREFIXES_V1` — зарезервированные префиксы для ID: `artifact`, `doc`, `docv`, `frag`, `claim`, `cset`, `trust`, `quality`, `event`, `prov`.
+### Документы (`doc.py`)
 
-## Основные модели
+- `DocMeta`: метаданные версии документа; строгое правило:
+  ровно одно из `canonical_url` или `official_id`.
+- `DocFragment`: фрагмент документа + `FragmentLocator` + `text_hash`.
 
-### Claim (`claim.py`)
+### Claims (`claim.py`)
 
-Утверждение о факте: `predicate_id`, `subject_id`/`subject_text`, `value_text`/`value_decimal`, `unit_id`, `confidence` (0-1), `source_kind` (`ClaimSourceKind`: DOC / DATASET / SIMULATION / EXPERT / DERIVED), `citations`, `jurisdiction`, `valid_from`/`valid_to`.
+- `Claim` хранит `predicate_id`, субъект (`subject_id` или `subject_text`), значение, confidence, source-kind и provenance refs.
+- Правила валидации:
+  - должен быть `subject_id` или `subject_text`;
+  - для `source_kind=doc` обязательны `citations`;
+  - для остальных источников обязательны `source_artifacts`;
+  - `valid_to >= valid_from`.
 
-### WorldEvent (`event.py`)
+### Конфликты (`conflict.py`)
 
-Событие с W3C PROV-совместимым provenance:
-- `event_kind` (`EventKind`: FETCH_DOC, NORMALIZE_DOC, EXTRACT_CLAIMS, DETECT_CONFLICTS, RESOLVE_CONFLICTS, SIMULATE, VALIDATE)
-- `activity` (`ProvActivity` + `ProvActivityType`)
-- `agent` (`ProvAgent` + `ProvAgentType`: HUMAN, MODEL, SYSTEM, PIPELINE)
-- `target_objects`, `generated_objects`, `invalidated_objects` (списки `WorldObjectRef`)
+- `ConflictSet` с `conflict_key` (sha256 hex), `member_claim_ids`, optional resolution.
+- `conflict_set_id` обязан совпадать с вычисленным `conflict_set_id_from_key()`.
+- `ConflictResolution`:
+  - кандидаты должны быть отсортированы по `score_total desc`, затем `claim_id asc`;
+  - `winner_claim_id` должен совпадать с первым кандидатом.
 
-### ConflictSet (`conflict.py`)
+### Provenance-события (`event.py`)
 
-Набор конфликтующих claims: `conflict_kind` (`ConflictKind`: VALUE_MISMATCH, UNIT_MISMATCH, DEFINITION_MISMATCH, TEMPORAL_MISMATCH, DUPLICATE), `claim_ids`, `key`.
+- `WorldEvent`: `event_kind`, `agent`, `activity`, `inputs`, `outputs`.
+- `ProvActivity` валидирует временную согласованность (`ended_at >= started_at`).
+- `WorldObjectRef` требует хотя бы `world_id` или `artifact_id`.
 
-`ConflictResolution`: `resolved_claim_ids`, `rejected_claim_ids`, `consensus_claim`, `resolution_method`, `confidence`, `resolver_agent`.
+### Trust и Quality
 
-`ConflictSetResolution` / `ConflictResolutionInputs` / `ConflictResolutionCandidate` — контракты для pipeline разрешения.
-
-### DocFragment, DocMeta (`doc.py`)
-
-`DocFragment`: `fragment_id`, `doc_source_id`, `doc_version_id`, `content`, `content_type`, `locator` (→ `FragmentLocator` из `ir.citations`), `quality_score`.
-
-`DocMeta`: `title`, `authors`, `publication_date`, `jurisdiction`, `doc_type`, `language`, `source_url`.
-
-### QualityReport (`quality.py`)
-
-`QualityReport`: `scope` (`QualityScope`), `target_object_id`, `issues: list[QualityIssue]`, `overall_score`, `assessor_agent`.
-
-`QualityIssue`: `severity` (`QualityIssueSeverity`), `category`, `description`, `suggested_fix`.
-
-### TrustAssessment (`trust.py`)
-
-`TrustAssessment`: `target_id`, `tier` (`TrustTier`: VERIFIED / HIGH / MEDIUM / LOW / UNTRUSTED), `score` (0-1), `factors`, `assessed_by`, `valid_until`.
+- `TrustAssessment` (`trust.py`): `score` в `[0,1]`, `tier` (`high|medium|low`), ID верифицируется по canonical payload.
+- `QualityReport` (`quality.py`): issue list должен быть детерминированно отсортирован; ID также верифицируется по canonical payload.
 
 ## Детерминированные ID (`ids.py`)
 
-Все world-объекты получают стабильные ID через каноническую сериализацию + SHA256:
+`ids.py` строит стабильные world IDs через canonical serialization + `sha256`:
+
+- `doc_source_id()`
+- `doc_version_id_from_raw_artifact()`
+- `doc_fragment_id()`
+- `claim_id_from_payload()`
+- `world_event_id_from_payload()`
+- `conflict_set_id_from_key()`
+- `trust_assessment_id_from_payload()`
+- `quality_report_id_from_payload()`
+
+Формат world ID: `<prefix>.sha256_<hex64>`.
+
+## Инварианты и особенности
+
+- Deep float-guard:
+  большинство моделей запрещают `float` в произвольных payload/props через `reject_floats_deep`.
+- Deterministic payload discipline:
+  ID-поля в `TrustAssessment`, `QualityReport`, `ConflictSet` проверяются как функция содержимого.
+- Deterministic ordering:
+  сортировка/уникальность требуется для `member_claim_ids`, ranking-кандидатов и `quality.issues`.
+- Чёткая граница ответственности:
+  `ir.world` определяет контракты и правила, а materialization/query реализованы в `fabric/world`.
+
+## Связи с другими директориями
+
+| Директория | Как использует `ir.world` |
+|---|---|
+| `fabric/` | основной потребитель (`claims/*`, `world/store/*`, materialization/query) |
+| `lex/` | legal/norm pipelines используют world entities |
+| `scholar/` | сборка knowledge artifacts и событий |
+| `scientist/` | точечные trust/world контракты |
+| `core/` | отдельные shared contracts и валидации |
+
+## Минимальный пример
 
 ```python
-stable_world_id_from_canon(prefix="claim", payload={...})  # → "claim.sha256_<64hex>"
+from polisyos.ir.world.ids import claim_id_from_payload
+
+claim_id = claim_id_from_payload(
+    claim_payload={
+        "predicate_id": "inflation_rate",
+        "subject_text": "ua",
+        "value_text": "12.5",
+        "source_kind": "dataset",
+        "source_artifacts": ["sha256:" + "a" * 64],
+    }
+)
 ```
 
-Специализированные генераторы:
-
-| Функция | Результат | Ключевые поля payload |
-|---|---|---|
-| `doc_source_id()` | `doc.sha256_...` | `canonical_url` xor `official_id` |
-| `doc_version_id_from_raw_artifact()` | `docv.sha256_...` | `raw_artifact_id` |
-| `doc_fragment_id()` | `frag.sha256_...` | `doc_version_id`, `locator`, `text_artifact_id` |
-| `claim_id_from_payload()` | `claim.sha256_...` | `predicate_id`, `subject_id`, `value_*`, `citations`/`source_artifacts` |
-| `world_event_id_from_payload()` | `event.sha256_...` | `event_kind`, `agent`, `activity`, `inputs`, `outputs` |
-| `conflict_set_id_from_key()` | `cset.sha256_...` | `conflict_key` (64-char hex) |
-| `trust_assessment_id_from_payload()` | `trust.sha256_...` | `policy_id`, `target_world_id`, `score`, `tier` |
-| `quality_report_id_from_payload()` | `quality.sha256_...` | `scope`, `policy_id`, `metrics`, `issues` |
-
-Свойства: один и тот же payload всегда даёт один и тот же ID; Enum-значения нормализуются; None-поля отбрасываются; Pydantic-модели сериализуются через `model_dump()`.
-
-## Предикаты (`predicates.py`)
-
-Константы для world-графа: `WORLD_KIND`, `WORLD_LABEL`, `WORLD_ARTIFACT_ID`, `WORLD_PROPS_REF`, `WORLD_REL_PREFIX`. Утилита `rel(edge_kind)` — создание имени ребра.
-
-## Зависимости
-
-**Входящие:**
-- `ir.kernel.base` — `KernelModel`, `ARTIFACT_ID_PATTERN`
-- `ir.canon` — `to_canonical_bytes()` для генерации ID
-- `ir.citations` — `CitationRef`, `FragmentLocator`
-
-**Исходящие (кто использует world):**
-- `fabric/claims/`, `fabric/world/`, `fabric/docs/` — CRUD и запросы к world-данным
-- `core/` — построение семантической сети
-- `scientist/` — анализ world state
-
-## Тестирование
+## Рекомендуемые проверки
 
 ```bash
-pytest tests/unit/test_ir_world_*.py
-pytest tests/contract/test_ir_world_semantics.py
+pytest /Users/deniskopylov/polisyos/policy-engine/tests/contract/test_world_abi_contract.py
+pytest /Users/deniskopylov/polisyos/policy-engine/tests/fabric/test_world_store.py
+pytest /Users/deniskopylov/polisyos/policy-engine/tests/fabric/test_world_materialization.py
 ```

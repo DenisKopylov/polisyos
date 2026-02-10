@@ -1,43 +1,44 @@
-# Nodes Layer: Workflow узлы
+# Nodes Layer (`polisyos.scientist.nodes`)
 
-**Реализации узлов для workflow execution**
+`nodes` содержит бизнес-ноды Scientist, которые выполняются `engine`-ом через `NodeRegistry`.
 
-Nodes содержит реализации workflow узлов для различных операций эксперимента.
+## Built-in ноды
 
-## Структура
+- `data/`
+  - `BuildDataSnapshotNode`
+  - `BindFoundryInputsNode`
+  - `EnrichKnowledgeNode` (опциональный scholar-контур)
+- `compile/`
+  - `LinkTrinityNode`
+  - `CompileFoundryNode`
+- `simulate/`
+  - `RunSimulationNode`
+  - `RunDistributionalAnalysisNode`
+  - `RunCausalEvaluationNode`
+  - `PropagateUncertaintyNode`
+- `governance/`
+  - `DataPlaneGateNode`
+  - `LegalCheckNode`
+  - `RunGovernanceNode`
+- `decide/`
+  - `BuildDecisionPacketNode`
 
-```
-nodes/
-├── builtins/        # Built-in node implementations
-│   ├── compile/     # Compilation nodes
-│   ├── data/        # Data processing nodes
-│   ├── decide/      # Decision nodes
-│   ├── governance/  # Governance nodes
-│   └── simulate/    # Simulation nodes
-└── __init__.py      # Node exports
-```
+`builtin_nodes()` собирает все встроенные ноды для регистрации.
 
-## Ключевые компоненты
+## Что идет в default DAG
 
-- **Compile nodes**: Компиляция политик в executable artifacts
-- **Data nodes**: Обработка и подготовка данных
-- **Decide nodes**: Принятие решений и финализация
-- **Governance nodes**: Валидация и compliance checks
-- **Simulate nodes**: Запуск симуляций
+Используются: `build_data_snapshot`, `bind_foundry_inputs`, `run_data_plane_gate`, `link_trinity`, `compile_foundry`, `run_simulation`, `run_distributional_analysis`, `run_causal_evaluation`, `propagate_uncertainty`, `run_governance`, `build_decision_packet`.
 
-## API Использование
+Не используются автоматически: `enrich_knowledge`, `legal_check`.
 
-```python
-from polisyos.scientist.nodes.builtins.compile import compile_foundry
-from polisyos.scientist.nodes.builtins.simulate import run_simulation
+## Контракты и ключи
 
-# Узлы используются через engine registry
-# Автоматическое обнаружение через discover_nodes()
-```
+- интерфейс ноды: `engine.protocol.Node` (`spec` + `execute`).
+- ошибки: `nodes/builtins/errors.py`.
+- canonical keys для `inputs/artifacts/reports`: `nodes/builtins/state_keys.py`.
 
 ## Связи
 
-- Регистрируется в **engine** registry
-- Интегрируется с **agent** для agent operations
-- Использует **compute** для job execution
-- Поддерживает **governance** validation
+- `adapters/foundry_bridge.py` и `adapters/fabric_bridge.py`.
+- `governance` passes и `kernel` human-gate.
+- `ir/foundry/fabric/lex/scholar` артефакты и контракты.

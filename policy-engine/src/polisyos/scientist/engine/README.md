@@ -1,48 +1,44 @@
-# Engine Layer: Workflow execution engine
+# Engine Layer (`polisyos.scientist.engine`)
 
-**ПлаггABLE workflow execution с node registry и state management**
+`engine` — ядро выполнения workflow в `scientist`: строгий state, DAG executor, registry, idempotency, checkpoint/resume.
 
-Engine предоставляет execution engine для декларативных workflow с pluggable nodes, registry и state management.
+## Что делает
 
-## Структура
+- валидирует `WorkflowSpec` (уникальные aliases, зависимости, required binds);
+- выполняет ноды в topological order;
+- пишет run-артефакты (`scientist.workflow_spec`, `scientist.experiment_state`, `scientist.workflow_report`);
+- кэширует успешные `NodeOutcome` по idempotency key;
+- создает checkpoint после успешных нод и поддерживает resume.
 
-```
-engine/
-├── builtins/        # Built-in workflow nodes
-├── context.py       # Execution context
-├── errors.py        # Engine-specific errors
-├── executor.py      # WorkflowExecutor
-├── protocol.py      # Node, NodeSpec protocols
-├── registry.py      # NodeRegistry, discover_nodes
-├── state.py         # ExperimentState (90+ полей)
-├── telemetry.py     # Engine telemetry
-└── workflow_spec.py # WorkflowSpec, NodeInvocation
-```
+## Ключевые файлы
 
-## Ключевые компоненты
+- `state.py` — `ExperimentState` (минимальная схема, `extra="forbid"`).
+- `protocol.py` — `Node`, `NodeSpec`, `NodeOutcome`, `NodeError`.
+- `workflow_spec.py` — `WorkflowSpec`, `NodeInvocation`, `error_policy`.
+- `registry.py` — `NodeRegistry`, `discover_nodes()`.
+- `executor.py` — `WorkflowExecutor.execute()`.
+- `idempotency.py` — `compute_idempotency_key()`, `NodeResultCache`.
+- `checkpoint.py` — `CASCheckpointHook`, `resume_from_checkpoint()`, `acquire_run_lock()`.
+- `builtins/` — engine-level ноды `noop`, `set_state`, `emit_artifact`.
 
-- **WorkflowExecutor**: Основной движок выполнения workflow
-- **NodeRegistry**: Registry для pluggable workflow nodes
-- **ExperimentState**: Центральное состояние эксперимента (90+ полей)
-- **Built-ins**: Встроенные узлы (emit_artifact, noop, set_state)
-- **Protocol**: Typed contracts для node implementations
+## Публичный API
 
-## API Использование
+Через `polisyos.scientist.engine` доступны:
 
-```python
-from polisyos.scientist.engine.executor import WorkflowExecutor
-from polisyos.scientist.engine.registry import discover_nodes
+- модели и протоколы (`ExperimentState`, `WorkflowSpec`, `NodeSpec`, `NodeOutcome`, ...);
+- `WorkflowExecutor`;
+- checkpoint/idempotency API (`resume_from_checkpoint`, `compute_idempotency_key`, ...).
 
-# Создание executor с registry
-registry = discover_nodes()
-executor = WorkflowExecutor(registry=registry)
+## Особенности
 
-# Выполнение workflow
-result = await executor.execute(workflow_spec, initial_state)
-```
+- `error_policy`: `fail_fast` или `continue`.
+- idempotency scope: `run_id + node_id + state_reads + bind params`.
+- кэш отключен для `noop/set_state/emit_artifact` и `enrich_knowledge`.
+- checkpoint policy: `off | strict | best_effort`.
+- run lock файл: `.polisyos/runs/<run_id>/run.lock`.
 
 ## Связи
 
-- Интегрируется с **agent** layer через node implementations
-- Управляет **kernel** для FSM transitions
-- Использует **governance** для validation passes
+- `workflows/` строит context/registry и запускает executor.
+- `nodes/` поставляет бизнес-ноды.
+- `core/` дает CAS, run context, component discovery и телеметрию.

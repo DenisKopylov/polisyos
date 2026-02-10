@@ -1,78 +1,46 @@
-# Docs — Document Processing Pipeline
+# Docs
 
-Многоформатная система обработки документов: от сырых байтов до семантических chunks, готовых для извлечения claims.
+`polisyos.fabric.docs` — конвейер обработки документных источников, который готовит артефакты для извлечения claims.
 
 ## Pipeline
 
-```
-Raw Bytes → Ingestion → Normalization → Structure Analysis → Chunking → Claims (../claims/)
-  (PDF/HTML/   ingest_    normalize_     structure_doc()    chunk_doc()
-   text)     doc_bytes()    doc()
+```text
+ingest_doc_bytes -> normalize_doc -> structure_doc -> chunk_doc
 ```
 
-Каждая стадия возвращает типизированный Result и принимает Options для настройки.
+Каждый шаг обновляет `DocMeta`, создает world event/facts и пишет segment manifest.
 
-## Структура
+## Состав
 
-```
-docs/
-├── types.py        # DocSourceSpec, DocIngest/Normalize/Structure/ChunkResult + Options
-├── errors.py       # DocNotReadyError, DocPipelineError, DocUnsupportedMimeError, DocValidationError
-├── ingestion.py    # ingest_doc_bytes() — загрузка, MIME detection, backend dispatch
-├── normalize.py    # normalize_doc() — encoding detection, text cleanup
-├── structure.py    # structure_doc() — извлечение заголовков, разделов, иерархии
-├── chunking.py     # chunk_doc() — семантическое разбиение на фрагменты
-└── backends/       # Format-specific processors
-    ├── pdf.py      # PDF: layout preservation, page extraction
-    ├── text_html.py # HTML: tag stripping, structure extraction
-    └── text_plain.py # Plain text: line-based processing
-```
+- `types.py` — `DocSourceSpec`, options/results dataclasses
+- `ingestion.py` — прием raw bytes в CAS, генерация `DocMeta`
+- `normalize.py` — decode + text normalization + mime-aware extractor
+- `structure.py` — построение anchors/sections + `DocFragment`
+- `chunking.py` — char/paragraph chunking + `DocFragment`
+- `errors.py` — ошибки pipeline (`DocValidationError`, `DocNotReadyError`, ...)
+- `backends/` — `text_html`, `text_plain`, `pdf` stubs
 
-## API
+## Важные ограничения текущей реализации
 
-```python
-from polisyos.fabric.docs import (
-    ingest_doc_bytes,    # Raw bytes → DocIngestResult
-    normalize_doc,       # → DocNormalizeResult (clean text)
-    structure_doc,       # → DocStructureResult (sections hierarchy)
-    chunk_doc,           # → DocChunkResult (semantic chunks)
-    DocSourceSpec,       # Source metadata (url, mime_type, etc.)
-)
-```
+- `DocSourceSpec` требует ровно один идентификатор: `canonical_url` или `official_id` или `source_locator`.
+- `license` обязателен.
+- Нормализация поддерживает `text/plain` и `text/html` в core-режиме.
+- PDF backend в текущем ядре не активен: для него нужны optional зависимости/расширение реализации.
 
-14 экспортов: 4 pipeline-функции + 4 Result-типа + 4 Options-типа + 4 error-типа.
+## Что возвращают стадии
 
-## Стадии
+Все стадии возвращают typed result c:
 
-### 1. Ingestion (`ingest_doc_bytes`)
+- `doc_source_id`, `doc_version_id`
+- актуальными artifact refs (`raw_ref`/`normalized_ref`/`structure_ref`/`chunks_ref`)
+- `doc_meta_artifact_id`
+- `world_event_id` + `world_event_artifact_id`
+- `world_segment_manifest`
 
-Принимает сырые байты + `DocSourceSpec`. MIME-type detection → dispatch на backend (PDF/HTML/text). Результат: `DocIngestResult` с raw text и метаданными.
-
-### 2. Normalization (`normalize_doc`)
-
-Encoding detection, Unicode normalization, whitespace cleanup, character replacement. Результат: `DocNormalizeResult` с чистым текстом.
-
-### 3. Structure Analysis (`structure_doc`)
-
-Извлечение логической структуры: заголовки (H1-H6), разделы, иерархия. Для PDF — по layout/font size, для HTML — по тегам. Результат: `DocStructureResult` с деревом секций.
-
-### 4. Chunking (`chunk_doc`)
-
-Семантическое разбиение: учитывает границы секций и параграфов, контролирует размер chunks (min/max tokens), overlap для контекста. Результат: `DocChunkResult` со списком `DocFragment`.
-
-## Backends
-
-Pluggable через `backends/__init__.py`:
-
-| Backend | Форматы | Особенности |
-|---------|---------|-------------|
-| `pdf.py` | PDF | Layout preservation, page-aware extraction |
-| `text_html.py` | HTML | Tag-aware structure, table extraction |
-| `text_plain.py` | Plain text | Line-based, paragraph detection |
+`chunk_doc` дополнительно возвращает `chunk_fragment_ids`.
 
 ## Связи
 
-- **claims/** — основной потребитель: получает DocMeta и chunks для extraction
-- **world/store** — persist_doc_meta(), persist_doc_fragment() для материализации
-- **provenance** — каждая стадия генерирует provenance records
-- **CAS** (core) — хранение нормализованного текста и метаданных
+- `claims/` — основной downstream потребитель (`extract_claims_from_doc`)
+- `world/store` — эмиссия и персист world-фактов/событий
+- `polisyos.ir.world.doc` / `polisyos.ir.citations` — доменные модели документа и локаторов

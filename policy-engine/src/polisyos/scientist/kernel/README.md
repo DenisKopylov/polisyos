@@ -1,43 +1,22 @@
-# Kernel Layer: FSM управление жизненным циклом
+# Kernel Layer (`polisyos.scientist.kernel`)
 
-**Конечный автомат состояний с бюджетами и safety controls**
+`kernel` — утилиты оркестрации: phase FSM, бюджеты и typed human gate protocol.
 
-Kernel обеспечивает FSM управление фазами экспериментов с бюджетами, guards и human gates.
+## Состав
 
-## Структура
+- `fsm.py` — `Phase`, `ALLOWED_TRANSITIONS`, `KernelState`, `ReflexionGuard`.
+- `guards.py` — `advance_phase()` и `require_artifacts()`.
+- `budgets.py` — модели бюджетов (`ComputeBudget`, `EvidenceBudget`, `LegitimacyBudget`, `ComplexityBudget`).
+- `gate_protocol.py` — `HumanGateProtocol` (создание/фиксация gate request/decision в CAS + trace events).
 
-```
-kernel/
-├── budgets.py      # Compute/Evidence/Legitimacy/Complexity budgets
-├── fsm.py          # Phase enum, KernelState, transition guards
-├── guards.py       # State transition validation
-└── human_gate.py   # GateRequest/GateDecision для human approval
-```
+## Что важно знать
 
-## Ключевые компоненты
-
-- **FSM**: 9 фаз эксперимента (INTAKE → FRAME → PLAN → EXECUTE → DECIDE → PUBLISH)
-- **Budgets**: Многоуровневые бюджеты (compute, evidence, legitimacy, complexity)
-- **Guards**: Проверки переходов между состояниями
-- **Human Gates**: Асинхронные gates для критических решений
-
-## API Использование
-
-```python
-from polisyos.scientist.kernel.fsm import Phase, KernelState, advance_phase
-from polisyos.scientist.kernel.budgets import ComputeBudget
-
-# Создание бюджета
-budget = ComputeBudget(max_llm_calls=5, max_sim_runs=2)
-
-# FSM управление
-kernel = KernelState(phase=Phase.FRAME)
-if kernel.can_transition(Phase.PLAN):
-    new_state = advance_phase(experiment_state, Phase.PLAN)
-```
+- FSM поддерживает не только линейный путь (`INTAKE -> ... -> ARCHIVE`), но и search/reflexion фазы.
+- `engine` сам по себе не продвигает фазу автоматически; переходы применяются через state/guards на уровне нод и orchestration-логики.
+- `scientist.node_run_governance` использует `HumanGateProtocol` для typed gate артефактов (`ir.gate_request`, `ir.gate_decision`).
 
 ## Связи
 
-- Управляет **engine** execution через phase transitions
-- Контролирует **compute** через budget enforcement
-- Интегрируется с **governance** для human oversight
+- `governance` — gate decisions и escalation flow.
+- `engine` — хранит phase/budget значения в `ExperimentState.params`.
+- `ir.governance.gate` — canonical контракты GateContext/GateRequest/GateDecision.

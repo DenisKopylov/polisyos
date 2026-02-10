@@ -1,38 +1,56 @@
-# OPA Policies (Phase 2 Zero Trust)
+# OPA Policies (`ops/opa`)
 
-Rego policies for per-request authorization in PolicyOS.
+Rego-политики для runtime authorization и deploy gate в PolicyOS.
 
-## Files
+## Что здесь есть
 
-- `policies/tenant_boundary.rego` — hard tenant boundary checks.
-- `policies/role_access.rego` — method/path RBAC checks.
-- `policies/data_classification.rego` — PII-tier checks and allowed column derivation.
-- `policies/delegation_guard.rego` — delegation safety checks for inter-service user context.
-- `policies/decision.rego` — composite decision entrypoint used by runtime middleware.
-- `policies/vulnerability.rego` — SBOM/CVE deployment vulnerability gate.
-- `policies/deploy.rego` — deployment decision entrypoint (separate from runtime authz).
+- `policies/*.rego` — 7 policy-модулей.
+- `policies/*_test.rego` — 7 unit-тестов.
 
-## Evaluation entrypoint
+## Точки входа (entrypoints)
 
-The runtime OPA client calls:
+- Runtime authz: `data.polisyos.authz.decision`  
+  HTTP path для OPA API: `/v1/data/polisyos/authz/decision`
+- Deployment gate: `data.polisyos.deploy.decision`  
+  HTTP path: `/v1/data/polisyos/deploy/decision`
 
-- `data.polisyos.authz.decision`
+## Модули
 
-Deployment pipelines should call:
+- `tenant_boundary.rego` — tenant boundary deny-by-default.
+- `role_access.rego` — RBAC по method/path + MFA для sensitive paths.
+- `data_classification.rego` — PII-tier ceiling, anonymization/mfa checks, `allowed_columns`.
+- `delegation_guard.rego` — защита делегированного user context по SPIFFE peer identity.
+- `decision.rego` — композитная runtime policy (`allow` только если все sub-policy allow).
+- `vulnerability.rego` — CVE/SBOM gate по CVSS threshold + allowlist exceptions.
+- `deploy.rego` — композитный deploy entrypoint над vulnerability policy.
 
-- `data.polisyos.deploy.decision`
+## Контракт входных данных
 
-Expected fields in decision result:
+Политики ожидают поля:
+
+- `request`: `method`, `path`, `headers`
+- `identity`: `tenant_id`, `roles`, `principal_type`, `mfa_verified`, `cell_id`, `sub`, `spiffe_id`
+- `peer`: `spiffe_id`
+- `resource`: `tenant_id`, `kind`, `artifact_id`, `pii_tier`, `metric_id`, `columns`, `requires_anonymization`
+
+Этот контракт формируется в `src/polisyos/core/security/authz.py` (`AuthzInput.to_opa_input()`) и используется в `src/polisyos/runtime/http/authz_middleware.py`.
+
+## Формат результата decision
+
+Ожидаемые поля:
 
 - `allow` (boolean)
-- `deny_reasons` (set/list)
+- `deny_reasons` (list/set)
 - `audit_entry` (object)
-- `allowed_columns` (set, when applicable)
+- `allowed_columns` (optional; для data classification)
 
-## Policy tests
-
-Run Rego unit tests locally:
+## Локальные проверки
 
 ```bash
-opa test ops/opa/policies -v
+opa test policy-engine/ops/opa/policies -v
 ```
+
+## Важно про Helm
+
+В `ops/helm/polisyos-cell/policies/` лежит копия policy-файлов для ConfigMap внутри chart.
+При изменении Rego в `ops/opa/policies/` синхронизируйте дубли в `ops/helm/polisyos-cell/policies/`.

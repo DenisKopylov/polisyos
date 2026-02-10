@@ -1,98 +1,52 @@
-# grafana — Dashboards & Visualization
+# Grafana (`ops/grafana`)
 
-4 ролевых дашборда с auto-provisioning для визуализации метрик PolicyOS. Данные поступают из Prometheus (`prometheus:9090` через docker-compose service discovery).
+Набор prebuilt-дашбордов для PolicyOS observability.
 
-## Файлы
+## Структура
 
-```
+```text
 grafana/
 ├── dashboards/
-│   ├── executive-overview.json    # Руководство: cost, acceptance, throughput
-│   ├── scientist-agents.json      # Scientist: governance, LLM, validation
-│   ├── foundry-hpc.json           # Foundry: simulation, JIT, cache, calibration
-│   └── slo-overview.json          # SLO: success rates, latency, NaN, cost
+│   ├── executive-overview.json
+│   ├── scientist-agents.json
+│   ├── foundry-hpc.json
+│   ├── slo-overview.json
+│   ├── security-phase4.json
+│   └── knowledge-freshness.json
 └── provisioning/
-    └── dashboards.yml             # Auto-provisioning config (folder: PolicyOS)
+    └── dashboards.yml
 ```
 
 ## Дашборды
 
-### Executive Overview (`polisyos-executive`)
-**Аудитория:** руководство, product owners
-- **LLM Cost (USD/h)** — stat panel, thresholds: green <$10, yellow <$50, red >$50
-- **Policy Acceptance Rate** — gauge, thresholds: red <70%, yellow <90%, green >90%
-- **Active Experiments** — stat, текущие запуски
-- **Workflow Throughput** — timeseries, workflows/hour за 5m window
-- **Templating:** environment (production/staging)
-
-### Scientist Agent Performance (`polisyos-scientist`)
-**Аудитория:** data scientists, governance engineers
-- **Governance Pass Duration (p95)** — timeseries по pass_id
-- **Validation Failures by Pass** — barchart, increase за 1h
-- **LLM Token Consumption by Model** — piechart
-- **LLM Calls by Status** — timeseries (success/error/timeout)
-
-### Foundry HPC Performance (`polisyos-foundry`)
-**Аудитория:** simulation engineers, ML engineers
-- **Simulation Throughput** — stat (steps/sec), thresholds: red <100, yellow <1000
-- **CAS Cache Hit Ratio** — gauge, threshold: red <70%, yellow <90%
-- **JIT Compilation Rate** — stat (compiles/min), red >20
-- **JIT Compilation Time** — heatmap по bucket distribution
-- **Simulation Duration Percentiles** — timeseries (p50, p95, p99)
-- **CAS I/O Latency** — timeseries (p95)
-- **Calibration Convergence** — timeseries (loss + grad norm)
-
-### SLO Overview (`polisyos-slo-overview`)
-**Аудитория:** platform team, SRE
-- **DAG Success Rate (30m)** — gauge, thresholds: red <90%, yellow <95%
-- **Simulation NaN Rate (5m)** — gauge, red >0.1%
-- **Connector Error Rate (5m)** — gauge, red >1%
-- **DAG p99 Latency** — stat, red >300s
-- **Run Cost p95** — stat (USD), red >$5
-- **DAG Success Rate Timeline** — timeseries by workflow_id
-- **NaN Rate Timeline** — timeseries by env
-- **Connector Error Rate Timeline** — timeseries by connector_id
-- **DAG Latency Distribution** — heatmap
-- **Run Cost Distribution** — heatmap
-- **Templating:** environment (query), workflow_id (multi-select), connector_id (multi-select)
+- `polisyos-executive` — executive KPI (LLM cost, acceptance rate, throughput).
+- `polisyos-scientist` — governance/LLM/validation + drafter multipass метрики.
+- `polisyos-foundry` — simulation throughput, JIT, cache, calibration.
+- `polisyos-slo-overview` — SLO + cell/security обзор (использует `polisyos:slo_*` recording rules).
+- `polisyos-security-phase4` — TEE attestation + SBOM security метрики.
+- `polisyos-knowledge-freshness` — freshness/refresh статусы knowledge bundles.
 
 ## Provisioning
 
-Дашборды загружаются автоматически при старте контейнера через `provisioning/dashboards.yml`:
-- **Provider:** `polisyos`, folder `PolicyOS`
-- **Path:** `/etc/grafana/dashboards` (read-only volume mount)
-- **editable:** true — можно менять через UI, но изменения не сохраняются при рестарте
+`provisioning/dashboards.yml` провиженит только dashboard-файлы из `/etc/grafana/dashboards` в папку `PolicyOS`.
 
-## Общие настройки
+## Источник данных
 
-- **Refresh:** 30s (все дашборды)
-- **Schema version:** 38
-- **Timezone:** browser
-- **Data source:** Prometheus (auto-discovery через docker-compose)
-- **Credentials:** admin/admin (default)
+В JSON-панелях datasource не зафиксирован (используется default datasource Grafana).
+Поэтому после локального старта нужен default Prometheus datasource в UI:
 
-## Добавление нового дашборда
+- URL: `http://prometheus:9090`
 
-1. Создать JSON в `dashboards/` с уникальным `uid` (формат: `polisyos-<name>`)
-2. Установить `tags: ["polisyos", ...]` для группировки
-3. Перезапустить Grafana: `docker-compose restart grafana`
-4. Для использования recording rules вместо raw queries — см. `prometheus/recording_rules.yml`
+## Связь с другими модулями
 
-## Ключевые PromQL-паттерны
+- `ops/prometheus/` — источник PromQL/rules для панелей.
+- `src/polisyos/core/observability/` — источник метрик.
+- `src/polisyos/core/security/*` и runtime/scientist/fabric компоненты — security/SLO/freshness метрики.
 
-```promql
-# LLM cost (USD/hour) — используется в Executive Overview
-(sum(rate(polisyos_llm_tokens_total{type="prompt"}[1h])) * 0.00001 +
- sum(rate(polisyos_llm_tokens_total{type="completion"}[1h])) * 0.00003) * 3600
+## Локальный старт
 
-# Acceptance rate — или recording rule polisyos:workflow_acceptance_rate:rate1h
-sum(rate(polisyos_workflow_runs_total{status="success"}[1h])) /
-sum(rate(polisyos_workflow_runs_total[1h]))
-
-# Governance p95 latency
-histogram_quantile(0.95,
-  sum by (le, pass_id) (rate(polisyos_governance_pass_duration_seconds_bucket[5m])))
-
-# SLO DAG success rate — recording rule (рекомендуется)
-polisyos:slo_dag_success_rate:rate30m{env="$environment", workflow_id=~"$workflow_id"}
+```bash
+cd policy-engine/ops
+docker compose -f docker-compose.observability.yml up -d
+# Grafana: http://localhost:3000 (admin/admin)
 ```

@@ -1,107 +1,41 @@
-# Governance Layer: Управление качеством и безопасностью
+# Governance Layer (`polisyos.scientist.governance`)
 
-Многоуровневый контроль качества, безопасности и соответствия требованиям. Governance обеспечивает validation pipeline с preflight/postflight checks, модульными passes и human oversight.
+`governance` — слой проверок и human-gate интеграции для `scientist`.
+
+## Роль в системе
+
+- выполняет validation passes и формирует issue-листы;
+- строит pre/post-flight решения (`GateRequest` / `GateDecision`);
+- формирует `GovernanceReport` для workflow.
 
 ## Структура
 
-```
-governance/                        17 .py файлов
-├── preflight.py                   # Preflight validation → (state, GateRequest?)
-├── postflight.py                  # Postflight validation → (state, GateDecision?)
-├── pipeline.py                    # Orchestrator: запуск passes с short-circuit на BLOCKER
-├── profiles.py                    # fast / mvp / strict — наборы проверок
-├── telemetry.py                   # ValidationTrace, PassSpan для мониторинга
-├── report.py                      # Compliance reports
-│
-├── passes/                        # Модульные валидаторы
-│   ├── base.py                    # ValidatorPass, PassContext, ComplianceIssue
-│   ├── budget_pass.py             # Compute / evidence / legitimacy / complexity budgets
-│   ├── safety_pass.py             # Запрещённые механизмы и селекторы
-│   ├── privacy_pass.py            # PII tiers, access control
-│   ├── schema_pass.py             # IR validation (TrinityBundle schema)
-│   ├── legal_pass.py              # Юридическая compliance (см. Legal Compliance ниже)
-│   ├── quality_gate_pass.py       # Качество данных (интеграция с Fabric quality indicators)
-│   ├── confidence_pass.py         # Валидация уровней доверия
-│   └── equity_pass.py             # Distributional impact analysis
-│
-└── legal/                         # Legal compliance backends
-    ├── ast_policy.py              # Policy AST representation
-    └── backends/
-        ├── base.py                # RuleBackend protocol
-        ├── expr_ast.py            # AST-based safe expression evaluation
-        └── stub.py                # Stub для тестирования и development
-```
+- `pipeline.py` — `ValidationPipeline` (ordered passes + short-circuit по blocker).
+- `preflight.py` — `preflight_checks(state, profile)`.
+- `postflight.py` — `postflight_checks(state, profile)`.
+- `report.py` — `GovernanceReport`, `GovernanceReportLinks`.
+- `passes/`:
+  - локальные: `BudgetPass`, `SchemaPass`, `PrivacyPass`, `PIICheckPass`, `QualityGatePass`, `ConfidencePass`, `EquityPass`;
+  - compatibility re-export: `SafetyPass`, `LegalPass` (из `core.governance`).
+- `legal/` — deprecated compatibility re-exports в `core.governance.legal.*`.
 
-## Validation Pipeline
+## Важный нюанс default workflow
 
-Pipeline запускает модульные passes последовательно, short-circuit при первом BLOCKER issue. Каждый pass получает `PassContext` (IR, state, profile, run_id) и возвращает список `ComplianceIssue`.
+`run_experiment()` через node `scientist.node_run_governance@1.1.0` использует только подмножество проверок (`confidence`, `equity`, `pii_check`) в зависимости от профиля.
 
-### Профили валидации
+`preflight_checks/postflight_checks` — это отдельные API, они не вызываются автоматически default DAG.
 
-| Профиль | Passes | Назначение |
-|---------|--------|-----------|
-| `fast` | schema | Быстрая итерация, минимальные проверки |
-| `mvp` | schema, budget, safety | Стандартная разработка |
-| `strict` | все (включая legal, privacy, equity, quality gate) | Production и compliance |
-
-### Preflight / Postflight
-
-- **Preflight** (`preflight.py`): валидация до выполнения эксперимента. Возвращает `GateRequest` если требуется human approval.
-- **Postflight** (`postflight.py`): валидация после выполнения. Возвращает `GateDecision` с финальным вердиктом.
-
-## Validation Passes
-
-| Pass | Что проверяет | Severity |
-|------|--------------|----------|
-| `budget_pass` | Compute / evidence / legitimacy / complexity бюджеты | BLOCKER при превышении |
-| `safety_pass` | Запрещённые mechanisms и selectors в policy IR | BLOCKER |
-| `privacy_pass` | PII tier controls, data access permissions | BLOCKER / WARNING |
-| `schema_pass` | Структурная валидация TrinityBundle | BLOCKER |
-| `legal_pass` | Соответствие юридическим нормам (NormPack) | BLOCKER / WARNING |
-| `quality_gate_pass` | Качество данных: missingness, staleness, coverage, outliers | BLOCKER / WARNING |
-| `confidence_pass` | Уровни доверия результатов | WARNING |
-| `equity_pass` | Distributional impact, Gini, cohort analysis | WARNING / INFO |
-
-## Legal Compliance
-
-Подсистема `legal/` реализует pluggable backends для оценки соответствия юридическим нормам:
-
-- **RuleBackend** (`backends/base.py`) — protocol: `evaluate(norm_pack, context) → List[ComplianceIssue]`. Требования: idempotent, stateless, thread-safe.
-- **ExprASTBackend** (`backends/expr_ast.py`) — AST-based evaluation для expression-based норм. Безопасный parsing без code injection.
-- **StubBackend** (`backends/stub.py`) — возвращает INFO для всех норм. Используется в тестах и development.
-
-Типы норм: `OBLIGATION` (обязательства), `PROHIBITION` (запреты), `PERMISSION` (разрешения).
-
-LegalPass интегрируется в pipeline через конфигурацию backend:
+## Пример API
 
 ```python
-from polisyos.core.governance.passes.legal_pass import LegalPass
-from polisyos.core.governance.legal.backends.stub import StubBackend
+from polisyos.scientist.governance import preflight_checks
+from polisyos.core.governance.profiles import ValidationProfile
 
-legal_pass = LegalPass(backend=StubBackend())
-```
-
-## API
-
-```python
-from polisyos.scientist.governance.preflight import preflight_checks
-from polisyos.scientist.governance.postflight import postflight_checks
-from polisyos.scientist.governance.pipeline import run_validation_pipeline
-
-# Preflight
-state, gate_request = preflight_checks(experiment_state)
-
-# Полный pipeline
-issues = run_validation_pipeline(state, profile="strict")
-
-# Postflight
-state, gate_decision = postflight_checks(experiment_state)
+updated_state, gate_request = preflight_checks(state, ValidationProfile.strict())
 ```
 
 ## Связи
 
-- **kernel** — GateRequest/GateDecision для human gates
-- **IR** — TrinityBundle для schema validation, NormPack для legal checks
-- **Fabric** — quality indicators для quality_gate_pass
-- **engine** — governance nodes вызывают pipeline в рамках workflow
-- **lex** — использует PassContext, LegalPass, SafetyPass для norm impact analysis
+- `core.governance.*` — базовые контракты, профили и часть pass-ов.
+- `kernel.gate_protocol` — typed human gate lifecycle.
+- `nodes/builtins/governance/*` — workflow-интеграция в DAG.

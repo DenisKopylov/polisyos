@@ -1,126 +1,92 @@
-# Audit — Портативные аудит-пакеты
+# Audit — портативные аудит-пакеты и офлайн-верификация
 
-Сборка и офлайн-верификация портативных аудит-пакетов (`.polisyos-audit.tar.gz`) с полным provenance tracking в формате W3C PROV-JSON. Пакет содержит все артефакты, подписи, метаданные запуска и standalone-верификатор.
+`core.audit` собирает воспроизводимый `.polisyos-audit.tar.gz` пакет из CAS + run metadata и проверяет его без доступа к исходной среде.
 
-## Архитектура
+Пакет объединяет:
 
-```
-audit/
-├── assembler.py                     # AuditPackageAssembler — сборка пакетов из CAS и run metadata
-├── verifier.py                      # AuditPackageVerifier — офлайн-верификация (5 шагов)
-├── models.py                        # ExportOptions, VerificationReport, StepResult, enums
-├── prov_json.py                     # ProvJsonConverter — конвертация в W3C PROV-JSON, DOT
-├── report.py                        # render_markdown() — markdown-отчет верификации
-├── safe_tar.py                      # safe_extract_tar() — безопасная распаковка архивов
-└── standalone_verifier_template.py  # Self-contained Python верификатор (без зависимостей от polisyos)
-```
+- артефакты и манифесты CAS;
+- подписи/публичные ключи;
+- provenance (`prov.json` + core graph);
+- run/trace metadata;
+- standalone verifier + checksums;
+- опционально SLSA attestation bundle.
 
-## AuditPackageAssembler
+## Основные компоненты
 
-Собирает портативный пакет из CAS-артефактов и метаданных запуска:
+| Файл | Назначение |
+|---|---|
+| `assembler.py` / `_assembler_*.py` | сборка пакета, provenance merge, deterministic archive |
+| `verifier.py` | офлайн проверка целостности/подписей/provenance/SLSA |
+| `models.py` | `ExportOptions`, `AuditExportResult`, `VerificationReport` |
+| `prov_json.py` | конвертация между core graph и W3C PROV-JSON |
+| `report.py` | markdown-render отчета проверки |
+| `safe_tar.py` | безопасная распаковка архива |
+| `standalone_verifier_template.py` | self-contained Python verifier для пакета |
+
+## Сборка пакета
 
 ```python
+from pathlib import Path
+
 from polisyos.core.audit import AuditPackageAssembler, ExportOptions, ExportProfile, SigningPolicy
 
 assembler = AuditPackageAssembler(
     cas=store,
     runs_dir=Path("/artifacts/runs"),
     options=ExportOptions(
-        profile=ExportProfile.FULL,           # FULL или MANIFESTS_ONLY
-        signing_policy=SigningPolicy.WARN,     # STRICT, WARN, SKIP
+        profile=ExportProfile.FULL,
+        signing_policy=SigningPolicy.WARN,
         include_visualization=True,
     ),
 )
-result = assembler.export("R_abc123", output_path=Path("audit_output.tar.gz"))
+result = assembler.export("R_abc123", output_path=Path("audit_output.polisyos-audit.tar.gz"))
 ```
 
-**Что делает:**
-1. Загружает RunManifest (из manifest.json или trace.jsonl)
-2. Разрешает transitive closure зависимостей через `resolve_dependency_graph`
-3. Собирает Ed25519-подписи и публичные ключи
-4. Строит merged provenance graph из CAS-манифестов и trace events
-5. Конвертирует в W3C PROV-JSON
-6. Генерирует детерминированный `.polisyos-audit.tar.gz`
+Что делает assembler:
 
-**Структура пакета:**
-```
-├── index.json                        # Индекс: метаданные, статистика, файлы
-├── artifacts/sha256/                  # CAS-артефакты (.blob + .manifest.json)
-├── signatures/sha256/                 # Detached Ed25519 подписи (.sig)
-├── signatures/public_keys/            # Публичные ключи + identities.json
-├── provenance/prov.json               # W3C PROV-JSON
-├── provenance/prov-core.json          # ProvenanceCoreGraph
-├── metadata/run_manifest.json         # Run metadata
-├── metadata/trace.jsonl               # Trace записи
-├── visualization/provenance_graph.dot # Graphviz DOT (+ SVG если dot доступен)
-└── verification/                      # verify.py, checksums.sha256, instructions.md
-```
+1. читает `RunManifest` и trace;
+2. строит dependency closure через `core.artifacts.graph`;
+3. собирает подписи и trust-метаданные;
+4. строит merged provenance graph и экспортирует W3C PROV-JSON;
+5. при включении добавляет SLSA bundle;
+6. формирует checksums + опциональную подпись checksum файла;
+7. создает детерминированный tar.gz архив.
 
-## AuditPackageVerifier
-
-Офлайн-верификация пакета — 5 шагов:
+## Офлайн-верификация
 
 ```python
-from polisyos.core.audit import AuditPackageVerifier
+from pathlib import Path
 
-verifier = AuditPackageVerifier(
-    trusted_keys_dir=Path(".polisyos/keys/trusted"),
-    allow_package_keys=False,  # не доверять ключам из пакета
-    fail_unsigned=False,
-)
+from polisyos.core.audit import AuditPackageVerifier, render_markdown
+
+verifier = AuditPackageVerifier(trusted_keys_dir=Path(".polisyos/keys/trusted"))
 report = verifier.verify(Path("audit_output.polisyos-audit.tar.gz"))
-print(report.overall_status)  # "PASS" или "FAIL"
+markdown = render_markdown(report)
 ```
 
-**Шаги верификации:**
+Проверки в `VerificationReport`:
 
-| Шаг | Проверяет |
-|-----|-----------|
-| Package Integrity | checksums.sha256, index.json файлы, подпись checksums |
-| CAS Integrity | SHA256 блобов == artifact_id, размеры, manifest integrity |
-| Signature Verification | Ed25519 подписи vs trusted keys, signer identity |
-| Provenance Validation | PROV-JSON структура, dangling entities, циклы в wasDerivedFrom |
-| Dependency Completeness | Полнота closure — все usedEntity/generatedEntity присутствуют |
+- `Package Integrity`
+- `CAS Integrity`
+- `Signature Verification`
+- `Provenance Validation`
+- `Dependency Completeness`
+- `SLSA Verification`
 
-## VerificationReport
+## Export/verify параметры
 
-```python
-from polisyos.core.audit import render_markdown
-
-report = verifier.verify(package_path)
-markdown = render_markdown(report)  # Человекочитаемый markdown-отчет
-```
-
-**Поля:** `overall_status`, `package_integrity`, `cas_integrity`, `signature_verification`, `provenance_validation`, `dependency_completeness`, `failures`, `warnings`, `environment`.
-
-## W3C PROV-JSON
-
-Конвертация ProvenanceCoreGraph в стандартный W3C PROV-JSON:
-
-```python
-from polisyos.core.audit import ProvJsonConverter, prov_json_to_dot
-
-converter = ProvJsonConverter(run_id="R_abc123", include_bundle=True)
-prov_json = converter.convert(core_graph)
-dot_content = prov_json_to_dot(prov_json)  # для Graphviz
-```
-
-## Конфигурация
-
-| Параметр | Описание |
-|----------|----------|
-| `ExportProfile.FULL` | Включить blob-файлы артефактов |
-| `ExportProfile.MANIFESTS_ONLY` | Только манифесты (меньший размер) |
-| `SigningPolicy.STRICT` | Fail если есть неподписанные артефакты |
-| `SigningPolicy.WARN` | Warning для неподписанных |
-| `SigningPolicy.SKIP` | Игнорировать подписи |
+| Опция | Значение |
+|---|---|
+| `ExportProfile.FULL` | включает blobs + manifests |
+| `ExportProfile.MANIFESTS_ONLY` | только manifests и метаданные |
+| `SigningPolicy.STRICT` | fail при неподписанных артефактах |
+| `SigningPolicy.WARN` | предупреждение при неподписанных |
+| `SigningPolicy.SKIP` | пропуск проверки подписей |
+| `ExportOptions.slsa_mode/slsa_policy` | включает режим сборки SLSA материалов |
 
 ## Зависимости
 
-- `core.artifacts` — CAS, signing, graph, manifest
-- `core.run` — RunManifest
-- `core.trace` — TraceRecord (парсинг trace.jsonl)
-- `core.canon` — десериализация артефактов
-- `core.contracts.provenance` — ProvenanceCoreGraph и типы lineage
-
-Legacy runtime manifest определяется по shape compatibility локально в `core.audit`, без прямой зависимости от `runtime.manifest`.
+- `core.artifacts`: CAS/manifest/graph/signing
+- `core.run` + `core.trace`: run lifecycle metadata
+- `core.contracts.provenance`: canonical provenance graph
+- `core.security.slsa`: attestation/signing/transparency (опционально)

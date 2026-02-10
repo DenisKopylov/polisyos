@@ -1,147 +1,138 @@
-# Scholar — система сбора и обогащения знаний
+# Scholar — пайплайн обогащения знаний
 
-Модуль `polisyos.scholar` реализует полный пайплайн преобразования сырых источников данных (URL, файлы, байты) в структурированные **KnowledgeBundle** — пакеты знаний с извлечёнными утверждениями, оценками доверия и метаданными провенанса.
+`polisyos.scholar` превращает набор источников (`url`, `local_file`, `bytes`) в детерминированный `KnowledgeBundle` и опциональный `EnrichmentReport`, сохраняя оба артефакта в CAS.
 
-## Место в архитектуре
+## Роль в системе
 
 ```
-Внешние источники (URL, файлы, байты)
-         │
-         ▼
-   ┌───────────┐    ResearchIntent
-   │  Scholar   │◄── (domain, sources, budgets)
-   └─────┬─────┘
-         │ KnowledgeBundleRef
-         ▼
-   Scientist / Foundry ──► IR
+ResearchIntent (core.contracts.scholar)
+          |
+          v
+     Scholar (discover -> acquire -> docs -> claims -> reconcile -> bundle)
+          |
+          v
+KnowledgeBundleRef / EnrichmentReportRef (CAS)
+          |
+          v
+Scientist node enrich_knowledge / core CLI scholar enrich
 ```
 
-Scholar — **потребитель** сервисов Fabric (документы, утверждения, world-граф) и Core (CAS, контракты). Обратных зависимостей на Scholar из других модулей нет — он вызывается Scientist/Foundry как сервис обогащения.
+Scholar сам не владеет ingest/claims/world-реализацией, а оркестрирует подсистемы `fabric.*` и типы `core.contracts.scholar`.
 
 ## Публичный API
 
 ```python
+from pathlib import Path
 from polisyos.scholar import ScholarService, enrich_topic
 
-# Функциональный стиль
 result = enrich_topic(
     cas=cas_store,
-    fact_log_root=Path("/logs"),
+    fact_log_root=Path("/tmp/facts"),
     intent=research_intent,
-    db=simulation_db,       # опционально
-    policy=scholar_policy,  # опционально
+    storage=storage_port,   # рекомендуемый путь
+    db=legacy_db,           # legacy, авто-обертка в DuckDBStorageAdapter
+    policy=scholar_policy,
 )
-# result.knowledge_bundle_ref — ссылка на пакет в CAS
-# result.report              — EnrichmentReportV1
 
-# Сервис-обёртка
-service = ScholarService(fact_log_root=Path("/logs"), db=db, policy=policy)
+service = ScholarService(fact_log_root=Path("/tmp/facts"), storage=storage_port)
 bundle_ref = service.enrich(cas_store, research_intent)
 ```
 
-## Структура модуля
+Возвращаемое значение: `EnrichResultV1` (`knowledge_bundle_ref`, `bundle_id`, `report`, `report_ref`).
+
+## Архитектура директории
 
 ```
 scholar/
-├── api.py              # Фасад: ScholarService, enrich_topic()
-├── types.py            # Внутренние типы пайплайна
-├── policies.py         # ScholarPolicy — конфигурация всех стадий
-├── errors.py           # Иерархия ошибок по стадиям
-├── discover/           # Обнаружение и получение источников
-│   ├── manual.py       #   нормализация, каноникализация, дедупликация
-│   ├── http_fetch.py   #   HTTP/HTTPS загрузка с таймаутами
-│   └── local_files.py  #   чтение локальных файлов
-└── orchestrator/       # Координация пайплайна обогащения
-    ├── enrich.py       #   7-стадийный пайплайн
-    └── bundle.py       #   сборка KnowledgeBundle + WorldEvent
+├── __init__.py                # lazy public exports
+├── api.py                     # публичный фасад
+├── policies.py                # ScholarPolicy + freshness defaults
+├── errors.py                  # stage-aware ошибки
+├── types.py                   # внутренние dataclass/Pydantic типы
+├── freshness.py               # freshness policy/check + metrics
+├── freshness_store.py         # sidecar runtime state + lock
+├── discover/
+│   ├── manual.py              # нормализация/дедуп источников
+│   ├── http_fetch.py          # HTTP acquire
+│   └── local_files.py         # чтение local_file
+└── orchestrator/
+    ├── enrich.py              # основной pipeline
+    └── bundle.py              # bundle_id, CAS persist, world event
 ```
 
-## Пайплайн обогащения
+## Как работает enrich pipeline
 
-`enrich_topic()` проводит источники через семь последовательных стадий:
+`orchestrator/enrich.py::enrich_topic()` выполняет:
 
-| # | Стадия | Что делает | Ошибка при сбое |
-|---|--------|------------|-----------------|
-| 1 | **validate** | Проверка `ResearchIntent` (domain, seed_sources обязательны), разрешение бюджетов и порогов | `ScholarValidationError` |
-| 2 | **discover** | Нормализация URL (каноникализация хоста, сортировка query-параметров), разрешение путей, SHA-256 идентификация bytes-источников, дедупликация, обрезка по `max_docs` | `ScholarDiscoverError` |
-| 3 | **acquire** | Последовательное получение данных: `fetch_url` (HTTP с таймаутом), `read_local_file`, прямое чтение bytes. Останов при достижении `max_bytes_total` | `ScholarAcquireError` |
-| 4 | **docs** | Для каждого документа: `ingest_doc_bytes` → `normalize_doc` → `structure_doc` → `chunk_doc`. Пропускает стадии при наличии результатов в CAS | `ScholarDocsError` |
-| 5 | **claims** | Выбор экстрактора через `ClaimExtractorRegistry` (с учётом domain/jurisdiction/language). Извлечение утверждений, нормализация. Останов при исчерпании `max_claims_total` | `ScholarClaimsError` |
-| 6 | **reconcile** | `resolve_conflicts`: обнаружение противоречий, оценка доверия (`TrustAssessment`), выбор победителей. Фильтрация документов ниже `min_doc_trust_tier`, фильтрация утверждений по `claim_targets` | `ScholarReconcileError` |
-| 7 | **bundle** | Детерминированный `bundle_id` (SHA от intent + docs + claims + policies). Персистенция KnowledgeBundle и EnrichmentReport в CAS. Эмиссия `WorldEvent` (KNOWLEDGE_BUNDLE_BUILD) с провенансом | `ScholarBundleError` |
+| Шаг | Что происходит |
+|---|---|
+| validate | Проверка `ResearchIntent` (`domain` и `seed_sources` обязательны) |
+| budgets/thresholds | Мерж `budgets_v1/thresholds_v1` intent с дефолтами `ScholarPolicy` |
+| discover | Нормализация `SourceSpec`: каноникализация URL, абсолютные пути, hash-identity для bytes, дедуп, срез по `max_docs` |
+| acquire | Последовательный fetch/read источников с лимитами `max_bytes_per_doc` и `max_bytes_total` |
+| docs | `ingest_doc_bytes -> normalize_doc -> structure_doc -> chunk_doc`; стадии пропускаются, если ref уже есть в CAS |
+| claims | bootstrap extractors через `core.components` + извлечение/нормализация claims с учетом claim budget |
+| reconcile | `resolve_conflicts`, расчет trust, quality artifacts, выбор winners |
+| filtering | Отсев docs ниже `min_doc_trust_tier`, отсев claims по `claim_targets` и по цитируемым выбранным docs |
+| bundle | Детерминированный `bundle_id`, сборка payload/report, persist в CAS, запись `KNOWLEDGE_BUNDLE_BUILD` world event |
 
-## Типы источников (discover/)
+Ошибки заворачиваются в stage-специфичные исключения: `ScholarValidationError`, `ScholarDiscoverError`, `ScholarAcquireError`, `ScholarDocsError`, `ScholarClaimsError`, `ScholarReconcileError`, `ScholarBundleError`.
 
-| Тип | Идентификация | Особенности |
-|-----|--------------|-------------|
-| `url` | `canonical_url` (каноникализированный) | HTTP-загрузка, определение MIME из Content-Type, таймаут + User-Agent из политики |
-| `local_file` | `source_locator` (абсолютный путь) | Разрешение `~` и относительных путей, MIME по расширению (.txt, .html, .htm) или mime_hint |
-| `bytes` | `bytes.sha256_{hash}` | Данные передаются в памяти, MIME из mime_hint |
+## Источники и discover/acquire особенности
 
-## Политики (ScholarPolicy)
+- `url`: каноникализация (lower-case host/scheme, сортировка query, удаление fragment).
+- `local_file`: путь резолвится в абсолютный; встроенно поддержаны `.txt`, `.html`, `.htm`, иначе нужен `mime_hint`.
+- `bytes`: identity формируется как `bytes.sha256_<hash>`.
+- Общий stop-condition по acquire: достижение `max_bytes_total` (в report попадает note `stopped:max_bytes_total`).
 
-Все стадии конфигурируются через единую `ScholarPolicy`:
+## Freshness подсистема
 
-| Секция | Параметры | Значения по умолчанию |
-|--------|-----------|----------------------|
-| `budgets` | `max_docs`, `max_bytes_total`, `max_claims_total`, `max_bytes_per_doc` | 16 docs, 20 MB, 2000 claims |
-| `thresholds` | `min_doc_trust_tier` | `TrustTier.MEDIUM` |
-| `docs` | `normalize_options`, `structure_options`, `chunk_options` | `DocChunkOptions(min_chunk_chars=1)` |
-| `claims` | `extractor_id`, `extract_options`, `normalize_options`, `resolve_options` | `explicit_lines_v1` |
-| `conflict` | `policy_id` | `policy.conflicts.default_v1` |
-| `acquire` | `timeout_s`, `user_agent` | 10 с, `polisyos-scholar/1.0` |
-| `persist_report` | булевый флаг | `True` |
+Scholar экспортирует freshness primitives, которые используются в runtime (прежде всего узлом `scientist/nodes/builtins/data/enrich_knowledge.py`):
 
-Бюджеты из `ResearchIntent.budgets_v1` имеют приоритет над `ScholarPolicy.budgets` — политика задаёт дефолты, intent может переопределить.
+- `freshness.py`
+  - `build_freshness_metadata()` добавляет детерминированную freshness metadata в bundle.
+  - `FreshnessPolicy.check()` вычисляет `fresh/stale/expired`, cooldown и `needs_refresh`.
+  - `timed_freshness_check()` публикует метрики через `core.observability`.
+- `freshness_store.py`
+  - sidecar-состояние в `<cas_root>/freshness_state`.
+  - JSON state (`last_checked_at`, `last_refresh_attempt_at`, `next_retry_at`, `failed_refresh_count`).
+  - file-lock (`acquire_lock`) для анти-шторм защиты при конкурентном refresh.
 
-## Ключевые типы
+Domain defaults для freshness задаются в `ScholarPolicy.freshness` (`fiscal`, `labor`, `health`, `infrastructure`, `education` + fallback).
 
-**Контракты** (определены в `core.contracts.scholar`):
-- `ResearchIntent` — входной конверт: domain, topic, jurisdictions, seed_sources, budgets_v1, thresholds_v1, claim_targets
-- `SourceSpec` — спецификация источника (kind + identity + payload)
-- `KnowledgeBundleRef` / `EnrichmentReportRef` — CAS-ссылки на артефакты
+## Контракты и артефакты
 
-**Внутренние типы** (`scholar.types`):
-- `AcquireResult` — результат получения данных (raw_bytes + mime + DocSourceSpec)
-- `DocPipelineRefs` / `ClaimsPipelineRefs` / `ReconcileRefs` — ссылки на промежуточные артефакты стадий
-- `KnowledgeBundlePayloadV1` — полный payload бандла (Pydantic, `extra="forbid"`)
-- `EnrichmentReportV1` — отчёт: статистика по docs/claims/conflicts/trust/quality
-- `EnrichResultV1` — финальный результат: `knowledge_bundle_ref` + `bundle_id` + `report`
+- Вход: `ResearchIntent`, `SourceSpec`, `BudgetsV1`, `ThresholdsV1` из `core/contracts/scholar.py`.
+- Выход:
+  - `scholar.knowledge_bundle` (`KnowledgeBundlePayloadV1`)
+  - `scholar.enrichment_report` (`EnrichmentReportV1`, если `persist_report=True`)
+- Bundle ID строится детерминированно из:
+  - normalized intent core,
+  - `doc_version_ids`,
+  - `claim_ids`,
+  - `policy_ids_used`.
+- В world layer пишется детерминированный event `EventKind.KNOWLEDGE_BUNDLE_BUILD`.
 
-## Иерархия ошибок
+## Связь с другими директориями
 
-```
-ScholarError(stage, source_identity, details)
-├── ScholarValidationError   (stage="validation")
-├── ScholarDiscoverError     (stage="discover")
-├── ScholarAcquireError      (stage="acquire")
-├── ScholarDocsError         (stage="docs")
-├── ScholarClaimsError       (stage="claims")
-├── ScholarReconcileError    (stage="reconcile")
-└── ScholarBundleError       (stage="bundle")
-```
+### Кто использует Scholar
 
-Каждое исключение несёт `stage`, `source_identity` и `details` dict для диагностики.
+- `scientist/nodes/builtins/data/enrich_knowledge.py`: freshness-check, reuse/refetch logic, lock/cooldown.
+- `core/components/_cli_scholar.py`: CLI `components scholar enrich`.
+- `tests/fabric/test_scholar_*` и `tests/scientist/test_enrich_knowledge_node_freshness.py`: контрактные сценарии.
 
-## Зависимости
+### Что использует Scholar
 
-| Модуль | Используемые компоненты |
-|--------|------------------------|
-| `core.artifacts` | `FileSystemCAS`, `ArtifactID`, `InputRef`, `SchemaInfo` |
-| `core.contracts.scholar` | `ResearchIntent`, `SourceSpec`, `BudgetsV1`, `ThresholdsV1`, `KnowledgeBundleRef`, `EnrichmentReportRef` |
-| `fabric.docs` | `DocSourceSpec`, `ingest_doc_bytes`, `normalize_doc`, `structure_doc`, `chunk_doc` |
-| `fabric.claims` | `extract_claims_from_doc`, `normalize_claims`, `resolve_conflicts`, `ClaimExtractorRegistry` |
-| `fabric.claims.persist` | `load_claim`, `load_doc_meta`, `load_json_artifact` |
-| `fabric.io.db` | `SimulationDB` (опционально, для persist) |
-| `fabric.world` | `persist_world_event`, `emit_world_event_facts`, `write_world_fact_segment` |
-| `ir.world.trust` | `TrustAssessment`, `TrustTier` |
-| `ir.world.event` | `WorldEvent`, `EventKind`, `ProvAgent`, `ProvActivity` |
-| `ir.world.ids` | `stable_world_id_from_canon`, `world_event_id_from_payload` |
+- `core/artifacts`, `core/contracts/scholar`, `core/components`.
+- `fabric/docs`, `fabric/claims`, `fabric/world`, `fabric/storage`.
+- `ir/world/*` (trust tiers, world IDs/events).
 
-## Особенности реализации
+Extension point для domain extractors: entry-point group `polisyos.scholar_extractors` (пример: `packs/roads/scholar_extractors.py`).
 
-- **Content-addressed storage** — все артефакты (бандлы, отчёты, промежуточные результаты) адресуются по содержимому через CAS. Детерминированный `bundle_id` гарантирует идемпотентность при одинаковых входах.
-- **Провенанс** — каждый бандл сопровождается `WorldEvent` типа `KNOWLEDGE_BUNDLE_BUILD` с полным графом inputs/outputs и ProvAgent/ProvActivity.
-- **Инкрементальная обработка документов** — стадии docs пропускаются, если CAS уже содержит результат (normalized_ref, structure_ref, chunks_ref).
-- **Расширяемые экстракторы** — выбор экстрактора утверждений через `ClaimExtractorRegistry.select()` с учётом domain, jurisdiction, language и MIME-типа.
-- **Фильтрация по доверию** — после reconcile документы с `TrustTier` ниже порога исключаются, связанные утверждения каскадно отфильтровываются.
+## Практические инварианты
+
+- CAS-first: все основные артефакты immutable и content-addressed.
+- Идемпотентность bundle: одинаковые входы и policy дают одинаковый `bundle_id`.
+- Документный pipeline инкрементальный: повторные normalize/structure/chunk не делаются при наличии ссылок в метаданных.
+- Предпочтительный интерфейс хранения для reconcile: `storage: StoragePort`; `db=` оставлен как legacy-совместимость.
+- В `scholar` запрещена прямая зависимость от `fabric.io.db` (проверяется `tools/lint/check_scholar_imports.py`).

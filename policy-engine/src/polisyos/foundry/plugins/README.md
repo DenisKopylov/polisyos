@@ -1,157 +1,66 @@
-# Plugins — расширяемая доменная архитектура
+# Plugins (`polisyos.foundry.plugins`)
 
-Модульная plugin-система для доменно-специфичных симуляций (экономика, здравоохранение, климат). Определяет протоколы, реестр плагинов и high-level API для мульти-доменных симуляций.
+`plugins` - доменная plugin-архитектура поверх Foundry для high-level multi-domain симуляций.
 
-**12 модулей** | **Protocol-based** | **Multi-domain composition** | **CLI**
+Актуально по коду на 2026-02-10.
 
-## Архитектура
+## Роль в системе
 
-```
-DomainPlugin protocol → PluginRegistry → CompositeState/Executor → PolisySimulator
-      ↓                      ↓                    ↓                       ↓
-   core.py             discovery.py          composite.py              api.py
-   (protocols)      (auto-discovery)     (multi-domain merge)     (high-level API)
-```
+Подсистема дает расширяемый слой над симулятором:
+- домены оформляются как `DomainPlugin`;
+- домены объединяются в `CompositeState`;
+- запуск/обучение выполняется через `PolisySimulator`.
 
-## Core Protocols (`core.py`)
-
-### DomainPlugin[StateT]
-
-ABC, определяющий полный доменный интерфейс:
-- `metadata: PluginMetadata` — name, version, capabilities, dependencies, tags
-- `create_initial_state(config) → StateT`
-- `get_mechanisms() → list[MechanismProtocol]`
-- `get_reward_function() → RewardProtocol`
-- `get_objectives() → dict[str, ObjectiveProtocol]`
-- `get_observation_builder() → callable`
-- `get_visualizations() → dict[str, callable]`
-- `validate_config()`, `on_load()` / `on_unload()`
-
-### Вспомогательные протоколы
-
-- **DomainState** — `empty()`, `validate()`
-- **DomainAgentState** — `active: jnp.ndarray`, `get_observations()`
-- **MechanismProtocol[StateT]** — `apply(state, **kwargs) → StateT`, `name: str`
-- **RewardProtocol[StateT]** — `compute(state, next_state, agent_actions) → jnp.ndarray`
-- **ObjectiveProtocol[StateT]** — `evaluate(state) → jnp.ndarray`, `maximize: bool`
-
-### PluginRegistry
-
-Singleton-реестр с lazy `on_load()`:
-- `register()` / `unregister()` / `get()` / `list_plugins()`
-- `with_capability(PluginCapability)` / `with_tag(str)` — фильтрация
-
-`PluginCapability` enum: AGENTS, MECHANISMS, REWARDS, OBJECTIVES, OBSERVATIONS, VISUALIZATION, CALIBRATION.
-
-`DomainConfig` — общая конфигурация: n_agents, max_agents, seed, time_horizon, parameters, enabled_mechanisms, agent_learning, policy_learning.
-
-## Composite — мульти-доменные симуляции (`composite.py`)
-
-Equinox-модули для композиции нескольких доменов:
-
-- **CompositeState** — `domain_states` dict + `time_step`. `create()`, `get_domain()`, `update_domain()`, `apply_interactions()`, `increment_time()`
-- **CrossDomainInteraction** — маппинг source_domain.field → target_domain.field с transform и weight
-- **CompositeExecutor** — `step()`: все механизмы per domain в execution order → interactions. `run()` loop
-- **CompositeReward** — weighted aggregation доменных rewards
-- **CompositeObjective** — multi-objective weighted evaluation
-
-## High-Level API (`api.py`)
-
-`PolisySimulator` — builder pattern:
-
-```python
-sim = PolisySimulator()
-sim.add_domain("economics", EconomicsPlugin(), config)
-sim.add_interaction(CrossDomainInteraction(...))
-sim.initialize()
-
-# Запуск симуляции
-result = sim.run(n_steps=100)  # → SimulationResult
-
-# RL-обучение
-training_result = sim.train(n_episodes=50)  # → TrainingResult
-
-# Обновление политики
-sim.set_policy("economics", {"tax_rate": 0.25})
-```
-
-- `SimulationResult` — final_state, trajectory, objectives, `get_metric()`
-- `TrainingResult` — trained_policy, loss_history, final_state, `plot_losses()`
-
-## Discovery (`discovery.py`)
-
-Три источника автообнаружения:
-
-1. **Builtin** — `polisyos.foundry.plugins.economics`
-2. **Entry points** — `polisyos.plugins` group + `polisyos_plugin_*` package prefix
-3. **Directory scan** — поиск `plugin.py` в указанных директориях
-
-`auto_register_plugins()` — discover + register все найденные.
-`create_simple_plugin()` — фабрика для быстрого создания плагинов из компонентов.
-
-## CLI (`cli.py`)
-
-```bash
-polisy list [--verbose]                    # Список плагинов
-polisy run --config config.json --domains economics --n-agents 1000
-polisy train --config config.json --n-episodes 100
-polisy analyze results.json
-```
-
-## Economics Plugin (`economics/`)
-
-Референсная реализация доменного плагина (v1.0.0).
-
-### State (`economics/state.py`)
-
-- **EconomicAgentState** — 13 полей: active, age, skill_level, wealth, income, consumption, savings, employed, wage, hours_worked, discount_rate, risk_aversion, consumption_preference. `get_observations()` → 6-dim tensor
-- **EconomicPolicyState** — tax_rate, transfer_rate, interest_rate, unemployment_benefit, minimum_wage
-- **EconomicDistributions** — gini_wealth, gini_income, top_10_share, bottom_50_share, median_wealth, median_income
-- **EconomicAggregates** — gdp, total_consumption, total_investment, unemployment_rate, inflation_rate, mean_wealth, mean_income
-- **EconomicState** — composite state с `validate()` и `update_aggregates()`
-
-### Mechanisms (`economics/mechanisms.py`)
-
-Equinox-модули, реализующие `MechanismProtocol`:
-- **TaxationMechanism** — прогрессивные 7-bracket налоги
-- **TransferMechanism** — welfare + unemployment benefits, means-tested
-- **LaborMarketMechanism** — job finding/separation dynamics, stochastic wage growth
-- **ConsumptionMechanism** — income/wealth-based consumption, bounded
-- **SavingsMechanism** — savings + interest accumulation
-
-### Objectives (`economics/objectives.py`)
-
-`ObjectiveProtocol` реализации:
-- **GDPObjective** (maximize), **GiniObjective** (minimize), **UnemploymentObjective** (minimize)
-- **SocialWelfareObjective** — weighted composite (GDP + neg_gini + neg_unemployment + bottom_50_share)
-- **UtilitarianWelfare** — sum of log-utilities (Bentham)
-- **RawlsianWelfare** — maximin (maximize minimum utility)
-
-### Rewards (`economics/rewards.py`)
-
-`EconomicReward` — CRRA utility-based: consumption utility + wealth change (tanh-scaled) + employment bonus.
-
-## Зависимости
-
-- **foundry/agent_sim** — ActorCritic (для training), distributions (для EconomicState)
-- **JAX/Equinox** — composite state management, mechanisms
-- **Chex** — frozen dataclasses
-
-## Структура
+## Архитектурный поток
 
 ```
-plugins/
-├── __init__.py        # Public API
-├── core.py            # DomainPlugin ABC, protocols, PluginRegistry
-├── api.py             # PolisySimulator, SimulationResult, TrainingResult
-├── composite.py       # CompositeState/Executor/Reward/Objective
-├── discovery.py       # Auto-discovery (builtin, entry points, filesystem)
-├── cli.py             # Command-line interface
-└── economics/
-    ├── __init__.py    # Public API
-    ├── plugin.py      # EconomicsPlugin (v1.0.0)
-    ├── state.py       # EconomicAgentState, PolicyState, Aggregates
-    ├── mechanisms.py  # Taxation, Transfer, Labor, Consumption, Savings
-    ├── objectives.py  # GDP, Gini, Unemployment, SocialWelfare, Rawlsian
-    └── rewards.py     # CRRA utility-based agent reward
+DomainPlugin protocols (core.py)
+        -> PluginRegistry
+        -> CompositeState / CompositeExecutor
+        -> PolisySimulator API
+        -> CLI (plugins/cli.py)
 ```
+
+## Ключевые модули
+
+- `core.py`
+  - контракты `DomainPlugin`, `DomainState`, `MechanismProtocol`, `RewardProtocol`, `ObjectiveProtocol`.
+  - `PluginRegistry` и `DomainConfig`.
+
+- `composite.py`
+  - `CompositeState` (несколько доменов), cross-domain interactions, `CompositeExecutor`, `CompositeReward`, `CompositeObjective`.
+
+- `api.py`
+  - `PolisySimulator` с fluent API: добавление доменов, interactions, run/train/visualize.
+  - результаты: `SimulationResult`, `TrainingResult`.
+
+- `discovery.py`
+  - автообнаружение builtin, entry points и directory plugins.
+  - helper: `auto_register_plugins()`.
+
+- `cli.py`
+  - команды: `list`, `run`, `train`, `analyze`.
+
+## Built-in economics plugin
+
+Папка `plugins/economics/` содержит референсный домен:
+- `plugin.py` - `EconomicsPlugin`.
+- `state.py` - `EconomicState` и связанные state-контракты.
+- `mechanisms.py` - taxation/transfers/labor/consumption/savings.
+- `objectives.py` - GDP/Gini/unemployment/social-welfare/utilitarian/rawlsian.
+- `rewards.py` - `EconomicReward`.
+
+## Связь с другими директориями
+
+`plugins` зависит от:
+- `foundry/agent_sim/*` (ActorCritic, training config, distributions, visualization);
+- JAX/Equinox для state/execution логики.
+
+`plugins` используется как high-level API для прикладных симуляций, где нужен plugin-based сценарий вместо прямой работы с Trinity compile/execute.
+
+## Текущее состояние и ограничения
+
+- Builtin discovery по умолчанию регистрирует только `polisyos.foundry.plugins.economics`.
+- В `PolisySimulator.train()` источник observations берется из первого добавленного домена.
+- CLI использует флаг `--domain` (повторяемый), а не `--domains`.
+- Подсистема ориентирована на доменные simulation workflows и не заменяет базовый Foundry pipeline (`compile/execute`).

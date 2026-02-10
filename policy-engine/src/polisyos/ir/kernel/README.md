@@ -1,173 +1,102 @@
-# ir.kernel — Фундаментальные реестры и типы
+# ir.kernel — Базовые типы и реестры IR
 
-Kernel — нижний слой IR, определяющий систему типов, реестры компонентов и валидационные примитивы. Kernel не зависит от остальных модулей IR; все остальные модули строятся поверх него.
+`ir.kernel` — нижний контрактный слой `polisyos.ir`.
+Он задаёт систему типов, базовые валидаторы и реестры (`units`, `slots`, `mechanisms`, `merge_rules`, `metrics`, `constraints`, `selector_fields`, `trust`), на которые опираются Trinity-контракты и линкер.
 
-13 Python-файлов, ~100 экспортируемых символов.
+## Роль в архитектуре
 
-## Архитектурная роль
-
-```
-             kernel (реестры + типы)
-            ╱       │       ╲
-     problem_frame  policy_spec  model_spec   ← Trinity-контракты
-           │            │           │
-         linker (валидация vs kernel)
-           │
-       foundry (компиляция)
+```text
+kernel (types + registries)
+   │
+   ├─► governance/* + model_spec.py
+   ├─► ir.linker (валидация Trinity against registries)
+   ├─► foundry (compile/execute через slot/mechanism semantics)
+   └─► core.registry / packs (сборка registry bundles)
 ```
 
-Kernel обеспечивает:
-- **Type safety** — `KernelModel` (Pydantic, `frozen=True`, `extra="forbid"`), запрет `float`
-- **Registry pattern** — единообразные реестры для всех типов сущностей с default-инстансами
-- **Валидация** — ID-паттерны, диапазоны, уникальность ключей
+Подробнее про общий контекст: [`../README.md`](../README.md)
 
-## Структура
+## Состав директории
 
-```
+```text
 kernel/
-├── __init__.py            # Реэкспорт всех публичных символов
-├── base.py                # KernelModel, ID_PATTERN, reject_float()
-├── numbers.py             # DecimalValue, NonNegativeDecimal, PositiveDecimal
-├── values.py              # MoneyValue, RateValue, CountValue, DurationValue, ParamValue
-├── time_semantics.py      # TimeSemantics — конфигурация шагов и дат
-├── units.py               # UnitsRegistry: MoneyUnit, RateUnit, DurationUnit, CountUnit, ...
-├── mechanisms.py          # MechanismTypeRegistry: MechanismTypeSpec, ParamSpec, ParamType
-├── slots.py               # SlotRegistry: SlotSpec, SlotKind, SlotScope, SlotValueType
-├── merge_rules.py         # MergeRuleRegistry: MergeRuleSpec, MergeRuleKind, ConflictResolution
-├── constraints.py         # ConstraintRegistry: ConstraintSpec
-├── metrics.py             # MetricRegistry: MetricSpec, MetricKind
-├── selector_fields.py     # SelectorFieldRegistry: SelectorFieldSpec, FieldValueType
-└── trust.py               # TrustRegistry: TrustPolicySpec, TrustLevel
+├── base.py             # KernelModel, ID patterns, float guards
+├── numbers.py          # Decimal aliases (DecimalValue, NonNegativeDecimal, PositiveDecimal)
+├── values.py           # MoneyValue / RateValue / CountValue / DurationValue / ParamValue
+├── time_semantics.py   # TimeSemantics + date_for_step()
+├── units.py            # UnitSpec types + UnitsRegistry + DEFAULT_UNITS_REGISTRY
+├── merge_rules.py      # MergeRuleSpec/Registry (schema v2.0)
+├── slots.py            # SlotSpec/SlotRegistry + DEFAULT_SLOT_REGISTRY
+├── mechanisms.py       # MechanismTypeSpec/Registry + ParamSpec + resolve_mechanism_slots()
+├── constraints.py      # ConstraintSpec/ConstraintRegistry
+├── metrics.py          # MetricSpec/MetricRegistry
+├── selector_fields.py  # SelectorFieldSpec/Registry
+├── trust.py            # TrustPolicySpec/TrustRegistry
+└── __init__.py         # публичные re-exports
 ```
 
-## Base: KernelModel и валидация
+## Ключевые контракты
 
-`base.py` определяет базовый класс всех kernel-моделей:
+### Base
 
-```python
-class KernelModel(BaseModel):
-    model_config = ConfigDict(extra="forbid", frozen=True)
-```
+- `KernelModel`: `frozen=True`, `extra="forbid"`.
+- `ID_PATTERN`, `SLOT_ID_PATTERN`, `ARTIFACT_ID_PATTERN`.
+- `reject_float()` и `reject_floats_deep()` для запрета `float` в контрактах, где нужен детерминизм.
 
-ID-паттерны:
-- `ID_PATTERN` = `^[a-z][a-z0-9_.-]*$` — общий идентификатор
-- `SLOT_ID_PATTERN` = `^[a-z][a-z0-9_.]*$` — слоты (без дефисов)
-- `ARTIFACT_ID_PATTERN` = `^sha256:[0-9a-f]{64}$` — content-addressed артефакты
+### Типизированные значения
 
-`reject_float(value)` / `reject_floats_deep(value)` — валидаторы, запрещающие `float` в пользу `Decimal`/`int`/`str`.
+- `DecimalValue`, `NonNegativeDecimal`, `PositiveDecimal` (`numbers.py`).
+- `MoneyValue` (`amount`, `currency`, `nominal_year`).
+- `RateValue` (`ratio|percent`) с проверкой диапазона и `as_ratio()`.
+- `CountValue`, `DurationValue`.
+- `ParamValue` — глубокая float-защита для параметров механизмов.
 
-## Типизированные значения
+### Реестры
 
-### Числовые типы (`numbers.py`)
+- `UnitsRegistry`: `UnitKind` (`money`, `rate`, `count`, `duration`, `dimensionless`, `generic`).
+- `MechanismTypeRegistry`: `MechanismTypeSpec` + `ParamSpec` (`ParamType`), чтение/запись слотов.
+- `SlotRegistry`: явная merge-семантика на каждом слоте через обязательный `merge_rule`.
+- `MergeRuleRegistry` (schema `2.0`): формальные свойства (коммутативность, ассоциативность, идемпотентность).
+- `ConstraintRegistry`: типизированные ограничения (`slot_id`, `unit_id`, `operator` и т.д.).
+- `MetricRegistry`: описания метрик.
+- `SelectorFieldRegistry`: поля для `SelectorExpr` с scope/state_path.
+- `TrustRegistry`: политики доверия/порогов.
 
-Обёртки над `Decimal` с reject_float валидатором:
-- `DecimalValue` — `Annotated[Decimal, BeforeValidator(reject_float)]`
-- `NonNegativeDecimal` — то же + `ge=0`
-- `PositiveDecimal` — то же + `gt=0`
+## Важные особенности
 
-### Составные значения (`values.py`)
+- Явный merge-контракт:
+  у `SlotSpec` `merge_rule` обязателен, чтобы избежать неявного order-dependent поведения.
+- Алгебра merge-правил:
+  `MergeRuleSpec` валидирует согласованность `kind` с algebraic properties.
+- Специальный путь `adaptive_agent`:
+  `resolve_mechanism_slots()` вычисляет `reads_slots`/`writes_slots` динамически из `observation_space` и `action_space`.
+- Temporal mapping:
+  `TimeSemantics.date_for_step()` переводит simulation step в календарную дату (`M/Q/Y`).
 
-| Тип | Поля | Пример |
-|---|---|---|
-| `MoneyValue` | `amount`, `currency`, `nominal_year` | `MoneyValue(amount=Decimal("50000"), currency="UAH")` |
-| `RateValue` | `value`, `base` (ratio / percent) | `RateValue.ratio(Decimal("0.15"))`, метод `as_ratio()` |
-| `CountValue` | `value`, `label` | `CountValue(value=100, label="employees")` |
-| `DurationValue` | `value`, `unit` | `DurationValue(value=12, unit="month")` |
+## Связи с другими директориями
 
-`ParamValue` — union всех вышеперечисленных + `Decimal | int | str | bool`.
+| Директория | Как использует `ir.kernel` |
+|---|---|
+| `ir/governance`, `ir/model_spec.py` | базовые типы значений и ID-паттерны |
+| `ir/linker` | валидация Trinity против registry bundle |
+| `foundry/` | слоты, merge rules, mechanisms, unit-aware параметры |
+| `core/registry` | загрузка/сборка bundle-ов реестров |
+| `fabric/`, `lex/`, `scientist/` | точечные типы и validators (ID/float guards и др.) |
+| `packs/` | расширение доменных реестров через fragments |
 
-### TimeSemantics (`time_semantics.py`)
-
-Конфигурация временных шагов: `step_unit`, `steps_per_period`, `origin_date`. Утилиты: `date_for_step()` — расчёт календарной даты по номеру шага.
-
-## Реестры
-
-Каждый реестр — `KernelModel` с `dict[str, Spec]`, `schema_version` и default-инстансом `DEFAULT_*_REGISTRY`.
-
-### MechanismTypeRegistry (`mechanisms.py`)
-
-Типы механизмов интервенций. `MechanismTypeSpec`: `mechanism_id`, `params: dict[str, ParamSpec]`, `reads_slots`, `writes_slots`, `default_merge`.
-
-`ParamSpec`: `param_id`, `value_type` (enum `ParamType`: decimal / int / bool / string / money / rate / count / duration / enum / object / array), `min_value`, `max_value`, `trainable` (для калибровки), `unit_id`.
-
-Predefined: `tax_subsidy`, `income_tax`, `adaptive_agent` и др.
-
-### SlotRegistry (`slots.py`)
-
-Слоты состояния сущностей. `SlotSpec`:
-- `scope`: global / per_agent / per_firm / per_entity
-- `value_type`: bool / int / decimal / string
-- `kind`: stock (carry) / flow (reset) / parameter
-- `merge_rule`: обязательный `MergeRuleRef` — явное разрешение конфликтов
-- `reset_rule`: carry / zero
-- `merge_override`: slot-specific переопределение merge
-- Опционально: `conservation_group_id`, `dtype`, `shape`, `axes`, `resample_rule`
-
-Predefined: `agents.income` (flow, per_agent, sum), `agents.reported_income`, `government.balance` (stock, global, sum), `global.tax_rate` (parameter, global, override), `agents.employer_id`, `agents.is_employed`, `agents.skill_level`, `agents.risk_aversion`, `firms.labor_count`, `firms.wage_offer`.
-
-### UnitsRegistry (`units.py`)
-
-`UnitKind`: money / rate / count / duration / dimensionless / generic. Типы единиц:
-- `MoneyUnit` — `currency`, `nominal_year`, `price_base`
-- `RateUnit` — `base`: ratio / percent
-- `DurationUnit`, `CountUnit`, `DimensionlessUnit`, `GenericUnit`
-
-### MergeRuleRegistry (`merge_rules.py`)
-
-Разрешение конфликтов при наложении интервенций. `MergeRuleKind`: sum / override / priority / error. Каждое правило: `commutativity`, `associativity`, `idempotency`, `conflict_resolution` (aggregate / last / ...).
-
-Predefined: `sum` (коммутативное, ассоциативное), `override` (idempotent, last wins).
-
-### ConstraintRegistry (`constraints.py`)
-
-Ограничения: `constraint_type` (accounting / non_negative / budget / legal / physical), `enforcement_level` (hard / soft / warning), `operator`, `repair_strategy`.
-
-### MetricRegistry (`metrics.py`)
-
-Метрики оптимизации: `kind` (stock / flow / ratio / index / composite), `aggregation_method` (sum / mean / median / last), `normalization` (zscore / minmax / robust), `direction_preference` (higher_better / lower_better / target_range).
-
-### SelectorFieldRegistry (`selector_fields.py`)
-
-Поля для `SelectorExpr`: `field_id` → `slot_id`, `value_type` (number / string / boolean / enum / date), `allowed_values`, `range_min`/`range_max`, `searchable`.
-
-### TrustRegistry (`trust.py`)
-
-Политики доверия: `level` (high / medium / low), `sources`, `validation_rules`.
-
-## Использование
+## Минимальный пример использования
 
 ```python
-from polisyos.ir.kernel import (
-    DEFAULT_MECHANISM_REGISTRY,
-    DEFAULT_SLOT_REGISTRY,
-    DEFAULT_UNITS_REGISTRY,
-    MechanismTypeSpec, ParamSpec, ParamType,
-    MoneyValue, RateValue, DecimalValue,
-)
+from polisyos.ir.kernel import DEFAULT_MECHANISM_REGISTRY, DEFAULT_SLOT_REGISTRY
 
-# Проверка существования механизма
 assert "income_tax" in DEFAULT_MECHANISM_REGISTRY.mechanisms
-
-# Кастомный механизм
-custom = MechanismTypeSpec(
-    mechanism_id="carbon_tax",
-    params={"rate": ParamSpec(param_id="rate", required=True, value_type=ParamType.RATE)},
-    reads_slots=["firms.emissions"],
-    writes_slots=["firms.tax_paid", "government.balance"],
-)
+assert "agents.income" in DEFAULT_SLOT_REGISTRY.slots
 ```
 
-## Зависимости
-
-**Kernel ни от чего не зависит** (кроме pydantic). Его используют:
-- Все Trinity-контракты (`problem_frame`, `policy_spec`, `model_spec`)
-- `linker/` — валидация vs реестров
-- `foundry/` — компиляция механизмов
-- `packs/` — domain-specific расширения реестров
-
-## Тестирование
+## Рекомендуемые проверки
 
 ```bash
-pytest tests/unit/test_ir_kernel_*.py
-pytest tests/contract/test_ir_kernel.py
+pytest /Users/deniskopylov/polisyos/policy-engine/tests/contract/test_kernel_models.py
+pytest /Users/deniskopylov/polisyos/policy-engine/tests/ir/test_registry_fragments.py
+pytest /Users/deniskopylov/polisyos/policy-engine/tests/contract/test_trinity_linker_contract.py
 ```

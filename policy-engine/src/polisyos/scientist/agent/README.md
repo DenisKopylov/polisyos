@@ -1,50 +1,73 @@
-# Agent Layer: Иерархическая система AI агентов
+# Agent Layer (`polisyos.scientist.agent`)
 
-**Протокольная архитектура для генерации и валидации экономических политик**
+`agent` — опциональный контур генерации и ревью политики (PI -> Drafter -> Formalizer -> Critic).
 
-Иерархическая система агентов (PI → Drafter → Formalizer → Critic) с self-healing через Reflexion pattern.
+## Роль в системе
 
-## Структура
+- формирует `ProblemFrame` и декомпозирует задачу;
+- генерирует черновик политики (`DraftResult`);
+- формализует черновик в `TrinityBundle`;
+- критикует IR и возвращает `CritiqueReport`;
+- поддерживает self-healing артефакты (`FailureCard`, `ReflexionOrchestrator`).
 
-```
-agent/
-├── protocols.py      # AgentRole, ProblemFrame, SubTask, CritiqueReport
-├── pi.py            # PI Agent - декомпозиция задач
-├── drafter.py       # Drafter Agent - генерация политик
-├── formalizer.py    # Formalizer Agent - формализация в IR
-├── critic.py        # Critic Agent - валидация политик
-├── failure_card.py  # Self-healing артефакты
-├── memory.py        # Conversation tracking
-├── reflexion.py     # Intelligent error recovery
-├── prompts.py       # LLM промпты
-└── base.py          # Legacy поддержка
-```
+Важно: default workflow `run_experiment()` этот контур автоматически не запускает.
 
-## Ключевые компоненты
+## Ключевые модули
 
-- **Иерархическая система**: PI декомпозирует задачи, Drafter генерирует политики, Formalizer формализует в IR, Critic валидирует
-- **Self-Healing**: FailureCard, ShortTermMemory, ReflexionOrchestrator для автономного исправления ошибок
-- **Протоколы**: Typed contracts для всех взаимодействий между агентами
-- **Mock реализации**: Полная система для тестирования без LLM зависимостей
+- `protocols.py` — typed async-протоколы `PIAgent`, `DrafterAgent`, `FormalizerAgent`, `CriticAgent` и базовые dataclass-модели.
+- `pi.py` — `MockPIAgent`, `LLMPIAgent`.
+- `drafter_clients.py` + `drafter_factory.py` — `MockDrafterAgent`, `LLMDrafterAgent`, фабрика `create_drafter_agent`.
+- `formalizer.py` — `MockFormalizerAgent`, `LLMFormalizerAgent`.
+- `critic.py` — `MockCriticAgent`, `LLMCriticAgent`, `create_critic_agent`.
+- `drafter_multipass_parts.py` + `drafter_models.py` — multipass-режим drafter, конфиг и findings.
+- `failure_card.py`, `reflexion.py`, `memory.py` — loop восстановления после ошибок.
+- `rag.py`, `knowledge_base.py`, `norm_loader.py`, `feasibility*.py`, `code_verifier.py` — расширения для informed critique/drafting.
 
-## API Использование
+## Публичные точки входа
+
+Через `polisyos.scientist.agent` экспортируются:
+
+- протоколы и типы (`ProblemFrame`, `DraftResult`, `CritiqueReport`, ...);
+- mock/LLM реализации агентов;
+- `create_drafter_agent`, `create_critic_agent`;
+- RAG/feasibility/verifier и вспомогательные классы.
+
+`create_drafter_agent()` переключает режим по `POLISYOS_DRAFTER_MULTIPASS_MODE`:
+- `off` (по умолчанию) -> single-pass `LLMDrafterAgent`;
+- `active`/`shadow` -> `MultiPassLLMDrafter`.
+
+## Минимальный сценарий (mock)
 
 ```python
-from polisyos.scientist.agent import MockPIAgent, MockDrafterAgent
+import asyncio
 
-# Создание агентов
-pi_agent = MockPIAgent()
-drafter_agent = MockDrafterAgent()
+from polisyos.scientist.agent import (
+    MockPIAgent,
+    MockDrafterAgent,
+    MockFormalizerAgent,
+    MockCriticAgent,
+)
 
-# Декомпозиция задачи
-subtasks = await pi_agent.decompose_task("Reduce poverty through subsidies")
 
-# Генерация политики
-draft = await drafter_agent.draft(subtasks[0])
+async def run() -> None:
+    pi = MockPIAgent()
+    drafter = MockDrafterAgent()
+    formalizer = MockFormalizerAgent()
+    critic = MockCriticAgent()
+
+    frame = await pi.create_problem_frame("Reduce poverty through targeted transfers")
+    draft = await drafter.draft_policy(frame)
+    bundle = await formalizer.formalize(draft)
+    report = await critic.critique(bundle, frame)
+    print(report.verdict)
+
+
+asyncio.run(run())
 ```
 
-## Связи
+## Связи с другими директориями
 
-- Интегрируется с **engine** layer через workflow nodes
-- Использует **IR** модуль для TrinityBundle
-- Поддерживает **llm** layer для LLM взаимодействий
+- `ir` — целевой формат `TrinityBundle`.
+- `llm`/`core.llm` — traced LLM клиенты.
+- `governance`/`kernel` — источники feedback для reflexion.
+- `search` — может использовать агента как candidate generator.

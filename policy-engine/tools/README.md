@@ -1,329 +1,149 @@
-# Tools — Инструменты разработчика Policy Engine
+# Tools — инженерные CLI-инструменты Policy Engine
 
-Standalone CLI-утилиты для обеспечения качества, диагностики, бенчмаркинга и демонстрации возможностей Policy Engine. Инструменты **потребляют** публичные API основного фреймворка, но никогда не импортируются из него — зависимость строго однонаправленная.
+`tools/` — это набор standalone-скриптов для обслуживания и развития `policy-engine`:
+
+- архитектурные и quality-гейты;
+- проверки ABI/JSON Schema;
+- runtime-операции (OpenAPI, клиент, архивация legacy run-ов);
+- миграции данных;
+- демо и бенчмарки.
+
+Ключевое правило: зависимость однонаправленная, `tools/* -> src/polisyos/*`.
 
 ## Роль в системе
 
-```
-polisyos.*  (source)          tools/  (consumers)
-  core   ←──────────────────  lint/lint_imports, diagnostics/capture_env, diagnostics/visualize_provenance
-  fabric ←──────────────────  lint/lint_connectors, diagnostics/scan_fabric, demos/*, diagnostics/*
-  foundry ←─────────────────  lint/lint_foundry, benchmarks/*, demos/run_mechanism_design
-  ir     ←──────────────────  diagnostics/gen_schema, diagnostics/abi_diff, demos/*
-  common ←──────────────────  migrations/migrate, benchmarks/*, diagnostics/check_setup
-```
-
-Инструменты не являются Python-пакетом (`__init__.py` отсутствует) — каждый скрипт запускается напрямую через `python tools/<script>.py`. Путь к `src/` добавляется через `sys.path.insert` внутри каждого скрипта.
-
-## Структура
-
-```
-tools/
-├── benchmarks/
-│   ├── bench_domain.py                    # JAX доменная модель — масштабируемость
-│   └── bench_simulation.py                # Полный симуляционный пайплайн
-│
-├── connectors/
-│   ├── check_contracts.py                 # Проверка контрактов коннекторов
-│   └── scaffold.py                        # Генератор скелетов коннекторов
-│
-├── demos/
-│   ├── run_udf_query_demo.py              # Гибридные SQL + Python UDF-запросы
-│   ├── run_udf_hybrid_demo.py             # Продвинутые UDF с ML/статистикой
-│   ├── run_laffer_demo.py                 # Кривая Лаффера — экономическая модель
-│   ├── run_export_demo.py                 # Экспорт в Parquet/JSON/CSV/HDF5
-│   └── run_mechanism_design.py            # E2E дифференцируемый mechanism design
-│
-├── diagnostics/
-│   ├── abi_diff.py                        # Семантический diff ABI-схем
-│   ├── capture_env.py                     # Захват/сравнение Environment Manifest
-│   ├── check_perf_regression.py           # Расширенный анализ регрессий
-│   ├── check_scientist_node_version_bump.py # Проверка version bump в PR
-│   ├── check_setup.py                     # Smoke-тест всех компонентов системы
-│   ├── check_state_reads.py               # AST-анализ обращений к state
-│   ├── check_udf_perf.py                  # Профилирование UDF-запросов
-│   ├── gen_schema.py                      # Pydantic → JSON Schema snapshots
-│   ├── generate_ir_schema.py              # DEPRECATED shim → gen_schema.py
-│   ├── scan_fabric.py                     # DuckDB → data contracts bootstrap
-│   └── visualize_provenance.py            # Визуализация и верификация provenance-графов
-│
-├── lint/
-│   ├── check_scholar_imports.py           # Проверка Scholar storage boundary
-│   ├── lint_connectors.py                 # Линтер коннекторов (Законы A, E)
-│   ├── lint_foundry.py                    # Линтер чистоты foundry (Закон B)
-│   ├── lint_foundry_data_plane.py         # P8 data-plane invariants (input_bindings/workflow/adapter)
-│   ├── lint_legacy_cutover.py             # P10 cutover invariants (runtime/foundry/bootstrap cleanup)
-│   └── lint_imports.py                    # Валидатор межмодульных импортов (Закон A)
-│
-├── migrations/
-│   ├── migrate.py                         # Универсальная миграция артефактов
-│   └── migrate_duckdb_to_pg.py            # Миграция DuckDB → PostgreSQL
-│
-└── runtime/
-    ├── inventory_legacy_runs.py           # Инвентаризация legacy runs/*/manifest.json
-    ├── archive_legacy_runs.py             # Детерминированный архив legacy runs + report
-    ├── export_runtime_openapi.py          # Экспорт OpenAPI schema Runtime API v1
-    └── generate_runtime_client.py         # Генерация typed frontend client из OpenAPI
+```text
+src/polisyos/*     (доменный код, контракты, runtime)
+      ^
+      |  потребление API, валидации, генерация артефактов
+      |
+tools/*            (CLI-инструменты для разработки и CI)
 ```
 
-## Быстрый старт
+`tools/` не является runtime-слоем приложения; это операционный слой для команды и CI/CD.
+
+## Как запускать локально
+
+Рабочая директория: `policy-engine/`.
+
+Рекомендуемый формат запуска из исходников:
 
 ```bash
-cd policy-engine/
-
-# 1. Проверка что всё установлено
-python tools/diagnostics/check_setup.py
-
-# 2. Архитектурные проверки
-python tools/lint/lint_imports.py
-python tools/lint/lint_foundry.py
-python tools/lint/lint_foundry_data_plane.py
-python tools/lint/lint_legacy_cutover.py
-python tools/lint/lint_connectors.py
-
-# 3. Валидация ABI-схем
-python tools/diagnostics/gen_schema.py --check
-
-# 4. Запуск демо
-python tools/demos/run_udf_query_demo.py
-
-# 5. Runtime API frontend foundation
-python tools/runtime/export_runtime_openapi.py --output schemas/runtime_api_v1.openapi.json
-python tools/runtime/generate_runtime_client.py \
-  --openapi schemas/runtime_api_v1.openapi.json \
-  --out-ts frontend/runtime-api-client/runtimeApiClient.ts \
-  --out-js frontend/runtime-api-client/runtimeApiClient.js
+PYTHONPATH=src:. uv run python tools/<subdir>/<script>.py --help
 ```
 
-## Архитектурные линтеры
+Если окружение уже установлено как editable-пакет (как в CI), используется `python3 tools/...`.
 
-Линтеры обеспечивают соблюдение пяти архитектурных законов Policy Engine через статический анализ AST.
+## Связь с другими директориями
 
-### lint_imports.py — Закон A: направленный граф зависимостей
+| Путь | Как используется `tools/` |
+|---|---|
+| `src/polisyos/*` | Основные импорты для линтеров, диагностики, runtime-утилит и демо |
+| `schemas/snapshots/*` | Генерация и проверка ABI-снимков (`gen_schema.py`, `abi_diff.py`) |
+| `schemas/runtime_api_v1.openapi.json` | Экспорт OpenAPI и генерация runtime-клиента |
+| `frontend/runtime-api-client/*` | Целевая директория для `generate_runtime_client.py` |
+| `tests/fabric/connectors/sources/*` | Генерируемые тесты из `tools/connectors/scaffold.py` |
+| `data/curated`, `data/databases` | Источники для `scan_fabric.py`, UDF-диагностики/демо |
+| `runs/*` | Инвентаризация и архивация legacy run-ов (`tools/runtime/*`) |
+| `import_policy.toml`, `import_exceptions.toml`, `baseline/*` | Входы для import-gate и freeze-сравнений (`tools/lint/*`) |
 
-Анализирует все Python-файлы проекта, строит граф импортов и выявляет запрещённые обратные зависимости. Поддерживает конфигурируемые исключения и детальные отчёты о нарушениях.
+## Каталог модулей
+
+### `lint/`
+
+| Скрипт | Назначение | Статус |
+|---|---|---|
+| `lint_imports.py` | Главный import-gate (ARCH00x), циклы, исключения из `import_exceptions.toml` | CI + pre-commit |
+| `lint_foundry.py` | Запрет нежелательных импортов/встроек в `foundry` (политики standard/mixed/no_jax) | CI |
+| `lint_connectors.py` | Проверка изоляции `fabric/connectors` от `scientist`/`foundry` | Manual/metrics |
+| `lint_connector_hardening.py` | P7 hardening для production-коннекторов (`world_bank`, `eurostat`, `ukons`) | CI |
+| `lint_foundry_data_plane.py` | P8 invariants (workflow aliases, fabric adapter, state snapshot assumptions) | Manual |
+| `lint_legacy_cutover.py` | P10 invariants для удаления legacy runtime/facade fallback | Manual |
+| `check_scholar_imports.py` | Запрет зависимостей `scholar -> polisyos.fabric.io.db` | CI |
+| `collect_arch_metrics.py` | Сбор freeze-метрик (`summary.json`, `import_gate.txt`, `ruff_stats.txt` и т.д.) | CI |
+| `compare_baseline.py` | Сравнение baseline/current, контроль exception policy и deep-import drift | CI |
+
+### `diagnostics/`
+
+| Скрипт | Назначение | Статус |
+|---|---|---|
+| `check_setup.py` | Smoke-check окружения (JAX, DuckDB, Pydantic, config) | Manual |
+| `gen_schema.py` | Генерация/проверка ABI snapshots по реестру `schemas/abi_models.py` | CI + pre-commit |
+| `abi_diff.py` | Семантический diff baseline/current snapshots, вердикт PASS/WARN/FAIL | CI |
+| `capture_env.py` | `capture/compare/validate` для `EnvironmentManifest` | Manual |
+| `check_perf_regression.py` | Сравнение benchmark JSON (latency/throughput thresholds) | CI |
+| `check_state_reads.py` | AST-check соответствия `state_reads` у Scientist builtin nodes | CI |
+| `check_scientist_node_version_bump.py` | Проверка SemVer bump у измененных builtin-ноды в git diff | CI |
+| `scan_fabric.py` | Генерация draft data-contracts из DuckDB схем | Manual |
+| `visualize_provenance.py` | Проверка/визуализация provenance (core graph, PROV-JSON, CAS, audit package) | Manual |
+| `check_udf_perf.py` | UDF perf gate (panel/snapshot/network) по baseline JSON | Legacy/needs update |
+| `generate_ir_schema.py` | Deprecated shim, проксирует вызов в `gen_schema.py` | Deprecated |
+
+### `connectors/`
+
+| Скрипт | Назначение | Статус |
+|---|---|---|
+| `scaffold.py` | Генерация каркаса нового коннектора + теста (`REST/CSV/SQL/SDMX`) | Manual |
+| `check_contracts.py` | Валидация и snapshot-check контрактов коннекторов | CI |
+
+### `runtime/`
+
+| Скрипт | Назначение | Статус |
+|---|---|---|
+| `export_runtime_openapi.py` | Экспорт OpenAPI Runtime API v1 в детерминированный JSON | Manual/Release |
+| `generate_runtime_client.py` | Генерация TS/JS runtime API клиента из OpenAPI | Manual/Release |
+| `inventory_legacy_runs.py` | Инвентаризация `runs/<id>/manifest.json` перед cutover | Manual/Ops |
+| `archive_legacy_runs.py` | Детерминированный tar.gz архив `runs/` + JSON report | Manual/Ops |
+
+### `migrations/`
+
+| Скрипт | Назначение | Статус |
+|---|---|---|
+| `migrate_duckdb_to_pg.py` | Перенос tenant-scoped таблиц DuckDB -> PostgreSQL | Manual/Ops |
+| `migrate.py` | Миграция артефактов (`policy_ir`, `dataset_manifest`, `run_manifest`) | Legacy/needs update |
+
+### `demos/` и `benchmarks/`
+
+| Скрипт | Назначение | Статус |
+|---|---|---|
+| `demos/run_export_demo.py` | Тест записи simulation-данных в DuckDB | Demo |
+| `demos/run_udf_query_demo.py` | Пример panel/snapshot UDF-запросов | Demo |
+| `demos/run_udf_hybrid_demo.py` | DuckDB + graph UDF сценарий | Demo/legacy |
+| `demos/run_laffer_demo.py` | JAX/Optax demo кривой Лаффера | Demo |
+| `demos/run_mechanism_design.py` | E2E differentiable mechanism design (IR -> compile -> execute -> grad) | Demo |
+| `benchmarks/bench_domain.py` | JAX проверка доменной модели | Benchmark |
+| `benchmarks/bench_simulation.py` | JAX benchmark simulation loop | Benchmark |
+
+## Что реально подключено в CI
+
+- Pre-commit: `tools/lint/lint_imports.py`, `tools/diagnostics/gen_schema.py --check`.
+- `/.github/workflows/arch.yml`:
+  - `lint_imports.py`, `lint_foundry.py`, `check_state_reads.py`,
+  - `check_scientist_node_version_bump.py`, `check_scholar_imports.py`,
+  - `check_contracts.py --check`, `gen_schema.py --check`.
+- `/.github/workflows/abi.yml`:
+  - `gen_schema.py` (generate/check), `abi_diff.py`.
+- `/.github/workflows/arch-freeze.yml`:
+  - `lint_connector_hardening.py`, `collect_arch_metrics.py`, `compare_baseline.py`.
+- `/.github/workflows/perf.yml`:
+  - `check_perf_regression.py`.
+
+## Актуальные ограничения и дрейф
+
+- `tools/diagnostics/check_udf_perf.py` и `tools/demos/run_udf_hybrid_demo.py` ожидают `polisyos.fabric.io.graph_store`, которого сейчас нет в `src/polisyos/fabric/io`.
+- `tools/migrations/migrate.py` импортирует `POLICY_IR_CURRENT_VERSION` из `polisyos.common.migrations`, но в текущем коде экспортируется только `MANIFEST_CURRENT_VERSION`; скрипт требует актуализации.
+- `tools/diagnostics/generate_ir_schema.py` оставлен как deprecated compatibility shim.
+- `bench_domain.py` и `bench_simulation.py` не принимают CLI-аргументы (фиксированные параметры внутри кода).
+- Для `check_scientist_node_version_bump.py` актуальный флаг: `--base-ref` (не `--base`).
+
+## Минимальный локальный gate перед PR
 
 ```bash
-python tools/lint/lint_imports.py              # базовая проверка
-python tools/lint/lint_imports.py --verbose    # с детализацией нарушений
-```
-
-Ключевые типы: `ImportRef`, `PolicyConfig`, `ImportException`, `Violation`.
-
-### lint_foundry.py — Закон B: чистота математического ядра
-
-Запрещает IO/БД/сетевые импорты в `foundry/` — математическое ядро должно оставаться чистым и пригодным для JIT-компиляции.
-
-```bash
-python tools/lint/lint_foundry.py --verbose
-```
-
-### lint_connectors.py — Законы A и E: изоляция коннекторов
-
-Проверяет что коннекторы данных (`fabric/connectors/`) не нарушают границы слоёв и включают provenance tracking.
-
-```bash
-python tools/lint/lint_connectors.py --verbose
-```
-
-## Управление схемами и ABI
-
-### gen_schema.py — Закон C: контракты как источник истины
-
-Генерирует детерминированные JSON Schema snapshots из Pydantic-моделей реестра. В режиме `--check` служит CI-гейтом — если snapshot-файлы не совпадают с текущим кодом, сборка падает.
-
-```bash
-python tools/diagnostics/gen_schema.py                        # генерация snapshots
-python tools/diagnostics/gen_schema.py --check                # CI: валидация актуальности
-python tools/diagnostics/gen_schema.py --output-dir /tmp/out  # кастомный output
-```
-
-### abi_diff.py — семантический diff ABI-схем
-
-Сравнивает baseline и current snapshots, классифицирует изменения как breaking/non-breaking, проверяет правила version bump. Самый крупный инструмент (853 строки).
-
-```bash
-python tools/diagnostics/abi_diff.py \
-  --baseline schemas/snapshots \
-  --current /tmp/current_schemas \
-  --output /tmp/abi_report.json \
-  --format github
-```
-
-Ключевые типы: `ChangeKind`, `ModelSnapshot`, `SchemaChange`, `DiffReport`.
-
-## Воспроизводимость и аудит
-
-### capture_env.py — Закон D: Environment Manifest
-
-CLI с тремя командами: `capture` (снимок окружения), `compare` (diff двух снимков), `validate` (проверка корректности манифеста).
-
-```bash
-python -m tools.capture_env capture --output env.json
-python -m tools.capture_env compare baseline.json current.json
-```
-
-Интеграция: `core.artifacts.environment.EnvironmentManifest`.
-
-### diagnostics/check_perf_regression.py — Закон D: регрессионное тестирование
-
-Анализирует JSON-результаты pytest-benchmark, сравнивает baseline и current, выявляет регрессии латентности и throughput. Поддерживает GitHub-friendly вывод.
-
-```bash
-python tools/diagnostics/check_perf_regression.py --baseline baseline.json --current current.json
-python tools/diagnostics/check_perf_regression.py --baseline baseline.json --current current.json --output-format github
-```
-
-### migrate.py — миграция артефактов
-
-Универсальная миграция для типов артефактов: `dataset_manifest`, `policy_ir`, `run_manifest`.
-
-```bash
-python tools/migrations/migrate.py policy_ir old.json new.json --to v2.5.0
-```
-
-Интеграция: `common.migrations.migrate_artifact`.
-
-## Статический анализ кода
-
-### check_state_reads.py — анализ обращений к state
-
-AST-based инструмент, который сканирует файлы `foundry/` и определяет какие ключи `state.*` читает каждый модуль. Используется для минимизации контрактов зависимостей между компонентами.
-
-Ключевые типы: `ReadRequirements`, `_StateReadVisitor`.
-
-### check_scientist_node_version_bump.py — контроль версий в PR
-
-Проверяет что при изменении builtin-файлов scientist-нод в PR присутствует соответствующий version bump в `ComponentId`. Предназначен для использования в CI при проверке pull requests.
-
-```bash
-python tools/diagnostics/check_scientist_node_version_bump.py --base main
-```
-
-## Provenance и data contracts
-
-### visualize_provenance.py — Закон E: визуализация provenance-графов
-
-Загружает provenance-граф (JSON или CAS-ссылка), выполняет верификацию целостности (orphaned nodes, dangling references, циклы в `wasDerivedFrom`) и экспортирует в Graphviz DOT или JSON.
-
-```bash
-python tools/diagnostics/visualize_provenance.py evidence.json --verify
-python tools/diagnostics/visualize_provenance.py evidence.json --format dot | dot -Tpng -o graph.png
-python tools/diagnostics/visualize_provenance.py prov.json --cas-root .polisyos --format json
-```
-
-Интеграция: `core.artifacts.ids.ArtifactID`, `core.artifacts.store.FileSystemCAS`, `core.audit.prov_json`.
-
-### scan_fabric.py — bootstrap data contracts
-
-Сканирует DuckDB-файлы, извлекает схему таблиц и генерирует черновик data contracts для `fabric.catalog`. Полезен при первоначальной интеграции новых источников данных.
-
-```bash
-python tools/diagnostics/scan_fabric.py data/ --output contracts.json
-```
-
-## Бенчмарки (`benchmarks/`)
-
-Два бенчмарка для регрессионного тестирования производительности foundry.
-
-| Скрипт | Что тестирует | Ключевые метрики |
-|--------|--------------|------------------|
-| `bench_domain.py` | `GlobalState` аллокация, JIT-компиляция, векторизованные операции | Память, время JIT, ms/step |
-| `bench_simulation.py` | Полный экономический цикл через `SimulationKernel` | steps/sec, agent-steps/sec, GDP/unemployment |
-
-```bash
-python tools/benchmarks/bench_domain.py --n-agents 1000000
-python tools/benchmarks/bench_simulation.py --n-steps 100 --n-agents 10000
-```
-
-Зависимости: `foundry.contracts.state.GlobalState`, `foundry.engine.kernel.SimulationKernel`, JAX, Equinox.
-
-## Генератор коннекторов (`connectors/`)
-
-### scaffold.py — скелет нового коннектора
-
-Генерирует source-файл и тест для нового коннектора данных по выбранному типу: **REST**, **CSV**, **SQL**, **SDMX**. Сгенерированный код сразу проходит `ConnectorTestHarness`.
-
-```bash
-python tools/connectors/scaffold.py create --name WorldBankData --type REST
-# → src/polisyos/fabric/connectors/sources/world_bank_data.py
-# → tests/fabric/connectors/sources/test_world_bank_data.py
-
-python tools/connectors/scaffold.py create --name CensusData --type CSV --dry-run
-```
-
-Интеграция: `fabric.connectors.base.BaseConnector`, `fabric.connectors.testing.ConnectorTestHarness`, `ir.connectors`.
-
-## Демонстрации (`demos/`)
-
-End-to-end скрипты, демонстрирующие ключевые пайплайны Policy Engine. Каждый скрипт самодостаточен и генерирует необходимые тестовые данные.
-
-| Скрипт | Пайплайн | Основные модули |
-|--------|----------|----------------|
-| `run_udf_query_demo.py` | Panel/Snapshot/Network UDF-запросы | `fabric.udf.engine`, `ir.data_views` |
-| `run_udf_hybrid_demo.py` | ML/статистика внутри SQL через UDF | DuckDB UDF API, Pandas, NumPy |
-| `run_laffer_demo.py` | Кривая Лаффера — tax rate vs revenue | `foundry.mechanisms`, `foundry.engine` |
-| `run_export_demo.py` | Экспорт state в Parquet/JSON/CSV/HDF5 | `foundry.contracts.state`, `foundry.engine.kernel` |
-
-`demos/run_mechanism_design.py` — отдельная E2E демонстрация дифференцируемого mechanism design через JAX-градиенты. Использует `core.contracts.foundry`, `foundry.compile.api`, `ir.kernel`.
-
-## Диагностика (`diagnostics/`)
-
-| Скрипт | Назначение | CI-роль |
-|--------|-----------|---------|
-| `check_setup.py` | Smoke-тест: JAX, Pydantic v2, DuckDB, Kuzu, все модули polisyos | Quality gate |
-| `check_perf_regression.py` | Расширенный анализ регрессий с автоматическим поиском baseline | Nightly |
-| `check_udf_perf.py` | Профилирование UDF: latency, throughput, DuckDB vs Kuzu | Performance gate |
-| `generate_ir_schema.py` | **DEPRECATED** — shim, проксирует в `tools/diagnostics/gen_schema.py` | — |
-
-```bash
-python tools/diagnostics/check_setup.py    # первая команда при настройке окружения
-```
-
-## Матрица архитектурных законов
-
-| Закон | Описание | Инструменты |
-|-------|---------|-------------|
-| **A** | Направленный граф зависимостей (только внутрь) | `lint/lint_imports.py`, `lint/lint_connectors.py` |
-| **B** | Чистота математического ядра foundry (без IO) | `lint/lint_foundry.py` |
-| **C** | Контракты — источник истины (Pydantic + JSON Schema) | `diagnostics/gen_schema.py`, `diagnostics/abi_diff.py` |
-| **D** | Воспроизводимость и аудит | `diagnostics/capture_env.py`, `diagnostics/check_perf_regression.py`, `migrations/migrate.py` |
-| **E** | Evidence и provenance обязательны | `diagnostics/visualize_provenance.py`, `diagnostics/scan_fabric.py`, `lint/lint_connectors.py` |
-
-## CI/CD интеграция
-
-Рекомендуемый pipeline:
-
-```yaml
-# Quality gate (каждый PR)
-- python tools/diagnostics/check_setup.py
-- python tools/lint/lint_imports.py
-- python tools/lint/lint_foundry.py
-- python tools/lint/lint_connectors.py
-- python tools/diagnostics/gen_schema.py --check
-- python tools/diagnostics/check_scientist_node_version_bump.py --base main
-
-# Performance (nightly)
-- python tools/diagnostics/check_perf_regression.py --baseline baseline.json --current results.json
-- python tools/benchmarks/bench_domain.py --n-agents 1000000
-- python tools/benchmarks/bench_simulation.py --n-steps 100 --n-agents 10000
-
-# Smoke tests (integration)
-- python tools/demos/run_udf_query_demo.py
-```
-
-## Troubleshooting
-
-```bash
-# PYTHONPATH — если ImportError при запуске инструмента
-export PYTHONPATH="$(pwd)/src:$PYTHONPATH"
-
-# JAX Metal на macOS — если зависает или segfault
-export POLICY_ENGINE_ALLOW_JAX_METAL=0
-
-# Schema drift — перегенерация ABI snapshots
-python tools/diagnostics/gen_schema.py && python tools/diagnostics/gen_schema.py --check
-
-# Детальный вывод любого линтера
-python tools/lint/lint_imports.py --verbose
+PYTHONPATH=src:. uv run python tools/lint/lint_imports.py --policy import_policy.toml --exceptions import_exceptions.toml
+PYTHONPATH=src:. uv run python tools/lint/lint_foundry.py --repo-root .
+PYTHONPATH=src:. uv run python tools/diagnostics/check_state_reads.py
+PYTHONPATH=src:. uv run python tools/diagnostics/check_scientist_node_version_bump.py --base-ref origin/main
+PYTHONPATH=src:. uv run python tools/lint/check_scholar_imports.py
+PYTHONPATH=src:. uv run python tools/connectors/check_contracts.py --check
+PYTHONPATH=src:. uv run python tools/diagnostics/gen_schema.py --check
 ```

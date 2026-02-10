@@ -1,192 +1,90 @@
-# Core — Фундаментальная инфраструктура PolisyOS
+# Core — инфраструктурный слой PolisyOS
 
-Модуль `core` — фундамент системы: CAS-хранилище, типизированные контракты, компонентная модель, observability, аудит. Все верхнеуровневые модули (Fabric, Foundry, Scientist, Lex, Runtime, Scholar) зависят от core. Модуль IR не зависит от core (определяет схемы данных самостоятельно).
+`polisyos.core` — это общий инфраструктурный слой для `fabric`, `foundry`, `scientist`, `lex`, `runtime`, `scholar` и `packs`.
+Здесь находится стабильный ABI (контракты), CAS-хранилище артефактов, provenance/audit, компонентная модель, безопасность и наблюдаемость.
 
-## Архитектура
+`ir` остается независимым: он может использоваться без `core` как самостоятельный слой схем/реестров.
 
-```
+## Архитектура директории
+
+```text
 core/
-├── artifacts/      # CAS хранилище, подписи Ed25519, environment manifests, dependency graph
-├── audit/          # Сборка и верификация портативных аудит-пакетов (W3C PROV-JSON)
-├── cache/          # Единые in-memory кэши: Cache protocol, LRU, TTL
-├── canon/          # Детерминированная JSON-сериализация (Decimal, datetime, запрет float)
-├── compiler/       # Структуры отчетов компиляции/линковки политик
-├── components/     # Component Model v1: identity, discovery, registry, compliance
-├── contracts/      # Типизированные контракты между модулями (14 доменов)
-├── observability/  # OTel трассировка, Prometheus метрики, determinism tiers, LLM pricing
-├── registry/       # Сборка и загрузка registry bundles из IR
-├── run/            # Контексты выполнения с lifecycle и трассировкой
-├── security/       # Cell-based tenant isolation primitives and DB tenant context
-└── trace/          # TraceRecord / TraceSink для span-based JSONL логирования
+├── artifacts/      # CAS + манифесты + подписи + environment fingerprinting + dependency graph
+├── audit/          # Экспорт и офлайн-верификация аудит-пакетов (PROV + checksums + SLSA)
+├── backends/       # Унифицированный dispatcher backend-реализаций
+├── cache/          # Потокобезопасные LRU/TTL кэши
+├── canon/          # Канонический JSON + хеширование
+├── compiler/       # Отчеты компиляции/линковки в CAS
+├── components/     # Component Model v1 (metadata/discovery/registry/bootstrap)
+├── contracts/      # Typed ABI между модулями
+├── discovery/      # Базовые примитивы discovery (entry points + file modules)
+├── errors/         # Унифицированная ошибка PolicyOSError + категории
+├── evaluation/     # Взвешенный scoring + threshold mapping
+├── governance/     # Validation profiles + legal/safety passes
+├── llm/            # Трассируемый LLM client + оценка стоимости + retry facade
+├── observability/  # Tracing, metrics, context propagation, structured logs
+├── pipeline/       # Линейные и DAG pipeline-примитивы
+├── registry/       # Сборка/загрузка registry bundles из IR и fragment-компонентов
+├── resilience/     # Общая retry-политика с backoff/jitter
+├── run/            # RunContext + RunManifest lifecycle
+├── security/       # Tenant isolation, authn/authz, audit chain, TEE, SBOM, SLSA helpers
+└── trace/          # TraceRecord и sink'и (JSONL/composite)
 ```
 
-## Принципы
+## Роль в системе
 
-- **Content-addressable storage**: ID = SHA256(содержимое), неизменяемость, дедупликация
-- **Строгая типизация**: Pydantic-модели с `extra="forbid"`, Literal-типы для kind/media_type
-- **Детерминизм**: Каноническая сериализация (запрет float), DeterminismTier для симуляций
-- **Provenance**: Полный трекинг зависимостей от входных данных до финальных решений
-- **Distributed tracing**: OTel spans + JSONL trace records для воспроизводимости
+- Единый ABI: `core.contracts` задает типизированные ссылки и модели на межмодульных границах.
+- Единый data/provenance plane: `artifacts`, `run`, `trace`, `audit` держат воспроизводимость и аудируемость.
+- Единый plugin plane: `components` + `discovery` + `registry` связывают entry-points, packs и runtime-реестры.
+- Единый runtime-quality plane: `security`, `observability`, `resilience`, `pipeline` дают общие нефункциональные гарантии.
 
-## Зависимости от Core по модулям
+## Публичные точки входа
 
-| Модуль | Что использует из Core |
-|--------|----------------------|
-| **Fabric** | `artifacts.store`, `artifacts.ids`, `canon`, `contracts.fabric`, `audit.prov_json` |
-| **Foundry** | `contracts.foundry`, `artifacts`, `run`, `observability.determinism` |
-| **Scientist** | `run.context`, `artifacts.store/manifest`, `contracts.scientist/trinity` |
-| **Lex** | `artifacts.store/ids`, `canon`, `contracts.lex`, `components` |
-| **Runtime** | `contracts.foundry`, `artifacts.environment/graph`, `canon` |
-| **Scholar** | `artifacts.store/ids`, `contracts.scholar`, `components` |
-| **Packs** | `components` (ComponentId, ComponentKind, ComponentMetadata, Capability) |
+`polisyos.core` (lazy facade) экспортирует:
 
-## Подсистемы с собственными README
+- `artifacts`, `backends`, `cache`, `canon`, `components`, `contracts`, `discovery`
+- `evaluation`, `errors`, `llm`, `observability`, `pipeline`, `resilience`, `registry`, `run`
 
-Каждая из следующих директорий — самостоятельная подсистема с публичным API (>= 5 файлов):
+Подсистемы, которые импортируются напрямую (не через facade `core.__all__`):
 
-- **[artifacts/](artifacts/README.md)** — CAS хранилище с SHA256, подписи Ed25519, EnvironmentManifest, dependency graph
-- **[audit/](audit/README.md)** — Сборка портативных `.polisyos-audit.tar.gz` пакетов, офлайн-верификация, W3C PROV-JSON
-- **[components/](components/README.md)** — Component Model v1: ComponentId, discovery через entry points, registry с conflict resolution
-- **[contracts/](contracts/README.md)** — Типизированные контракты: Fabric, Foundry, Trinity, Lex, Scientist, Scholar, Causal, HTE, Backtest, Uncertainty, Distributional
-- **[observability/](observability/README.md)** — OTel трассировка, Prometheus метрики, determinism tiers, LLM cost estimation
+- `polisyos.core.audit`
+- `polisyos.core.compiler`
+- `polisyos.core.governance`
+- `polisyos.core.security`
+- `polisyos.core.trace`
 
----
+## Связь с другими директориями
 
-## Canon — Детерминированная сериализация
+| Директория | Как использует `core` |
+|---|---|
+| `fabric/` | CAS (`artifacts`), canonical hashing (`canon`), evidence contracts (`contracts.fabric`), plugin discovery (`components`) |
+| `foundry/` | compile/execute contracts (`contracts.foundry`), registry bundles (`registry`), determinism/metrics (`observability`) |
+| `scientist/` | run lifecycle (`run`), governance passes/profiles (`governance`), LLM wrappers (`llm`), artifacts/contracts |
+| `lex/` | legal contracts (`contracts.lex`), governance passes, artifact persistence, component providers |
+| `runtime/` | runtime API contracts (`contracts.runtime`), artifact lineage/debug endpoints, security middleware |
+| `scholar/` | scholar contracts, CAS, component-based extractors, freshness metrics |
+| `packs/` | декларация компонентов (`components.ComponentMetadata/Capability/ComponentKind`) |
+| `ir/` | source of registries/refs для `core.registry` и facade-контрактов; прямой зависимости `ir -> core` нет |
 
-> `core/canon/` — 2 файла: `canon_json.py`, `__init__.py`
+## Ключевые сценарии
 
-Каноническая JSON-сериализация для reproducible вычислений и стабильных CAS-хешей.
+- Компиляция/исполнение: `ir` + `core.registry` + `core.contracts.foundry`.
+- Runtime replay/debug: `core.run` + `core.trace` + `core.contracts.runtime`.
+- Проверяемая поставка: `core.audit` + `core.security.slsa` + `core.artifacts.signing`.
+- Мультитенантность: `core.security` + `runtime/http/*` + `fabric` DB adapters.
 
-**Публичный API:**
-- `CanonSpec` — конфигурация параметров канонизации
-- `to_canonical_bytes(data)` → `bytes` — сериализация в канонические байты
-- `from_canonical_bytes(data)` / `from_canonical_obj(data)` — десериализация
-- `CanonViolation` — исключение при нарушении правил
+## Документация подсистем
 
-**Правила:**
-- Запрет `float` и `NaN/Inf` — использовать `Decimal`
-- Сортировка ключей, фиксированные разделители `",:"` без пробелов
-- Специальные типы: `Decimal` → `{"_type": "decimal", "value": "..."}`, `datetime` → `{"_type": "datetime", "iso_utc": "..."}`, `bytes` → base64
-- Поддержка Pydantic-моделей и dataclasses
+- [artifacts/README.md](artifacts/README.md)
+- [audit/README.md](audit/README.md)
+- [components/README.md](components/README.md)
+- [contracts/README.md](contracts/README.md)
+- [observability/README.md](observability/README.md)
+- [security/README.md](security/README.md)
+- [cache/README.md](cache/README.md)
 
-```python
-from polisyos.core.canon import to_canonical_bytes, from_canonical_bytes
-from decimal import Decimal
+## Границы ответственности
 
-data = {"threshold": Decimal("0.75"), "constraints": ["budget"]}
-canonical = to_canonical_bytes(data)       # стабильный хеш
-restored = from_canonical_bytes(canonical) # round-trip
-```
-
-**Используется:** artifacts (хеширование), Fabric (сериализация evidence), Lex (corpus), Runtime (replay).
-
----
-
-## Compiler — Отчеты компиляции
-
-> `core/compiler/` — 2 файла: `report.py`, `__init__.py`
-
-Структуры данных для результатов компиляции и линковки политик.
-
-**Публичный API:**
-- `CompileReport` (Pydantic) — отчет компиляции: `ok`, `policy_ref`, `program_graph_ref`, `exec_plan_ref`, `link_report_ref`, `notes`
-- `put_compile_report(store, report, inputs)` → `CompileReportRef` — сохранение в CAS
-- `put_link_report(store, report, inputs)` → `LinkReportRef` — сохранение отчета линковки
-
-```python
-from polisyos.core.compiler import CompileReport, put_compile_report
-
-report = CompileReport(ok=True, policy_ref=ref, program_graph_ref=graph_ref, exec_plan_ref=plan_ref)
-compile_ref = put_compile_report(store, report, inputs=[policy_input])
-```
-
-**Рабочий процесс:** IR компилирует политику → CompileReport → Foundry читает program_graph/exec_plan → Scientist оркестрирует и хранит отчеты.
-
----
-
-## Registry — Сборка и загрузка реестров
-
-> `core/registry/` — 4 файла: `builder.py`, `builder_from_fragments.py`, `loader.py`, `__init__.py`
-
-Инфраструктура для сборки и загрузки пакетов реестров (SlotRegistry, MechanismTypeRegistry, MetricRegistry, ConstraintRegistry, MergeRuleRegistry и др.) как CAS-артефактов.
-
-**Публичный API:**
-- `build_default_registry_bundle(store)` — стандартный пакет из IR
-- `build_registry_bundle(store, ...)` — кастомный пакет
-- `build_registry_bundle_from_components(store, components)` — из IR-фрагментов компонентов
-- `load_registry_bundle(store, ref)` → `RegistryBundle` — загрузка ссылок
-- `load_registry_bundle_content(store, ref)` → `RegistryBundleContent` — загрузка полных объектов
-- `FragmentPrecedencePolicy` — политика приоритетов при слиянии фрагментов
-
-**Структуры:**
-- `RegistryBundlePayload` — ссылки на реестры (обязательные: slot, merge, constraint, mechanism)
-- `RegistryBundleContent` — загруженные объекты реестров для компиляции
-
-```python
-from polisyos.core.registry import build_default_registry_bundle, load_registry_bundle_content
-
-bundle = build_default_registry_bundle(store)
-bundle_ref = bundle.save(store)
-content = load_registry_bundle_content(store, bundle_ref)
-```
-
-**Используется:** Foundry (валидация и исполнение), Scientist (управление версиями), Compiler (ссылки в CompileReport).
-
----
-
-## Run — Контексты выполнения
-
-> `core/run/` — 3 файла: `context.py`, `manifest.py`, `__init__.py`
-
-Управление жизненным циклом запусков с автоматической трассировкой и provenance tracking.
-
-**Публичный API:**
-- `RunContext` (dataclass) — контекст выполнения с интегрированной трассировкой
-  - `RunContext.start(store, registry_bundle)` — создание контекста с генерацией `R_<16hex>` run_id
-  - `emit(phase, event, metrics, inputs, outputs)` — запись события в trace
-  - `add_input(ref)` / `add_output(ref)` — регистрация артефактов для provenance
-  - `finalize(success)` — завершение с сохранением трассировки
-- `RunManifest` (Pydantic) — метаданные запуска: run_id, timestamps, producer, inputs/outputs, status, trace_ref, seed, parent_run_id, environment_manifest_ref, tee_attestation_ref, sbom_ref
-
-```python
-from polisyos.core.run import RunContext
-
-ctx = RunContext.start(store=store, registry_bundle=bundle_ref)
-ctx.emit("simulation", "STARTED", inputs=[data_ref])
-result_ref = run_simulation(ctx, data_ref)
-ctx.add_output(result_ref)
-ctx.finalize(success=True)
-```
-
-**Файловая структура:** `/artifacts/runs/R_{run_id}/trace.jsonl` + `manifest.json`
-
-**Используется:** Foundry (SimulationEngine), Scientist (gate_protocol), Fabric (DataProcessor), audit (assembler читает run metadata).
-
----
-
-## Trace — Span-based логирование
-
-> `core/trace/` — 3 файла: `record.py`, `sink.py`, `__init__.py`
-
-Низкоуровневые примитивы для записи трассировки: записи событий и sink-адаптеры.
-
-**Публичный API:**
-- `TraceRecord` (Pydantic) — запись события: `ts`, `run_id`, `phase`, `event`, `span_id`, `parent_span_id`, `refs` (TraceRefs с inputs/outputs), `metrics`, `warnings`, `errors`
-- `TraceSink` (Protocol) — интерфейс для вывода записей (расширяемый)
-- `JsonlTraceSink` — реализация для JSONL-файлов
-
-```python
-from polisyos.core.trace import TraceRecord, JsonlTraceSink
-
-sink = JsonlTraceSink(Path("/tmp/trace.jsonl"))
-record = TraceRecord(run_id="R_abc123", phase="init", event="STARTED")
-sink.write(record)
-```
-
-**Формат JSONL:**
-```jsonl
-{"ts":"2024-01-15T10:30:00Z","run_id":"R_123","phase":"data_load","event":"batch_loaded","metrics":{"batch_size":1000}}
-```
-
-**Используется:** `run.context` (RunContext.emit записывает через TraceSink), `audit.assembler` (парсит trace.jsonl для provenance).
+- В `core` добавляем только то, что переиспользуется минимум двумя подсистемами.
+- Доменно-специфичную бизнес-логику оставляем в `fabric`/`foundry`/`scientist`/`lex`/`scholar`.
+- Если новый API нужен между модулями, сначала фиксируется контракт в `core.contracts`, затем реализация в доменном модуле.

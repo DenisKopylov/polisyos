@@ -1,88 +1,77 @@
 # legal_evaluation
 
-Оценка соответствия действий юридическим нормам и генерация предложений по изменениям.
+`lex.legal_evaluation` проверяет соответствие симуляции и политики нормам из `NormPack` и формирует юридический отчёт.
 
-## Архитектура
+## Что получает на вход
 
+- `LegalEvaluationRequest`
+- `PolicySpec` (напрямую или через `trinity_bundle_ref`)
+- `SimulationResult` + `Metrics`
+- `NormPack`
+
+Все входы загружаются из CAS и валидируются до старта оценки.
+
+## Поток выполнения
+
+```text
+normalize request
+  -> resolve evaluator (registry)
+  -> build LegalContext
+  -> evaluate each NormRule
+  -> persist lex.legal_report
+  -> auto-generate lex.change_proposal
+  -> emit EVALUATE_LEGALITY world event
 ```
-LegalEvaluationRequest
-        │
-  evaluator_registry.resolve(eval_policy_id)
-        │
-  evaluate_legality_impl()
-        ├── LegalContextBuilder.build()
-        │     ├── load PolicySpec, SimulationResult, Metrics, NormPack
-        │     └── map observed values → RuleObservation per rule
-        ├── evaluate_rule_simple_v1() per rule
-        │     └── numeric / boolean / text comparison → RuleFinding
-        ├── persist LegalReport → LegalReportRef
-        └── propose_changes_impl()
-              └── FAIL findings → ChangeProposalRef
-```
 
-## Модули
+## Ключевые модули
 
-### evaluator_registry.py
+### `evaluator_registry.py`
 
-Глобальный реестр оценщиков легальности:
+- Глобальный реестр `LexEvaluatorRegistry`.
+- Встроенный backend: `lex.eval.simple_v1@1.0.0`.
+- Поддержка плагинов через entry points `polisyos.lex_evaluators`.
 
-- `LexEvaluatorRegistry` — хранит `EvaluatorRecord` по component_id и base_id
-- `resolve(eval_policy_id)` — поиск сначала по точному id, затем по base_id (latest version)
-- Встроенный: `lex.eval.simple_v1@1.0.0`
-- Расширение: entry points `polisyos.lex_evaluators`, bootstrap через `discover_and_bootstrap_evaluators()`
-- Поддерживает callable и объекты с методом `evaluate()`
+### `evaluate.py`
 
-### evaluate.py
+Оркестратор end-to-end:
+- нормализация запроса (`jurisdiction`, `as_of`, `eval_policy_id`, источники policy refs);
+- построение контекста;
+- rule-by-rule оценка;
+- агрегация `summary/counts/compliance_grade`;
+- персистенция `lex.legal_report` и запуск генерации proposals.
 
-Основная логика оценки (`evaluate_legality_impl`):
+### `context_builder.py`
 
-1. Нормализация запроса: валидация юрисдикции, as_of, norm_pack_ref, eval_policy_id
-2. Разрешение Trinity bundle → PolicySpecRef + ModelSpecRef (inline или через CAS)
-3. Построение контекста через `LegalContextBuilder`
-4. Итерация по правилам NormPack: `evaluate_rule_simple_v1()` для каждого
-5. Агрегация findings → summary (counts + compliance_grade: pass/partial/fail)
-6. Персистенция отчёта (`lex.legal_report`), запись WorldEvent `EVALUATE_LEGALITY`
+Строит `RuleObservation` для каждой нормы.
 
-### context_builder.py
+Порядок маппинга наблюдаемого значения:
+1. `Metrics.values[predicate_id]`
+2. `PolicySpec.parameter -> intervention.param_path`
+3. direct key в `intervention.params`
 
-`LegalContextBuilder` — подготовка данных для оценки:
+Если значение не найдено/неоднозначно, добавляет `quality_issues` (например `missing_observed_value`, `ambiguous_policy_mapping`).
 
-- Загружает из CAS: PolicySpec, SimulationResult, Metrics, NormPack
-- Для каждого правила строит `RuleObservation` с маппингом наблюдаемого значения:
-  1. **metrics** — прямой lookup по predicate_id в Metrics.values
-  2. **parameter_spec** — через ParameterSpec: intervention_id → param_path → value
-  3. **direct_key** — predicate_id как ключ в intervention.params
-- Поддерживает типы: numeric (Decimal), boolean, text
+### `backends/simple_v1.py`
 
-### change_proposals.py
+Базовый rule evaluator:
+- операторы: `<`, `<=`, `=`, `>=`, `>` (numeric), `=` (boolean/text);
+- поддержка unit conversion: `percent<->ratio`, `km<->m`;
+- статусы: `PASS`, `FAIL`, `UNKNOWN`, `NOT_APPLICABLE`;
+- severity зависит от `strict`.
 
-Генерация предложений по изменениям на основе отчёта оценки:
+### `change_proposals.py`
 
-**`policy_patch`** — для FAIL findings с числовым threshold:
-- Находит policy_json_pointer из evidence_refs
-- Генерирует JSON Patch `replace` с рассчитанным значением (учитывает оператор: `<` → threshold - epsilon)
+Генерирует предложения на основе отчёта:
+- `policy_patch` (JSON Patch `replace`) для числовых FAIL-правил;
+- `add_metric` для недостающих наблюдений.
 
-**`add_metric`** — для `missing_observed_value` quality issues:
-- Предлагает добавить инструментацию для недостающей метрики
-- Определяет metric_type (numeric/boolean/text) по expected
+## Выходы
 
-### backends/simple_v1.py
+- `LegalReportRef` (`lex.legal_report`)
+- `list[ChangeProposalRef]` (`lex.change_proposal`)
 
-Rule evaluator v1:
+## Связь с другими директориями
 
-- Числовые сравнения: `<`, `<=`, `=`, `>=`, `>` с Decimal precision
-- Конвертация единиц: percent↔ratio, km↔m
-- Boolean: exact match (true/false) через оператор `=`
-- Text: casefold + whitespace-normalized comparison через `=`
-- Severity: `info` (PASS/NOT_APPLICABLE), `warning` (UNKNOWN non-strict), `blocker` (FAIL, UNKNOWN strict)
-
-## Зависимости
-
-- `normpack.applicability` — проверка applies_to_context для правил
-- `core.contracts.lex` — LegalEvaluationRequest, LegalReportRef, ChangeProposalRef
-- `core.contracts.trinity` — PolicySpecRef, ModelSpecRef
-- `core.contracts.foundry` — SimulationResult, Metrics
-- `core.components` — entry point discovery для плагинов оценщиков
-- `ir.norm_pack` — NormPack, NormRule
-- `ir.policy_spec` — PolicySpec, ParameterSpec
-- `fabric.world` — персистенция событий и фактов
+- Потребляет `NormPack` из `policy-engine/src/polisyos/lex/normpack`.
+- Использует контракты из `polisyos.core.contracts.lex/trinity/foundry`.
+- Пишет provenance в fact log через `polisyos.fabric.world`.

@@ -93,7 +93,7 @@ Pipeline: Ingestion → Normalization → Structure Analysis → Chunking. По�
 
 3 файла, реализующие стандарт W3C PROV-O:
 
-- **`core.py`** — `ProvenanceCoreGraph` с nodes (Entity, Activity, Agent) и edges (wasDerivedFrom, wasGeneratedBy, used, wasAttributedTo, wasAssociatedWith). Deterministic stable_id через SHA-256 канонического JSON. BFS-поиск предков с depth limit.
+- **`core.py`** — compatibility facade: re-export контрактов provenance из `polisyos.core.contracts.provenance` (canonical ownership в core).
 - **`export_provo.py`** — экспорт в JSON-LD и N-Quads для внешнего аудита и RDF triple stores.
 - **`ProvenanceCoreRef`** — легковесная ссылка (graph_id + stable_id + artifact_id) для хранения в EvidenceBundle.
 

@@ -9,7 +9,7 @@ import jax.numpy as jnp
 from polisyos.foundry.agent_sim.mechanism import Mechanism
 from polisyos.foundry.agent_sim.prng import get_mechanism_key
 from polisyos.foundry.agent_sim.state import GlobalState, compute_aggregates
-from polisyos.foundry.types import FidelityLevel
+from polisyos.foundry.contracts.fidelity import FidelityLevel
 
 
 class MechanismOrder:

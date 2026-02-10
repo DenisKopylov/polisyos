@@ -13,7 +13,7 @@ from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.contracts.foundry import StateSnapshot
-from polisyos.foundry.domain.state import GlobalState
+from polisyos.foundry.contracts.state import GlobalState
 
 from ._executor_models import load_model
 

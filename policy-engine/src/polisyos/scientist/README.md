@@ -161,7 +161,7 @@ scientist backtest ...
 
 | Модуль | Что использует | Файл |
 |--------|---------------|------|
-| lex | PassContext, LegalPass, SafetyPass, ValidationProfile | `lex/simulator/engine.py` |
+| lex | PassContext, LegalPass, SafetyPass, ValidationProfile (via `core.governance`) | `lex/simulator/engine.py` |
 | fabric (tests) | QualityGatePass | `tests/fabric/` |
 | core CLI | Scientist subcommands | `core/components/cli.py` |
 

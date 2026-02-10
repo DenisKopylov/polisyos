@@ -139,6 +139,14 @@ _CAPABILITY_METHODS: dict[ConnectorCapability, str] = {
 }
 
 
+def _is_async_capability_method(method: Any, *, method_name: str) -> bool:
+    if inspect.iscoroutinefunction(method):
+        return True
+    if method_name in {"list_datasets", "fetch_stream"} and inspect.isasyncgenfunction(method):
+        return True
+    return False
+
+
 # ---------------------------------------------------------------------------
 # ConnectorTestHarness
 # ---------------------------------------------------------------------------
@@ -268,7 +276,7 @@ class ConnectorTestHarness:
                     f"Capability {cap.name} declared but method "
                     f"'{method_name}' is missing."
                 )
-                assert inspect.iscoroutinefunction(method), (
+                assert _is_async_capability_method(method, method_name=method_name), (
                     f"Capability-gated method '{method_name}' must be async."
                 )
 

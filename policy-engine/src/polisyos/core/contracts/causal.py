@@ -1,14 +1,4 @@
-from __future__ import annotations
-
-from typing import Literal
-
-from ..artifacts.manifest import ArtifactRef
-
-
-class CausalEffectReportRef(ArtifactRef):
-    kind: Literal["ir.causal_effect_report"] = "ir.causal_effect_report"
-    media_type: Literal["application/json"] = "application/json"
+from polisyos.ir.refs import CausalEffectReportRef
 
 
 __all__ = ["CausalEffectReportRef"]
-

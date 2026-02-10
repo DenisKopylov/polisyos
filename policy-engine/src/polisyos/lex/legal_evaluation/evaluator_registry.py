@@ -158,7 +158,11 @@ def bootstrap_component_evaluators(components_index: ComponentRegistry) -> Evalu
 def discover_and_bootstrap_evaluators(
     *,
     include_dev_scan: bool = True,
+    components_index: ComponentRegistry | None = None,
 ) -> EvaluatorBootstrapReport:
+    if components_index is not None:
+        return bootstrap_component_evaluators(components_index)
+
     discovered = discover_components(
         groups=[ENTRY_POINT_GROUP_LEX_EVALUATORS],
         include_dev_scan=include_dev_scan,

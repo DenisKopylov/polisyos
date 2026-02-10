@@ -2,12 +2,13 @@ from __future__ import annotations
 
 import base64
 import dataclasses
+import hashlib
 import json
 import math
 from dataclasses import dataclass
 from datetime import date, datetime, timezone
 from decimal import Decimal
-from typing import Any, Mapping, Sequence
+from typing import Any, Literal, Mapping, Sequence
 
 from pydantic import BaseModel
 
@@ -105,4 +106,88 @@ def to_canonical_bytes(obj: Any, spec: CanonSpec | None = None) -> bytes:
     return payload.encode("utf-8")
 
 
-__all__ = ["CanonSpec", "CanonViolation", "to_canonical_bytes"]
+def _parse_datetime(value: str) -> datetime:
+    if value.endswith("Z"):
+        value = value[:-1] + "+00:00"
+    return datetime.fromisoformat(value)
+
+
+def from_canonical_obj(obj: Any) -> Any:
+    if isinstance(obj, Mapping):
+        if "_type" in obj:
+            kind = obj.get("_type")
+            if kind == "datetime":
+                return _parse_datetime(obj["iso_utc"])
+            if kind == "date":
+                return date.fromisoformat(obj["iso"])
+            if kind == "decimal":
+                return Decimal(obj["value"])
+            if kind == "bytes":
+                data = obj["data"]
+                return base64.b64decode(data.encode("ascii"))
+            if kind == "float":
+                return float(obj["repr"])
+        return {k: from_canonical_obj(v) for k, v in obj.items()}
+
+    if isinstance(obj, Sequence) and not isinstance(obj, (str, bytes, bytearray, memoryview)):
+        return [from_canonical_obj(item) for item in obj]
+
+    return obj
+
+
+def from_canonical_bytes(data: bytes) -> Any:
+    payload = json.loads(data)
+    return from_canonical_obj(payload)
+
+
+HashAlgorithm = Literal["sha256", "sha1", "blake2b"]
+
+
+def _new_hasher(algorithm: HashAlgorithm, *, digest_size: int | None = None):
+    if algorithm == "sha256":
+        return hashlib.sha256()
+    if algorithm == "sha1":
+        return hashlib.sha1()
+    if algorithm == "blake2b":
+        if digest_size is not None:
+            return hashlib.blake2b(digest_size=digest_size)
+        return hashlib.blake2b()
+    raise ValueError(f"Unsupported hash algorithm: {algorithm}")
+
+
+def _to_bytes(value: bytes | bytearray | memoryview | str) -> bytes:
+    if isinstance(value, bytes):
+        return value
+    if isinstance(value, bytearray):
+        return bytes(value)
+    if isinstance(value, memoryview):
+        return value.tobytes()
+    if isinstance(value, str):
+        return value.encode("utf-8")
+    raise TypeError(f"Unsupported payload type for hashing: {type(value).__name__}")
+
+
+def content_hash(
+    payload: bytes | bytearray | memoryview | str,
+    *,
+    algorithm: HashAlgorithm = "sha256",
+    prefix: bool = False,
+    digest_size: int | None = None,
+) -> str:
+    hasher = _new_hasher(algorithm, digest_size=digest_size)
+    hasher.update(_to_bytes(payload))
+    digest = hasher.hexdigest()
+    if prefix:
+        return f"{algorithm}:{digest}"
+    return digest
+
+
+__all__ = [
+    "CanonSpec",
+    "CanonViolation",
+    "HashAlgorithm",
+    "content_hash",
+    "from_canonical_bytes",
+    "from_canonical_obj",
+    "to_canonical_bytes",
+]

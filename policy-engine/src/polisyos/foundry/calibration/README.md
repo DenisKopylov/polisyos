@@ -97,7 +97,7 @@ Pydantic-модели результатов:
 - **ir/uncertainty** — UncertaintyEnvelope, DistributionFamily
 - **foundry/merge_engine** — MergeEngine для apply_nodes
 - **foundry/registry** — создание механизмов из спецификаций
-- **foundry/domain/state** — GlobalState
+- **foundry/contracts/state** — GlobalState
 
 ## Структура
 

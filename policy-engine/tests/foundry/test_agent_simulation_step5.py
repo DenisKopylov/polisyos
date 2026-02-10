@@ -12,7 +12,7 @@ from polisyos.foundry.agent_sim import (
     free_multiple_slots,
 )
 from polisyos.foundry.agent_sim.state import GlobalState
-from polisyos.foundry.types import FidelityLevel
+from polisyos.foundry.contracts.fidelity import FidelityLevel
 
 
 def _tree_shapes(tree):

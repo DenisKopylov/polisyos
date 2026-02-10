@@ -234,9 +234,9 @@ bundle: RegistryBundle = result.bundle
 
 ### IR зависит от
 
-- `polisyos.core.canon` — каноническая сериализация (в `uncertainty.py`)
-- `polisyos.core.artifacts` — CAS store для persist/load (TYPE_CHECKING)
-- `polisyos.core.contracts` — ref-типы (TYPE_CHECKING)
+- `polisyos.ir.canon` — canonical JSON + hashing API для deterministic ID
+- `polisyos.ir.artifacts` — IR-owned протоколы и опции persist/load
+- `polisyos.ir.refs` — canonical IR ref-типы (`ir.*` analytical artifacts)
 - `pydantic` — базовый фреймворк моделей
 
 ### От IR зависят

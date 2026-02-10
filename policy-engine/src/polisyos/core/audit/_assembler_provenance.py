@@ -19,7 +19,7 @@ from polisyos.core.artifacts.signing import (
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.canon.canon_json import from_canonical_bytes
 from polisyos.core.trace.record import TraceRecord
-from polisyos.fabric.provenance.core import (
+from polisyos.core.contracts.provenance import (
     ActivityType,
     AgentType,
     EntityType,

@@ -1,17 +1,14 @@
 from __future__ import annotations
 
 import math
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from polisyos.core.canon import CanonSpec, from_canonical_bytes
+from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
+from polisyos.ir.canon import CanonSpec
 from polisyos.ir.analytics.causal import CausalMethod
-
-if TYPE_CHECKING:
-    from polisyos.core.artifacts.manifest import InputRef
-    from polisyos.core.artifacts.store import FileSystemCAS
-    from polisyos.core.contracts.hte import HTEResultRef, PolicyRecommendationRef
+from polisyos.ir.refs import HTEResultRef, PolicyRecommendationRef
 
 
 class SubgroupEffect(BaseModel):
@@ -178,65 +175,55 @@ class PolicyRecommendation(BaseModel):
 
 
 def persist_hte_result(
-    store: "FileSystemCAS",
+    store: ArtifactStore,
     result: HTEResult,
     *,
-    inputs: list["InputRef"] | None = None,
+    inputs: list[InputRef] | None = None,
     schema_name: str = "ir.hte_result",
     schema_version: str = "1.0",
-) -> "HTEResultRef":
-    from polisyos.core.artifacts.manifest import SchemaInfo
-    from polisyos.core.artifacts.store import PutOptions
-    from polisyos.core.contracts.hte import HTEResultRef
-
-    ref = store.put_json(
+) -> HTEResultRef:
+    ref = put_json_artifact(
+        store,
         result.model_dump(mode="json"),
-        opts=PutOptions(
-            kind="ir.hte_result",
-            media_type="application/json",
-            schema=SchemaInfo(name=schema_name, version=schema_version),
-            inputs=inputs,
-        ),
+        kind="ir.hte_result",
+        schema_name=schema_name,
+        schema_version=schema_version,
+        inputs=inputs,
         canon_spec=CanonSpec(forbid_floats=False),
     )
-    return HTEResultRef.model_validate(ref.model_dump())
+    return HTEResultRef.model_validate(ref)
 
 
-def load_hte_result(store: "FileSystemCAS", ref: "HTEResultRef") -> HTEResult:
-    payload = from_canonical_bytes(store.get_bytes(ref.artifact_id))
+def load_hte_result(store: ArtifactStore, ref: HTEResultRef) -> HTEResult:
+    payload = get_json_artifact(store, ref.artifact_id)
     return HTEResult.model_validate(payload)
 
 
 def persist_policy_recommendation(
-    store: "FileSystemCAS",
+    store: ArtifactStore,
     recommendation: PolicyRecommendation,
     *,
-    inputs: list["InputRef"] | None = None,
+    inputs: list[InputRef] | None = None,
     schema_name: str = "ir.policy_recommendation",
     schema_version: str = "1.0",
-) -> "PolicyRecommendationRef":
-    from polisyos.core.artifacts.manifest import SchemaInfo
-    from polisyos.core.artifacts.store import PutOptions
-    from polisyos.core.contracts.hte import PolicyRecommendationRef
-
-    ref = store.put_json(
+) -> PolicyRecommendationRef:
+    ref = put_json_artifact(
+        store,
         recommendation.model_dump(mode="json"),
-        opts=PutOptions(
-            kind="ir.policy_recommendation",
-            media_type="application/json",
-            schema=SchemaInfo(name=schema_name, version=schema_version),
-            inputs=inputs,
-        ),
+        kind="ir.policy_recommendation",
+        schema_name=schema_name,
+        schema_version=schema_version,
+        inputs=inputs,
         canon_spec=CanonSpec(forbid_floats=False),
     )
-    return PolicyRecommendationRef.model_validate(ref.model_dump())
+    return PolicyRecommendationRef.model_validate(ref)
 
 
 def load_policy_recommendation(
-    store: "FileSystemCAS",
-    ref: "PolicyRecommendationRef",
+    store: ArtifactStore,
+    ref: PolicyRecommendationRef,
 ) -> PolicyRecommendation:
-    payload = from_canonical_bytes(store.get_bytes(ref.artifact_id))
+    payload = get_json_artifact(store, ref.artifact_id)
     return PolicyRecommendation.model_validate(payload)
 
 

@@ -127,9 +127,11 @@ class DataSnapshot(BaseModel):
     data_ref: ArtifactRef
     data_schema_ref: ArtifactRef | None = None
     evidence_ref: EvidenceBundleRef | None = None
+    quality_report_ref: ArtifactRef | None = None
     uncertainty_ref: UncertaintyBoundsRef | None = None
     uncertainty_envelope_ref: UncertaintyEnvelopeRef | None = None
     warnings_ref: WarningsRef | None = None
+    input_bindings_ref: ArtifactRef | None = None
     pii_scan_summary: dict[str, Any] | None = None
     stats: dict[str, int | str] = Field(default_factory=dict)
     notes: list[str] = Field(default_factory=list)

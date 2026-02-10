@@ -1,13 +1,15 @@
 from __future__ import annotations
 
 from decimal import Decimal
-from typing import Literal
+from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from polisyos.core.components import ComponentId
 
 ErrorPolicy = Literal["fail_fast", "continue"]
+JsonPrimitive = str | int | bool | Decimal | None
+JsonValue = JsonPrimitive | list[Any] | dict[str, Any]
 
 
 class NodeInvocation(BaseModel):
@@ -15,8 +17,15 @@ class NodeInvocation(BaseModel):
 
     alias: str = Field(..., pattern=r"^[a-z][a-z0-9_]*$")
     node_id: ComponentId
-    params: dict[str, str | int | bool | Decimal] = Field(default_factory=dict)
+    params: dict[str, JsonValue] = Field(default_factory=dict)
     depends_on: list[str] = Field(default_factory=list, description="List of node aliases")
+
+    @field_validator("params", mode="before")
+    @classmethod
+    def _normalize_params(cls, value: Any) -> dict[str, JsonValue]:
+        if not isinstance(value, dict):
+            return {}
+        return _normalize_json_mapping(value)
 
 
 class WorkflowSpec(BaseModel):
@@ -36,3 +45,20 @@ class WorkflowSpec(BaseModel):
         if len(set(aliases)) != len(aliases):
             raise ValueError("NodeInvocation.alias must be unique within workflow")
         return self
+
+
+def _normalize_json_value(value: Any) -> JsonValue:
+    if isinstance(value, Decimal):
+        return str(value)
+    if isinstance(value, dict):
+        return _normalize_json_mapping(value)
+    if isinstance(value, (list, tuple)):
+        return [_normalize_json_value(item) for item in value]
+    return value
+
+
+def _normalize_json_mapping(payload: dict[str, Any]) -> dict[str, JsonValue]:
+    normalized: dict[str, JsonValue] = {}
+    for key, value in payload.items():
+        normalized[str(key)] = _normalize_json_value(value)
+    return normalized

@@ -12,16 +12,16 @@ from __future__ import annotations
 
 import pytest
 
-from polisyos.scientist.governance.legal.ast_policy import (
+from polisyos.core.governance.legal.ast_policy import (
     ASTLimits,
     ASTPolicy,
     SecurityError,
 )
-from polisyos.scientist.governance.legal.backends.expr_ast import (
+from polisyos.core.governance.legal.backends.expr_ast import (
     ExpressionASTBackend,
     SafeExpressionEvaluator,
 )
-from polisyos.scientist.governance.passes.base import IssueSeverity
+from polisyos.core.governance.passes.base import IssueSeverity
 from polisyos.ir.norm_pack import NormPack, NormRule, NormRef, RuleType
 
 

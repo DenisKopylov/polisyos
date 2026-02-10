@@ -3,10 +3,10 @@ from __future__ import annotations
 from typing import Any, List
 
 from polisyos.core.contracts.lex import ComplianceIssue, IssueSeverity
+from polisyos.core.governance.profiles import ProfileLevel
 from polisyos.ir.analytics.distributional import DistributionalReport, MetricUnit, load_distributional_report
-from polisyos.scientist.governance.profiles import ProfileLevel
 
-from .base import PassContext, ValidatorPass
+from polisyos.core.governance.passes.base import PassContext, ValidatorPass
 
 
 class EquityPass(ValidatorPass):

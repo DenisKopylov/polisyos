@@ -63,7 +63,16 @@ def _write_snapshots(root: Path, module: str, models: list[dict]) -> None:
 def _run_abi_diff(tmp_path: Path, baseline: Path, current: Path) -> dict:
     report_path = tmp_path / "report.json"
     repo_root = Path(__file__).resolve().parents[2]
-    script = repo_root / "tools" / "abi_diff.py"
+    script_candidates = (
+        repo_root / "tools" / "diagnostics" / "abi_diff.py",
+        repo_root / "tools" / "abi_diff.py",
+    )
+    script = next((candidate for candidate in script_candidates if candidate.exists()), None)
+    if script is None:
+        raise FileNotFoundError(
+            "ABI diff script not found. Checked: "
+            + ", ".join(str(candidate) for candidate in script_candidates)
+        )
     subprocess.run(
         [
             sys.executable,

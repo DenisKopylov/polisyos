@@ -1,0 +1,140 @@
+from __future__ import annotations
+
+from datetime import datetime, timezone
+
+import pytest
+
+from polisyos.core.components import ComponentEntry, ComponentRegistry
+from polisyos.core.components.discovery import DiscoverySourceInfo
+from polisyos.fabric.connectors.base import (
+    BaseConnector,
+    ConnectionConfig,
+    ConnectionHandle,
+    FetchRequest,
+    FetchResult,
+    HealthStatus,
+)
+from polisyos.fabric.connectors.components import connector_component_from_class
+from polisyos.fabric.connectors.components_bridge import (
+    bootstrap_connector_registry_from_components,
+)
+from polisyos.fabric.connectors.discovery import ConnectorDiscovery
+from polisyos.fabric.connectors.registry import ConnectorRegistry
+from polisyos.ir.connectors import (
+    ConnectorCapability,
+    ConnectorMetadataSpec,
+    DataVersion,
+    QualityTier,
+    TrustLevel,
+    VersionStrategy,
+    capabilities_from_flags,
+)
+
+
+class _TestConnector(BaseConnector[dict[str, str]]):
+    namespace = "test"
+    short_id = "bridge"
+    connector_id = f"{namespace}.{short_id}"
+    capabilities = ConnectorCapability.FULL_FETCH
+    metadata = ConnectorMetadataSpec(
+        connector_id=short_id,
+        version="1.0.0",
+        namespace=namespace,
+        source_name="Test Connector",
+        source_organization="PolicyOS",
+        source_url="https://example.invalid",
+        trust_level=TrustLevel.MEDIUM,
+        quality_tier=QualityTier.SILVER,
+        capabilities=capabilities_from_flags(ConnectorCapability.FULL_FETCH),
+    )
+
+    async def connect(self, config: ConnectionConfig) -> ConnectionHandle:
+        return self._create_handle(config)
+
+    async def disconnect(self, handle: ConnectionHandle) -> None:
+        del handle
+
+    async def health_check(self, handle: ConnectionHandle) -> HealthStatus:
+        del handle
+        return HealthStatus(healthy=True, message="ok")
+
+    async def fetch(
+        self,
+        handle: ConnectionHandle,
+        request: FetchRequest,
+    ) -> FetchResult[dict[str, str]]:
+        del handle, request
+        now = datetime.now(timezone.utc)
+        content_hash = "sha256:" + ("0" * 64)
+        return FetchResult(
+            data={"status": "ok"},
+            row_count=1,
+            schema_id="test.schema",
+            schema_version="1.0.0",
+            version=DataVersion(
+                strategy=VersionStrategy.CONTENT_HASH,
+                value=content_hash,
+                timestamp=now,
+                content_hash=content_hash,
+            ),
+            fetched_at=now,
+            completeness=1.0,
+            quality_tier=QualityTier.SILVER,
+            bytes_transferred=1,
+        )
+
+
+@pytest.fixture()
+def _clean_registry() -> None:
+    ConnectorRegistry.reset_instance()
+    ConnectorDiscovery.reset()
+    yield
+    ConnectorRegistry.reset_instance()
+    ConnectorDiscovery.reset()
+
+
+def test_connector_components_bridge_registers_component_connector(_clean_registry) -> None:
+    registry = ConnectorRegistry.get_instance(bootstrap=False)
+    component = connector_component_from_class(_TestConnector, tags=["test"])
+
+    index = ComponentRegistry()
+    index.register(
+        ComponentEntry(
+            metadata=component.metadata,
+            component=component,
+            source=DiscoverySourceInfo(source_type="entry_point", location="tests"),
+        )
+    )
+
+    report = bootstrap_connector_registry_from_components(
+        index,
+        registry,
+    )
+
+    assert report.errors == []
+    assert report.registered == ["test.bridge@1.0.0"]
+    assert registry.get("test.bridge@1.0.0") is not None
+
+
+def test_connector_components_bridge_reports_duplicates_on_second_bootstrap(
+    _clean_registry,
+) -> None:
+    registry = ConnectorRegistry.get_instance(bootstrap=False)
+    component = connector_component_from_class(_TestConnector, tags=["test"])
+    index = ComponentRegistry()
+    index.register(
+        ComponentEntry(
+            metadata=component.metadata,
+            component=component,
+            source=DiscoverySourceInfo(source_type="entry_point", location="tests"),
+        )
+    )
+
+    first = bootstrap_connector_registry_from_components(index, registry)
+    second = bootstrap_connector_registry_from_components(index, registry)
+
+    assert first.errors == []
+    assert first.registered == ["test.bridge@1.0.0"]
+    assert second.errors == []
+    assert second.registered == []
+    assert second.duplicates == ["test.bridge@1.0.0"]

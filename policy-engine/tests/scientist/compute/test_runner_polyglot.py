@@ -83,7 +83,7 @@ def test_run_job_method_flow(tmp_path):
 
     cas = FileSystemCAS(tmp_path)
     input_ref = cas.put_json(
-        [1.0, 2.0],
+        [1, 2],
         PutOptions(
             kind="tests.input",
             media_type="application/json",
@@ -95,7 +95,7 @@ def test_run_job_method_flow(tmp_path):
         job_kind="method",
         method_fqn=_MethodJobIncrement.signature.fqn,
         input_refs={"state": input_ref},
-        method_params={"delta": 3.0},
+        method_params={"delta": 3},
     )
     result = run_job(spec, cas_root=tmp_path)
 

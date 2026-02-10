@@ -8,8 +8,7 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from polisyos.core.canon import content_hash
-from polisyos.ir.canon import to_canonical_bytes
+from polisyos.ir.canon import content_hash, to_canonical_bytes
 from polisyos.ir.kernel.base import ARTIFACT_ID_PATTERN, ID_PATTERN, KernelModel, reject_float
 
 

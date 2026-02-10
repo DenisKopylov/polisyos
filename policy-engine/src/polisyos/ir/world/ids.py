@@ -4,8 +4,7 @@ import re
 from enum import Enum
 from typing import Any
 
-from polisyos.core.canon import content_hash
-from polisyos.ir.canon import to_canonical_bytes
+from polisyos.ir.canon import content_hash, to_canonical_bytes
 from polisyos.ir.citations import FragmentLocator
 from polisyos.ir.kernel.base import ARTIFACT_ID_PATTERN, ID_PATTERN
 

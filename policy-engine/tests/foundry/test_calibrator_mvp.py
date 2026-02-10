@@ -12,7 +12,7 @@ from polisyos.core.contracts.foundry import (
     ProgramNode,
 )
 from polisyos.foundry.calibration.calibrator import Calibrator, CalibratorInputs
-from polisyos.foundry.domain.state import GlobalState
+from polisyos.foundry.contracts.state import GlobalState
 from polisyos.ir.analytics.calibration import CalibrationConfig, CalibrationTarget, TrainableParamRef
 from polisyos.ir.kernel.constraints import DEFAULT_CONSTRAINT_REGISTRY
 from polisyos.ir.kernel.mechanisms import (

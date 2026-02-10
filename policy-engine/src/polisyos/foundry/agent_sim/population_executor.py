@@ -25,7 +25,7 @@ from polisyos.foundry.agent_sim.population_mechanisms import (
     MigrationMechanism,
 )
 from polisyos.foundry.agent_sim.state import GlobalState
-from polisyos.foundry.types import FidelityLevel
+from polisyos.foundry.contracts.fidelity import FidelityLevel
 
 
 def lifecycle_step(

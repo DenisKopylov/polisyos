@@ -2,6 +2,7 @@ __pycache__/
 *.pyc
 .venv/
 .env
+uv.lock
 .DS_Store
 # Data folders
 data/raw/*
@@ -29,3 +30,16 @@ logs/
 runs/
 
 .polisyos/
+
+# Temporary directories
+.tmp/
+.arch-freeze/
+
+# Local metrics (do not commit)
+test_collect.txt
+compileall.txt
+ruff_stats.txt
+stale_sources_missing_paths.txt
+
+# Documentation (auto-generated or working docs)
+docs/

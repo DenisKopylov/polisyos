@@ -14,7 +14,7 @@ from polisyos.foundry.agent_sim import (
     train_actor_critic,
 )
 from polisyos.foundry.agent_sim.rl import Trajectory
-from polisyos.foundry.types import FidelityLevel
+from polisyos.foundry.contracts.fidelity import FidelityLevel
 
 
 def test_temporal_observations_shape() -> None:

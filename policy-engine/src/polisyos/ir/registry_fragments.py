@@ -5,8 +5,7 @@ from typing import Any, Iterable, Literal, Sequence
 from pydantic import Field
 from typing_extensions import Annotated
 
-from polisyos.core.canon import content_hash
-from polisyos.ir.canon import to_canonical_bytes
+from polisyos.ir.canon import content_hash, to_canonical_bytes
 from polisyos.ir.kernel.base import ID_PATTERN, KernelModel
 from polisyos.ir.kernel.constraints import ConstraintRegistry
 from polisyos.ir.kernel.mechanisms import MechanismTypeRegistry

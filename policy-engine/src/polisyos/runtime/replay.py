@@ -26,8 +26,9 @@ from polisyos.core.contracts.foundry import ExecPlan, Metrics, SimulationResult
 _SHA256_HEX_RE = re.compile(r"^[0-9a-f]{64}$")
 _SHA256_PREF_RE = re.compile(r"^sha256:[0-9a-f]{64}$")
 
-_SNAPSHOT_ROLES = frozenset(
+_STATE_SOURCE_ROLES = frozenset(
     {
+        "input.input_bindings_ref",
         "input.data_snapshot_ref",
         "input.state_snapshot_ref",
         "artifact.state_snapshot_ref",
@@ -158,7 +159,7 @@ def determine_replay_strategy(payload: dict[str, Any]) -> ReplayStrategy:
     has_registry = isinstance(inputs.get("registry_bundle_ref"), str)
     has_snapshot = any(
         isinstance(inputs.get(key), str)
-        for key in ("data_snapshot_ref", "state_snapshot_ref")
+        for key in ("input_bindings_ref", "data_snapshot_ref", "state_snapshot_ref")
     ) or isinstance(artifacts.get("state_snapshot_ref"), str)
     has_trinity = isinstance(inputs.get("trinity_bundle_ref"), str)
 
@@ -472,6 +473,7 @@ def _critical_roles(strategy: ReplayStrategy) -> frozenset[str]:
             {
                 "artifact.exec_plan_ref",
                 "input.registry_bundle_ref",
+                "input.input_bindings_ref",
             }
         )
     if strategy == ReplayStrategy.SCIENTIST:
@@ -479,6 +481,7 @@ def _critical_roles(strategy: ReplayStrategy) -> frozenset[str]:
             {
                 "input.trinity_bundle_ref",
                 "input.registry_bundle_ref",
+                "input.input_bindings_ref",
             }
         )
     return frozenset()
@@ -494,7 +497,7 @@ def _snapshot_presence_status(
     graph: DependencyGraph,
     roles_by_id: dict[str, set[str]],
 ) -> dict[str, bool]:
-    status = {role: False for role in _SNAPSHOT_ROLES}
+    status = {role: False for role in _STATE_SOURCE_ROLES}
     for artifact_ref, roles in roles_by_id.items():
         node = graph.nodes.get(ArtifactID.model_validate(artifact_ref).hex)
         if node is None or node.status != NodeStatus.PRESENT:
@@ -514,7 +517,7 @@ def _is_critical_role(
 ) -> bool:
     if role in critical_roles:
         return True
-    if role in _SNAPSHOT_ROLES:
+    if role in _STATE_SOURCE_ROLES:
         return not any(snapshot_status.values())
     return strategy == ReplayStrategy.NONE
 
@@ -527,14 +530,22 @@ def _missing_required_roles(
     roles_present = {role for role, _ in payload_refs}
     missing: list[str] = []
     if strategy == ReplayStrategy.FOUNDRY:
-        for required in ("artifact.exec_plan_ref", "input.registry_bundle_ref"):
+        for required in (
+            "artifact.exec_plan_ref",
+            "input.registry_bundle_ref",
+            "input.input_bindings_ref",
+        ):
             if required not in roles_present:
                 missing.append(f"missing_required_role:{required}")
     if strategy == ReplayStrategy.SCIENTIST:
-        for required in ("input.trinity_bundle_ref", "input.registry_bundle_ref"):
+        for required in (
+            "input.trinity_bundle_ref",
+            "input.registry_bundle_ref",
+            "input.input_bindings_ref",
+        ):
             if required not in roles_present:
                 missing.append(f"missing_required_role:{required}")
-    snapshot_roles_present = roles_present & _SNAPSHOT_ROLES
+    snapshot_roles_present = roles_present & _STATE_SOURCE_ROLES
     if strategy in (ReplayStrategy.FOUNDRY, ReplayStrategy.SCIENTIST):
         if not snapshot_roles_present:
             missing.append("missing_required_snapshot_ref")

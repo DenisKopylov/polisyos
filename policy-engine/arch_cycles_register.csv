@@ -1,0 +1,4 @@
+cycle_id,packages,owner,severity,target_phase,due_date,status,notes
+CYCLE-001,"polisyos.core, polisyos.fabric, polisyos.fabric.io, polisyos.ir, polisyos.runtime","team-core,team-fabric,team-ir,team-runtime",high,P1,2026-04-30,closed,Closed on 2026-02-09 by eliminating ir->core imports in P4; current import gate reports no core/ir cycle
+CYCLE-002,"polisyos.foundry, polisyos.foundry.domain",team-foundry,critical,P0,2026-03-15,closed,Closed on 2026-02-09 by extracting foundry contracts/mechanisms and removing runtime foundry->foundry.domain imports; import gate now reports no cycles
+CYCLE-003,"polisyos.lex, polisyos.scientist","team-lex,team-scientist",high,P2,2026-04-30,closed,Closed on 2026-02-09 by moving shared governance contracts to core.governance and removing lex->scientist imports

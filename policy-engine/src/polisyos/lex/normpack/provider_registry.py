@@ -142,7 +142,11 @@ def bootstrap_component_providers(components_index: ComponentRegistry) -> Provid
 def discover_and_bootstrap_providers(
     *,
     include_dev_scan: bool = True,
+    components_index: ComponentRegistry | None = None,
 ) -> ProviderBootstrapReport:
+    if components_index is not None:
+        return bootstrap_component_providers(components_index)
+
     discovered = discover_components(
         groups=[ENTRY_POINT_GROUP_NORM_PACK_PROVIDERS],
         include_dev_scan=include_dev_scan,

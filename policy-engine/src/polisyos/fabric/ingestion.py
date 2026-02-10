@@ -283,9 +283,13 @@ def _build_connector_provenance_graph(
             "schema_version": ds.get("schema_version"),
             "version_strategy": ds.get("version_strategy"),
             "version_value": ds.get("version_value"),
+            "source_updated_at": ds.get("source_updated_at"),
+            "fetch_duration_ms": ds.get("fetch_duration_ms"),
         }
         if ds.get("content_hash"):
             attributes["content_hash"] = ds["content_hash"]
+        if ds.get("quality_flags"):
+            attributes["quality_flags"] = ",".join(ds["quality_flags"])
         if ds.get("data_artifact_id"):
             attributes["data_artifact_id"] = ds["data_artifact_id"]
         if ds.get("pii_max_severity"):
@@ -401,6 +405,14 @@ def run_connectors_ingestion(
                 "version_strategy": result.version.strategy.value,
                 "version_value": result.version.value,
                 "content_hash": result.version.content_hash,
+                "source_updated_at": (
+                    result.source_updated_at.isoformat()
+                    if result.source_updated_at is not None
+                    else None
+                ),
+                "fetch_duration_ms": _canon_scalar(result.fetch_duration_ms),
+                "quality_flags": sorted(str(flag) for flag in result.quality_flags),
+                "not_modified": result.not_modified,
                 "data_artifact_id": payload_ref.artifact_id.hex if payload_ref else None,
                 "pii_max_severity": (
                     result.pii_scan.max_severity if result.pii_scan else None
@@ -431,11 +443,20 @@ def run_connectors_ingestion(
     )
     provenance_ref = persist_provenance_graph(cas_store, prov_graph)
 
+    dataset_notes = [
+        (
+            f"{activity['connector_id']}:{activity['dataset_id']} "
+            f"rows={activity['row_count']} "
+            f"version={activity['version_strategy']}:{activity['version_value']}"
+        )
+        for activity in fetch_activities
+    ]
     evidence_bundle = build_evidence_bundle(
         sources=artifact_refs,
         notes=[
             f"connector_ingestion: {len(spec.datasets)} dataset(s) fetched",
             f"manifest_hash: {manifest_hash}",
+            *dataset_notes,
         ],
         provenance_ref=provenance_ref,
     )

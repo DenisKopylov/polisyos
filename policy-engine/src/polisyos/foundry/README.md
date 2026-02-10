@@ -20,7 +20,7 @@ Foundry организован послойно, от данных к оркес
 
 ### Domain Layer — модель предметной области
 
-`domain/state.py` определяет центральную модель состояния как frozen chex-dataclasses с JAX-типизацией (jaxtyping):
+`contracts/state.py` определяет центральную модель состояния как frozen chex-dataclasses с JAX-типизацией (jaxtyping):
 
 - **AgentState** — per-agent массивы: `active`, `age`, `skill_level`, `income`, `reported_income`, `savings`, `consumption`, `risk_aversion`, `is_employed`, `employer_id` (10 полей)
 - **FirmState** — per-firm массивы: `sector_id`, `productivity`, `capital`, `labor_count`, `cash`, `inventory`, `debt`, `wage_offer`, `price` (9 полей)
@@ -28,6 +28,7 @@ Foundry организован послойно, от данных к оркес
 - **GlobalState** — композит: `step`, `agents`, `firms`, `market`, `government_balance`, `tax_rate`, `gdp`. Фабрика `empty(n_agents, n_firms)`
 
 `domain/schema.py` — Pydantic-схемы конфигурации (`SimulationConfig`, `RegionProfile`, `AgentType`).
+`domain/state.py` — compatibility facade для legacy импортов.
 
 ### Mechanism Layer — экономические механизмы
 
@@ -40,10 +41,12 @@ class Mechanism(eqx.Module):
     def invariants(self, state) -> bool: ...
 ```
 
+Канонические контракты механизмов размещены в `contracts/mechanism.py`.
+
 Встроенные механизмы:
-- **IncomeTax** (`fiscal.py`) — подоходный налог на `reported_income`, зачисление в `government.balance`
-- **TaxSubsidy** (`fiscal.py`) — субсидии с sector-targeting маской
-- **LaborMarketMechanism** (`labor.py`) — вероятностное распределение занятости, `segment_sum` по фирмам
+- **IncomeTax** (`mechanisms/fiscal.py`) — подоходный налог на `reported_income`, зачисление в `government.balance`
+- **TaxSubsidy** (`mechanisms/fiscal.py`) — субсидии с sector-targeting маской
+- **LaborMarketMechanism** (`mechanisms/labor.py`) — вероятностное распределение занятости, `segment_sum` по фирмам
 - **QueueMechanism** (`queue.py`) — очереди с тремя fidelity (fluid/relaxed/hard-discrete)
 - **AdaptiveAgentMechanism** (`agents.py`) — нейросетевой агент (Equinox MLP), наблюдения → патчи действий
 
@@ -132,7 +135,8 @@ Slot-based архитектура: механизмы пишут в именов
 
 ## Fidelity Levels — уровни точности
 
-Три уровня задаются через `FidelityLevel` (`types.py`):
+Три уровня задаются через `FidelityLevel` (`contracts/fidelity.py`).
+`types.py` сохранен как compatibility facade для legacy импортов.
 
 | Уровень | Описание | Градиенты | Скорость |
 |---|---|---|---|
@@ -149,6 +153,7 @@ Slot-based архитектура: механизмы пишут в именов
 | **core/artifacts** | CAS-хранилище, ArtifactID, манифесты, environment capture |
 | **core/contracts/foundry** | ProgramGraph, ExecPlan, PatchOp, CompileRequest/Result, StateDelta |
 | **core/canon** | Каноническая сериализация артефактов |
+| **foundry/contracts** | Canonical state/protocol contracts (`GlobalState`, `Mechanism`, `FidelityLevel`) |
 | **core/observability** | Метрики, трейсинг, DeterminismTier |
 | **core/registry** | Загрузка registry bundles |
 | **core/compiler** | CompileReport |
@@ -193,10 +198,11 @@ Slot-based архитектура: механизмы пишут в именов
 ```
 foundry/
 ├── __init__.py              # Lazy imports: compile, execute
-├── base.py                  # Mechanism, ComplexMechanism (абстрактные классы)
-├── types.py                 # FidelityLevel enum
-├── domain/                  # GlobalState, AgentState, FirmState, MarketState, схемы
-├── fiscal.py, labor.py      # Встроенные экономические механизмы
+├── contracts/               # Canonical state/protocol contracts
+├── mechanisms/              # Canonical built-in mechanisms
+├── base.py                  # Compatibility facade -> contracts/mechanism.py
+├── types.py                 # Compatibility facade -> contracts/fidelity.py
+├── domain/                  # Schema + compatibility facades для legacy импортов
 ├── agents.py, queue.py      # Адаптивные агенты, очереди
 ├── registry.py, specs.py    # Реестр и валидация механизмов
 ├── merge_engine.py          # CRDT merge (SUM/OVERRIDE/PRIORITY/ERROR)

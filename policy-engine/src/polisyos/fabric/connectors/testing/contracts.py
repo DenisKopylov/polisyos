@@ -222,14 +222,15 @@ def _gen_string(fspec: FieldSpec, n: int, rng: Any) -> list[str]:
     pattern, we expand it. Otherwise we generate random alphanumeric
     strings of appropriate length.
     """
-    max_len = fspec.max_length or 32
+    max_len = max(int(fspec.max_length or 32), 1)
+    min_len = 1 if max_len < 4 else 4
     results: list[str] = []
 
     for _ in range(n):
         if fspec.pattern:
             results.append(_expand_simple_pattern(fspec.pattern, max_len, rng))
         else:
-            length = rng.randint(4, max_len)
+            length = rng.randint(min_len, max_len)
             results.append(
                 "".join(rng.choices(string.ascii_lowercase + string.digits, k=length))
             )
@@ -310,7 +311,8 @@ def _expand_simple_pattern(pattern: str, max_len: int, rng: Any) -> str:
         return (base + _dt.timedelta(days=rng.randint(0, span))).isoformat()
 
     # Fallback
-    length = rng.randint(4, max_len)
+    min_len = 1 if max_len < 4 else 4
+    length = rng.randint(min_len, max_len)
     return "".join(rng.choices(string.ascii_lowercase + string.digits, k=length))
 
 

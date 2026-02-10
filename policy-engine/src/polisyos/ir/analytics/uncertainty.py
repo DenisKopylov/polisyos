@@ -2,16 +2,13 @@ from __future__ import annotations
 
 import math
 from enum import Enum
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from polisyos.core.canon import CanonSpec, from_canonical_bytes
-
-if TYPE_CHECKING:
-    from polisyos.core.artifacts.manifest import InputRef
-    from polisyos.core.artifacts.store import FileSystemCAS
-    from polisyos.core.contracts.uncertainty import UncertaintyEnvelopeRef
+from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
+from polisyos.ir.canon import CanonSpec
+from polisyos.ir.refs import UncertaintyEnvelopeRef
 
 
 class UncertaintySource(str, Enum):
@@ -146,34 +143,30 @@ class UncertaintyEnvelope(BaseModel):
 
 
 def persist_uncertainty_envelope(
-    store: "FileSystemCAS",
+    store: ArtifactStore,
     envelope: UncertaintyEnvelope,
     *,
-    inputs: list["InputRef"] | None = None,
+    inputs: list[InputRef] | None = None,
     schema_name: str = "ir.uncertainty_envelope",
     schema_version: str = "1.0",
-) -> "UncertaintyEnvelopeRef":
-    from polisyos.core.artifacts.manifest import SchemaInfo
-    from polisyos.core.artifacts.store import PutOptions
-    from polisyos.core.contracts.uncertainty import UncertaintyEnvelopeRef
-
-    ref = store.put_json(
+) -> UncertaintyEnvelopeRef:
+    ref = put_json_artifact(
+        store,
         envelope.model_dump(mode="python"),
-        opts=PutOptions(
-            kind="ir.uncertainty_envelope",
-            media_type="application/json",
-            schema=SchemaInfo(name=schema_name, version=schema_version),
-            inputs=inputs,
-        ),
+        kind="ir.uncertainty_envelope",
+        schema_name=schema_name,
+        schema_version=schema_version,
+        inputs=inputs,
         canon_spec=CanonSpec(forbid_floats=False),
     )
-    return UncertaintyEnvelopeRef.model_validate(ref.model_dump())
+    return UncertaintyEnvelopeRef.model_validate(ref)
 
 
 def load_uncertainty_envelope(
-    store: "FileSystemCAS", ref: "UncertaintyEnvelopeRef"
+    store: ArtifactStore,
+    ref: UncertaintyEnvelopeRef,
 ) -> UncertaintyEnvelope:
-    payload = from_canonical_bytes(store.get_bytes(ref.artifact_id))
+    payload = get_json_artifact(store, ref.artifact_id)
     return UncertaintyEnvelope.model_validate(payload)
 
 

@@ -10,7 +10,7 @@ import jax.numpy as jnp
 from polisyos.foundry.agent_sim.actor_critic import ActorCritic
 from polisyos.foundry.agent_sim.executor import PureExecutor
 from polisyos.foundry.agent_sim.state import GlobalState
-from polisyos.foundry.types import FidelityLevel
+from polisyos.foundry.contracts.fidelity import FidelityLevel
 
 
 @dataclass(frozen=True)

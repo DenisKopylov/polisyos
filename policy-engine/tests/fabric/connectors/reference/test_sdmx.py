@@ -8,7 +8,12 @@ from __future__ import annotations
 from datetime import datetime, timezone
 import pytest
 
-from polisyos.fabric.connectors.base import ConnectionConfig, FetchRequest, FetchResult
+from polisyos.fabric.connectors.base import (
+    ConnectionConfig,
+    FetchRequest,
+    FetchResult,
+    HealthStatus,
+)
 from polisyos.fabric.connectors.contracts.schema import DataSchema, FieldSpec, SchemaType, SchemaVersion
 from polisyos.fabric.connectors.reference.sdmx import SDMXConnector, _join_url, _parse_sdmx_json
 from polisyos.fabric.connectors.testing import ConnectorTestHarness
@@ -18,11 +23,11 @@ SDMX_JSON_SAMPLE = {
     "structure": {
         "dimensions": {
             "series": [
-                {"id": "FREQ", "values": [{"id": "M"}]},
-                {"id": "GEO", "values": [{"id": "DE"}, {"id": "FR"}]},
+                {"id": "freq", "values": [{"id": "M"}]},
+                {"id": "geo", "values": [{"id": "DE"}, {"id": "FR"}]},
             ],
             "observation": [
-                {"id": "TIME_PERIOD", "values": [{"id": "2023-01"}, {"id": "2023-02"}]}
+                {"id": "time_period", "values": [{"id": "2023-01"}, {"id": "2023-02"}]}
             ],
         }
     },
@@ -40,7 +45,7 @@ SDMX_JSON_OBS_ONLY = {
     "structure": {
         "dimensions": {
             "observation": [
-                {"id": "TIME_PERIOD", "values": [{"id": "2023-01"}, {"id": "2023-02"}]}
+                {"id": "time_period", "values": [{"id": "2023-01"}, {"id": "2023-02"}]}
             ]
         }
     },
@@ -48,12 +53,12 @@ SDMX_JSON_OBS_ONLY = {
 }
 
 SAMPLE_SCHEMA = DataSchema(
-    schema_id="reference.sdmx.ICP.M.DE.N.062.L.30-Q",
+    schema_id="reference.sdmx.icp_m_de_n_062_l_30_q",
     version=SchemaVersion(1, 0, 0),
     fields=(
-        FieldSpec(name="FREQ", data_type=SchemaType.STRING, nullable=False),
-        FieldSpec(name="GEO", data_type=SchemaType.STRING, nullable=False),
-        FieldSpec(name="TIME_PERIOD", data_type=SchemaType.STRING, nullable=False),
+        FieldSpec(name="freq", data_type=SchemaType.STRING, nullable=False),
+        FieldSpec(name="geo", data_type=SchemaType.STRING, nullable=False),
+        FieldSpec(name="time_period", data_type=SchemaType.STRING, nullable=False),
         FieldSpec(name="value", data_type=SchemaType.FLOAT64, nullable=True),
     ),
 )
@@ -88,7 +93,7 @@ class TestSDMXCompliance(ConnectorTestHarness):
             return FetchResult(
                 data=df,
                 row_count=len(df),
-                schema_id="reference.sdmx.ICP.M.DE.N.062.L.30-Q",
+                schema_id="reference.sdmx.icp_m_de_n_062_l_30_q",
                 schema_version="1.0.0",
                 version=version,
                 fetched_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
@@ -96,7 +101,11 @@ class TestSDMXCompliance(ConnectorTestHarness):
                 quality_tier=QualityTier.GOLD,
             )
 
+        async def mock_health_check(handle):
+            return HealthStatus(healthy=True, message="mocked")
+
         connector.fetch = mock_fetch
+        connector.health_check = mock_health_check
         return connector
 
 
@@ -109,17 +118,17 @@ class TestSdmxJsonParsing:
     def test_basic_parse(self) -> None:
         df = _parse_sdmx_json(SDMX_JSON_SAMPLE)
         assert len(df) == 4
-        assert set(df.columns) == {"FREQ", "GEO", "TIME_PERIOD", "value"}
+        assert set(df.columns) == {"freq", "geo", "time_period", "value"}
 
     def test_dimension_values(self) -> None:
         df = _parse_sdmx_json(SDMX_JSON_SAMPLE)
-        assert set(df["GEO"].unique()) == {"DE", "FR"}
-        assert set(df["FREQ"].unique()) == {"M"}
+        assert set(df["geo"].unique()) == {"DE", "FR"}
+        assert set(df["freq"].unique()) == {"M"}
 
     def test_observation_only(self) -> None:
         df = _parse_sdmx_json(SDMX_JSON_OBS_ONLY)
         assert len(df) == 2
-        assert set(df.columns) == {"TIME_PERIOD", "value"}
+        assert set(df.columns) == {"time_period", "value"}
 
 
 class TestDimensionFilterPath:
@@ -261,7 +270,7 @@ async def test_sdmx_fetch_local() -> None:
 
     result = await connector.fetch(handle, FetchRequest(dataset_id="TEST"))
     assert result.row_count == 4
-    assert set(result.data.columns) == {"FREQ", "GEO", "TIME_PERIOD", "value"}
+    assert set(result.data.columns) == {"freq", "geo", "time_period", "value"}
 
     await connector.disconnect(handle)
     await runner.cleanup()

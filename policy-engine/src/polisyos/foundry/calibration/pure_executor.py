@@ -10,7 +10,7 @@ import jax.numpy as jnp
 from pydantic import TypeAdapter
 
 from polisyos.core.contracts.foundry import ExecPlan, ProgramGraph
-from polisyos.foundry.domain.state import GlobalState
+from polisyos.foundry.contracts.state import GlobalState
 from polisyos.foundry.merge_engine import JAXMergeEngine
 from polisyos.foundry.registry import create_mechanism_from_spec
 from polisyos.ir.kernel import (

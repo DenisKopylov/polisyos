@@ -68,7 +68,7 @@ src/polisyos/fabric/udf/passes/typecheck.py
 src/polisyos/foundry/__init__.py
 src/polisyos/foundry/agent_metrics.py
 src/polisyos/foundry/agents.py
-src/polisyos/foundry/base.py
+src/polisyos.foundry.contracts.mechanism.py
 src/polisyos/foundry/compiler.py
 src/polisyos/foundry/constraints_engine.py
 src/polisyos/foundry/executor.py
@@ -83,7 +83,7 @@ src/polisyos/foundry/runtime.py
 src/polisyos/foundry/specs.py
 src/polisyos/foundry/trace.py
 src/polisyos/foundry/treasury.py
-src/polisyos/foundry/types.py
+src/polisyos.foundry.contracts.fidelity.py
 src/polisyos/foundry/utils.py
 src/polisyos/foundry/agent_sim/__init__.py
 src/polisyos/foundry/agent_sim/actor_critic.py
@@ -131,7 +131,7 @@ src/polisyos/foundry/calibration/pure_executor.py
 src/polisyos/foundry/calibration/report.py
 src/polisyos/foundry/domain/__init__.py
 src/polisyos/foundry/domain/schema.py
-src/polisyos/foundry/domain/state.py
+src/polisyos.foundry.contracts.state.py
 src/polisyos/foundry/plugins/__init__.py
 src/polisyos/foundry/plugins/api.py
 src/polisyos/foundry/plugins/cli.py

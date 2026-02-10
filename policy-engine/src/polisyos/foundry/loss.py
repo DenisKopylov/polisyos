@@ -1,7 +1,7 @@
 # polisyos/foundry/loss.py
 import jax.numpy as jnp
 
-from polisyos.foundry.domain.state import GlobalState
+from polisyos.foundry.contracts.state import GlobalState
 
 
 def policy_loss_fn(final_state: GlobalState, min_balance: float = -1000.0) -> float:

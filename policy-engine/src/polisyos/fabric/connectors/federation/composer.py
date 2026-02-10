@@ -140,7 +140,7 @@ class DataComposer:
     Composes data from multiple sources using different strategies.
 
     Maintains determinism through:
-    - Stable sorting (sort by connector_id)
+    - Stable caller-provided source order
     - Consistent null handling
     - Deterministic tie-breaking
     """
@@ -179,8 +179,9 @@ class DataComposer:
         if not sources:
             raise FederationError("Cannot compose with no sources")
 
-        # Sort sources by connector_id for determinism
-        sources = sorted(sources, key=lambda s: s[1].connector_id)
+        # Preserve caller-provided precedence while keeping deterministic behavior
+        # for a fixed request payload.
+        sources = list(sources)
 
         collector = MergeLogCollector(
             audit_level=request.audit_level,

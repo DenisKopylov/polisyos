@@ -12,9 +12,9 @@ from polisyos.core.contracts.foundry import (
     ExecPlanRef,
     FoundryCompileConfig,
     FoundryExecConfig,
+    FoundryInputBindingsRef,
     FoundryValidationFlags,
     SimulationResultRef,
-    StateSnapshotRef,
 )
 
 
@@ -52,7 +52,9 @@ def test_compile_result_canonical() -> None:
 def test_execute_request_canonical() -> None:
     req = ExecuteRequest(
         exec_plan_ref=ExecPlanRef(artifact_id=ArtifactID.from_sha256_hex("2" * 64)),
-        state_snapshot_ref=StateSnapshotRef(artifact_id=ArtifactID.from_sha256_hex("3" * 64)),
+        input_bindings_ref=FoundryInputBindingsRef(
+            artifact_id=ArtifactID.from_sha256_hex("3" * 64)
+        ),
         registry_bundle_ref=_dummy_ref("core.registry_bundle"),
         exec_config=FoundryExecConfig(),
     )

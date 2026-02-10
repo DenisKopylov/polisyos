@@ -135,6 +135,9 @@ class _MetricsRegistryBase:
     sbom_generation_total: Optional[metrics.Counter] = None
     sbom_vulnerability_count: Optional[metrics.Histogram] = None
     sbom_deployment_gate_total: Optional[metrics.Counter] = None
+    runtime_api_requests_total: Optional[metrics.Counter] = None
+    runtime_api_duration_seconds: Optional[metrics.Histogram] = None
+    runtime_api_errors_total: Optional[metrics.Counter] = None
 
     # -- Singleton ----------------------------------------------------------
 
@@ -728,6 +731,21 @@ class _MetricsRegistryBase:
         self.sbom_deployment_gate_total = self._meter.create_counter(
             name="polisyos_sbom_deployment_gate_total",
             description="Deployment gate decisions from SBOM policy",
+            unit="1",
+        )
+        self.runtime_api_requests_total = self._meter.create_counter(
+            name="polisyos_runtime_api_requests_total",
+            description="Runtime API HTTP requests by route/method/status",
+            unit="1",
+        )
+        self.runtime_api_duration_seconds = self._meter.create_histogram(
+            name="polisyos_runtime_api_duration_seconds",
+            description="Runtime API HTTP request latency",
+            unit="s",
+        )
+        self.runtime_api_errors_total = self._meter.create_counter(
+            name="polisyos_runtime_api_errors_total",
+            description="Runtime API HTTP error responses (status >= 400)",
             unit="1",
         )
 

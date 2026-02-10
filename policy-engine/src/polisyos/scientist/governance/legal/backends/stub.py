@@ -1,51 +1,13 @@
 from __future__ import annotations
 
-from typing import List, TYPE_CHECKING
+import warnings
 
-from polisyos.scientist.governance.passes.base import ComplianceIssue, IssueSeverity
+from polisyos.core.governance.legal.backends.stub import StubBackend
 
-if TYPE_CHECKING:
-    from polisyos.ir.norm_pack import NormPack
-
-
-class StubBackend:
-    """
-    Stub backend that returns NOT_IMPLEMENTED for all norms.
-
-    Use case: Validates LegalPass integration without rule engine.
-    All norms produce INFO-level issues indicating pending implementation.
-    """
-
-    @property
-    def backend_id(self) -> str:
-        return "stub"
-
-    def evaluate(
-        self,
-        norm_pack: "NormPack | None",
-        context: dict,
-    ) -> List[ComplianceIssue]:
-        """Always returns INFO-level 'not implemented' issues."""
-        if norm_pack is None:
-            return []
-
-        return [
-            ComplianceIssue(
-                pass_id="legal",
-                path=["norm_pack", norm.norm_id],
-                message=(
-                    f"Norm '{norm.norm_id}' evaluation not implemented "
-                    f"(type: {norm.rule_type.value})"
-                ),
-                severity=IssueSeverity.INFO,
-                code="NORM_NOT_IMPLEMENTED",
-                suggestion=(
-                    f"Implement {norm.rule_type.value} evaluator "
-                    "or use AST backend (Phase 18)"
-                ),
-            )
-            for norm in norm_pack.norms
-        ]
-
+warnings.warn(
+    "polisyos.scientist.governance.legal.backends.stub is deprecated; use polisyos.core.governance.legal.backends.stub",
+    DeprecationWarning,
+    stacklevel=2,
+)
 
 __all__ = ["StubBackend"]

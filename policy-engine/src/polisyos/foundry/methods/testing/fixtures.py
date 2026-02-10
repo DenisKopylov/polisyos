@@ -148,7 +148,7 @@ def create_sample_state(
 
     if state_type == "scalar":
         return SimpleScalarState(
-            value=jnp.array(rng.uniform(0, 100).astype(np.float32)),
+            value=jnp.array(np.float32(rng.uniform(0, 100))),
             counter=jnp.array(0, dtype=jnp.int32),
         )
 

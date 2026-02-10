@@ -1,0 +1,16 @@
+{
+  "generated_at_utc": "2026-02-09T19:49:35.599152+00:00",
+  "package_cycles_count": 3,
+  "import_violations_count": 36,
+  "test_collect_errors_count": 42,
+  "ruff_total_issues": 1194,
+  "stale_sources_missing_paths_count": 40,
+  "commands": {
+    "lint_imports": 1,
+    "lint_connectors": 0,
+    "check_scholar_imports": 0,
+    "pytest_collect": 2,
+    "compileall": 0,
+    "ruff_statistics": 1
+  }
+}

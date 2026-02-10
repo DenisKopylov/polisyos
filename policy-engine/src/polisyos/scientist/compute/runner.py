@@ -19,8 +19,10 @@ from polisyos.common.serialization import to_python_data
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec
+from polisyos.core.components import ENTRY_POINT_GROUP_FOUNDRY_METHODS
+from polisyos.core.components.bootstrap import build_components_index
 from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
-from polisyos.foundry.methods.discovery import bootstrap_registry
+from polisyos.foundry.methods.components_bridge import bootstrap_method_registry_from_components
 from polisyos.foundry.methods.exceptions import MethodNotFoundError
 from polisyos.foundry.methods.registry import MethodRegistry
 from polisyos.ir.governance.validation import ValidationIssue
@@ -126,7 +128,15 @@ class MethodBackend:
         try:
             method_class = registry.get(resolved_name, version=method_version)
         except MethodNotFoundError:
-            bootstrap_registry(registry=registry, dev_mode=False)
+            components_index, _ = build_components_index(
+                groups=[ENTRY_POINT_GROUP_FOUNDRY_METHODS],
+                include_dev_scan=False,
+            )
+            bootstrap_method_registry_from_components(
+                components_index,
+                registry,
+                resolution_policy=registry.get_default_policy(),
+            )
             method_class = registry.get(resolved_name, version=method_version)
         signature = method_class.signature
 

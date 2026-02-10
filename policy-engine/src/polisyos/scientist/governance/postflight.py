@@ -3,9 +3,9 @@ from __future__ import annotations
 from typing import Optional, Tuple
 
 from polisyos.ir.governance.gate import GateDecision, GateVerdict
+from polisyos.core.governance.profiles import ValidationProfile
 
 from .preflight import preflight_checks
-from .profiles import ValidationProfile
 
 
 def postflight_checks(

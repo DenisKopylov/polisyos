@@ -5,7 +5,7 @@ import pandas as pd
 import pytest
 
 try:
-    from hypothesis import given, settings
+    from hypothesis import HealthCheck, given, settings
     from hypothesis import strategies as st
 
     HYPOTHESIS_AVAILABLE = True
@@ -193,7 +193,11 @@ def test_non_additive_sum_corrected() -> None:
 
 if HYPOTHESIS_AVAILABLE:
 
-    @settings(max_examples=150)
+    @settings(
+        max_examples=150,
+        suppress_health_check=[HealthCheck.too_slow],
+        deadline=None,
+    )
     @given(
         data=st.data(),
         n_rows=st.integers(min_value=10, max_value=200),

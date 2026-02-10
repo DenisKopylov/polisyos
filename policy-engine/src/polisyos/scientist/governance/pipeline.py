@@ -19,8 +19,13 @@ except ModuleNotFoundError:  # pragma: no cover - optional runtime dependency
 
 from polisyos.core.observability import get_metrics, get_tracer
 from polisyos.core.pipeline import LinearPipeline
-from .passes.base import ValidatorPass, PassContext, ComplianceIssue, IssueSeverity
-from .profiles import ValidationProfile
+from polisyos.core.governance.passes.base import (
+    ComplianceIssue,
+    IssueSeverity,
+    PassContext,
+    ValidatorPass,
+)
+from polisyos.core.governance.profiles import ValidationProfile
 from .telemetry import ValidationTrace, PassSpan
 
 

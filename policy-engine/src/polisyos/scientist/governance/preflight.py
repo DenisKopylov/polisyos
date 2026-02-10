@@ -4,24 +4,23 @@ from pathlib import Path
 from typing import Optional, Tuple
 
 from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.governance.legal.backends.stub import StubBackend
+from polisyos.core.governance.passes.base import IssueSeverity, PassContext
+from polisyos.core.governance.passes.legal_pass import LegalPass
+from polisyos.core.governance.passes.safety_pass import SafetyPass
+from polisyos.core.governance.profiles import ValidationProfile
 from polisyos.core.registry import build_default_registry_bundle, load_registry_bundle_content
 from polisyos.ir.governance.gate import GateContext, GateRequest
 from polisyos.ir.trinity import TrinityBundle
-from polisyos.runtime import log_artifact
 
-from .legal.backends.stub import StubBackend
-from .passes.base import IssueSeverity, PassContext
 from .passes.budget_pass import BudgetPass
 from .passes.confidence_pass import ConfidencePass
 from .passes.equity_pass import EquityPass
-from .passes.legal_pass import LegalPass
-from .passes.privacy_pass import PrivacyPass
 from .passes.pii_check_pass import PIICheckPass
+from .passes.privacy_pass import PrivacyPass
 from .passes.quality_gate_pass import QualityGatePass
-from .passes.safety_pass import SafetyPass
 from .passes.schema_pass import SchemaPass
 from .pipeline import ValidationPipeline
-from .profiles import ValidationProfile
 
 DEFAULT_PIPELINE = ValidationPipeline([
     BudgetPass(),
@@ -128,16 +127,6 @@ def _ensure_registry_bundle(state: dict) -> dict:
         return state
     store = FileSystemCAS(_cas_root(state))
     bundle = build_default_registry_bundle(store)
-    run_id = state.get("run_id")
-    if run_id:
-        log_artifact(
-            run_id=run_id,
-            artifact_type="registry_bundle_ref",
-            payload=bundle.bundle_ref.model_dump(),
-            media_type="application/json",
-            step="runtime",
-            base_dir=_runtime_base_dir(state),
-        )
     return {
         **state,
         "registry_bundle_ref": bundle.bundle_ref.model_dump(),

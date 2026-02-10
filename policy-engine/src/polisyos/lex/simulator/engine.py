@@ -8,10 +8,10 @@ from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.contracts.lex import ComplianceIssue, IssueSeverity
 from polisyos.ir.norm_pack import NormPack, RuleType
 from polisyos.ir.world.ids import stable_world_id_from_canon
-from polisyos.scientist.governance.passes.base import PassContext
-from polisyos.scientist.governance.passes.legal_pass import LegalPass
-from polisyos.scientist.governance.passes.safety_pass import SafetyPass
-from polisyos.scientist.governance.profiles import ValidationProfile
+from polisyos.core.governance.passes.base import PassContext
+from polisyos.core.governance.passes.legal_pass import LegalPass
+from polisyos.core.governance.passes.safety_pass import SafetyPass
+from polisyos.core.governance.profiles import ValidationProfile
 
 from .diff import NormDiff, NormChangeType, diff_norm_packs
 from .report import AffectedKPI, ComplianceDelta, ComplianceTransition, NormImpactReport

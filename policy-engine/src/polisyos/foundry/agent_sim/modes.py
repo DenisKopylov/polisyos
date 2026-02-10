@@ -14,7 +14,7 @@ from polisyos.foundry.agent_sim.credit_assignment import CreditConfig, CreditMod
 from polisyos.foundry.agent_sim.executor import PureExecutor
 from polisyos.foundry.agent_sim.policy import SharedPolicy
 from polisyos.foundry.agent_sim.state import GlobalState, PolicyState
-from polisyos.foundry.types import FidelityLevel
+from polisyos.foundry.contracts.fidelity import FidelityLevel
 
 
 @dataclass(frozen=True)

@@ -11,7 +11,7 @@ from polisyos.core.contracts.foundry import (
     ProgramNode,
 )
 from polisyos.foundry.calibration.pure_executor import compile_program
-from polisyos.foundry.domain.state import GlobalState
+from polisyos.foundry.contracts.state import GlobalState
 from polisyos.ir.kernel.mechanisms import (
     MechanismTypeRegistry,
     MechanismTypeSpec,

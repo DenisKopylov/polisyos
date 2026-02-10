@@ -5,6 +5,8 @@ from pathlib import Path
 
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.components import ENTRY_POINT_GROUP_SCIENTIST_NODES
+from polisyos.core.components.bootstrap import build_components_index
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext, new_run_id
 from polisyos.core.security.tenant_context import (
@@ -12,6 +14,8 @@ from polisyos.core.security.tenant_context import (
     get_current_cell_id,
     get_current_tenant_id_or_none,
 )
+from polisyos.scientist.adapters.fabric_bridge import DefaultFabricPort
+from polisyos.scientist.adapters.foundry_bridge import DefaultFoundryPort
 from polisyos.scientist.engine.builtins import builtin_nodes as engine_builtin_nodes
 from polisyos.scientist.engine.checkpoint import (
     CASCheckpointHook,
@@ -21,15 +25,14 @@ from polisyos.scientist.engine.checkpoint import (
 )
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.executor import WorkflowExecutionResult, WorkflowExecutor
-from polisyos.scientist.engine.registry import NodeRegistry
+from polisyos.scientist.engine.registry import NodeRegistry, discover_nodes
 from polisyos.scientist.engine.state import ExperimentState
-from polisyos.scientist.adapters.foundry_bridge import DefaultFoundryPort
 from polisyos.scientist.nodes.builtins import builtin_nodes as scientist_builtin_nodes
 from polisyos.scientist.nodes.builtins.state_keys import (
     INPUT_DATA_SNAPSHOT_REF,
     INPUT_DATA_VIEW_REQUEST_REF,
+    INPUT_INPUT_BINDINGS_REF,
     INPUT_REGISTRY_BUNDLE_REF,
-    INPUT_STATE_SNAPSHOT_REF,
 )
 from polisyos.scientist.workflows.default import default_workflow_spec
 
@@ -73,23 +76,34 @@ def build_execution_context(
     )
 
 
-def build_registry_with_builtin_nodes() -> NodeRegistry:
+def build_registry_with_builtin_nodes(
+    *,
+    include_discovered_nodes: bool = True,
+) -> NodeRegistry:
     registry = NodeRegistry()
     for node in engine_builtin_nodes():
         registry.register(node)
     for node in scientist_builtin_nodes():
         registry.register(node)
+
+    if include_discovered_nodes:
+        components_index, _ = build_components_index(
+            groups=[ENTRY_POINT_GROUP_SCIENTIST_NODES],
+            include_dev_scan=True,
+        )
+        discover_nodes(registry, components_index=components_index)
+
     return registry
 
 
 def _ensure_snapshot_bind(state: ExperimentState) -> None:
     if (
         INPUT_DATA_SNAPSHOT_REF not in state.inputs
-        and INPUT_STATE_SNAPSHOT_REF not in state.inputs
+        and INPUT_INPUT_BINDINGS_REF not in state.inputs
         and INPUT_DATA_VIEW_REQUEST_REF not in state.inputs
     ):
         raise ValueError(
-            "Missing snapshot input: provide data_snapshot_ref, state_snapshot_ref, "
+            "Missing snapshot input: provide data_snapshot_ref, input_bindings_ref, "
             "or data_view_request_ref"
         )
 
@@ -125,6 +139,8 @@ def run_default_workflow(
 
     if foundry is None:
         foundry = DefaultFoundryPort()
+    if fabric is None and INPUT_DATA_VIEW_REQUEST_REF in state.inputs:
+        fabric = DefaultFabricPort()
 
     run_dir = store.root / "runs" / state.run_id
     lock = acquire_run_lock(run_dir, run_id=state.run_id, mode="run", force=force_lock)

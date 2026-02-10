@@ -3,6 +3,8 @@ from __future__ import annotations
 from pathlib import Path
 
 from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.components import ENTRY_POINT_GROUP_LEX_EVALUATORS
+from polisyos.core.components.bootstrap import build_components_index
 from polisyos.core.contracts.lex import (
     ChangeProposalRef,
     LegalEvaluationRequest,
@@ -134,7 +136,13 @@ def evaluate_legality(
     request: LegalEvaluationRequest,
     segment_name: str | None = None,
 ) -> tuple[LegalReportRef, list[ChangeProposalRef]]:
-    bootstrap_report = discover_and_bootstrap_evaluators()
+    components_index, _ = build_components_index(
+        groups=[ENTRY_POINT_GROUP_LEX_EVALUATORS],
+        include_dev_scan=True,
+    )
+    bootstrap_report = discover_and_bootstrap_evaluators(
+        components_index=components_index,
+    )
     if bootstrap_report.errors:
         from polisyos.lex.errors import LexValidationError
 

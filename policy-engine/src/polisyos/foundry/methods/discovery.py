@@ -19,6 +19,7 @@ import importlib.metadata
 import inspect
 import logging
 import sys
+import warnings
 from dataclasses import dataclass, field
 from pathlib import Path
 from types import ModuleType
@@ -431,7 +432,7 @@ class FileSystemSource:
                 py_files = sorted(base_path.rglob(self._pattern))
 
                 for py_file in py_files:
-                    if self._should_skip_file(py_file):
+                    if self._should_skip_file(py_file, base_path=base_path):
                         continue
 
                     try:
@@ -480,12 +481,17 @@ class FileSystemSource:
                         )
                         _logger.warning("Failed to load %s: %s", py_file, exc)
 
-    def _should_skip_file(self, path: Path) -> bool:
+    def _should_skip_file(self, path: Path, *, base_path: Path) -> bool:
         path_name = path.name
         if path_name == "__init__.py":
             return True
 
-        for part in path.parts:
+        try:
+            relative_parts = path.relative_to(base_path).parts
+        except ValueError:
+            relative_parts = path.parts
+
+        for part in relative_parts:
             if _matches_any(part, self._exclude_patterns):
                 return True
 
@@ -768,24 +774,247 @@ def bootstrap_registry(
         strict: If True, treat duplicates as errors
         cleanup_modules: If True, remove dev-scan modules from sys.modules
     """
+    warnings.warn(
+        "bootstrap_registry() is deprecated as a primary runtime bootstrap path and "
+        "will be removed after 2026-05-31. Use core.components bootstrap with "
+        "entry-point group 'polisyos.foundry_methods'.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+
+    from polisyos.core.components import ENTRY_POINT_GROUP_FOUNDRY_METHODS
+    from polisyos.core.components.bootstrap import build_components_index
+    from polisyos.foundry.methods.components_bridge import (
+        bootstrap_method_registry_from_components,
+    )
+
+    method_registry = registry if registry is not None else MethodRegistry.get_instance()
+
     if strict:
         duplicate_policy: DuplicatePolicy | str = DuplicatePolicy.ERROR
     elif on_duplicate is None:
         duplicate_policy = DuplicatePolicy.WARN
     else:
         duplicate_policy = on_duplicate
+    normalized_duplicate_policy = _normalize_duplicate_policy(duplicate_policy)
 
     if cleanup_modules is None:
         cleanup_modules = dev_mode
 
-    discovery = MethodDiscovery(registry, on_duplicate=duplicate_policy)
+    components_index, component_discovery_report = build_components_index(
+        groups=[ENTRY_POINT_GROUP_FOUNDRY_METHODS],
+        include_dev_scan=dev_mode,
+        dev_scan_paths=dev_paths,
+    )
 
-    discovery.add_entry_points(entry_point_group)
+    report = DiscoveryReport()
+    report.sources_processed += component_discovery_report.sources_processed
+    report.errors.extend(
+        DiscoveryError(
+            source=error.source,
+            item=error.item,
+            error_type=error.error_type,
+            message=error.message,
+        )
+        for error in component_discovery_report.errors
+    )
 
+    legacy_report = _load_legacy_method_components(
+        components_index=components_index,
+        entry_point_group=entry_point_group,
+        dev_mode=dev_mode,
+        dev_paths=dev_paths,
+        duplicate_policy=normalized_duplicate_policy,
+        cleanup_modules=cleanup_modules,
+    )
+    report.sources_processed += legacy_report.sources_processed
+    report.errors.extend(legacy_report.errors)
+
+    bridge_report = bootstrap_method_registry_from_components(
+        components_index,
+        method_registry,
+        resolution_policy=method_registry.get_default_policy(),
+    )
+    report.registered.extend(bridge_report.registered)
+    report.duplicates.extend(bridge_report.duplicates)
+    report.errors.extend(
+        DiscoveryError(
+            source="registry",
+            item=_bridge_error_item(raw_error),
+            error_type="ComponentsBridgeError",
+            message=raw_error,
+        )
+        for raw_error in bridge_report.errors
+    )
+
+    report.registered = sorted(set(report.registered))
+    report.duplicates = sorted(set(report.duplicates))
+
+    return report
+
+
+def _load_legacy_method_components(
+    *,
+    components_index: "ComponentRegistry",
+    entry_point_group: str,
+    dev_mode: bool,
+    dev_paths: Sequence[Path] | None,
+    duplicate_policy: DuplicatePolicy,
+    cleanup_modules: bool,
+) -> DiscoveryReport:
+    from polisyos.core.components import (
+        Capability,
+        ComponentEntry,
+        ComponentId,
+        ComponentKind,
+        ComponentMetadata,
+        DuplicateComponentIdPolicy,
+    )
+    from polisyos.core.components.discovery import DiscoverySourceInfo
+    from polisyos.foundry.methods.components_bridge import FOUNDRY_METHODS_API_VERSION
+
+    class _LegacyMethodComponent:
+        def __init__(self, metadata: ComponentMetadata, method_class: type[FoundryMethod]) -> None:
+            self.metadata = metadata
+            self._method_class = method_class
+
+        def create(self) -> type[FoundryMethod]:
+            return self._method_class
+
+    report = DiscoveryReport()
+    collector = BaseDiscovery[type[FoundryMethod], DiscoveryError](
+        sources=_legacy_sources(
+            entry_point_group=entry_point_group,
+            dev_mode=dev_mode,
+            dev_paths=dev_paths,
+        ),
+        on_source_error=lambda source, exc: DiscoveryError(
+            source="source",
+            item=type(source).__name__,
+            error_type=type(exc).__name__,
+            message=str(exc),
+            traceback=format_traceback(),
+        ),
+    )
+    batches, sources_processed = collector.collect()
+    report.sources_processed = sources_processed
+
+    duplicate_map = {
+        DuplicatePolicy.ERROR: DuplicateComponentIdPolicy.ERROR,
+        DuplicatePolicy.WARN: DuplicateComponentIdPolicy.WARN,
+        DuplicatePolicy.IGNORE: DuplicateComponentIdPolicy.IGNORE,
+    }
+    register_policy = duplicate_map[duplicate_policy]
+
+    for batch in batches:
+        report.errors.extend(batch.errors)
+        for method_class in batch.items:
+            component_id = _get_method_fqn_safe(method_class)
+            signature = getattr(method_class, "signature", None)
+            metadata_obj = getattr(method_class, "metadata", None)
+            if signature is None or metadata_obj is None:
+                report.errors.append(
+                    DiscoveryError(
+                        source="legacy",
+                        item=component_id,
+                        error_type="InvalidMethodClass",
+                        message="Missing signature/metadata for legacy method component",
+                    )
+                )
+                continue
+
+            try:
+                component_meta = ComponentMetadata(
+                    component_id=ComponentId.parse(signature.fqn),
+                    kind=ComponentKind.FOUNDRY_METHOD,
+                    abi_targets={
+                        "foundry_methods_api": f">={FOUNDRY_METHODS_API_VERSION},<4.0.0"
+                    },
+                    domains=[signature.namespace.split(".", 1)[0]]
+                    if signature.namespace
+                    else [],
+                    jurisdictions=[],
+                    tags=sorted(set(str(tag) for tag in metadata_obj.tags)),
+                    capabilities=Capability.FOUNDRY_METHOD,
+                    deps=[],
+                    display_name=method_class.__name__,
+                    description=metadata_obj.description,
+                )
+            except Exception as exc:
+                report.errors.append(
+                    DiscoveryError(
+                        source="legacy",
+                        item=component_id,
+                        error_type=type(exc).__name__,
+                        message=str(exc),
+                    )
+                )
+                continue
+
+            source = _source_for_legacy_component(method_class, batch.source)
+            entry = ComponentEntry(
+                metadata=component_meta,
+                component=_LegacyMethodComponent(component_meta, method_class),
+                source=source,
+            )
+            try:
+                components_index.register(entry, on_duplicate=register_policy)
+            except Exception as exc:
+                report.errors.append(
+                    DiscoveryError(
+                        source="legacy",
+                        item=component_id,
+                        error_type=type(exc).__name__,
+                        message=str(exc),
+                    )
+                )
+
+    if cleanup_modules:
+        _cleanup_discovery_modules()
+
+    return report
+
+
+def _legacy_sources(
+    *,
+    entry_point_group: str,
+    dev_mode: bool,
+    dev_paths: Sequence[Path] | None,
+) -> list[DiscoverySource]:
+    sources: list[DiscoverySource] = [EntryPointSource(entry_point_group)]
     if dev_mode and dev_paths:
-        discovery.add_directories([Path(path) for path in dev_paths])
+        sources.append(FileSystemSource([Path(path) for path in dev_paths]))
+    return sources
 
-    return discovery.discover_all(cleanup_modules=cleanup_modules)
+
+def _source_for_legacy_component(
+    method_class: type[FoundryMethod],
+    source: object,
+) -> "DiscoverySourceInfo":
+    from polisyos.core.components.discovery import DiscoverySourceInfo
+
+    source_type = "legacy"
+    location = f"{method_class.__module__}.{method_class.__name__}"
+    group = None
+
+    if isinstance(source, EntryPointSource):
+        source_type = "entry_point"
+        group = source.group
+    elif isinstance(source, FileSystemSource):
+        source_type = "dev_scan"
+
+    return DiscoverySourceInfo(
+        source_type=source_type,
+        location=location,
+        group=group,
+        entry_point=method_class.__name__,
+    )
+
+
+def _bridge_error_item(raw_error: str) -> str:
+    if ":" not in raw_error:
+        return "<unknown>"
+    return raw_error.split(":", 1)[0].strip()
 
 
 # =============================================================================

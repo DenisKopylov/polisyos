@@ -1,5 +1,5 @@
 [policy]
-version = "1"
+version = "2"
 internal_prefix = "polisyos"
 src_root = "src"
 
@@ -12,10 +12,10 @@ ir = ["ir"]
 core = ["core","ir","common"]
 fabric = ["fabric","core","ir","common"]
 foundry = ["foundry","core","ir","common"]
-scientist = ["*"]
+scientist = ["scientist","lex","scholar","foundry","fabric","runtime","core","ir","common"]
 runtime = ["runtime","core","ir","common"]
-scholar = ["scholar","ir","core","fabric","common"]
-lex = ["lex","ir","core","fabric","common"]
+scholar = ["scholar","fabric","ir","core","common"]
+lex = ["lex","fabric","ir","core","common"]
 packs = ["*"]
 
 [external.allow.ir]

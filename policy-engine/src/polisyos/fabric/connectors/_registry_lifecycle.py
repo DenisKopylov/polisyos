@@ -128,37 +128,38 @@ class RegistryLifecycleMixin:
         """
         Initialize registry with discovered connectors.
 
-        Uses entry points for plugin discovery.
+        Uses component discovery + component bridge as canonical bootstrap path.
         """
         if self._bootstrapped:
             return
 
-        from polisyos.fabric.connectors.discovery import discover_connectors
+        from polisyos.core.components import ENTRY_POINT_GROUP_FABRIC_CONNECTORS
+        from polisyos.core.components.bootstrap import build_components_index
+        from polisyos.fabric.connectors.components_bridge import (
+            bootstrap_connector_registry_from_components,
+        )
 
-        discovered_count = 0
-        error_count = 0
+        components_index, discovery_report = build_components_index(
+            groups=[ENTRY_POINT_GROUP_FABRIC_CONNECTORS],
+            include_dev_scan=True,
+            include_legacy_group=False,
+        )
 
-        for connector_class in discover_connectors():
-            try:
-                self.register(connector_class)
-                discovered_count += 1
-            except ConnectorAlreadyRegisteredError:
-                # Skip duplicates during bootstrap
-                pass
-            except Exception as e:
-                error_count += 1
-                logger.warning(
-                    "Failed to register connector during bootstrap",
-                    connector=getattr(connector_class, "connector_id", "unknown"),
-                    error=str(e),
-                    error_type=type(e).__name__,
-                )
+        bridge_report = bootstrap_connector_registry_from_components(
+            components_index,
+            self,
+        )
+
+        discovered_count = len(bridge_report.registered)
+        error_count = len(bridge_report.errors) + len(discovery_report.errors)
 
         self._bootstrapped = True
         logger.info(
             "ConnectorRegistry bootstrapped",
             discovered=discovered_count,
+            duplicates=len(bridge_report.duplicates),
             errors=error_count,
+            component_sources_processed=discovery_report.sources_processed,
             total_registered=self._connectors.count,
         )
 

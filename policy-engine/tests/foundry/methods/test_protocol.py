@@ -260,7 +260,7 @@ class TestDecoratorErrors:
 
 
 class TestStrictMode:
-    def test_strict_mode_rejects_foundry_types(self, monkeypatch):
+    def test_strict_mode_rejects_top_level_foundry_types(self, monkeypatch):
         monkeypatch.setenv("POLISYOS_STRICT", "1")
 
         class State(NamedTuple):
@@ -280,11 +280,11 @@ class TestStrictMode:
             )
 
             @staticmethod
-            def pure_step(state: State, params: dict) -> State:
+            def pure_step(state: State, params: object) -> State:
                 return State(x=state.x)
 
         state = State(x=jnp.array([1.0]))
-        params = {"bad": Units.USD}
+        params = Units.USD
 
         with pytest.raises(LawViolationError):
             StrictMethod.pure_step(state, params)

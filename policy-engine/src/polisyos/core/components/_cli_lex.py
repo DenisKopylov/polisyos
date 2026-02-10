@@ -61,7 +61,7 @@ def _cmd_lex_impact(args: Any) -> int:
 
     lex_sim = importlib.import_module("polisyos.lex.simulator")
     lex_sim_cli = importlib.import_module("polisyos.lex.simulator.cli")
-    governance_profiles = importlib.import_module("polisyos.scientist.governance.profiles")
+    governance_profiles = importlib.import_module("polisyos.core.governance.profiles")
 
     ValidationProfile = governance_profiles.ValidationProfile
     profile = getattr(ValidationProfile, args.profile)()

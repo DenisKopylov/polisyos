@@ -107,6 +107,17 @@ except ModuleNotFoundError:  # pragma: no cover - optional runtime dependency
         def record_identity_failure(self, *, reason: str, provider: str) -> None:
             return None
 
+        def record_runtime_api_request(
+            self,
+            *,
+            route: str,
+            method: str,
+            status: str,
+            duration_seconds: float,
+        ) -> None:
+            del route, method, status, duration_seconds
+            return None
+
         def record_audit_entry(self, *, chain_id: str, event_type: str) -> None:
             return None
 

@@ -1,10 +1,16 @@
 # Import gate exceptions (temporary, with expiry).
 #
+# Rules:
+# - id / owner / reason / expires are mandatory.
+# - expires must be ISO date (YYYY-MM-DD).
+# - expires must not exceed 90 days from the date of the PR check.
+# - every id must be recorded in import_exceptions_registry.md.
+#
 # Example:
 # [[exception]]
-# id = "E1-IR-CONNECTORS-CORE"
-# owner = "ir"
-# reason = "Temporary until canonicalization moved"
+# id = "E-2026-02-IR-CORE-001"
+# owner = "team-ir"
+# reason = "Temporary adapter during boundary extraction"
 # expires = "2026-03-31"
-# source_glob = "src/polisyos/ir/connectors.py"
+# source_glob = "src/polisyos/ir/**"
 # import_root = "core"

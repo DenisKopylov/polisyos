@@ -4,7 +4,7 @@ from typing import List
 
 from polisyos.scientist.kernel.budgets import ComputeBudget, EvidenceBudget, ComplexityBudget
 
-from .base import ValidatorPass, PassContext, ComplianceIssue, IssueSeverity
+from polisyos.core.governance.passes.base import ValidatorPass, PassContext, ComplianceIssue, IssueSeverity
 
 
 class BudgetPass(ValidatorPass):

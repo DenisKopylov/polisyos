@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Runtime API Reference Shell</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="bg-orb orb-a"></div>
+    <div class="bg-orb orb-b"></div>
+
+    <main class="shell">
+      <header class="topbar card">
+        <div>
+          <h1>Runtime API v1 Reference Shell</h1>
+          <p>API-only debug path. No direct DB/filesystem reads in UI runtime flow.</p>
+        </div>
+        <form id="connection-form" class="connection">
+          <label>
+            API Base URL
+            <input id="base-url" type="url" value="http://127.0.0.1:8000" />
+          </label>
+          <button type="submit">Connect</button>
+        </form>
+      </header>
+
+      <nav class="tabs card">
+        <button class="tab is-active" data-page="runs">Run List</button>
+        <button class="tab" data-page="timeline">Run Timeline + Node Graph</button>
+        <button class="tab" data-page="node-debug">Node Debug Panel</button>
+        <button class="tab" data-page="artifacts">Artifact Inspector</button>
+      </nav>
+
+      <section id="page-runs" class="page is-visible card">
+        <h2>Run Explorer</h2>
+        <form id="runs-form" class="inline-form">
+          <label>
+            Limit
+            <input id="runs-limit" type="number" min="1" max="200" value="50" />
+          </label>
+          <label>
+            Status
+            <input id="runs-status" type="text" placeholder="ok / fail / completed" />
+          </label>
+          <button type="submit">Load Runs</button>
+        </form>
+        <div id="runs-state" class="state"></div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Run ID</th>
+                <th>Source</th>
+                <th>Status</th>
+                <th>Started</th>
+                <th>Tenant</th>
+                <th>Duration (ms)</th>
+              </tr>
+            </thead>
+            <tbody id="runs-table"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="page-timeline" class="page card">
+        <h2>Timeline + Node Graph</h2>
+        <form id="timeline-form" class="inline-form">
+          <label>
+            Run ID
+            <input id="timeline-run-id" type="text" placeholder="R_core_api_001" />
+          </label>
+          <button type="submit">Load Timeline</button>
+        </form>
+        <div class="split">
+          <article>
+            <h3>Summary</h3>
+            <pre id="timeline-summary" class="json-view"></pre>
+          </article>
+          <article>
+            <h3>Node Graph</h3>
+            <div id="node-graph" class="node-graph"></div>
+          </article>
+        </div>
+        <h3>Events</h3>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>TS</th>
+                <th>Phase</th>
+                <th>Event</th>
+                <th>Errors</th>
+              </tr>
+            </thead>
+            <tbody id="timeline-events"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="page-node-debug" class="page card">
+        <h2>Node Debug Panel</h2>
+        <form id="node-debug-form" class="inline-form">
+          <label>
+            Run ID
+            <input id="node-debug-run-id" type="text" placeholder="R_core_api_001" />
+          </label>
+          <label>
+            Alias
+            <input id="node-debug-alias" type="text" placeholder="run_governance" />
+          </label>
+          <button type="submit">Load Node Debug</button>
+        </form>
+        <pre id="node-debug-view" class="json-view"></pre>
+      </section>
+
+      <section id="page-artifacts" class="page card">
+        <h2>Artifact Inspector</h2>
+        <form id="artifact-form" class="inline-form">
+          <label>
+            Artifact ID
+            <input id="artifact-id" type="text" placeholder="sha256:..." />
+          </label>
+          <button type="button" id="artifact-manifest-btn">Manifest</button>
+          <button type="button" id="artifact-content-btn">Content</button>
+          <button type="button" id="artifact-lineage-btn">Lineage</button>
+          <button type="button" id="artifact-schema-btn">Schema</button>
+        </form>
+        <pre id="artifact-view" class="json-view"></pre>
+      </section>
+    </main>
+
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>

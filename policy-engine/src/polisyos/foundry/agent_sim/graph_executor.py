@@ -12,7 +12,7 @@ from polisyos.foundry.agent_sim.executor import PureExecutor
 from polisyos.foundry.agent_sim.graphs import DynamicGraphUpdater, compute_graph_metrics
 from polisyos.foundry.agent_sim.mechanism import Mechanism
 from polisyos.foundry.agent_sim.state import GlobalState
-from polisyos.foundry.types import FidelityLevel
+from polisyos.foundry.contracts.fidelity import FidelityLevel
 
 
 class GraphAwareExecutor(PureExecutor):

@@ -10,16 +10,16 @@ from polisyos.core.canon.canon_json import from_canonical_bytes
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.contracts.fabric import DataSnapshot
 from polisyos.core.contracts.lex import ComplianceIssue, IssueSeverity
+from polisyos.core.governance.passes.base import PassContext
+from polisyos.core.governance.profiles import ValidationProfile
 from polisyos.core.contracts.scientist import GovernanceReportRef
 from polisyos.ir.governance.gate import GateContext, GateDecision, GatePriority, GateRequest, GateVerdict
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.protocol import NodeEvent, NodeOutcome, NodeSpec
 from polisyos.scientist.engine.state import ExperimentState
-from polisyos.scientist.governance.passes.base import PassContext
 from polisyos.scientist.governance.passes.confidence_pass import ConfidencePass
 from polisyos.scientist.governance.passes.equity_pass import EquityPass
 from polisyos.scientist.governance.passes.pii_check_pass import PIICheckPass
-from polisyos.scientist.governance.profiles import ValidationProfile
 from polisyos.scientist.governance.report import GovernanceReport
 from polisyos.scientist.kernel.gate_protocol import HumanGateProtocol
 from polisyos.scientist.nodes.builtins.state_keys import REPORT_GOVERNANCE_REPORT_REF

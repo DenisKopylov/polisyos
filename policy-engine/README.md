@@ -16,7 +16,7 @@ NL intent
   → IR (Trinity contracts + kernel registries)
   → Fabric (UDF data views + evidence/provenance/quality/trust)
   → Foundry (compile + calibrate + simulate; pure JAX)
-  → Runtime (runs/<run_id>/ manifests + audits + artifact refs)
+  → Runtime (CAS-native runs + Runtime API v1 observability)
   → Decision artifacts (DecisionPacket / DecisionCard / RunTimeline)
 ```
 
@@ -38,7 +38,7 @@ Cross-cutting subsystems:
 | `polisyos.ir` | **pure contracts**: Trinity, kernel registries, `NormPack`/connectors/world types, migrations/loaders | — | `src/polisyos/ir/README.md` |
 | `polisyos.fabric` | ingestion + connectors + UDF; evidence/provenance/trust/quality; fact log + materialization; docs/claims | ir, core, common | `src/polisyos/fabric/README.md` |
 | `polisyos.foundry` | compile+execute policies in JAX; methods framework; calibration; agent simulation; determinism & NaN guards | ir, core, common | `src/polisyos/foundry/README.md` |
-| `polisyos.runtime` | run lifecycle: `RunManifest`, audit trail, budgets, portable artifact refs (`runs/`) | core, common | `src/polisyos/runtime/README.md` |
+| `polisyos.runtime` | runtime API v1 (core runs explorer/debug/artifacts) + replay/completeness verification | core, common | `src/polisyos/runtime/README.md` |
 | `polisyos.lex` | legal docs: corpus, structure/versioning, `NormPack` assembly, legality evaluation | fabric, ir, core, common | `src/polisyos/lex/README.md` |
 | `polisyos.scholar` | knowledge enrichment: discovery→acquire→docs→claims→reconcile→trust→bundle | fabric, ir, core, common | `src/polisyos/scholar/README.md` |
 | `polisyos.scientist` | orchestration “brain”: agents, workflow engines, governance passes, search/DoE, decision packaging | ir, fabric, foundry, runtime, lex, core, common | `src/polisyos/scientist/README.md` |
@@ -58,7 +58,7 @@ Also:
 - **CAS artifacts** (Core): content-addressed storage (SHA-256) + deterministic canonical JSON; everything important becomes an artifact.
 - **Evidence / provenance / trust / quality** (Fabric): evidence bundles, PROV-O lineage graphs, quality indicators + fitness reports, uncertainty bounds / two-pass comparisons.
 - **Governance passes** (Scientist): schema/safety/privacy/legal/quality gates before (and after) expensive compute.
-- **Runtime runs** (`polisyos.runtime`): portable `runs/<run_id>/` directory with manifest + audit trail + artifact refs (relative paths).
+- **Runtime API v1** (`polisyos.runtime.http`): read-only run explorer/debug/artifact APIs over core CAS-native runs.
 
 ---
 
@@ -106,10 +106,21 @@ macOS note: import `jax_bootstrap.py` (which applies safe env defaults from `pol
 
 Legacy CLI `run_experiment.py` removed. Use the API entrypoint `polisyos.scientist.run_experiment()` with an `ExperimentState`-compatible payload.
 
-Dashboard:
+Runtime debug path (API-first):
 
 ```bash
-uv run streamlit run dashboard.py
+# Runtime API v1
+PYTHONPATH=src uv run --extra multi-tenant --extra test python - <<'PY'
+from polisyos.runtime.http.app import create_runtime_api_app
+import uvicorn
+
+app = create_runtime_api_app()
+uvicorn.run(app, host="127.0.0.1", port=8000)
+PY
+
+# Reference UI shell (API-only)
+cd frontend/runtime-reference-shell
+python -m http.server 4173
 ```
 
 ---
@@ -180,6 +191,6 @@ docker-compose -f docker-compose.observability.yml up -d
 ## Reproducibility & artifacts
 
 - CAS lives under `.polisyos/artifacts/` (by default); artifacts are addressed by SHA-256.
-- Runs are stored under `runs/<run_id>/` with a portable `RunManifest` and JSONL audit trail.
+- Core runs are stored under `.polisyos/runs/<run_id>/` and served via Runtime API v1.
 - Environment fingerprints/manifests capture execution context and determinism tier.
 - Artifact/schema migrations live under `polisyos.common.migrations` and `polisyos.ir.migrations`.

@@ -467,55 +467,55 @@ class TestFaultInjector:
         )
 
     @pytest.fixture()
-    def request(self) -> FetchRequest:
+    def fetch_request(self) -> FetchRequest:
         return FetchRequest(dataset_id="test.stub.dataset")
 
     @pytest.mark.asyncio
-    async def test_error_injection(self, stub: StubConnector, handle: ConnectionHandle, request: FetchRequest) -> None:
+    async def test_error_injection(self, stub: StubConnector, handle: ConnectionHandle, fetch_request: FetchRequest) -> None:
         """SimulatedHTTPError is raised for error faults."""
         injector = FaultInjector.with_error(stub, status_code=503, count=2)
 
         with pytest.raises(SimulatedHTTPError) as exc_info:
-            await injector.fetch(handle, request)
+            await injector.fetch(handle, fetch_request)
         assert exc_info.value.status == 503
 
         # Second call also fails
         with pytest.raises(SimulatedHTTPError):
-            await injector.fetch(handle, request)
+            await injector.fetch(handle, fetch_request)
 
         # Third call succeeds (sequence exhausted)
-        result = await injector.fetch(handle, request)
+        result = await injector.fetch(handle, fetch_request)
         assert isinstance(result, FetchResult)
         assert injector.faulted_calls == 2
 
     @pytest.mark.asyncio
-    async def test_disconnect_injection(self, stub: StubConnector, handle: ConnectionHandle, request: FetchRequest) -> None:
+    async def test_disconnect_injection(self, stub: StubConnector, handle: ConnectionHandle, fetch_request: FetchRequest) -> None:
         """ConnectionError is raised for disconnect faults."""
         injector = FaultInjector.with_disconnect(stub, count=1)
 
         with pytest.raises(ConnectionError, match="Simulated TCP disconnect"):
-            await injector.fetch(handle, request)
+            await injector.fetch(handle, fetch_request)
 
         # Next call passes through
-        result = await injector.fetch(handle, request)
+        result = await injector.fetch(handle, fetch_request)
         assert isinstance(result, FetchResult)
 
     @pytest.mark.asyncio
-    async def test_latency_injection(self, stub: StubConnector, handle: ConnectionHandle, request: FetchRequest) -> None:
+    async def test_latency_injection(self, stub: StubConnector, handle: ConnectionHandle, fetch_request: FetchRequest) -> None:
         """Latency faults delay but still return a result."""
         import time
 
         injector = FaultInjector.with_latency(stub, latency_ms=50, count=1)
 
         start = time.monotonic()
-        result = await injector.fetch(handle, request)
+        result = await injector.fetch(handle, fetch_request)
         elapsed_ms = (time.monotonic() - start) * 1000
 
         assert isinstance(result, FetchResult)
         assert elapsed_ms >= 40  # Allow small timing tolerance
 
     @pytest.mark.asyncio
-    async def test_mixed_sequence(self, stub: StubConnector, handle: ConnectionHandle, request: FetchRequest) -> None:
+    async def test_mixed_sequence(self, stub: StubConnector, handle: ConnectionHandle, fetch_request: FetchRequest) -> None:
         """A multi-profile sequence fires in order."""
         injector = FaultInjector(
             connector=stub,
@@ -526,25 +526,25 @@ class TestFaultInjector:
         )
 
         with pytest.raises(SimulatedHTTPError) as exc:
-            await injector.fetch(handle, request)
+            await injector.fetch(handle, fetch_request)
         assert exc.value.status == 429
 
         with pytest.raises(ConnectionError):
-            await injector.fetch(handle, request)
+            await injector.fetch(handle, fetch_request)
 
-        result = await injector.fetch(handle, request)
+        result = await injector.fetch(handle, fetch_request)
         assert isinstance(result, FetchResult)
 
     @pytest.mark.asyncio
-    async def test_observability_counters(self, stub: StubConnector, handle: ConnectionHandle, request: FetchRequest) -> None:
+    async def test_observability_counters(self, stub: StubConnector, handle: ConnectionHandle, fetch_request: FetchRequest) -> None:
         """total_calls and faulted_calls track correctly."""
         injector = FaultInjector.with_error(stub, status_code=500, count=2)
 
         for _ in range(2):
             with pytest.raises(SimulatedHTTPError):
-                await injector.fetch(handle, request)
+                await injector.fetch(handle, fetch_request)
 
-        await injector.fetch(handle, request)  # clean call
+        await injector.fetch(handle, fetch_request)  # clean call
 
         assert injector.total_calls == 3
         assert injector.faulted_calls == 2

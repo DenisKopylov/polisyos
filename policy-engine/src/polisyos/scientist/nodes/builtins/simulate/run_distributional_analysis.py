@@ -8,7 +8,7 @@ from polisyos.core.artifacts.manifest import InputRef
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.contracts.fabric import DataSnapshot
-from polisyos.core.contracts.foundry import SimulationResult, StateSnapshotRef
+from polisyos.core.contracts.foundry import FoundryInputBindings, SimulationResult, StateSnapshotRef
 from polisyos.foundry.analysis.distributional import (
     build_distributional_report,
     build_geography_breakdown,
@@ -23,6 +23,7 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_DISTRIBUTIONAL_REPORT_REF,
     ARTIFACT_SIMULATION_RESULT_REF,
     INPUT_DATA_SNAPSHOT_REF,
+    INPUT_INPUT_BINDINGS_REF,
     INPUT_STATE_SNAPSHOT_REF,
 )
 
@@ -41,6 +42,7 @@ _SPEC = NodeSpec(
     state_reads=[
         f"artifacts_index.{ARTIFACT_SIMULATION_RESULT_REF}",
         f"inputs.{INPUT_STATE_SNAPSHOT_REF}",
+        f"inputs.{INPUT_INPUT_BINDINGS_REF}",
         f"inputs.{INPUT_DATA_SNAPSHOT_REF}",
     ],
     state_writes=[f"artifacts_index.{ARTIFACT_DISTRIBUTIONAL_REPORT_REF}"],
@@ -154,6 +156,15 @@ def _resolve_baseline_snapshot_ref(
     if explicit is not None:
         try:
             return StateSnapshotRef.model_validate(explicit.model_dump())
+        except Exception:
+            return None
+
+    input_bindings_ref = state.inputs.get(INPUT_INPUT_BINDINGS_REF)
+    if input_bindings_ref is not None:
+        try:
+            payload = from_canonical_bytes(ctx.store.get_bytes(input_bindings_ref.artifact_id))
+            bindings = FoundryInputBindings.model_validate(payload)
+            return bindings.bound_state_snapshot_ref
         except Exception:
             return None
 

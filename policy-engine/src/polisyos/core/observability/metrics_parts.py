@@ -397,6 +397,31 @@ class MetricsRegistry(_MetricsRegistryBase):
             return
         self.identity_failures_total.add(1, {"reason": reason, "provider": provider})
 
+    def record_runtime_api_request(
+        self,
+        *,
+        route: str,
+        method: str,
+        status: str,
+        duration_seconds: float,
+    ) -> None:
+        self._ensure_initialized()
+        attrs = {
+            "route": route,
+            "method": method.upper(),
+            "status": status,
+        }
+        if self.runtime_api_requests_total is not None:
+            self.runtime_api_requests_total.add(1, attrs)
+        if self.runtime_api_duration_seconds is not None:
+            self.runtime_api_duration_seconds.record(max(duration_seconds, 0.0), attrs)
+        try:
+            status_code = int(status)
+        except (TypeError, ValueError):
+            status_code = 0
+        if status_code >= 400 and self.runtime_api_errors_total is not None:
+            self.runtime_api_errors_total.add(1, attrs)
+
     def record_audit_entry(self, *, chain_id: str, event_type: str) -> None:
         self._ensure_initialized()
         if self.audit_entries_total is None:

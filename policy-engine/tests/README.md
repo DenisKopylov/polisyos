@@ -23,7 +23,7 @@ core → runtime → ir → fabric → foundry → scientist
 | `scientist/` | 50 | 7 500 | AI-оркестрация, governance, search, backtesting |
 | `lex/` | 3 | 140 | Симулятор правовых норм |
 | `integration/` | 5 | 600 | End-to-end workflows, human gates |
-| `performance/` | 2 | 330 | Overhead SLA benchmarks |
+| `performance/` | 2 | 330 | Benchmark-baseline regression checks |
 | `demos/` | 1 | 15 | Laffer curve demo |
 | корень | 7 | 440 | Arch gates, component discovery, API facades |
 
@@ -171,7 +171,6 @@ tests/
 │
 ├── integration/                            # End-to-end сценарии
 │   ├── test_workflow_smoke.py             # IR → compilation → simulation → DecisionPacket
-│   ├── test_calibration_udf.py            # Calibration с UDF
 │   ├── test_human_gate_audit.py           # Human approval gate, audit trail
 │   └── test_workflow_llm.py               # LLM integration
 │
@@ -190,7 +189,7 @@ tests/
 │   └── test_diff.py                       # NormPack diff (added/removed/modified)
 │
 ├── performance/
-│   └── test_overhead.py                   # SLA: simulation <2%, CAS <5%, calibration <3%
+│   └── test_overhead.py                   # Benchmark-baseline budgets for simulation/CAS/calibration
 │
 ├── runtime/
 │   ├── test_replay_runtime.py             # Replay verification
@@ -320,10 +319,10 @@ Cross-layer сценарии через всю систему. Маркер: `@p
 
 ### performance/ (2 файла)
 
-SLA enforcement с warmup runs для стабильности замеров:
-- Simulation overhead: < 2%
-- CAS I/O overhead: < 5%
-- Calibration overhead: < 3%
+Benchmark-baseline regression checks с warmup runs:
+- Каждая метрика сравнивается с зафиксированным baseline (`overhead_baseline.json`)
+- Для каждой метрики задан отдельный регрессионный бюджет и абсолютный slack
+- SLA-подход с фиксированными процентами к synthetic baseline больше не используется
 
 ### runtime/ (3 файла)
 

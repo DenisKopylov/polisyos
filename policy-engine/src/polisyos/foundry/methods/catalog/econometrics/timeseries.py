@@ -155,20 +155,31 @@ def _run_var(state: TimeSeriesData, params: Mapping[str, Any]) -> EconometricRes
     flat_std_errors: dict[str, float] = {}
     flat_pvalues: dict[str, float] = {}
 
-    params_df = fit_result.params
-    stderr_df = fit_result.stderr
-    pvalues_df = fit_result.pvalues
+    params_arr = np.asarray(fit_result.params)
+    stderr_arr = np.asarray(fit_result.stderr)
+    pvalues_arr = np.asarray(fit_result.pvalues)
+    if params_arr.ndim == 1:
+        params_arr = params_arr.reshape(-1, 1)
+    if stderr_arr.ndim == 1:
+        stderr_arr = stderr_arr.reshape(-1, 1)
+    if pvalues_arr.ndim == 1:
+        pvalues_arr = pvalues_arr.reshape(-1, 1)
 
     equations = list(getattr(fit_result, "names", []))
     if not equations:
-        equations = [f"eq{i}" for i in range(params_df.shape[1])]
+        equations = [f"eq{i}" for i in range(params_arr.shape[1])]
+
+    model_obj = getattr(fit_result, "model", None)
+    row_names = list(getattr(model_obj, "exog_names", []) or [])
+    if len(row_names) != params_arr.shape[0]:
+        row_names = [f"coef_{i}" for i in range(params_arr.shape[0])]
 
     for eq_idx, eq_name in enumerate(equations):
-        for row_name in params_df.index:
+        for row_idx, row_name in enumerate(row_names):
             key = f"{eq_name}.{row_name}"
-            flat_params[key] = float(params_df.loc[row_name].iloc[eq_idx])
-            flat_std_errors[key] = float(stderr_df.loc[row_name].iloc[eq_idx])
-            flat_pvalues[key] = float(pvalues_df.loc[row_name].iloc[eq_idx])
+            flat_params[key] = float(params_arr[row_idx, eq_idx])
+            flat_std_errors[key] = float(stderr_arr[row_idx, eq_idx])
+            flat_pvalues[key] = float(pvalues_arr[row_idx, eq_idx])
 
     diagnostics = {
         "k_ar": int(getattr(fit_result, "k_ar", 0) or 0),

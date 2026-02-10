@@ -9,7 +9,7 @@ from typing import Any
 import pandas as pd
 from pydantic import BaseModel, Field
 
-from polisyos.core.canon import content_hash
+from polisyos.core.canon import content_hash as canon_content_hash
 
 from .models import (
     PIIEntity,
@@ -285,7 +285,7 @@ class PresidioDetector:
             "sample_rate": self._config.sample_rate,
         }
         raw = repr(key_payload).encode("utf-8")
-        return content_hash(raw)
+        return canon_content_hash(raw)
 
     def _aggregate(
         self,

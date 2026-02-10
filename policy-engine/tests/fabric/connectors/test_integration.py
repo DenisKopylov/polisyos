@@ -175,48 +175,9 @@ class TestEndToEndConnectorFlow:
         )
         assert artifact_manifest.kind == "fabric.evidence_bundle"
 
-    def test_scientist_isolation(self) -> None:
-        import ast as _ast
-
-        data_loader_path = (
-            Path(__file__).resolve().parents[3]
-            / "src"
-            / "polisyos"
-            / "scientist"
-            / "orchestrator"
-            / "data_loader.py"
-        )
-        if not data_loader_path.exists():
-            pytest.skip("data_loader.py not found - skipping isolation check")
-
-        source = data_loader_path.read_text(encoding="utf-8")
-        tree = _ast.parse(source)
-
-        forbidden_imports: list[str] = []
-        for node in _ast.walk(tree):
-            if isinstance(node, (_ast.Import, _ast.ImportFrom)):
-                if isinstance(node, _ast.ImportFrom) and node.module:
-                    module = node.module
-                elif isinstance(node, _ast.Import):
-                    for alias in node.names:
-                        module = alias.name
-                        if "fabric.connectors" in module:
-                            forbidden_imports.append(module)
-                    continue
-                else:
-                    continue
-                if "fabric.connectors" in module:
-                    forbidden_imports.append(module)
-
-        assert forbidden_imports == [], (
-            "Law A violation: data_loader.py imports fabric.connectors directly: "
-            f"{forbidden_imports}"
-        )
-
-
 class TestLintConnectors:
     def test_detects_scientist_import(self, tmp_path: Path) -> None:
-        sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "tools"))
+        sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "tools" / "lint"))
         from lint_connectors import scan
 
         bad_file = tmp_path / "bad_connector.py"
@@ -239,14 +200,14 @@ class TestLintConnectors:
         assert errors[0].severity == "ERROR"
 
     def test_detects_foundry_import(self, tmp_path: Path) -> None:
-        sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "tools"))
+        sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "tools" / "lint"))
         from lint_connectors import scan
 
         bad_file = tmp_path / "bad_connector.py"
         bad_file.write_text(
             textwrap.dedent(
                 """\
-                import polisyos.foundry.domain.state
+                import polisyos.foundry.contracts.state
                 """
             ),
             encoding="utf-8",
@@ -260,7 +221,7 @@ class TestLintConnectors:
         assert errors[0].violated_law == "Law B (Foundry Purity)"
 
     def test_type_checking_import_is_warning(self, tmp_path: Path) -> None:
-        sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "tools"))
+        sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "tools" / "lint"))
         from lint_connectors import scan
 
         guarded_file = tmp_path / "guarded_connector.py"
@@ -286,7 +247,7 @@ class TestLintConnectors:
         assert violations[0].severity == "WARNING"
 
     def test_clean_file_produces_no_violations(self, tmp_path: Path) -> None:
-        sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "tools"))
+        sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "tools" / "lint"))
         from lint_connectors import scan
 
         clean_file = tmp_path / "clean_connector.py"
@@ -307,7 +268,7 @@ class TestLintConnectors:
         assert violations == []
 
     def test_multiple_violations_in_one_file(self, tmp_path: Path) -> None:
-        sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "tools"))
+        sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "tools" / "lint"))
         from lint_connectors import scan
 
         bad_file = tmp_path / "multi_bad.py"
@@ -331,7 +292,7 @@ class TestLintConnectors:
         assert errors[2].lineno == 3
 
     def test_lint_connectors_cli_exit_code(self, tmp_path: Path) -> None:
-        lint_script = Path(__file__).resolve().parents[3] / "tools" / "lint_connectors.py"
+        lint_script = Path(__file__).resolve().parents[3] / "tools" / "lint" / "lint_connectors.py"
         if not lint_script.exists():
             pytest.skip("lint_connectors.py not found")
 

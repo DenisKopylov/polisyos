@@ -97,6 +97,24 @@ def _estimate_run_cost_usd(state: "ExperimentState") -> float | None:
     )
 
 
+def _resolve_observability() -> tuple[Any, Any]:
+    """
+    Resolve tracer/metrics from scientist facade first.
+
+    This keeps monkeypatching via `polisyos.scientist.get_metrics/get_tracer`
+    effective in contract tests and external wrappers.
+    """
+    try:
+        import polisyos.scientist as scientist_facade
+
+        metrics_factory = getattr(scientist_facade, "get_metrics", get_metrics)
+        tracer_factory = getattr(scientist_facade, "get_tracer", get_tracer)
+    except Exception:
+        metrics_factory = get_metrics
+        tracer_factory = get_tracer
+    return tracer_factory(), metrics_factory()
+
+
 def run_experiment(
     state: Mapping[str, Any] | "ExperimentState" | None = None,
 ) -> dict[str, Any]:
@@ -113,8 +131,7 @@ def run_experiment(
     dict[str, Any]
         Final ExperimentState produced by the workflow.
     """
-    tracer = get_tracer()
-    metrics = get_metrics()
+    tracer, metrics = _resolve_observability()
     ExperimentState = _experiment_state_cls()
     workflow_id = "scientist_default"
 

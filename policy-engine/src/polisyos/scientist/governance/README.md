@@ -75,8 +75,8 @@ Pipeline запускает модульные passes последователь
 LegalPass интегрируется в pipeline через конфигурацию backend:
 
 ```python
-from polisyos.scientist.governance.passes.legal_pass import LegalPass
-from polisyos.scientist.governance.legal.backends.stub import StubBackend
+from polisyos.core.governance.passes.legal_pass import LegalPass
+from polisyos.core.governance.legal.backends.stub import StubBackend
 
 legal_pass = LegalPass(backend=StubBackend())
 ```

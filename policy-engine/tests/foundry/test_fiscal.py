@@ -1,8 +1,8 @@
 import jax
 import jax.numpy as jnp
 
-from polisyos.foundry.domain.state import GlobalState
-from polisyos.foundry.domain.mechanisms.fiscal import IncomeTax, TaxSubsidy, compute_tax
+from polisyos.foundry.contracts.state import GlobalState
+from polisyos.foundry.mechanisms.fiscal import IncomeTax, TaxSubsidy, compute_tax
 from polisyos.foundry.executor import apply_patch_map
 from polisyos.ir.kernel.merge_rules import DEFAULT_MERGE_RULE_REGISTRY
 from polisyos.ir.kernel.slots import DEFAULT_SLOT_REGISTRY

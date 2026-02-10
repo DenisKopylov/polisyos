@@ -12,6 +12,7 @@ components/
 ├── protocols.py     # Component, ComponentFactory, ComponentProvider, SupportsValidation
 ├── registry.py      # ComponentRegistry с conflict resolution policies
 ├── discovery.py     # discover_components() через entry points
+├── bootstrap.py     # единый bootstrap runtime-реестров из ComponentRegistry
 ├── compliance.py    # validate_component_id(), validate_metadata(), HostAbi checks
 └── cli.py           # CLI-интеграция
 ```
@@ -47,6 +48,7 @@ metadata = ComponentMetadata(
 ```
 
 **ComponentKind:** определяет тип компонента (extractor, evaluator, foundry method, IR fragment и т.д.).
+В P6 добавлен `fabric_connector`.
 
 ## Discovery через Entry Points
 
@@ -62,6 +64,7 @@ report = discover_components()  # все компоненты из всех гр
 - `polisyos.components` — основная группа
 - `polisyos.ir_fragments` — IR-фрагменты
 - `polisyos.foundry_methods` — методы Foundry
+- `polisyos.fabric_connectors` — коннекторы Fabric (Component model)
 - `polisyos.lex_evaluators` / `polisyos.lex_extractors` — компоненты Lex
 - `polisyos.norm_pack_providers` — провайдеры нормативных пакетов
 - `polisyos.scholar_extractors` — extractors Scholar
@@ -92,6 +95,25 @@ issues = validate_metadata(metadata)
 if has_errors(issues):
     raise ValueError(f"Invalid component: {issues}")
 ```
+
+## Unified bootstrap
+
+В P6 discovery и bootstrap runtime-реестров унифицированы:
+
+```python
+from polisyos.core.components import build_components_index, bootstrap_plugin_registries
+
+components_index, discovery_report = build_components_index()
+bootstrap_report = bootstrap_plugin_registries(components_index)
+```
+
+`bootstrap_plugin_registries(...)` использует один `ComponentRegistry` snapshot для:
+- connectors,
+- foundry methods,
+- lex evaluators,
+- scholar/lex extractors,
+- norm pack providers,
+- scientist nodes.
 
 ## Использование в системе
 

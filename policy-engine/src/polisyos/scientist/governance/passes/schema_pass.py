@@ -7,7 +7,7 @@ from pydantic import ValidationError
 from polisyos.ir.trinity import TrinityBundle
 from polisyos.ir.governance.validation import build_validation_report
 
-from .base import ValidatorPass, PassContext, ComplianceIssue, IssueSeverity
+from polisyos.core.governance.passes.base import ValidatorPass, PassContext, ComplianceIssue, IssueSeverity
 
 
 class SchemaPass(ValidatorPass):

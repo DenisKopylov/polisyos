@@ -10,7 +10,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Literal, Protocol
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
@@ -360,7 +360,12 @@ def resolve_latest_checkpoint(
             f"checkpoint artifact failed integrity verification: {verification.error}"
         )
 
-    checkpoint = load_checkpoint(store, head.checkpoint_ref)
+    try:
+        checkpoint = load_checkpoint(store, head.checkpoint_ref)
+    except (ValidationError, ValueError, TypeError) as exc:
+        raise CheckpointCorruptedError(
+            f"checkpoint artifact payload is invalid: {exc}"
+        ) from exc
     if checkpoint.metadata.run_id != run_id:
         raise CheckpointCorruptedError(
             f"checkpoint run_id mismatch: expected={run_id} got={checkpoint.metadata.run_id}"

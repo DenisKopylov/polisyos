@@ -143,14 +143,23 @@ class PropagateUncertaintyNode:
             }
         )
         update_inputs = [
-            InputRef(artifact_id=sim_result_ref.artifact_id, role="base_simulation_result"),
-            InputRef(artifact_id=report_ref.artifact_id, role="propagation_report"),
-            InputRef(artifact_id=config_ref.artifact_id, role="propagation_config"),
+            InputRef(
+                artifact_id=str(sim_result_ref.artifact_id),
+                role="base_simulation_result",
+            ),
+            InputRef(
+                artifact_id=str(report_ref.artifact_id),
+                role="propagation_report",
+            ),
+            InputRef(
+                artifact_id=str(config_ref.artifact_id),
+                role="propagation_config",
+            ),
         ]
         for metric_id, ref in envelope_refs.items():
             update_inputs.append(
                 InputRef(
-                    artifact_id=ref.artifact_id,
+                    artifact_id=str(ref.artifact_id),
                     role=f"metric_envelope.{metric_id}",
                 )
             )

@@ -2,11 +2,12 @@ from __future__ import annotations
 
 import math
 from enum import Enum
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from polisyos.core.canon import CanonSpec, from_canonical_bytes
+from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
+from polisyos.ir.canon import CanonSpec
 from polisyos.ir.analytics.uncertainty import (
     DistributionFamily,
     IntervalSemantics,
@@ -14,11 +15,7 @@ from polisyos.ir.analytics.uncertainty import (
     UncertaintyEnvelope,
     UncertaintySource,
 )
-
-if TYPE_CHECKING:
-    from polisyos.core.artifacts.manifest import InputRef
-    from polisyos.core.artifacts.store import FileSystemCAS
-    from polisyos.core.contracts.causal import CausalEffectReportRef
+from polisyos.ir.refs import CausalEffectReportRef
 
 
 class CausalMethod(str, Enum):
@@ -191,35 +188,30 @@ class CausalEffectReport(BaseModel):
 
 
 def persist_causal_effect_report(
-    store: "FileSystemCAS",
+    store: ArtifactStore,
     report: CausalEffectReport,
     *,
-    inputs: list["InputRef"] | None = None,
+    inputs: list[InputRef] | None = None,
     schema_name: str = "ir.causal_effect_report",
     schema_version: str = "1.0",
-) -> "CausalEffectReportRef":
-    from polisyos.core.artifacts.manifest import SchemaInfo
-    from polisyos.core.artifacts.store import PutOptions
-    from polisyos.core.contracts.causal import CausalEffectReportRef
-
-    ref = store.put_json(
+) -> CausalEffectReportRef:
+    ref = put_json_artifact(
+        store,
         report.model_dump(mode="json"),
-        opts=PutOptions(
-            kind="ir.causal_effect_report",
-            media_type="application/json",
-            schema=SchemaInfo(name=schema_name, version=schema_version),
-            inputs=inputs,
-        ),
+        kind="ir.causal_effect_report",
+        schema_name=schema_name,
+        schema_version=schema_version,
+        inputs=inputs,
         canon_spec=CanonSpec(forbid_floats=False),
     )
-    return CausalEffectReportRef.model_validate(ref.model_dump())
+    return CausalEffectReportRef.model_validate(ref)
 
 
 def load_causal_effect_report(
-    store: "FileSystemCAS",
-    ref: "CausalEffectReportRef",
+    store: ArtifactStore,
+    ref: CausalEffectReportRef,
 ) -> CausalEffectReport:
-    payload = from_canonical_bytes(store.get_bytes(ref.artifact_id))
+    payload = get_json_artifact(store, ref.artifact_id)
     return CausalEffectReport.model_validate(payload)
 
 

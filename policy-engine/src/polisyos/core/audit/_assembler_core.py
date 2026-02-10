@@ -24,10 +24,9 @@ from polisyos.core.artifacts.signing import (
 )
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.canon.canon_json import from_canonical_bytes
+from polisyos.core.contracts.provenance import ProvenanceCoreGraph
 from polisyos.core.run.manifest import RunManifest
 from polisyos.core.trace.record import TraceRecord
-from polisyos.fabric.provenance.core import ProvenanceCoreGraph
-from polisyos.runtime.manifest import RunManifest as LegacyRunManifest
 
 from ._assembler_archive import (
     build_index,
@@ -159,14 +158,7 @@ class AuditPackageAssembler:
             try:
                 manifest = RunManifest.model_validate_json(raw)
             except Exception as exc:
-                try:
-                    LegacyRunManifest.model_validate_json(raw)
-                except Exception:
-                    raise AuditAssemblyError(f"Unsupported run manifest format: {exc}") from exc
-                raise AuditAssemblyError(
-                    "Legacy runtime RunManifest is not supported for audit export; "
-                    "use CAS-native runs."
-                ) from exc
+                raise AuditAssemblyError(f"Unsupported run manifest format: {exc}") from exc
         else:
             manifest = self._load_manifest_from_trace(run_dir, run_id)
 

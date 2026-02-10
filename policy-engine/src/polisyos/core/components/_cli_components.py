@@ -13,10 +13,12 @@ from polisyos.core.components import (
     DuplicateComponentIdPolicy,
     discover_components,
 )
+from polisyos.core.components.bootstrap import build_components_index, bootstrap_plugin_registries
 from polisyos.core.registry import build_registry_bundle_from_components
 from polisyos.core.registry.builder_from_fragments import FragmentPrecedencePolicy
 
 __all__ = [
+    "_cmd_components_bootstrap",
     "_cmd_components_list",
     "_cmd_registry_build",
 ]
@@ -100,3 +102,67 @@ def _cmd_registry_build(args: Any) -> int:
     if compose_report_ref is not None:
         print(f"compose_report_ref={compose_report_ref.artifact_id}")
     return 0
+
+
+def _cmd_components_bootstrap(args: Any) -> int:
+    groups = list(args.group) if args.group else None
+    components_index, discovery_report = build_components_index(
+        groups=groups,
+        include_dev_scan=not args.no_dev_scan,
+        dev_scan_paths=[Path(path) for path in args.dev_scan_path] if args.dev_scan_path else None,
+    )
+
+    bootstrap_report = bootstrap_plugin_registries(
+        components_index,
+        bootstrap_connectors=not args.skip_connectors,
+        bootstrap_methods=not args.skip_methods,
+        bootstrap_evaluators=not args.skip_evaluators,
+        bootstrap_extractors=not args.skip_extractors,
+        bootstrap_providers=not args.skip_providers,
+        bootstrap_nodes=not args.skip_nodes,
+    )
+    bootstrap_report.sources_processed = discovery_report.sources_processed
+    bootstrap_report.discovery_errors = [
+        f"{error.source}:{error.item or '<unknown>'}: {error.message}"
+        for error in discovery_report.errors
+    ]
+
+    if args.json:
+        print(
+            json.dumps(
+                {
+                    "components_total": bootstrap_report.components_total,
+                    "sources_processed": bootstrap_report.sources_processed,
+                    "success": bootstrap_report.success,
+                    "discovery_errors": bootstrap_report.discovery_errors,
+                    "domains": {
+                        name: {
+                            "registered": domain_report.registered,
+                            "duplicates": domain_report.duplicates,
+                            "errors": domain_report.errors,
+                            "discovery_errors": domain_report.discovery_errors,
+                            "success": domain_report.success,
+                        }
+                        for name, domain_report in sorted(bootstrap_report.domains.items())
+                    },
+                },
+                ensure_ascii=False,
+                indent=2,
+                sort_keys=True,
+            )
+        )
+        return 0
+
+    print(f"components_total={bootstrap_report.components_total}")
+    print(f"sources_processed={bootstrap_report.sources_processed}")
+    for error in bootstrap_report.discovery_errors:
+        print(f"discovery_error: {error}")
+    for name, domain_report in sorted(bootstrap_report.domains.items()):
+        print(
+            f"{name}: registered={len(domain_report.registered)} "
+            f"duplicates={len(domain_report.duplicates)} "
+            f"errors={len(domain_report.errors)}"
+        )
+        for error in domain_report.errors:
+            print(f"  {name}_error: {error}")
+    return 0 if bootstrap_report.success else 1

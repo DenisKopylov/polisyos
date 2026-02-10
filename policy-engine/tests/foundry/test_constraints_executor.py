@@ -9,7 +9,7 @@ from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.contracts.foundry import CompileRequest
 from polisyos.core.registry import build_registry_bundle, load_registry_bundle_content
 from polisyos.foundry.compile.api import compile as compile_foundry
-from polisyos.foundry.domain.state import GlobalState
+from polisyos.foundry.contracts.state import GlobalState
 from polisyos.foundry.executor import execute_program_graph
 from polisyos.ir.kernel import (
     DEFAULT_MECHANISM_REGISTRY,

@@ -77,6 +77,7 @@ def test_world_bank_fetch_with_mock_http(monkeypatch) -> None:
     assert result.schema_id == "worldbank.wdi.generic"
     assert result.version.strategy == VersionStrategy.ETAG
     assert result.version.content_hash is not None
+    assert result.fetch_duration_ms > 0.0
     assert sorted(result.data["country_code"].tolist()) == ["DEU", "USA"]
 
 
@@ -128,6 +129,8 @@ def test_eurostat_fetch_with_mock_http(monkeypatch) -> None:
     assert result.schema_id == "eurostat.data.generic"
     assert result.version.strategy == VersionStrategy.TIMESTAMP
     assert result.source_updated_at is not None
+    assert result.fetch_duration_ms > 0.0
+    assert result.quality_flags == frozenset()
     assert set(result.data["time_period"].tolist()) == {"2021", "2022"}
 
 
@@ -168,4 +171,6 @@ def test_ukons_fetch_with_mock_http(monkeypatch) -> None:
     assert result.row_count == 1
     assert result.schema_id == "ukons.datasets.generic"
     assert result.version.strategy == VersionStrategy.CONTENT_HASH
+    assert result.fetch_duration_ms > 0.0
+    assert "freshness:source_timestamp_missing" in result.quality_flags
     assert result.data.iloc[0]["geography"] == "K02000001"

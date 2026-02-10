@@ -5,6 +5,7 @@ from polisyos.core.contracts.fabric import DataSnapshot
 from polisyos.core.contracts.foundry import (
     ExecPlan,
     ExecPlanRef,
+    FoundryInputBindings,
     Metrics,
     MetricsRef,
     ProgramGraphRef,
@@ -27,6 +28,13 @@ def _build_packet(store: FileSystemCAS):
         data_ref=StateSnapshotRef(artifact_id=state_snapshot_ref.artifact_id),
     )
     data_snapshot_ref = _put_json(store, data_snapshot, kind="fabric.data_snapshot")
+    input_bindings = FoundryInputBindings(
+        data_snapshot_ref=data_snapshot_ref,
+        registry_bundle_ref=registry_bundle_ref,
+        rules=[],
+        bound_state_snapshot_ref=StateSnapshotRef(artifact_id=state_snapshot_ref.artifact_id),
+    )
+    input_bindings_ref = _put_json(store, input_bindings, kind="foundry.input_bindings")
     program_graph_ref = _put_json(store, {"nodes": []}, kind="foundry.program_graph")
     exec_plan = ExecPlan(
         program_ref=ProgramGraphRef(artifact_id=program_graph_ref.artifact_id),
@@ -54,6 +62,7 @@ def _build_packet(store: FileSystemCAS):
         "seed": 123,
         "inputs": {
             "trinity_bundle_ref": str(trinity_bundle_ref.artifact_id),
+            "input_bindings_ref": str(input_bindings_ref.artifact_id),
             "data_snapshot_ref": str(data_snapshot_ref.artifact_id),
             "registry_bundle_ref": str(registry_bundle_ref.artifact_id),
         },

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from .base import ComplianceIssue, IssueSeverity, PassContext, ValidatorPass
+from polisyos.core.governance.passes.base import ComplianceIssue, IssueSeverity, PassContext, ValidatorPass
 
 __all__ = [
     "ComplianceIssue",

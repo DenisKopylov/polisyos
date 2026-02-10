@@ -51,11 +51,19 @@ tools/
 │   ├── check_scholar_imports.py           # Проверка Scholar storage boundary
 │   ├── lint_connectors.py                 # Линтер коннекторов (Законы A, E)
 │   ├── lint_foundry.py                    # Линтер чистоты foundry (Закон B)
+│   ├── lint_foundry_data_plane.py         # P8 data-plane invariants (input_bindings/workflow/adapter)
+│   ├── lint_legacy_cutover.py             # P10 cutover invariants (runtime/foundry/bootstrap cleanup)
 │   └── lint_imports.py                    # Валидатор межмодульных импортов (Закон A)
 │
-└── migrations/
-    ├── migrate.py                         # Универсальная миграция артефактов
-    └── migrate_duckdb_to_pg.py            # Миграция DuckDB → PostgreSQL
+├── migrations/
+│   ├── migrate.py                         # Универсальная миграция артефактов
+│   └── migrate_duckdb_to_pg.py            # Миграция DuckDB → PostgreSQL
+│
+└── runtime/
+    ├── inventory_legacy_runs.py           # Инвентаризация legacy runs/*/manifest.json
+    ├── archive_legacy_runs.py             # Детерминированный архив legacy runs + report
+    ├── export_runtime_openapi.py          # Экспорт OpenAPI schema Runtime API v1
+    └── generate_runtime_client.py         # Генерация typed frontend client из OpenAPI
 ```
 
 ## Быстрый старт
@@ -69,6 +77,8 @@ python tools/diagnostics/check_setup.py
 # 2. Архитектурные проверки
 python tools/lint/lint_imports.py
 python tools/lint/lint_foundry.py
+python tools/lint/lint_foundry_data_plane.py
+python tools/lint/lint_legacy_cutover.py
 python tools/lint/lint_connectors.py
 
 # 3. Валидация ABI-схем
@@ -76,6 +86,13 @@ python tools/diagnostics/gen_schema.py --check
 
 # 4. Запуск демо
 python tools/demos/run_udf_query_demo.py
+
+# 5. Runtime API frontend foundation
+python tools/runtime/export_runtime_openapi.py --output schemas/runtime_api_v1.openapi.json
+python tools/runtime/generate_runtime_client.py \
+  --openapi schemas/runtime_api_v1.openapi.json \
+  --out-ts frontend/runtime-api-client/runtimeApiClient.ts \
+  --out-js frontend/runtime-api-client/runtimeApiClient.js
 ```
 
 ## Архитектурные линтеры
@@ -219,7 +236,7 @@ python tools/benchmarks/bench_domain.py --n-agents 1000000
 python tools/benchmarks/bench_simulation.py --n-steps 100 --n-agents 10000
 ```
 
-Зависимости: `foundry.domain.state.GlobalState`, `foundry.engine.kernel.SimulationKernel`, JAX, Equinox.
+Зависимости: `foundry.contracts.state.GlobalState`, `foundry.engine.kernel.SimulationKernel`, JAX, Equinox.
 
 ## Генератор коннекторов (`connectors/`)
 
@@ -245,8 +262,8 @@ End-to-end скрипты, демонстрирующие ключевые па�
 |--------|----------|----------------|
 | `run_udf_query_demo.py` | Panel/Snapshot/Network UDF-запросы | `fabric.udf.engine`, `ir.data_views` |
 | `run_udf_hybrid_demo.py` | ML/статистика внутри SQL через UDF | DuckDB UDF API, Pandas, NumPy |
-| `run_laffer_demo.py` | Кривая Лаффера — tax rate vs revenue | `foundry.domain`, `foundry.engine` |
-| `run_export_demo.py` | Экспорт state в Parquet/JSON/CSV/HDF5 | `foundry.domain.state`, `foundry.engine.kernel` |
+| `run_laffer_demo.py` | Кривая Лаффера — tax rate vs revenue | `foundry.mechanisms`, `foundry.engine` |
+| `run_export_demo.py` | Экспорт state в Parquet/JSON/CSV/HDF5 | `foundry.contracts.state`, `foundry.engine.kernel` |
 
 `demos/run_mechanism_design.py` — отдельная E2E демонстрация дифференцируемого mechanism design через JAX-градиенты. Использует `core.contracts.foundry`, `foundry.compile.api`, `ir.kernel`.
 

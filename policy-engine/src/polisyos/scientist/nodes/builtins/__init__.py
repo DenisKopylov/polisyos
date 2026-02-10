@@ -7,6 +7,7 @@ if TYPE_CHECKING:
 
 __all__ = [
     "BuildDataSnapshotNode",
+    "BindFoundryInputsNode",
     "EnrichKnowledgeNode",
     "LinkTrinityNode",
     "CompileFoundryNode",
@@ -15,6 +16,7 @@ __all__ = [
     "RunDistributionalAnalysisNode",
     "PropagateUncertaintyNode",
     "LegalCheckNode",
+    "DataPlaneGateNode",
     "RunGovernanceNode",
     "BuildDecisionPacketNode",
     "builtin_nodes",
@@ -24,11 +26,13 @@ __all__ = [
 def builtin_nodes() -> list["Node"]:
     from polisyos.scientist.nodes.builtins.compile.compile_foundry import CompileFoundryNode
     from polisyos.scientist.nodes.builtins.compile.link_trinity import LinkTrinityNode
+    from polisyos.scientist.nodes.builtins.data.bind_foundry_inputs import BindFoundryInputsNode
     from polisyos.scientist.nodes.builtins.data.build_data_snapshot import BuildDataSnapshotNode
     from polisyos.scientist.nodes.builtins.data.enrich_knowledge import EnrichKnowledgeNode
     from polisyos.scientist.nodes.builtins.decide.build_decision_packet import (
         BuildDecisionPacketNode,
     )
+    from polisyos.scientist.nodes.builtins.governance.data_plane_gate import DataPlaneGateNode
     from polisyos.scientist.nodes.builtins.governance.legal_check import LegalCheckNode
     from polisyos.scientist.nodes.builtins.governance.run_governance import RunGovernanceNode
     from polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty import (
@@ -44,6 +48,7 @@ def builtin_nodes() -> list["Node"]:
 
     return [
         BuildDataSnapshotNode(),
+        BindFoundryInputsNode(),
         EnrichKnowledgeNode(),
         LinkTrinityNode(),
         CompileFoundryNode(),
@@ -52,12 +57,19 @@ def builtin_nodes() -> list["Node"]:
         RunCausalEvaluationNode(),
         PropagateUncertaintyNode(),
         LegalCheckNode(),
+        DataPlaneGateNode(),
         RunGovernanceNode(),
         BuildDecisionPacketNode(),
     ]
 
 
 def __getattr__(name: str) -> Any:
+    if name == "BindFoundryInputsNode":
+        from polisyos.scientist.nodes.builtins.data.bind_foundry_inputs import (
+            BindFoundryInputsNode,
+        )
+
+        return BindFoundryInputsNode
     if name == "BuildDataSnapshotNode":
         from polisyos.scientist.nodes.builtins.data.build_data_snapshot import BuildDataSnapshotNode
 
@@ -100,6 +112,10 @@ def __getattr__(name: str) -> Any:
         from polisyos.scientist.nodes.builtins.governance.legal_check import LegalCheckNode
 
         return LegalCheckNode
+    if name == "DataPlaneGateNode":
+        from polisyos.scientist.nodes.builtins.governance.data_plane_gate import DataPlaneGateNode
+
+        return DataPlaneGateNode
     if name == "RunGovernanceNode":
         from polisyos.scientist.nodes.builtins.governance.run_governance import RunGovernanceNode
 

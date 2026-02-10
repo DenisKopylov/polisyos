@@ -9,6 +9,12 @@ from typing import Any
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.components import (
+    ENTRY_POINT_GROUP_LEX_EXTRACTORS,
+    ENTRY_POINT_GROUP_NORM_PACK_PROVIDERS,
+    ENTRY_POINT_GROUP_SCHOLAR_EXTRACTORS,
+)
+from polisyos.core.components.bootstrap import build_components_index
 from polisyos.fabric.claims import resolve_conflicts
 from polisyos.fabric.claims.extractor_registry import discover_and_bootstrap_extractors
 from polisyos.fabric.claims.persist import (
@@ -610,17 +616,34 @@ def assemble_norm_pack(
     if normalized_request.budgets.max_claims == 0:
         warnings.append("warning:max_claims_zero")
 
-    provider_bootstrap = discover_and_bootstrap_providers()
+    components_index, _ = build_components_index(
+        groups=[
+            ENTRY_POINT_GROUP_NORM_PACK_PROVIDERS,
+            ENTRY_POINT_GROUP_SCHOLAR_EXTRACTORS,
+            ENTRY_POINT_GROUP_LEX_EXTRACTORS,
+        ],
+        include_dev_scan=True,
+    )
+
+    provider_bootstrap = discover_and_bootstrap_providers(
+        components_index=components_index
+    )
     if provider_bootstrap.errors:
         warnings.extend(
             [f"warning:normpack_provider_bootstrap_error:{msg}" for msg in provider_bootstrap.errors]
         )
 
+    doc_source_ids = select_doc_sources(
+        cas=cas,
+        fact_log_root=fact_log_root,
+        request=normalized_request,
+    )
+
     provider_record = get_norm_pack_provider_registry().resolve(
         jurisdiction=jurisdiction_norm,
         domain=domain_norm,
     )
-    if provider_record is not None:
+    if provider_record is not None and not doc_source_ids:
         try:
             provided = provider_record.provider.get_static_norm_pack(
                 cas,
@@ -704,18 +727,18 @@ def assemble_norm_pack(
             warnings.append(
                 f"warning:normpack_provider_failed:{provider_record.component_id}:{exc}"
             )
+    elif provider_record is not None and doc_source_ids:
+        warnings.append(
+            f"warning:normpack_provider_skipped_local_docs_present:{provider_record.component_id}"
+        )
 
-    extractor_bootstrap = discover_and_bootstrap_extractors()
+    extractor_bootstrap = discover_and_bootstrap_extractors(
+        components_index=components_index
+    )
     if extractor_bootstrap.errors:
         warnings.extend(
             [f"warning:extractor_bootstrap_error:{msg}" for msg in extractor_bootstrap.errors]
         )
-
-    doc_source_ids = select_doc_sources(
-        cas=cas,
-        fact_log_root=fact_log_root,
-        request=normalized_request,
-    )
 
     selected_doc_versions, source_warnings = select_active_doc_versions(
         cas=cas,

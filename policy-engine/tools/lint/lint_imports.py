@@ -282,6 +282,8 @@ def read_policy(path: Path) -> PolicyConfig:
     internal_allow = data.get("internal", {}).get("allow", {})
     internal_allow_map: dict[str, set[str]] = {}
     for root in known_roots:
+        if root not in internal_allow:
+            raise ValueError(f"internal.allow.{root} must be defined")
         allowed = internal_allow.get(root, [])
         internal_allow_map[root] = set(allowed)
 
@@ -311,6 +313,7 @@ def read_exceptions(path: Path | None) -> list[ImportException]:
     data = tomllib.loads(path.read_text(encoding="utf-8"))
     exceptions = data.get("exception", [])
     results: list[ImportException] = []
+    seen_ids: set[str] = set()
     for item in exceptions:
         exception_id = item.get("id")
         owner = item.get("owner")
@@ -324,6 +327,9 @@ def read_exceptions(path: Path | None) -> list[ImportException]:
 
         if not exception_id or not owner or not reason or not expires_raw or not source_glob:
             raise ValueError(f"Invalid exception entry (missing fields): {item}")
+        if exception_id in seen_ids:
+            raise ValueError(f"Duplicate exception id: {exception_id}")
+        seen_ids.add(exception_id)
 
         if external_module and (import_root or import_module_prefix):
             raise ValueError(
@@ -584,28 +590,6 @@ def main() -> int:
                         f"{rel_path}:{ref.lineno} [ARCH004] forbidden deep import: "
                         f"{ref.source_module} -> {ref.target_module}. "
                         "Use polisyos.fabric.world facade exports."
-                    )
-                    violation = _apply_exceptions(
-                        ref,
-                        message,
-                        exceptions,
-                        rel_path,
-                        target_root,
-                        today,
-                        allowed_exceptions,
-                        expired_exceptions,
-                    )
-                    if violation:
-                        violations.append(violation)
-                continue
-
-            if source_root == "ir":
-                allowed = {"ir"}
-                if target_root not in allowed:
-                    message = (
-                        f"{rel_path}:{ref.lineno} [ARCH001] forbidden internal import: "
-                        f"{source_root} -> {target_root} via {ref.target_module} "
-                        f"(allowed={format_allowed_internal(allowed)})"
                     )
                     violation = _apply_exceptions(
                         ref,

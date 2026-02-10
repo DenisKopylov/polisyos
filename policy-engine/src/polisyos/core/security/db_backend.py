@@ -2,15 +2,12 @@
 from __future__ import annotations
 
 from contextlib import contextmanager
-from typing import TYPE_CHECKING, Any, Iterator, Protocol, Sequence, runtime_checkable
+from typing import Any, Iterator, Protocol, Sequence, runtime_checkable
 import uuid
 
 import pandas as pd
 
 from polisyos.core.security.exceptions import TenantIsolationError
-
-if TYPE_CHECKING:
-    from polisyos.fabric.io.db import SimulationDB
 
 
 def _validate_tenant_id(tenant_id: str) -> None:
@@ -148,7 +145,7 @@ class DuckDBLegacyBackend:
     backend_kind = "duckdb"
     placeholder = "?"
 
-    def __init__(self, simulation_db: "SimulationDB") -> None:
+    def __init__(self, simulation_db: Any) -> None:
         self._db = simulation_db
 
     def execute(self, sql: str, params: Sequence[Any] | None = None) -> Any:

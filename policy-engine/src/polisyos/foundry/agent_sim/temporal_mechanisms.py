@@ -10,7 +10,7 @@ from polisyos.foundry.agent_sim.actor_critic import ActorCritic, sample_actions
 from polisyos.foundry.agent_sim.mechanism import Mechanism, MechanismSpec
 from polisyos.foundry.agent_sim.state import GlobalState
 from polisyos.foundry.agent_sim.temporal import build_temporal_observations
-from polisyos.foundry.types import FidelityLevel
+from polisyos.foundry.contracts.fidelity import FidelityLevel
 
 
 @dataclass(frozen=True)

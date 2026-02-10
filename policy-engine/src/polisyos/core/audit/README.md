@@ -121,5 +121,6 @@ dot_content = prov_json_to_dot(prov_json)  # для Graphviz
 - `core.run` — RunManifest
 - `core.trace` — TraceRecord (парсинг trace.jsonl)
 - `core.canon` — десериализация артефактов
-- `fabric.provenance.core` — ProvenanceCoreGraph, entity/activity/agent types
-- `runtime.manifest` — Legacy RunManifest (fallback)
+- `core.contracts.provenance` — ProvenanceCoreGraph и типы lineage
+
+Legacy runtime manifest определяется по shape compatibility локально в `core.audit`, без прямой зависимости от `runtime.manifest`.

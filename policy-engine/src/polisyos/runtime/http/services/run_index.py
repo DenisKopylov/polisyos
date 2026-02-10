@@ -1,0 +1,258 @@
+from __future__ import annotations
+
+import time
+from dataclasses import dataclass
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Any
+
+from polisyos.core.artifacts.ids import ArtifactID
+from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.contracts.runtime import CursorPage, RunDetails, RunSummary, SourceKind
+
+from .adapters.core_run import CoreRunAdapterResult, load_core_run
+
+
+@dataclass(frozen=True)
+class IndexedRunRecord:
+    run_id: str
+    source_kind: SourceKind
+    details: RunDetails
+    summary: RunSummary
+    run_dir: Path
+    trace_path: Path | None
+    workflow_report_ref: ArtifactRef | None
+    experiment_state_ref: ArtifactRef | None
+    decision_packet_ref: ArtifactRef | None
+    manifest_errors: tuple[dict[str, Any], ...]
+
+
+class RunIndexService:
+    def __init__(
+        self,
+        *,
+        store: FileSystemCAS,
+        core_runs_root: Path,
+        refresh_ttl_seconds: float = 2.0,
+    ) -> None:
+        self._store = store
+        self._core_runs_root = core_runs_root
+        self._refresh_ttl_seconds = max(refresh_ttl_seconds, 0.1)
+        self._cache: dict[str, IndexedRunRecord] = {}
+        self._artifact_tenants: dict[str, str] = {}
+        self._cache_built_at: float = 0.0
+
+    @property
+    def store(self) -> FileSystemCAS:
+        return self._store
+
+    def refresh(self, *, force: bool = False) -> None:
+        now = time.monotonic()
+        if not force and (now - self._cache_built_at) < self._refresh_ttl_seconds:
+            return
+        self._cache, self._artifact_tenants = self._build_index()
+        self._cache_built_at = now
+
+    def list_runs(
+        self,
+        *,
+        limit: int = 50,
+        cursor: str | None = None,
+        status: str | None = None,
+        from_ts: datetime | None = None,
+        to_ts: datetime | None = None,
+        tenant_id: str | None = None,
+    ) -> tuple[list[RunSummary], CursorPage]:
+        self.refresh()
+        normalized_from = _as_utc(from_ts)
+        normalized_to = _as_utc(to_ts)
+        status_normalized = status.lower() if isinstance(status, str) else None
+
+        runs: list[IndexedRunRecord] = []
+        for run in self._cache.values():
+            run_started = _as_utc(run.summary.started_at)
+            if status_normalized and run.summary.status.lower() != status_normalized:
+                continue
+            if tenant_id:
+                if run.summary.tenant_id:
+                    if run.summary.tenant_id != tenant_id:
+                        continue
+                else:
+                    continue
+            if normalized_from and run_started and run_started < normalized_from:
+                continue
+            if normalized_to and run_started and run_started > normalized_to:
+                continue
+            runs.append(run)
+
+        runs.sort(key=_run_sort_key)
+
+        offset = _parse_cursor(cursor)
+        page_limit = min(max(int(limit), 1), 200)
+        page_items = runs[offset : offset + page_limit]
+        next_cursor = None
+        if offset + page_limit < len(runs):
+            next_cursor = str(offset + page_limit)
+
+        page = CursorPage(
+            limit=page_limit,
+            cursor=cursor,
+            next_cursor=next_cursor,
+            count=len(page_items),
+            total=len(runs),
+        )
+        return [item.summary for item in page_items], page
+
+    def get_run(self, run_id: str) -> IndexedRunRecord:
+        self.refresh()
+        record = self._cache.get(run_id)
+        if record is None:
+            raise KeyError(run_id)
+        return record
+
+    def get_artifact_tenant(self, artifact_id: str) -> str | None:
+        self.refresh()
+        return self._artifact_tenants.get(artifact_id)
+
+    def resolve_root_artifact_ids(
+        self,
+        run: IndexedRunRecord,
+        *,
+        requested_root_ids: list[str] | None = None,
+    ) -> list[ArtifactID]:
+        if requested_root_ids:
+            return [ArtifactID.model_validate(value) for value in requested_root_ids]
+
+        refs: list[ArtifactRef] = list(run.details.root_artifacts)
+        if not refs and run.decision_packet_ref is not None:
+            refs = [run.decision_packet_ref]
+
+        return [ArtifactID.model_validate(str(ref.artifact_id)) for ref in refs]
+
+    def _build_index(self) -> tuple[dict[str, IndexedRunRecord], dict[str, str]]:
+        index: dict[str, IndexedRunRecord] = {}
+        artifact_tenants: dict[str, str] = {}
+
+        if self._core_runs_root.exists():
+            for run_dir in sorted(_iter_run_dirs(self._core_runs_root)):
+                record = self._adapt_core_run(run_dir)
+                if record is None:
+                    continue
+                index[record.run_id] = record
+                _register_artifact_tenants(artifact_tenants, record)
+
+        return index, artifact_tenants
+
+    def _adapt_core_run(self, run_dir: Path) -> IndexedRunRecord | None:
+        result = load_core_run(store=self._store, run_dir=run_dir)
+        if result is None:
+            return None
+        return _core_result_to_indexed(result, run_dir=run_dir)
+
+
+def _core_result_to_indexed(
+    result: CoreRunAdapterResult,
+    *,
+    run_dir: Path,
+) -> IndexedRunRecord:
+    details = RunDetails(
+        run_id=result.run_id,
+        source_kind="core_run",
+        status=result.status,
+        started_at=_as_utc(result.started_at),
+        finished_at=_as_utc(result.finished_at),
+        duration_ms=result.duration_ms,
+        tenant_id=result.tenant_id,
+        cell_id=result.cell_id,
+        has_trace=True,
+        manifest_ref=result.manifest_ref,
+        trace_ref=result.trace_ref,
+        root_artifacts=list(result.root_artifacts),
+        has_workflow_report=result.workflow_report_ref is not None,
+        workflow_report_ref=result.workflow_report_ref,
+        warnings=list(result.warnings),
+    )
+    summary = RunSummary(
+        run_id=result.run_id,
+        source_kind="core_run",
+        status=result.status,
+        started_at=details.started_at,
+        finished_at=details.finished_at,
+        duration_ms=details.duration_ms,
+        tenant_id=details.tenant_id,
+        cell_id=details.cell_id,
+        has_trace=True,
+        root_artifact_count=len(result.root_artifacts),
+        has_workflow_report=result.workflow_report_ref is not None,
+        warnings=list(result.warnings),
+    )
+    return IndexedRunRecord(
+        run_id=result.run_id,
+        source_kind="core_run",
+        details=details,
+        summary=summary,
+        run_dir=run_dir,
+        trace_path=result.trace_path,
+        workflow_report_ref=result.workflow_report_ref,
+        experiment_state_ref=result.experiment_state_ref,
+        decision_packet_ref=result.decision_packet_ref,
+        manifest_errors=result.errors,
+    )
+
+
+def _parse_cursor(cursor: str | None) -> int:
+    if cursor is None:
+        return 0
+    try:
+        value = int(cursor)
+    except (TypeError, ValueError) as exc:
+        raise ValueError("cursor must be an integer offset") from exc
+    if value < 0:
+        raise ValueError("cursor must be non-negative")
+    return value
+
+
+def _iter_run_dirs(root: Path):
+    for item in root.iterdir():
+        if item.is_dir():
+            yield item
+
+
+def _as_utc(value: datetime | None) -> datetime | None:
+    if value is None:
+        return None
+    if value.tzinfo is None:
+        return value.replace(tzinfo=timezone.utc)
+    return value.astimezone(timezone.utc)
+
+
+def _run_sort_key(record: IndexedRunRecord) -> tuple[float, str]:
+    started = _as_utc(record.summary.started_at)
+    if started is None:
+        return (float("inf"), record.run_id)
+    return (-started.timestamp(), record.run_id)
+
+
+def _register_artifact_tenants(
+    mapping: dict[str, str],
+    record: IndexedRunRecord,
+) -> None:
+    tenant_id = record.details.tenant_id
+    if not tenant_id:
+        return
+
+    refs: list[ArtifactRef] = list(record.details.root_artifacts)
+    if record.details.manifest_ref is not None:
+        refs.append(record.details.manifest_ref)
+    if record.details.trace_ref is not None:
+        refs.append(record.details.trace_ref)
+    if record.workflow_report_ref is not None:
+        refs.append(record.workflow_report_ref)
+    if record.experiment_state_ref is not None:
+        refs.append(record.experiment_state_ref)
+    if record.decision_packet_ref is not None:
+        refs.append(record.decision_packet_ref)
+
+    for ref in refs:
+        mapping.setdefault(str(ref.artifact_id), tenant_id)

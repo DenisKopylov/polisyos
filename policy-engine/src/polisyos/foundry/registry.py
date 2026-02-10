@@ -1,9 +1,9 @@
 import inspect
 from typing import Any, Dict, Mapping, Type
 
-from polisyos.foundry.base import Mechanism
+from polisyos.foundry.contracts.mechanism import Mechanism
 from polisyos.foundry.agents import AdaptiveAgentMechanism
-from polisyos.foundry.domain.mechanisms import IncomeTax, LaborMarketMechanism, TaxSubsidy
+from polisyos.foundry.mechanisms import IncomeTax, LaborMarketMechanism, TaxSubsidy
 from polisyos.foundry.queue import QueueMechanism
 from polisyos.foundry.specs import (
     MECHANISM_SPECS,

@@ -1,6 +1,6 @@
 # Contracts — Типизированные контракты
 
-Типизированные контракты взаимодействия между модулями PolisyOS. Каждый контракт — typed-ссылка (`ArtifactRef` с `Literal` kind/media_type), обеспечивающая типобезопасность на границах модулей.
+Типизированные контракты взаимодействия между модулями PolisyOS. Базовые core-контракты реализуются как typed-ссылки (`ArtifactRef` с `Literal` kind/media_type); часть IR-аналитических ссылок подключается через совместимые facade re-export из `polisyos.ir.refs`.
 
 ## Архитектура
 
@@ -10,6 +10,7 @@ contracts/
 ├── foundry.py         # Foundry: графы, IR, state, симуляции, patches (15+ типов)
 ├── trinity.py         # Trinity: ProblemFrame, PolicySpec, ModelSpec
 ├── lex.py             # Lex: NormPack, compliance, RuleBackend protocol
+├── provenance.py      # Provenance: PROV graph model (Entity/Activity/Agent/Edge)
 ├── scientist.py       # Scientist: эксперименты, failure cards, decision cards (11 типов)
 ├── scholar.py         # Scholar: ResearchIntent, KnowledgeBundle
 ├── compiler.py        # Compiler: отчеты компиляции/линковки
@@ -19,7 +20,7 @@ contracts/
 ├── hte.py             # HTE: HTEResultRef, PolicyRecommendationRef
 ├── uncertainty.py     # Uncertainty: UncertaintyEnvelopeRef
 ├── legal.py           # DEPRECATED shim → lex.py
-└── __init__.py        # Реэкспорт всех контрактов (193 символа в __all__)
+└── __init__.py        # Реэкспорт всех контрактов
 ```
 
 ## Паттерн контрактов
@@ -61,6 +62,8 @@ class FabricResultRef(ArtifactRef):
 - `ExecConfig` / `ExecConfigRef` — конфигурация исполнения
 - `ExecuteRequest` / `ExecuteResult` — запрос и результат исполнения
 - `FoundryExecConfig` — расширенная конфигурация
+- `FoundryInputBindings` / `FoundryInputBindingsRef` — canonical data-plane handoff (`fabric.data_snapshot -> foundry.state_snapshot`)
+- `FoundryInputBindingReportRef` — отчет materialization/validation на границе data-plane
 - `TreasurySeed` / `TreasurySeedRef` — сид для deterministic execution
 
 **State management:**
@@ -98,6 +101,17 @@ Compliance-валидация политик и pluggable rule backends.
 - `ChangeProposal` / `ChangeProposalRef` — предложения изменений
 - `NormDiffRef` / `NormImpactReportRef` — diff и impact analysis нормативных пакетов
 
+## Provenance Contracts
+
+Core-уровневые контракты lineage/traceability:
+
+- `EntityType`, `ActivityType`, `AgentType`, `RelationType` — типизированные PROV-сущности и связи
+- `ProvenanceEntity`, `ProvenanceActivity`, `ProvenanceAgent`, `ProvenanceEdge` — immutable dataclasses графа
+- `ProvenanceCoreGraph` — контейнер lineage с детерминированным `stable_id`, `to_dict()/from_dict()`
+- `ProvenanceCoreRef` — компактная ссылка на persisted provenance graph
+
+Эти модели являются canonical source в `core.contracts.provenance`. В `fabric.provenance.core` поддерживается совместимый re-export facade.
+
 ## Scientist Contracts
 
 Оркестрация экспериментов и жизненный цикл политик.
@@ -116,6 +130,12 @@ Compliance-валидация политик и pluggable rule backends.
 | `SensitivityResultRef` | Результаты анализа чувствительности |
 | `StressTestReportRef` | Отчеты стресс-тестирования |
 
+## P8 Data-Plane Compatibility Window
+
+- В фазе P8 canonical input для Foundry execute — `foundry.input_bindings`.
+- Legacy path `DataSnapshot(data_ref=foundry.state_snapshot)` сохранен на одно релизное окно (до `2026-07-31`) и должен использоваться только как compatibility fallback.
+- Owner для контракта и миграции: `team-foundry` (primary) совместно с `team-scientist` и `team-fabric`.
+
 ## Scholar Contracts
 
 ABI-стык для исследовательского обогащения.
@@ -128,6 +148,8 @@ ABI-стык для исследовательского обогащения.
 ## Analytical Contracts (IR-домен)
 
 Контракты для аналитических подсистем — каузальный анализ, backtesting, distributional analysis.
+
+Начиная с P4 canonical owner для этих ref-типов — `polisyos.ir.refs`; модули `core/contracts/{backtest,causal,distributional,hte,uncertainty}.py` оставлены как thin compatibility facades.
 
 | Контракт | Kind | Назначение |
 |----------|------|------------|

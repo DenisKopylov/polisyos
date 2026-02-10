@@ -192,11 +192,13 @@ def test_authz_middleware_rejects_deny_decision() -> None:
 
 def test_authz_middleware_exposes_allowed_columns_on_request_state() -> None:
     app = FastAPI()
+    # Starlette applies middlewares in reverse registration order.
+    # JWT must run before Authz to populate request.state.access_scope.
+    app.add_middleware(AuthzMiddleware, opa_client=_AllowOPAWithColumns(), enforce=True)
     app.add_middleware(
         JWTAuthMiddleware,
         identity_provider=_FakeIdentityProvider(_claims()),
     )
-    app.add_middleware(AuthzMiddleware, opa_client=_AllowOPAWithColumns(), enforce=True)
 
     @app.get("/api/v1/data/claims")
     async def data_endpoint(request: Request) -> dict[str, list[str]]:

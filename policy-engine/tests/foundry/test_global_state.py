@@ -1,7 +1,7 @@
 import jax
 import jax.numpy as jnp
 
-from polisyos.foundry.domain.state import GlobalState
+from polisyos.foundry.contracts.state import GlobalState
 
 
 def test_global_state_shapes_and_employment_counts() -> None:

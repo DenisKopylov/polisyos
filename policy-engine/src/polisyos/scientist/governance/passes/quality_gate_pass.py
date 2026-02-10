@@ -11,7 +11,7 @@ from polisyos.fabric.quality import (
     get_cached_quality_indicators,
 )
 
-from .base import ValidatorPass, PassContext, ComplianceIssue, IssueSeverity
+from polisyos.core.governance.passes.base import ValidatorPass, PassContext, ComplianceIssue, IssueSeverity
 
 
 class QualityGatePass(ValidatorPass):

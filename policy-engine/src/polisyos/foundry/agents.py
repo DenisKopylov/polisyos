@@ -12,8 +12,8 @@ import optax
 
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.store import FileSystemCAS
-from polisyos.foundry.base import Mechanism, PatchMap
-from polisyos.foundry.domain.state import GlobalState
+from polisyos.foundry.contracts.mechanism import Mechanism, PatchMap
+from polisyos.foundry.contracts.state import GlobalState
 
 
 def _activation_from_name(name: str) -> Callable[[jnp.ndarray], jnp.ndarray]:

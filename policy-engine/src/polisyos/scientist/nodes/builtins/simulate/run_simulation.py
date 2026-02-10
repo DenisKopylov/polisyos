@@ -21,9 +21,8 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_STATE_DELTA_REF,
     ARTIFACT_STATE_SNAPSHOT_REF,
     ARTIFACT_TEE_ATTESTATION_REF,
-    INPUT_DATA_SNAPSHOT_REF,
+    INPUT_INPUT_BINDINGS_REF,
     INPUT_REGISTRY_BUNDLE_REF,
-    INPUT_STATE_SNAPSHOT_REF,
 )
 
 _METADATA = ComponentMetadata(
@@ -40,8 +39,7 @@ _SPEC = NodeSpec(
     metadata=_METADATA,
     state_reads=[
         f"artifacts_index.{ARTIFACT_EXEC_PLAN_REF}",
-        f"inputs.{INPUT_DATA_SNAPSHOT_REF}",
-        f"inputs.{INPUT_STATE_SNAPSHOT_REF}",
+        f"inputs.{INPUT_INPUT_BINDINGS_REF}",
         f"inputs.{INPUT_REGISTRY_BUNDLE_REF}",
         "params.simulation_method",
     ],
@@ -107,15 +105,14 @@ class RunSimulationNode:
             metrics.record_slo_simulation_run("error", method=method)
             return NodeOutcome(status="fail", state=state, error=error)
 
-        data_snapshot_ref = state.inputs.get(INPUT_DATA_SNAPSHOT_REF)
-        state_snapshot_ref = state.inputs.get(INPUT_STATE_SNAPSHOT_REF)
-        if data_snapshot_ref is not None:
-            state_snapshot_ref = None
-        if data_snapshot_ref is None and state_snapshot_ref is None:
+        input_bindings_ref = state.inputs.get(INPUT_INPUT_BINDINGS_REF)
+        if input_bindings_ref is None:
             error = NodeError(
                 code=node_errors.ERROR_MISSING_INPUT,
-                message="Missing data_snapshot_ref or state_snapshot_ref for simulation",
-                details={"required": [INPUT_DATA_SNAPSHOT_REF, INPUT_STATE_SNAPSHOT_REF]},
+                message=(
+                    "Missing input source for simulation: input_bindings_ref is required"
+                ),
+                details={"required": [INPUT_INPUT_BINDINGS_REF]},
             )
             metrics.record_slo_simulation_run("error", method=method)
             return NodeOutcome(status="fail", state=state, error=error)
@@ -124,8 +121,7 @@ class RunSimulationNode:
 
         request = ExecuteRequest(
             exec_plan_ref=exec_plan_ref,
-            data_snapshot_ref=data_snapshot_ref,
-            state_snapshot_ref=state_snapshot_ref,
+            input_bindings_ref=input_bindings_ref,
             registry_bundle_ref=registry_ref,
             exec_config=self.exec_config,
         )

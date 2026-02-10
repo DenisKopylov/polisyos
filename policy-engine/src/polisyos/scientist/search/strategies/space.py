@@ -24,11 +24,16 @@ class SearchSpace:
     """
 
     bounds: list[ParameterBounds] = field(default_factory=list)
+    _expanded: list[tuple[ParameterBounds, int | None]] = field(
+        init=False,
+        repr=False,
+        default_factory=list,
+    )
 
     def __post_init__(self) -> None:
         if not self.bounds:
             raise ValueError("SearchSpace must contain at least one parameter")
-        self._expanded: list[tuple[ParameterBounds, int | None]] = []
+        self._expanded.clear()
         for bound in self.bounds:
             if bound.dtype == ParameterType.CATEGORICAL:
                 assert bound.categories is not None
@@ -143,4 +148,3 @@ class SearchSpace:
             ],
             dim=0,
         )
-

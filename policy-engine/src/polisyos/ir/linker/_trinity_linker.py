@@ -4,8 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from polisyos.core.canon import content_hash
-from polisyos.ir.canon import CanonViolation, to_canonical_bytes
+from polisyos.ir.canon import CanonViolation, content_hash, to_canonical_bytes
 from polisyos.ir.kernel.mechanisms import resolve_mechanism_slots
 from polisyos.ir.governance.schedule import schedule_range
 from polisyos.ir.registry_fragments import RegistryBundle

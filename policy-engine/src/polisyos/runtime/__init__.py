@@ -4,13 +4,6 @@ import importlib
 from typing import Any
 
 __all__ = [
-    "RunManifest",
-    "append_audit",
-    "finalize_run",
-    "log_artifact",
-    "resolve_artifact_path",
-    "start_run",
-    "update_budget_usage",
     "ReplayStrategy",
     "ReplayPlan",
     "CompletenessLevel",
@@ -24,13 +17,6 @@ __all__ = [
 ]
 
 _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
-    "append_audit": ("polisyos.runtime.api", "append_audit"),
-    "finalize_run": ("polisyos.runtime.api", "finalize_run"),
-    "log_artifact": ("polisyos.runtime.api", "log_artifact"),
-    "resolve_artifact_path": ("polisyos.runtime.api", "resolve_artifact_path"),
-    "start_run": ("polisyos.runtime.api", "start_run"),
-    "update_budget_usage": ("polisyos.runtime.api", "update_budget_usage"),
-    "RunManifest": ("polisyos.runtime.manifest", "RunManifest"),
     "CompletenessLevel": ("polisyos.runtime.replay", "CompletenessLevel"),
     "CompletenessReport": ("polisyos.runtime.replay", "CompletenessReport"),
     "ReplayPlan": ("polisyos.runtime.replay", "ReplayPlan"),

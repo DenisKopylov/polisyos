@@ -22,27 +22,83 @@ class ParameterCodec(Protocol):
         """Materialize full policy candidate from strategy parameter dictionary."""
 
 
+def _segment_index(segment: str) -> int | None:
+    if not segment:
+        return None
+    if segment.isdigit():
+        return int(segment)
+    return None
+
+
 def _get_path(payload: dict[str, Any], dotted: str) -> Any:
     current: Any = payload
     for segment in dotted.split("."):
-        if not isinstance(current, dict):
-            return None
-        if segment not in current:
-            return None
-        current = current[segment]
+        if isinstance(current, dict):
+            if segment not in current:
+                return None
+            current = current[segment]
+            continue
+        if isinstance(current, list):
+            index = _segment_index(segment)
+            if index is None or index >= len(current):
+                return None
+            current = current[index]
+            continue
+        return None
     return current
 
 
 def _set_path(payload: dict[str, Any], dotted: str, value: Any) -> None:
-    current = payload
+    current: Any = payload
     segments = dotted.split(".")
-    for segment in segments[:-1]:
-        next_value = current.get(segment)
-        if not isinstance(next_value, dict):
-            next_value = {}
-            current[segment] = next_value
-        current = next_value
-    current[segments[-1]] = value
+    for idx, segment in enumerate(segments[:-1]):
+        next_segment = segments[idx + 1]
+        next_is_index = _segment_index(next_segment) is not None
+
+        if isinstance(current, dict):
+            next_value = current.get(segment)
+            if next_is_index:
+                if not isinstance(next_value, list):
+                    next_value = []
+                    current[segment] = next_value
+            else:
+                if not isinstance(next_value, dict):
+                    next_value = {}
+                    current[segment] = next_value
+            current = next_value
+            continue
+
+        if isinstance(current, list):
+            current_index = _segment_index(segment)
+            if current_index is None:
+                return
+            while len(current) <= current_index:
+                current.append([] if next_is_index else {})
+            next_value = current[current_index]
+            if next_is_index:
+                if not isinstance(next_value, list):
+                    next_value = []
+                    current[current_index] = next_value
+            else:
+                if not isinstance(next_value, dict):
+                    next_value = {}
+                    current[current_index] = next_value
+            current = next_value
+            continue
+
+        return
+
+    last = segments[-1]
+    if isinstance(current, dict):
+        current[last] = value
+        return
+    if isinstance(current, list):
+        index = _segment_index(last)
+        if index is None:
+            return
+        while len(current) <= index:
+            current.append(None)
+        current[index] = value
 
 
 @dataclass(slots=True)
@@ -94,4 +150,3 @@ class ScalarParameterCodec:
             path = self.parameter_paths.get(param_name, param_name)
             _set_path(output, path, value)
         return output
-

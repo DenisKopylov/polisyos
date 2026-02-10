@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "metrics": {
+    "simulation.run_scan": {
+      "median_ms": 45.0,
+      "p95_ms": 50.0,
+      "max_regression_pct": 80.0,
+      "absolute_slack_ms": 6.0
+    },
+    "simulation.execute_program_batch": {
+      "median_ms": 80.0,
+      "p95_ms": 95.0,
+      "max_regression_pct": 80.0,
+      "absolute_slack_ms": 10.0
+    },
+    "cas.put_bytes": {
+      "median_ms": 0.75,
+      "p95_ms": 1.0,
+      "max_regression_pct": 300.0,
+      "absolute_slack_ms": 5.0
+    },
+    "cas.get_bytes": {
+      "median_ms": 0.04,
+      "p95_ms": 0.06,
+      "max_regression_pct": 500.0,
+      "absolute_slack_ms": 1.0
+    },
+    "calibration.metrics_collection": {
+      "median_ms": 0.22,
+      "p95_ms": 0.30,
+      "max_regression_pct": 500.0,
+      "absolute_slack_ms": 1.0
+    }
+  }
+}

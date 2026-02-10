@@ -9,7 +9,7 @@ import jax.numpy as jnp
 from polisyos.foundry.agent_sim.mechanism import Mechanism, MechanismSpec
 from polisyos.foundry.agent_sim.policy import SharedPolicy, build_observations
 from polisyos.foundry.agent_sim.state import GlobalState
-from polisyos.foundry.types import FidelityLevel
+from polisyos.foundry.contracts.fidelity import FidelityLevel
 
 
 @dataclass(frozen=True)

@@ -11,7 +11,12 @@ from datetime import datetime, timezone
 import pandas as pd
 import pytest
 
-from polisyos.fabric.connectors.base import ConnectionConfig, FetchRequest, FetchResult
+from polisyos.fabric.connectors.base import (
+    ConnectionConfig,
+    FetchRequest,
+    FetchResult,
+    HealthStatus,
+)
 from polisyos.fabric.connectors.contracts.schema import DataSchema, FieldSpec, SchemaType, SchemaVersion
 from polisyos.fabric.connectors.reference.static_csv import StaticCSVConnector
 from polisyos.fabric.connectors.testing import ConnectorTestHarness
@@ -88,7 +93,11 @@ class TestStaticCSVCompliance(ConnectorTestHarness):
                 quality_tier=QualityTier.SILVER,
             )
 
+        async def mock_health_check(handle):
+            return HealthStatus(healthy=True, message="mocked")
+
         connector.fetch = mock_fetch
+        connector.health_check = mock_health_check
         return connector
 
 

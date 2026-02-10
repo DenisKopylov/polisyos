@@ -11,7 +11,7 @@ from polisyos.core.contracts.fabric import DataSnapshot, DataSnapshotRef
 from polisyos.core.contracts.foundry import ExecPlanRef, Metrics, MetricsRef, SimulationResult, StateSnapshotRef
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
-from polisyos.foundry.domain.state import GlobalState
+from polisyos.foundry.contracts.state import GlobalState
 from polisyos.foundry.executor import put_state_snapshot
 from polisyos.ir.analytics.distributional import CohortDimension, load_distributional_report
 from polisyos.scientist.engine.context import ExecutionContext

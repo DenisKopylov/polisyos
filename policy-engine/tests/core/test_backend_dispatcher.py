@@ -6,7 +6,7 @@ from concurrent.futures import ThreadPoolExecutor
 import pytest
 
 from polisyos.core.backends import BackendDispatcher, BackendNotAvailableError
-from polisyos.scientist.governance.passes.legal_pass import LegalPass
+from polisyos.core.governance.passes.legal_pass import LegalPass
 
 
 def test_dispatcher_register_and_resolve() -> None:

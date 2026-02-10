@@ -232,7 +232,11 @@ def bootstrap_component_extractors(components_index: ComponentRegistry) -> Extra
 def discover_and_bootstrap_extractors(
     *,
     include_dev_scan: bool = True,
+    components_index: ComponentRegistry | None = None,
 ) -> ExtractorBootstrapReport:
+    if components_index is not None:
+        return bootstrap_component_extractors(components_index)
+
     discovered = discover_components(
         groups=[
             ENTRY_POINT_GROUP_SCHOLAR_EXTRACTORS,

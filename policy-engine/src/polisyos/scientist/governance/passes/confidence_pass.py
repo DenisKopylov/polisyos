@@ -9,7 +9,7 @@ from polisyos.core.contracts.foundry import SimulationResult
 from polisyos.core.contracts.lex import ComplianceIssue, IssueSeverity
 from polisyos.ir.analytics.uncertainty import load_uncertainty_envelope
 
-from .base import PassContext, ValidatorPass
+from polisyos.core.governance.passes.base import PassContext, ValidatorPass
 
 
 class ConfidencePass(ValidatorPass):

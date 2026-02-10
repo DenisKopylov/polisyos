@@ -151,8 +151,8 @@ class TestQualityGatePassIntegration:
 
     def test_strict_profile_blocks_on_poor_quality(self) -> None:
         from polisyos.scientist.governance.passes.quality_gate_pass import QualityGatePass
-        from polisyos.scientist.governance.passes.base import PassContext, IssueSeverity
-        from polisyos.scientist.governance.profiles import ValidationProfile
+        from polisyos.core.governance.passes.base import PassContext, IssueSeverity
+        from polisyos.core.governance.profiles import ValidationProfile
 
         quality_pass = QualityGatePass(force_run=True, critical_metrics=["test_metric"])
 
@@ -173,15 +173,15 @@ class TestQualityGatePassIntegration:
         assert len(blockers) > 0
 
     def test_fast_profile_allows_poor_quality(self) -> None:
-        from polisyos.scientist.governance.profiles import ValidationProfile
+        from polisyos.core.governance.profiles import ValidationProfile
 
         profile = ValidationProfile.fast()
         assert "quality" not in profile.pass_ids
 
     def test_fitness_report_attached_to_state(self) -> None:
         from polisyos.scientist.governance.passes.quality_gate_pass import QualityGatePass
-        from polisyos.scientist.governance.passes.base import PassContext
-        from polisyos.scientist.governance.profiles import ValidationProfile
+        from polisyos.core.governance.passes.base import PassContext
+        from polisyos.core.governance.profiles import ValidationProfile
 
         quality_pass = QualityGatePass(force_run=True)
 

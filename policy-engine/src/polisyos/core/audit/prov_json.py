@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 from typing import Any
 
 from polisyos.core.canon import truncated_hash
-from polisyos.fabric.provenance.core import (
+from polisyos.core.contracts.provenance import (
     ActivityType,
     AgentType,
     EntityType,

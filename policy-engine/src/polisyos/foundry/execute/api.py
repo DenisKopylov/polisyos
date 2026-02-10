@@ -1,20 +1,23 @@
 from __future__ import annotations
 
+from dataclasses import dataclass
+
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import from_canonical_bytes
-from polisyos.core.contracts.fabric import DataSnapshot
 from polisyos.core.contracts.foundry import (
     DerivedArtifact,
     ExecPlan,
     ExecuteRequest,
     ExecuteResult,
+    FoundryInputBindingsRef,
     MetricsRef,
     SimulationResult,
     SimulationResultRef,
     StateSnapshotRef,
 )
 from polisyos.core.registry import load_registry_bundle_content
+from polisyos.foundry.data_plane import load_input_bindings
 from polisyos.foundry.executor import (
     apply_state_delta_and_snapshot,
     execute_program_graph,
@@ -22,8 +25,16 @@ from polisyos.foundry.executor import (
 )
 
 
+@dataclass(frozen=True)
+class _ResolvedStateSource:
+    state_snapshot_ref: StateSnapshotRef
+    notes: tuple[str, ...]
+    input_refs: tuple[InputRef, ...]
+
+
 def execute(store: FileSystemCAS, request: ExecuteRequest) -> ExecuteResult:
-    state_snapshot_ref = _resolve_state_snapshot(store, request)
+    resolved_state = _resolve_state_snapshot(store, request)
+    state_snapshot_ref = resolved_state.state_snapshot_ref
     registry_bundle_ref = request.registry_bundle_ref
     if registry_bundle_ref is None:
         raise ValueError("registry_bundle_ref is required for execute()")
@@ -71,15 +82,16 @@ def execute(store: FileSystemCAS, request: ExecuteRequest) -> ExecuteResult:
         InputRef(artifact_id=exec_artifacts.state_delta_ref.artifact_id, role="state_delta"),
         InputRef(artifact_id=applied.state_snapshot_ref.artifact_id, role="state_snapshot"),
     ]
+    sim_inputs.extend(resolved_state.input_refs)
     sim_result_ref = store.put_json(
         sim_result,
         PutOptions(
-                kind="foundry.simulation_result",
-                media_type="application/json",
-                schema=SchemaInfo(name="polisyos.core.SimulationResult", version="1.1"),
-                inputs=sim_inputs,
-            ),
-        )
+            kind="foundry.simulation_result",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.core.SimulationResult", version="1.1"),
+            inputs=sim_inputs,
+        ),
+    )
 
     derived_refs = [
         DerivedArtifact(role="metrics", ref=exec_artifacts.metrics_ref),
@@ -98,27 +110,39 @@ def execute(store: FileSystemCAS, request: ExecuteRequest) -> ExecuteResult:
         ok=True,
         simulation_result_ref=SimulationResultRef(artifact_id=sim_result_ref.artifact_id),
         derived_refs=derived_refs,
-        notes=[],
+        notes=list(resolved_state.notes),
     )
 
 
-def _resolve_state_snapshot(store: FileSystemCAS, request: ExecuteRequest) -> StateSnapshotRef:
-    if request.state_snapshot_ref is not None and request.data_snapshot_ref is not None:
-        raise ValueError("Only one of state_snapshot_ref or data_snapshot_ref may be set")
-    if request.state_snapshot_ref is not None:
-        return request.state_snapshot_ref
-    if request.data_snapshot_ref is None:
-        raise ValueError("Either state_snapshot_ref or data_snapshot_ref must be set")
-    snapshot_payload = from_canonical_bytes(
-        store.get_bytes(request.data_snapshot_ref.artifact_id)
+def _resolve_state_snapshot(store: FileSystemCAS, request: ExecuteRequest) -> _ResolvedStateSource:
+    bindings_ref = FoundryInputBindingsRef.model_validate(
+        request.input_bindings_ref.model_dump()
     )
-    snapshot = DataSnapshot.model_validate(snapshot_payload)
-    if snapshot.data_ref.kind != "foundry.state_snapshot":
-        raise ValueError(
-            "DataSnapshot.data_ref.kind must be foundry.state_snapshot, "
-            f"got {snapshot.data_ref.kind}"
-        )
-    return StateSnapshotRef(artifact_id=snapshot.data_ref.artifact_id)
+    bindings = load_input_bindings(store, bindings_ref)
+    _ensure_readable(store, bindings.data_snapshot_ref)
+    _ensure_readable(store, bindings.bound_state_snapshot_ref)
+    return _ResolvedStateSource(
+        state_snapshot_ref=bindings.bound_state_snapshot_ref,
+        notes=("state_source:input_bindings_ref",),
+        input_refs=(
+            InputRef(
+                artifact_id=bindings_ref.artifact_id,
+                role="input.input_bindings_ref",
+            ),
+            InputRef(
+                artifact_id=bindings.data_snapshot_ref.artifact_id,
+                role="input.data_snapshot_ref",
+            ),
+            InputRef(
+                artifact_id=bindings.bound_state_snapshot_ref.artifact_id,
+                role="input.bound_state_snapshot_ref",
+            ),
+        ),
+    )
+
+
+def _ensure_readable(store: FileSystemCAS, ref: ArtifactRef) -> None:
+    store.get_manifest(ref.artifact_id)
 
 
 def _load_model(store: FileSystemCAS, ref: ArtifactRef, model_cls):

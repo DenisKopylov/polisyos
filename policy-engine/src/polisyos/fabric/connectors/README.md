@@ -13,6 +13,7 @@ Fabric Layer (polisyos.fabric.connectors)
   ├── base.py          SourceConnector Protocol, ConnectionConfig/Handle
   ├── capabilities.py  @requires_capability, validate_protocol_compliance()
   ├── types.py         Error hierarchy, DatasetDescriptor, ValidationResult
+  ├── sources/         Production connectors + shared HTTP runtime (`http_base.py`, `http_common.py`)
   ├── registry.py      ConnectorRegistry singleton (lazy loading, secondary indices)
   ├── pool.py          ConnectionPool (health checks, eviction, concurrency)
   ├── discovery.py     Plugin discovery via entry points

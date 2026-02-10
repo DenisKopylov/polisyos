@@ -5,11 +5,13 @@ from __future__ import annotations
 import importlib
 from typing import Any
 
-__all__ = ["ExperimentState", "run_experiment"]
+__all__ = ["ExperimentState", "get_metrics", "get_tracer", "run_experiment"]
 
 _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "run_experiment": ("polisyos.scientist.api", "run_experiment"),
     "ExperimentState": ("polisyos.scientist.engine.state", "ExperimentState"),
+    "get_metrics": ("polisyos.core.observability", "get_metrics"),
+    "get_tracer": ("polisyos.core.observability", "get_tracer"),
 }
 
 

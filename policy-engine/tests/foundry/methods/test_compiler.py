@@ -5,8 +5,9 @@ from __future__ import annotations
 
 import concurrent.futures
 import time
-from typing import Any, ClassVar, Mapping, NamedTuple
+from typing import Any, Callable, Mapping, NamedTuple
 
+import numpy as np
 import pytest
 import jax.numpy as jnp
 
@@ -88,6 +89,9 @@ def create_test_method(
     output_slots: frozenset[SlotSpec],
     parameters: tuple[ParameterSpec, ...] = (),
     compute_fn: Any = None,
+    pure_step_factory: (
+        Callable[[Callable[[Any, Mapping[str, Any]], Any] | None], Any] | None
+    ) = None,
 ) -> type:
     sig = MethodSignature(
         name=name,
@@ -105,26 +109,36 @@ def create_test_method(
         tags=frozenset({"test"}),
     )
 
-    if compute_fn is None:
-        @staticmethod
-        def pure_step(state: Any, params: Mapping[str, Any]) -> Any:
-            return state
-    else:
-        @staticmethod
-        def pure_step(state: Any, params: Mapping[str, Any]) -> Any:
-            return compute_fn(state, params)
+    if pure_step_factory is None:
+        def pure_step_factory(
+            fn: Callable[[Any, Mapping[str, Any]], Any] | None = None,
+        ) -> Any:
+            if fn is None:
+                def _identity(state: Any, params: Mapping[str, Any]) -> Any:
+                    del params
+                    return state
 
-    class TestMethod:
-        signature: ClassVar[MethodSignature] = sig
-        metadata: ClassVar[MethodMetadata] = meta
-        pure_step = pure_step
+                return staticmethod(_identity)
+            return staticmethod(fn)
 
-    TestMethod.__name__ = name.replace("_", " ").title().replace(" ", "") + "Method"
-    return TestMethod
+    method_name = name.replace("_", " ").title().replace(" ", "") + "Method"
+    return type(
+        method_name,
+        (),
+        {
+            "signature": sig,
+            "metadata": meta,
+            "pure_step": pure_step_factory(compute_fn),
+        },
+    )
 
 
 @pytest.fixture
-def flat_tax_method(income_slot: SlotSpec, tax_slot: SlotSpec) -> type:
+def flat_tax_method(
+    income_slot: SlotSpec,
+    tax_slot: SlotSpec,
+    pure_step_factory: Callable[[Callable[[Any, Mapping[str, Any]], Any] | None], Any],
+) -> type:
     def compute(state: Any, params: Mapping[str, Any]) -> Any:
         rate = params.get("rate", 0.18)
         threshold = params.get("threshold", 0.0)
@@ -154,11 +168,16 @@ def flat_tax_method(income_slot: SlotSpec, tax_slot: SlotSpec) -> type:
             ),
         ),
         compute_fn=compute,
+        pure_step_factory=pure_step_factory,
     )
 
 
 @pytest.fixture
-def progressive_tax_method(income_slot: SlotSpec, tax_slot: SlotSpec) -> type:
+def progressive_tax_method(
+    income_slot: SlotSpec,
+    tax_slot: SlotSpec,
+    pure_step_factory: Callable[[Callable[[Any, Mapping[str, Any]], Any] | None], Any],
+) -> type:
     def compute(state: Any, params: Mapping[str, Any]) -> Any:
         rate1 = params.get("rate1", 0.10)
         rate2 = params.get("rate2", 0.20)
@@ -189,6 +208,7 @@ def progressive_tax_method(income_slot: SlotSpec, tax_slot: SlotSpec) -> type:
             ParameterSpec(name="bracket2", default=50000.0, is_static=True),
         ),
         compute_fn=compute,
+        pure_step_factory=pure_step_factory,
     )
 
 
@@ -229,7 +249,7 @@ class TestShapeSpec:
         assert spec.dtype == "float32"
 
     def test_from_array_2d(self):
-        arr = jnp.zeros((50, 10), dtype=jnp.float64)
+        arr = np.zeros((50, 10), dtype=np.float64)
         spec = ShapeSpec.from_array(arr)
         assert spec.shape == (50, 10)
         assert spec.dtype == "float64"
@@ -433,12 +453,12 @@ class TestSpecialization:
         spec1 = build_specialization(
             method_fqn="test.method@1.0.0",
             static_params={},
-            input_arrays={"x": jnp.zeros((100,), dtype=jnp.float32)},
+            input_arrays={"x": np.zeros((100,), dtype=np.float32)},
         )
         spec2 = build_specialization(
             method_fqn="test.method@1.0.0",
             static_params={},
-            input_arrays={"x": jnp.zeros((100,), dtype=jnp.float64)},
+            input_arrays={"x": np.zeros((100,), dtype=np.float64)},
         )
         assert spec1.cache_key != spec2.cache_key
 
@@ -870,7 +890,11 @@ class RevenueState(NamedTuple):
 
 
 class TestCompiledChainExecutor:
-    def test_chain_shape_inference_eager(self, sample_unit: Unit):
+    def test_chain_shape_inference_eager(
+        self,
+        sample_unit: Unit,
+        pure_step_factory: Callable[[Callable[[Any, Mapping[str, Any]], Any] | None], Any],
+    ):
         tax_slot = SlotSpec(
             name="tax",
             slot_type=SlotType.VECTOR,
@@ -903,6 +927,7 @@ class TestCompiledChainExecutor:
             input_slots=frozenset({tax_slot}),
             output_slots=frozenset({total_tax_slot}),
             compute_fn=compute_sum,
+            pure_step_factory=pure_step_factory,
         )
         revenue_method = create_test_method(
             name="revenue",
@@ -911,6 +936,7 @@ class TestCompiledChainExecutor:
             input_slots=frozenset({total_tax_slot}),
             output_slots=frozenset({revenue_slot}),
             compute_fn=compute_revenue,
+            pure_step_factory=pure_step_factory,
         )
 
         registry = MethodRegistry.get_instance()

@@ -2,10 +2,14 @@ from __future__ import annotations
 
 from typing import Any
 
-__all__ = ["LegalCheckNode", "RunGovernanceNode"]
+__all__ = ["DataPlaneGateNode", "LegalCheckNode", "RunGovernanceNode"]
 
 
 def __getattr__(name: str) -> Any:
+    if name == "DataPlaneGateNode":
+        from .data_plane_gate import DataPlaneGateNode
+
+        return DataPlaneGateNode
     if name == "LegalCheckNode":
         from .legal_check import LegalCheckNode
 

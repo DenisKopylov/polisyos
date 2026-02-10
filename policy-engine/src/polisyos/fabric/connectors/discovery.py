@@ -17,6 +17,7 @@ from __future__ import annotations
 import importlib
 import os
 import sys
+import warnings
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
@@ -473,6 +474,13 @@ def discover_connectors(
     Yields:
         Connector classes implementing SourceConnector protocol
     """
+    warnings.warn(
+        "discover_connectors() is deprecated as a primary runtime bootstrap path and "
+        "will be removed after 2026-05-31. Use core.components bootstrap with "
+        "entry-point group 'polisyos.fabric_connectors'.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
     discovery = ConnectorDiscovery()
     yield from discovery.discover_all(refresh=refresh, allow_paths=allow_paths)
 

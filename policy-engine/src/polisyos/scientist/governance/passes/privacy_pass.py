@@ -4,7 +4,7 @@ from typing import List
 
 from polisyos.ir.analytics.data_views import AccessTier
 
-from .base import ValidatorPass, PassContext, ComplianceIssue, IssueSeverity
+from polisyos.core.governance.passes.base import ValidatorPass, PassContext, ComplianceIssue, IssueSeverity
 
 
 def _access_tier_from_request(request: object) -> str | None:

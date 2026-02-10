@@ -13,7 +13,7 @@ from typing import Any, Generic, TypeAlias, TypeVar
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
-from polisyos.core.canon import content_hash
+from polisyos.ir.canon import content_hash
 from polisyos.ir.refs import EvidenceBundleRef
 
 

@@ -54,12 +54,22 @@ def build_success_report(
 ) -> CausalEffectReport:
     payload = dict(kwargs)
     payload.setdefault("diagnostics", diagnostics or [])
+    point = float(point_estimate)
+    lower = float(confidence_interval[0])
+    upper = float(confidence_interval[1])
+    if lower > upper:
+        lower, upper = upper, lower
+    if point < lower:
+        lower = point
+    elif point > upper:
+        upper = point
+
     return CausalEffectReport(
         method=method,
         status=EstimationStatus.SUCCESS,
         estimand=estimand,
-        point_estimate=float(point_estimate),
-        confidence_interval=(float(confidence_interval[0]), float(confidence_interval[1])),
+        point_estimate=point,
+        confidence_interval=(lower, upper),
         inference_method=inference_method,
         sample_size=sample_size,
         n_treated=n_treated,

@@ -9,6 +9,7 @@ class Capability(IntFlag):
     # Type capabilities
     IR_FRAGMENT = auto()
     FOUNDRY_METHOD = auto()
+    FABRIC_CONNECTOR = auto()
     SCHOLAR_EXTRACTOR = auto()
     LEX_EXTRACTOR = auto()
     LEX_EVALUATOR = auto()

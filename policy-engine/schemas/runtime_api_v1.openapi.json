@@ -1,0 +1,2270 @@
+{
+  "components": {
+    "schemas": {
+      "ApiMeta": {
+        "additionalProperties": false,
+        "properties": {
+          "generated_at": {
+            "format": "date-time",
+            "title": "Generated At",
+            "type": "string"
+          },
+          "request_id": {
+            "title": "Request Id",
+            "type": "string"
+          },
+          "source_kinds": {
+            "items": {
+              "const": "core_run",
+              "type": "string"
+            },
+            "title": "Source Kinds",
+            "type": "array"
+          }
+        },
+        "required": [
+          "request_id"
+        ],
+        "title": "ApiMeta",
+        "type": "object"
+      },
+      "ArtifactContentPreview": {
+        "additionalProperties": false,
+        "properties": {
+          "artifact_id": {
+            "title": "Artifact Id",
+            "type": "string"
+          },
+          "kind": {
+            "title": "Kind",
+            "type": "string"
+          },
+          "max_bytes": {
+            "minimum": 1.0,
+            "title": "Max Bytes",
+            "type": "integer"
+          },
+          "media_type": {
+            "title": "Media Type",
+            "type": "string"
+          },
+          "mode": {
+            "enum": [
+              "json",
+              "text",
+              "binary"
+            ],
+            "title": "Mode",
+            "type": "string"
+          },
+          "preview": {
+            "title": "Preview"
+          },
+          "size_bytes": {
+            "minimum": 0.0,
+            "title": "Size Bytes",
+            "type": "integer"
+          },
+          "truncated": {
+            "default": false,
+            "title": "Truncated",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "artifact_id",
+          "kind",
+          "media_type",
+          "mode",
+          "size_bytes",
+          "max_bytes"
+        ],
+        "title": "ArtifactContentPreview",
+        "type": "object"
+      },
+      "ArtifactContentResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "artifact": {
+            "$ref": "#/components/schemas/ArtifactContentPreview"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/ApiMeta"
+          }
+        },
+        "required": [
+          "meta",
+          "artifact"
+        ],
+        "title": "ArtifactContentResponse",
+        "type": "object"
+      },
+      "ArtifactID": {
+        "description": "Format: sha256:<64hex>",
+        "title": "ArtifactID",
+        "type": "string"
+      },
+      "ArtifactLineageEdge": {
+        "additionalProperties": false,
+        "properties": {
+          "child_artifact_id": {
+            "title": "Child Artifact Id",
+            "type": "string"
+          },
+          "parent_artifact_id": {
+            "title": "Parent Artifact Id",
+            "type": "string"
+          },
+          "role": {
+            "title": "Role",
+            "type": "string"
+          }
+        },
+        "required": [
+          "parent_artifact_id",
+          "child_artifact_id",
+          "role"
+        ],
+        "title": "ArtifactLineageEdge",
+        "type": "object"
+      },
+      "ArtifactLineageNode": {
+        "additionalProperties": false,
+        "properties": {
+          "artifact_id": {
+            "title": "Artifact Id",
+            "type": "string"
+          },
+          "byte_size": {
+            "default": 0,
+            "minimum": 0.0,
+            "title": "Byte Size",
+            "type": "integer"
+          },
+          "depth": {
+            "default": 0,
+            "minimum": 0.0,
+            "title": "Depth",
+            "type": "integer"
+          },
+          "kind": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Kind"
+          },
+          "role": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Role"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "artifact_id",
+          "status"
+        ],
+        "title": "ArtifactLineageNode",
+        "type": "object"
+      },
+      "ArtifactLineageResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "lineage": {
+            "$ref": "#/components/schemas/ArtifactLineageView"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/ApiMeta"
+          }
+        },
+        "required": [
+          "meta",
+          "lineage"
+        ],
+        "title": "ArtifactLineageResponse",
+        "type": "object"
+      },
+      "ArtifactLineageView": {
+        "additionalProperties": false,
+        "properties": {
+          "corrupted_artifact_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Corrupted Artifact Ids",
+            "type": "array"
+          },
+          "edges": {
+            "items": {
+              "$ref": "#/components/schemas/ArtifactLineageEdge"
+            },
+            "title": "Edges",
+            "type": "array"
+          },
+          "is_complete": {
+            "default": false,
+            "title": "Is Complete",
+            "type": "boolean"
+          },
+          "missing_artifact_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Missing Artifact Ids",
+            "type": "array"
+          },
+          "nodes": {
+            "items": {
+              "$ref": "#/components/schemas/ArtifactLineageNode"
+            },
+            "title": "Nodes",
+            "type": "array"
+          },
+          "root_artifact_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Root Artifact Ids",
+            "type": "array"
+          },
+          "total_edges": {
+            "default": 0,
+            "minimum": 0.0,
+            "title": "Total Edges",
+            "type": "integer"
+          },
+          "total_nodes": {
+            "default": 0,
+            "minimum": 0.0,
+            "title": "Total Nodes",
+            "type": "integer"
+          },
+          "total_size_bytes": {
+            "default": 0,
+            "minimum": 0.0,
+            "title": "Total Size Bytes",
+            "type": "integer"
+          }
+        },
+        "title": "ArtifactLineageView",
+        "type": "object"
+      },
+      "ArtifactManifestResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "artifact": {
+            "$ref": "#/components/schemas/ArtifactManifestView"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/ApiMeta"
+          }
+        },
+        "required": [
+          "meta",
+          "artifact"
+        ],
+        "title": "ArtifactManifestResponse",
+        "type": "object"
+      },
+      "ArtifactManifestView": {
+        "additionalProperties": false,
+        "properties": {
+          "artifact_id": {
+            "title": "Artifact Id",
+            "type": "string"
+          },
+          "byte_size": {
+            "minimum": 0.0,
+            "title": "Byte Size",
+            "type": "integer"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "inputs": {
+            "items": {
+              "$ref": "#/components/schemas/InputRef"
+            },
+            "title": "Inputs",
+            "type": "array"
+          },
+          "integrity_sha256": {
+            "title": "Integrity Sha256",
+            "type": "string"
+          },
+          "kind": {
+            "title": "Kind",
+            "type": "string"
+          },
+          "media_type": {
+            "title": "Media Type",
+            "type": "string"
+          },
+          "producer_component": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Producer Component"
+          },
+          "producer_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Producer Version"
+          },
+          "schema_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Schema Name"
+          },
+          "schema_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Schema Version"
+          }
+        },
+        "required": [
+          "artifact_id",
+          "kind",
+          "media_type",
+          "byte_size",
+          "created_at",
+          "integrity_sha256"
+        ],
+        "title": "ArtifactManifestView",
+        "type": "object"
+      },
+      "ArtifactRef": {
+        "additionalProperties": false,
+        "properties": {
+          "artifact_id": {
+            "$ref": "#/components/schemas/ArtifactID"
+          },
+          "kind": {
+            "title": "Kind",
+            "type": "string"
+          },
+          "media_type": {
+            "title": "Media Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "artifact_id",
+          "kind",
+          "media_type"
+        ],
+        "title": "ArtifactRef",
+        "type": "object"
+      },
+      "ArtifactSchemaResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "meta": {
+            "$ref": "#/components/schemas/ApiMeta"
+          },
+          "schema": {
+            "$ref": "#/components/schemas/ArtifactSchemaView"
+          }
+        },
+        "required": [
+          "meta",
+          "schema"
+        ],
+        "title": "ArtifactSchemaResponse",
+        "type": "object"
+      },
+      "ArtifactSchemaView": {
+        "additionalProperties": false,
+        "properties": {
+          "artifact_id": {
+            "title": "Artifact Id",
+            "type": "string"
+          },
+          "kind": {
+            "title": "Kind",
+            "type": "string"
+          },
+          "media_type": {
+            "title": "Media Type",
+            "type": "string"
+          },
+          "schema_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Schema Name"
+          },
+          "schema_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Schema Version"
+          },
+          "top_level_keys": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Top Level Keys",
+            "type": "array"
+          }
+        },
+        "required": [
+          "artifact_id",
+          "kind",
+          "media_type"
+        ],
+        "title": "ArtifactSchemaView",
+        "type": "object"
+      },
+      "CursorPage": {
+        "additionalProperties": false,
+        "properties": {
+          "count": {
+            "default": 0,
+            "minimum": 0.0,
+            "title": "Count",
+            "type": "integer"
+          },
+          "cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cursor"
+          },
+          "limit": {
+            "default": 50,
+            "maximum": 200.0,
+            "minimum": 1.0,
+            "title": "Limit",
+            "type": "integer"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Cursor"
+          },
+          "total": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Total"
+          }
+        },
+        "title": "CursorPage",
+        "type": "object"
+      },
+      "GovernanceDebugResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "debug": {
+            "$ref": "#/components/schemas/GovernanceDebugView"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/ApiMeta"
+          }
+        },
+        "required": [
+          "meta",
+          "debug"
+        ],
+        "title": "GovernanceDebugResponse",
+        "type": "object"
+      },
+      "GovernanceDebugView": {
+        "additionalProperties": false,
+        "properties": {
+          "fallback_from_decision_packet": {
+            "default": false,
+            "title": "Fallback From Decision Packet",
+            "type": "boolean"
+          },
+          "issues": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Issues",
+            "type": "array"
+          },
+          "notes": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Notes",
+            "type": "array"
+          },
+          "report_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "run_id": {
+            "title": "Run Id",
+            "type": "string"
+          },
+          "source_kind": {
+            "const": "core_run",
+            "title": "Source Kind",
+            "type": "string"
+          },
+          "validation_trace": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Validation Trace"
+          },
+          "verdict": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Verdict"
+          }
+        },
+        "required": [
+          "run_id",
+          "source_kind"
+        ],
+        "title": "GovernanceDebugView",
+        "type": "object"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "title": "Detail",
+            "type": "array"
+          }
+        },
+        "title": "HTTPValidationError",
+        "type": "object"
+      },
+      "InputRef": {
+        "additionalProperties": false,
+        "properties": {
+          "artifact_id": {
+            "$ref": "#/components/schemas/ArtifactID"
+          },
+          "role": {
+            "title": "Role",
+            "type": "string"
+          }
+        },
+        "required": [
+          "artifact_id",
+          "role"
+        ],
+        "title": "InputRef",
+        "type": "object"
+      },
+      "NodeDebugResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "debug": {
+            "$ref": "#/components/schemas/NodeDebugView"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/ApiMeta"
+          }
+        },
+        "required": [
+          "meta",
+          "debug"
+        ],
+        "title": "NodeDebugResponse",
+        "type": "object"
+      },
+      "NodeDebugView": {
+        "additionalProperties": false,
+        "properties": {
+          "alias": {
+            "title": "Alias",
+            "type": "string"
+          },
+          "cache_bypasses": {
+            "default": 0,
+            "minimum": 0.0,
+            "title": "Cache Bypasses",
+            "type": "integer"
+          },
+          "cache_hits": {
+            "default": 0,
+            "minimum": 0.0,
+            "title": "Cache Hits",
+            "type": "integer"
+          },
+          "cache_stores": {
+            "default": 0,
+            "minimum": 0.0,
+            "title": "Cache Stores",
+            "type": "integer"
+          },
+          "notes": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Notes",
+            "type": "array"
+          },
+          "record": {
+            "$ref": "#/components/schemas/RunNodeRecord"
+          },
+          "run_id": {
+            "title": "Run Id",
+            "type": "string"
+          },
+          "source_kind": {
+            "const": "core_run",
+            "title": "Source Kind",
+            "type": "string"
+          },
+          "timeline_events": {
+            "items": {
+              "$ref": "#/components/schemas/RunTimelineEvent"
+            },
+            "title": "Timeline Events",
+            "type": "array"
+          }
+        },
+        "required": [
+          "run_id",
+          "source_kind",
+          "alias",
+          "record"
+        ],
+        "title": "NodeDebugView",
+        "type": "object"
+      },
+      "RunDetails": {
+        "additionalProperties": false,
+        "properties": {
+          "cell_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cell Id"
+          },
+          "duration_ms": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Duration Ms"
+          },
+          "finished_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Finished At"
+          },
+          "has_trace": {
+            "default": false,
+            "title": "Has Trace",
+            "type": "boolean"
+          },
+          "has_workflow_report": {
+            "default": false,
+            "title": "Has Workflow Report",
+            "type": "boolean"
+          },
+          "manifest_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "root_artifacts": {
+            "items": {
+              "$ref": "#/components/schemas/ArtifactRef"
+            },
+            "title": "Root Artifacts",
+            "type": "array"
+          },
+          "run_id": {
+            "title": "Run Id",
+            "type": "string"
+          },
+          "source_kind": {
+            "const": "core_run",
+            "title": "Source Kind",
+            "type": "string"
+          },
+          "started_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Started At"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "tenant_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tenant Id"
+          },
+          "trace_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Warnings",
+            "type": "array"
+          },
+          "workflow_report_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "run_id",
+          "source_kind",
+          "status"
+        ],
+        "title": "RunDetails",
+        "type": "object"
+      },
+      "RunDetailsResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "meta": {
+            "$ref": "#/components/schemas/ApiMeta"
+          },
+          "run": {
+            "$ref": "#/components/schemas/RunDetails"
+          }
+        },
+        "required": [
+          "meta",
+          "run"
+        ],
+        "title": "RunDetailsResponse",
+        "type": "object"
+      },
+      "RunErrorView": {
+        "additionalProperties": false,
+        "properties": {
+          "code": {
+            "title": "Code",
+            "type": "string"
+          },
+          "details": {
+            "additionalProperties": true,
+            "title": "Details",
+            "type": "object"
+          },
+          "message": {
+            "title": "Message",
+            "type": "string"
+          },
+          "node_alias": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Node Alias"
+          },
+          "source": {
+            "enum": [
+              "manifest",
+              "workflow_report",
+              "trace",
+              "runtime"
+            ],
+            "title": "Source",
+            "type": "string"
+          },
+          "timestamp": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Timestamp"
+          }
+        },
+        "required": [
+          "source",
+          "code",
+          "message"
+        ],
+        "title": "RunErrorView",
+        "type": "object"
+      },
+      "RunErrorsResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "errors": {
+            "items": {
+              "$ref": "#/components/schemas/RunErrorView"
+            },
+            "title": "Errors",
+            "type": "array"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/ApiMeta"
+          },
+          "run_id": {
+            "title": "Run Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "meta",
+          "run_id"
+        ],
+        "title": "RunErrorsResponse",
+        "type": "object"
+      },
+      "RunLineageResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "lineage": {
+            "$ref": "#/components/schemas/ArtifactLineageView"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/ApiMeta"
+          },
+          "run_id": {
+            "title": "Run Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "meta",
+          "run_id",
+          "lineage"
+        ],
+        "title": "RunLineageResponse",
+        "type": "object"
+      },
+      "RunNodeRecord": {
+        "additionalProperties": false,
+        "properties": {
+          "alias": {
+            "title": "Alias",
+            "type": "string"
+          },
+          "artifact_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Artifact Ids",
+            "type": "array"
+          },
+          "duration_ms": {
+            "default": 0,
+            "minimum": 0.0,
+            "title": "Duration Ms",
+            "type": "integer"
+          },
+          "error_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Code"
+          },
+          "error_details": {
+            "additionalProperties": true,
+            "title": "Error Details",
+            "type": "object"
+          },
+          "error_message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Message"
+          },
+          "input_artifact_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Input Artifact Ids",
+            "type": "array"
+          },
+          "node_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Node Id"
+          },
+          "output_artifact_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Output Artifact Ids",
+            "type": "array"
+          },
+          "skip_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Skip Reason"
+          },
+          "status": {
+            "default": "unknown",
+            "enum": [
+              "ok",
+              "skip",
+              "fail",
+              "unknown"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "alias"
+        ],
+        "title": "RunNodeRecord",
+        "type": "object"
+      },
+      "RunNodesResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "meta": {
+            "$ref": "#/components/schemas/ApiMeta"
+          },
+          "nodes": {
+            "items": {
+              "$ref": "#/components/schemas/RunNodeRecord"
+            },
+            "title": "Nodes",
+            "type": "array"
+          },
+          "run_id": {
+            "title": "Run Id",
+            "type": "string"
+          },
+          "source_kind": {
+            "const": "core_run",
+            "title": "Source Kind",
+            "type": "string"
+          }
+        },
+        "required": [
+          "meta",
+          "run_id",
+          "source_kind"
+        ],
+        "title": "RunNodesResponse",
+        "type": "object"
+      },
+      "RunSummary": {
+        "additionalProperties": false,
+        "properties": {
+          "cell_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cell Id"
+          },
+          "duration_ms": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Duration Ms"
+          },
+          "finished_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Finished At"
+          },
+          "has_trace": {
+            "default": false,
+            "title": "Has Trace",
+            "type": "boolean"
+          },
+          "has_workflow_report": {
+            "default": false,
+            "title": "Has Workflow Report",
+            "type": "boolean"
+          },
+          "root_artifact_count": {
+            "default": 0,
+            "minimum": 0.0,
+            "title": "Root Artifact Count",
+            "type": "integer"
+          },
+          "run_id": {
+            "title": "Run Id",
+            "type": "string"
+          },
+          "source_kind": {
+            "const": "core_run",
+            "title": "Source Kind",
+            "type": "string"
+          },
+          "started_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Started At"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "tenant_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tenant Id"
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Warnings",
+            "type": "array"
+          }
+        },
+        "required": [
+          "run_id",
+          "source_kind",
+          "status"
+        ],
+        "title": "RunSummary",
+        "type": "object"
+      },
+      "RunTimelineEvent": {
+        "additionalProperties": false,
+        "properties": {
+          "error_count": {
+            "default": 0,
+            "minimum": 0.0,
+            "title": "Error Count",
+            "type": "integer"
+          },
+          "event": {
+            "title": "Event",
+            "type": "string"
+          },
+          "index": {
+            "minimum": 0.0,
+            "title": "Index",
+            "type": "integer"
+          },
+          "input_artifact_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Input Artifact Ids",
+            "type": "array"
+          },
+          "metrics": {
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "number"
+                }
+              ]
+            },
+            "title": "Metrics",
+            "type": "object"
+          },
+          "output_artifact_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Output Artifact Ids",
+            "type": "array"
+          },
+          "parent_span_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parent Span Id"
+          },
+          "phase": {
+            "title": "Phase",
+            "type": "string"
+          },
+          "span_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Span Id"
+          },
+          "timestamp": {
+            "format": "date-time",
+            "title": "Timestamp",
+            "type": "string"
+          },
+          "warning_count": {
+            "default": 0,
+            "minimum": 0.0,
+            "title": "Warning Count",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "index",
+          "timestamp",
+          "phase",
+          "event"
+        ],
+        "title": "RunTimelineEvent",
+        "type": "object"
+      },
+      "RunTimelineResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "meta": {
+            "$ref": "#/components/schemas/ApiMeta"
+          },
+          "timeline": {
+            "$ref": "#/components/schemas/RunTimelineView"
+          }
+        },
+        "required": [
+          "meta",
+          "timeline"
+        ],
+        "title": "RunTimelineResponse",
+        "type": "object"
+      },
+      "RunTimelineSummary": {
+        "additionalProperties": false,
+        "properties": {
+          "cache_bypasses": {
+            "default": 0,
+            "minimum": 0.0,
+            "title": "Cache Bypasses",
+            "type": "integer"
+          },
+          "cache_hits": {
+            "default": 0,
+            "minimum": 0.0,
+            "title": "Cache Hits",
+            "type": "integer"
+          },
+          "cache_stores": {
+            "default": 0,
+            "minimum": 0.0,
+            "title": "Cache Stores",
+            "type": "integer"
+          },
+          "duration_ms": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Duration Ms"
+          },
+          "node_status_counts": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "title": "Node Status Counts",
+            "type": "object"
+          },
+          "phase_counts": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "title": "Phase Counts",
+            "type": "object"
+          },
+          "run_id": {
+            "title": "Run Id",
+            "type": "string"
+          },
+          "total_events": {
+            "default": 0,
+            "minimum": 0.0,
+            "title": "Total Events",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "run_id"
+        ],
+        "title": "RunTimelineSummary",
+        "type": "object"
+      },
+      "RunTimelineView": {
+        "additionalProperties": false,
+        "properties": {
+          "events": {
+            "items": {
+              "$ref": "#/components/schemas/RunTimelineEvent"
+            },
+            "title": "Events",
+            "type": "array"
+          },
+          "notes": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Notes",
+            "type": "array"
+          },
+          "run_id": {
+            "title": "Run Id",
+            "type": "string"
+          },
+          "source_kind": {
+            "const": "core_run",
+            "title": "Source Kind",
+            "type": "string"
+          },
+          "summary": {
+            "$ref": "#/components/schemas/RunTimelineSummary"
+          }
+        },
+        "required": [
+          "run_id",
+          "source_kind",
+          "summary"
+        ],
+        "title": "RunTimelineView",
+        "type": "object"
+      },
+      "RunsListResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "meta": {
+            "$ref": "#/components/schemas/ApiMeta"
+          },
+          "page": {
+            "$ref": "#/components/schemas/CursorPage"
+          },
+          "runs": {
+            "items": {
+              "$ref": "#/components/schemas/RunSummary"
+            },
+            "title": "Runs",
+            "type": "array"
+          }
+        },
+        "required": [
+          "meta",
+          "page"
+        ],
+        "title": "RunsListResponse",
+        "type": "object"
+      },
+      "ValidationError": {
+        "properties": {
+          "ctx": {
+            "title": "Context",
+            "type": "object"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "title": "Location",
+            "type": "array"
+          },
+          "msg": {
+            "title": "Message",
+            "type": "string"
+          },
+          "type": {
+            "title": "Error Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError",
+        "type": "object"
+      }
+    }
+  },
+  "info": {
+    "description": "Runtime API v1: run explorer, debug, and artifact inspector surfaces for PolicyOS.",
+    "title": "PolicyOS Runtime API",
+    "version": "1.0.0"
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/api/v1/artifacts/{artifact_id}": {
+      "get": {
+        "operationId": "get_artifact_manifest",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "artifact_id",
+            "required": true,
+            "schema": {
+              "title": "Artifact Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ArtifactManifestResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Artifact Manifest",
+        "tags": [
+          "runtime-artifacts"
+        ]
+      }
+    },
+    "/api/v1/artifacts/{artifact_id}/content": {
+      "get": {
+        "operationId": "get_artifact_content",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "artifact_id",
+            "required": true,
+            "schema": {
+              "title": "Artifact Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "max_bytes",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 2000000,
+                  "minimum": 1024,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Max Bytes"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ArtifactContentResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Artifact Content",
+        "tags": [
+          "runtime-artifacts"
+        ]
+      }
+    },
+    "/api/v1/artifacts/{artifact_id}/lineage": {
+      "get": {
+        "operationId": "get_artifact_lineage",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "artifact_id",
+            "required": true,
+            "schema": {
+              "title": "Artifact Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "max_depth",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 256,
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Max Depth"
+            }
+          },
+          {
+            "in": "query",
+            "name": "max_nodes",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 20000,
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Max Nodes"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ArtifactLineageResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Artifact Lineage",
+        "tags": [
+          "runtime-artifacts"
+        ]
+      }
+    },
+    "/api/v1/artifacts/{artifact_id}/schema": {
+      "get": {
+        "operationId": "get_artifact_schema",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "artifact_id",
+            "required": true,
+            "schema": {
+              "title": "Artifact Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ArtifactSchemaResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Artifact Schema",
+        "tags": [
+          "runtime-artifacts"
+        ]
+      }
+    },
+    "/api/v1/debug/runs/{run_id}/errors": {
+      "get": {
+        "operationId": "get_run_errors",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunErrorsResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Run Errors",
+        "tags": [
+          "runtime-debug"
+        ]
+      }
+    },
+    "/api/v1/debug/runs/{run_id}/governance": {
+      "get": {
+        "operationId": "get_governance_debug",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GovernanceDebugResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Governance Debug",
+        "tags": [
+          "runtime-debug"
+        ]
+      }
+    },
+    "/api/v1/debug/runs/{run_id}/nodes/{alias}": {
+      "get": {
+        "operationId": "get_node_debug",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "alias",
+            "required": true,
+            "schema": {
+              "title": "Alias",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NodeDebugResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Node Debug",
+        "tags": [
+          "runtime-debug"
+        ]
+      }
+    },
+    "/api/v1/health": {
+      "get": {
+        "operationId": "runtime_api_health",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "title": "Response Runtime Api Health",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Api Health",
+        "tags": [
+          "runtime-health"
+        ]
+      }
+    },
+    "/api/v1/runs": {
+      "get": {
+        "operationId": "list_runs",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 50,
+              "maximum": 200,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Cursor"
+            }
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Status"
+            }
+          },
+          {
+            "in": "query",
+            "name": "from_ts",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date-time",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "From Ts"
+            }
+          },
+          {
+            "in": "query",
+            "name": "to_ts",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date-time",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "To Ts"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunsListResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Runs",
+        "tags": [
+          "runtime-runs"
+        ]
+      }
+    },
+    "/api/v1/runs/{run_id}": {
+      "get": {
+        "operationId": "get_run_details",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunDetailsResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Run Details",
+        "tags": [
+          "runtime-runs"
+        ]
+      }
+    },
+    "/api/v1/runs/{run_id}/lineage": {
+      "get": {
+        "operationId": "get_run_lineage",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "root_artifact_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Root Artifact Id"
+            }
+          },
+          {
+            "in": "query",
+            "name": "max_depth",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 256,
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Max Depth"
+            }
+          },
+          {
+            "in": "query",
+            "name": "max_nodes",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 20000,
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Max Nodes"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunLineageResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Run Lineage",
+        "tags": [
+          "runtime-runs"
+        ]
+      }
+    },
+    "/api/v1/runs/{run_id}/nodes": {
+      "get": {
+        "operationId": "get_run_nodes",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunNodesResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Run Nodes",
+        "tags": [
+          "runtime-runs"
+        ]
+      }
+    },
+    "/api/v1/runs/{run_id}/timeline": {
+      "get": {
+        "operationId": "get_run_timeline",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunTimelineResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Run Timeline",
+        "tags": [
+          "runtime-runs"
+        ]
+      }
+    },
+    "/health": {
+      "get": {
+        "operationId": "health",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "title": "Response Health",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Health",
+        "tags": [
+          "runtime-health"
+        ]
+      }
+    },
+    "/ready": {
+      "get": {
+        "operationId": "ready",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "title": "Response Ready",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Ready",
+        "tags": [
+          "runtime-health"
+        ]
+      }
+    }
+  }
+}

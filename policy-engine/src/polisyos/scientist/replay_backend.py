@@ -8,7 +8,12 @@ from polisyos.core.artifacts.environment import EnvironmentDiff, RiskLevel
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS
-from polisyos.core.contracts.foundry import ExecuteRequest, ExecPlanRef, FoundryExecConfig, StateSnapshotRef
+from polisyos.core.contracts.foundry import (
+    ExecPlanRef,
+    ExecuteRequest,
+    FoundryExecConfig,
+    FoundryInputBindingsRef,
+)
 from polisyos.foundry.execute import execute as execute_foundry
 from polisyos.runtime.replay import (
     CompletenessLevel,
@@ -22,12 +27,13 @@ from polisyos.runtime.replay import (
     try_parse_artifact_id,
     verify_replay,
 )
-from polisyos.scientist.engine.state import ExperimentState
 from polisyos.scientist.adapters.foundry_bridge import DefaultFoundryPort
+from polisyos.scientist.engine.state import ExperimentState
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_DECISION_PACKET_REF,
     ARTIFACT_SIMULATION_RESULT_REF,
     INPUT_DATA_SNAPSHOT_REF,
+    INPUT_INPUT_BINDINGS_REF,
     INPUT_KNOWLEDGE_BUNDLE_REF,
     INPUT_NORM_PACK_REF,
     INPUT_REGISTRY_BUNDLE_REF,
@@ -123,8 +129,12 @@ def replay_packet(
         run_id=run_id,
         strategy=strategy,
         original_packet_ref=str(packet_ref),
-        replay_decision_packet_ref=str(replay_decision_packet_ref) if replay_decision_packet_ref else None,
-        replay_simulation_result_ref=str(replay_simulation_result_ref) if replay_simulation_result_ref else None,
+        replay_decision_packet_ref=(
+            str(replay_decision_packet_ref) if replay_decision_packet_ref else None
+        ),
+        replay_simulation_result_ref=(
+            str(replay_simulation_result_ref) if replay_simulation_result_ref else None
+        ),
         completeness=plan.completeness,
         verification=verification,
         environment_diffs=env_diffs,
@@ -149,27 +159,13 @@ def _execute_foundry_replay(
     if registry_id is None:
         raise ValueError("Missing inputs.registry_bundle_ref")
 
-    data_snapshot_id = try_parse_artifact_id(inputs.get("data_snapshot_ref"))
-    state_snapshot_id = try_parse_artifact_id(inputs.get("state_snapshot_ref"))
-    if state_snapshot_id is None:
-        state_snapshot_id = try_parse_artifact_id(artifacts.get("state_snapshot_ref"))
+    input_bindings_id = try_parse_artifact_id(inputs.get("input_bindings_ref"))
+    if input_bindings_id is None:
+        raise ValueError("Missing inputs.input_bindings_ref")
 
     request = ExecuteRequest(
         exec_plan_ref=ExecPlanRef(artifact_id=exec_plan_id),
-        data_snapshot_ref=(
-            ArtifactRef(
-                artifact_id=data_snapshot_id,
-                kind="fabric.data_snapshot",
-                media_type="application/json",
-            )
-            if data_snapshot_id is not None
-            else None
-        ),
-        state_snapshot_ref=(
-            StateSnapshotRef(artifact_id=state_snapshot_id)
-            if state_snapshot_id is not None
-            else None
-        ),
+        input_bindings_ref=FoundryInputBindingsRef(artifact_id=input_bindings_id),
         registry_bundle_ref=ArtifactRef(
             artifact_id=registry_id,
             kind="core.registry_bundle",
@@ -212,6 +208,7 @@ def _build_replay_state_inputs(payload: dict[str, Any]) -> dict[str, ArtifactRef
         INPUT_REGISTRY_BUNDLE_REF: ("core.registry_bundle", "application/json"),
         INPUT_DATA_SNAPSHOT_REF: ("fabric.data_snapshot", "application/json"),
         INPUT_STATE_SNAPSHOT_REF: ("foundry.state_snapshot", "application/json"),
+        INPUT_INPUT_BINDINGS_REF: ("foundry.input_bindings", "application/json"),
         INPUT_NORM_PACK_REF: ("lex.norm_pack", "application/json"),
         INPUT_KNOWLEDGE_BUNDLE_REF: ("scholar.knowledge_bundle", "application/json"),
         INPUT_RESEARCH_INTENT_REF: ("scholar.research_intent", "application/json"),

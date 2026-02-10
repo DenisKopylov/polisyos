@@ -19,7 +19,7 @@ from polisyos.foundry.agent_sim.rl import Trajectory, compute_returns_and_advant
 from polisyos.foundry.agent_sim.temporal import build_temporal_observations
 from polisyos.foundry.agent_sim.temporal_mechanisms import TemporalConsumptionMechanism
 from polisyos.foundry.runtime.fingerprint import DeterminismTier, EnvironmentFingerprint
-from polisyos.foundry.types import FidelityLevel
+from polisyos.foundry.contracts.fidelity import FidelityLevel
 
 
 @dataclass(frozen=True)

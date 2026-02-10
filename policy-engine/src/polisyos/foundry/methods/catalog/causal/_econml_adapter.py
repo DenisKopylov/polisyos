@@ -80,6 +80,17 @@ def _sanitize_effect(values: Any) -> np.ndarray:
     return arr.ravel()
 
 
+def _align_metric_length(values: Any, *, n_samples: int, fill: float = np.nan) -> np.ndarray:
+    arr = _sanitize_effect(values)
+    if arr.size == n_samples:
+        return arr
+    if arr.size == 1 and n_samples > 1:
+        return np.full(n_samples, float(arr[0]), dtype=float)
+    if arr.size == 0:
+        return np.full(n_samples, fill, dtype=float)
+    return np.full(n_samples, fill, dtype=float)
+
+
 def _extract_tree_importances(
     estimator: Any,
     *,
@@ -220,20 +231,24 @@ def extract_cate_from_estimator(
 ) -> dict[str, Any]:
     warnings: list[str] = []
     cate = _sanitize_effect(estimator.effect(x))
+    n_samples = int(cate.shape[0])
 
-    ci_lower = np.full_like(cate, np.nan, dtype=float)
-    ci_upper = np.full_like(cate, np.nan, dtype=float)
+    ci_lower = np.full(n_samples, np.nan, dtype=float)
+    ci_upper = np.full(n_samples, np.nan, dtype=float)
     try:
         lo, hi = estimator.effect_interval(x, alpha=alpha)
-        ci_lower = _sanitize_effect(lo)
-        ci_upper = _sanitize_effect(hi)
+        ci_lower = _align_metric_length(lo, n_samples=n_samples)
+        ci_upper = _align_metric_length(hi, n_samples=n_samples)
     except Exception:
         warnings.append("Estimator does not provide effect_interval; per-row CIs omitted")
 
-    cate_std = np.full_like(cate, np.nan, dtype=float)
+    cate_std = np.full(n_samples, np.nan, dtype=float)
     try:
         inference = estimator.effect_inference(x)
-        cate_std = _sanitize_effect(getattr(inference, "std_point", np.nan))
+        cate_std = _align_metric_length(
+            getattr(inference, "std_point", np.nan),
+            n_samples=n_samples,
+        )
     except Exception:
         warnings.append("Estimator does not provide effect_inference; per-row std omitted")
 

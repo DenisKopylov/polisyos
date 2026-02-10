@@ -7,8 +7,8 @@ import equinox as eqx
 import jax
 import jax.numpy as jnp
 
-from polisyos.foundry.base import Mechanism, PatchMap
-from polisyos.foundry.types import FidelityLevel
+from polisyos.foundry.contracts.fidelity import FidelityLevel
+from polisyos.foundry.contracts.mechanism import Mechanism, PatchMap
 
 
 @chex.dataclass(frozen=True)

@@ -102,11 +102,13 @@ agent-quality = [
 ]
 test = [
     "pytest>=7.4.0",
+    "pytest-asyncio>=0.23.0",
     "pytest-benchmark>=4.0.0",
     "hypothesis>=6.0.0",
 ]
 dev = [
     "pytest>=7.4.0",
+    "pytest-asyncio>=0.23.0",
     "pytest-benchmark>=4.0.0",
     "hypothesis>=6.0.0",
     "mypy>=1.7.0",
@@ -134,16 +136,10 @@ search_mo = [
 polisy = "polisyos.foundry.plugins.cli:main"
 polisyos = "polisyos.core.components.cli:main"
 
-[project.entry-points."polisyos.methods"]
-# Method plugins can register entry points here.
-causal = "polisyos.foundry.methods.catalog.causal._registry_boot:register_causal_methods"
-econometrics = "polisyos.foundry.methods.catalog.econometrics._registry_boot:register_econometric_methods"
-optimization = "polisyos.foundry.methods.catalog.optimization._registry_boot:register_optimization_methods"
-
-[project.entry-points."polisyos.connectors"]
-"worldbank.wdi" = "polisyos.fabric.connectors.sources:WorldBankConnector"
-"eurostat.data" = "polisyos.fabric.connectors.sources:EurostatConnector"
-"ukons.datasets" = "polisyos.fabric.connectors.sources:UKONSConnector"
+[project.entry-points."polisyos.fabric_connectors"]
+"worldbank.wdi" = "polisyos.fabric.connectors.components:world_bank_connector_component"
+"eurostat.data" = "polisyos.fabric.connectors.components:eurostat_connector_component"
+"ukons.datasets" = "polisyos.fabric.connectors.components:ukons_connector_component"
 
 [project.entry-points."polisyos.ir_fragments"]
 "roads.core" = "polisyos.packs.roads.ir_fragments:roads_ir_fragment_component"
@@ -202,6 +198,7 @@ plugins = ["pydantic.mypy"] # Плагин для корректной рабо�
 minversion = "6.0"
 addopts = "-ra -q --import-mode=prepend"
 testpaths = ["tests"]
+asyncio_mode = "auto"
 markers = [
     "integration: slow or DB-backed workflow tests",
 ]
@@ -209,6 +206,7 @@ markers = [
 [dependency-groups]
 test = [
     "pytest>=7.4.0",
+    "pytest-asyncio>=0.23.0",
     "pytest-benchmark>=4.0.0",
     "hypothesis>=6.0.0",
 ]
@@ -216,6 +214,7 @@ dev = [
     "mypy>=1.19.1",
     "pre-commit>=4.5.1",
     "pytest>=7.4.0",
+    "pytest-asyncio>=0.23.0",
     "pytest-benchmark>=4.0.0",
     "hypothesis>=6.0.0",
     "ruff>=0.14.10",

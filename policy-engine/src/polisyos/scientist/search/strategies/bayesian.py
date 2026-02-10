@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import io
 import math
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 from typing import Any
 
 from loguru import logger
@@ -198,7 +198,7 @@ class BayesianOptimizer(BaseSearchStrategy):
             self._torch.save(self._model.state_dict(), buffer)
             model_state = buffer.getvalue()
 
-        metadata: dict[str, Any] = {"config": self._config.__dict__}
+        metadata: dict[str, Any] = {"config": asdict(self._config)}
         if self._train_X is not None and self._train_y_bo is not None:
             metadata["train_X"] = self._train_X.tolist()
             metadata["train_y_bo"] = self._train_y_bo.tolist()

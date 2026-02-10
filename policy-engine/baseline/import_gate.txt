@@ -1,0 +1,141 @@
+$ python3 tools/lint/lint_imports.py --policy import_policy.toml --exceptions import_exceptions.toml --top 80 --fail-on-cycles --allow-type-checking
+[exit_code=1]
+Import gate report
+
+Policy: import_policy.toml (v1)
+Exceptions: import_exceptions.toml
+
+Violations:
+- src/polisyos/ir/connectors.py:16 [ARCH001] forbidden internal import: ir -> core via polisyos.core.canon (allowed={ir})
+- src/polisyos/ir/fact_log.py:11 [ARCH001] forbidden internal import: ir -> core via polisyos.core.canon (allowed={ir})
+- src/polisyos/ir/registry_fragments.py:8 [ARCH001] forbidden internal import: ir -> core via polisyos.core.canon (allowed={ir})
+- src/polisyos/ir/linker/_trinity_linker.py:7 [ARCH001] forbidden internal import: ir -> core via polisyos.core.canon (allowed={ir})
+- src/polisyos/ir/world/ids.py:7 [ARCH001] forbidden internal import: ir -> core via polisyos.core.canon (allowed={ir})
+- src/polisyos/ir/analytics/uncertainty.py:9 [ARCH001] forbidden internal import: ir -> core via polisyos.core.canon (allowed={ir})
+- src/polisyos/ir/analytics/uncertainty.py:156 [ARCH001] forbidden internal import: ir -> core via polisyos.core.artifacts.manifest (allowed={ir})
+- src/polisyos/ir/analytics/uncertainty.py:157 [ARCH001] forbidden internal import: ir -> core via polisyos.core.artifacts.store (allowed={ir})
+- src/polisyos/ir/analytics/uncertainty.py:158 [ARCH001] forbidden internal import: ir -> core via polisyos.core.contracts.uncertainty (allowed={ir})
+- src/polisyos/ir/analytics/hte.py:8 [ARCH001] forbidden internal import: ir -> core via polisyos.core.canon (allowed={ir})
+- src/polisyos/ir/analytics/hte.py:188 [ARCH001] forbidden internal import: ir -> core via polisyos.core.artifacts.manifest (allowed={ir})
+- src/polisyos/ir/analytics/hte.py:189 [ARCH001] forbidden internal import: ir -> core via polisyos.core.artifacts.store (allowed={ir})
+- src/polisyos/ir/analytics/hte.py:190 [ARCH001] forbidden internal import: ir -> core via polisyos.core.contracts.hte (allowed={ir})
+- src/polisyos/ir/analytics/hte.py:218 [ARCH001] forbidden internal import: ir -> core via polisyos.core.artifacts.manifest (allowed={ir})
+- src/polisyos/ir/analytics/hte.py:219 [ARCH001] forbidden internal import: ir -> core via polisyos.core.artifacts.store (allowed={ir})
+- src/polisyos/ir/analytics/hte.py:220 [ARCH001] forbidden internal import: ir -> core via polisyos.core.contracts.hte (allowed={ir})
+- src/polisyos/ir/analytics/distributional.py:9 [ARCH001] forbidden internal import: ir -> core via polisyos.core.canon (allowed={ir})
+- src/polisyos/ir/analytics/distributional.py:219 [ARCH001] forbidden internal import: ir -> core via polisyos.core.artifacts.manifest (allowed={ir})
+- src/polisyos/ir/analytics/distributional.py:220 [ARCH001] forbidden internal import: ir -> core via polisyos.core.artifacts.store (allowed={ir})
+- src/polisyos/ir/analytics/distributional.py:221 [ARCH001] forbidden internal import: ir -> core via polisyos.core.contracts.distributional (allowed={ir})
+- src/polisyos/ir/analytics/causal.py:9 [ARCH001] forbidden internal import: ir -> core via polisyos.core.canon (allowed={ir})
+- src/polisyos/ir/analytics/causal.py:201 [ARCH001] forbidden internal import: ir -> core via polisyos.core.artifacts.manifest (allowed={ir})
+- src/polisyos/ir/analytics/causal.py:202 [ARCH001] forbidden internal import: ir -> core via polisyos.core.artifacts.store (allowed={ir})
+- src/polisyos/ir/analytics/causal.py:203 [ARCH001] forbidden internal import: ir -> core via polisyos.core.contracts.causal (allowed={ir})
+- src/polisyos/ir/analytics/backtest.py:9 [ARCH001] forbidden internal import: ir -> core via polisyos.core.canon (allowed={ir})
+- src/polisyos/ir/analytics/backtest.py:160 [ARCH001] forbidden internal import: ir -> core via polisyos.core.artifacts.manifest (allowed={ir})
+- src/polisyos/ir/analytics/backtest.py:161 [ARCH001] forbidden internal import: ir -> core via polisyos.core.artifacts.store (allowed={ir})
+- src/polisyos/ir/analytics/backtest.py:162 [ARCH001] forbidden internal import: ir -> core via polisyos.core.contracts.backtest (allowed={ir})
+- src/polisyos/lex/simulator/engine.py:11 [ARCH001] forbidden internal import: lex -> scientist via polisyos.scientist.governance.passes.base (allowed={common, core, fabric, ir, lex})
+- src/polisyos/lex/simulator/engine.py:12 [ARCH001] forbidden internal import: lex -> scientist via polisyos.scientist.governance.passes.legal_pass (allowed={common, core, fabric, ir, lex})
+- src/polisyos/lex/simulator/engine.py:13 [ARCH001] forbidden internal import: lex -> scientist via polisyos.scientist.governance.passes.safety_pass (allowed={common, core, fabric, ir, lex})
+- src/polisyos/lex/simulator/engine.py:14 [ARCH001] forbidden internal import: lex -> scientist via polisyos.scientist.governance.profiles (allowed={common, core, fabric, ir, lex})
+- src/polisyos/core/audit/prov_json.py:8 [ARCH001] forbidden internal import: core -> fabric via polisyos.fabric.provenance.core (allowed={common, core, ir})
+- src/polisyos/core/audit/_assembler_core.py:29 [ARCH001] forbidden internal import: core -> fabric via polisyos.fabric.provenance.core (allowed={common, core, ir})
+- src/polisyos/core/audit/_assembler_core.py:30 [ARCH001] forbidden internal import: core -> runtime via polisyos.runtime.manifest (allowed={common, core, ir})
+- src/polisyos/core/audit/_assembler_provenance.py:22 [ARCH001] forbidden internal import: core -> fabric via polisyos.fabric.provenance.core (allowed={common, core, ir})
+
+Allowed exceptions: none
+
+Cycles (runtime imports, package-level):
+- polisyos.core, polisyos.fabric, polisyos.fabric.io, polisyos.ir, polisyos.runtime
+- polisyos.foundry, polisyos.foundry.domain
+- polisyos.lex, polisyos.scientist
+
+Top god files (internal import count, top 80):
+- src/polisyos/foundry/agent_sim/__init__.py: 36
+- src/polisyos/lex/normpack/assemble_pack.py: 26
+- src/polisyos/fabric/claims/conflicts/resolve.py: 23
+- src/polisyos/scientist/nodes/builtins/decide/build_decision_packet.py: 22
+- src/polisyos/scientist/nodes/builtins/governance/run_governance.py: 20
+- src/polisyos/lex/legal_evaluation/evaluate.py: 19
+- src/polisyos/scientist/governance/preflight.py: 18
+- src/polisyos/lex/normpack/extract_norm_claims.py: 17
+- src/polisyos/core/audit/_assembler_core.py: 16
+- src/polisyos/foundry/_executor_graph.py: 16
+- src/polisyos/scholar/orchestrator/enrich.py: 16
+- src/polisyos/scientist/agent/__init__.py: 16
+- src/polisyos/scientist/agent/_drafter_orchestrator.py: 16
+- src/polisyos/fabric/claims/conflicts/detect.py: 15
+- src/polisyos/fabric/ingestion.py: 15
+- src/polisyos/foundry/compile/trinity_compiler.py: 15
+- src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py: 15
+- src/polisyos/scientist/workflows/builder.py: 15
+- src/polisyos/fabric/claims/extraction.py: 14
+- src/polisyos/scientist/nodes/builtins/data/enrich_knowledge.py: 14
+- src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py: 14
+- src/polisyos/fabric/connectors/_registry_lifecycle.py: 13
+- src/polisyos/fabric/docs/normalize.py: 13
+- src/polisyos/foundry/agent_sim/training.py: 13
+- src/polisyos/foundry/methods/__init__.py: 13
+- src/polisyos/foundry/methods/catalog/causal/__init__.py: 13
+- src/polisyos/scientist/nodes/builtins/compile/link_trinity.py: 13
+- src/polisyos/scientist/nodes/builtins/governance/legal_check.py: 13
+- src/polisyos/core/contracts/__init__.py: 12
+- src/polisyos/fabric/claims/persist.py: 12
+- src/polisyos/fabric/connectors/registry_core_parts.py: 12
+- src/polisyos/fabric/world/materialize/projections.py: 12
+- src/polisyos/fabric/world/store/validate.py: 12
+- src/polisyos/foundry/calibration/calibrator.py: 12
+- src/polisyos/ir/kernel/__init__.py: 12
+- src/polisyos/ir/registry_fragments.py: 12
+- src/polisyos/lex/corpus/versioning.py: 12
+- src/polisyos/scientist/agent/drafter_factory.py: 12
+- src/polisyos/scientist/engine/executor.py: 12
+- src/polisyos/scientist/nodes/builtins/__init__.py: 12
+- src/polisyos/scientist/nodes/builtins/simulate/run_distributional_analysis.py: 12
+- src/polisyos/fabric/claims/normalize.py: 11
+- src/polisyos/fabric/docs/chunking.py: 11
+- src/polisyos/fabric/docs/structure.py: 11
+- src/polisyos/foundry/agent_sim/jit_training.py: 11
+- src/polisyos/lex/api.py: 11
+- src/polisyos/lex/corpus/structure.py: 11
+- src/polisyos/lex/legal_evaluation/context_builder.py: 11
+- src/polisyos/lex/simulator/engine.py: 11
+- src/polisyos/scientist/compute/runner.py: 11
+- src/polisyos/scientist/nodes/builtins/data/build_data_snapshot.py: 11
+- src/polisyos/scientist/replay_backend.py: 11
+- src/polisyos/core/audit/_assembler_slsa.py: 10
+- src/polisyos/fabric/connectors/__init__.py: 10
+- src/polisyos/fabric/world/materialize/duckdb.py: 10
+- src/polisyos/foundry/_executor_patching.py: 10
+- src/polisyos/ir/linker/_trinity_linker.py: 10
+- src/polisyos/ir/linker/_trinity_mechanisms.py: 10
+- src/polisyos/lex/corpus/ingest.py: 10
+- src/polisyos/scientist/agent/informed_critic.py: 10
+- src/polisyos/scientist/engine/checkpoint.py: 10
+- src/polisyos/scientist/governance/passes/__init__.py: 10
+- src/polisyos/scientist/search/adversarial.py: 10
+- src/polisyos/scientist/search/strategies/__init__.py: 10
+- src/polisyos/core/components/cli_parts.py: 9
+- src/polisyos/fabric/connectors/quality/validator.py: 9
+- src/polisyos/fabric/world/store/emit.py: 9
+- src/polisyos/fabric/world/store/persist.py: 9
+- src/polisyos/ir/world/__init__.py: 9
+- src/polisyos/lex/normpack/select_sources.py: 9
+- src/polisyos/scholar/orchestrator/bundle.py: 9
+- src/polisyos/scientist/adapters/foundry_bridge.py: 9
+- src/polisyos/scientist/agent/critic.py: 9
+- src/polisyos/scientist/backtesting/orchestrator.py: 9
+- src/polisyos/scientist/nodes/builtins/simulate/run_simulation.py: 9
+- src/polisyos/scientist/search/__init__.py: 9
+- src/polisyos/core/registry/builder_from_fragments.py: 8
+- src/polisyos/fabric/connectors/cache/_store_core.py: 8
+- src/polisyos/fabric/connectors/transform/pipeline.py: 8
+- src/polisyos/fabric/docs/ingestion.py: 8
+
+$ python3 tools/lint/lint_connectors.py --src-root src/polisyos/fabric/connectors
+[exit_code=0]
+lint_connectors: all clean - no Law A/B violations found.
+
+$ python3 tools/lint/check_scholar_imports.py
+[exit_code=0]
+Scholar import gate: OK

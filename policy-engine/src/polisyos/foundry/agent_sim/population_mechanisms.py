@@ -16,7 +16,7 @@ from polisyos.foundry.agent_sim.population import (
     compute_death_mask,
 )
 from polisyos.foundry.agent_sim.state import GlobalState
-from polisyos.foundry.types import FidelityLevel
+from polisyos.foundry.contracts.fidelity import FidelityLevel
 
 
 @dataclass(frozen=True)

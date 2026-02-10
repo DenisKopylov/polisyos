@@ -21,7 +21,7 @@ from polisyos.foundry.agents import (
     build_observations,
     continuous_actions_from_logits,
 )
-from polisyos.foundry.domain.state import GlobalState
+from polisyos.foundry.contracts.state import GlobalState
 from polisyos.foundry.utils import gradient_health_report
 
 OBS_SPACE = ["agents.income", "agents.risk_aversion", "policy.tax_rate"]

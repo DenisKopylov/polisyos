@@ -1,8 +1,26 @@
-from .capabilities import Capability, Capabilities, capabilities_from_flags, flags_from_capabilities
-from .compliance import ComplianceIssue, HostAbi, has_errors, validate_component_id, validate_metadata
+from .bootstrap import (
+    BootstrapDomainReport,
+    BootstrapReport,
+    bootstrap_plugin_registries,
+    build_components_index,
+)
+from .capabilities import (
+    Capabilities,
+    Capability,
+    capabilities_from_flags,
+    flags_from_capabilities,
+)
+from .compliance import (
+    ComplianceIssue,
+    HostAbi,
+    has_errors,
+    validate_component_id,
+    validate_metadata,
+)
 from .discovery import (
     DEFAULT_ENTRY_POINT_GROUPS,
     ENTRY_POINT_GROUP,
+    ENTRY_POINT_GROUP_FABRIC_CONNECTORS,
     ENTRY_POINT_GROUP_FOUNDRY_METHODS,
     ENTRY_POINT_GROUP_IR_FRAGMENTS,
     ENTRY_POINT_GROUP_LEX_EVALUATORS,
@@ -50,6 +68,7 @@ __all__ = [
     "DiscoveryReport",
     "DuplicateComponentIdPolicy",
     "ENTRY_POINT_GROUP",
+    "ENTRY_POINT_GROUP_FABRIC_CONNECTORS",
     "ENTRY_POINT_GROUP_FOUNDRY_METHODS",
     "ENTRY_POINT_GROUP_IR_FRAGMENTS",
     "ENTRY_POINT_GROUP_LEX_EVALUATORS",
@@ -64,6 +83,10 @@ __all__ = [
     "SemverRange",
     "SourcePrecedencePolicy",
     "SupportsValidation",
+    "BootstrapDomainReport",
+    "BootstrapReport",
+    "build_components_index",
+    "bootstrap_plugin_registries",
     "capabilities_from_flags",
     "compare_semver",
     "discover_components",

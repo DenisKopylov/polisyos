@@ -7,7 +7,7 @@ from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.contracts.fabric import DataSnapshot, DataSnapshotRef
 from polisyos.core.contracts.foundry import StateSnapshotRef
 from polisyos.core.registry import build_default_registry_bundle
-from polisyos.foundry.domain.state import GlobalState
+from polisyos.foundry.contracts.state import GlobalState
 from polisyos.foundry.executor import put_state_snapshot
 from polisyos.ir.governance.policy_spec import InterventionSpec, PolicySpec
 from polisyos.ir.governance.problem_frame import ProblemDomain, ProblemFrame

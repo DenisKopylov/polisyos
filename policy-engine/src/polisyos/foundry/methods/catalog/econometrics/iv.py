@@ -62,6 +62,24 @@ def _extract_confidence_intervals(
     return intervals
 
 
+def _call_conf_int(fit_result: Any, *, confidence_level: float) -> Any:
+    conf_int_fn = getattr(fit_result, "conf_int", None)
+    if conf_int_fn is None:
+        return None
+    try:
+        return conf_int_fn(level=confidence_level)
+    except TypeError:
+        pass
+    try:
+        return conf_int_fn(alpha=1.0 - confidence_level)
+    except TypeError:
+        pass
+    try:
+        return conf_int_fn()
+    except Exception:
+        return None
+
+
 def _build_result(
     *,
     method_name: str,
@@ -85,8 +103,7 @@ def _build_result(
         if p_value is not None:
             p_values[name] = p_value
 
-    alpha = 1.0 - confidence_level
-    conf_int_obj = fit_result.conf_int(alpha=alpha) if hasattr(fit_result, "conf_int") else None
+    conf_int_obj = _call_conf_int(fit_result, confidence_level=confidence_level)
     intervals = (
         _extract_confidence_intervals(conf_int_obj, param_names=param_names)
         if conf_int_obj is not None

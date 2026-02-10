@@ -14,7 +14,7 @@ from polisyos.foundry.agent_sim import (
     create_distribution_aware_executor,
 )
 from polisyos.foundry.agent_sim.state import GlobalState
-from polisyos.foundry.types import FidelityLevel
+from polisyos.foundry.contracts.fidelity import FidelityLevel
 
 
 def test_gini_known_distributions() -> None:

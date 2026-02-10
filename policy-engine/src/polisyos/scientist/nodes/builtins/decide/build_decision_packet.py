@@ -37,6 +37,7 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_ENVIRONMENT_MANIFEST_REF,
     ARTIFACT_EXEC_PLAN_REF,
     ARTIFACT_HTE_RESULT_REF,
+    ARTIFACT_INPUT_BINDING_REPORT_REF,
     ARTIFACT_METRICS_REF,
     ARTIFACT_NORM_IMPACT_REPORT_REF,
     ARTIFACT_POLICY_RECOMMENDATION_REF,
@@ -46,6 +47,7 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_STATE_SNAPSHOT_REF,
     ARTIFACT_STRESS_TEST_REPORT_REF,
     INPUT_DATA_SNAPSHOT_REF,
+    INPUT_INPUT_BINDINGS_REF,
     INPUT_KNOWLEDGE_BUNDLE_REF,
     INPUT_NORM_PACK_REF,
     INPUT_REGISTRY_BUNDLE_REF,
@@ -97,6 +99,7 @@ _REQUIRED_INPUT_KEYS: Final[frozenset[str]] = frozenset(
 
 _OPTIONAL_INPUT_KEYS: Final[frozenset[str]] = frozenset(
     {
+        INPUT_INPUT_BINDINGS_REF,
         INPUT_NORM_PACK_REF,
         INPUT_KNOWLEDGE_BUNDLE_REF,
         INPUT_RESEARCH_INTENT_REF,
@@ -235,6 +238,7 @@ def _build_inputs_section(
         INPUT_TRINITY_BUNDLE_REF: _ref_from_dict(state_inputs, INPUT_TRINITY_BUNDLE_REF),
         INPUT_DATA_SNAPSHOT_REF: _ref_from_dict(state_inputs, INPUT_DATA_SNAPSHOT_REF),
         INPUT_STATE_SNAPSHOT_REF: _ref_from_dict(state_inputs, INPUT_STATE_SNAPSHOT_REF),
+        INPUT_INPUT_BINDINGS_REF: _ref_from_dict(state_inputs, INPUT_INPUT_BINDINGS_REF),
         INPUT_REGISTRY_BUNDLE_REF: _ref_from_dict(state_inputs, INPUT_REGISTRY_BUNDLE_REF),
         INPUT_NORM_PACK_REF: _ref_from_dict(state_inputs, INPUT_NORM_PACK_REF),
         INPUT_KNOWLEDGE_BUNDLE_REF: _ref_from_dict(state_inputs, INPUT_KNOWLEDGE_BUNDLE_REF),
@@ -257,6 +261,10 @@ def _build_artifacts_section(
         ),
         ARTIFACT_STATE_SNAPSHOT_REF: _ref_from_dict(artifacts_index, ARTIFACT_STATE_SNAPSHOT_REF),
         ARTIFACT_METRICS_REF: _ref_from_dict(artifacts_index, ARTIFACT_METRICS_REF),
+        ARTIFACT_INPUT_BINDING_REPORT_REF: _ref_from_dict(
+            artifacts_index,
+            ARTIFACT_INPUT_BINDING_REPORT_REF,
+        ),
         REPORT_GOVERNANCE_REPORT_REF: _ref_from_dict(reports_index, REPORT_GOVERNANCE_REPORT_REF),
         REPORT_COMPILE_REPORT_REF: _ref_from_dict(reports_index, REPORT_COMPILE_REPORT_REF),
         REPORT_LINK_REPORT_REF: _ref_from_dict(reports_index, REPORT_LINK_REPORT_REF),
@@ -576,7 +584,9 @@ def _build_aux_artifact_section(
 def _compute_replay_readiness(inputs_section: dict[str, str | None]) -> ReplayReadiness:
     missing_required = [key for key in _REQUIRED_INPUT_KEYS if inputs_section.get(key) is None]
     has_snapshot = bool(
-        inputs_section.get(INPUT_DATA_SNAPSHOT_REF) or inputs_section.get(INPUT_STATE_SNAPSHOT_REF)
+        inputs_section.get(INPUT_INPUT_BINDINGS_REF)
+        or inputs_section.get(INPUT_DATA_SNAPSHOT_REF)
+        or inputs_section.get(INPUT_STATE_SNAPSHOT_REF)
     )
     if missing_required or not has_snapshot:
         return ReplayReadiness.INCOMPLETE
@@ -593,6 +603,7 @@ def _determine_strategy_hint(
     has_registry = inputs_section.get(INPUT_REGISTRY_BUNDLE_REF) is not None
     has_snapshot = bool(
         inputs_section.get(INPUT_DATA_SNAPSHOT_REF)
+        or inputs_section.get(INPUT_INPUT_BINDINGS_REF)
         or inputs_section.get(INPUT_STATE_SNAPSHOT_REF)
         or artifacts_section.get(ARTIFACT_STATE_SNAPSHOT_REF)
     )

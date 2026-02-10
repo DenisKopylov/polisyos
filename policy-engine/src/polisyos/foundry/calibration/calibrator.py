@@ -38,7 +38,7 @@ from polisyos.foundry.calibration.report import (
     CalibrationUncertainty,
 )
 from polisyos.foundry.calibration.uncertainty_adapter import envelopes_from_calibration
-from polisyos.foundry.domain.state import GlobalState
+from polisyos.foundry.contracts.state import GlobalState
 from polisyos.ir.analytics.calibration import CalibrationConfig, CalibrationTarget, TrainableParamRef
 from polisyos.ir.kernel import (
     ConstraintRegistry,

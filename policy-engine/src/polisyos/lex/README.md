@@ -123,7 +123,7 @@ What-if анализ изменений нормативного поля. По�
 | `report.py` | Модели отчёта: `NormImpactReport`, `ComplianceDelta`, `ComplianceTransition`, `AffectedKPI` |
 | `cli.py` | Утилиты: `load_norm_pack()` (из CAS или файла), `render_impact_markdown()` |
 
-Интегрируется с `polisyos.scientist.governance` (LegalPass, SafetyPass, ValidationProfile) для запуска compliance-проверок на обеих версиях NormPack.
+Интегрируется с `polisyos.core.governance` (LegalPass, SafetyPass, ValidationProfile) для запуска compliance-проверок на обеих версиях NormPack.
 
 ## Ошибки (errors.py)
 
@@ -160,7 +160,7 @@ LexError
 | `ir.policy_spec` | PolicySpec, ParameterSpec |
 | `ir.applicability` | NormApplicability, IdSelector, TimeWindow |
 | `ir.citations` | AnchorKind, FragmentLocator |
-| `scientist.governance` | LegalPass, SafetyPass, ValidationProfile (только simulator) |
+| `core.governance` | LegalPass, SafetyPass, ValidationProfile (только simulator) |
 
 ### Внешние
 

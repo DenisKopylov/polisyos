@@ -51,7 +51,7 @@ from polisyos.foundry.methods.specialization import (
 @pytest.fixture
 def sample_unit() -> Unit:
     """Create a sample unit for testing."""
-    return Unit(name="dollars", symbol="USD")
+    return Unit(dimension="currency", symbol="USD")
 
 
 @pytest.fixture
@@ -120,10 +120,12 @@ def create_mock_method_class(
     that inspect.getsource() returns, but we use it to test the hashing
     logic by creating distinct classes.
     """
+    signature_value = signature
+    metadata_value = metadata
 
     class MockMethod:
-        signature: ClassVar[MethodSignature] = signature
-        metadata: ClassVar[MethodMetadata] = metadata
+        signature: ClassVar[MethodSignature] = signature_value
+        metadata: ClassVar[MethodMetadata] = metadata_value
 
         @staticmethod
         def pure_step(state: Any, params: Mapping[str, Any]) -> Any:

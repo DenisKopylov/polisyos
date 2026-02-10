@@ -11,7 +11,7 @@ from polisyos.foundry.agent_sim import (
     SharedPolicy,
     TaxationMechanism,
 )
-from polisyos.foundry.types import FidelityLevel
+from polisyos.foundry.contracts.fidelity import FidelityLevel
 
 
 class ShockMechanism(Mechanism):

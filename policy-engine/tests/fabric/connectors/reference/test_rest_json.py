@@ -10,7 +10,12 @@ from datetime import datetime, timezone
 
 import pytest
 
-from polisyos.fabric.connectors.base import ConnectionConfig, FetchRequest, FetchResult
+from polisyos.fabric.connectors.base import (
+    ConnectionConfig,
+    FetchRequest,
+    FetchResult,
+    HealthStatus,
+)
 from polisyos.fabric.connectors.contracts.schema import DataSchema, FieldSpec, SchemaType, SchemaVersion
 from polisyos.fabric.connectors.reference.rest_json import (
     GenericRESTConnector,
@@ -68,7 +73,11 @@ class TestRESTCompliance(ConnectorTestHarness):
                 quality_tier=QualityTier.SILVER,
             )
 
+        async def mock_health_check(handle):
+            return HealthStatus(healthy=True, message="mocked")
+
         connector.fetch = mock_fetch
+        connector.health_check = mock_health_check
         return connector
 
 
@@ -221,7 +230,11 @@ async def test_rest_pagination_with_rate_limit(monkeypatch) -> None:
     handle = await connector.connect(
         ConnectionConfig(
             url=url,
-            headers={"X-REST-DataPath": "data", "X-REST-Pagination": "page_number"},
+            headers={
+                "X-REST-DataPath": "data",
+                "X-REST-Pagination": "page_number",
+                "X-REST-PageSize": "2",
+            },
             rate_limit_rps=10.0,
         )
     )

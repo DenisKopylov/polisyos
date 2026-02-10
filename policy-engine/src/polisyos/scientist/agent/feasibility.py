@@ -4,7 +4,9 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from decimal import Decimal, InvalidOperation
+from io import BytesIO
 import math
+from types import SimpleNamespace
 from typing import Any, Protocol, runtime_checkable
 
 import numpy as np
@@ -13,6 +15,7 @@ from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.contracts.fabric import DataSnapshot
+from polisyos.core.contracts.foundry import StateSnapshot
 from polisyos.ir.kernel import SelectorFieldRegistry
 from polisyos.ir.governance.selector_expr import SelectorAll, SelectorAny, SelectorExpr, SelectorNot, SelectorPredicate
 from polisyos.ir.types import SelectorOperator
@@ -224,7 +227,8 @@ class StateSnapshotFeasibilityProbe:
         try:
             from polisyos.foundry.executor import load_state_snapshot
         except ModuleNotFoundError as exc:  # pragma: no cover - optional dependency
-            raise ValueError("Foundry/JAX dependencies are unavailable for feasibility checks") from exc
+            load_state_snapshot = None
+            _ = exc
 
         data_snapshot_id = ArtifactID.model_validate(data_snapshot_ref)
         payload = from_canonical_bytes(self._cas.get_bytes(data_snapshot_id))
@@ -236,7 +240,21 @@ class StateSnapshotFeasibilityProbe:
                 "DataSnapshot.data_ref.kind must be 'foundry.state_snapshot', "
                 f"got '{state_ref.kind}'"
             )
-        return load_state_snapshot(self._cas, snapshot_ref=state_ref.artifact_id)
+        if load_state_snapshot is not None:
+            try:
+                return load_state_snapshot(self._cas, snapshot_ref=state_ref.artifact_id)
+            except Exception:
+                # Some snapshots originate from agent_sim state layout and are not
+                # compatible with strict contracts-state dataclass reconstruction.
+                pass
+        return self._load_raw_state_snapshot(state_ref.artifact_id)
+
+    def _load_raw_state_snapshot(self, snapshot_artifact_id: str | ArtifactID) -> Any:
+        snapshot_payload = from_canonical_bytes(self._cas.get_bytes(snapshot_artifact_id))
+        snapshot = StateSnapshot.model_validate(snapshot_payload)
+        blob = np.load(BytesIO(self._cas.get_bytes(snapshot.state_ref.artifact_id)))
+        flat = {key: np.asarray(blob[key]) for key in blob.files}
+        return self._to_namespace(self._nest_state(flat))
 
     def _evaluate_selector(self, selector_expr: SelectorExpr, state: Any) -> np.ndarray:
         if isinstance(selector_expr, SelectorPredicate):
@@ -315,8 +333,30 @@ class StateSnapshotFeasibilityProbe:
     def _state_path(state: Any, path: str) -> Any:
         current = state
         for part in path.split("."):
-            current = getattr(current, part)
+            if isinstance(current, dict):
+                current = current[part]
+            else:
+                current = getattr(current, part)
         return current
+
+    @staticmethod
+    def _nest_state(flat: dict[str, np.ndarray]) -> dict[str, Any]:
+        nested: dict[str, Any] = {}
+        for key, value in flat.items():
+            parts = key.split(".")
+            current = nested
+            for part in parts[:-1]:
+                current = current.setdefault(part, {})
+            current[parts[-1]] = value
+        return nested
+
+    @classmethod
+    def _to_namespace(cls, value: Any) -> Any:
+        if isinstance(value, dict):
+            return SimpleNamespace(
+                **{k: cls._to_namespace(v) for k, v in value.items()}
+            )
+        return value
 
     @staticmethod
     def _coerce_scalar(value: Any) -> Any:

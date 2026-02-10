@@ -26,9 +26,7 @@ from polisyos.fabric.provenance.core import (
     ProvenanceAgent,
     ProvenanceCoreGraph,
     ProvenanceCoreRef,
-    ProvenanceEdge,
     ProvenanceEntity,
-    RelationType,
 )
 
 from polisyos.fabric.connectors.federation.types import (
@@ -186,30 +184,16 @@ def _build_composite_provenance(
 
     agent = ProvenanceAgent(
         agent_id="federation_engine",
-        agent_type=AgentType.SOFTWARE,
+        agent_type=AgentType.SYSTEM,
         label="Federation Engine",
         metadata={"version": "1.0"},
     )
     graph.add_agent(agent)
 
     for source_entity in source_entities:
-        graph.add_edge(
-            ProvenanceEdge(
-                source_id=source_entity.entity_id,
-                target_id=activity.activity_id,
-                relation=RelationType.USED,
-                timestamp=None,
-            )
-        )
+        graph.add_usage(activity.activity_id, source_entity.entity_id, timestamp=None)
 
-    graph.add_edge(
-        ProvenanceEdge(
-            source_id=activity.activity_id,
-            target_id=agent.agent_id,
-            relation=RelationType.WAS_ASSOCIATED_WITH,
-            timestamp=None,
-        )
-    )
+    graph.add_association(activity.activity_id, agent.agent_id, timestamp=None)
 
     composite_entity = ProvenanceEntity(
         entity_id="composite",
@@ -222,14 +206,7 @@ def _build_composite_provenance(
     )
     graph.add_entity(composite_entity)
 
-    graph.add_edge(
-        ProvenanceEdge(
-            source_id=activity.activity_id,
-            target_id=composite_entity.entity_id,
-            relation=RelationType.GENERATED,
-            timestamp=None,
-        )
-    )
+    graph.add_generation(composite_entity.entity_id, activity.activity_id, timestamp=None)
 
     return persist_provenance_graph(store, graph)
 

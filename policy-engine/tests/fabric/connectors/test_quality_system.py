@@ -269,8 +269,8 @@ class TestQualityGateIntegration:
             from polisyos.scientist.governance.passes.quality_gate_pass import (
                 QualityGatePass,
             )
-            from polisyos.scientist.governance.passes.base import PassContext
-            from polisyos.scientist.governance.profiles import ValidationProfile
+            from polisyos.core.governance.passes.base import PassContext
+            from polisyos.core.governance.profiles import ValidationProfile
         except ModuleNotFoundError as exc:
             pytest.skip(f"Governance dependencies unavailable: {exc}")
 

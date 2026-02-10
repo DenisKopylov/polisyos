@@ -5,12 +5,13 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
-from typing import Any, Callable, NamedTuple
+from typing import Any, Callable, Mapping, NamedTuple
 
 import pytest
 
 os.environ["JAX_PLATFORM_NAME"] = "cpu"
 os.environ["XLA_PYTHON_CLIENT_PREALLOCATE"] = "false"
+os.environ["JAX_ENABLE_X64"] = "true"
 
 import jax.numpy as jnp
 
@@ -44,6 +45,24 @@ def sample_unit() -> Unit:
 @pytest.fixture
 def custom_unit() -> Unit:
     return Unit("energy", "kWh", scale=1.0)
+
+
+@pytest.fixture
+def pure_step_factory() -> Callable[[Callable[[Any, Mapping[str, Any]], Any] | None], Any]:
+    """Create a @staticmethod-compatible pure_step for dynamic test classes."""
+
+    def _factory(
+        compute_fn: Callable[[Any, Mapping[str, Any]], Any] | None = None,
+    ) -> Any:
+        if compute_fn is None:
+            def _identity(state: Any, params: Mapping[str, Any]) -> Any:
+                del params
+                return state
+
+            return staticmethod(_identity)
+        return staticmethod(compute_fn)
+
+    return _factory
 
 
 @pytest.fixture

@@ -20,6 +20,16 @@ def default_workflow_spec() -> WorkflowSpec:
                 depends_on=["start"],
             ),
             NodeInvocation(
+                alias="bind_foundry_inputs",
+                node_id="scientist.node_bind_foundry_inputs@1.0.0",
+                depends_on=["build_data_snapshot"],
+            ),
+            NodeInvocation(
+                alias="run_data_plane_gate",
+                node_id="scientist.node_run_data_plane_gate@1.0.0",
+                depends_on=["bind_foundry_inputs"],
+            ),
+            NodeInvocation(
                 alias="link_trinity",
                 node_id="scientist.node_link_trinity@1.0.0",
                 depends_on=["start"],
@@ -27,12 +37,16 @@ def default_workflow_spec() -> WorkflowSpec:
             NodeInvocation(
                 alias="compile_foundry",
                 node_id="scientist.node_compile_foundry@1.0.0",
-                depends_on=["link_trinity"],
+                depends_on=["link_trinity", "run_data_plane_gate"],
             ),
             NodeInvocation(
                 alias="run_simulation",
                 node_id="scientist.node_run_simulation@1.0.1",
-                depends_on=["compile_foundry", "build_data_snapshot"],
+                depends_on=[
+                    "compile_foundry",
+                    "bind_foundry_inputs",
+                    "run_data_plane_gate",
+                ],
             ),
             NodeInvocation(
                 alias="run_causal_evaluation",
@@ -61,7 +75,8 @@ def default_workflow_spec() -> WorkflowSpec:
             ),
         ],
         notes=[
-            "E1.7 default workflow spec (engine DAG)",
+            "E1.8 default workflow spec (engine DAG)",
+            "P8 data-plane: bind_foundry_inputs + pre-simulation run_data_plane_gate.",
             "Decision packet is generated after governance and uncertainty propagation.",
         ],
     )

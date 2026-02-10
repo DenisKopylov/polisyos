@@ -33,6 +33,7 @@ class ComplianceIssue(BaseModel):
 _KIND_CAPABILITY = {
     ComponentKind.IR_FRAGMENT: Capability.IR_FRAGMENT,
     ComponentKind.FOUNDRY_METHOD: Capability.FOUNDRY_METHOD,
+    ComponentKind.FABRIC_CONNECTOR: Capability.FABRIC_CONNECTOR,
     ComponentKind.SCHOLAR_EXTRACTOR: Capability.SCHOLAR_EXTRACTOR,
     ComponentKind.LEX_EXTRACTOR: Capability.LEX_EXTRACTOR,
     ComponentKind.LEX_EVALUATOR: Capability.LEX_EVALUATOR,
@@ -47,6 +48,7 @@ _REQUIRED_ABI_KEYS: dict[ComponentKind, tuple[tuple[str, ...], ...]] = {
     ComponentKind.SCHOLAR_EXTRACTOR: (("world_abi",),),
     ComponentKind.LEX_EXTRACTOR: (("world_abi",),),
     ComponentKind.FOUNDRY_METHOD: (("foundry_methods_api", "foundry_api"),),
+    ComponentKind.FABRIC_CONNECTOR: (("fabric_connectors_api", "fabric_api"),),
     ComponentKind.LEX_EVALUATOR: (("ir_abi",), ("world_abi",)),
     ComponentKind.NORM_PACK_PROVIDER: (("ir_abi",), ("world_abi",)),
     ComponentKind.SCIENTIST_NODE: tuple(),

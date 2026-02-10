@@ -14,6 +14,7 @@ _BASE_ID_RE = re.compile(r"^[a-z][a-z0-9_]*(?:\.[a-z][a-z0-9_]*)+$")
 class ComponentKind(str, Enum):
     IR_FRAGMENT = "ir_fragment"
     FOUNDRY_METHOD = "foundry_method"
+    FABRIC_CONNECTOR = "fabric_connector"
     SCHOLAR_EXTRACTOR = "scholar_extractor"
     LEX_EXTRACTOR = "lex_extractor"
     LEX_EVALUATOR = "lex_evaluator"

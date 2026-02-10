@@ -30,6 +30,16 @@ class StateSnapshotRef(ArtifactRef):
     media_type: Literal["application/json"] = "application/json"
 
 
+class FoundryInputBindingsRef(ArtifactRef):
+    kind: Literal["foundry.input_bindings"] = "foundry.input_bindings"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class FoundryInputBindingReportRef(ArtifactRef):
+    kind: Literal["foundry.input_binding_report"] = "foundry.input_binding_report"
+    media_type: Literal["application/json"] = "application/json"
+
+
 class TreasurySeedRef(ArtifactRef):
     kind: Literal["foundry.treasury_seed"] = "foundry.treasury_seed"
     media_type: Literal["application/json"] = "application/json"
@@ -284,14 +294,55 @@ class FoundryExecConfig(BaseModel):
     capture_env: bool = False
 
 
+class FoundryInputBindingTransform(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    op: Literal[
+        "identity",
+        "to_bool",
+        "to_int",
+        "to_decimal",
+        "fillna",
+        "scale",
+        "offset",
+        "clip",
+        "round",
+    ] = "identity"
+    params: dict[str, Any] = Field(default_factory=dict)
+    notes: list[str] = Field(default_factory=list)
+
+
+class FoundryInputBindingRule(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    binding_id: str
+    source_path: str
+    target_slot_id: str
+    required: bool = True
+    default_value: Any = None
+    transforms: list[FoundryInputBindingTransform] = Field(default_factory=list)
+    notes: list[str] = Field(default_factory=list)
+
+
+class FoundryInputBindings(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
+    data_snapshot_ref: ArtifactRef
+    registry_bundle_ref: ArtifactRef
+    rules: list[FoundryInputBindingRule] = Field(default_factory=list)
+    bound_state_snapshot_ref: StateSnapshotRef
+    quality_report_ref: ArtifactRef | None = None
+    notes: list[str] = Field(default_factory=list)
+
+
 class ExecuteRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
 
     exec_plan_ref: ExecPlanRef
-    data_snapshot_ref: ArtifactRef | None = None
-    state_snapshot_ref: StateSnapshotRef | None = None
+    input_bindings_ref: FoundryInputBindingsRef
 
     registry_bundle_ref: ArtifactRef | None = None
     exec_config: FoundryExecConfig = Field(default_factory=FoundryExecConfig)

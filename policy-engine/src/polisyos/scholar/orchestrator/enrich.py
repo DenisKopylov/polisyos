@@ -9,6 +9,11 @@ import warnings
 from typing import Any
 
 from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.components import (
+    ENTRY_POINT_GROUP_LEX_EXTRACTORS,
+    ENTRY_POINT_GROUP_SCHOLAR_EXTRACTORS,
+)
+from polisyos.core.components.bootstrap import build_components_index
 from polisyos.core.contracts.scholar import BudgetsV1, ResearchIntent, SourceSpec, ThresholdsV1
 from polisyos.fabric.claims import extract_claims_from_doc, normalize_claims, resolve_conflicts
 from polisyos.fabric.claims.errors import ClaimPipelineError
@@ -468,7 +473,16 @@ def enrich_topic(
     normalized_claim_set_artifact_ids: list[str] = []
     extractor_ids_used: set[str] = set()
 
-    extractor_bootstrap_report = discover_and_bootstrap_extractors()
+    components_index, _ = build_components_index(
+        groups=[
+            ENTRY_POINT_GROUP_SCHOLAR_EXTRACTORS,
+            ENTRY_POINT_GROUP_LEX_EXTRACTORS,
+        ],
+        include_dev_scan=True,
+    )
+    extractor_bootstrap_report = discover_and_bootstrap_extractors(
+        components_index=components_index
+    )
     if extractor_bootstrap_report.errors:
         raise ScholarClaimsError(
             "claims extractor bootstrap failed",

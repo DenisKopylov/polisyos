@@ -11,7 +11,7 @@ from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.contracts.foundry import CompileRequest, Metrics, StateDelta
 from polisyos.core.registry import build_default_registry_bundle, load_registry_bundle_content
 from polisyos.foundry.compile.api import compile as compile_foundry
-from polisyos.foundry.domain.state import GlobalState
+from polisyos.foundry.contracts.state import GlobalState
 from polisyos.foundry.executor import apply_state_delta_and_snapshot, execute_program_graph
 from polisyos.ir.model_spec import ModelSpec
 from polisyos.ir.governance.policy_spec import InterventionSpec, PolicySpec

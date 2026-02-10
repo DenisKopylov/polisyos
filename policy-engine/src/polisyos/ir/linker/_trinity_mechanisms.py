@@ -2,13 +2,14 @@
 
 from __future__ import annotations
 
+from decimal import Decimal, InvalidOperation
 from typing import Iterable
 
 from polisyos.ir.kernel.merge_rules import MergeRuleKind, MergeRuleRegistry
 from polisyos.ir.kernel.selector_fields import SelectorFieldRegistry
 from polisyos.ir.kernel.slots import SlotRegistry, SlotValueType
 from polisyos.ir.kernel.units import MoneyUnit, RateUnit, UnitsRegistry
-from polisyos.ir.kernel.values import MoneyValue, RateValue
+from polisyos.ir.kernel.values import CountValue, DurationValue, MoneyValue, RateValue
 from polisyos.ir.governance.policy_spec import InterventionSpec
 from polisyos.ir.governance.problem_frame import ConstraintSpec
 from polisyos.ir.governance.schedule import ScheduleSpec, schedule_range
@@ -186,7 +187,7 @@ def _validate_constraint_unit(
                         data={"expected": unit.currency, "actual": constraint.value.currency},
                     )
                 )
-        else:
+        elif not _is_scalar_numeric_constraint_value(constraint.value):
             issues.append(
                 LinkIssue(
                     severity=LinkSeverity.ERROR,
@@ -200,21 +201,54 @@ def _validate_constraint_unit(
             )
         return
 
-    if isinstance(unit, RateUnit) and isinstance(constraint.value, RateValue):
-        if constraint.value.base != unit.base:
+    if isinstance(unit, RateUnit):
+        if isinstance(constraint.value, RateValue):
+            if constraint.value.base != unit.base:
+                issues.append(
+                    LinkIssue(
+                        severity=LinkSeverity.ERROR,
+                        code=LinkIssueCode.INCOMPATIBLE_CONSTRAINT,
+                        message=(
+                            f"Constraint '{constraint.constraint_id}' rate base '{constraint.value.base}' "
+                            f"does not match '{unit.base}'"
+                        ),
+                        path=path,
+                        ids=ids,
+                        data={"expected": unit.base, "actual": constraint.value.base},
+                    )
+                )
+            return
+
+        if not _is_scalar_numeric_constraint_value(constraint.value):
             issues.append(
                 LinkIssue(
                     severity=LinkSeverity.ERROR,
                     code=LinkIssueCode.INCOMPATIBLE_CONSTRAINT,
                     message=(
-                        f"Constraint '{constraint.constraint_id}' rate base '{constraint.value.base}' "
-                        f"does not match '{unit.base}'"
+                        f"Constraint '{constraint.constraint_id}' requires RateValue or numeric scalar"
                     ),
                     path=path,
                     ids=ids,
-                    data={"expected": unit.base, "actual": constraint.value.base},
                 )
             )
+
+
+def _is_scalar_numeric_constraint_value(value: object) -> bool:
+    if isinstance(value, (MoneyValue, RateValue, CountValue, DurationValue)):
+        return True
+    if isinstance(value, Decimal):
+        return True
+    if isinstance(value, bool):
+        return False
+    if isinstance(value, int):
+        return True
+    if isinstance(value, str):
+        try:
+            Decimal(value)
+            return True
+        except InvalidOperation:
+            return False
+    return False
 
 
 def _schedule_overlaps(left: ScheduleSpec, right: ScheduleSpec) -> bool:

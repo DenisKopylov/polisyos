@@ -14,7 +14,11 @@ from polisyos.core.artifacts.signing import (
 from polisyos.core.components import ComponentKind
 
 from ._cli_audit import _cmd_audit_export, _cmd_audit_verify
-from ._cli_components import _cmd_components_list, _cmd_registry_build
+from ._cli_components import (
+    _cmd_components_bootstrap,
+    _cmd_components_list,
+    _cmd_registry_build,
+)
 from ._cli_crypto import _cmd_keygen, _cmd_sign, _cmd_verify
 from ._cli_lex import _cmd_lex_impact, _cmd_lex_normpack_build
 from ._cli_replay import _cmd_replay, _cmd_resume
@@ -32,6 +36,8 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.command == "components" and args.components_command == "list":
         return _cmd_components_list(args)
+    if args.command == "components" and args.components_command == "bootstrap":
+        return _cmd_components_bootstrap(args)
     if args.command == "registry" and args.registry_command == "build":
         return _cmd_registry_build(args)
     if args.command == "scholar" and args.scholar_command == "enrich":
@@ -83,6 +89,18 @@ def _build_parser() -> argparse.ArgumentParser:
     list_parser.add_argument("--tag", default=None)
     list_parser.add_argument("--json", action="store_true")
     list_parser.add_argument("--dev-scan-path", action="append", default=[])
+
+    bootstrap_parser = components_sub.add_parser("bootstrap")
+    bootstrap_parser.add_argument("--group", action="append", default=[])
+    bootstrap_parser.add_argument("--dev-scan-path", action="append", default=[])
+    bootstrap_parser.add_argument("--no-dev-scan", action="store_true")
+    bootstrap_parser.add_argument("--skip-connectors", action="store_true")
+    bootstrap_parser.add_argument("--skip-methods", action="store_true")
+    bootstrap_parser.add_argument("--skip-evaluators", action="store_true")
+    bootstrap_parser.add_argument("--skip-extractors", action="store_true")
+    bootstrap_parser.add_argument("--skip-providers", action="store_true")
+    bootstrap_parser.add_argument("--skip-nodes", action="store_true")
+    bootstrap_parser.add_argument("--json", action="store_true")
 
     cmd_registry = components.add_parser("registry")
     registry_sub = cmd_registry.add_subparsers(dest="registry_command")

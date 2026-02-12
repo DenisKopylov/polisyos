@@ -77,8 +77,59 @@ def runtime_api_env(tmp_path: Path):
                 "issues": [{"code": "GOV001", "message": "Policy blocker"}],
                 "notes": ["fallback-governance"],
             },
+            "audit_trail": [
+                {
+                    "timestamp": "2026-02-11T12:00:00Z",
+                    "node": "pi_decompose",
+                    "action": "problem_frame_created",
+                    "details": {"summary": "Problem framed", "attempt": 1},
+                },
+                {
+                    "timestamp": "2026-02-11T12:00:01Z",
+                    "node": "drafter",
+                    "action": "draft_created",
+                    "details": {"summary": "Draft policy prepared", "attempt": 1},
+                },
+                {
+                    "timestamp": "2026-02-11T12:00:02Z",
+                    "node": "formalize",
+                    "action": "ir_generated",
+                    "details": {"summary": "Trinity bundle assembled", "attempt": 1},
+                },
+                {
+                    "timestamp": "2026-02-11T12:00:03Z",
+                    "node": "critic_review",
+                    "action": "critique_complete",
+                    "details": {"verdict": "NEEDS_REVISION", "attempt": 1},
+                },
+                {
+                    "timestamp": "2026-02-11T12:00:04Z",
+                    "node": "reflexion",
+                    "action": "abort_with_report",
+                    "details": {"attempt": 1, "can_retry": False},
+                },
+            ],
         },
         kind="scientist.decision_packet",
+    )
+    reflexion_terminal_ref = _put_json(
+        store,
+        {
+            "decision": "abort_with_report",
+            "card": {
+                "attempt_number": 1,
+                "created_at": "2026-02-11T12:00:04Z",
+                "violation_summary": "NEEDS_REVISION",
+            },
+            "failure_history": [
+                {
+                    "artifact_type": "failure_card",
+                    "attempt_number": 1,
+                    "error_code": "CRITIC_REJECTION",
+                }
+            ],
+        },
+        kind="scientist.reflexion_terminal",
     )
     experiment_state_ref = _put_json(
         store,
@@ -132,6 +183,31 @@ def runtime_api_env(tmp_path: Path):
         },
         kind="scientist.workflow_report",
     )
+    workflow_spec_ref = _put_json(
+        store,
+        {
+            "schema_version": "1.0",
+            "workflow_id": "scientist_default",
+            "error_policy": "fail_fast",
+            "nodes": [
+                {
+                    "alias": "compile_foundry",
+                    "node_id": "scientist.node_compile_foundry@1.0.0",
+                    "depends_on": [],
+                    "params": {},
+                },
+                {
+                    "alias": "run_governance",
+                    "node_id": "scientist.node_run_governance@1.1.0",
+                    "depends_on": ["compile_foundry"],
+                    "params": {},
+                },
+            ],
+            "required_binds": [],
+            "notes": [],
+        },
+        kind="scientist.workflow_spec",
+    )
 
     run = RunContext.start(
         store=store,
@@ -140,6 +216,7 @@ def runtime_api_env(tmp_path: Path):
         tenant_id=tenant_a,
         cell_id="cell-a",
     )
+    run.add_input(workflow_spec_ref)
     run.emit(
         "scientist.node.compile_foundry",
         "NODE_OK",
@@ -155,6 +232,7 @@ def runtime_api_env(tmp_path: Path):
     run.add_output(experiment_state_ref)
     run.add_output(workflow_report_ref)
     run.add_output(decision_packet_ref)
+    run.add_output(reflexion_terminal_ref)
     run.finalize(
         status="fail",
         errors=[{"code": "run.failed", "message": "workflow execution failed"}],
@@ -193,6 +271,8 @@ def runtime_api_env(tmp_path: Path):
         "secret_artifact_id": str(secret_ref.artifact_id),
         "governance_artifact_id": str(governance_ref.artifact_id),
         "decision_packet_artifact_id": str(decision_packet_ref.artifact_id),
+        "reflexion_terminal_artifact_id": str(reflexion_terminal_ref.artifact_id),
+        "workflow_spec_artifact_id": str(workflow_spec_ref.artifact_id),
         "experiment_state_artifact_id": str(experiment_state_ref.artifact_id),
         "workflow_report_artifact_id": str(workflow_report_ref.artifact_id),
         "tenant_a": tenant_a,

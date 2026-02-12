@@ -19,6 +19,7 @@ from polisyos.core.security.tenant_context import (
     set_current_access_scope,
     tenant_scope,
 )
+from polisyos.runtime.http.errors import problem_response
 
 logger = logging.getLogger("polisyos.security")
 
@@ -54,6 +55,7 @@ class CellRouterMiddleware(BaseHTTPMiddleware):  # type: ignore[misc]
         path = str(getattr(request.url, "path", ""))
         if path in {"/health", "/ready", "/metrics"}:
             return await call_next(request)
+        request_id = getattr(getattr(request, "state", object()), "request_id", None)
 
         claims = getattr(request.state, "user_claims", None)
         authenticated_tenant_id = (
@@ -68,15 +70,16 @@ class CellRouterMiddleware(BaseHTTPMiddleware):  # type: ignore[misc]
             and header_tenant_id != authenticated_tenant_id
         ):
             _record_failure("tenant_binding_mismatch")
-            return JSONResponse(
+            return problem_response(
                 status_code=403,
-                content={
-                    "error": "tenant_binding_mismatch",
-                    "detail": (
-                        f"Authenticated tenant {authenticated_tenant_id!r} "
-                        f"does not match header tenant {header_tenant_id!r}"
-                    ),
-                },
+                code="tenant_binding_mismatch",
+                detail=(
+                    f"Authenticated tenant {authenticated_tenant_id!r} "
+                    f"does not match header tenant {header_tenant_id!r}"
+                ),
+                request_id=request_id,
+                instance=path,
+                error="tenant_binding_mismatch",
             )
 
         effective_tenant_id = authenticated_tenant_id or header_tenant_id
@@ -94,15 +97,23 @@ class CellRouterMiddleware(BaseHTTPMiddleware):  # type: ignore[misc]
             )
         except MissingTenantHeaderError as exc:
             _record_failure("missing_tenant_header")
-            return JSONResponse(
+            return problem_response(
                 status_code=401,
-                content={"error": "missing_tenant_id", "detail": str(exc)},
+                code="missing_tenant_id",
+                detail=str(exc),
+                request_id=request_id,
+                instance=path,
+                error="missing_tenant_id",
             )
         except TenantRoutingError as exc:
             _record_failure("tenant_not_found")
-            return JSONResponse(
+            return problem_response(
                 status_code=403,
-                content={"error": "tenant_not_found", "detail": str(exc)},
+                code="tenant_not_found",
+                detail=str(exc),
+                request_id=request_id,
+                instance=path,
+                error="tenant_not_found",
             )
 
         request.state.tenant_id = routing.tenant_id
@@ -112,15 +123,16 @@ class CellRouterMiddleware(BaseHTTPMiddleware):  # type: ignore[misc]
         token_claim_cell = getattr(claims, "cell_id", None) if claims is not None else None
         if token_claim_cell and token_claim_cell != routing.cell_id:
             _record_failure("cell_binding_mismatch")
-            return JSONResponse(
+            return problem_response(
                 status_code=403,
-                content={
-                    "error": "cell_binding_mismatch",
-                    "detail": (
-                        f"Token is bound to cell {token_claim_cell!r}, "
-                        f"but routed cell is {routing.cell_id!r}"
-                    ),
-                },
+                code="cell_binding_mismatch",
+                detail=(
+                    f"Token is bound to cell {token_claim_cell!r}, "
+                    f"but routed cell is {routing.cell_id!r}"
+                ),
+                request_id=request_id,
+                instance=path,
+                error="cell_binding_mismatch",
             )
 
         scope_token = None
@@ -132,15 +144,23 @@ class CellRouterMiddleware(BaseHTTPMiddleware):  # type: ignore[misc]
                 response = await call_next(request)
         except CrossTenantAccessError as exc:
             _record_security_incident(routing.cell_slug, str(exc))
-            return JSONResponse(
+            return problem_response(
                 status_code=403,
-                content={"error": "cross_tenant_access", "detail": str(exc)},
+                code="cross_tenant_access",
+                detail=str(exc),
+                request_id=request_id,
+                instance=path,
+                error="cross_tenant_access",
             )
         except TenantIsolationError as exc:
             logger.exception("Tenant isolation error")
-            return JSONResponse(
+            return problem_response(
                 status_code=500,
-                content={"error": "tenant_isolation_error", "detail": str(exc)},
+                code="tenant_isolation_error",
+                detail=str(exc),
+                request_id=request_id,
+                instance=path,
+                error="tenant_isolation_error",
             )
         finally:
             if scope_token is not None:

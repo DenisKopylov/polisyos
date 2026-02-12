@@ -24,14 +24,23 @@ class ApiMeta(BaseModel):
     source_kinds: list[SourceKind] = Field(default_factory=list)
 
 
-class RuntimeApiError(BaseModel):
+class RuntimeApiProblem(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    error: str
+    type: str = Field(default="about:blank")
+    title: str
+    status: int = Field(default=500, ge=100, le=599)
     detail: str
     code: str
+    instance: str | None = None
     request_id: str | None = None
+    # Backward-compatible fields for existing clients.
+    error: str | None = None
     status_code: int = Field(default=500, ge=100, le=599)
+
+
+class RuntimeApiError(RuntimeApiProblem):
+    """Backward-compatible alias for runtime API error payloads."""
 
 
 class CursorPage(BaseModel):
@@ -164,6 +173,102 @@ class RunErrorView(BaseModel):
     node_alias: str | None = None
     timestamp: datetime | None = None
     details: dict[str, Any] = Field(default_factory=dict)
+
+
+class AgentPipelineStep(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    attempt: int = Field(default=1, ge=1)
+    agent: str
+    action: str
+    status: Literal["ok", "warn", "fail", "info"] = "info"
+    timestamp: datetime | None = None
+    summary: str | None = None
+    details: dict[str, Any] = Field(default_factory=dict)
+    prompt: str | None = None
+    response: str | None = None
+    model: str | None = None
+    latency_ms: int | None = Field(default=None, ge=0)
+    token_usage: dict[str, int] = Field(default_factory=dict)
+
+
+class AgentPipelineAttempt(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    attempt: int = Field(ge=1)
+    status: str = "unknown"
+    verdict: str | None = None
+    started_at: datetime | None = None
+    finished_at: datetime | None = None
+    duration_ms: int | None = Field(default=None, ge=0)
+    steps: list[AgentPipelineStep] = Field(default_factory=list)
+    notes: list[str] = Field(default_factory=list)
+
+
+class AgentPipelineView(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    run_id: str
+    source_kind: SourceKind
+    total_attempts: int = Field(default=0, ge=0)
+    latest_verdict: str | None = None
+    attempts: list[AgentPipelineAttempt] = Field(default_factory=list)
+    decision_packet_ref: ArtifactRef | None = None
+    reflexion_terminal_ref: ArtifactRef | None = None
+    source: str | None = None
+    notes: list[str] = Field(default_factory=list)
+
+
+class RunWorkflowNodeView(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    alias: str
+    node_id: str | None = None
+    depends_on: list[str] = Field(default_factory=list)
+    depth: int = Field(default=0, ge=0)
+    status: NodeStatus = "unknown"
+    duration_ms: int = Field(default=0, ge=0)
+    error_code: str | None = None
+    error_message: str | None = None
+    artifact_ids: list[str] = Field(default_factory=list)
+    input_artifact_ids: list[str] = Field(default_factory=list)
+    output_artifact_ids: list[str] = Field(default_factory=list)
+    heat: float = Field(default=0.0, ge=0.0)
+
+
+class RunWorkflowEdgeView(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    from_alias: str
+    to_alias: str
+
+
+class RunWorkflowSummary(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    workflow_id: str | None = None
+    error_policy: str | None = None
+    status: str | None = None
+    node_count: int = Field(default=0, ge=0)
+    edge_count: int = Field(default=0, ge=0)
+    ok_count: int = Field(default=0, ge=0)
+    skip_count: int = Field(default=0, ge=0)
+    fail_count: int = Field(default=0, ge=0)
+    max_depth: int = Field(default=0, ge=0)
+    critical_path_duration_ms: int | None = Field(default=None, ge=0)
+
+
+class RunWorkflowView(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    run_id: str
+    source_kind: SourceKind
+    summary: RunWorkflowSummary
+    nodes: list[RunWorkflowNodeView] = Field(default_factory=list)
+    edges: list[RunWorkflowEdgeView] = Field(default_factory=list)
+    workflow_spec_ref: ArtifactRef | None = None
+    workflow_report_ref: ArtifactRef | None = None
+    notes: list[str] = Field(default_factory=list)
 
 
 class ArtifactManifestView(BaseModel):
@@ -300,6 +405,20 @@ class RunErrorsResponse(BaseModel):
     errors: list[RunErrorView] = Field(default_factory=list)
 
 
+class AgentPipelineResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    meta: ApiMeta
+    pipeline: AgentPipelineView
+
+
+class RunWorkflowResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    meta: ApiMeta
+    workflow: RunWorkflowView
+
+
 class ArtifactManifestResponse(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -329,6 +448,10 @@ class ArtifactSchemaResponse(BaseModel):
 
 
 __all__ = [
+    "AgentPipelineAttempt",
+    "AgentPipelineResponse",
+    "AgentPipelineStep",
+    "AgentPipelineView",
     "ApiMeta",
     "ArtifactContentPreview",
     "ArtifactContentResponse",
@@ -360,7 +483,13 @@ __all__ = [
     "RunTimelineResponse",
     "RunTimelineSummary",
     "RunTimelineView",
+    "RunWorkflowEdgeView",
+    "RunWorkflowNodeView",
+    "RunWorkflowResponse",
+    "RunWorkflowSummary",
+    "RunWorkflowView",
     "RunsListResponse",
     "RuntimeApiError",
+    "RuntimeApiProblem",
     "SourceKind",
 ]

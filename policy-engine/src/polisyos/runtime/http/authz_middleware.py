@@ -13,6 +13,7 @@ from polisyos.core.security.tenant_context import (
     reset_current_access_scope,
     set_current_access_scope,
 )
+from polisyos.runtime.http.errors import problem_response
 
 logger = logging.getLogger("polisyos.security.authz")
 
@@ -73,6 +74,7 @@ class AuthzMiddleware(BaseHTTPMiddleware):  # type: ignore[misc]
         if delegation_token:
             if self._delegation_manager is None:
                 deny = self._deny_or_shadow(
+                    request,
                     reason="delegation_not_configured",
                     detail="Delegation token supplied but verifier is not configured",
                 )
@@ -80,6 +82,7 @@ class AuthzMiddleware(BaseHTTPMiddleware):  # type: ignore[misc]
                     return deny
             if not peer_spiffe_id:
                 deny = self._deny_or_shadow(
+                    request,
                     reason="missing_peer_identity",
                     detail="Delegation token requires mTLS peer identity",
                 )
@@ -87,6 +90,7 @@ class AuthzMiddleware(BaseHTTPMiddleware):  # type: ignore[misc]
                     return deny
             if self._trusted_delegators and peer_spiffe_id not in self._trusted_delegators:
                 deny = self._deny_or_shadow(
+                    request,
                     reason="untrusted_delegator",
                     detail=f"Peer {peer_spiffe_id!r} is not allowed to delegate user context",
                 )
@@ -94,6 +98,7 @@ class AuthzMiddleware(BaseHTTPMiddleware):  # type: ignore[misc]
                     return deny
             if not self._service_spiffe_id:
                 deny = self._deny_or_shadow(
+                    request,
                     reason="service_identity_not_set",
                     detail="POLISYOS_SERVICE_SPIFFE_ID is required for delegation audience binding",
                 )
@@ -108,6 +113,7 @@ class AuthzMiddleware(BaseHTTPMiddleware):  # type: ignore[misc]
                 )
             except Exception as exc:
                 deny = self._deny_or_shadow(
+                    request,
                     reason="invalid_delegation",
                     detail=str(exc),
                 )
@@ -122,6 +128,7 @@ class AuthzMiddleware(BaseHTTPMiddleware):  # type: ignore[misc]
 
         if scope is None:
             deny = self._deny_or_shadow(
+                request,
                 reason="missing_access_scope",
                 detail="No authenticated access scope found in request context",
             )
@@ -136,6 +143,7 @@ class AuthzMiddleware(BaseHTTPMiddleware):  # type: ignore[misc]
         routed_cell_id = getattr(request.state, "cell_id", None)
         if routed_cell_id and scope.cell_id and routed_cell_id != scope.cell_id:
             deny = self._deny_or_shadow(
+                request,
                 reason="cell_binding_mismatch",
                 detail=f"Scope bound to cell {scope.cell_id!r}, routed into {routed_cell_id!r}",
             )
@@ -168,13 +176,26 @@ class AuthzMiddleware(BaseHTTPMiddleware):  # type: ignore[misc]
         request.state.authz_reasons = list(result.reasons)
         request.state.authz_allowed_columns = _extract_allowed_columns(result.audit_entry)
         if not result.is_allowed:
+            if self._enforce and not self._shadow_mode:
+                request_id = getattr(getattr(request, "state", object()), "request_id", None)
+                return problem_response(
+                    status_code=403,
+                    code="authorization_denied",
+                    detail="Request was denied by authorization policy",
+                    request_id=request_id,
+                    instance=path,
+                    error="authorization_denied",
+                    title="Authorization denied",
+                    extensions={
+                        "policy": result.policy,
+                        "reasons": list(result.reasons),
+                    },
+                )
             payload = {
                 "error": "authorization_denied",
                 "policy": result.policy,
                 "reasons": list(result.reasons),
             }
-            if self._enforce and not self._shadow_mode:
-                return JSONResponse(status_code=403, content=payload)
             logger.warning("AUTHZ_SHADOW_DENY %s", payload)
 
         scope_token = set_current_access_scope(scope)
@@ -187,10 +208,18 @@ class AuthzMiddleware(BaseHTTPMiddleware):  # type: ignore[misc]
             response.headers["X-PolicyOS-Authz-Shadow-Deny"] = "true"
         return response
 
-    def _deny_or_shadow(self, *, reason: str, detail: str) -> Response | None:
+    def _deny_or_shadow(self, request: Request, *, reason: str, detail: str) -> Response | None:
         payload = {"error": reason, "detail": detail}
         if self._enforce and not self._shadow_mode:
-            return JSONResponse(status_code=403, content=payload)
+            request_id = getattr(getattr(request, "state", object()), "request_id", None)
+            return problem_response(
+                status_code=403,
+                code=reason,
+                detail=detail,
+                request_id=request_id,
+                instance=str(getattr(getattr(request, "url", object()), "path", "")),
+                error=reason,
+            )
         logger.warning("AUTHZ_SHADOW_GUARD %s", payload)
         return None
 

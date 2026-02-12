@@ -11,7 +11,9 @@ from polisyos.runtime.http.cell_router_middleware import CellRouterMiddleware
 from polisyos.runtime.http.dependencies import build_runtime_api_context
 from polisyos.runtime.http.errors import install_exception_handlers
 from polisyos.runtime.http.jwt_auth_middleware import JWTAuthMiddleware
+from polisyos.runtime.http.openapi_contract import install_runtime_openapi_contract
 from polisyos.runtime.http.routes.artifacts import router as artifacts_router
+from polisyos.runtime.http.routes.control import router as control_router
 from polisyos.runtime.http.routes.debug import router as debug_router
 from polisyos.runtime.http.routes.health import router as health_router
 from polisyos.runtime.http.routes.runs import router as runs_router
@@ -111,7 +113,10 @@ def create_runtime_api_app(
         app.include_router(debug_router)
     if artifacts_router is not None:
         app.include_router(artifacts_router)
+    if control_router is not None:
+        app.include_router(control_router)
 
+    install_runtime_openapi_contract(app)
     return app
 
 

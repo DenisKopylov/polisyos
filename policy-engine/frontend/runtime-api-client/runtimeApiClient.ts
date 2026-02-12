@@ -9,6 +9,53 @@ export type JsonValue =
   | { [key: string]: JsonValue }
   | JsonValue[];
 
+export type AgentPipelineAttempt = {
+  attempt: number;
+  duration_ms?: number | null;
+  finished_at?: string | null;
+  notes?: Array<string>;
+  started_at?: string | null;
+  status?: string;
+  steps?: Array<AgentPipelineStep>;
+  verdict?: string | null;
+};
+
+export type AgentPipelineResponse = {
+  meta: ApiMeta;
+  pipeline: AgentPipelineView;
+};
+
+export type AgentPipelineStep = {
+  action: string;
+  agent: string;
+  attempt?: number;
+  details?: {
+  [key: string]: unknown;
+};
+  latency_ms?: number | null;
+  model?: string | null;
+  prompt?: string | null;
+  response?: string | null;
+  status?: "ok" | "warn" | "fail" | "info";
+  summary?: string | null;
+  timestamp?: string | null;
+  token_usage?: {
+  [key: string]: number;
+};
+};
+
+export type AgentPipelineView = {
+  attempts?: Array<AgentPipelineAttempt>;
+  decision_packet_ref?: ArtifactRef | null;
+  latest_verdict?: string | null;
+  notes?: Array<string>;
+  reflexion_terminal_ref?: ArtifactRef | null;
+  run_id: string;
+  source?: string | null;
+  source_kind: string;
+  total_attempts?: number;
+};
+
 export type ApiMeta = {
   generated_at?: string;
   request_id: string;
@@ -286,10 +333,71 @@ export type RunTimelineView = {
   summary: RunTimelineSummary;
 };
 
+export type RunWorkflowEdgeView = {
+  from_alias: string;
+  to_alias: string;
+};
+
+export type RunWorkflowNodeView = {
+  alias: string;
+  artifact_ids?: Array<string>;
+  depends_on?: Array<string>;
+  depth?: number;
+  duration_ms?: number;
+  error_code?: string | null;
+  error_message?: string | null;
+  heat?: number;
+  input_artifact_ids?: Array<string>;
+  node_id?: string | null;
+  output_artifact_ids?: Array<string>;
+  status?: "ok" | "skip" | "fail" | "unknown";
+};
+
+export type RunWorkflowResponse = {
+  meta: ApiMeta;
+  workflow: RunWorkflowView;
+};
+
+export type RunWorkflowSummary = {
+  critical_path_duration_ms?: number | null;
+  edge_count?: number;
+  error_policy?: string | null;
+  fail_count?: number;
+  max_depth?: number;
+  node_count?: number;
+  ok_count?: number;
+  skip_count?: number;
+  status?: string | null;
+  workflow_id?: string | null;
+};
+
+export type RunWorkflowView = {
+  edges?: Array<RunWorkflowEdgeView>;
+  nodes?: Array<RunWorkflowNodeView>;
+  notes?: Array<string>;
+  run_id: string;
+  source_kind: string;
+  summary: RunWorkflowSummary;
+  workflow_report_ref?: ArtifactRef | null;
+  workflow_spec_ref?: ArtifactRef | null;
+};
+
 export type RunsListResponse = {
   meta: ApiMeta;
   page: CursorPage;
   runs?: Array<RunSummary>;
+};
+
+export type RuntimeApiProblem = {
+  code: string;
+  detail: string;
+  error?: string | null;
+  instance?: string | null;
+  request_id?: string | null;
+  status?: number;
+  status_code?: number;
+  title: string;
+  type?: string;
 };
 
 export type ValidationError = {
@@ -452,6 +560,13 @@ export class RuntimeApiClient {
     return this.request<RunDetailsResponse>("GET", path);
   }
 
+  async getRunAgents(params: {
+    run_id: string;
+  }): Promise<AgentPipelineResponse> {
+    const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/agents`;
+    return this.request<AgentPipelineResponse>("GET", path);
+  }
+
   async getRunLineage(params: {
     run_id: string;
     root_artifact_id?: Array<string> | null;
@@ -479,6 +594,13 @@ export class RuntimeApiClient {
   }): Promise<RunTimelineResponse> {
     const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/timeline`;
     return this.request<RunTimelineResponse>("GET", path);
+  }
+
+  async getRunWorkflow(params: {
+    run_id: string;
+  }): Promise<RunWorkflowResponse> {
+    const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/workflow`;
+    return this.request<RunWorkflowResponse>("GET", path);
   }
 
   async health(): Promise<{

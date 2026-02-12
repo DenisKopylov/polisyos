@@ -14,6 +14,7 @@ from polisyos.core.security.tenant_context import (
     reset_current_access_scope,
     set_current_access_scope,
 )
+from polisyos.runtime.http.errors import problem_response
 
 logger = logging.getLogger("polisyos.security.jwt")
 
@@ -66,14 +67,29 @@ class JWTAuthMiddleware(BaseHTTPMiddleware):  # type: ignore[misc]
         path = str(getattr(request.url, "path", ""))
         if path in self._public_paths:
             return await call_next(request)
+        request_id = getattr(getattr(request, "state", object()), "request_id", None)
 
         auth_header = request.headers.get("authorization", "")
         if not auth_header.startswith("Bearer "):
-            return JSONResponse(status_code=401, content={"error": "missing_bearer_token"})
+            return problem_response(
+                status_code=401,
+                code="missing_bearer_token",
+                detail="Authorization header must contain a Bearer token",
+                request_id=request_id,
+                instance=path,
+                error="missing_bearer_token",
+            )
 
         token = auth_header[7:].strip()
         if not token:
-            return JSONResponse(status_code=401, content={"error": "missing_bearer_token"})
+            return problem_response(
+                status_code=401,
+                code="missing_bearer_token",
+                detail="Authorization header must contain a non-empty Bearer token",
+                request_id=request_id,
+                instance=path,
+                error="missing_bearer_token",
+            )
 
         try:
             claims = self._identity_provider.extract_user_claims(
@@ -83,36 +99,49 @@ class JWTAuthMiddleware(BaseHTTPMiddleware):  # type: ignore[misc]
         except MFARequiredError as exc:
             get_metrics().record_identity_failure(reason="mfa_required", provider="keycloak")
             logger.warning("JWT rejected due to missing MFA: %s", exc)
-            return JSONResponse(
+            return problem_response(
                 status_code=403,
-                content={"error": "mfa_required", "detail": str(exc)},
+                code="mfa_required",
+                detail=str(exc),
+                request_id=request_id,
+                instance=path,
+                error="mfa_required",
             )
         except TokenValidationError as exc:
             get_metrics().record_identity_failure(reason="invalid_token", provider="keycloak")
             logger.warning("JWT authentication failed: %s", exc)
-            return JSONResponse(
+            return problem_response(
                 status_code=401,
-                content={"error": "invalid_token", "detail": str(exc)},
+                code="invalid_token",
+                detail=str(exc),
+                request_id=request_id,
+                instance=path,
+                error="invalid_token",
             )
         except Exception as exc:
             get_metrics().record_identity_failure(reason="identity_error", provider="keycloak")
             logger.exception("Unexpected JWT authentication error")
-            return JSONResponse(
+            return problem_response(
                 status_code=401,
-                content={"error": "invalid_token", "detail": str(exc)},
+                code="invalid_token",
+                detail=str(exc),
+                request_id=request_id,
+                instance=path,
+                error="invalid_token",
             )
 
         header_tenant = request.headers.get(self._tenant_header)
         if header_tenant and header_tenant != claims.tenant_id:
-            return JSONResponse(
+            return problem_response(
                 status_code=403,
-                content={
-                    "error": "tenant_binding_mismatch",
-                    "detail": (
-                        f"Header {self._tenant_header}={header_tenant!r} "
-                        "does not match token tenant"
-                    ),
-                },
+                code="tenant_binding_mismatch",
+                detail=(
+                    f"Header {self._tenant_header}={header_tenant!r} "
+                    "does not match token tenant"
+                ),
+                request_id=request_id,
+                instance=path,
+                error="tenant_binding_mismatch",
             )
 
         request.state.user_claims = claims

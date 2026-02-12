@@ -106,6 +106,11 @@ export class RuntimeApiClient {
     return this.request('GET', path);
   }
 
+  async getRunAgents(params) {
+    const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/agents`;
+    return this.request('GET', path);
+  }
+
   async getRunLineage(params) {
     const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/lineage`;
     const query = this.buildQuery({
@@ -123,6 +128,11 @@ export class RuntimeApiClient {
 
   async getRunTimeline(params) {
     const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/timeline`;
+    return this.request('GET', path);
+  }
+
+  async getRunWorkflow(params) {
+    const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/workflow`;
     return this.request('GET', path);
   }
 

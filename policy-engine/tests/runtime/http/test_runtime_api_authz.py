@@ -150,6 +150,7 @@ def test_runtime_api_denies_cross_tenant_run_access(runtime_api_env) -> None:
         },
     )
     assert response.status_code == 403
+    assert response.headers.get("content-type", "").startswith("application/problem+json")
     payload = response.json()
     assert payload["code"] == "run_tenant_mismatch"
 
@@ -178,6 +179,7 @@ def test_runtime_api_authz_deny_blocks_endpoint(runtime_api_env) -> None:
         },
     )
     assert response.status_code == 403
+    assert response.headers.get("content-type", "").startswith("application/problem+json")
     assert response.json()["error"] == "authorization_denied"
 
 
@@ -205,6 +207,7 @@ def test_runtime_api_denies_cross_tenant_artifact_access(runtime_api_env) -> Non
         },
     )
     assert response.status_code == 403
+    assert response.headers.get("content-type", "").startswith("application/problem+json")
     assert response.json()["code"] == "artifact_tenant_mismatch"
 
 
@@ -232,4 +235,5 @@ def test_runtime_api_denies_unscoped_artifact_access(runtime_api_env) -> None:
         },
     )
     assert response.status_code == 403
+    assert response.headers.get("content-type", "").startswith("application/problem+json")
     assert response.json()["code"] == "artifact_tenant_unscoped"

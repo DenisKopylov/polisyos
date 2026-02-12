@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -8,10 +9,17 @@ from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.contracts.runtime import (
+    AgentPipelineAttempt,
+    AgentPipelineStep,
+    AgentPipelineView,
     GovernanceDebugView,
     NodeDebugView,
     RunErrorView,
     RunNodeRecord,
+    RunWorkflowEdgeView,
+    RunWorkflowNodeView,
+    RunWorkflowSummary,
+    RunWorkflowView,
 )
 from polisyos.core.trace.record import TraceRecord
 
@@ -19,6 +27,8 @@ from .run_index import IndexedRunRecord
 from .timeline import TimelineService
 
 _GOVERNANCE_REPORT_KEY = "governance_report_ref"
+_REFLEXION_TERMINAL_KIND = "scientist.reflexion_terminal"
+_WORKFLOW_SPEC_KIND = "scientist.workflow_spec"
 _DEFAULT_SENSITIVE_KEYS = (
     "authorization",
     "password",
@@ -28,6 +38,19 @@ _DEFAULT_SENSITIVE_KEYS = (
     "apikey",
     "cookie",
 )
+_AGENT_ALIASES: dict[str, str] = {
+    "pi": "pi_agent",
+    "pi_agent": "pi_agent",
+    "pi_decompose": "pi_agent",
+    "problem_frame": "pi_agent",
+    "drafter": "drafter",
+    "draft": "drafter",
+    "formalize": "formalizer",
+    "formalizer": "formalizer",
+    "critic": "critic",
+    "critic_review": "critic",
+    "reflexion": "reflexion",
+}
 
 
 class DebugService:
@@ -187,6 +210,194 @@ class DebugService:
         errors.sort(key=_error_sort_key)
         return errors
 
+    def get_run_agents(self, run: IndexedRunRecord) -> AgentPipelineView:
+        notes: list[str] = []
+        source: str | None = None
+
+        decision_packet_payload = self._load_json_artifact(run.decision_packet_ref)
+        audit_trail_rows = _as_list_of_dicts(decision_packet_payload.get("audit_trail"))
+        steps: list[AgentPipelineStep] = []
+        if audit_trail_rows:
+            steps.extend(
+                _agent_steps_from_audit_trail(
+                    audit_trail_rows,
+                    sensitive_keys=self._sensitive_keys,
+                )
+            )
+            source = "decision_packet.audit_trail"
+
+        if not steps:
+            timeline_rows = self._timeline_service.build_for_run(run).timeline.events
+            timeline_steps = _agent_steps_from_timeline(
+                timeline_rows,
+                sensitive_keys=self._sensitive_keys,
+            )
+            if timeline_steps:
+                steps.extend(timeline_steps)
+                source = "trace.timeline"
+
+        reflexion_ref = self._find_first_ref_by_kind(run, _REFLEXION_TERMINAL_KIND)
+        reflexion_payload = self._load_json_artifact(reflexion_ref)
+        reflexion_step = _agent_step_from_reflexion_payload(
+            reflexion_payload,
+            sensitive_keys=self._sensitive_keys,
+        )
+        if reflexion_step is not None:
+            if not steps or not _contains_agent_step(steps, reflexion_step):
+                steps.append(reflexion_step)
+            if source is None:
+                source = "reflexion_terminal"
+
+        attempts = _group_agent_steps_by_attempt(steps)
+        if not attempts:
+            notes.append("agent_pipeline_data_not_available")
+
+        latest_verdict = (
+            _latest_attempt_verdict(attempts)
+            or _as_str(decision_packet_payload.get("verdict"))
+            or _as_str(reflexion_payload.get("decision"))
+        )
+
+        return AgentPipelineView(
+            run_id=run.run_id,
+            source_kind=run.source_kind,
+            total_attempts=len(attempts),
+            latest_verdict=latest_verdict,
+            attempts=attempts,
+            decision_packet_ref=run.decision_packet_ref,
+            reflexion_terminal_ref=reflexion_ref,
+            source=source,
+            notes=notes,
+        )
+
+    def get_run_workflow(self, run: IndexedRunRecord) -> RunWorkflowView:
+        notes: list[str] = []
+        timeline_events = self._timeline_service.build_for_run(run).timeline.events
+        timeline_by_alias = {
+            item.alias: item for item in _nodes_from_timeline(timeline_events) if item.alias
+        }
+
+        report_payload = self._load_json_artifact(run.workflow_report_ref)
+        report_rows = _as_list_of_dicts(report_payload.get("nodes"))
+        report_by_alias = _workflow_report_nodes_by_alias(report_rows)
+
+        workflow_spec_ref = self._find_run_input_ref_by_kind(run, _WORKFLOW_SPEC_KIND)
+        workflow_spec_payload = self._load_json_artifact(workflow_spec_ref)
+        spec_rows = _as_list_of_dicts(workflow_spec_payload.get("nodes"))
+        spec_by_alias, spec_order = _workflow_spec_nodes(spec_rows)
+        if not spec_by_alias:
+            notes.append("workflow_spec_missing_or_unavailable")
+
+        aliases: list[str] = []
+        aliases.extend(spec_order)
+        for alias in report_by_alias:
+            if alias not in aliases:
+                aliases.append(alias)
+        for alias in timeline_by_alias:
+            if alias not in aliases:
+                aliases.append(alias)
+
+        nodes: list[RunWorkflowNodeView] = []
+        for alias in aliases:
+            spec_node = spec_by_alias.get(alias, {})
+            report_node = report_by_alias.get(alias)
+            timeline_node = timeline_by_alias.get(alias)
+
+            depends_on = _as_list_of_strings(spec_node.get("depends_on"))
+            node_id = _as_str(spec_node.get("node_id"))
+            if report_node:
+                node_id = node_id or _as_str(report_node.get("node_id"))
+
+            status = _normalize_status(_as_str(report_node.get("status")) if report_node else None)
+            if status == "unknown" and timeline_node is not None:
+                status = timeline_node.status
+
+            duration_ms = _as_int(report_node.get("duration_ms")) if report_node else 0
+            if duration_ms <= 0 and timeline_node is not None:
+                duration_ms = timeline_node.duration_ms
+
+            report_artifacts = _artifact_ids_from_report_node(report_node)
+            artifact_ids = sorted(
+                set(report_artifacts).union(timeline_node.output_artifact_ids if timeline_node else [])
+            )
+            input_artifact_ids = timeline_node.input_artifact_ids if timeline_node else []
+            output_artifact_ids = timeline_node.output_artifact_ids if timeline_node else []
+
+            raw_error = report_node.get("error") if report_node else None
+            error_payload = raw_error if isinstance(raw_error, dict) else {}
+
+            nodes.append(
+                RunWorkflowNodeView(
+                    alias=alias,
+                    node_id=node_id,
+                    depends_on=depends_on,
+                    depth=0,
+                    status=status,
+                    duration_ms=duration_ms,
+                    error_code=_as_str(error_payload.get("code")),
+                    error_message=_sanitize_string(_as_str(error_payload.get("message"))),
+                    artifact_ids=artifact_ids,
+                    input_artifact_ids=input_artifact_ids,
+                    output_artifact_ids=output_artifact_ids,
+                    heat=0.0,
+                )
+            )
+
+        edges = _workflow_edges_from_nodes(nodes)
+        depth_by_alias, cycle_detected = _workflow_depths(nodes)
+        if cycle_detected:
+            notes.append("workflow_cycle_detected")
+
+        max_duration = max((node.duration_ms for node in nodes), default=0)
+        enriched_nodes: list[RunWorkflowNodeView] = []
+        for node in nodes:
+            depth = depth_by_alias.get(node.alias, 0)
+            heat = float(node.duration_ms) / float(max_duration) if max_duration > 0 else 0.0
+            enriched_nodes.append(
+                node.model_copy(
+                    update={
+                        "depth": depth,
+                        "heat": round(heat, 3),
+                    }
+                )
+            )
+        enriched_nodes.sort(key=lambda item: (item.depth, item.alias))
+
+        status_counts = defaultdict(int)
+        for node in enriched_nodes:
+            status_counts[node.status] += 1
+        critical_path = _critical_path_duration_ms(enriched_nodes)
+
+        summary = RunWorkflowSummary(
+            workflow_id=(
+                _as_str(workflow_spec_payload.get("workflow_id"))
+                or _as_str(report_payload.get("workflow_id"))
+            ),
+            error_policy=(
+                _as_str(workflow_spec_payload.get("error_policy"))
+                or _as_str(report_payload.get("error_policy"))
+            ),
+            status=_as_str(report_payload.get("status")),
+            node_count=len(enriched_nodes),
+            edge_count=len(edges),
+            ok_count=status_counts.get("ok", 0),
+            skip_count=status_counts.get("skip", 0),
+            fail_count=status_counts.get("fail", 0),
+            max_depth=max((node.depth for node in enriched_nodes), default=0),
+            critical_path_duration_ms=critical_path,
+        )
+
+        return RunWorkflowView(
+            run_id=run.run_id,
+            source_kind=run.source_kind,
+            summary=summary,
+            nodes=enriched_nodes,
+            edges=edges,
+            workflow_spec_ref=workflow_spec_ref,
+            workflow_report_ref=run.workflow_report_ref,
+            notes=notes,
+        )
+
     def _load_workflow_nodes(self, workflow_report_ref: ArtifactRef | None) -> list[RunNodeRecord]:
         payload = self._load_json_artifact(workflow_report_ref)
         rows = payload.get("nodes")
@@ -243,6 +454,28 @@ class DebugService:
             return {}
         return payload if isinstance(payload, dict) else {}
 
+    def _load_run_manifest_payload(self, run: IndexedRunRecord) -> dict[str, Any]:
+        return self._load_json_artifact(run.details.manifest_ref)
+
+    def _find_first_ref_by_kind(self, run: IndexedRunRecord, kind: str) -> ArtifactRef | None:
+        for ref in run.details.root_artifacts:
+            if ref.kind == kind:
+                return ref
+        manifest_payload = self._load_run_manifest_payload(run)
+        for raw in _as_list_of_dicts(manifest_payload.get("outputs")):
+            ref = _artifact_ref_from_payload(raw)
+            if ref is not None and ref.kind == kind:
+                return ref
+        return None
+
+    def _find_run_input_ref_by_kind(self, run: IndexedRunRecord, kind: str) -> ArtifactRef | None:
+        manifest_payload = self._load_run_manifest_payload(run)
+        for raw in _as_list_of_dicts(manifest_payload.get("inputs")):
+            ref = _artifact_ref_from_payload(raw)
+            if ref is not None and ref.kind == kind:
+                return ref
+        return None
+
 
 def _nodes_from_timeline(events: list[Any]) -> list[RunNodeRecord]:
     grouped: dict[str, RunNodeRecord] = {}
@@ -277,6 +510,405 @@ def _nodes_from_timeline(events: list[Any]) -> list[RunNodeRecord]:
             }
         )
     return [grouped[key] for key in sorted(grouped)]
+
+
+def _artifact_ref_from_payload(value: dict[str, Any]) -> ArtifactRef | None:
+    try:
+        return ArtifactRef.model_validate(value)
+    except Exception:
+        return None
+
+
+def _workflow_report_nodes_by_alias(rows: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
+    result: dict[str, dict[str, Any]] = {}
+    for row in rows:
+        alias = _as_str(row.get("alias"))
+        if alias:
+            result[alias] = row
+    return result
+
+
+def _workflow_spec_nodes(
+    rows: list[dict[str, Any]],
+) -> tuple[dict[str, dict[str, Any]], list[str]]:
+    by_alias: dict[str, dict[str, Any]] = {}
+    order: list[str] = []
+    for row in rows:
+        alias = _as_str(row.get("alias"))
+        if not alias:
+            continue
+        by_alias[alias] = row
+        order.append(alias)
+    return by_alias, order
+
+
+def _artifact_ids_from_report_node(row: dict[str, Any] | None) -> list[str]:
+    if row is None:
+        return []
+    ids: list[str] = []
+    for raw_ref in _as_list_of_dicts(row.get("artifacts")):
+        artifact_id = _as_str(raw_ref.get("artifact_id"))
+        if artifact_id:
+            ids.append(artifact_id)
+    return sorted(set(ids))
+
+
+def _workflow_edges_from_nodes(nodes: list[RunWorkflowNodeView]) -> list[RunWorkflowEdgeView]:
+    seen: set[tuple[str, str]] = set()
+    edges: list[RunWorkflowEdgeView] = []
+    aliases = {node.alias for node in nodes}
+    for node in nodes:
+        for parent in node.depends_on:
+            if parent not in aliases:
+                continue
+            pair = (parent, node.alias)
+            if pair in seen:
+                continue
+            seen.add(pair)
+            edges.append(RunWorkflowEdgeView(from_alias=parent, to_alias=node.alias))
+    edges.sort(key=lambda item: (item.from_alias, item.to_alias))
+    return edges
+
+
+def _workflow_depths(nodes: list[RunWorkflowNodeView]) -> tuple[dict[str, int], bool]:
+    deps = {node.alias: list(node.depends_on) for node in nodes}
+    cache: dict[str, int] = {}
+    visiting: set[str] = set()
+    cycle_detected = False
+
+    def _depth(alias: str) -> int:
+        nonlocal cycle_detected
+        if alias in cache:
+            return cache[alias]
+        if alias in visiting:
+            cycle_detected = True
+            return 0
+        visiting.add(alias)
+        parents = deps.get(alias) or []
+        if not parents:
+            value = 0
+        else:
+            value = 1 + max((_depth(parent) for parent in parents), default=0)
+        visiting.discard(alias)
+        cache[alias] = max(value, 0)
+        return cache[alias]
+
+    for alias in deps:
+        _depth(alias)
+    return cache, cycle_detected
+
+
+def _critical_path_duration_ms(nodes: list[RunWorkflowNodeView]) -> int | None:
+    if not nodes:
+        return None
+    node_by_alias = {node.alias: node for node in nodes}
+    deps = {node.alias: list(node.depends_on) for node in nodes}
+    cache: dict[str, int] = {}
+    visiting: set[str] = set()
+
+    def _duration(alias: str) -> int:
+        if alias in cache:
+            return cache[alias]
+        if alias in visiting:
+            return 0
+        visiting.add(alias)
+        node = node_by_alias.get(alias)
+        own = node.duration_ms if node is not None else 0
+        parents = deps.get(alias) or []
+        if not parents:
+            total = own
+        else:
+            total = own + max((_duration(parent) for parent in parents), default=0)
+        visiting.discard(alias)
+        cache[alias] = max(total, 0)
+        return cache[alias]
+
+    durations = [_duration(alias) for alias in deps]
+    return max(durations, default=0)
+
+
+def _normalize_agent(value: str | None) -> str | None:
+    if value is None:
+        return None
+    normalized = value.strip().lower()
+    if not normalized:
+        return None
+    return _AGENT_ALIASES.get(normalized, normalized)
+
+
+def _status_from_agent_action(
+    *,
+    action: str | None,
+    details: dict[str, Any],
+    fallback: str = "info",
+) -> str:
+    lowered_action = (action or "").lower()
+    verdict = (_as_str(details.get("verdict")) or "").lower()
+    if any(token in lowered_action for token in ("fail", "error", "reject", "abort")):
+        return "fail"
+    if any(token in lowered_action for token in ("warn", "retry", "revise")):
+        return "warn"
+    if any(token in lowered_action for token in ("ok", "approve", "success", "done")):
+        return "ok"
+    if verdict in {"reject", "needs_revision", "abort_with_report"}:
+        return "fail"
+    if verdict in {"approve", "approved", "pass"}:
+        return "ok"
+    return fallback
+
+
+def _extract_attempt(value: Any, *, fallback: int) -> int:
+    parsed = _as_int(value)
+    if parsed <= 0:
+        return fallback
+    return parsed
+
+
+def _agent_steps_from_audit_trail(
+    rows: list[dict[str, Any]],
+    *,
+    sensitive_keys: tuple[str, ...],
+) -> list[AgentPipelineStep]:
+    steps: list[AgentPipelineStep] = []
+    current_attempt = 1
+    for row in rows:
+        node = _normalize_agent(_as_str(row.get("node")))
+        action = _as_str(row.get("action"))
+        if node is None or action is None or node == "runtime":
+            continue
+        details = row.get("details")
+        detail_payload = details if isinstance(details, dict) else {}
+        attempt = _extract_attempt(detail_payload.get("attempt"), fallback=current_attempt)
+
+        if node == "reflexion":
+            can_retry = bool(detail_payload.get("can_retry"))
+            if can_retry:
+                current_attempt = attempt + 1
+            else:
+                current_attempt = max(current_attempt, attempt)
+        else:
+            current_attempt = max(current_attempt, attempt)
+
+        steps.append(
+            AgentPipelineStep(
+                attempt=attempt,
+                agent=node,
+                action=action,
+                status=_status_from_agent_action(action=action, details=detail_payload),
+                timestamp=_as_datetime(row.get("timestamp")),
+                summary=(
+                    _as_str(detail_payload.get("summary"))
+                    or _as_str(detail_payload.get("message"))
+                    or _as_str(detail_payload.get("verdict"))
+                ),
+                details=_sanitize_payload(detail_payload, sensitive_keys=sensitive_keys),
+                prompt=_as_str(detail_payload.get("system_prompt"))
+                or _as_str(detail_payload.get("prompt")),
+                response=_as_str(detail_payload.get("response"))
+                or _as_str(detail_payload.get("raw_response")),
+                model=_as_str(detail_payload.get("model")),
+                latency_ms=_as_int_or_none(detail_payload.get("latency_ms")),
+                token_usage=_token_usage(detail_payload.get("token_usage")),
+            )
+        )
+    return steps
+
+
+def _agent_steps_from_timeline(
+    events: list[Any],
+    *,
+    sensitive_keys: tuple[str, ...],
+) -> list[AgentPipelineStep]:
+    steps: list[AgentPipelineStep] = []
+    for event in events:
+        phase = _as_str(getattr(event, "phase", None))
+        if phase is None:
+            continue
+        agent = _normalize_agent(_agent_from_phase(phase))
+        if agent is None:
+            continue
+        action = _as_str(getattr(event, "event", None))
+        if action is None:
+            continue
+        metrics = event.metrics if isinstance(event.metrics, dict) else {}
+        attempt = _extract_attempt(metrics.get("attempt"), fallback=1)
+        details = _sanitize_payload(metrics, sensitive_keys=sensitive_keys)
+        steps.append(
+            AgentPipelineStep(
+                attempt=attempt,
+                agent=agent,
+                action=action,
+                status=_status_from_agent_action(action=action, details=metrics),
+                timestamp=getattr(event, "timestamp", None),
+                summary=_as_str(metrics.get("summary")) or _as_str(metrics.get("verdict")),
+                details=details if isinstance(details, dict) else {},
+                model=_as_str(metrics.get("model")),
+                latency_ms=_as_int_or_none(metrics.get("latency_ms"))
+                or _as_int_or_none(metrics.get("duration_ms")),
+                token_usage=_token_usage(metrics.get("token_usage")),
+            )
+        )
+    return steps
+
+
+def _agent_from_phase(phase: str) -> str | None:
+    normalized = phase.strip().lower()
+    if normalized.startswith("scientist.node."):
+        return None
+    if normalized.startswith("scientist.agent."):
+        return normalized.split(".", 2)[-1]
+    for marker in _AGENT_ALIASES:
+        if marker in normalized:
+            return marker
+    return None
+
+
+def _agent_step_from_reflexion_payload(
+    payload: dict[str, Any],
+    *,
+    sensitive_keys: tuple[str, ...],
+) -> AgentPipelineStep | None:
+    if not payload:
+        return None
+    decision = _as_str(payload.get("decision"))
+    card = payload.get("card")
+    card_payload = card if isinstance(card, dict) else {}
+    attempt = _extract_attempt(card_payload.get("attempt_number"), fallback=1)
+    details: dict[str, Any] = {}
+    if card_payload:
+        details["card"] = card_payload
+    if payload.get("failure_history") is not None:
+        details["failure_history"] = payload.get("failure_history")
+    if not decision and not details:
+        return None
+    sanitized = _sanitize_payload(details, sensitive_keys=sensitive_keys)
+    detail_payload = sanitized if isinstance(sanitized, dict) else {}
+    return AgentPipelineStep(
+        attempt=attempt,
+        agent="reflexion",
+        action=decision or "decision",
+        status=_status_from_agent_action(action=decision, details=card_payload),
+        timestamp=_as_datetime(card_payload.get("created_at")),
+        summary=_as_str(card_payload.get("violation_summary")) or decision,
+        details=detail_payload,
+        model=_as_str(card_payload.get("model")),
+    )
+
+
+def _contains_agent_step(existing: list[AgentPipelineStep], target: AgentPipelineStep) -> bool:
+    for step in existing:
+        if (
+            step.attempt == target.attempt
+            and step.agent == target.agent
+            and step.action == target.action
+            and step.timestamp == target.timestamp
+        ):
+            return True
+    return False
+
+
+def _group_agent_steps_by_attempt(steps: list[AgentPipelineStep]) -> list[AgentPipelineAttempt]:
+    grouped: dict[int, list[AgentPipelineStep]] = defaultdict(list)
+    for step in steps:
+        grouped[max(step.attempt, 1)].append(step)
+
+    attempts: list[AgentPipelineAttempt] = []
+    for attempt in sorted(grouped):
+        items = sorted(
+            grouped[attempt],
+            key=lambda item: item.timestamp or datetime.max,
+        )
+        started = next((item.timestamp for item in items if isinstance(item.timestamp, datetime)), None)
+        finished = next(
+            (item.timestamp for item in reversed(items) if isinstance(item.timestamp, datetime)),
+            None,
+        )
+        duration_ms = None
+        if isinstance(started, datetime) and isinstance(finished, datetime):
+            duration_ms = max(int((finished - started).total_seconds() * 1000), 0)
+
+        verdict = None
+        for item in reversed(items):
+            if item.agent == "critic":
+                verdict = item.summary or item.action
+                if verdict:
+                    break
+            if item.agent == "reflexion":
+                verdict = item.action
+                if verdict:
+                    break
+
+        status = "running"
+        if any(item.status == "fail" for item in items):
+            status = "failed"
+        elif any(item.agent == "reflexion" and "retry" in item.action.lower() for item in items):
+            status = "retry"
+        elif any(item.status == "ok" for item in items):
+            status = "completed"
+
+        attempts.append(
+            AgentPipelineAttempt(
+                attempt=attempt,
+                status=status,
+                verdict=verdict,
+                started_at=started,
+                finished_at=finished,
+                duration_ms=duration_ms,
+                steps=items,
+                notes=[],
+            )
+        )
+    return attempts
+
+
+def _latest_attempt_verdict(attempts: list[AgentPipelineAttempt]) -> str | None:
+    if not attempts:
+        return None
+    for attempt in reversed(attempts):
+        if attempt.verdict:
+            return attempt.verdict
+    return None
+
+
+def _as_datetime(value: Any) -> datetime | None:
+    if isinstance(value, datetime):
+        return value
+    if not isinstance(value, str):
+        return None
+    text = value.strip()
+    if not text:
+        return None
+    if text.endswith("Z"):
+        text = text[:-1] + "+00:00"
+    try:
+        return datetime.fromisoformat(text)
+    except ValueError:
+        return None
+
+
+def _as_int_or_none(value: Any) -> int | None:
+    parsed = _as_int(value)
+    return parsed if parsed > 0 else None
+
+
+def _token_usage(value: Any) -> dict[str, int]:
+    if isinstance(value, dict):
+        prompt = _as_int(value.get("prompt_tokens"))
+        completion = _as_int(value.get("completion_tokens"))
+        total = _as_int(value.get("total_tokens"))
+        out: dict[str, int] = {}
+        if prompt > 0:
+            out["prompt_tokens"] = prompt
+        if completion > 0:
+            out["completion_tokens"] = completion
+        if total > 0:
+            out["total_tokens"] = total
+        return out
+
+    if isinstance(value, (int, float)):
+        total = _as_int(value)
+        return {"total_tokens": total} if total > 0 else {}
+    return {}
 
 
 def _merge_workflow_nodes_with_timeline(

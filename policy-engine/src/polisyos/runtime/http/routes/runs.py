@@ -3,9 +3,11 @@ from __future__ import annotations
 from datetime import datetime
 
 from polisyos.core.contracts.runtime import (
+    AgentPipelineResponse,
     RunDetailsResponse,
     RunLineageResponse,
     RunNodesResponse,
+    RunWorkflowResponse,
     RunsListResponse,
     RunTimelineResponse,
 )
@@ -171,4 +173,50 @@ if router is not None:
             meta=build_meta(request, source_kinds=[run.source_kind]),
             run_id=run_id,
             lineage=lineage,
+        )
+
+    @router.get(
+        "/{run_id}/agents",
+        response_model=AgentPipelineResponse,
+        operation_id="get_run_agents",
+    )
+    def get_run_agents(
+        run_id: str,
+        request: Request,
+        ctx: RuntimeApiContext = Depends(get_runtime_api_context),  # noqa: B008
+    ) -> AgentPipelineResponse:
+        run = ctx.run_index.get_run(run_id)
+        enforce_run_tenant_access(request, ctx=ctx, run=run)
+        set_authz_resource(
+            request,
+            tenant_id=run.details.tenant_id,
+            kind="runtime.run_agents",
+        )
+        pipeline = ctx.debug.get_run_agents(run)
+        return AgentPipelineResponse(
+            meta=build_meta(request, source_kinds=[run.source_kind]),
+            pipeline=pipeline,
+        )
+
+    @router.get(
+        "/{run_id}/workflow",
+        response_model=RunWorkflowResponse,
+        operation_id="get_run_workflow",
+    )
+    def get_run_workflow(
+        run_id: str,
+        request: Request,
+        ctx: RuntimeApiContext = Depends(get_runtime_api_context),  # noqa: B008
+    ) -> RunWorkflowResponse:
+        run = ctx.run_index.get_run(run_id)
+        enforce_run_tenant_access(request, ctx=ctx, run=run)
+        set_authz_resource(
+            request,
+            tenant_id=run.details.tenant_id,
+            kind="runtime.run_workflow",
+        )
+        workflow = ctx.debug.get_run_workflow(run)
+        return RunWorkflowResponse(
+            meta=build_meta(request, source_kinds=[run.source_kind]),
+            workflow=workflow,
         )

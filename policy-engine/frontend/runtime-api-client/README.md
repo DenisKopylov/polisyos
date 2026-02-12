@@ -51,3 +51,9 @@ PYTHONPATH=src uv run python tools/runtime/generate_runtime_client.py \
 ```
 
 Генерация детерминированная: одинаковый OpenAPI-вход должен давать byte-stable результат.
+
+Проверить drift OpenAPI/клиента и контрактные инварианты:
+
+```bash
+PYTHONPATH=src uv run python tools/runtime/check_runtime_api_contract.py
+```

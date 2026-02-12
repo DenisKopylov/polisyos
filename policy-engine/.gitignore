@@ -35,6 +35,10 @@ runs/
 .tmp/
 .arch-freeze/
 
+# Frontend build artifacts
+frontend/runtime-dashboard/node_modules/
+frontend/runtime-dashboard/dist/
+
 # Local metrics (do not commit)
 test_collect.txt
 compileall.txt

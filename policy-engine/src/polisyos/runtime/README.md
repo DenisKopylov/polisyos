@@ -81,6 +81,8 @@ Notes:
 
 - `source_kind` is canonical and currently always `core_run`.
 - OpenAPI schema uses `core.contracts.runtime` DTOs and excludes legacy source kinds.
+- Error responses are unified as `application/problem+json` (`RuntimeApiProblem` schema).
+- Every Runtime API operation includes OpenAPI response examples (success + problem payloads).
 
 ## Services And Module Responsibilities
 
@@ -202,4 +204,10 @@ Generate typed client from schema:
 ```bash
 PYTHONPATH=src uv run python tools/runtime/generate_runtime_client.py \
   --openapi schemas/runtime_api_v1.openapi.json
+```
+
+Validate OpenAPI drift and contract invariants:
+
+```bash
+PYTHONPATH=src uv run python tools/runtime/check_runtime_api_contract.py
 ```

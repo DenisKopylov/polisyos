@@ -92,6 +92,7 @@ PYTHONPATH=src:. uv run python tools/<subdir>/<script>.py --help
 |---|---|---|
 | `export_runtime_openapi.py` | Экспорт OpenAPI Runtime API v1 в детерминированный JSON | Manual/Release |
 | `generate_runtime_client.py` | Генерация TS/JS runtime API клиента из OpenAPI | Manual/Release |
+| `check_runtime_api_contract.py` | Drift-check OpenAPI + runtime client + инварианты examples/problem+json | CI |
 | `inventory_legacy_runs.py` | Инвентаризация `runs/<id>/manifest.json` перед cutover | Manual/Ops |
 | `archive_legacy_runs.py` | Детерминированный tar.gz архив `runs/` + JSON report | Manual/Ops |
 

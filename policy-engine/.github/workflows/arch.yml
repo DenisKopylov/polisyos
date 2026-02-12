@@ -17,9 +17,16 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
       - name: Install dependencies
         run: |
           pip install -e ".[dev,test]"
+      - name: Install frontend dashboard dependencies
+        working-directory: frontend/runtime-dashboard
+        run: npm install
       - name: Run import gate
         run: python tools/lint/lint_imports.py --policy import_policy.toml --exceptions import_exceptions.toml
       - name: Run Foundry backend lint policy
@@ -34,3 +41,10 @@ jobs:
         run: python tools/connectors/check_contracts.py --check
       - name: Verify ABI schema snapshots
         run: python3 tools/diagnostics/gen_schema.py --check
+      - name: Verify Runtime API contract drift
+        run: python3 tools/runtime/check_runtime_api_contract.py
+      - name: Verify frontend API types are current
+        working-directory: frontend/runtime-dashboard
+        run: |
+          npm run generate:api
+          git diff --exit-code -- src/api/types.ts

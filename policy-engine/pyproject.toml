@@ -140,6 +140,13 @@ polisyos = "polisyos.core.components.cli:main"
 "worldbank.wdi" = "polisyos.fabric.connectors.components:world_bank_connector_component"
 "eurostat.data" = "polisyos.fabric.connectors.components:eurostat_connector_component"
 "ukons.datasets" = "polisyos.fabric.connectors.components:ukons_connector_component"
+"sdmx.source" = "polisyos.fabric.connectors.components:sdmx_connector_component"
+"ckan.catalog" = "polisyos.fabric.connectors.components:ckan_catalog_connector_component"
+"ckan.resource" = "polisyos.fabric.connectors.components:ckan_resource_connector_component"
+"socrata.soda" = "polisyos.fabric.connectors.components:socrata_connector_component"
+"opendatasoft.ods" = "polisyos.fabric.connectors.components:opendatasoft_connector_component"
+"sparql.endpoint" = "polisyos.fabric.connectors.components:sparql_connector_component"
+"rest.json" = "polisyos.fabric.connectors.components:rest_json_connector_component"
 
 [project.entry-points."polisyos.ir_fragments"]
 "roads.core" = "polisyos.packs.roads.ir_fragments:roads_ir_fragment_component"

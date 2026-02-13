@@ -1,0 +1,5 @@
+[
+  {"id": 1, "complaint_type": "Noise", "borough": "MANHATTAN", "created_date": "2024-01-15"},
+  {"id": 2, "complaint_type": "Heat", "borough": "BROOKLYN", "created_date": "2024-01-16"},
+  {"id": 3, "complaint_type": "Rodent", "borough": "BRONX", "created_date": "2024-01-17"}
+]

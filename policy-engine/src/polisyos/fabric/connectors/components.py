@@ -60,7 +60,18 @@ def _to_component_capabilities(connector_capabilities: ConnectorCapability) -> C
 
 def _load_builtin_connectors() -> Iterable[type["SourceConnector"]]:
     try:
-        from .sources import EurostatConnector, UKONSConnector, WorldBankConnector
+        from .sources import (
+            CKANCatalogConnector,
+            CKANResourceConnector,
+            EurostatConnector,
+            OpendatasoftConnector,
+            RestJsonConnector,
+            SDMXSourceConnector,
+            SocrataConnector,
+            SPARQLConnector,
+            UKONSConnector,
+            WorldBankConnector,
+        )
     except Exception:
         return ()
 
@@ -68,6 +79,13 @@ def _load_builtin_connectors() -> Iterable[type["SourceConnector"]]:
         WorldBankConnector,
         EurostatConnector,
         UKONSConnector,
+        SDMXSourceConnector,
+        CKANCatalogConnector,
+        CKANResourceConnector,
+        SocrataConnector,
+        OpendatasoftConnector,
+        SPARQLConnector,
+        RestJsonConnector,
     )
 
 
@@ -96,6 +114,13 @@ _BUILTIN_COMPONENTS = _build_builtin_components()
 world_bank_connector_component = _component_by_short_id(_BUILTIN_COMPONENTS, "wdi")
 eurostat_connector_component = _component_by_short_id(_BUILTIN_COMPONENTS, "data")
 ukons_connector_component = _component_by_short_id(_BUILTIN_COMPONENTS, "datasets")
+sdmx_connector_component = _component_by_short_id(_BUILTIN_COMPONENTS, "source")
+ckan_catalog_connector_component = _component_by_short_id(_BUILTIN_COMPONENTS, "catalog")
+ckan_resource_connector_component = _component_by_short_id(_BUILTIN_COMPONENTS, "resource")
+socrata_connector_component = _component_by_short_id(_BUILTIN_COMPONENTS, "soda")
+opendatasoft_connector_component = _component_by_short_id(_BUILTIN_COMPONENTS, "ods")
+sparql_connector_component = _component_by_short_id(_BUILTIN_COMPONENTS, "endpoint")
+rest_json_connector_component = _component_by_short_id(_BUILTIN_COMPONENTS, "json")
 __polisyos_components__ = list(_BUILTIN_COMPONENTS)
 
 __all__ = [
@@ -105,5 +130,12 @@ __all__ = [
     "world_bank_connector_component",
     "eurostat_connector_component",
     "ukons_connector_component",
+    "sdmx_connector_component",
+    "ckan_catalog_connector_component",
+    "ckan_resource_connector_component",
+    "socrata_connector_component",
+    "opendatasoft_connector_component",
+    "sparql_connector_component",
+    "rest_json_connector_component",
     "__polisyos_components__",
 ]

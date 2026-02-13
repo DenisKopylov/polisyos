@@ -29,12 +29,15 @@ export type AgentPipelineStep = {
   action: string;
   agent: string;
   attempt?: number;
+  cost_usd?: number | null;
   details?: {
   [key: string]: unknown;
 };
   latency_ms?: number | null;
   model?: string | null;
+  model_variant_id?: string | null;
   prompt?: string | null;
+  provider?: string | null;
   response?: string | null;
   status?: "ok" | "warn" | "fail" | "info";
   summary?: string | null;
@@ -151,12 +154,60 @@ export type ArtifactSchemaView = {
   top_level_keys?: Array<string>;
 };
 
+export type CacheEntryInfo = {
+  cache_key: string;
+  connector_id: string;
+  created_at: string;
+  dataset_id: string;
+  expires_at?: string | null;
+  is_valid?: boolean;
+  size_bytes?: number;
+};
+
+export type CacheStatusResponse = {
+  entries?: Array<CacheEntryInfo>;
+  meta: ApiMeta;
+  total_entries?: number;
+  total_size_bytes?: number;
+};
+
+export type ConnectorInfo = {
+  available_profiles?: Array<string>;
+  connector_id: string;
+  known_datasets?: Array<string>;
+  last_health_check?: string | null;
+  loaded?: boolean;
+  namespace: string;
+  version: string;
+};
+
+export type ConnectorsListResponse = {
+  connectors?: Array<ConnectorInfo>;
+  meta: ApiMeta;
+};
+
 export type CursorPage = {
   count?: number;
   cursor?: string | null;
   limit?: number;
   next_cursor?: string | null;
   total?: number | null;
+};
+
+export type DataSourceBinding = {
+  data_snapshot_ref?: string | null;
+  data_view_request_ref?: string | null;
+  input_bindings_ref?: string | null;
+};
+
+export type DatasetFetchSpecRequest = {
+  connector_id: string;
+  dataset_id: string;
+  date_end?: string | null;
+  date_start?: string | null;
+  filters?: {
+  [key: string]: Array<string>;
+};
 };
 
 export type GovernanceDebugResponse = {
@@ -183,9 +234,66 @@ export type HTTPValidationError = {
   detail?: Array<ValidationError>;
 };
 
+export type IngestRequest = {
+  cache_policy?: string;
+  connection_profile?: string | null;
+  datasets: Array<DatasetFetchSpecRequest>;
+  execution_mode?: "batch_full" | "batch_incremental" | "streaming_windowed";
+  license_name?: string;
+  produce_data_snapshot?: boolean;
+  source?: string;
+};
+
+export type IngestResponse = {
+  cursor_ref?: string | null;
+  data_snapshot_ref?: string | null;
+  datasets_fetched?: number;
+  evidence_bundle_ref?: string | null;
+  message: string;
+  meta: ApiMeta;
+  mode_effective?: string | null;
+  status: "completed" | "partial" | "failed";
+  warnings?: Array<string>;
+};
+
 export type InputRef = {
   artifact_id: ArtifactID;
   role: string;
+};
+
+export type ModelProfileInfo = {
+  base_url: string;
+  capabilities?: Array<string>;
+  description?: string;
+  display_name: string;
+  enabled?: boolean;
+  input_cost_per_mtoken_usd?: number | null;
+  model_id: string;
+  output_cost_per_mtoken_usd?: number | null;
+  profile_id: string;
+  provider: string;
+  tags?: Array<string>;
+};
+
+export type ModelProfilesListResponse = {
+  meta: ApiMeta;
+  profiles?: Array<ModelProfileInfo>;
+};
+
+export type NaturalLanguageRunRequest = {
+  checkpoint_policy?: "strict" | "lenient" | "disabled";
+  context?: {
+  [key: string]: unknown;
+};
+  data_source?: DataSourceBinding | null;
+  domain_hint?: string | null;
+  llm_model?: string | null;
+  llm_models?: Array<string> | null;
+  max_iterations?: number;
+  max_parallel_models?: number;
+  per_model_budget_usd?: number | null;
+  request: string;
+  run_budget_usd?: number | null;
 };
 
 export type NodeDebugResponse = {
@@ -243,6 +351,13 @@ export type RunErrorsResponse = {
   errors?: Array<RunErrorView>;
   meta: ApiMeta;
   run_id: string;
+};
+
+export type RunLaunchResponse = {
+  message: string;
+  meta: ApiMeta;
+  run_id: string;
+  status: "accepted" | "rejected";
 };
 
 export type RunLineageResponse = {
@@ -400,6 +515,24 @@ export type RuntimeApiProblem = {
   type?: string;
 };
 
+export type SourceProfileInfo = {
+  auth_policy?: string;
+  base_url: string;
+  connector_available?: boolean;
+  connector_family: string;
+  description?: string;
+  display_name: string;
+  estimated_datasets?: number | null;
+  profile_id: string;
+  source_organization?: string;
+  tags?: Array<string>;
+};
+
+export type SourceProfilesListResponse = {
+  meta: ApiMeta;
+  profiles?: Array<SourceProfileInfo>;
+};
+
 export type ValidationError = {
   ctx?: {
   [key: string]: unknown;
@@ -408,6 +541,22 @@ export type ValidationError = {
   loc: Array<string | number>;
   msg: string;
   type: string;
+};
+
+export type WorkflowRunRequest = {
+  calibration_report_ref?: string | null;
+  checkpoint_policy?: "strict" | "lenient" | "disabled";
+  data_source: DataSourceBinding;
+  knowledge_bundle_ref?: string | null;
+  mode?: "workflow" | "agent_circuit";
+  model_spec_ref?: string | null;
+  norm_pack_ref?: string | null;
+  params?: {
+  [key: string]: unknown;
+};
+  policy_spec_ref?: string | null;
+  research_intent_ref?: string | null;
+  trinity_bundle_ref?: string | null;
 };
 
 export interface RuntimeApiClientOptions {
@@ -502,6 +651,26 @@ export class RuntimeApiClient {
   }): Promise<ArtifactSchemaResponse> {
     const path = `/api/v1/artifacts/${encodeURIComponent(String(params.artifact_id))}/schema`;
     return this.request<ArtifactSchemaResponse>("GET", path);
+  }
+
+  async getCacheStatus(): Promise<CacheStatusResponse> {
+    const path = `/api/v1/control/data/cache`;
+    return this.request<CacheStatusResponse>("GET", path);
+  }
+
+  async listConnectors(): Promise<ConnectorsListResponse> {
+    const path = `/api/v1/control/data/connectors`;
+    return this.request<ConnectorsListResponse>("GET", path);
+  }
+
+  async listSourceProfiles(): Promise<SourceProfilesListResponse> {
+    const path = `/api/v1/control/data/profiles`;
+    return this.request<SourceProfilesListResponse>("GET", path);
+  }
+
+  async listLlmProfiles(): Promise<ModelProfilesListResponse> {
+    const path = `/api/v1/control/llm/profiles`;
+    return this.request<ModelProfilesListResponse>("GET", path);
   }
 
   async getRunErrors(params: {

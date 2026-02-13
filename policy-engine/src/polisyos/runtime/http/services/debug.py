@@ -214,6 +214,7 @@ class DebugService:
         notes: list[str] = []
         source: str | None = None
 
+        state_payload = self._load_experiment_state_payload(run.experiment_state_ref)
         decision_packet_payload = self._load_json_artifact(run.decision_packet_ref)
         audit_trail_rows = _as_list_of_dicts(decision_packet_payload.get("audit_trail"))
         steps: list[AgentPipelineStep] = []
@@ -247,6 +248,18 @@ class DebugService:
                 steps.append(reflexion_step)
             if source is None:
                 source = "reflexion_terminal"
+
+        variant_steps = _agent_steps_from_model_variants(
+            state_payload,
+            sensitive_keys=self._sensitive_keys,
+        )
+        if variant_steps:
+            for step in variant_steps:
+                if not _contains_agent_step(steps, step):
+                    steps.append(step)
+            source = source or "experiment_state.params"
+            if source != "experiment_state.params":
+                source = f"{source}+experiment_state.params"
 
         attempts = _group_agent_steps_by_attempt(steps)
         if not attempts:
@@ -707,7 +720,10 @@ def _agent_steps_from_audit_trail(
                 response=_as_str(detail_payload.get("response"))
                 or _as_str(detail_payload.get("raw_response")),
                 model=_as_str(detail_payload.get("model")),
+                provider=_as_str(detail_payload.get("provider")),
+                model_variant_id=_as_str(detail_payload.get("model_variant_id")),
                 latency_ms=_as_int_or_none(detail_payload.get("latency_ms")),
+                cost_usd=_as_float_or_none(detail_payload.get("cost_usd")),
                 token_usage=_token_usage(detail_payload.get("token_usage")),
             )
         )
@@ -743,9 +759,114 @@ def _agent_steps_from_timeline(
                 summary=_as_str(metrics.get("summary")) or _as_str(metrics.get("verdict")),
                 details=details if isinstance(details, dict) else {},
                 model=_as_str(metrics.get("model")),
+                provider=_as_str(metrics.get("provider")),
+                model_variant_id=_as_str(metrics.get("model_variant_id")),
                 latency_ms=_as_int_or_none(metrics.get("latency_ms"))
                 or _as_int_or_none(metrics.get("duration_ms")),
+                cost_usd=_as_float_or_none(metrics.get("cost_usd")),
                 token_usage=_token_usage(metrics.get("token_usage")),
+            )
+        )
+    return steps
+
+
+def _agent_steps_from_model_variants(
+    payload: dict[str, Any],
+    *,
+    sensitive_keys: tuple[str, ...],
+) -> list[AgentPipelineStep]:
+    params = payload.get("params")
+    if not isinstance(params, dict):
+        return []
+    raw_variants = params.get("llm_model_variants")
+    if not isinstance(raw_variants, list):
+        return []
+
+    steps: list[AgentPipelineStep] = []
+    for index, raw_variant in enumerate(raw_variants):
+        if not isinstance(raw_variant, dict):
+            continue
+        attempt = max(index + 1, 1)
+        variant_model = _as_str(raw_variant.get("model"))
+        variant_provider = _as_str(raw_variant.get("provider"))
+        variant_id = _as_str(raw_variant.get("model_variant_id"))
+        variant_status = _as_str(raw_variant.get("status")) or "unknown"
+        variant_verdict = _as_str(raw_variant.get("verdict"))
+        variant_cost = _as_float_or_none(raw_variant.get("cost_usd"))
+        token_usage = _token_usage(
+            {
+                "prompt_tokens": raw_variant.get("prompt_tokens"),
+                "completion_tokens": raw_variant.get("completion_tokens"),
+                "total_tokens": raw_variant.get("total_tokens"),
+            }
+        )
+        timestamp = _as_datetime(raw_variant.get("finished_at"))
+        if timestamp is None:
+            timestamp = _as_datetime(raw_variant.get("started_at"))
+
+        nested_steps = raw_variant.get("steps")
+        if isinstance(nested_steps, list) and nested_steps:
+            for nested in nested_steps:
+                if not isinstance(nested, dict):
+                    continue
+                nested_usage = _token_usage(nested.get("token_usage"))
+                nested_prompt = _as_str(nested.get("prompt"))
+                nested_response = _as_str(nested.get("response"))
+                nested_details = _sanitize_payload(nested.get("details"), sensitive_keys=sensitive_keys)
+                raw_status = _as_str(nested.get("status"))
+                nested_status = (
+                    raw_status
+                    if raw_status in {"ok", "warn", "fail", "info"}
+                    else _status_from_agent_action(
+                        action=_as_str(nested.get("action")),
+                        details=nested if isinstance(nested, dict) else {},
+                    )
+                )
+                steps.append(
+                    AgentPipelineStep(
+                        attempt=attempt,
+                        agent=_normalize_agent(_as_str(nested.get("agent")) or "model_variant")
+                        or "model_variant",
+                        action=_as_str(nested.get("action")) or "step",
+                        status=nested_status,
+                        timestamp=_as_datetime(nested.get("timestamp")) or timestamp,
+                        summary=_as_str(nested.get("summary")),
+                        details=nested_details if isinstance(nested_details, dict) else {},
+                        prompt=nested_prompt,
+                        response=nested_response,
+                        model=_as_str(nested.get("model")) or variant_model,
+                        provider=_as_str(nested.get("provider")) or variant_provider,
+                        model_variant_id=_as_str(nested.get("model_variant_id")) or variant_id,
+                        latency_ms=_as_int_or_none(nested.get("latency_ms")),
+                        cost_usd=_as_float_or_none(nested.get("cost_usd")),
+                        token_usage=nested_usage,
+                    )
+                )
+            continue
+
+        details = _sanitize_payload(raw_variant, sensitive_keys=sensitive_keys)
+        summary_status = {
+            "completed": "ok",
+            "fallback_mock": "warn",
+            "budget_exceeded": "warn",
+            "failed": "fail",
+            "skipped_budget_guard": "warn",
+        }.get(variant_status, "info")
+        steps.append(
+            AgentPipelineStep(
+                attempt=attempt,
+                agent="model_variant",
+                action=variant_status,
+                status=summary_status,
+                timestamp=timestamp,
+                summary=variant_verdict or variant_status,
+                details=details if isinstance(details, dict) else {},
+                model=variant_model,
+                provider=variant_provider,
+                model_variant_id=variant_id,
+                latency_ms=_as_int_or_none(raw_variant.get("latency_ms")),
+                cost_usd=variant_cost,
+                token_usage=token_usage,
             )
         )
     return steps
@@ -792,6 +913,11 @@ def _agent_step_from_reflexion_payload(
         summary=_as_str(card_payload.get("violation_summary")) or decision,
         details=detail_payload,
         model=_as_str(card_payload.get("model")),
+        provider=_as_str(card_payload.get("provider")),
+        model_variant_id=_as_str(card_payload.get("model_variant_id")),
+        latency_ms=_as_int_or_none(card_payload.get("duration_ms")),
+        cost_usd=_as_float_or_none(card_payload.get("cost_usd")),
+        token_usage=_token_usage(card_payload.get("token_usage")),
     )
 
 
@@ -889,6 +1015,16 @@ def _as_datetime(value: Any) -> datetime | None:
 def _as_int_or_none(value: Any) -> int | None:
     parsed = _as_int(value)
     return parsed if parsed > 0 else None
+
+
+def _as_float_or_none(value: Any) -> float | None:
+    if value is None:
+        return None
+    try:
+        parsed = float(value)
+    except (TypeError, ValueError):
+        return None
+    return max(parsed, 0.0)
 
 
 def _token_usage(value: Any) -> dict[str, int]:

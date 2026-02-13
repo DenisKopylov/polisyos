@@ -184,10 +184,21 @@ class MetricsRegistry(_MetricsRegistryBase):
         status: str,
         prompt_tokens: int = 0,
         completion_tokens: int = 0,
+        provider: str | None = None,
+        run_id: str | None = None,
+        model_variant_id: str | None = None,
+        cost_usd: float | None = None,
+        latency_ms: int | None = None,
     ) -> None:
         """Record an LLM API call with token counts."""
         self._ensure_initialized()
-        attrs = {"model": model, "status": status}
+        attrs: dict[str, str] = {"model": model, "status": status}
+        if provider:
+            attrs["provider"] = provider
+        if run_id:
+            attrs["run_id"] = run_id
+        if model_variant_id:
+            attrs["model_variant_id"] = model_variant_id
 
         if self.llm_calls_total:
             self.llm_calls_total.add(1, attrs)
@@ -199,6 +210,10 @@ class MetricsRegistry(_MetricsRegistryBase):
                 self.llm_tokens_total.add(
                     completion_tokens, {**attrs, "type": "completion"}
                 )
+        if self.llm_cost_usd is not None and cost_usd is not None:
+            self.llm_cost_usd.record(max(0.0, float(cost_usd)), attrs)
+        if self.llm_latency_ms is not None and latency_ms is not None:
+            self.llm_latency_ms.record(max(0.0, float(latency_ms)), attrs)
 
     def record_drafter_multipass_run(
         self,

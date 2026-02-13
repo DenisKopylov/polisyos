@@ -26,8 +26,17 @@ import { formatBytes, formatDate, formatDuration } from "../lib/utils";
 
 const DecisionCardView = lazy(() => import("../components/decision/DecisionCardView"));
 
-type RunTab = "timeline" | "nodes" | "lineage" | "agents" | "workflow" | "governance" | "debug" | "decision";
-const RUN_TABS: RunTab[] = ["timeline", "nodes", "lineage", "agents", "workflow", "governance", "debug", "decision"];
+type RunTab =
+  | "timeline"
+  | "nodes"
+  | "lineage"
+  | "agents"
+  | "models"
+  | "workflow"
+  | "governance"
+  | "debug"
+  | "decision";
+const RUN_TABS: RunTab[] = ["timeline", "nodes", "lineage", "agents", "models", "workflow", "governance", "debug", "decision"];
 
 const DECISION_PREVIEW_LIMITS = [256 * 1024, 1024 * 1024, 2_000_000] as const;
 
@@ -102,7 +111,7 @@ export default function RunDetail() {
   const timelineQuery = useRunTimeline(runId, activeTab === "timeline");
   const nodesQuery = useRunNodes(runId, activeTab === "nodes" || activeTab === "debug");
   const lineageQuery = useRunLineage(runId, activeTab === "lineage");
-  const agentsQuery = useRunAgents(runId, activeTab === "agents");
+  const agentsQuery = useRunAgents(runId, activeTab === "agents" || activeTab === "models");
   const workflowQuery = useRunWorkflow(runId, activeTab === "workflow");
   const governanceQuery = useGovernanceDebug(runId, activeTab === "governance");
   const errorsQuery = useRunErrors(runId, activeTab === "governance" || activeTab === "debug");
@@ -478,7 +487,7 @@ export default function RunDetail() {
           </div>
         ) : null}
 
-        {activeTab === "agents" ? (
+        {activeTab === "agents" || activeTab === "models" ? (
           <div className="space-y-3">
             {agentsQuery.isLoading ? <p className="text-sm text-muted">Loading agent pipeline...</p> : null}
             {agentsQuery.isError ? (

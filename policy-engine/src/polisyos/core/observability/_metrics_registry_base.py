@@ -51,6 +51,8 @@ class _MetricsRegistryBase:
     simulation_batch_size: Optional[metrics.Histogram] = None
     llm_calls_total: Optional[metrics.Counter] = None
     llm_tokens_total: Optional[metrics.Counter] = None
+    llm_cost_usd: Optional[metrics.Histogram] = None
+    llm_latency_ms: Optional[metrics.Histogram] = None
     drafter_multipass_runs_total: Optional[metrics.Counter] = None
     drafter_multipass_passes_total: Optional[metrics.Counter] = None
     drafter_multipass_findings_total: Optional[metrics.Counter] = None
@@ -285,6 +287,16 @@ class _MetricsRegistryBase:
             name="polisyos_llm_tokens_total",
             description="Total LLM tokens consumed",
             unit="1",
+        )
+        self.llm_cost_usd = self._meter.create_histogram(
+            name="polisyos_llm_cost_usd",
+            description="Estimated or reported LLM call cost",
+            unit="USD",
+        )
+        self.llm_latency_ms = self._meter.create_histogram(
+            name="polisyos_llm_latency_ms",
+            description="LLM call latency in milliseconds",
+            unit="ms",
         )
 
         # Drafter multipass metrics

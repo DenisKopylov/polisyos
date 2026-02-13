@@ -253,6 +253,49 @@ class ConnectorRegistry(RegistryLifecycleMixin):
         with self._instance_lock:
             return self._connectors.require(fqid)
 
+    def set_default_config(
+        self,
+        connector_id: str,
+        config: "ConnectionConfig",
+    ) -> None:
+        """Set default ConnectionConfig for a registered connector.
+
+        Args:
+            connector_id: Short ID or fully qualified ID
+            config: Default connection configuration
+
+        Raises:
+            ConnectorNotFoundError: If connector not registered
+        """
+        fqid = self._resolve_id(connector_id)
+        with self._instance_lock:
+            entry = self._connectors.get(fqid)
+        if entry is None:
+            raise ConnectorNotFoundError(
+                connector_id,
+                available=list(self._connectors.keys()),
+            )
+        entry.default_config = config
+        logger.debug("Set default config", connector_id=fqid)
+
+    def get_default_config(
+        self,
+        connector_id: str,
+    ) -> "ConnectionConfig | None":
+        """Get default ConnectionConfig for a registered connector.
+
+        Returns None if no default config is set.
+        """
+        fqid = self._resolve_id(connector_id)
+        with self._instance_lock:
+            entry = self._connectors.get(fqid)
+        if entry is None:
+            raise ConnectorNotFoundError(
+                connector_id,
+                available=list(self._connectors.keys()),
+            )
+        return entry.default_config
+
     def has(self, connector_id: str) -> bool:
         """Check if a connector is registered."""
         try:

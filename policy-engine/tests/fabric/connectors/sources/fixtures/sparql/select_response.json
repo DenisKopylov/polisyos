@@ -1,0 +1,17 @@
+{
+  "head": {"vars": ["country", "population", "label"]},
+  "results": {
+    "bindings": [
+      {
+        "country": {"type": "uri", "value": "http://www.wikidata.org/entity/Q30"},
+        "population": {"type": "literal", "value": "331900000", "datatype": "http://www.w3.org/2001/XMLSchema#integer"},
+        "label": {"type": "literal", "value": "United States", "xml:lang": "en"}
+      },
+      {
+        "country": {"type": "uri", "value": "http://www.wikidata.org/entity/Q183"},
+        "population": {"type": "literal", "value": "83200000", "datatype": "http://www.w3.org/2001/XMLSchema#integer"},
+        "label": {"type": "literal", "value": "Germany", "xml:lang": "en"}
+      }
+    ]
+  }
+}

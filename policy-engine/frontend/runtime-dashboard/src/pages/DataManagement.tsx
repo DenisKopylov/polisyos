@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
 import { useCacheStatus } from "../api/hooks/useCacheStatus";
 import { useConnectors } from "../api/hooks/useConnectors";
@@ -23,7 +24,12 @@ export default function DataManagement() {
   const [dateStart, setDateStart] = useState("");
   const [dateEnd, setDateEnd] = useState("");
   const [cachePolicy, setCachePolicy] = useState("default");
-  const [ingestMessage, setIngestMessage] = useState<string | null>(null);
+  const [ingestResult, setIngestResult] = useState<{
+    message: string;
+    snapshotRef: string | null;
+    evidenceRef: string | null;
+    warnings: string[];
+  } | null>(null);
 
   const connectors = connectorsQuery.data?.connectors ?? [];
 
@@ -84,11 +90,18 @@ export default function DataManagement() {
       source: "dashboard",
       license_name: "open",
       cache_policy: cachePolicy,
+      execution_mode: "batch_full",
+      produce_data_snapshot: true,
     };
 
     ingestMutation.mutate(body, {
       onSuccess: (data) => {
-        setIngestMessage(data.message);
+        setIngestResult({
+          message: data.message ?? "Done",
+          snapshotRef: data.data_snapshot_ref ?? null,
+          evidenceRef: data.evidence_bundle_ref ?? null,
+          warnings: data.warnings ?? [],
+        });
       },
     });
   }
@@ -251,8 +264,39 @@ export default function DataManagement() {
             </button>
 
             {ingestMutation.error && <ApiErrorAlert error={ingestMutation.error} />}
-            {ingestMessage && (
-              <p className="text-sm text-green-500">{ingestMessage}</p>
+            {ingestResult && (
+              <div className="space-y-2 rounded-lg border border-line/50 bg-surface/50 p-3">
+                <p className="text-sm text-green-500">{ingestResult.message}</p>
+                {ingestResult.evidenceRef && (
+                  <p className="text-xs text-muted">
+                    Evidence:{" "}
+                    <Link
+                      to={`/artifacts/${ingestResult.evidenceRef}`}
+                      className="font-mono text-accent underline"
+                    >
+                      {ingestResult.evidenceRef.slice(0, 16)}...
+                    </Link>
+                  </p>
+                )}
+                {ingestResult.snapshotRef && (
+                  <p className="text-xs text-muted">
+                    Data Snapshot:{" "}
+                    <Link
+                      to={`/artifacts/${ingestResult.snapshotRef}`}
+                      className="font-mono text-accent underline"
+                    >
+                      {ingestResult.snapshotRef.slice(0, 16)}...
+                    </Link>
+                  </p>
+                )}
+                {ingestResult.warnings.length > 0 && (
+                  <ul className="text-xs text-yellow-600">
+                    {ingestResult.warnings.map((w, i) => (
+                      <li key={i}>{w}</li>
+                    ))}
+                  </ul>
+                )}
+              </div>
             )}
           </div>
         )}

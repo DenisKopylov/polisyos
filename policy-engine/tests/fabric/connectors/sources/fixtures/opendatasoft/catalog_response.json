@@ -1,0 +1,23 @@
+{
+  "total_count": 2,
+  "results": [
+    {
+      "dataset_id": "air-quality-paris",
+      "metas": {
+        "default": {
+          "title": "Air Quality in Paris",
+          "description": "Daily air quality measurements for Paris"
+        }
+      }
+    },
+    {
+      "dataset_id": "bike-sharing-usage",
+      "metas": {
+        "default": {
+          "title": "Bike Sharing Usage",
+          "description": "Velib usage statistics"
+        }
+      }
+    }
+  ]
+}

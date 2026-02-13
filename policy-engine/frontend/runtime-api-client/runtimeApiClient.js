@@ -69,6 +69,26 @@ export class RuntimeApiClient {
     return this.request('GET', path);
   }
 
+  async getCacheStatus() {
+    const path = `/api/v1/control/data/cache`;
+    return this.request('GET', path);
+  }
+
+  async listConnectors() {
+    const path = `/api/v1/control/data/connectors`;
+    return this.request('GET', path);
+  }
+
+  async listSourceProfiles() {
+    const path = `/api/v1/control/data/profiles`;
+    return this.request('GET', path);
+  }
+
+  async listLlmProfiles() {
+    const path = `/api/v1/control/llm/profiles`;
+    return this.request('GET', path);
+  }
+
   async getRunErrors(params) {
     const path = `/api/v1/debug/runs/${encodeURIComponent(String(params.run_id))}/errors`;
     return this.request('GET', path);

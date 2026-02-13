@@ -198,7 +198,10 @@ _SUCCESS_EXAMPLES_BY_OPERATION: dict[str, dict[str, Any]] = {
                             "prompt": None,
                             "response": None,
                             "model": "gpt-4.1-mini",
+                            "provider": "gateway",
+                            "model_variant_id": "gpt_4_1_mini_1",
                             "latency_ms": 1480,
+                            "cost_usd": 0.00145,
                             "token_usage": {"prompt_tokens": 411, "completion_tokens": 92, "total_tokens": 503},
                         },
                     ],
@@ -416,6 +419,41 @@ _SUCCESS_EXAMPLES_BY_OPERATION: dict[str, dict[str, Any]] = {
                 "loaded": True,
                 "last_health_check": None,
             },
+        ],
+    },
+    "list_source_profiles": {
+        "meta": _META_NO_SOURCE,
+        "profiles": [
+            {
+                "profile_id": "worldbank_wdi",
+                "display_name": "World Bank WDI",
+                "description": "World Development Indicators via World Bank API v2",
+                "connector_family": "worldbank",
+                "base_url": "https://api.worldbank.org/v2",
+                "auth_policy": "none",
+                "tags": ["international", "development", "gdp"],
+                "source_organization": "The World Bank Group",
+                "estimated_datasets": 1600,
+                "connector_available": True,
+            }
+        ],
+    },
+    "list_llm_profiles": {
+        "meta": _META_NO_SOURCE,
+        "profiles": [
+            {
+                "profile_id": "gpt5_mini_gateway",
+                "display_name": "GPT-5 mini (Gateway)",
+                "description": "Balanced OpenAI frontier model via OpenAI-compatible gateway.",
+                "provider": "openai",
+                "model_id": "gpt-5-mini",
+                "base_url": "https://api.gonkagate.com/v1",
+                "tags": ["frontier", "balanced"],
+                "capabilities": ["json", "tool_calling"],
+                "input_cost_per_mtoken_usd": None,
+                "output_cost_per_mtoken_usd": None,
+                "enabled": True,
+            }
         ],
     },
     "get_cache_status": {

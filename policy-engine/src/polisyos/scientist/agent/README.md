@@ -71,3 +71,18 @@ asyncio.run(run())
 - `llm`/`core.llm` — traced LLM клиенты.
 - `governance`/`kernel` — источники feedback для reflexion.
 - `search` — может использовать агента как candidate generator.
+
+## Runtime env для gateway/multi-model
+
+При запуске через runtime control (`/api/v1/control/runs/nl`) используются:
+
+- `POLISYOS_LLM_MULTIMODEL_ENABLED`
+- `POLISYOS_LLM_GATEWAY_BASE_URL`
+- `POLISYOS_LLM_GATEWAY_API_KEY`
+- `POLISYOS_LLM_GATEWAY_TIMEOUT_S`
+- `POLISYOS_LLM_GATEWAY_MAX_RETRIES`
+- `POLISYOS_LLM_GATEWAY_PROVIDER`
+- `POLISYOS_LLM_CAPTURE_PROMPT`
+- `POLISYOS_LLM_MAX_PROMPT_CAPTURE_CHARS`
+
+Если gateway не сконфигурирован, модельный variant автоматически уходит в mock fallback (это фиксируется в status/notes варианта).

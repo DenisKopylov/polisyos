@@ -7,6 +7,7 @@ import DataManagement from "./pages/DataManagement";
 import LaunchRun from "./pages/LaunchRun";
 import RunDetail from "./pages/RunDetail";
 import RunsList from "./pages/RunsList";
+import SourcesManagement from "./pages/SourcesManagement";
 import SystemHealth from "./pages/SystemHealth";
 
 export default function App() {
@@ -19,6 +20,7 @@ export default function App() {
           <Route path="/runs/:runId" element={<RunDetail />} />
           <Route path="/artifacts/:artifactId" element={<ArtifactInspector />} />
           <Route path="/launch" element={<LaunchRun />} />
+          <Route path="/sources" element={<SourcesManagement />} />
           <Route path="/data" element={<DataManagement />} />
           <Route path="/health" element={<SystemHealth />} />
           <Route path="*" element={<Navigate replace to="/" />} />

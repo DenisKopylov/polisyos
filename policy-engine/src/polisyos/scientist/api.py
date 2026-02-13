@@ -80,7 +80,22 @@ def _estimate_run_cost_usd(state: "ExperimentState") -> float | None:
     if direct is not None:
         return max(direct, 0.0)
 
-    model = str(params.get("llm_model", "default"))
+    variants = params.get("llm_model_variants")
+    if isinstance(variants, list):
+        total_variant_cost = 0.0
+        found_variant_cost = False
+        for variant in variants:
+            if not isinstance(variant, Mapping):
+                continue
+            variant_cost = _as_float(variant.get("cost_usd"))
+            if variant_cost is None:
+                continue
+            total_variant_cost += max(variant_cost, 0.0)
+            found_variant_cost = True
+        if found_variant_cost:
+            return total_variant_cost
+
+    model = str(params.get("llm_selected_model") or params.get("llm_model", "default"))
     prompt_tokens = _as_int(params.get("llm_prompt_tokens"))
     if prompt_tokens is None:
         prompt_tokens = _as_int(params.get("llm_tokens_prompt"))

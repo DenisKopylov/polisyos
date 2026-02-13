@@ -378,6 +378,57 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/control/llm/profiles": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List available LLM model profiles */
+        get: operations["list_llm_profiles"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/control/data/profiles": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List available source profiles */
+        get: operations["list_source_profiles"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/control/data/binding-profiles": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List available binding profiles */
+        get: operations["list_binding_profiles"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -440,8 +491,14 @@ export interface components {
             response?: string | null;
             /** Model */
             model?: string | null;
+            /** Provider */
+            provider?: string | null;
+            /** Model Variant Id */
+            model_variant_id?: string | null;
             /** Latency Ms */
             latency_ms?: number | null;
+            /** Cost Usd */
+            cost_usd?: number | null;
             /** Token Usage */
             token_usage?: {
                 [key: string]: number;
@@ -648,6 +705,40 @@ export interface components {
             /** Top Level Keys */
             top_level_keys?: string[];
         };
+        /** BindingProfileInfo */
+        BindingProfileInfo: {
+            /** Profile Id */
+            profile_id: string;
+            /** Display Name */
+            display_name: string;
+            /**
+             * Description
+             * @default
+             */
+            description: string;
+            /** Schema Family */
+            schema_family: string;
+            /**
+             * Strategy
+             * @default auto
+             */
+            strategy: string;
+            /**
+             * Rule Count
+             * @default 0
+             */
+            rule_count: number;
+            /** Expected Columns */
+            expected_columns?: string[];
+            /** Tags */
+            tags?: string[];
+        };
+        /** BindingProfilesListResponse */
+        BindingProfilesListResponse: {
+            meta: components["schemas"]["ApiMeta"];
+            /** Profiles */
+            profiles?: components["schemas"]["BindingProfileInfo"][];
+        };
         /** CacheEntryInfo */
         CacheEntryInfo: {
             /** Cache Key */
@@ -707,6 +798,8 @@ export interface components {
             loaded: boolean;
             /** Last Health Check */
             last_health_check?: string | null;
+            /** Available Profiles */
+            available_profiles?: string[];
         };
         /** ConnectorsListResponse */
         ConnectorsListResponse: {
@@ -820,6 +913,33 @@ export interface components {
              * @default default
              */
             cache_policy: string;
+            /** Connection Profile */
+            connection_profile?: string | null;
+            /**
+             * Execution Mode
+             * @default batch_full
+             * @enum {string}
+             */
+            execution_mode: "batch_full" | "batch_incremental" | "streaming_windowed";
+            /**
+             * Produce Data Snapshot
+             * @default true
+             */
+            produce_data_snapshot: boolean;
+            /**
+             * Record Mode
+             * @default false
+             */
+            record_mode: boolean;
+            /** Replay Ref */
+            replay_ref?: string | null;
+            /** Binding Profile Id */
+            binding_profile_id?: string | null;
+            /**
+             * Produce Input Bindings
+             * @default false
+             */
+            produce_input_bindings: boolean;
         };
         /** IngestResponse */
         IngestResponse: {
@@ -831,6 +951,8 @@ export interface components {
             status: "completed" | "partial" | "failed";
             /** Evidence Bundle Ref */
             evidence_bundle_ref?: string | null;
+            /** Data Snapshot Ref */
+            data_snapshot_ref?: string | null;
             /**
              * Datasets Fetched
              * @default 0
@@ -838,12 +960,59 @@ export interface components {
             datasets_fetched: number;
             /** Message */
             message: string;
+            /** Warnings */
+            warnings?: string[];
+            /** Cursor Ref */
+            cursor_ref?: string | null;
+            /** Mode Effective */
+            mode_effective?: string | null;
+            /** Record Ref */
+            record_ref?: string | null;
+            /** Input Bindings Ref */
+            input_bindings_ref?: string | null;
         };
         /** InputRef */
         InputRef: {
             artifact_id: components["schemas"]["ArtifactID"];
             /** Role */
             role: string;
+        };
+        /** ModelProfileInfo */
+        ModelProfileInfo: {
+            /** Profile Id */
+            profile_id: string;
+            /** Display Name */
+            display_name: string;
+            /**
+             * Description
+             * @default
+             */
+            description: string;
+            /** Provider */
+            provider: string;
+            /** Model Id */
+            model_id: string;
+            /** Base Url */
+            base_url: string;
+            /** Tags */
+            tags?: string[];
+            /** Capabilities */
+            capabilities?: string[];
+            /** Input Cost Per Mtoken Usd */
+            input_cost_per_mtoken_usd?: number | null;
+            /** Output Cost Per Mtoken Usd */
+            output_cost_per_mtoken_usd?: number | null;
+            /**
+             * Enabled
+             * @default true
+             */
+            enabled: boolean;
+        };
+        /** ModelProfilesListResponse */
+        ModelProfilesListResponse: {
+            meta: components["schemas"]["ApiMeta"];
+            /** Profiles */
+            profiles?: components["schemas"]["ModelProfileInfo"][];
         };
         /**
          * NaturalLanguageRunRequest
@@ -866,6 +1035,17 @@ export interface components {
             max_iterations: number;
             /** Llm Model */
             llm_model?: string | null;
+            /** Llm Models */
+            llm_models?: string[] | null;
+            /**
+             * Max Parallel Models
+             * @default 1
+             */
+            max_parallel_models: number;
+            /** Run Budget Usd */
+            run_budget_usd?: number | null;
+            /** Per Model Budget Usd */
+            per_model_budget_usd?: number | null;
             /**
              * Checkpoint Policy
              * @default strict
@@ -1297,6 +1477,47 @@ export interface components {
             page: components["schemas"]["CursorPage"];
             /** Runs */
             runs?: components["schemas"]["RunSummary"][];
+        };
+        /** SourceProfileInfo */
+        SourceProfileInfo: {
+            /** Profile Id */
+            profile_id: string;
+            /** Display Name */
+            display_name: string;
+            /**
+             * Description
+             * @default
+             */
+            description: string;
+            /** Connector Family */
+            connector_family: string;
+            /** Base Url */
+            base_url: string;
+            /**
+             * Auth Policy
+             * @default none
+             */
+            auth_policy: string;
+            /** Tags */
+            tags?: string[];
+            /**
+             * Source Organization
+             * @default
+             */
+            source_organization: string;
+            /** Estimated Datasets */
+            estimated_datasets?: number | null;
+            /**
+             * Connector Available
+             * @default false
+             */
+            connector_available: boolean;
+        };
+        /** SourceProfilesListResponse */
+        SourceProfilesListResponse: {
+            meta: components["schemas"]["ApiMeta"];
+            /** Profiles */
+            profiles?: components["schemas"]["SourceProfileInfo"][];
         };
         /** ValidationError */
         ValidationError: {
@@ -3043,6 +3264,228 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CacheStatusResponse"];
+                };
+            };
+            /** @description Malformed request payload or parameters. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authentication is required for this route. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authenticated principal cannot access this resource. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Requested resource does not exist. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Request validation failed. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Unexpected runtime API failure. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+        };
+    };
+    list_llm_profiles: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ModelProfilesListResponse"];
+                };
+            };
+            /** @description Malformed request payload or parameters. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authentication is required for this route. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authenticated principal cannot access this resource. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Requested resource does not exist. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Request validation failed. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Unexpected runtime API failure. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+        };
+    };
+    list_source_profiles: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SourceProfilesListResponse"];
+                };
+            };
+            /** @description Malformed request payload or parameters. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authentication is required for this route. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authenticated principal cannot access this resource. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Requested resource does not exist. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Request validation failed. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Unexpected runtime API failure. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+        };
+    };
+    list_binding_profiles: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BindingProfilesListResponse"];
                 };
             };
             /** @description Malformed request payload or parameters. */

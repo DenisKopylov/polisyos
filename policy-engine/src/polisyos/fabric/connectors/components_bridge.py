@@ -33,7 +33,7 @@ def bootstrap_connector_registry_from_components(
     *,
     allow_dev_overrides: bool = True,
 ) -> ComponentsBridgeReport:
-    connector_registry = registry or ConnectorRegistry.get_instance(bootstrap=False)
+    connector_registry = ConnectorRegistry.get_instance(bootstrap=False) if registry is None else registry
     report = ComponentsBridgeReport()
 
     host = HostAbi(

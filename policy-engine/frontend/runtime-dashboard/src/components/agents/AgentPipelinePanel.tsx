@@ -26,6 +26,55 @@ export default function AgentPipelinePanel({ payload }: AgentPipelinePanelProps)
   const pipeline = useMemo(() => normalizeAgentPipeline(payload), [payload]);
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
 
+  const modelSummary = useMemo(() => {
+    const bucket = new Map<
+      string,
+      {
+        key: string;
+        model: string;
+        provider: string | null;
+        modelVariantId: string | null;
+        steps: number;
+        promptTokens: number;
+        completionTokens: number;
+        totalTokens: number;
+        latencyMs: number;
+        costUsd: number;
+      }
+    >();
+
+    for (const attempt of pipeline.attempts) {
+      for (const step of attempt.steps) {
+        const model = step.model ?? "mock";
+        const key = step.modelVariantId ?? model;
+        const existing = bucket.get(key) ?? {
+          key,
+          model,
+          provider: step.provider,
+          modelVariantId: step.modelVariantId,
+          steps: 0,
+          promptTokens: 0,
+          completionTokens: 0,
+          totalTokens: 0,
+          latencyMs: 0,
+          costUsd: 0,
+        };
+        existing.steps += 1;
+        existing.promptTokens += step.promptTokens ?? 0;
+        existing.completionTokens += step.completionTokens ?? 0;
+        existing.totalTokens += step.totalTokens ?? (step.promptTokens ?? 0) + (step.completionTokens ?? 0);
+        existing.latencyMs += step.latencyMs ?? 0;
+        existing.costUsd += step.costUsd ?? 0;
+        if (!existing.provider && step.provider) {
+          existing.provider = step.provider;
+        }
+        bucket.set(key, existing);
+      }
+    }
+
+    return Array.from(bucket.values()).sort((left, right) => right.totalTokens - left.totalTokens);
+  }, [pipeline.attempts]);
+
   const selectedStep = useMemo(() => {
     if (!selectedKey) {
       return null;
@@ -75,6 +124,54 @@ export default function AgentPipelinePanel({ payload }: AgentPipelinePanelProps)
         <div className="rounded-xl border border-warning/30 bg-warning/5 p-2 text-xs text-warning">
           {pipeline.notes.join(" · ")}
         </div>
+      ) : null}
+
+      {modelSummary.length > 0 ? (
+        <section className="rounded-xl border border-line bg-panel/65 p-3">
+          <div className="mb-2 flex items-center justify-between gap-2">
+            <h4 className="text-sm font-semibold">Model comparison</h4>
+            <p className="text-xs text-muted">{modelSummary.length} variants</p>
+          </div>
+          <div className="space-y-2">
+            {modelSummary.map((row) => (
+              <div
+                key={row.key}
+                className="grid gap-2 rounded-lg border border-line bg-canvas/30 p-2 text-xs md:grid-cols-7"
+              >
+                <div>
+                  <p className="text-[10px] uppercase text-muted">Model</p>
+                  <p className="font-semibold">{row.model}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] uppercase text-muted">Variant</p>
+                  <p>{row.modelVariantId ?? "-"}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] uppercase text-muted">Provider</p>
+                  <p>{row.provider ?? "-"}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] uppercase text-muted">Tokens</p>
+                  <p>{row.totalTokens.toLocaleString()}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] uppercase text-muted">Prompt/Comp</p>
+                  <p>
+                    {row.promptTokens.toLocaleString()} / {row.completionTokens.toLocaleString()}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-[10px] uppercase text-muted">Latency</p>
+                  <p>{formatDuration(row.latencyMs)}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] uppercase text-muted">Cost</p>
+                  <p>{row.costUsd > 0 ? `$${row.costUsd.toFixed(6)}` : "-"}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
       ) : null}
 
       <div className="grid gap-3 lg:grid-cols-[1.7fr_1fr]">
@@ -146,6 +243,14 @@ export default function AgentPipelinePanel({ payload }: AgentPipelinePanelProps)
                   <p>{selectedStep.model ?? "-"}</p>
                 </div>
                 <div>
+                  <p className="text-xs uppercase text-muted">Provider</p>
+                  <p>{selectedStep.provider ?? "-"}</p>
+                </div>
+                <div>
+                  <p className="text-xs uppercase text-muted">Model variant</p>
+                  <p>{selectedStep.modelVariantId ?? "-"}</p>
+                </div>
+                <div>
                   <p className="text-xs uppercase text-muted">Latency</p>
                   <p>{formatDuration(selectedStep.latencyMs)}</p>
                 </div>
@@ -156,6 +261,10 @@ export default function AgentPipelinePanel({ payload }: AgentPipelinePanelProps)
                 <div>
                   <p className="text-xs uppercase text-muted">Completion tokens</p>
                   <p>{selectedStep.completionTokens ?? "-"}</p>
+                </div>
+                <div>
+                  <p className="text-xs uppercase text-muted">Cost</p>
+                  <p>{selectedStep.costUsd != null ? `$${selectedStep.costUsd.toFixed(6)}` : "-"}</p>
                 </div>
               </div>
               {selectedStep.prompt ? (

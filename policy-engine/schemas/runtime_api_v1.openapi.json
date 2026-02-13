@@ -1947,7 +1947,10 @@
                                 "prompt": null,
                                 "response": null,
                                 "model": "gpt-4.1-mini",
+                                "provider": "gateway",
+                                "model_variant_id": "gpt_4_1_mini_1",
                                 "latency_ms": 1480,
+                                "cost_usd": 0.00145,
                                 "token_usage": {
                                   "prompt_tokens": 411,
                                   "completion_tokens": 92,
@@ -5054,6 +5057,600 @@
           }
         }
       }
+    },
+    "/api/v1/control/llm/profiles": {
+      "get": {
+        "tags": [
+          "control-plane"
+        ],
+        "summary": "List available LLM model profiles",
+        "operationId": "list_llm_profiles",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ModelProfilesListResponse"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "list_llm_profiles response example",
+                    "value": {
+                      "meta": {
+                        "request_id": "req_0123456789abcdef",
+                        "generated_at": "2026-02-11T12:00:00Z",
+                        "source_kinds": []
+                      },
+                      "profiles": [
+                        {
+                          "profile_id": "gpt5_mini_gateway",
+                          "display_name": "GPT-5 mini (Gateway)",
+                          "description": "Balanced OpenAI frontier model via OpenAI-compatible gateway.",
+                          "provider": "openai",
+                          "model_id": "gpt-5-mini",
+                          "base_url": "https://api.gonkagate.com/v1",
+                          "tags": [
+                            "frontier",
+                            "balanced"
+                          ],
+                          "capabilities": [
+                            "json",
+                            "tool_calling"
+                          ],
+                          "input_cost_per_mtoken_usd": null,
+                          "output_cost_per_mtoken_usd": null,
+                          "enabled": true
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Malformed request payload or parameters.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "Malformed request payload or parameters.",
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Bad request",
+                      "status": 400,
+                      "detail": "bad_request while processing request.",
+                      "code": "bad_request",
+                      "instance": "/api/v1/control/llm/profiles",
+                      "request_id": "req_0123456789abcdef",
+                      "error": "bad_request",
+                      "status_code": 400
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication is required for this route.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "Authentication is required for this route.",
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Unauthorized",
+                      "status": 401,
+                      "detail": "unauthorized while processing request.",
+                      "code": "unauthorized",
+                      "instance": "/api/v1/control/llm/profiles",
+                      "request_id": "req_0123456789abcdef",
+                      "error": "unauthorized",
+                      "status_code": 401
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authenticated principal cannot access this resource.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "Authenticated principal cannot access this resource.",
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Forbidden",
+                      "status": 403,
+                      "detail": "forbidden while processing request.",
+                      "code": "forbidden",
+                      "instance": "/api/v1/control/llm/profiles",
+                      "request_id": "req_0123456789abcdef",
+                      "error": "forbidden",
+                      "status_code": 403
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Requested resource does not exist.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "Requested resource does not exist.",
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Not found",
+                      "status": 404,
+                      "detail": "not_found while processing request.",
+                      "code": "not_found",
+                      "instance": "/api/v1/control/llm/profiles",
+                      "request_id": "req_0123456789abcdef",
+                      "error": "not_found",
+                      "status_code": 404
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Request validation failed.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "Request validation failed.",
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Request validation failed",
+                      "status": 422,
+                      "detail": "request_validation_failed while processing request.",
+                      "code": "request_validation_failed",
+                      "instance": "/api/v1/control/llm/profiles",
+                      "request_id": "req_0123456789abcdef",
+                      "error": "request_validation_failed",
+                      "status_code": 422
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected runtime API failure.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "Unexpected runtime API failure.",
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Internal error",
+                      "status": 500,
+                      "detail": "internal_error while processing request.",
+                      "code": "internal_error",
+                      "instance": "/api/v1/control/llm/profiles",
+                      "request_id": "req_0123456789abcdef",
+                      "error": "internal_error",
+                      "status_code": 500
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/control/data/profiles": {
+      "get": {
+        "tags": [
+          "control-plane"
+        ],
+        "summary": "List available source profiles",
+        "operationId": "list_source_profiles",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SourceProfilesListResponse"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "list_source_profiles response example",
+                    "value": {
+                      "meta": {
+                        "request_id": "req_0123456789abcdef",
+                        "generated_at": "2026-02-11T12:00:00Z",
+                        "source_kinds": []
+                      },
+                      "profiles": [
+                        {
+                          "profile_id": "worldbank_wdi",
+                          "display_name": "World Bank WDI",
+                          "description": "World Development Indicators via World Bank API v2",
+                          "connector_family": "worldbank",
+                          "base_url": "https://api.worldbank.org/v2",
+                          "auth_policy": "none",
+                          "tags": [
+                            "international",
+                            "development",
+                            "gdp"
+                          ],
+                          "source_organization": "The World Bank Group",
+                          "estimated_datasets": 1600,
+                          "connector_available": true
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Malformed request payload or parameters.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "Malformed request payload or parameters.",
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Bad request",
+                      "status": 400,
+                      "detail": "bad_request while processing request.",
+                      "code": "bad_request",
+                      "instance": "/api/v1/control/data/profiles",
+                      "request_id": "req_0123456789abcdef",
+                      "error": "bad_request",
+                      "status_code": 400
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication is required for this route.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "Authentication is required for this route.",
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Unauthorized",
+                      "status": 401,
+                      "detail": "unauthorized while processing request.",
+                      "code": "unauthorized",
+                      "instance": "/api/v1/control/data/profiles",
+                      "request_id": "req_0123456789abcdef",
+                      "error": "unauthorized",
+                      "status_code": 401
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authenticated principal cannot access this resource.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "Authenticated principal cannot access this resource.",
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Forbidden",
+                      "status": 403,
+                      "detail": "forbidden while processing request.",
+                      "code": "forbidden",
+                      "instance": "/api/v1/control/data/profiles",
+                      "request_id": "req_0123456789abcdef",
+                      "error": "forbidden",
+                      "status_code": 403
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Requested resource does not exist.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "Requested resource does not exist.",
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Not found",
+                      "status": 404,
+                      "detail": "not_found while processing request.",
+                      "code": "not_found",
+                      "instance": "/api/v1/control/data/profiles",
+                      "request_id": "req_0123456789abcdef",
+                      "error": "not_found",
+                      "status_code": 404
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Request validation failed.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "Request validation failed.",
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Request validation failed",
+                      "status": 422,
+                      "detail": "request_validation_failed while processing request.",
+                      "code": "request_validation_failed",
+                      "instance": "/api/v1/control/data/profiles",
+                      "request_id": "req_0123456789abcdef",
+                      "error": "request_validation_failed",
+                      "status_code": 422
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected runtime API failure.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "Unexpected runtime API failure.",
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Internal error",
+                      "status": 500,
+                      "detail": "internal_error while processing request.",
+                      "code": "internal_error",
+                      "instance": "/api/v1/control/data/profiles",
+                      "request_id": "req_0123456789abcdef",
+                      "error": "internal_error",
+                      "status_code": 500
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/control/data/binding-profiles": {
+      "get": {
+        "tags": [
+          "control-plane"
+        ],
+        "summary": "List available binding profiles",
+        "operationId": "list_binding_profiles",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BindingProfilesListResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Malformed request payload or parameters.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "Malformed request payload or parameters.",
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Bad request",
+                      "status": 400,
+                      "detail": "bad_request while processing request.",
+                      "code": "bad_request",
+                      "instance": "/api/v1/control/data/binding-profiles",
+                      "request_id": "req_0123456789abcdef",
+                      "error": "bad_request",
+                      "status_code": 400
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication is required for this route.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "Authentication is required for this route.",
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Unauthorized",
+                      "status": 401,
+                      "detail": "unauthorized while processing request.",
+                      "code": "unauthorized",
+                      "instance": "/api/v1/control/data/binding-profiles",
+                      "request_id": "req_0123456789abcdef",
+                      "error": "unauthorized",
+                      "status_code": 401
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authenticated principal cannot access this resource.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "Authenticated principal cannot access this resource.",
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Forbidden",
+                      "status": 403,
+                      "detail": "forbidden while processing request.",
+                      "code": "forbidden",
+                      "instance": "/api/v1/control/data/binding-profiles",
+                      "request_id": "req_0123456789abcdef",
+                      "error": "forbidden",
+                      "status_code": 403
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Requested resource does not exist.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "Requested resource does not exist.",
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Not found",
+                      "status": 404,
+                      "detail": "not_found while processing request.",
+                      "code": "not_found",
+                      "instance": "/api/v1/control/data/binding-profiles",
+                      "request_id": "req_0123456789abcdef",
+                      "error": "not_found",
+                      "status_code": 404
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Request validation failed.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "Request validation failed.",
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Request validation failed",
+                      "status": 422,
+                      "detail": "request_validation_failed while processing request.",
+                      "code": "request_validation_failed",
+                      "instance": "/api/v1/control/data/binding-profiles",
+                      "request_id": "req_0123456789abcdef",
+                      "error": "request_validation_failed",
+                      "status_code": 422
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected runtime API failure.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "Unexpected runtime API failure.",
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Internal error",
+                      "status": 500,
+                      "detail": "internal_error while processing request.",
+                      "code": "internal_error",
+                      "instance": "/api/v1/control/data/binding-profiles",
+                      "request_id": "req_0123456789abcdef",
+                      "error": "internal_error",
+                      "status_code": 500
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -5244,6 +5841,28 @@
             ],
             "title": "Model"
           },
+          "provider": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Provider"
+          },
+          "model_variant_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model Variant Id"
+          },
           "latency_ms": {
             "anyOf": [
               {
@@ -5255,6 +5874,18 @@
               }
             ],
             "title": "Latency Ms"
+          },
+          "cost_usd": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cost Usd"
           },
           "token_usage": {
             "additionalProperties": {
@@ -5818,6 +6449,79 @@
         ],
         "title": "ArtifactSchemaView"
       },
+      "BindingProfileInfo": {
+        "properties": {
+          "profile_id": {
+            "type": "string",
+            "title": "Profile Id"
+          },
+          "display_name": {
+            "type": "string",
+            "title": "Display Name"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description",
+            "default": ""
+          },
+          "schema_family": {
+            "type": "string",
+            "title": "Schema Family"
+          },
+          "strategy": {
+            "type": "string",
+            "title": "Strategy",
+            "default": "auto"
+          },
+          "rule_count": {
+            "type": "integer",
+            "title": "Rule Count",
+            "default": 0
+          },
+          "expected_columns": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Expected Columns"
+          },
+          "tags": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Tags"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "profile_id",
+          "display_name",
+          "schema_family"
+        ],
+        "title": "BindingProfileInfo"
+      },
+      "BindingProfilesListResponse": {
+        "properties": {
+          "meta": {
+            "$ref": "#/components/schemas/ApiMeta"
+          },
+          "profiles": {
+            "items": {
+              "$ref": "#/components/schemas/BindingProfileInfo"
+            },
+            "type": "array",
+            "title": "Profiles"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "meta"
+        ],
+        "title": "BindingProfilesListResponse"
+      },
       "CacheEntryInfo": {
         "properties": {
           "cache_key": {
@@ -5937,6 +6641,13 @@
               }
             ],
             "title": "Last Health Check"
+          },
+          "available_profiles": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Available Profiles"
           }
         },
         "additionalProperties": false,
@@ -6241,6 +6952,64 @@
             "type": "string",
             "title": "Cache Policy",
             "default": "default"
+          },
+          "connection_profile": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Connection Profile"
+          },
+          "execution_mode": {
+            "type": "string",
+            "enum": [
+              "batch_full",
+              "batch_incremental",
+              "streaming_windowed"
+            ],
+            "title": "Execution Mode",
+            "default": "batch_full"
+          },
+          "produce_data_snapshot": {
+            "type": "boolean",
+            "title": "Produce Data Snapshot",
+            "default": true
+          },
+          "record_mode": {
+            "type": "boolean",
+            "title": "Record Mode",
+            "default": false
+          },
+          "replay_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Replay Ref"
+          },
+          "binding_profile_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Binding Profile Id"
+          },
+          "produce_input_bindings": {
+            "type": "boolean",
+            "title": "Produce Input Bindings",
+            "default": false
           }
         },
         "additionalProperties": false,
@@ -6276,6 +7045,17 @@
             ],
             "title": "Evidence Bundle Ref"
           },
+          "data_snapshot_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data Snapshot Ref"
+          },
           "datasets_fetched": {
             "type": "integer",
             "title": "Datasets Fetched",
@@ -6284,6 +7064,57 @@
           "message": {
             "type": "string",
             "title": "Message"
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Warnings"
+          },
+          "cursor_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cursor Ref"
+          },
+          "mode_effective": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mode Effective"
+          },
+          "record_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Record Ref"
+          },
+          "input_bindings_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Input Bindings Ref"
           }
         },
         "additionalProperties": false,
@@ -6312,6 +7143,108 @@
           "role"
         ],
         "title": "InputRef"
+      },
+      "ModelProfileInfo": {
+        "properties": {
+          "profile_id": {
+            "type": "string",
+            "title": "Profile Id"
+          },
+          "display_name": {
+            "type": "string",
+            "title": "Display Name"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description",
+            "default": ""
+          },
+          "provider": {
+            "type": "string",
+            "title": "Provider"
+          },
+          "model_id": {
+            "type": "string",
+            "title": "Model Id"
+          },
+          "base_url": {
+            "type": "string",
+            "title": "Base Url"
+          },
+          "tags": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Tags"
+          },
+          "capabilities": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Capabilities"
+          },
+          "input_cost_per_mtoken_usd": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Input Cost Per Mtoken Usd"
+          },
+          "output_cost_per_mtoken_usd": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Output Cost Per Mtoken Usd"
+          },
+          "enabled": {
+            "type": "boolean",
+            "title": "Enabled",
+            "default": true
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "profile_id",
+          "display_name",
+          "provider",
+          "model_id",
+          "base_url"
+        ],
+        "title": "ModelProfileInfo"
+      },
+      "ModelProfilesListResponse": {
+        "properties": {
+          "meta": {
+            "$ref": "#/components/schemas/ApiMeta"
+          },
+          "profiles": {
+            "items": {
+              "$ref": "#/components/schemas/ModelProfileInfo"
+            },
+            "type": "array",
+            "title": "Profiles"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "meta"
+        ],
+        "title": "ModelProfilesListResponse"
       },
       "NaturalLanguageRunRequest": {
         "properties": {
@@ -6364,6 +7297,51 @@
               }
             ],
             "title": "Llm Model"
+          },
+          "llm_models": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Llm Models"
+          },
+          "max_parallel_models": {
+            "type": "integer",
+            "maximum": 16.0,
+            "minimum": 1.0,
+            "title": "Max Parallel Models",
+            "default": 1
+          },
+          "run_budget_usd": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Run Budget Usd"
+          },
+          "per_model_budget_usd": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Per Model Budget Usd"
           },
           "checkpoint_policy": {
             "type": "string",
@@ -7519,6 +8497,93 @@
           "page"
         ],
         "title": "RunsListResponse"
+      },
+      "SourceProfileInfo": {
+        "properties": {
+          "profile_id": {
+            "type": "string",
+            "title": "Profile Id"
+          },
+          "display_name": {
+            "type": "string",
+            "title": "Display Name"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description",
+            "default": ""
+          },
+          "connector_family": {
+            "type": "string",
+            "title": "Connector Family"
+          },
+          "base_url": {
+            "type": "string",
+            "title": "Base Url"
+          },
+          "auth_policy": {
+            "type": "string",
+            "title": "Auth Policy",
+            "default": "none"
+          },
+          "tags": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Tags"
+          },
+          "source_organization": {
+            "type": "string",
+            "title": "Source Organization",
+            "default": ""
+          },
+          "estimated_datasets": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Estimated Datasets"
+          },
+          "connector_available": {
+            "type": "boolean",
+            "title": "Connector Available",
+            "default": false
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "profile_id",
+          "display_name",
+          "connector_family",
+          "base_url"
+        ],
+        "title": "SourceProfileInfo"
+      },
+      "SourceProfilesListResponse": {
+        "properties": {
+          "meta": {
+            "$ref": "#/components/schemas/ApiMeta"
+          },
+          "profiles": {
+            "items": {
+              "$ref": "#/components/schemas/SourceProfileInfo"
+            },
+            "type": "array",
+            "title": "Profiles"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "meta"
+        ],
+        "title": "SourceProfilesListResponse"
       },
       "ValidationError": {
         "properties": {

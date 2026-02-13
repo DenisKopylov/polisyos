@@ -6,6 +6,7 @@ const links = [
   { to: "/", label: "Dashboard" },
   { to: "/runs", label: "Runs" },
   { to: "/launch", label: "Launch Run" },
+  { to: "/sources", label: "Sources" },
   { to: "/data", label: "Data Management" },
   { to: "/health", label: "System Health" },
 ];

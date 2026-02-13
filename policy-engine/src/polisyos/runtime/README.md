@@ -2,7 +2,7 @@
 
 Runtime subsystem that provides:
 
-- Runtime HTTP API v1 for read-only run/artifact introspection.
+- Runtime HTTP API v1 for run/artifact introspection and control-plane launch flows.
 - Replay planning and verification APIs for deterministic re-execution checks.
 - Compatibility helpers for legacy filesystem run manifests.
 
@@ -11,7 +11,8 @@ Runtime subsystem that provides:
 - Runtime API v1 serves only `core_run` sources.
 - Runtime API v1 does not ingest legacy `runs/*/manifest.json` shape.
 - Public `polisyos.runtime` package exports replay API (`replay.py`) via lazy imports.
-- HTTP layer is read-only (`GET` endpoints only).
+- Control-plane endpoints support workflow/NL launch, ingestion, source profiles and LLM model profiles.
+- NL launch supports single-model and multi-model (`llm_models`) modes in one `run_id`.
 
 ## Architecture At A Glance
 
@@ -64,6 +65,16 @@ Runs:
 - `GET /api/v1/runs/{run_id}/nodes`
 - `GET /api/v1/runs/{run_id}/lineage`
 
+Control-plane:
+
+- `POST /api/v1/control/runs`
+- `POST /api/v1/control/runs/nl`
+- `POST /api/v1/control/data/ingest`
+- `GET /api/v1/control/data/connectors`
+- `GET /api/v1/control/data/profiles`
+- `GET /api/v1/control/data/cache`
+- `GET /api/v1/control/llm/profiles`
+
 Debug:
 
 - `GET /api/v1/debug/runs/{run_id}/nodes/{alias}`
@@ -104,6 +115,7 @@ Notes:
 - Merges workflow-report node metadata with trace-derived context.
 - Redacts sensitive payload fields (`token`, `password`, `authorization`, etc.).
 - Governance debug prefers governance report from experiment state, with decision-packet fallback.
+- Builds agent-model comparison steps from `experiment_state.params.llm_model_variants` (model/provider/cost/tokens/latency).
 
 `http/services/lineage.py`:
 

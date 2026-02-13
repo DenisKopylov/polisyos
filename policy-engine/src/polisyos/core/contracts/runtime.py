@@ -188,7 +188,10 @@ class AgentPipelineStep(BaseModel):
     prompt: str | None = None
     response: str | None = None
     model: str | None = None
+    provider: str | None = None
+    model_variant_id: str | None = None
     latency_ms: int | None = Field(default=None, ge=0)
+    cost_usd: float | None = Field(default=None, ge=0.0)
     token_usage: dict[str, int] = Field(default_factory=dict)
 
 

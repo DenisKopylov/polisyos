@@ -199,12 +199,19 @@ def _sync_fetch(
     connector_id: str,
     connector: Any,
     request: FetchRequest,
+    *,
+    connection_config: Any | None = None,
 ) -> FetchResult[Any]:
     async def _do_fetch() -> FetchResult[Any]:
-        entry = registry.get_entry(connector_id)
-        if entry.default_config is None:
-            raise ValueError(f"No default_config registered for connector '{connector_id}'")
-        handle = await registry.get_connection(connector_id, entry.default_config)
+        config = connection_config
+        if config is None:
+            entry = registry.get_entry(connector_id)
+            if entry.default_config is None:
+                raise ValueError(
+                    f"No default_config registered for connector '{connector_id}'"
+                )
+            config = entry.default_config
+        handle = await registry.get_connection(connector_id, config)
         try:
             return await connector.fetch(handle, request)
         finally:
@@ -319,6 +326,7 @@ def run_connectors_ingestion(
     source: str,
     license_name: str,
     cas_root: Path | None = Path(".polisyos"),
+    connection_config: Any | None = None,
 ) -> EvidenceBundleRef | None:
     """Canonical connector ingestion entrypoint."""
     spec = _normalize_connector_manifest(connector_manifest)
@@ -373,7 +381,10 @@ def run_connectors_ingestion(
             page_size=ds_spec.page_size,
         )
 
-        result: FetchResult[Any] = _sync_fetch(registry, connector_id, connector, request)
+        result: FetchResult[Any] = _sync_fetch(
+            registry, connector_id, connector, request,
+            connection_config=connection_config,
+        )
         result = _apply_transform_pipeline(result, pipeline)
         if pii_stage is not None:
             try:

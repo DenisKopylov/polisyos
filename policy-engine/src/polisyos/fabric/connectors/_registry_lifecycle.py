@@ -128,7 +128,9 @@ class RegistryLifecycleMixin:
         """
         Initialize registry with discovered connectors.
 
-        Uses component discovery + component bridge as canonical bootstrap path.
+        Uses component discovery + component bridge as canonical bootstrap path,
+        with a direct-import fallback when the package is not pip-installed
+        (entry points unavailable and dev-scan cannot resolve relative imports).
         """
         if self._bootstrapped:
             return
@@ -153,6 +155,11 @@ class RegistryLifecycleMixin:
         discovered_count = len(bridge_report.registered)
         error_count = len(bridge_report.errors) + len(discovery_report.errors)
 
+        # Fallback: if component discovery found no connectors (e.g. running
+        # from source without pip install), register builtin connectors directly.
+        if discovered_count == 0:
+            discovered_count = self._bootstrap_builtin_connectors_direct()
+
         self._bootstrapped = True
         logger.info(
             "ConnectorRegistry bootstrapped",
@@ -162,6 +169,78 @@ class RegistryLifecycleMixin:
             component_sources_processed=discovery_report.sources_processed,
             total_registered=self._connectors.count,
         )
+
+        self._bootstrap_default_configs()
+
+    def _bootstrap_builtin_connectors_direct(self) -> int:
+        """Direct-import fallback for registering builtin connectors.
+
+        Used when the component discovery system finds no connectors
+        (typical for source-tree runs without ``pip install -e``).
+        """
+        registered = 0
+        try:
+            from polisyos.fabric.connectors.components import __polisyos_components__
+
+            for component in __polisyos_components__:
+                connector_class = component.create()
+                fqid = getattr(
+                    getattr(connector_class, "metadata", None),
+                    "fully_qualified_id",
+                    None,
+                )
+                if fqid is None:
+                    continue
+                try:
+                    self.register(connector_class, override=False)
+                    registered += 1
+                except Exception:
+                    pass  # duplicate or validation — skip
+        except Exception as exc:
+            logger.debug(
+                "Direct connector bootstrap fallback failed",
+                error=str(exc),
+                error_type=type(exc).__name__,
+            )
+        return registered
+
+    def _bootstrap_default_configs(self) -> None:
+        """Wire SourceProfile defaults to matching connector entries.
+
+        For each registered profile whose ``connector_family`` matches a
+        connector namespace, resolve the profile to a ``ConnectionConfig``
+        and set it as the entry's ``default_config`` (first match wins —
+        a connector that already has a default is not overwritten).
+        """
+        try:
+            from polisyos.fabric.connectors.profiles.registry import SourceProfileRegistry
+            from polisyos.fabric.connectors.profiles.resolver import resolve_connection_config
+
+            profile_registry = SourceProfileRegistry.get_instance()
+            wired = 0
+            for profile in profile_registry.list_all():
+                namespace_entries = list(
+                    self._connectors.find("namespace", profile.connector_family)
+                )
+                for entry in namespace_entries:
+                    if entry.default_config is None:
+                        entry.default_config = resolve_connection_config(profile)
+                        wired += 1
+                        logger.debug(
+                            "Wired profile default config",
+                            profile_id=profile.profile_id,
+                            connector_id=entry.fqid,
+                        )
+            if wired:
+                logger.info(
+                    "Default configs bootstrapped from profiles", wired=wired,
+                )
+        except Exception as exc:
+            logger.debug(
+                "Default config bootstrap from profiles skipped",
+                error=str(exc),
+                error_type=type(exc).__name__,
+            )
 
     # =========================================================================
     # Registration

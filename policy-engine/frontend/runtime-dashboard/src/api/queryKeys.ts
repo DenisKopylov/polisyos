@@ -20,4 +20,6 @@ export const queryKeys = {
   // Control-plane keys
   connectors: () => ["control", "connectors"] as const,
   cacheStatus: () => ["control", "cache"] as const,
+  sourceProfiles: () => ["control", "profiles"] as const,
+  llmProfiles: () => ["control", "llm", "profiles"] as const,
 };

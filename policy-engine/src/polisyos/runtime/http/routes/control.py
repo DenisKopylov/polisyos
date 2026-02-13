@@ -3,12 +3,15 @@
 from __future__ import annotations
 
 from polisyos.core.contracts.control import (
+    BindingProfilesListResponse,
     CacheStatusResponse,
     ConnectorsListResponse,
     IngestRequest,
     IngestResponse,
+    ModelProfilesListResponse,
     NaturalLanguageRunRequest,
     RunLaunchResponse,
+    SourceProfilesListResponse,
     WorkflowRunRequest,
 )
 from polisyos.runtime.http.dependencies import (
@@ -147,6 +150,60 @@ if router is not None:
         control = _get_control_service(request)
         request_id = ensure_request_id(request)
         return control.get_cache_status(request_id=request_id)
+
+    @router.get(
+        "/llm/profiles",
+        response_model=ModelProfilesListResponse,
+        operation_id="list_llm_profiles",
+        summary="List available LLM model profiles",
+    )
+    def list_llm_profiles(
+        request: Request,
+    ) -> ModelProfilesListResponse:
+        set_authz_resource(
+            request,
+            tenant_id=getattr(request.state, "tenant_id", None),
+            kind="control.list_llm_profiles",
+        )
+        control = _get_control_service(request)
+        request_id = ensure_request_id(request)
+        return control.list_model_profiles(request_id=request_id)
+
+    @router.get(
+        "/data/profiles",
+        response_model=SourceProfilesListResponse,
+        operation_id="list_source_profiles",
+        summary="List available source profiles",
+    )
+    def list_source_profiles(
+        request: Request,
+    ) -> SourceProfilesListResponse:
+        set_authz_resource(
+            request,
+            tenant_id=getattr(request.state, "tenant_id", None),
+            kind="control.list_profiles",
+        )
+        control = _get_control_service(request)
+        request_id = ensure_request_id(request)
+        return control.list_source_profiles(request_id=request_id)
+
+    @router.get(
+        "/data/binding-profiles",
+        response_model=BindingProfilesListResponse,
+        operation_id="list_binding_profiles",
+        summary="List available binding profiles",
+    )
+    def list_binding_profiles(
+        request: Request,
+    ) -> BindingProfilesListResponse:
+        set_authz_resource(
+            request,
+            tenant_id=getattr(request.state, "tenant_id", None),
+            kind="control.list_binding_profiles",
+        )
+        control = _get_control_service(request)
+        request_id = ensure_request_id(request)
+        return control.list_binding_profiles(request_id=request_id)
 
 
 __all__ = ["router"]

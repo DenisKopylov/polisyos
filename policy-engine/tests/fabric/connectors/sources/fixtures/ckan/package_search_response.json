@@ -1,0 +1,32 @@
+{
+  "success": true,
+  "result": {
+    "count": 3,
+    "results": [
+      {
+        "id": "pkg-001",
+        "name": "gdp-annual",
+        "title": "Annual GDP Data",
+        "notes": "Annual gross domestic product statistics by country",
+        "organization": {"title": "Treasury Department"},
+        "resources": []
+      },
+      {
+        "id": "pkg-002",
+        "name": "population-census",
+        "title": "Population Census 2021",
+        "notes": "Detailed population census data",
+        "organization": {"title": "Statistics Office"},
+        "resources": []
+      },
+      {
+        "id": "pkg-003",
+        "name": "trade-data",
+        "title": "International Trade Data",
+        "notes": "Import and export volumes",
+        "organization": {"title": "Commerce Ministry"},
+        "resources": []
+      }
+    ]
+  }
+}

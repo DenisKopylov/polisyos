@@ -21,7 +21,7 @@ core/
 ├── errors/         # Унифицированная ошибка PolicyOSError + категории
 ├── evaluation/     # Взвешенный scoring + threshold mapping
 ├── governance/     # Validation profiles + legal/safety passes
-├── llm/            # Трассируемый LLM client + оценка стоимости + retry facade
+├── llm/            # Трассируемый LLM client + provider/model-variant telemetry + cost/latency + retry facade
 ├── observability/  # Tracing, metrics, context propagation, structured logs
 ├── pipeline/       # Линейные и DAG pipeline-примитивы
 ├── registry/       # Сборка/загрузка registry bundles из IR и fragment-компонентов

@@ -18,6 +18,7 @@ CheckpointPolicyType = Literal["strict", "lenient", "disabled"]
 CachePolicyType = Literal["default", "static", "volatile", "smart"]
 RunLaunchStatus = Literal["accepted", "rejected"]
 IngestStatus = Literal["completed", "partial", "failed"]
+ExecutionMode = Literal["batch_full", "batch_incremental", "streaming_windowed"]
 
 # ---------------------------------------------------------------------------
 # Data source binding
@@ -73,6 +74,10 @@ class NaturalLanguageRunRequest(BaseModel):
     data_source: DataSourceBinding | None = None
     max_iterations: int = Field(default=3, ge=1, le=10)
     llm_model: str | None = None
+    llm_models: list[str] | None = None
+    max_parallel_models: int = Field(default=1, ge=1, le=16)
+    run_budget_usd: float | None = Field(default=None, ge=0.0)
+    per_model_budget_usd: float | None = Field(default=None, ge=0.0)
     checkpoint_policy: CheckpointPolicyType = "strict"
 
 
@@ -114,6 +119,13 @@ class IngestRequest(BaseModel):
     source: str = "dashboard"
     license_name: str = "open"
     cache_policy: str = "default"
+    connection_profile: str | None = None
+    execution_mode: ExecutionMode = "batch_full"
+    produce_data_snapshot: bool = True
+    record_mode: bool = False
+    replay_ref: str | None = None
+    binding_profile_id: str | None = None
+    produce_input_bindings: bool = False
 
 
 class IngestResponse(BaseModel):
@@ -122,8 +134,14 @@ class IngestResponse(BaseModel):
     meta: ApiMeta
     status: IngestStatus
     evidence_bundle_ref: str | None = None
+    data_snapshot_ref: str | None = None
     datasets_fetched: int = 0
     message: str
+    warnings: list[str] = Field(default_factory=list)
+    cursor_ref: str | None = None
+    mode_effective: str | None = None
+    record_ref: str | None = None
+    input_bindings_ref: str | None = None
 
 
 # ---------------------------------------------------------------------------
@@ -140,6 +158,7 @@ class ConnectorInfo(BaseModel):
     known_datasets: list[str] = Field(default_factory=list)
     loaded: bool = False
     last_health_check: datetime | None = None
+    available_profiles: list[str] = Field(default_factory=list)
 
 
 class ConnectorsListResponse(BaseModel):
@@ -147,6 +166,86 @@ class ConnectorsListResponse(BaseModel):
 
     meta: ApiMeta
     connectors: list[ConnectorInfo] = Field(default_factory=list)
+
+
+# ---------------------------------------------------------------------------
+# Source profiles
+# ---------------------------------------------------------------------------
+
+
+class SourceProfileInfo(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    profile_id: str
+    display_name: str
+    description: str = ""
+    connector_family: str
+    base_url: str
+    auth_policy: str = "none"
+    tags: list[str] = Field(default_factory=list)
+    source_organization: str = ""
+    estimated_datasets: int | None = None
+    connector_available: bool = False
+
+
+class SourceProfilesListResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    meta: ApiMeta
+    profiles: list[SourceProfileInfo] = Field(default_factory=list)
+
+
+# ---------------------------------------------------------------------------
+# LLM model profiles
+# ---------------------------------------------------------------------------
+
+
+class ModelProfileInfo(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    profile_id: str
+    display_name: str
+    description: str = ""
+    provider: str
+    model_id: str
+    base_url: str
+    tags: list[str] = Field(default_factory=list)
+    capabilities: list[str] = Field(default_factory=list)
+    input_cost_per_mtoken_usd: float | None = Field(default=None, ge=0.0)
+    output_cost_per_mtoken_usd: float | None = Field(default=None, ge=0.0)
+    enabled: bool = True
+
+
+class ModelProfilesListResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    meta: ApiMeta
+    profiles: list[ModelProfileInfo] = Field(default_factory=list)
+
+
+# ---------------------------------------------------------------------------
+# Binding profiles
+# ---------------------------------------------------------------------------
+
+
+class BindingProfileInfo(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    profile_id: str
+    display_name: str
+    description: str = ""
+    schema_family: str
+    strategy: str = "auto"
+    rule_count: int = 0
+    expected_columns: list[str] = Field(default_factory=list)
+    tags: list[str] = Field(default_factory=list)
+
+
+class BindingProfilesListResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    meta: ApiMeta
+    profiles: list[BindingProfileInfo] = Field(default_factory=list)
 
 
 # ---------------------------------------------------------------------------
@@ -176,6 +275,8 @@ class CacheStatusResponse(BaseModel):
 
 
 __all__ = [
+    "BindingProfileInfo",
+    "BindingProfilesListResponse",
     "CacheEntryInfo",
     "CachePolicyType",
     "CacheStatusResponse",
@@ -184,12 +285,17 @@ __all__ = [
     "ConnectorsListResponse",
     "DataSourceBinding",
     "DatasetFetchSpecRequest",
+    "ExecutionMode",
     "IngestRequest",
     "IngestResponse",
     "IngestStatus",
     "NaturalLanguageRunRequest",
+    "ModelProfileInfo",
+    "ModelProfilesListResponse",
     "RunLaunchResponse",
     "RunLaunchStatus",
     "RunMode",
+    "SourceProfileInfo",
+    "SourceProfilesListResponse",
     "WorkflowRunRequest",
 ]

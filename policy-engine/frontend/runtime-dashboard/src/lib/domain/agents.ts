@@ -12,7 +12,10 @@ export type AgentStepView = {
   timestamp: string | null;
   summary: string | null;
   model: string | null;
+  provider: string | null;
+  modelVariantId: string | null;
   latencyMs: number | null;
+  costUsd: number | null;
   prompt: string | null;
   response: string | null;
   promptTokens: number | null;
@@ -94,7 +97,10 @@ function normalizeStep(raw: unknown): AgentStepView | null {
     timestamp: asString(step.timestamp),
     summary: asString(step.summary),
     model: asString(step.model),
+    provider: asString(step.provider),
+    modelVariantId: asString(step.model_variant_id),
     latencyMs: asNumber(step.latency_ms),
+    costUsd: asNumber(step.cost_usd),
     prompt: asString(step.prompt),
     response: asString(step.response),
     promptTokens: asNumber(tokenUsage?.prompt_tokens),

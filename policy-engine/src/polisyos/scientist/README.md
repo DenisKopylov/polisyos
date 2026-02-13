@@ -112,7 +112,7 @@ scientist/
 ├── compute/                         # job runner (legacy program + method jobs)
 ├── orchestrator/                    # DecisionCard рендеринг из decision packet
 ├── publisher.py                     # helper для canonical decision payload
-├── llm/                             # compatibility bridge к core.llm
+├── llm/                             # gateway-first LLM client + model profile registry + bridge к core.llm
 ├── agent/                           # PI/Drafter/Formalizer/Critic + multipass/reflexion
 ├── search/                          # search loop + strategies (random/grid/BO/MO и др.)
 ├── doe/                             # sensitivity/adversarial design and analysis
@@ -131,6 +131,21 @@ scientist/
 - `orchestrator/decision_card` (human-readable summary поверх packet).
 
 Важно: текущий default DAG **не** запускает автоматически PI→Drafter→Formalizer→Critic цепочку.
+
+## NL Agent Circuit через Runtime Control
+
+Для `POST /api/v1/control/runs/nl` поддерживаются оба режима:
+
+- `llm_model` — legacy single-model запуск;
+- `llm_models` — multi-model запуск в рамках одного `run_id` с variant-сравнением.
+
+Основные параметры запуска:
+
+- `max_parallel_models`
+- `run_budget_usd`
+- `per_model_budget_usd`
+
+Технически LLM-вызовы идут через gateway-first слой (`scientist/llm/gateway_client.py`), а per-model метрики сохраняются в `experiment_state.params.llm_model_variants` и читаются runtime debug/UI.
 
 ## Связи с другими директориями
 

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 
+import { useLlmProfiles, type ModelProfileInfo } from "../api/hooks/useLlmProfiles";
 import { useLaunchNlRun, type NaturalLanguageRunRequest } from "../api/hooks/useLaunchNlRun";
 import { useLaunchRun, type WorkflowRunRequest } from "../api/hooks/useLaunchRun";
 import ApiErrorAlert from "../components/shared/ApiErrorAlert";
@@ -29,6 +30,15 @@ function RecentLaunch({ runId, status }: { runId: string; status: string }) {
   );
 }
 
+function providerBadge(provider: string) {
+  const normalized = provider.toLowerCase();
+  if (normalized === "openai") return "bg-green-500/10 text-green-600";
+  if (normalized === "anthropic") return "bg-purple-500/10 text-purple-600";
+  if (normalized === "google") return "bg-blue-500/10 text-blue-600";
+  if (normalized === "gonka") return "bg-orange-500/10 text-orange-600";
+  return "bg-text/10 text-text";
+}
+
 export default function LaunchRun() {
   const [mode, setMode] = useState<Mode>("workflow");
   const [recentLaunches, setRecentLaunches] = useState<{ runId: string; status: string }[]>([]);
@@ -46,15 +56,36 @@ export default function LaunchRun() {
   // NL state
   const [nlRequest, setNlRequest] = useState("");
   const [domainHint, setDomainHint] = useState<string>("custom");
-  const [llmModel, setLlmModel] = useState<string>("");
+  const [llmModelInput, setLlmModelInput] = useState<string>("");
+  const [selectedLlmModels, setSelectedLlmModels] = useState<string[]>([]);
+  const [maxParallelModels, setMaxParallelModels] = useState<number>(2);
+  const [runBudgetUsd, setRunBudgetUsd] = useState<string>("");
+  const [perModelBudgetUsd, setPerModelBudgetUsd] = useState<string>("");
   const [maxIterations, setMaxIterations] = useState(3);
   const [nlDataSourceRef, setNlDataSourceRef] = useState("");
 
+  const llmProfilesQuery = useLlmProfiles();
   const launchRunMutation = useLaunchRun();
   const launchNlMutation = useLaunchNlRun();
 
   function addRecentLaunch(runId: string, status: string) {
     setRecentLaunches((prev) => [{ runId, status }, ...prev].slice(0, 5));
+  }
+
+  function toggleModel(modelId: string) {
+    setSelectedLlmModels((prev) => {
+      if (prev.includes(modelId)) {
+        return prev.filter((item) => item !== modelId);
+      }
+      return [...prev, modelId];
+    });
+  }
+
+  function addCustomModel() {
+    const normalized = llmModelInput.trim();
+    if (!normalized) return;
+    setSelectedLlmModels((prev) => (prev.includes(normalized) ? prev : [...prev, normalized]));
+    setLlmModelInput("");
   }
 
   function handleLaunchWorkflow() {
@@ -86,11 +117,29 @@ export default function LaunchRun() {
   }
 
   function handleLaunchNl() {
+    const models = Array.from(
+      new Set(
+        selectedLlmModels
+          .map((model) => model.trim())
+          .filter((model) => model.length > 0),
+      ),
+    );
+    const parsedRunBudget = runBudgetUsd.trim() ? Number(runBudgetUsd) : null;
+    const parsedPerModelBudget = perModelBudgetUsd.trim() ? Number(perModelBudgetUsd) : null;
+    const normalizedParallel = Math.max(1, Math.min(maxParallelModels, Math.max(models.length, 1)));
+
     const body: NaturalLanguageRunRequest = {
       request: nlRequest,
       domain_hint: domainHint || null,
       max_iterations: maxIterations,
-      llm_model: llmModel || null,
+      llm_model: models[0] ?? null,
+      llm_models: models.length > 0 ? models : null,
+      max_parallel_models: normalizedParallel,
+      run_budget_usd: Number.isFinite(parsedRunBudget) && parsedRunBudget != null ? parsedRunBudget : null,
+      per_model_budget_usd:
+        Number.isFinite(parsedPerModelBudget) && parsedPerModelBudget != null
+          ? parsedPerModelBudget
+          : null,
       checkpoint_policy: checkpointPolicy,
       context: {},
     };
@@ -320,12 +369,125 @@ export default function LaunchRun() {
                 </select>
               </div>
               <div>
-                <label className="mb-1 block text-xs text-muted">LLM Model (empty = mock agents)</label>
+                <label className="mb-1 block text-xs text-muted">Max Parallel Models</label>
+                <input
+                  type="number"
+                  min={1}
+                  max={16}
+                  value={maxParallelModels}
+                  onChange={(e) => setMaxParallelModels(Number(e.target.value) || 1)}
+                  className="w-full rounded-lg border border-line bg-surface px-3 py-1.5 text-sm"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-3 rounded-lg border border-line/50 bg-surface/50 p-3">
+              <div className="flex items-center justify-between gap-2">
+                <label className="block text-xs font-semibold uppercase tracking-wider text-muted">
+                  Model Selection (empty = mock agents)
+                </label>
+                <p className="text-xs text-muted">
+                  {selectedLlmModels.length > 0
+                    ? `${selectedLlmModels.length} model variants in one run`
+                    : "No models selected"}
+                </p>
+              </div>
+
+              {llmProfilesQuery.error && <ApiErrorAlert error={llmProfilesQuery.error} />}
+              {llmProfilesQuery.isLoading && <p className="text-xs text-muted">Loading model profiles...</p>}
+
+              {(llmProfilesQuery.data?.profiles ?? []).length > 0 && (
+                <div className="grid gap-2 md:grid-cols-2">
+                  {(llmProfilesQuery.data?.profiles ?? []).map((profile: ModelProfileInfo) => {
+                    const selected = selectedLlmModels.includes(profile.model_id);
+                    return (
+                      <button
+                        key={profile.profile_id}
+                        type="button"
+                        onClick={() => toggleModel(profile.model_id)}
+                        className={cn(
+                          "rounded-lg border p-2 text-left transition",
+                          selected
+                            ? "border-accent bg-accent/5"
+                            : "border-line bg-surface hover:border-accent/50",
+                        )}
+                      >
+                        <div className="mb-1 flex items-center justify-between gap-2">
+                          <p className="text-sm font-semibold">{profile.display_name}</p>
+                          <span
+                            className={cn(
+                              "rounded-full px-2 py-0.5 text-[10px] font-medium",
+                              providerBadge(profile.provider),
+                            )}
+                          >
+                            {profile.provider}
+                          </span>
+                        </div>
+                        <p className="text-xs text-muted">{profile.model_id}</p>
+                        {profile.description ? (
+                          <p className="mt-1 line-clamp-2 text-xs text-muted">{profile.description}</p>
+                        ) : null}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+
+              <div className="flex gap-2">
                 <input
                   type="text"
-                  value={llmModel}
-                  onChange={(e) => setLlmModel(e.target.value)}
-                  placeholder="e.g., claude-sonnet-4-5-20250929"
+                  value={llmModelInput}
+                  onChange={(e) => setLlmModelInput(e.target.value)}
+                  placeholder="Custom model id (e.g., claude-sonnet-4-5-20250929)"
+                  className="flex-1 rounded-lg border border-line bg-surface px-3 py-1.5 text-sm"
+                />
+                <button
+                  type="button"
+                  onClick={addCustomModel}
+                  className="rounded-lg border border-line bg-panel px-3 py-1.5 text-xs font-semibold"
+                >
+                  Add
+                </button>
+              </div>
+
+              {selectedLlmModels.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {selectedLlmModels.map((model) => (
+                    <button
+                      key={model}
+                      type="button"
+                      onClick={() => toggleModel(model)}
+                      className="rounded-full border border-line bg-panel px-2 py-1 text-xs hover:border-red-400"
+                    >
+                      {model} ×
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div>
+                <label className="mb-1 block text-xs text-muted">Run Budget USD (optional)</label>
+                <input
+                  type="number"
+                  min={0}
+                  step="0.0001"
+                  value={runBudgetUsd}
+                  onChange={(e) => setRunBudgetUsd(e.target.value)}
+                  placeholder="e.g., 1.00"
+                  className="w-full rounded-lg border border-line bg-surface px-3 py-1.5 text-sm"
+                />
+              </div>
+              <div>
+                <label className="mb-1 block text-xs text-muted">Per Model Budget USD (optional)</label>
+                <input
+                  type="number"
+                  min={0}
+                  step="0.0001"
+                  value={perModelBudgetUsd}
+                  onChange={(e) => setPerModelBudgetUsd(e.target.value)}
+                  placeholder="e.g., 0.25"
                   className="w-full rounded-lg border border-line bg-surface px-3 py-1.5 text-sm"
                 />
               </div>
@@ -362,7 +524,9 @@ export default function LaunchRun() {
               onClick={handleLaunchNl}
               className="rounded-xl bg-accent px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-accent/90 disabled:opacity-50"
             >
-              {launchNlMutation.isPending ? "Running Agent Circuit..." : "Run Agent Circuit"}
+              {launchNlMutation.isPending
+                ? "Running Agent Circuit..."
+                : `Run Agent Circuit${selectedLlmModels.length > 0 ? ` (${selectedLlmModels.length} models)` : ""}`}
             </button>
 
             {launchNlMutation.error && <ApiErrorAlert error={launchNlMutation.error} />}

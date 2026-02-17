@@ -1,59 +1,71 @@
 # Connectors
 
-`polisyos.fabric.connectors` — подсистема подключения к внешним источникам данных. Она задает протокол коннекторов, runtime-реестр, resilience/caching/validation слои и инструменты композиции результатов.
+`polisyos.fabric.connectors` — подсистема интеграции с внешними источниками данных. Она определяет протоколы коннекторов, runtime-реестр, connection lifecycle, а также слои надежности/валидации/качества вокруг `fetch`.
 
 ## Роль в Fabric
 
 ```text
-ConnectorRegistry -> SourceConnector.fetch -> (cache/resilience/contracts/quality/transform) -> FetchResult
+ConnectorRegistry -> SourceConnector.fetch/list_datasets -> FetchResult
+                     + cache/resilience/contracts/quality/transform/federation
 ```
 
-Эта подсистема используется в:
+Подсистема используется в:
 
-- `polisyos.fabric.ingestion.run_connectors_ingestion`
-- `polisyos.fabric._connector_bridge.fabric_get_data`
+- `/Users/deniskopylov/polisyos/policy-engine/src/polisyos/fabric/ingestion.py`
+- `/Users/deniskopylov/polisyos/policy-engine/src/polisyos/fabric/_connector_bridge.py`
+- `/Users/deniskopylov/polisyos/policy-engine/src/polisyos/fabric/retrieval/executor.py`
+- `/Users/deniskopylov/polisyos/policy-engine/src/polisyos/fabric/retrieval/explore_lane.py`
+- `/Users/deniskopylov/polisyos/policy-engine/src/polisyos/fabric/data_plane/modes.py`
 
-## Архитектура
+## Архитектурные блоки
 
-### Протокол и базовые абстракции
+### 1) Контракты и capability-модель
 
-- `base.py`
-- `SourceConnector` (Protocol)
-- `ConnectionConfig`, `ConnectionHandle`, `HealthStatus`
-- `BaseConnector` с capability-gated default-реализациями
+- `base.py`: `SourceConnector`, `BaseConnector`, `ConnectionConfig`, `ConnectionHandle`.
+- `capabilities.py`: capability decorators, runtime checks, protocol compliance.
+- `types/`: унификация типов данных, units/dimensions/temporal/coercion и error-модель.
 
-### Runtime управление
+### 2) Реестр и lifecycle
 
-- `registry.py` / `registry_core_parts.py` — `ConnectorRegistry` (singleton, lazy-loading, индексы, lifecycle)
-- `pool.py` — connection pooling
-- `discovery.py` — discovery builtin/entrypoint/explicit connectors
-- `capabilities.py` — capability decorators и protocol compliance checks
-- `validation.py` — schema validation/coercion для `FetchResult`
+- `registry.py` — публичный фасад.
+- `registry_core.py`, `registry_core_parts.py`, `_registry_*` — реализация `ConnectorRegistry`.
+- `discovery.py` — загрузка built-in, entry points и explicit модулей.
+- `pool.py` — connection pooling.
 
-### Основные подсистемы
+### 3) Execution-слои вокруг fetch
 
-- `cache/` — CAS-кэш, политики TTL/LRU/size/smart, invalidation, prefetch, proxy
-- `resilience/` — retry, circuit breaker, rate limiter, fallback, unified `apply_resilience`
-- `contracts/` — DataSchema, inference, evolution, registry, validating proxy
-- `quality/` — freshness/completeness/consistency и quality reports
-- `transform/` — конвейер преобразований (normalization/harmonization/aggregation/imputation/filter/validation)
-- `types/` — dimensional, units, temporal, coercion + connector errors/types
-- `federation/` — planner/ranker/resolver/composer + merge log + evidence aggregation
-- `testing/` — harness/simulator/fault injection/contract assertions
+- `cache/` — CAS-backed cache + TTL/LRU/smart policies + invalidation/prefetch/proxy.
+- `resilience/` — retry, circuit breaker, rate limit, fallback, unified wrappers.
+- `contracts/` — schema contracts, inference/evolution, validating middleware.
+- `quality/` — freshness/completeness/consistency и формирование quality reports.
+- `transform/` — конвейер преобразований табличных payload.
+- `federation/` — planner/ranker/resolver/composer для объединения нескольких источников.
 
-### Реализации источников
+### 4) Профили и конфигурации
 
-- `sources/` — production connectors (`WorldBankConnector`, `EurostatConnector`, `UKONSConnector`)
-- `reference/` — reference connectors (`StaticCSVConnector`, `GenericRESTConnector`, `SDMXConnector`)
+- `profiles/` — connection profiles (`SourceProfileRegistry`).
+- `bindings/` — mapping/binding profiles для связки схемы и целевой структуры.
 
-## Минимальный путь использования
+### 5) Реализации коннекторов
 
-1. Получить/инициализировать реестр: `ConnectorRegistry.get_instance()`
-2. Получить коннектор: `registry.get("world_bank")`
-3. Выполнить fetch (обычно через `ingestion` или `fabric_get_data`, а не напрямую)
+- `sources/` — production implementations (`WorldBank`, `Eurostat`, `UKONS`, `SDMX`, `CKAN`, `Socrata`, `Opendatasoft`, `SPARQL`, `REST`).
+- `reference/` — reference adapters (`StaticCSV`, generic `REST`, `SDMX`).
 
-## Связи с другими модулями
+### 6) Testing и record/replay интеграция
 
-- `polisyos.ir.connectors` — канонические контракты `FetchRequest/FetchResult`, `ConnectorCapability`, `DataVersion`
-- `polisyos.fabric.ingestion` — orchestration ingestion pipeline
-- `polisyos.fabric.evidence` и `polisyos.fabric.provenance` — фиксация трассируемости
+- `testing/` — harness, fixtures, simulator, fault-injection.
+- `testing/simulator.py` используется `fabric.data_plane` в режимах `record`/`replay`.
+
+## Как обычно вызывать
+
+1. Через ingestion path: `run_connectors_ingestion(...)`.
+2. Через bridge path: `fabric_get_data(...)`.
+3. Для retrieval: `FetchExecutor.execute(...)` и `ExploreLaneDiscovery.discover(...)`.
+
+Прямой вызов `connector.fetch(...)` допустим, но не является приоритетным сценарием для верхнего слоя.
+
+## Связи
+
+- `polisyos.ir.connectors` — канонические `FetchRequest/FetchResult`, capabilities и versioning.
+- `polisyos.fabric.catalog` и `polisyos.fabric.retrieval` — выбор источников и построение fetch plans.
+- `polisyos.fabric.evidence`/`provenance` — трассировка происхождения данных.

@@ -1,61 +1,56 @@
-# `frontend/` — API-first интерфейсы Runtime API v1
+# `frontend/` — Runtime API UI слой
 
-Директория `frontend` содержит минимальный frontend foundation для наблюдаемости runtime:
-- сгенерированный HTTP-клиент по OpenAPI-контракту;
-- reference shell для отладки run/timeline/node/artifact через Runtime API.
-- новый React/Vite dashboard scaffold для Phase 0.
-
-Это не продуктовый UI, а опорный слой для стабильного API-driven сценария.
+`frontend/` содержит UI-поверхности для Runtime API v1:
+- основная рабочая панель (`runtime-dashboard`);
+- референсный статический shell для быстрой диагностики (`runtime-reference-shell`);
+- сгенерированный JS/TS клиент (`runtime-api-client`), на котором работает reference shell.
 
 ## Роль в системе
 
-`frontend` закрывает разрыв между backend-контрактами и UI-диагностикой:
-- фиксирует машинно-генерируемый контракт клиента (`runtime-api-client`);
-- дает рабочий shell без прямых чтений CAS/файлов/БД (`runtime-reference-shell`);
-- дает Typed React-приложение для Phase 0/1/2 (`runtime-dashboard`);
-- поддерживает cutover на Runtime API v1 как единственную online-точку доступа к runtime-данным.
+Директория связывает backend-контракт OpenAPI с реальными UI-сценариями:
+- наблюдаемость по run/artifact/debug/workflow;
+- контрольные операции control-plane (запуск run, ingest/discovery/promotions, Lex pipeline);
+- единый API-first подход без прямого чтения CAS/файлов/БД из frontend.
 
 ## Состав директории
 
 | Директория | Назначение |
 | --- | --- |
-| `frontend/runtime-api-client/` | Typed клиент (`.ts`) и runtime ESM-клиент (`.js`), генерируются из OpenAPI |
-| `frontend/runtime-reference-shell/` | Статический reference UI (HTML/CSS/JS), использует только `RuntimeApiClient` |
-| `frontend/runtime-dashboard/` | React 18 + TypeScript + Vite scaffold с React Query и typed API hooks |
+| `frontend/runtime-dashboard/` | React 18 + TypeScript + Vite приложение (основной UI runtime и control-plane) |
+| `frontend/runtime-reference-shell/` | Статический reference UI без сборки (`index.html` + `app.js` + `styles.css`) |
+| `frontend/runtime-api-client/` | Сгенерированный `RuntimeApiClient` (`runtimeApiClient.ts/js`) для JS/TS-интеграций |
 
-## Архитектура и поток контрактов
+## Поток контрактов и генерации
 
 ```text
-src/polisyos/runtime/http/* (FastAPI Runtime API v1, read-only)
+src/polisyos/runtime/http/* (FastAPI Runtime API v1)
   -> tools/runtime/export_runtime_openapi.py
   -> schemas/runtime_api_v1.openapi.json
-  -> tools/runtime/generate_runtime_client.py
-  -> frontend/runtime-api-client/runtimeApiClient.ts + runtimeApiClient.js
-  -> frontend/runtime-reference-shell/app.js
-  -> frontend/runtime-dashboard/src/api/types.ts (openapi-typescript)
+      -> tools/runtime/generate_runtime_client.py
+      -> frontend/runtime-api-client/runtimeApiClient.ts + runtimeApiClient.js
+      -> frontend/runtime-dashboard/scripts/generate-api-client.sh
+      -> frontend/runtime-dashboard/src/api/types.ts
 ```
 
-## Инварианты и границы
+## Архитектурные границы
 
-- UI-поток строго API-only: frontend не читает `.polisyos/runs`, CAS или DuckDB напрямую.
-- Runtime API слой для этого frontend-а read-only (`GET` endpoints).
-- Текущий канонический `source_kind` для runtime API: `core_run`.
-- `runtime-reference-shell` не использует npm/build toolchain (статические файлы).
-- `runtime-dashboard` использует npm toolchain (`Vite + TypeScript + Tailwind`).
+- Frontend работает только через HTTP API, без доступа к `.polisyos/runs`, CAS и локальным БД.
+- `runtime-reference-shell` использует только сгенерированный `RuntimeApiClient`.
+- `runtime-dashboard` использует `openapi-fetch` + generated types + React Query hooks.
+- Для runtime read-paths в dashboard применяются `zod`-валидаторы; control-plane вызовы типизированы из OpenAPI.
 
 ## Связь с другими директориями
 
-- `src/polisyos/runtime/` — backend Runtime API v1.
-- `src/polisyos/core/contracts/runtime.py` — DTO/контракты ответов API.
-- `schemas/runtime_api_v1.openapi.json` — источник для генерации frontend-клиента.
+- `src/polisyos/runtime/` — реализация Runtime API.
+- `src/polisyos/core/contracts/runtime.py` — основные runtime DTO.
+- `schemas/runtime_api_v1.openapi.json` — канонический контракт для frontend-генерации.
 - `tools/runtime/export_runtime_openapi.py` — экспорт OpenAPI.
 - `tools/runtime/generate_runtime_client.py` — генерация `runtimeApiClient.ts/js`.
 - `frontend/runtime-dashboard/scripts/generate-api-client.sh` — генерация `src/api/types.ts`.
-- `tests/runtime/http/test_runtime_api_no_legacy_sources.py` — инварианты core-only source kinds.
 
-## Локальный запуск reference shell
+## Локальный запуск
 
-Из корня `policy-engine/`:
+Из корня `policy-engine/` сначала поднимите Runtime API:
 
 ```bash
 PYTHONPATH=src uv run --extra multi-tenant --extra test python - <<'PY'
@@ -65,16 +60,9 @@ import uvicorn
 app = create_runtime_api_app()
 uvicorn.run(app, host="127.0.0.1", port=8000)
 PY
-
-cd frontend/runtime-reference-shell
-python -m http.server 4173
 ```
 
-Далее открыть `http://127.0.0.1:4173` и указать base URL API.
-
-## Локальный запуск runtime dashboard (Phase 0)
-
-Из корня `policy-engine/`:
+Запуск dashboard:
 
 ```bash
 cd frontend/runtime-dashboard
@@ -83,4 +71,13 @@ npm run generate:api
 npm run dev
 ```
 
-Открыть `http://127.0.0.1:5173`.
+Запуск reference shell:
+
+```bash
+cd frontend/runtime-reference-shell
+python -m http.server 4173
+```
+
+UI адреса:
+- Dashboard: `http://127.0.0.1:5173`
+- Reference shell: `http://127.0.0.1:4173`

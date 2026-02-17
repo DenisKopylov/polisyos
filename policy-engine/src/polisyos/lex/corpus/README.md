@@ -1,59 +1,76 @@
 # corpus
 
-`lex.corpus` готовит юридический корпус для последующих подсистем (`normpack`, `legal_evaluation`).
+`polisyos.lex.corpus` подготавливает юридический корпус в CAS/fact log для downstream-пайплайнов `lex.normpack` и `lex.legal_evaluation`.
 
 ## Что делает
 
-- принимает raw документ и доводит его до `DocMeta` с `lex.*` метаданными;
-- строит структурную разметку норм (`ProvisionIndexV1`);
-- строит индекс версий документа (`VersionIndexV1`) и указатель на него в `DocSourcePropsV1`.
+- ingest правового документа и обогащение `DocMeta.props.lex`;
+- структурирование норм в `ProvisionIndexV1` + `DocFragment`;
+- построение `VersionIndexV1` и `DocSourcePropsV1` для выбора активных версий.
 
-## Модули
+## Поток
+
+```text
+raw bytes
+  -> ingest_legal_doc_bytes
+  -> (optional in ingest) normalize/structure/chunk через fabric.docs
+  -> build_legal_structure
+  -> build_version_index
+  -> resolve_active_version (on demand)
+```
+
+## Ключевые модули
 
 ### `ingest.py`
 
-Оркестрирует `fabric.docs` pipeline (`ingest -> normalize -> structure -> chunk`) и дополняет `DocMeta.props.lex` полями:
-- `corpus=lex.corpus`
-- `jurisdiction`, `language`
-- `published_at`, `effective_from`, `effective_to`
-- `source_url`
-
-Особенность: поддерживает merge-политику (`merge_lex`/`overwrite_lex`) и пишет world event для обновления метаданных.
+- Обертка над `fabric.docs` (`ingest`, опционально `normalize/structure/chunk`).
+- Обновляет `DocMeta.props.lex`:
+  - `schema_version=1.0`
+  - `corpus=lex.corpus`
+  - `jurisdiction`, `language`, `published_at`, `effective_from`, `effective_to`, `source_url`
+  - `ingest.pipeline=lex.corpus.ingest_v1`
+- Поддерживает merge-политику: `merge_lex` или `overwrite_lex`.
+- Пишет world events/segments и возвращает `LexIngestResult`.
 
 ### `structure.py`
 
-Строит иерархию положений из `normalized_ref`:
-- уровни: `article -> part -> point -> subpoint` (+ `paragraph` опционально);
-- ruleset'ы для `UA`, `RU`, `EN`;
-- юрисдикция берется в порядке: `options.jurisdiction -> meta.jurisdiction -> meta.props.lex.jurisdiction`.
+- Требует `DocMeta.normalized_ref`; иначе `LexNotReadyError`.
+- Извлекает provision-иерархию:
+  - `article -> part -> point -> subpoint`
+  - `paragraph` опционально (`enable_paragraphs`)
+- Ruleset'ы: `UA`, `RU`, `EN`.
+- Пишет:
+  - `DocFragment` артефакты и факты;
+  - `ProvisionIndexV1` (`lex.corpus.provision_index`);
+  - обновленный `DocMeta` с `lex.provision_index_ref`, `lex.structure_algorithm_id`, `lex.structure_pipeline`.
 
-Выход:
-- `DocFragment` артефакты;
-- `ProvisionIndexV1`;
-- обновленный `DocMeta` с `lex.provision_index_ref`.
-
-Типовые quality issues: `no_articles_detected`, `duplicate_article_number:*`, `non_monotonic_articles`.
+Типовые quality issues:
+- `no_articles_detected`
+- `duplicate_article_number:*`
+- `non_monotonic_articles`
 
 ### `versioning.py`
 
-- `build_version_index`: собирает версии через факты `DOC_HAS_VERSION` и метаданные документов, считает confidence и quality issues.
-- `resolve_active_version`: выбирает активную версию по стратегии:
-  1. `effective_from/effective_to`
-  2. `published_at`
-  3. детерминированный fallback по id.
-
-Результат `build_version_index` также персистит `DocSourcePropsV1.version_index_ref`, который затем использует `normpack.select_sources`.
+- `build_version_index`:
+  - читает факты `DOC_HAS_VERSION`;
+  - поднимает актуальные `DocMeta` через `WORLD_ARTIFACT_ID`;
+  - строит `VersionIndexV1` (`lex.corpus.version_index`);
+  - пишет `DocSourcePropsV1` (`lex.corpus.doc_source_props`) и pointer-факты.
+- `resolve_active_version`:
+  - первичный путь через `version_index_ref`;
+  - выбор версии: `effective window` -> `published_at` -> deterministic ID fallback;
+  - при отсутствии pointer может вернуть `LexNotReadyError`.
 
 ### `index.py`
 
-Pydantic-модели и persist/load helpers для:
+Типы и helpers persist/load для:
 - `ProvisionIndexV1`
 - `VersionIndexV1`
 - `DocSourcePropsV1`
 
-## Связь с другими директориями
+## Связи с другими директориями
 
-- Читает/пишет через `polisyos.core.artifacts` (CAS).
-- Пишет факты/события через `polisyos.fabric.world`.
-- Использует модели `polisyos.ir.world.*` и `polisyos.ir.citations`.
-- Является upstream для `policy-engine/src/polisyos/lex/normpack`.
+- `polisyos.fabric.docs` и `polisyos.fabric.world` — ingest и provenance.
+- `polisyos.core.artifacts` — CAS-персистенция.
+- `polisyos.ir.world` / `polisyos.ir.citations` — доменные модели и идентификаторы.
+- Upstream для `policy-engine/src/polisyos/lex/normpack`.

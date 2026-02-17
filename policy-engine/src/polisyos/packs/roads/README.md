@@ -1,99 +1,76 @@
-# roads — Дорожный компонентный пакет
+# roads pack
 
-Reference implementation полного доменного пакета PolicyOS: от определения единиц измерения до оценки легальности. 6 компонентов, покрывающих все слои стека.
+`roads` это полный встроенный доменный пакет для демонстрации end-to-end потока:
+IR-фрагменты -> Foundry method -> Scholar extraction -> Lex extraction/evaluation -> NormPack provider.
 
-## Архитектура
+Экспорт: `__polisyos_components__` в `components.py` (6 компонентов).
 
-Компоненты образуют функциональную цепочку — выход одного слоя питает следующий:
+## Роль в системе
 
-```
-ir_fragments.py          roads.kmh (единица измерения)
-       │
-       ├──► foundry_methods.py     speed_cap: clamp скорости по порогу
-       ├──► scholar_extractors.py  regex → ClaimCandidate (speed limit)
-       └──► norms_provider.py      статический NormPack (UA)
-                   │
-                   ├──► lex_evaluators.py   evaluate_legality_impl
-                   └──► scholar_extractors.py (lex_norm_regex_v1 extractor)
-```
+- дает рабочий baseline для дорожного домена;
+- покрывает сразу несколько kind-компонентов;
+- используется как эталонный набор для discovery и интеграционных тестов.
 
-Все компоненты агрегируются в `components.py` → `__polisyos_components__` (6 штук).
-
-## Компоненты
-
-### IR Fragment — `roads.ir.registry_fragment@1.0.0`
-
-Определяет единицу `roads.kmh` через `UnitsFragment` с priority=100. Все остальные компоненты roads опираются на эту единицу. Побеждает конфликтный фрагмент из econ (priority=90).
-
-- **ABI:** `ir_abi:1.x` | **Capabilities:** `IR_FRAGMENT` | **Provides:** `ir.registry.units`
-
-### Foundry Method — `roads.method.speed_cap@1.0.0`
-
-Симуляционный метод: поэлементный clamp массива скоростей по configurable cap (дефолт 50 km/h). Использует `np.minimum` — чистая функция без побочных эффектов.
-
-- **Сигнатура:** `speed_input (VECTOR, kmh)` → `speed_output (VECTOR, kmh)`
-- **Fidelity:** LOW | **Complexity:** O(N) | **ABI:** `foundry_methods_api:>=3.5.0,<4.0.0`
-- **Capabilities:** `FOUNDRY_METHOD | FOUNDRY_COMPILE`
-- numpy импортируется лениво внутри factory
-
-### Scholar Extractor — `roads.scholar.speed_limit@1.0.0`
-
-Regex-экстрактор ограничений скорости из плоского текста. Поддерживает английский и украинский:
+## Архитектура потока
 
 ```
-speed limit 50 → 50    max speed: 80 → 80    максимальна швидкість 60 → 60
+ir_fragments.py
+  -> roads.kmh unit (priority=100)
+
+foundry_methods.py
+  -> speed_cap method (vector clamp)
+
+scholar_extractors.py
+  -> roads.scholar.speed_limit (text -> ClaimCandidate)
+  -> lex.norm_extractor.regex_v1 (legacy backend wrapper)
+
+lex_evaluators.py
+  -> lex.eval.simple_v1 (evaluate_legality_impl wrapper)
+
+norms_provider.py
+  -> roads.normpack.static_provider (UA static NormPack)
 ```
 
-Паттерн: `(?:speed\s*limit|max\s*speed|максимальн\w*\s+швидк\w*)[^\d]*(\d{2,3})`
+## Файлы и ответственность
 
-Возвращает `ClaimCandidate` с `predicate_id="roads.speed_limit_kmh"`, `unit_id="roads.kmh"`, `qualifiers={"op": "<="}`.
+| Файл | Что делает |
+|---|---|
+| `components.py` | Собирает и экспортирует `__polisyos_components__` |
+| `ir_fragments.py` | Регистрирует `roads.kmh` через `UnitsFragment` |
+| `foundry_methods.py` | Определяет метод `speed_cap` (`np.minimum`, O(N)) |
+| `scholar_extractors.py` | Дает domain extractor для speed limit и обертку `lex_norm_regex_v1` |
+| `lex_evaluators.py` | Дает обертку `evaluate_legality_impl` |
+| `norms_provider.py` | Возвращает статический `NormPack` с 2 правилами для `ua` |
 
-- **Languages:** en, uk | **Capabilities:** `SCHOLAR_EXTRACTOR | SCHOLAR_ENRICH`
+## Каталог компонентов
 
-### Lex Extractor — `lex.norm_extractor.regex_v1@1.0.0`
+| Component ID | Kind | Кратко |
+|---|---|---|
+| `roads.ir.registry_fragment@1.0.0` | IR_FRAGMENT | `roads.kmh`, namespace `roads`, priority `100` |
+| `roads.method.speed_cap@1.0.0` | FOUNDRY_METHOD | Ограничение скорости по параметру `cap` (default `50.0`) |
+| `roads.scholar.speed_limit@1.0.0` | SCHOLAR_EXTRACTOR | Regex извлекает лимит скорости из plain text (en/uk) |
+| `lex.norm_extractor.regex_v1@1.0.0` | LEX_EXTRACTOR | Обертка legacy regex backend из `fabric` |
+| `lex.eval.simple_v1@1.0.0` | LEX_EVALUATOR | Обертка функции legal evaluation из `lex` |
+| `roads.normpack.static_provider@1.0.0` | NORM_PACK_PROVIDER | Статический провайдер норм для `ua` |
 
-Обёртка над legacy backend `fabric.claims.backends.lex_norm_regex_v1.extract`. Domain-agnostic — используется norms_provider для декларации extractor_id в NormRule.
+## Связь с другими директориями
 
-- **Capabilities:** `LEX_EXTRACTOR` | Deferred import
+- `src/polisyos/core/components`: `ComponentMetadata`, `Capability`, discovery model.
+- `src/polisyos/ir/*`: `UnitsFragment`, `NormPack`, `NormRule`.
+- `src/polisyos/foundry/methods/base`: сигнатуры/типы метода `speed_cap`.
+- `src/polisyos/fabric/claims/types`: `ClaimCandidate` для scholar extractor.
+- `src/polisyos/fabric/claims/backends`: `lex_norm_regex_v1.extract` (lazy import).
+- `src/polisyos/lex/legal_evaluation/evaluate.py`: `evaluate_legality_impl` (lazy import).
 
-### Lex Evaluator — `lex.eval.simple_v1@1.0.0`
+Регистрация в entry points: `policy-engine/pyproject.toml`.
 
-Обёртка над `lex.legal_evaluation.evaluate.evaluate_legality_impl`. Сравнивает извлечённые claims с нормами и возвращает оценку легальности.
+## Особенности и ограничения
 
-- **Capabilities:** `LEX_EVALUATOR | LEX_EVALUATE` | Deferred import
+- IR фрагмент roads (`priority=100`) выигрывает конфликт у `econ` (`priority=90`) при merge.
+- `RoadsStaticNormPackProvider` хранит данные в коде; это demo-режим, не source of truth.
+- Regex extractor покрывает простые случаи (`speed limit 50`, `max speed 80`, `максимальна швидкість 60`).
+- Тяжелые зависимости импортируются лениво внутри `create()`/factory.
 
-### Norm Pack Provider — `roads.normpack.static_provider@1.0.0`
+## Тесты
 
-`RoadsStaticNormPackProvider` — frozen dataclass, возвращающий hardcoded `NormPack` для UA юрисдикции. Содержит 2 нормы:
-
-| norm_id | Тип | Описание | Оператор | Значение |
-|---|---|---|---|---|
-| `roads.static.speed_limit` | OBLIGATION | Макс. скорость в городе | <= | 50 km/h |
-| `roads.static.lane_width` | OBLIGATION | Мин. ширина полосы | >= | 3.5 m |
-
-Обе нормы ссылаются на `lex.norm_extractor.regex_v1@1.0.0` как extractor backend.
-
-- **Jurisdictions:** ua | **Capabilities:** `NORM_PACK_PROVIDER | CAS_WRITE`
-- `_StaticComponent` хранит **инстанс** провайдера (не factory) — провайдер stateless
-
-## Зависимости
-
-```
-roads/
-├─► core/components           ComponentMetadata, Capability, ComponentId, ComponentKind
-├─► ir/kernel/units           GenericUnit, UnitsRegistry
-├─► ir/registry_fragments     RegistryFragmentMeta, UnitsFragment
-├─► ir/norm_pack              NormPack, NormRule, NormRef, RuleType
-├─► foundry/methods/base      MethodSignature, SlotSpec, SlotType, Unit, FidelityLevel, ComplexityClass
-├─► fabric/claims/types       ClaimCandidate
-├─► fabric/claims/backends    lex_norm_regex_v1.extract  (deferred)
-└─► lex/legal_evaluation      evaluate_legality_impl     (deferred)
-```
-
-## Особенности реализации
-
-- **Lazy imports:** numpy, evaluate_legality_impl, lex_norm_regex_v1 импортируются только при вызове `create()` — метаданные компонентов доступны без тяжёлых зависимостей
-- **Priority=100** для IR-фрагмента гарантирует победу над econ (priority=90) при conflict resolution
-- **Статические данные:** нормы и regex hardcoded для упрощения демонстраций; для production потребуется динамическая загрузка из базы и temporal validity
-- **Regex ограничения:** извлекает только числа 2-3 цифр; не обрабатывает диапазоны ("50-70 km/h"), условия ("в дождь: 40") и контекстные ограничения ("для грузовых")
-- **Нет кэширования:** каждый вызов `get_static_norm_pack()` создаёт новый объект NormPack
+- `policy-engine/tests/test_packs_discovery.py`

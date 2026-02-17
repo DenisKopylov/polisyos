@@ -5,6 +5,7 @@
 ## Роль в системе
 
 - формирует `ProblemFrame` и декомпозирует задачу;
+- извлекает `DataNeedSpec` (опционально, через `DataNeedExtractorAgent`);
 - генерирует черновик политики (`DraftResult`);
 - формализует черновик в `TrinityBundle`;
 - критикует IR и возвращает `CritiqueReport`;
@@ -14,56 +15,35 @@
 
 ## Ключевые модули
 
-- `protocols.py` — typed async-протоколы `PIAgent`, `DrafterAgent`, `FormalizerAgent`, `CriticAgent` и базовые dataclass-модели.
+- `protocols.py` — typed async-протоколы `PIAgent`, `DrafterAgent`, `FormalizerAgent`, `CriticAgent`, `DataNeedExtractorAgent`.
 - `pi.py` — `MockPIAgent`, `LLMPIAgent`.
-- `drafter_clients.py` + `drafter_factory.py` — `MockDrafterAgent`, `LLMDrafterAgent`, фабрика `create_drafter_agent`.
+- `drafter_clients.py` + `drafter_factory.py` — `MockDrafterAgent`, `LLMDrafterAgent`, `create_drafter_agent`.
 - `formalizer.py` — `MockFormalizerAgent`, `LLMFormalizerAgent`.
 - `critic.py` — `MockCriticAgent`, `LLMCriticAgent`, `create_critic_agent`.
-- `drafter_multipass_parts.py` + `drafter_models.py` — multipass-режим drafter, конфиг и findings.
+- `drafter_multipass_parts.py` + `drafter_models.py` — multipass-режим drafter.
 - `failure_card.py`, `reflexion.py`, `memory.py` — loop восстановления после ошибок.
-- `rag.py`, `knowledge_base.py`, `norm_loader.py`, `feasibility*.py`, `code_verifier.py` — расширения для informed critique/drafting.
+- `rag.py`, `knowledge_base.py`, `norm_loader.py`, `feasibility*.py`, `code_verifier.py` — informed critique/drafting расширения.
 
 ## Публичные точки входа
 
 Через `polisyos.scientist.agent` экспортируются:
-
 - протоколы и типы (`ProblemFrame`, `DraftResult`, `CritiqueReport`, ...);
 - mock/LLM реализации агентов;
 - `create_drafter_agent`, `create_critic_agent`;
 - RAG/feasibility/verifier и вспомогательные классы.
 
+Пакет использует lazy exports (через `__getattr__`) для снижения circular import рисков.
+
+## Режимы drafter
+
 `create_drafter_agent()` переключает режим по `POLISYOS_DRAFTER_MULTIPASS_MODE`:
 - `off` (по умолчанию) -> single-pass `LLMDrafterAgent`;
 - `active`/`shadow` -> `MultiPassLLMDrafter`.
 
-## Минимальный сценарий (mock)
-
-```python
-import asyncio
-
-from polisyos.scientist.agent import (
-    MockPIAgent,
-    MockDrafterAgent,
-    MockFormalizerAgent,
-    MockCriticAgent,
-)
-
-
-async def run() -> None:
-    pi = MockPIAgent()
-    drafter = MockDrafterAgent()
-    formalizer = MockFormalizerAgent()
-    critic = MockCriticAgent()
-
-    frame = await pi.create_problem_frame("Reduce poverty through targeted transfers")
-    draft = await drafter.draft_policy(frame)
-    bundle = await formalizer.formalize(draft)
-    report = await critic.critique(bundle, frame)
-    print(report.verdict)
-
-
-asyncio.run(run())
-```
+В multipass могут дополнительно включаться:
+- RAG (`RAGConfig.from_env()`);
+- code verification sandbox;
+- constitution/knowledge hooks.
 
 ## Связи с другими директориями
 
@@ -75,7 +55,6 @@ asyncio.run(run())
 ## Runtime env для gateway/multi-model
 
 При запуске через runtime control (`/api/v1/control/runs/nl`) используются:
-
 - `POLISYOS_LLM_MULTIMODEL_ENABLED`
 - `POLISYOS_LLM_GATEWAY_BASE_URL`
 - `POLISYOS_LLM_GATEWAY_API_KEY`
@@ -85,4 +64,4 @@ asyncio.run(run())
 - `POLISYOS_LLM_CAPTURE_PROMPT`
 - `POLISYOS_LLM_MAX_PROMPT_CAPTURE_CHARS`
 
-Если gateway не сконфигурирован, модельный variant автоматически уходит в mock fallback (это фиксируется в status/notes варианта).
+Если gateway не сконфигурирован, variant уходит в mock fallback (фиксируется в status/notes варианта).

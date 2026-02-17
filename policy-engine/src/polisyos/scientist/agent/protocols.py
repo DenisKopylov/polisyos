@@ -46,6 +46,7 @@ class AgentRole(str, Enum):
     """Roles that can be delegated to."""
 
     PI = "pi"
+    DATA_NEED_EXTRACTOR = "data_need_extractor"
     DRAFTER = "drafter"
     FORMALIZER = "formalizer"
     CRITIC = "critic"
@@ -113,6 +114,19 @@ class SubTask:
     inputs: dict[str, Any] = field(default_factory=dict)
     expected_output: str = ""
     metadata: dict[str, Any] = field(default_factory=dict)
+
+
+@dataclass(frozen=True, slots=True)
+class DataNeedSpec:
+    """Metric-level retrieval need extracted from problem framing."""
+
+    metric: str
+    geography: str | None = None
+    time_start: str | None = None
+    time_end: str | None = None
+    granularity: str = "annual"
+    quality_min: float = 0.6
+    purpose: str = "policy_drafting"
 
 
 @dataclass(slots=True)
@@ -251,6 +265,16 @@ class PIAgent(Protocol):
 
 
 @runtime_checkable
+class DataNeedExtractorAgent(Protocol):
+    """Data need extractor protocol (ProblemFrame -> DataNeedSpec[])."""
+
+    @abstractmethod
+    async def extract_data_needs(self, problem_frame: ProblemFrame) -> list[DataNeedSpec]:
+        """Extract normalized retrieval needs from the problem frame."""
+        ...
+
+
+@runtime_checkable
 class DrafterAgent(Protocol):
     """Drafter agent protocol (creative hypothesis generator)."""
 
@@ -259,6 +283,7 @@ class DrafterAgent(Protocol):
         self,
         problem_frame: ProblemFrame,
         *,
+        data_context: dict[str, Any] | None = None,
         hints: list[str] | None = None,
         prior_drafts: list[DraftResult] | None = None,
     ) -> DraftResult:
@@ -346,12 +371,19 @@ class CriticAgent(Protocol):
 # TYPE ALIASES AND REGISTRY HELPERS
 # =============================================================================
 
-AnyAgent = PIAgent | DrafterAgent | FormalizerAgent | CriticAgent
-AgentFactory = type[PIAgent] | type[DrafterAgent] | type[FormalizerAgent] | type[CriticAgent]
+AnyAgent = PIAgent | DataNeedExtractorAgent | DrafterAgent | FormalizerAgent | CriticAgent
+AgentFactory = (
+    type[PIAgent]
+    | type[DataNeedExtractorAgent]
+    | type[DrafterAgent]
+    | type[FormalizerAgent]
+    | type[CriticAgent]
+)
 
 
 AGENT_PROTOCOLS: dict[AgentRole, type] = {
     AgentRole.PI: PIAgent,
+    AgentRole.DATA_NEED_EXTRACTOR: DataNeedExtractorAgent,
     AgentRole.DRAFTER: DrafterAgent,
     AgentRole.FORMALIZER: FormalizerAgent,
     AgentRole.CRITIC: CriticAgent,

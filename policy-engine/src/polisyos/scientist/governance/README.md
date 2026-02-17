@@ -1,12 +1,12 @@
 # Governance Layer (`polisyos.scientist.governance`)
 
-`governance` — слой проверок и human-gate интеграции для `scientist`.
+`governance` — слой проверок и human-gate интеграции для Scientist.
 
 ## Роль в системе
 
-- выполняет validation passes и формирует issue-листы;
-- строит pre/post-flight решения (`GateRequest` / `GateDecision`);
-- формирует `GovernanceReport` для workflow.
+- выполняет validation passes и собирает issue-листы;
+- формирует pre/post-flight решения (`GateRequest` / `GateDecision`) в API-режиме;
+- формирует `GovernanceReport` для workflow-ноды `run_governance`.
 
 ## Структура
 
@@ -16,14 +16,21 @@
 - `report.py` — `GovernanceReport`, `GovernanceReportLinks`.
 - `passes/`:
   - локальные: `BudgetPass`, `SchemaPass`, `PrivacyPass`, `PIICheckPass`, `QualityGatePass`, `ConfidencePass`, `EquityPass`;
-  - compatibility re-export: `SafetyPass`, `LegalPass` (из `core.governance`).
-- `legal/` — deprecated compatibility re-exports в `core.governance.legal.*`.
+  - compatibility: `SafetyPass`, `LegalPass` (из `core.governance`).
+- `legal/` — deprecated compatibility re-exports на `core.governance.legal.*`.
 
 ## Важный нюанс default workflow
 
-`run_experiment()` через node `scientist.node_run_governance@1.1.0` использует только подмножество проверок (`confidence`, `equity`, `pii_check`) в зависимости от профиля.
+`run_experiment()` через `scientist.node_run_governance@1.1.0` использует workflow-ноду, где:
+- поддержан typed human-gate lifecycle (`require_human_gate`, `gate_request`, `gate_decision`, escalation);
+- выполняется подмножество пассов по профилю (`confidence`, `equity`, `pii_check`);
+- при blocker-issue итоговый verdict переводится в `reject` (кроме режима `human_gate`).
 
-`preflight_checks/postflight_checks` — это отдельные API, они не вызываются автоматически default DAG.
+`preflight_checks/postflight_checks` — отдельный API; они не вызываются автоматически default DAG.
+
+## Data-plane gate
+
+До дорогого execute-этапа в workflow работает `scientist.node_run_data_plane_gate`, который использует governance passes `QualityGatePass` + `PIICheckPass` и блокирует запуск при blocker-нарушениях.
 
 ## Пример API
 
@@ -36,6 +43,6 @@ updated_state, gate_request = preflight_checks(state, ValidationProfile.strict()
 
 ## Связи
 
-- `core.governance.*` — базовые контракты, профили и часть pass-ов.
-- `kernel.gate_protocol` — typed human gate lifecycle.
-- `nodes/builtins/governance/*` — workflow-интеграция в DAG.
+- `core.governance.*` — базовые контракты/профили/часть пассов.
+- `kernel.gate_protocol` — typed gate request/decision lifecycle.
+- `nodes/builtins/governance/*` — интеграция governance в DAG.

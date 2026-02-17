@@ -123,6 +123,36 @@ class TestLaunchNlRun:
         assert body["status"] == "accepted"
         assert "model variants" in body["message"]
 
+    def test_launch_nl_run_accepts_execution_plan_payload(self, runtime_api_env):
+        client = runtime_api_env["client"]
+        resp = client.post(
+            "/api/v1/control/runs/nl",
+            json={
+                "request": "Plan-first NL cycle",
+                "execution_plan": {
+                    "plan_id": "plan_contract_test",
+                    "schema_version": "1.0",
+                    "data_needs": [{"metric": "macro.gdp"}],
+                    "method_dag": [],
+                    "method_edges": [],
+                    "params": {},
+                    "budgets": {"max_iterations": 2},
+                    "stop_criteria": {
+                        "min_delta_improvement": 0.01,
+                        "max_no_delta_iterations": 1,
+                    },
+                    "governance_constraints": [],
+                    "expected_outputs": [],
+                },
+                "stop_criteria": {"max_no_delta_iterations": 1},
+                "governance_constraints": [{"constraint_id": "g1", "kind": "policy"}],
+                "expected_outputs": [{"output_id": "o1", "metric_id": "macro.gdp"}],
+            },
+        )
+        assert resp.status_code == 200
+        body = resp.json()
+        assert body["status"] == "accepted"
+
     def test_launch_nl_run_invalid_parallel_models_returns_422(self, runtime_api_env):
         client = runtime_api_env["client"]
         resp = client.post(
@@ -331,6 +361,136 @@ class TestBindingProfiles:
             assert "rule_count" in p
             assert isinstance(p["rule_count"], int)
             assert p["rule_count"] >= 0
+
+
+class TestDataRetrievalControl:
+    def test_data_resolve_returns_payload(self, runtime_api_env):
+        client = runtime_api_env["client"]
+        resp = client.post(
+            "/api/v1/control/data/resolve",
+            json={
+                "data_needs": [
+                    {
+                        "metric": "us.macro.gdp_nominal",
+                        "geography": "USA",
+                        "granularity": "annual",
+                        "quality_min": 0.6,
+                        "purpose": "test",
+                    }
+                ],
+                "mode": "hybrid",
+                "allow_explore_fallback": True,
+            },
+        )
+        assert resp.status_code == 200
+        body = resp.json()
+        assert body["mode"] == "hybrid"
+        assert isinstance(body["fetch_plans"], list)
+        assert isinstance(body["candidates"], list)
+        assert "meta" in body
+
+    def test_data_discover_returns_payload(self, runtime_api_env):
+        client = runtime_api_env["client"]
+        resp = client.post(
+            "/api/v1/control/data/discover",
+            json={
+                "data_needs": [
+                    {
+                        "metric": "us.macro.gdp_nominal",
+                        "granularity": "annual",
+                        "quality_min": 0.6,
+                        "purpose": "test",
+                    }
+                ],
+                "max_sources_per_query": 2,
+                "max_discovery_calls_per_source": 3,
+                "max_candidates_total": 5,
+                "time_budget_ms": 1000,
+                "cost_budget_usd": 0,
+            },
+        )
+        assert resp.status_code == 200
+        body = resp.json()
+        assert isinstance(body["candidates"], list)
+        assert isinstance(body["docs_fetched_total"], int)
+        assert "index_stats" in body
+        assert "meta" in body
+
+    def test_data_preview_returns_preview(self, runtime_api_env):
+        client = runtime_api_env["client"]
+        resp = client.post(
+            "/api/v1/control/data/preview",
+            json={
+                "fetch_plan": {
+                    "plan_id": "plan_test_preview",
+                    "metric_id": "us.macro.gdp_nominal",
+                    "connector_id": "missing.connector",
+                    "dataset_id": "missing.dataset",
+                    "profile_id": None,
+                    "filters": {},
+                    "date_start": None,
+                    "date_end": None,
+                    "granularity": "annual",
+                    "quality_min": 0.6,
+                    "source_lane": "fastlane",
+                    "persist_payload": False,
+                    "max_preview_rows": 10,
+                    "fallbacks": [],
+                    "metadata": {},
+                },
+                "allow_fallback": True,
+            },
+        )
+        assert resp.status_code == 200
+        body = resp.json()
+        assert "preview" in body
+        assert body["preview"]["connector_id"] == "missing.connector"
+        assert body["preview"]["dataset_id"] == "missing.dataset"
+        assert "meta" in body
+
+    def test_data_catalog_search_returns_matches(self, runtime_api_env):
+        client = runtime_api_env["client"]
+        resp = client.get("/api/v1/control/data/catalog/search?metric=us.macro&limit=5")
+        assert resp.status_code == 200
+        body = resp.json()
+        assert "matches" in body
+        assert isinstance(body["matches"], list)
+        assert body["query"] == "us.macro"
+        assert "meta" in body
+
+    def test_data_index_stats_returns_stats(self, runtime_api_env):
+        client = runtime_api_env["client"]
+        resp = client.get("/api/v1/control/data/index/stats")
+        assert resp.status_code == 200
+        body = resp.json()
+        assert "stats" in body
+        assert "index_docs_total" in body["stats"]
+        assert "index_size_bytes" in body["stats"]
+        assert "meta" in body
+
+    def test_data_promotion_endpoints(self, runtime_api_env):
+        client = runtime_api_env["client"]
+        list_resp = client.get("/api/v1/control/data/promotion/candidates")
+        assert list_resp.status_code == 200
+        assert isinstance(list_resp.json()["candidates"], list)
+
+        approve_resp = client.post(
+            "/api/v1/control/data/promotion/nonexistent/approve",
+            json={"reason": "test"},
+        )
+        assert approve_resp.status_code == 200
+        approve_body = approve_resp.json()
+        assert approve_body["status"] == "rejected"
+        assert approve_body["binding_updated"] is False
+
+        reject_resp = client.post(
+            "/api/v1/control/data/promotion/nonexistent/reject",
+            json={"reason": "test"},
+        )
+        assert reject_resp.status_code == 200
+        reject_body = reject_resp.json()
+        assert reject_body["status"] == "rejected"
+        assert reject_body["binding_updated"] is False
 
 
 class TestIngestStreamingWindowed:

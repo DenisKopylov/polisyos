@@ -160,6 +160,10 @@ from polisyos.foundry.methods.components_bridge import (
     ComponentsBridgeReport,
     bootstrap_method_registry_from_components,
 )
+from polisyos.foundry.methods.catalog_snapshot import (
+    build_method_catalog_snapshot,
+    persist_method_catalog_snapshot,
+)
 
 __all__ = [
     "FoundryMethod",
@@ -269,6 +273,8 @@ __all__ = [
     "ComponentsBridgeError",
     "ComponentsBridgeReport",
     "bootstrap_method_registry_from_components",
+    "build_method_catalog_snapshot",
+    "persist_method_catalog_snapshot",
 ]
 
 if not _COMPILER_AVAILABLE:

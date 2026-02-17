@@ -152,9 +152,9 @@ def _unique_node_id(base_id: str, existing: set[str]) -> str:
 
 def _slot_dependency_edges(nodes: list[ProgramNode]) -> list[ProgramEdge]:
     def _is_mechanism_node(node: ProgramNode) -> bool:
-        if node.node_kind == "mechanism":
+        if node.node_kind in {"mechanism", "method"}:
             return True
-        return bool(node.op and node.op.op_kind == "apply_mechanism")
+        return bool(node.op and node.op.op_kind in {"apply_mechanism", "apply_method"})
 
     mech_nodes = [node for node in nodes if _is_mechanism_node(node)]
     edge_keys: set[tuple[str, str]] = set()
@@ -204,7 +204,12 @@ def _build_op_nodes(
 
     op_edges: list[ProgramEdge] = []
     for node in nodes:
-        if node.node_kind == "op" and node.op and node.op.op_kind == "apply_mechanism":
+        if node.node_kind == "method":
+            op_edges.append(ProgramEdge(src=node.node_id, dst=merge_id, relation="depends_on"))
+        if node.node_kind == "op" and node.op and node.op.op_kind in {
+            "apply_mechanism",
+            "apply_method",
+        }:
             op_edges.append(ProgramEdge(src=node.node_id, dst=merge_id, relation="depends_on"))
     op_edges.append(ProgramEdge(src=merge_id, dst=check_id, relation="depends_on"))
     return op_nodes, op_edges

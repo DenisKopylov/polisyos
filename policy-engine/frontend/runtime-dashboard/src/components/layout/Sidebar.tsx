@@ -7,7 +7,8 @@ const links = [
   { to: "/runs", label: "Runs" },
   { to: "/launch", label: "Launch Run" },
   { to: "/sources", label: "Sources" },
-  { to: "/data", label: "Data Management" },
+  { to: "/data", label: "Data Intelligence" },
+  { to: "/lex", label: "Lex Knowledge" },
   { to: "/health", label: "System Health" },
 ];
 

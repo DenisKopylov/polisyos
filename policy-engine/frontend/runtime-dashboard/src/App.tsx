@@ -5,6 +5,7 @@ import ArtifactInspector from "./pages/ArtifactInspector";
 import Dashboard from "./pages/Dashboard";
 import DataManagement from "./pages/DataManagement";
 import LaunchRun from "./pages/LaunchRun";
+import LexKnowledgeGraph from "./pages/LexKnowledgeGraph";
 import RunDetail from "./pages/RunDetail";
 import RunsList from "./pages/RunsList";
 import SourcesManagement from "./pages/SourcesManagement";
@@ -22,6 +23,7 @@ export default function App() {
           <Route path="/launch" element={<LaunchRun />} />
           <Route path="/sources" element={<SourcesManagement />} />
           <Route path="/data" element={<DataManagement />} />
+          <Route path="/lex" element={<LexKnowledgeGraph />} />
           <Route path="/health" element={<SystemHealth />} />
           <Route path="*" element={<Navigate replace to="/" />} />
         </Routes>

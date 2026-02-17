@@ -53,6 +53,7 @@ export type AgentPipelineView = {
   latest_verdict?: string | null;
   notes?: Array<string>;
   reflexion_terminal_ref?: ArtifactRef | null;
+  retrieval?: RetrievalTelemetryView | null;
   run_id: string;
   source?: string | null;
   source_kind: string;
@@ -154,6 +155,22 @@ export type ArtifactSchemaView = {
   top_level_keys?: Array<string>;
 };
 
+export type BindingProfileInfo = {
+  description?: string;
+  display_name: string;
+  expected_columns?: Array<string>;
+  profile_id: string;
+  rule_count?: number;
+  schema_family: string;
+  strategy?: string;
+  tags?: Array<string>;
+};
+
+export type BindingProfilesListResponse = {
+  meta: ApiMeta;
+  profiles?: Array<BindingProfileInfo>;
+};
+
 export type CacheEntryInfo = {
   cache_key: string;
   connector_id: string;
@@ -194,6 +211,64 @@ export type CursorPage = {
   total?: number | null;
 };
 
+export type DataCatalogSearchResponse = {
+  matches?: Array<MetricCandidate>;
+  meta: ApiMeta;
+  query: string;
+  total_matches?: number;
+};
+
+export type DataDiscoverRequest = {
+  cost_budget_usd?: number;
+  data_needs: Array<DataNeed>;
+  max_candidates_total?: number;
+  max_discovery_calls_per_source?: number;
+  max_sources_per_query?: number;
+  time_budget_ms?: number;
+};
+
+export type DataDiscoverResponse = {
+  candidates?: Array<DiscoveryCandidate>;
+  docs_fetched_total?: number;
+  index_stats?: IndexStats | null;
+  meta: ApiMeta;
+  warnings?: Array<string>;
+};
+
+export type DataNeed = {
+  geography?: string | null;
+  granularity?: string;
+  metric: string;
+  purpose?: string;
+  quality_min?: number;
+  time_end?: string | null;
+  time_start?: string | null;
+};
+
+export type DataPreviewRequest = {
+  allow_fallback?: boolean;
+  fetch_plan: FetchPlan;
+};
+
+export type DataPreviewResponse = {
+  meta: ApiMeta;
+  preview: FetchPreview;
+};
+
+export type DataResolveRequest = {
+  allow_explore_fallback?: boolean;
+  data_needs: Array<DataNeed>;
+  mode?: "fastlane" | "explorelane" | "hybrid";
+};
+
+export type DataResolveResponse = {
+  candidates?: Array<MetricCandidate>;
+  fetch_plans?: Array<FetchPlan>;
+  meta: ApiMeta;
+  mode: "fastlane" | "explorelane" | "hybrid";
+  warnings?: Array<string>;
+};
+
 export type DataSourceBinding = {
   data_snapshot_ref?: string | null;
   data_view_request_ref?: string | null;
@@ -208,6 +283,77 @@ export type DatasetFetchSpecRequest = {
   filters?: {
   [key: string]: Array<string>;
 };
+};
+
+export type DiscoveryCandidate = {
+  candidate_id: string;
+  confidence?: number;
+  connector_id: string;
+  coverage_estimate?: number | null;
+  dataset_id: string;
+  dataset_name?: string | null;
+  description?: string;
+  discovered_at?: string | null;
+  latency_estimate_ms?: number | null;
+  metadata?: {
+  [key: string]: unknown;
+};
+  metric_id: string;
+  profile_id?: string | null;
+  schema_excerpt?: {
+  [key: string]: unknown;
+};
+  source_lane?: "fastlane" | "explorelane";
+};
+
+export type FetchPlan = {
+  connector_id: string;
+  dataset_id: string;
+  date_end?: string | null;
+  date_start?: string | null;
+  fallbacks?: Array<FetchPlanFallback>;
+  filters?: {
+  [key: string]: Array<string>;
+};
+  granularity?: string | null;
+  max_preview_rows?: number;
+  metadata?: {
+  [key: string]: unknown;
+};
+  metric_id: string;
+  persist_payload?: boolean;
+  plan_id: string;
+  profile_id?: string | null;
+  quality_min?: number;
+  source_lane?: "fastlane" | "explorelane";
+};
+
+export type FetchPlanFallback = {
+  connector_id: string;
+  dataset_id: string;
+  filters?: {
+  [key: string]: Array<string>;
+};
+  profile_id?: string | null;
+};
+
+export type FetchPreview = {
+  completeness?: number;
+  connector_id: string;
+  coverage_ok?: boolean;
+  dataset_id: string;
+  latency_ms?: number | null;
+  message?: string | null;
+  quality_flags?: Array<string>;
+  quality_min?: number;
+  row_count?: number;
+  sample_rows?: Array<{
+  [key: string]: unknown;
+}>;
+  schema?: {
+  [key: string]: unknown;
+};
+  status?: "ok" | "insufficient_coverage" | "error";
 };
 
 export type GovernanceDebugResponse = {
@@ -234,13 +380,34 @@ export type HTTPValidationError = {
   detail?: Array<ValidationError>;
 };
 
+export type IndexStats = {
+  docs_added_last_run?: number;
+  index_docs_total?: number;
+  index_size_bytes?: number;
+  indexed_sources?: number;
+  last_updated?: string | null;
+  source_coverage?: {
+  [key: string]: number;
+};
+};
+
+export type IndexStatsResponse = {
+  meta: ApiMeta;
+  stats: IndexStats;
+};
+
 export type IngestRequest = {
+  binding_profile_id?: string | null;
   cache_policy?: string;
   connection_profile?: string | null;
-  datasets: Array<DatasetFetchSpecRequest>;
+  datasets?: Array<DatasetFetchSpecRequest>;
   execution_mode?: "batch_full" | "batch_incremental" | "streaming_windowed";
+  fetch_plans?: Array<FetchPlan>;
   license_name?: string;
   produce_data_snapshot?: boolean;
+  produce_input_bindings?: boolean;
+  record_mode?: boolean;
+  replay_ref?: string | null;
   source?: string;
 };
 
@@ -249,9 +416,11 @@ export type IngestResponse = {
   data_snapshot_ref?: string | null;
   datasets_fetched?: number;
   evidence_bundle_ref?: string | null;
+  input_bindings_ref?: string | null;
   message: string;
   meta: ApiMeta;
   mode_effective?: string | null;
+  record_ref?: string | null;
   status: "completed" | "partial" | "failed";
   warnings?: Array<string>;
 };
@@ -259,6 +428,28 @@ export type IngestResponse = {
 export type InputRef = {
   artifact_id: ArtifactID;
   role: string;
+};
+
+export type MetricCandidate = {
+  candidate_id: string;
+  confidence?: number;
+  connector_id: string;
+  coverage_estimate?: number | null;
+  dataset_id: string;
+  filters_template?: {
+  [key: string]: Array<string>;
+};
+  freshness_score?: number;
+  latency_estimate_ms?: number | null;
+  match_reason?: string;
+  metadata?: {
+  [key: string]: unknown;
+};
+  metric_id: string;
+  profile_id?: string | null;
+  rank?: number;
+  source_lane?: "fastlane" | "explorelane";
+  trust_score?: number;
 };
 
 export type ModelProfileInfo = {
@@ -311,6 +502,60 @@ export type NodeDebugView = {
   run_id: string;
   source_kind: string;
   timeline_events?: Array<RunTimelineEvent>;
+};
+
+export type PromotionCandidate = {
+  confidence?: number;
+  connector_id: string;
+  created_at?: string | null;
+  dataset_id: string;
+  metadata?: {
+  [key: string]: unknown;
+};
+  metric_id: string;
+  profile_id?: string | null;
+  promotion_id: string;
+  signals?: Array<string>;
+  source_lane?: "fastlane" | "explorelane";
+  status?: "pending" | "approved" | "rejected";
+};
+
+export type PromotionCandidatesResponse = {
+  candidates?: Array<PromotionCandidate>;
+  meta: ApiMeta;
+};
+
+export type PromotionDecisionRequest = {
+  reason?: string | null;
+};
+
+export type PromotionDecisionResponse = {
+  binding_updated?: boolean;
+  message: string;
+  meta: ApiMeta;
+  promotion_id: string;
+  status: "approved" | "rejected";
+};
+
+export type RetrievalPhaseTelemetry = {
+  candidates_selected?: number;
+  candidates_total?: number;
+  docs_fetched?: number;
+  duration_ms?: number;
+  lane?: string | null;
+  phase: string;
+};
+
+export type RetrievalTelemetryView = {
+  candidates_filtered?: number;
+  candidates_promoted?: number;
+  lane_used?: string;
+  local_index_docs_total?: number;
+  local_index_size_bytes?: number;
+  metadata_docs_fetched?: number;
+  mode?: string;
+  notes?: Array<string>;
+  phases?: Array<RetrievalPhaseTelemetry>;
 };
 
 export type RunDetails = {
@@ -653,9 +898,28 @@ export class RuntimeApiClient {
     return this.request<ArtifactSchemaResponse>("GET", path);
   }
 
+  async listBindingProfiles(): Promise<BindingProfilesListResponse> {
+    const path = `/api/v1/control/data/binding-profiles`;
+    return this.request<BindingProfilesListResponse>("GET", path);
+  }
+
   async getCacheStatus(): Promise<CacheStatusResponse> {
     const path = `/api/v1/control/data/cache`;
     return this.request<CacheStatusResponse>("GET", path);
+  }
+
+  async searchDataCatalog(params: {
+    metric: string;
+    geo?: string | null;
+    limit?: number;
+  }): Promise<DataCatalogSearchResponse> {
+    const path = `/api/v1/control/data/catalog/search`;
+    const query = this.buildQuery({
+      metric: params.metric,
+      geo: params.geo,
+      limit: params.limit,
+    });
+    return this.request<DataCatalogSearchResponse>("GET", path, query);
   }
 
   async listConnectors(): Promise<ConnectorsListResponse> {
@@ -663,9 +927,19 @@ export class RuntimeApiClient {
     return this.request<ConnectorsListResponse>("GET", path);
   }
 
+  async getDataIndexStats(): Promise<IndexStatsResponse> {
+    const path = `/api/v1/control/data/index/stats`;
+    return this.request<IndexStatsResponse>("GET", path);
+  }
+
   async listSourceProfiles(): Promise<SourceProfilesListResponse> {
     const path = `/api/v1/control/data/profiles`;
     return this.request<SourceProfilesListResponse>("GET", path);
+  }
+
+  async listDataPromotionCandidates(): Promise<PromotionCandidatesResponse> {
+    const path = `/api/v1/control/data/promotion/candidates`;
+    return this.request<PromotionCandidatesResponse>("GET", path);
   }
 
   async listLlmProfiles(): Promise<ModelProfilesListResponse> {

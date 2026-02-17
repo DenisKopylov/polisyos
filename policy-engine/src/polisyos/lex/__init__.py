@@ -37,6 +37,7 @@ __all__ = [
     "ComplianceDelta",
     "AffectedKPI",
     "diff_norm_packs",
+    "LegalKnowledgeGraph",
     "WorldEventRefLike",
     "assemble_norm_pack",
     "build_legal_structure",
@@ -82,6 +83,8 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "NormPackBuildRequest": ("polisyos.lex.types", "NormPackBuildRequest"),
     "NormPackBuildResult": ("polisyos.lex.types", "NormPackBuildResult"),
     "WorldEventRefLike": ("polisyos.lex.types", "WorldEventRefLike"),
+    # knowledge
+    "LegalKnowledgeGraph": ("polisyos.lex.knowledge.search", "LegalKnowledgeGraph"),
     # simulator
     "AffectedKPI": ("polisyos.lex.simulator", "AffectedKPI"),
     "ComplianceDelta": ("polisyos.lex.simulator", "ComplianceDelta"),

@@ -84,6 +84,9 @@ You receive draft policy narratives from the Drafter and must produce machine-ex
 # AVAILABLE MECHANISMS
 {mechanisms_json}
 
+# LIVE FOUNDRY METHODS CATALOG (OPTIONAL)
+{method_catalog_json}
+
 # TRINITYBUNDLE SCHEMA (v1.x)
 {schema_json}
 
@@ -202,6 +205,46 @@ If you receive hints from a previous Critic review, prioritize addressing them:
 - Consider equity, efficiency, and political feasibility
 """
 
+DATA_NEED_EXTRACTOR_PROMPT = """
+# ROLE
+You are the **DataNeedExtractor** agent. Your output defines what data is needed
+for policy drafting, without selecting concrete APIs.
+
+# TASK
+Given a ProblemFrame JSON, return an array `data_needs` where each element has:
+- metric: canonical metric_id
+- geography: ISO-like geography code or wildcard (optional)
+- time_start: lower bound (optional)
+- time_end: upper bound (optional)
+- granularity: annual|quarterly|monthly|daily|agent-level
+- quality_min: 0..1
+- purpose: short reason
+
+# IMPORTANT
+- Do NOT return connector_id or dataset_id.
+- Prefer canonical metric IDs from the provided catalog.
+- If uncertain, choose the closest metric and lower confidence via quality_min.
+- Output strictly valid JSON only.
+
+# AVAILABLE METRICS
+{metric_ids}
+
+# REQUIRED JSON SHAPE
+{{
+  "data_needs": [
+    {{
+      "metric": "us.macro.gdp_nominal",
+      "geography": "UKR",
+      "time_start": "2010",
+      "time_end": "2024",
+      "granularity": "annual",
+      "quality_min": 0.6,
+      "purpose": "support_policy_justification"
+    }}
+  ]
+}}
+"""
+
 
 def get_system_prompt() -> str:
     """Legacy prompt for backward compatibility (used by drafter_node)."""
@@ -219,12 +262,25 @@ def get_drafter_prompt(hints: Optional[list[str]] = None) -> str:
     return DRAFTER_SYSTEM_PROMPT.replace("{hints}", hints_text)
 
 
-def get_formalizer_prompt() -> str:
+def get_data_need_extractor_prompt(metric_ids: list[str] | None = None) -> str:
+    ids = metric_ids or []
+    rendered_ids = "\n".join(f"- {metric_id}" for metric_id in ids) if ids else "- (none provided)"
+    return DATA_NEED_EXTRACTOR_PROMPT.format(metric_ids=rendered_ids)
+
+
+def get_formalizer_prompt(method_catalog_snapshot: dict | None = None) -> str:
     """System prompt for Formalizer agent with schema injection."""
     schema = TrinityBundle.model_json_schema()
     mechanisms = DEFAULT_MECHANISM_REGISTRY.model_dump(mode="json")
+    method_catalog_payload = method_catalog_snapshot or {
+        "schema_version": "1.0",
+        "snapshot_id": "none",
+        "entries": [],
+        "notes": ["method_catalog_unavailable"],
+    }
     return FORMALIZER_SYSTEM_PROMPT.format(
         mechanisms_json=json.dumps(mechanisms, indent=2),
+        method_catalog_json=json.dumps(method_catalog_payload, indent=2),
         schema_json=json.dumps(schema, indent=2),
     )
 

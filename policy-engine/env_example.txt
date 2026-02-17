@@ -1,6 +1,13 @@
 # LLM Providers
 OPENAI_API_KEY=sk-...
 ANTHROPIC_API_KEY=sk-...
+GONKA_API_KEY=
+# Optional: multi-key sharded runs (launch one process per key)
+GONKA_API_KEY_1=
+GONKA_API_KEY_2=
+GONKA_API_KEY_3=
+GONKA_API_KEY_4=
+GONKA_API_KEY_5=
 
 # LLM Gateway / Multi-model runtime
 # Включает запуск нескольких LLM-вариантов внутри одного run_id.

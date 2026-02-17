@@ -19,6 +19,11 @@ __all__ = [
     "DataPlaneGateNode",
     "RunGovernanceNode",
     "BuildDecisionPacketNode",
+    "BuildExecutionPlanNode",
+    "BuildMethodCatalogSnapshotNode",
+    "RunPreflightNode",
+    "ReadyToRunNode",
+    "RunEvaluatorNode",
     "builtin_nodes",
 ]
 
@@ -35,6 +40,15 @@ def builtin_nodes() -> list["Node"]:
     from polisyos.scientist.nodes.builtins.governance.data_plane_gate import DataPlaneGateNode
     from polisyos.scientist.nodes.builtins.governance.legal_check import LegalCheckNode
     from polisyos.scientist.nodes.builtins.governance.run_governance import RunGovernanceNode
+    from polisyos.scientist.nodes.builtins.planning.build_execution_plan import (
+        BuildExecutionPlanNode,
+    )
+    from polisyos.scientist.nodes.builtins.planning.build_method_catalog_snapshot import (
+        BuildMethodCatalogSnapshotNode,
+    )
+    from polisyos.scientist.nodes.builtins.planning.ready_to_run import ReadyToRunNode
+    from polisyos.scientist.nodes.builtins.planning.run_evaluator import RunEvaluatorNode
+    from polisyos.scientist.nodes.builtins.planning.run_preflight import RunPreflightNode
     from polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty import (
         PropagateUncertaintyNode,
     )
@@ -50,6 +64,10 @@ def builtin_nodes() -> list["Node"]:
         BuildDataSnapshotNode(),
         BindFoundryInputsNode(),
         EnrichKnowledgeNode(),
+        BuildExecutionPlanNode(),
+        BuildMethodCatalogSnapshotNode(),
+        RunPreflightNode(),
+        ReadyToRunNode(),
         LinkTrinityNode(),
         CompileFoundryNode(),
         RunSimulationNode(),
@@ -59,6 +77,7 @@ def builtin_nodes() -> list["Node"]:
         LegalCheckNode(),
         DataPlaneGateNode(),
         RunGovernanceNode(),
+        RunEvaluatorNode(),
         BuildDecisionPacketNode(),
     ]
 
@@ -116,10 +135,34 @@ def __getattr__(name: str) -> Any:
         from polisyos.scientist.nodes.builtins.governance.data_plane_gate import DataPlaneGateNode
 
         return DataPlaneGateNode
+    if name == "BuildExecutionPlanNode":
+        from polisyos.scientist.nodes.builtins.planning.build_execution_plan import (
+            BuildExecutionPlanNode,
+        )
+
+        return BuildExecutionPlanNode
+    if name == "BuildMethodCatalogSnapshotNode":
+        from polisyos.scientist.nodes.builtins.planning.build_method_catalog_snapshot import (
+            BuildMethodCatalogSnapshotNode,
+        )
+
+        return BuildMethodCatalogSnapshotNode
+    if name == "RunPreflightNode":
+        from polisyos.scientist.nodes.builtins.planning.run_preflight import RunPreflightNode
+
+        return RunPreflightNode
+    if name == "ReadyToRunNode":
+        from polisyos.scientist.nodes.builtins.planning.ready_to_run import ReadyToRunNode
+
+        return ReadyToRunNode
     if name == "RunGovernanceNode":
         from polisyos.scientist.nodes.builtins.governance.run_governance import RunGovernanceNode
 
         return RunGovernanceNode
+    if name == "RunEvaluatorNode":
+        from polisyos.scientist.nodes.builtins.planning.run_evaluator import RunEvaluatorNode
+
+        return RunEvaluatorNode
     if name == "BuildDecisionPacketNode":
         from polisyos.scientist.nodes.builtins.decide.build_decision_packet import (
             BuildDecisionPacketNode,

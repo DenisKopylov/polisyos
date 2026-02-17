@@ -109,6 +109,8 @@ export default function SourcesManagement() {
       connection_profile: selectedProfile.profile_id,
       execution_mode: "batch_full",
       produce_data_snapshot: true,
+      record_mode: false,
+      produce_input_bindings: false,
     };
 
     ingestMutation.mutate(body, {

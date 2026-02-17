@@ -69,9 +69,24 @@ export class RuntimeApiClient {
     return this.request('GET', path);
   }
 
+  async listBindingProfiles() {
+    const path = `/api/v1/control/data/binding-profiles`;
+    return this.request('GET', path);
+  }
+
   async getCacheStatus() {
     const path = `/api/v1/control/data/cache`;
     return this.request('GET', path);
+  }
+
+  async searchDataCatalog(params) {
+    const path = `/api/v1/control/data/catalog/search`;
+    const query = this.buildQuery({
+      metric: params?.metric,
+      geo: params?.geo,
+      limit: params?.limit,
+    });
+    return this.request('GET', path, query);
   }
 
   async listConnectors() {
@@ -79,8 +94,18 @@ export class RuntimeApiClient {
     return this.request('GET', path);
   }
 
+  async getDataIndexStats() {
+    const path = `/api/v1/control/data/index/stats`;
+    return this.request('GET', path);
+  }
+
   async listSourceProfiles() {
     const path = `/api/v1/control/data/profiles`;
+    return this.request('GET', path);
+  }
+
+  async listDataPromotionCandidates() {
+    const path = `/api/v1/control/data/promotion/candidates`;
     return this.request('GET', path);
   }
 

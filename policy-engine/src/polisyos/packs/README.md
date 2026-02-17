@@ -1,101 +1,92 @@
-# polisyos.packs — Component Packs
+# polisyos.packs
 
-Встроенные доменные пакеты PolicyOS — готовые коллекции компонентов для быстрого старта, демонстраций и тестирования компонентной системы.
+`polisyos.packs` содержит встроенные доменные наборы компонентов (component packs), которые
+подключаются в единый discovery pipeline.
 
-2 пакета, 7 компонентов, 11 Python-файлов.
+Сейчас в директории 2 пакета и 7 компонентов:
+- `roads` (6 компонентов)
+- `econ` (1 компонент, конфликтный demo)
 
 ## Роль в системе
 
-Packs — **листовой** модуль в графе зависимостей. Он не экспортирует интерфейсов, а только реализует их: каждый пакет собирает компоненты из разных слоёв системы (IR, Foundry, Scholar, Lex, Fabric) в единую доменную коллекцию.
+Паки не задают новые интерфейсы. Их задача: собрать готовые реализации поверх существующих
+контрактов из `core`, `ir`, `foundry`, `scholar`, `fabric`, `lex`.
 
 ```
-core/components   ir/   foundry/   fabric/   lex/
-  │  интерфейсы    │  типы   │  методы   │  claims  │  evaluators
-  └────────────────┴─────────┴──────────┴─────────┴──────────┐
-                                                              ▼
-                                                    packs/ (реализации)
-                                                    ├── roads/  (6 компонентов)
-                                                    └── econ/   (1 компонент)
+core/components + ir + foundry + fabric + lex
+                  |
+                  v
+        polisyos/packs/* (готовые реализации)
 ```
 
-**Назначение:**
-- Reference implementation всех типов компонентов PolicyOS
-- Демонстрация end-to-end цикла: IR-фрагменты → моделирование → экстракция → нормы → легальность
-- Тестирование discovery, приоритетов и conflict resolution
-- Базовый набор для прототипирования новых доменов
+Это reference-слой для:
+- быстрого старта локальных сценариев;
+- проверки discovery и conflict resolution;
+- интеграционных тестов компонентной системы.
 
 ## Структура
 
 ```
 packs/
-├── __init__.py              # __all__ = ["roads", "econ"]
-├── roads/                   # Полнофункциональный дорожный пакет (6 компонентов)
-│   ├── components.py        # Агрегация и экспорт __polisyos_components__
-│   ├── ir_fragments.py      # Единица roads.kmh (UnitsFragment, priority=100)
-│   ├── foundry_methods.py   # Метод speed_cap (numpy, O(N))
-│   ├── scholar_extractors.py# Regex-экстрактор speed limit (en/uk)
-│   ├── lex_evaluators.py    # Обёртка над evaluate_legality_impl
-│   └── norms_provider.py    # Статический NormPack для UA юрисдикции
-└── econ/                    # Демо-пакет для тестирования конфликтов
-    ├── components.py        # Экспорт __polisyos_components__
-    └── ir_fragments.py      # Конфликтный roads.kmh (priority=90)
+├── __init__.py
+├── README.md
+├── roads/
+│   ├── README.md
+│   ├── components.py
+│   ├── ir_fragments.py
+│   ├── foundry_methods.py
+│   ├── scholar_extractors.py
+│   ├── lex_evaluators.py
+│   └── norms_provider.py
+└── econ/
+    ├── README.md
+    ├── components.py
+    └── ir_fragments.py
 ```
 
-## Обнаружение компонентов
+`packs/__init__.py` использует lazy import через `__getattr__`, экспортируя `roads` и `econ`.
 
-Каждый пакет экспортирует `__polisyos_components__` — список объектов `_StaticComponent`. Два механизма discovery:
+## Как компоненты обнаруживаются
 
-| Механизм | Среда | Как работает |
-|---|---|---|
-| Entry Points | Production | Регистрация в `pyproject.toml` секции `[project.entry-points."polisyos.*"]` |
-| Dev Scan | Разработка | `discover_components(include_dev_scan=True, dev_scan_paths=[...])` рекурсивно ищет `__polisyos_components__` |
+Каждый пакет экспортирует `__polisyos_components__` (список компонентов с метаданными).
 
-При одновременном использовании обоих механизмов, dev scan компоненты имеют приоритет (настраивается через `DiscoveryPrecedencePolicy`).
+1. Entry points (`policy-engine/pyproject.toml`):
+- `polisyos.ir_fragments`
+- `polisyos.foundry_methods`
+- `polisyos.scholar_extractors`
+- `polisyos.lex_extractors`
+- `polisyos.lex_evaluators`
+- `polisyos.norm_pack_providers`
+
+2. Dev scan:
+- `discover_components(include_dev_scan=True, dev_scan_paths=[...])`
+- скан `components.py` в указанных путях и их непосредственных подпапках
+
+По умолчанию `DiscoveryPrecedencePolicy` задает `dev_scan_wins_over_entry_points=True`.
 
 ## Каталог компонентов
 
-| ID | Kind | Пакет | Домен | Описание |
-|---|---|---|---|---|
-| `roads.ir.registry_fragment@1.0.0` | IR_FRAGMENT | roads | roads | Единица измерения `roads.kmh` |
-| `roads.method.speed_cap@1.0.0` | FOUNDRY_METHOD | roads | roads | Ограничение скорости агентов |
-| `roads.scholar.speed_limit@1.0.0` | SCHOLAR_EXTRACTOR | roads | roads | Извлечение speed limit из текста (en/uk) |
-| `lex.norm_extractor.regex_v1@1.0.0` | LEX_EXTRACTOR | roads | — | Обёртка legacy regex-экстрактора норм |
-| `lex.eval.simple_v1@1.0.0` | LEX_EVALUATOR | roads | — | Обёртка evaluate_legality_impl |
-| `roads.normpack.static_provider@1.0.0` | NORM_PACK_PROVIDER | roads | roads | Статические нормы для UA |
-| `econ.ir.registry_fragment@1.0.0` | IR_FRAGMENT | econ | roads | Конфликтный `roads.kmh` (demo) |
+| Component ID | Kind | Пак | Назначение |
+|---|---|---|---|
+| `roads.ir.registry_fragment@1.0.0` | IR_FRAGMENT | roads | Регистрирует `roads.kmh` |
+| `roads.method.speed_cap@1.0.0` | FOUNDRY_METHOD | roads | Ограничение скорости в симуляции |
+| `roads.scholar.speed_limit@1.0.0` | SCHOLAR_EXTRACTOR | roads | Regex-извлечение лимита скорости |
+| `lex.norm_extractor.regex_v1@1.0.0` | LEX_EXTRACTOR | roads | Обертка legacy norm regex extractor |
+| `lex.eval.simple_v1@1.0.0` | LEX_EVALUATOR | roads | Обертка `evaluate_legality_impl` |
+| `roads.normpack.static_provider@1.0.0` | NORM_PACK_PROVIDER | roads | Статический NormPack для UA |
+| `econ.ir.registry_fragment@1.0.0` | IR_FRAGMENT | econ | Конфликтный demo-фрагмент `roads.kmh` |
 
-Подробнее о roads: [roads/README.md](roads/README.md)
+## Связь с другими директориями
 
-## econ — Демонстрационный пакет
+- `src/polisyos/core/components`: типы метаданных, capability flags, discovery.
+- `src/polisyos/ir/*`: единицы и `NormPack` модели.
+- `src/polisyos/foundry/methods/*`: сигнатуры/контракты методов.
+- `src/polisyos/fabric/claims/*`: тип `ClaimCandidate` и regex backend.
+- `src/polisyos/lex/legal_evaluation/*`: функция оценки легальности.
 
-Минималистичный пакет из одного IR-фрагмента. Определяет альтернативную единицу `roads.kmh` с priority=90 (ниже roads priority=100). Используется исключительно для тестирования conflict resolution:
+Проверка пака как целого: `policy-engine/tests/test_packs_discovery.py`.
 
-- Проверка, что компонент с большим приоритетом побеждает
-- Тестирование `DiscoveryPrecedencePolicy` при merge фрагментов
-- Демонстрация изоляции: конфликт в IR не ломает остальные компоненты
+## Поддиректории
 
-Теги: `pack:econ`, `ir`, `conflict_demo`.
-
-## Паттерн _StaticComponent
-
-Все компоненты обёрнуты в `_StaticComponent(metadata, factory)` — frozen dataclass с ленивой инициализацией. Метаданные доступны сразу (для discovery), а factory вызывается только при `create()`. Тяжёлые зависимости (numpy, evaluate_legality_impl) импортируются внутри factory.
-
-## Зависимости
-
-```
-packs/
-├─► core/components          ComponentMetadata, Capability, discover_components
-├─► ir/kernel/units          GenericUnit, UnitsRegistry
-├─► ir/registry_fragments    RegistryFragmentMeta, UnitsFragment
-├─► ir/norm_pack             NormPack, NormRule, RuleType
-├─► foundry/methods/base     MethodSignature, SlotSpec, FidelityLevel, ComplexityClass
-├─► fabric/claims/types      ClaimCandidate
-├─► fabric/claims/backends   lex_norm_regex_v1.extract
-└─► lex/legal_evaluation     evaluate_legality_impl
-```
-
-Внешние: `numpy` (lazy), `re`, `decimal` (stdlib).
-
-## Тесты
-
-`tests/test_packs_discovery_phase19.py` — dev scan обнаружение всех компонентов и эквивалентность entry points / dev scan.
+- `roads`: полный доменный пакет, см. `roads/README.md`.
+- `econ`: минимальный конфликтный пакет, см. `econ/README.md`.

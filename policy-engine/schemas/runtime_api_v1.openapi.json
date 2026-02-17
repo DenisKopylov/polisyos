@@ -1967,6 +1967,62 @@
                         "reflexion_terminal_ref": {
                           "artifact_id": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
                         },
+                        "execution_plan_ref": {
+                          "artifact_id": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                        },
+                        "method_catalog_snapshot_ref": {
+                          "artifact_id": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                        },
+                        "preflight": {
+                          "ready_to_run": true,
+                          "diagnostics": [],
+                          "notes": [],
+                          "report_ref": {
+                            "artifact_id": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                          }
+                        },
+                        "evaluator": {
+                          "verdict": "APPROVE",
+                          "scores": {
+                            "kpi_score": 0.9,
+                            "uncertainty_score": 0.8,
+                            "constraints_score": 1.0,
+                            "data_quality_score": 0.85,
+                            "budget_score": 0.92,
+                            "total_score": 0.89
+                          },
+                          "reasons": [
+                            "critic_verdict:APPROVE"
+                          ],
+                          "replanning_hints": [],
+                          "diagnostics": [],
+                          "notes": [],
+                          "report_ref": {
+                            "artifact_id": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                          }
+                        },
+                        "iteration_lifecycle": {
+                          "iteration": 1,
+                          "state": "approved",
+                          "stop_reason": "approved",
+                          "last_verdict": "APPROVE",
+                          "state_ref": {
+                            "artifact_id": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                          },
+                          "notes": []
+                        },
+                        "reproducibility": {
+                          "seed": 0,
+                          "plan_hash": "sha256:planhash",
+                          "registry_hash": "sha256:registryhash",
+                          "method_catalog_hash": "sha256:cataloghash",
+                          "data_snapshot_hash": "sha256:datasnapshothash",
+                          "input_bindings_hash": "sha256:bindingshash",
+                          "manifest_ref": {
+                            "artifact_id": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                          },
+                          "notes": []
+                        },
                         "source": "decision_packet.audit_trail",
                         "notes": []
                       }
@@ -4664,6 +4720,1836 @@
         }
       }
     },
+    "/api/v1/control/data/resolve": {
+      "post": {
+        "tags": [
+          "control-plane"
+        ],
+        "summary": "Resolve DataNeeds into FetchPlans",
+        "operationId": "resolve_data_needs",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DataResolveRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DataResolveResponse"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "resolve_data_needs response example",
+                    "value": {
+                      "meta": {
+                        "request_id": "req_0123456789abcdef",
+                        "generated_at": "2026-02-11T12:00:00Z",
+                        "source_kinds": []
+                      },
+                      "mode": "hybrid",
+                      "fetch_plans": [
+                        {
+                          "plan_id": "plan_usa_gdp",
+                          "metric_id": "us.macro.gdp_nominal",
+                          "connector_id": "worldbank.wdi",
+                          "dataset_id": "NY.GDP.MKTP.CD",
+                          "profile_id": "worldbank_wdi",
+                          "filters": {
+                            "country": [
+                              "USA"
+                            ]
+                          },
+                          "date_start": "2015",
+                          "date_end": "2024",
+                          "granularity": "annual",
+                          "quality_min": 0.75,
+                          "source_lane": "fastlane",
+                          "persist_payload": false,
+                          "max_preview_rows": 20,
+                          "fallbacks": [
+                            {
+                              "connector_id": "sdmx.source",
+                              "dataset_id": "OECD:QNA_GDP",
+                              "profile_id": "oecd_sdmx",
+                              "filters": {}
+                            }
+                          ],
+                          "metadata": {}
+                        }
+                      ],
+                      "candidates": [
+                        {
+                          "candidate_id": "cand_usa_gdp_1",
+                          "metric_id": "us.macro.gdp_nominal",
+                          "connector_id": "worldbank.wdi",
+                          "dataset_id": "NY.GDP.MKTP.CD",
+                          "profile_id": "worldbank_wdi",
+                          "source_lane": "fastlane",
+                          "confidence": 0.91,
+                          "rank": 1,
+                          "trust_score": 0.95,
+                          "freshness_score": 0.8,
+                          "coverage_estimate": 0.88,
+                          "latency_estimate_ms": 320,
+                          "filters_template": {
+                            "country": [
+                              "{ISO3}"
+                            ]
+                          },
+                          "match_reason": "exact_metric_binding",
+                          "metadata": {}
+                        }
+                      ],
+                      "warnings": []
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              },
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "Request validation failed.",
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Request validation failed",
+                      "status": 422,
+                      "detail": "request_validation_failed while processing request.",
+                      "code": "request_validation_failed",
+                      "instance": "/api/v1/control/data/resolve",
+                      "request_id": "req_0123456789abcdef",
+                      "error": "request_validation_failed",
+                      "status_code": 422
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Malformed request payload or parameters.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "Malformed request payload or parameters.",
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Bad request",
+                      "status": 400,
+                      "detail": "bad_request while processing request.",
+                      "code": "bad_request",
+                      "instance": "/api/v1/control/data/resolve",
+                      "request_id": "req_0123456789abcdef",
+                      "error": "bad_request",
+                      "status_code": 400
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication is required for this route.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "Authentication is required for this route.",
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Unauthorized",
+                      "status": 401,
+                      "detail": "unauthorized while processing request.",
+                      "code": "unauthorized",
+                      "instance": "/api/v1/control/data/resolve",
+                      "request_id": "req_0123456789abcdef",
+                      "error": "unauthorized",
+                      "status_code": 401
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authenticated principal cannot access this resource.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "Authenticated principal cannot access this resource.",
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Forbidden",
+                      "status": 403,
+                      "detail": "forbidden while processing request.",
+                      "code": "forbidden",
+                      "instance": "/api/v1/control/data/resolve",
+                      "request_id": "req_0123456789abcdef",
+                      "error": "forbidden",
+                      "status_code": 403
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Requested resource does not exist.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "Requested resource does not exist.",
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Not found",
+                      "status": 404,
+                      "detail": "not_found while processing request.",
+                      "code": "not_found",
+                      "instance": "/api/v1/control/data/resolve",
+                      "request_id": "req_0123456789abcdef",
+                      "error": "not_found",
+                      "status_code": 404
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected runtime API failure.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "Unexpected runtime API failure.",
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Internal error",
+                      "status": 500,
+                      "detail": "internal_error while processing request.",
+                      "code": "internal_error",
+                      "instance": "/api/v1/control/data/resolve",
+                      "request_id": "req_0123456789abcdef",
+                      "error": "internal_error",
+                      "status_code": 500
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/control/data/discover": {
+      "post": {
+        "tags": [
+          "control-plane"
+        ],
+        "summary": "Run bounded ExploreLane discovery",
+        "operationId": "discover_data_sources",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DataDiscoverRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DataDiscoverResponse"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "discover_data_sources response example",
+                    "value": {
+                      "meta": {
+                        "request_id": "req_0123456789abcdef",
+                        "generated_at": "2026-02-11T12:00:00Z",
+                        "source_kinds": []
+                      },
+                      "candidates": [
+                        {
+                          "candidate_id": "disc_usa_unemployment_1",
+                          "metric_id": "us.macro.unemployment_rate",
+                          "connector_id": "sdmx.source",
+                          "dataset_id": "ILO:UNE_DEAP_Q",
+                          "dataset_name": "Unemployment rate",
+                          "description": "Quarterly unemployment rate by country.",
+                          "profile_id": "ilo_sdmx",
+                          "source_lane": "explorelane",
+                          "confidence": 0.76,
+                          "coverage_estimate": 0.72,
+                          "latency_estimate_ms": 540,
+                          "schema_excerpt": {
+                            "dimensions": [
+                              "country",
+                              "time"
+                            ]
+                          },
+                          "discovered_at": "2026-02-11T12:00:00Z",
+                          "metadata": {}
+                        }
+                      ],
+                      "docs_fetched_total": 9,
+                      "index_stats": {
+                        "index_docs_total": 9,
+                        "index_size_bytes": 40960,
+                        "indexed_sources": 2,
+                        "docs_added_last_run": 9,
+                        "source_coverage": {
+                          "sdmx.source": 6,
+                          "worldbank.wdi": 3
+                        },
+                        "last_updated": "2026-02-11T12:00:00Z"
+                      },
+                      "warnings": []
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              },
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "Request validation failed.",
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Request validation failed",
+                      "status": 422,
+                      "detail": "request_validation_failed while processing request.",
+                      "code": "request_validation_failed",
+                      "instance": "/api/v1/control/data/discover",
+                      "request_id": "req_0123456789abcdef",
+                      "error": "request_validation_failed",
+                      "status_code": 422
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Malformed request payload or parameters.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "Malformed request payload or parameters.",
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Bad request",
+                      "status": 400,
+                      "detail": "bad_request while processing request.",
+                      "code": "bad_request",
+                      "instance": "/api/v1/control/data/discover",
+                      "request_id": "req_0123456789abcdef",
+                      "error": "bad_request",
+                      "status_code": 400
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication is required for this route.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "Authentication is required for this route.",
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Unauthorized",
+                      "status": 401,
+                      "detail": "unauthorized while processing request.",
+                      "code": "unauthorized",
+                      "instance": "/api/v1/control/data/discover",
+                      "request_id": "req_0123456789abcdef",
+                      "error": "unauthorized",
+                      "status_code": 401
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authenticated principal cannot access this resource.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "Authenticated principal cannot access this resource.",
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Forbidden",
+                      "status": 403,
+                      "detail": "forbidden while processing request.",
+                      "code": "forbidden",
+                      "instance": "/api/v1/control/data/discover",
+                      "request_id": "req_0123456789abcdef",
+                      "error": "forbidden",
+                      "status_code": 403
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Requested resource does not exist.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "Requested resource does not exist.",
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Not found",
+                      "status": 404,
+                      "detail": "not_found while processing request.",
+                      "code": "not_found",
+                      "instance": "/api/v1/control/data/discover",
+                      "request_id": "req_0123456789abcdef",
+                      "error": "not_found",
+                      "status_code": 404
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected runtime API failure.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "Unexpected runtime API failure.",
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Internal error",
+                      "status": 500,
+                      "detail": "internal_error while processing request.",
+                      "code": "internal_error",
+                      "instance": "/api/v1/control/data/discover",
+                      "request_id": "req_0123456789abcdef",
+                      "error": "internal_error",
+                      "status_code": 500
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/control/data/preview": {
+      "post": {
+        "tags": [
+          "control-plane"
+        ],
+        "summary": "Preview FetchPlan with quality gate",
+        "operationId": "preview_fetch_plan",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DataPreviewRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DataPreviewResponse"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "preview_fetch_plan response example",
+                    "value": {
+                      "meta": {
+                        "request_id": "req_0123456789abcdef",
+                        "generated_at": "2026-02-11T12:00:00Z",
+                        "source_kinds": []
+                      },
+                      "preview": {
+                        "status": "ok",
+                        "connector_id": "worldbank.wdi",
+                        "dataset_id": "NY.GDP.MKTP.CD",
+                        "row_count": 10,
+                        "completeness": 0.87,
+                        "coverage_ok": true,
+                        "quality_min": 0.75,
+                        "sample_rows": [
+                          {
+                            "country": "USA",
+                            "year": 2023,
+                            "value": 27360935
+                          }
+                        ],
+                        "schema": {
+                          "schema_id": "wdi.v1",
+                          "schema_version": "1"
+                        },
+                        "quality_flags": [],
+                        "message": null,
+                        "latency_ms": 281
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              },
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "Request validation failed.",
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Request validation failed",
+                      "status": 422,
+                      "detail": "request_validation_failed while processing request.",
+                      "code": "request_validation_failed",
+                      "instance": "/api/v1/control/data/preview",
+                      "request_id": "req_0123456789abcdef",
+                      "error": "request_validation_failed",
+                      "status_code": 422
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Malformed request payload or parameters.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "Malformed request payload or parameters.",
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Bad request",
+                      "status": 400,
+                      "detail": "bad_request while processing request.",
+                      "code": "bad_request",
+                      "instance": "/api/v1/control/data/preview",
+                      "request_id": "req_0123456789abcdef",
+                      "error": "bad_request",
+                      "status_code": 400
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication is required for this route.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "Authentication is required for this route.",
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Unauthorized",
+                      "status": 401,
+                      "detail": "unauthorized while processing request.",
+                      "code": "unauthorized",
+                      "instance": "/api/v1/control/data/preview",
+                      "request_id": "req_0123456789abcdef",
+                      "error": "unauthorized",
+                      "status_code": 401
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authenticated principal cannot access this resource.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "Authenticated principal cannot access this resource.",
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Forbidden",
+                      "status": 403,
+                      "detail": "forbidden while processing request.",
+                      "code": "forbidden",
+                      "instance": "/api/v1/control/data/preview",
+                      "request_id": "req_0123456789abcdef",
+                      "error": "forbidden",
+                      "status_code": 403
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Requested resource does not exist.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "Requested resource does not exist.",
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Not found",
+                      "status": 404,
+                      "detail": "not_found while processing request.",
+                      "code": "not_found",
+                      "instance": "/api/v1/control/data/preview",
+                      "request_id": "req_0123456789abcdef",
+                      "error": "not_found",
+                      "status_code": 404
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected runtime API failure.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "Unexpected runtime API failure.",
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Internal error",
+                      "status": 500,
+                      "detail": "internal_error while processing request.",
+                      "code": "internal_error",
+                      "instance": "/api/v1/control/data/preview",
+                      "request_id": "req_0123456789abcdef",
+                      "error": "internal_error",
+                      "status_code": 500
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/control/data/catalog/search": {
+      "get": {
+        "tags": [
+          "control-plane"
+        ],
+        "summary": "Search metric catalog candidates",
+        "operationId": "search_data_catalog",
+        "parameters": [
+          {
+            "name": "metric",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "title": "Metric"
+            }
+          },
+          {
+            "name": "geo",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Geo"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 200,
+              "minimum": 1,
+              "default": 25,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DataCatalogSearchResponse"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "search_data_catalog response example",
+                    "value": {
+                      "meta": {
+                        "request_id": "req_0123456789abcdef",
+                        "generated_at": "2026-02-11T12:00:00Z",
+                        "source_kinds": []
+                      },
+                      "query": "gdp*",
+                      "matches": [
+                        {
+                          "candidate_id": "cand_usa_gdp_1",
+                          "metric_id": "us.macro.gdp_nominal",
+                          "connector_id": "worldbank.wdi",
+                          "dataset_id": "NY.GDP.MKTP.CD",
+                          "profile_id": "worldbank_wdi",
+                          "source_lane": "fastlane",
+                          "confidence": 0.91,
+                          "rank": 1,
+                          "trust_score": 0.95,
+                          "freshness_score": 0.8,
+                          "coverage_estimate": 0.88,
+                          "latency_estimate_ms": 320,
+                          "filters_template": {
+                            "country": [
+                              "{ISO3}"
+                            ]
+                          },
+                          "match_reason": "catalog_query_match",
+                          "metadata": {}
+                        }
+                      ],
+                      "total_matches": 1
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              },
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "Request validation failed.",
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Request validation failed",
+                      "status": 422,
+                      "detail": "request_validation_failed while processing request.",
+                      "code": "request_validation_failed",
+                      "instance": "/api/v1/control/data/catalog/search",
+                      "request_id": "req_0123456789abcdef",
+                      "error": "request_validation_failed",
+                      "status_code": 422
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Malformed request payload or parameters.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "Malformed request payload or parameters.",
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Bad request",
+                      "status": 400,
+                      "detail": "bad_request while processing request.",
+                      "code": "bad_request",
+                      "instance": "/api/v1/control/data/catalog/search",
+                      "request_id": "req_0123456789abcdef",
+                      "error": "bad_request",
+                      "status_code": 400
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication is required for this route.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "Authentication is required for this route.",
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Unauthorized",
+                      "status": 401,
+                      "detail": "unauthorized while processing request.",
+                      "code": "unauthorized",
+                      "instance": "/api/v1/control/data/catalog/search",
+                      "request_id": "req_0123456789abcdef",
+                      "error": "unauthorized",
+                      "status_code": 401
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authenticated principal cannot access this resource.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "Authenticated principal cannot access this resource.",
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Forbidden",
+                      "status": 403,
+                      "detail": "forbidden while processing request.",
+                      "code": "forbidden",
+                      "instance": "/api/v1/control/data/catalog/search",
+                      "request_id": "req_0123456789abcdef",
+                      "error": "forbidden",
+                      "status_code": 403
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Requested resource does not exist.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "Requested resource does not exist.",
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Not found",
+                      "status": 404,
+                      "detail": "not_found while processing request.",
+                      "code": "not_found",
+                      "instance": "/api/v1/control/data/catalog/search",
+                      "request_id": "req_0123456789abcdef",
+                      "error": "not_found",
+                      "status_code": 404
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected runtime API failure.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "Unexpected runtime API failure.",
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Internal error",
+                      "status": 500,
+                      "detail": "internal_error while processing request.",
+                      "code": "internal_error",
+                      "instance": "/api/v1/control/data/catalog/search",
+                      "request_id": "req_0123456789abcdef",
+                      "error": "internal_error",
+                      "status_code": 500
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/control/data/index/stats": {
+      "get": {
+        "tags": [
+          "control-plane"
+        ],
+        "summary": "Get local retrieval index statistics",
+        "operationId": "get_data_index_stats",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IndexStatsResponse"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "get_data_index_stats response example",
+                    "value": {
+                      "meta": {
+                        "request_id": "req_0123456789abcdef",
+                        "generated_at": "2026-02-11T12:00:00Z",
+                        "source_kinds": []
+                      },
+                      "stats": {
+                        "index_docs_total": 29,
+                        "index_size_bytes": 121344,
+                        "indexed_sources": 4,
+                        "docs_added_last_run": 9,
+                        "source_coverage": {
+                          "worldbank.wdi": 10,
+                          "sdmx.source": 19
+                        },
+                        "last_updated": "2026-02-11T12:00:00Z"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Malformed request payload or parameters.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "Malformed request payload or parameters.",
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Bad request",
+                      "status": 400,
+                      "detail": "bad_request while processing request.",
+                      "code": "bad_request",
+                      "instance": "/api/v1/control/data/index/stats",
+                      "request_id": "req_0123456789abcdef",
+                      "error": "bad_request",
+                      "status_code": 400
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication is required for this route.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "Authentication is required for this route.",
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Unauthorized",
+                      "status": 401,
+                      "detail": "unauthorized while processing request.",
+                      "code": "unauthorized",
+                      "instance": "/api/v1/control/data/index/stats",
+                      "request_id": "req_0123456789abcdef",
+                      "error": "unauthorized",
+                      "status_code": 401
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authenticated principal cannot access this resource.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "Authenticated principal cannot access this resource.",
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Forbidden",
+                      "status": 403,
+                      "detail": "forbidden while processing request.",
+                      "code": "forbidden",
+                      "instance": "/api/v1/control/data/index/stats",
+                      "request_id": "req_0123456789abcdef",
+                      "error": "forbidden",
+                      "status_code": 403
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Requested resource does not exist.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "Requested resource does not exist.",
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Not found",
+                      "status": 404,
+                      "detail": "not_found while processing request.",
+                      "code": "not_found",
+                      "instance": "/api/v1/control/data/index/stats",
+                      "request_id": "req_0123456789abcdef",
+                      "error": "not_found",
+                      "status_code": 404
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Request validation failed.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "Request validation failed.",
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Request validation failed",
+                      "status": 422,
+                      "detail": "request_validation_failed while processing request.",
+                      "code": "request_validation_failed",
+                      "instance": "/api/v1/control/data/index/stats",
+                      "request_id": "req_0123456789abcdef",
+                      "error": "request_validation_failed",
+                      "status_code": 422
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected runtime API failure.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "Unexpected runtime API failure.",
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Internal error",
+                      "status": 500,
+                      "detail": "internal_error while processing request.",
+                      "code": "internal_error",
+                      "instance": "/api/v1/control/data/index/stats",
+                      "request_id": "req_0123456789abcdef",
+                      "error": "internal_error",
+                      "status_code": 500
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/control/data/promotion/candidates": {
+      "get": {
+        "tags": [
+          "control-plane"
+        ],
+        "summary": "List PromotionLane candidates",
+        "operationId": "list_data_promotion_candidates",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PromotionCandidatesResponse"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "list_data_promotion_candidates response example",
+                    "value": {
+                      "meta": {
+                        "request_id": "req_0123456789abcdef",
+                        "generated_at": "2026-02-11T12:00:00Z",
+                        "source_kinds": []
+                      },
+                      "candidates": [
+                        {
+                          "promotion_id": "promo_01",
+                          "metric_id": "us.macro.unemployment_rate",
+                          "connector_id": "sdmx.source",
+                          "dataset_id": "ILO:UNE_DEAP_Q",
+                          "profile_id": "ilo_sdmx",
+                          "source_lane": "explorelane",
+                          "confidence": 0.83,
+                          "signals": [
+                            "high_completeness",
+                            "stable_latency"
+                          ],
+                          "status": "pending",
+                          "created_at": "2026-02-11T12:00:00Z",
+                          "metadata": {}
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Malformed request payload or parameters.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "Malformed request payload or parameters.",
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Bad request",
+                      "status": 400,
+                      "detail": "bad_request while processing request.",
+                      "code": "bad_request",
+                      "instance": "/api/v1/control/data/promotion/candidates",
+                      "request_id": "req_0123456789abcdef",
+                      "error": "bad_request",
+                      "status_code": 400
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication is required for this route.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "Authentication is required for this route.",
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Unauthorized",
+                      "status": 401,
+                      "detail": "unauthorized while processing request.",
+                      "code": "unauthorized",
+                      "instance": "/api/v1/control/data/promotion/candidates",
+                      "request_id": "req_0123456789abcdef",
+                      "error": "unauthorized",
+                      "status_code": 401
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authenticated principal cannot access this resource.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "Authenticated principal cannot access this resource.",
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Forbidden",
+                      "status": 403,
+                      "detail": "forbidden while processing request.",
+                      "code": "forbidden",
+                      "instance": "/api/v1/control/data/promotion/candidates",
+                      "request_id": "req_0123456789abcdef",
+                      "error": "forbidden",
+                      "status_code": 403
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Requested resource does not exist.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "Requested resource does not exist.",
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Not found",
+                      "status": 404,
+                      "detail": "not_found while processing request.",
+                      "code": "not_found",
+                      "instance": "/api/v1/control/data/promotion/candidates",
+                      "request_id": "req_0123456789abcdef",
+                      "error": "not_found",
+                      "status_code": 404
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Request validation failed.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "Request validation failed.",
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Request validation failed",
+                      "status": 422,
+                      "detail": "request_validation_failed while processing request.",
+                      "code": "request_validation_failed",
+                      "instance": "/api/v1/control/data/promotion/candidates",
+                      "request_id": "req_0123456789abcdef",
+                      "error": "request_validation_failed",
+                      "status_code": 422
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected runtime API failure.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "Unexpected runtime API failure.",
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Internal error",
+                      "status": 500,
+                      "detail": "internal_error while processing request.",
+                      "code": "internal_error",
+                      "instance": "/api/v1/control/data/promotion/candidates",
+                      "request_id": "req_0123456789abcdef",
+                      "error": "internal_error",
+                      "status_code": 500
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/control/data/promotion/{promotion_id}/approve": {
+      "post": {
+        "tags": [
+          "control-plane"
+        ],
+        "summary": "Approve PromotionLane candidate",
+        "operationId": "approve_data_promotion",
+        "parameters": [
+          {
+            "name": "promotion_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Promotion Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PromotionDecisionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PromotionDecisionResponse"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "approve_data_promotion response example",
+                    "value": {
+                      "meta": {
+                        "request_id": "req_0123456789abcdef",
+                        "generated_at": "2026-02-11T12:00:00Z",
+                        "source_kinds": []
+                      },
+                      "promotion_id": "promo_01",
+                      "status": "approved",
+                      "message": "Promotion candidate approved and source bindings updated.",
+                      "binding_updated": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              },
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "Request validation failed.",
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Request validation failed",
+                      "status": 422,
+                      "detail": "request_validation_failed while processing request.",
+                      "code": "request_validation_failed",
+                      "instance": "/api/v1/control/data/promotion/{promotion_id}/approve",
+                      "request_id": "req_0123456789abcdef",
+                      "error": "request_validation_failed",
+                      "status_code": 422
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Malformed request payload or parameters.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "Malformed request payload or parameters.",
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Bad request",
+                      "status": 400,
+                      "detail": "bad_request while processing request.",
+                      "code": "bad_request",
+                      "instance": "/api/v1/control/data/promotion/{promotion_id}/approve",
+                      "request_id": "req_0123456789abcdef",
+                      "error": "bad_request",
+                      "status_code": 400
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication is required for this route.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "Authentication is required for this route.",
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Unauthorized",
+                      "status": 401,
+                      "detail": "unauthorized while processing request.",
+                      "code": "unauthorized",
+                      "instance": "/api/v1/control/data/promotion/{promotion_id}/approve",
+                      "request_id": "req_0123456789abcdef",
+                      "error": "unauthorized",
+                      "status_code": 401
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authenticated principal cannot access this resource.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "Authenticated principal cannot access this resource.",
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Forbidden",
+                      "status": 403,
+                      "detail": "forbidden while processing request.",
+                      "code": "forbidden",
+                      "instance": "/api/v1/control/data/promotion/{promotion_id}/approve",
+                      "request_id": "req_0123456789abcdef",
+                      "error": "forbidden",
+                      "status_code": 403
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Requested resource does not exist.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "Requested resource does not exist.",
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Not found",
+                      "status": 404,
+                      "detail": "not_found while processing request.",
+                      "code": "not_found",
+                      "instance": "/api/v1/control/data/promotion/{promotion_id}/approve",
+                      "request_id": "req_0123456789abcdef",
+                      "error": "not_found",
+                      "status_code": 404
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected runtime API failure.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "Unexpected runtime API failure.",
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Internal error",
+                      "status": 500,
+                      "detail": "internal_error while processing request.",
+                      "code": "internal_error",
+                      "instance": "/api/v1/control/data/promotion/{promotion_id}/approve",
+                      "request_id": "req_0123456789abcdef",
+                      "error": "internal_error",
+                      "status_code": 500
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/control/data/promotion/{promotion_id}/reject": {
+      "post": {
+        "tags": [
+          "control-plane"
+        ],
+        "summary": "Reject PromotionLane candidate",
+        "operationId": "reject_data_promotion",
+        "parameters": [
+          {
+            "name": "promotion_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Promotion Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PromotionDecisionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PromotionDecisionResponse"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "reject_data_promotion response example",
+                    "value": {
+                      "meta": {
+                        "request_id": "req_0123456789abcdef",
+                        "generated_at": "2026-02-11T12:00:00Z",
+                        "source_kinds": []
+                      },
+                      "promotion_id": "promo_01",
+                      "status": "rejected",
+                      "message": "Promotion candidate rejected.",
+                      "binding_updated": false
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              },
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "Request validation failed.",
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Request validation failed",
+                      "status": 422,
+                      "detail": "request_validation_failed while processing request.",
+                      "code": "request_validation_failed",
+                      "instance": "/api/v1/control/data/promotion/{promotion_id}/reject",
+                      "request_id": "req_0123456789abcdef",
+                      "error": "request_validation_failed",
+                      "status_code": 422
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Malformed request payload or parameters.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "Malformed request payload or parameters.",
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Bad request",
+                      "status": 400,
+                      "detail": "bad_request while processing request.",
+                      "code": "bad_request",
+                      "instance": "/api/v1/control/data/promotion/{promotion_id}/reject",
+                      "request_id": "req_0123456789abcdef",
+                      "error": "bad_request",
+                      "status_code": 400
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication is required for this route.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "Authentication is required for this route.",
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Unauthorized",
+                      "status": 401,
+                      "detail": "unauthorized while processing request.",
+                      "code": "unauthorized",
+                      "instance": "/api/v1/control/data/promotion/{promotion_id}/reject",
+                      "request_id": "req_0123456789abcdef",
+                      "error": "unauthorized",
+                      "status_code": 401
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authenticated principal cannot access this resource.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "Authenticated principal cannot access this resource.",
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Forbidden",
+                      "status": 403,
+                      "detail": "forbidden while processing request.",
+                      "code": "forbidden",
+                      "instance": "/api/v1/control/data/promotion/{promotion_id}/reject",
+                      "request_id": "req_0123456789abcdef",
+                      "error": "forbidden",
+                      "status_code": 403
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Requested resource does not exist.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "Requested resource does not exist.",
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Not found",
+                      "status": 404,
+                      "detail": "not_found while processing request.",
+                      "code": "not_found",
+                      "instance": "/api/v1/control/data/promotion/{promotion_id}/reject",
+                      "request_id": "req_0123456789abcdef",
+                      "error": "not_found",
+                      "status_code": 404
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected runtime API failure.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "Unexpected runtime API failure.",
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Internal error",
+                      "status": 500,
+                      "detail": "internal_error while processing request.",
+                      "code": "internal_error",
+                      "instance": "/api/v1/control/data/promotion/{promotion_id}/reject",
+                      "request_id": "req_0123456789abcdef",
+                      "error": "internal_error",
+                      "status_code": 500
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/control/data/connectors": {
       "get": {
         "tags": [
@@ -5489,6 +7375,37 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/BindingProfilesListResponse"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "list_binding_profiles response example",
+                    "value": {
+                      "meta": {
+                        "request_id": "req_0123456789abcdef",
+                        "generated_at": "2026-02-11T12:00:00Z",
+                        "source_kinds": []
+                      },
+                      "profiles": [
+                        {
+                          "profile_id": "macro.default",
+                          "display_name": "Macro default mapping",
+                          "description": "Default metric-to-column binding rules.",
+                          "schema_family": "timeseries",
+                          "strategy": "auto",
+                          "rule_count": 7,
+                          "expected_columns": [
+                            "country",
+                            "year",
+                            "value"
+                          ],
+                          "tags": [
+                            "macro",
+                            "default"
+                          ]
+                        }
+                      ]
+                    }
+                  }
                 }
               }
             }
@@ -5640,6 +7557,875 @@
                       "detail": "internal_error while processing request.",
                       "code": "internal_error",
                       "instance": "/api/v1/control/data/binding-profiles",
+                      "request_id": "req_0123456789abcdef",
+                      "error": "internal_error",
+                      "status_code": 500
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/control/lex/trigger": {
+      "post": {
+        "tags": [
+          "control-plane"
+        ],
+        "summary": "Start Lex batch pipeline in background",
+        "operationId": "trigger_lex_pipeline",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LexTriggerRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LexTriggerResponse"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "trigger_lex_pipeline response example",
+                    "value": {
+                      "meta": {
+                        "request_id": "req_0123456789abcdef",
+                        "generated_at": "2026-02-11T12:00:00Z",
+                        "source_kinds": []
+                      },
+                      "status": "accepted",
+                      "pipeline_id": "lex_a1b2c3d4e5f6",
+                      "message": "Pipeline lex_a1b2c3d4e5f6 launched with stages: graph, parse, spo, structure"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              },
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "Request validation failed.",
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Request validation failed",
+                      "status": 422,
+                      "detail": "request_validation_failed while processing request.",
+                      "code": "request_validation_failed",
+                      "instance": "/api/v1/control/lex/trigger",
+                      "request_id": "req_0123456789abcdef",
+                      "error": "request_validation_failed",
+                      "status_code": 422
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Malformed request payload or parameters.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "Malformed request payload or parameters.",
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Bad request",
+                      "status": 400,
+                      "detail": "bad_request while processing request.",
+                      "code": "bad_request",
+                      "instance": "/api/v1/control/lex/trigger",
+                      "request_id": "req_0123456789abcdef",
+                      "error": "bad_request",
+                      "status_code": 400
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication is required for this route.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "Authentication is required for this route.",
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Unauthorized",
+                      "status": 401,
+                      "detail": "unauthorized while processing request.",
+                      "code": "unauthorized",
+                      "instance": "/api/v1/control/lex/trigger",
+                      "request_id": "req_0123456789abcdef",
+                      "error": "unauthorized",
+                      "status_code": 401
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authenticated principal cannot access this resource.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "Authenticated principal cannot access this resource.",
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Forbidden",
+                      "status": 403,
+                      "detail": "forbidden while processing request.",
+                      "code": "forbidden",
+                      "instance": "/api/v1/control/lex/trigger",
+                      "request_id": "req_0123456789abcdef",
+                      "error": "forbidden",
+                      "status_code": 403
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Requested resource does not exist.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "Requested resource does not exist.",
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Not found",
+                      "status": 404,
+                      "detail": "not_found while processing request.",
+                      "code": "not_found",
+                      "instance": "/api/v1/control/lex/trigger",
+                      "request_id": "req_0123456789abcdef",
+                      "error": "not_found",
+                      "status_code": 404
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected runtime API failure.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "Unexpected runtime API failure.",
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Internal error",
+                      "status": 500,
+                      "detail": "internal_error while processing request.",
+                      "code": "internal_error",
+                      "instance": "/api/v1/control/lex/trigger",
+                      "request_id": "req_0123456789abcdef",
+                      "error": "internal_error",
+                      "status_code": 500
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/control/lex/status/{pipeline_id}": {
+      "get": {
+        "tags": [
+          "control-plane"
+        ],
+        "summary": "Get Lex pipeline execution status",
+        "operationId": "get_lex_pipeline_status",
+        "parameters": [
+          {
+            "name": "pipeline_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Pipeline Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LexPipelineStatusResponse"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "get_lex_pipeline_status response example",
+                    "value": {
+                      "meta": {
+                        "request_id": "req_0123456789abcdef",
+                        "generated_at": "2026-02-11T12:00:00Z",
+                        "source_kinds": []
+                      },
+                      "pipeline_id": "lex_a1b2c3d4e5f6",
+                      "state": "running",
+                      "progress_summary": {
+                        "structured": 5000,
+                        "spo_extracted": 2300
+                      },
+                      "error_message": null
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              },
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "Request validation failed.",
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Request validation failed",
+                      "status": 422,
+                      "detail": "request_validation_failed while processing request.",
+                      "code": "request_validation_failed",
+                      "instance": "/api/v1/control/lex/status/{pipeline_id}",
+                      "request_id": "req_0123456789abcdef",
+                      "error": "request_validation_failed",
+                      "status_code": 422
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Malformed request payload or parameters.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "Malformed request payload or parameters.",
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Bad request",
+                      "status": 400,
+                      "detail": "bad_request while processing request.",
+                      "code": "bad_request",
+                      "instance": "/api/v1/control/lex/status/{pipeline_id}",
+                      "request_id": "req_0123456789abcdef",
+                      "error": "bad_request",
+                      "status_code": 400
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication is required for this route.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "Authentication is required for this route.",
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Unauthorized",
+                      "status": 401,
+                      "detail": "unauthorized while processing request.",
+                      "code": "unauthorized",
+                      "instance": "/api/v1/control/lex/status/{pipeline_id}",
+                      "request_id": "req_0123456789abcdef",
+                      "error": "unauthorized",
+                      "status_code": 401
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authenticated principal cannot access this resource.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "Authenticated principal cannot access this resource.",
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Forbidden",
+                      "status": 403,
+                      "detail": "forbidden while processing request.",
+                      "code": "forbidden",
+                      "instance": "/api/v1/control/lex/status/{pipeline_id}",
+                      "request_id": "req_0123456789abcdef",
+                      "error": "forbidden",
+                      "status_code": 403
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Requested resource does not exist.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "Requested resource does not exist.",
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Not found",
+                      "status": 404,
+                      "detail": "not_found while processing request.",
+                      "code": "not_found",
+                      "instance": "/api/v1/control/lex/status/{pipeline_id}",
+                      "request_id": "req_0123456789abcdef",
+                      "error": "not_found",
+                      "status_code": 404
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected runtime API failure.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "Unexpected runtime API failure.",
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Internal error",
+                      "status": 500,
+                      "detail": "internal_error while processing request.",
+                      "code": "internal_error",
+                      "instance": "/api/v1/control/lex/status/{pipeline_id}",
+                      "request_id": "req_0123456789abcdef",
+                      "error": "internal_error",
+                      "status_code": 500
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/control/lex/graph/stats": {
+      "get": {
+        "tags": [
+          "control-plane"
+        ],
+        "summary": "Get Lex knowledge graph statistics",
+        "operationId": "get_lex_graph_stats",
+        "parameters": [
+          {
+            "name": "output_dir",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "title": "Output Dir"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LexGraphStatsResponse"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "get_lex_graph_stats response example",
+                    "value": {
+                      "meta": {
+                        "request_id": "req_0123456789abcdef",
+                        "generated_at": "2026-02-11T12:00:00Z",
+                        "source_kinds": []
+                      },
+                      "total_entities": 12450,
+                      "total_facts": 87300,
+                      "total_provisions": 45200,
+                      "top_predicates": [
+                        {
+                          "predicate": "regulates",
+                          "count": 12000
+                        },
+                        {
+                          "predicate": "defines",
+                          "count": 8500
+                        }
+                      ],
+                      "top_entity_types": [
+                        {
+                          "entity_type": "concept",
+                          "count": 9200
+                        },
+                        {
+                          "entity_type": "institution",
+                          "count": 2100
+                        }
+                      ],
+                      "db_exists": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              },
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "Request validation failed.",
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Request validation failed",
+                      "status": 422,
+                      "detail": "request_validation_failed while processing request.",
+                      "code": "request_validation_failed",
+                      "instance": "/api/v1/control/lex/graph/stats",
+                      "request_id": "req_0123456789abcdef",
+                      "error": "request_validation_failed",
+                      "status_code": 422
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Malformed request payload or parameters.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "Malformed request payload or parameters.",
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Bad request",
+                      "status": 400,
+                      "detail": "bad_request while processing request.",
+                      "code": "bad_request",
+                      "instance": "/api/v1/control/lex/graph/stats",
+                      "request_id": "req_0123456789abcdef",
+                      "error": "bad_request",
+                      "status_code": 400
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication is required for this route.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "Authentication is required for this route.",
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Unauthorized",
+                      "status": 401,
+                      "detail": "unauthorized while processing request.",
+                      "code": "unauthorized",
+                      "instance": "/api/v1/control/lex/graph/stats",
+                      "request_id": "req_0123456789abcdef",
+                      "error": "unauthorized",
+                      "status_code": 401
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authenticated principal cannot access this resource.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "Authenticated principal cannot access this resource.",
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Forbidden",
+                      "status": 403,
+                      "detail": "forbidden while processing request.",
+                      "code": "forbidden",
+                      "instance": "/api/v1/control/lex/graph/stats",
+                      "request_id": "req_0123456789abcdef",
+                      "error": "forbidden",
+                      "status_code": 403
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Requested resource does not exist.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "Requested resource does not exist.",
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Not found",
+                      "status": 404,
+                      "detail": "not_found while processing request.",
+                      "code": "not_found",
+                      "instance": "/api/v1/control/lex/graph/stats",
+                      "request_id": "req_0123456789abcdef",
+                      "error": "not_found",
+                      "status_code": 404
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected runtime API failure.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "Unexpected runtime API failure.",
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Internal error",
+                      "status": 500,
+                      "detail": "internal_error while processing request.",
+                      "code": "internal_error",
+                      "instance": "/api/v1/control/lex/graph/stats",
+                      "request_id": "req_0123456789abcdef",
+                      "error": "internal_error",
+                      "status_code": 500
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/control/lex/search": {
+      "post": {
+        "tags": [
+          "control-plane"
+        ],
+        "summary": "Search Lex knowledge graph facts",
+        "operationId": "search_lex_graph",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LexSearchRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LexSearchResponse"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "search_lex_graph response example",
+                    "value": {
+                      "meta": {
+                        "request_id": "req_0123456789abcdef",
+                        "generated_at": "2026-02-11T12:00:00Z",
+                        "source_kinds": []
+                      },
+                      "query": "бюджетний дефіцит",
+                      "results": [
+                        {
+                          "fact_id": "a1b2c3d4e5f6g7h8i9j0",
+                          "subject_name": "budget_deficit_limit",
+                          "predicate": "must_not_exceed",
+                          "object_name": "3_percent_of_gdp",
+                          "fact_text": "Budget deficit must not exceed 3% of projected GDP",
+                          "confidence": 0.92,
+                          "norm_type": "obligation",
+                          "doc_name": "Бюджетний кодекс України",
+                          "doc_reestr_code": "21010",
+                          "provision_citation": "Стаття 14, пункт 2"
+                        }
+                      ],
+                      "total": 1
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              },
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "Request validation failed.",
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Request validation failed",
+                      "status": 422,
+                      "detail": "request_validation_failed while processing request.",
+                      "code": "request_validation_failed",
+                      "instance": "/api/v1/control/lex/search",
+                      "request_id": "req_0123456789abcdef",
+                      "error": "request_validation_failed",
+                      "status_code": 422
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Malformed request payload or parameters.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "Malformed request payload or parameters.",
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Bad request",
+                      "status": 400,
+                      "detail": "bad_request while processing request.",
+                      "code": "bad_request",
+                      "instance": "/api/v1/control/lex/search",
+                      "request_id": "req_0123456789abcdef",
+                      "error": "bad_request",
+                      "status_code": 400
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication is required for this route.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "Authentication is required for this route.",
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Unauthorized",
+                      "status": 401,
+                      "detail": "unauthorized while processing request.",
+                      "code": "unauthorized",
+                      "instance": "/api/v1/control/lex/search",
+                      "request_id": "req_0123456789abcdef",
+                      "error": "unauthorized",
+                      "status_code": 401
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authenticated principal cannot access this resource.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "Authenticated principal cannot access this resource.",
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Forbidden",
+                      "status": 403,
+                      "detail": "forbidden while processing request.",
+                      "code": "forbidden",
+                      "instance": "/api/v1/control/lex/search",
+                      "request_id": "req_0123456789abcdef",
+                      "error": "forbidden",
+                      "status_code": 403
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Requested resource does not exist.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "Requested resource does not exist.",
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Not found",
+                      "status": 404,
+                      "detail": "not_found while processing request.",
+                      "code": "not_found",
+                      "instance": "/api/v1/control/lex/search",
+                      "request_id": "req_0123456789abcdef",
+                      "error": "not_found",
+                      "status_code": 404
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected runtime API failure.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                },
+                "examples": {
+                  "default": {
+                    "summary": "Unexpected runtime API failure.",
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Internal error",
+                      "status": 500,
+                      "detail": "internal_error while processing request.",
+                      "code": "internal_error",
+                      "instance": "/api/v1/control/lex/search",
                       "request_id": "req_0123456789abcdef",
                       "error": "internal_error",
                       "status_code": 500
@@ -5952,6 +8738,76 @@
             "anyOf": [
               {
                 "$ref": "#/components/schemas/ArtifactRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "retrieval": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RetrievalTelemetryView"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "execution_plan_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "method_catalog_snapshot_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "preflight": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PreflightReportView"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "evaluator": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/EvaluatorReportView"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "iteration_lifecycle": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/IterationLifecycleView"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "reproducibility": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ReproducibilityView"
               },
               {
                 "type": "null"
@@ -6733,6 +9589,316 @@
         "type": "object",
         "title": "CursorPage"
       },
+      "DataCatalogSearchResponse": {
+        "properties": {
+          "meta": {
+            "$ref": "#/components/schemas/ApiMeta"
+          },
+          "query": {
+            "type": "string",
+            "title": "Query"
+          },
+          "matches": {
+            "items": {
+              "$ref": "#/components/schemas/MetricCandidate"
+            },
+            "type": "array",
+            "title": "Matches"
+          },
+          "total_matches": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Total Matches",
+            "default": 0
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "meta",
+          "query"
+        ],
+        "title": "DataCatalogSearchResponse"
+      },
+      "DataDiscoverRequest": {
+        "properties": {
+          "data_needs": {
+            "items": {
+              "$ref": "#/components/schemas/DataNeed"
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Data Needs"
+          },
+          "max_sources_per_query": {
+            "type": "integer",
+            "maximum": 50.0,
+            "minimum": 1.0,
+            "title": "Max Sources Per Query",
+            "default": 5
+          },
+          "max_discovery_calls_per_source": {
+            "type": "integer",
+            "maximum": 500.0,
+            "minimum": 1.0,
+            "title": "Max Discovery Calls Per Source",
+            "default": 25
+          },
+          "max_candidates_total": {
+            "type": "integer",
+            "maximum": 500.0,
+            "minimum": 1.0,
+            "title": "Max Candidates Total",
+            "default": 50
+          },
+          "time_budget_ms": {
+            "type": "integer",
+            "maximum": 120000.0,
+            "minimum": 100.0,
+            "title": "Time Budget Ms",
+            "default": 5000
+          },
+          "cost_budget_usd": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Cost Budget Usd",
+            "default": 0.0
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "data_needs"
+        ],
+        "title": "DataDiscoverRequest"
+      },
+      "DataDiscoverResponse": {
+        "properties": {
+          "meta": {
+            "$ref": "#/components/schemas/ApiMeta"
+          },
+          "candidates": {
+            "items": {
+              "$ref": "#/components/schemas/DiscoveryCandidate"
+            },
+            "type": "array",
+            "title": "Candidates"
+          },
+          "docs_fetched_total": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Docs Fetched Total",
+            "default": 0
+          },
+          "index_stats": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/IndexStats"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Warnings"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "meta"
+        ],
+        "title": "DataDiscoverResponse"
+      },
+      "DataNeed": {
+        "properties": {
+          "metric": {
+            "type": "string",
+            "maxLength": 256,
+            "minLength": 1,
+            "title": "Metric"
+          },
+          "geography": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 128
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Geography"
+          },
+          "time_start": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 64
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Time Start"
+          },
+          "time_end": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 64
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Time End"
+          },
+          "granularity": {
+            "type": "string",
+            "maxLength": 64,
+            "title": "Granularity",
+            "default": "annual"
+          },
+          "quality_min": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Quality Min",
+            "default": 0.6
+          },
+          "purpose": {
+            "type": "string",
+            "maxLength": 256,
+            "minLength": 1,
+            "title": "Purpose",
+            "default": "policy_drafting"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "metric"
+        ],
+        "title": "DataNeed"
+      },
+      "DataPreviewRequest": {
+        "properties": {
+          "fetch_plan": {
+            "$ref": "#/components/schemas/FetchPlan"
+          },
+          "allow_fallback": {
+            "type": "boolean",
+            "title": "Allow Fallback",
+            "default": true
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "fetch_plan"
+        ],
+        "title": "DataPreviewRequest"
+      },
+      "DataPreviewResponse": {
+        "properties": {
+          "meta": {
+            "$ref": "#/components/schemas/ApiMeta"
+          },
+          "preview": {
+            "$ref": "#/components/schemas/FetchPreview"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "meta",
+          "preview"
+        ],
+        "title": "DataPreviewResponse"
+      },
+      "DataResolveRequest": {
+        "properties": {
+          "data_needs": {
+            "items": {
+              "$ref": "#/components/schemas/DataNeed"
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Data Needs"
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "fastlane",
+              "explorelane",
+              "hybrid"
+            ],
+            "title": "Mode",
+            "default": "hybrid"
+          },
+          "allow_explore_fallback": {
+            "type": "boolean",
+            "title": "Allow Explore Fallback",
+            "default": true
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "data_needs"
+        ],
+        "title": "DataResolveRequest"
+      },
+      "DataResolveResponse": {
+        "properties": {
+          "meta": {
+            "$ref": "#/components/schemas/ApiMeta"
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "fastlane",
+              "explorelane",
+              "hybrid"
+            ],
+            "title": "Mode"
+          },
+          "fetch_plans": {
+            "items": {
+              "$ref": "#/components/schemas/FetchPlan"
+            },
+            "type": "array",
+            "title": "Fetch Plans"
+          },
+          "candidates": {
+            "items": {
+              "$ref": "#/components/schemas/MetricCandidate"
+            },
+            "type": "array",
+            "title": "Candidates"
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Warnings"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "meta",
+          "mode"
+        ],
+        "title": "DataResolveResponse"
+      },
       "DataSourceBinding": {
         "properties": {
           "data_snapshot_ref": {
@@ -6824,6 +9990,507 @@
           "dataset_id"
         ],
         "title": "DatasetFetchSpecRequest"
+      },
+      "DiscoveryCandidate": {
+        "properties": {
+          "candidate_id": {
+            "type": "string",
+            "title": "Candidate Id"
+          },
+          "metric_id": {
+            "type": "string",
+            "title": "Metric Id"
+          },
+          "connector_id": {
+            "type": "string",
+            "title": "Connector Id"
+          },
+          "dataset_id": {
+            "type": "string",
+            "title": "Dataset Id"
+          },
+          "dataset_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dataset Name"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description",
+            "default": ""
+          },
+          "profile_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Profile Id"
+          },
+          "source_lane": {
+            "type": "string",
+            "enum": [
+              "fastlane",
+              "explorelane"
+            ],
+            "title": "Source Lane",
+            "default": "explorelane"
+          },
+          "confidence": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Confidence",
+            "default": 0.0
+          },
+          "coverage_estimate": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Coverage Estimate"
+          },
+          "latency_estimate_ms": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Latency Estimate Ms"
+          },
+          "schema_excerpt": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Schema Excerpt"
+          },
+          "discovered_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Discovered At"
+          },
+          "metadata": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Metadata"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "candidate_id",
+          "metric_id",
+          "connector_id",
+          "dataset_id"
+        ],
+        "title": "DiscoveryCandidate"
+      },
+      "EvaluatorReportView": {
+        "properties": {
+          "verdict": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "APPROVE",
+                  "REPLAN_DATA",
+                  "REPLAN_METHOD",
+                  "REPLAN_PARAMS",
+                  "STOP_BUDGET"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Verdict"
+          },
+          "scores": {
+            "$ref": "#/components/schemas/EvaluatorScoresView"
+          },
+          "reasons": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Reasons"
+          },
+          "replanning_hints": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Replanning Hints"
+          },
+          "diagnostics": {
+            "items": {
+              "$ref": "#/components/schemas/PreflightDiagnosticView"
+            },
+            "type": "array",
+            "title": "Diagnostics"
+          },
+          "notes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Notes"
+          },
+          "report_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "EvaluatorReportView"
+      },
+      "EvaluatorScoresView": {
+        "properties": {
+          "kpi_score": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Kpi Score",
+            "default": 0.0
+          },
+          "uncertainty_score": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Uncertainty Score",
+            "default": 0.0
+          },
+          "constraints_score": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Constraints Score",
+            "default": 0.0
+          },
+          "data_quality_score": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Data Quality Score",
+            "default": 0.0
+          },
+          "budget_score": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Budget Score",
+            "default": 0.0
+          },
+          "total_score": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Total Score",
+            "default": 0.0
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "EvaluatorScoresView"
+      },
+      "FetchPlan": {
+        "properties": {
+          "plan_id": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Plan Id"
+          },
+          "metric_id": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Metric Id"
+          },
+          "connector_id": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Connector Id"
+          },
+          "dataset_id": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Dataset Id"
+          },
+          "profile_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Profile Id"
+          },
+          "filters": {
+            "additionalProperties": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "type": "object",
+            "title": "Filters"
+          },
+          "date_start": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 64
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Date Start"
+          },
+          "date_end": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 64
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Date End"
+          },
+          "granularity": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 64
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Granularity"
+          },
+          "quality_min": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Quality Min",
+            "default": 0.6
+          },
+          "source_lane": {
+            "type": "string",
+            "enum": [
+              "fastlane",
+              "explorelane"
+            ],
+            "title": "Source Lane",
+            "default": "fastlane"
+          },
+          "persist_payload": {
+            "type": "boolean",
+            "title": "Persist Payload",
+            "default": false
+          },
+          "max_preview_rows": {
+            "type": "integer",
+            "maximum": 200.0,
+            "minimum": 1.0,
+            "title": "Max Preview Rows",
+            "default": 20
+          },
+          "fallbacks": {
+            "items": {
+              "$ref": "#/components/schemas/FetchPlanFallback"
+            },
+            "type": "array",
+            "title": "Fallbacks"
+          },
+          "metadata": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Metadata"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "plan_id",
+          "metric_id",
+          "connector_id",
+          "dataset_id"
+        ],
+        "title": "FetchPlan"
+      },
+      "FetchPlanFallback": {
+        "properties": {
+          "connector_id": {
+            "type": "string",
+            "title": "Connector Id"
+          },
+          "dataset_id": {
+            "type": "string",
+            "title": "Dataset Id"
+          },
+          "profile_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Profile Id"
+          },
+          "filters": {
+            "additionalProperties": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "type": "object",
+            "title": "Filters"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "connector_id",
+          "dataset_id"
+        ],
+        "title": "FetchPlanFallback"
+      },
+      "FetchPreview": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "ok",
+              "insufficient_coverage",
+              "error"
+            ],
+            "title": "Status",
+            "default": "ok"
+          },
+          "connector_id": {
+            "type": "string",
+            "title": "Connector Id"
+          },
+          "dataset_id": {
+            "type": "string",
+            "title": "Dataset Id"
+          },
+          "row_count": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Row Count",
+            "default": 0
+          },
+          "completeness": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Completeness",
+            "default": 0.0
+          },
+          "coverage_ok": {
+            "type": "boolean",
+            "title": "Coverage Ok",
+            "default": false
+          },
+          "quality_min": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Quality Min",
+            "default": 0.0
+          },
+          "sample_rows": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Sample Rows"
+          },
+          "schema": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Schema"
+          },
+          "quality_flags": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Quality Flags"
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message"
+          },
+          "latency_ms": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Latency Ms"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "connector_id",
+          "dataset_id"
+        ],
+        "title": "FetchPreview"
       },
       "GovernanceDebugResponse": {
         "properties": {
@@ -6928,6 +10595,73 @@
         "type": "object",
         "title": "HTTPValidationError"
       },
+      "IndexStats": {
+        "properties": {
+          "index_docs_total": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Index Docs Total",
+            "default": 0
+          },
+          "index_size_bytes": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Index Size Bytes",
+            "default": 0
+          },
+          "indexed_sources": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Indexed Sources",
+            "default": 0
+          },
+          "docs_added_last_run": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Docs Added Last Run",
+            "default": 0
+          },
+          "source_coverage": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "type": "object",
+            "title": "Source Coverage"
+          },
+          "last_updated": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Updated"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "IndexStats"
+      },
+      "IndexStatsResponse": {
+        "properties": {
+          "meta": {
+            "$ref": "#/components/schemas/ApiMeta"
+          },
+          "stats": {
+            "$ref": "#/components/schemas/IndexStats"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "meta",
+          "stats"
+        ],
+        "title": "IndexStatsResponse"
+      },
       "IngestRequest": {
         "properties": {
           "datasets": {
@@ -6935,8 +10669,14 @@
               "$ref": "#/components/schemas/DatasetFetchSpecRequest"
             },
             "type": "array",
-            "minItems": 1,
             "title": "Datasets"
+          },
+          "fetch_plans": {
+            "items": {
+              "$ref": "#/components/schemas/FetchPlan"
+            },
+            "type": "array",
+            "title": "Fetch Plans"
           },
           "source": {
             "type": "string",
@@ -7014,11 +10754,8 @@
         },
         "additionalProperties": false,
         "type": "object",
-        "required": [
-          "datasets"
-        ],
         "title": "IngestRequest",
-        "description": "POST /api/v1/control/data/ingest \u2014 trigger data collection."
+        "description": "POST /api/v1/control/data/ingest — trigger data collection."
       },
       "IngestResponse": {
         "properties": {
@@ -7143,6 +10880,549 @@
           "role"
         ],
         "title": "InputRef"
+      },
+      "IterationLifecycleView": {
+        "properties": {
+          "iteration": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Iteration",
+            "default": 1
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "plan_created",
+              "preflight_running",
+              "preflight_failed",
+              "ready_to_run",
+              "executing",
+              "evaluating",
+              "replanning",
+              "approved",
+              "stopped_budget",
+              "stopped_no_delta",
+              "stopped_guardrail"
+            ],
+            "title": "State",
+            "default": "plan_created"
+          },
+          "stop_reason": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "approved",
+                  "budget_exhausted",
+                  "no_delta",
+                  "guardrail_violation"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stop Reason"
+          },
+          "last_verdict": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "APPROVE",
+                  "REPLAN_DATA",
+                  "REPLAN_METHOD",
+                  "REPLAN_PARAMS",
+                  "STOP_BUDGET"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Verdict"
+          },
+          "state_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "notes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Notes"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "IterationLifecycleView"
+      },
+      "LexGraphStatsResponse": {
+        "properties": {
+          "meta": {
+            "$ref": "#/components/schemas/ApiMeta"
+          },
+          "total_entities": {
+            "type": "integer",
+            "title": "Total Entities",
+            "default": 0
+          },
+          "total_facts": {
+            "type": "integer",
+            "title": "Total Facts",
+            "default": 0
+          },
+          "total_provisions": {
+            "type": "integer",
+            "title": "Total Provisions",
+            "default": 0
+          },
+          "top_predicates": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Top Predicates"
+          },
+          "top_entity_types": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Top Entity Types"
+          },
+          "db_exists": {
+            "type": "boolean",
+            "title": "Db Exists",
+            "default": false
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "meta"
+        ],
+        "title": "LexGraphStatsResponse"
+      },
+      "LexPipelineStageConfig": {
+        "properties": {
+          "parse": {
+            "type": "boolean",
+            "title": "Parse",
+            "default": true
+          },
+          "structure": {
+            "type": "boolean",
+            "title": "Structure",
+            "default": true
+          },
+          "spo": {
+            "type": "boolean",
+            "title": "Spo",
+            "default": true
+          },
+          "graph": {
+            "type": "boolean",
+            "title": "Graph",
+            "default": true
+          },
+          "embed": {
+            "type": "boolean",
+            "title": "Embed",
+            "default": true
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "LexPipelineStageConfig",
+        "description": "Toggle individual pipeline stages on/off."
+      },
+      "LexPipelineStatusResponse": {
+        "properties": {
+          "meta": {
+            "$ref": "#/components/schemas/ApiMeta"
+          },
+          "pipeline_id": {
+            "type": "string",
+            "title": "Pipeline Id"
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "running",
+              "completed",
+              "failed"
+            ],
+            "title": "State"
+          },
+          "progress_summary": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "type": "object",
+            "title": "Progress Summary"
+          },
+          "error_message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Message"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "meta",
+          "pipeline_id",
+          "state"
+        ],
+        "title": "LexPipelineStatusResponse"
+      },
+      "LexSearchRequest": {
+        "properties": {
+          "query": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Query"
+          },
+          "top_k": {
+            "type": "integer",
+            "maximum": 100.0,
+            "minimum": 1.0,
+            "title": "Top K",
+            "default": 20
+          },
+          "output_dir": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Output Dir"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "query",
+          "output_dir"
+        ],
+        "title": "LexSearchRequest",
+        "description": "POST /api/v1/control/lex/search — search knowledge graph facts."
+      },
+      "LexSearchResponse": {
+        "properties": {
+          "meta": {
+            "$ref": "#/components/schemas/ApiMeta"
+          },
+          "query": {
+            "type": "string",
+            "title": "Query"
+          },
+          "results": {
+            "items": {
+              "$ref": "#/components/schemas/LexSearchResultItem"
+            },
+            "type": "array",
+            "title": "Results"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total",
+            "default": 0
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "meta",
+          "query"
+        ],
+        "title": "LexSearchResponse"
+      },
+      "LexSearchResultItem": {
+        "properties": {
+          "fact_id": {
+            "type": "string",
+            "title": "Fact Id"
+          },
+          "subject_name": {
+            "type": "string",
+            "title": "Subject Name"
+          },
+          "predicate": {
+            "type": "string",
+            "title": "Predicate"
+          },
+          "object_name": {
+            "type": "string",
+            "title": "Object Name"
+          },
+          "fact_text": {
+            "type": "string",
+            "title": "Fact Text"
+          },
+          "confidence": {
+            "type": "number",
+            "title": "Confidence"
+          },
+          "norm_type": {
+            "type": "string",
+            "title": "Norm Type"
+          },
+          "doc_name": {
+            "type": "string",
+            "title": "Doc Name"
+          },
+          "doc_reestr_code": {
+            "type": "string",
+            "title": "Doc Reestr Code"
+          },
+          "provision_citation": {
+            "type": "string",
+            "title": "Provision Citation"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "fact_id",
+          "subject_name",
+          "predicate",
+          "object_name",
+          "fact_text",
+          "confidence",
+          "norm_type",
+          "doc_name",
+          "doc_reestr_code",
+          "provision_citation"
+        ],
+        "title": "LexSearchResultItem"
+      },
+      "LexTriggerRequest": {
+        "properties": {
+          "cards_path": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Cards Path"
+          },
+          "texts_path": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Texts Path"
+          },
+          "output_dir": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Output Dir"
+          },
+          "stages": {
+            "$ref": "#/components/schemas/LexPipelineStageConfig"
+          },
+          "status_filter": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Status Filter"
+          },
+          "llm_model": {
+            "type": "string",
+            "title": "Llm Model",
+            "default": "qwen/qwen3-235b-a22b-instruct-2507-fp8"
+          },
+          "resume": {
+            "type": "boolean",
+            "title": "Resume",
+            "default": false
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "cards_path",
+          "texts_path",
+          "output_dir"
+        ],
+        "title": "LexTriggerRequest",
+        "description": "POST /api/v1/control/lex/trigger — start batch pipeline."
+      },
+      "LexTriggerResponse": {
+        "properties": {
+          "meta": {
+            "$ref": "#/components/schemas/ApiMeta"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "accepted",
+              "rejected"
+            ],
+            "title": "Status"
+          },
+          "pipeline_id": {
+            "type": "string",
+            "title": "Pipeline Id"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "meta",
+          "status",
+          "pipeline_id",
+          "message"
+        ],
+        "title": "LexTriggerResponse"
+      },
+      "MetricCandidate": {
+        "properties": {
+          "candidate_id": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Candidate Id"
+          },
+          "metric_id": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Metric Id"
+          },
+          "connector_id": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Connector Id"
+          },
+          "dataset_id": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Dataset Id"
+          },
+          "profile_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Profile Id"
+          },
+          "source_lane": {
+            "type": "string",
+            "enum": [
+              "fastlane",
+              "explorelane"
+            ],
+            "title": "Source Lane",
+            "default": "fastlane"
+          },
+          "confidence": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Confidence",
+            "default": 0.0
+          },
+          "rank": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Rank",
+            "default": 1
+          },
+          "trust_score": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Trust Score",
+            "default": 0.5
+          },
+          "freshness_score": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Freshness Score",
+            "default": 0.5
+          },
+          "coverage_estimate": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Coverage Estimate"
+          },
+          "latency_estimate_ms": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Latency Estimate Ms"
+          },
+          "filters_template": {
+            "additionalProperties": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "type": "object",
+            "title": "Filters Template"
+          },
+          "match_reason": {
+            "type": "string",
+            "title": "Match Reason",
+            "default": ""
+          },
+          "metadata": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Metadata"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "candidate_id",
+          "metric_id",
+          "connector_id",
+          "dataset_id"
+        ],
+        "title": "MetricCandidate"
       },
       "ModelProfileInfo": {
         "properties": {
@@ -7352,6 +11632,50 @@
             ],
             "title": "Checkpoint Policy",
             "default": "strict"
+          },
+          "execution_plan_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Execution Plan Ref"
+          },
+          "execution_plan": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Execution Plan"
+          },
+          "stop_criteria": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Stop Criteria"
+          },
+          "governance_constraints": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Governance Constraints"
+          },
+          "expected_outputs": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Expected Outputs"
           }
         },
         "additionalProperties": false,
@@ -7360,7 +11684,7 @@
           "request"
         ],
         "title": "NaturalLanguageRunRequest",
-        "description": "POST /api/v1/control/runs/nl \u2014 NL request triggering agent circuit."
+        "description": "POST /api/v1/control/runs/nl — NL request triggering agent circuit."
       },
       "NodeDebugResponse": {
         "properties": {
@@ -7439,6 +11763,445 @@
           "record"
         ],
         "title": "NodeDebugView"
+      },
+      "PreflightDiagnosticView": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "title": "Code"
+          },
+          "severity": {
+            "type": "string",
+            "title": "Severity",
+            "default": "error"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "path": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Path"
+          },
+          "replanning_hints": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Replanning Hints"
+          },
+          "data": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Data"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "code",
+          "message"
+        ],
+        "title": "PreflightDiagnosticView"
+      },
+      "PreflightReportView": {
+        "properties": {
+          "ready_to_run": {
+            "type": "boolean",
+            "title": "Ready To Run",
+            "default": false
+          },
+          "diagnostics": {
+            "items": {
+              "$ref": "#/components/schemas/PreflightDiagnosticView"
+            },
+            "type": "array",
+            "title": "Diagnostics"
+          },
+          "notes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Notes"
+          },
+          "report_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "PreflightReportView"
+      },
+      "PromotionCandidate": {
+        "properties": {
+          "promotion_id": {
+            "type": "string",
+            "title": "Promotion Id"
+          },
+          "metric_id": {
+            "type": "string",
+            "title": "Metric Id"
+          },
+          "connector_id": {
+            "type": "string",
+            "title": "Connector Id"
+          },
+          "dataset_id": {
+            "type": "string",
+            "title": "Dataset Id"
+          },
+          "profile_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Profile Id"
+          },
+          "source_lane": {
+            "type": "string",
+            "enum": [
+              "fastlane",
+              "explorelane"
+            ],
+            "title": "Source Lane",
+            "default": "explorelane"
+          },
+          "confidence": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Confidence",
+            "default": 0.0
+          },
+          "signals": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Signals"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "approved",
+              "rejected"
+            ],
+            "title": "Status",
+            "default": "pending"
+          },
+          "created_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created At"
+          },
+          "metadata": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Metadata"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "promotion_id",
+          "metric_id",
+          "connector_id",
+          "dataset_id"
+        ],
+        "title": "PromotionCandidate"
+      },
+      "PromotionCandidatesResponse": {
+        "properties": {
+          "meta": {
+            "$ref": "#/components/schemas/ApiMeta"
+          },
+          "candidates": {
+            "items": {
+              "$ref": "#/components/schemas/PromotionCandidate"
+            },
+            "type": "array",
+            "title": "Candidates"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "meta"
+        ],
+        "title": "PromotionCandidatesResponse"
+      },
+      "PromotionDecisionRequest": {
+        "properties": {
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "PromotionDecisionRequest"
+      },
+      "PromotionDecisionResponse": {
+        "properties": {
+          "meta": {
+            "$ref": "#/components/schemas/ApiMeta"
+          },
+          "promotion_id": {
+            "type": "string",
+            "title": "Promotion Id"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "approved",
+              "rejected"
+            ],
+            "title": "Status"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "binding_updated": {
+            "type": "boolean",
+            "title": "Binding Updated",
+            "default": false
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "meta",
+          "promotion_id",
+          "status",
+          "message"
+        ],
+        "title": "PromotionDecisionResponse"
+      },
+      "ReproducibilityView": {
+        "properties": {
+          "seed": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Seed",
+            "default": 0
+          },
+          "plan_hash": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Plan Hash"
+          },
+          "registry_hash": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Registry Hash"
+          },
+          "method_catalog_hash": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Method Catalog Hash"
+          },
+          "data_snapshot_hash": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data Snapshot Hash"
+          },
+          "input_bindings_hash": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Input Bindings Hash"
+          },
+          "manifest_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "notes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Notes"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "ReproducibilityView"
+      },
+      "RetrievalPhaseTelemetry": {
+        "properties": {
+          "phase": {
+            "type": "string",
+            "title": "Phase"
+          },
+          "lane": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lane"
+          },
+          "duration_ms": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Duration Ms",
+            "default": 0
+          },
+          "candidates_total": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Candidates Total",
+            "default": 0
+          },
+          "candidates_selected": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Candidates Selected",
+            "default": 0
+          },
+          "docs_fetched": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Docs Fetched",
+            "default": 0
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "phase"
+        ],
+        "title": "RetrievalPhaseTelemetry"
+      },
+      "RetrievalTelemetryView": {
+        "properties": {
+          "mode": {
+            "type": "string",
+            "title": "Mode",
+            "default": "hybrid"
+          },
+          "lane_used": {
+            "type": "string",
+            "title": "Lane Used",
+            "default": "fastlane"
+          },
+          "metadata_docs_fetched": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Metadata Docs Fetched",
+            "default": 0
+          },
+          "local_index_size_bytes": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Local Index Size Bytes",
+            "default": 0
+          },
+          "local_index_docs_total": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Local Index Docs Total",
+            "default": 0
+          },
+          "candidates_filtered": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Candidates Filtered",
+            "default": 0
+          },
+          "candidates_promoted": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Candidates Promoted",
+            "default": 0
+          },
+          "phases": {
+            "items": {
+              "$ref": "#/components/schemas/RetrievalPhaseTelemetry"
+            },
+            "type": "array",
+            "title": "Phases"
+          },
+          "notes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Notes"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "RetrievalTelemetryView"
       },
       "RunDetails": {
         "properties": {
@@ -8738,7 +13501,7 @@
           "data_source"
         ],
         "title": "WorkflowRunRequest",
-        "description": "POST /api/v1/control/runs \u2014 launch a workflow run."
+        "description": "POST /api/v1/control/runs — launch a workflow run."
       },
       "RuntimeApiProblem": {
         "additionalProperties": false,

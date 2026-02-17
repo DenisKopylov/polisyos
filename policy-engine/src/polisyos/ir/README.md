@@ -1,144 +1,85 @@
-# polisyos.ir — Canonical Intermediate Representation
+# polisyos.ir
 
-`polisyos.ir` — это канонический слой контрактов Policy Engine: типизированные схемы, валидация, линковка и детерминированная сериализация артефактов.
-
-Главная идея: IR описывает **что** такое корректная политика/мир/отчёт, но не исполняет симуляции сам.
+`polisyos.ir` — канонический контрактный слой Policy Engine.
+Он описывает структуру policy/world/analytics артефактов, правила валидации и линковки, но не исполняет симуляцию.
 
 ## Роль в системе
 
 ```text
-Scholar / Scientist / Lex
-          │ формируют и читают контракты
-          ▼
-    polisyos.ir (schemas + validation + linking)
-          │
-          ├─► Foundry (compile/execute Trinity)
-          ├─► Fabric  (world/facts/citations contracts)
-          └─► Core    (registry/contract wiring)
+Lex / Scholar / Scientist / Packs
+            │
+            ▼
+     polisyos.ir (contracts)
+            │
+            ├─► core (registry/compliance/report adapters)
+            ├─► foundry (execution + uncertainty)
+            └─► fabric (world ingest/materialization)
 ```
 
-IR не зависит от `polisyos.core` (проверяется тестами), поэтому остаётся независимым контрактным слоем между подсистемами.
+## Что находится в `ir/`
 
-## Что внутри директории `ir/`
+| Подсистема | Назначение | Документация |
+|---|---|---|
+| `trinity/` | Канонический bundle `ProblemFrame + PolicySpec + ModelSpec` | [`trinity/README.md`](trinity/README.md) |
+| `governance/` | Контракты "Why/What" + selectors/schedule/gates | [`governance/README.md`](governance/README.md) |
+| `model_spec.py` | Контракт "How" (agents, assumptions, environment, fidelity) | этот файл |
+| `kernel/` | Базовые типы, реестры units/slots/mechanisms/merge/metrics | [`kernel/README.md`](kernel/README.md) |
+| `registry_fragments.py` | Сборка `RegistryBundle` из фрагментов с конфликт-резолвом | этот файл |
+| `linker/` | Валидация Trinity против `RegistryBundle` + `LinkReport` | [`linker/README.md`](linker/README.md) |
+| `world/` | Контракты world graph (docs/claims/conflicts/trust/quality/events) | [`world/README.md`](world/README.md) |
+| `analytics/` | Контракты аналитических отчётов и CAS-persistence | [`analytics/README.md`](analytics/README.md) |
+| `artifacts/` | Унифицированные CAS I/O контракты (`ArtifactID`, `put/get_json`) | [`artifacts/README.md`](artifacts/README.md) |
+| `migrations/` | Runtime миграции schema_version для canonical payload | [`migrations/README.md`](migrations/README.md) |
+| `norm_pack.py`, `queries.py`, `connectors.py`, `fact_log.py`, `citations.py`, `refs.py` | Юридические/поисковые/данные/ссылочные контракты | эти файлы |
 
-```text
-ir/
-├── __init__.py              # lazy re-export публичных символов
-├── trinity/                 # TrinityBundle + strict loaders
-├── governance/              # ProblemFrame / PolicySpec / selectors / schedule / gates
-├── model_spec.py            # ModelSpec ("How")
-├── analytics/               # uncertainty, causal, hte, distributional, backtest, calibration
-├── kernel/                  # базовые типы и реестры (units, slots, mechanisms, metrics, ...)
-├── world/                   # семантическая модель world graph (claims/docs/events/conflicts/trust)
-├── linker/                  # link_trinity + LinkReport/LinkIssue
-├── migrations/              # миграции версий schema_version
-├── artifacts/               # IR-контракты CAS I/O (ArtifactID, put/get JSON)
-├── registry_fragments.py    # сборка RegistryBundle из фрагментов с конфликт-резолвом
-├── connectors.py            # контракты внешних источников и fetch-результатов
-├── queries.py               # контракты query layer (DocQuery, ClaimQuery, NormQuery, ...)
-├── fact_log.py              # Fact / FactBatch / FactSegmentManifest
-├── citations.py             # CitationRef / DocumentRef / FragmentLocator
-├── refs.py                  # typed artifact refs для аналитических отчётов
-├── canon.py                 # canonical JSON + content hash
-└── ...                      # norm_pack, portfolio, predicate, units, migration_report
-```
+## Актуальный поток (Trinity)
 
-## Архитектура по подсистемам
+1. Загрузка canonical payload: `load_policy()` / `load_trinity_bundle()`.
+2. Сборка registry: `compose_registry_fragments()`.
+3. Линковка: `link_trinity(bundle, registries)`.
+4. Передача связанного контракта в `foundry`/`core`/`fabric` пайплайны.
 
-### 1. Trinity-контракты (центр IR)
+## Статус миграций на текущем коде
 
-- `trinity/` — `TrinityBundle` (ProblemFrame + PolicySpec + ModelSpec), `schema_version`.
-- `governance/problem_frame.py` — формализация задачи: objectives, KPI, constraints, stakeholders.
-- `governance/policy_spec.py` — интервенции, mechanism bindings, параметры, selectors, расписание.
-- `model_spec.py` — модель мира для симуляции: assumptions, agent config, environment, fidelity.
+- Канонический формат policy IR: `TrinityBundle` со `schema_version="1.0"`.
+- `migrate_policy_ir()` поддерживает только Trinity payload.
+- Зарегистрированная migration-цепочка: `policy_ir 1.0 -> 1.0` (identity).
+- Legacy non-Trinity payload (`schema_version` семейства `2.*` или поле `semantic`) runtime-миграцией отклоняется.
 
-Ключевая особенность: `PolicySpec` валидирует сложность selector AST (`MAX_SELECTOR_DEPTH=10`, `MAX_SELECTOR_NODES=50`).
+## Связи с другими директориями
 
-### 2. Registry/kernel-слой
-
-- `kernel/` — базовые типы и реестры (`MechanismTypeRegistry`, `SlotRegistry`, `UnitsRegistry`, `MetricRegistry`, `ConstraintRegistry`, ...).
-- `registry_fragments.py` — композиция `RegistryBundle` из фрагментов с политиками:
-  - `error_on_conflict`
-  - `prefer_higher_priority`
-- `predicate.py` — registry предикатов и privacy-политик.
-- `units.py` — compatibility re-export над `kernel.units`.
-
-Подробнее: [`kernel/README.md`](kernel/README.md)
-
-### 3. Семантика мира и данные
-
-- `world/` — graph ABI, `Claim`, `DocFragment`, `WorldEvent`, `ConflictSet`, `QualityReport`, `TrustAssessment`, deterministic world IDs.
-- `fact_log.py` — immutable факт-лог и сегменты.
-- `citations.py` — citation-grade привязка к фрагментам документов.
-- `connectors.py` — fetch-контракты, capabilities, trust/quality tiers.
-- `queries.py` — typed query-контракты для docs/claims/norms/data views.
-
-Подробнее: [`world/README.md`](world/README.md)
-
-### 4. Аналитические отчёты и uncertainty
-
-`analytics/` содержит контракты отчётов и CAS I/O-функции (`persist_*`, `load_*`):
-
-- `uncertainty.py` — `UncertaintyEnvelope`
-- `causal.py` — `CausalEffectReport`
-- `hte.py` — `HTEResult`, `PolicyRecommendation`
-- `distributional.py` — winners/losers и breakdowns
-- `backtest.py` — retrospective quality reports
-- `calibration.py` — `CalibrationConfig` и таргеты калибровки
-- `applicability.py` — `NormApplicability`
-- `data_views.py` — runtime-запросы аналитических data views
-
-### 5. Линковка, загрузка, миграции
-
-- `linker/` — связывает Trinity с registry bundle:
-  - проверка механизмов/параметров/слотов/units/metrics/merge-rules
-  - возвращает `LinkedTrinityBundle` + `LinkReport` (типизированные `LinkIssueCode`)
-- `loaders.py` — удобная загрузка payload в `TrinityBundle`.
-- `trinity/loaders.py` — строгие загрузчики по артефактам (включая проверку `schema_version`).
-- `migrations/` — registry миграций версии schema.
-
-## Текущий статус миграций (актуально для текущего кода)
-
-- Канонический формат — Trinity (`schema_version` семейства `1.x`).
-- `migrate_policy_ir` работает только для Trinity payloads.
-- Текущая зарегистрированная миграция `policy_ir 1.0 -> 1.0` — identity.
-- Legacy surface payloads runtime-миграцией не поддерживаются.
-
-## Связь с другими директориями проекта
-
-| Директория | Как использует `polisyos.ir` |
+| Директория | Как использует `ir` |
 |---|---|
 | `fabric/` | `world/*`, `fact_log`, `citations`, `connectors`, `analytics.uncertainty` |
 | `foundry/` | `trinity`, `governance`, `kernel`, `linker`, `analytics.*` |
-| `scientist/` | `analytics.*`, `queries`, `connectors`, `world` |
-| `lex/` | `norm_pack`, `NormApplicability`, governance-контракты |
-| `core/` | kernel registries, `registry_fragments`, `LinkReport` |
-| `packs/` | `RegistryFragment*`, `NormPack` и domain-расширения |
+| `core/` | registry builders, compliance contracts, `LinkReport` сериализация |
+| `lex/` | `norm_pack`, world predicates/IDs, corpus structuring |
+| `scientist/` | governance gates, trinity preflight, query/analysis контракты |
+| `scholar/` | world events/trust contracts в knowledge orchestration |
+| `packs/` | поставка registry fragments для compose/link фаз |
 
-## Важные особенности модуля
+## Важные особенности
 
-- Иммутабельность и strict-схемы: в большинстве контрактов `extra="forbid"`; kernel-модели frozen.
-- Детерминизм: `canon.to_canonical_bytes()` + `content_hash()` для стабильных ID.
-- Typed artifact refs: `refs.py` и `artifacts/` стандартизируют I/O с CAS.
-- Lazy API-фасад: `ir/__init__.py` сохраняет стабильные импорты через отложенную загрузку.
-- Разделение уровней:
-  - `analytics.data_views.DataViewRequest` — runtime-аналитический контракт
-  - `queries.DataViewRequest` — query-контракт доступа к данным
+- Большинство IR-моделей базируются на `KernelModel` (`extra="forbid"`, `frozen=True`).
+- Детерминизм обеспечивается через `canon.to_canonical_bytes()` и `content_hash()`.
+- `ir.__init__` — lazy facade публичных символов для стабильных импортов.
+- Есть два разных `DataViewRequest`:
+  - `ir.analytics.data_views.DataViewRequest` — runtime аналитические data-view запросы.
+  - `ir.queries.DataViewRequest` — query-контракт доступа к данным.
 
-## Основные входные точки API
+## Базовые точки входа
 
 ```python
 from polisyos.ir.loaders import load_policy
-from polisyos.ir.linker import link_trinity
 from polisyos.ir.registry_fragments import compose_registry_fragments
-from polisyos.ir.trinity import TrinityBundle
+from polisyos.ir.linker import link_trinity
 ```
 
-## Рекомендуемые проверки
+## Проверки
 
 ```bash
-pytest policy-engine/tests/ir
-pytest policy-engine/tests/contract/test_trinity_contracts.py
-pytest policy-engine/tests/contract/test_trinity_linker_contract.py
-pytest policy-engine/tests/contract/test_ir_migrations.py
+pytest /Users/deniskopylov/polisyos/policy-engine/tests/ir
+pytest /Users/deniskopylov/polisyos/policy-engine/tests/contract/test_trinity_contracts.py
+pytest /Users/deniskopylov/polisyos/policy-engine/tests/contract/test_trinity_linker_contract.py
+pytest /Users/deniskopylov/polisyos/policy-engine/tests/contract/test_ir_migrations.py
 ```

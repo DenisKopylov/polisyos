@@ -1,86 +1,88 @@
 # Calibration (`polisyos.foundry.calibration`)
 
-`calibration` - подсистема градиентной калибровки параметров Foundry-моделей на эмпирических целях.
+`calibration` — подсистема data-driven калибровки параметров Foundry-моделей на эмпирических target-данных.
 
-Актуально по коду на 2026-02-10.
+Актуально по коду на 2026-02-17.
 
 ## Роль в системе
 
-Калибровка работает поверх уже скомпилированной программы (`ProgramGraph` + `ExecPlan`) и подбирает trainable-параметры так, чтобы симуляция согласовывалась с target-данными.
+Калибровка работает поверх уже собранного `ProgramGraph` + `ExecPlan` и подбирает trainable параметры механизмов, чтобы симуляция лучше совпадала с заданными целями.
 
 ## Pipeline
 
-```
+```text
 CalibrationConfig + ProgramGraph/ExecPlan + base_state + registries
         |
         v
-preflight (fetch/normalize/align targets)
+preflight (fetch/align targets)
         |
         v
 compile_program -> StaticBundle (pure execution)
         |
         v
-bijectors (constrained <-> unconstrained params)
+bijectors (constrained <-> unconstrained)
         |
         v
-optimization loop (Adam + GradNorm balancing + penalties + early stop)
+optimization loop (optax + penalties + adaptive weighting + early stop)
         |
         v
 optional Hessian/Laplace uncertainty
         |
         v
-CalibrationReport (+ optional UncertaintyEnvelopes)
+CalibrationReport (+ optional uncertainty envelopes)
 ```
 
 ## Ключевые модули
 
 - `calibrator.py`
-  - `Calibrator.run()` - основной pipeline.
-  - Поддерживает target losses, adaptive weights (GradNorm), constraint penalties, prior penalties, early stopping, optional Hessian stage.
+  - `Calibrator.run()` — основной pipeline.
+  - Поддерживает MSE/Huber лоссы, target weights, GradNorm balancing, prior/constraint penalties, early stopping.
+  - Опционально считает Hessian/Laplace uncertainty и встраивает результат в отчёт.
 
 - `pure_executor.py`
-  - `compile_program()` собирает `StaticBundle` без CAS-зависимостей внутри цикла оптимизации.
-  - `run_pure_scan()` выполняет симуляцию через `jax.lax.scan`.
-  - `apply_trainable_values()`/`extract_trainable_values()` управляют trainable-параметрами.
+  - `compile_program()` строит `StaticBundle` без CAS IO внутри оптимизационного цикла.
+  - `run_pure_scan()` выполняет чистый JAX scan.
+  - `extract_trainable_values()` / `apply_trainable_values()` управляют trainable параметрами.
 
 - `preflight.py`
-  - загрузка/подготовка target-рядов (`fetch_targets`, `prepare_targets`, `resolve_steps`).
+  - `fetch_targets`, `prepare_targets`, `resolve_steps`.
+  - Нормализация/ресемплинг target-рядов, согласование тайм-оси.
 
 - `loss.py`
-  - базовые и агрегированные target loss-функции (MSE/Huber, per-target decomposition).
+  - Базовые target losses и агрегирование по целям.
 
 - `bijectors.py`
-  - дифференцируемые преобразования для bounded параметров.
+  - Дифференцируемые преобразования constrained параметров.
 
 - `report.py`
-  - контракты `CalibrationReport`, fit metrics, uncertainty-блоки и CAS persistence helpers.
+  - `CalibrationReport`, fit metrics, uncertainty блоки и CAS persistence helpers.
 
 - `uncertainty_adapter.py`
-  - конвертация результатов калибровки в `UncertaintyEnvelope`.
+  - Конвертация калибровочных uncertainty-оценок в `UncertaintyEnvelope`.
 
 ## Входы и выходы
 
 Входы (`CalibratorInputs`):
 - `CalibrationConfig`, `ProgramGraph`, `ExecPlan`, `base_state`;
 - registries (`mechanism`, `slot`, `merge`, optional selector/constraint);
-- parameter loader, target source (UDF engine или custom fetcher).
+- `parameter_loader` + источник target-данных (UDF engine или custom fetcher).
 
 Выход:
-- `CalibrationReport` с калиброванными параметрами, историей loss/grad и диагностикой.
-- При успешной Hessian-оценке: covariance/correlation/std + envelope-представление.
+- `CalibrationReport` с параметрами, историей loss/grad, fit quality и диагностикой;
+- при успешной Hessian-оценке: covariance/correlation/std и derived uncertainty envelopes.
 
 ## Связь с другими директориями
 
 `calibration` зависит от:
-- `core/contracts/foundry` и `core/artifacts/*`;
+- `core/contracts/foundry`, `core/artifacts/*`, `core/observability/*`;
 - `ir/analytics/calibration`, `ir/analytics/uncertainty`, `ir/analytics/data_views`;
 - `foundry/registry`, `foundry/merge_engine`, `foundry/contracts/state`.
 
-Используется в сценариях симуляции/оценки, где требуется data-driven подстройка параметров и uncertainty-оценка.
+Используется в сценариях подстройки policy-параметров и uncertainty-оценки после симуляции.
 
 ## Текущее состояние и ограничения
 
-- Оптимизация реализована через `optax.adam`.
-- Калибровка предполагает дифференцируемый путь исполнения и стабильные shape-и.
-- Hessian/Laplace шаг может быть пропущен (например, при слишком большом числе параметров или non-finite Hessian).
-- Если включен constraint penalty, обязательны согласованные `constraint_registry` и значения ограничений.
+- Базовый оптимизатор — `optax.adam` (с optional gradient clipping path).
+- Калибровка требует дифференцируемый execution path и согласованные shape-и.
+- Hessian/Laplace шаг может быть пропущен (нефинитный Hessian, слишком много параметров, плохая обусловленность).
+- При включенном constraint penalty обязательны корректные `constraint_registry` + значения ограничений.

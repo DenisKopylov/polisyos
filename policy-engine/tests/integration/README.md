@@ -1,47 +1,30 @@
 # Integration Tests
 
-`tests/integration` содержит сквозные сценарии между слоями `core` и `scientist`, когда важна не изолированная функция, а поведение всей цепочки.
+`tests/integration` содержит сквозные сценарии на стыке `core` и `scientist`, где важна корректность полной цепочки исполнения.
 
-Актуально на **10 февраля 2026**.
+Актуально на **17 февраля 2026**.
 
-## Текущее состояние
+## Текущее покрытие
 
-- `1` файл `test_*.py`
-- `1` Python-файл
-- `0` `conftest.py`
-- `1` `README.md`
+- `1` файл `test_*.py`: `test_human_gate_audit.py`
+- `2` сценария:
+  - проверка цикла `human_gate -> approve` с аудит-трейлом;
+  - проверка `escalate` (рост `iteration`, новый `request_id`, приоритет `critical`).
 
-## Что проверяется сейчас
+## Что важно
 
-### `test_human_gate_audit.py`
+- Тест не помечен `@pytest.mark.integration`, поэтому входит в обычный прогон `pytest`.
+- Проверяются события trace: `GATE_REQUESTED`, `GATE_DECIDED`.
 
-Сценарий подтверждает корректность human-gate цикла в governance node:
+## Связи с кодом
 
-- создаётся `gate_request` и соответствующий артефакт `ir.gate_request`;
-- при решении `approve` формируется итоговый verdict;
-- в trace фиксируются события `GATE_REQUESTED` и `GATE_DECIDED`;
-- при решении `escalate` создаётся новый запрос с увеличенной итерацией и повышенным приоритетом.
-
-## Связи с другими директориями
-
-| Здесь | Связанные директории | Назначение связи |
-|---|---|---|
-| `tests/integration/` | `src/polisyos/core` | CAS, canon, run context, registry bundle |
-| `tests/integration/` | `src/polisyos/scientist` | Governance node и state machine исполнения |
-
-## Важно про маркеры
-
-- Текущий тест **не** помечен `@pytest.mark.integration`.
-- Поэтому он входит в обычный прогон `pytest` и не исключается `-m "not integration"`.
+- `policy-engine/src/polisyos/core/run`
+- `policy-engine/src/polisyos/scientist/nodes/builtins/governance`
+- `policy-engine/src/polisyos/scientist/engine`
 
 ## Запуск
 
-Команды из `policy-engine/`:
-
 ```bash
-# весь текущий integration-контур
 pytest tests/integration -q
-
-# конкретный сквозной сценарий
 pytest tests/integration/test_human_gate_audit.py -q
 ```

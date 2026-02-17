@@ -6,6 +6,11 @@ from typing import Any, Literal
 from pydantic import BaseModel, ConfigDict, Field
 
 from ..artifacts.manifest import ArtifactRef, InputRef
+from .execution_plan import (
+    EvaluatorVerdict,
+    IterationLifecycleState,
+    StopReason,
+)
 
 SourceKind = Literal["core_run"]
 NodeStatus = Literal["ok", "skip", "fail", "unknown"]
@@ -208,6 +213,98 @@ class AgentPipelineAttempt(BaseModel):
     notes: list[str] = Field(default_factory=list)
 
 
+class RetrievalPhaseTelemetry(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    phase: str
+    lane: str | None = None
+    duration_ms: int = Field(default=0, ge=0)
+    candidates_total: int = Field(default=0, ge=0)
+    candidates_selected: int = Field(default=0, ge=0)
+    docs_fetched: int = Field(default=0, ge=0)
+
+
+class RetrievalTelemetryView(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    mode: str = "hybrid"
+    lane_used: str = "fastlane"
+    metadata_docs_fetched: int = Field(default=0, ge=0)
+    local_index_size_bytes: int = Field(default=0, ge=0)
+    local_index_docs_total: int = Field(default=0, ge=0)
+    candidates_filtered: int = Field(default=0, ge=0)
+    candidates_promoted: int = Field(default=0, ge=0)
+    phases: list[RetrievalPhaseTelemetry] = Field(default_factory=list)
+    notes: list[str] = Field(default_factory=list)
+
+
+class PreflightDiagnosticView(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    code: str
+    severity: str = "error"
+    message: str
+    path: list[str] = Field(default_factory=list)
+    replanning_hints: list[str] = Field(default_factory=list)
+    data: dict[str, Any] = Field(default_factory=dict)
+
+
+class PreflightReportView(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    ready_to_run: bool = False
+    diagnostics: list[PreflightDiagnosticView] = Field(default_factory=list)
+    notes: list[str] = Field(default_factory=list)
+    report_ref: ArtifactRef | None = None
+
+
+class EvaluatorScoresView(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    kpi_score: float = Field(default=0.0, ge=0.0, le=1.0)
+    uncertainty_score: float = Field(default=0.0, ge=0.0, le=1.0)
+    constraints_score: float = Field(default=0.0, ge=0.0, le=1.0)
+    data_quality_score: float = Field(default=0.0, ge=0.0, le=1.0)
+    budget_score: float = Field(default=0.0, ge=0.0, le=1.0)
+    total_score: float = Field(default=0.0, ge=0.0, le=1.0)
+
+
+class EvaluatorReportView(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    verdict: EvaluatorVerdict | None = None
+    scores: EvaluatorScoresView = Field(default_factory=EvaluatorScoresView)
+    reasons: list[str] = Field(default_factory=list)
+    replanning_hints: list[str] = Field(default_factory=list)
+    diagnostics: list[PreflightDiagnosticView] = Field(default_factory=list)
+    notes: list[str] = Field(default_factory=list)
+    report_ref: ArtifactRef | None = None
+
+
+class IterationLifecycleView(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    iteration: int = Field(default=1, ge=1)
+    state: IterationLifecycleState = "plan_created"
+    stop_reason: StopReason | None = None
+    last_verdict: EvaluatorVerdict | None = None
+    state_ref: ArtifactRef | None = None
+    notes: list[str] = Field(default_factory=list)
+
+
+class ReproducibilityView(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    seed: int = Field(default=0, ge=0)
+    plan_hash: str | None = None
+    registry_hash: str | None = None
+    method_catalog_hash: str | None = None
+    data_snapshot_hash: str | None = None
+    input_bindings_hash: str | None = None
+    manifest_ref: ArtifactRef | None = None
+    notes: list[str] = Field(default_factory=list)
+
+
 class AgentPipelineView(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -218,6 +315,13 @@ class AgentPipelineView(BaseModel):
     attempts: list[AgentPipelineAttempt] = Field(default_factory=list)
     decision_packet_ref: ArtifactRef | None = None
     reflexion_terminal_ref: ArtifactRef | None = None
+    retrieval: RetrievalTelemetryView | None = None
+    execution_plan_ref: ArtifactRef | None = None
+    method_catalog_snapshot_ref: ArtifactRef | None = None
+    preflight: PreflightReportView | None = None
+    evaluator: EvaluatorReportView | None = None
+    iteration_lifecycle: IterationLifecycleView | None = None
+    reproducibility: ReproducibilityView | None = None
     source: str | None = None
     notes: list[str] = Field(default_factory=list)
 
@@ -472,7 +576,15 @@ __all__ = [
     "NodeDebugResponse",
     "NodeDebugView",
     "NodeStatus",
+    "PreflightDiagnosticView",
+    "PreflightReportView",
     "PreviewMode",
+    "EvaluatorScoresView",
+    "EvaluatorReportView",
+    "IterationLifecycleView",
+    "ReproducibilityView",
+    "RetrievalPhaseTelemetry",
+    "RetrievalTelemetryView",
     "RunDetails",
     "RunDetailsResponse",
     "RunErrorView",

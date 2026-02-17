@@ -1,68 +1,72 @@
 # World
 
-`polisyos.fabric.world` превращает append-only fact segments в queryable world-представления.
+`polisyos.fabric.world` превращает append-only fact segments в queryable world-представление (DuckDB, optional Kuzu).
 
-## Что делает подсистема
+## Роль подсистемы
 
-- `store/` — эмиссия фактов, валидация ID/ABI, персист доменных объектов в CAS, запись segment manifests
-- `materialize/` — инкрементальная материализация в DuckDB и обновление projections
-- `materialize/kuzu.py` — опциональная выгрузка в Kuzu-граф
-- `events.py` — helper'ы для детерминированных world events
+- `store/` — emit/validate/persist world-объектов и segment manifests.
+- `materialize/` — применение сегментов в DuckDB schema + projection tables.
+- `events.py` — детерминированные world events для стадий ingestion/docs/claims.
 
 ## Поток данных
 
 ```text
-Fact log segments (parquet + manifests)
+Fact segments + manifests (CAS)
       |
       v
-materialize.duckdb -> world schema tables (DuckDB)
+world.store (validate + append index)
       |
-      +-> projections update (claims/docs/conflicts/trust/quality/events)
+      v
+world.materialize.duckdb
       |
-      +-> optional export to Kuzu
+      +-> world.* projections (docs/claims/conflicts/trust/quality/events)
+      |
+      +-> optional world.materialize.kuzu export
 ```
 
 ## Основные API
 
-### Store
+### Store API
 
-- `emit_*` функции: генерация world-compatible `Fact`
-- `persist_*` функции: CAS-персист `DocMeta`, `Claim`, `ConflictSet`, `TrustAssessment`, `QualityReport`, `WorldEvent`
-- `validate_*` функции: детерминизм ID и ABI-проверки
-- `write_world_fact_segment(...)`, `append_world_segment_index(...)`, `load_world_fact_manifests(...)`
+- `emit_*` функции: сборка world-compatible `Fact`.
+- `persist_*` функции: CAS-персист доменных сущностей (`DocMeta`, `Claim`, `ConflictSet`, `TrustAssessment`, `QualityReport`, `WorldEvent`).
+- `validate_*` функции: детерминизм ID и ABI-совместимость.
+- segment lifecycle: `write_world_fact_segment(...)`, `persist_fact_segment_manifest(...)`, `append_world_segment_index(...)`, `load_world_fact_manifests(...)`.
 
-### Materialization
+### Materialization API
 
-- `ensure_world_schema(db, ddl_path=None)`
-- `materialize_world_duckdb_from_fact_log(fact_log_root, db, cas)`
-- `ensure_world_materialized(db, cas, fact_manifests)`
-- `apply_world_segment(db, cas, manifest)`
-- `materialize_world_kuzu_from_duckdb(db, kuzu_path=..., kuzu_enabled=True)`
+- `ensure_world_schema(...)` — инициализация DuckDB DDL.
+- `apply_world_segment(...)` — применение одного сегмента.
+- `ensure_world_materialized(...)` — инкрементальная материализация набора сегментов.
+- `materialize_world_duckdb_from_fact_log(...)` — materialization из fact-log root.
+- `materialize_world_kuzu_from_duckdb(...)` — optional экспорт в Kuzu.
 
-## Merge и консистентность
+## Merge-правила и консистентность
 
-Для world attributes используются стратегии из `materialize/rules.py`:
+Используются стратегии `MergeStrategy` из `materialize/rules.py`:
 
 - `ERROR_ON_CONFLICT`
 - `PREFER_NON_NULL_LAST_TX`
 - `LAST_TX`
 - `FIRST_TX`
 
-Конфликты `world.kind` для одного node приводят к `WorldMergeConflict`.
+Конфликт `kind` для одного `node_id` приводит к `WorldMergeConflict`.
 
-## DuckDB world schema (DDL)
+## DuckDB schema
 
-Ключевые таблицы:
+Контракт DDL расположен в `/Users/deniskopylov/polisyos/policy-engine/src/polisyos/fabric/world/ddl/duckdb_world.sql`.
 
-- `world.world_facts`, `world.world_nodes`, `world.world_edges`, `world.world_events`
-- `world.doc_sources`, `world.doc_versions`, `world.doc_fragments`
-- `world.claims`, `world.claim_citations`
-- `world.conflict_sets`, `world.conflict_members`
-- `world.trust_assessments`, `world.quality_reports`
-- `world._meta_world_segments`
+Ключевые группы таблиц:
+
+- meta: `world._meta_world_segments`.
+- raw facts: `world.world_facts`.
+- graph: `world.world_nodes`, `world.world_edges`, `world.world_events`.
+- docs: `world.doc_sources`, `world.doc_versions`, `world.doc_fragments`.
+- claims/conflicts: `world.claims`, `world.claim_citations`, `world.conflict_sets`, `world.conflict_members`.
+- trust/quality: `world.trust_assessments`, `world.quality_reports`.
 
 ## Связи
 
-- `docs/` и `claims/` — основные producers world-фактов
-- `world_query.py` (на уровень выше) — безопасный query API по materialized таблицам
-- `io/db.py` и `storage/duckdb_adapter.py` — runtime доступ к DuckDB
+- `fabric.docs` и `fabric.claims` — основные producers world-facts.
+- `/Users/deniskopylov/polisyos/policy-engine/src/polisyos/fabric/world_query.py` — безопасный query API над materialized таблицами.
+- `fabric.io`/`fabric.storage` — runtime доступ к DuckDB/CAS.

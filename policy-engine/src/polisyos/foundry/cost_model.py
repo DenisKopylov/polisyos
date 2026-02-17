@@ -176,9 +176,12 @@ class CostModel:
         )
 
     def _is_mechanism_node(self, node: "ProgramNode") -> bool:
-        if node.node_kind == "mechanism":
+        if node.node_kind in {"mechanism", "method"}:
             return True
-        if node.node_kind == "op" and node.op and node.op.op_kind == "apply_mechanism":
+        if node.node_kind == "op" and node.op and node.op.op_kind in {
+            "apply_mechanism",
+            "apply_method",
+        }:
             return True
         return False
 

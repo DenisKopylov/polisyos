@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 
 import { normalizeAgentPipeline } from "../../lib/domain/agents";
-import { formatDate, formatDuration } from "../../lib/utils";
+import { formatBytes, formatDate, formatDuration } from "../../lib/utils";
 import StatusBadge from "../shared/StatusBadge";
 import EmptyState from "../shared/EmptyState";
 
@@ -124,6 +124,164 @@ export default function AgentPipelinePanel({ payload }: AgentPipelinePanelProps)
         <div className="rounded-xl border border-warning/30 bg-warning/5 p-2 text-xs text-warning">
           {pipeline.notes.join(" · ")}
         </div>
+      ) : null}
+
+      {pipeline.retrieval ? (
+        <section className="rounded-xl border border-line bg-panel/65 p-3">
+          <div className="mb-2 flex items-center justify-between gap-2">
+            <h4 className="text-sm font-semibold">Retrieval telemetry</h4>
+            <p className="text-xs text-muted">
+              {pipeline.retrieval.mode} / {pipeline.retrieval.laneUsed}
+            </p>
+          </div>
+          <div className="grid gap-2 md:grid-cols-4">
+            <div className="rounded-lg border border-line bg-canvas/30 p-2 text-xs">
+              <p className="uppercase text-muted">Metadata docs</p>
+              <p className="text-sm font-semibold">
+                {pipeline.retrieval.metadataDocsFetched.toLocaleString()}
+              </p>
+            </div>
+            <div className="rounded-lg border border-line bg-canvas/30 p-2 text-xs">
+              <p className="uppercase text-muted">Index size</p>
+              <p className="text-sm font-semibold">
+                {formatBytes(pipeline.retrieval.localIndexSizeBytes)}
+              </p>
+            </div>
+            <div className="rounded-lg border border-line bg-canvas/30 p-2 text-xs">
+              <p className="uppercase text-muted">Index docs</p>
+              <p className="text-sm font-semibold">
+                {pipeline.retrieval.localIndexDocsTotal.toLocaleString()}
+              </p>
+            </div>
+            <div className="rounded-lg border border-line bg-canvas/30 p-2 text-xs">
+              <p className="uppercase text-muted">Filtered / promoted</p>
+              <p className="text-sm font-semibold">
+                {pipeline.retrieval.candidatesFiltered} / {pipeline.retrieval.candidatesPromoted}
+              </p>
+            </div>
+          </div>
+          {pipeline.retrieval.phases.length > 0 ? (
+            <div className="mt-3 space-y-2">
+              {pipeline.retrieval.phases.map((phase) => (
+                <div
+                  key={`${phase.phase}:${phase.lane ?? "none"}`}
+                  className="grid gap-2 rounded-lg border border-line bg-canvas/20 p-2 text-xs md:grid-cols-6"
+                >
+                  <div>
+                    <p className="uppercase text-muted">Phase</p>
+                    <p className="font-semibold">{phase.phase}</p>
+                  </div>
+                  <div>
+                    <p className="uppercase text-muted">Lane</p>
+                    <p>{phase.lane ?? "-"}</p>
+                  </div>
+                  <div>
+                    <p className="uppercase text-muted">Duration</p>
+                    <p>{formatDuration(phase.durationMs)}</p>
+                  </div>
+                  <div>
+                    <p className="uppercase text-muted">Candidates</p>
+                    <p>{phase.candidatesTotal.toLocaleString()}</p>
+                  </div>
+                  <div>
+                    <p className="uppercase text-muted">Selected</p>
+                    <p>{phase.candidatesSelected.toLocaleString()}</p>
+                  </div>
+                  <div>
+                    <p className="uppercase text-muted">Docs fetched</p>
+                    <p>{phase.docsFetched.toLocaleString()}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : null}
+          {pipeline.retrieval.notes.length > 0 ? (
+            <p className="mt-2 text-xs text-warning">{pipeline.retrieval.notes.join(" · ")}</p>
+          ) : null}
+        </section>
+      ) : null}
+
+      {pipeline.preflight ? (
+        <section className="rounded-xl border border-line bg-panel/65 p-3">
+          <div className="mb-2 flex items-center justify-between gap-2">
+            <h4 className="text-sm font-semibold">Preflight diagnostics</h4>
+            <StatusBadge
+              label={pipeline.preflight.readyToRun ? "ready" : "blocked"}
+              kind={pipeline.preflight.readyToRun ? "ok" : "warn"}
+            />
+          </div>
+          <p className="text-xs text-muted">
+            diagnostics: {pipeline.preflight.diagnostics.length}
+          </p>
+          {pipeline.preflight.diagnostics.length > 0 ? (
+            <div className="mt-2 space-y-2">
+              {pipeline.preflight.diagnostics.map((diag, idx) => (
+                <div key={`${diag.code}:${idx}`} className="rounded-lg border border-line bg-canvas/30 p-2 text-xs">
+                  <p className="font-semibold">
+                    {diag.code} ({diag.severity})
+                  </p>
+                  <p>{diag.message}</p>
+                  {diag.replanningHints.length > 0 ? (
+                    <p className="mt-1 text-muted">Hints: {diag.replanningHints.join(" · ")}</p>
+                  ) : null}
+                </div>
+              ))}
+            </div>
+          ) : null}
+        </section>
+      ) : null}
+
+      {pipeline.evaluator ? (
+        <section className="rounded-xl border border-line bg-panel/65 p-3">
+          <div className="mb-2 flex items-center justify-between gap-2">
+            <h4 className="text-sm font-semibold">Evaluator verdict</h4>
+            <StatusBadge
+              label={pipeline.evaluator.verdict ?? "-"}
+              kind={pipeline.evaluator.verdict === "APPROVE" ? "ok" : "warn"}
+            />
+          </div>
+          <div className="grid gap-2 text-xs md:grid-cols-3">
+            <div className="rounded-lg border border-line bg-canvas/30 p-2">
+              <p className="uppercase text-muted">Total score</p>
+              <p className="text-sm font-semibold">{pipeline.evaluator.scores.totalScore.toFixed(3)}</p>
+            </div>
+            <div className="rounded-lg border border-line bg-canvas/30 p-2">
+              <p className="uppercase text-muted">KPI / Constraints</p>
+              <p className="text-sm font-semibold">
+                {pipeline.evaluator.scores.kpiScore.toFixed(3)} / {pipeline.evaluator.scores.constraintsScore.toFixed(3)}
+              </p>
+            </div>
+            <div className="rounded-lg border border-line bg-canvas/30 p-2">
+              <p className="uppercase text-muted">Data / Budget</p>
+              <p className="text-sm font-semibold">
+                {pipeline.evaluator.scores.dataQualityScore.toFixed(3)} / {pipeline.evaluator.scores.budgetScore.toFixed(3)}
+              </p>
+            </div>
+          </div>
+          {pipeline.evaluator.reasons.length > 0 ? (
+            <p className="mt-2 text-xs text-muted">Reasons: {pipeline.evaluator.reasons.join(" · ")}</p>
+          ) : null}
+        </section>
+      ) : null}
+
+      {pipeline.iterationLifecycle || pipeline.reproducibility ? (
+        <section className="rounded-xl border border-line bg-panel/65 p-3">
+          <h4 className="mb-2 text-sm font-semibold">Iteration and reproducibility</h4>
+          <div className="grid gap-2 md:grid-cols-2">
+            <div className="rounded-lg border border-line bg-canvas/30 p-2 text-xs">
+              <p className="uppercase text-muted">State</p>
+              <p className="font-semibold">
+                {pipeline.iterationLifecycle?.state ?? "-"} (iter {pipeline.iterationLifecycle?.iteration ?? 1})
+              </p>
+              <p className="text-muted">Stop: {pipeline.iterationLifecycle?.stopReason ?? "-"}</p>
+            </div>
+            <div className="rounded-lg border border-line bg-canvas/30 p-2 text-xs">
+              <p className="uppercase text-muted">Seed / Plan hash</p>
+              <p className="font-semibold">{pipeline.reproducibility?.seed ?? 0}</p>
+              <p className="break-all text-muted">{pipeline.reproducibility?.planHash ?? "-"}</p>
+            </div>
+          </div>
+        </section>
       ) : null}
 
       {modelSummary.length > 0 ? (

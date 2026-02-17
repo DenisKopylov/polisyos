@@ -12,8 +12,16 @@ from polisyos.core.contracts.runtime import (
     AgentPipelineAttempt,
     AgentPipelineStep,
     AgentPipelineView,
+    EvaluatorReportView,
+    EvaluatorScoresView,
     GovernanceDebugView,
+    IterationLifecycleView,
     NodeDebugView,
+    PreflightDiagnosticView,
+    PreflightReportView,
+    ReproducibilityView,
+    RetrievalPhaseTelemetry,
+    RetrievalTelemetryView,
     RunErrorView,
     RunNodeRecord,
     RunWorkflowEdgeView,
@@ -43,6 +51,10 @@ _AGENT_ALIASES: dict[str, str] = {
     "pi_agent": "pi_agent",
     "pi_decompose": "pi_agent",
     "problem_frame": "pi_agent",
+    "data_need_extractor": "data_need_extractor",
+    "source_resolver": "source_resolver",
+    "executor": "executor",
+    "promotion_lane": "promotion_lane",
     "drafter": "drafter",
     "draft": "drafter",
     "formalize": "formalizer",
@@ -270,6 +282,91 @@ class DebugService:
             or _as_str(decision_packet_payload.get("verdict"))
             or _as_str(reflexion_payload.get("decision"))
         )
+        retrieval = _retrieval_from_state_payload(state_payload)
+        execution_plan_ref = _state_ref_from_param(
+            state_payload,
+            "execution_plan_ref",
+            kind="scientist.execution_plan",
+        )
+        method_catalog_snapshot_ref = _state_ref_from_param(
+            state_payload,
+            "method_catalog_snapshot_ref",
+            kind="foundry.method_catalog_snapshot",
+        )
+        preflight_report_ref = _state_ref_from_param(
+            state_payload,
+            "preflight_report_ref",
+            kind="scientist.preflight_report",
+        )
+        evaluator_report_ref = _state_ref_from_param(
+            state_payload,
+            "evaluator_report_ref",
+            kind="scientist.evaluator_report",
+        )
+        iteration_state_ref = _state_ref_from_param(
+            state_payload,
+            "iteration_state_ref",
+            kind="scientist.iteration_state",
+        )
+        reproducibility_manifest_ref = _state_ref_from_param(
+            state_payload,
+            "reproducibility_manifest_ref",
+            kind="scientist.reproducibility_manifest",
+        )
+
+        preflight_payload = self._load_json_artifact(preflight_report_ref)
+        evaluator_payload = self._load_json_artifact(evaluator_report_ref)
+        iteration_payload = self._load_json_artifact(iteration_state_ref)
+        reproducibility_payload = self._load_json_artifact(reproducibility_manifest_ref)
+
+        preflight_view = PreflightReportView(
+            ready_to_run=bool(preflight_payload.get("ready_to_run")),
+            diagnostics=[
+                PreflightDiagnosticView.model_validate(item)
+                for item in _as_list_of_dicts(preflight_payload.get("diagnostics"))
+            ],
+            notes=_as_list_of_strings(preflight_payload.get("notes")),
+            report_ref=preflight_report_ref,
+        ) if preflight_report_ref is not None else None
+
+        evaluator_scores_raw = evaluator_payload.get("scores")
+        evaluator_scores = (
+            EvaluatorScoresView.model_validate(evaluator_scores_raw)
+            if isinstance(evaluator_scores_raw, dict)
+            else EvaluatorScoresView()
+        )
+        evaluator_view = EvaluatorReportView(
+            verdict=_as_str(evaluator_payload.get("verdict")),
+            scores=evaluator_scores,
+            reasons=_as_list_of_strings(evaluator_payload.get("reasons")),
+            replanning_hints=_as_list_of_strings(evaluator_payload.get("replanning_hints")),
+            diagnostics=[
+                PreflightDiagnosticView.model_validate(item)
+                for item in _as_list_of_dicts(evaluator_payload.get("diagnostics"))
+            ],
+            notes=_as_list_of_strings(evaluator_payload.get("notes")),
+            report_ref=evaluator_report_ref,
+        ) if evaluator_report_ref is not None else None
+
+        iteration_view = IterationLifecycleView(
+            iteration=max(1, _as_int(iteration_payload.get("iteration") or 1)),
+            state=_as_str(iteration_payload.get("lifecycle_state")) or "plan_created",
+            stop_reason=_as_str(iteration_payload.get("stop_reason")),
+            last_verdict=_as_str(iteration_payload.get("last_verdict")),
+            state_ref=iteration_state_ref,
+            notes=_as_list_of_strings(iteration_payload.get("notes")),
+        ) if iteration_state_ref is not None else None
+
+        reproducibility_view = ReproducibilityView(
+            seed=_as_int(reproducibility_payload.get("seed")),
+            plan_hash=_as_str(reproducibility_payload.get("plan_hash")),
+            registry_hash=_as_str(reproducibility_payload.get("registry_hash")),
+            method_catalog_hash=_as_str(reproducibility_payload.get("method_catalog_hash")),
+            data_snapshot_hash=_as_str(reproducibility_payload.get("data_snapshot_hash")),
+            input_bindings_hash=_as_str(reproducibility_payload.get("input_bindings_hash")),
+            manifest_ref=reproducibility_manifest_ref,
+            notes=_as_list_of_strings(reproducibility_payload.get("notes")),
+        ) if reproducibility_manifest_ref is not None else None
 
         return AgentPipelineView(
             run_id=run.run_id,
@@ -279,6 +376,13 @@ class DebugService:
             attempts=attempts,
             decision_packet_ref=run.decision_packet_ref,
             reflexion_terminal_ref=reflexion_ref,
+            retrieval=retrieval,
+            execution_plan_ref=execution_plan_ref,
+            method_catalog_snapshot_ref=method_catalog_snapshot_ref,
+            preflight=preflight_view,
+            evaluator=evaluator_view,
+            iteration_lifecycle=iteration_view,
+            reproducibility=reproducibility_view,
             source=source,
             notes=notes,
         )
@@ -532,6 +636,27 @@ def _artifact_ref_from_payload(value: dict[str, Any]) -> ArtifactRef | None:
         return None
 
 
+def _state_ref_from_param(
+    state_payload: dict[str, Any],
+    key: str,
+    *,
+    kind: str,
+    media_type: str = "application/json",
+) -> ArtifactRef | None:
+    params = state_payload.get("params")
+    value = params.get(key) if isinstance(params, dict) else None
+    if value is None:
+        value = state_payload.get(key)
+    if isinstance(value, dict):
+        return _artifact_ref_from_payload(value)
+    if not isinstance(value, str) or not value:
+        return None
+    try:
+        return ArtifactRef(artifact_id=value, kind=kind, media_type=media_type)
+    except Exception:
+        return None
+
+
 def _workflow_report_nodes_by_alias(rows: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
     result: dict[str, dict[str, Any]] = {}
     for row in rows:
@@ -638,6 +763,101 @@ def _critical_path_duration_ms(nodes: list[RunWorkflowNodeView]) -> int | None:
 
     durations = [_duration(alias) for alias in deps]
     return max(durations, default=0)
+
+
+def _retrieval_from_state_payload(payload: dict[str, Any]) -> RetrievalTelemetryView | None:
+    params = payload.get("params")
+    if not isinstance(params, dict):
+        return None
+
+    telemetry_raw = params.get("retrieval_telemetry")
+    telemetry = telemetry_raw if isinstance(telemetry_raw, dict) else {}
+
+    mode = _as_str(telemetry.get("mode")) or _as_str(params.get("retrieval_mode"))
+    lane_used = _as_str(telemetry.get("lane_used")) or _as_str(
+        params.get("retrieval_lane_used")
+    )
+    if mode is None and lane_used is None and not telemetry:
+        return None
+
+    phases: list[RetrievalPhaseTelemetry] = []
+    raw_phases = telemetry.get("phases")
+    if isinstance(raw_phases, list):
+        for row in raw_phases:
+            if not isinstance(row, dict):
+                continue
+            phases.append(
+                RetrievalPhaseTelemetry(
+                    phase=_as_str(row.get("phase")) or "unknown",
+                    lane=_as_str(row.get("lane")),
+                    duration_ms=max(0, _as_int(row.get("duration_ms"))),
+                    candidates_total=max(0, _as_int(row.get("candidates_total"))),
+                    candidates_selected=max(0, _as_int(row.get("candidates_selected"))),
+                    docs_fetched=max(0, _as_int(row.get("docs_fetched"))),
+                )
+            )
+    if not phases:
+        durations = params.get("retrieval_phase_durations")
+        if isinstance(durations, dict):
+            for phase_name, duration in durations.items():
+                phases.append(
+                    RetrievalPhaseTelemetry(
+                        phase=str(phase_name),
+                        lane=None,
+                        duration_ms=max(0, _as_int(duration)),
+                        candidates_total=0,
+                        candidates_selected=0,
+                        docs_fetched=0,
+                    )
+                )
+
+    notes = _as_list_of_strings(telemetry.get("warnings"))
+    return RetrievalTelemetryView(
+        mode=mode or "hybrid",
+        lane_used=lane_used or "none",
+        metadata_docs_fetched=max(
+            0,
+            _as_int(
+                telemetry.get("metadata_docs_fetched")
+                if telemetry
+                else params.get("retrieval_metadata_docs_fetched")
+            ),
+        ),
+        local_index_size_bytes=max(
+            0,
+            _as_int(
+                telemetry.get("local_index_size_bytes")
+                if telemetry
+                else params.get("retrieval_local_index_size_bytes")
+            ),
+        ),
+        local_index_docs_total=max(
+            0,
+            _as_int(
+                telemetry.get("local_index_docs_total")
+                if telemetry
+                else params.get("retrieval_local_index_docs_total")
+            ),
+        ),
+        candidates_filtered=max(
+            0,
+            _as_int(
+                telemetry.get("candidates_filtered")
+                if telemetry
+                else params.get("retrieval_candidates_filtered")
+            ),
+        ),
+        candidates_promoted=max(
+            0,
+            _as_int(
+                telemetry.get("candidates_promoted")
+                if telemetry
+                else params.get("retrieval_candidates_promoted")
+            ),
+        ),
+        phases=phases,
+        notes=notes,
+    )
 
 
 def _normalize_agent(value: str | None) -> str | None:

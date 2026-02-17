@@ -1,25 +1,25 @@
 # legal_evaluation
 
-`lex.legal_evaluation` проверяет соответствие симуляции и политики нормам из `NormPack` и формирует юридический отчёт.
+`polisyos.lex.legal_evaluation` оценивает соответствие policy/simulation требованиям `NormPack` и формирует юридический отчет.
 
-## Что получает на вход
+## Входы
 
 - `LegalEvaluationRequest`
-- `PolicySpec` (напрямую или через `trinity_bundle_ref`)
+- `NormPack` (`kind=lex.norm_pack`)
 - `SimulationResult` + `Metrics`
-- `NormPack`
-
-Все входы загружаются из CAS и валидируются до старта оценки.
+- `PolicySpec`/`ModelSpec`:
+  - либо через `policy_spec_ref` (`model_spec_ref` optional);
+  - либо через `trinity_bundle_ref` (внутри request нормализации).
 
 ## Поток выполнения
 
 ```text
 normalize request
-  -> resolve evaluator (registry)
-  -> build LegalContext
-  -> evaluate each NormRule
+  -> resolve evaluator from registry
+  -> build LegalContext (policy + simulation + metrics + norm_pack)
+  -> evaluate each rule (simple_v1 or plugin backend)
   -> persist lex.legal_report
-  -> auto-generate lex.change_proposal
+  -> generate lex.change_proposal (optional)
   -> emit EVALUATE_LEGALITY world event
 ```
 
@@ -27,51 +27,50 @@ normalize request
 
 ### `evaluator_registry.py`
 
-- Глобальный реестр `LexEvaluatorRegistry`.
-- Встроенный backend: `lex.eval.simple_v1@1.0.0`.
-- Поддержка плагинов через entry points `polisyos.lex_evaluators`.
+- Реестр `LexEvaluatorRegistry`.
+- Встроенный evaluator: `lex.eval.simple_v1@1.0.0`.
+- Поддержка внешних evaluator-компонентов через `polisyos.lex_evaluators`.
 
 ### `evaluate.py`
 
-Оркестратор end-to-end:
-- нормализация запроса (`jurisdiction`, `as_of`, `eval_policy_id`, источники policy refs);
-- построение контекста;
-- rule-by-rule оценка;
-- агрегация `summary/counts/compliance_grade`;
-- персистенция `lex.legal_report` и запуск генерации proposals.
+Главный оркестратор:
+- нормализует request (`jurisdiction`, `as_of`, `eval_policy_id`);
+- загружает policy refs из `trinity_bundle_ref`, если нужно;
+- запускает оценку по нормам;
+- агрегирует `counts` и `compliance_grade`;
+- сохраняет `lex.legal_report` и вызывает `propose_changes_impl`.
 
 ### `context_builder.py`
 
-Строит `RuleObservation` для каждой нормы.
-
-Порядок маппинга наблюдаемого значения:
+Строит `RuleObservation` для каждой нормы. Порядок поиска observed value:
 1. `Metrics.values[predicate_id]`
 2. `PolicySpec.parameter -> intervention.param_path`
 3. direct key в `intervention.params`
 
-Если значение не найдено/неоднозначно, добавляет `quality_issues` (например `missing_observed_value`, `ambiguous_policy_mapping`).
+Если маппинг отсутствует/неоднозначен, пишет `quality_issues` (`missing_observed_value`, `ambiguous_policy_mapping`, и др.).
 
 ### `backends/simple_v1.py`
 
-Базовый rule evaluator:
-- операторы: `<`, `<=`, `=`, `>=`, `>` (numeric), `=` (boolean/text);
-- поддержка unit conversion: `percent<->ratio`, `km<->m`;
+Базовый evaluator:
+- числовые операторы: `<`, `<=`, `=`, `>=`, `>`;
+- boolean/text: `=`;
+- unit conversion: `percent <-> ratio`, `km <-> m`;
 - статусы: `PASS`, `FAIL`, `UNKNOWN`, `NOT_APPLICABLE`;
-- severity зависит от `strict`.
+- в `strict=true` неизвестные/неполные случаи трактуются жестче.
 
 ### `change_proposals.py`
 
-Генерирует предложения на основе отчёта:
-- `policy_patch` (JSON Patch `replace`) для числовых FAIL-правил;
-- `add_metric` для недостающих наблюдений.
+Автогенерация предложений:
+- `policy_patch` (JSON Patch `replace`) для `FAIL` с числовым threshold;
+- `add_metric` для `missing_observed_value`.
 
 ## Выходы
 
-- `LegalReportRef` (`lex.legal_report`)
-- `list[ChangeProposalRef]` (`lex.change_proposal`)
+- `lex.legal_report`
+- `lex.change_proposal` (может быть пустым списком)
 
-## Связь с другими директориями
+## Связи с другими директориями
 
 - Потребляет `NormPack` из `policy-engine/src/polisyos/lex/normpack`.
-- Использует контракты из `polisyos.core.contracts.lex/trinity/foundry`.
-- Пишет provenance в fact log через `polisyos.fabric.world`.
+- Использует контракты `polisyos.core.contracts.lex`, `trinity`, `foundry`.
+- Пишет semantic facts/events через `polisyos.fabric.world`.

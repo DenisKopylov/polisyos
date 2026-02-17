@@ -118,8 +118,11 @@ class ProgramNode(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     node_id: str
-    node_kind: Literal["mechanism", "op"] = "mechanism"
+    node_kind: Literal["mechanism", "op", "method"] = "mechanism"
     mechanism_type: str | None = None
+    method_fqn: str | None = None
+    method_version: str | None = None
+    method_params: dict[str, Any] = Field(default_factory=dict)
     params_ref: ArtifactRef | None = None
     op: ProgramOp | None = None
     inputs: list[str] = Field(default_factory=list)
@@ -131,6 +134,8 @@ class ProgramNode(BaseModel):
             raise ValueError("mechanism node requires mechanism_type")
         if self.node_kind == "op" and self.op is None:
             raise ValueError("op node requires op")
+        if self.node_kind == "method" and not self.method_fqn:
+            raise ValueError("method node requires method_fqn")
         return self
 
 
@@ -143,6 +148,7 @@ class ProgramOp(BaseModel):
         "read_view",
         "make_mask",
         "apply_mechanism",
+        "apply_method",
     ]
     params: dict[str, Any] = Field(default_factory=dict)
     notes: list[str] = Field(default_factory=list)

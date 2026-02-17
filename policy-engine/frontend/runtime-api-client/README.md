@@ -1,40 +1,42 @@
-# `runtime-api-client` — сгенерированный клиент Runtime API v1
+# `runtime-api-client` — сгенерированный JS/TS клиент Runtime API v1
 
-`runtime-api-client` хранит артефакты, которые генерируются из OpenAPI-схемы Runtime API.  
-Ручное редактирование `runtimeApiClient.ts/js` не предполагается.
+`runtime-api-client` содержит auto-generated артефакты по OpenAPI-контракту.
+Ручное редактирование `runtimeApiClient.ts` и `runtimeApiClient.js` не предусмотрено.
 
-## Что лежит в директории
+## Содержимое
 
-- `runtimeApiClient.ts` — typed TypeScript-клиент + экспорт типов контрактов API.
-- `runtimeApiClient.js` — ESM-клиент для браузера/JS-runtime без TypeScript.
+- `runtimeApiClient.ts` — typed TypeScript-клиент и типы ответов.
+- `runtimeApiClient.js` — ESM-клиент для runtime без TypeScript.
 
-## Источник истины
+Основной потребитель в этом репозитории: `frontend/runtime-reference-shell/app.js`.
 
-Контракт клиента формируется цепочкой:
+## Источник истины и генерация
 
 ```text
-Runtime API app -> OpenAPI schema -> generated client
+Runtime API app -> schemas/runtime_api_v1.openapi.json -> generated runtimeApiClient.ts/js
 ```
 
-Технически это:
+Цепочка:
 - `tools/runtime/export_runtime_openapi.py`
 - `schemas/runtime_api_v1.openapi.json`
 - `tools/runtime/generate_runtime_client.py`
 
-## Покрытие API (текущие группы методов)
+## Актуальное покрытие методов
 
-- Health: `health`, `ready`, `runtimeApiHealth`.
-- Runs: `listRuns`, `getRunDetails`, `getRunTimeline`, `getRunNodes`, `getRunLineage`.
-- Debug: `getNodeDebug`, `getGovernanceDebug`, `getRunErrors`.
-- Artifacts: `getArtifactManifest`, `getArtifactContent`, `getArtifactLineage`, `getArtifactSchema`.
+Клиент генерирует GET/read-path wrappers по группам:
+- health: `runtimeApiHealth`, `health`, `ready`;
+- runs: `listRuns`, `getRunDetails`, `getRunTimeline`, `getRunNodes`, `getRunLineage`, `getRunAgents`;
+- debug: `getNodeDebug`, `getGovernanceDebug`, `getRunErrors`;
+- artifacts: `getArtifactManifest`, `getArtifactContent`, `getArtifactLineage`, `getArtifactSchema`;
+- control (read): `listBindingProfiles`, `getCacheStatus`, `searchDataCatalog`, `listConnectors`, `getDataIndexStats`, `listSourceProfiles`, `listDataPromotionCandidates`, `listLlmProfiles`.
 
 ## Поведение и ограничения
 
-- Клиент нормализует `baseUrl` (убирает завершающий `/`).
-- Query-параметры сериализуются с поддержкой массивов и `Date -> ISO`.
-- На non-2xx ответах бросается `Error` со статусом и телом ответа.
-- Retry/circuit-breaker/auth-flow не встроены; для кастомизации доступны `headers` и `fetchImpl` в `RuntimeApiClientOptions`.
-- Клиент поддерживает read-only HTTP-поверхность Runtime API v1.
+- Нормализует `baseUrl` (удаляет завершающий `/`).
+- Сериализует query-параметры, включая массивы и `Date -> ISO`.
+- На non-2xx кидает `Error` с HTTP-статусом и body.
+- Не включает retry/circuit-breaker/auth-flow; настройка только через `headers` и `fetchImpl`.
+- Это thin client поверх контрактных GET endpoint-ов; POST/управляющие сценарии dashboard реализует через `openapi-fetch` в `runtime-dashboard`.
 
 ## Регенерация
 
@@ -50,9 +52,7 @@ PYTHONPATH=src uv run python tools/runtime/generate_runtime_client.py \
   --out-js frontend/runtime-api-client/runtimeApiClient.js
 ```
 
-Генерация детерминированная: одинаковый OpenAPI-вход должен давать byte-stable результат.
-
-Проверить drift OpenAPI/клиента и контрактные инварианты:
+Проверка drift и контрактных инвариантов:
 
 ```bash
 PYTHONPATH=src uv run python tools/runtime/check_runtime_api_contract.py

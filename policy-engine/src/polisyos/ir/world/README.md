@@ -1,85 +1,52 @@
-# ir.world — Контракты семантической world-модели
+# ir.world
 
-`ir.world` описывает типизированные объекты графа знаний в Policy Engine: документы, claims, конфликты, provenance-события, trust/quality оценки и deterministic world IDs.
+`ir.world` — канонические контракты семантического world-graph слоя: документы, claims, конфликты, provenance-события, trust и quality отчёты.
 
-Это **контрактный слой**, а не хранилище и не execution-движок.
+Это контрактный слой; хранение и запросы реализуются в `fabric`.
 
 ## Роль в архитектуре
 
 ```text
-Fabric pipelines (docs/claims/conflicts/materialization)
+fabric claims/world pipelines
             │
             ▼
       ir.world contracts
             │
-            ├─► world persistence/query (DuckDB/Kuzu через fabric)
-            ├─► Lex (norm/legal pipelines)
-            └─► Scholar/Scientist (knowledge artifacts)
+            ├─► lex (norm pipelines)
+            ├─► scholar (knowledge artifacts)
+            └─► scientist (analysis/trust consumers)
 ```
 
-Подробнее про общий контекст IR: [`../README.md`](../README.md)
+Контекст IR: [`../README.md`](../README.md)
 
-## Состав директории
+## Состав
 
-```text
-world/
-├── abi.py         # NodeKind / EdgeKind / reserved prefixes
-├── doc.py         # DocMeta / DocFragment
-├── claim.py       # Claim + source-kind rules
-├── conflict.py    # ConflictSet + ConflictResolution contracts
-├── event.py       # WorldEvent + provenance agent/activity
-├── trust.py       # TrustAssessment + tier/score contracts
-├── quality.py     # QualityReport + deterministic issue ordering
-├── ids.py         # stable world ID builders (sha256 over canonical payload)
-├── predicates.py  # world predicate constants and rel()
-└── __init__.py    # публичные re-exports
-```
+| Файл | Что содержит |
+|---|---|
+| `abi.py` | `NodeKind`, `EdgeKind`, `RESERVED_WORLD_PREFIXES_V1` |
+| `doc.py` | `DocMeta`, `DocFragment` |
+| `claim.py` | `Claim`, `ClaimSourceKind` |
+| `conflict.py` | `ConflictSet`, `ConflictResolution*` |
+| `event.py` | `WorldEvent`, provenance agent/activity |
+| `trust.py` | `TrustAssessment`, `TrustTier` |
+| `quality.py` | `QualityReport`, issue severity/scope |
+| `ids.py` | deterministic ID builders через canonical hash |
+| `predicates.py` | world predicate constants + `rel()` |
 
-## Ключевые модели
+## Ключевые инварианты
 
-### ABI графа (`abi.py`)
-
-- `NodeKind`: `artifact`, `doc.source`, `doc.version`, `doc.fragment`, `claim`, `conflict_set`, `trust.assessment`, `quality.report`, `world.event`, `prov.*`.
-- `EdgeKind`: связи документов, claims, конфликтов и provenance.
-- `RESERVED_WORLD_PREFIXES_V1`: зарезервированные ID-префиксы (`doc`, `docv`, `frag`, `claim`, `cset`, `trust`, `quality`, `event`, ...).
-
-### Документы (`doc.py`)
-
-- `DocMeta`: метаданные версии документа; строгое правило:
-  ровно одно из `canonical_url` или `official_id`.
-- `DocFragment`: фрагмент документа + `FragmentLocator` + `text_hash`.
-
-### Claims (`claim.py`)
-
-- `Claim` хранит `predicate_id`, субъект (`subject_id` или `subject_text`), значение, confidence, source-kind и provenance refs.
-- Правила валидации:
-  - должен быть `subject_id` или `subject_text`;
+- Deterministic world IDs: `<prefix>.sha256_<hex64>`.
+- `DocMeta`: ровно одно из `canonical_url` или `official_id`.
+- `Claim`:
+  - нужен `subject_id` или `subject_text`;
   - для `source_kind=doc` обязательны `citations`;
-  - для остальных источников обязательны `source_artifacts`;
-  - `valid_to >= valid_from`.
+  - для остальных источников обязательны `source_artifacts`.
+- `ConflictSet.member_claim_ids` должен быть отсортирован и уникален.
+- `ConflictResolution.candidates` должен быть отсортирован по `score_total desc`, затем `claim_id asc`; winner — первый.
+- `TrustAssessment` и `QualityReport` верифицируют ID по canonical payload.
+- `QualityReport.issues` должен быть детерминированно отсортирован.
 
-### Конфликты (`conflict.py`)
-
-- `ConflictSet` с `conflict_key` (sha256 hex), `member_claim_ids`, optional resolution.
-- `conflict_set_id` обязан совпадать с вычисленным `conflict_set_id_from_key()`.
-- `ConflictResolution`:
-  - кандидаты должны быть отсортированы по `score_total desc`, затем `claim_id asc`;
-  - `winner_claim_id` должен совпадать с первым кандидатом.
-
-### Provenance-события (`event.py`)
-
-- `WorldEvent`: `event_kind`, `agent`, `activity`, `inputs`, `outputs`.
-- `ProvActivity` валидирует временную согласованность (`ended_at >= started_at`).
-- `WorldObjectRef` требует хотя бы `world_id` или `artifact_id`.
-
-### Trust и Quality
-
-- `TrustAssessment` (`trust.py`): `score` в `[0,1]`, `tier` (`high|medium|low`), ID верифицируется по canonical payload.
-- `QualityReport` (`quality.py`): issue list должен быть детерминированно отсортирован; ID также верифицируется по canonical payload.
-
-## Детерминированные ID (`ids.py`)
-
-`ids.py` строит стабильные world IDs через canonical serialization + `sha256`:
+## Детерминированные ID-функции
 
 - `doc_source_id()`
 - `doc_version_id_from_raw_artifact()`
@@ -90,28 +57,15 @@ world/
 - `trust_assessment_id_from_payload()`
 - `quality_report_id_from_payload()`
 
-Формат world ID: `<prefix>.sha256_<hex64>`.
-
-## Инварианты и особенности
-
-- Deep float-guard:
-  большинство моделей запрещают `float` в произвольных payload/props через `reject_floats_deep`.
-- Deterministic payload discipline:
-  ID-поля в `TrustAssessment`, `QualityReport`, `ConflictSet` проверяются как функция содержимого.
-- Deterministic ordering:
-  сортировка/уникальность требуется для `member_claim_ids`, ranking-кандидатов и `quality.issues`.
-- Чёткая граница ответственности:
-  `ir.world` определяет контракты и правила, а materialization/query реализованы в `fabric/world`.
-
 ## Связи с другими директориями
 
-| Директория | Как использует `ir.world` |
+| Директория | Использование |
 |---|---|
-| `fabric/` | основной потребитель (`claims/*`, `world/store/*`, materialization/query) |
-| `lex/` | legal/norm pipelines используют world entities |
-| `scholar/` | сборка knowledge artifacts и событий |
-| `scientist/` | точечные trust/world контракты |
-| `core/` | отдельные shared contracts и валидации |
+| `fabric/claims` | extraction/normalize/conflicts/persist/world-events |
+| `fabric/world` | materialization/query/storage |
+| `lex/` | document structuring + world predicates/ids |
+| `scholar/` | trust/event контракты в orchestration |
+| `core/contracts` | shared schema compatibility |
 
 ## Минимальный пример
 
@@ -129,7 +83,7 @@ claim_id = claim_id_from_payload(
 )
 ```
 
-## Рекомендуемые проверки
+## Проверки
 
 ```bash
 pytest /Users/deniskopylov/polisyos/policy-engine/tests/contract/test_world_abi_contract.py

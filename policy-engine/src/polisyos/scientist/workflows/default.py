@@ -20,6 +20,26 @@ def default_workflow_spec() -> WorkflowSpec:
                 depends_on=["start"],
             ),
             NodeInvocation(
+                alias="build_execution_plan",
+                node_id="scientist.node_build_execution_plan@1.0.0",
+                depends_on=["start"],
+            ),
+            NodeInvocation(
+                alias="build_method_catalog_snapshot",
+                node_id="scientist.node_build_method_catalog_snapshot@1.0.0",
+                depends_on=["build_execution_plan"],
+            ),
+            NodeInvocation(
+                alias="run_preflight",
+                node_id="scientist.node_run_preflight@1.0.0",
+                depends_on=["build_execution_plan", "build_method_catalog_snapshot"],
+            ),
+            NodeInvocation(
+                alias="ready_to_run",
+                node_id="scientist.node_ready_to_run@1.0.0",
+                depends_on=["run_preflight"],
+            ),
+            NodeInvocation(
                 alias="bind_foundry_inputs",
                 node_id="scientist.node_bind_foundry_inputs@1.0.0",
                 depends_on=["build_data_snapshot"],
@@ -37,7 +57,7 @@ def default_workflow_spec() -> WorkflowSpec:
             NodeInvocation(
                 alias="compile_foundry",
                 node_id="scientist.node_compile_foundry@1.0.0",
-                depends_on=["link_trinity", "run_data_plane_gate"],
+                depends_on=["link_trinity", "run_data_plane_gate", "ready_to_run"],
             ),
             NodeInvocation(
                 alias="run_simulation",
@@ -69,15 +89,21 @@ def default_workflow_spec() -> WorkflowSpec:
                 depends_on=["propagate_uncertainty", "run_distributional_analysis"],
             ),
             NodeInvocation(
+                alias="run_evaluator",
+                node_id="scientist.node_run_evaluator@1.0.0",
+                depends_on=["run_governance"],
+            ),
+            NodeInvocation(
                 alias="build_decision_packet",
                 node_id="scientist.node_build_decision_packet@1.4.0",
-                depends_on=["run_governance", "run_causal_evaluation"],
+                depends_on=["run_governance", "run_causal_evaluation", "run_evaluator"],
             ),
         ],
         notes=[
             "E1.8 default workflow spec (engine DAG)",
+            "ExecutionPlan/preflight pipeline is mandatory before compile stage.",
             "P8 data-plane: bind_foundry_inputs + pre-simulation run_data_plane_gate.",
-            "Decision packet is generated after governance and uncertainty propagation.",
+            "Decision packet is generated after governance, evaluation, and uncertainty propagation.",
         ],
     )
 

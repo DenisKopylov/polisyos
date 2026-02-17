@@ -1,8 +1,8 @@
 # Claims
 
-`polisyos.fabric.claims` — пайплайн извлечения и нормализации claims из документных фрагментов с последующим обнаружением и разрешением конфликтов.
+`polisyos.fabric.claims` — конвейер извлечения, нормализации и конфликт-резолюции claims поверх документных фрагментов.
 
-## Поток
+## Сквозной поток
 
 ```text
 DocMeta + normalized/chunks refs
@@ -10,52 +10,52 @@ DocMeta + normalized/chunks refs
    -> normalize_claims
    -> detect_conflicts
    -> resolve_conflicts
-   -> world facts + events + segment manifests
+   -> world events + fact segments + trust/quality artifacts
 ```
 
 ## Основные модули
 
-- `extraction.py` — извлечение кандидатов через pluggable extractor backends, построение `Claim`
-- `normalize.py` — канонизация predicate/unit/value, дедупликация, `derived_from` связи
-- `conflicts/detect.py` — группировка claim'ов по conflict key и формирование `ConflictSet`
-- `conflicts/resolve.py` — ранжирование кандидатов, выбор победителя, trust/quality side-effects
-- `persist.py` — CAS helpers (claim-set payloads, evidence bundle, world segment)
-- `extractor_registry.py` — реестр и bootstrap extractors
-- `backends/` — встроенные extractors (`explicit_lines_v1`, `lex_norm_regex_v1`, `regex_numeric_v1`)
+- `extraction.py` — извлечение `ClaimCandidate` и сборка канонических `Claim`.
+- `normalize.py` — канонизация predicate/unit/value, дедупликация, `derived_from` связи.
+- `conflicts/detect.py` — построение `ConflictSet` на основе `conflict_key_v1`/`compare_v1`.
+- `conflicts/resolve.py` — ранжирование кандидатов, выбор победителя, генерация trust/uncertainty/quality артефактов.
+- `extractor_registry.py` — единый реестр экстракторов (legacy + component-based bootstrap).
+- `persist.py` — CAS helpers для claim set, evidence bundle и world segment.
+- `world_events.py` — детерминированные world events для стадий claims pipeline.
+- `backends/` — встроенные extractors (`explicit_lines_v1`, `lex_norm_regex_v1`, `regex_numeric_v1`).
 
-## Входы и выходы
+## Входы/выходы API
 
-### Extraction
+### `extract_claims_from_doc(...)`
 
-`extract_claims_from_doc(...)` принимает `DocMeta`-артефакт и extractor id.
+- Вход: `doc_meta_artifact_id` + extractor selection (`extractor_id` или auto-select).
+- Выход: `ClaimExtractResult` с `claim_set_artifact_id`, `claim_ids`, `evidence_ref`, `world_event_*`, `world_segment_manifest`.
 
-Возвращает `ClaimExtractResult`:
+### `normalize_claims(...)`
 
-- `claim_set_artifact_id`, `claim_ids`
-- `world_event_id` и `world_event_artifact_id`
-- `world_segment_manifest`
-- `evidence_ref` (если включено)
+- Вход: `claim_set_artifact_id`.
+- Выход: `ClaimNormalizeResult` с новым `claim_set_artifact_id`, `derived_edges`, `world_event_*`, `world_segment_manifest`.
 
-### Normalization
+### `detect_conflicts(...)` и `resolve_conflicts(...)`
 
-`normalize_claims(...)` принимает `claim_set_artifact_id`.
+- `detect_conflicts(...)` формирует `ConflictSet` + связи `claim -> conflict_set`.
+- `resolve_conflicts(...)` применяет policy, выбирает winner и сохраняет `ConflictResolution`, trust assessments, quality report, uncertainty envelopes.
 
-Возвращает `ClaimNormalizeResult`:
+Обе стадии поддерживают исполнение через `SimulationDB` или `StoragePort`.
 
-- новый `claim_set_artifact_id`
-- `derived_edges` при смене `claim_id` после нормализации
-- world event + segment manifest
+## Особенности extractor-слоя
 
-### Conflict processing
+`ClaimExtractorRegistry.select(...)` поддерживает:
 
-- `detect_conflicts(...)` формирует conflict sets и world edges `claim -> conflict_set`
-- `resolve_conflicts(...)` применяет policy, сохраняет resolution artifacts, trust/quality records
+- явный `preferred_id`,
+- авторанжирование component extractors по domain/jurisdiction/language/mime,
+- fallback на встроенные legacy extractors.
 
-Оба шага могут работать через `db` (`SimulationDB`) или `storage` (`StoragePort`), в зависимости от сценария.
+Компонентные экстракторы загружаются через `discover_and_bootstrap_extractors(...)` и registry `polisyos.core.components`.
 
 ## Связи
 
-- `docs/` — upstream источник нормализованного текста и chunk refs
-- `world/` — эмиссия/персист world-фактов и событий
-- `evidence.py`, `provenance/` — трассируемость pipeline
-- `polisyos.ir.world.*` — канонические модели claim/conflict/trust/quality/event
+- `fabric.docs` — upstream документные артефакты (`normalized_ref`, `chunks_ref`).
+- `fabric.world` — эмиссия/персист world-фактов и событий.
+- `fabric.evidence`, `fabric.provenance` — трассируемость стадий.
+- `polisyos.ir.world.*` — канонические модели claims/conflicts/trust/quality/events.

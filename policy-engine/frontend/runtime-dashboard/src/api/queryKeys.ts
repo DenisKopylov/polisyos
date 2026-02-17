@@ -22,4 +22,12 @@ export const queryKeys = {
   cacheStatus: () => ["control", "cache"] as const,
   sourceProfiles: () => ["control", "profiles"] as const,
   llmProfiles: () => ["control", "llm", "profiles"] as const,
+  dataIndexStats: () => ["control", "data", "index", "stats"] as const,
+  dataPromotionCandidates: () => ["control", "data", "promotion", "candidates"] as const,
+  dataCatalogSearch: (metricQuery: string, geography: string | null, limit: number) =>
+    ["control", "data", "catalog", "search", { metricQuery, geography, limit }] as const,
+
+  // Lex knowledge graph
+  lexPipelineStatus: (pipelineId: string) => ["lex", "pipeline", pipelineId] as const,
+  lexGraphStats: (outputDir: string) => ["lex", "graph", "stats", outputDir] as const,
 };

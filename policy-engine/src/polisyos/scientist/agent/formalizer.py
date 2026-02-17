@@ -298,12 +298,22 @@ class LLMFormalizerAgent:
 
     MAX_RETRIES = 2
 
-    def __init__(self, llm_client: Any, model_name: str | None = None) -> None:
+    def __init__(
+        self,
+        llm_client: Any,
+        model_name: str | None = None,
+        *,
+        method_catalog_snapshot: dict[str, Any] | None = None,
+    ) -> None:
         if llm_client is not None and not isinstance(llm_client, TracedLLMClient):
             self._llm = TracedLLMClient(llm_client, model_name=model_name)
         else:
             self._llm = llm_client
         self._fallback = MockFormalizerAgent()
+        self._method_catalog_snapshot = dict(method_catalog_snapshot or {})
+
+    def set_method_catalog_snapshot(self, payload: dict[str, Any] | None) -> None:
+        self._method_catalog_snapshot = dict(payload or {})
 
     async def formalize(
         self,
@@ -311,7 +321,7 @@ class LLMFormalizerAgent:
         *,
         schema_version: str = "1.0",
     ) -> TrinityBundle:
-        prompt = get_formalizer_prompt()
+        prompt = get_formalizer_prompt(method_catalog_snapshot=self._method_catalog_snapshot)
 
         user_message = f"""
 DRAFT TO FORMALIZE:

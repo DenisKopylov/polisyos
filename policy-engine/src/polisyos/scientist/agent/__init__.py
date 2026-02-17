@@ -19,6 +19,8 @@ from polisyos.scientist.agent.protocols import (
     CritiqueIssue,
     CritiqueReport,
     CritiqueSeverity,
+    DataNeedExtractorAgent,
+    DataNeedSpec,
     DelegationResult,
     DrafterAgent,
     DraftResult,
@@ -41,6 +43,10 @@ if TYPE_CHECKING:
         LLMCriticAgent,
         MockCriticAgent,
         create_critic_agent,
+    )
+    from polisyos.scientist.agent.data_need_extractor import (
+        LLMDataNeedExtractorAgent,
+        MockDataNeedExtractorAgent,
     )
     from polisyos.scientist.agent.constitution import (
         ConstitutionGenerator,
@@ -80,8 +86,11 @@ __all__ = [
     "DrafterAgent",
     "FormalizerAgent",
     "CriticAgent",
+    "DataNeedExtractorAgent",
     "MockPIAgent",
     "LLMPIAgent",
+    "MockDataNeedExtractorAgent",
+    "LLMDataNeedExtractorAgent",
     "MockDrafterAgent",
     "LLMDrafterAgent",
     "MockFormalizerAgent",
@@ -116,6 +125,7 @@ __all__ = [
     "DraftResult",
     "CritiqueReport",
     "CritiqueIssue",
+    "DataNeedSpec",
     "DelegationResult",
     "AgentRole",
     "TaskPriority",
@@ -212,6 +222,15 @@ def __getattr__(name: str):
         # pi
         "LLMPIAgent": ("polisyos.scientist.agent.pi", "LLMPIAgent"),
         "MockPIAgent": ("polisyos.scientist.agent.pi", "MockPIAgent"),
+        # data need extractor
+        "LLMDataNeedExtractorAgent": (
+            "polisyos.scientist.agent.data_need_extractor",
+            "LLMDataNeedExtractorAgent",
+        ),
+        "MockDataNeedExtractorAgent": (
+            "polisyos.scientist.agent.data_need_extractor",
+            "MockDataNeedExtractorAgent",
+        ),
         # base
         "BaseAgent": ("polisyos.scientist.agent.base", "BaseAgent"),
         "MockAgent": ("polisyos.scientist.agent.base", "MockAgent"),

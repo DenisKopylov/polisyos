@@ -427,6 +427,7 @@ def _run_method_job(
     cas_root: Path | None,
     method_state: Any,
     backend: MethodBackend,
+    adapter_warnings: list[str] | None = None,
 ) -> JobResult:
     issues: list[dict[str, Any]] = []
     if cas_root is None:
@@ -466,9 +467,10 @@ def _run_method_job(
 
     artifacts = result.exec_artifacts
     warnings: list[str] = []
+    warnings.extend(adapter_warnings or [])
     if isinstance(result.final_state, dict):
         if "warnings" in result.final_state and isinstance(result.final_state["warnings"], list):
-            warnings = [str(item) for item in result.final_state["warnings"]]
+            warnings.extend(str(item) for item in result.final_state["warnings"])
 
     return JobResult(
         job_key=job_key,
@@ -495,6 +497,7 @@ def run_job(
     job_key = JobKey.from_spec(spec)
 
     if spec.is_method_job:
+        adapter_warnings = _materialize_method_adapter(spec, cas_root=cas_root)
         method_backend = backend if isinstance(backend, MethodBackend) else MethodBackend()
         return _run_method_job(
             spec,
@@ -502,6 +505,7 @@ def run_job(
             cas_root=cas_root,
             method_state=method_state,
             backend=method_backend,
+            adapter_warnings=adapter_warnings,
         )
 
     legacy_backend = backend if backend is not None else resolve_backend(None)
@@ -513,3 +517,47 @@ def run_job(
         base_state=base_state,
         cas_root=cas_root,
     )
+
+
+def _materialize_method_adapter(spec: JobSpec, *, cas_root: Path | None) -> list[str]:
+    """
+    Temporary bridge until all method runs execute through unified ProgramGraph.
+
+    We persist a single-node DAG descriptor so every method run has a stable adapter
+    artifact that can be traced in lineage/debug output.
+    """
+    if cas_root is None:
+        return ["legacy_adapter_missing_cas_root"]
+    try:
+        store = FileSystemCAS(cas_root)
+        payload = {
+            "adapter_version": "0.1.0",
+            "job_kind": "method",
+            "method_fqn": spec.method_fqn,
+            "method_version": spec.method_version,
+            "method_params": spec.method_params,
+            "notes": [
+                "legacy_method_job_mapped_to_single_node_unified_dag",
+            ],
+            "program_graph": {
+                "nodes": [
+                    {
+                        "node_id": "method_node_1",
+                        "node_kind": "method",
+                        "method_fqn": spec.method_fqn,
+                    }
+                ],
+                "edges": [],
+            },
+        }
+        ref = store.put_json(
+            payload,
+            PutOptions(
+                kind="scientist.unified_dag_adapter",
+                media_type="application/json",
+                schema=SchemaInfo(name="polisyos.scientist.UnifiedDagAdapter", version="0.1.0"),
+            ),
+        )
+        return [f"legacy_method_adapter_ref:{ref.artifact_id}"]
+    except Exception as exc:
+        return [f"legacy_method_adapter_failed:{exc}"]

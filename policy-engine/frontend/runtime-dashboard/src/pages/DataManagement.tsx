@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { useCacheStatus } from "../api/hooks/useCacheStatus";
 import { useConnectors } from "../api/hooks/useConnectors";
 import { useIngestData, type IngestRequest } from "../api/hooks/useIngestData";
+import DataIntelligencePanel from "../components/data/DataIntelligencePanel";
 import ApiErrorAlert from "../components/shared/ApiErrorAlert";
 import { Card } from "../components/ui/card";
 import { cn } from "../lib/utils";
@@ -92,6 +93,8 @@ export default function DataManagement() {
       cache_policy: cachePolicy,
       execution_mode: "batch_full",
       produce_data_snapshot: true,
+      record_mode: false,
+      produce_input_bindings: false,
     };
 
     ingestMutation.mutate(body, {
@@ -113,11 +116,13 @@ export default function DataManagement() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-lg font-semibold">Data Management</h2>
+        <h2 className="text-lg font-semibold">Data Intelligence</h2>
         <p className="text-sm text-muted">
-          Browse connectors, fetch data, and manage the local cache.
+          Control retrieval lanes, inspect local index telemetry, and run direct ingestion flows.
         </p>
       </div>
+
+      <DataIntelligencePanel />
 
       {/* Connectors */}
       <Card>

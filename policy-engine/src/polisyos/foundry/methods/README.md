@@ -1,90 +1,94 @@
 # Methods (`polisyos.foundry.methods`)
 
-`methods` - подсистема Foundry для декларативных вычислительных методов: описание ABI, регистрация, компоновка цепочек и multi-backend исполнение.
+`methods` — подсистема Foundry для декларативных вычислительных методов: ABI, регистрация, композиция цепочек и multi-backend исполнение.
 
-Актуально по коду на 2026-02-10.
+Актуально по коду на 2026-02-17.
 
 ## Роль в системе
 
-`methods` нужен для сценариев, где вычисления оформляются как переиспользуемые typed methods (causal/econometrics/optimization и др.) и исполняются вне базового Trinity механизма.
+`methods` используется там, где вычисления оформляются как переиспользуемые typed methods (causal/econometrics/optimization и др.) с явным контрактом входов/выходов, независимым от базового Trinity механизма.
 
 ## Архитектурный поток
 
-```
+```text
 FoundryMethod protocol
         -> MethodRegistry / Discovery
         -> SlotLinker + MethodComposer (DAG)
         -> Backend dispatch (JAX / NumPy / Solver)
-        -> optional artifacts + testing
+        -> optional compile/specialization/artifacts/testing
 ```
 
 ## Ключевые компоненты
 
 - `base.py`
   - ABI (`FoundryMethod`, `MethodSignature`, `MethodMetadata`, `SlotSpec`, `ParameterSpec`).
-  - декоратор `@foundry_method` и базовые архитектурные проверки.
+  - Декоратор `@foundry_method`, semver/FQN проверки, архитектурные инварианты.
 
 - `registry.py`
-  - thread-safe singleton `MethodRegistry`.
-  - регистрация, lazy registration, version-aware resolve/query.
+  - Thread-safe singleton `MethodRegistry`.
+  - Регистрация, lazy loading, resolve/query по версиям и критериям.
 
 - `discovery.py`
-  - bootstrap из entry points и filesystem source.
+  - Discovery через entry points и filesystem sources.
+  - Bootstrap регистрации методов в runtime.
 
 - `linker.py`
-  - связывание output/input slot-ов с type/unit/shape compatibility проверками.
+  - Проверка совместимости slot-ов (type/unit/shape), формирование bindings.
 
 - `composer.py`
-  - построение и валидация DAG цепочек методов (`graphlib.TopologicalSorter`).
+  - Сборка DAG цепочек (`graphlib.TopologicalSorter`), order/conflict validation.
 
 - `resolution.py`
-  - semver resolution policies (`EXACT`, `LATEST_COMPATIBLE`, `LATEST`, `PINNED`).
+  - Version policies: `EXACT`, `LATEST_COMPATIBLE`, `LATEST`, `PINNED`.
 
 - `compiler.py`, `specialization.py`
-  - JAX compilation path, deterministic specialization keys, compilation cache.
+  - JAX compile path, specialization keys, compilation cache.
 
 - `artifacts.py`, `artifacts_parts.py`, `components_bridge.py`
-  - provenance artifacts и интеграция с `core.components`.
+  - Provenance/evidence артефакты и интеграция с `core.components`.
+
+- `catalog_snapshot.py`
+  - Снимок текущего каталога методов (`MethodCatalogSnapshot`) и persistence в CAS.
 
 ## Backends
 
-- `backends/jax_runner.py` - JAX/JIT исполнение.
-- `backends/numpy_runner.py` - NumPy исполнение.
-- `backends/solver_runner.py` - solver-путь (LP/MILP классы задач).
-- `backends/dispatch.py` - `MethodDispatcher` singleton.
-- `backends/chain_executor.py` - heterogeneous chain execution с адаптацией состояния между backend-ами.
+- `backends/jax_runner.py` — JAX/JIT path.
+- `backends/numpy_runner.py` — NumPy path.
+- `backends/solver_runner.py` — solver path (LP/MILP/IO).
+- `backends/dispatch.py` — `MethodDispatcher`.
+- `backends/chain_executor.py` — heterogeneous chain execution между backend-ами.
 
-## Каталоги методов
+## Каталог методов
 
 Основные реализации находятся в `methods/catalog/*`:
-- `catalog/causal/` - causal inference и HTE методы.
-- `catalog/econometrics/` - panel/IV/time-series методы.
-- `catalog/optimization/` - optimization методы (LP/MILP/IO).
+- `catalog/causal/`
+- `catalog/econometrics/`
+- `catalog/optimization/`
 
-Важно:
-- директории `methods/causal`, `methods/econometrics`, `methods/optimization` в текущем состоянии являются compatibility shims и переэкспортируют `catalog/*`.
+Совместимость с legacy import paths:
+- `methods/causal/*`, `methods/econometrics/*`, `methods/optimization/*` — compatibility shims, переэкспортирующие `catalog/*`.
 
 ## Тестирование
 
 `testing/` включает:
-- protocol и signature checks;
+- protocol/signature checks;
 - JAX checks (jit/vmap/grad);
 - numerical/determinism проверки;
-- golden regression records.
+- solver/numpy/jax suite + golden regression records.
 
 ## Связь с другими директориями
 
 `methods` зависит от:
 - `core/registry`, `core/discovery`, `core/backends`, `core/components`, `core/canon`;
-- `ir/analytics/*` (контракты для causal/econometrics/optimization результатов).
+- `ir/analytics/*` для контрактов результатов методов.
 
-`methods` используется в:
+Используется в:
 - `scientist/compute/runner.py`;
-- `packs/roads/foundry_methods.py`;
-- узлах scientist, где нужны causal/econometric/optimization вычисления.
+- `scientist/nodes/builtins/planning/build_method_catalog_snapshot.py`;
+- `packs/roads/foundry_methods.py` и других method-oriented сценариях.
 
 ## Текущее состояние и ограничения
 
-- В дереве много compatibility и decomposition файлов (включая shim-модули) для миграционной совместимости.
-- Ряд методов требует optional dependencies (например statsmodels/linearmodels/econml/solver libs); при их отсутствии доступны только совместимые части.
-- Строгие правила совместимости slot-ов и semver resolution применяются на этапе композиции/регистрации, до runtime исполнения.
+- В дереве много shim/decomposition файлов для миграционной совместимости.
+- Существенная часть методов зависит от optional deps (`statsmodels`, `linearmodels`, `econml`, solver libs).
+- Строгая проверка slot compatibility и semver resolution применяется до runtime исполнения.

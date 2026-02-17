@@ -35,6 +35,75 @@ export type AgentAttemptView = {
   notes: string[];
 };
 
+export type RetrievalPhaseView = {
+  phase: string;
+  lane: string | null;
+  durationMs: number;
+  candidatesTotal: number;
+  candidatesSelected: number;
+  docsFetched: number;
+};
+
+export type RetrievalTelemetryModel = {
+  mode: string;
+  laneUsed: string;
+  metadataDocsFetched: number;
+  localIndexSizeBytes: number;
+  localIndexDocsTotal: number;
+  candidatesFiltered: number;
+  candidatesPromoted: number;
+  phases: RetrievalPhaseView[];
+  notes: string[];
+};
+
+export type PreflightDiagnosticModel = {
+  code: string;
+  severity: string;
+  message: string;
+  path: string[];
+  replanningHints: string[];
+};
+
+export type PreflightModel = {
+  readyToRun: boolean;
+  diagnostics: PreflightDiagnosticModel[];
+  notes: string[];
+};
+
+export type EvaluatorScoresModel = {
+  kpiScore: number;
+  uncertaintyScore: number;
+  constraintsScore: number;
+  dataQualityScore: number;
+  budgetScore: number;
+  totalScore: number;
+};
+
+export type EvaluatorModel = {
+  verdict: string | null;
+  scores: EvaluatorScoresModel;
+  reasons: string[];
+  replanningHints: string[];
+};
+
+export type IterationLifecycleModel = {
+  iteration: number;
+  state: string;
+  stopReason: string | null;
+  lastVerdict: string | null;
+  notes: string[];
+};
+
+export type ReproducibilityModel = {
+  seed: number;
+  planHash: string | null;
+  registryHash: string | null;
+  methodCatalogHash: string | null;
+  dataSnapshotHash: string | null;
+  inputBindingsHash: string | null;
+  notes: string[];
+};
+
 export type AgentPipelineModel = {
   runId: string;
   totalAttempts: number;
@@ -42,18 +111,37 @@ export type AgentPipelineModel = {
   source: string | null;
   hasPromptData: boolean;
   attempts: AgentAttemptView[];
+  retrieval: RetrievalTelemetryModel | null;
+  preflight: PreflightModel | null;
+  evaluator: EvaluatorModel | null;
+  iterationLifecycle: IterationLifecycleModel | null;
+  reproducibility: ReproducibilityModel | null;
   notes: string[];
 };
 
 const AGENT_LABELS: Record<string, string> = {
   pi_agent: "PI Agent",
+  data_need_extractor: "Data Need Extractor",
+  source_resolver: "Source Resolver",
+  executor: "Executor",
+  promotion_lane: "Promotion Lane",
   drafter: "Drafter",
   formalizer: "Formalizer",
   critic: "Critic",
   reflexion: "Reflexion",
 };
 
-const AGENT_ORDER = ["pi_agent", "drafter", "formalizer", "critic", "reflexion"];
+const AGENT_ORDER = [
+  "pi_agent",
+  "data_need_extractor",
+  "source_resolver",
+  "executor",
+  "promotion_lane",
+  "drafter",
+  "formalizer",
+  "critic",
+  "reflexion",
+];
 
 function normalizeStatus(value: unknown): AgentStepStatus {
   const normalized = (asString(value) ?? "").toLowerCase();
@@ -68,6 +156,9 @@ function normalizeAgent(value: unknown): string {
   if (normalized === "pi" || normalized === "pi_decompose") {
     return "pi_agent";
   }
+  if (normalized === "data_need_extract") {
+    return "data_need_extractor";
+  }
   if (normalized === "formalize") {
     return "formalizer";
   }
@@ -75,6 +166,133 @@ function normalizeAgent(value: unknown): string {
     return "critic";
   }
   return normalized;
+}
+
+function normalizeRetrievalPhase(raw: unknown): RetrievalPhaseView | null {
+  const row = asRecord(raw);
+  if (!row) {
+    return null;
+  }
+  const phase = asString(row.phase);
+  if (!phase) {
+    return null;
+  }
+  return {
+    phase,
+    lane: asString(row.lane),
+    durationMs: Math.max(0, asNumber(row.duration_ms) ?? 0),
+    candidatesTotal: Math.max(0, asNumber(row.candidates_total) ?? 0),
+    candidatesSelected: Math.max(0, asNumber(row.candidates_selected) ?? 0),
+    docsFetched: Math.max(0, asNumber(row.docs_fetched) ?? 0),
+  };
+}
+
+function normalizeRetrievalTelemetry(raw: unknown): RetrievalTelemetryModel | null {
+  const telemetry = asRecord(raw);
+  if (!telemetry) {
+    return null;
+  }
+  return {
+    mode: asString(telemetry.mode) ?? "hybrid",
+    laneUsed: asString(telemetry.lane_used) ?? "none",
+    metadataDocsFetched: Math.max(0, asNumber(telemetry.metadata_docs_fetched) ?? 0),
+    localIndexSizeBytes: Math.max(0, asNumber(telemetry.local_index_size_bytes) ?? 0),
+    localIndexDocsTotal: Math.max(0, asNumber(telemetry.local_index_docs_total) ?? 0),
+    candidatesFiltered: Math.max(0, asNumber(telemetry.candidates_filtered) ?? 0),
+    candidatesPromoted: Math.max(0, asNumber(telemetry.candidates_promoted) ?? 0),
+    phases: asArray(telemetry.phases)
+      .map((item) => normalizeRetrievalPhase(item))
+      .filter((item): item is RetrievalPhaseView => item !== null),
+    notes: asArray(telemetry.notes)
+      .map((item) => asString(item))
+      .filter((item): item is string => item !== null),
+  };
+}
+
+function normalizePreflight(raw: unknown): PreflightModel | null {
+  const payload = asRecord(raw);
+  if (!payload) {
+    return null;
+  }
+  return {
+    readyToRun: Boolean(payload.ready_to_run),
+    diagnostics: asArray(payload.diagnostics)
+      .map((item) => asRecord(item))
+      .filter((item): item is Record<string, unknown> => item !== null)
+      .map((item) => ({
+        code: asString(item.code) ?? "unknown",
+        severity: asString(item.severity) ?? "error",
+        message: asString(item.message) ?? "",
+        path: asArray(item.path)
+          .map((entry) => asString(entry))
+          .filter((entry): entry is string => entry !== null),
+        replanningHints: asArray(item.replanning_hints)
+          .map((entry) => asString(entry))
+          .filter((entry): entry is string => entry !== null),
+      })),
+    notes: asArray(payload.notes)
+      .map((item) => asString(item))
+      .filter((item): item is string => item !== null),
+  };
+}
+
+function normalizeEvaluator(raw: unknown): EvaluatorModel | null {
+  const payload = asRecord(raw);
+  if (!payload) {
+    return null;
+  }
+  const scores = asRecord(payload.scores);
+  return {
+    verdict: asString(payload.verdict),
+    scores: {
+      kpiScore: asNumber(scores?.kpi_score) ?? 0,
+      uncertaintyScore: asNumber(scores?.uncertainty_score) ?? 0,
+      constraintsScore: asNumber(scores?.constraints_score) ?? 0,
+      dataQualityScore: asNumber(scores?.data_quality_score) ?? 0,
+      budgetScore: asNumber(scores?.budget_score) ?? 0,
+      totalScore: asNumber(scores?.total_score) ?? 0,
+    },
+    reasons: asArray(payload.reasons)
+      .map((item) => asString(item))
+      .filter((item): item is string => item !== null),
+    replanningHints: asArray(payload.replanning_hints)
+      .map((item) => asString(item))
+      .filter((item): item is string => item !== null),
+  };
+}
+
+function normalizeIterationLifecycle(raw: unknown): IterationLifecycleModel | null {
+  const payload = asRecord(raw);
+  if (!payload) {
+    return null;
+  }
+  return {
+    iteration: Math.max(1, asNumber(payload.iteration) ?? 1),
+    state: asString(payload.state) ?? "unknown",
+    stopReason: asString(payload.stop_reason),
+    lastVerdict: asString(payload.last_verdict),
+    notes: asArray(payload.notes)
+      .map((item) => asString(item))
+      .filter((item): item is string => item !== null),
+  };
+}
+
+function normalizeReproducibility(raw: unknown): ReproducibilityModel | null {
+  const payload = asRecord(raw);
+  if (!payload) {
+    return null;
+  }
+  return {
+    seed: Math.max(0, asNumber(payload.seed) ?? 0),
+    planHash: asString(payload.plan_hash),
+    registryHash: asString(payload.registry_hash),
+    methodCatalogHash: asString(payload.method_catalog_hash),
+    dataSnapshotHash: asString(payload.data_snapshot_hash),
+    inputBindingsHash: asString(payload.input_bindings_hash),
+    notes: asArray(payload.notes)
+      .map((item) => asString(item))
+      .filter((item): item is string => item !== null),
+  };
 }
 
 function normalizeStep(raw: unknown): AgentStepView | null {
@@ -171,6 +389,11 @@ export function normalizeAgentPipeline(payload: unknown): AgentPipelineModel {
     source: asString(pipeline.source),
     hasPromptData,
     attempts,
+    retrieval: normalizeRetrievalTelemetry(pipeline.retrieval),
+    preflight: normalizePreflight(pipeline.preflight),
+    evaluator: normalizeEvaluator(pipeline.evaluator),
+    iterationLifecycle: normalizeIterationLifecycle(pipeline.iteration_lifecycle),
+    reproducibility: normalizeReproducibility(pipeline.reproducibility),
     notes: asArray(pipeline.notes)
       .map((item) => asString(item))
       .filter((item): item is string => item !== null),

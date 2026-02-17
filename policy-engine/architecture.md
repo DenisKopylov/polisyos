@@ -85,7 +85,10 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │       │   │   ├── backtest.py  # Backtesting contracts.
 │       │   │   ├── causal.py  # Causal inference contracts.
 │       │   │   ├── compiler.py  # Compiler typed references.
+│       │   │   ├── control.py  # Control Plane request/response DTOs.
+│       │   │   ├── cursor.py  # Cursor-based pagination contracts.
 │       │   │   ├── distributional.py  # Distributional analysis contracts.
+│       │   │   ├── execution_plan.py  # Execution-plan contracts for unified LLM policy cycle.
 │       │   │   ├── fabric.py  # Fabric evidence/bounds contracts.
 │       │   │   ├── foundry.py  # Foundry ProgramGraph/ExecPlan contracts.
 │       │   │   ├── hte.py  # Heterogeneous treatment effects contracts.
@@ -213,7 +216,9 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │       │   │   ├── binding.py  # Hash-locked metric bindings.
 │       │   │   ├── contract.py  # DataContract models.
 │       │   │   ├── registry.py  # DataContractRegistry.
+│       │   │   ├── resolver_fast_lane.py  # Deterministic FastLane resolver for metric→fetch plan.
 │       │   │   ├── search.py  # Metric search/disambiguation.
+│       │   │   ├── source_bindings.py  # Curated metric→source bindings for FastLane resolution.
 │       │   │   └── validate.py  # Contract collection validation.
 │       │   ├── claims/  # Claims management and verification.
 │       │   │   ├── __init__.py
@@ -256,6 +261,12 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │       │   │   ├── registry_core.py  # Core registry implementation.
 │       │   │   ├── registry_core_parts.py  # Decomposed registry helpers.
 │       │   │   ├── validation.py  # Input validation.
+│       │   │   ├── bindings/  # Metric→source binding profiles.
+│       │   │   │   ├── __init__.py
+│       │   │   │   ├── builtin_profiles.py  # Built-in binding profile definitions.
+│       │   │   │   ├── models.py  # Binding data models.
+│       │   │   │   ├── registry.py  # Binding profile registry.
+│       │   │   │   └── resolver.py  # Binding resolution logic.
 │       │   │   ├── cache/  # CAS-based caching.
 │       │   │   │   ├── __init__.py
 │       │   │   │   ├── _store_core.py  # Core cache store logic.
@@ -293,6 +304,12 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │       │   │   │   ├── ranker.py  # Source ranking.
 │       │   │   │   ├── resolver.py  # Conflict resolution.
 │       │   │   │   └── types.py  # Federation types.
+│       │   │   ├── profiles/  # Source connection profiles.
+│       │   │   │   ├── __init__.py
+│       │   │   │   ├── builtin_profiles.py  # Built-in source profile definitions.
+│       │   │   │   ├── models.py  # Profile data models.
+│       │   │   │   ├── registry.py  # Source profile registry.
+│       │   │   │   └── resolver.py  # Profile resolution logic.
 │       │   │   ├── quality/  # Data quality assessment.
 │       │   │   │   ├── __init__.py
 │       │   │   │   ├── completeness.py  # Completeness validation.
@@ -313,14 +330,22 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │       │   │   │   └── retry.py  # Retry logic.
 │       │   │   ├── sources/  # Production data source connectors.
 │       │   │   │   ├── __init__.py
+│       │   │   │   ├── ckan_catalog.py  # CKAN catalog discovery connector.
+│       │   │   │   ├── ckan_resource.py  # CKAN resource download connector.
 │       │   │   │   ├── eurostat.py  # Eurostat statistics connector.
 │       │   │   │   ├── http_base.py  # Shared HTTP connector base class.
 │       │   │   │   ├── http_common.py  # Common HTTP utilities.
+│       │   │   │   ├── opendatasoft.py  # OpenDataSoft portal connector.
+│       │   │   │   ├── rest_json.py  # Generic REST/JSON source connector.
+│       │   │   │   ├── sdmx_source.py  # SDMX statistical data connector.
+│       │   │   │   ├── socrata.py  # Socrata open data connector.
+│       │   │   │   ├── sparql.py  # SPARQL endpoint connector.
 │       │   │   │   ├── ukons.py  # UK ONS statistics connector.
 │       │   │   │   ├── world_bank.py  # World Bank data connector.
 │       │   │   │   └── _contracts/  # Source-specific data contracts.
 │       │   │   │       ├── __init__.py
 │       │   │   │       ├── eurostat_contracts.py  # Eurostat schema contracts.
+│       │   │   │       ├── sdmx_contracts.py  # SDMX schema contracts.
 │       │   │   │       ├── ukons_contracts.py  # UK ONS schema contracts.
 │       │   │   │       └── world_bank_contracts.py  # World Bank schema contracts.
 │       │   │   ├── testing/  # Connector test infrastructure.
@@ -355,6 +380,14 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │       │   │       ├── dimensions.py  # Dimensional data types.
 │       │   │       ├── temporal.py  # Temporal types.
 │       │   │       └── units.py  # Unit conversion facade.
+│       │   ├── data_plane/  # Incremental data ingestion and replay.
+│       │   │   ├── __init__.py
+│       │   │   ├── cursor_store.py  # Cursor-based pagination state store.
+│       │   │   ├── modes.py  # Ingestion mode definitions (full/incremental/streaming).
+│       │   │   ├── orchestrator.py  # Incremental ingestion orchestrator.
+│       │   │   ├── regression.py  # Data regression detection.
+│       │   │   ├── replay_store.py  # Record/replay store for ingestion.
+│       │   │   └── watermark.py  # High-watermark tracking for incremental loads.
 │       │   ├── docs/  # Document processing pipeline.
 │       │   │   ├── __init__.py
 │       │   │   ├── chunking.py  # Document chunking.
@@ -380,6 +413,11 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │       │   │   ├── __init__.py
 │       │   │   ├── core.py  # PROV-O graph models.
 │       │   │   └── export_provo.py  # PROV-O export.
+│       │   ├── retrieval/  # Hybrid data retrieval service.
+│       │   │   ├── __init__.py
+│       │   │   ├── executor.py  # FetchPlan preview/execute with quality gate.
+│       │   │   ├── explore_lane.py  # Bounded on-demand metadata discovery (ExploreLane).
+│       │   │   └── service.py  # Hybrid retrieval service (FastLane + ExploreLane + PromotionLane).
 │       │   ├── security/  # Fabric-level data security.
 │       │   │   ├── __init__.py
 │       │   │   └── column_mask.py  # Column-level data masking.
@@ -518,6 +556,7 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │       │   │   ├── artifacts.py  # Method artifact facade.
 │       │   │   ├── artifacts_parts.py  # Decomposed artifact helpers.
 │       │   │   ├── base.py  # Base method protocol.
+│       │   │   ├── catalog_snapshot.py  # Method catalog snapshot builder from MethodRegistry.
 │       │   │   ├── compiler.py  # Method compiler.
 │       │   │   ├── components_bridge.py  # Component system bridge.
 │       │   │   ├── composer.py  # Method composition.
@@ -723,12 +762,34 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │       │   ├── errors.py  # Lex error types.
 │       │   ├── factlog.py  # Lex fact log integration.
 │       │   ├── types.py  # Lex type definitions.
+│       │   ├── batch/  # Lex batch pipeline for legal document processing.
+│       │   │   ├── __init__.py
+│       │   │   ├── __main__.py  # Module entry point.
+│       │   │   ├── canonicalizers.py  # Canonicalizers for SPO extraction.
+│       │   │   ├── cli.py  # CLI entry point for Lex batch pipeline.
+│       │   │   ├── config.py  # Configuration for Lex batch pipeline.
+│       │   │   ├── embedder.py  # Generate embeddings and build HNSW indexes.
+│       │   │   ├── graph_builder.py  # Stream SPO results into DuckDB knowledge graph.
+│       │   │   ├── openai_batch_embeddings.py  # OpenAI Batch API workflow for embeddings.
+│       │   │   ├── pipeline.py  # Orchestrate all stages of the batch pipeline.
+│       │   │   ├── progress.py  # Checkpoint/resume tracker for batch pipeline.
+│       │   │   ├── provisions_io.py  # Disk helpers for Stage 2 provisions with shard prefix.
+│       │   │   ├── quality_report.py  # Quality report and quality gates.
+│       │   │   ├── spo_extractor.py  # Async LLM-based 2-pass SPO extraction.
+│       │   │   ├── spo_prompts.py  # Prompt templates for Ukrainian legal provision extraction.
+│       │   │   ├── structurer.py  # Lightweight provision extraction using UA regex.
+│       │   │   └── xml_parser.py  # Stream-parse ЄДРНПА XML dumps into NPADocument objects.
 │       │   ├── corpus/  # Legal document corpus.
 │       │   │   ├── __init__.py
 │       │   │   ├── index.py  # Corpus indexing.
 │       │   │   ├── ingest.py  # Corpus ingestion.
 │       │   │   ├── structure.py  # Document structure.
 │       │   │   └── versioning.py  # Corpus versioning.
+│       │   ├── knowledge/  # Legal knowledge graph.
+│       │   │   ├── __init__.py
+│       │   │   ├── search.py  # Hybrid search API for legal knowledge graph.
+│       │   │   ├── store.py  # Read-only DuckDB knowledge graph + HNSW vector indexes.
+│       │   │   └── types.py  # Domain types for knowledge graph (SPO entities, facts).
 │       │   ├── legal_evaluation/  # Legal rule evaluation.
 │       │   │   ├── __init__.py
 │       │   │   ├── change_proposals.py  # Legal change proposals.
@@ -780,18 +841,22 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │       │       ├── dependencies.py  # FastAPI dependency injection.
 │       │       ├── errors.py  # HTTP error handlers.
 │       │       ├── jwt_auth_middleware.py  # JWT authentication middleware.
+│       │       ├── openapi_contract.py  # OpenAPI schema contract validation and example generation.
 │       │       ├── routes/  # API route modules.
 │       │       │   ├── __init__.py
 │       │       │   ├── artifacts.py  # /artifacts endpoints.
+│       │       │   ├── control.py  # /api/v1/control/ endpoints (Control Plane).
 │       │       │   ├── debug.py  # /debug endpoints.
 │       │       │   ├── health.py  # /health endpoints.
 │       │       │   └── runs.py  # /runs endpoints.
 │       │       └── services/  # Business logic services.
 │       │           ├── __init__.py
 │       │           ├── artifact_inspector.py  # Artifact inspection service.
+│       │           ├── control.py  # Control Plane business logic service.
 │       │           ├── debug.py  # Debug service.
 │       │           ├── lineage.py  # Lineage tracking service.
 │       │           ├── run_index.py  # Run index/search service.
+│       │           ├── task_runner.py  # Background task runner for control-plane operations.
 │       │           ├── timeline.py  # Timeline service.
 │       │           └── adapters/  # Service adapters.
 │       │               ├── __init__.py
@@ -816,6 +881,7 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │       └── scientist/  # Orchestration: agents, workflows, governance, search.
 │           ├── __init__.py
 │           ├── api.py  # Scientist public API.
+│           ├── llm_cycle.py  # Unified LLM policy cycle orchestrator with DAG execution.
 │           ├── publisher.py  # Result publishing.
 │           ├── replay_backend.py  # Replay backend for re-execution.
 │           ├── adapters/  # External system bridges.
@@ -834,6 +900,7 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │           │   ├── constitution.py  # Agent constitutional constraints.
 │           │   ├── constraint_context.py  # Constraint context propagation.
 │           │   ├── critic.py  # Critic agent.
+│           │   ├── data_need_extractor.py  # DataNeedExtractor agent (mock + LLM).
 │           │   ├── drafter.py  # Drafter agent facade.
 │           │   ├── drafter_clients.py  # Drafter LLM client wrappers.
 │           │   ├── drafter_factory.py  # Drafter instance factory.
@@ -880,6 +947,7 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │           │   ├── errors.py  # Engine errors.
 │           │   ├── executor.py  # Workflow executor.
 │           │   ├── idempotency.py  # Idempotent execution.
+│           │   ├── iteration_state_machine.py  # Iteration lifecycle state machine transitions.
 │           │   ├── protocol.py  # Engine protocol.
 │           │   ├── registry.py  # Node registry.
 │           │   ├── state.py  # Workflow state.
@@ -959,6 +1027,13 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │           │       │   ├── data_plane_gate.py  # Data plane access gate.
 │           │       │   ├── legal_check.py  # Legal check node.
 │           │       │   └── run_governance.py  # Governance node.
+│           │       ├── planning/  # Planning and preflight nodes.
+│           │       │   ├── __init__.py
+│           │       │   ├── build_execution_plan.py  # Execution plan construction node.
+│           │       │   ├── build_method_catalog_snapshot.py  # Method catalog snapshot node.
+│           │       │   ├── ready_to_run.py  # Ready-to-run gate node.
+│           │       │   ├── run_evaluator.py  # Evaluator execution node.
+│           │       │   └── run_preflight.py  # Preflight validation node.
 │           │       └── simulate/  # Simulation nodes.
 │           │           ├── __init__.py
 │           │           ├── propagate_uncertainty.py  # Uncertainty propagation.
@@ -1210,6 +1285,7 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │   │   │   ├── test_no_legacy_entrypoint_groups.py  # Legacy entrypoint check.
 │   │   │   └── test_unified_bootstrap_idempotency.py  # Bootstrap idempotency.
 │   │   ├── contracts/  # Core contract tests.
+│   │   │   ├── test_execution_plan_contracts.py  # Execution plan contract tests.
 │   │   │   └── test_ir_ref_facades.py  # IR reference facade tests.
 │   │   └── security/  # Security subsystem tests.
 │   │       ├── test_access_scope.py  # Access scope tests.
@@ -1271,15 +1347,34 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │   │   │   ├── test_schema_system.py  # Schema system tests.
 │   │   │   ├── test_transform_pipeline.py  # Transform pipeline tests.
 │   │   │   ├── test_type_system.py  # Type system tests.
+│   │   │   ├── bindings/  # Binding profile tests.
+│   │   │   │   └── test_binding_profiles.py  # Binding profile tests.
+│   │   │   ├── profiles/  # Source profile tests.
+│   │   │   │   └── test_source_profiles.py  # Source profile tests.
 │   │   │   ├── reference/  # Reference connector tests.
 │   │   │   │   ├── test_rest_json.py  # REST/JSON tests.
 │   │   │   │   ├── test_sdmx.py  # SDMX tests.
 │   │   │   │   └── test_static_csv.py  # Static CSV tests.
 │   │   │   └── sources/  # Production source connector tests.
+│   │   │       ├── test_ckan.py  # CKAN connector tests.
 │   │   │       ├── test_http_connector_base.py  # HTTP base tests.
 │   │   │       ├── test_http_version_policy.py  # HTTP version policy tests.
 │   │   │       ├── test_no_duplicate_http_helpers.py  # No duplicate helpers.
-│   │   │       └── test_production_connectors.py  # Production connector tests.
+│   │   │       ├── test_opendatasoft.py  # OpenDataSoft connector tests.
+│   │   │       ├── test_production_connectors.py  # Production connector tests.
+│   │   │       ├── test_sdmx_source.py  # SDMX connector tests.
+│   │   │       ├── test_socrata.py  # Socrata connector tests.
+│   │   │       ├── test_sparql.py  # SPARQL connector tests.
+│   │   │       ├── test_wave1_integration.py  # Wave 1 connector integration tests.
+│   │   │       ├── test_wave2_integration.py  # Wave 2 connector integration tests.
+│   │   │       └── test_wave3_integration.py  # Wave 3 connector integration tests.
+│   │   ├── data_plane/  # Fabric data plane tests.
+│   │   │   ├── test_cursor_store.py  # Cursor store tests.
+│   │   │   ├── test_incremental.py  # Incremental ingestion tests.
+│   │   │   ├── test_orchestrator.py  # Orchestrator tests.
+│   │   │   ├── test_record_replay.py  # Record/replay tests.
+│   │   │   ├── test_streaming_windowed.py  # Streaming windowed tests.
+│   │   │   └── test_watermark.py  # Watermark tracking tests.
 │   │   └── pii/  # PII tests.
 │   │       └── test_presidio_detector.py  # Presidio PII detector tests.
 │   ├── foundry/  # Foundry tests.
@@ -1294,6 +1389,7 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │   │   ├── test_calibration_uncertainty_adapter.py  # Calibration uncertainty.
 │   │   ├── test_calibrator_fidelity.py  # Calibrator fidelity tests.
 │   │   ├── test_calibrator_mvp.py  # Calibrator MVP tests.
+│   │   ├── test_catalog_snapshot.py  # Method catalog snapshot tests.
 │   │   ├── test_compile_determinism.py  # Compile determinism.
 │   │   ├── test_compile_facade.py  # Compile facade tests.
 │   │   ├── test_conflict_detection.py  # Conflict detection tests.
@@ -1317,6 +1413,7 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │   │   ├── test_program_graph_ops.py  # Program graph ops tests.
 │   │   ├── test_runtime_batch.py  # Runtime batch tests.
 │   │   ├── test_uncertainty_propagation.py  # Uncertainty propagation.
+│   │   ├── test_unified_dag_method_nodes.py  # Unified DAG method node tests.
 │   │   ├── agent_sim/  # Agent sim tests.
 │   │   │   └── test_monitoring.py  # Monitoring tests.
 │   │   ├── analysis/  # Analysis tests.
@@ -1372,6 +1469,13 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │   │   ├── test_trinity_loaders.py  # Trinity loader tests.
 │   │   └── test_uncertainty.py  # Uncertainty IR tests.
 │   ├── lex/  # Lex tests.
+│   │   ├── batch/  # Lex batch pipeline tests.
+│   │   │   ├── test_canonicalizers.py  # Canonicalizer tests.
+│   │   │   ├── test_graph_builder_ids.py  # Graph builder ID tests.
+│   │   │   ├── test_quality_report.py  # Quality report tests.
+│   │   │   ├── test_sharding_config.py  # Sharding configuration tests.
+│   │   │   ├── test_spo_extractor_normalization.py  # SPO extractor normalization tests.
+│   │   │   └── test_structurer.py  # Structurer tests.
 │   │   └── simulator/  # Lex simulator tests.
 │   │       ├── test_diff.py  # Norm diff tests.
 │   │       ├── test_engine.py  # Simulator engine tests.
@@ -1387,10 +1491,15 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │   │   └── http/  # HTTP API tests.
 │   │       ├── conftest.py
 │   │       ├── test_artifact_inspector_api.py  # Artifact inspector API tests.
+│   │       ├── test_control_api.py  # Control Plane API tests.
 │   │       ├── test_core_only_runs_api.py  # Core-only runs API tests.
 │   │       ├── test_debug_api.py  # Debug API tests.
+│   │       ├── test_e2e_ingestion.py  # End-to-end data ingestion tests.
+│   │       ├── test_insights_api.py  # Insights API tests.
+│   │       ├── test_nl_pipeline_materialization.py  # NL pipeline materialization tests.
 │   │       ├── test_runs_api.py  # Runs API tests.
 │   │       ├── test_runtime_api_authz.py  # Runtime API authorization tests.
+│   │       ├── test_runtime_api_contract_hardening.py  # API contract hardening tests.
 │   │       ├── test_runtime_api_no_legacy_sources.py  # No legacy sources check.
 │   │       └── test_timeline_api.py  # Timeline API tests.
 │   └── scientist/  # Scientist tests.
@@ -1423,7 +1532,9 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │       ├── test_feasibility_probe.py  # Feasibility probe tests.
 │       ├── test_idempotency.py  # Idempotency tests.
 │       ├── test_informed_critic.py  # Informed critic tests.
+│       ├── test_iteration_state_machine.py  # Iteration state machine tests.
 │       ├── test_knowledge_base.py  # Knowledge base tests.
+│       ├── test_llm_cycle_preflight.py  # LLM cycle preflight tests.
 │       ├── test_multipass_drafter.py  # Multi-pass drafter tests.
 │       ├── test_node_registry_components_bootstrap.py  # Node registry bootstrap tests.
 │       ├── test_norm_loader.py  # Norm loader tests.
@@ -1501,6 +1612,7 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │   │   └── migrate_duckdb_to_pg.py  # DuckDB→PostgreSQL migration.
 │   └── runtime/  # Runtime tools.
 │       ├── archive_legacy_runs.py  # Legacy run archival.
+│       ├── check_runtime_api_contract.py  # Runtime API contract validation script.
 │       ├── export_runtime_openapi.py  # OpenAPI spec export.
 │       ├── generate_runtime_client.py  # TypeScript client generation.
 │       └── inventory_legacy_runs.py  # Legacy run inventory.
@@ -1538,6 +1650,110 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │   ├── runtime-api-client/  # TypeScript API client.
 │   │   ├── runtimeApiClient.ts  # TypeScript API client source.
 │   │   └── runtimeApiClient.js  # Compiled JavaScript client.
+│   ├── runtime-dashboard/  # React 18 + Vite + TailwindCSS monitoring dashboard.
+│   │   ├── vite.config.ts  # Vite build configuration.
+│   │   ├── tailwind.config.ts  # Tailwind CSS configuration.
+│   │   └── src/
+│   │       ├── main.tsx  # Application entry point.
+│   │       ├── App.tsx  # Root component with routing.
+│   │       ├── api/  # API layer.
+│   │       │   ├── client.ts  # API client configuration.
+│   │       │   ├── http.ts  # HTTP utilities.
+│   │       │   ├── queryClient.ts  # React Query client configuration.
+│   │       │   ├── queryKeys.ts  # Query key constants.
+│   │       │   ├── types.ts  # Generated TypeScript types from OpenAPI.
+│   │       │   ├── validators.ts  # Zod validators for API responses.
+│   │       │   └── hooks/  # React Query hooks.
+│   │       │       ├── useArtifactContent.ts  # Artifact content fetching.
+│   │       │       ├── useArtifactLineage.ts  # Artifact lineage graph.
+│   │       │       ├── useArtifactManifest.ts  # Artifact manifest fetching.
+│   │       │       ├── useArtifactSchema.ts  # Artifact schema fetching.
+│   │       │       ├── useCacheStatus.ts  # Cache status query.
+│   │       │       ├── useConnectors.ts  # Connector listing.
+│   │       │       ├── useDataCatalogSearch.ts  # Data catalog search.
+│   │       │       ├── useDataIndexStats.ts  # Data index statistics.
+│   │       │       ├── useDataPromotionCandidates.ts  # Data promotion candidates.
+│   │       │       ├── useDiscoverDataSources.ts  # Data source discovery.
+│   │       │       ├── useGovernanceDebug.ts  # Governance debug info.
+│   │       │       ├── useHealth.ts  # Health check query.
+│   │       │       ├── useIngestData.ts  # Data ingestion mutation.
+│   │       │       ├── useLaunchNlRun.ts  # Natural language run launch.
+│   │       │       ├── useLaunchRun.ts  # Policy run launch mutation.
+│   │       │       ├── useLexGraphStats.ts  # Lex knowledge graph statistics.
+│   │       │       ├── useLexPipelineStatus.ts  # Lex pipeline status query.
+│   │       │       ├── useLexSearch.ts  # Lex knowledge graph search.
+│   │       │       ├── useLexTrigger.ts  # Lex pipeline trigger mutation.
+│   │       │       ├── useLlmProfiles.ts  # LLM profile listing.
+│   │       │       ├── useNodeDebug.ts  # Node debug info.
+│   │       │       ├── usePreviewFetchPlan.ts  # Fetch plan preview.
+│   │       │       ├── usePromotionDecision.ts  # Promotion decision mutation.
+│   │       │       ├── useResolveDataNeeds.ts  # Data needs resolution.
+│   │       │       ├── useRunAgents.ts  # Run agent details.
+│   │       │       ├── useRunDetails.ts  # Run detail fetching.
+│   │       │       ├── useRunErrors.ts  # Run error fetching.
+│   │       │       ├── useRunLineage.ts  # Run lineage graph.
+│   │       │       ├── useRunNodes.ts  # Run node listing.
+│   │       │       ├── useRunTimeline.ts  # Run timeline events.
+│   │       │       ├── useRunWorkflow.ts  # Run workflow state.
+│   │       │       ├── useRuns.ts  # Run listing query.
+│   │       │       └── useSourceProfiles.ts  # Source profile listing.
+│   │       ├── components/  # UI components.
+│   │       │   ├── agents/
+│   │       │   │   └── AgentPipelinePanel.tsx  # Agent pipeline visualization.
+│   │       │   ├── data/
+│   │       │   │   └── DataIntelligencePanel.tsx  # Data analysis and recommendations.
+│   │       │   ├── debug/
+│   │       │   │   ├── ErrorsPanel.tsx  # Error display panel.
+│   │       │   │   └── NodeDebugPanel.tsx  # Node debug inspection.
+│   │       │   ├── decision/
+│   │       │   │   └── DecisionCardView.tsx  # Decision card display.
+│   │       │   ├── governance/
+│   │       │   │   └── GovernanceReport.tsx  # Governance report view.
+│   │       │   ├── layout/
+│   │       │   │   ├── Header.tsx  # Application header.
+│   │       │   │   ├── Shell.tsx  # Application shell layout.
+│   │       │   │   └── Sidebar.tsx  # Navigation sidebar.
+│   │       │   ├── shared/
+│   │       │   │   ├── ApiErrorAlert.tsx  # API error display.
+│   │       │   │   ├── EmptyState.tsx  # Empty state placeholder.
+│   │       │   │   ├── JsonPreview.tsx  # JSON data preview.
+│   │       │   │   ├── LineageGraph.tsx  # Lineage graph visualization.
+│   │       │   │   └── StatusBadge.tsx  # Status indicator badge.
+│   │       │   ├── simulation/
+│   │       │   │   ├── CalibrationReport.tsx  # Calibration report view.
+│   │       │   │   ├── DistributionalPanel.tsx  # Distributional analysis panel.
+│   │       │   │   ├── MetricsPanel.tsx  # Simulation metrics display.
+│   │       │   │   ├── SimulationResultsViewer.tsx  # Simulation results.
+│   │       │   │   └── UncertaintyOverlay.tsx  # Uncertainty visualization overlay.
+│   │       │   ├── trinity/
+│   │       │   │   ├── InterventionDetail.tsx  # Intervention detail view.
+│   │       │   │   ├── TrinityCard.tsx  # Trinity artifact card.
+│   │       │   │   └── TrinityDiff.tsx  # Trinity diff visualization.
+│   │       │   ├── ui/
+│   │       │   │   └── card.tsx  # Reusable card component.
+│   │       │   └── workflow/
+│   │       │       └── WorkflowDagPanel.tsx  # Workflow DAG visualization.
+│   │       ├── lib/  # Shared utilities.
+│   │       │   ├── constants.ts  # Application constants.
+│   │       │   ├── parsing.ts  # Data parsing utilities.
+│   │       │   ├── utils.ts  # General utility functions.
+│   │       │   └── domain/  # Domain logic.
+│   │       │       ├── agents.ts  # Agent-related utilities.
+│   │       │       ├── decision.ts  # Decision domain logic.
+│   │       │       ├── governance.ts  # Governance domain logic.
+│   │       │       ├── simulation.ts  # Simulation domain logic.
+│   │       │       ├── trinity.ts  # Trinity domain logic.
+│   │       │       └── workflow.ts  # Workflow domain logic.
+│   │       └── pages/  # Route pages.
+│   │           ├── ArtifactInspector.tsx  # Artifact inspection page.
+│   │           ├── Dashboard.tsx  # Main dashboard page.
+│   │           ├── DataManagement.tsx  # Data management page.
+│   │           ├── LaunchRun.tsx  # Run launch page.
+│   │           ├── LexKnowledgeGraph.tsx  # Knowledge graph visualization page.
+│   │           ├── RunDetail.tsx  # Run detail page.
+│   │           ├── RunsList.tsx  # Runs list page.
+│   │           ├── SourcesManagement.tsx  # Source profile management page.
+│   │           └── SystemHealth.tsx  # System health page.
 │   └── runtime-reference-shell/  # Reference UI shell.
 │       ├── index.html  # Shell HTML entry point.
 │       ├── app.js  # Shell application logic.

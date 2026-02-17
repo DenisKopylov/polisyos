@@ -1,61 +1,53 @@
 # Prometheus (`ops/prometheus`)
 
-Конфигурация scrape, alerting и recording rules для метрик PolicyOS.
+Конфигурация scrape, alerting и recording rules для PolicyOS.
 
-## Структура
+## Файлы
 
 | Файл | Назначение |
 |---|---|
-| `prometheus.yml` | global scrape/eval interval + rule_files + scrape jobs |
-| `alerts.yml` | operational alerts (cost/agents/simulation/calibration/cell/security) |
+| `prometheus.yml` | global interval, `rule_files`, `scrape_configs` |
+| `alerts.yml` | operational/security alerts |
 | `slo_alerts.yml` | SLO alerts |
-| `recording_rules.yml` | operational recording rules |
-| `slo_recording_rules.yml` | SLO recording rules |
-| `rules/audit_chain_alerts.yml` | alerts по audit chain и tenant boundary violations |
-| `rules/mtls-rules.yaml` | Linkerd/mTLS alerts (файл есть, но не подключен по умолчанию) |
+| `recording_rules.yml` | operational precompute |
+| `slo_recording_rules.yml` | SLO precompute |
+| `rules/audit_chain_alerts.yml` | alerts для audit chain и tenant boundary |
+| `rules/mtls-rules.yaml` | mTLS alerts для mesh (не подключен в `rule_files` по умолчанию) |
 
-## Что реально загружается из `prometheus.yml`
+## Что загружает `prometheus.yml`
 
-- recording: `recording_rules.yml` (6) + `slo_recording_rules.yml` (9)
-- alerts: `alerts.yml` (18) + `slo_alerts.yml` (5) + `rules/audit_chain_alerts.yml` (4)
+- recording rules: `recording_rules.yml` (6) + `slo_recording_rules.yml` (9);
+- alerts: `alerts.yml` (18) + `slo_alerts.yml` (5) + `rules/audit_chain_alerts.yml` (4).
 
-Итого: 15 recording rules и 27 alerts (по текущим файлам).
+Итого: 15 recording rules и 27 alerts.
 
 ## Scrape jobs
 
-- `prometheus` -> `prometheus:9090`
-- `polisyos` -> `host.docker.internal:9464/metrics` (label `environment=development`)
+- `prometheus` -> `prometheus:9090`;
+- `polisyos` -> `host.docker.internal:9464/metrics` с label `environment=development`.
 
-## Alert groups
+## Группы алертов
 
-`alerts.yml`:
+- `polisyos.cost`
+- `polisyos.agents`
+- `polisyos.simulation`
+- `polisyos.calibration`
+- `polisyos.cell_isolation`
+- `polisyos.phase4_security`
+- `polisyos.slo`
+- `polisyos_audit_chain`
 
-- `polisyos.cost` (2)
-- `polisyos.agents` (3)
-- `polisyos.simulation` (4)
-- `polisyos.calibration` (2)
-- `polisyos.cell_isolation` (3)
-- `polisyos.phase4_security` (4)
+## Особенности
 
-`slo_alerts.yml`:
-
-- `polisyos.slo` (5)
-
-`rules/audit_chain_alerts.yml`:
-
-- `polisyos_audit_chain` (4)
-
-## Важные особенности
-
-- SLO правила используют precompute из `slo_recording_rules.yml`.
-- В `slo_recording_rules.yml` применяется `clamp_min(..., 1e-9)` против деления на ноль.
-- Пороги в alert-выражениях заданы прямо в PromQL (комментарии могут ссылаться на env vars, но подстановка env в rule files не выполняется автоматически).
+- SLO alerts завязаны на precompute из `slo_recording_rules.yml`.
+- В SLO recording используется `clamp_min(..., 1e-9)` для защиты от деления на ноль.
+- Пороговые значения зашиты в PromQL выражениях; переменные окружения в `rule_files` не подставляются автоматически.
 
 ## Связь с кодом
 
-- Метрики публикуются из `src/polisyos/core/observability/*`.
-- Security/tenant/cell/sbom/tee метрики приходят из `src/polisyos/core/security/*`.
-- SLO метрики формируются в runtime/scientist/fabric интеграциях и читаются тут как `polisyos_slo_*`.
+- `src/polisyos/core/observability/*` публикует базовые runtime метрики;
+- `src/polisyos/core/security/*` публикует security/tenant/TEE/SBOM метрики;
+- метрики `polisyos_slo_*` приходят из runtime/scientist/fabric контуров.
 
 ## Локальный запуск
 
@@ -64,12 +56,20 @@ cd policy-engine/ops
 docker compose -f docker-compose.observability.yml up -d
 ```
 
-## Ограничение текущего docker-compose
+## Локальный caveat
 
-`prometheus.yml` включает `/etc/prometheus/rules/audit_chain_alerts.yml`, но `docker-compose.observability.yml` не монтирует `./prometheus/rules`.
+`prometheus.yml` ссылается на `/etc/prometheus/rules/audit_chain_alerts.yml`, но `docker-compose.observability.yml` не монтирует `./prometheus/rules`.
 
-Для работы rule-файлов из `prometheus/rules/` нужно добавить volume mount, например:
+Добавьте volume:
 
 ```yaml
 - ./prometheus/rules:/etc/prometheus/rules:ro
+```
+
+## Проверка конфигурации
+
+```bash
+promtool check rules policy-engine/ops/prometheus/alerts.yml
+promtool check rules policy-engine/ops/prometheus/slo_alerts.yml
+promtool check rules policy-engine/ops/prometheus/rules/audit_chain_alerts.yml
 ```

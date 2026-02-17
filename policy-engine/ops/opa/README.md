@@ -1,56 +1,63 @@
 # OPA Policies (`ops/opa`)
 
-Rego-политики для runtime authorization и deploy gate в PolicyOS.
+Rego-политики для двух контуров:
 
-## Что здесь есть
+- runtime authorization (`polisyos/authz/decision`);
+- deploy gate на базе SBOM/CVE (`polisyos/deploy/decision`).
 
-- `policies/*.rego` — 7 policy-модулей.
+## Состав
+
+- `policies/*.rego` — 7 policy-модулей;
 - `policies/*_test.rego` — 7 unit-тестов.
 
-## Точки входа (entrypoints)
+## Entry points
 
-- Runtime authz: `data.polisyos.authz.decision`  
-  HTTP path для OPA API: `/v1/data/polisyos/authz/decision`
-- Deployment gate: `data.polisyos.deploy.decision`  
-  HTTP path: `/v1/data/polisyos/deploy/decision`
+| Контур | OPA data path | HTTP path |
+|---|---|---|
+| Runtime authz | `data.polisyos.authz.decision` | `/v1/data/polisyos/authz/decision` |
+| Deploy gate | `data.polisyos.deploy.decision` | `/v1/data/polisyos/deploy/decision` |
 
-## Модули
+## Модули политик
 
-- `tenant_boundary.rego` — tenant boundary deny-by-default.
-- `role_access.rego` — RBAC по method/path + MFA для sensitive paths.
-- `data_classification.rego` — PII-tier ceiling, anonymization/mfa checks, `allowed_columns`.
-- `delegation_guard.rego` — защита делегированного user context по SPIFFE peer identity.
-- `decision.rego` — композитная runtime policy (`allow` только если все sub-policy allow).
-- `vulnerability.rego` — CVE/SBOM gate по CVSS threshold + allowlist exceptions.
-- `deploy.rego` — композитный deploy entrypoint над vulnerability policy.
+- `tenant_boundary.rego` — deny cross-tenant доступ.
+- `role_access.rego` — RBAC по HTTP method/path и MFA-check для sensitive путей.
+- `data_classification.rego` — проверка PII ceiling, anonymization, `allowed_columns`.
+- `delegation_guard.rego` — валидация делегации user-контекста через SPIFFE peer identity.
+- `decision.rego` — композитное runtime-решение (allow только при allow всех sub-policy).
+- `vulnerability.rego` — SBOM/CVE gate (CVSS threshold + allow exceptions).
+- `deploy.rego` — композитный deploy gate поверх `vulnerability`.
 
-## Контракт входных данных
+## Входной контракт
 
-Политики ожидают поля:
+Runtime-политики ожидают:
 
-- `request`: `method`, `path`, `headers`
-- `identity`: `tenant_id`, `roles`, `principal_type`, `mfa_verified`, `cell_id`, `sub`, `spiffe_id`
-- `peer`: `spiffe_id`
-- `resource`: `tenant_id`, `kind`, `artifact_id`, `pii_tier`, `metric_id`, `columns`, `requires_anonymization`
+- `request`: `method`, `path`, `headers`;
+- `identity`: `tenant_id`, `roles`, `principal_type`, `mfa_verified`, `cell_id`, `sub`, `spiffe_id`;
+- `peer`: `spiffe_id`;
+- `resource`: `tenant_id`, `kind`, `artifact_id`, `pii_tier`, `metric_id`, `columns`, `requires_anonymization`.
 
-Этот контракт формируется в `src/polisyos/core/security/authz.py` (`AuthzInput.to_opa_input()`) и используется в `src/polisyos/runtime/http/authz_middleware.py`.
+Контракт формируется в `src/polisyos/core/security/authz.py` (`AuthzInput.to_opa_input()`) и применяется в `src/polisyos/runtime/http/authz_middleware.py`.
 
-## Формат результата decision
+Deploy-политики используют `input.deployment` (image, sbom, vulnerabilities, overrides) и опционально `input.policy.cvss_threshold`.
 
-Ожидаемые поля:
+## Выходной контракт
 
-- `allow` (boolean)
-- `deny_reasons` (list/set)
-- `audit_entry` (object)
-- `allowed_columns` (optional; для data classification)
+`decision`-модули возвращают:
 
-## Локальные проверки
+- `allow` (`bool`);
+- `deny_reasons` (`set/list`);
+- `audit_entry` (`object`);
+- `allowed_columns` (опционально, для data classification).
+
+Fail-closed поведение при недоступности OPA реализовано в `src/polisyos/core/security/authz.py` (`OPAClient`).
+
+## Проверка
 
 ```bash
 opa test policy-engine/ops/opa/policies -v
 ```
 
-## Важно про Helm
+## Синхронизация с Helm chart
 
-В `ops/helm/polisyos-cell/policies/` лежит копия policy-файлов для ConfigMap внутри chart.
-При изменении Rego в `ops/opa/policies/` синхронизируйте дубли в `ops/helm/polisyos-cell/policies/`.
+`ops/helm/polisyos-cell/policies/` содержит копию Rego для ConfigMap в chart.
+После изменения файлов в `ops/opa/policies/` синхронизируйте копии перед релизом chart.

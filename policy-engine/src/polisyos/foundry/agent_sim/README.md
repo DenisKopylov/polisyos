@@ -1,88 +1,80 @@
 # Agent Simulation (`polisyos.foundry.agent_sim`)
 
-`agent_sim` - подсистема Foundry для агентно-ориентированных симуляций с RL, графовой динамикой и жизненным циклом популяции.
+`agent_sim` — подсистема Foundry для агентно-ориентированных симуляций, RL-обучения и динамики популяции/графа.
 
-Актуально по коду на 2026-02-10.
+Актуально по коду на 2026-02-17.
 
 ## Роль в системе
 
-`agent_sim` решает задачи, где нужна микро-динамика агентов и обучение политик.
-Это отдельный вычислительный контур внутри Foundry и не является прямой заменой основного Trinity `compile -> execute` pipeline.
+`agent_sim` покрывает микроуровень (поведение агентов, обучение, демография, сетевые эффекты) и работает как отдельный execution contour внутри Foundry.
+
+Важно: это не замена базового Trinity pipeline `foundry.compile -> foundry.execute`, а параллельный стек для ABM/RL сценариев.
 
 ## Архитектура исполнения
 
-```
-Mechanisms -> PureExecutor -> DistributionAwareExecutor -> GraphAwareExecutor -> PopulationAwareExecutor
-                              (+distribution)             (+graph)             (+lifecycle)
+```text
+Mechanisms
+  -> PureExecutor
+  -> DistributionAwareExecutor
+  -> GraphAwareExecutor
+  -> PopulationAwareExecutor
 ```
 
 Ключевые исполнители:
-- `executor.py` - `PureExecutor`, deterministic ordering по reads/writes (`MechanismOrder`), `step` и `run`.
-- `distribution_executor.py` - добавляет обновление распределительных метрик.
-- `graph_executor.py` - добавляет обновление социального/экономического графа.
-- `population_executor.py` - добавляет рождение/смерть/миграцию/наследование и синхронизацию графа.
-- `temporal_executor.py` - фабрика temporal-aware конфигурации.
+- `executor.py` — deterministic ordering механизмов (`MechanismOrder`), `step`/`run`.
+- `distribution_executor.py` — обновление distribution-метрик.
+- `graph_executor.py` — обновление графа и graph metrics.
+- `population_executor.py` — lifecycle (birth/death/migration/inheritance) + sync графа с популяцией.
+- `temporal_executor.py` — temporal-aware конфигурация (подменяет/добавляет temporal consumption mechanism).
 
 ## Модель состояния
 
-Основные типы в `state.py`:
-- `AgentState` (state-of-arrays, 28 полей, включая демографию, финансы, связи, ожидания).
-- `PolicyState` (глобальные policy-параметры).
-- `AggregateState` (агрегаты по популяции).
-- `GlobalState` (композит: agents/policy/aggregates/distributions/graph/population_manager/time/rng).
+`state.py` задаёт state-of-arrays модель:
+- `AgentState` — демография, доходы/богатство, ожидания, связи, статусы активности;
+- `PolicyState` — общие policy-параметры;
+- `AggregateState` — агрегаты уровня популяции;
+- `GlobalState` — композиция agents/policy/aggregates/distributions/graph/population manager/time/rng.
 
-## Механизмы
+Особенность: динамическая популяция ведётся через fixed-size буферы и `active` маски.
 
-Базовый контракт в `mechanism.py`: `MechanismSpec` + `apply(state, rng_key, fidelity)`.
+## Механизмы и домены поведения
 
-Семейства механизмов:
-- `mechanisms.py`, `distribution_mechanisms.py` - налоги, потребление, трансферы, distribution-aware поведение.
-- `graph_mechanisms.py` - социальное влияние, diffusion, сетевое кредитование и labor-связи.
-- `temporal_mechanisms.py` - temporal/RL-driven действия по потреблению.
-- `population_mechanisms.py` - aging, births, deaths, migration, inheritance, gifts.
+- `mechanism.py` — базовый контракт `MechanismSpec` + `apply(...)`.
+- `mechanisms.py`, `distribution_mechanisms.py` — налоги/трансферы/потребление + distribution-aware логика.
+- `graph_mechanisms.py` — diffusion/social influence/network lending/labor network эффекты.
+- `temporal_mechanisms.py` — temporal policy/mechanism слой.
+- `population_mechanisms.py` — aging/birth/death/migration/inheritance/gifts.
 
 ## Обучение и оптимизация
 
-- `actor_critic.py` - ActorCritic/Value/Advantage сети.
-- `rl.py` - trajectory структуры, GAE, PPO loss.
-- `training.py` - eager (Python-loop) обучение.
-- `jit_training.py` - полностью JIT-ориентированное обучение.
-- `modes.py` - режимы `AGENTS_ADAPT`, `POLICY_OPTIMIZE`, `CALIBRATE`, `BILEVEL`.
-- `credit_assignment.py` - multi-agent credit assignment.
+- `actor_critic.py`, `rl.py` — policy/value сети, trajectory, GAE/PPO.
+- `training.py` — eager/Python-loop обучение.
+- `jit_training.py` — JIT-ориентированный training path.
+- `credit_assignment.py` — multi-agent credit assignment.
+- `modes.py` — режимы оптимизации/калибровки и bilevel сценарии.
+- Альтернативные решатели: `evolution.py` (ES/CMA-ES), `vfi.py`, `mpc.py`.
 
-Альтернативные решатели:
-- `evolution.py` (ES/CMA-ES)
-- `vfi.py` (VFI)
-- `mpc.py` (MPC/Hybrid planner)
+## Артефакты, анализ, визуализация
 
-## Графы, распределения и популяция
-
-- `graphs.py` - структуры графа, генераторы, message passing и graph metrics.
-- `distributions.py` - Gini/Palma/quantiles/ranks/mobility и distribution-aware reward.
-- `population.py` - slot allocator и операции управления активной популяцией в fixed-size state.
-
-## Артефакты и анализ
-
-- `artifact.py` - `AgentPolicyArtifact`, совместимость/валидация окружения, CAS persistence.
-- `experiment.py` - эксперимент-трекинг и воспроизводимость запусков.
-- `metrics.py` - JIT-friendly `MetricsCollector`.
-- `analysis.py`, `demographics.py` - поведенческий и демографический анализ.
-- `visualization.py`, `dashboard.py` - визуализация и отчеты.
+- `artifact.py` — policy artifact + environment compatibility/fingerprint.
+- `experiment.py` — трекинг экспериментов и воспроизводимость.
+- `metrics.py`, `analysis.py`, `demographics.py` — диагностика поведения и популяции.
+- `visualization.py`, `dashboard.py` — отчёты и графики.
 
 ## Связь с другими директориями
 
 `agent_sim` зависит от:
-- `foundry/contracts/fidelity.py` (общие уровни fidelity);
-- `foundry/runtime/fingerprint.py` (environment fingerprint/determinism);
-- `core/artifacts/*` (политики и артефакты в CAS);
-- `common/logger` и вычислительного стека JAX/Equinox/Optax.
+- `foundry/contracts/fidelity.py`;
+- `foundry/runtime/fingerprint.py`;
+- `core/artifacts/*` и `core/observability/*`;
+- JAX/Equinox/Optax стека.
 
 `agent_sim` используется в:
-- `foundry/plugins/` (встроенный economics plugin использует части `agent_sim`);
-- пользовательских/экспериментальных сценариях обучения и симуляции.
+- `foundry/plugins/*` (встроенный economics plugin и composite execution слой);
+- прикладных RL/ABM сценариях.
 
 ## Текущее состояние и ограничения
 
-- Масштабирование динамической популяции реализовано через fixed-size буферы + `active` masks.
-- Для крупных прогонов предпочтителен `jit_training.py`; `training.py` сохраняет Python-loop путь.
-- Подсистема независима от Trinity-исполнителя (`foundry.compile/execute`) и требует отдельной оркестрации в смешанных сценариях.
+- Для долгих/массовых прогонов предпочтителен `jit_training.py`; `training.py` оставлен как простой и дебажный путь.
+- Популяционная динамика опирается на capacity-лимиты (`max_agents`) и allocator-механику.
+- Интеграция с Trinity контуром требует явной orchestration на уровне `scientist` или прикладного кода.

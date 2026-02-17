@@ -1,0 +1,92 @@
+from __future__ import annotations
+
+from polisyos.lex.batch.canonicalizers import (
+    canonicalize_action,
+    canonicalize_norm_type,
+    extract_thresholds_from_text,
+)
+
+
+def test_canonicalize_action_maps_known_synonym() -> None:
+    canon, oov = canonicalize_action("must_be_revoked_or_reduced")
+    assert canon == "revokes"
+    assert oov is False
+
+
+def test_canonicalize_action_marks_oov() -> None:
+    canon, oov = canonicalize_action("totally_custom_predicate")
+    assert canon == "requires"
+    assert oov is True
+
+
+def test_canonicalize_norm_type_maps_known_synonym() -> None:
+    canon, oov = canonicalize_norm_type("must")
+    assert canon == "obligation"
+    assert oov is False
+
+
+def test_extract_thresholds_from_text_finds_percent_and_duration() -> None:
+    thresholds = extract_thresholds_from_text(
+        "Надбавка до 25% посадового окладу за стаж 2 роки",
+        applies_to="customs_employee",
+    )
+    assert len(thresholds) == 2
+    assert thresholds[0].metric == "percent"
+    assert thresholds[0].unit == "percent"
+    assert thresholds[1].metric == "duration"
+    assert thresholds[1].unit == "year"
+    assert all(t.applies_to == "customs_employee" for t in thresholds)
+
+
+def test_canonicalize_action_maps_verify_label() -> None:
+    canon, oov = canonicalize_action("adopt_proposal")
+    assert canon == "approves"
+    assert oov is False
+
+
+def test_canonicalize_norm_type_maps_verify_label() -> None:
+    canon, oov = canonicalize_norm_type("directive")
+    assert canon == "obligation"
+    assert oov is False
+
+
+def test_canonicalize_action_maps_new_verify_tokens() -> None:
+    canon, oov = canonicalize_action("enter_into_force")
+    assert canon == "enters_into_force"
+    assert oov is False
+
+
+def test_canonicalize_action_maps_cyrillic_token() -> None:
+    canon, oov = canonicalize_action("прийняти пропозицію")
+    assert canon == "approves"
+    assert oov is False
+
+
+def test_canonicalize_action_maps_new_smoke_tokens() -> None:
+    canon, oov = canonicalize_action("declared_inconsistent")
+    assert canon == "prohibits"
+    assert oov is False
+
+    canon, oov = canonicalize_action("submit proposal")
+    assert canon == "requires"
+    assert oov is False
+
+
+def test_canonicalize_norm_type_maps_new_smoke_tokens() -> None:
+    canon, oov = canonicalize_norm_type("imperative")
+    assert canon == "obligation"
+    assert oov is False
+
+    canon, oov = canonicalize_norm_type("presidential_decree")
+    assert canon == "procedure"
+    assert oov is False
+
+
+def test_canonicalize_action_heuristics_cover_unseen_variants() -> None:
+    canon, oov = canonicalize_action("approve_internal_plan")
+    assert canon == "approves"
+    assert oov is False
+
+    canon, oov = canonicalize_action("inconsistent_with_law")
+    assert canon == "prohibits"
+    assert oov is False

@@ -1,110 +1,97 @@
-# `polisyos.common` — инфраструктурный слой без доменной логики
+# `polisyos.common` — базовый инфраструктурный слой
 
-`common` содержит минимальные кросс-модульные утилиты: bootstrap окружения, логирование, сериализацию, время, async-мост и локальные миграции артефактов.  
-Это базовый слой, который можно импортировать из `core/fabric/foundry/scientist/scholar/tools`, но который сам не должен зависеть от этих директорий.
+`polisyos.common` содержит низкоуровневые утилиты без доменной логики: bootstrap окружения, логирование, сериализацию, работу со временем, async-мост и простые миграции артефактов.
 
-## Роль в системе
+## Роль в архитектуре
 
 ```text
 polisyos.common
-  ├─ runtime bootstrap (config, jax_env)
-  ├─ observability glue (logger)
-  ├─ utility helpers (async_tools, serialization, timestamps)
-  └─ artifact migrations (common/migrations)
+  ├─ bootstrap среды (config, jax_env)
+  ├─ observability (logger)
+  ├─ универсальные утилиты (async_tools, serialization, timestamps)
+  └─ миграции локальных схем (common/migrations)
 ```
 
-Ключевые инварианты:
-- `common` не импортирует `polisyos.core`, `polisyos.fabric`, `polisyos.foundry`, `polisyos.scientist`, `polisyos.ir`, `polisyos.runtime`, `polisyos.lex`, `polisyos.scholar`.
-- В `common` нет бизнес-правил, только инфраструктурные примитивы.
-- API должен оставаться небольшим и предсказуемым, потому что это нижний слой графа зависимостей.
+Инварианты слоя:
+- `common` не должен зависеть от верхних пакетов (`core`, `fabric`, `foundry`, `scientist`, `runtime`, `lex`, `scholar`, `ir`).
+- здесь нет бизнес-правил и продуктовых решений, только инфраструктурные примитивы;
+- API должен быть компактным и стабильным, потому что это нижняя часть графа зависимостей.
 
-## Структура директории
+## Состав директории
 
 ```text
 common/
-├── __init__.py         # Lazy facade через __getattr__ для подмодулей common.*
-├── async_tools.py      # run_coro_sync()
-├── config.py           # side-effects: env defaults + logger sinks
+├── __init__.py         # Lazy facade: common.<module> через __getattr__
+├── async_tools.py      # run_coro_sync(coro)
+├── config.py           # import-time bootstrap env + настройка loguru
 ├── jax_env.py          # apply_jax_env_defaults() для macOS/JAX
-├── logger.py           # get_logger() + OTel trace context
+├── logger.py           # get_logger() + trace enrichment (OTel, optional)
 ├── serialization.py    # to_python_data(), stable_json_dumps(), strip_none()
 ├── timestamps.py       # UTC helpers (iso/epoch/parse)
 ├── migrations/
-│   ├── __init__.py     # migrate_artifact, register_migration, MANIFEST_CURRENT_VERSION
-│   ├── base.py         # migration registry + chain executor
-│   └── manifest.py     # dataset_manifest 0.9 -> 1.0
+│   ├── __init__.py
+│   ├── base.py
+│   └── manifest.py
 └── README.md
 ```
 
-## Модули и назначение
+## Модули и текущее поведение
 
-| Модуль | Что делает | Где используется |
+| Модуль | Ответственность | Важные особенности |
 |---|---|---|
-| `__init__.py` | Ленивая загрузка подмодулей `common.*` через `__getattr__` | Импорт `from polisyos.common import config` в `tools/diagnostics/check_setup.py` |
-| `config.py` | На импорте грузит `.env`, задает безопасные env defaults (JAX/threads/Torch/DuckDB), конфигурирует `loguru` sinks | Bootstrap-скрипты и окружение разработки |
-| `logger.py` | `get_logger()` с добавлением `trace_id/span_id` из OpenTelemetry; fallback на stdlib `logging` | Широко в `fabric`, точечно в `core` и `foundry`, плюс `tools/*` |
-| `jax_env.py` | Принудительно выставляет CPU на macOS (если не включен Metal opt-in) | `jax_bootstrap.py` |
-| `async_tools.py` | Безопасный вызов корутины из sync-кода (`run_coro_sync`) | `fabric/ingestion.py`, `fabric/_connector_bridge.py` |
-| `serialization.py` | Нормализация сложных структур в python/json-friendly вид | `scientist`, `foundry` |
-| `timestamps.py` | Единые UTC-утилиты: `utc_now`, parse/format ISO, epoch conversion | `scholar`, `scientist` |
-| `migrations/*` | Реестр миграций и применение цепочки по `schema_version` | CLI/утилиты миграций |
+| `__init__.py` | Ленивая загрузка подмодулей через `__getattr__` | Экспортирует только фиксированный `__all__` |
+| `config.py` | Bootstrap среды и логирования при импорте | Меняет `os.environ` и конфигурацию `loguru` глобально |
+| `jax_env.py` | Защита от автовыбора `metal` на macOS | CPU по умолчанию, `metal` только через opt-in |
+| `logger.py` | Унифицированный логгер для модулей | `get_logger()` добавляет `module`, плюс `trace_id/span_id` при активном OTel span |
+| `async_tools.py` | Запуск coroutine из sync-кода | При активном event loop запускает `asyncio.run` в отдельном потоке |
+| `serialization.py` | Приведение структур к JSON-friendly Python данным | Поддержка dataclass/Enum/Pydantic-like (`model_dump`) + `.tolist()`/`.item()` |
+| `timestamps.py` | Единая UTC-нормализация времени | Поддержка ISO `Z`, epoch ↔ datetime |
+| `migrations/*` | Реестр и исполнение цепочек миграций | В этом пакете сейчас только `dataset_manifest: 0.9 -> 1.0` |
 
-## Функциональные особенности
+## Связи с другими директориями
 
-### 1) Bootstrap конфигурация (`config.py`)
-- Исполняется через side effects при импорте.
-- Должен загружаться до `import jax`, если нужна гарантированная фиксация backend/threads.
-- Выставляет безопасные дефолты по CPU-потокам и памяти (JAX, BLAS/OpenMP, Torch, DuckDB).
-- Конфигурирует 2 sink-а логов: консоль и `logs/system.log` (JSON, rotation/retention).
+Фактическое использование в репозитории:
+- `fabric/*` активно использует `logger` и `run_coro_sync`;
+- `runtime/http/services/control.py` точечно использует `run_coro_sync` (ленивый импорт внутри метода);
+- `scientist/*` использует `serialization` и `timestamps`;
+- `foundry/*` использует `logger` и `serialization`;
+- `scholar/freshness_store.py` использует `timestamps`;
+- `tools/diagnostics/check_setup.py` импортирует `polisyos.common.config` для bootstrap side-effects;
+- `jax_bootstrap.py` использует `apply_jax_env_defaults()`.
 
-### 2) Логирование и трейсинг (`logger.py`)
-- `get_logger(module_name)` возвращает контекстный логгер.
-- Если доступен OTel span, в `extra` добавляются `trace_id` и `span_id`.
-- При отсутствии `loguru`/OTel модуль деградирует без падения процесса.
+## Важные особенности и ограничения
 
-### 3) Сериализация для стабильных payload-ов (`serialization.py`)
-- Поддерживает `Enum`, dataclass, Pydantic `model_dump`, mapping/list/set.
-- Пытается аккуратно нормализовать объекты с `.tolist()`/`.item()` (например array/scalar wrappers).
-- `stable_json_dumps()` дает компактный стабильный JSON для fingerprint/idempotency задач.
+### 1) `config.py` работает через side-effects
+- импорт модуля сразу настраивает окружение и логирование;
+- `JAX_PLATFORM_NAME`, `JAX_ENABLE_X64`, `JAX_DISABLE_MOST_OPTIMIZATIONS`, `JAX_CHECK_TRACER_LEAKS` выставляются до `load_dotenv()`;
+- затем применяются safeguard-настройки потоков (`XLA_FLAGS`, `OMP_NUM_THREADS`, `OPENBLAS_NUM_THREADS`, `SCIENTIST_TORCH_*`, `DUCKDB_THREADS` и др.);
+- `loguru` перенастраивается на 2 sink-а: stderr и `logs/system.log` (JSON, rotation/retention).
 
-### 4) Единое UTC-время (`timestamps.py`)
-- `utc_now()` и `ensure_utc()` убирают разночтения naive/aware datetime.
-- `to_iso_utc(..., z_suffix=True)` приводит формат к `...Z`.
-- `parse_iso_datetime()` безопасно парсит `str|datetime` и возвращает `datetime | None`.
+### 2) `logger.py` поддерживает мягкую деградацию
+- при отсутствии `loguru` используется stdlib `logging`;
+- при отсутствии OpenTelemetry логирование продолжает работать без trace-обогащения.
 
-### 5) Миграции в `common/migrations`
-- Базовый движок: `_MIGRATIONS[artifact][from_version] -> (to_version, fn)`.
-- `migrate_artifact()` идет по цепочке версий, проверяет `schema_version`, защищен от циклов.
-- Сейчас в `common` зарегистрирована миграция только для `dataset_manifest` (`0.9 -> 1.0`).
-- Миграции `policy_ir` поддерживаются отдельно в `polisyos.ir.migrations`.
+### 3) `common.migrations` и `ir.migrations` разделены
+- `polisyos.common.migrations` отвечает только за общие артефакты уровня `common` (сейчас `dataset_manifest`);
+- `policy_ir` мигрируется через `polisyos.ir.migrations`.
 
-## Связь с другими директориями
+Практический нюанс текущего состояния:
+- скрипты `migrate.py` и `tools/migrations/migrate.py` ожидают `POLICY_IR_CURRENT_VERSION` в `polisyos.common.migrations`, но этот символ там не экспортируется;
+- актуальный источник версии IR: `polisyos.ir.migrations`.
 
-`common` связан с системой в основном как shared-инфраструктура:
-- `fabric/` — основной потребитель `logger` и `run_coro_sync`.
-- `scientist/` — потребитель `serialization` и `timestamps`.
-- `foundry/` — использует `logger` и `serialization`.
-- `scholar/` — использует `timestamps`.
-- `core/` — точечно использует `get_logger`.
-- `tools/` и корневые скрипты — используют `config`, `logger`, `migrations`, `jax_env`.
+## Правила для дальнейших изменений
 
-Смежные зоны ответственности:
-- `polisyos.ir.migrations` — миграции IR-контрактов (`policy_ir`), не слой `common`.
-- `polisyos.core.canon` — строгая канонизация/байтовая сериализация для CAS; `common.serialization` предназначен для более общего runtime-представления данных.
+- не добавлять в `common` зависимости на доменные слои;
+- импорт `config` держать только в entrypoint/bootstrap-коде;
+- для модульного контекста логов использовать `get_logger(__name__)`;
+- новые миграции добавлять только для схем, владельцем которых является `common`.
 
-## Практические правила использования
-
-- Для логов в прод-коде использовать `get_logger(__name__)`, а не глобальный `logger`, когда нужен модульный контекст.
-- Импортировать `config` только в bootstrap-скриптах/entrypoints, где side effects ожидаемы.
-- В доменных пакетах не добавлять зависимости на тяжелые библиотеки через `common`.
-- Новые миграции регистрировать только для артефактов, владельцем схемы которых является `common`.
-
-## Быстрая проверка актуальности
+## Быстрые проверки
 
 ```bash
 # Кто использует common
-rg -n "from polisyos\\.common|import polisyos\\.common" src tools *.py
+rg -n "from polisyos\\.common|import polisyos\\.common|polisyos\\.common\\." src tools *.py
 
-# Проверка, что common не тянет верхние слои
+# Проверка, что common не импортирует верхние слои
 rg -n "from polisyos\\.(core|fabric|foundry|scientist|ir|runtime|lex|scholar)" src/polisyos/common
 ```

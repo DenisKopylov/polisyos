@@ -282,6 +282,54 @@ def execute_program_graph(
                     record.update(patch)
                     patch_records.setdefault(slot_id, []).append(record)
             continue
+        if node.node_kind == "method":
+            method_fqn = node.method_fqn
+            if not method_fqn:
+                skipped_nodes += 1
+                continue
+            try:
+                from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
+                from polisyos.foundry.methods.registry import MethodRegistry
+
+                registry = MethodRegistry.get_instance()
+                method_class = registry.get(method_fqn, version=node.method_version)
+                signature = method_class.signature
+                dispatcher = MethodDispatcher.get_instance()
+                method_result = dispatcher.dispatch(
+                    method_class=method_class,
+                    signature=signature,
+                    state=base_state,
+                    params=node.method_params,
+                    seed=seed,
+                )
+                output_payload = method_result.output
+                if isinstance(output_payload, dict):
+                    patch_payload = output_payload.get("patch_records")
+                    if isinstance(patch_payload, dict):
+                        for slot_id, patches in patch_payload.items():
+                            if isinstance(patches, list):
+                                for patch in patches:
+                                    if isinstance(patch, dict):
+                                        patch_records.setdefault(str(slot_id), []).append(patch)
+                applied_nodes += 1
+                constraint_events.append(
+                    {
+                        "event": "method.executed",
+                        "node_id": node_id,
+                        "method_fqn": method_fqn,
+                    }
+                )
+            except Exception as exc:
+                skipped_nodes += 1
+                constraint_events.append(
+                    {
+                        "event": "method.failed",
+                        "node_id": node_id,
+                        "method_fqn": method_fqn,
+                        "error": str(exc),
+                    }
+                )
+            continue
         skipped_nodes += 1
 
     if patch_records:

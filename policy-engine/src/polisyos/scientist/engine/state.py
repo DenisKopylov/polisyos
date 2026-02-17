@@ -17,7 +17,7 @@ class ExperimentState(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    schema_version: str = Field("1.1", pattern=r"^\d+\.\d+$")
+    schema_version: str = Field("1.2", pattern=r"^\d+\.\d+$")
     run_id: str
 
     inputs: dict[str, ArtifactRef] = Field(default_factory=dict)
@@ -29,6 +29,12 @@ class ExperimentState(BaseModel):
     last_checkpoint_ref: ArtifactRef | None = None
 
     observational_data_ref: ArtifactRef | None = None
+    execution_plan_ref: ArtifactRef | None = None
+    method_catalog_snapshot_ref: ArtifactRef | None = None
+    preflight_report_ref: ArtifactRef | None = None
+    evaluator_report_ref: ArtifactRef | None = None
+    iteration_state_ref: ArtifactRef | None = None
+    reproducibility_manifest_ref: ArtifactRef | None = None
     causal_method_fqn: str | None = None
     causal_method_params: dict[str, JsonValue] = Field(default_factory=dict)
     critic_knowledge_base_ref: ArtifactRef | None = None

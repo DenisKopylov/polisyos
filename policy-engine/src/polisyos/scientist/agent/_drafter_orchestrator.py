@@ -119,12 +119,14 @@ class MultiPassLLMDrafter(
         self,
         problem_frame: ProblemFrame,
         *,
+        data_context: dict[str, Any] | None = None,
         hints: list[str] | None = None,
         prior_drafts: list[DraftResult] | None = None,
     ) -> DraftResult:
         try:
             return await self._draft_policy_impl(
                 problem_frame,
+                data_context=data_context,
                 hints=hints,
                 prior_drafts=prior_drafts,
             )
@@ -132,6 +134,7 @@ class MultiPassLLMDrafter(
             logger.exception("Multipass drafter failed; fallback to single-pass: %s", exc)
             return await self._inner.draft_policy(
                 problem_frame,
+                data_context=data_context,
                 hints=hints,
                 prior_drafts=prior_drafts,
             )
@@ -155,6 +158,7 @@ class MultiPassLLMDrafter(
         self,
         problem_frame: ProblemFrame,
         *,
+        data_context: dict[str, Any] | None = None,
         hints: list[str] | None = None,
         prior_drafts: list[DraftResult] | None = None,
     ) -> DraftResult:
@@ -177,6 +181,7 @@ class MultiPassLLMDrafter(
         ) as parent_span:
             pass1 = await self._execute_pass1(
                 problem_frame,
+                data_context=data_context,
                 hints=hints,
                 prior_drafts=prior_drafts,
             )
@@ -404,6 +409,7 @@ class MultiPassLLMDrafter(
         self,
         problem_frame: ProblemFrame,
         *,
+        data_context: dict[str, Any] | None,
         hints: list[str] | None,
         prior_drafts: list[DraftResult] | None,
     ) -> PassExecution:
@@ -476,6 +482,7 @@ class MultiPassLLMDrafter(
                     )
             draft = await self._inner.draft_policy(
                 prepared_problem_frame,
+                data_context=data_context,
                 hints=effective_hints or None,
                 prior_drafts=prior_drafts,
             )

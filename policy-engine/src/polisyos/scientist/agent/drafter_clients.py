@@ -90,6 +90,7 @@ class MockDrafterAgent:
         self,
         problem_frame: ProblemFrame,
         *,
+        data_context: dict[str, Any] | None = None,
         hints: list[str] | None = None,
         prior_drafts: list[DraftResult] | None = None,
     ) -> DraftResult:
@@ -102,7 +103,7 @@ class MockDrafterAgent:
         draft_id = f"draft_{base_hash}_{self._draft_count}"
 
         interventions = self._generate_interventions(problem_frame)
-        narrative = self._build_narrative(problem_frame, hints)
+        narrative = self._build_narrative(problem_frame, hints, data_context=data_context)
         rationale = self._build_rationale(problem_frame, prior_drafts)
 
         confidence = 0.7
@@ -181,7 +182,13 @@ class MockDrafterAgent:
             }
         ]
 
-    def _build_narrative(self, problem_frame: ProblemFrame, hints: list[str] | None) -> str:
+    def _build_narrative(
+        self,
+        problem_frame: ProblemFrame,
+        hints: list[str] | None,
+        *,
+        data_context: dict[str, Any] | None,
+    ) -> str:
         parts = [
             f"Policy proposal to address: {problem_frame.problem_statement}",
             "",
@@ -199,6 +206,18 @@ class MockDrafterAgent:
                     "",
                     "Incorporating feedback from previous review:",
                     *[f"- {hint}" for hint in hints[:3]],
+                ]
+            )
+
+        if data_context:
+            parts.extend(
+                [
+                    "",
+                    "Data context highlights:",
+                    *[
+                        f"- {key}: {value}"
+                        for key, value in list(data_context.items())[:4]
+                    ],
                 ]
             )
 
@@ -303,6 +322,7 @@ class LLMDrafterAgent:
         self,
         problem_frame: ProblemFrame,
         *,
+        data_context: dict[str, Any] | None = None,
         hints: list[str] | None = None,
         prior_drafts: list[DraftResult] | None = None,
     ) -> DraftResult:
@@ -337,6 +357,9 @@ PROBLEM FRAME:
 PRIOR DRAFTS:
 {json.dumps(prior_payload, indent=2)}
 
+DATA CONTEXT:
+{json.dumps(data_context or {}, indent=2)}
+
 Generate a draft JSON object.
 """
 
@@ -364,6 +387,7 @@ Generate a draft JSON object.
             fallback = MockDrafterAgent()
             return await fallback.draft_policy(
                 problem_frame,
+                data_context=data_context,
                 hints=hints,
                 prior_drafts=prior_drafts,
             )

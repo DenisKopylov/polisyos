@@ -1,42 +1,45 @@
-# `runtime-reference-shell` — референсный UI для Runtime API v1
+# `runtime-reference-shell` — статический диагностический UI
 
-`runtime-reference-shell` демонстрирует API-first путь отладки runtime без прямых чтений DB/CAS/файловой системы.
+`runtime-reference-shell` это легковесный reference UI для ручной проверки Runtime API v1.
 
-## Роль и границы
+## Роль в системе
 
-- Роль: опорный UI для run explorer/debug/artifact inspector в рамках Runtime API v1.
-- Формат: статический frontend (`index.html` + `app.js` + `styles.css`) без сборки.
-- Граница ответственности: только read-only API-вызовы через `RuntimeApiClient`.
-- Не-цель: продуктовый UX (SSO, роли, persisted state, write-операции).
+- Быстрый API-only путь для диагностики run/timeline/node/artifact.
+- Работает без npm/toolchain: только статические файлы.
+- Использует сгенерированный `RuntimeApiClient` из соседней директории.
 
-## Карта модулей
+Не является продуктовым интерфейсом и не покрывает control-plane write-функции.
+
+## Состав
 
 | Файл | Назначение |
 | --- | --- |
-| `index.html` | Разметка страниц, форм, табов и зон вывода |
-| `app.js` | Управление состоянием UI, запросы к API, рендер таблиц/JSON |
-| `styles.css` | Визуальная тема и адаптивная верстка |
+| `index.html` | Табы, формы ввода и контейнеры для вывода данных |
+| `app.js` | Локальное UI-состояние, вызовы API, рендер таблиц/JSON |
+| `styles.css` | Тема и responsive-верстка |
 
-## Функциональные поверхности
+## Что поддерживается
 
-- `Run List`: `GET /api/v1/runs` с фильтрами `limit`/`status`.
-- `Run Timeline + Node Graph`: `GET /api/v1/runs/{run_id}/timeline` и `GET /api/v1/runs/{run_id}/nodes`.
-- `Node Debug Panel`: `GET /api/v1/debug/runs/{run_id}/nodes/{alias}`.
-- `Artifact Inspector`: `GET /api/v1/artifacts/{artifact_id}` + `content`/`lineage`/`schema`.
+- `Run List`: `GET /api/v1/runs` (`limit`, `status`).
+- `Timeline + Node Graph`: `GET /api/v1/runs/{run_id}/timeline` + `GET /api/v1/runs/{run_id}/nodes`.
+- `Node Debug`: `GET /api/v1/debug/runs/{run_id}/nodes/{alias}`.
+- `Artifact Inspector`: manifest/content/lineage/schema для `artifact_id`.
 
-Дополнительно:
-- click по строке run проставляет `run_id` в формы timeline/debug;
-- `Artifact Content` запрашивается с `max_bytes=4096` (preview-режим).
+Полезные детали:
+- клик по строке run переносит `run_id` в формы timeline/debug;
+- content preview запрашивается с `max_bytes=4096`.
 
-## Архитектурная связь
+## Связь с другими модулями
 
-`app.js` импортирует `../runtime-api-client/runtimeApiClient.js`, поэтому shell напрямую зависит от актуальности сгенерированного клиента и OpenAPI-контракта.
+- Импортирует `../runtime-api-client/runtimeApiClient.js`.
+- Чувствителен к drift OpenAPI/генерированного клиента.
+- Удобен как smoke-check после регенерации `runtime-api-client`.
 
-## Ограничения текущей реализации
+## Ограничения
 
-- UI не экспонирует все методы клиента (например governance debug, run errors, run lineage не вынесены в отдельные страницы).
-- Нет UI для пользовательских заголовков авторизации; при защищенном API может потребоваться расширение shell.
-- Нет клиентского router/state persistence; вкладки и формы управляются локальным JS-состоянием.
+- Нет страниц для части endpoint-ов (например run lineage, governance debug, run errors).
+- Нет auth UI для кастомных заголовков.
+- Нет router/persisted state.
 
 ## Локальный запуск
 
@@ -55,4 +58,4 @@ cd frontend/runtime-reference-shell
 python -m http.server 4173
 ```
 
-Открыть `http://127.0.0.1:4173`, указать `API Base URL`, затем проверить страницы `Run List` -> `Timeline` -> `Node Debug` -> `Artifacts`.
+Открыть `http://127.0.0.1:4173` и указать `API Base URL`.

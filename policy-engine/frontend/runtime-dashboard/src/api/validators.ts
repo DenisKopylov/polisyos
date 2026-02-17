@@ -151,7 +151,10 @@ const agentPipelineStepSchema = z.object({
   prompt: z.string().nullable().optional(),
   response: z.string().nullable().optional(),
   model: z.string().nullable().optional(),
+  provider: z.string().nullable().optional(),
+  model_variant_id: z.string().nullable().optional(),
   latency_ms: z.number().nullable().optional(),
+  cost_usd: z.number().nullable().optional(),
   token_usage: z.record(z.number()).optional(),
 });
 
@@ -166,6 +169,82 @@ const agentPipelineAttemptSchema = z.object({
   notes: z.array(z.string()).optional(),
 });
 
+const retrievalPhaseTelemetrySchema = z.object({
+  phase: z.string(),
+  lane: z.string().nullable().optional(),
+  duration_ms: z.number().optional(),
+  candidates_total: z.number().optional(),
+  candidates_selected: z.number().optional(),
+  docs_fetched: z.number().optional(),
+});
+
+const retrievalTelemetryViewSchema = z.object({
+  mode: z.string().optional(),
+  lane_used: z.string().optional(),
+  metadata_docs_fetched: z.number().optional(),
+  local_index_size_bytes: z.number().optional(),
+  local_index_docs_total: z.number().optional(),
+  candidates_filtered: z.number().optional(),
+  candidates_promoted: z.number().optional(),
+  phases: z.array(retrievalPhaseTelemetrySchema).optional(),
+  notes: z.array(z.string()).optional(),
+});
+
+const preflightDiagnosticViewSchema = z.object({
+  code: z.string(),
+  severity: z.string().optional(),
+  message: z.string(),
+  path: z.array(z.string()).optional(),
+  replanning_hints: z.array(z.string()).optional(),
+  data: z.record(z.unknown()).optional(),
+});
+
+const preflightReportViewSchema = z.object({
+  ready_to_run: z.boolean().optional(),
+  diagnostics: z.array(preflightDiagnosticViewSchema).optional(),
+  notes: z.array(z.string()).optional(),
+  report_ref: artifactRefSchema.nullable().optional(),
+});
+
+const evaluatorScoresViewSchema = z.object({
+  kpi_score: z.number().optional(),
+  uncertainty_score: z.number().optional(),
+  constraints_score: z.number().optional(),
+  data_quality_score: z.number().optional(),
+  budget_score: z.number().optional(),
+  total_score: z.number().optional(),
+});
+
+const evaluatorReportViewSchema = z.object({
+  verdict: z.string().nullable().optional(),
+  scores: evaluatorScoresViewSchema.optional(),
+  reasons: z.array(z.string()).optional(),
+  replanning_hints: z.array(z.string()).optional(),
+  diagnostics: z.array(preflightDiagnosticViewSchema).optional(),
+  notes: z.array(z.string()).optional(),
+  report_ref: artifactRefSchema.nullable().optional(),
+});
+
+const iterationLifecycleViewSchema = z.object({
+  iteration: z.number().optional(),
+  state: z.string().optional(),
+  stop_reason: z.string().nullable().optional(),
+  last_verdict: z.string().nullable().optional(),
+  state_ref: artifactRefSchema.nullable().optional(),
+  notes: z.array(z.string()).optional(),
+});
+
+const reproducibilityViewSchema = z.object({
+  seed: z.number().optional(),
+  plan_hash: z.string().nullable().optional(),
+  registry_hash: z.string().nullable().optional(),
+  method_catalog_hash: z.string().nullable().optional(),
+  data_snapshot_hash: z.string().nullable().optional(),
+  input_bindings_hash: z.string().nullable().optional(),
+  manifest_ref: artifactRefSchema.nullable().optional(),
+  notes: z.array(z.string()).optional(),
+});
+
 const agentPipelineViewSchema = z.object({
   run_id: z.string(),
   source_kind: z.literal("core_run"),
@@ -174,6 +253,13 @@ const agentPipelineViewSchema = z.object({
   attempts: z.array(agentPipelineAttemptSchema).optional(),
   decision_packet_ref: artifactRefSchema.nullable().optional(),
   reflexion_terminal_ref: artifactRefSchema.nullable().optional(),
+  retrieval: retrievalTelemetryViewSchema.nullable().optional(),
+  execution_plan_ref: artifactRefSchema.nullable().optional(),
+  method_catalog_snapshot_ref: artifactRefSchema.nullable().optional(),
+  preflight: preflightReportViewSchema.nullable().optional(),
+  evaluator: evaluatorReportViewSchema.nullable().optional(),
+  iteration_lifecycle: iterationLifecycleViewSchema.nullable().optional(),
+  reproducibility: reproducibilityViewSchema.nullable().optional(),
   source: z.string().nullable().optional(),
   notes: z.array(z.string()).optional(),
 });

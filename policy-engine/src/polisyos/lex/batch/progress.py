@@ -21,6 +21,8 @@ class ProgressTracker:
         self._path = progress_path
         # doc_id → {stage → timestamp}
         self._completed: dict[str, dict[str, str]] = {}
+        # doc_id → {stage → content_hash}  (optional, for change detection)
+        self._hashes: dict[str, dict[str, str]] = {}
         self._load()
 
     # ------------------------------------------------------------------
@@ -31,20 +33,38 @@ class ProgressTracker:
         """Check whether *doc_id* has completed *stage*."""
         return stage in self._completed.get(doc_id, {})
 
+    def is_done_with_hash(self, doc_id: str, stage: str, content_hash: str) -> bool:
+        """Check whether *doc_id* completed *stage* with the same content hash.
+
+        Returns True only if the stage is done AND the stored hash matches.
+        If no hash was stored (old progress entries), returns True (backward compat).
+        """
+        if not self.is_done(doc_id, stage):
+            return False
+        stored = self._hashes.get(doc_id, {}).get(stage)
+        if stored is None:
+            return True  # old entry without hash — treat as valid
+        return stored == content_hash
+
     def mark_done(
         self,
         doc_id: str,
         stage: str,
         *,
         stats: dict | None = None,
+        content_hash: str | None = None,
     ) -> None:
         """Record that *doc_id* finished *stage* and append to JSONL."""
         ts = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
-        entry = {"doc_id": doc_id, "stage": stage, "ts": ts}
+        entry: dict = {"doc_id": doc_id, "stage": stage, "ts": ts}
         if stats:
             entry["stats"] = stats
+        if content_hash:
+            entry["content_hash"] = content_hash
 
         self._completed.setdefault(doc_id, {})[stage] = ts
+        if content_hash:
+            self._hashes.setdefault(doc_id, {})[stage] = content_hash
 
         with open(self._path, "a", encoding="utf-8") as fh:
             fh.write(json.dumps(entry, ensure_ascii=False) + "\n")
@@ -96,8 +116,11 @@ class ProgressTracker:
                 doc_id = entry.get("doc_id", "")
                 stage = entry.get("stage", "")
                 ts = entry.get("ts", "")
+                content_hash = entry.get("content_hash")
                 if doc_id and stage:
                     self._completed.setdefault(doc_id, {})[stage] = ts
+                    if content_hash:
+                        self._hashes.setdefault(doc_id, {})[stage] = content_hash
 
         total = sum(len(v) for v in self._completed.values())
         if total:

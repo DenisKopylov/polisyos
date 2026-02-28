@@ -1,0 +1,262 @@
+"""Stage: QC checks for academic pipeline."""
+
+from __future__ import annotations
+
+import json
+import random
+import statistics
+import urllib.request
+from datetime import UTC, datetime
+from pathlib import Path
+
+import duckdb
+
+from polisyos.batch_common.manifest import write_stage_manifest
+from polisyos.batch_common.qc import QCCheck, QCReport, evaluate_fail_fast, write_qc_report
+from polisyos.academic.batch.config import AcademicBatchConfig
+
+
+def _line_count(path: Path) -> int:
+    if not path.exists():
+        return 0
+    with open(path, "r", encoding="utf-8") as fh:
+        return sum(1 for _ in fh)
+
+
+def _latest_manifest(root: Path) -> Path | None:
+    if not root.exists():
+        return None
+    snaps = sorted([p for p in root.iterdir() if p.is_dir()])
+    if not snaps:
+        return None
+    path = snaps[-1] / "manifest.json"
+    return path if path.exists() else None
+
+
+def _collect_raw_roots(config: AcademicBatchConfig) -> list[Path]:
+    return sorted([p for p in config.raw_dir.iterdir() if p.is_dir()])
+
+
+def run_qc(config: AcademicBatchConfig, *, fail_fast: bool | None = None) -> QCReport:
+    started_at = datetime.now(UTC).isoformat()
+    checks: list[QCCheck] = []
+    metrics: dict[str, float | int] = {}
+
+    # 1) Raw manifest count parity by source root.
+    parity_failures = 0
+    roots = _collect_raw_roots(config)
+    for root in roots:
+        manifest_path = _latest_manifest(root)
+        if manifest_path is None:
+            continue
+        with open(manifest_path, "r", encoding="utf-8") as fh:
+            manifest = json.load(fh)
+        payload = Path(manifest.get("payload", ""))
+        declared = int(manifest.get("count", 0))
+        actual = _line_count(payload)
+        if declared != actual:
+            parity_failures += 1
+
+    checks.append(
+        QCCheck(
+            name="manifest_count_parity",
+            passed=parity_failures == 0,
+            threshold=0,
+            value=parity_failures,
+            message="Number of snapshots with count mismatch",
+        )
+    )
+
+    # 2) Parse merged records quality.
+    total = 0
+    empty_abstract = 0
+    malformed_estimate_rows = 0
+    estimates_total = 0
+    extraction_modes: dict[str, int] = {}
+
+    if config.merged_records_path.exists():
+        with open(config.merged_records_path, "r", encoding="utf-8") as fh:
+            for line in fh:
+                line = line.strip()
+                if not line:
+                    continue
+                row = json.loads(line)
+                total += 1
+                if not str(row.get("abstract", "")).strip():
+                    empty_abstract += 1
+                extraction_mode = str(row.get("extraction_mode", "deterministic"))
+                extraction_modes[extraction_mode] = extraction_modes.get(extraction_mode, 0) + 1
+                estimates = row.get("estimates") if isinstance(row.get("estimates"), list) else []
+                for est in estimates:
+                    estimates_total += 1
+                    if not isinstance(est, dict) or not isinstance(est.get("value"), (int, float)):
+                        malformed_estimate_rows += 1
+
+    empty_abs_pct = (100.0 * empty_abstract / total) if total else 0.0
+    malformed_pct = (100.0 * malformed_estimate_rows / estimates_total) if estimates_total else 0.0
+    metrics["works_total"] = total
+    metrics["empty_abstract_pct"] = round(empty_abs_pct, 3)
+    metrics["malformed_estimate_pct"] = round(malformed_pct, 3)
+
+    checks.append(QCCheck(name="empty_abstract_pct", passed=empty_abs_pct <= 25.0, value=empty_abs_pct, threshold=25.0))
+    checks.append(QCCheck(name="malformed_estimate_pct", passed=malformed_pct <= 2.0, value=malformed_pct, threshold=2.0))
+
+    # 3) Topic selection metrics.
+    topic_selection_exists = config.selected_topic_works_path.exists()
+    checks.append(
+        QCCheck(
+            name="topic_selection_artifact",
+            passed=topic_selection_exists,
+            value=int(topic_selection_exists),
+            threshold=1,
+            severity="critical",
+        )
+    )
+
+    if topic_selection_exists:
+        by_topic: dict[str, int] = {}
+        work_ids: set[str] = set()
+        total_rows = 0
+        with open(config.selected_topic_works_path, "r", encoding="utf-8") as fh:
+            for line in fh:
+                line = line.strip()
+                if not line:
+                    continue
+                row = json.loads(line)
+                topic_id = str(row.get("topic_id") or "")
+                work_id = str(row.get("work_id") or "")
+                if not topic_id or not work_id:
+                    continue
+                by_topic[topic_id] = by_topic.get(topic_id, 0) + 1
+                work_ids.add(work_id)
+                total_rows += 1
+
+        counts = list(by_topic.values())
+        underfilled = sum(1 for c in counts if c < config.target_per_topic)
+        unique_ratio = (len(work_ids) / total_rows) if total_rows else 1.0
+
+        metrics["selected_topics"] = len(by_topic)
+        metrics["selected_rows"] = total_rows
+        metrics["selected_unique_works"] = len(work_ids)
+        metrics["underfilled_topic_count"] = underfilled
+        metrics["unique_work_ratio"] = round(unique_ratio, 6)
+        metrics["selected_per_topic_mean"] = round(statistics.mean(counts), 3) if counts else 0.0
+        metrics["selected_per_topic_median"] = round(statistics.median(counts), 3) if counts else 0.0
+
+        checks.append(
+            QCCheck(
+                name="topic_underfill_rate",
+                passed=(underfilled / max(1, len(counts))) <= 0.15,
+                severity="warning",
+                value=round((underfilled / max(1, len(counts))) * 100.0, 3),
+                threshold=15.0,
+                message=f"underfilled_topics={underfilled}",
+            )
+        )
+        checks.append(
+            QCCheck(
+                name="unique_work_ratio",
+                passed=unique_ratio >= 0.60,
+                severity="warning",
+                value=round(unique_ratio * 100.0, 3),
+                threshold=60.0,
+            )
+        )
+
+    # 4) LLM gate metrics (if manifest exists)
+    if config.llm_gate_manifest_path.exists():
+        try:
+            with open(config.llm_gate_manifest_path, "r", encoding="utf-8") as fh:
+                gate = json.load(fh)
+            gate_metrics = gate.get("metrics", {}) if isinstance(gate, dict) else {}
+            llm_candidate_total = int(gate_metrics.get("llm_candidate_total", 0) or 0)
+            llm_sent_total = int(gate_metrics.get("llm_sent", 0) or 0)
+            llm_saved_pct = float(gate_metrics.get("llm_saved_pct", 100.0) or 0.0)
+            audit_miss_rate_pct = float(gate_metrics.get("audit_miss_rate_pct", 0.0) or 0.0)
+
+            metrics["llm_candidate_total"] = llm_candidate_total
+            metrics["llm_sent_total"] = llm_sent_total
+            metrics["llm_saved_pct"] = round(llm_saved_pct, 3)
+            metrics["audit_miss_rate_pct"] = round(audit_miss_rate_pct, 3)
+            checks.append(
+                QCCheck(
+                    name="llm_audit_miss_rate_pct",
+                    passed=audit_miss_rate_pct <= config.llm_gate_audit_max_miss_rate_pct,
+                    severity="warning",
+                    value=audit_miss_rate_pct,
+                    threshold=config.llm_gate_audit_max_miss_rate_pct,
+                )
+            )
+        except Exception:
+            checks.append(
+                QCCheck(
+                    name="llm_gate_manifest_parse",
+                    passed=False,
+                    severity="warning",
+                    value=0,
+                    threshold=1,
+                    message="Failed to parse llm_gate manifest",
+                )
+            )
+    else:
+        checks.append(
+            QCCheck(
+                name="llm_gate_manifest_present",
+                passed=False,
+                severity="warning",
+                value=0,
+                threshold=1,
+                message="No llm_gate manifest found (likely deterministic-only run)",
+            )
+        )
+
+    # 5) OA URL reachability from DB.
+    reachable = 0
+    checked = 0
+    if config.db_path.exists():
+        con = duckdb.connect(str(config.db_path), read_only=True)
+        try:
+            rows = con.execute(
+                "SELECT full_text_url FROM ac_works WHERE is_oa = TRUE AND full_text_url IS NOT NULL AND full_text_url != '' LIMIT 200"
+            ).fetchall()
+        finally:
+            con.close()
+
+        urls = [str(r[0]) for r in rows if isinstance(r[0], str) and r[0].startswith(("http://", "https://"))]
+        random.seed(42)
+        sample = random.sample(urls, k=min(20, len(urls))) if urls else []
+        for url in sample:
+            checked += 1
+            try:
+                req = urllib.request.Request(url, method="HEAD")
+                with urllib.request.urlopen(req, timeout=10) as resp:
+                    if int(resp.status) < 500:
+                        reachable += 1
+            except Exception:
+                pass
+
+    reach_pct = (100.0 * reachable / checked) if checked else 100.0
+    metrics["oa_url_checked"] = checked
+    metrics["oa_url_reachable_pct"] = round(reach_pct, 3)
+    checks.append(
+        QCCheck(
+            name="oa_url_reachability_pct",
+            passed=reach_pct >= 60.0,
+            value=reach_pct,
+            threshold=60.0,
+            severity="warning" if checked == 0 else "critical",
+        )
+    )
+
+    report = QCReport(scope="academic", checks=checks, metrics=metrics)
+    write_qc_report(config.qc_report_path, report)
+    write_stage_manifest(
+        manifest_path=config.manifests_dir / "qc.json",
+        stage="qc",
+        status="ok" if report.passed else "failed",
+        metrics={"passed": report.passed, **metrics},
+        artifacts=[config.qc_report_path],
+        started_at=started_at,
+    )
+    evaluate_fail_fast(report, fail_fast=config.fail_fast_qc if fail_fast is None else fail_fast)
+    return report

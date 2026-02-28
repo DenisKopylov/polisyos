@@ -91,3 +91,16 @@ def test_invalid_spo_verify_mode_raises(tmp_path) -> None:
             stages=frozenset({"parse", "structure", "spo"}),
             spo_verify_mode="broken_mode",
         )
+
+
+def test_invalid_spo_request_batch_size_raises(tmp_path) -> None:
+    with pytest.raises(ValueError):
+        BatchConfig(
+            cards_path=tmp_path / "cards.xml",
+            texts_path=tmp_path / "texts.xml",
+            output_dir=tmp_path / "out",
+            shard_count=1,
+            shard_index=0,
+            stages=frozenset({"parse", "structure", "spo"}),
+            spo_request_batch_size=0,
+        )

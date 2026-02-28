@@ -85,6 +85,7 @@ class LLMDataNeedExtractorAgent:
         *,
         model_name: str | None = None,
         curated_dir: Path = Path("data/curated"),
+        dataset_catalog: object | None = None,
     ) -> None:
         if llm_client is not None and not isinstance(llm_client, TracedLLMClient):
             self._llm = TracedLLMClient(llm_client, model_name=model_name)
@@ -92,6 +93,7 @@ class LLMDataNeedExtractorAgent:
             self._llm = llm_client
         self._fallback = MockDataNeedExtractorAgent()
         self._registry = DataContractRegistry(curated_dir=curated_dir, strict=False)
+        self._dataset_catalog = dataset_catalog  # DatasetCatalogGraph (optional)
 
     async def extract_data_needs(self, problem_frame: ProblemFrame) -> list[DataNeedSpec]:
         if self._llm is None:
@@ -139,10 +141,41 @@ class LLMDataNeedExtractorAgent:
                     )
                 )
             if needs:
-                return needs
+                return self._enrich_with_catalog(needs)
         except Exception:
             pass
         return await self._fallback.extract_data_needs(problem_frame)
+
+
+    def _enrich_with_catalog(self, needs: list[DataNeedSpec]) -> list[DataNeedSpec]:
+        """Validate metric availability via DatasetCatalogGraph if present."""
+        if self._dataset_catalog is None:
+            return needs
+        find_fn = getattr(self._dataset_catalog, "find_by_polisyos_metric", None)
+        if find_fn is None:
+            return needs
+        validated: list[DataNeedSpec] = []
+        for need in needs:
+            try:
+                results = find_fn(need.metric, top_k=1)
+            except Exception:
+                results = []
+            # Keep all needs; those with catalog hits get boosted quality_min
+            if results:
+                validated.append(
+                    DataNeedSpec(
+                        metric=need.metric,
+                        geography=need.geography,
+                        time_start=need.time_start,
+                        time_end=need.time_end,
+                        granularity=need.granularity,
+                        quality_min=max(need.quality_min, 0.7),
+                        purpose=need.purpose,
+                    )
+                )
+            else:
+                validated.append(need)
+        return validated
 
 
 def _opt_string(value: object) -> str | None:

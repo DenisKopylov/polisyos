@@ -72,10 +72,12 @@ class RetrievalService:
         *,
         curated_dir: Path,
         cas_root: Path | None = None,
+        dataset_catalog: object | None = None,
     ) -> None:
         self._fastlane = FastLaneResolver(curated_dir=curated_dir)
         self._explore = ExploreLaneDiscovery()
         self._executor = FetchExecutor(cas_root=cas_root)
+        self._dataset_catalog = dataset_catalog  # DatasetCatalogGraph (optional)
         self._promotion_queue: dict[str, PromotionCandidate] = {}
         self._local_index_docs: dict[str, dict[str, object]] = {}
         self._index_size_bytes = 0
@@ -113,6 +115,25 @@ class RetrievalService:
             )
         elif request.mode in {"fastlane", "hybrid"} and not fastlane_enabled:
             warnings.append("fastlane_disabled_by_feature_flag")
+
+        # --- Dataset catalog fallback (between FastLane and ExploreLane) ---
+        if unresolved and self._dataset_catalog is not None:
+            phase_start = time.perf_counter()
+            catalog_plans, catalog_candidates = self._resolve_via_catalog(unresolved)
+            fetch_plans.extend(catalog_plans)
+            candidates.extend(catalog_candidates)
+            resolved_metrics = {plan.metric_id for plan in fetch_plans}
+            unresolved = [need for need in unresolved if need.metric not in resolved_metrics]
+            phase_metrics.append(
+                {
+                    "phase": "resolve_dataset_catalog",
+                    "lane": "catalog",
+                    "duration_ms": int((time.perf_counter() - phase_start) * 1000),
+                    "candidates_total": len(catalog_candidates),
+                    "candidates_selected": len(catalog_plans),
+                    "docs_fetched": 0,
+                }
+            )
 
         should_explore = (
             request.mode == "explorelane"
@@ -446,6 +467,73 @@ class RetrievalService:
         self._fastlane.binding_registry.upsert(binding)
         if _flag("POLISYOS_RETRIEVAL_PROMOTION_PERSIST", default=False):
             self._fastlane.binding_registry.persist()
+
+    def _resolve_via_catalog(
+        self,
+        unresolved: list[DataNeed],
+    ) -> tuple[list[FetchPlan], list[MetricCandidate]]:
+        """Try to resolve data needs via DatasetCatalogGraph."""
+        plans: list[FetchPlan] = []
+        candidates: list[MetricCandidate] = []
+        catalog = self._dataset_catalog
+        if catalog is None:
+            return plans, candidates
+
+        for need in unresolved:
+            # Use find_by_polisyos_metric if available
+            find_fn = getattr(catalog, "find_by_polisyos_metric", None)
+            if find_fn is None:
+                continue
+            try:
+                results = find_fn(need.metric, top_k=3)
+            except Exception:
+                continue
+            if not results:
+                continue
+
+            for rank, result in enumerate(results):
+                connector = getattr(catalog, "get_connector_params", lambda _: None)(result.id)
+                connector_type = (connector or {}).get("type", "catalog_discovered")
+                candidate = MetricCandidate(
+                    candidate_id=_stable_id("cat", need.metric, result.id),
+                    metric_id=need.metric,
+                    connector_id=connector_type,
+                    dataset_id=result.id,
+                    profile_id="",
+                    source_lane="catalog",
+                    confidence=result.similarity * 0.8,
+                    rank=rank + 1,
+                    trust_score=0.6,
+                    freshness_score=0.5,
+                    coverage_estimate=0.7,
+                    latency_estimate_ms=2000,
+                    filters_template={},
+                    match_reason="dataset_catalog_metric_match",
+                    metadata={"catalog_title": result.title},
+                )
+                candidates.append(candidate)
+
+            primary = results[0]
+            connector = getattr(catalog, "get_connector_params", lambda _: None)(primary.id)
+            connector_type = (connector or {}).get("type", "catalog_discovered")
+            plans.append(
+                FetchPlan(
+                    plan_id=_stable_id("plan", need.metric, connector_type, primary.id),
+                    metric_id=need.metric,
+                    connector_id=connector_type,
+                    dataset_id=primary.id,
+                    profile_id="",
+                    filters={},
+                    date_start=need.time_start,
+                    date_end=need.time_end,
+                    granularity=need.granularity,
+                    quality_min=need.quality_min,
+                    source_lane="catalog",
+                    fallbacks=[],
+                    metadata={"catalog_discovered": True, "catalog_title": primary.title},
+                )
+            )
+        return plans, candidates
 
     @staticmethod
     def _lane_used(plans: list[FetchPlan]) -> str:

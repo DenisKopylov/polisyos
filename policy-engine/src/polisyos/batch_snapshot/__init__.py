@@ -1,0 +1,1 @@
+"""Finalize unified snapshot manifests."""

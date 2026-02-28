@@ -214,6 +214,14 @@ class CalibrationConfig(BaseModel):
     constraint_values: dict[str, float] | None = Field(
         None, description="Значения ограничений по constraint_id."
     )
+    literature_priors: dict[str, dict[str, Any]] | None = Field(
+        None,
+        description=(
+            "Prior distributions from academic literature (ScholarKnowledgeGraph). "
+            "Maps param_id → {prior_mean, prior_std, n_studies, best_design}. "
+            "Used when TrainableHandle has no explicit prior and prior_loss is enabled."
+        ),
+    )
     seed: int = Field(0, description="PRNG seed для детерминизма.")
 
     model_config = ConfigDict(extra="forbid")

@@ -1,0 +1,88 @@
+# Mapping from PolicyOS ir/kernel/ metric IDs to external indicator codes & keywords.
+# Used by datasets/batch/normalizer.py to tag datasets with polisyos_metrics.
+
+avg_income:
+  keywords: ["average income", "mean income", "середній дохід", "wage", "earnings"]
+  sdmx_concepts: ["EARN", "EARN_NT_NET"]
+  worldbank_indicators: ["SI.SPR.PCAP", "NY.ADJ.NNTY.PC.CD"]
+
+gdp:
+  keywords: ["GDP", "gross domestic product", "ВВП", "валовий внутрішній продукт"]
+  sdmx_concepts: ["GDP", "B1GQ", "NGDP"]
+  worldbank_indicators: ["NY.GDP.MKTP.CD", "NY.GDP.MKTP.KD"]
+  eurostat_codes: ["nama_10_gdp"]
+
+unemployment_rate:
+  keywords: ["unemployment", "безробіття", "jobless"]
+  sdmx_concepts: ["UNE_RT_A", "UNEMPRT", "LUR"]
+  worldbank_indicators: ["SL.UEM.TOTL.ZS", "SL.UEM.TOTL.NE.ZS"]
+  eurostat_codes: ["une_rt_a", "une_rt_m"]
+
+inflation_rate:
+  keywords: ["inflation", "CPI", "consumer price", "інфляція", "споживчі ціни"]
+  sdmx_concepts: ["CPI", "PCPI_IX"]
+  worldbank_indicators: ["FP.CPI.TOTL.ZG"]
+  eurostat_codes: ["prc_hicp_manr"]
+
+avg_price:
+  keywords: ["price index", "price level", "цінова", "індекс цін"]
+  sdmx_concepts: ["PCPI_IX", "PPI"]
+  worldbank_indicators: ["FP.CPI.TOTL"]
+
+gov_balance:
+  keywords: ["government balance", "fiscal balance", "budget deficit", "budget surplus",
+             "державний борг", "дефіцит бюджету"]
+  sdmx_concepts: ["GGFL", "GGR", "GGXWDG_NGDP"]
+  worldbank_indicators: ["GC.BAL.CASH.GD.ZS", "GC.DOD.TOTL.GD.ZS"]
+
+population:
+  keywords: ["population", "населення", "демографія"]
+  sdmx_concepts: ["POP", "DEMO_PJAN"]
+  worldbank_indicators: ["SP.POP.TOTL"]
+  eurostat_codes: ["demo_pjan"]
+
+poverty_rate:
+  keywords: ["poverty", "бідність", "poverty rate", "poverty headcount"]
+  sdmx_concepts: ["SI_POV"]
+  worldbank_indicators: ["SI.POV.DDAY", "SI.POV.NAHC"]
+
+gini_coefficient:
+  keywords: ["gini", "inequality", "нерівність", "Джині"]
+  sdmx_concepts: ["GINI"]
+  worldbank_indicators: ["SI.POV.GINI"]
+
+trade_balance:
+  keywords: ["trade balance", "export", "import", "торговий баланс"]
+  sdmx_concepts: ["TB", "XTBAL"]
+  worldbank_indicators: ["NE.RSB.GNFS.ZS"]
+
+education_spending:
+  keywords: ["education spending", "education expenditure", "витрати на освіту"]
+  sdmx_concepts: ["EDU_EXP"]
+  worldbank_indicators: ["SE.XPD.TOTL.GD.ZS"]
+
+health_spending:
+  keywords: ["health spending", "health expenditure", "витрати на охорону здоров'я"]
+  sdmx_concepts: ["SHA"]
+  worldbank_indicators: ["SH.XPD.CHEX.GD.ZS"]
+
+life_expectancy:
+  keywords: ["life expectancy", "тривалість життя"]
+  sdmx_concepts: ["DEMO_MLEXPEC"]
+  worldbank_indicators: ["SP.DYN.LE00.IN"]
+
+co2_emissions:
+  keywords: ["CO2", "carbon emissions", "greenhouse gas", "викиди"]
+  sdmx_concepts: ["ENV_AC_AIREM"]
+  worldbank_indicators: ["EN.ATM.CO2E.PC"]
+  eurostat_codes: ["env_air_gge"]
+
+interest_rate:
+  keywords: ["interest rate", "central bank rate", "відсоткова ставка"]
+  sdmx_concepts: ["IR", "IRSTCI"]
+  worldbank_indicators: ["FR.INR.RINR"]
+
+minimum_wage:
+  keywords: ["minimum wage", "мінімальна заробітна плата"]
+  sdmx_concepts: ["EARN_MW_CUR"]
+  eurostat_codes: ["earn_mw_cur"]

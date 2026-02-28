@@ -110,4 +110,6 @@ def test_quality_gates_skip_checks_for_small_samples() -> None:
         "empty_statement_rows_pct",
         "oov_action_rate_pct",
         "missing_quote_rate_pct",
+        "audit_miss_rate_pct",
+        "llm_saved_pct",
     }

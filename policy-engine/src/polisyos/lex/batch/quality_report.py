@@ -15,6 +15,8 @@ class QualityGateThresholds:
     max_oov_action_rate_pct: float = 1.0
     max_missing_quote_rate_pct: float = 5.0
     max_duplicate_anchor_rate_pct: float = 0.1
+    max_audit_miss_rate_pct: float = 3.0
+    min_llm_saved_pct: float = 50.0
     min_provision_docs_for_doc_rate: int = 25
     min_spo_rows_for_row_rate: int = 50
     min_statements_for_statement_rate: int = 100
@@ -24,6 +26,7 @@ class QualityGateThresholds:
 class QualityGateResult:
     passed: bool
     failed_checks: list[str]
+    warning_failed_checks: list[str]
     skipped_checks: list[str]
     report: dict[str, Any]
 
@@ -38,6 +41,8 @@ def build_quality_report(
     *,
     provisions_dir: Path,
     spo_results_dir: Path,
+    llm_gate_manifest_path: Path | None = None,
+    llm_gate_audit_path: Path | None = None,
 ) -> dict[str, Any]:
     """Compute quality report from provision and SPO JSONL outputs."""
     provision_files = list(provisions_dir.glob("**/*.jsonl"))
@@ -126,6 +131,43 @@ def build_quality_report(
         "oov_action_total": oov_action_total,
         "oov_action_rate_pct": _safe_pct(oov_action_total, statement_total),
     }
+
+    llm_gate_metrics = {}
+    if llm_gate_manifest_path is not None and llm_gate_manifest_path.exists():
+        with open(llm_gate_manifest_path, "r", encoding="utf-8") as fh:
+            gate_payload = json.load(fh)
+        if isinstance(gate_payload, dict):
+            maybe_metrics = gate_payload.get("metrics")
+            if isinstance(maybe_metrics, dict):
+                llm_gate_metrics = maybe_metrics
+
+    audit_sample_total = int(llm_gate_metrics.get("audit_sample_total") or 0)
+    audit_miss_total = int(llm_gate_metrics.get("audit_miss_total") or 0)
+    if llm_gate_audit_path is not None and llm_gate_audit_path.exists():
+        sample_total = 0
+        miss_total = 0
+        with open(llm_gate_audit_path, "r", encoding="utf-8") as fh:
+            for line in fh:
+                line = line.strip()
+                if not line:
+                    continue
+                sample_total += 1
+                try:
+                    row = json.loads(line)
+                except json.JSONDecodeError:
+                    continue
+                if bool(row.get("miss")):
+                    miss_total += 1
+        if sample_total > 0:
+            audit_sample_total = sample_total
+            audit_miss_total = miss_total
+
+    report["llm_candidate_total"] = int(llm_gate_metrics.get("llm_candidate_total") or 0)
+    report["llm_sent_total"] = int(llm_gate_metrics.get("llm_sent_total") or 0)
+    report["llm_saved_pct"] = float(llm_gate_metrics.get("llm_saved_pct") or 0.0)
+    report["audit_sample_total"] = audit_sample_total
+    report["audit_miss_total"] = audit_miss_total
+    report["audit_miss_rate_pct"] = _safe_pct(audit_miss_total, audit_sample_total)
     return report
 
 
@@ -136,6 +178,7 @@ def evaluate_quality_gates(
 ) -> QualityGateResult:
     """Evaluate report against critical thresholds."""
     failed: list[str] = []
+    warning_failed: list[str] = []
     skipped: list[str] = []
 
     provision_docs_total = int(report.get("provision_docs_total", 0) or 0)
@@ -163,9 +206,24 @@ def evaluate_quality_gates(
     else:
         skipped.extend(["oov_action_rate_pct", "missing_quote_rate_pct"])
 
+    audit_sample_total = int(report.get("audit_sample_total", 0) or 0)
+    if audit_sample_total > 0:
+        if float(report.get("audit_miss_rate_pct", 0.0)) > thresholds.max_audit_miss_rate_pct:
+            failed.append("audit_miss_rate_pct")
+    else:
+        skipped.append("audit_miss_rate_pct")
+
+    llm_candidate_total = int(report.get("llm_candidate_total", 0) or 0)
+    if llm_candidate_total > 0:
+        if float(report.get("llm_saved_pct", 0.0)) < thresholds.min_llm_saved_pct:
+            warning_failed.append("llm_saved_pct")
+    else:
+        skipped.append("llm_saved_pct")
+
     return QualityGateResult(
         passed=not failed,
         failed_checks=failed,
+        warning_failed_checks=warning_failed,
         skipped_checks=skipped,
         report=report,
     )

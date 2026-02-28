@@ -1,18 +1,4 @@
-"""CLI entry point for the Lex batch pipeline.
-
-Usage::
-
-    python -m polisyos.lex.batch run \
-        --cards data/data_lex/edrnpa_cards_2026-02-08.xml \
-        --texts data/data_lex/edrnpa_texts_2026-02-08.xml \
-        --output-dir data/lex_knowledge \
-        --stages all
-
-    python -m polisyos.lex.batch stats --output-dir data/lex_knowledge
-
-    python -m polisyos.lex.batch embed-batch submit --output-dir data/lex_knowledge
-    python -m polisyos.lex.batch embed-batch collect --output-dir data/lex_knowledge
-"""
+"""CLI entry point for the Lex staged batch pipeline."""
 
 from __future__ import annotations
 
@@ -22,20 +8,22 @@ import logging
 import os
 import shutil
 import sys
+from datetime import UTC, datetime
 from pathlib import Path
 
+from polisyos.batch_common.manifest import write_stage_manifest
 from polisyos.lex.batch.config import ALL_STAGES, BatchConfig
 
 
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="python -m polisyos.lex.batch",
-        description="Lex batch pipeline: build a legal knowledge graph from ЄДРНПА XML.",
+        description="Lex pipeline: parse/structure/spo/graph + local embeddings.",
     )
     sub = parser.add_subparsers(dest="command")
 
     # --- run ---
-    run_p = sub.add_parser("run", help="Run the batch pipeline")
+    run_p = sub.add_parser("run", help="Run parse/structure/spo/graph stages")
     run_p.add_argument("--cards", required=True, type=Path, help="Path to cards XML")
     run_p.add_argument("--texts", required=True, type=Path, help="Path to texts XML")
     run_p.add_argument("--output-dir", required=True, type=Path, help="Output directory")
@@ -44,7 +32,7 @@ def _build_parser() -> argparse.ArgumentParser:
     run_p.add_argument(
         "--clean-output",
         action="store_true",
-        help="Delete previous lex_knowledge outputs before run (full rebuild).",
+        help="Delete previous outputs for this run context before start.",
     )
     run_p.add_argument("--gonka-api-key", default="", help="Gonka API key (or GONKA_API_KEY env)")
     run_p.add_argument("--gonka-base-url", default="https://api.gonkagate.com/v1")
@@ -54,7 +42,6 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Do not send response_format=json_object to Gonka chat/completions.",
     )
     run_p.add_argument("--llm-model", default="qwen/qwen3-235b-a22b-instruct-2507-fp8")
-    run_p.add_argument("--openai-api-key", default="", help="OpenAI API key (or OPENAI_API_KEY env)")
     run_p.add_argument("--parallel-llm", type=int, default=20, help="Max concurrent LLM requests")
     run_p.add_argument("--gonka-rate-limit-rps", type=float, default=5.0, help="Gonka request rate limit")
     run_p.add_argument("--max-retries", type=int, default=7, help="Max retries per LLM request on 429/5xx")
@@ -81,146 +68,153 @@ def _build_parser() -> argparse.ArgumentParser:
     run_p.add_argument("--spo-batch-docs", type=int, default=500, help="Documents per SPO checkpoint batch")
     run_p.add_argument("--spo-task-batch-size", type=int, default=1000, help="Max SPO asyncio tasks per gather")
     run_p.add_argument(
+        "--spo-request-batch-size",
+        type=int,
+        default=5,
+        help="Provision count per single LLM request (batch reduces HTTP round-trips).",
+    )
+    run_p.add_argument(
+        "--spo-extract-mode",
+        choices=("light", "full"),
+        default="light",
+        help="SPO extraction mode.",
+    )
+    run_p.add_argument(
+        "--no-spo-skip-trivial",
+        action="store_true",
+        help="Disable rule-based pre-filtering of trivial provisions.",
+    )
+    run_p.add_argument(
         "--spo-verify-mode",
         choices=("llm", "code"),
         default="llm",
-        help="SPO verify pass mode: llm=second LLM pass, code=deterministic checks only.",
+        help="SPO verify pass mode.",
     )
     run_p.add_argument(
         "--spo-max-provisions-per-doc",
         type=int,
         default=None,
-        help="Cap number of provision spans per document for SPO (smoke/debug).",
+        help="Cap number of provision spans per document for SPO.",
     )
+    run_p.add_argument(
+        "--llm-gate-enabled",
+        dest="llm_gate_enabled",
+        action="store_true",
+        help="Enable LLM routing gate (deterministic-first).",
+    )
+    run_p.add_argument(
+        "--no-llm-gate-enabled",
+        dest="llm_gate_enabled",
+        action="store_false",
+        help="Disable LLM routing gate and send all non-auto candidates to LLM.",
+    )
+    run_p.set_defaults(llm_gate_enabled=True)
+    run_p.add_argument(
+        "--llm-gate-mode",
+        choices=("off", "balanced", "aggressive"),
+        default="balanced",
+    )
+    run_p.add_argument("--llm-gate-threshold", type=float, default=0.55)
+    run_p.add_argument("--llm-gate-max-share", type=float, default=0.35)
+    run_p.add_argument("--llm-gate-audit-sample-rate", type=float, default=0.02)
+    run_p.add_argument("--llm-gate-audit-max-miss-rate-pct", type=float, default=3.0)
+    run_p.add_argument(
+        "--extract-references",
+        dest="extract_references",
+        action="store_true",
+        help="Enable deterministic reference extraction.",
+    )
+    run_p.add_argument(
+        "--no-extract-references",
+        dest="extract_references",
+        action="store_false",
+        help="Disable deterministic reference extraction.",
+    )
+    run_p.set_defaults(extract_references=True)
+    run_p.add_argument(
+        "--extract-domains",
+        dest="extract_domains",
+        action="store_true",
+        help="Enable deterministic domain classification.",
+    )
+    run_p.add_argument(
+        "--no-extract-domains",
+        dest="extract_domains",
+        action="store_false",
+        help="Disable deterministic domain classification.",
+    )
+    run_p.set_defaults(extract_domains=True)
     run_p.add_argument(
         "--disable-quality-gates",
         action="store_true",
         help="Disable SPO quality gate checks.",
     )
     run_p.add_argument(
-        "--quality-warn-only",
-        action="store_true",
-        help="Warn-only quality mode (default behavior, kept for backward compatibility).",
-    )
-    run_p.add_argument(
         "--quality-fail-on-critical",
         action="store_true",
         help="Fail pipeline when critical quality gates fail.",
     )
+    run_p.add_argument("--quality-max-full-only-docs-pct", type=float, default=30.0)
+    run_p.add_argument("--quality-max-empty-statement-rows-pct", type=float, default=12.0)
+    run_p.add_argument("--quality-max-oov-action-rate-pct", type=float, default=1.0)
+    run_p.add_argument("--quality-max-missing-quote-rate-pct", type=float, default=5.0)
+    run_p.add_argument("--quality-max-duplicate-anchor-rate-pct", type=float, default=0.1)
+    run_p.add_argument("--quality-max-audit-miss-rate-pct", type=float, default=3.0)
+    run_p.add_argument("--quality-min-llm-saved-pct", type=float, default=50.0)
+    run_p.add_argument("--quality-min-provision-docs-for-doc-rate", type=int, default=25)
+    run_p.add_argument("--quality-min-spo-rows-for-row-rate", type=int, default=50)
+    run_p.add_argument("--quality-min-statements-for-statement-rate", type=int, default=100)
+    run_p.add_argument("--status-filter", nargs="*", default=None, help="Filter by status")
+    run_p.add_argument("--type-filter", nargs="*", default=None, help="Filter by doc type")
     run_p.add_argument(
-        "--quality-max-full-only-docs-pct",
-        type=float,
-        default=30.0,
-        help="Max allowed percentage of full-only provision docs.",
-    )
-    run_p.add_argument(
-        "--quality-max-empty-statement-rows-pct",
-        type=float,
-        default=12.0,
-        help="Max allowed percentage of SPO rows with zero statements.",
-    )
-    run_p.add_argument(
-        "--quality-max-oov-action-rate-pct",
-        type=float,
-        default=1.0,
-        help="Max allowed OOV action rate in normalized statements.",
-    )
-    run_p.add_argument(
-        "--quality-max-missing-quote-rate-pct",
-        type=float,
-        default=5.0,
-        help="Max allowed missing-quote rate in statements.",
-    )
-    run_p.add_argument(
-        "--quality-max-duplicate-anchor-rate-pct",
-        type=float,
-        default=0.1,
-        help="Max allowed percentage of docs with duplicate anchors.",
-    )
-    run_p.add_argument(
-        "--quality-min-provision-docs-for-doc-rate",
-        type=int,
-        default=25,
-        help="Minimum provision docs before doc-rate gates are enforced.",
-    )
-    run_p.add_argument(
-        "--quality-min-spo-rows-for-row-rate",
-        type=int,
-        default=50,
-        help="Minimum SPO rows before row-rate gates are enforced.",
-    )
-    run_p.add_argument(
-        "--quality-min-statements-for-statement-rate",
-        type=int,
-        default=100,
-        help="Minimum statements before statement-rate gates are enforced.",
-    )
-    run_p.add_argument(
-        "--status-filter", nargs="*", default=None,
-        help="Filter by status, e.g. 'Чинний'",
-    )
-    run_p.add_argument(
-        "--type-filter", nargs="*", default=None,
-        help="Filter by doc type, e.g. 'Закон України'",
-    )
-    run_p.add_argument(
-        "--stages", default="all",
+        "--stages",
+        default="all",
         help=f"Comma-separated stages: {','.join(sorted(ALL_STAGES))} or 'all'",
     )
     run_p.add_argument("--resume", action="store_true", help="Resume from checkpoint")
     run_p.add_argument(
         "--max-docs", type=int, default=None,
-        help="Stop after processing this many NEW documents (use with --resume for batched runs)",
+        help="Stop after processing this many NEW documents.",
     )
+
+    # --- embed-local ---
+    embed_p = sub.add_parser("embed-local", help="Build local embeddings and HNSW indexes")
+    embed_p.add_argument("--output-dir", required=True, type=Path)
+    embed_p.add_argument("--db-path", type=Path, default=None)
+    embed_p.add_argument("--model", default="intfloat/multilingual-e5-large")
+    embed_p.add_argument("--device", default="mps")
+    embed_p.add_argument("--batch-size", type=int, default=24)
+    embed_p.add_argument("--chunk-size", type=int, default=2000)
+    embed_p.add_argument("--thermal", action="store_true")
+    embed_p.add_argument(
+        "--incremental", action="store_true",
+        help="Only embed new rows not present in existing .npz files.",
+    )
+    embed_p.add_argument(
+        "--fp16", action="store_true",
+        help="Use FP16 inference for faster encoding on MPS/CUDA (slight quality trade-off).",
+    )
+
+    # --- qc ---
+    qc_p = sub.add_parser("qc", help="Run QC checks for Lex artifacts")
+    qc_p.add_argument("--output-dir", required=True, type=Path)
+    qc_p.add_argument("--fail-fast", dest="fail_fast", action="store_true")
+    qc_p.add_argument("--no-fail-fast", dest="fail_fast", action="store_false")
+    qc_p.set_defaults(fail_fast=True)
+
+    # --- publish ---
+    publish_p = sub.add_parser("publish", help="Write Lex publish manifest")
+    publish_p.add_argument("--output-dir", required=True, type=Path)
 
     # --- stats ---
     stats_p = sub.add_parser("stats", help="Show graph statistics")
-    stats_p.add_argument("--output-dir", required=True, type=Path, help="Output directory")
+    stats_p.add_argument("--output-dir", required=True, type=Path)
 
     # --- search ---
     search_p = sub.add_parser("search", help="Interactive search")
-    search_p.add_argument("--output-dir", required=True, type=Path, help="Output directory")
+    search_p.add_argument("--output-dir", required=True, type=Path)
     search_p.add_argument("--query", required=True, help="Search query")
     search_p.add_argument("--top-k", type=int, default=20, help="Number of results")
-
-    # --- embed-batch ---
-    embed_batch_p = sub.add_parser(
-        "embed-batch",
-        help="OpenAI Batch API workflow for embeddings",
-    )
-    embed_sub = embed_batch_p.add_subparsers(dest="embed_batch_command")
-
-    embed_submit_p = embed_sub.add_parser("submit", help="Submit OpenAI embedding batches")
-    embed_submit_p.add_argument("--output-dir", required=True, type=Path, help="Output directory")
-    embed_submit_p.add_argument(
-        "--db-path",
-        type=Path,
-        default=None,
-        help="DuckDB path (default: <output-dir>/lex_knowledge_graph.duckdb)",
-    )
-    embed_submit_p.add_argument("--openai-api-key", default="", help="OpenAI API key (or OPENAI_API_KEY env)")
-    embed_submit_p.add_argument("--model", default="text-embedding-3-large")
-    embed_submit_p.add_argument("--dimension", type=int, default=3072)
-    embed_submit_p.add_argument("--chunk-size", type=int, default=5000)
-    embed_submit_p.add_argument(
-        "--tables",
-        default="entities,facts,provisions",
-        help="Comma-separated table keys: entities,facts,provisions",
-    )
-    embed_submit_p.add_argument("--max-input-tokens", type=int, default=8192)
-    embed_submit_p.add_argument("--max-request-tokens", type=int, default=250_000)
-    embed_submit_p.add_argument("--max-inputs-per-request", type=int, default=128)
-    embed_submit_p.add_argument("--fallback-max-chars", type=int, default=12_000)
-
-    embed_collect_p = embed_sub.add_parser(
-        "collect",
-        help="Collect completed embedding batches and build indexes",
-    )
-    embed_collect_p.add_argument("--output-dir", required=True, type=Path, help="Output directory")
-    embed_collect_p.add_argument("--openai-api-key", default="", help="OpenAI API key (or OPENAI_API_KEY env)")
-    embed_collect_p.add_argument("--wait", action="store_true", help="Poll batches until completion")
-    embed_collect_p.add_argument("--poll-interval-s", type=float, default=20.0)
-    embed_collect_p.add_argument("--no-build-index", action="store_true", help="Only collect, skip index build")
 
     return parser
 
@@ -244,24 +238,10 @@ def _clean_lex_output(output_dir: Path, *, shard_count: int, shard_index: int) -
         if shards_root.exists():
             shutil.rmtree(shards_root)
 
-    state_dir = _shard_state_dir(
-        output_dir,
-        shard_count=shard_count,
-        shard_index=shard_index,
-    )
+    state_dir = _shard_state_dir(output_dir, shard_count=shard_count, shard_index=shard_index)
     state_dir.mkdir(parents=True, exist_ok=True)
 
-    # Shard-local state.
-    for rel_dir in ("openai_batches",):
-        target = state_dir / rel_dir
-        if target.exists():
-            shutil.rmtree(target)
-
-    for rel_file in (
-        "progress.jsonl",
-        "manifest.jsonl",
-        "lex_knowledge_graph.duckdb",
-    ):
+    for rel_file in ("progress.jsonl", "manifest.jsonl", "lex_knowledge_graph.duckdb"):
         target = state_dir / rel_file
         if target.exists():
             target.unlink()
@@ -275,7 +255,6 @@ def _clean_lex_output(output_dir: Path, *, shard_count: int, shard_index: int) -
             if target.is_file():
                 target.unlink()
 
-    # Shared outputs are wiped only by shard 0 (or non-sharded run).
     if shard_count == 1 or shard_index == 0:
         for rel_dir in ("provisions", "spo_results"):
             target = output_dir / rel_dir
@@ -293,27 +272,16 @@ def _cmd_run(args: argparse.Namespace) -> None:
         raise ValueError("--clean-output cannot be used together with --resume")
 
     if args.clean_output and args.shard_count > 1 and args.shard_index != 0:
-        raise ValueError(
-            "In sharded mode use --clean-output only on --shard-index 0 "
-            "(clean once before launching all shards)."
-        )
-    if args.quality_warn_only and args.quality_fail_on_critical:
-        raise ValueError(
-            "--quality-warn-only and --quality-fail-on-critical are mutually exclusive"
-        )
+        raise ValueError("In sharded mode use --clean-output only on --shard-index 0.")
 
     if args.clean_output:
-        _clean_lex_output(
-            args.output_dir,
-            shard_count=args.shard_count,
-            shard_index=args.shard_index,
-        )
+        _clean_lex_output(args.output_dir, shard_count=args.shard_count, shard_index=args.shard_index)
 
     stages_str: str = args.stages
     if stages_str == "all":
         stages = ALL_STAGES
     else:
-        stages = frozenset(s.strip() for s in stages_str.split(","))
+        stages = frozenset(s.strip() for s in stages_str.split(",") if s.strip())
 
     config = BatchConfig(
         cards_path=args.cards,
@@ -325,7 +293,6 @@ def _cmd_run(args: argparse.Namespace) -> None:
         gonka_base_url=args.gonka_base_url,
         gonka_disable_json_mode=args.gonka_disable_json_mode,
         llm_model=args.llm_model,
-        openai_api_key=args.openai_api_key,
         max_concurrent_llm=args.parallel_llm,
         rate_limit_rps=args.gonka_rate_limit_rps,
         max_retries=args.max_retries,
@@ -339,8 +306,19 @@ def _cmd_run(args: argparse.Namespace) -> None:
         structure_fallback_chunk_overlap=args.structure_fallback_chunk_overlap,
         spo_batch_docs=args.spo_batch_docs,
         spo_task_batch_size=args.spo_task_batch_size,
+        spo_request_batch_size=args.spo_request_batch_size,
+        spo_extract_mode=args.spo_extract_mode,
+        spo_skip_trivial=not args.no_spo_skip_trivial,
         spo_verify_mode=args.spo_verify_mode,
         spo_max_provisions_per_doc=args.spo_max_provisions_per_doc,
+        llm_gate_enabled=args.llm_gate_enabled,
+        llm_gate_mode=args.llm_gate_mode,
+        llm_gate_threshold=args.llm_gate_threshold,
+        llm_gate_max_share=args.llm_gate_max_share,
+        llm_gate_audit_sample_rate=args.llm_gate_audit_sample_rate,
+        llm_gate_audit_max_miss_rate_pct=args.llm_gate_audit_max_miss_rate_pct,
+        extract_references_enabled=args.extract_references,
+        extract_domains_enabled=args.extract_domains,
         status_filter=frozenset(args.status_filter) if args.status_filter else None,
         type_filter=frozenset(args.type_filter) if args.type_filter else None,
         max_docs=args.max_docs,
@@ -351,6 +329,8 @@ def _cmd_run(args: argparse.Namespace) -> None:
         quality_max_oov_action_rate_pct=args.quality_max_oov_action_rate_pct,
         quality_max_missing_quote_rate_pct=args.quality_max_missing_quote_rate_pct,
         quality_max_duplicate_anchor_rate_pct=args.quality_max_duplicate_anchor_rate_pct,
+        quality_max_audit_miss_rate_pct=args.quality_max_audit_miss_rate_pct,
+        quality_min_llm_saved_pct=args.quality_min_llm_saved_pct,
         quality_min_provision_docs_for_doc_rate=args.quality_min_provision_docs_for_doc_rate,
         quality_min_spo_rows_for_row_rate=args.quality_min_spo_rows_for_row_rate,
         quality_min_statements_for_statement_rate=args.quality_min_statements_for_statement_rate,
@@ -359,7 +339,7 @@ def _cmd_run(args: argparse.Namespace) -> None:
     from polisyos.lex.batch.pipeline import run_batch_pipeline
 
     stats = asyncio.run(run_batch_pipeline(config))
-    print(f"\nPipeline complete:")
+    print("\nPipeline complete:")
     print(f"  Documents:  {stats.total_docs}")
     print(f"  Provisions: {stats.total_provisions}")
     print(f"  SPO triples:{stats.total_spo}")
@@ -370,84 +350,121 @@ def _cmd_run(args: argparse.Namespace) -> None:
         print(f"  Shard:      {config.shard_index + 1}/{config.shard_count} ({config.shard_slug})")
     if stats.quality_passed is not None:
         print(f"  Quality OK: {stats.quality_passed}")
-        print(
-            "  Quality:    full_only={:.2f}% empty_rows={:.2f}% oov_action={:.2f}% missing_quote={:.2f}% dup_anchor={:.3f}%".format(
-                stats.quality_report.get("full_only_docs_pct", 0.0),
-                stats.quality_report.get("empty_statement_rows_pct", 0.0),
-                stats.quality_report.get("oov_action_rate_pct", 0.0),
-                stats.quality_report.get("missing_quote_rate_pct", 0.0),
-                stats.quality_report.get("duplicate_anchor_rate_pct", 0.0),
-            ),
-        )
-        if stats.quality_failed_checks:
-            print(f"  Quality failed checks: {', '.join(stats.quality_failed_checks)}")
-        if stats.quality_skipped_checks:
-            print(f"  Quality skipped checks: {', '.join(stats.quality_skipped_checks)}")
     for stage, dt in sorted(stats.stage_times.items()):
         print(f"    {stage}: {dt:.1f}s")
 
+    run_artifacts: list[Path] = []
+    if config.db_path.exists():
+        run_artifacts.append(config.db_path)
+    if config.llm_gate_manifest_path.exists():
+        run_artifacts.append(config.llm_gate_manifest_path)
+    if config.llm_gate_audit_path.exists():
+        run_artifacts.append(config.llm_gate_audit_path)
 
-def _resolve_openai_key(cli_value: str) -> str:
-    if cli_value.strip():
-        return cli_value.strip()
-    return os.environ.get("OPENAI_API_KEY", "").strip()
+    write_stage_manifest(
+        manifest_path=config.output_dir / "manifests" / "run.json",
+        stage="run",
+        status="ok",
+        metrics={
+            "documents": stats.total_docs,
+            "provisions": stats.total_provisions,
+            "spo": stats.total_spo,
+            "entities": stats.entities,
+            "facts": stats.facts,
+            "elapsed_seconds": round(stats.elapsed_seconds, 3),
+            **stats.llm_gate_metrics,
+        },
+        artifacts=run_artifacts,
+        started_at=datetime.now(UTC).isoformat(),
+    )
 
 
-def _parse_tables_arg(raw: str) -> tuple[str, ...]:
-    values = [v.strip() for v in raw.split(",") if v.strip()]
-    if not values:
-        raise ValueError("At least one table must be provided in --tables")
-    return tuple(values)
-
-
-def _cmd_embed_batch_submit(args: argparse.Namespace) -> None:
-    from polisyos.lex.batch.openai_batch_embeddings import submit_embedding_batches
-
-    openai_key = _resolve_openai_key(args.openai_api_key)
-    if not openai_key:
-        print("OPENAI_API_KEY not set.")
-        sys.exit(1)
+def _cmd_embed_local(args: argparse.Namespace) -> None:
+    from polisyos.lex.batch.embedder import build_local_embeddings_and_indexes
 
     db_path = args.db_path if args.db_path is not None else args.output_dir / "lex_knowledge_graph.duckdb"
-    result = submit_embedding_batches(
-        db_path=db_path,
-        output_dir=args.output_dir,
-        api_key=openai_key,
-        model=args.model,
-        dimensions=args.dimension,
-        tables=_parse_tables_arg(args.tables),
-        chunk_size=args.chunk_size,
-        max_input_tokens=args.max_input_tokens,
-        max_request_tokens=args.max_request_tokens,
-        max_inputs_per_request=args.max_inputs_per_request,
-        fallback_max_chars=args.fallback_max_chars,
-    )
-    print("Embedding batch submit complete:")
-    print(f"  batches_created:   {result['batches_created']}")
-    print(f"  requests_submitted:{result['requests_submitted']}")
-    print(f"  inputs_submitted:  {result['inputs_submitted']}")
-
-
-def _cmd_embed_batch_collect(args: argparse.Namespace) -> None:
-    from polisyos.lex.batch.openai_batch_embeddings import collect_embedding_batches
-
-    openai_key = _resolve_openai_key(args.openai_api_key)
-    if not openai_key:
-        print("OPENAI_API_KEY not set.")
+    if not db_path.exists():
+        print(f"Database not found: {db_path}")
         sys.exit(1)
 
-    result = collect_embedding_batches(
+    stats = build_local_embeddings_and_indexes(
+        db_path=db_path,
         output_dir=args.output_dir,
-        api_key=openai_key,
-        wait_for_completion=args.wait,
-        poll_interval_s=args.poll_interval_s,
-        build_index=not args.no_build_index,
+        embedding_model=args.model,
+        embedding_device=args.device,
+        embedding_batch_size=args.batch_size,
+        embedding_chunk_size=args.chunk_size,
+        thermal_pause_seconds=0.5 if args.thermal else 0.0,
+        incremental=args.incremental,
+        fp16=args.fp16,
     )
-    print("Embedding batch collect complete:")
-    print(f"  completed_batches: {result['completed_batches']}")
-    print(f"  pending_batches:   {result['pending_batches']}")
-    print(f"  failed_batches:    {result['failed_batches']}")
-    print(f"  indexes_built:     {result['indexes_built']}")
+
+    print("Local embedding complete:")
+    print(f"  entities:   {stats.entities_embedded} (skipped: {stats.entities_skipped})")
+    print(f"  facts:      {stats.facts_embedded} (skipped: {stats.facts_skipped})")
+    print(f"  provisions: {stats.provisions_embedded} (skipped: {stats.provisions_skipped})")
+    print(f"  time:       {stats.elapsed_seconds:.1f}s")
+
+    write_stage_manifest(
+        manifest_path=args.output_dir / "manifests" / "embed_local.json",
+        stage="embed_local",
+        status="ok",
+        metrics={
+            "entities": stats.entities_embedded,
+            "entities_skipped": stats.entities_skipped,
+            "facts": stats.facts_embedded,
+            "facts_skipped": stats.facts_skipped,
+            "provisions": stats.provisions_embedded,
+            "provisions_skipped": stats.provisions_skipped,
+            "elapsed_seconds": round(stats.elapsed_seconds, 3),
+            "incremental": bool(args.incremental),
+            "fp16": bool(args.fp16),
+            "thermal": bool(args.thermal),
+        },
+        artifacts=[
+            args.output_dir / "lex_entity_embeddings.npz",
+            args.output_dir / "lex_entity_index.hnsw",
+            args.output_dir / "lex_fact_embeddings.npz",
+            args.output_dir / "lex_fact_index.hnsw",
+            args.output_dir / "lex_provision_embeddings.npz",
+            args.output_dir / "lex_provision_index.hnsw",
+        ],
+        started_at=datetime.now(UTC).isoformat(),
+    )
+
+
+def _minimal_cfg(output_dir: Path) -> BatchConfig:
+    return BatchConfig(
+        cards_path=output_dir / "_placeholder_cards.xml",
+        texts_path=output_dir / "_placeholder_texts.xml",
+        output_dir=output_dir,
+        stages=frozenset({"parse"}),
+    )
+
+
+def _cmd_qc(args: argparse.Namespace) -> None:
+    from polisyos.lex.batch.qc import run_qc
+
+    cfg = _minimal_cfg(args.output_dir)
+    report = run_qc(cfg, fail_fast=bool(args.fail_fast))
+    print(f"QC passed: {report.passed}")
+    print(f"QC report: {args.output_dir / 'qc_report.json'}")
+
+    write_stage_manifest(
+        manifest_path=args.output_dir / "manifests" / "qc.json",
+        stage="qc",
+        status="ok" if report.passed else "failed",
+        metrics={"passed": report.passed, **report.metrics},
+        artifacts=[args.output_dir / "qc_report.json"],
+        started_at=datetime.now(UTC).isoformat(),
+    )
+
+
+def _cmd_publish(args: argparse.Namespace) -> None:
+    from polisyos.lex.batch.publish import run_publish
+
+    manifest = run_publish(args.output_dir)
+    print(f"Publish manifest: {manifest}")
 
 
 def _cmd_stats(args: argparse.Namespace) -> None:
@@ -463,53 +480,33 @@ def _cmd_stats(args: argparse.Namespace) -> None:
         entities = con.execute("SELECT COUNT(*) FROM lex_entities").fetchone()[0]
         facts = con.execute("SELECT COUNT(*) FROM lex_facts").fetchone()[0]
         provisions = con.execute("SELECT COUNT(*) FROM lex_provisions").fetchone()[0]
-
-        print(f"Knowledge graph: {db_path}")
-        print(f"  Entities:   {entities:,}")
-        print(f"  Facts:      {facts:,}")
-        print(f"  Provisions: {provisions:,}")
-
-        # Top predicates
-        print("\nTop predicates:")
-        rows = con.execute(
-            "SELECT predicate, COUNT(*) AS cnt FROM lex_facts "
-            "GROUP BY predicate ORDER BY cnt DESC LIMIT 15"
-        ).fetchall()
-        for pred, cnt in rows:
-            print(f"  {pred}: {cnt:,}")
-
-        # Top entity types
-        print("\nEntity types:")
-        rows = con.execute(
-            "SELECT entity_type, COUNT(*) AS cnt FROM lex_entities "
-            "GROUP BY entity_type ORDER BY cnt DESC LIMIT 10"
-        ).fetchall()
-        for etype, cnt in rows:
-            print(f"  {etype}: {cnt:,}")
     finally:
         con.close()
+
+    print(f"Knowledge graph: {db_path}")
+    print(f"  Entities:   {entities:,}")
+    print(f"  Facts:      {facts:,}")
+    print(f"  Provisions: {provisions:,}")
 
 
 def _cmd_search(args: argparse.Namespace) -> None:
     from polisyos.lex.knowledge.store import LegalKnowledgeStore
 
-    store = LegalKnowledgeStore(
-        db_path=args.output_dir / "lex_knowledge_graph.duckdb",
-        index_dir=args.output_dir,
-    )
+    store = LegalKnowledgeStore(db_path=args.output_dir / "lex_knowledge_graph.duckdb", index_dir=args.output_dir)
     try:
         results = store.text_search_facts(args.query, top_k=args.top_k)
-        if not results:
-            print("No results found.")
-            return
-        for i, r in enumerate(results, 1):
-            print(f"\n[{i}] {r.fact_text}")
-            print(f"    {r.subject_name} → {r.predicate} → {r.object_name}")
-            print(f"    doc: {r.doc_name} ({r.doc_reestr_code})")
-            print(f"    provision: {r.provision_citation}")
-            print(f"    confidence: {r.confidence:.2f}, similarity: {r.similarity:.2f}")
     finally:
         store.close()
+
+    if not results:
+        print("No results found.")
+        return
+    for i, r in enumerate(results, 1):
+        print(f"\n[{i}] {r.fact_text}")
+        print(f"    {r.subject_name} → {r.predicate} → {r.object_name}")
+        print(f"    doc: {r.doc_name} ({r.doc_reestr_code})")
+        print(f"    provision: {r.provision_citation}")
+        print(f"    confidence: {r.confidence:.2f}, similarity: {r.similarity:.2f}")
 
 
 def main() -> None:
@@ -518,7 +515,6 @@ def main() -> None:
 
         load_dotenv()
     except Exception:
-        # Optional: CLI still works with explicit env exports.
         pass
 
     logging.basicConfig(
@@ -536,18 +532,16 @@ def main() -> None:
 
     if args.command == "run":
         _cmd_run(args)
+    elif args.command == "embed-local":
+        _cmd_embed_local(args)
+    elif args.command == "qc":
+        _cmd_qc(args)
+    elif args.command == "publish":
+        _cmd_publish(args)
     elif args.command == "stats":
         _cmd_stats(args)
     elif args.command == "search":
         _cmd_search(args)
-    elif args.command == "embed-batch":
-        if args.embed_batch_command == "submit":
-            _cmd_embed_batch_submit(args)
-        elif args.embed_batch_command == "collect":
-            _cmd_embed_batch_collect(args)
-        else:
-            parser.print_help()
-            sys.exit(1)
     else:
         parser.print_help()
         sys.exit(1)

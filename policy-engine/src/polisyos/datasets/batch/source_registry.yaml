@@ -1,0 +1,87 @@
+version: 1
+sources:
+  - name: oecd
+    family: sdmx
+    wave: A
+    endpoint: https://sdmx.oecd.org/public/rest/dataflow
+    agency_prefix: OECD
+    enabled: true
+
+  - name: imf
+    family: sdmx
+    wave: A
+    endpoint: https://sdmxcentral.imf.org/ws/public/sdmxapi/rest/dataflow/IMF
+    agency_prefix: IMF
+    enabled: true
+
+  - name: ecb
+    family: sdmx
+    wave: A
+    endpoint: https://data-api.ecb.europa.eu/service/dataflow
+    agency_prefix: ECB
+    enabled: true
+
+  - name: undata
+    family: undata
+    wave: A
+    endpoint: https://data.un.org/ws/rest/dataflow/
+    agency_allowlist: [UNSD, IAEG, IAEG-SDGs, UIS]
+    exclude_agencies: [ESTAT, WB]
+    enabled: true
+
+  - name: eurostat
+    family: sdmx
+    wave: A
+    endpoint: https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/dataflow/ESTAT/all/latest?detail=allstubs
+    agency_prefix: ESTAT
+    enabled: true
+
+  - name: worldbank
+    family: worldbank
+    wave: B
+    endpoint: https://api.worldbank.org/v2/indicator
+    enabled: true
+
+  - name: ukons
+    family: ukons
+    wave: B
+    endpoint: https://api.beta.ons.gov.uk/v1/datasets
+    enabled: true
+
+  - name: data_gov_ua
+    family: ckan
+    wave: C
+    endpoint: https://data.gov.ua/api/3/action/package_search
+    enabled: true
+
+  - name: ilo
+    family: sdmx
+    wave: D
+    endpoint: https://sdmx.ilo.org/rest/dataflow/ILO
+    agency_prefix: ILO
+    enabled: true
+
+  - name: unicef
+    family: sdmx
+    wave: D
+    endpoint: https://sdmx.data.unicef.org/ws/rest/dataflow/UNICEF
+    agency_prefix: UNICEF
+    enabled: true
+
+  - name: who
+    family: who
+    wave: D
+    endpoint: https://ghoapi.azureedge.net/api/Indicator
+    enabled: true
+
+  - name: unesco_uis
+    family: uis
+    wave: D
+    endpoint: https://api.uis.unesco.org/api/public/definitions/indicators
+    enabled: true
+
+  - name: unpd
+    family: unpd
+    wave: D
+    endpoint: https://population.un.org/dataportalapi/api/v1/indicators/?pageSize=200
+    enabled: true

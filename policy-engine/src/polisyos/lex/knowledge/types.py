@@ -167,6 +167,11 @@ class SPOExtractionResult(BaseModel):
     low_confidence: bool = False
     low_confidence_reasons: list[str] = Field(default_factory=list)
 
+    # Routing provenance (deterministic gate -> llm)
+    extraction_source: str = "llm"  # rule_auto|llm|audit_llm|deferred
+    gate_score: float = 0.0
+    gate_reason_codes: list[str] = Field(default_factory=list)
+
     # Perf and usage
     latency_ms: int = 0
     pass1_latency_ms: int = 0

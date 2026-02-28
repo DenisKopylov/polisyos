@@ -7,12 +7,12 @@ import os
 from dataclasses import dataclass, field
 from pathlib import Path
 
-ALL_STAGES = frozenset({"parse", "structure", "spo", "graph", "embed"})
+ALL_STAGES = frozenset({"parse", "structure", "spo", "graph"})
 
 
 @dataclass
 class BatchConfig:
-    """Immutable configuration for a single batch pipeline run."""
+    """Immutable configuration for a single Lex pipeline run."""
 
     # --- Input paths ---
     cards_path: Path
@@ -57,7 +57,24 @@ class BatchConfig:
         return self.output_dir / "provisions"
 
     @property
+    def references_dir(self) -> Path:
+        return self.output_dir / "references"
+
+    @property
+    def domains_dir(self) -> Path:
+        return self.output_dir / "domains"
+
+    @property
+    def llm_gate_audit_path(self) -> Path:
+        return self.output_dir / "llm_gate_audit.jsonl"
+
+    @property
+    def llm_gate_manifest_path(self) -> Path:
+        return self.output_dir / "manifests" / "llm_gate.json"
+
+    @property
     def openai_batches_dir(self) -> Path:
+        # Kept for backward compatibility with older tests/helpers.
         return self.state_dir / "openai_batches"
 
     # --- LLM (Gonka, OpenAI-compatible) ---
@@ -70,12 +87,15 @@ class BatchConfig:
     rate_limit_rps: float = 5.0
     max_retries: int = 7
 
-    # --- Embedding (OpenAI API) ---
-    openai_api_key: str = ""
-    embedding_model: str = "text-embedding-3-large"
-    embedding_dimension: int = 3072
-    embedding_max_concurrent: int = 10  # gentle on M2 16 GB
-    embedding_chunk_size: int = 5000  # vectors per disk flush
+    # --- Local embeddings (sentence-transformers) ---
+    embedding_model: str = "intfloat/multilingual-e5-large"
+    embedding_dimension: int = 1024
+    embedding_batch_size: int = 24
+    embedding_device: str = "mps"
+    embedding_chunk_size: int = 2000
+    embedding_pause_seconds: float = 0.5
+    embedding_fp16: bool = True
+    embedding_incremental: bool = False
 
     # --- Filtering ---
     status_filter: frozenset[str] | None = None
@@ -89,16 +109,38 @@ class BatchConfig:
     max_docs: int | None = None  # stop after processing this many NEW docs (None = unlimited)
 
     # --- Hardware tuning (MacBook Air M2, 16 GB) ---
-    xml_parse_chunk: int = 5000  # docs buffered in RAM during XML parse
-    structure_workers: int = 4  # multiprocessing workers
+    xml_parse_chunk: int = 5000
+    structure_workers: int = 4
     structure_enable_paragraphs: bool = True
     structure_fallback_chunk_chars: int = 1800
     structure_fallback_chunk_overlap: int = 200
-    spo_batch_docs: int = 500  # docs per SPO batch (checkpoint granularity)
-    spo_task_batch_size: int = 1000  # max asyncio tasks created per gather() cycle
-    spo_max_provisions_per_doc: int | None = None  # cap spans per doc for SPO (debug/smoke)
-    spo_verify_mode: str = "llm"  # llm | code
-    graph_insert_batch: int = 10_000  # DuckDB INSERT batch size
+    spo_batch_docs: int = 500
+    spo_task_batch_size: int = 1000
+    spo_request_batch_size: int = 5
+    spo_max_provisions_per_doc: int | None = None
+    spo_extract_mode: str = "light"
+    spo_skip_trivial: bool = True
+    spo_verify_mode: str = "code"
+    graph_insert_batch: int = 10_000
+
+    # --- LLM gating ---
+    llm_gate_enabled: bool = True
+    llm_gate_mode: str = "balanced"  # off|balanced|aggressive
+    llm_gate_threshold: float = 0.55
+    llm_gate_max_share: float = 0.35
+    llm_gate_min_score_force_llm: float = 0.75
+    llm_gate_audit_sample_rate: float = 0.02
+    llm_gate_audit_max_miss_rate_pct: float = 3.0
+    llm_gate_auto_conf_threshold: float = 0.85
+    llm_gate_circuit_breaker_enabled: bool = True
+
+    # --- LLM response cache ---
+    spo_cache_enabled: bool = True
+    spo_cache_path: Path | None = None  # defaults to output_dir / "spo_cache.sqlite"
+
+    # --- Deterministic enrichments ---
+    extract_references_enabled: bool = True
+    extract_domains_enabled: bool = True
 
     # --- Quality gates ---
     quality_gates_enabled: bool = True
@@ -108,6 +150,8 @@ class BatchConfig:
     quality_max_oov_action_rate_pct: float = 1.0
     quality_max_missing_quote_rate_pct: float = 5.0
     quality_max_duplicate_anchor_rate_pct: float = 0.1
+    quality_max_audit_miss_rate_pct: float = 3.0
+    quality_min_llm_saved_pct: float = 50.0
     quality_min_provision_docs_for_doc_rate: int = 25
     quality_min_spo_rows_for_row_rate: int = 50
     quality_min_statements_for_statement_rate: int = 100
@@ -128,8 +172,26 @@ class BatchConfig:
 
         if self.spo_max_provisions_per_doc is not None and self.spo_max_provisions_per_doc < 1:
             raise ValueError("spo_max_provisions_per_doc must be >= 1 when set")
+        if self.spo_request_batch_size < 1:
+            raise ValueError("spo_request_batch_size must be >= 1")
+        if self.spo_extract_mode not in {"light", "full"}:
+            raise ValueError("spo_extract_mode must be one of: light, full")
         if self.spo_verify_mode not in {"llm", "code"}:
             raise ValueError("spo_verify_mode must be one of: llm, code")
+        if self.llm_gate_mode not in {"off", "balanced", "aggressive"}:
+            raise ValueError("llm_gate_mode must be one of: off, balanced, aggressive")
+        if not (0.0 <= self.llm_gate_threshold <= 1.0):
+            raise ValueError("llm_gate_threshold must be in range [0, 1]")
+        if not (0.0 <= self.llm_gate_max_share <= 1.0):
+            raise ValueError("llm_gate_max_share must be in range [0, 1]")
+        if not (0.0 <= self.llm_gate_min_score_force_llm <= 1.0):
+            raise ValueError("llm_gate_min_score_force_llm must be in range [0, 1]")
+        if not (0.0 <= self.llm_gate_audit_sample_rate <= 1.0):
+            raise ValueError("llm_gate_audit_sample_rate must be in range [0, 1]")
+        if self.llm_gate_audit_max_miss_rate_pct < 0.0:
+            raise ValueError("llm_gate_audit_max_miss_rate_pct must be >= 0")
+        if not (0.0 <= self.llm_gate_auto_conf_threshold <= 1.0):
+            raise ValueError("llm_gate_auto_conf_threshold must be in range [0, 1]")
         if self.quality_min_provision_docs_for_doc_rate < 0:
             raise ValueError("quality_min_provision_docs_for_doc_rate must be >= 0")
         if self.quality_min_spo_rows_for_row_rate < 0:
@@ -137,22 +199,22 @@ class BatchConfig:
         if self.quality_min_statements_for_statement_rate < 0:
             raise ValueError("quality_min_statements_for_statement_rate must be >= 0")
 
-        if self.sharded and {"graph", "embed"} & set(self.stages):
+        if self.sharded and {"graph"} & set(self.stages):
             raise ValueError(
                 "In sharded mode run only parse/structure/spo stages. "
-                "Run graph/embed as a separate single-process finalize pass."
+                "Run graph as a separate single-process finalize pass."
             )
 
         self.output_dir.mkdir(parents=True, exist_ok=True)
         self.state_dir.mkdir(parents=True, exist_ok=True)
         self.spo_results_dir.mkdir(parents=True, exist_ok=True)
         self.provisions_dir.mkdir(parents=True, exist_ok=True)
+        self.references_dir.mkdir(parents=True, exist_ok=True)
+        self.domains_dir.mkdir(parents=True, exist_ok=True)
         self.openai_batches_dir.mkdir(parents=True, exist_ok=True)
 
         if not self.gonka_api_key:
             self.gonka_api_key = os.environ.get("GONKA_API_KEY", "")
-        if not self.openai_api_key:
-            self.openai_api_key = os.environ.get("OPENAI_API_KEY", "")
 
         unknown = set(self.stages) - ALL_STAGES
         if unknown:

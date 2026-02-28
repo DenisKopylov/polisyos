@@ -6,9 +6,11 @@ import pytest
 
 from polisyos.lex.batch.spo_extractor import (
     _choose_verify_statements,
+    _extract_batch_provisions,
     _extract_one_provision,
     _is_json_mode_invalid_request,
     _normalize_statements,
+    _parse_batch_extract_payload,
     _parse_json_object,
     _parse_spo_statements,
 )
@@ -124,6 +126,19 @@ def test_parse_spo_statements_maps_loose_schema_and_threshold_aliases() -> None:
     assert stmt.thresholds[0].value_decimal == "295"
 
 
+def test_parse_batch_extract_payload_supports_items_list() -> None:
+    payload = {
+        "items": [
+            {"id": "item_0000", "statements": [{"predicate": "requires"}]},
+            {"id": "item_0001", "statements": [{"predicate": "prohibits"}]},
+        ],
+    }
+    parsed = _parse_batch_extract_payload(payload)
+    assert sorted(parsed.keys()) == ["item_0000", "item_0001"]
+    assert parsed["item_0000"]["statements"][0]["predicate"] == "requires"
+    assert parsed["item_0001"]["statements"][0]["predicate"] == "prohibits"
+
+
 def test_json_mode_invalid_request_detector() -> None:
     body = (
         '{"error":{"message":"Invalid request.","type":"invalid_request_error",'
@@ -207,6 +222,66 @@ class _DummyClient:
         }
 
 
+class _DummyBatchClient:
+    def __init__(self) -> None:
+        self.model_id = "dummy/model"
+        self.calls = 0
+
+    async def chat_completion(
+        self,
+        messages: list[dict[str, str]],
+        *,
+        response_format: dict[str, str] | None = None,
+    ) -> dict:
+        self.calls += 1
+        payload = {
+            "items": [
+                {
+                    "id": "item_0000",
+                    "statements": [
+                        {
+                            "subject_en": "cabinet_of_ministers",
+                            "subject_uk": "Кабінет Міністрів України",
+                            "predicate": "approves",
+                            "object_en": "proposal",
+                            "object_uk": "пропозицію",
+                            "fact_text": "Кабінет Міністрів України схвалює пропозицію.",
+                            "confidence": 0.9,
+                            "norm_type": "obligation",
+                            "source_quote_uk": "схвалює пропозицію",
+                            "source_quote_start": 10,
+                            "source_quote_end": 27,
+                            "thresholds": [],
+                        },
+                    ],
+                },
+                {
+                    "id": "item_0001",
+                    "statements": [
+                        {
+                            "subject_en": "cabinet_of_ministers",
+                            "subject_uk": "Кабінет Міністрів України",
+                            "predicate": "requires",
+                            "object_en": "submission",
+                            "object_uk": "подання",
+                            "fact_text": "Кабінет Міністрів України вимагає подання.",
+                            "confidence": 0.8,
+                            "norm_type": "obligation",
+                            "source_quote_uk": "вимагає подання",
+                            "source_quote_start": 8,
+                            "source_quote_end": 22,
+                            "thresholds": [],
+                        },
+                    ],
+                },
+            ],
+        }
+        return {
+            "choices": [{"message": {"content": json.dumps(payload, ensure_ascii=False)}}],
+            "usage": {"prompt_tokens": 20, "completion_tokens": 10},
+        }
+
+
 @pytest.mark.asyncio
 async def test_extract_one_provision_code_verify_mode_skips_second_llm_pass() -> None:
     client = _DummyClient()
@@ -250,3 +325,58 @@ async def test_extract_one_provision_code_verify_mode_skips_second_llm_pass() ->
     assert result.token_count_completion_verify == 0
     assert json.loads(result.verify_report_json)["mode"] == "code"
     assert len(result.statements) == 1
+
+
+@pytest.mark.asyncio
+async def test_extract_batch_provisions_code_verify_mode_uses_single_request() -> None:
+    client = _DummyBatchClient()
+    card = NPACard(
+        doc_id="doc1234567890abcd",
+        reestr_code="rc1",
+        date_acc="2001-01-01",
+        reestr_date="2001-01-02",
+        status="Чинний",
+        doc_type="Наказ",
+        name="Тестовий документ",
+        publisher=("КМУ",),
+        number="1",
+        publication=(),
+        keywords=(),
+        reg_date="",
+        reg_number="",
+    )
+    doc = NPADocument(card=card, text="Кабінет Міністрів України схвалює пропозицію.")
+    provisions = [
+        ProvisionSpan(
+            kind="full_text",
+            number="1",
+            anchor_path="full/chunk:0001",
+            citation_label="Повний текст, фрагмент 1",
+            offset_start=0,
+            offset_end=len(doc.text),
+            text=doc.text,
+        ),
+        ProvisionSpan(
+            kind="full_text",
+            number="2",
+            anchor_path="full/chunk:0002",
+            citation_label="Повний текст, фрагмент 2",
+            offset_start=0,
+            offset_end=len(doc.text),
+            text=doc.text,
+        ),
+    ]
+
+    results = await _extract_batch_provisions(
+        client,
+        [(doc, provisions[0]), (doc, provisions[1])],
+        verify_mode="code",
+    )
+
+    assert client.calls == 1
+    assert len(results) == 2
+    assert results[0].provision_anchor == "full/chunk:0001"
+    assert results[1].provision_anchor == "full/chunk:0002"
+    assert all(result.extract_passes == 1 for result in results)
+    assert sum(result.token_count_prompt_extract for result in results) == 20
+    assert sum(result.token_count_completion_extract for result in results) == 10

@@ -79,6 +79,39 @@ _NORM_TYPE_SYNONYMS: dict[str, str] = {
     "temporal_rule": "entry_into_force",
     "prohibitive": "prohibition",
     "allocation": "procedure",
+    # Bulk norm_type synonyms from corpus analysis (Feb 2026).
+    "fine": "sanction",
+    "punishment": "sanction",
+    "liability": "sanction",
+    "responsibility": "sanction",
+    "amnesty": "exception",
+    "invalidation": "repeal",
+    "void": "repeal",
+    "scope": "definition",
+    "composition": "definition",
+    "structure": "definition",
+    "location": "definition",
+    "purpose": "definition",
+    "classification": "definition",
+    "designation": "definition",
+    "ratification": "procedure",
+    "appointment": "delegation",
+    "subordination": "delegation",
+    "replacement": "amendment",
+    "revision": "amendment",
+    "modification": "amendment",
+    "exclusion_from_list": "exception",
+    "restoration": "amendment",
+    "enactment": "entry_into_force",
+    "зобов_язання": "obligation",
+    "заборона": "prohibition",
+    "дозвіл": "permission",
+    "визначення": "definition",
+    "штраф": "sanction",
+    "покарання": "sanction",
+    "делегування": "delegation",
+    "зміна": "amendment",
+    "скасування": "repeal",
 }
 
 _CORE_ACTIONS = {
@@ -102,6 +135,7 @@ _CORE_ACTIONS = {
     "is_funded_by",
     "is_composed_of",
     "limits",
+    "sanctions",
 }
 
 _ACTION_SYNONYMS: dict[str, str] = {
@@ -193,6 +227,208 @@ _ACTION_SYNONYMS: dict[str, str] = {
     "act_based_on": "requires",
     "approve_proposal": "approves",
     "assign_to": "delegates",
+    # --- Bulk OOV mappings from corpus analysis (Feb 2026) ---
+    # defines / definitions
+    "is_defined_as": "defines",
+    "are_defined_as": "defines",
+    "is_determined_by": "defines",
+    "is_designated_as": "defines",
+    "determine": "defines",
+    "determines": "defines",
+    "означає": "defines",
+    "визначається": "defines",
+    "визначаються": "defines",
+    "визначає": "defines",
+    "є": "defines",
+    # repeals / invalidation
+    "recognizes_as_invalid": "repeals",
+    "recognize_as_invalid": "repeals",
+    "recognizes_as_invalid": "repeals",
+    "declares_void": "repeals",
+    "has_decision_invalidated": "repeals",
+    # sanctions / fines / punishment
+    "imposes_fine": "sanctions",
+    "impose_fine": "sanctions",
+    "imposes_fine": "sanctions",
+    "shall_be_fined": "sanctions",
+    "is_punishable_by": "sanctions",
+    "imposes_punishment": "sanctions",
+    "is_subject_to_punishment": "sanctions",
+    "subject_to_fine": "sanctions",
+    "bears_responsibility_for": "sanctions",
+    "bears_responsibility": "sanctions",
+    "bear_responsibility": "sanctions",
+    "bears_personal_responsibility": "sanctions",
+    "shall_be_released_from_punishment": "sanctions",
+    # applies_to / scope
+    "are_subject_to": "applies_to",
+    "subject_to": "applies_to",
+    "include": "applies_to",
+    "contains": "applies_to",
+    "is_located_at": "applies_to",
+    "is_located_in": "applies_to",
+    "located_in": "applies_to",
+    "is_part_of": "applies_to",
+    "belongs_to_category": "applies_to",
+    "is_based_on": "applies_to",
+    "is_governed_by": "applies_to",
+    "is_conducted_by": "applies_to",
+    "is_conducted_according_to": "applies_to",
+    "is_conducted_in_accordance_with": "applies_to",
+    "consists_of": "is_composed_of",
+    "is": "applies_to",
+    "can_be": "applies_to",
+    "can_be_made_in_form_of": "applies_to",
+    "has_purpose": "applies_to",
+    "is_ensured_by": "applies_to",
+    "depends_on": "applies_to",
+    "results_in": "applies_to",
+    "covers": "applies_to",
+    "participates_in": "applies_to",
+    "participates_in_development": "applies_to",
+    "складають": "applies_to",
+    "розглядаються": "applies_to",
+    "розглядає": "applies_to",
+    "розглядають_спори_про": "applies_to",
+    "містить": "applies_to",
+    "становить": "sets_threshold",
+    "включає": "applies_to",
+    # grants / permissions / rights
+    "have_right_to": "grants",
+    "is_entitled_to": "grants",
+    "has_right_to_demand": "grants",
+    "has_right_to_obtain_information": "grants",
+    "has_right_to_claim_compensation": "grants",
+    "has_power_to": "grants",
+    "has_authority_to": "grants",
+    "allows": "grants",
+    "are_entitled_to": "grants",
+    "are_eligible_for_amnesty": "grants",
+    "має_право": "grants",
+    "має_право_на_одержання_патенту": "grants",
+    "звільняються_від_усіх_податків_і_мит_особистих_і_майнових_державних_районних_і_муніципальних": "grants",
+    "звільняє_від_податків_і_зборів": "grants",
+    # prohibits
+    "is_prohibited": "prohibits",
+    "is_prohibited_from": "prohibits",
+    "are_prohibited_from": "prohibits",
+    "забороняється": "prohibits",
+    "не_застосовуються": "excludes",
+    "суперечать": "prohibits",
+    "суперечить": "prohibits",
+    "не_визнається_порушенням_прав": "excludes",
+    # enters_into_force
+    "introduce_into_force": "enters_into_force",
+    "adopted": "enters_into_force",
+    "approved": "approves",
+    # approves / adoption
+    "adopts_resolution": "approves",
+    "adopts_decision": "approves",
+    "adopts": "approves",
+    "ratifies": "approves",
+    "ratifies_agreement": "approves",
+    "approves_list": "approves",
+    "shall_approve": "approves",
+    "затверджує": "approves",
+    # delegates / appointments
+    "appoints": "delegates",
+    "is_appointed_by": "delegates",
+    "is_assigned_to": "delegates",
+    "is_subordinate_to": "delegates",
+    "is_subordinated_to": "delegates",
+    "issues_order": "delegates",
+    "decides": "delegates",
+    # requires / obligations
+    "develops": "requires",
+    "shall_ensure": "requires",
+    "must_ensure": "requires",
+    "ensures": "requires",
+    "must_submit": "requires",
+    "must_provide": "requires",
+    "must_notify": "requires",
+    "must_include": "requires",
+    "must_have": "requires",
+    "must_be": "requires",
+    "must_be_equipped_with": "requires",
+    "must_contain": "requires",
+    "must_know": "requires",
+    "must_maintain": "requires",
+    "must_display": "requires",
+    "must_be_at_least": "sets_threshold",
+    "shall_develop": "requires",
+    "shall_produce": "requires",
+    "shall_submit": "requires",
+    "shall_submit_proposals": "requires",
+    "shall_conduct": "requires",
+    "shall_cooperate": "requires",
+    "shall_define": "defines",
+    "shall_promote": "requires",
+    "shall_take_measures": "requires",
+    "shall_supply": "requires",
+    "submit_proposals": "requires",
+    "submits_proposal": "requires",
+    "submits_proposals": "requires",
+    "provide_information": "requires",
+    "is_responsible_for": "requires",
+    "are_responsible_for": "requires",
+    "responsible_for": "requires",
+    "conducts_control": "requires",
+    "exercises_control": "requires",
+    "conduct": "requires",
+    "develop": "requires",
+    "produces": "requires",
+    "produced_by": "requires",
+    "creates": "establishes",
+    "shall_be_developed_by": "requires",
+    "здійснюється": "requires",
+    "повідомляє": "requires",
+    "повідомляє_заявника": "requires",
+    "видається": "requires",
+    "вказує": "requires",
+    # amends
+    "replace_text": "amends",
+    "replace_word": "amends",
+    "replace": "amends",
+    "replace_with": "amends",
+    "replaces_text": "amends",
+    "amends_text": "amends",
+    "amends_regulation": "amends",
+    "is_amended": "amends",
+    "is_amended_by_addition": "amends",
+    "shall_be_amended": "amends",
+    "is_replaced_with": "amends",
+    "enacts_amendment": "amends",
+    "amended": "amends",
+    "замінити": "amends",
+    "замінити_слова": "amends",
+    "замінюються": "amends",
+    "вносить_зміни_до": "amends",
+    "змінюється": "amends",
+    "викладається_в_новій_редакції": "amends",
+    "викладено_в_новій_редакції": "amends",
+    "викладена_в_новій_редакції": "amends",
+    # excludes
+    "exclude": "excludes",
+    "excludes_text": "excludes",
+    "exclude_text": "excludes",
+    "excluded_from_amnesty": "excludes",
+    "is_excluded_from": "excludes",
+    "is_exempt_from_land_tax": "excludes",
+    "виключити": "excludes",
+    "виключається": "excludes",
+    "вважається_відкликаною": "excludes",
+    # is_funded_by
+    "is_financed_from": "is_funded_by",
+    "allocate_funds": "is_funded_by",
+    # is_composed_of / structure
+    "develops_and_produces": "is_composed_of",
+    "has_judge_count": "sets_threshold",
+    "has_hunting_quota": "sets_threshold",
+    "has_hunting_quota_for": "sets_threshold",
+    "has_production_volume": "sets_threshold",
+    "has_primary_task": "defines",
+    # restoring / renaming
+    "restores_name": "amends",
 }
 
 _PERCENT_RE = re.compile(r"(?P<value>\d+(?:[\.,]\d+)?)\s*%")
@@ -233,31 +469,45 @@ def _heuristic_norm_type(token: str) -> str | None:
 
 def _heuristic_action(token: str) -> str | None:
     """Map unseen action labels by lexical cues."""
-    if any(key in token for key in ("inconsistent", "contradict", "prohibit", "forbid", "must_not", "cannot")):
+    # Sanctions / fines / punishment (check early — "fine" can appear in "define")
+    if any(key in token for key in ("fine", "punish", "responsib", "штраф")):
+        return "sanctions"
+    if any(key in token for key in ("inconsistent", "contradict", "prohibit", "forbid", "must_not", "cannot",
+                                     "заборон", "суперечи")):
         return "prohibits"
-    if any(key in token for key in ("approve", "adopt")):
+    if any(key in token for key in ("approve", "adopt", "ratif", "затверд")):
         return "approves"
-    if "amend" in token:
+    if any(key in token for key in ("amend", "replace", "замін", "виклад", "зміню")):
         return "amends"
-    if any(key in token for key in ("repeal", "supersed")):
+    if any(key in token for key in ("repeal", "supersed", "invalid", "void", "втрат")):
         return "repeals"
-    if any(key in token for key in ("delegate", "assign", "authorize_transfer", "transfer_to")):
+    if any(key in token for key in ("delegate", "assign", "appoint", "subordinat", "призначи")):
         return "delegates"
-    if any(key in token for key in ("grant", "allocate", "compensat", "provide")):
+    if any(key in token for key in ("grant", "allocat", "compensat", "provide", "right_to", "entitled",
+                                     "eligible", "право", "звільн")):
         return "grants"
-    if any(key in token for key in ("finance", "fund")):
+    if any(key in token for key in ("finance", "fund", "фінанс")):
         return "is_funded_by"
-    if any(key in token for key in ("threshold", "limit", "cap", "taxable", "percent", "rate", "reduce")):
+    if any(key in token for key in ("threshold", "limit", "cap", "taxable", "percent", "rate", "reduce",
+                                     "quota", "volume", "count", "становить")):
         return "sets_threshold"
-    if any(key in token for key in ("enter_into_force", "start_from", "effective_from")):
+    if any(key in token for key in ("enter_into_force", "start_from", "effective_from", "introduce_into",
+                                     "набира")):
         return "enters_into_force"
-    if any(key in token for key in ("establish", "create", "constitute")):
+    if any(key in token for key in ("establish", "create", "constitute", "створ")):
         return "establishes"
-    if any(key in token for key in ("define", "describe", "term")):
+    if any(key in token for key in ("define", "describe", "term", "визнач", "означа")):
         return "defines"
-    if any(key in token for key in ("apply", "use", "seal", "conduct")):
+    if any(key in token for key in ("exclud", "exempt", "виключ", "не_застосов")):
+        return "excludes"
+    if any(key in token for key in ("apply", "use", "seal", "conduct", "located", "part_of",
+                                     "subject_to", "consist", "belong", "contain", "cover",
+                                     "розгляд", "містить", "включа", "складаю")):
         return "applies_to"
-    if any(key in token for key in ("submit", "cooperate", "act_based_on", "store_and_use", "pay")):
+    if any(key in token for key in ("submit", "cooperate", "act_based_on", "store_and_use", "pay",
+                                     "ensure", "must_", "shall_", "develop", "produc", "notify",
+                                     "maintain", "must_know", "display", "control", "здійсню", "повідомл",
+                                     "забезпеч")):
         return "requires"
     return None
 

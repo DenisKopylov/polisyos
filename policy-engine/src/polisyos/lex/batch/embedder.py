@@ -1,145 +1,47 @@
-"""Stage 5: Generate embeddings via OpenAI text-embedding-3-large and build HNSW indexes.
-
-Designed for MacBook Air M2 16 GB:
-- Streams data from DuckDB in chunks (never loads all vectors at once)
-- Writes .npz embedding files incrementally
-- Builds HNSW index per chunk, then merges
-- Three indexes: entities, facts, provisions
-"""
+"""Local sentence-transformers embeddings for Lex graph tables."""
 
 from __future__ import annotations
 
-import asyncio
 import logging
 import time
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Callable
 
 import duckdb
 import hnswlib
 import numpy as np
 
+from polisyos.batch_common.thermal import pause_between_batches
+
 logger = logging.getLogger(__name__)
 
 
-# ---------------------------------------------------------------------------
-# OpenAI Embedding Backend
-# ---------------------------------------------------------------------------
+@dataclass
+class EmbeddingStats:
+    entities_embedded: int = 0
+    facts_embedded: int = 0
+    provisions_embedded: int = 0
+    entities_skipped: int = 0
+    facts_skipped: int = 0
+    provisions_skipped: int = 0
+    elapsed_seconds: float = 0.0
 
-class OpenAIEmbeddingBackend:
-    """OpenAI API embedding backend using text-embedding-3-large (3072 dims).
-
-    Respects the 300K token per request limit by batching intelligently.
-    Uses the ``openai`` SDK for simplicity and reliability.
-    """
-
-    def __init__(
-        self,
-        *,
-        api_key: str,
-        model: str = "text-embedding-3-large",
-        dimension: int = 3072,
-        max_concurrent: int = 10,
-    ) -> None:
-        import openai
-
-        self._client = openai.AsyncOpenAI(api_key=api_key)
-        self._model = model
-        self._dimension = dimension
-        self._semaphore = asyncio.Semaphore(max_concurrent)
-
-    @property
-    def dimension(self) -> int:
-        return self._dimension
-
-    async def _embed_batch(self, texts: list[str]) -> list[list[float]]:
-        """Embed a single batch (must be within 300K token limit)."""
-        async with self._semaphore:
-            resp = await self._client.embeddings.create(
-                model=self._model,
-                input=texts,
-            )
-        # Sort by index to guarantee order
-        sorted_data = sorted(resp.data, key=lambda d: d.index)
-        return [d.embedding for d in sorted_data]
-
-    async def aencode(
-        self,
-        texts: list[str],
-        *,
-        max_tokens_per_request: int = 250_000,
-        chars_per_token: int = 4,
-    ) -> np.ndarray:
-        """Encode texts in adaptive batches respecting token limits.
-
-        Splits into sub-batches based on estimated token count
-        (300K limit, with 250K safety margin).
-        """
-        if not texts:
-            return np.zeros((0, self._dimension), dtype=np.float32)
-
-        # Build adaptive batches
-        batches: list[list[str]] = []
-        current_batch: list[str] = []
-        current_tokens = 0
-
-        for text in texts:
-            est_tokens = max(1, len(text) // chars_per_token)
-            if current_tokens + est_tokens > max_tokens_per_request and current_batch:
-                batches.append(current_batch)
-                current_batch = []
-                current_tokens = 0
-            current_batch.append(text)
-            current_tokens += est_tokens
-
-        if current_batch:
-            batches.append(current_batch)
-
-        # Execute batches with concurrency control
-        all_embeddings: list[list[float]] = []
-        for i, batch in enumerate(batches):
-            result = await self._embed_batch(batch)
-            all_embeddings.extend(result)
-            if (i + 1) % 10 == 0:
-                logger.info("Embedding batch %d/%d done (%d texts)", i + 1, len(batches), len(all_embeddings))
-
-        arr = np.array(all_embeddings, dtype=np.float32)
-        # L2 normalize for cosine similarity
-        norms = np.linalg.norm(arr, axis=1, keepdims=True)
-        norms = np.where(norms == 0.0, 1.0, norms)
-        return (arr / norms).astype(np.float32)
-
-
-# ---------------------------------------------------------------------------
-# Embedding text builders (bilingual structured templates)
-# ---------------------------------------------------------------------------
 
 def _entity_embedding_text(row: tuple) -> str:
-    """Build entity embedding text from DuckDB row.
-
-    Expected columns: name_en, name_uk, entity_type, aliases_en, aliases_uk
-    """
     name_en, name_uk, entity_type, aliases_en, aliases_uk = row
-    parts = ["ENTITY", f"en: {name_en}", f"uk: {name_uk or ''}"]
-    aliases = []
+    parts = ["ENTITY", f"en: {name_en}", f"uk: {name_uk or ''}", f"type: {entity_type}"]
+    aliases: list[str] = []
     if aliases_en:
-        aliases.extend(aliases_en.split("; ")[:5])
+        aliases.extend(str(aliases_en).split("; ")[:6])
     if aliases_uk:
-        aliases.extend(aliases_uk.split("; ")[:5])
+        aliases.extend(str(aliases_uk).split("; ")[:6])
     if aliases:
-        parts.append(f"aliases: {'; '.join(aliases)}")
-    parts.append(f"type: {entity_type}")
+        parts.append("aliases: " + "; ".join(aliases))
     return "\n".join(parts)
 
 
 def _fact_embedding_text(row: tuple) -> str:
-    """Build fact embedding text from DuckDB row.
-
-    Expected columns: subject_en, subject_uk, predicate, object_en, object_uk,
-                     fact_text, norm_type, action_canon, norm_type_canon,
-                     condition_text_uk, exception_text_uk, procedure_text_uk,
-                     thresholds_json, source_quote_uk
-    """
     (
         subject_en,
         subject_uk,
@@ -156,6 +58,7 @@ def _fact_embedding_text(row: tuple) -> str:
         thresholds_json,
         source_quote_uk,
     ) = row
+
     parts = [
         "FACT",
         f"norm_type: {norm_type_canon or norm_type or 'unknown'}",
@@ -172,135 +75,77 @@ def _fact_embedding_text(row: tuple) -> str:
     if thresholds_json:
         parts.append(f"thresholds: {thresholds_json}")
     if source_quote_uk:
-        parts.append(f"quote_uk: {source_quote_uk[:400]}")
+        parts.append(f"quote_uk: {str(source_quote_uk)[:400]}")
     return "\n".join(parts)
 
 
 def _provision_embedding_text(row: tuple) -> str:
-    """Build provision embedding text from DuckDB row.
-
-    Expected columns: provision_text
-    """
     (provision_text,) = row
-    return provision_text
+    return str(provision_text or "")
 
 
-# ---------------------------------------------------------------------------
-# Index builder
-# ---------------------------------------------------------------------------
-
-@dataclass
-class EmbeddingStats:
-    entities_embedded: int = 0
-    facts_embedded: int = 0
-    provisions_embedded: int = 0
-    total_api_calls: int = 0
-    elapsed_seconds: float = 0.0
+def _load_existing_ids(npz_path: Path) -> set[str]:
+    """Load set of already-embedded IDs from a .npz file."""
+    if not npz_path.exists():
+        return set()
+    try:
+        data = np.load(str(npz_path), allow_pickle=True)
+        return set(str(v) for v in data["ids"])
+    except Exception:
+        return set()
 
 
-async def build_embeddings_and_index(
-    db_path: Path,
-    output_dir: Path,
-    *,
-    backend: OpenAIEmbeddingBackend,
-    chunk_size: int = 5000,
-) -> EmbeddingStats:
-    """Build all three embedding indexes from DuckDB graph.
-
-    Streams rows in chunks to stay within 16 GB RAM.
-    """
-    t0 = time.monotonic()
-    stats = EmbeddingStats()
-
-    # --- Entities ---
-    logger.info("Embedding entities...")
-    stats.entities_embedded = await _embed_table(
-        db_path=db_path,
-        output_dir=output_dir,
-        table="lex_entities",
-        id_column="entity_id",
-        text_columns="name_en, name_uk, entity_type, aliases_en, aliases_uk",
-        text_builder=_entity_embedding_text,
-        npz_name="lex_entity_embeddings",
-        hnsw_name="lex_entity_index",
-        backend=backend,
-        chunk_size=chunk_size,
-    )
-
-    # --- Facts ---
-    logger.info("Embedding facts...")
-    stats.facts_embedded = await _embed_table(
-        db_path=db_path,
-        output_dir=output_dir,
-        table="lex_facts",
-        id_column="fact_id",
-        text_columns=(
-            "subject_en, subject_uk, predicate, object_en, object_uk, "
-            "fact_text, norm_type, action_canon, norm_type_canon, "
-            "condition_text_uk, exception_text_uk, procedure_text_uk, "
-            "thresholds_json, source_quote_uk"
-        ),
-        text_builder=_fact_embedding_text,
-        npz_name="lex_fact_embeddings",
-        hnsw_name="lex_fact_index",
-        backend=backend,
-        chunk_size=chunk_size,
-    )
-
-    # --- Provisions ---
-    logger.info("Embedding provisions...")
-    stats.provisions_embedded = await _embed_table(
-        db_path=db_path,
-        output_dir=output_dir,
-        table="lex_provisions",
-        id_column="provision_id",
-        text_columns="provision_text",
-        text_builder=_provision_embedding_text,
-        npz_name="lex_provision_embeddings",
-        hnsw_name="lex_provision_index",
-        backend=backend,
-        chunk_size=chunk_size,
-    )
-
-    stats.elapsed_seconds = time.monotonic() - t0
-    logger.info(
-        "Embedding complete: %d entities + %d facts + %d provisions in %.0fs",
-        stats.entities_embedded, stats.facts_embedded,
-        stats.provisions_embedded, stats.elapsed_seconds,
-    )
-    return stats
-
-
-async def _embed_table(
+def _embed_table(
     *,
     db_path: Path,
     output_dir: Path,
     table: str,
     id_column: str,
     text_columns: str,
-    text_builder,
+    text_builder: Callable[[tuple], str],
     npz_name: str,
     hnsw_name: str,
-    backend: OpenAIEmbeddingBackend,
+    model,
+    batch_size: int,
     chunk_size: int,
-) -> int:
-    """Embed one table in chunks, write .npz + .hnsw files."""
+    pause_seconds: float,
+    incremental: bool = False,
+) -> tuple[int, int]:
+    """Embed a table and return (embedded_count, skipped_count)."""
+    npz_path = output_dir / f"{npz_name}.npz"
+    hnsw_path = output_dir / f"{hnsw_name}.hnsw"
+
+    existing_ids: set[str] = set()
+    existing_id_list: list[str] = []
+    existing_vectors: np.ndarray | None = None
+
+    if incremental:
+        existing_ids = _load_existing_ids(npz_path)
+        if existing_ids and npz_path.exists():
+            data = np.load(str(npz_path), allow_pickle=True)
+            existing_id_list = [str(v) for v in data["ids"]]
+            existing_vectors = np.asarray(data["vectors"], dtype=np.float32)
+
     con = duckdb.connect(str(db_path), read_only=True)
     try:
-        total = con.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0]
+        total = int(con.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0])
     finally:
         con.close()
 
     if total == 0:
-        logger.info("Table %s is empty, skipping.", table)
-        return 0
+        return 0, 0
 
-    logger.info("Embedding %d rows from %s (chunk_size=%d)...", total, table, chunk_size)
+    dim = model.get_sentence_embedding_dimension()
 
-    all_ids: list[str] = []
-    all_vectors: list[np.ndarray] = []
+    all_ids: list[str] = list(existing_id_list) if existing_id_list else []
+    chunks: list[np.ndarray] = []
+    if existing_vectors is not None and existing_vectors.size > 0:
+        chunks.append(existing_vectors)
 
+    new_count = 0
+    skipped = 0
     offset = 0
+
     while offset < total:
         con = duckdb.connect(str(db_path), read_only=True)
         try:
@@ -314,42 +159,152 @@ async def _embed_table(
         if not rows:
             break
 
-        ids = [row[0] for row in rows]
-        texts = [text_builder(row[1:]) for row in rows]
+        # Filter out already-embedded IDs in incremental mode.
+        if incremental and existing_ids:
+            new_rows = [(r[0], r[1:]) for r in rows if str(r[0]) not in existing_ids]
+            skipped += len(rows) - len(new_rows)
+        else:
+            new_rows = [(r[0], r[1:]) for r in rows]
 
-        # Truncate texts that exceed 8192 tokens (~32K chars)
-        texts = [t[:32000] for t in texts]
+        if new_rows:
+            ids = [str(r[0]) for r in new_rows]
+            texts = [text_builder(tuple(r[1]))[:32000] for r in new_rows]
+            vectors = model.encode(
+                texts,
+                batch_size=batch_size,
+                show_progress_bar=False,
+                normalize_embeddings=True,
+            ).astype(np.float32)
 
-        vectors = await backend.aencode(texts)
-        all_ids.extend(ids)
-        all_vectors.append(vectors)
+            all_ids.extend(ids)
+            chunks.append(vectors)
+            new_count += len(ids)
 
-        offset += chunk_size
-        logger.info("  %s: %d / %d embedded", table, min(offset, total), total)
+        offset += len(rows)
+        pause_between_batches(pause_seconds)
 
     if not all_ids:
-        return 0
+        return 0, skipped
 
-    # Concatenate all vectors
-    full_vectors = np.vstack(all_vectors)
+    full_vectors = np.vstack(chunks) if chunks else np.zeros((0, dim), dtype=np.float32)
 
-    # Save .npz
-    npz_path = output_dir / f"{npz_name}.npz"
-    np.savez_compressed(str(npz_path), ids=np.array(all_ids), vectors=full_vectors)
-    logger.info("Saved %s (%d vectors, %d dims)", npz_path.name, len(all_ids), full_vectors.shape[1])
-
-    # Build HNSW index
-    dim = full_vectors.shape[1]
+    # Build HNSW from all vectors (existing + new).
+    total_elements = len(all_ids)
     index = hnswlib.Index(space="cosine", dim=dim)
-    # ef_construction=200 for quality, M=16 default
-    index.init_index(max_elements=len(all_ids), ef_construction=200, M=16)
-    index.add_items(full_vectors, list(range(len(all_ids))))
-    index.set_ef(100)  # query-time ef
+    index.init_index(max_elements=total_elements, ef_construction=200, M=16)
+    labels = np.arange(total_elements)
+    index.add_items(full_vectors, labels)
 
-    hnsw_path = output_dir / f"{hnsw_name}.hnsw"
+    np.savez(str(npz_path), ids=np.array(all_ids, dtype=object), vectors=full_vectors)
     index.save_index(str(hnsw_path))
-    logger.info("Saved %s (%d elements)", hnsw_path.name, len(all_ids))
+    return new_count, skipped
 
-    # Free memory
-    del full_vectors, all_vectors
-    return len(all_ids)
+
+def build_local_embeddings_and_indexes(
+    *,
+    db_path: Path,
+    output_dir: Path,
+    embedding_model: str = "intfloat/multilingual-e5-large",
+    embedding_device: str = "mps",
+    embedding_batch_size: int = 24,
+    embedding_chunk_size: int = 2000,
+    thermal_pause_seconds: float = 0.0,
+    incremental: bool = False,
+    fp16: bool = False,
+) -> EmbeddingStats:
+    """Build local embeddings + HNSW for entities/facts/provisions."""
+    from sentence_transformers import SentenceTransformer
+
+    t0 = time.monotonic()
+
+    model_kwargs = {}
+    if fp16 and embedding_device in ("mps", "cuda"):
+        try:
+            import torch
+            model_kwargs["torch_dtype"] = torch.float16
+            logger.info("FP16 inference enabled for device=%s", embedding_device)
+        except ImportError:
+            pass
+
+    model = SentenceTransformer(embedding_model, device=embedding_device, model_kwargs=model_kwargs)
+
+    stats = EmbeddingStats()
+    embedded, skipped = _embed_table(
+        db_path=db_path,
+        output_dir=output_dir,
+        table="lex_entities",
+        id_column="entity_id",
+        text_columns="name_en, name_uk, entity_type, aliases_en, aliases_uk",
+        text_builder=_entity_embedding_text,
+        npz_name="lex_entity_embeddings",
+        hnsw_name="lex_entity_index",
+        model=model,
+        batch_size=embedding_batch_size,
+        chunk_size=embedding_chunk_size,
+        pause_seconds=thermal_pause_seconds,
+        incremental=incremental,
+    )
+    stats.entities_embedded = embedded
+    stats.entities_skipped = skipped
+    logger.info("Lex local embed: entities=%d (skipped=%d)", embedded, skipped)
+
+    embedded, skipped = _embed_table(
+        db_path=db_path,
+        output_dir=output_dir,
+        table="lex_facts",
+        id_column="fact_id",
+        text_columns=(
+            "subject_en, subject_uk, predicate, object_en, object_uk, "
+            "fact_text, norm_type, action_canon, norm_type_canon, "
+            "condition_text_uk, exception_text_uk, procedure_text_uk, "
+            "thresholds_json, source_quote_uk"
+        ),
+        text_builder=_fact_embedding_text,
+        npz_name="lex_fact_embeddings",
+        hnsw_name="lex_fact_index",
+        model=model,
+        batch_size=embedding_batch_size,
+        chunk_size=embedding_chunk_size,
+        pause_seconds=thermal_pause_seconds,
+        incremental=incremental,
+    )
+    stats.facts_embedded = embedded
+    stats.facts_skipped = skipped
+    logger.info("Lex local embed: facts=%d (skipped=%d)", embedded, skipped)
+
+    embedded, skipped = _embed_table(
+        db_path=db_path,
+        output_dir=output_dir,
+        table="lex_provisions",
+        id_column="provision_id",
+        text_columns="provision_text",
+        text_builder=_provision_embedding_text,
+        npz_name="lex_provision_embeddings",
+        hnsw_name="lex_provision_index",
+        model=model,
+        batch_size=embedding_batch_size,
+        chunk_size=embedding_chunk_size,
+        pause_seconds=thermal_pause_seconds,
+        incremental=incremental,
+    )
+    stats.provisions_embedded = embedded
+    stats.provisions_skipped = skipped
+    logger.info("Lex local embed: provisions=%d (skipped=%d)", embedded, skipped)
+
+    stats.elapsed_seconds = time.monotonic() - t0
+    return stats
+
+
+# Backward compatibility name (legacy code may call this symbol).
+def build_embeddings_and_index(
+    db_path: Path,
+    output_dir: Path,
+    *,
+    backend=None,
+    chunk_size: int = 2000,
+) -> EmbeddingStats:
+    return build_local_embeddings_and_indexes(
+        db_path=db_path,
+        output_dir=output_dir,
+        embedding_chunk_size=chunk_size,
+    )

@@ -134,6 +134,9 @@ CREATE TABLE IF NOT EXISTS lex_facts (
     provision_citation  VARCHAR,
     effective_from      DATE,
     effective_to        DATE,
+    extraction_source   VARCHAR,
+    gate_score          REAL,
+    gate_reason_codes   VARCHAR,
     metadata            JSON,
     created_at          TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -193,6 +196,31 @@ CREATE TABLE IF NOT EXISTS lex_provisions (
     metadata            JSON,
     created_at          TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE IF NOT EXISTS lex_references (
+    reference_id        VARCHAR PRIMARY KEY,
+    doc_id              VARCHAR NOT NULL,
+    provision_anchor    VARCHAR,
+    source_span_start   INTEGER,
+    source_span_end     INTEGER,
+    target_raw          VARCHAR,
+    ref_type            VARCHAR,
+    confidence          REAL,
+    metadata            JSON,
+    created_at          TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS lex_doc_domains (
+    domain_id           VARCHAR PRIMARY KEY,
+    doc_id              VARCHAR NOT NULL,
+    domain              VARCHAR NOT NULL,
+    score               REAL NOT NULL,
+    rank                INTEGER NOT NULL,
+    is_top              BOOLEAN,
+    hits                INTEGER,
+    metadata            JSON,
+    created_at          TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 """
 
 _INDEXES = """
@@ -207,6 +235,10 @@ CREATE INDEX IF NOT EXISTS idx_provisions_doc ON lex_provisions(doc_id);
 CREATE INDEX IF NOT EXISTS idx_thresholds_fact ON lex_rule_thresholds(fact_id);
 CREATE INDEX IF NOT EXISTS idx_clauses_fact ON lex_rule_clauses(fact_id);
 CREATE INDEX IF NOT EXISTS idx_links_fact ON lex_rule_links(fact_id);
+CREATE INDEX IF NOT EXISTS idx_facts_extraction_source ON lex_facts(extraction_source);
+CREATE INDEX IF NOT EXISTS idx_references_doc ON lex_references(doc_id);
+CREATE INDEX IF NOT EXISTS idx_domains_doc ON lex_doc_domains(doc_id);
+CREATE INDEX IF NOT EXISTS idx_domains_domain ON lex_doc_domains(domain);
 """
 
 
@@ -256,6 +288,8 @@ class GraphStats:
     thresholds: int = 0
     clauses: int = 0
     links: int = 0
+    references: int = 0
+    doc_domains: int = 0
     docs_processed: int = 0
     spo_files_read: int = 0
 
@@ -264,6 +298,8 @@ def build_graph(
     *,
     spo_results_dir: Path,
     provisions_dir: Path,
+    references_dir: Path | None,
+    domains_dir: Path | None,
     doc_metadata: dict[str, dict],
     db_path: Path,
     insert_batch_size: int = 10_000,
@@ -275,6 +311,8 @@ def build_graph(
     try:
         _init_schema(con)
         _truncate_existing_rows(con)
+
+        con.execute("BEGIN TRANSACTION")
         _stream_facts_to_duckdb(
             con=con,
             stats=stats,
@@ -284,6 +322,9 @@ def build_graph(
             doc_metadata=doc_metadata,
             insert_batch_size=insert_batch_size,
         )
+        con.execute("COMMIT")
+
+        con.execute("BEGIN TRANSACTION")
         _stream_provisions_to_duckdb(
             con=con,
             stats=stats,
@@ -291,24 +332,55 @@ def build_graph(
             doc_metadata=doc_metadata,
             insert_batch_size=insert_batch_size,
         )
+        con.execute("COMMIT")
+
+        con.execute("BEGIN TRANSACTION")
+        _stream_references_to_duckdb(
+            con=con,
+            stats=stats,
+            references_dir=references_dir,
+            insert_batch_size=insert_batch_size,
+        )
+        con.execute("COMMIT")
+
+        con.execute("BEGIN TRANSACTION")
+        _stream_domains_to_duckdb(
+            con=con,
+            stats=stats,
+            domains_dir=domains_dir,
+            insert_batch_size=insert_batch_size,
+        )
+        con.execute("COMMIT")
+
+        con.execute("BEGIN TRANSACTION")
         stats.entities = _insert_entities(
             con=con,
             dedup=dedup,
             insert_batch_size=insert_batch_size,
         )
+        con.execute("COMMIT")
+
         _ensure_indexes(con)
         con.execute("CHECKPOINT")
+    except Exception:
+        try:
+            con.execute("ROLLBACK")
+        except Exception:
+            pass
+        raise
     finally:
         con.close()
 
     logger.info(
-        "Graph built: %d entities, %d facts, %d provisions, %d thresholds, %d clauses, %d links in %s",
+        "Graph built: %d entities, %d facts, %d provisions, %d thresholds, %d clauses, %d links, %d references, %d domain rows in %s",
         stats.entities,
         stats.facts,
         stats.provisions,
         stats.thresholds,
         stats.clauses,
         stats.links,
+        stats.references,
+        stats.doc_domains,
         db_path,
     )
     return stats
@@ -322,6 +394,8 @@ def _init_schema(con: duckdb.DuckDBPyConnection) -> None:
 
 
 def _truncate_existing_rows(con: duckdb.DuckDBPyConnection) -> None:
+    con.execute("DELETE FROM lex_doc_domains")
+    con.execute("DELETE FROM lex_references")
     con.execute("DELETE FROM lex_rule_links")
     con.execute("DELETE FROM lex_rule_clauses")
     con.execute("DELETE FROM lex_rule_thresholds")
@@ -351,8 +425,9 @@ def _flush_fact_related_batches(
                 source_quote_uk, source_quote_start, source_quote_end,
                 thresholds_json, original_context,
                 doc_id, doc_reestr_code, doc_name, doc_type, doc_date_acc, doc_status,
-                provision_anchor, provision_citation, effective_from, effective_to, metadata
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                provision_anchor, provision_citation, effective_from, effective_to,
+                extraction_source, gate_score, gate_reason_codes, metadata
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             fact_rows,
         )
@@ -432,6 +507,13 @@ def _stream_facts_to_duckdb(
                     },
                     ensure_ascii=False,
                 )
+                extraction_source = result.extraction_source or "llm"
+                gate_score = float(result.gate_score or 0.0)
+                gate_reason_codes = (
+                    json.dumps(result.gate_reason_codes, ensure_ascii=False)
+                    if result.gate_reason_codes
+                    else "[]"
+                )
 
                 for stmt in result.statements:
                     subj_id = dedup.get_or_create(stmt.subject_en, stmt.subject_uk)
@@ -490,6 +572,9 @@ def _stream_facts_to_duckdb(
                             result.provision_citation,
                             None,
                             None,
+                            extraction_source,
+                            gate_score,
+                            gate_reason_codes,
                             fact_metadata_json,
                         )
                     )
@@ -636,6 +721,113 @@ def _stream_provisions_to_duckdb(
     if batch:
         con.executemany(sql, batch)
         stats.provisions += len(batch)
+
+
+def _stream_references_to_duckdb(
+    *,
+    con: duckdb.DuckDBPyConnection,
+    stats: GraphStats,
+    references_dir: Path | None,
+    insert_batch_size: int,
+) -> None:
+    if references_dir is None or not references_dir.exists():
+        return
+
+    sql = """
+    INSERT INTO lex_references (
+        reference_id, doc_id, provision_anchor, source_span_start, source_span_end,
+        target_raw, ref_type, confidence, metadata
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    """
+    batch: list[tuple] = []
+    for ref_file in sorted(references_dir.glob("**/*.jsonl")):
+        with open(ref_file, "r", encoding="utf-8") as fh:
+            for line in fh:
+                line = line.strip()
+                if not line:
+                    continue
+                row = json.loads(line)
+                doc_id = str(row.get("doc_id", ""))
+                anchor = str(row.get("anchor_path", ""))
+                source_start = int(row.get("source_span_start") or 0)
+                source_end = int(row.get("source_span_end") or source_start)
+                target_raw = str(row.get("target_raw", ""))
+                ref_type = str(row.get("type", ""))
+                confidence = float(row.get("confidence") or 0.0)
+                ref_id = _stable_hash(doc_id, anchor, str(source_start), str(source_end), target_raw, size=24)
+                batch.append(
+                    (
+                        ref_id,
+                        doc_id,
+                        anchor,
+                        source_start,
+                        source_end,
+                        target_raw,
+                        ref_type,
+                        confidence,
+                        None,
+                    )
+                )
+                if len(batch) >= insert_batch_size:
+                    con.executemany(sql, batch)
+                    stats.references += len(batch)
+                    batch.clear()
+    if batch:
+        con.executemany(sql, batch)
+        stats.references += len(batch)
+
+
+def _stream_domains_to_duckdb(
+    *,
+    con: duckdb.DuckDBPyConnection,
+    stats: GraphStats,
+    domains_dir: Path | None,
+    insert_batch_size: int,
+) -> None:
+    if domains_dir is None or not domains_dir.exists():
+        return
+
+    sql = """
+    INSERT INTO lex_doc_domains (
+        domain_id, doc_id, domain, score, rank, is_top, hits, metadata
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    """
+    batch: list[tuple] = []
+    for domain_file in sorted(domains_dir.glob("**/*.json")):
+        with open(domain_file, "r", encoding="utf-8") as fh:
+            payload = json.load(fh)
+        doc_id = str(payload.get("doc_id", ""))
+        top_domain = str(payload.get("top_domain") or "")
+        scores = payload.get("scores", [])
+        if not isinstance(scores, list):
+            continue
+        for idx, score_row in enumerate(scores, start=1):
+            if not isinstance(score_row, dict):
+                continue
+            domain = str(score_row.get("domain") or "")
+            score = float(score_row.get("score") or 0.0)
+            hits = int(score_row.get("hits") or 0)
+            domain_id = _stable_hash(doc_id, domain, str(idx), size=24)
+            batch.append(
+                (
+                    domain_id,
+                    doc_id,
+                    domain,
+                    score,
+                    idx,
+                    bool(top_domain and domain == top_domain),
+                    hits,
+                    None,
+                )
+            )
+            if len(batch) >= insert_batch_size:
+                con.executemany(sql, batch)
+                stats.doc_domains += len(batch)
+                batch.clear()
+
+    if batch:
+        con.executemany(sql, batch)
+        stats.doc_domains += len(batch)
 
 
 def _insert_entities(

@@ -14,7 +14,11 @@
 | Файл | Назначение |
 |---|---|
 | `uncertainty.py` | `UncertaintyEnvelope`, интервальная семантика и gate-eligibility |
-| `causal.py` | `CausalEffectReport`, diagnostics/placebo, конверсия в uncertainty envelope |
+| `causal.py` | `CausalEffectReport`, diagnostics/placebo/refutation, конверсия в uncertainty envelope |
+| `causal_discovery.py` | `CausalDiscoveryReport`, discovery stability/warnings и CAS helpers |
+| `causal_graph.py` | `CausalGraphModel`, `CausalEdge`, graph serialization (DOT/rustworkx/networkx/Kuzu) |
+| `structural_causal_model.py` | `StructuralCausalModelSpec`, `NodeMechanism`, mechanism families/sources, SCM persistence |
+| `sensitivity.py` | `SensitivityResult`, `EValueResult`, causal robustness/sensitivity metrics |
 | `hte.py` | `HTEResult`, `PolicyRecommendation`, targeting rules |
 | `distributional.py` | distributional breakdowns, winners/losers, equity checks |
 | `backtest.py` | retrospective сравнение `y_pred`/`y_true`, bias summary |
@@ -26,6 +30,7 @@
 
 - Для отчётов с float-полями persist функции используют `CanonSpec(forbid_floats=False)`.
 - `CausalEffectReport.to_uncertainty_envelope()` поддерживает и success, и failure режимы.
+- Refutation контракты типизированы через `RefutationResult` и `RefutationTestType`.
 - В `data_views.py` контракт отличается от `ir/queries.py`:
   - `analytics.data_views.DataViewRequest` ориентирован на runtime-аналитику;
   - `queries.DataViewRequest` ориентирован на query-layer API.

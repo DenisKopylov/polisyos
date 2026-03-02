@@ -22,7 +22,7 @@ def _reset_globals():
     MethodDispatcher.reset_instance()
 
 
-def test_scm_perfect_donor_match_att_estimate():
+def test_synthetic_control_perfect_donor_match_att_estimate():
     ensure_causal_methods_registered()
     registry = MethodRegistry.get_instance()
     method_cls = registry.get("causal.inference.synthetic_control@1.0.0")
@@ -57,7 +57,7 @@ def test_scm_perfect_donor_match_att_estimate():
     assert result.reproducibility.determinism_tier == DeterminismTier.STATISTICAL
 
 
-def test_scm_fails_with_multiple_treated_units():
+def test_synthetic_control_fails_with_multiple_treated_units():
     ensure_causal_methods_registered()
     registry = MethodRegistry.get_instance()
     method_cls = registry.get("causal.inference.synthetic_control@1.0.0")

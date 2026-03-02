@@ -32,6 +32,8 @@ MIXED_BACKEND_DIRS = {
 
 NO_JAX_DIRS = {
     "methods/catalog/causal",
+    "methods/catalog/causal/transport",
+    "methods/catalog/causal/discovery",
     "methods/catalog/econometrics",
     "methods/catalog/optimization",
 }
@@ -47,11 +49,31 @@ MIXED_BACKEND_ALLOWED_IMPORTS = {
     "ortools",
     "pulp",
     "sklearn",
+    "causallearn",
+    "rustworkx",
+    "kuzu",
 }
 
 NO_JAX_BANNED_IMPORTS = {"jax", "jaxlib", "equinox", "optax"}
 
 BANNED_BUILTINS = {"print", "open"}
+
+# Infrastructure directories exempt from data-plane purity checks.
+# These contain orchestration, CLI, simulation dashboards, and test utilities
+# that legitimately require I/O and system access.
+INFRA_DIRS = {
+    "plugins",
+    "agent_sim",
+    "runtime",
+    "methods/testing",
+}
+
+INFRA_FILES = {
+    "agents.py",
+    "methods/base.py",
+    "methods/discovery.py",
+    "methods/_artifacts_fingerprint.py",
+}
 
 
 @dataclass(frozen=True)
@@ -68,6 +90,12 @@ def _policy_for_file(py_file: Path, foundry_root: Path) -> str:
         return "standard"
     rel_str = str(rel).replace("\\", "/")
 
+    for infra_dir in INFRA_DIRS:
+        if rel_str.startswith(infra_dir + "/") or rel_str == infra_dir:
+            return "infra"
+    if rel_str in INFRA_FILES:
+        return "infra"
+
     for no_jax_dir in NO_JAX_DIRS:
         if rel_str.startswith(no_jax_dir):
             return "no_jax"
@@ -78,11 +106,19 @@ def _policy_for_file(py_file: Path, foundry_root: Path) -> str:
 
 
 def _banned_import_roots(policy: str) -> set[str]:
+    if policy == "infra":
+        return set()
     if policy == "mixed":
         return STANDARD_BANNED_IMPORT_ROOTS - MIXED_BACKEND_ALLOWED_IMPORTS
     if policy == "no_jax":
         return (STANDARD_BANNED_IMPORT_ROOTS - MIXED_BACKEND_ALLOWED_IMPORTS) | NO_JAX_BANNED_IMPORTS
     return set(STANDARD_BANNED_IMPORT_ROOTS)
+
+
+def _banned_builtins(policy: str) -> set[str]:
+    if policy == "infra":
+        return set()
+    return BANNED_BUILTINS
 
 
 class FoundryVisitor(ast.NodeVisitor):
@@ -91,6 +127,7 @@ class FoundryVisitor(ast.NodeVisitor):
         self.policy = policy
         self.violations: list[Violation] = []
         self._banned_roots = _banned_import_roots(policy)
+        self._banned_builtins = _banned_builtins(policy)
 
     def visit_Import(self, node: ast.Import) -> None:
         for alias in node.names:
@@ -118,7 +155,7 @@ class FoundryVisitor(ast.NodeVisitor):
             )
 
     def visit_Call(self, node: ast.Call) -> None:
-        if isinstance(node.func, ast.Name) and node.func.id in BANNED_BUILTINS:
+        if isinstance(node.func, ast.Name) and node.func.id in self._banned_builtins:
             self.violations.append(
                 Violation(
                     path=self.path,

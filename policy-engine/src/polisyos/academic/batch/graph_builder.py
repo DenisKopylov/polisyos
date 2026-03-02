@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 import logging
+from collections import defaultdict
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
@@ -14,6 +15,17 @@ import duckdb
 
 from polisyos.batch_common.manifest import write_stage_manifest
 from polisyos.academic.batch.config import AcademicBatchConfig
+from polisyos.academic.knowledge.skg_store import (
+    aggregate_edge_confidence,
+    ensure_skg_schema,
+    finalize_skg_version,
+    hash_edge_id,
+    hash_param_id,
+    next_skg_version,
+    normalize_strength,
+    parent_canonical_name,
+    strongest_strength,
+)
 from polisyos.academic.knowledge.types import WorkRecord
 
 logger = logging.getLogger(__name__)
@@ -189,6 +201,11 @@ class GraphStats:
     article_extractions: int = 0
     boundary_conditions: int = 0
     ingest_errors: int = 0
+    skg_articles: int = 0
+    skg_variables: int = 0
+    skg_edges: int = 0
+    skg_parameters: int = 0
+    skg_versions: int = 0
 
 
 def _init_schema(con: duckdb.DuckDBPyConnection) -> None:
@@ -203,10 +220,16 @@ def _init_schema(con: duckdb.DuckDBPyConnection) -> None:
     con.execute("DROP TABLE IF EXISTS ac_parameter_estimates")
     con.execute("DROP TABLE IF EXISTS ac_work_concepts")
     con.execute("DROP TABLE IF EXISTS ac_works")
+    con.execute("DROP TABLE IF EXISTS ac_skg_parameters")
+    con.execute("DROP TABLE IF EXISTS ac_skg_edges")
+    con.execute("DROP TABLE IF EXISTS ac_skg_variables")
+    con.execute("DROP TABLE IF EXISTS ac_skg_articles")
+    con.execute("DROP TABLE IF EXISTS ac_skg_versions")
     for stmt in _DDL.strip().split(";"):
         sql = stmt.strip()
         if sql:
             con.execute(sql)
+    ensure_skg_schema(con)
 
 
 def _truncate(con: duckdb.DuckDBPyConnection) -> None:
@@ -220,6 +243,11 @@ def _truncate(con: duckdb.DuckDBPyConnection) -> None:
     con.execute("DELETE FROM ac_parameter_estimates")
     con.execute("DELETE FROM ac_work_concepts")
     con.execute("DELETE FROM ac_works")
+    con.execute("DELETE FROM ac_skg_parameters")
+    con.execute("DELETE FROM ac_skg_edges")
+    con.execute("DELETE FROM ac_skg_variables")
+    con.execute("DELETE FROM ac_skg_articles")
+    con.execute("DELETE FROM ac_skg_versions")
 
 
 def _flush_all(
@@ -331,6 +359,128 @@ def _flush_all(
         ingest_error_batch.clear()
 
 
+def _infer_edge_strength(claim: dict) -> str:
+    explicit = str(claim.get("evidence_strength") or "").strip().lower()
+    if explicit:
+        return normalize_strength(explicit)
+    strength = str(claim.get("strength") or "").strip().lower()
+    if strength in {"strong", "very_strong"}:
+        return "quasi_natural"
+    if strength in {"moderate"}:
+        return "observational"
+    if strength in {"weak"}:
+        return "theoretical"
+    return "unknown"
+
+
+def _materialize_skg(
+    *,
+    con: duckdb.DuckDBPyConnection,
+    stats: GraphStats,
+    skg_version_id: int,
+    skg_articles_batch: list[tuple],
+    variable_mentions: dict[str, int],
+    variable_display: dict[str, str],
+    skg_parameter_batch: list[tuple],
+    edge_accumulator: dict[tuple[str, str, str], dict[str, object]],
+) -> None:
+    if skg_articles_batch:
+        con.executemany(
+            """
+            INSERT OR REPLACE INTO ac_skg_articles(
+                openalex_id, doi, title, year, cited_by_count,
+                extraction_json, context_json, retracted, skg_version
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            skg_articles_batch,
+        )
+        stats.skg_articles = len(skg_articles_batch)
+
+    variable_rows: list[tuple] = []
+    for canonical_name, mention_count in variable_mentions.items():
+        variable_rows.append(
+            (
+                canonical_name,
+                variable_display.get(canonical_name, canonical_name),
+                parent_canonical_name(canonical_name),
+                int(mention_count),
+            )
+        )
+    if variable_rows:
+        con.executemany(
+            """
+            INSERT OR REPLACE INTO ac_skg_variables(
+                canonical_name, display_name, parent_name, mention_count
+            ) VALUES (?, ?, ?, ?)
+            """,
+            variable_rows,
+        )
+        stats.skg_variables = len(variable_rows)
+
+    if skg_parameter_batch:
+        con.executemany(
+            """
+            INSERT OR REPLACE INTO ac_skg_parameters(
+                param_id, canonical_name, openalex_id, parameter_json, context_json
+            ) VALUES (?, ?, ?, ?, ?)
+            """,
+            skg_parameter_batch,
+        )
+        stats.skg_parameters = len(skg_parameter_batch)
+
+    edge_rows: list[tuple] = []
+    for (src, dst, direction), payload in edge_accumulator.items():
+        article_refs = sorted(set(payload["article_refs"]))  # type: ignore[index]
+        evidence_samples = payload["evidence_samples"]  # type: ignore[index]
+        scope_conditions = sorted(set(payload["scope_conditions"]))  # type: ignore[index]
+        effect_sizes = payload["effect_sizes"]  # type: ignore[index]
+
+        confidence = aggregate_edge_confidence(evidence_samples)  # type: ignore[arg-type]
+        best_strength = strongest_strength([str(s) for s, _ in evidence_samples])  # type: ignore[misc]
+        effect_size_values = [float(v) for v in effect_sizes if isinstance(v, (int, float))]
+        meta_effect_size = (
+            float(sum(effect_size_values) / len(effect_size_values))
+            if effect_size_values
+            else None
+        )
+
+        edge_rows.append(
+            (
+                hash_edge_id(src, dst, direction),
+                src,
+                dst,
+                direction,
+                len(article_refs),
+                json.dumps(article_refs, ensure_ascii=False),
+                best_strength,
+                confidence,
+                json.dumps(scope_conditions, ensure_ascii=False),
+                meta_effect_size,
+            )
+        )
+
+    if edge_rows:
+        con.executemany(
+            """
+            INSERT OR REPLACE INTO ac_skg_edges(
+                edge_id, src, dst, direction, n_articles, article_refs,
+                evidence_strength, confidence, scope_conditions, meta_effect_size
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            edge_rows,
+        )
+        stats.skg_edges = len(edge_rows)
+
+    finalize_skg_version(
+        con,
+        version_id=skg_version_id,
+        n_articles=stats.skg_articles,
+        n_edges=stats.skg_edges,
+        n_variables=stats.skg_variables,
+    )
+    stats.skg_versions = 1
+
+
 def load_graph(
     *,
     records: Iterable[WorkRecord],
@@ -349,6 +499,10 @@ def load_graph(
     try:
         _init_schema(con)
         _truncate(con)
+        skg_version_id = next_skg_version(
+            con,
+            description=f"run_id={run_id or 'adhoc'}; pass={pass_name or 'unknown'}",
+        )
 
         # Register run row.
         if run_id:
@@ -391,6 +545,11 @@ def load_graph(
         boundary_batch: list[tuple] = []
         ingest_error_batch: list[tuple] = []
         topic_seen: set[str] = {str(t[0]) for t in topic_batch if t and t[0]}
+        skg_articles_batch: list[tuple] = []
+        skg_parameter_batch: list[tuple] = []
+        variable_mentions: defaultdict[str, int] = defaultdict(int)
+        variable_display: dict[str, str] = {}
+        edge_accumulator: dict[tuple[str, str, str], dict[str, object]] = {}
 
         for record in records:
             work_batch.append(
@@ -491,23 +650,21 @@ def load_graph(
                 )
 
             extraction_id = _stable_hash(record.id, record.extraction_mode, run_id)
+            extraction_payload = {
+                "estimates": [e.model_dump(mode="json") for e in record.estimates],
+                "causal_claims": record.causal_claims,
+                "boundary_conditions": record.boundary_conditions,
+                "study_design": record.study_design,
+                "method_signal_score": record.method_signal_score,
+                "metadata": record.metadata,
+            }
             extraction_batch.append(
                 (
                     extraction_id,
                     run_id,
                     record.id,
                     record.extraction_mode,
-                    json.dumps(
-                        {
-                            "estimates": [e.model_dump(mode="json") for e in record.estimates],
-                            "causal_claims": record.causal_claims,
-                            "boundary_conditions": record.boundary_conditions,
-                            "study_design": record.study_design,
-                            "method_signal_score": record.method_signal_score,
-                            "metadata": record.metadata,
-                        },
-                        ensure_ascii=False,
-                    ),
+                    json.dumps(extraction_payload, ensure_ascii=False),
                     json.dumps(record.context_profile, ensure_ascii=False),
                     float(record.extraction_confidence),
                     int(record.token_count_prompt),
@@ -515,6 +672,36 @@ def load_graph(
                     float(record.extraction_cost_usd + record.screening_cost_usd),
                 )
             )
+
+            skg_articles_batch.append(
+                (
+                    record.id,
+                    record.doi,
+                    record.title,
+                    record.year,
+                    record.cited_by_count,
+                    json.dumps(extraction_payload, ensure_ascii=False),
+                    json.dumps(record.context_profile, ensure_ascii=False),
+                    bool(record.is_retracted),
+                    skg_version_id,
+                )
+            )
+
+            for est in record.estimates:
+                canonical = str(est.variable_hint or "").strip()
+                if not canonical:
+                    continue
+                variable_mentions[canonical] += 1
+                variable_display.setdefault(canonical, canonical)
+                skg_parameter_batch.append(
+                    (
+                        hash_param_id(canonical, record.id),
+                        canonical,
+                        record.id,
+                        json.dumps(est.model_dump(mode="json"), ensure_ascii=False),
+                        json.dumps(record.context_profile, ensure_ascii=False),
+                    )
+                )
 
             for t in record.source_topics:
                 if t.topic_id and t.topic_id not in topic_seen:
@@ -560,6 +747,36 @@ def load_graph(
                     ingest_error_batch,
                 )
 
+            for claim in record.causal_claims:
+                if not isinstance(claim, dict):
+                    continue
+                src = str(claim.get("cause") or "").strip()
+                dst = str(claim.get("effect") or "").strip()
+                if not src or not dst:
+                    continue
+
+                direction = str(claim.get("direction") or "mixed").strip().lower()
+                key = (src, dst, direction)
+                if key not in edge_accumulator:
+                    edge_accumulator[key] = {
+                        "article_refs": [],
+                        "evidence_samples": [],
+                        "scope_conditions": [],
+                        "effect_sizes": [],
+                    }
+                payload = edge_accumulator[key]
+                payload["article_refs"].append(record.id)  # type: ignore[index]
+                payload["evidence_samples"].append(  # type: ignore[index]
+                    (_infer_edge_strength(claim), float(record.extraction_confidence))
+                )
+                payload["scope_conditions"].extend(claim.get("scope_conditions") or [])  # type: ignore[index]
+                payload["effect_sizes"].append(claim.get("effect_size"))  # type: ignore[index]
+
+                variable_mentions[src] += 1
+                variable_mentions[dst] += 1
+                variable_display.setdefault(src, src)
+                variable_display.setdefault(dst, dst)
+
         # ingest errors (optional)
         if ingest_errors_path and ingest_errors_path.exists():
             with open(ingest_errors_path, "r", encoding="utf-8") as fh:
@@ -601,6 +818,17 @@ def load_graph(
             extraction_batch,
             boundary_batch,
             ingest_error_batch,
+        )
+
+        _materialize_skg(
+            con=con,
+            stats=stats,
+            skg_version_id=skg_version_id,
+            skg_articles_batch=skg_articles_batch,
+            variable_mentions=dict(variable_mentions),
+            variable_display=variable_display,
+            skg_parameter_batch=skg_parameter_batch,
+            edge_accumulator=edge_accumulator,
         )
 
         # finalize run row timestamps
@@ -675,6 +903,11 @@ def run_graph_load(config: AcademicBatchConfig) -> GraphStats:
             "article_extractions": stats.article_extractions,
             "boundary_conditions": stats.boundary_conditions,
             "ingest_errors": stats.ingest_errors,
+            "skg_articles": stats.skg_articles,
+            "skg_variables": stats.skg_variables,
+            "skg_edges": stats.skg_edges,
+            "skg_parameters": stats.skg_parameters,
+            "skg_versions": stats.skg_versions,
         },
         artifacts=[config.db_path],
         started_at=started_at,

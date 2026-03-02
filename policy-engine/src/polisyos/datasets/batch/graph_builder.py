@@ -50,6 +50,41 @@ CREATE TABLE IF NOT EXISTS ds_distributions (
     connector_params JSON,
     quality_score    FLOAT DEFAULT 0.0
 );
+
+CREATE TABLE IF NOT EXISTS ds_registry_datasets (
+    dataset_id    VARCHAR PRIMARY KEY,
+    provider      VARCHAR NOT NULL,
+    title         VARCHAR NOT NULL,
+    coverage_json VARCHAR NOT NULL,
+    access_json   VARCHAR NOT NULL,
+    update_freq   VARCHAR NOT NULL,
+    last_updated  VARCHAR NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS ds_variable_alignments (
+    dataset_id     VARCHAR NOT NULL,
+    raw_variable   VARCHAR NOT NULL,
+    canonical_var  VARCHAR NOT NULL,
+    method         VARCHAR NOT NULL,
+    confidence     FLOAT NOT NULL,
+    evidence       VARCHAR NOT NULL,
+    is_proxy       BOOLEAN DEFAULT FALSE,
+    proxy_penalty  FLOAT DEFAULT 0.0,
+    PRIMARY KEY (dataset_id, raw_variable, canonical_var)
+);
+
+CREATE TABLE IF NOT EXISTS ds_observations (
+    observation_id VARCHAR PRIMARY KEY,
+    dataset_id     VARCHAR NOT NULL,
+    raw_variable   VARCHAR NOT NULL,
+    canonical_var  VARCHAR NOT NULL,
+    country_code   VARCHAR NOT NULL,
+    year           INTEGER,
+    survey_year    INTEGER,
+    wave           INTEGER,
+    value          DOUBLE,
+    condition_json VARCHAR DEFAULT '{}'
+);
 """
 
 _INDEXES = """
@@ -60,6 +95,11 @@ CREATE INDEX IF NOT EXISTS idx_ds_publisher ON ds_datasets(publisher);
 CREATE INDEX IF NOT EXISTS idx_ds_portal ON ds_datasets(source_portal);
 CREATE INDEX IF NOT EXISTS idx_dist_dataset ON ds_distributions(dataset_id);
 CREATE INDEX IF NOT EXISTS idx_dist_connector ON ds_distributions(connector_type);
+CREATE INDEX IF NOT EXISTS idx_registry_provider ON ds_registry_datasets(provider);
+CREATE INDEX IF NOT EXISTS idx_va_canonical ON ds_variable_alignments(canonical_var);
+CREATE INDEX IF NOT EXISTS idx_va_dataset ON ds_variable_alignments(dataset_id);
+CREATE INDEX IF NOT EXISTS idx_obs_country_year ON ds_observations(country_code, year);
+CREATE INDEX IF NOT EXISTS idx_obs_dataset_raw ON ds_observations(dataset_id, raw_variable);
 """
 
 

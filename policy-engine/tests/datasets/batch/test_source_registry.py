@@ -21,3 +21,7 @@ def test_source_registry_filters_and_waves() -> None:
 
     wave_c = {spec.name for spec in registry.enabled_sources(wave="C")}
     assert wave_c == {"data_gov_ua"}
+
+    wave_b = {spec.name for spec in registry.enabled_sources(wave="B")}
+    assert "worldbank" in wave_b
+    assert "wvs" in wave_b

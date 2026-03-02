@@ -31,17 +31,34 @@ def _merge_records(base: WorkRecord, incoming: WorkRecord) -> WorkRecord:
         if existing is None or t.selection_score > existing.selection_score:
             by_topic[t.topic_id] = t
 
-    # Prefer enriched extraction payloads and better confidence
-    if incoming.extraction_mode == "llm_enriched" and base.extraction_mode != "llm_enriched":
+    # Explicit precedence: article_extract > llm_enriched > deterministic(parse).
+    mode_priority = {
+        "deterministic": 1,
+        "llm_enriched": 2,
+        "article_extract": 3,
+    }
+    base_priority = mode_priority.get(base.extraction_mode, 0)
+    incoming_priority = mode_priority.get(incoming.extraction_mode, 0)
+
+    if incoming_priority > base_priority:
         chosen_estimates = incoming.estimates
         chosen_claims = incoming.causal_claims
         chosen_bounds = incoming.boundary_conditions
         extraction_mode = incoming.extraction_mode
+    elif incoming_priority < base_priority:
+        chosen_estimates = base.estimates
+        chosen_claims = base.causal_claims
+        chosen_bounds = base.boundary_conditions
+        extraction_mode = base.extraction_mode
     else:
         chosen_estimates = base.estimates or incoming.estimates
         chosen_claims = base.causal_claims or incoming.causal_claims
         chosen_bounds = base.boundary_conditions or incoming.boundary_conditions
-        extraction_mode = base.extraction_mode
+        extraction_mode = (
+            incoming.extraction_mode
+            if incoming.extraction_confidence > base.extraction_confidence
+            else base.extraction_mode
+        )
 
     merged = base.model_copy(
         update={

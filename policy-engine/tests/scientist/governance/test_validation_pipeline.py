@@ -1,18 +1,16 @@
-import pytest
-
-from polisyos.ir.model_spec import ModelSpec
 from polisyos.ir.governance.policy_spec import InterventionSpec, PolicySpec
 from polisyos.ir.governance.problem_frame import ProblemDomain, ProblemFrame
+from polisyos.ir.model_spec import ModelSpec
 from polisyos.ir.trinity import TrinityBundle
 from polisyos.ir.types import SelectorOperator
-from polisyos.scientist.governance.pipeline import ValidationPipeline
-from polisyos.scientist.governance.profiles import ValidationProfile, ProfileLevel
 from polisyos.scientist.governance.passes.base import (
-    ValidatorPass,
-    PassContext,
     ComplianceIssue,
     IssueSeverity,
+    PassContext,
+    ValidatorPass,
 )
+from polisyos.scientist.governance.pipeline import ValidationPipeline
+from polisyos.scientist.governance.profiles import ProfileLevel, ValidationProfile
 
 
 def _create_minimal_ir() -> TrinityBundle:
@@ -129,8 +127,8 @@ def test_blocker_short_circuits_pipeline() -> None:
 
 def test_fast_profile_skips_safety() -> None:
     """FAST profile should not run safety pass."""
-    from polisyos.scientist.governance.passes.schema_pass import SchemaPass
     from polisyos.scientist.governance.passes.budget_pass import BudgetPass
+    from polisyos.scientist.governance.passes.schema_pass import SchemaPass
 
     pipeline = ValidationPipeline([BudgetPass(), SchemaPass(), ExpensiveSafetyPass()])
 
@@ -154,8 +152,8 @@ def test_fast_profile_skips_safety() -> None:
 
 def test_mvp_profile_runs_safety() -> None:
     """MVP profile should run safety pass."""
-    from polisyos.scientist.governance.passes.schema_pass import SchemaPass
     from polisyos.scientist.governance.passes.budget_pass import BudgetPass
+    from polisyos.scientist.governance.passes.schema_pass import SchemaPass
 
     pipeline = ValidationPipeline([BudgetPass(), SchemaPass(), ExpensiveSafetyPass()])
 
@@ -211,8 +209,8 @@ def test_telemetry_attached_on_failure() -> None:
 
 def test_telemetry_has_timing_data() -> None:
     """Each pass span should have duration_ms after completion."""
-    from polisyos.scientist.governance.passes.schema_pass import SchemaPass
     from polisyos.scientist.governance.passes.budget_pass import BudgetPass
+    from polisyos.scientist.governance.passes.schema_pass import SchemaPass
 
     pipeline = ValidationPipeline([BudgetPass(), SchemaPass()])
 
@@ -231,3 +229,18 @@ def test_telemetry_has_timing_data() -> None:
         assert span.duration_ms >= 0
         assert span.start_time is not None
         assert span.end_time is not None
+
+
+def test_profiles_include_phase_8a_passes() -> None:
+    fast = ValidationProfile.fast()
+    mvp = ValidationProfile.mvp()
+    strict = ValidationProfile.strict()
+
+    assert "literature_gate" not in fast.pass_ids
+    assert "literature_gate" in mvp.pass_ids
+    assert "sutva_check" in mvp.pass_ids
+    assert "transportability_required" in mvp.pass_ids
+    assert "literature_gate" in strict.pass_ids
+    assert "sutva_check" in strict.pass_ids
+    assert "transportability_required" in strict.pass_ids
+    assert "human_review_required" in strict.pass_ids

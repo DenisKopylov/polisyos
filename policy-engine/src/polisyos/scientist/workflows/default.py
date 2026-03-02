@@ -60,8 +60,8 @@ def default_workflow_spec() -> WorkflowSpec:
                 depends_on=["link_trinity", "run_data_plane_gate", "ready_to_run"],
             ),
             NodeInvocation(
-                alias="run_simulation",
-                node_id="scientist.node_run_simulation@1.0.1",
+                alias="resolve_parameters",
+                node_id="scientist.node_resolve_parameters@1.0.0",
                 depends_on=[
                     "compile_foundry",
                     "bind_foundry_inputs",
@@ -69,8 +69,18 @@ def default_workflow_spec() -> WorkflowSpec:
                 ],
             ),
             NodeInvocation(
+                alias="run_simulation",
+                node_id="scientist.node_run_simulation@1.0.1",
+                depends_on=[
+                    "compile_foundry",
+                    "bind_foundry_inputs",
+                    "run_data_plane_gate",
+                    "resolve_parameters",
+                ],
+            ),
+            NodeInvocation(
                 alias="run_causal_evaluation",
-                node_id="scientist.node_run_causal_evaluation@1.1.0",
+                node_id="scientist.node_run_causal_evaluation@1.2.0",
                 depends_on=["build_data_snapshot"],
             ),
             NodeInvocation(
@@ -86,7 +96,11 @@ def default_workflow_spec() -> WorkflowSpec:
             NodeInvocation(
                 alias="run_governance",
                 node_id="scientist.node_run_governance@1.1.0",
-                depends_on=["propagate_uncertainty", "run_distributional_analysis"],
+                depends_on=[
+                    "propagate_uncertainty",
+                    "run_distributional_analysis",
+                    "run_causal_evaluation",
+                ],
             ),
             NodeInvocation(
                 alias="run_evaluator",

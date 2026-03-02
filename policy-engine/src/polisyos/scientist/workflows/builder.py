@@ -34,6 +34,7 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     INPUT_INPUT_BINDINGS_REF,
     INPUT_REGISTRY_BUNDLE_REF,
 )
+from polisyos.scientist.workflows.causal_full import causal_full_workflow_spec
 from polisyos.scientist.workflows.default import default_workflow_spec
 
 DEFAULT_CAS_ROOT = Path(".polisyos")
@@ -171,9 +172,73 @@ def run_default_workflow(
         lock.release()
 
 
+def run_causal_full_workflow(
+    initial_state: ExperimentState,
+    *,
+    store: FileSystemCAS | None = None,
+    registry_bundle_ref: ArtifactRef | None = None,
+    checkpoint_policy: CheckpointPolicy = "strict",
+    force_lock: bool = False,
+    foundry: object | None = None,
+    fabric: object | None = None,
+    scholar: object | None = None,
+    lex: object | None = None,
+    logger: logging.Logger | None = None,
+    tracer: object | None = None,
+) -> WorkflowExecutionResult:
+    store = store or FileSystemCAS(DEFAULT_CAS_ROOT)
+    policy = normalize_checkpoint_policy(checkpoint_policy)
+
+    state = initial_state.model_copy(deep=True)
+    if not state.run_id:
+        state = state.model_copy(update={"run_id": new_run_id()})
+
+    if registry_bundle_ref is None:
+        registry_bundle_ref = state.inputs.get(INPUT_REGISTRY_BUNDLE_REF)
+    if registry_bundle_ref is None:
+        registry_bundle_ref = build_default_registry(store)
+    state.inputs[INPUT_REGISTRY_BUNDLE_REF] = registry_bundle_ref
+
+    _ensure_snapshot_bind(state)
+
+    if foundry is None:
+        foundry = DefaultFoundryPort()
+    if fabric is None and INPUT_DATA_VIEW_REQUEST_REF in state.inputs:
+        fabric = DefaultFabricPort()
+
+    run_dir = store.root / "runs" / state.run_id
+    lock = acquire_run_lock(run_dir, run_id=state.run_id, mode="run", force=force_lock)
+    try:
+        ctx = build_execution_context(
+            store,
+            registry_bundle_ref,
+            run_id=state.run_id,
+            logger=logger,
+            tracer=tracer,
+            foundry=foundry,
+            fabric=fabric,
+            scholar=scholar,
+            lex=lex,
+        )
+
+        registry = build_registry_with_builtin_nodes()
+        checkpoint_hook = CASCheckpointHook(
+            store=store,
+            run_dir=run_dir,
+            sequence_start=0,
+            checkpoint_policy=policy,
+        )
+        executor = WorkflowExecutor(ctx, registry, checkpoint_hook=checkpoint_hook)
+        workflow = causal_full_workflow_spec()
+        return executor.execute(workflow, state)
+    finally:
+        lock.release()
+
+
 __all__ = [
     "build_default_registry",
     "build_execution_context",
     "build_registry_with_builtin_nodes",
     "run_default_workflow",
+    "run_causal_full_workflow",
 ]

@@ -1,0 +1,41 @@
+{
+  "additionalProperties": false,
+  "description": "Result of validating a chain of alignment certificates.",
+  "properties": {
+    "effective_confidence": {
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Effective Confidence",
+      "type": "number"
+    },
+    "long_chain_warning": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Long Chain Warning"
+    },
+    "passed": {
+      "title": "Passed",
+      "type": "boolean"
+    },
+    "violations": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Violations",
+      "type": "array"
+    }
+  },
+  "required": [
+    "passed",
+    "effective_confidence"
+  ],
+  "title": "CertificationResult",
+  "type": "object"
+}

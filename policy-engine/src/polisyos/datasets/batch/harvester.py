@@ -98,6 +98,8 @@ async def harvest_one_source(spec: SourceSpec, config: DatasetBatchConfig) -> li
         rows = await _harvest_who_indicators(spec.endpoint, config.max_datasets_per_source, config.harvest_timeout)
     elif spec.family == "uis":
         rows = await _harvest_uis_indicators(spec.endpoint, config.max_datasets_per_source, config.harvest_timeout)
+    elif spec.family == "wvs":
+        rows = await _harvest_wvs(spec.endpoint, config.max_datasets_per_source, config.harvest_timeout)
     elif spec.family == "unpd":
         rows = await _harvest_unpd_indicators(spec.endpoint, config.max_datasets_per_source, config.harvest_timeout)
     else:
@@ -298,6 +300,30 @@ async def _harvest_uis_indicators(endpoint: str, limit: int, timeout_s: int) -> 
             rows = [row for row in payload["data"] if isinstance(row, dict)]
         elif isinstance(payload.get("items"), list):
             rows = [row for row in payload["items"] if isinstance(row, dict)]
+        else:
+            rows = [payload]
+    else:
+        rows = []
+    return rows[:limit]
+
+
+async def _harvest_wvs(endpoint: str, limit: int, timeout_s: int) -> list[dict]:
+    timeout = aiohttp.ClientTimeout(total=timeout_s)
+    async with aiohttp.ClientSession(timeout=timeout) as session:
+        async with session.get(endpoint, headers={"Accept": "application/json"}) as resp:
+            if resp.status != 200:
+                return []
+            payload = await resp.json(content_type=None)
+
+    if isinstance(payload, list):
+        rows = [row for row in payload if isinstance(row, dict)]
+    elif isinstance(payload, dict):
+        if isinstance(payload.get("data"), list):
+            rows = [row for row in payload["data"] if isinstance(row, dict)]
+        elif isinstance(payload.get("items"), list):
+            rows = [row for row in payload["items"] if isinstance(row, dict)]
+        elif isinstance(payload.get("results"), list):
+            rows = [row for row in payload["results"] if isinstance(row, dict)]
         else:
             rows = [payload]
     else:

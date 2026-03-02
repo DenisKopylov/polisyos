@@ -1,0 +1,335 @@
+{
+  "$defs": {
+    "CausalEdge": {
+      "additionalProperties": false,
+      "properties": {
+        "combined_confidence": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Combined Confidence"
+        },
+        "data_confidence": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Data Confidence"
+        },
+        "dst": {
+          "minLength": 1,
+          "title": "Dst",
+          "type": "string"
+        },
+        "evidence_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Evidence Refs",
+          "type": "array"
+        },
+        "expert_confidence": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Expert Confidence"
+        },
+        "lag": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Lag"
+        },
+        "literature_confidence": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Literature Confidence"
+        },
+        "llm_confidence": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Llm Confidence"
+        },
+        "mark_dst": {
+          "$ref": "#/$defs/EdgeMark",
+          "default": "arrow"
+        },
+        "mark_src": {
+          "$ref": "#/$defs/EdgeMark",
+          "default": "tail"
+        },
+        "metadata": {
+          "additionalProperties": true,
+          "title": "Metadata",
+          "type": "object"
+        },
+        "p_value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "P Value"
+        },
+        "simulation_confidence": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Simulation Confidence"
+        },
+        "sources": {
+          "items": {
+            "$ref": "#/$defs/EdgeSource"
+          },
+          "title": "Sources",
+          "type": "array"
+        },
+        "src": {
+          "minLength": 1,
+          "title": "Src",
+          "type": "string"
+        },
+        "unsupported_by_evidence": {
+          "default": false,
+          "title": "Unsupported By Evidence",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "src",
+        "dst"
+      ],
+      "title": "CausalEdge",
+      "type": "object"
+    },
+    "CausalGraphModel": {
+      "additionalProperties": false,
+      "description": "DAG / CPDAG / PAG causal graph IR contract.",
+      "properties": {
+        "discovery_method": {
+          "default": "",
+          "title": "Discovery Method",
+          "type": "string"
+        },
+        "edges": {
+          "items": {
+            "$ref": "#/$defs/CausalEdge"
+          },
+          "title": "Edges",
+          "type": "array"
+        },
+        "graph_type": {
+          "$ref": "#/$defs/GraphType"
+        },
+        "id_confidence_under_pag": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Id Confidence Under Pag"
+        },
+        "metadata": {
+          "additionalProperties": true,
+          "title": "Metadata",
+          "type": "object"
+        },
+        "nodes": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Nodes",
+          "type": "array"
+        },
+        "pag_identification_policy": {
+          "$ref": "#/$defs/PAGIdentificationPolicy",
+          "default": "conservative"
+        },
+        "schema_version": {
+          "default": "1.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "skg_version_id": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Skg Version Id"
+        }
+      },
+      "required": [
+        "graph_type",
+        "nodes",
+        "edges"
+      ],
+      "title": "CausalGraphModel",
+      "type": "object"
+    },
+    "EdgeMark": {
+      "enum": [
+        "tail",
+        "arrow",
+        "circle"
+      ],
+      "title": "EdgeMark",
+      "type": "string"
+    },
+    "EdgeSource": {
+      "enum": [
+        "data",
+        "literature",
+        "llm_prior",
+        "expert",
+        "simulation"
+      ],
+      "title": "EdgeSource",
+      "type": "string"
+    },
+    "GraphType": {
+      "enum": [
+        "dag",
+        "cpdag",
+        "pag"
+      ],
+      "title": "GraphType",
+      "type": "string"
+    },
+    "PAGIdentificationPolicy": {
+      "enum": [
+        "conservative",
+        "optimistic",
+        "probabilistic"
+      ],
+      "title": "PAGIdentificationPolicy",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "bootstrap_stability": {
+      "additionalProperties": {
+        "type": "number"
+      },
+      "title": "Bootstrap Stability",
+      "type": "object"
+    },
+    "computation_time_seconds": {
+      "default": 0.0,
+      "minimum": 0.0,
+      "title": "Computation Time Seconds",
+      "type": "number"
+    },
+    "graph": {
+      "$ref": "#/$defs/CausalGraphModel"
+    },
+    "metadata": {
+      "additionalProperties": true,
+      "title": "Metadata",
+      "type": "object"
+    },
+    "method": {
+      "title": "Method",
+      "type": "string"
+    },
+    "n_bootstrap": {
+      "default": 0,
+      "minimum": 0,
+      "title": "N Bootstrap",
+      "type": "integer"
+    },
+    "resolved_graph": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/CausalGraphModel"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "schema_version": {
+      "default": "1.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "significance_level": {
+      "default": 0.05,
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Significance Level",
+      "type": "number"
+    },
+    "warnings": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Warnings",
+      "type": "array"
+    }
+  },
+  "required": [
+    "method",
+    "graph"
+  ],
+  "title": "CausalDiscoveryReport",
+  "type": "object"
+}

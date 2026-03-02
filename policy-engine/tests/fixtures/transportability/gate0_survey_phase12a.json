@@ -1,0 +1,57 @@
+{
+  "schema_version": "1.0",
+  "sample_size": 40,
+  "summary": {
+    "backdoor_sufficient": 26,
+    "iv_required": 7,
+    "frontdoor_required": 4,
+    "c_component_required": 3,
+    "backdoor_share": 0.65,
+    "go_no_go": "go"
+  },
+  "questions": [
+    {"id": "q001", "bucket": "BACKDOOR_SUFFICIENT"},
+    {"id": "q002", "bucket": "BACKDOOR_SUFFICIENT"},
+    {"id": "q003", "bucket": "BACKDOOR_SUFFICIENT"},
+    {"id": "q004", "bucket": "BACKDOOR_SUFFICIENT"},
+    {"id": "q005", "bucket": "BACKDOOR_SUFFICIENT"},
+    {"id": "q006", "bucket": "BACKDOOR_SUFFICIENT"},
+    {"id": "q007", "bucket": "BACKDOOR_SUFFICIENT"},
+    {"id": "q008", "bucket": "BACKDOOR_SUFFICIENT"},
+    {"id": "q009", "bucket": "BACKDOOR_SUFFICIENT"},
+    {"id": "q010", "bucket": "BACKDOOR_SUFFICIENT"},
+    {"id": "q011", "bucket": "BACKDOOR_SUFFICIENT"},
+    {"id": "q012", "bucket": "BACKDOOR_SUFFICIENT"},
+    {"id": "q013", "bucket": "BACKDOOR_SUFFICIENT"},
+    {"id": "q014", "bucket": "BACKDOOR_SUFFICIENT"},
+    {"id": "q015", "bucket": "BACKDOOR_SUFFICIENT"},
+    {"id": "q016", "bucket": "BACKDOOR_SUFFICIENT"},
+    {"id": "q017", "bucket": "BACKDOOR_SUFFICIENT"},
+    {"id": "q018", "bucket": "BACKDOOR_SUFFICIENT"},
+    {"id": "q019", "bucket": "BACKDOOR_SUFFICIENT"},
+    {"id": "q020", "bucket": "BACKDOOR_SUFFICIENT"},
+    {"id": "q021", "bucket": "BACKDOOR_SUFFICIENT"},
+    {"id": "q022", "bucket": "BACKDOOR_SUFFICIENT"},
+    {"id": "q023", "bucket": "BACKDOOR_SUFFICIENT"},
+    {"id": "q024", "bucket": "BACKDOOR_SUFFICIENT"},
+    {"id": "q025", "bucket": "BACKDOOR_SUFFICIENT"},
+    {"id": "q026", "bucket": "BACKDOOR_SUFFICIENT"},
+
+    {"id": "q027", "bucket": "IV_REQUIRED"},
+    {"id": "q028", "bucket": "IV_REQUIRED"},
+    {"id": "q029", "bucket": "IV_REQUIRED"},
+    {"id": "q030", "bucket": "IV_REQUIRED"},
+    {"id": "q031", "bucket": "IV_REQUIRED"},
+    {"id": "q032", "bucket": "IV_REQUIRED"},
+    {"id": "q033", "bucket": "IV_REQUIRED"},
+
+    {"id": "q034", "bucket": "FRONTDOOR_REQUIRED"},
+    {"id": "q035", "bucket": "FRONTDOOR_REQUIRED"},
+    {"id": "q036", "bucket": "FRONTDOOR_REQUIRED"},
+    {"id": "q037", "bucket": "FRONTDOOR_REQUIRED"},
+
+    {"id": "q038", "bucket": "C_COMPONENT_REQUIRED"},
+    {"id": "q039", "bucket": "C_COMPONENT_REQUIRED"},
+    {"id": "q040", "bucket": "C_COMPONENT_REQUIRED"}
+  ]
+}

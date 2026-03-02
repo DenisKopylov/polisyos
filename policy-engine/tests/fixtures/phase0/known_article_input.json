@@ -1,0 +1,44 @@
+{
+  "work_id": "https://openalex.org/WKNOWN",
+  "topic_ids": [
+    "T_ECON"
+  ],
+  "topic_display_names": [
+    "Economic policy"
+  ],
+  "work": {
+    "id": "https://openalex.org/WKNOWN",
+    "doi": "https://doi.org/10.1000/known.2022.001",
+    "title": "Known Policy Article",
+    "publication_year": 2022,
+    "cited_by_count": 120,
+    "topics": [
+      {
+        "display_name": "Economic policy"
+      }
+    ],
+    "abstract_inverted_index": {
+      "policy": [
+        0
+      ],
+      "affects": [
+        1
+      ],
+      "employment": [
+        2
+      ]
+    },
+    "authorships": [
+      {
+        "institutions": [
+          {
+            "country_code": "UA"
+          }
+        ]
+      }
+    ],
+    "open_access": {
+      "is_oa": false
+    }
+  }
+}

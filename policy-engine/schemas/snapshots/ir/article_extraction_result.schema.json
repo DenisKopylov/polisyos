@@ -1,0 +1,697 @@
+{
+  "$defs": {
+    "BoundaryCondition": {
+      "additionalProperties": false,
+      "properties": {
+        "condition_type": {
+          "default": "",
+          "title": "Condition Type",
+          "type": "string"
+        },
+        "confidence": {
+          "default": 0.0,
+          "title": "Confidence",
+          "type": "number"
+        },
+        "consequence_if_violated": {
+          "default": "",
+          "title": "Consequence If Violated",
+          "type": "string"
+        },
+        "operator": {
+          "default": "",
+          "title": "Operator",
+          "type": "string"
+        },
+        "required_value": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Required Value"
+        },
+        "scope_text": {
+          "default": "",
+          "title": "Scope Text",
+          "type": "string"
+        },
+        "threshold_value": {
+          "default": "",
+          "title": "Threshold Value",
+          "type": "string"
+        },
+        "variable": {
+          "default": "",
+          "title": "Variable",
+          "type": "string"
+        },
+        "violated_by": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Violated By",
+          "type": "array"
+        }
+      },
+      "title": "BoundaryCondition",
+      "type": "object"
+    },
+    "CausalClaim": {
+      "additionalProperties": false,
+      "properties": {
+        "cause_variable": {
+          "title": "Cause Variable",
+          "type": "string"
+        },
+        "counterevidence_notes": {
+          "default": "",
+          "title": "Counterevidence Notes",
+          "type": "string"
+        },
+        "direction": {
+          "$ref": "#/$defs/CausalDirection",
+          "default": "mixed"
+        },
+        "effect_size": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Effect Size"
+        },
+        "effect_variable": {
+          "title": "Effect Variable",
+          "type": "string"
+        },
+        "evidence_strength": {
+          "$ref": "#/$defs/EvidenceStrength",
+          "default": "unknown"
+        },
+        "magnitude_qualitative": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Magnitude Qualitative"
+        },
+        "scope_conditions": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Scope Conditions",
+          "type": "array"
+        }
+      },
+      "required": [
+        "cause_variable",
+        "effect_variable"
+      ],
+      "title": "CausalClaim",
+      "type": "object"
+    },
+    "CausalDirection": {
+      "enum": [
+        "positive",
+        "negative",
+        "null",
+        "mixed",
+        "ambiguous",
+        "non_linear"
+      ],
+      "title": "CausalDirection",
+      "type": "string"
+    },
+    "ContextProfile": {
+      "additionalProperties": false,
+      "description": "Context profile for transport-aware literature reuse.",
+      "properties": {
+        "context_id": {
+          "default": "",
+          "title": "Context Id",
+          "type": "string"
+        },
+        "context_label": {
+          "default": "",
+          "title": "Context Label",
+          "type": "string"
+        },
+        "corruption_level": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Corruption Level"
+        },
+        "countries": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Countries",
+          "type": "array"
+        },
+        "cultural_cluster": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cultural Cluster"
+        },
+        "data_sources": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Data Sources",
+          "type": "array"
+        },
+        "economic_openness": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Economic Openness"
+        },
+        "gdp_per_capita": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Gdp Per Capita"
+        },
+        "income_level": {
+          "$ref": "#/$defs/IncomeLevel",
+          "default": "unknown"
+        },
+        "inference_level": {
+          "$ref": "#/$defs/ContextProfileInferenceLevel",
+          "default": "inferred_basic"
+        },
+        "institutional_quality": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Institutional Quality"
+        },
+        "post_communist": {
+          "default": false,
+          "title": "Post Communist",
+          "type": "boolean"
+        },
+        "post_conflict": {
+          "default": false,
+          "title": "Post Conflict",
+          "type": "boolean"
+        },
+        "publication_year": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Publication Year"
+        },
+        "social_trust": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Social Trust"
+        },
+        "state_capacity": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "State Capacity"
+        },
+        "time_period": {
+          "default": "",
+          "title": "Time Period",
+          "type": "string"
+        }
+      },
+      "title": "ContextProfile",
+      "type": "object"
+    },
+    "ContextProfileInferenceLevel": {
+      "enum": [
+        "inferred_basic",
+        "enriched",
+        "manual"
+      ],
+      "title": "ContextProfileInferenceLevel",
+      "type": "string"
+    },
+    "EvidenceParameter": {
+      "additionalProperties": false,
+      "properties": {
+        "aggregation_level": {
+          "default": "",
+          "title": "Aggregation Level",
+          "type": "string"
+        },
+        "confidence_interval": {
+          "anyOf": [
+            {
+              "maxItems": 2,
+              "minItems": 2,
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Confidence Interval"
+        },
+        "display_name": {
+          "default": "",
+          "title": "Display Name",
+          "type": "string"
+        },
+        "evidence_strength": {
+          "$ref": "#/$defs/EvidenceStrength",
+          "default": "unknown"
+        },
+        "geographic_scope": {
+          "default": "",
+          "title": "Geographic Scope",
+          "type": "string"
+        },
+        "heterogeneity_note": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Heterogeneity Note"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "parameter_type": {
+          "$ref": "#/$defs/ParameterType",
+          "default": "quantitative"
+        },
+        "std_error": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Std Error"
+        },
+        "subgroup_estimates": {
+          "additionalProperties": {
+            "type": "number"
+          },
+          "title": "Subgroup Estimates",
+          "type": "object"
+        },
+        "time_period": {
+          "default": "",
+          "title": "Time Period",
+          "type": "string"
+        },
+        "transfer_conditions": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Transfer Conditions",
+          "type": "array"
+        },
+        "transferability": {
+          "default": "unknown",
+          "title": "Transferability",
+          "type": "string"
+        },
+        "unit": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Unit"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Value"
+        },
+        "value_qualitative": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Value Qualitative"
+        },
+        "value_range": {
+          "anyOf": [
+            {
+              "maxItems": 2,
+              "minItems": 2,
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Value Range"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "EvidenceParameter",
+      "type": "object"
+    },
+    "EvidenceStrength": {
+      "enum": [
+        "rct",
+        "quasi_natural",
+        "meta_analysis",
+        "observational",
+        "theoretical",
+        "unknown"
+      ],
+      "title": "EvidenceStrength",
+      "type": "string"
+    },
+    "IncomeLevel": {
+      "enum": [
+        "low",
+        "lower_middle",
+        "upper_middle",
+        "high",
+        "non_high",
+        "unknown"
+      ],
+      "title": "IncomeLevel",
+      "type": "string"
+    },
+    "Mechanism": {
+      "additionalProperties": false,
+      "properties": {
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "evidence_type": {
+          "default": "",
+          "title": "Evidence Type",
+          "type": "string"
+        },
+        "mediating_variables": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Mediating Variables",
+          "type": "array"
+        },
+        "theoretical_framework": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Theoretical Framework"
+        }
+      },
+      "required": [
+        "description"
+      ],
+      "title": "Mechanism",
+      "type": "object"
+    },
+    "ParameterType": {
+      "enum": [
+        "quantitative",
+        "qualitative",
+        "ordinal",
+        "distributional"
+      ],
+      "title": "ParameterType",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Primary IR contract for literature extraction pipeline.",
+  "properties": {
+    "boundary_conditions": {
+      "items": {
+        "$ref": "#/$defs/BoundaryCondition"
+      },
+      "title": "Boundary Conditions",
+      "type": "array"
+    },
+    "causal_claims": {
+      "items": {
+        "$ref": "#/$defs/CausalClaim"
+      },
+      "title": "Causal Claims",
+      "type": "array"
+    },
+    "citation_summary": {
+      "default": "",
+      "title": "Citation Summary",
+      "type": "string"
+    },
+    "cited_by_count": {
+      "default": 0,
+      "title": "Cited By Count",
+      "type": "integer"
+    },
+    "doi": {
+      "default": "",
+      "title": "Doi",
+      "type": "string"
+    },
+    "empirical_parameters": {
+      "items": {
+        "$ref": "#/$defs/EvidenceParameter"
+      },
+      "title": "Empirical Parameters",
+      "type": "array"
+    },
+    "extraction_confidence": {
+      "title": "Extraction Confidence",
+      "type": "number"
+    },
+    "extraction_cost_usd": {
+      "default": 0.0,
+      "title": "Extraction Cost Usd",
+      "type": "number"
+    },
+    "extraction_model": {
+      "title": "Extraction Model",
+      "type": "string"
+    },
+    "extraction_timestamp": {
+      "title": "Extraction Timestamp",
+      "type": "string"
+    },
+    "mechanisms": {
+      "items": {
+        "$ref": "#/$defs/Mechanism"
+      },
+      "title": "Mechanisms",
+      "type": "array"
+    },
+    "methodology": {
+      "default": "",
+      "title": "Methodology",
+      "type": "string"
+    },
+    "methodology_enum": {
+      "$ref": "#/$defs/EvidenceStrength",
+      "default": "unknown"
+    },
+    "openalex_id": {
+      "title": "Openalex Id",
+      "type": "string"
+    },
+    "publication_year": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Publication Year"
+    },
+    "sample_size": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Sample Size"
+    },
+    "schema_version": {
+      "default": "1.1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "screening_cost_usd": {
+      "default": 0.0,
+      "title": "Screening Cost Usd",
+      "type": "number"
+    },
+    "source_context": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ContextProfile"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "title": {
+      "title": "Title",
+      "type": "string"
+    },
+    "token_count_completion": {
+      "default": 0,
+      "title": "Token Count Completion",
+      "type": "integer"
+    },
+    "token_count_prompt": {
+      "default": 0,
+      "title": "Token Count Prompt",
+      "type": "integer"
+    },
+    "year": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Year"
+    }
+  },
+  "required": [
+    "openalex_id",
+    "title",
+    "extraction_model",
+    "extraction_timestamp",
+    "extraction_confidence"
+  ],
+  "title": "ArticleExtractionResult",
+  "type": "object"
+}

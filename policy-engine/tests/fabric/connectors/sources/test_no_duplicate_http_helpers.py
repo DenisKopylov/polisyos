@@ -22,6 +22,7 @@ FORBIDDEN_HELPERS = frozenset(
 
 CONNECTOR_CLASSES = {
     "world_bank.py": "WorldBankConnector",
+    "wvs.py": "WVSConnector",
     "eurostat.py": "EurostatConnector",
     "ukons.py": "UKONSConnector",
 }
@@ -35,9 +36,11 @@ def test_production_connectors_subclass_http_connector_base() -> None:
     from polisyos.fabric.connectors.sources.eurostat import EurostatConnector
     from polisyos.fabric.connectors.sources.http_base import HTTPConnectorBase
     from polisyos.fabric.connectors.sources.ukons import UKONSConnector
+    from polisyos.fabric.connectors.sources.wvs import WVSConnector
     from polisyos.fabric.connectors.sources.world_bank import WorldBankConnector
 
     assert issubclass(WorldBankConnector, HTTPConnectorBase)
+    assert issubclass(WVSConnector, HTTPConnectorBase)
     assert issubclass(EurostatConnector, HTTPConnectorBase)
     assert issubclass(UKONSConnector, HTTPConnectorBase)
 

@@ -1,8 +1,32 @@
 {
-  "content_hash": "dccad3100f32307d3cb25db4f6c40245861ea420417699c355285c647690274f",
-  "generated_at": "2026-02-08T18:29:42+00:00",
+  "content_hash": "5ab7467ee546d47947b0235a16c4b8425787f8d1485beb68a0303781b0e5a598",
+  "generated_at": "2026-03-02T17:57:35+00:00",
   "generator_version": "1.0.0",
   "models": {
+    "abm_alignment_report": {
+      "aliases": [],
+      "compat_mode": "strict",
+      "fqn": "polisyos.ir.analytics.abm_bridge.ABMAlignmentReport",
+      "lifecycle": "active",
+      "priority": "p1",
+      "schema_file": "abm_alignment_report.schema.json",
+      "schema_version": "1.0",
+      "sha256_full": "e922a87e2cf8d70a5929d238696b9b8bccb8c4699d9b1f99513b72c0ab882b8b",
+      "sha256_semantic": "7489d29389fa592ec57f1e15cc8ecc205cb6760c3ba899d203f659c61abe4803",
+      "version_field": "schema_version"
+    },
+    "article_extraction_result": {
+      "aliases": [],
+      "compat_mode": "strict",
+      "fqn": "polisyos.ir.analytics.literature.ArticleExtractionResult",
+      "lifecycle": "active",
+      "priority": "p2",
+      "schema_file": "article_extraction_result.schema.json",
+      "schema_version": "1.1",
+      "sha256_full": "586f39f31817a8ba2f5fc265c20b270b72b2fb88e4900f11f4782ca756a87c4d",
+      "sha256_semantic": "6f9dffcb5266ed42662eec2ea0e1dd6c03666e413700debf9d4fded89981160e",
+      "version_field": "schema_version"
+    },
     "backtest_report": {
       "aliases": [],
       "compat_mode": "strict",
@@ -23,8 +47,20 @@
       "priority": "p2",
       "schema_file": "calibration_config.schema.json",
       "schema_version": "0.1",
-      "sha256_full": "3d73925e7bfe51396342e39d91b9ddb2cfd83c7474df4cdc24eb1dbc9b11e41d",
-      "sha256_semantic": "6507f420ac8d2d81a8b543119cd3725366ba232b40b87340268b3e95f3c39b9f",
+      "sha256_full": "ff93676e816fc09db53a2a7e516d73727a61ebec0ef6f466518288f77bd6db70",
+      "sha256_semantic": "11881482ff06ebd4254809d39b5c88d93ca1b499e8979ba971e294d38205cac4",
+      "version_field": "schema_version"
+    },
+    "causal_discovery_report": {
+      "aliases": [],
+      "compat_mode": "strict",
+      "fqn": "polisyos.ir.analytics.causal_discovery.CausalDiscoveryReport",
+      "lifecycle": "active",
+      "priority": "p1",
+      "schema_file": "causal_discovery_report.schema.json",
+      "schema_version": "1.0",
+      "sha256_full": "545ad93f201076668468bb0e563111b6d315fcf6c7917e9b7ee1fbe120ebc27b",
+      "sha256_semantic": "caffc8f5029f3704c745b750e965db68f5cef86b6b5b8e73ff8745cc44ceb4f5",
       "version_field": "schema_version"
     },
     "causal_effect_report": {
@@ -35,9 +71,81 @@
       "priority": "p1",
       "schema_file": "causal_effect_report.schema.json",
       "schema_version": "1.0",
-      "sha256_full": "3cfaec020d2a00a905ac6493623faaff82bedf346ef4ff476a8b78adda68e7a4",
-      "sha256_semantic": "d61af06e6360a25a7230d8cc7d03c5eacedf40e82e2b88a53c4fbaf5ca08463e",
+      "sha256_full": "26145d91d1ea658f7bfc1b470c30b854ad10a34c4d7009aab488596209c2842d",
+      "sha256_semantic": "a28661e37656c2bd80a7a2c05fe7805cf1fd4cf9d3c0ab82a4e0206787be0f9a",
       "version_field": "schema_version"
+    },
+    "causal_graph_model": {
+      "aliases": [],
+      "compat_mode": "strict",
+      "fqn": "polisyos.ir.analytics.causal_graph.CausalGraphModel",
+      "lifecycle": "active",
+      "priority": "p1",
+      "schema_file": "causal_graph_model.schema.json",
+      "schema_version": "1.0",
+      "sha256_full": "ce5e5a748fc8032029b3ec50061983ff5d68411318b21bd2aafb4fffdb908bca",
+      "sha256_semantic": "7958de1871e6849c4ac04f215adb9e87ed06c0aaa6957913f874355a212ba89a",
+      "version_field": "schema_version"
+    },
+    "causal_model_ensemble": {
+      "aliases": [],
+      "compat_mode": "strict",
+      "fqn": "polisyos.ir.analytics.causal_ensemble.CausalModelEnsemble",
+      "lifecycle": "active",
+      "priority": "p1",
+      "schema_file": "causal_model_ensemble.schema.json",
+      "schema_version": "1.0",
+      "sha256_full": "5e4cc202d17e434e2524b2e41cdf0b0fbb48f64083e0aa735b34a3084ca615f9",
+      "sha256_semantic": "6a5ff0b442a92aaaf8ccd8a8f491783920701b662605670880df6ec49f76ead9",
+      "version_field": "schema_version"
+    },
+    "causal_query": {
+      "aliases": [],
+      "compat_mode": "strict",
+      "fqn": "polisyos.ir.analytics.causal_queries.CausalQuery",
+      "lifecycle": "active",
+      "priority": "p2",
+      "schema_file": "causal_query.schema.json",
+      "schema_version": null,
+      "sha256_full": "bc1fc91067e75da2ccfd6129119a050179b03cebd60fad64bdf89961fbc16f70",
+      "sha256_semantic": "6899702dc991f50546e924b22db33ee4f32f7945444b6084f240e0327729685f",
+      "version_field": "schema_version"
+    },
+    "causal_query_result": {
+      "aliases": [],
+      "compat_mode": "strict",
+      "fqn": "polisyos.ir.analytics.causal_queries.CausalQueryResult",
+      "lifecycle": "active",
+      "priority": "p1",
+      "schema_file": "causal_query_result.schema.json",
+      "schema_version": "1.0",
+      "sha256_full": "9e94126110b1a840db7fbc11da873729fbe62602cd81e119357f71153d6fae9d",
+      "sha256_semantic": "a58d6b839664983dfdf7de8dfea36c9c6b9525ea32eb70b37d9c01021125137b",
+      "version_field": "schema_version"
+    },
+    "causal_sensitivity_result": {
+      "aliases": [],
+      "compat_mode": "strict",
+      "fqn": "polisyos.ir.analytics.sensitivity.SensitivityResult",
+      "lifecycle": "active",
+      "priority": "p1",
+      "schema_file": "sensitivity_result.schema.json",
+      "schema_version": "1.0",
+      "sha256_full": "34081b4601c593fc30eb8e0562937c5de6509cb5254b8d08d8a8d36be7c8500e",
+      "sha256_semantic": "277a82f2f24c68f0dd68b49f36e0b6c06392381fe85671df3c7e45544dc76cad",
+      "version_field": "schema_version"
+    },
+    "certification_result": {
+      "aliases": [],
+      "compat_mode": "strict",
+      "fqn": "polisyos.ir.analytics.alignment_certification.CertificationResult",
+      "lifecycle": "active",
+      "priority": "p2",
+      "schema_file": "certification_result.schema.json",
+      "schema_version": null,
+      "sha256_full": "1d4dd4e8f438e9dee140c70adbdfbe9799d1743e537765387e8bc23470a99ed0",
+      "sha256_semantic": "7818d8712dcb83791e7902b1487e19d3f8b689229522666ed299e58eebfb8ffb",
+      "version_field": null
     },
     "claim": {
       "aliases": [],
@@ -85,6 +193,18 @@
       "schema_version": null,
       "sha256_full": "21ebd5edb8cccaf5d0c7b6c7b1d13b9ac3a8addfb1d4a375860cf0283c6f5b3c",
       "sha256_semantic": "b8dc0f12cc1b5e1e871d6abd7baa1eb578cf8edd02ce7ef2b1b470c8021503a5",
+      "version_field": "schema_version"
+    },
+    "context_adaptive_parameter_bundle": {
+      "aliases": [],
+      "compat_mode": "strict",
+      "fqn": "polisyos.ir.analytics.parameters.ContextAdaptiveParameterBundle",
+      "lifecycle": "active",
+      "priority": "p2",
+      "schema_file": "context_adaptive_parameter_bundle.schema.json",
+      "schema_version": "1.0",
+      "sha256_full": "630087bca74de5247ef4002dff4b9ac8e6feb51318ee56cc9fc63549031bd55e",
+      "sha256_semantic": "90fde025ea7e05fff420c71ac13c1c2789a0e8a21596ce254fa537e014ae496b",
       "version_field": "schema_version"
     },
     "data_view_request": {
@@ -215,8 +335,20 @@
       "priority": "p1",
       "schema_file": "hte_result.schema.json",
       "schema_version": "1.0",
-      "sha256_full": "a4d1bf7220c4bccb0597349d38ac8ddc19d3221103f467de0856e7d3ff627c96",
-      "sha256_semantic": "4fe705ea143d0e44b1841279acc6780afced98642cac47d67f726b8a1d42953d",
+      "sha256_full": "2594ce7f0122ef436d156d1ab19c3dac9c91463ae896f2b39f12b2278ee460dc",
+      "sha256_semantic": "86ed2c20a85850ce2c976b8815ba022ba1bc852a6edb7f56e60c40c437860cd6",
+      "version_field": "schema_version"
+    },
+    "literature_causal_prior": {
+      "aliases": [],
+      "compat_mode": "strict",
+      "fqn": "polisyos.ir.analytics.literature.LiteratureCausalPrior",
+      "lifecycle": "active",
+      "priority": "p2",
+      "schema_file": "literature_causal_prior.schema.json",
+      "schema_version": "1.0",
+      "sha256_full": "bb39dddb0e70aa2215c98e50356eb3a6d9e1c54a56cf102a96132d84c205dd32",
+      "sha256_semantic": "2f6d14af55ceb5da1949574ce72bc79c929fe481c741f8580a2f81f4f1e90d30",
       "version_field": "schema_version"
     },
     "model_spec": {
@@ -267,6 +399,30 @@
       "sha256_semantic": "d2a3999b42afa103f0e1382d45c8eb55387b345a7bf5ef283bbd49c5d52c5583",
       "version_field": "schema_version"
     },
+    "outer_search_result": {
+      "aliases": [],
+      "compat_mode": "strict",
+      "fqn": "polisyos.ir.analytics.alignment_certification.OuterSearchResult",
+      "lifecycle": "active",
+      "priority": "p2",
+      "schema_file": "outer_search_result.schema.json",
+      "schema_version": null,
+      "sha256_full": "3255fca3f672dfbea3ecc677c700cd52ec067f021c205afcd4f8afd7fa8ea437",
+      "sha256_semantic": "c6cdd8d88a4a39039d3a9523f4835d8e2b2e09a89cddf3934b838c7688adbfe5",
+      "version_field": null
+    },
+    "partial_identification_result": {
+      "aliases": [],
+      "compat_mode": "strict",
+      "fqn": "polisyos.ir.analytics.partial_identification.PartialIdentificationResult",
+      "lifecycle": "active",
+      "priority": "p2",
+      "schema_file": "partial_identification_result.schema.json",
+      "schema_version": "1.0",
+      "sha256_full": "cf7b7837bfe28c36f8d581dd86d3f9aefc824ef28fd5ee8be160e2bf8aa3ecca",
+      "sha256_semantic": "b47e47db75c9ade757b508223ae924b08d72d4d42fbdf6b28085b414482ed914",
+      "version_field": "schema_version"
+    },
     "policy_portfolio": {
       "aliases": [],
       "compat_mode": "strict",
@@ -311,8 +467,8 @@
       "priority": "p0",
       "schema_file": "problem_frame.schema.json",
       "schema_version": "1.0",
-      "sha256_full": "9eb38552c61dc4a8ede81ec343e3b672d3de0c04c9c11c6b7cd3aa96ce3cccef",
-      "sha256_semantic": "8c8a3e4ff8b06087de72a51cc6c5712e22b6c33d5ad64beba3fa38f9232fcb4d",
+      "sha256_full": "241b39a679ba791ffb6b0d90ffdb5683cace9b7b4e623da47dd0d7e2d85d907d",
+      "sha256_semantic": "050a5fdcd50030da3d215658f9018050ce2e9e0aca25dbc927b49c266b23872a",
       "version_field": "schema_version"
     },
     "prov_activity": {
@@ -339,6 +495,42 @@
       "sha256_semantic": "e96f337a7fbed2f4448d120306be00b908c3ad62024392fa2176a495eedab0c8",
       "version_field": "schema_version"
     },
+    "refutation_result": {
+      "aliases": [],
+      "compat_mode": "strict",
+      "fqn": "polisyos.ir.analytics.causal.RefutationResult",
+      "lifecycle": "active",
+      "priority": "p1",
+      "schema_file": "refutation_result.schema.json",
+      "schema_version": null,
+      "sha256_full": "bb81db7c2891b6d60e67654c93b563f4fad57eeb4f1328d1a995a2b63af78d4c",
+      "sha256_semantic": "25e6eea29937f6ec9b3e6d7af03f0f3d81902e84048ee6317bae4aefeef4104b",
+      "version_field": "schema_version"
+    },
+    "structural_causal_model_spec": {
+      "aliases": [],
+      "compat_mode": "strict",
+      "fqn": "polisyos.ir.analytics.structural_causal_model.StructuralCausalModelSpec",
+      "lifecycle": "active",
+      "priority": "p1",
+      "schema_file": "structural_causal_model_spec.schema.json",
+      "schema_version": "1.0",
+      "sha256_full": "fe7b5f65d481b2ce6251849267faa2641f6a4abcc6422e5ee29785355f399e71",
+      "sha256_semantic": "88fb8229a2eae7812d133a72a54762842ddb60cd78a53cf64e9e302c4cfb45fa",
+      "version_field": "schema_version"
+    },
+    "transportability_result": {
+      "aliases": [],
+      "compat_mode": "strict",
+      "fqn": "polisyos.ir.analytics.transportability.TransportabilityResult",
+      "lifecycle": "active",
+      "priority": "p1",
+      "schema_file": "transportability_result.schema.json",
+      "schema_version": "1.0",
+      "sha256_full": "4f06016c25548bdc2090ac87bebc7fe1ee039489ebf1fa7deaafe5034990d238",
+      "sha256_semantic": "a19a5dce0a08fedb76c2db4cf5dafb4bef6e8f7028f80ba17ba958496bd9ce32",
+      "version_field": "schema_version"
+    },
     "trinity_bundle": {
       "aliases": [],
       "compat_mode": "strict",
@@ -347,8 +539,8 @@
       "priority": "p0",
       "schema_file": "trinity_bundle.schema.json",
       "schema_version": "1.0",
-      "sha256_full": "0027d7b207765650cade5ae939eccd101aa90742b32ef9e32704152440401412",
-      "sha256_semantic": "85d2458b43d252921d400fe5c8049f3372b4381c19f47e96a620db8bcc89604e",
+      "sha256_full": "3d638f5408ded2d7809fd6af943bacbc9611840aa1cdbe9f7bfd611d9562abf0",
+      "sha256_semantic": "99d6a44e7032ef5ce11e2aed57da722316a2a09a63c292f46725a7265296a293",
       "version_field": "schema_version"
     },
     "trust_assessment": {

@@ -70,6 +70,7 @@ def _load_builtin_connectors() -> Iterable[type["SourceConnector"]]:
             SocrataConnector,
             SPARQLConnector,
             UKONSConnector,
+            WVSConnector,
             WorldBankConnector,
         )
     except Exception:
@@ -77,6 +78,7 @@ def _load_builtin_connectors() -> Iterable[type["SourceConnector"]]:
 
     return (
         WorldBankConnector,
+        WVSConnector,
         EurostatConnector,
         UKONSConnector,
         SDMXSourceConnector,
@@ -112,6 +114,7 @@ def _component_by_short_id(components: list[ConnectorComponent], short_id: str) 
 
 _BUILTIN_COMPONENTS = _build_builtin_components()
 world_bank_connector_component = _component_by_short_id(_BUILTIN_COMPONENTS, "wdi")
+wvs_connector_component = _component_by_short_id(_BUILTIN_COMPONENTS, "wave7")
 eurostat_connector_component = _component_by_short_id(_BUILTIN_COMPONENTS, "data")
 ukons_connector_component = _component_by_short_id(_BUILTIN_COMPONENTS, "datasets")
 sdmx_connector_component = _component_by_short_id(_BUILTIN_COMPONENTS, "source")
@@ -128,6 +131,7 @@ __all__ = [
     "ConnectorComponent",
     "connector_component_from_class",
     "world_bank_connector_component",
+    "wvs_connector_component",
     "eurostat_connector_component",
     "ukons_connector_component",
     "sdmx_connector_component",

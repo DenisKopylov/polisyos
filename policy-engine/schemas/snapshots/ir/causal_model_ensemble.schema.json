@@ -1,0 +1,80 @@
+{
+  "$defs": {
+    "EnsembleMember": {
+      "additionalProperties": false,
+      "properties": {
+        "bootstrap_stability": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Bootstrap Stability",
+          "type": "number"
+        },
+        "discovery_method": {
+          "minLength": 1,
+          "title": "Discovery Method",
+          "type": "string"
+        },
+        "graph_ref": {
+          "minLength": 1,
+          "title": "Graph Ref",
+          "type": "string"
+        },
+        "weight": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Weight",
+          "type": "number"
+        }
+      },
+      "required": [
+        "graph_ref",
+        "discovery_method",
+        "weight",
+        "bootstrap_stability"
+      ],
+      "title": "EnsembleMember",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Ensemble of causal models capturing structural uncertainty.",
+  "properties": {
+    "consensus_graph_ref": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Consensus Graph Ref"
+    },
+    "edge_inclusion_frequency": {
+      "additionalProperties": {
+        "type": "number"
+      },
+      "title": "Edge Inclusion Frequency",
+      "type": "object"
+    },
+    "members": {
+      "items": {
+        "$ref": "#/$defs/EnsembleMember"
+      },
+      "title": "Members",
+      "type": "array"
+    },
+    "schema_version": {
+      "default": "1.0",
+      "pattern": "^\\d+\\.\\d+$",
+      "title": "Schema Version",
+      "type": "string"
+    }
+  },
+  "required": [
+    "members"
+  ],
+  "title": "CausalModelEnsemble",
+  "type": "object"
+}

@@ -337,6 +337,15 @@ def normalize_raw_sources(config: DatasetBatchConfig, *, metrics_map: dict[str, 
                         connector_type="unpd",
                         metrics_map=metrics_map,
                     )
+                elif source == "wvs":
+                    rec = _normalize_indicator_api(
+                        row,
+                        source=source,
+                        agency="WVS",
+                        endpoint="https://api.worldvaluessurvey.org/v1/observations",
+                        connector_type="wvs",
+                        metrics_map=metrics_map,
+                    )
                 elif source == "data_gov_ua":
                     rec = _normalize_ckan(row, source=source, metrics_map=metrics_map)
                 else:
@@ -380,6 +389,15 @@ def normalize_worldbank(raw: dict, metrics_map: dict | None = None) -> DatasetRe
 def normalize_to_dcat(raw: dict, source_portal: str, connector_type: str, metrics_map: dict | None = None) -> DatasetRecord:
     if connector_type == "worldbank":
         return _normalize_worldbank(raw, metrics_map=metrics_map)
+    if connector_type == "wvs":
+        return _normalize_indicator_api(
+            raw,
+            source=source_portal,
+            agency="WVS",
+            endpoint="",
+            connector_type="wvs",
+            metrics_map=metrics_map,
+        )
     if connector_type in {"sdmx", "undata"}:
         return _normalize_sdmx(raw, source=source_portal, metrics_map=metrics_map)
     if connector_type in {"who", "unesco_uis", "unpd"}:

@@ -1,0 +1,73 @@
+version: 1
+alignments:
+  - canonical_var: institutional_quality
+    dataset_id: WB_WGI
+    dataset_var: RL.EST
+    method: exact
+    confidence: 0.92
+    evidence: "WGI Rule of Law estimate maps to institutional quality."
+    is_proxy: false
+    proxy_penalty: 0.0
+
+  - canonical_var: institutional_quality
+    dataset_id: WB_WGI
+    dataset_var: GE.EST
+    method: exact
+    confidence: 0.85
+    evidence: "WGI Government Effectiveness as close institutional quality proxy."
+    is_proxy: false
+    proxy_penalty: 0.0
+
+  - canonical_var: corruption_level
+    dataset_id: WB_WGI
+    dataset_var: CC.EST
+    method: exact
+    confidence: 0.90
+    evidence: "WGI Control of Corruption estimate."
+    is_proxy: false
+    proxy_penalty: 0.0
+
+  - canonical_var: social_trust
+    dataset_id: WVS_W7
+    dataset_var: A165
+    method: exact
+    confidence: 0.95
+    evidence: "WVS question A165: most people can be trusted."
+    is_proxy: false
+    proxy_penalty: 0.0
+
+  - canonical_var: cultural_cluster
+    dataset_id: WVS_W7
+    dataset_var: A173
+    method: exact
+    confidence: 0.90
+    evidence: "WVS wave-level cultural/value orientation signal."
+    is_proxy: false
+    proxy_penalty: 0.0
+
+  - canonical_var: gdp_per_capita
+    dataset_id: WB_WDI
+    dataset_var: NY.GDP.PCAP.PP.CD
+    method: exact
+    confidence: 1.0
+    evidence: "World Bank WDI GDP per capita PPP current intl dollars."
+    is_proxy: false
+    proxy_penalty: 0.0
+
+  - canonical_var: informal_economy_share
+    dataset_id: IMF_SHADOW
+    dataset_var: shadow_gdp_pct
+    method: exact
+    confidence: 0.88
+    evidence: "IMF shadow economy estimate."
+    is_proxy: false
+    proxy_penalty: 0.0
+
+  - canonical_var: informal_economy_share
+    dataset_id: WB_WDI
+    dataset_var: SL.TLF.TOTL.IN.ZS
+    method: exact
+    confidence: 0.65
+    evidence: "Informal employment as proxy for informal economy share."
+    is_proxy: true
+    proxy_penalty: 0.35

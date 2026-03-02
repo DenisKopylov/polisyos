@@ -83,8 +83,8 @@ class BatchConfig:
     llm_model: str = "qwen/qwen3-235b-a22b-instruct-2507-fp8"
     llm_temperature: float = 0.1
     gonka_disable_json_mode: bool = False
-    max_concurrent_llm: int = 20
-    rate_limit_rps: float = 5.0
+    max_concurrent_llm: int = 40
+    rate_limit_rps: float = 9.0
     max_retries: int = 7
 
     # --- Local embeddings (sentence-transformers) ---

@@ -87,3 +87,25 @@ def test_build_graph_empty_input() -> None:
         stats = build_graph(records=iter([]), db_path=db_path)
         assert stats.datasets == 0
         assert stats.distributions == 0
+
+
+def test_build_graph_creates_registry_tables() -> None:
+    with tempfile.TemporaryDirectory() as tmpdir:
+        db_path = Path(tmpdir) / "test_catalog.duckdb"
+        records = [_make_record(0)]
+        build_graph(records=iter(records), db_path=db_path)
+
+        con = duckdb.connect(str(db_path), read_only=True)
+        try:
+            tables = {
+                row[0]
+                for row in con.execute(
+                    "SELECT table_name FROM information_schema.tables WHERE table_schema = 'main'"
+                ).fetchall()
+            }
+        finally:
+            con.close()
+
+        assert "ds_registry_datasets" in tables
+        assert "ds_variable_alignments" in tables
+        assert "ds_observations" in tables

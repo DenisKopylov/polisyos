@@ -1,19 +1,29 @@
 from .backtest import BacktestReportRef
+from .causal import (
+    CausalModelEnsembleRef,
+    CausalDiscoveryReportRef,
+    CausalEffectReportRef,
+    CausalGraphModelRef,
+    CausalQueryResultRef,
+    CausalSensitivityResultRef,
+    LiteratureCausalPriorRef,
+    StructuralCausalModelSpecRef,
+    TransportabilityResultRef,
+)
+from .compiler import CompileReportRef, LinkReportRef
 from .control import (
     CacheEntryInfo,
     CacheStatusResponse,
     ConnectorInfo,
     ConnectorsListResponse,
-    DataSourceBinding,
     DatasetFetchSpecRequest,
+    DataSourceBinding,
     IngestRequest,
     IngestResponse,
     NaturalLanguageRunRequest,
     RunLaunchResponse,
     WorkflowRunRequest,
 )
-from .causal import CausalEffectReportRef
-from .compiler import CompileReportRef, LinkReportRef
 from .distributional import DistributionalReportRef
 from .execution_plan import (
     BudgetSpec,
@@ -303,7 +313,15 @@ __all__ = [
     "ThresholdsV1",
     "SourceKind",
     "SourceSpec",
+    "CausalDiscoveryReportRef",
     "CausalEffectReportRef",
+    "CausalGraphModelRef",
+    "CausalModelEnsembleRef",
+    "CausalQueryResultRef",
+    "CausalSensitivityResultRef",
+    "LiteratureCausalPriorRef",
+    "TransportabilityResultRef",
+    "StructuralCausalModelSpecRef",
     "ApiMeta",
     "ArtifactContentPreview",
     "ArtifactContentResponse",

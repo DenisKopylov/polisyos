@@ -4,35 +4,21 @@ from pathlib import Path
 from typing import Optional, Tuple
 
 from polisyos.core.artifacts.store import FileSystemCAS
-from polisyos.core.governance.legal.backends.stub import StubBackend
 from polisyos.core.governance.passes.base import IssueSeverity, PassContext
-from polisyos.core.governance.passes.legal_pass import LegalPass
-from polisyos.core.governance.passes.safety_pass import SafetyPass
 from polisyos.core.governance.profiles import ValidationProfile
 from polisyos.core.registry import build_default_registry_bundle, load_registry_bundle_content
 from polisyos.ir.governance.gate import GateContext, GateRequest
 from polisyos.ir.trinity import TrinityBundle
 
-from .passes.budget_pass import BudgetPass
-from .passes.confidence_pass import ConfidencePass
-from .passes.equity_pass import EquityPass
-from .passes.pii_check_pass import PIICheckPass
-from .passes.privacy_pass import PrivacyPass
-from .passes.quality_gate_pass import QualityGatePass
-from .passes.schema_pass import SchemaPass
+from .pass_registry import build_governance_pipeline
 from .pipeline import ValidationPipeline
 
-DEFAULT_PIPELINE = ValidationPipeline([
-    BudgetPass(),
-    SchemaPass(),
-    PrivacyPass(),
-    PIICheckPass(),
-    SafetyPass(),
-    EquityPass(),
-    LegalPass(backend=StubBackend()),
-    QualityGatePass(),
-    ConfidencePass(),
-])
+
+def build_default_pipeline() -> ValidationPipeline:
+    return build_governance_pipeline()
+
+
+DEFAULT_PIPELINE = build_default_pipeline()
 
 
 def preflight_checks(

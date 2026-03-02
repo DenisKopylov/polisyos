@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Any
 
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.components import ENTRY_POINT_GROUP_LEX_EVALUATORS
@@ -25,6 +26,10 @@ from polisyos.lex.legal_evaluation.change_proposals import (
 from polisyos.lex.legal_evaluation.evaluator_registry import (
     discover_and_bootstrap_evaluators,
     get_evaluator_registry,
+)
+from polisyos.lex.legal_evaluation.transport_constraints import (
+    LegalConstraintBridge,
+    LegalConstraintSet,
 )
 from polisyos.lex.normpack.assemble_pack import assemble_norm_pack as _assemble_norm_pack
 from polisyos.lex.types import (
@@ -155,6 +160,25 @@ def evaluate_legality(
     return evaluator.evaluate(cas, fact_log_root, request, segment_name)
 
 
+def evaluate_transport_constraints(
+    *,
+    jurisdiction: str,
+    policy_domain: str,
+    policy_spec: dict[str, Any] | None = None,
+    causal_graph: Any | None = None,
+    legal_kg_db_path: Path | str | None = None,
+) -> LegalConstraintSet:
+    normalized_policy_spec = dict(policy_spec or {})
+    if causal_graph is not None and "causal_graph" not in normalized_policy_spec:
+        normalized_policy_spec["causal_graph"] = causal_graph
+    bridge = LegalConstraintBridge(db_path=legal_kg_db_path)
+    return bridge.get_constraints_for_policy(
+        jurisdiction=jurisdiction,
+        policy_domain=policy_domain,
+        policy_spec=normalized_policy_spec,
+    )
+
+
 def propose_changes(
     *,
     cas: FileSystemCAS,
@@ -189,6 +213,7 @@ __all__ = [
     "build_legal_structure",
     "build_version_index",
     "evaluate_legality",
+    "evaluate_transport_constraints",
     "ingest_legal_doc_bytes",
     "propose_changes",
     "resolve_active_version",

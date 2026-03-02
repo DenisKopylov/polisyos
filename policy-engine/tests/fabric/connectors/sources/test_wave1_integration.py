@@ -53,6 +53,7 @@ class TestRegistryDiscovery:
         "connector_id",
         [
             "worldbank.wdi",
+            "wvs.wave7",
             "eurostat.data",
             "ukons.datasets",
             "sdmx.source",
@@ -69,7 +70,7 @@ class TestRegistryDiscovery:
 
     @pytest.mark.parametrize(
         "namespace",
-        ["worldbank", "eurostat", "ukons", "sdmx", "ckan", "socrata", "opendatasoft", "sparql"],
+        ["worldbank", "wvs", "eurostat", "ukons", "sdmx", "ckan", "socrata", "opendatasoft", "sparql"],
     )
     def test_namespace_exists(self, namespace: str):
         reg = ConnectorRegistry.get_instance()
@@ -138,6 +139,7 @@ class TestDefaultConfigBootstrap:
         "connector_id",
         [
             "worldbank.wdi",
+            "wvs.wave7",
             "eurostat.data",
             "ukons.datasets",
             "sdmx.source",
@@ -320,11 +322,11 @@ class TestComponentSystem:
     def test_builtin_components_count(self):
         from polisyos.fabric.connectors.components import __polisyos_components__
 
-        assert len(__polisyos_components__) == 10
+        assert len(__polisyos_components__) == 11
 
     @pytest.mark.parametrize(
         "short_id",
-        ["wdi", "data", "datasets", "source", "catalog", "resource", "soda", "ods", "endpoint"],
+        ["wdi", "wave7", "data", "datasets", "source", "catalog", "resource", "soda", "ods", "endpoint"],
     )
     def test_component_by_short_id(self, short_id: str):
         from polisyos.fabric.connectors.components import _component_by_short_id, _BUILTIN_COMPONENTS

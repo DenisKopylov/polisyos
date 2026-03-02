@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import random
+import re
 import statistics
 import urllib.request
 from datetime import UTC, datetime
@@ -14,6 +15,8 @@ import duckdb
 from polisyos.batch_common.manifest import write_stage_manifest
 from polisyos.batch_common.qc import QCCheck, QCReport, evaluate_fail_fast, write_qc_report
 from polisyos.academic.batch.config import AcademicBatchConfig
+
+_CANONICAL_VAR_RE = re.compile(r"^[a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*){0,3}$")
 
 
 def _line_count(path: Path) -> int:
@@ -37,10 +40,15 @@ def _collect_raw_roots(config: AcademicBatchConfig) -> list[Path]:
     return sorted([p for p in config.raw_dir.iterdir() if p.is_dir()])
 
 
-def run_qc(config: AcademicBatchConfig, *, fail_fast: bool | None = None) -> QCReport:
+def run_qc(
+    config: AcademicBatchConfig,
+    *,
+    fail_fast: bool | None = None,
+    strict_phase0: bool | None = None,
+) -> QCReport:
     started_at = datetime.now(UTC).isoformat()
     checks: list[QCCheck] = []
-    metrics: dict[str, float | int] = {}
+    metrics: dict[str, object] = {}
 
     # 1) Raw manifest count parity by source root.
     parity_failures = 0
@@ -72,7 +80,11 @@ def run_qc(config: AcademicBatchConfig, *, fail_fast: bool | None = None) -> QCR
     empty_abstract = 0
     malformed_estimate_rows = 0
     estimates_total = 0
+    claims_total = 0
+    canonical_claim_variables = 0
+    article_extract_count = 0
     extraction_modes: dict[str, int] = {}
+    phase0_check_severity = "critical" if bool(strict_phase0) else "warning"
 
     if config.merged_records_path.exists():
         with open(config.merged_records_path, "r", encoding="utf-8") as fh:
@@ -86,20 +98,82 @@ def run_qc(config: AcademicBatchConfig, *, fail_fast: bool | None = None) -> QCR
                     empty_abstract += 1
                 extraction_mode = str(row.get("extraction_mode", "deterministic"))
                 extraction_modes[extraction_mode] = extraction_modes.get(extraction_mode, 0) + 1
+                is_article_extract = extraction_mode == "article_extract"
+                if is_article_extract:
+                    article_extract_count += 1
                 estimates = row.get("estimates") if isinstance(row.get("estimates"), list) else []
                 for est in estimates:
+                    if not is_article_extract:
+                        continue
                     estimates_total += 1
                     if not isinstance(est, dict) or not isinstance(est.get("value"), (int, float)):
                         malformed_estimate_rows += 1
+
+                claims = row.get("causal_claims") if isinstance(row.get("causal_claims"), list) else []
+                for claim in claims:
+                    if not is_article_extract:
+                        continue
+                    if not isinstance(claim, dict):
+                        continue
+                    claims_total += 1
+                    cause = str(claim.get("cause") or "").strip()
+                    effect = str(claim.get("effect") or "").strip()
+                    if _CANONICAL_VAR_RE.match(cause) and _CANONICAL_VAR_RE.match(effect):
+                        canonical_claim_variables += 2
 
     empty_abs_pct = (100.0 * empty_abstract / total) if total else 0.0
     malformed_pct = (100.0 * malformed_estimate_rows / estimates_total) if estimates_total else 0.0
     metrics["works_total"] = total
     metrics["empty_abstract_pct"] = round(empty_abs_pct, 3)
     metrics["malformed_estimate_pct"] = round(malformed_pct, 3)
+    metrics["claims_total"] = claims_total
+    metrics["parameters_total"] = estimates_total
+    metrics["article_extract_count"] = article_extract_count
+    metrics["extraction_modes"] = extraction_modes
+    canonical_ratio = (
+        (canonical_claim_variables / max(1, claims_total * 2)) * 100.0 if claims_total else 0.0
+    )
+    metrics["canonical_claim_variable_pct"] = round(canonical_ratio, 3)
 
     checks.append(QCCheck(name="empty_abstract_pct", passed=empty_abs_pct <= 25.0, value=empty_abs_pct, threshold=25.0))
     checks.append(QCCheck(name="malformed_estimate_pct", passed=malformed_pct <= 2.0, value=malformed_pct, threshold=2.0))
+    checks.append(
+        QCCheck(
+            name="canonical_claim_variable_pct",
+            passed=canonical_ratio >= 80.0 if claims_total else True,
+            value=canonical_ratio,
+            threshold=80.0,
+            severity=phase0_check_severity,
+        )
+    )
+    checks.append(
+        QCCheck(
+            name="article_extract_count_50",
+            passed=article_extract_count >= 50 if article_extract_count else True,
+            value=article_extract_count,
+            threshold=50,
+            severity=phase0_check_severity,
+        )
+    )
+    if article_extract_count >= 50:
+        checks.append(
+            QCCheck(
+                name="claims_volume_50_articles",
+                passed=claims_total >= 200,
+                value=claims_total,
+                threshold=200,
+                severity=phase0_check_severity,
+            )
+        )
+        checks.append(
+            QCCheck(
+                name="parameters_volume_50_articles",
+                passed=estimates_total >= 100,
+                value=estimates_total,
+                threshold=100,
+                severity=phase0_check_severity,
+            )
+        )
 
     # 3) Topic selection metrics.
     topic_selection_exists = config.selected_topic_works_path.exists()
@@ -207,6 +281,35 @@ def run_qc(config: AcademicBatchConfig, *, fail_fast: bool | None = None) -> QCR
                 value=0,
                 threshold=1,
                 message="No llm_gate manifest found (likely deterministic-only run)",
+            )
+        )
+
+    # 4b) article extraction cache idempotency.
+    if config.article_extraction_cache_path.exists():
+        cache_keys: list[str] = []
+        with open(config.article_extraction_cache_path, "r", encoding="utf-8") as fh:
+            for line in fh:
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    row = json.loads(line)
+                except json.JSONDecodeError:
+                    continue
+                key = row.get("cache_key")
+                if isinstance(key, str) and key:
+                    cache_keys.append(key)
+        unique_keys = len(set(cache_keys))
+        duplicate_pct = (100.0 * (len(cache_keys) - unique_keys) / max(1, len(cache_keys))) if cache_keys else 0.0
+        metrics["article_cache_entries"] = len(cache_keys)
+        metrics["article_cache_duplicate_pct"] = round(duplicate_pct, 3)
+        checks.append(
+            QCCheck(
+                name="article_cache_duplicate_pct",
+                passed=duplicate_pct == 0.0,
+                value=duplicate_pct,
+                threshold=0.0,
+                severity="warning",
             )
         )
 

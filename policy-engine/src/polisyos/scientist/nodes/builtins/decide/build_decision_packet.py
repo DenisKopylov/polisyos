@@ -15,18 +15,23 @@ from polisyos.core.contracts.fabric import DataSnapshot
 from polisyos.core.contracts.foundry import Metrics, SimulationResult
 from polisyos.core.contracts.scientist import DecisionPacketRef
 from polisyos.core.contracts.uncertainty import UncertaintyEnvelopeRef
+from polisyos.ir.analytics.abm_bridge import load_abm_alignment_report
 from polisyos.ir.analytics.backtest import load_backtest_report
 from polisyos.ir.analytics.causal import CausalEffectReport
+from polisyos.ir.analytics.causal_ensemble import load_causal_model_ensemble
 from polisyos.ir.analytics.distributional import load_distributional_report
 from polisyos.ir.analytics.hte import load_hte_result, load_policy_recommendation
 from polisyos.ir.analytics.uncertainty import load_uncertainty_envelope
+from polisyos.ir.refs import ABMAlignmentReportRef, CausalModelEnsembleRef
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.protocol import NodeOutcome, NodeSpec
 from polisyos.scientist.engine.state import ExperimentState
 from polisyos.scientist.governance.report import GovernanceReport
 from polisyos.scientist.nodes.builtins.state_keys import (
+    ARTIFACT_ABM_ALIGNMENT_REPORT_REF,
     ARTIFACT_BACKTEST_REPORT_REF,
     ARTIFACT_CAUSAL_ENVELOPE_REF,
+    ARTIFACT_CAUSAL_ENSEMBLE_REF,
     ARTIFACT_CAUSAL_REPORT_REF,
     ARTIFACT_DECISION_CARD_REF,
     ARTIFACT_DECISION_PACKET_REF,
@@ -140,6 +145,7 @@ class BuildDecisionPacketNode:
             "uncertainty": _build_uncertainty_section(ctx, state.inputs, state.artifacts_index),
             "uncertainty_bounds": None,
             "causal": _build_causal_section(ctx, state.artifacts_index),
+            "abm_alignment": _build_abm_alignment_section(ctx, state.artifacts_index),
             "hte": _build_hte_section(ctx, state.artifacts_index),
             "targeting": _build_targeting_section(ctx, state.artifacts_index),
             "backtest": backtest_section,
@@ -270,6 +276,10 @@ def _build_artifacts_section(
         REPORT_LINK_REPORT_REF: _ref_from_dict(reports_index, REPORT_LINK_REPORT_REF),
         ARTIFACT_CAUSAL_REPORT_REF: _ref_from_dict(artifacts_index, ARTIFACT_CAUSAL_REPORT_REF),
         ARTIFACT_CAUSAL_ENVELOPE_REF: _ref_from_dict(artifacts_index, ARTIFACT_CAUSAL_ENVELOPE_REF),
+        ARTIFACT_CAUSAL_ENSEMBLE_REF: _ref_from_dict(artifacts_index, ARTIFACT_CAUSAL_ENSEMBLE_REF),
+        ARTIFACT_ABM_ALIGNMENT_REPORT_REF: _ref_from_dict(
+            artifacts_index, ARTIFACT_ABM_ALIGNMENT_REPORT_REF
+        ),
         ARTIFACT_HTE_RESULT_REF: _ref_from_dict(artifacts_index, ARTIFACT_HTE_RESULT_REF),
         ARTIFACT_POLICY_RECOMMENDATION_REF: _ref_from_dict(
             artifacts_index, ARTIFACT_POLICY_RECOMMENDATION_REF
@@ -311,18 +321,40 @@ def _build_causal_section(
 ) -> dict[str, object] | None:
     report_ref = artifacts_index.get(ARTIFACT_CAUSAL_REPORT_REF)
     envelope_ref = artifacts_index.get(ARTIFACT_CAUSAL_ENVELOPE_REF)
-    if report_ref is None and envelope_ref is None:
+    ensemble_ref = artifacts_index.get(ARTIFACT_CAUSAL_ENSEMBLE_REF)
+    if report_ref is None and envelope_ref is None and ensemble_ref is None:
         return None
 
     payload: dict[str, object] = {
         "report_ref": str(report_ref.artifact_id) if report_ref is not None else None,
         "envelope_ref": str(envelope_ref.artifact_id) if envelope_ref is not None else None,
+        "ensemble_ref": str(ensemble_ref.artifact_id) if ensemble_ref is not None else None,
+        "ensemble_member_count": None,
+        "ensemble_methods": [],
+        "ensemble_consensus_graph_ref": None,
     }
+
+    if ensemble_ref is not None:
+        try:
+            ensemble = load_causal_model_ensemble(
+                ctx.store,
+                CausalModelEnsembleRef(artifact_id=ensemble_ref.artifact_id),
+            )
+            payload["ensemble_member_count"] = len(ensemble.members)
+            payload["ensemble_methods"] = sorted({member.discovery_method for member in ensemble.members})
+            payload["ensemble_consensus_graph_ref"] = ensemble.consensus_graph_ref
+        except Exception:
+            payload["ensemble_parse_warning"] = "causal_ensemble_parse_failed"
 
     if report_ref is not None:
         try:
             report_obj = from_canonical_bytes(ctx.store.get_bytes(report_ref.artifact_id))
             report = CausalEffectReport.model_validate(report_obj)
+            refutation_results = [
+                item.model_dump(mode="json") for item in report.refutation_results
+            ]
+            refutation_tests_total = len(report.refutation_results)
+            refutation_tests_passed = sum(1 for item in report.refutation_results if item.passed)
             payload.update(
                 {
                     "method": report.method.value,
@@ -335,10 +367,81 @@ def _build_causal_section(
                     "placebo_p_value": report.placebo_p_value,
                     "inference_method": report.inference_method,
                     "diagnostics": [diag.model_dump(mode="json") for diag in report.diagnostics],
+                    "refutation_results": refutation_results,
+                    "refutation_tests_total": refutation_tests_total,
+                    "refutation_tests_passed": refutation_tests_passed,
+                    "refutation_robust": (
+                        refutation_tests_total > 0
+                        and refutation_tests_passed == refutation_tests_total
+                    ),
+                    "transportability_summary": _build_transportability_summary(report),
                 }
             )
         except Exception:
             payload["parse_warning"] = "causal_report_parse_failed"
+
+    return payload
+
+
+def _build_transportability_summary(report: CausalEffectReport) -> dict[str, object] | None:
+    transport = report.transport_result
+    if transport is None:
+        return None
+    gap_vars = [gap.required_variable for gap in transport.data_gaps]
+    return {
+        "status": transport.status.value,
+        "final_confidence": transport.final_confidence,
+        "feasible": transport.feasible,
+        "algorithm_version": transport.algorithm_version,
+        "pag_identification_policy": (
+            transport.pag_identification_policy.value
+            if transport.pag_identification_policy is not None
+            else None
+        ),
+        "id_confidence_under_pag": transport.id_confidence_under_pag,
+        "pag_dag_sample_size": transport.pag_dag_sample_size,
+        "pag_transportable_count": transport.pag_transportable_count,
+        "resolution_rounds": transport.resolution_rounds,
+        "data_gaps_count": len(transport.data_gaps),
+        "data_gap_variables": gap_vars,
+        "unsupported_cases_count": len(transport.unsupported_cases),
+        "hard_legal_constraints": list(transport.hard_legal_constraints),
+    }
+
+
+def _build_abm_alignment_section(
+    ctx: ExecutionContext,
+    artifacts_index: dict[str, ArtifactRef],
+) -> dict[str, object] | None:
+    report_ref = artifacts_index.get(ARTIFACT_ABM_ALIGNMENT_REPORT_REF)
+    if report_ref is None:
+        return None
+
+    payload: dict[str, object] = {"report_ref": str(report_ref.artifact_id)}
+    try:
+        report = load_abm_alignment_report(
+            ctx.store,
+            ABMAlignmentReportRef(artifact_id=report_ref.artifact_id),
+        )
+        status_counts: dict[str, int] = {}
+        for result in report.alignment_results.values():
+            key = result.status.value
+            status_counts[key] = status_counts.get(key, 0) + 1
+
+        payload.update(
+            {
+                "overall_consistent": report.overall_consistent,
+                "n_mappings": len(report.mappings),
+                "n_results": len(report.alignment_results),
+                "status_counts": status_counts,
+                "phase_transitions": [
+                    item.model_dump(mode="json") for item in report.phase_transitions
+                ],
+                "warnings": list(report.warnings),
+            }
+        )
+    except Exception:
+        payload["parse_warning"] = "abm_alignment_report_parse_failed"
 
     return payload
 
@@ -624,6 +727,7 @@ def _build_manifest_inputs(packet_payload: dict[str, object]) -> list[InputRef]:
         ("uncertainty", "uncertainty"),
         ("hte", "hte"),
         ("targeting", "targeting"),
+        ("abm_alignment", "abm_alignment"),
         ("backtest", "backtest"),
         ("distributional", "distributional"),
         ("econometrics", "econometrics"),

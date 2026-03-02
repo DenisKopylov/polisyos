@@ -14,6 +14,11 @@ from pydantic import (
 
 from polisyos.foundry.methods.base import MethodMetadata, MethodSignature
 from polisyos.ir.analytics.causal import CausalEffectReport
+from polisyos.ir.analytics.causal_graph import CausalGraphModel
+from polisyos.ir.analytics.causal_queries import CausalQuery
+from polisyos.ir.analytics.literature import LiteratureCausalPrior
+from polisyos.ir.analytics.parameters import ContextAdaptiveParameterBundle
+from polisyos.ir.analytics.structural_causal_model import StructuralCausalModelSpec
 
 if TYPE_CHECKING:
     import pandas as pd
@@ -286,6 +291,412 @@ class HTEObservationalData(BaseModel):
         return int(self.covariates.shape[1])
 
 
+class TimeSeriesCausalData(BaseModel):
+    """Time-series data contract for PCMCI/Tigramite discovery."""
+
+    model_config = ConfigDict(extra="forbid", arbitrary_types_allowed=True)
+
+    data: Any  # shape: (n_timesteps, n_variables)
+    variable_names: list[str]
+    time_index: Any | None = None  # shape: (n_timesteps,)
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+    @field_validator("data", "time_index", mode="before")
+    @classmethod
+    def _coerce_numpy(cls, value: Any) -> Any:
+        if value is None:
+            return None
+        return _to_numpy(value)
+
+    @model_validator(mode="after")
+    def _validate_shapes(self) -> "TimeSeriesCausalData":
+        if not isinstance(self.data, np.ndarray) or self.data.ndim != 2:
+            raise ValueError("data must be a 2D numpy array: (n_timesteps, n_variables)")
+        if self.data.shape[0] < 3:
+            raise ValueError("time-series data requires at least 3 timesteps")
+        if self.data.shape[1] < 2:
+            raise ValueError("time-series data requires at least 2 variables")
+        if not np.isfinite(self.data).all():
+            raise ValueError("data contains non-finite values")
+        if len(self.variable_names) != self.data.shape[1]:
+            raise ValueError("len(variable_names) must match data.shape[1]")
+        if len(set(self.variable_names)) != len(self.variable_names):
+            raise ValueError("variable_names must be unique")
+        if any(not name for name in self.variable_names):
+            raise ValueError("variable_names must not contain empty values")
+        if self.time_index is not None:
+            if not isinstance(self.time_index, np.ndarray) or self.time_index.ndim != 1:
+                raise ValueError("time_index must be a 1D array")
+            if self.time_index.shape[0] != self.data.shape[0]:
+                raise ValueError("time_index length must match number of timesteps")
+        return self
+
+    @field_serializer("data", "time_index", mode="plain", when_used="json")
+    def _serialize_numpy_fields(self, value: Any) -> Any:
+        if isinstance(value, np.ndarray):
+            return value.tolist()
+        return value
+
+    @property
+    def n_timesteps(self) -> int:
+        return int(self.data.shape[0])
+
+    @property
+    def n_variables(self) -> int:
+        return int(self.data.shape[1])
+
+
+class TabularCausalDiscoveryData(BaseModel):
+    """Cross-sectional data contract for PC/FCI/GES causal discovery."""
+
+    model_config = ConfigDict(extra="forbid", arbitrary_types_allowed=True)
+
+    data: Any  # shape: (n_samples, n_variables)
+    variable_names: list[str]
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+    @field_validator("data", mode="before")
+    @classmethod
+    def _coerce_numpy(cls, value: Any) -> Any:
+        return _to_numpy(value)
+
+    @model_validator(mode="after")
+    def _validate_shapes(self) -> "TabularCausalDiscoveryData":
+        if not isinstance(self.data, np.ndarray) or self.data.ndim != 2:
+            raise ValueError("data must be a 2D numpy array: (n_samples, n_variables)")
+        if self.data.shape[0] < 2:
+            raise ValueError("tabular discovery data requires at least 2 samples")
+        if self.data.shape[1] < 2:
+            raise ValueError("tabular discovery data requires at least 2 variables")
+        if not np.isfinite(self.data).all():
+            raise ValueError("data contains non-finite values")
+        if len(self.variable_names) != self.data.shape[1]:
+            raise ValueError("len(variable_names) must match data.shape[1]")
+        if len(set(self.variable_names)) != len(self.variable_names):
+            raise ValueError("variable_names must be unique")
+        if any(not name for name in self.variable_names):
+            raise ValueError("variable_names must not contain empty values")
+        return self
+
+    @field_serializer("data", mode="plain", when_used="json")
+    def _serialize_data(self, value: Any) -> Any:
+        if isinstance(value, np.ndarray):
+            return value.tolist()
+        return value
+
+    @property
+    def n_samples(self) -> int:
+        return int(self.data.shape[0])
+
+    @property
+    def n_variables(self) -> int:
+        return int(self.data.shape[1])
+
+
+class _GraphCausalDataBase(BaseModel):
+    """Shared shape validation for graph-based causal inputs."""
+
+    model_config = ConfigDict(extra="forbid", arbitrary_types_allowed=True)
+
+    data: Any  # shape: (n_obs, n_features)
+    column_names: list[str]
+    treatment: str
+    outcome: str
+    graph_ref: str | None = None
+    covariates: list[str] = Field(default_factory=list)
+
+    @field_validator("data", mode="before")
+    @classmethod
+    def _coerce_numpy(cls, value: Any) -> Any:
+        return _to_numpy(value)
+
+    @model_validator(mode="after")
+    def _validate(self):
+        if not isinstance(self.data, np.ndarray) or self.data.ndim != 2:
+            raise ValueError("data must be a 2D numpy array")
+        if self.data.shape[0] < 2:
+            raise ValueError("graph causal data requires at least 2 observations")
+        if self.data.shape[1] < 2:
+            raise ValueError("graph causal data requires at least 2 columns")
+        if not np.isfinite(self.data).all():
+            raise ValueError("data contains non-finite values")
+        if len(self.column_names) != self.data.shape[1]:
+            raise ValueError("data columns != len(column_names)")
+        if len(set(self.column_names)) != len(self.column_names):
+            raise ValueError("column_names must be unique")
+        if self.treatment not in self.column_names:
+            raise ValueError(f"treatment '{self.treatment}' not in column_names")
+        if self.outcome not in self.column_names:
+            raise ValueError(f"outcome '{self.outcome}' not in column_names")
+        unknown_covariates = sorted(set(self.covariates) - set(self.column_names))
+        if unknown_covariates:
+            raise ValueError(f"covariates not in column_names: {unknown_covariates}")
+        return self
+
+    @field_serializer("data", mode="plain", when_used="json")
+    def _serialize_numpy_fields(self, value: Any) -> Any:
+        if isinstance(value, np.ndarray):
+            return value.tolist()
+        return value
+
+    @property
+    def sample_size(self) -> int:
+        return int(self.data.shape[0])
+
+
+class GraphCausalData(_GraphCausalDataBase):
+    """Primary cross-sectional data contract for DoWhy v2+."""
+
+    graph_dot: str | None = None
+
+    @classmethod
+    def from_causal_graph_model(
+        cls,
+        *,
+        data: Any,
+        column_names: list[str],
+        treatment: str,
+        outcome: str,
+        graph: "CausalGraphModel",
+        graph_ref: str | None = None,
+        covariates: list[str] | None = None,
+    ) -> "GraphCausalData":
+        graph_dot = graph.to_dot() if hasattr(graph, "to_dot") else None
+        return cls(
+            data=data,
+            column_names=column_names,
+            treatment=treatment,
+            outcome=outcome,
+            graph_dot=graph_dot,
+            graph_ref=graph_ref,
+            covariates=list(covariates or []),
+        )
+
+
+class GraphCausalDataV1(_GraphCausalDataBase):
+    """Legacy cross-sectional data contract for DoWhy v1."""
+
+    graph_gml: str | None = None
+
+
+class SCMFitData(BaseModel):
+    """Cross-sectional data contract for structural causal mechanism fitting."""
+
+    model_config = ConfigDict(extra="forbid", arbitrary_types_allowed=True)
+
+    data: Any  # shape: (n_obs, n_features)
+    column_names: list[str]
+    graph: CausalGraphModel | dict[str, Any]
+    graph_ref: str | None = None
+    literature_priors: dict[str, dict[str, dict[str, float]]] = Field(default_factory=dict)
+    skg_snapshot_ref: str | None = None
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+    @field_validator("data", mode="before")
+    @classmethod
+    def _coerce_numpy(cls, value: Any) -> Any:
+        return _to_numpy(value)
+
+    @field_validator("graph", mode="before")
+    @classmethod
+    def _coerce_graph(cls, value: Any) -> Any:
+        if isinstance(value, CausalGraphModel):
+            return value
+        if isinstance(value, dict):
+            return CausalGraphModel.model_validate(value)
+        raise ValueError("graph must be CausalGraphModel or dict payload")
+
+    @model_validator(mode="after")
+    def _validate_payload(self) -> "SCMFitData":
+        if not isinstance(self.data, np.ndarray) or self.data.ndim != 2:
+            raise ValueError("data must be a 2D numpy array")
+        if self.data.shape[0] < 2:
+            raise ValueError("SCM fit data requires at least 2 observations")
+        if self.data.shape[1] < 1:
+            raise ValueError("SCM fit data requires at least 1 feature column")
+        if not np.isfinite(self.data).all():
+            raise ValueError("data contains non-finite values")
+        if len(self.column_names) != self.data.shape[1]:
+            raise ValueError("data columns != len(column_names)")
+        if len(set(self.column_names)) != len(self.column_names):
+            raise ValueError("column_names must be unique")
+
+        graph_vars = set(self.graph.nodes)
+        unknown_columns = sorted(set(self.column_names) - graph_vars)
+        if unknown_columns:
+            raise ValueError(f"column_names not present in graph nodes: {unknown_columns}")
+
+        for target, per_parent in self.literature_priors.items():
+            if target not in graph_vars:
+                raise ValueError(f"literature prior target '{target}' not in graph nodes")
+            if not isinstance(per_parent, dict):
+                raise ValueError("literature_priors values must be dict[parent, prior]")
+            for parent_name, stats in per_parent.items():
+                if parent_name != "__intercept__" and parent_name not in graph_vars:
+                    raise ValueError(
+                        f"literature prior parent '{parent_name}' not in graph nodes"
+                    )
+                if not isinstance(stats, dict):
+                    raise ValueError("literature prior stats must be dict with mean/std")
+                mean = stats.get("mean")
+                std = stats.get("std")
+                if mean is not None and not np.isfinite(float(mean)):
+                    raise ValueError("literature prior mean must be finite")
+                if std is not None and not np.isfinite(float(std)):
+                    raise ValueError("literature prior std must be finite")
+        return self
+
+    @field_serializer("data", mode="plain", when_used="json")
+    def _serialize_data(self, value: Any) -> Any:
+        if isinstance(value, np.ndarray):
+            return value.tolist()
+        return value
+
+    @field_serializer("graph", mode="plain", when_used="json")
+    def _serialize_graph(self, value: CausalGraphModel | dict[str, Any]) -> Any:
+        if isinstance(value, CausalGraphModel):
+            return value.model_dump(mode="json")
+        return value
+
+    @property
+    def sample_size(self) -> int:
+        return int(self.data.shape[0])
+
+
+class SCMQueryData(BaseModel):
+    """Input contract for structural causal query execution."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    scm_spec: StructuralCausalModelSpec | dict[str, Any]
+    query: CausalQuery | dict[str, Any]
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+    @field_validator("scm_spec", mode="before")
+    @classmethod
+    def _coerce_scm_spec(cls, value: Any) -> StructuralCausalModelSpec:
+        if isinstance(value, StructuralCausalModelSpec):
+            return value
+        if isinstance(value, dict):
+            return StructuralCausalModelSpec.model_validate(value)
+        raise ValueError("scm_spec must be StructuralCausalModelSpec or dict payload")
+
+    @field_validator("query", mode="before")
+    @classmethod
+    def _coerce_query(cls, value: Any) -> CausalQuery:
+        if isinstance(value, CausalQuery):
+            return value
+        if isinstance(value, dict):
+            return CausalQuery.model_validate(value)
+        raise ValueError("query must be CausalQuery or dict payload")
+
+    @model_validator(mode="after")
+    def _validate_payload(self) -> "SCMQueryData":
+        nodes = set(self.scm_spec.graph.nodes)
+        if self.query.treatment_variable not in nodes:
+            raise ValueError(
+                f"query treatment variable '{self.query.treatment_variable}' not in SCM graph nodes"
+            )
+        if self.query.outcome_variable not in nodes:
+            raise ValueError(
+                f"query outcome variable '{self.query.outcome_variable}' not in SCM graph nodes"
+            )
+        unknown_condition = sorted(set(self.query.condition) - nodes)
+        if unknown_condition:
+            raise ValueError(
+                f"query condition variables not in SCM graph nodes: {unknown_condition}"
+            )
+        return self
+
+
+class ParameterTransferData(BaseModel):
+    """Input contract for causal.structural.parameter_transfer."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    parameter_bundle: ContextAdaptiveParameterBundle | dict[str, Any]
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+    @field_validator("parameter_bundle", mode="before")
+    @classmethod
+    def _coerce_parameter_bundle(cls, value: Any) -> ContextAdaptiveParameterBundle:
+        if isinstance(value, ContextAdaptiveParameterBundle):
+            return value
+        if isinstance(value, dict):
+            return ContextAdaptiveParameterBundle.model_validate(value)
+        raise ValueError("parameter_bundle must be ContextAdaptiveParameterBundle or dict payload")
+
+
+class LLMStructuralHint(BaseModel):
+    """LLM-proposed structural edge hint for graph reconciliation."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    src: str
+    dst: str
+    confidence: float = Field(ge=0.0, le=1.0)
+    rationale: str | None = None
+    source_method_tags: list[str] = Field(default_factory=list)
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+
+class LiteraturePriorBuildData(BaseModel):
+    """Input contract for causal.prior.build_literature_prior."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    variables: list[str]
+    skg_db_path: str | None = None
+    skg_index_dir: str | None = None
+    min_confidence: float = Field(default=0.2, ge=0.0, le=1.0)
+    limit: int = Field(default=256, ge=1, le=10_000)
+    domain: str | None = None
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+    @model_validator(mode="after")
+    def _validate_variables(self) -> "LiteraturePriorBuildData":
+        if not self.variables:
+            raise ValueError("variables must contain at least one variable name")
+        if any(not str(item).strip() for item in self.variables):
+            raise ValueError("variables must not contain empty names")
+        return self
+
+
+class GraphReconciliationData(BaseModel):
+    """Input contract for causal.prior.reconcile_causal_graph."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    data_graph: CausalGraphModel | dict[str, Any]
+    literature_prior: LiteratureCausalPrior | dict[str, Any] | None = None
+    llm_hints: list[LLMStructuralHint] = Field(default_factory=list)
+    min_edge_confidence: float = Field(default=0.1, ge=0.0, le=1.0)
+    max_lag_depth: int = Field(default=2, ge=0, le=8)
+    max_lagged_edges: int = Field(default=10, ge=0, le=256)
+    max_cycles_to_resolve: int = Field(default=8, ge=0, le=64)
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+    @field_validator("data_graph", mode="before")
+    @classmethod
+    def _coerce_data_graph(cls, value: Any) -> CausalGraphModel:
+        if isinstance(value, CausalGraphModel):
+            return value
+        if isinstance(value, dict):
+            return CausalGraphModel.model_validate(value)
+        raise ValueError("data_graph must be CausalGraphModel or dict payload")
+
+    @field_validator("literature_prior", mode="before")
+    @classmethod
+    def _coerce_literature_prior(cls, value: Any) -> LiteratureCausalPrior | None:
+        if value is None:
+            return None
+        if isinstance(value, LiteratureCausalPrior):
+            return value
+        if isinstance(value, dict):
+            return LiteratureCausalPrior.model_validate(value)
+        raise ValueError("literature_prior must be LiteratureCausalPrior, dict, or None")
+
+
 class RDDObservationalData(BaseModel):
     """Cross-sectional data for Regression Discontinuity Design."""
 
@@ -337,7 +748,14 @@ class CausalEstimator(Protocol):
 
     @staticmethod
     def pure_step(
-        state: PanelObservationalData | RDDObservationalData | HTEObservationalData,
+        state: (
+            PanelObservationalData
+            | RDDObservationalData
+            | HTEObservationalData
+            | TimeSeriesCausalData
+            | GraphCausalData
+            | GraphCausalDataV1
+        ),
         params: Mapping[str, Any],
     ) -> dict[str, Any]:
         """
@@ -355,6 +773,16 @@ def envelope_from_report(report: CausalEffectReport) -> "UncertaintyEnvelope | N
 __all__ = [
     "PanelObservationalData",
     "HTEObservationalData",
+    "TimeSeriesCausalData",
+    "TabularCausalDiscoveryData",
+    "GraphCausalData",
+    "GraphCausalDataV1",
+    "SCMFitData",
+    "SCMQueryData",
+    "ParameterTransferData",
+    "LLMStructuralHint",
+    "LiteraturePriorBuildData",
+    "GraphReconciliationData",
     "RDDObservationalData",
     "CausalEstimator",
     "CausalEffectReport",

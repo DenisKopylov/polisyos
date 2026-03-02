@@ -1,0 +1,31 @@
+{
+  "openalex_id": "https://openalex.org/WKNOWN",
+  "doi": "https://doi.org/10.1000/known.2022.001",
+  "title": "Known Policy Article",
+  "year": 2022,
+  "publication_year": 2022,
+  "methodology": "did",
+  "sample_size": 1200,
+  "extraction_confidence": 0.86,
+  "empirical_parameter_names": [
+    "gdp_growth",
+    "unemployment_rate"
+  ],
+  "causal_claim_pairs": [
+    [
+      "gdp_growth",
+      "unemployment_rate"
+    ],
+    [
+      "government_spending",
+      "poverty_rate"
+    ]
+  ],
+  "boundary_variables": [
+    "income_level"
+  ],
+  "source_context": {
+    "context_id": "UA",
+    "income_level": "lower_middle"
+  }
+}

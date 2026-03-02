@@ -589,7 +589,8 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │       │   │   │   │   ├── policy_learning.py  # Policy learning.
 │       │   │   │   │   ├── protocols.py  # Causal method protocols.
 │       │   │   │   │   ├── rdd.py  # Regression discontinuity.
-│       │   │   │   │   ├── scm.py  # Structural causal models.
+│       │   │   │   │   ├── synthetic_control.py  # Synthetic Control method (Abadie).
+│       │   │   │   │   ├── scm.py  # Legacy shim for synthetic_control.py.
 │       │   │   │   │   └── structural_time_series.py  # Structural time series.
 │       │   │   │   ├── econometrics/  # Econometric methods.
 │       │   │   │   │   ├── __init__.py
@@ -617,7 +618,8 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │       │   │   │   ├── policy_learning.py  # Policy learning wrapper.
 │       │   │   │   ├── protocols.py  # Causal protocols.
 │       │   │   │   ├── rdd.py  # RDD wrapper.
-│       │   │   │   ├── scm.py  # SCM wrapper.
+│       │   │   │   ├── synthetic_control.py  # Synthetic Control wrapper.
+│       │   │   │   ├── scm.py  # Legacy shim wrapper.
 │       │   │   │   └── structural_time_series.py  # STS wrapper.
 │       │   │   ├── econometrics/  # Econometric method standalone wrappers.
 │       │   │   │   ├── __init__.py
@@ -1441,7 +1443,8 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │   │   │       │   ├── test_protocols.py  # Causal protocol tests.
 │   │   │       │   ├── test_rdd.py  # RDD tests.
 │   │   │       │   ├── test_registration.py  # Registration tests.
-│   │   │       │   ├── test_scm.py  # SCM tests.
+│   │   │       │   ├── test_synthetic_control.py  # Synthetic Control tests.
+│   │   │       │   ├── test_synthetic_control_imports.py  # Legacy/canonical import tests.
 │   │   │       │   └── test_structural_time_series.py  # STS tests.
 │   │   │       ├── econometrics/  # Econometric method tests.
 │   │   │       │   ├── test_iv.py  # IV tests.

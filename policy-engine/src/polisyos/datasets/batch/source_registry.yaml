@@ -42,6 +42,12 @@ sources:
     endpoint: https://api.worldbank.org/v2/indicator
     enabled: true
 
+  - name: wvs
+    family: wvs
+    wave: B
+    endpoint: https://api.worldvaluessurvey.org/v1/observations
+    enabled: true
+
   - name: ukons
     family: ukons
     wave: B

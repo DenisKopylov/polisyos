@@ -6,6 +6,9 @@
         "difference_in_differences",
         "regression_discontinuity",
         "structural_time_series",
+        "dowhy_backdoor",
+        "dowhy_iv",
+        "dowhy_frontdoor",
         "causal_forest",
         "double_ml",
         "s_learner",
@@ -15,6 +18,47 @@
       ],
       "title": "CausalMethod",
       "type": "string"
+    },
+    "DataGap": {
+      "additionalProperties": false,
+      "properties": {
+        "available_proxies": {
+          "items": {
+            "$ref": "#/$defs/ProxyCandidate"
+          },
+          "title": "Available Proxies",
+          "type": "array"
+        },
+        "best_proxy_confidence": {
+          "default": 0.0,
+          "title": "Best Proxy Confidence",
+          "type": "number"
+        },
+        "gap_impact": {
+          "title": "Gap Impact",
+          "type": "string"
+        },
+        "required_context": {
+          "title": "Required Context",
+          "type": "string"
+        },
+        "required_variable": {
+          "title": "Required Variable",
+          "type": "string"
+        },
+        "suggested_action": {
+          "title": "Suggested Action",
+          "type": "string"
+        }
+      },
+      "required": [
+        "required_variable",
+        "required_context",
+        "gap_impact",
+        "suggested_action"
+      ],
+      "title": "DataGap",
+      "type": "object"
     },
     "DiagnosticTest": {
       "additionalProperties": false,
@@ -66,6 +110,15 @@
       "title": "DiagnosticTest",
       "type": "object"
     },
+    "DistributionType": {
+      "enum": [
+        "point",
+        "empirical",
+        "kde"
+      ],
+      "title": "DistributionType",
+      "type": "string"
+    },
     "EstimationStatus": {
       "enum": [
         "success",
@@ -75,6 +128,121 @@
       ],
       "title": "EstimationStatus",
       "type": "string"
+    },
+    "PAGIdentificationPolicy": {
+      "enum": [
+        "conservative",
+        "optimistic",
+        "probabilistic"
+      ],
+      "title": "PAGIdentificationPolicy",
+      "type": "string"
+    },
+    "PStarZResult": {
+      "additionalProperties": false,
+      "description": "Computed P*(Z) (or P*(Z|X)) value with provenance.",
+      "properties": {
+        "canonical_variable": {
+          "title": "Canonical Variable",
+          "type": "string"
+        },
+        "condition_on": {
+          "additionalProperties": {
+            "type": "number"
+          },
+          "title": "Condition On",
+          "type": "object"
+        },
+        "confidence": {
+          "default": 0.0,
+          "title": "Confidence",
+          "type": "number"
+        },
+        "dataset_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Dataset Id"
+        },
+        "distribution": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "number"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Distribution"
+        },
+        "distribution_type": {
+          "$ref": "#/$defs/DistributionType",
+          "default": "point"
+        },
+        "is_conditional": {
+          "default": false,
+          "title": "Is Conditional",
+          "type": "boolean"
+        },
+        "is_proxy": {
+          "default": false,
+          "title": "Is Proxy",
+          "type": "boolean"
+        },
+        "penalty_breakdown": {
+          "additionalProperties": {
+            "type": "number"
+          },
+          "title": "Penalty Breakdown",
+          "type": "object"
+        },
+        "proxy_chain": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Proxy Chain",
+          "type": "array"
+        },
+        "raw_variable": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Raw Variable"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Value"
+        }
+      },
+      "required": [
+        "canonical_variable",
+        "value",
+        "dataset_id",
+        "raw_variable"
+      ],
+      "title": "PStarZResult",
+      "type": "object"
     },
     "PlaceboResult": {
       "additionalProperties": false,
@@ -137,6 +305,574 @@
       ],
       "title": "PlaceboResult",
       "type": "object"
+    },
+    "ProxyCandidate": {
+      "additionalProperties": false,
+      "description": "Single proxy variable candidate for a missing target variable.",
+      "properties": {
+        "base_correlation": {
+          "title": "Base Correlation",
+          "type": "number"
+        },
+        "context_adjustment": {
+          "title": "Context Adjustment",
+          "type": "number"
+        },
+        "effective_confidence": {
+          "title": "Effective Confidence",
+          "type": "number"
+        },
+        "proxy_dataset_id": {
+          "title": "Proxy Dataset Id",
+          "type": "string"
+        },
+        "proxy_raw_name": {
+          "title": "Proxy Raw Name",
+          "type": "string"
+        },
+        "proxy_variable": {
+          "title": "Proxy Variable",
+          "type": "string"
+        },
+        "source": {
+          "enum": [
+            "meta_analysis",
+            "seed_table",
+            "skg_correlation"
+          ],
+          "title": "Source",
+          "type": "string"
+        }
+      },
+      "required": [
+        "proxy_variable",
+        "proxy_dataset_id",
+        "proxy_raw_name",
+        "base_correlation",
+        "context_adjustment",
+        "effective_confidence",
+        "source"
+      ],
+      "title": "ProxyCandidate",
+      "type": "object"
+    },
+    "RefutationResult": {
+      "additionalProperties": false,
+      "properties": {
+        "details": {
+          "additionalProperties": true,
+          "title": "Details",
+          "type": "object"
+        },
+        "effect_ratio": {
+          "title": "Effect Ratio",
+          "type": "number"
+        },
+        "original_estimate": {
+          "title": "Original Estimate",
+          "type": "number"
+        },
+        "p_value": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "P Value"
+        },
+        "passed": {
+          "title": "Passed",
+          "type": "boolean"
+        },
+        "refuted_estimate": {
+          "title": "Refuted Estimate",
+          "type": "number"
+        },
+        "test_type": {
+          "$ref": "#/$defs/RefutationTestType"
+        }
+      },
+      "required": [
+        "test_type",
+        "original_estimate",
+        "refuted_estimate",
+        "passed",
+        "effect_ratio"
+      ],
+      "title": "RefutationResult",
+      "type": "object"
+    },
+    "RefutationTestType": {
+      "enum": [
+        "placebo_treatment",
+        "random_common_cause",
+        "data_subset",
+        "bootstrap",
+        "unobserved_common_cause"
+      ],
+      "title": "RefutationTestType",
+      "type": "string"
+    },
+    "SNode": {
+      "additionalProperties": false,
+      "properties": {
+        "context_dimension": {
+          "title": "Context Dimension",
+          "type": "string"
+        },
+        "delta": {
+          "title": "Delta",
+          "type": "number"
+        },
+        "legal_constraint_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Legal Constraint Id"
+        },
+        "origin": {
+          "$ref": "#/$defs/SNodeOrigin",
+          "default": "context_delta"
+        },
+        "role": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SNodeRole"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "severity": {
+          "enum": [
+            "low",
+            "medium",
+            "high"
+          ],
+          "title": "Severity",
+          "type": "string"
+        },
+        "source_value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "title": "Source Value"
+        },
+        "target_value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "title": "Target Value"
+        },
+        "target_variable": {
+          "title": "Target Variable",
+          "type": "string"
+        }
+      },
+      "required": [
+        "target_variable",
+        "context_dimension",
+        "source_value",
+        "target_value",
+        "delta",
+        "severity"
+      ],
+      "title": "SNode",
+      "type": "object"
+    },
+    "SNodeOrigin": {
+      "enum": [
+        "context_delta",
+        "legal",
+        "data_mismatch"
+      ],
+      "title": "SNodeOrigin",
+      "type": "string"
+    },
+    "SNodeRole": {
+      "enum": [
+        "pre_treatment_covariate",
+        "mediator",
+        "collider",
+        "instrument"
+      ],
+      "title": "SNodeRole",
+      "type": "string"
+    },
+    "StratificationVariable": {
+      "additionalProperties": false,
+      "properties": {
+        "condition_on_treatment": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Condition On Treatment"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "requires_conditional": {
+          "title": "Requires Conditional",
+          "type": "boolean"
+        },
+        "role": {
+          "$ref": "#/$defs/SNodeRole"
+        }
+      },
+      "required": [
+        "name",
+        "role",
+        "requires_conditional"
+      ],
+      "title": "StratificationVariable",
+      "type": "object"
+    },
+    "TransportFormula": {
+      "additionalProperties": false,
+      "properties": {
+        "adjustment_type": {
+          "default": "direct",
+          "title": "Adjustment Type",
+          "type": "string"
+        },
+        "formula_str": {
+          "title": "Formula Str",
+          "type": "string"
+        },
+        "source_quantities": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Source Quantities",
+          "type": "array"
+        },
+        "stratification_details": {
+          "items": {
+            "$ref": "#/$defs/StratificationVariable"
+          },
+          "title": "Stratification Details",
+          "type": "array"
+        },
+        "stratification_variables": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Stratification Variables",
+          "type": "array"
+        },
+        "target_quantities": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Target Quantities",
+          "type": "array"
+        }
+      },
+      "required": [
+        "formula_str"
+      ],
+      "title": "TransportFormula",
+      "type": "object"
+    },
+    "TransportabilityResult": {
+      "additionalProperties": false,
+      "description": "Phase 12 transportability contract (backward compatible with Phase 8A fields).",
+      "properties": {
+        "algorithm_version": {
+          "default": "simplified_tr_v2",
+          "title": "Algorithm Version",
+          "type": "string"
+        },
+        "assumes_time_stationarity": {
+          "default": true,
+          "title": "Assumes Time Stationarity",
+          "type": "boolean"
+        },
+        "base_confidence": {
+          "default": 1.0,
+          "title": "Base Confidence",
+          "type": "number"
+        },
+        "blocking_s_nodes": {
+          "items": {
+            "$ref": "#/$defs/SNode"
+          },
+          "title": "Blocking S Nodes",
+          "type": "array"
+        },
+        "context_distance_penalty": {
+          "default": 0.0,
+          "title": "Context Distance Penalty",
+          "type": "number"
+        },
+        "data_availability_penalty": {
+          "default": 0.0,
+          "title": "Data Availability Penalty",
+          "type": "number"
+        },
+        "data_gaps": {
+          "items": {
+            "$ref": "#/$defs/DataGap"
+          },
+          "title": "Data Gaps",
+          "type": "array"
+        },
+        "feasible": {
+          "default": true,
+          "title": "Feasible",
+          "type": "boolean"
+        },
+        "final_confidence": {
+          "default": 1.0,
+          "title": "Final Confidence",
+          "type": "number"
+        },
+        "formula": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TransportFormula"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "hard_legal_constraints": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Hard Legal Constraints",
+          "type": "array"
+        },
+        "id_confidence_under_pag": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Id Confidence Under Pag"
+        },
+        "lagged_edge_count": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Lagged Edge Count",
+          "type": "integer"
+        },
+        "legal_s_nodes": {
+          "items": {
+            "$ref": "#/$defs/SNode"
+          },
+          "title": "Legal S Nodes",
+          "type": "array"
+        },
+        "metadata": {
+          "additionalProperties": true,
+          "title": "Metadata",
+          "type": "object"
+        },
+        "notes": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Notes",
+          "type": "array"
+        },
+        "p_star_values": {
+          "additionalProperties": {
+            "$ref": "#/$defs/PStarZResult"
+          },
+          "title": "P Star Values",
+          "type": "object"
+        },
+        "pag_dag_sample_size": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Pag Dag Sample Size"
+        },
+        "pag_identification_policy": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PAGIdentificationPolicy"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "pag_transportable_count": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Pag Transportable Count"
+        },
+        "proxy_penalties": {
+          "additionalProperties": {
+            "type": "number"
+          },
+          "title": "Proxy Penalties",
+          "type": "object"
+        },
+        "query": {
+          "default": "",
+          "title": "Query",
+          "type": "string"
+        },
+        "required_target_data": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Required Target Data",
+          "type": "array"
+        },
+        "resolution_rounds": {
+          "default": 1,
+          "minimum": 1,
+          "title": "Resolution Rounds",
+          "type": "integer"
+        },
+        "schema_version": {
+          "default": "1.0",
+          "pattern": "^\\d+\\.\\d+$",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "selection_diagram_ref": {
+          "default": "",
+          "title": "Selection Diagram Ref",
+          "type": "string"
+        },
+        "source_context_id": {
+          "default": "",
+          "title": "Source Context Id",
+          "type": "string"
+        },
+        "status": {
+          "$ref": "#/$defs/TransportabilityStatus",
+          "default": "direct"
+        },
+        "sutva_assumed": {
+          "default": true,
+          "title": "Sutva Assumed",
+          "type": "boolean"
+        },
+        "sutva_violation_risk": {
+          "anyOf": [
+            {
+              "enum": [
+                "high",
+                "medium",
+                "low"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Sutva Violation Risk"
+        },
+        "target_context_id": {
+          "default": "",
+          "title": "Target Context Id",
+          "type": "string"
+        },
+        "temporal_distance_penalty": {
+          "default": 0.0,
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Temporal Distance Penalty",
+          "type": "number"
+        },
+        "transport_formula": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TransportFormula"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "unsupported_cases": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Unsupported Cases",
+          "type": "array"
+        },
+        "warnings": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Warnings",
+          "type": "array"
+        }
+      },
+      "title": "TransportabilityResult",
+      "type": "object"
+    },
+    "TransportabilityStatus": {
+      "enum": [
+        "direct",
+        "transportable",
+        "non_transportable"
+      ],
+      "title": "TransportabilityStatus",
+      "type": "string"
     }
   },
   "additionalProperties": false,
@@ -206,6 +942,42 @@
     "estimand": {
       "title": "Estimand",
       "type": "string"
+    },
+    "estimand_type": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Estimand Type"
+    },
+    "graph_ref": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Graph Ref"
+    },
+    "identified_estimand": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Identified Estimand"
     },
     "inference_method": {
       "title": "Inference Method",
@@ -311,6 +1083,13 @@
       "title": "Pre Treatment Fit",
       "type": "object"
     },
+    "refutation_results": {
+      "items": {
+        "$ref": "#/$defs/RefutationResult"
+      },
+      "title": "Refutation Results",
+      "type": "array"
+    },
     "sample_size": {
       "minimum": 0,
       "title": "Sample Size",
@@ -351,6 +1130,28 @@
       "default": null,
       "title": "Status Reason"
     },
+    "sutva_assumed": {
+      "default": true,
+      "title": "Sutva Assumed",
+      "type": "boolean"
+    },
+    "sutva_violation_risk": {
+      "anyOf": [
+        {
+          "enum": [
+            "high",
+            "medium",
+            "low"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Sutva Violation Risk"
+    },
     "time_effects": {
       "additionalProperties": {
         "items": {
@@ -360,6 +1161,17 @@
       },
       "title": "Time Effects",
       "type": "object"
+    },
+    "transport_result": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/TransportabilityResult"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
     }
   },
   "required": [

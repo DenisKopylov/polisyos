@@ -1,0 +1,242 @@
+{
+  "$defs": {
+    "AggregationFunction": {
+      "enum": [
+        "mean",
+        "median",
+        "gini",
+        "sum",
+        "count"
+      ],
+      "title": "AggregationFunction",
+      "type": "string"
+    },
+    "AlignmentResult": {
+      "additionalProperties": false,
+      "description": "Per-variable alignment output.",
+      "properties": {
+        "abm_effect": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Abm Effect"
+        },
+        "delta": {
+          "anyOf": [
+            {
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Delta"
+        },
+        "metadata": {
+          "additionalProperties": true,
+          "title": "Metadata",
+          "type": "object"
+        },
+        "n_runs": {
+          "default": 0,
+          "minimum": 0,
+          "title": "N Runs",
+          "type": "integer"
+        },
+        "scm_effect": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Scm Effect"
+        },
+        "status": {
+          "$ref": "#/$defs/AlignmentStatus"
+        },
+        "tolerance_used": {
+          "anyOf": [
+            {
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Tolerance Used"
+        }
+      },
+      "required": [
+        "status"
+      ],
+      "title": "AlignmentResult",
+      "type": "object"
+    },
+    "AlignmentStatus": {
+      "description": "Alignment status between SCM macro effect and ABM macro aggregate.",
+      "enum": [
+        "consistent",
+        "inconsistent",
+        "non_linear_divergence",
+        "insufficient_runs"
+      ],
+      "title": "AlignmentStatus",
+      "type": "string"
+    },
+    "MacroMicroMapping": {
+      "additionalProperties": false,
+      "description": "Mapping from SCM macro variable to ABM aggregate metric.",
+      "properties": {
+        "abm_aggregation": {
+          "title": "Abm Aggregation",
+          "type": "string"
+        },
+        "agent_property": {
+          "title": "Agent Property",
+          "type": "string"
+        },
+        "aggregation_function": {
+          "$ref": "#/$defs/AggregationFunction"
+        },
+        "macro_variable": {
+          "title": "Macro Variable",
+          "type": "string"
+        },
+        "tolerance": {
+          "anyOf": [
+            {
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Tolerance"
+        },
+        "tolerance_method": {
+          "$ref": "#/$defs/ToleranceMethod",
+          "default": "adaptive"
+        }
+      },
+      "required": [
+        "macro_variable",
+        "abm_aggregation",
+        "aggregation_function",
+        "agent_property"
+      ],
+      "title": "MacroMicroMapping",
+      "type": "object"
+    },
+    "PhaseTransition": {
+      "additionalProperties": false,
+      "description": "Detected ABM phase transition event.",
+      "properties": {
+        "jump_value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Jump Value"
+        },
+        "post_regime": {
+          "title": "Post Regime",
+          "type": "string"
+        },
+        "pre_regime": {
+          "title": "Pre Regime",
+          "type": "string"
+        },
+        "threshold_value": {
+          "title": "Threshold Value",
+          "type": "number"
+        },
+        "variable": {
+          "title": "Variable",
+          "type": "string"
+        }
+      },
+      "required": [
+        "variable",
+        "threshold_value",
+        "pre_regime",
+        "post_regime"
+      ],
+      "title": "PhaseTransition",
+      "type": "object"
+    },
+    "ToleranceMethod": {
+      "enum": [
+        "adaptive",
+        "fixed"
+      ],
+      "title": "ToleranceMethod",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "SCM to ABM consistency report.",
+  "properties": {
+    "alignment_results": {
+      "additionalProperties": {
+        "$ref": "#/$defs/AlignmentResult"
+      },
+      "title": "Alignment Results",
+      "type": "object"
+    },
+    "mappings": {
+      "items": {
+        "$ref": "#/$defs/MacroMicroMapping"
+      },
+      "title": "Mappings",
+      "type": "array"
+    },
+    "overall_consistent": {
+      "default": false,
+      "title": "Overall Consistent",
+      "type": "boolean"
+    },
+    "phase_transitions": {
+      "items": {
+        "$ref": "#/$defs/PhaseTransition"
+      },
+      "title": "Phase Transitions",
+      "type": "array"
+    },
+    "schema_version": {
+      "default": "1.0",
+      "pattern": "^\\d+\\.\\d+$",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "warnings": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Warnings",
+      "type": "array"
+    }
+  },
+  "title": "ABMAlignmentReport",
+  "type": "object"
+}

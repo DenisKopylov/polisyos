@@ -7,8 +7,10 @@ if TYPE_CHECKING:
         build_default_registry,
         build_execution_context,
         build_registry_with_builtin_nodes,
+        run_causal_full_workflow,
         run_default_workflow,
     )
+    from polisyos.scientist.workflows.causal_full import causal_full_workflow_spec
     from polisyos.scientist.workflows.default import default_workflow_spec
     from polisyos.scientist.workflows.engine_base import WorkflowEngine, WorkflowEngineFactory
     from polisyos.scientist.workflows.engine_langgraph import (
@@ -27,7 +29,9 @@ __all__ = [
     "build_execution_context",
     "build_registry_with_builtin_nodes",
     "run_default_workflow",
+    "run_causal_full_workflow",
     "default_workflow_spec",
+    "causal_full_workflow_spec",
 ]
 
 
@@ -36,12 +40,14 @@ def __getattr__(name: str):
         "build_default_registry",
         "build_execution_context",
         "build_registry_with_builtin_nodes",
+        "run_causal_full_workflow",
         "run_default_workflow",
     }:
         from polisyos.scientist.workflows.builder import (
             build_default_registry,
             build_execution_context,
             build_registry_with_builtin_nodes,
+            run_causal_full_workflow,
             run_default_workflow,
         )
 
@@ -49,12 +55,17 @@ def __getattr__(name: str):
             "build_default_registry": build_default_registry,
             "build_execution_context": build_execution_context,
             "build_registry_with_builtin_nodes": build_registry_with_builtin_nodes,
+            "run_causal_full_workflow": run_causal_full_workflow,
             "run_default_workflow": run_default_workflow,
         }[name]
-    if name == "default_workflow_spec":
+    if name in {"default_workflow_spec", "causal_full_workflow_spec"}:
+        from polisyos.scientist.workflows.causal_full import causal_full_workflow_spec
         from polisyos.scientist.workflows.default import default_workflow_spec
 
-        return default_workflow_spec
+        return {
+            "default_workflow_spec": default_workflow_spec,
+            "causal_full_workflow_spec": causal_full_workflow_spec,
+        }[name]
     if name in {"WorkflowEngine", "WorkflowEngineFactory"}:
         from polisyos.scientist.workflows.engine_base import WorkflowEngine, WorkflowEngineFactory
 

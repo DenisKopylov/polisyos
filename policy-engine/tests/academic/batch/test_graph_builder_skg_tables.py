@@ -45,9 +45,13 @@ def test_build_graph_creates_skg_tables() -> None:
             topic_sel = con.execute("SELECT COUNT(*) FROM ac_topic_selections").fetchone()[0]
             extractions = con.execute("SELECT COUNT(*) FROM ac_article_extractions").fetchone()[0]
             boundaries = con.execute("SELECT COUNT(*) FROM ac_boundary_conditions").fetchone()[0]
+            skg_articles = con.execute("SELECT COUNT(*) FROM ac_skg_articles").fetchone()[0]
+            skg_versions = con.execute("SELECT COUNT(*) FROM ac_skg_versions").fetchone()[0]
         finally:
             con.close()
 
         assert topic_sel == 1
         assert extractions == 1
         assert boundaries == 1
+        assert skg_articles == 1
+        assert skg_versions == 1

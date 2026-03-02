@@ -1,0 +1,134 @@
+{
+  "$defs": {
+    "AlignmentCertificateType": {
+      "enum": [
+        "exact",
+        "scale_link",
+        "latent_link_irt",
+        "proxy_bundle",
+        "text_concept_map"
+      ],
+      "title": "AlignmentCertificateType",
+      "type": "string"
+    },
+    "AlignmentCertificationPolicy": {
+      "additionalProperties": false,
+      "description": "Policy governing how alignment certificates are validated.",
+      "properties": {
+        "allowed_types": {
+          "default": [
+            "exact",
+            "latent_link_irt",
+            "proxy_bundle",
+            "scale_link",
+            "text_concept_map"
+          ],
+          "items": {
+            "$ref": "#/$defs/AlignmentCertificateType"
+          },
+          "title": "Allowed Types",
+          "type": "array"
+        },
+        "composition_rule": {
+          "default": "harmonic",
+          "enum": [
+            "harmonic",
+            "multiplicative"
+          ],
+          "title": "Composition Rule",
+          "type": "string"
+        },
+        "max_chain_length": {
+          "default": 5,
+          "minimum": 1,
+          "title": "Max Chain Length",
+          "type": "integer"
+        },
+        "tau_min": {
+          "default": 0.65,
+          "title": "Tau Min",
+          "type": "number"
+        }
+      },
+      "title": "AlignmentCertificationPolicy",
+      "type": "object"
+    },
+    "OuterObjectiveResult": {
+      "additionalProperties": false,
+      "description": "Result of evaluating the outer objective for one policy configuration.",
+      "properties": {
+        "config": {
+          "$ref": "#/$defs/AlignmentCertificationPolicy"
+        },
+        "conflict_norm": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Conflict Norm",
+          "type": "number"
+        },
+        "coverage": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Coverage",
+          "type": "number"
+        },
+        "is_feasible": {
+          "title": "Is Feasible",
+          "type": "boolean"
+        },
+        "lambda_conflict": {
+          "title": "Lambda Conflict",
+          "type": "number"
+        },
+        "score": {
+          "title": "Score",
+          "type": "number"
+        }
+      },
+      "required": [
+        "score",
+        "coverage",
+        "conflict_norm",
+        "lambda_conflict",
+        "config",
+        "is_feasible"
+      ],
+      "title": "OuterObjectiveResult",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Result of bounded grid search over alignment policy knobs.",
+  "properties": {
+    "all_scores": {
+      "items": {
+        "$ref": "#/$defs/OuterObjectiveResult"
+      },
+      "title": "All Scores",
+      "type": "array"
+    },
+    "best_config": {
+      "$ref": "#/$defs/AlignmentCertificationPolicy"
+    },
+    "best_score": {
+      "title": "Best Score",
+      "type": "number"
+    },
+    "configs_evaluated": {
+      "title": "Configs Evaluated",
+      "type": "integer"
+    },
+    "truncated": {
+      "title": "Truncated",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "best_config",
+    "best_score",
+    "configs_evaluated",
+    "truncated"
+  ],
+  "title": "OuterSearchResult",
+  "type": "object"
+}

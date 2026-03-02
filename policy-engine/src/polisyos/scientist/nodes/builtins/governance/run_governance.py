@@ -10,20 +10,29 @@ from polisyos.core.canon.canon_json import from_canonical_bytes
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.contracts.fabric import DataSnapshot
 from polisyos.core.contracts.lex import ComplianceIssue, IssueSeverity
+from polisyos.core.contracts.scientist import GovernanceReportRef
 from polisyos.core.governance.passes.base import PassContext
 from polisyos.core.governance.profiles import ValidationProfile
-from polisyos.core.contracts.scientist import GovernanceReportRef
-from polisyos.ir.governance.gate import GateContext, GateDecision, GatePriority, GateRequest, GateVerdict
+from polisyos.ir.governance.gate import (
+    GateContext,
+    GateDecision,
+    GatePriority,
+    GateRequest,
+    GateVerdict,
+)
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.protocol import NodeEvent, NodeOutcome, NodeSpec
 from polisyos.scientist.engine.state import ExperimentState
-from polisyos.scientist.governance.passes.confidence_pass import ConfidencePass
-from polisyos.scientist.governance.passes.equity_pass import EquityPass
-from polisyos.scientist.governance.passes.pii_check_pass import PIICheckPass
+from polisyos.scientist.governance.pass_registry import (
+    build_governance_pipeline,
+    runtime_profile as build_runtime_profile,
+)
 from polisyos.scientist.governance.report import GovernanceReport
 from polisyos.scientist.kernel.gate_protocol import HumanGateProtocol
-from polisyos.scientist.nodes.builtins.state_keys import REPORT_GOVERNANCE_REPORT_REF
-from polisyos.scientist.nodes.builtins.state_keys import INPUT_DATA_SNAPSHOT_REF
+from polisyos.scientist.nodes.builtins.state_keys import (
+    INPUT_DATA_SNAPSHOT_REF,
+    REPORT_GOVERNANCE_REPORT_REF,
+)
 
 _METADATA = ComponentMetadata(
     component_id=ComponentId.parse("scientist.node_run_governance@1.1.0"),
@@ -41,14 +50,33 @@ _SPEC = NodeSpec(
         "params",
         "artifacts_index.simulation_result_ref",
         "artifacts_index.distributional_report_ref",
+        "artifacts_index.causal_report_ref",
+        "artifacts_index.causal_graph_ref",
+        "params.query_treatment",
+        "params.human_review_request",
+        "params.human_review_request_ref",
     ],
-    state_writes=["params", f"reports_index.{REPORT_GOVERNANCE_REPORT_REF}"],
+    state_writes=[
+        "params",
+        "params.validation_trace",
+        "params.human_review_request",
+        "params.human_review_request_ref",
+        f"reports_index.{REPORT_GOVERNANCE_REPORT_REF}",
+    ],
     produces=[REPORT_GOVERNANCE_REPORT_REF],
 )
 
 _DECISION_APPROVE = {"approve", "approved", "allow", "allowed"}
 _DECISION_REJECT = {"reject", "rejected", "deny", "denied"}
 _DECISION_ESCALATE = {"escalate", "escalated"}
+_RUNTIME_PIPELINE = build_governance_pipeline()
+
+
+@dataclass(frozen=True)
+class _GovernanceCheckResult:
+    issues: list[ComplianceIssue]
+    trace: dict[str, Any]
+    pass_state: dict[str, Any]
 
 
 @dataclass(frozen=True)
@@ -147,7 +175,16 @@ class RunGovernanceNode:
                     )
 
         profile = _resolve_validation_profile(new_state.params.get("governance_profile"))
-        governance_issues = _run_governance_checks(ctx, new_state, profile)
+        checks = _run_governance_checks(ctx, new_state, profile)
+        governance_issues = checks.issues
+        new_state.params["validation_trace"] = checks.trace
+        if _has_issue_code(governance_issues, "HUMAN_REVIEW_REQUESTED"):
+            _ensure_human_review_gate_request(
+                protocol=protocol,
+                state=new_state,
+                pass_state=checks.pass_state,
+                events=events,
+            )
         if governance_issues:
             issues.extend([_issue_to_payload(issue) for issue in governance_issues])
             blocker_count = sum(
@@ -213,6 +250,79 @@ def _create_gate_request(
         reason="Governance profile requires human approval",
         context=context,
         priority=priority,
+        timeout_seconds=timeout_seconds,
+        requested_by="scientist.node_run_governance",
+    )
+
+
+def _ensure_human_review_gate_request(
+    *,
+    protocol: HumanGateProtocol,
+    state: ExperimentState,
+    pass_state: dict[str, Any],
+    events: list[NodeEvent],
+) -> None:
+    existing_request = _parse_gate_request(state.params.get("human_review_request"))
+    existing_ref = _parse_gate_request_ref(state.params.get("human_review_request_ref"))
+    if existing_request is not None and existing_ref is not None:
+        return
+
+    payload = pass_state.get("human_review_request")
+    items: list[dict[str, Any]] = []
+    if isinstance(payload, dict):
+        raw_items = payload.get("items")
+        if isinstance(raw_items, list):
+            items = [item for item in raw_items if isinstance(item, dict)]
+
+    request, request_ref = _create_human_review_gate_request(
+        protocol=protocol,
+        state=state,
+        review_items=items,
+    )
+    state.params["human_review_request"] = request.model_dump(mode="json")
+    state.params["human_review_request_ref"] = str(request_ref.artifact_id)
+    events.append(
+        NodeEvent(
+            level="info",
+            message=f"Human review request created: {request.request_id}",
+        )
+    )
+
+
+def _create_human_review_gate_request(
+    *,
+    protocol: HumanGateProtocol,
+    state: ExperimentState,
+    review_items: list[dict[str, Any]],
+) -> tuple[GateRequest, ArtifactRef]:
+    governance_profile_raw = state.params.get("governance_profile")
+    governance_profile = (
+        str(governance_profile_raw) if isinstance(governance_profile_raw, str) else None
+    )
+    timeout_seconds = _optional_int(state.params.get("human_review_timeout_seconds"))
+    if timeout_seconds is None:
+        timeout_seconds = 72 * 3600
+
+    risk_indicators: list[str] = []
+    for item in review_items:
+        kind = item.get("kind")
+        if kind is not None:
+            risk_indicators.append(str(kind))
+
+    context = GateContext(
+        workflow_id=str(state.params.get("workflow_id", "scientist_default")),
+        node_alias="run_governance",
+        phase=str(state.params.get("human_review_phase", "POSTFLIGHT_GOV_REVIEW")),
+        governance_profile=governance_profile,
+        iteration=_as_int(state.params.get("human_review_iteration")),
+        risk_indicators=sorted(set(risk_indicators)),
+    )
+    reason = f"Strict governance requires human review for {len(review_items)} item(s)"
+    return protocol.request_gate(
+        run_id=state.run_id,
+        reason=reason,
+        context=context,
+        priority=GatePriority.HIGH,
         timeout_seconds=timeout_seconds,
         requested_by="scientist.node_run_governance",
     )
@@ -339,28 +449,37 @@ def _run_governance_checks(
     ctx: ExecutionContext,
     state: ExperimentState,
     profile: ValidationProfile,
-) -> list[ComplianceIssue]:
+) -> _GovernanceCheckResult:
+    runtime_profile = build_runtime_profile(profile)
     pii_scan_results = _extract_pii_scan_results(ctx, state)
+    pass_state = {
+        "artifacts_index": state.artifacts_index,
+        "_store": ctx.store,
+        "tenant_tier": str(state.params.get("tenant_tier", "shared")),
+        "pii_scan_results": pii_scan_results,
+        "query_treatment": state.params.get("query_treatment"),
+        "causal_graph_ref": state.artifacts_index.get(
+            "causal_graph_ref",
+            state.params.get("causal_graph_ref"),
+        ),
+    }
     pass_ctx = PassContext(
         ir=None,
-        state={
-            "artifacts_index": state.artifacts_index,
-            "_store": ctx.store,
-            "tenant_tier": str(state.params.get("tenant_tier", "shared")),
-            "pii_scan_results": pii_scan_results,
-        },
+        state=pass_state,
         registry_bundle=None,
-        profile=profile,
+        profile=runtime_profile,
         run_id=state.run_id,
     )
-    issues: list[ComplianceIssue] = []
-    if "confidence" in profile.pass_ids:
-        issues.extend(ConfidencePass().validate(pass_ctx))
-    if "equity" in profile.pass_ids:
-        issues.extend(EquityPass().validate(pass_ctx))
-    if "pii_check" in profile.pass_ids:
-        issues.extend(PIICheckPass().validate(pass_ctx))
-    return issues
+    issues, trace = _RUNTIME_PIPELINE.validate(pass_ctx, runtime_profile)
+    return _GovernanceCheckResult(
+        issues=issues,
+        trace=trace.to_dict(),
+        pass_state=pass_ctx.state,
+    )
+
+
+def _has_issue_code(issues: list[ComplianceIssue], code: str) -> bool:
+    return any(issue.code == code for issue in issues)
 
 
 def _extract_pii_scan_results(

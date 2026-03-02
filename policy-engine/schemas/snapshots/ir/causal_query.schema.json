@@ -1,0 +1,162 @@
+{
+  "$defs": {
+    "InterventionSpec": {
+      "additionalProperties": false,
+      "properties": {
+        "bounds": {
+          "anyOf": [
+            {
+              "maxItems": 2,
+              "minItems": 2,
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Bounds"
+        },
+        "distribution": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Distribution"
+        },
+        "legal_constraint_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Legal Constraint Id"
+        },
+        "shift": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Shift"
+        },
+        "type": {
+          "$ref": "#/$defs/InterventionType",
+          "default": "atomic"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Value"
+        }
+      },
+      "title": "InterventionSpec",
+      "type": "object"
+    },
+    "InterventionType": {
+      "enum": [
+        "atomic",
+        "truncated",
+        "shifted",
+        "stochastic"
+      ],
+      "title": "InterventionType",
+      "type": "string"
+    },
+    "QueryType": {
+      "enum": [
+        "interventional",
+        "counterfactual",
+        "attribution",
+        "soft_intervention"
+      ],
+      "title": "QueryType",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "condition": {
+      "additionalProperties": {
+        "type": "number"
+      },
+      "title": "Condition",
+      "type": "object"
+    },
+    "intervention_spec": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/InterventionSpec"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "n_samples": {
+      "default": 1000,
+      "minimum": 1,
+      "title": "N Samples",
+      "type": "integer"
+    },
+    "outcome_variable": {
+      "title": "Outcome Variable",
+      "type": "string"
+    },
+    "query_type": {
+      "$ref": "#/$defs/QueryType"
+    },
+    "treatment_value": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Treatment Value"
+    },
+    "treatment_variable": {
+      "title": "Treatment Variable",
+      "type": "string"
+    }
+  },
+  "required": [
+    "query_type",
+    "treatment_variable",
+    "outcome_variable"
+  ],
+  "title": "CausalQuery",
+  "type": "object"
+}

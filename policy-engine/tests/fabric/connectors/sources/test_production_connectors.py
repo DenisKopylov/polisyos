@@ -8,6 +8,7 @@ from typing import Any
 from polisyos.fabric.connectors.base import ConnectionConfig, FetchRequest
 from polisyos.fabric.connectors.sources.eurostat import EurostatConnector
 from polisyos.fabric.connectors.sources.ukons import UKONSConnector
+from polisyos.fabric.connectors.sources.wvs import WVSConnector
 from polisyos.fabric.connectors.sources.world_bank import WorldBankConnector, _retry_after_seconds
 from polisyos.ir.connectors import VersionStrategy
 
@@ -174,3 +175,47 @@ def test_ukons_fetch_with_mock_http(monkeypatch) -> None:
     assert result.fetch_duration_ms > 0.0
     assert "freshness:source_timestamp_missing" in result.quality_flags
     assert result.data.iloc[0]["geography"] == "K02000001"
+
+
+def test_wvs_fetch_with_mock_http(monkeypatch) -> None:
+    connector = WVSConnector()
+    payload = {
+        "data": [
+            {
+                "country_code": "DE",
+                "country_name": "Germany",
+                "survey_year": 2018,
+                "wave": 7,
+                "indicator_code": "A165",
+                "indicator_label": "Most people can be trusted",
+                "value": 0.61,
+                "sample_size": 1200,
+            }
+        ]
+    }
+
+    async def _fake_request_json(_session, _url, *, params, connector_id):
+        assert connector_id == "wvs.wave7"
+        assert params["indicator"] == "A165"
+        headers = {"ETag": '"wvs-etag-1"'}
+        return payload, headers, json.dumps(payload).encode("utf-8")
+
+    async def _fake_get_session(self, _handle):  # noqa: ARG001
+        return object()
+
+    monkeypatch.setattr(WVSConnector, "_request_json", staticmethod(_fake_request_json))
+    monkeypatch.setattr(WVSConnector, "_get_session", _fake_get_session)
+
+    async def _exercise():
+        handle = await connector.connect(ConnectionConfig(url="https://example.test"))
+        request = FetchRequest(dataset_id="A165", filters=(("country", ("DE",)),))
+        result = await connector.fetch(handle, request)
+        await connector.disconnect(handle)
+        return result
+
+    result = _run_async(_exercise())
+    assert result.row_count == 1
+    assert result.schema_id == "wvs.wave7.generic"
+    assert result.version.strategy == VersionStrategy.ETAG
+    assert result.fetch_duration_ms > 0.0
+    assert result.data.iloc[0]["country_code"] == "DE"

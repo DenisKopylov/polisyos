@@ -1,0 +1,504 @@
+{
+  "$defs": {
+    "ContextProfile": {
+      "additionalProperties": false,
+      "description": "Context profile for transport-aware literature reuse.",
+      "properties": {
+        "context_id": {
+          "default": "",
+          "title": "Context Id",
+          "type": "string"
+        },
+        "context_label": {
+          "default": "",
+          "title": "Context Label",
+          "type": "string"
+        },
+        "corruption_level": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Corruption Level"
+        },
+        "countries": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Countries",
+          "type": "array"
+        },
+        "cultural_cluster": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cultural Cluster"
+        },
+        "data_sources": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Data Sources",
+          "type": "array"
+        },
+        "economic_openness": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Economic Openness"
+        },
+        "gdp_per_capita": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Gdp Per Capita"
+        },
+        "income_level": {
+          "$ref": "#/$defs/IncomeLevel",
+          "default": "unknown"
+        },
+        "inference_level": {
+          "$ref": "#/$defs/ContextProfileInferenceLevel",
+          "default": "inferred_basic"
+        },
+        "institutional_quality": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Institutional Quality"
+        },
+        "post_communist": {
+          "default": false,
+          "title": "Post Communist",
+          "type": "boolean"
+        },
+        "post_conflict": {
+          "default": false,
+          "title": "Post Conflict",
+          "type": "boolean"
+        },
+        "publication_year": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Publication Year"
+        },
+        "social_trust": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Social Trust"
+        },
+        "state_capacity": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "State Capacity"
+        },
+        "time_period": {
+          "default": "",
+          "title": "Time Period",
+          "type": "string"
+        }
+      },
+      "title": "ContextProfile",
+      "type": "object"
+    },
+    "ContextProfileInferenceLevel": {
+      "enum": [
+        "inferred_basic",
+        "enriched",
+        "manual"
+      ],
+      "title": "ContextProfileInferenceLevel",
+      "type": "string"
+    },
+    "EvidenceParameter": {
+      "additionalProperties": false,
+      "properties": {
+        "aggregation_level": {
+          "default": "",
+          "title": "Aggregation Level",
+          "type": "string"
+        },
+        "confidence_interval": {
+          "anyOf": [
+            {
+              "maxItems": 2,
+              "minItems": 2,
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Confidence Interval"
+        },
+        "display_name": {
+          "default": "",
+          "title": "Display Name",
+          "type": "string"
+        },
+        "evidence_strength": {
+          "$ref": "#/$defs/EvidenceStrength",
+          "default": "unknown"
+        },
+        "geographic_scope": {
+          "default": "",
+          "title": "Geographic Scope",
+          "type": "string"
+        },
+        "heterogeneity_note": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Heterogeneity Note"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "parameter_type": {
+          "$ref": "#/$defs/ParameterType",
+          "default": "quantitative"
+        },
+        "std_error": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Std Error"
+        },
+        "subgroup_estimates": {
+          "additionalProperties": {
+            "type": "number"
+          },
+          "title": "Subgroup Estimates",
+          "type": "object"
+        },
+        "time_period": {
+          "default": "",
+          "title": "Time Period",
+          "type": "string"
+        },
+        "transfer_conditions": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Transfer Conditions",
+          "type": "array"
+        },
+        "transferability": {
+          "default": "unknown",
+          "title": "Transferability",
+          "type": "string"
+        },
+        "unit": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Unit"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Value"
+        },
+        "value_qualitative": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Value Qualitative"
+        },
+        "value_range": {
+          "anyOf": [
+            {
+              "maxItems": 2,
+              "minItems": 2,
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Value Range"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "EvidenceParameter",
+      "type": "object"
+    },
+    "EvidenceStrength": {
+      "enum": [
+        "rct",
+        "quasi_natural",
+        "meta_analysis",
+        "observational",
+        "theoretical",
+        "unknown"
+      ],
+      "title": "EvidenceStrength",
+      "type": "string"
+    },
+    "IncomeLevel": {
+      "enum": [
+        "low",
+        "lower_middle",
+        "upper_middle",
+        "high",
+        "non_high",
+        "unknown"
+      ],
+      "title": "IncomeLevel",
+      "type": "string"
+    },
+    "ParameterApplicability": {
+      "additionalProperties": false,
+      "description": "Applicability assessment for a parameter in a target context.",
+      "properties": {
+        "adjustment_required": {
+          "title": "Adjustment Required",
+          "type": "boolean"
+        },
+        "context_distance": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Context Distance",
+          "type": "number"
+        },
+        "is_applicable": {
+          "title": "Is Applicable",
+          "type": "boolean"
+        },
+        "parameter_id": {
+          "title": "Parameter Id",
+          "type": "string"
+        },
+        "recommended_value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Recommended Value"
+        },
+        "target_context_id": {
+          "title": "Target Context Id",
+          "type": "string"
+        },
+        "transport_confidence": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Transport Confidence",
+          "type": "number"
+        },
+        "transport_status": {
+          "$ref": "#/$defs/TransportabilityStatus"
+        },
+        "uncertainty_multiplier": {
+          "default": 1.0,
+          "minimum": 1.0,
+          "title": "Uncertainty Multiplier",
+          "type": "number"
+        }
+      },
+      "required": [
+        "parameter_id",
+        "target_context_id",
+        "transport_status",
+        "transport_confidence",
+        "context_distance",
+        "is_applicable",
+        "adjustment_required"
+      ],
+      "title": "ParameterApplicability",
+      "type": "object"
+    },
+    "ParameterType": {
+      "enum": [
+        "quantitative",
+        "qualitative",
+        "ordinal",
+        "distributional"
+      ],
+      "title": "ParameterType",
+      "type": "string"
+    },
+    "TransportabilityStatus": {
+      "enum": [
+        "direct",
+        "transportable",
+        "non_transportable"
+      ],
+      "title": "TransportabilityStatus",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Parameters selected from SKG and adapted for a target simulation context.",
+  "properties": {
+    "applicability": {
+      "additionalProperties": {
+        "$ref": "#/$defs/ParameterApplicability"
+      },
+      "title": "Applicability",
+      "type": "object"
+    },
+    "parameters": {
+      "additionalProperties": {
+        "$ref": "#/$defs/EvidenceParameter"
+      },
+      "title": "Parameters",
+      "type": "object"
+    },
+    "schema_version": {
+      "default": "1.0",
+      "pattern": "^\\d+\\.\\d+$",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "selection_timestamp": {
+      "default": "",
+      "title": "Selection Timestamp",
+      "type": "string"
+    },
+    "simulation_domain": {
+      "title": "Simulation Domain",
+      "type": "string"
+    },
+    "skg_snapshot_ref": {
+      "default": "",
+      "title": "Skg Snapshot Ref",
+      "type": "string"
+    },
+    "skg_version_id": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Skg Version Id"
+    },
+    "target_context": {
+      "$ref": "#/$defs/ContextProfile"
+    },
+    "unsupported_parameters": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Unsupported Parameters",
+      "type": "array"
+    }
+  },
+  "required": [
+    "target_context",
+    "simulation_domain"
+  ],
+  "title": "ContextAdaptiveParameterBundle",
+  "type": "object"
+}

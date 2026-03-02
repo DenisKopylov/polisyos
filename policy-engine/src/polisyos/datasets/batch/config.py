@@ -8,7 +8,20 @@ from pathlib import Path
 from polisyos.batch_common.paths import ensure_dirs, snapshot_component_dir
 from polisyos.datasets.batch.source_registry import SourceRegistry, load_source_registry
 
-ALL_STAGES = frozenset({"harvest", "normalize", "merge_dedup", "graph_load", "graph_index", "embed", "qc", "publish"})
+ALL_STAGES = frozenset(
+    {
+        "harvest",
+        "normalize",
+        "merge_dedup",
+        "graph_load",
+        "graph_index",
+        "core_sources_ingest",
+        "embed",
+        "qc",
+        "publish",
+    }
+)
+DEFAULT_RUN_STAGES = frozenset(stage for stage in ALL_STAGES if stage != "core_sources_ingest")
 
 
 @dataclass

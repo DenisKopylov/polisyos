@@ -2,12 +2,11 @@ from __future__ import annotations
 
 import math
 from enum import Enum
-from typing import Any
+from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
-from polisyos.ir.canon import CanonSpec
+from polisyos.ir.analytics.transportability import TransportabilityResult
 from polisyos.ir.analytics.uncertainty import (
     DistributionFamily,
     IntervalSemantics,
@@ -15,6 +14,8 @@ from polisyos.ir.analytics.uncertainty import (
     UncertaintyEnvelope,
     UncertaintySource,
 )
+from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
+from polisyos.ir.canon import CanonSpec
 from polisyos.ir.refs import CausalEffectReportRef
 
 
@@ -23,6 +24,9 @@ class CausalMethod(str, Enum):
     DIFFERENCE_IN_DIFFERENCES = "difference_in_differences"
     REGRESSION_DISCONTINUITY = "regression_discontinuity"
     STRUCTURAL_TIME_SERIES = "structural_time_series"
+    DOWHY_BACKDOOR = "dowhy_backdoor"
+    DOWHY_IV = "dowhy_iv"
+    DOWHY_FRONTDOOR = "dowhy_frontdoor"
     CAUSAL_FOREST = "causal_forest"
     DOUBLE_ML = "double_ml"
     S_LEARNER = "s_learner"
@@ -36,6 +40,26 @@ class EstimationStatus(str, Enum):
     INPUT_INVALID = "input_invalid"
     ASSUMPTION_FAILED = "assumption_failed"
     NUMERICAL_FAILURE = "numerical_failure"
+
+
+class RefutationTestType(str, Enum):
+    PLACEBO_TREATMENT = "placebo_treatment"
+    RANDOM_COMMON_CAUSE = "random_common_cause"
+    DATA_SUBSET = "data_subset"
+    BOOTSTRAP = "bootstrap"
+    UNOBSERVED_COMMON_CAUSE = "unobserved_common_cause"
+
+
+class RefutationResult(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    test_type: RefutationTestType
+    original_estimate: float
+    refuted_estimate: float
+    p_value: float | None = Field(default=None, ge=0.0, le=1.0)
+    passed: bool
+    effect_ratio: float
+    details: dict[str, Any] = Field(default_factory=dict)
 
 
 class PlaceboResult(BaseModel):
@@ -68,6 +92,9 @@ class CausalEffectReport(BaseModel):
     status_reason: str | None = None
 
     estimand: str
+    identified_estimand: str | None = None
+    estimand_type: str | None = None
+    graph_ref: str | None = None
     point_estimate: float | None = None
     standard_error: float | None = Field(default=None, ge=0.0)
     confidence_interval: tuple[float, float] | None = None
@@ -80,12 +107,16 @@ class CausalEffectReport(BaseModel):
 
     pre_treatment_fit: dict[str, float] = Field(default_factory=dict)
     diagnostics: list[DiagnosticTest] = Field(default_factory=list)
+    refutation_results: list[RefutationResult] = Field(default_factory=list)
     placebo_results: list[PlaceboResult] = Field(default_factory=list)
     placebo_p_value: float | None = Field(default=None, ge=0.0, le=1.0)
     time_effects: dict[str, list[float]] = Field(default_factory=dict)
 
     method_params: dict[str, Any] = Field(default_factory=dict)
     assumptions: dict[str, str] = Field(default_factory=dict)
+    sutva_assumed: bool = True
+    sutva_violation_risk: Literal["high", "medium", "low"] | None = None
+    transport_result: TransportabilityResult | None = None
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     sample_size: int = Field(ge=0)
@@ -218,9 +249,12 @@ def load_causal_effect_report(
 __all__ = [
     "CausalMethod",
     "EstimationStatus",
+    "RefutationTestType",
+    "RefutationResult",
     "PlaceboResult",
     "DiagnosticTest",
     "CausalEffectReport",
+    "TransportabilityResult",
     "persist_causal_effect_report",
     "load_causal_effect_report",
 ]

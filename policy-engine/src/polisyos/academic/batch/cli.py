@@ -12,6 +12,7 @@ from polisyos.academic.batch.config import ALL_STAGES, AcademicBatchConfig
 
 _STAGE_ALIAS = {
     "topic-select": "topic_select",
+    "article-extract": "article_extract",
     "extract-llm": "extract_llm",
     "merge-dedup": "merge_dedup",
     "graph-load": "graph_load",
@@ -57,6 +58,14 @@ def _build_config(args: argparse.Namespace, *, stages: frozenset[str]) -> Academ
         max_concurrent_llm=int(getattr(args, "max_concurrent_llm", 12)),
         llm_rate_limit_rps=float(getattr(args, "llm_rate_limit_rps", 5.0)),
         llm_max_retries=int(getattr(args, "llm_max_retries", 6)),
+        article_screening_model=str(getattr(args, "article_screening_model", "qwen/qwen3-32b")),
+        article_extraction_model=str(
+            getattr(args, "article_extraction_model", "qwen/qwen3-235b-a22b-instruct-2507-fp8")
+        ),
+        article_max_concurrent_llm=int(getattr(args, "article_max_concurrent_llm", 20)),
+        article_rate_limit_rps=float(getattr(args, "article_rate_limit_rps", 8.0)),
+        article_max_retries=int(getattr(args, "article_max_retries", 7)),
+        article_fulltext_timeout_seconds=int(getattr(args, "article_fulltext_timeout_seconds", 20)),
         llm_gate_enabled=bool(getattr(args, "llm_gate_enabled", True)),
         llm_gate_mode=str(getattr(args, "llm_gate_mode", "balanced")),
         llm_gate_threshold=float(getattr(args, "llm_gate_threshold", 0.58)),
@@ -75,6 +84,7 @@ async def _run_stage(args: argparse.Namespace, stage: str) -> None:
     from polisyos.academic.batch.embedder import run_embed
     from polisyos.academic.batch.graph_builder import run_graph_index, run_graph_load
     from polisyos.academic.batch.harvester import harvest_all
+    from polisyos.academic.batch.article_extractor import run_article_extract
     from polisyos.academic.batch.llm_extractor import run_extract_llm
     from polisyos.academic.batch.parser import parse_raw_sources
     from polisyos.academic.batch.pipeline import run_academic_pipeline
@@ -105,6 +115,9 @@ async def _run_stage(args: argparse.Namespace, stage: str) -> None:
         counts = parse_raw_sources(cfg)
         print(f"Parsed sources: {len(counts)}")
         print(f"Records: {sum(counts.values())}")
+    elif stage_name == "article_extract":
+        article_stats = await run_article_extract(cfg)
+        print(json_dumps_pretty(article_stats))
     elif stage_name == "extract_llm":
         llm_stats = await run_extract_llm(cfg)
         print(json_dumps_pretty(llm_stats))
@@ -213,6 +226,12 @@ def _build_parser() -> argparse.ArgumentParser:
     common.add_argument("--max-concurrent-llm", type=int, default=12)
     common.add_argument("--llm-rate-limit-rps", type=float, default=5.0)
     common.add_argument("--llm-max-retries", type=int, default=6)
+    common.add_argument("--article-screening-model", default="qwen/qwen3-32b")
+    common.add_argument("--article-extraction-model", default="qwen/qwen3-235b-a22b-instruct-2507-fp8")
+    common.add_argument("--article-max-concurrent-llm", type=int, default=20)
+    common.add_argument("--article-rate-limit-rps", type=float, default=8.0)
+    common.add_argument("--article-max-retries", type=int, default=7)
+    common.add_argument("--article-fulltext-timeout-seconds", type=int, default=20)
 
     common.add_argument("--llm-gate-enabled", dest="llm_gate_enabled", action="store_true")
     common.add_argument("--no-llm-gate-enabled", dest="llm_gate_enabled", action="store_false")
@@ -241,6 +260,7 @@ def _build_parser() -> argparse.ArgumentParser:
     sub.add_parser("topic-select", parents=[common], help="Select topic works from OpenAlex")
     sub.add_parser("harvest", parents=[common], help="Harvest OpenAlex snapshots")
     sub.add_parser("parse", parents=[common], help="Parse raw snapshots")
+    sub.add_parser("article-extract", parents=[common], help="Two-stage article extraction (phase 0a)")
     sub.add_parser("extract-llm", parents=[common], help="Selective LLM enrichment")
     sub.add_parser("merge-dedup", parents=[common], help="Merge parsed records and dedup by work_id")
     sub.add_parser("graph-load", parents=[common], help="Load merged works into DuckDB")
@@ -295,6 +315,7 @@ def main() -> None:
         "topic-select",
         "harvest",
         "parse",
+        "article-extract",
         "extract-llm",
         "merge-dedup",
         "graph-load",

@@ -7,12 +7,13 @@ import asyncio
 import logging
 from pathlib import Path
 
-from polisyos.datasets.batch.config import ALL_STAGES, DatasetBatchConfig
+from polisyos.datasets.batch.config import ALL_STAGES, DEFAULT_RUN_STAGES, DatasetBatchConfig
 
 _STAGE_ALIAS = {
     "merge-dedup": "merge_dedup",
     "graph-load": "graph_load",
     "graph-index": "graph_index",
+    "core-sources-ingest": "core_sources_ingest",
 }
 
 
@@ -22,7 +23,7 @@ def _normalize_stage_name(name: str) -> str:
 
 def _parse_stages(raw: str | None) -> frozenset[str]:
     if not raw:
-        return ALL_STAGES
+        return DEFAULT_RUN_STAGES
     items = [_normalize_stage_name(v.strip()) for v in raw.split(",") if v.strip()]
     return frozenset(items)
 
@@ -42,6 +43,7 @@ def _build_config(args: argparse.Namespace, *, stages: frozenset[str]) -> Datase
 async def _run_single_stage(args: argparse.Namespace, stage: str) -> None:
     from polisyos.datasets.batch.dedup import merge_and_dedup
     from polisyos.datasets.batch.embedder import run_embed
+    from polisyos.datasets.batch.core_sources_ingest import run_core_sources_ingest
     from polisyos.datasets.batch.graph_builder import run_graph_index, run_graph_load
     from polisyos.datasets.batch.harvester import harvest_sources
     from polisyos.datasets.batch.normalizer import normalize_raw_sources
@@ -77,6 +79,13 @@ async def _run_single_stage(args: argparse.Namespace, stage: str) -> None:
     elif stage_name == "graph_index":
         run_graph_index(cfg)
         print("Graph indexes created")
+    elif stage_name == "core_sources_ingest":
+        stats = run_core_sources_ingest(cfg)
+        print(
+            "Core sources ingested: "
+            f"registry={stats.registry_datasets}, alignments={stats.variable_alignments}, "
+            f"observations={stats.observations}, failures={stats.failures}"
+        )
     elif stage_name == "embed":
         embedded = run_embed(cfg, thermal=bool(getattr(args, "thermal", False)))
         print(f"Embedded datasets: {embedded}")
@@ -142,6 +151,11 @@ def _build_parser() -> argparse.ArgumentParser:
     sub.add_parser("merge-dedup", parents=[common], help="Merge normalized files and deduplicate")
     sub.add_parser("graph-load", parents=[common], help="Load merged records into DuckDB")
     sub.add_parser("graph-index", parents=[common], help="Build DuckDB indexes")
+    sub.add_parser(
+        "core-sources-ingest",
+        parents=[common],
+        help="Ingest WGI/WDI/WVS observations and variable alignments for DatasetRegistry",
+    )
 
     embed = sub.add_parser("embed", parents=[common], help="Build local embeddings + HNSW")
     embed.add_argument("--thermal", action="store_true")
@@ -186,6 +200,7 @@ def main() -> None:
         "merge-dedup",
         "graph-load",
         "graph-index",
+        "core-sources-ingest",
         "embed",
         "qc",
         "publish",

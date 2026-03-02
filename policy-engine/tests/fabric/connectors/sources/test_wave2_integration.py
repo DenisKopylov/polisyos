@@ -131,6 +131,7 @@ class TestWave2ProfileCounts:
         assert counts["opendatasoft"] == 2
         assert counts["sparql"] == 2
         assert counts["worldbank"] == 1
+        assert counts["wvs"] == 1
         assert counts["eurostat"] == 1
         assert counts["ukons"] == 1
 

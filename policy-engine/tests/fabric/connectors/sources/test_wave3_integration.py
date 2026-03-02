@@ -114,11 +114,11 @@ class TestWave3RESTProfiles:
 class TestAllWavesSummary:
     def test_total_connectors(self):
         reg = ConnectorRegistry.get_instance()
-        assert len(reg) == 10
+        assert len(reg) == 11
 
     def test_total_profiles(self):
         reg = SourceProfileRegistry.get_instance()
-        assert len(reg.list_all()) == 26
+        assert len(reg.list_all()) == 27
 
     def test_all_connectors_have_default_configs(self):
         reg = ConnectorRegistry.get_instance()
@@ -141,4 +141,4 @@ class TestAllWavesSummary:
     def test_component_system_count(self):
         from polisyos.fabric.connectors.components import __polisyos_components__
 
-        assert len(__polisyos_components__) == 10
+        assert len(__polisyos_components__) == 11

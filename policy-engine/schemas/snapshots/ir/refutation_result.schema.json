@@ -1,0 +1,65 @@
+{
+  "$defs": {
+    "RefutationTestType": {
+      "enum": [
+        "placebo_treatment",
+        "random_common_cause",
+        "data_subset",
+        "bootstrap",
+        "unobserved_common_cause"
+      ],
+      "title": "RefutationTestType",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "details": {
+      "additionalProperties": true,
+      "title": "Details",
+      "type": "object"
+    },
+    "effect_ratio": {
+      "title": "Effect Ratio",
+      "type": "number"
+    },
+    "original_estimate": {
+      "title": "Original Estimate",
+      "type": "number"
+    },
+    "p_value": {
+      "anyOf": [
+        {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "P Value"
+    },
+    "passed": {
+      "title": "Passed",
+      "type": "boolean"
+    },
+    "refuted_estimate": {
+      "title": "Refuted Estimate",
+      "type": "number"
+    },
+    "test_type": {
+      "$ref": "#/$defs/RefutationTestType"
+    }
+  },
+  "required": [
+    "test_type",
+    "original_estimate",
+    "refuted_estimate",
+    "passed",
+    "effect_ratio"
+  ],
+  "title": "RefutationResult",
+  "type": "object"
+}

@@ -1,0 +1,145 @@
+{
+  "$defs": {
+    "CausalDirection": {
+      "enum": [
+        "positive",
+        "negative",
+        "null",
+        "mixed",
+        "ambiguous",
+        "non_linear"
+      ],
+      "title": "CausalDirection",
+      "type": "string"
+    },
+    "EvidenceStrength": {
+      "enum": [
+        "rct",
+        "quasi_natural",
+        "meta_analysis",
+        "observational",
+        "theoretical",
+        "unknown"
+      ],
+      "title": "EvidenceStrength",
+      "type": "string"
+    },
+    "LiteratureEdgePrior": {
+      "additionalProperties": false,
+      "properties": {
+        "article_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Article Refs",
+          "type": "array"
+        },
+        "confidence": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Confidence",
+          "type": "number"
+        },
+        "direction": {
+          "$ref": "#/$defs/CausalDirection",
+          "default": "mixed"
+        },
+        "dst": {
+          "title": "Dst",
+          "type": "string"
+        },
+        "evidence_strength": {
+          "$ref": "#/$defs/EvidenceStrength",
+          "default": "unknown"
+        },
+        "meta_effect_size": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Meta Effect Size"
+        },
+        "metadata": {
+          "additionalProperties": true,
+          "title": "Metadata",
+          "type": "object"
+        },
+        "n_articles": {
+          "default": 0,
+          "minimum": 0,
+          "title": "N Articles",
+          "type": "integer"
+        },
+        "scope_conditions": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Scope Conditions",
+          "type": "array"
+        },
+        "src": {
+          "title": "Src",
+          "type": "string"
+        }
+      },
+      "required": [
+        "src",
+        "dst",
+        "confidence"
+      ],
+      "title": "LiteratureEdgePrior",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "edges": {
+      "items": {
+        "$ref": "#/$defs/LiteratureEdgePrior"
+      },
+      "title": "Edges",
+      "type": "array"
+    },
+    "metadata": {
+      "additionalProperties": true,
+      "title": "Metadata",
+      "type": "object"
+    },
+    "schema_version": {
+      "default": "1.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "skg_snapshot_ref": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Skg Snapshot Ref"
+    },
+    "skg_version_id": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Skg Version Id"
+    }
+  },
+  "title": "LiteratureCausalPrior",
+  "type": "object"
+}

@@ -12,6 +12,13 @@ __all__ = [
     "LinkTrinityNode",
     "CompileFoundryNode",
     "RunSimulationNode",
+    "BuildLiteraturePriorNode",
+    "ReconcileCausalGraphNode",
+    "ResolveParametersNode",
+    "RunABMConsistencyCheckNode",
+    "RunCausalEnsembleNode",
+    "RunCausalQueriesNode",
+    "RunTransportabilityNode",
     "RunCausalEvaluationNode",
     "RunDistributionalAnalysisNode",
     "PropagateUncertaintyNode",
@@ -29,6 +36,27 @@ __all__ = [
 
 
 def builtin_nodes() -> list["Node"]:
+    from polisyos.scientist.nodes.builtins.causal.build_literature_prior import (
+        BuildLiteraturePriorNode,
+    )
+    from polisyos.scientist.nodes.builtins.causal.reconcile_causal_graph import (
+        ReconcileCausalGraphNode,
+    )
+    from polisyos.scientist.nodes.builtins.causal.resolve_parameters import (
+        ResolveParametersNode,
+    )
+    from polisyos.scientist.nodes.builtins.causal.resolve_transport import (
+        RunTransportabilityNode,
+    )
+    from polisyos.scientist.nodes.builtins.causal.run_abm_consistency import (
+        RunABMConsistencyCheckNode,
+    )
+    from polisyos.scientist.nodes.builtins.causal.run_causal_ensemble import (
+        RunCausalEnsembleNode,
+    )
+    from polisyos.scientist.nodes.builtins.causal.run_causal_queries import (
+        RunCausalQueriesNode,
+    )
     from polisyos.scientist.nodes.builtins.compile.compile_foundry import CompileFoundryNode
     from polisyos.scientist.nodes.builtins.compile.link_trinity import LinkTrinityNode
     from polisyos.scientist.nodes.builtins.data.bind_foundry_inputs import BindFoundryInputsNode
@@ -71,6 +99,13 @@ def builtin_nodes() -> list["Node"]:
         LinkTrinityNode(),
         CompileFoundryNode(),
         RunSimulationNode(),
+        BuildLiteraturePriorNode(),
+        ReconcileCausalGraphNode(),
+        ResolveParametersNode(),
+        RunABMConsistencyCheckNode(),
+        RunCausalQueriesNode(),
+        RunCausalEnsembleNode(),
+        RunTransportabilityNode(),
         RunDistributionalAnalysisNode(),
         RunCausalEvaluationNode(),
         PropagateUncertaintyNode(),
@@ -109,12 +144,54 @@ def __getattr__(name: str) -> Any:
         from polisyos.scientist.nodes.builtins.simulate.run_simulation import RunSimulationNode
 
         return RunSimulationNode
+    if name == "BuildLiteraturePriorNode":
+        from polisyos.scientist.nodes.builtins.causal.build_literature_prior import (
+            BuildLiteraturePriorNode,
+        )
+
+        return BuildLiteraturePriorNode
+    if name == "ReconcileCausalGraphNode":
+        from polisyos.scientist.nodes.builtins.causal.reconcile_causal_graph import (
+            ReconcileCausalGraphNode,
+        )
+
+        return ReconcileCausalGraphNode
+    if name == "ResolveParametersNode":
+        from polisyos.scientist.nodes.builtins.causal.resolve_parameters import (
+            ResolveParametersNode,
+        )
+
+        return ResolveParametersNode
+    if name == "RunABMConsistencyCheckNode":
+        from polisyos.scientist.nodes.builtins.causal.run_abm_consistency import (
+            RunABMConsistencyCheckNode,
+        )
+
+        return RunABMConsistencyCheckNode
+    if name == "RunCausalEnsembleNode":
+        from polisyos.scientist.nodes.builtins.causal.run_causal_ensemble import (
+            RunCausalEnsembleNode,
+        )
+
+        return RunCausalEnsembleNode
     if name == "RunCausalEvaluationNode":
         from polisyos.scientist.nodes.builtins.simulate.run_causal_evaluation import (
             RunCausalEvaluationNode,
         )
 
         return RunCausalEvaluationNode
+    if name == "RunCausalQueriesNode":
+        from polisyos.scientist.nodes.builtins.causal.run_causal_queries import (
+            RunCausalQueriesNode,
+        )
+
+        return RunCausalQueriesNode
+    if name == "RunTransportabilityNode":
+        from polisyos.scientist.nodes.builtins.causal.resolve_transport import (
+            RunTransportabilityNode,
+        )
+
+        return RunTransportabilityNode
     if name == "RunDistributionalAnalysisNode":
         from polisyos.scientist.nodes.builtins.simulate.run_distributional_analysis import (
             RunDistributionalAnalysisNode,

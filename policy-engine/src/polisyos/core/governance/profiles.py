@@ -55,14 +55,25 @@ class ValidationProfile:
         """
         MVP profile for standard validation.
 
-        Runs: schema, privacy, budget, safety
+        Runs: schema, privacy, budget, safety, literature_gate, sutva_check
         Skips: legal, quality
         """
 
         return cls(
             level=ProfileLevel.MVP,
             pass_ids=frozenset(
-                {"schema", "privacy", "pii_check", "budget", "safety", "equity"}
+                {
+                    "schema",
+                    "privacy",
+                    "pii_check",
+                    "budget",
+                    "safety",
+                    "equity",
+                    "refutation",
+                    "literature_gate",
+                    "sutva_check",
+                    "transportability_required",
+                }
             ),
             thresholds={
                 "budget_ratio": 0.8,
@@ -83,7 +94,7 @@ class ValidationProfile:
         """
         Strict profile for production and compliance.
 
-        Runs: ALL passes including legal and quality gates
+        Runs: ALL passes including legal/quality + strict human review requirement
         Never short-circuits: complete trace required for audit
         """
 
@@ -100,6 +111,11 @@ class ValidationProfile:
                     "quality",
                     "confidence",
                     "equity",
+                    "refutation",
+                    "literature_gate",
+                    "sutva_check",
+                    "transportability_required",
+                    "human_review_required",
                 }
             ),
             thresholds={

@@ -4,20 +4,24 @@ internal_prefix = "polisyos"
 src_root = "src"
 
 [roots]
-known = ["common","ir","core","fabric","foundry","scientist","runtime","scholar","lex","packs"]
+known = ["common","ir","core","fabric","foundry","scientist","runtime","scholar","lex","packs","academic","batch_common","batch_snapshot","datasets"]
 
 [internal.allow]
 common = ["common"]
-ir = ["ir"]
+ir = ["ir","datasets"]
 core = ["core","ir","common"]
 fabric = ["fabric","core","ir","common"]
-foundry = ["foundry","core","ir","common"]
-scientist = ["scientist","lex","scholar","foundry","fabric","runtime","core","ir","common"]
-runtime = ["runtime","core","ir","common"]
+foundry = ["foundry","academic","core","ir","common"]
+scientist = ["scientist","lex","scholar","foundry","fabric","runtime","core","ir","common","academic","datasets"]
+runtime = ["runtime","scientist","lex","foundry","fabric","core","ir","common"]
 scholar = ["scholar","fabric","ir","core","common"]
-lex = ["lex","fabric","ir","core","common"]
+lex = ["lex","batch_common","fabric","ir","core","common"]
 packs = ["*"]
+academic = ["academic","batch_common","ir","core","common"]
+batch_common = ["batch_common","ir","core","common"]
+batch_snapshot = ["batch_snapshot","batch_common","ir","core","common"]
+datasets = ["datasets","batch_common","fabric","ir","core","common"]
 
 [external.allow.ir]
 # Top-level external modules allowed in IR (stdlib is always allowed).
-modules = ["pydantic","typing_extensions","yaml"]
+modules = ["pydantic","typing_extensions","yaml","numpy","rustworkx","networkx","kuzu"]

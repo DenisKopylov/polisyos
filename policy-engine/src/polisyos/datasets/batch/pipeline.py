@@ -22,6 +22,7 @@ async def run_dataset_pipeline(config: DatasetBatchConfig, *, thermal: bool = Fa
     from polisyos.datasets.batch.dedup import merge_and_dedup
     from polisyos.datasets.batch.embedder import run_embed
     from polisyos.datasets.batch.graph_builder import run_graph_index, run_graph_load
+    from polisyos.datasets.batch.core_sources_ingest import run_core_sources_ingest
     from polisyos.datasets.batch.harvester import harvest_sources
     from polisyos.datasets.batch.normalizer import normalize_raw_sources
     from polisyos.datasets.batch.publish import run_publish
@@ -59,6 +60,15 @@ async def run_dataset_pipeline(config: DatasetBatchConfig, *, thermal: bool = Fa
         st = time.monotonic()
         run_graph_index(config)
         stats.stage_times["graph_index"] = time.monotonic() - st
+
+    if "core_sources_ingest" in config.stages:
+        st = time.monotonic()
+        cstats = run_core_sources_ingest(config)
+        stats.stage_times["core_sources_ingest"] = time.monotonic() - st
+        stats.metrics["core_registry_datasets"] = cstats.registry_datasets
+        stats.metrics["core_variable_alignments"] = cstats.variable_alignments
+        stats.metrics["core_observations"] = cstats.observations
+        stats.metrics["core_failures"] = cstats.failures
 
     if "embed" in config.stages:
         st = time.monotonic()

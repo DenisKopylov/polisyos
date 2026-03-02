@@ -1,0 +1,183 @@
+{
+  "$defs": {
+    "EValueResult": {
+      "additionalProperties": false,
+      "properties": {
+        "ci_crosses_null": {
+          "default": false,
+          "title": "Ci Crosses Null",
+          "type": "boolean"
+        },
+        "ci_rr": {
+          "anyOf": [
+            {
+              "maxItems": 2,
+              "minItems": 2,
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Ci Rr"
+        },
+        "details": {
+          "additionalProperties": true,
+          "title": "Details",
+          "type": "object"
+        },
+        "method": {
+          "minLength": 1,
+          "title": "Method",
+          "type": "string"
+        },
+        "raw_effect": {
+          "title": "Raw Effect",
+          "type": "number"
+        },
+        "rr_equivalent": {
+          "exclusiveMinimum": 0.0,
+          "title": "Rr Equivalent",
+          "type": "number"
+        }
+      },
+      "required": [
+        "raw_effect",
+        "rr_equivalent",
+        "method"
+      ],
+      "title": "EValueResult",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "conversion_method": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Conversion Method"
+    },
+    "e_value": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "E Value"
+    },
+    "e_value_ci_lower": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "E Value Ci Lower"
+    },
+    "e_value_result": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/EValueResult"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "interpretation": {
+      "default": "",
+      "title": "Interpretation",
+      "type": "string"
+    },
+    "is_robust": {
+      "default": false,
+      "title": "Is Robust",
+      "type": "boolean"
+    },
+    "metadata": {
+      "additionalProperties": true,
+      "title": "Metadata",
+      "type": "object"
+    },
+    "partial_r2_treatment": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Partial R2 Treatment"
+    },
+    "robustness_value": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Robustness Value"
+    },
+    "rosenbaum_gamma": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Rosenbaum Gamma"
+    },
+    "rosenbaum_p_value": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Rosenbaum P Value"
+    },
+    "schema_version": {
+      "default": "1.0",
+      "pattern": "^\\d+\\.\\d+$",
+      "title": "Schema Version",
+      "type": "string"
+    }
+  },
+  "title": "SensitivityResult",
+  "type": "object"
+}

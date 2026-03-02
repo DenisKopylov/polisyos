@@ -1,0 +1,230 @@
+from __future__ import annotations
+
+from dataclasses import dataclass
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Any
+
+from polisyos.academic.knowledge.parameter_selector import ParameterSelector
+from polisyos.academic.knowledge.skg_query import SKGQuery
+from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
+from polisyos.foundry.methods.catalog.causal.parameter_transfer import ParameterTransfer
+from polisyos.foundry.methods.catalog.causal.protocols import ParameterTransferData
+from polisyos.ir.analytics.causal_graph import load_causal_graph_model
+from polisyos.ir.analytics.context import ContextProfile
+from polisyos.ir.analytics.parameters import (
+    ContextAdaptiveParameterBundle,
+    ParameterApplicability,
+    persist_context_adaptive_parameter_bundle,
+)
+from polisyos.ir.artifacts import InputRef
+from polisyos.ir.refs import CausalGraphModelRef
+from polisyos.scientist.engine.context import ExecutionContext
+from polisyos.scientist.engine.protocol import NodeEvent, NodeOutcome, NodeSpec
+from polisyos.scientist.engine.state import ExperimentState
+from polisyos.scientist.nodes.builtins.state_keys import (
+    ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF,
+    ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF,
+)
+
+_METADATA = ComponentMetadata(
+    component_id=ComponentId.parse("scientist.node_resolve_parameters@1.0.0"),
+    kind=ComponentKind.SCIENTIST_NODE,
+    abi_targets={"world_abi": "1.x"},
+    display_name="Resolve Parameters",
+    description="Resolve context-adaptive simulation parameters from SKG.",
+    tags=["builtin", "causal", "parameters"],
+    capabilities=Capability.SCIENTIST_NODE,
+)
+
+_SPEC = NodeSpec(
+    metadata=_METADATA,
+    state_reads=[
+        "params.target_context",
+        "params.required_parameters",
+        "params.skg_db_path",
+        "params.skg_index_dir",
+        "params.causal_graph_ref",
+        f"artifacts_index.{ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF}",
+    ],
+    state_writes=[
+        f"artifacts_index.{ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF}",
+        "params.literature_priors",
+        "params.parameter_uncertainty_multipliers",
+    ],
+    produces=[ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF],
+)
+
+
+@dataclass(frozen=True)
+class ResolveParametersNode:
+    @property
+    def spec(self) -> NodeSpec:
+        return _SPEC
+
+    def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
+        if ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF in state.artifacts_index:
+            return NodeOutcome(status="ok", state=state)
+
+        target_context = _resolve_target_context(state)
+        if target_context is None:
+            return _skip(
+                state,
+                "Missing params.target_context; parameter resolution skipped.",
+            )
+
+        required_parameters = _resolve_required_parameters(state)
+        if not required_parameters:
+            return _skip(
+                state,
+                "Missing params.required_parameters; parameter resolution skipped.",
+            )
+
+        graph_ref = _resolve_causal_graph_ref(state)
+        if graph_ref is None:
+            return _skip(
+                state,
+                "No causal graph reference available; parameter resolution skipped.",
+            )
+
+        try:
+            causal_graph = load_causal_graph_model(ctx.store, graph_ref)
+        except Exception:
+            return _skip(
+                state,
+                "Failed to load causal graph artifact; parameter resolution skipped.",
+            )
+
+        db_path_raw = state.params.get("skg_db_path")
+        if not isinstance(db_path_raw, str) or not db_path_raw.strip():
+            return _skip(
+                state,
+                "Missing params.skg_db_path; parameter resolution skipped.",
+            )
+        db_path = Path(db_path_raw)
+        if not db_path.exists():
+            return _skip(
+                state,
+                f"SKG database '{db_path}' is unavailable; parameter resolution skipped.",
+            )
+        index_dir_raw = state.params.get("skg_index_dir")
+        index_dir = Path(str(index_dir_raw)) if index_dir_raw else db_path.parent
+
+        parameters: dict[str, Any] = {}
+        applicability: dict[str, ParameterApplicability] = {}
+        unsupported: list[str] = []
+
+        skg_query = SKGQuery(db_path=db_path, index_dir=index_dir)
+        try:
+            selector = ParameterSelector(skg_query)
+            for parameter_name in required_parameters:
+                parameter, appl = selector.select_for_context(
+                    parameter_name=parameter_name,
+                    target_context=target_context,
+                    causal_graph=causal_graph,
+                )
+                applicability[parameter_name] = appl
+                if parameter is None:
+                    unsupported.append(parameter_name)
+                    continue
+                parameters[parameter_name] = parameter
+
+            skg_version_id = skg_query.latest_skg_version_id()
+            skg_snapshot_ref = skg_query.skg_snapshot_ref(version_id=skg_version_id) or ""
+        finally:
+            skg_query.close()
+
+        bundle = ContextAdaptiveParameterBundle(
+            target_context=target_context,
+            simulation_domain=str(state.params.get("domain", "unknown")),
+            parameters=parameters,
+            applicability=applicability,
+            unsupported_parameters=unsupported,
+            skg_snapshot_ref=skg_snapshot_ref,
+            skg_version_id=skg_version_id,
+            selection_timestamp=datetime.now(timezone.utc).replace(microsecond=0).isoformat(),
+        )
+
+        input_refs = [InputRef(artifact_id=str(graph_ref.artifact_id), role="causal_graph")]
+        bundle_ref = persist_context_adaptive_parameter_bundle(
+            ctx.store,
+            bundle,
+            inputs=input_refs,
+        )
+        bridge_payload = ParameterTransfer.pure_step(
+            ParameterTransferData(parameter_bundle=bundle),
+            params={},
+        )
+
+        new_state = state.model_copy(deep=True)
+        new_state.artifacts_index[ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF] = bundle_ref
+        new_state.params["literature_priors"] = bridge_payload.get("literature_priors", {})
+        new_state.params["parameter_uncertainty_multipliers"] = bridge_payload.get(
+            "uncertainty_multipliers",
+            {},
+        )
+
+        events = []
+        if unsupported:
+            events.append(
+                NodeEvent(
+                    level="warn",
+                    code="PARAMS_WITHOUT_EVIDENCE",
+                    message=(
+                        "Parameters without applicable literature support: "
+                        + ", ".join(sorted(unsupported))
+                    ),
+                )
+            )
+        return NodeOutcome(
+            status="ok",
+            state=new_state,
+            artifacts=[bundle_ref],
+            events=events,
+        )
+
+
+def _resolve_target_context(state: ExperimentState) -> ContextProfile | None:
+    payload = state.params.get("target_context")
+    if payload is None:
+        return None
+    try:
+        return ContextProfile.model_validate(payload)
+    except Exception:
+        return None
+
+
+def _resolve_required_parameters(state: ExperimentState) -> list[str]:
+    raw = state.params.get("required_parameters")
+    if not isinstance(raw, list):
+        return []
+    values = [str(item).strip() for item in raw if str(item).strip()]
+    return sorted(set(values))
+
+
+def _resolve_causal_graph_ref(state: ExperimentState) -> CausalGraphModelRef | None:
+    raw = state.artifacts_index.get(ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF)
+    if raw is None:
+        raw = state.params.get("causal_graph_ref")
+    if raw is None:
+        return None
+
+    if hasattr(raw, "model_dump"):
+        payload = raw.model_dump(mode="json")
+    else:
+        payload = raw
+    try:
+        return CausalGraphModelRef.model_validate(payload)
+    except Exception:
+        return None
+
+
+def _skip(state: ExperimentState, message: str) -> NodeOutcome:
+    return NodeOutcome(
+        status="skip",
+        state=state,
+        events=[NodeEvent(level="warn", message=message)],
+    )
+
+
+__all__ = ["ResolveParametersNode"]

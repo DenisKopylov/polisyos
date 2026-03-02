@@ -60,6 +60,56 @@ class CausalEffectReportRef(ArtifactRefModel):
     media_type: Literal["application/json"] = "application/json"
 
 
+class CausalGraphModelRef(ArtifactRefModel):
+    kind: Literal["ir.causal_graph_model"] = "ir.causal_graph_model"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class LiteratureCausalPriorRef(ArtifactRefModel):
+    kind: Literal["ir.literature_causal_prior"] = "ir.literature_causal_prior"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class CausalDiscoveryReportRef(ArtifactRefModel):
+    kind: Literal["ir.causal_discovery_report"] = "ir.causal_discovery_report"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class CausalSensitivityResultRef(ArtifactRefModel):
+    kind: Literal["ir.sensitivity_result"] = "ir.sensitivity_result"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class ABMAlignmentReportRef(ArtifactRefModel):
+    kind: Literal["ir.abm_alignment_report"] = "ir.abm_alignment_report"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class TransportabilityResultRef(ArtifactRefModel):
+    kind: Literal["ir.transportability_result"] = "ir.transportability_result"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class ContextAdaptiveParameterBundleRef(ArtifactRefModel):
+    kind: Literal["ir.context_adaptive_parameter_bundle"] = "ir.context_adaptive_parameter_bundle"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class StructuralCausalModelSpecRef(ArtifactRefModel):
+    kind: Literal["ir.structural_causal_model_spec"] = "ir.structural_causal_model_spec"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class CausalQueryResultRef(ArtifactRefModel):
+    kind: Literal["ir.causal_query_result"] = "ir.causal_query_result"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class CausalModelEnsembleRef(ArtifactRefModel):
+    kind: Literal["ir.causal_model_ensemble"] = "ir.causal_model_ensemble"
+    media_type: Literal["application/json"] = "application/json"
+
+
 class DistributionalReportRef(ArtifactRefModel):
     kind: Literal["ir.distributional_report"] = "ir.distributional_report"
     media_type: Literal["application/json"] = "application/json"
@@ -71,8 +121,18 @@ class BacktestReportRef(ArtifactRefModel):
 
 
 __all__ = [
+    "ABMAlignmentReportRef",
     "BacktestReportRef",
+    "CausalDiscoveryReportRef",
     "CausalEffectReportRef",
+    "CausalGraphModelRef",
+    "LiteratureCausalPriorRef",
+    "CausalSensitivityResultRef",
+    "TransportabilityResultRef",
+    "ContextAdaptiveParameterBundleRef",
+    "StructuralCausalModelSpecRef",
+    "CausalQueryResultRef",
+    "CausalModelEnsembleRef",
     "DistributionalReportRef",
     "EvidenceBundleRef",
     "ArtifactRefModel",

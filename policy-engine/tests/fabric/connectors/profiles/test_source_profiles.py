@@ -86,6 +86,7 @@ class TestSourceProfileRegistry:
         assert len(profiles) > 0
         ids = {p.profile_id for p in profiles}
         assert "worldbank_wdi" in ids
+        assert "wvs_wave7" in ids
         assert "ecb_sdmx" in ids
 
     def test_get_existing(self):
@@ -93,6 +94,12 @@ class TestSourceProfileRegistry:
         profile = reg.get("worldbank_wdi")
         assert profile is not None
         assert profile.connector_family == "worldbank"
+
+    def test_get_existing_wvs(self):
+        reg = SourceProfileRegistry.get_instance()
+        profile = reg.get("wvs_wave7")
+        assert profile is not None
+        assert profile.connector_family == "wvs"
 
     def test_get_missing(self):
         reg = SourceProfileRegistry.get_instance()

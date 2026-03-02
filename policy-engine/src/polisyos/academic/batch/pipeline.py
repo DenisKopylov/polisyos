@@ -23,6 +23,7 @@ async def run_academic_pipeline(config: AcademicBatchConfig, *, thermal: bool = 
     from polisyos.academic.batch.embedder import run_embed
     from polisyos.academic.batch.graph_builder import run_graph_index, run_graph_load
     from polisyos.academic.batch.harvester import harvest_all
+    from polisyos.academic.batch.article_extractor import run_article_extract
     from polisyos.academic.batch.llm_extractor import run_extract_llm
     from polisyos.academic.batch.parser import parse_raw_sources
     from polisyos.academic.batch.publish import run_publish
@@ -50,11 +51,20 @@ async def run_academic_pipeline(config: AcademicBatchConfig, *, thermal: bool = 
         stats.stage_times["parse"] = time.monotonic() - st
         stats.metrics["parsed_records"] = sum(parsed.values())
 
-    if "extract_llm" in config.stages:
+    if "article_extract" in config.stages:
         st = time.monotonic()
-        llm_stats = await run_extract_llm(config)
-        stats.stage_times["extract_llm"] = time.monotonic() - st
-        stats.metrics.update({f"extract_llm_{k}": v for k, v in llm_stats.items()})
+        article_stats = await run_article_extract(config)
+        stats.stage_times["article_extract"] = time.monotonic() - st
+        stats.metrics.update({f"article_extract_{k}": v for k, v in article_stats.items()})
+
+    if "extract_llm" in config.stages:
+        if "article_extract" in config.stages:
+            stats.metrics["extract_llm_skipped"] = "article_extract_enabled"
+        else:
+            st = time.monotonic()
+            llm_stats = await run_extract_llm(config)
+            stats.stage_times["extract_llm"] = time.monotonic() - st
+            stats.metrics.update({f"extract_llm_{k}": v for k, v in llm_stats.items()})
 
     if "merge_dedup" in config.stages:
         st = time.monotonic()

@@ -9,14 +9,24 @@ from polisyos.batch_common.manifest import (
     write_stage_manifest,
 )
 from polisyos.batch_common.paths import snapshot_component_dir
+from polisyos.batch_common.phase0_quality_validation import (
+    Phase0QualityCheck,
+    Phase0QualityReport,
+    Phase0QualityThresholds,
+    evaluate_phase0_quality,
+)
 from polisyos.batch_common.qc import QCCheck, QCReport, evaluate_fail_fast, write_qc_report
 from polisyos.batch_common.thermal import ThermalProfile, cooldown, pause_between_batches
 
 __all__ = [
     "QCCheck",
     "QCReport",
+    "Phase0QualityCheck",
+    "Phase0QualityReport",
+    "Phase0QualityThresholds",
     "ThermalProfile",
     "cooldown",
+    "evaluate_phase0_quality",
     "evaluate_fail_fast",
     "pause_between_batches",
     "sha256_file",

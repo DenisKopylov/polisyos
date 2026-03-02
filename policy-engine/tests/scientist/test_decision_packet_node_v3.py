@@ -8,12 +8,26 @@ from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.contracts.foundry import ExecPlanRef, Metrics, MetricsRef, SimulationResult
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
+from polisyos.ir.analytics.abm_bridge import (
+    ABMAlignmentReport,
+    AlignmentResult,
+    AlignmentStatus,
+    MacroMicroMapping,
+    persist_abm_alignment_report,
+)
 from polisyos.ir.analytics.backtest import BacktestReport, BacktestScenario, persist_backtest_report
 from polisyos.ir.analytics.causal import (
     CausalEffectReport,
     CausalMethod,
     EstimationStatus,
+    RefutationResult,
+    RefutationTestType,
     persist_causal_effect_report,
+)
+from polisyos.ir.analytics.causal_ensemble import (
+    CausalModelEnsemble,
+    EnsembleMember,
+    persist_causal_model_ensemble,
 )
 from polisyos.ir.analytics.hte import (
     HTEResult,
@@ -21,6 +35,11 @@ from polisyos.ir.analytics.hte import (
     TargetingRule,
     persist_hte_result,
     persist_policy_recommendation,
+)
+from polisyos.ir.analytics.sensitivity import SensitivityResult, persist_sensitivity_result
+from polisyos.ir.analytics.transportability import (
+    TransportabilityResult,
+    TransportabilityStatus,
 )
 from polisyos.ir.analytics.uncertainty import (
     DistributionFamily,
@@ -35,12 +54,15 @@ from polisyos.scientist.engine.state import ExperimentState
 from polisyos.scientist.governance.report import GovernanceReport
 from polisyos.scientist.nodes.builtins.decide.build_decision_packet import BuildDecisionPacketNode
 from polisyos.scientist.nodes.builtins.state_keys import (
+    ARTIFACT_ABM_ALIGNMENT_REPORT_REF,
     ARTIFACT_BACKTEST_REPORT_REF,
     ARTIFACT_CAUSAL_ENVELOPE_REF,
+    ARTIFACT_CAUSAL_ENSEMBLE_REF,
     ARTIFACT_CAUSAL_REPORT_REF,
     ARTIFACT_HTE_RESULT_REF,
     ARTIFACT_METRICS_REF,
     ARTIFACT_POLICY_RECOMMENDATION_REF,
+    ARTIFACT_SENSITIVITY_RESULT_REF,
     ARTIFACT_SIMULATION_RESULT_REF,
     INPUT_DATA_SNAPSHOT_REF,
     INPUT_REGISTRY_BUNDLE_REF,
@@ -243,6 +265,26 @@ def test_build_decision_packet_includes_causal_section(tmp_path) -> None:
             confidence_interval=(1.0, 4.0),
             confidence_level=0.95,
             inference_method="bootstrap",
+            refutation_results=[
+                RefutationResult(
+                    test_type=RefutationTestType.PLACEBO_TREATMENT,
+                    original_estimate=2.5,
+                    refuted_estimate=2.45,
+                    p_value=0.31,
+                    passed=True,
+                    effect_ratio=0.98,
+                    details={},
+                ),
+                RefutationResult(
+                    test_type=RefutationTestType.RANDOM_COMMON_CAUSE,
+                    original_estimate=2.5,
+                    refuted_estimate=2.0,
+                    p_value=0.02,
+                    passed=False,
+                    effect_ratio=0.8,
+                    details={},
+                ),
+            ],
             sample_size=120,
             n_treated=1,
             n_control=12,
@@ -281,7 +323,99 @@ def test_build_decision_packet_includes_causal_section(tmp_path) -> None:
 
     assert payload["causal"]["status"] == "success"
     assert payload["causal"]["method"] == "synthetic_control"
+    assert payload["causal"]["refutation_tests_total"] == 2
+    assert payload["causal"]["refutation_tests_passed"] == 1
+    assert payload["causal"]["refutation_robust"] is False
+    assert len(payload["causal"]["refutation_results"]) == 2
     assert payload["uncertainty_bounds"]["causal_effect_point"] == 2.5
+
+
+def test_build_decision_packet_includes_abm_alignment_section(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path)
+    registry_bundle = build_default_registry_bundle(store).bundle_ref
+    run = RunContext.start(
+        store=store,
+        registry_bundle=registry_bundle,
+        run_id="R_packet_abm",
+    )
+    ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("test.packet"))
+
+    trinity_ref = store.put_json(
+        {"trinity": {}},
+        PutOptions(
+            kind="ir.trinity_bundle",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.ir.TrinityBundle", version="1.0"),
+        ),
+    )
+    state_snapshot_ref = store.put_json(
+        {"state": {}},
+        PutOptions(kind="foundry.state_snapshot", media_type="application/json"),
+    )
+    data_snapshot_ref = store.put_json(
+        {
+            "data_ref": {
+                "artifact_id": str(state_snapshot_ref.artifact_id),
+                "kind": "foundry.state_snapshot",
+                "media_type": "application/json",
+            }
+        },
+        PutOptions(kind="fabric.data_snapshot", media_type="application/json"),
+    )
+    abm_ref = persist_abm_alignment_report(
+        store,
+        ABMAlignmentReport(
+            mappings=[
+                MacroMicroMapping(
+                    macro_variable="income_level",
+                    abm_aggregation="mean(agent.income)",
+                    aggregation_function="mean",
+                    agent_property="income",
+                    tolerance_method="adaptive",
+                )
+            ],
+            alignment_results={
+                "income_level": AlignmentResult(
+                    scm_effect=1.0,
+                    abm_effect=0.98,
+                    status=AlignmentStatus.CONSISTENT,
+                    tolerance_used=0.1,
+                    delta=0.02,
+                    n_runs=5,
+                )
+            },
+            overall_consistent=True,
+            phase_transitions=[],
+            warnings=["income_level: wide_tolerance_consistent_warning"],
+        ),
+    )
+
+    state = ExperimentState(
+        run_id="R_packet_abm",
+        inputs={
+            INPUT_TRINITY_BUNDLE_REF: trinity_ref,
+            INPUT_REGISTRY_BUNDLE_REF: registry_bundle,
+            INPUT_DATA_SNAPSHOT_REF: data_snapshot_ref,
+        },
+        artifacts_index={
+            ARTIFACT_ABM_ALIGNMENT_REPORT_REF: abm_ref,
+        },
+    )
+
+    outcome = BuildDecisionPacketNode().execute(ctx, state)
+    packet_ref = outcome.artifacts[0]
+    payload = from_canonical_bytes(store.get_bytes(packet_ref.artifact_id))
+    manifest = store.get_manifest(packet_ref.artifact_id)
+    roles = {item.role for item in manifest.inputs}
+
+    assert payload["abm_alignment"]["report_ref"] == str(abm_ref.artifact_id)
+    assert payload["abm_alignment"]["overall_consistent"] is True
+    assert payload["abm_alignment"]["status_counts"] == {"consistent": 1}
+    assert payload["abm_alignment"]["warnings"] == [
+        "income_level: wide_tolerance_consistent_warning"
+    ]
+    assert payload["artifacts"]["abm_alignment_report_ref"] == str(abm_ref.artifact_id)
+    assert "abm_alignment.report_ref" in roles
 
 
 def test_build_decision_packet_includes_hte_and_backtest_sections(tmp_path) -> None:
@@ -382,3 +516,303 @@ def test_build_decision_packet_includes_hte_and_backtest_sections(tmp_path) -> N
     assert payload["targeting"]["recommendation_ref"] == str(recommendation_ref.artifact_id)
     assert payload["backtest"]["report_ref"] == str(backtest_ref.artifact_id)
     assert payload["trust_profile"]["backtest_trust_grade"] == "B"
+
+
+def test_build_decision_packet_includes_sensitivity_section(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path)
+    registry_bundle = build_default_registry_bundle(store).bundle_ref
+    run = RunContext.start(
+        store=store,
+        registry_bundle=registry_bundle,
+        run_id="R_packet_sensitivity",
+    )
+    ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("test.packet"))
+
+    trinity_ref = store.put_json(
+        {"trinity": {}},
+        PutOptions(
+            kind="ir.trinity_bundle",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.ir.TrinityBundle", version="1.0"),
+        ),
+    )
+    state_snapshot_ref = store.put_json(
+        {"state": {}},
+        PutOptions(kind="foundry.state_snapshot", media_type="application/json"),
+    )
+    data_snapshot_ref = store.put_json(
+        {
+            "data_ref": {
+                "artifact_id": str(state_snapshot_ref.artifact_id),
+                "kind": "foundry.state_snapshot",
+                "media_type": "application/json",
+            }
+        },
+        PutOptions(kind="fabric.data_snapshot", media_type="application/json"),
+    )
+    sensitivity_ref = persist_sensitivity_result(
+        store,
+        SensitivityResult(
+            e_value=1.8,
+            e_value_ci_lower=1.3,
+            conversion_method="ate_to_rr_log",
+            robustness_value=0.08,
+            partial_r2_treatment=0.05,
+            rosenbaum_gamma=1.4,
+            rosenbaum_p_value=0.07,
+            is_robust=True,
+            interpretation="synthetic sensitivity summary",
+        ),
+    )
+
+    state = ExperimentState(
+        run_id="R_packet_sensitivity",
+        inputs={
+            INPUT_TRINITY_BUNDLE_REF: trinity_ref,
+            INPUT_REGISTRY_BUNDLE_REF: registry_bundle,
+            INPUT_DATA_SNAPSHOT_REF: data_snapshot_ref,
+        },
+        artifacts_index={ARTIFACT_SENSITIVITY_RESULT_REF: sensitivity_ref},
+    )
+    outcome = BuildDecisionPacketNode().execute(ctx, state)
+    packet_ref = outcome.artifacts[0]
+    payload = from_canonical_bytes(store.get_bytes(packet_ref.artifact_id))
+
+    assert payload["sensitivity"]["ref"] == str(sensitivity_ref.artifact_id)
+    assert payload["sensitivity"]["content"]["e_value"] == 1.8
+    assert payload["sensitivity"]["content"]["is_robust"] is True
+
+
+def test_build_decision_packet_includes_transportability_summary(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path)
+    registry_bundle = build_default_registry_bundle(store).bundle_ref
+    run = RunContext.start(
+        store=store,
+        registry_bundle=registry_bundle,
+        run_id="R_packet_transport",
+    )
+    ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("test.packet"))
+
+    trinity_ref = store.put_json(
+        {"trinity": {}},
+        PutOptions(
+            kind="ir.trinity_bundle",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.ir.TrinityBundle", version="1.0"),
+        ),
+    )
+    state_snapshot_ref = store.put_json(
+        {"state": {}},
+        PutOptions(kind="foundry.state_snapshot", media_type="application/json"),
+    )
+    data_snapshot_ref = store.put_json(
+        {
+            "data_ref": {
+                "artifact_id": str(state_snapshot_ref.artifact_id),
+                "kind": "foundry.state_snapshot",
+                "media_type": "application/json",
+            }
+        },
+        PutOptions(kind="fabric.data_snapshot", media_type="application/json"),
+    )
+
+    report_ref = persist_causal_effect_report(
+        store,
+        CausalEffectReport(
+            method=CausalMethod.DOWHY_BACKDOOR,
+            status=EstimationStatus.SUCCESS,
+            estimand="ATE",
+            point_estimate=1.0,
+            confidence_interval=(0.8, 1.2),
+            inference_method="backdoor.linear_regression",
+            sample_size=120,
+            n_treated=60,
+            n_control=60,
+            pre_periods=0,
+            post_periods=0,
+            transport_result=TransportabilityResult(
+                status=TransportabilityStatus.TRANSPORTABLE,
+                query="P*(Y|do(X))",
+                final_confidence=0.73,
+                feasible=True,
+                resolution_rounds=2,
+                unsupported_cases=["front-door outside simplified scope"],
+            ),
+        ),
+    )
+
+    state = ExperimentState(
+        run_id="R_packet_transport",
+        inputs={
+            INPUT_TRINITY_BUNDLE_REF: trinity_ref,
+            INPUT_REGISTRY_BUNDLE_REF: registry_bundle,
+            INPUT_DATA_SNAPSHOT_REF: data_snapshot_ref,
+        },
+        artifacts_index={ARTIFACT_CAUSAL_REPORT_REF: report_ref},
+    )
+    outcome = BuildDecisionPacketNode().execute(ctx, state)
+    packet_ref = outcome.artifacts[0]
+    payload = from_canonical_bytes(store.get_bytes(packet_ref.artifact_id))
+
+    summary = payload["causal"]["transportability_summary"]
+    assert isinstance(summary, dict)
+    assert summary["status"] == "transportable"
+    assert summary["final_confidence"] == 0.73
+    assert summary["resolution_rounds"] == 2
+    assert summary["unsupported_cases_count"] == 1
+
+
+def test_build_decision_packet_includes_ensemble_summary(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path)
+    registry_bundle = build_default_registry_bundle(store).bundle_ref
+    run = RunContext.start(
+        store=store,
+        registry_bundle=registry_bundle,
+        run_id="R_packet_ensemble",
+    )
+    ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("test.packet"))
+
+    trinity_ref = store.put_json(
+        {"trinity": {}},
+        PutOptions(
+            kind="ir.trinity_bundle",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.ir.TrinityBundle", version="1.0"),
+        ),
+    )
+    state_snapshot_ref = store.put_json(
+        {"state": {}},
+        PutOptions(kind="foundry.state_snapshot", media_type="application/json"),
+    )
+    data_snapshot_ref = store.put_json(
+        {
+            "data_ref": {
+                "artifact_id": str(state_snapshot_ref.artifact_id),
+                "kind": "foundry.state_snapshot",
+                "media_type": "application/json",
+            }
+        },
+        PutOptions(kind="fabric.data_snapshot", media_type="application/json"),
+    )
+    ensemble_ref = persist_causal_model_ensemble(
+        store,
+        CausalModelEnsemble(
+            members=[
+                EnsembleMember(
+                    graph_ref="sha256:" + "1" * 64,
+                    discovery_method="pc",
+                    weight=0.6,
+                    bootstrap_stability=0.7,
+                ),
+                EnsembleMember(
+                    graph_ref="sha256:" + "2" * 64,
+                    discovery_method="ges",
+                    weight=0.4,
+                    bootstrap_stability=0.5,
+                ),
+            ],
+            consensus_graph_ref="sha256:" + "c" * 64,
+            edge_inclusion_frequency={"X→Y": 1.0},
+        ),
+    )
+
+    state = ExperimentState(
+        run_id="R_packet_ensemble",
+        inputs={
+            INPUT_TRINITY_BUNDLE_REF: trinity_ref,
+            INPUT_REGISTRY_BUNDLE_REF: registry_bundle,
+            INPUT_DATA_SNAPSHOT_REF: data_snapshot_ref,
+        },
+        artifacts_index={ARTIFACT_CAUSAL_ENSEMBLE_REF: ensemble_ref},
+    )
+    outcome = BuildDecisionPacketNode().execute(ctx, state)
+    packet_ref = outcome.artifacts[0]
+    payload = from_canonical_bytes(store.get_bytes(packet_ref.artifact_id))
+
+    assert payload["artifacts"]["causal_ensemble_ref"] == str(ensemble_ref.artifact_id)
+    assert payload["causal"]["ensemble_ref"] == str(ensemble_ref.artifact_id)
+    assert payload["causal"]["ensemble_member_count"] == 2
+    assert payload["causal"]["ensemble_methods"] == ["ges", "pc"]
+    assert payload["causal"]["ensemble_consensus_graph_ref"] == "sha256:" + "c" * 64
+
+
+def test_build_decision_packet_uses_dual_written_ensemble_envelope_for_causal_point(
+    tmp_path,
+) -> None:
+    store = FileSystemCAS(tmp_path)
+    registry_bundle = build_default_registry_bundle(store).bundle_ref
+    run = RunContext.start(
+        store=store,
+        registry_bundle=registry_bundle,
+        run_id="R_packet_ensemble_env",
+    )
+    ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("test.packet"))
+
+    trinity_ref = store.put_json(
+        {"trinity": {}},
+        PutOptions(
+            kind="ir.trinity_bundle",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.ir.TrinityBundle", version="1.0"),
+        ),
+    )
+    state_snapshot_ref = store.put_json(
+        {"state": {}},
+        PutOptions(kind="foundry.state_snapshot", media_type="application/json"),
+    )
+    data_snapshot_ref = store.put_json(
+        {
+            "data_ref": {
+                "artifact_id": str(state_snapshot_ref.artifact_id),
+                "kind": "foundry.state_snapshot",
+                "media_type": "application/json",
+            }
+        },
+        PutOptions(kind="fabric.data_snapshot", media_type="application/json"),
+    )
+
+    ensemble_ref = persist_causal_model_ensemble(
+        store,
+        CausalModelEnsemble(
+            members=[
+                EnsembleMember(
+                    graph_ref="sha256:" + "3" * 64,
+                    discovery_method="fci",
+                    weight=1.0,
+                    bootstrap_stability=0.8,
+                )
+            ],
+            consensus_graph_ref="sha256:" + "4" * 64,
+            edge_inclusion_frequency={"X→Y": 1.0},
+        ),
+    )
+    ensemble_envelope_ref = persist_uncertainty_envelope(
+        store,
+        UncertaintyEnvelope(
+            point_estimate=3.14,
+            confidence_interval=(2.5, 3.8),
+            confidence_level=0.95,
+            distribution_family=DistributionFamily.BOOTSTRAP,
+            source=UncertaintySource.ENSEMBLE,
+            propagation_method=PropagationMethod.MONTE_CARLO,
+            interval_semantics=IntervalSemantics.CONFIDENCE_INTERVAL,
+        ),
+    )
+
+    state = ExperimentState(
+        run_id="R_packet_ensemble_env",
+        inputs={
+            INPUT_TRINITY_BUNDLE_REF: trinity_ref,
+            INPUT_REGISTRY_BUNDLE_REF: registry_bundle,
+            INPUT_DATA_SNAPSHOT_REF: data_snapshot_ref,
+        },
+        artifacts_index={
+            ARTIFACT_CAUSAL_ENSEMBLE_REF: ensemble_ref,
+            ARTIFACT_CAUSAL_ENVELOPE_REF: ensemble_envelope_ref,
+        },
+    )
+    outcome = BuildDecisionPacketNode().execute(ctx, state)
+    packet_ref = outcome.artifacts[0]
+    payload = from_canonical_bytes(store.get_bytes(packet_ref.artifact_id))
+
+    assert payload["uncertainty_bounds"]["causal_effect_point"] == 3.14

@@ -15,6 +15,7 @@ ALL_STAGES = frozenset(
         "topic_select",
         "harvest",
         "parse",
+        "article_extract",
         "extract_llm",
         "merge_dedup",
         "graph_load",
@@ -69,6 +70,14 @@ class AcademicBatchConfig:
     max_concurrent_llm: int = 12
     llm_rate_limit_rps: float = 5.0
     llm_max_retries: int = 6
+
+    # Article extractor (phase 0a, Gonka-compatible)
+    article_screening_model: str = "qwen/qwen3-32b"
+    article_extraction_model: str = "qwen/qwen3-235b-a22b-instruct-2507-fp8"
+    article_max_concurrent_llm: int = 20
+    article_rate_limit_rps: float = 8.0
+    article_max_retries: int = 7
+    article_fulltext_timeout_seconds: int = 20
 
     # LLM gate
     llm_gate_enabled: bool = True
@@ -174,6 +183,14 @@ class AcademicBatchConfig:
     @property
     def llm_gate_manifest_path(self) -> Path:
         return self.manifests_dir / "llm_gate.json"
+
+    @property
+    def article_extraction_results_path(self) -> Path:
+        return self.component_dir / "article_extraction_results.jsonl"
+
+    @property
+    def article_extraction_cache_path(self) -> Path:
+        return self.component_dir / "article_extract_cache.jsonl"
 
     @property
     def ingest_errors_path(self) -> Path:

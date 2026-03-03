@@ -17,11 +17,13 @@ from polisyos.foundry.methods.catalog.causal.gcm_fit import HybridSCMFit
 from polisyos.foundry.methods.catalog.causal.gcm_query import GCMQuery
 from polisyos.foundry.methods.catalog.causal.graph_reconciliation import ReconcileCausalGraph
 from polisyos.foundry.methods.catalog.causal.literature_prior import BuildLiteraturePrior
+from polisyos.foundry.methods.catalog.causal.dagma_discovery import DAGMADiscovery
 from polisyos.foundry.methods.catalog.causal.pcmci_discovery import PCMCIDiscovery
 from polisyos.foundry.methods.catalog.causal.parameter_transfer import ParameterTransfer
 from polisyos.foundry.methods.catalog.causal.rdd import RegressionDiscontinuity
 from polisyos.foundry.methods.catalog.causal.sensitivity_metrics import SensitivityMetrics
 from polisyos.foundry.methods.catalog.causal.structural_time_series import StructuralTimeSeries
+from polisyos.foundry.methods.catalog.causal.symbolic_identify import SymbolicIdentify
 from polisyos.foundry.methods.catalog.causal.synthetic_control import SyntheticControlMethod
 from polisyos.foundry.methods.catalog.causal.transport_check import CheckTransportability
 
@@ -42,10 +44,12 @@ def register_causal_methods() -> Sequence[type]:
         ReconcileCausalGraph,
         SensitivityMetrics,
         CheckTransportability,
+        SymbolicIdentify,
         PCMCIDiscovery,
         PCDiscovery,
         FCIDiscovery,
         GESDiscovery,
+        DAGMADiscovery,
     ]
     try:
         from polisyos.foundry.methods.catalog.causal.cate import CausalForestEstimator

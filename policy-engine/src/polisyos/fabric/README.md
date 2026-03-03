@@ -1,82 +1,50 @@
 # Fabric
 
-`polisyos.fabric` — data-fabric слой PolicyOS. Подсистема отвечает за ingestion данных и документов, извлечение и нормализацию фактов, сбор evidence/provenance, материализацию world-представления и безопасный доступ к нему.
+`polisyos.fabric` — data-fabric слой PolicyOS: здесь живут ingestion, документный и claim-пайплайны, world materialization, retrieval и orchestration режимов выполнения.
 
 ## Роль в системе
 
-Fabric расположен между инфраструктурными слоями (`polisyos.ir`, `polisyos.core`) и прикладными потребителями (`polisyos.scientist`, `polisyos.scholar`, `polisyos.lex`).
-
-Сквозной поток:
+Fabric связывает инфраструктуру (`polisyos.ir`, `polisyos.core`, `polisyos.common`) с прикладными слоями (`polisyos.scientist`, `polisyos.scholar`, `polisyos.lex`).
 
 ```text
-External APIs + Documents
-          |
-          v
-connectors/docs/claims (+ pii, quality, trust)
-          |
-          v
-CAS artifacts + fact segments + manifests + evidence
-          |
-          +--> world/store -> world/materialize (DuckDB, optional Kuzu)
-          |        |
-          |        v
-          |     world_query
-          |
-          +--> data_plane (snapshots, cursors, record/replay, regression)
-          |
-          +--> retrieval (FastLane/ExploreLane + fetch execution)
+External APIs / Documents
+        |
+        v
+connectors + docs + claims (+ pii/quality/trust)
+        |
+        v
+CAS artifacts + world fact segments + provenance
+        |
+        +--> world/store -> world/materialize -> world_query
+        |
+        +--> data_plane (batch/record/replay/streaming)
+        |
+        +--> retrieval (fastlane/catalog/explore + execute)
 ```
 
-## Ключевые потоки
+## Ключевые entrypoints
 
-### 1) Коннекторный ingestion
+- `run_connectors_ingestion(...)` — [ingestion.py](/Users/deniskopylov/polisyos/policy-engine/src/polisyos/fabric/ingestion.py)
+- `run(...)` compatibility wrapper — [connectors_ingestion.py](/Users/deniskopylov/polisyos/policy-engine/src/polisyos/fabric/connectors_ingestion.py)
+- `fabric_get_data(...)` sync bridge для верхних слоев — [_connector_bridge.py](/Users/deniskopylov/polisyos/policy-engine/src/polisyos/fabric/_connector_bridge.py)
+- `execute_world_query(...)` / `query_world_table(...)` — [world_query.py](/Users/deniskopylov/polisyos/policy-engine/src/polisyos/fabric/world_query.py)
 
-- Канонический entrypoint: `run_connectors_ingestion(...)` в `/Users/deniskopylov/polisyos/policy-engine/src/polisyos/fabric/ingestion.py`.
-- Совместимый wrapper: `run(...)` в `/Users/deniskopylov/polisyos/policy-engine/src/polisyos/fabric/connectors_ingestion.py`.
-- Что делает: fetch через `connectors`, optional transform DAG, PII stage, CAS cache, provenance graph, evidence bundle.
+## Архитектурные блоки
 
-### 2) Документы -> claims -> world facts
+- `connectors/` — интеграция с внешними источниками: protocol, registry, discovery, profiles, contracts, resilience, cache, transform, federation.
+- `docs/` — pipeline `ingest_doc_bytes -> normalize_doc -> structure_doc -> chunk_doc`.
+- `claims/` — extraction/normalization/conflicts, world events/facts, evidence bundles.
+- `world/` — append-only segment store + materialization в DuckDB (и optional Kuzu export).
+- `data_plane/` — execution modes (`batch_incremental`, `record`, `replay`, `streaming_windowed`) и snapshot/cursor lifecycle.
+- `retrieval/` — hybrid resolve+execute: FastLane, optional dataset-catalog lane, ExploreLane, promotion queue.
+- `catalog/` — metric contracts и curated source bindings для deterministic resolve.
+- `pii/`, `security/` — PII detection stage и column-level query guard/masking.
+- `provenance/`, `evidence.py`, `fact_writer.py`, `segment_manifest.py` — трассируемость и сегменты фактов.
+- `storage/`, `io/`, `tabular.py` — storage adapters, DuckDB runtime (`SimulationDB`), payload->DataFrame адаптация.
 
-- `docs/`: `ingest_doc_bytes -> normalize_doc -> structure_doc -> chunk_doc`.
-- `claims/`: `extract_claims_from_doc -> normalize_claims -> detect_conflicts -> resolve_conflicts`.
-- Результат: артефакты claim/doc, world events, world fact segments и manifests.
+## Публичный API пакета
 
-### 3) Materialized world и query
-
-- `world/store`: emit/validate/persist world-сущностей и segment index.
-- `world/materialize`: apply сегментов в DuckDB projections, optional export в Kuzu.
-- `world_query.py`: безопасный табличный API с allowlist колонок и masking.
-
-### 4) Data-plane оркестрация
-
-- `data_plane/orchestrator.py`: ingestion + DataSnapshot без double-fetch.
-- `data_plane/modes.py`: `batch_incremental`, `record`, `replay`, `streaming_windowed`.
-- `data_plane/cursor_store.py`, `replay_store.py`, `regression.py`: курсоры, сессии record/replay, детерминированные сравнения прогонов.
-
-### 5) Retrieval для control/NL контуров
-
-- `retrieval/service.py`: orchestration FastLane + ExploreLane + promotion queue.
-- `retrieval/executor.py`: preview gate, fallback, execute fetch plans.
-- `retrieval/explore_lane.py`: bounded discovery с бюджетами по времени/кандидатам.
-
-## Структура директории
-
-- `catalog/` — контракты метрик, bindings, fast-lane resolver, поиск.
-- `connectors/` — протокол коннекторов, registry, quality/cache/resilience/transform/federation.
-- `docs/` — документный конвейер (raw -> normalized -> structure -> chunks).
-- `claims/` — extraction/normalization/conflict processing.
-- `world/` — world store + materialization + DDL.
-- `data_plane/` — режимы исполнения ingestion и snapshot/cursor lifecycle.
-- `retrieval/` — гибридное разрешение метрик и выполнение fetch plans.
-- `pii/` — PII detection stage (`Presidio` + fallback).
-- `provenance/`, `evidence.py`, `fact_writer.py`, `segment_manifest.py` — трассируемость и факт-сегменты.
-- `security/` — column-level guard/masking для world query.
-- `storage/`, `io/` — хранилище и DuckDB runtime (`SimulationDB`).
-- `quality.py`, `fitness_report.py`, `trust.py`, `trust_adapter.py` — quality/trust модели и адаптеры.
-
-## Публичный API `polisyos.fabric`
-
-Экспортируется lazy-load API:
+Через `polisyos.fabric` экспортируются lazy entrypoints:
 
 - `fabric_get_data`
 - `run_connectors_ingestion`
@@ -88,17 +56,22 @@ CAS artifacts + fact segments + manifests + evidence
 - `WorldQueryError`
 - `world`
 
-Также lazy-экспортируются ключевые сущности каталога (`DataContract`, `MetricBinding`, `DataContractRegistry`, `MetricSearcher` и другие).
-
-## Связи с остальной кодовой базой
-
-- Зависит от: `polisyos.ir`, `polisyos.core`, `polisyos.common`.
-- Используется в: `polisyos.scientist`, `polisyos.scholar`, `polisyos.lex`.
-- Архитектурное правило: зависимости направлены сверху вниз; Fabric не должен импортировать прикладные слои обратно.
+Также lazy-доступны ключевые сущности каталога (`DataContract`, `MetricBinding`, `DataContractRegistry`, `MetricSearcher` и др.).
 
 ## Важные особенности
 
-- `/Users/deniskopylov/polisyos/policy-engine/src/polisyos/fabric/_connector_bridge.py` — официальный синхронный bridge для верхнего слоя.
-- `Kuzu`-материализация остается optional (`world/materialize/kuzu.py`).
-- `docs/backends/pdf.py` в текущем ядре работает как заглушка и требует расширения/optional deps для полноценного OCR/PDF extraction.
-- Детали подсистем вынесены в README внутри `/Users/deniskopylov/polisyos/policy-engine/src/polisyos/fabric/connectors`, `/Users/deniskopylov/polisyos/policy-engine/src/polisyos/fabric/docs`, `/Users/deniskopylov/polisyos/policy-engine/src/polisyos/fabric/claims`, `/Users/deniskopylov/polisyos/policy-engine/src/polisyos/fabric/world`, `/Users/deniskopylov/polisyos/policy-engine/src/polisyos/fabric/catalog`, `/Users/deniskopylov/polisyos/policy-engine/src/polisyos/fabric/data_plane`, `/Users/deniskopylov/polisyos/policy-engine/src/polisyos/fabric/retrieval`.
+- Fabric не должен импортировать прикладные слои обратно (однонаправленная зависимость вниз).
+- Ingestion по умолчанию пишет evidence/provenance в CAS и поддерживает optional PII stage (`POLISYOS_PII_*`).
+- World materialization идемпотентна на уровне `segment_id + sha256`; hash mismatch считается ошибкой.
+- Kuzu materialization выключена по умолчанию и выполняется только при явном включении (`kuzu_enabled=True`).
+- `docs/backends/pdf.py` в ядре остается заглушкой (нужны optional deps).
+
+## Где читать детали
+
+- [connectors/README.md](/Users/deniskopylov/polisyos/policy-engine/src/polisyos/fabric/connectors/README.md)
+- [docs/README.md](/Users/deniskopylov/polisyos/policy-engine/src/polisyos/fabric/docs/README.md)
+- [claims/README.md](/Users/deniskopylov/polisyos/policy-engine/src/polisyos/fabric/claims/README.md)
+- [world/README.md](/Users/deniskopylov/polisyos/policy-engine/src/polisyos/fabric/world/README.md)
+- [data_plane/README.md](/Users/deniskopylov/polisyos/policy-engine/src/polisyos/fabric/data_plane/README.md)
+- [retrieval/README.md](/Users/deniskopylov/polisyos/policy-engine/src/polisyos/fabric/retrieval/README.md)
+- [catalog/README.md](/Users/deniskopylov/polisyos/policy-engine/src/polisyos/fabric/catalog/README.md)

@@ -1,66 +1,68 @@
-# core.security — Zero Trust и tenant isolation primitives
+# Security — zero-trust и multi-tenant primitives
 
-`core.security` — общий security/runtime слой для multi-tenant deployments.
-Модуль покрывает маршрутизацию tenant→cell, authn/authz, делегацию контекста, audit chain, TEE attestation, SBOM и SLSA-вспомогательные компоненты.
+`core.security` — общий security/runtime слой для multi-tenant исполнения: tenant routing, identity/authz, delegation, chained audit, TEE, SBOM и SLSA.
 
 ## Архитектура
 
 ```text
 security/
-├── cell.py, registry.py, router.py, tenant_context.py, db_backend.py
+├── cell.py, registry.py, router.py, tenant_context.py
 ├── identity.py, access_scope.py, delegation.py, authz.py
+├── db_backend.py
 ├── audit_models.py, audit_sink.py, audit_verifier.py
 ├── tee.py, tee_middleware.py
 ├── sbom.py
 ├── slsa/
 ├── settings.py, exceptions.py
-└── __init__.py  # lazy facade exports
+└── __init__.py  # lazy exports
 ```
 
 ## Подсистемы
 
 | Подсистема | Что делает |
 |---|---|
-| Tenant routing | `CellRegistry`, `resolve_routing`, `tenant_scope` для tenant-aware execution |
-| DB isolation | `DatabaseBackend` protocol + `PostgresBackend` (RLS) + `DuckDBLegacyBackend` |
-| Identity | SPIFFE service identity + OIDC/JWT user claims normalization |
-| Access scope | `AccessScope` как неизменяемый per-request security контекст |
-| Delegation | Подписанные hop-to-hop delegation tokens (`DelegationTokenManager`) |
-| Authorization | Async OPA client с TTL cache и fail-closed семантикой |
-| Audit chain | append-only chained audit log + hot/cold реплика + tamper verification |
-| TEE | attestation policy/verifier + gatekeeper middleware |
-| SBOM | генерация/слияние/проверка CycloneDX + vulnerability gate |
-| SLSA | модели, attestation builder, Fulcio/Rekor клиенты |
+| Tenant/cell routing | `CellRegistry`, `resolve_routing`, `tenant_scope` |
+| Identity | JWT/OIDC claims normalization + SPIFFE service identity |
+| AccessScope | неизменяемый security-контекст запроса |
+| Authorization | async OPA client (`OPAClient`) с TTL-cache и deny-by-default |
+| Delegation | подписанные hop-to-hop delegation tokens |
+| DB isolation | `PostgresBackend` (RLS) + `DuckDBLegacyBackend` |
+| Audit chain | append-only chained log + hot/cold backends + tamper verify |
+| TEE | attestation verification + gatekeeper middleware |
+| SBOM gate | CycloneDX генерация/проверка + vulnerability threshold |
+| SLSA | attestation/signing/transparency clients и config |
 
 ## Поведение по умолчанию
 
-- Fail-closed для критичных multi-tenant путей (`authz`, tenant routing, RLS scope).
-- Безопасная деградация на dev-сценариях через `SecuritySettings`.
-- Все runtime-переключатели централизованы в `settings.py` и читаются через `get_security_settings()`.
+- fail-closed для критичных путей (routing/authz/attestation).
+- часть переключателей автоматически ужесточается в `POLISYOS_ENV=prod`.
+- все runtime-переключатели централизованы в `settings.py` (`get_security_settings()`).
 
-## Ключевые интеграции
+## Ключевые env-группы
 
-- `runtime/http/*` использует `registry`, `router`, `tenant_context`, `authz`, `delegation`.
-- `core.run.RunContext` может писать trace события и в chained audit sink (`audit_sink`).
-- `core.audit` может подтягивать SLSA-материалы из `core.security.slsa` при сборке audit package.
-- `core.observability` получает security-метрики (authz, cell-router, audit, tee, sbom).
+Tenant/AuthN/AuthZ:
+- `POLISYOS_MULTI_TENANT_ENABLED`, `POLISYOS_CELL_REGISTRY_PATH`, `POLISYOS_MULTI_TENANT_FAIL_CLOSED`
+- `POLISYOS_AUTHN_ENABLED`, `POLISYOS_AUTHZ_MODE`, `POLISYOS_OPA_URL`, `POLISYOS_OPA_POLICY_PATH`
 
-## Важные env-переключатели
+Delegation/identity:
+- `POLISYOS_DELEGATION_REQUIRED`, `POLISYOS_DELEGATION_HEADER`, `POLISYOS_DELEGATION_SECRET`
+- `POLISYOS_MTLS_SPIFFE_HEADER`, `POLISYOS_SERVICE_SPIFFE_ID`
 
-| Переменная | Назначение |
-|---|---|
-| `POLISYOS_MULTI_TENANT_ENABLED` | включает multi-tenant режим |
-| `POLISYOS_AUTHN_ENABLED` | включает user/service authentication |
-| `POLISYOS_AUTHZ_MODE` | `off` / `shadow` / `enforce` |
-| `POLISYOS_OPA_URL` | адрес OPA sidecar |
-| `POLISYOS_DELEGATION_REQUIRED` | требовать delegation token на межсервисных вызовах |
-| `POLISYOS_TEE_ENABLED` | включить TEE checks |
-| `POLISYOS_TEE_REQUIRED` | fail-closed при отсутствии валидной attestation |
-| `POLISYOS_SBOM_ENABLED` | включить SBOM gate |
-| `POLISYOS_CELL_REGISTRY_PATH` | путь к snapshot tenant/cell registry |
-| `POLISYOS_DB_BACKEND` | `postgres`/`duckdb` override |
+TEE/SBOM:
+- `POLISYOS_TEE_ENABLED`, `POLISYOS_TEE_REQUIRED`, `POLISYOS_TEE_REPORT_PATH`, `POLISYOS_TEE_EXPECTED_MEASUREMENTS`
+- `POLISYOS_SBOM_ENABLED`, `POLISYOS_SBOM_PATH`, `POLISYOS_SBOM_CVSS_THRESHOLD`, `POLISYOS_SBOM_ALLOWED_CVES`
 
-## Публичный API
+SLSA:
+- `POLISYOS_SLSA_MODE`, `POLISYOS_SLSA_POLICY`
+- `POLISYOS_SLSA_FULCIO_URL`, `POLISYOS_SLSA_REKOR_URL`, `POLISYOS_SLSA_OIDC_*`
 
-`core.security.__init__` экспортирует lazy facade для основных моделей, исключений и сервисов.
-Для low-level интеграций можно импортировать напрямую из конкретных модулей (`authz.py`, `tee.py`, `sbom.py`, `audit_sink.py`).
+Audit backends:
+- `POLISYOS_AUDIT_HOT_TIER_URL`
+- `POLISYOS_AUDIT_COLD_TIER_BUCKET`, `POLISYOS_AUDIT_COLD_TIER_PREFIX`, `POLISYOS_AUDIT_COLD_TIER_REGION`
+
+## Связи
+
+- `runtime/http`: routing, tenant context, authz, delegation, tee middleware
+- `core.run`: опционально fan-out trace в chained audit sink
+- `core.audit`: может включать SLSA/SBOM материалы при экспорте
+- `core.observability`: security telemetry (authz/audit/tee/sbom)

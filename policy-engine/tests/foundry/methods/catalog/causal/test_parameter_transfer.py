@@ -48,3 +48,8 @@ def test_parameter_transfer_builds_bridge_payload() -> None:
     assert output["literature_priors"]["fiscal_multiplier"]["__intercept__"]["std"] > 0.0
     assert output["unsupported_parameters"] == ["tax_elasticity"]
     assert output["skg_version_id"] == 42
+    assert output["runtime_backend_used"] in {"jax", "numpy", "numpyro"}
+    assert output["runtime_ready"] is True
+    assert "fiscal_multiplier" in output["runtime_parameter_intervals"]
+    interval = output["runtime_parameter_intervals"]["fiscal_multiplier"]
+    assert interval["ci_low"] < interval["ci_high"]

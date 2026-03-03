@@ -136,8 +136,19 @@ def test_resolve_parameters_node_persists_bundle_and_bridge_payload(tmp_path) ->
     # E2E scenario from phase DoD: UA should select CEE-like estimate.
     assert bundle.parameters["fiscal_multiplier"].value == 1.35
     assert "missing_parameter" in bundle.unsupported_parameters
-    assert outcome.state.params["literature_priors"]["fiscal_multiplier"]["__intercept__"]["mean"] == 1.35
+    assert (
+        outcome.state.params["literature_priors"]["fiscal_multiplier"]["__intercept__"]["mean"]
+        == 1.35
+    )
     assert "fiscal_multiplier" in outcome.state.params["parameter_uncertainty_multipliers"]
+    assert outcome.state.params["phase15_runtime_ready"] is True
+    assert outcome.state.params["phase15_runtime_backend_used"] in {"jax", "numpy", "numpyro"}
+    assert (
+        outcome.state.params["phase15_runtime_parameter_intervals"]["fiscal_multiplier"]["ci_low"]
+        < outcome.state.params["phase15_runtime_parameter_intervals"]["fiscal_multiplier"][
+            "ci_high"
+        ]
+    )
     assert any(event.code == "PARAMS_WITHOUT_EVIDENCE" for event in outcome.events)
 
 

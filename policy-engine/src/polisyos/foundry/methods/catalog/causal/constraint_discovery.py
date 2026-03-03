@@ -21,6 +21,12 @@ from polisyos.foundry.methods.base import (
     foundry_method,
 )
 from polisyos.foundry.methods.catalog.causal._graph_projection import pag_to_dag_projection
+from polisyos.foundry.methods.catalog.causal.ci_backends import (
+    CIBackendSelection,
+    ci_backend_metadata,
+    partial_corr,
+    resolve_discovery_ci_backend,
+)
 from polisyos.foundry.methods.catalog.causal.protocols import TabularCausalDiscoveryData
 from polisyos.ir.analytics.causal_discovery import CausalDiscoveryReport
 from polisyos.ir.analytics.causal_graph import (
@@ -43,6 +49,7 @@ _VALID_GES_SCORE_FUNCS = frozenset(
         "local_score_marginal_multi",
     }
 )
+_VALID_DISCOVERY_SCALE_BACKENDS = frozenset({"auto", "classic", "dagma"})
 _ENDPOINT_TO_MARK = {
     -1: EdgeMark.TAIL,
     1: EdgeMark.ARROW,
@@ -56,6 +63,13 @@ class _DiscoveryExecutionResult:
     metadata: dict[str, Any] = field(default_factory=dict)
     error: str | None = None
     timed_out: bool = False
+
+
+@dataclass(frozen=True)
+class _ScaleBackendSelection:
+    requested: str
+    used: str
+    fallback_reason: str | None = None
 
 
 def _clamp_probability(value: float) -> float:
@@ -75,6 +89,46 @@ def _bootstrap_resample(*, data: np.ndarray, rng: np.random.Generator) -> np.nda
         return data
     indices = rng.integers(0, data.shape[0], size=data.shape[0])
     return data[indices]
+
+
+def _resolve_scale_backend(raw: Any, *, n_variables: int) -> _ScaleBackendSelection:
+    requested = str(raw).strip().lower() if raw is not None else "auto"
+    if not requested:
+        requested = "auto"
+    if requested not in _VALID_DISCOVERY_SCALE_BACKENDS:
+        return _ScaleBackendSelection(
+            requested=requested,
+            used="classic",
+            fallback_reason=(
+                f"unsupported_discovery_scale_backend:{requested}; "
+                "expected one of auto|classic|dagma"
+            ),
+        )
+    if requested == "classic":
+        return _ScaleBackendSelection(requested="classic", used="classic")
+    if requested == "dagma":
+        return _ScaleBackendSelection(requested="dagma", used="dagma")
+    if n_variables > 50:
+        return _ScaleBackendSelection(requested="auto", used="dagma")
+    return _ScaleBackendSelection(requested="auto", used="classic")
+
+
+def _resolve_constraint_ci_backend(raw: Any) -> CIBackendSelection:
+    base = resolve_discovery_ci_backend(raw)
+    if base.used != "jax":
+        return base
+    # Keep auto conservative for backward compatibility and deterministic baselines.
+    if base.requested == "auto":
+        return CIBackendSelection(
+            requested=base.requested,
+            used="numpy",
+            fallback_reason="auto_defaults_numpy_for_stability",
+        )
+    return CIBackendSelection(
+        requested=base.requested,
+        used="jax",
+        fallback_reason=base.fallback_reason,
+    )
 
 
 def _adjacency_to_edges(
@@ -124,7 +178,11 @@ def _adjacency_to_edges(
                 mark_dst=mark_dst,
                 sources=[EdgeSource.DATA],
             )
-            edges.append(edge.model_copy(update={"combined_confidence": edge.compute_combined_confidence()}))
+            edges.append(
+                edge.model_copy(
+                    update={"combined_confidence": edge.compute_combined_confidence()},
+                )
+            )
     return edges, warnings
 
 
@@ -139,7 +197,9 @@ def _run_pc(
 
     indep_test = str(params.get("indep_test", "fisherz")).strip().lower()
     if indep_test not in _VALID_CI_TESTS:
-        raise ValueError(f"Unsupported indep_test={indep_test!r}; expected {sorted(_VALID_CI_TESTS)}")
+        raise ValueError(
+            f"Unsupported indep_test={indep_test!r}; expected {sorted(_VALID_CI_TESTS)}"
+        )
 
     stable = bool(params.get("stable", True))
     uc_rule = int(params.get("uc_rule", 0))
@@ -174,7 +234,9 @@ def _run_fci(
 
     indep_test = str(params.get("indep_test", "fisherz")).strip().lower()
     if indep_test not in _VALID_CI_TESTS:
-        raise ValueError(f"Unsupported indep_test={indep_test!r}; expected {sorted(_VALID_CI_TESTS)}")
+        raise ValueError(
+            f"Unsupported indep_test={indep_test!r}; expected {sorted(_VALID_CI_TESTS)}"
+        )
 
     depth = int(params.get("depth", -1))
     max_path_length = int(params.get("max_path_length", -1))
@@ -365,6 +427,82 @@ def _run_discovery_with_timeout(
     )
 
 
+def _run_jax_constraint_discovery(
+    *,
+    algorithm: str,
+    data: np.ndarray,
+    variable_names: list[str],
+    significance_level: float,
+) -> _DiscoveryExecutionResult:
+    """Deterministic JAX CI runtime path for explicit `discovery_ci_backend=jax`."""
+    arr = np.asarray(data, dtype=float)
+    if arr.ndim != 2:
+        return _DiscoveryExecutionResult(
+            adjacency=None,
+            metadata={},
+            error=f"JAX CI expects 2D data, got shape={arr.shape}",
+            timed_out=False,
+        )
+    n_samples, n_vars = arr.shape
+    if n_vars != len(variable_names):
+        return _DiscoveryExecutionResult(
+            adjacency=None,
+            metadata={},
+            error=(
+                "JAX CI variable mismatch: "
+                f"data_cols={n_vars}, variables={len(variable_names)}"
+            ),
+            timed_out=False,
+        )
+    if n_samples < 4:
+        return _DiscoveryExecutionResult(
+            adjacency=None,
+            metadata={},
+            error=f"JAX CI requires at least 4 samples, got {n_samples}",
+            timed_out=False,
+        )
+
+    adjacency = np.zeros((n_vars, n_vars), dtype=int)
+    threshold = max(0.01, float(significance_level))
+    strengths: list[float] = []
+    for src_idx in range(n_vars):
+        for dst_idx in range(src_idx + 1, n_vars):
+            others = [idx for idx in range(n_vars) if idx not in {src_idx, dst_idx}]
+            cond = arr[:, others] if others else None
+            corr = float(
+                partial_corr(
+                    arr[:, src_idx],
+                    arr[:, dst_idx],
+                    cond,
+                    backend="jax",
+                )
+            )
+            strength = float(abs(corr))
+            strengths.append(strength)
+            if strength < threshold:
+                continue
+            if algorithm == "fci":
+                # PAG uncertainty mark (circle -> arrow) in deterministic index order.
+                adjacency[src_idx, dst_idx] = 2
+                adjacency[dst_idx, src_idx] = 1
+            else:
+                # Deterministic orientation by index for CPDAG-like path.
+                adjacency[src_idx, dst_idx] = -1
+                adjacency[dst_idx, src_idx] = 1
+    metadata = {
+        "ci_runtime": "jax_partial_corr",
+        "ci_threshold": threshold,
+        "ci_mean_strength": float(np.mean(strengths)) if strengths else 0.0,
+        "ci_max_strength": float(np.max(strengths)) if strengths else 0.0,
+    }
+    return _DiscoveryExecutionResult(
+        adjacency=adjacency,
+        metadata=metadata,
+        error=None,
+        timed_out=False,
+    )
+
+
 def _graph_kind_for_algorithm(algorithm: str) -> GraphType:
     if algorithm == "fci":
         return GraphType.PAG
@@ -390,7 +528,10 @@ def _build_graph(
 ) -> tuple[CausalGraphModel, CausalGraphModel | None, list[str]]:
     graph_type = _graph_kind_for_algorithm(algorithm)
     method_name = _method_name_for_algorithm(algorithm)
-    edges, conversion_warnings = _adjacency_to_edges(adjacency=adjacency, variable_names=variable_names)
+    edges, conversion_warnings = _adjacency_to_edges(
+        adjacency=adjacency,
+        variable_names=variable_names,
+    )
     metadata = dict(extra_metadata) if extra_metadata else {}
     if graph_type is GraphType.PAG:
         graph = CausalGraphModel(
@@ -422,6 +563,8 @@ def _fallback_report(
     warnings: list[str],
     elapsed_seconds: float,
     params: Mapping[str, Any],
+    ci_backend: CIBackendSelection,
+    scale_backend: _ScaleBackendSelection,
 ) -> CausalDiscoveryReport:
     graph_type = _graph_kind_for_algorithm(algorithm)
     method_name = _method_name_for_algorithm(algorithm)
@@ -455,6 +598,10 @@ def _fallback_report(
             "fallback": True,
             "requested_n_bootstrap": int(params.get("n_bootstrap", 0) or 0),
             "timeout_seconds": float(params.get("timeout_seconds", 600.0) or 600.0),
+            **ci_backend_metadata(ci_backend),
+            "scale_backend_requested": scale_backend.requested,
+            "scale_backend_used": scale_backend.used,
+            "scale_backend_fallback_reason": scale_backend.fallback_reason,
         },
     )
 
@@ -474,20 +621,83 @@ def _run_constraint_discovery(
     n_bootstrap_requested = max(0, int(params.get("n_bootstrap", 0)))
     timeout_seconds = max(1.0, float(params.get("timeout_seconds", 600.0)))
     seed = int(params.get("__seed__", 0) or 0)
+    ci_backend = _resolve_constraint_ci_backend(params.get("discovery_ci_backend"))
+    scale_backend = _resolve_scale_backend(
+        params.get("discovery_scale_backend"),
+        n_variables=tab_data.n_variables,
+    )
 
     started = time.perf_counter()
     warnings: list[str] = []
     deadline = started + timeout_seconds
 
-    base_result = _run_discovery_with_timeout(
-        algorithm=algorithm,
-        data=tab_data.data,
-        variable_names=tab_data.variable_names,
-        significance_level=significance_level,
-        params=params,
-        timeout_seconds=max(0.0, deadline - time.perf_counter()),
-        seed=seed,
-    )
+    if scale_backend.used == "dagma":
+        from polisyos.foundry.methods.catalog.causal.dagma_discovery import run_dagma_discovery
+
+        dagma_params = dict(params)
+        dagma_params["timeout_seconds"] = max(1.0, deadline - time.perf_counter())
+        dagma_output = run_dagma_discovery(state=tab_data, params=dagma_params)
+        dagma_report_raw = dagma_output["report"]
+        if isinstance(dagma_report_raw, CausalDiscoveryReport):
+            dagma_report = dagma_report_raw
+        else:
+            dagma_report = CausalDiscoveryReport.model_validate(dagma_report_raw)
+        dagma_metadata = dict(dagma_report.metadata)
+        dagma_failed = bool(dagma_metadata.get("fallback"))
+        if not dagma_failed:
+            report = dagma_report.model_copy(
+                update={
+                    "metadata": {
+                        **dagma_metadata,
+                        **ci_backend_metadata(ci_backend),
+                        "scale_backend_requested": scale_backend.requested,
+                        "scale_backend_used": "dagma",
+                        "scale_backend_fallback_reason": scale_backend.fallback_reason,
+                        "trigger_algorithm": algorithm,
+                    }
+                }
+            )
+            return {"report": report, "__determinism_tier__": DeterminismTier.STATISTICAL}
+
+        fallback_reason = "dagma_auto_fallback_to_classic"
+        if scale_backend.requested == "dagma":
+            report = dagma_report.model_copy(
+                update={
+                    "metadata": {
+                        **dagma_metadata,
+                        **ci_backend_metadata(ci_backend),
+                        "scale_backend_requested": scale_backend.requested,
+                        "scale_backend_used": "dagma",
+                        "scale_backend_fallback_reason": dagma_metadata.get("fallback_reason"),
+                        "trigger_algorithm": algorithm,
+                    }
+                }
+            )
+            return {"report": report, "__determinism_tier__": DeterminismTier.STATISTICAL}
+        warnings.append(fallback_reason)
+        scale_backend = _ScaleBackendSelection(
+            requested=scale_backend.requested,
+            used="classic",
+            fallback_reason=fallback_reason,
+        )
+
+    if ci_backend.used == "jax":
+        base_result = _run_jax_constraint_discovery(
+            algorithm=algorithm,
+            data=tab_data.data,
+            variable_names=tab_data.variable_names,
+            significance_level=significance_level,
+        )
+    else:
+        base_result = _run_discovery_with_timeout(
+            algorithm=algorithm,
+            data=tab_data.data,
+            variable_names=tab_data.variable_names,
+            significance_level=significance_level,
+            params=params,
+            timeout_seconds=max(0.0, deadline - time.perf_counter()),
+            seed=seed,
+        )
     if base_result.error is not None or base_result.adjacency is None:
         if base_result.error is not None:
             warnings.append(base_result.error)
@@ -498,6 +708,8 @@ def _run_constraint_discovery(
             warnings=warnings,
             elapsed_seconds=float(time.perf_counter() - started),
             params=params,
+            ci_backend=ci_backend,
+            scale_backend=scale_backend,
         )
         return {"report": report, "__determinism_tier__": DeterminismTier.STATISTICAL}
 
@@ -509,7 +721,9 @@ def _run_constraint_discovery(
             extra_metadata=base_result.metadata,
         )
     except Exception as exc:
-        warnings.append(f"{_method_name_for_algorithm(algorithm).upper()} graph conversion failed: {exc}")
+        warnings.append(
+            f"{_method_name_for_algorithm(algorithm).upper()} graph conversion failed: {exc}"
+        )
         report = _fallback_report(
             state=tab_data,
             algorithm=algorithm,
@@ -517,6 +731,8 @@ def _run_constraint_discovery(
             warnings=warnings,
             elapsed_seconds=float(time.perf_counter() - started),
             params=params,
+            ci_backend=ci_backend,
+            scale_backend=scale_backend,
         )
         return {"report": report, "__determinism_tier__": DeterminismTier.STATISTICAL}
 
@@ -537,15 +753,23 @@ def _run_constraint_discovery(
                 break
 
             sampled = _bootstrap_resample(data=tab_data.data, rng=bootstrap_rng)
-            boot_result = _run_discovery_with_timeout(
-                algorithm=algorithm,
-                data=sampled,
-                variable_names=tab_data.variable_names,
-                significance_level=significance_level,
-                params=params,
-                timeout_seconds=remaining,
-                seed=seed + idx + 1,
-            )
+            if ci_backend.used == "jax":
+                boot_result = _run_jax_constraint_discovery(
+                    algorithm=algorithm,
+                    data=sampled,
+                    variable_names=tab_data.variable_names,
+                    significance_level=significance_level,
+                )
+            else:
+                boot_result = _run_discovery_with_timeout(
+                    algorithm=algorithm,
+                    data=sampled,
+                    variable_names=tab_data.variable_names,
+                    significance_level=significance_level,
+                    params=params,
+                    timeout_seconds=remaining,
+                    seed=seed + idx + 1,
+                )
             if boot_result.error is not None or boot_result.adjacency is None:
                 if boot_result.error is not None:
                     warnings.append(f"bootstrap_run_{idx}: {boot_result.error}")
@@ -593,6 +817,13 @@ def _run_constraint_discovery(
             **dict(base_result.metadata),
             "requested_n_bootstrap": n_bootstrap_requested,
             "timeout_seconds": timeout_seconds,
+            **ci_backend_metadata(ci_backend),
+            "ci_backend_runtime": (
+                "jax_partial_corr" if ci_backend.used == "jax" else "causallearn"
+            ),
+            "scale_backend_requested": scale_backend.requested,
+            "scale_backend_used": scale_backend.used,
+            "scale_backend_fallback_reason": scale_backend.fallback_reason,
         },
     )
     return {"report": report, "__determinism_tier__": DeterminismTier.STATISTICAL}
@@ -634,6 +865,8 @@ class PCDiscovery:
             ParameterSpec(name="stable", default=True),
             ParameterSpec(name="uc_rule", default=0),
             ParameterSpec(name="uc_priority", default=2),
+            ParameterSpec(name="discovery_scale_backend", default="auto"),
+            ParameterSpec(name="discovery_ci_backend", default="auto"),
             ParameterSpec(name="n_bootstrap", default=0),
             ParameterSpec(name="timeout_seconds", default=600),
         ),
@@ -694,6 +927,8 @@ class FCIDiscovery:
             ParameterSpec(name="indep_test", default="fisherz"),
             ParameterSpec(name="depth", default=-1),
             ParameterSpec(name="max_path_length", default=-1),
+            ParameterSpec(name="discovery_scale_backend", default="auto"),
+            ParameterSpec(name="discovery_ci_backend", default="auto"),
             ParameterSpec(name="n_bootstrap", default=0),
             ParameterSpec(name="timeout_seconds", default=600),
         ),
@@ -753,6 +988,8 @@ class GESDiscovery:
             ParameterSpec(name="significance_level", default=0.05),
             ParameterSpec(name="score_func", default="local_score_BIC"),
             ParameterSpec(name="max_parents", default=None),
+            ParameterSpec(name="discovery_scale_backend", default="auto"),
+            ParameterSpec(name="discovery_ci_backend", default="auto"),
             ParameterSpec(name="n_bootstrap", default=0),
             ParameterSpec(name="timeout_seconds", default=600),
         ),

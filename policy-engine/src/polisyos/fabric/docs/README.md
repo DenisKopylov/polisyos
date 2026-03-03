@@ -1,6 +1,6 @@
 # Docs
 
-`polisyos.fabric.docs` — документный конвейер Fabric, который подготавливает CAS-артефакты для extraction/claims и world-проекций.
+`polisyos.fabric.docs` — документный pipeline, который готовит CAS-артефакты и world-сегменты для downstream `claims/world`.
 
 ## Pipeline
 
@@ -8,28 +8,33 @@
 ingest_doc_bytes -> normalize_doc -> structure_doc -> chunk_doc
 ```
 
-Каждая стадия обновляет `DocMeta`, публикует world event и пишет segment manifest.
+Каждая стадия:
+
+- обновляет `DocMeta`,
+- пишет world event,
+- формирует world fact segment + append в index.
 
 ## Основные модули
 
 - `types.py` — `DocSourceSpec`, options/results dataclasses.
-- `ingestion.py` — прием raw bytes, генерация `DocMeta`, запись raw artifact.
-- `normalize.py` — decode + mime-aware text normalization.
-- `structure.py` — anchors/sections/fragment metadata.
-- `chunking.py` — разбиение на chunk fragments (fixed или paragraph boundary).
-- `errors.py` — доменные ошибки pipeline.
-- `backends/` — `text_plain`, `text_html`, `pdf` (stub backend).
+- `ingestion.py` — прием raw bytes, формирование `DocMeta`, запись raw artifact.
+- `normalize.py` — decode + mime-aware text normalization через `BackendDispatcher`.
+- `structure.py` — anchors/sections + `DocFragment` generation.
+- `chunking.py` — char/paragraph chunking + fragment generation.
+- `errors.py` — pipeline errors.
+- `backends/` — `text_plain`, `text_html`, `pdf` (stub).
 
-## Ключевые ограничения
+## Ограничения и поддержка MIME
 
-- `DocSourceSpec` требует ровно один идентификатор из: `canonical_url`, `official_id`, `source_locator`.
+- `DocSourceSpec` требует ровно один идентификатор: `canonical_url` или `official_id` или `source_locator`.
 - `license` обязателен.
-- Core-реализация нормализации поддерживает `text/plain` и `text/html`.
-- `pdf` backend в текущем пакете остается заглушкой и требует расширений/optional deps.
+- Нативно поддержаны `text/plain` и `text/html`.
+- Любой `text/*` без отдельного backend идет через plain-text normalizer.
+- `pdf` backend в core — заглушка (нужны optional deps/расширения).
 
-## Что возвращают стадии
+## Результаты стадий
 
-Все result-модели (`DocIngestResult`, `DocNormalizeResult`, `DocStructureResult`, `DocChunkResult`) содержат:
+`DocIngestResult`, `DocNormalizeResult`, `DocStructureResult`, `DocChunkResult` возвращают:
 
 - `doc_source_id`, `doc_version_id`,
 - актуальные artifact refs (`raw_ref`, `normalized_ref`, `structure_ref`, `chunks_ref`),
@@ -39,11 +44,11 @@ ingest_doc_bytes -> normalize_doc -> structure_doc -> chunk_doc
 
 Дополнительно:
 
-- `DocStructureResult.fragment_ids` — фрагменты структуры.
-- `DocChunkResult.chunk_fragment_ids` — итоговые chunk fragments.
+- `DocStructureResult.fragment_ids`
+- `DocChunkResult.chunk_fragment_ids`
 
 ## Связи
 
-- `fabric.claims` — downstream extraction (`extract_claims_from_doc`).
-- `fabric.world.store` — эмиссия/персист world-фактов и событий.
-- `polisyos.ir.world.doc` и `polisyos.ir.citations` — доменные модели документов и локаторов.
+- downstream: `fabric.claims`.
+- world persistence: `fabric.world.store`.
+- доменные модели: `polisyos.ir.world.doc`, `polisyos.ir.citations`.

@@ -1,95 +1,94 @@
-# schemas — контрактные артефакты Policy Engine
+# schemas — контрактный baseline Policy Engine
 
-`schemas/` фиксирует публичные контракты между подсистемами (`ir`, `fabric`, `runtime`, `frontend`) и используется как baseline для drift/compatibility проверок в CI.
+`schemas/` хранит фиксированные контрактные артефакты между слоями `ir`, `fabric`, `runtime` и клиентами. Эти файлы используются в CI для drift/compatibility checks и не должны меняться вручную вне генераторов.
 
-## Что хранится в директории
+## Что находится в директории
 
-| Артефакт | Роль |
+| Артефакт | Назначение |
 | --- | --- |
-| `abi_models.py` | Реестр ABI моделей (`ABI_MODELS`), которые должны быть отслежены снапшотами |
-| `snapshots/ir/*`, `snapshots/fabric/*` | Детерминированные JSON Schema снапшоты ABI для semantic diff |
-| `snapshots/connectors/contracts.json` | Зафиксированные контракты источников данных для connector layer |
-| `runtime_api_v1.openapi.json` | Зафиксированная OpenAPI v1 спецификация Runtime API |
+| `abi_models.py` | Реестр ABI (`ABI_MODELS`): что и как версионируется в `snapshots/{ir,fabric}` |
+| `snapshots/ir/*.schema.json`, `snapshots/fabric/*.schema.json` | JSON Schema baseline для semantic diff |
+| `snapshots/*/_manifest.json` | Метаданные генерации и хеши (`sha256_full`, `sha256_semantic`) |
+| `snapshots/connectors/contracts.json` | Snapshot контрактов source-коннекторов |
+| `runtime_api_v1.openapi.json` | Коммитный OpenAPI контракт Runtime API v1 |
 
-## Актуальное состояние (по состоянию на 2026-02-17)
+## Актуальное состояние (2026-03-03)
 
-- ABI registry: `34` моделей (`ir=32`, `fabric=2`), все `active`, все `compat_mode=strict`.
-- Приоритеты ABI: `p0=18`, `p1=14`, `p2=2`.
-- `version_field=None` у `data_view_request`, `edge_kind`, `node_kind`.
-- ABI манифесты: `snapshots/ir/_manifest.json` (`generated_at=2026-02-08T18:29:42+00:00`), `snapshots/fabric/_manifest.json` (`generated_at=2026-02-07T12:16:56+00:00`).
-- Connector snapshot: `version=1`, `3` контракта (`eurostat.data.generic`, `ukons.datasets.generic`, `worldbank.wdi.generic`).
+- ABI registry: `50` активных моделей (`ir=48`, `fabric=2`), все в `compat_mode=strict`.
+- Приоритеты ABI: `p0=18`, `p1=23`, `p2=9`.
+- `version_field=None` у `certification_result`, `data_view_request`, `outer_search_result`, `edge_kind`, `node_kind`.
+- ABI manifests:
+  - `snapshots/ir/_manifest.json`: `generated_at=2026-03-03T16:49:25+00:00`;
+  - `snapshots/fabric/_manifest.json`: `generated_at=2026-03-02T16:48:08+00:00`.
+- Connector snapshot: `version=1`, контрактов `3` (`eurostat.data.generic`, `ukons.datasets.generic`, `worldbank.wdi.generic`).
 - Runtime OpenAPI: `openapi=3.1.0`, `PolicyOS Runtime API 1.0.0`, `37` операций (`27 GET`, `10 POST`).
-- `tools/runtime/generate_runtime_client.py` генерирует SDK только для `GET`-операций; типы для всего контракта дополнительно генерируются в `frontend/runtime-dashboard/src/api/types.ts`.
+- `tools/runtime/generate_runtime_client.py` генерирует клиент только по `GET`; типы для полного OpenAPI генерируются отдельно в `frontend/runtime-dashboard/src/api/types.ts`.
 
-## Архитектура и потоки
+## Архитектурные потоки
 
 ```text
-src/polisyos/ir + src/polisyos/fabric/world
+src/polisyos/ir/** + src/polisyos/ir/world/abi.py
   -> schemas/abi_models.py
   -> tools/diagnostics/gen_schema.py
   -> schemas/snapshots/{ir,fabric}
-  -> CI: .github/workflows/abi.yml + .github/workflows/arch.yml
+  -> ABI checks: .github/workflows/abi.yml + .github/workflows/arch.yml
 ```
 
 ```text
 src/polisyos/fabric/connectors/sources/_contracts/*
   -> tools/connectors/check_contracts.py
   -> schemas/snapshots/connectors/contracts.json
-  -> CI: .github/workflows/arch.yml
+  -> arch check: .github/workflows/arch.yml
 ```
 
 ```text
 src/polisyos/runtime/http/app.py
   -> tools/runtime/export_runtime_openapi.py
   -> schemas/runtime_api_v1.openapi.json
+  -> tools/runtime/check_runtime_api_contract.py
   -> tools/runtime/generate_runtime_client.py -> frontend/runtime-api-client/*
   -> frontend/runtime-dashboard/scripts/generate-api-client.sh -> frontend/runtime-dashboard/src/api/types.ts
 ```
 
-## Связи с другими директориями
+## Связи с соседними директориями
 
-| Директория | Связь |
+| Директория | Роль относительно `schemas/` |
 | --- | --- |
 | `src/polisyos/ir` | Источник Pydantic ABI-моделей для `snapshots/ir` |
-| `src/polisyos/fabric/world` | Источник enum ABI (`edge_kind`, `node_kind`) для `snapshots/fabric` |
-| `src/polisyos/fabric/connectors/sources/_contracts` | Источник connector контрактов для `snapshots/connectors/contracts.json` |
+| `src/polisyos/ir/world/abi.py` | Источник enum ABI (`edge_kind`, `node_kind`) для `snapshots/fabric` |
+| `src/polisyos/fabric/connectors/sources/_contracts` | Источник connector-контрактов для `snapshots/connectors/contracts.json` |
 | `src/polisyos/runtime/http` | Источник OpenAPI контракта для `runtime_api_v1.openapi.json` |
-| `tools/diagnostics` | Генерация/проверка ABI (`gen_schema.py`, `abi_diff.py`) |
-| `tools/connectors` | Проверка и обновление snapshot контрактов коннекторов |
-| `tools/runtime` | Экспорт OpenAPI, drift-check, генерация runtime-api клиента |
-| `.github/workflows/abi.yml` | PR-gate для ABI semantic diff и freshness |
-| `.github/workflows/arch.yml` | Общий архитектурный gate, включая ABI/connectors/runtime API проверки |
+| `tools/diagnostics` | Генерация ABI snapshot и semantic diff (`gen_schema.py`, `abi_diff.py`) |
+| `tools/connectors` | Drift/compatibility проверка и обновление connector snapshot |
+| `tools/runtime` | Экспорт OpenAPI, hardening+drift checks, генерация runtime клиента |
+| `frontend/runtime-api-client` | Коммитный runtime SDK (TS/JS) |
+| `frontend/runtime-dashboard` | Генерация OpenAPI типов для UI (`npm run generate:api`) |
 
-## Локальная работа (из корня `policy-engine/`)
-
-### Проверка контрактов без изменений
+## Рабочие команды (из `policy-engine/`)
 
 ```bash
+# Проверка baseline без изменений
 python3 tools/diagnostics/gen_schema.py --check
 python3 tools/connectors/check_contracts.py --check
 python3 tools/runtime/check_runtime_api_contract.py
 ```
 
-### Обновление baseline артефактов
-
 ```bash
+# Обновление baseline
 python3 tools/diagnostics/gen_schema.py
 python3 tools/connectors/check_contracts.py --update
 python3 tools/runtime/export_runtime_openapi.py --output schemas/runtime_api_v1.openapi.json
-python3 tools/runtime/generate_runtime_client.py \
-  --openapi schemas/runtime_api_v1.openapi.json \
-  --out-ts frontend/runtime-api-client/runtimeApiClient.ts \
-  --out-js frontend/runtime-api-client/runtimeApiClient.js
+python3 tools/runtime/generate_runtime_client.py
 ```
 
 ```bash
+# Синхронизация UI типов
 cd frontend/runtime-dashboard
 npm run generate:api
 ```
 
-### Локальный semantic diff ABI
-
 ```bash
+# Локальный semantic diff ABI (перед PR)
 python3 tools/diagnostics/gen_schema.py --output-dir /tmp/current_schemas
 python3 tools/diagnostics/abi_diff.py \
   --baseline schemas/snapshots \
@@ -99,9 +98,12 @@ python3 tools/diagnostics/abi_diff.py \
 
 ## Инварианты сопровождения
 
-- Не редактировать вручную `snapshots/ir/*.json` и `snapshots/fabric/*.json`.
-- Не править вручную `snapshots/connectors/contracts.json`, если можно использовать `check_contracts.py --update`.
-- При изменении Runtime API синхронно обновлять `schemas/runtime_api_v1.openapi.json`, `frontend/runtime-api-client/*` и `frontend/runtime-dashboard/src/api/types.ts`.
+- Не редактировать вручную файлы в `snapshots/ir` и `snapshots/fabric`.
+- Не редактировать вручную `snapshots/connectors/contracts.json`, использовать `check_contracts.py --update`.
+- Любое изменение Runtime API сопровождается синхронным обновлением:
+  - `schemas/runtime_api_v1.openapi.json`,
+  - `frontend/runtime-api-client/runtimeApiClient.ts` и `runtimeApiClient.js`,
+  - `frontend/runtime-dashboard/src/api/types.ts`.
 
 ## Подробности по подпапкам
 

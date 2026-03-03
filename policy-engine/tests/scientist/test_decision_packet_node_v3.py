@@ -637,6 +637,8 @@ def test_build_decision_packet_includes_transportability_summary(tmp_path) -> No
                 feasible=True,
                 resolution_rounds=2,
                 unsupported_cases=["front-door outside simplified scope"],
+                identification_engine="symbolic",
+                identification_trace=["symbolic_success:frontdoor:M"],
             ),
         ),
     )
@@ -660,6 +662,8 @@ def test_build_decision_packet_includes_transportability_summary(tmp_path) -> No
     assert summary["final_confidence"] == 0.73
     assert summary["resolution_rounds"] == 2
     assert summary["unsupported_cases_count"] == 1
+    assert summary["identification_engine"] == "symbolic"
+    assert summary["unsupported_reason"] is None
 
 
 def test_build_decision_packet_includes_ensemble_summary(tmp_path) -> None:

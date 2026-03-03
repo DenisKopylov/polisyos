@@ -1,80 +1,86 @@
 # Core — инфраструктурный слой PolisyOS
 
-`polisyos.core` — общий слой инфраструктуры для `fabric`, `foundry`, `scientist`, `lex`,
-`runtime`, `scholar` и `packs`: контракты, артефакты, run/trace lifecycle, безопасность,
-наблюдаемость, governance и общие runtime-примитивы.
+`polisyos.core` — общий инфраструктурный слой для доменных подсистем (`fabric`, `foundry`, `scientist`, `lex`, `runtime`, `scholar`, `packs`).
 
-`ir` остается отдельным слоем схем/реестров: `core` использует `ir`, но `ir` не зависит от `core`.
+Он концентрирует:
+- типизированные межмодульные контракты;
+- CAS/lineage/run lifecycle;
+- component discovery/bootstrap;
+- наблюдаемость, безопасность и устойчивость исполнения.
 
-## Архитектура директории
+`polisyos.ir` остается отдельным слоем схем и canonical refs: `core` зависит от `ir`, но не наоборот.
+
+## Архитектурная карта
 
 ```text
 core/
-├── artifacts/      # CAS + манифесты + подписи + environment + dependency graph
-├── audit/          # Экспорт/верификация офлайн аудит-пакетов (PROV/SLSA/checksums)
-├── backends/       # Унифицированный dispatcher backend-реализаций
-├── cache/          # Потокобезопасные LRU/TTL кэши
-├── canon/          # Канонический JSON и хеширование
-├── compiler/       # Compile/link reports в CAS
-├── components/     # Component Model v1: metadata/discovery/registry/bootstrap
-├── contracts/      # Typed ABI между модулями
-├── discovery/      # Базовые discovery-примитивы
-├── errors/         # Базовая унифицированная ошибка и категории
-├── evaluation/     # Weighted scoring и threshold mapping
-├── governance/     # Validation profiles + legal/safety passes
-├── llm/            # Трассируемый LLM client + parsing/cost/retry facade
-├── observability/  # Tracing, metrics, propagation, structured logs, pricing
-├── pipeline/       # Линейные и DAG pipeline-примитивы
-├── registry/       # Generic registries + registry bundle builder/loader
-├── resilience/     # Общая retry-политика с backoff/jitter
-├── run/            # RunContext + RunManifest lifecycle
-├── security/       # Tenant isolation, authn/authz, audit chain, TEE, SBOM, SLSA
-└── trace/          # TraceRecord и sink'и (JSONL/composite)
+├── artifacts/      # CAS, manifests, signatures, environment, dependency graph
+├── audit/          # экспорт и офлайн-верификация audit package
+├── backends/       # generic backend dispatcher
+├── cache/          # in-memory LRU/TTL cache primitives
+├── canon/          # canonical JSON и хеширование
+├── compiler/       # compile/link report artifacts
+├── components/     # component model, discovery, bootstrap, CLI wiring
+├── contracts/      # typed ABI: refs + DTO между подсистемами
+├── discovery/      # generic discovery orchestration primitives
+├── errors/         # базовая ошибка и категории
+├── evaluation/     # weighted scoring + threshold mapping
+├── governance/     # validation profiles + legal/safety passes
+├── llm/            # traced LLM facade (response/cost/retry)
+├── observability/  # tracing, metrics, logs, propagation, pricing
+├── pipeline/       # linear + DAG pipeline primitives
+├── registry/       # registry bundle build/load + generic registries
+├── resilience/     # retry policy с backoff/jitter
+├── run/            # RunContext и RunManifest lifecycle
+├── security/       # tenant isolation, authz, audit chain, TEE, SBOM, SLSA
+└── trace/          # TraceRecord + sinks (jsonl/composite)
 ```
 
 ## Роль в системе
 
-- ABI plane: `core.contracts` задает typed refs и DTO на межмодульных границах.
-- Data/provenance plane: `artifacts`, `run`, `trace`, `audit` обеспечивают воспроизводимость.
-- Plugin plane: `components`, `discovery`, `registry` связывают entry points с runtime.
-- Runtime-quality plane: `security`, `observability`, `resilience`, `pipeline` дают единые NFR-гарантии.
+- `ABI plane`: `core.contracts` фиксирует стабильные границы между модулями.
+- `Data/provenance plane`: `artifacts`, `run`, `trace`, `audit` обеспечивают воспроизводимость.
+- `Plugin plane`: `components`, `discovery`, `registry` соединяют плагины с runtime.
+- `NFR plane`: `security`, `observability`, `resilience`, `pipeline` дают единые runtime-гарантии.
+
+## Ключевые потоки
+
+1. Discovery и bootstrap компонентов:
+   `components.discover_components` -> `build_components_index` -> `bootstrap_plugin_registries`.
+2. Run lifecycle:
+   `run.RunContext.start` -> trace события (`trace.jsonl`) -> `RunManifest` в CAS.
+3. Governance validation:
+   `governance.ValidationProfile` + набор pass'ов (`safety`, `legal`, ...).
+4. Проверяемая поставка:
+   `audit.AuditPackageAssembler` / `audit.AuditPackageVerifier` + `artifacts.signing` + `security.slsa`.
 
 ## Публичные точки входа
 
-`polisyos.core` (lazy facade) экспортирует:
-
+Через lazy-facade `polisyos.core` экспортируются:
 - `artifacts`, `backends`, `cache`, `canon`, `components`, `contracts`, `discovery`
 - `evaluation`, `errors`, `llm`, `observability`, `pipeline`, `resilience`, `registry`, `run`
 
-Подсистемы, импортируемые напрямую:
-
+Импортируются напрямую (вне lazy facade):
 - `polisyos.core.audit`
 - `polisyos.core.compiler`
 - `polisyos.core.governance`
 - `polisyos.core.security`
 - `polisyos.core.trace`
 
-## Ключевые сценарии
-
-1. Сборка реестров: `components` -> `registry.build_registry_bundle_from_components` -> CAS bundle.
-2. Запуск пайплайнов: `run.RunContext` + `trace.TraceRecord` + `contracts.*`.
-3. Governance-валидация: `governance.ValidationProfile` + `governance.passes`.
-4. Проверяемая поставка: `audit` + `artifacts.signing` + `security.slsa`.
-
-## Связь с другими директориями
+## Связь с соседними директориями
 
 | Директория | Как использует `core` |
 |---|---|
-| `fabric/` | CAS (`artifacts`), canonical hashing (`canon`), evidence contracts (`contracts.fabric`), component discovery |
-| `foundry/` | compile/execute contracts (`contracts.foundry`), registry bundles (`registry`), tracing/metrics (`observability`) |
-| `scientist/` | run lifecycle (`run`), governance passes/profiles (`governance`), LLM wrappers (`llm`), artifacts/contracts |
-| `lex/` | legal contracts (`contracts.lex`), legal/safety validation passes, component providers |
-| `runtime/` | runtime API contracts (`contracts.runtime`), lineage/debug, security middleware |
-| `scholar/` | scholar contracts, CAS, component-based extractors, freshness metrics |
-| `packs/` | декларация компонентов (`components.ComponentMetadata/Capability/ComponentKind`) |
-| `ir/` | источник canonical refs/registry schemas для `contracts` и `registry` |
+| `fabric/` | `contracts.fabric`, CAS (`artifacts`), component discovery, provenance |
+| `foundry/` | compile/execute contracts, registry bundles, tracing/metrics |
+| `scientist/` | run lifecycle, governance passes, LLM facade, execution contracts |
+| `lex/` | legal contracts, legal/safety passes, norm pack/provider bootstrap |
+| `runtime/` | runtime API contracts, security routing/authz, observability hooks |
+| `scholar/` | scholar contracts, CAS bundles, freshness and enrichment telemetry |
+| `packs/` | component metadata/capabilities и IR fragments |
+| `ir/` | canonical refs/schemas для контрактов и registry payloads |
 
-## Документация подсистем
+## README подсистем
 
 - [artifacts/README.md](artifacts/README.md)
 - [audit/README.md](audit/README.md)
@@ -89,6 +95,6 @@ core/
 
 ## Границы ответственности
 
-- В `core` добавляется только то, что переиспользуется минимум двумя подсистемами.
-- Доменная бизнес-логика остается в `fabric`/`foundry`/`scientist`/`lex`/`scholar`.
-- Новый межмодульный API сначала фиксируется в `core.contracts`, затем реализуется в доменном модуле.
+- В `core` попадает только функциональность, которую используют минимум две подсистемы.
+- Доменная логика остается в `fabric`/`foundry`/`scientist`/`lex`/`scholar`.
+- Новый межмодульный интерфейс сначала фиксируется в `core.contracts`, затем внедряется в доменный модуль.

@@ -1,15 +1,16 @@
 # Plugins (`polisyos.foundry.plugins`)
 
-`plugins` — доменная plugin-архитектура поверх Foundry для composable multi-domain симуляций.
+`plugins` — доменная plugin-архитектура Foundry для composable multi-domain симуляций поверх `agent_sim`.
 
-Актуально по коду на 2026-02-17.
+Актуально по коду на 2026-03-03.
 
 ## Роль в системе
 
-Подсистема добавляет high-level слой над agent-based execution:
-- домены оформляются как `DomainPlugin`;
-- доменные состояния объединяются в `CompositeState`;
-- исполнение/обучение доступно через `PolisySimulator` API и CLI.
+Подсистема добавляет high-level слой над agent-based контуром:
+
+- домены инкапсулируются как `DomainPlugin`;
+- состояния доменов объединяются в `CompositeState`;
+- исполнение и обучение доступны через `PolisySimulator` API и CLI.
 
 ## Архитектурный поток
 
@@ -23,44 +24,34 @@ DomainPlugin protocols (core.py)
 
 ## Ключевые модули
 
-- `core.py`
-  - Контракты: `DomainPlugin`, `DomainState`, `MechanismProtocol`, `RewardProtocol`, `ObjectiveProtocol`.
-  - `DomainConfig`, `PluginMetadata`, `PluginRegistry`.
-
-- `composite.py`
-  - `CompositeState`, cross-domain interactions, `CompositeExecutor`, `CompositeReward`, `CompositeObjective`.
-
-- `api.py`
-  - `PolisySimulator` (fluent API: add domain/interactions/objectives, run/train/visualize).
-  - Результаты: `SimulationResult`, `TrainingResult`.
-
-- `discovery.py`
-  - Автообнаружение builtin, entry points (`polisyos.plugins`) и directory plugins.
-  - `auto_register_plugins()` для runtime bootstrap.
-
-- `cli.py`
-  - Команды: `list`, `run`, `train`, `analyze`.
+- `core.py`: контракты `DomainPlugin`, `DomainState`, reward/objective protocols, `PluginRegistry`.
+- `composite.py`: `CompositeState`, cross-domain interactions, multi-domain executor/reward/objective.
+- `api.py`: `PolisySimulator` (добавление доменов, run, train, visualize).
+- `discovery.py`: built-in + entry points (`polisyos.plugins`) + directory plugins.
+- `cli.py`: команды `list`, `run`, `train`, `analyze`.
 
 ## Built-in economics plugin
 
 `plugins/economics/` содержит референсный домен:
-- `plugin.py` — `EconomicsPlugin`;
-- `state.py` — доменная state-модель;
-- `mechanisms.py` — labor/taxation/transfers/consumption/savings;
-- `objectives.py` — GDP/Gini/unemployment/social-welfare/utilitarian/rawlsian цели;
-- `rewards.py` — reward-функция для обучения.
+
+- `plugin.py`: `EconomicsPlugin`;
+- `state.py`: доменная state-модель;
+- `mechanisms.py`: труд, налоги, трансферы, потребление, сбережения;
+- `objectives.py`: GDP/Gini/unemployment/social-welfare цели;
+- `rewards.py`: reward-функция для обучения.
 
 ## Связь с другими директориями
 
 `plugins` зависит от:
-- `foundry/agent_sim/*` (executor, training, distributions, visualization);
-- JAX/Equinox стека и общих Foundry контрактов.
 
-Используется как высокоуровневый API для сценариев, где удобнее plugin-based orchestration вместо прямой работы с Trinity `compile/execute`.
+- `foundry/agent_sim/*` (executor, training, distributions, visualization);
+- JAX/Equinox/Optax стека и контрактов Foundry.
+
+Используется как доменный orchestration-слой, когда plugin-driven сценарий удобнее прямого Trinity `compile/execute`.
 
 ## Текущее состояние и ограничения
 
-- Built-in discovery по умолчанию регистрирует `polisyos.foundry.plugins.economics`.
-- В `PolisySimulator.train()` observation builder берётся из первого добавленного домена.
-- CLI использует повторяемый флаг `--domain` (а не `--domains`).
+- По умолчанию автообнаружение регистрирует `polisyos.foundry.plugins.economics`.
+- В `PolisySimulator.train()` observation builder берется из первого добавленного домена.
+- CLI использует повторяемый `--domain`.
 - Подсистема ориентирована на доменные simulation workflows и не заменяет базовый Foundry execution pipeline.

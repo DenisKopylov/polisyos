@@ -1,187 +1,149 @@
 # Scientist (`polisyos.scientist`)
 
-`scientist` — orchestration-слой Policy Engine для запуска и воспроизводимого выполнения policy-экспериментов поверх `ir`, `foundry`, `fabric`, `lex`, `scholar` и `core`.
+`scientist` — orchestration-слой Policy Engine для запуска policy-экспериментов и сборки воспроизводимого результата поверх `ir`, `foundry`, `fabric`, `lex`, `scholar`, `core`.
 
-Документ отражает текущее состояние кода на **2026-02-17**.
+Документ отражает текущее состояние кода на **2026-03-03**.
 
 ## Роль в системе
 
 `scientist` отвечает за:
-- запуск workflow эксперимента;
-- координацию data/plan/compile/simulate/governance шагов;
-- сбор итогового `DecisionPacket`;
-- воспроизводимость запуска (idempotency cache, checkpoints, replay backend).
+- сборку и исполнение workflow DAG;
+- координацию этапов data -> planning/preflight -> compile -> simulate -> governance -> decision;
+- сериализацию run-артефактов и run-отчетов;
+- воспроизводимость (`idempotency`, `checkpoint`, `resume`, `replay`).
 
-`scientist` не отвечает за:
-- доменную симуляцию как таковую (`foundry`);
-- загрузку/хранение первичных данных (`fabric`);
-- канонические контракты/схемы IR (`ir`);
-- доменную юридическую интерпретацию (`lex`).
+`scientist` не реализует доменную математику/хранилища сам:
+- доменный execute/compile: `foundry`;
+- данные и retrieval: `fabric`;
+- канонические IR-контракты: `ir`;
+- юридический домен: `lex`.
 
-## Основные точки входа
+## Публичные точки входа
 
-- `polisyos.scientist.run_experiment(state=None)`
-- `polisyos.scientist.workflows.builder.run_default_workflow(initial_state, ...)`
+- `polisyos.scientist.run_experiment(state=None)` — стандартный entrypoint.
+- `polisyos.scientist.workflows.run_default_workflow(...)` — запуск `scientist_default`.
+- `polisyos.scientist.workflows.run_causal_full_workflow(...)` — запуск `scientist_causal_full`.
+- `polisyos.scientist.engine.resume_from_checkpoint(...)` — resume по checkpoint.
 
 `run_experiment()`:
-- валидирует вход по `ExperimentState` (`extra="forbid"`);
+- валидирует вход как `ExperimentState` (`extra="forbid"`);
 - генерирует `run_id`, если пустой;
-- запускает `scientist_default` workflow;
-- возвращает финальный `ExperimentState` как `dict`.
+- отклоняет неизвестные top-level ключи при mapping-входе;
+- возвращает финальный `ExperimentState` в виде `dict`.
 
-Важно: для mapping-входа отклоняются неизвестные top-level ключи.
+## Актуальные workflow спецификации
 
-## Default Workflow (актуальный DAG)
+### `scientist_default`
 
 Spec: `workflows/default.py`.
 
 ```text
-start (noop)
-├─ build_data_snapshot
-│  └─ bind_foundry_inputs
-│     └─ run_data_plane_gate
-├─ build_execution_plan
-│  └─ build_method_catalog_snapshot
-│     └─ run_preflight
-│        └─ ready_to_run
+start
+├─ build_data_snapshot -> bind_foundry_inputs -> run_data_plane_gate
+├─ build_execution_plan -> build_method_catalog_snapshot -> run_preflight -> ready_to_run
 └─ link_trinity
 
-compile_foundry (depends on: link_trinity + run_data_plane_gate + ready_to_run)
-├─ run_simulation
-│  ├─ run_distributional_analysis
-│  └─ propagate_uncertainty
-│     └─ run_governance
-│        └─ run_evaluator
-└─ run_causal_evaluation (depends on build_data_snapshot)
+compile_foundry (depends: link_trinity + run_data_plane_gate + ready_to_run)
+└─ resolve_parameters (depends: compile_foundry + bind_foundry_inputs + run_data_plane_gate)
+   └─ run_simulation
+      ├─ run_distributional_analysis
+      └─ propagate_uncertainty
 
-build_decision_packet (depends on: run_governance + run_causal_evaluation + run_evaluator)
+run_causal_evaluation (depends: build_data_snapshot)
+run_governance (depends: propagate_uncertainty + run_distributional_analysis + run_causal_evaluation)
+run_evaluator (depends: run_governance)
+build_decision_packet (depends: run_governance + run_causal_evaluation + run_evaluator)
 ```
 
-Ключевые особенности текущего DAG:
-- `error_policy="continue"` (независимые ветки продолжают работу; зависимые ноды skip при upstream failure);
-- preflight pipeline (`build_execution_plan -> build_method_catalog_snapshot -> run_preflight -> ready_to_run`) обязателен перед compile;
-- `run_evaluator` включен в default путь и участвует в финальном `build_decision_packet`.
+Ключевые свойства:
+- `error_policy="continue"`: независимые ветки продолжаются, зависимые ноды skip при upstream fail;
+- preflight-пайплайн обязателен перед compile;
+- `run_evaluator` всегда участвует в default-пути.
+
+### `scientist_causal_full` (опционально)
+
+Spec: `workflows/causal_full.py`.
+
+Добавляет causal-ветку:
+- `build_literature_prior`
+- `reconcile_causal_graph`
+- `run_causal_queries`
+- `run_causal_ensemble`
+- `run_abm_consistency`
+- `run_transportability`
+
+Используется для расширенного causal-контура, default-`run_experiment()` его автоматически не запускает.
 
 ## Минимальный входной контракт
 
-`ExperimentState` (см. `engine/state.py`) требует:
-- обязательно: `inputs.trinity_bundle_ref`;
-- источник данных: как минимум один из
-  - `inputs.data_snapshot_ref`,
-  - `inputs.input_bindings_ref`,
+`ExperimentState` требует:
+- обязательно `inputs.trinity_bundle_ref`;
+- минимум один источник данных:
+  - `inputs.data_snapshot_ref`, или
+  - `inputs.input_bindings_ref`, или
   - `inputs.data_view_request_ref`.
 
-`inputs.registry_bundle_ref` можно не передавать: `run_default_workflow()` создаст его автоматически.
-
-Пример минимального payload:
-
-```python
-state = {
-    "run_id": "",
-    "inputs": {
-        "trinity_bundle_ref": {
-            "artifact_id": "sha256:...",
-            "kind": "ir.trinity_bundle",
-            "media_type": "application/json",
-        },
-        "data_snapshot_ref": {
-            "artifact_id": "sha256:...",
-            "kind": "fabric.data_snapshot",
-            "media_type": "application/json",
-        },
-    },
-    "params": {"random_seed": 42},
-}
-```
+`inputs.registry_bundle_ref` можно не передавать: workflow соберет его автоматически.
 
 ## Архитектура директории
 
 ```text
 scientist/
-├── api.py, __init__.py              # публичный фасад
-├── workflows/                       # default workflow spec + сборка execution context/registry
-├── engine/                          # state, протоколы, executor, checkpoint, idempotency
-├── nodes/builtins/                  # бизнес-ноды (data/planning/compile/simulate/governance/decide)
-├── adapters/                        # порты к foundry/fabric
-├── governance/                      # validation pipeline + governance report модели
-├── kernel/                          # phase FSM, budgets, human gate protocol
-├── llm_cycle.py                     # execution plan / preflight / evaluator helpers + persistence
-├── replay_backend.py                # replay strategy (foundry/scientist) + verification
-├── llm/                             # gateway-first LLM client + model profile registry
-├── agent/                           # PI/Drafter/Formalizer/Critic + multipass/reflexion
-├── search/                          # search loop + strategies
-├── doe/                             # sensitivity/adversarial design + analysis
-└── backtesting/                     # historical validation + trust scoring
+├── api.py, __init__.py          # публичный facade
+├── workflows/                   # workflow specs + запуск + context/registry wiring
+├── engine/                      # executor, state, protocol, idempotency, checkpoint/resume
+├── nodes/                       # builtin DAG-ноды (data/planning/compile/causal/simulate/governance/decide)
+├── adapters/                    # bridges к foundry/fabric
+├── compute/                     # method/legacy execution jobs
+├── governance/                  # validation passes/pipeline + governance report
+├── kernel/                      # phase FSM, budgets, human gate protocol
+├── llm_cycle.py                 # execution-plan/preflight/evaluator/reproducibility helpers
+├── replay_backend.py            # replay (foundry/scientist) + verification
+├── llm/                         # gateway-first LLM client + model profile registry
+├── agent/                       # PI/Drafter/Formalizer/Critic + multipass/reflexion
+├── search/                      # search loop + strategies
+├── doe/                         # sensitivity/adversarial design + analysis
+├── backtesting/                 # historical validation + trust scoring
+└── orchestrator/                # decision-card summary layer
 ```
 
-## Что используется в default run, а что опционально
-
-Используется по умолчанию (`run_experiment`):
-- `workflows`, `engine`, `nodes/builtins`, `adapters`, `governance`, `kernel`, `compute`, `llm_cycle`.
-
-Опциональные контуры:
-- `agent` (LLM-агенты, multipass drafter);
-- `search` и `doe` (итеративная оптимизация и стресс/чувствительность);
-- `backtesting` (историческая валидация);
-- `orchestrator/decision_card` (human-readable summary поверх decision packet).
-
-## Связи с другими директориями
+## Связи с соседними пакетами
 
 Исходящие зависимости (`scientist -> ...`):
-- `core`: CAS/artifacts, observability, components discovery, run context, security.
-- `ir`: Trinity, analytics contracts (causal/distributional/uncertainty/backtest), gate contracts.
-- `foundry`: compile/execute, method backends, uncertainty/distributional analysis.
-- `fabric`: DataSnapshot/DataViewRequest (`DefaultFabricPort`).
-- `lex`: legal/gov checks и legal artifacts в governance контурах.
-- `scholar`: enrichment/knowledge артефакты (опционально).
-- `runtime.replay`: completeness/verification при replay.
+- `core`: CAS/artifacts, run-context, observability, components discovery, security hooks;
+- `ir`: trinity/gate/analytics контракты;
+- `foundry`: compile/execute и method-инфраструктура;
+- `fabric`: data snapshot flows;
+- `lex`: legal/governance контракты и проверки;
+- `scholar`: optional knowledge enrichment artifacts;
+- `runtime.replay`: completeness/verification.
 
 Входящие зависимости (`... -> scientist`):
-- CLI: `core/components/_cli_scientist.py`, `core/components/_cli_replay.py`;
-- runtime/debug сервисы, читающие trace и node-события scientist.
+- CLI (`core/components/_cli_scientist.py`, `_cli_replay.py`);
+- runtime/debug tooling, читающие trace/node events.
 
-## Воспроизводимость и эксплуатационные механизмы
+## Воспроизводимость и эксплуатация
 
-- **Idempotency cache**: ключ = `run_id + node_id + state_reads snapshot + bind params`.
-- **Checkpointing**: после успешных нод пишется `scientist.checkpoint` + head pointer.
-- **Run lock**: `.polisyos/runs/<run_id>/run.lock` предотвращает конкурентный запуск.
-- **Replay backend**: стратегии `foundry`/`scientist`, completeness report, env diff, verification.
-- **Observability**: run/node spans, telemetry по нодам и governance passes.
-- **Security hooks**: foundry adapter умеет добавлять TEE attestation и SBOM derived artifacts.
-
-## Основные артефакты
-
-Типичные выходы default workflow:
-- `scientist.decision_packet`;
-- `scientist.governance_report`;
-- `scientist.workflow_report`;
-- `scientist.execution_plan`;
-- `scientist.preflight_report`;
-- `scientist.evaluator_report`;
-- `scientist.iteration_state`;
-- `scientist.experiment_state`;
-- `scientist.checkpoint` (если policy не `off`);
-- производные `foundry.*` артефакты (exec plan, simulation result, metrics, environment manifest и др.).
-
-## Тесты
-
-Основной набор тестов: `policy-engine/tests/scientist/`.
-
-```bash
-pytest policy-engine/tests/scientist -q
-pytest policy-engine/tests/scientist/integration/test_checkpoint_resume.py -q
-pytest policy-engine/tests/scientist/integration/test_workflow_tracing.py -q
-```
+- Idempotency key: `run_id + node_id + snapshot(state_reads) + bind params`.
+- Checkpoint: `scientist.checkpoint` + `.polisyos/runs/<run_id>/checkpoint_head.json`.
+- Run lock: `.polisyos/runs/<run_id>/run.lock`.
+- Resume: fingerprint workflow сверяется с checkpoint metadata.
+- Replay backend: стратегии `foundry` и `scientist`, env diff, verification.
+- Security bridge: TEE attestation/SBOM как derived artifacts через adapter.
 
 ## Поддиректории с отдельной документацией
 
+- `adapters/README.md`
 - `agent/README.md`
 - `backtesting/README.md`
+- `compute/README.md`
 - `doe/README.md`
 - `engine/README.md`
 - `governance/README.md`
 - `kernel/README.md`
 - `llm/README.md`
 - `nodes/README.md`
+- `orchestrator/README.md`
 - `search/README.md`
+- `search/strategies/README.md`
 - `workflows/README.md`

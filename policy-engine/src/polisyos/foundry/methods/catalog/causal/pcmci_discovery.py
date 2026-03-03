@@ -20,6 +20,12 @@ from polisyos.foundry.methods.base import (
     Unit,
     foundry_method,
 )
+from polisyos.foundry.methods.catalog.causal.ci_backends import (
+    CIBackendSelection,
+    ci_backend_metadata,
+    partial_corr,
+    resolve_discovery_ci_backend,
+)
 from polisyos.foundry.methods.catalog.causal.protocols import TimeSeriesCausalData
 from polisyos.ir.analytics.causal_discovery import CausalDiscoveryReport
 from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, EdgeSource, GraphType
@@ -32,6 +38,32 @@ class _PCMCIExecutionResult:
     edges: list[CausalEdge]
     error: str | None
     timed_out: bool
+
+
+def _resolve_pcmci_ci_backend(raw: Any, *, cond_ind_test: str) -> CIBackendSelection:
+    base = resolve_discovery_ci_backend(raw)
+    if base.used != "jax":
+        return base
+    # Keep auto conservative for backward compatibility and deterministic baselines.
+    if base.requested == "auto":
+        return CIBackendSelection(
+            requested=base.requested,
+            used="numpy",
+            fallback_reason="auto_defaults_numpy_for_stability",
+        )
+    reason = ""
+    if cond_ind_test != "par_corr":
+        reason = f"jax_backend_only_par_corr_supported:{cond_ind_test}"
+        if base.fallback_reason:
+            reason = f"{base.fallback_reason};{reason}"
+        return CIBackendSelection(
+            requested=base.requested,
+            used="numpy",
+            fallback_reason=reason,
+        )
+    if base.fallback_reason:
+        reason = f"{base.fallback_reason};{reason}"
+    return CIBackendSelection(requested=base.requested, used="jax", fallback_reason=reason or None)
 
 
 def _clamp_probability(value: float) -> float:
@@ -273,6 +305,80 @@ def _run_pcmci_with_timeout(
     return _PCMCIExecutionResult(edges=edges, error=None, timed_out=False)
 
 
+def _run_pcmci_jax_surrogate(
+    *,
+    data: np.ndarray,
+    variable_names: list[str],
+    max_lag: int,
+    significance_level: float,
+) -> _PCMCIExecutionResult:
+    """Fallback-free JAX CI runtime path for `discovery_ci_backend=jax`.
+
+    This deterministic surrogate estimates lagged dependencies using partial
+    correlations computed by the JAX backend from `ci_backends.py`.
+    """
+    rows = int(data.shape[0])
+    cols = int(data.shape[1]) if data.ndim == 2 else 0
+    if cols != len(variable_names):
+        return _PCMCIExecutionResult(
+            edges=[],
+            error=(
+                "PCMCI JAX surrogate shape mismatch: "
+                f"data_cols={cols}, variables={len(variable_names)}"
+            ),
+            timed_out=False,
+        )
+    if rows <= max_lag + 2:
+        return _PCMCIExecutionResult(
+            edges=[],
+            error=(
+                "PCMCI JAX surrogate requires more timesteps: "
+                f"rows={rows}, max_lag={max_lag}"
+            ),
+            timed_out=False,
+        )
+
+    arr = np.asarray(data, dtype=float)
+    edges: list[CausalEdge] = []
+    threshold = max(0.01, float(significance_level))
+    for lag in range(1, max_lag + 1):
+        x_block = arr[:-lag, :]
+        y_block = arr[lag:, :]
+        for src_idx, src_name in enumerate(variable_names):
+            x = x_block[:, src_idx]
+            for dst_idx, dst_name in enumerate(variable_names):
+                if src_idx == dst_idx:
+                    continue
+                y = y_block[:, dst_idx]
+                cond_parts: list[np.ndarray] = []
+                others = [idx for idx in range(cols) if idx not in {src_idx, dst_idx}]
+                if others:
+                    cond_parts.append(x_block[:, others])
+                    cond_parts.append(y_block[:, others])
+                cond = None
+                if cond_parts:
+                    cond = np.column_stack(cond_parts)
+                corr = float(partial_corr(x, y, cond, backend="jax"))
+                strength = float(abs(corr))
+                if strength < threshold:
+                    continue
+                p_value = _clamp_probability(1.0 - strength)
+                edge = CausalEdge(
+                    src=src_name,
+                    dst=dst_name,
+                    lag=int(lag),
+                    p_value=p_value,
+                    data_confidence=_clamp_probability(strength),
+                    sources=[EdgeSource.DATA],
+                )
+                edges.append(
+                    edge.model_copy(
+                        update={"combined_confidence": edge.compute_combined_confidence()},
+                    )
+                )
+    return _PCMCIExecutionResult(edges=edges, error=None, timed_out=False)
+
+
 def _block_bootstrap_resample(
     *,
     data: np.ndarray,
@@ -305,6 +411,7 @@ def _fallback_report(
     max_lag: int,
     timeout_seconds: float,
     n_bootstrap: int,
+    ci_backend: CIBackendSelection,
 ) -> CausalDiscoveryReport:
     graph = CausalGraphModel(
         graph_type=GraphType.DAG,
@@ -326,6 +433,7 @@ def _fallback_report(
             "max_lag": max_lag,
             "requested_n_bootstrap": n_bootstrap,
             "timeout_seconds": timeout_seconds,
+            **ci_backend_metadata(ci_backend),
         },
     )
 
@@ -364,6 +472,7 @@ class PCMCIDiscovery:
             ParameterSpec(name="max_lag", default=5),
             ParameterSpec(name="significance_level", default=0.05),
             ParameterSpec(name="cond_ind_test", default="par_corr"),
+            ParameterSpec(name="discovery_ci_backend", default="auto"),
             ParameterSpec(name="n_bootstrap", default=100),
             ParameterSpec(name="timeout_seconds", default=600),
             ParameterSpec(name="block_length", default=None),
@@ -399,6 +508,10 @@ class PCMCIDiscovery:
         max_lag = max(1, int(params.get("max_lag", 5)))
         significance_level = _clamp_probability(float(params.get("significance_level", 0.05)))
         cond_ind_test = str(params.get("cond_ind_test", "par_corr")).strip().lower()
+        ci_backend = _resolve_pcmci_ci_backend(
+            params.get("discovery_ci_backend"),
+            cond_ind_test=cond_ind_test,
+        )
         n_bootstrap_requested = max(0, int(params.get("n_bootstrap", 100)))
         timeout_seconds = max(1.0, float(params.get("timeout_seconds", 600.0)))
         default_block_length = max(max_lag + 1, 5)
@@ -424,20 +537,29 @@ class PCMCIDiscovery:
                 max_lag=max_lag,
                 timeout_seconds=timeout_seconds,
                 n_bootstrap=n_bootstrap_requested,
+                ci_backend=ci_backend,
             )
             return {"report": report, "__determinism_tier__": DeterminismTier.STATISTICAL}
 
         deadline = started + timeout_seconds
         remaining = max(0.0, deadline - time.perf_counter())
-        base_result = _run_pcmci_with_timeout(
-            data=ts_data.data,
-            variable_names=ts_data.variable_names,
-            max_lag=max_lag,
-            significance_level=significance_level,
-            cond_ind_test=cond_ind_test,
-            timeout_seconds=remaining,
-            seed=seed,
-        )
+        if ci_backend.used == "jax":
+            base_result = _run_pcmci_jax_surrogate(
+                data=ts_data.data,
+                variable_names=ts_data.variable_names,
+                max_lag=max_lag,
+                significance_level=significance_level,
+            )
+        else:
+            base_result = _run_pcmci_with_timeout(
+                data=ts_data.data,
+                variable_names=ts_data.variable_names,
+                max_lag=max_lag,
+                significance_level=significance_level,
+                cond_ind_test=cond_ind_test,
+                timeout_seconds=remaining,
+                seed=seed,
+            )
 
         if base_result.error is not None:
             warnings.append(base_result.error)
@@ -450,6 +572,7 @@ class PCMCIDiscovery:
                 max_lag=max_lag,
                 timeout_seconds=timeout_seconds,
                 n_bootstrap=n_bootstrap_requested,
+                ci_backend=ci_backend,
             )
             return {"report": report, "__determinism_tier__": DeterminismTier.STATISTICAL}
 
@@ -481,15 +604,23 @@ class PCMCIDiscovery:
                     block_length=block_length,
                     rng=bootstrap_rng,
                 )
-                boot_result = _run_pcmci_with_timeout(
-                    data=sampled,
-                    variable_names=ts_data.variable_names,
-                    max_lag=max_lag,
-                    significance_level=significance_level,
-                    cond_ind_test=cond_ind_test,
-                    timeout_seconds=remaining,
-                    seed=seed + idx + 1,
-                )
+                if ci_backend.used == "jax":
+                    boot_result = _run_pcmci_jax_surrogate(
+                        data=sampled,
+                        variable_names=ts_data.variable_names,
+                        max_lag=max_lag,
+                        significance_level=significance_level,
+                    )
+                else:
+                    boot_result = _run_pcmci_with_timeout(
+                        data=sampled,
+                        variable_names=ts_data.variable_names,
+                        max_lag=max_lag,
+                        significance_level=significance_level,
+                        cond_ind_test=cond_ind_test,
+                        timeout_seconds=remaining,
+                        seed=seed + idx + 1,
+                    )
                 if boot_result.error is not None:
                     warnings.append(f"bootstrap_run_{idx}: {boot_result.error}")
                     if boot_result.timed_out:
@@ -524,6 +655,12 @@ class PCMCIDiscovery:
                 "requested_n_bootstrap": n_bootstrap_requested,
                 "block_length": block_length,
                 "timeout_seconds": timeout_seconds,
+                **ci_backend_metadata(ci_backend),
+                "ci_backend_runtime": (
+                    "jax_partial_corr_surrogate"
+                    if ci_backend.used == "jax"
+                    else "tigramite"
+                ),
             },
         )
         return {"report": report, "__determinism_tier__": DeterminismTier.STATISTICAL}

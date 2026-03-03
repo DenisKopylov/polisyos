@@ -1,7 +1,7 @@
 # polisyos.ir
 
 `polisyos.ir` — канонический контрактный слой Policy Engine.
-Он описывает структуру policy/world/analytics артефактов, правила валидации и линковки, но не исполняет симуляцию.
+Пакет фиксирует схемы policy/world/analytics артефактов, валидацию, связывание с registry и правила детерминированной сериализации. Выполнение симуляции находится вне `ir`.
 
 ## Роль в системе
 
@@ -16,56 +16,57 @@ Lex / Scholar / Scientist / Packs
             └─► fabric (world ingest/materialization)
 ```
 
-## Что находится в `ir/`
+## Структура директории
 
-| Подсистема | Назначение | Документация |
+| Подсистема | Роль | Документация |
 |---|---|---|
-| `trinity/` | Канонический bundle `ProblemFrame + PolicySpec + ModelSpec` | [`trinity/README.md`](trinity/README.md) |
-| `governance/` | Контракты "Why/What" + selectors/schedule/gates | [`governance/README.md`](governance/README.md) |
-| `model_spec.py` | Контракт "How" (agents, assumptions, environment, fidelity) | этот файл |
-| `kernel/` | Базовые типы, реестры units/slots/mechanisms/merge/metrics | [`kernel/README.md`](kernel/README.md) |
-| `registry_fragments.py` | Сборка `RegistryBundle` из фрагментов с конфликт-резолвом | этот файл |
-| `linker/` | Валидация Trinity против `RegistryBundle` + `LinkReport` | [`linker/README.md`](linker/README.md) |
-| `world/` | Контракты world graph (docs/claims/conflicts/trust/quality/events) | [`world/README.md`](world/README.md) |
-| `analytics/` | Контракты аналитических отчётов и CAS-persistence | [`analytics/README.md`](analytics/README.md) |
-| `artifacts/` | Унифицированные CAS I/O контракты (`ArtifactID`, `put/get_json`) | [`artifacts/README.md`](artifacts/README.md) |
-| `migrations/` | Runtime миграции schema_version для canonical payload | [`migrations/README.md`](migrations/README.md) |
-| `norm_pack.py`, `queries.py`, `connectors.py`, `fact_log.py`, `citations.py`, `refs.py` | Юридические/поисковые/данные/ссылочные контракты | эти файлы |
+| `trinity/` | Канонический payload `ProblemFrame + PolicySpec + ModelSpec` (`TrinityBundle`) | [`trinity/README.md`](trinity/README.md) |
+| `governance/` | Контракты `ProblemFrame`, `PolicySpec`, selectors/schedule/gates | [`governance/README.md`](governance/README.md) |
+| `model_spec.py` | Контракт `ModelSpec` ("How": агенты, среда, assumptions, fidelity) | этот файл |
+| `kernel/` | Базовые типы и registry-ядро (units/slots/mechanisms/merge/metrics/constraints/selector_fields) | [`kernel/README.md`](kernel/README.md) |
+| `registry_fragments.py` | `RegistryBundle` и детерминированная композиция fragment-ов | этот файл |
+| `linker/` | Линковка Trinity к registry + `LinkReport` + `LinkedTrinityBundle` | [`linker/README.md`](linker/README.md) |
+| `world/` | Контракты world graph (doc/claim/conflict/event/trust/quality + deterministic IDs) | [`world/README.md`](world/README.md) |
+| `analytics/` | Контракты аналитики (causal/uncertainty/hte/distribution/backtest/transport и др.) | [`analytics/README.md`](analytics/README.md) |
+| `artifacts/` | Унифицированный CAS I/O слой (`ArtifactID`, `ArtifactStore`, `put/get_json_artifact`) | [`artifacts/README.md`](artifacts/README.md) |
+| `migrations/` | Runtime-миграции версий canonical policy IR payload | [`migrations/README.md`](migrations/README.md) |
+| `norm_pack.py`, `queries.py`, `connectors.py`, `fact_log.py`, `citations.py`, `refs.py` | Доменные и интеграционные контракты (norm/query/source refs/facts/citations) | эти файлы |
 
-## Актуальный поток (Trinity)
+## Актуальный поток Trinity
 
-1. Загрузка canonical payload: `load_policy()` / `load_trinity_bundle()`.
-2. Сборка registry: `compose_registry_fragments()`.
-3. Линковка: `link_trinity(bundle, registries)`.
-4. Передача связанного контракта в `foundry`/`core`/`fabric` пайплайны.
+1. `load_policy()` или `load_trinity_bundle()` нормализуют `dict/str/bytes` и валидируют `TrinityBundle`.
+2. `compose_registry_fragments(RegistryComposeRequest)` собирает `RegistryBundle` из fragment-ов.
+3. `link_trinity(bundle, registries, ...)` строит bindings и `LinkReport`.
+4. Связанный bundle передаётся в `foundry`, `core` и `fabric` пайплайны.
 
-## Статус миграций на текущем коде
+## Текущее состояние миграций
 
-- Канонический формат policy IR: `TrinityBundle` со `schema_version="1.0"`.
-- `migrate_policy_ir()` поддерживает только Trinity payload.
-- Зарегистрированная migration-цепочка: `policy_ir 1.0 -> 1.0` (identity).
-- Legacy non-Trinity payload (`schema_version` семейства `2.*` или поле `semantic`) runtime-миграцией отклоняется.
+- Канонический policy IR: `TrinityBundle`, `schema_version="1.0"`.
+- `migrate_policy_ir()` обслуживает только Trinity-формат.
+- Зарегистрированная цепочка миграции: `policy_ir 1.0 -> 1.0` (identity через `TrinityBundle.model_validate`).
+- Legacy non-Trinity payload (`schema_version` семейства `2.*` или наличие поля `semantic`) отклоняется.
 
-## Связи с другими директориями
+## Ключевые особенности
 
-| Директория | Как использует `ir` |
+- Большинство контрактов основаны на `KernelModel` (`extra="forbid"`, `frozen=True`).
+- Канонизация и хэширование выполняются через `canon.to_canonical_bytes()` и `canon.content_hash()`.
+- Для float-heavy аналитических отчётов persist-функции обычно используют `CanonSpec(forbid_floats=False)`.
+- `ir.__init__` — lazy facade для стабильных публичных импортов.
+- В коде есть два разных `DataViewRequest`:
+  - `ir.analytics.data_views.DataViewRequest` — runtime аналитические data-view запросы;
+  - `ir.queries.DataViewRequest` — query-layer контракт доступа к данным.
+
+## Связи с соседними директориями
+
+| Директория | Использование `ir` |
 |---|---|
-| `fabric/` | `world/*`, `fact_log`, `citations`, `connectors`, `analytics.uncertainty` |
+| `fabric/` | `world/*`, `fact_log`, `citations`, `connectors`, часть `analytics` контрактов |
 | `foundry/` | `trinity`, `governance`, `kernel`, `linker`, `analytics.*` |
-| `core/` | registry builders, compliance contracts, `LinkReport` сериализация |
-| `lex/` | `norm_pack`, world predicates/IDs, corpus structuring |
-| `scientist/` | governance gates, trinity preflight, query/analysis контракты |
-| `scholar/` | world events/trust contracts в knowledge orchestration |
-| `packs/` | поставка registry fragments для compose/link фаз |
-
-## Важные особенности
-
-- Большинство IR-моделей базируются на `KernelModel` (`extra="forbid"`, `frozen=True`).
-- Детерминизм обеспечивается через `canon.to_canonical_bytes()` и `content_hash()`.
-- `ir.__init__` — lazy facade публичных символов для стабильных импортов.
-- Есть два разных `DataViewRequest`:
-  - `ir.analytics.data_views.DataViewRequest` — runtime аналитические data-view запросы.
-  - `ir.queries.DataViewRequest` — query-контракт доступа к данным.
+| `core/` | сборка registry, компиляция и сериализация `LinkReport` |
+| `lex/` | `norm_pack`, world predicates/ids, corpus structuring |
+| `scientist/` | governance gates, trinity preflight, causal/analytics контракты |
+| `scholar/` | world events/trust/quality в orchestration |
+| `packs/` | поставка registry fragment-ов для compose/link стадий |
 
 ## Базовые точки входа
 

@@ -117,6 +117,24 @@ def test_pcmci_discovery_bootstrap_stability_is_bounded(monkeypatch):
         assert 0.0 <= score <= 1.0
 
 
+def test_pcmci_discovery_ci_backend_metadata_is_emitted() -> None:
+    output = PCMCIDiscovery.pure_step(
+        _state(),
+        params={
+            "n_bootstrap": 0,
+            "timeout_seconds": 30,
+            "max_lag": 1,
+            "cond_ind_test": "par_corr",
+            "discovery_ci_backend": "jax",
+        },
+    )
+    report = output["report"]
+
+    assert report.metadata["ci_backend_requested"] == "jax"
+    assert report.metadata["ci_backend_used"] == "jax"
+    assert report.metadata["ci_backend_runtime"] == "jax_partial_corr_surrogate"
+
+
 def test_pcmci_discovery_bootstrap_truncation_updates_completed_count(monkeypatch):
     base_edge = pcmci_module.CausalEdge(
         src="X",

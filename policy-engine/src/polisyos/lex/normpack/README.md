@@ -1,27 +1,28 @@
 # normpack
 
-`polisyos.lex.normpack` собирает `NormPack` для `jurisdiction + as_of (+ domain)` и возвращает детальный `NormPackBuildResult`.
+`polisyos.lex.normpack` собирает `NormPack` для `jurisdiction + as_of (+ domain)` и возвращает `NormPackBuildResult` с детальным provenance и предупреждениями.
 
-## Назначение
+## Роль
 
-Подсистема переводит корпусные provisions и извлеченные claims в `NormRule` с:
+Подсистема переводит provisions/claims в `NormRule` с:
 - применимостью (`NormApplicability`);
 - ссылками на источники (`NormRef`/citations);
-- backend metadata (predicate/operator/unit, conflict/trust/extractor traces).
+- backend metadata (predicate/operator/unit/conflict/trust/extractor traces).
 
 ## Режимы сборки
 
-### 1) Provider path
+### Provider path
 
-Используется, когда:
-- найден `NormPackProvider` для `jurisdiction/domain`;
-- локальные `doc_source_ids` не выбраны.
+Используется, если найден `NormPackProvider` и нет локально выбранных `doc_source_ids`.
 
-Provider может вернуть `NormPack`, `ArtifactRef` или `artifact_id`.
+Provider может вернуть:
+- `NormPack`
+- `ArtifactRef`
+- `artifact_id`
 
-### 2) Pipeline path
+### Pipeline path
 
-Если provider не выбран/не сработал, запускается pipeline:
+Если provider не выбран или не отработал:
 
 ```text
 select_doc_sources
@@ -38,57 +39,54 @@ select_doc_sources
 ### `assemble_pack.py`
 
 Главный оркестратор:
-- нормализует request (`casefold`, ISO date, ID pattern checks);
+- нормализует request (`casefold`, ISO date, ID checks, budgets);
 - bootstrap-ит providers и extractors через component registry;
-- применяет бюджеты (`max_docs`, `max_provisions`, `max_claims`);
-- строит детерминированный `pack_id` через `stable_world_id_from_canon`;
+- применяет ограничения `max_docs/max_provisions/max_claims`;
+- строит детерминированный `pack_id`;
 - сохраняет `lex.norm_pack` и provenance event;
-- возвращает `NormPackBuildResult` с `warnings`.
+- возвращает `NormPackBuildResult` с `built_by` и `warnings`.
 
 ### `select_sources.py`
 
-- `select_doc_sources`:
-  - берет `request.doc_source_ids`, если заданы;
-  - иначе находит `doc.source` в fact log и фильтрует до документов `lex.corpus`.
-- `select_active_doc_versions`:
-  - primary path: `resolve_active_version(...)`;
-  - fallback path: прямой temporal выбор из фактов, если index еще не готов;
-  - фильтрация по юрисдикции.
+`select_doc_sources`:
+- берет `request.doc_source_ids`, если заданы;
+- иначе выбирает `doc.source` из fact log и фильтрует до документов `lex.corpus`.
+
+`select_active_doc_versions`:
+- primary path: `resolve_active_version(...)`;
+- fallback path: temporal выбор напрямую из фактов, если index/pointer не готов;
+- фильтрует документы по юрисдикции.
 
 ### `extract_norm_claims.py`
 
-- Берет selected provisions и extractor.
-- Создает norm-claims, дедуплицирует, пишет `lex.norms.claim_set`.
-- По умолчанию запускает `normalize_claims`.
+- Извлекает claims по выбранным provisions.
+- Дедуплицирует claims и пишет `lex.norms.claim_set`.
+- Поддерживает ограничение `max_claims` и добавляет warning-метки при деградации.
 
 ### `applicability.py`
 
-- Строит `NormApplicability` из claim validity window.
-- Проверяет применимость нормы на дату (`applies_to_context`).
+- Строит `NormApplicability` из validity окна claim.
+- Проверяет применимость нормы на заданную дату.
 
 ### `provider_registry.py`
 
-- Реестр `NormPackProvider` с ранжированием по domain/jurisdiction/version.
-- Bootstrap через entry point group `polisyos.norm_pack_providers`.
+- Реестр `NormPackProvider` с ранжированием по `domain/jurisdiction/version`.
+- Bootstrap через `polisyos.norm_pack_providers`.
 
 ### `policies.py`
 
-Константы pipeline:
-- default policy ids;
-- default extractor id (`lex.norm_extractor.regex_v1@1.0.0`);
-- артефактные kind'ы и domain keywords.
+- Константы pipeline и policy ids.
+- Default extractor: `lex.norm_extractor.regex_v1@1.0.0`.
+- Default provisions: `article`, `point`, `subpoint`.
 
 ## Важные особенности
 
-- По умолчанию выбираются provisions: `article`, `point`, `subpoint`.
-- Domain filter работает по keywords в `citation_label` и text preview.
-- Конфликтные claims проходят через `fabric.claims.resolve_conflicts`.
-- Деградации маршрута фиксируются в `warnings` вместо немедленного hard-fail.
+- Domain filter работает по keywords в `citation_label` и текстовом preview.
+- Конфликты claims проходят через `fabric.claims.resolve_conflicts`.
+- В отсутствие данных pipeline не всегда падает сразу, а фиксирует `warning:*` в результате.
 
-## Связи с другими директориями
+## Связи
 
 - Upstream: `policy-engine/src/polisyos/lex/corpus`.
 - Зависимости: `polisyos.fabric.claims`, `polisyos.core.components`, `polisyos.ir.norm_pack`.
-- Downstream:
-  - `policy-engine/src/polisyos/lex/legal_evaluation`
-  - `policy-engine/src/polisyos/lex/simulator`
+- Downstream: `policy-engine/src/polisyos/lex/legal_evaluation`, `policy-engine/src/polisyos/lex/simulator`.

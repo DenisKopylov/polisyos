@@ -2,8 +2,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import pytest
-
 from polisyos.datasets.knowledge.variable_alignment import (
     AlignmentMethod,
     align_meta_analytic,
@@ -27,7 +25,7 @@ def test_load_seed_alignments_contains_core_sources() -> None:
     assert "WVS_W7" in dataset_ids
 
 
-def test_seed_alignments_use_exact_method_only_for_phase_0b() -> None:
+def test_seed_alignments_use_exact_method_only_for_seed_table() -> None:
     path = (
         Path(__file__).resolve().parents[3]
         / "data"
@@ -38,11 +36,63 @@ def test_seed_alignments_use_exact_method_only_for_phase_0b() -> None:
     assert all(item.method == AlignmentMethod.EXACT for item in alignments)
 
 
-def test_semantic_alignment_not_implemented_in_phase_0b() -> None:
-    with pytest.raises(NotImplementedError):
-        align_semantic()
+def test_semantic_alignment_returns_ranked_matches() -> None:
+    matches = align_semantic(
+        canonical_var="social_trust",
+        dataset_id="WVS_W7",
+        candidates=["social trust index", "institutional_quality", "trust_in_government"],
+        threshold=0.2,
+    )
+    assert matches
+    assert all(item.method is AlignmentMethod.SEMANTIC for item in matches)
+    assert matches[0].dataset_var == "social trust index"
+    assert matches[0].confidence >= matches[-1].confidence
 
 
-def test_meta_analytic_alignment_not_implemented_in_phase_0b() -> None:
-    with pytest.raises(NotImplementedError):
-        align_meta_analytic()
+def test_semantic_alignment_threshold_filters_out_noise() -> None:
+    matches = align_semantic(
+        canonical_var="gdp_per_capita",
+        dataset_id="WB_WDI",
+        candidates=["forest_area", "internet_users", "gdp_per_capita_ppp"],
+        threshold=0.55,
+    )
+    assert len(matches) == 1
+    assert matches[0].dataset_var == "gdp_per_capita_ppp"
+
+
+def test_meta_analytic_alignment_uses_correlation_and_evidence_strength() -> None:
+    matches = align_meta_analytic(
+        canonical_var="institutional_quality",
+        dataset_id="WB_WGI",
+        candidates=[
+            {
+                "dataset_var": "rl_est",
+                "correlation": 0.82,
+                "evidence_strength": "meta_analysis",
+                "n_studies": 18,
+                "trust_score": 0.9,
+            },
+            {
+                "dataset_var": "cc_est",
+                "correlation": 0.78,
+                "evidence_strength": "observational",
+                "n_studies": 4,
+                "trust_score": 0.6,
+            },
+        ],
+        min_confidence=0.3,
+    )
+    assert len(matches) == 2
+    assert matches[0].dataset_var == "rl_est"
+    assert matches[0].confidence > matches[1].confidence
+    assert all(item.method is AlignmentMethod.META_ANALYTIC for item in matches)
+
+
+def test_meta_analytic_alignment_filters_low_confidence() -> None:
+    matches = align_meta_analytic(
+        canonical_var="informal_economy_share",
+        dataset_id="WB_WDI",
+        candidates=[{"dataset_var": "random_metric", "correlation": 0.05, "trust_score": 0.1}],
+        min_confidence=0.35,
+    )
+    assert matches == []

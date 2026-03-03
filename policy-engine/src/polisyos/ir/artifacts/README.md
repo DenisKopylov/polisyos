@@ -1,6 +1,6 @@
 # ir.artifacts
 
-`ir.artifacts` — единый контрактный слой для CAS I/O в IR.
+`ir.artifacts` — единый контрактный слой для CAS I/O в `ir`.
 
 ## Что здесь
 
@@ -12,9 +12,12 @@
 
 ## Ключевые детали
 
-- `ArtifactID` строго в формате `sha256:<64 hex>`.
+- `ArtifactID` строго валидируется как `sha256:<64 lowercase hex>`.
 - `ArtifactStore` ожидает методы `put_json(obj, opts, canon_spec)` и `get_bytes(artifact_id)`.
-- `put_json_artifact()` нормализует schema/input/canon metadata и возвращает стандартный artifact ref.
+- `put_json_artifact()`:
+  - нормализует input refs;
+  - прикладывает schema/canon metadata;
+  - возвращает стандартизированный artifact ref (`artifact_id`, `kind`, `media_type`).
 - `get_json_artifact()` восстанавливает объект через canonical decode (`from_canonical_bytes`).
 
 ## Где используется

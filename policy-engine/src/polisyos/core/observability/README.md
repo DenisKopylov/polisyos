@@ -1,24 +1,25 @@
 # Observability — telemetry слой core
 
-`core.observability` объединяет tracing, metrics, structured logging, propagation и cost/determinism utilities.
-Модуль сделан с graceful degradation: при отсутствии OTel SDK экспорт становится noop, но API остается стабильным.
+`core.observability` объединяет tracing, metrics, structured logging, context propagation, determinism и LLM pricing.
+
+Ключевая особенность: graceful degradation. Если OTel SDK недоступен, API остается рабочим через noop-реализации.
 
 ## Состав
 
 ```text
 observability/
-├── config.py          # OTelConfig + env-based runtime config
-├── tracer.py          # tracer singleton + trace context
-├── decorators.py      # @traced / @traced_method
-├── metrics.py         # MetricsRegistry (Prometheus/OTel)
-├── metrics_parts.py   # доменные группы метрик
-├── logs.py            # structured logging + trace correlation
-├── propagation.py     # context propagation (threads/async/http headers)
-├── determinism.py     # DeterminismTier
-└── pricing.py         # LLM pricing + cost estimation helpers
+├── config.py         # OTelConfig + env-based settings
+├── tracer.py         # tracer/sampler/context helpers
+├── decorators.py     # @traced / @traced_method
+├── metrics.py        # facade -> metrics_parts
+├── metrics_parts.py  # MetricsRegistry + domain record_* methods
+├── logs.py           # structured logs + trace correlation
+├── propagation.py    # trace context propagation (headers/threads/async)
+├── determinism.py    # DeterminismTier parsing
+└── pricing.py        # model pricing table + estimate_llm_cost_usd
 ```
 
-## Быстрый старт
+## Быстрый сценарий
 
 ```python
 from polisyos.core.observability import get_metrics, traced
@@ -31,35 +32,20 @@ def run_step() -> None:
 
 ## Важные env-параметры
 
-| Переменная | По умолчанию | Назначение |
-|---|---|---|
-| `POLISYOS_OTEL_ENABLED` | `true` | глобальный toggle OTel |
-| `OTEL_EXPORTER_OTLP_ENDPOINT` | — | endpoint экспортера |
-| `OTEL_EXPORTER_OTLP_PROTOCOL` | `grpc` | протокол OTLP |
-| `POLISYOS_OTEL_CONSOLE_EXPORT` | `false` | console export для отладки |
-| `POLISYOS_METRICS_PORT` | `9464` | порт Prometheus exporter |
-| `POLISYOS_TRACE_SAMPLING_RATIO` | `1.0` | sampling ratio |
-| `POLISYOS_ALWAYS_SAMPLE_ERRORS` | `true` | best-effort sample error spans |
-| `POLISYOS_HPC_OBSERVABILITY_ENABLED` | `true` | расширенные CAS/runtime метрики |
-| `POLISYOS_DETERMINISM_TIER` | — | `strict_cpu`, `library_deterministic`, `best_effort_gpu`, `statistical`, `nondeterministic` |
-| `POLISYOS_LLM_DEFAULT_INPUT_USD` / `POLISYOS_LLM_DEFAULT_OUTPUT_USD` | — | override default LLM pricing |
+- `POLISYOS_OTEL_ENABLED`
+- `POLISYOS_HPC_OBSERVABILITY_ENABLED`
+- `OTEL_EXPORTER_OTLP_ENDPOINT`
+- `OTEL_EXPORTER_OTLP_PROTOCOL`
+- `POLISYOS_OTEL_CONSOLE_EXPORT`
+- `POLISYOS_METRICS_PORT`
+- `POLISYOS_TRACE_SAMPLING_RATIO`
+- `POLISYOS_ALWAYS_SAMPLE_ERRORS`
+- `POLISYOS_DETERMINISM_TIER`
+- `POLISYOS_LLM_DEFAULT_INPUT_USD` / `POLISYOS_LLM_DEFAULT_OUTPUT_USD`
 
-## Что используется в системе
+## Интеграции
 
-- `foundry`, `scientist`, `runtime`, `security` пишут span/metrics через общий API.
-- `core.resilience` и `core.llm` используют метрики/трейсинг для retry/LLM вызовов.
-- `security` дополняет реестр метрик событиями authz, audit chain, TEE, SBOM.
-
-## Determinism tiers
-
-`DeterminismTier` определяет гарантию воспроизводимости симуляции:
-
-- `STRICT_CPU`
-- `LIBRARY_DETERMINISTIC`
-- `BEST_EFFORT_GPU`
-- `STATISTICAL`
-- `NONDETERMINISTIC`
-
-## LLM pricing
-
-`pricing.py` и `core.llm.cost` дают единый способ оценивать стоимость токенов для budget-aware workflow.
+- `core.llm`: LLM call metrics/traces/cost
+- `core.resilience`: retry telemetry
+- `core.security`: authz/audit/TEE/SBOM security metrics
+- `foundry`/`scientist`/`runtime`: execution traces и SLO/operational метрики

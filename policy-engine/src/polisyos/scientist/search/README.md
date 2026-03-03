@@ -21,6 +21,8 @@ Default `run_experiment()` этот слой автоматически не з�
 - `portfolio.py`, `diversity.py`, `sensitivity_adapter.py` — дополнительные контуры.
 - `strategies/` — генерация кандидатов (`random`, `grid`, adapter, resource arbiter, optional Bayesian/MO).
 
+Подробности по стратегическому слою: `search/strategies/README.md`.
+
 ## Минимальный API-контур
 
 `SearchController` ожидает:

@@ -393,6 +393,9 @@ def _build_transportability_summary(report: CausalEffectReport) -> dict[str, obj
         "final_confidence": transport.final_confidence,
         "feasible": transport.feasible,
         "algorithm_version": transport.algorithm_version,
+        "identification_engine": transport.identification_engine,
+        "unsupported_reason": transport.unsupported_reason,
+        "identification_trace": list(transport.identification_trace),
         "pag_identification_policy": (
             transport.pag_identification_policy.value
             if transport.pag_identification_policy is not None

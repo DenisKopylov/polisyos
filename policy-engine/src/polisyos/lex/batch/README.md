@@ -1,26 +1,41 @@
 # Lex Batch
 
-`polisyos.lex.batch` — offline pipeline для построения legal knowledge graph из XML-корпуса ЄДРНПА с режимом `LLM only when irreplaceable`.
+`polisyos.lex.batch` — offline pipeline построения legal knowledge graph из XML-корпуса (ЄДРНПА) с маршрутизацией `deterministic-first + LLM only when irreplaceable`.
+
+## Роль в системе
+
+Подсистема готовит данные для `polisyos.lex.knowledge`:
+- парсит карточки и тексты НПА;
+- выделяет provisions и структурированные утверждения (SPO);
+- собирает DuckDB-граф и опциональные векторные индексы.
 
 ## Стадии
 
 `run`:
-- `parse` — стриминг XML документов.
-- `structure` — выделение provisions/anchors.
-- `spo` — deterministic extractors + two-stage LLM gating.
-- `graph` — построение DuckDB графа (`lex_entities`, `lex_facts`, `lex_provisions`, `lex_references`, `lex_doc_domains`).
+- `parse` — streaming XML parsing.
+- `structure` — извлечение provisions/anchor path.
+- `spo` — template/rule/deterministic extraction + LLM gate + audit.
+- `graph` — сборка `lex_knowledge_graph.duckdb`.
 
-Отдельно:
-- `embed-local` — локальные sentence-transformers embeddings + HNSW.
-- `qc` — контроль качества, включая метрики gate-аудита.
+Отдельные команды:
+- `embed-local` — локальные embeddings + HNSW.
+- `qc` — quality checks для графа и SPO-покрытия.
 - `publish` — publish manifest с checksums.
-- `stats`, `search`.
+- `stats`, `search` — операционный просмотр результатов.
+
+## Ключевые особенности текущего пайплайна
+
+- Детерминированные enrichments: references и domain classification (включаются/выключаются флагами).
+- Template extraction для типовых документов до per-provision обработки.
+- Dedup provisions по `text_hash` с `extraction_source=dedup_clone`.
+- LLM gate с audit-выборкой и circuit breaker.
+- Quality gates на уровне run (можно включить hard-fail через `--quality-fail-on-critical`).
 
 ## Режимы LLM gate
 
-- `off`: всё non-auto идёт в LLM.
-- `balanced` (default): LLM только для сложных provision, остальное auto/deferred.
-- `aggressive`: более высокий порог отправки в LLM.
+- `off` — отправка non-auto кандидатов в LLM при доступном клиенте.
+- `balanced` (default) — компромисс между качеством и стоимостью.
+- `aggressive` — более экономный маршрут, чаще deterministic/deferred.
 
 Ключевые флаги:
 - `--llm-gate-enabled/--no-llm-gate-enabled`
@@ -29,8 +44,15 @@
 - `--llm-gate-max-share`
 - `--llm-gate-audit-sample-rate`
 - `--llm-gate-audit-max-miss-rate-pct`
+- `--spo-verify-mode llm|code`
 - `--extract-references/--no-extract-references`
 - `--extract-domains/--no-extract-domains`
+
+## Шардинг
+
+Поддерживаются `--shard-count` и `--shard-index` для `parse/structure/spo`.
+
+Ограничение: в sharded-режиме stage `graph` не запускается (граф собирается отдельным single-process проходом).
 
 ## Переменные окружения
 
@@ -38,7 +60,7 @@
 GONKA_API_KEY=...
 ```
 
-Если ключ не задан, `spo` работает в deterministic-only режиме (без LLM вызовов).
+Если ключ не задан, LLM-недоступные маршруты переходят в deterministic/deferred режим.
 
 ## Команды
 
@@ -78,25 +100,15 @@ python -m polisyos.lex.batch qc --output-dir data/lex_knowledge --fail-fast
 python -m polisyos.lex.batch publish --output-dir data/lex_knowledge
 ```
 
-## Интерпретация аудита
+## Выходные артефакты
 
-- `audit_miss_rate_pct` показывает, как часто LLM на аудиторной подвыборке находит больше утверждений, чем deterministic route.
-- Целевой порог: `<= 3%`.
-
-Если `audit_miss_rate_pct > 3%`:
-1. Снизить `--llm-gate-threshold` (например, `0.55 -> 0.45`).
-2. Увеличить `--llm-gate-audit-sample-rate` (например, `0.02 -> 0.05`).
-3. Перезапустить `spo` с `--resume`.
-
-## Выходные данные
-
-- `provisions/**/*.jsonl` — структурированные фрагменты норм.
-- `spo_results/**/*.jsonl` — результаты SPO extraction с provenance (`extraction_source`, `gate_score`, `gate_reason_codes`).
-- `references/**/*.jsonl` — детерминированно извлечённые ссылки.
-- `domains/**/*.json` — domain scoring по документам.
-- `llm_gate_audit.jsonl` — аудит-подвыборка и miss-счёт.
-- `manifests/llm_gate.json` — агрегированные метрики gate.
-- `lex_knowledge_graph.duckdb` — основной граф.
-- `lex_*_embeddings.npz`, `lex_*_index.hnsw` — локальные векторные индексы.
-- `qc_report.json` — отчёт качества.
-- `publish/manifest.json` — publish manifest.
+- `provisions/**/*.jsonl`
+- `spo_results/**/*.jsonl`
+- `references/**/*.jsonl`
+- `domains/**/*.json`
+- `llm_gate_audit.jsonl`
+- `manifests/llm_gate.json`
+- `lex_knowledge_graph.duckdb`
+- `lex_*_embeddings.npz`, `lex_*_index.hnsw`
+- `qc_report.json`
+- `publish/manifest.json`

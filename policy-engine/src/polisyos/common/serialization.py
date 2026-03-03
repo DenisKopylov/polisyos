@@ -5,6 +5,11 @@ import json
 from enum import Enum
 from typing import Any, Mapping
 
+try:
+    import orjson
+except ModuleNotFoundError:  # pragma: no cover - optional acceleration
+    orjson = None  # type: ignore[assignment]
+
 
 def _as_model_dump(value: Any) -> Any | None:
     model_dump = getattr(value, "model_dump", None)
@@ -79,6 +84,9 @@ def strip_none(data: Mapping[str, Any]) -> dict[str, Any]:
 
 def stable_json_dumps(value: Any, *, ensure_ascii: bool = True, sort_keys: bool = True) -> str:
     payload = to_python_data(value, sort_keys=sort_keys)
+    if orjson is not None and not ensure_ascii:
+        option = orjson.OPT_SORT_KEYS if sort_keys else 0
+        return orjson.dumps(payload, option=option).decode("utf-8")
     return json.dumps(
         payload,
         ensure_ascii=ensure_ascii,
@@ -87,7 +95,39 @@ def stable_json_dumps(value: Any, *, ensure_ascii: bool = True, sort_keys: bool 
     )
 
 
+def fast_json_dumps_bytes(value: Any, *, sort_keys: bool = False) -> bytes:
+    payload = to_python_data(value, sort_keys=sort_keys)
+    if orjson is not None:
+        option = orjson.OPT_SORT_KEYS if sort_keys else 0
+        return orjson.dumps(payload, option=option)
+    rendered = json.dumps(
+        payload,
+        ensure_ascii=False,
+        sort_keys=sort_keys,
+        separators=(",", ":"),
+    )
+    return rendered.encode("utf-8")
+
+
+def fast_json_dumps(value: Any, *, sort_keys: bool = False) -> str:
+    return fast_json_dumps_bytes(value, sort_keys=sort_keys).decode("utf-8")
+
+
+def fast_json_loads(value: bytes | bytearray | memoryview | str) -> Any:
+    if isinstance(value, str):
+        if orjson is not None:
+            return orjson.loads(value)
+        return json.loads(value)
+    raw = bytes(value)
+    if orjson is not None:
+        return orjson.loads(raw)
+    return json.loads(raw.decode("utf-8"))
+
+
 __all__ = [
+    "fast_json_dumps",
+    "fast_json_dumps_bytes",
+    "fast_json_loads",
     "strip_none",
     "stable_json_dumps",
     "to_python_data",

@@ -11,7 +11,13 @@ from polisyos.foundry.methods.catalog.causal.constraint_discovery import (
     PCDiscovery,
 )
 from polisyos.foundry.methods.catalog.causal.protocols import TabularCausalDiscoveryData
-from polisyos.ir.analytics.causal_graph import EdgeMark, GraphType, PAGIdentificationPolicy
+from polisyos.ir.analytics.causal_discovery import CausalDiscoveryReport
+from polisyos.ir.analytics.causal_graph import (
+    CausalGraphModel,
+    EdgeMark,
+    GraphType,
+    PAGIdentificationPolicy,
+)
 
 
 def _state() -> TabularCausalDiscoveryData:
@@ -27,6 +33,13 @@ def _state() -> TabularCausalDiscoveryData:
         dtype=float,
     )
     return TabularCausalDiscoveryData(data=data, variable_names=["X", "Y", "Z"])
+
+
+def _large_state(n_variables: int = 55, n_samples: int = 80) -> TabularCausalDiscoveryData:
+    rng = np.random.default_rng(101)
+    data = rng.normal(0.0, 1.0, size=(n_samples, n_variables))
+    names = [f"V{i}" for i in range(n_variables)]
+    return TabularCausalDiscoveryData(data=data, variable_names=names)
 
 
 def _adj_with_xy_edge() -> np.ndarray:
@@ -168,6 +181,61 @@ def test_fci_report_keeps_pag_and_emits_resolved_dag(monkeypatch) -> None:
     assert report.graph.pag_identification_policy is PAGIdentificationPolicy.CONSERVATIVE
     assert report.resolved_graph is not None
     assert report.resolved_graph.graph_type is GraphType.DAG
+
+
+def test_pc_discovery_auto_prefers_dagma_for_high_dim(monkeypatch) -> None:
+    called = {"count": 0}
+
+    def _fake_run_dagma_discovery(*, state, params):
+        del params
+        called["count"] += 1
+        graph = CausalGraphModel(
+            graph_type=GraphType.DAG,
+            nodes=list(state.variable_names),
+            edges=[],
+            discovery_method="dagma",
+        )
+        report = CausalDiscoveryReport(
+            method="dagma",
+            graph=graph,
+            warnings=[],
+            metadata={"optimizer": "fake"},
+        )
+        return {"report": report, "__determinism_tier__": DeterminismTier.STATISTICAL}
+
+    monkeypatch.setattr(
+        "polisyos.foundry.methods.catalog.causal.dagma_discovery.run_dagma_discovery",
+        _fake_run_dagma_discovery,
+    )
+
+    output = PCDiscovery.pure_step(
+        _large_state(),
+        params={"discovery_scale_backend": "auto", "discovery_ci_backend": "numpy"},
+    )
+    report = output["report"]
+
+    assert called["count"] == 1
+    assert report.method == "dagma"
+    assert report.metadata.get("scale_backend_used") == "dagma"
+
+
+def test_pc_discovery_explicit_jax_ci_backend_is_functional() -> None:
+    state = _state()
+    output = PCDiscovery.pure_step(
+        state,
+        params={
+            "discovery_ci_backend": "jax",
+            "significance_level": 0.05,
+            "n_bootstrap": 0,
+            "timeout_seconds": 30,
+        },
+    )
+    report = output["report"]
+
+    assert report.metadata["ci_backend_requested"] == "jax"
+    assert report.metadata["ci_backend_used"] == "jax"
+    assert report.metadata["ci_backend_runtime"] == "jax_partial_corr"
+    assert report.graph.nodes == ["X", "Y", "Z"]
 
 
 @pytest.mark.integration

@@ -1,45 +1,59 @@
 # Workflows Layer (`polisyos.scientist.workflows`)
 
-`workflows` — сборка и запуск workflow-спецификаций Scientist поверх `engine`.
+`workflows` собирает и запускает workflow-спецификации Scientist поверх `engine`.
 
 ## Роль
 
-- определяет default DAG (`default_workflow_spec()`);
-- собирает `ExecutionContext` (run context, tenant/cell/access scope, adapters);
-- регистрирует builtin и plugin-ноды;
-- запускает `WorkflowExecutor` с checkpoint hook и run lock.
+- определяет канонические DAG-спеки (`scientist_default`, `scientist_causal_full`);
+- строит `ExecutionContext` (run context + tenant/cell/access scope + adapters);
+- формирует `NodeRegistry` (builtin + discovered plugins);
+- запускает `WorkflowExecutor` под `run.lock` и checkpoint policy.
 
 ## Ключевые файлы
 
-- `default.py` — canonical spec `scientist_default`.
+- `default.py` — `default_workflow_spec()` (`scientist_default`).
+- `causal_full.py` — `causal_full_workflow_spec()` (`scientist_causal_full`).
 - `builder.py`
   - `run_default_workflow(...)`
+  - `run_causal_full_workflow(...)`
   - `build_execution_context(...)`
   - `build_registry_with_builtin_nodes(...)`
   - `build_default_registry(...)`
 - `engine_base.py` — protocol `WorkflowEngine`/`WorkflowEngineFactory`.
-- `engine_simple.py` — `SimpleLoopEngine` (легкий цикл для search/dev).
-- `engine_langgraph.py` — compatibility adapter для legacy LangGraph движка.
+- `engine_simple.py` — lightweight `SimpleLoopEngine`.
+- `engine_langgraph.py` — compatibility adapter для legacy LangGraph path.
 
-## Default DAG
+## Актуальные DAG
 
-Текущая спецификация включает:
-- data path (`build_data_snapshot -> bind_foundry_inputs -> run_data_plane_gate`),
-- planning/preflight path (`build_execution_plan -> build_method_catalog_snapshot -> run_preflight -> ready_to_run`),
-- compile/simulate/governance/evaluator path,
-- финальный `build_decision_packet`.
+`scientist_default`:
+- data branch: `build_data_snapshot -> bind_foundry_inputs -> run_data_plane_gate`;
+- planning branch: `build_execution_plan -> build_method_catalog_snapshot -> run_preflight -> ready_to_run`;
+- execute branch: `link_trinity -> compile_foundry -> resolve_parameters -> run_simulation`;
+- analysis/governance: `run_distributional_analysis`, `propagate_uncertainty`, `run_causal_evaluation`, `run_governance`, `run_evaluator`, `build_decision_packet`.
 
-`error_policy` default spec: `continue`.
+`scientist_causal_full` добавляет causal-ноды:
+- `build_literature_prior`
+- `reconcile_causal_graph`
+- `run_causal_queries`
+- `run_causal_ensemble`
+- `run_abm_consistency`
+- `run_transportability`
+
+Обе спецификации работают с `error_policy="continue"`.
 
 ## Расширяемость
 
 `build_registry_with_builtin_nodes(include_discovered_nodes=True)`:
 - всегда подключает engine/scientist builtin nodes;
-- дополнительно сканирует plugin nodes через компонентную группу `ENTRY_POINT_GROUP_SCIENTIST_NODES`.
+- дополнительно загружает plugin-ноды из `ENTRY_POINT_GROUP_SCIENTIST_NODES`.
 
-## Важные эксплуатационные нюансы
+## Эксплуатационные нюансы
 
-- при пустом `run_id` он генерируется автоматически;
-- `registry_bundle_ref` автосоздается при отсутствии;
-- обязателен хотя бы один источник snapshot (`data_snapshot_ref` или `input_bindings_ref` или `data_view_request_ref`);
-- запуск защищен `run.lock` и checkpoint policy (`off|strict|best_effort`).
+- `run_id` автогенерируется при пустом значении;
+- `registry_bundle_ref` создается автоматически при отсутствии;
+- обязателен хотя бы один input snapshot-источник:
+  - `data_snapshot_ref`, или
+  - `input_bindings_ref`, или
+  - `data_view_request_ref`;
+- запуск и resume защищены `.polisyos/runs/<run_id>/run.lock`;
+- checkpoint policy: `off | strict | best_effort`.

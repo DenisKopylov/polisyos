@@ -1,40 +1,45 @@
 # Terraform (`ops/terraform`)
 
-Terraform-модуль для выделенного confidential node pool в AKS.
+Terraform модуль для dedicated confidential node pool в AKS.
 
-## Структура
+## Что есть в директории
 
 | Путь | Назначение |
 |---|---|
-| `modules/confidential_nodepool/main.tf` | модуль `azurerm_kubernetes_cluster_node_pool` с confidential runtime настройками |
+| `modules/confidential_nodepool/main.tf` | `azurerm_kubernetes_cluster_node_pool` с `KataCcIsolation`, labels/taints для PolicyOS |
 
-## Что конфигурирует модуль
+## Роль в системе
 
-- `workload_runtime = "KataCcIsolation"`;
-- labels для PolicyOS scheduling:
-  - `polisyos.io/cell-id=<cell_id>`;
-  - `polisyos.io/tier=dedicated`;
-  - `polisyos.io/tee=sev-snp`;
-  - `polisyos.io/confidential=true`;
-- taint: `polisyos.io/confidential=true:NoSchedule`;
-- autoscaling (`min_count=node_count`, `max_count=max_node_count`).
+Модуль подготавливает ноды под confidential workload path, который использует `ops/helm/polisyos-cell/templates/runtimeclass-confidential.yaml`.
 
-## Входные переменные
+## Параметры модуля
 
 | Переменная | Тип | По умолчанию | Назначение |
 |---|---|---|---|
 | `cluster_id` | `string` | - | resource ID AKS кластера |
 | `cell_id` | `string` | - | идентификатор PolicyOS cell |
-| `vm_size` | `string` | `Standard_DC16as_v5` | размер confidential VM |
-| `node_count` | `number` | `2` | начальное и минимальное число нод |
-| `max_node_count` | `number` | `8` | верхняя граница autoscaler |
+| `vm_size` | `string` | `Standard_DC16as_v5` | размер Confidential VM |
+| `node_count` | `number` | `2` | initial/min nodes |
+| `max_node_count` | `number` | `8` | autoscaler maximum |
+
+## Что настраивается
+
+- `workload_runtime = "KataCcIsolation"`;
+- labels: `polisyos.io/cell-id`, `polisyos.io/tier=dedicated`, `polisyos.io/tee=sev-snp`, `polisyos.io/confidential=true`;
+- taint: `polisyos.io/confidential=true:NoSchedule`;
+- autoscaling: `min_count=node_count`, `max_count=max_node_count`.
 
 ## Outputs
 
 - `node_pool_id`
 - `node_pool_name`
 
-## Пример использования
+## Ограничения
+
+- модуль не включает provider/backend/root wiring;
+- node pool name: `cvm${substr(var.cell_id, 0, 8)}` (следить за коллизиями при близких `cell_id`).
+
+## Пример
 
 ```hcl
 module "cell_confidential_pool" {
@@ -46,12 +51,3 @@ module "cell_confidential_pool" {
   max_node_count = 8
 }
 ```
-
-## Связь с Helm
-
-`ops/helm/polisyos-cell/templates/runtimeclass-confidential.yaml` ожидает ноды с label `polisyos.io/tee=sev-snp` и taint `polisyos.io/confidential=true:NoSchedule`, которые как раз создает этот модуль.
-
-## Ограничения модуля
-
-- В модуле нет provider/backend конфигурации (они задаются в корневом Terraform проекте).
-- Naming node pool: `cvm${substr(var.cell_id, 0, 8)}`; следите за коллизиями при схожих `cell_id`.

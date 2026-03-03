@@ -1,43 +1,33 @@
 # Catalog
 
-`polisyos.fabric.catalog` — слой метрических контрактов и curated binding-правил. Подсистема фиксирует допустимые метрики, их типы/единицы/PII-тиры и связывает метрики с источниками для deterministic retrieval.
+`polisyos.fabric.catalog` — слой метрических контрактов и curated source bindings для deterministic resolve.
 
-## Что дает каталог
+## Что решает каталог
 
-- `DataContract` как канонический контракт метрики.
-- `MetricBinding` с hash-lock для детекта drift контракта.
-- `SourceBinding` для fast-lane маппинга `metric -> connector/dataset/profile`.
-- Поиск (`MetricSearcher`) и deterministic resolve (`FastLaneResolver`) для `DataNeed`.
+- фиксирует канонические метрики (`DataContract`) и их тип/единицы/PII-tier;
+- дает hash-locked представление метрики (`MetricBinding`) для детекта contract drift;
+- хранит curated mapping `metric -> connector/dataset/profile` (`SourceBinding`);
+- предоставляет search и fast-lane resolve для retrieval.
 
-## Состав подсистемы
+## Состав
 
 - `contract.py` — `DataContract`, `DataType`, `Granularity`, `PIITier`, `DataContractCollection`.
-- `registry.py` — `DataContractRegistry` и проверка consistency (`ContractNotFoundError`, `ContractHashMismatchError`).
-- `binding.py` — `MetricBinding` и `DataContractSchemaBinding`.
-- `search.py` — fuzzy/exact поиск метрик.
-- `source_bindings.py` — `SourceBindingRegistry` (загрузка/поиск/upsert/persist curated bindings).
+- `registry.py` — `DataContractRegistry`, `ContractNotFoundError`, `ContractHashMismatchError`.
+- `binding.py` — `MetricBinding`, `DataContractSchemaBinding`.
+- `source_bindings.py` — `SourceBinding`, `SourceBindingRegistry`.
+- `search.py` — `MetricSearcher`, `SearchResponse`.
 - `resolver_fast_lane.py` — `FastLaneResolver`, `FastLaneResolveResult`.
-- `validate.py` — загрузка и валидация JSON-коллекций контрактов.
+- `validate.py` — загрузка и schema validation контрактных JSON.
 
 ## Типичный flow
 
-1. `DataContractRegistry` загружает curated contracts.
-2. `SourceBindingRegistry` загружает curated source bindings.
-3. `FastLaneResolver.resolve(...)` строит `FetchPlan` и ранжирует `MetricCandidate`.
-4. `retrieval.executor` исполняет plan через connectors.
-
-## Роль в retrieval
-
-`FastLaneResolver` использует:
-
-- контрактные данные (`DataContractRegistry`),
-- source bindings (`SourceBindingRegistry`),
-- метаданные реестра коннекторов (`ConnectorRegistry.get_metadata(...)`),
-
-чтобы вычислить confidence/trust/freshness и выдать ranked candidates + fallback plans.
+1. `DataContractRegistry` читает curated `data_contracts.json`.
+2. `SourceBindingRegistry` читает curated `source_bindings.json`.
+3. `FastLaneResolver.resolve(...)` ранжирует кандидатов и строит `FetchPlan` + fallbacks.
+4. `retrieval.executor` выполняет план через connectors.
 
 ## Связи
 
-- `polisyos.fabric.retrieval` — основной потребитель (`resolve`, `search_catalog`, promotion flow).
-- `polisyos.fabric.connectors.contracts` — связь contract schema и connector schema.
-- governance/quality layers — используют стабильные contract IDs и `PIITier`.
+- `fabric.retrieval` — основной consumer для fastlane/search/promotions.
+- `fabric.connectors.contracts` — привязка metric contract к dataset schema.
+- governance/security — используют стабильные `metric_id` и `PIITier`.

@@ -2,7 +2,7 @@
 
 **PolisyOS** (Policy Engine) — операционная система для проектирования, валидации, калибровки и исполнения публично-политических интервенций как воспроизводимых вычислительных экспериментов. Система принимает запрос на естественном языке, формулирует политику через иерархию AI-агентов, компилирует её в дифференцируемую JAX-симуляцию, проводит governance-проверки и выдаёт пакет решений с полным provenance-следом.
 
-**Architecture:** v2.5.0 · **Python:** >=3.11 · **License:** proprietary · **Актуально:** 17 февраля 2026
+**Architecture:** v2.6.0 · **Python:** >=3.11 · **License:** proprietary · **Актуально:** 3 марта 2026
 
 ---
 
@@ -19,7 +19,10 @@
   - [Runtime — HTTP API, Control Plane и жизненный цикл](#runtime--http-api-control-plane-и-жизненный-цикл)
   - [Lex — юридический анализ и нормативные знания](#lex--юридический-анализ-и-нормативные-знания)
   - [Scholar — обогащение знаний](#scholar--обогащение-знаний)
+  - [Academic — академический knowledge graph](#academic--академический-knowledge-graph)
+  - [Datasets — каталог статистических данных](#datasets--каталог-статистических-данных)
   - [Scientist — AI-оркестрация](#scientist--ai-оркестрация)
+  - [Batch Common — общая batch-инфраструктура](#batch-common--общая-batch-инфраструктура)
   - [Packs — компонентные пакеты](#packs--компонентные-пакеты)
 - [Сквозные подсистемы](#сквозные-подсистемы)
 - [Ключевые концепции](#ключевые-концепции)
@@ -46,6 +49,8 @@ NL intent (пользовательский запрос)
   → Scientist (AI-агенты: PI → Drafter → Formalizer → Critic + governance)
     → IR (Trinity контракты: ProblemFrame / PolicySpec / ModelSpec + kernel registries)
       → Fabric (connectors, docs, claims, world model, retrieval, data plane, evidence, provenance)
+        → Academic (OpenAlex → SKG → literature priors, causal evidence, transportability-aware параметры)
+        → Datasets (statistics → catalog → P*(Z) transportability, proxy resolution)
         → Foundry (compile → calibrate → simulate → uncertainty; чистый JAX, patch-based)
           → Runtime (HTTP API v1 + Control Plane, replay, audit trail, artifact refs)
             → Decision Artifacts (DecisionPacket / DecisionCard / GovernanceReport)
@@ -54,6 +59,9 @@ NL intent (пользовательский запрос)
 Сквозные подсистемы:
 - **Lex**: юридические документы → corpus → NormPack → legality evaluation → what-if simulator → offline knowledge graph (batch pipeline + vector search)
 - **Scholar**: внешние источники → docs → claims → trust → KnowledgeBundle (обогащение Fabric/IR) + freshness management
+- **Academic**: OpenAlex → batch pipeline → DuckDB SKG → ScholarKnowledgeGraph + ParameterSelector (transportability-aware literature priors и causal evidence)
+- **Datasets**: статистические источники → batch pipeline → DuckDB каталог → DatasetCatalogGraph + DatasetRegistry (hybrid search, P*(Z) transportability, proxy resolution)
+- **Batch Common**: общая инфраструктура batch-пайплайнов (snapshot layout, manifests, QC helpers, thermal pacing)
 - **Packs**: встроенные доменные компоненты (IR-фрагменты, Foundry-методы, Lex-оценщики, Scholar-экстракторы)
 - **Security**: Zero Trust, multi-tenant isolation, OPA policies, TEE attestation, SBOM, SLSA
 
@@ -68,36 +76,39 @@ NL intent (пользовательский запрос)
                                 │ common   │  ← нет зависимостей вверх
                                 └────┬─────┘
                                      │
-                          ┌──────────┴──────────┐
-                          │                     │
-                     ┌────▼────┐          ┌─────▼────┐
-                     │  core   │          │    ir    │  (чистые контракты)
-                     └────┬────┘          └─────┬────┘
-                          │                     │
-               ┌──────────┼─────────────────────┤
-               │          │                     │
-          ┌────▼────┐ ┌───▼─────┐         ┌────▼────┐
-          │ fabric  │ │ foundry │         │ runtime │
-          └────┬────┘ └───┬─────┘         └────┬────┘
-               │          │                    │
-          ┌────▼────┐ ┌───▼─────┐              │
-          │   lex   │ │ scholar │              │
-          └────┬────┘ └───┬─────┘              │
-               │          │                    │
-               └──────────┼────────────────────┘
-                          │
-                   ┌──────▼──────┐
-                   │  scientist  │  (оркестрация верхнего уровня)
-                   └──────┬──────┘
-                          │
-                   ┌──────▼──────┐
-                   │    packs    │  (листовой модуль, только реализации)
-                   └─────────────┘
+                       ┌─────────────┼──────────────┐
+                       │             │              │
+                  ┌────▼────┐  ┌─────▼──────┐  ┌───▼───┐
+                  │  core   │  │batch_common│  │  ir   │  (чистые контракты)
+                  └────┬────┘  └─────┬──────┘  └───┬───┘
+                       │             │             │
+            ┌──────────┼─────────────┼─────────────┤
+            │          │             │             │
+       ┌────▼────┐ ┌───▼─────┐      │       ┌─────▼───┐
+       │ fabric  │ │ foundry │      │       │ runtime │
+       └────┬────┘ └───┬─────┘      │       └────┬────┘
+            │          │             │            │
+  ┌─────────┼──────────┤─────────────┤            │
+  │         │          │             │            │
+┌─▼──┐ ┌───▼───┐ ┌────▼────┐ ┌─────▼────┐       │
+│lex │ │scholar│ │academic │ │ datasets │       │
+└─┬──┘ └───┬───┘ └────┬────┘ └─────┬────┘       │
+  │         │          │            │            │
+  └─────────┴──────────┴────────────┼────────────┘
+                                    │
+                             ┌──────▼──────┐
+                             │  scientist  │  (оркестрация верхнего уровня)
+                             └──────┬──────┘
+                                    │
+                             ┌──────▼──────┐
+                             │    packs    │  (листовой модуль, только реализации)
+                             └─────────────┘
 ```
 
 | Модуль | Зависит от | Документация |
 |--------|-----------|--------------|
 | `polisyos.common` | — | [README](policy-engine/src/polisyos/common/README.md) |
+| `polisyos.batch_common` | common | — |
 | `polisyos.core` | common | [README](policy-engine/src/polisyos/core/README.md) |
 | `polisyos.ir` | — (core только TYPE_CHECKING) | [README](policy-engine/src/polisyos/ir/README.md) |
 | `polisyos.fabric` | ir, core, common | [README](policy-engine/src/polisyos/fabric/README.md) |
@@ -105,7 +116,9 @@ NL intent (пользовательский запрос)
 | `polisyos.runtime` | core, common | [README](policy-engine/src/polisyos/runtime/README.md) |
 | `polisyos.lex` | fabric, ir, core, common | [README](policy-engine/src/polisyos/lex/README.md) |
 | `polisyos.scholar` | fabric, ir, core, common | [README](policy-engine/src/polisyos/scholar/README.md) |
-| `polisyos.scientist` | ir, fabric, foundry, runtime, lex, core, common | [README](policy-engine/src/polisyos/scientist/README.md) |
+| `polisyos.academic` | batch_common, ir, core, common | [README](policy-engine/src/polisyos/academic/README.md) |
+| `polisyos.datasets` | batch_common, fabric, ir, core, common | [README](policy-engine/src/polisyos/datasets/README.md) |
+| `polisyos.scientist` | ir, fabric, foundry, runtime, lex, academic, datasets, core, common | [README](policy-engine/src/polisyos/scientist/README.md) |
 | `polisyos.packs` | core, ir, foundry, lex, fabric, common | [README](policy-engine/src/polisyos/packs/README.md) |
 
 ---
@@ -316,7 +329,7 @@ ir.trinity_bundle + registry_bundle
 
 | Подсистема | Назначение |
 |------------|-----------|
-| **[methods/](policy-engine/src/polisyos/foundry/methods/README.md)** | Декларативный фреймворк методов: protocol, registry, DAG-composition, JAX/NumPy/Solver backends. Каталог: каузальный inference (SCM, DiD, RDD, CATE, DML, Meta-Learners, PolicyTree, Structural Time Series), эконометрика (Panel FE/RE, IV, ARIMA/VAR), оптимизация (OR-Tools/PuLP). Golden-record regression testing |
+| **[methods/](policy-engine/src/polisyos/foundry/methods/README.md)** | Декларативный фреймворк методов: protocol, registry, DAG-composition, JAX/NumPy/Solver backends. Каталог (`methods/catalog/`): [causal/](policy-engine/src/polisyos/foundry/methods/catalog/causal/README.md) — SCM, DiD, RDD, CATE, DML, Meta-Learners, PolicyTree, Structural Time Series, DAGMA discovery, symbolic identification (y0/R), CI backend selection (auto\|numpy\|jax), full transport bridge; [econometrics/](policy-engine/src/polisyos/foundry/methods/catalog/econometrics/) — Panel FE/RE, IV, ARIMA/VAR; [optimization/](policy-engine/src/polisyos/foundry/methods/catalog/optimization/) — OR-Tools/PuLP. Legacy пути `methods/{causal,econometrics,optimization}` сохранены как facade. Регистрация через `_registry_boot.py`. Golden-record regression testing |
 | **[agent_sim/](policy-engine/src/polisyos/foundry/agent_sim/README.md)** | Гетерогенная агентная симуляция: RL (PPO/CMA-ES/VFI/MPC), actor-critic (Equinox), графовые механизмы (social influence, diffusion, lending), демография (рождение/смерть/миграция/наследство), temporal dynamics, distribution-aware rewards. `PureExecutor → DistributionAwareExecutor → GraphAwareExecutor → PopulationAwareExecutor` |
 | **[calibration/](policy-engine/src/polisyos/foundry/calibration/README.md)** | Градиентная калибровка на реальных данных: Adam/optax, bijector constraints, multi-target GradNorm, early stopping, Laplace-approximation uncertainty (Hessian) → `CalibrationReport` + `UncertaintyEnvelopes` |
 | **[plugins/](policy-engine/src/polisyos/foundry/plugins/README.md)** | Plugin-архитектура для доменных симуляций. `PolisySimulator` high-level API, composite multi-domain execution. Reference: EconomicsPlugin |
@@ -481,13 +494,111 @@ XML corpus → batch pipeline (parse → structure → SPO extraction → graph 
 
 ---
 
+### Academic — академический knowledge graph
+
+> `src/polisyos/academic/` · [README](policy-engine/src/polisyos/academic/README.md) · Зависимости: batch_common, ir, core, common
+
+Офлайн-контур построения academic knowledge graph (AKG/SKG) на базе OpenAlex и read-only API для извлечения литературы, causal evidence и параметрических priors.
+
+**Контур 1 — Ingestion/pipeline:**
+
+```
+relevant_topics_*.csv
+  → openalex.topic_catalog + selector (diversity policy, impact/recency/method scoring)
+    → batch: topic_select → harvest → parse → article_extract|extract_llm → merge_dedup
+      → graph_load (DuckDB: ac_works, ac_parameter_estimates, ac_causal_claims, ac_skg_*)
+        → graph_index → embed (HNSW + NPZ) → qc → publish
+```
+
+**Контур 2 — Query/runtime:**
+
+```
+DuckDB + HNSW → ScholarKnowledgeGraph (hybrid text+vector search, priors, causal evidence)
+             → ParameterSelector (transportability-aware выбор параметров)
+             → VariableCanonizer (deterministic canonical namespace + cache)
+```
+
+#### Подсистемы Academic
+
+| Подсистема | Назначение |
+|------------|-----------|
+| **[batch/](policy-engine/src/polisyos/academic/batch/README.md)** | Стадийный pipeline: 11 стадий от topic selection до publish. Extraction modes: `deterministic` → `llm_enriched` → `article_extract` (приоритет при merge). LLM gate с budget control, audit и circuit breaker. OpenAI Batch API для embeddings |
+| **[knowledge/](policy-engine/src/polisyos/academic/knowledge/README.md)** | Read-only API: `ScholarKnowledgeGraph` (hybrid text+vector search), `SKGQuery` (edge priors, parameter candidates), `ParameterSelector` (transportability scoring через `ContextProfile`), `VariableCanonizer` (deterministic canonical namespace + cache в DuckDB). SKG versioning и retraction handling |
+| **[openalex/](policy-engine/src/polisyos/academic/openalex/README.md)** | Интеграция с OpenAlex API: topic catalog из CSV, async HTTP client с rate limiting и retry, selection algorithm с diversity policy (max 5 per journal, max 2 per first author), TIER1/TIER2 priority filter |
+| **trust.py** | Нормализация trust-score по дизайну исследования, цитируемости, свежести и sample size |
+
+#### Ключевые API Academic
+
+- `ScholarKnowledgeGraph.find_relevant_works(...)` — fusion text + vector search
+- `ScholarKnowledgeGraph.get_parameter_prior(variable, domain, country)` — trust-weighted mean/std
+- `ParameterSelector.select_for_context(...)` — transportability-aware выбор параметра
+- `SKGQuery.query_edge_priors(...)` / `query_parameters(...)` — SKG graph API
+
+#### DuckDB слой
+
+Runtime tables: `ac_works`, `ac_parameter_estimates`, `ac_causal_claims`, `ac_boundary_conditions`, `ac_topics`, `ac_topic_selections`, `ac_article_extractions`.
+SKG tables: `ac_skg_articles`, `ac_skg_variables`, `ac_skg_parameters`, `ac_skg_edges`, `ac_skg_versions`.
+
+CLI: `python -m polisyos.academic.batch.cli run --snapshot-root <path>`.
+
+---
+
+### Datasets — каталог статистических данных
+
+> `src/polisyos/datasets/` · [README](policy-engine/src/polisyos/datasets/README.md) · Зависимости: batch_common, fabric, ir, core, common
+
+Слой построения и чтения каталога статистических датасетов. Два контура:
+
+**Контур 1 — Batch:**
+
+```
+source_registry.yaml (waves A/B/C/D: SDMX, WorldBank, WVS, CKAN, UKONS, WHO, UNPD, ...)
+  → batch: harvest → normalize (DatasetRecord, DCAT-like) → merge_dedup
+    → graph_load (DuckDB: ds_datasets, ds_distributions)
+      → graph_index → core_sources_ingest (optional: registry/alignments/observations)
+        → embed (SentenceTransformer + HNSW) → qc → publish
+```
+
+**Контур 2 — Runtime:**
+
+```
+DuckDB + HNSW → DatasetCatalogGraph (hybrid vector+text search, metric/variable lookup)
+             → DatasetRegistry (transportability: P*(Z), proxy resolution, confidence composition)
+```
+
+#### Подсистемы Datasets
+
+| Подсистема | Назначение |
+|------------|-----------|
+| **[batch/](policy-engine/src/polisyos/datasets/batch/README.md)** | Staged pipeline: 9 стадий. Source registry с wave selection (A/B/C/D). `core_sources_ingest` опциональна (заполняет registry-таблицы для transportability). Resume и thermal pacing |
+| **[knowledge/](policy-engine/src/polisyos/datasets/knowledge/README.md)** | Read-only API: `DatasetCatalogGraph` (hybrid vector+text search, metric/variable lookup), `DatasetRegistry` (transportability: `compute_p_star_z`, proxy resolution, confidence composition). Fallback на text-only при отсутствии embeddings |
+
+#### Ключевые API Datasets
+
+- `DatasetCatalogGraph.search_datasets(query, ...)` — weighted merge vector + text
+- `DatasetCatalogGraph.find_by_polisyos_metric(...)` — deterministic resolve
+- `DatasetRegistry.find_datasets_for_variable(...)` — ранжирование по proxy/coverage/confidence
+- `DatasetRegistry.compute_p_star_z(...)` — point/empirical оценка с penalty breakdown
+- `proxy_resolver.resolve_proxy(...)` / `validate_proxy(...)` — proxy chain с 4-condition check
+
+#### Роль в системе
+
+- `fabric.retrieval` — каталог как дополнительный lane для `DataNeed` resolve
+- `scientist.agent` — tool для dataset discovery
+- `scientist.nodes.builtins.causal.resolve_transport` — `P*(Z)` и proxy fallback
+- `ir.analytics` — типы transportability и confidence-композиции
+
+CLI: `python -m polisyos.datasets.batch.cli run --snapshot-root <path>`.
+
+---
+
 ### Scientist — AI-оркестрация
 
-> `src/polisyos/scientist/` · [README](policy-engine/src/polisyos/scientist/README.md) · Зависимости: ir, fabric, foundry, runtime, lex, core, common
+> `src/polisyos/scientist/` · [README](policy-engine/src/polisyos/scientist/README.md) · Зависимости: ir, fabric, foundry, runtime, lex, academic, datasets, core, common
 
 Оркестрационный «мозг» системы. Координирует полный цикл эксперимента через DAG workflow.
 
-#### Default Workflow DAG
+#### Default Workflow DAG (`scientist_default`)
 
 ```
 start (noop)
@@ -499,18 +610,63 @@ start (noop)
 │     └─ run_preflight
 │        └─ ready_to_run
 ├─ link_trinity
-│  └─ compile_foundry
-│     └─ run_simulation
-│        ├─ run_distributional_analysis
-│        ├─ run_evaluator
-│        └─ propagate_uncertainty
-│           └─ run_governance
-└─ run_causal_evaluation (depends on build_data_snapshot)
 
-build_decision_packet (depends on run_governance + run_causal_evaluation + run_evaluator)
+compile_foundry (depends: link_trinity + run_data_plane_gate + ready_to_run)
+└─ resolve_parameters (depends: compile_foundry + bind_foundry_inputs + run_data_plane_gate)
+   └─ run_simulation
+      ├─ run_distributional_analysis
+      └─ propagate_uncertainty
+
+run_causal_evaluation (depends: build_data_snapshot)
+run_governance (depends: propagate_uncertainty + run_distributional_analysis + run_causal_evaluation)
+run_evaluator (depends: run_governance)
+build_decision_packet (depends: run_governance + run_causal_evaluation + run_evaluator)
 ```
 
-Точки входа: `polisyos.scientist.run_experiment(state)`, `polisyos.scientist.workflows.builder.run_default_workflow(...)`.
+#### Causal Full Workflow DAG (`scientist_causal_full`)
+
+Расширенный workflow для полного causal-контура. Требует явного вызова `run_causal_full_workflow(...)`.
+
+```
+start (noop)
+├─ build_data_snapshot
+│  └─ bind_foundry_inputs
+│     └─ run_data_plane_gate
+├─ build_literature_prior
+│  └─ reconcile_causal_graph
+├─ build_execution_plan
+│  └─ build_method_catalog_snapshot
+│     └─ run_preflight
+│        └─ ready_to_run
+├─ link_trinity
+
+compile_foundry (depends: link_trinity + run_data_plane_gate + ready_to_run)
+└─ resolve_parameters (depends: compile_foundry + bind_foundry_inputs
+                              + run_data_plane_gate + reconcile_causal_graph)
+   └─ run_simulation
+      ├─ run_distributional_analysis
+      └─ propagate_uncertainty
+
+run_causal_evaluation (depends: build_data_snapshot)
+└─ run_causal_queries
+   └─ run_causal_ensemble
+      └─ run_abm_consistency
+         └─ run_transportability (depends: run_abm_consistency + reconcile_causal_graph)
+
+run_governance (depends: propagate_uncertainty + run_distributional_analysis
+                       + run_causal_evaluation + run_causal_ensemble
+                       + run_abm_consistency + reconcile_causal_graph + run_transportability)
+run_evaluator (depends: run_governance)
+build_decision_packet (depends: run_governance + run_causal_evaluation + run_evaluator)
+```
+
+Ключевые отличия от `scientist_default`:
+- Добавлена causal-ветка: `build_literature_prior → reconcile_causal_graph`
+- Расширенная evaluation цепочка: `run_causal_queries → run_causal_ensemble → run_abm_consistency → run_transportability`
+- `resolve_parameters` дополнительно зависит от `reconcile_causal_graph`
+- `run_governance` собирает результаты из всех causal-нод
+
+Точки входа: `polisyos.scientist.run_experiment(state)`, `polisyos.scientist.workflows.builder.run_default_workflow(...)`, `polisyos.scientist.workflows.builder.run_causal_full_workflow(...)`.
 
 #### Крупные подсистемы Scientist
 
@@ -526,6 +682,10 @@ build_decision_packet (depends on run_governance + run_causal_evaluation + run_e
 | **[search/](policy-engine/src/polisyos/scientist/search/README.md)** | `SearchController` с cheap/expensive two-stage evaluation. Strategies: Random, Grid, adapter, optional Bayesian (botorch/gpytorch), Multi-Objective, Multi-Fidelity. Stopping: MaxIterations, MaxWallTime, ImprovementPlateau, TargetAchieved. Adversarial stress-test. **Опциональный контур** |
 | **[doe/](policy-engine/src/polisyos/scientist/doe/README.md)** | Design of Experiments: ScenarioSweep, AblationPlan, SensitivityPlan (SALib: MORRIS/SOBOL/FAST), AdversarialPlan. Stress-test reports |
 | **[backtesting/](policy-engine/src/polisyos/scientist/backtesting/README.md)** | Историческая валидация: OutcomeMasker, PredictionEvaluator (RMSE/MAE/MAPE/Coverage), TrustScorer (coverage/mape/bias → grade A-F). CLI: `polisyos scientist backtest` |
+| **[adapters/](policy-engine/src/polisyos/scientist/adapters/README.md)** | Порты интеграции: `DefaultFoundryPort` (compile/execute + optional TEE gate + SBOM derived artifacts), `DefaultFabricPort` (DataViewRequest → DataSnapshot, tabular payload, quality report). Workflow автоматически подключает адаптеры |
+| **[compute/](policy-engine/src/polisyos/scientist/compute/README.md)** | Execution jobs: `JobSpec`/`JobKey`/`JobResult`, `run_job()` с двумя backend-ами: `LocalBackend` (legacy program graph) и `MethodBackend` (Foundry method dispatcher). Используется causal-нодами |
+| **[orchestrator/](policy-engine/src/polisyos/scientist/orchestrator/README.md)** | Presentation layer: `DecisionCard.from_packet()` — краткая управленческая карточка. Verdict/confidence агрегация, issues summary, markdown-рендер. Не участвует в обязательном DAG |
+| **[search/strategies/](policy-engine/src/polisyos/scientist/search/strategies/README.md)** | Выделенная поддиректория стратегий: Random, Grid, Bayesian (botorch/gpytorch), Multi-Objective, Multi-Fidelity. `StrategyAdapter`, resource arbiter, objective bridge |
 
 #### Воспроизводимость
 
@@ -542,6 +702,23 @@ build_decision_packet (depends on run_governance + run_causal_evaluation + run_e
 - `scientist.experiment_state`
 - `scientist.checkpoint`
 - Производные `foundry.*` артефакты (exec plan, simulation result, metrics, envelopes)
+
+---
+
+### Batch Common — общая batch-инфраструктура
+
+> `src/polisyos/batch_common/` · Зависимости: common
+
+Общий инфраструктурный слой для offline batch-пайплайнов (`academic.batch` и `datasets.batch`). Не содержит доменной логики.
+
+| Модуль | Назначение |
+|--------|-----------|
+| **paths.py** | Snapshot filesystem layout: `<root>/<domain>/<stage>/` conventions |
+| **manifest.py** | Stage manifests: SHA256-based checksums, stage metadata, resume support |
+| **hashing.py** | Stable content hashing для deterministic dedup и cache keys |
+| **thermal.py** | Thermal pacing: rate control для batch stages (API rate limits, CPU throttling) |
+| **qc.py** | QC helpers: row counts, nullability checks, dedup stats, completeness gates |
+| **phase0_quality_validation.py** | Phase-0 quality gate: cross-stage consistency, extraction quality, coverage reports |
 
 ---
 
@@ -633,6 +810,14 @@ Append-only Fact Log → инкрементальная материализац
 
 Offline pipeline (ЄДРНПА XML → parse → structure → SPO extraction → DuckDB graph) → HNSW vector indices → hybrid search (vector + text score fusion). Read-only `LegalKnowledgeGraph` API с поддержкой entity/fact/provision search и graph traversal.
 
+### Scholar Knowledge Graph (SKG)
+
+Offline pipeline (OpenAlex → topic selection → harvest → parse → extraction → DuckDB SKG) → HNSW vector indices → hybrid search (vector + text score fusion). Read-only `ScholarKnowledgeGraph` API: literature search, parameter priors (trust-weighted mean/std), causal evidence. Transportability-aware `ParameterSelector` для выбора параметров под target context через `ContextProfile`.
+
+### Dataset Catalog
+
+Offline pipeline (statistical sources → normalize → DuckDB catalog) → HNSW vector indices → hybrid search. `DatasetCatalogGraph` для discovery датасетов по метрикам и переменным. `DatasetRegistry` для transportability: `P*(Z)` estimation (point/empirical), proxy resolution с 4-condition validation, confidence composition.
+
 ### Evidence / Provenance / Trust / Quality
 
 Каждый data product несёт EvidenceBundle с provenance графом, quality indicators (missingness, staleness, coverage) и uncertainty bounds. Governance gates блокируют некачественные данные.
@@ -690,7 +875,8 @@ Offline pipeline (ЄДРНПА XML → parse → structure → SPO extraction �
 | **PyArrow / Parquet** | Fact Log сегменты, ETL staging |
 | **pandas** | DataFrame операции, quality computation |
 | **aiohttp** | Async HTTP для коннекторов |
-| **hnswlib** | Approximate nearest neighbor search для Legal Knowledge Graph |
+| **hnswlib** | Approximate nearest neighbor search для Legal/Scholar Knowledge Graph и Dataset Catalog |
+| **SentenceTransformers** (optional) | Dense vector embeddings для academic и dataset каталогов |
 
 ### Observability & Security
 
@@ -723,14 +909,18 @@ Offline pipeline (ЄДРНПА XML → parse → structure → SPO extraction �
 kuzu          — графовые запросы (Kuzu)
 analytics     — scipy, statsmodels, linearmodels
 sensitivity   — SALib
-causal        — dowhy, econml
-solvers       — ortools, pulp
+causal             — dowhy, econml
+causal-discovery   — tigramite, causal-learn
+causal-discovery-scale — dagma (DAG learning через differentiable acyclic constraints)
+causal-symbolic    — y0 (symbolic identification, do-calculus)
+solvers            — ortools, pulp
 multi-tenant  — psycopg, asyncpg, fastapi, uvicorn, httpx, PyJWT
 methods-full  — analytics + causal + solvers
 security      — httpx, boto3, sigstore, presidio, spacy
 rag           — faiss-cpu
-rag-local     — sentence-transformers, onnxruntime
-sandbox       — RestrictedPython
+rag-local          — sentence-transformers, onnxruntime
+academic-skg       — PyPDF (PDF parsing для academic pipeline)
+sandbox            — RestrictedPython
 search_bo     — torch, gpytorch, botorch (Bayesian optimization)
 search_mo     — torch, gpytorch, botorch (Multi-objective search)
 ```
@@ -828,6 +1018,9 @@ macOS: импортировать `jax_bootstrap.py` **перед** `import jax`
 | [tests/scientist/](policy-engine/tests/scientist/README.md) | 58 | Engine/workflow, governance passes, search/DOE, decision artifacts |
 | [tests/runtime/](policy-engine/tests/runtime/README.md) | 15 | Runtime HTTP API, replay, timeline/debug/artifact inspection, control plane, tenant isolation, OpenAPI hardening |
 | [tests/lex/](policy-engine/tests/lex/README.md) | 9 | Batch pipeline (structurers, SPO normalization, quality, sharding), simulator (diff, mutator, impact) |
+| tests/academic/ | 22 | Batch pipeline (parser, graph builder, topic catalog/selector, trust, extractors, QC, SKG), knowledge (SKGQuery, ParameterSelector) |
+| tests/datasets/ | 12 | Batch pipeline (normalizer, dedup, graph builder, source registry, core_sources_ingest, QC), knowledge (store, registry, proxy resolver, variable alignment) |
+| tests/common/ | 1 | Быстрая JSON-сериализация |
 | [tests/integration/](policy-engine/tests/integration/README.md) | 1 | Human-gate audit cycle (cross-layer) |
 | tests/performance/ | 1 | Observability overhead SLA |
 
@@ -879,7 +1072,7 @@ uv run pytest tests/performance/test_overhead.py -q
 
 | Инструмент | Назначение | Документация |
 |-----------|-----------|--------------|
-| `tools/diagnostics/gen_schema.py` | Генерация/проверка JSON Schema из IR-моделей (34 ABI models) | [README](policy-engine/tools/diagnostics/README.md) |
+| `tools/diagnostics/gen_schema.py` | Генерация/проверка JSON Schema из IR-моделей (50 ABI models: IR=48, Fabric=2) | [README](policy-engine/tools/diagnostics/README.md) |
 | `tools/diagnostics/abi_diff.py` | Семантический diff baseline/current (13 типов изменений), PASS/WARN/FAIL | [README](policy-engine/tools/diagnostics/README.md) |
 | `tools/connectors/check_contracts.py` | Валидация connector contracts snapshot (3 contracts) | [README](policy-engine/tools/connectors/README.md) |
 
@@ -1014,13 +1207,14 @@ src/polisyos/runtime/http/* (FastAPI)
 
 | Артефакт | Содержание | Документация |
 |----------|-----------|--------------|
-| **[snapshots/ir/](policy-engine/schemas/snapshots/ir/README.md)** | 32 JSON Schema для IR-моделей (P0=18, P1=14), все `strict` compat mode | [README](policy-engine/schemas/snapshots/ir/README.md) |
+| **[snapshots/ir/](policy-engine/schemas/snapshots/ir/README.md)** | 48 JSON Schema для IR-моделей (P0=18, P1=23, P2=9), все `strict` compat mode | [README](policy-engine/schemas/snapshots/ir/README.md) |
 | **[snapshots/fabric/](policy-engine/schemas/snapshots/fabric/README.md)** | 2 JSON Schema для Fabric enum ABI (`edge_kind`, `node_kind`) | [README](policy-engine/schemas/snapshots/fabric/README.md) |
 | **[snapshots/connectors/](policy-engine/schemas/snapshots/connectors/README.md)** | 3 connector contracts (`eurostat`, `ukons`, `worldbank`), version evolution tracking | [README](policy-engine/schemas/snapshots/connectors/README.md) |
 | **runtime_api_v1.openapi.json** | OpenAPI 3.1.0 спецификация Runtime API v1 + Control Plane | — |
-| **abi_models.py** | Реестр 34 ABI-моделей (`ABIModelEntry`) — single source of truth | — |
+| **abi_models.py** | Реестр 50 ABI-моделей (`ABIModelEntry`: IR=48, Fabric=2; P0=18, P1=23, P2=9) — single source of truth | — |
 
 ABI compatibility: 13 типов изменений, P0 breaking → major bump, semantic diff + freshness check в CI.
+Runtime API: 37 операций (27 GET + 10 POST), OpenAPI 3.1.0.
 
 ```bash
 # Проверка ABI
@@ -1049,7 +1243,7 @@ data/
 
 ### Иерархия README
 
-Трёхуровневая система (~80 README файлов):
+Трёхуровневая система (~100 README файлов):
 - **Уровень 0:** корневой README (этот документ) — полная архитектурная карта
 - **Уровень 1:** модуль (`fabric/README.md`, `scientist/README.md`) — архитектура, зависимости, принципы
 - **Уровень 2:** подсистемы (`fabric/connectors/README.md`, `scientist/engine/README.md`) — API, контракты, внутренняя структура
@@ -1073,13 +1267,15 @@ data/
 | Core | [core/](policy-engine/src/polisyos/core/README.md), [artifacts/](policy-engine/src/polisyos/core/artifacts/README.md), [audit/](policy-engine/src/polisyos/core/audit/README.md), [components/](policy-engine/src/polisyos/core/components/README.md), [contracts/](policy-engine/src/polisyos/core/contracts/README.md), [governance/](policy-engine/src/polisyos/core/governance/README.md), [llm/](policy-engine/src/polisyos/core/llm/README.md), [observability/](policy-engine/src/polisyos/core/observability/README.md), [registry/](policy-engine/src/polisyos/core/registry/README.md), [security/](policy-engine/src/polisyos/core/security/README.md), [cache/](policy-engine/src/polisyos/core/cache/README.md) |
 | IR | [ir/](policy-engine/src/polisyos/ir/README.md), [trinity/](policy-engine/src/polisyos/ir/trinity/README.md), [governance/](policy-engine/src/polisyos/ir/governance/README.md), [kernel/](policy-engine/src/polisyos/ir/kernel/README.md), [world/](policy-engine/src/polisyos/ir/world/README.md), [linker/](policy-engine/src/polisyos/ir/linker/README.md), [analytics/](policy-engine/src/polisyos/ir/analytics/README.md), [artifacts/](policy-engine/src/polisyos/ir/artifacts/README.md), [migrations/](policy-engine/src/polisyos/ir/migrations/README.md) |
 | Fabric | [fabric/](policy-engine/src/polisyos/fabric/README.md), [connectors/](policy-engine/src/polisyos/fabric/connectors/README.md), [claims/](policy-engine/src/polisyos/fabric/claims/README.md), [docs/](policy-engine/src/polisyos/fabric/docs/README.md), [world/](policy-engine/src/polisyos/fabric/world/README.md), [catalog/](policy-engine/src/polisyos/fabric/catalog/README.md), [data_plane/](policy-engine/src/polisyos/fabric/data_plane/README.md), [retrieval/](policy-engine/src/polisyos/fabric/retrieval/README.md) |
-| Foundry | [foundry/](policy-engine/src/polisyos/foundry/README.md), [agent_sim/](policy-engine/src/polisyos/foundry/agent_sim/README.md), [calibration/](policy-engine/src/polisyos/foundry/calibration/README.md), [methods/](policy-engine/src/polisyos/foundry/methods/README.md), [plugins/](policy-engine/src/polisyos/foundry/plugins/README.md), [uncertainty/](policy-engine/src/polisyos/foundry/uncertainty/README.md) |
-| Runtime | [runtime/](policy-engine/src/polisyos/runtime/README.md), [http/](policy-engine/src/polisyos/runtime/http/README.md), [services/](policy-engine/src/polisyos/runtime/http/services/README.md) |
+| Foundry | [foundry/](policy-engine/src/polisyos/foundry/README.md), [agent_sim/](policy-engine/src/polisyos/foundry/agent_sim/README.md), [calibration/](policy-engine/src/polisyos/foundry/calibration/README.md), [methods/](policy-engine/src/polisyos/foundry/methods/README.md), [methods/catalog/](policy-engine/src/polisyos/foundry/methods/catalog/README.md), [methods/catalog/causal/](policy-engine/src/polisyos/foundry/methods/catalog/causal/README.md), [plugins/](policy-engine/src/polisyos/foundry/plugins/README.md), [uncertainty/](policy-engine/src/polisyos/foundry/uncertainty/README.md) |
+| Runtime | [runtime/](policy-engine/src/polisyos/runtime/README.md), [http/](policy-engine/src/polisyos/runtime/http/README.md), [routes/](policy-engine/src/polisyos/runtime/http/routes/README.md), [services/](policy-engine/src/polisyos/runtime/http/services/README.md) |
 | Lex | [lex/](policy-engine/src/polisyos/lex/README.md), [corpus/](policy-engine/src/polisyos/lex/corpus/README.md), [normpack/](policy-engine/src/polisyos/lex/normpack/README.md), [legal_evaluation/](policy-engine/src/polisyos/lex/legal_evaluation/README.md), [simulator/](policy-engine/src/polisyos/lex/simulator/README.md), [batch/](policy-engine/src/polisyos/lex/batch/README.md), [knowledge/](policy-engine/src/polisyos/lex/knowledge/README.md) |
 | Scholar | [scholar/](policy-engine/src/polisyos/scholar/README.md), [discover/](policy-engine/src/polisyos/scholar/discover/README.md), [orchestrator/](policy-engine/src/polisyos/scholar/orchestrator/README.md) |
-| Scientist | [scientist/](policy-engine/src/polisyos/scientist/README.md), [engine/](policy-engine/src/polisyos/scientist/engine/README.md), [workflows/](policy-engine/src/polisyos/scientist/workflows/README.md), [agent/](policy-engine/src/polisyos/scientist/agent/README.md), [llm/](policy-engine/src/polisyos/scientist/llm/README.md), [governance/](policy-engine/src/polisyos/scientist/governance/README.md), [kernel/](policy-engine/src/polisyos/scientist/kernel/README.md), [nodes/](policy-engine/src/polisyos/scientist/nodes/README.md), [search/](policy-engine/src/polisyos/scientist/search/README.md), [doe/](policy-engine/src/polisyos/scientist/doe/README.md), [backtesting/](policy-engine/src/polisyos/scientist/backtesting/README.md) |
+| Academic | [academic/](policy-engine/src/polisyos/academic/README.md), [batch/](policy-engine/src/polisyos/academic/batch/README.md), [knowledge/](policy-engine/src/polisyos/academic/knowledge/README.md), [openalex/](policy-engine/src/polisyos/academic/openalex/README.md) |
+| Datasets | [datasets/](policy-engine/src/polisyos/datasets/README.md), [batch/](policy-engine/src/polisyos/datasets/batch/README.md), [knowledge/](policy-engine/src/polisyos/datasets/knowledge/README.md) |
+| Scientist | [scientist/](policy-engine/src/polisyos/scientist/README.md), [engine/](policy-engine/src/polisyos/scientist/engine/README.md), [workflows/](policy-engine/src/polisyos/scientist/workflows/README.md), [agent/](policy-engine/src/polisyos/scientist/agent/README.md), [llm/](policy-engine/src/polisyos/scientist/llm/README.md), [governance/](policy-engine/src/polisyos/scientist/governance/README.md), [kernel/](policy-engine/src/polisyos/scientist/kernel/README.md), [nodes/](policy-engine/src/polisyos/scientist/nodes/README.md), [search/](policy-engine/src/polisyos/scientist/search/README.md), [search/strategies/](policy-engine/src/polisyos/scientist/search/strategies/README.md), [doe/](policy-engine/src/polisyos/scientist/doe/README.md), [backtesting/](policy-engine/src/polisyos/scientist/backtesting/README.md), [adapters/](policy-engine/src/polisyos/scientist/adapters/README.md), [compute/](policy-engine/src/polisyos/scientist/compute/README.md), [orchestrator/](policy-engine/src/polisyos/scientist/orchestrator/README.md) |
 | Packs | [packs/](policy-engine/src/polisyos/packs/README.md), [roads/](policy-engine/src/polisyos/packs/roads/README.md), [econ/](policy-engine/src/polisyos/packs/econ/README.md) |
 | Tests | [tests/](policy-engine/tests/README.md), [contract/](policy-engine/tests/contract/README.md), [core/](policy-engine/tests/core/README.md), [ir/](policy-engine/tests/ir/README.md), [fabric/](policy-engine/tests/fabric/README.md), [foundry/](policy-engine/tests/foundry/README.md), [scientist/](policy-engine/tests/scientist/README.md), [runtime/](policy-engine/tests/runtime/README.md), [lex/](policy-engine/tests/lex/README.md), [integration/](policy-engine/tests/integration/README.md) |
-| Ops | [ops/](policy-engine/ops/README.md), [helm/](policy-engine/ops/helm/README.md), [terraform/](policy-engine/ops/terraform/README.md), [migrations/](policy-engine/ops/migrations/README.md), [opa/](policy-engine/ops/opa/README.md), [prometheus/](policy-engine/ops/prometheus/README.md), [grafana/](policy-engine/ops/grafana/README.md) |
+| Ops | [ops/](policy-engine/ops/README.md), [helm/](policy-engine/ops/helm/README.md), [helm/polisyos-cell/](policy-engine/ops/helm/polisyos-cell/README.md), [helm/spire/](policy-engine/ops/helm/spire/README.md), [helm/keycloak/](policy-engine/ops/helm/keycloak/README.md), [terraform/](policy-engine/ops/terraform/README.md), [migrations/](policy-engine/ops/migrations/README.md), [opa/](policy-engine/ops/opa/README.md), [prometheus/](policy-engine/ops/prometheus/README.md), [grafana/](policy-engine/ops/grafana/README.md) |
 | Tools | [tools/](policy-engine/tools/README.md), [lint/](policy-engine/tools/lint/README.md), [diagnostics/](policy-engine/tools/diagnostics/README.md), [connectors/](policy-engine/tools/connectors/README.md), [runtime/](policy-engine/tools/runtime/README.md), [demos/](policy-engine/tools/demos/README.md), [benchmarks/](policy-engine/tools/benchmarks/README.md), [migrations/](policy-engine/tools/migrations/README.md) |
 | Schemas | [schemas/](policy-engine/schemas/README.md), [snapshots/](policy-engine/schemas/snapshots/README.md), [ir/](policy-engine/schemas/snapshots/ir/README.md), [fabric/](policy-engine/schemas/snapshots/fabric/README.md), [connectors/](policy-engine/schemas/snapshots/connectors/README.md) |

@@ -581,17 +581,33 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │       │   │   │   │   ├── __init__.py
 │       │   │   │   │   ├── _common.py  # Shared causal utilities.
 │       │   │   │   │   ├── _econml_adapter.py  # EconML integration.
+│       │   │   │   │   ├── _graph_projection.py  # PAG→DAG graph projection.
 │       │   │   │   │   ├── _registry_boot.py  # Auto-registration.
 │       │   │   │   │   ├── cate.py  # CATE estimation.
+│       │   │   │   │   ├── ci_backends.py  # CI backend selection and dispatch.
+│       │   │   │   │   ├── constraint_discovery.py  # Constraint-based causal discovery (PC/FCI).
+│       │   │   │   │   ├── dagma_discovery.py  # DAGMA continuous causal discovery.
 │       │   │   │   │   ├── did.py  # Difference-in-differences.
 │       │   │   │   │   ├── dml.py  # Double machine learning.
+│       │   │   │   │   ├── dowhy_identify_estimate.py  # DoWhy identification and estimation.
+│       │   │   │   │   ├── dowhy_refute.py  # DoWhy refutation tests.
+│       │   │   │   │   ├── full_transport_bridge.py  # Full transportability bridge (symbolic + data).
+│       │   │   │   │   ├── gcm_fit.py  # DoWhy GCM model fitting.
+│       │   │   │   │   ├── gcm_query.py  # DoWhy GCM counterfactual/attribution queries.
+│       │   │   │   │   ├── graph_reconciliation.py  # Multi-source causal graph reconciliation.
+│       │   │   │   │   ├── literature_prior.py  # Literature-based parameter prior construction.
 │       │   │   │   │   ├── meta_learners.py  # Meta-learner methods.
+│       │   │   │   │   ├── parameter_transfer.py  # Cross-context parameter transfer.
+│       │   │   │   │   ├── pcmci_discovery.py  # PCMCI temporal causal discovery.
 │       │   │   │   │   ├── policy_learning.py  # Policy learning.
 │       │   │   │   │   ├── protocols.py  # Causal method protocols.
 │       │   │   │   │   ├── rdd.py  # Regression discontinuity.
-│       │   │   │   │   ├── synthetic_control.py  # Synthetic Control method (Abadie).
 │       │   │   │   │   ├── scm.py  # Legacy shim for synthetic_control.py.
-│       │   │   │   │   └── structural_time_series.py  # Structural time series.
+│       │   │   │   │   ├── sensitivity_metrics.py  # Sensitivity analysis metrics (E-value, Rosenbaum).
+│       │   │   │   │   ├── structural_time_series.py  # Structural time series.
+│       │   │   │   │   ├── symbolic_identify.py  # Symbolic causal identification (y0).
+│       │   │   │   │   ├── synthetic_control.py  # Synthetic Control method (Abadie).
+│       │   │   │   │   └── transport_check.py  # S-node transportability elimination checks.
 │       │   │   │   ├── econometrics/  # Econometric methods.
 │       │   │   │   │   ├── __init__.py
 │       │   │   │   │   ├── _registry_boot.py  # Auto-registration.
@@ -612,15 +628,26 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │       │   │   │   ├── _econml_adapter.py  # EconML integration.
 │       │   │   │   ├── _registry_boot.py  # Auto-registration.
 │       │   │   │   ├── cate.py  # CATE estimation wrapper.
+│       │   │   │   ├── ci_backends.py  # CI backend selection wrapper.
+│       │   │   │   ├── constraint_discovery.py  # Constraint-based discovery wrapper.
+│       │   │   │   ├── dagma_discovery.py  # DAGMA discovery wrapper.
 │       │   │   │   ├── did.py  # DiD wrapper.
 │       │   │   │   ├── dml.py  # DML wrapper.
+│       │   │   │   ├── dowhy_identify_estimate.py  # DoWhy identify+estimate wrapper.
+│       │   │   │   ├── dowhy_refute.py  # DoWhy refutation wrapper.
+│       │   │   │   ├── gcm_fit.py  # GCM fitting wrapper.
+│       │   │   │   ├── gcm_query.py  # GCM query wrapper.
+│       │   │   │   ├── graph_reconciliation.py  # Graph reconciliation wrapper.
+│       │   │   │   ├── literature_prior.py  # Literature prior wrapper.
 │       │   │   │   ├── meta_learners.py  # Meta-learner wrapper.
 │       │   │   │   ├── policy_learning.py  # Policy learning wrapper.
 │       │   │   │   ├── protocols.py  # Causal protocols.
 │       │   │   │   ├── rdd.py  # RDD wrapper.
-│       │   │   │   ├── synthetic_control.py  # Synthetic Control wrapper.
 │       │   │   │   ├── scm.py  # Legacy shim wrapper.
-│       │   │   │   └── structural_time_series.py  # STS wrapper.
+│       │   │   │   ├── sensitivity_metrics.py  # Sensitivity metrics wrapper.
+│       │   │   │   ├── structural_time_series.py  # STS wrapper.
+│       │   │   │   ├── symbolic_identify.py  # Symbolic identification wrapper.
+│       │   │   │   └── synthetic_control.py  # Synthetic Control wrapper.
 │       │   │   ├── econometrics/  # Econometric method standalone wrappers.
 │       │   │   │   ├── __init__.py
 │       │   │   │   ├── _registry_boot.py  # Auto-registration.
@@ -694,13 +721,27 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │       │   ├── units.py  # Unit system models.
 │       │   ├── analytics/  # Analytical IR models.
 │       │   │   ├── __init__.py
+│       │   │   ├── abm_bridge.py  # ABM↔causal alignment status and reports.
+│       │   │   ├── alignment_certification.py  # Alignment certification policy and bounded search.
 │       │   │   ├── applicability.py  # Policy applicability checks.
 │       │   │   ├── backtest.py  # Backtesting IR models.
 │       │   │   ├── calibration.py  # Calibration IR models.
 │       │   │   ├── causal.py  # Causal effect IR models.
+│       │   │   ├── causal_discovery.py  # Causal discovery report IR models.
+│       │   │   ├── causal_ensemble.py  # Causal model ensemble IR models.
+│       │   │   ├── causal_graph.py  # Causal graph IR models (DAG/CPDAG/PAG).
+│       │   │   ├── causal_graph_kuzu.py  # Kùzu-backed causal graph persistence.
+│       │   │   ├── causal_queries.py  # Causal query and result IR models.
+│       │   │   ├── context.py  # Context-adaptive parameter inference profiles.
 │       │   │   ├── data_views.py  # Data view definitions.
 │       │   │   ├── distributional.py  # Distributional analysis IR.
 │       │   │   ├── hte.py  # HTE result IR models.
+│       │   │   ├── literature.py  # Literature-based causal prior IR models.
+│       │   │   ├── parameters.py  # Parameter applicability IR models.
+│       │   │   ├── partial_identification.py  # Partial identification with Manski bounds.
+│       │   │   ├── sensitivity.py  # Sensitivity analysis result IR (E-value).
+│       │   │   ├── structural_causal_model.py  # Structural causal model spec IR.
+│       │   │   ├── transportability.py  # Transportability result IR models.
 │       │   │   └── uncertainty.py  # Uncertainty envelope IR.
 │       │   ├── artifacts/  # IR artifact contracts and I/O.
 │       │   │   ├── __init__.py
@@ -770,16 +811,25 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │       │   │   ├── canonicalizers.py  # Canonicalizers for SPO extraction.
 │       │   │   ├── cli.py  # CLI entry point for Lex batch pipeline.
 │       │   │   ├── config.py  # Configuration for Lex batch pipeline.
+│       │   │   ├── deterministic_spo.py  # Deterministic SPO extractor used before LLM routing.
+│       │   │   ├── domain_classifier.py  # Deterministic domain classifier for legal documents.
 │       │   │   ├── embedder.py  # Generate embeddings and build HNSW indexes.
 │       │   │   ├── graph_builder.py  # Stream SPO results into DuckDB knowledge graph.
+│       │   │   ├── llm_gate.py  # Two-stage LLM gate for Lex SPO extraction.
 │       │   │   ├── openai_batch_embeddings.py  # OpenAI Batch API workflow for embeddings.
 │       │   │   ├── pipeline.py  # Orchestrate all stages of the batch pipeline.
 │       │   │   ├── progress.py  # Checkpoint/resume tracker for batch pipeline.
 │       │   │   ├── provisions_io.py  # Disk helpers for Stage 2 provisions with shard prefix.
+│       │   │   ├── publish.py  # Publish manifest writer for Lex artifacts.
+│       │   │   ├── qc.py  # QC stage for Lex pipeline outputs.
 │       │   │   ├── quality_report.py  # Quality report and quality gates.
+│       │   │   ├── reference_extractor.py  # Deterministic cross-reference extractor for provisions.
+│       │   │   ├── rule_classifier.py  # Rule-based pre-classifier for Ukrainian provisions.
+│       │   │   ├── spo_cache.py  # SQLite-backed cache for LLM SPO extraction responses.
 │       │   │   ├── spo_extractor.py  # Async LLM-based 2-pass SPO extraction.
 │       │   │   ├── spo_prompts.py  # Prompt templates for Ukrainian legal provision extraction.
 │       │   │   ├── structurer.py  # Lightweight provision extraction using UA regex.
+│       │   │   ├── template_extractor.py  # Template-based SPO extraction for structured documents.
 │       │   │   └── xml_parser.py  # Stream-parse ЄДРНПА XML dumps into NPADocument objects.
 │       │   ├── corpus/  # Legal document corpus.
 │       │   │   ├── __init__.py
@@ -798,6 +848,7 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │       │   │   ├── context_builder.py  # Evaluation context.
 │       │   │   ├── evaluate.py  # Rule evaluation.
 │       │   │   ├── evaluator_registry.py  # Evaluator plugin registry.
+│       │   │   ├── transport_constraints.py  # Transport constraint evaluation for legal norms.
 │       │   │   └── backends/  # Evaluation backends.
 │       │   │       ├── __init__.py
 │       │   │       └── simple_v1.py  # Simple evaluator.
@@ -816,6 +867,85 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │       │       ├── engine.py  # Simulation engine.
 │       │       ├── mutator.py  # Norm mutation.
 │       │       └── report.py  # Simulation reports.
+│       ├── academic/  # Academic literature pipeline: OpenAlex harvesting, extraction, knowledge graph.
+│       │   ├── __init__.py
+│       │   ├── trust.py  # Trust scoring for academic works and parameter estimates.
+│       │   ├── batch/  # Staged academic knowledge pipeline.
+│       │   │   ├── __init__.py
+│       │   │   ├── article_extractor.py  # Phase 0a article extraction (screening + full).
+│       │   │   ├── cli.py  # CLI for staged academic knowledge pipeline.
+│       │   │   ├── config.py  # Pipeline configuration.
+│       │   │   ├── context_classifier.py  # Context inference for article extraction.
+│       │   │   ├── dedup.py  # Merge and deduplicate by OpenAlex work id.
+│       │   │   ├── embedder.py  # Build local embeddings + HNSW index.
+│       │   │   ├── graph_builder.py  # Load records into DuckDB and build indexes.
+│       │   │   ├── harvester.py  # Materialize topic-selected OpenAlex works.
+│       │   │   ├── llm_extractor.py  # Selective LLM enrichment for parsed abstracts.
+│       │   │   ├── parser.py  # Parse OpenAlex raw payloads into WorkRecord rows.
+│       │   │   ├── pipeline.py  # Thin orchestrator for staged academic pipeline.
+│       │   │   ├── publish.py  # Publish academic pipeline artifacts.
+│       │   │   ├── qc.py  # QC checks for academic pipeline.
+│       │   │   ├── topic_select.py  # Topic-based OpenAlex selection (Pass 1).
+│       │   │   └── prompts/  # LLM prompt templates for extraction.
+│       │   │       ├── __init__.py
+│       │   │       ├── boundary_conditions.py  # Boundary-condition extraction schema.
+│       │   │       ├── causal_claims.py  # Causal-claims extraction schema.
+│       │   │       ├── mechanisms.py  # Mechanism extraction schema.
+│       │   │       └── screening.py  # Relevance screening prompt.
+│       │   ├── knowledge/  # Academic knowledge graph store and search.
+│       │   │   ├── __init__.py
+│       │   │   ├── canonical_seed.py  # Canonical variable seed dictionary.
+│       │   │   ├── parameter_selector.py  # Parameter selection from SKG.
+│       │   │   ├── search.py  # Hybrid search API for academic knowledge graph.
+│       │   │   ├── skg_query.py  # Topic/run-aware SKG query helpers.
+│       │   │   ├── skg_store.py  # SKG table DDL and confidence aggregation.
+│       │   │   ├── skg_versioning.py  # SKG versioning and retraction handling.
+│       │   │   ├── store.py  # Read-only DuckDB + HNSW vector index access.
+│       │   │   ├── types.py  # Domain types (works, estimates, claims, priors).
+│       │   │   └── variable_canonizer.py  # Hierarchical variable canonization.
+│       │   └── openalex/  # OpenAlex API integration.
+│       │       ├── __init__.py
+│       │       ├── client.py  # Async OpenAlex client for topic-based harvesting.
+│       │       ├── priority_filter.py  # Priority filter for policy-relevant works.
+│       │       ├── rate_limiter.py  # Async rate limiter with backoff.
+│       │       ├── selector.py  # Topic-based OpenAlex selector (150 works/topic).
+│       │       └── topic_catalog.py  # Topic catalog loader from CSV slices.
+│       ├── batch_common/  # Shared batch pipeline utilities across academic/datasets/lex.
+│       │   ├── __init__.py
+│       │   ├── hashing.py  # Hashing helpers for reproducible pipeline artifacts.
+│       │   ├── manifest.py  # Manifest writers for raw/stage/publish artifacts.
+│       │   ├── paths.py  # Filesystem layout helpers for snapshot-based runs.
+│       │   ├── phase0_quality_validation.py  # Phase-0 deterministic quality validation.
+│       │   ├── qc.py  # Common QC model and fail-fast evaluator.
+│       │   └── thermal.py  # Thermal-safe pacing helpers for laptop-friendly runs.
+│       ├── batch_snapshot/  # Unified pipeline snapshot finalization.
+│       │   ├── __init__.py
+│       │   └── cli.py  # CLI to finalize a unified pipeline snapshot manifest.
+│       ├── datasets/  # Dataset catalog pipeline: harvesting, normalization, knowledge graph.
+│       │   ├── __init__.py
+│       │   ├── metrics_map.py  # PolicyOS metrics → dataset indicator mapping.
+│       │   ├── batch/  # Staged dataset catalog pipeline.
+│       │   │   ├── __init__.py
+│       │   │   ├── cli.py  # CLI for staged dataset catalog pipeline.
+│       │   │   ├── config.py  # Pipeline configuration.
+│       │   │   ├── core_sources_ingest.py  # Ingest core transportability sources (WGI/WDI/WVS).
+│       │   │   ├── dedup.py  # Merge and deduplicate by source+agency+dataset_id.
+│       │   │   ├── embedder.py  # Build local embeddings + HNSW index for datasets.
+│       │   │   ├── graph_builder.py  # Load records into DuckDB and build indexes.
+│       │   │   ├── harvester.py  # Source-driven harvest with wave support.
+│       │   │   ├── normalizer.py  # Normalize raw payloads to DCAT-like canonical form.
+│       │   │   ├── pipeline.py  # Thin orchestrator for staged dataset pipeline.
+│       │   │   ├── publish.py  # Publish dataset pipeline artifacts.
+│       │   │   ├── qc.py  # QC checks for datasets pipeline.
+│       │   │   └── source_registry.py  # Dataset source registry for staged harvest waves.
+│       │   └── knowledge/  # Dataset catalog knowledge graph store and search.
+│       │       ├── __init__.py
+│       │       ├── proxy_resolver.py  # Proxy resolution for transportability.
+│       │       ├── registry.py  # Dataset registry API for canonical variable lookup.
+│       │       ├── search.py  # Hybrid search API for dataset catalog graph.
+│       │       ├── store.py  # Read-only DuckDB catalog + HNSW vector index.
+│       │       ├── types.py  # Domain types (search results, distributions).
+│       │       └── variable_alignment.py  # Variable alignment: canonical SKG vars → dataset vars.
 │       ├── packs/  # Domain-specific policy packs.
 │       │   ├── __init__.py
 │       │   ├── econ/  # Economic policy pack.
@@ -916,6 +1046,7 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │           │   ├── formalizer.py  # Formalizer agent.
 │           │   ├── informed_critic.py  # Evidence-informed critic agent.
 │           │   ├── knowledge_base.py  # Agent knowledge base.
+│           │   ├── knowledge_tools.py  # Knowledge graph tools for scientist agents.
 │           │   ├── memory.py  # Agent memory.
 │           │   ├── norm_loader.py  # Norm loading for agent context.
 │           │   ├── pi.py  # PI agent.
@@ -962,6 +1093,8 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │           │       └── set_state.py  # State setter.
 │           ├── governance/  # Governance pipeline.
 │           │   ├── __init__.py
+│           │   ├── pass_entrypoints.py  # Pass entrypoint discovery.
+│           │   ├── pass_registry.py  # Pass registry for dynamic pass loading.
 │           │   ├── pipeline.py  # Pipeline orchestrator.
 │           │   ├── postflight.py  # Post-execution validation.
 │           │   ├── preflight.py  # Pre-execution validation.
@@ -982,36 +1115,48 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │           │       ├── budget_pass.py  # Budget checks.
 │           │       ├── confidence_pass.py  # Confidence threshold checks.
 │           │       ├── equity_pass.py  # Equity/fairness checks.
+│           │       ├── human_review_pass.py  # Human review gate pass.
 │           │       ├── legal_pass.py  # Legal compliance.
+│           │       ├── literature_gate_pass.py  # Literature evidence gate pass.
 │           │       ├── pii_check_pass.py  # PII detection governance pass.
 │           │       ├── privacy_pass.py  # Privacy checks.
 │           │       ├── quality_gate_pass.py  # Quality gates.
+│           │       ├── refutation_pass.py  # Causal refutation gate pass.
 │           │       ├── safety_pass.py  # Safety checks.
-│           │       └── schema_pass.py  # Schema validation.
+│           │       ├── schema_pass.py  # Schema validation.
+│           │       ├── sutva_check_pass.py  # SUTVA assumption check pass.
+│           │       └── transportability_required_pass.py  # Transportability requirement check pass.
 │           ├── kernel/  # Scientist kernel.
 │           │   ├── __init__.py
 │           │   ├── budgets.py  # Budget management.
 │           │   ├── fsm.py  # Finite state machine.
 │           │   ├── gate_protocol.py  # Human gate protocol.
-│           │   ├── guards.py  # State transition guards.
-│           │   ├── human_gate.py  # Human-in-the-loop gate.
-│           │   ├── node_registry.py  # Workflow node registry.
-│           │   ├── parameter_extraction.py  # Parameter extraction from specs.
-│           │   ├── slot_compiler.py  # Slot→mechanism compiler.
-│           │   ├── slot_semantics.py  # Slot semantic validation.
-│           │   ├── slot_specifier.py  # Slot specifier parsing.
-│           │   ├── types.py  # Kernel type definitions.
-│           │   ├── url_routing.py  # URL-based resource routing.
-│           │   └── world_validation.py  # World state validation.
-│           ├── llm/  # LLM integration.
+│           │   └── guards.py  # State transition guards.
+│           ├── llm/  # LLM integration and model profile management.
 │           │   ├── __init__.py
-│           │   └── traced_client.py  # TracedLLMClient with OTel.
+│           │   ├── factory.py  # Factory helpers for traced gateway-backed LLM clients.
+│           │   ├── gateway_client.py  # OpenAI-compatible gateway client for runtime LLM calls.
+│           │   ├── traced_client.py  # TracedLLMClient with OTel.
+│           │   └── profiles/  # Model profile system for runtime selection.
+│           │       ├── __init__.py
+│           │       ├── builtin_profiles.py  # Built-in model profiles for dashboard selection.
+│           │       ├── models.py  # Model profile data models.
+│           │       └── registry.py  # ModelProfileRegistry — in-memory profile registry.
 │           ├── nodes/  # Workflow node implementations.
 │           │   ├── __init__.py
 │           │   └── builtins/  # Built-in nodes.
 │           │       ├── __init__.py
 │           │       ├── errors.py  # Node errors.
 │           │       ├── state_keys.py  # State key constants.
+│           │       ├── causal/  # Causal pipeline nodes.
+│           │       │   ├── __init__.py
+│           │       │   ├── build_literature_prior.py  # Literature prior construction node.
+│           │       │   ├── reconcile_causal_graph.py  # Causal graph reconciliation node.
+│           │       │   ├── resolve_parameters.py  # Parameter resolution node.
+│           │       │   ├── resolve_transport.py  # Transportability resolution node.
+│           │       │   ├── run_abm_consistency.py  # ABM consistency check node.
+│           │       │   ├── run_causal_ensemble.py  # Causal model ensemble node.
+│           │       │   └── run_causal_queries.py  # Causal query execution node.
 │           │       ├── compile/  # Compilation nodes.
 │           │       │   ├── __init__.py
 │           │       │   ├── compile_foundry.py  # Foundry compilation.
@@ -1079,6 +1224,7 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │           └── workflows/  # Workflow engines and predefined builders.
 │               ├── __init__.py
 │               ├── builder.py  # Workflow builder.
+│               ├── causal_full.py  # Full causal pipeline workflow builder.
 │               ├── default.py  # Default workflow.
 │               ├── engine_base.py  # Engine base class.
 │               ├── engine_langgraph.py  # LangGraph engine.
@@ -1096,13 +1242,22 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │       │   └── node_kind.schema.json  # Node kind enum.
 │       └── ir/  # IR model JSON Schema snapshots.
 │           ├── _manifest.json  # IR schema manifest.
+│           ├── abm_alignment_report.schema.json  # ABM alignment report.
+│           ├── article_extraction_result.schema.json  # Article extraction result.
 │           ├── backtest_report.schema.json  # Backtest report schema.
 │           ├── calibration_config.schema.json  # Calibration config.
+│           ├── causal_discovery_report.schema.json  # Causal discovery report.
 │           ├── causal_effect_report.schema.json  # Causal effect report.
+│           ├── causal_graph_model.schema.json  # Causal graph model.
+│           ├── causal_model_ensemble.schema.json  # Causal model ensemble.
+│           ├── causal_query.schema.json  # Causal query.
+│           ├── causal_query_result.schema.json  # Causal query result.
+│           ├── certification_result.schema.json  # Certification result.
 │           ├── claim.schema.json  # Claim schema.
 │           ├── conflict_resolution.schema.json  # Conflict resolution.
 │           ├── conflict_set.schema.json  # Conflict set.
 │           ├── conflict_set_resolution.schema.json  # Conflict set resolution.
+│           ├── context_adaptive_parameter_bundle.schema.json  # Context-adaptive parameter bundle.
 │           ├── data_view_request.schema.json  # Data view request.
 │           ├── distributional_report.schema.json  # Distributional report.
 │           ├── doc_fragment.schema.json  # Document fragment.
@@ -1114,16 +1269,23 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │           ├── gate_event.schema.json  # Gate event.
 │           ├── gate_request.schema.json  # Gate request.
 │           ├── hte_result.schema.json  # HTE result.
+│           ├── literature_causal_prior.schema.json  # Literature causal prior.
 │           ├── model_spec.schema.json  # ModelSpec.
 │           ├── norm_pack.schema.json  # NormPack.
 │           ├── norm_ref.schema.json  # Norm reference.
 │           ├── norm_rule.schema.json  # NormRule.
+│           ├── outer_search_result.schema.json  # Outer search result.
+│           ├── partial_identification_result.schema.json  # Partial identification result.
 │           ├── policy_portfolio.schema.json  # Policy portfolio.
 │           ├── policy_recommendation.schema.json  # Policy recommendation.
 │           ├── policy_spec.schema.json  # PolicySpec.
 │           ├── problem_frame.schema.json  # ProblemFrame.
 │           ├── prov_activity.schema.json  # Provenance activity.
 │           ├── quality_report.schema.json  # Quality report.
+│           ├── refutation_result.schema.json  # Refutation result.
+│           ├── sensitivity_result.schema.json  # Sensitivity result.
+│           ├── structural_causal_model_spec.schema.json  # Structural causal model spec.
+│           ├── transportability_result.schema.json  # Transportability result.
 │           ├── trinity_bundle.schema.json  # TrinityBundle.
 │           ├── trust_assessment.schema.json  # Trust assessment.
 │           ├── uncertainty_envelope.schema.json  # Uncertainty envelope.
@@ -1597,6 +1759,8 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │   │   ├── gen_schema.py  # JSON Schema snapshot generator.
 │   │   ├── generate_ir_schema.py  # IR schema generator.
 │   │   ├── scan_fabric.py  # Fabric data contract scanner.
+│   │   ├── verify_scm_v3.py  # SCM v3 structural verification.
+│   │   ├── verify_scm_v3_fullspec.py  # SCM v3 full-spec verification.
 │   │   └── visualize_provenance.py  # Provenance graph visualizer.
 │   ├── demos/  # Demo scripts.
 │   │   ├── run_export_demo.py  # Export demo.
@@ -1639,7 +1803,12 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │   │   ├── interactions_manifest.json  # Interactions manifest.
 │   │   ├── macro.parquet  # Curated macro data.
 │   │   ├── macro_manifest.json  # Macro data manifest.
+│   │   ├── source_bindings.json  # Source binding definitions.
 │   │   └── udf_schema.json  # UDF schema definitions.
+│   ├── dataset_catalog/  # Dataset catalog reference files.
+│   │   ├── metrics_map.yaml  # Metrics → dataset indicator mapping.
+│   │   └── seed_variable_alignments.yaml  # Seed variable alignment definitions.
+│   ├── phase12_survey.json  # Phase 1–2 survey data.
 │   └── databases/  # Embedded databases.
 │       ├── demo_udf.duckdb  # Demo UDF DuckDB.
 │       ├── demo_udf.kuzu  # Demo UDF Kùzu.

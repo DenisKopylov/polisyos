@@ -1,51 +1,39 @@
 # Data Plane
 
-`polisyos.fabric.data_plane` — orchestration-слой исполнения ingestion. Подсистема добавляет режимы выполнения, cursor lifecycle, record/replay и snapshot-сборку поверх базового connector ingestion.
+`polisyos.fabric.data_plane` — orchestration-слой над ingestion: execution modes, cursor lifecycle, record/replay и snapshot production.
 
-## Роль в Fabric
+## Назначение
+
+Data Plane управляет способом выполнения ingestion, не меняя контракт `SourceConnector`.
 
 ```text
 connector manifest
-   -> run_orchestrated_ingestion / run_*_mode
-   -> evidence bundle + optional data snapshot
-   -> cursor/session artifacts + regression checks
+  -> run_orchestrated_ingestion / run_*_mode
+  -> evidence + optional DataSnapshot
+  -> cursor/session artifacts + regression checks
 ```
-
-Цель слоя: управлять "как" выполняется ingestion, не меняя контракты самих коннекторов.
 
 ## Основные модули
 
-### `orchestrator.py`
+- `orchestrator.py`
+  `run_orchestrated_ingestion(...)`: решает double-fetch (snapshot собирается из уже сохраненных CAS-артефактов).
+- `modes.py`
+  - `run_batch_incremental(...)`
+  - `run_record_mode(...)`
+  - `run_replay_mode(...)`
+  - `run_streaming_windowed(...)`
+- `cursor_store.py`
+  CAS + lightweight индекс `cursor_index.json`.
+- `watermark.py`
+  Политики watermark (`Timestamp`, `ETag`, `Revision`, `Offset`) и mapping по семействам коннекторов.
+- `replay_store.py`
+  `RecordSession`/`ReplayStore` для record/replay fixtures.
+- `regression.py`
+  deterministic compare record/replay результатов.
 
-- `run_orchestrated_ingestion(...)` выполняет ingestion и, при необходимости, строит `DataSnapshot` из CAS evidence.
-- Решает double-fetch сценарий: snapshot строится из уже сохраненных артефактов, без повторного запроса к источнику.
+## Возвращаемые результаты
 
-### `modes.py`
-
-- `run_batch_incremental(...)` — cursor-based режим с обновлением watermark.
-- `run_record_mode(...)` — запись HTTP fixture-сессии через `APISimulator` и сохранение в CAS.
-- `run_replay_mode(...)` — воспроизведение ingestion из записанных fixtures (без live network).
-- `run_streaming_windowed(...)` — chunk-ориентированный режим через `fetch_stream(...)`.
-
-### `cursor_store.py`
-
-- `CursorStore` сохраняет `CursorState` в CAS и поддерживает lightweight индекс `cursor_index.json`.
-
-### `watermark.py`
-
-- Политики watermark (`Timestamp`, `ETag`, `Revision`, `Offset`) и mapping по семействам коннекторов.
-
-### `replay_store.py`
-
-- `ReplayStore` и `RecordSession` для персиста/восстановления record/replay fixtures.
-
-### `regression.py`
-
-- Deterministic сравнение record/replay результатов (`compare_ingestion_runs`, `compare_artifact_hashes`).
-
-## Результаты выполнения
-
-Базовый тип результата: `IngestionResult`:
+Базовый тип: `IngestionResult`:
 
 - `evidence_bundle_ref`
 - `data_snapshot_ref`
@@ -54,11 +42,10 @@ connector manifest
 - `cursor_ref`
 - `mode_effective`
 
-Особенность: `run_record_mode(...)` возвращает tuple `(IngestionResult, record_ref_hex)`.
+Специальный случай: `run_record_mode(...)` возвращает `(IngestionResult, record_ref_hex)`.
 
 ## Связи
 
-- `fabric.ingestion` — базовый ingestion entrypoint.
-- `fabric.connectors.testing.simulator` — record/replay interception HTTP.
-- `polisyos.core.contracts.cursor` — типы курсоров и watermark semantics.
-- `polisyos.core.contracts.fabric` — `EvidenceBundleRef`, `DataSnapshotRef`.
+- upstream: `fabric.ingestion`.
+- replay/runtime: `fabric.connectors.testing.simulator` (`APISimulator`).
+- контракты: `polisyos.core.contracts.cursor`, `polisyos.core.contracts.fabric`.

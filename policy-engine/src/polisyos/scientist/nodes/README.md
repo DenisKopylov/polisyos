@@ -1,8 +1,8 @@
 # Nodes Layer (`polisyos.scientist.nodes`)
 
-`nodes` содержит бизнес-ноды Scientist, которые исполняются `engine` через `NodeRegistry`.
+`nodes` содержит исполняемые бизнес-ноды Scientist, которые `engine` запускает через `NodeRegistry`.
 
-## Built-in ноды
+## Группы builtin-нод
 
 - `data/`
   - `BuildDataSnapshotNode`
@@ -17,6 +17,14 @@
 - `compile/`
   - `LinkTrinityNode`
   - `CompileFoundryNode`
+- `causal/`
+  - `BuildLiteraturePriorNode`
+  - `ReconcileCausalGraphNode`
+  - `ResolveParametersNode`
+  - `RunCausalQueriesNode`
+  - `RunCausalEnsembleNode`
+  - `RunABMConsistencyCheckNode`
+  - `RunTransportabilityNode`
 - `simulate/`
   - `RunSimulationNode`
   - `RunDistributionalAnalysisNode`
@@ -29,38 +37,45 @@
 - `decide/`
   - `BuildDecisionPacketNode`
 
-`builtin_nodes()` собирает весь встроенный набор для регистрации в workflow.
+`builtin_nodes()` агрегирует весь встроенный набор для регистрации.
 
-## Что идет в default DAG
+## Что исполняется в `scientist_default`
 
-Используются:
-- `build_data_snapshot`, `bind_foundry_inputs`, `run_data_plane_gate`;
-- `build_execution_plan`, `build_method_catalog_snapshot`, `run_preflight`, `ready_to_run`, `run_evaluator`;
-- `link_trinity`, `compile_foundry`;
-- `run_simulation`, `run_distributional_analysis`, `run_causal_evaluation`, `propagate_uncertainty`;
-- `run_governance`, `build_decision_packet`.
+В default-DAG используются:
+- data: `build_data_snapshot`, `bind_foundry_inputs`, `run_data_plane_gate`;
+- planning: `build_execution_plan`, `build_method_catalog_snapshot`, `run_preflight`, `ready_to_run`;
+- execute: `link_trinity`, `compile_foundry`, `resolve_parameters`, `run_simulation`;
+- analysis/governance: `run_distributional_analysis`, `propagate_uncertainty`, `run_causal_evaluation`, `run_governance`, `run_evaluator`;
+- finalize: `build_decision_packet`.
 
-Не используются автоматически:
-- `enrich_knowledge`, `legal_check`.
+## Что добавляется в `scientist_causal_full`
+
+Дополнительно подключаются:
+- `build_literature_prior`
+- `reconcile_causal_graph`
+- `run_causal_queries`
+- `run_causal_ensemble`
+- `run_abm_consistency`
+- `run_transportability`
 
 ## Ключевые контракты
 
 - интерфейс ноды: `engine.protocol.Node` (`spec` + `execute`);
-- execution metadata: `NodeSpec` (`state_reads/state_writes/produces`);
-- ошибки/коды: `nodes/builtins/errors.py`;
-- canonical ключи state/artifacts/reports: `nodes/builtins/state_keys.py`.
+- метаданные и state-контракт: `NodeSpec` (`state_reads/state_writes/produces`);
+- коды ошибок: `nodes/builtins/errors.py`;
+- канонические ключи state/artifacts/reports: `nodes/builtins/state_keys.py`.
 
-## Важные особенности
+## Важные детали реализации
 
-- `BuildDataSnapshotNode` строит snapshot через `FabricPort` только если есть `data_view_request_ref`; иначе ожидает готовый `data_snapshot_ref`.
-- `RunPreflightNode` валидирует execution plan против live method catalog и блокирует downstream execute при ошибках.
-- `ReadyToRunNode` — hard gate перед compile stage.
-- `RunSimulationNode` сохраняет derived refs (`metrics`, `state_delta`, `environment_manifest`, `tee_attestation`, `sbom`) в `artifacts_index`.
-- `RunGovernanceNode` поддерживает typed human-gate lifecycle (`gate_request`/`gate_decision`).
+- `BuildDataSnapshotNode` вызывает `FabricPort.snapshot()` только при `data_view_request_ref`; иначе использует уже предоставленный snapshot.
+- `RunPreflightNode` валидирует `ExecutionPlan` против live method catalog и возвращает `fail`, если `ready_to_run=False`.
+- `ReadyToRunNode` — hard gate перед compile-стадией.
+- `RunSimulationNode` пишет derived artifacts (`metrics`, `state_delta`, `environment_manifest`, `tee_attestation`, `sbom`) в `artifacts_index`.
+- `RunGovernanceNode` поддерживает typed human-gate lifecycle (`GateRequest`/`GateDecision`) и runtime subset governance passes.
 
 ## Связи
 
-- `adapters/foundry_bridge.py` и `adapters/fabric_bridge.py`.
-- `governance` passes и `kernel` human-gate protocol.
-- `compute` (method jobs для causal/evaluator контуров).
+- `adapters/` — bridge к `foundry` и `fabric`;
+- `compute/` — method jobs в causal-контурах;
+- `governance/` + `kernel/` — pass pipeline и human gate protocol;
 - контракты `ir`/`foundry`/`fabric`/`lex`/`scholar`.

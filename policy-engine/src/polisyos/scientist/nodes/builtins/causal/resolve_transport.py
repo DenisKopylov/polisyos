@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import hashlib
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -10,10 +10,23 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from polisyos.academic.knowledge.skg_query import SKGQuery
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
-from polisyos.datasets.knowledge.proxy_resolver import resolve_proxy
+from polisyos.datasets.knowledge.proxy_resolver import (
+    compose_confidence_harmonic,
+    resolve_proxy,
+    validate_proxy,
+)
 from polisyos.datasets.knowledge.registry import DatasetRegistry
 from polisyos.datasets.knowledge.types import PStarZResult
+from polisyos.foundry.methods.catalog.causal.symbolic_identify import SymbolicIdentify
 from polisyos.foundry.methods.catalog.causal.transport_check import CheckTransportability
+from polisyos.ir.analytics.alignment_certification import (
+    AlignmentCertificate,
+    AlignmentCertificateType,
+    AlignmentCertificationPolicy,
+    OuterObjectiveResult,
+    compute_outer_objective,
+    run_outer_search,
+)
 from polisyos.ir.analytics.causal import (
     CausalEffectReport,
     load_causal_effect_report,
@@ -22,6 +35,7 @@ from polisyos.ir.analytics.causal import (
 from polisyos.ir.analytics.causal_ensemble import load_causal_model_ensemble
 from polisyos.ir.analytics.causal_graph import CausalGraphModel, load_causal_graph_model
 from polisyos.ir.analytics.context import ContextProfile
+from polisyos.ir.analytics.partial_identification import compute_manski_bounds
 from polisyos.ir.analytics.transportability import (
     DataGap,
     SelectionDiagram,
@@ -46,14 +60,17 @@ from polisyos.scientist.engine.protocol import NodeError, NodeEvent, NodeOutcome
 from polisyos.scientist.engine.state import ExperimentState
 from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.state_keys import (
-    ARTIFACT_CAUSAL_REPORT_REF,
     ARTIFACT_CAUSAL_ENSEMBLE_REF,
+    ARTIFACT_CAUSAL_REPORT_REF,
     ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF,
     ARTIFACT_TRANSPORTABILITY_RESULT_REF,
 )
 
 MAX_ROUNDS = 3
 PROXY_FALLBACK_THRESHOLD = 0.3
+_VALID_TRANSPORT_SOLVER_MODES: frozenset[str] = frozenset(
+    {"auto", "simplified", "symbolic", "symbolic_y0", "symbolic_r", "full_auto"}
+)
 
 _METADATA = ComponentMetadata(
     component_id=ComponentId.parse("scientist.node_run_transportability@1.0.0"),
@@ -80,6 +97,7 @@ _SPEC = NodeSpec(
         "params.pag_max_dag_samples",
         "params.pag_threshold",
         "params.pag_seed",
+        "params.transport_solver_mode",
         "params.dataset_registry_db_path",
         "params.legal_kg_db_path",
         "params.skg_db_path",
@@ -90,6 +108,7 @@ _SPEC = NodeSpec(
     ],
     state_writes=[
         "params.transportability_status",
+        "params.transportability_identification_engine",
         "params.transportability_id_confidence_under_pag",
         "params.transportability_warning",
         f"artifacts_index.{ARTIFACT_CAUSAL_REPORT_REF}",
@@ -109,6 +128,9 @@ class ResolutionState(BaseModel):
     hard_constraints: list[LegalConstraint] = Field(default_factory=list)
     p_star_values: dict[str, PStarZResult] = Field(default_factory=dict)
     proxy_penalties: dict[str, float] = Field(default_factory=dict)
+    proxy_validity: dict[str, dict[str, Any]] = Field(default_factory=dict)
+    requires_expert_review: bool = False
+    expert_review_reasons: list[str] = Field(default_factory=list)
     converged: bool = False
     feasible: bool = True
 
@@ -151,6 +173,37 @@ class _NullSKG:
         return []
 
 
+class _LoopDatasetRegistry:
+    """Per-run cached view over dataset lookups used by resolution loop."""
+
+    def __init__(
+        self,
+        *,
+        find_cached: Callable[[str, str, tuple[int, int] | None], list[Any]],
+        p_star_cached: Callable[[str, str, int, dict[str, float] | None], PStarZResult],
+    ) -> None:
+        self._find_cached = find_cached
+        self._p_star_cached = p_star_cached
+
+    def find_datasets_for_variable(
+        self,
+        canonical_var: str,
+        country_code: str,
+        year_range: tuple[int, int] | None = None,
+    ) -> list[Any]:
+        return self._find_cached(canonical_var, country_code, year_range)
+
+    def compute_p_star_z(
+        self,
+        canonical_var: str,
+        country_code: str,
+        year: int,
+        *,
+        condition_on: dict[str, float] | None = None,
+    ) -> PStarZResult:
+        return self._p_star_cached(canonical_var, country_code, year, condition_on)
+
+
 class TransportabilityResolutionLoop:
     MAX_ROUNDS: int = MAX_ROUNDS
 
@@ -168,6 +221,93 @@ class TransportabilityResolutionLoop:
         self._skg = skg_query
         self._max_rounds = min(MAX_ROUNDS, max(1, int(max_rounds)))
         self._proxy_threshold = max(0.0, min(1.0, float(proxy_threshold)))
+        self._distance_cache: dict[tuple[str, str], float] = {}
+        self._find_datasets_cache: dict[
+            tuple[str, str, tuple[int, int] | None], tuple[Any, ...]
+        ] = {}
+        self._p_star_cache: dict[
+            tuple[str, str, int, tuple[tuple[str, float], ...]], PStarZResult
+        ] = {}
+
+    def _cache_clear(self) -> None:
+        self._distance_cache.clear()
+        self._find_datasets_cache.clear()
+        self._p_star_cache.clear()
+
+    @staticmethod
+    def _normalize_condition_key(
+        condition_on: dict[str, float] | None,
+    ) -> tuple[tuple[str, float], ...]:
+        if not condition_on:
+            return ()
+        normalized: list[tuple[str, float]] = []
+        for key, value in sorted(condition_on.items(), key=lambda item: str(item[0])):
+            normalized.append((str(key), float(value)))
+        return tuple(normalized)
+
+    def _cached_context_distance(
+        self,
+        *,
+        source_context: ContextProfile,
+        target_context: ContextProfile,
+    ) -> float:
+        key = (source_context.context_id, target_context.context_id)
+        cached = self._distance_cache.get(key)
+        if cached is not None:
+            return cached
+        distance = float(source_context.distance_to(target_context))
+        self._distance_cache[key] = distance
+        return distance
+
+    def _cached_find_datasets(
+        self,
+        canonical_var: str,
+        country_code: str,
+        year_range: tuple[int, int] | None,
+    ) -> list[Any]:
+        key = (canonical_var, country_code, year_range)
+        cached = self._find_datasets_cache.get(key)
+        if cached is not None:
+            return list(cached)
+        matches = self._datasets.find_datasets_for_variable(
+            canonical_var=canonical_var,
+            country_code=country_code,
+            year_range=year_range,
+        )
+        frozen = tuple(matches)
+        self._find_datasets_cache[key] = frozen
+        return list(frozen)
+
+    def _cached_compute_p_star_z(
+        self,
+        canonical_var: str,
+        country_code: str,
+        year: int,
+        condition_on: dict[str, float] | None,
+    ) -> PStarZResult:
+        condition_key = self._normalize_condition_key(condition_on)
+        key = (canonical_var, country_code, int(year), condition_key)
+        cached = self._p_star_cache.get(key)
+        if cached is not None:
+            return cached
+
+        # Prime dataset lookup cache for the same year-slice used by compute_p_star_z.
+        self._cached_find_datasets(canonical_var, country_code, (int(year), int(year)))
+
+        result = self._datasets.compute_p_star_z(
+            canonical_var=canonical_var,
+            country_code=country_code,
+            year=int(year),
+            condition_on=condition_on,
+        )
+        self._p_star_cache[key] = result
+        return result
+
+    def _cached_dataset_registry(self) -> _LoopDatasetRegistry:
+        return _LoopDatasetRegistry(
+            find_cached=self._cached_find_datasets,
+            p_star_cached=self._cached_compute_p_star_z,
+        )
 
     def resolve(
         self,
@@ -182,181 +322,294 @@ class TransportabilityResolutionLoop:
         pag_max_dag_samples: int = 100,
         pag_threshold: float = 0.5,
         pag_seed: int | None = None,
+        solver_mode: str = "auto",
     ) -> TransportabilityResult:
-        prev_s_node_set: set[tuple[str, str, str]] = set()
-        state: ResolutionState | None = None
-        tr_result: TransportabilityResult | None = None
-        diagram: SelectionDiagram | None = None
+        self._cache_clear()
+        normalized_solver_mode = (
+            solver_mode.strip().lower()
+            if isinstance(solver_mode, str) and solver_mode.strip()
+            else "auto"
+        )
+        if normalized_solver_mode not in _VALID_TRANSPORT_SOLVER_MODES:
+            normalized_solver_mode = "auto"
+        try:
+            cached_registry = self._cached_dataset_registry()
+            prev_s_node_set: set[tuple[str, str, str]] = set()
+            state: ResolutionState | None = None
+            tr_result: TransportabilityResult | None = None
+            diagram: SelectionDiagram | None = None
 
-        for round_num in range(1, self._max_rounds + 1):
-            context_diagram = build_selection_diagram(source_context, target_context, causal_graph)
-            context_s_nodes = list(context_diagram.s_nodes)
-            legal_constraint_set = _evaluate_legal_constraints(
-                target_context=target_context,
-                policy_spec=policy_spec,
-                causal_graph=causal_graph,
-                legal_kg_db_path=self._legal_kg_db_path,
-            )
-            hard_constraints = list(legal_constraint_set.hard_constraints)
-            legal_s_nodes = _legal_constraints_to_s_nodes(
-                mappings=legal_constraint_set.legal_dag_mappings,
-                causal_graph=causal_graph,
-            )
-            if hard_constraints:
-                return _build_infeasible_result(
+            for round_num in range(1, self._max_rounds + 1):
+                context_diagram = build_selection_diagram(
+                    source_context,
+                    target_context,
+                    causal_graph,
+                )
+                context_s_nodes = list(context_diagram.s_nodes)
+                legal_constraint_set = _evaluate_legal_constraints(
+                    target_context=target_context,
+                    policy_spec=policy_spec,
+                    causal_graph=causal_graph,
+                    legal_kg_db_path=self._legal_kg_db_path,
+                )
+                hard_constraints = list(legal_constraint_set.hard_constraints)
+                legal_s_nodes = _legal_constraints_to_s_nodes(
+                    mappings=legal_constraint_set.legal_dag_mappings,
+                    causal_graph=causal_graph,
+                )
+                if hard_constraints:
+                    return _build_infeasible_result(
+                        source_context=source_context,
+                        target_context=target_context,
+                        hard_constraints=hard_constraints,
+                        query_treatment=query_treatment,
+                        query_outcome=query_outcome,
+                    )
+
+                all_s_nodes = context_s_nodes + legal_s_nodes
+                diagram = SelectionDiagram(
+                    base_graph=causal_graph,
+                    s_nodes=all_s_nodes,
                     source_context=source_context,
                     target_context=target_context,
-                    hard_constraints=hard_constraints,
+                    context_distance=self._cached_context_distance(
+                        source_context=source_context,
+                        target_context=target_context,
+                    ),
+                )
+                tr_payload = _run_transport_solver(
+                    diagram=diagram,
                     query_treatment=query_treatment,
                     query_outcome=query_outcome,
+                    solver_mode=normalized_solver_mode,
+                    pag_identification_policy=pag_identification_policy,
+                    pag_max_dag_samples=pag_max_dag_samples,
+                    pag_threshold=pag_threshold,
+                    pag_seed=pag_seed if pag_seed is not None else 0,
                 )
-
-            all_s_nodes = context_s_nodes + legal_s_nodes
-            diagram = SelectionDiagram(
-                base_graph=causal_graph,
-                s_nodes=all_s_nodes,
-                source_context=source_context,
-                target_context=target_context,
-                context_distance=source_context.distance_to(target_context),
-            )
-            tr_payload = CheckTransportability.pure_step(
-                {
-                    "selection_diagram": diagram.model_dump(mode="json"),
-                    "query_treatment": query_treatment,
-                    "query_outcome": query_outcome,
-                },
-                {
-                    "pag_identification_policy": pag_identification_policy,
-                    "pag_max_dag_samples": pag_max_dag_samples,
-                    "pag_threshold": pag_threshold,
-                    "pag_seed": pag_seed if pag_seed is not None else 0,
-                },
-            )
-            tr_result = TransportabilityResult.model_validate(tr_payload["transport_result"])
-
-            p_star_values: dict[str, PStarZResult] = {}
-            data_gaps: list[DataGap] = []
-            proxy_penalties: dict[str, float] = {}
-
-            formula = tr_result.transport_formula
-            if formula is not None:
-                details_lookup = {item.name: item for item in formula.stratification_details}
-                for z_var in formula.stratification_variables:
-                    detail = details_lookup.get(z_var)
-                    condition_on: dict[str, float] | None = None
-                    if detail is not None and detail.requires_conditional:
-                        condition_on = {
-                            (
-                                detail.condition_on_treatment or query_treatment
-                            ): _resolve_treatment_value(policy_spec)
+                tr_result = TransportabilityResult.model_validate(tr_payload["transport_result"])
+                if (
+                    normalized_solver_mode == "symbolic"
+                    and tr_result.unsupported_reason is not None
+                    and tr_result.unsupported_reason.startswith("y0_")
+                ):
+                    return tr_result.model_copy(
+                        update={
+                            "feasible": False,
+                            "resolution_rounds": round_num,
+                            "warnings": list(tr_result.warnings)
+                            + ["symbolic_solver_mode_requested_but_backend_unavailable"],
                         }
-
-                    p_star = self._datasets.compute_p_star_z(
-                        canonical_var=z_var,
-                        country_code=target_context.context_id,
-                        year=_resolve_context_year(target_context),
-                        condition_on=condition_on,
                     )
-                    if p_star.value is not None:
-                        p_star_values[z_var] = p_star
-                        if p_star.is_proxy:
-                            proxy_penalties[z_var] = max(0.0, min(1.0, 1.0 - p_star.confidence))
-                        continue
 
-                    proxy_chain = resolve_proxy(
-                        target_var=z_var,
-                        target_context=target_context.context_id,
-                        dataset_registry=self._datasets,
-                        skg_query=self._skg,
-                    )
-                    if (
-                        proxy_chain.proxies
-                        and proxy_chain.best_single_confidence > self._proxy_threshold
-                    ):
-                        best = proxy_chain.proxies[0]
-                        conditional_penalty = 0.1 if condition_on else 0.0
-                        confidence = max(
-                            0.0,
-                            min(1.0, best.effective_confidence - conditional_penalty),
+                p_star_values: dict[str, PStarZResult] = {}
+                data_gaps: list[DataGap] = []
+                proxy_penalties: dict[str, float] = {}
+                proxy_validity: dict[str, dict[str, Any]] = {}
+                requires_expert_review = False
+                expert_review_reasons: list[str] = []
+                adjacency = _build_adjacency(causal_graph)
+
+                formula = tr_result.transport_formula
+                if formula is not None:
+                    details_lookup = {item.name: item for item in formula.stratification_details}
+                    for z_var in formula.stratification_variables:
+                        detail = details_lookup.get(z_var)
+                        condition_on: dict[str, float] | None = None
+                        if detail is not None and detail.requires_conditional:
+                            condition_on = {
+                                (
+                                    detail.condition_on_treatment or query_treatment
+                                ): _resolve_treatment_value(policy_spec)
+                            }
+
+                        p_star = self._cached_compute_p_star_z(
+                            canonical_var=z_var,
+                            country_code=target_context.context_id,
+                            year=_resolve_context_year(target_context),
+                            condition_on=condition_on,
                         )
-                        p_star_values[z_var] = PStarZResult(
-                            canonical_variable=z_var,
-                            value=None,
-                            dataset_id=best.proxy_dataset_id,
-                            raw_variable=best.proxy_raw_name,
-                            is_proxy=True,
-                            proxy_chain=[f"{best.proxy_variable} -> {z_var}"],
-                            confidence=confidence,
-                            penalty_breakdown={
-                                "proxy": max(0.0, 1.0 - best.effective_confidence),
-                                **(
-                                    {"conditional_proxy": conditional_penalty}
-                                    if condition_on
-                                    else {}
+                        if p_star.value is not None:
+                            p_star_values[z_var] = p_star
+                            if p_star.is_proxy:
+                                proxy_penalties[z_var] = max(
+                                    0.0,
+                                    min(1.0, 1.0 - p_star.confidence),
+                                )
+                            continue
+
+                        proxy_chain = resolve_proxy(
+                            target_var=z_var,
+                            target_context=target_context.context_id,
+                            dataset_registry=cached_registry,
+                            skg_query=self._skg,
+                        )
+                        if (
+                            proxy_chain.proxies
+                            and proxy_chain.best_single_confidence > self._proxy_threshold
+                        ):
+                            best = proxy_chain.proxies[0]
+                            checklist = validate_proxy(
+                                proxy=best.proxy_variable,
+                                target=z_var,
+                                outcome=query_outcome,
+                                adjacency=adjacency,
+                                correlation_matrix={
+                                    (best.proxy_variable, z_var): best.base_correlation
+                                },
+                            )
+                            proxy_validity[z_var] = checklist.model_dump(mode="json")
+                            validity_score = _proxy_validity_score(checklist)
+                            conditional_penalty = 0.1 if condition_on else 0.0
+                            confidence = compose_confidence_harmonic(
+                                best.effective_confidence,
+                                validity_score,
+                            )
+                            confidence = max(
+                                0.0,
+                                min(1.0, confidence - conditional_penalty),
+                            )
+                            if checklist.requires_expert_review or not checklist.overall_valid:
+                                requires_expert_review = True
+                                joined_violations = (
+                                    "; ".join(checklist.violations) or "validation_failed"
+                                )
+                                reason = (
+                                    f"proxy_validation:{z_var}:{best.proxy_variable}:{joined_violations}"
+                                )
+                                if reason not in expert_review_reasons:
+                                    expert_review_reasons.append(reason)
+                            p_star_values[z_var] = PStarZResult(
+                                canonical_variable=z_var,
+                                value=None,
+                                dataset_id=best.proxy_dataset_id,
+                                raw_variable=best.proxy_raw_name,
+                                is_proxy=True,
+                                proxy_chain=[f"{best.proxy_variable} -> {z_var}"],
+                                confidence=confidence,
+                                penalty_breakdown={
+                                    "proxy": max(0.0, 1.0 - best.effective_confidence),
+                                    "proxy_validity": max(0.0, 1.0 - validity_score),
+                                    **(
+                                        {"conditional_proxy": conditional_penalty}
+                                        if condition_on
+                                        else {}
+                                    ),
+                                },
+                                is_conditional=condition_on is not None,
+                                condition_on=condition_on or {},
+                            )
+                            proxy_penalties[z_var] = max(0.0, min(1.0, 1.0 - confidence))
+                            continue
+
+                        data_gaps.append(
+                            DataGap(
+                                required_variable=z_var,
+                                required_context=(
+                                    f"{target_context.context_id}, "
+                                    f"{target_context.time_period}"
                                 ),
-                            },
-                            is_conditional=condition_on is not None,
-                            condition_on=condition_on or {},
+                                available_proxies=proxy_chain.proxies,
+                                best_proxy_confidence=proxy_chain.best_single_confidence,
+                                gap_impact=(
+                                    "transport_confidence reduced due to missing target quantity"
+                                ),
+                                suggested_action=_suggest_data_collection(z_var),
+                            )
                         )
-                        proxy_penalties[z_var] = max(0.0, min(1.0, 1.0 - confidence))
-                        continue
 
-                    data_gaps.append(
-                        DataGap(
-                            required_variable=z_var,
-                            required_context=(
-                                f"{target_context.context_id}, "
-                                f"{target_context.time_period}"
-                            ),
-                            available_proxies=proxy_chain.proxies,
-                            best_proxy_confidence=proxy_chain.best_single_confidence,
-                            gap_impact=(
-                                "transport_confidence reduced due to missing target quantity"
-                            ),
-                            suggested_action=_suggest_data_collection(z_var),
-                        )
-                    )
+                proxy_introduced_vars = {
+                    var for var, value in p_star_values.items() if value.is_proxy
+                }
+                filtered_context_nodes = [
+                    node
+                    for node in context_s_nodes
+                    if node.target_variable not in proxy_introduced_vars
+                ]
+                merged_nodes = filtered_context_nodes + legal_s_nodes
+                current_s_set = {
+                    (node.target_variable, node.context_dimension, node.origin.value)
+                    for node in merged_nodes
+                }
+                converged = (current_s_set == prev_s_node_set) or (round_num >= self._max_rounds)
+                prev_s_node_set = current_s_set
 
-            proxy_introduced_vars = {var for var, value in p_star_values.items() if value.is_proxy}
-            filtered_context_nodes = [
-                node
-                for node in context_s_nodes
-                if node.target_variable not in proxy_introduced_vars
-            ]
-            merged_nodes = filtered_context_nodes + legal_s_nodes
-            current_s_set = {
-                (node.target_variable, node.context_dimension, node.origin.value)
-                for node in merged_nodes
-            }
-            converged = (current_s_set == prev_s_node_set) or (round_num >= self._max_rounds)
-            prev_s_node_set = current_s_set
+                state = ResolutionState(
+                    round=round_num,
+                    s_nodes=filtered_context_nodes,
+                    legal_s_nodes=legal_s_nodes,
+                    data_gaps=data_gaps,
+                    hard_constraints=hard_constraints,
+                    p_star_values=p_star_values,
+                    proxy_penalties=proxy_penalties,
+                    proxy_validity=proxy_validity,
+                    requires_expert_review=requires_expert_review,
+                    expert_review_reasons=expert_review_reasons,
+                    converged=converged,
+                    feasible=True,
+                )
+                if converged:
+                    break
 
-            state = ResolutionState(
-                round=round_num,
-                s_nodes=filtered_context_nodes,
-                legal_s_nodes=legal_s_nodes,
-                data_gaps=data_gaps,
-                hard_constraints=hard_constraints,
-                p_star_values=p_star_values,
-                proxy_penalties=proxy_penalties,
-                converged=converged,
-                feasible=True,
-            )
-            if converged:
-                break
+            if tr_result is None or state is None or diagram is None:
+                return TransportabilityResult(
+                    query=f"P*({query_outcome}|do({query_treatment}))",
+                    status=TransportabilityStatus.NON_TRANSPORTABLE,
+                    base_confidence=0.0,
+                    final_confidence=0.0,
+                    feasible=False,
+                    warnings=["Transportability resolution failed unexpectedly."],
+                    source_context_id=source_context.context_id,
+                    target_context_id=target_context.context_id,
+                    identification_engine="simplified",
+                    identification_trace=["resolution_loop:unexpected_failure"],
+                    unsupported_reason="resolution_loop_unexpected_failure",
+                )
+            return _build_final_result(tr_result=tr_result, state=state, diagram=diagram)
+        finally:
+            # Per-run cache isolation.
+            self._cache_clear()
 
-        if tr_result is None or state is None or diagram is None:
-            return TransportabilityResult(
-                query=f"P*({query_outcome}|do({query_treatment}))",
-                status=TransportabilityStatus.NON_TRANSPORTABLE,
-                base_confidence=0.0,
-                final_confidence=0.0,
-                feasible=False,
-                warnings=["Transportability resolution failed unexpectedly."],
-                source_context_id=source_context.context_id,
-                target_context_id=target_context.context_id,
-            )
-        return _build_final_result(tr_result=tr_result, state=state, diagram=diagram)
+
+def _run_transport_solver(
+    *,
+    diagram: SelectionDiagram,
+    query_treatment: str,
+    query_outcome: str,
+    solver_mode: str,
+    pag_identification_policy: str | None,
+    pag_max_dag_samples: int,
+    pag_threshold: float,
+    pag_seed: int,
+) -> dict[str, Any]:
+    payload = {
+        "selection_diagram": diagram.model_dump(mode="json"),
+        "query_treatment": query_treatment,
+        "query_outcome": query_outcome,
+    }
+    method_params = {
+        "pag_identification_policy": pag_identification_policy,
+        "pag_max_dag_samples": pag_max_dag_samples,
+        "pag_threshold": pag_threshold,
+        "pag_seed": pag_seed,
+    }
+    if solver_mode == "simplified":
+        return CheckTransportability.pure_step(payload, method_params)
+    symbolic_backend = "auto"
+    require_backend = False
+    if solver_mode in {"symbolic", "symbolic_y0"}:
+        symbolic_backend = "y0"
+        require_backend = True
+    elif solver_mode == "symbolic_r":
+        symbolic_backend = "r"
+        require_backend = True
+    elif solver_mode == "full_auto":
+        symbolic_backend = "full_auto"
+
+    symbolic_params = dict(method_params)
+    symbolic_params["symbolic_backend"] = symbolic_backend
+    symbolic_params["require_symbolic_backend"] = require_backend
+    return SymbolicIdentify.pure_step(payload, symbolic_params)
 
 
 @dataclass(frozen=True)
@@ -440,6 +693,7 @@ class RunTransportabilityNode:
         pag_max_dag_samples = _resolve_pag_max_dag_samples(state)
         pag_threshold = _resolve_pag_threshold(state)
         pag_seed = _resolve_pag_seed(state, graph)
+        transport_solver_mode = _resolve_transport_solver_mode(state)
 
         dataset_registry = _build_dataset_registry(state.params.get("dataset_registry_db_path"))
         skg_query = _build_skg_query(
@@ -468,6 +722,7 @@ class RunTransportabilityNode:
                 pag_max_dag_samples=pag_max_dag_samples,
                 pag_threshold=pag_threshold,
                 pag_seed=pag_seed,
+                solver_mode=transport_solver_mode,
             )
         finally:
             if isinstance(skg_query, SKGQuery):
@@ -491,6 +746,9 @@ class RunTransportabilityNode:
 
         new_state = state.model_copy(deep=True)
         new_state.params["transportability_status"] = transport_result.status.value
+        new_state.params["transportability_identification_engine"] = (
+            transport_result.identification_engine
+        )
         if transport_result.id_confidence_under_pag is not None:
             new_state.params["transportability_id_confidence_under_pag"] = (
                 transport_result.id_confidence_under_pag
@@ -511,6 +769,7 @@ class RunTransportabilityNode:
                     message=(
                         "Transportability resolved: "
                         f"status={transport_result.status.value}, "
+                        f"engine={transport_result.identification_engine}, "
                         f"rounds={transport_result.resolution_rounds}, "
                         f"feasible={transport_result.feasible}"
                     ),
@@ -533,26 +792,247 @@ def _build_final_result(
     confidence = max(0.0, min(1.0, confidence))
 
     warnings = list(tr_result.warnings)
+    search_events = list(tr_result.search_events)
+    metadata = dict(tr_result.metadata)
     if state.data_gaps:
         warnings.append(
             f"Missing target quantities for {len(state.data_gaps)} variable(s); added data_gaps."
         )
+    if tr_result.lagged_edge_count > 0:
+        time_warning = (
+            "time_stationarity_warning: lagged transport path detected; "
+            "assumes_time_stationarity=True."
+        )
+        if time_warning not in warnings:
+            warnings.append(time_warning)
 
-    return tr_result.model_copy(
+    outer = _run_alignment_outer_search(
+        tr_result=tr_result,
+        state=state,
+        diagram=diagram,
+    )
+    if outer["truncated"]:
+        for token in ("outer_search_truncated", "search_budget_exhausted"):
+            if token not in search_events:
+                search_events.append(token)
+        warnings.append(
+            "Bounded alignment outer-search truncated due to budget/time limit."
+        )
+
+    partial_identification = None
+    if tr_result.status is TransportabilityStatus.NON_TRANSPORTABLE:
+        partial_identification = _build_manski_fallback(tr_result=tr_result, state=state)
+        if partial_identification.is_informative:
+            warnings.append("partial_identification_informative:manski_bounds")
+        else:
+            warnings.append("partial_identification_non_informative:manski_bounds")
+
+    metadata["lineage_three_graph"] = _build_three_graph_lineage(tr_result=tr_result, state=state)
+    metadata["alignment_outer_search"] = {
+        "configs_evaluated": int(outer["configs_evaluated"]),
+        "best_score": float(outer["best_score"]),
+        "truncated": bool(outer["truncated"]),
+    }
+    identification_trace = list(tr_result.identification_trace)
+    identification_trace.append(f"outer_search_configs_evaluated:{outer['configs_evaluated']}")
+    if outer["truncated"]:
+        identification_trace.append("outer_search_truncated")
+        identification_trace.append("search_budget_exhausted")
+
+    update_payload: dict[str, Any] = {
+        "final_confidence": confidence,
+        "data_gaps": list(state.data_gaps),
+        "p_star_values": dict(state.p_star_values),
+        "legal_s_nodes": list(state.legal_s_nodes),
+        "resolution_rounds": state.round,
+        "feasible": state.feasible,
+        "proxy_penalties": dict(state.proxy_penalties),
+        "proxy_validity": dict(state.proxy_validity),
+        "requires_expert_review": bool(state.requires_expert_review),
+        "expert_review_reasons": list(state.expert_review_reasons),
+        "source_context_id": diagram.source_context.context_id,
+        "target_context_id": diagram.target_context.context_id,
+        "warnings": warnings,
+        "algorithm_version": tr_result.algorithm_version,
+        "outer_search_truncated": bool(outer["truncated"]),
+        "search_budget_exhausted": bool(outer["truncated"]),
+        "outer_search_configs_evaluated": int(outer["configs_evaluated"]),
+        "outer_search_best_score": float(outer["best_score"]),
+        "search_events": search_events,
+        "lagged_edges_in_query": bool(tr_result.lagged_edge_count > 0),
+        "time_stationarity_warning": (
+            "Lagged transport path detected; assumes_time_stationarity=True."
+            if tr_result.lagged_edge_count > 0
+            else None
+        ),
+        "metadata": metadata,
+        "identification_trace": identification_trace,
+    }
+    if partial_identification is not None:
+        update_payload["partial_identification_result"] = partial_identification
+    return tr_result.model_copy(update=update_payload)
+
+
+def _run_alignment_outer_search(
+    *,
+    tr_result: TransportabilityResult,
+    state: ResolutionState,
+    diagram: SelectionDiagram,
+) -> dict[str, Any]:
+    certificates = _build_alignment_certificates(state)
+    formula = tr_result.transport_formula
+    required_count = 0
+    if formula is not None and formula.stratification_variables:
+        required_count = len(formula.stratification_variables)
+    elif state.p_star_values:
+        required_count = len(state.p_star_values)
+    elif state.data_gaps:
+        required_count = len(state.data_gaps)
+
+    coverage = 1.0
+    if required_count > 0:
+        coverage = len(state.p_star_values) / float(required_count)
+    coverage = max(0.0, min(1.0, coverage))
+
+    conflict_norm = min(
+        1.0,
+        (float(diagram.context_distance) * 0.6)
+        + (len(state.legal_s_nodes) * 0.1)
+        + (len(state.data_gaps) * 0.15),
+    )
+
+    def _evaluator(
+        policy: AlignmentCertificationPolicy,
+        lambda_conflict: float,
+    ) -> OuterObjectiveResult:
+        active = [cert for cert in certificates if cert.cert_type in set(policy.allowed_types)]
+        cert_result = policy.validate_chain(active[: policy.max_chain_length])
+        effective_coverage = coverage * cert_result.effective_confidence
+        score = compute_outer_objective(
+            coverage_queries=effective_coverage,
+            irreducible_conflict_norm=conflict_norm,
+            lambda_conflict=lambda_conflict,
+        )
+        return OuterObjectiveResult(
+            score=score,
+            coverage=effective_coverage,
+            conflict_norm=conflict_norm,
+            lambda_conflict=lambda_conflict,
+            config=policy,
+            is_feasible=cert_result.passed,
+        )
+
+    type_configs = None
+    if required_count <= 2:
+        cert_types = tuple(
+            sorted(
+                {cert.cert_type for cert in certificates},
+                key=lambda item: item.value,
+            )
+        ) or (AlignmentCertificateType.EXACT,)
+        type_configs = (cert_types,)
+
+    result = run_outer_search(_evaluator, type_configs=type_configs)
+    return {
+        "truncated": result.truncated,
+        "configs_evaluated": result.configs_evaluated,
+        "best_score": result.best_score,
+    }
+
+
+def _build_alignment_certificates(state: ResolutionState) -> list[AlignmentCertificate]:
+    certificates: list[AlignmentCertificate] = []
+    for variable, p_star in sorted(state.p_star_values.items()):
+        cert_type = (
+            AlignmentCertificateType.PROXY_BUNDLE
+            if p_star.is_proxy
+            else AlignmentCertificateType.EXACT
+        )
+        evidence: list[str] = []
+        if p_star.dataset_id:
+            evidence.append(f"dataset:{p_star.dataset_id}")
+        if p_star.raw_variable:
+            evidence.append(f"raw_var:{p_star.raw_variable}")
+        certificates.append(
+            AlignmentCertificate(
+                cert_type=cert_type,
+                source_variable=variable,
+                target_variable=variable,
+                confidence=max(0.0, min(1.0, float(p_star.confidence))),
+                evidence_refs=evidence,
+            )
+        )
+    if certificates:
+        return certificates
+    return [
+        AlignmentCertificate(
+            cert_type=AlignmentCertificateType.TEXT_CONCEPT_MAP,
+            source_variable="transport_query",
+            target_variable="transport_query",
+            confidence=0.6,
+            evidence_refs=["fallback:contextual_alignment"],
+        )
+    ]
+
+
+def _build_manski_fallback(
+    *,
+    tr_result: TransportabilityResult,
+    state: ResolutionState,
+):
+    confidences = [float(item.confidence) for item in state.p_star_values.values()]
+    avg_conf = sum(confidences) / len(confidences) if confidences else 0.0
+    half_width = max(0.2, 0.5 - (0.3 * avg_conf))
+    outcome_support = (0.5 - half_width, 0.5 + half_width)
+    uplift = 0.1 * avg_conf
+    outcome_conditioned = [max(0.0, 0.5 - uplift), min(1.0, 0.5 + uplift)]
+    treatment_probs = [0.5, 0.5]
+    fallback = compute_manski_bounds(
+        outcome_conditioned=outcome_conditioned,
+        treatment_probs=treatment_probs,
+        outcome_support=outcome_support,
+    )
+    return fallback.model_copy(
         update={
-            "final_confidence": confidence,
-            "data_gaps": list(state.data_gaps),
-            "p_star_values": dict(state.p_star_values),
-            "legal_s_nodes": list(state.legal_s_nodes),
-            "resolution_rounds": state.round,
-            "feasible": state.feasible,
-            "proxy_penalties": dict(state.proxy_penalties),
-            "source_context_id": diagram.source_context.context_id,
-            "target_context_id": diagram.target_context.context_id,
-            "warnings": warnings,
-            "algorithm_version": tr_result.algorithm_version,
+            "assumptions_used": list(fallback.assumptions_used)
+            + [f"transport_status={tr_result.status.value}"],
         }
     )
+
+
+def _build_three_graph_lineage(
+    *,
+    tr_result: TransportabilityResult,
+    state: ResolutionState,
+) -> dict[str, Any]:
+    dataset_lineage = []
+    for variable, value in sorted(state.p_star_values.items()):
+        dataset_lineage.append(
+            {
+                "variable": variable,
+                "dataset_id": value.dataset_id,
+                "raw_variable": value.raw_variable,
+                "proxy_chain": list(value.proxy_chain),
+            }
+        )
+    legal_lineage = [
+        {
+            "constraint_id": node.legal_constraint_id,
+            "target_variable": node.target_variable,
+            "origin": node.origin.value,
+        }
+        for node in state.legal_s_nodes
+    ]
+    return {
+        "article": {
+            "query": tr_result.query,
+            "source_context_id": tr_result.source_context_id,
+            "target_context_id": tr_result.target_context_id,
+        },
+        "dataset": dataset_lineage,
+        "legal": legal_lineage,
+        "all_layers_present": bool(tr_result.query and dataset_lineage and legal_lineage),
+    }
 
 
 def _build_infeasible_result(
@@ -579,6 +1059,9 @@ def _build_infeasible_result(
         ],
         source_context_id=source_context.context_id,
         target_context_id=target_context.context_id,
+        identification_engine="simplified",
+        identification_trace=["resolution_loop:hard_legal_constraint"],
+        unsupported_reason="hard_legal_constraint",
     )
 
 
@@ -718,6 +1201,15 @@ def _resolve_context_profile(raw: Any) -> ContextProfile | None:
     return None
 
 
+def _resolve_transport_solver_mode(state: ExperimentState) -> str:
+    raw = state.params.get("transport_solver_mode")
+    if isinstance(raw, str):
+        token = raw.strip().lower()
+        if token in _VALID_TRANSPORT_SOLVER_MODES:
+            return token
+    return "auto"
+
+
 def _resolve_pag_identification_policy(state: ExperimentState, graph: CausalGraphModel) -> str:
     raw = state.params.get("pag_identification_policy")
     if isinstance(raw, str) and raw.strip():
@@ -831,6 +1323,30 @@ def _coerce_path(raw: Any) -> Path | None:
             return None
         return Path(text)
     return None
+
+
+def _build_adjacency(graph: CausalGraphModel) -> dict[str, set[str]]:
+    adjacency: dict[str, set[str]] = {str(node): set() for node in graph.nodes}
+    for edge in graph.edges:
+        src = str(edge.src).strip()
+        dst = str(edge.dst).strip()
+        if not src or not dst:
+            continue
+        adjacency.setdefault(src, set()).add(dst)
+        adjacency.setdefault(dst, set())
+    return adjacency
+
+
+def _proxy_validity_score(checklist: Any) -> float:
+    checks = [
+        bool(getattr(checklist, "relevance_check", False)),
+        bool(getattr(checklist, "exclusion_check", False)),
+        bool(getattr(checklist, "non_collider_check", False)),
+        bool(getattr(checklist, "completeness_check", False)),
+    ]
+    passed = sum(1 for item in checks if item)
+    score = passed / max(1, len(checks))
+    return max(0.2, min(1.0, float(score)))
 
 
 def _suggest_data_collection(var: str) -> str:

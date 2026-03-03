@@ -1,5 +1,14 @@
 {
   "$defs": {
+    "BoundMethod": {
+      "enum": [
+        "manski_bounds",
+        "iv_bounds",
+        "monotone_treatment"
+      ],
+      "title": "BoundMethod",
+      "type": "string"
+    },
     "CausalMethod": {
       "enum": [
         "synthetic_control",
@@ -242,6 +251,72 @@
         "raw_variable"
       ],
       "title": "PStarZResult",
+      "type": "object"
+    },
+    "PartialIdentificationResult": {
+      "additionalProperties": false,
+      "description": "Result of partial identification analysis (e.g., Manski bounds on ATE).",
+      "properties": {
+        "assumptions_used": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Assumptions Used",
+          "type": "array"
+        },
+        "assumptions_violated": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Assumptions Violated",
+          "type": "array"
+        },
+        "bound_width": {
+          "default": 0.0,
+          "title": "Bound Width",
+          "type": "number"
+        },
+        "confidence": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Confidence",
+          "type": "number"
+        },
+        "informativeness_threshold": {
+          "default": 0.5,
+          "title": "Informativeness Threshold",
+          "type": "number"
+        },
+        "is_informative": {
+          "default": true,
+          "title": "Is Informative",
+          "type": "boolean"
+        },
+        "lower_bound": {
+          "title": "Lower Bound",
+          "type": "number"
+        },
+        "method": {
+          "$ref": "#/$defs/BoundMethod"
+        },
+        "schema_version": {
+          "default": "1.0",
+          "pattern": "^\\d+\\.\\d+$",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "upper_bound": {
+          "title": "Upper Bound",
+          "type": "number"
+        }
+      },
+      "required": [
+        "method",
+        "lower_bound",
+        "upper_bound",
+        "confidence"
+      ],
+      "title": "PartialIdentificationResult",
       "type": "object"
     },
     "PlaceboResult": {
@@ -648,6 +723,13 @@
           "title": "Data Gaps",
           "type": "array"
         },
+        "expert_review_reasons": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Expert Review Reasons",
+          "type": "array"
+        },
         "feasible": {
           "default": true,
           "title": "Feasible",
@@ -657,17 +739,6 @@
           "default": 1.0,
           "title": "Final Confidence",
           "type": "number"
-        },
-        "formula": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/TransportFormula"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null
         },
         "hard_legal_constraints": {
           "items": {
@@ -688,11 +759,28 @@
           "default": null,
           "title": "Id Confidence Under Pag"
         },
+        "identification_engine": {
+          "default": "simplified",
+          "title": "Identification Engine",
+          "type": "string"
+        },
+        "identification_trace": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Identification Trace",
+          "type": "array"
+        },
         "lagged_edge_count": {
           "default": 0,
           "minimum": 0,
           "title": "Lagged Edge Count",
           "type": "integer"
+        },
+        "lagged_edges_in_query": {
+          "default": false,
+          "title": "Lagged Edges In Query",
+          "type": "boolean"
         },
         "legal_s_nodes": {
           "items": {
@@ -712,6 +800,29 @@
           },
           "title": "Notes",
           "type": "array"
+        },
+        "outer_search_best_score": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Outer Search Best Score"
+        },
+        "outer_search_configs_evaluated": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Outer Search Configs Evaluated",
+          "type": "integer"
+        },
+        "outer_search_truncated": {
+          "default": false,
+          "title": "Outer Search Truncated",
+          "type": "boolean"
         },
         "p_star_values": {
           "additionalProperties": {
@@ -757,11 +868,30 @@
           "default": null,
           "title": "Pag Transportable Count"
         },
+        "partial_identification_result": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PartialIdentificationResult"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "proxy_penalties": {
           "additionalProperties": {
             "type": "number"
           },
           "title": "Proxy Penalties",
+          "type": "object"
+        },
+        "proxy_validity": {
+          "additionalProperties": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "title": "Proxy Validity",
           "type": "object"
         },
         "query": {
@@ -776,6 +906,11 @@
           "title": "Required Target Data",
           "type": "array"
         },
+        "requires_expert_review": {
+          "default": false,
+          "title": "Requires Expert Review",
+          "type": "boolean"
+        },
         "resolution_rounds": {
           "default": 1,
           "minimum": 1,
@@ -787,6 +922,18 @@
           "pattern": "^\\d+\\.\\d+$",
           "title": "Schema Version",
           "type": "string"
+        },
+        "search_budget_exhausted": {
+          "default": false,
+          "title": "Search Budget Exhausted",
+          "type": "boolean"
+        },
+        "search_events": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Search Events",
+          "type": "array"
         },
         "selection_diagram_ref": {
           "default": "",
@@ -836,6 +983,18 @@
           "title": "Temporal Distance Penalty",
           "type": "number"
         },
+        "time_stationarity_warning": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Time Stationarity Warning"
+        },
         "transport_formula": {
           "anyOf": [
             {
@@ -853,6 +1012,18 @@
           },
           "title": "Unsupported Cases",
           "type": "array"
+        },
+        "unsupported_reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Unsupported Reason"
         },
         "warnings": {
           "items": {

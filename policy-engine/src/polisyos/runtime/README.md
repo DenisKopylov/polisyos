@@ -1,22 +1,22 @@
 # Runtime (`polisyos.runtime`)
 
-`polisyos.runtime` — runtime-слой PolicyOS для доступа к запускам (`runs`) и CAS-артефактам через HTTP API, а также для replay/verification сценариев.
+`polisyos.runtime` — runtime-слой PolicyOS: HTTP API v1 для `runs`/CAS, replay-планирование и verification, плюс legacy filesystem helpers для обратной совместимости.
 
-Документ отражает текущее состояние кода на **2026-02-17**.
+Документ отражает текущее состояние кода на **2026-03-03**.
 
 ## Роль в системе
 
-- Runtime HTTP API v1: read/debug/lineage API для `core_run` + control-plane endpoint'ы для запуска run и data/lex операций.
-- Replay API (`replay.py`): оценка replay-полноты, выбор стратегии, seed resolution, replay verification.
-- Legacy compatibility helpers (`api.py`, `manifest.py`): поддержка старого filesystem run-manifest формата.
+- Даёт HTTP-поверхность для run introspection (`runs`, `debug`, `artifacts`, `lineage`) и control-plane операций (`/api/v1/control/*`).
+- Предоставляет replay API (`replay.py`): выбор стратегии replay, проверка полноты артефактов, verification (`bit_exact`, `ci_bounded`, `skip`).
+- Содержит legacy API (`api.py`, `manifest.py`) для формата `runs/<run_id>/manifest.json` вне основного HTTP serving path.
 
-## Текущий scope
+## Текущий scope и ограничения
 
-- Runtime API v1 индексирует только `core_run` источники из `core_runs_root` (по умолчанию `.polisyos/runs`).
-- `source_kind` в runtime API сейчас фактически фиксирован как `core_run`.
-- Индексация run опирается на `trace.jsonl` и `RUN_FINALIZED` событие с `core.run_manifest` ссылкой.
-- Публичный пакет `polisyos.runtime` (через `__init__.py`) экспортирует только replay API через lazy imports.
-- Legacy filesystem API не участвует в HTTP serving path и сохранен как совместимость для тестов/старых сценариев.
+- Runtime API v1 индексирует только источник `core_run` из `core_runs_root` (по умолчанию `.polisyos/runs`).
+- `source_kind` в ответах runtime сейчас фактически фиксирован как `core_run`.
+- Run попадает в индекс при наличии `trace.jsonl`; если `core.run_manifest` не найден/нечитаем, run остаётся доступным, но со статусом `unknown` и warning.
+- Tenant binding для artifact endpoints строится из набора run refs: root artifacts + `manifest_ref` + `trace_ref` + workflow/experiment/decision refs.
+- Пакетный экспорт `polisyos.runtime` (через `__init__.py`) публикует replay API через lazy imports.
 
 ## Архитектура директории
 
@@ -26,41 +26,44 @@ runtime/
 ├── replay.py        # Replay strategy/completeness/verification
 ├── api.py           # Legacy runs/<run_id>/manifest.json helpers
 ├── manifest.py      # Legacy RunManifest/ArtifactRef модели
-└── http/            # Runtime HTTP API v1 (см. отдельный README)
+└── http/            # Runtime HTTP API v1
+    ├── app.py
+    ├── routes/
+    └── services/
 ```
 
-## Ключевые потоки
+## Основные потоки
 
-1. HTTP read/debug path
-`request -> http/app.py -> telemetry/security middleware -> routes/* -> services/* -> FileSystemCAS + .polisyos/runs`
+1. Read/debug/artifact path  
+`request -> http/app.py -> telemetry/(optional security) middleware -> routes/* -> services/* -> FileSystemCAS + core_runs_root`
 
-2. Control-plane path
+2. Control-plane path  
 `/api/v1/control/* -> services/control.py -> scientist/fabric/lex orchestration -> CAS + run artifacts`
 
-3. Replay path
-`decision_packet_ref -> replay.build_replay_plan/completeness_check -> verify_replay(bit_exact|ci_bounded|skip)`
+3. Replay path  
+`decision_packet_ref -> build_replay_plan/completeness_check -> verify_replay(...)`
 
-4. Legacy filesystem path
+4. Legacy filesystem path  
 `start_run/log_artifact/finalize_run -> runs/<run_id>/manifest.json`
 
 ## Связь с другими директориями
 
 | Директория | Как связана с runtime |
 |---|---|
-| `polisyos/core/contracts` | Runtime/Control DTO и problem schema (`runtime`, `control`) |
-| `polisyos/core/artifacts` | CAS store, manifest, lineage graph, canonical decoding |
+| `polisyos/core/contracts` | DTO и API-модели (`runtime`, `control`, `problem+json`) |
+| `polisyos/core/artifacts` | CAS store, manifest IDs, dependency graph, canonical decoding |
 | `polisyos/core/security` | JWT identity, tenant/cell routing, OPA authz middleware |
 | `polisyos/core/trace` | `TraceRecord` для timeline/debug extraction |
-| `polisyos/scientist` | запуск workflow/NL run через control-plane, replay backend integration |
-| `polisyos/fabric` | ingestion/retrieval/data resolve/discover/preview операции |
-| `polisyos/lex` | batch pipeline trigger/status и knowledge graph query/stats |
-| `tools/runtime` | OpenAPI export/client generation/contract drift checks |
+| `polisyos/scientist` | workflow/NL запуск и replay-related artifacts |
+| `polisyos/fabric` | ingestion и retrieval операции control-plane |
+| `polisyos/lex` | batch pipeline и query/stat API для knowledge graph |
+| `tools/runtime` | OpenAPI export, client generation, contract drift checks |
 
 ## Что важно при изменениях
 
-- Новые API-контракты сначала фиксировать в `polisyos/core/contracts/*`, затем подключать в `runtime/http`.
-- Если добавляется новый run source kind (кроме `core_run`), нужно обновлять `run_index`, маршруты, OpenAPI contract и tenant enforcement.
-- Security middlewares opt-in: включаются только через `enable_security_middlewares=True` и явные providers.
+- Сначала фиксировать новые контракты в `polisyos/core/contracts/*`, потом подключать route/service реализацию в `runtime/http`.
+- Для нового `source_kind` нужно расширить минимум: `adapters/*`, `run_index`, `routes/runs.py`, `openapi_contract.py`, tenant enforcement helpers.
+- Security chain opt-in: middleware включаются только при `enable_security_middlewares=True` и явной передаче providers.
 
 ## Локальный запуск
 
@@ -86,7 +89,8 @@ PYTHONPATH=src uv run python tools/runtime/generate_runtime_client.py \
 PYTHONPATH=src uv run python tools/runtime/check_runtime_api_contract.py
 ```
 
-## Поддиректории с отдельной документацией
+## Документация поддиректорий
 
 - [http/README.md](http/README.md)
+- [http/routes/README.md](http/routes/README.md)
 - [http/services/README.md](http/services/README.md)

@@ -17,6 +17,8 @@ from typing import Any
 
 from pydantic import BaseModel
 
+from polisyos.common.serialization import fast_json_dumps, fast_json_dumps_bytes
+
 from ..canon import content_hash
 from ..canon.canon_json import CanonSpec, to_canonical_bytes
 from ..observability import get_metrics, get_tracer
@@ -684,12 +686,7 @@ class FileSystemCAS:
                     "exported_artifacts": exported,
                     "requested_artifacts": len(sorted_ids),
                 }
-                meta_bytes = json.dumps(
-                    meta_payload,
-                    ensure_ascii=True,
-                    separators=(",", ":"),
-                    sort_keys=True,
-                ).encode("utf-8")
+                meta_bytes = fast_json_dumps_bytes(meta_payload, sort_keys=True)
                 info = tarfile.TarInfo(name="export_manifest.json")
                 info.size = len(meta_bytes)
                 info.mtime = 0
@@ -726,15 +723,13 @@ class FileSystemCAS:
 
             meta_path = target / "export_manifest.json"
             meta_path.write_text(
-                json.dumps(
+                fast_json_dumps(
                     {
                         "schema_version": "1.0",
                         "cas_layout": "artifacts/sha256/ab/cd/<hex>.(blob|manifest.json|sig)",
                         "exported_artifacts": exported,
                         "requested_artifacts": len(sorted_ids),
                     },
-                    ensure_ascii=True,
-                    indent=2,
                     sort_keys=True,
                 ),
                 encoding="utf-8",

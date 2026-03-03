@@ -13,6 +13,7 @@ from polisyos.ir.analytics.causal import (
 from ._registry_boot import register_causal_methods
 from .cate import CausalForestEstimator
 from .constraint_discovery import FCIDiscovery, GESDiscovery, PCDiscovery
+from .dagma_discovery import DAGMADiscovery
 from .did import DifferenceInDifferences
 from .dml import DoubleMachineLearning
 from .dowhy_identify_estimate import DoWhyIdentifyEstimate, DoWhyIdentifyEstimateV1
@@ -45,6 +46,7 @@ from .rdd import RegressionDiscontinuity
 from .sensitivity_metrics import SensitivityMetrics
 from .structural_time_series import StructuralTimeSeries
 from .synthetic_control import SyntheticControlMethod
+from .symbolic_identify import SymbolicIdentify
 from .transport_check import CheckTransportability
 
 
@@ -94,8 +96,10 @@ __all__ = [
     "PCDiscovery",
     "FCIDiscovery",
     "GESDiscovery",
+    "DAGMADiscovery",
     "SensitivityMetrics",
     "CheckTransportability",
+    "SymbolicIdentify",
     "CausalForestEstimator",
     "DoubleMachineLearning",
     "MetaLearnerEstimator",

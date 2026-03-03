@@ -39,6 +39,7 @@ def test_transport_check_direct_when_no_s_nodes() -> None:
 
     assert result.status is TransportabilityStatus.DIRECT
     assert result.final_confidence == 1.0
+    assert result.identification_engine == "simplified"
 
 
 def test_transport_check_transportable_uses_conditional_target_quantity_for_mediator() -> None:
@@ -114,6 +115,7 @@ def test_transport_check_non_transportable_tracks_unsupported_cases() -> None:
     assert result.status is TransportabilityStatus.NON_TRANSPORTABLE
     assert result.unsupported_cases
     assert result.algorithm_version == "simplified_tr_v2"
+    assert result.unsupported_reason == "simplified_unresolved_s_nodes"
 
 
 def _pag_diagram_for_probabilistic_test() -> SelectionDiagram:

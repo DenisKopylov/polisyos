@@ -2,7 +2,7 @@
 
 **PolisyOS** (Policy Engine) — операционная система для проектирования, валидации, калибровки и исполнения публично-политических интервенций как воспроизводимых вычислительных экспериментов. Система принимает запрос на естественном языке, формулирует политику через иерархию AI-агентов, компилирует её в дифференцируемую JAX-симуляцию, проводит governance-проверки и выдаёт пакет решений с полным provenance-следом.
 
-**Architecture:** v2.5.0 · **Python:** >=3.11 · **License:** proprietary · **Актуально:** 10 февраля 2026
+**Architecture:** v2.6.0 · **Python:** >=3.11 · **License:** proprietary · **Актуально:** 3 марта 2026
 
 ---
 
@@ -16,10 +16,13 @@
   - [IR — промежуточное представление](#ir--промежуточное-представление)
   - [Fabric — Unified Data Fabric](#fabric--unified-data-fabric)
   - [Foundry — JAX Execution Engine](#foundry--jax-execution-engine)
-  - [Runtime — Runtime API и жизненный цикл](#runtime--runtime-api-и-жизненный-цикл)
-  - [Lex — юридический анализ](#lex--юридический-анализ)
+  - [Runtime — HTTP API, Control Plane и жизненный цикл](#runtime--http-api-control-plane-и-жизненный-цикл)
+  - [Lex — юридический анализ и нормативные знания](#lex--юридический-анализ-и-нормативные-знания)
   - [Scholar — обогащение знаний](#scholar--обогащение-знаний)
+  - [Academic — академический knowledge graph](#academic--академический-knowledge-graph)
+  - [Datasets — каталог статистических данных](#datasets--каталог-статистических-данных)
   - [Scientist — AI-оркестрация](#scientist--ai-оркестрация)
+  - [Batch Common — общая batch-инфраструктура](#batch-common--общая-batch-инфраструктура)
   - [Packs — компонентные пакеты](#packs--компонентные-пакеты)
 - [Сквозные подсистемы](#сквозные-подсистемы)
 - [Ключевые концепции](#ключевые-концепции)
@@ -45,15 +48,20 @@
 NL intent (пользовательский запрос)
   → Scientist (AI-агенты: PI → Drafter → Formalizer → Critic + governance)
     → IR (Trinity контракты: ProblemFrame / PolicySpec / ModelSpec + kernel registries)
-      → Fabric (connectors, docs, claims, world model, evidence, provenance, quality, trust)
-        → Foundry (compile → calibrate → simulate; чистый JAX, patch-based)
-          → Runtime (HTTP API v1, replay, audit trail, artifact refs)
+      → Fabric (connectors, docs, claims, world model, retrieval, data plane, evidence, provenance)
+        → Academic (OpenAlex → SKG → literature priors, causal evidence, transportability-aware параметры)
+        → Datasets (statistics → catalog → P*(Z) transportability, proxy resolution)
+        → Foundry (compile → calibrate → simulate → uncertainty; чистый JAX, patch-based)
+          → Runtime (HTTP API v1 + Control Plane, replay, audit trail, artifact refs)
             → Decision Artifacts (DecisionPacket / DecisionCard / GovernanceReport)
 ```
 
 Сквозные подсистемы:
-- **Lex**: юридические документы → corpus → NormPack → legality evaluation → what-if simulator
-- **Scholar**: внешние источники → docs → claims → trust → KnowledgeBundle (обогащение Fabric/IR)
+- **Lex**: юридические документы → corpus → NormPack → legality evaluation → what-if simulator → offline knowledge graph (batch pipeline + vector search)
+- **Scholar**: внешние источники → docs → claims → trust → KnowledgeBundle (обогащение Fabric/IR) + freshness management
+- **Academic**: OpenAlex → batch pipeline → DuckDB SKG → ScholarKnowledgeGraph + ParameterSelector (transportability-aware literature priors и causal evidence)
+- **Datasets**: статистические источники → batch pipeline → DuckDB каталог → DatasetCatalogGraph + DatasetRegistry (hybrid search, P*(Z) transportability, proxy resolution)
+- **Batch Common**: общая инфраструктура batch-пайплайнов (snapshot layout, manifests, QC helpers, thermal pacing)
 - **Packs**: встроенные доменные компоненты (IR-фрагменты, Foundry-методы, Lex-оценщики, Scholar-экстракторы)
 - **Security**: Zero Trust, multi-tenant isolation, OPA policies, TEE attestation, SBOM, SLSA
 
@@ -68,36 +76,39 @@ NL intent (пользовательский запрос)
                                 │ common   │  ← нет зависимостей вверх
                                 └────┬─────┘
                                      │
-                          ┌──────────┴──────────┐
-                          │                     │
-                     ┌────▼────┐          ┌─────▼────┐
-                     │  core   │          │    ir    │  (чистые контракты)
-                     └────┬────┘          └─────┬────┘
-                          │                     │
-               ┌──────────┼─────────────────────┤
-               │          │                     │
-          ┌────▼────┐ ┌───▼─────┐         ┌────▼────┐
-          │ fabric  │ │ foundry │         │ runtime │
-          └────┬────┘ └───┬─────┘         └────┬────┘
-               │          │                    │
-          ┌────▼────┐ ┌───▼─────┐              │
-          │   lex   │ │ scholar │              │
-          └────┬────┘ └───┬─────┘              │
-               │          │                    │
-               └──────────┼────────────────────┘
-                          │
-                   ┌──────▼──────┐
-                   │  scientist  │  (оркестрация верхнего уровня)
-                   └──────┬──────┘
-                          │
-                   ┌──────▼──────┐
-                   │    packs    │  (листовой модуль, только реализации)
-                   └─────────────┘
+                       ┌─────────────┼──────────────┐
+                       │             │              │
+                  ┌────▼────┐  ┌─────▼──────┐  ┌───▼───┐
+                  │  core   │  │batch_common│  │  ir   │  (чистые контракты)
+                  └────┬────┘  └─────┬──────┘  └───┬───┘
+                       │             │             │
+            ┌──────────┼─────────────┼─────────────┤
+            │          │             │             │
+       ┌────▼────┐ ┌───▼─────┐      │       ┌─────▼───┐
+       │ fabric  │ │ foundry │      │       │ runtime │
+       └────┬────┘ └───┬─────┘      │       └────┬────┘
+            │          │             │            │
+  ┌─────────┼──────────┤─────────────┤            │
+  │         │          │             │            │
+┌─▼──┐ ┌───▼───┐ ┌────▼────┐ ┌─────▼────┐       │
+│lex │ │scholar│ │academic │ │ datasets │       │
+└─┬──┘ └───┬───┘ └────┬────┘ └─────┬────┘       │
+  │         │          │            │            │
+  └─────────┴──────────┴────────────┼────────────┘
+                                    │
+                             ┌──────▼──────┐
+                             │  scientist  │  (оркестрация верхнего уровня)
+                             └──────┬──────┘
+                                    │
+                             ┌──────▼──────┐
+                             │    packs    │  (листовой модуль, только реализации)
+                             └─────────────┘
 ```
 
 | Модуль | Зависит от | Документация |
 |--------|-----------|--------------|
 | `polisyos.common` | — | [README](policy-engine/src/polisyos/common/README.md) |
+| `polisyos.batch_common` | common | — |
 | `polisyos.core` | common | [README](policy-engine/src/polisyos/core/README.md) |
 | `polisyos.ir` | — (core только TYPE_CHECKING) | [README](policy-engine/src/polisyos/ir/README.md) |
 | `polisyos.fabric` | ir, core, common | [README](policy-engine/src/polisyos/fabric/README.md) |
@@ -105,7 +116,9 @@ NL intent (пользовательский запрос)
 | `polisyos.runtime` | core, common | [README](policy-engine/src/polisyos/runtime/README.md) |
 | `polisyos.lex` | fabric, ir, core, common | [README](policy-engine/src/polisyos/lex/README.md) |
 | `polisyos.scholar` | fabric, ir, core, common | [README](policy-engine/src/polisyos/scholar/README.md) |
-| `polisyos.scientist` | ir, fabric, foundry, runtime, lex, core, common | [README](policy-engine/src/polisyos/scientist/README.md) |
+| `polisyos.academic` | batch_common, ir, core, common | [README](policy-engine/src/polisyos/academic/README.md) |
+| `polisyos.datasets` | batch_common, fabric, ir, core, common | [README](policy-engine/src/polisyos/datasets/README.md) |
+| `polisyos.scientist` | ir, fabric, foundry, runtime, lex, academic, datasets, core, common | [README](policy-engine/src/polisyos/scientist/README.md) |
 | `polisyos.packs` | core, ir, foundry, lex, fabric, common | [README](policy-engine/src/polisyos/packs/README.md) |
 
 ---
@@ -126,7 +139,7 @@ NL intent (пользовательский запрос)
 | **async_tools.py** | `run_coro_sync()` для безопасного вызова корутин из синхронного кода |
 | **serialization.py** | `to_python_data()`, `stable_json_dumps()`, `strip_none()` для нормализации Enum/dataclass/Pydantic/numpy в python-friendly вид |
 | **timestamps.py** | Единые UTC-утилиты: `utc_now`, parse/format ISO, epoch conversion |
-| **migrations/** | Детерминированная система миграций артефактов с обнаружением циклов. Текущая миграция: `dataset_manifest` 0.9→1.0 |
+| **[migrations/](policy-engine/src/polisyos/common/migrations/README.md)** | Детерминированная система миграций артефактов с обнаружением циклов. Текущая миграция: `dataset_manifest` 0.9→1.0 |
 
 ---
 
@@ -134,7 +147,12 @@ NL intent (пользовательский запрос)
 
 > `src/polisyos/core/` · [README](policy-engine/src/polisyos/core/README.md) · Зависимости: common
 
-Общий инфраструктурный слой для всех подсистем: CAS-хранилище, типизированные контракты, компонентная модель, observability, security, аудит.
+Общий инфраструктурный слой для всех подсистем. Организован в четыре архитектурных плоскости:
+
+1. **ABI plane** — типизированные контракты между модулями
+2. **Data/provenance plane** — CAS-хранилище, трассировка, аудит
+3. **Plugin plane** — компонентная модель, discovery, registry
+4. **Runtime-quality plane** — безопасность, observability, resilience
 
 ```
 core/
@@ -143,7 +161,7 @@ core/
 ├── backends/       # Унифицированный dispatcher backend-реализаций
 ├── cache/          # Потокобезопасные LRU/TTL кэши
 ├── canon/          # Канонический JSON + хеширование (float→Decimal, sorted keys)
-├── compiler/       # Отчеты компиляции/линковки в CAS
+├── compiler/       # Отчёты компиляции/линковки в CAS
 ├── components/     # Component Model v1 (metadata/discovery/registry/bootstrap)
 ├── contracts/      # Typed ABI между модулями (14 доменов)
 ├── discovery/      # Базовые примитивы discovery (entry points + file modules)
@@ -167,8 +185,11 @@ core/
 | **[artifacts/](policy-engine/src/polisyos/core/artifacts/README.md)** | Content-Addressable Storage (SHA-256), Ed25519 подписи, EnvironmentManifest, dependency graph traversal |
 | **[audit/](policy-engine/src/polisyos/core/audit/README.md)** | Портативные `.polisyos-audit.tar.gz` пакеты с W3C PROV-JSON, standalone 5-шаговая офлайн-верификация, SLSA attestation |
 | **[components/](policy-engine/src/polisyos/core/components/README.md)** | Component Model v1: `namespace.name@semver`, discovery через entry points (8 групп), thread-safe registry, compliance |
-| **[contracts/](policy-engine/src/polisyos/core/contracts/README.md)** | 14 доменов typed ABI: Fabric, Foundry, Trinity, Lex, Scientist, Scholar, Runtime, Provenance, Causal, HTE, Backtest, Uncertainty, Distributional, Compiler |
+| **[contracts/](policy-engine/src/polisyos/core/contracts/README.md)** | 14 доменов typed ABI: Fabric, Foundry, Trinity, Lex, Scientist, Scholar, Runtime, Control, Provenance, Causal, HTE, Backtest, Uncertainty, Distributional |
+| **[governance/](policy-engine/src/polisyos/core/governance/README.md)** | Validation profiles (`FAST`/`MVP`/`STRICT`), validator passes (safety/legal), AST policy whitelisting, pluggable legal backends (stub, expr_ast) |
+| **[llm/](policy-engine/src/polisyos/core/llm/README.md)** | `TracedLLMClient` — OTel spans + token usage + cost tracking + retry facade. Нормализация ответов из разных LLM-провайдеров |
 | **[observability/](policy-engine/src/polisyos/core/observability/README.md)** | OTel tracing (`@traced`), Prometheus MetricsRegistry, DeterminismTier (5 уровней), LLM cost estimation, graceful degradation |
+| **[registry/](policy-engine/src/polisyos/core/registry/README.md)** | `GenericRegistry` + `BaseRegistry` с secondary indices. Bundle building/loading из CAS. Compose bundles из IR fragment-компонентов с precedence policy |
 | **[security/](policy-engine/src/polisyos/core/security/README.md)** | Zero Trust: tenant routing, DB isolation (PostgreSQL RLS / DuckDB), SPIFFE identity, OPA authz, delegation tokens, audit chain, TEE attestation, SBOM (CycloneDX), SLSA |
 
 ---
@@ -177,7 +198,7 @@ core/
 
 > `src/polisyos/ir/` · [README](policy-engine/src/polisyos/ir/README.md) · Независимый контрактный слой
 
-Каноническое декларативное представление политик. IR определяет **только модели и валидацию** (Pydantic, `frozen=True`, `extra="forbid"`) — без логики исполнения. IR не зависит от `polisyos.core`.
+Каноническое декларативное представление политик. IR определяет **только модели и валидацию** (Pydantic, `frozen=True`, `extra="forbid"`) — без логики исполнения. IR не зависит от `polisyos.core` (только `TYPE_CHECKING`).
 
 ```
 Scholar / Scientist / Lex
@@ -198,17 +219,20 @@ Scholar / Scientist / Lex
 | **PolicySpec** | **What** — что делать | Интервенции, mechanism bindings, tunable parameters, selector expressions (AST, max depth=10, max nodes=50) |
 | **ModelSpec** | **How** — как моделировать | Data snapshot ref, agent config, assumptions, fidelity level (surrogate → full_discrete) |
 
-`TrinityBundle` объединяет все три в единый артефакт с `schema_version`.
+`TrinityBundle` объединяет все три в единый артефакт с `schema_version` (текущая: `1.0`).
 
 #### Подсистемы IR
 
 | Подсистема | Назначение |
 |------------|-----------|
+| **[trinity/](policy-engine/src/polisyos/ir/trinity/README.md)** | Канонический формат `TrinityBundle`, strict loaders для dict/str/bytes (json/yaml/auto), version enforcement |
+| **[governance/](policy-engine/src/polisyos/ir/governance/README.md)** | Контракты ProblemFrame/PolicySpec, selector AST, schedules, gate protocol (`GateRequest`/`GateDecision`/`GateEvent`) |
 | **[kernel/](policy-engine/src/polisyos/ir/kernel/README.md)** (13 файлов) | Фундаментальные реестры: mechanisms, slots, units, constraints, metrics, merge rules, trust, selector fields. Типы: `KernelModel`, `DecimalValue`, `MoneyValue`, `RateValue`. Запрет float через `reject_float()` |
 | **[world/](policy-engine/src/polisyos/ir/world/README.md)** (10 файлов) | Семантическая модель: Claim, WorldEvent (W3C PROV), ConflictSet, DocFragment, QualityReport, TrustAssessment. Deterministic content-addressed IDs (`<prefix>.sha256_<hex64>`) |
-| **linker/** (3 файла) | Валидация TrinityBundle vs kernel-реестров → `LinkedTrinityBundle` + `LinkReport` с типизированными `LinkIssueCode` |
-| **migrations/** (4 файла) | Миграция артефактов между версиями IR-схем. Канонический формат — Trinity `schema_version` семейства `1.x` |
-| **analytics/** | Контракты отчётов: `UncertaintyEnvelope`, `CausalEffectReport`, `HTEResult`, `DistributionalReport`, `BacktestReport`, `CalibrationConfig` + CAS I/O (`persist_*`/`load_*`) |
+| **[linker/](policy-engine/src/polisyos/ir/linker/README.md)** | Валидация TrinityBundle vs kernel-реестров → `LinkedTrinityBundle` + `LinkReport`. Покрытие: механизмы, параметры, slots, selectors, constraints, merge rules, schedule overlap |
+| **[analytics/](policy-engine/src/polisyos/ir/analytics/README.md)** | Контракты отчётов: `UncertaintyEnvelope`, `CausalEffectReport`, `HTEResult`, `DistributionalReport`, `BacktestReport`, `CalibrationConfig`, `NormApplicability`, `DataViewRequest` + CAS I/O (`persist_*`/`load_*`) |
+| **[artifacts/](policy-engine/src/polisyos/ir/artifacts/README.md)** | Унифицированный CAS I/O: `ArtifactID` (sha256:<64hex>), `ArtifactStore` protocol, `put_json_artifact`/`get_json_artifact` |
+| **[migrations/](policy-engine/src/polisyos/ir/migrations/README.md)** | Runtime миграции canonical payload. Текущая: `policy_ir 1.0→1.0` (identity). Cycle protection, major-version guard |
 | **registry_fragments.py** | Композиция `RegistryBundle` из фрагментов с политиками: `error_on_conflict` / `prefer_higher_priority` |
 
 ---
@@ -217,7 +241,7 @@ Scholar / Scientist / Lex
 
 > `src/polisyos/fabric/` · [README](policy-engine/src/polisyos/fabric/README.md) · Зависимости: ir, core, common
 
-Полный жизненный цикл данных: от внешних источников через ingestion и обработку до queryable World Model.
+Полный жизненный цикл данных: от внешних источников через ingestion и обработку до queryable World Model. Включает подсистемы retrieval (разрешение data needs по метрикам) и data plane (оркестрация режимов ingestion).
 
 ```
 External APIs / Documents
@@ -239,11 +263,13 @@ world_query / bridge API (type-safe SQL, column guards)
 
 | Подсистема | Назначение |
 |------------|-----------|
-| **[connectors/](policy-engine/src/polisyos/fabric/connectors/README.md)** | Protocol-based коннекторы (`SourceConnector`). CAS-кэш, resilience (circuit breaker, retry, rate limiter, fallback), federation (cross-source query), quality validation, DAG transform pipeline. Reference implementations: REST JSON, SDMX, CSV. Production: WorldBank, Eurostat, UKONS |
+| **[connectors/](policy-engine/src/polisyos/fabric/connectors/README.md)** | Protocol-based коннекторы (`SourceConnector`). CAS-кэш, resilience (circuit breaker, retry, rate limiter, fallback), federation (cross-source query), quality validation, DAG transform pipeline. 10 entry points: WorldBank, Eurostat, UKONS, SDMX, CKAN Catalog/Resource, Socrata, OpenDataSoft, SPARQL, REST JSON |
 | **[docs/](policy-engine/src/polisyos/fabric/docs/README.md)** | Pipeline обработки документов: `ingest → normalize → structure → chunk`. Поддержка `text/plain`, `text/html`; PDF backend опционален |
 | **[claims/](policy-engine/src/polisyos/fabric/claims/README.md)** | Extraction (pluggable backends) → Normalization → Conflict Detection → Resolution → Fact Log. Trust/quality scoring для claims и документов |
 | **[world/](policy-engine/src/polisyos/fabric/world/README.md)** | Store: emit/validate/persist фактов в CAS. Materialize: инкрементальная загрузка в DuckDB (13+ таблиц), проекции, optional Kuzu граф. Merge-стратегии: `ERROR_ON_CONFLICT`/`PREFER_NON_NULL_LAST_TX`/`LAST_TX`/`FIRST_TX` |
-| **[catalog/](policy-engine/src/polisyos/fabric/catalog/README.md)** | Metric-level контракты с hash-locked bindings, fuzzy/exact search, disambiguation, PII-классификация. Предотвращает hallucination метрик |
+| **[catalog/](policy-engine/src/polisyos/fabric/catalog/README.md)** | Metric-level контракты с hash-locked bindings, fuzzy/exact search, disambiguation, PII-классификация. Fast-lane resolver + source bindings для deterministic resolve |
+| **[data_plane/](policy-engine/src/polisyos/fabric/data_plane/README.md)** | Оркестрация режимов ingestion: `batch_incremental` (cursor-based), `record` (HTTP fixture capture), `replay` (детерминированное воспроизведение), `streaming_windowed`. CursorStore, watermark policies, regression comparison |
+| **[retrieval/](policy-engine/src/polisyos/fabric/retrieval/README.md)** | Гибридное разрешение data needs: FastLane (curated bindings) → ExploreLane fallback (live discovery) → preview gate → execution → promotion candidates. Используется control/NL flows |
 | **provenance/** | W3C PROV-O lineage: ProvenanceCoreGraph с BFS-поиском предков, экспорт в JSON-LD |
 | **pii/** | PII-сканирование (Presidio + regex fallback) для ingestion pipeline |
 
@@ -252,6 +278,17 @@ world_query / bridge API (type-safe SQL, column guards)
 - `run_connectors_ingestion(...)` — полный цикл: fetch → transform → cache → CAS → provenance → evidence
 - `execute_world_query(...)` / `query_world_table(...)` — типобезопасные SQL-запросы к materialized World Model
 - `fabric_get_data(...)` — синхронный мост (`_connector_bridge.py`) для верхних слоёв
+- `RetrievalService.resolve(...)` — разрешение metric-based data needs (FastLane → ExploreLane)
+- `run_orchestrated_ingestion(...)` — data plane: fetch + optional snapshot assembly
+
+#### Feature flags Fabric
+
+| Флаг | Назначение |
+|------|-----------|
+| `POLISYOS_RETRIEVAL_FASTLANE_ENABLED` | Deterministic resolve через source bindings |
+| `POLISYOS_RETRIEVAL_EXPLORE_ENABLED` | Live discovery для unresolved metrics |
+| `POLISYOS_RETRIEVAL_PROMOTION_ENABLED` | Queueing promotion candidates |
+| `POLISYOS_RETRIEVAL_PROMOTION_PERSIST` | Persist promoted bindings |
 
 ---
 
@@ -292,11 +329,11 @@ ir.trinity_bundle + registry_bundle
 
 | Подсистема | Назначение |
 |------------|-----------|
-| **[methods/](policy-engine/src/polisyos/foundry/methods/README.md)** | Декларативный фреймворк методов: protocol, registry, DAG-composition, JAX/NumPy/Solver backends. Каталог: каузальный inference (SCM, DiD, RDD, CATE, DML, Meta-Learners, PolicyTree, Structural Time Series), эконометрика (Panel FE/RE, IV, ARIMA/VAR), оптимизация (OR-Tools/PuLP). Golden-record regression testing |
+| **[methods/](policy-engine/src/polisyos/foundry/methods/README.md)** | Декларативный фреймворк методов: protocol, registry, DAG-composition, JAX/NumPy/Solver backends. Каталог (`methods/catalog/`): [causal/](policy-engine/src/polisyos/foundry/methods/catalog/causal/README.md) — SCM, DiD, RDD, CATE, DML, Meta-Learners, PolicyTree, Structural Time Series, DAGMA discovery, symbolic identification (y0/R), CI backend selection (auto\|numpy\|jax), full transport bridge; [econometrics/](policy-engine/src/polisyos/foundry/methods/catalog/econometrics/) — Panel FE/RE, IV, ARIMA/VAR; [optimization/](policy-engine/src/polisyos/foundry/methods/catalog/optimization/) — OR-Tools/PuLP. Legacy пути `methods/{causal,econometrics,optimization}` сохранены как facade. Регистрация через `_registry_boot.py`. Golden-record regression testing |
 | **[agent_sim/](policy-engine/src/polisyos/foundry/agent_sim/README.md)** | Гетерогенная агентная симуляция: RL (PPO/CMA-ES/VFI/MPC), actor-critic (Equinox), графовые механизмы (social influence, diffusion, lending), демография (рождение/смерть/миграция/наследство), temporal dynamics, distribution-aware rewards. `PureExecutor → DistributionAwareExecutor → GraphAwareExecutor → PopulationAwareExecutor` |
 | **[calibration/](policy-engine/src/polisyos/foundry/calibration/README.md)** | Градиентная калибровка на реальных данных: Adam/optax, bijector constraints, multi-target GradNorm, early stopping, Laplace-approximation uncertainty (Hessian) → `CalibrationReport` + `UncertaintyEnvelopes` |
 | **[plugins/](policy-engine/src/polisyos/foundry/plugins/README.md)** | Plugin-архитектура для доменных симуляций. `PolisySimulator` high-level API, composite multi-domain execution. Reference: EconomicsPlugin |
-| **uncertainty/** | Propagation неопределённости: Delta Method (Jacobian), Monte Carlo, Analytical. Автовыбор метода |
+| **[uncertainty/](policy-engine/src/polisyos/foundry/uncertainty/README.md)** | Propagation неопределённости: Delta Method (JAX Jacobian) → Monte Carlo fallback → агрегация. Auto-select: delta если differentiable, иначе MC sampling. Результат: `UncertaintyEnvelope` per metric |
 | **analysis/** | Distributional impact: Gini, Palma, quintile breakdowns, winners/losers |
 
 #### Fidelity Levels
@@ -316,11 +353,11 @@ ir.trinity_bundle + registry_bundle
 
 ---
 
-### Runtime — Runtime API и жизненный цикл
+### Runtime — HTTP API, Control Plane и жизненный цикл
 
-> `src/polisyos/runtime/` · [README](policy-engine/src/polisyos/runtime/README.md) · Зависимости: core, common
+> `src/polisyos/runtime/` · [README](policy-engine/src/polisyos/runtime/README.md) · [HTTP](policy-engine/src/polisyos/runtime/http/README.md) · [Services](policy-engine/src/polisyos/runtime/http/services/README.md) · Зависимости: core, common
 
-Runtime HTTP API v1 для read-only интроспекции прогонов и артефактов + replay-инфраструктура.
+Runtime HTTP API v1 для интроспекции прогонов и артефактов + полноценный Control Plane для запуска экспериментов, управления данными и Lex pipeline.
 
 #### Runtime HTTP API v1 (FastAPI)
 
@@ -328,18 +365,37 @@ Runtime HTTP API v1 для read-only интроспекции прогонов �
 HTTP request → app.py (FastAPI) → telemetry middleware → [security chain] → routes → services → CAS + runs dir
 ```
 
-| Группа | Endpoints |
-|--------|-----------|
-| **Health** | `GET /health`, `GET /ready`, `GET /api/v1/health` |
-| **Runs** | `GET /api/v1/runs`, `/runs/{id}`, `/runs/{id}/timeline`, `/runs/{id}/nodes`, `/runs/{id}/lineage` |
-| **Debug** | `GET /api/v1/debug/runs/{id}/nodes/{alias}`, `/debug/runs/{id}/governance`, `/debug/runs/{id}/errors` |
-| **Artifacts** | `GET /api/v1/artifacts/{id}`, `/artifacts/{id}/content`, `/artifacts/{id}/lineage`, `/artifacts/{id}/schema` |
+| Группа | Endpoints | Методы |
+|--------|-----------|--------|
+| **Health** | `/health`, `/ready`, `/api/v1/health` | GET |
+| **Runs** | `/api/v1/runs`, `/runs/{id}`, `/runs/{id}/timeline`, `/runs/{id}/nodes`, `/runs/{id}/lineage`, `/runs/{id}/agents`, `/runs/{id}/workflow` | GET |
+| **Debug** | `/api/v1/debug/runs/{id}/nodes/{alias}`, `/debug/runs/{id}/governance`, `/debug/runs/{id}/errors` | GET |
+| **Artifacts** | `/api/v1/artifacts/{id}`, `/artifacts/{id}/content`, `/artifacts/{id}/lineage`, `/artifacts/{id}/schema` | GET |
+| **Control — Runs** | `/api/v1/control/run/launch`, `/control/run/launch-nl` | POST |
+| **Control — Data** | `/api/v1/control/data/ingest`, `/data/resolve`, `/data/discover`, `/data/preview`, `/data/catalog/search`, `/data/index/stats`, `/data/promotion/candidates`, `/data/promotion/approve`, `/data/promotion/reject` | POST/GET |
+| **Control — Connectors** | `/api/v1/control/connectors`, `/connectors/profiles`, `/connectors/cache/status` | GET |
+| **Control — Lex** | `/api/v1/control/lex/trigger`, `/lex/status`, `/lex/stats`, `/lex/search` | POST/GET |
+| **Control — Models** | `/api/v1/control/models/profiles` | GET |
 
-Все endpoints — read-only (`GET`). OpenAPI-спецификация: `schemas/runtime_api_v1.openapi.json` (15 endpoints).
+OpenAPI-спецификация: `schemas/runtime_api_v1.openapi.json`.
+
+#### Services
+
+| Сервис | Назначение |
+|--------|-----------|
+| **run_index** | Кэшированный индекс прогонов из `core_runs_root` (TTL 2s) |
+| **timeline** | Парсинг `trace.jsonl` → упорядоченные события, статистика кэша |
+| **debug** | Node debug, governance debug, agent pipeline, workflow graph, redaction sensitive полей |
+| **lineage** | Dependency graph traversal через CAS |
+| **artifact_inspector** | Manifest/content/schema/lineage для CAS артефактов, preview limit 64KiB |
+| **control** | Оркестрация: запуск workflow/NL, ingestion, retrieval, connectors/profiles/cache, Lex batch trigger/status/stats/search |
+| **task_runner** | In-process `ThreadPoolExecutor` для background операций |
 
 #### Security chain (optional)
 
 При включении: JWT authentication → Cell router (tenant→cell routing) → OPA authorization (enforce / shadow mode) → per-route resource context + tenant checks.
+
+Redaction: `token`, `password`, `authorization` и другие sensitive поля автоматически маскируются в debug-ответах.
 
 #### Replay API
 
@@ -347,13 +403,24 @@ HTTP request → app.py (FastAPI) → telemetry middleware → [security chain] 
 - `completeness_check()` — классификация: `complete`/`recoverable`/`incomplete`
 - `verify_replay()` — режимы: `bit_exact` (artifact ID equality), `ci_bounded` (metric drift tolerance), `skip`
 
+#### Feature flags Runtime
+
+| Флаг | Назначение |
+|------|-----------|
+| `POLISYOS_LLM_MULTIMODEL_ENABLED` | Multi-model LLM profiles в NL launch |
+| `POLISYOS_REQUIRED_PREFLIGHT_ENABLED` | Обязательный preflight перед simulation |
+| `POLISYOS_AUTO_MATERIALIZATION_ENABLED` | Auto-materialize world после ingestion |
+| `POLISYOS_UNIFIED_DAG_ENABLED` | Unified DAG workflow |
+
 ---
 
-### Lex — юридический анализ
+### Lex — юридический анализ и нормативные знания
 
 > `src/polisyos/lex/` · [README](policy-engine/src/polisyos/lex/README.md) · Зависимости: fabric, ir, core, common
 
-Полный цикл работы с нормативными документами:
+Два контура работы с нормативными документами:
+
+**Контур 1 — Online compliance:**
 
 ```
 raw bytes → corpus.ingest → corpus.structure → corpus.versioning
@@ -368,14 +435,30 @@ raw bytes → corpus.ingest → corpus.structure → corpus.versioning
         old NormPack → mutator → diff → engine → NormImpactReport
 ```
 
+**Контур 2 — Offline knowledge graph (ЄДРНПА):**
+
+```
+XML corpus → batch pipeline (parse → structure → SPO extraction → graph → embed)
+                    │
+                    v
+         DuckDB (lex_knowledge_graph.duckdb) + HNSW/NPZ indices
+                    │
+                    v
+         LegalKnowledgeGraph (vector / text / hybrid search)
+```
+
+#### Подсистемы Lex
+
 | Подсистема | Назначение |
 |------------|-----------|
 | **[corpus/](policy-engine/src/polisyos/lex/corpus/README.md)** | Загрузка документов через `fabric.docs`, парсинг юридической структуры (UA/RU/EN юрисдикции: статьи → части → пункты → подпункты), `ProvisionIndex`, `VersionIndex`. Поддержка merge-политик обновления метаданных |
 | **[normpack/](policy-engine/src/polisyos/lex/normpack/README.md)** | Сборка NormPack: select sources → select provisions → extract claims → resolve conflicts → claims_to_norm_rules. Два пути: Provider (статический NormPack) или Pipeline (полная сборка). Pluggable providers через entry points `polisyos.norm_pack_providers` |
 | **[legal_evaluation/](policy-engine/src/polisyos/lex/legal_evaluation/README.md)** | Rule-by-rule проверка `PolicySpec + SimulationResult` против `NormPack`. Pluggable evaluator backends, unit conversion (`percent↔ratio`, `km↔m`), авто-генерация `ChangeProposal` (JSON Patch) для FAIL findings |
 | **[simulator/](policy-engine/src/polisyos/lex/simulator/README.md)** | What-if анализ: `NormPackMutator` (fluent API: add/remove/replace/modify norms), `diff_norm_packs()` (field-level deltas), `NormImpactAnalyzer` (governance passes на обоих пакетах → compliance deltas, affected KPIs) |
+| **[batch/](policy-engine/src/polisyos/lex/batch/README.md)** | Offline pipeline для построения legal knowledge graph из XML корпуса (ЄДРНПА). Стадии: `parse → structure → spo → graph → embed`. Sharding, resume, quality gates. OpenAI Batch API для embeddings |
+| **[knowledge/](policy-engine/src/polisyos/lex/knowledge/README.md)** | Read-only доступ к legal knowledge graph. `LegalKnowledgeStore` (DuckDB read_only + HNSW indices). `LegalKnowledgeGraph` — high-level API: vector/text/hybrid search по entities, facts, provisions. Graph traversal (`find_related_entities`) |
 
-Точки расширения: entry points `polisyos.norm_pack_providers`, `polisyos.lex_evaluators`.
+Точки расширения: entry points `polisyos.norm_pack_providers`, `polisyos.lex_evaluators`, `polisyos.lex_extractors`.
 
 ---
 
@@ -396,52 +479,213 @@ raw bytes → corpus.ingest → corpus.structure → corpus.versioning
 | 7 | **filtering** | Отсев docs ниже `min_doc_trust_tier`, claims по `claim_targets` и цитируемым выбранным docs |
 | 8 | **bundle** | Детерминированный `bundle_id` (SHA от intent + doc_version_ids + claim_ids + policy_ids), CAS persist, `KNOWLEDGE_BUNDLE_BUILD` world event |
 
+#### Подсистемы Scholar
+
+| Подсистема | Назначение |
+|------------|-----------|
+| **[discover/](policy-engine/src/polisyos/scholar/discover/README.md)** | Нормализация источников: canonical URL (lower-case scheme/host, sorted query), абсолютные пути для local files, hash-identity для bytes. Dedup по `source_identity_key`. HTTP fetch (urllib) и local file read с контролем лимитов |
+| **[orchestrator/](policy-engine/src/polisyos/scholar/orchestrator/README.md)** | `enrich_topic()` — полный pipeline: validation → discover → acquire → docs → claims → reconcile → filter → bundle/persist. `compute_bundle_id()` — deterministic ID. `persist_bundle_and_event()` → CAS + world event |
+
 #### Freshness подсистема
 
 - `FreshnessPolicy.check()` — `fresh`/`stale`/`expired` с cooldown и `needs_refresh`
-- Sidecar state (`freshness_state`) с file-lock для анти-штормовой защиты при конкурентном refresh
+- Sidecar state (`FreshnessStateStore`) с file-lock для анти-штормовой защиты при конкурентном refresh
 - Domain defaults: `fiscal`, `labor`, `health`, `infrastructure`, `education` + fallback
+
+---
+
+### Academic — академический knowledge graph
+
+> `src/polisyos/academic/` · [README](policy-engine/src/polisyos/academic/README.md) · Зависимости: batch_common, ir, core, common
+
+Офлайн-контур построения academic knowledge graph (AKG/SKG) на базе OpenAlex и read-only API для извлечения литературы, causal evidence и параметрических priors.
+
+**Контур 1 — Ingestion/pipeline:**
+
+```
+relevant_topics_*.csv
+  → openalex.topic_catalog + selector (diversity policy, impact/recency/method scoring)
+    → batch: topic_select → harvest → parse → article_extract|extract_llm → merge_dedup
+      → graph_load (DuckDB: ac_works, ac_parameter_estimates, ac_causal_claims, ac_skg_*)
+        → graph_index → embed (HNSW + NPZ) → qc → publish
+```
+
+**Контур 2 — Query/runtime:**
+
+```
+DuckDB + HNSW → ScholarKnowledgeGraph (hybrid text+vector search, priors, causal evidence)
+             → ParameterSelector (transportability-aware выбор параметров)
+             → VariableCanonizer (deterministic canonical namespace + cache)
+```
+
+#### Подсистемы Academic
+
+| Подсистема | Назначение |
+|------------|-----------|
+| **[batch/](policy-engine/src/polisyos/academic/batch/README.md)** | Стадийный pipeline: 11 стадий от topic selection до publish. Extraction modes: `deterministic` → `llm_enriched` → `article_extract` (приоритет при merge). LLM gate с budget control, audit и circuit breaker. OpenAI Batch API для embeddings |
+| **[knowledge/](policy-engine/src/polisyos/academic/knowledge/README.md)** | Read-only API: `ScholarKnowledgeGraph` (hybrid text+vector search), `SKGQuery` (edge priors, parameter candidates), `ParameterSelector` (transportability scoring через `ContextProfile`), `VariableCanonizer` (deterministic canonical namespace + cache в DuckDB). SKG versioning и retraction handling |
+| **[openalex/](policy-engine/src/polisyos/academic/openalex/README.md)** | Интеграция с OpenAlex API: topic catalog из CSV, async HTTP client с rate limiting и retry, selection algorithm с diversity policy (max 5 per journal, max 2 per first author), TIER1/TIER2 priority filter |
+| **trust.py** | Нормализация trust-score по дизайну исследования, цитируемости, свежести и sample size |
+
+#### Ключевые API Academic
+
+- `ScholarKnowledgeGraph.find_relevant_works(...)` — fusion text + vector search
+- `ScholarKnowledgeGraph.get_parameter_prior(variable, domain, country)` — trust-weighted mean/std
+- `ParameterSelector.select_for_context(...)` — transportability-aware выбор параметра
+- `SKGQuery.query_edge_priors(...)` / `query_parameters(...)` — SKG graph API
+
+#### DuckDB слой
+
+Runtime tables: `ac_works`, `ac_parameter_estimates`, `ac_causal_claims`, `ac_boundary_conditions`, `ac_topics`, `ac_topic_selections`, `ac_article_extractions`.
+SKG tables: `ac_skg_articles`, `ac_skg_variables`, `ac_skg_parameters`, `ac_skg_edges`, `ac_skg_versions`.
+
+CLI: `python -m polisyos.academic.batch.cli run --snapshot-root <path>`.
+
+---
+
+### Datasets — каталог статистических данных
+
+> `src/polisyos/datasets/` · [README](policy-engine/src/polisyos/datasets/README.md) · Зависимости: batch_common, fabric, ir, core, common
+
+Слой построения и чтения каталога статистических датасетов. Два контура:
+
+**Контур 1 — Batch:**
+
+```
+source_registry.yaml (waves A/B/C/D: SDMX, WorldBank, WVS, CKAN, UKONS, WHO, UNPD, ...)
+  → batch: harvest → normalize (DatasetRecord, DCAT-like) → merge_dedup
+    → graph_load (DuckDB: ds_datasets, ds_distributions)
+      → graph_index → core_sources_ingest (optional: registry/alignments/observations)
+        → embed (SentenceTransformer + HNSW) → qc → publish
+```
+
+**Контур 2 — Runtime:**
+
+```
+DuckDB + HNSW → DatasetCatalogGraph (hybrid vector+text search, metric/variable lookup)
+             → DatasetRegistry (transportability: P*(Z), proxy resolution, confidence composition)
+```
+
+#### Подсистемы Datasets
+
+| Подсистема | Назначение |
+|------------|-----------|
+| **[batch/](policy-engine/src/polisyos/datasets/batch/README.md)** | Staged pipeline: 9 стадий. Source registry с wave selection (A/B/C/D). `core_sources_ingest` опциональна (заполняет registry-таблицы для transportability). Resume и thermal pacing |
+| **[knowledge/](policy-engine/src/polisyos/datasets/knowledge/README.md)** | Read-only API: `DatasetCatalogGraph` (hybrid vector+text search, metric/variable lookup), `DatasetRegistry` (transportability: `compute_p_star_z`, proxy resolution, confidence composition). Fallback на text-only при отсутствии embeddings |
+
+#### Ключевые API Datasets
+
+- `DatasetCatalogGraph.search_datasets(query, ...)` — weighted merge vector + text
+- `DatasetCatalogGraph.find_by_polisyos_metric(...)` — deterministic resolve
+- `DatasetRegistry.find_datasets_for_variable(...)` — ранжирование по proxy/coverage/confidence
+- `DatasetRegistry.compute_p_star_z(...)` — point/empirical оценка с penalty breakdown
+- `proxy_resolver.resolve_proxy(...)` / `validate_proxy(...)` — proxy chain с 4-condition check
+
+#### Роль в системе
+
+- `fabric.retrieval` — каталог как дополнительный lane для `DataNeed` resolve
+- `scientist.agent` — tool для dataset discovery
+- `scientist.nodes.builtins.causal.resolve_transport` — `P*(Z)` и proxy fallback
+- `ir.analytics` — типы transportability и confidence-композиции
+
+CLI: `python -m polisyos.datasets.batch.cli run --snapshot-root <path>`.
 
 ---
 
 ### Scientist — AI-оркестрация
 
-> `src/polisyos/scientist/` · [README](policy-engine/src/polisyos/scientist/README.md) · Зависимости: ir, fabric, foundry, runtime, lex, core, common
+> `src/polisyos/scientist/` · [README](policy-engine/src/polisyos/scientist/README.md) · Зависимости: ir, fabric, foundry, runtime, lex, academic, datasets, core, common
 
 Оркестрационный «мозг» системы. Координирует полный цикл эксперимента через DAG workflow.
 
-#### Default Workflow DAG
+#### Default Workflow DAG (`scientist_default`)
 
 ```
 start (noop)
 ├─ build_data_snapshot
 │  └─ bind_foundry_inputs
 │     └─ run_data_plane_gate
+├─ build_execution_plan
+│  └─ build_method_catalog_snapshot
+│     └─ run_preflight
+│        └─ ready_to_run
 ├─ link_trinity
-│  └─ compile_foundry
-│     └─ run_simulation
-│        ├─ run_distributional_analysis
-│        └─ propagate_uncertainty
-│           └─ run_governance
-└─ run_causal_evaluation (depends on build_data_snapshot)
 
-build_decision_packet (depends on run_governance + run_causal_evaluation)
+compile_foundry (depends: link_trinity + run_data_plane_gate + ready_to_run)
+└─ resolve_parameters (depends: compile_foundry + bind_foundry_inputs + run_data_plane_gate)
+   └─ run_simulation
+      ├─ run_distributional_analysis
+      └─ propagate_uncertainty
+
+run_causal_evaluation (depends: build_data_snapshot)
+run_governance (depends: propagate_uncertainty + run_distributional_analysis + run_causal_evaluation)
+run_evaluator (depends: run_governance)
+build_decision_packet (depends: run_governance + run_causal_evaluation + run_evaluator)
 ```
 
-Точки входа: `polisyos.scientist.run_experiment(state)`, `polisyos.scientist.workflows.builder.run_default_workflow(...)`.
+#### Causal Full Workflow DAG (`scientist_causal_full`)
+
+Расширенный workflow для полного causal-контура. Требует явного вызова `run_causal_full_workflow(...)`.
+
+```
+start (noop)
+├─ build_data_snapshot
+│  └─ bind_foundry_inputs
+│     └─ run_data_plane_gate
+├─ build_literature_prior
+│  └─ reconcile_causal_graph
+├─ build_execution_plan
+│  └─ build_method_catalog_snapshot
+│     └─ run_preflight
+│        └─ ready_to_run
+├─ link_trinity
+
+compile_foundry (depends: link_trinity + run_data_plane_gate + ready_to_run)
+└─ resolve_parameters (depends: compile_foundry + bind_foundry_inputs
+                              + run_data_plane_gate + reconcile_causal_graph)
+   └─ run_simulation
+      ├─ run_distributional_analysis
+      └─ propagate_uncertainty
+
+run_causal_evaluation (depends: build_data_snapshot)
+└─ run_causal_queries
+   └─ run_causal_ensemble
+      └─ run_abm_consistency
+         └─ run_transportability (depends: run_abm_consistency + reconcile_causal_graph)
+
+run_governance (depends: propagate_uncertainty + run_distributional_analysis
+                       + run_causal_evaluation + run_causal_ensemble
+                       + run_abm_consistency + reconcile_causal_graph + run_transportability)
+run_evaluator (depends: run_governance)
+build_decision_packet (depends: run_governance + run_causal_evaluation + run_evaluator)
+```
+
+Ключевые отличия от `scientist_default`:
+- Добавлена causal-ветка: `build_literature_prior → reconcile_causal_graph`
+- Расширенная evaluation цепочка: `run_causal_queries → run_causal_ensemble → run_abm_consistency → run_transportability`
+- `resolve_parameters` дополнительно зависит от `reconcile_causal_graph`
+- `run_governance` собирает результаты из всех causal-нод
+
+Точки входа: `polisyos.scientist.run_experiment(state)`, `polisyos.scientist.workflows.builder.run_default_workflow(...)`, `polisyos.scientist.workflows.builder.run_causal_full_workflow(...)`.
 
 #### Крупные подсистемы Scientist
 
 | Подсистема | Назначение |
 |------------|-----------|
 | **[engine/](policy-engine/src/polisyos/scientist/engine/README.md)** | DAG executor: `WorkflowSpec` validation, topological execution, strict `ExperimentState` (`extra="forbid"`), idempotency cache (по `run_id + node_id + state_reads + bind params`), checkpoint/resume, run lock |
+| **[workflows/](policy-engine/src/polisyos/scientist/workflows/README.md)** | Сборка и выполнение workflow: `default_workflow_spec()`, `build_execution_context()`, builtin + plugin node registry, `run_default_workflow()`. Engines: `WorkflowExecutor` (primary), `SimpleLoopEngine` (dev/search), `LangGraph` adapter (legacy) |
 | **[agent/](policy-engine/src/polisyos/scientist/agent/README.md)** | Иерархия AI-агентов: PI → Drafter → Formalizer → Critic. Multi-pass drafter mode. Self-healing: `FailureCard` → `ReflexionOrchestrator`. RAG, knowledge base, norm loader, feasibility probes, code verifier. **Опциональный контур** — default workflow не запускает автоматически |
+| **[llm/](policy-engine/src/polisyos/scientist/llm/README.md)** | Gateway-first LLM layer: `GatewayLLMClient` (OpenAI-compatible), `TracedLLMClient` bridge, `ModelProfileRegistry` с builtin profiles (OpenAI/Anthropic/Gemini/Groq/Gonka). Конфиг через `POLISYOS_LLM_GATEWAY_*` env vars |
 | **[governance/](policy-engine/src/polisyos/scientist/governance/README.md)** | `ValidationPipeline` с ordered passes + short-circuit по blocker. Passes: Budget, Schema, Privacy, PII, QualityGate, Confidence, Equity, Safety, Legal. Профили: fast/mvp/strict. Human gate через `HumanGateProtocol` (typed `GateRequest`/`GateDecision` в CAS) |
 | **[kernel/](policy-engine/src/polisyos/scientist/kernel/README.md)** | Phase FSM: INTAKE → FRAME → PREFLIGHT_GOV → PLAN → EXECUTE → POSTFLIGHT_GOV → DECIDE → PUBLISH → ARCHIVE (+ SEARCH/REFLEXION). 4 типа бюджетов: Compute, Evidence, Legitimacy, Complexity |
-| **[nodes/](policy-engine/src/polisyos/scientist/nodes/README.md)** | Built-in workflow nodes: data (BuildDataSnapshot, BindFoundryInputs, EnrichKnowledge), compile (LinkTrinity, CompileFoundry), simulate (RunSimulation, RunDistributionalAnalysis, RunCausalEvaluation, PropagateUncertainty), governance (DataPlaneGate, LegalCheck, RunGovernance), decide (BuildDecisionPacket) |
+| **[nodes/](policy-engine/src/polisyos/scientist/nodes/README.md)** | Built-in workflow nodes по категориям: data (BuildDataSnapshot, BindFoundryInputs, EnrichKnowledge), compile (LinkTrinity, CompileFoundry), simulate (RunSimulation, RunDistributionalAnalysis, RunCausalEvaluation, PropagateUncertainty), governance (DataPlaneGate, RunPreflight, LegalCheck, RunGovernance), decide (BuildDecisionPacket), planning (BuildExecutionPlan, BuildMethodCatalogSnapshot, ReadyToRun) |
 | **[search/](policy-engine/src/polisyos/scientist/search/README.md)** | `SearchController` с cheap/expensive two-stage evaluation. Strategies: Random, Grid, adapter, optional Bayesian (botorch/gpytorch), Multi-Objective, Multi-Fidelity. Stopping: MaxIterations, MaxWallTime, ImprovementPlateau, TargetAchieved. Adversarial stress-test. **Опциональный контур** |
 | **[doe/](policy-engine/src/polisyos/scientist/doe/README.md)** | Design of Experiments: ScenarioSweep, AblationPlan, SensitivityPlan (SALib: MORRIS/SOBOL/FAST), AdversarialPlan. Stress-test reports |
 | **[backtesting/](policy-engine/src/polisyos/scientist/backtesting/README.md)** | Историческая валидация: OutcomeMasker, PredictionEvaluator (RMSE/MAE/MAPE/Coverage), TrustScorer (coverage/mape/bias → grade A-F). CLI: `polisyos scientist backtest` |
+| **[adapters/](policy-engine/src/polisyos/scientist/adapters/README.md)** | Порты интеграции: `DefaultFoundryPort` (compile/execute + optional TEE gate + SBOM derived artifacts), `DefaultFabricPort` (DataViewRequest → DataSnapshot, tabular payload, quality report). Workflow автоматически подключает адаптеры |
+| **[compute/](policy-engine/src/polisyos/scientist/compute/README.md)** | Execution jobs: `JobSpec`/`JobKey`/`JobResult`, `run_job()` с двумя backend-ами: `LocalBackend` (legacy program graph) и `MethodBackend` (Foundry method dispatcher). Используется causal-нодами |
+| **[orchestrator/](policy-engine/src/polisyos/scientist/orchestrator/README.md)** | Presentation layer: `DecisionCard.from_packet()` — краткая управленческая карточка. Verdict/confidence агрегация, issues summary, markdown-рендер. Не участвует в обязательном DAG |
+| **[search/strategies/](policy-engine/src/polisyos/scientist/search/strategies/README.md)** | Выделенная поддиректория стратегий: Random, Grid, Bayesian (botorch/gpytorch), Multi-Objective, Multi-Fidelity. `StrategyAdapter`, resource arbiter, objective bridge |
 
 #### Воспроизводимость
 
@@ -461,13 +705,30 @@ build_decision_packet (depends on run_governance + run_causal_evaluation)
 
 ---
 
+### Batch Common — общая batch-инфраструктура
+
+> `src/polisyos/batch_common/` · Зависимости: common
+
+Общий инфраструктурный слой для offline batch-пайплайнов (`academic.batch` и `datasets.batch`). Не содержит доменной логики.
+
+| Модуль | Назначение |
+|--------|-----------|
+| **paths.py** | Snapshot filesystem layout: `<root>/<domain>/<stage>/` conventions |
+| **manifest.py** | Stage manifests: SHA256-based checksums, stage metadata, resume support |
+| **hashing.py** | Stable content hashing для deterministic dedup и cache keys |
+| **thermal.py** | Thermal pacing: rate control для batch stages (API rate limits, CPU throttling) |
+| **qc.py** | QC helpers: row counts, nullability checks, dedup stats, completeness gates |
+| **phase0_quality_validation.py** | Phase-0 quality gate: cross-stage consistency, extraction quality, coverage reports |
+
+---
+
 ### Packs — компонентные пакеты
 
 > `src/polisyos/packs/` · [README](policy-engine/src/polisyos/packs/README.md)
 
 Встроенные доменные пакеты — reference implementation для быстрого старта.
 
-**roads/** — полнофункциональный пакет (6 компонентов):
+**[roads/](policy-engine/src/polisyos/packs/roads/README.md)** — полнофункциональный пакет (6 компонентов):
 
 | Компонент | Тип | Назначение |
 |-----------|-----|-----------|
@@ -478,7 +739,7 @@ build_decision_packet (depends on run_governance + run_causal_evaluation)
 | `lex.norm_extractor.regex_v1@1.0.0` | LEX_EXTRACTOR | Legacy regex-экстрактор |
 | `roads.normpack.static_provider@1.0.0` | NORM_PACK_PROVIDER | Статический NormPack для UA |
 
-**econ/** — минималистичный demo-пакет для тестирования conflict resolution.
+**[econ/](policy-engine/src/polisyos/packs/econ/README.md)** — минималистичный demo-пакет. 1 компонент (`econ.ir.registry_fragment@1.0.0`) с приоритетом 90, намеренно конфликтует с `roads.kmh` для тестирования conflict resolution.
 
 Discovery через Entry Points (production) или dev scan (`__polisyos_components__`).
 
@@ -506,9 +767,17 @@ Discovery через Entry Points (production) или dev scan (`__polisyos_comp
 ### Component Model
 
 - **ComponentId:** `namespace.name@semver` — стандартный формат для всех расширений
-- **Discovery:** автоматическое обнаружение через Python entry points (8 групп: `polisyos.scholar_extractors`, `polisyos.lex_evaluators`, `polisyos.norm_pack_providers` и др.)
-- **Registry:** thread-safe с conflict resolution policies
+- **Discovery:** автоматическое обнаружение через Python entry points (8 групп: `polisyos.fabric_connectors`, `polisyos.ir_fragments`, `polisyos.foundry_methods`, `polisyos.scholar_extractors`, `polisyos.lex_extractors`, `polisyos.lex_evaluators`, `polisyos.norm_pack_providers`, `polisyos.scientist_nodes`)
+- **Registry:** thread-safe с conflict resolution policies (`error_on_conflict`/`prefer_higher_priority`)
 - **Compliance:** валидация метаданных и ABI-совместимости
+
+### LLM Integration
+
+- **Gateway-first:** OpenAI-compatible gateway client (`POLISYOS_LLM_GATEWAY_BASE_URL`)
+- **Traced:** все вызовы обёрнуты в `TracedLLMClient` (OTel spans, token usage, cost tracking)
+- **Model profiles:** registry builtin profiles (OpenAI GPT-4o/GPT-4-turbo, Anthropic Claude, Gemini, Groq, Gonka)
+- **Cost estimation:** fallback pricing для budget-aware governance
+- **NL mode:** MockPIAgent/MockDrafterAgent при `llm_model=None` (для dev/test)
 
 ---
 
@@ -537,9 +806,25 @@ ID = SHA256(содержимое). Неизменяемость, дедупли�
 
 Append-only Fact Log → инкрементальная материализация в DuckDB (13+ реляционных таблиц: `world_facts`, `world_nodes`, `world_edges`, `claims`, `doc_sources`, `conflict_sets`, `trust_assessments` и др.) → optional Kuzu граф. Типобезопасный query API с column guards/masking.
 
+### Legal Knowledge Graph
+
+Offline pipeline (ЄДРНПА XML → parse → structure → SPO extraction → DuckDB graph) → HNSW vector indices → hybrid search (vector + text score fusion). Read-only `LegalKnowledgeGraph` API с поддержкой entity/fact/provision search и graph traversal.
+
+### Scholar Knowledge Graph (SKG)
+
+Offline pipeline (OpenAlex → topic selection → harvest → parse → extraction → DuckDB SKG) → HNSW vector indices → hybrid search (vector + text score fusion). Read-only `ScholarKnowledgeGraph` API: literature search, parameter priors (trust-weighted mean/std), causal evidence. Transportability-aware `ParameterSelector` для выбора параметров под target context через `ContextProfile`.
+
+### Dataset Catalog
+
+Offline pipeline (statistical sources → normalize → DuckDB catalog) → HNSW vector indices → hybrid search. `DatasetCatalogGraph` для discovery датасетов по метрикам и переменным. `DatasetRegistry` для transportability: `P*(Z)` estimation (point/empirical), proxy resolution с 4-condition validation, confidence composition.
+
 ### Evidence / Provenance / Trust / Quality
 
 Каждый data product несёт EvidenceBundle с provenance графом, quality indicators (missingness, staleness, coverage) и uncertainty bounds. Governance gates блокируют некачественные данные.
+
+### Data Retrieval
+
+Двухуровневое разрешение data needs: FastLane (deterministic resolve через curated source bindings) → ExploreLane fallback (live discovery по коннекторам) → preview gate (quality check) → execution → promotion candidates для обогащения bindings.
 
 ---
 
@@ -567,7 +852,7 @@ Append-only Fact Log → инкрементальная материализац
 | **Equinox** | OOP-обёртка для JAX-модулей (Module, eqx.tree_at) |
 | **Jaxtyping / Chex** | Статическая проверка размерностей, frozen dataclasses |
 | **Pydantic v2** | Валидация моделей (`frozen=True`, `extra="forbid"`) |
-| **DuckDB** | Аналитические SQL-запросы, columnar storage, World Model |
+| **DuckDB** | Аналитические SQL-запросы, columnar storage, World Model, Legal Knowledge Graph |
 | **Kùzu** (optional) | Графовые Cypher-запросы, entity-event network |
 
 ### ML & Optimization
@@ -577,6 +862,7 @@ Append-only Fact Log → инкрементальная материализац
 | **Optax** | Оптимизаторы (Adam, SGD) для калибровки и RL |
 | **Diffrax** | ODE-интеграция для динамических систем |
 | **LangGraph / LangChain** | Оркестрация AI-агентов |
+| **OpenAI API** | LLM gateway (SPO extraction, embeddings, NL pipeline) |
 | **econml** (optional) | Каузальный inference (CATE, DML, meta-learners) |
 | **statsmodels / linearmodels** (optional) | Эконометрика (panel, IV, time series) |
 | **SALib** (optional) | Sensitivity analysis (MORRIS, SOBOL, FAST) |
@@ -589,6 +875,8 @@ Append-only Fact Log → инкрементальная материализац
 | **PyArrow / Parquet** | Fact Log сегменты, ETL staging |
 | **pandas** | DataFrame операции, quality computation |
 | **aiohttp** | Async HTTP для коннекторов |
+| **hnswlib** | Approximate nearest neighbor search для Legal/Scholar Knowledge Graph и Dataset Catalog |
+| **SentenceTransformers** (optional) | Dense vector embeddings для academic и dataset каталогов |
 
 ### Observability & Security
 
@@ -598,9 +886,22 @@ Append-only Fact Log → инкрементальная материализац
 | **Prometheus** | Метрики и алертинг (27 alerts, 15 recording rules) |
 | **Grafana** | 6 дашбордов (Executive, Scientist, Foundry HPC, SLO, Security, Knowledge Freshness) |
 | **Loguru** | Структурированное логирование |
-| **FastAPI / Uvicorn** (optional) | Runtime HTTP API v1 |
+| **FastAPI / Uvicorn** (optional) | Runtime HTTP API v1 + Control Plane |
 | **OPA (Rego)** | 7 policy-модулей авторизации |
 | **Cryptography** | Ed25519 подписи, HMAC delegation tokens |
+
+### Frontend
+
+| Технология | Назначение |
+|------------|-----------|
+| **React 18** | UI framework для runtime-dashboard |
+| **TypeScript** | Типизация frontend |
+| **Vite** | Build tool и dev server |
+| **TailwindCSS** | Utility-first CSS |
+| **React Query** | Server state management, cache/invalidation |
+| **openapi-fetch** | Typed HTTP client из OpenAPI spec |
+| **Zod** | Runtime validation ответов API |
+| **openapi-typescript** | Генерация TypeScript типов из OpenAPI |
 
 ### Optional Dependency Groups
 
@@ -608,10 +909,20 @@ Append-only Fact Log → инкрементальная материализац
 kuzu          — графовые запросы (Kuzu)
 analytics     — scipy, statsmodels, linearmodels
 sensitivity   — SALib
-causal        — dowhy, econml
-solvers       — ortools, pulp
+causal             — dowhy, econml
+causal-discovery   — tigramite, causal-learn
+causal-discovery-scale — dagma (DAG learning через differentiable acyclic constraints)
+causal-symbolic    — y0 (symbolic identification, do-calculus)
+solvers            — ortools, pulp
 multi-tenant  — psycopg, asyncpg, fastapi, uvicorn, httpx, PyJWT
 methods-full  — analytics + causal + solvers
+security      — httpx, boto3, sigstore, presidio, spacy
+rag           — faiss-cpu
+rag-local          — sentence-transformers, onnxruntime
+academic-skg       — PyPDF (PDF parsing для academic pipeline)
+sandbox            — RestrictedPython
+search_bo     — torch, gpytorch, botorch (Bayesian optimization)
+search_mo     — torch, gpytorch, botorch (Multi-objective search)
 ```
 
 ---
@@ -638,6 +949,8 @@ OPA policies (7 модулей): tenant boundary, RBAC + MFA, data classificatio
 
 Kubernetes baseline: Helm charts (`polisyos-cell`, `spire`, `keycloak`), deny-by-default NetworkPolicy, Linkerd mTLS, confidential compute node pool (Kata/SEV-SNP).
 
+SQL миграции: `tenant_id` columns → backfill → RLS enable → least-privilege `polisyos_app` role.
+
 Ключевые env-переключатели: `POLISYOS_MULTI_TENANT_ENABLED`, `POLISYOS_AUTHZ_MODE` (off/shadow/enforce), `POLISYOS_TEE_ENABLED`, `POLISYOS_SBOM_ENABLED`.
 
 ---
@@ -663,18 +976,24 @@ uv run pytest -m "not integration"
 cd ops && docker compose -f docker-compose.observability.yml up -d
 # Prometheus: http://localhost:9090  |  Grafana: http://localhost:3000 (admin/admin)
 
-# Runtime API v1
+# Runtime API v1 + Control Plane
 PYTHONPATH=src uv run --extra multi-tenant --extra test python -c "
 from polisyos.runtime.http.app import create_runtime_api_app
 import uvicorn
 uvicorn.run(create_runtime_api_app(), host='127.0.0.1', port=8000)
 "
 
-# Reference UI
+# Runtime Dashboard (React)
+cd frontend/runtime-dashboard
+npm install
+npm run generate:api   # генерация типов из OpenAPI
+npm run dev            # http://127.0.0.1:5173
+
+# Reference UI (static)
 cd frontend/runtime-reference-shell && python -m http.server 4173
 # http://127.0.0.1:4173
 
-# Dashboard
+# Dashboard (Streamlit)
 uv run streamlit run dashboard.py
 ```
 
@@ -684,7 +1003,7 @@ macOS: импортировать `jax_bootstrap.py` **перед** `import jax`
 
 ## Тестирование
 
-> [README](policy-engine/tests/README.md) · 270 тестовых файлов · 9 conftest.py
+> [README](policy-engine/tests/README.md)
 
 Организованы по архитектурным слоям:
 
@@ -692,13 +1011,16 @@ macOS: импортировать `jax_bootstrap.py` **перед** `import jax`
 |------------|:-----------:|--------------|
 | [tests/](policy-engine/tests/README.md) (корень) | 6 | Архитектурные гейты, фасады API, component/packs discovery |
 | [tests/contract/](policy-engine/tests/contract/README.md) | 18 | Trinity/IR контракты, ABI diff, миграции, SLO, gate models |
-| tests/core/ | 51 | CAS, signing, canonical JSON, observability, security, components |
+| [tests/core/](policy-engine/tests/core/README.md) | 52 | CAS, signing, canonical JSON, observability, security, components, registry, LLM, contracts |
+| [tests/ir/](policy-engine/tests/ir/README.md) | 10 | Loaders, trinity, registry fragments, uncertainty, hte/backtest, architectural invariant (`ir → core` ban) |
 | [tests/fabric/](policy-engine/tests/fabric/README.md) | 46 | Connectors, catalog, provenance, trust, world/materialization, claims/scholar |
 | [tests/foundry/](policy-engine/tests/foundry/README.md) | 65 | Methods framework, calibration, agent simulation, determinism/numerics |
 | [tests/scientist/](policy-engine/tests/scientist/README.md) | 58 | Engine/workflow, governance passes, search/DOE, decision artifacts |
-| tests/runtime/ | 10 | Runtime HTTP API, replay, timeline/debug/artifact inspection, tenant isolation |
-| tests/ir/ | 10 | Loaders, registry fragments, uncertainty, portfolio/query contracts |
-| tests/lex/ | 3 | Simulator: norm diff, mutator, engine |
+| [tests/runtime/](policy-engine/tests/runtime/README.md) | 15 | Runtime HTTP API, replay, timeline/debug/artifact inspection, control plane, tenant isolation, OpenAPI hardening |
+| [tests/lex/](policy-engine/tests/lex/README.md) | 9 | Batch pipeline (structurers, SPO normalization, quality, sharding), simulator (diff, mutator, impact) |
+| tests/academic/ | 22 | Batch pipeline (parser, graph builder, topic catalog/selector, trust, extractors, QC, SKG), knowledge (SKGQuery, ParameterSelector) |
+| tests/datasets/ | 12 | Batch pipeline (normalizer, dedup, graph builder, source registry, core_sources_ingest, QC), knowledge (store, registry, proxy resolver, variable alignment) |
+| tests/common/ | 1 | Быстрая JSON-сериализация |
 | [tests/integration/](policy-engine/tests/integration/README.md) | 1 | Human-gate audit cycle (cross-layer) |
 | tests/performance/ | 1 | Observability overhead SLA |
 
@@ -711,10 +1033,13 @@ uv run pytest -m "not integration"
 
 # По слоям
 uv run pytest tests/contract -q
+uv run pytest tests/core -q
+uv run pytest tests/ir -q
 uv run pytest tests/fabric -q
 uv run pytest tests/foundry -q
 uv run pytest tests/scientist -q
 uv run pytest tests/runtime -q
+uv run pytest tests/lex -q
 
 # Integration
 POLISYOS_RUN_INTEGRATION=1 uv run pytest tests/scientist/integration -q
@@ -731,39 +1056,49 @@ uv run pytest tests/performance/test_overhead.py -q
 
 ### Архитектурные гейты (CI/pre-commit)
 
-| Инструмент | Назначение |
-|-----------|-----------|
-| `tools/lint/lint_imports.py` | Import gate: Law A (однонаправленные зависимости), циклы |
-| `tools/lint/lint_foundry.py` | Law B (Foundry без I/O) |
-| `tools/lint/lint_connectors.py` | Изоляция connectors от scientist/foundry |
-| `tools/lint/lint_connector_hardening.py` | P7 hardening для production connectors |
-| `tools/lint/check_scholar_imports.py` | Запрет `scholar → fabric.io.db` |
-| `tools/diagnostics/check_state_reads.py` | AST-проверка `state_reads` у scientist nodes |
-| `tools/diagnostics/check_scientist_node_version_bump.py` | SemVer bump для измененных nodes |
+| Инструмент | Назначение | Документация |
+|-----------|-----------|--------------|
+| `tools/lint/lint_imports.py` | Import gate: Law A (однонаправленные зависимости), циклы | [README](policy-engine/tools/lint/README.md) |
+| `tools/lint/lint_foundry.py` | Law B (Foundry без I/O) | [README](policy-engine/tools/lint/README.md) |
+| `tools/lint/lint_connectors.py` | Изоляция connectors от scientist/foundry | [README](policy-engine/tools/lint/README.md) |
+| `tools/lint/lint_connector_hardening.py` | P7 hardening для production connectors | [README](policy-engine/tools/lint/README.md) |
+| `tools/lint/check_scholar_imports.py` | Запрет `scholar → fabric.io.db` | [README](policy-engine/tools/lint/README.md) |
+| `tools/diagnostics/check_state_reads.py` | AST-проверка `state_reads` у scientist nodes | [README](policy-engine/tools/diagnostics/README.md) |
+| `tools/diagnostics/check_scientist_node_version_bump.py` | SemVer bump для измененных nodes | [README](policy-engine/tools/diagnostics/README.md) |
+| `tools/lint/collect_arch_metrics.py` | Freeze-артефакты (summary.json, import_gate.txt, ruff_stats.txt) | [README](policy-engine/tools/lint/README.md) |
+| `tools/lint/compare_baseline.py` | Baseline comparison, exception policy, deep-import drift | [README](policy-engine/tools/lint/README.md) |
 
 ### ABI и контракты
 
-| Инструмент | Назначение |
-|-----------|-----------|
-| `tools/diagnostics/gen_schema.py` | Генерация/проверка JSON Schema из IR-моделей (34 ABI models) |
-| `tools/diagnostics/abi_diff.py` | Семантический diff baseline/current (13 типов изменений), PASS/WARN/FAIL |
-| `tools/connectors/check_contracts.py` | Валидация connector contracts snapshot |
+| Инструмент | Назначение | Документация |
+|-----------|-----------|--------------|
+| `tools/diagnostics/gen_schema.py` | Генерация/проверка JSON Schema из IR-моделей (50 ABI models: IR=48, Fabric=2) | [README](policy-engine/tools/diagnostics/README.md) |
+| `tools/diagnostics/abi_diff.py` | Семантический diff baseline/current (13 типов изменений), PASS/WARN/FAIL | [README](policy-engine/tools/diagnostics/README.md) |
+| `tools/connectors/check_contracts.py` | Валидация connector contracts snapshot (3 contracts) | [README](policy-engine/tools/connectors/README.md) |
 
 ### Runtime и OpenAPI
 
-| Инструмент | Назначение |
-|-----------|-----------|
-| `tools/runtime/export_runtime_openapi.py` | Экспорт OpenAPI Runtime API v1 |
-| `tools/runtime/generate_runtime_client.py` | Генерация TypeScript/JS клиента из OpenAPI |
-| `tools/connectors/scaffold.py` | Scaffold нового коннектора (REST/CSV/SQL/SDMX) |
+| Инструмент | Назначение | Документация |
+|-----------|-----------|--------------|
+| `tools/runtime/export_runtime_openapi.py` | Экспорт OpenAPI Runtime API v1 | [README](policy-engine/tools/runtime/README.md) |
+| `tools/runtime/generate_runtime_client.py` | Генерация TypeScript/JS клиента из OpenAPI | [README](policy-engine/tools/runtime/README.md) |
+| `tools/runtime/check_runtime_api_contract.py` | Проверка OpenAPI и client drift | [README](policy-engine/tools/runtime/README.md) |
+| `tools/connectors/scaffold.py` | Scaffold нового коннектора (REST/CSV/SQL/SDMX) | [README](policy-engine/tools/connectors/README.md) |
 
 ### Демо и бенчмарки
 
-| Инструмент | Назначение |
-|-----------|-----------|
-| `tools/demos/run_laffer_demo.py` | JAX/Optax demo кривой Лаффера |
-| `tools/demos/run_mechanism_design.py` | E2E differentiable mechanism design (IR → compile → execute → grad) |
-| `tools/benchmarks/bench_simulation.py` | JAX benchmark simulation loop |
+| Инструмент | Назначение | Документация |
+|-----------|-----------|--------------|
+| `tools/demos/run_laffer_demo.py` | JAX/Optax demo кривой Лаффера | [README](policy-engine/tools/demos/README.md) |
+| `tools/demos/run_mechanism_design.py` | E2E differentiable mechanism design (IR → compile → execute → grad) | [README](policy-engine/tools/demos/README.md) |
+| `tools/benchmarks/bench_simulation.py` | JAX benchmark simulation loop | [README](policy-engine/tools/benchmarks/README.md) |
+
+### Миграции
+
+| Инструмент | Назначение | Документация |
+|-----------|-----------|--------------|
+| `tools/migrations/migrate_duckdb_to_pg.py` | DuckDB → PostgreSQL для tenant-scoped таблиц | [README](policy-engine/tools/migrations/README.md) |
+| `tools/migrations/migrate.py` | Миграция `policy_ir`/`dataset_manifest` между версиями | [README](policy-engine/tools/migrations/README.md) |
 
 ### Минимальный gate перед PR
 
@@ -776,6 +1111,7 @@ PYTHONPATH=src:. uv run python tools/diagnostics/check_scientist_node_version_bu
 PYTHONPATH=src:. uv run python tools/lint/check_scholar_imports.py
 PYTHONPATH=src:. uv run python tools/connectors/check_contracts.py --check
 PYTHONPATH=src:. uv run python tools/diagnostics/gen_schema.py --check
+PYTHONPATH=src:. uv run python tools/runtime/check_runtime_api_contract.py
 ```
 
 ---
@@ -786,14 +1122,20 @@ PYTHONPATH=src:. uv run python tools/diagnostics/gen_schema.py --check
 
 ### Инфраструктура
 
-| Модуль | Назначение |
-|--------|-----------|
-| **[Prometheus](policy-engine/ops/prometheus/README.md)** | 2 scrape jobs, 27 alerts (operational + SLO + audit chain), 15 recording rules |
-| **[Grafana](policy-engine/ops/grafana/README.md)** | 6 дашбордов: Executive KPI, Scientist Agents, Foundry HPC, SLO Overview, Security Phase4, Knowledge Freshness |
-| **[OPA](policy-engine/ops/opa/README.md)** | 7 Rego policy-модулей + 7 unit-тестов. Runtime path: `polisyos/authz/decision` |
-| **Helm** | `polisyos-cell` (namespace isolation, NetworkPolicy, RBAC, Linkerd), `spire` (PSAT attestation), `keycloak` (OIDC/FIDO2) |
-| **Terraform** | AKS node pool для confidential compute (`KataCcIsolation`, `sev-snp`) |
-| **Migrations** | SQL-миграции для PostgreSQL RLS: `tenant_id` → backfill → RLS policies → least-privilege role |
+| Модуль | Назначение | Документация |
+|--------|-----------|--------------|
+| **[Prometheus](policy-engine/ops/prometheus/README.md)** | 2 scrape jobs, 27 alerts (operational + SLO + audit chain), 15 recording rules | [README](policy-engine/ops/prometheus/README.md) |
+| **[Grafana](policy-engine/ops/grafana/README.md)** | 6 дашбордов: Executive KPI, Scientist Agents, Foundry HPC, SLO Overview, Security Phase4, Knowledge Freshness | [README](policy-engine/ops/grafana/README.md) |
+| **[OPA](policy-engine/ops/opa/README.md)** | 7 Rego policy-модулей + 7 unit-тестов. Runtime path: `polisyos/authz/decision` | [README](policy-engine/ops/opa/README.md) |
+| **[Helm](policy-engine/ops/helm/README.md)** | `polisyos-cell` (namespace isolation, NetworkPolicy, RBAC, Linkerd), `spire` (PSAT attestation), `keycloak` (OIDC/FIDO2) | [README](policy-engine/ops/helm/README.md) |
+| **[Terraform](policy-engine/ops/terraform/README.md)** | AKS node pool для confidential compute (`KataCcIsolation`, `sev-snp`, Standard_DC16as_v5) | [README](policy-engine/ops/terraform/README.md) |
+| **[Migrations](policy-engine/ops/migrations/README.md)** | SQL-миграции для PostgreSQL RLS: `tenant_id` → backfill → RLS policies → least-privilege `polisyos_app` role | [README](policy-engine/ops/migrations/README.md) |
+
+### Рекомендуемый порядок развёртывания
+
+```
+spire → Linkerd → keycloak → polisyos-cell
+```
 
 ### Локальный запуск
 
@@ -810,25 +1152,50 @@ docker compose -f docker-compose.observability.yml up -d
 
 > [frontend/README.md](policy-engine/frontend/README.md)
 
-API-first интерфейсы для Runtime API v1:
+API-first интерфейсы для Runtime API v1 + Control Plane:
 
-| Директория | Назначение |
-|-----------|-----------|
-| **[runtime-api-client/](policy-engine/frontend/runtime-api-client/README.md)** | Typed TypeScript клиент (`.ts`) + ESM runtime клиент (`.js`), автогенерируются из OpenAPI. Покрытие: Health, Runs, Debug, Artifacts |
-| **[runtime-reference-shell/](policy-engine/frontend/runtime-reference-shell/README.md)** | Статический reference UI (`index.html` + `app.js` + `styles.css`), без build toolchain. Run List → Timeline → Node Debug → Artifact Inspector |
+| Директория | Назначение | Документация |
+|-----------|-----------|--------------|
+| **[runtime-dashboard/](policy-engine/frontend/runtime-dashboard/README.md)** | React 18 + TypeScript + Vite + TailwindCSS. Полнофункциональное SPA для observability и control-plane | [README](policy-engine/frontend/runtime-dashboard/README.md), [src/](policy-engine/frontend/runtime-dashboard/src/README.md) |
+| **[runtime-api-client/](policy-engine/frontend/runtime-api-client/README.md)** | Typed TypeScript клиент (`.ts`) + ESM runtime клиент (`.js`), автогенерируются из OpenAPI | [README](policy-engine/frontend/runtime-api-client/README.md) |
+| **[runtime-reference-shell/](policy-engine/frontend/runtime-reference-shell/README.md)** | Статический reference UI (`index.html` + `app.js` + `styles.css`), без build toolchain | [README](policy-engine/frontend/runtime-reference-shell/README.md) |
 
-Контрактный поток:
+### Runtime Dashboard — страницы
+
+| Route | Назначение |
+|-------|-----------|
+| `/` | Runtime overview: статусы, тренды, failed runs, быстрая навигация |
+| `/runs` | Run explorer с фильтрами и cursor pagination |
+| `/runs/:runId` | Детальная карточка прогона (табы: timeline, nodes, lineage, agents/models, workflow, governance, debug, decision) |
+| `/artifacts/:artifactId` | Artifact inspector (content/schema/lineage + специализированные viewers для decision/trinity/simulation) |
+| `/launch` | Запуск прогона: `workflow` и `natural-language` режимы |
+| `/sources` | Каталог source profiles + ingest selected source |
+| `/data` | Data Intelligence (resolve/discover/preview/promotion) + connectors/cache + ingest |
+| `/lex` | Запуск/мониторинг Lex pipeline, graph stats, semantic search |
+| `/health` | Техническая health panel для API |
+
+### API hooks
+
+Все взаимодействия с backend через React Query hooks из `src/api/hooks/`:
+- **Runtime read:** `useRuns`, `useRunDetails`, `useRunTimeline`, `useRunNodes`, `useRunLineage`, `useRunAgents`, `useRunWorkflow`, `useNodeDebug`, `useGovernanceDebug`, `useArtifactManifest`, `useArtifactContent` и др.
+- **Control data:** `useResolveDataNeeds`, `useDiscoverDataSources`, `usePreviewFetchPlan`, `useDataCatalogSearch`, `useDataPromotionCandidates`, `useApprovePromotionCandidate`, `useIngestData` и др.
+- **Control runs:** `useLaunchRun`, `useLaunchNlRun`, `useLlmProfiles`
+- **Lex:** `useLexTrigger`, `useLexPipelineStatus`, `useLexGraphStats`, `useLexSearch`
+
+### Контрактный поток
 
 ```
 src/polisyos/runtime/http/* (FastAPI)
   → tools/runtime/export_runtime_openapi.py
   → schemas/runtime_api_v1.openapi.json
-  → tools/runtime/generate_runtime_client.py
-  → frontend/runtime-api-client/runtimeApiClient.{ts,js}
-  → frontend/runtime-reference-shell/app.js
+    → tools/runtime/generate_runtime_client.py
+    → frontend/runtime-api-client/runtimeApiClient.{ts,js}
+
+    → frontend/runtime-dashboard/scripts/generate-api-client.sh
+    → frontend/runtime-dashboard/src/api/types.ts
 ```
 
-Инварианты: UI строго API-only, read-only (`GET`), `source_kind == "core_run"`.
+Инварианты: UI строго API-only, frontend не обращается к CAS/БД/файловой системе напрямую.
 
 ---
 
@@ -838,15 +1205,25 @@ src/polisyos/runtime/http/* (FastAPI)
 
 Директория `schemas/` реализует Architectural Law C: контракты как источник правды.
 
-| Артефакт | Содержание |
-|----------|-----------|
-| `snapshots/ir/` | 32 JSON Schema для IR-моделей (P0=18, P1=14), все `strict` compat mode |
-| `snapshots/fabric/` | 2 JSON Schema для Fabric enum ABI (`edge_kind`, `node_kind`) |
-| `snapshots/connectors/contracts.json` | 3 connector contracts (`eurostat`, `ukons`, `worldbank`), version evolution tracking |
-| `runtime_api_v1.openapi.json` | OpenAPI 3.1.0 спецификация Runtime API v1 (15 GET endpoints) |
-| `abi_models.py` | Реестр 34 ABI-моделей (`ABIModelEntry`) — single source of truth |
+| Артефакт | Содержание | Документация |
+|----------|-----------|--------------|
+| **[snapshots/ir/](policy-engine/schemas/snapshots/ir/README.md)** | 48 JSON Schema для IR-моделей (P0=18, P1=23, P2=9), все `strict` compat mode | [README](policy-engine/schemas/snapshots/ir/README.md) |
+| **[snapshots/fabric/](policy-engine/schemas/snapshots/fabric/README.md)** | 2 JSON Schema для Fabric enum ABI (`edge_kind`, `node_kind`) | [README](policy-engine/schemas/snapshots/fabric/README.md) |
+| **[snapshots/connectors/](policy-engine/schemas/snapshots/connectors/README.md)** | 3 connector contracts (`eurostat`, `ukons`, `worldbank`), version evolution tracking | [README](policy-engine/schemas/snapshots/connectors/README.md) |
+| **runtime_api_v1.openapi.json** | OpenAPI 3.1.0 спецификация Runtime API v1 + Control Plane | — |
+| **abi_models.py** | Реестр 50 ABI-моделей (`ABIModelEntry`: IR=48, Fabric=2; P0=18, P1=23, P2=9) — single source of truth | — |
 
 ABI compatibility: 13 типов изменений, P0 breaking → major bump, semantic diff + freshness check в CI.
+Runtime API: 37 операций (27 GET + 10 POST), OpenAPI 3.1.0.
+
+```bash
+# Проверка ABI
+PYTHONPATH=src:. uv run python tools/diagnostics/gen_schema.py --check
+PYTHONPATH=src:. uv run python tools/diagnostics/abi_diff.py --baseline schemas/snapshots --current /tmp/current --format markdown
+
+# Проверка connectors
+PYTHONPATH=src:. uv run python tools/connectors/check_contracts.py --check
+```
 
 ---
 
@@ -866,35 +1243,42 @@ data/
 
 ### Иерархия README
 
-Двухуровневая система (~50 README файлов):
+Трёхуровневая система (~100 README файлов):
+- **Уровень 0:** корневой README (этот документ) — полная архитектурная карта
 - **Уровень 1:** модуль (`fabric/README.md`, `scientist/README.md`) — архитектура, зависимости, принципы
-- **Уровень 2:** крупные подсистемы (`fabric/connectors/README.md`, `scientist/engine/README.md`) — API, контракты, внутренняя структура
+- **Уровень 2:** подсистемы (`fabric/connectors/README.md`, `scientist/engine/README.md`) — API, контракты, внутренняя структура
 
 ### Ключевые документы
 
 | Документ | Содержание |
 |----------|-----------|
-| [architecture.md](policy-engine/architecture.md) | Полная карта файловой структуры проекта (1080 строк) |
+| [architecture.md](policy-engine/architecture.md) | Полная карта файловой структуры проекта |
 | [schemas/README.md](policy-engine/schemas/README.md) | ABI Schema Gate (34 модели, backward compatibility rules) |
 | [ops/README.md](policy-engine/ops/README.md) | Platform operations (Helm, OPA, Prometheus, Grafana, Terraform, SQL migrations) |
 | [tools/README.md](policy-engine/tools/README.md) | Полный каталог инженерных CLI-инструментов |
 | [frontend/README.md](policy-engine/frontend/README.md) | Frontend foundation для Runtime API v1 |
-| [tests/README.md](policy-engine/tests/README.md) | Обзор тестового контура (270 test files, 9 conftest) |
+| [tests/README.md](policy-engine/tests/README.md) | Обзор тестового контура |
 
-### Документация подсистем
+### Документация модулей
 
 | Слой | README |
 |------|--------|
-| Common | [common/README.md](policy-engine/src/polisyos/common/README.md) |
-| Core | [core/README.md](policy-engine/src/polisyos/core/README.md), [artifacts/](policy-engine/src/polisyos/core/artifacts/README.md), [audit/](policy-engine/src/polisyos/core/audit/README.md), [components/](policy-engine/src/polisyos/core/components/README.md), [contracts/](policy-engine/src/polisyos/core/contracts/README.md), [observability/](policy-engine/src/polisyos/core/observability/README.md), [security/](policy-engine/src/polisyos/core/security/README.md), [cache/](policy-engine/src/polisyos/core/cache/README.md) |
-| IR | [ir/README.md](policy-engine/src/polisyos/ir/README.md), [kernel/](policy-engine/src/polisyos/ir/kernel/README.md), [world/](policy-engine/src/polisyos/ir/world/README.md) |
-| Fabric | [fabric/README.md](policy-engine/src/polisyos/fabric/README.md), [connectors/](policy-engine/src/polisyos/fabric/connectors/README.md), [claims/](policy-engine/src/polisyos/fabric/claims/README.md), [docs/](policy-engine/src/polisyos/fabric/docs/README.md), [world/](policy-engine/src/polisyos/fabric/world/README.md), [catalog/](policy-engine/src/polisyos/fabric/catalog/README.md) |
-| Foundry | [foundry/README.md](policy-engine/src/polisyos/foundry/README.md), [agent_sim/](policy-engine/src/polisyos/foundry/agent_sim/README.md), [calibration/](policy-engine/src/polisyos/foundry/calibration/README.md), [methods/](policy-engine/src/polisyos/foundry/methods/README.md), [plugins/](policy-engine/src/polisyos/foundry/plugins/README.md) |
-| Runtime | [runtime/README.md](policy-engine/src/polisyos/runtime/README.md) |
-| Lex | [lex/README.md](policy-engine/src/polisyos/lex/README.md), [corpus/](policy-engine/src/polisyos/lex/corpus/README.md), [normpack/](policy-engine/src/polisyos/lex/normpack/README.md), [legal_evaluation/](policy-engine/src/polisyos/lex/legal_evaluation/README.md), [simulator/](policy-engine/src/polisyos/lex/simulator/README.md) |
-| Scholar | [scholar/README.md](policy-engine/src/polisyos/scholar/README.md) |
-| Scientist | [scientist/README.md](policy-engine/src/polisyos/scientist/README.md), [agent/](policy-engine/src/polisyos/scientist/agent/README.md), [engine/](policy-engine/src/polisyos/scientist/engine/README.md), [governance/](policy-engine/src/polisyos/scientist/governance/README.md), [kernel/](policy-engine/src/polisyos/scientist/kernel/README.md), [nodes/](policy-engine/src/polisyos/scientist/nodes/README.md), [search/](policy-engine/src/polisyos/scientist/search/README.md), [doe/](policy-engine/src/polisyos/scientist/doe/README.md), [backtesting/](policy-engine/src/polisyos/scientist/backtesting/README.md) |
-| Packs | [packs/README.md](policy-engine/src/polisyos/packs/README.md), [roads/](policy-engine/src/polisyos/packs/roads/README.md) |
+| Common | [common/](policy-engine/src/polisyos/common/README.md), [migrations/](policy-engine/src/polisyos/common/migrations/README.md) |
+| Core | [core/](policy-engine/src/polisyos/core/README.md), [artifacts/](policy-engine/src/polisyos/core/artifacts/README.md), [audit/](policy-engine/src/polisyos/core/audit/README.md), [components/](policy-engine/src/polisyos/core/components/README.md), [contracts/](policy-engine/src/polisyos/core/contracts/README.md), [governance/](policy-engine/src/polisyos/core/governance/README.md), [llm/](policy-engine/src/polisyos/core/llm/README.md), [observability/](policy-engine/src/polisyos/core/observability/README.md), [registry/](policy-engine/src/polisyos/core/registry/README.md), [security/](policy-engine/src/polisyos/core/security/README.md), [cache/](policy-engine/src/polisyos/core/cache/README.md) |
+| IR | [ir/](policy-engine/src/polisyos/ir/README.md), [trinity/](policy-engine/src/polisyos/ir/trinity/README.md), [governance/](policy-engine/src/polisyos/ir/governance/README.md), [kernel/](policy-engine/src/polisyos/ir/kernel/README.md), [world/](policy-engine/src/polisyos/ir/world/README.md), [linker/](policy-engine/src/polisyos/ir/linker/README.md), [analytics/](policy-engine/src/polisyos/ir/analytics/README.md), [artifacts/](policy-engine/src/polisyos/ir/artifacts/README.md), [migrations/](policy-engine/src/polisyos/ir/migrations/README.md) |
+| Fabric | [fabric/](policy-engine/src/polisyos/fabric/README.md), [connectors/](policy-engine/src/polisyos/fabric/connectors/README.md), [claims/](policy-engine/src/polisyos/fabric/claims/README.md), [docs/](policy-engine/src/polisyos/fabric/docs/README.md), [world/](policy-engine/src/polisyos/fabric/world/README.md), [catalog/](policy-engine/src/polisyos/fabric/catalog/README.md), [data_plane/](policy-engine/src/polisyos/fabric/data_plane/README.md), [retrieval/](policy-engine/src/polisyos/fabric/retrieval/README.md) |
+| Foundry | [foundry/](policy-engine/src/polisyos/foundry/README.md), [agent_sim/](policy-engine/src/polisyos/foundry/agent_sim/README.md), [calibration/](policy-engine/src/polisyos/foundry/calibration/README.md), [methods/](policy-engine/src/polisyos/foundry/methods/README.md), [methods/catalog/](policy-engine/src/polisyos/foundry/methods/catalog/README.md), [methods/catalog/causal/](policy-engine/src/polisyos/foundry/methods/catalog/causal/README.md), [plugins/](policy-engine/src/polisyos/foundry/plugins/README.md), [uncertainty/](policy-engine/src/polisyos/foundry/uncertainty/README.md) |
+| Runtime | [runtime/](policy-engine/src/polisyos/runtime/README.md), [http/](policy-engine/src/polisyos/runtime/http/README.md), [routes/](policy-engine/src/polisyos/runtime/http/routes/README.md), [services/](policy-engine/src/polisyos/runtime/http/services/README.md) |
+| Lex | [lex/](policy-engine/src/polisyos/lex/README.md), [corpus/](policy-engine/src/polisyos/lex/corpus/README.md), [normpack/](policy-engine/src/polisyos/lex/normpack/README.md), [legal_evaluation/](policy-engine/src/polisyos/lex/legal_evaluation/README.md), [simulator/](policy-engine/src/polisyos/lex/simulator/README.md), [batch/](policy-engine/src/polisyos/lex/batch/README.md), [knowledge/](policy-engine/src/polisyos/lex/knowledge/README.md) |
+| Scholar | [scholar/](policy-engine/src/polisyos/scholar/README.md), [discover/](policy-engine/src/polisyos/scholar/discover/README.md), [orchestrator/](policy-engine/src/polisyos/scholar/orchestrator/README.md) |
+| Academic | [academic/](policy-engine/src/polisyos/academic/README.md), [batch/](policy-engine/src/polisyos/academic/batch/README.md), [knowledge/](policy-engine/src/polisyos/academic/knowledge/README.md), [openalex/](policy-engine/src/polisyos/academic/openalex/README.md) |
+| Datasets | [datasets/](policy-engine/src/polisyos/datasets/README.md), [batch/](policy-engine/src/polisyos/datasets/batch/README.md), [knowledge/](policy-engine/src/polisyos/datasets/knowledge/README.md) |
+| Scientist | [scientist/](policy-engine/src/polisyos/scientist/README.md), [engine/](policy-engine/src/polisyos/scientist/engine/README.md), [workflows/](policy-engine/src/polisyos/scientist/workflows/README.md), [agent/](policy-engine/src/polisyos/scientist/agent/README.md), [llm/](policy-engine/src/polisyos/scientist/llm/README.md), [governance/](policy-engine/src/polisyos/scientist/governance/README.md), [kernel/](policy-engine/src/polisyos/scientist/kernel/README.md), [nodes/](policy-engine/src/polisyos/scientist/nodes/README.md), [search/](policy-engine/src/polisyos/scientist/search/README.md), [search/strategies/](policy-engine/src/polisyos/scientist/search/strategies/README.md), [doe/](policy-engine/src/polisyos/scientist/doe/README.md), [backtesting/](policy-engine/src/polisyos/scientist/backtesting/README.md), [adapters/](policy-engine/src/polisyos/scientist/adapters/README.md), [compute/](policy-engine/src/polisyos/scientist/compute/README.md), [orchestrator/](policy-engine/src/polisyos/scientist/orchestrator/README.md) |
+| Packs | [packs/](policy-engine/src/polisyos/packs/README.md), [roads/](policy-engine/src/polisyos/packs/roads/README.md), [econ/](policy-engine/src/polisyos/packs/econ/README.md) |
+| Tests | [tests/](policy-engine/tests/README.md), [contract/](policy-engine/tests/contract/README.md), [core/](policy-engine/tests/core/README.md), [ir/](policy-engine/tests/ir/README.md), [fabric/](policy-engine/tests/fabric/README.md), [foundry/](policy-engine/tests/foundry/README.md), [scientist/](policy-engine/tests/scientist/README.md), [runtime/](policy-engine/tests/runtime/README.md), [lex/](policy-engine/tests/lex/README.md), [integration/](policy-engine/tests/integration/README.md) |
+| Ops | [ops/](policy-engine/ops/README.md), [helm/](policy-engine/ops/helm/README.md), [helm/polisyos-cell/](policy-engine/ops/helm/polisyos-cell/README.md), [helm/spire/](policy-engine/ops/helm/spire/README.md), [helm/keycloak/](policy-engine/ops/helm/keycloak/README.md), [terraform/](policy-engine/ops/terraform/README.md), [migrations/](policy-engine/ops/migrations/README.md), [opa/](policy-engine/ops/opa/README.md), [prometheus/](policy-engine/ops/prometheus/README.md), [grafana/](policy-engine/ops/grafana/README.md) |
+| Tools | [tools/](policy-engine/tools/README.md), [lint/](policy-engine/tools/lint/README.md), [diagnostics/](policy-engine/tools/diagnostics/README.md), [connectors/](policy-engine/tools/connectors/README.md), [runtime/](policy-engine/tools/runtime/README.md), [demos/](policy-engine/tools/demos/README.md), [benchmarks/](policy-engine/tools/benchmarks/README.md), [migrations/](policy-engine/tools/migrations/README.md) |
+| Schemas | [schemas/](policy-engine/schemas/README.md), [snapshots/](policy-engine/schemas/snapshots/README.md), [ir/](policy-engine/schemas/snapshots/ir/README.md), [fabric/](policy-engine/schemas/snapshots/fabric/README.md), [connectors/](policy-engine/schemas/snapshots/connectors/README.md) |
 
 ---
 
@@ -987,7 +1371,10 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │       │   │   ├── backtest.py  # Backtesting contracts.
 │       │   │   ├── causal.py  # Causal inference contracts.
 │       │   │   ├── compiler.py  # Compiler typed references.
+│       │   │   ├── control.py  # Control Plane request/response DTOs.
+│       │   │   ├── cursor.py  # Cursor-based pagination contracts.
 │       │   │   ├── distributional.py  # Distributional analysis contracts.
+│       │   │   ├── execution_plan.py  # Execution-plan contracts for unified LLM policy cycle.
 │       │   │   ├── fabric.py  # Fabric evidence/bounds contracts.
 │       │   │   ├── foundry.py  # Foundry ProgramGraph/ExecPlan contracts.
 │       │   │   ├── hte.py  # Heterogeneous treatment effects contracts.
@@ -1115,7 +1502,9 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │       │   │   ├── binding.py  # Hash-locked metric bindings.
 │       │   │   ├── contract.py  # DataContract models.
 │       │   │   ├── registry.py  # DataContractRegistry.
+│       │   │   ├── resolver_fast_lane.py  # Deterministic FastLane resolver for metric→fetch plan.
 │       │   │   ├── search.py  # Metric search/disambiguation.
+│       │   │   ├── source_bindings.py  # Curated metric→source bindings for FastLane resolution.
 │       │   │   └── validate.py  # Contract collection validation.
 │       │   ├── claims/  # Claims management and verification.
 │       │   │   ├── __init__.py
@@ -1158,6 +1547,12 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │       │   │   ├── registry_core.py  # Core registry implementation.
 │       │   │   ├── registry_core_parts.py  # Decomposed registry helpers.
 │       │   │   ├── validation.py  # Input validation.
+│       │   │   ├── bindings/  # Metric→source binding profiles.
+│       │   │   │   ├── __init__.py
+│       │   │   │   ├── builtin_profiles.py  # Built-in binding profile definitions.
+│       │   │   │   ├── models.py  # Binding data models.
+│       │   │   │   ├── registry.py  # Binding profile registry.
+│       │   │   │   └── resolver.py  # Binding resolution logic.
 │       │   │   ├── cache/  # CAS-based caching.
 │       │   │   │   ├── __init__.py
 │       │   │   │   ├── _store_core.py  # Core cache store logic.
@@ -1195,6 +1590,12 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │       │   │   │   ├── ranker.py  # Source ranking.
 │       │   │   │   ├── resolver.py  # Conflict resolution.
 │       │   │   │   └── types.py  # Federation types.
+│       │   │   ├── profiles/  # Source connection profiles.
+│       │   │   │   ├── __init__.py
+│       │   │   │   ├── builtin_profiles.py  # Built-in source profile definitions.
+│       │   │   │   ├── models.py  # Profile data models.
+│       │   │   │   ├── registry.py  # Source profile registry.
+│       │   │   │   └── resolver.py  # Profile resolution logic.
 │       │   │   ├── quality/  # Data quality assessment.
 │       │   │   │   ├── __init__.py
 │       │   │   │   ├── completeness.py  # Completeness validation.
@@ -1215,14 +1616,22 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │       │   │   │   └── retry.py  # Retry logic.
 │       │   │   ├── sources/  # Production data source connectors.
 │       │   │   │   ├── __init__.py
+│       │   │   │   ├── ckan_catalog.py  # CKAN catalog discovery connector.
+│       │   │   │   ├── ckan_resource.py  # CKAN resource download connector.
 │       │   │   │   ├── eurostat.py  # Eurostat statistics connector.
 │       │   │   │   ├── http_base.py  # Shared HTTP connector base class.
 │       │   │   │   ├── http_common.py  # Common HTTP utilities.
+│       │   │   │   ├── opendatasoft.py  # OpenDataSoft portal connector.
+│       │   │   │   ├── rest_json.py  # Generic REST/JSON source connector.
+│       │   │   │   ├── sdmx_source.py  # SDMX statistical data connector.
+│       │   │   │   ├── socrata.py  # Socrata open data connector.
+│       │   │   │   ├── sparql.py  # SPARQL endpoint connector.
 │       │   │   │   ├── ukons.py  # UK ONS statistics connector.
 │       │   │   │   ├── world_bank.py  # World Bank data connector.
 │       │   │   │   └── _contracts/  # Source-specific data contracts.
 │       │   │   │       ├── __init__.py
 │       │   │   │       ├── eurostat_contracts.py  # Eurostat schema contracts.
+│       │   │   │       ├── sdmx_contracts.py  # SDMX schema contracts.
 │       │   │   │       ├── ukons_contracts.py  # UK ONS schema contracts.
 │       │   │   │       └── world_bank_contracts.py  # World Bank schema contracts.
 │       │   │   ├── testing/  # Connector test infrastructure.
@@ -1257,6 +1666,14 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │       │   │       ├── dimensions.py  # Dimensional data types.
 │       │   │       ├── temporal.py  # Temporal types.
 │       │   │       └── units.py  # Unit conversion facade.
+│       │   ├── data_plane/  # Incremental data ingestion and replay.
+│       │   │   ├── __init__.py
+│       │   │   ├── cursor_store.py  # Cursor-based pagination state store.
+│       │   │   ├── modes.py  # Ingestion mode definitions (full/incremental/streaming).
+│       │   │   ├── orchestrator.py  # Incremental ingestion orchestrator.
+│       │   │   ├── regression.py  # Data regression detection.
+│       │   │   ├── replay_store.py  # Record/replay store for ingestion.
+│       │   │   └── watermark.py  # High-watermark tracking for incremental loads.
 │       │   ├── docs/  # Document processing pipeline.
 │       │   │   ├── __init__.py
 │       │   │   ├── chunking.py  # Document chunking.
@@ -1282,6 +1699,11 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │       │   │   ├── __init__.py
 │       │   │   ├── core.py  # PROV-O graph models.
 │       │   │   └── export_provo.py  # PROV-O export.
+│       │   ├── retrieval/  # Hybrid data retrieval service.
+│       │   │   ├── __init__.py
+│       │   │   ├── executor.py  # FetchPlan preview/execute with quality gate.
+│       │   │   ├── explore_lane.py  # Bounded on-demand metadata discovery (ExploreLane).
+│       │   │   └── service.py  # Hybrid retrieval service (FastLane + ExploreLane + PromotionLane).
 │       │   ├── security/  # Fabric-level data security.
 │       │   │   ├── __init__.py
 │       │   │   └── column_mask.py  # Column-level data masking.
@@ -1420,6 +1842,7 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │       │   │   ├── artifacts.py  # Method artifact facade.
 │       │   │   ├── artifacts_parts.py  # Decomposed artifact helpers.
 │       │   │   ├── base.py  # Base method protocol.
+│       │   │   ├── catalog_snapshot.py  # Method catalog snapshot builder from MethodRegistry.
 │       │   │   ├── compiler.py  # Method compiler.
 │       │   │   ├── components_bridge.py  # Component system bridge.
 │       │   │   ├── composer.py  # Method composition.
@@ -1444,16 +1867,33 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │       │   │   │   │   ├── __init__.py
 │       │   │   │   │   ├── _common.py  # Shared causal utilities.
 │       │   │   │   │   ├── _econml_adapter.py  # EconML integration.
+│       │   │   │   │   ├── _graph_projection.py  # PAG→DAG graph projection.
 │       │   │   │   │   ├── _registry_boot.py  # Auto-registration.
 │       │   │   │   │   ├── cate.py  # CATE estimation.
+│       │   │   │   │   ├── ci_backends.py  # CI backend selection and dispatch.
+│       │   │   │   │   ├── constraint_discovery.py  # Constraint-based causal discovery (PC/FCI).
+│       │   │   │   │   ├── dagma_discovery.py  # DAGMA continuous causal discovery.
 │       │   │   │   │   ├── did.py  # Difference-in-differences.
 │       │   │   │   │   ├── dml.py  # Double machine learning.
+│       │   │   │   │   ├── dowhy_identify_estimate.py  # DoWhy identification and estimation.
+│       │   │   │   │   ├── dowhy_refute.py  # DoWhy refutation tests.
+│       │   │   │   │   ├── full_transport_bridge.py  # Full transportability bridge (symbolic + data).
+│       │   │   │   │   ├── gcm_fit.py  # DoWhy GCM model fitting.
+│       │   │   │   │   ├── gcm_query.py  # DoWhy GCM counterfactual/attribution queries.
+│       │   │   │   │   ├── graph_reconciliation.py  # Multi-source causal graph reconciliation.
+│       │   │   │   │   ├── literature_prior.py  # Literature-based parameter prior construction.
 │       │   │   │   │   ├── meta_learners.py  # Meta-learner methods.
+│       │   │   │   │   ├── parameter_transfer.py  # Cross-context parameter transfer.
+│       │   │   │   │   ├── pcmci_discovery.py  # PCMCI temporal causal discovery.
 │       │   │   │   │   ├── policy_learning.py  # Policy learning.
 │       │   │   │   │   ├── protocols.py  # Causal method protocols.
 │       │   │   │   │   ├── rdd.py  # Regression discontinuity.
-│       │   │   │   │   ├── scm.py  # Structural causal models.
-│       │   │   │   │   └── structural_time_series.py  # Structural time series.
+│       │   │   │   │   ├── scm.py  # Legacy shim for synthetic_control.py.
+│       │   │   │   │   ├── sensitivity_metrics.py  # Sensitivity analysis metrics (E-value, Rosenbaum).
+│       │   │   │   │   ├── structural_time_series.py  # Structural time series.
+│       │   │   │   │   ├── symbolic_identify.py  # Symbolic causal identification (y0).
+│       │   │   │   │   ├── synthetic_control.py  # Synthetic Control method (Abadie).
+│       │   │   │   │   └── transport_check.py  # S-node transportability elimination checks.
 │       │   │   │   ├── econometrics/  # Econometric methods.
 │       │   │   │   │   ├── __init__.py
 │       │   │   │   │   ├── _registry_boot.py  # Auto-registration.
@@ -1474,14 +1914,26 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │       │   │   │   ├── _econml_adapter.py  # EconML integration.
 │       │   │   │   ├── _registry_boot.py  # Auto-registration.
 │       │   │   │   ├── cate.py  # CATE estimation wrapper.
+│       │   │   │   ├── ci_backends.py  # CI backend selection wrapper.
+│       │   │   │   ├── constraint_discovery.py  # Constraint-based discovery wrapper.
+│       │   │   │   ├── dagma_discovery.py  # DAGMA discovery wrapper.
 │       │   │   │   ├── did.py  # DiD wrapper.
 │       │   │   │   ├── dml.py  # DML wrapper.
+│       │   │   │   ├── dowhy_identify_estimate.py  # DoWhy identify+estimate wrapper.
+│       │   │   │   ├── dowhy_refute.py  # DoWhy refutation wrapper.
+│       │   │   │   ├── gcm_fit.py  # GCM fitting wrapper.
+│       │   │   │   ├── gcm_query.py  # GCM query wrapper.
+│       │   │   │   ├── graph_reconciliation.py  # Graph reconciliation wrapper.
+│       │   │   │   ├── literature_prior.py  # Literature prior wrapper.
 │       │   │   │   ├── meta_learners.py  # Meta-learner wrapper.
 │       │   │   │   ├── policy_learning.py  # Policy learning wrapper.
 │       │   │   │   ├── protocols.py  # Causal protocols.
 │       │   │   │   ├── rdd.py  # RDD wrapper.
-│       │   │   │   ├── scm.py  # SCM wrapper.
-│       │   │   │   └── structural_time_series.py  # STS wrapper.
+│       │   │   │   ├── scm.py  # Legacy shim wrapper.
+│       │   │   │   ├── sensitivity_metrics.py  # Sensitivity metrics wrapper.
+│       │   │   │   ├── structural_time_series.py  # STS wrapper.
+│       │   │   │   ├── symbolic_identify.py  # Symbolic identification wrapper.
+│       │   │   │   └── synthetic_control.py  # Synthetic Control wrapper.
 │       │   │   ├── econometrics/  # Econometric method standalone wrappers.
 │       │   │   │   ├── __init__.py
 │       │   │   │   ├── _registry_boot.py  # Auto-registration.
@@ -1555,13 +2007,27 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │       │   ├── units.py  # Unit system models.
 │       │   ├── analytics/  # Analytical IR models.
 │       │   │   ├── __init__.py
+│       │   │   ├── abm_bridge.py  # ABM↔causal alignment status and reports.
+│       │   │   ├── alignment_certification.py  # Alignment certification policy and bounded search.
 │       │   │   ├── applicability.py  # Policy applicability checks.
 │       │   │   ├── backtest.py  # Backtesting IR models.
 │       │   │   ├── calibration.py  # Calibration IR models.
 │       │   │   ├── causal.py  # Causal effect IR models.
+│       │   │   ├── causal_discovery.py  # Causal discovery report IR models.
+│       │   │   ├── causal_ensemble.py  # Causal model ensemble IR models.
+│       │   │   ├── causal_graph.py  # Causal graph IR models (DAG/CPDAG/PAG).
+│       │   │   ├── causal_graph_kuzu.py  # Kùzu-backed causal graph persistence.
+│       │   │   ├── causal_queries.py  # Causal query and result IR models.
+│       │   │   ├── context.py  # Context-adaptive parameter inference profiles.
 │       │   │   ├── data_views.py  # Data view definitions.
 │       │   │   ├── distributional.py  # Distributional analysis IR.
 │       │   │   ├── hte.py  # HTE result IR models.
+│       │   │   ├── literature.py  # Literature-based causal prior IR models.
+│       │   │   ├── parameters.py  # Parameter applicability IR models.
+│       │   │   ├── partial_identification.py  # Partial identification with Manski bounds.
+│       │   │   ├── sensitivity.py  # Sensitivity analysis result IR (E-value).
+│       │   │   ├── structural_causal_model.py  # Structural causal model spec IR.
+│       │   │   ├── transportability.py  # Transportability result IR models.
 │       │   │   └── uncertainty.py  # Uncertainty envelope IR.
 │       │   ├── artifacts/  # IR artifact contracts and I/O.
 │       │   │   ├── __init__.py
@@ -1625,18 +2091,50 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │       │   ├── errors.py  # Lex error types.
 │       │   ├── factlog.py  # Lex fact log integration.
 │       │   ├── types.py  # Lex type definitions.
+│       │   ├── batch/  # Lex batch pipeline for legal document processing.
+│       │   │   ├── __init__.py
+│       │   │   ├── __main__.py  # Module entry point.
+│       │   │   ├── canonicalizers.py  # Canonicalizers for SPO extraction.
+│       │   │   ├── cli.py  # CLI entry point for Lex batch pipeline.
+│       │   │   ├── config.py  # Configuration for Lex batch pipeline.
+│       │   │   ├── deterministic_spo.py  # Deterministic SPO extractor used before LLM routing.
+│       │   │   ├── domain_classifier.py  # Deterministic domain classifier for legal documents.
+│       │   │   ├── embedder.py  # Generate embeddings and build HNSW indexes.
+│       │   │   ├── graph_builder.py  # Stream SPO results into DuckDB knowledge graph.
+│       │   │   ├── llm_gate.py  # Two-stage LLM gate for Lex SPO extraction.
+│       │   │   ├── openai_batch_embeddings.py  # OpenAI Batch API workflow for embeddings.
+│       │   │   ├── pipeline.py  # Orchestrate all stages of the batch pipeline.
+│       │   │   ├── progress.py  # Checkpoint/resume tracker for batch pipeline.
+│       │   │   ├── provisions_io.py  # Disk helpers for Stage 2 provisions with shard prefix.
+│       │   │   ├── publish.py  # Publish manifest writer for Lex artifacts.
+│       │   │   ├── qc.py  # QC stage for Lex pipeline outputs.
+│       │   │   ├── quality_report.py  # Quality report and quality gates.
+│       │   │   ├── reference_extractor.py  # Deterministic cross-reference extractor for provisions.
+│       │   │   ├── rule_classifier.py  # Rule-based pre-classifier for Ukrainian provisions.
+│       │   │   ├── spo_cache.py  # SQLite-backed cache for LLM SPO extraction responses.
+│       │   │   ├── spo_extractor.py  # Async LLM-based 2-pass SPO extraction.
+│       │   │   ├── spo_prompts.py  # Prompt templates for Ukrainian legal provision extraction.
+│       │   │   ├── structurer.py  # Lightweight provision extraction using UA regex.
+│       │   │   ├── template_extractor.py  # Template-based SPO extraction for structured documents.
+│       │   │   └── xml_parser.py  # Stream-parse ЄДРНПА XML dumps into NPADocument objects.
 │       │   ├── corpus/  # Legal document corpus.
 │       │   │   ├── __init__.py
 │       │   │   ├── index.py  # Corpus indexing.
 │       │   │   ├── ingest.py  # Corpus ingestion.
 │       │   │   ├── structure.py  # Document structure.
 │       │   │   └── versioning.py  # Corpus versioning.
+│       │   ├── knowledge/  # Legal knowledge graph.
+│       │   │   ├── __init__.py
+│       │   │   ├── search.py  # Hybrid search API for legal knowledge graph.
+│       │   │   ├── store.py  # Read-only DuckDB knowledge graph + HNSW vector indexes.
+│       │   │   └── types.py  # Domain types for knowledge graph (SPO entities, facts).
 │       │   ├── legal_evaluation/  # Legal rule evaluation.
 │       │   │   ├── __init__.py
 │       │   │   ├── change_proposals.py  # Legal change proposals.
 │       │   │   ├── context_builder.py  # Evaluation context.
 │       │   │   ├── evaluate.py  # Rule evaluation.
 │       │   │   ├── evaluator_registry.py  # Evaluator plugin registry.
+│       │   │   ├── transport_constraints.py  # Transport constraint evaluation for legal norms.
 │       │   │   └── backends/  # Evaluation backends.
 │       │   │       ├── __init__.py
 │       │   │       └── simple_v1.py  # Simple evaluator.
@@ -1655,6 +2153,85 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │       │       ├── engine.py  # Simulation engine.
 │       │       ├── mutator.py  # Norm mutation.
 │       │       └── report.py  # Simulation reports.
+│       ├── academic/  # Academic literature pipeline: OpenAlex harvesting, extraction, knowledge graph.
+│       │   ├── __init__.py
+│       │   ├── trust.py  # Trust scoring for academic works and parameter estimates.
+│       │   ├── batch/  # Staged academic knowledge pipeline.
+│       │   │   ├── __init__.py
+│       │   │   ├── article_extractor.py  # Phase 0a article extraction (screening + full).
+│       │   │   ├── cli.py  # CLI for staged academic knowledge pipeline.
+│       │   │   ├── config.py  # Pipeline configuration.
+│       │   │   ├── context_classifier.py  # Context inference for article extraction.
+│       │   │   ├── dedup.py  # Merge and deduplicate by OpenAlex work id.
+│       │   │   ├── embedder.py  # Build local embeddings + HNSW index.
+│       │   │   ├── graph_builder.py  # Load records into DuckDB and build indexes.
+│       │   │   ├── harvester.py  # Materialize topic-selected OpenAlex works.
+│       │   │   ├── llm_extractor.py  # Selective LLM enrichment for parsed abstracts.
+│       │   │   ├── parser.py  # Parse OpenAlex raw payloads into WorkRecord rows.
+│       │   │   ├── pipeline.py  # Thin orchestrator for staged academic pipeline.
+│       │   │   ├── publish.py  # Publish academic pipeline artifacts.
+│       │   │   ├── qc.py  # QC checks for academic pipeline.
+│       │   │   ├── topic_select.py  # Topic-based OpenAlex selection (Pass 1).
+│       │   │   └── prompts/  # LLM prompt templates for extraction.
+│       │   │       ├── __init__.py
+│       │   │       ├── boundary_conditions.py  # Boundary-condition extraction schema.
+│       │   │       ├── causal_claims.py  # Causal-claims extraction schema.
+│       │   │       ├── mechanisms.py  # Mechanism extraction schema.
+│       │   │       └── screening.py  # Relevance screening prompt.
+│       │   ├── knowledge/  # Academic knowledge graph store and search.
+│       │   │   ├── __init__.py
+│       │   │   ├── canonical_seed.py  # Canonical variable seed dictionary.
+│       │   │   ├── parameter_selector.py  # Parameter selection from SKG.
+│       │   │   ├── search.py  # Hybrid search API for academic knowledge graph.
+│       │   │   ├── skg_query.py  # Topic/run-aware SKG query helpers.
+│       │   │   ├── skg_store.py  # SKG table DDL and confidence aggregation.
+│       │   │   ├── skg_versioning.py  # SKG versioning and retraction handling.
+│       │   │   ├── store.py  # Read-only DuckDB + HNSW vector index access.
+│       │   │   ├── types.py  # Domain types (works, estimates, claims, priors).
+│       │   │   └── variable_canonizer.py  # Hierarchical variable canonization.
+│       │   └── openalex/  # OpenAlex API integration.
+│       │       ├── __init__.py
+│       │       ├── client.py  # Async OpenAlex client for topic-based harvesting.
+│       │       ├── priority_filter.py  # Priority filter for policy-relevant works.
+│       │       ├── rate_limiter.py  # Async rate limiter with backoff.
+│       │       ├── selector.py  # Topic-based OpenAlex selector (150 works/topic).
+│       │       └── topic_catalog.py  # Topic catalog loader from CSV slices.
+│       ├── batch_common/  # Shared batch pipeline utilities across academic/datasets/lex.
+│       │   ├── __init__.py
+│       │   ├── hashing.py  # Hashing helpers for reproducible pipeline artifacts.
+│       │   ├── manifest.py  # Manifest writers for raw/stage/publish artifacts.
+│       │   ├── paths.py  # Filesystem layout helpers for snapshot-based runs.
+│       │   ├── phase0_quality_validation.py  # Phase-0 deterministic quality validation.
+│       │   ├── qc.py  # Common QC model and fail-fast evaluator.
+│       │   └── thermal.py  # Thermal-safe pacing helpers for laptop-friendly runs.
+│       ├── batch_snapshot/  # Unified pipeline snapshot finalization.
+│       │   ├── __init__.py
+│       │   └── cli.py  # CLI to finalize a unified pipeline snapshot manifest.
+│       ├── datasets/  # Dataset catalog pipeline: harvesting, normalization, knowledge graph.
+│       │   ├── __init__.py
+│       │   ├── metrics_map.py  # PolicyOS metrics → dataset indicator mapping.
+│       │   ├── batch/  # Staged dataset catalog pipeline.
+│       │   │   ├── __init__.py
+│       │   │   ├── cli.py  # CLI for staged dataset catalog pipeline.
+│       │   │   ├── config.py  # Pipeline configuration.
+│       │   │   ├── core_sources_ingest.py  # Ingest core transportability sources (WGI/WDI/WVS).
+│       │   │   ├── dedup.py  # Merge and deduplicate by source+agency+dataset_id.
+│       │   │   ├── embedder.py  # Build local embeddings + HNSW index for datasets.
+│       │   │   ├── graph_builder.py  # Load records into DuckDB and build indexes.
+│       │   │   ├── harvester.py  # Source-driven harvest with wave support.
+│       │   │   ├── normalizer.py  # Normalize raw payloads to DCAT-like canonical form.
+│       │   │   ├── pipeline.py  # Thin orchestrator for staged dataset pipeline.
+│       │   │   ├── publish.py  # Publish dataset pipeline artifacts.
+│       │   │   ├── qc.py  # QC checks for datasets pipeline.
+│       │   │   └── source_registry.py  # Dataset source registry for staged harvest waves.
+│       │   └── knowledge/  # Dataset catalog knowledge graph store and search.
+│       │       ├── __init__.py
+│       │       ├── proxy_resolver.py  # Proxy resolution for transportability.
+│       │       ├── registry.py  # Dataset registry API for canonical variable lookup.
+│       │       ├── search.py  # Hybrid search API for dataset catalog graph.
+│       │       ├── store.py  # Read-only DuckDB catalog + HNSW vector index.
+│       │       ├── types.py  # Domain types (search results, distributions).
+│       │       └── variable_alignment.py  # Variable alignment: canonical SKG vars → dataset vars.
 │       ├── packs/  # Domain-specific policy packs.
 │       │   ├── __init__.py
 │       │   ├── econ/  # Economic policy pack.
@@ -1682,18 +2259,22 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │       │       ├── dependencies.py  # FastAPI dependency injection.
 │       │       ├── errors.py  # HTTP error handlers.
 │       │       ├── jwt_auth_middleware.py  # JWT authentication middleware.
+│       │       ├── openapi_contract.py  # OpenAPI schema contract validation and example generation.
 │       │       ├── routes/  # API route modules.
 │       │       │   ├── __init__.py
 │       │       │   ├── artifacts.py  # /artifacts endpoints.
+│       │       │   ├── control.py  # /api/v1/control/ endpoints (Control Plane).
 │       │       │   ├── debug.py  # /debug endpoints.
 │       │       │   ├── health.py  # /health endpoints.
 │       │       │   └── runs.py  # /runs endpoints.
 │       │       └── services/  # Business logic services.
 │       │           ├── __init__.py
 │       │           ├── artifact_inspector.py  # Artifact inspection service.
+│       │           ├── control.py  # Control Plane business logic service.
 │       │           ├── debug.py  # Debug service.
 │       │           ├── lineage.py  # Lineage tracking service.
 │       │           ├── run_index.py  # Run index/search service.
+│       │           ├── task_runner.py  # Background task runner for control-plane operations.
 │       │           ├── timeline.py  # Timeline service.
 │       │           └── adapters/  # Service adapters.
 │       │               ├── __init__.py
@@ -1718,6 +2299,7 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │       └── scientist/  # Orchestration: agents, workflows, governance, search.
 │           ├── __init__.py
 │           ├── api.py  # Scientist public API.
+│           ├── llm_cycle.py  # Unified LLM policy cycle orchestrator with DAG execution.
 │           ├── publisher.py  # Result publishing.
 │           ├── replay_backend.py  # Replay backend for re-execution.
 │           ├── adapters/  # External system bridges.
@@ -1736,6 +2318,7 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │           │   ├── constitution.py  # Agent constitutional constraints.
 │           │   ├── constraint_context.py  # Constraint context propagation.
 │           │   ├── critic.py  # Critic agent.
+│           │   ├── data_need_extractor.py  # DataNeedExtractor agent (mock + LLM).
 │           │   ├── drafter.py  # Drafter agent facade.
 │           │   ├── drafter_clients.py  # Drafter LLM client wrappers.
 │           │   ├── drafter_factory.py  # Drafter instance factory.
@@ -1749,6 +2332,7 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │           │   ├── formalizer.py  # Formalizer agent.
 │           │   ├── informed_critic.py  # Evidence-informed critic agent.
 │           │   ├── knowledge_base.py  # Agent knowledge base.
+│           │   ├── knowledge_tools.py  # Knowledge graph tools for scientist agents.
 │           │   ├── memory.py  # Agent memory.
 │           │   ├── norm_loader.py  # Norm loading for agent context.
 │           │   ├── pi.py  # PI agent.
@@ -1782,6 +2366,7 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │           │   ├── errors.py  # Engine errors.
 │           │   ├── executor.py  # Workflow executor.
 │           │   ├── idempotency.py  # Idempotent execution.
+│           │   ├── iteration_state_machine.py  # Iteration lifecycle state machine transitions.
 │           │   ├── protocol.py  # Engine protocol.
 │           │   ├── registry.py  # Node registry.
 │           │   ├── state.py  # Workflow state.
@@ -1794,6 +2379,8 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │           │       └── set_state.py  # State setter.
 │           ├── governance/  # Governance pipeline.
 │           │   ├── __init__.py
+│           │   ├── pass_entrypoints.py  # Pass entrypoint discovery.
+│           │   ├── pass_registry.py  # Pass registry for dynamic pass loading.
 │           │   ├── pipeline.py  # Pipeline orchestrator.
 │           │   ├── postflight.py  # Post-execution validation.
 │           │   ├── preflight.py  # Pre-execution validation.
@@ -1814,36 +2401,48 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │           │       ├── budget_pass.py  # Budget checks.
 │           │       ├── confidence_pass.py  # Confidence threshold checks.
 │           │       ├── equity_pass.py  # Equity/fairness checks.
+│           │       ├── human_review_pass.py  # Human review gate pass.
 │           │       ├── legal_pass.py  # Legal compliance.
+│           │       ├── literature_gate_pass.py  # Literature evidence gate pass.
 │           │       ├── pii_check_pass.py  # PII detection governance pass.
 │           │       ├── privacy_pass.py  # Privacy checks.
 │           │       ├── quality_gate_pass.py  # Quality gates.
+│           │       ├── refutation_pass.py  # Causal refutation gate pass.
 │           │       ├── safety_pass.py  # Safety checks.
-│           │       └── schema_pass.py  # Schema validation.
+│           │       ├── schema_pass.py  # Schema validation.
+│           │       ├── sutva_check_pass.py  # SUTVA assumption check pass.
+│           │       └── transportability_required_pass.py  # Transportability requirement check pass.
 │           ├── kernel/  # Scientist kernel.
 │           │   ├── __init__.py
 │           │   ├── budgets.py  # Budget management.
 │           │   ├── fsm.py  # Finite state machine.
 │           │   ├── gate_protocol.py  # Human gate protocol.
-│           │   ├── guards.py  # State transition guards.
-│           │   ├── human_gate.py  # Human-in-the-loop gate.
-│           │   ├── node_registry.py  # Workflow node registry.
-│           │   ├── parameter_extraction.py  # Parameter extraction from specs.
-│           │   ├── slot_compiler.py  # Slot→mechanism compiler.
-│           │   ├── slot_semantics.py  # Slot semantic validation.
-│           │   ├── slot_specifier.py  # Slot specifier parsing.
-│           │   ├── types.py  # Kernel type definitions.
-│           │   ├── url_routing.py  # URL-based resource routing.
-│           │   └── world_validation.py  # World state validation.
-│           ├── llm/  # LLM integration.
+│           │   └── guards.py  # State transition guards.
+│           ├── llm/  # LLM integration and model profile management.
 │           │   ├── __init__.py
-│           │   └── traced_client.py  # TracedLLMClient with OTel.
+│           │   ├── factory.py  # Factory helpers for traced gateway-backed LLM clients.
+│           │   ├── gateway_client.py  # OpenAI-compatible gateway client for runtime LLM calls.
+│           │   ├── traced_client.py  # TracedLLMClient with OTel.
+│           │   └── profiles/  # Model profile system for runtime selection.
+│           │       ├── __init__.py
+│           │       ├── builtin_profiles.py  # Built-in model profiles for dashboard selection.
+│           │       ├── models.py  # Model profile data models.
+│           │       └── registry.py  # ModelProfileRegistry — in-memory profile registry.
 │           ├── nodes/  # Workflow node implementations.
 │           │   ├── __init__.py
 │           │   └── builtins/  # Built-in nodes.
 │           │       ├── __init__.py
 │           │       ├── errors.py  # Node errors.
 │           │       ├── state_keys.py  # State key constants.
+│           │       ├── causal/  # Causal pipeline nodes.
+│           │       │   ├── __init__.py
+│           │       │   ├── build_literature_prior.py  # Literature prior construction node.
+│           │       │   ├── reconcile_causal_graph.py  # Causal graph reconciliation node.
+│           │       │   ├── resolve_parameters.py  # Parameter resolution node.
+│           │       │   ├── resolve_transport.py  # Transportability resolution node.
+│           │       │   ├── run_abm_consistency.py  # ABM consistency check node.
+│           │       │   ├── run_causal_ensemble.py  # Causal model ensemble node.
+│           │       │   └── run_causal_queries.py  # Causal query execution node.
 │           │       ├── compile/  # Compilation nodes.
 │           │       │   ├── __init__.py
 │           │       │   ├── compile_foundry.py  # Foundry compilation.
@@ -1861,6 +2460,13 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │           │       │   ├── data_plane_gate.py  # Data plane access gate.
 │           │       │   ├── legal_check.py  # Legal check node.
 │           │       │   └── run_governance.py  # Governance node.
+│           │       ├── planning/  # Planning and preflight nodes.
+│           │       │   ├── __init__.py
+│           │       │   ├── build_execution_plan.py  # Execution plan construction node.
+│           │       │   ├── build_method_catalog_snapshot.py  # Method catalog snapshot node.
+│           │       │   ├── ready_to_run.py  # Ready-to-run gate node.
+│           │       │   ├── run_evaluator.py  # Evaluator execution node.
+│           │       │   └── run_preflight.py  # Preflight validation node.
 │           │       └── simulate/  # Simulation nodes.
 │           │           ├── __init__.py
 │           │           ├── propagate_uncertainty.py  # Uncertainty propagation.
@@ -1904,6 +2510,7 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │           └── workflows/  # Workflow engines and predefined builders.
 │               ├── __init__.py
 │               ├── builder.py  # Workflow builder.
+│               ├── causal_full.py  # Full causal pipeline workflow builder.
 │               ├── default.py  # Default workflow.
 │               ├── engine_base.py  # Engine base class.
 │               ├── engine_langgraph.py  # LangGraph engine.
@@ -1921,13 +2528,22 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │       │   └── node_kind.schema.json  # Node kind enum.
 │       └── ir/  # IR model JSON Schema snapshots.
 │           ├── _manifest.json  # IR schema manifest.
+│           ├── abm_alignment_report.schema.json  # ABM alignment report.
+│           ├── article_extraction_result.schema.json  # Article extraction result.
 │           ├── backtest_report.schema.json  # Backtest report schema.
 │           ├── calibration_config.schema.json  # Calibration config.
+│           ├── causal_discovery_report.schema.json  # Causal discovery report.
 │           ├── causal_effect_report.schema.json  # Causal effect report.
+│           ├── causal_graph_model.schema.json  # Causal graph model.
+│           ├── causal_model_ensemble.schema.json  # Causal model ensemble.
+│           ├── causal_query.schema.json  # Causal query.
+│           ├── causal_query_result.schema.json  # Causal query result.
+│           ├── certification_result.schema.json  # Certification result.
 │           ├── claim.schema.json  # Claim schema.
 │           ├── conflict_resolution.schema.json  # Conflict resolution.
 │           ├── conflict_set.schema.json  # Conflict set.
 │           ├── conflict_set_resolution.schema.json  # Conflict set resolution.
+│           ├── context_adaptive_parameter_bundle.schema.json  # Context-adaptive parameter bundle.
 │           ├── data_view_request.schema.json  # Data view request.
 │           ├── distributional_report.schema.json  # Distributional report.
 │           ├── doc_fragment.schema.json  # Document fragment.
@@ -1939,16 +2555,23 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │           ├── gate_event.schema.json  # Gate event.
 │           ├── gate_request.schema.json  # Gate request.
 │           ├── hte_result.schema.json  # HTE result.
+│           ├── literature_causal_prior.schema.json  # Literature causal prior.
 │           ├── model_spec.schema.json  # ModelSpec.
 │           ├── norm_pack.schema.json  # NormPack.
 │           ├── norm_ref.schema.json  # Norm reference.
 │           ├── norm_rule.schema.json  # NormRule.
+│           ├── outer_search_result.schema.json  # Outer search result.
+│           ├── partial_identification_result.schema.json  # Partial identification result.
 │           ├── policy_portfolio.schema.json  # Policy portfolio.
 │           ├── policy_recommendation.schema.json  # Policy recommendation.
 │           ├── policy_spec.schema.json  # PolicySpec.
 │           ├── problem_frame.schema.json  # ProblemFrame.
 │           ├── prov_activity.schema.json  # Provenance activity.
 │           ├── quality_report.schema.json  # Quality report.
+│           ├── refutation_result.schema.json  # Refutation result.
+│           ├── sensitivity_result.schema.json  # Sensitivity result.
+│           ├── structural_causal_model_spec.schema.json  # Structural causal model spec.
+│           ├── transportability_result.schema.json  # Transportability result.
 │           ├── trinity_bundle.schema.json  # TrinityBundle.
 │           ├── trust_assessment.schema.json  # Trust assessment.
 │           ├── uncertainty_envelope.schema.json  # Uncertainty envelope.
@@ -2112,6 +2735,7 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │   │   │   ├── test_no_legacy_entrypoint_groups.py  # Legacy entrypoint check.
 │   │   │   └── test_unified_bootstrap_idempotency.py  # Bootstrap idempotency.
 │   │   ├── contracts/  # Core contract tests.
+│   │   │   ├── test_execution_plan_contracts.py  # Execution plan contract tests.
 │   │   │   └── test_ir_ref_facades.py  # IR reference facade tests.
 │   │   └── security/  # Security subsystem tests.
 │   │       ├── test_access_scope.py  # Access scope tests.
@@ -2173,15 +2797,34 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │   │   │   ├── test_schema_system.py  # Schema system tests.
 │   │   │   ├── test_transform_pipeline.py  # Transform pipeline tests.
 │   │   │   ├── test_type_system.py  # Type system tests.
+│   │   │   ├── bindings/  # Binding profile tests.
+│   │   │   │   └── test_binding_profiles.py  # Binding profile tests.
+│   │   │   ├── profiles/  # Source profile tests.
+│   │   │   │   └── test_source_profiles.py  # Source profile tests.
 │   │   │   ├── reference/  # Reference connector tests.
 │   │   │   │   ├── test_rest_json.py  # REST/JSON tests.
 │   │   │   │   ├── test_sdmx.py  # SDMX tests.
 │   │   │   │   └── test_static_csv.py  # Static CSV tests.
 │   │   │   └── sources/  # Production source connector tests.
+│   │   │       ├── test_ckan.py  # CKAN connector tests.
 │   │   │       ├── test_http_connector_base.py  # HTTP base tests.
 │   │   │       ├── test_http_version_policy.py  # HTTP version policy tests.
 │   │   │       ├── test_no_duplicate_http_helpers.py  # No duplicate helpers.
-│   │   │       └── test_production_connectors.py  # Production connector tests.
+│   │   │       ├── test_opendatasoft.py  # OpenDataSoft connector tests.
+│   │   │       ├── test_production_connectors.py  # Production connector tests.
+│   │   │       ├── test_sdmx_source.py  # SDMX connector tests.
+│   │   │       ├── test_socrata.py  # Socrata connector tests.
+│   │   │       ├── test_sparql.py  # SPARQL connector tests.
+│   │   │       ├── test_wave1_integration.py  # Wave 1 connector integration tests.
+│   │   │       ├── test_wave2_integration.py  # Wave 2 connector integration tests.
+│   │   │       └── test_wave3_integration.py  # Wave 3 connector integration tests.
+│   │   ├── data_plane/  # Fabric data plane tests.
+│   │   │   ├── test_cursor_store.py  # Cursor store tests.
+│   │   │   ├── test_incremental.py  # Incremental ingestion tests.
+│   │   │   ├── test_orchestrator.py  # Orchestrator tests.
+│   │   │   ├── test_record_replay.py  # Record/replay tests.
+│   │   │   ├── test_streaming_windowed.py  # Streaming windowed tests.
+│   │   │   └── test_watermark.py  # Watermark tracking tests.
 │   │   └── pii/  # PII tests.
 │   │       └── test_presidio_detector.py  # Presidio PII detector tests.
 │   ├── foundry/  # Foundry tests.
@@ -2196,6 +2839,7 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │   │   ├── test_calibration_uncertainty_adapter.py  # Calibration uncertainty.
 │   │   ├── test_calibrator_fidelity.py  # Calibrator fidelity tests.
 │   │   ├── test_calibrator_mvp.py  # Calibrator MVP tests.
+│   │   ├── test_catalog_snapshot.py  # Method catalog snapshot tests.
 │   │   ├── test_compile_determinism.py  # Compile determinism.
 │   │   ├── test_compile_facade.py  # Compile facade tests.
 │   │   ├── test_conflict_detection.py  # Conflict detection tests.
@@ -2219,6 +2863,7 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │   │   ├── test_program_graph_ops.py  # Program graph ops tests.
 │   │   ├── test_runtime_batch.py  # Runtime batch tests.
 │   │   ├── test_uncertainty_propagation.py  # Uncertainty propagation.
+│   │   ├── test_unified_dag_method_nodes.py  # Unified DAG method node tests.
 │   │   ├── agent_sim/  # Agent sim tests.
 │   │   │   └── test_monitoring.py  # Monitoring tests.
 │   │   ├── analysis/  # Analysis tests.
@@ -2246,7 +2891,8 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │   │   │       │   ├── test_protocols.py  # Causal protocol tests.
 │   │   │       │   ├── test_rdd.py  # RDD tests.
 │   │   │       │   ├── test_registration.py  # Registration tests.
-│   │   │       │   ├── test_scm.py  # SCM tests.
+│   │   │       │   ├── test_synthetic_control.py  # Synthetic Control tests.
+│   │   │       │   ├── test_synthetic_control_imports.py  # Legacy/canonical import tests.
 │   │   │       │   └── test_structural_time_series.py  # STS tests.
 │   │   │       ├── econometrics/  # Econometric method tests.
 │   │   │       │   ├── test_iv.py  # IV tests.
@@ -2274,6 +2920,13 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │   │   ├── test_trinity_loaders.py  # Trinity loader tests.
 │   │   └── test_uncertainty.py  # Uncertainty IR tests.
 │   ├── lex/  # Lex tests.
+│   │   ├── batch/  # Lex batch pipeline tests.
+│   │   │   ├── test_canonicalizers.py  # Canonicalizer tests.
+│   │   │   ├── test_graph_builder_ids.py  # Graph builder ID tests.
+│   │   │   ├── test_quality_report.py  # Quality report tests.
+│   │   │   ├── test_sharding_config.py  # Sharding configuration tests.
+│   │   │   ├── test_spo_extractor_normalization.py  # SPO extractor normalization tests.
+│   │   │   └── test_structurer.py  # Structurer tests.
 │   │   └── simulator/  # Lex simulator tests.
 │   │       ├── test_diff.py  # Norm diff tests.
 │   │       ├── test_engine.py  # Simulator engine tests.
@@ -2289,10 +2942,15 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │   │   └── http/  # HTTP API tests.
 │   │       ├── conftest.py
 │   │       ├── test_artifact_inspector_api.py  # Artifact inspector API tests.
+│   │       ├── test_control_api.py  # Control Plane API tests.
 │   │       ├── test_core_only_runs_api.py  # Core-only runs API tests.
 │   │       ├── test_debug_api.py  # Debug API tests.
+│   │       ├── test_e2e_ingestion.py  # End-to-end data ingestion tests.
+│   │       ├── test_insights_api.py  # Insights API tests.
+│   │       ├── test_nl_pipeline_materialization.py  # NL pipeline materialization tests.
 │   │       ├── test_runs_api.py  # Runs API tests.
 │   │       ├── test_runtime_api_authz.py  # Runtime API authorization tests.
+│   │       ├── test_runtime_api_contract_hardening.py  # API contract hardening tests.
 │   │       ├── test_runtime_api_no_legacy_sources.py  # No legacy sources check.
 │   │       └── test_timeline_api.py  # Timeline API tests.
 │   └── scientist/  # Scientist tests.
@@ -2325,7 +2983,9 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │       ├── test_feasibility_probe.py  # Feasibility probe tests.
 │       ├── test_idempotency.py  # Idempotency tests.
 │       ├── test_informed_critic.py  # Informed critic tests.
+│       ├── test_iteration_state_machine.py  # Iteration state machine tests.
 │       ├── test_knowledge_base.py  # Knowledge base tests.
+│       ├── test_llm_cycle_preflight.py  # LLM cycle preflight tests.
 │       ├── test_multipass_drafter.py  # Multi-pass drafter tests.
 │       ├── test_node_registry_components_bootstrap.py  # Node registry bootstrap tests.
 │       ├── test_norm_loader.py  # Norm loader tests.
@@ -2385,6 +3045,8 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │   │   ├── gen_schema.py  # JSON Schema snapshot generator.
 │   │   ├── generate_ir_schema.py  # IR schema generator.
 │   │   ├── scan_fabric.py  # Fabric data contract scanner.
+│   │   ├── verify_scm_v3.py  # SCM v3 structural verification.
+│   │   ├── verify_scm_v3_fullspec.py  # SCM v3 full-spec verification.
 │   │   └── visualize_provenance.py  # Provenance graph visualizer.
 │   ├── demos/  # Demo scripts.
 │   │   ├── run_export_demo.py  # Export demo.
@@ -2403,6 +3065,7 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │   │   └── migrate_duckdb_to_pg.py  # DuckDB→PostgreSQL migration.
 │   └── runtime/  # Runtime tools.
 │       ├── archive_legacy_runs.py  # Legacy run archival.
+│       ├── check_runtime_api_contract.py  # Runtime API contract validation script.
 │       ├── export_runtime_openapi.py  # OpenAPI spec export.
 │       ├── generate_runtime_client.py  # TypeScript client generation.
 │       └── inventory_legacy_runs.py  # Legacy run inventory.
@@ -2426,7 +3089,12 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │   │   ├── interactions_manifest.json  # Interactions manifest.
 │   │   ├── macro.parquet  # Curated macro data.
 │   │   ├── macro_manifest.json  # Macro data manifest.
+│   │   ├── source_bindings.json  # Source binding definitions.
 │   │   └── udf_schema.json  # UDF schema definitions.
+│   ├── dataset_catalog/  # Dataset catalog reference files.
+│   │   ├── metrics_map.yaml  # Metrics → dataset indicator mapping.
+│   │   └── seed_variable_alignments.yaml  # Seed variable alignment definitions.
+│   ├── phase12_survey.json  # Phase 1–2 survey data.
 │   └── databases/  # Embedded databases.
 │       ├── demo_udf.duckdb  # Demo UDF DuckDB.
 │       ├── demo_udf.kuzu  # Demo UDF Kùzu.
@@ -2440,6 +3108,110 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │   ├── runtime-api-client/  # TypeScript API client.
 │   │   ├── runtimeApiClient.ts  # TypeScript API client source.
 │   │   └── runtimeApiClient.js  # Compiled JavaScript client.
+│   ├── runtime-dashboard/  # React 18 + Vite + TailwindCSS monitoring dashboard.
+│   │   ├── vite.config.ts  # Vite build configuration.
+│   │   ├── tailwind.config.ts  # Tailwind CSS configuration.
+│   │   └── src/
+│   │       ├── main.tsx  # Application entry point.
+│   │       ├── App.tsx  # Root component with routing.
+│   │       ├── api/  # API layer.
+│   │       │   ├── client.ts  # API client configuration.
+│   │       │   ├── http.ts  # HTTP utilities.
+│   │       │   ├── queryClient.ts  # React Query client configuration.
+│   │       │   ├── queryKeys.ts  # Query key constants.
+│   │       │   ├── types.ts  # Generated TypeScript types from OpenAPI.
+│   │       │   ├── validators.ts  # Zod validators for API responses.
+│   │       │   └── hooks/  # React Query hooks.
+│   │       │       ├── useArtifactContent.ts  # Artifact content fetching.
+│   │       │       ├── useArtifactLineage.ts  # Artifact lineage graph.
+│   │       │       ├── useArtifactManifest.ts  # Artifact manifest fetching.
+│   │       │       ├── useArtifactSchema.ts  # Artifact schema fetching.
+│   │       │       ├── useCacheStatus.ts  # Cache status query.
+│   │       │       ├── useConnectors.ts  # Connector listing.
+│   │       │       ├── useDataCatalogSearch.ts  # Data catalog search.
+│   │       │       ├── useDataIndexStats.ts  # Data index statistics.
+│   │       │       ├── useDataPromotionCandidates.ts  # Data promotion candidates.
+│   │       │       ├── useDiscoverDataSources.ts  # Data source discovery.
+│   │       │       ├── useGovernanceDebug.ts  # Governance debug info.
+│   │       │       ├── useHealth.ts  # Health check query.
+│   │       │       ├── useIngestData.ts  # Data ingestion mutation.
+│   │       │       ├── useLaunchNlRun.ts  # Natural language run launch.
+│   │       │       ├── useLaunchRun.ts  # Policy run launch mutation.
+│   │       │       ├── useLexGraphStats.ts  # Lex knowledge graph statistics.
+│   │       │       ├── useLexPipelineStatus.ts  # Lex pipeline status query.
+│   │       │       ├── useLexSearch.ts  # Lex knowledge graph search.
+│   │       │       ├── useLexTrigger.ts  # Lex pipeline trigger mutation.
+│   │       │       ├── useLlmProfiles.ts  # LLM profile listing.
+│   │       │       ├── useNodeDebug.ts  # Node debug info.
+│   │       │       ├── usePreviewFetchPlan.ts  # Fetch plan preview.
+│   │       │       ├── usePromotionDecision.ts  # Promotion decision mutation.
+│   │       │       ├── useResolveDataNeeds.ts  # Data needs resolution.
+│   │       │       ├── useRunAgents.ts  # Run agent details.
+│   │       │       ├── useRunDetails.ts  # Run detail fetching.
+│   │       │       ├── useRunErrors.ts  # Run error fetching.
+│   │       │       ├── useRunLineage.ts  # Run lineage graph.
+│   │       │       ├── useRunNodes.ts  # Run node listing.
+│   │       │       ├── useRunTimeline.ts  # Run timeline events.
+│   │       │       ├── useRunWorkflow.ts  # Run workflow state.
+│   │       │       ├── useRuns.ts  # Run listing query.
+│   │       │       └── useSourceProfiles.ts  # Source profile listing.
+│   │       ├── components/  # UI components.
+│   │       │   ├── agents/
+│   │       │   │   └── AgentPipelinePanel.tsx  # Agent pipeline visualization.
+│   │       │   ├── data/
+│   │       │   │   └── DataIntelligencePanel.tsx  # Data analysis and recommendations.
+│   │       │   ├── debug/
+│   │       │   │   ├── ErrorsPanel.tsx  # Error display panel.
+│   │       │   │   └── NodeDebugPanel.tsx  # Node debug inspection.
+│   │       │   ├── decision/
+│   │       │   │   └── DecisionCardView.tsx  # Decision card display.
+│   │       │   ├── governance/
+│   │       │   │   └── GovernanceReport.tsx  # Governance report view.
+│   │       │   ├── layout/
+│   │       │   │   ├── Header.tsx  # Application header.
+│   │       │   │   ├── Shell.tsx  # Application shell layout.
+│   │       │   │   └── Sidebar.tsx  # Navigation sidebar.
+│   │       │   ├── shared/
+│   │       │   │   ├── ApiErrorAlert.tsx  # API error display.
+│   │       │   │   ├── EmptyState.tsx  # Empty state placeholder.
+│   │       │   │   ├── JsonPreview.tsx  # JSON data preview.
+│   │       │   │   ├── LineageGraph.tsx  # Lineage graph visualization.
+│   │       │   │   └── StatusBadge.tsx  # Status indicator badge.
+│   │       │   ├── simulation/
+│   │       │   │   ├── CalibrationReport.tsx  # Calibration report view.
+│   │       │   │   ├── DistributionalPanel.tsx  # Distributional analysis panel.
+│   │       │   │   ├── MetricsPanel.tsx  # Simulation metrics display.
+│   │       │   │   ├── SimulationResultsViewer.tsx  # Simulation results.
+│   │       │   │   └── UncertaintyOverlay.tsx  # Uncertainty visualization overlay.
+│   │       │   ├── trinity/
+│   │       │   │   ├── InterventionDetail.tsx  # Intervention detail view.
+│   │       │   │   ├── TrinityCard.tsx  # Trinity artifact card.
+│   │       │   │   └── TrinityDiff.tsx  # Trinity diff visualization.
+│   │       │   ├── ui/
+│   │       │   │   └── card.tsx  # Reusable card component.
+│   │       │   └── workflow/
+│   │       │       └── WorkflowDagPanel.tsx  # Workflow DAG visualization.
+│   │       ├── lib/  # Shared utilities.
+│   │       │   ├── constants.ts  # Application constants.
+│   │       │   ├── parsing.ts  # Data parsing utilities.
+│   │       │   ├── utils.ts  # General utility functions.
+│   │       │   └── domain/  # Domain logic.
+│   │       │       ├── agents.ts  # Agent-related utilities.
+│   │       │       ├── decision.ts  # Decision domain logic.
+│   │       │       ├── governance.ts  # Governance domain logic.
+│   │       │       ├── simulation.ts  # Simulation domain logic.
+│   │       │       ├── trinity.ts  # Trinity domain logic.
+│   │       │       └── workflow.ts  # Workflow domain logic.
+│   │       └── pages/  # Route pages.
+│   │           ├── ArtifactInspector.tsx  # Artifact inspection page.
+│   │           ├── Dashboard.tsx  # Main dashboard page.
+│   │           ├── DataManagement.tsx  # Data management page.
+│   │           ├── LaunchRun.tsx  # Run launch page.
+│   │           ├── LexKnowledgeGraph.tsx  # Knowledge graph visualization page.
+│   │           ├── RunDetail.tsx  # Run detail page.
+│   │           ├── RunsList.tsx  # Runs list page.
+│   │           ├── SourcesManagement.tsx  # Source profile management page.
+│   │           └── SystemHealth.tsx  # System health page.
 │   └── runtime-reference-shell/  # Reference UI shell.
 │       ├── index.html  # Shell HTML entry point.
 │       ├── app.js  # Shell application logic.

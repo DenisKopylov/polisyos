@@ -1,50 +1,32 @@
 # Grafana (`ops/grafana`)
 
-Каталог prebuilt-дашбордов для observability контура PolicyOS.
+Каталог prebuilt dashboards для operational, SLO и security мониторинга PolicyOS.
 
-## Структура
+## Состав
 
-```text
-grafana/
-├── dashboards/
-│   ├── executive-overview.json
-│   ├── scientist-agents.json
-│   ├── foundry-hpc.json
-│   ├── slo-overview.json
-│   ├── security-phase4.json
-│   └── knowledge-freshness.json
-└── provisioning/
-    └── dashboards.yml
-```
+- `dashboards/executive-overview.json` (`uid=polisyos-executive`)
+- `dashboards/scientist-agents.json` (`uid=polisyos-scientist`)
+- `dashboards/foundry-hpc.json` (`uid=polisyos-foundry`)
+- `dashboards/slo-overview.json` (`uid=polisyos-slo-overview`)
+- `dashboards/knowledge-freshness.json` (`uid=polisyos-knowledge-freshness`)
+- `dashboards/security-phase4.json` (`uid=polisyos-security-phase4`)
+- `provisioning/dashboards.yml` (file-provider в folder `PolicyOS`)
 
-## Дашборды
+## Роль в системе
 
-| UID | Файл | Основной фокус |
-|---|---|---|
-| `polisyos-executive` | `executive-overview.json` | cost/acceptance/throughput KPI |
-| `polisyos-scientist` | `scientist-agents.json` | scientist/governance/LLM pipeline |
-| `polisyos-foundry` | `foundry-hpc.json` | simulation/JIT/cache/calibration |
-| `polisyos-slo-overview` | `slo-overview.json` | SLO и error-budget индикаторы |
-| `polisyos-knowledge-freshness` | `knowledge-freshness.json` | freshness/staleness knowledge bundle |
-| `polisyos-security-phase4` | `security-phase4.json` | TEE attestation + SBOM gate/security |
+- визуализирует метрики из `ops/prometheus`;
+- поддерживает отдельные представления для exec/scientist/foundry/security/SLO контуров.
 
 ## Provisioning
 
-`provisioning/dashboards.yml` подключает file-provider и загружает JSON из `/etc/grafana/dashboards` в папку `PolicyOS`.
+`dashboards.yml` провиженит только dashboard-файлы из `/etc/grafana/dashboards`.
+Datasource provisioning в репозитории отсутствует: нужен default Prometheus datasource (`http://prometheus:9090`).
 
-Datasource provisioning в репозитории отсутствует.
+## Связи с другими директориями
 
-## Datasource
-
-В dashboard JSON datasource не закреплен жестко, поэтому нужен default Prometheus datasource:
-
-- URL: `http://prometheus:9090`
-
-## Связь с другими модулями
-
-- `ops/prometheus/` — правило именования метрик, recording rules и алерты;
-- `src/polisyos/core/observability/*` — runtime метрики;
-- `src/polisyos/core/security/*` — security/tenant/TEE/SBOM метрики.
+- `ops/prometheus/` — запись и агрегация метрик/алертов.
+- `src/polisyos/core/observability/*` — источник runtime/SLO метрик.
+- `src/polisyos/core/security/*` — источник security/TEE/SBOM/audit метрик.
 
 ## Локальный запуск
 

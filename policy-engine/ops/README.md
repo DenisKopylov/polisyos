@@ -1,81 +1,73 @@
 # ops — эксплуатационный слой PolicyOS
 
-`ops/` хранит инфраструктурные и security-артефакты, которые описывают окружение вокруг приложения: Kubernetes baseline, policy-as-code (OPA), наблюдаемость, SQL-миграции и IaC.
+`ops/` описывает инфраструктурный периметр PolicyOS: как обеспечиваются isolation/identity/policy enforcement, как собирается observability, и как накатываются инфраструктурные и SQL-изменения.
 
 ## Роль в системе
 
-- фиксирует baseline Zero Trust и tenant isolation;
-- задает observability-контур (Prometheus alerting/SLO + Grafana dashboards);
-- хранит шаги rollout/rollback для инфраструктуры и БД.
+- задает Kubernetes baseline для cell isolation и Zero Trust;
+- хранит policy-as-code (OPA) для runtime authz и deploy gate;
+- определяет контур observability (Prometheus rules + Grafana dashboards);
+- фиксирует SQL-цепочку tenant/RLS миграций и IaC-модуль confidential node pool.
 
-## Состав директории
+## Карта директории
 
-| Путь | Роль | Примечание |
+| Путь | Роль | Связь с кодом |
 |---|---|---|
-| `helm/` | baseline Helm-чарты | cell isolation, SPIRE, Keycloak |
-| `opa/` | runtime/deploy Rego-политики | 7 policy-модулей + 7 тестов |
-| `prometheus/` | scrape/rules/alerts/SLO | 2 scrape jobs, 27 alerts, 15 recording rules |
-| `grafana/` | prebuilt dashboards | 6 дашбордов, file provisioning |
-| `migrations/` | tenant + RLS SQL миграции | forward-цепочка + rollback |
-| `terraform/` | IaC-модуль confidential node pool | AKS + KataCcIsolation + SEV-SNP |
-| `scripts/` | вспомогательные ops-скрипты | `install-linkerd.sh` |
-| `docker-compose.observability.yml` | локальный стек метрик | Prometheus + Grafana |
+| `helm/` | инфраструктурные chart'ы (`polisyos-cell`, `spire`, `keycloak`) | `src/polisyos/core/security/identity.py`, `src/polisyos/runtime/http/authz_middleware.py` |
+| `opa/` | Rego-политики + unit tests | `src/polisyos/core/security/authz.py` |
+| `prometheus/` | scrape config, recording rules, alerts, SLO | `src/polisyos/core/observability/*`, `src/polisyos/core/security/*` |
+| `grafana/` | prebuilt dashboards + provisioning | использует метрики из `ops/prometheus` |
+| `migrations/` | tenant/RLS SQL-миграции | `src/polisyos/core/security/db_backend.py` |
+| `terraform/` | AKS confidential node pool модуль | `ops/helm/polisyos-cell/templates/runtimeclass-confidential.yaml` |
+| `scripts/` | вспомогательные ops-скрипты (Linkerd install) | используется с `helm/polisyos-cell` strict mTLS |
+| `docker-compose.observability.yml` | локальный Prometheus + Grafana | для быстрой валидации rules/dashboards |
 
 ## Архитектурные связи
 
 ```text
-src/polisyos/core/observability/* -> /metrics -> ops/prometheus -> ops/grafana
+runtime /metrics endpoint (port 9464)
+  -> ops/prometheus/prometheus.yml (scrape + rule_files)
+  -> ops/grafana/dashboards/*.json
 
-src/polisyos/runtime/http/authz_middleware.py
-  + src/polisyos/core/security/authz.py
+runtime authz middleware
   -> OPA /v1/data/polisyos/authz/decision
   <- ops/opa/policies/*.rego
 
-src/polisyos/core/security/db_backend.py
-  -> SET LOCAL app.current_tenant
-  -> PostgreSQL RLS enforcement
-  <- ops/migrations/*.sql
+deploy SBOM gate
+  -> OPA /v1/data/polisyos/deploy/decision
+  <- ops/opa/policies/vulnerability.rego + deploy.rego
 
-Cluster baseline:
-ops/helm/spire + ops/helm/keycloak + ops/helm/polisyos-cell
+db tenant context (SET LOCAL app.current_tenant)
+  -> PostgreSQL RLS
+  <- ops/migrations/001..004
+
+confidential workload scheduling
+  <- ops/terraform/modules/confidential_nodepool
+  <- ops/helm/polisyos-cell RuntimeClass (условный рендер)
 ```
 
-## Важные особенности
+## Важные операционные инварианты
 
-- `ops/helm/polisyos-cell` ожидает обязательный `cell.id`; имя namespace/chart ресурсов строится из первых 8 символов `cell.id`.
-- `ops/helm/polisyos-cell/templates/runtimeclass-confidential.yaml` рендерится только при `confidentialCompute.enabled=true` и `cell.tier=dedicated`.
-- `ops/prometheus/prometheus.yml` подключает `/etc/prometheus/rules/audit_chain_alerts.yml`, но в `docker-compose.observability.yml` не смонтирована директория `./prometheus/rules` (для локального запуска нужен дополнительный mount).
-- `ops/grafana/provisioning/dashboards.yml` провиженит только dashboards; datasource Prometheus нужно настроить отдельно.
+- `helm/polisyos-cell` требует `cell.id`; namespace и имена ресурсов строятся из первых 8 символов.
+- `prometheus/prometheus.yml` подключает `rules/audit_chain_alerts.yml`, но в `docker-compose.observability.yml` нет mount для `./prometheus/rules`.
+- `migrations/003_rls_disable_rollback.sql` — emergency rollback только для шага `003_rls_enable.sql`, не часть forward-цепочки.
+- `ops/opa/policies/*.rego` и `helm/polisyos-cell/policies/*.rego` должны оставаться синхронными (chart пакует копию политик).
 
-## Локальный запуск observability
+## Базовый локальный smoke-check
 
 ```bash
 cd policy-engine/ops
+
 docker compose -f docker-compose.observability.yml up -d
-# Prometheus: http://localhost:9090
-# Grafana: http://localhost:3000 (admin/admin)
+opa test ./opa/policies -v
+helm template cell-a ./helm/polisyos-cell --set cell.id=cell-00112233
 ```
 
-## Быстрые проверки
+## Документация по модулям
 
-```bash
-# OPA unit tests
-opa test policy-engine/ops/opa/policies -v
-
-# Проверка правил Prometheus (если установлен promtool)
-promtool check rules policy-engine/ops/prometheus/alerts.yml
-promtool check rules policy-engine/ops/prometheus/slo_alerts.yml
-promtool check rules policy-engine/ops/prometheus/rules/audit_chain_alerts.yml
-
-# Рендер Helm chart'а cell
-helm template demo policy-engine/ops/helm/polisyos-cell --set cell.id=cell-00112233
-```
-
-## Подробная документация
-
-- Helm: [helm/README.md](helm/README.md)
-- OPA: [opa/README.md](opa/README.md)
-- Prometheus: [prometheus/README.md](prometheus/README.md)
-- Grafana: [grafana/README.md](grafana/README.md)
-- Migrations: [migrations/README.md](migrations/README.md)
-- Terraform: [terraform/README.md](terraform/README.md)
+- [helm/README.md](helm/README.md)
+- [opa/README.md](opa/README.md)
+- [prometheus/README.md](prometheus/README.md)
+- [grafana/README.md](grafana/README.md)
+- [migrations/README.md](migrations/README.md)
+- [terraform/README.md](terraform/README.md)

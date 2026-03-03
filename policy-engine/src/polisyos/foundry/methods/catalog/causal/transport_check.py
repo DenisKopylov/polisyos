@@ -193,6 +193,9 @@ def _evaluate_pag_probabilistic(
             ],
             source_context_id=selection_diagram.source_context.context_id,
             target_context_id=selection_diagram.target_context.context_id,
+            identification_engine="simplified",
+            identification_trace=["pag_probabilistic:no_dag_candidates"],
+            unsupported_reason="pag_dag_sampling_failed",
         )
 
     evaluated: list[TransportabilityResult] = []
@@ -249,11 +252,6 @@ def _evaluate_pag_probabilistic(
                 if final_status is not TransportabilityStatus.NON_TRANSPORTABLE
                 else None
             ),
-            "formula": (
-                representative.transport_formula
-                if final_status is not TransportabilityStatus.NON_TRANSPORTABLE
-                else None
-            ),
             "blocking_s_nodes": blocking,
             "final_confidence": float(representative.final_confidence) * id_confidence,
             "algorithm_version": "simplified_tr_v2_pag_probabilistic",
@@ -264,6 +262,10 @@ def _evaluate_pag_probabilistic(
             "id_confidence_under_pag": id_confidence,
             "pag_dag_sample_size": total,
             "pag_transportable_count": transportable_count,
+            "identification_engine": "simplified",
+            "identification_trace": list(representative.identification_trace)
+            + [f"pag_probabilistic:{transportable_count}/{total}"],
+            "unsupported_reason": representative.unsupported_reason,
         }
     )
 
@@ -434,6 +436,8 @@ def _evaluate_single_graph(
             assumes_time_stationarity=has_lagged,
             lagged_edge_count=lagged_count,
             temporal_distance_penalty=temporal_penalty,
+            identification_engine="simplified",
+            identification_trace=["simplified:direct:no_s_nodes"],
         )
 
     residual_s_nodes: list[SNode] = []
@@ -505,6 +509,11 @@ def _evaluate_single_graph(
             assumes_time_stationarity=has_lagged,
             lagged_edge_count=lagged_count,
             temporal_distance_penalty=temporal_penalty,
+            identification_engine="simplified",
+            identification_trace=[
+                "simplified:non_transportable:unresolved_s_nodes",
+            ],
+            unsupported_reason="simplified_unresolved_s_nodes",
         )
 
     ordered = [elimination_results[key] for key in sorted(elimination_results)]
@@ -543,6 +552,8 @@ def _evaluate_single_graph(
         assumes_time_stationarity=has_lagged,
         lagged_edge_count=lagged_count,
         temporal_distance_penalty=temporal_penalty,
+        identification_engine="simplified",
+        identification_trace=["simplified:transportable:stratification"],
     )
 
 

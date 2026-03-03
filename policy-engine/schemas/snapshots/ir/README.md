@@ -1,44 +1,59 @@
-# snapshots/ir — ABI снапшоты IR
+# snapshots/ir — ABI baseline для IR моделей
 
-Папка содержит ABI JSON Schema для IR-моделей и используется как baseline для semantic diff в `tools/diagnostics/abi_diff.py`.
+Папка содержит JSON Schema snapshot IR-контрактов и используется как baseline в semantic diff (`tools/diagnostics/abi_diff.py`).
 
 ## Роль в системе
 
-- Фиксирует контракт IR между доменными моделями и потребителями (runtime, пайплайны, аналитика, governance).
-- Участвует в PR-gate (`.github/workflows/abi.yml`) и архитектурном gate (`.github/workflows/arch.yml`).
+- Фиксирует публичный ABI между `src/polisyos/ir/**` и потребителями (runtime, пайплайны, аналитика, governance).
+- Проверяется в `.github/workflows/abi.yml` и `.github/workflows/arch.yml`.
 
-## Источники данных
+## Источники
 
-- Реестр моделей: `schemas/abi_models.py` (`module="ir"`).
-- Исходные классы: `src/polisyos/ir/**`.
+- Реестр: `schemas/abi_models.py` (entries с `module="ir"`).
 - Генератор: `tools/diagnostics/gen_schema.py`.
+- Проверка совместимости: `tools/diagnostics/abi_diff.py`.
 
-## Что внутри
+## Что хранится
 
-- `*.schema.json` — JSON Schema по каждой ABI модели.
-- `_manifest.json` — метаданные генерации:
-  - `models.<abi_key>.schema_file`, `schema_version`, `priority`, `compat_mode`, `version_field`;
-  - `sha256_full` и `sha256_semantic` для drift/compatibility анализа.
+- `*.schema.json` — схема конкретной ABI-модели.
+- `_manifest.json` — индекс моделей и метаданные генерации:
+  - `schema_file`, `schema_version`, `priority`, `compat_mode`, `version_field`;
+  - `sha256_full` и `sha256_semantic` для drift/compatibility проверки.
 
-## Актуальное состояние (2026-02-17)
+## Актуальное состояние (2026-03-03)
 
-- Количество моделей в манифесте: `32`.
-- `generated_at`: `2026-02-08T18:29:42+00:00`.
-- Покрываемые домены: `trinity`, `governance`, `norm-system`, `world/fact log`, `analytics`, `gate`.
+- Моделей: `48`.
+- `generated_at`: `2026-03-03T16:49:25+00:00`.
+- Приоритеты: `p0=16`, `p1=23`, `p2=9`.
+- Все модели активные, `compat_mode=strict`.
+- `version_field=None` у `certification_result`, `data_view_request`, `outer_search_result`.
+- Особенность именования: key `causal_sensitivity_result` соответствует файлу `sensitivity_result.schema.json`.
 
-## Локальные команды (из `policy-engine/`)
+## Связи и домены
+
+- Trinity/Policy: `trinity_bundle`, `problem_frame`, `policy_spec`, `policy_portfolio`.
+- Norm-system: `norm_pack`, `norm_rule`, `norm_ref`.
+- World/fact log: `claim`, `conflict_*`, `world_event`, `prov_activity`, `fact*`, `doc_*`.
+- Analytics/gate: causal, transportability, calibration, certification, `gate_*`.
+
+## Команды (из `policy-engine/`)
 
 ```bash
+# Проверка и обновление только IR snapshot
 python3 tools/diagnostics/gen_schema.py --models ir --check
 python3 tools/diagnostics/gen_schema.py --models ir
 ```
 
 ```bash
+# Локальный semantic diff перед PR
 python3 tools/diagnostics/gen_schema.py --output-dir /tmp/current_schemas
-python3 tools/diagnostics/abi_diff.py --baseline schemas/snapshots --current /tmp/current_schemas --format markdown
+python3 tools/diagnostics/abi_diff.py \
+  --baseline schemas/snapshots \
+  --current /tmp/current_schemas \
+  --format markdown
 ```
 
-## Важно
+## Инварианты
 
 - Не редактировать файлы в этой директории вручную.
-- Любые изменения должны идти через обновление исходных моделей и `gen_schema.py`.
+- Любые изменения проходят через изменение исходных моделей и последующий `gen_schema.py`.

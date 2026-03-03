@@ -1,7 +1,13 @@
 from __future__ import annotations
 
+import importlib.util
 from collections.abc import Mapping
+from importlib import import_module
+from importlib.metadata import PackageNotFoundError
+from importlib.metadata import version as package_version
 from typing import Any, ClassVar
+
+import numpy as np
 
 from polisyos.core.observability.determinism import DeterminismTier
 from polisyos.foundry.methods.base import (
@@ -10,6 +16,7 @@ from polisyos.foundry.methods.base import (
     FidelityLevel,
     MethodMetadata,
     MethodSignature,
+    ParameterSpec,
     SlotSpec,
     SlotType,
     Unit,
@@ -50,7 +57,11 @@ class ParameterTransfer:
                 ),
             }
         ),
-        parameters=(),
+        parameters=(
+            ParameterSpec(name="runtime_backend", default="auto"),
+            ParameterSpec(name="runtime_draws", default=256),
+            ParameterSpec(name="runtime_seed", default=0),
+        ),
         fidelity=FidelityLevel.MEDIUM,
         complexity=ComplexityClass.O_N,
         backend=ComputeBackend.JAX,
@@ -62,10 +73,9 @@ class ParameterTransfer:
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description=(
             "Convert ContextAdaptiveParameterBundle into deterministic parameter payload "
-            "for JAX structural methods."
+            "for JAX/NumPyro structural methods."
         ),
         assumptions={
-            "runtime_scope": "Bridge layer only; NumPyro runtime is out of scope for phase 15.",
             "prior_shape": (
                 "Output literature_priors follows SCMFitData shape: "
                 "{target: {'__intercept__': {'mean': x, 'std': y}}}"
@@ -79,9 +89,10 @@ class ParameterTransfer:
         state: ParameterTransferData | Mapping[str, Any],
         params: Mapping[str, Any],
     ) -> dict[str, Any]:
-        del params
         payload = (
-            state if isinstance(state, ParameterTransferData) else ParameterTransferData.model_validate(state)
+            state
+            if isinstance(state, ParameterTransferData)
+            else ParameterTransferData.model_validate(state)
         )
         bundle = payload.parameter_bundle
 
@@ -125,6 +136,19 @@ class ParameterTransfer:
                 "unsupported parameters: " + ", ".join(sorted(bundle.unsupported_parameters))
             )
 
+        runtime_requested = _normalize_runtime_backend(params.get("runtime_backend"))
+        runtime_draws = max(32, int(params.get("runtime_draws", 256) or 256))
+        runtime_seed = int(params.get("runtime_seed", 0) or 0)
+        backend_used, fallback_reason = _resolve_runtime_backend(runtime_requested)
+        runtime_intervals, runtime_warning = _runtime_intervals_from_priors(
+            literature_priors=literature_priors,
+            backend=backend_used,
+            draws=runtime_draws,
+            seed=runtime_seed,
+        )
+        if runtime_warning:
+            warnings.append(runtime_warning)
+
         return {
             "parameter_values": parameter_values,
             "uncertainty_multipliers": uncertainty_multipliers,
@@ -133,6 +157,14 @@ class ParameterTransfer:
             "warnings": warnings,
             "skg_snapshot_ref": bundle.skg_snapshot_ref,
             "skg_version_id": bundle.skg_version_id,
+            "runtime_backend_requested": runtime_requested,
+            "runtime_backend_used": backend_used,
+            "runtime_backend_fallback_reason": fallback_reason,
+            "runtime_draws": runtime_draws,
+            "runtime_seed": runtime_seed,
+            "runtime_parameter_intervals": runtime_intervals,
+            "runtime_ready": bool(runtime_intervals),
+            "runtime_engine_versions": _runtime_engine_versions(backend_used),
         }
 
 
@@ -165,6 +197,175 @@ def _estimate_std(parameter: Any) -> float:
         except Exception:
             pass
     return 0.1
+
+
+def _normalize_runtime_backend(raw: Any) -> str:
+    token = str(raw or "auto").strip().lower()
+    if token not in {"auto", "numpyro", "jax", "numpy"}:
+        return "auto"
+    return token
+
+
+def _resolve_runtime_backend(requested: str) -> tuple[str, str | None]:
+    numpyro_available = _module_available("numpyro")
+    jax_available = _module_available("jax")
+    if requested == "numpyro":
+        if numpyro_available:
+            return "numpyro", None
+        return "jax" if jax_available else "numpy", "numpyro_unavailable"
+    if requested == "jax":
+        if jax_available:
+            return "jax", None
+        return "numpy", "jax_unavailable"
+    if requested == "numpy":
+        return "numpy", None
+    # auto
+    if numpyro_available:
+        return "numpyro", None
+    if jax_available:
+        return "jax", "auto_selected_jax:numpyro_unavailable"
+    return "numpy", "auto_selected_numpy:numpyro_and_jax_unavailable"
+
+
+def _module_available(name: str) -> bool:
+    return importlib.util.find_spec(name) is not None
+
+
+def _runtime_intervals_from_priors(
+    *,
+    literature_priors: dict[str, dict[str, dict[str, float]]],
+    backend: str,
+    draws: int,
+    seed: int,
+) -> tuple[dict[str, dict[str, float]], str | None]:
+    if not literature_priors:
+        return {}, None
+
+    if backend == "numpyro":
+        try:
+            return _runtime_intervals_numpyro(
+                literature_priors=literature_priors,
+                draws=draws,
+                seed=seed,
+            ), None
+        except Exception as exc:
+            fallback = "jax" if _module_available("jax") else "numpy"
+            intervals, _ = _runtime_intervals_from_priors(
+                literature_priors=literature_priors,
+                backend=fallback,
+                draws=draws,
+                seed=seed,
+            )
+            return intervals, f"numpyro_runtime_failed:{type(exc).__name__}:{exc}"
+    if backend == "jax":
+        return _runtime_intervals_jax(
+            literature_priors=literature_priors,
+            draws=draws,
+            seed=seed,
+        ), None
+    return _runtime_intervals_numpy(
+        literature_priors=literature_priors,
+        draws=draws,
+        seed=seed,
+    ), None
+
+
+def _runtime_intervals_numpyro(
+    *,
+    literature_priors: dict[str, dict[str, dict[str, float]]],
+    draws: int,
+    seed: int,
+) -> dict[str, dict[str, float]]:
+    jnp = import_module("jax.numpy")
+    jrandom = import_module("jax.random")
+    dist = import_module("numpyro.distributions")
+
+    key = jrandom.PRNGKey(seed)
+    output: dict[str, dict[str, float]] = {}
+    for parameter_name in sorted(literature_priors):
+        prior = literature_priors[parameter_name].get("__intercept__", {})
+        mean = float(prior.get("mean", 0.0))
+        std = max(1.0e-6, float(prior.get("std", 0.1)))
+        key, subkey = jrandom.split(key)
+        samples = dist.Normal(loc=mean, scale=std).sample(subkey, sample_shape=(draws,))
+        output[parameter_name] = {
+            "mean": float(jnp.mean(samples)),
+            "std": float(jnp.std(samples)),
+            "ci_low": float(jnp.quantile(samples, 0.025)),
+            "ci_high": float(jnp.quantile(samples, 0.975)),
+            "draws": float(draws),
+        }
+    return output
+
+
+def _runtime_intervals_jax(
+    *,
+    literature_priors: dict[str, dict[str, dict[str, float]]],
+    draws: int,
+    seed: int,
+) -> dict[str, dict[str, float]]:
+    jnp = import_module("jax.numpy")
+    jrandom = import_module("jax.random")
+
+    key = jrandom.PRNGKey(seed)
+    output: dict[str, dict[str, float]] = {}
+    for parameter_name in sorted(literature_priors):
+        prior = literature_priors[parameter_name].get("__intercept__", {})
+        mean = float(prior.get("mean", 0.0))
+        std = max(1.0e-6, float(prior.get("std", 0.1)))
+        key, subkey = jrandom.split(key)
+        samples = mean + std * jrandom.normal(subkey, shape=(draws,))
+        output[parameter_name] = {
+            "mean": float(jnp.mean(samples)),
+            "std": float(jnp.std(samples)),
+            "ci_low": float(jnp.quantile(samples, 0.025)),
+            "ci_high": float(jnp.quantile(samples, 0.975)),
+            "draws": float(draws),
+        }
+    return output
+
+
+def _runtime_intervals_numpy(
+    *,
+    literature_priors: dict[str, dict[str, dict[str, float]]],
+    draws: int,
+    seed: int,
+) -> dict[str, dict[str, float]]:
+    rng = np.random.default_rng(seed)
+    output: dict[str, dict[str, float]] = {}
+    for parameter_name in sorted(literature_priors):
+        prior = literature_priors[parameter_name].get("__intercept__", {})
+        mean = float(prior.get("mean", 0.0))
+        std = max(1.0e-6, float(prior.get("std", 0.1)))
+        samples = rng.normal(loc=mean, scale=std, size=draws)
+        output[parameter_name] = {
+            "mean": float(np.mean(samples)),
+            "std": float(np.std(samples)),
+            "ci_low": float(np.quantile(samples, 0.025)),
+            "ci_high": float(np.quantile(samples, 0.975)),
+            "draws": float(draws),
+        }
+    return output
+
+
+def _runtime_engine_versions(backend: str) -> dict[str, str]:
+    versions: dict[str, str] = {}
+    if backend in {"jax", "numpyro"}:
+        jax_ver = _safe_version("jax")
+        if jax_ver:
+            versions["jax"] = jax_ver
+    if backend == "numpyro":
+        numpyro_ver = _safe_version("numpyro")
+        if numpyro_ver:
+            versions["numpyro"] = numpyro_ver
+    return versions
+
+
+def _safe_version(name: str) -> str | None:
+    try:
+        return package_version(name)
+    except PackageNotFoundError:
+        return None
 
 
 __all__ = ["ParameterTransfer"]

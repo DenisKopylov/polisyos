@@ -1,56 +1,56 @@
-# Governance — validation profiles и проходы проверки
+# Governance — профили и валидационные pass'ы
 
-`core.governance` задает общий каркас валидации для `lex` и `scientist`:
-уровни строгости, контекст выполнения pass'ов и legal/safety проверки.
+`core.governance` задает общий каркас проверки для `scientist` и `lex`: профиль строгости, контекст pass execution и legal/safety проверки.
 
 ## Состав
 
 ```text
 governance/
-├── profiles.py              # ValidationProfile + ProfileLevel (fast/mvp/strict)
-├── passes/base.py           # PassContext + ValidatorPass абстракции
-├── passes/safety_pass.py    # проверка механизмов интервенций по registry bundle
-├── passes/legal_pass.py     # legal-pass с backend dispatcher
+├── profiles.py            # ValidationProfile + ProfileLevel (fast/mvp/strict)
+├── passes/base.py         # PassContext + ValidatorPass
+├── passes/safety_pass.py  # проверка механизмов интервенции
+├── passes/legal_pass.py   # legal pass с backend dispatcher
 └── legal/
-    ├── ast_policy.py        # whitelist AST policy + resource limits
+    ├── ast_policy.py      # whitelist AST policy
     └── backends/
-        ├── stub.py          # заглушка backend (INFO issues)
-        └── expr_ast.py      # безопасный AST evaluator для норм
+        ├── stub.py        # безопасный placeholder backend
+        └── expr_ast.py    # AST-based expression evaluator
 ```
 
-## Роль в системе
-
-- Единая модель профилей валидации (`FAST`, `MVP`, `STRICT`) для разных контуров исполнения.
-- Базовый `PassContext` для запуска pass'ов поверх `TrinityBundle`, состояния и registry bundle.
-- Общий legal runtime c backend-абстракцией (`stub`, `expr_ast`).
-
-## Validation profiles
+## ValidationProfile
 
 `ValidationProfile` управляет:
+- `pass_ids` (какие проверки запускать)
+- `thresholds` (числовые пороги)
+- `short_circuit_on_blocker`
 
-- набором `pass_ids`;
-- числовыми порогами (`thresholds`);
-- short-circuit поведением (`short_circuit_on_blocker`).
+Профили:
+- `FAST`: быстрые preflight-checks
+- `MVP`: стандартный runtime набор
+- `STRICT`: полный набор (включая legal/quality/human-review) без short-circuit по умолчанию
 
-`STRICT` включает legal/quality/uncertainty/equity-гейты и по умолчанию не short-circuit'ит,
-чтобы сохранить полный audit trace.
+## Pass execution
 
-## Legal backends
+`PassContext` содержит:
+- `ir` (`TrinityBundle`)
+- `state` (budget/usage/служебные данные)
+- `registry_bundle`
+- `profile`
+- `run_id`
 
-- `StubBackend`: безопасная заглушка, возвращает INFO-issues для неимплементированных норм.
-- `ExpressionASTBackend`: выполняет выражения `when/must/must_not` через `SafeExpressionEvaluator`.
-- `ASTPolicy`: явный whitelist AST-узлов и лимиты сложности (`MAX_NODES`, `MAX_DEPTH`, и т.д.),
-  без `eval/exec/compile`.
+Любой pass реализует `ValidatorPass.validate(ctx) -> list[ComplianceIssue]`.
 
-## Связи с другими директориями
+## Legal backend слой
 
-- `lex/`: использует legal pass и `contracts.lex.ComplianceIssue`.
-- `scientist/`: использует профили и pass'ы для preflight/governance этапов.
-- `registry/`: `SafetyPass` проверяет механизмы на базе собранного registry bundle.
-- `backends/`: `LegalPass` использует `BackendDispatcher` для выбора rule backend.
+`LegalPass` поддерживает backend режимы:
+- `stub` — always-safe заглушка
+- `expr_ast` — ограниченный AST evaluator (без `eval/exec`)
 
-## Публичный API
+По умолчанию legal-pass выполняется в `STRICT` профиле (или при явном включении).
 
-- `polisyos.core.governance`: `ProfileLevel`, `ValidationProfile`
-- `polisyos.core.governance.passes`: `PassContext`, `ValidatorPass`, `SafetyPass`, `LegalPass`
-- `polisyos.core.governance.legal.backends`: `RuleBackend`, `StubBackend`, `ExpressionASTBackend`
+## Связи
+
+- `lex`: `ComplianceIssue`, legal norm evaluation
+- `scientist`: governance/preflight orchestration
+- `registry`: source для safety validation по механизмам
+- `backends`: generic `BackendDispatcher` для backend resolution

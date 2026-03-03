@@ -1,6 +1,6 @@
-# snapshots — baseline контрактов
+# snapshots — baseline для контрактных проверок
 
-`snapshots/` хранит коммитные baseline-артефакты, по которым CI проверяет drift и совместимость контрактов.
+`snapshots/` содержит коммитный baseline, по которому CI проверяет drift и совместимость ABI/connector-контрактов.
 
 ## Структура
 
@@ -13,6 +13,7 @@ snapshots/
 │   ├── _manifest.json
 │   └── *.schema.json
 └── connectors/
+    ├── README.md
     └── contracts.json
 ```
 
@@ -20,30 +21,32 @@ snapshots/
 
 | Папка | Назначение |
 | --- | --- |
-| `snapshots/ir` | ABI JSON Schema для IR-моделей из `src/polisyos/ir` |
-| `snapshots/fabric` | ABI JSON Schema для Fabric enum-моделей (`edge_kind`, `node_kind`) |
-| `snapshots/connectors` | Снапшот контрактов источников данных connectors layer |
+| `snapshots/ir` | ABI JSON Schema для IR-моделей (`src/polisyos/ir/**`) |
+| `snapshots/fabric` | ABI JSON Schema для enum world-ABI (`src/polisyos/ir/world/abi.py`) |
+| `snapshots/connectors` | Baseline source connector-контрактов |
 
-## Форматы
+## Формат артефактов
 
-- `ir` и `fabric`: `_manifest.json` + набор `*.schema.json`, генерируются `tools/diagnostics/gen_schema.py`.
-- `_manifest.json` содержит `models` (метаданные по каждой ABI модели), `content_hash`, версии генератора/интерпретатора.
-- `connectors/contracts.json` содержит `version` и объект `contracts`, где ключ равен `contract_id`.
+- `ir` и `fabric`: набор `*.schema.json` + `_manifest.json`, генерируются `tools/diagnostics/gen_schema.py`.
+- В `_manifest.json` на модель хранятся `priority`, `compat_mode`, `schema_version`, `version_field`, `sha256_full`, `sha256_semantic`.
+- `connectors/contracts.json`: формат `version=1`, payload `contracts` keyed by `contract_id`.
 
-## Актуальное состояние (2026-02-17)
+## Актуальное состояние (2026-03-03)
 
-- `ir`: `32` ABI модели, манифест `generated_at=2026-02-08T18:29:42+00:00`.
-- `fabric`: `2` ABI модели, манифест `generated_at=2026-02-07T12:16:56+00:00`.
+- `ir`: `48` моделей, `generated_at=2026-03-03T16:49:25+00:00`.
+- `fabric`: `2` модели, `generated_at=2026-03-02T16:48:08+00:00`.
 - `connectors`: `3` контракта (`eurostat.data.generic`, `ukons.datasets.generic`, `worldbank.wdi.generic`).
 
-## Локальные команды (из `policy-engine/`)
+## Команды (из `policy-engine/`)
 
 ```bash
+# Проверка baseline
 python3 tools/diagnostics/gen_schema.py --check
 python3 tools/connectors/check_contracts.py --check
 ```
 
 ```bash
+# Обновление baseline
 python3 tools/diagnostics/gen_schema.py
 python3 tools/connectors/check_contracts.py --update
 ```
@@ -51,4 +54,4 @@ python3 tools/connectors/check_contracts.py --update
 ## Инварианты
 
 - Не редактировать вручную `ir/*.schema.json`, `fabric/*.schema.json`, `_manifest.json`.
-- Для connector snapshot использовать `check_contracts.py --update`, а не ручные правки JSON.
+- Не редактировать вручную `connectors/contracts.json`; обновлять только через `check_contracts.py --update`.

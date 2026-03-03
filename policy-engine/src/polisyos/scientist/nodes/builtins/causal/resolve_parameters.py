@@ -44,6 +44,9 @@ _SPEC = NodeSpec(
         "params.required_parameters",
         "params.skg_db_path",
         "params.skg_index_dir",
+        "params.phase15_runtime_backend",
+        "params.phase15_runtime_draws",
+        "params.phase15_runtime_seed",
         "params.causal_graph_ref",
         f"artifacts_index.{ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF}",
     ],
@@ -51,6 +54,9 @@ _SPEC = NodeSpec(
         f"artifacts_index.{ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF}",
         "params.literature_priors",
         "params.parameter_uncertainty_multipliers",
+        "params.phase15_runtime_backend_used",
+        "params.phase15_runtime_parameter_intervals",
+        "params.phase15_runtime_ready",
     ],
     produces=[ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF],
 )
@@ -153,7 +159,11 @@ class ResolveParametersNode:
         )
         bridge_payload = ParameterTransfer.pure_step(
             ParameterTransferData(parameter_bundle=bundle),
-            params={},
+            params={
+                "runtime_backend": state.params.get("phase15_runtime_backend", "auto"),
+                "runtime_draws": state.params.get("phase15_runtime_draws", 256),
+                "runtime_seed": state.params.get("phase15_runtime_seed", 0),
+            },
         )
 
         new_state = state.model_copy(deep=True)
@@ -162,6 +172,17 @@ class ResolveParametersNode:
         new_state.params["parameter_uncertainty_multipliers"] = bridge_payload.get(
             "uncertainty_multipliers",
             {},
+        )
+        new_state.params["phase15_runtime_backend_used"] = bridge_payload.get(
+            "runtime_backend_used",
+            "numpy",
+        )
+        new_state.params["phase15_runtime_parameter_intervals"] = bridge_payload.get(
+            "runtime_parameter_intervals",
+            {},
+        )
+        new_state.params["phase15_runtime_ready"] = bool(
+            bridge_payload.get("runtime_ready", False)
         )
 
         events = []

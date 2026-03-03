@@ -1,8 +1,8 @@
 # ir.world
 
-`ir.world` — канонические контракты семантического world-graph слоя: документы, claims, конфликты, provenance-события, trust и quality отчёты.
+`ir.world` — канонические контракты world-graph слоя: документы, claims, конфликты, provenance-события, trust и quality отчёты.
 
-Это контрактный слой; хранение и запросы реализуются в `fabric`.
+Это контрактный слой. Хранение и запросы выполняются в `fabric`.
 
 ## Роль в архитектуре
 
@@ -27,10 +27,10 @@ fabric claims/world pipelines
 | `doc.py` | `DocMeta`, `DocFragment` |
 | `claim.py` | `Claim`, `ClaimSourceKind` |
 | `conflict.py` | `ConflictSet`, `ConflictResolution*` |
-| `event.py` | `WorldEvent`, provenance agent/activity |
+| `event.py` | `WorldEvent`, `ProvAgent`, `ProvActivity`, `WorldObjectRef` |
 | `trust.py` | `TrustAssessment`, `TrustTier` |
-| `quality.py` | `QualityReport`, issue severity/scope |
-| `ids.py` | deterministic ID builders через canonical hash |
+| `quality.py` | `QualityReport`, `QualityIssue`, deterministic issue ordering |
+| `ids.py` | deterministic ID builders на canonical hash |
 | `predicates.py` | world predicate constants + `rel()` |
 
 ## Ключевые инварианты
@@ -38,12 +38,13 @@ fabric claims/world pipelines
 - Deterministic world IDs: `<prefix>.sha256_<hex64>`.
 - `DocMeta`: ровно одно из `canonical_url` или `official_id`.
 - `Claim`:
-  - нужен `subject_id` или `subject_text`;
+  - обязателен `subject_id` или `subject_text`;
   - для `source_kind=doc` обязательны `citations`;
   - для остальных источников обязательны `source_artifacts`.
 - `ConflictSet.member_claim_ids` должен быть отсортирован и уникален.
-- `ConflictResolution.candidates` должен быть отсортирован по `score_total desc`, затем `claim_id asc`; winner — первый.
-- `TrustAssessment` и `QualityReport` верифицируют ID по canonical payload.
+- `ConflictResolution.candidates` должен быть отсортирован по `score_total desc`, затем `claim_id asc`; победитель — первый элемент.
+- `WorldObjectRef` требует хотя бы один идентификатор: `world_id` или `artifact_id`.
+- `TrustAssessment` и `QualityReport` проверяют собственный ID через canonical payload.
 - `QualityReport.issues` должен быть детерминированно отсортирован.
 
 ## Детерминированные ID-функции

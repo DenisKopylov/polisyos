@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import inspect
 import time
 from collections.abc import Callable, Sequence
 from enum import Enum
@@ -150,7 +151,9 @@ def _sorted_types(*items: AlignmentCertificateType) -> tuple[AlignmentCertificat
 
 
 _ALL_TYPES = _sorted_types(*AlignmentCertificateType)
-_NO_TEXT = _sorted_types(*(t for t in AlignmentCertificateType if t != AlignmentCertificateType.TEXT_CONCEPT_MAP))
+_NO_TEXT = _sorted_types(
+    *(t for t in AlignmentCertificateType if t != AlignmentCertificateType.TEXT_CONCEPT_MAP)
+)
 _EXACT_SCALE = _sorted_types(AlignmentCertificateType.EXACT, AlignmentCertificateType.SCALE_LINK)
 _EXACT_ONLY = _sorted_types(AlignmentCertificateType.EXACT)
 _PROXY_IRT = _sorted_types(
@@ -185,7 +188,7 @@ class OuterSearchResult(BaseModel):
 
 
 def run_outer_search(
-    evaluator: Callable[[AlignmentCertificationPolicy], OuterObjectiveResult],
+    evaluator: Callable[..., OuterObjectiveResult],
     type_configs: Sequence[tuple[AlignmentCertificateType, ...]] | None = None,
 ) -> OuterSearchResult:
     """Bounded grid search over (tau, lambda, type_config) space."""
@@ -221,7 +224,11 @@ def run_outer_search(
                     allowed_types=type_set,
                     tau_min=tau,
                 )
-                result = evaluator(policy)
+                result = _call_outer_evaluator(
+                    evaluator=evaluator,
+                    policy=policy,
+                    lambda_conflict=float(_lambda),
+                )
                 all_scores.append(result)
                 evaluated += 1
                 if result.score > best_score:
@@ -239,6 +246,25 @@ def run_outer_search(
 
 def _default_policy() -> AlignmentCertificationPolicy:
     return AlignmentCertificationPolicy()
+
+
+def _call_outer_evaluator(
+    *,
+    evaluator: Callable[..., OuterObjectiveResult],
+    policy: AlignmentCertificationPolicy,
+    lambda_conflict: float,
+) -> OuterObjectiveResult:
+    try:
+        signature = inspect.signature(evaluator)
+        if len(signature.parameters) >= 2:
+            return evaluator(policy, lambda_conflict)
+    except (TypeError, ValueError):
+        # Some callables may not expose signatures (C-ext / functools partial).
+        pass
+    result = evaluator(policy)
+    if result.lambda_conflict != float(lambda_conflict):
+        return result.model_copy(update={"lambda_conflict": float(lambda_conflict)})
+    return result
 
 
 __all__ = [

@@ -9,6 +9,7 @@ from polisyos.datasets.knowledge.proxy_resolver import ProxyCandidate
 from polisyos.datasets.knowledge.types import PStarZResult
 from polisyos.ir.analytics.causal_graph import CausalGraphModel, PAGIdentificationPolicy
 from polisyos.ir.analytics.context import ContextProfile, IncomeLevel
+from polisyos.ir.analytics.partial_identification import PartialIdentificationResult
 from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
 from polisyos.ir.canon import CanonSpec
 from polisyos.ir.refs import TransportabilityResultRef
@@ -146,8 +147,6 @@ class TransportabilityResult(BaseModel):
 
     status: TransportabilityStatus = TransportabilityStatus.DIRECT
     transport_formula: TransportFormula | None = None
-    # Alias retained for API compatibility with docs/contracts using `formula`.
-    formula: TransportFormula | None = None
     blocking_s_nodes: list[SNode] = Field(default_factory=list)
 
     base_confidence: float = 1.0
@@ -156,6 +155,9 @@ class TransportabilityResult(BaseModel):
     final_confidence: float = 1.0
 
     algorithm_version: str = "simplified_tr_v2"
+    identification_engine: str = "simplified"
+    identification_trace: list[str] = Field(default_factory=list)
+    unsupported_reason: str | None = None
     unsupported_cases: list[str] = Field(default_factory=list)
     pag_identification_policy: PAGIdentificationPolicy | None = None
     id_confidence_under_pag: float | None = None
@@ -181,6 +183,23 @@ class TransportabilityResult(BaseModel):
     assumes_time_stationarity: bool = True
     lagged_edge_count: int = Field(default=0, ge=0)
     temporal_distance_penalty: float = Field(default=0.0, ge=0.0, le=1.0)
+    lagged_edges_in_query: bool = False
+    time_stationarity_warning: str | None = None
+
+    # Phase 12 advanced: bounded outer-search runtime signals (DOD-139/140).
+    outer_search_truncated: bool = False
+    search_budget_exhausted: bool = False
+    outer_search_configs_evaluated: int = Field(default=0, ge=0)
+    outer_search_best_score: float | None = None
+    search_events: list[str] = Field(default_factory=list)
+
+    # Phase 12 advanced: proxy validity checklist and expert review escalation.
+    requires_expert_review: bool = False
+    expert_review_reasons: list[str] = Field(default_factory=list)
+    proxy_validity: dict[str, dict[str, Any]] = Field(default_factory=dict)
+
+    # Phase 12 advanced: partial identification fallback for non-transportable cases.
+    partial_identification_result: PartialIdentificationResult | None = None
 
     # Backward-compatible Phase 8A fields.
     sutva_assumed: bool = True
@@ -188,17 +207,42 @@ class TransportabilityResult(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
     notes: list[str] = Field(default_factory=list)
 
+    @model_validator(mode="before")
+    @classmethod
+    def _upgrade_legacy_formula_alias(
+        cls,
+        payload: Any,
+    ) -> Any:
+        if not isinstance(payload, dict):
+            return payload
+        if "transport_formula" not in payload and "formula" in payload:
+            payload = dict(payload)
+            payload["transport_formula"] = payload.get("formula")
+        if "formula" in payload:
+            payload = dict(payload)
+            payload.pop("formula", None)
+        return payload
+
     @model_validator(mode="after")
     def _normalize_contract(self) -> "TransportabilityResult":
-        if self.formula is None and self.transport_formula is not None:
-            self.formula = self.transport_formula
-        elif self.transport_formula is None and self.formula is not None:
-            self.transport_formula = self.formula
 
         self.base_confidence = _clamp01(self.base_confidence)
         self.context_distance_penalty = _clamp01(self.context_distance_penalty)
         self.data_availability_penalty = _clamp01(self.data_availability_penalty)
         self.final_confidence = _clamp01(self.final_confidence)
+        self.lagged_edges_in_query = bool(self.lagged_edge_count > 0)
+        if self.lagged_edges_in_query:
+            self.assumes_time_stationarity = True
+        if self.lagged_edges_in_query and not self.time_stationarity_warning:
+            self.time_stationarity_warning = (
+                "Lagged transport path detected; assumes_time_stationarity=True."
+            )
+        if self.outer_search_truncated:
+            self.search_budget_exhausted = True
+        if self.search_budget_exhausted and "search_budget_exhausted" not in self.search_events:
+            self.search_events = [*self.search_events, "search_budget_exhausted"]
+        if self.outer_search_truncated and "outer_search_truncated" not in self.search_events:
+            self.search_events = [*self.search_events, "outer_search_truncated"]
         if self.id_confidence_under_pag is not None:
             self.id_confidence_under_pag = _clamp01(self.id_confidence_under_pag)
         if (

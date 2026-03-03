@@ -1,43 +1,48 @@
-# snapshots/connectors — baseline контрактов источников данных
+# snapshots/connectors — baseline source connector-контрактов
 
-Папка содержит снапшот connector-контрактов для валидации эволюции схем данных источников.
+Папка содержит snapshot контрактов источников данных, который используется для проверки drift и корректности version bump.
 
 ## Роль в системе
 
-- Фиксирует публичные контракты, с которыми работают адаптеры источников данных.
-- Позволяет ловить drift и проверять корректность version bump (major/minor/patch) через `SchemaEvolution`.
-- Проверяется в CI в `tools/connectors/check_contracts.py --check` (workflow `.github/workflows/arch.yml`).
+- Фиксирует публичные контракты, на которые опираются source connectors.
+- Проверяет эволюцию схем через `SchemaEvolution` (major/minor/patch рекомендации).
+- Валидируется в CI (`tools/connectors/check_contracts.py --check`, workflow `.github/workflows/arch.yml`).
 
 ## Формат `contracts.json`
 
-- `version` — версия формата snapshot файла (текущая: `1`).
-- `contracts` — объект вида `{ "<contract_id>": { ...meta... } }`.
-- Для каждого контракта хранятся:
+- `version`: версия формата snapshot (`1`).
+- `contracts`: объект `{ "<contract_id>": { ...meta... } }`.
+- Для каждого контракта сохраняются:
   - `connector_id`, `dataset_id`, `schema_version`, `content_hash`;
-  - `contract` — нормализованный payload `ConnectorSchemaContract` (без runtime timestamp).
+  - `contract`: нормализованный `ConnectorSchemaContract` без runtime timestamp (`created_at`).
 
-## Актуальное состояние (2026-02-17)
+## Актуальное состояние (2026-03-03)
 
-- Количество контрактов: `3`.
+- Контрактов: `3`.
 - Ключи:
   - `eurostat.data.generic`
   - `ukons.datasets.generic`
   - `worldbank.wdi.generic`
-- У всех текущих контрактов `schema_version=1.0.0`.
+- Для всех контрактов текущая версия: `schema_version=1.0.0`.
 
 ## Источники и инструменты
 
 - Источник контрактов: `src/polisyos/fabric/connectors/sources/_contracts`.
 - Проверка и обновление snapshot: `tools/connectors/check_contracts.py`.
 
-## Локальные команды (из `policy-engine/`)
+## Команды (из `policy-engine/`)
 
 ```bash
+# Проверка (по умолчанию script тоже работает в check-mode)
 python3 tools/connectors/check_contracts.py --check
+```
+
+```bash
+# Обновление snapshot
 python3 tools/connectors/check_contracts.py --update
 ```
 
-## Важно
+## Инварианты
 
-- Не обновлять `contracts.json` вручную, если можно использовать `--update`.
-- Если `SchemaEvolution` требует больший bump версии, это должно быть отражено в контракте до обновления snapshot.
+- Не редактировать `contracts.json` вручную; использовать `--update`.
+- Если `SchemaEvolution` требует большее version bump, сначала обновить `schema_version` в контракте источника, затем обновлять snapshot.

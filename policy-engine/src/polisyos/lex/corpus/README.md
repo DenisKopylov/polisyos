@@ -1,19 +1,20 @@
 # corpus
 
-`polisyos.lex.corpus` подготавливает юридический корпус в CAS/fact log для downstream-пайплайнов `lex.normpack` и `lex.legal_evaluation`.
+`polisyos.lex.corpus` готовит юридический корпус в CAS/fact log для downstream-подсистем `lex.normpack` и `lex.legal_evaluation`.
 
-## Что делает
+## Роль
 
+Подсистема отвечает за:
 - ingest правового документа и обогащение `DocMeta.props.lex`;
-- структурирование норм в `ProvisionIndexV1` + `DocFragment`;
-- построение `VersionIndexV1` и `DocSourcePropsV1` для выбора активных версий.
+- выделение юридической структуры (provisions/fragments);
+- построение индексов версий для выбора активной редакции документа.
 
 ## Поток
 
 ```text
 raw bytes
   -> ingest_legal_doc_bytes
-  -> (optional in ingest) normalize/structure/chunk через fabric.docs
+  -> (optional) normalize/structure/chunk via fabric.docs
   -> build_legal_structure
   -> build_version_index
   -> resolve_active_version (on demand)
@@ -23,26 +24,17 @@ raw bytes
 
 ### `ingest.py`
 
-- Обертка над `fabric.docs` (`ingest`, опционально `normalize/structure/chunk`).
-- Обновляет `DocMeta.props.lex`:
-  - `schema_version=1.0`
-  - `corpus=lex.corpus`
-  - `jurisdiction`, `language`, `published_at`, `effective_from`, `effective_to`, `source_url`
-  - `ingest.pipeline=lex.corpus.ingest_v1`
+- Обертка над `fabric.docs` ingest pipeline.
+- Обновляет `DocMeta.props.lex` (`schema_version`, `corpus`, jurisdiction/language/date поля, `ingest.pipeline`).
 - Поддерживает merge-политику: `merge_lex` или `overwrite_lex`.
-- Пишет world events/segments и возвращает `LexIngestResult`.
+- Пишет world facts/events и возвращает `LexIngestResult`.
 
 ### `structure.py`
 
-- Требует `DocMeta.normalized_ref`; иначе `LexNotReadyError`.
-- Извлекает provision-иерархию:
-  - `article -> part -> point -> subpoint`
-  - `paragraph` опционально (`enable_paragraphs`)
-- Ruleset'ы: `UA`, `RU`, `EN`.
-- Пишет:
-  - `DocFragment` артефакты и факты;
-  - `ProvisionIndexV1` (`lex.corpus.provision_index`);
-  - обновленный `DocMeta` с `lex.provision_index_ref`, `lex.structure_algorithm_id`, `lex.structure_pipeline`.
+- Требует `DocMeta.normalized_ref`, иначе `LexNotReadyError`.
+- Ruleset-ы: `UA`, `RU`, `EN`.
+- Извлекает иерархию `article -> part -> point -> subpoint` (параграфы опциональны).
+- Пишет `DocFragment`, `ProvisionIndexV1` (`lex.corpus.provision_index`) и обновляет `DocMeta.lex` ссылкой `provision_index_ref`.
 
 Типовые quality issues:
 - `no_articles_detected`
@@ -51,26 +43,26 @@ raw bytes
 
 ### `versioning.py`
 
-- `build_version_index`:
-  - читает факты `DOC_HAS_VERSION`;
-  - поднимает актуальные `DocMeta` через `WORLD_ARTIFACT_ID`;
-  - строит `VersionIndexV1` (`lex.corpus.version_index`);
-  - пишет `DocSourcePropsV1` (`lex.corpus.doc_source_props`) и pointer-факты.
-- `resolve_active_version`:
-  - первичный путь через `version_index_ref`;
-  - выбор версии: `effective window` -> `published_at` -> deterministic ID fallback;
-  - при отсутствии pointer может вернуть `LexNotReadyError`.
+`build_version_index`:
+- читает `DOC_HAS_VERSION` и `WORLD_ARTIFACT_ID` из fact log;
+- собирает `VersionIndexV1` (`lex.corpus.version_index`);
+- пишет `DocSourcePropsV1` (`lex.corpus.doc_source_props`) и pointer-факты.
+
+`resolve_active_version`:
+- primary path: через `version_index_ref`;
+- selection: `effective window -> published_at -> deterministic id fallback`;
+- при отсутствии pointer возвращает `LexNotReadyError`.
 
 ### `index.py`
 
-Типы и helpers persist/load для:
+Типы и persist/load helpers для:
 - `ProvisionIndexV1`
 - `VersionIndexV1`
 - `DocSourcePropsV1`
 
-## Связи с другими директориями
+## Связи
 
-- `polisyos.fabric.docs` и `polisyos.fabric.world` — ingest и provenance.
-- `polisyos.core.artifacts` — CAS-персистенция.
-- `polisyos.ir.world` / `polisyos.ir.citations` — доменные модели и идентификаторы.
+- `polisyos.fabric.docs` и `polisyos.fabric.world` — ingest/provenance.
+- `polisyos.core.artifacts` — CAS persistence.
+- `polisyos.ir.world` / `polisyos.ir.citations` — доменные модели.
 - Upstream для `policy-engine/src/polisyos/lex/normpack`.

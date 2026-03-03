@@ -1,71 +1,69 @@
 # Connectors
 
-`polisyos.fabric.connectors` — подсистема интеграции с внешними источниками данных. Она определяет протоколы коннекторов, runtime-реестр, connection lifecycle, а также слои надежности/валидации/качества вокруг `fetch`.
+`polisyos.fabric.connectors` — подсистема подключения внешних источников и исполнения `fetch` с окружением надежности, валидации и композиции данных.
 
 ## Роль в Fabric
 
 ```text
-ConnectorRegistry -> SourceConnector.fetch/list_datasets -> FetchResult
-                     + cache/resilience/contracts/quality/transform/federation
+ConnectorRegistry
+  -> SourceConnector.fetch/list_datasets/fetch_stream
+  -> FetchResult
+  -> (cache/resilience/contracts/quality/transform/federation)
 ```
 
-Подсистема используется в:
+Основные потребители:
 
-- `/Users/deniskopylov/polisyos/policy-engine/src/polisyos/fabric/ingestion.py`
-- `/Users/deniskopylov/polisyos/policy-engine/src/polisyos/fabric/_connector_bridge.py`
-- `/Users/deniskopylov/polisyos/policy-engine/src/polisyos/fabric/retrieval/executor.py`
-- `/Users/deniskopylov/polisyos/policy-engine/src/polisyos/fabric/retrieval/explore_lane.py`
-- `/Users/deniskopylov/polisyos/policy-engine/src/polisyos/fabric/data_plane/modes.py`
+- [ingestion.py](/Users/deniskopylov/polisyos/policy-engine/src/polisyos/fabric/ingestion.py)
+- [_connector_bridge.py](/Users/deniskopylov/polisyos/policy-engine/src/polisyos/fabric/_connector_bridge.py)
+- [retrieval/executor.py](/Users/deniskopylov/polisyos/policy-engine/src/polisyos/fabric/retrieval/executor.py)
+- [retrieval/explore_lane.py](/Users/deniskopylov/polisyos/policy-engine/src/polisyos/fabric/retrieval/explore_lane.py)
+- [data_plane/modes.py](/Users/deniskopylov/polisyos/policy-engine/src/polisyos/fabric/data_plane/modes.py)
 
-## Архитектурные блоки
+## Архитектура
 
-### 1) Контракты и capability-модель
-
-- `base.py`: `SourceConnector`, `BaseConnector`, `ConnectionConfig`, `ConnectionHandle`.
-- `capabilities.py`: capability decorators, runtime checks, protocol compliance.
-- `types/`: унификация типов данных, units/dimensions/temporal/coercion и error-модель.
-
-### 2) Реестр и lifecycle
-
-- `registry.py` — публичный фасад.
-- `registry_core.py`, `registry_core_parts.py`, `_registry_*` — реализация `ConnectorRegistry`.
-- `discovery.py` — загрузка built-in, entry points и explicit модулей.
+- `base.py`, `capabilities.py`, `types/` — protocol `SourceConnector`, capability checks, unified connector types/coercion/units/temporal.
+- `registry.py` + `registry_core*.py` + `_registry_*` — runtime registry и lifecycle.
+- `discovery.py` — discovery built-in modules, entry points и explicit modules/paths (dev-gated).
 - `pool.py` — connection pooling.
+- `profiles/` и `bindings/` — singleton registries reusable профилей подключения и binding-профилей.
+- `contracts/` — schema contracts, inference, evolution и validation middleware.
+- `cache/` — CAS-backed cache store, policies, invalidation, prefetch, proxy.
+- `resilience/` — retry, circuit breaker, rate limiting, fallback wrappers.
+- `quality/` — freshness/completeness/consistency, quality reports.
+- `transform/` — tabular pipeline (normalizer/filter/imputer/aggregator/validator).
+- `federation/` — planner/ranker/resolver/composer для multi-source composition + audit merge logs.
+- `components.py` и `components_bridge.py` — интеграция коннекторов в `polisyos.core.components`.
 
-### 3) Execution-слои вокруг fetch
+## Текущие production connectors (`sources/`)
 
-- `cache/` — CAS-backed cache + TTL/LRU/smart policies + invalidation/prefetch/proxy.
-- `resilience/` — retry, circuit breaker, rate limit, fallback, unified wrappers.
-- `contracts/` — schema contracts, inference/evolution, validating middleware.
-- `quality/` — freshness/completeness/consistency и формирование quality reports.
-- `transform/` — конвейер преобразований табличных payload.
-- `federation/` — planner/ranker/resolver/composer для объединения нескольких источников.
+- `WorldBankConnector`
+- `WVSConnector`
+- `EurostatConnector`
+- `UKONSConnector`
+- `SDMXSourceConnector`
+- `CKANCatalogConnector`
+- `CKANResourceConnector`
+- `SocrataConnector`
+- `OpendatasoftConnector`
+- `RestJsonConnector`
+- `SPARQLConnector`
 
-### 4) Профили и конфигурации
+Reference adapters (для шаблонных интеграций) находятся в `reference/`.
 
-- `profiles/` — connection profiles (`SourceProfileRegistry`).
-- `bindings/` — mapping/binding profiles для связки схемы и целевой структуры.
+## Execution-paths
 
-### 5) Реализации коннекторов
+- Ingestion path: `run_connectors_ingestion(...)`.
+- Bridge path: `fabric_get_data(...)`.
+- Retrieval path: `FetchExecutor.execute(...)`, `ExploreLaneDiscovery.discover(...)`.
+- Streaming path: `fetch_stream(...)` используется `data_plane.run_streaming_windowed(...)`.
 
-- `sources/` — production implementations (`WorldBank`, `Eurostat`, `UKONS`, `SDMX`, `CKAN`, `Socrata`, `Opendatasoft`, `SPARQL`, `REST`).
-- `reference/` — reference adapters (`StaticCSV`, generic `REST`, `SDMX`).
+## Тестирование и replay
 
-### 6) Testing и record/replay интеграция
-
-- `testing/` — harness, fixtures, simulator, fault-injection.
-- `testing/simulator.py` используется `fabric.data_plane` в режимах `record`/`replay`.
-
-## Как обычно вызывать
-
-1. Через ingestion path: `run_connectors_ingestion(...)`.
-2. Через bridge path: `fabric_get_data(...)`.
-3. Для retrieval: `FetchExecutor.execute(...)` и `ExploreLaneDiscovery.discover(...)`.
-
-Прямой вызов `connector.fetch(...)` допустим, но не является приоритетным сценарием для верхнего слоя.
+- `testing/simulator.py` (`APISimulator`) — HTTP record/replay.
+- Интегрировано с `fabric.data_plane` режимами `record` и `replay`.
 
 ## Связи
 
-- `polisyos.ir.connectors` — канонические `FetchRequest/FetchResult`, capabilities и versioning.
-- `polisyos.fabric.catalog` и `polisyos.fabric.retrieval` — выбор источников и построение fetch plans.
-- `polisyos.fabric.evidence`/`provenance` — трассировка происхождения данных.
+- `polisyos.ir.connectors` — канонические `FetchRequest/FetchResult`, capabilities, metadata.
+- `fabric.catalog` + `fabric.retrieval` — планирование и разрешение источников.
+- `fabric.evidence` / `fabric.provenance` — provenance/evidence след данных.

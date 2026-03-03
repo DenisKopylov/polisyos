@@ -1,63 +1,38 @@
 # Helm Charts (`ops/helm`)
 
-`ops/helm` содержит базовые chart'ы для инфраструктурного периметра PolicyOS.
+`ops/helm` содержит базовые chart'ы инфраструктурного периметра PolicyOS.
 
-## Состав
+## Что здесь
 
-| Chart | Роль | Ключевые ресурсы |
+| Chart | Назначение | Ключевые ресурсы |
 |---|---|---|
-| `polisyos-cell` | tenant/cell isolation baseline | Namespace + PSS labels, NetworkPolicy, ResourceQuota, RBAC, OPA ConfigMap, Linkerd policy, optional RuntimeClass |
-| `spire` | SPIFFE/SPIRE identity plane baseline | SPIRE server Deployment, SPIRE agent DaemonSet, ConfigMap, ServiceAccounts |
-| `keycloak` | OIDC identity baseline | Keycloak StatefulSet + Service + Namespace |
+| `polisyos-cell` | tenant/cell isolation baseline | Namespace, NetworkPolicy, ResourceQuota, RBAC, OPA ConfigMap, Linkerd policy, optional RuntimeClass |
+| `spire` | SPIFFE/SPIRE identity plane | server Deployment, agent DaemonSet, ConfigMap, ServiceAccounts |
+| `keycloak` | OIDC identity provider baseline | Keycloak StatefulSet + Service + Namespace |
 
-## `polisyos-cell` ключевые особенности
-
-- `cell.id` обязателен (`required` в template helpers);
-- namespace и имена ресурсов используют первые 8 символов `cell.id`;
-- deny-by-default сетевой периметр задается через NetworkPolicy;
-- Linkerd `Server`/`AuthorizationPolicy` рендерятся при `linkerd.enabled=true`, `linkerd.strictMtls=true` и наличии `linkerd.servers`;
-- `RuntimeClass` для confidential workloads создается только при:
-  - `confidentialCompute.enabled=true`;
-  - `cell.tier=dedicated`;
-- OPA-политики в ConfigMap берутся из `policies/*.rego` chart'а (если файлы присутствуют).
-
-## `spire` особенности
-
-- server использует sqlite в `emptyDir` (базовый вариант, без persistence);
-- NodeAttestor настроен на `k8s_psat`;
-- agent работает как DaemonSet с `hostNetwork: true`, `hostPID: true` и `hostPath` сокетом.
-
-## `keycloak` особенности
-
-- разворачивается в `start-dev` режиме;
-- credential `admin.password` хранится в values;
-- persistence/HA/ingress не настроены (baseline для интеграции и dev/test).
-
-## Рекомендуемый порядок развертывания
+## Порядок применения
 
 1. `spire`
-2. Linkerd (`ops/scripts/install-linkerd.sh`) при необходимости strict mTLS
+2. Linkerd (при использовании strict mTLS)
 3. `keycloak`
 4. `polisyos-cell`
 
-## Примеры рендера
+## Интеграции
+
+- `ops/opa/` — источник Rego-политик, которые пакуются в `polisyos-cell` ConfigMap.
+- `ops/terraform/modules/confidential_nodepool` — подготавливает ноды/taints/labels для confidential RuntimeClass из `polisyos-cell`.
+- `src/polisyos/core/security/identity.py` — runtime-валидация identity из Keycloak и SPIFFE/SPIRE.
+
+## Быстрый рендер
 
 ```bash
-# polisyos-cell
-helm template cell-a policy-engine/ops/helm/polisyos-cell \
-  --set cell.id=cell-00112233 \
-  --set cell.tier=dedicated \
-  --set confidentialCompute.enabled=true
-
-# spire
 helm template spire policy-engine/ops/helm/spire
-
-# keycloak
 helm template keycloak policy-engine/ops/helm/keycloak
+helm template cell-a policy-engine/ops/helm/polisyos-cell --set cell.id=cell-00112233
 ```
 
-## Связь с другими директориями
+## Подробности по chart'ам
 
-- `ops/opa/` — источник Rego-политик для OPA ConfigMap в `polisyos-cell`;
-- `src/polisyos/core/security/identity.py` — runtime интеграция Keycloak + SPIFFE/SPIRE;
-- `ops/terraform/modules/confidential_nodepool` — подготавливает узлы для confidential runtime (`kata-cc`, `sev-snp`).
+- [polisyos-cell/README.md](polisyos-cell/README.md)
+- [spire/README.md](spire/README.md)
+- [keycloak/README.md](keycloak/README.md)

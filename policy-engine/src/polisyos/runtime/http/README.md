@@ -2,27 +2,27 @@
 
 `polisyos.runtime.http` — FastAPI слой runtime API v1: health/read/debug/artifact endpoints и control-plane операции.
 
-Документ отражает текущее состояние кода на **2026-02-17**.
+Документ отражает текущее состояние кода на **2026-03-03**.
 
 ## Роль и границы
 
-- Предоставляет HTTP-контур для introspection/debug над `core_run` и CAS артефактами.
-- Выполняет control-plane операции (launch run, ingestion/retrieval, Lex pipeline actions).
-- Не хранит бизнес-данные самостоятельно: использует `FileSystemCAS`, `core_runs_root` и сервисы из `scientist/fabric/lex`.
+- Даёт HTTP-контур для introspection/debug над `core_run` и CAS-артефактами.
+- Проксирует control-plane операции: запуск workflow/NL runs, fabric retrieval/ingestion, Lex batch.
+- Не хранит доменные данные: работает поверх `FileSystemCAS`, `core_runs_root` и сервисов `scientist/fabric/lex`.
 
 ## Архитектура директории
 
 ```text
 http/
 ├── app.py                  # create_runtime_api_app + middleware wiring + OpenAPI install
-├── dependencies.py         # RuntimeApiContext + authz/tenant helpers
-├── errors.py               # application/problem+json модель ошибок
-├── openapi_contract.py     # operation examples + unified problem responses
-├── jwt_auth_middleware.py  # JWT auth, AccessScope binding
+├── dependencies.py         # RuntimeApiContext + meta/authz/tenant helpers
+├── errors.py               # application/problem+json error model
+├── openapi_contract.py     # OpenAPI enrichment (examples + problem responses)
+├── jwt_auth_middleware.py  # JWT -> AccessScope projection
 ├── cell_router_middleware.py
 ├── authz_middleware.py
-├── routes/                 # HTTP endpoints
-└── services/               # domain services (run index, debug, lineage, control, ...)
+├── routes/                 # тонкий HTTP слой (см. routes/README.md)
+└── services/               # прикладная логика (см. services/README.md)
 ```
 
 ## Request pipeline
@@ -30,99 +30,58 @@ http/
 ```text
 HTTP request
   -> app.py (FastAPI app + exception handlers)
-  -> telemetry middleware (request_id, metrics/tracing)
+  -> telemetry middleware (request_id + metrics/tracing)
   -> optional security chain (JWT -> CellRouter -> Authz)
   -> routes/*
   -> services/*
   -> FileSystemCAS + core_runs_root
 ```
 
-Важно: security middlewares выключены по умолчанию и подключаются только при `enable_security_middlewares=True`.
+Важно:
 
-## Актуальные endpoint'ы
+- Security middleware выключены по умолчанию и включаются только через `enable_security_middlewares=True`.
+- В Starlette middleware исполняются в обратном порядке регистрации; в `app.py` это учтено, чтобы порядок проверок был `JWT -> CellRouter -> Authz`.
 
-### Health
+## Группы маршрутов
 
-- `GET /health`
-- `GET /ready`
-- `GET /api/v1/health`
+| Модуль | Prefix | Назначение |
+|---|---|---|
+| `routes/health.py` | `/`, `/api/v1/health` | liveness/readiness/runtime health |
+| `routes/runs.py` | `/api/v1/runs` | список run, details, timeline, nodes, lineage, agents, workflow |
+| `routes/debug.py` | `/api/v1/debug/runs` | node/governance/errors debug surfaces |
+| `routes/artifacts.py` | `/api/v1/artifacts` | artifact manifest/content/lineage/schema |
+| `routes/control.py` | `/api/v1/control` | запуск run и data/lex control-plane API |
 
-### Runs (`/api/v1/runs`)
-
-- `GET /api/v1/runs`
-- `GET /api/v1/runs/{run_id}`
-- `GET /api/v1/runs/{run_id}/timeline`
-- `GET /api/v1/runs/{run_id}/nodes`
-- `GET /api/v1/runs/{run_id}/lineage`
-- `GET /api/v1/runs/{run_id}/agents`
-- `GET /api/v1/runs/{run_id}/workflow`
-
-### Debug (`/api/v1/debug/runs`)
-
-- `GET /api/v1/debug/runs/{run_id}/nodes/{alias}`
-- `GET /api/v1/debug/runs/{run_id}/governance`
-- `GET /api/v1/debug/runs/{run_id}/errors`
-
-### Artifacts (`/api/v1/artifacts`)
-
-- `GET /api/v1/artifacts/{artifact_id}`
-- `GET /api/v1/artifacts/{artifact_id}/content`
-- `GET /api/v1/artifacts/{artifact_id}/lineage`
-- `GET /api/v1/artifacts/{artifact_id}/schema`
-
-### Control-plane (`/api/v1/control`)
-
-- `POST /api/v1/control/runs`
-- `POST /api/v1/control/runs/nl`
-- `POST /api/v1/control/data/ingest`
-- `POST /api/v1/control/data/resolve`
-- `POST /api/v1/control/data/discover`
-- `POST /api/v1/control/data/preview`
-- `GET /api/v1/control/data/catalog/search`
-- `GET /api/v1/control/data/index/stats`
-- `GET /api/v1/control/data/promotion/candidates`
-- `POST /api/v1/control/data/promotion/{promotion_id}/approve`
-- `POST /api/v1/control/data/promotion/{promotion_id}/reject`
-- `GET /api/v1/control/data/connectors`
-- `GET /api/v1/control/data/cache`
-- `GET /api/v1/control/data/profiles`
-- `GET /api/v1/control/data/binding-profiles`
-- `GET /api/v1/control/llm/profiles`
-- `POST /api/v1/control/lex/trigger`
-- `GET /api/v1/control/lex/status/{pipeline_id}`
-- `GET /api/v1/control/lex/graph/stats`
-- `POST /api/v1/control/lex/search`
+Полная карта endpoint'ов: [routes/README.md](routes/README.md).
 
 ## Security и tenant isolation
 
-- JWT auth middleware валидирует Bearer токен, строит `AccessScope`, сверяет tenant header/token.
-- Cell router middleware резолвит tenant->cell routing и защищает от cross-tenant/cell mismatch.
-- Authz middleware формирует `AuthzInput` и запрашивает OPA; поддерживает enforce/shadow режимы.
-- Маршруты передают ресурсный контекст через `set_authz_resource(...)`.
-- Доступ к run/artifact дополнительно ограничивается tenant-check helper'ами:
-  - `enforce_run_tenant_access`
-  - `enforce_artifact_tenant_access`
+- `JWTAuthMiddleware` валидирует Bearer token, строит `AccessScope`, сверяет header tenant с token tenant.
+- `CellRouterMiddleware` резолвит tenant -> cell routing, задаёт `request.state.tenant_id/cell_id` и блокирует cell/tenant mismatch.
+- `AuthzMiddleware` собирает `AuthzInput` и проверяет OPA policy; поддерживает `enforce` и `shadow_mode`, а также delegation token flow.
+- Routes выставляют ресурсный контекст через `set_authz_resource(...)`, чтобы authz policy видела тип ресурса и tenant/artifact id.
+- Дополнительная проверка доступа к данным:
+  - `enforce_run_tenant_access(...)`
+  - `enforce_artifact_tenant_access(...)`
 
 ## Observability и error model
 
-- `X-Request-ID` создается/прокидывается на каждый запрос.
-- Request telemetry пишет tracing span и runtime API latency/status метрики.
-- Все ошибки нормализуются в `application/problem+json` (`RuntimeApiProblem`).
-- `openapi_contract.py` дополняет OpenAPI примерами success/error payload для операций.
+- Каждому запросу присваивается/прокидывается `X-Request-ID`.
+- Telemetry middleware пишет tracing span `runtime.http.request` и latency/status метрики.
+- Исключения нормализуются в `application/problem+json` (`RuntimeApiProblem`) через `errors.py`.
+- `openapi_contract.py` добавляет единообразные problem responses и примеры payload.
 
-## Ключевые настройки
-
-Параметры `create_runtime_api_app(...)`:
+## Ключевые настройки `create_runtime_api_app(...)`
 
 - Хранилища и лимиты: `cas_root`, `core_runs_root`, `max_preview_bytes`, `lineage_max_depth`, `lineage_max_nodes`.
-- Поведение tenant enforcement: `allow_unscoped_artifacts`.
-- API runtime behavior: `enable_response_compression`, `artifact_redaction_hooks`.
-- Security wiring: `enable_security_middlewares`, `identity_provider`, `cell_registry`, `opa_client`, `authz_enforce`, `authz_shadow_mode`, delegation settings.
+- Tenant-policy behavior: `allow_unscoped_artifacts`.
+- Runtime behavior: `enable_response_compression`, `artifact_redaction_hooks`.
+- Security wiring: `enable_security_middlewares`, `identity_provider`, `cell_registry`, `opa_client`, `authz_enforce`, `authz_shadow_mode`, `delegation_manager`, `trusted_delegators`, `service_spiffe_id`.
 
-Ключевые ENV-флаги, используемые внутри HTTP слоя:
+## Важные ENV-флаги
 
-- `POLISYOS_CELL_ID`
-- `POLISYOS_SERVICE_SPIFFE_ID`
+- `POLISYOS_CELL_ID` — expected cell binding для JWT-проверки.
+- `POLISYOS_SERVICE_SPIFFE_ID` — audience binding для delegation tokens.
 - `POLISYOS_LLM_MULTIMODEL_ENABLED`
 - `POLISYOS_REQUIRED_PREFLIGHT_ENABLED`
 - `POLISYOS_AUTO_MATERIALIZATION_ENABLED`
@@ -130,10 +89,11 @@ HTTP request
 
 ## Связанные подсистемы
 
-- `polisyos/runtime/http/services/*` — прикладная логика route handlers.
-- `polisyos/core/contracts/runtime.py` и `polisyos/core/contracts/control.py` — API контракты.
+- `polisyos/core/contracts/runtime.py` и `polisyos/core/contracts/control.py` — request/response DTO.
 - `polisyos/runtime/http/services/control.py` — bridge к `scientist`, `fabric`, `lex`.
+- `polisyos/core/security/*` — identity/routing/authz primitives.
 
 ## Поддиректории с отдельной документацией
 
+- [routes/README.md](routes/README.md)
 - [services/README.md](services/README.md)

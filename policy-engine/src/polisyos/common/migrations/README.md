@@ -1,34 +1,37 @@
 # `polisyos.common.migrations`
 
-Локальный реестр миграций для артефактов, владельцем схем которых является слой `polisyos.common`.
+Локальный migration-слой для артефактов, схемами которых владеет `polisyos.common`.
 
-## Что здесь есть
+## Состав пакета
 
 ```text
 migrations/
-├── __init__.py   # migrate_artifact, register_migration, MANIFEST_CURRENT_VERSION
-├── base.py       # общий реестр и executor цепочки миграций
-└── manifest.py   # dataset_manifest: 0.9 -> 1.0
+├── __init__.py   # экспорт API
+├── base.py       # реестр миграций и executor цепочки
+└── manifest.py   # миграция dataset_manifest: 0.9 -> 1.0
 ```
 
-## Контракт
+## Публичный контракт
 
-- формат реестра: `_MIGRATIONS[artifact][from_version] -> (to_version, fn)`;
-- `register_migration(artifact, from_version, to_version)` регистрирует шаг миграции;
-- `migrate_artifact(data, artifact, target_version)` применяет шаги до `target_version`;
-- обязательное поле входных данных: `schema_version`;
-- защита от циклов миграции встроена (`visited` set).
+- `register_migration(artifact, from_version, to_version)` — регистрирует шаг миграции;
+- `migrate_artifact(data, artifact, target_version)` — применяет шаги до целевой версии;
+- `MANIFEST_CURRENT_VERSION` — текущая версия `dataset_manifest`.
 
-## Текущее покрытие
+Входные данные обязаны содержать `schema_version`; при цикле или разрыве цепочки функция кидает `ValueError`.
 
-- зарегистрирован только один артефакт: `dataset_manifest`;
-- доступная миграция: `0.9 -> 1.0`;
-- текущая версия манифеста экспортируется как `MANIFEST_CURRENT_VERSION = "1.0"`.
+## Текущее покрытие (март 2026)
+
+- артефакт: `dataset_manifest`;
+- цепочка: `0.9 -> 1.0`;
+- шаг `0.9 -> 1.0` в `manifest.py` нормализует старые поля:
+  - `datasetName` -> `dataset_name`;
+  - `rawHash` -> `raw_hash`.
 
 ## Границы ответственности
 
-- миграции `policy_ir` не находятся в этом пакете;
-- для `policy_ir` использовать `polisyos.ir.migrations`.
+- `policy_ir` сюда не входит; его миграции живут в `polisyos.ir.migrations`;
+- `run_manifest` в CLI обрабатывается отдельно и не использует реестр этого пакета.
 
-Текущий нюанс совместимости:
-- некоторые CLI-скрипты в репозитории импортируют `POLICY_IR_CURRENT_VERSION` из `polisyos.common.migrations`, но этот символ здесь не экспортируется.
+## Известный интеграционный нюанс
+
+`policy-engine/migrate.py` и `policy-engine/tools/migrations/migrate.py` импортируют `POLICY_IR_CURRENT_VERSION` из `polisyos.common.migrations`, но этот символ здесь не экспортируется. Для версии IR нужно использовать `polisyos.ir.migrations`.

@@ -30,8 +30,10 @@ from polisyos.ir.analytics.causal_graph import (
 from polisyos.ir.analytics.context import ContextProfile, IncomeLevel
 from polisyos.ir.analytics.transportability import (
     SelectionDiagram,
+    StratificationVariable,
     TransportabilityResult,
     TransportabilityStatus,
+    TransportFormula,
 )
 from polisyos.lex.legal_evaluation.transport_constraints import (
     ConstraintSeverity,
@@ -45,8 +47,8 @@ from polisyos.scientist.nodes.builtins.causal.resolve_transport import (
     TransportabilityResolutionLoop,
 )
 from polisyos.scientist.nodes.builtins.state_keys import (
-    ARTIFACT_CAUSAL_REPORT_REF,
     ARTIFACT_CAUSAL_ENSEMBLE_REF,
+    ARTIFACT_CAUSAL_REPORT_REF,
     ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF,
     ARTIFACT_TRANSPORTABILITY_RESULT_REF,
 )
@@ -369,3 +371,380 @@ def test_run_transportability_uses_ensemble_consensus_graph_when_available(
 
     assert outcome.status == "ok"
     assert captured_nodes["nodes"] == ["consensus_X", "consensus_Y"]
+
+
+def test_run_transportability_symbolic_mode_records_backend_issue(
+    tmp_path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    ctx = _build_ctx(tmp_path, run_id="R_transport_symbolic_unavailable")
+    report_ref = persist_causal_effect_report(ctx.store, _base_report())
+    graph_ref = persist_causal_graph_model(ctx.store, _mediator_graph())
+
+    def _fake_symbolic_step(state_payload, method_params):
+        del method_params
+        diagram = SelectionDiagram.model_validate(state_payload["selection_diagram"])
+        result = TransportabilityResult(
+            query="P*(gdp_growth|do(tax_rate))",
+            status=TransportabilityStatus.NON_TRANSPORTABLE,
+            final_confidence=0.0,
+            source_context_id=diagram.source_context.context_id,
+            target_context_id=diagram.target_context.context_id,
+            identification_engine="symbolic",
+            identification_trace=["symbolic_backend_unavailable:y0_unavailable"],
+            unsupported_reason="y0_unavailable",
+            warnings=["Symbolic backend unavailable; y0 is not installed."],
+        )
+        return {"transport_result": result.model_dump(mode="json")}
+
+    monkeypatch.setattr(
+        "polisyos.scientist.nodes.builtins.causal.resolve_transport.SymbolicIdentify.pure_step",
+        _fake_symbolic_step,
+    )
+
+    profile = {"context_id": "DE", "income_level": "high", "institutional_quality": 0.8}
+    state = ExperimentState(
+        run_id="R_transport_symbolic_unavailable",
+        artifacts_index={
+            ARTIFACT_CAUSAL_REPORT_REF: report_ref,
+            ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF: graph_ref,
+        },
+        params={
+            "source_context": profile,
+            "target_context": profile,
+            "query_treatment": "tax_rate",
+            "query_outcome": "gdp_growth",
+            "transport_solver_mode": "symbolic",
+        },
+    )
+
+    outcome = RunTransportabilityNode().execute(ctx, state)
+
+    assert outcome.status == "ok"
+    updated_ref = outcome.state.artifacts_index[ARTIFACT_CAUSAL_REPORT_REF]
+    updated = load_causal_effect_report(ctx.store, updated_ref)
+    assert updated.transport_result is not None
+    assert updated.transport_result.identification_engine == "symbolic"
+    assert updated.transport_result.unsupported_reason == "y0_unavailable"
+    assert outcome.state.params["transportability_identification_engine"] == "symbolic"
+
+
+@pytest.mark.parametrize(
+    ("solver_mode", "expected_backend", "expected_require"),
+    [
+        ("symbolic_r", "r", True),
+        ("full_auto", "full_auto", False),
+        ("auto", "auto", False),
+    ],
+)
+def test_run_transportability_solver_mode_maps_symbolic_backend_params(
+    tmp_path,
+    monkeypatch: pytest.MonkeyPatch,
+    solver_mode: str,
+    expected_backend: str,
+    expected_require: bool,
+) -> None:
+    ctx = _build_ctx(tmp_path, run_id=f"R_transport_solver_mode_{solver_mode}")
+    report_ref = persist_causal_effect_report(ctx.store, _base_report())
+    graph_ref = persist_causal_graph_model(ctx.store, _mediator_graph())
+
+    captured_params: dict[str, object] = {}
+
+    def _fake_symbolic_step(state_payload, method_params):
+        captured_params.update(method_params)
+        diagram = SelectionDiagram.model_validate(state_payload["selection_diagram"])
+        result = TransportabilityResult(
+            query="P*(gdp_growth|do(tax_rate))",
+            status=TransportabilityStatus.NON_TRANSPORTABLE,
+            final_confidence=0.0,
+            source_context_id=diagram.source_context.context_id,
+            target_context_id=diagram.target_context.context_id,
+            identification_engine="symbolic",
+            identification_trace=["symbolic_backend_unavailable:test_probe"],
+            unsupported_reason="test_probe",
+        )
+        return {"transport_result": result.model_dump(mode="json")}
+
+    monkeypatch.setattr(
+        "polisyos.scientist.nodes.builtins.causal.resolve_transport.SymbolicIdentify.pure_step",
+        _fake_symbolic_step,
+    )
+
+    profile = {"context_id": "DE", "income_level": "high", "institutional_quality": 0.8}
+    state = ExperimentState(
+        run_id=f"R_transport_solver_mode_{solver_mode}",
+        artifacts_index={
+            ARTIFACT_CAUSAL_REPORT_REF: report_ref,
+            ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF: graph_ref,
+        },
+        params={
+            "source_context": profile,
+            "target_context": profile,
+            "query_treatment": "tax_rate",
+            "query_outcome": "gdp_growth",
+            "transport_solver_mode": solver_mode,
+        },
+    )
+
+    outcome = RunTransportabilityNode().execute(ctx, state)
+    assert outcome.status == "ok"
+    assert captured_params["symbolic_backend"] == expected_backend
+    assert captured_params["require_symbolic_backend"] is expected_require
+
+
+def test_resolution_loop_emits_outer_search_budget_events_when_truncated(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    def _no_constraints(**kwargs):
+        del kwargs
+        return LegalConstraintSet(
+            jurisdiction="UA",
+            policy_domain="tax_policy",
+            hard_constraints=[],
+            soft_constraints=[],
+            data_license_constraints=[],
+            legal_dag_mappings=[],
+        )
+
+    def _fake_solver(**kwargs):
+        diagram = kwargs["diagram"]
+        result = TransportabilityResult(
+            query="P*(gdp_growth|do(tax_rate))",
+            status=TransportabilityStatus.TRANSPORTABLE,
+            transport_formula=TransportFormula(
+                formula_str="synthetic",
+                stratification_variables=["z1", "z2", "z3"],
+                stratification_details=[
+                    StratificationVariable(
+                        name="z1",
+                        role="mediator",
+                        requires_conditional=False,
+                    ),
+                    StratificationVariable(
+                        name="z2",
+                        role="mediator",
+                        requires_conditional=False,
+                    ),
+                    StratificationVariable(
+                        name="z3",
+                        role="mediator",
+                        requires_conditional=False,
+                    ),
+                ],
+                source_quantities=["P(Y|do(X),z1)", "P(Y|do(X),z2)", "P(Y|do(X),z3)"],
+                target_quantities=["P*(z1)", "P*(z2)", "P*(z3)"],
+                adjustment_type="stratification",
+            ),
+            final_confidence=0.8,
+            source_context_id=diagram.source_context.context_id,
+            target_context_id=diagram.target_context.context_id,
+        )
+        return {"transport_result": result.model_dump(mode="json")}
+
+    monkeypatch.setattr(
+        "polisyos.scientist.nodes.builtins.causal.resolve_transport.evaluate_transport_constraints",
+        _no_constraints,
+    )
+    monkeypatch.setattr(
+        "polisyos.scientist.nodes.builtins.causal.resolve_transport._run_transport_solver",
+        _fake_solver,
+    )
+
+    loop = TransportabilityResolutionLoop(
+        dataset_registry=_MissingDatasetRegistry(),
+        legal_kg_db_path=None,
+        skg_query=object(),
+    )
+    source = ContextProfile(
+        context_id="DE",
+        income_level=IncomeLevel.HIGH,
+        institutional_quality=0.9,
+    )
+    target = ContextProfile(
+        context_id="UA",
+        income_level=IncomeLevel.LOWER_MIDDLE,
+        institutional_quality=0.2,
+    )
+    graph = CausalGraphModel(
+        graph_type=GraphType.DAG,
+        nodes=["tax_rate", "gdp_growth", "z1", "z2", "z3"],
+        edges=[
+            CausalEdge(src="tax_rate", dst="z1"),
+            CausalEdge(src="tax_rate", dst="z2"),
+            CausalEdge(src="tax_rate", dst="z3"),
+            CausalEdge(src="z1", dst="gdp_growth"),
+            CausalEdge(src="z2", dst="gdp_growth"),
+            CausalEdge(src="z3", dst="gdp_growth"),
+        ],
+    )
+
+    result = loop.resolve(
+        source_context=source,
+        target_context=target,
+        causal_graph=graph,
+        query_treatment="tax_rate",
+        query_outcome="gdp_growth",
+    )
+
+    assert result.outer_search_truncated is True
+    assert result.search_budget_exhausted is True
+    assert "outer_search_truncated" in result.search_events
+    assert "search_budget_exhausted" in result.search_events
+
+
+def test_resolution_loop_proxy_exclusion_violation_requires_expert_review(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    def _no_constraints(**kwargs):
+        del kwargs
+        return LegalConstraintSet(
+            jurisdiction="UA",
+            policy_domain="tax_policy",
+            hard_constraints=[],
+            soft_constraints=[],
+            data_license_constraints=[],
+            legal_dag_mappings=[],
+        )
+
+    def _fake_proxy(*args, **kwargs):
+        del args, kwargs
+        return ProxyChain(
+            target_variable="tax_compliance",
+            proxies=[
+                ProxyCandidate(
+                    proxy_variable="proxy_direct",
+                    proxy_dataset_id="PX1",
+                    proxy_raw_name="proxy_direct_raw",
+                    base_correlation=0.85,
+                    context_adjustment=0.8,
+                    effective_confidence=0.82,
+                    source="seed_table",
+                )
+            ],
+            best_single_confidence=0.82,
+        )
+
+    def _fake_solver(**kwargs):
+        diagram = kwargs["diagram"]
+        result = TransportabilityResult(
+            query="P*(gdp_growth|do(tax_rate))",
+            status=TransportabilityStatus.TRANSPORTABLE,
+            transport_formula=TransportFormula(
+                formula_str="synthetic_proxy",
+                stratification_variables=["tax_compliance"],
+                stratification_details=[
+                    StratificationVariable(
+                        name="tax_compliance",
+                        role="mediator",
+                        requires_conditional=False,
+                    )
+                ],
+                source_quantities=["P(Y|do(X),tax_compliance)"],
+                target_quantities=["P*(tax_compliance)"],
+                adjustment_type="stratification",
+            ),
+            final_confidence=0.75,
+            source_context_id=diagram.source_context.context_id,
+            target_context_id=diagram.target_context.context_id,
+        )
+        return {"transport_result": result.model_dump(mode="json")}
+
+    monkeypatch.setattr(
+        "polisyos.scientist.nodes.builtins.causal.resolve_transport.evaluate_transport_constraints",
+        _no_constraints,
+    )
+    monkeypatch.setattr(
+        "polisyos.scientist.nodes.builtins.causal.resolve_transport.resolve_proxy",
+        _fake_proxy,
+    )
+    monkeypatch.setattr(
+        "polisyos.scientist.nodes.builtins.causal.resolve_transport._run_transport_solver",
+        _fake_solver,
+    )
+
+    loop = TransportabilityResolutionLoop(
+        dataset_registry=_MissingDatasetRegistry(),
+        legal_kg_db_path=None,
+        skg_query=object(),
+    )
+    source = ContextProfile(context_id="DE", income_level=IncomeLevel.HIGH)
+    target = ContextProfile(context_id="UA", income_level=IncomeLevel.LOWER_MIDDLE)
+    graph = CausalGraphModel(
+        graph_type=GraphType.DAG,
+        nodes=["tax_rate", "gdp_growth", "tax_compliance", "proxy_direct"],
+        edges=[
+            CausalEdge(src="tax_rate", dst="tax_compliance"),
+            CausalEdge(src="tax_compliance", dst="gdp_growth"),
+            CausalEdge(src="proxy_direct", dst="tax_compliance"),
+            CausalEdge(src="proxy_direct", dst="gdp_growth"),
+        ],
+    )
+
+    result = loop.resolve(
+        source_context=source,
+        target_context=target,
+        causal_graph=graph,
+        query_treatment="tax_rate",
+        query_outcome="gdp_growth",
+    )
+
+    assert result.requires_expert_review is True
+    assert result.expert_review_reasons
+    assert "tax_compliance" in result.proxy_validity
+    assert result.proxy_validity["tax_compliance"]["exclusion_check"] is False
+
+
+def test_resolution_loop_non_transportable_adds_manski_fallback(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    def _no_constraints(**kwargs):
+        del kwargs
+        return LegalConstraintSet(
+            jurisdiction="UA",
+            policy_domain="tax_policy",
+            hard_constraints=[],
+            soft_constraints=[],
+            data_license_constraints=[],
+            legal_dag_mappings=[],
+        )
+
+    def _fake_solver(**kwargs):
+        diagram = kwargs["diagram"]
+        result = TransportabilityResult(
+            query="P*(gdp_growth|do(tax_rate))",
+            status=TransportabilityStatus.NON_TRANSPORTABLE,
+            final_confidence=0.0,
+            source_context_id=diagram.source_context.context_id,
+            target_context_id=diagram.target_context.context_id,
+            unsupported_reason="synthetic_non_transportable",
+        )
+        return {"transport_result": result.model_dump(mode="json")}
+
+    monkeypatch.setattr(
+        "polisyos.scientist.nodes.builtins.causal.resolve_transport.evaluate_transport_constraints",
+        _no_constraints,
+    )
+    monkeypatch.setattr(
+        "polisyos.scientist.nodes.builtins.causal.resolve_transport._run_transport_solver",
+        _fake_solver,
+    )
+
+    loop = TransportabilityResolutionLoop(
+        dataset_registry=_MissingDatasetRegistry(),
+        legal_kg_db_path=None,
+        skg_query=object(),
+    )
+    source = ContextProfile(context_id="DE", income_level=IncomeLevel.HIGH)
+    target = ContextProfile(context_id="UA", income_level=IncomeLevel.LOWER_MIDDLE)
+
+    result = loop.resolve(
+        source_context=source,
+        target_context=target,
+        causal_graph=_mediator_graph(),
+        query_treatment="tax_rate",
+        query_outcome="gdp_growth",
+    )
+
+    assert result.status is TransportabilityStatus.NON_TRANSPORTABLE
+    assert result.partial_identification_result is not None
+    assert result.partial_identification_result.method.value == "manski_bounds"

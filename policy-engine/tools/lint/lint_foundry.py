@@ -23,6 +23,8 @@ STANDARD_BANNED_IMPORT_ROOTS = {
     "shutil",
     "glob",
     "tempfile",
+    "dagma",
+    "y0",
 }
 
 MIXED_BACKEND_DIRS = {
@@ -36,6 +38,10 @@ NO_JAX_DIRS = {
     "methods/catalog/causal/discovery",
     "methods/catalog/econometrics",
     "methods/catalog/optimization",
+}
+
+NO_JAX_FILE_ALLOWLIST = {
+    "methods/catalog/causal/ci_backends.py",
 }
 
 MIXED_BACKEND_ALLOWED_IMPORTS = {
@@ -52,6 +58,8 @@ MIXED_BACKEND_ALLOWED_IMPORTS = {
     "causallearn",
     "rustworkx",
     "kuzu",
+    "dagma",
+    "y0",
 }
 
 NO_JAX_BANNED_IMPORTS = {"jax", "jaxlib", "equinox", "optax"}
@@ -95,6 +103,8 @@ def _policy_for_file(py_file: Path, foundry_root: Path) -> str:
             return "infra"
     if rel_str in INFRA_FILES:
         return "infra"
+    if rel_str in NO_JAX_FILE_ALLOWLIST:
+        return "mixed"
 
     for no_jax_dir in NO_JAX_DIRS:
         if rel_str.startswith(no_jax_dir):

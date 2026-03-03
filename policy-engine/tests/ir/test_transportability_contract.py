@@ -73,6 +73,27 @@ def test_causal_report_accepts_transportability_fields() -> None:
     assert report.transport_result.sutva_violation_risk == "high"
 
 
+def test_transportability_result_upgrades_legacy_formula_alias() -> None:
+    payload = {
+        "status": "transportable",
+        "query": "P*(Y|do(X))",
+        "formula": {
+            "formula_str": "P*(Y|do(X)) = Σ_z P(Y|do(X),z)P*(z)",
+            "stratification_variables": ["z"],
+            "stratification_details": [],
+            "source_quantities": ["P(Y|do(X),z)"],
+            "target_quantities": ["P*(z)"],
+            "adjustment_type": "stratification",
+        },
+    }
+    result = TransportabilityResult.model_validate(payload)
+
+    assert result.transport_formula is not None
+    dumped = result.model_dump(mode="json")
+    assert "formula" not in dumped
+    assert dumped["identification_engine"] == "simplified"
+
+
 # --- DOD-145 golden tests ---
 
 

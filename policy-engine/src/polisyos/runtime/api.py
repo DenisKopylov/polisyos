@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-import json
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, Optional
 
+from polisyos.common.serialization import fast_json_dumps
 from polisyos.core.contracts.foundry import EnvironmentManifestRef
 from polisyos.runtime.manifest import ArtifactRef, RunManifest
 
@@ -79,7 +79,10 @@ def log_artifact(
     path = artifact_dir / safe_name
 
     if media_type == "application/json":
-        path.write_text(json.dumps(payload, ensure_ascii=True, indent=2), encoding="utf-8")
+        path.write_text(
+            fast_json_dumps(payload, sort_keys=False),
+            encoding="utf-8",
+        )
     else:
         path.write_text(str(payload), encoding="utf-8")
 
@@ -120,7 +123,7 @@ def append_audit(
     audit_path = run_dir / "audit.jsonl"
     run_dir.mkdir(parents=True, exist_ok=True)
     with audit_path.open("a", encoding="utf-8") as f:
-        f.write(json.dumps(record, ensure_ascii=True) + "\n")
+        f.write(fast_json_dumps(record, sort_keys=False) + "\n")
 
     manifest = _load_manifest(base_dir, run_id)
     if not any(ref.artifact_type == "audit_trail" for ref in manifest.artifacts):

@@ -1,104 +1,51 @@
-# Components — Component Model v1
+# Components — component model и bootstrap
 
-Единый слой identity, discovery, registry и compliance для расширений PolisyOS. Плагинная архитектура через Python entry points.
+`core.components` — единая модель расширений PolisyOS: идентификаторы, metadata/capabilities, discovery, реестр компонентов и bootstrap runtime-реестров.
 
-## Архитектура
+## Состав
 
-```
+```text
 components/
-├── ids.py           # ComponentId, SemVer, SemverRange — идентификация и версионирование
-├── metadata.py      # ComponentMetadata, ComponentKind, ComponentDep — метаданные
-├── capabilities.py  # Capability flags — что компонент умеет
-├── protocols.py     # Component, ComponentFactory, ComponentProvider, SupportsValidation
-├── registry.py      # ComponentRegistry с conflict resolution policies
-├── discovery.py     # discover_components() через entry points
-├── bootstrap.py     # единый bootstrap runtime-реестров из ComponentRegistry
-├── compliance.py    # validate_component_id(), validate_metadata(), HostAbi checks
-└── cli.py           # CLI-интеграция
+├── ids.py          # SemVer/SemverRange/ComponentId
+├── metadata.py     # ComponentKind/ComponentMetadata/ComponentDep
+├── capabilities.py # Capability flags
+├── protocols.py    # Component / ComponentFactory / ComponentProvider protocols
+├── discovery.py    # entry-point + dev-scan discovery
+├── registry.py     # multi-version ComponentRegistry
+├── compliance.py   # metadata/runtime compliance checks
+├── bootstrap.py    # bootstrap domain registries from one component index
+├── cli*.py         # CLI facade + subcommands (components/registry/audit/replay/...)
+└── __init__.py
 ```
 
-## ComponentId
+## Identity и metadata
 
-Формат: `namespace.name@semver`
+- `ComponentId`: формат `namespace.name@semver`
+- `ComponentKind`: `ir_fragment`, `foundry_method`, `fabric_connector`, `scholar_extractor`, `lex_*`, `scientist_node`, `norm_pack_provider`
+- `Capability`: type- и cross-cutting возможности (`CAS_READ`, `FOUNDRY_EXECUTE`, `LEX_EVALUATE`, ...)
 
-```python
-from polisyos.core.components import ComponentId
+## Discovery
 
-cid = ComponentId.parse("fiscal.taxation.flat_tax@1.2.3")
-cid.base_id    # "fiscal.taxation.flat_tax"
-cid.namespace  # "fiscal.taxation"
-cid.name       # "flat_tax"
-cid.version    # SemVer(1, 2, 3)
-```
+`discover_components()` собирает компоненты из:
+- entry-point групп `polisyos.ir_fragments`, `polisyos.foundry_methods`, `polisyos.fabric_connectors`, `polisyos.lex_*`, `polisyos.scholar_extractors`, `polisyos.scientist_nodes`, `polisyos.norm_pack_providers`;
+- dev-scan (по умолчанию включен, обычно `.../packs`).
 
-## ComponentMetadata
+`polisyos.components` (legacy group) поддерживается отдельно через `include_legacy_group=True`.
 
-```python
-from polisyos.core.components import ComponentMetadata, ComponentKind, Capability
-
-metadata = ComponentMetadata(
-    component_id=ComponentId.parse("roads.extractor.speed@1.0.0"),
-    kind=ComponentKind.SCHOLAR_EXTRACTOR,
-    abi_targets={"world_abi": "1.x"},
-    domains=["roads"],
-    jurisdictions=["ua"],
-    tags=["builtin"],
-    capabilities=Capability.SCHOLAR_EXTRACTOR,
-)
-```
-
-**ComponentKind:** определяет тип компонента (extractor, evaluator, foundry method, IR fragment и т.д.).
-В P6 добавлен `fabric_connector`.
-
-## Discovery через Entry Points
-
-Автоматическое обнаружение компонентов через Python packaging entry points:
-
-```python
-from polisyos.core.components import discover_components, discover_entry_points
-
-report = discover_components()  # все компоненты из всех групп
-```
-
-**Entry point groups:**
-- `polisyos.components` — основная группа
-- `polisyos.ir_fragments` — IR-фрагменты
-- `polisyos.foundry_methods` — методы Foundry
-- `polisyos.fabric_connectors` — коннекторы Fabric (Component model)
-- `polisyos.lex_evaluators` / `polisyos.lex_extractors` — компоненты Lex
-- `polisyos.norm_pack_providers` — провайдеры нормативных пакетов
-- `polisyos.scholar_extractors` — extractors Scholar
-- `polisyos.scientist_nodes` — ноды Scientist
+Политики:
+- duplicate policy (`warn/error/ignore`)
+- precedence (`dev_scan_wins_over_entry_points`)
 
 ## ComponentRegistry
 
-Реестр с настраиваемым разрешением конфликтов:
+`ComponentRegistry` хранит несколько версий и поддерживает:
+- `register`, `get`, `list`, `list_all`
+- `resolve` (`EXACT`, `LATEST`, `LATEST_COMPATIBLE`)
+- `query` по `kind/domain/jurisdiction/capabilities/tags`
 
-```python
-from polisyos.core.components import ComponentRegistry, ConflictPolicy
+## Bootstrap runtime-реестров
 
-registry = ComponentRegistry()
-registry.register(component)
-found = registry.get("fiscal.taxation.flat_tax@1.2.3")
-```
-
-**Policies:** `ConflictPolicy`, `DuplicateComponentIdPolicy`, `ResolvePolicy`, `SourcePrecedencePolicy`, `DiscoveryPrecedencePolicy`.
-
-## Compliance
-
-Валидация компонентов перед регистрацией:
-
-```python
-from polisyos.core.components.compliance import validate_metadata, has_errors
-
-issues = validate_metadata(metadata)
-if has_errors(issues):
-    raise ValueError(f"Invalid component: {issues}")
-```
-
-## Unified bootstrap
-
-В P6 discovery и bootstrap runtime-реестров унифицированы:
+Типовой поток:
 
 ```python
 from polisyos.core.components import build_components_index, bootstrap_plugin_registries
@@ -107,19 +54,15 @@ components_index, discovery_report = build_components_index()
 bootstrap_report = bootstrap_plugin_registries(components_index)
 ```
 
-`bootstrap_plugin_registries(...)` использует один `ComponentRegistry` snapshot для:
-- connectors,
-- foundry methods,
-- lex evaluators,
-- scholar/lex extractors,
-- norm pack providers,
-- scientist nodes.
+`bootstrap_plugin_registries()` инициализирует домены:
+- connectors (`fabric`)
+- methods (`foundry`)
+- evaluators/providers (`lex`)
+- extractors (`fabric`/`scholar`/`lex`)
+- nodes (`scientist`)
 
-## Использование в системе
+## Где используется
 
-| Модуль | Что использует |
-|--------|---------------|
-| **Lex** | `ComponentRegistry`, `discover_components` для norm_pack providers, evaluators, extractors |
-| **Fabric** | `ComponentRegistry` для extractor discovery |
-| **Packs** | `ComponentId`, `ComponentKind`, `ComponentMetadata`, `Capability` — регистрация компонентов |
-| **Scholar** | `ComponentMetadata` для extractor discovery |
+- `packs/`: декларация компонентных metadata
+- `registry/`: сборка IR bundle из `ComponentKind.IR_FRAGMENT`
+- `fabric`/`foundry`/`lex`/`scientist`/`scholar`: runtime discovery и bootstrap

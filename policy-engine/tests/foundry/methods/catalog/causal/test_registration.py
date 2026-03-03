@@ -31,9 +31,11 @@ def test_register_causal_methods_queryable():
     assert "pc_discovery" in discovery_names
     assert "fci_discovery" in discovery_names
     assert "ges_discovery" in discovery_names
+    assert "dagma_discovery" in discovery_names
     assert "sensitivity_metrics" in sensitivity_names
     assert "gcm_fit" in structural_names
     assert "gcm_query" in structural_names
     assert "parameter_transfer" in structural_names
     assert {"build_literature_prior", "reconcile_causal_graph"}.issubset(prior_names)
     assert "check_transportability" in transport_names
+    assert "symbolic_identify" in transport_names

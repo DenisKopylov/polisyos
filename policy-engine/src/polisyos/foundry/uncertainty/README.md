@@ -1,14 +1,14 @@
 # Uncertainty (`polisyos.foundry.uncertainty`)
 
-`uncertainty` — подсистема propagation неопределенности для метрик Foundry-симуляций.
+`uncertainty` — подсистема propagation неопределенности для выходных метрик Foundry-симуляций.
 
-Актуально по коду на 2026-02-17.
+Актуально по коду на 2026-03-03.
 
 ## Роль в системе
 
-Подсистема принимает uncertainty envelopes входных параметров и оценивает, как неопределенность распространяется на выходные метрики симуляции.
+Подсистема принимает uncertainty envelopes входных параметров и оценивает, как неопределенность переносится на выходные метрики симуляции.
 
-Типичный путь использования: `scientist` узел `propagate_uncertainty` после `run_simulation`/`calibration`.
+Типичный сценарий: `scientist` узел `propagate_uncertainty` после `run_simulation` или `calibration`.
 
 ## Архитектурный поток
 
@@ -17,8 +17,8 @@ input envelopes + nominal params + simulation_fn + output_metric_ids
         |
         v
 PropagationDispatcher
-   |- DeltaMethodPropagator (jax jacobian)
-   \- MonteCarloPropagator (sampling)
+   |- DeltaMethodPropagator (jacobian-based)
+   \- MonteCarloPropagator (sampling-based)
         |
         v
 PropagationResult[] (metric_id -> UncertaintyEnvelope)
@@ -29,59 +29,49 @@ optional aggregate_envelopes(...)
 
 ## Ключевые модули
 
-- `config.py`
-  - `PropagationConfig`: confidence level, delta/mc параметры, auto-select политика.
-
-- `dispatcher.py`
-  - `PropagationDispatcher` выбирает метод (`delta`/`monte_carlo`) и делает fallback при сбоях.
-
-- `delta.py`
-  - `DeltaMethodPropagator`: линейная аппроксимация через Jacobian (`jax.jacfwd`) и ковариацию входов.
-
-- `monte_carlo.py`
-  - `MonteCarloPropagator`: выборки из входных envelope distribution families и эмпирические интервалы по выходам.
-
-- `covariance.py`
-  - Сборка ковариационной матрицы и извлечение стандартных отклонений.
-
-- `aggregator.py`
-  - Агрегация нескольких envelopes (сейчас поддержан режим `widest`).
-
-- `protocol.py`
-  - Контракты `PropagationResult` / `PropagationStrategy`.
+- `config.py`: `PropagationConfig` (confidence level, delta/mc параметры, auto policy).
+- `dispatcher.py`: выбор стратегии (`delta`/`monte_carlo`/`auto`) и fallback.
+- `delta.py`: линейная аппроксимация через Jacobian (`jax.jacfwd`) и ковариацию входов.
+- `monte_carlo.py`: sampling по distribution families и эмпирические интервалы.
+- `covariance.py`: сборка covariance и извлечение std.
+- `aggregator.py`: объединение нескольких envelopes (сейчас `method="widest"`).
+- `protocol.py`: `PropagationResult` / `PropagationStrategy` контракты.
 
 ## Логика выбора метода
 
 `preferred_method` из `PropagationConfig`:
-- `delta` — принудительный delta method;
-- `monte_carlo` — принудительный MC;
-- `auto` — авто-выбор.
 
-При `auto` используется delta method только если:
-- входные envelopes имеют совместимый normal/statistical вид;
-- execution function дифференцируема в JAX;
+- `delta`: принудительный delta method;
+- `monte_carlo`: принудительный Monte Carlo;
+- `auto`: выбор по условиям применимости.
+
+`auto` использует delta method только если одновременно выполняются условия:
+
+- входные envelopes совместимы с normal-предпосылкой;
+- simulation function дифференцируема для JAX;
 - dry-run Jacobian проходит без ошибок.
 
 Иначе используется Monte Carlo.
 
-## Выходы и семантика
+## Выходы
 
-Результат — список `PropagationResult`, где каждый элемент содержит:
+Результат — список `PropagationResult`, где для каждой метрики есть:
+
 - `metric_id`;
-- `UncertaintyEnvelope` (point estimate, interval, confidence semantics, metadata);
-- `method_used` и диагностические поля (sample counts, jacobian norms и т.д.).
+- `UncertaintyEnvelope` (point estimate, interval, semantics, metadata);
+- `method_used` и диагностические поля (`n_samples`, jacobian norms, fallback info).
 
 ## Связь с другими директориями
 
 `uncertainty` зависит от:
-- `ir/analytics/uncertainty` (канонические контракты envelope/метаданных);
-- JAX (`jax`, `jax.numpy`, `jax.random`) для delta и sampling вычислений.
 
-Используется в:
-- `scientist/nodes/builtins/simulate/propagate_uncertainty.py`.
+- `ir/analytics/uncertainty` (канонические контракты envelope/метаданных);
+- JAX (`jax`, `jax.numpy`, `jax.random`) для delta и sampling путей.
+
+Используется в `scientist/nodes/builtins/simulate/propagate_uncertainty.py`.
 
 ## Текущее состояние и ограничения
 
-- Режим `analytical` в dispatcher сейчас маппится на Monte Carlo fallback path.
-- Для delta method ожидается JAX-дифференцируемая функция симуляции.
+- `preferred_method="analytical"` сейчас маппится на Monte Carlo fallback path.
+- Для delta method требуется JAX-дифференцируемая функция симуляции.
 - При нехватке валидных MC выборок формируется heuristic envelope (`gate_eligible=False`).

@@ -9,7 +9,7 @@ import logging
 import re
 import time
 from collections import deque
-from dataclasses import asdict, dataclass
+from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
@@ -17,19 +17,40 @@ from typing import Any
 import aiohttp
 
 from polisyos.batch_common.manifest import write_stage_manifest
+from polisyos.academic.batch.claim_ids import stable_claim_id
 from polisyos.academic.batch.config import AcademicBatchConfig
 from polisyos.academic.batch.context_classifier import infer_context_from_article
+from polisyos.academic.batch.fulltext_resolver import (
+    fetch_full_text_for_work,
+    reconstruct_abstract,
+)
 from polisyos.academic.batch.prompts import (
     BOUNDARY_CONDITIONS_SCHEMA_HINT,
     CAUSAL_CLAIMS_SCHEMA_HINT,
+    EMPIRICAL_PARAMETERS_SCHEMA_HINT,
     MECHANISMS_SCHEMA_HINT,
     SCREENING_PROMPT,
 )
 from polisyos.academic.knowledge.types import EstimateCandidate, SourceTopicRef, WorkRecord
 from polisyos.academic.knowledge.variable_canonizer import VariableCanonizer
 from polisyos.academic.openalex.priority_filter import should_process
+from polisyos.academic.trust import compute_trust_score
 from polisyos.core.canon.hashing import content_hash
-from polisyos.ir.analytics.literature import ArticleExtractionResult
+from polisyos.ir.analytics.literature import (
+    ArticleExtractionResult,
+    BoundaryCondition,
+    CausalClaim,
+    ClaimExplicitness,
+    ClaimType,
+    DesignFamily,
+    EvidenceSpan,
+    EvidenceParameter,
+    EvidenceStrength,
+    Mechanism,
+    ParameterType,
+    SourceBasis,
+    TextQuality,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -53,6 +74,761 @@ def _parse_json_object(raw_content: str) -> dict[str, Any] | None:
         except json.JSONDecodeError:
             return None
     return None
+
+
+_NUMBER_RE = re.compile(r"[-+]?\d+(?:[.,]\d+)?")
+_QUALITATIVE_SCORE_MAP = {
+    "very_low": 0.15,
+    "low": 0.3,
+    "medium": 0.55,
+    "moderate": 0.6,
+    "high": 0.85,
+    "very_high": 0.95,
+}
+_EVIDENCE_STRENGTH_ALIASES = {
+    "rct": EvidenceStrength.RCT.value,
+    "randomized": EvidenceStrength.RCT.value,
+    "randomised": EvidenceStrength.RCT.value,
+    "quasi": EvidenceStrength.QUASI_NATURAL.value,
+    "quasi_natural": EvidenceStrength.QUASI_NATURAL.value,
+    "quasi-natural": EvidenceStrength.QUASI_NATURAL.value,
+    "quasi_experimental": EvidenceStrength.QUASI_NATURAL.value,
+    "quasi-experimental": EvidenceStrength.QUASI_NATURAL.value,
+    "natural_experiment": EvidenceStrength.QUASI_NATURAL.value,
+    "natural-experiment": EvidenceStrength.QUASI_NATURAL.value,
+    "meta_analysis": EvidenceStrength.META_ANALYSIS.value,
+    "meta-analysis": EvidenceStrength.META_ANALYSIS.value,
+    "observational": EvidenceStrength.OBSERVATIONAL.value,
+    "theoretical": EvidenceStrength.THEORETICAL.value,
+    "unknown": EvidenceStrength.UNKNOWN.value,
+}
+_PARAMETER_TYPE_ALIASES = {
+    "quantitative": ParameterType.QUANTITATIVE.value,
+    "qualitative": ParameterType.QUALITATIVE.value,
+    "ordinal": ParameterType.ORDINAL.value,
+    "distributional": ParameterType.DISTRIBUTIONAL.value,
+    "categorical": ParameterType.QUALITATIVE.value,
+}
+_DIRECTION_ALIASES = {
+    "positive": "positive",
+    "increase": "positive",
+    "increases": "positive",
+    "negative": "negative",
+    "decrease": "negative",
+    "decreases": "negative",
+    "null": "null",
+    "no_effect": "null",
+    "no effect": "null",
+    "mixed": "mixed",
+    "ambiguous": "ambiguous",
+    "non_linear": "non_linear",
+    "non-linear": "non_linear",
+}
+_CLAIM_EXPLICITNESS_ALIASES = {
+    "explicit": ClaimExplicitness.EXPLICIT.value,
+    "implicit": ClaimExplicitness.IMPLICIT.value,
+    "unclear": ClaimExplicitness.UNCLEAR.value,
+}
+_CLAIM_TYPE_ALIASES = {
+    "causal_claim": ClaimType.CAUSAL_CLAIM.value,
+    "causal_assertion": ClaimType.CAUSAL_CLAIM.value,
+    "association": ClaimType.ASSOCIATION.value,
+    "associative": ClaimType.ASSOCIATIVE.value,
+    "mechanism": ClaimType.MECHANISM.value,
+    "descriptive": ClaimType.DESCRIPTIVE.value,
+    "normative": ClaimType.NORMATIVE.value,
+    "review_summary": ClaimType.REVIEW_SUMMARY.value,
+    "unclear": ClaimType.UNCLEAR.value,
+    "not_applicable": ClaimType.NOT_APPLICABLE.value,
+}
+_DESIGN_FAMILY_ALIASES = {
+    "rct": DesignFamily.RCT.value,
+    "randomized": DesignFamily.RCT.value,
+    "randomised": DesignFamily.RCT.value,
+    "iv": DesignFamily.IV.value,
+    "instrumental_variables": DesignFamily.IV.value,
+    "instrumental_variable": DesignFamily.IV.value,
+    "did": DesignFamily.DID.value,
+    "difference_in_differences": DesignFamily.DID.value,
+    "rdd": DesignFamily.RDD.value,
+    "synthetic_control": DesignFamily.SYNTHETIC_CONTROL.value,
+    "event_study": DesignFamily.EVENT_STUDY.value,
+    "event-study": DesignFamily.EVENT_STUDY.value,
+    "quasi_experimental_other": DesignFamily.QUASI_EXPERIMENTAL_OTHER.value,
+    "quasi-experimental-other": DesignFamily.QUASI_EXPERIMENTAL_OTHER.value,
+    "quasi_experimental_did": DesignFamily.QUASI_EXPERIMENTAL_DID.value,
+    "quasi_experimental_rdd": DesignFamily.QUASI_EXPERIMENTAL_RDD.value,
+    "panel_fe": DesignFamily.PANEL_FE.value,
+    "fixed_effects": DesignFamily.PANEL_FE.value,
+    "fe": DesignFamily.PANEL_FE.value,
+    "ols": DesignFamily.OLS.value,
+    "ols_cross_sectional": DesignFamily.OLS_CROSS_SECTIONAL.value,
+    "meta_analysis": DesignFamily.META_ANALYSIS.value,
+    "review": DesignFamily.REVIEW.value,
+    "review_narrative": DesignFamily.REVIEW_NARRATIVE.value,
+    "review_meta_analysis": DesignFamily.REVIEW_META_ANALYSIS.value,
+    "theoretical": DesignFamily.THEORETICAL.value,
+    "structural_model": DesignFamily.STRUCTURAL_MODEL.value,
+    "time_series_cointegration": DesignFamily.TIME_SERIES_COINTEGRATION.value,
+    "unclear": DesignFamily.UNCLEAR.value,
+}
+_METHOD_SENTENCE_RE = re.compile(
+    r"\b(randomi[sz]ed|instrumental variable|2sls|tsls|difference.?in.?differences?|did\b|"
+    r"regression discontinuity|rdd\b|synthetic control|event study|fixed effects?|panel data|ols\b|"
+    r"ordinary least squares|regression)\b",
+    re.IGNORECASE,
+)
+_RESULT_SENTENCE_RE = re.compile(
+    r"\b(we find|results show|our results|estimate|estimated|increases?|decreases?|reduces?|raises?|"
+    r"effects? on|impact on|leads to|causes?)\b",
+    re.IGNORECASE,
+)
+_CLAIM_SENTENCE_RE = re.compile(
+    r"\b(causes?|effect of|impact of|leads to|results in|increases?|decreases?|reduces?|raises?)\b",
+    re.IGNORECASE,
+)
+
+
+def _normalized_text(value: Any) -> str:
+    if value is None:
+        return ""
+    return re.sub(r"\s+", " ", str(value)).strip()
+
+
+def _extract_first_number(value: Any) -> float | None:
+    if value is None or isinstance(value, bool):
+        return None
+    if isinstance(value, (int, float)):
+        return float(value)
+    if isinstance(value, dict):
+        for key in ("value", "count", "n", "sample_size", "observations", "respondents"):
+            parsed = _extract_first_number(value.get(key))
+            if parsed is not None:
+                return parsed
+        return None
+    text = _normalized_text(value).replace("−", "-")
+    if not text:
+        return None
+    match = _NUMBER_RE.search(text)
+    if not match:
+        return None
+    token = match.group(0)
+    if token.count(",") == 1 and "." not in token:
+        token = token.replace(",", ".")
+    else:
+        token = token.replace(",", "")
+    try:
+        return float(token)
+    except ValueError:
+        return None
+
+
+def _coerce_float(value: Any) -> float | None:
+    return _extract_first_number(value)
+
+
+def _coerce_int(value: Any) -> int | None:
+    parsed = _extract_first_number(value)
+    if parsed is None:
+        return None
+    try:
+        return int(parsed)
+    except (TypeError, ValueError):
+        return None
+
+
+def _coerce_score(value: Any, *, default: float) -> float:
+    parsed = _coerce_float(value)
+    if parsed is not None:
+        return max(0.0, min(1.0, parsed))
+    normalized = _normalized_text(value).lower().replace("-", "_").replace(" ", "_")
+    if normalized in _QUALITATIVE_SCORE_MAP:
+        return _QUALITATIVE_SCORE_MAP[normalized]
+    return default
+
+
+def _coerce_text_list(value: Any) -> list[str]:
+    if not isinstance(value, list):
+        return []
+    out: list[str] = []
+    for item in value:
+        text = _normalized_text(item)
+        if text:
+            out.append(text)
+    return out
+
+
+def _as_list(value: Any) -> list[Any]:
+    if isinstance(value, list):
+        return value
+    return []
+
+
+def _coerce_number_pair(value: Any) -> tuple[float, float] | None:
+    if not isinstance(value, (list, tuple)) or len(value) != 2:
+        return None
+    left = _coerce_float(value[0])
+    right = _coerce_float(value[1])
+    if left is None or right is None:
+        return None
+    lo, hi = sorted((left, right))
+    return (lo, hi)
+
+
+def _coerce_subgroup_estimates(value: Any) -> dict[str, float]:
+    if not isinstance(value, dict):
+        return {}
+    out: dict[str, float] = {}
+    for key, raw in value.items():
+        parsed = _coerce_float(raw)
+        name = _normalized_text(key)
+        if name and parsed is not None:
+            out[name] = parsed
+    return out
+
+
+def _normalize_evidence_strength(value: Any) -> str:
+    normalized = _normalized_text(value).lower().replace(" ", "_")
+    if not normalized:
+        return EvidenceStrength.UNKNOWN.value
+    return _EVIDENCE_STRENGTH_ALIASES.get(normalized, EvidenceStrength.UNKNOWN.value)
+
+
+def _normalize_parameter_type(value: Any, *, fallback: str) -> str:
+    normalized = _normalized_text(value).lower().replace(" ", "_")
+    if not normalized:
+        return fallback
+    return _PARAMETER_TYPE_ALIASES.get(normalized, fallback)
+
+
+def _normalize_direction(value: Any) -> str:
+    normalized = _normalized_text(value).lower().replace(" ", "_")
+    if not normalized:
+        return "mixed"
+    return _DIRECTION_ALIASES.get(normalized, "mixed")
+
+
+def _normalize_claim_explicitness(value: Any) -> str:
+    normalized = _normalized_text(value).lower().replace(" ", "_")
+    if not normalized:
+        return ClaimExplicitness.UNCLEAR.value
+    return _CLAIM_EXPLICITNESS_ALIASES.get(normalized, ClaimExplicitness.UNCLEAR.value)
+
+
+def _normalize_claim_type(value: Any) -> str:
+    normalized = _normalized_text(value).lower().replace(" ", "_")
+    if not normalized:
+        return ClaimType.UNCLEAR.value
+    return _CLAIM_TYPE_ALIASES.get(normalized, ClaimType.UNCLEAR.value)
+
+
+def _normalize_design_family(value: Any) -> str:
+    normalized = _normalized_text(value).lower().replace(" ", "_")
+    if not normalized:
+        return DesignFamily.UNCLEAR.value
+    for key, mapped in _DESIGN_FAMILY_ALIASES.items():
+        if key in normalized:
+            return mapped
+    return _DESIGN_FAMILY_ALIASES.get(normalized, DesignFamily.UNCLEAR.value)
+
+
+def _normalize_source_basis(value: Any) -> str:
+    normalized = _normalized_text(value).lower().replace(" ", "_")
+    if normalized == SourceBasis.ABSTRACT_ONLY.value:
+        return SourceBasis.ABSTRACT_ONLY.value
+    return SourceBasis.FULLTEXT.value
+
+
+def _normalize_text_quality(value: Any, *, fallback: str) -> str:
+    normalized = _normalized_text(value).lower().replace(" ", "_")
+    allowed = {
+        TextQuality.STRUCTURED_FULLTEXT.value,
+        TextQuality.EXTRACTED_FULLTEXT.value,
+        TextQuality.ABSTRACT_ONLY.value,
+        TextQuality.DEGRADED.value,
+    }
+    if normalized in allowed:
+        return normalized
+    return fallback
+
+
+def _split_sentences(text: str) -> list[str]:
+    cleaned = _normalized_text(text)
+    if not cleaned:
+        return []
+    pieces = re.split(r"(?<=[.!?])\s+(?=[A-Z0-9])", cleaned)
+    return [piece.strip() for piece in pieces if piece.strip()]
+
+
+def _select_top_sentences(sentences: list[str], pattern: re.Pattern[str], *, limit: int) -> list[dict[str, Any]]:
+    out: list[dict[str, Any]] = []
+    for index, sentence in enumerate(sentences):
+        if not pattern.search(sentence):
+            continue
+        score = min(1.0, 0.45 + 0.1 * len(pattern.findall(sentence)))
+        out.append(
+            {
+                "section": "methods" if pattern is _METHOD_SENTENCE_RE else "results" if pattern is _RESULT_SENTENCE_RE else "claims",
+                "text": sentence,
+                "sentence_index": index,
+                "score": round(score, 3),
+            }
+        )
+        if len(out) >= limit:
+            break
+    return out
+
+
+def _build_evidence_bundle(*, title: str, abstract: str, text: str, source_kind: str) -> dict[str, Any]:
+    sentences = _split_sentences(text)
+    abstract_sentences = _split_sentences(abstract)
+    method_sentences = _select_top_sentences(sentences or abstract_sentences, _METHOD_SENTENCE_RE, limit=6)
+    result_sentences = _select_top_sentences(sentences or abstract_sentences, _RESULT_SENTENCE_RE, limit=8)
+    claim_sentences = _select_top_sentences(sentences or abstract_sentences, _CLAIM_SENTENCE_RE, limit=8)
+    if not claim_sentences and abstract_sentences:
+        claim_sentences = _select_top_sentences(abstract_sentences, _RESULT_SENTENCE_RE, limit=5)
+    source_basis = SourceBasis.ABSTRACT_ONLY.value if source_kind == "abstract_fallback" else SourceBasis.FULLTEXT.value
+    text_quality = (
+        TextQuality.ABSTRACT_ONLY.value
+        if source_kind == "abstract_fallback"
+        else TextQuality.DEGRADED.value if len(text) < 800 else TextQuality.EXTRACTED_FULLTEXT.value
+    )
+    abstract_rows = [
+        {
+            "span_id": f"a_{index + 1:02d}",
+            "section": "abstract",
+            "text": sentence,
+            "sentence_index": index,
+            "score": 0.5,
+        }
+        for index, sentence in enumerate(abstract_sentences[:8])
+    ]
+    for prefix, rows in (("m", method_sentences), ("r", result_sentences), ("c", claim_sentences)):
+        for index, row in enumerate(rows, start=1):
+            row["span_id"] = f"{prefix}_{index:02d}"
+    return {
+        "title": title,
+        "abstract": abstract,
+        "source_kind": source_kind,
+        "source_basis": source_basis,
+        "text_quality": text_quality,
+        "abstract_sentences": abstract_rows,
+        "method_sentences": method_sentences,
+        "result_sentences": result_sentences,
+        "claim_sentences": claim_sentences,
+    }
+
+
+def _normalize_evidence_span(payload: Any, *, default_section: str = "") -> EvidenceSpan | None:
+    if isinstance(payload, str):
+        text = _normalized_text(payload)
+        if not text:
+            return None
+        return EvidenceSpan(text=text, section=default_section, sentence_index=None, score=0.5)
+    if not isinstance(payload, dict):
+        return None
+    text = _normalized_text(payload.get("text") or payload.get("sentence") or payload.get("span"))
+    if not text:
+        return None
+    return EvidenceSpan(
+        span_id=_normalized_text(payload.get("span_id") or payload.get("id")),
+        section=_normalized_text(payload.get("section")) or default_section,
+        text=text,
+        sentence_index=_coerce_int(payload.get("sentence_index")),
+        score=_coerce_score(payload.get("score"), default=0.5),
+    )
+
+
+def _span_lookup(evidence_bundle: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    out: dict[str, dict[str, Any]] = {}
+    for bucket in ("abstract_sentences", "method_sentences", "result_sentences", "claim_sentences"):
+        for item in evidence_bundle.get(bucket, []):
+            if not isinstance(item, dict):
+                continue
+            span_id = _normalized_text(item.get("span_id"))
+            if span_id:
+                out[span_id] = item
+    return out
+
+
+def _resolve_span_ids(
+    raw_ids: Any,
+    *,
+    evidence_bundle: dict[str, Any],
+    default_section: str,
+) -> list[EvidenceSpan]:
+    if not isinstance(raw_ids, list):
+        return []
+    lookup = _span_lookup(evidence_bundle)
+    out: list[EvidenceSpan] = []
+    for raw_id in raw_ids:
+        span_id = _normalized_text(raw_id)
+        if not span_id:
+            continue
+        item = lookup.get(span_id)
+        if not item:
+            continue
+        span = _normalize_evidence_span({**item, "span_id": span_id}, default_section=default_section)
+        if span is not None:
+            out.append(span)
+    return out
+
+
+def _find_supporting_spans(
+    *,
+    cause: str,
+    effect: str,
+    claim_text: str,
+    evidence_bundle: dict[str, Any],
+    limit: int = 3,
+) -> list[EvidenceSpan]:
+    query_tokens = {
+        token
+        for token in re.findall(r"[a-z0-9_]{3,}", " ".join([cause, effect, claim_text]).lower())
+        if token not in {"the", "and", "for", "with"}
+    }
+    rows = []
+    for bucket in ("claim_sentences", "result_sentences", "abstract_sentences"):
+        for item in evidence_bundle.get(bucket, []):
+            if not isinstance(item, dict):
+                continue
+            text = _normalized_text(item.get("text"))
+            if not text:
+                continue
+            lower = text.lower()
+            overlap = sum(1 for token in query_tokens if token in lower)
+            if overlap <= 0:
+                continue
+            rows.append(
+                (
+                    overlap + float(item.get("score") or 0.0),
+                    EvidenceSpan(
+                        span_id=_normalized_text(item.get("span_id")),
+                        section=_normalized_text(item.get("section")),
+                        text=text,
+                        sentence_index=_coerce_int(item.get("sentence_index")),
+                        score=_coerce_score(item.get("score"), default=0.5),
+                    ),
+                )
+            )
+    rows.sort(key=lambda pair: pair[0], reverse=True)
+    deduped: list[EvidenceSpan] = []
+    seen: set[str] = set()
+    for _, span in rows:
+        if span.text in seen:
+            continue
+        seen.add(span.text)
+        deduped.append(span)
+        if len(deduped) >= limit:
+            break
+    if deduped:
+        return deduped
+
+    for bucket in ("claim_sentences", "result_sentences", "abstract_sentences"):
+        fallback_items = evidence_bundle.get(bucket, [])
+        for item in fallback_items[:limit]:
+            if not isinstance(item, dict) or not item.get("text"):
+                continue
+            deduped.append(
+                EvidenceSpan(
+                    span_id=_normalized_text(item.get("span_id")),
+                    section=_normalized_text(item.get("section")),
+                    text=_normalized_text(item.get("text")),
+                    sentence_index=_coerce_int(item.get("sentence_index")),
+                    score=_coerce_score(item.get("score"), default=0.4),
+                )
+            )
+        if deduped:
+            break
+    return deduped
+
+
+def _normalize_empirical_parameter(payload: Any) -> EvidenceParameter | None:
+    if not isinstance(payload, dict):
+        return None
+
+    name = _normalized_text(payload.get("name") or payload.get("parameter") or payload.get("variable"))
+    if not name:
+        return None
+
+    value = _coerce_float(payload.get("value"))
+    value_range = _coerce_number_pair(payload.get("value_range"))
+    value_qualitative = _normalized_text(payload.get("value_qualitative"))
+    if value is None and value_range is None and not value_qualitative:
+        fallback_text = _normalized_text(payload.get("value"))
+        if fallback_text:
+            value_qualitative = fallback_text
+
+    fallback_type = ParameterType.QUANTITATIVE.value if (value is not None or value_range is not None) else ParameterType.QUALITATIVE.value
+    candidate = {
+        "name": name,
+        "display_name": _normalized_text(payload.get("display_name")) or name,
+        "parameter_type": _normalize_parameter_type(payload.get("parameter_type"), fallback=fallback_type),
+        "value": value,
+        "value_range": value_range,
+        "value_qualitative": value_qualitative or None,
+        "confidence_interval": _coerce_number_pair(payload.get("confidence_interval")),
+        "std_error": _coerce_float(payload.get("std_error")),
+        "unit": _normalized_text(payload.get("unit")) or None,
+        "evidence_strength": _normalize_evidence_strength(payload.get("evidence_strength")),
+        "geographic_scope": _normalized_text(payload.get("geographic_scope")),
+        "time_period": _normalized_text(payload.get("time_period")),
+        "aggregation_level": _normalized_text(payload.get("aggregation_level")),
+        "transferability": _normalized_text(payload.get("transferability")) or "unknown",
+        "transfer_conditions": _coerce_text_list(payload.get("transfer_conditions")),
+        "heterogeneity_note": (
+            _normalized_text(payload.get("heterogeneity_note") or payload.get("context") or payload.get("source")) or None
+        ),
+        "subgroup_estimates": _coerce_subgroup_estimates(payload.get("subgroup_estimates")),
+    }
+    try:
+        return EvidenceParameter.model_validate(candidate)
+    except Exception:
+        return None
+
+
+def _normalize_causal_claim(
+    payload: Any,
+    *,
+    work_id: str,
+    evidence_bundle: dict[str, Any],
+    default_source_basis: str,
+) -> CausalClaim | None:
+    if not isinstance(payload, dict):
+        return None
+
+    effect_size = _coerce_float(payload.get("effect_size"))
+    magnitude_qualitative = _normalized_text(payload.get("magnitude_qualitative"))
+    if effect_size is None and not magnitude_qualitative:
+        magnitude_qualitative = _normalized_text(payload.get("effect_size")) or None
+
+    cause_variable = _normalized_text(payload.get("cause_variable") or payload.get("cause"))
+    effect_variable = _normalized_text(payload.get("effect_variable") or payload.get("effect"))
+    claim_text = _normalized_text(payload.get("claim_text"))
+    supporting_spans = _resolve_span_ids(
+        payload.get("supporting_span_ids"),
+        evidence_bundle=evidence_bundle,
+        default_section="claims",
+    )
+    if not supporting_spans:
+        supporting_spans = [
+            item
+            for item in (
+                _normalize_evidence_span(raw, default_section="claims")
+                for raw in _as_list(payload.get("supporting_spans"))
+            )
+            if item is not None
+        ]
+    if not supporting_spans:
+        supporting_spans = _find_supporting_spans(
+            cause=cause_variable,
+            effect=effect_variable,
+            claim_text=claim_text,
+            evidence_bundle=evidence_bundle,
+        )
+    method_spans = _resolve_span_ids(
+        payload.get("method_span_ids"),
+        evidence_bundle=evidence_bundle,
+        default_section="methods",
+    )
+    if not method_spans:
+        method_spans = [
+            item
+            for item in (
+                _normalize_evidence_span(raw, default_section="methods")
+                for raw in _as_list(payload.get("method_spans"))
+            )
+            if item is not None
+        ]
+    if not method_spans:
+        method_spans = [
+            EvidenceSpan.model_validate(item)
+            for item in evidence_bundle.get("method_sentences", [])[:3]
+            if isinstance(item, dict) and item.get("text")
+        ]
+
+    candidate = {
+        "claim_id": stable_claim_id(
+            work_id=work_id,
+            cause=cause_variable,
+            effect=effect_variable,
+            claim_text=claim_text,
+            direction=_normalize_direction(payload.get("direction")),
+        ),
+        "claim_text": claim_text,
+        "claim_type": _normalize_claim_type(payload.get("claim_type")),
+        "cause_variable": cause_variable,
+        "effect_variable": effect_variable,
+        "direction": _normalize_direction(payload.get("direction")),
+        "claim_explicitness": _normalize_claim_explicitness(payload.get("claim_explicitness")),
+        "design_family_hint": _normalize_design_family(payload.get("design_family_hint")),
+        "magnitude_qualitative": magnitude_qualitative,
+        "effect_size": effect_size,
+        "evidence_strength": _normalize_evidence_strength(payload.get("evidence_strength")),
+        "scope_conditions": _coerce_text_list(payload.get("scope_conditions")),
+        "counterevidence_notes": _normalized_text(payload.get("counterevidence_notes") or payload.get("mechanism")),
+        "supporting_spans": supporting_spans,
+        "method_spans": method_spans,
+        "supporting_span_ids": [span.span_id for span in supporting_spans if span.span_id],
+        "method_span_ids": [span.span_id for span in method_spans if span.span_id],
+        "source_basis": _normalize_source_basis(payload.get("source_basis") or default_source_basis),
+        "claim_extraction_confidence": _coerce_float(payload.get("claim_extraction_confidence")),
+        "extraction_warnings": _coerce_text_list(payload.get("extraction_warnings")),
+    }
+    if not candidate["cause_variable"] or not candidate["effect_variable"]:
+        return None
+    if not candidate["supporting_spans"]:
+        return None
+    try:
+        return CausalClaim.model_validate(candidate)
+    except Exception:
+        return None
+
+
+def _normalize_mechanism(payload: Any) -> Mechanism | None:
+    if not isinstance(payload, dict):
+        return None
+    candidate = {
+        "description": _normalized_text(payload.get("description") or payload.get("mechanism")),
+        "mediating_variables": _coerce_text_list(payload.get("mediating_variables")),
+        "evidence_type": _normalized_text(payload.get("evidence_type")),
+        "theoretical_framework": _normalized_text(payload.get("theoretical_framework")) or None,
+    }
+    if not candidate["description"]:
+        return None
+    try:
+        return Mechanism.model_validate(candidate)
+    except Exception:
+        return None
+
+
+def _normalize_boundary_condition(payload: Any) -> BoundaryCondition | None:
+    if not isinstance(payload, dict):
+        return None
+    candidate = {
+        "variable": _normalized_text(payload.get("variable")),
+        "condition_type": _normalized_text(payload.get("condition_type")),
+        "required_value": payload.get("required_value"),
+        "violated_by": _coerce_text_list(payload.get("violated_by")),
+        "consequence_if_violated": _normalized_text(payload.get("consequence_if_violated")),
+        "operator": _normalized_text(payload.get("operator")),
+        "threshold_value": _normalized_text(payload.get("threshold_value")),
+        "scope_text": _normalized_text(payload.get("scope_text")),
+        "confidence": _coerce_score(payload.get("confidence"), default=0.0),
+    }
+    try:
+        return BoundaryCondition.model_validate(candidate)
+    except Exception:
+        return None
+
+
+def _normalize_extraction_payload(
+    work: dict[str, Any],
+    parsed: dict[str, Any],
+    model: str,
+    usage: dict[str, Any],
+    *,
+    evidence_bundle: dict[str, Any],
+    source_kind: str,
+) -> dict[str, Any]:
+    empirical_parameters = [
+        item
+        for item in (
+            _normalize_empirical_parameter(raw)
+            for raw in _as_list(parsed.get("empirical_parameters"))
+        )
+        if item is not None
+    ]
+    causal_claims = [
+        item
+        for item in (
+            _normalize_causal_claim(
+                raw,
+                work_id=str(work.get("id") or ""),
+                evidence_bundle=evidence_bundle,
+                default_source_basis=evidence_bundle.get("source_basis", SourceBasis.FULLTEXT.value),
+            )
+            for raw in _as_list(parsed.get("causal_claims"))
+        )
+        if item is not None
+    ]
+    mechanisms = [
+        item
+        for item in (
+            _normalize_mechanism(raw)
+            for raw in _as_list(parsed.get("mechanisms"))
+        )
+        if item is not None
+    ]
+    boundary_conditions = [
+        item
+        for item in (
+            _normalize_boundary_condition(raw)
+            for raw in _as_list(parsed.get("boundary_conditions"))
+        )
+        if item is not None
+    ]
+
+    method_spans = [
+        item
+        for item in (
+            _normalize_evidence_span(raw, default_section="methods")
+            for raw in _as_list(parsed.get("method_spans"))
+        )
+        if item is not None
+    ]
+    if not method_spans:
+        method_spans = [
+            EvidenceSpan.model_validate(item)
+            for item in evidence_bundle.get("method_sentences", [])[:5]
+            if isinstance(item, dict) and item.get("text")
+        ]
+
+    supporting_spans: list[EvidenceSpan] = []
+    seen_spans: set[str] = set()
+    for claim in causal_claims:
+        for span in claim.supporting_spans:
+            if span.text in seen_spans:
+                continue
+            seen_spans.add(span.text)
+            supporting_spans.append(span)
+    if not supporting_spans:
+        supporting_spans = [
+            EvidenceSpan.model_validate(item)
+            for item in evidence_bundle.get("claim_sentences", [])[:5]
+            if isinstance(item, dict) and item.get("text")
+        ]
+
+    return {
+        "openalex_id": str(work.get("id") or ""),
+        "doi": str(work.get("doi") or ""),
+        "title": str(work.get("title") or ""),
+        "year": int(work.get("publication_year") or 0) or None,
+        "cited_by_count": int(work.get("cited_by_count") or 0),
+        "source_basis": _normalize_source_basis(parsed.get("source_basis") or evidence_bundle.get("source_basis")),
+        "text_quality": _normalize_text_quality(
+            parsed.get("text_quality"),
+            fallback=evidence_bundle.get("text_quality", TextQuality.EXTRACTED_FULLTEXT.value),
+        ),
+        "supporting_spans": supporting_spans,
+        "method_spans": method_spans,
+        "extraction_warnings": _coerce_text_list(parsed.get("extraction_warnings")),
+        "empirical_parameters": empirical_parameters,
+        "causal_claims": causal_claims,
+        "mechanisms": mechanisms,
+        "boundary_conditions": boundary_conditions,
+        "methodology": _normalized_text(parsed.get("methodology")),
+        "methodology_enum": _normalize_evidence_strength(parsed.get("methodology_enum") or parsed.get("evidence_strength")),
+        "sample_size": _coerce_int(parsed.get("sample_size")),
+        "citation_summary": _normalized_text(parsed.get("citation_summary")),
+        "extraction_model": model,
+        "extraction_timestamp": datetime.now(UTC).isoformat(),
+        "extraction_confidence": _coerce_score(parsed.get("extraction_confidence"), default=0.7),
+        "screening_cost_usd": 0.0,
+        "extraction_cost_usd": float(usage.get("total_cost_usd") or 0.0),
+        "token_count_prompt": int(usage.get("prompt_tokens") or 0),
+        "token_count_completion": int(usage.get("completion_tokens") or 0),
+    }
 
 
 class _SlidingWindowLimiter:
@@ -199,6 +975,7 @@ class PolicyArticleExtractor:
         gonka_client: GonkaChatClient,
         fulltext_timeout_seconds: int,
         cache_path: Path,
+        resolved_texts: dict[str, dict[str, Any]] | None = None,
     ) -> None:
         self.screening_model = screening_model
         self.extraction_model = extraction_model
@@ -208,6 +985,7 @@ class PolicyArticleExtractor:
         self._fulltext_timeout_seconds = max(3, int(fulltext_timeout_seconds))
         self._cache_path = cache_path
         self._processed_cache = self._load_processed_cache(cache_path)
+        self._resolved_texts = resolved_texts or {}
 
     @staticmethod
     def _load_processed_cache(cache_path: Path) -> set[str]:
@@ -255,18 +1033,7 @@ class PolicyArticleExtractor:
 
     @staticmethod
     def _reconstruct_abstract(work: dict[str, Any]) -> str:
-        index = work.get("abstract_inverted_index")
-        if not isinstance(index, dict):
-            return ""
-        positions: list[tuple[int, str]] = []
-        for word, pos_list in index.items():
-            if not isinstance(word, str) or not isinstance(pos_list, list):
-                continue
-            for pos in pos_list:
-                if isinstance(pos, int):
-                    positions.append((pos, word))
-        positions.sort(key=lambda item: item[0])
-        return " ".join(word for _, word in positions)
+        return reconstruct_abstract(work)
 
     async def _screen(self, abstract: str, stats: ExtractorStats) -> bool:
         prompt = SCREENING_PROMPT.format(abstract=abstract[:6000])
@@ -282,87 +1049,57 @@ class PolicyArticleExtractor:
 
     async def _fetch_full_text(self, work: dict[str, Any]) -> tuple[str, str]:
         """Return (text, source_kind). source_kind in {fulltext_html, fulltext_pdf, abstract_fallback}."""
-        open_access = work.get("open_access") if isinstance(work.get("open_access"), dict) else {}
-        best_oa = work.get("best_oa_location") if isinstance(work.get("best_oa_location"), dict) else {}
-        url = str(open_access.get("oa_url") or best_oa.get("pdf_url") or "").strip()
+        text, source_kind, _source_url = await fetch_full_text_for_work(
+            work,
+            timeout_seconds=self._fulltext_timeout_seconds,
+        )
+        return text, source_kind
 
-        if not url:
-            abstract = self._reconstruct_abstract(work)
-            return abstract, "abstract_fallback"
-
-        timeout = aiohttp.ClientTimeout(total=self._fulltext_timeout_seconds)
-        headers = {"User-Agent": "PolicyOS/1.0 (+academic extraction)"}
-        try:
-            async with aiohttp.ClientSession(timeout=timeout, headers=headers) as session:
-                async with session.get(url) as resp:
-                    if resp.status != 200:
-                        abstract = self._reconstruct_abstract(work)
-                        return abstract, "abstract_fallback"
-
-                    content_type = str(resp.headers.get("Content-Type") or "").lower()
-                    raw_bytes = await resp.read()
-
-                    if "pdf" in content_type or url.lower().endswith(".pdf"):
-                        text = self._extract_pdf_text(raw_bytes)
-                        if text.strip():
-                            return text, "fulltext_pdf"
-                        abstract = self._reconstruct_abstract(work)
-                        return abstract, "abstract_fallback"
-
-                    text = self._extract_html_text(raw_bytes.decode("utf-8", errors="ignore"))
-                    if text.strip():
-                        return text, "fulltext_html"
-        except Exception:
-            pass
-
+    async def _extract(
+        self,
+        work: dict[str, Any],
+        text: str,
+        source_kind: str,
+        stats: ExtractorStats,
+    ) -> ArticleExtractionResult | None:
         abstract = self._reconstruct_abstract(work)
-        return abstract, "abstract_fallback"
-
-    @staticmethod
-    def _extract_html_text(html: str) -> str:
-        cleaned = re.sub(r"(?is)<script.*?>.*?</script>", " ", html)
-        cleaned = re.sub(r"(?is)<style.*?>.*?</style>", " ", cleaned)
-        cleaned = re.sub(r"(?s)<[^>]+>", " ", cleaned)
-        cleaned = re.sub(r"\s+", " ", cleaned)
-        return cleaned.strip()
-
-    @staticmethod
-    def _extract_pdf_text(raw_bytes: bytes) -> str:
-        try:
-            from pypdf import PdfReader  # type: ignore[import-not-found]
-        except Exception:
-            return ""
-
-        try:
-            import io
-
-            reader = PdfReader(io.BytesIO(raw_bytes))
-            texts: list[str] = []
-            for page in reader.pages[:30]:
-                texts.append(str(page.extract_text() or ""))
-            return "\n".join(texts).strip()
-        except Exception:
-            return ""
-
-    async def _extract(self, work: dict[str, Any], text: str, stats: ExtractorStats) -> ArticleExtractionResult | None:
+        evidence_bundle = _build_evidence_bundle(
+            title=str(work.get("title") or ""),
+            abstract=abstract,
+            text=text,
+            source_kind=source_kind,
+        )
         extraction_prompt = f"""
-Extract policy-relevant empirical evidence from the paper text.
+Extract policy-relevant empirical evidence from the evidence bundle.
 Return strict JSON with keys:
 - empirical_parameters
 - causal_claims
 - mechanisms
 - boundary_conditions
 - methodology
+- methodology_enum
 - sample_size
 - citation_summary
 - extraction_confidence
+- extraction_warnings
 
+{EMPIRICAL_PARAMETERS_SCHEMA_HINT}
 {CAUSAL_CLAIMS_SCHEMA_HINT}
 {MECHANISMS_SCHEMA_HINT}
 {BOUNDARY_CONDITIONS_SCHEMA_HINT}
 
-Text:
-{text[:14000]}
+Rules:
+- Return JSON only.
+- Use null for unavailable numeric values.
+- Never place words like high, medium, low in numeric fields.
+- If a value is qualitative, put it in value_qualitative instead of value.
+- sample_size must be an integer or null.
+- Every causal claim must include at least one supporting span.
+- Be conservative about design_family_hint.
+- If the evidence bundle only contains abstract sentences, do not imply strong causal validity.
+
+Evidence bundle:
+{json.dumps(evidence_bundle, ensure_ascii=False)}
 """.strip()
 
         parsed, usage = await self._gonka.chat(
@@ -376,26 +1113,15 @@ Text:
         stats.total_extraction_cost_usd += float(usage.get("total_cost_usd") or 0.0)
 
         try:
-            result = ArticleExtractionResult(
-                openalex_id=str(work.get("id") or ""),
-                doi=str(work.get("doi") or ""),
-                title=str(work.get("title") or ""),
-                year=int(work.get("publication_year") or 0) or None,
-                cited_by_count=int(work.get("cited_by_count") or 0),
-                empirical_parameters=parsed.get("empirical_parameters") or [],
-                causal_claims=parsed.get("causal_claims") or [],
-                mechanisms=parsed.get("mechanisms") or [],
-                boundary_conditions=parsed.get("boundary_conditions") or [],
-                methodology=str(parsed.get("methodology") or ""),
-                sample_size=int(parsed.get("sample_size")) if parsed.get("sample_size") is not None else None,
-                citation_summary=str(parsed.get("citation_summary") or ""),
-                extraction_model=self.extraction_model,
-                extraction_timestamp=datetime.now(UTC).isoformat(),
-                extraction_confidence=float(parsed.get("extraction_confidence") or 0.7),
-                screening_cost_usd=0.0,
-                extraction_cost_usd=float(usage.get("total_cost_usd") or 0.0),
-                token_count_prompt=int(usage.get("prompt_tokens") or 0),
-                token_count_completion=int(usage.get("completion_tokens") or 0),
+            result = ArticleExtractionResult.model_validate(
+                _normalize_extraction_payload(
+                    work,
+                    parsed,
+                    self.extraction_model,
+                    usage,
+                    evidence_bundle=evidence_bundle,
+                    source_kind=evidence_bundle["source_kind"],
+                )
             )
             return result
         except Exception as exc:
@@ -410,7 +1136,19 @@ Text:
             effect, effect_new = self._canonizer.canonize(claim.effect_variable)
             stats.new_canonical_names += int(cause_new) + int(effect_new)
             canonized_claims.append(
-                claim.model_copy(update={"cause_variable": cause, "effect_variable": effect})
+                claim.model_copy(
+                    update={
+                        "claim_id": stable_claim_id(
+                            work_id=result.openalex_id,
+                            cause=cause,
+                            effect=effect,
+                            claim_text=claim.claim_text,
+                            direction=claim.direction.value,
+                        ),
+                        "cause_variable": cause,
+                        "effect_variable": effect,
+                    }
+                )
             )
 
         canonized_params = []
@@ -462,19 +1200,37 @@ Text:
                     stats.screening_rejected += 1
                     return None
 
-            full_text, source_kind = await self._fetch_full_text(work)
+            resolved = self._resolved_texts.get(str(work.get("id") or ""))
+            if resolved:
+                full_text = _normalized_text(resolved.get("text"))
+                source_kind = str(resolved.get("source_kind") or "abstract_fallback")
+            else:
+                full_text, source_kind = await self._fetch_full_text(work)
             if not full_text.strip():
                 stats.no_fulltext += 1
                 return None
 
-            result = await self._extract(work, full_text, stats)
+            result = await self._extract(work, full_text, source_kind, stats)
             if result is None:
                 return None
 
             if source_kind == "abstract_fallback":
+                downgraded_claims = [
+                    claim.model_copy(
+                        update={
+                            "source_basis": SourceBasis.ABSTRACT_ONLY,
+                            "extraction_warnings": sorted(set([*claim.extraction_warnings, "abstract_only_fallback"])),
+                        }
+                    )
+                    for claim in result.causal_claims
+                ]
                 result = result.model_copy(
                     update={
                         "extraction_confidence": max(0.1, result.extraction_confidence * 0.8),
+                        "source_basis": SourceBasis.ABSTRACT_ONLY,
+                        "text_quality": TextQuality.ABSTRACT_ONLY,
+                        "causal_claims": downgraded_claims,
+                        "extraction_warnings": sorted(set([*result.extraction_warnings, "abstract_only_fallback"])),
                         "citation_summary": (
                             (result.citation_summary + " ").strip()
                             + "[fallback:abstract_only]"
@@ -543,6 +1299,12 @@ def _to_work_record(
     run_id: str,
     pass_name: str,
 ) -> WorkRecord:
+    paper_trust_score = compute_trust_score(
+        study_design=str(result.methodology or ""),
+        cited_by_count=int(result.cited_by_count or 0),
+        publication_year=int(result.year or 2000),
+        sample_size=result.sample_size,
+    )
     estimates: list[EstimateCandidate] = []
     for parameter in result.empirical_parameters:
         value = parameter.value
@@ -567,7 +1329,7 @@ def _to_work_record(
                 std_error=_safe_float(parameter.std_error),
                 unit=str(parameter.unit or ""),
                 context_snippet=str(parameter.heterogeneity_note or ""),
-                pattern_name="article_extract",
+                pattern_name="resolve_extract",
                 confidence=float(result.extraction_confidence),
                 variable_hint=parameter.name,
             )
@@ -575,12 +1337,31 @@ def _to_work_record(
 
     causal_claims = [
         {
+            "claim_id": claim.claim_id,
+            "claim_text": claim.claim_text,
+            "claim_type": claim.claim_type.value,
             "cause": claim.cause_variable,
             "effect": claim.effect_variable,
             "direction": claim.direction.value,
             "strength": claim.evidence_strength.value,
+            "claim_explicitness": claim.claim_explicitness.value,
+            "design_family_hint": claim.design_family_hint.value,
             "mechanism": claim.counterevidence_notes,
             "effect_size": claim.effect_size,
+            "supporting_span_ids": list(claim.supporting_span_ids),
+            "method_span_ids": list(claim.method_span_ids),
+            "supporting_spans": [span.model_dump(mode="json") for span in claim.supporting_spans],
+            "method_spans": [span.model_dump(mode="json") for span in claim.method_spans],
+            "source_basis": claim.source_basis.value,
+            "claim_extraction_confidence": (
+                float(claim.claim_extraction_confidence)
+                if claim.claim_extraction_confidence is not None
+                else float(result.extraction_confidence)
+            ),
+            "extraction_warnings": list(claim.extraction_warnings),
+            "strong_design_evidence": bool(claim.strong_design_evidence),
+            "publish_to_graph": bool(claim.publish_to_graph),
+            "publish_blockers": list(claim.publish_blockers),
         }
         for claim in result.causal_claims
     ]
@@ -610,12 +1391,14 @@ def _to_work_record(
                 ),
                 rank=0,
                 selection_score=0.0,
-                batch_origin="article_extract",
+                batch_origin="resolve_extract",
                 selected_at=datetime.now(UTC).isoformat(),
             )
         )
 
-    abstract = PolicyArticleExtractor._reconstruct_abstract(raw_work)
+    abstract = str(raw_work.get("abstract") or "").strip()
+    if not abstract:
+        abstract = PolicyArticleExtractor._reconstruct_abstract(raw_work)
 
     return WorkRecord(
         id=result.openalex_id,
@@ -640,12 +1423,12 @@ def _to_work_record(
         concepts=list(raw_work.get("topics") or []),
         source_topics=topic_refs,
         study_design=str(result.methodology or ""),
-        trust_score=float(result.extraction_confidence),
+        trust_score=float(paper_trust_score),
         estimates=estimates,
         causal_claims=causal_claims,
         boundary_conditions=boundary_conditions,
         context_profile=result.source_context.model_dump(mode="json") if result.source_context else {},
-        extraction_mode="article_extract",
+        extraction_mode="resolve_extract",
         extraction_confidence=float(result.extraction_confidence),
         method_signal_score=float(result.extraction_confidence),
         token_count_prompt=int(result.token_count_prompt),
@@ -656,7 +1439,20 @@ def _to_work_record(
             "sample_size": result.sample_size,
             "run_id": run_id,
             "pass_name": pass_name,
-            "article_extract": True,
+            "resolve_extract": True,
+            "paper_trust_score": paper_trust_score,
+            "claim_extraction_confidence": float(result.extraction_confidence),
+            "source_basis": result.source_basis.value,
+            "text_quality": result.text_quality.value,
+            "supporting_spans": [span.model_dump(mode="json") for span in result.supporting_spans],
+            "method_spans": [span.model_dump(mode="json") for span in result.method_spans],
+            "extraction_warnings": list(result.extraction_warnings),
+            "paper_relevance": bool(result.paper_relevance),
+            "paper_relevance_reason": result.paper_relevance_reason,
+            "provider_finish_reason": result.provider_finish_reason,
+            "provider_latency_ms": result.provider_latency_ms,
+            "truncated_output": bool(result.truncated_output),
+            "llm_error_class": result.llm_error_class,
         },
     )
 
@@ -676,118 +1472,29 @@ def _load_selected_works(path: Path) -> list[dict[str, Any]]:
     return rows
 
 
+def _load_resolved_texts(path: Path) -> dict[str, dict[str, Any]]:
+    rows: dict[str, dict[str, Any]] = {}
+    if not path.exists():
+        return rows
+    with open(path, "r", encoding="utf-8") as fh:
+        for line in fh:
+            line = line.strip()
+            if not line:
+                continue
+            row = json.loads(line)
+            if not isinstance(row, dict):
+                continue
+            work_id = str(row.get("work_id") or "")
+            if work_id:
+                rows[work_id] = row
+    return rows
+
+
 async def run_article_extract(config: AcademicBatchConfig) -> dict[str, float | int]:
-    """Run phase-0a article extraction and emit WorkRecord payload for merge stage."""
-    started_at = datetime.now(UTC).isoformat()
+    """Compatibility wrapper for the clean-cut resolve_extract stage."""
+    from polisyos.academic.batch.resolve_extract import run_resolve_extract
 
-    selected_rows = _load_selected_works(config.selected_global_works_path)
-    if not selected_rows:
-        write_stage_manifest(
-            manifest_path=config.manifests_dir / "article_extract.json",
-            stage="article_extract",
-            status="ok",
-            metrics={"records": 0, "extracted": 0},
-            artifacts=[],
-            started_at=started_at,
-        )
-        return {"records": 0, "extracted": 0}
-
-    if not config.gonka_api_key:
-        # Keep pipeline robust when optional deps/API are absent.
-        write_stage_manifest(
-            manifest_path=config.manifests_dir / "article_extract.json",
-            stage="article_extract",
-            status="ok",
-            metrics={"records": len(selected_rows), "extracted": 0, "skipped_reason": "no_api_key"},
-            artifacts=[],
-            started_at=started_at,
-        )
-        return {"records": len(selected_rows), "extracted": 0, "skipped_reason": "no_api_key"}
-
-    canonizer = VariableCanonizer(db_path=config.db_path)
-    client = GonkaChatClient(
-        api_key=config.gonka_api_key,
-        base_url=config.gonka_base_url,
-        max_concurrent=config.article_max_concurrent_llm,
-        rate_limit_rps=config.article_rate_limit_rps,
-        max_retries=config.article_max_retries,
-        timeout_seconds=120,
-    )
-
-    works: list[dict[str, Any]] = []
-    topic_meta: dict[str, tuple[list[str], list[str]]] = {}
-    for row in selected_rows:
-        work = row.get("work")
-        if not isinstance(work, dict):
-            continue
-        work_id = str(row.get("work_id") or work.get("id") or "")
-        if not work_id:
-            continue
-        works.append(work)
-        topic_meta[work_id] = (
-            [str(t) for t in row.get("topic_ids") or []],
-            [str(t) for t in row.get("topic_display_names") or []],
-        )
-
-    async with client:
-        extractor = PolicyArticleExtractor(
-            screening_model=config.article_screening_model,
-            extraction_model=config.article_extraction_model,
-            max_concurrent=config.article_max_concurrent_llm,
-            canonizer=canonizer,
-            gonka_client=client,
-            fulltext_timeout_seconds=config.article_fulltext_timeout_seconds,
-            cache_path=config.article_extraction_cache_path,
-        )
-        results, stats = await extractor.process_batch(works)
-
-    config.extracted_dir.mkdir(parents=True, exist_ok=True)
-    output_records_path = config.extracted_dir / "article_extract.jsonl"
-
-    with open(config.article_extraction_results_path, "w", encoding="utf-8") as fh:
-        for result in results:
-            fh.write(result.model_dump_json() + "\n")
-
-    with open(output_records_path, "w", encoding="utf-8") as fh:
-        for result in results:
-            topic_ids, topic_display_names = topic_meta.get(result.openalex_id, ([], []))
-            work_row = next((w for w in works if str(w.get("id") or "") == result.openalex_id), {})
-            record = _to_work_record(
-                result=result,
-                raw_work=work_row,
-                topic_ids=topic_ids,
-                topic_display_names=topic_display_names,
-                run_id=config.run_id,
-                pass_name=config.pass_name,
-            )
-            fh.write(record.model_dump_json() + "\n")
-
-    metrics = {
-        "records": stats.total_seen,
-        "skipped": stats.skipped,
-        "screening_rejected": stats.screening_rejected,
-        "no_fulltext": stats.no_fulltext,
-        "extracted": stats.extracted,
-        "extraction_errors": stats.extraction_errors,
-        "cached_skipped": stats.cached_skipped,
-        "new_canonical_names": stats.new_canonical_names,
-        "total_screening_cost_usd": round(stats.total_screening_cost_usd, 6),
-        "total_extraction_cost_usd": round(stats.total_extraction_cost_usd, 6),
-        "total_tokens_prompt": stats.total_tokens_prompt,
-        "total_tokens_completion": stats.total_tokens_completion,
-        "elapsed_seconds": round(stats.elapsed_seconds, 3),
-    }
-
-    write_stage_manifest(
-        manifest_path=config.manifests_dir / "article_extract.json",
-        stage="article_extract",
-        status="ok",
-        metrics=metrics,
-        artifacts=[config.article_extraction_results_path, output_records_path],
-        started_at=started_at,
-    )
-
-    return metrics
+    return await run_resolve_extract(config)
 
 
 __all__ = ["ExtractorStats", "PolicyArticleExtractor", "run_article_extract"]

@@ -872,7 +872,7 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │       │   ├── trust.py  # Trust scoring for academic works and parameter estimates.
 │       │   ├── batch/  # Staged academic knowledge pipeline.
 │       │   │   ├── __init__.py
-│       │   │   ├── article_extractor.py  # Phase 0a article extraction (screening + full).
+│       │   │   ├── article_extractor.py  # Compatibility wrapper + extraction helpers reused by resolve_extract.
 │       │   │   ├── cli.py  # CLI for staged academic knowledge pipeline.
 │       │   │   ├── config.py  # Pipeline configuration.
 │       │   │   ├── context_classifier.py  # Context inference for article extraction.
@@ -880,11 +880,11 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │       │   │   ├── embedder.py  # Build local embeddings + HNSW index.
 │       │   │   ├── graph_builder.py  # Load records into DuckDB and build indexes.
 │       │   │   ├── harvester.py  # Materialize topic-selected OpenAlex works.
-│       │   │   ├── llm_extractor.py  # Selective LLM enrichment for parsed abstracts.
 │       │   │   ├── parser.py  # Parse OpenAlex raw payloads into WorkRecord rows.
 │       │   │   ├── pipeline.py  # Thin orchestrator for staged academic pipeline.
 │       │   │   ├── publish.py  # Publish academic pipeline artifacts.
 │       │   │   ├── qc.py  # QC checks for academic pipeline.
+│       │   │   ├── resolve_extract.py  # Streaming fulltext-first one-call extraction + deterministic publish gating.
 │       │   │   ├── topic_select.py  # Topic-based OpenAlex selection (Pass 1).
 │       │   │   └── prompts/  # LLM prompt templates for extraction.
 │       │   │       ├── __init__.py

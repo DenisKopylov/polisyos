@@ -1,0 +1,2 @@
+{"paper_id":"seed_screen_001","title":"Tax Audit Experiment","abstract":"We evaluate the effect of random tax audits on compliance using a field experiment.","paper_relevant_for_policy_causal_extraction":"yes","notes":"Seed positive example"}
+{"paper_id":"seed_screen_002","title":"Public Opinion Trends","abstract":"We describe long-run trends in public opinion across countries without estimating policy effects.","paper_relevant_for_policy_causal_extraction":"no","notes":"Seed negative example"}

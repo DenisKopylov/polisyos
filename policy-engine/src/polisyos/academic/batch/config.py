@@ -15,8 +15,7 @@ ALL_STAGES = frozenset(
         "topic_select",
         "harvest",
         "parse",
-        "article_extract",
-        "extract_llm",
+        "resolve_extract",
         "merge_dedup",
         "graph_load",
         "graph_index",
@@ -28,6 +27,25 @@ ALL_STAGES = frozenset(
 
 def _default_run_id() -> str:
     return datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
+
+
+def _default_gonka_api_keys() -> list[str]:
+    primary = str(os.environ.get("GONKA_API_KEY", "")).strip()
+    keys: list[str] = [primary] if primary else []
+    numbered: list[tuple[int, str]] = []
+    for key, value in os.environ.items():
+        if not key.startswith("GONKA_API_KEY_"):
+            continue
+        suffix = key.removeprefix("GONKA_API_KEY_")
+        if not suffix.isdigit():
+            continue
+        token = str(value or "").strip()
+        if token:
+            numbered.append((int(suffix), token))
+    for _, token in sorted(numbered):
+        if token not in keys:
+            keys.append(token)
+    return keys
 
 
 def _slugify(value: str, *, max_len: int = 96) -> str:
@@ -64,6 +82,7 @@ class AcademicBatchConfig:
 
     # LLM extractor (selective)
     gonka_api_key: str = ""
+    gonka_api_keys: list[str] = field(default_factory=_default_gonka_api_keys)
     gonka_base_url: str = "https://api.gonkagate.com/v1"
     llm_model: str = "qwen/qwen3-235b-a22b-instruct-2507-fp8"
     llm_temperature: float = 0.1
@@ -78,6 +97,24 @@ class AcademicBatchConfig:
     article_rate_limit_rps: float = 8.0
     article_max_retries: int = 7
     article_fulltext_timeout_seconds: int = 20
+    article_target_fulltext_per_topic: int = 50
+    article_prefetch_candidates_per_topic: int = 150
+    article_max_completion_tokens: int = 8192
+    article_evidence_bundle_sentence_budget: int = 28
+    article_connect_timeout_seconds: int = 15
+    article_read_timeout_seconds: int = 120
+    article_total_timeout_seconds: int = 150
+    fulltext_max_concurrent_fetches: int = 24
+    fulltext_acquisition_mode: str = "v3_legacy"
+    fulltext_metadata_resolvers_enabled: bool = True
+    fulltext_unpaywall_email: str = ""
+    fulltext_metadata_timeout_seconds: int = 20
+    fulltext_max_candidate_urls_per_work: int = 20
+    fulltext_min_usable_chars: int = 1500
+    fulltext_min_soft_usable_chars: int = 700
+    fulltext_soft_usable_requires_section_cues: bool = True
+    provider_circuit_breaker_failures: int = 5
+    provider_circuit_breaker_reset_seconds: int = 60
 
     # LLM gate
     llm_gate_enabled: bool = True
@@ -193,6 +230,42 @@ class AcademicBatchConfig:
         return self.component_dir / "article_extract_cache.jsonl"
 
     @property
+    def fulltext_resolved_path(self) -> Path:
+        return self.component_dir / "fulltext_resolved.jsonl"
+
+    @property
+    def resolve_extract_progress_path(self) -> Path:
+        return self.component_dir / "resolve_extract_progress.json"
+
+    @property
+    def resolve_extract_results_path(self) -> Path:
+        return self.component_dir / "resolve_extract_results.jsonl"
+
+    @property
+    def resolve_extract_errors_path(self) -> Path:
+        return self.component_dir / "resolve_extract_errors.jsonl"
+
+    @property
+    def fulltext_fetch_log_path(self) -> Path:
+        return self.component_dir / "fulltext_fetch_log.jsonl"
+
+    @property
+    def fulltext_metadata_cache_path(self) -> Path:
+        return self.component_dir / "fulltext_metadata_cache.jsonl"
+
+    @property
+    def llm_request_log_path(self) -> Path:
+        return self.component_dir / "llm_request_log.jsonl"
+
+    @property
+    def raw_claim_candidates_path(self) -> Path:
+        return self.component_dir / "raw_claim_candidates.jsonl"
+
+    @property
+    def published_claims_path(self) -> Path:
+        return self.component_dir / "published_claims.jsonl"
+
+    @property
     def ingest_errors_path(self) -> Path:
         return self.component_dir / "errors" / "ingest_errors.jsonl"
 
@@ -205,12 +278,35 @@ class AcademicBatchConfig:
         return self.raw_dir / f"{topic_id.lower()}__{suffix}"
 
     def __post_init__(self) -> None:
+        if not self.gonka_api_keys:
+            self.gonka_api_keys = _default_gonka_api_keys()
+
+        explicit_key = str(self.gonka_api_key or "").strip()
+        if explicit_key:
+            if explicit_key not in self.gonka_api_keys:
+                self.gonka_api_keys = [explicit_key, *self.gonka_api_keys]
+            else:
+                self.gonka_api_keys = [explicit_key, *[k for k in self.gonka_api_keys if k != explicit_key]]
+        self.gonka_api_key = explicit_key or (self.gonka_api_keys[0] if self.gonka_api_keys else "")
+
         unknown = set(self.stages) - ALL_STAGES
         if unknown:
             raise ValueError(f"Unknown stages: {sorted(unknown)}")
 
         if self.target_per_topic < 1:
             raise ValueError("target_per_topic must be >= 1")
+        if self.fulltext_acquisition_mode not in {"v3_legacy", "v7_http_metadata"}:
+            raise ValueError("fulltext_acquisition_mode must be one of: v3_legacy, v7_http_metadata")
+        if self.fulltext_metadata_timeout_seconds < 1:
+            raise ValueError("fulltext_metadata_timeout_seconds must be >= 1")
+        if self.fulltext_max_candidate_urls_per_work < 1:
+            raise ValueError("fulltext_max_candidate_urls_per_work must be >= 1")
+        if self.fulltext_min_usable_chars < 1:
+            raise ValueError("fulltext_min_usable_chars must be >= 1")
+        if self.fulltext_min_soft_usable_chars < 1:
+            raise ValueError("fulltext_min_soft_usable_chars must be >= 1")
+        if self.fulltext_min_soft_usable_chars > self.fulltext_min_usable_chars:
+            raise ValueError("fulltext_min_soft_usable_chars must be <= fulltext_min_usable_chars")
 
         if self.llm_gate_mode not in {"off", "balanced", "aggressive"}:
             raise ValueError("llm_gate_mode must be one of: off, balanced, aggressive")
@@ -247,3 +343,5 @@ class AcademicBatchConfig:
             self.openalex_email = os.environ.get("OPENALEX_EMAIL", "")
         if not self.gonka_api_key:
             self.gonka_api_key = os.environ.get("GONKA_API_KEY", "")
+        if not self.fulltext_unpaywall_email:
+            self.fulltext_unpaywall_email = os.environ.get("UNPAYWALL_EMAIL", "") or self.openalex_email

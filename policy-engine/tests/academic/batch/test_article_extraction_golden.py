@@ -7,11 +7,13 @@ from typing import Any
 
 from polisyos.academic.batch.article_extractor import run_article_extract
 from polisyos.academic.batch.config import AcademicBatchConfig
+from polisyos.academic.batch.fulltext_resolver import FullTextFetchResult
+from polisyos.academic.batch.resolve_extract import ProviderResponse
 
 
-class _GoldenFakeGonkaClient:
-    def __init__(self, **kwargs):  # type: ignore[no-untyped-def]
-        pass
+class _GoldenFakePool:
+    def __init__(self, config):  # type: ignore[no-untyped-def]
+        self._config = config
 
     async def __aenter__(self):  # type: ignore[no-untyped-def]
         return self
@@ -19,11 +21,11 @@ class _GoldenFakeGonkaClient:
     async def __aexit__(self, *exc):  # type: ignore[no-untyped-def]
         return None
 
-    async def chat(self, *, model, temperature, prompt):  # type: ignore[no-untyped-def]
-        if '"relevant"' in prompt or "screening" in prompt.lower():
-            return {"relevant": True, "reason": "policy causal"}, {"prompt_tokens": 8, "completion_tokens": 2}
-        return (
-            {
+    async def chat_json(self, *, model, prompt, temperature):  # type: ignore[no-untyped-def]
+        return ProviderResponse(
+            parsed={
+                "paper_relevance": True,
+                "paper_relevance_reason": "policy causal",
                 "empirical_parameters": [
                     {
                         "name": "gdp_growth",
@@ -42,16 +44,22 @@ class _GoldenFakeGonkaClient:
                 ],
                 "causal_claims": [
                     {
+                        "claim_type": "causal_claim",
                         "cause_variable": "gdp_growth",
                         "effect_variable": "unemployment_rate",
                         "direction": "negative",
                         "evidence_strength": "observational",
+                        "supporting_span_ids": ["r_01"],
+                        "method_span_ids": ["m_01"],
                     },
                     {
+                        "claim_type": "causal_claim",
                         "cause_variable": "government_spending",
                         "effect_variable": "poverty_rate",
                         "direction": "negative",
                         "evidence_strength": "observational",
+                        "supporting_span_ids": ["r_01"],
+                        "method_span_ids": ["m_01"],
                     },
                 ],
                 "boundary_conditions": [
@@ -63,12 +71,22 @@ class _GoldenFakeGonkaClient:
                     }
                 ],
                 "mechanisms": [],
-                "methodology": "did",
+                "methodology_summary": "did",
                 "sample_size": 1200,
                 "citation_summary": "known fixture article",
                 "extraction_confidence": 0.86,
             },
-            {"prompt_tokens": 100, "completion_tokens": 50, "total_cost_usd": 0.01},
+            usage={"prompt_tokens": 100, "completion_tokens": 50, "total_cost_usd": 0.01},
+            http_status=200,
+            finish_reason="stop",
+            latency_ms=10.0,
+            retry_count=0,
+            limiter_wait_ms=0.0,
+            backoff_sleep_ms=0.0,
+            parse_status="ok",
+            error_class="",
+            raw_content="{}",
+            truncated_output=False,
         )
 
 
@@ -121,6 +139,15 @@ def _project_result(payload: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+async def _fake_fetch_full_text(work, **kwargs):  # type: ignore[no-untyped-def]
+    return FullTextFetchResult(
+        text="We use a difference-in-differences design. Government spending reduces poverty and GDP growth lowers unemployment.",
+        source_kind="fulltext_html",
+        source_url="https://example.org/golden",
+        fetch_error_class="",
+    )
+
+
 def test_article_extraction_known_article_golden(monkeypatch, tmp_path: Path) -> None:
     fixtures_root = Path(__file__).resolve().parents[2] / "fixtures" / "phase0"
     input_payload = _load_fixture(fixtures_root / "known_article_input.json")
@@ -128,27 +155,18 @@ def test_article_extraction_known_article_golden(monkeypatch, tmp_path: Path) ->
 
     config = AcademicBatchConfig(snapshot_root=tmp_path / "snap")
     config.gonka_api_key = "fake"
+    config.gonka_api_keys = ["fake"]
     config.selected_global_works_path.parent.mkdir(parents=True, exist_ok=True)
     config.selected_global_works_path.write_text(
         json.dumps(input_payload, ensure_ascii=False) + "\n",
         encoding="utf-8",
     )
 
-    monkeypatch.setattr(
-        "polisyos.academic.batch.article_extractor.GonkaChatClient",
-        _GoldenFakeGonkaClient,
-    )
-
-    async def _fake_fetch_full_text(self, work):  # type: ignore[no-untyped-def]
-        return "Known policy article full text for deterministic golden extraction.", "fulltext_html"
-
-    monkeypatch.setattr(
-        "polisyos.academic.batch.article_extractor.PolicyArticleExtractor._fetch_full_text",
-        _fake_fetch_full_text,
-    )
+    monkeypatch.setattr("polisyos.academic.batch.resolve_extract.GonkaMultiKeyPool", _GoldenFakePool)
+    monkeypatch.setattr("polisyos.academic.batch.resolve_extract.fetch_full_text_result_for_work", _fake_fetch_full_text)
 
     metrics = asyncio.run(run_article_extract(config))
-    assert int(metrics["extracted"]) == 1
+    assert int(metrics["successful_llm_extractions_per_topic"]) == 1
 
     lines = config.article_extraction_results_path.read_text(encoding="utf-8").splitlines()
     assert len(lines) == 1

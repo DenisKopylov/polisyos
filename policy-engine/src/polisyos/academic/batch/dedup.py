@@ -16,10 +16,9 @@ class MergeStats(dict):
 
 
 def _iter_input_files(config: AcademicBatchConfig) -> list:
+    parsed = sorted(config.parsed_dir.glob("*.jsonl"))
     extracted = sorted(config.extracted_dir.glob("*.jsonl"))
-    if extracted:
-        return extracted
-    return sorted(config.parsed_dir.glob("*.jsonl"))
+    return parsed + extracted
 
 
 def _merge_records(base: WorkRecord, incoming: WorkRecord) -> WorkRecord:
@@ -31,11 +30,12 @@ def _merge_records(base: WorkRecord, incoming: WorkRecord) -> WorkRecord:
         if existing is None or t.selection_score > existing.selection_score:
             by_topic[t.topic_id] = t
 
-    # Explicit precedence: article_extract > llm_enriched > deterministic(parse).
+    # Explicit precedence: resolve_extract > article_extract > llm_enriched > deterministic(parse).
     mode_priority = {
         "deterministic": 1,
         "llm_enriched": 2,
         "article_extract": 3,
+        "resolve_extract": 4,
     }
     base_priority = mode_priority.get(base.extraction_mode, 0)
     incoming_priority = mode_priority.get(incoming.extraction_mode, 0)
@@ -45,11 +45,13 @@ def _merge_records(base: WorkRecord, incoming: WorkRecord) -> WorkRecord:
         chosen_claims = incoming.causal_claims
         chosen_bounds = incoming.boundary_conditions
         extraction_mode = incoming.extraction_mode
+        chosen_metadata = incoming.metadata
     elif incoming_priority < base_priority:
         chosen_estimates = base.estimates
         chosen_claims = base.causal_claims
         chosen_bounds = base.boundary_conditions
         extraction_mode = base.extraction_mode
+        chosen_metadata = base.metadata
     else:
         chosen_estimates = base.estimates or incoming.estimates
         chosen_claims = base.causal_claims or incoming.causal_claims
@@ -59,6 +61,7 @@ def _merge_records(base: WorkRecord, incoming: WorkRecord) -> WorkRecord:
             if incoming.extraction_confidence > base.extraction_confidence
             else base.extraction_mode
         )
+        chosen_metadata = incoming.metadata if incoming.extraction_confidence > base.extraction_confidence else base.metadata
 
     merged = base.model_copy(
         update={
@@ -69,6 +72,7 @@ def _merge_records(base: WorkRecord, incoming: WorkRecord) -> WorkRecord:
             "estimates": chosen_estimates,
             "causal_claims": chosen_claims,
             "boundary_conditions": chosen_bounds,
+            "metadata": chosen_metadata,
         }
     )
     return merged

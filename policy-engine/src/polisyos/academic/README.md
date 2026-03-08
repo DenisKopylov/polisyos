@@ -7,7 +7,7 @@
 `academic` закрывает два связанных контура:
 
 1. ingestion/pipeline:
-`topics -> OpenAlex selection -> parsing/extraction -> dedup -> DuckDB graph -> embeddings/QC/publish`.
+`topics -> OpenAlex selection -> parsing -> streaming fulltext resolve + one-call extraction -> dedup -> DuckDB graph -> embeddings/QC/publish`.
 2. query/runtime:
 `DuckDB + HNSW -> поиск работ, causal evidence, priors и transportability-aware выбор параметров`.
 
@@ -34,7 +34,7 @@ relevant_topics_*.csv
     -> batch/topic_select.py
     -> batch/harvester.py
     -> batch/parser.py
-    -> batch/article_extractor.py OR batch/llm_extractor.py
+    -> batch/resolve_extract.py
     -> batch/dedup.py
     -> batch/graph_builder.py (+ SKG tables)
     -> batch/embedder.py
@@ -49,6 +49,8 @@ relevant_topics_*.csv
   `topics_catalog.jsonl`, `selected_topic_works.jsonl`, `selected_global_works.jsonl`;
 - `raw/<topic_id>__<slug>/<timestamp>/payload.jsonl` + raw manifest;
 - `parsed/*.jsonl`, `extracted/*.jsonl`, `merged/all_records.jsonl`;
+- `fulltext_resolved.jsonl`, `resolve_extract_progress.json`, `resolve_extract_results.jsonl`, `resolve_extract_errors.jsonl`,
+  `fulltext_fetch_log.jsonl`, `llm_request_log.jsonl`, `raw_claim_candidates.jsonl`, `published_claims.jsonl`;
 - `merged/topic_links.jsonl`, `merged/duplicates_report.csv`;
 - `graph/scholar_knowledge.duckdb`;
 - `ac_work_embeddings.npz`, `ac_work_index.hnsw`;
@@ -58,12 +60,12 @@ relevant_topics_*.csv
 
 - Источник тем по умолчанию:
   `/Users/deniskopylov/polisyos/relevant_topics_domain_files` (`--topics-dir` для override).
-- В `run`-режиме `article_extract` имеет приоритет над `extract_llm`:
-  при включенной `article_extract` стадия `extract_llm` помечается как skipped.
-- `article_extract`/`extract_llm` не ломают pipeline при отсутствии `GONKA_API_KEY`:
-  stage завершается с метриками skipped/deferred.
+- Published graph layer строится только из `fulltext`-grounded claims; `abstract_only` живет только в raw/exploration layer.
+- `resolve_extract` использует shared multi-key scheduler и запускает LLM extraction сразу после появления eligible fulltext paper, без ожидания завершения полного fetch по теме.
+- Один paper получает ровно один LLM extraction call; final publish decision считается кодом, а не отдельной LLM adjudication стадией.
+- При отсутствии `GONKA_API_KEY` / `GONKA_API_KEY_<n>` stage `resolve_extract` завершается с метрикой `skipped_reason=no_api_keys`.
 - При merge применен явный приоритет extraction mode:
-  `article_extract > llm_enriched > deterministic`.
+  `resolve_extract > article_extract > llm_enriched > deterministic`.
 
 ## Точки входа
 

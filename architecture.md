@@ -505,7 +505,7 @@ XML corpus → batch pipeline (parse → structure → SPO extraction → graph 
 ```
 relevant_topics_*.csv
   → openalex.topic_catalog + selector (diversity policy, impact/recency/method scoring)
-    → batch: topic_select → harvest → parse → article_extract|extract_llm → merge_dedup
+    → batch: topic_select → harvest → parse → resolve_extract → merge_dedup
       → graph_load (DuckDB: ac_works, ac_parameter_estimates, ac_causal_claims, ac_skg_*)
         → graph_index → embed (HNSW + NPZ) → qc → publish
 ```
@@ -522,7 +522,7 @@ DuckDB + HNSW → ScholarKnowledgeGraph (hybrid text+vector search, priors, caus
 
 | Подсистема | Назначение |
 |------------|-----------|
-| **[batch/](policy-engine/src/polisyos/academic/batch/README.md)** | Стадийный pipeline: 11 стадий от topic selection до publish. Extraction modes: `deterministic` → `llm_enriched` → `article_extract` (приоритет при merge). LLM gate с budget control, audit и circuit breaker. OpenAI Batch API для embeddings |
+| **[batch/](policy-engine/src/polisyos/academic/batch/README.md)** | Стадийный pipeline: `topic_select → harvest → parse → resolve_extract → merge_dedup → graph_load → graph_index → embed → qc → publish`. `resolve_extract` объединяет concurrent fulltext fetch, one-call LLM extraction и deterministic publish gates. OpenAI Batch API для embeddings |
 | **[knowledge/](policy-engine/src/polisyos/academic/knowledge/README.md)** | Read-only API: `ScholarKnowledgeGraph` (hybrid text+vector search), `SKGQuery` (edge priors, parameter candidates), `ParameterSelector` (transportability scoring через `ContextProfile`), `VariableCanonizer` (deterministic canonical namespace + cache в DuckDB). SKG versioning и retraction handling |
 | **[openalex/](policy-engine/src/polisyos/academic/openalex/README.md)** | Интеграция с OpenAlex API: topic catalog из CSV, async HTTP client с rate limiting и retry, selection algorithm с diversity policy (max 5 per journal, max 2 per first author), TIER1/TIER2 priority filter |
 | **trust.py** | Нормализация trust-score по дизайну исследования, цитируемости, свежести и sample size |
@@ -536,7 +536,7 @@ DuckDB + HNSW → ScholarKnowledgeGraph (hybrid text+vector search, priors, caus
 
 #### DuckDB слой
 
-Runtime tables: `ac_works`, `ac_parameter_estimates`, `ac_causal_claims`, `ac_boundary_conditions`, `ac_topics`, `ac_topic_selections`, `ac_article_extractions`.
+Runtime tables: `ac_works`, `ac_parameter_estimates`, `ac_causal_claims`, `ac_causal_claims_raw`, `ac_boundary_conditions`, `ac_topics`, `ac_topic_selections`, `ac_article_extractions`.
 SKG tables: `ac_skg_articles`, `ac_skg_variables`, `ac_skg_parameters`, `ac_skg_edges`, `ac_skg_versions`.
 
 CLI: `python -m polisyos.academic.batch.cli run --snapshot-root <path>`.
@@ -2158,7 +2158,7 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │       │   ├── trust.py  # Trust scoring for academic works and parameter estimates.
 │       │   ├── batch/  # Staged academic knowledge pipeline.
 │       │   │   ├── __init__.py
-│       │   │   ├── article_extractor.py  # Phase 0a article extraction (screening + full).
+│       │   │   ├── article_extractor.py  # Compatibility wrapper + extraction helpers reused by resolve_extract.
 │       │   │   ├── cli.py  # CLI for staged academic knowledge pipeline.
 │       │   │   ├── config.py  # Pipeline configuration.
 │       │   │   ├── context_classifier.py  # Context inference for article extraction.
@@ -2166,11 +2166,11 @@ policy-engine/  # Project root (Policy Engine / PolisyOS).
 │       │   │   ├── embedder.py  # Build local embeddings + HNSW index.
 │       │   │   ├── graph_builder.py  # Load records into DuckDB and build indexes.
 │       │   │   ├── harvester.py  # Materialize topic-selected OpenAlex works.
-│       │   │   ├── llm_extractor.py  # Selective LLM enrichment for parsed abstracts.
 │       │   │   ├── parser.py  # Parse OpenAlex raw payloads into WorkRecord rows.
 │       │   │   ├── pipeline.py  # Thin orchestrator for staged academic pipeline.
 │       │   │   ├── publish.py  # Publish academic pipeline artifacts.
 │       │   │   ├── qc.py  # QC checks for academic pipeline.
+│       │   │   ├── resolve_extract.py  # Streaming fulltext-first one-call extraction + deterministic publish gating.
 │       │   │   ├── topic_select.py  # Topic-based OpenAlex selection (Pass 1).
 │       │   │   └── prompts/  # LLM prompt templates for extraction.
 │       │   │       ├── __init__.py

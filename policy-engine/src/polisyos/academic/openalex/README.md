@@ -1,6 +1,6 @@
 # Academic OpenAlex
 
-`polisyos.academic.openalex` — слой интеграции с OpenAlex для topic-driven отбора работ, используемый batch стадиями `topic_select` и `article_extract`.
+`polisyos.academic.openalex` — слой интеграции с OpenAlex для topic-driven отбора работ, используемый batch стадиями `topic_select` и `resolve_extract`.
 
 ## Роль в системе
 
@@ -57,8 +57,8 @@
 
 - `batch/topic_select.py`:
   `load_topics()` + `select_all_topics()` + запись `topic_selection/*.jsonl`.
-- `batch/article_extractor.py`:
-  `should_process()` для раннего отсечения нерелевантных работ.
+- `batch/resolve_extract.py`:
+  `should_process()` и prefetch ranking для раннего отсечения/приоритизации нерелевантных работ до fulltext fetch.
 
 ## Конфигурация
 

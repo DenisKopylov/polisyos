@@ -14,6 +14,7 @@ from typing import Iterable
 import duckdb
 
 from polisyos.batch_common.manifest import write_stage_manifest
+from polisyos.academic.batch.claim_ids import stable_claim_id
 from polisyos.academic.batch.config import AcademicBatchConfig
 from polisyos.academic.knowledge.skg_store import (
     aggregate_edge_confidence,
@@ -81,6 +82,43 @@ CREATE TABLE IF NOT EXISTS ac_parameter_estimates (
     period_end      INTEGER,
     trust_score     FLOAT DEFAULT 0.0,
     raw_context     VARCHAR
+);
+
+CREATE TABLE IF NOT EXISTS ac_causal_claims_raw (
+    id                        VARCHAR PRIMARY KEY,
+    work_id                   VARCHAR NOT NULL,
+    cause                     VARCHAR NOT NULL,
+    effect                    VARCHAR NOT NULL,
+    direction                 VARCHAR,
+    strength                  VARCHAR,
+    claim_text                VARCHAR,
+    claim_explicitness        VARCHAR,
+    design_family_hint        VARCHAR,
+    source_basis              VARCHAR,
+    claim_extraction_confidence FLOAT DEFAULT 0.0,
+    mechanism                 VARCHAR,
+    domain                    VARCHAR,
+    trust_score               FLOAT DEFAULT 0.0
+);
+
+CREATE TABLE IF NOT EXISTS ac_claim_adjudications (
+    claim_id                   VARCHAR PRIMARY KEY,
+    work_id                    VARCHAR NOT NULL,
+    cause                      VARCHAR NOT NULL,
+    effect                     VARCHAR NOT NULL,
+    claim_type                 VARCHAR,
+    design_family              VARCHAR,
+    causal_credibility         VARCHAR,
+    risk_of_bias               VARCHAR,
+    support_status             VARCHAR,
+    source_basis               VARCHAR,
+    paper_asserts_score        FLOAT DEFAULT 0.0,
+    claim_validity_score       FLOAT DEFAULT 0.0,
+    adjudication_confidence    FLOAT DEFAULT 0.0,
+    publishable_edge           BOOLEAN DEFAULT FALSE,
+    consensus_passes           INTEGER DEFAULT 1,
+    consensus_stability        FLOAT DEFAULT 1.0,
+    adjudication_notes         VARCHAR
 );
 
 CREATE TABLE IF NOT EXISTS ac_causal_claims (
@@ -173,6 +211,11 @@ CREATE INDEX IF NOT EXISTS idx_ac_concepts_concept ON ac_work_concepts(concept);
 CREATE INDEX IF NOT EXISTS idx_ac_estimates_work ON ac_parameter_estimates(work_id);
 CREATE INDEX IF NOT EXISTS idx_ac_estimates_var ON ac_parameter_estimates(variable_name);
 CREATE INDEX IF NOT EXISTS idx_ac_estimates_domain ON ac_parameter_estimates(domain);
+CREATE INDEX IF NOT EXISTS idx_ac_claims_raw_work ON ac_causal_claims_raw(work_id);
+CREATE INDEX IF NOT EXISTS idx_ac_claims_raw_cause ON ac_causal_claims_raw(cause);
+CREATE INDEX IF NOT EXISTS idx_ac_claims_raw_effect ON ac_causal_claims_raw(effect);
+CREATE INDEX IF NOT EXISTS idx_ac_claim_adjudications_work ON ac_claim_adjudications(work_id);
+CREATE INDEX IF NOT EXISTS idx_ac_claim_adjudications_publishable ON ac_claim_adjudications(publishable_edge);
 CREATE INDEX IF NOT EXISTS idx_ac_claims_work ON ac_causal_claims(work_id);
 CREATE INDEX IF NOT EXISTS idx_ac_claims_cause ON ac_causal_claims(cause);
 CREATE INDEX IF NOT EXISTS idx_ac_claims_effect ON ac_causal_claims(effect);
@@ -189,11 +232,60 @@ def _stable_hash(*parts: str, size: int = 24) -> str:
     return hashlib.sha256(canon.encode("utf-8")).hexdigest()[:size]
 
 
+def _claim_id(record_id: str, claim: dict) -> str:
+    explicit = str(claim.get("claim_id") or "").strip()
+    if explicit:
+        return explicit
+    return stable_claim_id(
+        work_id=record_id,
+        cause=str(claim.get("cause") or ""),
+        effect=str(claim.get("effect") or ""),
+        claim_text=str(claim.get("claim_text") or ""),
+        direction=str(claim.get("direction") or ""),
+    )
+
+
+def _load_claim_adjudications(path: Path | None) -> dict[str, dict]:
+    rows: dict[str, dict] = {}
+    if path is None or not path.exists():
+        return rows
+    with open(path, "r", encoding="utf-8") as fh:
+        for line in fh:
+            line = line.strip()
+            if not line:
+                continue
+            row = json.loads(line)
+            if not isinstance(row, dict):
+                continue
+            claim_id = str(row.get("claim_id") or "")
+            if claim_id:
+                rows[claim_id] = row
+    return rows
+
+
+def _legacy_strength_from_adjudication(adjudication: dict) -> str:
+    design = str(adjudication.get("design_family") or "").strip().lower()
+    credibility = str(adjudication.get("causal_credibility") or "").strip().lower()
+    if design == "rct":
+        return "rct"
+    if design in {"iv", "did", "rdd", "synthetic_control"}:
+        return "quasi_natural"
+    if design == "meta_analysis":
+        return "meta_analysis"
+    if design in {"panel_fe", "ols"}:
+        return "observational"
+    if credibility in {"strong", "moderate", "weak"}:
+        return "theoretical" if credibility == "weak" else "observational"
+    return "unknown"
+
+
 @dataclass
 class GraphStats:
     works: int = 0
     concepts: int = 0
     estimates: int = 0
+    raw_claims: int = 0
+    claim_adjudications: int = 0
     claims: int = 0
     runs: int = 0
     topics: int = 0
@@ -217,6 +309,8 @@ def _init_schema(con: duckdb.DuckDBPyConnection) -> None:
     con.execute("DROP TABLE IF EXISTS ac_topics")
     con.execute("DROP TABLE IF EXISTS ac_runs")
     con.execute("DROP TABLE IF EXISTS ac_causal_claims")
+    con.execute("DROP TABLE IF EXISTS ac_claim_adjudications")
+    con.execute("DROP TABLE IF EXISTS ac_causal_claims_raw")
     con.execute("DROP TABLE IF EXISTS ac_parameter_estimates")
     con.execute("DROP TABLE IF EXISTS ac_work_concepts")
     con.execute("DROP TABLE IF EXISTS ac_works")
@@ -240,6 +334,8 @@ def _truncate(con: duckdb.DuckDBPyConnection) -> None:
     con.execute("DELETE FROM ac_topics")
     con.execute("DELETE FROM ac_runs")
     con.execute("DELETE FROM ac_causal_claims")
+    con.execute("DELETE FROM ac_claim_adjudications")
+    con.execute("DELETE FROM ac_causal_claims_raw")
     con.execute("DELETE FROM ac_parameter_estimates")
     con.execute("DELETE FROM ac_work_concepts")
     con.execute("DELETE FROM ac_works")
@@ -256,6 +352,8 @@ def _flush_all(
     work_batch: list[tuple],
     concept_batch: list[tuple],
     estimate_batch: list[tuple],
+    raw_claim_batch: list[tuple],
+    claim_adjudication_batch: list[tuple],
     claim_batch: list[tuple],
     topic_batch: list[tuple],
     topic_sel_batch: list[tuple],
@@ -297,6 +395,26 @@ def _flush_all(
         )
         stats.estimates += len(estimate_batch)
         estimate_batch.clear()
+
+    if raw_claim_batch:
+        con.executemany(
+            "INSERT OR REPLACE INTO ac_causal_claims_raw "
+            "(id, work_id, cause, effect, direction, strength, claim_text, claim_explicitness, design_family_hint, source_basis, claim_extraction_confidence, mechanism, domain, trust_score) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            raw_claim_batch,
+        )
+        stats.raw_claims += len(raw_claim_batch)
+        raw_claim_batch.clear()
+
+    if claim_adjudication_batch:
+        con.executemany(
+            "INSERT OR REPLACE INTO ac_claim_adjudications "
+            "(claim_id, work_id, cause, effect, claim_type, design_family, causal_credibility, risk_of_bias, support_status, source_basis, paper_asserts_score, claim_validity_score, adjudication_confidence, publishable_edge, consensus_passes, consensus_stability, adjudication_notes) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            claim_adjudication_batch,
+        )
+        stats.claim_adjudications += len(claim_adjudication_batch)
+        claim_adjudication_batch.clear()
 
     if claim_batch:
         con.executemany(
@@ -491,6 +609,7 @@ def load_graph(
     config_json: str = "",
     topics_catalog_path: Path | None = None,
     ingest_errors_path: Path | None = None,
+    claim_adjudications_path: Path | None = None,
 ) -> GraphStats:
     """Load records into DuckDB tables (without creating indexes)."""
     stats = GraphStats()
@@ -536,9 +655,12 @@ def load_graph(
                         )
                     )
 
+        claim_adjudications = _load_claim_adjudications(claim_adjudications_path)
         work_batch: list[tuple] = []
         concept_batch: list[tuple] = []
         estimate_batch: list[tuple] = []
+        raw_claim_batch: list[tuple] = []
+        claim_adjudication_batch: list[tuple] = []
         claim_batch: list[tuple] = []
         topic_sel_batch: list[tuple] = []
         extraction_batch: list[tuple] = []
@@ -618,8 +740,8 @@ def load_graph(
 
             for i, claim in enumerate(record.causal_claims):
                 if isinstance(claim, dict):
-                    cid = _stable_hash(record.id, str(i), str(claim.get("cause", "")), str(claim.get("effect", "")))
-                    claim_batch.append(
+                    cid = _claim_id(record.id, claim)
+                    raw_claim_batch.append(
                         (
                             cid,
                             record.id,
@@ -627,11 +749,91 @@ def load_graph(
                             claim.get("effect", ""),
                             claim.get("direction", ""),
                             claim.get("strength", ""),
+                            claim.get("claim_text", ""),
+                            claim.get("claim_explicitness", ""),
+                            claim.get("design_family_hint", ""),
+                            claim.get("source_basis", ""),
+                            float(claim.get("claim_extraction_confidence") or record.extraction_confidence or 0.0),
                             claim.get("mechanism", ""),
                             claim.get("domain", ""),
                             record.trust_score,
                         )
                     )
+                    adjudication = claim_adjudications.get(cid)
+                    publishable = bool(claim.get("publish_to_graph") or False)
+                    published_strength = str(claim.get("strength") or "")
+                    published_trust = float(record.trust_score)
+                    if adjudication:
+                        claim_adjudication_batch.append(
+                            (
+                                cid,
+                                record.id,
+                                claim.get("cause", ""),
+                                claim.get("effect", ""),
+                                str(adjudication.get("claim_type") or ""),
+                                str(adjudication.get("design_family") or ""),
+                                str(adjudication.get("causal_credibility") or ""),
+                                str(adjudication.get("risk_of_bias") or ""),
+                                str(adjudication.get("support_status") or ""),
+                                str(adjudication.get("source_basis") or ""),
+                                float(adjudication.get("paper_asserts_causality_score") or 0.0),
+                                float(adjudication.get("claim_validity_score") or 0.0),
+                                float(adjudication.get("adjudication_confidence") or 0.0),
+                                bool(adjudication.get("publishable_edge") or False),
+                                int(adjudication.get("consensus_passes") or 1),
+                                float(adjudication.get("consensus_stability") or 0.0),
+                                str(adjudication.get("adjudication_notes") or ""),
+                            )
+                        )
+                        publishable = bool(adjudication.get("publishable_edge") or False)
+                        published_strength = _legacy_strength_from_adjudication(adjudication)
+                        published_trust = float(adjudication.get("claim_validity_score") or published_trust)
+                    elif any(
+                        key in claim
+                        for key in (
+                            "claim_type",
+                            "design_family_hint",
+                            "strong_design_evidence",
+                            "publish_to_graph",
+                            "publish_blockers",
+                        )
+                    ):
+                        claim_adjudication_batch.append(
+                            (
+                                cid,
+                                record.id,
+                                claim.get("cause", ""),
+                                claim.get("effect", ""),
+                                str(claim.get("claim_type") or ""),
+                                str(claim.get("design_family_hint") or ""),
+                                "strong" if bool(claim.get("strong_design_evidence") or False) else "weak",
+                                "unclear",
+                                "supported" if publishable else "insufficient_evidence",
+                                str(claim.get("source_basis") or ""),
+                                float(claim.get("claim_extraction_confidence") or record.extraction_confidence or 0.0),
+                                float(claim.get("claim_extraction_confidence") or record.extraction_confidence or 0.0),
+                                float(claim.get("claim_extraction_confidence") or record.extraction_confidence or 0.0),
+                                publishable,
+                                1,
+                                1.0,
+                                "; ".join(str(v) for v in (claim.get("publish_blockers") or []) if str(v).strip()),
+                            )
+                        )
+
+                    if publishable:
+                        claim_batch.append(
+                            (
+                                cid,
+                                record.id,
+                                claim.get("cause", ""),
+                                claim.get("effect", ""),
+                                claim.get("direction", ""),
+                                published_strength,
+                                claim.get("mechanism", ""),
+                                claim.get("domain", ""),
+                                published_trust,
+                            )
+                        )
 
             for i, bnd in enumerate(record.boundary_conditions):
                 if not isinstance(bnd, dict):
@@ -739,6 +941,8 @@ def load_graph(
                     work_batch,
                     concept_batch,
                     estimate_batch,
+                    raw_claim_batch,
+                    claim_adjudication_batch,
                     claim_batch,
                     topic_batch,
                     topic_sel_batch,
@@ -749,6 +953,13 @@ def load_graph(
 
             for claim in record.causal_claims:
                 if not isinstance(claim, dict):
+                    continue
+                cid = _claim_id(record.id, claim)
+                adjudication = claim_adjudications.get(cid)
+                publishable = bool(claim.get("publish_to_graph") or False)
+                if adjudication is not None:
+                    publishable = bool(adjudication.get("publishable_edge") or False)
+                if not publishable:
                     continue
                 src = str(claim.get("cause") or "").strip()
                 dst = str(claim.get("effect") or "").strip()
@@ -766,8 +977,18 @@ def load_graph(
                     }
                 payload = edge_accumulator[key]
                 payload["article_refs"].append(record.id)  # type: ignore[index]
+                confidence_value = (
+                    float(adjudication.get("claim_validity_score") or record.extraction_confidence)
+                    if adjudication is not None
+                    else float(record.extraction_confidence)
+                )
                 payload["evidence_samples"].append(  # type: ignore[index]
-                    (_infer_edge_strength(claim), float(record.extraction_confidence))
+                    (
+                        _legacy_strength_from_adjudication(adjudication)
+                        if adjudication is not None
+                        else _infer_edge_strength(claim),
+                        confidence_value,
+                    )
                 )
                 payload["scope_conditions"].extend(claim.get("scope_conditions") or [])  # type: ignore[index]
                 payload["effect_sizes"].append(claim.get("effect_size"))  # type: ignore[index]
@@ -812,6 +1033,8 @@ def load_graph(
             work_batch,
             concept_batch,
             estimate_batch,
+            raw_claim_batch,
+            claim_adjudication_batch,
             claim_batch,
             topic_batch,
             topic_sel_batch,
@@ -887,6 +1110,7 @@ def run_graph_load(config: AcademicBatchConfig) -> GraphStats:
         config_json=cfg_json,
         topics_catalog_path=config.topics_catalog_path if config.topics_catalog_path.exists() else None,
         ingest_errors_path=config.ingest_errors_path if config.ingest_errors_path.exists() else None,
+        claim_adjudications_path=None,
     )
     write_stage_manifest(
         manifest_path=config.manifests_dir / "graph_load.json",
@@ -896,6 +1120,8 @@ def run_graph_load(config: AcademicBatchConfig) -> GraphStats:
             "works": stats.works,
             "concepts": stats.concepts,
             "estimates": stats.estimates,
+            "raw_claims": stats.raw_claims,
+            "claim_adjudications": stats.claim_adjudications,
             "claims": stats.claims,
             "runs": stats.runs,
             "topics": stats.topics,
@@ -929,7 +1155,18 @@ def run_graph_index(config: AcademicBatchConfig) -> None:
 
 
 # Backward-compatible helper used by existing tests.
-def build_graph(*, records: Iterable[WorkRecord], db_path: Path, insert_batch_size: int = 10_000) -> GraphStats:
-    stats = load_graph(records=records, db_path=db_path, insert_batch_size=insert_batch_size)
+def build_graph(
+    *,
+    records: Iterable[WorkRecord],
+    db_path: Path,
+    insert_batch_size: int = 10_000,
+    claim_adjudications_path: Path | None = None,
+) -> GraphStats:
+    stats = load_graph(
+        records=records,
+        db_path=db_path,
+        insert_batch_size=insert_batch_size,
+        claim_adjudications_path=claim_adjudications_path,
+    )
     build_indexes(db_path)
     return stats

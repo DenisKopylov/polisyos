@@ -12,6 +12,7 @@ import pytest
 from polisyos.academic.batch.article_extractor import run_article_extract
 from polisyos.academic.batch.config import AcademicBatchConfig
 from polisyos.academic.batch.graph_builder import run_graph_load
+from polisyos.academic.batch.resolve_extract import ProviderResponse
 from polisyos.academic.knowledge.canonical_seed import CANONICAL_VARIABLES
 from polisyos.batch_common.phase0_quality_validation import evaluate_phase0_quality
 from polisyos.datasets.batch.config import DatasetBatchConfig
@@ -27,8 +28,8 @@ _CANONICAL_VAR_RE = re.compile(r"^[a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*){0,3}$")
 
 
 class _DeterministicGonkaClient:
-    def __init__(self, **kwargs):  # type: ignore[no-untyped-def]
-        pass
+    def __init__(self, config):  # type: ignore[no-untyped-def]
+        self._config = config
 
     async def __aenter__(self):  # type: ignore[no-untyped-def]
         return self
@@ -36,12 +37,11 @@ class _DeterministicGonkaClient:
     async def __aexit__(self, *exc):  # type: ignore[no-untyped-def]
         return None
 
-    async def chat(self, *, model, temperature, prompt):  # type: ignore[no-untyped-def]
-        if '"relevant"' in prompt or "screening" in prompt.lower():
-            return {"relevant": True, "reason": "policy causal"}, {"prompt_tokens": 8, "completion_tokens": 2}
-
-        return (
-            {
+    async def chat_json(self, *, model, prompt, temperature):  # type: ignore[no-untyped-def]
+        return ProviderResponse(
+            parsed={
+                "paper_relevance": True,
+                "paper_relevance_reason": "policy causal",
                 "empirical_parameters": [
                     {
                         "name": "institutional_quality",
@@ -60,38 +60,64 @@ class _DeterministicGonkaClient:
                 ],
                 "causal_claims": [
                     {
+                        "claim_type": "causal_claim",
                         "cause_variable": "institutional_quality",
                         "effect_variable": "social_trust",
                         "direction": "positive",
+                        "design_family_hint": "did",
                         "evidence_strength": "observational",
+                        "supporting_span_ids": ["r_01"],
+                        "method_span_ids": ["m_01"],
                     },
                     {
+                        "claim_type": "causal_claim",
                         "cause_variable": "gdp_per_capita",
                         "effect_variable": "informal_economy_share",
                         "direction": "negative",
+                        "design_family_hint": "did",
                         "evidence_strength": "observational",
+                        "supporting_span_ids": ["r_01"],
+                        "method_span_ids": ["m_01"],
                     },
                     {
+                        "claim_type": "causal_claim",
                         "cause_variable": "corruption_level",
                         "effect_variable": "institutional_quality",
                         "direction": "negative",
+                        "design_family_hint": "did",
                         "evidence_strength": "observational",
+                        "supporting_span_ids": ["r_01"],
+                        "method_span_ids": ["m_01"],
                     },
                     {
+                        "claim_type": "causal_claim",
                         "cause_variable": "social_trust",
                         "effect_variable": "cultural_cluster",
                         "direction": "positive",
+                        "design_family_hint": "did",
                         "evidence_strength": "observational",
+                        "supporting_span_ids": ["r_01"],
+                        "method_span_ids": ["m_01"],
                     },
                 ],
                 "boundary_conditions": [],
                 "mechanisms": [],
-                "methodology": "did",
+                "methodology_summary": "did",
                 "sample_size": 900,
                 "citation_summary": "deterministic synthetic fixture",
                 "extraction_confidence": 0.9,
             },
-            {"prompt_tokens": 100, "completion_tokens": 50, "total_cost_usd": 0.01},
+            usage={"prompt_tokens": 100, "completion_tokens": 50, "total_cost_usd": 0.01},
+            http_status=200,
+            finish_reason="stop",
+            latency_ms=10.0,
+            retry_count=0,
+            limiter_wait_ms=0.0,
+            backoff_sleep_ms=0.0,
+            parse_status="ok",
+            error_class="",
+            raw_content="{}",
+            truncated_output=False,
         )
 
 
@@ -200,18 +226,16 @@ def _dataset_resolution_quality(
 
 @pytest.mark.integration
 def test_phase0_quality_validation_deterministic_e2e(monkeypatch, tmp_path: Path) -> None:
-    monkeypatch.setattr(
-        "polisyos.academic.batch.article_extractor.GonkaChatClient",
-        _DeterministicGonkaClient,
-    )
+    monkeypatch.setattr("polisyos.academic.batch.resolve_extract.GonkaMultiKeyPool", _DeterministicGonkaClient)
 
-    async def _fake_fetch_full_text(self, work):  # type: ignore[no-untyped-def]
-        return "Synthetic policy paper full text.", "fulltext_html"
+    async def _fake_fetch_full_text(work, **kwargs):  # type: ignore[no-untyped-def]
+        return (
+            "We use a difference-in-differences design. Institutional quality improves social trust.",
+            "fulltext_html",
+            "https://example.org/synthetic",
+        )
 
-    monkeypatch.setattr(
-        "polisyos.academic.batch.article_extractor.PolicyArticleExtractor._fetch_full_text",
-        _fake_fetch_full_text,
-    )
+    monkeypatch.setattr("polisyos.academic.batch.resolve_extract.fetch_full_text_for_work", _fake_fetch_full_text)
 
     async def _fake_wb_fetch(self, _handle, request):  # noqa: ARG001
         filters = dict(request.filters or ())
@@ -275,9 +299,9 @@ def test_phase0_quality_validation_deterministic_e2e(monkeypatch, tmp_path: Path
             fh.write(json.dumps(row, ensure_ascii=False) + "\n")
 
     article_metrics = asyncio.run(run_article_extract(academic_config))
-    assert int(article_metrics["extracted"]) == 50
+    assert int(article_metrics["successful_llm_extractions_per_topic"]) == 50
 
-    extracted_records_path = academic_config.extracted_dir / "article_extract.jsonl"
+    extracted_records_path = academic_config.extracted_dir / "resolve_extract.jsonl"
     academic_config.merged_records_path.parent.mkdir(parents=True, exist_ok=True)
     academic_config.merged_records_path.write_text(
         extracted_records_path.read_text(encoding="utf-8"),
@@ -303,7 +327,7 @@ def test_phase0_quality_validation_deterministic_e2e(monkeypatch, tmp_path: Path
     with duckdb.connect(str(academic_config.db_path), read_only=True) as con:
         article_count = int(
             con.execute(
-                "SELECT COUNT(DISTINCT work_id) FROM ac_article_extractions WHERE extraction_mode = 'article_extract'"
+                "SELECT COUNT(DISTINCT work_id) FROM ac_article_extractions WHERE extraction_mode = 'resolve_extract'"
             ).fetchone()[0]
             or 0
         )

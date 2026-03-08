@@ -6,12 +6,22 @@ from polisyos.ir.analytics.literature import (
     ArticleExtractionResult,
     CausalDirection,
     CausalClaim,
+    ClaimAdjudicationResult,
+    ClaimExplicitness,
+    ClaimType,
+    CausalCredibility,
+    DesignFamily,
+    EvidenceSpan,
     EvidenceParameter,
     EvidenceStrength,
     LiteratureCausalPrior,
     LiteratureEdgePrior,
     ParameterType,
+    RiskOfBias,
     ReconciliationDiagnostics,
+    SourceBasis,
+    SupportStatus,
+    TextQuality,
     load_article_extraction_result,
     load_literature_causal_prior,
     persist_article_extraction_result,
@@ -76,13 +86,22 @@ def test_article_extraction_result_v11_roundtrip() -> None:
         title="Modern article",
         year=2023,
         cited_by_count=25,
+        source_basis=SourceBasis.FULLTEXT,
+        text_quality=TextQuality.EXTRACTED_FULLTEXT,
+        supporting_spans=[EvidenceSpan(section="results", text="Policy increases employment.", sentence_index=0, score=0.8)],
         empirical_parameters=[_minimal_parameter()],
         causal_claims=[
             CausalClaim(
+                claim_id="c-1",
+                claim_text="Policy increases employment",
+                claim_type=ClaimType.CAUSAL_CLAIM,
                 cause_variable="gdp_growth",
                 effect_variable="employment_rate",
                 direction=CausalDirection.POSITIVE,
+                claim_explicitness=ClaimExplicitness.EXPLICIT,
+                design_family_hint=DesignFamily.RCT,
                 evidence_strength=EvidenceStrength.RCT,
+                supporting_spans=[EvidenceSpan(section="results", text="Policy increases employment.", sentence_index=0, score=0.8)],
             )
         ],
         extraction_model="demo-model",
@@ -91,8 +110,10 @@ def test_article_extraction_result_v11_roundtrip() -> None:
         source_context=ContextProfile(context_id="US", context_label="United States"),
     )
 
-    assert result.schema_version == "1.1"
+    assert result.schema_version == "1.3"
     assert result.publication_year == 2023
+    assert result.causal_claims[0].claim_explicitness == ClaimExplicitness.EXPLICIT
+    assert result.source_basis == SourceBasis.FULLTEXT
 
 
 def test_article_extraction_artifact_persist_load(tmp_path) -> None:
@@ -182,3 +203,25 @@ def test_reconciliation_diagnostics_contract_minimal() -> None:
     payload = diagnostics.model_dump(mode="json")
     assert payload["irreducible_conflict_norm"] == 0.6
     assert payload["diagnostics_truncated"] is True
+
+
+def test_claim_adjudication_contract_minimal() -> None:
+    adjudication = ClaimAdjudicationResult(
+        claim_id="c-1",
+        openalex_id="https://openalex.org/W1",
+        cause_variable="tax_rate",
+        effect_variable="employment",
+        source_basis=SourceBasis.FULLTEXT,
+        paper_asserts_causality_score=0.9,
+        claim_type=ClaimType.CAUSAL_ASSERTION,
+        design_family=DesignFamily.DID,
+        causal_credibility=CausalCredibility.MODERATE,
+        risk_of_bias=RiskOfBias.MODERATE,
+        support_status=SupportStatus.SUPPORTED,
+        claim_validity_score=0.82,
+        adjudication_confidence=0.88,
+        publishable_edge=True,
+    )
+    payload = adjudication.model_dump(mode="json")
+    assert payload["publishable_edge"] is True
+    assert payload["design_family"] == "did"

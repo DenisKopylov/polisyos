@@ -44,6 +44,95 @@ class CausalDirection(str, Enum):
     NON_LINEAR = "non_linear"
 
 
+class SourceBasis(str, Enum):
+    FULLTEXT = "fulltext"
+    ABSTRACT_ONLY = "abstract_only"
+
+
+class TextQuality(str, Enum):
+    STRUCTURED_FULLTEXT = "structured_fulltext"
+    EXTRACTED_FULLTEXT = "extracted_fulltext"
+    ABSTRACT_ONLY = "abstract_only"
+    DEGRADED = "degraded"
+
+
+class ClaimType(str, Enum):
+    CAUSAL_CLAIM = "causal_claim"
+    CAUSAL_ASSERTION = "causal_assertion"
+    ASSOCIATIVE = "associative"
+    ASSOCIATION = "association"
+    MECHANISM = "mechanism"
+    DESCRIPTIVE = "descriptive"
+    NORMATIVE = "normative"
+    REVIEW_SUMMARY = "review_summary"
+    UNCLEAR = "unclear"
+    NOT_APPLICABLE = "not_applicable"
+
+
+class ClaimExplicitness(str, Enum):
+    EXPLICIT = "explicit"
+    IMPLICIT = "implicit"
+    UNCLEAR = "unclear"
+
+
+class DesignFamily(str, Enum):
+    RCT = "rct"
+    IV = "iv"
+    DID = "did"
+    RDD = "rdd"
+    SYNTHETIC_CONTROL = "synthetic_control"
+    EVENT_STUDY = "event_study"
+    QUASI_EXPERIMENTAL_OTHER = "quasi_experimental_other"
+    QUASI_EXPERIMENTAL_DID = "quasi_experimental_did"
+    QUASI_EXPERIMENTAL_RDD = "quasi_experimental_rdd"
+    PANEL_FE = "panel_fe"
+    OLS = "ols"
+    OLS_CROSS_SECTIONAL = "ols_cross_sectional"
+    META_ANALYSIS = "meta_analysis"
+    REVIEW = "review"
+    REVIEW_NARRATIVE = "review_narrative"
+    REVIEW_META_ANALYSIS = "review_meta_analysis"
+    THEORETICAL = "theoretical"
+    STRUCTURAL_MODEL = "structural_model"
+    TIME_SERIES_COINTEGRATION = "time_series_cointegration"
+    UNCLEAR = "unclear"
+
+
+class CausalCredibility(str, Enum):
+    STRONG = "strong"
+    MODERATE = "moderate"
+    WEAK = "weak"
+    NOT_CAUSAL = "not_causal"
+    UNCLEAR = "unclear"
+
+
+class RiskOfBias(str, Enum):
+    LOW = "low"
+    MODERATE = "moderate"
+    SERIOUS = "serious"
+    CRITICAL = "critical"
+    UNCLEAR = "unclear"
+
+
+class SupportStatus(str, Enum):
+    SUPPORTED = "supported"
+    MIXED = "mixed"
+    COUNTEREVIDENCE = "counterevidence"
+    INSUFFICIENT = "insufficient"
+    INSUFFICIENT_EVIDENCE = "insufficient_evidence"
+    NOT_APPLICABLE = "not_applicable"
+
+
+class EvidenceSpan(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    span_id: str = ""
+    section: str = ""
+    text: str
+    sentence_index: int | None = None
+    score: float = Field(default=0.0, ge=0.0, le=1.0)
+
+
 class EvidenceParameter(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -82,14 +171,29 @@ class EvidenceParameter(BaseModel):
 class CausalClaim(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
+    claim_id: str = ""
     cause_variable: str
     effect_variable: str
     direction: CausalDirection = CausalDirection.MIXED
+    claim_text: str = ""
+    claim_type: ClaimType = ClaimType.UNCLEAR
+    claim_explicitness: ClaimExplicitness = ClaimExplicitness.UNCLEAR
+    design_family_hint: DesignFamily = DesignFamily.UNCLEAR
     magnitude_qualitative: str | None = None
     effect_size: float | None = None
     evidence_strength: EvidenceStrength = EvidenceStrength.UNKNOWN
     scope_conditions: list[str] = Field(default_factory=list)
     counterevidence_notes: str = ""
+    supporting_spans: list[EvidenceSpan] = Field(default_factory=list)
+    method_spans: list[EvidenceSpan] = Field(default_factory=list)
+    supporting_span_ids: list[str] = Field(default_factory=list)
+    method_span_ids: list[str] = Field(default_factory=list)
+    source_basis: SourceBasis = SourceBasis.FULLTEXT
+    claim_extraction_confidence: float | None = Field(default=None, ge=0.0, le=1.0)
+    extraction_warnings: list[str] = Field(default_factory=list)
+    strong_design_evidence: bool = False
+    publish_to_graph: bool = False
+    publish_blockers: list[str] = Field(default_factory=list)
 
     @model_validator(mode="before")
     @classmethod
@@ -106,7 +210,19 @@ class CausalClaim(BaseModel):
         direction = str(payload.get("direction") or "").strip().lower()
         if direction == "mixed":
             payload["direction"] = CausalDirection.MIXED.value
+        if "claim_type" not in payload and payload.get("claim_explicitness") == ClaimExplicitness.EXPLICIT.value:
+            payload["claim_type"] = ClaimType.CAUSAL_CLAIM.value
         return payload
+
+    @model_validator(mode="after")
+    def _hydrate_claim_text(self) -> "CausalClaim":
+        if not self.claim_text:
+            self.claim_text = f"{self.cause_variable} -> {self.effect_variable}"
+        if not self.supporting_span_ids and self.supporting_spans:
+            self.supporting_span_ids = [span.span_id for span in self.supporting_spans if span.span_id]
+        if not self.method_span_ids and self.method_spans:
+            self.method_span_ids = [span.span_id for span in self.method_spans if span.span_id]
+        return self
 
 
 class Mechanism(BaseModel):
@@ -156,7 +272,7 @@ class ArticleExtractionResult(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    schema_version: str = "1.1"
+    schema_version: str = "1.3"
     openalex_id: str
     doi: str = ""
     title: str
@@ -170,7 +286,14 @@ class ArticleExtractionResult(BaseModel):
 
     methodology: str = ""
     methodology_enum: EvidenceStrength = EvidenceStrength.UNKNOWN
+    paper_relevance: bool = True
+    paper_relevance_reason: str = ""
     sample_size: int | None = None
+    source_basis: SourceBasis = SourceBasis.FULLTEXT
+    text_quality: TextQuality = TextQuality.EXTRACTED_FULLTEXT
+    supporting_spans: list[EvidenceSpan] = Field(default_factory=list)
+    method_spans: list[EvidenceSpan] = Field(default_factory=list)
+    extraction_warnings: list[str] = Field(default_factory=list)
 
     empirical_parameters: list[EvidenceParameter] = Field(default_factory=list)
     causal_claims: list[CausalClaim] = Field(default_factory=list)
@@ -181,6 +304,10 @@ class ArticleExtractionResult(BaseModel):
     extraction_model: str
     extraction_timestamp: str
     extraction_confidence: float
+    provider_finish_reason: str = ""
+    provider_latency_ms: float = 0.0
+    truncated_output: bool = False
+    llm_error_class: str = ""
 
     source_context: ContextProfile | None = None
 
@@ -203,7 +330,7 @@ class ArticleExtractionResult(BaseModel):
             payload["schema_version"] = (
                 "1.0"
                 if "publication_year" in payload and "year" not in payload
-                else "1.1"
+                else "1.3"
             )
         return payload
 
@@ -216,6 +343,30 @@ class ArticleExtractionResult(BaseModel):
         if self.publication_year is None and self.year is not None:
             self.publication_year = self.year
         return self
+
+
+class ClaimAdjudicationResult(BaseModel):
+    """Claim-level causal adjudication contract."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    claim_id: str
+    openalex_id: str
+    cause_variable: str
+    effect_variable: str
+    source_basis: SourceBasis = SourceBasis.FULLTEXT
+    paper_asserts_causality_score: float = Field(default=0.0, ge=0.0, le=1.0)
+    claim_type: ClaimType = ClaimType.ASSOCIATION
+    design_family: DesignFamily = DesignFamily.UNCLEAR
+    causal_credibility: CausalCredibility = CausalCredibility.UNCLEAR
+    risk_of_bias: RiskOfBias = RiskOfBias.UNCLEAR
+    support_status: SupportStatus = SupportStatus.INSUFFICIENT
+    claim_validity_score: float = Field(default=0.0, ge=0.0, le=1.0)
+    adjudication_confidence: float = Field(default=0.0, ge=0.0, le=1.0)
+    publishable_edge: bool = False
+    adjudication_notes: str = ""
+    consensus_passes: int = Field(default=1, ge=1)
+    consensus_stability: float = Field(default=1.0, ge=0.0, le=1.0)
 
 
 class LiteratureEdgePrior(BaseModel):
@@ -309,7 +460,7 @@ class LiteratureCausalPrior(BaseModel):
 
 
 _SCHEMA_NAME = "ir.article_extraction_result"
-_SCHEMA_VERSION = "1.1"
+_SCHEMA_VERSION = "1.2"
 _LITERATURE_PRIOR_SCHEMA_NAME = "ir.literature_causal_prior"
 _LITERATURE_PRIOR_SCHEMA_VERSION = "1.0"
 
@@ -370,11 +521,21 @@ __all__ = [
     "ParameterType",
     "EvidenceStrength",
     "CausalDirection",
+    "SourceBasis",
+    "TextQuality",
+    "ClaimType",
+    "ClaimExplicitness",
+    "DesignFamily",
+    "CausalCredibility",
+    "RiskOfBias",
+    "SupportStatus",
+    "EvidenceSpan",
     "EvidenceParameter",
     "CausalClaim",
     "Mechanism",
     "BoundaryCondition",
     "ArticleExtractionResult",
+    "ClaimAdjudicationResult",
     "LiteratureEdgePrior",
     "ReconciliationDiagnostics",
     "LiteratureCausalPrior",

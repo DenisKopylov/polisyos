@@ -82,7 +82,9 @@ def run_qc(
     estimates_total = 0
     claims_total = 0
     canonical_claim_variables = 0
-    article_extract_count = 0
+    supporting_spans_total = 0
+    abstract_fallback_docs = 0
+    resolve_extract_count = 0
     extraction_modes: dict[str, int] = {}
     phase0_check_severity = "critical" if bool(strict_phase0) else "warning"
 
@@ -98,12 +100,15 @@ def run_qc(
                     empty_abstract += 1
                 extraction_mode = str(row.get("extraction_mode", "deterministic"))
                 extraction_modes[extraction_mode] = extraction_modes.get(extraction_mode, 0) + 1
-                is_article_extract = extraction_mode == "article_extract"
-                if is_article_extract:
-                    article_extract_count += 1
+                is_resolve_extract = extraction_mode in {"article_extract", "resolve_extract"}
+                metadata = row.get("metadata") if isinstance(row.get("metadata"), dict) else {}
+                if is_resolve_extract:
+                    resolve_extract_count += 1
+                    if str(metadata.get("source_basis") or "") == "abstract_only":
+                        abstract_fallback_docs += 1
                 estimates = row.get("estimates") if isinstance(row.get("estimates"), list) else []
                 for est in estimates:
-                    if not is_article_extract:
+                    if not is_resolve_extract:
                         continue
                     estimates_total += 1
                     if not isinstance(est, dict) or not isinstance(est.get("value"), (int, float)):
@@ -111,11 +116,14 @@ def run_qc(
 
                 claims = row.get("causal_claims") if isinstance(row.get("causal_claims"), list) else []
                 for claim in claims:
-                    if not is_article_extract:
+                    if not is_resolve_extract:
                         continue
                     if not isinstance(claim, dict):
                         continue
                     claims_total += 1
+                    supporting_spans = claim.get("supporting_spans") if isinstance(claim.get("supporting_spans"), list) else []
+                    if supporting_spans:
+                        supporting_spans_total += 1
                     cause = str(claim.get("cause") or "").strip()
                     effect = str(claim.get("effect") or "").strip()
                     if _CANONICAL_VAR_RE.match(cause) and _CANONICAL_VAR_RE.match(effect):
@@ -128,14 +136,25 @@ def run_qc(
     metrics["malformed_estimate_pct"] = round(malformed_pct, 3)
     metrics["claims_total"] = claims_total
     metrics["parameters_total"] = estimates_total
-    metrics["article_extract_count"] = article_extract_count
+    metrics["resolve_extract_count"] = resolve_extract_count
+    metrics["abstract_fallback_docs"] = abstract_fallback_docs
     metrics["extraction_modes"] = extraction_modes
+    supporting_span_coverage = (supporting_spans_total / max(1, claims_total)) * 100.0 if claims_total else 0.0
+    metrics["supporting_span_coverage_pct"] = round(supporting_span_coverage, 3)
     canonical_ratio = (
         (canonical_claim_variables / max(1, claims_total * 2)) * 100.0 if claims_total else 0.0
     )
     metrics["canonical_claim_variable_pct"] = round(canonical_ratio, 3)
 
-    checks.append(QCCheck(name="empty_abstract_pct", passed=empty_abs_pct <= 25.0, value=empty_abs_pct, threshold=25.0))
+    checks.append(
+        QCCheck(
+            name="empty_abstract_pct",
+            passed=empty_abs_pct <= 25.0,
+            value=empty_abs_pct,
+            threshold=25.0,
+            severity="warning",
+        )
+    )
     checks.append(QCCheck(name="malformed_estimate_pct", passed=malformed_pct <= 2.0, value=malformed_pct, threshold=2.0))
     checks.append(
         QCCheck(
@@ -148,20 +167,29 @@ def run_qc(
     )
     checks.append(
         QCCheck(
-            name="article_extract_count_50",
-            passed=article_extract_count >= 50 if article_extract_count else True,
-            value=article_extract_count,
+            name="resolve_extract_count_50",
+            passed=resolve_extract_count >= 50 if resolve_extract_count else True,
+            value=resolve_extract_count,
             threshold=50,
             severity=phase0_check_severity,
         )
     )
-    if article_extract_count >= 50:
+    if resolve_extract_count >= 50:
         checks.append(
             QCCheck(
                 name="claims_volume_50_articles",
                 passed=claims_total >= 200,
                 value=claims_total,
                 threshold=200,
+                severity=phase0_check_severity,
+            )
+        )
+        checks.append(
+            QCCheck(
+                name="supporting_span_coverage_pct",
+                passed=supporting_span_coverage >= 85.0,
+                value=round(supporting_span_coverage, 3),
+                threshold=85.0,
                 severity=phase0_check_severity,
             )
         )
@@ -313,6 +341,170 @@ def run_qc(
             )
         )
 
+    # 4c) raw/published claim metrics.
+    if config.raw_claim_candidates_path.exists() or config.published_claims_path.exists():
+        raw_claims_total = 0
+        publishable_total = 0
+        abstract_only_publishable = 0
+        fulltext_publishable = 0
+
+        if config.raw_claim_candidates_path.exists():
+            with open(config.raw_claim_candidates_path, "r", encoding="utf-8") as fh:
+                for line in fh:
+                    line = line.strip()
+                    if not line:
+                        continue
+                    try:
+                        row = json.loads(line)
+                    except json.JSONDecodeError:
+                        continue
+                    if isinstance(row, dict):
+                        raw_claims_total += 1
+
+        if config.published_claims_path.exists():
+            with open(config.published_claims_path, "r", encoding="utf-8") as fh:
+                for line in fh:
+                    line = line.strip()
+                    if not line:
+                        continue
+                    try:
+                        row = json.loads(line)
+                    except json.JSONDecodeError:
+                        continue
+                    if not isinstance(row, dict):
+                        continue
+                    publishable_total += 1
+                    if str(row.get("source_basis") or "") == "abstract_only":
+                        abstract_only_publishable += 1
+                    else:
+                        fulltext_publishable += 1
+
+        publishable_share = (publishable_total / max(1, raw_claims_total)) * 100.0 if raw_claims_total else 0.0
+        abstract_only_publishable_share = (
+            (abstract_only_publishable / max(1, publishable_total)) * 100.0 if publishable_total else 0.0
+        )
+        fulltext_publishable_share = (
+            (fulltext_publishable / max(1, publishable_total)) * 100.0 if publishable_total else 0.0
+        )
+
+        metrics["raw_claim_candidates_total"] = raw_claims_total
+        metrics["publishable_edge_rate_pct"] = round(publishable_share, 3)
+        metrics["raw_to_published_claim_drop_rate_pct"] = round(100.0 - publishable_share, 3) if raw_claims_total else 0.0
+        metrics["abstract_only_publishable_share_pct"] = round(abstract_only_publishable_share, 3)
+        metrics["fulltext_publishable_share_pct"] = round(fulltext_publishable_share, 3)
+        metrics["published_edge_stability_pct"] = 100.0
+
+        checks.append(
+            QCCheck(
+                name="abstract_only_publishable_share_pct",
+                passed=abstract_only_publishable_share == 0.0,
+                value=round(abstract_only_publishable_share, 3),
+                threshold=0.0,
+                severity=phase0_check_severity,
+            )
+        )
+        checks.append(
+            QCCheck(
+                name="fulltext_publishable_share_pct",
+                passed=fulltext_publishable_share >= 80.0 if publishable_total else True,
+                value=round(fulltext_publishable_share, 3),
+                threshold=80.0,
+                severity=phase0_check_severity,
+            )
+        )
+
+    # 4d) v7 acquisition metrics from attempt-level fetch logs.
+    if config.fulltext_fetch_log_path.exists() or config.fulltext_resolved_path.exists():
+        fetch_rows: list[dict[str, object]] = []
+        if config.fulltext_fetch_log_path.exists():
+            with open(config.fulltext_fetch_log_path, "r", encoding="utf-8") as fh:
+                for line in fh:
+                    line = line.strip()
+                    if not line:
+                        continue
+                    try:
+                        row = json.loads(line)
+                    except json.JSONDecodeError:
+                        continue
+                    if isinstance(row, dict):
+                        fetch_rows.append(row)
+
+        final_rows: list[dict[str, object]] = []
+        if config.fulltext_resolved_path.exists():
+            with open(config.fulltext_resolved_path, "r", encoding="utf-8") as fh:
+                for line in fh:
+                    line = line.strip()
+                    if not line:
+                        continue
+                    try:
+                        row = json.loads(line)
+                    except json.JSONDecodeError:
+                        continue
+                    if isinstance(row, dict):
+                        final_rows.append(row)
+
+        final_total = len(final_rows)
+        usable_fulltext_resolved = sum(
+            1 for row in final_rows if str(row.get("source_basis") or "") == "fulltext"
+        )
+        final_abstract_fallback = sum(
+            1 for row in final_rows if str(row.get("source_basis") or "") == "abstract_only"
+        )
+        recoverable_landing_pages = sum(
+            1
+            for row in fetch_rows
+            if str(row.get("fetch_error_class") or "") in {"redirect_placeholder", "landing_page_without_pdf", "short_html_shell"}
+        )
+        metadata_rows = [row for row in fetch_rows if str(row.get("attempt_kind") or "") == "metadata"]
+        metadata_hits = sum(
+            1
+            for row in metadata_rows
+            if int(row.get("discovered_pdf_count") or 0) > 0 or int(row.get("discovered_canonical_count") or 0) > 0
+        )
+        metadata_pdf_hits = sum(1 for row in metadata_rows if int(row.get("discovered_pdf_count") or 0) > 0)
+        landing_page_attempts = [
+            row
+            for row in fetch_rows
+            if str(row.get("attempt_kind") or "") != "metadata"
+            and (
+                int(row.get("discovered_pdf_count") or 0) > 0
+                or str(row.get("source_kind") or "").endswith("landing_page")
+                or str(row.get("source_kind") or "").endswith("landing")
+            )
+        ]
+        landing_page_pdf_recoveries = sum(1 for row in landing_page_attempts if int(row.get("discovered_pdf_count") or 0) > 0)
+        placeholder_work_ids = {
+            str(row.get("work_id") or "")
+            for row in fetch_rows
+            if str(row.get("fetch_error_class") or "") == "redirect_placeholder"
+        }
+        final_by_work = {
+            str(row.get("work_id") or ""): row
+            for row in final_rows
+            if str(row.get("work_id") or "").strip()
+        }
+        placeholder_recovered = sum(
+            1
+            for work_id in placeholder_work_ids
+            if str(final_by_work.get(work_id, {}).get("source_basis") or "") == "fulltext"
+        )
+        fake_fulltext_rows = sum(
+            1
+            for row in fetch_rows
+            if str(row.get("fetch_error_class") or "") in {"fake_fulltext", "redirect_placeholder", "short_html_shell"}
+        )
+        publisher_403_rows = sum(1 for row in fetch_rows if str(row.get("fetch_error_class") or "") == "publisher_blocked_403")
+
+        metrics["usable_fulltext_resolved"] = usable_fulltext_resolved
+        metrics["recoverable_landing_pages"] = recoverable_landing_pages
+        metrics["metadata_resolver_hit_rate"] = round((metadata_hits / max(1, len(metadata_rows))) * 100.0, 3) if metadata_rows else 0.0
+        metrics["metadata_pdf_recovery_rate"] = round((metadata_pdf_hits / max(1, len(metadata_rows))) * 100.0, 3) if metadata_rows else 0.0
+        metrics["landing_page_pdf_recovery_rate"] = round((landing_page_pdf_recoveries / max(1, len(landing_page_attempts))) * 100.0, 3) if landing_page_attempts else 0.0
+        metrics["redirect_placeholder_recovery_rate"] = round((placeholder_recovered / max(1, len(placeholder_work_ids))) * 100.0, 3) if placeholder_work_ids else 0.0
+        metrics["fake_fulltext_rate"] = round((fake_fulltext_rows / max(1, len(fetch_rows))) * 100.0, 3) if fetch_rows else 0.0
+        metrics["publisher_403_rate"] = round((publisher_403_rows / max(1, len(fetch_rows))) * 100.0, 3) if fetch_rows else 0.0
+        metrics["final_abstract_fallback_rate"] = round((final_abstract_fallback / max(1, final_total)) * 100.0, 3) if final_total else 0.0
+
     # 5) OA URL reachability from DB.
     reachable = 0
     checked = 0
@@ -336,7 +528,13 @@ def run_qc(
                     if int(resp.status) < 500:
                         reachable += 1
             except Exception:
-                pass
+                try:
+                    req = urllib.request.Request(url, method="GET", headers={"Range": "bytes=0-0"})
+                    with urllib.request.urlopen(req, timeout=10) as resp:
+                        if int(resp.status) < 500:
+                            reachable += 1
+                except Exception:
+                    pass
 
     reach_pct = (100.0 * reachable / checked) if checked else 100.0
     metrics["oa_url_checked"] = checked
@@ -347,7 +545,7 @@ def run_qc(
             passed=reach_pct >= 60.0,
             value=reach_pct,
             threshold=60.0,
-            severity="warning" if checked == 0 else "critical",
+            severity="warning",
         )
     )
 

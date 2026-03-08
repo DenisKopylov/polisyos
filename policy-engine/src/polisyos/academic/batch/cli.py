@@ -12,8 +12,7 @@ from polisyos.academic.batch.config import ALL_STAGES, AcademicBatchConfig
 
 _STAGE_ALIAS = {
     "topic-select": "topic_select",
-    "article-extract": "article_extract",
-    "extract-llm": "extract_llm",
+    "resolve-extract": "resolve_extract",
     "merge-dedup": "merge_dedup",
     "graph-load": "graph_load",
     "graph-index": "graph_index",
@@ -34,6 +33,8 @@ def _parse_stages(raw: str | None) -> frozenset[str]:
 def _build_config(args: argparse.Namespace, *, stages: frozenset[str]) -> AcademicBatchConfig:
     run_id_value = str(getattr(args, "run_id", "")).strip()
     resolved_run_id = run_id_value or datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
+    raw_keys = str(getattr(args, "gonka_api_keys", "")).strip()
+    gonka_api_keys = [token.strip() for token in raw_keys.split(",") if token.strip()] if raw_keys else []
 
     return AcademicBatchConfig(
         snapshot_root=Path(args.snapshot_root),
@@ -52,6 +53,7 @@ def _build_config(args: argparse.Namespace, *, stages: frozenset[str]) -> Academ
         openalex_backoff_seconds=float(getattr(args, "openalex_backoff_seconds", 5.0)),
         openalex_per_page=int(getattr(args, "openalex_per_page", 200)),
         gonka_api_key=str(getattr(args, "gonka_api_key", "")),
+        gonka_api_keys=gonka_api_keys,
         gonka_base_url=str(getattr(args, "gonka_base_url", "https://api.gonkagate.com/v1")),
         llm_model=str(getattr(args, "llm_model", "qwen/qwen3-235b-a22b-instruct-2507-fp8")),
         llm_temperature=float(getattr(args, "llm_temperature", 0.1)),
@@ -66,6 +68,26 @@ def _build_config(args: argparse.Namespace, *, stages: frozenset[str]) -> Academ
         article_rate_limit_rps=float(getattr(args, "article_rate_limit_rps", 8.0)),
         article_max_retries=int(getattr(args, "article_max_retries", 7)),
         article_fulltext_timeout_seconds=int(getattr(args, "article_fulltext_timeout_seconds", 20)),
+        article_target_fulltext_per_topic=int(getattr(args, "article_target_fulltext_per_topic", 50)),
+        article_prefetch_candidates_per_topic=int(getattr(args, "article_prefetch_candidates_per_topic", 150)),
+        article_max_completion_tokens=int(getattr(args, "article_max_completion_tokens", 8192)),
+        article_evidence_bundle_sentence_budget=int(getattr(args, "article_evidence_bundle_sentence_budget", 28)),
+        article_connect_timeout_seconds=int(getattr(args, "article_connect_timeout_seconds", 15)),
+        article_read_timeout_seconds=int(getattr(args, "article_read_timeout_seconds", 120)),
+        article_total_timeout_seconds=int(getattr(args, "article_total_timeout_seconds", 150)),
+        fulltext_max_concurrent_fetches=int(getattr(args, "fulltext_max_concurrent_fetches", 24)),
+        fulltext_acquisition_mode=str(getattr(args, "fulltext_acquisition_mode", "v3_legacy")),
+        fulltext_metadata_resolvers_enabled=bool(getattr(args, "fulltext_metadata_resolvers_enabled", True)),
+        fulltext_unpaywall_email=str(getattr(args, "fulltext_unpaywall_email", "")),
+        fulltext_metadata_timeout_seconds=int(getattr(args, "fulltext_metadata_timeout_seconds", 20)),
+        fulltext_max_candidate_urls_per_work=int(getattr(args, "fulltext_max_candidate_urls_per_work", 20)),
+        fulltext_min_usable_chars=int(getattr(args, "fulltext_min_usable_chars", 1500)),
+        fulltext_min_soft_usable_chars=int(getattr(args, "fulltext_min_soft_usable_chars", 700)),
+        fulltext_soft_usable_requires_section_cues=bool(
+            getattr(args, "fulltext_soft_usable_requires_section_cues", True)
+        ),
+        provider_circuit_breaker_failures=int(getattr(args, "provider_circuit_breaker_failures", 5)),
+        provider_circuit_breaker_reset_seconds=int(getattr(args, "provider_circuit_breaker_reset_seconds", 60)),
         llm_gate_enabled=bool(getattr(args, "llm_gate_enabled", True)),
         llm_gate_mode=str(getattr(args, "llm_gate_mode", "balanced")),
         llm_gate_threshold=float(getattr(args, "llm_gate_threshold", 0.58)),
@@ -84,12 +106,11 @@ async def _run_stage(args: argparse.Namespace, stage: str) -> None:
     from polisyos.academic.batch.embedder import run_embed
     from polisyos.academic.batch.graph_builder import run_graph_index, run_graph_load
     from polisyos.academic.batch.harvester import harvest_all
-    from polisyos.academic.batch.article_extractor import run_article_extract
-    from polisyos.academic.batch.llm_extractor import run_extract_llm
     from polisyos.academic.batch.parser import parse_raw_sources
     from polisyos.academic.batch.pipeline import run_academic_pipeline
     from polisyos.academic.batch.publish import run_publish
     from polisyos.academic.batch.qc import run_qc
+    from polisyos.academic.batch.resolve_extract import run_resolve_extract
     from polisyos.academic.batch.topic_select import run_topic_select
 
     stage_name = _normalize_stage_name(stage)
@@ -115,12 +136,9 @@ async def _run_stage(args: argparse.Namespace, stage: str) -> None:
         counts = parse_raw_sources(cfg)
         print(f"Parsed sources: {len(counts)}")
         print(f"Records: {sum(counts.values())}")
-    elif stage_name == "article_extract":
-        article_stats = await run_article_extract(cfg)
-        print(json_dumps_pretty(article_stats))
-    elif stage_name == "extract_llm":
-        llm_stats = await run_extract_llm(cfg)
-        print(json_dumps_pretty(llm_stats))
+    elif stage_name == "resolve_extract":
+        resolve_stats = await run_resolve_extract(cfg)
+        print(json_dumps_pretty(resolve_stats))
     elif stage_name == "merge_dedup":
         stats = merge_and_dedup(cfg)
         print(f"Merged works: {stats.get('merged_records', 0)}")
@@ -220,6 +238,7 @@ def _build_parser() -> argparse.ArgumentParser:
     common.add_argument("--openalex-per-page", type=int, default=200)
 
     common.add_argument("--gonka-api-key", default="")
+    common.add_argument("--gonka-api-keys", default="")
     common.add_argument("--gonka-base-url", default="https://api.gonkagate.com/v1")
     common.add_argument("--llm-model", default="qwen/qwen3-235b-a22b-instruct-2507-fp8")
     common.add_argument("--llm-temperature", type=float, default=0.1)
@@ -232,6 +251,44 @@ def _build_parser() -> argparse.ArgumentParser:
     common.add_argument("--article-rate-limit-rps", type=float, default=8.0)
     common.add_argument("--article-max-retries", type=int, default=7)
     common.add_argument("--article-fulltext-timeout-seconds", type=int, default=20)
+    common.add_argument("--article-target-fulltext-per-topic", type=int, default=50)
+    common.add_argument("--article-prefetch-candidates-per-topic", type=int, default=150)
+    common.add_argument("--article-max-completion-tokens", type=int, default=8192)
+    common.add_argument("--article-evidence-bundle-sentence-budget", type=int, default=28)
+    common.add_argument("--article-connect-timeout-seconds", type=int, default=15)
+    common.add_argument("--article-read-timeout-seconds", type=int, default=120)
+    common.add_argument("--article-total-timeout-seconds", type=int, default=150)
+    common.add_argument("--fulltext-max-concurrent-fetches", type=int, default=24)
+    common.add_argument("--fulltext-acquisition-mode", default="v3_legacy", choices=["v3_legacy", "v7_http_metadata"])
+    common.add_argument(
+        "--fulltext-metadata-resolvers-enabled",
+        dest="fulltext_metadata_resolvers_enabled",
+        action="store_true",
+    )
+    common.add_argument(
+        "--no-fulltext-metadata-resolvers-enabled",
+        dest="fulltext_metadata_resolvers_enabled",
+        action="store_false",
+    )
+    common.set_defaults(fulltext_metadata_resolvers_enabled=True)
+    common.add_argument("--fulltext-unpaywall-email", default="")
+    common.add_argument("--fulltext-metadata-timeout-seconds", type=int, default=20)
+    common.add_argument("--fulltext-max-candidate-urls-per-work", type=int, default=20)
+    common.add_argument("--fulltext-min-usable-chars", type=int, default=1500)
+    common.add_argument("--fulltext-min-soft-usable-chars", type=int, default=700)
+    common.add_argument(
+        "--fulltext-soft-usable-requires-section-cues",
+        dest="fulltext_soft_usable_requires_section_cues",
+        action="store_true",
+    )
+    common.add_argument(
+        "--no-fulltext-soft-usable-requires-section-cues",
+        dest="fulltext_soft_usable_requires_section_cues",
+        action="store_false",
+    )
+    common.set_defaults(fulltext_soft_usable_requires_section_cues=True)
+    common.add_argument("--provider-circuit-breaker-failures", type=int, default=5)
+    common.add_argument("--provider-circuit-breaker-reset-seconds", type=int, default=60)
 
     common.add_argument("--llm-gate-enabled", dest="llm_gate_enabled", action="store_true")
     common.add_argument("--no-llm-gate-enabled", dest="llm_gate_enabled", action="store_false")
@@ -260,8 +317,7 @@ def _build_parser() -> argparse.ArgumentParser:
     sub.add_parser("topic-select", parents=[common], help="Select topic works from OpenAlex")
     sub.add_parser("harvest", parents=[common], help="Harvest OpenAlex snapshots")
     sub.add_parser("parse", parents=[common], help="Parse raw snapshots")
-    sub.add_parser("article-extract", parents=[common], help="Two-stage article extraction (phase 0a)")
-    sub.add_parser("extract-llm", parents=[common], help="Selective LLM enrichment")
+    sub.add_parser("resolve-extract", parents=[common], help="Streaming fulltext-first one-call extraction")
     sub.add_parser("merge-dedup", parents=[common], help="Merge parsed records and dedup by work_id")
     sub.add_parser("graph-load", parents=[common], help="Load merged works into DuckDB")
     sub.add_parser("graph-index", parents=[common], help="Build DuckDB indexes")
@@ -315,8 +371,7 @@ def main() -> None:
         "topic-select",
         "harvest",
         "parse",
-        "article-extract",
-        "extract-llm",
+        "resolve-extract",
         "merge-dedup",
         "graph-load",
         "graph-index",

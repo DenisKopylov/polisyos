@@ -1,0 +1,46 @@
+{
+  "meta": {
+    "request_id": "60a45325ce0d46c18bb17f82670a42e8",
+    "generated_at": "2026-03-10T19:30:38.496859Z",
+    "source_kinds": [
+      "core_run"
+    ]
+  },
+  "page": {
+    "limit": 24,
+    "cursor": null,
+    "next_cursor": null,
+    "count": 2,
+    "total": 2
+  },
+  "runs": [
+    {
+      "run_id": "R_core_api_001",
+      "source_kind": "core_run",
+      "status": "fail",
+      "started_at": "2026-03-10T19:30:35Z",
+      "finished_at": "2026-03-10T19:30:35Z",
+      "duration_ms": 0,
+      "tenant_id": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+      "cell_id": "cell-a",
+      "has_trace": true,
+      "root_artifact_count": 11,
+      "has_workflow_report": true,
+      "warnings": []
+    },
+    {
+      "run_id": "R_core_api_002",
+      "source_kind": "core_run",
+      "status": "completed",
+      "started_at": "2026-03-10T19:30:35Z",
+      "finished_at": "2026-03-10T19:30:35Z",
+      "duration_ms": 0,
+      "tenant_id": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+      "cell_id": "cell-a",
+      "has_trace": true,
+      "root_artifact_count": 0,
+      "has_workflow_report": false,
+      "warnings": []
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+name: Frontend Nightly
+
+on:
+  schedule:
+    - cron: "0 3 * * *"
+
+permissions:
+  contents: read
+
+jobs:
+  frontend-audit-nightly:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: policy-engine/frontend/runtime-dashboard
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: policy-engine/frontend/runtime-dashboard/package-lock.json
+      - name: Install dashboard dependencies
+        run: npm ci
+      - name: Run full npm audit
+        run: |
+          npm audit --audit-level=high --json > npm-audit-raw.json || true
+      - name: Summarize nightly dependency audit
+        run: npm run audit:ci
+      - name: Upload nightly audit artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: npm-audit-report-nightly
+          path: |
+            policy-engine/frontend/runtime-dashboard/npm-audit-raw.json
+            policy-engine/frontend/runtime-dashboard/npm-audit-report.json
+            policy-engine/frontend/runtime-dashboard/npm-audit-summary.md
+          if-no-files-found: warn

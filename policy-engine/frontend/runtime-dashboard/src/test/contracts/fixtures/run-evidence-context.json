@@ -1,0 +1,167 @@
+{
+  "meta": {
+    "request_id": "0a0eff3aace54e82b53b18bdebd1a299",
+    "generated_at": "2026-03-10T19:30:38.746755Z",
+    "source_kinds": [
+      "core_run"
+    ]
+  },
+  "context": {
+    "run_id": "R_core_api_001",
+    "source_kind": "core_run",
+    "execution_plan_ref": {
+      "artifact_id": "sha256:92d8004ce1437ce6647bf48b058063d5536f8f682888f08d5af346b331561674",
+      "kind": "scientist.execution_plan",
+      "media_type": "application/json"
+    },
+    "evidence_bundle_ref": {
+      "artifact_id": "sha256:20fc390a9718cc49d7c5cbf39a73e72e89f0a9c0aa1085b2588a79827c3348fe",
+      "kind": "fabric.evidence_bundle",
+      "media_type": "application/json"
+    },
+    "data_snapshot_ref": {
+      "artifact_id": "sha256:b0ca2171d96e5c7e6e7e23812250a906dfded882ef5507f4950ea8895cb24f9e",
+      "kind": "fabric.data_snapshot",
+      "media_type": "application/json"
+    },
+    "input_bindings_ref": {
+      "artifact_id": "sha256:28fcc8bda3b4f2caf101a0eb20bb4d24517f3b32bbccebfb10c2f6a56577732f",
+      "kind": "foundry.input_bindings",
+      "media_type": "application/json"
+    },
+    "related_artifacts": [
+      {
+        "artifact_id": "sha256:92d8004ce1437ce6647bf48b058063d5536f8f682888f08d5af346b331561674",
+        "kind": "scientist.execution_plan",
+        "media_type": "application/json"
+      },
+      {
+        "artifact_id": "sha256:b0ca2171d96e5c7e6e7e23812250a906dfded882ef5507f4950ea8895cb24f9e",
+        "kind": "fabric.data_snapshot",
+        "media_type": "application/json"
+      },
+      {
+        "artifact_id": "sha256:28fcc8bda3b4f2caf101a0eb20bb4d24517f3b32bbccebfb10c2f6a56577732f",
+        "kind": "foundry.input_bindings",
+        "media_type": "application/json"
+      },
+      {
+        "artifact_id": "sha256:20fc390a9718cc49d7c5cbf39a73e72e89f0a9c0aa1085b2588a79827c3348fe",
+        "kind": "fabric.evidence_bundle",
+        "media_type": "application/json"
+      },
+      {
+        "artifact_id": "sha256:ba164466e1cb6e2296d1657868b900c55fa1b4825cc153089c629d6d9b50755a",
+        "kind": "scientist.decision_card",
+        "media_type": "application/json"
+      },
+      {
+        "artifact_id": "sha256:6f2c0f929ef7dc538b2bc7c8a59e9f4a67d9f914a0b3259ed65b18fc9884fec6",
+        "kind": "scientist.experiment_state",
+        "media_type": "application/json"
+      },
+      {
+        "artifact_id": "sha256:df72bd8507e76042d480eb98d7a172696dc34a5574a470d5a3df73df26cca03d",
+        "kind": "scientist.workflow_report",
+        "media_type": "application/json"
+      },
+      {
+        "artifact_id": "sha256:5cc792a6a3df8e78eddebe3af912815e765650978ffb896ae509673896f55ab2",
+        "kind": "scientist.decision_packet",
+        "media_type": "application/json"
+      },
+      {
+        "artifact_id": "sha256:9261600d0819a8b39df138517d39f8969c0364af36121a24216e3ea8015450b2",
+        "kind": "scientist.preflight_report",
+        "media_type": "application/json"
+      },
+      {
+        "artifact_id": "sha256:148fedfa56c1de3f015adc00eaea419eab3370720024cbb0f25e0da59f057d19",
+        "kind": "scientist.evaluator_report",
+        "media_type": "application/json"
+      },
+      {
+        "artifact_id": "sha256:8f425e79ae6f8ab2dc6ebda1d70ad5250bc77b2695de057292a93db2b2d286cd",
+        "kind": "scientist.reproducibility_manifest",
+        "media_type": "application/json"
+      },
+      {
+        "artifact_id": "sha256:d32bb746cd8a2f8772f10cf5ee12f2acd73335c021b15f1541ec582238ced8ec",
+        "kind": "fabric.quality_report",
+        "media_type": "application/json"
+      },
+      {
+        "artifact_id": "sha256:0a8e8002107934c683b02d2dd34f2f268dc96e0b700b4952e40e1995d0f8f845",
+        "kind": "lex.legal_report",
+        "media_type": "application/json"
+      },
+      {
+        "artifact_id": "sha256:2915b22bb936ec84cea92c02333f50d1d12997084c40ffa08c20a1f70c0fc19b",
+        "kind": "scientist.reflexion_terminal",
+        "media_type": "application/json"
+      }
+    ],
+    "data_needs": [
+      {
+        "need_id": "need_7fdcad0308fc42ea",
+        "metric": "macro.gdp.real",
+        "geography": "USA",
+        "time_start": "2019",
+        "time_end": "2024",
+        "granularity": "annual",
+        "quality_min": 0.75,
+        "purpose": "policy_drafting",
+        "matched_plan_ids": [
+          "plan_fixture_fetch_001"
+        ],
+        "notes": []
+      }
+    ],
+    "fetch_plans": [
+      {
+        "plan_id": "plan_fixture_fetch_001",
+        "metric_id": "macro.gdp.real",
+        "connector_id": "worldbank.wdi",
+        "dataset_id": "NY.GDP.MKTP.KD",
+        "profile_id": "worldbank_wdi",
+        "source_lane": "explorelane",
+        "quality_min": 0.75,
+        "filters": {
+          "country": [
+            "USA"
+          ]
+        },
+        "date_start": "2019",
+        "date_end": "2024",
+        "granularity": "annual",
+        "fallback_count": 0,
+        "matched_need_ids": [
+          "need_7fdcad0308fc42ea"
+        ],
+        "notes": []
+      }
+    ],
+    "promotion_candidates": [
+      {
+        "promotion_id": "promotion_fixture_001",
+        "metric_id": "macro.gdp.real",
+        "connector_id": "worldbank.wdi",
+        "dataset_id": "NY.GDP.MKTP.KD",
+        "profile_id": "worldbank_wdi",
+        "source_lane": "explorelane",
+        "confidence": 0.87,
+        "status": "pending",
+        "created_at": null,
+        "signals": [
+          "new_source",
+          "coverage_gap_closed"
+        ],
+        "matched_plan_id": "plan_fixture_fetch_001",
+        "metadata": {
+          "profile": "worldbank_wdi"
+        }
+      }
+    ],
+    "warnings": []
+  }
+}

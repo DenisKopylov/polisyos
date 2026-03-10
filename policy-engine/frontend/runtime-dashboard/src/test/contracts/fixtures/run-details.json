@@ -1,0 +1,94 @@
+{
+  "meta": {
+    "request_id": "0004122fd1bd4ba1b4f6d8ca4bb274ec",
+    "generated_at": "2026-03-10T19:30:38.506155Z",
+    "source_kinds": [
+      "core_run"
+    ]
+  },
+  "run": {
+    "run_id": "R_core_api_001",
+    "source_kind": "core_run",
+    "status": "fail",
+    "started_at": "2026-03-10T19:30:35Z",
+    "finished_at": "2026-03-10T19:30:35Z",
+    "duration_ms": 0,
+    "tenant_id": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+    "cell_id": "cell-a",
+    "has_trace": true,
+    "manifest_ref": {
+      "artifact_id": "sha256:a279fdb99c8b90853cf4c576d115c9dccc0ac3058676890a20ee896ed1641998",
+      "kind": "core.run_manifest",
+      "media_type": "application/json"
+    },
+    "trace_ref": {
+      "artifact_id": "sha256:c31c7e7fffa61b1e3023bdf72592f8cb1da665d6e9bedcf6c042c2dfecc295b2",
+      "kind": "core.trace.jsonl",
+      "media_type": "application/jsonl"
+    },
+    "root_artifacts": [
+      {
+        "artifact_id": "sha256:6f2c0f929ef7dc538b2bc7c8a59e9f4a67d9f914a0b3259ed65b18fc9884fec6",
+        "kind": "scientist.experiment_state",
+        "media_type": "application/json"
+      },
+      {
+        "artifact_id": "sha256:df72bd8507e76042d480eb98d7a172696dc34a5574a470d5a3df73df26cca03d",
+        "kind": "scientist.workflow_report",
+        "media_type": "application/json"
+      },
+      {
+        "artifact_id": "sha256:5cc792a6a3df8e78eddebe3af912815e765650978ffb896ae509673896f55ab2",
+        "kind": "scientist.decision_packet",
+        "media_type": "application/json"
+      },
+      {
+        "artifact_id": "sha256:ba164466e1cb6e2296d1657868b900c55fa1b4825cc153089c629d6d9b50755a",
+        "kind": "scientist.decision_card",
+        "media_type": "application/json"
+      },
+      {
+        "artifact_id": "sha256:92d8004ce1437ce6647bf48b058063d5536f8f682888f08d5af346b331561674",
+        "kind": "scientist.execution_plan",
+        "media_type": "application/json"
+      },
+      {
+        "artifact_id": "sha256:9261600d0819a8b39df138517d39f8969c0364af36121a24216e3ea8015450b2",
+        "kind": "scientist.preflight_report",
+        "media_type": "application/json"
+      },
+      {
+        "artifact_id": "sha256:148fedfa56c1de3f015adc00eaea419eab3370720024cbb0f25e0da59f057d19",
+        "kind": "scientist.evaluator_report",
+        "media_type": "application/json"
+      },
+      {
+        "artifact_id": "sha256:8f425e79ae6f8ab2dc6ebda1d70ad5250bc77b2695de057292a93db2b2d286cd",
+        "kind": "scientist.reproducibility_manifest",
+        "media_type": "application/json"
+      },
+      {
+        "artifact_id": "sha256:d32bb746cd8a2f8772f10cf5ee12f2acd73335c021b15f1541ec582238ced8ec",
+        "kind": "fabric.quality_report",
+        "media_type": "application/json"
+      },
+      {
+        "artifact_id": "sha256:0a8e8002107934c683b02d2dd34f2f268dc96e0b700b4952e40e1995d0f8f845",
+        "kind": "lex.legal_report",
+        "media_type": "application/json"
+      },
+      {
+        "artifact_id": "sha256:2915b22bb936ec84cea92c02333f50d1d12997084c40ffa08c20a1f70c0fc19b",
+        "kind": "scientist.reflexion_terminal",
+        "media_type": "application/json"
+      }
+    ],
+    "has_workflow_report": true,
+    "workflow_report_ref": {
+      "artifact_id": "sha256:df72bd8507e76042d480eb98d7a172696dc34a5574a470d5a3df73df26cca03d",
+      "kind": "scientist.workflow_report",
+      "media_type": "application/json"
+    },
+    "warnings": []
+  }
+}

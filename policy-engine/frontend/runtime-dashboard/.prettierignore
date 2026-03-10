@@ -1,0 +1,6 @@
+dist
+storybook-static
+test-results
+node_modules
+coverage
+.tmp

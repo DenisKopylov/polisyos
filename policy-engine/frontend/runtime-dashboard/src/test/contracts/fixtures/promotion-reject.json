@@ -1,0 +1,11 @@
+{
+  "meta": {
+    "request_id": "d3a2e74b1452456fb7dd3438702efe61",
+    "generated_at": "2026-03-10T19:30:38.865368Z",
+    "source_kinds": []
+  },
+  "promotion_id": "promotion_fixture_001",
+  "status": "rejected",
+  "message": "Promotion candidate rejected.",
+  "binding_updated": false
+}

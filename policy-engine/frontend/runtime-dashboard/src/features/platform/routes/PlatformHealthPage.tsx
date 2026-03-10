@@ -1,0 +1,275 @@
+import { useCapabilities } from "@/api/hooks/useCapabilities";
+import { useConnectors } from "@/api/hooks/useConnectors";
+import { useHealth } from "@/api/hooks/useHealth";
+import { useRuns } from "@/api/hooks/useRuns";
+import { usePermission } from "@/app/authz/AuthzProvider";
+import { useTelemetryReadyMark } from "@/app/providers/TelemetryProvider";
+import { PrefetchButton } from "@/app/routes/PrefetchButton";
+import { useI18n } from "@/i18n/LocaleProvider";
+import { formatDate, formatNumber } from "@/lib/utils";
+import { ApiErrorAlert, Badge, Card, DataFreshnessBadge } from "@/shared/ui";
+
+export default function PlatformHealth() {
+  const { t, label } = useI18n();
+  const canLaunchRuns = usePermission("runs.launch");
+  const canViewAdminAffordances = usePermission("platform.admin");
+  const healthQuery = useHealth();
+  const capabilitiesQuery = useCapabilities();
+  const connectorsQuery = useConnectors();
+  const runsQuery = useRuns({ limit: 12 });
+
+  const connectors = connectorsQuery.data?.connectors ?? [];
+  const features = capabilitiesQuery.data?.features ?? [];
+  const activeFeatures = features.filter((feature) => feature.enabled);
+  const plannedFeatures = features.filter(
+    (feature) => !feature.enabled || feature.stage !== "active",
+  );
+
+  useTelemetryReadyMark("platform.health.page", { routeId: "platform.health" });
+
+  return (
+    <div className="space-y-5" data-testid="platform-page">
+      <Card>
+        <p className="text-xs font-semibold uppercase tracking-[0.24em] text-muted">
+          {t("pages.platform.title")}
+        </p>
+        <div className="mt-2 flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <h2 className="text-3xl font-semibold">
+              {t("pages.platform.heroTitle")}
+            </h2>
+            <p className="mt-2 max-w-3xl text-sm text-muted">
+              {t("pages.platform.subtitle")}
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {healthQuery.data ? (
+              <Badge kind={healthQuery.data.status === "ok" ? "ok" : "warn"}>
+                {String(healthQuery.data.status ?? t("common.unknown"))}
+              </Badge>
+            ) : null}
+            <DataFreshnessBadge
+              generatedAt={
+                healthQuery.data?.meta?.generated_at ?? healthQuery.data?.ts ?? null
+              }
+            />
+            <Badge kind="ok">
+              {t("pages.platform.activeFeatures", {
+                count: activeFeatures.length,
+              })}
+            </Badge>
+            <Badge kind="warn">
+              {t("pages.platform.plannedFeatures", {
+                count: plannedFeatures.length,
+              })}
+            </Badge>
+          </div>
+        </div>
+      </Card>
+
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <Card>
+          <p className="text-xs uppercase text-muted">
+            {t("pages.platform.runtimeStatus")}
+          </p>
+          <p className="text-2xl font-semibold">
+            {String(healthQuery.data?.status ?? t("common.unknown"))}
+          </p>
+          <p className="text-xs text-muted">
+            {healthQuery.data?.service ??
+              t("pages.platform.runtimeServiceFallback")}
+          </p>
+        </Card>
+        <Card>
+          <p className="text-xs uppercase text-muted">
+            {t("pages.platform.capabilityManifest")}
+          </p>
+          <p className="text-2xl font-semibold">
+            {formatNumber(features.length)}
+          </p>
+          <p className="text-xs text-muted">
+            {capabilitiesQuery.data?.runtime_api_version ?? "1.0.0"}
+          </p>
+        </Card>
+        <Card>
+          <p className="text-xs uppercase text-muted">
+            {t("pages.platform.connectors")}
+          </p>
+          <p className="text-2xl font-semibold">
+            {formatNumber(connectors.filter((item) => item.loaded).length)}
+          </p>
+          <p className="text-xs text-muted">
+            {t("pages.platform.registeredConnectors", {
+              count: formatNumber(connectors.length),
+            })}
+          </p>
+        </Card>
+        <Card>
+          <p className="text-xs uppercase text-muted">
+            {t("pages.platform.recentRuns")}
+          </p>
+          <p className="text-2xl font-semibold">
+            {formatNumber(runsQuery.data?.runs.length ?? 0)}
+          </p>
+          <p className="text-xs text-muted">
+            {t("pages.platform.latestControlPlaneSample")}
+          </p>
+        </Card>
+      </div>
+
+      <div className="grid gap-4 xl:grid-cols-[1.2fr,0.8fr]">
+        <Card>
+          <div className="mb-3 flex items-center justify-between gap-2">
+            <h3 className="text-lg font-semibold">
+              {t("pages.platform.capabilityRegistry")}
+            </h3>
+            {canLaunchRuns ? (
+              <PrefetchButton
+                to="/compose"
+                prefetch="intent"
+                size="sm"
+                variant="ghost"
+              >
+                {t("pages.platform.useInComposer")}
+              </PrefetchButton>
+            ) : (
+              <span className="text-xs text-muted">{t("common.accessDenied")}</span>
+            )}
+          </div>
+          {capabilitiesQuery.isLoading ? (
+            <p className="text-sm text-muted">
+              {t("pages.platform.loadingCapabilityManifest")}
+            </p>
+          ) : null}
+          {capabilitiesQuery.isError ? (
+            <ApiErrorAlert
+              title={t("pages.platform.loadCapabilityManifestError")}
+              error={capabilitiesQuery.error}
+            />
+          ) : null}
+          {!capabilitiesQuery.isLoading && !capabilitiesQuery.isError ? (
+            <div className="space-y-3">
+              {features.map((feature) => (
+                <div
+                  key={feature.key}
+                  className="bg-surface/80 rounded-2xl border border-line p-3"
+                >
+                  <div className="flex flex-wrap items-start justify-between gap-2">
+                    <div>
+                      <p className="font-semibold">{feature.label}</p>
+                      <p className="mt-1 text-sm text-muted">
+                        {feature.description}
+                      </p>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      <Badge kind={feature.enabled ? "ok" : "warn"}>
+                        {feature.enabled
+                          ? t("pages.platform.featureEnabled")
+                          : feature.stage}
+                      </Badge>
+                      <span className="rounded-full border border-line bg-panel px-2 py-1 text-xs text-muted">
+                        {label(
+                          "capabilityCategories",
+                          feature.category,
+                          feature.category,
+                        )}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : null}
+        </Card>
+
+        <div className="space-y-4">
+          {canViewAdminAffordances ? (
+            <Card>
+              <h3 className="text-lg font-semibold">
+                {t("pages.platform.constraints")}
+              </h3>
+              {capabilitiesQuery.data ? (
+                <div className="mt-3 space-y-2 text-sm">
+                  {Object.entries(capabilitiesQuery.data.constraints ?? {}).map(
+                    ([key, value]) => (
+                      <div
+                        key={key}
+                        className="bg-surface/80 rounded-xl border border-line px-3 py-2"
+                      >
+                        <p className="text-xs uppercase text-muted">{key}</p>
+                        <p className="font-semibold">
+                          {typeof value === "object"
+                            ? JSON.stringify(value)
+                            : String(value)}
+                        </p>
+                      </div>
+                    ),
+                  )}
+                </div>
+              ) : null}
+            </Card>
+          ) : null}
+
+          <Card>
+            <h3 className="text-lg font-semibold">
+              {t("pages.platform.runtimeHealth")}
+            </h3>
+            {healthQuery.isError ? (
+              <ApiErrorAlert
+                title={t("pages.platform.loadRuntimeHealthError")}
+                error={healthQuery.error}
+              />
+            ) : null}
+            {healthQuery.data ? (
+              <div className="mt-3 space-y-2 text-sm">
+                <div className="bg-surface/80 rounded-xl border border-line px-3 py-2">
+                  <p className="text-xs uppercase text-muted">
+                    {t("pages.platform.service")}
+                  </p>
+                  <p className="font-semibold">
+                    {healthQuery.data.service ??
+                      t("pages.platform.runtimeFallback")}
+                  </p>
+                </div>
+                <div className="bg-surface/80 rounded-xl border border-line px-3 py-2">
+                  <p className="text-xs uppercase text-muted">
+                    {t("pages.platform.timestamp")}
+                  </p>
+                  <p className="font-semibold">
+                    {formatDate(healthQuery.data.ts)}
+                  </p>
+                </div>
+              </div>
+            ) : null}
+          </Card>
+
+          <Card>
+            <h3 className="text-lg font-semibold">
+              {t("pages.platform.connectorReadiness")}
+            </h3>
+            {connectors.slice(0, 5).map((connector) => (
+              <div
+                key={connector.connector_id}
+                className="bg-surface/80 mt-2 rounded-xl border border-line px-3 py-2 text-sm"
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <p className="font-semibold">{connector.connector_id}</p>
+                  <Badge kind={connector.loaded ? "ok" : "warn"}>
+                    {connector.loaded
+                      ? t("pages.platform.connectorHealthy")
+                      : t("pages.platform.connectorUnavailable")}
+                  </Badge>
+                </div>
+                <p className="mt-1 text-xs text-muted">
+                  {connector.last_health_check
+                    ? formatDate(connector.last_health_check)
+                    : t("pages.platform.noHealthCheckYet")}
+                </p>
+              </div>
+            ))}
+          </Card>
+        </div>
+      </div>
+    </div>
+  );
+}

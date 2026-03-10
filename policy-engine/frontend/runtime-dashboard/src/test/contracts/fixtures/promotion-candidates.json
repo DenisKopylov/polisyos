@@ -1,0 +1,28 @@
+{
+  "meta": {
+    "request_id": "4a60815f4269445e84585a0417c6ca76",
+    "generated_at": "2026-03-10T19:30:38.791000Z",
+    "source_kinds": []
+  },
+  "candidates": [
+    {
+      "promotion_id": "promotion_fixture_001",
+      "metric_id": "macro.gdp.real",
+      "connector_id": "worldbank.wdi",
+      "dataset_id": "NY.GDP.MKTP.KD",
+      "profile_id": "worldbank_wdi",
+      "source_lane": "explorelane",
+      "confidence": 0.87,
+      "signals": [
+        "new_source",
+        "coverage_gap_closed"
+      ],
+      "status": "pending",
+      "created_at": "2026-02-11T12:00:00Z",
+      "metadata": {
+        "profile": "worldbank_wdi",
+        "run_id": "R_core_api_001"
+      }
+    }
+  ]
+}

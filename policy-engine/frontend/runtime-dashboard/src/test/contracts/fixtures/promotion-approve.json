@@ -1,0 +1,11 @@
+{
+  "meta": {
+    "request_id": "34d6dadd9e7c4951aba3fc09740fce59",
+    "generated_at": "2026-03-10T19:30:38.852792Z",
+    "source_kinds": []
+  },
+  "promotion_id": "promotion_fixture_001",
+  "status": "approved",
+  "message": "Promotion candidate approved and source bindings updated.",
+  "binding_updated": true
+}

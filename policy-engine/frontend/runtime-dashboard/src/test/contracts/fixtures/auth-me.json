@@ -1,0 +1,31 @@
+{
+  "meta": {
+    "request_id": "07897fefdaf64cb7a288c7a60732378b",
+    "generated_at": "2026-03-10T19:30:38.363105Z",
+    "source_kinds": []
+  },
+  "user_id": "fixture-analyst",
+  "display_name": "Fixture Analyst",
+  "tenant_id": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+  "principal_type": "user",
+  "cell_id": "cell-a",
+  "roles": [
+    "analyst"
+  ],
+  "permissions": [
+    "dashboard.view",
+    "evidence.promotions.approve",
+    "evidence.promotions.reject",
+    "evidence.review",
+    "evidence.view",
+    "knowledge.view",
+    "platform.view",
+    "runs.launch",
+    "runs.review",
+    "runs.view"
+  ],
+  "mfa_verified": true,
+  "feature_overrides": {
+    "enableReviewCollaboration": true
+  }
+}

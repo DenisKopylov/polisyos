@@ -1,0 +1,69 @@
+{
+  "meta": {
+    "request_id": "81d76261c1c04973ae88fd92470c6d0b",
+    "generated_at": "2026-03-10T19:30:38.671607Z",
+    "source_kinds": [
+      "core_run"
+    ]
+  },
+  "debug": {
+    "run_id": "R_core_api_001",
+    "source_kind": "core_run",
+    "verdict": "reject",
+    "issues": [
+      {
+        "code": "GOV001",
+        "message": "Policy blocker",
+        "severity": "blocker"
+      }
+    ],
+    "issue_summary": {
+      "blocker_count": 1,
+      "warning_count": 0,
+      "info_count": 0
+    },
+    "notes": [
+      "manual review required"
+    ],
+    "report_ref": {
+      "artifact_id": "sha256:78c701cd64b3ac56f5cefd36a3d0c3bf4343b2fcb0ba1a4278526b84e2a16a82",
+      "kind": "scientist.governance_report",
+      "media_type": "application/json"
+    },
+    "report_kind": "scientist.governance_report",
+    "report_schema_version": "1.0",
+    "links": {
+      "legal_report_ref": {
+        "artifact_id": "sha256:0a8e8002107934c683b02d2dd34f2f268dc96e0b700b4952e40e1995d0f8f845",
+        "kind": "lex.legal_report",
+        "media_type": "application/json"
+      },
+      "quality_report_ref": {
+        "artifact_id": "sha256:d32bb746cd8a2f8772f10cf5ee12f2acd73335c021b15f1541ec582238ced8ec",
+        "kind": "fabric.quality_report",
+        "media_type": "application/json"
+      }
+    },
+    "legal_executed": true,
+    "transport_summary": {
+      "assumptions": [
+        "parallel trends not established"
+      ],
+      "portability_blockers": [
+        "missing external validation set"
+      ],
+      "status": "blocked",
+      "trace": {
+        "source": "fixture"
+      }
+    },
+    "validation_trace": {
+      "total_blockers": 1,
+      "total_issues": 1
+    },
+    "contract_warnings": [
+      "norm_pack_ref_missing"
+    ],
+    "fallback_from_decision_packet": false
+  }
+}

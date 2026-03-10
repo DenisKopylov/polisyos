@@ -7,6 +7,7 @@ import random
 import re
 import statistics
 import urllib.request
+from collections import Counter
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -347,6 +348,10 @@ def run_qc(
         publishable_total = 0
         abstract_only_publishable = 0
         fulltext_publishable = 0
+        raw_tier_counts: Counter[str] = Counter()
+        published_tier_counts: Counter[str] = Counter()
+        raw_contaminated = 0
+        published_contaminated = 0
 
         if config.raw_claim_candidates_path.exists():
             with open(config.raw_claim_candidates_path, "r", encoding="utf-8") as fh:
@@ -360,6 +365,11 @@ def run_qc(
                         continue
                     if isinstance(row, dict):
                         raw_claims_total += 1
+                        tier = str(row.get("design_quality_tier") or "").strip()
+                        if tier:
+                            raw_tier_counts[tier] += 1
+                        if bool(row.get("span_contamination_detected")):
+                            raw_contaminated += 1
 
         if config.published_claims_path.exists():
             with open(config.published_claims_path, "r", encoding="utf-8") as fh:
@@ -374,6 +384,11 @@ def run_qc(
                     if not isinstance(row, dict):
                         continue
                     publishable_total += 1
+                    tier = str(row.get("design_quality_tier") or "").strip()
+                    if tier:
+                        published_tier_counts[tier] += 1
+                    if bool(row.get("span_contamination_detected")):
+                        published_contaminated += 1
                     if str(row.get("source_basis") or "") == "abstract_only":
                         abstract_only_publishable += 1
                     else:
@@ -386,6 +401,11 @@ def run_qc(
         fulltext_publishable_share = (
             (fulltext_publishable / max(1, publishable_total)) * 100.0 if publishable_total else 0.0
         )
+        published_tier4_share = (
+            (published_tier_counts.get("4", 0) / max(1, publishable_total)) * 100.0
+            if publishable_total
+            else 0.0
+        )
 
         metrics["raw_claim_candidates_total"] = raw_claims_total
         metrics["publishable_edge_rate_pct"] = round(publishable_share, 3)
@@ -393,6 +413,17 @@ def run_qc(
         metrics["abstract_only_publishable_share_pct"] = round(abstract_only_publishable_share, 3)
         metrics["fulltext_publishable_share_pct"] = round(fulltext_publishable_share, 3)
         metrics["published_edge_stability_pct"] = 100.0
+        metrics["design_tier_distribution"] = dict(sorted(raw_tier_counts.items()))
+        metrics["published_claims_by_design_tier"] = dict(sorted(published_tier_counts.items()))
+        metrics["published_tier4_share_pct"] = round(published_tier4_share, 3)
+        metrics["span_contamination_rate"] = round(
+            (published_contaminated / max(1, publishable_total)) * 100.0 if publishable_total else 0.0,
+            3,
+        )
+        metrics["raw_span_contamination_rate"] = round(
+            (raw_contaminated / max(1, raw_claims_total)) * 100.0 if raw_claims_total else 0.0,
+            3,
+        )
 
         checks.append(
             QCCheck(
@@ -410,6 +441,24 @@ def run_qc(
                 value=round(fulltext_publishable_share, 3),
                 threshold=80.0,
                 severity=phase0_check_severity,
+            )
+        )
+        checks.append(
+            QCCheck(
+                name="span_contamination_rate",
+                passed=metrics["span_contamination_rate"] <= 1.0,
+                value=metrics["span_contamination_rate"],
+                threshold=1.0,
+                severity="warning",
+            )
+        )
+        checks.append(
+            QCCheck(
+                name="published_tier4_share_pct",
+                passed=published_tier4_share <= 40.0 if publishable_total else True,
+                value=round(published_tier4_share, 3),
+                threshold=40.0,
+                severity="warning",
             )
         )
 
@@ -456,6 +505,11 @@ def run_qc(
             if str(row.get("fetch_error_class") or "") in {"redirect_placeholder", "landing_page_without_pdf", "short_html_shell"}
         )
         metadata_rows = [row for row in fetch_rows if str(row.get("attempt_kind") or "") == "metadata"]
+        shared_cache_work_ids = {
+            str(row.get("work_id") or "")
+            for row in fetch_rows
+            if str(row.get("attempt_kind") or "") == "shared_cache" and str(row.get("work_id") or "").strip()
+        }
         metadata_hits = sum(
             1
             for row in metadata_rows
@@ -494,6 +548,14 @@ def run_qc(
             if str(row.get("fetch_error_class") or "") in {"fake_fulltext", "redirect_placeholder", "short_html_shell"}
         )
         publisher_403_rows = sum(1 for row in fetch_rows if str(row.get("fetch_error_class") or "") == "publisher_blocked_403")
+        metadata_provider_totals: Counter[str] = Counter()
+        metadata_provider_hits: Counter[str] = Counter()
+        for row in metadata_rows:
+            provider = str(row.get("source_kind") or "").strip().replace("metadata_", "").replace("_cache_hit", "")
+            provider = provider or "unknown"
+            metadata_provider_totals[provider] += 1
+            if int(row.get("discovered_pdf_count") or 0) > 0 or int(row.get("discovered_canonical_count") or 0) > 0:
+                metadata_provider_hits[provider] += 1
 
         metrics["usable_fulltext_resolved"] = usable_fulltext_resolved
         metrics["recoverable_landing_pages"] = recoverable_landing_pages
@@ -504,6 +566,43 @@ def run_qc(
         metrics["fake_fulltext_rate"] = round((fake_fulltext_rows / max(1, len(fetch_rows))) * 100.0, 3) if fetch_rows else 0.0
         metrics["publisher_403_rate"] = round((publisher_403_rows / max(1, len(fetch_rows))) * 100.0, 3) if fetch_rows else 0.0
         metrics["final_abstract_fallback_rate"] = round((final_abstract_fallback / max(1, final_total)) * 100.0, 3) if final_total else 0.0
+        metrics["fulltext_cache_hit_rate"] = round((len(shared_cache_work_ids) / max(1, final_total)) * 100.0, 3) if final_total else 0.0
+        metrics["metadata_resolver_success_rate_by_provider"] = {
+            provider: round((metadata_provider_hits[provider] / max(1, total)) * 100.0, 3)
+            for provider, total in sorted(metadata_provider_totals.items())
+        }
+
+    # 4e) reconciliation diagnostics from article extraction results.
+    if config.article_extraction_results_path.exists():
+        dropped_context_overlap = 0
+        retained_context_attrs = 0
+        with open(config.article_extraction_results_path, "r", encoding="utf-8") as fh:
+            for line in fh:
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    row = json.loads(line)
+                except json.JSONDecodeError:
+                    continue
+                if not isinstance(row, dict):
+                    continue
+                diagnostics = row.get("reconciliation_diagnostics") if isinstance(row.get("reconciliation_diagnostics"), dict) else {}
+                dropped_context_overlap += int(diagnostics.get("dropped_context_overlap", 0) or 0)
+                retained_context_attrs += len(row.get("context_attributes") or []) if isinstance(row.get("context_attributes"), list) else 0
+
+        overlap_total = dropped_context_overlap + retained_context_attrs
+        overlap_drop_rate = (dropped_context_overlap / max(1, overlap_total)) * 100.0 if overlap_total else 0.0
+        metrics["context_attr_overlap_drop_rate"] = round(overlap_drop_rate, 3)
+        checks.append(
+            QCCheck(
+                name="context_attr_overlap_drop_rate",
+                passed=overlap_drop_rate <= 25.0,
+                value=round(overlap_drop_rate, 3),
+                threshold=25.0,
+                severity="warning",
+            )
+        )
 
     # 5) OA URL reachability from DB.
     reachable = 0
@@ -548,6 +647,184 @@ def run_qc(
             severity="warning",
         )
     )
+
+    # 6) Track B/C metrics (non-blocking, guarded for missing tables).
+    if config.db_path.exists():
+        con = duckdb.connect(str(config.db_path), read_only=True)
+        try:
+            try:
+                ctx_attr_count = int(
+                    con.execute("SELECT COUNT(*) FROM ac_skg_context_attributes").fetchone()[0]
+                )
+            except duckdb.CatalogException:
+                ctx_attr_count = 0
+            try:
+                mod_edge_count = int(
+                    con.execute("SELECT COUNT(*) FROM ac_skg_moderation_edges").fetchone()[0]
+                )
+            except duckdb.CatalogException:
+                mod_edge_count = 0
+            try:
+                ctx_profile_count = int(
+                    con.execute("SELECT COUNT(*) FROM ac_skg_context_profiles").fetchone()[0]
+                )
+            except duckdb.CatalogException:
+                ctx_profile_count = 0
+            try:
+                transport_score_count = int(
+                    con.execute("SELECT COUNT(*) FROM ac_skg_transport_scores").fetchone()[0]
+                )
+            except duckdb.CatalogException:
+                transport_score_count = 0
+
+            metrics["context_attribute_count"] = ctx_attr_count
+            metrics["moderation_edge_count"] = mod_edge_count
+            metrics["context_profile_count"] = ctx_profile_count
+            metrics["transport_score_count"] = transport_score_count
+
+            try:
+                if mod_edge_count > 0:
+                    exact_linked = int(
+                        con.execute(
+                            "SELECT COUNT(*) FROM ac_skg_moderation_edges "
+                            "WHERE match_quality IN ('exact_claim_ref', 'canonical_tuple')"
+                        ).fetchone()[0]
+                    )
+                    fuzzy_linked = int(
+                        con.execute(
+                            "SELECT COUNT(*) FROM ac_skg_moderation_edges "
+                            "WHERE match_quality = 'fuzzy_claim_inventory'"
+                        ).fetchone()[0]
+                    )
+                    unmatched = int(
+                        con.execute(
+                            "SELECT COUNT(*) FROM ac_skg_moderation_edges "
+                            "WHERE match_quality = 'freeform' OR match_quality IS NULL OR match_quality = ''"
+                        ).fetchone()[0]
+                    )
+                else:
+                    exact_linked = 0
+                    fuzzy_linked = 0
+                    unmatched = 0
+            except duckdb.CatalogException:
+                exact_linked = 0
+                fuzzy_linked = 0
+                unmatched = 0
+
+            exact_link_rate = (exact_linked / max(1, mod_edge_count)) * 100.0 if mod_edge_count else 0.0
+            fuzzy_link_rate = (fuzzy_linked / max(1, mod_edge_count)) * 100.0 if mod_edge_count else 0.0
+            unmatched_rate = (unmatched / max(1, mod_edge_count)) * 100.0 if mod_edge_count else 0.0
+            metrics["moderation_claim_link_rate_exact"] = round(exact_link_rate, 3)
+            metrics["moderation_claim_link_rate_fuzzy"] = round(fuzzy_link_rate, 3)
+            metrics["moderation_unmatched_rate"] = round(unmatched_rate, 3)
+            checks.append(
+                QCCheck(
+                    name="moderation_claim_link_rate_exact",
+                    passed=exact_link_rate >= 50.0 if mod_edge_count else True,
+                    value=round(exact_link_rate, 3),
+                    threshold=50.0,
+                    severity="warning",
+                )
+            )
+
+            # Moderator coverage: % of causal edges with at least one moderator
+            try:
+                total_edges = int(
+                    con.execute("SELECT COUNT(*) FROM ac_skg_edges").fetchone()[0]
+                )
+                if total_edges > 0 and mod_edge_count > 0:
+                    edges_with_mod = int(
+                        con.execute(
+                            "SELECT COUNT(DISTINCT e.edge_id) FROM ac_skg_edges e "
+                            "INNER JOIN ac_skg_moderation_edges m "
+                            "ON e.src = m.base_cause AND e.dst = m.base_effect"
+                        ).fetchone()[0]
+                    )
+                    moderator_coverage = (edges_with_mod / total_edges) * 100.0
+                else:
+                    moderator_coverage = 0.0
+            except duckdb.CatalogException:
+                total_edges = 0
+                moderator_coverage = 0.0
+
+            metrics["moderator_coverage_pct"] = round(moderator_coverage, 3)
+
+            if config.track_c_enabled:
+                checks.append(
+                    QCCheck(
+                        name="moderator_coverage_pct",
+                        passed=moderator_coverage >= 5.0,
+                        value=round(moderator_coverage, 3),
+                        threshold=5.0,
+                        severity="warning",
+                    )
+                )
+
+            # Context profile coverage: % of articles with enriched context
+            try:
+                total_articles = int(
+                    con.execute("SELECT COUNT(*) FROM ac_skg_articles").fetchone()[0]
+                )
+                if total_articles > 0 and ctx_attr_count > 0:
+                    articles_with_ctx = int(
+                        con.execute(
+                            "SELECT COUNT(DISTINCT openalex_id) FROM ac_skg_context_attributes"
+                        ).fetchone()[0]
+                    )
+                    ctx_profile_coverage = (articles_with_ctx / total_articles) * 100.0
+                else:
+                    ctx_profile_coverage = 0.0
+            except duckdb.CatalogException:
+                ctx_profile_coverage = 0.0
+
+            metrics["context_profile_coverage_pct"] = round(ctx_profile_coverage, 3)
+
+            if config.track_b_enabled:
+                checks.append(
+                    QCCheck(
+                        name="context_profile_coverage_pct",
+                        passed=ctx_profile_coverage >= 10.0,
+                        value=round(ctx_profile_coverage, 3),
+                        threshold=10.0,
+                        severity="warning",
+                    )
+                )
+
+            target_transport_requested = bool(
+                str(config.transport_target_context_id or "").strip()
+                or config.transport_target_country_codes
+            )
+            if total_edges > 0 and transport_score_count > 0:
+                try:
+                    if target_transport_requested:
+                        target_rows = int(
+                            con.execute(
+                                "SELECT COUNT(DISTINCT edge_id) FROM ac_skg_transport_scores "
+                                "WHERE target_context_id IS NOT NULL AND target_context_id != ''"
+                            ).fetchone()[0]
+                        )
+                    else:
+                        target_rows = int(
+                            con.execute("SELECT COUNT(DISTINCT edge_id) FROM ac_skg_transport_scores").fetchone()[0]
+                        )
+                except duckdb.CatalogException:
+                    target_rows = 0
+            else:
+                target_rows = 0
+            transport_coverage = (target_rows / max(1, total_edges)) * 100.0 if total_edges else 0.0
+            metrics["target_transport_score_coverage_pct"] = round(transport_coverage, 3)
+            if target_transport_requested:
+                checks.append(
+                    QCCheck(
+                        name="target_transport_score_coverage_pct",
+                        passed=transport_coverage >= 10.0 if total_edges else True,
+                        value=round(transport_coverage, 3),
+                        threshold=10.0,
+                        severity="warning",
+                    )
+                )
+        finally:
+            con.close()
 
     report = QCReport(scope="academic", checks=checks, metrics=metrics)
     write_qc_report(config.qc_report_path, report)

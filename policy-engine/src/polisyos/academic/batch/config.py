@@ -19,6 +19,7 @@ ALL_STAGES = frozenset(
         "merge_dedup",
         "graph_load",
         "graph_index",
+        "transport_score",
         "embed",
         "qc",
         "publish",
@@ -107,12 +108,16 @@ class AcademicBatchConfig:
     fulltext_max_concurrent_fetches: int = 24
     fulltext_acquisition_mode: str = "v3_legacy"
     fulltext_metadata_resolvers_enabled: bool = True
+    fulltext_metadata_resolver_order: tuple[str, ...] = ("unpaywall", "crossref", "semanticscholar")
     fulltext_unpaywall_email: str = ""
+    fulltext_semantic_scholar_api_key: str = ""
     fulltext_metadata_timeout_seconds: int = 20
     fulltext_max_candidate_urls_per_work: int = 20
     fulltext_min_usable_chars: int = 1500
     fulltext_min_soft_usable_chars: int = 700
     fulltext_soft_usable_requires_section_cues: bool = True
+    fulltext_shared_cache_dir: Path | None = None
+    fulltext_cache_ttl_days: int = 30
     provider_circuit_breaker_failures: int = 5
     provider_circuit_breaker_reset_seconds: int = 60
 
@@ -126,6 +131,16 @@ class AcademicBatchConfig:
     llm_gate_audit_max_miss_rate_pct: float = 3.0
     llm_gate_auto_conf_threshold: float = 0.85
     llm_gate_circuit_breaker_enabled: bool = True
+
+    # Track B/C extraction (opt-in)
+    track_b_enabled: bool = False
+    track_c_enabled: bool = False
+    paper_classification_model: str = ""
+    track_b_extraction_model: str = ""
+    track_c_extraction_model: str = ""
+    transport_target_context_id: str = ""
+    transport_target_country_codes: tuple[str, ...] = ()
+    transport_target_time_period: str = ""
 
     # Embedding (local sentence-transformers)
     embedding_model: str = "intfloat/multilingual-e5-large"
@@ -266,6 +281,24 @@ class AcademicBatchConfig:
         return self.component_dir / "published_claims.jsonl"
 
     @property
+    def context_attributes_path(self) -> Path:
+        return self.component_dir / "context_attributes.jsonl"
+
+    @property
+    def moderation_edges_path(self) -> Path:
+        return self.component_dir / "moderation_edges.jsonl"
+
+    @property
+    def transport_scores_path(self) -> Path:
+        return self.component_dir / "transport_scores.jsonl"
+
+    @property
+    def resolved_fulltext_cache_path(self) -> Path:
+        if self.fulltext_shared_cache_dir is not None:
+            return self.fulltext_shared_cache_dir / "resolved_fulltext_cache.jsonl"
+        return self.component_dir / "resolved_fulltext_cache.jsonl"
+
+    @property
     def ingest_errors_path(self) -> Path:
         return self.component_dir / "errors" / "ingest_errors.jsonl"
 
@@ -299,6 +332,8 @@ class AcademicBatchConfig:
             raise ValueError("fulltext_acquisition_mode must be one of: v3_legacy, v7_http_metadata")
         if self.fulltext_metadata_timeout_seconds < 1:
             raise ValueError("fulltext_metadata_timeout_seconds must be >= 1")
+        if not self.fulltext_metadata_resolver_order:
+            raise ValueError("fulltext_metadata_resolver_order must not be empty")
         if self.fulltext_max_candidate_urls_per_work < 1:
             raise ValueError("fulltext_max_candidate_urls_per_work must be >= 1")
         if self.fulltext_min_usable_chars < 1:
@@ -307,6 +342,8 @@ class AcademicBatchConfig:
             raise ValueError("fulltext_min_soft_usable_chars must be >= 1")
         if self.fulltext_min_soft_usable_chars > self.fulltext_min_usable_chars:
             raise ValueError("fulltext_min_soft_usable_chars must be <= fulltext_min_usable_chars")
+        if self.fulltext_cache_ttl_days < 1:
+            raise ValueError("fulltext_cache_ttl_days must be >= 1")
 
         if self.llm_gate_mode not in {"off", "balanced", "aggressive"}:
             raise ValueError("llm_gate_mode must be one of: off, balanced, aggressive")
@@ -325,6 +362,8 @@ class AcademicBatchConfig:
 
         if self.topics_dir is None:
             self.topics_dir = Path("/Users/deniskopylov/polisyos/relevant_topics_domain_files")
+        if self.fulltext_shared_cache_dir is not None:
+            self.fulltext_shared_cache_dir = Path(self.fulltext_shared_cache_dir)
 
         ensure_dirs(
             self.component_dir,
@@ -338,6 +377,8 @@ class AcademicBatchConfig:
             self.publish_manifest_path.parent,
             self.ingest_errors_path.parent,
         )
+        if self.fulltext_shared_cache_dir is not None:
+            ensure_dirs(self.fulltext_shared_cache_dir)
 
         if not self.openalex_email:
             self.openalex_email = os.environ.get("OPENALEX_EMAIL", "")
@@ -345,3 +386,5 @@ class AcademicBatchConfig:
             self.gonka_api_key = os.environ.get("GONKA_API_KEY", "")
         if not self.fulltext_unpaywall_email:
             self.fulltext_unpaywall_email = os.environ.get("UNPAYWALL_EMAIL", "") or self.openalex_email
+        if not self.fulltext_semantic_scholar_api_key:
+            self.fulltext_semantic_scholar_api_key = os.environ.get("SEMANTIC_SCHOLAR_API_KEY", "")

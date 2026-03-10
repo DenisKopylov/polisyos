@@ -5,7 +5,9 @@ import logging
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import from_canonical_bytes
+from polisyos.core.compiler.report import CompileReport, put_compile_report, put_link_report
 from polisyos.core.contracts.foundry import ExecPlanRef, Metrics, MetricsRef, SimulationResult
+from polisyos.core.contracts.lex import ChangeProposalRef, LegalReportRef
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
 from polisyos.ir.analytics.abm_bridge import (
@@ -49,9 +51,10 @@ from polisyos.ir.analytics.uncertainty import (
     UncertaintySource,
     persist_uncertainty_envelope,
 )
+from polisyos.ir.linker import LinkIssue, LinkIssueCode, LinkReport, LinkSeverity
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.state import ExperimentState
-from polisyos.scientist.governance.report import GovernanceReport
+from polisyos.scientist.governance.report import GovernanceReport, GovernanceReportLinks
 from polisyos.scientist.nodes.builtins.decide.build_decision_packet import BuildDecisionPacketNode
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_ABM_ALIGNMENT_REPORT_REF,
@@ -67,7 +70,11 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     INPUT_DATA_SNAPSHOT_REF,
     INPUT_REGISTRY_BUNDLE_REF,
     INPUT_TRINITY_BUNDLE_REF,
+    REPORT_CHANGE_PROPOSAL_REF,
+    REPORT_COMPILE_REPORT_REF,
     REPORT_GOVERNANCE_REPORT_REF,
+    REPORT_LEGAL_REPORT_REF,
+    REPORT_LINK_REPORT_REF,
 )
 
 
@@ -126,10 +133,17 @@ def test_build_decision_packet_node_emits_v3_payload_and_manifest_inputs(tmp_pat
     manifest = store.get_manifest(packet_ref.artifact_id)
     roles = {item.role for item in manifest.inputs}
 
-    assert payload["schema_version"] == "3.1"
+    assert payload["schema_version"] == "3.2"
     assert payload["seed"] == 123
+    assert payload["policy_summary"] == "Policy data attached"
     assert payload["replay"]["strategy_hint"] == "scientist"
+    assert payload["replay"]["why_partial"] == ["missing_optional_inputs"]
+    assert "input_bindings_ref" in payload["replay"]["missing_refs"]
     assert payload["uncertainty"]["envelope_count"] == 0
+    assert payload["diagnostics_summary"]["replay_readiness"] == "partial"
+    assert payload["diagnostics_summary"]["transport_status"] == "not_run"
+    assert payload["analysis_limits"]["partial_replay_readiness"] is True
+    assert payload["analysis_limits"]["missing_uncertainty_artifact"] is True
     assert payload["inputs"]["trinity_bundle_ref"] == str(trinity_ref.artifact_id)
     assert payload["artifacts"]["metrics_ref"] == str(metrics_ref.artifact_id)
     assert payload["artifacts"]["governance_report_ref"] == str(governance_ref.artifact_id)
@@ -138,6 +152,118 @@ def test_build_decision_packet_node_emits_v3_payload_and_manifest_inputs(tmp_pat
     assert "input.data_snapshot_ref" in roles
     assert "artifact.metrics_ref" in roles
     assert "artifact.governance_report_ref" in roles
+
+
+def test_build_decision_packet_surfaces_legal_links_and_contract_warnings(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path)
+    registry_bundle = build_default_registry_bundle(store).bundle_ref
+    run = RunContext.start(store=store, registry_bundle=registry_bundle, run_id="R_packet_diag")
+    ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("test.packet"))
+
+    trinity_ref = store.put_json(
+        {"policy_spec": {"interventions": []}},
+        PutOptions(
+            kind="ir.trinity_bundle",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.ir.TrinityBundle", version="1.0"),
+        ),
+    )
+    data_snapshot_ref = store.put_json(
+        {"data_ref": None},
+        PutOptions(kind="fabric.data_snapshot", media_type="application/json"),
+    )
+    legal_report_artifact = store.put_json(
+        {"summary": {"compliance_grade": "pass"}},
+        PutOptions(kind="lex.legal_report", media_type="application/json"),
+    )
+    change_proposal_artifact = store.put_json(
+        {"actions": []},
+        PutOptions(kind="lex.change_proposal", media_type="application/json"),
+    )
+    legal_report_ref = LegalReportRef(artifact_id=legal_report_artifact.artifact_id)
+    change_proposal_ref = ChangeProposalRef(artifact_id=change_proposal_artifact.artifact_id)
+    governance_ref = store.put_json(
+        GovernanceReport(
+            verdict="human_gate",
+            issues=[],
+            links=GovernanceReportLinks(
+                legal_report_ref=legal_report_ref,
+                change_proposal_ref=change_proposal_ref,
+            ),
+        ),
+        PutOptions(kind="scientist.governance_report", media_type="application/json"),
+    )
+    link_report_ref = put_link_report(
+        store,
+        LinkReport(
+            ok=True,
+            issues=[
+                LinkIssue(
+                    severity=LinkSeverity.WARNING,
+                    code=LinkIssueCode.DEPRECATED_MECHANISM_BINDINGS,
+                    message="ignored",
+                    path=["policy_spec", "mechanism_bindings"],
+                ),
+                LinkIssue(
+                    severity=LinkSeverity.WARNING,
+                    code=LinkIssueCode.MODEL_FIDELITY_LEVEL_IGNORED,
+                    message="ignored",
+                    path=["model_spec", "fidelity_level"],
+                ),
+            ],
+        ),
+    )
+    compile_report_ref = put_compile_report(
+        store,
+        CompileReport(
+            ok=False,
+            link_report_ref=link_report_ref,
+            notes=[
+                "link_warning:deprecated_mechanism_bindings",
+                "link_warning:model_fidelity_level_ignored",
+                "missing_runtime_mechanism_support:custom_subsidy",
+            ],
+        ),
+    )
+
+    state = ExperimentState(
+        run_id="R_packet_diag",
+        inputs={
+            INPUT_TRINITY_BUNDLE_REF: trinity_ref,
+            INPUT_REGISTRY_BUNDLE_REF: registry_bundle,
+            INPUT_DATA_SNAPSHOT_REF: data_snapshot_ref,
+        },
+        reports_index={
+            REPORT_GOVERNANCE_REPORT_REF: governance_ref,
+            REPORT_LEGAL_REPORT_REF: legal_report_ref,
+            REPORT_CHANGE_PROPOSAL_REF: change_proposal_ref,
+            REPORT_LINK_REPORT_REF: link_report_ref,
+            REPORT_COMPILE_REPORT_REF: compile_report_ref,
+        },
+    )
+
+    outcome = BuildDecisionPacketNode().execute(ctx, state)
+    packet_ref = outcome.artifacts[0]
+    payload = from_canonical_bytes(store.get_bytes(packet_ref.artifact_id))
+
+    assert payload["governance"]["links"]["legal_report_ref"]["artifact_id"] == str(
+        legal_report_artifact.artifact_id
+    )
+    assert payload["governance"]["links"]["change_proposal_ref"]["artifact_id"] == str(
+        change_proposal_artifact.artifact_id
+    )
+    assert payload["artifacts"]["legal_report_ref"] == str(legal_report_artifact.artifact_id)
+    assert payload["artifacts"]["change_proposal_ref"] == str(
+        change_proposal_artifact.artifact_id
+    )
+    assert payload["diagnostics_summary"]["contract_warnings"] == [
+        "deprecated_mechanism_bindings",
+        "model_fidelity_level_ignored",
+        "missing_runtime_mechanism_support:custom_subsidy",
+    ]
+    assert payload["analysis_limits"]["deprecated_mechanism_bindings"] is True
+    assert payload["analysis_limits"]["model_fidelity_level_ignored"] is True
+    assert payload["analysis_limits"]["missing_runtime_mechanism_support"] is True
 
 
 def test_build_decision_packet_node_accepts_float_uncertainty_bounds(tmp_path) -> None:

@@ -34,7 +34,7 @@ ENV XLA_FLAGS="--xla_cpu_multi_thread_eigen=true --xla_force_host_platform_devic
 
 COPY pyproject.toml uv.lock ./
 
-RUN uv sync --frozen --no-dev
+RUN uv sync --frozen
 
 COPY src/ ./src/
 COPY tools/ ./tools/
@@ -94,7 +94,7 @@ ENV NCCL_P2P_DISABLE=1
 
 COPY pyproject.toml uv.lock ./
 
-RUN uv sync --frozen --no-dev && \
+RUN uv sync --frozen && \
     uv pip install "jax[cuda12_pip]" -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
 
 COPY src/ ./src/

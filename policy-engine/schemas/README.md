@@ -31,14 +31,14 @@ src/polisyos/ir/** + src/polisyos/ir/world/abi.py
   -> schemas/abi_models.py
   -> tools/diagnostics/gen_schema.py
   -> schemas/snapshots/{ir,fabric}
-  -> ABI checks: .github/workflows/abi.yml + .github/workflows/arch.yml
+  -> ABI checks: .github/workflows/abi.yml + .github/workflows/ci.yml
 ```
 
 ```text
 src/polisyos/fabric/connectors/sources/_contracts/*
   -> tools/connectors/check_contracts.py
   -> schemas/snapshots/connectors/contracts.json
-  -> arch check: .github/workflows/arch.yml
+  -> arch check: .github/workflows/ci.yml
 ```
 
 ```text

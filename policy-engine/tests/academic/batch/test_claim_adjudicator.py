@@ -57,7 +57,7 @@ def test_publish_gate_keeps_whitelisted_did_claim() -> None:
     assert result.causal_claims[0].strong_design_evidence is True
 
 
-def test_publish_gate_drops_panel_fe_claim() -> None:
+def test_publish_gate_keeps_panel_fe_claim_with_method_signal() -> None:
     claim = CausalClaim(
         claim_id="c-2",
         claim_text="Higher tax rates correlate with lower employment",
@@ -76,8 +76,9 @@ def test_publish_gate_drops_panel_fe_claim() -> None:
         claim_extraction_confidence=0.9,
     )
     result = _apply_publish_gate(_base_result(claim))
-    assert result.causal_claims[0].publish_to_graph is False
-    assert "design_not_publishable" in result.causal_claims[0].publish_blockers
+    assert result.causal_claims[0].publish_to_graph is True
+    assert result.causal_claims[0].design_quality_tier == 3
+    assert "design_not_publishable" not in result.causal_claims[0].publish_blockers
 
 
 def test_publish_gate_keeps_event_study_only_with_strong_design() -> None:

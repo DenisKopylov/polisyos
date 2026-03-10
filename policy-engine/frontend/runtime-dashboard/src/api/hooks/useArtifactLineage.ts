@@ -18,7 +18,11 @@ async function fetchArtifactLineage(artifactId: string) {
   );
 
   if (error || !response.ok || !data) {
-    throw createRuntimeApiError(response, error, `Failed to load artifact lineage ${artifactId}`);
+    throw createRuntimeApiError(
+      response,
+      error,
+      `Failed to load artifact lineage ${artifactId}`,
+    );
   }
 
   const parsed = artifactLineageSchema.parse(data);
@@ -35,7 +39,10 @@ async function fetchArtifactLineage(artifactId: string) {
   };
 }
 
-export function useArtifactLineage(artifactId: string | undefined, enabled = true) {
+export function useArtifactLineage(
+  artifactId: string | undefined,
+  enabled = true,
+) {
   return useQuery({
     queryKey: queryKeys.artifactLineage(artifactId ?? "unknown"),
     queryFn: () => fetchArtifactLineage(artifactId ?? ""),

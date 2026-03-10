@@ -5,7 +5,8 @@ import { createRuntimeApiError } from "../http";
 import { queryKeys } from "../queryKeys";
 import type { components } from "../types";
 
-export type DataCatalogSearchResponse = components["schemas"]["DataCatalogSearchResponse"];
+export type DataCatalogSearchResponse =
+  components["schemas"]["DataCatalogSearchResponse"];
 
 type CatalogSearchParams = {
   metricQuery: string;
@@ -19,17 +20,24 @@ async function fetchDataCatalogSearch(
   geography: string | null,
   limit: number,
 ): Promise<DataCatalogSearchResponse> {
-  const { data, error, response } = await runtimeApiClient.GET("/api/v1/control/data/catalog/search", {
-    params: {
-      query: {
-        metric: metricQuery,
-        geo: geography || undefined,
-        limit,
+  const { data, error, response } = await runtimeApiClient.GET(
+    "/api/v1/control/data/catalog/search",
+    {
+      params: {
+        query: {
+          metric: metricQuery,
+          geo: geography || undefined,
+          limit,
+        },
       },
     },
-  });
+  );
   if (error || !response.ok || !data) {
-    throw createRuntimeApiError(response, error, "Failed to search data catalog");
+    throw createRuntimeApiError(
+      response,
+      error,
+      "Failed to search data catalog",
+    );
   }
   return data as DataCatalogSearchResponse;
 }

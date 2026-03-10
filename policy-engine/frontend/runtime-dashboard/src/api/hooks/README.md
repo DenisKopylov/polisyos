@@ -32,6 +32,7 @@
 ## Когда обновлять hooks
 
 При изменении OpenAPI:
+
 1. перегенерировать `src/api/types.ts`;
 2. сверить сигнатуры hooks и endpoint paths;
 3. при необходимости обновить `queryKeys` и `validators`.

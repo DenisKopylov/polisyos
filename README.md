@@ -961,7 +961,7 @@ Prereqs: Python `>=3.11`, `uv`.
 
 ```bash
 cd policy-engine
-uv sync --frozen
+uv sync --frozen --extra dev --extra test --extra runtime-http
 
 # Проверка установки
 PYTHONPATH=src uv run python tools/diagnostics/check_setup.py
@@ -972,12 +972,15 @@ uv run pytest
 # Быстрый цикл без integration
 uv run pytest -m "not integration"
 
+# Отдельно HTTP/runtime-контур без skip по optional deps
+uv run pytest tests/runtime/http
+
 # Observability стек
 cd ops && docker compose -f docker-compose.observability.yml up -d
 # Prometheus: http://localhost:9090  |  Grafana: http://localhost:3000 (admin/admin)
 
 # Runtime API v1 + Control Plane
-PYTHONPATH=src uv run --extra multi-tenant --extra test python -c "
+PYTHONPATH=src uv run python -c "
 from polisyos.runtime.http.app import create_runtime_api_app
 import uvicorn
 uvicorn.run(create_runtime_api_app(), host='127.0.0.1', port=8000)
@@ -985,7 +988,7 @@ uvicorn.run(create_runtime_api_app(), host='127.0.0.1', port=8000)
 
 # Runtime Dashboard (React)
 cd frontend/runtime-dashboard
-npm install
+npm ci
 npm run generate:api   # генерация типов из OpenAPI
 npm run dev            # http://127.0.0.1:5173
 

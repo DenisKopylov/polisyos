@@ -37,6 +37,8 @@ class LinkIssueCode(str, Enum):
     UNKNOWN_ACTOR = "unknown_actor"
     UNKNOWN_JURISDICTION = "unknown_jurisdiction"
     MISSING_REGISTRY = "missing_registry"
+    DEPRECATED_MECHANISM_BINDINGS = "deprecated_mechanism_bindings"
+    MODEL_FIDELITY_LEVEL_IGNORED = "model_fidelity_level_ignored"
 
     # Legacy / additional codes (kept for backward compatibility)
     UNKNOWN_SLOT = "unknown_slot"

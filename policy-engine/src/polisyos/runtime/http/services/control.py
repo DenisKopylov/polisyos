@@ -10,6 +10,7 @@ import re
 import time
 import uuid
 from datetime import datetime, timezone
+from decimal import Decimal
 from pathlib import Path
 from typing import Any
 
@@ -18,6 +19,8 @@ from polisyos.core.contracts.control import (
     BindingProfilesListResponse,
     CacheEntryInfo,
     CacheStatusResponse,
+    CapabilityFeatureInfo,
+    CapabilityManifestResponse,
     ConnectorInfo,
     ConnectorsListResponse,
     DataCatalogSearchResponse,
@@ -188,6 +191,21 @@ def _delta_usage(
     latency = max(0, int(after["latency_ms"] - before["latency_ms"]))
     cost = max(0.0, float(after["cost_usd"] - before["cost_usd"]))
     return prompt, completion, latency, cost
+
+
+def _canonicalize_numeric_payload(value: Any) -> Any:
+    if isinstance(value, float):
+        return Decimal(str(value))
+    if isinstance(value, dict):
+        return {
+            key: _canonicalize_numeric_payload(item)
+            for key, item in value.items()
+        }
+    if isinstance(value, list):
+        return [_canonicalize_numeric_payload(item) for item in value]
+    if isinstance(value, tuple):
+        return [_canonicalize_numeric_payload(item) for item in value]
+    return value
 
 
 # ---------------------------------------------------------------------------
@@ -657,6 +675,12 @@ class ControlPlaneService:
                 retrieval_phase_durations: dict[str, int] = {}
                 data_context_payload: dict[str, Any] = {}
                 auto_data_source_refs: dict[str, str] = {}
+                retrieval_context_payload: dict[str, Any] = {
+                    "data_needs": [],
+                    "fetch_plans": [],
+                    "promotion_candidates": [],
+                    "auto_data_source_refs": {},
+                }
                 execution_plan_ref_str = execution_plan_ref
                 method_catalog_snapshot_ref_str: str | None = None
                 preflight_report_ref_str: str | None = None
@@ -772,6 +796,9 @@ class ControlPlaneService:
                     ]
                     if not data_needs:
                         notes.append("no_data_needs_extracted")
+                    retrieval_context_payload["data_needs"] = [
+                        item.model_dump(mode="json") for item in data_needs
+                    ]
 
                     # 1) Build ExecutionPlan first and persist as the first cycle artifact.
                     if execution_plan_payload:
@@ -1022,6 +1049,9 @@ class ControlPlaneService:
 
                     execute_outcome = None
                     if resolve_outcome.fetch_plans:
+                        promotion_ids_before = {
+                            item.promotion_id for item in retrieval.list_promotion_candidates()
+                        }
                         execute_outcome = await _capture_step(
                             agent="executor",
                             action="fetch_execute",
@@ -1051,6 +1081,11 @@ class ControlPlaneService:
                             },
                         )
                         retrieval_candidates_promoted = int(execute_outcome.promoted_count)
+                        promotion_candidates = [
+                            item.model_dump(mode="json")
+                            for item in retrieval.list_promotion_candidates()
+                            if item.promotion_id not in promotion_ids_before
+                        ]
                         _append_step(
                             agent="promotion_lane",
                             action="promotion_signal_emit",
@@ -1066,6 +1101,11 @@ class ControlPlaneService:
                             "index_docs_total": execute_outcome.data_context.index_docs_total,
                             "index_size_bytes": execute_outcome.data_context.index_size_bytes,
                         }
+                        retrieval_context_payload["fetch_plans"] = [
+                            item.model_dump(mode="json")
+                            for item in resolve_outcome.fetch_plans
+                        ]
+                        retrieval_context_payload["promotion_candidates"] = promotion_candidates
                     else:
                         _append_step(
                             agent="executor",
@@ -1073,7 +1113,7 @@ class ControlPlaneService:
                             summary="No fetch plans resolved",
                             status="warn",
                             details={"fetch_plans": 0},
-                        )
+                            )
 
                     if _is_auto_materialization_enabled():
                         try:
@@ -1094,6 +1134,9 @@ class ControlPlaneService:
                                         "input_bindings_ref"
                                     ),
                                 },
+                            )
+                            retrieval_context_payload["auto_data_source_refs"] = dict(
+                                auto_data_source_refs
                             )
                         except Exception as exc:
                             notes.append(f"auto_materialization_failed:{exc}")
@@ -1314,6 +1357,7 @@ class ControlPlaneService:
                         "iteration_state_ref": iteration_state_ref_str,
                         "auto_data_source_refs": auto_data_source_refs,
                         "reproducibility_manifest_ref": reproducibility_manifest_ref_str,
+                        "retrieval_context": retrieval_context_payload,
                         "_bundle": None,
                     }
 
@@ -1378,6 +1422,7 @@ class ControlPlaneService:
                     "iteration_state_ref": iteration_state_ref_str,
                     "auto_data_source_refs": auto_data_source_refs,
                     "reproducibility_manifest_ref": reproducibility_manifest_ref_str,
+                    "retrieval_context": retrieval_context_payload,
                     "_bundle": trinity_bundle,
                 }
 
@@ -1491,80 +1536,83 @@ class ControlPlaneService:
                             kind="core.registry_bundle",
                         )
 
-            state_payload = {
-                "run_id": run_id,
-                "inputs": inputs,
-                "params": {
-                    "nl_request": nl_request,
-                    "agent_circuit": True,
-                    "llm_model": selected_variant.get("model"),
-                    "llm_models": [item.get("model") for item in variants if item.get("model")],
-                    "llm_selected_variant_id": selected_variant.get("model_variant_id"),
-                    "llm_prompt_tokens": int(selected_variant.get("prompt_tokens") or 0),
-                    "llm_completion_tokens": int(selected_variant.get("completion_tokens") or 0),
-                    "llm_cost_usd": float(selected_variant.get("cost_usd") or 0.0),
-                    "run_cost_usd": round(
-                        sum(float(item.get("cost_usd") or 0.0) for item in variants),
-                        8,
-                    ),
-                    "llm_model_variants": [
-                        {
-                            key: value
-                            for key, value in item.items()
-                            if not key.startswith("_")
-                        }
-                        for item in variants
-                    ],
-                    "llm_multimodel_enabled": _is_multimodel_enabled(),
-                    "run_budget_usd": run_budget_usd,
-                    "per_model_budget_usd": per_model_budget_usd,
-                    "max_parallel_models": max_parallel_models,
-                    "checkpoint_policy": checkpoint_policy,
-                    "unified_dag_enabled": _is_unified_dag_enabled(),
-                    "required_preflight_enabled": _is_required_preflight_enabled(),
-                    "auto_materialization_enabled": _is_auto_materialization_enabled(),
-                    "retrieval_mode": selected_variant.get("retrieval_mode"),
-                    "retrieval_lane_used": selected_variant.get("retrieval_lane_used"),
-                    "retrieval_metadata_docs_fetched": int(
-                        selected_variant.get("metadata_docs_fetched") or 0
-                    ),
-                    "retrieval_local_index_size_bytes": int(
-                        selected_variant.get("local_index_size_bytes") or 0
-                    ),
-                    "retrieval_local_index_docs_total": int(
-                        selected_variant.get("local_index_docs_total") or 0
-                    ),
-                    "retrieval_candidates_filtered": int(
-                        selected_variant.get("candidates_filtered") or 0
-                    ),
-                    "retrieval_candidates_promoted": int(
-                        selected_variant.get("candidates_promoted") or 0
-                    ),
-                    "retrieval_phase_durations": dict(
-                        selected_variant.get("retrieval_phase_durations") or {}
-                    ),
-                    "retrieval_telemetry": selected_variant.get("retrieval_telemetry") or {},
-                    "execution_plan_ref": selected_variant.get("execution_plan_ref"),
-                    "method_catalog_snapshot_ref": selected_variant.get(
-                        "method_catalog_snapshot_ref"
-                    ),
-                    "preflight_report_ref": selected_variant.get("preflight_report_ref"),
-                    "preflight_ready": bool(selected_variant.get("preflight_ready")),
-                    "preflight_diagnostics": list(
-                        selected_variant.get("preflight_diagnostics") or []
-                    ),
-                    "evaluator_report_ref": selected_variant.get("evaluator_report_ref"),
-                    "evaluator": dict(selected_variant.get("evaluator") or {}),
-                    "iteration_state_ref": selected_variant.get("iteration_state_ref"),
-                    "reproducibility_manifest_ref": selected_variant.get(
-                        "reproducibility_manifest_ref"
-                    ),
-                    "stop_criteria": dict(stop_criteria_payload or {}),
-                    "governance_constraints": list(governance_constraints_payload or []),
-                    "expected_outputs": list(expected_outputs_payload or []),
-                    "context": context,
-                },
-            }
+            state_payload = _canonicalize_numeric_payload(
+                {
+                    "run_id": run_id,
+                    "inputs": inputs,
+                    "params": {
+                        "nl_request": nl_request,
+                        "agent_circuit": True,
+                        "llm_model": selected_variant.get("model"),
+                        "llm_models": [item.get("model") for item in variants if item.get("model")],
+                        "llm_selected_variant_id": selected_variant.get("model_variant_id"),
+                        "llm_prompt_tokens": int(selected_variant.get("prompt_tokens") or 0),
+                        "llm_completion_tokens": int(selected_variant.get("completion_tokens") or 0),
+                        "llm_cost_usd": float(selected_variant.get("cost_usd") or 0.0),
+                        "run_cost_usd": round(
+                            sum(float(item.get("cost_usd") or 0.0) for item in variants),
+                            8,
+                        ),
+                        "llm_model_variants": [
+                            {
+                                key: value
+                                for key, value in item.items()
+                                if not key.startswith("_")
+                            }
+                            for item in variants
+                        ],
+                        "llm_multimodel_enabled": _is_multimodel_enabled(),
+                        "run_budget_usd": run_budget_usd,
+                        "per_model_budget_usd": per_model_budget_usd,
+                        "max_parallel_models": max_parallel_models,
+                        "checkpoint_policy": checkpoint_policy,
+                        "unified_dag_enabled": _is_unified_dag_enabled(),
+                        "required_preflight_enabled": _is_required_preflight_enabled(),
+                        "auto_materialization_enabled": _is_auto_materialization_enabled(),
+                        "retrieval_mode": selected_variant.get("retrieval_mode"),
+                        "retrieval_lane_used": selected_variant.get("retrieval_lane_used"),
+                        "retrieval_metadata_docs_fetched": int(
+                            selected_variant.get("metadata_docs_fetched") or 0
+                        ),
+                        "retrieval_local_index_size_bytes": int(
+                            selected_variant.get("local_index_size_bytes") or 0
+                        ),
+                        "retrieval_local_index_docs_total": int(
+                            selected_variant.get("local_index_docs_total") or 0
+                        ),
+                        "retrieval_candidates_filtered": int(
+                            selected_variant.get("candidates_filtered") or 0
+                        ),
+                        "retrieval_candidates_promoted": int(
+                            selected_variant.get("candidates_promoted") or 0
+                        ),
+                        "retrieval_phase_durations": dict(
+                            selected_variant.get("retrieval_phase_durations") or {}
+                        ),
+                        "retrieval_telemetry": selected_variant.get("retrieval_telemetry") or {},
+                        "execution_plan_ref": selected_variant.get("execution_plan_ref"),
+                        "method_catalog_snapshot_ref": selected_variant.get(
+                            "method_catalog_snapshot_ref"
+                        ),
+                        "preflight_report_ref": selected_variant.get("preflight_report_ref"),
+                        "preflight_ready": bool(selected_variant.get("preflight_ready")),
+                        "preflight_diagnostics": list(
+                            selected_variant.get("preflight_diagnostics") or []
+                        ),
+                        "evaluator_report_ref": selected_variant.get("evaluator_report_ref"),
+                        "evaluator": dict(selected_variant.get("evaluator") or {}),
+                        "iteration_state_ref": selected_variant.get("iteration_state_ref"),
+                        "reproducibility_manifest_ref": selected_variant.get(
+                            "reproducibility_manifest_ref"
+                        ),
+                        "stop_criteria": dict(stop_criteria_payload or {}),
+                        "governance_constraints": list(governance_constraints_payload or []),
+                        "expected_outputs": list(expected_outputs_payload or []),
+                        "context": context,
+                        "retrieval_context": dict(selected_variant.get("retrieval_context") or {}),
+                    },
+                }
+            )
             execution_plan_ref_value = selected_variant.get("execution_plan_ref")
             if isinstance(execution_plan_ref_value, str) and execution_plan_ref_value:
                 state_payload["execution_plan_ref"] = _make_artifact_ref(
@@ -2057,6 +2105,134 @@ class ControlPlaneService:
             total_entries=0,
             total_size_bytes=0,
             entries=[],
+        )
+
+    # ---- Capabilities -----------------------------------------------------
+
+    def get_capabilities(
+        self, *, request_id: str | None = None
+    ) -> CapabilityManifestResponse:
+        features = [
+            CapabilityFeatureInfo(
+                key="workflow_runs",
+                label="Workflow runs",
+                description="Launch workflow-backed runs from explicit artifact bindings.",
+                category="runs",
+                enabled=True,
+            ),
+            CapabilityFeatureInfo(
+                key="natural_language_runs",
+                label="Natural-language runs",
+                description="Use the agent circuit to transform NL requests into executable policy runs.",
+                category="runs",
+                enabled=True,
+            ),
+            CapabilityFeatureInfo(
+                key="multimodel_nl",
+                label="Multi-model NL execution",
+                description="Evaluate multiple LLM variants for a single NL request.",
+                category="runs",
+                enabled=_is_multimodel_enabled(),
+            ),
+            CapabilityFeatureInfo(
+                key="required_preflight",
+                label="Required preflight",
+                description="Run execution-plan preflight diagnostics before execution.",
+                category="governance",
+                enabled=_is_required_preflight_enabled(),
+            ),
+            CapabilityFeatureInfo(
+                key="evaluator_reports",
+                label="Evaluator reports",
+                description="Persist evaluator verdicts, scores, and replanning hints.",
+                category="governance",
+                enabled=True,
+            ),
+            CapabilityFeatureInfo(
+                key="reproducibility_manifests",
+                label="Reproducibility manifests",
+                description="Expose replay, hash, and determinism metadata for completed runs.",
+                category="governance",
+                enabled=True,
+            ),
+            CapabilityFeatureInfo(
+                key="transport_summary",
+                label="Transport summary",
+                description="Expose transportability summaries on governance and decision surfaces.",
+                category="governance",
+                enabled=True,
+            ),
+            CapabilityFeatureInfo(
+                key="promotion_lane",
+                label="Promotion lane",
+                description="Review and approve ExploreLane candidates into reusable bindings.",
+                category="evidence",
+                enabled=True,
+            ),
+            CapabilityFeatureInfo(
+                key="auto_materialization",
+                label="Auto materialization",
+                description="Materialize retrieval results into snapshots or bindings during NL execution.",
+                category="evidence",
+                enabled=_is_auto_materialization_enabled(),
+            ),
+            CapabilityFeatureInfo(
+                key="binding_profiles",
+                label="Binding profiles",
+                description="List reusable binding-profile strategies for structured inputs.",
+                category="evidence",
+                enabled=True,
+            ),
+            CapabilityFeatureInfo(
+                key="source_profiles",
+                label="Source profiles",
+                description="List curated connector/source profiles for ingestion and retrieval.",
+                category="evidence",
+                enabled=True,
+            ),
+            CapabilityFeatureInfo(
+                key="lex_pipeline",
+                label="Lex knowledge pipeline",
+                description="Trigger, inspect, and search the legal knowledge graph pipeline.",
+                category="knowledge",
+                enabled=True,
+            ),
+            CapabilityFeatureInfo(
+                key="unified_dag",
+                label="Unified DAG",
+                description="Expose unified method DAG execution in NL and workflow paths.",
+                category="runtime",
+                enabled=_is_unified_dag_enabled(),
+            ),
+            CapabilityFeatureInfo(
+                key="security_admin_layer",
+                label="Security / admin layer",
+                description="Dedicated tenant/authz/audit admin surfaces.",
+                category="platform",
+                enabled=False,
+                stage="deferred",
+            ),
+        ]
+
+        return CapabilityManifestResponse(
+            meta=_build_api_meta(request_id),
+            workspaces=[
+                "command_center",
+                "scenario_composer",
+                "runs_decisions",
+                "evidence_fabric",
+                "lex_knowledge",
+                "platform_health",
+            ],
+            features=features,
+            constraints={
+                "max_parallel_models": 16,
+                "max_nl_iterations": 10,
+                "artifact_preview_max_bytes": 2_000_000,
+                "task_runner": "in_process_thread_pool",
+                "default_locale": "en",
+                "supported_locales": ["en", "uk"],
+            },
         )
 
     # ---- Lex Knowledge Graph -----------------------------------------------

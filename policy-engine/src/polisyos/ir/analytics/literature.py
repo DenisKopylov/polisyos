@@ -29,8 +29,12 @@ class ParameterType(str, Enum):
 class EvidenceStrength(str, Enum):
     RCT = "rct"
     QUASI_NATURAL = "quasi_natural"
+    QUASI_NATURAL_EVENT = "quasi_natural_event"
     META_ANALYSIS = "meta_analysis"
+    PANEL_FE = "panel_fe"
+    STRUCTURAL = "structural"
     OBSERVATIONAL = "observational"
+    CROSS_SECTIONAL = "cross_sectional"
     THEORETICAL = "theoretical"
     UNKNOWN = "unknown"
 
@@ -123,6 +127,16 @@ class SupportStatus(str, Enum):
     NOT_APPLICABLE = "not_applicable"
 
 
+class PaperKind(str, Enum):
+    EMPIRICAL_CAUSAL = "empirical_causal"
+    CONTEXT_CHARACTERIZATION = "context_characterization"
+    HETEROGENEITY_ANALYSIS = "heterogeneity_analysis"
+    REVIEW_SYSTEMATIC = "review_systematic"
+    THEORETICAL = "theoretical"
+    DESCRIPTIVE = "descriptive"
+    MIXED = "mixed"
+
+
 class EvidenceSpan(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -131,6 +145,83 @@ class EvidenceSpan(BaseModel):
     text: str
     sentence_index: int | None = None
     score: float = Field(default=0.0, ge=0.0, le=1.0)
+
+
+class IdentificationStrategy(BaseModel):
+    """How a causal effect was identified (instrument, design assumptions, etc.)."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    identification_method: str = ""
+    instrument: str = ""
+    exclusion_restrictions: list[str] = Field(default_factory=list)
+    design_assumptions: list[str] = Field(default_factory=list)
+    identification_confidence: float | None = Field(default=None, ge=0.0, le=1.0)
+
+
+class HeterogeneityResult(BaseModel):
+    """Result of a heterogeneity/moderation test within a single study."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    moderator: str
+    dimension: str = ""
+    finding: str = ""
+    interaction_coefficient: float | None = None
+    interaction_pvalue: float | None = None
+    subgroup_effects: dict[str, float] = Field(default_factory=dict)
+    confidence: float | None = Field(default=None, ge=0.0, le=1.0)
+
+
+class UncertaintyBudget(BaseModel):
+    """Three-axis uncertainty decomposition for a causal estimate."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    conflict_residual: float = Field(default=0.0, ge=0.0, le=1.0)
+    sampling_uncertainty: float = Field(default=0.0, ge=0.0, le=1.0)
+    graph_uncertainty: float = Field(default=0.0, ge=0.0, le=1.0)
+
+    @property
+    def total(self) -> float:
+        return min(1.0, self.conflict_residual + self.sampling_uncertainty + self.graph_uncertainty)
+
+
+class ContextAttribute(BaseModel):
+    """A context attribute extracted from literature (Track B)."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    attribute_name: str
+    canonical_name: str = ""
+    value: float | None = None
+    value_qualitative: str | None = None
+    unit: str | None = None
+    country_codes: list[str] = Field(default_factory=list)
+    time_period: str = ""
+    measurement_method: str = ""
+    confidence: float = Field(default=0.5, ge=0.0, le=1.0)
+    evidence_spans: list[EvidenceSpan] = Field(default_factory=list)
+
+
+class ModerationEdge(BaseModel):
+    """A context variable that moderates a causal edge (Track C)."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    base_cause: str
+    base_effect: str
+    moderator: str
+    base_claim_id: str | None = None
+    direction_of_moderation: str = ""
+    quantitative_interaction: float | None = None
+    interaction_pvalue: float | None = None
+    evidence_count: int = 1
+    confidence: float = Field(default=0.5, ge=0.0, le=1.0)
+    match_quality: str = ""
+    alignment_source: str = ""
+    source_openalex_ids: list[str] = Field(default_factory=list)
+    evidence_text: str = ""
 
 
 class EvidenceParameter(BaseModel):
@@ -194,6 +285,12 @@ class CausalClaim(BaseModel):
     strong_design_evidence: bool = False
     publish_to_graph: bool = False
     publish_blockers: list[str] = Field(default_factory=list)
+    design_quality_tier: int | None = Field(default=None, ge=1, le=4)
+    span_contamination_detected: bool = False
+
+    # v1.4: transportability fields
+    identification_strategy: IdentificationStrategy | None = None
+    uncertainty_budget: UncertaintyBudget | None = None
 
     @model_validator(mode="before")
     @classmethod
@@ -272,7 +369,7 @@ class ArticleExtractionResult(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    schema_version: str = "1.3"
+    schema_version: str = "1.5"
     openalex_id: str
     doi: str = ""
     title: str
@@ -311,6 +408,14 @@ class ArticleExtractionResult(BaseModel):
 
     source_context: ContextProfile | None = None
 
+    # v1.4: three-track extraction fields
+    paper_kind: PaperKind = PaperKind.EMPIRICAL_CAUSAL
+    heterogeneity_results: list[HeterogeneityResult] = Field(default_factory=list)
+    external_validity_assessment: str = ""
+    context_attributes: list[ContextAttribute] = Field(default_factory=list)
+    moderation_edges: list[ModerationEdge] = Field(default_factory=list)
+    reconciliation_diagnostics: dict[str, Any] = Field(default_factory=dict)
+
     screening_cost_usd: float = 0.0
     extraction_cost_usd: float = 0.0
     token_count_prompt: int = 0
@@ -330,7 +435,7 @@ class ArticleExtractionResult(BaseModel):
             payload["schema_version"] = (
                 "1.0"
                 if "publication_year" in payload and "year" not in payload
-                else "1.3"
+                else "1.5"
             )
         return payload
 
@@ -529,7 +634,13 @@ __all__ = [
     "CausalCredibility",
     "RiskOfBias",
     "SupportStatus",
+    "PaperKind",
     "EvidenceSpan",
+    "IdentificationStrategy",
+    "HeterogeneityResult",
+    "UncertaintyBudget",
+    "ContextAttribute",
+    "ModerationEdge",
     "EvidenceParameter",
     "CausalClaim",
     "Mechanism",

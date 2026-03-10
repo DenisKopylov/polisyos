@@ -75,6 +75,23 @@ class TestLaunchRun:
         assert resp.status_code == 422
 
 
+class TestCapabilities:
+    def test_get_control_capabilities_returns_manifest(self, runtime_api_env):
+        client = runtime_api_env["client"]
+        resp = client.get("/api/v1/control/capabilities")
+        assert resp.status_code == 200
+        body = resp.json()
+        assert body["shell_flavor"] == "atlas"
+        assert body["default_locale"] == "en"
+        assert "features" in body
+        assert isinstance(body["features"], list)
+        feature_keys = {item["key"] for item in body["features"]}
+        assert "natural_language_runs" in feature_keys
+        assert "required_preflight" in feature_keys
+        assert "security_admin_layer" in feature_keys
+        assert body["constraints"]["max_parallel_models"] == 16
+
+
 class TestLaunchNlRun:
     def test_launch_nl_run_accepted(self, runtime_api_env):
         client = runtime_api_env["client"]

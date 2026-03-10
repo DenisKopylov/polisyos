@@ -18,13 +18,20 @@ async function fetchArtifactSchema(artifactId: string) {
   );
 
   if (error || !response.ok || !data) {
-    throw createRuntimeApiError(response, error, `Failed to load artifact schema ${artifactId}`);
+    throw createRuntimeApiError(
+      response,
+      error,
+      `Failed to load artifact schema ${artifactId}`,
+    );
   }
 
   return artifactSchemaSchema.parse(data);
 }
 
-export function useArtifactSchema(artifactId: string | undefined, enabled = true) {
+export function useArtifactSchema(
+  artifactId: string | undefined,
+  enabled = true,
+) {
   return useQuery({
     queryKey: queryKeys.artifactSchema(artifactId ?? "unknown"),
     queryFn: () => fetchArtifactSchema(artifactId ?? ""),

@@ -9,6 +9,8 @@ from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.canon.canon_json import from_canonical_bytes
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.contracts.fabric import DataSnapshot
+from polisyos.core.contracts.foundry import Metrics
+from polisyos.core.contracts.lex import ChangeProposalRef, LegalReportRef
 from polisyos.core.contracts.lex import ComplianceIssue, IssueSeverity
 from polisyos.core.contracts.scientist import GovernanceReportRef
 from polisyos.core.governance.passes.base import PassContext
@@ -27,11 +29,17 @@ from polisyos.scientist.governance.pass_registry import (
     build_governance_pipeline,
     runtime_profile as build_runtime_profile,
 )
-from polisyos.scientist.governance.report import GovernanceReport
+from polisyos.scientist.governance.report import GovernanceReport, GovernanceReportLinks
 from polisyos.scientist.kernel.gate_protocol import HumanGateProtocol
 from polisyos.scientist.nodes.builtins.state_keys import (
+    ARTIFACT_CAUSAL_REPORT_REF,
+    ARTIFACT_DISTRIBUTIONAL_REPORT_REF,
+    ARTIFACT_METRICS_REF,
     INPUT_DATA_SNAPSHOT_REF,
+    INPUT_TRINITY_BUNDLE_REF,
+    REPORT_CHANGE_PROPOSAL_REF,
     REPORT_GOVERNANCE_REPORT_REF,
+    REPORT_LEGAL_REPORT_REF,
 )
 
 _METADATA = ComponentMetadata(
@@ -48,13 +56,17 @@ _SPEC = NodeSpec(
     metadata=_METADATA,
     state_reads=[
         "params",
+        "inputs",
         "artifacts_index.simulation_result_ref",
         "artifacts_index.distributional_report_ref",
         "artifacts_index.causal_report_ref",
         "artifacts_index.causal_graph_ref",
+        "artifacts_index.metrics_ref",
         "params.query_treatment",
         "params.human_review_request",
         "params.human_review_request_ref",
+        "reports_index.legal_report_ref",
+        "reports_index.change_proposal_ref",
     ],
     state_writes=[
         "params",
@@ -111,6 +123,7 @@ class RunGovernanceNode:
         if require_human_gate and raw_gate_decision is None:
             if gate_request is None:
                 gate_request, gate_request_ref = _create_gate_request(
+                    ctx=ctx,
                     protocol=protocol,
                     state=new_state,
                 )
@@ -157,6 +170,7 @@ class RunGovernanceNode:
                     new_state.params.pop("gate_request", None)
                     new_state.params.pop("gate_request_ref", None)
                     next_request, next_request_ref = _create_gate_request(
+                        ctx=ctx,
                         protocol=protocol,
                         state=new_state,
                     )
@@ -178,13 +192,20 @@ class RunGovernanceNode:
         checks = _run_governance_checks(ctx, new_state, profile)
         governance_issues = checks.issues
         new_state.params["validation_trace"] = checks.trace
-        if _has_issue_code(governance_issues, "HUMAN_REVIEW_REQUESTED"):
+        human_review_requested = _has_issue_code(governance_issues, "HUMAN_REVIEW_REQUESTED")
+        if human_review_requested:
             _ensure_human_review_gate_request(
+                ctx=ctx,
                 protocol=protocol,
                 state=new_state,
                 pass_state=checks.pass_state,
                 events=events,
             )
+            typed_gate_decision = _parse_typed_gate_decision(
+                new_state.params.get("gate_decision_typed")
+            )
+            if typed_gate_decision is None:
+                verdict = "human_gate"
         if governance_issues:
             issues.extend([_issue_to_payload(issue) for issue in governance_issues])
             blocker_count = sum(
@@ -202,7 +223,11 @@ class RunGovernanceNode:
                     )
                 )
 
-        report = GovernanceReport(verdict=verdict, issues=issues)
+        report = GovernanceReport(
+            verdict=verdict,
+            issues=issues,
+            links=_build_governance_links(new_state),
+        )
         report_ref_payload = ctx.store.put_json(
             report,
             PutOptions(
@@ -223,6 +248,7 @@ class RunGovernanceNode:
 
 def _create_gate_request(
     *,
+    ctx: ExecutionContext,
     protocol: HumanGateProtocol,
     state: ExperimentState,
 ) -> tuple[GateRequest, ArtifactRef | None]:
@@ -236,18 +262,20 @@ def _create_gate_request(
     )
     timeout_seconds = _optional_int(state.params.get("gate_timeout_seconds"))
 
-    context = GateContext(
-        workflow_id=workflow_id,
-        node_alias="run_governance",
+    context = _build_gate_context(
+        ctx=ctx,
+        state=state,
         phase=phase,
-        governance_profile=governance_profile,
         iteration=iteration,
+        governance_profile=governance_profile,
         is_escalated=is_escalated,
+        risk_indicators=[],
+        issue_summary=None,
     )
     priority = GatePriority.CRITICAL if is_escalated else GatePriority.NORMAL
     return protocol.request_gate(
         run_id=state.run_id,
-        reason="Governance profile requires human approval",
+        reason="governance_profile_requires_approval",
         context=context,
         priority=priority,
         timeout_seconds=timeout_seconds,
@@ -257,6 +285,7 @@ def _create_gate_request(
 
 def _ensure_human_review_gate_request(
     *,
+    ctx: ExecutionContext,
     protocol: HumanGateProtocol,
     state: ExperimentState,
     pass_state: dict[str, Any],
@@ -275,6 +304,7 @@ def _ensure_human_review_gate_request(
             items = [item for item in raw_items if isinstance(item, dict)]
 
     request, request_ref = _create_human_review_gate_request(
+        ctx=ctx,
         protocol=protocol,
         state=state,
         review_items=items,
@@ -291,6 +321,7 @@ def _ensure_human_review_gate_request(
 
 def _create_human_review_gate_request(
     *,
+    ctx: ExecutionContext,
     protocol: HumanGateProtocol,
     state: ExperimentState,
     review_items: list[dict[str, Any]],
@@ -309,15 +340,21 @@ def _create_human_review_gate_request(
         if kind is not None:
             risk_indicators.append(str(kind))
 
-    context = GateContext(
-        workflow_id=str(state.params.get("workflow_id", "scientist_default")),
-        node_alias="run_governance",
+    issue_summary = {
+        "requested_items": len(review_items),
+        "risk_indicator_count": len(sorted(set(risk_indicators))),
+    }
+    context = _build_gate_context(
+        ctx=ctx,
+        state=state,
         phase=str(state.params.get("human_review_phase", "POSTFLIGHT_GOV_REVIEW")),
-        governance_profile=governance_profile,
         iteration=_as_int(state.params.get("human_review_iteration")),
+        governance_profile=governance_profile,
+        is_escalated=bool(state.params.get("gate_escalated")),
         risk_indicators=sorted(set(risk_indicators)),
+        issue_summary=issue_summary,
     )
-    reason = f"Strict governance requires human review for {len(review_items)} item(s)"
+    reason = _human_review_reason(ctx=ctx, state=state, review_items=review_items)
     return protocol.request_gate(
         run_id=state.run_id,
         reason=reason,
@@ -326,6 +363,210 @@ def _create_human_review_gate_request(
         timeout_seconds=timeout_seconds,
         requested_by="scientist.node_run_governance",
     )
+
+
+def _build_gate_context(
+    *,
+    ctx: ExecutionContext,
+    state: ExperimentState,
+    phase: str,
+    iteration: int,
+    governance_profile: str | None,
+    is_escalated: bool,
+    risk_indicators: list[str],
+    issue_summary: dict[str, int] | None,
+) -> GateContext:
+    return GateContext(
+        workflow_id=str(state.params.get("workflow_id", "scientist_default")),
+        node_alias="run_governance",
+        phase=phase,
+        governance_profile=governance_profile,
+        iteration=iteration,
+        is_escalated=is_escalated,
+        policy_summary=_policy_summary_from_state(ctx, state),
+        simulation_results=_simulation_results_from_state(ctx, state),
+        risk_indicators=risk_indicators,
+        issue_summary=issue_summary,
+        artifact_refs=_collect_gate_artifact_refs(state),
+        transport_summary=_transport_summary_from_state(ctx, state),
+        replay_summary=_gate_replay_summary(state),
+    )
+
+
+def _policy_summary_from_state(
+    ctx: ExecutionContext,
+    state: ExperimentState,
+) -> str | None:
+    trinity_ref = state.inputs.get(INPUT_TRINITY_BUNDLE_REF)
+    if trinity_ref is None:
+        return None
+    try:
+        payload = from_canonical_bytes(ctx.store.get_bytes(trinity_ref.artifact_id))
+    except Exception:
+        return None
+    if not isinstance(payload, dict):
+        return None
+    policy_spec = payload.get("policy_spec")
+    if not isinstance(policy_spec, dict):
+        return "Policy data attached"
+    interventions = policy_spec.get("interventions")
+    if isinstance(interventions, list):
+        return f"Policy with {len(interventions)} intervention(s)"
+    return "Policy data attached"
+
+
+def _simulation_results_from_state(
+    ctx: ExecutionContext,
+    state: ExperimentState,
+) -> dict[str, Any] | None:
+    metrics_ref = state.artifacts_index.get(ARTIFACT_METRICS_REF)
+    if metrics_ref is None:
+        return None
+    try:
+        payload = from_canonical_bytes(ctx.store.get_bytes(metrics_ref.artifact_id))
+        metrics = Metrics.model_validate(payload)
+    except Exception:
+        return None
+
+    preview: dict[str, Any] = {}
+    for key in sorted(metrics.values)[:5]:
+        preview[key] = metrics.values[key]
+    return preview or None
+
+
+def _collect_gate_artifact_refs(state: ExperimentState) -> dict[str, str] | None:
+    refs: dict[str, str] = {}
+    for key in (
+        INPUT_TRINITY_BUNDLE_REF,
+        INPUT_DATA_SNAPSHOT_REF,
+        ARTIFACT_METRICS_REF,
+        ARTIFACT_CAUSAL_REPORT_REF,
+        ARTIFACT_DISTRIBUTIONAL_REPORT_REF,
+        REPORT_LEGAL_REPORT_REF,
+        REPORT_CHANGE_PROPOSAL_REF,
+    ):
+        ref = state.inputs.get(key) or state.artifacts_index.get(key) or state.reports_index.get(key)
+        if ref is not None:
+            refs[key] = str(ref.artifact_id)
+    return refs or None
+
+
+def _transport_summary_from_state(
+    ctx: ExecutionContext,
+    state: ExperimentState,
+) -> dict[str, Any] | None:
+    report_ref = state.artifacts_index.get(ARTIFACT_CAUSAL_REPORT_REF)
+    if report_ref is None:
+        status = state.params.get("transportability_status")
+        engine = state.params.get("transportability_identification_engine")
+        if isinstance(status, str) or isinstance(engine, str):
+            return {
+                "status": status if isinstance(status, str) else "not_available",
+                "identification_engine": engine if isinstance(engine, str) else "not_available",
+            }
+        return None
+
+    try:
+        payload = from_canonical_bytes(ctx.store.get_bytes(report_ref.artifact_id))
+    except Exception:
+        return None
+    if not isinstance(payload, dict):
+        return None
+    transport = payload.get("transport_result")
+    if not isinstance(transport, dict):
+        return None
+    summary = {
+        "status": transport.get("status"),
+        "identification_engine": transport.get("identification_engine"),
+        "requires_expert_review": bool(transport.get("requires_expert_review", False)),
+        "data_gaps_count": len(transport.get("data_gaps", []))
+        if isinstance(transport.get("data_gaps"), list)
+        else 0,
+        "unsupported_cases": list(transport.get("unsupported_cases", []))
+        if isinstance(transport.get("unsupported_cases"), list)
+        else [],
+        "hard_legal_constraints": list(transport.get("hard_legal_constraints", []))
+        if isinstance(transport.get("hard_legal_constraints"), list)
+        else [],
+    }
+    return summary
+
+
+def _gate_replay_summary(state: ExperimentState) -> dict[str, Any]:
+    readiness, missing_refs = _gate_replay_readiness(state)
+    why_partial: list[str] = []
+    if readiness == "partial":
+        why_partial.append("missing_optional_inputs")
+    elif readiness == "incomplete":
+        if "state_source_ref" in missing_refs:
+            why_partial.append("missing_state_source")
+        if any(ref in missing_refs for ref in ("trinity_bundle_ref", "registry_bundle_ref")):
+            why_partial.append("missing_required_inputs")
+
+    if "input_bindings_ref" in missing_refs:
+        suggested_next_step = "Persist input_bindings_ref for replay-grade completeness."
+    elif "state_source_ref" in missing_refs:
+        suggested_next_step = "Attach data_snapshot_ref, state_snapshot_ref, or input_bindings_ref."
+    elif missing_refs:
+        suggested_next_step = "Persist the missing replay refs listed in replay_summary.missing_refs."
+    else:
+        suggested_next_step = None
+
+    return {
+        "readiness": readiness,
+        "missing_refs": missing_refs,
+        "why_partial": why_partial,
+        "suggested_next_step": suggested_next_step,
+        "determinism_tier": (
+            state.params.get("determinism_tier")
+            if isinstance(state.params.get("determinism_tier"), str)
+            else None
+        ),
+        "seed_source": "params.random_seed"
+        if isinstance(state.params.get("random_seed"), (int, float, str))
+        else None,
+    }
+
+
+def _gate_replay_readiness(state: ExperimentState) -> tuple[str, list[str]]:
+    missing_refs: list[str] = []
+    if INPUT_TRINITY_BUNDLE_REF not in state.inputs:
+        missing_refs.append(INPUT_TRINITY_BUNDLE_REF)
+    if "registry_bundle_ref" not in state.inputs:
+        missing_refs.append("registry_bundle_ref")
+
+    has_snapshot = any(
+        key in state.inputs for key in ("input_bindings_ref", "data_snapshot_ref", "state_snapshot_ref")
+    )
+    if not has_snapshot:
+        missing_refs.append("state_source_ref")
+        return "incomplete", missing_refs
+
+    optional_missing = [
+        key
+        for key in ("input_bindings_ref", "norm_pack_ref", "knowledge_bundle_ref", "research_intent_ref")
+        if key not in state.inputs
+    ]
+    missing_refs.extend(optional_missing)
+    if missing_refs:
+        if any(key in missing_refs for key in ("trinity_bundle_ref", "registry_bundle_ref")):
+            return "incomplete", missing_refs
+        return "partial", missing_refs
+    return "complete", missing_refs
+
+
+def _human_review_reason(
+    *,
+    ctx: ExecutionContext,
+    state: ExperimentState,
+    review_items: list[dict[str, Any]],
+) -> str:
+    transport = _transport_summary_from_state(ctx, state)
+    if isinstance(transport, dict) and transport.get("requires_expert_review") is True:
+        return "expert_review_required_for_transportability"
+    if review_items:
+        return "strict_human_review"
+    return "governance_human_review_required"
 
 
 def _parse_gate_request(raw: Any) -> GateRequest | None:
@@ -351,6 +592,17 @@ def _parse_gate_request_ref(raw: Any) -> ArtifactRef | None:
         kind="ir.gate_request",
         media_type="application/json",
     )
+
+
+def _parse_typed_gate_decision(raw: Any) -> GateDecision | None:
+    if isinstance(raw, GateDecision):
+        return raw
+    if isinstance(raw, dict):
+        try:
+            return GateDecision.model_validate(raw)
+        except Exception:
+            return None
+    return None
 
 
 def _parse_gate_decision(
@@ -443,6 +695,36 @@ def _resolve_validation_profile(raw: Any) -> ValidationProfile:
         if token == "strict":
             return ValidationProfile.strict()
     return ValidationProfile.mvp()
+
+
+def _build_governance_links(state: ExperimentState) -> GovernanceReportLinks:
+    legal_ref = _coerce_report_ref(
+        state.reports_index.get(REPORT_LEGAL_REPORT_REF),
+        ref_cls=LegalReportRef,
+    )
+    change_ref = _coerce_report_ref(
+        state.reports_index.get(REPORT_CHANGE_PROPOSAL_REF),
+        ref_cls=ChangeProposalRef,
+    )
+    return GovernanceReportLinks(
+        legal_report_ref=legal_ref,
+        change_proposal_ref=change_ref,
+    )
+
+
+def _coerce_report_ref(raw: Any, *, ref_cls: type[ArtifactRef]) -> ArtifactRef | None:
+    if raw is None:
+        return None
+    if isinstance(raw, ref_cls):
+        return raw
+    if hasattr(raw, "model_dump"):
+        payload = raw.model_dump(mode="json")
+    else:
+        payload = raw
+    try:
+        return ref_cls.model_validate(payload)
+    except Exception:
+        return None
 
 
 def _run_governance_checks(

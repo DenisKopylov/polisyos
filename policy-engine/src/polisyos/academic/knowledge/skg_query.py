@@ -35,6 +35,9 @@ class LiteraturePriorResult:
 class ParameterCandidate:
     parameter: EvidenceParameter
     source_context: ContextProfile | None
+    transport_penalty: float = 0.0
+    transport_notes: tuple[str, ...] = ()
+    requires_expert_review: bool = False
 
 
 class SKGQuery:
@@ -95,7 +98,13 @@ class SKGQuery:
     def query_boundary_conditions(self, *, work_id: str) -> list[BoundaryConditionResult]:
         return self._store.get_boundary_conditions_for_work(work_id)
 
-    def query_parameters(self, parameter_name: str, *, limit: int = 256) -> list[ParameterCandidate]:
+    def query_parameters(
+        self,
+        parameter_name: str,
+        *,
+        target_context: ContextProfile | None = None,
+        limit: int = 256,
+    ) -> list[ParameterCandidate]:
         clean_name = str(parameter_name).strip()
         if not clean_name:
             return []
@@ -127,13 +136,146 @@ class SKGQuery:
                 except Exception:
                     source_context = None
 
+            transport_penalty, transport_notes, requires_expert_review = (
+                self._transport_metadata_for_parameter(
+                    clean_name,
+                    source_context=source_context,
+                    target_context=target_context,
+                )
+            )
+
             result.append(
                 ParameterCandidate(
                     parameter=parameter,
                     source_context=source_context,
+                    transport_penalty=transport_penalty,
+                    transport_notes=tuple(transport_notes),
+                    requires_expert_review=requires_expert_review,
                 )
             )
         return result
+
+    def _transport_metadata_for_parameter(
+        self,
+        parameter_name: str,
+        *,
+        source_context: ContextProfile | None,
+        target_context: ContextProfile | None,
+    ) -> tuple[float, list[str], bool]:
+        notes: list[str] = []
+        penalty = 0.0
+        requires_expert_review = False
+
+        if source_context is None:
+            penalty += 0.15
+            notes.append("source_context_missing")
+            requires_expert_review = True
+        elif not self._context_profile_exists(source_context.context_id):
+            penalty += 0.10
+            notes.append("source_context_profile_missing")
+
+        if target_context is not None:
+            if not self._context_profile_exists(target_context.context_id):
+                penalty += 0.10
+                notes.append("target_context_profile_missing")
+                requires_expert_review = True
+            elif not self._has_transport_scores_for_target(target_context.context_id):
+                penalty += 0.05
+                notes.append("transport_score_unavailable")
+
+        moderation_edges = self._moderation_signal_count(parameter_name)
+        if moderation_edges > 0:
+            penalty += min(0.25, 0.05 * moderation_edges)
+            notes.append(f"moderation_edges:{moderation_edges}")
+
+        return min(0.5, penalty), notes, requires_expert_review
+
+    def _context_profile_exists(self, context_id: str | None) -> bool:
+        clean_context_id = str(context_id or "").strip()
+        if not clean_context_id or not self._table_exists("ac_skg_context_profiles"):
+            return False
+        try:
+            row = self._con.execute(
+                """
+                SELECT 1
+                FROM ac_skg_context_profiles
+                WHERE context_id = ? OR profile_id = ?
+                LIMIT 1
+                """,
+                [clean_context_id, clean_context_id],
+            ).fetchone()
+        except Exception:
+            return False
+        return bool(row)
+
+    def _moderation_signal_count(self, parameter_name: str) -> int:
+        if not self._table_exists("ac_skg_moderation_edges"):
+            return 0
+        clean_name = str(parameter_name).strip()
+        if not clean_name:
+            return 0
+        try:
+            row = self._con.execute(
+                """
+                SELECT COUNT(*)
+                FROM ac_skg_moderation_edges
+                WHERE moderator = ?
+                   OR moderator ILIKE ?
+                   OR moderator ILIKE ?
+                """,
+                [clean_name, f"%.{clean_name}", f"{clean_name}.%"],
+            ).fetchone()
+        except Exception:
+            return 0
+        return int(row[0]) if row and row[0] is not None else 0
+
+    def _has_transport_scores_for_target(self, target_context_id: str | None) -> bool:
+        clean_context_id = str(target_context_id or "").strip()
+        if not clean_context_id or not self._table_exists("ac_skg_transport_scores"):
+            return False
+        try:
+            row = self._con.execute(
+                """
+                SELECT 1
+                FROM ac_skg_transport_scores
+                WHERE target_context_id = ?
+                LIMIT 1
+                """,
+                [clean_context_id],
+            ).fetchone()
+        except Exception:
+            return False
+        return bool(row)
+
+    def _table_exists(self, table_name: str) -> bool:
+        try:
+            row = self._con.execute(
+                """
+                SELECT 1
+                FROM information_schema.tables
+                WHERE table_name = ?
+                LIMIT 1
+                """,
+                [str(table_name)],
+            ).fetchone()
+        except Exception:
+            return False
+        return bool(row)
+
+    def _column_exists(self, table_name: str, column_name: str) -> bool:
+        try:
+            row = self._con.execute(
+                """
+                SELECT 1
+                FROM information_schema.columns
+                WHERE table_name = ? AND column_name = ?
+                LIMIT 1
+                """,
+                [str(table_name), str(column_name)],
+            ).fetchone()
+        except Exception:
+            return False
+        return bool(row)
 
     def query_edge_priors(
         self,
@@ -141,9 +283,17 @@ class SKGQuery:
         min_confidence: float = 0.0,
         limit: int = 100,
     ) -> list[dict]:
+        has_candidate_layer = self._column_exists("ac_skg_edges", "candidate_layer")
+        has_quality_json = self._column_exists("ac_skg_edges", "quality_signals_json")
+        extra_select = ""
+        if has_candidate_layer:
+            extra_select += ", candidate_layer"
+        if has_quality_json:
+            extra_select += ", quality_signals_json"
         rows = self._con.execute(
-            """
+            f"""
             SELECT edge_id, src, dst, direction, n_articles, article_refs, evidence_strength, confidence
+            {extra_select}
             FROM ac_skg_edges
             WHERE confidence >= ?
             ORDER BY confidence DESC
@@ -151,8 +301,9 @@ class SKGQuery:
             """,
             [float(min_confidence), int(limit)],
         ).fetchall()
-        return [
-            {
+        result: list[dict] = []
+        for row in rows:
+            payload = {
                 "edge_id": str(row[0]),
                 "src": str(row[1]),
                 "dst": str(row[2]),
@@ -163,8 +314,14 @@ class SKGQuery:
                 "evidence_strength": str(row[6]),
                 "confidence": float(row[7]),
             }
-            for row in rows
-        ]
+            idx = 8
+            if has_candidate_layer:
+                payload["candidate_layer"] = str(row[idx])
+                idx += 1
+            if has_quality_json:
+                payload["quality_signals"] = self._parse_json_dict(row[idx]) or {}
+            result.append(payload)
+        return result
 
     @staticmethod
     def _parse_json_list(value: object) -> list[str]:
@@ -286,11 +443,19 @@ class SKGQuery:
             domain_pattern = f"{domain.strip()}.%"
             params.extend([domain_pattern, domain_pattern])
         params.append(int(limit))
+        has_candidate_layer = self._column_exists("ac_skg_edges", "candidate_layer")
+        has_quality_json = self._column_exists("ac_skg_edges", "quality_signals_json")
+        extra_select = ""
+        if has_candidate_layer:
+            extra_select += ", candidate_layer"
+        if has_quality_json:
+            extra_select += ", quality_signals_json"
 
         rows = self._con.execute(
             (
                 "SELECT edge_id, src, dst, direction, n_articles, article_refs, "
                 "evidence_strength, confidence, scope_conditions "
+                f"{extra_select} "
                 "FROM ac_skg_edges "
                 f"WHERE {' AND '.join(filters)} "
                 "ORDER BY confidence DESC, edge_id ASC "
@@ -316,6 +481,12 @@ class SKGQuery:
                     "confidence": float(row[7]),
                 }
             )
+            idx = 9
+            if has_candidate_layer:
+                result[-1]["candidate_layer"] = str(row[idx])
+                idx += 1
+            if has_quality_json:
+                result[-1]["quality_signals"] = self._parse_json_dict(row[idx]) or {}
         return result
 
     def close(self) -> None:

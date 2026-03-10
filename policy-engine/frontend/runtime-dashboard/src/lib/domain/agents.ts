@@ -1,4 +1,10 @@
-import { asArray, asNumber, asRecord, asString, toDisplayLabel } from "../parsing";
+import {
+  asArray,
+  asNumber,
+  asRecord,
+  asString,
+  toDisplayLabel,
+} from "../parsing";
 
 export type AgentStepStatus = "ok" | "warn" | "fail" | "info";
 
@@ -145,7 +151,12 @@ const AGENT_ORDER = [
 
 function normalizeStatus(value: unknown): AgentStepStatus {
   const normalized = (asString(value) ?? "").toLowerCase();
-  if (normalized === "ok" || normalized === "warn" || normalized === "fail" || normalized === "info") {
+  if (
+    normalized === "ok" ||
+    normalized === "warn" ||
+    normalized === "fail" ||
+    normalized === "info"
+  ) {
     return normalized;
   }
   return "info";
@@ -187,7 +198,9 @@ function normalizeRetrievalPhase(raw: unknown): RetrievalPhaseView | null {
   };
 }
 
-function normalizeRetrievalTelemetry(raw: unknown): RetrievalTelemetryModel | null {
+function normalizeRetrievalTelemetry(
+  raw: unknown,
+): RetrievalTelemetryModel | null {
   const telemetry = asRecord(raw);
   if (!telemetry) {
     return null;
@@ -195,11 +208,26 @@ function normalizeRetrievalTelemetry(raw: unknown): RetrievalTelemetryModel | nu
   return {
     mode: asString(telemetry.mode) ?? "hybrid",
     laneUsed: asString(telemetry.lane_used) ?? "none",
-    metadataDocsFetched: Math.max(0, asNumber(telemetry.metadata_docs_fetched) ?? 0),
-    localIndexSizeBytes: Math.max(0, asNumber(telemetry.local_index_size_bytes) ?? 0),
-    localIndexDocsTotal: Math.max(0, asNumber(telemetry.local_index_docs_total) ?? 0),
-    candidatesFiltered: Math.max(0, asNumber(telemetry.candidates_filtered) ?? 0),
-    candidatesPromoted: Math.max(0, asNumber(telemetry.candidates_promoted) ?? 0),
+    metadataDocsFetched: Math.max(
+      0,
+      asNumber(telemetry.metadata_docs_fetched) ?? 0,
+    ),
+    localIndexSizeBytes: Math.max(
+      0,
+      asNumber(telemetry.local_index_size_bytes) ?? 0,
+    ),
+    localIndexDocsTotal: Math.max(
+      0,
+      asNumber(telemetry.local_index_docs_total) ?? 0,
+    ),
+    candidatesFiltered: Math.max(
+      0,
+      asNumber(telemetry.candidates_filtered) ?? 0,
+    ),
+    candidatesPromoted: Math.max(
+      0,
+      asNumber(telemetry.candidates_promoted) ?? 0,
+    ),
     phases: asArray(telemetry.phases)
       .map((item) => normalizeRetrievalPhase(item))
       .filter((item): item is RetrievalPhaseView => item !== null),
@@ -261,7 +289,9 @@ function normalizeEvaluator(raw: unknown): EvaluatorModel | null {
   };
 }
 
-function normalizeIterationLifecycle(raw: unknown): IterationLifecycleModel | null {
+function normalizeIterationLifecycle(
+  raw: unknown,
+): IterationLifecycleModel | null {
   const payload = asRecord(raw);
   if (!payload) {
     return null;
@@ -334,8 +364,12 @@ function agentRank(agent: string): number {
 }
 
 function sortSteps(left: AgentStepView, right: AgentStepView): number {
-  const leftTs = left.timestamp ? Date.parse(left.timestamp) : Number.POSITIVE_INFINITY;
-  const rightTs = right.timestamp ? Date.parse(right.timestamp) : Number.POSITIVE_INFINITY;
+  const leftTs = left.timestamp
+    ? Date.parse(left.timestamp)
+    : Number.POSITIVE_INFINITY;
+  const rightTs = right.timestamp
+    ? Date.parse(right.timestamp)
+    : Number.POSITIVE_INFINITY;
   if (leftTs !== rightTs) {
     return leftTs - rightTs;
   }
@@ -392,7 +426,9 @@ export function normalizeAgentPipeline(payload: unknown): AgentPipelineModel {
     retrieval: normalizeRetrievalTelemetry(pipeline.retrieval),
     preflight: normalizePreflight(pipeline.preflight),
     evaluator: normalizeEvaluator(pipeline.evaluator),
-    iterationLifecycle: normalizeIterationLifecycle(pipeline.iteration_lifecycle),
+    iterationLifecycle: normalizeIterationLifecycle(
+      pipeline.iteration_lifecycle,
+    ),
     reproducibility: normalizeReproducibility(pipeline.reproducibility),
     notes: asArray(pipeline.notes)
       .map((item) => asString(item))

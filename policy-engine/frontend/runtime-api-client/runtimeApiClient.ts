@@ -50,9 +50,15 @@ export type AgentPipelineStep = {
 export type AgentPipelineView = {
   attempts?: Array<AgentPipelineAttempt>;
   decision_packet_ref?: ArtifactRef | null;
+  evaluator?: EvaluatorReportView | null;
+  execution_plan_ref?: ArtifactRef | null;
+  iteration_lifecycle?: IterationLifecycleView | null;
   latest_verdict?: string | null;
+  method_catalog_snapshot_ref?: ArtifactRef | null;
   notes?: Array<string>;
+  preflight?: PreflightReportView | null;
   reflexion_terminal_ref?: ArtifactRef | null;
+  reproducibility?: ReproducibilityView | null;
   retrieval?: RetrievalTelemetryView | null;
   run_id: string;
   source?: string | null;
@@ -188,6 +194,28 @@ export type CacheStatusResponse = {
   total_size_bytes?: number;
 };
 
+export type CapabilityFeatureInfo = {
+  category: string;
+  description: string;
+  enabled?: boolean;
+  key: string;
+  label: string;
+  stage?: "active" | "planned" | "deferred";
+};
+
+export type CapabilityManifestResponse = {
+  constraints?: {
+  [key: string]: unknown;
+};
+  default_locale?: "en" | "uk";
+  features?: Array<CapabilityFeatureInfo>;
+  meta: ApiMeta;
+  runtime_api_version?: string;
+  shell_flavor?: string;
+  supported_locales?: Array<"en" | "uk">;
+  workspaces?: Array<string>;
+};
+
 export type ConnectorInfo = {
   available_profiles?: Array<string>;
   connector_id: string;
@@ -306,6 +334,25 @@ export type DiscoveryCandidate = {
   source_lane?: "fastlane" | "explorelane";
 };
 
+export type EvaluatorReportView = {
+  diagnostics?: Array<PreflightDiagnosticView>;
+  notes?: Array<string>;
+  reasons?: Array<string>;
+  replanning_hints?: Array<string>;
+  report_ref?: ArtifactRef | null;
+  scores?: EvaluatorScoresView;
+  verdict?: "APPROVE" | "REPLAN_DATA" | "REPLAN_METHOD" | "REPLAN_PARAMS" | "STOP_BUDGET" | null;
+};
+
+export type EvaluatorScoresView = {
+  budget_score?: number;
+  constraints_score?: number;
+  data_quality_score?: number;
+  kpi_score?: number;
+  total_score?: number;
+  uncertainty_score?: number;
+};
+
 export type FetchPlan = {
   connector_id: string;
   dataset_id: string;
@@ -362,14 +409,27 @@ export type GovernanceDebugResponse = {
 };
 
 export type GovernanceDebugView = {
+  contract_warnings?: Array<string>;
   fallback_from_decision_packet?: boolean;
+  issue_summary?: {
+  [key: string]: number;
+} | null;
   issues?: Array<{
   [key: string]: unknown;
 }>;
+  legal_executed?: boolean | null;
+  links?: {
+  [key: string]: ArtifactRef | null;
+} | null;
   notes?: Array<string>;
+  report_kind?: string | null;
   report_ref?: ArtifactRef | null;
+  report_schema_version?: string | null;
   run_id: string;
   source_kind: string;
+  transport_summary?: {
+  [key: string]: unknown;
+} | null;
   validation_trace?: {
   [key: string]: unknown;
 } | null;
@@ -430,6 +490,97 @@ export type InputRef = {
   role: string;
 };
 
+export type IterationLifecycleView = {
+  iteration?: number;
+  last_verdict?: "APPROVE" | "REPLAN_DATA" | "REPLAN_METHOD" | "REPLAN_PARAMS" | "STOP_BUDGET" | null;
+  notes?: Array<string>;
+  state?: "plan_created" | "preflight_running" | "preflight_failed" | "ready_to_run" | "executing" | "evaluating" | "replanning" | "approved" | "stopped_budget" | "stopped_no_delta" | "stopped_guardrail";
+  state_ref?: ArtifactRef | null;
+  stop_reason?: "approved" | "budget_exhausted" | "no_delta" | "guardrail_violation" | null;
+};
+
+export type LexGraphStatsResponse = {
+  db_exists?: boolean;
+  meta: ApiMeta;
+  top_entity_types?: Array<{
+  [key: string]: unknown;
+}>;
+  top_predicates?: Array<{
+  [key: string]: unknown;
+}>;
+  total_entities?: number;
+  total_facts?: number;
+  total_provisions?: number;
+};
+
+export type LexPipelineStageConfig = {
+  embed?: boolean;
+  graph?: boolean;
+  parse?: boolean;
+  spo?: boolean;
+  structure?: boolean;
+};
+
+export type LexPipelineStatusResponse = {
+  error_message?: string | null;
+  meta: ApiMeta;
+  pipeline_id: string;
+  progress_summary?: {
+  [key: string]: number;
+};
+  state: "pending" | "running" | "completed" | "failed";
+};
+
+export type LexSearchRequest = {
+  output_dir: string;
+  query: string;
+  top_k?: number;
+};
+
+export type LexSearchResponse = {
+  meta: ApiMeta;
+  query: string;
+  results?: Array<LexSearchResultItem>;
+  total?: number;
+};
+
+export type LexSearchResultItem = {
+  action_canon?: string;
+  condition_text_uk?: string;
+  confidence: number;
+  doc_name: string;
+  doc_reestr_code: string;
+  exception_text_uk?: string;
+  fact_id: string;
+  fact_text: string;
+  norm_type: string;
+  norm_type_canon?: string;
+  object_name: string;
+  predicate: string;
+  procedure_text_uk?: string;
+  provision_citation: string;
+  source_quote_uk?: string;
+  subject_name: string;
+  thresholds_json?: string;
+};
+
+export type LexTriggerRequest = {
+  cards_path: string;
+  llm_model?: string;
+  output_dir: string;
+  resume?: boolean;
+  stages?: LexPipelineStageConfig;
+  status_filter?: Array<string> | null;
+  texts_path: string;
+};
+
+export type LexTriggerResponse = {
+  message: string;
+  meta: ApiMeta;
+  pipeline_id: string;
+  status: "accepted" | "rejected";
+};
+
 export type MetricCandidate = {
   candidate_id: string;
   confidence?: number;
@@ -478,6 +629,16 @@ export type NaturalLanguageRunRequest = {
 };
   data_source?: DataSourceBinding | null;
   domain_hint?: string | null;
+  execution_plan?: {
+  [key: string]: unknown;
+} | null;
+  execution_plan_ref?: string | null;
+  expected_outputs?: Array<{
+  [key: string]: unknown;
+}>;
+  governance_constraints?: Array<{
+  [key: string]: unknown;
+}>;
   llm_model?: string | null;
   llm_models?: Array<string> | null;
   max_iterations?: number;
@@ -485,6 +646,9 @@ export type NaturalLanguageRunRequest = {
   per_model_budget_usd?: number | null;
   request: string;
   run_budget_usd?: number | null;
+  stop_criteria?: {
+  [key: string]: unknown;
+};
 };
 
 export type NodeDebugResponse = {
@@ -502,6 +666,24 @@ export type NodeDebugView = {
   run_id: string;
   source_kind: string;
   timeline_events?: Array<RunTimelineEvent>;
+};
+
+export type PreflightDiagnosticView = {
+  code: string;
+  data?: {
+  [key: string]: unknown;
+};
+  message: string;
+  path?: Array<string>;
+  replanning_hints?: Array<string>;
+  severity?: string;
+};
+
+export type PreflightReportView = {
+  diagnostics?: Array<PreflightDiagnosticView>;
+  notes?: Array<string>;
+  ready_to_run?: boolean;
+  report_ref?: ArtifactRef | null;
 };
 
 export type PromotionCandidate = {
@@ -535,6 +717,23 @@ export type PromotionDecisionResponse = {
   meta: ApiMeta;
   promotion_id: string;
   status: "approved" | "rejected";
+};
+
+export type ReproducibilityView = {
+  data_snapshot_hash?: string | null;
+  determinism_tier?: string | null;
+  input_bindings_hash?: string | null;
+  manifest_ref?: ArtifactRef | null;
+  method_catalog_hash?: string | null;
+  missing_refs?: Array<string>;
+  notes?: Array<string>;
+  plan_hash?: string | null;
+  readiness?: string | null;
+  registry_hash?: string | null;
+  seed?: number;
+  seed_source?: string | null;
+  suggested_next_step?: string | null;
+  why_partial?: Array<string>;
 };
 
 export type RetrievalPhaseTelemetry = {
@@ -596,6 +795,74 @@ export type RunErrorsResponse = {
   errors?: Array<RunErrorView>;
   meta: ApiMeta;
   run_id: string;
+};
+
+export type RunEvidenceContextResponse = {
+  context: RunEvidenceContextView;
+  meta: ApiMeta;
+};
+
+export type RunEvidenceContextView = {
+  data_needs?: Array<RunEvidenceNeedView>;
+  data_snapshot_ref?: ArtifactRef | null;
+  evidence_bundle_ref?: ArtifactRef | null;
+  execution_plan_ref?: ArtifactRef | null;
+  fetch_plans?: Array<RunEvidencePlanView>;
+  input_bindings_ref?: ArtifactRef | null;
+  promotion_candidates?: Array<RunEvidencePromotionView>;
+  related_artifacts?: Array<ArtifactRef>;
+  run_id: string;
+  source_kind: string;
+  warnings?: Array<string>;
+};
+
+export type RunEvidenceNeedView = {
+  geography?: string | null;
+  granularity?: string;
+  matched_plan_ids?: Array<string>;
+  metric: string;
+  need_id: string;
+  notes?: Array<string>;
+  purpose?: string;
+  quality_min?: number;
+  time_end?: string | null;
+  time_start?: string | null;
+};
+
+export type RunEvidencePlanView = {
+  connector_id: string;
+  dataset_id: string;
+  date_end?: string | null;
+  date_start?: string | null;
+  fallback_count?: number;
+  filters?: {
+  [key: string]: Array<string>;
+};
+  granularity?: string | null;
+  matched_need_ids?: Array<string>;
+  metric_id: string;
+  notes?: Array<string>;
+  plan_id: string;
+  profile_id?: string | null;
+  quality_min?: number;
+  source_lane?: string;
+};
+
+export type RunEvidencePromotionView = {
+  confidence?: number;
+  connector_id: string;
+  created_at?: string | null;
+  dataset_id: string;
+  matched_plan_id?: string | null;
+  metadata?: {
+  [key: string]: unknown;
+};
+  metric_id: string;
+  profile_id?: string | null;
+  promotion_id: string;
+  signals?: Array<string>;
+  source_lane?: string;
+  status?: string;
 };
 
 export type RunLaunchResponse = {
@@ -898,6 +1165,11 @@ export class RuntimeApiClient {
     return this.request<ArtifactSchemaResponse>("GET", path);
   }
 
+  async getControlCapabilities(): Promise<CapabilityManifestResponse> {
+    const path = `/api/v1/control/capabilities`;
+    return this.request<CapabilityManifestResponse>("GET", path);
+  }
+
   async listBindingProfiles(): Promise<BindingProfilesListResponse> {
     const path = `/api/v1/control/data/binding-profiles`;
     return this.request<BindingProfilesListResponse>("GET", path);
@@ -940,6 +1212,23 @@ export class RuntimeApiClient {
   async listDataPromotionCandidates(): Promise<PromotionCandidatesResponse> {
     const path = `/api/v1/control/data/promotion/candidates`;
     return this.request<PromotionCandidatesResponse>("GET", path);
+  }
+
+  async getLexGraphStats(params: {
+    output_dir: string;
+  }): Promise<LexGraphStatsResponse> {
+    const path = `/api/v1/control/lex/graph/stats`;
+    const query = this.buildQuery({
+      output_dir: params.output_dir,
+    });
+    return this.request<LexGraphStatsResponse>("GET", path, query);
+  }
+
+  async getLexPipelineStatus(params: {
+    pipeline_id: string;
+  }): Promise<LexPipelineStatusResponse> {
+    const path = `/api/v1/control/lex/status/${encodeURIComponent(String(params.pipeline_id))}`;
+    return this.request<LexPipelineStatusResponse>("GET", path);
   }
 
   async listLlmProfiles(): Promise<ModelProfilesListResponse> {
@@ -1008,6 +1297,13 @@ export class RuntimeApiClient {
   }): Promise<AgentPipelineResponse> {
     const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/agents`;
     return this.request<AgentPipelineResponse>("GET", path);
+  }
+
+  async getRunEvidenceContext(params: {
+    run_id: string;
+  }): Promise<RunEvidenceContextResponse> {
+    const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/evidence-context`;
+    return this.request<RunEvidenceContextResponse>("GET", path);
   }
 
   async getRunLineage(params: {

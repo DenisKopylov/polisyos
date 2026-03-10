@@ -65,6 +65,8 @@ def test_run_governance_emits_gate_request_and_decision_audit(tmp_path) -> None:
     gate_request_ref = pending.state.params["gate_request_ref"]
     assert isinstance(gate_request, dict)
     assert isinstance(gate_request_ref, str)
+    assert gate_request["reason"] == "governance_profile_requires_approval"
+    assert gate_request["context"]["replay_summary"]["readiness"] == "incomplete"
     assert store.get_manifest(ArtifactID.model_validate(gate_request_ref)).kind == "ir.gate_request"
 
     approved_state = pending.state.model_copy(deep=True)
@@ -154,7 +156,7 @@ def test_run_governance_strict_literature_blocker_rejects_and_requests_review(tm
 
     outcome = node.execute(ctx, state)
 
-    assert _load_verdict(store, outcome.state) == "reject"
+    assert _load_verdict(store, outcome.state) == "human_gate"
     report_payload = _load_report_payload(store, outcome.state)
     issue_codes = {item.get("code") for item in report_payload.get("issues", [])}
     assert "LITERATURE_GATE_UNSUPPORTED_EDGE" in issue_codes
@@ -163,6 +165,10 @@ def test_run_governance_strict_literature_blocker_rejects_and_requests_review(tm
     review_ref = outcome.state.params.get("human_review_request_ref")
     assert isinstance(review_ref, str)
     assert store.get_manifest(ArtifactID.model_validate(review_ref)).kind == "ir.gate_request"
+    review_request = outcome.state.params.get("human_review_request")
+    assert isinstance(review_request, dict)
+    assert review_request["reason"] == "strict_human_review"
+    assert review_request["context"]["issue_summary"]["requested_items"] == 1
 
     trace = outcome.state.params.get("validation_trace")
     assert isinstance(trace, dict)

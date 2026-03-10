@@ -7,8 +7,8 @@ import json
 import re
 import socket
 import time
-from dataclasses import dataclass, field
-from datetime import UTC, datetime
+from dataclasses import dataclass, field, replace
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any
 from urllib.parse import quote, urljoin, urlparse
@@ -26,6 +26,14 @@ _SECTION_CUE_RE = re.compile(
 _PLACEHOLDER_RE = re.compile(
     r"\b(redirecting|loading|just a moment|access denied|captcha|checking your browser|enable javascript)\b",
     re.IGNORECASE,
+)
+_FULLTEXT_HEADER_TRIM_RE = re.compile(r"(?is)\A.{0,4000}?\b(abstract|introduction|background)\b[:\s]")
+_FULLTEXT_REFERENCE_TAIL_RE = re.compile(r"(?is)\b(references|bibliography|works cited)\b.{1200,}\Z")
+_FULLTEXT_BOILERPLATE_RE = re.compile(
+    r"(?is)"
+    r"(cookie policy|cookie settings|accept cookies|all rights reserved|download pdf|view abstract|view pdf|"
+    r"sign in to access|institutional login|research output|explore all metrics|accesses|citations|"
+    r"doi:\s*\S+|doi\.org/\S+|https?://\S+)"
 )
 
 
@@ -56,6 +64,9 @@ class FullTextFetchResult:
     final_state: str = "abstract_fallback"
     attempts: tuple[FullTextFetchAttempt, ...] = ()
     metadata_cache_rows: tuple[dict[str, Any], ...] = ()
+    resolved_cache_row: dict[str, Any] | None = None
+    cache_hit: bool = False
+    cache_key: str = ""
 
 
 @dataclass(frozen=True)
@@ -98,6 +109,33 @@ def _extract_pdf_text(raw_bytes: bytes) -> str:
         from pypdf import PdfReader  # type: ignore[import-not-found]
     except Exception:
         return ""
+
+
+def _sanitize_fulltext_text(text: str) -> tuple[str, bool]:
+    normalized = str(text or "").strip()
+    if not normalized:
+        return "", False
+
+    cleaned = normalized
+    changed = False
+
+    header_match = _FULLTEXT_HEADER_TRIM_RE.search(cleaned)
+    if header_match and header_match.start() > 0:
+        cleaned = cleaned[header_match.start():]
+        changed = True
+
+    tail_match = _FULLTEXT_REFERENCE_TAIL_RE.search(cleaned)
+    if tail_match:
+        cleaned = cleaned[: tail_match.start()].strip()
+        changed = True
+
+    stripped = _FULLTEXT_BOILERPLATE_RE.sub(" ", cleaned)
+    if stripped != cleaned:
+        cleaned = stripped
+        changed = True
+
+    cleaned = re.sub(r"\s+", " ", cleaned).strip()
+    return cleaned, changed
 
     try:
         import io
@@ -301,6 +339,98 @@ def _normalize_doi(value: str | None) -> str:
 
 def _doi_url(doi: str) -> str:
     return f"https://doi.org/{quote(doi, safe='')}"
+
+
+def _cache_keys_for_work(work: dict[str, Any]) -> list[str]:
+    ids = work.get("ids") if isinstance(work.get("ids"), dict) else {}
+    doi = _normalize_doi(str(work.get("doi") or ids.get("doi") or ""))
+    work_id = str(work.get("id") or "").strip()
+    keys: list[str] = []
+    if doi:
+        keys.append(f"doi:{doi.lower()}")
+    if work_id:
+        keys.append(f"work:{work_id}")
+    return keys
+
+
+def _is_cache_row_fresh(row: dict[str, Any], *, ttl_days: int) -> bool:
+    resolved_at = str(row.get("resolved_at") or "").strip()
+    if not resolved_at:
+        return False
+    try:
+        parsed = datetime.fromisoformat(resolved_at.replace("Z", "+00:00"))
+    except ValueError:
+        return False
+    return parsed >= datetime.now(UTC) - timedelta(days=max(1, int(ttl_days)))
+
+
+def _store_resolved_cache_row(cache: dict[str, dict[str, Any]], row: dict[str, Any]) -> None:
+    for key in row.get("lookup_keys", []):
+        if isinstance(key, str) and key:
+            cache[key] = row
+    cache_key = str(row.get("cache_key") or "").strip()
+    if cache_key:
+        cache[cache_key] = row
+
+
+def _cache_attempt(work_id: str, row: dict[str, Any]) -> FullTextFetchAttempt:
+    return FullTextFetchAttempt(
+        work_id=work_id,
+        attempt_kind="shared_cache",
+        candidate_priority=-1,
+        candidate_url=str(row.get("source_url") or ""),
+        source_kind=f"{str(row.get('source_kind') or 'unknown')}_cache_hit",
+        http_status=200,
+        fetch_error_class="",
+        latency_ms=0.0,
+        text_chars=len(str(row.get("text") or "").strip()),
+        usable_text=str(row.get("source_kind") or "") != "abstract_fallback",
+        final_for_work=True,
+    )
+
+
+def _build_resolved_cache_row(work: dict[str, Any], result: FullTextFetchResult) -> dict[str, Any]:
+    lookup_keys = _cache_keys_for_work(work)
+    cache_key = lookup_keys[0] if lookup_keys else ""
+    ids = work.get("ids") if isinstance(work.get("ids"), dict) else {}
+    return {
+        "cache_key": cache_key,
+        "lookup_keys": lookup_keys,
+        "work_id": str(work.get("id") or ""),
+        "doi": _normalize_doi(str(work.get("doi") or ids.get("doi") or "")),
+        "resolved_at": datetime.now(UTC).isoformat(),
+        "source_kind": result.source_kind,
+        "source_url": result.source_url,
+        "fetch_error_class": result.fetch_error_class,
+        "final_state": result.final_state,
+        "text_quality": _text_quality_for(result.source_kind, result.text).value,
+        "text": result.text,
+    }
+
+
+def load_resolved_fulltext_cache(
+    path: Path,
+    *,
+    ttl_days: int,
+) -> dict[str, dict[str, Any]]:
+    cache: dict[str, dict[str, Any]] = {}
+    if not path.exists():
+        return cache
+    with open(path, "r", encoding="utf-8") as fh:
+        for line in fh:
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                row = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            if not isinstance(row, dict):
+                continue
+            if not _is_cache_row_fresh(row, ttl_days=ttl_days):
+                continue
+            _store_resolved_cache_row(cache, row)
+    return cache
 
 
 def _candidate_urls(work: dict[str, Any], *, max_candidates: int) -> list[_URLCandidate]:
@@ -585,11 +715,84 @@ async def _query_crossref(
     }
 
 
+async def _query_semantic_scholar(
+    doi: str,
+    *,
+    work_id: str,
+    timeout_seconds: int,
+    api_key: str,
+    session: aiohttp.ClientSession,
+) -> dict[str, Any]:
+    endpoint = (
+        "https://api.semanticscholar.org/graph/v1/paper/"
+        f"DOI:{quote(doi, safe='')}?fields=openAccessPdf,url,externalIds"
+    )
+    started = time.monotonic()
+    status = 0
+    error_class = ""
+    candidates: list[dict[str, Any]] = []
+    headers = {"x-api-key": api_key} if api_key else {}
+    try:
+        async with asyncio.timeout(timeout_seconds):
+            async with session.get(endpoint, headers=headers) as resp:
+                status = int(resp.status)
+                if status == 200:
+                    payload = await resp.json(content_type=None)
+                    open_access_pdf = payload.get("openAccessPdf") if isinstance(payload, dict) and isinstance(payload.get("openAccessPdf"), dict) else {}
+                    pdf_url = str(open_access_pdf.get("url") or "").strip()
+                    paper_url = str(payload.get("url") or "").strip() if isinstance(payload, dict) else ""
+                    if pdf_url:
+                        candidates.append(
+                            {
+                                "url": pdf_url,
+                                "priority": 8,
+                                "expect_pdf": True,
+                                "source_kind": "metadata_semanticscholar_pdf",
+                            }
+                        )
+                    if paper_url:
+                        candidates.append(
+                            {
+                                "url": paper_url,
+                                "priority": 9,
+                                "expect_pdf": _is_probable_pdf_url(paper_url),
+                                "source_kind": "metadata_semanticscholar_landing",
+                            }
+                        )
+                    if not candidates:
+                        error_class = "metadata_no_result"
+                elif status == 404:
+                    error_class = "metadata_no_result"
+                else:
+                    error_class = f"http_{status}"
+    except asyncio.TimeoutError:
+        error_class = "metadata_timeout"
+    except Exception as exc:
+        error_class = _classify_fetch_error(exc)
+
+    return {
+        "cache_key": f"semanticscholar:{doi.lower()}",
+        "resolver": "semanticscholar",
+        "resolver_url": endpoint,
+        "doi": doi,
+        "work_id": work_id,
+        "queried_at": datetime.now(UTC).isoformat(),
+        "http_status": status,
+        "fetch_error_class": error_class,
+        "latency_ms": round((time.monotonic() - started) * 1000.0, 3),
+        "discovered_pdf_count": sum(1 for item in candidates if bool(item.get("expect_pdf"))),
+        "discovered_canonical_count": sum(1 for item in candidates if not bool(item.get("expect_pdf"))),
+        "candidates": candidates,
+    }
+
+
 async def _resolve_metadata_candidates(
     work: dict[str, Any],
     *,
     metadata_enabled: bool,
+    resolver_order: tuple[str, ...],
     unpaywall_email: str,
+    semantic_scholar_api_key: str,
     timeout_seconds: int,
     session: aiohttp.ClientSession,
     metadata_cache: dict[str, dict[str, Any]] | None,
@@ -622,6 +825,14 @@ async def _resolve_metadata_candidates(
                 timeout_seconds=timeout_seconds,
                 session=session,
             )
+        elif resolver_name == "semanticscholar":
+            row = await _query_semantic_scholar(
+                doi,
+                work_id=work_id,
+                timeout_seconds=timeout_seconds,
+                api_key=semantic_scholar_api_key,
+                session=session,
+            )
         else:
             row = await _query_crossref(
                 doi,
@@ -635,9 +846,15 @@ async def _resolve_metadata_candidates(
         candidates.extend(_metadata_cache_row_to_candidates(row))
         return row
 
-    if unpaywall_email:
-        await resolve_row("unpaywall")
-    await resolve_row("crossref")
+    for resolver_name in resolver_order:
+        normalized = str(resolver_name or "").strip().lower()
+        if normalized not in {"unpaywall", "crossref", "semanticscholar"}:
+            continue
+        if normalized == "unpaywall" and not unpaywall_email:
+            continue
+        if normalized == "semanticscholar" and not semantic_scholar_api_key:
+            continue
+        await resolve_row(normalized)
     return candidates, attempts, rows_to_append
 
 
@@ -691,7 +908,7 @@ async def _fetch_v3_legacy(
                     raw_bytes = await resp.read()
                     final_url = str(getattr(resp, "url", url) or url)
                     if "pdf" in content_type or candidate.expect_pdf or url.lower().endswith(".pdf"):
-                        text = _extract_pdf_text(raw_bytes)
+                        text, _ = _sanitize_fulltext_text(_extract_pdf_text(raw_bytes))
                         if text.strip():
                             return FullTextFetchResult(
                                 text=text,
@@ -739,7 +956,7 @@ async def _fetch_v3_legacy(
                             source_kind="publisher_canonical",
                             max_candidates=20,
                         )
-                    text = _extract_html_text(html)
+                    text, _ = _sanitize_fulltext_text(_extract_html_text(html))
                     if _looks_like_redirect_placeholder(text):
                         last_error_class = "redirect_placeholder"
                         continue
@@ -780,7 +997,9 @@ async def _fetch_v7_http_metadata(
     total_timeout_seconds: int | None,
     session: aiohttp.ClientSession | None,
     metadata_enabled: bool,
+    metadata_resolver_order: tuple[str, ...],
     unpaywall_email: str,
+    semantic_scholar_api_key: str,
     metadata_timeout_seconds: int,
     max_candidate_urls_per_work: int,
     min_usable_chars: int,
@@ -809,7 +1028,9 @@ async def _fetch_v7_http_metadata(
         metadata_candidates, metadata_attempts, new_cache_rows = await _resolve_metadata_candidates(
             work,
             metadata_enabled=metadata_enabled,
+            resolver_order=metadata_resolver_order,
             unpaywall_email=unpaywall_email,
+            semantic_scholar_api_key=semantic_scholar_api_key,
             timeout_seconds=metadata_timeout_seconds,
             session=local_session,
             metadata_cache=metadata_cache,
@@ -888,7 +1109,7 @@ async def _fetch_v7_http_metadata(
                     raw_bytes = await resp.read()
                     latency_ms = round((time.monotonic() - started) * 1000.0, 3)
                     if "pdf" in content_type or candidate.expect_pdf or url.lower().endswith(".pdf"):
-                        text = _extract_pdf_text(raw_bytes)
+                        text, _ = _sanitize_fulltext_text(_extract_pdf_text(raw_bytes))
                         usable, text_state = _classify_text_state(
                             text,
                             min_usable_chars=min_usable_chars,
@@ -964,7 +1185,7 @@ async def _fetch_v7_http_metadata(
                             max_candidates=max_candidate_urls_per_work,
                         )
 
-                    text = _extract_html_text(html)
+                    text, _ = _sanitize_fulltext_text(_extract_html_text(html))
                     usable, text_state = _classify_text_state(
                         text,
                         min_usable_chars=min_usable_chars,
@@ -1053,17 +1274,37 @@ async def fetch_full_text_result_for_work(
     session: aiohttp.ClientSession | None = None,
     acquisition_mode: str = "v3_legacy",
     metadata_resolvers_enabled: bool = True,
+    metadata_resolver_order: tuple[str, ...] = ("unpaywall", "crossref", "semanticscholar"),
     unpaywall_email: str = "",
+    semantic_scholar_api_key: str = "",
     metadata_timeout_seconds: int = 20,
     max_candidate_urls_per_work: int = 20,
     min_usable_chars: int = 1500,
     min_soft_usable_chars: int = 700,
     soft_usable_requires_section_cues: bool = True,
     metadata_cache: dict[str, dict[str, Any]] | None = None,
+    resolved_cache: dict[str, dict[str, Any]] | None = None,
+    cache_ttl_days: int = 30,
 ) -> FullTextFetchResult:
     """Return text/source metadata plus detailed attempt telemetry."""
+    work_id = str(work.get("id") or "")
+    if resolved_cache is not None:
+        for key in _cache_keys_for_work(work):
+            cached_row = resolved_cache.get(key)
+            if cached_row and _is_cache_row_fresh(cached_row, ttl_days=cache_ttl_days):
+                return FullTextFetchResult(
+                    text=str(cached_row.get("text") or ""),
+                    source_kind=str(cached_row.get("source_kind") or "abstract_fallback"),
+                    source_url=str(cached_row.get("source_url") or ""),
+                    fetch_error_class=str(cached_row.get("fetch_error_class") or ""),
+                    final_state=str(cached_row.get("final_state") or "abstract_fallback"),
+                    attempts=(_cache_attempt(work_id, cached_row),),
+                    cache_hit=True,
+                    cache_key=str(cached_row.get("cache_key") or key),
+                )
+
     if acquisition_mode == "v7_http_metadata":
-        return await _fetch_v7_http_metadata(
+        result = await _fetch_v7_http_metadata(
             work,
             timeout_seconds=timeout_seconds,
             connect_timeout_seconds=connect_timeout_seconds,
@@ -1071,7 +1312,9 @@ async def fetch_full_text_result_for_work(
             total_timeout_seconds=total_timeout_seconds,
             session=session,
             metadata_enabled=metadata_resolvers_enabled,
+            metadata_resolver_order=metadata_resolver_order,
             unpaywall_email=unpaywall_email,
+            semantic_scholar_api_key=semantic_scholar_api_key,
             metadata_timeout_seconds=metadata_timeout_seconds,
             max_candidate_urls_per_work=max_candidate_urls_per_work,
             min_usable_chars=min_usable_chars,
@@ -1079,14 +1322,20 @@ async def fetch_full_text_result_for_work(
             soft_usable_requires_section_cues=soft_usable_requires_section_cues,
             metadata_cache=metadata_cache,
         )
-    return await _fetch_v3_legacy(
-        work,
-        timeout_seconds=timeout_seconds,
-        connect_timeout_seconds=connect_timeout_seconds,
-        read_timeout_seconds=read_timeout_seconds,
-        total_timeout_seconds=total_timeout_seconds,
-        session=session,
-    )
+    else:
+        result = await _fetch_v3_legacy(
+            work,
+            timeout_seconds=timeout_seconds,
+            connect_timeout_seconds=connect_timeout_seconds,
+            read_timeout_seconds=read_timeout_seconds,
+            total_timeout_seconds=total_timeout_seconds,
+            session=session,
+        )
+
+    cache_row = _build_resolved_cache_row(work, result)
+    if resolved_cache is not None:
+        _store_resolved_cache_row(resolved_cache, cache_row)
+    return replace(result, resolved_cache_row=cache_row, cache_key=str(cache_row.get("cache_key") or ""))
 
 
 async def fetch_full_text_for_work(
@@ -1133,17 +1382,23 @@ async def run_fulltext_resolve(config: AcademicBatchConfig) -> dict[str, int]:
             manifest_path=config.manifests_dir / "fulltext_resolve.json",
             stage="fulltext_resolve",
             status="ok",
-            metrics={"records": 0, "resolved": 0},
+            metrics={"records": 0, "resolved": 0, "fulltext_cache_hits": 0},
             artifacts=[],
             started_at=started_at,
         )
-        return {"records": 0, "resolved": 0}
+        return {"records": 0, "resolved": 0, "fulltext_cache_hits": 0}
 
     output_rows: list[dict[str, Any]] = []
     resolved = 0
     abstract_only = 0
+    fulltext_cache_hits = 0
     metadata_cache_rows: list[dict[str, Any]] = []
+    resolved_cache_rows: list[dict[str, Any]] = []
     metadata_cache: dict[str, dict[str, Any]] = {}
+    resolved_cache = load_resolved_fulltext_cache(
+        config.resolved_fulltext_cache_path,
+        ttl_days=config.fulltext_cache_ttl_days,
+    )
     if config.fulltext_metadata_cache_path.exists():
         with open(config.fulltext_metadata_cache_path, "r", encoding="utf-8") as fh:
             for line in fh:
@@ -1171,15 +1426,23 @@ async def run_fulltext_resolve(config: AcademicBatchConfig) -> dict[str, int]:
             timeout_seconds=config.article_fulltext_timeout_seconds,
             acquisition_mode=config.fulltext_acquisition_mode,
             metadata_resolvers_enabled=config.fulltext_metadata_resolvers_enabled,
+            metadata_resolver_order=config.fulltext_metadata_resolver_order,
             unpaywall_email=config.fulltext_unpaywall_email,
+            semantic_scholar_api_key=config.fulltext_semantic_scholar_api_key,
             metadata_timeout_seconds=config.fulltext_metadata_timeout_seconds,
             max_candidate_urls_per_work=config.fulltext_max_candidate_urls_per_work,
             min_usable_chars=config.fulltext_min_usable_chars,
             min_soft_usable_chars=config.fulltext_min_soft_usable_chars,
             soft_usable_requires_section_cues=config.fulltext_soft_usable_requires_section_cues,
             metadata_cache=metadata_cache,
+            resolved_cache=resolved_cache,
+            cache_ttl_days=config.fulltext_cache_ttl_days,
         )
+        if result.cache_hit:
+            fulltext_cache_hits += 1
         metadata_cache_rows.extend(result.metadata_cache_rows)
+        if result.resolved_cache_row is not None:
+            resolved_cache_rows.append(result.resolved_cache_row)
         source_basis = (
             SourceBasis.ABSTRACT_ONLY.value
             if result.source_kind == "abstract_fallback"
@@ -1209,15 +1472,22 @@ async def run_fulltext_resolve(config: AcademicBatchConfig) -> dict[str, int]:
         with open(config.fulltext_metadata_cache_path, "a", encoding="utf-8") as fh:
             for row in metadata_cache_rows:
                 fh.write(json.dumps(row, ensure_ascii=False) + "\n")
+    if resolved_cache_rows:
+        with open(config.resolved_fulltext_cache_path, "a", encoding="utf-8") as fh:
+            for row in resolved_cache_rows:
+                fh.write(json.dumps(row, ensure_ascii=False) + "\n")
 
     metrics = {
         "records": len(output_rows),
         "resolved": resolved,
         "abstract_only": abstract_only,
+        "fulltext_cache_hits": fulltext_cache_hits,
     }
     artifacts = [config.fulltext_resolved_path]
     if metadata_cache_rows:
         artifacts.append(config.fulltext_metadata_cache_path)
+    if resolved_cache_rows:
+        artifacts.append(config.resolved_fulltext_cache_path)
     write_stage_manifest(
         manifest_path=config.manifests_dir / "fulltext_resolve.json",
         stage="fulltext_resolve",
@@ -1234,6 +1504,7 @@ __all__ = [
     "FullTextFetchResult",
     "fetch_full_text_for_work",
     "fetch_full_text_result_for_work",
+    "load_resolved_fulltext_cache",
     "reconstruct_abstract",
     "run_fulltext_resolve",
 ]

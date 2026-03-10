@@ -68,7 +68,7 @@ runtime/
 ## Локальный запуск
 
 ```bash
-PYTHONPATH=src uv run --extra multi-tenant --extra test python - <<'PY'
+PYTHONPATH=src uv run --extra runtime-http python - <<'PY'
 from polisyos.runtime.http.app import create_runtime_api_app
 import uvicorn
 

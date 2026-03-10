@@ -13,7 +13,7 @@
 |---|---|---|
 | `export_runtime_openapi.py` | Экспортирует детерминированный OpenAPI JSON (`schemas/runtime_api_v1.openapi.json`) | ручной запуск / релиз |
 | `generate_runtime_client.py` | Генерирует TS/JS клиента в `frontend/runtime-api-client/` | ручной запуск / релиз |
-| `check_runtime_api_contract.py` | Проверяет drift OpenAPI и runtime client, валидирует инварианты runtime-контракта | `arch.yml` |
+| `check_runtime_api_contract.py` | Проверяет drift OpenAPI и runtime client, валидирует инварианты runtime-контракта | `ci.yml` |
 | `inventory_legacy_runs.py` | Инвентаризация `runs/<id>/manifest.json` перед cutover | manual/Ops |
 | `archive_legacy_runs.py` | Детерминированный tar.gz-архив `runs/` + JSON report (опционально удаляет исходник) | manual/Ops |
 

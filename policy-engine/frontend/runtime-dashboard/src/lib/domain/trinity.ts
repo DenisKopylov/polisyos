@@ -1,4 +1,11 @@
-import { asArray, asBoolean, asNumber, asRecord, asString, toDisplayLabel } from "../parsing";
+import {
+  asArray,
+  asBoolean,
+  asNumber,
+  asRecord,
+  asString,
+  toDisplayLabel,
+} from "../parsing";
 
 export type TrinityObjective = {
   id: string;
@@ -184,7 +191,10 @@ function formatTimeSemantics(timeSemantics: unknown): string | null {
   return parts.length > 0 ? parts.join(", ") : null;
 }
 
-function parseIntervention(value: unknown, index: number): TrinityIntervention | null {
+function parseIntervention(
+  value: unknown,
+  index: number,
+): TrinityIntervention | null {
   const record = asRecord(value);
   if (!record) {
     return null;
@@ -194,7 +204,7 @@ function parseIntervention(value: unknown, index: number): TrinityIntervention |
     id: asString(record.intervention_id) ?? `intervention_${index + 1}`,
     kind: asString(record.kind) ?? "unknown",
     targetLabel: formatSelector(record.target),
-      scheduleLabel: formatSchedule(record.schedule) ?? "schedule",
+    scheduleLabel: formatSchedule(record.schedule) ?? "schedule",
     enabled: asBoolean(record.enabled),
     priority: asNumber(record.priority),
     params: asRecord(record.params) ?? {},
@@ -323,7 +333,8 @@ export function parseTrinityBundle(payload: unknown): TrinityBundleView | null {
       timeSemanticsLabel: formatTimeSemantics(model.time_semantics),
       assumptions,
       agentTypeCount: asArray(asRecord(model.agent_config)?.agent_types).length,
-      environmentParamCount: asArray(asRecord(model.environment_config)?.params).length,
+      environmentParamCount: asArray(asRecord(model.environment_config)?.params)
+        .length,
       calibrated: asBoolean(model.calibrated),
       calibrationRef: asString(model.calibration_ref),
       dataSnapshotRef: asString(model.data_snapshot_ref),
@@ -350,13 +361,22 @@ export function diffTrinityBundles(
     return null;
   }
 
-  const currentMap = new Map(current.policy.interventions.map((item) => [item.id, item]));
-  const previousMap = new Map(previous.policy.interventions.map((item) => [item.id, item]));
+  const currentMap = new Map(
+    current.policy.interventions.map((item) => [item.id, item]),
+  );
+  const previousMap = new Map(
+    previous.policy.interventions.map((item) => [item.id, item]),
+  );
 
-  const addedInterventions = Array.from(currentMap.keys()).filter((id) => !previousMap.has(id));
-  const removedInterventions = Array.from(previousMap.keys()).filter((id) => !currentMap.has(id));
+  const addedInterventions = Array.from(currentMap.keys()).filter(
+    (id) => !previousMap.has(id),
+  );
+  const removedInterventions = Array.from(previousMap.keys()).filter(
+    (id) => !currentMap.has(id),
+  );
 
-  const changedInterventions: Array<{ id: string; changedParams: string[] }> = [];
+  const changedInterventions: Array<{ id: string; changedParams: string[] }> =
+    [];
 
   for (const [id, currentIntervention] of currentMap.entries()) {
     const previousIntervention = previousMap.get(id);
@@ -371,7 +391,12 @@ export function diffTrinityBundles(
 
     const changedParams: string[] = [];
     for (const key of keys) {
-      if (!jsonEquals(currentIntervention.params[key], previousIntervention.params[key])) {
+      if (
+        !jsonEquals(
+          currentIntervention.params[key],
+          previousIntervention.params[key],
+        )
+      ) {
         changedParams.push(key);
       }
     }
@@ -385,9 +410,9 @@ export function diffTrinityBundles(
   }
 
   if (
-    addedInterventions.length === 0
-    && removedInterventions.length === 0
-    && changedInterventions.length === 0
+    addedInterventions.length === 0 &&
+    removedInterventions.length === 0 &&
+    changedInterventions.length === 0
   ) {
     return {
       addedInterventions: [],

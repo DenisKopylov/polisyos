@@ -1,4 +1,10 @@
-import { asArray, asNumber, asRecord, asString, toDisplayLabel } from "../parsing";
+import {
+  asArray,
+  asNumber,
+  asRecord,
+  asString,
+  toDisplayLabel,
+} from "../parsing";
 
 export type WorkflowNodeStatus = "ok" | "skip" | "fail" | "unknown";
 
@@ -46,7 +52,12 @@ export type WorkflowModel = {
 
 function normalizeNodeStatus(value: unknown): WorkflowNodeStatus {
   const status = (asString(value) ?? "").toLowerCase();
-  if (status === "ok" || status === "skip" || status === "fail" || status === "unknown") {
+  if (
+    status === "ok" ||
+    status === "skip" ||
+    status === "fail" ||
+    status === "unknown"
+  ) {
     return status;
   }
   return "unknown";
@@ -104,7 +115,10 @@ function normalizeEdge(raw: unknown): WorkflowEdgeView | null {
   };
 }
 
-function normalizeSummary(raw: unknown, defaults: { nodeCount: number; edgeCount: number; maxDepth: number }): WorkflowSummaryView {
+function normalizeSummary(
+  raw: unknown,
+  defaults: { nodeCount: number; edgeCount: number; maxDepth: number },
+): WorkflowSummaryView {
   const summary = asRecord(raw) ?? {};
   return {
     workflowId: asString(summary.workflow_id),
@@ -125,7 +139,10 @@ export function normalizeWorkflow(payload: unknown): WorkflowModel {
   const nodes = asArray(workflow.nodes)
     .map((item) => normalizeNode(item))
     .filter((item): item is WorkflowNodeView => item !== null)
-    .sort((left, right) => left.depth - right.depth || left.alias.localeCompare(right.alias));
+    .sort(
+      (left, right) =>
+        left.depth - right.depth || left.alias.localeCompare(right.alias),
+    );
   const edges = asArray(workflow.edges)
     .map((item) => normalizeEdge(item))
     .filter((item): item is WorkflowEdgeView => item !== null);
@@ -133,7 +150,8 @@ export function normalizeWorkflow(payload: unknown): WorkflowModel {
   const maxDuration = Math.max(...nodes.map((node) => node.durationMs), 0);
   const normalizedNodes = nodes.map((node) => ({
     ...node,
-    heat: maxDuration > 0 ? Math.max(node.heat, node.durationMs / maxDuration) : 0,
+    heat:
+      maxDuration > 0 ? Math.max(node.heat, node.durationMs / maxDuration) : 0,
   }));
 
   const maxDepth = Math.max(...normalizedNodes.map((node) => node.depth), 0);

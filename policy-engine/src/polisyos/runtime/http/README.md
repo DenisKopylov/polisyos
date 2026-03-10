@@ -71,6 +71,16 @@ HTTP request
 - Исключения нормализуются в `application/problem+json` (`RuntimeApiProblem`) через `errors.py`.
 - `openapi_contract.py` добавляет единообразные problem responses и примеры payload.
 
+## Diagnostic labels в debug/decision surfaces
+
+| Label | Где появляется | Интерпретация |
+|---|---|---|
+| `transport:<status>` | `DecisionCard`, `DecisionPacket.diagnostics_summary` | Статус transportability из causal report; `not_run` означает отсутствие transport pass |
+| `legal:checked` / `legal:not_run` | `DecisionCard`, governance debug | Была ли зафиксирована `lex.legal_report` в run artifacts |
+| `replay:<level>` | `DecisionCard`, `DecisionPacket.replay`, agent debug reproducibility | Уровень replay completeness: `complete`, `partial`, `incomplete` |
+| `human-review:required` | `DecisionCard`, gate context | Есть явный human gate / strict review / expert review signal |
+| `uncertainty:available` / `uncertainty:not_available` | `DecisionCard`, `DecisionPacket.diagnostics_summary` | Есть ли uncertainty envelope или вычисленные bounds в packet |
+
 ## Ключевые настройки `create_runtime_api_app(...)`
 
 - Хранилища и лимиты: `cas_root`, `core_runs_root`, `max_preview_bytes`, `lineage_max_depth`, `lineage_max_nodes`.

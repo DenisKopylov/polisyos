@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from enum import Enum
-from typing import Final
+from typing import Any, Final
 
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
@@ -60,7 +60,9 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     INPUT_STATE_SNAPSHOT_REF,
     INPUT_TRINITY_BUNDLE_REF,
     REPORT_COMPILE_REPORT_REF,
+    REPORT_CHANGE_PROPOSAL_REF,
     REPORT_GOVERNANCE_REPORT_REF,
+    REPORT_LEGAL_REPORT_REF,
     REPORT_LINK_REPORT_REF,
 )
 
@@ -127,15 +129,26 @@ class BuildDecisionPacketNode:
         artifacts_section = _build_artifacts_section(state.artifacts_index, state.reports_index)
         readiness = _compute_replay_readiness(inputs_section)
         strategy_hint = _determine_strategy_hint(inputs_section, artifacts_section)
+        policy_summary, intervention_count = _build_policy_summary(ctx, state.inputs)
         backtest_section = _build_backtest_section(ctx, state.artifacts_index)
+        replay_section = _build_replay_section(
+            inputs_section=inputs_section,
+            artifacts_section=artifacts_section,
+            readiness=readiness,
+            strategy_hint=strategy_hint,
+            seed=seed,
+            determinism_tier=state.params.get("determinism_tier"),
+        )
 
         packet_payload: dict[str, object] = {
-            "schema_version": "3.1",
+            "schema_version": "3.2",
             "generated_at": datetime.now(timezone.utc).isoformat(),
             "run_id": state.run_id,
             "seed": seed,
+            "policy_summary": policy_summary,
+            "intervention_count": intervention_count,
             "run_record": {
-                "schema_version": "3.1",
+                "schema_version": "3.2",
                 "run_id": state.run_id,
                 "seed": seed,
                 "engine": "scientist.engine",
@@ -162,17 +175,7 @@ class BuildDecisionPacketNode:
             ),
             "inputs": inputs_section,
             "artifacts": artifacts_section,
-            "replay": {
-                "readiness": readiness.value,
-                "strategy_hint": strategy_hint,
-                "effective_seed": seed,
-                "seed_source": "params.random_seed",
-                "determinism_tier": (
-                    state.params.get("determinism_tier")
-                    if isinstance(state.params.get("determinism_tier"), str)
-                    else None
-                ),
-            },
+            "replay": replay_section,
             "notes": [],
         }
         if isinstance(backtest_section, dict):
@@ -198,6 +201,7 @@ class BuildDecisionPacketNode:
                 packet_payload["governance"] = {
                     "verdict": report.verdict,
                     "issues": report.issues,
+                    "links": report.links.model_dump(mode="json"),
                     "notes": report.notes,
                 }
             except Exception:
@@ -212,6 +216,12 @@ class BuildDecisionPacketNode:
             ),
         )
         packet_payload["uncertainty_bounds"] = uncertainty_bounds
+        packet_payload["diagnostics_summary"] = _build_diagnostics_summary(
+            ctx=ctx,
+            packet_payload=packet_payload,
+            state=state,
+        )
+        packet_payload["analysis_limits"] = _build_analysis_limits(packet_payload)
 
         inputs = _build_manifest_inputs(packet_payload)
 
@@ -222,7 +232,7 @@ class BuildDecisionPacketNode:
                 media_type="application/json",
                 schema=SchemaInfo(
                     name="polisyos.scientist.DecisionPacket",
-                    version="3.1",
+                    version="3.2",
                 ),
                 inputs=inputs or None,
             ),
@@ -274,6 +284,8 @@ def _build_artifacts_section(
         REPORT_GOVERNANCE_REPORT_REF: _ref_from_dict(reports_index, REPORT_GOVERNANCE_REPORT_REF),
         REPORT_COMPILE_REPORT_REF: _ref_from_dict(reports_index, REPORT_COMPILE_REPORT_REF),
         REPORT_LINK_REPORT_REF: _ref_from_dict(reports_index, REPORT_LINK_REPORT_REF),
+        REPORT_LEGAL_REPORT_REF: _ref_from_dict(reports_index, REPORT_LEGAL_REPORT_REF),
+        REPORT_CHANGE_PROPOSAL_REF: _ref_from_dict(reports_index, REPORT_CHANGE_PROPOSAL_REF),
         ARTIFACT_CAUSAL_REPORT_REF: _ref_from_dict(artifacts_index, ARTIFACT_CAUSAL_REPORT_REF),
         ARTIFACT_CAUSAL_ENVELOPE_REF: _ref_from_dict(artifacts_index, ARTIFACT_CAUSAL_ENVELOPE_REF),
         ARTIFACT_CAUSAL_ENSEMBLE_REF: _ref_from_dict(artifacts_index, ARTIFACT_CAUSAL_ENSEMBLE_REF),
@@ -313,6 +325,33 @@ def _build_artifacts_section(
 def _ref_from_dict(index: dict[str, ArtifactRef], key: str) -> str | None:
     ref = index.get(key)
     return str(ref.artifact_id) if ref is not None else None
+
+
+def _build_policy_summary(
+    ctx: ExecutionContext,
+    state_inputs: dict[str, ArtifactRef],
+) -> tuple[str, int]:
+    trinity_ref = state_inputs.get(INPUT_TRINITY_BUNDLE_REF)
+    if trinity_ref is None:
+        return "N/A", 0
+
+    try:
+        payload = from_canonical_bytes(ctx.store.get_bytes(trinity_ref.artifact_id))
+    except Exception:
+        return "Policy data unavailable", 0
+
+    if not isinstance(payload, dict):
+        return "Policy data attached", 0
+
+    policy_spec = payload.get("policy_spec")
+    if not isinstance(policy_spec, dict):
+        return "Policy data attached", 0
+
+    interventions = policy_spec.get("interventions")
+    if isinstance(interventions, list):
+        return f"Policy with {len(interventions)} intervention(s)", len(interventions)
+
+    return "Policy data attached", 0
 
 
 def _build_causal_section(
@@ -408,7 +447,11 @@ def _build_transportability_summary(report: CausalEffectReport) -> dict[str, obj
         "data_gaps_count": len(transport.data_gaps),
         "data_gap_variables": gap_vars,
         "unsupported_cases_count": len(transport.unsupported_cases),
+        "unsupported_cases": list(transport.unsupported_cases),
         "hard_legal_constraints": list(transport.hard_legal_constraints),
+        "requires_expert_review": transport.requires_expert_review,
+        "expert_review_reasons": list(transport.expert_review_reasons),
+        "warnings": list(transport.warnings),
     }
 
 
@@ -702,6 +745,71 @@ def _compute_replay_readiness(inputs_section: dict[str, str | None]) -> ReplayRe
     return ReplayReadiness.COMPLETE
 
 
+def _build_replay_section(
+    *,
+    inputs_section: dict[str, str | None],
+    artifacts_section: dict[str, str | None],
+    readiness: ReplayReadiness,
+    strategy_hint: str,
+    seed: int,
+    determinism_tier: Any,
+) -> dict[str, object]:
+    missing_refs, why_partial, suggested_next_step = _describe_replay_gaps(inputs_section)
+    return {
+        "readiness": readiness.value,
+        "strategy_hint": strategy_hint,
+        "effective_seed": seed,
+        "seed_source": "params.random_seed",
+        "determinism_tier": determinism_tier if isinstance(determinism_tier, str) else None,
+        "missing_refs": missing_refs,
+        "why_partial": why_partial,
+        "suggested_next_step": suggested_next_step,
+        "fallback_from_decision_packet": False,
+        "has_exec_plan_ref": artifacts_section.get(ARTIFACT_EXEC_PLAN_REF) is not None,
+    }
+
+
+def _describe_replay_gaps(
+    inputs_section: dict[str, str | None],
+) -> tuple[list[str], list[str], str | None]:
+    missing_required = sorted(
+        key for key in _REQUIRED_INPUT_KEYS if inputs_section.get(key) is None
+    )
+    missing_optional = sorted(
+        key for key in _OPTIONAL_INPUT_KEYS if inputs_section.get(key) is None
+    )
+    has_snapshot = bool(
+        inputs_section.get(INPUT_INPUT_BINDINGS_REF)
+        or inputs_section.get(INPUT_DATA_SNAPSHOT_REF)
+        or inputs_section.get(INPUT_STATE_SNAPSHOT_REF)
+    )
+    missing_refs = list(missing_required)
+    why_partial: list[str] = []
+    if not has_snapshot:
+        missing_refs.append("state_source_ref")
+        why_partial.append("missing_state_source")
+    if missing_required:
+        why_partial.append("missing_required_inputs")
+    if missing_optional:
+        why_partial.append("missing_optional_inputs")
+
+    if INPUT_INPUT_BINDINGS_REF in missing_optional:
+        suggested = "Persist input_bindings_ref for replay-grade completeness."
+    elif not has_snapshot:
+        suggested = "Attach data_snapshot_ref, state_snapshot_ref, or input_bindings_ref."
+    elif INPUT_NORM_PACK_REF in missing_optional:
+        suggested = "Persist norm_pack_ref to make legal context replayable."
+    elif missing_optional:
+        suggested = "Persist the missing optional replay references listed in replay.missing_refs."
+    elif missing_required:
+        suggested = "Persist the missing required replay references listed in replay.missing_refs."
+    else:
+        suggested = None
+
+    missing_refs.extend(missing_optional)
+    return missing_refs, why_partial, suggested
+
+
 def _determine_strategy_hint(
     inputs_section: dict[str, str | None],
     artifacts_section: dict[str, str | None],
@@ -720,6 +828,214 @@ def _determine_strategy_hint(
     if has_trinity and has_registry and has_snapshot:
         return "scientist"
     return "none"
+
+
+def _build_diagnostics_summary(
+    *,
+    ctx: ExecutionContext,
+    packet_payload: dict[str, object],
+    state: ExperimentState,
+) -> dict[str, object]:
+    governance = packet_payload.get("governance")
+    governance_dict = governance if isinstance(governance, dict) else {}
+    issues = governance_dict.get("issues")
+    issue_summary = _summarize_governance_issues(issues if isinstance(issues, list) else [])
+
+    causal = packet_payload.get("causal")
+    causal_dict = causal if isinstance(causal, dict) else {}
+    transport_summary = causal_dict.get("transportability_summary")
+    transport_dict = transport_summary if isinstance(transport_summary, dict) else {}
+
+    replay = packet_payload.get("replay")
+    replay_dict = replay if isinstance(replay, dict) else {}
+
+    uncertainty = packet_payload.get("uncertainty")
+    uncertainty_dict = uncertainty if isinstance(uncertainty, dict) else {}
+    uncertainty_bounds = packet_payload.get("uncertainty_bounds")
+
+    governance_links = governance_dict.get("links")
+    legal_ref = None
+    if isinstance(governance_links, dict):
+        legal_ref = governance_links.get("legal_report_ref")
+        if isinstance(legal_ref, dict):
+            legal_ref = legal_ref.get("artifact_id")
+    if not isinstance(legal_ref, str):
+        artifacts = packet_payload.get("artifacts")
+        artifacts_dict = artifacts if isinstance(artifacts, dict) else {}
+        fallback_legal_ref = artifacts_dict.get(REPORT_LEGAL_REPORT_REF)
+        legal_ref = fallback_legal_ref if isinstance(fallback_legal_ref, str) else None
+
+    has_legal_report = legal_ref is not None
+    has_distributional_report = bool(packet_payload.get("distributional"))
+    has_causal_report = bool(causal_dict)
+    uncertainty_available = bool(uncertainty_dict.get("envelope_count")) or isinstance(
+        uncertainty_bounds, dict
+    )
+    contract_warnings = _collect_contract_warnings(ctx, state)
+    requires_expert_review = bool(transport_dict.get("requires_expert_review")) or bool(
+        state.params.get("needs_expert_review")
+    )
+    human_review_needed = bool(state.params.get("require_human_gate")) or _has_governance_issue_code(
+        issues if isinstance(issues, list) else [],
+        code="HUMAN_REVIEW_REQUESTED",
+    ) or requires_expert_review
+
+    return {
+        "governance_verdict": governance_dict.get("verdict"),
+        "blocker_count": issue_summary["blocker_count"],
+        "warning_count": issue_summary["warning_count"],
+        "info_count": issue_summary["info_count"],
+        "transport_status": transport_dict.get("status", "not_run"),
+        "transport_engine": transport_dict.get("identification_engine", "not_available"),
+        "requires_expert_review": requires_expert_review,
+        "replay_readiness": replay_dict.get("readiness"),
+        "replay_missing_inputs": list(replay_dict.get("missing_refs", []))
+        if isinstance(replay_dict.get("missing_refs"), list)
+        else [],
+        "has_legal_report": has_legal_report,
+        "legal_executed": has_legal_report,
+        "has_distributional_report": has_distributional_report,
+        "has_causal_report": has_causal_report,
+        "uncertainty_available": uncertainty_available,
+        "human_review_needed": human_review_needed,
+        "determinism_tier": replay_dict.get("determinism_tier"),
+        "seed_source": replay_dict.get("seed_source"),
+        "contract_warnings": contract_warnings,
+    }
+
+
+def _build_analysis_limits(packet_payload: dict[str, object]) -> dict[str, object]:
+    diagnostics = packet_payload.get("diagnostics_summary")
+    diagnostics_dict = diagnostics if isinstance(diagnostics, dict) else {}
+    labels: list[str] = []
+    contract_warnings = diagnostics_dict.get("contract_warnings")
+    normalized_contract_warnings = (
+        [str(item) for item in contract_warnings if isinstance(item, str)]
+        if isinstance(contract_warnings, list)
+        else []
+    )
+
+    transport_engine = diagnostics_dict.get("transport_engine")
+    if isinstance(transport_engine, str) and transport_engine.startswith("simplified"):
+        labels.append("transportability_simplified_engine")
+    if diagnostics_dict.get("legal_executed") is False:
+        labels.append("legal_not_run")
+    if diagnostics_dict.get("requires_expert_review") is True:
+        labels.append("expert_review_required")
+
+    replay_readiness = diagnostics_dict.get("replay_readiness")
+    if replay_readiness == ReplayReadiness.PARTIAL.value:
+        labels.append("partial_replay_readiness")
+    elif replay_readiness == ReplayReadiness.INCOMPLETE.value:
+        labels.append("incomplete_replay_readiness")
+
+    if diagnostics_dict.get("uncertainty_available") is False:
+        labels.append("missing_uncertainty_artifact")
+    if packet_payload.get("causal") is None:
+        labels.append("causal_not_run")
+    if packet_payload.get("distributional") is None:
+        labels.append("distributional_not_run")
+    if packet_payload.get("abm_alignment") is None:
+        labels.append("abm_alignment_not_run")
+    if "deprecated_mechanism_bindings" in normalized_contract_warnings:
+        labels.append("deprecated_mechanism_bindings")
+    if "model_fidelity_level_ignored" in normalized_contract_warnings:
+        labels.append("model_fidelity_level_ignored")
+    if any(
+        warning.startswith("missing_runtime_mechanism_support:")
+        for warning in normalized_contract_warnings
+    ):
+        labels.append("missing_runtime_mechanism_support")
+
+    return {
+        "labels": labels,
+        "transportability_simplified_engine": "transportability_simplified_engine" in labels,
+        "legal_not_run": "legal_not_run" in labels,
+        "expert_review_required": "expert_review_required" in labels,
+        "partial_replay_readiness": "partial_replay_readiness" in labels,
+        "incomplete_replay_readiness": "incomplete_replay_readiness" in labels,
+        "missing_uncertainty_artifact": "missing_uncertainty_artifact" in labels,
+        "deprecated_mechanism_bindings": "deprecated_mechanism_bindings" in labels,
+        "model_fidelity_level_ignored": "model_fidelity_level_ignored" in labels,
+        "missing_runtime_mechanism_support": "missing_runtime_mechanism_support" in labels,
+    }
+
+
+def _summarize_governance_issues(issues: list[dict[str, object]]) -> dict[str, int]:
+    blocker_count = 0
+    warning_count = 0
+    info_count = 0
+    for issue in issues:
+        severity = str(issue.get("severity", "")).strip().lower()
+        if severity == "blocker":
+            blocker_count += 1
+        elif severity == "warning":
+            warning_count += 1
+        elif severity == "info":
+            info_count += 1
+    return {
+        "blocker_count": blocker_count,
+        "warning_count": warning_count,
+        "info_count": info_count,
+    }
+
+
+def _has_governance_issue_code(issues: list[dict[str, object]], *, code: str) -> bool:
+    for issue in issues:
+        if str(issue.get("code", "")).strip() == code:
+            return True
+    return False
+
+
+def _collect_contract_warnings(
+    ctx: ExecutionContext,
+    state: ExperimentState,
+) -> list[str]:
+    warnings: list[str] = []
+    link_report_ref = state.reports_index.get(REPORT_LINK_REPORT_REF)
+    if link_report_ref is not None:
+        try:
+            payload = from_canonical_bytes(ctx.store.get_bytes(link_report_ref.artifact_id))
+        except Exception:
+            payload = None
+        if isinstance(payload, dict):
+            for issue in payload.get("issues", []):
+                if not isinstance(issue, dict):
+                    continue
+                if str(issue.get("severity", "")).strip().lower() != "warning":
+                    continue
+                code = issue.get("code")
+                if isinstance(code, str):
+                    _append_unique(warnings, code)
+
+    compile_report_ref = state.reports_index.get(REPORT_COMPILE_REPORT_REF)
+    if compile_report_ref is not None:
+        try:
+            payload = from_canonical_bytes(ctx.store.get_bytes(compile_report_ref.artifact_id))
+        except Exception:
+            payload = None
+        if isinstance(payload, dict):
+            for note in payload.get("notes", []):
+                if not isinstance(note, str):
+                    continue
+                normalized = _normalize_compile_warning(note)
+                if normalized is not None:
+                    _append_unique(warnings, normalized)
+
+    return warnings
+
+
+def _normalize_compile_warning(note: str) -> str | None:
+    if note.startswith("link_warning:"):
+        return note.split(":", 1)[1]
+    if note.startswith("missing_runtime_mechanism_support:"):
+        return note
+    return None
+
+
+def _append_unique(values: list[str], value: str) -> None:
+    if value not in values:
+        values.append(value)
 
 
 def _build_manifest_inputs(packet_payload: dict[str, object]) -> list[InputRef]:

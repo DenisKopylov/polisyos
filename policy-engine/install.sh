@@ -32,7 +32,7 @@ fi
 # Создание виртуального окружения и установка зависимостей
 if [[ "$PACKAGE_MANAGER" == "uv" ]]; then
     echo "📦 Синхронизация зависимостей через uv..."
-    uv sync --extra dev
+    uv sync --frozen --extra dev --extra test --extra runtime-http
 
     echo "🔧 Активация виртуального окружения..."
     source .venv/bin/activate
@@ -51,7 +51,7 @@ else
     source .venv/bin/activate
 
     echo "📦 Установка зависимостей через pip..."
-    pip install -e .[dev]
+    pip install -e .[dev,test,runtime-http]
 
     # Специфика JAX для разных платформ
     if [[ "$OS" == "macos" ]]; then
@@ -78,8 +78,8 @@ echo "3. Настройте переменные окружения: cp .env.exa
 echo ""
 echo "📚 Документация: cat README.md"
 echo "🔧 Доступные команды:"
-echo "   - python tools/diagnostics/check_setup.py    # Проверка установки"
-echo "   - ruff check .            # Линтинг кода"
-echo "   - ruff format .           # Форматирование кода"
-echo "   - mypy src/               # Типизация"
-echo "   - pytest                  # Тесты"
+echo "   - uv run python tools/diagnostics/check_setup.py   # Проверка установки"
+echo "   - uv run ruff check .                              # Линтинг кода"
+echo "   - uv run ruff format .                             # Форматирование кода"
+echo "   - uv run mypy src/                                 # Типизация"
+echo "   - uv run pytest                                    # Тесты"

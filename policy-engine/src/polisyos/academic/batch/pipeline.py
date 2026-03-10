@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+import gc
 import time
 from dataclasses import dataclass, field
 
@@ -43,12 +44,16 @@ async def run_academic_pipeline(config: AcademicBatchConfig, *, thermal: bool = 
         harvested = await harvest_all(config)
         stats.stage_times["harvest"] = time.monotonic() - st
         stats.metrics["harvest_records"] = sum(len(v) for v in harvested.values())
+        del harvested
+        gc.collect()
 
     if "parse" in config.stages:
         st = time.monotonic()
         parsed = parse_raw_sources(config)
         stats.stage_times["parse"] = time.monotonic() - st
         stats.metrics["parsed_records"] = sum(parsed.values())
+        del parsed
+        gc.collect()
 
     if "resolve_extract" in config.stages:
         st = time.monotonic()
@@ -75,6 +80,13 @@ async def run_academic_pipeline(config: AcademicBatchConfig, *, thermal: bool = 
         st = time.monotonic()
         run_graph_index(config)
         stats.stage_times["graph_index"] = time.monotonic() - st
+
+    if "transport_score" in config.stages:
+        from polisyos.academic.batch.transport_score import run_transport_score
+        st = time.monotonic()
+        ts_stats = run_transport_score(config)
+        stats.stage_times["transport_score"] = time.monotonic() - st
+        stats.metrics.update({f"transport_{k}": v for k, v in ts_stats.items()})
 
     if "embed" in config.stages:
         st = time.monotonic()

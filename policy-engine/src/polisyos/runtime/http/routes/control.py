@@ -5,6 +5,7 @@ from __future__ import annotations
 from polisyos.core.contracts.control import (
     BindingProfilesListResponse,
     CacheStatusResponse,
+    CapabilityManifestResponse,
     ConnectorsListResponse,
     DataCatalogSearchResponse,
     DataDiscoverRequest,
@@ -189,6 +190,22 @@ if router is not None:
         control = _get_control_service(request)
         request_id = ensure_request_id(request)
         return control.data_preview(body, request_id=request_id)
+
+    @router.get(
+        "/capabilities",
+        response_model=CapabilityManifestResponse,
+        operation_id="get_control_capabilities",
+        summary="Get control-plane capability manifest",
+    )
+    def get_control_capabilities(request: Request) -> CapabilityManifestResponse:
+        set_authz_resource(
+            request,
+            tenant_id=getattr(request.state, "tenant_id", None),
+            kind="control.capabilities",
+        )
+        control = _get_control_service(request)
+        request_id = ensure_request_id(request)
+        return control.get_capabilities(request_id=request_id)
 
     @router.get(
         "/data/catalog/search",

@@ -12,11 +12,14 @@ from polisyos.runtime.http.dependencies import build_runtime_api_context
 from polisyos.runtime.http.errors import install_exception_handlers
 from polisyos.runtime.http.jwt_auth_middleware import JWTAuthMiddleware
 from polisyos.runtime.http.openapi_contract import install_runtime_openapi_contract
+from polisyos.runtime.http.routes.auth import router as auth_router
 from polisyos.runtime.http.routes.artifacts import router as artifacts_router
 from polisyos.runtime.http.routes.control import router as control_router
 from polisyos.runtime.http.routes.debug import router as debug_router
 from polisyos.runtime.http.routes.health import router as health_router
+from polisyos.runtime.http.routes.review import router as review_router
 from polisyos.runtime.http.routes.runs import router as runs_router
+from polisyos.runtime.http.services.review_collaboration import ReviewCollaborationHub
 
 try:  # pragma: no cover - optional runtime dependency
     from fastapi import FastAPI, Request
@@ -73,6 +76,7 @@ def create_runtime_api_app(
         ),
     )
     app.state.runtime_api_ctx = runtime_ctx
+    app.state.review_collaboration_hub = ReviewCollaborationHub()
     install_exception_handlers(app)
 
     _install_request_telemetry_middleware(app)
@@ -107,6 +111,8 @@ def create_runtime_api_app(
 
     if health_router is not None:
         app.include_router(health_router)
+    if auth_router is not None:
+        app.include_router(auth_router)
     if runs_router is not None:
         app.include_router(runs_router)
     if debug_router is not None:
@@ -115,6 +121,8 @@ def create_runtime_api_app(
         app.include_router(artifacts_router)
     if control_router is not None:
         app.include_router(control_router)
+    if review_router is not None:
+        app.include_router(review_router)
 
     install_runtime_openapi_contract(app)
     return app

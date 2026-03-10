@@ -110,7 +110,7 @@ def test_article_extraction_result_v11_roundtrip() -> None:
         source_context=ContextProfile(context_id="US", context_label="United States"),
     )
 
-    assert result.schema_version == "1.3"
+    assert result.schema_version == "1.4"
     assert result.publication_year == 2023
     assert result.causal_claims[0].claim_explicitness == ClaimExplicitness.EXPLICIT
     assert result.source_basis == SourceBasis.FULLTEXT

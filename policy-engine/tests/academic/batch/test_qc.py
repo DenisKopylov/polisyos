@@ -189,6 +189,7 @@ def test_academic_qc_tracks_adjudication_publishability_metrics(tmp_path) -> Non
                 "source_basis": "fulltext",
                 "claim_type": "causal_claim",
                 "design_family_hint": "did",
+                "design_quality_tier": 1,
                 "publish_to_graph": True,
             }
         )
@@ -205,6 +206,7 @@ def test_academic_qc_tracks_adjudication_publishability_metrics(tmp_path) -> Non
                 "source_basis": "fulltext",
                 "claim_type": "causal_claim",
                 "design_family_hint": "did",
+                "design_quality_tier": 1,
                 "publish_to_graph": True,
             }
         )
@@ -220,6 +222,50 @@ def test_academic_qc_tracks_adjudication_publishability_metrics(tmp_path) -> Non
     report = run_qc(config, fail_fast=False)
     assert report.metrics["supporting_span_coverage_pct"] == 100.0
     assert report.metrics["fulltext_publishable_share_pct"] == 100.0
+    assert report.metrics["design_tier_distribution"] == {"1": 1}
+    assert report.metrics["published_claims_by_design_tier"] == {"1": 1}
+    assert report.metrics["published_tier4_share_pct"] == 0.0
+
+
+def test_academic_qc_warns_when_published_tier4_share_is_high(tmp_path) -> None:
+    config = AcademicBatchConfig(snapshot_root=tmp_path / "snap")
+
+    raw_dir = config.topic_raw_root("T1", "minimum_wage") / "20260218T000000Z"
+    raw_dir.mkdir(parents=True, exist_ok=True)
+    payload = raw_dir / "payload.jsonl"
+    payload.write_text('{"id":"W1"}\n', encoding="utf-8")
+    write_raw_manifest(
+        manifest_path=raw_dir / "manifest.json",
+        source="openalex",
+        endpoint="https://api.openalex.org/works",
+        payload_path=payload,
+        count=1,
+    )
+
+    config.merged_records_path.parent.mkdir(parents=True, exist_ok=True)
+    config.merged_records_path.write_text(
+        json.dumps({"id": "W1", "abstract": "Some abstract", "extraction_mode": "resolve_extract", "causal_claims": []}) + "\n",
+        encoding="utf-8",
+    )
+    config.selected_topic_works_path.write_text(json.dumps({"topic_id": "T1", "work_id": "W1"}) + "\n", encoding="utf-8")
+    config.raw_claim_candidates_path.write_text(
+        json.dumps({"claim_id": "c1", "design_quality_tier": 4, "source_basis": "fulltext"}) + "\n",
+        encoding="utf-8",
+    )
+    config.published_claims_path.write_text(
+        json.dumps({"claim_id": "c1", "design_quality_tier": 4, "source_basis": "fulltext"}) + "\n",
+        encoding="utf-8",
+    )
+
+    con = duckdb.connect(str(config.db_path))
+    con.execute("CREATE TABLE IF NOT EXISTS ac_works (full_text_url VARCHAR, is_oa BOOLEAN)")
+    con.execute("CHECKPOINT")
+    con.close()
+
+    report = run_qc(config, fail_fast=False)
+    check = next(item for item in report.checks if item.name == "published_tier4_share_pct")
+    assert check.passed is False
+    assert report.metrics["published_tier4_share_pct"] == 100.0
 
 
 def test_academic_qc_tracks_v7_acquisition_metrics(tmp_path) -> None:

@@ -1,4 +1,10 @@
-import { asArray, asNumber, asRecord, asString, toDisplayLabel } from "../parsing";
+import {
+  asArray,
+  asNumber,
+  asRecord,
+  asString,
+  toDisplayLabel,
+} from "../parsing";
 
 export type DecisionVerdict = "APPROVE" | "REJECT" | "REVIEW";
 export type DecisionConfidence = "HIGH" | "MEDIUM" | "LOW";
@@ -11,6 +17,11 @@ export type DecisionMetric = {
   ciLower: number | null;
   ciUpper: number | null;
   ciLevel: number | null;
+};
+
+export type DecisionDiagnosticBadge = {
+  label: string;
+  kind: "ok" | "warn" | "fail" | "unknown";
 };
 
 export type DecisionIssues = {
@@ -53,6 +64,7 @@ export type DecisionCardViewModel = {
   policySummary: string;
   interventionCount: number;
   keyMetrics: DecisionMetric[];
+  diagnosticsBadges: DecisionDiagnosticBadge[];
   issues: DecisionIssues;
   distributional: DecisionDistributional | null;
   totalDurationMs: number;
@@ -61,18 +73,33 @@ export type DecisionCardViewModel = {
 
 function normalizeVerdict(value: string | null): DecisionVerdict {
   const normalized = (value ?? "").trim().toUpperCase();
-  if (normalized === "APPROVE" || normalized === "APPROVED" || normalized === "PASS") {
+  if (
+    normalized === "APPROVE" ||
+    normalized === "APPROVED" ||
+    normalized === "PASS"
+  ) {
     return "APPROVE";
   }
-  if (normalized === "REJECT" || normalized === "REJECTED" || normalized === "FAIL") {
+  if (
+    normalized === "REJECT" ||
+    normalized === "REJECTED" ||
+    normalized === "FAIL"
+  ) {
     return "REJECT";
   }
   return "REVIEW";
 }
 
-function normalizeConfidence(value: string | null, issues: DecisionIssues): DecisionConfidence {
+function normalizeConfidence(
+  value: string | null,
+  issues: DecisionIssues,
+): DecisionConfidence {
   const normalized = (value ?? "").trim().toUpperCase();
-  if (normalized === "HIGH" || normalized === "MEDIUM" || normalized === "LOW") {
+  if (
+    normalized === "HIGH" ||
+    normalized === "MEDIUM" ||
+    normalized === "LOW"
+  ) {
     return normalized as DecisionConfidence;
   }
   if (issues.blockerCount > 0) {
@@ -130,10 +157,25 @@ function extractMetrics(
 
   const bounds = uncertaintyBounds ?? {};
 
-  const specs: Array<{ key: string; name: string; scale: number; unit: string }> = [
+  const specs: Array<{
+    key: string;
+    name: string;
+    scale: number;
+    unit: string;
+  }> = [
     { key: "gdp_change", name: "GDP Change", scale: 100, unit: "%" },
-    { key: "unemployment_change", name: "Unemployment Change", scale: 100, unit: "%" },
-    { key: "inflation_change", name: "Inflation Change", scale: 100, unit: "%" },
+    {
+      key: "unemployment_change",
+      name: "Unemployment Change",
+      scale: 100,
+      unit: "%",
+    },
+    {
+      key: "inflation_change",
+      name: "Inflation Change",
+      scale: 100,
+      unit: "%",
+    },
     { key: "gini_coefficient", name: "Gini Coefficient", scale: 1, unit: "" },
   ];
 
@@ -179,7 +221,9 @@ function extractMetrics(
     .slice(0, 8);
 }
 
-function extractDistributionalFromCard(value: Record<string, unknown>): DecisionDistributional | null {
+function extractDistributionalFromCard(
+  value: Record<string, unknown>,
+): DecisionDistributional | null {
   const breakdownEntries = asArray(value.breakdowns);
   const breakdowns: DecisionDistributionalBreakdown[] = [];
   let vulnerableLosersCount = 0;
@@ -235,7 +279,9 @@ function extractDistributionalFromCard(value: Record<string, unknown>): Decision
   };
 }
 
-function extractDistributionalFromPacket(value: Record<string, unknown>): DecisionDistributional | null {
+function extractDistributionalFromPacket(
+  value: Record<string, unknown>,
+): DecisionDistributional | null {
   const breakdownsRaw = asArray(value.breakdowns);
   const breakdowns: DecisionDistributionalBreakdown[] = [];
   let vulnerableLosersCount = 0;
@@ -294,12 +340,18 @@ function extractDistributionalFromPacket(value: Record<string, unknown>): Decisi
   };
 }
 
-function derivePolicySummary(payload: Record<string, unknown>): { summary: string; interventionCount: number } {
+function derivePolicySummary(payload: Record<string, unknown>): {
+  summary: string;
+  interventionCount: number;
+} {
   const explicitSummary = asString(payload.policy_summary);
   if (explicitSummary) {
     return {
       summary: explicitSummary,
-      interventionCount: Math.max(0, Math.round(asNumber(payload.intervention_count) ?? 0)),
+      interventionCount: Math.max(
+        0,
+        Math.round(asNumber(payload.intervention_count) ?? 0),
+      ),
     };
   }
 
@@ -326,14 +378,110 @@ function derivePolicySummary(payload: Record<string, unknown>): { summary: strin
   };
 }
 
-function parseDecisionCardRecord(record: Record<string, unknown>): DecisionCardViewModel {
+function badgeKindForTransport(
+  value: string | null,
+): DecisionDiagnosticBadge["kind"] {
+  const normalized = (value ?? "").toLowerCase();
+  if (normalized === "direct" || normalized === "transportable") {
+    return "ok";
+  }
+  if (normalized === "non_transportable") {
+    return "fail";
+  }
+  return "warn";
+}
+
+function badgeKindForReplay(
+  value: string | null,
+): DecisionDiagnosticBadge["kind"] {
+  const normalized = (value ?? "").toLowerCase();
+  if (normalized === "complete") {
+    return "ok";
+  }
+  if (normalized === "incomplete") {
+    return "fail";
+  }
+  return "warn";
+}
+
+function deriveDiagnosticBadges(
+  record: Record<string, unknown>,
+): DecisionDiagnosticBadge[] {
+  const explicitBadges = asArray(record.diagnostic_badges)
+    .map((value) => {
+      const badge = asRecord(value);
+      const label = asString(badge?.label);
+      if (!label) {
+        return null;
+      }
+      const kind = asString(badge?.kind);
+      return {
+        label,
+        kind:
+          kind === "ok" ||
+          kind === "warn" ||
+          kind === "fail" ||
+          kind === "unknown"
+            ? kind
+            : "unknown",
+      } satisfies DecisionDiagnosticBadge;
+    })
+    .filter((item): item is DecisionDiagnosticBadge => item !== null);
+  if (explicitBadges.length > 0) {
+    return explicitBadges.slice(0, 5);
+  }
+
+  const summary = asRecord(record.diagnostics_summary);
+  if (!summary) {
+    return [];
+  }
+
+  return [
+    {
+      label: `transport:${asString(summary.transport_status) ?? "not_available"}`,
+      kind: badgeKindForTransport(asString(summary.transport_status)),
+    },
+    {
+      label: Boolean(summary.legal_executed)
+        ? "legal:checked"
+        : "legal:not_run",
+      kind: Boolean(summary.legal_executed) ? "ok" : "warn",
+    },
+    {
+      label: `replay:${asString(summary.replay_readiness) ?? "not_available"}`,
+      kind: badgeKindForReplay(asString(summary.replay_readiness)),
+    },
+    {
+      label: Boolean(summary.human_review_needed)
+        ? "human-review:required"
+        : "human-review:not_required",
+      kind: Boolean(summary.human_review_needed) ? "warn" : "ok",
+    },
+    {
+      label: Boolean(summary.uncertainty_available)
+        ? "uncertainty:available"
+        : "uncertainty:not_available",
+      kind: Boolean(summary.uncertainty_available) ? "ok" : "warn",
+    },
+  ];
+}
+
+function parseDecisionCardRecord(
+  record: Record<string, unknown>,
+): DecisionCardViewModel {
   const distributional = asRecord(record.distributional);
   const issuesRecord = asRecord(record.issues);
   const policy = derivePolicySummary(record);
 
   const issues: DecisionIssues = {
-    blockerCount: Math.max(0, Math.round(asNumber(issuesRecord?.blocker_count) ?? 0)),
-    warningCount: Math.max(0, Math.round(asNumber(issuesRecord?.warning_count) ?? 0)),
+    blockerCount: Math.max(
+      0,
+      Math.round(asNumber(issuesRecord?.blocker_count) ?? 0),
+    ),
+    warningCount: Math.max(
+      0,
+      Math.round(asNumber(issuesRecord?.warning_count) ?? 0),
+    ),
     infoCount: Math.max(0, Math.round(asNumber(issuesRecord?.info_count) ?? 0)),
     blockedPasses: asArray(issuesRecord?.blocked_passes)
       .map((item) => asString(item))
@@ -360,7 +508,9 @@ function parseDecisionCardRecord(record: Record<string, unknown>): DecisionCardV
         return {
           name: asString(metric.name) ?? "Metric",
           value: numeric,
-          formatted: asString(metric.formatted) ?? `${numeric >= 0 ? "+" : ""}${numeric.toFixed(2)}`,
+          formatted:
+            asString(metric.formatted) ??
+            `${numeric >= 0 ? "+" : ""}${numeric.toFixed(2)}`,
           unit: asString(metric.unit) ?? "",
           ciLower: asNumber(metric.ci_lower),
           ciUpper: asNumber(metric.ci_upper),
@@ -368,14 +518,22 @@ function parseDecisionCardRecord(record: Record<string, unknown>): DecisionCardV
         };
       })
       .filter((item): item is DecisionMetric => item !== null),
+    diagnosticsBadges: deriveDiagnosticBadges(record),
     issues,
-    distributional: distributional ? extractDistributionalFromCard(distributional) : null,
-    totalDurationMs: Math.max(0, Math.round(asNumber(record.total_duration_ms) ?? 0)),
+    distributional: distributional
+      ? extractDistributionalFromCard(distributional)
+      : null,
+    totalDurationMs: Math.max(
+      0,
+      Math.round(asNumber(record.total_duration_ms) ?? 0),
+    ),
     sourceKind: "decision_card",
   };
 }
 
-function parseDecisionPacketRecord(record: Record<string, unknown>): DecisionCardViewModel {
+function parseDecisionPacketRecord(
+  record: Record<string, unknown>,
+): DecisionCardViewModel {
   const governance = asRecord(record.governance) ?? asRecord(record.feedback);
   const issues = buildIssues(governance?.issues);
   const policy = derivePolicySummary(record);
@@ -391,7 +549,9 @@ function parseDecisionPacketRecord(record: Record<string, unknown>): DecisionCar
     duration = Math.max(0, Math.round(durationMaybe));
   }
 
-  const distributional = extractDistributionalFromPacket(asRecord(record.distributional) ?? {});
+  const distributional = extractDistributionalFromPacket(
+    asRecord(record.distributional) ?? {},
+  );
 
   return {
     runId: asString(record.run_id) ?? "unknown",
@@ -401,6 +561,7 @@ function parseDecisionPacketRecord(record: Record<string, unknown>): DecisionCar
     policySummary: policy.summary,
     interventionCount: policy.interventionCount,
     keyMetrics: extractMetrics(simulationResults, uncertaintyBounds),
+    diagnosticsBadges: deriveDiagnosticBadges(record),
     issues,
     distributional,
     totalDurationMs: duration,
@@ -408,23 +569,28 @@ function parseDecisionPacketRecord(record: Record<string, unknown>): DecisionCar
   };
 }
 
-export function parseDecisionCardPayload(payload: unknown): DecisionCardViewModel | null {
+export function parseDecisionCardPayload(
+  payload: unknown,
+): DecisionCardViewModel | null {
   const record = asRecord(payload);
   if (!record) {
     return null;
   }
 
   const hasCardShape =
-    asString(record.verdict) !== null
-    && asString(record.confidence) !== null
-    && ("key_metrics" in record)
-    && ("policy_summary" in record || "issues" in record);
+    asString(record.verdict) !== null &&
+    asString(record.confidence) !== null &&
+    "key_metrics" in record &&
+    ("policy_summary" in record || "issues" in record);
 
   if (hasCardShape) {
     return parseDecisionCardRecord(record);
   }
 
-  const hasPacketShape = "simulation_results" in record || "governance" in record || "feedback" in record;
+  const hasPacketShape =
+    "simulation_results" in record ||
+    "governance" in record ||
+    "feedback" in record;
   if (hasPacketShape) {
     return parseDecisionPacketRecord(record);
   }

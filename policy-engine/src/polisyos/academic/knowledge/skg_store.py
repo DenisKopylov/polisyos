@@ -44,6 +44,8 @@ CREATE TABLE IF NOT EXISTS ac_skg_edges (
     confidence         DOUBLE NOT NULL,
     scope_conditions   VARCHAR DEFAULT '[]',
     meta_effect_size   DOUBLE,
+    candidate_layer    VARCHAR DEFAULT 'candidate',
+    quality_signals_json VARCHAR DEFAULT '{}',
     updated_ts         TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -78,6 +80,70 @@ CREATE INDEX IF NOT EXISTS idx_ac_skg_params_name ON ac_skg_parameters(canonical
 CREATE INDEX IF NOT EXISTS idx_ac_skg_params_article ON ac_skg_parameters(openalex_id);
 CREATE INDEX IF NOT EXISTS idx_ac_skg_articles_year ON ac_skg_articles(year);
 CREATE INDEX IF NOT EXISTS idx_ac_skg_articles_retracted ON ac_skg_articles(retracted);
+
+CREATE TABLE IF NOT EXISTS ac_skg_context_attributes (
+    attr_id            VARCHAR PRIMARY KEY,
+    openalex_id        VARCHAR NOT NULL,
+    canonical_name     VARCHAR NOT NULL,
+    attribute_value     DOUBLE,
+    value_qualitative  VARCHAR,
+    unit               VARCHAR,
+    country_code       VARCHAR,
+    time_period        VARCHAR,
+    measurement_method VARCHAR,
+    confidence         DOUBLE DEFAULT 0.5,
+    skg_version        INTEGER NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS ac_skg_moderation_edges (
+    moderation_id      VARCHAR PRIMARY KEY,
+    base_cause         VARCHAR NOT NULL,
+    base_effect        VARCHAR NOT NULL,
+    moderator          VARCHAR NOT NULL,
+    base_claim_id      VARCHAR,
+    direction_of_mod   VARCHAR,
+    interaction_coeff  DOUBLE,
+    interaction_pvalue DOUBLE,
+    evidence_count     INTEGER DEFAULT 1,
+    confidence         DOUBLE DEFAULT 0.5,
+    match_quality      VARCHAR DEFAULT '',
+    alignment_source   VARCHAR DEFAULT '',
+    source_refs        VARCHAR DEFAULT '[]',
+    skg_version        INTEGER NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS ac_skg_context_profiles (
+    profile_id         VARCHAR PRIMARY KEY,
+    context_id         VARCHAR NOT NULL,
+    context_label      VARCHAR,
+    profile_json       VARCHAR NOT NULL,
+    n_source_articles  INTEGER DEFAULT 0,
+    n_external_sources INTEGER DEFAULT 0,
+    skg_version        INTEGER NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_ac_skg_ctx_attr_article ON ac_skg_context_attributes(openalex_id);
+CREATE INDEX IF NOT EXISTS idx_ac_skg_ctx_attr_name ON ac_skg_context_attributes(canonical_name);
+CREATE INDEX IF NOT EXISTS idx_ac_skg_mod_edges_cause ON ac_skg_moderation_edges(base_cause);
+CREATE INDEX IF NOT EXISTS idx_ac_skg_mod_edges_effect ON ac_skg_moderation_edges(base_effect);
+CREATE INDEX IF NOT EXISTS idx_ac_skg_mod_edges_moderator ON ac_skg_moderation_edges(moderator);
+CREATE INDEX IF NOT EXISTS idx_ac_skg_ctx_profiles_context ON ac_skg_context_profiles(context_id);
+
+CREATE TABLE IF NOT EXISTS ac_skg_transport_scores (
+    transport_id            VARCHAR PRIMARY KEY,
+    edge_id                 VARCHAR NOT NULL,
+    target_context_id       VARCHAR NOT NULL,
+    base_confidence         DOUBLE NOT NULL,
+    generic_penalty         DOUBLE DEFAULT 0.0,
+    context_match_reward    DOUBLE DEFAULT 0.0,
+    transport_confidence    DOUBLE NOT NULL,
+    match_mode              VARCHAR DEFAULT '',
+    matched_moderators_json VARCHAR DEFAULT '[]',
+    skg_version             INTEGER NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_ac_skg_transport_edge ON ac_skg_transport_scores(edge_id);
+CREATE INDEX IF NOT EXISTS idx_ac_skg_transport_target ON ac_skg_transport_scores(target_context_id);
 """
 
 
@@ -85,9 +151,13 @@ EVIDENCE_WEIGHTS: dict[str, float] = {
     EvidenceStrength.RCT.value: 1.0,
     EvidenceStrength.META_ANALYSIS.value: 0.95,
     EvidenceStrength.QUASI_NATURAL.value: 0.7,
-    EvidenceStrength.OBSERVATIONAL.value: 0.4,
+    EvidenceStrength.QUASI_NATURAL_EVENT.value: 0.60,
+    EvidenceStrength.PANEL_FE.value: 0.50,
+    EvidenceStrength.STRUCTURAL.value: 0.45,
+    EvidenceStrength.OBSERVATIONAL.value: 0.30,
+    EvidenceStrength.CROSS_SECTIONAL.value: 0.20,
     EvidenceStrength.THEORETICAL.value: 0.15,
-    EvidenceStrength.UNKNOWN.value: 0.2,
+    EvidenceStrength.UNKNOWN.value: 0.15,
 }
 
 
@@ -161,6 +231,34 @@ def hash_param_id(canonical_name: str, openalex_id: str) -> str:
     return hashlib.sha256(payload).hexdigest()[:24]
 
 
+def hash_context_attr_id(canonical_name: str, openalex_id: str, country_code: str) -> str:
+    import hashlib
+
+    payload = f"ctx_attr|{canonical_name}|{openalex_id}|{country_code}".encode("utf-8")
+    return hashlib.sha256(payload).hexdigest()[:24]
+
+
+def hash_moderation_edge_id(base_cause: str, base_effect: str, moderator: str) -> str:
+    import hashlib
+
+    payload = f"mod_edge|{base_cause}|{base_effect}|{moderator}".encode("utf-8")
+    return hashlib.sha256(payload).hexdigest()[:24]
+
+
+def hash_transport_score_id(edge_id: str, target_context_id: str) -> str:
+    import hashlib
+
+    payload = f"transport|{edge_id}|{target_context_id}".encode("utf-8")
+    return hashlib.sha256(payload).hexdigest()[:24]
+
+
+def hash_context_profile_id(context_id: str, time_period: str) -> str:
+    import hashlib
+
+    payload = f"ctx_prof|{context_id}|{time_period}".encode("utf-8")
+    return hashlib.sha256(payload).hexdigest()[:24]
+
+
 def parent_canonical_name(canonical_name: str) -> str | None:
     if "." not in canonical_name:
         return None
@@ -169,10 +267,14 @@ def parent_canonical_name(canonical_name: str) -> str | None:
 
 def edge_strength_rank(strength: str) -> int:
     ranking = {
-        EvidenceStrength.RCT.value: 5,
-        EvidenceStrength.META_ANALYSIS.value: 4,
-        EvidenceStrength.QUASI_NATURAL.value: 3,
+        EvidenceStrength.RCT.value: 8,
+        EvidenceStrength.META_ANALYSIS.value: 7,
+        EvidenceStrength.QUASI_NATURAL.value: 6,
+        EvidenceStrength.QUASI_NATURAL_EVENT.value: 5,
+        EvidenceStrength.PANEL_FE.value: 4,
+        EvidenceStrength.STRUCTURAL.value: 3,
         EvidenceStrength.OBSERVATIONAL.value: 2,
+        EvidenceStrength.CROSS_SECTIONAL.value: 1,
         EvidenceStrength.THEORETICAL.value: 1,
         EvidenceStrength.UNKNOWN.value: 0,
     }
@@ -198,6 +300,16 @@ def normalize_strength(value: Any) -> str:
         return EvidenceStrength.RCT.value
     if text in {"meta", "meta-analysis", "metaanalysis"}:
         return EvidenceStrength.META_ANALYSIS.value
+    if text in {"quasi_natural_event", "event_study", "quasi_experimental_other"}:
+        return EvidenceStrength.QUASI_NATURAL_EVENT.value
+    if text in {"panel_fe", "system_gmm", "gmm"}:
+        return EvidenceStrength.PANEL_FE.value
+    if text in {"structural", "structural_model", "time_series_cointegration"}:
+        return EvidenceStrength.STRUCTURAL.value
+    if text in {"cross_sectional", "ols_cross_sectional"}:
+        return EvidenceStrength.CROSS_SECTIONAL.value
+    if text in {"observational", "ols"}:
+        return EvidenceStrength.OBSERVATIONAL.value
     return EvidenceStrength.UNKNOWN.value
 
 
@@ -210,6 +322,10 @@ __all__ = [
     "finalize_skg_version",
     "hash_edge_id",
     "hash_param_id",
+    "hash_context_attr_id",
+    "hash_moderation_edge_id",
+    "hash_transport_score_id",
+    "hash_context_profile_id",
     "parent_canonical_name",
     "strongest_strength",
     "normalize_strength",

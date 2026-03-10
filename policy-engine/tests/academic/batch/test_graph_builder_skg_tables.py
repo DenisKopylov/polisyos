@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 
 import duckdb
+import pytest
 
 from polisyos.academic.batch.graph_builder import build_graph
 from polisyos.academic.knowledge.types import EstimateCandidate, SourceTopicRef, WorkRecord
@@ -48,6 +49,9 @@ def test_build_graph_creates_skg_tables() -> None:
             boundaries = con.execute("SELECT COUNT(*) FROM ac_boundary_conditions").fetchone()[0]
             skg_articles = con.execute("SELECT COUNT(*) FROM ac_skg_articles").fetchone()[0]
             skg_versions = con.execute("SELECT COUNT(*) FROM ac_skg_versions").fetchone()[0]
+            transport_tables = con.execute(
+                "SELECT COUNT(*) FROM information_schema.tables WHERE table_name = 'ac_skg_transport_scores'"
+            ).fetchone()[0]
         finally:
             con.close()
 
@@ -56,6 +60,7 @@ def test_build_graph_creates_skg_tables() -> None:
         assert boundaries == 1
         assert skg_articles == 1
         assert skg_versions == 1
+        assert transport_tables == 1
 
 
 def test_build_graph_uses_claim_publish_flags_for_published_layer() -> None:
@@ -119,9 +124,138 @@ def test_build_graph_uses_claim_publish_flags_for_published_layer() -> None:
             raw_count = con.execute("SELECT COUNT(*) FROM ac_causal_claims_raw").fetchone()[0]
             adjudicated_count = con.execute("SELECT COUNT(*) FROM ac_claim_adjudications").fetchone()[0]
             published_count = con.execute("SELECT COUNT(*) FROM ac_causal_claims").fetchone()[0]
+            raw_claim = con.execute(
+                "SELECT design_quality_tier, strong_design_evidence, publish_to_graph, publish_blockers "
+                "FROM ac_causal_claims_raw WHERE id = 'c-1'"
+            ).fetchone()
+            published_claim = con.execute(
+                "SELECT design_family_hint, claim_extraction_confidence, strong_design_evidence, design_quality_tier, "
+                "publish_blockers, candidate_layer "
+                "FROM ac_causal_claims WHERE id = 'c-1'"
+            ).fetchone()
+            edge_row = con.execute(
+                "SELECT candidate_layer, quality_signals_json FROM ac_skg_edges WHERE src = 'tax_rate' AND dst = 'employment'"
+            ).fetchone()
         finally:
             con.close()
 
         assert raw_count == 2
         assert adjudicated_count == 2
         assert published_count == 1
+        assert raw_claim == (None, True, True, "")
+        assert published_claim[0] == "did"
+        assert published_claim[1] == pytest.approx(0.82)
+        assert published_claim[2:] == (True, None, "", "candidate")
+        assert edge_row is not None
+        assert edge_row[0] == "candidate"
+        edge_quality = json.loads(edge_row[1])
+        assert edge_quality["graph_layer"] == "candidate"
+        assert edge_quality["design_family_hints"] == ["did"]
+        assert edge_quality["claim_extraction_confidence"]["max"] == 0.82
+
+
+def test_build_graph_aggregates_moderation_edges_and_preserves_canonical_name() -> None:
+    with tempfile.TemporaryDirectory() as tmpdir:
+        db_path = Path(tmpdir) / "test_transportability.duckdb"
+
+        records = [
+            WorkRecord(
+                id="w-ctx-1",
+                title="Institutional study 1",
+                year=2020,
+                causal_claims=[
+                    {
+                        "claim_id": "c-1",
+                        "cause": "fiscal.public_spending",
+                        "effect": "economic.output_growth",
+                        "publish_to_graph": False,
+                    }
+                ],
+                metadata={
+                    "context_attributes": [
+                        {
+                            "attribute_name": "institutional_quality",
+                            "canonical_name": "governance.institutional_quality",
+                            "country_codes": ["US"],
+                            "confidence": 0.6,
+                        }
+                    ],
+                    "moderation_edges": [
+                        {
+                            "base_claim_id": "c-1",
+                            "base_cause": "policy.spending",
+                            "base_effect": "growth.output",
+                            "moderator": "governance.institutional_quality",
+                            "direction_of_moderation": "amplifying",
+                            "confidence": 0.6,
+                            "evidence_count": 1,
+                        }
+                    ],
+                },
+            ),
+            WorkRecord(
+                id="w-ctx-2",
+                title="Institutional study 2",
+                year=2021,
+                causal_claims=[
+                    {
+                        "claim_id": "c-2",
+                        "cause": "fiscal.public_spending",
+                        "effect": "economic.output_growth",
+                        "publish_to_graph": False,
+                    }
+                ],
+                metadata={
+                    "context_attributes": [
+                        {
+                            "attribute_name": "institutional_quality",
+                            "canonical_name": "governance.institutional_quality",
+                            "country_codes": ["SE"],
+                            "confidence": 0.9,
+                        }
+                    ],
+                    "moderation_edges": [
+                        {
+                            "base_claim_id": "c-2",
+                            "base_cause": "policy.spending",
+                            "base_effect": "growth.output",
+                            "moderator": "governance.institutional_quality",
+                            "direction_of_moderation": "dampening",
+                            "quantitative_interaction": 0.12,
+                            "interaction_pvalue": 0.03,
+                            "confidence": 0.8,
+                            "evidence_count": 2,
+                        }
+                    ],
+                },
+            ),
+        ]
+
+        build_graph(records=iter(records), db_path=db_path)
+
+        con = duckdb.connect(str(db_path), read_only=True)
+        try:
+            canonical_names = con.execute(
+                "SELECT canonical_name FROM ac_skg_context_attributes ORDER BY country_code"
+            ).fetchall()
+            moderation_rows = con.execute(
+                "SELECT base_cause, base_effect, evidence_count, confidence, interaction_coeff, source_refs, match_quality, alignment_source "
+                "FROM ac_skg_moderation_edges"
+            ).fetchall()
+        finally:
+            con.close()
+
+        assert canonical_names == [
+            ("governance.institutional_quality",),
+            ("governance.institutional_quality",),
+        ]
+        assert len(moderation_rows) == 1
+        base_cause, base_effect, evidence_count, confidence, interaction_coeff, source_refs, match_quality, alignment_source = moderation_rows[0]
+        assert base_cause == "fiscal.public_spending"
+        assert base_effect == "economic.output_growth"
+        assert evidence_count == 3
+        assert confidence == 0.8
+        assert interaction_coeff == 0.12
+        assert json.loads(source_refs) == ["w-ctx-1", "w-ctx-2"]
+        assert match_quality == ""
+        assert alignment_source == ""

@@ -7,6 +7,7 @@ from dataclasses import dataclass
 import polisyos.academic.batch.fulltext_resolver as resolver
 from polisyos.academic.batch.fulltext_resolver import (
     fetch_full_text_result_for_work,
+    load_resolved_fulltext_cache,
     reconstruct_abstract,
 )
 
@@ -325,3 +326,146 @@ def test_v7_prefers_discovered_pdf_over_short_html_shell(monkeypatch) -> None:  
     assert result.source_kind == "fulltext_pdf"
     assert result.source_url == "https://publisher.example/paper.pdf"
     assert any(attempt.fetch_error_class == "landing_page_without_pdf" for attempt in result.attempts)
+
+
+def test_v7_uses_semantic_scholar_in_configured_order(monkeypatch) -> None:  # type: ignore[no-untyped-def]
+    work = {
+        "id": "https://openalex.org/W4",
+        "abstract": "Fallback abstract.",
+        "doi": "10.1111/semscholar",
+    }
+    monkeypatch.setattr(
+        resolver,
+        "_extract_pdf_text",
+        lambda raw_bytes: (
+            "Abstract. Introduction. Methods. Results. Conclusion. "
+            "Recovered from Semantic Scholar PDF."
+        ),
+    )
+    session = _FakeSession(
+        {
+            "https://api.semanticscholar.org/graph/v1/paper/DOI:10.1111%2Fsemscholar?fields=openAccessPdf,url,externalIds": _FakeResponse(
+                status=200,
+                headers={"Content-Type": "application/json"},
+                body=(
+                    b'{'
+                    b'"openAccessPdf":{"url":"https://publisher.example/from-s2.pdf"},'
+                    b'"url":"https://publisher.example/from-s2"'
+                    b'}'
+                ),
+                url="https://api.semanticscholar.org/graph/v1/paper/DOI:10.1111%2Fsemscholar?fields=openAccessPdf,url,externalIds",
+            ),
+            "https://publisher.example/from-s2.pdf": _FakeResponse(
+                status=200,
+                headers={"Content-Type": "application/pdf"},
+                body=b"%PDF fake",
+                url="https://publisher.example/from-s2.pdf",
+            ),
+        }
+    )
+
+    result = asyncio.run(
+        fetch_full_text_result_for_work(
+            work,
+            session=session,
+            acquisition_mode="v7_http_metadata",
+            metadata_resolvers_enabled=True,
+            metadata_resolver_order=("semanticscholar", "crossref"),
+            semantic_scholar_api_key="demo-key",
+            min_usable_chars=80,
+            min_soft_usable_chars=60,
+        )
+    )
+
+    assert result.source_kind == "fulltext_pdf"
+    assert "semantic scholar pdf" in result.text.lower()
+    assert any(attempt.source_kind.startswith("metadata_semanticscholar") for attempt in result.attempts)
+
+
+def test_fulltext_precleaner_strips_boilerplate_and_reference_tail() -> None:
+    work = {
+        "abstract": "Fallback abstract.",
+        "best_oa_location": {"landing_page_url": "https://publisher.example/article-clean"},
+    }
+    session = _FakeSession(
+        {
+            "https://publisher.example/article-clean": _FakeResponse(
+                status=200,
+                headers={"Content-Type": "text/html"},
+                body=(
+                    b"<html><body>Cookie Policy Accept cookies navigation header. "
+                    b"Abstract This study uses panel data. Introduction Methods Results show tax effects. "
+                    b"Discussion Conclusion. References " + (b"citation item " * 300) + b"</body></html>"
+                ),
+                url="https://publisher.example/article-clean",
+            ),
+        }
+    )
+
+    result = asyncio.run(
+        fetch_full_text_result_for_work(
+            work,
+            session=session,
+            min_usable_chars=80,
+            min_soft_usable_chars=60,
+        )
+    )
+
+    assert result.source_kind == "fulltext_html"
+    assert "cookie policy" not in result.text.lower()
+    assert "accept cookies" not in result.text.lower()
+    assert "references" not in result.text.lower()
+    assert "results show tax effects" in result.text.lower()
+
+
+def test_shared_resolved_cache_reuses_previous_result(tmp_path) -> None:
+    work = {
+        "id": "https://openalex.org/W5",
+        "doi": "10.2222/cache",
+        "abstract": "Fallback abstract.",
+        "best_oa_location": {"landing_page_url": "https://publisher.example/cache"},
+    }
+    session = _FakeSession(
+        {
+            "https://publisher.example/cache": _FakeResponse(
+                status=200,
+                headers={"Content-Type": "text/html"},
+                body=(
+                    b"<html><body>Abstract Introduction Methods Results show cached full text is usable. "
+                    b"Discussion Conclusion.</body></html>"
+                ),
+                url="https://publisher.example/cache",
+            )
+        }
+    )
+    cache_path = tmp_path / "resolved_fulltext_cache.jsonl"
+    resolved_cache = {}
+
+    first = asyncio.run(
+        fetch_full_text_result_for_work(
+            work,
+            session=session,
+            resolved_cache=resolved_cache,
+            cache_ttl_days=30,
+            min_usable_chars=80,
+            min_soft_usable_chars=60,
+        )
+    )
+    assert first.cache_hit is False
+    assert first.resolved_cache_row is not None
+    with open(cache_path, "w", encoding="utf-8") as fh:
+        fh.write(json.dumps(first.resolved_cache_row) + "\n")
+
+    loaded_cache = load_resolved_fulltext_cache(cache_path, ttl_days=30)
+    second = asyncio.run(
+        fetch_full_text_result_for_work(
+            work,
+            session=_FakeSession({}),
+            resolved_cache=loaded_cache,
+            cache_ttl_days=30,
+        )
+    )
+
+    assert second.cache_hit is True
+    assert second.text == first.text
+    assert any(attempt.attempt_kind == "shared_cache" for attempt in second.attempts)

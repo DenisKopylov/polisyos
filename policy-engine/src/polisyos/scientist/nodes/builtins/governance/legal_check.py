@@ -14,7 +14,6 @@ from polisyos.lex.types import NormPackBuildRequest
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
 from polisyos.scientist.engine.state import ExperimentState
-from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_SIMULATION_RESULT_REF,
     INPUT_MODEL_SPEC_REF,
@@ -98,6 +97,23 @@ def _read_compliance_grade(ctx: ExecutionContext, report_ref: ArtifactRef) -> st
     return None
 
 
+def _skip_legal_check(
+    *,
+    state: ExperimentState,
+    message: str,
+    reason: str,
+    details: dict[str, object] | None = None,
+) -> NodeOutcome:
+    attrs = {"skip_reason": reason}
+    if details:
+        attrs.update(details)
+    return NodeOutcome(
+        status="skip",
+        state=state,
+        events=[NodeEvent(level="info", message=message, attrs=attrs)],
+    )
+
+
 @dataclass(frozen=True)
 class LegalCheckNode:
     @property
@@ -107,51 +123,42 @@ class LegalCheckNode:
     def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
         simulation_result_ref = state.artifacts_index.get(ARTIFACT_SIMULATION_RESULT_REF)
         if simulation_result_ref is None:
-            return NodeOutcome(
-                status="fail",
+            return _skip_legal_check(
                 state=state,
-                error=NodeError(
-                    code=node_errors.ERROR_MISSING_INPUT,
-                    message="Missing simulation_result_ref for legal check",
-                    details={"required": ARTIFACT_SIMULATION_RESULT_REF},
-                ),
+                message="Legal check skipped: missing simulation_result_ref",
+                reason="missing_simulation_result",
+                details={"required": ARTIFACT_SIMULATION_RESULT_REF},
             )
 
         jurisdiction = state.params.get("jurisdiction")
         as_of = state.params.get("as_of")
         if not isinstance(jurisdiction, str) or not jurisdiction.strip():
-            return NodeOutcome(
-                status="fail",
+            return _skip_legal_check(
                 state=state,
-                error=NodeError(
-                    code=node_errors.ERROR_MISSING_INPUT,
-                    message="Missing params.jurisdiction for legal check",
-                    details={"required": "params.jurisdiction"},
-                ),
+                message="Legal check skipped: missing params.jurisdiction",
+                reason="missing_jurisdiction",
+                details={"required": "params.jurisdiction"},
             )
         if not isinstance(as_of, str) or not as_of.strip():
-            return NodeOutcome(
-                status="fail",
+            return _skip_legal_check(
                 state=state,
-                error=NodeError(
-                    code=node_errors.ERROR_MISSING_INPUT,
-                    message="Missing params.as_of for legal check",
-                    details={"required": "params.as_of"},
-                ),
+                message="Legal check skipped: missing params.as_of",
+                reason="missing_as_of",
+                details={"required": "params.as_of"},
             )
 
         trinity_bundle_ref = _coerce_trinity_ref(state.inputs.get(INPUT_TRINITY_BUNDLE_REF))
         policy_spec_ref = _coerce_policy_ref(state.inputs.get(INPUT_POLICY_SPEC_REF))
         model_spec_ref = _coerce_model_ref(state.inputs.get(INPUT_MODEL_SPEC_REF))
         if trinity_bundle_ref is None and policy_spec_ref is None:
-            return NodeOutcome(
-                status="fail",
+            return _skip_legal_check(
                 state=state,
-                error=NodeError(
-                    code=node_errors.ERROR_MISSING_INPUT,
-                    message="Missing policy source: provide trinity_bundle_ref or policy_spec_ref",
-                    details={"required": [INPUT_TRINITY_BUNDLE_REF, INPUT_POLICY_SPEC_REF]},
+                message=(
+                    "Legal check skipped: missing policy source "
+                    "(provide trinity_bundle_ref or policy_spec_ref)"
                 ),
+                reason="missing_policy_source",
+                details={"required": [INPUT_TRINITY_BUNDLE_REF, INPUT_POLICY_SPEC_REF]},
             )
 
         norm_pack_ref = state.inputs.get(INPUT_NORM_PACK_REF)

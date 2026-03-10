@@ -3,6 +3,21 @@
     "GateContext": {
       "additionalProperties": false,
       "properties": {
+        "artifact_refs": {
+          "anyOf": [
+            {
+              "additionalProperties": {
+                "type": "string"
+              },
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Artifact Refs"
+        },
         "governance_profile": {
           "anyOf": [
             {
@@ -19,6 +34,21 @@
           "default": false,
           "title": "Is Escalated",
           "type": "boolean"
+        },
+        "issue_summary": {
+          "anyOf": [
+            {
+              "additionalProperties": {
+                "type": "integer"
+              },
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Issue Summary"
         },
         "iteration": {
           "default": 1,
@@ -46,6 +76,19 @@
           "default": null,
           "title": "Policy Summary"
         },
+        "replay_summary": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Replay Summary"
+        },
         "risk_indicators": {
           "items": {
             "type": "string"
@@ -65,6 +108,19 @@
           ],
           "default": null,
           "title": "Simulation Results"
+        },
+        "transport_summary": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Transport Summary"
         },
         "workflow_id": {
           "title": "Workflow Id",
@@ -122,7 +178,7 @@
       "type": "string"
     },
     "schema_version": {
-      "default": "1.0",
+      "default": "1.1",
       "pattern": "^\\d+\\.\\d+$",
       "title": "Schema Version",
       "type": "string"

@@ -4,227 +4,6 @@
  */
 
 export interface paths {
-    "/health": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Health */
-        get: operations["health"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/ready": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Ready */
-        get: operations["ready"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/health": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Api Health */
-        get: operations["runtime_api_health"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/runs": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List Runs */
-        get: operations["list_runs"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/runs/{run_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get Run Details */
-        get: operations["get_run_details"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/runs/{run_id}/timeline": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get Run Timeline */
-        get: operations["get_run_timeline"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/runs/{run_id}/nodes": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get Run Nodes */
-        get: operations["get_run_nodes"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/runs/{run_id}/lineage": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get Run Lineage */
-        get: operations["get_run_lineage"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/runs/{run_id}/agents": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get Run Agents */
-        get: operations["get_run_agents"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/runs/{run_id}/workflow": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get Run Workflow */
-        get: operations["get_run_workflow"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/debug/runs/{run_id}/nodes/{alias}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get Node Debug */
-        get: operations["get_node_debug"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/debug/runs/{run_id}/governance": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get Governance Debug */
-        get: operations["get_governance_debug"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/debug/runs/{run_id}/errors": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get Run Errors */
-        get: operations["get_run_errors"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/v1/artifacts/{artifact_id}": {
         parameters: {
             query?: never;
@@ -293,102 +72,51 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/control/runs": {
+    "/api/v1/control/capabilities": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /** Get control-plane capability manifest */
+        get: operations["get_control_capabilities"];
         put?: never;
-        /** Launch a workflow run */
-        post: operations["launch_run"];
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/api/v1/control/runs/nl": {
+    "/api/v1/control/data/binding-profiles": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /** List available binding profiles */
+        get: operations["list_binding_profiles"];
         put?: never;
-        /** Launch a natural-language run via agent circuit */
-        post: operations["launch_nl_run"];
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/api/v1/control/data/ingest": {
+    "/api/v1/control/data/cache": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /** Get data cache status */
+        get: operations["get_cache_status"];
         put?: never;
-        /** Trigger data collection from connectors */
-        post: operations["ingest_data"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/control/data/resolve": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Resolve DataNeeds into FetchPlans */
-        post: operations["resolve_data_needs"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/control/data/discover": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Run bounded ExploreLane discovery */
-        post: operations["discover_data_sources"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/control/data/preview": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Preview FetchPlan with quality gate */
-        post: operations["preview_fetch_plan"];
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -412,6 +140,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/control/data/connectors": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List available data connectors */
+        get: operations["list_connectors"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/control/data/discover": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Run bounded ExploreLane discovery */
+        post: operations["discover_data_sources"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/control/data/index/stats": {
         parameters: {
             query?: never;
@@ -421,6 +183,57 @@ export interface paths {
         };
         /** Get local retrieval index statistics */
         get: operations["get_data_index_stats"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/control/data/ingest": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Trigger data collection from connectors */
+        post: operations["ingest_data"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/control/data/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Preview FetchPlan with quality gate */
+        post: operations["preview_fetch_plan"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/control/data/profiles": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List available source profiles */
+        get: operations["list_source_profiles"];
         put?: never;
         post?: never;
         delete?: never;
@@ -480,92 +293,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/control/data/connectors": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List available data connectors */
-        get: operations["list_connectors"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/control/data/cache": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get data cache status */
-        get: operations["get_cache_status"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/control/llm/profiles": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List available LLM model profiles */
-        get: operations["list_llm_profiles"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/control/data/profiles": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List available source profiles */
-        get: operations["list_source_profiles"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/control/data/binding-profiles": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List available binding profiles */
-        get: operations["list_binding_profiles"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/control/lex/trigger": {
+    "/api/v1/control/data/resolve": {
         parameters: {
             query?: never;
             header?: never;
@@ -574,25 +302,8 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Start Lex batch pipeline in background */
-        post: operations["trigger_lex_pipeline"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/control/lex/status/{pipeline_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get Lex pipeline execution status */
-        get: operations["get_lex_pipeline_status"];
-        put?: never;
-        post?: never;
+        /** Resolve DataNeeds into FetchPlans */
+        post: operations["resolve_data_needs"];
         delete?: never;
         options?: never;
         head?: never;
@@ -633,6 +344,329 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/control/lex/status/{pipeline_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Lex pipeline execution status */
+        get: operations["get_lex_pipeline_status"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/control/lex/trigger": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Start Lex batch pipeline in background */
+        post: operations["trigger_lex_pipeline"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/control/llm/profiles": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List available LLM model profiles */
+        get: operations["list_llm_profiles"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/control/runs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Launch a workflow run */
+        post: operations["launch_run"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/control/runs/nl": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Launch a natural-language run via agent circuit */
+        post: operations["launch_nl_run"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/debug/runs/{run_id}/errors": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Run Errors */
+        get: operations["get_run_errors"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/debug/runs/{run_id}/governance": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Governance Debug */
+        get: operations["get_governance_debug"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/debug/runs/{run_id}/nodes/{alias}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Node Debug */
+        get: operations["get_node_debug"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/health": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Api Health */
+        get: operations["runtime_api_health"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/runs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Runs */
+        get: operations["list_runs"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/runs/{run_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Run Details */
+        get: operations["get_run_details"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/runs/{run_id}/agents": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Run Agents */
+        get: operations["get_run_agents"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/runs/{run_id}/evidence-context": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Run Evidence Context */
+        get: operations["get_run_evidence_context"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/runs/{run_id}/lineage": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Run Lineage */
+        get: operations["get_run_lineage"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/runs/{run_id}/nodes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Run Nodes */
+        get: operations["get_run_nodes"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/runs/{run_id}/timeline": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Run Timeline */
+        get: operations["get_run_timeline"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/runs/{run_id}/workflow": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Run Workflow */
+        get: operations["get_run_workflow"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/health": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Health */
+        get: operations["health"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/ready": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Ready */
+        get: operations["ready"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -641,23 +675,23 @@ export interface components {
         AgentPipelineAttempt: {
             /** Attempt */
             attempt: number;
+            /** Duration Ms */
+            duration_ms?: number | null;
+            /** Finished At */
+            finished_at?: string | null;
+            /** Notes */
+            notes?: string[];
+            /** Started At */
+            started_at?: string | null;
             /**
              * Status
              * @default unknown
              */
             status: string;
-            /** Verdict */
-            verdict?: string | null;
-            /** Started At */
-            started_at?: string | null;
-            /** Finished At */
-            finished_at?: string | null;
-            /** Duration Ms */
-            duration_ms?: number | null;
             /** Steps */
             steps?: components["schemas"]["AgentPipelineStep"][];
-            /** Notes */
-            notes?: string[];
+            /** Verdict */
+            verdict?: string | null;
         };
         /** AgentPipelineResponse */
         AgentPipelineResponse: {
@@ -666,43 +700,43 @@ export interface components {
         };
         /** AgentPipelineStep */
         AgentPipelineStep: {
+            /** Action */
+            action: string;
+            /** Agent */
+            agent: string;
             /**
              * Attempt
              * @default 1
              */
             attempt: number;
-            /** Agent */
-            agent: string;
-            /** Action */
-            action: string;
+            /** Cost Usd */
+            cost_usd?: number | null;
+            /** Details */
+            details?: {
+                [key: string]: unknown;
+            };
+            /** Latency Ms */
+            latency_ms?: number | null;
+            /** Model */
+            model?: string | null;
+            /** Model Variant Id */
+            model_variant_id?: string | null;
+            /** Prompt */
+            prompt?: string | null;
+            /** Provider */
+            provider?: string | null;
+            /** Response */
+            response?: string | null;
             /**
              * Status
              * @default info
              * @enum {string}
              */
             status: "ok" | "warn" | "fail" | "info";
-            /** Timestamp */
-            timestamp?: string | null;
             /** Summary */
             summary?: string | null;
-            /** Details */
-            details?: {
-                [key: string]: unknown;
-            };
-            /** Prompt */
-            prompt?: string | null;
-            /** Response */
-            response?: string | null;
-            /** Model */
-            model?: string | null;
-            /** Provider */
-            provider?: string | null;
-            /** Model Variant Id */
-            model_variant_id?: string | null;
-            /** Latency Ms */
-            latency_ms?: number | null;
-            /** Cost Usd */
-            cost_usd?: number | null;
+            /** Timestamp */
+            timestamp?: string | null;
             /** Token Usage */
             token_usage?: {
                 [key: string]: number;
@@ -710,8 +744,25 @@ export interface components {
         };
         /** AgentPipelineView */
         AgentPipelineView: {
+            /** Attempts */
+            attempts?: components["schemas"]["AgentPipelineAttempt"][];
+            decision_packet_ref?: components["schemas"]["ArtifactRef"] | null;
+            evaluator?: components["schemas"]["EvaluatorReportView"] | null;
+            execution_plan_ref?: components["schemas"]["ArtifactRef"] | null;
+            iteration_lifecycle?: components["schemas"]["IterationLifecycleView"] | null;
+            /** Latest Verdict */
+            latest_verdict?: string | null;
+            method_catalog_snapshot_ref?: components["schemas"]["ArtifactRef"] | null;
+            /** Notes */
+            notes?: string[];
+            preflight?: components["schemas"]["PreflightReportView"] | null;
+            reflexion_terminal_ref?: components["schemas"]["ArtifactRef"] | null;
+            reproducibility?: components["schemas"]["ReproducibilityView"] | null;
+            retrieval?: components["schemas"]["RetrievalTelemetryView"] | null;
             /** Run Id */
             run_id: string;
+            /** Source */
+            source?: string | null;
             /**
              * Source Kind
              * @constant
@@ -722,33 +773,16 @@ export interface components {
              * @default 0
              */
             total_attempts: number;
-            /** Latest Verdict */
-            latest_verdict?: string | null;
-            /** Attempts */
-            attempts?: components["schemas"]["AgentPipelineAttempt"][];
-            decision_packet_ref?: components["schemas"]["ArtifactRef"] | null;
-            reflexion_terminal_ref?: components["schemas"]["ArtifactRef"] | null;
-            retrieval?: components["schemas"]["RetrievalTelemetryView"] | null;
-            execution_plan_ref?: components["schemas"]["ArtifactRef"] | null;
-            method_catalog_snapshot_ref?: components["schemas"]["ArtifactRef"] | null;
-            preflight?: components["schemas"]["PreflightReportView"] | null;
-            evaluator?: components["schemas"]["EvaluatorReportView"] | null;
-            iteration_lifecycle?: components["schemas"]["IterationLifecycleView"] | null;
-            reproducibility?: components["schemas"]["ReproducibilityView"] | null;
-            /** Source */
-            source?: string | null;
-            /** Notes */
-            notes?: string[];
         };
         /** ApiMeta */
         ApiMeta: {
-            /** Request Id */
-            request_id: string;
             /**
              * Generated At
              * Format: date-time
              */
             generated_at?: string;
+            /** Request Id */
+            request_id: string;
             /** Source Kinds */
             source_kinds?: "core_run"[];
         };
@@ -758,6 +792,8 @@ export interface components {
             artifact_id: string;
             /** Kind */
             kind: string;
+            /** Max Bytes */
+            max_bytes: number;
             /** Media Type */
             media_type: string;
             /**
@@ -765,22 +801,20 @@ export interface components {
              * @enum {string}
              */
             mode: "json" | "text" | "binary";
+            /** Preview */
+            preview?: unknown;
             /** Size Bytes */
             size_bytes: number;
-            /** Max Bytes */
-            max_bytes: number;
             /**
              * Truncated
              * @default false
              */
             truncated: boolean;
-            /** Preview */
-            preview?: unknown;
         };
         /** ArtifactContentResponse */
         ArtifactContentResponse: {
-            meta: components["schemas"]["ApiMeta"];
             artifact: components["schemas"]["ArtifactContentPreview"];
+            meta: components["schemas"]["ApiMeta"];
         };
         /**
          * ArtifactID
@@ -789,10 +823,10 @@ export interface components {
         ArtifactID: string;
         /** ArtifactLineageEdge */
         ArtifactLineageEdge: {
-            /** Parent Artifact Id */
-            parent_artifact_id: string;
             /** Child Artifact Id */
             child_artifact_id: string;
+            /** Parent Artifact Id */
+            parent_artifact_id: string;
             /** Role */
             role: string;
         };
@@ -800,12 +834,6 @@ export interface components {
         ArtifactLineageNode: {
             /** Artifact Id */
             artifact_id: string;
-            /** Role */
-            role?: string | null;
-            /** Kind */
-            kind?: string | null;
-            /** Status */
-            status: string;
             /**
              * Byte Size
              * @default 0
@@ -816,31 +844,24 @@ export interface components {
              * @default 0
              */
             depth: number;
+            /** Kind */
+            kind?: string | null;
+            /** Role */
+            role?: string | null;
+            /** Status */
+            status: string;
         };
         /** ArtifactLineageResponse */
         ArtifactLineageResponse: {
-            meta: components["schemas"]["ApiMeta"];
             lineage: components["schemas"]["ArtifactLineageView"];
+            meta: components["schemas"]["ApiMeta"];
         };
         /** ArtifactLineageView */
         ArtifactLineageView: {
-            /** Root Artifact Ids */
-            root_artifact_ids?: string[];
-            /**
-             * Total Nodes
-             * @default 0
-             */
-            total_nodes: number;
-            /**
-             * Total Edges
-             * @default 0
-             */
-            total_edges: number;
-            /**
-             * Total Size Bytes
-             * @default 0
-             */
-            total_size_bytes: number;
+            /** Corrupted Artifact Ids */
+            corrupted_artifact_ids?: string[];
+            /** Edges */
+            edges?: components["schemas"]["ArtifactLineageEdge"][];
             /**
              * Is Complete
              * @default false
@@ -848,26 +869,35 @@ export interface components {
             is_complete: boolean;
             /** Missing Artifact Ids */
             missing_artifact_ids?: string[];
-            /** Corrupted Artifact Ids */
-            corrupted_artifact_ids?: string[];
             /** Nodes */
             nodes?: components["schemas"]["ArtifactLineageNode"][];
-            /** Edges */
-            edges?: components["schemas"]["ArtifactLineageEdge"][];
+            /** Root Artifact Ids */
+            root_artifact_ids?: string[];
+            /**
+             * Total Edges
+             * @default 0
+             */
+            total_edges: number;
+            /**
+             * Total Nodes
+             * @default 0
+             */
+            total_nodes: number;
+            /**
+             * Total Size Bytes
+             * @default 0
+             */
+            total_size_bytes: number;
         };
         /** ArtifactManifestResponse */
         ArtifactManifestResponse: {
-            meta: components["schemas"]["ApiMeta"];
             artifact: components["schemas"]["ArtifactManifestView"];
+            meta: components["schemas"]["ApiMeta"];
         };
         /** ArtifactManifestView */
         ArtifactManifestView: {
             /** Artifact Id */
             artifact_id: string;
-            /** Kind */
-            kind: string;
-            /** Media Type */
-            media_type: string;
             /** Byte Size */
             byte_size: number;
             /**
@@ -875,18 +905,22 @@ export interface components {
              * Format: date-time
              */
             created_at: string;
-            /** Schema Name */
-            schema_name?: string | null;
-            /** Schema Version */
-            schema_version?: string | null;
-            /** Producer Component */
-            producer_component?: string | null;
-            /** Producer Version */
-            producer_version?: string | null;
             /** Inputs */
             inputs?: components["schemas"]["InputRef"][];
             /** Integrity Sha256 */
             integrity_sha256: string;
+            /** Kind */
+            kind: string;
+            /** Media Type */
+            media_type: string;
+            /** Producer Component */
+            producer_component?: string | null;
+            /** Producer Version */
+            producer_version?: string | null;
+            /** Schema Name */
+            schema_name?: string | null;
+            /** Schema Version */
+            schema_version?: string | null;
         };
         /** ArtifactRef */
         ArtifactRef: {
@@ -918,15 +952,22 @@ export interface components {
         };
         /** BindingProfileInfo */
         BindingProfileInfo: {
-            /** Profile Id */
-            profile_id: string;
-            /** Display Name */
-            display_name: string;
             /**
              * Description
              * @default
              */
             description: string;
+            /** Display Name */
+            display_name: string;
+            /** Expected Columns */
+            expected_columns?: string[];
+            /** Profile Id */
+            profile_id: string;
+            /**
+             * Rule Count
+             * @default 0
+             */
+            rule_count: number;
             /** Schema Family */
             schema_family: string;
             /**
@@ -934,13 +975,6 @@ export interface components {
              * @default auto
              */
             strategy: string;
-            /**
-             * Rule Count
-             * @default 0
-             */
-            rule_count: number;
-            /** Expected Columns */
-            expected_columns?: string[];
             /** Tags */
             tags?: string[];
         };
@@ -956,28 +990,30 @@ export interface components {
             cache_key: string;
             /** Connector Id */
             connector_id: string;
-            /** Dataset Id */
-            dataset_id: string;
             /**
              * Created At
              * Format: date-time
              */
             created_at: string;
+            /** Dataset Id */
+            dataset_id: string;
             /** Expires At */
             expires_at?: string | null;
-            /**
-             * Size Bytes
-             * @default 0
-             */
-            size_bytes: number;
             /**
              * Is Valid
              * @default true
              */
             is_valid: boolean;
+            /**
+             * Size Bytes
+             * @default 0
+             */
+            size_bytes: number;
         };
         /** CacheStatusResponse */
         CacheStatusResponse: {
+            /** Entries */
+            entries?: components["schemas"]["CacheEntryInfo"][];
             meta: components["schemas"]["ApiMeta"];
             /**
              * Total Entries
@@ -989,61 +1025,111 @@ export interface components {
              * @default 0
              */
             total_size_bytes: number;
-            /** Entries */
-            entries?: components["schemas"]["CacheEntryInfo"][];
+        };
+        /** CapabilityFeatureInfo */
+        CapabilityFeatureInfo: {
+            /** Category */
+            category: string;
+            /** Description */
+            description: string;
+            /**
+             * Enabled
+             * @default true
+             */
+            enabled: boolean;
+            /** Key */
+            key: string;
+            /** Label */
+            label: string;
+            /**
+             * Stage
+             * @default active
+             * @enum {string}
+             */
+            stage: "active" | "planned" | "deferred";
+        };
+        /** CapabilityManifestResponse */
+        CapabilityManifestResponse: {
+            /** Constraints */
+            constraints?: {
+                [key: string]: unknown;
+            };
+            /**
+             * Default Locale
+             * @default en
+             * @enum {string}
+             */
+            default_locale: "en" | "uk";
+            /** Features */
+            features?: components["schemas"]["CapabilityFeatureInfo"][];
+            meta: components["schemas"]["ApiMeta"];
+            /**
+             * Runtime Api Version
+             * @default 1.0.0
+             */
+            runtime_api_version: string;
+            /**
+             * Shell Flavor
+             * @default atlas
+             */
+            shell_flavor: string;
+            /** Supported Locales */
+            supported_locales?: ("en" | "uk")[];
+            /** Workspaces */
+            workspaces?: string[];
         };
         /** ConnectorInfo */
         ConnectorInfo: {
+            /** Available Profiles */
+            available_profiles?: string[];
             /** Connector Id */
             connector_id: string;
-            /** Namespace */
-            namespace: string;
-            /** Version */
-            version: string;
             /** Known Datasets */
             known_datasets?: string[];
+            /** Last Health Check */
+            last_health_check?: string | null;
             /**
              * Loaded
              * @default false
              */
             loaded: boolean;
-            /** Last Health Check */
-            last_health_check?: string | null;
-            /** Available Profiles */
-            available_profiles?: string[];
+            /** Namespace */
+            namespace: string;
+            /** Version */
+            version: string;
         };
         /** ConnectorsListResponse */
         ConnectorsListResponse: {
-            meta: components["schemas"]["ApiMeta"];
             /** Connectors */
             connectors?: components["schemas"]["ConnectorInfo"][];
+            meta: components["schemas"]["ApiMeta"];
         };
         /** CursorPage */
         CursorPage: {
-            /**
-             * Limit
-             * @default 50
-             */
-            limit: number;
-            /** Cursor */
-            cursor?: string | null;
-            /** Next Cursor */
-            next_cursor?: string | null;
             /**
              * Count
              * @default 0
              */
             count: number;
+            /** Cursor */
+            cursor?: string | null;
+            /**
+             * Limit
+             * @default 50
+             */
+            limit: number;
+            /** Next Cursor */
+            next_cursor?: string | null;
             /** Total */
             total?: number | null;
         };
         /** DataCatalogSearchResponse */
         DataCatalogSearchResponse: {
+            /** Matches */
+            matches?: components["schemas"]["MetricCandidate"][];
             meta: components["schemas"]["ApiMeta"];
             /** Query */
             query: string;
-            /** Matches */
-            matches?: components["schemas"]["MetricCandidate"][];
             /**
              * Total Matches
              * @default 0
@@ -1052,37 +1138,36 @@ export interface components {
         };
         /** DataDiscoverRequest */
         DataDiscoverRequest: {
+            /**
+             * Cost Budget Usd
+             * @default 0
+             */
+            cost_budget_usd: number;
             /** Data Needs */
             data_needs: components["schemas"]["DataNeed"][];
-            /**
-             * Max Sources Per Query
-             * @default 5
-             */
-            max_sources_per_query: number;
-            /**
-             * Max Discovery Calls Per Source
-             * @default 25
-             */
-            max_discovery_calls_per_source: number;
             /**
              * Max Candidates Total
              * @default 50
              */
             max_candidates_total: number;
             /**
+             * Max Discovery Calls Per Source
+             * @default 25
+             */
+            max_discovery_calls_per_source: number;
+            /**
+             * Max Sources Per Query
+             * @default 5
+             */
+            max_sources_per_query: number;
+            /**
              * Time Budget Ms
              * @default 5000
              */
             time_budget_ms: number;
-            /**
-             * Cost Budget Usd
-             * @default 0
-             */
-            cost_budget_usd: number;
         };
         /** DataDiscoverResponse */
         DataDiscoverResponse: {
-            meta: components["schemas"]["ApiMeta"];
             /** Candidates */
             candidates?: components["schemas"]["DiscoveryCandidate"][];
             /**
@@ -1091,43 +1176,44 @@ export interface components {
              */
             docs_fetched_total: number;
             index_stats?: components["schemas"]["IndexStats"] | null;
+            meta: components["schemas"]["ApiMeta"];
             /** Warnings */
             warnings?: string[];
         };
         /** DataNeed */
         DataNeed: {
-            /** Metric */
-            metric: string;
             /** Geography */
             geography?: string | null;
-            /** Time Start */
-            time_start?: string | null;
-            /** Time End */
-            time_end?: string | null;
             /**
              * Granularity
              * @default annual
              */
             granularity: string;
-            /**
-             * Quality Min
-             * @default 0.6
-             */
-            quality_min: number;
+            /** Metric */
+            metric: string;
             /**
              * Purpose
              * @default policy_drafting
              */
             purpose: string;
+            /**
+             * Quality Min
+             * @default 0.6
+             */
+            quality_min: number;
+            /** Time End */
+            time_end?: string | null;
+            /** Time Start */
+            time_start?: string | null;
         };
         /** DataPreviewRequest */
         DataPreviewRequest: {
-            fetch_plan: components["schemas"]["FetchPlan"];
             /**
              * Allow Fallback
              * @default true
              */
             allow_fallback: boolean;
+            fetch_plan: components["schemas"]["FetchPlan"];
         };
         /** DataPreviewResponse */
         DataPreviewResponse: {
@@ -1136,6 +1222,11 @@ export interface components {
         };
         /** DataResolveRequest */
         DataResolveRequest: {
+            /**
+             * Allow Explore Fallback
+             * @default true
+             */
+            allow_explore_fallback: boolean;
             /** Data Needs */
             data_needs: components["schemas"]["DataNeed"][];
             /**
@@ -1144,24 +1235,19 @@ export interface components {
              * @enum {string}
              */
             mode: "fastlane" | "explorelane" | "hybrid";
-            /**
-             * Allow Explore Fallback
-             * @default true
-             */
-            allow_explore_fallback: boolean;
         };
         /** DataResolveResponse */
         DataResolveResponse: {
+            /** Candidates */
+            candidates?: components["schemas"]["MetricCandidate"][];
+            /** Fetch Plans */
+            fetch_plans?: components["schemas"]["FetchPlan"][];
             meta: components["schemas"]["ApiMeta"];
             /**
              * Mode
              * @enum {string}
              */
             mode: "fastlane" | "explorelane" | "hybrid";
-            /** Fetch Plans */
-            fetch_plans?: components["schemas"]["FetchPlan"][];
-            /** Candidates */
-            candidates?: components["schemas"]["MetricCandidate"][];
             /** Warnings */
             warnings?: string[];
         };
@@ -1172,10 +1258,10 @@ export interface components {
         DataSourceBinding: {
             /** Data Snapshot Ref */
             data_snapshot_ref?: string | null;
-            /** Input Bindings Ref */
-            input_bindings_ref?: string | null;
             /** Data View Request Ref */
             data_view_request_ref?: string | null;
+            /** Input Bindings Ref */
+            input_bindings_ref?: string | null;
         };
         /** DatasetFetchSpecRequest */
         DatasetFetchSpecRequest: {
@@ -1183,23 +1269,28 @@ export interface components {
             connector_id: string;
             /** Dataset Id */
             dataset_id: string;
+            /** Date End */
+            date_end?: string | null;
+            /** Date Start */
+            date_start?: string | null;
             /** Filters */
             filters?: {
                 [key: string]: string[];
             };
-            /** Date Start */
-            date_start?: string | null;
-            /** Date End */
-            date_end?: string | null;
         };
         /** DiscoveryCandidate */
         DiscoveryCandidate: {
             /** Candidate Id */
             candidate_id: string;
-            /** Metric Id */
-            metric_id: string;
+            /**
+             * Confidence
+             * @default 0
+             */
+            confidence: number;
             /** Connector Id */
             connector_id: string;
+            /** Coverage Estimate */
+            coverage_estimate?: number | null;
             /** Dataset Id */
             dataset_id: string;
             /** Dataset Name */
@@ -1209,61 +1300,51 @@ export interface components {
              * @default
              */
             description: string;
+            /** Discovered At */
+            discovered_at?: string | null;
+            /** Latency Estimate Ms */
+            latency_estimate_ms?: number | null;
+            /** Metadata */
+            metadata?: {
+                [key: string]: unknown;
+            };
+            /** Metric Id */
+            metric_id: string;
             /** Profile Id */
             profile_id?: string | null;
+            /** Schema Excerpt */
+            schema_excerpt?: {
+                [key: string]: unknown;
+            };
             /**
              * Source Lane
              * @default explorelane
              * @enum {string}
              */
             source_lane: "fastlane" | "explorelane";
-            /**
-             * Confidence
-             * @default 0
-             */
-            confidence: number;
-            /** Coverage Estimate */
-            coverage_estimate?: number | null;
-            /** Latency Estimate Ms */
-            latency_estimate_ms?: number | null;
-            /** Schema Excerpt */
-            schema_excerpt?: {
-                [key: string]: unknown;
-            };
-            /** Discovered At */
-            discovered_at?: string | null;
-            /** Metadata */
-            metadata?: {
-                [key: string]: unknown;
-            };
         };
         /** EvaluatorReportView */
         EvaluatorReportView: {
-            /** Verdict */
-            verdict?: ("APPROVE" | "REPLAN_DATA" | "REPLAN_METHOD" | "REPLAN_PARAMS" | "STOP_BUDGET") | null;
-            scores?: components["schemas"]["EvaluatorScoresView"];
-            /** Reasons */
-            reasons?: string[];
-            /** Replanning Hints */
-            replanning_hints?: string[];
             /** Diagnostics */
             diagnostics?: components["schemas"]["PreflightDiagnosticView"][];
             /** Notes */
             notes?: string[];
+            /** Reasons */
+            reasons?: string[];
+            /** Replanning Hints */
+            replanning_hints?: string[];
             report_ref?: components["schemas"]["ArtifactRef"] | null;
+            scores?: components["schemas"]["EvaluatorScoresView"];
+            /** Verdict */
+            verdict?: ("APPROVE" | "REPLAN_DATA" | "REPLAN_METHOD" | "REPLAN_PARAMS" | "STOP_BUDGET") | null;
         };
         /** EvaluatorScoresView */
         EvaluatorScoresView: {
             /**
-             * Kpi Score
+             * Budget Score
              * @default 0
              */
-            kpi_score: number;
-            /**
-             * Uncertainty Score
-             * @default 0
-             */
-            uncertainty_score: number;
+            budget_score: number;
             /**
              * Constraints Score
              * @default 0
@@ -1275,38 +1356,59 @@ export interface components {
              */
             data_quality_score: number;
             /**
-             * Budget Score
+             * Kpi Score
              * @default 0
              */
-            budget_score: number;
+            kpi_score: number;
             /**
              * Total Score
              * @default 0
              */
             total_score: number;
+            /**
+             * Uncertainty Score
+             * @default 0
+             */
+            uncertainty_score: number;
         };
         /** FetchPlan */
         FetchPlan: {
-            /** Plan Id */
-            plan_id: string;
-            /** Metric Id */
-            metric_id: string;
             /** Connector Id */
             connector_id: string;
             /** Dataset Id */
             dataset_id: string;
-            /** Profile Id */
-            profile_id?: string | null;
+            /** Date End */
+            date_end?: string | null;
+            /** Date Start */
+            date_start?: string | null;
+            /** Fallbacks */
+            fallbacks?: components["schemas"]["FetchPlanFallback"][];
             /** Filters */
             filters?: {
                 [key: string]: string[];
             };
-            /** Date Start */
-            date_start?: string | null;
-            /** Date End */
-            date_end?: string | null;
             /** Granularity */
             granularity?: string | null;
+            /**
+             * Max Preview Rows
+             * @default 20
+             */
+            max_preview_rows: number;
+            /** Metadata */
+            metadata?: {
+                [key: string]: unknown;
+            };
+            /** Metric Id */
+            metric_id: string;
+            /**
+             * Persist Payload
+             * @default false
+             */
+            persist_payload: boolean;
+            /** Plan Id */
+            plan_id: string;
+            /** Profile Id */
+            profile_id?: string | null;
             /**
              * Quality Min
              * @default 0.6
@@ -1318,22 +1420,6 @@ export interface components {
              * @enum {string}
              */
             source_lane: "fastlane" | "explorelane";
-            /**
-             * Persist Payload
-             * @default false
-             */
-            persist_payload: boolean;
-            /**
-             * Max Preview Rows
-             * @default 20
-             */
-            max_preview_rows: number;
-            /** Fallbacks */
-            fallbacks?: components["schemas"]["FetchPlanFallback"][];
-            /** Metadata */
-            metadata?: {
-                [key: string]: unknown;
-            };
         };
         /** FetchPlanFallback */
         FetchPlanFallback: {
@@ -1341,45 +1427,45 @@ export interface components {
             connector_id: string;
             /** Dataset Id */
             dataset_id: string;
-            /** Profile Id */
-            profile_id?: string | null;
             /** Filters */
             filters?: {
                 [key: string]: string[];
             };
+            /** Profile Id */
+            profile_id?: string | null;
         };
         /** FetchPreview */
         FetchPreview: {
-            /**
-             * Status
-             * @default ok
-             * @enum {string}
-             */
-            status: "ok" | "insufficient_coverage" | "error";
-            /** Connector Id */
-            connector_id: string;
-            /** Dataset Id */
-            dataset_id: string;
-            /**
-             * Row Count
-             * @default 0
-             */
-            row_count: number;
             /**
              * Completeness
              * @default 0
              */
             completeness: number;
+            /** Connector Id */
+            connector_id: string;
             /**
              * Coverage Ok
              * @default false
              */
             coverage_ok: boolean;
+            /** Dataset Id */
+            dataset_id: string;
+            /** Latency Ms */
+            latency_ms?: number | null;
+            /** Message */
+            message?: string | null;
+            /** Quality Flags */
+            quality_flags?: string[];
             /**
              * Quality Min
              * @default 0
              */
             quality_min: number;
+            /**
+             * Row Count
+             * @default 0
+             */
+            row_count: number;
             /** Sample Rows */
             sample_rows?: {
                 [key: string]: unknown;
@@ -1388,20 +1474,48 @@ export interface components {
             schema?: {
                 [key: string]: unknown;
             };
-            /** Quality Flags */
-            quality_flags?: string[];
-            /** Message */
-            message?: string | null;
-            /** Latency Ms */
-            latency_ms?: number | null;
+            /**
+             * Status
+             * @default ok
+             * @enum {string}
+             */
+            status: "ok" | "insufficient_coverage" | "error";
         };
         /** GovernanceDebugResponse */
         GovernanceDebugResponse: {
-            meta: components["schemas"]["ApiMeta"];
             debug: components["schemas"]["GovernanceDebugView"];
+            meta: components["schemas"]["ApiMeta"];
         };
         /** GovernanceDebugView */
         GovernanceDebugView: {
+            /** Contract Warnings */
+            contract_warnings?: string[];
+            /**
+             * Fallback From Decision Packet
+             * @default false
+             */
+            fallback_from_decision_packet: boolean;
+            /** Issue Summary */
+            issue_summary?: {
+                [key: string]: number;
+            } | null;
+            /** Issues */
+            issues?: {
+                [key: string]: unknown;
+            }[];
+            /** Legal Executed */
+            legal_executed?: boolean | null;
+            /** Links */
+            links?: {
+                [key: string]: components["schemas"]["ArtifactRef"] | null;
+            } | null;
+            /** Notes */
+            notes?: string[];
+            /** Report Kind */
+            report_kind?: string | null;
+            report_ref?: components["schemas"]["ArtifactRef"] | null;
+            /** Report Schema Version */
+            report_schema_version?: string | null;
             /** Run Id */
             run_id: string;
             /**
@@ -1409,24 +1523,16 @@ export interface components {
              * @constant
              */
             source_kind: "core_run";
-            /** Verdict */
-            verdict?: string | null;
-            /** Issues */
-            issues?: {
+            /** Transport Summary */
+            transport_summary?: {
                 [key: string]: unknown;
-            }[];
-            /** Notes */
-            notes?: string[];
-            report_ref?: components["schemas"]["ArtifactRef"] | null;
+            } | null;
             /** Validation Trace */
             validation_trace?: {
                 [key: string]: unknown;
             } | null;
-            /**
-             * Fallback From Decision Packet
-             * @default false
-             */
-            fallback_from_decision_packet: boolean;
+            /** Verdict */
+            verdict?: string | null;
         };
         /** HTTPValidationError */
         HTTPValidationError: {
@@ -1435,6 +1541,11 @@ export interface components {
         };
         /** IndexStats */
         IndexStats: {
+            /**
+             * Docs Added Last Run
+             * @default 0
+             */
+            docs_added_last_run: number;
             /**
              * Index Docs Total
              * @default 0
@@ -1450,17 +1561,12 @@ export interface components {
              * @default 0
              */
             indexed_sources: number;
-            /**
-             * Docs Added Last Run
-             * @default 0
-             */
-            docs_added_last_run: number;
+            /** Last Updated */
+            last_updated?: string | null;
             /** Source Coverage */
             source_coverage?: {
                 [key: string]: number;
             };
-            /** Last Updated */
-            last_updated?: string | null;
         };
         /** IndexStatsResponse */
         IndexStatsResponse: {
@@ -1472,20 +1578,8 @@ export interface components {
          * @description POST /api/v1/control/data/ingest — trigger data collection.
          */
         IngestRequest: {
-            /** Datasets */
-            datasets?: components["schemas"]["DatasetFetchSpecRequest"][];
-            /** Fetch Plans */
-            fetch_plans?: components["schemas"]["FetchPlan"][];
-            /**
-             * Source
-             * @default dashboard
-             */
-            source: string;
-            /**
-             * License Name
-             * @default open
-             */
-            license_name: string;
+            /** Binding Profile Id */
+            binding_profile_id?: string | null;
             /**
              * Cache Policy
              * @default default
@@ -1493,17 +1587,31 @@ export interface components {
             cache_policy: string;
             /** Connection Profile */
             connection_profile?: string | null;
+            /** Datasets */
+            datasets?: components["schemas"]["DatasetFetchSpecRequest"][];
             /**
              * Execution Mode
              * @default batch_full
              * @enum {string}
              */
             execution_mode: "batch_full" | "batch_incremental" | "streaming_windowed";
+            /** Fetch Plans */
+            fetch_plans?: components["schemas"]["FetchPlan"][];
+            /**
+             * License Name
+             * @default open
+             */
+            license_name: string;
             /**
              * Produce Data Snapshot
              * @default true
              */
             produce_data_snapshot: boolean;
+            /**
+             * Produce Input Bindings
+             * @default false
+             */
+            produce_input_bindings: boolean;
             /**
              * Record Mode
              * @default false
@@ -1511,24 +1619,16 @@ export interface components {
             record_mode: boolean;
             /** Replay Ref */
             replay_ref?: string | null;
-            /** Binding Profile Id */
-            binding_profile_id?: string | null;
             /**
-             * Produce Input Bindings
-             * @default false
+             * Source
+             * @default dashboard
              */
-            produce_input_bindings: boolean;
+            source: string;
         };
         /** IngestResponse */
         IngestResponse: {
-            meta: components["schemas"]["ApiMeta"];
-            /**
-             * Status
-             * @enum {string}
-             */
-            status: "completed" | "partial" | "failed";
-            /** Evidence Bundle Ref */
-            evidence_bundle_ref?: string | null;
+            /** Cursor Ref */
+            cursor_ref?: string | null;
             /** Data Snapshot Ref */
             data_snapshot_ref?: string | null;
             /**
@@ -1536,18 +1636,24 @@ export interface components {
              * @default 0
              */
             datasets_fetched: number;
+            /** Evidence Bundle Ref */
+            evidence_bundle_ref?: string | null;
+            /** Input Bindings Ref */
+            input_bindings_ref?: string | null;
             /** Message */
             message: string;
-            /** Warnings */
-            warnings?: string[];
-            /** Cursor Ref */
-            cursor_ref?: string | null;
+            meta: components["schemas"]["ApiMeta"];
             /** Mode Effective */
             mode_effective?: string | null;
             /** Record Ref */
             record_ref?: string | null;
-            /** Input Bindings Ref */
-            input_bindings_ref?: string | null;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "completed" | "partial" | "failed";
+            /** Warnings */
+            warnings?: string[];
         };
         /** InputRef */
         InputRef: {
@@ -1562,23 +1668,36 @@ export interface components {
              * @default 1
              */
             iteration: number;
+            /** Last Verdict */
+            last_verdict?: ("APPROVE" | "REPLAN_DATA" | "REPLAN_METHOD" | "REPLAN_PARAMS" | "STOP_BUDGET") | null;
+            /** Notes */
+            notes?: string[];
             /**
              * State
              * @default plan_created
              * @enum {string}
              */
             state: "plan_created" | "preflight_running" | "preflight_failed" | "ready_to_run" | "executing" | "evaluating" | "replanning" | "approved" | "stopped_budget" | "stopped_no_delta" | "stopped_guardrail";
+            state_ref?: components["schemas"]["ArtifactRef"] | null;
             /** Stop Reason */
             stop_reason?: ("approved" | "budget_exhausted" | "no_delta" | "guardrail_violation") | null;
-            /** Last Verdict */
-            last_verdict?: ("APPROVE" | "REPLAN_DATA" | "REPLAN_METHOD" | "REPLAN_PARAMS" | "STOP_BUDGET") | null;
-            state_ref?: components["schemas"]["ArtifactRef"] | null;
-            /** Notes */
-            notes?: string[];
         };
         /** LexGraphStatsResponse */
         LexGraphStatsResponse: {
+            /**
+             * Db Exists
+             * @default false
+             */
+            db_exists: boolean;
             meta: components["schemas"]["ApiMeta"];
+            /** Top Entity Types */
+            top_entity_types?: {
+                [key: string]: unknown;
+            }[];
+            /** Top Predicates */
+            top_predicates?: {
+                [key: string]: unknown;
+            }[];
             /**
              * Total Entities
              * @default 0
@@ -1594,19 +1713,6 @@ export interface components {
              * @default 0
              */
             total_provisions: number;
-            /** Top Predicates */
-            top_predicates?: {
-                [key: string]: unknown;
-            }[];
-            /** Top Entity Types */
-            top_entity_types?: {
-                [key: string]: unknown;
-            }[];
-            /**
-             * Db Exists
-             * @default false
-             */
-            db_exists: boolean;
         };
         /**
          * LexPipelineStageConfig
@@ -1614,53 +1720,55 @@ export interface components {
          */
         LexPipelineStageConfig: {
             /**
-             * Parse
+             * Embed
              * @default true
              */
-            parse: boolean;
-            /**
-             * Structure
-             * @default true
-             */
-            structure: boolean;
-            /**
-             * Spo
-             * @default true
-             */
-            spo: boolean;
+            embed: boolean;
             /**
              * Graph
              * @default true
              */
             graph: boolean;
             /**
-             * Embed
+             * Parse
              * @default true
              */
-            embed: boolean;
+            parse: boolean;
+            /**
+             * Spo
+             * @default true
+             */
+            spo: boolean;
+            /**
+             * Structure
+             * @default true
+             */
+            structure: boolean;
         };
         /** LexPipelineStatusResponse */
         LexPipelineStatusResponse: {
+            /** Error Message */
+            error_message?: string | null;
             meta: components["schemas"]["ApiMeta"];
             /** Pipeline Id */
             pipeline_id: string;
+            /** Progress Summary */
+            progress_summary?: {
+                [key: string]: number;
+            };
             /**
              * State
              * @enum {string}
              */
             state: "pending" | "running" | "completed" | "failed";
-            /** Progress Summary */
-            progress_summary?: {
-                [key: string]: number;
-            };
-            /** Error Message */
-            error_message?: string | null;
         };
         /**
          * LexSearchRequest
          * @description POST /api/v1/control/lex/search — search knowledge graph facts.
          */
         LexSearchRequest: {
+            /** Output Dir */
+            output_dir: string;
             /** Query */
             query: string;
             /**
@@ -1668,8 +1776,6 @@ export interface components {
              * @default 20
              */
             top_k: number;
-            /** Output Dir */
-            output_dir: string;
         };
         /** LexSearchResponse */
         LexSearchResponse: {
@@ -1686,26 +1792,61 @@ export interface components {
         };
         /** LexSearchResultItem */
         LexSearchResultItem: {
-            /** Fact Id */
-            fact_id: string;
-            /** Subject Name */
-            subject_name: string;
-            /** Predicate */
-            predicate: string;
-            /** Object Name */
-            object_name: string;
-            /** Fact Text */
-            fact_text: string;
+            /**
+             * Action Canon
+             * @default
+             */
+            action_canon: string;
+            /**
+             * Condition Text Uk
+             * @default
+             */
+            condition_text_uk: string;
             /** Confidence */
             confidence: number;
-            /** Norm Type */
-            norm_type: string;
             /** Doc Name */
             doc_name: string;
             /** Doc Reestr Code */
             doc_reestr_code: string;
+            /**
+             * Exception Text Uk
+             * @default
+             */
+            exception_text_uk: string;
+            /** Fact Id */
+            fact_id: string;
+            /** Fact Text */
+            fact_text: string;
+            /** Norm Type */
+            norm_type: string;
+            /**
+             * Norm Type Canon
+             * @default
+             */
+            norm_type_canon: string;
+            /** Object Name */
+            object_name: string;
+            /** Predicate */
+            predicate: string;
+            /**
+             * Procedure Text Uk
+             * @default
+             */
+            procedure_text_uk: string;
             /** Provision Citation */
             provision_citation: string;
+            /**
+             * Source Quote Uk
+             * @default
+             */
+            source_quote_uk: string;
+            /** Subject Name */
+            subject_name: string;
+            /**
+             * Thresholds Json
+             * @default
+             */
+            thresholds_json: string;
         };
         /**
          * LexTriggerRequest
@@ -1714,83 +1855,63 @@ export interface components {
         LexTriggerRequest: {
             /** Cards Path */
             cards_path: string;
-            /** Texts Path */
-            texts_path: string;
-            /** Output Dir */
-            output_dir: string;
-            stages?: components["schemas"]["LexPipelineStageConfig"];
-            /** Status Filter */
-            status_filter?: string[] | null;
             /**
              * Llm Model
              * @default qwen/qwen3-235b-a22b-instruct-2507-fp8
              */
             llm_model: string;
+            /** Output Dir */
+            output_dir: string;
             /**
              * Resume
              * @default false
              */
             resume: boolean;
+            stages?: components["schemas"]["LexPipelineStageConfig"];
+            /** Status Filter */
+            status_filter?: string[] | null;
+            /** Texts Path */
+            texts_path: string;
         };
         /** LexTriggerResponse */
         LexTriggerResponse: {
+            /** Message */
+            message: string;
             meta: components["schemas"]["ApiMeta"];
+            /** Pipeline Id */
+            pipeline_id: string;
             /**
              * Status
              * @enum {string}
              */
             status: "accepted" | "rejected";
-            /** Pipeline Id */
-            pipeline_id: string;
-            /** Message */
-            message: string;
         };
         /** MetricCandidate */
         MetricCandidate: {
             /** Candidate Id */
             candidate_id: string;
-            /** Metric Id */
-            metric_id: string;
-            /** Connector Id */
-            connector_id: string;
-            /** Dataset Id */
-            dataset_id: string;
-            /** Profile Id */
-            profile_id?: string | null;
-            /**
-             * Source Lane
-             * @default fastlane
-             * @enum {string}
-             */
-            source_lane: "fastlane" | "explorelane";
             /**
              * Confidence
              * @default 0
              */
             confidence: number;
-            /**
-             * Rank
-             * @default 1
-             */
-            rank: number;
-            /**
-             * Trust Score
-             * @default 0.5
-             */
-            trust_score: number;
+            /** Connector Id */
+            connector_id: string;
+            /** Coverage Estimate */
+            coverage_estimate?: number | null;
+            /** Dataset Id */
+            dataset_id: string;
+            /** Filters Template */
+            filters_template?: {
+                [key: string]: string[];
+            };
             /**
              * Freshness Score
              * @default 0.5
              */
             freshness_score: number;
-            /** Coverage Estimate */
-            coverage_estimate?: number | null;
             /** Latency Estimate Ms */
             latency_estimate_ms?: number | null;
-            /** Filters Template */
-            filters_template?: {
-                [key: string]: string[];
-            };
             /**
              * Match Reason
              * @default
@@ -1800,37 +1921,57 @@ export interface components {
             metadata?: {
                 [key: string]: unknown;
             };
+            /** Metric Id */
+            metric_id: string;
+            /** Profile Id */
+            profile_id?: string | null;
+            /**
+             * Rank
+             * @default 1
+             */
+            rank: number;
+            /**
+             * Source Lane
+             * @default fastlane
+             * @enum {string}
+             */
+            source_lane: "fastlane" | "explorelane";
+            /**
+             * Trust Score
+             * @default 0.5
+             */
+            trust_score: number;
         };
         /** ModelProfileInfo */
         ModelProfileInfo: {
-            /** Profile Id */
-            profile_id: string;
-            /** Display Name */
-            display_name: string;
+            /** Base Url */
+            base_url: string;
+            /** Capabilities */
+            capabilities?: string[];
             /**
              * Description
              * @default
              */
             description: string;
-            /** Provider */
-            provider: string;
-            /** Model Id */
-            model_id: string;
-            /** Base Url */
-            base_url: string;
-            /** Tags */
-            tags?: string[];
-            /** Capabilities */
-            capabilities?: string[];
-            /** Input Cost Per Mtoken Usd */
-            input_cost_per_mtoken_usd?: number | null;
-            /** Output Cost Per Mtoken Usd */
-            output_cost_per_mtoken_usd?: number | null;
+            /** Display Name */
+            display_name: string;
             /**
              * Enabled
              * @default true
              */
             enabled: boolean;
+            /** Input Cost Per Mtoken Usd */
+            input_cost_per_mtoken_usd?: number | null;
+            /** Model Id */
+            model_id: string;
+            /** Output Cost Per Mtoken Usd */
+            output_cost_per_mtoken_usd?: number | null;
+            /** Profile Id */
+            profile_id: string;
+            /** Provider */
+            provider: string;
+            /** Tags */
+            tags?: string[];
         };
         /** ModelProfilesListResponse */
         ModelProfilesListResponse: {
@@ -1843,77 +1984,72 @@ export interface components {
          * @description POST /api/v1/control/runs/nl — NL request triggering agent circuit.
          */
         NaturalLanguageRunRequest: {
-            /** Request */
-            request: string;
-            /** Context */
-            context?: {
-                [key: string]: unknown;
-            };
-            /** Domain Hint */
-            domain_hint?: string | null;
-            data_source?: components["schemas"]["DataSourceBinding"] | null;
-            /**
-             * Max Iterations
-             * @default 3
-             */
-            max_iterations: number;
-            /** Llm Model */
-            llm_model?: string | null;
-            /** Llm Models */
-            llm_models?: string[] | null;
-            /**
-             * Max Parallel Models
-             * @default 1
-             */
-            max_parallel_models: number;
-            /** Run Budget Usd */
-            run_budget_usd?: number | null;
-            /** Per Model Budget Usd */
-            per_model_budget_usd?: number | null;
             /**
              * Checkpoint Policy
              * @default strict
              * @enum {string}
              */
             checkpoint_policy: "strict" | "lenient" | "disabled";
-            /** Execution Plan Ref */
-            execution_plan_ref?: string | null;
+            /** Context */
+            context?: {
+                [key: string]: unknown;
+            };
+            data_source?: components["schemas"]["DataSourceBinding"] | null;
+            /** Domain Hint */
+            domain_hint?: string | null;
             /** Execution Plan */
             execution_plan?: {
                 [key: string]: unknown;
             } | null;
-            /** Stop Criteria */
-            stop_criteria?: {
-                [key: string]: unknown;
-            };
-            /** Governance Constraints */
-            governance_constraints?: {
-                [key: string]: unknown;
-            }[];
+            /** Execution Plan Ref */
+            execution_plan_ref?: string | null;
             /** Expected Outputs */
             expected_outputs?: {
                 [key: string]: unknown;
             }[];
+            /** Governance Constraints */
+            governance_constraints?: {
+                [key: string]: unknown;
+            }[];
+            /** Llm Model */
+            llm_model?: string | null;
+            /** Llm Models */
+            llm_models?: string[] | null;
+            /**
+             * Max Iterations
+             * @default 3
+             */
+            max_iterations: number;
+            /**
+             * Max Parallel Models
+             * @default 1
+             */
+            max_parallel_models: number;
+            /** Per Model Budget Usd */
+            per_model_budget_usd?: number | null;
+            /** Request */
+            request: string;
+            /** Run Budget Usd */
+            run_budget_usd?: number | null;
+            /** Stop Criteria */
+            stop_criteria?: {
+                [key: string]: unknown;
+            };
         };
         /** NodeDebugResponse */
         NodeDebugResponse: {
-            meta: components["schemas"]["ApiMeta"];
             debug: components["schemas"]["NodeDebugView"];
+            meta: components["schemas"]["ApiMeta"];
         };
         /** NodeDebugView */
         NodeDebugView: {
-            /** Run Id */
-            run_id: string;
-            /**
-             * Source Kind
-             * @constant
-             */
-            source_kind: "core_run";
             /** Alias */
             alias: string;
-            record: components["schemas"]["RunNodeRecord"];
-            /** Timeline Events */
-            timeline_events?: components["schemas"]["RunTimelineEvent"][];
+            /**
+             * Cache Bypasses
+             * @default 0
+             */
+            cache_bypasses: number;
             /**
              * Cache Hits
              * @default 0
@@ -1924,59 +2060,77 @@ export interface components {
              * @default 0
              */
             cache_stores: number;
-            /**
-             * Cache Bypasses
-             * @default 0
-             */
-            cache_bypasses: number;
             /** Notes */
             notes?: string[];
+            record: components["schemas"]["RunNodeRecord"];
+            /** Run Id */
+            run_id: string;
+            /**
+             * Source Kind
+             * @constant
+             */
+            source_kind: "core_run";
+            /** Timeline Events */
+            timeline_events?: components["schemas"]["RunTimelineEvent"][];
         };
         /** PreflightDiagnosticView */
         PreflightDiagnosticView: {
             /** Code */
             code: string;
-            /**
-             * Severity
-             * @default error
-             */
-            severity: string;
+            /** Data */
+            data?: {
+                [key: string]: unknown;
+            };
             /** Message */
             message: string;
             /** Path */
             path?: string[];
             /** Replanning Hints */
             replanning_hints?: string[];
-            /** Data */
-            data?: {
-                [key: string]: unknown;
-            };
+            /**
+             * Severity
+             * @default error
+             */
+            severity: string;
         };
         /** PreflightReportView */
         PreflightReportView: {
+            /** Diagnostics */
+            diagnostics?: components["schemas"]["PreflightDiagnosticView"][];
+            /** Notes */
+            notes?: string[];
             /**
              * Ready To Run
              * @default false
              */
             ready_to_run: boolean;
-            /** Diagnostics */
-            diagnostics?: components["schemas"]["PreflightDiagnosticView"][];
-            /** Notes */
-            notes?: string[];
             report_ref?: components["schemas"]["ArtifactRef"] | null;
         };
         /** PromotionCandidate */
         PromotionCandidate: {
-            /** Promotion Id */
-            promotion_id: string;
-            /** Metric Id */
-            metric_id: string;
+            /**
+             * Confidence
+             * @default 0
+             */
+            confidence: number;
             /** Connector Id */
             connector_id: string;
+            /** Created At */
+            created_at?: string | null;
             /** Dataset Id */
             dataset_id: string;
+            /** Metadata */
+            metadata?: {
+                [key: string]: unknown;
+            };
+            /** Metric Id */
+            metric_id: string;
             /** Profile Id */
             profile_id?: string | null;
+            /** Promotion Id */
+            promotion_id: string;
+            /** Signals */
+            signals?: string[];
             /**
              * Source Lane
              * @default explorelane
@@ -1984,30 +2138,17 @@ export interface components {
              */
             source_lane: "fastlane" | "explorelane";
             /**
-             * Confidence
-             * @default 0
-             */
-            confidence: number;
-            /** Signals */
-            signals?: string[];
-            /**
              * Status
              * @default pending
              * @enum {string}
              */
             status: "pending" | "approved" | "rejected";
-            /** Created At */
-            created_at?: string | null;
-            /** Metadata */
-            metadata?: {
-                [key: string]: unknown;
-            };
         };
         /** PromotionCandidatesResponse */
         PromotionCandidatesResponse: {
-            meta: components["schemas"]["ApiMeta"];
             /** Candidates */
             candidates?: components["schemas"]["PromotionCandidate"][];
+            meta: components["schemas"]["ApiMeta"];
         };
         /** PromotionDecisionRequest */
         PromotionDecisionRequest: {
@@ -2016,6 +2157,13 @@ export interface components {
         };
         /** PromotionDecisionResponse */
         PromotionDecisionResponse: {
+            /**
+             * Binding Updated
+             * @default false
+             */
+            binding_updated: boolean;
+            /** Message */
+            message: string;
             meta: components["schemas"]["ApiMeta"];
             /** Promotion Id */
             promotion_id: string;
@@ -2024,89 +2172,69 @@ export interface components {
              * @enum {string}
              */
             status: "approved" | "rejected";
-            /** Message */
-            message: string;
-            /**
-             * Binding Updated
-             * @default false
-             */
-            binding_updated: boolean;
         };
         /** ReproducibilityView */
         ReproducibilityView: {
+            /** Data Snapshot Hash */
+            data_snapshot_hash?: string | null;
+            /** Determinism Tier */
+            determinism_tier?: string | null;
+            /** Input Bindings Hash */
+            input_bindings_hash?: string | null;
+            manifest_ref?: components["schemas"]["ArtifactRef"] | null;
+            /** Method Catalog Hash */
+            method_catalog_hash?: string | null;
+            /** Missing Refs */
+            missing_refs?: string[];
+            /** Notes */
+            notes?: string[];
+            /** Plan Hash */
+            plan_hash?: string | null;
+            /** Readiness */
+            readiness?: string | null;
+            /** Registry Hash */
+            registry_hash?: string | null;
             /**
              * Seed
              * @default 0
              */
             seed: number;
-            /** Plan Hash */
-            plan_hash?: string | null;
-            /** Registry Hash */
-            registry_hash?: string | null;
-            /** Method Catalog Hash */
-            method_catalog_hash?: string | null;
-            /** Data Snapshot Hash */
-            data_snapshot_hash?: string | null;
-            /** Input Bindings Hash */
-            input_bindings_hash?: string | null;
-            manifest_ref?: components["schemas"]["ArtifactRef"] | null;
-            /** Notes */
-            notes?: string[];
+            /** Seed Source */
+            seed_source?: string | null;
+            /** Suggested Next Step */
+            suggested_next_step?: string | null;
+            /** Why Partial */
+            why_partial?: string[];
         };
         /** RetrievalPhaseTelemetry */
         RetrievalPhaseTelemetry: {
-            /** Phase */
-            phase: string;
-            /** Lane */
-            lane?: string | null;
-            /**
-             * Duration Ms
-             * @default 0
-             */
-            duration_ms: number;
-            /**
-             * Candidates Total
-             * @default 0
-             */
-            candidates_total: number;
             /**
              * Candidates Selected
              * @default 0
              */
             candidates_selected: number;
             /**
+             * Candidates Total
+             * @default 0
+             */
+            candidates_total: number;
+            /**
              * Docs Fetched
              * @default 0
              */
             docs_fetched: number;
+            /**
+             * Duration Ms
+             * @default 0
+             */
+            duration_ms: number;
+            /** Lane */
+            lane?: string | null;
+            /** Phase */
+            phase: string;
         };
         /** RetrievalTelemetryView */
         RetrievalTelemetryView: {
-            /**
-             * Mode
-             * @default hybrid
-             */
-            mode: string;
-            /**
-             * Lane Used
-             * @default fastlane
-             */
-            lane_used: string;
-            /**
-             * Metadata Docs Fetched
-             * @default 0
-             */
-            metadata_docs_fetched: number;
-            /**
-             * Local Index Size Bytes
-             * @default 0
-             */
-            local_index_size_bytes: number;
-            /**
-             * Local Index Docs Total
-             * @default 0
-             */
-            local_index_docs_total: number;
             /**
              * Candidates Filtered
              * @default 0
@@ -2117,13 +2245,57 @@ export interface components {
              * @default 0
              */
             candidates_promoted: number;
-            /** Phases */
-            phases?: components["schemas"]["RetrievalPhaseTelemetry"][];
+            /**
+             * Lane Used
+             * @default fastlane
+             */
+            lane_used: string;
+            /**
+             * Local Index Docs Total
+             * @default 0
+             */
+            local_index_docs_total: number;
+            /**
+             * Local Index Size Bytes
+             * @default 0
+             */
+            local_index_size_bytes: number;
+            /**
+             * Metadata Docs Fetched
+             * @default 0
+             */
+            metadata_docs_fetched: number;
+            /**
+             * Mode
+             * @default hybrid
+             */
+            mode: string;
             /** Notes */
             notes?: string[];
+            /** Phases */
+            phases?: components["schemas"]["RetrievalPhaseTelemetry"][];
         };
         /** RunDetails */
         RunDetails: {
+            /** Cell Id */
+            cell_id?: string | null;
+            /** Duration Ms */
+            duration_ms?: number | null;
+            /** Finished At */
+            finished_at?: string | null;
+            /**
+             * Has Trace
+             * @default false
+             */
+            has_trace: boolean;
+            /**
+             * Has Workflow Report
+             * @default false
+             */
+            has_workflow_report: boolean;
+            manifest_ref?: components["schemas"]["ArtifactRef"] | null;
+            /** Root Artifacts */
+            root_artifacts?: components["schemas"]["ArtifactRef"][];
             /** Run Id */
             run_id: string;
             /**
@@ -2131,35 +2303,16 @@ export interface components {
              * @constant
              */
             source_kind: "core_run";
-            /** Status */
-            status: string;
             /** Started At */
             started_at?: string | null;
-            /** Finished At */
-            finished_at?: string | null;
-            /** Duration Ms */
-            duration_ms?: number | null;
+            /** Status */
+            status: string;
             /** Tenant Id */
             tenant_id?: string | null;
-            /** Cell Id */
-            cell_id?: string | null;
-            /**
-             * Has Trace
-             * @default false
-             */
-            has_trace: boolean;
-            manifest_ref?: components["schemas"]["ArtifactRef"] | null;
             trace_ref?: components["schemas"]["ArtifactRef"] | null;
-            /** Root Artifacts */
-            root_artifacts?: components["schemas"]["ArtifactRef"][];
-            /**
-             * Has Workflow Report
-             * @default false
-             */
-            has_workflow_report: boolean;
-            workflow_report_ref?: components["schemas"]["ArtifactRef"] | null;
             /** Warnings */
             warnings?: string[];
+            workflow_report_ref?: components["schemas"]["ArtifactRef"] | null;
         };
         /** RunDetailsResponse */
         RunDetailsResponse: {
@@ -2168,64 +2321,199 @@ export interface components {
         };
         /** RunErrorView */
         RunErrorView: {
+            /** Code */
+            code: string;
+            /** Details */
+            details?: {
+                [key: string]: unknown;
+            };
+            /** Message */
+            message: string;
+            /** Node Alias */
+            node_alias?: string | null;
             /**
              * Source
              * @enum {string}
              */
             source: "manifest" | "workflow_report" | "trace" | "runtime";
-            /** Code */
-            code: string;
-            /** Message */
-            message: string;
-            /** Node Alias */
-            node_alias?: string | null;
             /** Timestamp */
             timestamp?: string | null;
-            /** Details */
-            details?: {
-                [key: string]: unknown;
-            };
         };
         /** RunErrorsResponse */
         RunErrorsResponse: {
+            /** Errors */
+            errors?: components["schemas"]["RunErrorView"][];
             meta: components["schemas"]["ApiMeta"];
             /** Run Id */
             run_id: string;
-            /** Errors */
-            errors?: components["schemas"]["RunErrorView"][];
+        };
+        /** RunEvidenceContextResponse */
+        RunEvidenceContextResponse: {
+            context: components["schemas"]["RunEvidenceContextView"];
+            meta: components["schemas"]["ApiMeta"];
+        };
+        /** RunEvidenceContextView */
+        RunEvidenceContextView: {
+            /** Data Needs */
+            data_needs?: components["schemas"]["RunEvidenceNeedView"][];
+            data_snapshot_ref?: components["schemas"]["ArtifactRef"] | null;
+            evidence_bundle_ref?: components["schemas"]["ArtifactRef"] | null;
+            execution_plan_ref?: components["schemas"]["ArtifactRef"] | null;
+            /** Fetch Plans */
+            fetch_plans?: components["schemas"]["RunEvidencePlanView"][];
+            input_bindings_ref?: components["schemas"]["ArtifactRef"] | null;
+            /** Promotion Candidates */
+            promotion_candidates?: components["schemas"]["RunEvidencePromotionView"][];
+            /** Related Artifacts */
+            related_artifacts?: components["schemas"]["ArtifactRef"][];
+            /** Run Id */
+            run_id: string;
+            /**
+             * Source Kind
+             * @constant
+             */
+            source_kind: "core_run";
+            /** Warnings */
+            warnings?: string[];
+        };
+        /** RunEvidenceNeedView */
+        RunEvidenceNeedView: {
+            /** Geography */
+            geography?: string | null;
+            /**
+             * Granularity
+             * @default annual
+             */
+            granularity: string;
+            /** Matched Plan Ids */
+            matched_plan_ids?: string[];
+            /** Metric */
+            metric: string;
+            /** Need Id */
+            need_id: string;
+            /** Notes */
+            notes?: string[];
+            /**
+             * Purpose
+             * @default policy_drafting
+             */
+            purpose: string;
+            /**
+             * Quality Min
+             * @default 0.6
+             */
+            quality_min: number;
+            /** Time End */
+            time_end?: string | null;
+            /** Time Start */
+            time_start?: string | null;
+        };
+        /** RunEvidencePlanView */
+        RunEvidencePlanView: {
+            /** Connector Id */
+            connector_id: string;
+            /** Dataset Id */
+            dataset_id: string;
+            /** Date End */
+            date_end?: string | null;
+            /** Date Start */
+            date_start?: string | null;
+            /**
+             * Fallback Count
+             * @default 0
+             */
+            fallback_count: number;
+            /** Filters */
+            filters?: {
+                [key: string]: string[];
+            };
+            /** Granularity */
+            granularity?: string | null;
+            /** Matched Need Ids */
+            matched_need_ids?: string[];
+            /** Metric Id */
+            metric_id: string;
+            /** Notes */
+            notes?: string[];
+            /** Plan Id */
+            plan_id: string;
+            /** Profile Id */
+            profile_id?: string | null;
+            /**
+             * Quality Min
+             * @default 0.6
+             */
+            quality_min: number;
+            /**
+             * Source Lane
+             * @default fastlane
+             */
+            source_lane: string;
+        };
+        /** RunEvidencePromotionView */
+        RunEvidencePromotionView: {
+            /**
+             * Confidence
+             * @default 0
+             */
+            confidence: number;
+            /** Connector Id */
+            connector_id: string;
+            /** Created At */
+            created_at?: string | null;
+            /** Dataset Id */
+            dataset_id: string;
+            /** Matched Plan Id */
+            matched_plan_id?: string | null;
+            /** Metadata */
+            metadata?: {
+                [key: string]: unknown;
+            };
+            /** Metric Id */
+            metric_id: string;
+            /** Profile Id */
+            profile_id?: string | null;
+            /** Promotion Id */
+            promotion_id: string;
+            /** Signals */
+            signals?: string[];
+            /**
+             * Source Lane
+             * @default explorelane
+             */
+            source_lane: string;
+            /**
+             * Status
+             * @default pending
+             */
+            status: string;
         };
         /** RunLaunchResponse */
         RunLaunchResponse: {
+            /** Message */
+            message: string;
             meta: components["schemas"]["ApiMeta"];
+            /** Run Id */
+            run_id: string;
             /**
              * Status
              * @enum {string}
              */
             status: "accepted" | "rejected";
-            /** Run Id */
-            run_id: string;
-            /** Message */
-            message: string;
         };
         /** RunLineageResponse */
         RunLineageResponse: {
+            lineage: components["schemas"]["ArtifactLineageView"];
             meta: components["schemas"]["ApiMeta"];
             /** Run Id */
             run_id: string;
-            lineage: components["schemas"]["ArtifactLineageView"];
         };
         /** RunNodeRecord */
         RunNodeRecord: {
             /** Alias */
             alias: string;
-            /** Node Id */
-            node_id?: string | null;
-            /**
-             * Status
-             * @default unknown
-             * @enum {string}
-             */
-            status: "ok" | "skip" | "fail" | "unknown";
+            /** Artifact Ids */
+            artifact_ids?: string[];
             /**
              * Duration Ms
              * @default 0
@@ -2233,24 +2521,32 @@ export interface components {
             duration_ms: number;
             /** Error Code */
             error_code?: string | null;
-            /** Error Message */
-            error_message?: string | null;
             /** Error Details */
             error_details?: {
                 [key: string]: unknown;
             };
-            /** Skip Reason */
-            skip_reason?: string | null;
-            /** Artifact Ids */
-            artifact_ids?: string[];
+            /** Error Message */
+            error_message?: string | null;
             /** Input Artifact Ids */
             input_artifact_ids?: string[];
+            /** Node Id */
+            node_id?: string | null;
             /** Output Artifact Ids */
             output_artifact_ids?: string[];
+            /** Skip Reason */
+            skip_reason?: string | null;
+            /**
+             * Status
+             * @default unknown
+             * @enum {string}
+             */
+            status: "ok" | "skip" | "fail" | "unknown";
         };
         /** RunNodesResponse */
         RunNodesResponse: {
             meta: components["schemas"]["ApiMeta"];
+            /** Nodes */
+            nodes?: components["schemas"]["RunNodeRecord"][];
             /** Run Id */
             run_id: string;
             /**
@@ -2258,83 +2554,81 @@ export interface components {
              * @constant
              */
             source_kind: "core_run";
-            /** Nodes */
-            nodes?: components["schemas"]["RunNodeRecord"][];
         };
         /** RunSummary */
         RunSummary: {
-            /** Run Id */
-            run_id: string;
-            /**
-             * Source Kind
-             * @constant
-             */
-            source_kind: "core_run";
-            /** Status */
-            status: string;
-            /** Started At */
-            started_at?: string | null;
-            /** Finished At */
-            finished_at?: string | null;
-            /** Duration Ms */
-            duration_ms?: number | null;
-            /** Tenant Id */
-            tenant_id?: string | null;
             /** Cell Id */
             cell_id?: string | null;
+            /** Duration Ms */
+            duration_ms?: number | null;
+            /** Finished At */
+            finished_at?: string | null;
             /**
              * Has Trace
              * @default false
              */
             has_trace: boolean;
             /**
-             * Root Artifact Count
-             * @default 0
-             */
-            root_artifact_count: number;
-            /**
              * Has Workflow Report
              * @default false
              */
             has_workflow_report: boolean;
+            /**
+             * Root Artifact Count
+             * @default 0
+             */
+            root_artifact_count: number;
+            /** Run Id */
+            run_id: string;
+            /**
+             * Source Kind
+             * @constant
+             */
+            source_kind: "core_run";
+            /** Started At */
+            started_at?: string | null;
+            /** Status */
+            status: string;
+            /** Tenant Id */
+            tenant_id?: string | null;
             /** Warnings */
             warnings?: string[];
         };
         /** RunTimelineEvent */
         RunTimelineEvent: {
-            /** Index */
-            index: number;
-            /**
-             * Timestamp
-             * Format: date-time
-             */
-            timestamp: string;
-            /** Phase */
-            phase: string;
-            /** Event */
-            event: string;
-            /** Span Id */
-            span_id?: string | null;
-            /** Parent Span Id */
-            parent_span_id?: string | null;
-            /** Input Artifact Ids */
-            input_artifact_ids?: string[];
-            /** Output Artifact Ids */
-            output_artifact_ids?: string[];
-            /** Metrics */
-            metrics?: {
-                [key: string]: number;
-            };
-            /**
-             * Warning Count
-             * @default 0
-             */
-            warning_count: number;
             /**
              * Error Count
              * @default 0
              */
             error_count: number;
+            /** Event */
+            event: string;
+            /** Index */
+            index: number;
+            /** Input Artifact Ids */
+            input_artifact_ids?: string[];
+            /** Metrics */
+            metrics?: {
+                [key: string]: number;
+            };
+            /** Output Artifact Ids */
+            output_artifact_ids?: string[];
+            /** Parent Span Id */
+            parent_span_id?: string | null;
+            /** Phase */
+            phase: string;
+            /** Span Id */
+            span_id?: string | null;
+            /**
+             * Timestamp
+             * Format: date-time
+             */
+            timestamp: string;
+            /**
+             * Warning Count
+             * @default 0
+             */
+            warning_count: number;
         };
         /** RunTimelineResponse */
         RunTimelineResponse: {
@@ -2343,23 +2637,11 @@ export interface components {
         };
         /** RunTimelineSummary */
         RunTimelineSummary: {
-            /** Run Id */
-            run_id: string;
             /**
-             * Total Events
+             * Cache Bypasses
              * @default 0
              */
-            total_events: number;
-            /** Duration Ms */
-            duration_ms?: number | null;
-            /** Node Status Counts */
-            node_status_counts?: {
-                [key: string]: number;
-            };
-            /** Phase Counts */
-            phase_counts?: {
-                [key: string]: number;
-            };
+            cache_bypasses: number;
             /**
              * Cache Hits
              * @default 0
@@ -2370,14 +2652,30 @@ export interface components {
              * @default 0
              */
             cache_stores: number;
+            /** Duration Ms */
+            duration_ms?: number | null;
+            /** Node Status Counts */
+            node_status_counts?: {
+                [key: string]: number;
+            };
+            /** Phase Counts */
+            phase_counts?: {
+                [key: string]: number;
+            };
+            /** Run Id */
+            run_id: string;
             /**
-             * Cache Bypasses
+             * Total Events
              * @default 0
              */
-            cache_bypasses: number;
+            total_events: number;
         };
         /** RunTimelineView */
         RunTimelineView: {
+            /** Events */
+            events?: components["schemas"]["RunTimelineEvent"][];
+            /** Notes */
+            notes?: string[];
             /** Run Id */
             run_id: string;
             /**
@@ -2386,10 +2684,6 @@ export interface components {
              */
             source_kind: "core_run";
             summary: components["schemas"]["RunTimelineSummary"];
-            /** Events */
-            events?: components["schemas"]["RunTimelineEvent"][];
-            /** Notes */
-            notes?: string[];
         };
         /** RunWorkflowEdgeView */
         RunWorkflowEdgeView: {
@@ -2402,8 +2696,8 @@ export interface components {
         RunWorkflowNodeView: {
             /** Alias */
             alias: string;
-            /** Node Id */
-            node_id?: string | null;
+            /** Artifact Ids */
+            artifact_ids?: string[];
             /** Depends On */
             depends_on?: string[];
             /**
@@ -2411,12 +2705,6 @@ export interface components {
              * @default 0
              */
             depth: number;
-            /**
-             * Status
-             * @default unknown
-             * @enum {string}
-             */
-            status: "ok" | "skip" | "fail" | "unknown";
             /**
              * Duration Ms
              * @default 0
@@ -2426,17 +2714,23 @@ export interface components {
             error_code?: string | null;
             /** Error Message */
             error_message?: string | null;
-            /** Artifact Ids */
-            artifact_ids?: string[];
-            /** Input Artifact Ids */
-            input_artifact_ids?: string[];
-            /** Output Artifact Ids */
-            output_artifact_ids?: string[];
             /**
              * Heat
              * @default 0
              */
             heat: number;
+            /** Input Artifact Ids */
+            input_artifact_ids?: string[];
+            /** Node Id */
+            node_id?: string | null;
+            /** Output Artifact Ids */
+            output_artifact_ids?: string[];
+            /**
+             * Status
+             * @default unknown
+             * @enum {string}
+             */
+            status: "ok" | "skip" | "fail" | "unknown";
         };
         /** RunWorkflowResponse */
         RunWorkflowResponse: {
@@ -2445,32 +2739,15 @@ export interface components {
         };
         /** RunWorkflowSummary */
         RunWorkflowSummary: {
-            /** Workflow Id */
-            workflow_id?: string | null;
-            /** Error Policy */
-            error_policy?: string | null;
-            /** Status */
-            status?: string | null;
-            /**
-             * Node Count
-             * @default 0
-             */
-            node_count: number;
+            /** Critical Path Duration Ms */
+            critical_path_duration_ms?: number | null;
             /**
              * Edge Count
              * @default 0
              */
             edge_count: number;
-            /**
-             * Ok Count
-             * @default 0
-             */
-            ok_count: number;
-            /**
-             * Skip Count
-             * @default 0
-             */
-            skip_count: number;
+            /** Error Policy */
+            error_policy?: string | null;
             /**
              * Fail Count
              * @default 0
@@ -2481,11 +2758,34 @@ export interface components {
              * @default 0
              */
             max_depth: number;
-            /** Critical Path Duration Ms */
-            critical_path_duration_ms?: number | null;
+            /**
+             * Node Count
+             * @default 0
+             */
+            node_count: number;
+            /**
+             * Ok Count
+             * @default 0
+             */
+            ok_count: number;
+            /**
+             * Skip Count
+             * @default 0
+             */
+            skip_count: number;
+            /** Status */
+            status?: string | null;
+            /** Workflow Id */
+            workflow_id?: string | null;
         };
         /** RunWorkflowView */
         RunWorkflowView: {
+            /** Edges */
+            edges?: components["schemas"]["RunWorkflowEdgeView"][];
+            /** Nodes */
+            nodes?: components["schemas"]["RunWorkflowNodeView"][];
+            /** Notes */
+            notes?: string[];
             /** Run Id */
             run_id: string;
             /**
@@ -2494,14 +2794,8 @@ export interface components {
              */
             source_kind: "core_run";
             summary: components["schemas"]["RunWorkflowSummary"];
-            /** Nodes */
-            nodes?: components["schemas"]["RunWorkflowNodeView"][];
-            /** Edges */
-            edges?: components["schemas"]["RunWorkflowEdgeView"][];
-            workflow_spec_ref?: components["schemas"]["ArtifactRef"] | null;
             workflow_report_ref?: components["schemas"]["ArtifactRef"] | null;
-            /** Notes */
-            notes?: string[];
+            workflow_spec_ref?: components["schemas"]["ArtifactRef"] | null;
         };
         /** RunsListResponse */
         RunsListResponse: {
@@ -2510,115 +2804,17 @@ export interface components {
             /** Runs */
             runs?: components["schemas"]["RunSummary"][];
         };
-        /** SourceProfileInfo */
-        SourceProfileInfo: {
-            /** Profile Id */
-            profile_id: string;
-            /** Display Name */
-            display_name: string;
-            /**
-             * Description
-             * @default
-             */
-            description: string;
-            /** Connector Family */
-            connector_family: string;
-            /** Base Url */
-            base_url: string;
-            /**
-             * Auth Policy
-             * @default none
-             */
-            auth_policy: string;
-            /** Tags */
-            tags?: string[];
-            /**
-             * Source Organization
-             * @default
-             */
-            source_organization: string;
-            /** Estimated Datasets */
-            estimated_datasets?: number | null;
-            /**
-             * Connector Available
-             * @default false
-             */
-            connector_available: boolean;
-        };
-        /** SourceProfilesListResponse */
-        SourceProfilesListResponse: {
-            meta: components["schemas"]["ApiMeta"];
-            /** Profiles */
-            profiles?: components["schemas"]["SourceProfileInfo"][];
-        };
-        /** ValidationError */
-        ValidationError: {
-            /** Location */
-            loc: (string | number)[];
-            /** Message */
-            msg: string;
-            /** Error Type */
-            type: string;
-            /** Input */
-            input?: unknown;
-            /** Context */
-            ctx?: Record<string, never>;
-        };
-        /**
-         * WorkflowRunRequest
-         * @description POST /api/v1/control/runs — launch a workflow run.
-         */
-        WorkflowRunRequest: {
-            /**
-             * Mode
-             * @default workflow
-             * @enum {string}
-             */
-            mode: "workflow" | "agent_circuit";
-            data_source: components["schemas"]["DataSourceBinding"];
-            /** Trinity Bundle Ref */
-            trinity_bundle_ref?: string | null;
-            /** Policy Spec Ref */
-            policy_spec_ref?: string | null;
-            /** Model Spec Ref */
-            model_spec_ref?: string | null;
-            /** Research Intent Ref */
-            research_intent_ref?: string | null;
-            /** Knowledge Bundle Ref */
-            knowledge_bundle_ref?: string | null;
-            /** Norm Pack Ref */
-            norm_pack_ref?: string | null;
-            /** Calibration Report Ref */
-            calibration_report_ref?: string | null;
-            /**
-             * Checkpoint Policy
-             * @default strict
-             * @enum {string}
-             */
-            checkpoint_policy: "strict" | "lenient" | "disabled";
-            /** Params */
-            params?: {
-                [key: string]: unknown;
-            };
-        };
         /** RuntimeApiProblem */
         RuntimeApiProblem: {
-            /**
-             * Type
-             * @default about:blank
-             */
-            type: string;
-            /** Title */
-            title: string;
-            /**
-             * Status
-             * @default 500
-             */
-            status: number;
-            /** Detail */
-            detail: string;
             /** Code */
             code: string;
+            /** Detail */
+            detail: string;
+            /**
+             * Error
+             * @default null
+             */
+            error: string | null;
             /**
              * Instance
              * @default null
@@ -2630,15 +2826,113 @@ export interface components {
              */
             request_id: string | null;
             /**
-             * Error
-             * @default null
+             * Status
+             * @default 500
              */
-            error: string | null;
+            status: number;
             /**
              * Status Code
              * @default 500
              */
             status_code: number;
+            /** Title */
+            title: string;
+            /**
+             * Type
+             * @default about:blank
+             */
+            type: string;
+        };
+        /** SourceProfileInfo */
+        SourceProfileInfo: {
+            /**
+             * Auth Policy
+             * @default none
+             */
+            auth_policy: string;
+            /** Base Url */
+            base_url: string;
+            /**
+             * Connector Available
+             * @default false
+             */
+            connector_available: boolean;
+            /** Connector Family */
+            connector_family: string;
+            /**
+             * Description
+             * @default
+             */
+            description: string;
+            /** Display Name */
+            display_name: string;
+            /** Estimated Datasets */
+            estimated_datasets?: number | null;
+            /** Profile Id */
+            profile_id: string;
+            /**
+             * Source Organization
+             * @default
+             */
+            source_organization: string;
+            /** Tags */
+            tags?: string[];
+        };
+        /** SourceProfilesListResponse */
+        SourceProfilesListResponse: {
+            meta: components["schemas"]["ApiMeta"];
+            /** Profiles */
+            profiles?: components["schemas"]["SourceProfileInfo"][];
+        };
+        /** ValidationError */
+        ValidationError: {
+            /** Context */
+            ctx?: Record<string, never>;
+            /** Input */
+            input?: unknown;
+            /** Location */
+            loc: (string | number)[];
+            /** Message */
+            msg: string;
+            /** Error Type */
+            type: string;
+        };
+        /**
+         * WorkflowRunRequest
+         * @description POST /api/v1/control/runs — launch a workflow run.
+         */
+        WorkflowRunRequest: {
+            /** Calibration Report Ref */
+            calibration_report_ref?: string | null;
+            /**
+             * Checkpoint Policy
+             * @default strict
+             * @enum {string}
+             */
+            checkpoint_policy: "strict" | "lenient" | "disabled";
+            data_source: components["schemas"]["DataSourceBinding"];
+            /** Knowledge Bundle Ref */
+            knowledge_bundle_ref?: string | null;
+            /**
+             * Mode
+             * @default workflow
+             * @enum {string}
+             */
+            mode: "workflow" | "agent_circuit";
+            /** Model Spec Ref */
+            model_spec_ref?: string | null;
+            /** Norm Pack Ref */
+            norm_pack_ref?: string | null;
+            /** Params */
+            params?: {
+                [key: string]: unknown;
+            };
+            /** Policy Spec Ref */
+            policy_spec_ref?: string | null;
+            /** Research Intent Ref */
+            research_intent_ref?: string | null;
+            /** Trinity Bundle Ref */
+            trinity_bundle_ref?: string | null;
         };
     };
     responses: never;
@@ -2649,1013 +2943,6 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
-    health: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        [key: string]: string;
-                    };
-                };
-            };
-            /** @description Malformed request payload or parameters. */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Authentication is required for this route. */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Authenticated principal cannot access this resource. */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Requested resource does not exist. */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Request validation failed. */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Unexpected runtime API failure. */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-        };
-    };
-    ready: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        [key: string]: string;
-                    };
-                };
-            };
-            /** @description Malformed request payload or parameters. */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Authentication is required for this route. */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Authenticated principal cannot access this resource. */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Requested resource does not exist. */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Request validation failed. */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Unexpected runtime API failure. */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-        };
-    };
-    runtime_api_health: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        [key: string]: string;
-                    };
-                };
-            };
-            /** @description Malformed request payload or parameters. */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Authentication is required for this route. */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Authenticated principal cannot access this resource. */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Requested resource does not exist. */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Request validation failed. */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Unexpected runtime API failure. */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-        };
-    };
-    list_runs: {
-        parameters: {
-            query?: {
-                limit?: number;
-                cursor?: string | null;
-                status?: string | null;
-                from_ts?: string | null;
-                to_ts?: string | null;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["RunsListResponse"];
-                };
-            };
-            /** @description Malformed request payload or parameters. */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Authentication is required for this route. */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Authenticated principal cannot access this resource. */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Requested resource does not exist. */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Unexpected runtime API failure. */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-        };
-    };
-    get_run_details: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                run_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["RunDetailsResponse"];
-                };
-            };
-            /** @description Malformed request payload or parameters. */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Authentication is required for this route. */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Authenticated principal cannot access this resource. */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Requested resource does not exist. */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Unexpected runtime API failure. */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-        };
-    };
-    get_run_timeline: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                run_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["RunTimelineResponse"];
-                };
-            };
-            /** @description Malformed request payload or parameters. */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Authentication is required for this route. */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Authenticated principal cannot access this resource. */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Requested resource does not exist. */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Unexpected runtime API failure. */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-        };
-    };
-    get_run_nodes: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                run_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["RunNodesResponse"];
-                };
-            };
-            /** @description Malformed request payload or parameters. */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Authentication is required for this route. */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Authenticated principal cannot access this resource. */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Requested resource does not exist. */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Unexpected runtime API failure. */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-        };
-    };
-    get_run_lineage: {
-        parameters: {
-            query?: {
-                root_artifact_id?: string[] | null;
-                max_depth?: number | null;
-                max_nodes?: number | null;
-            };
-            header?: never;
-            path: {
-                run_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["RunLineageResponse"];
-                };
-            };
-            /** @description Malformed request payload or parameters. */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Authentication is required for this route. */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Authenticated principal cannot access this resource. */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Requested resource does not exist. */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Unexpected runtime API failure. */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-        };
-    };
-    get_run_agents: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                run_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AgentPipelineResponse"];
-                };
-            };
-            /** @description Malformed request payload or parameters. */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Authentication is required for this route. */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Authenticated principal cannot access this resource. */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Requested resource does not exist. */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Unexpected runtime API failure. */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-        };
-    };
-    get_run_workflow: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                run_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["RunWorkflowResponse"];
-                };
-            };
-            /** @description Malformed request payload or parameters. */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Authentication is required for this route. */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Authenticated principal cannot access this resource. */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Requested resource does not exist. */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Unexpected runtime API failure. */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-        };
-    };
-    get_node_debug: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                run_id: string;
-                alias: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["NodeDebugResponse"];
-                };
-            };
-            /** @description Malformed request payload or parameters. */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Authentication is required for this route. */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Authenticated principal cannot access this resource. */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Requested resource does not exist. */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Unexpected runtime API failure. */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-        };
-    };
-    get_governance_debug: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                run_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["GovernanceDebugResponse"];
-                };
-            };
-            /** @description Malformed request payload or parameters. */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Authentication is required for this route. */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Authenticated principal cannot access this resource. */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Requested resource does not exist. */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Unexpected runtime API failure. */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-        };
-    };
-    get_run_errors: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                run_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["RunErrorsResponse"];
-                };
-            };
-            /** @description Malformed request payload or parameters. */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Authentication is required for this route. */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Authenticated principal cannot access this resource. */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Requested resource does not exist. */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Unexpected runtime API failure. */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-        };
-    };
     get_artifact_manifest: {
         parameters: {
             query?: never;
@@ -3969,18 +3256,14 @@ export interface operations {
             };
         };
     };
-    launch_run: {
+    get_control_capabilities: {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["WorkflowRunRequest"];
-            };
-        };
+        requestBody?: never;
         responses: {
             /** @description Successful Response */
             200: {
@@ -3988,7 +3271,233 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["RunLaunchResponse"];
+                    "application/json": components["schemas"]["CapabilityManifestResponse"];
+                };
+            };
+            /** @description Malformed request payload or parameters. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authentication is required for this route. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authenticated principal cannot access this resource. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Requested resource does not exist. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Request validation failed. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Unexpected runtime API failure. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+        };
+    };
+    list_binding_profiles: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BindingProfilesListResponse"];
+                };
+            };
+            /** @description Malformed request payload or parameters. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authentication is required for this route. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authenticated principal cannot access this resource. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Requested resource does not exist. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Request validation failed. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Unexpected runtime API failure. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+        };
+    };
+    get_cache_status: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CacheStatusResponse"];
+                };
+            };
+            /** @description Malformed request payload or parameters. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authentication is required for this route. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authenticated principal cannot access this resource. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Requested resource does not exist. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Request validation failed. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Unexpected runtime API failure. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+        };
+    };
+    search_data_catalog: {
+        parameters: {
+            query: {
+                metric: string;
+                geo?: string | null;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DataCatalogSearchResponse"];
                 };
             };
             /** @description Malformed request payload or parameters. */
@@ -4048,18 +3557,14 @@ export interface operations {
             };
         };
     };
-    launch_nl_run: {
+    list_connectors: {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["NaturalLanguageRunRequest"];
-            };
-        };
+        requestBody?: never;
         responses: {
             /** @description Successful Response */
             200: {
@@ -4067,7 +3572,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["RunLaunchResponse"];
+                    "application/json": components["schemas"]["ConnectorsListResponse"];
                 };
             };
             /** @description Malformed request payload or parameters. */
@@ -4106,171 +3611,12 @@ export interface operations {
                     "application/problem+json": components["schemas"]["RuntimeApiProblem"];
                 };
             };
-            /** @description Validation Error */
+            /** @description Request validation failed. */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Unexpected runtime API failure. */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-        };
-    };
-    ingest_data: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["IngestRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["IngestResponse"];
-                };
-            };
-            /** @description Malformed request payload or parameters. */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Authentication is required for this route. */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Authenticated principal cannot access this resource. */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Requested resource does not exist. */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Unexpected runtime API failure. */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-        };
-    };
-    resolve_data_needs: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["DataResolveRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["DataResolveResponse"];
-                };
-            };
-            /** @description Malformed request payload or parameters. */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Authentication is required for this route. */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Authenticated principal cannot access this resource. */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Requested resource does not exist. */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
                     "application/problem+json": components["schemas"]["RuntimeApiProblem"];
                 };
             };
@@ -4305,6 +3651,159 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["DataDiscoverResponse"];
+                };
+            };
+            /** @description Malformed request payload or parameters. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authentication is required for this route. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authenticated principal cannot access this resource. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Requested resource does not exist. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Unexpected runtime API failure. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+        };
+    };
+    get_data_index_stats: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IndexStatsResponse"];
+                };
+            };
+            /** @description Malformed request payload or parameters. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authentication is required for this route. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authenticated principal cannot access this resource. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Requested resource does not exist. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Request validation failed. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Unexpected runtime API failure. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+        };
+    };
+    ingest_data: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["IngestRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IngestResponse"];
                 };
             };
             /** @description Malformed request payload or parameters. */
@@ -4443,86 +3942,7 @@ export interface operations {
             };
         };
     };
-    search_data_catalog: {
-        parameters: {
-            query: {
-                metric: string;
-                geo?: string | null;
-                limit?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["DataCatalogSearchResponse"];
-                };
-            };
-            /** @description Malformed request payload or parameters. */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Authentication is required for this route. */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Authenticated principal cannot access this resource. */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Requested resource does not exist. */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Unexpected runtime API failure. */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-        };
-    };
-    get_data_index_stats: {
+    list_source_profiles: {
         parameters: {
             query?: never;
             header?: never;
@@ -4537,7 +3957,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["IndexStatsResponse"];
+                    "application/json": components["schemas"]["SourceProfilesListResponse"];
                 };
             };
             /** @description Malformed request payload or parameters. */
@@ -4832,377 +4252,7 @@ export interface operations {
             };
         };
     };
-    list_connectors: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ConnectorsListResponse"];
-                };
-            };
-            /** @description Malformed request payload or parameters. */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Authentication is required for this route. */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Authenticated principal cannot access this resource. */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Requested resource does not exist. */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Request validation failed. */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Unexpected runtime API failure. */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-        };
-    };
-    get_cache_status: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CacheStatusResponse"];
-                };
-            };
-            /** @description Malformed request payload or parameters. */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Authentication is required for this route. */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Authenticated principal cannot access this resource. */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Requested resource does not exist. */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Request validation failed. */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Unexpected runtime API failure. */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-        };
-    };
-    list_llm_profiles: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ModelProfilesListResponse"];
-                };
-            };
-            /** @description Malformed request payload or parameters. */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Authentication is required for this route. */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Authenticated principal cannot access this resource. */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Requested resource does not exist. */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Request validation failed. */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Unexpected runtime API failure. */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-        };
-    };
-    list_source_profiles: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["SourceProfilesListResponse"];
-                };
-            };
-            /** @description Malformed request payload or parameters. */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Authentication is required for this route. */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Authenticated principal cannot access this resource. */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Requested resource does not exist. */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Request validation failed. */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Unexpected runtime API failure. */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-        };
-    };
-    list_binding_profiles: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["BindingProfilesListResponse"];
-                };
-            };
-            /** @description Malformed request payload or parameters. */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Authentication is required for this route. */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Authenticated principal cannot access this resource. */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Requested resource does not exist. */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Request validation failed. */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Unexpected runtime API failure. */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-        };
-    };
-    trigger_lex_pipeline: {
+    resolve_data_needs: {
         parameters: {
             query?: never;
             header?: never;
@@ -5211,7 +4261,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["LexTriggerRequest"];
+                "application/json": components["schemas"]["DataResolveRequest"];
             };
         };
         responses: {
@@ -5221,84 +4271,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["LexTriggerResponse"];
-                };
-            };
-            /** @description Malformed request payload or parameters. */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Authentication is required for this route. */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Authenticated principal cannot access this resource. */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Requested resource does not exist. */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-            /** @description Unexpected runtime API failure. */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
-                };
-            };
-        };
-    };
-    get_lex_pipeline_status: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                pipeline_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["LexPipelineStatusResponse"];
+                    "application/json": components["schemas"]["DataResolveResponse"];
                 };
             };
             /** @description Malformed request payload or parameters. */
@@ -5500,6 +4473,1478 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Unexpected runtime API failure. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+        };
+    };
+    get_lex_pipeline_status: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pipeline_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LexPipelineStatusResponse"];
+                };
+            };
+            /** @description Malformed request payload or parameters. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authentication is required for this route. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authenticated principal cannot access this resource. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Requested resource does not exist. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Unexpected runtime API failure. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+        };
+    };
+    trigger_lex_pipeline: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LexTriggerRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LexTriggerResponse"];
+                };
+            };
+            /** @description Malformed request payload or parameters. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authentication is required for this route. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authenticated principal cannot access this resource. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Requested resource does not exist. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Unexpected runtime API failure. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+        };
+    };
+    list_llm_profiles: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ModelProfilesListResponse"];
+                };
+            };
+            /** @description Malformed request payload or parameters. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authentication is required for this route. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authenticated principal cannot access this resource. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Requested resource does not exist. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Request validation failed. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Unexpected runtime API failure. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+        };
+    };
+    launch_run: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["WorkflowRunRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RunLaunchResponse"];
+                };
+            };
+            /** @description Malformed request payload or parameters. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authentication is required for this route. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authenticated principal cannot access this resource. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Requested resource does not exist. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Unexpected runtime API failure. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+        };
+    };
+    launch_nl_run: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NaturalLanguageRunRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RunLaunchResponse"];
+                };
+            };
+            /** @description Malformed request payload or parameters. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authentication is required for this route. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authenticated principal cannot access this resource. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Requested resource does not exist. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Unexpected runtime API failure. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+        };
+    };
+    get_run_errors: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                run_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RunErrorsResponse"];
+                };
+            };
+            /** @description Malformed request payload or parameters. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authentication is required for this route. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authenticated principal cannot access this resource. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Requested resource does not exist. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Unexpected runtime API failure. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+        };
+    };
+    get_governance_debug: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                run_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GovernanceDebugResponse"];
+                };
+            };
+            /** @description Malformed request payload or parameters. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authentication is required for this route. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authenticated principal cannot access this resource. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Requested resource does not exist. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Unexpected runtime API failure. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+        };
+    };
+    get_node_debug: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                run_id: string;
+                alias: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NodeDebugResponse"];
+                };
+            };
+            /** @description Malformed request payload or parameters. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authentication is required for this route. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authenticated principal cannot access this resource. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Requested resource does not exist. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Unexpected runtime API failure. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+        };
+    };
+    runtime_api_health: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: string;
+                    };
+                };
+            };
+            /** @description Malformed request payload or parameters. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authentication is required for this route. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authenticated principal cannot access this resource. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Requested resource does not exist. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Request validation failed. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Unexpected runtime API failure. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+        };
+    };
+    list_runs: {
+        parameters: {
+            query?: {
+                limit?: number;
+                cursor?: string | null;
+                status?: string | null;
+                from_ts?: string | null;
+                to_ts?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RunsListResponse"];
+                };
+            };
+            /** @description Malformed request payload or parameters. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authentication is required for this route. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authenticated principal cannot access this resource. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Requested resource does not exist. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Unexpected runtime API failure. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+        };
+    };
+    get_run_details: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                run_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RunDetailsResponse"];
+                };
+            };
+            /** @description Malformed request payload or parameters. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authentication is required for this route. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authenticated principal cannot access this resource. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Requested resource does not exist. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Unexpected runtime API failure. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+        };
+    };
+    get_run_agents: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                run_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AgentPipelineResponse"];
+                };
+            };
+            /** @description Malformed request payload or parameters. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authentication is required for this route. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authenticated principal cannot access this resource. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Requested resource does not exist. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Unexpected runtime API failure. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+        };
+    };
+    get_run_evidence_context: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                run_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RunEvidenceContextResponse"];
+                };
+            };
+            /** @description Malformed request payload or parameters. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authentication is required for this route. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authenticated principal cannot access this resource. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Requested resource does not exist. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Unexpected runtime API failure. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+        };
+    };
+    get_run_lineage: {
+        parameters: {
+            query?: {
+                root_artifact_id?: string[] | null;
+                max_depth?: number | null;
+                max_nodes?: number | null;
+            };
+            header?: never;
+            path: {
+                run_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RunLineageResponse"];
+                };
+            };
+            /** @description Malformed request payload or parameters. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authentication is required for this route. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authenticated principal cannot access this resource. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Requested resource does not exist. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Unexpected runtime API failure. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+        };
+    };
+    get_run_nodes: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                run_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RunNodesResponse"];
+                };
+            };
+            /** @description Malformed request payload or parameters. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authentication is required for this route. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authenticated principal cannot access this resource. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Requested resource does not exist. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Unexpected runtime API failure. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+        };
+    };
+    get_run_timeline: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                run_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RunTimelineResponse"];
+                };
+            };
+            /** @description Malformed request payload or parameters. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authentication is required for this route. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authenticated principal cannot access this resource. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Requested resource does not exist. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Unexpected runtime API failure. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+        };
+    };
+    get_run_workflow: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                run_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RunWorkflowResponse"];
+                };
+            };
+            /** @description Malformed request payload or parameters. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authentication is required for this route. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authenticated principal cannot access this resource. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Requested resource does not exist. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Unexpected runtime API failure. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+        };
+    };
+    health: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: string;
+                    };
+                };
+            };
+            /** @description Malformed request payload or parameters. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authentication is required for this route. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authenticated principal cannot access this resource. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Requested resource does not exist. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Request validation failed. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Unexpected runtime API failure. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+        };
+    };
+    ready: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: string;
+                    };
+                };
+            };
+            /** @description Malformed request payload or parameters. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authentication is required for this route. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authenticated principal cannot access this resource. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Requested resource does not exist. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Request validation failed. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
                     "application/problem+json": components["schemas"]["RuntimeApiProblem"];
                 };
             };

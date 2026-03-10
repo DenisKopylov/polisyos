@@ -40,12 +40,16 @@ class GateContext(BaseModel):
     policy_summary: str | None = None
     simulation_results: dict[str, Any] | None = None
     risk_indicators: list[str] = Field(default_factory=list)
+    issue_summary: dict[str, int] | None = None
+    artifact_refs: dict[str, str] | None = None
+    transport_summary: dict[str, Any] | None = None
+    replay_summary: dict[str, Any] | None = None
 
 
 class GateRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
+    schema_version: str = Field("1.1", pattern=r"^\d+\.\d+$")
     request_id: str
     run_id: str
     reason: str
@@ -81,4 +85,3 @@ class GateEvent(BaseModel):
     payload: dict[str, Any] = Field(default_factory=dict)
     trace_id: str | None = None
     span_id: str | None = None
-

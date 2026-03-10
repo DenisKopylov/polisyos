@@ -20,7 +20,9 @@ from polisyos.academic.knowledge.skg_store import (
     aggregate_edge_confidence,
     ensure_skg_schema,
     finalize_skg_version,
+    hash_context_attr_id,
     hash_edge_id,
+    hash_moderation_edge_id,
     hash_param_id,
     next_skg_version,
     normalize_strength,
@@ -96,6 +98,11 @@ CREATE TABLE IF NOT EXISTS ac_causal_claims_raw (
     design_family_hint        VARCHAR,
     source_basis              VARCHAR,
     claim_extraction_confidence FLOAT DEFAULT 0.0,
+    strong_design_evidence    BOOLEAN DEFAULT FALSE,
+    design_quality_tier       INTEGER,
+    publish_to_graph          BOOLEAN DEFAULT FALSE,
+    publish_blockers          VARCHAR DEFAULT '',
+    span_contamination_detected BOOLEAN DEFAULT FALSE,
     mechanism                 VARCHAR,
     domain                    VARCHAR,
     trust_score               FLOAT DEFAULT 0.0
@@ -115,7 +122,11 @@ CREATE TABLE IF NOT EXISTS ac_claim_adjudications (
     paper_asserts_score        FLOAT DEFAULT 0.0,
     claim_validity_score       FLOAT DEFAULT 0.0,
     adjudication_confidence    FLOAT DEFAULT 0.0,
+    claim_extraction_confidence FLOAT DEFAULT 0.0,
     publishable_edge           BOOLEAN DEFAULT FALSE,
+    strong_design_evidence     BOOLEAN DEFAULT FALSE,
+    design_quality_tier        INTEGER,
+    publish_blockers           VARCHAR DEFAULT '',
     consensus_passes           INTEGER DEFAULT 1,
     consensus_stability        FLOAT DEFAULT 1.0,
     adjudication_notes         VARCHAR
@@ -128,6 +139,12 @@ CREATE TABLE IF NOT EXISTS ac_causal_claims (
     effect          VARCHAR NOT NULL,
     direction       VARCHAR,
     strength        VARCHAR,
+    design_family_hint VARCHAR,
+    claim_extraction_confidence FLOAT DEFAULT 0.0,
+    strong_design_evidence BOOLEAN DEFAULT FALSE,
+    design_quality_tier INTEGER,
+    publish_blockers VARCHAR DEFAULT '',
+    candidate_layer  VARCHAR DEFAULT 'candidate',
     mechanism       VARCHAR,
     domain          VARCHAR,
     trust_score     FLOAT DEFAULT 0.0
@@ -270,10 +287,18 @@ def _legacy_strength_from_adjudication(adjudication: dict) -> str:
         return "rct"
     if design in {"iv", "did", "rdd", "synthetic_control"}:
         return "quasi_natural"
+    if design in {"event_study", "quasi_experimental_other", "quasi_experimental_did", "quasi_experimental_rdd"}:
+        return "quasi_natural_event"
     if design == "meta_analysis":
         return "meta_analysis"
-    if design in {"panel_fe", "ols"}:
+    if design in {"panel_fe", "system_gmm", "gmm"}:
+        return "panel_fe"
+    if design in {"structural_model", "time_series_cointegration"}:
+        return "structural"
+    if design == "ols":
         return "observational"
+    if design == "ols_cross_sectional":
+        return "cross_sectional"
     if credibility in {"strong", "moderate", "weak"}:
         return "theoretical" if credibility == "weak" else "observational"
     return "unknown"
@@ -297,6 +322,10 @@ class GraphStats:
     skg_variables: int = 0
     skg_edges: int = 0
     skg_parameters: int = 0
+    skg_context_attributes: int = 0
+    skg_moderation_edges: int = 0
+    skg_context_profiles: int = 0
+    skg_transport_scores: int = 0
     skg_versions: int = 0
 
 
@@ -314,6 +343,10 @@ def _init_schema(con: duckdb.DuckDBPyConnection) -> None:
     con.execute("DROP TABLE IF EXISTS ac_parameter_estimates")
     con.execute("DROP TABLE IF EXISTS ac_work_concepts")
     con.execute("DROP TABLE IF EXISTS ac_works")
+    con.execute("DROP TABLE IF EXISTS ac_skg_context_profiles")
+    con.execute("DROP TABLE IF EXISTS ac_skg_transport_scores")
+    con.execute("DROP TABLE IF EXISTS ac_skg_moderation_edges")
+    con.execute("DROP TABLE IF EXISTS ac_skg_context_attributes")
     con.execute("DROP TABLE IF EXISTS ac_skg_parameters")
     con.execute("DROP TABLE IF EXISTS ac_skg_edges")
     con.execute("DROP TABLE IF EXISTS ac_skg_variables")
@@ -339,6 +372,10 @@ def _truncate(con: duckdb.DuckDBPyConnection) -> None:
     con.execute("DELETE FROM ac_parameter_estimates")
     con.execute("DELETE FROM ac_work_concepts")
     con.execute("DELETE FROM ac_works")
+    con.execute("DELETE FROM ac_skg_context_attributes")
+    con.execute("DELETE FROM ac_skg_moderation_edges")
+    con.execute("DELETE FROM ac_skg_context_profiles")
+    con.execute("DELETE FROM ac_skg_transport_scores")
     con.execute("DELETE FROM ac_skg_parameters")
     con.execute("DELETE FROM ac_skg_edges")
     con.execute("DELETE FROM ac_skg_variables")
@@ -399,8 +436,13 @@ def _flush_all(
     if raw_claim_batch:
         con.executemany(
             "INSERT OR REPLACE INTO ac_causal_claims_raw "
-            "(id, work_id, cause, effect, direction, strength, claim_text, claim_explicitness, design_family_hint, source_basis, claim_extraction_confidence, mechanism, domain, trust_score) "
-            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            "("
+            "id, work_id, cause, effect, direction, strength, claim_text, claim_explicitness, "
+            "design_family_hint, source_basis, claim_extraction_confidence, strong_design_evidence, "
+            "design_quality_tier, publish_to_graph, publish_blockers, span_contamination_detected, "
+            "mechanism, domain, trust_score"
+            ") "
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             raw_claim_batch,
         )
         stats.raw_claims += len(raw_claim_batch)
@@ -409,8 +451,14 @@ def _flush_all(
     if claim_adjudication_batch:
         con.executemany(
             "INSERT OR REPLACE INTO ac_claim_adjudications "
-            "(claim_id, work_id, cause, effect, claim_type, design_family, causal_credibility, risk_of_bias, support_status, source_basis, paper_asserts_score, claim_validity_score, adjudication_confidence, publishable_edge, consensus_passes, consensus_stability, adjudication_notes) "
-            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            "("
+            "claim_id, work_id, cause, effect, claim_type, design_family, causal_credibility, "
+            "risk_of_bias, support_status, source_basis, paper_asserts_score, claim_validity_score, "
+            "adjudication_confidence, claim_extraction_confidence, publishable_edge, "
+            "strong_design_evidence, design_quality_tier, publish_blockers, consensus_passes, "
+            "consensus_stability, adjudication_notes"
+            ") "
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             claim_adjudication_batch,
         )
         stats.claim_adjudications += len(claim_adjudication_batch)
@@ -419,8 +467,12 @@ def _flush_all(
     if claim_batch:
         con.executemany(
             "INSERT OR REPLACE INTO ac_causal_claims "
-            "(id, work_id, cause, effect, direction, strength, mechanism, domain, trust_score) "
-            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            "("
+            "id, work_id, cause, effect, direction, strength, design_family_hint, "
+            "claim_extraction_confidence, strong_design_evidence, design_quality_tier, "
+            "publish_blockers, candidate_layer, mechanism, domain, trust_score"
+            ") "
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             claim_batch,
         )
         stats.claims += len(claim_batch)
@@ -478,6 +530,23 @@ def _flush_all(
 
 
 def _infer_edge_strength(claim: dict) -> str:
+    design = str(claim.get("design_family_hint") or "").strip().lower()
+    if design == "rct":
+        return "rct"
+    if design in {"iv", "did", "rdd", "synthetic_control"}:
+        return "quasi_natural"
+    if design in {"event_study", "quasi_experimental_other", "quasi_experimental_did", "quasi_experimental_rdd"}:
+        return "quasi_natural_event"
+    if design in {"panel_fe", "system_gmm", "gmm"}:
+        return "panel_fe"
+    if design in {"structural_model", "time_series_cointegration"}:
+        return "structural"
+    if design == "ols":
+        return "observational"
+    if design == "ols_cross_sectional":
+        return "cross_sectional"
+    if design in {"theoretical", "review", "review_narrative", "review_meta_analysis"}:
+        return "theoretical"
     explicit = str(claim.get("evidence_strength") or "").strip().lower()
     if explicit:
         return normalize_strength(explicit)
@@ -491,6 +560,83 @@ def _infer_edge_strength(claim: dict) -> str:
     return "unknown"
 
 
+def _choose_moderation_representative(current: dict[str, object] | None, candidate: dict[str, object]) -> dict[str, object]:
+    if current is None:
+        return candidate
+    current_confidence = float(current.get("confidence") or 0.0)
+    candidate_confidence = float(candidate.get("confidence") or 0.0)
+    if candidate_confidence > current_confidence:
+        return candidate
+    if candidate_confidence < current_confidence:
+        return current
+    current_has_interaction = int(current.get("quantitative_interaction") is not None)
+    candidate_has_interaction = int(candidate.get("quantitative_interaction") is not None)
+    if candidate_has_interaction > current_has_interaction:
+        return candidate
+    return current
+
+
+def _edge_quality_summary(payload: dict[str, object]) -> dict[str, object]:
+    tiers = sorted(
+        {
+            int(tier)
+            for tier in payload.get("design_tiers", [])
+            if isinstance(tier, int) and tier > 0
+        }
+    )
+    hints = sorted(
+        {
+            str(hint).strip()
+            for hint in payload.get("design_family_hints", [])
+            if str(hint).strip()
+        }
+    )
+    blockers = sorted(
+        {
+            str(blocker).strip()
+            for blocker in payload.get("publish_blockers", [])
+            if str(blocker).strip()
+        }
+    )
+    claim_confidences = [
+        float(value)
+        for value in payload.get("claim_confidences", [])
+        if isinstance(value, (int, float))
+    ]
+    strong_flags = [bool(flag) for flag in payload.get("strong_design_flags", [])]
+    claim_ids = sorted(
+        {
+            str(claim_id).strip()
+            for claim_id in payload.get("claim_ids", [])
+            if str(claim_id).strip()
+        }
+    )
+    confidence_summary: dict[str, float | None]
+    if claim_confidences:
+        confidence_summary = {
+            "min": round(min(claim_confidences), 6),
+            "max": round(max(claim_confidences), 6),
+            "mean": round(sum(claim_confidences) / len(claim_confidences), 6),
+        }
+    else:
+        confidence_summary = {"min": None, "max": None, "mean": None}
+    strong_count = sum(1 for flag in strong_flags if flag)
+    return {
+        "graph_layer": "candidate",
+        "claim_ids": claim_ids,
+        "design_quality_tiers": tiers,
+        "design_family_hints": hints,
+        "claim_extraction_confidence": confidence_summary,
+        "publish_blockers": blockers,
+        "strong_design_evidence": {
+            "count": strong_count,
+            "share_pct": round((strong_count / max(1, len(strong_flags))) * 100.0, 3) if strong_flags else 0.0,
+            "all": bool(strong_flags) and all(strong_flags),
+            "any": any(strong_flags),
+        },
+    }
+
+
 def _materialize_skg(
     *,
     con: duckdb.DuckDBPyConnection,
@@ -501,6 +647,8 @@ def _materialize_skg(
     variable_display: dict[str, str],
     skg_parameter_batch: list[tuple],
     edge_accumulator: dict[tuple[str, str, str], dict[str, object]],
+    context_attr_batch: list[tuple],
+    moderation_edge_batch: list[tuple],
 ) -> None:
     if skg_articles_batch:
         con.executemany(
@@ -574,6 +722,8 @@ def _materialize_skg(
                 confidence,
                 json.dumps(scope_conditions, ensure_ascii=False),
                 meta_effect_size,
+                "candidate",
+                json.dumps(_edge_quality_summary(payload), ensure_ascii=False),
             )
         )
 
@@ -582,12 +732,39 @@ def _materialize_skg(
             """
             INSERT OR REPLACE INTO ac_skg_edges(
                 edge_id, src, dst, direction, n_articles, article_refs,
-                evidence_strength, confidence, scope_conditions, meta_effect_size
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                evidence_strength, confidence, scope_conditions, meta_effect_size,
+                candidate_layer, quality_signals_json
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             edge_rows,
         )
         stats.skg_edges = len(edge_rows)
+
+    if context_attr_batch:
+        con.executemany(
+            """
+            INSERT OR REPLACE INTO ac_skg_context_attributes(
+                attr_id, openalex_id, canonical_name, attribute_value,
+                value_qualitative, unit, country_code, time_period,
+                measurement_method, confidence, skg_version
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            context_attr_batch,
+        )
+        stats.skg_context_attributes = len(context_attr_batch)
+
+    if moderation_edge_batch:
+        con.executemany(
+            """
+            INSERT OR REPLACE INTO ac_skg_moderation_edges(
+                moderation_id, base_cause, base_effect, moderator, base_claim_id,
+                direction_of_mod, interaction_coeff, interaction_pvalue,
+                evidence_count, confidence, match_quality, alignment_source, source_refs, skg_version
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            moderation_edge_batch,
+        )
+        stats.skg_moderation_edges = len(moderation_edge_batch)
 
     finalize_skg_version(
         con,
@@ -672,6 +849,8 @@ def load_graph(
         variable_mentions: defaultdict[str, int] = defaultdict(int)
         variable_display: dict[str, str] = {}
         edge_accumulator: dict[tuple[str, str, str], dict[str, object]] = {}
+        context_attr_batch: list[tuple] = []
+        moderation_edge_accumulator: dict[tuple[str, str, str], dict[str, object]] = {}
 
         for record in records:
             work_batch.append(
@@ -754,6 +933,11 @@ def load_graph(
                             claim.get("design_family_hint", ""),
                             claim.get("source_basis", ""),
                             float(claim.get("claim_extraction_confidence") or record.extraction_confidence or 0.0),
+                            bool(claim.get("strong_design_evidence") or False),
+                            int(claim.get("design_quality_tier")) if claim.get("design_quality_tier") is not None else None,
+                            bool(claim.get("publish_to_graph") or False),
+                            "; ".join(str(v) for v in (claim.get("publish_blockers") or []) if str(v).strip()),
+                            bool(claim.get("span_contamination_detected") or False),
                             claim.get("mechanism", ""),
                             claim.get("domain", ""),
                             record.trust_score,
@@ -779,7 +963,11 @@ def load_graph(
                                 float(adjudication.get("paper_asserts_causality_score") or 0.0),
                                 float(adjudication.get("claim_validity_score") or 0.0),
                                 float(adjudication.get("adjudication_confidence") or 0.0),
+                                float(claim.get("claim_extraction_confidence") or record.extraction_confidence or 0.0),
                                 bool(adjudication.get("publishable_edge") or False),
+                                bool(claim.get("strong_design_evidence") or False),
+                                int(claim.get("design_quality_tier")) if claim.get("design_quality_tier") is not None else None,
+                                "; ".join(str(v) for v in (claim.get("publish_blockers") or []) if str(v).strip()),
                                 int(adjudication.get("consensus_passes") or 1),
                                 float(adjudication.get("consensus_stability") or 0.0),
                                 str(adjudication.get("adjudication_notes") or ""),
@@ -813,7 +1001,11 @@ def load_graph(
                                 float(claim.get("claim_extraction_confidence") or record.extraction_confidence or 0.0),
                                 float(claim.get("claim_extraction_confidence") or record.extraction_confidence or 0.0),
                                 float(claim.get("claim_extraction_confidence") or record.extraction_confidence or 0.0),
+                                float(claim.get("claim_extraction_confidence") or record.extraction_confidence or 0.0),
                                 publishable,
+                                bool(claim.get("strong_design_evidence") or False),
+                                int(claim.get("design_quality_tier")) if claim.get("design_quality_tier") is not None else None,
+                                "; ".join(str(v) for v in (claim.get("publish_blockers") or []) if str(v).strip()),
                                 1,
                                 1.0,
                                 "; ".join(str(v) for v in (claim.get("publish_blockers") or []) if str(v).strip()),
@@ -829,6 +1021,12 @@ def load_graph(
                                 claim.get("effect", ""),
                                 claim.get("direction", ""),
                                 published_strength,
+                                str(claim.get("design_family_hint") or ""),
+                                float(claim.get("claim_extraction_confidence") or record.extraction_confidence or 0.0),
+                                bool(claim.get("strong_design_evidence") or False),
+                                int(claim.get("design_quality_tier")) if claim.get("design_quality_tier") is not None else None,
+                                "; ".join(str(v) for v in (claim.get("publish_blockers") or []) if str(v).strip()),
+                                "candidate",
                                 claim.get("mechanism", ""),
                                 claim.get("domain", ""),
                                 published_trust,
@@ -858,7 +1056,13 @@ def load_graph(
                 "boundary_conditions": record.boundary_conditions,
                 "study_design": record.study_design,
                 "method_signal_score": record.method_signal_score,
+                "paper_kind": record.metadata.get("paper_kind"),
+                "heterogeneity_results": record.metadata.get("heterogeneity_results", []),
+                "external_validity_assessment": record.metadata.get("external_validity_assessment", ""),
+                "reconciliation_diagnostics": record.metadata.get("reconciliation_diagnostics", {}),
                 "metadata": record.metadata,
+                "context_attributes": record.metadata.get("context_attributes", []),
+                "moderation_edges": record.metadata.get("moderation_edges", []),
             }
             extraction_batch.append(
                 (
@@ -934,6 +1138,86 @@ def load_graph(
                     )
                 )
 
+            claim_lookup: dict[str, tuple[str, str]] = {}
+            for claim_raw in (record.causal_claims or []):
+                if not isinstance(claim_raw, dict):
+                    continue
+                claim_id = str(claim_raw.get("claim_id") or "").strip()
+                cause = str(claim_raw.get("cause") or "").strip()
+                effect = str(claim_raw.get("effect") or "").strip()
+                if claim_id and cause and effect:
+                    claim_lookup[claim_id] = (cause, effect)
+
+            # Extract Track B/C data from extraction payload
+            for ctx_attr_raw in (extraction_payload.get("context_attributes") or []):
+                if not isinstance(ctx_attr_raw, dict):
+                    continue
+                canonical_name = str(ctx_attr_raw.get("canonical_name") or ctx_attr_raw.get("attribute_name") or "").strip()
+                if not canonical_name:
+                    continue
+                for cc in (ctx_attr_raw.get("country_codes") or [""]):
+                    context_attr_batch.append((
+                        hash_context_attr_id(canonical_name, record.id, str(cc)),
+                        record.id,
+                        canonical_name,
+                        float(ctx_attr_raw["value"]) if ctx_attr_raw.get("value") is not None else None,
+                        str(ctx_attr_raw.get("value_qualitative") or "") or None,
+                        str(ctx_attr_raw.get("unit") or "") or None,
+                        str(cc) if cc else None,
+                        str(ctx_attr_raw.get("time_period") or "") or None,
+                        str(ctx_attr_raw.get("measurement_method") or "") or None,
+                        float(ctx_attr_raw.get("confidence") or 0.5),
+                        skg_version_id,
+                    ))
+
+            for mod_edge_raw in (extraction_payload.get("moderation_edges") or []):
+                if not isinstance(mod_edge_raw, dict):
+                    continue
+                base_claim_id = str(mod_edge_raw.get("base_claim_id") or "").strip()
+                if base_claim_id and base_claim_id in claim_lookup:
+                    base_cause, base_effect = claim_lookup[base_claim_id]
+                else:
+                    base_cause = str(mod_edge_raw.get("base_cause") or "").strip()
+                    base_effect = str(mod_edge_raw.get("base_effect") or "").strip()
+                moderator = str(mod_edge_raw.get("moderator") or "").strip()
+                if not base_cause or not base_effect or not moderator:
+                    continue
+                key = (base_cause, base_effect, moderator)
+                candidate = {
+                    "base_claim_id": base_claim_id or None,
+                    "direction_of_moderation": str(mod_edge_raw.get("direction_of_moderation") or "") or None,
+                    "quantitative_interaction": (
+                        float(mod_edge_raw["quantitative_interaction"])
+                        if mod_edge_raw.get("quantitative_interaction") is not None
+                        else None
+                    ),
+                    "interaction_pvalue": (
+                        float(mod_edge_raw["interaction_pvalue"])
+                        if mod_edge_raw.get("interaction_pvalue") is not None
+                        else None
+                    ),
+                    "confidence": float(mod_edge_raw.get("confidence") or 0.5),
+                    "match_quality": str(mod_edge_raw.get("match_quality") or ""),
+                    "alignment_source": str(mod_edge_raw.get("alignment_source") or ""),
+                }
+                payload = moderation_edge_accumulator.get(key)
+                representative = _choose_moderation_representative(
+                    None if payload is None else payload.get("representative"),  # type: ignore[arg-type]
+                    candidate,
+                )
+                if payload is None:
+                    moderation_edge_accumulator[key] = {
+                        "representative": representative,
+                        "source_refs": {record.id},
+                        "evidence_count": int(mod_edge_raw.get("evidence_count") or 1),
+                        "confidence": float(candidate["confidence"]),
+                    }
+                    continue
+                payload["representative"] = representative
+                payload["source_refs"].add(record.id)  # type: ignore[union-attr]
+                payload["evidence_count"] = int(payload.get("evidence_count") or 0) + int(mod_edge_raw.get("evidence_count") or 1)
+                payload["confidence"] = max(float(payload.get("confidence") or 0.0), float(candidate["confidence"]))
+
             if len(work_batch) >= insert_batch_size:
                 _flush_all(
                     con,
@@ -974,6 +1258,12 @@ def load_graph(
                         "evidence_samples": [],
                         "scope_conditions": [],
                         "effect_sizes": [],
+                        "claim_ids": [],
+                        "design_tiers": [],
+                        "design_family_hints": [],
+                        "claim_confidences": [],
+                        "publish_blockers": [],
+                        "strong_design_flags": [],
                     }
                 payload = edge_accumulator[key]
                 payload["article_refs"].append(record.id)  # type: ignore[index]
@@ -992,6 +1282,15 @@ def load_graph(
                 )
                 payload["scope_conditions"].extend(claim.get("scope_conditions") or [])  # type: ignore[index]
                 payload["effect_sizes"].append(claim.get("effect_size"))  # type: ignore[index]
+                payload["claim_ids"].append(cid)  # type: ignore[index]
+                if claim.get("design_quality_tier") is not None:
+                    payload["design_tiers"].append(int(claim.get("design_quality_tier")))  # type: ignore[index]
+                design_hint = str(claim.get("design_family_hint") or "").strip()
+                if design_hint:
+                    payload["design_family_hints"].append(design_hint)  # type: ignore[index]
+                payload["claim_confidences"].append(float(claim.get("claim_extraction_confidence") or record.extraction_confidence or 0.0))  # type: ignore[index]
+                payload["publish_blockers"].extend(claim.get("publish_blockers") or [])  # type: ignore[index]
+                payload["strong_design_flags"].append(bool(claim.get("strong_design_evidence") or False))  # type: ignore[index]
 
                 variable_mentions[src] += 1
                 variable_mentions[dst] += 1
@@ -1043,6 +1342,26 @@ def load_graph(
             ingest_error_batch,
         )
 
+        moderation_edge_batch = [
+            (
+                hash_moderation_edge_id(base_cause, base_effect, moderator),
+                base_cause,
+                base_effect,
+                moderator,
+                payload["representative"].get("base_claim_id"),  # type: ignore[index]
+                payload["representative"].get("direction_of_moderation"),  # type: ignore[index]
+                payload["representative"].get("quantitative_interaction"),  # type: ignore[index]
+                payload["representative"].get("interaction_pvalue"),  # type: ignore[index]
+                int(payload.get("evidence_count") or 1),
+                float(payload.get("confidence") or 0.5),
+                payload["representative"].get("match_quality"),  # type: ignore[index]
+                payload["representative"].get("alignment_source"),  # type: ignore[index]
+                json.dumps(sorted(payload["source_refs"]), ensure_ascii=False),  # type: ignore[index]
+                skg_version_id,
+            )
+            for (base_cause, base_effect, moderator), payload in moderation_edge_accumulator.items()
+        ]
+
         _materialize_skg(
             con=con,
             stats=stats,
@@ -1052,6 +1371,8 @@ def load_graph(
             variable_display=variable_display,
             skg_parameter_batch=skg_parameter_batch,
             edge_accumulator=edge_accumulator,
+            context_attr_batch=context_attr_batch,
+            moderation_edge_batch=moderation_edge_batch,
         )
 
         # finalize run row timestamps

@@ -6,6 +6,7 @@ from types import SimpleNamespace
 
 from polisyos.scientist.orchestrator.decision_card import (
     Confidence,
+    DiagnosticBadge,
     DecisionCard,
     IssuesSummary,
     KeyMetric,
@@ -26,6 +27,9 @@ class TestDecisionCard:
         assert card1.confidence == card2.confidence
         assert card1.policy_summary == card2.policy_summary
         assert [m.name for m in card1.key_metrics] == [m.name for m in card2.key_metrics]
+        assert [badge.label for badge in card1.diagnostic_badges] == [
+            badge.label for badge in card2.diagnostic_badges
+        ]
 
     def test_render_markdown_pure(self) -> None:
         card = DecisionCard(
@@ -36,6 +40,7 @@ class TestDecisionCard:
             policy_summary="Test policy with 2 interventions",
             intervention_count=2,
             key_metrics=[KeyMetric(name="GDP Change", value=0.02, formatted="+2.00", unit="%")],
+            diagnostic_badges=[DiagnosticBadge(label="transport:transportable", kind="ok")],
             issues=IssuesSummary(blocker_count=0, warning_count=1, info_count=0),
             total_duration_ms=1234,
         )
@@ -43,6 +48,7 @@ class TestDecisionCard:
         markdown = card.render_markdown()
         assert "# Decision Card: test_001" in markdown
         assert "✅ **APPROVE**" in markdown
+        assert "transport:transportable" in markdown
         assert "GDP Change" in markdown
         assert "**Blockers**: 0" in markdown
 
@@ -100,9 +106,15 @@ class TestDecisionCard:
             generated_at="2026-01-27T00:00:00+00:00",
             policy_ir=None,
             simulation_results={"gdp_change": 0.02, "gini_coefficient": 0.35},
+            diagnostics_summary={
+                "transport_status": "transportable",
+                "legal_executed": False,
+                "replay_readiness": "partial",
+                "human_review_needed": True,
+                "uncertainty_available": False,
+            },
             feedback={"verdict": "APPROVE", "issues": []},
             evidence_ref=None,
             run_timeline=None,
             validation_trace=None,
         )
-

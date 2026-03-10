@@ -59,7 +59,10 @@ export function toDisplayLabel(value: string): string {
     .replace(/\b\w/g, (char) => char.toUpperCase());
 }
 
-export function formatMaybeNumber(value: number | null | undefined, precision = 2): string {
+export function formatMaybeNumber(
+  value: number | null | undefined,
+  precision = 2,
+): string {
   if (value === null || value === undefined || Number.isNaN(value)) {
     return "-";
   }

@@ -17,8 +17,10 @@ from polisyos.core.registry import load_registry_bundle_content
 from polisyos.foundry.conflict_checker import CompileTimeConflictChecker
 from polisyos.foundry.cost_model import CostBudget, CostModel
 from polisyos.foundry.mechanisms import build_treasury_plan
+from polisyos.foundry.registry import has_runtime_mechanism_support
 from polisyos.foundry.layout import build_slot_layout
 from polisyos.ir.linker import link_trinity
+from polisyos.ir.linker.reports import LinkSeverity
 from polisyos.ir.registry_fragments import RegistryBundle
 from polisyos.ir.trinity import TrinityBundle
 
@@ -66,6 +68,7 @@ def compile_trinity(store: FileSystemCAS, request: CompileRequest) -> CompileRes
         strict=request.validation_flags.strict_link,
     )
     link_report_ref = put_link_report(store, link_report, inputs=link_inputs)
+    compile_notes = _link_warning_notes(link_report)
 
     if request.validation_flags.strict_link and not link_report.ok:
         return _compile_error(
@@ -74,7 +77,28 @@ def compile_trinity(store: FileSystemCAS, request: CompileRequest) -> CompileRes
             policy_ref=policy_ref,
             registry_bundle_ref=registry_bundle_ref,
             link_report_ref=link_report_ref,
-            notes=["link_failed"],
+            notes=compile_notes + ["link_failed"],
+        )
+
+    missing_runtime_support = sorted(
+        {
+            intervention.kind
+            for intervention in bundle.policy_spec.interventions
+            if not has_runtime_mechanism_support(intervention.kind)
+        }
+    )
+    if missing_runtime_support:
+        return _compile_error(
+            store,
+            ok=False,
+            policy_ref=policy_ref,
+            registry_bundle_ref=registry_bundle_ref,
+            link_report_ref=link_report_ref,
+            notes=compile_notes
+            + [
+                f"missing_runtime_mechanism_support:{mechanism_id}"
+                for mechanism_id in missing_runtime_support
+            ],
         )
 
     bindings = {item.intervention_id: item for item in linked_bundle.bindings.interventions}
@@ -116,7 +140,8 @@ def compile_trinity(store: FileSystemCAS, request: CompileRequest) -> CompileRes
             policy_ref=policy_ref,
             registry_bundle_ref=registry_bundle_ref,
             link_report_ref=link_report_ref,
-            notes=[
+            notes=compile_notes
+            + [
                 f"conflict_check_failed:{len(conflict_report.conflicts)}",
             ],
         )
@@ -147,7 +172,7 @@ def compile_trinity(store: FileSystemCAS, request: CompileRequest) -> CompileRes
                 policy_ref=policy_ref,
                 registry_bundle_ref=registry_bundle_ref,
                 link_report_ref=link_report_ref,
-                notes=["cost_budget_exceeded"],
+                notes=compile_notes + ["cost_budget_exceeded"],
             )
 
     program_inputs = _program_graph_inputs(
@@ -222,6 +247,7 @@ def compile_trinity(store: FileSystemCAS, request: CompileRequest) -> CompileRes
         exec_plan_ref=exec_plan_ref,
         slot_layout_ref=slot_layout_ref,
         treasury_plan_ref=treasury_plan_ref,
+        notes=compile_notes,
     )
     compile_inputs = _compile_inputs(
         policy_ref=policy_ref,
@@ -247,7 +273,7 @@ def compile_trinity(store: FileSystemCAS, request: CompileRequest) -> CompileRes
         exec_plan_ref=exec_plan_ref,
         compile_report_ref=compile_report_ref,
         derived_refs=derived_refs,
-        notes=[],
+        notes=compile_notes,
     )
 
 
@@ -387,3 +413,14 @@ def _build_cost_budget(request: CompileRequest) -> CostBudget | None:
             else defaults.max_per_mechanism_ms
         ),
     )
+
+
+def _link_warning_notes(link_report) -> list[str]:
+    notes: list[str] = []
+    for issue in getattr(link_report, "issues", []):
+        if issue.severity != LinkSeverity.WARNING:
+            continue
+        token = f"link_warning:{issue.code.value}"
+        if token not in notes:
+            notes.append(token)
+    return notes

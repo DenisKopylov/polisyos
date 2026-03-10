@@ -23,6 +23,7 @@ RetrievalMode = Literal["fastlane", "explorelane", "hybrid"]
 CandidateLane = Literal["fastlane", "explorelane"]
 PreviewStatus = Literal["ok", "insufficient_coverage", "error"]
 PromotionStatus = Literal["pending", "approved", "rejected"]
+CapabilityStage = Literal["active", "planned", "deferred"]
 
 # ---------------------------------------------------------------------------
 # Data source binding
@@ -246,7 +247,7 @@ class FetchPlan(BaseModel):
 
 
 class FetchPreview(BaseModel):
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="forbid", populate_by_name=True)
 
     status: PreviewStatus = "ok"
     connector_id: str
@@ -256,7 +257,7 @@ class FetchPreview(BaseModel):
     coverage_ok: bool = False
     quality_min: float = Field(default=0.0, ge=0.0, le=1.0)
     sample_rows: list[dict[str, Any]] = Field(default_factory=list)
-    schema: dict[str, Any] = Field(default_factory=dict)
+    schema_payload: dict[str, Any] = Field(default_factory=dict, alias="schema")
     quality_flags: list[str] = Field(default_factory=list)
     message: str | None = None
     latency_ms: int | None = Field(default=None, ge=0)
@@ -534,6 +535,35 @@ class CacheStatusResponse(BaseModel):
 
 
 IngestRequest.model_rebuild()
+
+
+# ---------------------------------------------------------------------------
+# Control-plane capabilities
+# ---------------------------------------------------------------------------
+
+
+class CapabilityFeatureInfo(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    key: str
+    label: str
+    description: str
+    category: str
+    enabled: bool = True
+    stage: CapabilityStage = "active"
+
+
+class CapabilityManifestResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    meta: ApiMeta
+    runtime_api_version: str = "1.0.0"
+    shell_flavor: str = "atlas"
+    default_locale: Literal["en", "uk"] = "en"
+    supported_locales: list[Literal["en", "uk"]] = Field(default_factory=lambda: ["en", "uk"])
+    workspaces: list[str] = Field(default_factory=list)
+    features: list[CapabilityFeatureInfo] = Field(default_factory=list)
+    constraints: dict[str, Any] = Field(default_factory=dict)
 
 
 # ---------------------------------------------------------------------------

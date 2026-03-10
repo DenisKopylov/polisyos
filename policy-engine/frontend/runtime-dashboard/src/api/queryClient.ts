@@ -1,11 +1,14 @@
 import { QueryClient } from "@tanstack/react-query";
 
+import { queryRetryDelay, shouldRetryQueryError } from "@/api/queryRetryPolicy";
+
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 10_000,
+      staleTime: 30_000,
       refetchOnWindowFocus: false,
-      retry: 1,
+      retry: shouldRetryQueryError,
+      retryDelay: queryRetryDelay,
     },
   },
 });

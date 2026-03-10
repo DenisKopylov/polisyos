@@ -5,6 +5,7 @@ import json
 import duckdb
 
 from polisyos.academic.knowledge.skg_query import SKGQuery
+from polisyos.ir.analytics.context import ContextProfile, IncomeLevel
 
 
 def _seed_skg_tables(db_path) -> None:
@@ -34,6 +35,30 @@ def _seed_skg_tables(db_path) -> None:
                 openalex_id VARCHAR,
                 parameter_json VARCHAR,
                 context_json VARCHAR
+            )
+            """
+        )
+        con.execute(
+            """
+            CREATE TABLE ac_skg_context_profiles (
+                profile_id VARCHAR,
+                context_id VARCHAR
+            )
+            """
+        )
+        con.execute(
+            """
+            CREATE TABLE ac_skg_transport_scores (
+                transport_id VARCHAR,
+                target_context_id VARCHAR
+            )
+            """
+        )
+        con.execute(
+            """
+            CREATE TABLE ac_skg_moderation_edges (
+                moderation_id VARCHAR,
+                moderator VARCHAR
             )
             """
         )
@@ -72,6 +97,7 @@ def _seed_skg_tables(db_path) -> None:
             ],
         )
         con.execute("INSERT INTO ac_skg_versions VALUES (5), (6)")
+        con.execute("INSERT INTO ac_skg_context_profiles VALUES ('profile_pl', 'PL')")
     finally:
         con.close()
 
@@ -135,3 +161,33 @@ def test_query_parameters_parses_parameter_and_context(tmp_path) -> None:
     assert candidate.parameter.confidence_interval == (1.1, 1.7)
     assert candidate.source_context is not None
     assert candidate.source_context.context_id == "PL"
+
+
+def test_query_parameters_enriches_transport_metadata(tmp_path) -> None:
+    db_path = tmp_path / "skg.duckdb"
+    _seed_skg_tables(db_path)
+
+    con = duckdb.connect(str(db_path))
+    try:
+        con.execute("INSERT INTO ac_skg_context_profiles VALUES ('profile_ua', 'UA')")
+        con.execute("INSERT INTO ac_skg_moderation_edges VALUES ('m1', 'fiscal_multiplier')")
+    finally:
+        con.close()
+
+    query = SKGQuery(db_path=db_path, index_dir=tmp_path / "idx")
+    try:
+        candidates = query.query_parameters(
+            "fiscal_multiplier",
+            target_context=ContextProfile(
+                context_id="UA",
+                income_level=IncomeLevel.UPPER_MIDDLE,
+            ),
+        )
+    finally:
+        query.close()
+
+    assert len(candidates) == 1
+    candidate = candidates[0]
+    assert candidate.transport_penalty > 0.0
+    assert "moderation_edges:1" in candidate.transport_notes
+    assert "transport_score_unavailable" in candidate.transport_notes

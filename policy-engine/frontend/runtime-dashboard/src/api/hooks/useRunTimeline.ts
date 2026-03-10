@@ -1,4 +1,8 @@
-import { useQuery } from "@tanstack/react-query";
+import {
+  queryOptions,
+  useQuery,
+  useSuspenseQuery,
+} from "@tanstack/react-query";
 
 import { runtimeApiClient } from "../client";
 import { createRuntimeApiError } from "../http";
@@ -6,16 +10,23 @@ import { queryKeys } from "../queryKeys";
 import { runTimelineSchema } from "../validators";
 
 async function fetchRunTimeline(runId: string) {
-  const { data, error, response } = await runtimeApiClient.GET("/api/v1/runs/{run_id}/timeline", {
-    params: {
-      path: {
-        run_id: runId,
+  const { data, error, response } = await runtimeApiClient.GET(
+    "/api/v1/runs/{run_id}/timeline",
+    {
+      params: {
+        path: {
+          run_id: runId,
+        },
       },
     },
-  });
+  );
 
   if (error || !response.ok || !data) {
-    throw createRuntimeApiError(response, error, `Failed to load timeline for ${runId}`);
+    throw createRuntimeApiError(
+      response,
+      error,
+      `Failed to load timeline for ${runId}`,
+    );
   }
 
   const parsed = runTimelineSchema.parse(data);
@@ -29,10 +40,20 @@ async function fetchRunTimeline(runId: string) {
   };
 }
 
+export function runTimelineQueryOptions(runId: string) {
+  return queryOptions({
+    queryKey: queryKeys.runTimeline(runId),
+    queryFn: () => fetchRunTimeline(runId),
+  });
+}
+
 export function useRunTimeline(runId: string | undefined, enabled = true) {
   return useQuery({
-    queryKey: queryKeys.runTimeline(runId ?? "unknown"),
-    queryFn: () => fetchRunTimeline(runId ?? ""),
+    ...runTimelineQueryOptions(runId ?? "unknown"),
     enabled: Boolean(runId) && enabled,
   });
+}
+
+export function useSuspenseRunTimeline(runId: string) {
+  return useSuspenseQuery(runTimelineQueryOptions(runId));
 }

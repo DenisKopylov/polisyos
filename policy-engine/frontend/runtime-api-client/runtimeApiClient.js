@@ -69,6 +69,11 @@ export class RuntimeApiClient {
     return this.request('GET', path);
   }
 
+  async getControlCapabilities() {
+    const path = `/api/v1/control/capabilities`;
+    return this.request('GET', path);
+  }
+
   async listBindingProfiles() {
     const path = `/api/v1/control/data/binding-profiles`;
     return this.request('GET', path);
@@ -106,6 +111,19 @@ export class RuntimeApiClient {
 
   async listDataPromotionCandidates() {
     const path = `/api/v1/control/data/promotion/candidates`;
+    return this.request('GET', path);
+  }
+
+  async getLexGraphStats(params) {
+    const path = `/api/v1/control/lex/graph/stats`;
+    const query = this.buildQuery({
+      output_dir: params?.output_dir,
+    });
+    return this.request('GET', path, query);
+  }
+
+  async getLexPipelineStatus(params) {
+    const path = `/api/v1/control/lex/status/${encodeURIComponent(String(params.pipeline_id))}`;
     return this.request('GET', path);
   }
 
@@ -153,6 +171,11 @@ export class RuntimeApiClient {
 
   async getRunAgents(params) {
     const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/agents`;
+    return this.request('GET', path);
+  }
+
+  async getRunEvidenceContext(params) {
+    const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/evidence-context`;
     return this.request('GET', path);
   }
 

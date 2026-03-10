@@ -1,4 +1,8 @@
-import { useQuery } from "@tanstack/react-query";
+import {
+  queryOptions,
+  useQuery,
+  useSuspenseQuery,
+} from "@tanstack/react-query";
 
 import { runtimeApiClient } from "../client";
 import { createRuntimeApiError } from "../http";
@@ -6,16 +10,23 @@ import { queryKeys } from "../queryKeys";
 import { runWorkflowSchema } from "../validators";
 
 async function fetchRunWorkflow(runId: string) {
-  const { data, error, response } = await runtimeApiClient.GET("/api/v1/runs/{run_id}/workflow", {
-    params: {
-      path: {
-        run_id: runId,
+  const { data, error, response } = await runtimeApiClient.GET(
+    "/api/v1/runs/{run_id}/workflow",
+    {
+      params: {
+        path: {
+          run_id: runId,
+        },
       },
     },
-  });
+  );
 
   if (error || !response.ok || !data) {
-    throw createRuntimeApiError(response, error, `Failed to load workflow for ${runId}`);
+    throw createRuntimeApiError(
+      response,
+      error,
+      `Failed to load workflow for ${runId}`,
+    );
   }
 
   const parsed = runWorkflowSchema.parse(data);
@@ -30,10 +41,20 @@ async function fetchRunWorkflow(runId: string) {
   };
 }
 
+export function runWorkflowQueryOptions(runId: string) {
+  return queryOptions({
+    queryKey: queryKeys.runWorkflow(runId),
+    queryFn: () => fetchRunWorkflow(runId),
+  });
+}
+
 export function useRunWorkflow(runId: string | undefined, enabled = true) {
   return useQuery({
-    queryKey: queryKeys.runWorkflow(runId ?? "unknown"),
-    queryFn: () => fetchRunWorkflow(runId ?? ""),
+    ...runWorkflowQueryOptions(runId ?? "unknown"),
     enabled: Boolean(runId) && enabled,
   });
+}
+
+export function useSuspenseRunWorkflow(runId: string) {
+  return useSuspenseQuery(runWorkflowQueryOptions(runId));
 }

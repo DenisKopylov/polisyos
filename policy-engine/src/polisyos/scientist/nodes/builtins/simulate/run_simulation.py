@@ -172,7 +172,8 @@ class RunSimulationNode:
                 details={
                     "simulation_result_ref": getattr(
                         result.simulation_result_ref, "model_dump", lambda: None
-                    )()
+                    )(),
+                    "notes": list(result.notes),
                 },
             )
             event = NodeEvent(level="error", message="Foundry execute returned ok=False")

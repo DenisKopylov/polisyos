@@ -178,8 +178,13 @@ def execute_program_graph(
 
                 params = payload.get("params", {})
                 mechanism_type = node.mechanism_type
+                mechanism_spec = mechanism_registry.mechanisms.get(mechanism_type)
                 mechanism = create_mechanism_from_spec(
-                    mechanism_type, params, n_agents=n_agents, n_firms=n_firms
+                    mechanism_type,
+                    params,
+                    n_agents=n_agents,
+                    n_firms=n_firms,
+                    mechanism_spec=mechanism_spec,
                 )
                 if (
                     tax_rate_value is not None
@@ -255,8 +260,13 @@ def execute_program_graph(
                 continue
             params = payload.get("params", {})
             mechanism_type = node.mechanism_type
+            mechanism_spec = mechanism_registry.mechanisms.get(mechanism_type)
             mechanism = create_mechanism_from_spec(
-                mechanism_type, params, n_agents=n_agents, n_firms=n_firms
+                mechanism_type,
+                params,
+                n_agents=n_agents,
+                n_firms=n_firms,
+                mechanism_spec=mechanism_spec,
             )
             if (
                 tax_rate_value is not None

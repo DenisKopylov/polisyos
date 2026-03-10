@@ -27,6 +27,7 @@ class ParameterApplicability(BaseModel):
     adjustment_required: bool
     uncertainty_multiplier: float = Field(default=1.0, ge=1.0)
     recommended_value: float | None = None
+    transport_notes: list[str] = Field(default_factory=list)
 
 
 class ContextAdaptiveParameterBundle(BaseModel):

@@ -19,7 +19,11 @@ async function fetchNodeDebug(runId: string, alias: string) {
   );
 
   if (error || !response.ok || !data) {
-    throw createRuntimeApiError(response, error, `Failed to load node debug for ${runId}/${alias}`);
+    throw createRuntimeApiError(
+      response,
+      error,
+      `Failed to load node debug for ${runId}/${alias}`,
+    );
   }
 
   const parsed = nodeDebugSchema.parse(data);
@@ -36,7 +40,11 @@ async function fetchNodeDebug(runId: string, alias: string) {
   };
 }
 
-export function useNodeDebug(runId: string | undefined, alias: string | null, enabled = true) {
+export function useNodeDebug(
+  runId: string | undefined,
+  alias: string | null,
+  enabled = true,
+) {
   return useQuery({
     queryKey: queryKeys.runNodeDebug(runId ?? "unknown", alias ?? "unknown"),
     queryFn: () => fetchNodeDebug(runId ?? "", alias ?? ""),

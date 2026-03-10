@@ -1,9 +1,11 @@
 import { z } from "zod";
 
+import type { components } from "./types";
+
 const apiMetaSchema = z.object({
   request_id: z.string(),
   generated_at: z.string(),
-  source_kinds: z.array(z.literal("core_run")).or(z.array(z.string())).default([]),
+  source_kinds: z.array(z.literal("core_run")).default([]),
 });
 
 const cursorPageSchema = z.object({
@@ -61,7 +63,7 @@ const runTimelineEventSchema = z.object({
   parent_span_id: z.string().nullable().optional(),
   input_artifact_ids: z.array(z.string()).optional(),
   output_artifact_ids: z.array(z.string()).optional(),
-  metrics: z.record(z.number()).optional(),
+  metrics: z.record(z.string(), z.number()).optional(),
   warning_count: z.number().optional(),
   error_count: z.number().optional(),
 });
@@ -70,8 +72,8 @@ const runTimelineSummarySchema = z.object({
   run_id: z.string(),
   total_events: z.number(),
   duration_ms: z.number().nullable().optional(),
-  node_status_counts: z.record(z.number()).optional(),
-  phase_counts: z.record(z.number()).optional(),
+  node_status_counts: z.record(z.string(), z.number()).optional(),
+  phase_counts: z.record(z.string(), z.number()).optional(),
   cache_hits: z.number().optional(),
   cache_stores: z.number().optional(),
   cache_bypasses: z.number().optional(),
@@ -92,7 +94,7 @@ const runNodeRecordSchema = z.object({
   duration_ms: z.number(),
   error_code: z.string().nullable().optional(),
   error_message: z.string().nullable().optional(),
-  error_details: z.record(z.unknown()).optional(),
+  error_details: z.record(z.string(), z.unknown()).optional(),
   skip_reason: z.string().nullable().optional(),
   artifact_ids: z.array(z.string()).optional(),
   input_artifact_ids: z.array(z.string()).optional(),
@@ -105,10 +107,10 @@ const runErrorViewSchema = z.object({
   message: z.string(),
   node_alias: z.string().nullable().optional(),
   timestamp: z.string().nullable().optional(),
-  details: z.record(z.unknown()).optional(),
+  details: z.record(z.string(), z.unknown()).optional(),
 });
 
-const governanceIssueSchema = z.record(z.unknown()).and(
+const governanceIssueSchema = z.record(z.string(), z.unknown()).and(
   z.object({
     code: z.string().optional(),
     severity: z.string().optional(),
@@ -122,9 +124,19 @@ const governanceDebugViewSchema = z.object({
   source_kind: z.literal("core_run"),
   verdict: z.string().nullable().optional(),
   issues: z.array(governanceIssueSchema).optional(),
+  issue_summary: z.record(z.string(), z.number()).nullable().optional(),
   notes: z.array(z.string()).optional(),
   report_ref: artifactRefSchema.nullable().optional(),
-  validation_trace: z.record(z.unknown()).nullable().optional(),
+  report_kind: z.string().nullable().optional(),
+  report_schema_version: z.string().nullable().optional(),
+  links: z
+    .record(z.string(), artifactRefSchema.nullable())
+    .nullable()
+    .optional(),
+  legal_executed: z.boolean().nullable().optional(),
+  transport_summary: z.record(z.string(), z.unknown()).nullable().optional(),
+  validation_trace: z.record(z.string(), z.unknown()).nullable().optional(),
+  contract_warnings: z.array(z.string()).optional(),
   fallback_from_decision_packet: z.boolean().optional(),
 });
 
@@ -147,7 +159,7 @@ const agentPipelineStepSchema = z.object({
   status: z.enum(["ok", "warn", "fail", "info"]).default("info"),
   timestamp: z.string().nullable().optional(),
   summary: z.string().nullable().optional(),
-  details: z.record(z.unknown()).optional(),
+  details: z.record(z.string(), z.unknown()).optional(),
   prompt: z.string().nullable().optional(),
   response: z.string().nullable().optional(),
   model: z.string().nullable().optional(),
@@ -155,7 +167,7 @@ const agentPipelineStepSchema = z.object({
   model_variant_id: z.string().nullable().optional(),
   latency_ms: z.number().nullable().optional(),
   cost_usd: z.number().nullable().optional(),
-  token_usage: z.record(z.number()).optional(),
+  token_usage: z.record(z.string(), z.number()).optional(),
 });
 
 const agentPipelineAttemptSchema = z.object({
@@ -196,7 +208,7 @@ const preflightDiagnosticViewSchema = z.object({
   message: z.string(),
   path: z.array(z.string()).optional(),
   replanning_hints: z.array(z.string()).optional(),
-  data: z.record(z.unknown()).optional(),
+  data: z.record(z.string(), z.unknown()).optional(),
 });
 
 const preflightReportViewSchema = z.object({
@@ -236,11 +248,17 @@ const iterationLifecycleViewSchema = z.object({
 
 const reproducibilityViewSchema = z.object({
   seed: z.number().optional(),
+  seed_source: z.string().nullable().optional(),
+  determinism_tier: z.string().nullable().optional(),
   plan_hash: z.string().nullable().optional(),
   registry_hash: z.string().nullable().optional(),
   method_catalog_hash: z.string().nullable().optional(),
   data_snapshot_hash: z.string().nullable().optional(),
   input_bindings_hash: z.string().nullable().optional(),
+  readiness: z.string().nullable().optional(),
+  why_partial: z.array(z.string()).optional(),
+  missing_refs: z.array(z.string()).optional(),
+  suggested_next_step: z.string().nullable().optional(),
   manifest_ref: artifactRefSchema.nullable().optional(),
   notes: z.array(z.string()).optional(),
 });
@@ -335,6 +353,85 @@ const artifactLineageViewSchema = z.object({
   edges: z.array(artifactLineageEdgeSchema).optional(),
 });
 
+const runEvidenceNeedSchema = z.object({
+  need_id: z.string(),
+  metric: z.string(),
+  geography: z.string().nullable().optional(),
+  time_start: z.string().nullable().optional(),
+  time_end: z.string().nullable().optional(),
+  granularity: z.string().optional(),
+  quality_min: z.number().optional(),
+  purpose: z.string().optional(),
+  matched_plan_ids: z.array(z.string()).optional(),
+  notes: z.array(z.string()).optional(),
+});
+
+const runEvidencePlanSchema = z.object({
+  plan_id: z.string(),
+  metric_id: z.string(),
+  connector_id: z.string(),
+  dataset_id: z.string(),
+  profile_id: z.string().nullable().optional(),
+  source_lane: z.string().optional(),
+  quality_min: z.number().optional(),
+  filters: z.record(z.string(), z.array(z.string())).optional(),
+  date_start: z.string().nullable().optional(),
+  date_end: z.string().nullable().optional(),
+  granularity: z.string().nullable().optional(),
+  fallback_count: z.number().optional(),
+  matched_need_ids: z.array(z.string()).optional(),
+  notes: z.array(z.string()).optional(),
+});
+
+const runEvidencePromotionSchema = z.object({
+  promotion_id: z.string(),
+  metric_id: z.string(),
+  connector_id: z.string(),
+  dataset_id: z.string(),
+  profile_id: z.string().nullable().optional(),
+  source_lane: z.string().optional(),
+  confidence: z.number().optional(),
+  status: z.string().optional(),
+  created_at: z.string().nullable().optional(),
+  signals: z.array(z.string()).optional(),
+  matched_plan_id: z.string().nullable().optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
+});
+
+const runEvidenceContextViewSchema = z.object({
+  run_id: z.string(),
+  source_kind: z.literal("core_run"),
+  execution_plan_ref: artifactRefSchema.nullable().optional(),
+  evidence_bundle_ref: artifactRefSchema.nullable().optional(),
+  data_snapshot_ref: artifactRefSchema.nullable().optional(),
+  input_bindings_ref: artifactRefSchema.nullable().optional(),
+  related_artifacts: z.array(artifactRefSchema).optional(),
+  data_needs: z.array(runEvidenceNeedSchema).optional(),
+  fetch_plans: z.array(runEvidencePlanSchema).optional(),
+  promotion_candidates: z.array(runEvidencePromotionSchema).optional(),
+  warnings: z.array(z.string()).optional(),
+});
+
+const lexSearchResultItemSchema = z.object({
+  fact_id: z.string(),
+  subject_name: z.string(),
+  predicate: z.string(),
+  object_name: z.string(),
+  fact_text: z.string(),
+  confidence: z.number(),
+  norm_type: z.string(),
+  action_canon: z.string().default(""),
+  norm_type_canon: z.string().default(""),
+  condition_text_uk: z.string().default(""),
+  exception_text_uk: z.string().default(""),
+  procedure_text_uk: z.string().default(""),
+  thresholds_json: z.string().default(""),
+  source_quote_uk: z.string().default(""),
+  doc_name: z.string(),
+  doc_reestr_code: z.string().default(""),
+  provision_citation: z.string().default(""),
+});
+
 const artifactManifestViewSchema = z.object({
   artifact_id: z.string(),
   kind: z.string(),
@@ -345,7 +442,9 @@ const artifactManifestViewSchema = z.object({
   schema_version: z.string().nullable().optional(),
   producer_component: z.string().nullable().optional(),
   producer_version: z.string().nullable().optional(),
-  inputs: z.array(z.object({ artifact_id: z.string(), role: z.string() })).optional(),
+  inputs: z
+    .array(z.object({ artifact_id: z.string(), role: z.string() }))
+    .optional(),
   integrity_sha256: z.string(),
 });
 
@@ -369,7 +468,62 @@ const artifactSchemaViewSchema = z.object({
   top_level_keys: z.array(z.string()).optional(),
 });
 
-export const healthSchema = z.record(z.string());
+type CapabilityFeaturePayload = components["schemas"]["CapabilityFeatureInfo"];
+export type CapabilityManifestPayload =
+  components["schemas"]["CapabilityManifestResponse"];
+
+const capabilityFeatureSchema = z.object({
+  key: z.string(),
+  label: z.string(),
+  description: z.string(),
+  category: z.string(),
+  enabled: z.boolean().default(true),
+  stage: z.enum(["active", "planned", "deferred"]).default("active"),
+});
+
+const authMeSchemaInternal = z.object({
+  meta: apiMetaSchema,
+  user_id: z.string(),
+  display_name: z.string(),
+  tenant_id: z.string(),
+  principal_type: z.enum(["anonymous", "service", "user"]).default("user"),
+  cell_id: z.string().nullable().optional(),
+  roles: z.array(z.string()).default([]),
+  permissions: z.array(z.string()).default([]),
+  mfa_verified: z.boolean().default(false),
+  feature_overrides: z.record(z.string(), z.boolean()).default({}),
+});
+
+export const capabilityManifestSchema = z.object({
+  meta: apiMetaSchema,
+  runtime_api_version: z.string().default("1.0.0"),
+  shell_flavor: z.string().default("atlas"),
+  default_locale: z.enum(["en", "uk"]).default("en"),
+  supported_locales: z.array(z.enum(["en", "uk"])).default(["en", "uk"]),
+  workspaces: z.array(z.string()).default([]),
+  features: z.array(capabilityFeatureSchema).default([]),
+  constraints: z.record(z.string(), z.unknown()).default({}),
+});
+
+export const authMeSchema = authMeSchemaInternal;
+
+export const healthSchema = z
+  .object({
+    meta: apiMetaSchema.nullish(),
+    status: z.string().optional(),
+    service: z.string().optional(),
+    ts: z.string().optional(),
+  })
+  .catchall(
+    z.union([
+      z.string(),
+      z.number(),
+      z.boolean(),
+      z.null(),
+      z.array(z.unknown()),
+      z.record(z.string(), z.unknown()),
+    ]),
+  );
 
 export const runsListSchema = z.object({
   meta: apiMetaSchema,
@@ -400,9 +554,34 @@ export const runLineageSchema = z.object({
   lineage: artifactLineageViewSchema,
 });
 
+export const runEvidenceContextSchema = z.object({
+  meta: apiMetaSchema,
+  context: runEvidenceContextViewSchema,
+});
+
 export const governanceDebugSchema = z.object({
   meta: apiMetaSchema,
   debug: governanceDebugViewSchema,
+});
+
+export const promotionCandidatesSchema = z.object({
+  meta: apiMetaSchema,
+  candidates: z.array(runEvidencePromotionSchema).default([]),
+});
+
+export const promotionDecisionResponseSchema = z.object({
+  meta: apiMetaSchema,
+  promotion_id: z.string(),
+  status: z.enum(["approved", "rejected"]),
+  message: z.string(),
+  binding_updated: z.boolean().default(false),
+});
+
+export const lexSearchResponseSchema = z.object({
+  meta: apiMetaSchema,
+  query: z.string(),
+  results: z.array(lexSearchResultItemSchema).default([]),
+  total: z.number().default(0),
 });
 
 export const nodeDebugSchema = z.object({
@@ -447,12 +626,21 @@ export const artifactLineageSchema = z.object({
 });
 
 export type HealthPayload = z.infer<typeof healthSchema>;
+export type AuthMePayload = z.infer<typeof authMeSchema>;
 export type RunsListPayload = z.infer<typeof runsListSchema>;
 export type RunDetailsPayload = z.infer<typeof runDetailsSchema>;
 export type RunTimelinePayload = z.infer<typeof runTimelineSchema>;
 export type RunNodesPayload = z.infer<typeof runNodesSchema>;
 export type RunLineagePayload = z.infer<typeof runLineageSchema>;
+export type RunEvidenceContextPayload = z.infer<
+  typeof runEvidenceContextSchema
+>;
 export type GovernanceDebugPayload = z.infer<typeof governanceDebugSchema>;
+export type PromotionCandidatesPayload = z.infer<typeof promotionCandidatesSchema>;
+export type PromotionDecisionResponsePayload = z.infer<
+  typeof promotionDecisionResponseSchema
+>;
+export type LexSearchResponsePayload = z.infer<typeof lexSearchResponseSchema>;
 export type NodeDebugPayload = z.infer<typeof nodeDebugSchema>;
 export type RunErrorsPayload = z.infer<typeof runErrorsSchema>;
 export type RunAgentsPayload = z.infer<typeof runAgentsSchema>;

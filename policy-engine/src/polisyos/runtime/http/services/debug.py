@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from collections import defaultdict
 from datetime import datetime
+import hashlib
 from pathlib import Path
 from typing import Any
 
@@ -22,6 +23,10 @@ from polisyos.core.contracts.runtime import (
     ReproducibilityView,
     RetrievalPhaseTelemetry,
     RetrievalTelemetryView,
+    RunEvidenceContextView,
+    RunEvidenceNeedView,
+    RunEvidencePlanView,
+    RunEvidencePromotionView,
     RunErrorView,
     RunNodeRecord,
     RunWorkflowEdgeView,
@@ -140,14 +145,30 @@ class DebugService:
             verdict = _as_str(report_payload.get("verdict"))
             issues = _as_list_of_dicts(report_payload.get("issues"))
             notes = _as_list_of_strings(report_payload.get("notes"))
+            links = _governance_links_from_payload(report_payload)
+            report_manifest = self._load_manifest(report_ref)
+            issue_summary = _summarize_issue_counts(issues)
+            legal_executed = _legal_executed_from_governance(report_payload)
+            packet_payload = self._load_json_artifact(run.decision_packet_ref)
             return GovernanceDebugView(
                 run_id=run.run_id,
                 source_kind=run.source_kind,
                 verdict=verdict,
                 issues=issues,
+                issue_summary=issue_summary,
                 notes=notes,
                 report_ref=report_ref,
+                report_kind=report_manifest.kind if report_manifest is not None else None,
+                report_schema_version=(
+                    report_manifest.artifact_schema.version
+                    if report_manifest is not None and report_manifest.artifact_schema is not None
+                    else None
+                ),
+                links=links,
+                legal_executed=legal_executed,
+                transport_summary=_transport_summary_from_packet(packet_payload),
                 validation_trace=validation_trace,
+                contract_warnings=_contract_warnings_from_packet(packet_payload),
                 fallback_from_decision_packet=False,
             )
 
@@ -158,19 +179,28 @@ class DebugService:
             verdict = _as_str(governance_block.get("verdict"))
             issues = _as_list_of_dicts(governance_block.get("issues"))
             notes = _as_list_of_strings(governance_block.get("notes"))
+            links = _governance_links_from_payload(governance_block)
         else:
             verdict = None
             issues = []
             notes = []
+            links = None
 
         return GovernanceDebugView(
             run_id=run.run_id,
             source_kind=run.source_kind,
             verdict=verdict,
             issues=issues,
+            issue_summary=_summarize_issue_counts(issues),
             notes=notes,
             report_ref=None,
+            report_kind=None,
+            report_schema_version=None,
+            links=links,
+            legal_executed=_legal_executed_from_packet(packet_payload),
+            transport_summary=_transport_summary_from_packet(packet_payload),
             validation_trace=validation_trace,
+            contract_warnings=_contract_warnings_from_packet(packet_payload),
             fallback_from_decision_packet=fallback,
         )
 
@@ -359,14 +389,20 @@ class DebugService:
 
         reproducibility_view = ReproducibilityView(
             seed=_as_int(reproducibility_payload.get("seed")),
+            seed_source=_replay_value(decision_packet_payload, "seed_source"),
+            determinism_tier=_replay_value(decision_packet_payload, "determinism_tier"),
             plan_hash=_as_str(reproducibility_payload.get("plan_hash")),
             registry_hash=_as_str(reproducibility_payload.get("registry_hash")),
             method_catalog_hash=_as_str(reproducibility_payload.get("method_catalog_hash")),
             data_snapshot_hash=_as_str(reproducibility_payload.get("data_snapshot_hash")),
             input_bindings_hash=_as_str(reproducibility_payload.get("input_bindings_hash")),
+            readiness=_replay_value(decision_packet_payload, "readiness"),
+            why_partial=_replay_list(decision_packet_payload, "why_partial"),
+            missing_refs=_replay_list(decision_packet_payload, "missing_refs"),
+            suggested_next_step=_replay_value(decision_packet_payload, "suggested_next_step"),
             manifest_ref=reproducibility_manifest_ref,
             notes=_as_list_of_strings(reproducibility_payload.get("notes")),
-        ) if reproducibility_manifest_ref is not None else None
+        ) if (reproducibility_manifest_ref is not None or _has_replay_payload(decision_packet_payload)) else None
 
         return AgentPipelineView(
             run_id=run.run_id,
@@ -385,6 +421,212 @@ class DebugService:
             reproducibility=reproducibility_view,
             source=source,
             notes=notes,
+        )
+
+    def get_run_evidence_context(self, run: IndexedRunRecord) -> RunEvidenceContextView:
+        warnings: list[str] = []
+        state_payload = self._load_experiment_state_payload(run.experiment_state_ref)
+        decision_packet_payload = self._load_json_artifact(run.decision_packet_ref)
+        params = state_payload.get("params")
+        params_dict = params if isinstance(params, dict) else {}
+        retrieval_context = params_dict.get("retrieval_context")
+        retrieval_context_dict = retrieval_context if isinstance(retrieval_context, dict) else {}
+
+        execution_plan_ref = (
+            _state_ref_from_param(state_payload, "execution_plan_ref", kind="scientist.execution_plan")
+            or _artifact_ref_from_string(
+                _path_get_as_str(decision_packet_payload, ("artifacts", "execution_plan_ref")),
+                kind="scientist.execution_plan",
+            )
+            or self._find_first_ref_by_kind(run, "scientist.execution_plan")
+        )
+        execution_plan_payload = self._load_json_artifact(execution_plan_ref)
+
+        plan_needs_raw = execution_plan_payload.get("data_needs")
+        context_needs_raw = retrieval_context_dict.get("data_needs")
+        data_needs_rows = (
+            _as_list_of_dicts(context_needs_raw)
+            if isinstance(context_needs_raw, list)
+            else _as_list_of_dicts(plan_needs_raw)
+        )
+        if execution_plan_ref is None:
+            warnings.append("execution_plan_ref_missing")
+        if not data_needs_rows:
+            warnings.append("run_data_needs_missing")
+
+        fetch_plans_rows = _as_list_of_dicts(retrieval_context_dict.get("fetch_plans"))
+        if not fetch_plans_rows:
+            warnings.append("run_fetch_plans_missing")
+
+        promotion_rows = _as_list_of_dicts(retrieval_context_dict.get("promotion_candidates"))
+
+        needs: list[RunEvidenceNeedView] = []
+        needs_by_metric: dict[str, list[str]] = defaultdict(list)
+        for row in data_needs_rows:
+            need_id = _stable_id(
+                "need",
+                _as_str(row.get("metric")) or "",
+                _as_str(row.get("geography")) or "",
+                _as_str(row.get("time_start")) or "",
+                _as_str(row.get("time_end")) or "",
+                _as_str(row.get("granularity")) or "",
+                _as_str(row.get("purpose")) or "",
+            )
+            metric = _as_str(row.get("metric")) or "unknown.metric"
+            needs.append(
+                RunEvidenceNeedView(
+                    need_id=need_id,
+                    metric=metric,
+                    geography=_as_str(row.get("geography")),
+                    time_start=_as_str(row.get("time_start")),
+                    time_end=_as_str(row.get("time_end")),
+                    granularity=_as_str(row.get("granularity")) or "annual",
+                    quality_min=_as_float(row.get("quality_min"), default=0.6),
+                    purpose=_as_str(row.get("purpose")) or "policy_drafting",
+                    matched_plan_ids=[],
+                    notes=_as_list_of_strings(row.get("notes")),
+                )
+            )
+            needs_by_metric[metric].append(need_id)
+
+        plans: list[RunEvidencePlanView] = []
+        plan_ids: set[str] = set()
+        plan_ids_by_metric: dict[str, list[str]] = defaultdict(list)
+        for row in fetch_plans_rows:
+            plan_id = _as_str(row.get("plan_id")) or _stable_id(
+                "plan",
+                _as_str(row.get("metric_id")) or "",
+                _as_str(row.get("connector_id")) or "",
+                _as_str(row.get("dataset_id")) or "",
+            )
+            metric_id = _as_str(row.get("metric_id")) or "unknown.metric"
+            matched_need_ids = list(needs_by_metric.get(metric_id, []))
+            plans.append(
+                RunEvidencePlanView(
+                    plan_id=plan_id,
+                    metric_id=metric_id,
+                    connector_id=_as_str(row.get("connector_id")) or "unknown.connector",
+                    dataset_id=_as_str(row.get("dataset_id")) or "unknown.dataset",
+                    profile_id=_as_str(row.get("profile_id")),
+                    source_lane=_as_str(row.get("source_lane")) or "fastlane",
+                    quality_min=_as_float(row.get("quality_min"), default=0.6),
+                    filters=_string_list_dict(row.get("filters")),
+                    date_start=_as_str(row.get("date_start")),
+                    date_end=_as_str(row.get("date_end")),
+                    granularity=_as_str(row.get("granularity")),
+                    fallback_count=len(_as_list_of_dicts(row.get("fallbacks"))),
+                    matched_need_ids=matched_need_ids,
+                    notes=_as_list_of_strings(row.get("notes")),
+                )
+            )
+            plan_ids.add(plan_id)
+            plan_ids_by_metric[metric_id].append(plan_id)
+
+        if plans:
+            needs = [
+                item.model_copy(update={"matched_plan_ids": plan_ids_by_metric.get(item.metric, [])})
+                for item in needs
+            ]
+
+        promotions: list[RunEvidencePromotionView] = []
+        for row in promotion_rows:
+            metric_id = _as_str(row.get("metric_id")) or "unknown.metric"
+            matched_plan_id = None
+            candidate_plan_ids = plan_ids_by_metric.get(metric_id, [])
+            if len(candidate_plan_ids) == 1:
+                matched_plan_id = candidate_plan_ids[0]
+            elif candidate_plan_ids:
+                connector_id = _as_str(row.get("connector_id"))
+                dataset_id = _as_str(row.get("dataset_id"))
+                matched_plan_id = next(
+                    (
+                        plan.plan_id
+                        for plan in plans
+                        if plan.metric_id == metric_id
+                        and plan.connector_id == connector_id
+                        and plan.dataset_id == dataset_id
+                    ),
+                    None,
+                )
+
+            promotions.append(
+                RunEvidencePromotionView(
+                    promotion_id=_as_str(row.get("promotion_id")) or _stable_id(
+                        "promotion",
+                        metric_id,
+                        _as_str(row.get("connector_id")) or "",
+                        _as_str(row.get("dataset_id")) or "",
+                    ),
+                    metric_id=metric_id,
+                    connector_id=_as_str(row.get("connector_id")) or "unknown.connector",
+                    dataset_id=_as_str(row.get("dataset_id")) or "unknown.dataset",
+                    profile_id=_as_str(row.get("profile_id")),
+                    source_lane=_as_str(row.get("source_lane")) or "explorelane",
+                    confidence=_as_float(row.get("confidence"), default=0.0),
+                    status=_as_str(row.get("status")) or "pending",
+                    created_at=_as_datetime(row.get("created_at")),
+                    signals=_as_list_of_strings(row.get("signals")),
+                    matched_plan_id=matched_plan_id,
+                    metadata=_as_dict(row.get("metadata")),
+                )
+            )
+
+        auto_refs = _as_dict(retrieval_context_dict.get("auto_data_source_refs"))
+        packet_inputs = _as_dict(decision_packet_payload.get("inputs"))
+        data_snapshot_ref = (
+            self._find_run_input_ref_by_kind(run, "fabric.data_snapshot")
+            or _artifact_ref_from_string(_as_str(auto_refs.get("data_snapshot_ref")), kind="fabric.data_snapshot")
+            or _artifact_ref_from_string(_as_str(packet_inputs.get("data_snapshot_ref")), kind="fabric.data_snapshot")
+        )
+        input_bindings_ref = (
+            self._find_run_input_ref_by_kind(run, "foundry.input_bindings")
+            or _artifact_ref_from_string(_as_str(auto_refs.get("input_bindings_ref")), kind="foundry.input_bindings")
+            or _artifact_ref_from_string(_as_str(packet_inputs.get("input_bindings_ref")), kind="foundry.input_bindings")
+        )
+        evidence_bundle_ref = (
+            self._find_run_input_ref_by_kind(run, "fabric.evidence_bundle")
+            or _artifact_ref_from_string(_as_str(auto_refs.get("evidence_bundle_ref")), kind="fabric.evidence_bundle")
+            or _artifact_ref_from_string(_as_str(packet_inputs.get("evidence_bundle_ref")), kind="fabric.evidence_bundle")
+        )
+
+        related_artifacts = _dedupe_artifact_refs(
+            [
+                execution_plan_ref,
+                data_snapshot_ref,
+                input_bindings_ref,
+                evidence_bundle_ref,
+                _artifact_ref_from_string(
+                    _path_get_as_str(decision_packet_payload, ("artifacts", "decision_card_ref")),
+                    kind="scientist.decision_card",
+                ),
+                _artifact_ref_from_string(
+                    _path_get_as_str(decision_packet_payload, ("artifacts", "input_binding_report_ref")),
+                    kind="foundry.input_binding_report",
+                ),
+                *run.details.root_artifacts,
+            ]
+        )
+
+        for plan in plans:
+            if plan.matched_need_ids:
+                continue
+            warnings.append(f"unmatched_fetch_plan:{plan.plan_id}")
+        for promotion in promotions:
+            if promotion.matched_plan_id is None and plan_ids:
+                warnings.append(f"unmatched_promotion_candidate:{promotion.promotion_id}")
+
+        return RunEvidenceContextView(
+            run_id=run.run_id,
+            source_kind=run.source_kind,
+            execution_plan_ref=execution_plan_ref,
+            evidence_bundle_ref=evidence_bundle_ref,
+            data_snapshot_ref=data_snapshot_ref,
+            input_bindings_ref=input_bindings_ref,
+            related_artifacts=related_artifacts,
+            data_needs=needs,
+            fetch_plans=plans,
+            promotion_candidates=promotions,
+            warnings=_dedupe_strings(warnings),
         )
 
     def get_run_workflow(self, run: IndexedRunRecord) -> RunWorkflowView:
@@ -570,6 +812,14 @@ class DebugService:
         except Exception:
             return {}
         return payload if isinstance(payload, dict) else {}
+
+    def _load_manifest(self, ref: ArtifactRef | None) -> Any:
+        if ref is None:
+            return None
+        try:
+            return self._store.get_manifest(ref.artifact_id)
+        except Exception:
+            return None
 
     def _load_run_manifest_payload(self, run: IndexedRunRecord) -> dict[str, Any]:
         return self._load_json_artifact(run.details.manifest_ref)
@@ -1357,6 +1607,182 @@ def _as_str(value: Any) -> str | None:
     if isinstance(value, str):
         return value
     return None
+
+
+def _as_dict(value: Any) -> dict[str, Any]:
+    return dict(value) if isinstance(value, dict) else {}
+
+
+def _as_float(value: Any, *, default: float = 0.0) -> float:
+    try:
+        parsed = float(value)
+    except (TypeError, ValueError):
+        return default
+    return max(parsed, 0.0)
+
+
+def _as_datetime(value: Any) -> datetime | None:
+    if not isinstance(value, str) or not value:
+        return None
+    try:
+        return datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except ValueError:
+        return None
+
+
+def _stable_id(prefix: str, *parts: str) -> str:
+    digest = hashlib.sha256("|".join(parts).encode("utf-8")).hexdigest()[:16]
+    return f"{prefix}_{digest}"
+
+
+def _artifact_ref_from_string(
+    value: str | None,
+    *,
+    kind: str,
+    media_type: str = "application/json",
+) -> ArtifactRef | None:
+    if not value:
+        return None
+    try:
+        return ArtifactRef(artifact_id=value, kind=kind, media_type=media_type)
+    except Exception:
+        return None
+
+
+def _path_get_as_str(payload: dict[str, Any], path: tuple[str, ...]) -> str | None:
+    current: Any = payload
+    for key in path:
+        if not isinstance(current, dict):
+            return None
+        current = current.get(key)
+    return _as_str(current)
+
+
+def _string_list_dict(value: Any) -> dict[str, list[str]]:
+    if not isinstance(value, dict):
+        return {}
+    result: dict[str, list[str]] = {}
+    for key, raw in value.items():
+        items = _as_list_of_strings(raw)
+        if items:
+            result[str(key)] = items
+    return result
+
+
+def _dedupe_artifact_refs(refs: list[ArtifactRef | None]) -> list[ArtifactRef]:
+    result: list[ArtifactRef] = []
+    seen: set[str] = set()
+    for ref in refs:
+        if ref is None:
+            continue
+        artifact_id = str(ref.artifact_id)
+        if artifact_id in seen:
+            continue
+        seen.add(artifact_id)
+        result.append(ref)
+    return result
+
+
+def _dedupe_strings(values: list[str]) -> list[str]:
+    result: list[str] = []
+    seen: set[str] = set()
+    for value in values:
+        if value in seen:
+            continue
+        seen.add(value)
+        result.append(value)
+    return result
+
+
+def _summarize_issue_counts(issues: list[dict[str, Any]]) -> dict[str, int]:
+    blocker_count = 0
+    warning_count = 0
+    info_count = 0
+    for issue in issues:
+        severity = (_as_str(issue.get("severity")) or "").lower()
+        if severity == "blocker":
+            blocker_count += 1
+        elif severity == "warning":
+            warning_count += 1
+        elif severity == "info":
+            info_count += 1
+    return {
+        "blocker_count": blocker_count,
+        "warning_count": warning_count,
+        "info_count": info_count,
+    }
+
+
+def _legal_executed_from_governance(payload: dict[str, Any]) -> bool | None:
+    links = payload.get("links")
+    if not isinstance(links, dict):
+        return None
+    legal_ref = links.get("legal_report_ref")
+    if isinstance(legal_ref, dict):
+        return _as_str(legal_ref.get("artifact_id")) is not None
+    return isinstance(legal_ref, str)
+
+
+def _legal_executed_from_packet(payload: dict[str, Any]) -> bool | None:
+    diagnostics = payload.get("diagnostics_summary")
+    if isinstance(diagnostics, dict) and isinstance(diagnostics.get("legal_executed"), bool):
+        return bool(diagnostics.get("legal_executed"))
+    return None
+
+
+def _contract_warnings_from_packet(payload: dict[str, Any]) -> list[str]:
+    diagnostics = payload.get("diagnostics_summary")
+    if not isinstance(diagnostics, dict):
+        return []
+    return _as_list_of_strings(diagnostics.get("contract_warnings"))
+
+
+def _transport_summary_from_packet(payload: dict[str, Any]) -> dict[str, Any] | None:
+    causal = payload.get("causal")
+    if not isinstance(causal, dict):
+        return None
+    transport = causal.get("transportability_summary")
+    return dict(transport) if isinstance(transport, dict) else None
+
+
+def _governance_links_from_payload(payload: dict[str, Any]) -> dict[str, ArtifactRef | None] | None:
+    links = payload.get("links")
+    if not isinstance(links, dict):
+        return None
+    result: dict[str, ArtifactRef | None] = {}
+    for key, value in links.items():
+        result[str(key)] = _artifact_ref_from_payload(value)
+    return result or None
+
+
+def _artifact_ref_from_payload(value: Any) -> ArtifactRef | None:
+    if isinstance(value, dict):
+        try:
+            return ArtifactRef.model_validate(value)
+        except Exception:
+            return None
+    if isinstance(value, str):
+        return ArtifactRef(artifact_id=value, kind=None, media_type=None)
+    return None
+
+
+def _has_replay_payload(payload: dict[str, Any]) -> bool:
+    replay = payload.get("replay")
+    return isinstance(replay, dict)
+
+
+def _replay_value(payload: dict[str, Any], key: str) -> str | None:
+    replay = payload.get("replay")
+    if not isinstance(replay, dict):
+        return None
+    return _as_str(replay.get(key))
+
+
+def _replay_list(payload: dict[str, Any], key: str) -> list[str]:
+    replay = payload.get("replay")
+    if not isinstance(replay, dict):
+        return []
+    return _as_list_of_strings(replay.get(key))
 
 
 def _as_list_of_dicts(value: Any) -> list[dict[str, Any]]:

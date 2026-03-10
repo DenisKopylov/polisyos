@@ -36,7 +36,7 @@ src/polisyos/runtime/http/* (FastAPI Runtime API v1)
 
 - Frontend работает только через HTTP API, без доступа к `.polisyos/runs`, CAS и локальным БД.
 - `runtime-reference-shell` использует только сгенерированный `RuntimeApiClient`.
-- `runtime-dashboard` использует `openapi-fetch` + generated types + React Query hooks.
+- `runtime-dashboard` использует `openapi-fetch` + generated types + React Query hooks; capability manifest идёт через тот же generated OpenAPI contract.
 - Для runtime read-paths в dashboard применяются `zod`-валидаторы; control-plane вызовы типизированы из OpenAPI.
 
 ## Связь с другими директориями
@@ -53,7 +53,7 @@ src/polisyos/runtime/http/* (FastAPI Runtime API v1)
 Из корня `policy-engine/` сначала поднимите Runtime API:
 
 ```bash
-PYTHONPATH=src uv run --extra multi-tenant --extra test python - <<'PY'
+PYTHONPATH=src uv run --extra runtime-http python - <<'PY'
 from polisyos.runtime.http.app import create_runtime_api_app
 import uvicorn
 
@@ -66,7 +66,7 @@ PY
 
 ```bash
 cd frontend/runtime-dashboard
-npm install
+npm ci
 npm run generate:api
 npm run dev
 ```

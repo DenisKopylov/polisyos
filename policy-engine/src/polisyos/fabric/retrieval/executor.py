@@ -136,7 +136,7 @@ class FetchExecutor:
                 coverage_ok=False,
                 quality_min=plan.quality_min,
                 sample_rows=[],
-                schema={},
+                schema_payload={},
                 quality_flags=[],
                 message=str(exc),
                 latency_ms=max(0, elapsed_ms),
@@ -155,7 +155,7 @@ class FetchExecutor:
             coverage_ok=coverage_ok,
             quality_min=plan.quality_min,
             sample_rows=_extract_rows(result.data, max_rows=max(1, min(plan.max_preview_rows, 25))),
-            schema={
+            schema_payload={
                 "schema_id": result.schema_id,
                 "schema_version": result.schema_version,
             },
@@ -252,4 +252,3 @@ def _extract_rows(payload: Any, *, max_rows: int) -> list[dict[str, Any]]:
                 rows = candidate[:max_rows]
                 return [row for row in rows if isinstance(row, dict)]
     return []
-

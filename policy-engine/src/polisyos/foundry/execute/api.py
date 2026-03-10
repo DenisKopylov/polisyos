@@ -23,6 +23,7 @@ from polisyos.foundry.executor import (
     execute_program_graph,
     load_state_snapshot,
 )
+from polisyos.foundry.registry import MissingRuntimeMechanismSupportError
 
 
 @dataclass(frozen=True)
@@ -43,21 +44,32 @@ def execute(store: FileSystemCAS, request: ExecuteRequest) -> ExecuteResult:
     base_state = load_state_snapshot(store, snapshot_ref=state_snapshot_ref)
 
     exec_plan = _load_model(store, request.exec_plan_ref, ExecPlan)
-    exec_artifacts = execute_program_graph(
-        store,
-        program_ref=exec_plan.program_ref,
-        exec_plan_ref=request.exec_plan_ref,
-        base_state=base_state,
-        mechanism_registry=registry_content.mechanism_registry,
-        slot_registry=registry_content.slot_registry,
-        merge_registry=registry_content.merge_registry,
-        selector_field_registry=registry_content.selector_field_registry,
-        constraint_registry=registry_content.constraint_registry,
-        step=int(getattr(base_state, "step", 0)),
-        seed=request.exec_config.seed,
-        base_ref=state_snapshot_ref,
-        capture_env=request.exec_config.capture_env,
-    )
+    try:
+        exec_artifacts = execute_program_graph(
+            store,
+            program_ref=exec_plan.program_ref,
+            exec_plan_ref=request.exec_plan_ref,
+            base_state=base_state,
+            mechanism_registry=registry_content.mechanism_registry,
+            slot_registry=registry_content.slot_registry,
+            merge_registry=registry_content.merge_registry,
+            selector_field_registry=registry_content.selector_field_registry,
+            constraint_registry=registry_content.constraint_registry,
+            step=int(getattr(base_state, "step", 0)),
+            seed=request.exec_config.seed,
+            base_ref=state_snapshot_ref,
+            capture_env=request.exec_config.capture_env,
+        )
+    except MissingRuntimeMechanismSupportError as exc:
+        return ExecuteResult(
+            ok=False,
+            simulation_result_ref=None,
+            derived_refs=[],
+            notes=[
+                f"missing_runtime_mechanism_support:{exc.mech_type}",
+                str(exc),
+            ],
+        )
 
     _, applied = apply_state_delta_and_snapshot(
         store,

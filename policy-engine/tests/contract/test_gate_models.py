@@ -12,6 +12,12 @@ def test_gate_request_roundtrip() -> None:
         node_alias="run_governance",
         phase="POSTFLIGHT_GOV",
         iteration=1,
+        policy_summary="Policy with 1 intervention(s)",
+        simulation_results={"gdp_change": 1},
+        issue_summary={"requested_items": 2},
+        artifact_refs={"causal_report_ref": "sha256:" + ("a" * 64)},
+        transport_summary={"status": "transportable"},
+        replay_summary={"readiness": "partial"},
     )
     request = GateRequest(
         request_id="abc123",
@@ -24,7 +30,10 @@ def test_gate_request_roundtrip() -> None:
     restored = GateRequest.model_validate(dumped)
 
     assert restored.request_id == "abc123"
+    assert restored.schema_version == "1.1"
     assert restored.context.node_alias == "run_governance"
+    assert restored.context.policy_summary == "Policy with 1 intervention(s)"
+    assert restored.context.replay_summary == {"readiness": "partial"}
 
 
 def test_gate_context_iteration_must_be_positive() -> None:

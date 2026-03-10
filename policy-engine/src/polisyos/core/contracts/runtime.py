@@ -29,6 +29,21 @@ class ApiMeta(BaseModel):
     source_kinds: list[SourceKind] = Field(default_factory=list)
 
 
+class AuthMeResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    meta: ApiMeta
+    user_id: str
+    display_name: str
+    tenant_id: str
+    principal_type: Literal["anonymous", "service", "user"] = "user"
+    cell_id: str | None = None
+    roles: list[str] = Field(default_factory=list)
+    permissions: list[str] = Field(default_factory=list)
+    mfa_verified: bool = False
+    feature_overrides: dict[str, bool] = Field(default_factory=dict)
+
+
 class RuntimeApiProblem(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -163,9 +178,16 @@ class GovernanceDebugView(BaseModel):
     source_kind: SourceKind
     verdict: str | None = None
     issues: list[dict[str, Any]] = Field(default_factory=list)
+    issue_summary: dict[str, int] | None = None
     notes: list[str] = Field(default_factory=list)
     report_ref: ArtifactRef | None = None
+    report_kind: str | None = None
+    report_schema_version: str | None = None
+    links: dict[str, ArtifactRef | None] | None = None
+    legal_executed: bool | None = None
+    transport_summary: dict[str, Any] | None = None
     validation_trace: dict[str, Any] | None = None
+    contract_warnings: list[str] = Field(default_factory=list)
     fallback_from_decision_packet: bool = False
 
 
@@ -296,13 +318,86 @@ class ReproducibilityView(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     seed: int = Field(default=0, ge=0)
+    seed_source: str | None = None
+    determinism_tier: str | None = None
     plan_hash: str | None = None
     registry_hash: str | None = None
     method_catalog_hash: str | None = None
     data_snapshot_hash: str | None = None
     input_bindings_hash: str | None = None
+    readiness: str | None = None
+    why_partial: list[str] = Field(default_factory=list)
+    missing_refs: list[str] = Field(default_factory=list)
+    suggested_next_step: str | None = None
     manifest_ref: ArtifactRef | None = None
     notes: list[str] = Field(default_factory=list)
+
+
+class RunEvidenceNeedView(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    need_id: str
+    metric: str
+    geography: str | None = None
+    time_start: str | None = None
+    time_end: str | None = None
+    granularity: str = "annual"
+    quality_min: float = Field(default=0.6, ge=0.0, le=1.0)
+    purpose: str = "policy_drafting"
+    matched_plan_ids: list[str] = Field(default_factory=list)
+    notes: list[str] = Field(default_factory=list)
+
+
+class RunEvidencePlanView(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    plan_id: str
+    metric_id: str
+    connector_id: str
+    dataset_id: str
+    profile_id: str | None = None
+    source_lane: str = "fastlane"
+    quality_min: float = Field(default=0.6, ge=0.0, le=1.0)
+    filters: dict[str, list[str]] = Field(default_factory=dict)
+    date_start: str | None = None
+    date_end: str | None = None
+    granularity: str | None = None
+    fallback_count: int = Field(default=0, ge=0)
+    matched_need_ids: list[str] = Field(default_factory=list)
+    notes: list[str] = Field(default_factory=list)
+
+
+class RunEvidencePromotionView(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    promotion_id: str
+    metric_id: str
+    connector_id: str
+    dataset_id: str
+    profile_id: str | None = None
+    source_lane: str = "explorelane"
+    confidence: float = Field(default=0.0, ge=0.0, le=1.0)
+    status: str = "pending"
+    created_at: datetime | None = None
+    signals: list[str] = Field(default_factory=list)
+    matched_plan_id: str | None = None
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+
+class RunEvidenceContextView(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    run_id: str
+    source_kind: SourceKind
+    execution_plan_ref: ArtifactRef | None = None
+    evidence_bundle_ref: ArtifactRef | None = None
+    data_snapshot_ref: ArtifactRef | None = None
+    input_bindings_ref: ArtifactRef | None = None
+    related_artifacts: list[ArtifactRef] = Field(default_factory=list)
+    data_needs: list[RunEvidenceNeedView] = Field(default_factory=list)
+    fetch_plans: list[RunEvidencePlanView] = Field(default_factory=list)
+    promotion_candidates: list[RunEvidencePromotionView] = Field(default_factory=list)
+    warnings: list[str] = Field(default_factory=list)
 
 
 class AgentPipelineView(BaseModel):
@@ -490,6 +585,13 @@ class RunLineageResponse(BaseModel):
     lineage: ArtifactLineageView
 
 
+class RunEvidenceContextResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    meta: ApiMeta
+    context: RunEvidenceContextView
+
+
 class NodeDebugResponse(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -560,6 +662,7 @@ __all__ = [
     "AgentPipelineStep",
     "AgentPipelineView",
     "ApiMeta",
+    "AuthMeResponse",
     "ArtifactContentPreview",
     "ArtifactContentResponse",
     "ArtifactLineageEdge",
@@ -583,6 +686,11 @@ __all__ = [
     "EvaluatorReportView",
     "IterationLifecycleView",
     "ReproducibilityView",
+    "RunEvidenceContextResponse",
+    "RunEvidenceContextView",
+    "RunEvidenceNeedView",
+    "RunEvidencePlanView",
+    "RunEvidencePromotionView",
     "RetrievalPhaseTelemetry",
     "RetrievalTelemetryView",
     "RunDetails",

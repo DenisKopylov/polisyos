@@ -22,11 +22,25 @@ MECHANISM_REGISTRY: Dict[str, Type[Mechanism]] = {
 }
 
 
+class MissingRuntimeMechanismSupportError(ValueError):
+    """Raised when a mechanism exists in IR but has no executable Foundry runtime."""
+
+    def __init__(self, mech_type: str) -> None:
+        self.mech_type = str(mech_type)
+        available = ", ".join(sorted(MECHANISM_REGISTRY))
+        super().__init__(
+            "Mechanism is registered in IR but not executable in Foundry runtime: "
+            f"'{self.mech_type}'. Available runtime mechanisms: [{available}]"
+        )
+
+
+def has_runtime_mechanism_support(mech_type: str) -> bool:
+    return mech_type in MECHANISM_REGISTRY
+
+
 def get_mechanism_class(mech_type: str) -> Type[Mechanism]:
     if mech_type not in MECHANISM_REGISTRY:
-        raise ValueError(
-            f"Unknown mechanism type: '{mech_type}'. Available: {list(MECHANISM_REGISTRY.keys())}"
-        )
+        raise MissingRuntimeMechanismSupportError(mech_type)
     return MECHANISM_REGISTRY[mech_type]
 
 
@@ -126,10 +140,12 @@ def _extract_intervention_fields(intervention: Any) -> tuple[str, dict[str, Any]
 __all__ = [
     "MECHANISM_REGISTRY",
     "MECHANISM_SPECS",
+    "MissingRuntimeMechanismSupportError",
     "create_mechanism",
     "create_mechanism_from_spec",
     "get_mechanism_class",
     "get_mechanism_spec",
+    "has_runtime_mechanism_support",
     "mechanism_catalog",
     "validate_mechanism_params",
 ]

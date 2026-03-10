@@ -42,11 +42,15 @@ from polisyos.ir.analytics.literature import (
     CausalClaim,
     ClaimExplicitness,
     ClaimType,
+    ContextAttribute,
     DesignFamily,
     EvidenceSpan,
     EvidenceParameter,
     EvidenceStrength,
+    HeterogeneityResult,
+    IdentificationStrategy,
     Mechanism,
+    ModerationEdge,
     ParameterType,
     SourceBasis,
     TextQuality,
@@ -96,9 +100,18 @@ _EVIDENCE_STRENGTH_ALIASES = {
     "quasi-experimental": EvidenceStrength.QUASI_NATURAL.value,
     "natural_experiment": EvidenceStrength.QUASI_NATURAL.value,
     "natural-experiment": EvidenceStrength.QUASI_NATURAL.value,
+    "event_study": EvidenceStrength.QUASI_NATURAL_EVENT.value,
+    "event-study": EvidenceStrength.QUASI_NATURAL_EVENT.value,
     "meta_analysis": EvidenceStrength.META_ANALYSIS.value,
     "meta-analysis": EvidenceStrength.META_ANALYSIS.value,
+    "panel_fe": EvidenceStrength.PANEL_FE.value,
+    "system_gmm": EvidenceStrength.PANEL_FE.value,
+    "gmm": EvidenceStrength.PANEL_FE.value,
+    "structural_model": EvidenceStrength.STRUCTURAL.value,
+    "time_series_cointegration": EvidenceStrength.STRUCTURAL.value,
     "observational": EvidenceStrength.OBSERVATIONAL.value,
+    "cross_sectional": EvidenceStrength.CROSS_SECTIONAL.value,
+    "ols_cross_sectional": EvidenceStrength.CROSS_SECTIONAL.value,
     "theoretical": EvidenceStrength.THEORETICAL.value,
     "unknown": EvidenceStrength.UNKNOWN.value,
 }
@@ -173,18 +186,23 @@ _DESIGN_FAMILY_ALIASES = {
     "unclear": DesignFamily.UNCLEAR.value,
 }
 _METHOD_SENTENCE_RE = re.compile(
-    r"\b(randomi[sz]ed|instrumental variable|2sls|tsls|difference.?in.?differences?|did\b|"
-    r"regression discontinuity|rdd\b|synthetic control|event study|fixed effects?|panel data|ols\b|"
+    r"\b(randomi[sz]ed|random assignment|random lottery|field experiment|audit study|correspondence study|"
+    r"survey experiment|lab(?:oratory)? experiment|encouragement design|instrumental variable|2sls|tsls|"
+    r"difference.?in.?differences?|did\b|regression discontinuity|rdd\b|synthetic control|event study|"
+    r"natural experiment|quasi[- ]experimental|staggered adoption|staggered rollout|fixed effects?|panel data|"
+    r"administrative data|registry data|register data|microdata|matched employer[- ]employee|ols\b|"
     r"ordinary least squares|regression)\b",
     re.IGNORECASE,
 )
 _RESULT_SENTENCE_RE = re.compile(
-    r"\b(we find|results show|our results|estimate|estimated|increases?|decreases?|reduces?|raises?|"
-    r"effects? on|impact on|leads to|causes?)\b",
+    r"\b(we find|find that|results show|our results|our findings|we show|we document|we provide evidence|"
+    r"evidence from|evidence on|estimate|estimated|increases?|decreases?|reduces?|raises?|affect(?:s|ed|ing)?|"
+    r"effects? on|impact on|leads to|causes?|has no effect|no effect on)\b",
     re.IGNORECASE,
 )
 _CLAIM_SENTENCE_RE = re.compile(
-    r"\b(causes?|effect of|impact of|leads to|results in|increases?|decreases?|reduces?|raises?)\b",
+    r"\b(causes?|effect of|impact of|leads to|results in|increases?|decreases?|reduces?|raises?|"
+    r"affect(?:s|ed|ing)?|find that|show that|document that|evidence that|associated with|no effect on)\b",
     re.IGNORECASE,
 )
 
@@ -674,6 +692,7 @@ def _normalize_causal_claim(
         "source_basis": _normalize_source_basis(payload.get("source_basis") or default_source_basis),
         "claim_extraction_confidence": _coerce_float(payload.get("claim_extraction_confidence")),
         "extraction_warnings": _coerce_text_list(payload.get("extraction_warnings")),
+        "identification_strategy": _normalize_identification_strategy(payload.get("identification_strategy")),
     }
     if not candidate["cause_variable"] or not candidate["effect_variable"]:
         return None
@@ -722,6 +741,102 @@ def _normalize_boundary_condition(payload: Any) -> BoundaryCondition | None:
         return None
 
 
+def _normalize_identification_strategy(payload: Any) -> IdentificationStrategy | None:
+    if not isinstance(payload, dict):
+        return None
+    candidate = {
+        "identification_method": _normalized_text(payload.get("identification_method")),
+        "instrument": _normalized_text(payload.get("instrument")),
+        "exclusion_restrictions": _coerce_text_list(payload.get("exclusion_restrictions")),
+        "design_assumptions": _coerce_text_list(payload.get("design_assumptions")),
+        "identification_confidence": _coerce_float(payload.get("identification_confidence")),
+    }
+    if not candidate["identification_method"]:
+        return None
+    try:
+        return IdentificationStrategy.model_validate(candidate)
+    except Exception:
+        return None
+
+
+def _normalize_heterogeneity_result(payload: Any) -> HeterogeneityResult | None:
+    if not isinstance(payload, dict):
+        return None
+    moderator = _normalized_text(payload.get("moderator"))
+    if not moderator:
+        return None
+    subgroup_raw = payload.get("subgroup_effects")
+    subgroup_effects: dict[str, float] = {}
+    if isinstance(subgroup_raw, dict):
+        for k, v in subgroup_raw.items():
+            coerced = _coerce_float(v)
+            if coerced is not None:
+                subgroup_effects[str(k)] = coerced
+    candidate = {
+        "moderator": moderator,
+        "dimension": _normalized_text(payload.get("dimension")),
+        "finding": _normalized_text(payload.get("finding")),
+        "interaction_coefficient": _coerce_float(payload.get("interaction_coefficient")),
+        "interaction_pvalue": _coerce_float(payload.get("interaction_pvalue")),
+        "subgroup_effects": subgroup_effects,
+        "confidence": _coerce_float(payload.get("confidence")),
+    }
+    try:
+        return HeterogeneityResult.model_validate(candidate)
+    except Exception:
+        return None
+
+
+def _normalize_context_attribute(payload: Any) -> ContextAttribute | None:
+    if not isinstance(payload, dict):
+        return None
+    attribute_name = _normalized_text(payload.get("attribute_name"))
+    if not attribute_name:
+        return None
+    candidate = {
+        "attribute_name": attribute_name,
+        "canonical_name": _normalized_text(payload.get("canonical_name")),
+        "value": _coerce_float(payload.get("value")),
+        "value_qualitative": _normalized_text(payload.get("value_qualitative")) or None,
+        "unit": _normalized_text(payload.get("unit")) or None,
+        "country_codes": _coerce_text_list(payload.get("country_codes")),
+        "time_period": _normalized_text(payload.get("time_period")),
+        "measurement_method": _normalized_text(payload.get("measurement_method")),
+        "confidence": _coerce_score(payload.get("confidence"), default=0.5),
+    }
+    try:
+        return ContextAttribute.model_validate(candidate)
+    except Exception:
+        return None
+
+
+def _normalize_moderation_edge(payload: Any) -> ModerationEdge | None:
+    if not isinstance(payload, dict):
+        return None
+    base_cause = _normalized_text(payload.get("base_cause"))
+    base_effect = _normalized_text(payload.get("base_effect"))
+    moderator = _normalized_text(payload.get("moderator"))
+    if not base_cause or not base_effect or not moderator:
+        return None
+    candidate = {
+        "base_cause": base_cause,
+        "base_effect": base_effect,
+        "moderator": moderator,
+        "base_claim_id": _normalized_text(payload.get("base_claim_id")) or None,
+        "direction_of_moderation": _normalized_text(payload.get("direction_of_moderation")),
+        "quantitative_interaction": _coerce_float(payload.get("quantitative_interaction")),
+        "interaction_pvalue": _coerce_float(payload.get("interaction_pvalue")),
+        "confidence": _coerce_score(payload.get("confidence"), default=0.5),
+        "match_quality": _normalized_text(payload.get("match_quality")),
+        "alignment_source": _normalized_text(payload.get("alignment_source")),
+        "evidence_text": _normalized_text(payload.get("evidence_text")),
+    }
+    try:
+        return ModerationEdge.model_validate(candidate)
+    except Exception:
+        return None
+
+
 def _normalize_extraction_payload(
     work: dict[str, Any],
     parsed: dict[str, Any],
@@ -765,6 +880,14 @@ def _normalize_extraction_payload(
         for item in (
             _normalize_boundary_condition(raw)
             for raw in _as_list(parsed.get("boundary_conditions"))
+        )
+        if item is not None
+    ]
+    heterogeneity_results = [
+        item
+        for item in (
+            _normalize_heterogeneity_result(raw)
+            for raw in _as_list(parsed.get("heterogeneity_results"))
         )
         if item is not None
     ]
@@ -824,6 +947,8 @@ def _normalize_extraction_payload(
         "extraction_model": model,
         "extraction_timestamp": datetime.now(UTC).isoformat(),
         "extraction_confidence": _coerce_score(parsed.get("extraction_confidence"), default=0.7),
+        "heterogeneity_results": heterogeneity_results,
+        "external_validity_assessment": _normalized_text(parsed.get("external_validity_assessment")),
         "screening_cost_usd": 0.0,
         "extraction_cost_usd": float(usage.get("total_cost_usd") or 0.0),
         "token_count_prompt": int(usage.get("prompt_tokens") or 0),
@@ -1362,6 +1487,8 @@ def _to_work_record(
             "strong_design_evidence": bool(claim.strong_design_evidence),
             "publish_to_graph": bool(claim.publish_to_graph),
             "publish_blockers": list(claim.publish_blockers),
+            "design_quality_tier": claim.design_quality_tier,
+            "span_contamination_detected": bool(claim.span_contamination_detected),
         }
         for claim in result.causal_claims
     ]
@@ -1449,10 +1576,16 @@ def _to_work_record(
             "extraction_warnings": list(result.extraction_warnings),
             "paper_relevance": bool(result.paper_relevance),
             "paper_relevance_reason": result.paper_relevance_reason,
+            "paper_kind": result.paper_kind.value,
+            "heterogeneity_results": [item.model_dump(mode="json") for item in result.heterogeneity_results],
+            "external_validity_assessment": result.external_validity_assessment,
             "provider_finish_reason": result.provider_finish_reason,
             "provider_latency_ms": result.provider_latency_ms,
             "truncated_output": bool(result.truncated_output),
             "llm_error_class": result.llm_error_class,
+            "context_attributes": [attr.model_dump(mode="json") for attr in result.context_attributes],
+            "moderation_edges": [edge.model_dump(mode="json") for edge in result.moderation_edges],
+            "reconciliation_diagnostics": dict(result.reconciliation_diagnostics),
         },
     )
 

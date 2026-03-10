@@ -132,7 +132,10 @@ export type SimulationViewModel = {
   notes: string[];
 };
 
-const KEY_TO_LABEL: Record<string, { label: string; unit: string; scale: number }> = {
+const KEY_TO_LABEL: Record<
+  string,
+  { label: string; unit: string; scale: number }
+> = {
   gdp_change: { label: "GDP Change", unit: "%", scale: 100 },
   unemployment_change: { label: "Unemployment Change", unit: "%", scale: 100 },
   inflation_change: { label: "Inflation Change", unit: "%", scale: 100 },
@@ -164,8 +167,16 @@ function toSeverity(value: number, maxAbs: number): "low" | "medium" | "high" {
   return "low";
 }
 
-function formatMetric(key: string, value: number, bounds: MetricBound | null): SimulationMetric {
-  const spec = KEY_TO_LABEL[key] ?? { label: toDisplayLabel(key), unit: "", scale: 1 };
+function formatMetric(
+  key: string,
+  value: number,
+  bounds: MetricBound | null,
+): SimulationMetric {
+  const spec = KEY_TO_LABEL[key] ?? {
+    label: toDisplayLabel(key),
+    unit: "",
+    scale: 1,
+  };
   const scaled = value * spec.scale;
   const maxFraction = Math.abs(scaled) >= 100 ? 1 : 2;
 
@@ -182,7 +193,9 @@ function formatMetric(key: string, value: number, bounds: MetricBound | null): S
   };
 }
 
-function parseBounds(record: Record<string, unknown> | null): Record<string, MetricBound> {
+function parseBounds(
+  record: Record<string, unknown> | null,
+): Record<string, MetricBound> {
   if (!record) {
     return {};
   }
@@ -228,10 +241,14 @@ function parseBounds(record: Record<string, unknown> | null): Record<string, Met
   return out;
 }
 
-function collectNumericMetrics(record: Record<string, unknown>): Array<{ key: string; value: number }> {
+function collectNumericMetrics(
+  record: Record<string, unknown>,
+): Array<{ key: string; value: number }> {
   return Object.entries(record)
     .map(([key, value]) => ({ key, value: asNumber(value) }))
-    .filter((item): item is { key: string; value: number } => item.value !== null);
+    .filter(
+      (item): item is { key: string; value: number } => item.value !== null,
+    );
 }
 
 function parseMetrics(
@@ -278,7 +295,10 @@ function parseMetrics(
     formatMetric(key, value, boundsByMetric[key] ?? null),
   );
 
-  const maxAbs = Math.max(...metrics.map((metric) => Math.abs(metric.value)), 0);
+  const maxAbs = Math.max(
+    ...metrics.map((metric) => Math.abs(metric.value)),
+    0,
+  );
   return metrics
     .map((metric) => ({
       ...metric,
@@ -287,7 +307,11 @@ function parseMetrics(
     .sort((left, right) => Math.abs(right.value) - Math.abs(left.value));
 }
 
-function seriesFromSingleArray(id: string, label: string, values: number[]): TimeSeries {
+function seriesFromSingleArray(
+  id: string,
+  label: string,
+  values: number[],
+): TimeSeries {
   return {
     id,
     label,
@@ -355,7 +379,11 @@ function seriesFromBaselinePolicy(
     id,
     label,
     mode: "baseline_policy",
-    supportsUncertainty: lower1.length > 0 || upper1.length > 0 || lower2.length > 0 || upper2.length > 0,
+    supportsUncertainty:
+      lower1.length > 0 ||
+      upper1.length > 0 ||
+      lower2.length > 0 ||
+      upper2.length > 0,
     points,
   };
 }
@@ -365,12 +393,20 @@ function parseTimeSeries(payload: Record<string, unknown>): TimeSeries[] {
 
   const lossHistory = toNumberArray(payload.loss_history);
   if (lossHistory.length > 1) {
-    series.push(seriesFromSingleArray("loss_history", "Loss History", lossHistory));
+    series.push(
+      seriesFromSingleArray("loss_history", "Loss History", lossHistory),
+    );
   }
 
   const gradNormHistory = toNumberArray(payload.grad_norm_history);
   if (gradNormHistory.length > 1) {
-    series.push(seriesFromSingleArray("grad_norm_history", "Gradient Norm", gradNormHistory));
+    series.push(
+      seriesFromSingleArray(
+        "grad_norm_history",
+        "Gradient Norm",
+        gradNormHistory,
+      ),
+    );
   }
 
   const timeSeriesRecord = asRecord(payload.time_series);
@@ -412,7 +448,9 @@ function parseTimeSeries(payload: Record<string, unknown>): TimeSeries[] {
         continue;
       }
       const time = toNumberArray(comparison.time);
-      series.push(seriesFromComparison(id, toDisplayLabel(id), observed, fitted, time));
+      series.push(
+        seriesFromComparison(id, toDisplayLabel(id), observed, fitted, time),
+      );
     }
   }
 
@@ -433,7 +471,9 @@ function parseTimeSeries(payload: Record<string, unknown>): TimeSeries[] {
   return series;
 }
 
-function parseDistributionalObject(record: Record<string, unknown>): DistributionalModel | null {
+function parseDistributionalObject(
+  record: Record<string, unknown>,
+): DistributionalModel | null {
   const breakdownValues = asArray(record.breakdowns);
   const breakdowns: DistributionalBreakdown[] = [];
 
@@ -475,7 +515,9 @@ function parseDistributionalObject(record: Record<string, unknown>): Distributio
     }
 
     breakdowns.push({
-      dimensionLabel: asString(breakdown.dimension_label) ?? toDisplayLabel(asString(breakdown.dimension) ?? "dimension"),
+      dimensionLabel:
+        asString(breakdown.dimension_label) ??
+        toDisplayLabel(asString(breakdown.dimension) ?? "dimension"),
       primaryMetric,
       giniBefore: asNumber(breakdown.gini_before),
       giniAfter: asNumber(breakdown.gini_after),
@@ -500,7 +542,10 @@ function parseDistributionalObject(record: Record<string, unknown>): Distributio
   };
 }
 
-function parseDistributional(payload: Record<string, unknown>, artifactKind: string): DistributionalModel | null {
+function parseDistributional(
+  payload: Record<string, unknown>,
+  artifactKind: string,
+): DistributionalModel | null {
   if (artifactKind === "ir.distributional_report") {
     return parseDistributionalObject(payload);
   }
@@ -513,7 +558,10 @@ function parseDistributional(payload: Record<string, unknown>, artifactKind: str
   return null;
 }
 
-function parseCalibration(payload: Record<string, unknown>, artifactKind: string): CalibrationModel | null {
+function parseCalibration(
+  payload: Record<string, unknown>,
+  artifactKind: string,
+): CalibrationModel | null {
   if (artifactKind !== "foundry.calibration_report") {
     return null;
   }
@@ -599,7 +647,10 @@ function parseCalibration(payload: Record<string, unknown>, artifactKind: string
   };
 }
 
-function parseEnvelope(payload: Record<string, unknown>, artifactKind: string): UncertaintyEnvelopeModel | null {
+function parseEnvelope(
+  payload: Record<string, unknown>,
+  artifactKind: string,
+): UncertaintyEnvelopeModel | null {
   if (artifactKind !== "ir.uncertainty_envelope") {
     return null;
   }
@@ -617,7 +668,10 @@ function parseEnvelope(payload: Record<string, unknown>, artifactKind: string): 
   };
 }
 
-function detectSourceKind(artifactKind: string, payload: Record<string, unknown>): string {
+function detectSourceKind(
+  artifactKind: string,
+  payload: Record<string, unknown>,
+): string {
   if (artifactKind === "scientist.decision_packet") {
     return "decision_packet";
   }
@@ -657,7 +711,9 @@ export function normalizeSimulationPayload(
 
   const notes: string[] = [];
   if (artifactKind === "foundry.simulation_result") {
-    notes.push("SimulationResult mostly stores refs; inspect linked artifacts for full metrics and charts.");
+    notes.push(
+      "SimulationResult mostly stores refs; inspect linked artifacts for full metrics and charts.",
+    );
   }
   if (metrics.length === 0) {
     notes.push("No numeric metrics were detected in this payload.");

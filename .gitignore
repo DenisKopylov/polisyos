@@ -7,3 +7,12 @@
 
 # spec document
 scm-implementation-spec-v3.md
+
+# local PolisyOS artifact hashes
+.polisyos/artifacts/sha256/
+
+# local browser automation artifacts
+.playwright-cli/
+
+# exported design renders
+output/playwright/

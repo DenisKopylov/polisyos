@@ -23,6 +23,9 @@ def test_governance_debug_prefers_governance_report(runtime_api_env) -> None:
 
     payload = response.json()["debug"]
     assert payload["verdict"] == "reject"
+    assert payload["issue_summary"] == {"blocker_count": 1, "warning_count": 0, "info_count": 0}
+    assert payload["legal_executed"] is True
+    assert payload["transport_summary"]["status"] == "blocked"
     assert payload["fallback_from_decision_packet"] is False
     assert payload["report_ref"] is not None
 

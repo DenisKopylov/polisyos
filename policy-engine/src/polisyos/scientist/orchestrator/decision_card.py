@@ -41,6 +41,12 @@ class KeyMetric:
 
 
 @dataclass(frozen=True)
+class DiagnosticBadge:
+    label: str
+    kind: str = "info"
+
+
+@dataclass(frozen=True)
 class IssuesSummary:
     blocker_count: int = 0
     warning_count: int = 0
@@ -79,6 +85,7 @@ class DecisionCard:
     policy_summary: str = "N/A"
     intervention_count: int = 0
     key_metrics: list[KeyMetric] = field(default_factory=list)
+    diagnostic_badges: list[DiagnosticBadge] = field(default_factory=list)
     issues: IssuesSummary = field(default_factory=IssuesSummary)
     distributional: DistributionalSummary | None = None
     total_duration_ms: int = 0
@@ -101,6 +108,7 @@ class DecisionCard:
             simulation_results = {}
         uncertainty_bounds = _read(packet, "uncertainty_bounds", None)
         key_metrics = _extract_key_metrics(simulation_results, uncertainty_bounds=uncertainty_bounds)
+        diagnostic_badges = _extract_diagnostic_badges(packet)
 
         distributional = _extract_distributional_summary(_read(packet, "distributional", None))
 
@@ -118,6 +126,7 @@ class DecisionCard:
             policy_summary=policy_summary,
             intervention_count=intervention_count,
             key_metrics=key_metrics,
+            diagnostic_badges=diagnostic_badges,
             issues=issues,
             distributional=distributional,
             total_duration_ms=total_duration_ms,
@@ -147,6 +156,14 @@ class DecisionCard:
         lines.append("")
         lines.append(f"**Confidence:** {self.confidence.value}")
         lines.append("")
+
+        if self.diagnostic_badges:
+            lines.append("## Diagnostics")
+            lines.append("")
+            lines.append(
+                " | ".join(f"`{badge.kind}` {badge.label}" for badge in self.diagnostic_badges)
+            )
+            lines.append("")
 
         lines.append("## Policy")
         lines.append("")
@@ -278,6 +295,8 @@ def _compute_source_hash(packet: Any) -> str:
         "simulation_results": _read(packet, "simulation_results", None),
         "feedback": _read(packet, "feedback", _read(packet, "governance", None)),
         "distributional": _read(packet, "distributional", None),
+        "diagnostics_summary": _read(packet, "diagnostics_summary", None),
+        "analysis_limits": _read(packet, "analysis_limits", None),
     }
     canonical = json.dumps(payload, sort_keys=True, default=str, ensure_ascii=True)
     return truncated_hash(canonical, length=16)
@@ -395,6 +414,65 @@ def _extract_issues_summary(feedback: Any) -> IssuesSummary:
     )
 
 
+def _extract_diagnostic_badges(packet: Any) -> list[DiagnosticBadge]:
+    badges_payload = _read(packet, "diagnostic_badges", None)
+    if isinstance(badges_payload, list):
+        badges: list[DiagnosticBadge] = []
+        for item in badges_payload:
+            if isinstance(item, dict):
+                label = item.get("label")
+                if isinstance(label, str):
+                    kind = item.get("kind")
+                    badges.append(
+                        DiagnosticBadge(
+                            label=label,
+                            kind=str(kind) if isinstance(kind, str) else "info",
+                        )
+                    )
+        if badges:
+            return badges[:5]
+
+    summary = _read(packet, "diagnostics_summary", None)
+    if not isinstance(summary, dict):
+        return []
+
+    badges = [
+        DiagnosticBadge(
+            label=f"transport:{summary.get('transport_status', 'not_available')}",
+            kind=_badge_kind_for_transport(summary.get("transport_status")),
+        ),
+        DiagnosticBadge(
+            label=(
+                "legal:checked"
+                if summary.get("legal_executed") is True
+                else "legal:not_run"
+            ),
+            kind="ok" if summary.get("legal_executed") is True else "warn",
+        ),
+        DiagnosticBadge(
+            label=f"replay:{summary.get('replay_readiness', 'not_available')}",
+            kind=_badge_kind_for_replay(summary.get("replay_readiness")),
+        ),
+        DiagnosticBadge(
+            label=(
+                "human-review:required"
+                if summary.get("human_review_needed") is True
+                else "human-review:not_required"
+            ),
+            kind="warn" if summary.get("human_review_needed") is True else "ok",
+        ),
+        DiagnosticBadge(
+            label=(
+                "uncertainty:available"
+                if summary.get("uncertainty_available") is True
+                else "uncertainty:not_available"
+            ),
+            kind="ok" if summary.get("uncertainty_available") is True else "warn",
+        ),
+    ]
+    return badges[:5]
+
+
 def _extract_distributional_summary(raw: Any) -> DistributionalSummary | None:
     if not isinstance(raw, dict):
         return None
@@ -470,9 +548,28 @@ def _safe_float(value: Any) -> float | None:
     return None
 
 
+def _badge_kind_for_transport(value: Any) -> str:
+    normalized = str(value).strip().lower()
+    if normalized in {"direct", "transportable"}:
+        return "ok"
+    if normalized in {"non_transportable"}:
+        return "fail"
+    return "warn"
+
+
+def _badge_kind_for_replay(value: Any) -> str:
+    normalized = str(value).strip().lower()
+    if normalized == "complete":
+        return "ok"
+    if normalized == "incomplete":
+        return "fail"
+    return "warn"
+
+
 __all__ = [
     "Confidence",
     "CohortSummaryRow",
+    "DiagnosticBadge",
     "DecisionCard",
     "DistributionalSummary",
     "IssuesSummary",

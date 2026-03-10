@@ -79,6 +79,11 @@ def default_workflow_spec() -> WorkflowSpec:
                 ],
             ),
             NodeInvocation(
+                alias="legal_check",
+                node_id="scientist.node_legal_check@1.0.1",
+                depends_on=["run_simulation"],
+            ),
+            NodeInvocation(
                 alias="run_causal_evaluation",
                 node_id="scientist.node_run_causal_evaluation@1.2.0",
                 depends_on=["build_data_snapshot"],
@@ -97,6 +102,7 @@ def default_workflow_spec() -> WorkflowSpec:
                 alias="run_governance",
                 node_id="scientist.node_run_governance@1.1.0",
                 depends_on=[
+                    "legal_check",
                     "propagate_uncertainty",
                     "run_distributional_analysis",
                     "run_causal_evaluation",
@@ -117,6 +123,7 @@ def default_workflow_spec() -> WorkflowSpec:
             "E1.8 default workflow spec (engine DAG)",
             "ExecutionPlan/preflight pipeline is mandatory before compile stage.",
             "P8 data-plane: bind_foundry_inputs + pre-simulation run_data_plane_gate.",
+            "LegalCheckNode executes after simulation and may skip when legal context is unavailable.",
             "Decision packet is generated after governance, evaluation, and uncertainty propagation.",
         ],
     )

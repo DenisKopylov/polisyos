@@ -16,6 +16,7 @@ _STAGE_ALIAS = {
     "merge-dedup": "merge_dedup",
     "graph-load": "graph_load",
     "graph-index": "graph_index",
+    "transport-score": "transport_score",
 }
 
 
@@ -35,6 +36,17 @@ def _build_config(args: argparse.Namespace, *, stages: frozenset[str]) -> Academ
     resolved_run_id = run_id_value or datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
     raw_keys = str(getattr(args, "gonka_api_keys", "")).strip()
     gonka_api_keys = [token.strip() for token in raw_keys.split(",") if token.strip()] if raw_keys else []
+    resolver_order_raw = str(getattr(args, "fulltext_metadata_resolver_order", "")).strip()
+    resolver_order = (
+        tuple(token.strip() for token in resolver_order_raw.split(",") if token.strip())
+        if resolver_order_raw
+        else ("unpaywall", "crossref", "semanticscholar")
+    )
+    target_country_codes_raw = str(getattr(args, "transport_target_country_codes", "")).strip()
+    transport_target_country_codes = tuple(
+        token.strip().upper() for token in target_country_codes_raw.split(",") if token.strip()
+    )
+    shared_cache_dir_raw = str(getattr(args, "fulltext_shared_cache_dir", "")).strip()
 
     return AcademicBatchConfig(
         snapshot_root=Path(args.snapshot_root),
@@ -78,7 +90,9 @@ def _build_config(args: argparse.Namespace, *, stages: frozenset[str]) -> Academ
         fulltext_max_concurrent_fetches=int(getattr(args, "fulltext_max_concurrent_fetches", 24)),
         fulltext_acquisition_mode=str(getattr(args, "fulltext_acquisition_mode", "v3_legacy")),
         fulltext_metadata_resolvers_enabled=bool(getattr(args, "fulltext_metadata_resolvers_enabled", True)),
+        fulltext_metadata_resolver_order=resolver_order,
         fulltext_unpaywall_email=str(getattr(args, "fulltext_unpaywall_email", "")),
+        fulltext_semantic_scholar_api_key=str(getattr(args, "fulltext_semantic_scholar_api_key", "")),
         fulltext_metadata_timeout_seconds=int(getattr(args, "fulltext_metadata_timeout_seconds", 20)),
         fulltext_max_candidate_urls_per_work=int(getattr(args, "fulltext_max_candidate_urls_per_work", 20)),
         fulltext_min_usable_chars=int(getattr(args, "fulltext_min_usable_chars", 1500)),
@@ -86,6 +100,8 @@ def _build_config(args: argparse.Namespace, *, stages: frozenset[str]) -> Academ
         fulltext_soft_usable_requires_section_cues=bool(
             getattr(args, "fulltext_soft_usable_requires_section_cues", True)
         ),
+        fulltext_shared_cache_dir=Path(shared_cache_dir_raw) if shared_cache_dir_raw else None,
+        fulltext_cache_ttl_days=int(getattr(args, "fulltext_cache_ttl_days", 30)),
         provider_circuit_breaker_failures=int(getattr(args, "provider_circuit_breaker_failures", 5)),
         provider_circuit_breaker_reset_seconds=int(getattr(args, "provider_circuit_breaker_reset_seconds", 60)),
         llm_gate_enabled=bool(getattr(args, "llm_gate_enabled", True)),
@@ -97,6 +113,14 @@ def _build_config(args: argparse.Namespace, *, stages: frozenset[str]) -> Academ
         llm_gate_audit_max_miss_rate_pct=float(getattr(args, "llm_gate_audit_max_miss_rate_pct", 3.0)),
         llm_gate_auto_conf_threshold=float(getattr(args, "llm_gate_auto_conf_threshold", 0.85)),
         llm_gate_circuit_breaker_enabled=bool(getattr(args, "llm_gate_circuit_breaker_enabled", True)),
+        track_b_enabled=bool(getattr(args, "track_b_enabled", False)),
+        track_c_enabled=bool(getattr(args, "track_c_enabled", False)),
+        paper_classification_model=str(getattr(args, "paper_classification_model", "")),
+        track_b_extraction_model=str(getattr(args, "track_b_extraction_model", "")),
+        track_c_extraction_model=str(getattr(args, "track_c_extraction_model", "")),
+        transport_target_context_id=str(getattr(args, "transport_target_context_id", "")),
+        transport_target_country_codes=transport_target_country_codes,
+        transport_target_time_period=str(getattr(args, "transport_target_time_period", "")),
         fail_fast_qc=bool(getattr(args, "fail_fast", True)),
     )
 
@@ -111,6 +135,7 @@ async def _run_stage(args: argparse.Namespace, stage: str) -> None:
     from polisyos.academic.batch.publish import run_publish
     from polisyos.academic.batch.qc import run_qc
     from polisyos.academic.batch.resolve_extract import run_resolve_extract
+    from polisyos.academic.batch.transport_score import run_transport_score
     from polisyos.academic.batch.topic_select import run_topic_select
 
     stage_name = _normalize_stage_name(stage)
@@ -154,6 +179,9 @@ async def _run_stage(args: argparse.Namespace, stage: str) -> None:
     elif stage_name == "graph_index":
         run_graph_index(cfg)
         print("Graph indexes created")
+    elif stage_name == "transport_score":
+        stats = run_transport_score(cfg)
+        print(json_dumps_pretty(stats))
     elif stage_name == "embed":
         count = run_embed(cfg, thermal=bool(getattr(args, "thermal", False)))
         print(f"Embedded works: {count}")
@@ -271,7 +299,9 @@ def _build_parser() -> argparse.ArgumentParser:
         action="store_false",
     )
     common.set_defaults(fulltext_metadata_resolvers_enabled=True)
+    common.add_argument("--fulltext-metadata-resolver-order", default="unpaywall,crossref,semanticscholar")
     common.add_argument("--fulltext-unpaywall-email", default="")
+    common.add_argument("--fulltext-semantic-scholar-api-key", default="")
     common.add_argument("--fulltext-metadata-timeout-seconds", type=int, default=20)
     common.add_argument("--fulltext-max-candidate-urls-per-work", type=int, default=20)
     common.add_argument("--fulltext-min-usable-chars", type=int, default=1500)
@@ -287,6 +317,8 @@ def _build_parser() -> argparse.ArgumentParser:
         action="store_false",
     )
     common.set_defaults(fulltext_soft_usable_requires_section_cues=True)
+    common.add_argument("--fulltext-shared-cache-dir", default="")
+    common.add_argument("--fulltext-cache-ttl-days", type=int, default=30)
     common.add_argument("--provider-circuit-breaker-failures", type=int, default=5)
     common.add_argument("--provider-circuit-breaker-reset-seconds", type=int, default=60)
 
@@ -311,6 +343,18 @@ def _build_parser() -> argparse.ArgumentParser:
         action="store_false",
     )
     common.set_defaults(llm_gate_circuit_breaker_enabled=True)
+    common.add_argument("--track-b-enabled", dest="track_b_enabled", action="store_true")
+    common.add_argument("--no-track-b-enabled", dest="track_b_enabled", action="store_false")
+    common.set_defaults(track_b_enabled=False)
+    common.add_argument("--track-c-enabled", dest="track_c_enabled", action="store_true")
+    common.add_argument("--no-track-c-enabled", dest="track_c_enabled", action="store_false")
+    common.set_defaults(track_c_enabled=False)
+    common.add_argument("--paper-classification-model", default="")
+    common.add_argument("--track-b-extraction-model", default="")
+    common.add_argument("--track-c-extraction-model", default="")
+    common.add_argument("--transport-target-context-id", default="")
+    common.add_argument("--transport-target-country-codes", default="")
+    common.add_argument("--transport-target-time-period", default="")
 
     common.add_argument("--resume", action="store_true")
 
@@ -321,6 +365,7 @@ def _build_parser() -> argparse.ArgumentParser:
     sub.add_parser("merge-dedup", parents=[common], help="Merge parsed records and dedup by work_id")
     sub.add_parser("graph-load", parents=[common], help="Load merged works into DuckDB")
     sub.add_parser("graph-index", parents=[common], help="Build DuckDB indexes")
+    sub.add_parser("transport-score", parents=[common], help="Score edge transportability")
 
     embed = sub.add_parser("embed", parents=[common], help="Build local embeddings and HNSW")
     embed.add_argument("--thermal", action="store_true")
@@ -375,6 +420,7 @@ def main() -> None:
         "merge-dedup",
         "graph-load",
         "graph-index",
+        "transport-score",
         "embed",
         "qc",
         "publish",

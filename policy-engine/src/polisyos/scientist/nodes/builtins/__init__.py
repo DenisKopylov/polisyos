@@ -24,10 +24,12 @@ __all__ = [
     "PropagateUncertaintyNode",
     "LegalCheckNode",
     "DataPlaneGateNode",
+    "RunNormativeArbitrationNode",
     "RunGovernanceNode",
     "BuildDecisionPacketNode",
     "BuildExecutionPlanNode",
     "BuildMethodCatalogSnapshotNode",
+    "CompileCrossGraphEvidenceNode",
     "RunPreflightNode",
     "ReadyToRunNode",
     "RunEvaluatorNode",
@@ -67,12 +69,18 @@ def builtin_nodes() -> list["Node"]:
     )
     from polisyos.scientist.nodes.builtins.governance.data_plane_gate import DataPlaneGateNode
     from polisyos.scientist.nodes.builtins.governance.legal_check import LegalCheckNode
+    from polisyos.scientist.nodes.builtins.governance.run_normative_arbitration import (
+        RunNormativeArbitrationNode,
+    )
     from polisyos.scientist.nodes.builtins.governance.run_governance import RunGovernanceNode
     from polisyos.scientist.nodes.builtins.planning.build_execution_plan import (
         BuildExecutionPlanNode,
     )
     from polisyos.scientist.nodes.builtins.planning.build_method_catalog_snapshot import (
         BuildMethodCatalogSnapshotNode,
+    )
+    from polisyos.scientist.nodes.builtins.planning.compile_cross_graph_evidence import (
+        CompileCrossGraphEvidenceNode,
     )
     from polisyos.scientist.nodes.builtins.planning.ready_to_run import ReadyToRunNode
     from polisyos.scientist.nodes.builtins.planning.run_evaluator import RunEvaluatorNode
@@ -98,6 +106,7 @@ def builtin_nodes() -> list["Node"]:
         ReadyToRunNode(),
         LinkTrinityNode(),
         CompileFoundryNode(),
+        CompileCrossGraphEvidenceNode(),
         RunSimulationNode(),
         BuildLiteraturePriorNode(),
         ReconcileCausalGraphNode(),
@@ -111,6 +120,7 @@ def builtin_nodes() -> list["Node"]:
         PropagateUncertaintyNode(),
         LegalCheckNode(),
         DataPlaneGateNode(),
+        RunNormativeArbitrationNode(),
         RunGovernanceNode(),
         RunEvaluatorNode(),
         BuildDecisionPacketNode(),
@@ -212,6 +222,12 @@ def __getattr__(name: str) -> Any:
         from polisyos.scientist.nodes.builtins.governance.data_plane_gate import DataPlaneGateNode
 
         return DataPlaneGateNode
+    if name == "RunNormativeArbitrationNode":
+        from polisyos.scientist.nodes.builtins.governance.run_normative_arbitration import (
+            RunNormativeArbitrationNode,
+        )
+
+        return RunNormativeArbitrationNode
     if name == "BuildExecutionPlanNode":
         from polisyos.scientist.nodes.builtins.planning.build_execution_plan import (
             BuildExecutionPlanNode,
@@ -224,6 +240,12 @@ def __getattr__(name: str) -> Any:
         )
 
         return BuildMethodCatalogSnapshotNode
+    if name == "CompileCrossGraphEvidenceNode":
+        from polisyos.scientist.nodes.builtins.planning.compile_cross_graph_evidence import (
+            CompileCrossGraphEvidenceNode,
+        )
+
+        return CompileCrossGraphEvidenceNode
     if name == "RunPreflightNode":
         from polisyos.scientist.nodes.builtins.planning.run_preflight import RunPreflightNode
 

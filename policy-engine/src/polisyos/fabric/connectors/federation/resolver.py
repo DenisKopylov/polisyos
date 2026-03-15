@@ -6,16 +6,15 @@ overlapping data for the same dimensions.
 """
 from __future__ import annotations
 
+import json
 from datetime import datetime
 from typing import Any
-import json
 
 import numpy as np
 import pandas as pd
 
 from polisyos.common.logger import get_logger
 from polisyos.core.canon import content_hash
-
 from polisyos.fabric.connectors.federation.types import (
     AuditLevel,
     ConflictCandidate,

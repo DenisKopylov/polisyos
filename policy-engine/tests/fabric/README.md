@@ -2,11 +2,11 @@
 
 `tests/fabric` проверяет data-layer `polisyos.fabric`: connectors, ingestion/data plane, trust/provenance, world и прикладные data pipelines.
 
-Актуально на **17 февраля 2026**.
+Актуально на **11 марта 2026**.
 
 ## Состав
 
-- `62` файла `test_*.py`
+- `64` файла `test_*.py`
 - `1` `README.md`
 - `1` `conftest.py` (в `connectors/`)
 
@@ -14,14 +14,15 @@
 
 | Подкаталог | `test_*.py` | Что покрывает |
 |---|---:|---|
-| `fabric/` (корень) | 23 | catalog, provenance/trust, world, claims/docs/legal/lex/scholar |
-| `fabric/connectors/` | 32 | protocol/registry/schema/cache/resilience/federation/sources |
+| `fabric/` (корень) | 24 | catalog, provenance/trust, world, claims/docs/legal/lex/scholar |
+| `fabric/connectors/` | 33 | protocol/registry/schema/cache/resilience/federation/sources |
 | `fabric/data_plane/` | 6 | watermark, incremental, cursor store, orchestrator, record replay |
 | `fabric/pii/` | 1 | PII detection |
 
 ## Ключевые зоны
 
 - Data contracts и quality/trust gates: `test_data_catalog.py`, `test_quality_indicators.py`, `test_trust*.py`, `test_conflicts.py`.
+- Historical revision diff: `test_semantic_diff.py` проверяет primary-key path, derived grain fallback и manual-review degraded mode.
 - Provenance и world: `test_provenance.py`, `test_world_*`.
 - Domain pipelines: `test_claims_pipeline.py`, `test_docs_pipeline.py`, `test_normpack.py`, `test_legal_evaluation.py`, `test_lex_corpus.py`.
 - Scholar/freshness: `test_scholar_*`.

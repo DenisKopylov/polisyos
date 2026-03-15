@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import asyncio
 import json
-import logging
+import random
 import time
 from collections import deque
 from dataclasses import dataclass
@@ -19,6 +19,7 @@ from typing import Any, Callable
 
 import aiohttp
 
+from polisyos.common.logger import get_logger
 from polisyos.lex.batch.canonicalizers import (
     canonicalize_action,
     canonicalize_norm_type,
@@ -43,7 +44,8 @@ from polisyos.lex.batch.structurer import ProvisionSpan
 from polisyos.lex.batch.xml_parser import NPADocument
 from polisyos.lex.knowledge.types import SPOCandidate, SPOExtractionResult
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
+_MAX_RETRY_AFTER_SECONDS = 30.0
 
 
 def _retry_delay_seconds(*, attempt: int, retry_after: str | None) -> float:
@@ -52,39 +54,50 @@ def _retry_delay_seconds(*, attempt: int, retry_after: str | None) -> float:
         try:
             parsed = float(retry_after.strip())
             if parsed > 0:
-                return min(parsed, 120.0)
+                return min(parsed, _MAX_RETRY_AFTER_SECONDS) * random.uniform(0.85, 1.2)
         except ValueError:
             pass
-    return min(2 ** (attempt - 1) + 0.5, 30.0)
+    return min(2 ** (attempt - 1) + 0.5, _MAX_RETRY_AFTER_SECONDS) * random.uniform(0.85, 1.25)
 
 
 class _SlidingWindowLimiter:
-    """Async sliding-window rate limiter with 429-cooldown support."""
+    """Async sliding-window rate limiter with optional jitter and 429 cooldown."""
 
-    __slots__ = ("_max", "_window", "_lock", "_timestamps")
+    __slots__ = ("_max", "_window", "_lock", "_timestamps", "_backoff_until", "_jitter_ratio")
 
-    def __init__(self, max_requests: int, window: float = 1.0) -> None:
-        self._max = max(1, max_requests)
-        self._window = window
+    def __init__(self, max_requests: int, window: float = 1.0, *, jitter_ratio: float = 0.0) -> None:
+        self._max = max(1, int(max_requests))
+        self._window = max(0.01, float(window))
         self._lock = asyncio.Lock()
         self._timestamps: deque[float] = deque()
+        self._backoff_until = 0.0
+        self._jitter_ratio = max(0.0, float(jitter_ratio))
 
-    async def acquire(self) -> None:
+    async def acquire(self) -> float:
+        waited = 0.0
         while True:
             async with self._lock:
                 now = time.monotonic()
-                cutoff = now - self._window
-                while self._timestamps and self._timestamps[0] <= cutoff:
-                    self._timestamps.popleft()
-                if len(self._timestamps) < self._max:
-                    self._timestamps.append(time.monotonic())
-                    return
-                wait = self._timestamps[0] + self._window - now
+                if now < self._backoff_until:
+                    wait = self._backoff_until - now
+                else:
+                    cutoff = now - self._window
+                    while self._timestamps and self._timestamps[0] <= cutoff:
+                        self._timestamps.popleft()
+                    if len(self._timestamps) < self._max:
+                        self._timestamps.append(time.monotonic())
+                        return waited
+                    wait = self._timestamps[0] + self._window - now
+            if self._jitter_ratio > 0.0 and wait > 0.05:
+                wait *= 1.0 + random.uniform(-self._jitter_ratio, self._jitter_ratio)
+            started = time.monotonic()
             await asyncio.sleep(max(0.01, wait))
+            waited += time.monotonic() - started
 
     async def penalise(self, penalty_seconds: float = 5.0) -> None:
         async with self._lock:
             future = time.monotonic() + penalty_seconds - self._window
+            self._backoff_until = max(self._backoff_until, time.monotonic() + max(0.1, penalty_seconds))
             for _ in range(self._max):
                 self._timestamps.append(future)
 
@@ -103,6 +116,9 @@ class GonkaClient:
         rate_limit_rps: float = 100.0,
         temperature: float = 0.1,
         max_retries: int = 7,
+        shared_limiter: _SlidingWindowLimiter | None = None,
+        circuit_failures: int = 3,
+        circuit_reset_seconds: float = 12.0,
     ) -> None:
         self._api_key = api_key
         self._url = f"{base_url.rstrip('/')}/chat/completions"
@@ -110,9 +126,14 @@ class GonkaClient:
         self._temperature = temperature
         self._max_retries = max_retries
         self._semaphore = asyncio.Semaphore(max_concurrent)
+        self._shared_limiter = shared_limiter
+        self._circuit_failures = max(1, int(circuit_failures))
+        self._circuit_reset_seconds = max(1.0, float(circuit_reset_seconds))
+        self._consecutive_failures = 0
+        self._circuit_open_until = 0.0
         self._limiter = _SlidingWindowLimiter(
-            max_requests=max(1, int(rate_limit_rps)),
-            window=1.0,
+            max_requests=1,
+            window=(1.0 / max(0.001, float(rate_limit_rps))),
         )
         self._session: aiohttp.ClientSession | None = None
         # Some deployments reject OpenAI JSON-mode ("response_format") even though
@@ -127,9 +148,36 @@ class GonkaClient:
     def model_id(self) -> str:
         return self._model
 
+    @property
+    def json_mode_disabled(self) -> bool:
+        return self._json_mode_disabled
+
+    def disable_json_mode(self) -> None:
+        self._json_mode_disabled = True
+
     def set_cache(self, cache: object | None) -> None:
         """Attach an optional SPOCache instance for response caching."""
         self._cache = cache  # type: ignore[attr-defined]
+
+    def is_available(self) -> bool:
+        return time.monotonic() >= self._circuit_open_until
+
+    def backoff_until(self) -> float:
+        return self._circuit_open_until
+
+    def _record_success(self) -> None:
+        self._consecutive_failures = 0
+        self._circuit_open_until = 0.0
+
+    def _record_failure(self) -> None:
+        self._consecutive_failures += 1
+        if self._consecutive_failures < self._circuit_failures:
+            return
+        jitter = random.uniform(0.85, 1.25)
+        self._circuit_open_until = max(
+            self._circuit_open_until,
+            time.monotonic() + (self._circuit_reset_seconds * jitter),
+        )
 
     async def __aenter__(self) -> GonkaClient:
         self._session = aiohttp.ClientSession(
@@ -163,14 +211,17 @@ class GonkaClient:
 
         last_error: Exception | None = None
         for attempt in range(1, self._max_retries + 1):
+            if self._shared_limiter is not None:
+                await self._shared_limiter.acquire()
+            await self._limiter.acquire()
             async with self._semaphore:
-                await self._limiter.acquire()
                 payload = dict(payload_base)
                 if response_format and not self._json_mode_disabled:
                     payload["response_format"] = response_format
                 try:
                     async with self._session.post(self._url, json=payload) as resp:
                         if resp.status == 200:
+                            self._record_success()
                             return await resp.json()
 
                         body = await resp.text()
@@ -178,30 +229,36 @@ class GonkaClient:
                             "response_format" in payload
                             and _is_json_mode_invalid_request(resp.status, body)
                         ):
-                            logger.warning(
-                                "Gonka 400 invalid_request with response_format; "
-                                "retrying without JSON-mode for this request."
-                            )
-                            self._json_mode_disabled = True
+                            if not self._json_mode_disabled:
+                                logger.warning(
+                                    "Gonka 400 invalid_request with response_format; "
+                                    "retrying without JSON-mode for subsequent requests."
+                                )
+                            self.disable_json_mode()
                             payload.pop("response_format", None)
                             # Known compatibility fallback; do not spend retry budget.
                             continue
 
                         if resp.status < 500 and resp.status not in (429,):
-                            logger.warning("Gonka %d (non-retryable): %s", resp.status, body[:200])
+                            logger.warning("Gonka {} (non-retryable): {}", resp.status, body[:200])
                             raise RuntimeError(
                                 f"Gonka non-retryable error: HTTP {resp.status}: {body[:500]}"
                             )
-
-                        if resp.status == 429:
-                            await self._limiter.penalise(5.0)
 
                         delay = _retry_delay_seconds(
                             attempt=attempt,
                             retry_after=resp.headers.get("Retry-After"),
                         )
+                        if resp.status == 429:
+                            self._record_failure()
+                            await self._limiter.penalise(delay)
+                            if self._shared_limiter is not None:
+                                await self._shared_limiter.penalise(min(delay, _MAX_RETRY_AFTER_SECONDS))
+                        elif resp.status >= 500:
+                            self._record_failure()
+
                         logger.warning(
-                            "Gonka %d (attempt %d/%d), retry in %.1fs: %s",
+                            "Gonka {} (attempt {}/{}), retry in {:.1f}s: {}",
                             resp.status,
                             attempt,
                             self._max_retries,
@@ -217,13 +274,14 @@ class GonkaClient:
                 except (aiohttp.ClientError, asyncio.TimeoutError) as exc:
                     exc_str = str(exc)
                     if "413" in exc_str:
-                        logger.warning("Gonka client error (non-retryable): %s", exc)
+                        logger.warning("Gonka client error (non-retryable): {}", exc)
                         raise RuntimeError(f"Gonka non-retryable error: {exc}") from exc
 
                     last_error = exc
+                    self._record_failure()
                     delay = min(2 ** (attempt - 1) + 0.5, 30.0)
                     logger.warning(
-                        "Gonka network error (attempt %d/%d), retry in %.1fs: %s",
+                        "Gonka network error (attempt {}/{}), retry in {:.1f}s: {}",
                         attempt,
                         self._max_retries,
                         delay,
@@ -232,6 +290,118 @@ class GonkaClient:
                     await asyncio.sleep(delay)
 
         raise RuntimeError(f"Gonka request failed after {self._max_retries} attempts") from last_error
+
+
+class GonkaClientPool:
+    """Least-loaded pool of Gonka clients, one per API key."""
+
+    def __init__(
+        self,
+        *,
+        api_keys: list[str],
+        base_url: str,
+        model: str,
+        disable_json_mode: bool = False,
+        max_concurrent: int = 50,
+        rate_limit_rps: float = 100.0,
+        temperature: float = 0.1,
+        max_retries: int = 7,
+    ) -> None:
+        cleaned = [str(key).strip() for key in api_keys if str(key).strip()]
+        if not cleaned:
+            raise ValueError("GonkaClientPool requires at least one API key")
+        total_rps = max(0.001, float(rate_limit_rps) * max(1, len(cleaned)))
+        self._shared_limiter = _SlidingWindowLimiter(
+            max_requests=1,
+            window=(1.0 / total_rps),
+            jitter_ratio=0.12,
+        )
+        self._clients = [
+            GonkaClient(
+                api_key=key,
+                base_url=base_url,
+                model=model,
+                disable_json_mode=disable_json_mode,
+                max_concurrent=max_concurrent,
+                rate_limit_rps=rate_limit_rps,
+                temperature=temperature,
+                max_retries=max_retries,
+                shared_limiter=self._shared_limiter,
+            )
+            for key in cleaned
+        ]
+        self._in_flight = [0 for _ in self._clients]
+        self._selection_lock = asyncio.Lock()
+        self._json_mode_disabled = disable_json_mode
+        self._rr_cursor = 0
+
+    @property
+    def model_id(self) -> str:
+        return self._clients[0].model_id
+
+    @property
+    def key_count(self) -> int:
+        return len(self._clients)
+
+    def set_cache(self, cache: object | None) -> None:
+        for client in self._clients:
+            client.set_cache(cache)
+
+    def disable_json_mode(self) -> None:
+        if self._json_mode_disabled:
+            return
+        self._json_mode_disabled = True
+        for client in self._clients:
+            client.disable_json_mode()
+
+    async def __aenter__(self) -> "GonkaClientPool":
+        for client in self._clients:
+            await client.__aenter__()
+        return self
+
+    async def __aexit__(self, *exc: object) -> None:
+        for client in self._clients:
+            await client.__aexit__(*exc)
+
+    async def _acquire_client_index(self) -> int:
+        while True:
+            async with self._selection_lock:
+                available = [i for i, client in enumerate(self._clients) if client.is_available()]
+                if available:
+                    min_load = min(self._in_flight[i] for i in available)
+                    tied = [i for i in available if self._in_flight[i] == min_load]
+                    tied.sort()
+                    offset = self._rr_cursor % len(tied)
+                    idx = tied[offset]
+                    self._rr_cursor = (self._rr_cursor + 1) % max(1, len(self._clients))
+                    self._in_flight[idx] += 1
+                    return idx
+                earliest = min((client.backoff_until() for client in self._clients), default=time.monotonic() + 0.25)
+            wait_for = max(0.05, earliest - time.monotonic())
+            await asyncio.sleep(wait_for * random.uniform(0.85, 1.2))
+
+    async def _release_client_index(self, idx: int) -> None:
+        async with self._selection_lock:
+            self._in_flight[idx] = max(0, self._in_flight[idx] - 1)
+
+    async def chat_completion(
+        self,
+        messages: list[dict[str, str]],
+        *,
+        response_format: dict[str, str] | None = None,
+    ) -> dict[str, Any]:
+        idx = await self._acquire_client_index()
+        try:
+            effective_response_format = None if self._json_mode_disabled else response_format
+            result = await self._clients[idx].chat_completion(
+                messages,
+                response_format=effective_response_format,
+            )
+            if self._clients[idx].json_mode_disabled:
+                self.disable_json_mode()
+            return result
+        finally:
+            await self._release_client_index(idx)
 
 
 def _parse_json_object(raw_content: str) -> dict[str, Any] | None:
@@ -260,7 +430,7 @@ def _parse_json_object(raw_content: str) -> dict[str, Any] | None:
                 if isinstance(parsed, dict):
                     return parsed
             except json.JSONDecodeError:
-                logger.warning("Failed to parse extracted codeblock JSON: %.200s", raw_content)
+                logger.warning("Failed to parse extracted codeblock JSON: {}", raw_content[:200])
 
         # Non-JSON-mode fallback: extract outermost object from mixed text.
         start = raw_content.find("{")
@@ -274,7 +444,7 @@ def _parse_json_object(raw_content: str) -> dict[str, Any] | None:
             except json.JSONDecodeError:
                 pass
 
-        logger.warning("Failed to parse LLM response as JSON: %.200s", raw_content)
+        logger.warning("Failed to parse LLM response as JSON: {}", raw_content[:200])
         return None
 
 
@@ -317,7 +487,7 @@ def _parse_spo_statements(raw_data: dict[str, Any] | None) -> list[SPOCandidate]
             try:
                 parsed.append(SPOCandidate.model_validate(payload_no_thresholds))
             except Exception:
-                logger.debug("Skipping invalid SPO statement: %s -- %s", payload, exc)
+                logger.debug("Skipping invalid SPO statement: {} -- {}", payload, exc)
     return parsed
 
 
@@ -378,7 +548,7 @@ def _parse_light_statements(raw_data: dict[str, Any] | None) -> list[SPOCandidat
         try:
             parsed.append(SPOCandidate.model_validate(payload))
         except Exception as exc:
-            logger.debug("Skipping invalid light SPO statement: %s -- %s", payload, exc)
+            logger.debug("Skipping invalid light SPO statement: {} -- {}", payload, exc)
     return parsed
 
 
@@ -570,7 +740,7 @@ def _choose_verify_statements(
 
     if statements_pass1:
         logger.warning(
-            "SPO verify returned incompatible schema for %s %s; keeping pass1 statements.",
+            "SPO verify returned incompatible schema for {} {}; keeping pass1 statements.",
             doc_id,
             provision_anchor,
         )
@@ -730,6 +900,68 @@ def _split_float(total: float, parts: int) -> list[float]:
     return [share for _ in range(parts)]
 
 
+def _estimate_request_item_chars(doc: NPADocument, provision: ProvisionSpan) -> int:
+    return (
+        len(provision.text)
+        + len(provision.citation_label or "")
+        + len(doc.card.name or "")
+        + len(doc.card.doc_type or "")
+        + 128
+    )
+
+
+def _group_request_items(
+    items: list[tuple[NPADocument, ProvisionSpan]],
+    *,
+    request_batch_size: int,
+    request_batch_chars: int | None,
+) -> list[list[tuple[NPADocument, ProvisionSpan]]]:
+    groups: list[list[tuple[NPADocument, ProvisionSpan]]] = []
+    current: list[tuple[NPADocument, ProvisionSpan]] = []
+    current_chars = 0
+    max_items = max(1, request_batch_size)
+    max_chars = int(request_batch_chars) if request_batch_chars is not None else 0
+
+    for item in items:
+        item_chars = _estimate_request_item_chars(item[0], item[1])
+        would_overflow_items = len(current) >= max_items
+        would_overflow_chars = bool(
+            current
+            and max_chars > 0
+            and current_chars + item_chars > max_chars
+        )
+        if would_overflow_items or would_overflow_chars:
+            groups.append(current)
+            current = []
+            current_chars = 0
+        current.append(item)
+        current_chars += item_chars
+
+    if current:
+        groups.append(current)
+    return groups
+
+
+def _materialize_fallback_row(
+    base_row: dict[str, Any],
+    *,
+    error_message: str,
+    timeout: bool,
+) -> dict[str, Any]:
+    row = json.loads(json.dumps(base_row, ensure_ascii=False))
+    existing_reasons = row.get("low_confidence_reasons")
+    reasons = list(existing_reasons) if isinstance(existing_reasons, list) else []
+    reason_code = "llm_group_timeout_fallback" if timeout else "llm_group_error_fallback"
+    if reason_code not in reasons:
+        reasons.append(reason_code)
+    row["low_confidence"] = True
+    row["low_confidence_reasons"] = reasons
+    row["raw_llm_response"] = error_message[:1000]
+    row["raw_extract_response"] = error_message[:1000]
+    row["extraction_source"] = "llm_timeout_fallback" if timeout else "llm_error_fallback"
+    return row
+
+
 def _coerce_batch_item_payload(item_payload: Any) -> dict[str, Any] | None:
     if isinstance(item_payload, list):
         return {"statements": item_payload}
@@ -868,7 +1100,7 @@ async def _finalize_provision_from_pass1(
             pass2_latency_ms = int((time.monotonic() - t2) * 1000)
             verify_failed = True
             raw_verify = str(exc)
-            logger.warning("SPO verify failed for %s %s: %s", doc.card.doc_id, provision.anchor_path, exc)
+            logger.warning("SPO verify failed for {} {}: {}", doc.card.doc_id, provision.anchor_path, exc)
 
         statements_pass2, verify_schema_fallback = _choose_verify_statements(
             doc_id=doc.card.doc_id,
@@ -996,7 +1228,7 @@ async def _extract_one_provision(
             response_format={"type": "json_object"},
         )
     except Exception as exc:
-        logger.warning("SPO extract failed for %s %s: %s", doc.card.doc_id, provision.anchor_path, exc)
+        logger.warning("SPO extract failed for {} {}: {}", doc.card.doc_id, provision.anchor_path, exc)
         return _build_extract_failed_result(
             client=client,
             doc=doc,
@@ -1077,7 +1309,7 @@ async def _extract_one_provision_light(
             response_format={"type": "json_object"},
         )
     except Exception as exc:
-        logger.warning("SPO light extract failed for %s %s: %s", doc.card.doc_id, provision.anchor_path, exc)
+        logger.warning("SPO light extract failed for {} {}: {}", doc.card.doc_id, provision.anchor_path, exc)
         return _build_extract_failed_result(
             client=client,
             doc=doc,
@@ -1176,7 +1408,7 @@ async def _run_single_extractions(
     for entry, result in zip(entries, settled, strict=True):
         if isinstance(result, Exception):
             logger.warning(
-                "Single-request fallback crashed for %s %s: %s",
+                "Single-request fallback crashed for {} {}: {}",
                 entry.doc.card.doc_id,
                 entry.provision.anchor_path,
                 result,
@@ -1242,7 +1474,7 @@ async def _extract_batch_provisions(
         )
     except Exception as exc:
         logger.warning(
-            "SPO batched extract failed for %d provisions; fallback to single requests: %s",
+            "SPO batched extract failed for {} provisions; fallback to single requests: {}",
             len(entries),
             exc,
         )
@@ -1256,7 +1488,7 @@ async def _extract_batch_provisions(
     payload_by_id = _parse_batch_extract_payload(data_extract)
     if not payload_by_id:
         logger.warning(
-            "SPO batched extract returned incompatible schema for %d provisions; fallback to singles.",
+            "SPO batched extract returned incompatible schema for {} provisions; fallback to singles.",
             len(entries),
         )
         return await _run_single_extractions(client, entries, verify_mode=verify_mode)
@@ -1309,7 +1541,7 @@ async def _extract_batch_provisions(
         if isinstance(result, Exception):
             entry = entry_by_id[item_id]
             logger.warning(
-                "Batched finalize failed for %s %s; fallback to single request: %s",
+                "Batched finalize failed for {} {}; fallback to single request: {}",
                 entry.doc.card.doc_id,
                 entry.provision.anchor_path,
                 result,
@@ -1327,7 +1559,7 @@ async def _extract_batch_provisions(
         if entry.item_id in results_by_id:
             continue
         logger.warning(
-            "Batched extract missing item id=%s for %s %s; fallback to single request.",
+            "Batched extract missing item id={} for {} {}; fallback to single request.",
             entry.item_id,
             entry.doc.card.doc_id,
             entry.provision.anchor_path,
@@ -1430,7 +1662,7 @@ async def _extract_batch_provisions_light(
         )
     except Exception as exc:
         logger.warning(
-            "SPO batched light extract failed for %d provisions; fallback to singles: %s",
+            "SPO batched light extract failed for {} provisions; fallback to singles: {}",
             len(uncached_entries),
             exc,
         )
@@ -1448,7 +1680,7 @@ async def _extract_batch_provisions_light(
 
     if not payload_by_id:
         logger.warning(
-            "SPO batched light extract returned incompatible schema for %d provisions; fallback to singles.",
+            "SPO batched light extract returned incompatible schema for {} provisions; fallback to singles.",
             len(uncached_entries),
         )
         fallback = await _run_single_extractions(client, uncached_entries, extract_mode="light")
@@ -1466,7 +1698,7 @@ async def _extract_batch_provisions_light(
         item_payload = payload_by_id.get(entry.item_id)
         if item_payload is None:
             logger.warning(
-                "Batched light extract missing id=%s for %s %s; fallback to single.",
+                "Batched light extract missing id={} for {} {}; fallback to single.",
                 entry.item_id,
                 entry.doc.card.doc_id,
                 entry.provision.anchor_path,
@@ -1553,11 +1785,14 @@ async def extract_spo_for_documents(
     results_dir: Path,
     task_batch_size: int = 1000,
     request_batch_size: int = 1,
+    request_batch_chars: int | None = None,
+    group_timeout_seconds: float | None = None,
     verify_mode: str = "llm",
     extract_mode: str = "full",
     overwrite_existing: bool = True,
     extraction_source: str = "llm",
-    gate_meta_by_anchor: dict[str, dict[str, tuple[float, list[str]]]] | None = None,
+    gate_meta_by_anchor: dict[str, dict[str, dict[str, Any]]] | None = None,
+    fallback_rows_by_anchor: dict[str, dict[str, dict[str, Any]]] | None = None,
     result_sink: Callable[[dict[str, Any]], None] | None = None,
 ) -> tuple[int, set[str]]:
     """Extract SPO for all provisions across documents.
@@ -1586,12 +1821,25 @@ async def extract_spo_for_documents(
 
     for i in range(0, len(work_items), batch_size):
         chunk = work_items[i : i + batch_size]
-        request_groups = [
-            chunk[j : j + request_size]
-            for j in range(0, len(chunk), request_size)
-        ]
+        request_groups = _group_request_items(
+            chunk,
+            request_batch_size=request_size,
+            request_batch_chars=request_batch_chars,
+        )
         tasks = [
             asyncio.create_task(
+                asyncio.wait_for(
+                    _extract_provision_group(
+                        client,
+                        group,
+                        verify_mode=verify_mode,
+                        extract_mode=extract_mode,
+                    ),
+                    timeout=group_timeout_seconds,
+                )
+            )
+            if group_timeout_seconds is not None
+            else asyncio.create_task(
                 _extract_provision_group(
                     client,
                     group,
@@ -1606,11 +1854,39 @@ async def extract_spo_for_documents(
         doc_buffers: dict[str, list[dict[str, Any]]] = {}
         for group, group_result in zip(request_groups, group_results, strict=True):
             if isinstance(group_result, Exception):
+                timeout = isinstance(group_result, asyncio.TimeoutError)
+                error_label = "timeout" if timeout else "failure"
                 logger.warning(
-                    "Provision-group task failed for %d items: %s",
+                    "Provision-group task {} for {} items: {}",
+                    error_label,
                     len(group),
                     group_result,
                 )
+                fallback_rows: list[tuple[str, dict[str, Any]]] = []
+                if fallback_rows_by_anchor:
+                    for doc, prov in group:
+                        base_row = fallback_rows_by_anchor.get(doc.card.doc_id, {}).get(prov.anchor_path)
+                        if base_row is None:
+                            fallback_rows = []
+                            break
+                        fallback_rows.append(
+                            (
+                                doc.card.doc_id,
+                                _materialize_fallback_row(
+                                    base_row,
+                                    error_message=str(group_result),
+                                    timeout=timeout,
+                                ),
+                            )
+                        )
+                if fallback_rows:
+                    for doc_id, row in fallback_rows:
+                        if result_sink is not None:
+                            result_sink(row)
+                        doc_buffers.setdefault(doc_id, []).append(row)
+                        statements = row.get("statements")
+                        total_statements += len(statements) if isinstance(statements, list) else 0
+                    continue
                 for doc, _ in group:
                     failed_doc_ids.add(doc.card.doc_id)
                 continue
@@ -1627,10 +1903,21 @@ async def extract_spo_for_documents(
                     per_doc = gate_meta_by_anchor.get(result.doc_id, {})
                     meta = per_doc.get(result.provision_anchor)
                     if meta:
-                        gate_score = float(meta[0])
-                        gate_reasons = list(meta[1])
+                        gate_score = float(meta.get("gate_score", 0.0) or 0.0)
+                        gate_reasons = list(meta.get("gate_reason_codes") or [])
+                        for key in (
+                            "legal_unit_subtype",
+                            "route_class",
+                            "empty_spo_retry_eligible",
+                            "audit_miss_prone",
+                            "reference_bearing",
+                            "threshold_bearing",
+                        ):
+                            if key in meta:
+                                row[key] = meta.get(key)
                 row["gate_score"] = gate_score
                 row["gate_reason_codes"] = gate_reasons
+                row["extraction_source"] = extraction_source
                 if result_sink is not None:
                     result_sink(row)
                 doc_buffers.setdefault(result.doc_id, []).append(row)
@@ -1644,7 +1931,7 @@ async def extract_spo_for_documents(
 
     if failed_doc_ids:
         logger.warning(
-            "%d documents had failed provisions and will NOT be marked as done: %s",
+            "{} documents had failed provisions and will NOT be marked as done: {}",
             len(failed_doc_ids),
             ", ".join(sorted(failed_doc_ids)[:10]) + ("..." if len(failed_doc_ids) > 10 else ""),
         )

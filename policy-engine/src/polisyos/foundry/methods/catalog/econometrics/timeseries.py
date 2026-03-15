@@ -4,6 +4,7 @@ from typing import Any, ClassVar, Mapping
 
 import numpy as np
 
+from polisyos.common.logger import get_logger
 from polisyos.core.observability.determinism import DeterminismTier
 from polisyos.foundry.methods.base import (
     ComplexityClass,
@@ -18,7 +19,43 @@ from polisyos.foundry.methods.base import (
     foundry_method,
 )
 
+from polisyos.foundry.methods.catalog._payloads import extract_model_payload
+
 from .protocols import EconometricResult, TimeSeriesData
+
+logger = get_logger(__name__)
+
+
+def _time_series_payload(state: Any) -> dict[str, Any]:
+    return extract_model_payload(
+        state,
+        model_cls=TimeSeriesData,
+        nested_keys=("time_series_data",),
+    )
+
+
+def _materialize_time_series(bound_inputs: Mapping[str, Any], fallback_state: Any) -> TimeSeriesData:
+    payload = _time_series_payload(fallback_state)
+    payload.update(bound_inputs)
+    return TimeSeriesData.model_validate(payload)
+
+
+def _time_series_output_slots() -> frozenset[SlotSpec]:
+    return frozenset(
+        {
+            SlotSpec(
+                name="result",
+                slot_type=SlotType.SCALAR,
+                unit=Unit("result", "json"),
+                contract_id=EconometricResult.contract_id,
+            ),
+            SlotSpec(
+                name="uncertainty_envelope",
+                slot_type=SlotType.SCALAR,
+                unit=Unit("uncertainty", "json"),
+            ),
+        }
+    )
 
 
 def _safe_float(value: Any) -> float | None:
@@ -62,8 +99,8 @@ def _coerce_ci_mapping(
                 if arr.size >= 2:
                     lo = _safe_float(arr[0])
                     hi = _safe_float(arr[1])
-            except Exception:
-                pass
+            except Exception as exc:
+                logger.debug("Ignored exception: %s", exc)
 
         if lo is None or hi is None:
             continue
@@ -134,6 +171,7 @@ def _run_arima(state: TimeSeriesData, params: Mapping[str, Any]) -> EconometricR
 
 def _run_var(state: TimeSeriesData, params: Mapping[str, Any]) -> EconometricResult:
     from statsmodels.tsa.api import VAR
+
 
     endog = np.asarray(state.endog)
     if endog.ndim != 2:
@@ -210,12 +248,13 @@ def _run_var(state: TimeSeriesData, params: Mapping[str, Any]) -> EconometricRes
 @foundry_method(
     namespace="econometrics.timeseries",
     version="1.0.0",
-    tags={"econometrics", "time-series", "arima", "var"},
+    tags={"econometrics", "time-series", "arima", "var", "deprecated:aggregate-wrapper"},
 )
 class TimeSeriesEstimator:
     """Time-series econometric estimators via statsmodels."""
 
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
+    runtime_stack: ClassVar[tuple[str, ...]] = ("statsmodels", "numpy")
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="time_series",
@@ -225,20 +264,13 @@ class TimeSeriesEstimator:
             {
                 SlotSpec(
                     name="time_series_data",
-                    slot_type=SlotType.MATRIX,
-                    unit=Unit("timeseries", "observations"),
-                )
-            }
-        ),
-        output_slots=frozenset(
-            {
-                SlotSpec(
-                    name="econometric_result",
                     slot_type=SlotType.SCALAR,
-                    unit=Unit("result", "json"),
+                    unit=Unit("timeseries", "dataset"),
+                    contract_id=TimeSeriesData.contract_id,
                 )
             }
         ),
+        output_slots=_time_series_output_slots(),
         parameters=(
             ParameterSpec(name="model", default="arima"),
             ParameterSpec(name="p", default=1),
@@ -289,8 +321,145 @@ class TimeSeriesEstimator:
         envelope = result.to_uncertainty_envelope(param_name=params.get("envelope_param"))
         return {
             "result": result,
-            "envelope": envelope,
+            "uncertainty_envelope": envelope,
         }
 
+    @staticmethod
+    def materialize_input(bound_inputs: Mapping[str, Any], fallback_state: Any) -> TimeSeriesData:
+        return _materialize_time_series(bound_inputs, fallback_state)
 
-__all__ = ["TimeSeriesEstimator"]
+
+@foundry_method(
+    namespace="econometrics.timeseries",
+    version="1.0.0",
+    tags={"econometrics", "time-series", "arima"},
+)
+class ARIMAEstimator:
+    """Dedicated ARIMA estimator with explicit time-series slots."""
+
+    determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
+    runtime_stack: ClassVar[tuple[str, ...]] = ("statsmodels", "numpy")
+
+    signature: ClassVar[MethodSignature] = MethodSignature(
+        name="arima",
+        namespace="placeholder",
+        version="0.0.0",
+        input_slots=frozenset(
+            {
+                SlotSpec(
+                    name="endog",
+                    slot_type=SlotType.VECTOR,
+                    unit=Unit("timeseries", "value"),
+                    shape=("n_obs",),
+                )
+            }
+        ),
+        output_slots=_time_series_output_slots(),
+        parameters=(
+            ParameterSpec(name="p", default=1),
+            ParameterSpec(name="d", default=0),
+            ParameterSpec(name="q", default=0),
+            ParameterSpec(name="confidence_level", default=0.95),
+            ParameterSpec(name="envelope_param", default=None),
+        ),
+        fidelity=FidelityLevel.HIGH,
+        complexity=ComplexityClass.O_N2,
+        backend=ComputeBackend.NUMPY,
+        supports_jit=False,
+        supports_vmap=False,
+        supports_grad=False,
+    )
+
+    metadata: ClassVar[MethodMetadata] = MethodMetadata(
+        description="Dedicated ARIMA estimator for univariate time series.",
+        tags=frozenset({"econometrics", "time-series", "arima"}),
+        citations=TimeSeriesEstimator.metadata.citations,
+        equations={"arima": TimeSeriesEstimator.metadata.equations["arima"]},
+        assumptions=TimeSeriesEstimator.metadata.assumptions,
+    )
+
+    @staticmethod
+    def pure_step(state: TimeSeriesData, params: Mapping[str, Any]) -> dict[str, Any]:
+        data = state if isinstance(state, TimeSeriesData) else TimeSeriesData.model_validate(state)
+        result = _run_arima(data, params)
+        return {
+            "result": result,
+            "uncertainty_envelope": result.to_uncertainty_envelope(
+                param_name=params.get("envelope_param")
+            ),
+        }
+
+    @staticmethod
+    def materialize_input(bound_inputs: Mapping[str, Any], fallback_state: Any) -> TimeSeriesData:
+        return _materialize_time_series(bound_inputs, fallback_state)
+
+
+@foundry_method(
+    namespace="econometrics.timeseries",
+    version="1.0.0",
+    tags={"econometrics", "time-series", "var"},
+)
+class VAREstimator:
+    """Dedicated VAR estimator for multivariate time series."""
+
+    determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
+    runtime_stack: ClassVar[tuple[str, ...]] = ("statsmodels", "numpy")
+
+    signature: ClassVar[MethodSignature] = MethodSignature(
+        name="var",
+        namespace="placeholder",
+        version="0.0.0",
+        input_slots=frozenset(
+            {
+                SlotSpec(
+                    name="endog",
+                    slot_type=SlotType.MATRIX,
+                    unit=Unit("timeseries", "value"),
+                    shape=("n_obs", "n_series"),
+                )
+            }
+        ),
+        output_slots=_time_series_output_slots(),
+        parameters=(
+            ParameterSpec(name="max_lags", default=8),
+            ParameterSpec(name="information_criterion", default="aic"),
+            ParameterSpec(name="confidence_level", default=0.95),
+            ParameterSpec(name="envelope_param", default=None),
+        ),
+        fidelity=FidelityLevel.HIGH,
+        complexity=ComplexityClass.O_N2,
+        backend=ComputeBackend.NUMPY,
+        supports_jit=False,
+        supports_vmap=False,
+        supports_grad=False,
+    )
+
+    metadata: ClassVar[MethodMetadata] = MethodMetadata(
+        description="Dedicated VAR estimator for multivariate time series.",
+        tags=frozenset({"econometrics", "time-series", "var"}),
+        citations=TimeSeriesEstimator.metadata.citations,
+        equations={"var": TimeSeriesEstimator.metadata.equations["var"]},
+        assumptions=TimeSeriesEstimator.metadata.assumptions,
+    )
+
+    @staticmethod
+    def pure_step(state: TimeSeriesData, params: Mapping[str, Any]) -> dict[str, Any]:
+        data = state if isinstance(state, TimeSeriesData) else TimeSeriesData.model_validate(state)
+        result = _run_var(data, params)
+        return {
+            "result": result,
+            "uncertainty_envelope": result.to_uncertainty_envelope(
+                param_name=params.get("envelope_param")
+            ),
+        }
+
+    @staticmethod
+    def materialize_input(bound_inputs: Mapping[str, Any], fallback_state: Any) -> TimeSeriesData:
+        return _materialize_time_series(bound_inputs, fallback_state)
+
+
+__all__ = [
+    "ARIMAEstimator",
+    "TimeSeriesEstimator",
+    "VAREstimator",
+]

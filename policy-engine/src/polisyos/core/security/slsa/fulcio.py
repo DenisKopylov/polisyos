@@ -189,7 +189,7 @@ def _decode_oidc_claims_unverified(token: str) -> dict[str, object]:
         data = json.loads(decoded)
         if isinstance(data, dict):
             return data
-    except Exception:
+    except (UnicodeDecodeError, ValueError, TypeError):
         return {}
     return {}
 

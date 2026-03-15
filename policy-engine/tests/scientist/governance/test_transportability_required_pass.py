@@ -16,7 +16,7 @@ from polisyos.scientist.governance.passes.transportability_required_pass import 
 def _external_report(with_transport: bool) -> CausalEffectReport:
     transport = (
         TransportabilityResult(
-            status=TransportabilityStatus.TRANSPORTABLE,
+            status=TransportabilityStatus.IDENTIFIED,
             final_confidence=0.8,
             query="P*(Y|do(X))",
         )

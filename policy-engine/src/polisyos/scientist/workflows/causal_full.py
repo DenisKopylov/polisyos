@@ -70,10 +70,16 @@ def causal_full_workflow_spec() -> WorkflowSpec:
                 depends_on=["link_trinity", "run_data_plane_gate", "ready_to_run"],
             ),
             NodeInvocation(
+                alias="compile_cross_graph_evidence",
+                node_id="scientist.node_compile_cross_graph_evidence@1.0.0",
+                depends_on=["compile_foundry", "reconcile_causal_graph"],
+            ),
+            NodeInvocation(
                 alias="resolve_parameters",
                 node_id="scientist.node_resolve_parameters@1.0.0",
                 depends_on=[
                     "compile_foundry",
+                    "compile_cross_graph_evidence",
                     "bind_foundry_inputs",
                     "run_data_plane_gate",
                     "reconcile_causal_graph",
@@ -125,8 +131,18 @@ def causal_full_workflow_spec() -> WorkflowSpec:
                 depends_on=["run_simulation"],
             ),
             NodeInvocation(
+                alias="run_normative_arbitration",
+                node_id="scientist.node_run_normative_arbitration@1.0.0",
+                depends_on=[
+                    "propagate_uncertainty",
+                    "run_distributional_analysis",
+                    "run_causal_evaluation",
+                    "run_transportability",
+                ],
+            ),
+            NodeInvocation(
                 alias="run_governance",
-                node_id="scientist.node_run_governance@1.1.0",
+                node_id="scientist.node_run_governance@1.2.0",
                 depends_on=[
                     "propagate_uncertainty",
                     "run_distributional_analysis",
@@ -135,6 +151,7 @@ def causal_full_workflow_spec() -> WorkflowSpec:
                     "run_abm_consistency",
                     "reconcile_causal_graph",
                     "run_transportability",
+                    "run_normative_arbitration",
                 ],
             ),
             NodeInvocation(
@@ -144,13 +161,14 @@ def causal_full_workflow_spec() -> WorkflowSpec:
             ),
             NodeInvocation(
                 alias="build_decision_packet",
-                node_id="scientist.node_build_decision_packet@1.4.0",
+                node_id="scientist.node_build_decision_packet@1.5.0",
                 depends_on=["run_governance", "run_causal_evaluation", "run_evaluator"],
             ),
         ],
         notes=[
             "Phase 9 full workflow includes literature prior build + graph reconciliation.",
             "scientist_default remains unchanged for backward compatibility.",
+            "Cross-graph evidence profile is compiled before parameter resolution and governance.",
             "Reconciliation diagnostics and needs_expert_review are propagated via state.params.",
         ],
     )

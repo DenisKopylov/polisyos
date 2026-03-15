@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 
+from polisyos.common.logger import get_logger
 from polisyos.core.security.access_scope import AccessScope
 
 from ..artifacts.manifest import ArtifactRef, EnvInfo, InputRef, ProducerInfo, SchemaInfo
@@ -13,6 +14,8 @@ from ..artifacts.store import FileSystemCAS, PutOptions
 from ..trace.record import TraceRecord
 from ..trace.sink import CompositeTraceSink, JsonlTraceSink, TraceSink
 from .manifest import RunManifest
+
+logger = get_logger(__name__)
 
 
 def new_run_id() -> str:
@@ -68,7 +71,12 @@ class RunContext:
                     backends=build_default_audit_backends_from_env(),
                 )
                 trace_sink = CompositeTraceSink([trace_sink, audit_sink])
-            except Exception:
+            except (ImportError, RuntimeError, OSError, ValueError, TypeError) as exc:
+                logger.debug(
+                    "Failed to initialize audit chain for run %s: %s",
+                    run_id,
+                    exc,
+                )
                 audit_sink = None
 
         ctx = cls(
@@ -161,8 +169,12 @@ class RunContext:
         if self._audit_sink is not None and hasattr(self._audit_sink, "close"):
             try:
                 self._audit_sink.close()
-            except Exception:
-                pass
+            except (OSError, RuntimeError, ValueError) as exc:
+                logger.debug(
+                    "Failed to close audit sink for run %s: %s",
+                    self.run_manifest.run_id,
+                    exc,
+                )
         return run_ref
 
 

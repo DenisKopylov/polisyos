@@ -8,7 +8,14 @@ import jax.numpy as jnp
 import numpy as np
 
 from polisyos.core.artifacts.store import FileSystemCAS
-from polisyos.core.contracts.foundry import PatchOp
+from polisyos.core.contracts.foundry import LoweredConstraint, PatchOp
+from polisyos.ir.governance.selector_expr import (
+    SelectorAll,
+    SelectorAny,
+    SelectorExpr,
+    SelectorNot,
+    SelectorPredicate,
+)
 from polisyos.ir.kernel import (
     ConstraintRegistry,
     MergeRuleKind,
@@ -18,16 +25,10 @@ from polisyos.ir.kernel import (
     SlotScope,
 )
 from polisyos.ir.kernel.values import CountValue, DurationValue, MoneyValue, RateValue
-from polisyos.ir.governance.selector_expr import (
-    SelectorAll,
-    SelectorAny,
-    SelectorExpr,
-    SelectorNot,
-    SelectorPredicate,
-)
 from polisyos.ir.types import SelectorOperator
 
 from ._executor_models import get_state_path, load_tensor, set_state_path
+from .constraints_engine import check_constraints as evaluate_lowered_constraints
 
 __all__ = [
     "coerce_selector_scalar",
@@ -199,7 +200,8 @@ def check_constraints(
     slot_registry: SlotRegistry,
     state: Any,
     events: list[dict[str, Any]] | None = None,
-) -> None:
+) -> Any:
+    lowered_constraints: list[LoweredConstraint] = []
     for constraint_id in constraint_ids:
         if not isinstance(constraint_id, str):
             continue
@@ -212,44 +214,34 @@ def check_constraints(
         numeric = coerce_number(value)
         if numeric is None:
             raise ValueError(f"Constraint '{constraint_id}' has non-numeric value")
-        slot_spec = slot_registry.slots.get(spec.slot_id)
-        if slot_spec is None or not slot_spec.state_path:
-            raise ValueError(
-                f"Constraint '{constraint_id}' references unknown slot '{spec.slot_id}'"
+        lowered_constraints.append(
+            LoweredConstraint(
+                constraint_id=constraint_id,
+                severity="hard",
+                slot_id=spec.slot_id,
+                operator=spec.operator,
+                expected=str(numeric),
+                unit_id=spec.unit_id,
             )
-        state_value = get_state_path(state, slot_spec.state_path)
-        if np.ndim(state_value) != 0:
-            raise ValueError(f"Constraint '{constraint_id}' expects scalar slot value")
-        current = Decimal(str(float(state_value)))
-        violated = False
-        if spec.operator == ">=" and current < numeric:
-            violated = True
-        if spec.operator == ">" and current <= numeric:
-            violated = True
-        if spec.operator == "<=" and current > numeric:
-            violated = True
-        if spec.operator == "<" and current >= numeric:
-            violated = True
-        if spec.operator == "==" and current != numeric:
-            violated = True
-        if spec.operator == "!=" and current == numeric:
-            violated = True
+        )
 
-        if events is not None:
-            events.append(
-                {
-                    "constraint_id": constraint_id,
-                    "operator": spec.operator,
-                    "expected": str(numeric),
-                    "actual": str(current),
-                    "ok": not violated,
-                }
-            )
-
-        if violated:
+    report = evaluate_lowered_constraints(
+        constraints=lowered_constraints,
+        slot_registry=slot_registry,
+        state=state,
+    )
+    if events is not None:
+        for verdict in report.violations:
+            events.extend(verdict.events)
+    if report.hard_fail:
+        failed = next((item for item in report.violations if item.violated), None)
+        if failed is not None:
             raise ValueError(
-                f"Constraint '{constraint_id}' violated: {current} vs {spec.operator} {numeric}"
+                f"Constraint '{failed.constraint_id}' violated: "
+                f"{failed.actual} vs {failed.operator} {failed.expected}"
             )
+        raise ValueError("Hard constraint violated")
+    return report
 
 
 # ---------------------------------------------------------------------------

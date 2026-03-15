@@ -7,8 +7,8 @@ schema-aware cache invalidation.
 """
 from __future__ import annotations
 
-from datetime import datetime, timezone
 import fnmatch
+from datetime import datetime, timezone
 from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator

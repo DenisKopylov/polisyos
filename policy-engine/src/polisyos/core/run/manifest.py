@@ -51,6 +51,18 @@ class RunManifest(BaseModel):
         default=None,
         description="Original DecisionPacket reference when this run is a replay.",
     )
+    execution_profile: str | None = Field(
+        default=None,
+        description="Effective execution profile used for this run.",
+    )
+    control_job_id: str | None = Field(
+        default=None,
+        description="Durable control-plane job identifier that launched this run.",
+    )
+    capability_manifest_ref: ArtifactRef | None = Field(
+        default=None,
+        description="Capability manifest captured for the run runtime posture.",
+    )
     environment_manifest_ref: ArtifactRef | None = Field(
         default=None,
         description="Captured environment manifest reference.",

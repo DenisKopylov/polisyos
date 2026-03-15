@@ -7,11 +7,11 @@ from typing import Any, Protocol
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.components import (
+    ENTRY_POINT_GROUP_NORM_PACK_PROVIDERS,
     ComponentEntry,
     ComponentKind,
     ComponentRegistry,
     DuplicateComponentIdPolicy,
-    ENTRY_POINT_GROUP_NORM_PACK_PROVIDERS,
     HostAbi,
     discover_components,
     validate_metadata,

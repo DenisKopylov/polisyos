@@ -9,6 +9,7 @@ from typing import Any, ClassVar
 
 import numpy as np
 
+from polisyos.common.logger import get_logger
 from polisyos.core.observability.determinism import DeterminismTier
 from polisyos.foundry.methods.base import (
     ComplexityClass,
@@ -23,6 +24,8 @@ from polisyos.foundry.methods.base import (
     foundry_method,
 )
 from polisyos.foundry.methods.catalog.causal.protocols import ParameterTransferData
+
+logger = get_logger(__name__)
 
 
 @foundry_method(
@@ -110,7 +113,7 @@ class ParameterTransfer:
 
             try:
                 mean_value = float(parameter.value)
-            except Exception:
+            except (TypeError, ValueError):
                 warnings.append(
                     f"parameter '{parameter_name}' value is non-numeric and was skipped"
                 )
@@ -174,7 +177,10 @@ def _estimate_std(parameter: Any) -> float:
         try:
             lo = float(confidence_interval[0])
             hi = float(confidence_interval[1])
-        except Exception:
+        except (TypeError, ValueError) as exc:
+            logger.debug(
+                "Failed to parse confidence_interval for parameter std estimation: %s", exc,
+            )
             lo, hi = 0.0, 0.0
         width = max(0.0, hi - lo)
         if width > 0.0:
@@ -185,7 +191,10 @@ def _estimate_std(parameter: Any) -> float:
     if std_error is not None:
         try:
             parsed = float(std_error)
-        except Exception:
+        except (TypeError, ValueError) as exc:
+            logger.debug(
+                "Failed to parse std_error for parameter std estimation: %s", exc,
+            )
             parsed = 0.0
         if parsed > 0.0:
             return parsed
@@ -194,8 +203,8 @@ def _estimate_std(parameter: Any) -> float:
     if mean is not None:
         try:
             return max(abs(float(mean)) * 0.1, 1.0e-6)
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.debug("Ignored exception: %s", exc)
     return 0.1
 
 

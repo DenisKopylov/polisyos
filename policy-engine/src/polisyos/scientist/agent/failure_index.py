@@ -7,10 +7,13 @@ from dataclasses import asdict, dataclass, field
 from datetime import datetime, timedelta, timezone
 from typing import Any
 
+from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import from_canonical_bytes, truncated_hash
+
+logger = get_logger(__name__)
 
 FAILURE_INDEX_KIND = "scientist.failure_pattern_index"
 FAILURE_INDEX_SCHEMA = SchemaInfo(name=FAILURE_INDEX_KIND, version="1.1")
@@ -230,8 +233,8 @@ class FailurePatternIndex:
         if artifact_id:
             try:
                 return cls.load(cas, artifact_id)
-            except Exception:
-                pass
+            except Exception as exc:
+                logger.debug("Ignored exception: %s", exc)
         return cls()
 
 

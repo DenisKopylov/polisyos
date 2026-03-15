@@ -30,12 +30,18 @@ def _make_record(idx: int) -> DatasetRecord:
                 id=f"dist-{idx}-1",
                 url=f"http://example.com/{idx}.csv",
                 format="CSV",
-                connector_type="rest_json",
+                connector_type="rest.json",
                 connector_params={"url": f"http://example.com/{idx}.csv"},
+                source_locator=f"http://example.com/{idx}.csv",
+                parser_supported=True,
+                machine_readable=True,
             ),
         ],
         polisyos_metrics=["gdp"],
         source_portal="test_portal",
+        source="test",
+        execution_tier="fetchable",
+        preferred_distribution_id=f"dist-{idx}-1",
     )
 
 
@@ -52,14 +58,20 @@ def test_build_graph_creates_tables_and_inserts() -> None:
 
         assert stats.datasets == 5
         assert stats.distributions == 5
+        assert stats.metric_bindings == 5
+        assert stats.schema_profiles == 5
 
         con = duckdb.connect(str(db_path), read_only=True)
         ds_count = con.execute("SELECT count(*) FROM ds_datasets").fetchone()[0]
         dist_count = con.execute("SELECT count(*) FROM ds_distributions").fetchone()[0]
+        binding_count = con.execute("SELECT count(*) FROM ds_metric_bindings").fetchone()[0]
+        schema_count = con.execute("SELECT count(*) FROM ds_schema_profiles").fetchone()[0]
         con.close()
 
         assert ds_count == 5
         assert dist_count == 5
+        assert binding_count == 5
+        assert schema_count == 5
 
 
 def test_build_graph_stores_arrays() -> None:
@@ -109,3 +121,5 @@ def test_build_graph_creates_registry_tables() -> None:
         assert "ds_registry_datasets" in tables
         assert "ds_variable_alignments" in tables
         assert "ds_observations" in tables
+        assert "ds_metric_bindings" in tables
+        assert "ds_schema_profiles" in tables

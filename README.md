@@ -4,6 +4,10 @@
 
 **Architecture:** v2.6.0 · **Python:** >=3.11 · **License:** proprietary · **Актуально:** 3 марта 2026
 
+Transport / causal note:
+- serious external-evidence runs теперь auto-escalate в first-class causal/transport path;
+- runtime capability posture для `y0` / `r_causaleffect` / bounds фиксируется отдельным contract-артефактом и попадает в control-plane capability manifest.
+
 ---
 
 ## Содержание

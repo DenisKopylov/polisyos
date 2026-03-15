@@ -7,7 +7,7 @@ from pathlib import Path
 import duckdb
 import pytest
 
-from polisyos.academic.batch.graph_builder import build_graph
+from polisyos.academic.batch.graph_builder import build_graph, load_graph
 from polisyos.academic.knowledge.types import EstimateCandidate, SourceTopicRef, WorkRecord
 
 
@@ -259,3 +259,45 @@ def test_build_graph_aggregates_moderation_edges_and_preserves_canonical_name() 
         assert json.loads(source_refs) == ["w-ctx-1", "w-ctx-2"]
         assert match_quality == ""
         assert alignment_source == ""
+
+
+def test_load_graph_prefers_dedicated_simulation_ready_artifact_over_metadata_fallback() -> None:
+    with tempfile.TemporaryDirectory() as tmpdir:
+        db_path = Path(tmpdir) / "test_simulation_consistency.duckdb"
+        empty_simulation_path = Path(tmpdir) / "simulation_ready_numeric_estimates.jsonl"
+        empty_simulation_path.write_text("", encoding="utf-8")
+
+        rec = WorkRecord(
+            id="w-sim",
+            title="Simulation mismatch study",
+            year=2022,
+            estimates=[EstimateCandidate(value=0.2, pattern_name="x", variable_hint="fiscal_multiplier")],
+            metadata={
+                "simulation_ready_numeric_estimates": [
+                    {
+                        "numeric_id": "n-1",
+                        "canonical_name": "fiscal_multiplier",
+                        "estimate_type": "explicit_value",
+                        "point_estimate": 1.5,
+                        "estimate_sign": "positive",
+                        "unit": "unitless",
+                        "evidence_strength": "rct",
+                    }
+                ]
+            },
+        )
+
+        stats = load_graph(
+            records=iter([rec]),
+            db_path=db_path,
+            simulation_ready_numeric_path=empty_simulation_path,
+        )
+        assert stats.skg_simulation_parameters == 0
+
+        con = duckdb.connect(str(db_path), read_only=True)
+        try:
+            count = con.execute("SELECT COUNT(*) FROM ac_skg_simulation_parameters").fetchone()[0]
+        finally:
+            con.close()
+
+        assert count == 0

@@ -12,7 +12,6 @@ from typing import Sequence
 
 from polisyos.foundry.methods.base import SlotSpec, SlotType, Unit
 
-
 # -----------------------------------------------------------------------------
 # Result Types
 # -----------------------------------------------------------------------------
@@ -21,6 +20,7 @@ from polisyos.foundry.methods.base import SlotSpec, SlotType, Unit
 class IncompatibilityReason(Enum):
     """Categorizes why slots are incompatible."""
 
+    CONTRACT_MISMATCH = auto()
     UNIT_DIMENSION_MISMATCH = auto()
     SLOT_TYPE_INCOMPATIBLE = auto()
     SHAPE_MISMATCH = auto()
@@ -271,6 +271,24 @@ def check_slot_compatibility(
         allow_unsafe_shapes: Allow non-broadcastable shapes with UNSAFE_RESHAPE adapter
     """
     warnings: list[str] = []
+
+    # -------------------------------------------------------------------------
+    # Step 0: Explicit contract compatibility
+    # -------------------------------------------------------------------------
+    if (
+        source.contract_id is not None
+        and target.contract_id is not None
+        and source.contract_id != target.contract_id
+    ):
+        return SlotCompatibility(
+            compatible=False,
+            source_slot=source,
+            target_slot=target,
+            reason=IncompatibilityReason.CONTRACT_MISMATCH,
+            warnings=(
+                f"Contract mismatch: {source.contract_id!r} -> {target.contract_id!r}",
+            ),
+        )
 
     # -------------------------------------------------------------------------
     # Step 1: Unit Dimension Check (Hard Fail)

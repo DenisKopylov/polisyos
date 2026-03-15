@@ -32,14 +32,14 @@ Example:
 """
 from __future__ import annotations
 
-from ._coercion_errors import CoercionError, PrecisionLossWarning
-from ._coercion_policies import CoercionPolicy, CoercionResult, CoercionRule
 from ._coercion_engine import (
     TypeCoercion,
-    safe_cast,
     can_safely_cast,
     get_coercion_path,
+    safe_cast,
 )
+from ._coercion_errors import CoercionError, PrecisionLossWarning
+from ._coercion_policies import CoercionPolicy, CoercionResult, CoercionRule
 
 __all__ = [
     "TypeCoercion",

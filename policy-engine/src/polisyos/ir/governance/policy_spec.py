@@ -10,10 +10,6 @@ from typing import Annotated, Any, Sequence
 
 from pydantic import Field, model_validator
 
-from polisyos.ir.kernel.base import KernelModel
-from polisyos.ir.kernel.values import ParamValue
-from polisyos.ir.types import TranslatableString
-
 # Import selector types from surface.py (to be moved later or re-exported)
 from polisyos.ir.governance.schedule import ScheduleSpec
 from polisyos.ir.governance.selector_expr import (
@@ -23,6 +19,9 @@ from polisyos.ir.governance.selector_expr import (
     SelectorNot,
     SelectorPredicate,
 )
+from polisyos.ir.kernel.base import KernelModel
+from polisyos.ir.kernel.values import ParamValue
+from polisyos.ir.types import TranslatableString
 
 # Constants
 ID_PATTERN = r"^[a-z][a-z0-9_]*$"

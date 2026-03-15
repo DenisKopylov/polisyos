@@ -14,9 +14,9 @@ from polisyos.core.contracts.runtime import (
     RunEvidenceContextResponse,
     RunLineageResponse,
     RunNodesResponse,
-    RunWorkflowResponse,
     RunsListResponse,
     RunTimelineResponse,
+    RunWorkflowResponse,
 )
 from polisyos.runtime.http.dependencies import (
     RuntimeApiContext,
@@ -108,6 +108,12 @@ def _build_runs_live_payload(request: Request, ctx: RuntimeApiContext) -> dict[s
                 "finished_at": run.finished_at,
                 "duration_ms": run.duration_ms,
                 "root_artifact_count": run.root_artifact_count,
+                "decision_validity_status": (
+                    run.decision_validity_status.value
+                    if run.decision_validity_status is not None
+                    else None
+                ),
+                "decision_review_required": run.decision_review_required,
             }
             for run in runs
         ],
@@ -133,8 +139,19 @@ def _build_run_live_payload(run_id: str, ctx: RuntimeApiContext) -> dict[str, An
         "agent_steps": step_count,
         "governance_issues": len(governance.issues or []),
         "transport_status": (
-            governance.transport_summary.status
-            if governance.transport_summary is not None
+            governance.transport_summary.get("status")
+            if isinstance(governance.transport_summary, dict)
+            else None
+        ),
+        "decision_validity_status": (
+            run.details.decision_validity_status.value
+            if run.details.decision_validity_status is not None
+            else None
+        ),
+        "decision_review_required": run.details.decision_review_required,
+        "decision_superseded_by_ref": (
+            run.details.decision_superseded_by_ref.model_dump(mode="json")
+            if run.details.decision_superseded_by_ref is not None
             else None
         ),
         "terminal": _is_terminal_status(run.details.status),

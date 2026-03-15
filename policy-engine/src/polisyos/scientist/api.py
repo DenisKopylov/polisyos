@@ -148,7 +148,6 @@ def run_experiment(
     """
     tracer, metrics = _resolve_observability()
     ExperimentState = _experiment_state_cls()
-    workflow_id = "scientist_default"
 
     if isinstance(state, Mapping):
         extra_keys = sorted(set(state.keys()) - set(ExperimentState.model_fields.keys()))
@@ -160,6 +159,9 @@ def run_experiment(
             )
 
     initial_state = _prepare_initial_state(state)
+    from polisyos.scientist.workflows.builder import resolve_workflow_id, run_selected_workflow
+
+    workflow_id = resolve_workflow_id(initial_state)
 
     with tracer.start_as_current_span(
         "experiment.workflow",
@@ -172,10 +174,8 @@ def run_experiment(
     ) as root_span:
         metrics.increment_active_runs()
         try:
-            from polisyos.scientist.workflows.builder import run_default_workflow
-
             with metrics.time_slo_dag({"workflow_id": workflow_id}):
-                result = run_default_workflow(initial_state)
+                result = run_selected_workflow(initial_state)
             final_state = result.state
             status = "success" if result.report.status == "ok" else "error"
             metrics.record_workflow_run(status, "EXECUTE", "orchestrator")

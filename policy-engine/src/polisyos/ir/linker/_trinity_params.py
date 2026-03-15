@@ -5,6 +5,7 @@ from __future__ import annotations
 from decimal import Decimal, InvalidOperation
 from typing import Any
 
+from polisyos.ir.governance.policy_spec import InterventionSpec
 from polisyos.ir.kernel.mechanisms import ParamType
 from polisyos.ir.kernel.units import (
     CountUnit,
@@ -14,7 +15,6 @@ from polisyos.ir.kernel.units import (
     UnitsRegistry,
 )
 from polisyos.ir.kernel.values import CountValue, DurationValue, MoneyValue, RateValue
-from polisyos.ir.governance.policy_spec import InterventionSpec
 
 from .reports import LinkIssue, LinkIssueCode, LinkSeverity
 

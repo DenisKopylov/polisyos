@@ -61,7 +61,7 @@ def test_arima_runs() -> None:
     assert result.method_name == "arima"
     assert result.n_obs > 0
     assert result.params
-    assert dispatched.output["envelope"] is not None
+    assert dispatched.output["uncertainty_envelope"] is not None
 
 
 def test_var_runs() -> None:
@@ -84,3 +84,4 @@ def test_var_runs() -> None:
     assert result.method_name == "var"
     assert result.params
     assert result.n_obs > 0
+    assert dispatched.output["uncertainty_envelope"] is not None

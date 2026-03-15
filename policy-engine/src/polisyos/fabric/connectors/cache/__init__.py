@@ -24,7 +24,7 @@ from .policy import (
 from .prefetch import PrefetchJob, PrefetchScheduler
 from .proxy import CachingConnectorProxy
 from .schema_aware import make_schema_hash_provider
-from .store import CacheMetadata, CacheStats, CachedFetchResult, ConnectorCacheStore
+from .store import CachedFetchResult, CacheMetadata, CacheStats, ConnectorCacheStore
 
 __all__ = [
     "ConnectorCacheStore",

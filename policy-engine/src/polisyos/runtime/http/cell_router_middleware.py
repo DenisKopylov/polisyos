@@ -1,10 +1,10 @@
 """HTTP middleware for tenant-to-cell routing."""
 from __future__ import annotations
 
-import logging
 import time
 from typing import Any, Callable
 
+from polisyos.common.logger import get_logger
 from polisyos.core.observability import get_metrics
 from polisyos.core.security.exceptions import CrossTenantAccessError, TenantIsolationError
 from polisyos.core.security.registry import CellRegistry
@@ -21,7 +21,7 @@ from polisyos.core.security.tenant_context import (
 )
 from polisyos.runtime.http.errors import problem_response
 
-logger = logging.getLogger("polisyos.security")
+logger = get_logger("polisyos.security")
 
 
 try:  # pragma: no cover - optional runtime dependency

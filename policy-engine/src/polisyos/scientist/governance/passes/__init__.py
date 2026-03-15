@@ -20,6 +20,7 @@ __all__ = [
     "HumanReviewRequiredPass",
     "LegalPass",
     "LiteratureGatePass",
+    "NormativeArbitrationPass",
     "PrivacyPass",
     "PIICheckPass",
     "RefutationPass",
@@ -56,6 +57,10 @@ def __getattr__(name: str) -> Any:
         from .literature_gate_pass import LiteratureGatePass
 
         return LiteratureGatePass
+    if name == "NormativeArbitrationPass":
+        from .normative_arbitration_pass import NormativeArbitrationPass
+
+        return NormativeArbitrationPass
     if name == "PrivacyPass":
         from .privacy_pass import PrivacyPass
 

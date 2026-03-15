@@ -7,8 +7,13 @@ from datetime import UTC, datetime, timedelta
 from typing import Any, Literal
 from uuid import uuid4
 
+from polisyos.common.logger import get_logger
+
+logger = get_logger(__name__)
+
 try:  # pragma: no cover - optional runtime dependency
     from fastapi import WebSocket
+
 except ModuleNotFoundError:  # pragma: no cover
     WebSocket = Any  # type: ignore[assignment]
 
@@ -273,7 +278,8 @@ class ReviewCollaborationHub:
             for websocket in list(message.recipients):
                 try:
                     await websocket.send_json(message.payload)
-                except Exception:
+                except (AttributeError, RuntimeError, ValueError) as exc:
+                    logger.debug("Failed to send review message: %s", exc)
                     continue
 
     @staticmethod
@@ -385,4 +391,3 @@ class ReviewCollaborationHub:
             "review_id": review_id,
             "type": "lock.snapshot",
         }
-

@@ -24,6 +24,9 @@ from polisyos.core.contracts.hte import (
 from polisyos.core.contracts.hte import (
     PolicyRecommendationRef as CorePolicyRecommendationRef,
 )
+from polisyos.core.contracts.normative_arbitration import (
+    NormativeArbitrationResultRef as CoreNormativeArbitrationResultRef,
+)
 from polisyos.core.contracts.uncertainty import UncertaintyEnvelopeRef as CoreUncertaintyEnvelopeRef
 from polisyos.ir.refs import (
     BacktestReportRef as IrBacktestReportRef,
@@ -48,6 +51,9 @@ from polisyos.ir.refs import (
 )
 from polisyos.ir.refs import (
     HTEResultRef as IrHTEResultRef,
+)
+from polisyos.ir.refs import (
+    NormativeArbitrationResultRef as IrNormativeArbitrationResultRef,
 )
 from polisyos.ir.refs import (
     LiteratureCausalPriorRef as IrLiteratureCausalPriorRef,
@@ -76,6 +82,7 @@ def test_core_contract_facades_reexport_ir_ref_types() -> None:
     assert CoreStructuralCausalModelSpecRef is IrStructuralCausalModelSpecRef
     assert CoreDistributionalReportRef is IrDistributionalReportRef
     assert CoreHTEResultRef is IrHTEResultRef
+    assert CoreNormativeArbitrationResultRef is IrNormativeArbitrationResultRef
     assert CorePolicyRecommendationRef is IrPolicyRecommendationRef
     assert CoreUncertaintyEnvelopeRef is IrUncertaintyEnvelopeRef
 
@@ -94,6 +101,7 @@ def test_core_contract_facades_accept_core_artifact_id_values() -> None:
         CoreStructuralCausalModelSpecRef(artifact_id=core_id),
         CoreDistributionalReportRef(artifact_id=core_id),
         CoreHTEResultRef(artifact_id=core_id),
+        CoreNormativeArbitrationResultRef(artifact_id=core_id),
         CorePolicyRecommendationRef(artifact_id=core_id),
         CoreUncertaintyEnvelopeRef(artifact_id=core_id),
     ]

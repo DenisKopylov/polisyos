@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import asyncio
 import json
+import sys
+import types
 from dataclasses import dataclass
 
 import polisyos.academic.batch.fulltext_resolver as resolver
@@ -166,6 +168,54 @@ def test_fetch_full_text_result_discovers_pdf_from_landing_page(monkeypatch) -> 
     assert result.fetch_error_class == ""
 
 
+def test_fetch_full_text_result_skips_html_disguised_as_pdf(monkeypatch) -> None:  # type: ignore[no-untyped-def]
+    work = {
+        "abstract": "Fallback abstract.",
+        "best_oa_location": {"pdf_url": "https://publisher.example/paper.pdf"},
+    }
+    monkeypatch.setattr(
+        resolver,
+        "_extract_pdf_text",
+        lambda raw_bytes: (_ for _ in ()).throw(AssertionError("should not parse fake pdf")),
+    )
+    session = _FakeSession(
+        {
+            "https://publisher.example/paper.pdf": _FakeResponse(
+                status=200,
+                headers={"Content-Type": "application/pdf"},
+                body=b"<!DOCTYPE html><html><body>sign in to access</body></html>",
+                url="https://publisher.example/paper.pdf",
+            ),
+        }
+    )
+
+    result = asyncio.run(fetch_full_text_result_for_work(work, session=session))
+
+    assert result.source_kind == "abstract_fallback"
+    assert result.text == "Fallback abstract."
+    assert result.fetch_error_class == "html_disguised_as_pdf"
+
+
+def test_extract_pdf_text_parses_reader_pages(monkeypatch) -> None:  # type: ignore[no-untyped-def]
+    class _FakePage:
+        def __init__(self, text: str) -> None:
+            self._text = text
+
+        def extract_text(self) -> str:
+            return self._text
+
+    class _FakePdfReader:
+        def __init__(self, _buffer) -> None:  # type: ignore[no-untyped-def]
+            self.pages = [_FakePage("Page 1 coefficient 0.18"), _FakePage("Page 2 SE 0.04")]
+
+    monkeypatch.setitem(sys.modules, "pypdf", types.SimpleNamespace(PdfReader=_FakePdfReader))
+
+    text = resolver._extract_pdf_text(b"%PDF-1.4 fake")
+
+    assert "coefficient 0.18" in text
+    assert "SE 0.04" in text
+
+
 def test_v7_metadata_pdf_candidate_recovers_fulltext(monkeypatch) -> None:  # type: ignore[no-untyped-def]
     work = {
         "id": "https://openalex.org/W1",
@@ -326,6 +376,59 @@ def test_v7_prefers_discovered_pdf_over_short_html_shell(monkeypatch) -> None:  
     assert result.source_kind == "fulltext_pdf"
     assert result.source_url == "https://publisher.example/paper.pdf"
     assert any(attempt.fetch_error_class == "landing_page_without_pdf" for attempt in result.attempts)
+
+
+def test_v7_prefers_discovered_pdf_over_repository_shell(monkeypatch) -> None:  # type: ignore[no-untyped-def]
+    work = {
+        "id": "https://openalex.org/Wshell",
+        "abstract": "Fallback abstract.",
+        "best_oa_location": {"landing_page_url": "https://repo.example/item"},
+    }
+    monkeypatch.setattr(
+        resolver,
+        "_extract_pdf_text",
+        lambda raw_bytes: (
+            "Abstract. Introduction. Methods. Results. Table 2 reports coefficient 0.18 "
+            "with SE = 0.04. Conclusion."
+        ),
+    )
+    session = _FakeSession(
+        {
+            "https://repo.example/item": _FakeResponse(
+                status=200,
+                headers={"Content-Type": "text/html"},
+                body=(
+                    b'<html><head><meta name="citation_pdf_url" content="https://repo.example/preprint.pdf"></head>'
+                    b"<body>IRIS - Institutional Research Information System Scheda breve Scheda completa "
+                    b"Catalogo dei prodotti della ricerca scientifica File in questo prodotto "
+                    b"Visualizza/Apri Pubblicazioni consigliate social impact "
+                    b"Abstract We investigate the effects of reform on firm performance.</body></html>"
+                ),
+                url="https://repo.example/item",
+            ),
+            "https://repo.example/preprint.pdf": _FakeResponse(
+                status=200,
+                headers={"Content-Type": "application/pdf"},
+                body=b"%PDF fake",
+                url="https://repo.example/preprint.pdf",
+            ),
+        }
+    )
+
+    result = asyncio.run(
+        fetch_full_text_result_for_work(
+            work,
+            session=session,
+            acquisition_mode="v7_http_metadata",
+            metadata_resolvers_enabled=False,
+            min_usable_chars=100,
+            min_soft_usable_chars=60,
+        )
+    )
+
+    assert result.source_kind == "fulltext_pdf"
+    assert result.source_url == "https://repo.example/preprint.pdf"
+    assert any(attempt.fetch_error_class == "repository_shell_with_pdf" for attempt in result.attempts)
 
 
 def test_v7_uses_semantic_scholar_in_configured_order(monkeypatch) -> None:  # type: ignore[no-untyped-def]

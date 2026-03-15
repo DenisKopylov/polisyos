@@ -6,6 +6,8 @@ from pathlib import Path
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from polisyos.common.env_parsing import parse_bool, parse_float, parse_int
+
 
 class SlsaMode(str, Enum):
     OFF = "off"
@@ -17,26 +19,6 @@ class SlsaMode(str, Enum):
 class SlsaPolicy(str, Enum):
     BEST_EFFORT = "best_effort"
     REQUIRED = "required"
-
-
-def _parse_float(name: str, default: float) -> float:
-    raw = os.getenv(name)
-    if raw is None:
-        return default
-    try:
-        return float(raw)
-    except ValueError:
-        return default
-
-
-def _parse_int(name: str, default: int) -> int:
-    raw = os.getenv(name)
-    if raw is None:
-        return default
-    try:
-        return int(raw)
-    except ValueError:
-        return default
 
 
 class SLSAConfig(BaseModel):
@@ -98,18 +80,17 @@ class SLSAConfig(BaseModel):
             oidc_client_id=os.getenv("POLISYOS_SLSA_OIDC_CLIENT_ID", "polisyos-scientist"),
             oidc_token_env=os.getenv("POLISYOS_SLSA_OIDC_TOKEN_ENV", "POLISYOS_SLSA_OIDC_TOKEN"),
             oidc_subject_fallback=os.getenv("POLISYOS_SLSA_OIDC_SUBJECT", "system@local"),
-            timeout_seconds=_parse_float("POLISYOS_SLSA_TIMEOUT_SECONDS", 30.0),
-            max_retries=max(0, _parse_int("POLISYOS_SLSA_MAX_RETRIES", 2)),
+            timeout_seconds=parse_float(os.getenv("POLISYOS_SLSA_TIMEOUT_SECONDS"), 30.0),
+            max_retries=max(0, parse_int(os.getenv("POLISYOS_SLSA_MAX_RETRIES"), 2)),
             local_transparency_log=Path(
                 os.getenv(
                     "POLISYOS_SLSA_LOCAL_TRANSPARENCY_LOG",
                     ".polisyos/security/slsa/transparency.jsonl",
                 )
             ),
-            retain_ed25519_signatures=os.getenv(
-                "POLISYOS_SLSA_RETAIN_ED25519", "1"
-            ).strip().lower()
-            in {"1", "true", "yes", "on"},
+            retain_ed25519_signatures=parse_bool(
+                os.getenv("POLISYOS_SLSA_RETAIN_ED25519"), True,
+            ),
         )
 
     def with_overrides(

@@ -48,6 +48,7 @@ _NORM_TYPE_SYNONYMS: dict[str, str] = {
     "delegation": "delegation",
     "delegates_to": "delegation",
     "amendment": "amendment",
+    "амendment": "amendment",
     "amends": "amendment",
     "repeal": "repeal",
     "supersedes": "repeal",
@@ -385,6 +386,7 @@ _ACTION_SYNONYMS: dict[str, str] = {
     "повідомляє_заявника": "requires",
     "видається": "requires",
     "вказує": "requires",
+    "регулює": "regulates",
     # amends
     "replace_text": "amends",
     "replace_word": "amends",
@@ -403,10 +405,12 @@ _ACTION_SYNONYMS: dict[str, str] = {
     "замінити_слова": "amends",
     "замінюються": "amends",
     "вносить_зміни_до": "amends",
+    "вносить": "amends",
     "змінюється": "amends",
     "викладається_в_новій_редакції": "amends",
     "викладено_в_новій_редакції": "amends",
     "викладена_в_новій_редакції": "amends",
+    "амендує": "amends",
     # excludes
     "exclude": "excludes",
     "excludes_text": "excludes",
@@ -454,6 +458,8 @@ def _heuristic_norm_type(token: str) -> str | None:
         return "delegation"
     if "amend" in token:
         return "amendment"
+    if "endment" in token:
+        return "amendment"
     if any(key in token for key in ("repeal", "supersed")):
         return "repeal"
     if any(key in token for key in ("entry", "force", "temporal", "start")):
@@ -477,7 +483,7 @@ def _heuristic_action(token: str) -> str | None:
         return "prohibits"
     if any(key in token for key in ("approve", "adopt", "ratif", "затверд")):
         return "approves"
-    if any(key in token for key in ("amend", "replace", "замін", "виклад", "зміню")):
+    if any(key in token for key in ("amend", "replace", "замін", "виклад", "зміню", "внос", "аменд")):
         return "amends"
     if any(key in token for key in ("repeal", "supersed", "invalid", "void", "втрат")):
         return "repeals"
@@ -496,6 +502,8 @@ def _heuristic_action(token: str) -> str | None:
         return "enters_into_force"
     if any(key in token for key in ("establish", "create", "constitute", "створ")):
         return "establishes"
+    if any(key in token for key in ("regulat", "регулю")):
+        return "regulates"
     if any(key in token for key in ("define", "describe", "term", "визнач", "означа")):
         return "defines"
     if any(key in token for key in ("exclud", "exempt", "виключ", "не_застосов")):

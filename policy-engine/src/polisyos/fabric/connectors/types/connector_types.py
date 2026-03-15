@@ -10,7 +10,6 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from polisyos.ir.connectors import ConnectorCapability
 
-
 # ============================================================================
 # Exception Hierarchy
 # ============================================================================

@@ -1,6 +1,7 @@
 
 # local datasets
 /data/
+policy-engine/data/
 
 # CSV files
 *.csv

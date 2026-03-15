@@ -7,10 +7,12 @@ from polisyos.core.cache import TTLCache
 from polisyos.core.observability import get_metrics
 from polisyos.core.security.settings import SecuritySettings, get_security_settings
 from polisyos.core.security.tee import (
+    AttestationFetchError,
     AttestationPolicy,
     AttestationResult,
     AttestationStatus,
     AttestationVerifier,
+    TEEError,
     TEEPlatform,
     create_verifier,
 )
@@ -104,7 +106,7 @@ class TEEGatekeeper:
         try:
             report = self._verifier.fetch_report(nonce=nonce)
             result = self._verifier.verify(report, self._policy, nonce=nonce)
-        except Exception as exc:  # noqa: BLE001
+        except (AttestationFetchError, AttestationDeniedError, TEEError, RuntimeError, ValueError) as exc:  # noqa: BLE001
             status = (
                 AttestationStatus.UNAVAILABLE
                 if self._policy.fail_closed

@@ -8,7 +8,6 @@ Workflow:
 from __future__ import annotations
 
 import json
-import logging
 import time
 from dataclasses import dataclass
 from datetime import UTC, datetime
@@ -18,7 +17,10 @@ from typing import Any
 import duckdb
 import numpy as np
 
-logger = logging.getLogger(__name__)
+from polisyos.common.logger import get_logger
+
+logger = get_logger(__name__)
+
 
 _MANIFEST_VERSION = 1
 _DEFAULT_BATCH_INPUT_MAX_BYTES = 190 * 1024 * 1024  # keep margin under 200MB limit
@@ -681,6 +683,7 @@ def build_hnsw_from_shards(
 ) -> dict[str, int]:
     """Build final *.npz + *.hnsw artifacts from shard files."""
     import hnswlib
+
 
     paths = _ensure_dirs(output_dir)
     indexes_built = 0

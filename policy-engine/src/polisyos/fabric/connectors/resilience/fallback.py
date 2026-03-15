@@ -19,8 +19,7 @@ from opentelemetry.trace import Status, StatusCode
 
 from polisyos.common.logger import get_logger
 from polisyos.core.observability import get_metrics
-from polisyos.fabric.connectors.base import FetchResult
-from polisyos.fabric.connectors.base import ResilienceInfo
+from polisyos.fabric.connectors.base import FetchResult, ResilienceInfo
 
 logger = get_logger(__name__)
 tracer = trace.get_tracer(__name__)

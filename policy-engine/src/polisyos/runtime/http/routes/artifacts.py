@@ -137,7 +137,7 @@ if router is not None:
 def _parse_artifact_id(value: str) -> ArtifactID:
     try:
         return ArtifactID.model_validate(value)
-    except Exception as exc:
+    except (TypeError, ValueError) as exc:
         raise bad_request(
             "artifact_id must match sha256:<64-hex>",
             code="invalid_artifact_id",

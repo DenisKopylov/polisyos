@@ -4,6 +4,13 @@ sources:
     family: sdmx
     wave: A
     endpoint: https://sdmx.oecd.org/public/rest/dataflow
+    connector_id: sdmx.source
+    profile_id: oecd_sdmx
+    execution_tier: transport_ready
+    run_lane: empirical
+    publish_blocking: true
+    update_frequency: quarterly
+    metrics_required: true
     agency_prefix: OECD
     enabled: true
 
@@ -11,6 +18,12 @@ sources:
     family: sdmx
     wave: A
     endpoint: https://sdmxcentral.imf.org/ws/public/sdmxapi/rest/dataflow/IMF
+    connector_id: sdmx.source
+    profile_id: imf_sdmx
+    execution_tier: catalog
+    run_lane: catalog
+    publish_blocking: false
+    update_frequency: monthly
     agency_prefix: IMF
     enabled: true
 
@@ -18,6 +31,12 @@ sources:
     family: sdmx
     wave: A
     endpoint: https://data-api.ecb.europa.eu/service/dataflow
+    connector_id: sdmx.source
+    profile_id: ecb_sdmx
+    execution_tier: catalog
+    run_lane: catalog
+    publish_blocking: false
+    update_frequency: daily
     agency_prefix: ECB
     enabled: true
 
@@ -25,6 +44,12 @@ sources:
     family: undata
     wave: A
     endpoint: https://data.un.org/ws/rest/dataflow/
+    connector_id: sdmx.source
+    profile_id: unsd_sdmx
+    execution_tier: catalog
+    run_lane: catalog
+    publish_blocking: false
+    update_frequency: annual
     agency_allowlist: [UNSD, IAEG, IAEG-SDGs, UIS]
     exclude_agencies: [ESTAT, WB]
     enabled: true
@@ -33,6 +58,13 @@ sources:
     family: sdmx
     wave: A
     endpoint: https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/dataflow/ESTAT/all/latest?detail=allstubs
+    connector_id: eurostat.data
+    profile_id: eurostat_public
+    execution_tier: transport_ready
+    run_lane: empirical
+    publish_blocking: true
+    update_frequency: monthly
+    metrics_required: true
     agency_prefix: ESTAT
     enabled: true
 
@@ -40,30 +72,230 @@ sources:
     family: worldbank
     wave: B
     endpoint: https://api.worldbank.org/v2/indicator
+    connector_id: worldbank.wdi
+    profile_id: worldbank_wdi
+    execution_tier: transport_ready
+    run_lane: empirical
+    publish_blocking: true
+    update_frequency: annual
+    metrics_required: true
     enabled: true
 
   - name: wvs
     family: wvs
     wave: B
     endpoint: https://api.worldvaluessurvey.org/v1/observations
+    connector_id: wvs.wave7
+    profile_id: wvs_wave7
+    execution_tier: transport_ready
+    run_lane: empirical
+    publish_blocking: true
+    update_frequency: irregular
+    metrics_required: true
     enabled: true
 
   - name: ukons
     family: ukons
     wave: B
     endpoint: https://api.beta.ons.gov.uk/v1/datasets
+    connector_id: ukons.datasets
+    profile_id: ukons_public
+    execution_tier: catalog
+    run_lane: catalog
+    publish_blocking: false
+    update_frequency: monthly
     enabled: true
 
-  - name: data_gov_ua
+  - name: data_gov_ua_broad
     family: ckan
     wave: C
     endpoint: https://data.gov.ua/api/3/action/package_search
+    connector_id: ckan.resource
+    profile_id: data_gov_ua
+    execution_tier: catalog
+    run_lane: catalog
+    publish_blocking: false
+    update_frequency: irregular
     enabled: true
+
+  - name: data_gov_ua_exec
+    family: ckan
+    wave: C
+    endpoint: https://data.gov.ua/api/3/action/package_search
+    connector_id: ckan.resource
+    profile_id: data_gov_ua
+    execution_tier: fetchable
+    run_lane: empirical
+    publish_blocking: true
+    update_frequency: irregular
+    seed_from: data_gov_ua_broad
+    format_allowlist: [CSV, JSON, XLSX, XLS, ODS, ZIP]
+    format_denylist: [PDF, DOC, DOCX, XML]
+    keyword_allowlist:
+      [
+        "demograph", "population", "birth", "death", "migration",
+        "labor", "employment", "unemployment", "income", "poverty", "wage",
+        "health", "hospital", "medical", "education", "school", "student",
+        "budget", "municipal", "community", "social", "ecology", "environment",
+        "infrastructure", "transport", "housing", "utility", "energy", "water",
+        "демограф", "населен", "народж", "смерт", "міграц",
+        "ринок праці", "зайнят", "безробіт", "доход", "бідн", "заробіт",
+        "охорон", "здоров", "лікар", "освіт", "школ", "студент",
+        "бюджет", "громад", "соціал", "еколог", "довкіл",
+        "інфраструкт", "транспорт", "житл", "комун", "енерг", "водопост"
+      ]
+    keyword_denylist:
+      [
+        "protocol", "minutes", "resolution", "decision", "regulation", "statute", "scan", "scanned",
+        "протокол", "рішення", "розпоряджен", "наказ", "постанова", "скан", "листування"
+      ]
+    require_curated_resources: true
+    enabled: true
+
+  - name: data_gov_ro_broad
+    family: ckan
+    wave: C
+    endpoint: https://data.gov.ro/api/3/action/package_search
+    connector_id: ckan.resource
+    profile_id: data_gov_ro
+    execution_tier: catalog
+    run_lane: catalog
+    publish_blocking: false
+    update_frequency: irregular
+    enabled: true
+
+  - name: data_gov_ro_exec
+    family: ckan
+    wave: C
+    endpoint: https://data.gov.ro/api/3/action/package_search
+    connector_id: ckan.resource
+    profile_id: data_gov_ro
+    execution_tier: fetchable
+    run_lane: empirical
+    publish_blocking: true
+    update_frequency: irregular
+    seed_from: data_gov_ro_broad
+    format_allowlist: [CSV, JSON, XLSX, XLS, ODS, ZIP]
+    format_denylist: [PDF, DOC, DOCX, XML]
+    keyword_allowlist:
+      [
+        "buget", "municipal", "local budget", "educat", "scoala", "școal", "student",
+        "sanat", "sănătate", "spital", "somaj", "șomaj", "munc", "migration", "migratie", "migrație",
+        "demograf", "populatie", "populație", "venituri", "cheltuieli", "social", "mediu", "transport"
+      ]
+    keyword_denylist:
+      [
+        "hotarare", "hotărâre", "decizie", "proces verbal", "scan", "pdf scanat"
+      ]
+    require_curated_resources: true
+    enabled: true
+
+  - name: data_gov_md_broad
+    family: ckan
+    wave: C
+    endpoint: https://dataset.gov.md/api/3/action/package_search
+    connector_id: ckan.resource
+    profile_id: data_gov_md
+    execution_tier: catalog
+    run_lane: catalog
+    publish_blocking: false
+    update_frequency: irregular
+    enabled: true
+
+  - name: data_gov_md_exec
+    family: ckan
+    wave: C
+    endpoint: https://dataset.gov.md/api/3/action/package_search
+    connector_id: ckan.resource
+    profile_id: data_gov_md
+    execution_tier: fetchable
+    run_lane: empirical
+    publish_blocking: true
+    update_frequency: irregular
+    seed_from: data_gov_md_broad
+    format_allowlist: [CSV, JSON, XLSX, XLS, ODS, ZIP]
+    format_denylist: [PDF, DOC, DOCX, XML]
+    keyword_allowlist:
+      [
+        "buget", "municipal", "educa", "școal", "scoala", "sanat", "sănătate", "spital",
+        "somaj", "șomaj", "munc", "migration", "migrat", "demograf", "populatie", "populație",
+        "social", "transport", "mediu"
+      ]
+    keyword_denylist:
+      [
+        "hotarare", "hotărâre", "decizie", "proces verbal", "scan", "pdf scanat"
+      ]
+    require_curated_resources: true
+    enabled: true
+
+  - name: data_gov_pl_broad
+    family: poland_api
+    wave: C
+    endpoint: https://api.dane.gov.pl/1.4/datasets
+    connector_id: rest.json
+    profile_id: data_gov_pl
+    execution_tier: catalog
+    run_lane: catalog
+    publish_blocking: false
+    update_frequency: irregular
+    enabled: true
+
+  - name: data_gov_pl_exec
+    family: poland_api
+    wave: C
+    endpoint: https://api.dane.gov.pl/1.4/datasets
+    connector_id: rest.json
+    profile_id: data_gov_pl
+    execution_tier: fetchable
+    run_lane: empirical
+    publish_blocking: true
+    update_frequency: irregular
+    seed_from: data_gov_pl_broad
+    format_allowlist: [JSON]
+    keyword_allowlist:
+      [
+        "budzet", "budżet", "dochody", "wydatki", "edukac", "szkol", "uczni",
+        "zdrow", "szpital", "bezroboc", "rynek pracy", "migrac", "demograf",
+        "transport", "mieszkan", "social"
+      ]
+    keyword_denylist:
+      [
+        "uchwala", "uchwała", "rozporzadzenie", "rozporządzenie", "skan", "protokol", "protokół"
+      ]
+    require_curated_resources: true
+    enabled: true
+
+  - name: data_gov_uk
+    family: ckan
+    wave: C
+    endpoint: https://data.gov.uk/api/3/action/package_search
+    connector_id: ckan.resource
+    profile_id: data_gov_uk
+    execution_tier: catalog
+    update_frequency: irregular
+    enabled: false
+
+  - name: data_gov_us
+    family: ckan
+    wave: C
+    endpoint: https://catalog.data.gov/api/3/action/package_search
+    connector_id: ckan.resource
+    profile_id: data_gov_us
+    execution_tier: catalog
+    update_frequency: irregular
+    enabled: false
 
   - name: ilo
     family: sdmx
     wave: D
     endpoint: https://sdmx.ilo.org/rest/dataflow/ILO
+    connector_id: sdmx.source
+    profile_id: ilo_sdmx
+    execution_tier: transport_ready
+    run_lane: empirical
+    publish_blocking: true
+    update_frequency: monthly
+    metrics_required: true
     agency_prefix: ILO
     enabled: true
 
@@ -71,23 +303,241 @@ sources:
     family: sdmx
     wave: D
     endpoint: https://sdmx.data.unicef.org/ws/rest/dataflow/UNICEF
+    connector_id: sdmx.source
+    execution_tier: catalog
+    run_lane: catalog
+    publish_blocking: false
+    update_frequency: annual
     agency_prefix: UNICEF
-    enabled: true
+    enabled: false
 
   - name: who
     family: who
     wave: D
     endpoint: https://ghoapi.azureedge.net/api/Indicator
+    connector_id: who.indicators
+    profile_id: who_gho
+    execution_tier: transport_ready
+    run_lane: empirical
+    publish_blocking: true
+    update_frequency: annual
+    metrics_required: true
     enabled: true
 
   - name: unesco_uis
     family: uis
     wave: D
     endpoint: https://api.uis.unesco.org/api/public/definitions/indicators
+    connector_id: unesco_uis.data
+    profile_id: unesco_uis_public
+    execution_tier: transport_ready
+    run_lane: empirical
+    publish_blocking: true
+    update_frequency: annual
+    metrics_required: true
     enabled: true
 
   - name: unpd
     family: unpd
     wave: D
     endpoint: https://population.un.org/dataportalapi/api/v1/indicators/?pageSize=200
+    connector_id: unpd.data
+    profile_id: unpd_dataportal
+    execution_tier: transport_ready
+    run_lane: empirical
+    publish_blocking: true
+    update_frequency: annual
+    metrics_required: true
+    enabled: true
+
+  - name: opendatasoft_public
+    family: opendatasoft
+    wave: D
+    endpoint: https://public.opendatasoft.com
+    connector_id: opendatasoft.ods
+    profile_id: opendatasoft_public
+    execution_tier: catalog
+    run_lane: catalog
+    publish_blocking: false
+    update_frequency: weekly
+    enabled: true
+
+  - name: paris_opendata_broad
+    family: opendatasoft
+    wave: D
+    endpoint: https://opendata.paris.fr
+    connector_id: opendatasoft.ods
+    profile_id: paris_opendata
+    execution_tier: catalog
+    run_lane: catalog
+    publish_blocking: false
+    update_frequency: weekly
+    enabled: true
+
+  - name: paris_opendata_exec
+    family: opendatasoft
+    wave: D
+    endpoint: https://opendata.paris.fr
+    connector_id: opendatasoft.ods
+    profile_id: paris_opendata
+    execution_tier: fetchable
+    run_lane: empirical
+    publish_blocking: false
+    update_frequency: weekly
+    seed_from: paris_opendata_broad
+    format_allowlist: [JSON]
+    keyword_allowlist:
+      [
+        "sante", "santé", "education", "ecole", "école", "budget", "logement", "transport", "mobilite", "mobilité"
+      ]
+    keyword_denylist:
+      [
+        "arrete", "arrêté", "deliberation", "délibération", "pdf"
+      ]
+    require_curated_resources: true
+    enabled: true
+
+  - name: nyc_opendata
+    family: socrata
+    wave: D
+    endpoint: https://data.cityofnewyork.us
+    connector_id: socrata.soda
+    profile_id: nyc_opendata
+    execution_tier: catalog
+    run_lane: catalog
+    publish_blocking: false
+    update_frequency: weekly
+    enabled: true
+
+  - name: nyc_opendata_exec
+    family: socrata
+    wave: D
+    endpoint: https://data.cityofnewyork.us
+    connector_id: socrata.soda
+    profile_id: nyc_opendata
+    execution_tier: fetchable
+    run_lane: empirical
+    publish_blocking: false
+    update_frequency: weekly
+    seed_from: nyc_opendata
+    format_allowlist: [JSON]
+    keyword_allowlist:
+      [
+        "housing", "budget", "mobility", "transit", "inspection", "air quality", "education", "health"
+      ]
+    keyword_denylist:
+      [
+        "pdf", "minutes", "hearing", "law", "legal"
+      ]
+    require_curated_resources: true
+    enabled: true
+
+  - name: chicago_opendata
+    family: socrata
+    wave: D
+    endpoint: https://data.cityofchicago.org
+    connector_id: socrata.soda
+    profile_id: chicago_opendata
+    execution_tier: catalog
+    run_lane: catalog
+    publish_blocking: false
+    update_frequency: weekly
+    enabled: true
+
+  - name: chicago_opendata_exec
+    family: socrata
+    wave: D
+    endpoint: https://data.cityofchicago.org
+    connector_id: socrata.soda
+    profile_id: chicago_opendata
+    execution_tier: fetchable
+    run_lane: empirical
+    publish_blocking: false
+    update_frequency: weekly
+    seed_from: chicago_opendata
+    format_allowlist: [JSON]
+    keyword_allowlist:
+      [
+        "housing", "budget", "mobility", "transit", "inspection", "air quality", "education", "health"
+      ]
+    keyword_denylist:
+      [
+        "pdf", "minutes", "hearing", "law", "legal"
+      ]
+    require_curated_resources: true
+    enabled: true
+
+  - name: wikidata_sparql
+    family: sparql
+    wave: D
+    endpoint: https://query.wikidata.org/sparql
+    connector_id: sparql.endpoint
+    profile_id: wikidata_sparql
+    execution_tier: catalog
+    run_lane: enrichment
+    publish_blocking: false
+    update_frequency: weekly
+    enabled: true
+
+  - name: dbpedia_sparql
+    family: sparql
+    wave: D
+    endpoint: https://dbpedia.org/sparql
+    connector_id: sparql.endpoint
+    profile_id: dbpedia_sparql
+    execution_tier: catalog
+    run_lane: enrichment
+    publish_blocking: false
+    update_frequency: weekly
+    enabled: true
+
+  - name: openaq_v2
+    family: rest
+    wave: D
+    endpoint: https://api.openaq.org/v2/measurements
+    connector_id: rest.json
+    profile_id: openaq_v2
+    execution_tier: fetchable
+    run_lane: empirical
+    publish_blocking: false
+    update_frequency: daily
+    history_policy: rolling_window
+    default_lookback_days: 90
+    max_rows_per_snapshot: 750000
+    max_bytes_per_snapshot: 157286400
+    allow_manual_backfill: true
+    enabled: true
+
+  - name: open_meteo
+    family: rest
+    wave: D
+    endpoint: https://api.open-meteo.com/v1/forecast
+    connector_id: rest.json
+    profile_id: open_meteo
+    execution_tier: fetchable
+    run_lane: empirical
+    publish_blocking: false
+    update_frequency: daily
+    history_policy: rolling_window
+    default_lookback_days: 30
+    max_rows_per_snapshot: 500000
+    max_bytes_per_snapshot: 104857600
+    allow_manual_backfill: true
+    enabled: true
+
+  - name: eia_api
+    family: rest
+    wave: D
+    endpoint: https://api.eia.gov/v2
+    connector_id: rest.json
+    profile_id: eia_api
+    execution_tier: fetchable
+    run_lane: empirical
+    publish_blocking: false
+    update_frequency: monthly
+    history_policy: rolling_window
+    default_lookback_days: 730
+    max_rows_per_snapshot: 1000000
+    max_bytes_per_snapshot: 262144000
+    allow_manual_backfill: true
     enabled: true

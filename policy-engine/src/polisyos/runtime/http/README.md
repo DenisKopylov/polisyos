@@ -1,13 +1,14 @@
 # Runtime HTTP API (`polisyos.runtime.http`)
 
-`polisyos.runtime.http` — FastAPI слой runtime API v1: health/read/debug/artifact endpoints и control-plane операции.
+`polisyos.runtime.http` — FastAPI слой runtime API v1: health/read/debug/artifact endpoints, decision feedback loop surfaces и control-plane операции.
 
-Документ отражает текущее состояние кода на **2026-03-03**.
+Документ отражает текущее состояние кода на **2026-03-11**.
 
 ## Роль и границы
 
-- Даёт HTTP-контур для introspection/debug над `core_run` и CAS-артефактами.
+- Даёт HTTP-контур для introspection/debug над `core_run`, decision packets и CAS-артефактами.
 - Проксирует control-plane операции: запуск workflow/NL runs, fabric retrieval/ingestion, Lex batch.
+- Открывает operator surface для feedback loop v1: post-deployment monitoring, run-vs-run compare и human-gated reissue.
 - Не хранит доменные данные: работает поверх `FileSystemCAS`, `core_runs_root` и сервисов `scientist/fabric/lex`.
 
 ## Архитектура директории
@@ -48,9 +49,9 @@ HTTP request
 |---|---|---|
 | `routes/health.py` | `/`, `/api/v1/health` | liveness/readiness/runtime health |
 | `routes/runs.py` | `/api/v1/runs` | список run, details, timeline, nodes, lineage, agents, workflow |
-| `routes/debug.py` | `/api/v1/debug/runs` | node/governance/errors debug surfaces |
+| `routes/debug.py` | `/api/v1/debug/runs` | node/governance/errors debug + decision feedback/compare |
 | `routes/artifacts.py` | `/api/v1/artifacts` | artifact manifest/content/lineage/schema |
-| `routes/control.py` | `/api/v1/control` | запуск run и data/lex control-plane API |
+| `routes/control.py` | `/api/v1/control` | запуск run, feedback evaluate/reissue и data/lex control-plane API |
 
 Полная карта endpoint'ов: [routes/README.md](routes/README.md).
 
@@ -80,6 +81,13 @@ HTTP request
 | `replay:<level>` | `DecisionCard`, `DecisionPacket.replay`, agent debug reproducibility | Уровень replay completeness: `complete`, `partial`, `incomplete` |
 | `human-review:required` | `DecisionCard`, gate context | Есть явный human gate / strict review / expert review signal |
 | `uncertainty:available` / `uncertainty:not_available` | `DecisionCard`, `DecisionPacket.diagnostics_summary` | Есть ли uncertainty envelope или вычисленные bounds в packet |
+
+## Feedback Loop Surface
+
+- `GET /api/v1/debug/runs/{run_id}/feedback` возвращает `feedback_loop` из `DecisionPacket` вместе с `DecisionMonitoringContract`, последним `DecisionMonitoringReport`, `DecisionCompareReport`, `DecisionReissuePlan` и summary из `DecisionValidityService`.
+- `GET /api/v1/debug/runs/{left_run_id}/compare/{right_run_id}` строит packet-level deltas по `law/data/evidence/model/governance/outcome`, а `root_cause` остаётся synthesized summary.
+- `POST /api/v1/control/runs/{run_id}/feedback/evaluate` запускает ex-post evaluation без отдельного scheduler/queue и materialize-ит monitoring/compare/reissue artifacts при refutation.
+- `POST /api/v1/control/runs/{run_id}/reissue` клонирует исходный `ExperimentState.inputs`, подставляет feedback artifacts и создаёт новый run, но publication остаётся human-gated.
 
 ## Ключевые настройки `create_runtime_api_app(...)`
 

@@ -1,9 +1,21 @@
 from __future__ import annotations
 
-from .propagate_uncertainty import PropagateUncertaintyNode
-from .run_causal_evaluation import RunCausalEvaluationNode
-from .run_distributional_analysis import RunDistributionalAnalysisNode
 from .run_simulation import RunSimulationNode
+
+try:  # pragma: no cover - optional JAX dependency
+    from .propagate_uncertainty import PropagateUncertaintyNode
+except ModuleNotFoundError:  # pragma: no cover
+    PropagateUncertaintyNode = None  # type: ignore[assignment]
+
+try:  # pragma: no cover - optional JAX dependency
+    from .run_distributional_analysis import RunDistributionalAnalysisNode
+except ModuleNotFoundError:  # pragma: no cover
+    RunDistributionalAnalysisNode = None  # type: ignore[assignment]
+
+try:  # pragma: no cover - optional JAX dependency
+    from .run_causal_evaluation import RunCausalEvaluationNode
+except ModuleNotFoundError:  # pragma: no cover
+    RunCausalEvaluationNode = None  # type: ignore[assignment]
 
 __all__ = [
     "RunSimulationNode",

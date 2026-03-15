@@ -1,17 +1,6 @@
 """Data Fabric Connectors - Protocol Foundation & Registry Architecture."""
 
 # IR-level contracts
-from polisyos.ir.connectors import (
-    ConnectorCapability,
-    ConnectorMetadataSpec,
-    DataVersion,
-    QualityTier,
-    TrustLevel,
-    VersionStrategy,
-    capabilities_from_flags,
-    flags_from_capabilities,
-)
-
 # Protocol and core types
 from polisyos.fabric.connectors.base import (
     BaseConnector,
@@ -21,6 +10,105 @@ from polisyos.fabric.connectors.base import (
     FetchResult,
     HealthStatus,
     SourceConnector,
+)
+
+# Caching layer (Phase 2.7)
+from polisyos.fabric.connectors.cache import (
+    CachedFetchResult,
+    CacheMetadata,
+    CachePolicy,
+    CacheStats,
+    CachingConnectorProxy,
+    ConnectorCacheStore,
+    InvalidationEvent,
+    InvalidationOrchestrator,
+    InvalidationStrategy,
+    InvalidationTrigger,
+    LRUPolicy,
+    PolicyRegistry,
+    PrefetchJob,
+    PrefetchScheduler,
+    SchemaChangeInvalidationTrigger,
+    SizeBoundedPolicy,
+    SmartExpiryPolicy,
+    StaticDataPolicy,
+    TTLPolicy,
+    VolatileDataPolicy,
+    make_schema_hash_provider,
+)
+
+# Capability utilities
+from polisyos.fabric.connectors.capabilities import (
+    CAPABILITY_METHOD_REQUIREMENTS,
+    REQUIRED_ATTRIBUTES,
+    REQUIRED_METHODS,
+    capabilities_summary,
+    check_capability_at_runtime,
+    describe_capabilities,
+    get_missing_capabilities,
+    requires_any_capability,
+    requires_capability,
+    validate_protocol_compliance,
+)
+
+# Discovery System (Phase 2.2)
+from polisyos.fabric.connectors.discovery import (
+    ConnectorDiscovery,
+    DiscoveryError,
+    DiscoveryResult,
+    discover_connectors,
+    discover_connectors_from_modules,
+    get_discovery_errors,
+)
+
+# Connection Pooling (Phase 2.2)
+from polisyos.fabric.connectors.pool import (
+    ConnectionPool,
+    PoolClosedError,
+    PoolConfig,
+    PooledConnection,
+    PoolExhaustedError,
+    PoolStats,
+)
+
+# Registry Architecture (Phase 2.2)
+from polisyos.fabric.connectors.registry import (
+    AmbiguousConnectorError,
+    ConnectorAlreadyRegisteredError,
+    ConnectorConfigError,
+    ConnectorEntry,
+    ConnectorNotFoundError,
+    ConnectorPreferences,
+    ConnectorRegistry,
+    RegistryError,
+    RegistryMetrics,
+    RegistryStats,
+)
+
+# Resilience layer (Phase 2.9)
+from polisyos.fabric.connectors.resilience import (
+    AdaptiveRateLimiter,
+    CacheFallback,
+    CircuitBreaker,
+    CircuitBreakerConfig,
+    CircuitOpenError,
+    CircuitState,
+    FallbackChain,
+    FallbackStrategy,
+    MockFallback,
+    RaiseFallback,
+    RateLimiter,
+    RateLimiterConfig,
+    ResilienceConfig,
+    RetryExhaustedError,
+    RetryPolicy,
+    apply_resilience,
+    is_retryable_error,
+    resolve_resilience_config,
+    with_circuit_breaker,
+    with_fallback,
+    with_rate_limit,
+    with_retry,
 )
 
 # Error types and supporting structures
@@ -42,109 +130,20 @@ from polisyos.fabric.connectors.types import (
     ValidationSeverity,
 )
 
-# Capability utilities
-from polisyos.fabric.connectors.capabilities import (
-    CAPABILITY_METHOD_REQUIREMENTS,
-    REQUIRED_ATTRIBUTES,
-    REQUIRED_METHODS,
-    capabilities_summary,
-    check_capability_at_runtime,
-    describe_capabilities,
-    get_missing_capabilities,
-    requires_any_capability,
-    requires_capability,
-    validate_protocol_compliance,
-)
-
-# Registry Architecture (Phase 2.2)
-from polisyos.fabric.connectors.registry import (
-    AmbiguousConnectorError,
-    ConnectorAlreadyRegisteredError,
-    ConnectorConfigError,
-    ConnectorEntry,
-    ConnectorNotFoundError,
-    ConnectorPreferences,
-    ConnectorRegistry,
-    RegistryError,
-    RegistryMetrics,
-    RegistryStats,
-)
-
-# Connection Pooling (Phase 2.2)
-from polisyos.fabric.connectors.pool import (
-    ConnectionPool,
-    PoolClosedError,
-    PoolConfig,
-    PoolExhaustedError,
-    PoolStats,
-    PooledConnection,
-)
-
-# Discovery System (Phase 2.2)
-from polisyos.fabric.connectors.discovery import (
-    ConnectorDiscovery,
-    DiscoveryError,
-    DiscoveryResult,
-    discover_connectors,
-    discover_connectors_from_modules,
-    get_discovery_errors,
-)
-
-# Caching layer (Phase 2.7)
-from polisyos.fabric.connectors.cache import (
-    CacheMetadata,
-    CachePolicy,
-    CacheStats,
-    CachedFetchResult,
-    CachingConnectorProxy,
-    ConnectorCacheStore,
-    InvalidationEvent,
-    InvalidationOrchestrator,
-    InvalidationStrategy,
-    InvalidationTrigger,
-    LRUPolicy,
-    PolicyRegistry,
-    PrefetchJob,
-    PrefetchScheduler,
-    SchemaChangeInvalidationTrigger,
-    SizeBoundedPolicy,
-    SmartExpiryPolicy,
-    StaticDataPolicy,
-    TTLPolicy,
-    VolatileDataPolicy,
-    make_schema_hash_provider,
-)
-
-# Resilience layer (Phase 2.9)
-from polisyos.fabric.connectors.resilience import (
-    AdaptiveRateLimiter,
-    CacheFallback,
-    CircuitBreaker,
-    CircuitBreakerConfig,
-    CircuitOpenError,
-    CircuitState,
-    FallbackChain,
-    FallbackStrategy,
-    MockFallback,
-    RaiseFallback,
-    RateLimiter,
-    RateLimiterConfig,
-    ResilienceConfig,
-    RetryExhaustedError,
-    RetryPolicy,
-    apply_resilience,
-    resolve_resilience_config,
-    is_retryable_error,
-    with_circuit_breaker,
-    with_fallback,
-    with_rate_limit,
-    with_retry,
-)
-
 # Validation helpers (schema coercion)
 from polisyos.fabric.connectors.validation import (
     coerce_fetch_result_against_schema,
     validate_fetch_result_against_schema,
+)
+from polisyos.ir.connectors import (
+    ConnectorCapability,
+    ConnectorMetadataSpec,
+    DataVersion,
+    QualityTier,
+    TrustLevel,
+    VersionStrategy,
+    capabilities_from_flags,
+    flags_from_capabilities,
 )
 
 __all__ = [

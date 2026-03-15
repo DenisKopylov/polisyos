@@ -192,7 +192,10 @@ class TracedLLMClient:
                 )
             except Exception:
                 # Observability callback must never break agent execution.
-                pass
+                import logging as _logging
+                _logging.getLogger(__name__).debug(
+                    "Observability callback failed", exc_info=True,
+                )
 
     def invoke(self, prompt: str, **kwargs: Any) -> Any:
         tracer = get_tracer()

@@ -13,12 +13,12 @@ from typing import TYPE_CHECKING
 from pydantic import BaseModel, ConfigDict, Field
 
 from polisyos.core.canon import truncated_hash
+from polisyos.fabric.connectors.contracts.registry import SchemaRegistry
 from polisyos.fabric.connectors.contracts.schema import (
     DataSchema,
     SchemaType,
     SchemaVersion,
 )
-from polisyos.fabric.connectors.contracts.registry import SchemaRegistry
 
 if TYPE_CHECKING:
     from .contract import DataContract

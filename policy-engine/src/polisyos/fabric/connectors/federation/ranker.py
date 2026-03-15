@@ -6,18 +6,17 @@ freshness, and latency to rank data sources for a given composition request.
 """
 from __future__ import annotations
 
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timedelta, timezone
 
 from polisyos.common.logger import get_logger
 from polisyos.core.evaluation import WeightedScorer
-from polisyos.fabric.connectors.quality.report import DataQualityReport
-from polisyos.ir.connectors import ConnectorMetadataSpec, TrustLevel
-
 from polisyos.fabric.connectors.federation.types import (
     CompositionRequest,
     RankedSource,
     RankingWeights,
 )
+from polisyos.fabric.connectors.quality.report import DataQualityReport
+from polisyos.ir.connectors import ConnectorMetadataSpec, TrustLevel
 
 logger = get_logger(__name__)
 

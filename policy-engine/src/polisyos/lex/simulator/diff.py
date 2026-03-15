@@ -4,7 +4,7 @@ import json
 from enum import Enum
 from typing import Any
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from polisyos.ir.norm_pack import NormPack, NormRule
 
@@ -17,12 +17,16 @@ class NormChangeType(str, Enum):
 
 
 class FieldDelta(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     field_name: str
     old_value: str | None = None
     new_value: str | None = None
 
 
 class NormChange(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     norm_id: str
     change_type: NormChangeType
     old_rule: NormRule | None = None
@@ -31,6 +35,8 @@ class NormChange(BaseModel):
 
 
 class NormDiff(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     schema_version: str = "1.0"
     old_pack_id: str
     new_pack_id: str

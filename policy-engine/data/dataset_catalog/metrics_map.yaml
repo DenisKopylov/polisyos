@@ -12,6 +12,12 @@ gdp:
   worldbank_indicators: ["NY.GDP.MKTP.CD", "NY.GDP.MKTP.KD"]
   eurostat_codes: ["nama_10_gdp"]
 
+gdp_per_capita:
+  keywords: ["GDP per capita", "gross domestic product per capita", "ВВП на душу населення"]
+  sdmx_concepts: ["GDP_CAP", "NGDPDPC"]
+  worldbank_indicators: ["NY.GDP.PCAP.CD", "NY.GDP.PCAP.PP.CD"]
+  eurostat_codes: ["nama_10_pc"]
+
 unemployment_rate:
   keywords: ["unemployment", "безробіття", "jobless"]
   sdmx_concepts: ["UNE_RT_A", "UNEMPRT", "LUR"]
@@ -19,6 +25,12 @@ unemployment_rate:
   eurostat_codes: ["une_rt_a", "une_rt_m"]
 
 inflation_rate:
+  keywords: ["inflation", "CPI", "consumer price", "інфляція", "споживчі ціни"]
+  sdmx_concepts: ["CPI", "PCPI_IX"]
+  worldbank_indicators: ["FP.CPI.TOTL.ZG"]
+  eurostat_codes: ["prc_hicp_manr"]
+
+inflation:
   keywords: ["inflation", "CPI", "consumer price", "інфляція", "споживчі ціни"]
   sdmx_concepts: ["CPI", "PCPI_IX"]
   worldbank_indicators: ["FP.CPI.TOTL.ZG"]
@@ -41,6 +53,12 @@ population:
   worldbank_indicators: ["SP.POP.TOTL"]
   eurostat_codes: ["demo_pjan"]
 
+migration:
+  keywords: ["migration", "migrant", "refugee", "міграція", "міграц", "net migration"]
+  sdmx_concepts: ["MIG", "MIGR", "MST_MIGR"]
+  worldbank_indicators: ["SM.POP.NETM"]
+  eurostat_codes: ["migr_immi", "migr_emi"]
+
 poverty_rate:
   keywords: ["poverty", "бідність", "poverty rate", "poverty headcount"]
   sdmx_concepts: ["SI_POV"]
@@ -61,15 +79,37 @@ education_spending:
   sdmx_concepts: ["EDU_EXP"]
   worldbank_indicators: ["SE.XPD.TOTL.GD.ZS"]
 
+education_outcomes:
+  keywords: ["education", "enrollment", "enrolment", "school", "literacy", "освіта", "зарахування до школи"]
+  sdmx_concepts: ["EDU_ENRL", "LIT"]
+  worldbank_indicators: ["SE.PRM.NENR", "SE.SEC.ENRR", "SE.ADT.LITR.ZS"]
+
 health_spending:
   keywords: ["health spending", "health expenditure", "витрати на охорону здоров'я"]
   sdmx_concepts: ["SHA"]
   worldbank_indicators: ["SH.XPD.CHEX.GD.ZS"]
 
+health_outcomes:
+  keywords: ["life expectancy", "healthy life expectancy", "mortality", "тривалість життя", "здоров'я", "очікувана тривалість життя"]
+  sdmx_concepts: ["DEMO_MLEXPEC", "MORT"]
+  worldbank_indicators: ["SP.DYN.LE00.IN", "SP.DYN.IMRT.IN"]
+
 life_expectancy:
   keywords: ["life expectancy", "тривалість життя"]
   sdmx_concepts: ["DEMO_MLEXPEC"]
   worldbank_indicators: ["SP.DYN.LE00.IN"]
+
+social_trust:
+  keywords: ["social trust", "trust survey", "values survey", "довіра", "соціальна довіра"]
+
+labor_force_participation:
+  keywords: ["labor force participation", "labour force participation", "участь у робочій силі"]
+  sdmx_concepts: ["LFPR", "TEAP"]
+  worldbank_indicators: ["SL.TLF.CACT.ZS"]
+
+institutional_quality:
+  keywords: ["rule of law", "government effectiveness", "regulatory quality", "institutional quality", "якість врядування"]
+  worldbank_indicators: ["RL.EST", "GE.EST", "RQ.EST", "CC.EST"]
 
 co2_emissions:
   keywords: ["CO2", "carbon emissions", "greenhouse gas", "викиди"]

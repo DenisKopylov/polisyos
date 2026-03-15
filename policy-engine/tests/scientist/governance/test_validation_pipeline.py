@@ -238,9 +238,11 @@ def test_profiles_include_phase_8a_passes() -> None:
 
     assert "literature_gate" not in fast.pass_ids
     assert "literature_gate" in mvp.pass_ids
+    assert "normative_arbitration" in mvp.pass_ids
     assert "sutva_check" in mvp.pass_ids
     assert "transportability_required" in mvp.pass_ids
     assert "literature_gate" in strict.pass_ids
+    assert "normative_arbitration" in strict.pass_ids
     assert "sutva_check" in strict.pass_ids
     assert "transportability_required" in strict.pass_ids
     assert "human_review_required" in strict.pass_ids

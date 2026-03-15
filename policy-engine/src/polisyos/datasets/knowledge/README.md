@@ -61,7 +61,7 @@
 
 - `graph_load`/`graph_index` (из `datasets.batch`) заполняют `ds_datasets`/`ds_distributions`.
 - `embed` формирует vector artifacts для semantic retrieval.
-- `core_sources_ingest` заполняет registry/alignments/observations, необходимые для `DatasetRegistry`.
+- `core_sources_ingest` заполняет registry/alignments/observations, необходимые для `DatasetRegistry`, и в catalog-driven режиме расширяет transportability coverage за счет execution-core международных источников.
 - seed alignments читаются из `data/dataset_catalog/seed_variable_alignments.yaml`.
 
 ## Связи с другими директориями

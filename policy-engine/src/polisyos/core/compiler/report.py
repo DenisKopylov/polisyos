@@ -15,10 +15,12 @@ class CompileReport(BaseModel):
     policy_ref: ArtifactRef | None = None
     registry_bundle_ref: ArtifactRef | None = None
     link_report_ref: ArtifactRef | None = None
+    lowered_ir_ref: ArtifactRef | None = None
     program_graph_ref: ArtifactRef | None = None
     exec_plan_ref: ArtifactRef | None = None
     slot_layout_ref: ArtifactRef | None = None
     treasury_plan_ref: ArtifactRef | None = None
+    semantic_closure_notes: list[str] = Field(default_factory=list)
     notes: list[str] = Field(default_factory=list)
 
 

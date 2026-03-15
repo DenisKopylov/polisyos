@@ -90,8 +90,18 @@ class TransportabilityResultRef(ArtifactRefModel):
     media_type: Literal["application/json"] = "application/json"
 
 
+class CausalCapabilityContractRef(ArtifactRefModel):
+    kind: Literal["ir.causal_capability_contract"] = "ir.causal_capability_contract"
+    media_type: Literal["application/json"] = "application/json"
+
+
 class ContextAdaptiveParameterBundleRef(ArtifactRefModel):
     kind: Literal["ir.context_adaptive_parameter_bundle"] = "ir.context_adaptive_parameter_bundle"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class CrossGraphEvidenceProfileRef(ArtifactRefModel):
+    kind: Literal["ir.cross_graph_evidence_profile"] = "ir.cross_graph_evidence_profile"
     media_type: Literal["application/json"] = "application/json"
 
 
@@ -115,6 +125,11 @@ class DistributionalReportRef(ArtifactRefModel):
     media_type: Literal["application/json"] = "application/json"
 
 
+class NormativeArbitrationResultRef(ArtifactRefModel):
+    kind: Literal["ir.normative_arbitration_result"] = "ir.normative_arbitration_result"
+    media_type: Literal["application/json"] = "application/json"
+
+
 class BacktestReportRef(ArtifactRefModel):
     kind: Literal["ir.backtest_report"] = "ir.backtest_report"
     media_type: Literal["application/json"] = "application/json"
@@ -129,7 +144,9 @@ __all__ = [
     "LiteratureCausalPriorRef",
     "CausalSensitivityResultRef",
     "TransportabilityResultRef",
+    "CausalCapabilityContractRef",
     "ContextAdaptiveParameterBundleRef",
+    "CrossGraphEvidenceProfileRef",
     "StructuralCausalModelSpecRef",
     "CausalQueryResultRef",
     "CausalModelEnsembleRef",
@@ -137,6 +154,7 @@ __all__ = [
     "EvidenceBundleRef",
     "ArtifactRefModel",
     "HTEResultRef",
+    "NormativeArbitrationResultRef",
     "PolicyRecommendationRef",
     "UncertaintyEnvelopeRef",
 ]

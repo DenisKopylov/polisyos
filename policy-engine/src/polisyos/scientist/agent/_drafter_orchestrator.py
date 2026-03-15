@@ -10,10 +10,10 @@ pipeline).
 from __future__ import annotations
 
 import asyncio
-import logging
 import time
 from typing import Any, Iterable
 
+from polisyos.common.logger import get_logger
 from polisyos.core.llm import retry_async
 from polisyos.core.observability import get_metrics, get_tracer
 from polisyos.ir.model_spec import ModelSpec
@@ -26,7 +26,12 @@ from polisyos.scientist.agent.constitution import ConstitutionGenerator, PolicyC
 from polisyos.scientist.agent.knowledge_base import CriticKnowledgeBase
 from polisyos.scientist.agent.memory import ShortTermMemory
 from polisyos.scientist.agent.prompts import get_self_critique_prompt
-from polisyos.scientist.agent.protocols import CritiqueReport, DrafterAgent, DraftResult, ProblemFrame
+from polisyos.scientist.agent.protocols import (
+    CritiqueReport,
+    DrafterAgent,
+    DraftResult,
+    ProblemFrame,
+)
 from polisyos.scientist.agent.rag import CASRAGIndex, RAGConfig, format_few_shot_block
 
 from ._drafter_formatting import _DrafterFormattingMixin
@@ -34,14 +39,14 @@ from ._drafter_llm import _DrafterLLMMixin
 from ._drafter_parsing import _DrafterParsingMixin
 from ._drafter_passes import _DrafterPassesMixin
 from .drafter_models import (
+    _SEVERITY_ORDER,
     FindingSeverity,
     MultiPassConfig,
     PassExecution,
     PassFinding,
-    _SEVERITY_ORDER,
 )
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 __all__ = ["MultiPassLLMDrafter"]
 
@@ -588,8 +593,8 @@ class MultiPassLLMDrafter(
                     attempts=attempts,
                     on_error=_on_error,
                 )
-            except Exception:
-                pass
+            except Exception as exc:
+                logger.debug("Ignored exception: %s", exc)
 
             span.set_attribute("polisyos.drafter.pass_error", True)
             logger.warning("%s failed after retries: %s", pass_name, last_error)
@@ -677,8 +682,8 @@ class MultiPassLLMDrafter(
                     attempts=attempts,
                     on_error=_on_error,
                 )
-            except Exception:
-                pass
+            except Exception as exc:
+                logger.debug("Ignored exception: %s", exc)
 
             span.set_attribute("polisyos.drafter.pass_error", True)
             logger.warning("consolidation failed after retries: %s", last_error)

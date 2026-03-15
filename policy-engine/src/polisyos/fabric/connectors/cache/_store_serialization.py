@@ -4,17 +4,31 @@ FetchResult serialization / deserialization for the connector cache.
 Strategy:
 - DataFrames  -> Parquet (compact, preserves types)
 - Dicts/Lists -> Canonical JSON (deterministic)
-- Other       -> Pickle (fallback)
+- Other       -> Pickle with HMAC (fallback, tamper-proof)
 
 Wire format::
 
     [envelope_len: 4 bytes][envelope: canonical JSON][data: format-specific]
+
+Pickle payloads are HMAC-SHA256 signed to prevent deserialization of
+tampered data (mitigates RCE via crafted pickle in compromised cache).
 """
 from __future__ import annotations
 
+import hashlib
+import hmac
 import io
+import logging
+import os
 import pickle
 from typing import Any
+
+_logger = logging.getLogger(__name__)
+
+_PICKLE_HMAC_KEY: bytes = os.environ.get(
+    "POLISYOS_CACHE_HMAC_KEY", ""
+).encode("utf-8") or os.urandom(32)
+_HMAC_TAG_LEN = 32  # SHA-256 digest length
 
 import pandas as pd
 
@@ -54,7 +68,9 @@ class ResultSerializer:
             data_bytes = to_canonical_bytes(result.data, _canon_spec_allow_floats())
             data_media_type = "application/json"
         else:
-            data_bytes = pickle.dumps(result.data)
+            pickled = pickle.dumps(result.data)
+            tag = hmac.new(_PICKLE_HMAC_KEY, pickled, hashlib.sha256).digest()
+            data_bytes = tag + pickled
             data_media_type = "application/pickle"
 
         envelope = {
@@ -103,7 +119,17 @@ class ResultSerializer:
         elif data_media_type == "application/json":
             data = from_canonical_bytes(payload_bytes)
         else:
-            data = pickle.loads(payload_bytes)  # noqa: S301
+            if len(payload_bytes) < _HMAC_TAG_LEN:
+                raise ValueError("Pickle cache entry too short (missing HMAC tag)")
+            stored_tag = payload_bytes[:_HMAC_TAG_LEN]
+            pickled = payload_bytes[_HMAC_TAG_LEN:]
+            expected_tag = hmac.new(_PICKLE_HMAC_KEY, pickled, hashlib.sha256).digest()
+            if not hmac.compare_digest(stored_tag, expected_tag):
+                raise ValueError(
+                    "Pickle cache HMAC verification failed — "
+                    "entry may be tampered or from a different process"
+                )
+            data = pickle.loads(pickled)  # noqa: S301  — HMAC-verified above
 
         evidence_ref = envelope.get("evidence_ref")
         if evidence_ref is not None:

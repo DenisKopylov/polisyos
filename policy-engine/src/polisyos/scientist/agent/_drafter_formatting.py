@@ -7,10 +7,10 @@ These are mixed into ``MultiPassLLMDrafter`` via the
 from __future__ import annotations
 
 import json
-import logging
 from dataclasses import replace
 from typing import TYPE_CHECKING, Iterable
 
+from polisyos.common.logger import get_logger
 from polisyos.scientist.agent.protocols import DraftResult, ProblemFrame
 
 from .drafter_models import (
@@ -23,7 +23,7 @@ if TYPE_CHECKING:
 
     from .drafter_models import MultiPassConfig
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 __all__ = ["_DrafterFormattingMixin"]
 
@@ -124,5 +124,9 @@ class _DrafterFormattingMixin:
         updated_context["policy_constitution_hash"] = constitution.compute_hash()
         try:
             return replace(problem_frame, context=updated_context)
-        except Exception:
+        except (TypeError, ValueError):
+            logger.debug(
+                "Failed to replace context on problem_frame with constitution data",
+                exc_info=True,
+            )
             return problem_frame

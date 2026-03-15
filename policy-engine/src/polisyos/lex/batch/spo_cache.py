@@ -9,13 +9,14 @@ from __future__ import annotations
 
 import hashlib
 import json
-import logging
 import sqlite3
 import time
 from pathlib import Path
 from typing import Any
 
-logger = logging.getLogger(__name__)
+from polisyos.common.logger import get_logger
+
+logger = get_logger(__name__)
 
 
 def _cache_key(provision_text: str, doc_type: str, model_id: str) -> str:

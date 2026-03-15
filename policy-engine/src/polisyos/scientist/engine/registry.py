@@ -4,13 +4,13 @@ from dataclasses import dataclass, field
 from typing import Iterable
 
 from polisyos.core.components import (
-    ComponentEntry,
-    ComponentRegistry,
-    DuplicateComponentIdPolicy,
     ENTRY_POINT_GROUP_SCIENTIST_NODES,
     Capability,
+    ComponentEntry,
     ComponentId,
     ComponentKind,
+    ComponentRegistry,
+    DuplicateComponentIdPolicy,
     discover_components,
 )
 from polisyos.core.components.protocols import ComponentProvider

@@ -161,6 +161,21 @@ export type ArtifactSchemaView = {
   top_level_keys?: Array<string>;
 };
 
+export type AuthMeResponse = {
+  cell_id?: string | null;
+  display_name: string;
+  feature_overrides?: {
+  [key: string]: boolean;
+};
+  meta: ApiMeta;
+  mfa_verified?: boolean;
+  permissions?: Array<string>;
+  principal_type?: "anonymous" | "service" | "user";
+  roles?: Array<string>;
+  tenant_id: string;
+  user_id: string;
+};
+
 export type BindingProfileInfo = {
   description?: string;
   display_name: string;
@@ -197,6 +212,7 @@ export type CacheStatusResponse = {
 export type CapabilityFeatureInfo = {
   category: string;
   description: string;
+  disabled_reason?: string | null;
   enabled?: boolean;
   key: string;
   label: string;
@@ -207,13 +223,36 @@ export type CapabilityManifestResponse = {
   constraints?: {
   [key: string]: unknown;
 };
+  default_execution_profile?: "dev" | "research" | "governed" | "production";
   default_locale?: "en" | "uk";
+  fallback_rules?: {
+  [key: string]: unknown;
+};
   features?: Array<CapabilityFeatureInfo>;
   meta: ApiMeta;
   runtime_api_version?: string;
+  security_posture?: {
+  [key: string]: unknown;
+};
   shell_flavor?: string;
+  state_store_backend?: string;
+  supported_execution_profiles?: Array<"dev" | "research" | "governed" | "production">;
   supported_locales?: Array<"en" | "uk">;
+  worker_backend?: string;
   workspaces?: Array<string>;
+};
+
+export type CompareDeltaSection = {
+  changed?: boolean;
+  details?: {
+  [key: string]: unknown;
+};
+  refs?: {
+  [key: string]: string | null;
+};
+  summary?: {
+  [key: string]: unknown;
+};
 };
 
 export type ConnectorInfo = {
@@ -229,6 +268,25 @@ export type ConnectorInfo = {
 export type ConnectorsListResponse = {
   connectors?: Array<ConnectorInfo>;
   meta: ApiMeta;
+};
+
+export type ControlJobResponse = {
+  capability_manifest_ref?: ArtifactRef | null;
+  effective_execution_profile: "dev" | "research" | "governed" | "production";
+  error_message?: string | null;
+  finished_at?: string | null;
+  job_id: string;
+  kind: "workflow_run" | "natural_language_run" | "lex_pipeline";
+  meta: ApiMeta;
+  pipeline_id?: string | null;
+  progress?: {
+  [key: string]: unknown;
+};
+  requested_execution_profile?: "dev" | "research" | "governed" | "production" | null;
+  run_id?: string | null;
+  started_at?: string | null;
+  state: "pending" | "running" | "completed" | "failed";
+  submitted_at?: string | null;
 };
 
 export type CursorPage = {
@@ -313,6 +371,62 @@ export type DatasetFetchSpecRequest = {
 };
 };
 
+export type DecisionCompareReport = {
+  deltas?: {
+  [key: string]: CompareDeltaSection;
+};
+  left_decision_packet_ref?: string | null;
+  left_run_id: string;
+  notes?: Array<string>;
+  right_decision_packet_ref?: string | null;
+  right_run_id: string;
+  root_cause?: Array<string>;
+  schema_version?: string;
+};
+
+export type DecisionMonitoringContract = {
+  anchor_at: string;
+  backtest_mode_effective?: string | null;
+  backtest_trust_eligible?: boolean | null;
+  decision_lineage_key?: string | null;
+  metrics?: Array<MonitoredMetric>;
+  notes?: Array<string>;
+  run_id?: string | null;
+  schema_version?: string;
+};
+
+export type DecisionMonitoringReport = {
+  anchor_at?: string | null;
+  decision_packet_ref?: string | null;
+  degraded_reasons?: Array<string>;
+  evaluated_at?: string;
+  metrics?: Array<MonitoringMetricResult>;
+  monitoring_contract_ref?: string | null;
+  notes?: Array<string>;
+  overall_verdict?: MonitoringVerdict;
+  refuted_metric_ids?: Array<string>;
+  run_id: string;
+  schema_version?: string;
+};
+
+export type DecisionReissuePlan = {
+  calibration_config_ref?: string | null;
+  compare_report_ref?: string | null;
+  monitoring_report_ref?: string | null;
+  notes?: Array<string>;
+  parameter_override_bundle_ref?: string | null;
+  publication_mode?: string;
+  recommended_action?: string;
+  refuted_metric_ids?: Array<string>;
+  requires_operator_confirmation?: boolean;
+  revised_metric_ids?: Array<string>;
+  schema_version?: string;
+  source_decision_packet_ref?: string | null;
+  source_run_id: string;
+};
+
+export type DecisionValidityStatus = "active" | "warning" | "stale" | "superseded" | "revoked" | "requires_human_review";
+
 export type DiscoveryCandidate = {
   candidate_id: string;
   confidence?: number;
@@ -351,6 +465,18 @@ export type EvaluatorScoresView = {
   kpi_score?: number;
   total_score?: number;
   uncertainty_score?: number;
+};
+
+export type FeedbackActionResponse = {
+  action: "evaluate_feedback" | "reissue";
+  compare_report_ref?: ArtifactRef | null;
+  message: string;
+  meta: ApiMeta;
+  monitoring_report_ref?: ArtifactRef | null;
+  reissue_plan_ref?: ArtifactRef | null;
+  reissued_run_id?: string | null;
+  run_id: string;
+  status?: "completed" | "accepted";
 };
 
 export type FetchPlan = {
@@ -410,6 +536,9 @@ export type GovernanceDebugResponse = {
 
 export type GovernanceDebugView = {
   contract_warnings?: Array<string>;
+  decision_validity?: {
+  [key: string]: unknown;
+} | null;
   fallback_from_decision_packet?: boolean;
   issue_summary?: {
   [key: string]: number;
@@ -420,6 +549,10 @@ export type GovernanceDebugView = {
   legal_executed?: boolean | null;
   links?: {
   [key: string]: ArtifactRef | null;
+} | null;
+  normative_arbitration_result_ref?: ArtifactRef | null;
+  normative_summary?: {
+  [key: string]: unknown;
 } | null;
   notes?: Array<string>;
   report_kind?: string | null;
@@ -566,8 +699,10 @@ export type LexSearchResultItem = {
 
 export type LexTriggerRequest = {
   cards_path: string;
+  execution_profile?: "dev" | "research" | "governed" | "production" | null;
   llm_model?: string;
   output_dir: string;
+  policy_flags?: PolicyFlags;
   resume?: boolean;
   stages?: LexPipelineStageConfig;
   status_filter?: Array<string> | null;
@@ -575,6 +710,8 @@ export type LexTriggerRequest = {
 };
 
 export type LexTriggerResponse = {
+  effective_execution_profile: "dev" | "research" | "governed" | "production";
+  job_id: string;
   message: string;
   meta: ApiMeta;
   pipeline_id: string;
@@ -622,6 +759,49 @@ export type ModelProfilesListResponse = {
   profiles?: Array<ModelProfileInfo>;
 };
 
+export type MonitoredMetric = {
+  baseline_value: number;
+  confirm_range: MonitoringRange;
+  metadata?: {
+  [key: string]: unknown;
+};
+  metric_id: string;
+  min_observations?: number;
+  recalibration_target?: boolean;
+  refute_range: MonitoringRange;
+  source_metric_id: string;
+  weight?: number;
+  window?: MonitoringWindow;
+};
+
+export type MonitoringMetricResult = {
+  actual_value?: number | null;
+  baseline_value: number;
+  delta?: number | null;
+  metadata?: {
+  [key: string]: unknown;
+};
+  metric_id: string;
+  observed_count?: number;
+  reason?: string | null;
+  recalibration_target?: boolean;
+  source_metric_id: string;
+  verdict?: MonitoringVerdict;
+};
+
+export type MonitoringRange = {
+  lower?: number | null;
+  upper?: number | null;
+};
+
+export type MonitoringVerdict = "pending" | "confirmed" | "refuted" | "inconclusive" | "insufficient_data" | "degraded";
+
+export type MonitoringWindow = {
+  end_offset_days?: number;
+  grace_days?: number;
+  start_offset_days?: number;
+};
+
 export type NaturalLanguageRunRequest = {
   checkpoint_policy?: "strict" | "lenient" | "disabled";
   context?: {
@@ -633,6 +813,7 @@ export type NaturalLanguageRunRequest = {
   [key: string]: unknown;
 } | null;
   execution_plan_ref?: string | null;
+  execution_profile?: "dev" | "research" | "governed" | "production" | null;
   expected_outputs?: Array<{
   [key: string]: unknown;
 }>;
@@ -644,6 +825,7 @@ export type NaturalLanguageRunRequest = {
   max_iterations?: number;
   max_parallel_models?: number;
   per_model_budget_usd?: number | null;
+  policy_flags?: PolicyFlags;
   request: string;
   run_budget_usd?: number | null;
   stop_criteria?: {
@@ -666,6 +848,10 @@ export type NodeDebugView = {
   run_id: string;
   source_kind: string;
   timeline_events?: Array<RunTimelineEvent>;
+};
+
+export type PolicyFlags = {
+  allow_mock_fallback?: boolean;
 };
 
 export type PreflightDiagnosticView = {
@@ -757,9 +943,27 @@ export type RetrievalTelemetryView = {
   phases?: Array<RetrievalPhaseTelemetry>;
 };
 
+export type RunCompareResponse = {
+  compare: RunCompareView;
+  meta: ApiMeta;
+};
+
+export type RunCompareView = {
+  left_run_id: string;
+  report: DecisionCompareReport;
+  right_run_id: string;
+};
+
 export type RunDetails = {
+  capability_manifest_ref?: ArtifactRef | null;
   cell_id?: string | null;
+  control_job_id?: string | null;
+  decision_review_required?: boolean;
+  decision_superseded_by_ref?: ArtifactRef | null;
+  decision_validity_checked_at?: string | null;
+  decision_validity_status?: DecisionValidityStatus | null;
   duration_ms?: number | null;
+  execution_profile?: string | null;
   finished_at?: string | null;
   has_trace?: boolean;
   has_workflow_report?: boolean;
@@ -865,7 +1069,31 @@ export type RunEvidencePromotionView = {
   status?: string;
 };
 
+export type RunFeedbackResponse = {
+  feedback: RunFeedbackView;
+  meta: ApiMeta;
+};
+
+export type RunFeedbackView = {
+  compare_report?: DecisionCompareReport | null;
+  decision_packet_ref?: ArtifactRef | null;
+  decision_validity?: {
+  [key: string]: unknown;
+} | null;
+  feedback_loop?: {
+  [key: string]: unknown;
+} | null;
+  monitoring_contract?: DecisionMonitoringContract | null;
+  monitoring_report?: DecisionMonitoringReport | null;
+  notes?: Array<string>;
+  reissue_plan?: DecisionReissuePlan | null;
+  run_id: string;
+  source_kind: string;
+};
+
 export type RunLaunchResponse = {
+  effective_execution_profile: "dev" | "research" | "governed" | "production";
+  job_id: string;
   message: string;
   meta: ApiMeta;
   run_id: string;
@@ -903,7 +1131,13 @@ export type RunNodesResponse = {
 
 export type RunSummary = {
   cell_id?: string | null;
+  control_job_id?: string | null;
+  decision_review_required?: boolean;
+  decision_superseded_by_ref?: ArtifactRef | null;
+  decision_validity_checked_at?: string | null;
+  decision_validity_status?: DecisionValidityStatus | null;
   duration_ms?: number | null;
+  execution_profile?: string | null;
   finished_at?: string | null;
   has_trace?: boolean;
   has_workflow_report?: boolean;
@@ -1059,6 +1293,7 @@ export type WorkflowRunRequest = {
   calibration_report_ref?: string | null;
   checkpoint_policy?: "strict" | "lenient" | "disabled";
   data_source: DataSourceBinding;
+  execution_profile?: "dev" | "research" | "governed" | "production" | null;
   knowledge_bundle_ref?: string | null;
   mode?: "workflow" | "agent_circuit";
   model_spec_ref?: string | null;
@@ -1066,6 +1301,7 @@ export type WorkflowRunRequest = {
   params?: {
   [key: string]: unknown;
 };
+  policy_flags?: PolicyFlags;
   policy_spec_ref?: string | null;
   research_intent_ref?: string | null;
   trinity_bundle_ref?: string | null;
@@ -1165,6 +1401,11 @@ export class RuntimeApiClient {
     return this.request<ArtifactSchemaResponse>("GET", path);
   }
 
+  async getAuthMe(): Promise<AuthMeResponse> {
+    const path = `/api/v1/auth/me`;
+    return this.request<AuthMeResponse>("GET", path);
+  }
+
   async getControlCapabilities(): Promise<CapabilityManifestResponse> {
     const path = `/api/v1/control/capabilities`;
     return this.request<CapabilityManifestResponse>("GET", path);
@@ -1214,6 +1455,13 @@ export class RuntimeApiClient {
     return this.request<PromotionCandidatesResponse>("GET", path);
   }
 
+  async getControlJobStatus(params: {
+    job_id: string;
+  }): Promise<ControlJobResponse> {
+    const path = `/api/v1/control/jobs/${encodeURIComponent(String(params.job_id))}`;
+    return this.request<ControlJobResponse>("GET", path);
+  }
+
   async getLexGraphStats(params: {
     output_dir: string;
   }): Promise<LexGraphStatsResponse> {
@@ -1236,11 +1484,26 @@ export class RuntimeApiClient {
     return this.request<ModelProfilesListResponse>("GET", path);
   }
 
+  async getRunCompare(params: {
+    left_run_id: string;
+    right_run_id: string;
+  }): Promise<RunCompareResponse> {
+    const path = `/api/v1/debug/runs/${encodeURIComponent(String(params.left_run_id))}/compare/${encodeURIComponent(String(params.right_run_id))}`;
+    return this.request<RunCompareResponse>("GET", path);
+  }
+
   async getRunErrors(params: {
     run_id: string;
   }): Promise<RunErrorsResponse> {
     const path = `/api/v1/debug/runs/${encodeURIComponent(String(params.run_id))}/errors`;
     return this.request<RunErrorsResponse>("GET", path);
+  }
+
+  async getRunFeedback(params: {
+    run_id: string;
+  }): Promise<RunFeedbackResponse> {
+    const path = `/api/v1/debug/runs/${encodeURIComponent(String(params.run_id))}/feedback`;
+    return this.request<RunFeedbackResponse>("GET", path);
   }
 
   async getGovernanceDebug(params: {

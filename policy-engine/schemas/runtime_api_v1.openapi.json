@@ -865,6 +865,81 @@
         "title": "ArtifactSchemaView",
         "type": "object"
       },
+      "AuthMeResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "cell_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cell Id"
+          },
+          "display_name": {
+            "title": "Display Name",
+            "type": "string"
+          },
+          "feature_overrides": {
+            "additionalProperties": {
+              "type": "boolean"
+            },
+            "title": "Feature Overrides",
+            "type": "object"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/ApiMeta"
+          },
+          "mfa_verified": {
+            "default": false,
+            "title": "Mfa Verified",
+            "type": "boolean"
+          },
+          "permissions": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Permissions",
+            "type": "array"
+          },
+          "principal_type": {
+            "default": "user",
+            "enum": [
+              "anonymous",
+              "service",
+              "user"
+            ],
+            "title": "Principal Type",
+            "type": "string"
+          },
+          "roles": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Roles",
+            "type": "array"
+          },
+          "tenant_id": {
+            "title": "Tenant Id",
+            "type": "string"
+          },
+          "user_id": {
+            "title": "User Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "meta",
+          "user_id",
+          "display_name",
+          "tenant_id"
+        ],
+        "title": "AuthMeResponse",
+        "type": "object"
+      },
       "BindingProfileInfo": {
         "additionalProperties": false,
         "properties": {
@@ -1031,6 +1106,17 @@
             "title": "Description",
             "type": "string"
           },
+          "disabled_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Disabled Reason"
+          },
           "enabled": {
             "default": true,
             "title": "Enabled",
@@ -1072,6 +1158,17 @@
             "title": "Constraints",
             "type": "object"
           },
+          "default_execution_profile": {
+            "default": "dev",
+            "enum": [
+              "dev",
+              "research",
+              "governed",
+              "production"
+            ],
+            "title": "Default Execution Profile",
+            "type": "string"
+          },
           "default_locale": {
             "default": "en",
             "enum": [
@@ -1080,6 +1177,11 @@
             ],
             "title": "Default Locale",
             "type": "string"
+          },
+          "fallback_rules": {
+            "additionalProperties": true,
+            "title": "Fallback Rules",
+            "type": "object"
           },
           "features": {
             "items": {
@@ -1096,10 +1198,33 @@
             "title": "Runtime Api Version",
             "type": "string"
           },
+          "security_posture": {
+            "additionalProperties": true,
+            "title": "Security Posture",
+            "type": "object"
+          },
           "shell_flavor": {
             "default": "atlas",
             "title": "Shell Flavor",
             "type": "string"
+          },
+          "state_store_backend": {
+            "default": "sqlite",
+            "title": "State Store Backend",
+            "type": "string"
+          },
+          "supported_execution_profiles": {
+            "items": {
+              "enum": [
+                "dev",
+                "research",
+                "governed",
+                "production"
+              ],
+              "type": "string"
+            },
+            "title": "Supported Execution Profiles",
+            "type": "array"
           },
           "supported_locales": {
             "items": {
@@ -1111,6 +1236,11 @@
             },
             "title": "Supported Locales",
             "type": "array"
+          },
+          "worker_backend": {
+            "default": "embedded",
+            "title": "Worker Backend",
+            "type": "string"
           },
           "workspaces": {
             "items": {
@@ -1124,6 +1254,42 @@
           "meta"
         ],
         "title": "CapabilityManifestResponse",
+        "type": "object"
+      },
+      "CompareDeltaSection": {
+        "additionalProperties": false,
+        "properties": {
+          "changed": {
+            "default": false,
+            "title": "Changed",
+            "type": "boolean"
+          },
+          "details": {
+            "additionalProperties": true,
+            "title": "Details",
+            "type": "object"
+          },
+          "refs": {
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "title": "Refs",
+            "type": "object"
+          },
+          "summary": {
+            "additionalProperties": true,
+            "title": "Summary",
+            "type": "object"
+          }
+        },
+        "title": "CompareDeltaSection",
         "type": "object"
       },
       "ConnectorInfo": {
@@ -1199,6 +1365,157 @@
           "meta"
         ],
         "title": "ConnectorsListResponse",
+        "type": "object"
+      },
+      "ControlJobResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "capability_manifest_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "effective_execution_profile": {
+            "enum": [
+              "dev",
+              "research",
+              "governed",
+              "production"
+            ],
+            "title": "Effective Execution Profile",
+            "type": "string"
+          },
+          "error_message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Message"
+          },
+          "finished_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Finished At"
+          },
+          "job_id": {
+            "title": "Job Id",
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "workflow_run",
+              "natural_language_run",
+              "lex_pipeline"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/ApiMeta"
+          },
+          "pipeline_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pipeline Id"
+          },
+          "progress": {
+            "additionalProperties": true,
+            "title": "Progress",
+            "type": "object"
+          },
+          "requested_execution_profile": {
+            "anyOf": [
+              {
+                "enum": [
+                  "dev",
+                  "research",
+                  "governed",
+                  "production"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Requested Execution Profile"
+          },
+          "run_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Run Id"
+          },
+          "started_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Started At"
+          },
+          "state": {
+            "enum": [
+              "pending",
+              "running",
+              "completed",
+              "failed"
+            ],
+            "title": "State",
+            "type": "string"
+          },
+          "submitted_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Submitted At"
+          }
+        },
+        "required": [
+          "meta",
+          "job_id",
+          "kind",
+          "state",
+          "effective_execution_profile"
+        ],
+        "title": "ControlJobResponse",
         "type": "object"
       },
       "CursorPage": {
@@ -1657,6 +1974,368 @@
         "title": "DatasetFetchSpecRequest",
         "type": "object"
       },
+      "DecisionCompareReport": {
+        "additionalProperties": false,
+        "properties": {
+          "deltas": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/CompareDeltaSection"
+            },
+            "title": "Deltas",
+            "type": "object"
+          },
+          "left_decision_packet_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Left Decision Packet Ref"
+          },
+          "left_run_id": {
+            "title": "Left Run Id",
+            "type": "string"
+          },
+          "notes": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Notes",
+            "type": "array"
+          },
+          "right_decision_packet_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Right Decision Packet Ref"
+          },
+          "right_run_id": {
+            "title": "Right Run Id",
+            "type": "string"
+          },
+          "root_cause": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Root Cause",
+            "type": "array"
+          },
+          "schema_version": {
+            "default": "1.0",
+            "pattern": "^\\d+\\.\\d+$",
+            "title": "Schema Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "left_run_id",
+          "right_run_id"
+        ],
+        "title": "DecisionCompareReport",
+        "type": "object"
+      },
+      "DecisionMonitoringContract": {
+        "additionalProperties": false,
+        "properties": {
+          "anchor_at": {
+            "format": "date-time",
+            "title": "Anchor At",
+            "type": "string"
+          },
+          "backtest_mode_effective": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Backtest Mode Effective"
+          },
+          "backtest_trust_eligible": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Backtest Trust Eligible"
+          },
+          "decision_lineage_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Decision Lineage Key"
+          },
+          "metrics": {
+            "items": {
+              "$ref": "#/components/schemas/MonitoredMetric"
+            },
+            "title": "Metrics",
+            "type": "array"
+          },
+          "notes": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Notes",
+            "type": "array"
+          },
+          "run_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Run Id"
+          },
+          "schema_version": {
+            "default": "1.0",
+            "pattern": "^\\d+\\.\\d+$",
+            "title": "Schema Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "anchor_at"
+        ],
+        "title": "DecisionMonitoringContract",
+        "type": "object"
+      },
+      "DecisionMonitoringReport": {
+        "additionalProperties": false,
+        "properties": {
+          "anchor_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Anchor At"
+          },
+          "decision_packet_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Decision Packet Ref"
+          },
+          "degraded_reasons": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Degraded Reasons",
+            "type": "array"
+          },
+          "evaluated_at": {
+            "format": "date-time",
+            "title": "Evaluated At",
+            "type": "string"
+          },
+          "metrics": {
+            "items": {
+              "$ref": "#/components/schemas/MonitoringMetricResult"
+            },
+            "title": "Metrics",
+            "type": "array"
+          },
+          "monitoring_contract_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Monitoring Contract Ref"
+          },
+          "notes": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Notes",
+            "type": "array"
+          },
+          "overall_verdict": {
+            "$ref": "#/components/schemas/MonitoringVerdict",
+            "default": "pending"
+          },
+          "refuted_metric_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Refuted Metric Ids",
+            "type": "array"
+          },
+          "run_id": {
+            "title": "Run Id",
+            "type": "string"
+          },
+          "schema_version": {
+            "default": "1.0",
+            "pattern": "^\\d+\\.\\d+$",
+            "title": "Schema Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "run_id"
+        ],
+        "title": "DecisionMonitoringReport",
+        "type": "object"
+      },
+      "DecisionReissuePlan": {
+        "additionalProperties": false,
+        "properties": {
+          "calibration_config_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Calibration Config Ref"
+          },
+          "compare_report_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Compare Report Ref"
+          },
+          "monitoring_report_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Monitoring Report Ref"
+          },
+          "notes": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Notes",
+            "type": "array"
+          },
+          "parameter_override_bundle_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parameter Override Bundle Ref"
+          },
+          "publication_mode": {
+            "const": "human_gated",
+            "default": "human_gated",
+            "title": "Publication Mode",
+            "type": "string"
+          },
+          "recommended_action": {
+            "default": "reissue_decision_packet",
+            "title": "Recommended Action",
+            "type": "string"
+          },
+          "refuted_metric_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Refuted Metric Ids",
+            "type": "array"
+          },
+          "requires_operator_confirmation": {
+            "default": true,
+            "title": "Requires Operator Confirmation",
+            "type": "boolean"
+          },
+          "revised_metric_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Revised Metric Ids",
+            "type": "array"
+          },
+          "schema_version": {
+            "default": "1.0",
+            "pattern": "^\\d+\\.\\d+$",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "source_decision_packet_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Decision Packet Ref"
+          },
+          "source_run_id": {
+            "title": "Source Run Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "source_run_id"
+        ],
+        "title": "DecisionReissuePlan",
+        "type": "object"
+      },
+      "DecisionValidityStatus": {
+        "enum": [
+          "active",
+          "warning",
+          "stale",
+          "superseded",
+          "revoked",
+          "requires_human_review"
+        ],
+        "title": "DecisionValidityStatus",
+        "type": "string"
+      },
       "DiscoveryCandidate": {
         "additionalProperties": false,
         "properties": {
@@ -1889,6 +2568,88 @@
           }
         },
         "title": "EvaluatorScoresView",
+        "type": "object"
+      },
+      "FeedbackActionResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "enum": [
+              "evaluate_feedback",
+              "reissue"
+            ],
+            "title": "Action",
+            "type": "string"
+          },
+          "compare_report_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "message": {
+            "title": "Message",
+            "type": "string"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/ApiMeta"
+          },
+          "monitoring_report_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "reissue_plan_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "reissued_run_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reissued Run Id"
+          },
+          "run_id": {
+            "title": "Run Id",
+            "type": "string"
+          },
+          "status": {
+            "default": "completed",
+            "enum": [
+              "completed",
+              "accepted"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "meta",
+          "run_id",
+          "action",
+          "message"
+        ],
+        "title": "FeedbackActionResponse",
         "type": "object"
       },
       "FetchPlan": {
@@ -2185,6 +2946,18 @@
             "title": "Contract Warnings",
             "type": "array"
           },
+          "decision_validity": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Decision Validity"
+          },
           "fallback_from_decision_packet": {
             "default": false,
             "title": "Fallback From Decision Packet",
@@ -2243,6 +3016,28 @@
               }
             ],
             "title": "Links"
+          },
+          "normative_arbitration_result_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "normative_summary": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Normative Summary"
           },
           "notes": {
             "items": {
@@ -3009,6 +3804,23 @@
             "title": "Cards Path",
             "type": "string"
           },
+          "execution_profile": {
+            "anyOf": [
+              {
+                "enum": [
+                  "dev",
+                  "research",
+                  "governed",
+                  "production"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Execution Profile"
+          },
           "llm_model": {
             "default": "qwen/qwen3-235b-a22b-instruct-2507-fp8",
             "title": "Llm Model",
@@ -3018,6 +3830,9 @@
             "minLength": 1,
             "title": "Output Dir",
             "type": "string"
+          },
+          "policy_flags": {
+            "$ref": "#/components/schemas/PolicyFlags"
           },
           "resume": {
             "default": false,
@@ -3058,6 +3873,20 @@
       "LexTriggerResponse": {
         "additionalProperties": false,
         "properties": {
+          "effective_execution_profile": {
+            "enum": [
+              "dev",
+              "research",
+              "governed",
+              "production"
+            ],
+            "title": "Effective Execution Profile",
+            "type": "string"
+          },
+          "job_id": {
+            "title": "Job Id",
+            "type": "string"
+          },
           "message": {
             "title": "Message",
             "type": "string"
@@ -3082,6 +3911,8 @@
           "meta",
           "status",
           "pipeline_id",
+          "job_id",
+          "effective_execution_profile",
           "message"
         ],
         "title": "LexTriggerResponse",
@@ -3314,6 +4145,203 @@
         "title": "ModelProfilesListResponse",
         "type": "object"
       },
+      "MonitoredMetric": {
+        "additionalProperties": false,
+        "properties": {
+          "baseline_value": {
+            "title": "Baseline Value",
+            "type": "number"
+          },
+          "confirm_range": {
+            "$ref": "#/components/schemas/MonitoringRange"
+          },
+          "metadata": {
+            "additionalProperties": true,
+            "title": "Metadata",
+            "type": "object"
+          },
+          "metric_id": {
+            "title": "Metric Id",
+            "type": "string"
+          },
+          "min_observations": {
+            "default": 1,
+            "minimum": 1.0,
+            "title": "Min Observations",
+            "type": "integer"
+          },
+          "recalibration_target": {
+            "default": true,
+            "title": "Recalibration Target",
+            "type": "boolean"
+          },
+          "refute_range": {
+            "$ref": "#/components/schemas/MonitoringRange"
+          },
+          "source_metric_id": {
+            "title": "Source Metric Id",
+            "type": "string"
+          },
+          "weight": {
+            "default": 1.0,
+            "minimum": 0.0,
+            "title": "Weight",
+            "type": "number"
+          },
+          "window": {
+            "$ref": "#/components/schemas/MonitoringWindow"
+          }
+        },
+        "required": [
+          "metric_id",
+          "source_metric_id",
+          "baseline_value",
+          "confirm_range",
+          "refute_range"
+        ],
+        "title": "MonitoredMetric",
+        "type": "object"
+      },
+      "MonitoringMetricResult": {
+        "additionalProperties": false,
+        "properties": {
+          "actual_value": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Actual Value"
+          },
+          "baseline_value": {
+            "title": "Baseline Value",
+            "type": "number"
+          },
+          "delta": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Delta"
+          },
+          "metadata": {
+            "additionalProperties": true,
+            "title": "Metadata",
+            "type": "object"
+          },
+          "metric_id": {
+            "title": "Metric Id",
+            "type": "string"
+          },
+          "observed_count": {
+            "default": 0,
+            "minimum": 0.0,
+            "title": "Observed Count",
+            "type": "integer"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          },
+          "recalibration_target": {
+            "default": false,
+            "title": "Recalibration Target",
+            "type": "boolean"
+          },
+          "source_metric_id": {
+            "title": "Source Metric Id",
+            "type": "string"
+          },
+          "verdict": {
+            "$ref": "#/components/schemas/MonitoringVerdict",
+            "default": "pending"
+          }
+        },
+        "required": [
+          "metric_id",
+          "source_metric_id",
+          "baseline_value"
+        ],
+        "title": "MonitoringMetricResult",
+        "type": "object"
+      },
+      "MonitoringRange": {
+        "additionalProperties": false,
+        "properties": {
+          "lower": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lower"
+          },
+          "upper": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Upper"
+          }
+        },
+        "title": "MonitoringRange",
+        "type": "object"
+      },
+      "MonitoringVerdict": {
+        "enum": [
+          "pending",
+          "confirmed",
+          "refuted",
+          "inconclusive",
+          "insufficient_data",
+          "degraded"
+        ],
+        "title": "MonitoringVerdict",
+        "type": "string"
+      },
+      "MonitoringWindow": {
+        "additionalProperties": false,
+        "properties": {
+          "end_offset_days": {
+            "default": 30,
+            "title": "End Offset Days",
+            "type": "integer"
+          },
+          "grace_days": {
+            "default": 7,
+            "title": "Grace Days",
+            "type": "integer"
+          },
+          "start_offset_days": {
+            "default": 0,
+            "title": "Start Offset Days",
+            "type": "integer"
+          }
+        },
+        "title": "MonitoringWindow",
+        "type": "object"
+      },
       "NaturalLanguageRunRequest": {
         "additionalProperties": false,
         "description": "POST /api/v1/control/runs/nl — NL request triggering agent circuit.",
@@ -3376,6 +4404,23 @@
               }
             ],
             "title": "Execution Plan Ref"
+          },
+          "execution_profile": {
+            "anyOf": [
+              {
+                "enum": [
+                  "dev",
+                  "research",
+                  "governed",
+                  "production"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Execution Profile"
           },
           "expected_outputs": {
             "items": {
@@ -3443,6 +4488,9 @@
               }
             ],
             "title": "Per Model Budget Usd"
+          },
+          "policy_flags": {
+            "$ref": "#/components/schemas/PolicyFlags"
           },
           "request": {
             "maxLength": 10000,
@@ -3550,6 +4598,18 @@
           "record"
         ],
         "title": "NodeDebugView",
+        "type": "object"
+      },
+      "PolicyFlags": {
+        "additionalProperties": false,
+        "properties": {
+          "allow_mock_fallback": {
+            "default": false,
+            "title": "Allow Mock Fallback",
+            "type": "boolean"
+          }
+        },
+        "title": "PolicyFlags",
         "type": "object"
       },
       "PreflightDiagnosticView": {
@@ -4049,9 +5109,59 @@
         "title": "RetrievalTelemetryView",
         "type": "object"
       },
+      "RunCompareResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "compare": {
+            "$ref": "#/components/schemas/RunCompareView"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/ApiMeta"
+          }
+        },
+        "required": [
+          "meta",
+          "compare"
+        ],
+        "title": "RunCompareResponse",
+        "type": "object"
+      },
+      "RunCompareView": {
+        "additionalProperties": false,
+        "properties": {
+          "left_run_id": {
+            "title": "Left Run Id",
+            "type": "string"
+          },
+          "report": {
+            "$ref": "#/components/schemas/DecisionCompareReport"
+          },
+          "right_run_id": {
+            "title": "Right Run Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "left_run_id",
+          "right_run_id",
+          "report"
+        ],
+        "title": "RunCompareView",
+        "type": "object"
+      },
       "RunDetails": {
         "additionalProperties": false,
         "properties": {
+          "capability_manifest_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "cell_id": {
             "anyOf": [
               {
@@ -4062,6 +5172,54 @@
               }
             ],
             "title": "Cell Id"
+          },
+          "control_job_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Control Job Id"
+          },
+          "decision_review_required": {
+            "default": false,
+            "title": "Decision Review Required",
+            "type": "boolean"
+          },
+          "decision_superseded_by_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "decision_validity_checked_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Decision Validity Checked At"
+          },
+          "decision_validity_status": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DecisionValidityStatus"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "duration_ms": {
             "anyOf": [
@@ -4074,6 +5232,17 @@
               }
             ],
             "title": "Duration Ms"
+          },
+          "execution_profile": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Execution Profile"
           },
           "finished_at": {
             "anyOf": [
@@ -4688,9 +5857,141 @@
         "title": "RunEvidencePromotionView",
         "type": "object"
       },
+      "RunFeedbackResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "feedback": {
+            "$ref": "#/components/schemas/RunFeedbackView"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/ApiMeta"
+          }
+        },
+        "required": [
+          "meta",
+          "feedback"
+        ],
+        "title": "RunFeedbackResponse",
+        "type": "object"
+      },
+      "RunFeedbackView": {
+        "additionalProperties": false,
+        "properties": {
+          "compare_report": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DecisionCompareReport"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "decision_packet_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "decision_validity": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Decision Validity"
+          },
+          "feedback_loop": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Feedback Loop"
+          },
+          "monitoring_contract": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DecisionMonitoringContract"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "monitoring_report": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DecisionMonitoringReport"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "notes": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Notes",
+            "type": "array"
+          },
+          "reissue_plan": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DecisionReissuePlan"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "run_id": {
+            "title": "Run Id",
+            "type": "string"
+          },
+          "source_kind": {
+            "const": "core_run",
+            "title": "Source Kind",
+            "type": "string"
+          }
+        },
+        "required": [
+          "run_id",
+          "source_kind"
+        ],
+        "title": "RunFeedbackView",
+        "type": "object"
+      },
       "RunLaunchResponse": {
         "additionalProperties": false,
         "properties": {
+          "effective_execution_profile": {
+            "enum": [
+              "dev",
+              "research",
+              "governed",
+              "production"
+            ],
+            "title": "Effective Execution Profile",
+            "type": "string"
+          },
+          "job_id": {
+            "title": "Job Id",
+            "type": "string"
+          },
           "message": {
             "title": "Message",
             "type": "string"
@@ -4715,6 +6016,8 @@
           "meta",
           "status",
           "run_id",
+          "job_id",
+          "effective_execution_profile",
           "message"
         ],
         "title": "RunLaunchResponse",
@@ -4888,6 +6191,54 @@
             ],
             "title": "Cell Id"
           },
+          "control_job_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Control Job Id"
+          },
+          "decision_review_required": {
+            "default": false,
+            "title": "Decision Review Required",
+            "type": "boolean"
+          },
+          "decision_superseded_by_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "decision_validity_checked_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Decision Validity Checked At"
+          },
+          "decision_validity_status": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DecisionValidityStatus"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "duration_ms": {
             "anyOf": [
               {
@@ -4899,6 +6250,17 @@
               }
             ],
             "title": "Duration Ms"
+          },
+          "execution_profile": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Execution Profile"
           },
           "finished_at": {
             "anyOf": [
@@ -5743,6 +7105,23 @@
           "data_source": {
             "$ref": "#/components/schemas/DataSourceBinding"
           },
+          "execution_profile": {
+            "anyOf": [
+              {
+                "enum": [
+                  "dev",
+                  "research",
+                  "governed",
+                  "production"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Execution Profile"
+          },
           "knowledge_bundle_ref": {
             "anyOf": [
               {
@@ -5789,6 +7168,9 @@
             "additionalProperties": true,
             "title": "Params",
             "type": "object"
+          },
+          "policy_flags": {
+            "$ref": "#/components/schemas/PolicyFlags"
           },
           "policy_spec_ref": {
             "anyOf": [
@@ -6772,6 +8154,219 @@
         ]
       }
     },
+    "/api/v1/auth/me": {
+      "get": {
+        "operationId": "get_auth_me",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "default": {
+                    "summary": "get_auth_me response example",
+                    "value": {
+                      "cell_id": "cell-a",
+                      "display_name": "Fixture Analyst",
+                      "feature_overrides": {
+                        "enableReviewCollaboration": false
+                      },
+                      "meta": {
+                        "generated_at": "2026-02-11T12:00:00Z",
+                        "request_id": "req_0123456789abcdef",
+                        "source_kinds": []
+                      },
+                      "mfa_verified": true,
+                      "permissions": [
+                        "dashboard.view",
+                        "evidence.promotions.approve",
+                        "evidence.promotions.reject",
+                        "evidence.review",
+                        "evidence.view",
+                        "knowledge.view",
+                        "platform.view",
+                        "runs.launch",
+                        "runs.review",
+                        "runs.view"
+                      ],
+                      "principal_type": "user",
+                      "roles": [
+                        "analyst"
+                      ],
+                      "tenant_id": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+                      "user_id": "fixture-analyst"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/AuthMeResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Malformed request payload or parameters.",
+                    "value": {
+                      "code": "bad_request",
+                      "detail": "bad_request while processing request.",
+                      "error": "bad_request",
+                      "instance": "/api/v1/auth/me",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 400,
+                      "status_code": 400,
+                      "title": "Bad request",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Malformed request payload or parameters."
+          },
+          "401": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Authentication is required for this route.",
+                    "value": {
+                      "code": "unauthorized",
+                      "detail": "unauthorized while processing request.",
+                      "error": "unauthorized",
+                      "instance": "/api/v1/auth/me",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 401,
+                      "status_code": 401,
+                      "title": "Unauthorized",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Authentication is required for this route."
+          },
+          "403": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Authenticated principal cannot access this resource.",
+                    "value": {
+                      "code": "forbidden",
+                      "detail": "forbidden while processing request.",
+                      "error": "forbidden",
+                      "instance": "/api/v1/auth/me",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 403,
+                      "status_code": 403,
+                      "title": "Forbidden",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Authenticated principal cannot access this resource."
+          },
+          "404": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Requested resource does not exist.",
+                    "value": {
+                      "code": "not_found",
+                      "detail": "not_found while processing request.",
+                      "error": "not_found",
+                      "instance": "/api/v1/auth/me",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 404,
+                      "status_code": 404,
+                      "title": "Not found",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Requested resource does not exist."
+          },
+          "422": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Request validation failed.",
+                    "value": {
+                      "code": "request_validation_failed",
+                      "detail": "request_validation_failed while processing request.",
+                      "error": "request_validation_failed",
+                      "instance": "/api/v1/auth/me",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 422,
+                      "status_code": 422,
+                      "title": "Request validation failed",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Request validation failed."
+          },
+          "500": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Unexpected runtime API failure.",
+                    "value": {
+                      "code": "internal_error",
+                      "detail": "internal_error while processing request.",
+                      "error": "internal_error",
+                      "instance": "/api/v1/auth/me",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 500,
+                      "status_code": 500,
+                      "title": "Internal error",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Unexpected runtime API failure."
+          }
+        },
+        "summary": "Get Auth Me",
+        "tags": [
+          "runtime-auth"
+        ]
+      }
+    },
     "/api/v1/control/capabilities": {
       "get": {
         "operationId": "get_control_capabilities",
@@ -6792,9 +8387,14 @@
                           "en",
                           "uk"
                         ],
-                        "task_runner": "in_process_thread_pool"
+                        "task_runner": "durable_control_worker"
                       },
+                      "default_execution_profile": "dev",
                       "default_locale": "en",
+                      "fallback_rules": {
+                        "mock_fallback_allowed": true,
+                        "policy_flag_required_for_mock_fallback": false
+                      },
                       "features": [
                         {
                           "category": "runs",
@@ -6827,11 +8427,24 @@
                         "source_kinds": []
                       },
                       "runtime_api_version": "1.0.0",
+                      "security_posture": {
+                        "authz_shadow_allowed": true,
+                        "middleware_required": false,
+                        "required": false
+                      },
                       "shell_flavor": "atlas",
+                      "state_store_backend": "sqlite",
+                      "supported_execution_profiles": [
+                        "dev",
+                        "research",
+                        "governed",
+                        "production"
+                      ],
                       "supported_locales": [
                         "en",
                         "uk"
                       ],
+                      "worker_backend": "embedded",
                       "workspaces": [
                         "command_center",
                         "scenario_composer",
@@ -9860,6 +11473,226 @@
         ]
       }
     },
+    "/api/v1/control/jobs/{job_id}": {
+      "get": {
+        "operationId": "get_control_job_status",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "job_id",
+            "required": true,
+            "schema": {
+              "title": "Job Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "default": {
+                    "summary": "get_control_job_status response example",
+                    "value": {
+                      "capability_manifest_ref": {
+                        "artifact_id": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                      },
+                      "effective_execution_profile": "dev",
+                      "error_message": null,
+                      "finished_at": null,
+                      "job_id": "job_nl_abcdef02",
+                      "kind": "natural_language_run",
+                      "meta": {
+                        "generated_at": "2026-02-11T12:00:00Z",
+                        "request_id": "req_0123456789abcdef",
+                        "source_kinds": []
+                      },
+                      "pipeline_id": null,
+                      "progress": {},
+                      "requested_execution_profile": null,
+                      "run_id": "R_nl_abcdef02",
+                      "started_at": "2026-02-11T12:00:00Z",
+                      "state": "running",
+                      "submitted_at": "2026-02-11T12:00:00Z"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ControlJobResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Malformed request payload or parameters.",
+                    "value": {
+                      "code": "bad_request",
+                      "detail": "bad_request while processing request.",
+                      "error": "bad_request",
+                      "instance": "/api/v1/control/jobs/{job_id}",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 400,
+                      "status_code": 400,
+                      "title": "Bad request",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Malformed request payload or parameters."
+          },
+          "401": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Authentication is required for this route.",
+                    "value": {
+                      "code": "unauthorized",
+                      "detail": "unauthorized while processing request.",
+                      "error": "unauthorized",
+                      "instance": "/api/v1/control/jobs/{job_id}",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 401,
+                      "status_code": 401,
+                      "title": "Unauthorized",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Authentication is required for this route."
+          },
+          "403": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Authenticated principal cannot access this resource.",
+                    "value": {
+                      "code": "forbidden",
+                      "detail": "forbidden while processing request.",
+                      "error": "forbidden",
+                      "instance": "/api/v1/control/jobs/{job_id}",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 403,
+                      "status_code": 403,
+                      "title": "Forbidden",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Authenticated principal cannot access this resource."
+          },
+          "404": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Requested resource does not exist.",
+                    "value": {
+                      "code": "not_found",
+                      "detail": "not_found while processing request.",
+                      "error": "not_found",
+                      "instance": "/api/v1/control/jobs/{job_id}",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 404,
+                      "status_code": 404,
+                      "title": "Not found",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Requested resource does not exist."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              },
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Request validation failed.",
+                    "value": {
+                      "code": "request_validation_failed",
+                      "detail": "request_validation_failed while processing request.",
+                      "error": "request_validation_failed",
+                      "instance": "/api/v1/control/jobs/{job_id}",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 422,
+                      "status_code": 422,
+                      "title": "Request validation failed",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "500": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Unexpected runtime API failure.",
+                    "value": {
+                      "code": "internal_error",
+                      "detail": "internal_error while processing request.",
+                      "error": "internal_error",
+                      "instance": "/api/v1/control/jobs/{job_id}",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 500,
+                      "status_code": 500,
+                      "title": "Internal error",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Unexpected runtime API failure."
+          }
+        },
+        "summary": "Get durable control job status",
+        "tags": [
+          "control-plane"
+        ]
+      }
+    },
     "/api/v1/control/lex/graph/stats": {
       "get": {
         "operationId": "get_lex_graph_stats",
@@ -10543,6 +12376,8 @@
                   "default": {
                     "summary": "trigger_lex_pipeline response example",
                     "value": {
+                      "effective_execution_profile": "dev",
+                      "job_id": "job_lex_a1b2c3d4e5f6",
                       "message": "Pipeline lex_a1b2c3d4e5f6 launched with stages: graph, parse, spo, structure",
                       "meta": {
                         "generated_at": "2026-02-11T12:00:00Z",
@@ -10960,7 +12795,9 @@
                   "default": {
                     "summary": "launch_run response example",
                     "value": {
-                      "message": "Workflow run R_ctrl_abcdef01 accepted and executing in background.",
+                      "effective_execution_profile": "dev",
+                      "job_id": "job_ctrl_abcdef01",
+                      "message": "Workflow run R_ctrl_abcdef01 accepted and queued for durable execution.",
                       "meta": {
                         "generated_at": "2026-02-11T12:00:00Z",
                         "request_id": "req_0123456789abcdef",
@@ -11167,7 +13004,9 @@
                   "default": {
                     "summary": "launch_nl_run response example",
                     "value": {
-                      "message": "Natural-language run R_nl_abcdef02 accepted. Agent circuit will execute with mock agents.",
+                      "effective_execution_profile": "dev",
+                      "job_id": "job_nl_abcdef02",
+                      "message": "Natural-language run R_nl_abcdef02 accepted. Agent circuit was queued in mock mode: mock agents.",
                       "meta": {
                         "generated_at": "2026-02-11T12:00:00Z",
                         "request_id": "req_0123456789abcdef",
@@ -11350,6 +13189,738 @@
         "summary": "Launch a natural-language run via agent circuit",
         "tags": [
           "control-plane"
+        ]
+      }
+    },
+    "/api/v1/control/runs/{run_id}/feedback/evaluate": {
+      "post": {
+        "operationId": "evaluate_run_feedback",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "default": {
+                    "summary": "evaluate_run_feedback response example",
+                    "value": {
+                      "action": "evaluate_feedback",
+                      "compare_report_ref": {
+                        "artifact_id": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                        "kind": "scientist.decision_compare_report",
+                        "media_type": "application/json"
+                      },
+                      "message": "Feedback evaluation for run R_core_api_001 completed.",
+                      "meta": {
+                        "generated_at": "2026-02-11T12:00:00Z",
+                        "request_id": "req_0123456789abcdef",
+                        "source_kinds": [
+                          "core_run"
+                        ]
+                      },
+                      "monitoring_report_ref": {
+                        "artifact_id": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                        "kind": "scientist.decision_monitoring_report",
+                        "media_type": "application/json"
+                      },
+                      "reissue_plan_ref": {
+                        "artifact_id": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                        "kind": "scientist.decision_reissue_plan",
+                        "media_type": "application/json"
+                      },
+                      "reissued_run_id": null,
+                      "run_id": "R_core_api_001",
+                      "status": "completed"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/FeedbackActionResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Malformed request payload or parameters.",
+                    "value": {
+                      "code": "bad_request",
+                      "detail": "bad_request while processing request.",
+                      "error": "bad_request",
+                      "instance": "/api/v1/control/runs/{run_id}/feedback/evaluate",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 400,
+                      "status_code": 400,
+                      "title": "Bad request",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Malformed request payload or parameters."
+          },
+          "401": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Authentication is required for this route.",
+                    "value": {
+                      "code": "unauthorized",
+                      "detail": "unauthorized while processing request.",
+                      "error": "unauthorized",
+                      "instance": "/api/v1/control/runs/{run_id}/feedback/evaluate",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 401,
+                      "status_code": 401,
+                      "title": "Unauthorized",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Authentication is required for this route."
+          },
+          "403": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Authenticated principal cannot access this resource.",
+                    "value": {
+                      "code": "forbidden",
+                      "detail": "forbidden while processing request.",
+                      "error": "forbidden",
+                      "instance": "/api/v1/control/runs/{run_id}/feedback/evaluate",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 403,
+                      "status_code": 403,
+                      "title": "Forbidden",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Authenticated principal cannot access this resource."
+          },
+          "404": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Requested resource does not exist.",
+                    "value": {
+                      "code": "not_found",
+                      "detail": "not_found while processing request.",
+                      "error": "not_found",
+                      "instance": "/api/v1/control/runs/{run_id}/feedback/evaluate",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 404,
+                      "status_code": 404,
+                      "title": "Not found",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Requested resource does not exist."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              },
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Request validation failed.",
+                    "value": {
+                      "code": "request_validation_failed",
+                      "detail": "request_validation_failed while processing request.",
+                      "error": "request_validation_failed",
+                      "instance": "/api/v1/control/runs/{run_id}/feedback/evaluate",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 422,
+                      "status_code": 422,
+                      "title": "Request validation failed",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "500": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Unexpected runtime API failure.",
+                    "value": {
+                      "code": "internal_error",
+                      "detail": "internal_error while processing request.",
+                      "error": "internal_error",
+                      "instance": "/api/v1/control/runs/{run_id}/feedback/evaluate",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 500,
+                      "status_code": 500,
+                      "title": "Internal error",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Unexpected runtime API failure."
+          }
+        },
+        "summary": "Evaluate post-deployment monitoring for a run",
+        "tags": [
+          "control-plane"
+        ]
+      }
+    },
+    "/api/v1/control/runs/{run_id}/reissue": {
+      "post": {
+        "operationId": "reissue_run",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "default": {
+                    "summary": "reissue_run response example",
+                    "value": {
+                      "action": "reissue",
+                      "compare_report_ref": {
+                        "artifact_id": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                        "kind": "scientist.decision_compare_report",
+                        "media_type": "application/json"
+                      },
+                      "message": "Reissue for run R_core_api_001 accepted.",
+                      "meta": {
+                        "generated_at": "2026-02-11T12:00:00Z",
+                        "request_id": "req_0123456789abcdef",
+                        "source_kinds": [
+                          "core_run"
+                        ]
+                      },
+                      "monitoring_report_ref": {
+                        "artifact_id": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                        "kind": "scientist.decision_monitoring_report",
+                        "media_type": "application/json"
+                      },
+                      "reissue_plan_ref": {
+                        "artifact_id": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                        "kind": "scientist.decision_reissue_plan",
+                        "media_type": "application/json"
+                      },
+                      "reissued_run_id": "R_ctrl_reissue_003",
+                      "run_id": "R_core_api_001",
+                      "status": "accepted"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/FeedbackActionResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Malformed request payload or parameters.",
+                    "value": {
+                      "code": "bad_request",
+                      "detail": "bad_request while processing request.",
+                      "error": "bad_request",
+                      "instance": "/api/v1/control/runs/{run_id}/reissue",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 400,
+                      "status_code": 400,
+                      "title": "Bad request",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Malformed request payload or parameters."
+          },
+          "401": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Authentication is required for this route.",
+                    "value": {
+                      "code": "unauthorized",
+                      "detail": "unauthorized while processing request.",
+                      "error": "unauthorized",
+                      "instance": "/api/v1/control/runs/{run_id}/reissue",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 401,
+                      "status_code": 401,
+                      "title": "Unauthorized",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Authentication is required for this route."
+          },
+          "403": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Authenticated principal cannot access this resource.",
+                    "value": {
+                      "code": "forbidden",
+                      "detail": "forbidden while processing request.",
+                      "error": "forbidden",
+                      "instance": "/api/v1/control/runs/{run_id}/reissue",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 403,
+                      "status_code": 403,
+                      "title": "Forbidden",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Authenticated principal cannot access this resource."
+          },
+          "404": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Requested resource does not exist.",
+                    "value": {
+                      "code": "not_found",
+                      "detail": "not_found while processing request.",
+                      "error": "not_found",
+                      "instance": "/api/v1/control/runs/{run_id}/reissue",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 404,
+                      "status_code": 404,
+                      "title": "Not found",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Requested resource does not exist."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              },
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Request validation failed.",
+                    "value": {
+                      "code": "request_validation_failed",
+                      "detail": "request_validation_failed while processing request.",
+                      "error": "request_validation_failed",
+                      "instance": "/api/v1/control/runs/{run_id}/reissue",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 422,
+                      "status_code": 422,
+                      "title": "Request validation failed",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "500": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Unexpected runtime API failure.",
+                    "value": {
+                      "code": "internal_error",
+                      "detail": "internal_error while processing request.",
+                      "error": "internal_error",
+                      "instance": "/api/v1/control/runs/{run_id}/reissue",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 500,
+                      "status_code": 500,
+                      "title": "Internal error",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Unexpected runtime API failure."
+          }
+        },
+        "summary": "Create a human-gated reissue run",
+        "tags": [
+          "control-plane"
+        ]
+      }
+    },
+    "/api/v1/debug/runs/{left_run_id}/compare/{right_run_id}": {
+      "get": {
+        "operationId": "get_run_compare",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "left_run_id",
+            "required": true,
+            "schema": {
+              "title": "Left Run Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "right_run_id",
+            "required": true,
+            "schema": {
+              "title": "Right Run Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "default": {
+                    "summary": "get_run_compare response example",
+                    "value": {
+                      "compare": {
+                        "left_run_id": "R_core_api_001",
+                        "report": {
+                          "deltas": {
+                            "data": {
+                              "changed": false,
+                              "details": {},
+                              "refs": {},
+                              "summary": {}
+                            },
+                            "evidence": {
+                              "changed": false,
+                              "details": {},
+                              "refs": {},
+                              "summary": {}
+                            },
+                            "governance": {
+                              "changed": false,
+                              "details": {},
+                              "refs": {},
+                              "summary": {}
+                            },
+                            "law": {
+                              "changed": true,
+                              "details": {
+                                "selected_policy_changed": false
+                              },
+                              "refs": {
+                                "left_norm_pack_ref": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                                "right_norm_pack_ref": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+                              },
+                              "summary": {
+                                "changed_norm_ids": [
+                                  "art.12"
+                                ]
+                              }
+                            },
+                            "model": {
+                              "changed": false,
+                              "details": {},
+                              "refs": {},
+                              "summary": {}
+                            },
+                            "outcome": {
+                              "changed": false,
+                              "details": {},
+                              "refs": {},
+                              "summary": {}
+                            }
+                          },
+                          "left_decision_packet_ref": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                          "left_run_id": "R_core_api_001",
+                          "notes": [],
+                          "right_decision_packet_ref": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+                          "right_run_id": "R_core_api_002",
+                          "root_cause": [
+                            "law"
+                          ],
+                          "schema_version": "1.0"
+                        },
+                        "right_run_id": "R_core_api_002"
+                      },
+                      "meta": {
+                        "generated_at": "2026-02-11T12:00:00Z",
+                        "request_id": "req_0123456789abcdef",
+                        "source_kinds": [
+                          "core_run"
+                        ]
+                      }
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RunCompareResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Malformed request payload or parameters.",
+                    "value": {
+                      "code": "bad_request",
+                      "detail": "bad_request while processing request.",
+                      "error": "bad_request",
+                      "instance": "/api/v1/debug/runs/{left_run_id}/compare/{right_run_id}",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 400,
+                      "status_code": 400,
+                      "title": "Bad request",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Malformed request payload or parameters."
+          },
+          "401": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Authentication is required for this route.",
+                    "value": {
+                      "code": "unauthorized",
+                      "detail": "unauthorized while processing request.",
+                      "error": "unauthorized",
+                      "instance": "/api/v1/debug/runs/{left_run_id}/compare/{right_run_id}",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 401,
+                      "status_code": 401,
+                      "title": "Unauthorized",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Authentication is required for this route."
+          },
+          "403": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Authenticated principal cannot access this resource.",
+                    "value": {
+                      "code": "forbidden",
+                      "detail": "forbidden while processing request.",
+                      "error": "forbidden",
+                      "instance": "/api/v1/debug/runs/{left_run_id}/compare/{right_run_id}",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 403,
+                      "status_code": 403,
+                      "title": "Forbidden",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Authenticated principal cannot access this resource."
+          },
+          "404": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Requested resource does not exist.",
+                    "value": {
+                      "code": "not_found",
+                      "detail": "not_found while processing request.",
+                      "error": "not_found",
+                      "instance": "/api/v1/debug/runs/{left_run_id}/compare/{right_run_id}",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 404,
+                      "status_code": 404,
+                      "title": "Not found",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Requested resource does not exist."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              },
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Request validation failed.",
+                    "value": {
+                      "code": "request_validation_failed",
+                      "detail": "request_validation_failed while processing request.",
+                      "error": "request_validation_failed",
+                      "instance": "/api/v1/debug/runs/{left_run_id}/compare/{right_run_id}",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 422,
+                      "status_code": 422,
+                      "title": "Request validation failed",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "500": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Unexpected runtime API failure.",
+                    "value": {
+                      "code": "internal_error",
+                      "detail": "internal_error while processing request.",
+                      "error": "internal_error",
+                      "instance": "/api/v1/debug/runs/{left_run_id}/compare/{right_run_id}",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 500,
+                      "status_code": 500,
+                      "title": "Internal error",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Unexpected runtime API failure."
+          }
+        },
+        "summary": "Get Run Compare",
+        "tags": [
+          "runtime-debug"
         ]
       }
     },
@@ -11573,6 +14144,402 @@
         ]
       }
     },
+    "/api/v1/debug/runs/{run_id}/feedback": {
+      "get": {
+        "operationId": "get_run_feedback",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "default": {
+                    "summary": "get_run_feedback response example",
+                    "value": {
+                      "feedback": {
+                        "compare_report": {
+                          "deltas": {
+                            "data": {
+                              "changed": false,
+                              "details": {},
+                              "refs": {},
+                              "summary": {}
+                            },
+                            "evidence": {
+                              "changed": false,
+                              "details": {},
+                              "refs": {},
+                              "summary": {}
+                            },
+                            "governance": {
+                              "changed": false,
+                              "details": {},
+                              "refs": {},
+                              "summary": {}
+                            },
+                            "law": {
+                              "changed": false,
+                              "details": {},
+                              "refs": {},
+                              "summary": {}
+                            },
+                            "model": {
+                              "changed": false,
+                              "details": {},
+                              "refs": {},
+                              "summary": {}
+                            },
+                            "outcome": {
+                              "changed": true,
+                              "details": {
+                                "overall_verdict": "refuted"
+                              },
+                              "refs": {},
+                              "summary": {
+                                "refuted_metric_ids": [
+                                  "employment_rate"
+                                ]
+                              }
+                            }
+                          },
+                          "left_decision_packet_ref": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                          "left_run_id": "R_core_api_001",
+                          "notes": [],
+                          "right_decision_packet_ref": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                          "right_run_id": "R_core_api_001",
+                          "root_cause": [
+                            "outcome"
+                          ],
+                          "schema_version": "1.0"
+                        },
+                        "decision_packet_ref": {
+                          "artifact_id": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                          "kind": "scientist.decision_packet",
+                          "media_type": "application/json"
+                        },
+                        "decision_validity": {
+                          "checked_at": "2026-02-11T12:00:00Z",
+                          "decision_lineage_key": "decision-lineage-fixture",
+                          "evaluation_ref": {
+                            "artifact_id": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                          },
+                          "reasons": [
+                            "post_deployment_refutation_detected"
+                          ],
+                          "recommended_action": "human_review",
+                          "review_required": true,
+                          "status": "requires_human_review",
+                          "superseded_by_ref": null,
+                          "triggers": [
+                            {
+                              "reason": "post_deployment_refutation_detected",
+                              "status": "requires_human_review",
+                              "trigger_type": "post_deployment_refutation"
+                            }
+                          ]
+                        },
+                        "feedback_loop": {
+                          "anchor_at": "2026-02-11T12:00:00Z",
+                          "backtest_mode_effective": "scientist",
+                          "backtest_trust_eligible": true,
+                          "latest_compare_report_ref": {
+                            "artifact_id": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                            "kind": "scientist.decision_compare_report",
+                            "media_type": "application/json"
+                          },
+                          "latest_monitoring_report_ref": {
+                            "artifact_id": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                            "kind": "scientist.decision_monitoring_report",
+                            "media_type": "application/json"
+                          },
+                          "latest_reissue_plan_ref": {
+                            "artifact_id": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                            "kind": "scientist.decision_reissue_plan",
+                            "media_type": "application/json"
+                          },
+                          "monitoring_contract_ref": {
+                            "artifact_id": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                            "kind": "scientist.decision_monitoring_contract",
+                            "media_type": "application/json"
+                          }
+                        },
+                        "monitoring_contract": {
+                          "anchor_at": "2026-02-11T12:00:00Z",
+                          "backtest_mode_effective": "scientist",
+                          "backtest_trust_eligible": true,
+                          "decision_lineage_key": "decision-lineage-fixture",
+                          "metrics": [
+                            {
+                              "baseline_value": 0.61,
+                              "confirm_range": {
+                                "lower": 0.58,
+                                "upper": 0.64
+                              },
+                              "metadata": {},
+                              "metric_id": "employment_rate",
+                              "min_observations": 1,
+                              "recalibration_target": true,
+                              "refute_range": {
+                                "lower": 0.55,
+                                "upper": 0.67
+                              },
+                              "source_metric_id": "employment_rate",
+                              "weight": 1.0,
+                              "window": {
+                                "end_offset_days": 30,
+                                "grace_days": 7,
+                                "start_offset_days": 0
+                              }
+                            }
+                          ],
+                          "notes": [],
+                          "run_id": "R_core_api_001",
+                          "schema_version": "1.0"
+                        },
+                        "monitoring_report": {
+                          "anchor_at": "2026-02-11T12:00:00Z",
+                          "decision_packet_ref": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                          "degraded_reasons": [],
+                          "evaluated_at": "2026-02-11T12:00:00Z",
+                          "metrics": [
+                            {
+                              "actual_value": 0.52,
+                              "baseline_value": 0.61,
+                              "delta": -0.09,
+                              "metadata": {},
+                              "metric_id": "employment_rate",
+                              "observed_count": 3,
+                              "reason": "actual_value_outside_refute_range",
+                              "recalibration_target": true,
+                              "source_metric_id": "employment_rate",
+                              "verdict": "refuted"
+                            }
+                          ],
+                          "monitoring_contract_ref": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                          "notes": [],
+                          "overall_verdict": "refuted",
+                          "refuted_metric_ids": [
+                            "employment_rate"
+                          ],
+                          "run_id": "R_core_api_001",
+                          "schema_version": "1.0"
+                        },
+                        "notes": [],
+                        "reissue_plan": {
+                          "calibration_config_ref": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                          "compare_report_ref": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                          "monitoring_report_ref": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                          "notes": [],
+                          "parameter_override_bundle_ref": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                          "publication_mode": "human_gated",
+                          "recommended_action": "reissue_decision_packet",
+                          "refuted_metric_ids": [
+                            "employment_rate"
+                          ],
+                          "requires_operator_confirmation": true,
+                          "revised_metric_ids": [],
+                          "schema_version": "1.0",
+                          "source_decision_packet_ref": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                          "source_run_id": "R_core_api_001"
+                        },
+                        "run_id": "R_core_api_001",
+                        "source_kind": "core_run"
+                      },
+                      "meta": {
+                        "generated_at": "2026-02-11T12:00:00Z",
+                        "request_id": "req_0123456789abcdef",
+                        "source_kinds": [
+                          "core_run"
+                        ]
+                      }
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RunFeedbackResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Malformed request payload or parameters.",
+                    "value": {
+                      "code": "bad_request",
+                      "detail": "bad_request while processing request.",
+                      "error": "bad_request",
+                      "instance": "/api/v1/debug/runs/{run_id}/feedback",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 400,
+                      "status_code": 400,
+                      "title": "Bad request",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Malformed request payload or parameters."
+          },
+          "401": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Authentication is required for this route.",
+                    "value": {
+                      "code": "unauthorized",
+                      "detail": "unauthorized while processing request.",
+                      "error": "unauthorized",
+                      "instance": "/api/v1/debug/runs/{run_id}/feedback",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 401,
+                      "status_code": 401,
+                      "title": "Unauthorized",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Authentication is required for this route."
+          },
+          "403": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Authenticated principal cannot access this resource.",
+                    "value": {
+                      "code": "forbidden",
+                      "detail": "forbidden while processing request.",
+                      "error": "forbidden",
+                      "instance": "/api/v1/debug/runs/{run_id}/feedback",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 403,
+                      "status_code": 403,
+                      "title": "Forbidden",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Authenticated principal cannot access this resource."
+          },
+          "404": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Requested resource does not exist.",
+                    "value": {
+                      "code": "not_found",
+                      "detail": "not_found while processing request.",
+                      "error": "not_found",
+                      "instance": "/api/v1/debug/runs/{run_id}/feedback",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 404,
+                      "status_code": 404,
+                      "title": "Not found",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Requested resource does not exist."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              },
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Request validation failed.",
+                    "value": {
+                      "code": "request_validation_failed",
+                      "detail": "request_validation_failed while processing request.",
+                      "error": "request_validation_failed",
+                      "instance": "/api/v1/debug/runs/{run_id}/feedback",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 422,
+                      "status_code": 422,
+                      "title": "Request validation failed",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "500": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Unexpected runtime API failure.",
+                    "value": {
+                      "code": "internal_error",
+                      "detail": "internal_error while processing request.",
+                      "error": "internal_error",
+                      "instance": "/api/v1/debug/runs/{run_id}/feedback",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 500,
+                      "status_code": 500,
+                      "title": "Internal error",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Unexpected runtime API failure."
+          }
+        },
+        "summary": "Get Run Feedback",
+        "tags": [
+          "runtime-debug"
+        ]
+      }
+    },
     "/api/v1/debug/runs/{run_id}/governance": {
       "get": {
         "operationId": "get_governance_debug",
@@ -11596,6 +14563,27 @@
                     "summary": "get_governance_debug response example",
                     "value": {
                       "debug": {
+                        "decision_validity": {
+                          "checked_at": "2026-02-11T12:00:00Z",
+                          "decision_lineage_key": "sha256:lineage",
+                          "evaluation_ref": {
+                            "artifact_id": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                          },
+                          "reasons": [
+                            "human_or_expert_review_required"
+                          ],
+                          "recommended_action": "human_review",
+                          "review_required": true,
+                          "status": "requires_human_review",
+                          "superseded_by_ref": null,
+                          "triggers": [
+                            {
+                              "reason": "human_or_expert_review_required",
+                              "status": "requires_human_review",
+                              "trigger_type": "expert_review"
+                            }
+                          ]
+                        },
                         "fallback_from_decision_packet": false,
                         "issue_summary": {
                           "blocker_count": 0,
@@ -11609,6 +14597,22 @@
                           }
                         ],
                         "legal_executed": false,
+                        "normative_arbitration_result_ref": {
+                          "artifact_id": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                        },
+                        "normative_summary": {
+                          "losers": [
+                            "workers"
+                          ],
+                          "model_completeness": "partial",
+                          "residual_dissent_count": 1,
+                          "rights_violation_count": 0,
+                          "selected_option": "baseline",
+                          "selected_policy": "weighted_welfare",
+                          "winners": [
+                            "owners"
+                          ]
+                        },
                         "notes": [
                           "manual review required"
                         ],
@@ -11621,9 +14625,10 @@
                         "source_kind": "core_run",
                         "transport_summary": {
                           "data_gaps_count": 0,
-                          "identification_engine": "simplified",
+                          "identification_engine": "simplified_legacy",
                           "requires_expert_review": false,
-                          "status": "transportable"
+                          "status": "identified",
+                          "transport_mode": "transport_formula"
                         },
                         "validation_trace": {
                           "total_blockers": 1
@@ -11864,7 +14869,7 @@
                           },
                           "error_message": "Blocked by policy",
                           "input_artifact_ids": [],
-                          "node_id": "scientist.node_run_governance@1.1.0",
+                          "node_id": "scientist.node_run_governance@1.2.0",
                           "output_artifact_ids": [
                             "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
                           ],
@@ -12359,7 +15364,13 @@
                       "runs": [
                         {
                           "cell_id": "cell-a",
+                          "control_job_id": "job_ctrl_abcdef01",
+                          "decision_review_required": false,
+                          "decision_superseded_by_ref": null,
+                          "decision_validity_checked_at": "2026-02-11T12:00:00Z",
+                          "decision_validity_status": "active",
                           "duration_ms": 4200,
+                          "execution_profile": "governed",
                           "finished_at": "2026-02-11T12:00:00Z",
                           "has_trace": true,
                           "has_workflow_report": true,
@@ -12580,8 +15591,17 @@
                         ]
                       },
                       "run": {
+                        "capability_manifest_ref": {
+                          "artifact_id": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                        },
                         "cell_id": "cell-a",
+                        "control_job_id": "job_ctrl_abcdef01",
+                        "decision_review_required": false,
+                        "decision_superseded_by_ref": null,
+                        "decision_validity_checked_at": "2026-02-11T12:00:00Z",
+                        "decision_validity_status": "active",
                         "duration_ms": 4200,
+                        "execution_profile": "governed",
                         "finished_at": "2026-02-11T12:00:00Z",
                         "has_trace": true,
                         "has_workflow_report": true,
@@ -13140,6 +16160,90 @@
           "200": {
             "content": {
               "application/json": {
+                "examples": {
+                  "default": {
+                    "summary": "get_run_evidence_context response example",
+                    "value": {
+                      "context": {
+                        "data_needs": [
+                          {
+                            "geography": "USA",
+                            "granularity": "annual",
+                            "matched_plan_ids": [
+                              "plan_fixture_fetch_001"
+                            ],
+                            "metric": "macro.gdp.real",
+                            "need_id": "need_1",
+                            "purpose": "policy_drafting",
+                            "quality_min": 0.75,
+                            "time_end": "2024",
+                            "time_start": "2019"
+                          }
+                        ],
+                        "data_snapshot_ref": {
+                          "artifact_id": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                        },
+                        "evidence_bundle_ref": {
+                          "artifact_id": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                        },
+                        "execution_plan_ref": {
+                          "artifact_id": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                        },
+                        "fetch_plans": [
+                          {
+                            "connector_id": "worldbank.wdi",
+                            "dataset_id": "NY.GDP.MKTP.KD",
+                            "matched_need_ids": [
+                              "need_1"
+                            ],
+                            "metadata": {},
+                            "metric_id": "macro.gdp.real",
+                            "plan_id": "plan_fixture_fetch_001",
+                            "profile_id": "worldbank_wdi",
+                            "source_lane": "fastlane"
+                          }
+                        ],
+                        "input_bindings_ref": {
+                          "artifact_id": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                        },
+                        "promotion_candidates": [
+                          {
+                            "confidence": 0.87,
+                            "connector_id": "worldbank.wdi",
+                            "created_at": "2026-02-11T12:00:00Z",
+                            "dataset_id": "NY.GDP.MKTP.KD",
+                            "matched_plan_id": "plan_fixture_fetch_001",
+                            "metadata": {},
+                            "metric_id": "macro.gdp.real",
+                            "profile_id": "worldbank_wdi",
+                            "promotion_id": "promotion_fixture_001",
+                            "signals": [
+                              "new_source",
+                              "coverage_gap_closed"
+                            ],
+                            "source_lane": "explorelane",
+                            "status": "pending"
+                          }
+                        ],
+                        "related_artifacts": [
+                          {
+                            "artifact_id": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                          }
+                        ],
+                        "run_id": "R_core_api_001",
+                        "source_kind": "core_run",
+                        "warnings": []
+                      },
+                      "meta": {
+                        "generated_at": "2026-02-11T12:00:00Z",
+                        "request_id": "req_0123456789abcdef",
+                        "source_kinds": [
+                          "core_run"
+                        ]
+                      }
+                    }
+                  }
+                },
                 "schema": {
                   "$ref": "#/components/schemas/RunEvidenceContextResponse"
                 }
@@ -13642,7 +16746,7 @@
                           },
                           "error_message": "Blocked by policy",
                           "input_artifact_ids": [],
-                          "node_id": "scientist.node_run_governance@1.1.0",
+                          "node_id": "scientist.node_run_governance@1.2.0",
                           "output_artifact_ids": [
                             "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
                           ],
@@ -14145,7 +17249,7 @@
                             "error_message": "Blocked by policy",
                             "heat": 0.389,
                             "input_artifact_ids": [],
-                            "node_id": "scientist.node_run_governance@1.1.0",
+                            "node_id": "scientist.node_run_governance@1.2.0",
                             "output_artifact_ids": [
                               "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
                             ],

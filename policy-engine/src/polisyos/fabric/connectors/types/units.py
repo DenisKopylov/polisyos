@@ -27,19 +27,19 @@ Example:
 """
 from __future__ import annotations
 
-from polisyos.fabric.connectors.types._units_errors import (
-    UnitConversionError,
-    UnitParseError,
-)
-from polisyos.fabric.connectors.types._units_prefixes import (
-    MetricPrefix,
-)
 from polisyos.fabric.connectors.types._units_base import (
     BaseUnit,
     ConversionFactor,
 )
 from polisyos.fabric.connectors.types._units_core import (
     Unit,
+)
+from polisyos.fabric.connectors.types._units_errors import (
+    UnitConversionError,
+    UnitParseError,
+)
+from polisyos.fabric.connectors.types._units_prefixes import (
+    MetricPrefix,
 )
 from polisyos.fabric.connectors.types._units_registry import (
     UnitRegistry,

@@ -49,15 +49,19 @@ async def _fake_extract_spo_for_documents(
     results_dir,
     task_batch_size=1000,
     request_batch_size=1,
+    request_batch_chars=None,
+    group_timeout_seconds=None,
     verify_mode="llm",
     extract_mode="full",
     overwrite_existing=True,
     extraction_source="llm",
     gate_meta_by_anchor=None,
+    fallback_rows_by_anchor=None,
     result_sink=None,
 ):
-    del client, results_dir, task_batch_size, request_batch_size, verify_mode, extract_mode, overwrite_existing
-    del extraction_source, gate_meta_by_anchor
+    del client, results_dir, task_batch_size, request_batch_size, request_batch_chars
+    del group_timeout_seconds, verify_mode, extract_mode, overwrite_existing
+    del extraction_source, gate_meta_by_anchor, fallback_rows_by_anchor
     total = 0
     for doc in documents:
         for span in provisions_by_doc.get(doc.card.doc_id, []):
@@ -158,4 +162,3 @@ def test_pipeline_llm_gate_reduces_llm_calls(monkeypatch, tmp_path: Path) -> Non
     llm_sent_off = _run_pipeline(monkeypatch, tmp_path, gate_mode="off")
     llm_sent_balanced = _run_pipeline(monkeypatch, tmp_path, gate_mode="balanced")
     assert llm_sent_balanced < llm_sent_off
-

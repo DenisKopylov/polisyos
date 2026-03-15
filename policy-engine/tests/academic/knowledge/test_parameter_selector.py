@@ -3,12 +3,13 @@ from __future__ import annotations
 import json
 
 import duckdb
+import pytest
 
 from polisyos.academic.knowledge.parameter_selector import ParameterSelector
 from polisyos.academic.knowledge.skg_query import SKGQuery
 from polisyos.ir.analytics.causal_graph import CausalGraphModel, GraphType
 from polisyos.ir.analytics.context import ContextProfile, IncomeLevel
-from polisyos.ir.analytics.transportability import TransportabilityStatus
+from polisyos.ir.analytics.transportability import TransportMode, TransportabilityStatus
 
 
 def _seed_params(db_path, rows: list[tuple[str, str, str]]) -> None:
@@ -157,9 +158,10 @@ def test_select_for_context_uses_max_confidence_times_evidence_weight(tmp_path) 
     assert best_param is not None
     assert best_param.value == 1.3
     assert applicability.is_applicable is True
-    assert applicability.transport_status in {
-        TransportabilityStatus.DIRECT,
-        TransportabilityStatus.TRANSPORTABLE,
+    assert applicability.transport_status is TransportabilityStatus.IDENTIFIED
+    assert applicability.transport_mode in {
+        TransportMode.DIRECT,
+        TransportMode.TRANSPORT_FORMULA,
     }
 
 
@@ -220,12 +222,12 @@ def test_select_for_context_low_confidence_fallback_and_multiplier(
         query.close()
 
     assert param is not None
-    assert applicability.transport_confidence == 0.5
-    assert applicability.uncertainty_multiplier == 2.0
+    assert applicability.transport_confidence == 0.475
+    assert applicability.uncertainty_multiplier == pytest.approx(2.1)
 
     assert fallback_param is None
     assert fallback_applicability.is_applicable is False
-    assert fallback_applicability.transport_confidence == 0.5
+    assert fallback_applicability.transport_confidence == 0.475
 
 
 def test_select_for_context_applies_transport_penalty_notes_and_uncertainty(tmp_path) -> None:

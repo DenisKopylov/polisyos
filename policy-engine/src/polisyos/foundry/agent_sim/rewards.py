@@ -3,11 +3,11 @@ from __future__ import annotations
 import jax
 import jax.numpy as jnp
 
-from polisyos.foundry.agent_sim.state import GlobalState
 from polisyos.foundry.agent_sim.credit_assignment import (
     CreditConfig,
     compute_credit_assignment,
 )
+from polisyos.foundry.agent_sim.state import GlobalState
 
 
 class UtilityFunction:

@@ -58,7 +58,6 @@ from polisyos.ir.connectors import (
     capabilities_from_flags,
 )
 
-
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
@@ -69,6 +68,10 @@ def _join_url(base: str, *parts: str) -> str:
     cleaned = [base.rstrip("/")]
     cleaned.extend(p.strip("/") for p in parts if p)
     return "/".join(cleaned)
+
+
+def _sdmx_path_parts(*parts: str) -> list[str]:
+    return [part for part in parts if part]
 
 
 def _parse_http_datetime(value: str | None) -> datetime | None:
@@ -98,6 +101,10 @@ def _dimension_values(dim: dict[str, Any]) -> list[str]:
 
 def _parse_sdmx_json(body: dict[str, Any]) -> pd.DataFrame:
     """Convert an SDMX-JSON dataset into a flat DataFrame."""
+    if isinstance(body.get("data"), dict):
+        nested = body["data"]
+        if "dataSets" in nested or "datasets" in nested:
+            body = nested
     datasets = body.get("dataSets") or body.get("datasets") or []
     if not datasets:
         return pd.DataFrame()
@@ -215,6 +222,9 @@ class SDMXSourceConnector(HTTPConnectorBase[pd.DataFrame]):
             "data_path": config.headers.get("X-SDMX-DataPath", "data"),
             "dataflow_path": config.headers.get("X-SDMX-DataflowPath", "dataflow"),
             "dimension_order": order,
+            "include_agency_in_data_path": config.headers.get(
+                "X-SDMX-IncludeAgencyInDataPath", "true"
+            ).strip().lower() not in {"0", "false", "no", "off"},
             "dataflow_detail": config.headers.get(
                 "X-SDMX-DataflowDetail", "referencestubs"
             ),
@@ -345,9 +355,11 @@ class SDMXSourceConnector(HTTPConnectorBase[pd.DataFrame]):
 
         url = _join_url(
             self._base_url(handle),
-            cfg["data_path"],
-            cfg["agency"],
-            dataflow_key,
+            *_sdmx_path_parts(
+                cfg["data_path"],
+                cfg["agency"] if cfg.get("include_agency_in_data_path", True) else "",
+                dataflow_key,
+            ),
             filter_path,
         )
 
@@ -450,9 +462,11 @@ class SDMXSourceConnector(HTTPConnectorBase[pd.DataFrame]):
         cfg = handle.state.get("sdmx") or self._parse_sdmx_config(handle.config)
         url = _join_url(
             self._base_url(handle),
-            cfg["data_path"],
-            cfg["agency"],
-            dataset_id,
+            *_sdmx_path_parts(
+                cfg["data_path"],
+                cfg["agency"] if cfg.get("include_agency_in_data_path", True) else "",
+                dataset_id,
+            ),
         )
         try:
             head_headers = await self._sdmx_request_head(handle, url)

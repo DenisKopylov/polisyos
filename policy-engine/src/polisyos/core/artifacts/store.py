@@ -15,7 +15,7 @@ from io import BytesIO
 from pathlib import Path, PurePosixPath
 from typing import Any
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 from polisyos.common.serialization import fast_json_dumps, fast_json_dumps_bytes
 
@@ -61,6 +61,8 @@ class PutOptions:
 
 
 class VerificationReport(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     ok: bool
     artifact_id: str
     expected_sha256_hex: str

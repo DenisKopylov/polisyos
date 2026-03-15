@@ -23,7 +23,7 @@ def _try_tolist(value: Any) -> Any | None:
     if callable(tolist):
         try:
             return tolist()
-        except Exception:
+        except (TypeError, ValueError, RuntimeError):
             return None
     return None
 
@@ -33,7 +33,7 @@ def _try_item(value: Any) -> Any | None:
     if callable(item):
         try:
             return item()
-        except Exception:
+        except (TypeError, ValueError, RuntimeError):
             return None
     return None
 

@@ -27,7 +27,6 @@ from polisyos.ir.world.event import (
     WorldObjectRef,
 )
 from polisyos.ir.world.ids import stable_world_id_from_canon
-
 from polisyos.scholar.types import EnrichmentReportV1, KnowledgeBundlePayloadV1
 
 _BUNDLE_SCHEMA = SchemaInfo(name="polisyos.scholar.KnowledgeBundlePayloadV1", version="1.0")

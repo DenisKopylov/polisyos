@@ -5,6 +5,7 @@ from typing import Any, ClassVar, Mapping
 
 import numpy as np
 
+from polisyos.foundry.methods.backends.protocol import SolverStatus
 from polisyos.foundry.methods.base import (
     ComplexityClass,
     ComputeBackend,
@@ -17,7 +18,6 @@ from polisyos.foundry.methods.base import (
     Unit,
     foundry_method,
 )
-from polisyos.foundry.methods.backends.protocol import SolverStatus
 from polisyos.ir.analytics.uncertainty import (
     IntervalSemantics,
     PropagationMethod,
@@ -62,10 +62,12 @@ def _constraint_ok(lhs: float, sense: str, rhs: float, eps: float = 1e-9) -> boo
 @foundry_method(
     namespace="optimization",
     version="1.0.0",
-    tags={"optimization", "lp", "solver"},
+    tags={"optimization", "lp", "solver", "deprecated:legacy-fqn"},
 )
 class ResourceLP:
     """Linear programming resource allocation with OR-Tools/Scipy fallback."""
+
+    runtime_stack: ClassVar[tuple[str, ...]] = ("ortools", "scipy", "numpy")
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="resource_lp",
@@ -77,15 +79,22 @@ class ResourceLP:
                     name="optimization_problem",
                     slot_type=SlotType.SCALAR,
                     unit=Unit("problem", "json"),
+                    contract_id=OptimizationProblem.contract_id,
                 )
             }
         ),
         output_slots=frozenset(
             {
                 SlotSpec(
-                    name="optimization_result",
+                    name="result",
                     slot_type=SlotType.SCALAR,
                     unit=Unit("result", "json"),
+                    contract_id=OptimizationResult.contract_id,
+                ),
+                SlotSpec(
+                    name="solver_info",
+                    slot_type=SlotType.SCALAR,
+                    unit=Unit("solver", "json"),
                 )
             }
         ),
@@ -393,4 +402,13 @@ class ResourceLP:
         )
 
 
-__all__ = ["ResourceLP"]
+@foundry_method(
+    namespace="optimization.linear",
+    version="1.0.0",
+    tags={"optimization", "lp", "solver"},
+)
+class LinearResourceLP(ResourceLP):
+    """Canonical namespace for linear resource allocation."""
+
+
+__all__ = ["LinearResourceLP", "ResourceLP"]

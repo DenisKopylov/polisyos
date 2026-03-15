@@ -10,10 +10,11 @@ from polisyos.runtime.http.authz_middleware import AuthzMiddleware
 from polisyos.runtime.http.cell_router_middleware import CellRouterMiddleware
 from polisyos.runtime.http.dependencies import build_runtime_api_context
 from polisyos.runtime.http.errors import install_exception_handlers
+from polisyos.runtime.http.execution_policy import RuntimeExecutionPolicyResolver
 from polisyos.runtime.http.jwt_auth_middleware import JWTAuthMiddleware
 from polisyos.runtime.http.openapi_contract import install_runtime_openapi_contract
-from polisyos.runtime.http.routes.auth import router as auth_router
 from polisyos.runtime.http.routes.artifacts import router as artifacts_router
+from polisyos.runtime.http.routes.auth import router as auth_router
 from polisyos.runtime.http.routes.control import router as control_router
 from polisyos.runtime.http.routes.debug import router as debug_router
 from polisyos.runtime.http.routes.health import router as health_router
@@ -57,6 +58,17 @@ def create_runtime_api_app(
     normalized_core_runs_root = (
         Path(core_runs_root) if core_runs_root is not None else (normalized_cas_root / "runs")
     )
+    policy_resolver = RuntimeExecutionPolicyResolver.from_env()
+    security_chain_available = (
+        identity_provider is not None
+        and cell_registry is not None
+        and opa_client is not None
+    )
+    deployment_policy = policy_resolver.validate_bootstrap(
+        authz_shadow_mode=authz_shadow_mode,
+        security_chain_available=security_chain_available,
+    )
+    security_middlewares_enabled = enable_security_middlewares or deployment_policy.security_required
     runtime_ctx = build_runtime_api_context(
         cas_root=normalized_cas_root,
         core_runs_root=normalized_core_runs_root,
@@ -77,17 +89,18 @@ def create_runtime_api_app(
     )
     app.state.runtime_api_ctx = runtime_ctx
     app.state.review_collaboration_hub = ReviewCollaborationHub()
+    app.state.execution_policy = deployment_policy
     install_exception_handlers(app)
 
     _install_request_telemetry_middleware(app)
     if enable_response_compression and GZipMiddleware is not None:
         app.add_middleware(GZipMiddleware, minimum_size=1024)
 
-    if enable_security_middlewares:
+    if security_middlewares_enabled:
         if identity_provider is None or cell_registry is None or opa_client is None:
             raise ValueError(
                 "identity_provider, cell_registry, and opa_client are required "
-                "when enable_security_middlewares=True"
+                "when runtime security middlewares are enabled"
             )
         # Starlette executes middleware in reverse order of registration.
         # Register authz first so JWT/cell routing run before authorization checks.
@@ -148,7 +161,7 @@ def _install_request_telemetry_middleware(app: Any) -> None:
             try:
                 response = await call_next(request)
                 status_code = int(getattr(response, "status_code", 500))
-            except Exception:
+            except (AttributeError, KeyError, OSError, RuntimeError, TimeoutError, TypeError, ValueError):
                 status_code = 500
                 _record_runtime_api_metric(
                     metrics=metrics,

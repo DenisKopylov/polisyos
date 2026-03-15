@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from typing import Any, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
+
 from polisyos.ir.connectors import FetchResult
 
 if TYPE_CHECKING:
@@ -24,12 +25,13 @@ def validate_fetch_result_against_schema(
     Returns:
         List of validation errors (empty if valid)
     """
+    import pandas as pd
+
     from polisyos.fabric.connectors.contracts import (
         SchemaRegistry,
         SchemaVersion,
         validate_dataframe_against_schema,
     )
-    import pandas as pd
 
     if not isinstance(registry, SchemaRegistry):
         raise TypeError("registry must be a SchemaRegistry instance")
@@ -64,13 +66,14 @@ def coerce_fetch_result_against_schema(
 
     Returns a CoercionResult with the coerced DataFrame and any issues.
     """
+    import pandas as pd
+
     from polisyos.fabric.connectors.contracts import (
         CoercionResult,
         SchemaRegistry,
         SchemaVersion,
         coerce_dataframe_to_schema,
     )
-    import pandas as pd
 
     if not isinstance(registry, SchemaRegistry):
         raise TypeError("registry must be a SchemaRegistry instance")

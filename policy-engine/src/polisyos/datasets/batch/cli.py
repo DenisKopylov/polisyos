@@ -28,22 +28,34 @@ def _parse_stages(raw: str | None) -> frozenset[str]:
     return frozenset(items)
 
 
+def _parse_sources(raw: str | None) -> tuple[str, ...]:
+    if not raw:
+        return ()
+    return tuple(sorted({value.strip() for value in raw.split(",") if value.strip()}))
+
+
 def _build_config(args: argparse.Namespace, *, stages: frozenset[str]) -> DatasetBatchConfig:
     return DatasetBatchConfig(
         snapshot_root=Path(args.snapshot_root),
         stages=stages,
         resume=bool(getattr(args, "resume", False)),
         registry_path=Path(args.registry_path) if getattr(args, "registry_path", None) else None,
+        metrics_map_path=Path(args.metrics_map) if getattr(args, "metrics_map", None) else None,
         wave=getattr(args, "wave", None),
+        run_profile=getattr(args, "run_profile", "prod_full"),
         max_datasets_per_source=int(getattr(args, "max_datasets_per_source", 100_000)),
+        promoted_sources=_parse_sources(getattr(args, "promoted_sources", None)),
+        date_start=getattr(args, "date_start", None),
+        date_end=getattr(args, "date_end", None),
         fail_fast_qc=bool(getattr(args, "fail_fast", True)),
     )
 
 
 async def _run_single_stage(args: argparse.Namespace, stage: str) -> None:
+    from polisyos.datasets.batch.benchmark import run_benchmark
+    from polisyos.datasets.batch.core_sources_ingest import run_core_sources_ingest_async
     from polisyos.datasets.batch.dedup import merge_and_dedup
     from polisyos.datasets.batch.embedder import run_embed
-    from polisyos.datasets.batch.core_sources_ingest import run_core_sources_ingest
     from polisyos.datasets.batch.graph_builder import run_graph_index, run_graph_load
     from polisyos.datasets.batch.harvester import harvest_sources
     from polisyos.datasets.batch.normalizer import normalize_raw_sources
@@ -80,15 +92,21 @@ async def _run_single_stage(args: argparse.Namespace, stage: str) -> None:
         run_graph_index(cfg)
         print("Graph indexes created")
     elif stage_name == "core_sources_ingest":
-        stats = run_core_sources_ingest(cfg)
+        stats = await run_core_sources_ingest_async(cfg)
         print(
             "Core sources ingested: "
             f"registry={stats.registry_datasets}, alignments={stats.variable_alignments}, "
-            f"observations={stats.observations}, failures={stats.failures}"
+            f"observations={stats.observations}, attempted={stats.observations_attempted}, "
+            f"inserted={stats.observations_inserted}, replaced={stats.observations_replaced}, failures={stats.failures}"
         )
     elif stage_name == "embed":
         embedded = run_embed(cfg, thermal=bool(getattr(args, "thermal", False)))
         print(f"Embedded datasets: {embedded}")
+    elif stage_name == "benchmark":
+        outcome = run_benchmark(cfg)
+        print(f"Benchmark report: {outcome.report_path}")
+        print(f"Search top-5 relevance: {outcome.metrics.get('benchmark_search_top5_relevance_pct', 0):.1f}%")
+        print(f"Retrieval readiness: {outcome.metrics.get('benchmark_retrieval_ready_pct', 0):.1f}%")
     elif stage_name == "qc":
         report = run_qc(cfg, fail_fast=bool(getattr(args, "fail_fast", True)))
         print(f"QC passed: {report.passed}")
@@ -140,6 +158,16 @@ def _build_parser() -> argparse.ArgumentParser:
 
     common = argparse.ArgumentParser(add_help=False)
     common.add_argument("--snapshot-root", required=True)
+    common.add_argument("--metrics-map", default=None, help="Path to metrics_map YAML")
+    common.add_argument("--promoted-sources", default=None, help="Comma-separated promoted/core sources")
+    common.add_argument(
+        "--run-profile",
+        default="prod_full",
+        choices=["prod_full", "prod_core_blocking", "rest_backfill", "catalog_refresh"],
+        help="Source selection profile for manual snapshot runs",
+    )
+    common.add_argument("--date-start", default=None, help="Optional manual history override start date")
+    common.add_argument("--date-end", default=None, help="Optional manual history override end date")
 
     harvest = sub.add_parser("harvest", parents=[common], help="Harvest raw metadata by wave")
     harvest.add_argument("--wave", choices=["A", "B", "C", "D"], required=False)
@@ -154,11 +182,13 @@ def _build_parser() -> argparse.ArgumentParser:
     sub.add_parser(
         "core-sources-ingest",
         parents=[common],
-        help="Ingest WGI/WDI/WVS observations and variable alignments for DatasetRegistry",
+        help="Ingest transportability registry/alignments/observations for core international sources",
     )
 
     embed = sub.add_parser("embed", parents=[common], help="Build local embeddings + HNSW")
     embed.add_argument("--thermal", action="store_true")
+
+    sub.add_parser("benchmark", parents=[common], help="Run consumer benchmark suites on built catalog")
 
     qc = sub.add_parser("qc", parents=[common], help="Run QC checks")
     qc.add_argument("--fail-fast", dest="fail_fast", action="store_true")
@@ -202,6 +232,7 @@ def main() -> None:
         "graph-index",
         "core-sources-ingest",
         "embed",
+        "benchmark",
         "qc",
         "publish",
         "run",

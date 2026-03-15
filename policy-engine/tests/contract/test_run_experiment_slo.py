@@ -83,7 +83,8 @@ def test_run_experiment_records_slo_success(monkeypatch) -> None:
 
     stub_pkg = types.ModuleType("polisyos.scientist.workflows")
     stub_builder = types.ModuleType("polisyos.scientist.workflows.builder")
-    stub_builder.run_default_workflow = lambda _initial_state: _Result()  # type: ignore[attr-defined]
+    stub_builder.resolve_workflow_id = lambda _initial_state: "scientist_default"  # type: ignore[attr-defined]
+    stub_builder.run_selected_workflow = lambda _initial_state: _Result()  # type: ignore[attr-defined]
     stub_pkg.builder = stub_builder  # type: ignore[attr-defined]
     monkeypatch.setitem(sys.modules, "polisyos.scientist.workflows", stub_pkg)
     monkeypatch.setitem(sys.modules, "polisyos.scientist.workflows.builder", stub_builder)
@@ -107,7 +108,8 @@ def test_run_experiment_records_slo_error(monkeypatch) -> None:
 
     stub_pkg = types.ModuleType("polisyos.scientist.workflows")
     stub_builder = types.ModuleType("polisyos.scientist.workflows.builder")
-    stub_builder.run_default_workflow = _raise  # type: ignore[attr-defined]
+    stub_builder.resolve_workflow_id = lambda _initial_state: "scientist_default"  # type: ignore[attr-defined]
+    stub_builder.run_selected_workflow = _raise  # type: ignore[attr-defined]
     stub_pkg.builder = stub_builder  # type: ignore[attr-defined]
     monkeypatch.setitem(sys.modules, "polisyos.scientist.workflows", stub_pkg)
     monkeypatch.setitem(sys.modules, "polisyos.scientist.workflows.builder", stub_builder)

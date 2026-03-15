@@ -9,6 +9,8 @@ from __future__ import annotations
 
 import json
 import os
+import platform
+import sys
 import time
 import uuid
 from pathlib import Path
@@ -163,6 +165,10 @@ def _assert_within_baseline(
 
 @pytest.fixture(scope="session")
 def overhead_baseline() -> dict[str, dict[str, float]]:
+    if platform.system() != "Linux" or sys.version_info[:2] != (3, 11):
+        pytest.skip(
+            "Static overhead baselines are calibrated for Linux / CPython 3.11 runners."
+        )
     return _load_overhead_baseline()
 
 

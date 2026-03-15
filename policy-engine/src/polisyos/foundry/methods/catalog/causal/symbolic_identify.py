@@ -21,7 +21,6 @@ from polisyos.foundry.methods.catalog.causal.full_transport_bridge import (
     normalize_transport_formula,
     probe_backend_availability,
 )
-from polisyos.foundry.methods.catalog.causal.transport_check import CheckTransportability
 from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, EdgeMark
 from polisyos.ir.analytics.transportability import (
     SelectionDiagram,
@@ -30,7 +29,10 @@ from polisyos.ir.analytics.transportability import (
     TransportabilityResult,
     TransportabilityStatus,
     TransportFormula,
+    TransportMode,
 )
+
+from .transport_engine import solve_transportability
 
 
 def _y0_available() -> tuple[bool, str | None]:
@@ -162,6 +164,39 @@ def _merge_warnings(*warnings_lists: list[str]) -> list[str]:
     return merged
 
 
+def _symbolic_engine_name(backend_name: str | None) -> str:
+    if backend_name == "r":
+        return "r_causaleffect"
+    return "y0"
+
+
+def _unsupported_symbolic_result(
+    *,
+    diagram: SelectionDiagram,
+    treatment: str,
+    outcome: str,
+    trace: list[str],
+    backend_name: str | None,
+    reason: str,
+) -> TransportabilityResult:
+    return TransportabilityResult(
+        query=f"P*({outcome}|do({treatment}))",
+        status=TransportabilityStatus.UNSUPPORTED,
+        transport_mode=TransportMode.NONE,
+        base_confidence=0.0,
+        context_distance_penalty=0.0,
+        data_availability_penalty=0.0,
+        final_confidence=0.0,
+        algorithm_version="symbolic_transport_v1",
+        identification_engine=_symbolic_engine_name(backend_name),
+        identification_trace=[*trace, f"symbolic_backend_unavailable:{reason}"],
+        unsupported_reason=reason,
+        warnings=["Requested symbolic transport backend is unavailable."],
+        source_context_id=diagram.source_context.context_id,
+        target_context_id=diagram.target_context.context_id,
+    )
+
+
 def _symbolic_from_frontdoor(
     *,
     diagram: SelectionDiagram,
@@ -184,7 +219,8 @@ def _symbolic_from_frontdoor(
     confidence = max(0.0, min(1.0, 1.0 - context_penalty - data_penalty))
     return TransportabilityResult(
         query=f"P*({outcome}|do({treatment}))",
-        status=TransportabilityStatus.TRANSPORTABLE,
+        status=TransportabilityStatus.IDENTIFIED,
+        transport_mode=TransportMode.TRANSPORT_FORMULA,
         transport_formula=formula,
         base_confidence=1.0,
         context_distance_penalty=context_penalty,
@@ -198,7 +234,7 @@ def _symbolic_from_frontdoor(
         required_target_data=list(formula.target_quantities),
         source_context_id=diagram.source_context.context_id,
         target_context_id=diagram.target_context.context_id,
-        identification_engine="symbolic",
+        identification_engine="r_causaleffect" if backend_name == "r" else "y0",
         identification_trace=trace + [f"symbolic_success:{backend_name}:frontdoor:{mediator}"],
     )
 
@@ -280,92 +316,73 @@ class SymbolicIdentify:
         query_outcome = str(state["query_outcome"])
         require_symbolic = bool(params.get("require_symbolic_backend", False))
         symbolic_backend = normalize_symbolic_backend_mode(params.get("symbolic_backend"))
-
-        base_params = {
-            "pag_identification_policy": params.get("pag_identification_policy"),
-            "pag_max_dag_samples": params.get("pag_max_dag_samples", 100),
-            "pag_threshold": params.get("pag_threshold", 0.5),
-            "pag_seed": params.get("pag_seed", 0),
-        }
-        simplified_payload = CheckTransportability.pure_step(
-            _state_payload(
-                selection_diagram=selection_diagram,
-                query_treatment=query_treatment,
-                query_outcome=query_outcome,
-            ),
-            base_params,
-        )
-        simplified = TransportabilityResult.model_validate(simplified_payload["transport_result"])
-        trace = [
-            f"simplified_status:{simplified.status.value}",
-            f"simplified_algorithm:{simplified.algorithm_version}",
-            f"symbolic_backend_requested:{symbolic_backend}",
-        ]
-
-        if simplified.status is not TransportabilityStatus.NON_TRANSPORTABLE:
-            return {
-                "transport_result": simplified.model_copy(
-                    update={
-                        "identification_engine": "simplified",
-                        "identification_trace": trace + ["symbolic_not_required"],
-                    }
-                ).model_dump(mode="json")
-            }
-
         selected_backend, backend_order, unavailable_reasons = _resolve_symbolic_backend_locally(
             symbolic_backend
         )
-        trace.append(f"symbolic_backend_order:{','.join(backend_order)}")
-        if selected_backend is None:
-            unavailable_reason = (
-                ";".join(unavailable_reasons)
-                if unavailable_reasons
-                else "symbolic_backend_unavailable"
+        trace = [f"symbolic_backend_order:{','.join(backend_order)}"]
+        if selected_backend is not None:
+            symbolic_result = _symbolic_from_frontdoor(
+                diagram=selection_diagram,
+                treatment=query_treatment,
+                outcome=query_outcome,
+                trace=[*trace, f"symbolic_backend_selected:{selected_backend}"],
+                backend_name=selected_backend,
             )
-            warning = "Symbolic backend unavailable; all configured backends failed probing."
-            next_warnings = _merge_warnings(list(simplified.warnings), [warning])
-            update_payload: dict[str, Any] = {
-                "identification_engine": "simplified",
-                "identification_trace": trace
-                + [f"symbolic_backend_unavailable:{unavailable_reason}"],
-                "unsupported_reason": unavailable_reason,
-                "warnings": next_warnings,
-            }
-            if require_symbolic:
-                update_payload["identification_engine"] = "symbolic"
-                update_payload["status"] = TransportabilityStatus.NON_TRANSPORTABLE
-            return {
-                "transport_result": simplified.model_copy(update=update_payload).model_dump(
-                    mode="json"
-                )
-            }
+            if symbolic_result is not None:
+                return {"transport_result": symbolic_result.model_dump(mode="json")}
+        elif require_symbolic:
+            reason = ";".join(unavailable_reasons) or "symbolic_backend_unavailable"
+            unsupported = _unsupported_symbolic_result(
+                diagram=selection_diagram,
+                treatment=query_treatment,
+                outcome=query_outcome,
+                trace=trace,
+                backend_name=None if symbolic_backend == "full_auto" else symbolic_backend,
+                reason=reason,
+            )
+            return {"transport_result": unsupported.model_dump(mode="json")}
 
-        trace.append(f"symbolic_backend_selected:{selected_backend}")
-        trace.append(f"graph_shape:{convert_graph_to_symbolic_repr(selection_diagram.base_graph)}")
-        symbolic = _symbolic_from_frontdoor(
-            diagram=selection_diagram,
-            treatment=query_treatment,
-            outcome=query_outcome,
-            trace=trace,
-            backend_name=selected_backend,
+        solver_mode = "full_auto"
+        if symbolic_backend == "y0":
+            solver_mode = "symbolic_y0"
+        elif symbolic_backend == "r":
+            solver_mode = "symbolic_r"
+        result = solve_transportability(
+            selection_diagram=selection_diagram,
+            query_treatment=query_treatment,
+            query_outcome=query_outcome,
+            solver_mode=solver_mode,
+            allow_degraded_transport=not require_symbolic,
+            pag_identification_policy=params.get("pag_identification_policy"),
+            pag_max_dag_samples=int(params.get("pag_max_dag_samples", 100) or 100),
+            pag_threshold=float(params.get("pag_threshold", 0.5) or 0.5),
+            pag_seed=int(params.get("pag_seed", 0) or 0),
         )
-        if symbolic is not None:
-            return {"transport_result": symbolic.model_dump(mode="json")}
-
-        next_warnings = _merge_warnings(
-            list(simplified.warnings),
-            ["Symbolic backend could not identify a valid transport formula for this graph."],
+        prefixed_trace = [*trace]
+        if selected_backend is not None:
+            prefixed_trace.append(f"symbolic_backend_selected:{selected_backend}")
+        elif unavailable_reasons:
+            prefixed_trace.append(f"symbolic_backend_unavailable:{';'.join(unavailable_reasons)}")
+        result = result.model_copy(
+            update={
+                "identification_trace": [*prefixed_trace, *result.identification_trace],
+                "warnings": _merge_warnings(
+                    result.warnings,
+                    [f"symbolic_backend_requested={symbolic_backend}"],
+                ),
+            }
         )
-        return {
-            "transport_result": simplified.model_copy(
-                update={
-                    "identification_engine": "symbolic",
-                    "identification_trace": trace + ["symbolic_no_identification"],
-                    "unsupported_reason": "symbolic_not_identified",
-                    "warnings": next_warnings,
-                }
-            ).model_dump(mode="json")
-        }
+        if require_symbolic and result.status is not TransportabilityStatus.IDENTIFIED:
+            reason = ";".join(unavailable_reasons) or "symbolic_transport_not_identified"
+            result = _unsupported_symbolic_result(
+                diagram=selection_diagram,
+                treatment=query_treatment,
+                outcome=query_outcome,
+                trace=prefixed_trace,
+                backend_name=selected_backend,
+                reason=reason,
+            )
+        return {"transport_result": result.model_dump(mode="json")}
 
 
 __all__ = [

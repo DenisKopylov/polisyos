@@ -7,9 +7,8 @@ from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.contracts.foundry import SimulationResult
 from polisyos.core.contracts.lex import ComplianceIssue, IssueSeverity
-from polisyos.ir.analytics.uncertainty import load_uncertainty_envelope
-
 from polisyos.core.governance.passes.base import PassContext, ValidatorPass
+from polisyos.ir.analytics.uncertainty import load_uncertainty_envelope
 
 
 class ConfidencePass(ValidatorPass):

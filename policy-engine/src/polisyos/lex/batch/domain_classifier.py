@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-
 DOMAIN_KEYWORDS: dict[str, tuple[str, ...]] = {
     "fiscal": ("податок", "бюджет", "фінанс", "збір", "акциз", "мито"),
     "labor": ("праця", "зайнятість", "трудов", "заробітн", "пенсі"),

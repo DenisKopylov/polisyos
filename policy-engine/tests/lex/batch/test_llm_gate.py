@@ -77,3 +77,245 @@ def test_gate_circuit_breaker_triggers_after_two_failures() -> None:
     assert runtime.safe_pass_active is True
     assert runtime.circuit_breaker_hits == 1
 
+
+def test_gate_prioritizes_treaty_article_with_legal_signal() -> None:
+    runtime = GateRuntime(
+        threshold=0.55,
+        mode="balanced",
+        max_share=0.35,
+        audit_max_miss_rate_pct=3.0,
+    )
+    features = build_gate_features(
+        text=(
+            "Стаття 1 Договірні Сторони будуть здійснювати і розвивати між собою "
+            "рівноправні партнерські відносини для виконання цієї Угоди."
+        ),
+        deterministic_confidence=0.32,
+        reference_count=0,
+        fallback_chunk=False,
+        doc_title="Угода між Урядом України і Урядом Грузії про співробітництво",
+        citation_label="Стаття 1",
+        struct_kind="article",
+        section_role="normative_unit",
+    )
+    decision = decide_route(
+        gate_enabled=True,
+        runtime=runtime,
+        llm_available=True,
+        llm_share=0.0,
+        deterministic_confidence=0.32,
+        auto_conf_threshold=0.85,
+        min_score_force_llm=0.75,
+        features=features,
+        audit_sample_rate=0.0,
+        audit_seed="doc:treaty:art1",
+    )
+    assert decision.route == "llm"
+
+
+def test_gate_prioritizes_approval_appendix_item() -> None:
+    runtime = GateRuntime(
+        threshold=0.55,
+        mode="balanced",
+        max_share=0.35,
+        audit_max_miss_rate_pct=3.0,
+    )
+    features = build_gate_features(
+        text='2. Положення про порядок підтримки ліквідності банківської системи (додаток N 2).',
+        deterministic_confidence=0.18,
+        reference_count=0,
+        fallback_chunk=False,
+        doc_title="Про затвердження Положення про порядок підтримки ліквідності",
+        citation_label="Пункт переліку 2",
+        struct_kind="enumeration_item",
+        section_role="normative_unit",
+    )
+    decision = decide_route(
+        gate_enabled=True,
+        runtime=runtime,
+        llm_available=True,
+        llm_share=0.0,
+        deterministic_confidence=0.18,
+        auto_conf_threshold=0.85,
+        min_score_force_llm=0.75,
+        features=features,
+        audit_sample_rate=0.0,
+        audit_seed="doc:order:item2",
+    )
+    assert decision.route == "llm"
+
+
+def test_gate_keeps_short_appendix_fragment_deferred() -> None:
+    runtime = GateRuntime(
+        threshold=0.55,
+        mode="balanced",
+        max_share=0.35,
+        audit_max_miss_rate_pct=3.0,
+    )
+    features = build_gate_features(
+        text="    - який не має наукового ступеня *",
+        deterministic_confidence=0.12,
+        reference_count=0,
+        fallback_chunk=False,
+        doc_title="Про внесення змін та доповнень до наказу Міністерства освіти України",
+        citation_label="Додаток N, пункт 2",
+        struct_kind="enumeration_item",
+        section_role="normative_unit",
+    )
+    decision = decide_route(
+        gate_enabled=True,
+        runtime=runtime,
+        llm_available=True,
+        llm_share=0.0,
+        deterministic_confidence=0.12,
+        auto_conf_threshold=0.85,
+        min_score_force_llm=0.75,
+        features=features,
+        audit_sample_rate=0.0,
+        audit_seed="doc:fragment:item2",
+    )
+    assert decision.route == "deferred"
+
+
+def test_gate_allows_small_budget_overflow_for_high_value_legal_span() -> None:
+    runtime = GateRuntime(
+        threshold=0.55,
+        mode="balanced",
+        max_share=0.10,
+        audit_max_miss_rate_pct=3.0,
+    )
+    features = build_gate_features(
+        text='2. Положення про порядок підтримки ліквідності банківської системи (додаток N 2).',
+        deterministic_confidence=0.18,
+        reference_count=0,
+        fallback_chunk=False,
+        doc_title="Про затвердження Положення про порядок підтримки ліквідності",
+        citation_label="Пункт переліку 2",
+        struct_kind="enumeration_item",
+        section_role="normative_unit",
+    )
+    decision = decide_route(
+        gate_enabled=True,
+        runtime=runtime,
+        llm_available=True,
+        llm_share=0.16,
+        deterministic_confidence=0.18,
+        auto_conf_threshold=0.85,
+        min_score_force_llm=0.75,
+        features=features,
+        audit_sample_rate=0.0,
+        audit_seed="doc:budget:item2",
+    )
+    assert decision.route == "llm"
+
+
+def test_gate_prioritizes_long_law_article_with_deontic_clause() -> None:
+    runtime = GateRuntime(
+        threshold=0.55,
+        mode="balanced",
+        max_share=0.35,
+        audit_max_miss_rate_pct=3.0,
+    )
+    features = build_gate_features(
+        text=(
+            "Стаття 12. Органи державної влади зобов'язані забезпечити відкритість інформації "
+            "та своєчасно надавати відповіді на запити громадян."
+        ),
+        deterministic_confidence=0.28,
+        reference_count=1,
+        fallback_chunk=False,
+        doc_title="Закон України Про доступ до інформації",
+        citation_label="Стаття 12",
+        struct_kind="article",
+        section_role="normative_unit",
+        doc_type_category="law",
+    )
+    decision = decide_route(
+        gate_enabled=True,
+        runtime=runtime,
+        llm_available=True,
+        llm_share=0.0,
+        deterministic_confidence=0.28,
+        auto_conf_threshold=0.85,
+        min_score_force_llm=0.75,
+        features=features,
+        audit_sample_rate=0.0,
+        audit_seed="doc:law:art12",
+    )
+    assert decision.route == "llm"
+
+
+def test_gate_keeps_deterministic_only_route_out_of_llm() -> None:
+    runtime = GateRuntime(
+        threshold=0.55,
+        mode="balanced",
+        max_share=0.35,
+        audit_max_miss_rate_pct=3.0,
+    )
+    features = build_gate_features(
+        text='У статті 4 слова "центральний орган" замінити словами "уповноважений орган".',
+        deterministic_confidence=0.22,
+        reference_count=1,
+        fallback_chunk=False,
+        doc_title="Про внесення змін до Порядку",
+        citation_label="Пункт 2",
+        struct_kind="enumeration_item",
+        section_role="table_clause",
+        doc_type_category="order",
+        legal_unit_subtype="amendment_bundle",
+        route_class="deterministic_only",
+        audit_miss_prone=True,
+        reference_bearing=True,
+    )
+    decision = decide_route(
+        gate_enabled=True,
+        runtime=runtime,
+        llm_available=True,
+        llm_share=0.0,
+        deterministic_confidence=0.22,
+        auto_conf_threshold=0.85,
+        min_score_force_llm=0.75,
+        features=features,
+        audit_sample_rate=0.0,
+        audit_seed="doc:amendment",
+    )
+    assert decision.route == "auto"
+    assert "deterministic_only_route" in decision.reason_codes
+
+
+def test_gate_prioritizes_retry_eligible_law_clause() -> None:
+    runtime = GateRuntime(
+        threshold=0.55,
+        mode="balanced",
+        max_share=0.35,
+        audit_max_miss_rate_pct=3.0,
+    )
+    features = build_gate_features(
+        text="Стаття 12. Органи державної влади зобов'язані забезпечити відкритість інформації та не пізніше 10 днів надати відповідь.",
+        deterministic_confidence=0.15,
+        reference_count=1,
+        fallback_chunk=False,
+        doc_title="Закон України Про доступ до інформації",
+        citation_label="Стаття 12",
+        struct_kind="article",
+        section_role="normative_unit",
+        doc_type_category="law",
+        legal_unit_subtype="core_normative_clause",
+        route_class="deterministic_then_llm_retry",
+        empty_spo_retry_eligible=True,
+        audit_miss_prone=True,
+        reference_bearing=True,
+    )
+    decision = decide_route(
+        gate_enabled=True,
+        runtime=runtime,
+        llm_available=True,
+        llm_share=0.0,
+        deterministic_confidence=0.15,
+        auto_conf_threshold=0.85,
+        min_score_force_llm=0.75,
+        features=features,
+        audit_sample_rate=0.0,
+        audit_seed="doc:law:retry",
+    )
+    assert decision.route == "llm"

@@ -17,10 +17,10 @@ must go through this module with an explicitly chosen policy.
 """
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 from enum import Enum, auto
 from functools import total_ordering
-import re
 from typing import Sequence
 
 from polisyos.foundry.methods.exceptions import ResolutionError

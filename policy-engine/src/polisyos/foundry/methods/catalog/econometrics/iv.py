@@ -4,6 +4,7 @@ from typing import Any, ClassVar, Mapping
 
 import numpy as np
 
+from polisyos.common.logger import get_logger
 from polisyos.core.observability.determinism import DeterminismTier
 from polisyos.foundry.methods.base import (
     ComplexityClass,
@@ -18,7 +19,80 @@ from polisyos.foundry.methods.base import (
     foundry_method,
 )
 
+from polisyos.foundry.methods.catalog._payloads import extract_model_payload
+
 from .protocols import EconometricResult, PanelData
+
+logger = get_logger(__name__)
+
+
+def _iv_input_payload(state: Any) -> dict[str, Any]:
+    return extract_model_payload(
+        state,
+        model_cls=PanelData,
+        nested_keys=("panel_data",),
+    )
+
+
+def _materialize_iv_data(bound_inputs: Mapping[str, Any], fallback_state: Any) -> PanelData:
+    payload = _iv_input_payload(fallback_state)
+    payload.update(bound_inputs)
+    return PanelData.model_validate(payload)
+
+
+def _iv_output_slots() -> frozenset[SlotSpec]:
+    return frozenset(
+        {
+            SlotSpec(
+                name="result",
+                slot_type=SlotType.SCALAR,
+                unit=Unit("result", "json"),
+                contract_id=EconometricResult.contract_id,
+            ),
+            SlotSpec(
+                name="uncertainty_envelope",
+                slot_type=SlotType.SCALAR,
+                unit=Unit("uncertainty", "json"),
+            ),
+        }
+    )
+
+
+def _iv_input_slots() -> frozenset[SlotSpec]:
+    return frozenset(
+        {
+            SlotSpec(
+                name="dependent",
+                slot_type=SlotType.VECTOR,
+                unit=Unit("outcome", "value"),
+                shape=("n_obs",),
+            ),
+            SlotSpec(
+                name="exog",
+                slot_type=SlotType.MATRIX,
+                unit=Unit("feature", "value"),
+                shape=("n_obs", "n_features"),
+            ),
+            SlotSpec(
+                name="entity_ids",
+                slot_type=SlotType.VECTOR,
+                unit=Unit("entity", "id"),
+                shape=("n_obs",),
+            ),
+            SlotSpec(
+                name="time_ids",
+                slot_type=SlotType.VECTOR,
+                unit=Unit("time", "index"),
+                shape=("n_obs",),
+            ),
+            SlotSpec(
+                name="instrument_ids",
+                slot_type=SlotType.MATRIX,
+                unit=Unit("instrument", "value"),
+                shape=("n_obs", "n_instruments"),
+            ),
+        }
+    )
 
 
 def _safe_float(value: Any) -> float | None:
@@ -52,8 +126,8 @@ def _extract_confidence_intervals(
                 if values.size >= 2:
                     lo = _safe_float(values[0])
                     hi = _safe_float(values[1])
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.debug("Ignored exception: %s", exc)
         if lo is None or hi is None:
             continue
         if lo > hi:
@@ -170,8 +244,8 @@ def _run_2sls(state: PanelData, params: Mapping[str, Any]) -> EconometricResult:
     if first_stage is not None:
         try:
             diagnostics["first_stage_summary"] = str(first_stage.summary)
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.debug("Ignored exception: %s", exc)
 
     return _build_result(
         method_name="iv_2sls",
@@ -184,6 +258,7 @@ def _run_2sls(state: PanelData, params: Mapping[str, Any]) -> EconometricResult:
 def _run_gmm(state: PanelData, params: Mapping[str, Any]) -> EconometricResult:
     import pandas as pd
     from linearmodels.iv import IVGMM
+
 
     if state.instrument_ids is None:
         raise ValueError("GMM requires instrument_ids in PanelData")
@@ -247,12 +322,19 @@ def _run_gmm(state: PanelData, params: Mapping[str, Any]) -> EconometricResult:
 @foundry_method(
     namespace="econometrics.iv",
     version="1.0.0",
-    tags={"econometrics", "instrumental-variables", "2sls", "gmm"},
+    tags={
+        "econometrics",
+        "instrumental-variables",
+        "2sls",
+        "gmm",
+        "deprecated:aggregate-wrapper",
+    },
 )
 class InstrumentalVariablesEstimator:
     """Instrumental Variables estimators via linearmodels."""
 
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
+    runtime_stack: ClassVar[tuple[str, ...]] = ("linearmodels", "pandas", "numpy")
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="instrumental_variables",
@@ -262,20 +344,13 @@ class InstrumentalVariablesEstimator:
             {
                 SlotSpec(
                     name="panel_data",
-                    slot_type=SlotType.MATRIX,
-                    unit=Unit("panel", "observations"),
-                )
-            }
-        ),
-        output_slots=frozenset(
-            {
-                SlotSpec(
-                    name="econometric_result",
                     slot_type=SlotType.SCALAR,
-                    unit=Unit("result", "json"),
+                    unit=Unit("panel", "dataset"),
+                    contract_id=PanelData.contract_id,
                 )
             }
         ),
+        output_slots=_iv_output_slots(),
         parameters=(
             ParameterSpec(name="method", default="2sls"),
             ParameterSpec(name="n_endogenous", default=1),
@@ -327,8 +402,130 @@ class InstrumentalVariablesEstimator:
         envelope = result.to_uncertainty_envelope(param_name=params.get("envelope_param"))
         return {
             "result": result,
-            "envelope": envelope,
+            "uncertainty_envelope": envelope,
         }
 
+    @staticmethod
+    def materialize_input(bound_inputs: Mapping[str, Any], fallback_state: Any) -> PanelData:
+        return _materialize_iv_data(bound_inputs, fallback_state)
 
-__all__ = ["InstrumentalVariablesEstimator"]
+
+@foundry_method(
+    namespace="econometrics.iv",
+    version="1.0.0",
+    tags={"econometrics", "instrumental-variables", "2sls"},
+)
+class TwoStageLeastSquaresEstimator:
+    """Dedicated 2SLS estimator with explicit slots."""
+
+    determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
+    runtime_stack: ClassVar[tuple[str, ...]] = ("linearmodels", "pandas", "numpy")
+
+    signature: ClassVar[MethodSignature] = MethodSignature(
+        name="two_stage_least_squares",
+        namespace="placeholder",
+        version="0.0.0",
+        input_slots=_iv_input_slots(),
+        output_slots=_iv_output_slots(),
+        parameters=(
+            ParameterSpec(name="n_endogenous", default=1),
+            ParameterSpec(name="cov_type", default="robust"),
+            ParameterSpec(name="confidence_level", default=0.95),
+            ParameterSpec(name="envelope_param", default=None),
+        ),
+        fidelity=FidelityLevel.HIGH,
+        complexity=ComplexityClass.O_N2,
+        backend=ComputeBackend.NUMPY,
+        supports_jit=False,
+        supports_vmap=False,
+        supports_grad=False,
+    )
+
+    metadata: ClassVar[MethodMetadata] = MethodMetadata(
+        description="Dedicated 2SLS IV estimator.",
+        tags=frozenset({"econometrics", "instrumental-variables", "2sls"}),
+        citations=InstrumentalVariablesEstimator.metadata.citations,
+        equations={
+            "2sls_stage1": InstrumentalVariablesEstimator.metadata.equations["2sls_stage1"],
+            "2sls_stage2": InstrumentalVariablesEstimator.metadata.equations["2sls_stage2"],
+        },
+        assumptions=InstrumentalVariablesEstimator.metadata.assumptions,
+    )
+
+    @staticmethod
+    def pure_step(state: PanelData, params: Mapping[str, Any]) -> dict[str, Any]:
+        data = state if isinstance(state, PanelData) else PanelData.model_validate(state)
+        result = _run_2sls(data, params)
+        return {
+            "result": result,
+            "uncertainty_envelope": result.to_uncertainty_envelope(
+                param_name=params.get("envelope_param")
+            ),
+        }
+
+    @staticmethod
+    def materialize_input(bound_inputs: Mapping[str, Any], fallback_state: Any) -> PanelData:
+        return _materialize_iv_data(bound_inputs, fallback_state)
+
+
+@foundry_method(
+    namespace="econometrics.iv",
+    version="1.0.0",
+    tags={"econometrics", "instrumental-variables", "gmm"},
+)
+class GMMEstimator:
+    """Dedicated GMM IV estimator with explicit slots."""
+
+    determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
+    runtime_stack: ClassVar[tuple[str, ...]] = ("linearmodels", "pandas", "numpy")
+
+    signature: ClassVar[MethodSignature] = MethodSignature(
+        name="gmm",
+        namespace="placeholder",
+        version="0.0.0",
+        input_slots=_iv_input_slots(),
+        output_slots=_iv_output_slots(),
+        parameters=(
+            ParameterSpec(name="n_endogenous", default=1),
+            ParameterSpec(name="cov_type", default="robust"),
+            ParameterSpec(name="weight_type", default="robust"),
+            ParameterSpec(name="confidence_level", default=0.95),
+            ParameterSpec(name="envelope_param", default=None),
+        ),
+        fidelity=FidelityLevel.HIGH,
+        complexity=ComplexityClass.O_N2,
+        backend=ComputeBackend.NUMPY,
+        supports_jit=False,
+        supports_vmap=False,
+        supports_grad=False,
+    )
+
+    metadata: ClassVar[MethodMetadata] = MethodMetadata(
+        description="Dedicated IV GMM estimator.",
+        tags=frozenset({"econometrics", "instrumental-variables", "gmm"}),
+        citations=InstrumentalVariablesEstimator.metadata.citations,
+        equations={"gmm_moment": InstrumentalVariablesEstimator.metadata.equations["gmm_moment"]},
+        assumptions=InstrumentalVariablesEstimator.metadata.assumptions,
+    )
+
+    @staticmethod
+    def pure_step(state: PanelData, params: Mapping[str, Any]) -> dict[str, Any]:
+        data = state if isinstance(state, PanelData) else PanelData.model_validate(state)
+        result = _run_gmm(data, params)
+        return {
+            "result": result,
+            "uncertainty_envelope": result.to_uncertainty_envelope(
+                param_name=params.get("envelope_param")
+            ),
+        }
+
+    @staticmethod
+    def materialize_input(bound_inputs: Mapping[str, Any], fallback_state: Any) -> PanelData:
+        return _materialize_iv_data(bound_inputs, fallback_state)
+
+
+__all__ = [
+    "GMMEstimator",
+    "InstrumentalVariablesEstimator",
+    "TwoStageLeastSquaresEstimator",
+]

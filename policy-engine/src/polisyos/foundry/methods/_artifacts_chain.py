@@ -4,12 +4,12 @@ and topology for CAS-backed provenance (Law J).
 """
 from __future__ import annotations
 
-import logging
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import TYPE_CHECKING, Any, ClassVar, Mapping, Sequence
 from uuid import UUID, uuid5
 
+from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import (
     ArtifactManifest,
@@ -20,6 +20,8 @@ from polisyos.core.artifacts.manifest import (
 )
 from polisyos.core.canon import (
     content_hash as compute_content_hash,
+)
+from polisyos.core.canon import (
     to_canonical_bytes,
     truncated_hash,
 )
@@ -41,7 +43,7 @@ __all__ = [
     "ChainArtifact",
 ]
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 CHAIN_ID_NAMESPACE = uuid5(UUID("6ba7b811-9dad-11d1-80b4-00c04fd430c8"), "polisyos.chain")
 

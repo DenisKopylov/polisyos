@@ -121,9 +121,17 @@ class TransportFormula(BaseModel):
 
 
 class TransportabilityStatus(str, Enum):
+    IDENTIFIED = "identified"
+    PARTIALLY_IDENTIFIED = "partially_identified"
+    BOUNDED_NON_IDENTIFIED = "bounded_non_identified"
+    UNSUPPORTED = "unsupported"
+
+
+class TransportMode(str, Enum):
     DIRECT = "direct"
-    TRANSPORTABLE = "transportable"
-    NON_TRANSPORTABLE = "non_transportable"
+    TRANSPORT_FORMULA = "transport_formula"
+    BOUNDS_ONLY = "bounds_only"
+    NONE = "none"
 
 
 class DataGap(BaseModel):
@@ -138,15 +146,17 @@ class DataGap(BaseModel):
 
 
 class TransportabilityResult(BaseModel):
-    """Phase 12 transportability contract (backward compatible with Phase 8A fields)."""
+    """Phase 13 transportability contract with legacy-read compatibility."""
 
     model_config = ConfigDict(extra="forbid")
 
-    schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
+    schema_version: str = Field("2.0", pattern=r"^\d+\.\d+$")
     query: str = ""
 
-    status: TransportabilityStatus = TransportabilityStatus.DIRECT
+    status: TransportabilityStatus = TransportabilityStatus.IDENTIFIED
+    transport_mode: TransportMode = TransportMode.DIRECT
     transport_formula: TransportFormula | None = None
+    identified_region: dict[str, Any] | None = None
     blocking_s_nodes: list[SNode] = Field(default_factory=list)
 
     base_confidence: float = 1.0
@@ -154,8 +164,8 @@ class TransportabilityResult(BaseModel):
     data_availability_penalty: float = 0.0
     final_confidence: float = 1.0
 
-    algorithm_version: str = "simplified_tr_v2"
-    identification_engine: str = "simplified"
+    algorithm_version: str = "trso_v2"
+    identification_engine: str = "simplified_legacy"
     identification_trace: list[str] = Field(default_factory=list)
     unsupported_reason: str | None = None
     unsupported_cases: list[str] = Field(default_factory=list)
@@ -198,7 +208,7 @@ class TransportabilityResult(BaseModel):
     expert_review_reasons: list[str] = Field(default_factory=list)
     proxy_validity: dict[str, dict[str, Any]] = Field(default_factory=dict)
 
-    # Phase 12 advanced: partial identification fallback for non-transportable cases.
+    # Phase 12 advanced: partial identification fallback for non-identified cases.
     partial_identification_result: PartialIdentificationResult | None = None
 
     # Backward-compatible Phase 8A fields.
@@ -215,17 +225,25 @@ class TransportabilityResult(BaseModel):
     ) -> Any:
         if not isinstance(payload, dict):
             return payload
+        payload = dict(payload)
         if "transport_formula" not in payload and "formula" in payload:
-            payload = dict(payload)
             payload["transport_formula"] = payload.get("formula")
         if "formula" in payload:
-            payload = dict(payload)
             payload.pop("formula", None)
+        status_raw = str(payload.get("status", "")).strip().lower()
+        if status_raw in {"direct", "transportable", "non_transportable"}:
+            mapped_status, mapped_mode = _map_legacy_status_payload(payload)
+            payload["status"] = mapped_status.value
+            payload.setdefault("transport_mode", mapped_mode.value)
+        elif "transport_mode" not in payload:
+            payload["transport_mode"] = _derive_transport_mode(payload).value
+        payload["identification_engine"] = _normalize_identification_engine(payload)
+        if str(payload.get("schema_version", "")).strip() in {"", "1.0"}:
+            payload["schema_version"] = "2.0"
         return payload
 
     @model_validator(mode="after")
     def _normalize_contract(self) -> "TransportabilityResult":
-
         self.base_confidence = _clamp01(self.base_confidence)
         self.context_distance_penalty = _clamp01(self.context_distance_penalty)
         self.data_availability_penalty = _clamp01(self.data_availability_penalty)
@@ -251,7 +269,42 @@ class TransportabilityResult(BaseModel):
             and self.pag_transportable_count > self.pag_dag_sample_size
         ):
             raise ValueError("pag_transportable_count cannot exceed pag_dag_sample_size")
+        if self.status is TransportabilityStatus.IDENTIFIED:
+            if self.transport_mode is TransportMode.NONE:
+                raise ValueError("identified transportability result cannot use transport_mode=none")
+            if (
+                self.transport_mode is TransportMode.TRANSPORT_FORMULA
+                and self.transport_formula is None
+            ):
+                raise ValueError("transport_mode=transport_formula requires transport_formula")
+        if self.status is TransportabilityStatus.PARTIALLY_IDENTIFIED:
+            if self.transport_mode is TransportMode.NONE:
+                raise ValueError(
+                    "partially_identified transportability result cannot use transport_mode=none"
+                )
+            if self.transport_formula is None and self.identified_region is None:
+                raise ValueError(
+                    "partially_identified requires transport_formula or identified_region"
+                )
+        if self.status is TransportabilityStatus.BOUNDED_NON_IDENTIFIED:
+            self.transport_mode = TransportMode.BOUNDS_ONLY
+            if self.partial_identification_result is None:
+                raise ValueError(
+                    "bounded_non_identified requires partial_identification_result"
+                )
+            self.transport_formula = None
+        if self.status is TransportabilityStatus.UNSUPPORTED:
+            self.transport_mode = TransportMode.NONE
+            self.transport_formula = None
+            if not self.unsupported_reason:
+                self.unsupported_reason = "transport_unsupported"
         return self
+
+    def is_identified(self) -> bool:
+        return self.status in {
+            TransportabilityStatus.IDENTIFIED,
+            TransportabilityStatus.PARTIALLY_IDENTIFIED,
+        }
 
 
 def build_selection_diagram(
@@ -357,7 +410,7 @@ def _get_context_numeric(ctx: ContextProfile, dim: str) -> float | None:
         value = ctx.income_level
         try:
             return order[IncomeLevel(value)]
-        except Exception:
+        except (KeyError, ValueError):
             return 0.5
     raw = getattr(ctx, dim, None)
     if raw is None:
@@ -384,6 +437,74 @@ def _clamp01(value: float) -> float:
     return float(value)
 
 
+def _derive_transport_mode(payload: dict[str, Any]) -> TransportMode:
+    if payload.get("partial_identification_result") is not None:
+        return TransportMode.BOUNDS_ONLY
+    formula = payload.get("transport_formula")
+    if formula is not None:
+        if hasattr(formula, "model_dump"):
+            formula_payload = formula.model_dump(mode="json")
+        elif isinstance(formula, dict):
+            formula_payload = formula
+        else:
+            formula_payload = {}
+        target_quantities = formula_payload.get("target_quantities", [])
+        if target_quantities:
+            return TransportMode.TRANSPORT_FORMULA
+    status_raw = str(payload.get("status", "")).strip().lower()
+    if status_raw in {"identified", "partially_identified"}:
+        return TransportMode.DIRECT
+    return TransportMode.DIRECT
+
+
+def _map_legacy_status_payload(
+    payload: dict[str, Any],
+) -> tuple[TransportabilityStatus, TransportMode]:
+    status_raw = str(payload.get("status", "")).strip().lower()
+    if status_raw == "direct":
+        return TransportabilityStatus.IDENTIFIED, TransportMode.DIRECT
+    if status_raw == "transportable":
+        return TransportabilityStatus.IDENTIFIED, TransportMode.TRANSPORT_FORMULA
+    partial = payload.get("partial_identification_result")
+    if isinstance(partial, dict):
+        try:
+            parsed = PartialIdentificationResult.model_validate(partial)
+        except (ValueError, TypeError):
+            parsed = None
+        if parsed is not None and parsed.is_informative:
+            payload["partial_identification_result"] = parsed.model_dump(mode="json")
+            return (
+                TransportabilityStatus.BOUNDED_NON_IDENTIFIED,
+                TransportMode.BOUNDS_ONLY,
+            )
+    return TransportabilityStatus.UNSUPPORTED, TransportMode.NONE
+
+
+def _normalize_identification_engine(payload: dict[str, Any]) -> str:
+    raw = str(payload.get("identification_engine", "") or "").strip().lower()
+    trace = [str(item) for item in payload.get("identification_trace", [])]
+    if raw in {"", "simplified"}:
+        return "simplified_legacy"
+    if raw == "bounds_only":
+        return "bounds_only"
+    if raw in {"r", "r_causaleffect"}:
+        return "r_causaleffect"
+    if raw in {"y0", "symbolic_y0"}:
+        return "y0"
+    if raw in {"symbolic", "symbolic_r", "full_auto"}:
+        joined = " ".join(trace)
+        if "symbolic_backend_selected:r" in joined or "symbolic_backend_requested:r" in joined:
+            return "r_causaleffect"
+        if (
+            "symbolic_backend_selected:y0" in joined
+            or "symbolic_backend_requested:y0" in joined
+            or "symbolic_backend_requested:full_auto" in joined
+        ):
+            return "y0"
+        return "y0"
+    return raw
+
+
 __all__ = [
     "CONTEXT_VARIABLE_SENSITIVITY",
     "THRESHOLD_FOR_S_NODE",
@@ -394,6 +515,7 @@ __all__ = [
     "StratificationVariable",
     "TransportFormula",
     "TransportabilityStatus",
+    "TransportMode",
     "DataGap",
     "TransportabilityResult",
     "build_selection_diagram",

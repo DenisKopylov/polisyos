@@ -3,18 +3,21 @@ from __future__ import annotations
 
 import asyncio
 import json
-import logging
 import time
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
+from polisyos.common.logger import get_logger
 from polisyos.core.cache import TTLCache
 from polisyos.core.canon import truncated_hash
 from polisyos.core.observability import get_metrics
 from polisyos.core.security.access_scope import AccessScope
 
-logger = logging.getLogger("polisyos.security.authz")
+if TYPE_CHECKING:
+    import aiohttp
+
+logger = get_logger("polisyos.security.authz")
 
 
 class AuthzDecision(str, Enum):
@@ -208,7 +211,7 @@ class OPAClient:
             max_size=self._cache_max_size,
             time_fn=time.monotonic,
         )
-        self._session: Any = None
+        self._session: aiohttp.ClientSession | None = None
         self._lock = asyncio.Lock()
 
     async def _ensure_session(self) -> None:
@@ -237,7 +240,7 @@ class OPAClient:
         started = time.monotonic()
         try:
             payload = await self._query_opa(authz_input)
-        except Exception as exc:
+        except (AttributeError, KeyError, OSError, RuntimeError, TimeoutError, TypeError, ValueError) as exc:
             latency_ms = (time.monotonic() - started) * 1000.0
             logger.error("OPA authorization query failed, deny-by-default: %s", exc)
             get_metrics().record_authz_error(policy=self._policy_path, reason="opa_unreachable")

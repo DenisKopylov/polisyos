@@ -21,6 +21,7 @@ from polisyos.scientist.agent.protocols import (
     CritiqueIssue,
     CritiqueReport,
     CritiqueSeverity,
+    DataNeedExtractorAgent,
     DelegationResult,
     DrafterAgent,
     DraftResult,
@@ -116,11 +117,18 @@ class TestProtocolConformance:
         assert isinstance(mock_critic, CriticAgent)
 
     def test_protocol_registry_completeness(self) -> None:
-        expected_roles = {AgentRole.PI, AgentRole.DRAFTER, AgentRole.FORMALIZER, AgentRole.CRITIC}
+        expected_roles = {
+            AgentRole.PI,
+            AgentRole.DATA_NEED_EXTRACTOR,
+            AgentRole.DRAFTER,
+            AgentRole.FORMALIZER,
+            AgentRole.CRITIC,
+        }
         assert set(AGENT_PROTOCOLS.keys()) == expected_roles
 
     def test_get_protocol_for_role(self) -> None:
         assert get_protocol_for_role(AgentRole.PI) is PIAgent
+        assert get_protocol_for_role(AgentRole.DATA_NEED_EXTRACTOR) is DataNeedExtractorAgent
         assert get_protocol_for_role(AgentRole.DRAFTER) is DrafterAgent
         assert get_protocol_for_role(AgentRole.FORMALIZER) is FormalizerAgent
         assert get_protocol_for_role(AgentRole.CRITIC) is CriticAgent

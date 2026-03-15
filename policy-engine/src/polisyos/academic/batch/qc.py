@@ -13,9 +13,12 @@ from pathlib import Path
 
 import duckdb
 
+from polisyos.academic.batch.config import AcademicBatchConfig
 from polisyos.batch_common.manifest import write_stage_manifest
 from polisyos.batch_common.qc import QCCheck, QCReport, evaluate_fail_fast, write_qc_report
-from polisyos.academic.batch.config import AcademicBatchConfig
+from polisyos.common.logger import get_logger
+
+logger = get_logger(__name__)
 
 _CANONICAL_VAR_RE = re.compile(r"^[a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*){0,3}$")
 
@@ -265,6 +268,102 @@ def run_qc(
                 threshold=60.0,
             )
         )
+        checks.append(
+            QCCheck(
+                name="selected_unique_budget_hit",
+                passed=len(work_ids) >= int(config.selected_unique_budget),
+                severity="warning",
+                value=len(work_ids),
+                threshold=int(config.selected_unique_budget),
+            )
+        )
+
+    # 3b) Resolve attempt/final parity and retry semantics.
+    attempt_path = (
+        config.resolve_extract_attempts_path
+        if config.resolve_extract_attempts_path.exists()
+        else config.resolve_extract_results_path
+    )
+    final_results_path = config.resolve_extract_final_results_path
+    if attempt_path.exists():
+        attempt_work_ids: list[str] = []
+        zero_token_attempts = 0
+        retryable_error_attempts = 0
+        with open(attempt_path, "r", encoding="utf-8") as fh:
+            for line in fh:
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    row = json.loads(line)
+                except json.JSONDecodeError:
+                    continue
+                if not isinstance(row, dict):
+                    continue
+                work_id = str(row.get("openalex_id") or row.get("work_id") or "").strip()
+                if work_id:
+                    attempt_work_ids.append(work_id)
+                prompt_tokens = int(row.get("token_count_prompt") or 0)
+                completion_tokens = int(row.get("token_count_completion") or 0)
+                if prompt_tokens == 0 and completion_tokens == 0:
+                    zero_token_attempts += 1
+                if str(row.get("llm_error_class") or "") in {"provider_http_429", "provider_http_5xx", "timeout"}:
+                    retryable_error_attempts += 1
+        duplicate_attempts = len(attempt_work_ids) - len(set(attempt_work_ids))
+        zero_token_share = (zero_token_attempts / max(1, len(attempt_work_ids))) * 100.0 if attempt_work_ids else 0.0
+        metrics["resolve_attempts_total"] = len(attempt_work_ids)
+        metrics["resolve_attempt_duplicate_rows"] = duplicate_attempts
+        metrics["resolve_attempt_zero_token_share_pct"] = round(zero_token_share, 3)
+        metrics["resolve_attempt_retryable_error_rows"] = retryable_error_attempts
+        checks.append(
+            QCCheck(
+                name="resolve_attempt_duplicate_rows",
+                passed=duplicate_attempts == 0,
+                severity="warning",
+                value=duplicate_attempts,
+                threshold=0,
+            )
+        )
+        checks.append(
+            QCCheck(
+                name="resolve_attempt_zero_token_share_pct",
+                passed=zero_token_share <= 5.0,
+                severity="warning",
+                value=round(zero_token_share, 3),
+                threshold=5.0,
+            )
+        )
+
+    if final_results_path.exists():
+        final_work_ids: list[str] = []
+        with open(final_results_path, "r", encoding="utf-8") as fh:
+            for line in fh:
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    row = json.loads(line)
+                except json.JSONDecodeError:
+                    continue
+                if not isinstance(row, dict):
+                    continue
+                work_id = str(row.get("openalex_id") or row.get("work_id") or "").strip()
+                if work_id:
+                    final_work_ids.append(work_id)
+        duplicate_final_rows = len(final_work_ids) - len(set(final_work_ids))
+        metrics["resolve_final_rows"] = len(final_work_ids)
+        metrics["resolve_final_duplicate_rows"] = duplicate_final_rows
+        if attempt_path.exists():
+            metrics["resolve_attempt_final_parity_gap"] = max(0, len(set(attempt_work_ids)) - len(set(final_work_ids)))
+        checks.append(
+            QCCheck(
+                name="resolve_final_duplicate_rows",
+                passed=duplicate_final_rows == 0,
+                severity="critical",
+                value=duplicate_final_rows,
+                threshold=0,
+            )
+        )
 
     # 4) LLM gate metrics (if manifest exists)
     if config.llm_gate_manifest_path.exists():
@@ -343,7 +442,9 @@ def run_qc(
         )
 
     # 4c) raw/published claim metrics.
-    if config.raw_claim_candidates_path.exists() or config.published_claims_path.exists():
+    raw_claims_path = config.raw_claim_candidates_final_path if config.raw_claim_candidates_final_path.exists() else config.raw_claim_candidates_path
+    published_claims_path = config.published_claims_final_path if config.published_claims_final_path.exists() else config.published_claims_path
+    if raw_claims_path.exists() or published_claims_path.exists():
         raw_claims_total = 0
         publishable_total = 0
         abstract_only_publishable = 0
@@ -352,9 +453,11 @@ def run_qc(
         published_tier_counts: Counter[str] = Counter()
         raw_contaminated = 0
         published_contaminated = 0
+        raw_claim_ids: list[str] = []
+        published_claim_ids: list[str] = []
 
-        if config.raw_claim_candidates_path.exists():
-            with open(config.raw_claim_candidates_path, "r", encoding="utf-8") as fh:
+        if raw_claims_path.exists():
+            with open(raw_claims_path, "r", encoding="utf-8") as fh:
                 for line in fh:
                     line = line.strip()
                     if not line:
@@ -365,14 +468,17 @@ def run_qc(
                         continue
                     if isinstance(row, dict):
                         raw_claims_total += 1
+                        claim_id = str(row.get("claim_id") or "").strip()
+                        if claim_id:
+                            raw_claim_ids.append(claim_id)
                         tier = str(row.get("design_quality_tier") or "").strip()
                         if tier:
                             raw_tier_counts[tier] += 1
                         if bool(row.get("span_contamination_detected")):
                             raw_contaminated += 1
 
-        if config.published_claims_path.exists():
-            with open(config.published_claims_path, "r", encoding="utf-8") as fh:
+        if published_claims_path.exists():
+            with open(published_claims_path, "r", encoding="utf-8") as fh:
                 for line in fh:
                     line = line.strip()
                     if not line:
@@ -384,6 +490,9 @@ def run_qc(
                     if not isinstance(row, dict):
                         continue
                     publishable_total += 1
+                    claim_id = str(row.get("claim_id") or "").strip()
+                    if claim_id:
+                        published_claim_ids.append(claim_id)
                     tier = str(row.get("design_quality_tier") or "").strip()
                     if tier:
                         published_tier_counts[tier] += 1
@@ -424,6 +533,8 @@ def run_qc(
             (raw_contaminated / max(1, raw_claims_total)) * 100.0 if raw_claims_total else 0.0,
             3,
         )
+        metrics["raw_claim_duplicate_rows"] = len(raw_claim_ids) - len(set(raw_claim_ids))
+        metrics["published_claim_duplicate_rows"] = len(published_claim_ids) - len(set(published_claim_ids))
 
         checks.append(
             QCCheck(
@@ -459,6 +570,15 @@ def run_qc(
                 value=round(published_tier4_share, 3),
                 threshold=40.0,
                 severity="warning",
+            )
+        )
+        checks.append(
+            QCCheck(
+                name="published_claim_duplicate_rows",
+                passed=metrics["published_claim_duplicate_rows"] == 0,
+                value=metrics["published_claim_duplicate_rows"],
+                threshold=0,
+                severity="critical",
             )
         )
 
@@ -632,8 +752,8 @@ def run_qc(
                     with urllib.request.urlopen(req, timeout=10) as resp:
                         if int(resp.status) < 500:
                             reachable += 1
-                except Exception:
-                    pass
+                except Exception as exc:
+                    logger.debug("Ignored exception: {}", exc)
 
     reach_pct = (100.0 * reachable / checked) if checked else 100.0
     metrics["oa_url_checked"] = checked

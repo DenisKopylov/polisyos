@@ -18,6 +18,7 @@ class QCCheck:
     value: float | int | str | None = None
     threshold: float | int | str | None = None
     message: str = ""
+    status: str = ""  # passed | failed | unstable | skipped
 
 
 @dataclass
@@ -45,6 +46,7 @@ class QCReport:
                     "value": c.value,
                     "threshold": c.threshold,
                     "message": c.message,
+                    "status": c.status or ("passed" if c.passed else "failed"),
                 }
                 for c in self.checks
             ],

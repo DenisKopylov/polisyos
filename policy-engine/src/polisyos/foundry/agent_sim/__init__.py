@@ -6,11 +6,18 @@ from .actor_critic import (
     compute_log_prob,
     sample_actions,
 )
+from .analysis import AgentCluster, BehaviorAnalyzer
 from .credit_assignment import (
     CentralizedCritic,
     CreditConfig,
     CreditMode,
     compute_credit_assignment,
+)
+from .dashboard import DashboardConfig, DashboardGenerator
+from .demographics import (
+    compute_demographic_metrics,
+    compute_intergenerational_mobility,
+    compute_population_pyramid,
 )
 from .distribution_executor import (
     DistributionAwareExecutor,
@@ -20,47 +27,6 @@ from .distribution_mechanisms import (
     DistributionAwareTaxMechanism,
     RelativeConsumptionMechanism,
     TargetedTransferMechanism,
-)
-from .demographics import (
-    compute_demographic_metrics,
-    compute_intergenerational_mobility,
-    compute_population_pyramid,
-)
-from .evolution import (
-    CMAESConfig,
-    ESConfig,
-    run_cma_es,
-    run_evolution_strategies,
-)
-from .graph_executor import GraphAwareExecutor, create_graph_aware_executor
-from .graph_mechanisms import (
-    InformationDiffusionMechanism,
-    LaborNetworkMechanism,
-    NetworkLendingMechanism,
-    SocialInfluenceMechanism,
-)
-from .graph_observations import build_graph_enhanced_observations
-from .graphs import (
-    DynamicGraphUpdater,
-    EdgeList,
-    EdgeType,
-    FixedSizeEdgeList,
-    GraphState,
-    MultiEdgeList,
-    aggregate_messages,
-    apply_edge_attention,
-    compute_degrees,
-    compute_degree_centrality,
-    compute_graph_metrics,
-    compute_pagerank,
-    create_fixed_size_graph,
-    create_random_graph,
-    create_scale_free_graph,
-    create_spatial_graph,
-    create_watts_strogatz_graph,
-    multi_hop_aggregation,
-    scatter_messages,
-    segment_softmax,
 )
 from .distributions import (
     AdaptiveUpdateStrategy,
@@ -72,6 +38,7 @@ from .distributions import (
     RewardConfig,
     batch_assign_to_quantile_groups,
     batch_compute_group_means,
+    compress_distribution_state,
     compute_bottom_share,
     compute_distribution_aware_reward,
     compute_gini,
@@ -91,31 +58,56 @@ from .distributions import (
     compute_ranks_soft,
     compute_top_share,
     compute_transition_matrix,
-    compress_distribution_state,
     create_distribution_update_schedule,
     maybe_update_distributions,
 )
-from .metrics import (
-    MetricDefinition,
-    MetricType,
-    MetricsBuffer,
-    MetricsCollector,
-    standard_training_metrics,
-    training_loss_metrics,
+from .evolution import (
+    CMAESConfig,
+    ESConfig,
+    run_cma_es,
+    run_evolution_strategies,
 )
-from .analysis import AgentCluster, BehaviorAnalyzer
-from .dashboard import DashboardConfig, DashboardGenerator
+from .executor import MechanismOrder, PureExecutor
 from .experiment import (
     ExperimentConfig,
     ExperimentResult,
     ExperimentRun,
     ExperimentTracker,
 )
-from .executor import MechanismOrder, PureExecutor
 from .government_policy import (
     GovernmentPolicy,
     GovernmentTrainingConfig,
     train_government_policy,
+)
+from .graph_executor import GraphAwareExecutor, create_graph_aware_executor
+from .graph_mechanisms import (
+    InformationDiffusionMechanism,
+    LaborNetworkMechanism,
+    NetworkLendingMechanism,
+    SocialInfluenceMechanism,
+)
+from .graph_observations import build_graph_enhanced_observations
+from .graphs import (
+    DynamicGraphUpdater,
+    EdgeList,
+    EdgeType,
+    FixedSizeEdgeList,
+    GraphState,
+    MultiEdgeList,
+    aggregate_messages,
+    apply_edge_attention,
+    compute_degree_centrality,
+    compute_degrees,
+    compute_graph_metrics,
+    compute_pagerank,
+    create_fixed_size_graph,
+    create_random_graph,
+    create_scale_free_graph,
+    create_spatial_graph,
+    create_watts_strogatz_graph,
+    multi_hop_aggregation,
+    scatter_messages,
+    segment_softmax,
 )
 from .jit_training import (
     JITTrainingConfig,
@@ -125,15 +117,26 @@ from .jit_training import (
 )
 from .mechanism import Mechanism, MechanismSpec
 from .mechanisms import ConsumptionMechanism, TaxationMechanism
-from .modes import CalibrationTarget, run_mode_a, run_mode_b, run_mode_c
+from .metrics import (
+    MetricDefinition,
+    MetricsBuffer,
+    MetricsCollector,
+    MetricType,
+    standard_training_metrics,
+    training_loss_metrics,
+)
 from .modes import (
     BilevelConfig,
+    CalibrationTarget,
     LearningMode,
     ModeAConfig,
     ModeBConfig,
     run_bilevel,
+    run_mode_a,
     run_mode_a_jit,
+    run_mode_b,
     run_mode_b_jit,
+    run_mode_c,
     social_welfare_objective,
 )
 from .mpc import HybridPlanner, MPCPlanner
@@ -173,11 +176,10 @@ from .rewards import (
     compute_agent_reward_with_credit,
 )
 from .rl import Trajectory, Transition, compute_returns_and_advantages, ppo_loss
-from .state import AggregateState, AgentState, GlobalState, PolicyState, compute_aggregates
+from .state import AgentState, AggregateState, GlobalState, PolicyState, compute_aggregates
 from .temporal import TemporalObservation, build_temporal_mask, build_temporal_observations
 from .temporal_executor import create_temporal_executor
 from .temporal_mechanisms import TemporalConsumptionMechanism
-from .visualization import TrainingVisualizer, VisualizationConfig
 from .training import (
     TrainingConfig,
     collect_trajectory,
@@ -186,6 +188,7 @@ from .training import (
     train_actor_critic_with_artifact,
 )
 from .vfi import OfflineVFI, VFILookupTable
+from .visualization import TrainingVisualizer, VisualizationConfig
 
 __all__ = [
     "ActorCritic",

@@ -1,14 +1,19 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
 import json
 import time
+from datetime import datetime, timezone
 from typing import Any, AsyncIterator, ClassVar
 
 import pandas as pd
 
 from polisyos.core.canon import content_hash as compute_content_hash
-from polisyos.fabric.connectors.base import ConnectionHandle, FetchRequest, FetchResult, HealthStatus
+from polisyos.fabric.connectors.base import (
+    ConnectionHandle,
+    FetchRequest,
+    FetchResult,
+    HealthStatus,
+)
 from polisyos.fabric.connectors.sources._contracts.eurostat_contracts import EUROSTAT_GENERIC_SCHEMA
 from polisyos.fabric.connectors.sources.http_base import HTTPConnectorBase, HTTPResilienceProfile
 from polisyos.fabric.connectors.sources.http_common import frame_completeness, safe_float, safe_int
@@ -158,9 +163,18 @@ class EurostatConnector(HTTPConnectorBase[pd.DataFrame]):
         for key, values in request.filters:
             if values:
                 params[key] = ",".join(values)
-        if request.date_start is not None and request.date_end is not None and "time" not in params:
-            years = [str(year) for year in range(request.date_start.year, request.date_end.year + 1)]
-            params["time"] = ",".join(years)
+        if (
+            request.date_start is not None
+            and "time" not in params
+            and "sinceTimePeriod" not in params
+        ):
+            params["sinceTimePeriod"] = str(request.date_start.year)
+        if (
+            request.date_end is not None
+            and "time" not in params
+            and "untilTimePeriod" not in params
+        ):
+            params["untilTimePeriod"] = str(request.date_end.year)
         return params
 
     @staticmethod

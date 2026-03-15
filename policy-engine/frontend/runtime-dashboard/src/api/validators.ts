@@ -137,6 +137,9 @@ const governanceDebugViewSchema = z.object({
   transport_summary: z.record(z.string(), z.unknown()).nullable().optional(),
   validation_trace: z.record(z.string(), z.unknown()).nullable().optional(),
   contract_warnings: z.array(z.string()).optional(),
+  decision_validity: z.record(z.string(), z.unknown()).nullable().optional(),
+  normative_summary: z.record(z.string(), z.unknown()).nullable().optional(),
+  normative_arbitration_result_ref: artifactRefSchema.nullable().optional(),
   fallback_from_decision_packet: z.boolean().optional(),
 });
 

@@ -7,6 +7,7 @@ from typing import Any, ClassVar
 
 import numpy as np
 
+from polisyos.common.logger import get_logger
 from polisyos.core.observability.determinism import DeterminismTier
 from polisyos.foundry.methods.base import (
     ComplexityClass,
@@ -34,10 +35,13 @@ from polisyos.ir.analytics.causal import (
     RefutationTestType,
 )
 
+logger = get_logger(__name__)
+
 
 def _load_dowhy_dependencies() -> tuple[Any, Any]:
     import dowhy
     import pandas as pd
+
 
     return dowhy, pd
 
@@ -60,7 +64,10 @@ def _extract_standard_error(estimate: Any) -> float | None:
         if value is None:
             return None
         scalar = _to_float_scalar(value)
-    except Exception:
+    except (TypeError, ValueError) as exc:
+        logger.debug(
+            "Failed to extract standard error from estimate: %s", exc,
+        )
         return None
     if scalar < 0:
         return None
@@ -72,7 +79,10 @@ def _extract_confidence_interval(estimate: Any) -> tuple[float, float] | None:
         return None
     try:
         interval = estimate.get_confidence_intervals()
-    except Exception:
+    except (TypeError, ValueError) as exc:
+        logger.debug(
+            "Failed to extract confidence intervals from estimate: %s", exc,
+        )
         return None
     if interval is None:
         return None
@@ -129,7 +139,10 @@ def _extract_p_value(refutation: Any) -> float | None:
         return None
     try:
         value = _to_float_scalar(raw)
-    except Exception:
+    except (TypeError, ValueError) as exc:
+        logger.debug(
+            "Failed to parse p-value from refutation result: %s", exc,
+        )
         return None
     if 0.0 <= value <= 1.0:
         return value
@@ -144,7 +157,10 @@ def _extract_refuted_estimate(refutation: Any, *, fallback: float) -> float:
                 continue
             try:
                 return _to_float_scalar(candidate)
-            except Exception:
+            except (TypeError, ValueError) as exc:
+                logger.debug(
+                    "Failed to convert refuted estimate attr %r: %s", attr, exc,
+                )
                 continue
 
     if hasattr(refutation, "new_effect_array"):
@@ -153,8 +169,8 @@ def _extract_refuted_estimate(refutation: Any, *, fallback: float) -> float:
             values = values[np.isfinite(values)]
             if values.size > 0:
                 return float(np.mean(values))
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.debug("Ignored exception: %s", exc)
 
     raw_result = getattr(refutation, "refutation_result", None)
     if isinstance(raw_result, Mapping):
@@ -163,7 +179,10 @@ def _extract_refuted_estimate(refutation: Any, *, fallback: float) -> float:
                 continue
             try:
                 return _to_float_scalar(raw_result[key])
-            except Exception:
+            except (TypeError, ValueError) as exc:
+                logger.debug(
+                    "Failed to convert refutation_result[%r]: %s", key, exc,
+                )
                 continue
 
     return fallback

@@ -6,7 +6,7 @@ from polisyos.core.compiler.report import CompileReport
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import from_canonical_bytes
-from polisyos.core.contracts.foundry import CompileRequest, ProgramGraph
+from polisyos.core.contracts.foundry import CompileRequest, ExecPlan, LoweredIR, ProgramGraph
 from polisyos.core.registry import (
     build_default_registry_bundle,
     build_registry_bundle,
@@ -127,7 +127,7 @@ def test_compile_trinity_facade(tmp_path) -> None:
     assert graph.ir_ref.kind == "ir.trinity_bundle"
 
 
-def test_compile_trinity_emits_contract_warnings_for_ignored_bindings_and_fidelity(tmp_path) -> None:
+def test_compile_trinity_lowers_bindings_and_fidelity(tmp_path) -> None:
     store = FileSystemCAS(tmp_path)
     bundle = build_default_registry_bundle(store)
     trinity_bundle = TrinityBundle(
@@ -175,13 +175,26 @@ def test_compile_trinity_emits_contract_warnings_for_ignored_bindings_and_fideli
     )
 
     assert result.ok is True
-    assert "link_warning:deprecated_mechanism_bindings" in result.notes
-    assert "link_warning:model_fidelity_level_ignored" in result.notes
+    assert result.exec_plan_ref is not None
+    assert "link_warning:deprecated_mechanism_bindings" not in result.notes
+    assert "link_warning:model_fidelity_level_ignored" not in result.notes
+    lowered_ir_ref = next(ref.ref for ref in result.derived_refs if ref.role == "lowered_ir")
+    lowered_ir_payload = from_canonical_bytes(store.get_bytes(lowered_ir_ref.artifact_id))
+    lowered_ir = LoweredIR.model_validate(lowered_ir_payload)
+    assert lowered_ir.mechanisms[0].binding_id == "binding_1"
+    assert lowered_ir.mechanisms[0].selected_fidelity == "hard"
 
     compile_payload = from_canonical_bytes(store.get_bytes(result.compile_report_ref.artifact_id))
     compile_report = CompileReport.model_validate(compile_payload)
-    assert "link_warning:deprecated_mechanism_bindings" in compile_report.notes
-    assert "link_warning:model_fidelity_level_ignored" in compile_report.notes
+    assert compile_report.lowered_ir_ref is not None
+    assert "trinity_coverage_audit:ok" in compile_report.semantic_closure_notes
+    assert "link_warning:deprecated_mechanism_bindings" not in compile_report.notes
+    assert "link_warning:model_fidelity_level_ignored" not in compile_report.notes
+
+    exec_plan_payload = from_canonical_bytes(store.get_bytes(result.exec_plan_ref.artifact_id))
+    exec_plan = ExecPlan.model_validate(exec_plan_payload)
+    assert exec_plan.policy_fidelity_level == FidelityLevel.FULL_DISCRETE.value
+    assert exec_plan.constraint_mode == "hard_soft_v1"
 
     link_payload = from_canonical_bytes(store.get_bytes(compile_report.link_report_ref.artifact_id))
     link_report = LinkReport.model_validate(link_payload)
@@ -190,8 +203,61 @@ def test_compile_trinity_emits_contract_warnings_for_ignored_bindings_and_fideli
         for issue in link_report.issues
         if issue.severity.value == "warning"
     }
-    assert LinkIssueCode.DEPRECATED_MECHANISM_BINDINGS in warning_codes
-    assert LinkIssueCode.MODEL_FIDELITY_LEVEL_IGNORED in warning_codes
+    assert LinkIssueCode.DEPRECATED_MECHANISM_BINDINGS not in warning_codes
+    assert LinkIssueCode.MODEL_FIDELITY_LEVEL_IGNORED not in warning_codes
+
+
+def test_compile_trinity_fails_on_binding_kind_mismatch(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path)
+    bundle = build_default_registry_bundle(store)
+    trinity_bundle = TrinityBundle(
+        problem_frame=ProblemFrame(problem_id="problem_binding_mismatch", domain=ProblemDomain.FISCAL),
+        policy_spec=PolicySpec(
+            policy_id="policy_binding_mismatch",
+            interventions=[
+                InterventionSpec(
+                    intervention_id="tax_cut",
+                    kind="income_tax",
+                    target={
+                        "kind": "predicate",
+                        "field": "id",
+                        "operator": SelectorOperator.EQUALS,
+                        "value": "all",
+                    },
+                    schedule={"start_step": 0, "duration_steps": 1},
+                    params={"rate": Decimal("0.1")},
+                )
+            ],
+            mechanism_bindings=[
+                MechanismBinding(
+                    binding_id="binding_1",
+                    mechanism_id="tax_subsidy",
+                    intervention_ids=["tax_cut"],
+                )
+            ],
+        ),
+        model_spec=ModelSpec(
+            model_id="model_binding_mismatch",
+            data_snapshot_ref="sha256:0000000000000000000000000000000000000000000000000000000000000000",
+            registry_bundle_ref=str(bundle.bundle_ref.artifact_id),
+        ),
+    )
+    policy_ref = _put_trinity_bundle(store, trinity_bundle)
+
+    result = compile_foundry(
+        store,
+        CompileRequest(
+            input_kind="trinity",
+            policy_ref=policy_ref,
+            registry_bundle_ref=bundle.bundle_ref,
+        ),
+    )
+
+    assert result.ok is False
+    assert (
+        "semantic_lowering_failed:mechanism_binding_kind_mismatch:tax_cut:income_tax!=tax_subsidy"
+        in result.notes
+    )
 
 
 def test_compile_trinity_fails_fast_when_mechanism_has_no_runtime_support(tmp_path) -> None:

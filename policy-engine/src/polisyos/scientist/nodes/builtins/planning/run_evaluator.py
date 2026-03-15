@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Any
 
+from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.manifest import InputRef
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
@@ -11,9 +12,9 @@ from polisyos.core.contracts.execution_plan import (
     IterationState,
 )
 from polisyos.scientist.engine.context import ExecutionContext
+from polisyos.scientist.engine.iteration_state_machine import transition
 from polisyos.scientist.engine.protocol import NodeEvent, NodeOutcome, NodeSpec
 from polisyos.scientist.engine.state import ExperimentState
-from polisyos.scientist.engine.iteration_state_machine import transition
 from polisyos.scientist.governance.report import GovernanceReport
 from polisyos.scientist.llm_cycle import (
     evaluate_iteration,
@@ -25,6 +26,8 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_ITERATION_STATE_REF,
     REPORT_GOVERNANCE_REPORT_REF,
 )
+
+logger = get_logger(__name__)
 
 _METADATA = ComponentMetadata(
     component_id=ComponentId.parse("scientist.node_run_evaluator@1.0.0"),
@@ -119,8 +122,8 @@ class RunEvaluatorNode:
                     "replan",
                     verdict=evaluator_report.verdict,
                 )
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.debug("Ignored exception: %s", exc)
         iteration_ref = persist_iteration_state(
             ctx.store,
             iteration_state,

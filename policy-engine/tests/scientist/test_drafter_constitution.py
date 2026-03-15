@@ -20,11 +20,17 @@ class RecordingDrafter(MockDrafterAgent):
         self,
         problem_frame: ProblemFrame,
         *,
+        data_context: dict[str, object] | None = None,
         hints: list[str] | None = None,
         prior_drafts=None,
     ):
         self.last_context = dict(problem_frame.context)
-        return await super().draft_policy(problem_frame, hints=hints, prior_drafts=prior_drafts)
+        return await super().draft_policy(
+            problem_frame,
+            data_context=data_context,
+            hints=hints,
+            prior_drafts=prior_drafts,
+        )
 
 
 def test_multipass_injects_constitution_into_problem_frame_context() -> None:

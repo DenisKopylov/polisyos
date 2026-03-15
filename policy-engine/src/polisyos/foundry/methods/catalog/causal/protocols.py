@@ -35,6 +35,7 @@ def _to_numpy(value: Any) -> np.ndarray:
 class PanelObservationalData(BaseModel):
     """Panel data used by SCM / DiD / Structural Time Series methods."""
 
+    contract_id: ClassVar[str] = "foundry.causal.panel_observational_data.v1"
     model_config = ConfigDict(extra="forbid", arbitrary_types_allowed=True)
 
     outcome: Any  # shape: (n_units, n_periods)

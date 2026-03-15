@@ -1,11 +1,12 @@
 from __future__ import annotations
 
 from graphlib import TopologicalSorter
-from typing import Any, Callable, Iterable, Protocol
+from typing import Any, Iterable
 
 from polisyos.core.artifacts.manifest import ArtifactRef
-from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.contracts.foundry import (
+    LoweredIRRef,
+    LoweredMechanism,
     ProgramEdge,
     ProgramGraph,
     ProgramNode,
@@ -13,52 +14,27 @@ from polisyos.core.contracts.foundry import (
 )
 
 
-class InterventionLike(Protocol):
-    intervention_id: str
-    kind: str
-    target: Any
-    schedule: Any
-    params: dict[str, Any]
-    priority: int | None
-    notes: list[str]
-
-
-def put_intervention_payload(store: FileSystemCAS, intervention: InterventionLike) -> ArtifactRef:
-    payload = {
-        "intervention_id": intervention.intervention_id,
-        "kind": intervention.kind,
-        "target": _model_dump(intervention.target),
-        "schedule": _model_dump(intervention.schedule),
-        "params": intervention.params,
-        "priority": intervention.priority,
-        "notes": getattr(intervention, "notes", []),
-    }
-    return store.put_json(
-        payload,
-        PutOptions(kind="ir.intervention_payload", media_type="application/json"),
-    )
-
-
 def build_program_graph(
-    store: FileSystemCAS,
+    store: Any,
     *,
     ir_ref: ArtifactRef,
-    interventions: Iterable[InterventionLike],
-    resolve_slots: Callable[[InterventionLike], tuple[list[str], list[str]]],
+    lowered_ir_ref: LoweredIRRef,
+    mechanisms: Iterable[LoweredMechanism],
     constraint_ids: list[str],
 ) -> tuple[ProgramGraph, dict[str, ArtifactRef]]:
+    _ = store
     nodes: list[ProgramNode] = []
     edges: list[ProgramEdge] = []
     params_refs: dict[str, ArtifactRef] = {}
 
     existing: set[str] = set()
-    for intervention in sorted(interventions, key=lambda item: item.intervention_id):
-        params_ref = put_intervention_payload(store, intervention)
-        inputs, outputs = resolve_slots(intervention)
+    for mechanism in sorted(mechanisms, key=lambda item: item.binding_id):
+        params_ref = mechanism.effective_params_ref
+        primary_id = mechanism.intervention_ids[0] if mechanism.intervention_ids else mechanism.binding_id
 
-        mask_id = _unique_node_id(f"op.mask.{intervention.intervention_id}", existing)
+        mask_id = _unique_node_id(f"op.mask.{primary_id}", existing)
         existing.add(mask_id)
-        apply_id = _unique_node_id(intervention.intervention_id, existing)
+        apply_id = _unique_node_id(primary_id, existing)
         existing.add(apply_id)
 
         nodes.append(
@@ -68,8 +44,9 @@ def build_program_graph(
                 op=ProgramOp(
                     op_kind="make_mask",
                     params={
-                        "intervention_id": intervention.intervention_id,
-                        "selector": _model_dump(intervention.target),
+                        "binding_id": mechanism.binding_id,
+                        "intervention_ids": list(mechanism.intervention_ids),
+                        "selector": _model_dump(mechanism.target_selector),
                     },
                 ),
             )
@@ -78,18 +55,23 @@ def build_program_graph(
             ProgramNode(
                 node_id=apply_id,
                 node_kind="op",
-                mechanism_type=intervention.kind,
+                mechanism_type=mechanism.mechanism_id,
                 params_ref=params_ref,
                 op=ProgramOp(
                     op_kind="apply_mechanism",
-                    params={"mask_id": mask_id},
+                    params={
+                        "mask_id": mask_id,
+                        "binding_id": mechanism.binding_id,
+                        "selected_fidelity": mechanism.selected_fidelity,
+                    },
                 ),
-                inputs=inputs,
-                outputs=outputs,
+                inputs=list(mechanism.inputs),
+                outputs=list(mechanism.outputs),
             )
         )
         edges.append(ProgramEdge(src=mask_id, dst=apply_id, relation="depends_on"))
-        params_refs[apply_id] = params_ref
+        if params_ref is not None:
+            params_refs[apply_id] = params_ref
 
     slot_edges = _slot_dependency_edges(nodes)
     if slot_edges:
@@ -108,6 +90,7 @@ def build_program_graph(
     entrypoints = _entrypoints(nodes, edges)
     graph = ProgramGraph(
         ir_ref=ir_ref,
+        lowered_ir_ref=lowered_ir_ref,
         nodes=nodes,
         edges=edges,
         entrypoints=entrypoints,
@@ -217,5 +200,5 @@ def _build_op_nodes(
 
 def _model_dump(value: Any) -> Any:
     if hasattr(value, "model_dump"):
-        return value.model_dump()
+        return value.model_dump(mode="json")
     return value

@@ -20,8 +20,16 @@ except ModuleNotFoundError:  # pragma: no cover
 # Ensure `policy-engine/src` is on sys.path so imports like `import polisyos...` work under pytest.
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 SRC_ROOT = PROJECT_ROOT / "src"
+TESTS_ROOT = Path(__file__).resolve().parent
 if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
+if str(TESTS_ROOT) not in sys.path:
+    sys.path.insert(0, str(TESTS_ROOT))
+
+pytest_plugins = (
+    "fixtures.artifacts",
+    "fixtures.observability",
+)
 
 # --- FORCE SETTINGS FOR TESTS ---
 # Эти настройки должны сработать до любых других импортов в тестах

@@ -4,6 +4,7 @@ import math
 from dataclasses import dataclass
 from typing import Any, Mapping
 
+from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
@@ -28,6 +29,8 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     INPUT_CALIBRATION_REPORT_REF,
     INPUT_DATA_SNAPSHOT_REF,
 )
+
+logger = get_logger(__name__)
 
 _METADATA = ComponentMetadata(
     component_id=ComponentId.parse("scientist.node_propagate_uncertainty@1.0.0"),
@@ -240,8 +243,8 @@ def _collect_input_envelopes(
                 name = snapshot_env.metadata.get("param_name")
                 key = str(name) if isinstance(name, str) else "data_snapshot"
                 envelopes[key] = snapshot_env
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.debug("Ignored exception: %s", exc)
 
     calibration_ref = state.inputs.get(INPUT_CALIBRATION_REPORT_REF)
     if calibration_ref is not None:
@@ -253,8 +256,8 @@ def _collect_input_envelopes(
             elif report.uncertainty_envelope_refs:
                 for name, ref in report.uncertainty_envelope_refs.items():
                     envelopes[str(name)] = load_uncertainty_envelope(ctx.store, ref)
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.debug("Ignored exception: %s", exc)
 
     return envelopes
 
@@ -362,8 +365,8 @@ def _load_config(state: ExperimentState) -> PropagationConfig:
     if isinstance(raw, dict):
         try:
             return PropagationConfig.model_validate(raw)
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.debug("Ignored exception: %s", exc)
 
     overrides: dict[str, Any] = {}
     for field_name in PropagationConfig.model_fields:

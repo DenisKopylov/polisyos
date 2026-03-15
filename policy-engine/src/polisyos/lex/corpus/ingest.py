@@ -4,6 +4,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.fabric.docs import (
     DocSourceSpec,
@@ -18,13 +19,13 @@ from polisyos.fabric.world import (
     emit_doc_meta_facts,
     persist_doc_meta,
     stable_world_provenance_v1,
+    validate_doc_meta_ids,
     write_world_fact_segment,
 )
 from polisyos.fabric.world.events import (
     build_deterministic_world_event,
     persist_world_event_with_facts,
 )
-from polisyos.fabric.world import validate_doc_meta_ids
 from polisyos.ir.world.event import (
     EventKind,
     ProvActivityType,
@@ -40,6 +41,8 @@ from polisyos.lex.types import (
     LexIngestResult,
     WorldEventRefLike,
 )
+
+logger = get_logger(__name__)
 
 
 def _to_doc_source_spec(source: LegalDocSource) -> DocSourceSpec:
@@ -99,6 +102,7 @@ def _safe_doc_source_id(source: LegalDocSource) -> str | None:
             official_id=source.official_id,
         )
     except Exception:
+        logger.debug("Failed to compute doc_source_id for source %s", source.canonical_url)
         return None
 
 

@@ -1,7 +1,16 @@
 from __future__ import annotations
 
+import logging
 from typing import Any, List
 
+logger = logging.getLogger(__name__)
+
+from polisyos.core.governance.passes.base import (
+    ComplianceIssue,
+    IssueSeverity,
+    PassContext,
+    ValidatorPass,
+)
 from polisyos.fabric.fitness_report import DataFitnessReport, MetricFitness
 from polisyos.fabric.quality import (
     QualityIndicators,
@@ -10,8 +19,6 @@ from polisyos.fabric.quality import (
     compute_quality_indicators,
     get_cached_quality_indicators,
 )
-
-from polisyos.core.governance.passes.base import ValidatorPass, PassContext, ComplianceIssue, IssueSeverity
 
 
 class QualityGatePass(ValidatorPass):
@@ -209,6 +216,11 @@ class QualityGatePass(ValidatorPass):
             try:
                 return QualityIndicators.from_dict(indicators_payload)
             except Exception:
+                logger.warning(
+                    "Failed to parse QualityIndicators for metric '%s'",
+                    metric_id,
+                    exc_info=True,
+                )
                 return None
 
         if catalog_registry is not None:
@@ -225,6 +237,11 @@ class QualityGatePass(ValidatorPass):
                 df = source.load_dataframe()
                 return compute_quality_indicators(df=df, metric_id=metric_id)
             except Exception:
+                logger.warning(
+                    "Failed to compute quality indicators for metric '%s'",
+                    metric_id,
+                    exc_info=True,
+                )
                 return None
 
         return None
@@ -324,4 +341,8 @@ class QualityGatePass(ValidatorPass):
             if report:
                 report.add_metric(fitness)
         except Exception:
+            logger.warning(
+                "Failed to build fitness from quality report",
+                exc_info=True,
+            )
             return None

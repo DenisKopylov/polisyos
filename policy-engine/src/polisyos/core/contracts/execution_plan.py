@@ -8,8 +8,8 @@ from typing import Any, Literal
 from pydantic import BaseModel, ConfigDict, Field
 
 from polisyos.core.artifacts.manifest import ArtifactRef
-from polisyos.core.canon.canon_json import CanonSpec
 from polisyos.core.canon import fingerprint
+from polisyos.core.canon.canon_json import CanonSpec
 
 DiagnosticSeverity = Literal["info", "warning", "error", "blocker"]
 EvaluatorVerdict = Literal[
@@ -189,6 +189,9 @@ class MethodCatalogEntry(BaseModel):
     incompatibilities: list[str] = Field(default_factory=list)
     deprecations: list[str] = Field(default_factory=list)
     tags: list[str] = Field(default_factory=list)
+    causal_capability_requirements: list[str] = Field(default_factory=list)
+    causal_available: bool | None = None
+    causal_disabled_reasons: list[str] = Field(default_factory=list)
 
 
 class MethodCatalogSnapshot(BaseModel):
@@ -198,6 +201,8 @@ class MethodCatalogSnapshot(BaseModel):
     snapshot_id: str = Field(..., min_length=1, max_length=128)
     run_id: str | None = Field(default=None, max_length=128)
     generated_at: datetime = Field(default_factory=datetime.utcnow)
+    causal_capability_hash: str | None = None
+    causal_runtime_posture: dict[str, Any] = Field(default_factory=dict)
     entries: list[MethodCatalogEntry] = Field(default_factory=list)
     notes: list[str] = Field(default_factory=list)
 

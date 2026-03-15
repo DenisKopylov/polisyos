@@ -34,6 +34,35 @@ def test_preflight_returns_structured_diagnostics_for_cycle_and_missing_methods(
     assert "method_dag.cycle_detected" in codes
 
 
+def test_preflight_blocks_unavailable_symbolic_transport_method() -> None:
+    ensure_causal_methods_registered()
+    snapshot = build_method_catalog_snapshot(run_id="R_preflight")
+    symbolic_fqn = next(
+        entry.fqn
+        for entry in snapshot.entries
+        if "causal.transport.symbolic_identify@" in entry.fqn
+    )
+    plan = ExecutionPlan(
+        plan_id="plan_symbolic_transport",
+        run_id="R_preflight",
+        method_dag=[
+            MethodDagNode(
+                node_id="node_symbolic",
+                method_fqn=symbolic_fqn,
+                depends_on=[],
+            )
+        ],
+    )
+
+    report = preflight_execution_plan(plan, snapshot)
+
+    assert report.ready_to_run is False
+    assert any(
+        item.code == "method_catalog.causal_capability_unavailable"
+        for item in report.diagnostics
+    )
+
+
 @pytest.mark.parametrize(
     ("issue_count", "verdict", "retrieval_quality", "budget_remaining_ratio", "expected"),
     [

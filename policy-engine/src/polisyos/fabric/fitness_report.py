@@ -4,7 +4,11 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any, List
 
+from polisyos.common.logger import get_logger
+
 from .quality import QualityIndicators, QualityLevel, QualityThresholds
+
+logger = get_logger(__name__)
 
 
 @dataclass
@@ -206,6 +210,10 @@ class DataFitnessReport:
                 )
                 report.add_metric(fitness)
             except Exception:
+                logger.debug(
+                    "Failed to parse metric fitness entry for metric_id=%s",
+                    metric.get("metric_id", "<unknown>"), exc_info=True,
+                )
                 continue
 
         return report

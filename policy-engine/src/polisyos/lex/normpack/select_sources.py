@@ -6,6 +6,7 @@ from typing import Any
 
 import pandas as pd
 
+from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir.world.abi import EdgeKind
 from polisyos.ir.world.predicates import WORLD_ARTIFACT_ID, WORLD_KIND, rel
@@ -15,6 +16,8 @@ from polisyos.lex.corpus.versioning import resolve_active_version
 from polisyos.lex.errors import LexNotReadyError, LexValidationError
 from polisyos.lex.factlog import load_world_facts
 from polisyos.lex.types import ActiveVersionStrategy, NormPackBuildRequest, SelectedDocVersion
+
+logger = get_logger(__name__)
 
 _FACT_COLUMNS = [
     "fact_id",
@@ -34,6 +37,7 @@ def _is_lex_corpus_doc(cas: FileSystemCAS, artifact_id: str) -> bool:
     try:
         meta = load_doc_meta_artifact(cas, artifact_id, payload_label="doc meta artifact")
     except Exception:
+        logger.debug("Failed to load doc meta artifact %s", artifact_id)
         return False
     lex_props = meta.props.get("lex") if isinstance(meta.props, dict) else None
     if not isinstance(lex_props, dict):
@@ -140,6 +144,7 @@ def _fallback_select_active_version(
         try:
             meta = load_doc_meta_artifact(cas, artifact_id, payload_label="doc meta artifact")
         except Exception:
+            logger.debug("Failed to load doc meta artifact %s in fallback version selection", artifact_id)
             continue
         lex_props = meta.props.get("lex") if isinstance(meta.props, dict) else None
         if not isinstance(lex_props, dict):
@@ -325,6 +330,7 @@ def select_active_doc_versions(
                 payload_label="doc meta artifact",
             )
         except Exception:
+            logger.debug("Failed to load doc meta for source %s", doc_source_id)
             warnings.append(f"warning:doc_meta_not_loadable:{doc_source_id}")
             continue
 

@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import hashlib
 import json
-import logging
 from collections import defaultdict
 from dataclasses import dataclass
 from datetime import UTC, datetime
@@ -13,7 +12,6 @@ from typing import Iterable
 
 import duckdb
 
-from polisyos.batch_common.manifest import write_stage_manifest
 from polisyos.academic.batch.claim_ids import stable_claim_id
 from polisyos.academic.batch.config import AcademicBatchConfig
 from polisyos.academic.knowledge.skg_store import (
@@ -30,8 +28,10 @@ from polisyos.academic.knowledge.skg_store import (
     strongest_strength,
 )
 from polisyos.academic.knowledge.types import WorkRecord
+from polisyos.batch_common.manifest import write_stage_manifest
+from polisyos.common.logger import get_logger
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 _DDL = """
 CREATE TABLE IF NOT EXISTS ac_works (
@@ -280,6 +280,24 @@ def _load_claim_adjudications(path: Path | None) -> dict[str, dict]:
     return rows
 
 
+def _load_rows_grouped_by_openalex_id(path: Path | None) -> dict[str, list[dict[str, Any]]]:
+    grouped: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    if path is None or not path.exists():
+        return grouped
+    with open(path, "r", encoding="utf-8") as fh:
+        for line in fh:
+            line = line.strip()
+            if not line:
+                continue
+            row = json.loads(line)
+            if not isinstance(row, dict):
+                continue
+            openalex_id = str(row.get("openalex_id") or "").strip()
+            if openalex_id:
+                grouped[openalex_id].append(row)
+    return grouped
+
+
 def _legacy_strength_from_adjudication(adjudication: dict) -> str:
     design = str(adjudication.get("design_family") or "").strip().lower()
     credibility = str(adjudication.get("causal_credibility") or "").strip().lower()
@@ -321,7 +339,10 @@ class GraphStats:
     skg_articles: int = 0
     skg_variables: int = 0
     skg_edges: int = 0
+    skg_edge_evidence: int = 0
+    skg_family_edges: int = 0
     skg_parameters: int = 0
+    skg_simulation_parameters: int = 0
     skg_context_attributes: int = 0
     skg_moderation_edges: int = 0
     skg_context_profiles: int = 0
@@ -347,7 +368,10 @@ def _init_schema(con: duckdb.DuckDBPyConnection) -> None:
     con.execute("DROP TABLE IF EXISTS ac_skg_transport_scores")
     con.execute("DROP TABLE IF EXISTS ac_skg_moderation_edges")
     con.execute("DROP TABLE IF EXISTS ac_skg_context_attributes")
+    con.execute("DROP TABLE IF EXISTS ac_skg_simulation_parameters")
     con.execute("DROP TABLE IF EXISTS ac_skg_parameters")
+    con.execute("DROP TABLE IF EXISTS ac_skg_family_edges")
+    con.execute("DROP TABLE IF EXISTS ac_skg_edge_evidence")
     con.execute("DROP TABLE IF EXISTS ac_skg_edges")
     con.execute("DROP TABLE IF EXISTS ac_skg_variables")
     con.execute("DROP TABLE IF EXISTS ac_skg_articles")
@@ -377,6 +401,9 @@ def _truncate(con: duckdb.DuckDBPyConnection) -> None:
     con.execute("DELETE FROM ac_skg_context_profiles")
     con.execute("DELETE FROM ac_skg_transport_scores")
     con.execute("DELETE FROM ac_skg_parameters")
+    con.execute("DELETE FROM ac_skg_simulation_parameters")
+    con.execute("DELETE FROM ac_skg_family_edges")
+    con.execute("DELETE FROM ac_skg_edge_evidence")
     con.execute("DELETE FROM ac_skg_edges")
     con.execute("DELETE FROM ac_skg_variables")
     con.execute("DELETE FROM ac_skg_articles")
@@ -647,6 +674,8 @@ def _materialize_skg(
     variable_display: dict[str, str],
     skg_parameter_batch: list[tuple],
     edge_accumulator: dict[tuple[str, str, str], dict[str, object]],
+    edge_evidence_batch: list[tuple],
+    simulation_parameter_batch: list[tuple],
     context_attr_batch: list[tuple],
     moderation_edge_batch: list[tuple],
 ) -> None:
@@ -740,14 +769,40 @@ def _materialize_skg(
         )
         stats.skg_edges = len(edge_rows)
 
+    if edge_evidence_batch:
+        con.executemany(
+            """
+            INSERT OR REPLACE INTO ac_skg_edge_evidence(
+                edge_id, claim_id, openalex_id, src, dst, direction,
+                evidence_strength, confidence, design_family, design_quality_tier, skg_version
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            edge_evidence_batch,
+        )
+        stats.skg_edge_evidence = len(edge_evidence_batch)
+
+    if simulation_parameter_batch:
+        con.executemany(
+            """
+            INSERT OR REPLACE INTO ac_skg_simulation_parameters(
+                numeric_id, openalex_id, canonical_name, estimate_type, point_estimate,
+                estimate_sign, unit, evidence_strength, confidence_interval_json,
+                std_error, linked_claim_ids_json, linked_edges_json, context_json,
+                source_layer, uncertainty_source, quality_flags_json
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            simulation_parameter_batch,
+        )
+        stats.skg_simulation_parameters = len(simulation_parameter_batch)
+
     if context_attr_batch:
         con.executemany(
             """
             INSERT OR REPLACE INTO ac_skg_context_attributes(
                 attr_id, openalex_id, canonical_name, attribute_value,
                 value_qualitative, unit, country_code, time_period,
-                measurement_method, confidence, skg_version
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                measurement_method, confidence, evidence_span_count, skg_version
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             context_attr_batch,
         )
@@ -787,6 +842,7 @@ def load_graph(
     topics_catalog_path: Path | None = None,
     ingest_errors_path: Path | None = None,
     claim_adjudications_path: Path | None = None,
+    simulation_ready_numeric_path: Path | None = None,
 ) -> GraphStats:
     """Load records into DuckDB tables (without creating indexes)."""
     stats = GraphStats()
@@ -833,6 +889,10 @@ def load_graph(
                     )
 
         claim_adjudications = _load_claim_adjudications(claim_adjudications_path)
+        simulation_numeric_file_present = bool(
+            simulation_ready_numeric_path is not None and simulation_ready_numeric_path.exists()
+        )
+        simulation_numeric_rows = _load_rows_grouped_by_openalex_id(simulation_ready_numeric_path)
         work_batch: list[tuple] = []
         concept_batch: list[tuple] = []
         estimate_batch: list[tuple] = []
@@ -846,9 +906,11 @@ def load_graph(
         topic_seen: set[str] = {str(t[0]) for t in topic_batch if t and t[0]}
         skg_articles_batch: list[tuple] = []
         skg_parameter_batch: list[tuple] = []
+        simulation_parameter_batch: list[tuple] = []
         variable_mentions: defaultdict[str, int] = defaultdict(int)
         variable_display: dict[str, str] = {}
         edge_accumulator: dict[tuple[str, str, str], dict[str, object]] = {}
+        edge_evidence_batch: list[tuple] = []
         context_attr_batch: list[tuple] = []
         moderation_edge_accumulator: dict[tuple[str, str, str], dict[str, object]] = {}
 
@@ -1109,6 +1171,53 @@ def load_graph(
                     )
                 )
 
+            numeric_rows_for_record = (
+                simulation_numeric_rows.get(record.id)
+                if simulation_numeric_file_present
+                else (
+                    simulation_numeric_rows.get(record.id)
+                    or (record.metadata.get("simulation_ready_numeric_estimates") or [])
+                )
+            )
+            for numeric in numeric_rows_for_record or []:
+                if not isinstance(numeric, dict):
+                    continue
+                numeric_id = str(numeric.get("numeric_id") or "").strip()
+                canonical = str(
+                    numeric.get("canonical_name") or numeric.get("parameter_name") or ""
+                ).strip()
+                point_estimate = numeric.get("point_estimate")
+                if not numeric_id or not canonical or not isinstance(point_estimate, (int, float)):
+                    continue
+                simulation_parameter_batch.append(
+                    (
+                        numeric_id,
+                        record.id,
+                        canonical,
+                        str(numeric.get("estimate_type") or ""),
+                        float(point_estimate),
+                        str(numeric.get("estimate_sign") or ""),
+                        str(numeric.get("unit") or ""),
+                        str(numeric.get("evidence_strength") or ""),
+                        json.dumps(numeric.get("confidence_interval") or [], ensure_ascii=False),
+                        float(numeric["std_error"]) if numeric.get("std_error") is not None else None,
+                        json.dumps(numeric.get("linked_claim_ids") or [], ensure_ascii=False),
+                        json.dumps(
+                            numeric.get("linked_edge_ids")
+                            or numeric.get("linked_edge_pairs")
+                            or [],
+                            ensure_ascii=False,
+                        ),
+                        json.dumps(
+                            numeric.get("source_context") or record.context_profile,
+                            ensure_ascii=False,
+                        ),
+                        str(numeric.get("source_layer") or "simulation_ready"),
+                        str(numeric.get("uncertainty_source") or ""),
+                        json.dumps(numeric.get("quality_flags") or [], ensure_ascii=False),
+                    )
+                )
+
             for t in record.source_topics:
                 if t.topic_id and t.topic_id not in topic_seen:
                     topic_seen.add(t.topic_id)
@@ -1167,6 +1276,7 @@ def load_graph(
                         str(ctx_attr_raw.get("time_period") or "") or None,
                         str(ctx_attr_raw.get("measurement_method") or "") or None,
                         float(ctx_attr_raw.get("confidence") or 0.5),
+                        int(len(ctx_attr_raw.get("evidence_spans") or [])),
                         skg_version_id,
                     ))
 
@@ -1252,6 +1362,7 @@ def load_graph(
 
                 direction = str(claim.get("direction") or "mixed").strip().lower()
                 key = (src, dst, direction)
+                edge_id = hash_edge_id(src, dst, direction)
                 if key not in edge_accumulator:
                     edge_accumulator[key] = {
                         "article_refs": [],
@@ -1291,6 +1402,25 @@ def load_graph(
                 payload["claim_confidences"].append(float(claim.get("claim_extraction_confidence") or record.extraction_confidence or 0.0))  # type: ignore[index]
                 payload["publish_blockers"].extend(claim.get("publish_blockers") or [])  # type: ignore[index]
                 payload["strong_design_flags"].append(bool(claim.get("strong_design_evidence") or False))  # type: ignore[index]
+                edge_evidence_batch.append(
+                    (
+                        edge_id,
+                        cid,
+                        record.id,
+                        src,
+                        dst,
+                        direction,
+                        (
+                            _legacy_strength_from_adjudication(adjudication)
+                            if adjudication is not None
+                            else _infer_edge_strength(claim)
+                        ),
+                        confidence_value,
+                        str(claim.get("design_family_hint") or ""),
+                        int(claim.get("design_quality_tier")) if claim.get("design_quality_tier") is not None else None,
+                        skg_version_id,
+                    )
+                )
 
                 variable_mentions[src] += 1
                 variable_mentions[dst] += 1
@@ -1371,6 +1501,8 @@ def load_graph(
             variable_display=variable_display,
             skg_parameter_batch=skg_parameter_batch,
             edge_accumulator=edge_accumulator,
+            edge_evidence_batch=edge_evidence_batch,
+            simulation_parameter_batch=simulation_parameter_batch,
             context_attr_batch=context_attr_batch,
             moderation_edge_batch=moderation_edge_batch,
         )
@@ -1414,10 +1546,14 @@ def run_graph_load(config: AcademicBatchConfig) -> GraphStats:
     cfg_json = json.dumps(
         {
             "target_per_topic": config.target_per_topic,
+            "selected_unique_budget": config.selected_unique_budget,
+            "usable_fulltext_target": config.usable_fulltext_target,
             "pass_name": config.pass_name,
             "run_id": config.run_id,
             "llm_gate_enabled": config.llm_gate_enabled,
             "llm_gate_mode": config.llm_gate_mode,
+            "numeric_precision_mode": config.numeric_precision_mode,
+            "claim_adjudication_passes": config.claim_adjudication_passes,
         },
         ensure_ascii=False,
     )
@@ -1431,7 +1567,14 @@ def run_graph_load(config: AcademicBatchConfig) -> GraphStats:
         config_json=cfg_json,
         topics_catalog_path=config.topics_catalog_path if config.topics_catalog_path.exists() else None,
         ingest_errors_path=config.ingest_errors_path if config.ingest_errors_path.exists() else None,
-        claim_adjudications_path=None,
+        claim_adjudications_path=(
+            config.claim_adjudications_path if config.claim_adjudications_path.exists() else None
+        ),
+        simulation_ready_numeric_path=(
+            config.simulation_ready_numeric_path
+            if config.simulation_ready_numeric_path.exists()
+            else None
+        ),
     )
     write_stage_manifest(
         manifest_path=config.manifests_dir / "graph_load.json",
@@ -1453,7 +1596,10 @@ def run_graph_load(config: AcademicBatchConfig) -> GraphStats:
             "skg_articles": stats.skg_articles,
             "skg_variables": stats.skg_variables,
             "skg_edges": stats.skg_edges,
+            "skg_edge_evidence": stats.skg_edge_evidence,
+            "skg_family_edges": stats.skg_family_edges,
             "skg_parameters": stats.skg_parameters,
+            "skg_simulation_parameters": stats.skg_simulation_parameters,
             "skg_versions": stats.skg_versions,
         },
         artifacts=[config.db_path],

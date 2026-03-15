@@ -2,12 +2,15 @@ from __future__ import annotations
 
 import json
 import time
-from importlib import metadata
 from typing import Any, Mapping
 
 from polisyos.core.canon import CanonSpec, to_canonical_bytes, truncated_hash
 from polisyos.core.observability.determinism import DeterminismTier
-from polisyos.foundry.methods.base import ComputeBackend, MethodSignature
+from polisyos.foundry.methods.backends.runtime_fingerprint import (
+    capture_versions,
+    runtime_stack_for,
+    safe_version,
+)
 from polisyos.foundry.methods.backends.protocol import (
     MethodResult,
     MethodRunner,
@@ -15,22 +18,8 @@ from polisyos.foundry.methods.backends.protocol import (
     ReproducibilityInfo,
     SolverStatus,
 )
-
-
-def _safe_version(package_name: str) -> str | None:
-    try:
-        return metadata.version(package_name)
-    except metadata.PackageNotFoundError:
-        return None
-
-
-def _capture_solver_versions() -> dict[str, str]:
-    versions: dict[str, str] = {}
-    for pkg in ("ortools", "pulp", "scipy"):
-        version = _safe_version(pkg)
-        if version:
-            versions[pkg] = version
-    return versions
+from polisyos.foundry.methods.base import ComputeBackend, MethodSignature
+from polisyos.foundry.methods.io import dematerialize_method_output
 
 
 def _resolve_params(signature: MethodSignature, params: Mapping[str, Any]) -> dict[str, Any]:
@@ -57,7 +46,10 @@ class SolverRunner(MethodRunner):
         return frozenset({ComputeBackend.SOLVER})
 
     def is_available(self) -> bool:
-        return _safe_version("ortools") is not None or _safe_version("pulp") is not None
+        return any(
+            safe_version(pkg) is not None
+            for pkg in ("ortools", "pulp", "scipy", "cvxpy", "pymoo")
+        )
 
     def execute(
         self,
@@ -90,12 +82,17 @@ class SolverRunner(MethodRunner):
         except ValueError:
             status = SolverStatus.UNKNOWN
 
-        versions = _capture_solver_versions()
+        runtime_stack = runtime_stack_for(method_class)
+        versions = capture_versions(
+            base_packages=("ortools", "pulp", "scipy", "cvxpy", "pymoo"),
+            runtime_stack=runtime_stack,
+        )
         fp_payload = {
             "backend": ComputeBackend.SOLVER.value,
             "seed": seed,
             "versions": versions,
             "status": status.value,
+            "runtime_stack": runtime_stack,
         }
         fingerprint = truncated_hash(json.dumps(fp_payload, sort_keys=True), length=16)
 
@@ -109,6 +106,19 @@ class SolverRunner(MethodRunner):
             "solver_iterations": solver_info.get("iterations"),
             "solver_objective_value": solver_info.get("objective_value"),
         }
+        slot_outputs: dict[str, Any] = {}
+        if signature.output_slots:
+            output_payload: Any = output
+            if "solver_info" in signature.output_slot_names:
+                output_payload = {
+                    "result": output,
+                    "solver_info": solver_info,
+                }
+            slot_outputs = dematerialize_method_output(
+                method_class=method_class,
+                signature=signature,
+                output=output_payload,
+            )
 
         return MethodResult(
             output=output,
@@ -124,6 +134,7 @@ class SolverRunner(MethodRunner):
                 fingerprint=fingerprint,
                 note="Solver reproducibility depends on solver version and tolerances.",
             ),
+            slot_outputs=slot_outputs,
             artifacts=artifacts,
             warnings=tuple(str(item) for item in warnings),
         )

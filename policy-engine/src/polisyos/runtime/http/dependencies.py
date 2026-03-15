@@ -13,6 +13,7 @@ from polisyos.core.security.access_scope import AccessScope
 from .errors import forbidden
 from .services.artifact_inspector import ArtifactInspectorService
 from .services.debug import DebugService
+from .services.feedback import FeedbackService
 from .services.lineage import LineageService
 from .services.run_index import IndexedRunRecord, RunIndexService
 from .services.timeline import TimelineService
@@ -31,6 +32,7 @@ class RuntimeApiContext:
     run_index: RunIndexService
     timeline: TimelineService
     debug: DebugService
+    feedback: FeedbackService
     lineage: LineageService
     artifacts: ArtifactInspectorService
     max_preview_bytes: int
@@ -61,6 +63,7 @@ def build_runtime_api_context(
         core_runs_root=core_runs_root,
     )
     debug = DebugService(store=store, timeline_service=timeline)
+    feedback = FeedbackService(store=store, run_index=run_index)
     artifacts = ArtifactInspectorService(
         store=store,
         lineage_service=lineage,
@@ -74,6 +77,7 @@ def build_runtime_api_context(
         run_index=run_index,
         timeline=timeline,
         debug=debug,
+        feedback=feedback,
         lineage=lineage,
         artifacts=artifacts,
         max_preview_bytes=max_preview_bytes,

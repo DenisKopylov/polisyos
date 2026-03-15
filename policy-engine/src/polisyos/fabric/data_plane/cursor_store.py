@@ -6,11 +6,14 @@ import json
 from pathlib import Path
 from typing import Any
 
+from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.contracts.cursor import CursorState
+
+logger = get_logger(__name__)
 
 
 class CursorStore:
@@ -58,7 +61,11 @@ class CursorStore:
         try:
             aid = ArtifactID.model_validate(artifact_id_str)
             return self.load_cursor(aid)
-        except Exception:
+        except (FileNotFoundError, OSError, TypeError, ValueError):
+            logger.debug(
+                "Failed to load cursor for %s:%s (artifact=%s)",
+                connector_id, dataset_id, artifact_id_str, exc_info=True,
+            )
             return None
 
     def list_cursors(self) -> list[CursorState]:
@@ -68,7 +75,11 @@ class CursorStore:
             try:
                 aid = ArtifactID.model_validate(artifact_id_str)
                 result.append(self.load_cursor(aid))
-            except Exception:
+            except (FileNotFoundError, OSError, TypeError, ValueError):
+                logger.debug(
+                    "Failed to load cursor %s (artifact=%s)",
+                    cursor_id, artifact_id_str, exc_info=True,
+                )
                 continue
         return result
 

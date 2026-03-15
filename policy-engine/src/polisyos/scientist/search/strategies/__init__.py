@@ -56,8 +56,8 @@ except Exception:  # pragma: no cover - optional dependency path
 
 try:  # Optional heavy dependencies (torch, botorch, gpytorch)
     from polisyos.scientist.search.strategies.multi_objective import (
-        MOConfig,
         MOBayesianOptimizer,
+        MOConfig,
     )
 
     __all__.extend(["MOConfig", "MOBayesianOptimizer"])

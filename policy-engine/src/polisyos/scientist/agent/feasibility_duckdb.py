@@ -6,7 +6,13 @@ from dataclasses import dataclass
 from typing import Any
 
 from polisyos.fabric.io.db import SimulationDB
-from polisyos.ir.governance.selector_expr import SelectorAll, SelectorAny, SelectorExpr, SelectorNot, SelectorPredicate
+from polisyos.ir.governance.selector_expr import (
+    SelectorAll,
+    SelectorAny,
+    SelectorExpr,
+    SelectorNot,
+    SelectorPredicate,
+)
 from polisyos.ir.types import SelectorOperator
 from polisyos.scientist.agent.feasibility import BudgetImpactResult, PopulationQueryResult
 

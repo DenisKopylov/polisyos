@@ -2,7 +2,7 @@
 
 `scientist` — orchestration-слой Policy Engine для запуска policy-экспериментов и сборки воспроизводимого результата поверх `ir`, `foundry`, `fabric`, `lex`, `scholar`, `core`.
 
-Документ отражает текущее состояние кода на **2026-03-03**.
+Документ отражает текущее состояние кода на **2026-03-11**.
 
 ## Роль в системе
 
@@ -23,12 +23,14 @@
 - `polisyos.scientist.run_experiment(state=None)` — стандартный entrypoint.
 - `polisyos.scientist.workflows.run_default_workflow(...)` — запуск `scientist_default`.
 - `polisyos.scientist.workflows.run_causal_full_workflow(...)` — запуск `scientist_causal_full`.
+- `polisyos.scientist.workflows.run_selected_workflow(...)` — общий launcher с auto-selection `scientist_default` vs `scientist_causal_full`.
 - `polisyos.scientist.engine.resume_from_checkpoint(...)` — resume по checkpoint.
 
 `run_experiment()`:
 - валидирует вход как `ExperimentState` (`extra="forbid"`);
 - генерирует `run_id`, если пустой;
 - отклоняет неизвестные top-level ключи при mapping-входе;
+- auto-select-ит workflow через общий selector;
 - возвращает финальный `ExperimentState` в виде `dict`.
 
 ## Актуальные workflow спецификации
@@ -60,7 +62,7 @@ build_decision_packet (depends: run_governance + run_causal_evaluation + run_eva
 - preflight-пайплайн обязателен перед compile;
 - `run_evaluator` всегда участвует в default-пути.
 
-### `scientist_causal_full` (опционально)
+### `scientist_causal_full`
 
 Spec: `workflows/causal_full.py`.
 
@@ -72,7 +74,18 @@ Spec: `workflows/causal_full.py`.
 - `run_abm_consistency`
 - `run_transportability`
 
-Используется для расширенного causal-контура, default-`run_experiment()` его автоматически не запускает.
+Используется как standard path для serious external-evidence / transport-required runs.
+
+Auto-escalation в `scientist_causal_full` срабатывает, если:
+- `params.transport_required == true`;
+- одновременно заданы `source_context` и `target_context`, и они не совпадают;
+- causal source metadata маркирует evidence как external;
+- run запрашивает cross-context causal reuse через cross-graph / knowledge-backed inputs.
+
+В auto-escalated runs:
+- `run_transportability` обязателен до governance;
+- `allow_degraded_transport` по умолчанию `false`;
+- capability/runtime posture сохраняется в state params и decision/governance surfaces.
 
 ## Минимальный входной контракт
 
@@ -84,6 +97,17 @@ Spec: `workflows/causal_full.py`.
   - `inputs.data_view_request_ref`.
 
 `inputs.registry_bundle_ref` можно не передавать: workflow соберет его автоматически.
+
+## Causal runtime posture
+
+- `build_method_catalog_snapshot` теперь одновременно фиксирует `MethodCatalogSnapshot` и `CausalCapabilityContract`.
+- Preflight использует snapshot + capability hash, чтобы reject-ить планы, которым нужны недоступные symbolic transport features.
+- Decision/governance/debug surfaces теперь получают transport summary c:
+  - `status`
+  - `transport_mode`
+  - `identification_engine`
+  - `capability_hash`
+  - `degradation_policy`
 
 ## Архитектура директории
 

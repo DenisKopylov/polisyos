@@ -7,6 +7,15 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from ..artifacts.manifest import ArtifactRef
+from .decision_validity import (
+    DecisionDependencyEvent,
+    DecisionLifecycleJob,
+    DecisionTriggerRecord,
+    DecisionTriggerType,
+    DecisionValidityStatus,
+    DecisionValidityTransition,
+)
 from .runtime import ApiMeta
 
 # ---------------------------------------------------------------------------
@@ -20,10 +29,13 @@ RunLaunchStatus = Literal["accepted", "rejected"]
 IngestStatus = Literal["completed", "partial", "failed"]
 ExecutionMode = Literal["batch_full", "batch_incremental", "streaming_windowed"]
 RetrievalMode = Literal["fastlane", "explorelane", "hybrid"]
-CandidateLane = Literal["fastlane", "explorelane"]
+CandidateLane = Literal["fastlane", "explorelane", "catalog"]
 PreviewStatus = Literal["ok", "insufficient_coverage", "error"]
 PromotionStatus = Literal["pending", "approved", "rejected"]
 CapabilityStage = Literal["active", "planned", "deferred"]
+ExecutionProfile = Literal["dev", "research", "governed", "production"]
+ControlJobState = Literal["pending", "running", "completed", "failed"]
+ControlJobKind = Literal["workflow_run", "natural_language_run", "lex_pipeline"]
 
 # ---------------------------------------------------------------------------
 # Data source binding
@@ -38,6 +50,75 @@ class DataSourceBinding(BaseModel):
     data_snapshot_ref: str | None = None
     input_bindings_ref: str | None = None
     data_view_request_ref: str | None = None
+
+
+class PolicyFlags(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    allow_mock_fallback: bool = False
+
+
+class DecisionValidityEventRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    trigger_type: DecisionTriggerType
+    status: DecisionValidityStatus
+    reason: str = Field(..., min_length=1, max_length=512)
+    dependency_keys: list[str] = Field(default_factory=list)
+    source_ref: str | None = None
+    dedupe_key: str | None = None
+    occurred_at: datetime | None = None
+    payload: dict[str, Any] = Field(default_factory=dict)
+
+
+class DecisionValidityEventResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    meta: ApiMeta
+    event_id: str
+    dedupe_key: str
+    affected_packets: list[str] = Field(default_factory=list)
+    affected_statuses: dict[str, int] = Field(default_factory=dict)
+    message: str
+
+
+class DecisionValidityPendingReview(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    event_id: str
+    trigger_type: DecisionTriggerType
+    reason: str
+    occurred_at: datetime
+
+
+class DecisionValidityLifecycleSummary(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    events: list[DecisionDependencyEvent] = Field(default_factory=list)
+    transitions: list[DecisionValidityTransition] = Field(default_factory=list)
+    pending_reviews: list[DecisionValidityPendingReview] = Field(default_factory=list)
+    scheduled_jobs: list[DecisionLifecycleJob] = Field(default_factory=list)
+    reissue_candidates: list[ArtifactRef] = Field(default_factory=list)
+    latest_transition_at: datetime | None = None
+
+
+class DecisionValiditySummaryResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    meta: ApiMeta
+    run_id: str | None = None
+    decision_packet_ref: ArtifactRef
+    status: DecisionValidityStatus
+    checked_at: datetime
+    reasons: list[str] = Field(default_factory=list)
+    triggers: list[DecisionTriggerRecord] = Field(default_factory=list)
+    review_required: bool = False
+    supersedes_decision_ref: ArtifactRef | None = None
+    superseded_by_ref: ArtifactRef | None = None
+    evaluation_ref: ArtifactRef | None = None
+    decision_lineage_key: str
+    recommended_action: str
+    lifecycle: DecisionValidityLifecycleSummary = Field(default_factory=DecisionValidityLifecycleSummary)
 
 
 # ---------------------------------------------------------------------------
@@ -60,6 +141,8 @@ class WorkflowRunRequest(BaseModel):
     norm_pack_ref: str | None = None
     calibration_report_ref: str | None = None
     checkpoint_policy: CheckpointPolicyType = "strict"
+    execution_profile: ExecutionProfile | None = None
+    policy_flags: PolicyFlags = Field(default_factory=PolicyFlags)
     params: dict[str, Any] = Field(default_factory=dict)
 
 
@@ -84,6 +167,8 @@ class NaturalLanguageRunRequest(BaseModel):
     run_budget_usd: float | None = Field(default=None, ge=0.0)
     per_model_budget_usd: float | None = Field(default=None, ge=0.0)
     checkpoint_policy: CheckpointPolicyType = "strict"
+    execution_profile: ExecutionProfile | None = None
+    policy_flags: PolicyFlags = Field(default_factory=PolicyFlags)
     execution_plan_ref: str | None = None
     execution_plan: dict[str, Any] | None = None
     stop_criteria: dict[str, Any] = Field(default_factory=dict)
@@ -102,6 +187,8 @@ class RunLaunchResponse(BaseModel):
     meta: ApiMeta
     status: RunLaunchStatus
     run_id: str
+    job_id: str
+    effective_execution_profile: ExecutionProfile
     message: str
 
 
@@ -551,6 +638,7 @@ class CapabilityFeatureInfo(BaseModel):
     category: str
     enabled: bool = True
     stage: CapabilityStage = "active"
+    disabled_reason: str | None = None
 
 
 class CapabilityManifestResponse(BaseModel):
@@ -561,9 +649,83 @@ class CapabilityManifestResponse(BaseModel):
     shell_flavor: str = "atlas"
     default_locale: Literal["en", "uk"] = "en"
     supported_locales: list[Literal["en", "uk"]] = Field(default_factory=lambda: ["en", "uk"])
+    default_execution_profile: ExecutionProfile = "dev"
+    supported_execution_profiles: list[ExecutionProfile] = Field(
+        default_factory=lambda: ["dev", "research", "governed", "production"]
+    )
+    worker_backend: str = "embedded"
+    state_store_backend: str = "sqlite"
+    security_posture: dict[str, Any] = Field(default_factory=dict)
+    fallback_rules: dict[str, Any] = Field(default_factory=dict)
     workspaces: list[str] = Field(default_factory=list)
     features: list[CapabilityFeatureInfo] = Field(default_factory=list)
     constraints: dict[str, Any] = Field(default_factory=dict)
+
+
+class ControlJobResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    meta: ApiMeta
+    job_id: str
+    kind: ControlJobKind
+    state: ControlJobState
+    run_id: str | None = None
+    pipeline_id: str | None = None
+    requested_execution_profile: ExecutionProfile | None = None
+    effective_execution_profile: ExecutionProfile
+    capability_manifest_ref: ArtifactRef | None = None
+    submitted_at: datetime | None = None
+    started_at: datetime | None = None
+    finished_at: datetime | None = None
+    error_message: str | None = None
+    progress: dict[str, Any] = Field(default_factory=dict)
+
+
+class ControlWorkerLeaseInfo(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    worker_id: str
+    state: str
+    backend: str | None = None
+    active_job_id: str | None = None
+    metadata: dict[str, Any] = Field(default_factory=dict)
+    heartbeat_at: datetime
+    lease_expires_at: datetime
+    created_at: datetime
+    updated_at: datetime
+
+
+class ControlWorkersResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    meta: ApiMeta
+    active_only: bool = True
+    workers: list[ControlWorkerLeaseInfo] = Field(default_factory=list)
+
+
+class ControlOutboxEventInfo(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    event_id: str
+    topic: str
+    event_key: str | None = None
+    state: str
+    job_id: str | None = None
+    run_id: str | None = None
+    payload: dict[str, Any] = Field(default_factory=dict)
+    created_at: datetime
+    published_at: datetime | None = None
+    attempt: int = 0
+    error_message: str | None = None
+
+
+class ControlOutboxEventsResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    meta: ApiMeta
+    state: str | None = None
+    limit: int = 100
+    events: list[ControlOutboxEventInfo] = Field(default_factory=list)
 
 
 # ---------------------------------------------------------------------------
@@ -597,6 +759,8 @@ class LexTriggerRequest(BaseModel):
     status_filter: list[str] | None = None
     llm_model: str = "qwen/qwen3-235b-a22b-instruct-2507-fp8"
     resume: bool = False
+    execution_profile: ExecutionProfile | None = None
+    policy_flags: PolicyFlags = Field(default_factory=PolicyFlags)
 
 
 class LexTriggerResponse(BaseModel):
@@ -605,6 +769,8 @@ class LexTriggerResponse(BaseModel):
     meta: ApiMeta
     status: Literal["accepted", "rejected"]
     pipeline_id: str
+    job_id: str
+    effective_execution_profile: ExecutionProfile
     message: str
 
 
@@ -681,6 +847,13 @@ __all__ = [
     "CheckpointPolicyType",
     "ConnectorInfo",
     "ConnectorsListResponse",
+    "ControlJobKind",
+    "ControlJobResponse",
+    "ControlJobState",
+    "ControlOutboxEventInfo",
+    "ControlOutboxEventsResponse",
+    "ControlWorkerLeaseInfo",
+    "ControlWorkersResponse",
     "DataSourceBinding",
     "DataCatalogSearchResponse",
     "DataContext",
@@ -690,11 +863,17 @@ __all__ = [
     "DataNeed",
     "DataPreviewRequest",
     "DataPreviewResponse",
+    "DecisionValidityEventRequest",
+    "DecisionValidityEventResponse",
+    "DecisionValidityLifecycleSummary",
+    "DecisionValidityPendingReview",
+    "DecisionValiditySummaryResponse",
     "DataResolveRequest",
     "DataResolveResponse",
     "DiscoveryCandidate",
     "DatasetFetchSpecRequest",
     "ExecutionMode",
+    "ExecutionProfile",
     "FetchPlan",
     "FetchPlanFallback",
     "FetchPreview",
@@ -716,6 +895,7 @@ __all__ = [
     "MetricCandidate",
     "ModelProfileInfo",
     "ModelProfilesListResponse",
+    "PolicyFlags",
     "PreviewStatus",
     "PromotionCandidate",
     "PromotionCandidatesResponse",

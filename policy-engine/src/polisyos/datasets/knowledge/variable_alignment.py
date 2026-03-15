@@ -263,7 +263,7 @@ def _parse_meta_candidate(
             return None
         try:
             corr = float(item[1])
-        except Exception:
+        except (TypeError, ValueError):
             return None
         return dataset_var, corr, "unknown", 0, 0.5
 
@@ -280,7 +280,7 @@ def _parse_meta_candidate(
         corr_raw = item.get("confidence")
     try:
         corr = float(corr_raw)
-    except Exception:
+    except (TypeError, ValueError):
         return None
 
     evidence_strength = str(item.get("evidence_strength", "unknown")).strip().lower() or "unknown"
@@ -288,11 +288,11 @@ def _parse_meta_candidate(
     trust_raw = item.get("trust_score", item.get("quality", 0.5))
     try:
         n_studies = int(n_studies_raw)
-    except Exception:
+    except (TypeError, ValueError):
         n_studies = 0
     try:
         trust_score = float(trust_raw)
-    except Exception:
+    except (TypeError, ValueError):
         trust_score = 0.5
     return dataset_var, corr, evidence_strength, max(0, n_studies), trust_score
 

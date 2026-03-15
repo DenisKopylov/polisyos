@@ -4,14 +4,13 @@ from dataclasses import dataclass, replace
 from typing import Any
 
 from polisyos.core.artifacts.manifest import InputRef
+from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.compiler.report import put_link_report
+from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.registry import load_registry_bundle_content
 from polisyos.ir.linker import link_trinity
 from polisyos.ir.registry_fragments import RegistryBundle
 from polisyos.ir.trinity import TrinityBundle
-from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
-from polisyos.core.canon import from_canonical_bytes
-
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
 from polisyos.scientist.engine.state import ExperimentState

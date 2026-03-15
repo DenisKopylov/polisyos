@@ -12,12 +12,15 @@ from typing import Any, Literal, Protocol
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
+from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
-from polisyos.core.canon import content_hash, from_canonical_bytes, to_canonical_bytes
+from polisyos.core.canon import CanonSpec, content_hash, from_canonical_bytes, to_canonical_bytes
 from polisyos.core.errors import ErrorCategory, PolicyOSError
 from polisyos.scientist.engine.state import ExperimentState
 from polisyos.scientist.engine.workflow_spec import WorkflowSpec
+
+logger = get_logger(__name__)
 
 
 CHECKPOINT_KIND = "scientist.checkpoint"
@@ -201,8 +204,11 @@ class CASCheckpointHook:
                 sequence_number=sequence_number,
                 duration_ms=duration_ms,
             )
-        except Exception:
+        except Exception as exc:
             if self._policy == "best_effort":
+                logger.debug(
+                    "Checkpoint write failed (best_effort): %s", exc,
+                )
                 return None
             raise
 
@@ -283,6 +289,7 @@ def create_checkpoint(
                 version=CHECKPOINT_SCHEMA_VERSION,
             ),
         ),
+        canon_spec=CanonSpec(forbid_floats=False),
     )
     duration_ms = int((time.perf_counter() - t0) * 1000)
     return ref, duration_ms
@@ -445,13 +452,13 @@ def read_run_lock_metadata(lock_path: Path) -> dict[str, Any] | None:
         return None
     try:
         raw = lock_path.read_text("utf-8").strip()
-    except Exception:
+    except OSError:
         return None
     if not raw:
         return None
     try:
         parsed = json.loads(raw)
-    except Exception:
+    except (json.JSONDecodeError, ValueError):
         return None
     if not isinstance(parsed, dict):
         return None
@@ -477,6 +484,7 @@ def resume_from_checkpoint(
         build_registry_with_builtin_nodes,
     )
     from polisyos.scientist.workflows.default import default_workflow_spec
+
 
     policy = normalize_checkpoint_policy(checkpoint_policy)
     run_dir = store.root / "runs" / run_id

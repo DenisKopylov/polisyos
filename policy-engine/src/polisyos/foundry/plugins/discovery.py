@@ -2,12 +2,15 @@ from __future__ import annotations
 
 import importlib
 import importlib.util
+import logging
 import sys
 import warnings
 from pathlib import Path
 from typing import Sequence
 
 from polisyos.foundry.plugins.core import DomainPlugin, PluginRegistry, get_registry
+
+logger = logging.getLogger(__name__)
 
 
 def discover_plugins(
@@ -64,6 +67,7 @@ def _discover_installed_plugins(prefix: str) -> list[DomainPlugin]:
             if issubclass(plugin_class, DomainPlugin):
                 plugins.append(plugin_class())
         except Exception:
+            logger.warning("Failed to load plugin entry point '%s'", ep.name, exc_info=True)
             continue
 
     for dist in pkg_resources.working_set:
@@ -73,6 +77,7 @@ def _discover_installed_plugins(prefix: str) -> list[DomainPlugin]:
                 if hasattr(module, "create_plugin"):
                     plugins.append(module.create_plugin())
             except Exception:
+                logger.warning("Failed to load plugin package '%s'", dist.project_name, exc_info=True)
                 continue
 
     return plugins

@@ -18,6 +18,7 @@
 - `graph` — сборка `lex_knowledge_graph.duckdb`.
 
 Отдельные команды:
+- `smoke` — быстрый локальный acceptance/smoke прогон с выборкой репрезентативных НПА.
 - `embed-local` — локальные embeddings + HNSW.
 - `qc` — quality checks для графа и SPO-покрытия.
 - `publish` — publish manifest с checksums.
@@ -67,16 +68,18 @@ GONKA_API_KEY=...
 ### Smoke
 
 ```bash
-python -m polisyos.lex.batch run \
+python -m polisyos.lex.batch smoke \
   --cards data/data_lex/edrnpa_cards_2026-02-08.xml \
   --texts data/data_lex/edrnpa_texts_2026-02-08.xml \
   --output-dir data/lex_knowledge \
-  --stages parse,structure,spo \
-  --spo-extract-mode light \
-  --llm-gate-mode balanced \
-  --max-docs 1000 \
-  --resume
+  --profile informative \
+  --clean-output
 ```
+
+Smoke-команда:
+- сканирует первые matched documents и собирает стратифицированную выборку по `doc_type` и structural cues (`appendix/table/list/article`);
+- запускает все product stages до `publish_bundle` без embeddings;
+- пишет `smoke/smoke_plan.json`, `smoke/smoke_report.json`, `smoke/smoke_summary.md`.
 
 ### Full
 

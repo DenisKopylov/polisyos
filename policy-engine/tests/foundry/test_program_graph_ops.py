@@ -80,6 +80,7 @@ def test_program_graph_includes_op_nodes(tmp_path) -> None:
     )
     payload = from_canonical_bytes(store.get_bytes(program_ref.artifact_id))
     graph = ProgramGraph.model_validate(payload)
+    assert graph.lowered_ir_ref is not None
     kinds = {node.op.op_kind for node in graph.nodes if node.node_kind == "op" and node.op}
     assert "merge_state" in kinds
     assert "check_constraints" in kinds

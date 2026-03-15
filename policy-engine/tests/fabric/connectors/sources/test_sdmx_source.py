@@ -60,6 +60,7 @@ def _oecd_config() -> ConnectionConfig:
             "X-SDMX-Version": "3",
             "X-SDMX-DataPath": "data",
             "X-SDMX-DataflowPath": "dataflow",
+            "X-SDMX-IncludeAgencyInDataPath": "false",
         },
     )
 
@@ -193,6 +194,35 @@ class TestParseSDMXJson:
         assert df["TIME_PERIOD"].tolist() == ["2024-01", "2024-02"]
         assert df["value"].tolist() == [42.0, 43.0]
 
+    def test_parse_nested_data_wrapper(self):
+        body = {
+            "meta": {"schema": "test"},
+            "data": {
+                "dataSets": [
+                    {
+                        "observations": {
+                            "0": [42.0],
+                        }
+                    }
+                ],
+                "structure": {
+                    "dimensions": {
+                        "observation": [
+                            {
+                                "id": "TIME_PERIOD",
+                                "values": [
+                                    {"id": "2024"},
+                                ],
+                            }
+                        ]
+                    }
+                },
+            },
+        }
+        df = _parse_sdmx_json(body)
+        assert len(df) == 1
+        assert df["TIME_PERIOD"].tolist() == ["2024"]
+
 
 # ---------------------------------------------------------------------------
 # Config parsing
@@ -214,6 +244,7 @@ class TestConfigParsing:
         result = SDMXSourceConnector._parse_sdmx_config(config)
         assert result["agency"] == "OECD"
         assert result["version"] == "3"
+        assert result["include_agency_in_data_path"] is False
 
     def test_defaults_for_missing_headers(self):
         config = ConnectionConfig(url="https://example.test")
@@ -410,6 +441,30 @@ class TestFetch:
 
         _run_async(_exercise())
         assert "M.USD.EUR.SP00.A" in captured_urls[0]
+
+    def test_fetch_omits_agency_segment_when_profile_requests_it(self, monkeypatch):
+        connector = SDMXSourceConnector()
+        fixture = _load_fixture("ecb_exr_response.json")
+
+        captured_urls: list[str] = []
+        raw = json.dumps(fixture).encode("utf-8")
+
+        async def _capture_url(self, handle, url, *, accept="data"):
+            captured_urls.append(url)
+            return fixture, {}, raw
+
+        monkeypatch.setattr(SDMXSourceConnector, "_sdmx_request_json", _capture_url)
+        monkeypatch.setattr(SDMXSourceConnector, "_get_session", _fake_get_session)
+
+        async def _exercise():
+            handle = await connector.connect(_oecd_config())
+            await connector.fetch(handle, FetchRequest(dataset_id="DF_TEST"))
+            await connector.disconnect(handle)
+
+        _run_async(_exercise())
+        assert captured_urls
+        assert "/data/DF_TEST" in captured_urls[0]
+        assert "/data/OECD/DF_TEST" not in captured_urls[0]
 
     def test_fetch_empty_response(self, monkeypatch):
         connector = SDMXSourceConnector()

@@ -10,20 +10,22 @@ from typing import Any
 from pydantic import ValidationError
 
 from polisyos.core.canon import truncated_hash
-from polisyos.ir.model_spec import (
-    AgentConfig,
-    AssumptionSpec,
-    AssumptionType,
-    EnvironmentConfig,
-    ModelSpec,
-)
 from polisyos.ir.governance.policy_spec import InterventionSpec as TrinityInterventionSpec
 from polisyos.ir.governance.policy_spec import ParameterSpec, PolicySpec
 from polisyos.ir.governance.problem_frame import (
     ConstraintType,
     ObjectiveSpec,
     ProblemDomain,
+)
+from polisyos.ir.governance.problem_frame import (
     ProblemFrame as TrinityProblemFrame,
+)
+from polisyos.ir.model_spec import (
+    AgentConfig,
+    AssumptionSpec,
+    AssumptionType,
+    EnvironmentConfig,
+    ModelSpec,
 )
 from polisyos.ir.trinity import TrinityBundle
 from polisyos.scientist.agent.prompts import get_formalizer_prompt

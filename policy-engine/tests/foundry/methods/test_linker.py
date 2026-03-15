@@ -109,6 +109,15 @@ def make_signature(
 
 
 class TestUnitDimensionCompatibility:
+    def test_contract_mismatch_incompatible(self, units):
+        src = SlotSpec("a", SlotType.SCALAR, units.UNITLESS, contract_id="contract.a")
+        tgt = SlotSpec("b", SlotType.SCALAR, units.UNITLESS, contract_id="contract.b")
+
+        result = check_slot_compatibility(src, tgt)
+
+        assert result.compatible is False
+        assert result.reason == IncompatibilityReason.CONTRACT_MISMATCH
+
     def test_same_dimension_compatible(self, units):
         src = make_slot("a", unit=units.USD)
         tgt = make_slot("b", unit=units.USD)

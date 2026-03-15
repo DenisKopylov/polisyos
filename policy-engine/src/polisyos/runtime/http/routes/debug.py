@@ -3,7 +3,9 @@ from __future__ import annotations
 from polisyos.core.contracts.runtime import (
     GovernanceDebugResponse,
     NodeDebugResponse,
+    RunCompareResponse,
     RunErrorsResponse,
+    RunFeedbackResponse,
 )
 from polisyos.runtime.http.dependencies import (
     RuntimeApiContext,
@@ -91,4 +93,53 @@ if router is not None:
             meta=build_meta(request, source_kinds=[run.source_kind]),
             run_id=run_id,
             errors=errors,
+        )
+
+    @router.get(
+        "/{run_id}/feedback",
+        response_model=RunFeedbackResponse,
+        operation_id="get_run_feedback",
+    )
+    def get_run_feedback(
+        run_id: str,
+        request: Request,
+        ctx: RuntimeApiContext = Depends(get_runtime_api_context),  # noqa: B008
+    ) -> RunFeedbackResponse:
+        run = ctx.run_index.get_run(run_id)
+        enforce_run_tenant_access(request, ctx=ctx, run=run)
+        set_authz_resource(
+            request,
+            tenant_id=run.details.tenant_id,
+            kind="runtime.run_feedback",
+        )
+        feedback = ctx.feedback.get_run_feedback(run)
+        return RunFeedbackResponse(
+            meta=build_meta(request, source_kinds=[run.source_kind]),
+            feedback=feedback,
+        )
+
+    @router.get(
+        "/{left_run_id}/compare/{right_run_id}",
+        response_model=RunCompareResponse,
+        operation_id="get_run_compare",
+    )
+    def get_run_compare(
+        left_run_id: str,
+        right_run_id: str,
+        request: Request,
+        ctx: RuntimeApiContext = Depends(get_runtime_api_context),  # noqa: B008
+    ) -> RunCompareResponse:
+        left_run = ctx.run_index.get_run(left_run_id)
+        right_run = ctx.run_index.get_run(right_run_id)
+        enforce_run_tenant_access(request, ctx=ctx, run=left_run)
+        enforce_run_tenant_access(request, ctx=ctx, run=right_run)
+        set_authz_resource(
+            request,
+            tenant_id=left_run.details.tenant_id,
+            kind="runtime.run_compare",
+        )
+        compare = ctx.feedback.compare_runs(left_run, right_run)
+        return RunCompareResponse(
+            meta=build_meta(request, source_kinds=[left_run.source_kind, right_run.source_kind]),
+            compare=compare,
         )

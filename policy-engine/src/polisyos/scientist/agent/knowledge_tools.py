@@ -15,8 +15,11 @@ Usage::
 
 from __future__ import annotations
 
-import logging
 from typing import TYPE_CHECKING
+
+from polisyos.common.logger import get_logger
+
+logger = get_logger(__name__)
 
 if TYPE_CHECKING:
     from polisyos.academic.knowledge.search import ScholarKnowledgeGraph
@@ -28,8 +31,7 @@ if TYPE_CHECKING:
     from polisyos.datasets.knowledge.search import DatasetCatalogGraph
     from polisyos.datasets.knowledge.types import DatasetSearchResult
     from polisyos.lex.knowledge.search import LegalKnowledgeGraph
-
-logger = logging.getLogger(__name__)
+    from polisyos.lex.knowledge.types import LegalFactResult, LegalProvisionResult
 
 
 class KnowledgeToolkit:
@@ -121,6 +123,7 @@ class KnowledgeToolkit:
         *,
         domain: str | None = None,
         country: str | None = None,
+        prefer_simulation_ready: bool = True,
     ) -> ParameterPrior | None:
         """Get aggregated prior distribution from literature.
 
@@ -129,9 +132,20 @@ class KnowledgeToolkit:
         """
         if self._scholar_graph is None:
             return None
-        return self._scholar_graph.get_parameter_prior(
-            variable, domain=domain, country=country,
-        )
+        try:
+            return self._scholar_graph.get_parameter_prior(
+                variable,
+                domain=domain,
+                country=country,
+                prefer_simulation_ready=prefer_simulation_ready,
+            )
+        except TypeError:
+            # Backward-compatible fallback for older Scholar graph adapters/mocks.
+            return self._scholar_graph.get_parameter_prior(
+                variable,
+                domain=domain,
+                country=country,
+            )
 
     def find_causal_evidence(
         self,
@@ -139,12 +153,13 @@ class KnowledgeToolkit:
         effect: str,
         *,
         min_trust: float = 0.5,
+        support_mode: str = "exact",
     ) -> list[CausalClaimResult]:
         """Is there evidence that cause → effect? Returns ranked claims."""
         if self._scholar_graph is None:
             return []
         return self._scholar_graph.find_causal_evidence(
-            cause, effect, min_trust=min_trust,
+            cause, effect, min_trust=min_trust, support_mode=support_mode,
         )
 
     def get_mechanism_evidence(
@@ -158,6 +173,108 @@ class KnowledgeToolkit:
             return []
         return self._scholar_graph.get_mechanism_evidence(
             mechanism_name, top_k=top_k,
+        )
+
+    # ------------------------------------------------------------------
+    # Legal knowledge tools
+    # ------------------------------------------------------------------
+
+    def search_legal_facts(
+        self,
+        query: str,
+        *,
+        top_k: int = 20,
+        trust_tier: str | None = "grounded_fact",
+        jurisdiction: str | None = "UA",
+        domain: str | None = None,
+        as_of: str | None = None,
+        include_candidates: bool = False,
+    ) -> list[LegalFactResult]:
+        """Search legal facts with trust-tier filtering."""
+        if self._legal_graph is None:
+            return []
+        return self._legal_graph.hybrid_search(
+            query,
+            top_k=top_k,
+            trust_tier=trust_tier,
+            jurisdiction=jurisdiction,
+            domain=domain,
+            as_of=as_of,
+            include_candidates=include_candidates,
+        )
+
+    def search_legal_provisions(
+        self,
+        query: str,
+        *,
+        top_k: int = 10,
+        min_similarity: float = 0.3,
+    ) -> list[LegalProvisionResult]:
+        """Fallback retrieval of raw provisions for legal review."""
+        if self._legal_graph is None:
+            return []
+        return self._legal_graph.search_provisions(
+            query,
+            top_k=top_k,
+            min_similarity=min_similarity,
+        )
+
+    def find_legal_constraints(
+        self,
+        *,
+        query: str | None = None,
+        top_k: int = 50,
+        jurisdiction: str | None = "UA",
+        domain: str | None = None,
+        as_of: str | None = None,
+    ) -> list[LegalFactResult]:
+        """Retrieve high-trust obligations, prohibitions and related clauses."""
+        if self._legal_graph is None:
+            return []
+        return self._legal_graph.find_legal_constraints(
+            query=query,
+            top_k=top_k,
+            jurisdiction=jurisdiction,
+            domain=domain,
+            as_of=as_of,
+        )
+
+    def search_legal_thresholds(
+        self,
+        metric: str,
+        *,
+        top_k: int = 50,
+        jurisdiction: str | None = "UA",
+        domain: str | None = None,
+        as_of: str | None = None,
+    ) -> list[LegalFactResult]:
+        """Retrieve quantitative legal thresholds from high-trust facts."""
+        if self._legal_graph is None:
+            return []
+        return self._legal_graph.search_facts_with_threshold(
+            metric,
+            top_k=top_k,
+            jurisdiction=jurisdiction,
+            domain=domain,
+            as_of=as_of,
+        )
+
+    def get_applicable_norms(
+        self,
+        *,
+        domain: str | None = None,
+        jurisdiction: str | None = "UA",
+        as_of: str | None = None,
+        top_k: int = 100,
+    ) -> list[LegalFactResult]:
+        """Retrieve applicable norms for a domain/jurisdiction/time slice."""
+        if self._legal_graph is None:
+            return []
+        return self._legal_graph.get_applicable_norms(
+            domain=domain,
+            jurisdiction=jurisdiction,
+            as_of=as_of,
+            top_k=top_k,
         )
 
     # ------------------------------------------------------------------
@@ -217,3 +334,24 @@ class KnowledgeToolkit:
             f"Range: [{prior.prior_low:.4f}, {prior.prior_high:.4f}], "
             f"N studies: {prior.n_studies}, Best design: {prior.best_design}"
         )
+
+    def format_legal_context(
+        self,
+        results: list[LegalFactResult],
+        *,
+        max_results: int = 8,
+    ) -> str:
+        """Format legal facts for prompt injection in drafting/review flows."""
+        if not results:
+            return ""
+        lines = ["## LEGAL CONTEXT"]
+        for result in results[:max_results]:
+            lines.append(
+                f"- [{result.trust_tier}] {result.fact_text} "
+                f"({result.doc_name}, {result.provision_citation})"
+            )
+            if result.source_quote_uk:
+                lines.append(f"  Quote: {result.source_quote_uk[:240]}")
+            if result.top_domain:
+                lines.append(f"  Domain: {result.top_domain}")
+        return "\n".join(lines)

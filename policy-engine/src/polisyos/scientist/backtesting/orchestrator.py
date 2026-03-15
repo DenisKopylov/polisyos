@@ -46,16 +46,33 @@ class BacktestOrchestrator:
         report_id = f"BT_{uuid.uuid4().hex[:12]}"
         scenarios: list[BacktestScenario] = []
         warnings: list[str] = []
+        requested_modes: list[str] = []
+        effective_modes: list[str] = []
+        degraded_reasons: list[str] = []
 
         for plan in plans:
-            scenario, scenario_warnings = self._run_single_scenario(plan)
+            (
+                scenario,
+                scenario_warnings,
+                prediction_mode_requested,
+                prediction_mode_effective,
+                scenario_degraded_reasons,
+            ) = self._run_single_scenario(plan)
             scenarios.append(scenario)
             warnings.extend([f"{plan.plan_id}: {item}" for item in scenario_warnings])
+            requested_modes.append(prediction_mode_requested)
+            effective_modes.append(prediction_mode_effective)
+            degraded_reasons.extend(
+                [f"{plan.plan_id}: {item}" for item in scenario_degraded_reasons]
+            )
 
         report = self._aggregate(
             report_id=report_id,
             scenarios=scenarios,
             metadata={"warnings": warnings, **(metadata or {})},
+            prediction_mode_requested=_collapse_modes(requested_modes),
+            prediction_mode_effective=_collapse_modes(effective_modes),
+            degraded_reasons=degraded_reasons,
         )
         ref = persist_backtest_report(self._cas, report)
         report.cas_artifact_id = str(ref.artifact_id)
@@ -64,7 +81,7 @@ class BacktestOrchestrator:
     def _run_single_scenario(
         self,
         plan: HistoricalValidationPlan,
-    ) -> tuple[BacktestScenario, list[str]]:
+    ) -> tuple[BacktestScenario, list[str], str, str, list[str]]:
         warnings: list[str] = []
         historical_data = self._load_historical_data(plan)
         masked_data = self._masker.mask(historical_data, plan)
@@ -72,6 +89,11 @@ class BacktestOrchestrator:
         prediction_payload = self._predict(plan, masked_data)
         if prediction_payload.get("warnings"):
             warnings.extend(prediction_payload["warnings"])
+        degraded_reasons = [
+            str(item)
+            for item in prediction_payload.get("degraded_reasons", [])
+            if isinstance(item, str)
+        ]
         y_pred = prediction_payload["predictions"]
         intervals = prediction_payload.get("intervals")
 
@@ -85,9 +107,22 @@ class BacktestOrchestrator:
             jurisdiction=plan.jurisdiction,
             intervention_date=plan.intervention_date,
             data_source=plan.historical_data_ref or plan.historical_data_path or "",
-            metadata={"prediction_source": plan.prediction_source.value},
+            metadata={
+                "prediction_source_requested": plan.prediction_source.value,
+                "prediction_source_effective": prediction_payload.get(
+                    "prediction_mode_effective",
+                    plan.prediction_source.value,
+                ),
+                "degraded": bool(prediction_payload.get("degraded", False)),
+            },
         )
-        return scenario, warnings
+        return (
+            scenario,
+            warnings,
+            plan.prediction_source.value,
+            str(prediction_payload.get("prediction_mode_effective", plan.prediction_source.value)),
+            degraded_reasons,
+        )
 
     def _load_historical_data(self, plan: HistoricalValidationPlan) -> dict[str, Any]:
         if plan.historical_data_ref:
@@ -109,10 +144,17 @@ class BacktestOrchestrator:
                 "predictions": plan.predicted_outcomes or {},
                 "intervals": plan.prediction_intervals or {},
                 "warnings": [],
+                "prediction_mode_effective": PredictionSource.PROVIDED.value,
+                "degraded": False,
+                "degraded_reasons": [],
             }
         if plan.prediction_source is PredictionSource.SCIENTIST:
             return self._predict_with_scientist(plan, masked_data)
-        return self._predict_with_naive(plan, masked_data)
+        naive = self._predict_with_naive(plan, masked_data)
+        naive["prediction_mode_effective"] = PredictionSource.NAIVE.value
+        naive["degraded"] = False
+        naive["degraded_reasons"] = []
+        return naive
 
     def _predict_with_scientist(
         self,
@@ -121,9 +163,13 @@ class BacktestOrchestrator:
     ) -> dict[str, Any]:
         warnings: list[str] = []
         if plan.scientist_state is None:
+            reason = "scientist_state_missing"
             warnings.append("scientist_state missing; using naive predictor fallback")
             naive = self._predict_with_naive(plan, masked_data)
             naive["warnings"] = warnings + naive.get("warnings", [])
+            naive["prediction_mode_effective"] = PredictionSource.NAIVE.value
+            naive["degraded"] = True
+            naive["degraded_reasons"] = [reason]
             return naive
 
         state_payload = dict(plan.scientist_state)
@@ -135,9 +181,13 @@ class BacktestOrchestrator:
         result = run_experiment(state_payload)
         artifacts = result.get("artifacts_index", {}) if isinstance(result, dict) else {}
         if not isinstance(artifacts, dict):
+            reason = "scientist_artifacts_index_missing"
             warnings.append("scientist result has no artifacts_index; using naive fallback")
             naive = self._predict_with_naive(plan, masked_data)
             naive["warnings"] = warnings + naive.get("warnings", [])
+            naive["prediction_mode_effective"] = PredictionSource.NAIVE.value
+            naive["degraded"] = True
+            naive["degraded_reasons"] = [reason]
             return naive
 
         metrics_ref_payload = artifacts.get("metrics_ref")
@@ -160,14 +210,21 @@ class BacktestOrchestrator:
 
         intervals = self._extract_intervals_from_simulation_result(artifacts, plan)
         if not predictions:
+            reason = "scientist_predictions_missing"
             warnings.append("scientist predictions missing; using naive fallback")
             naive = self._predict_with_naive(plan, masked_data)
             naive["warnings"] = warnings + naive.get("warnings", [])
+            naive["prediction_mode_effective"] = PredictionSource.NAIVE.value
+            naive["degraded"] = True
+            naive["degraded_reasons"] = [reason]
             return naive
         return {
             "predictions": predictions,
             "intervals": intervals,
             "warnings": warnings,
+            "prediction_mode_effective": PredictionSource.SCIENTIST.value,
+            "degraded": False,
+            "degraded_reasons": [],
         }
 
     def _extract_intervals_from_simulation_result(
@@ -240,6 +297,9 @@ class BacktestOrchestrator:
         report_id: str,
         scenarios: list[BacktestScenario],
         metadata: dict[str, Any],
+        prediction_mode_requested: str | None,
+        prediction_mode_effective: str | None,
+        degraded_reasons: list[str],
     ) -> BacktestReport:
         rmse_values = [item.rmse for item in scenarios if item.rmse is not None]
         mae_values = [item.mae for item in scenarios if item.mae is not None]
@@ -249,7 +309,11 @@ class BacktestOrchestrator:
         ]
 
         biases = self._detect_systematic_biases(scenarios)
-        trust_score, trust_grade = self._trust_scorer.compute(scenarios=scenarios, biases=biases)
+        degraded = bool(degraded_reasons)
+        trust_eligible = not degraded
+        trust_score, trust_grade = (None, None)
+        if trust_eligible:
+            trust_score, trust_grade = self._trust_scorer.compute(scenarios=scenarios, biases=biases)
 
         return BacktestReport(
             report_id=report_id,
@@ -262,6 +326,11 @@ class BacktestOrchestrator:
             n_metrics_evaluated=sum(len(item.outcome_comparisons) for item in scenarios),
             detected_biases=biases,
             overall_bias_direction=self._aggregate_bias_direction(biases),
+            prediction_mode_requested=prediction_mode_requested,
+            prediction_mode_effective=prediction_mode_effective,
+            degraded=degraded,
+            degraded_reasons=degraded_reasons,
+            trust_eligible=trust_eligible,
             trust_score=trust_score,
             trust_grade=trust_grade,
             metadata=metadata,
@@ -339,3 +408,12 @@ class BacktestOrchestrator:
 
 
 __all__ = ["BacktestOrchestrator"]
+
+
+def _collapse_modes(values: list[str]) -> str | None:
+    unique = sorted({value for value in values if value})
+    if not unique:
+        return None
+    if len(unique) == 1:
+        return unique[0]
+    return "mixed"

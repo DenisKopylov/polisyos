@@ -4,13 +4,18 @@ from dataclasses import dataclass, field, replace
 from typing import Any
 
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
-from polisyos.core.contracts.foundry import CompileRequest, FoundryCompileConfig, FoundryValidationFlags
+from polisyos.core.contracts.foundry import (
+    CompileRequest,
+    FoundryCompileConfig,
+    FoundryValidationFlags,
+)
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
 from polisyos.scientist.engine.state import ExperimentState
 from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_EXEC_PLAN_REF,
+    ARTIFACT_LOWERED_IR_REF,
     ARTIFACT_PROGRAM_GRAPH_REF,
     ARTIFACT_SLOT_LAYOUT_REF,
     ARTIFACT_TREASURY_PLAN_REF,
@@ -40,6 +45,7 @@ _SPEC = NodeSpec(
         f"reports_index.{REPORT_COMPILE_REPORT_REF}",
         f"reports_index.{REPORT_LINK_REPORT_REF}",
         f"artifacts_index.{ARTIFACT_EXEC_PLAN_REF}",
+        f"artifacts_index.{ARTIFACT_LOWERED_IR_REF}",
         f"artifacts_index.{ARTIFACT_PROGRAM_GRAPH_REF}",
         f"artifacts_index.{ARTIFACT_SLOT_LAYOUT_REF}",
         f"artifacts_index.{ARTIFACT_TREASURY_PLAN_REF}",
@@ -48,6 +54,7 @@ _SPEC = NodeSpec(
         REPORT_COMPILE_REPORT_REF,
         REPORT_LINK_REPORT_REF,
         ARTIFACT_EXEC_PLAN_REF,
+        ARTIFACT_LOWERED_IR_REF,
         ARTIFACT_PROGRAM_GRAPH_REF,
         ARTIFACT_SLOT_LAYOUT_REF,
         ARTIFACT_TREASURY_PLAN_REF,
@@ -127,6 +134,8 @@ class CompileFoundryNode:
             role = item.role
             if role == "program_graph":
                 new_state.artifacts_index[ARTIFACT_PROGRAM_GRAPH_REF] = item.ref
+            elif role == "lowered_ir":
+                new_state.artifacts_index[ARTIFACT_LOWERED_IR_REF] = item.ref
             elif role == "exec_plan":
                 new_state.artifacts_index[ARTIFACT_EXEC_PLAN_REF] = item.ref
             elif role == "link_report":

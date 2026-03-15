@@ -170,6 +170,30 @@ class StressTestReportRef(ScientistArtifactRef):
     media_type: Literal["application/json"] = "application/json"
 
 
+class DecisionMonitoringContractRef(ScientistArtifactRef):
+    kind: Literal["scientist.decision_monitoring_contract"] = (
+        "scientist.decision_monitoring_contract"
+    )
+    media_type: Literal["application/json"] = "application/json"
+
+
+class DecisionMonitoringReportRef(ScientistArtifactRef):
+    kind: Literal["scientist.decision_monitoring_report"] = (
+        "scientist.decision_monitoring_report"
+    )
+    media_type: Literal["application/json"] = "application/json"
+
+
+class DecisionCompareReportRef(ScientistArtifactRef):
+    kind: Literal["scientist.decision_compare_report"] = "scientist.decision_compare_report"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class DecisionReissuePlanRef(ScientistArtifactRef):
+    kind: Literal["scientist.decision_reissue_plan"] = "scientist.decision_reissue_plan"
+    media_type: Literal["application/json"] = "application/json"
+
+
 __all__ = [
     "ScientistArtifactRef",
     "ExperimentStateRef",
@@ -184,4 +208,8 @@ __all__ = [
     "CheckpointRef",
     "SensitivityResultRef",
     "StressTestReportRef",
+    "DecisionMonitoringContractRef",
+    "DecisionMonitoringReportRef",
+    "DecisionCompareReportRef",
+    "DecisionReissuePlanRef",
 ]

@@ -1,4 +1,4 @@
-import { renderHook } from "@testing-library/react";
+import { act, renderHook } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
@@ -63,9 +63,11 @@ describe("promotion decision hooks", () => {
     });
 
     const view = renderHook(() => useApprovePromotionCandidate(), { wrapper });
-    await view.result.current.mutateAsync({
-      promotionId: "promotion-1",
-      reason: "Reusable signal",
+    await act(async () => {
+      await view.result.current.mutateAsync({
+        promotionId: "promotion-1",
+        reason: "Reusable signal",
+      });
     });
 
     expect(postSpy).toHaveBeenCalledWith(
@@ -108,12 +110,14 @@ describe("promotion decision hooks", () => {
     });
 
     const view = renderHook(() => useApprovePromotionCandidate(), { wrapper });
-    await expect(
-      view.result.current.mutateAsync({
-        promotionId: "promotion-1",
-      }),
-    ).rejects.toMatchObject({
-      code: "promotion_failed",
+    await act(async () => {
+      await expect(
+        view.result.current.mutateAsync({
+          promotionId: "promotion-1",
+        }),
+      ).rejects.toMatchObject({
+        code: "promotion_failed",
+      });
     });
 
     expect(queryClient.getQueryData(queryKeys.dataPromotionCandidates())).toEqual(
@@ -137,9 +141,11 @@ describe("promotion decision hooks", () => {
     });
 
     const view = renderHook(() => useRejectPromotionCandidate(), { wrapper });
-    await view.result.current.mutateAsync({
-      promotionId: "promotion-1",
-      reason: "Insufficient confidence",
+    await act(async () => {
+      await view.result.current.mutateAsync({
+        promotionId: "promotion-1",
+        reason: "Insufficient confidence",
+      });
     });
 
     expect(postSpy).toHaveBeenCalledWith(
@@ -175,12 +181,14 @@ describe("promotion decision hooks", () => {
         wrapper,
       });
 
-      await expect(
-        view.result.current.mutateAsync({
-          promotionId: "promotion-1",
-        }),
-      ).rejects.toMatchObject({
-        code: "promotion_failed",
+      await act(async () => {
+        await expect(
+          view.result.current.mutateAsync({
+            promotionId: "promotion-1",
+          }),
+        ).rejects.toMatchObject({
+          code: "promotion_failed",
+        });
       });
     }
 

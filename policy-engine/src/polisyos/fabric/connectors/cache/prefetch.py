@@ -4,7 +4,7 @@ from __future__ import annotations
 import asyncio
 import random
 from dataclasses import dataclass, field
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Any
 
 from polisyos.common.logger import get_logger
@@ -180,8 +180,8 @@ class PrefetchScheduler:
         finally:
             try:
                 await self._registry.release_connection(job.connector_id, handle)
-            except Exception:
-                pass
+            except Exception as exc:
+                logger.debug("Ignored exception: %s", exc)
 
     async def _maybe_retry(self, job: PrefetchJob) -> None:
         if job.retries >= self._max_retries:

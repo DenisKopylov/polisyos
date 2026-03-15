@@ -190,6 +190,7 @@ class NormPackBuildRequest:
     as_of: str
     domain: str | None = None
     doc_source_ids: list[str] | None = None
+    claim_set_artifact_ids: list[str] | None = None
 
     selection_policy_id: str = "lex.versioning_v1.effective_range_then_published_at"
     conflict_policy_id: str = "policy.conflicts.default_v1"

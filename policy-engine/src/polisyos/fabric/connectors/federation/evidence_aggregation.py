@@ -10,12 +10,16 @@ import json
 from datetime import datetime, timezone
 from typing import Any
 
-from polisyos.core.canon import content_hash, to_canonical_bytes
 from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.canon import content_hash, to_canonical_bytes
 from polisyos.core.contracts.fabric import (
     EvidenceBundle,
     EvidenceStep,
     ProvenanceCoreRefModel,
+)
+from polisyos.fabric.connectors.federation.types import (
+    CompositionStrategy,
+    MergeLogEntry,
 )
 from polisyos.fabric.evidence import persist_provenance_graph
 from polisyos.fabric.provenance.core import (
@@ -28,12 +32,6 @@ from polisyos.fabric.provenance.core import (
     ProvenanceCoreRef,
     ProvenanceEntity,
 )
-
-from polisyos.fabric.connectors.federation.types import (
-    CompositionStrategy,
-    MergeLogEntry,
-)
-
 
 _DETERMINISTIC_TIMESTAMP = datetime(1970, 1, 1, tzinfo=timezone.utc)
 

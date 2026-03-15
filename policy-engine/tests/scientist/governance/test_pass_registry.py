@@ -34,6 +34,7 @@ def test_load_governance_passes_contains_required_passes() -> None:
         "equity",
         "literature_gate",
         "legal",
+        "normative_arbitration",
         "confidence",
         "refutation",
         "human_review_required",

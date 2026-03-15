@@ -1,13 +1,14 @@
 from __future__ import annotations
 
+import time
+import warnings
 from collections import Counter
 from dataclasses import replace
 from datetime import datetime
 from pathlib import Path
-import time
-import warnings
 from typing import Any
 
+from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.components import (
     ENTRY_POINT_GROUP_LEX_EXTRACTORS,
@@ -37,7 +38,6 @@ from polisyos.fabric.docs import (
 from polisyos.fabric.docs.errors import DocPipelineError
 from polisyos.fabric.storage import DuckDBStorageAdapter, StoragePort
 from polisyos.ir.world.trust import TrustAssessment, TrustTier
-
 from polisyos.scholar.discover import fetch_url, normalize_seed_sources, read_local_file
 from polisyos.scholar.errors import (
     ScholarAcquireError,
@@ -49,21 +49,23 @@ from polisyos.scholar.errors import (
     ScholarReconcileError,
     ScholarValidationError,
 )
+from polisyos.scholar.freshness import build_freshness_metadata
 from polisyos.scholar.orchestrator.bundle import (
     build_knowledge_bundle_payload,
     compute_bundle_id,
     persist_bundle_and_event,
 )
 from polisyos.scholar.policies import ScholarPolicy
-from polisyos.scholar.freshness import build_freshness_metadata
 from polisyos.scholar.types import (
     AcquireResult,
     ClaimsPipelineRefs,
     DocPipelineRefs,
-    EnrichResultV1,
     EnrichmentReportV1,
+    EnrichResultV1,
     ReconcileRefs,
 )
+
+logger = get_logger(__name__)
 
 _TRUST_RANK = {
     TrustTier.LOW: 1,
@@ -316,6 +318,7 @@ def _max_source_freshness(
         try:
             doc_meta = load_doc_meta(cas, artifact_id)
         except Exception:
+            logger.debug("Failed to load doc_meta artifact %s", artifact_id)
             continue
         ts = doc_meta.retrieved_at
         if latest is None or ts > latest:

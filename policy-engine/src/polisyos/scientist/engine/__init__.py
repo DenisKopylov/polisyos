@@ -2,15 +2,6 @@
 
 from __future__ import annotations
 
-from polisyos.scientist.engine.errors import (
-    CycleDetectedError,
-    DuplicateAliasError,
-    EngineError,
-    MissingDependencyError,
-    NodeExecutionError,
-    UnknownNodeError,
-    WorkflowSpecError,
-)
 from polisyos.scientist.engine.checkpoint import (
     CHECKPOINT_HEAD_FILENAME,
     CHECKPOINT_KIND,
@@ -31,6 +22,15 @@ from polisyos.scientist.engine.checkpoint import (
     normalize_checkpoint_policy,
     resolve_latest_checkpoint,
     resume_from_checkpoint,
+)
+from polisyos.scientist.engine.errors import (
+    CycleDetectedError,
+    DuplicateAliasError,
+    EngineError,
+    MissingDependencyError,
+    NodeExecutionError,
+    UnknownNodeError,
+    WorkflowSpecError,
 )
 from polisyos.scientist.engine.executor import WorkflowExecutor
 from polisyos.scientist.engine.idempotency import (

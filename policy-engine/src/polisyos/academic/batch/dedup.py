@@ -5,10 +5,11 @@ from __future__ import annotations
 import csv
 import json
 from datetime import UTC, datetime
+from typing import Any
 
-from polisyos.batch_common.manifest import write_stage_manifest
 from polisyos.academic.batch.config import AcademicBatchConfig
 from polisyos.academic.knowledge.types import SourceTopicRef, WorkRecord
+from polisyos.batch_common.manifest import write_stage_manifest
 
 
 class MergeStats(dict):
@@ -18,7 +19,65 @@ class MergeStats(dict):
 def _iter_input_files(config: AcademicBatchConfig) -> list:
     parsed = sorted(config.parsed_dir.glob("*.jsonl"))
     extracted = sorted(config.extracted_dir.glob("*.jsonl"))
+    if config.resolve_extract_final_works_path.exists():
+        extracted = [
+            path
+            for path in extracted
+            if path.name != "resolve_extract.jsonl"
+        ]
     return parsed + extracted
+
+
+def _payload_key(value: Any) -> str:
+    if hasattr(value, "model_dump"):
+        payload = value.model_dump(mode="json")
+    else:
+        payload = value
+    return json.dumps(payload, ensure_ascii=False, sort_keys=True)
+
+
+def _union_items(left: list[Any], right: list[Any]) -> list[Any]:
+    seen: set[str] = set()
+    merged: list[Any] = []
+    for item in [*left, *right]:
+        key = _payload_key(item)
+        if key in seen:
+            continue
+        seen.add(key)
+        merged.append(item)
+    return merged
+
+
+def _merge_metadata(base: dict[str, Any], incoming: dict[str, Any]) -> dict[str, Any]:
+    merged: dict[str, Any] = {**base, **incoming}
+    list_keys = {
+        "supporting_spans",
+        "method_spans",
+        "extraction_warnings",
+        "heterogeneity_results",
+        "context_attributes",
+        "moderation_edges",
+        "attempt_error_classes",
+    }
+    for key in list_keys:
+        left = base.get(key) if isinstance(base.get(key), list) else []
+        right = incoming.get(key) if isinstance(incoming.get(key), list) else []
+        if left or right:
+            merged[key] = _union_items(left, right)
+    dict_keys = {"reconciliation_diagnostics"}
+    for key in dict_keys:
+        if isinstance(base.get(key), dict) or isinstance(incoming.get(key), dict):
+            merged[key] = {
+                **(base.get(key) if isinstance(base.get(key), dict) else {}),
+                **(incoming.get(key) if isinstance(incoming.get(key), dict) else {}),
+            }
+    return merged
+
+
+def _prefer_scalar(preferred_value: Any, fallback_value: Any) -> Any:
+    if preferred_value not in (None, "", [], {}):
+        return preferred_value
+    return fallback_value
 
 
 def _merge_records(base: WorkRecord, incoming: WorkRecord) -> WorkRecord:
@@ -47,32 +106,63 @@ def _merge_records(base: WorkRecord, incoming: WorkRecord) -> WorkRecord:
         extraction_mode = incoming.extraction_mode
         chosen_metadata = incoming.metadata
     elif incoming_priority < base_priority:
-        chosen_estimates = base.estimates
-        chosen_claims = base.causal_claims
-        chosen_bounds = base.boundary_conditions
         extraction_mode = base.extraction_mode
-        chosen_metadata = base.metadata
     else:
-        chosen_estimates = base.estimates or incoming.estimates
-        chosen_claims = base.causal_claims or incoming.causal_claims
-        chosen_bounds = base.boundary_conditions or incoming.boundary_conditions
         extraction_mode = (
             incoming.extraction_mode
             if incoming.extraction_confidence > base.extraction_confidence
             else base.extraction_mode
         )
-        chosen_metadata = incoming.metadata if incoming.extraction_confidence > base.extraction_confidence else base.metadata
+
+    preferred = incoming if incoming_priority > base_priority else base
+    fallback = base if preferred is incoming else incoming
 
     merged = base.model_copy(
         update={
             "source_topics": sorted(by_topic.values(), key=lambda x: x.topic_id),
+            "title": _prefer_scalar(preferred.title, fallback.title),
+            "doi": _prefer_scalar(preferred.doi, fallback.doi),
+            "abstract": _prefer_scalar(preferred.abstract, fallback.abstract),
+            "year": preferred.year or fallback.year,
+            "publication_date": _prefer_scalar(preferred.publication_date, fallback.publication_date),
+            "language": _prefer_scalar(preferred.language, fallback.language),
+            "work_type": _prefer_scalar(preferred.work_type, fallback.work_type),
+            "is_retracted": bool(base.is_retracted or incoming.is_retracted),
+            "cited_by_count": max(base.cited_by_count, incoming.cited_by_count),
+            "fwci": preferred.fwci if preferred.fwci is not None else fallback.fwci,
+            "citation_normalized_percentile": (
+                preferred.citation_normalized_percentile
+                if preferred.citation_normalized_percentile is not None
+                else fallback.citation_normalized_percentile
+            ),
+            "citation_is_top_1_percent": bool(base.citation_is_top_1_percent or incoming.citation_is_top_1_percent),
+            "citation_is_top_10_percent": bool(base.citation_is_top_10_percent or incoming.citation_is_top_10_percent),
+            "journal": _prefer_scalar(preferred.journal, fallback.journal),
+            "source_id": _prefer_scalar(preferred.source_id, fallback.source_id),
+            "is_oa": bool(base.is_oa or incoming.is_oa),
+            "has_fulltext": bool(base.has_fulltext or incoming.has_fulltext),
+            "full_text_url": _prefer_scalar(preferred.full_text_url, fallback.full_text_url),
+            "concepts": _union_items(base.concepts, incoming.concepts),
+            "study_design": _prefer_scalar(preferred.study_design, fallback.study_design),
             "trust_score": max(base.trust_score, incoming.trust_score),
             "extraction_confidence": max(base.extraction_confidence, incoming.extraction_confidence),
             "extraction_mode": extraction_mode,
-            "estimates": chosen_estimates,
-            "causal_claims": chosen_claims,
-            "boundary_conditions": chosen_bounds,
-            "metadata": chosen_metadata,
+            "estimates": _union_items(base.estimates, incoming.estimates),
+            "causal_claims": _union_items(base.causal_claims, incoming.causal_claims),
+            "boundary_conditions": _union_items(base.boundary_conditions, incoming.boundary_conditions),
+            "context_profile": {
+                **(base.context_profile if isinstance(base.context_profile, dict) else {}),
+                **(incoming.context_profile if isinstance(incoming.context_profile, dict) else {}),
+            },
+            "method_signal_score": max(base.method_signal_score, incoming.method_signal_score),
+            "llm_gate_route": _prefer_scalar(preferred.llm_gate_route, fallback.llm_gate_route),
+            "llm_gate_score": max(base.llm_gate_score, incoming.llm_gate_score),
+            "llm_gate_reasons": _union_items(base.llm_gate_reasons, incoming.llm_gate_reasons),
+            "token_count_prompt": max(base.token_count_prompt, incoming.token_count_prompt),
+            "token_count_completion": max(base.token_count_completion, incoming.token_count_completion),
+            "screening_cost_usd": max(base.screening_cost_usd, incoming.screening_cost_usd),
+            "extraction_cost_usd": max(base.extraction_cost_usd, incoming.extraction_cost_usd),
+            "metadata": _merge_metadata(base.metadata, incoming.metadata),
         }
     )
     return merged

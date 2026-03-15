@@ -5,15 +5,11 @@ from __future__ import annotations
 from typing import Any
 
 from polisyos.ir.canon import CanonViolation, content_hash, to_canonical_bytes
-from polisyos.ir.kernel.mechanisms import resolve_mechanism_slots
-from polisyos.ir.model_spec import FidelityLevel
 from polisyos.ir.governance.schedule import schedule_range
+from polisyos.ir.kernel.mechanisms import resolve_mechanism_slots
 from polisyos.ir.registry_fragments import RegistryBundle
 from polisyos.ir.trinity import TrinityBundle
 
-from .reports import LinkIssue, LinkIssueCode, LinkReport, LinkSeverity
-from ._trinity_models import LinkedIntervention, LinkedTrinityBundle, TrinityBindings
-from ._trinity_params import _validate_params
 from ._trinity_mechanisms import (
     _collect_selector_fields,
     _validate_constraint_slot,
@@ -22,6 +18,9 @@ from ._trinity_mechanisms import (
     _validate_schedule_conflicts,
     _validate_selector_fields,
 )
+from ._trinity_models import LinkedIntervention, LinkedTrinityBundle, TrinityBindings
+from ._trinity_params import _validate_params
+from .reports import LinkIssue, LinkIssueCode, LinkReport, LinkSeverity
 
 
 def link_trinity(
@@ -80,28 +79,6 @@ def link_trinity(
                 path=path,
                 data={"registry": registry_name},
             )
-        )
-
-    if bundle.policy_spec.mechanism_bindings:
-        _emit_warning(
-            code=LinkIssueCode.DEPRECATED_MECHANISM_BINDINGS,
-            message=(
-                "policy_spec.mechanism_bindings is currently ignored by the linker and runtime; "
-                "intervention.kind remains the source of truth"
-            ),
-            path=["policy_spec", "mechanism_bindings"],
-            data={"binding_count": len(bundle.policy_spec.mechanism_bindings)},
-        )
-
-    if bundle.model_spec.fidelity_level != FidelityLevel.HYBRID:
-        _emit_warning(
-            code=LinkIssueCode.MODEL_FIDELITY_LEVEL_IGNORED,
-            message=(
-                "model_spec.fidelity_level is not wired into the main execution path yet; "
-                "runtime behavior is unchanged"
-            ),
-            path=["model_spec", "fidelity_level"],
-            data={"value": bundle.model_spec.fidelity_level.value},
         )
 
     # Step A: PolicySpec interventions vs mechanism registry

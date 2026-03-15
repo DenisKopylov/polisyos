@@ -19,9 +19,9 @@ from polisyos.fabric.connectors.testing.fixtures import (
 from polisyos.fabric.connectors.testing.harness import ConnectorTestHarness
 from polisyos.fabric.connectors.testing.simulator import (
     APISimulator,
-    SimulatorMode,
-    SimulatorFixture,
     MissingFixtureError,
+    SimulatorFixture,
+    SimulatorMode,
 )
 
 __all__ = [

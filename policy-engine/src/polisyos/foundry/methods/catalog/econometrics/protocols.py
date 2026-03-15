@@ -4,7 +4,14 @@ from statistics import NormalDist
 from typing import TYPE_CHECKING, Any, ClassVar, Mapping, Protocol, runtime_checkable
 
 import numpy as np
-from pydantic import BaseModel, ConfigDict, Field, field_serializer, field_validator, model_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    field_serializer,
+    field_validator,
+    model_validator,
+)
 
 from polisyos.foundry.methods.base import MethodMetadata, MethodSignature
 from polisyos.ir.analytics.uncertainty import (
@@ -31,6 +38,7 @@ def _to_numpy(value: Any) -> np.ndarray:
 class PanelData(BaseModel):
     """Validated panel data input for classical econometric estimators."""
 
+    contract_id: ClassVar[str] = "foundry.econometrics.panel_data.v1"
     model_config = ConfigDict(extra="forbid", arbitrary_types_allowed=True)
 
     dependent: Any  # shape: (n_obs,)
@@ -154,6 +162,7 @@ class PanelData(BaseModel):
 class TimeSeriesData(BaseModel):
     """Validated time-series input for ARIMA/VAR estimators."""
 
+    contract_id: ClassVar[str] = "foundry.econometrics.time_series_data.v1"
     model_config = ConfigDict(extra="forbid", arbitrary_types_allowed=True)
 
     endog: Any  # shape: (T,) or (T, k)
@@ -200,6 +209,7 @@ class TimeSeriesData(BaseModel):
 class EconometricResult(BaseModel):
     """Common output contract for econometric methods."""
 
+    contract_id: ClassVar[str] = "foundry.econometrics.result.v1"
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     method_name: str
@@ -295,6 +305,20 @@ class EconometricResult(BaseModel):
         )
 
 
+class EconometricDiagnosticResult(BaseModel):
+    """Common diagnostic-test payload for econometric methods."""
+
+    contract_id: ClassVar[str] = "foundry.econometrics.diagnostic_result.v1"
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    test_name: str
+    statistic: float | None = None
+    p_value: float | None = Field(default=None, ge=0.0, le=1.0)
+    passed: bool
+    critical_value: float | None = None
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+
 @runtime_checkable
 class EconometricEstimator(Protocol):
     signature: ClassVar[MethodSignature]
@@ -315,6 +339,7 @@ class EconometricEstimator(Protocol):
 
 __all__ = [
     "EconometricEstimator",
+    "EconometricDiagnosticResult",
     "EconometricResult",
     "PanelData",
     "TimeSeriesData",

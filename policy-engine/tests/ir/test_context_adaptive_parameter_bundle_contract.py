@@ -9,7 +9,7 @@ from polisyos.ir.analytics.parameters import (
     load_context_adaptive_parameter_bundle,
     persist_context_adaptive_parameter_bundle,
 )
-from polisyos.ir.analytics.transportability import TransportabilityStatus
+from polisyos.ir.analytics.transportability import TransportMode, TransportabilityStatus
 from polisyos.ir.refs import ContextAdaptiveParameterBundleRef
 
 
@@ -24,7 +24,8 @@ def test_context_adaptive_parameter_bundle_artifact_roundtrip(tmp_path) -> None:
     applicability = ParameterApplicability(
         parameter_id="fiscal_multiplier",
         target_context_id="UA",
-        transport_status=TransportabilityStatus.TRANSPORTABLE,
+        transport_status=TransportabilityStatus.IDENTIFIED,
+        transport_mode=TransportMode.TRANSPORT_FORMULA,
         transport_confidence=0.6,
         context_distance=0.4,
         is_applicable=True,

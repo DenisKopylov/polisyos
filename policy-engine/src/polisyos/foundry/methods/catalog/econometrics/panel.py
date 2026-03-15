@@ -4,6 +4,7 @@ from typing import Any, ClassVar, Mapping
 
 import numpy as np
 
+from polisyos.common.logger import get_logger
 from polisyos.core.observability.determinism import DeterminismTier
 from polisyos.foundry.methods.base import (
     ComplexityClass,
@@ -18,7 +19,74 @@ from polisyos.foundry.methods.base import (
     foundry_method,
 )
 
+from polisyos.foundry.methods.catalog._payloads import extract_model_payload
+
 from .protocols import EconometricResult, PanelData
+
+logger = get_logger(__name__)
+
+
+def _panel_input_payload(state: Any) -> dict[str, Any]:
+    return extract_model_payload(
+        state,
+        model_cls=PanelData,
+        nested_keys=("panel_data",),
+    )
+
+
+def _materialize_panel_data(bound_inputs: Mapping[str, Any], fallback_state: Any) -> PanelData:
+    payload = _panel_input_payload(fallback_state)
+    payload.update(bound_inputs)
+    return PanelData.model_validate(payload)
+
+
+def _panel_output_slots() -> frozenset[SlotSpec]:
+    return frozenset(
+        {
+            SlotSpec(
+                name="result",
+                slot_type=SlotType.SCALAR,
+                unit=Unit("result", "json"),
+                contract_id=EconometricResult.contract_id,
+            ),
+            SlotSpec(
+                name="uncertainty_envelope",
+                slot_type=SlotType.SCALAR,
+                unit=Unit("uncertainty", "json"),
+            ),
+        }
+    )
+
+
+def _explicit_panel_input_slots() -> frozenset[SlotSpec]:
+    return frozenset(
+        {
+            SlotSpec(
+                name="dependent",
+                slot_type=SlotType.VECTOR,
+                unit=Unit("outcome", "value"),
+                shape=("n_obs",),
+            ),
+            SlotSpec(
+                name="exog",
+                slot_type=SlotType.MATRIX,
+                unit=Unit("feature", "value"),
+                shape=("n_obs", "n_features"),
+            ),
+            SlotSpec(
+                name="entity_ids",
+                slot_type=SlotType.VECTOR,
+                unit=Unit("entity", "id"),
+                shape=("n_obs",),
+            ),
+            SlotSpec(
+                name="time_ids",
+                slot_type=SlotType.VECTOR,
+                unit=Unit("time", "index"),
+                shape=("n_obs",),
+            ),
+        }
+    )
 
 
 def _feature_names(state: PanelData) -> list[str]:
@@ -99,8 +167,8 @@ def _extract_confidence_intervals(
                 if values.size >= 2:
                     lo = _safe_float(values[0])
                     hi = _safe_float(values[1])
-            except Exception:
-                pass
+            except Exception as exc:
+                logger.debug("Ignored exception: %s", exc)
 
         if lo is not None and hi is not None:
             if lo > hi:
@@ -243,6 +311,7 @@ def _run_random_effects(state: PanelData, params: Mapping[str, Any]) -> Economet
     import pandas as pd
     from linearmodels.panel import RandomEffects
 
+
     names = _feature_names(state)
     frame = pd.DataFrame(state.exog, columns=names)
     frame["y"] = state.dependent
@@ -268,12 +337,19 @@ def _run_random_effects(state: PanelData, params: Mapping[str, Any]) -> Economet
 @foundry_method(
     namespace="econometrics.panel",
     version="1.0.0",
-    tags={"econometrics", "panel-data", "fixed-effects", "random-effects"},
+    tags={
+        "econometrics",
+        "panel-data",
+        "fixed-effects",
+        "random-effects",
+        "deprecated:aggregate-wrapper",
+    },
 )
 class PanelDataEstimator:
     """Panel-data estimators via linearmodels."""
 
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
+    runtime_stack: ClassVar[tuple[str, ...]] = ("linearmodels", "pandas", "numpy")
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="panel_data",
@@ -283,20 +359,13 @@ class PanelDataEstimator:
             {
                 SlotSpec(
                     name="panel_data",
-                    slot_type=SlotType.MATRIX,
-                    unit=Unit("panel", "observations"),
-                )
-            }
-        ),
-        output_slots=frozenset(
-            {
-                SlotSpec(
-                    name="econometric_result",
                     slot_type=SlotType.SCALAR,
-                    unit=Unit("result", "json"),
+                    unit=Unit("panel", "dataset"),
+                    contract_id=PanelData.contract_id,
                 )
             }
         ),
+        output_slots=_panel_output_slots(),
         parameters=(
             ParameterSpec(name="model", default="fixed_effects"),
             ParameterSpec(name="cov_type", default="robust"),
@@ -343,8 +412,125 @@ class PanelDataEstimator:
         envelope = result.to_uncertainty_envelope(param_name=params.get("envelope_param"))
         return {
             "result": result,
-            "envelope": envelope,
+            "uncertainty_envelope": envelope,
         }
 
+    @staticmethod
+    def materialize_input(bound_inputs: Mapping[str, Any], fallback_state: Any) -> PanelData:
+        return _materialize_panel_data(bound_inputs, fallback_state)
 
-__all__ = ["PanelDataEstimator"]
+
+@foundry_method(
+    namespace="econometrics.panel",
+    version="1.0.0",
+    tags={"econometrics", "fixed-effects"},
+)
+class FixedEffectsEstimator:
+    """Dedicated Fixed Effects estimator with explicit panel slots."""
+
+    determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
+    runtime_stack: ClassVar[tuple[str, ...]] = ("linearmodels", "pandas", "numpy")
+
+    signature: ClassVar[MethodSignature] = MethodSignature(
+        name="fixed_effects",
+        namespace="placeholder",
+        version="0.0.0",
+        input_slots=_explicit_panel_input_slots(),
+        output_slots=_panel_output_slots(),
+        parameters=(
+            ParameterSpec(name="cov_type", default="robust"),
+            ParameterSpec(name="include_time_effects", default=False),
+            ParameterSpec(name="confidence_level", default=0.95),
+            ParameterSpec(name="envelope_param", default=None),
+        ),
+        fidelity=FidelityLevel.HIGH,
+        complexity=ComplexityClass.O_N2,
+        backend=ComputeBackend.NUMPY,
+        supports_jit=False,
+        supports_vmap=False,
+        supports_grad=False,
+    )
+
+    metadata: ClassVar[MethodMetadata] = MethodMetadata(
+        description="Dedicated Fixed Effects panel estimator.",
+        tags=frozenset({"econometrics", "fixed-effects"}),
+        citations=PanelDataEstimator.metadata.citations,
+        equations={"fixed_effects": PanelDataEstimator.metadata.equations["fixed_effects"]},
+        assumptions=PanelDataEstimator.metadata.assumptions,
+    )
+
+    @staticmethod
+    def pure_step(state: PanelData, params: Mapping[str, Any]) -> dict[str, Any]:
+        data = state if isinstance(state, PanelData) else PanelData.model_validate(state)
+        result = _run_fixed_effects(data, params)
+        return {
+            "result": result,
+            "uncertainty_envelope": result.to_uncertainty_envelope(
+                param_name=params.get("envelope_param")
+            ),
+        }
+
+    @staticmethod
+    def materialize_input(bound_inputs: Mapping[str, Any], fallback_state: Any) -> PanelData:
+        return _materialize_panel_data(bound_inputs, fallback_state)
+
+
+@foundry_method(
+    namespace="econometrics.panel",
+    version="1.0.0",
+    tags={"econometrics", "random-effects"},
+)
+class RandomEffectsEstimator:
+    """Dedicated Random Effects estimator with explicit panel slots."""
+
+    determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
+    runtime_stack: ClassVar[tuple[str, ...]] = ("linearmodels", "pandas", "numpy")
+
+    signature: ClassVar[MethodSignature] = MethodSignature(
+        name="random_effects",
+        namespace="placeholder",
+        version="0.0.0",
+        input_slots=_explicit_panel_input_slots(),
+        output_slots=_panel_output_slots(),
+        parameters=(
+            ParameterSpec(name="cov_type", default="robust"),
+            ParameterSpec(name="confidence_level", default=0.95),
+            ParameterSpec(name="envelope_param", default=None),
+        ),
+        fidelity=FidelityLevel.HIGH,
+        complexity=ComplexityClass.O_N2,
+        backend=ComputeBackend.NUMPY,
+        supports_jit=False,
+        supports_vmap=False,
+        supports_grad=False,
+    )
+
+    metadata: ClassVar[MethodMetadata] = MethodMetadata(
+        description="Dedicated Random Effects panel estimator.",
+        tags=frozenset({"econometrics", "random-effects"}),
+        citations=PanelDataEstimator.metadata.citations,
+        equations={"random_effects": PanelDataEstimator.metadata.equations["random_effects"]},
+        assumptions=PanelDataEstimator.metadata.assumptions,
+    )
+
+    @staticmethod
+    def pure_step(state: PanelData, params: Mapping[str, Any]) -> dict[str, Any]:
+        data = state if isinstance(state, PanelData) else PanelData.model_validate(state)
+        result = _run_random_effects(data, params)
+        return {
+            "result": result,
+            "uncertainty_envelope": result.to_uncertainty_envelope(
+                param_name=params.get("envelope_param")
+            ),
+        }
+
+    @staticmethod
+    def materialize_input(bound_inputs: Mapping[str, Any], fallback_state: Any) -> PanelData:
+        return _materialize_panel_data(bound_inputs, fallback_state)
+
+
+__all__ = [
+    "FixedEffectsEstimator",
+    "PanelDataEstimator",
+    "RandomEffectsEstimator",
+]

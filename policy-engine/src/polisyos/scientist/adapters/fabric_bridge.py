@@ -3,6 +3,7 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from typing import Any
 
+from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.manifest import InputRef, SchemaInfo, WarningRecord
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
@@ -19,6 +20,8 @@ from polisyos.ir.analytics.data_views import DataViewRequest as AnalyticsDataVie
 from polisyos.ir.connectors import FetchResult, QualityTier
 from polisyos.ir.queries import DataViewRequest as QueryDataViewRequest
 from polisyos.scientist.engine.context import FabricPort
+
+logger = get_logger(__name__)
 
 
 class DefaultFabricPort(FabricPort):
@@ -130,8 +133,8 @@ class DefaultFabricPort(FabricPort):
 def _parse_query_request(payload: Any) -> QueryDataViewRequest | AnalyticsDataViewRequest:
     try:
         return QueryDataViewRequest.model_validate(payload)
-    except Exception:
-        pass
+    except Exception as exc:
+        logger.debug("Ignored exception: %s", exc)
     return AnalyticsDataViewRequest.model_validate(payload)
 
 

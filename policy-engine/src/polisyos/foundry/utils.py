@@ -4,6 +4,7 @@ import jax
 import jax.numpy as jnp
 from jax import tree_util
 
+
 def soft_step(x: jnp.ndarray, k: float = 10.0) -> jnp.ndarray:
     """
     Дифференцируемая аппроксимация ступеньки (x > 0).

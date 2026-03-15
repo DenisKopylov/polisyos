@@ -63,7 +63,7 @@ def build_slsa_bundle(
             mode=options.slsa_mode,
             policy=options.slsa_policy,
         )
-    except Exception as exc:
+    except (TypeError, ValueError) as exc:
         warnings.append(f"SLSA disabled due to invalid config: {exc}")
         return {"enabled": False, "status": "disabled", "mode": "off"}
 
@@ -160,7 +160,7 @@ def build_slsa_bundle(
                 transparency.log_index if transparency is not None else None
             ),
         }
-    except Exception as exc:
+    except (RuntimeError, ValueError, TypeError, OSError) as exc:
         write_json(
             slsa_dir / "error.json",
             {
@@ -208,7 +208,7 @@ def attach_sbom(
                 "cas_ref": sbom_ref.artifact_id.hex,
                 **metadata,
             }
-        except Exception as exc:  # noqa: BLE001
+        except (ValueError, TypeError, OSError, json.JSONDecodeError, UnicodeDecodeError) as exc:  # noqa: BLE001
             warnings.append(f"SBOM attach from CAS failed: {exc}")
 
     env_path = os.getenv("POLISYOS_SBOM_PATH", "").strip()
@@ -227,7 +227,7 @@ def attach_sbom(
                     "source": str(path),
                     **metadata,
                 }
-            except Exception as exc:  # noqa: BLE001
+            except (json.JSONDecodeError, OSError, TypeError, ValueError, UnicodeDecodeError) as exc:  # noqa: BLE001
                 warnings.append(f"SBOM attach from env failed: {exc}")
 
     warnings.append("SBOM not available for audit package")
@@ -254,7 +254,7 @@ def _load_json_payload(cas: FileSystemCAS, artifact_id: ArtifactID) -> dict[str,
     blob = cas.get_bytes(artifact_id)
     try:
         payload = from_canonical_bytes(blob)
-    except Exception:
+    except (ValueError, TypeError, UnicodeDecodeError, json.JSONDecodeError):
         payload = json.loads(blob.decode("utf-8"))
     if not isinstance(payload, dict):
         raise ValueError("artifact payload is not an object")

@@ -1,26 +1,26 @@
 from __future__ import annotations
 
-import logging
 import re
 import time
 from collections import OrderedDict
 from typing import Any
 
 import pandas as pd
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
+from polisyos.common.logger import get_logger
 from polisyos.core.canon import content_hash as canon_content_hash
 
 from .models import (
+    PII_SEVERITY_MAP,
     PIIEntity,
     PIIEntityType,
     PIIScanResult,
     PIISeverity,
-    PII_SEVERITY_MAP,
     max_severity,
 )
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 _HIGH_RISK_NAME_PATTERNS = (
     "id",
@@ -51,6 +51,8 @@ _REGEX_RULES: tuple[tuple[PIIEntityType, re.Pattern[str], float], ...] = (
 
 
 class PresidioConfig(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     languages: list[str] = Field(default_factory=lambda: ["en"])
     score_threshold: float = 0.7
     max_text_length: int = 100_000
@@ -227,7 +229,7 @@ class PresidioDetector:
         for hit in results:
             try:
                 entity_type = PIIEntityType(hit.entity_type)
-            except Exception:
+            except (ValueError, KeyError):
                 entity_type = PIIEntityType.NRP
             severity = PII_SEVERITY_MAP.get(entity_type, PIISeverity.MEDIUM)
             entities.append(

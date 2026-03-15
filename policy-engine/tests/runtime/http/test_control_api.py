@@ -6,8 +6,15 @@ from unittest.mock import patch
 
 import pytest
 
+from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.contracts.decision_validity import (
+    DecisionTriggerRecord,
+    DecisionTriggerType,
+    DecisionValidityStatus,
+)
 from polisyos.fabric.connectors.registry import ConnectorRegistry
 from polisyos.fabric.data_plane.orchestrator import IngestionResult
+from polisyos.scientist.decision_validity import DecisionValidityService
 
 
 @pytest.fixture(autouse=True)
@@ -38,6 +45,8 @@ class TestLaunchRun:
         body = resp.json()
         assert body["status"] == "accepted"
         assert body["run_id"].startswith("R_")
+        assert body["job_id"]
+        assert body["effective_execution_profile"] == "dev"
         assert "meta" in body
         assert body["meta"]["request_id"]
 
@@ -52,7 +61,9 @@ class TestLaunchRun:
             },
         )
         assert resp.status_code == 200
-        assert resp.json()["status"] == "accepted"
+        body = resp.json()
+        assert body["status"] == "accepted"
+        assert body["job_id"]
 
     def test_launch_run_missing_data_source_returns_400(self, runtime_api_env):
         client = runtime_api_env["client"]
@@ -83,13 +94,107 @@ class TestCapabilities:
         body = resp.json()
         assert body["shell_flavor"] == "atlas"
         assert body["default_locale"] == "en"
+        assert body["default_execution_profile"] == "dev"
+        assert body["worker_backend"] == "embedded"
+        assert body["state_store_backend"] == "sqlite"
         assert "features" in body
         assert isinstance(body["features"], list)
         feature_keys = {item["key"] for item in body["features"]}
         assert "natural_language_runs" in feature_keys
         assert "required_preflight" in feature_keys
         assert "security_admin_layer" in feature_keys
+        assert "durable_control_plane" in feature_keys
+        assert "control_plane_local_waiver" in feature_keys
         assert body["constraints"]["max_parallel_models"] == 16
+        assert body["constraints"]["durable_control_profiles"] == ["research", "governed", "production"]
+
+    def test_get_control_workers_returns_worker_leases(self, runtime_api_env):
+        client = runtime_api_env["client"]
+        response = client.get("/api/v1/control/workers")
+        assert response.status_code == 200
+        body = response.json()
+        assert body["active_only"] is True
+        assert len(body["workers"]) >= 1
+        assert body["workers"][0]["worker_id"]
+        assert body["workers"][0]["state"] in {"idle", "running", "stopped"}
+
+    def test_get_control_outbox_returns_events(self, runtime_api_env):
+        service = runtime_api_env["app"].state._control_service
+        record = service._control_store.enqueue_outbox_event(  # noqa: SLF001
+            topic="control.fixture",
+            event_key="fixture-event",
+            payload={"fixture": True},
+        )
+
+        client = runtime_api_env["client"]
+        response = client.get("/api/v1/control/outbox?state=pending&limit=10")
+        assert response.status_code == 200
+        body = response.json()
+        assert body["state"] == "pending"
+        assert body["limit"] == 10
+        assert any(item["event_id"] == record.event_id for item in body["events"])
+
+    def test_get_control_job_status_returns_record(self, runtime_api_env):
+        client = runtime_api_env["client"]
+        launch = client.post(
+            "/api/v1/control/runs",
+            json={
+                "mode": "workflow",
+                "data_source": {"data_snapshot_ref": runtime_api_env["root_artifact_id"]},
+            },
+        )
+        assert launch.status_code == 200
+        job_id = launch.json()["job_id"]
+        status = client.get(f"/api/v1/control/jobs/{job_id}")
+        assert status.status_code == 200
+        body = status.json()
+        assert body["job_id"] == job_id
+        assert body["kind"] == "workflow_run"
+        assert body["effective_execution_profile"] == "dev"
+
+
+class TestDecisionValidity:
+    def test_get_run_decision_validity_returns_lifecycle_summary(self, runtime_api_env):
+        client = runtime_api_env["client"]
+        response = client.get(
+            f"/api/v1/control/runs/{runtime_api_env['core_run_id']}/decision-validity"
+        )
+        assert response.status_code == 200
+        body = response.json()
+        assert body["run_id"] == runtime_api_env["core_run_id"]
+        assert body["decision_packet_ref"]["artifact_id"] == runtime_api_env["decision_packet_artifact_id"]
+        assert body["status"] == "warning"
+        assert body["decision_lineage_key"] == runtime_api_env["decision_packet_artifact_id"]
+        assert body["evaluation_ref"]["kind"] == "scientist.decision_validity_evaluation"
+        assert body["lifecycle"]["events"] == []
+        assert body["lifecycle"]["transitions"] == []
+        assert body["lifecycle"]["scheduled_jobs"] == []
+        assert body["lifecycle"]["reissue_candidates"] == []
+
+    def test_get_packet_decision_validity_exposes_pending_reviews(self, runtime_api_env):
+        service = DecisionValidityService(FileSystemCAS(runtime_api_env["cas_root"]))
+        service.mark_packet_trigger(
+            packet_ref=runtime_api_env["decision_packet_artifact_id"],
+            trigger=DecisionTriggerRecord(
+                trigger_type=DecisionTriggerType.CONTEXT_PROFILE_DRIFT,
+                status=DecisionValidityStatus.REQUIRES_HUMAN_REVIEW,
+                reason="target_applicability_changed",
+            ),
+        )
+
+        client = runtime_api_env["client"]
+        response = client.get(
+            "/api/v1/control/decision-packets/"
+            f"{runtime_api_env['decision_packet_artifact_id']}/decision-validity"
+        )
+        assert response.status_code == 200
+        body = response.json()
+        assert body["decision_packet_ref"]["artifact_id"] == runtime_api_env["decision_packet_artifact_id"]
+        assert body["status"] == "requires_human_review"
+        assert body["review_required"] is True
+        assert body["lifecycle"]["events"][0]["trigger_type"] == "context_profile_drift"
+        assert body["lifecycle"]["pending_reviews"][0]["reason"] == "target_applicability_changed"
+        assert body["lifecycle"]["transitions"][-1]["current_status"] == "requires_human_review"
 
 
 class TestLaunchNlRun:
@@ -107,6 +212,8 @@ class TestLaunchNlRun:
         body = resp.json()
         assert body["status"] == "accepted"
         assert body["run_id"].startswith("R_")
+        assert body["job_id"]
+        assert body["effective_execution_profile"] == "dev"
         assert "mock agents" in body["message"]
 
     def test_launch_nl_run_with_llm_model(self, runtime_api_env):
@@ -121,6 +228,7 @@ class TestLaunchNlRun:
         assert resp.status_code == 200
         body = resp.json()
         assert body["status"] == "accepted"
+        assert body["job_id"]
         assert "claude-sonnet" in body["message"]
 
     def test_launch_nl_run_with_llm_models(self, runtime_api_env):
@@ -138,6 +246,7 @@ class TestLaunchNlRun:
         assert resp.status_code == 200
         body = resp.json()
         assert body["status"] == "accepted"
+        assert body["job_id"]
         assert "model variants" in body["message"]
 
     def test_launch_nl_run_accepts_execution_plan_payload(self, runtime_api_env):
@@ -169,6 +278,7 @@ class TestLaunchNlRun:
         assert resp.status_code == 200
         body = resp.json()
         assert body["status"] == "accepted"
+        assert body["job_id"]
 
     def test_launch_nl_run_invalid_parallel_models_returns_422(self, runtime_api_env):
         client = runtime_api_env["client"]

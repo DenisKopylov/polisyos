@@ -7,26 +7,20 @@ regression testing (Law M).
 """
 from __future__ import annotations
 
-from polisyos.foundry.methods.testing.suite import (
-    MethodTestSuite,
-    TestCheck,
-    TestResult,
-    CheckCategory,
+from polisyos.foundry.methods.testing.fixtures import (
+    SampleParamsFactory,
+    SampleStateFactory,
+    create_sample_params,
+    create_sample_state,
 )
 from polisyos.foundry.methods.testing.golden import (
     GoldenContext,
     GoldenRecord,
-    GoldenStore,
     GoldenRecordRef,
+    GoldenStore,
     GoldenVerificationResult,
     VerificationStatus,
     hash_pytree,
-)
-from polisyos.foundry.methods.testing.fixtures import (
-    create_sample_state,
-    create_sample_params,
-    SampleStateFactory,
-    SampleParamsFactory,
 )
 from polisyos.foundry.methods.testing.jax_suite import JaxMethodTestSuite
 from polisyos.foundry.methods.testing.numpy_suite import (
@@ -36,6 +30,12 @@ from polisyos.foundry.methods.testing.numpy_suite import (
 from polisyos.foundry.methods.testing.solver_suite import (
     SolverMethodTestSuite,
     SolverSuiteResult,
+)
+from polisyos.foundry.methods.testing.suite import (
+    CheckCategory,
+    MethodTestSuite,
+    TestCheck,
+    TestResult,
 )
 
 __all__ = [

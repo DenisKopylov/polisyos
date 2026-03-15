@@ -7,8 +7,8 @@ import gc
 import time
 from dataclasses import dataclass, field
 
-from polisyos.batch_common.thermal import cooldown
 from polisyos.academic.batch.config import AcademicBatchConfig
+from polisyos.batch_common.thermal import cooldown
 
 
 @dataclass
@@ -18,15 +18,29 @@ class PipelineStats:
     metrics: dict[str, float | int | str] = field(default_factory=dict)
 
 
+def _ensure_graph_inputs(
+    config: AcademicBatchConfig,
+    *,
+    merge_and_dedup_fn,
+) -> dict[str, int] | None:
+    if config.merged_records_path.exists():
+        return None
+    return merge_and_dedup_fn(config)
+
+
 async def run_academic_pipeline(config: AcademicBatchConfig, *, thermal: bool = False) -> PipelineStats:
     """Run selected academic stages sequentially."""
+    from polisyos.academic.batch.claim_adjudicator import run_claim_adjudicate, run_consensus_aggregate
     from polisyos.academic.batch.dedup import merge_and_dedup
+    from polisyos.academic.batch.edge_synthesize import run_edge_synthesize
     from polisyos.academic.batch.embedder import run_embed
     from polisyos.academic.batch.graph_builder import run_graph_index, run_graph_load
     from polisyos.academic.batch.harvester import harvest_all
+    from polisyos.academic.batch.numeric_extract import run_numeric_extract
     from polisyos.academic.batch.parser import parse_raw_sources
     from polisyos.academic.batch.publish import run_publish
     from polisyos.academic.batch.qc import run_qc
+    from polisyos.academic.batch.resolve_finalize import run_resolve_finalize
     from polisyos.academic.batch.resolve_extract import run_resolve_extract
     from polisyos.academic.batch.topic_select import run_topic_select
 
@@ -61,13 +75,37 @@ async def run_academic_pipeline(config: AcademicBatchConfig, *, thermal: bool = 
         stats.stage_times["resolve_extract"] = time.monotonic() - st
         stats.metrics.update({f"resolve_extract_{k}": v for k, v in resolve_stats.items()})
 
+    if "resolve_finalize" in config.stages:
+        st = time.monotonic()
+        finalize_stats = run_resolve_finalize(config)
+        stats.stage_times["resolve_finalize"] = time.monotonic() - st
+        stats.metrics.update({f"resolve_finalize_{k}": v for k, v in finalize_stats.items()})
+
+    if "numeric_extract" in config.stages:
+        st = time.monotonic()
+        numeric_stats = run_numeric_extract(config)
+        stats.stage_times["numeric_extract"] = time.monotonic() - st
+        stats.metrics.update({f"numeric_extract_{k}": v for k, v in numeric_stats.items()})
+
     if "merge_dedup" in config.stages:
         st = time.monotonic()
         merged = merge_and_dedup(config)
         stats.stage_times["merge_dedup"] = time.monotonic() - st
         stats.metrics.update({f"merge_{k}": v for k, v in merged.items()})
 
+    if "claim_adjudicate" in config.stages:
+        st = time.monotonic()
+        adjudicated = await run_claim_adjudicate(config)
+        adjudicated.update({f"consensus_{k}": v for k, v in run_consensus_aggregate(config).items()})
+        stats.stage_times["claim_adjudicate"] = time.monotonic() - st
+        stats.metrics.update({f"claim_adjudicate_{k}": v for k, v in adjudicated.items()})
+
     if "graph_load" in config.stages:
+        if "merge_dedup" not in config.stages:
+            auto_merged = _ensure_graph_inputs(config, merge_and_dedup_fn=merge_and_dedup)
+            if auto_merged is not None:
+                stats.metrics.update({f"merge_{k}": v for k, v in auto_merged.items()})
+                stats.metrics["merge_dedup_auto"] = 1
         st = time.monotonic()
         gstats = run_graph_load(config)
         stats.stage_times["graph_load"] = time.monotonic() - st
@@ -75,6 +113,12 @@ async def run_academic_pipeline(config: AcademicBatchConfig, *, thermal: bool = 
         stats.metrics["estimates"] = gstats.estimates
         stats.metrics["claims"] = gstats.claims
         stats.metrics["topic_selections"] = gstats.topic_selections
+
+    if "edge_synthesize" in config.stages:
+        st = time.monotonic()
+        synthesis = run_edge_synthesize(config)
+        stats.stage_times["edge_synthesize"] = time.monotonic() - st
+        stats.metrics.update({f"edge_synthesize_{k}": v for k, v in synthesis.items()})
 
     if "graph_index" in config.stages:
         st = time.monotonic()

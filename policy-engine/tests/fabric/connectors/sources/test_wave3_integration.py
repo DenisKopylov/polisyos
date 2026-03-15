@@ -1,9 +1,9 @@
-"""Wave 3 integration tests for REST specialized connector and profiles.
+"""Wave 3 integration tests for REST connector and profiles.
 
 Wave 3 adds:
 - RestJsonConnector (rest.json) promoted from reference to production
-- 5 REST specialized profiles: USGS, OpenAQ, Open-Meteo, EIA, NVD
-- Verifies full profile count across all waves (26 total)
+- 6 REST profiles including Poland open data catalog plus specialized APIs
+- Verifies full profile count across all waves
 """
 from __future__ import annotations
 
@@ -67,6 +67,7 @@ class TestWave3RESTProfiles:
     @pytest.mark.parametrize(
         "profile_id,expected_url_contains",
         [
+            ("data_gov_pl", "api.dane.gov.pl"),
             ("usgs_earthquake", "earthquake.usgs.gov"),
             ("openaq_v2", "api.openaq.org"),
             ("open_meteo", "api.open-meteo.com"),
@@ -83,7 +84,7 @@ class TestWave3RESTProfiles:
 
     @pytest.mark.parametrize(
         "profile_id",
-        ["usgs_earthquake", "openaq_v2", "open_meteo", "eia_api", "nvd_cve"],
+        ["data_gov_pl", "usgs_earthquake", "openaq_v2", "open_meteo", "eia_api", "nvd_cve"],
     )
     def test_rest_profile_resolves(self, profile_id: str):
         reg = SourceProfileRegistry.get_instance()
@@ -103,7 +104,7 @@ class TestWave3RESTProfiles:
     def test_total_rest_profiles(self):
         reg = SourceProfileRegistry.get_instance()
         rest_profiles = reg.list_by_family("rest")
-        assert len(rest_profiles) == 5
+        assert len(rest_profiles) == 6
 
 
 # ---------------------------------------------------------------------------
@@ -114,11 +115,11 @@ class TestWave3RESTProfiles:
 class TestAllWavesSummary:
     def test_total_connectors(self):
         reg = ConnectorRegistry.get_instance()
-        assert len(reg) == 11
+        assert len(reg) == 14
 
     def test_total_profiles(self):
         reg = SourceProfileRegistry.get_instance()
-        assert len(reg.list_all()) == 27
+        assert len(reg.list_all()) == 32
 
     def test_all_connectors_have_default_configs(self):
         reg = ConnectorRegistry.get_instance()
@@ -141,4 +142,4 @@ class TestAllWavesSummary:
     def test_component_system_count(self):
         from polisyos.fabric.connectors.components import __polisyos_components__
 
-        assert len(__polisyos_components__) == 11
+        assert len(__polisyos_components__) == 14

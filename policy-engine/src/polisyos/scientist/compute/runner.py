@@ -8,6 +8,10 @@ from typing import Any, Mapping
 
 import numpy as np
 
+from polisyos.common.logger import get_logger
+
+logger = get_logger(__name__)
+
 try:  # pragma: no cover - optional dependency for local/dev environments
     import jax
     import jax.numpy as jnp
@@ -244,16 +248,16 @@ def _summarize_state(state: Any) -> dict[str, Any]:
     try:
         summary["avg_income"] = float(jnp.mean(state.agents.income))
         summary["n_agents"] = int(state.agents.income.shape[0])
-    except Exception:
-        pass
+    except Exception as exc:
+        logger.debug("Ignored exception: %s", exc)
     try:
         summary["gov_balance"] = float(state.government_balance)
-    except Exception:
-        pass
+    except Exception as exc:
+        logger.debug("Ignored exception: %s", exc)
     try:
         summary["step"] = int(state.step)
-    except Exception:
-        pass
+    except Exception as exc:
+        logger.debug("Ignored exception: %s", exc)
     return summary
 
 
@@ -291,6 +295,7 @@ def _run_legacy_job(
     if base_state is None and store is not None and spec.state_snapshot_ref is not None:
         try:
             from polisyos.foundry.executor import load_state_snapshot
+
 
             base_state = load_state_snapshot(store, snapshot_ref=spec.state_snapshot_ref)
         except Exception as exc:

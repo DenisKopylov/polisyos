@@ -46,6 +46,7 @@ from typing import Any, AsyncIterator, ClassVar, Iterable
 import aiohttp
 import pandas as pd
 
+from polisyos.common.logger import get_logger
 from polisyos.core.canon import content_hash as compute_content_hash
 from polisyos.fabric.connectors.base import (
     BaseConnector,
@@ -80,6 +81,8 @@ from polisyos.ir.connectors import (
     capabilities_from_flags,
 )
 
+logger = get_logger(__name__)
+
 
 def _join_url(base: str, *parts: str) -> str:
     if not base:
@@ -99,7 +102,10 @@ def _parse_http_datetime(value: str | None) -> datetime | None:
         if parsed.tzinfo is None:
             parsed = parsed.replace(tzinfo=timezone.utc)
         return parsed
-    except Exception:
+    except (TypeError, ValueError):
+        logger.debug(
+            "Failed to parse HTTP datetime value %r", value, exc_info=True,
+        )
         return None
 
 
@@ -471,6 +477,9 @@ class SDMXConnector(BaseConnector[pd.DataFrame]):
             last_modified = head_headers.get("Last-Modified")
             etag = head_headers.get("ETag")
         except Exception:
+            logger.debug(
+                "HEAD request failed for freshness check on dataset %s", dataset_id, exc_info=True,
+            )
             return FreshnessResult(status=FreshnessStatus.UNKNOWN)
 
         if cached_version.strategy == VersionStrategy.ETAG and etag:
@@ -551,6 +560,7 @@ class SDMXConnector(BaseConnector[pd.DataFrame]):
                 raw = await resp.read()
                 bytes_xferred = len(raw)
                 import json
+
 
                 try:
                     body = json.loads(raw)

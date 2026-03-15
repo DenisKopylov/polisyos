@@ -2,31 +2,32 @@
 
 Тестовый контур `policy-engine/tests` фиксирует архитектурные границы, контракты данных и рабочие сценарии всех ключевых слоев `polisyos`.
 
-Актуально на **17 февраля 2026**.
+Актуально на **11 марта 2026**.
 
 ## Роль в системе
 
 - Защита архитектуры: import gates, фасады API, component discovery, semver-политика.
 - Контрактная совместимость: IR/ABI, migration safety, canonical serialization.
 - Проверка исполнения: Foundry runtime, Scientist workflows, Runtime HTTP API.
+- Feedback loop: degraded backtesting semantics, semantic data revision diff, post-deployment refutation, run compare и reissue.
 - Контроль качества данных и интеграций: Fabric connectors/data plane, Lex pipelines.
 
 ## Быстрая карта покрытия
 
-- Всего: `302` файлов `test_*.py`.
+- Всего: `416` файлов `test_*.py`.
 - Крупные зоны:
 
 | Каталог | `test_*.py` | Что покрывает |
 |---|---:|---|
-| `tests/core` | 52 | Базовые примитивы, security, contracts/components |
-| `tests/fabric` | 62 | Data fabric, connectors, provenance/trust, world/data plane |
-| `tests/foundry` | 67 | Compile/execute, methods framework, calibration, determinism |
-| `tests/scientist` | 60 | Workflow engine, governance passes, search/DOE |
+| `tests/core` | 53 | Базовые примитивы, security, contracts/components |
+| `tests/fabric` | 64 | Data fabric, connectors, provenance/trust, world/data plane, semantic historical diff |
+| `tests/foundry` | 85 | Compile/execute, methods framework, calibration, determinism, execution-time overrides |
+| `tests/scientist` | 83 | Workflow engine, governance passes, search/DOE, decision feedback loop |
 | `tests/contract` | 18 | Cross-layer контракты, ABI diff, golden records |
-| `tests/runtime` | 15 | Replay/manifest и runtime HTTP API |
-| `tests/ir` | 10 | IR loaders/migrations, registry fragments, uncertainty |
-| `tests/lex` | 9 | Batch pipeline и norm simulator |
-| `tests/integration` | 1 | Сквозной human-gate audit |
+| `tests/runtime` | 18 | Replay/manifest, runtime HTTP API и feedback/reissue surfaces |
+| `tests/ir` | 25 | IR loaders/migrations, registry fragments, uncertainty, analytics contracts |
+| `tests/lex` | 19 | Batch pipeline и norm simulator |
+| `tests/integration` | 2 | Сквозной human-gate audit |
 | `tests/lint` | 1 | Legacy cutover lint gate |
 | `tests/performance` | 1 | Benchmark-baseline regressions |
 

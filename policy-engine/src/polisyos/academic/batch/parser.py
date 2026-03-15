@@ -8,10 +8,10 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-from polisyos.batch_common.manifest import write_stage_manifest
 from polisyos.academic.batch.config import AcademicBatchConfig
 from polisyos.academic.knowledge.types import EstimateCandidate, SourceTopicRef, WorkRecord
 from polisyos.academic.trust import compute_trust_score
+from polisyos.batch_common.manifest import write_stage_manifest
 
 # ---------------------------------------------------------------------------
 # Abstract reconstruction
@@ -38,6 +38,18 @@ def reconstruct_abstract(inverted_index: dict[str, list[int]] | None) -> str:
 # ---------------------------------------------------------------------------
 
 _ESTIMATE_PATTERNS: list[tuple[str, re.Pattern, dict[str, int]]] = [
+    (
+        "value_with_confidence_interval",
+        re.compile(
+            r"(?:effect|coefficient|estimate|impact|change|difference|increase|decrease|reduction|"
+            r"odds ratio|risk ratio|hazard ratio)?"
+            r"\s*(?:of|is|was|=|:|by)?\s*([+-]?\d+\.?\d*)"
+            r"\s*(?:percent|%|pp|percentage\s*points?)?"
+            r"\s*\(\s*(?:95%|90%)\s*C[Ii]\s*[:\[{(]?\s*([+-]?\d+\.?\d*)\s*(?:,|;|to|[-–])\s*([+-]?\d+\.?\d*)\s*[\]})]?\s*\)",
+            re.IGNORECASE,
+        ),
+        {"value": 1, "ci_low": 2, "ci_high": 3},
+    ),
     (
         "odds_ratio",
         re.compile(r"\bOR\s*=?\s*([+-]?\d+\.?\d*)\s*(?:\(\s*95%\s*CI[:\s]*([+-]?\d+\.?\d*)\s*[–\-]\s*([+-]?\d+\.?\d*)\s*\))?", re.IGNORECASE),
@@ -68,13 +80,55 @@ _ESTIMATE_PATTERNS: list[tuple[str, re.Pattern, dict[str, int]]] = [
     ),
     (
         "beta_se",
-        re.compile(r"\(?\s*[βbB]\s*=\s*([+-]?\d+\.?\d*)\s*[,;]?\s*(?:SE|s\.e\.)\s*=\s*([+-]?\d+\.?\d*)\s*\)?", re.IGNORECASE),
+        re.compile(
+            r"(?:\(?\s*(?:β|\bbeta\b|[bB])\s*=\s*([+-]?\d+\.?\d*)\s*[,;]?\s*"
+            r"(?:SE|s\.e\.|std\.?\s*err(?:or)?)\s*=\s*([+-]?\d+\.?\d*)\s*\)?)",
+            re.IGNORECASE,
+        ),
+        {"value": 1, "std_error": 2},
+    ),
+    (
+        "coefficient_se",
+        re.compile(
+            r"(?:coefficient|coef\.?|estimate|effect|impact)\s*(?:of|is|was|=|:)?\s*([+-]?\d+\.?\d*)"
+            r"\s*\(\s*(?:SE|s\.e\.|std\.?\s*err(?:or)?)?\s*=?\s*([+-]?\d+\.?\d*)\s*\)",
+            re.IGNORECASE,
+        ),
+        {"value": 1, "std_error": 2},
+    ),
+    (
+        "value_with_standard_error",
+        re.compile(
+            r"(?:effect|coefficient|coef\.?|estimate|impact|change|difference|semi-elasticity|elasticity)?"
+            r"\s*(?:of|is|was|=|:|by)?\s*([+-]?\d+\.?\d*)"
+            r"\s*(?:percent|%|pp|percentage\s*points?)?"
+            r"\s*\(\s*(?:standard\s*error|std\.?\s*err(?:or)?|s\.e\.|SE)\s*=?\s*([+-]?\d+\.?\d*)\s*\)",
+            re.IGNORECASE,
+        ),
         {"value": 1, "std_error": 2},
     ),
     (
         "change_by",
         re.compile(r"(?:increase|decrease|reduce|raise|decline|grow)[sd]?\s+by\s+([+-]?\d+\.?\d*)\s*(?:percent|%|pp|percentage\s*points?)", re.IGNORECASE),
         {"value": 1},
+    ),
+    (
+        "change_by_with_standard_error",
+        re.compile(
+            r"(?:increase|decrease|reduce|raise|decline|grow)[sd]?\s+(?:[a-z][a-z\s-]{0,40}\s+)?by\s+([+-]?\d+\.?\d*)\s*"
+            r"(?:percent|%|pp|percentage\s*points?)\s*\(\s*(?:standard\s*error|std\.?\s*err(?:or)?|s\.e\.|SE)\s*=?\s*([+-]?\d+\.?\d*)\s*\)",
+            re.IGNORECASE,
+        ),
+        {"value": 1, "std_error": 2},
+    ),
+    (
+        "change_by_with_confidence_interval",
+        re.compile(
+            r"(?:increase|decrease|reduce|raise|decline|grow)[sd]?\s+(?:[a-z][a-z\s-]{0,40}\s+)?by\s+([+-]?\d+\.?\d*)\s*"
+            r"(?:percent|%|pp|percentage\s*points?)\s*\(\s*(?:95%|90%)\s*C[Ii]\s*[:\[{(]?\s*([+-]?\d+\.?\d*)\s*(?:,|;|to|[-–])\s*([+-]?\d+\.?\d*)\s*[\]})]?\s*\)",
+            re.IGNORECASE,
+        ),
+        {"value": 1, "ci_low": 2, "ci_high": 3},
     ),
     (
         "confidence_interval",
@@ -87,6 +141,19 @@ _ESTIMATE_PATTERNS: list[tuple[str, re.Pattern, dict[str, int]]] = [
         {"ci_low": 1, "ci_high": 2},
     ),
 ]
+
+_TABLE_STDERR_HEADER_RE = re.compile(
+    r"(?:estimate\s*\(\s*std\.?\s*error\s*\)|estimated\s+parameters?(?:\s+symbol)?\s+estimate\s*\(\s*std\.?\s*error\s*\)|"
+    r"std\.?\s*errors?\s+reported\s+in\s+parentheses)",
+    re.IGNORECASE,
+)
+
+_TABLE_STDERR_ROW_RE = re.compile(
+    r"([A-Za-z][A-Za-z0-9&/,\-–()'\s]{3,80}?)\s+"
+    r"(?:[A-Za-zα-ωΑ-Ωβγδφρλμστ]{1,6}\s+)?"
+    r"([+-]?\d+\.\d{2,})\s*\(\s*([+-]?\d+\.\d{2,})\s*\)",
+    re.IGNORECASE,
+)
 
 _SAMPLE_SIZE_PATTERNS: tuple[re.Pattern, ...] = (
     re.compile(r"\bn\s*=\s*([0-9][0-9,_.]*)", re.IGNORECASE),
@@ -173,19 +240,68 @@ def extract_numerical_estimates(abstract: str, concepts: list[str] | None = None
                     variable_hint=concepts[0] if concepts else "",
                 )
             )
+    estimates.extend(_extract_table_estimates(abstract, concepts=concepts))
+    return estimates
+
+
+def _extract_table_estimates(text: str, concepts: list[str] | None = None) -> list[EstimateCandidate]:
+    if not text or not _TABLE_STDERR_HEADER_RE.search(text):
+        return []
+
+    estimates: list[EstimateCandidate] = []
+    seen: set[tuple[str, float, float]] = set()
+    for match in _TABLE_STDERR_ROW_RE.finditer(text):
+        label = re.sub(r"\s+", " ", str(match.group(1) or "")).strip(" ,;:-")
+        if not label:
+            continue
+        lowered = label.lower()
+        if lowered.startswith(("table ", "panel ", "column ", "col ")):
+            continue
+        try:
+            value = float(match.group(2))
+            std_error = float(match.group(3))
+        except (TypeError, ValueError):
+            continue
+        key = (label.lower(), value, std_error)
+        if key in seen:
+            continue
+        seen.add(key)
+        start = max(0, match.start() - 120)
+        end = min(len(text), match.end() + 120)
+        context = text[start:end]
+        unit = _detect_unit(context)
+        estimates.append(
+            EstimateCandidate(
+                value=value,
+                std_error=std_error,
+                unit=unit,
+                context_snippet=context,
+                pattern_name="table_estimate_std_error",
+                confidence=0.72,
+                variable_hint=label or (concepts[0] if concepts else ""),
+            )
+        )
     return estimates
 
 
 def _detect_unit(context: str) -> str:
     lowered = context.lower()
+    if "odds ratio" in lowered or re.search(r"\bOR\b", context):
+        return "odds_ratio"
+    if "risk ratio" in lowered or re.search(r"\bRR\b", context):
+        return "risk_ratio"
+    if "hazard ratio" in lowered or re.search(r"\bHR\b", context):
+        return "hazard_ratio"
     if "percentage point" in lowered or " pp" in lowered:
         return "pp"
+    if "semi-elasticity" in lowered or "semi elasticity" in lowered:
+        return "semi_elasticity"
+    if "elasticity" in lowered:
+        return "elasticity"
+    if "beta" in lowered or "standardized" in lowered or "standardised" in lowered:
+        return "standardized_effect"
     if "percent" in lowered or "%" in context:
         return "percent"
-    if "elasticity" in lowered:
-        return "ratio"
-    if "odds ratio" in lowered:
-        return "ratio"
     return ""
 
 

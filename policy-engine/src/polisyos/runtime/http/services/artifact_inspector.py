@@ -3,6 +3,7 @@ from __future__ import annotations
 from collections.abc import Callable
 from typing import Any
 
+from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.canon import from_canonical_bytes
@@ -18,6 +19,7 @@ from .lineage import LineageService
 
 RedactionHook = Callable[[Any, PreviewMode], Any]
 _SENSITIVE_KIND_MARKERS = ("secret", "token", "credential", "password", "key_material")
+logger = get_logger(__name__)
 
 
 class ArtifactInspectorService:
@@ -76,7 +78,12 @@ class ArtifactInspectorService:
                 payload = from_canonical_bytes(data)
                 mode = "json"
                 preview = payload
-            except Exception:
+            except (TypeError, ValueError) as exc:
+                logger.debug(
+                    "Failed to decode JSON artifact content preview for %s: %s",
+                    artifact_id,
+                    exc,
+                )
                 text = _decode_text(preview_bytes)
                 if text is not None:
                     mode = "text"
@@ -124,7 +131,12 @@ class ArtifactInspectorService:
                 payload = from_canonical_bytes(self._store.get_bytes(artifact_id))
                 if isinstance(payload, dict):
                     top_keys = sorted(str(key) for key in payload)
-            except Exception:
+            except (TypeError, ValueError) as exc:
+                logger.debug(
+                    "Failed to load schema preview payload for %s: %s",
+                    artifact_id,
+                    exc,
+                )
                 top_keys = []
 
         return ArtifactSchemaView(
@@ -189,5 +201,8 @@ def _apply_redaction_hook(
         return preview
     try:
         return hook(preview, mode)
-    except Exception:
+    except (AttributeError, RuntimeError, TypeError, ValueError) as exc:
+        logger.debug(
+            "Redaction hook failed for kind=%s mode=%s: %s", artifact_kind, mode, exc
+        )
         return preview

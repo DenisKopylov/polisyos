@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import logging
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -11,9 +10,10 @@ import numpy as np
 
 from polisyos.batch_common.manifest import write_stage_manifest
 from polisyos.batch_common.thermal import pause_between_batches
+from polisyos.common.logger import get_logger
 from polisyos.datasets.batch.config import DatasetBatchConfig
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 def build_hnsw_index(
@@ -22,7 +22,7 @@ def build_hnsw_index(
     index_dir: Path,
     embedding_model: str = "intfloat/multilingual-e5-large",
     embedding_batch_size: int = 32,
-    embedding_device: str = "mps",
+    embedding_device: str = "cpu",
     thermal_pause_seconds: float = 0.0,
 ) -> int:
     """Embed datasets and build one HNSW index."""
@@ -84,7 +84,7 @@ def run_embed(config: DatasetBatchConfig, *, thermal: bool = False) -> int:
         index_dir=config.index_dir,
         embedding_model=config.embedding_model,
         embedding_batch_size=config.embedding_batch_size,
-        embedding_device=config.embedding_device,
+        embedding_device=config.resolved_embedding_device,
         thermal_pause_seconds=pause_s,
     )
     write_stage_manifest(

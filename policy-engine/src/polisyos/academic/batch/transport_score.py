@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import json
-import logging
 from collections import Counter, defaultdict
 from datetime import UTC, datetime
 from statistics import median
@@ -11,15 +10,33 @@ from typing import Any
 
 import duckdb
 
-from polisyos.batch_common.manifest import write_stage_manifest
 from polisyos.academic.batch.config import AcademicBatchConfig
 from polisyos.academic.knowledge.skg_store import (
     ensure_skg_schema,
     hash_context_profile_id,
     hash_transport_score_id,
 )
+from polisyos.batch_common.manifest import write_stage_manifest
+from polisyos.common.logger import get_logger
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
+
+
+def _context_attr_filter_clause(
+    con: duckdb.DuckDBPyConnection,
+    *,
+    skg_version: int,
+) -> str:
+    """Use evidence-backed context rows when available, but fall back for legacy snapshots."""
+    try:
+        row = con.execute(
+            "SELECT COUNT(*) FROM ac_skg_context_attributes WHERE skg_version = ? AND evidence_span_count > 0",
+            [skg_version],
+        ).fetchone()
+    except duckdb.CatalogException:
+        return ""
+    count = int(row[0] or 0) if row else 0
+    return " AND evidence_span_count > 0 " if count > 0 else ""
 
 
 def _significant_moderators(moderators: list[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -64,11 +81,12 @@ def _build_context_profiles(
     skg_version: int,
 ) -> int:
     """Aggregate context attributes into context profiles by country+time_period."""
+    evidence_filter = _context_attr_filter_clause(con, skg_version=skg_version)
     rows = con.execute(
         "SELECT country_code, time_period, canonical_name, attribute_value, "
         "value_qualitative, confidence, COUNT(*) as n_articles "
         "FROM ac_skg_context_attributes "
-        "WHERE skg_version = ? AND country_code IS NOT NULL AND country_code != '' "
+        f"WHERE skg_version = ? {evidence_filter} AND country_code IS NOT NULL AND country_code != '' "
         "GROUP BY country_code, time_period, canonical_name, attribute_value, value_qualitative, confidence"
     , [skg_version]).fetchall()
 
@@ -241,18 +259,23 @@ def _load_target_context_profile(
 
     countries = list(config.transport_target_country_codes)
     time_period = str(config.transport_target_time_period or "")
+    evidence_filter = _context_attr_filter_clause(con, skg_version=skg_version)
     rows = con.execute(
         """
         SELECT canonical_name, attribute_value, value_qualitative, confidence
         FROM ac_skg_context_attributes
         WHERE skg_version = ?
+          {evidence_filter}
           AND country_code IN ({placeholders})
           AND (? = '' OR time_period = ?)
-        """.format(placeholders=",".join("?" for _ in countries)),
+        """.format(
+            evidence_filter=evidence_filter,
+            placeholders=",".join("?" for _ in countries),
+        ),
         [skg_version, *countries, time_period, time_period],
     ).fetchall()
     if not rows:
-        return "", None
+        return target_context_id, None
     context_id = target_context_id or "+".join(countries)
     return context_id, _aggregate_context_rows(rows, context_id=context_id, time_period=time_period)
 
@@ -265,12 +288,16 @@ def _load_source_context_for_edge(
 ) -> dict[str, Any] | None:
     if not article_refs:
         return None
+    evidence_filter = _context_attr_filter_clause(con, skg_version=skg_version)
     rows = con.execute(
         """
         SELECT canonical_name, attribute_value, value_qualitative, confidence
         FROM ac_skg_context_attributes
-        WHERE skg_version = ? AND openalex_id IN ({placeholders})
-        """.format(placeholders=",".join("?" for _ in article_refs)),
+        WHERE skg_version = ? {evidence_filter} AND openalex_id IN ({placeholders})
+        """.format(
+            evidence_filter=evidence_filter,
+            placeholders=",".join("?" for _ in article_refs),
+        ),
         [skg_version, *article_refs],
     ).fetchall()
     if not rows:

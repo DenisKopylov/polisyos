@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import Optional
 
-from pydantic import BaseModel, ConfigDict, Field, AliasChoices
+from pydantic import AliasChoices, BaseModel, ConfigDict, Field
 
 
 # --- Enums (Словари) ---

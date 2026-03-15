@@ -86,8 +86,8 @@ class _FakeSession:
     def __init__(self, response: _FakeResponse) -> None:
         self._response = response
 
-    def get(self, url: str, *, params: dict[str, str]) -> _FakeResponse:
-        del url, params
+    def get(self, url: str, *, params: dict[str, str], headers: dict[str, str] | None = None) -> _FakeResponse:
+        del url, params, headers
         return self._response
 
 
@@ -182,3 +182,20 @@ def test_session_lifecycle(monkeypatch: pytest.MonkeyPatch) -> None:
 
     _run(connector.disconnect(handle))
     assert session.closed is True
+
+
+def test_build_auth_headers_supports_bearer() -> None:
+    connector = _DummyConnector()
+    handle = _run(
+        connector.connect(
+            ConnectionConfig(
+                url="https://example.test",
+                auth_method="bearer",
+                auth_credentials={"token": "secret-token"},
+            )
+        )
+    )
+
+    headers = connector._build_auth_headers(handle, {"Accept": "application/json"})
+    assert headers["Accept"] == "application/json"
+    assert headers["Authorization"] == "Bearer secret-token"

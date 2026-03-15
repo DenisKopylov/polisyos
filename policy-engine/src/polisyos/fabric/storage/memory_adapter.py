@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
 from contextlib import contextmanager
-from copy import deepcopy
 from typing import Any, Iterator
 
 import pandas as pd
@@ -77,8 +76,8 @@ class InMemoryStorageAdapter(StoragePort):
 
     @contextmanager
     def transaction(self) -> Iterator[StoragePort]:
-        snapshot_tables = {key: value.copy(deep=True) for key, value in self._tables.items()}
-        snapshot_runs = deepcopy(self._run_records)
+        snapshot_tables = {key: value.copy() for key, value in self._tables.items()}
+        snapshot_runs = list(self._run_records)
         try:
             yield self
         except Exception:

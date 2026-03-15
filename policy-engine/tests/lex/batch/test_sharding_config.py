@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import os
+
 import pytest
 
 from polisyos.lex.batch.config import BatchConfig
@@ -104,3 +106,54 @@ def test_invalid_spo_request_batch_size_raises(tmp_path) -> None:
             stages=frozenset({"parse", "structure", "spo"}),
             spo_request_batch_size=0,
         )
+
+
+def test_invalid_spo_request_batch_chars_raises(tmp_path) -> None:
+    with pytest.raises(ValueError):
+        BatchConfig(
+            cards_path=tmp_path / "cards.xml",
+            texts_path=tmp_path / "texts.xml",
+            output_dir=tmp_path / "out",
+            shard_count=1,
+            shard_index=0,
+            stages=frozenset({"parse", "structure", "spo"}),
+            spo_request_batch_chars=200,
+        )
+
+
+def test_gonka_api_keys_default_from_env(monkeypatch, tmp_path) -> None:
+    for key in list(os.environ):
+        if key == "GONKA_API_KEY" or key.startswith("GONKA_API_KEY_"):
+            monkeypatch.delenv(key, raising=False)
+    monkeypatch.setenv("GONKA_API_KEY", "primary-key")
+    monkeypatch.setenv("GONKA_API_KEY_2", "secondary-key")
+    monkeypatch.setenv("GONKA_API_KEY_1", "first-extra-key")
+
+    cfg = BatchConfig(
+        cards_path=tmp_path / "cards.xml",
+        texts_path=tmp_path / "texts.xml",
+        output_dir=tmp_path / "out",
+        stages=frozenset({"parse", "structure", "spo"}),
+    )
+
+    assert cfg.gonka_api_key == "primary-key"
+    assert cfg.gonka_api_keys == ["primary-key", "first-extra-key", "secondary-key"]
+
+
+def test_explicit_gonka_api_key_is_promoted_to_front(monkeypatch, tmp_path) -> None:
+    for key in list(os.environ):
+        if key == "GONKA_API_KEY" or key.startswith("GONKA_API_KEY_"):
+            monkeypatch.delenv(key, raising=False)
+    monkeypatch.setenv("GONKA_API_KEY_1", "key-a")
+    monkeypatch.setenv("GONKA_API_KEY_2", "key-b")
+
+    cfg = BatchConfig(
+        cards_path=tmp_path / "cards.xml",
+        texts_path=tmp_path / "texts.xml",
+        output_dir=tmp_path / "out",
+        stages=frozenset({"parse", "structure", "spo"}),
+        gonka_api_key="priority-key",
+    )
+
+    assert cfg.gonka_api_key == "priority-key"
+    assert cfg.gonka_api_keys == ["priority-key", "key-a", "key-b"]

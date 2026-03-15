@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Any
 
 from polisyos.core.artifacts.ids import ArtifactID
+from polisyos.ir.kernel.base import ARTIFACT_ID_PATTERN
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.components import (
@@ -50,13 +51,10 @@ from polisyos.ir.world.ids import (
     stable_world_id_from_canon,
 )
 from polisyos.ir.world.trust import TrustAssessment
-from polisyos.lex.corpus.index import load_provision_index
 from polisyos.lex.common import collapse_ws
+from polisyos.lex.common import parse_iso_date
+from polisyos.lex.corpus.index import load_provision_index
 from polisyos.lex.errors import LexNotReadyError, LexValidationError
-from polisyos.lex.normpack.provider_registry import (
-    discover_and_bootstrap_providers,
-    get_norm_pack_provider_registry,
-)
 from polisyos.lex.normpack.applicability import applicability_key, build_norm_applicability
 from polisyos.lex.normpack.extract_norm_claims import ProvisionSelection, extract_norm_claims
 from polisyos.lex.normpack.policies import (
@@ -70,6 +68,10 @@ from polisyos.lex.normpack.policies import (
     DEFAULT_SELECTION_POLICY_ID,
     DOMAIN_KEYWORDS,
     NORM_PACK_KIND,
+)
+from polisyos.lex.normpack.provider_registry import (
+    discover_and_bootstrap_providers,
+    get_norm_pack_provider_registry,
 )
 from polisyos.lex.normpack.select_sources import (
     normalize_as_of,
@@ -122,6 +124,15 @@ def _normalize_request(
                     f"doc_source_id must match {ID_PATTERN}: {doc_source_id!r}"
                 )
 
+    claim_set_artifact_ids: list[str] | None = None
+    if request.claim_set_artifact_ids is not None:
+        claim_set_artifact_ids = sorted(set(request.claim_set_artifact_ids))
+        for artifact_id in claim_set_artifact_ids:
+            if re.fullmatch(ARTIFACT_ID_PATTERN, artifact_id) is None:
+                raise LexValidationError(
+                    f"claim_set_artifact_id must match {ARTIFACT_ID_PATTERN}: {artifact_id!r}"
+                )
+
     budgets = request.budgets
     for field_name, value in (
         ("max_docs", budgets.max_docs),
@@ -136,6 +147,7 @@ def _normalize_request(
         as_of=as_of_norm,
         domain=domain_norm,
         doc_source_ids=doc_source_ids,
+        claim_set_artifact_ids=claim_set_artifact_ids,
         selection_policy_id=request.selection_policy_id,
         conflict_policy_id=request.conflict_policy_id,
         trust_policy_id=request.trust_policy_id,
@@ -268,6 +280,149 @@ def _select_provisions(
 
     selected_fragment_ids = sorted({row.fragment_id for row in selected})
     return selected, selected_fragment_ids, sorted(set(warnings))
+
+
+def _claim_set_matches_request(
+    *,
+    claim_set_payload: dict[str, Any],
+    meta: Any,
+    jurisdiction_norm: str,
+    domain_norm: str | None,
+    as_of_norm: str,
+) -> bool:
+    meta_jurisdiction = (meta.jurisdiction or "").strip().casefold() if getattr(meta, "jurisdiction", None) else ""
+    if meta_jurisdiction and meta_jurisdiction != jurisdiction_norm:
+        return False
+
+    payload_domain = claim_set_payload.get("domain")
+    payload_domain_norm = payload_domain.strip().casefold() if isinstance(payload_domain, str) else ""
+    if domain_norm is not None and payload_domain_norm and payload_domain_norm != domain_norm:
+        return False
+
+    lex_props = meta.props.get("lex") if isinstance(meta.props, dict) else None
+    if not isinstance(lex_props, dict):
+        lex_props = {}
+    effective_from = parse_iso_date(
+        lex_props.get("effective_from") if isinstance(lex_props.get("effective_from"), str) else None
+    )
+    effective_to = parse_iso_date(
+        lex_props.get("effective_to") if isinstance(lex_props.get("effective_to"), str) else None
+    )
+    as_of_date = parse_iso_date(as_of_norm)
+    if as_of_date is None:
+        return True
+    if effective_from is not None and effective_from > as_of_date:
+        return False
+    if effective_to is not None and effective_to < as_of_date:
+        return False
+    return True
+
+
+def _select_claim_sets(
+    *,
+    cas: FileSystemCAS,
+    claim_set_artifact_ids: list[str],
+    jurisdiction_norm: str,
+    domain_norm: str | None,
+    as_of_norm: str,
+) -> tuple[list[SelectedDocVersion], list[str], list[str], list[str], list[str], list[str]]:
+    selected_doc_versions: list[SelectedDocVersion] = []
+    selected_fragment_ids: set[str] = set()
+    selected_claim_set_artifact_ids: list[str] = []
+    provision_index_artifact_ids: set[str] = set()
+    warnings: list[str] = []
+
+    for artifact_id in sorted(set(claim_set_artifact_ids)):
+        payload = load_json_artifact(cas, artifact_id)
+        doc_meta_artifact_id = payload.get("doc_meta_artifact_id")
+        doc_source_id = payload.get("doc_source_id")
+        doc_version_id = payload.get("doc_version_id")
+        if (
+            not isinstance(doc_meta_artifact_id, str)
+            or not isinstance(doc_source_id, str)
+            or not isinstance(doc_version_id, str)
+        ):
+            warnings.append(f"warning:invalid_claim_set_payload:{artifact_id}")
+            continue
+        meta = load_doc_meta(cas, doc_meta_artifact_id)
+        if not _claim_set_matches_request(
+            claim_set_payload=payload,
+            meta=meta,
+            jurisdiction_norm=jurisdiction_norm,
+            domain_norm=domain_norm,
+            as_of_norm=as_of_norm,
+        ):
+            warnings.append(f"warning:claim_set_filtered:{artifact_id}")
+            continue
+
+        selected_doc_versions.append(
+            SelectedDocVersion(
+                doc_source_id=doc_source_id,
+                doc_version_id=doc_version_id,
+                doc_meta_artifact_id=doc_meta_artifact_id,
+                selection_policy_id="lex.batch.claim_set_v1",
+                used_version_index_artifact_id=None,
+                explanation=["selected_via=claim_set_artifact_ids"],
+            )
+        )
+        selected_claim_set_artifact_ids.append(artifact_id)
+
+        parent_payload: dict[str, Any] | None = None
+        input_claim_set_artifact_id = payload.get("input_claim_set_artifact_id")
+        if isinstance(input_claim_set_artifact_id, str) and input_claim_set_artifact_id:
+            try:
+                parent_payload = load_json_artifact(cas, input_claim_set_artifact_id)
+            except Exception:
+                parent_payload = None
+
+        for fragment_id in payload.get("selected_fragment_ids", []) or []:
+            if isinstance(fragment_id, str):
+                selected_fragment_ids.add(fragment_id)
+        if parent_payload is not None:
+            for fragment_id in parent_payload.get("selected_fragment_ids", []) or []:
+                if isinstance(fragment_id, str):
+                    selected_fragment_ids.add(fragment_id)
+
+        claim_rows = payload.get("claims")
+        if isinstance(claim_rows, list):
+            for row in claim_rows:
+                if not isinstance(row, dict):
+                    continue
+                source_fragment_id = row.get("source_fragment_id")
+                if isinstance(source_fragment_id, str) and source_fragment_id:
+                    selected_fragment_ids.add(source_fragment_id)
+                claim_artifact_id = row.get("claim_artifact_id")
+                if not isinstance(claim_artifact_id, str) or not claim_artifact_id:
+                    continue
+                claim = load_claim(cas, claim_artifact_id)
+                for citation in claim.citations:
+                    if citation.fragment_id:
+                        selected_fragment_ids.add(citation.fragment_id)
+
+        maybe_provision_index_artifact_id = payload.get("provision_index_artifact_id")
+        if (
+            (not isinstance(maybe_provision_index_artifact_id, str) or not maybe_provision_index_artifact_id)
+            and parent_payload is not None
+        ):
+            maybe_provision_index_artifact_id = parent_payload.get("provision_index_artifact_id")
+        if isinstance(maybe_provision_index_artifact_id, str) and maybe_provision_index_artifact_id:
+            provision_index_artifact_ids.add(maybe_provision_index_artifact_id)
+
+    norm_claim_ids = sorted(
+        claim_artifact_ids_by_claim_id(
+            cas=cas,
+            claim_set_artifact_ids=selected_claim_set_artifact_ids,
+        )
+    )
+    selected_doc_versions.sort(key=lambda row: row.doc_source_id)
+    return (
+        selected_doc_versions,
+        sorted(selected_fragment_ids),
+        sorted(set(selected_claim_set_artifact_ids)),
+        norm_claim_ids,
+        sorted(provision_index_artifact_ids),
+        sorted(set(warnings)),
+    )
 
 
 def _load_claims_by_id(
@@ -633,17 +788,20 @@ def assemble_norm_pack(
             [f"warning:normpack_provider_bootstrap_error:{msg}" for msg in provider_bootstrap.errors]
         )
 
-    doc_source_ids = select_doc_sources(
-        cas=cas,
-        fact_log_root=fact_log_root,
-        request=normalized_request,
-    )
+    direct_claim_set_artifact_ids = sorted(set(normalized_request.claim_set_artifact_ids or []))
+    doc_source_ids: list[str] = []
+    if not direct_claim_set_artifact_ids:
+        doc_source_ids = select_doc_sources(
+            cas=cas,
+            fact_log_root=fact_log_root,
+            request=normalized_request,
+        )
 
     provider_record = get_norm_pack_provider_registry().resolve(
         jurisdiction=jurisdiction_norm,
         domain=domain_norm,
     )
-    if provider_record is not None and not doc_source_ids:
+    if provider_record is not None and not doc_source_ids and not direct_claim_set_artifact_ids:
         try:
             provided = provider_record.provider.get_static_norm_pack(
                 cas,
@@ -727,7 +885,7 @@ def assemble_norm_pack(
             warnings.append(
                 f"warning:normpack_provider_failed:{provider_record.component_id}:{exc}"
             )
-    elif provider_record is not None and doc_source_ids:
+    elif provider_record is not None and (doc_source_ids or direct_claim_set_artifact_ids):
         warnings.append(
             f"warning:normpack_provider_skipped_local_docs_present:{provider_record.component_id}"
         )
@@ -740,49 +898,73 @@ def assemble_norm_pack(
             [f"warning:extractor_bootstrap_error:{msg}" for msg in extractor_bootstrap.errors]
         )
 
-    selected_doc_versions, source_warnings = select_active_doc_versions(
-        cas=cas,
-        fact_log_root=fact_log_root,
-        request=normalized_request,
-        jurisdiction_norm=jurisdiction_norm,
-        as_of_norm=as_of_norm,
-        doc_source_ids=doc_source_ids,
-    )
-    warnings.extend(source_warnings)
+    if direct_claim_set_artifact_ids:
+        (
+            selected_doc_versions,
+            selected_fragment_ids,
+            claim_set_artifact_ids,
+            norm_claim_ids,
+            provision_index_artifact_ids,
+            claim_set_warnings,
+        ) = _select_claim_sets(
+            cas=cas,
+            claim_set_artifact_ids=direct_claim_set_artifact_ids,
+            jurisdiction_norm=jurisdiction_norm,
+            domain_norm=domain_norm,
+            as_of_norm=as_of_norm,
+        )
+        warnings.extend(claim_set_warnings)
+        selected_provisions: list[ProvisionSelection] = []
+        if normalized_request.doc_source_ids:
+            warnings.append("warning:doc_source_ids_ignored_in_claim_set_mode")
+    else:
+        selected_doc_versions, source_warnings = select_active_doc_versions(
+            cas=cas,
+            fact_log_root=fact_log_root,
+            request=normalized_request,
+            jurisdiction_norm=jurisdiction_norm,
+            as_of_norm=as_of_norm,
+            doc_source_ids=doc_source_ids,
+        )
+        warnings.extend(source_warnings)
 
+        if not selected_doc_versions:
+            warnings.append("warning:no_doc_versions_selected")
+
+        selected_provisions, selected_fragment_ids, provision_warnings = _select_provisions(
+            cas=cas,
+            selected_doc_versions=selected_doc_versions,
+            domain_norm=domain_norm,
+            max_provisions=normalized_request.budgets.max_provisions,
+        )
+        warnings.extend(provision_warnings)
+
+        if not selected_fragment_ids:
+            warnings.append("warning:no_provisions_selected")
+
+        provision_index_artifact_ids = sorted(
+            {row.provision_index_artifact_id for row in selected_provisions}
+        )
+
+        extract_result = extract_norm_claims(
+            cas=cas,
+            fact_log_root=fact_log_root,
+            jurisdiction_norm=jurisdiction_norm,
+            domain_norm=domain_norm,
+            extractor_id=DEFAULT_EXTRACTOR_ID,
+            provisions=selected_provisions,
+            max_claims=normalized_request.budgets.max_claims,
+            normalize_claim_sets=True,
+            segment_name=f"lex_normpack_extract_claims_{run_suffix}",
+        )
+        warnings.extend(extract_result.warnings)
+
+        claim_set_artifact_ids = sorted(set(extract_result.claim_set_artifact_ids))
+        norm_claim_ids = sorted(set(extract_result.claim_ids))
     if not selected_doc_versions:
         warnings.append("warning:no_doc_versions_selected")
-
-    selected_provisions, selected_fragment_ids, provision_warnings = _select_provisions(
-        cas=cas,
-        selected_doc_versions=selected_doc_versions,
-        domain_norm=domain_norm,
-        max_provisions=normalized_request.budgets.max_provisions,
-    )
-    warnings.extend(provision_warnings)
-
     if not selected_fragment_ids:
         warnings.append("warning:no_provisions_selected")
-
-    provision_index_artifact_ids = sorted(
-        {row.provision_index_artifact_id for row in selected_provisions}
-    )
-
-    extract_result = extract_norm_claims(
-        cas=cas,
-        fact_log_root=fact_log_root,
-        jurisdiction_norm=jurisdiction_norm,
-        domain_norm=domain_norm,
-        extractor_id=DEFAULT_EXTRACTOR_ID,
-        provisions=selected_provisions,
-        max_claims=normalized_request.budgets.max_claims,
-        normalize_claim_sets=True,
-        segment_name=f"lex_normpack_extract_claims_{run_suffix}",
-    )
-    warnings.extend(extract_result.warnings)
-
-    claim_set_artifact_ids = sorted(set(extract_result.claim_set_artifact_ids))
-    norm_claim_ids = sorted(set(extract_result.claim_ids))
     if not norm_claim_ids:
         warnings.append("warning:no_norm_claims_selected")
 

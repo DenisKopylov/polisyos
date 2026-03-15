@@ -16,14 +16,36 @@ ALL_STAGES = frozenset(
         "harvest",
         "parse",
         "resolve_extract",
+        "resolve_finalize",
+        "numeric_extract",
         "merge_dedup",
+        "claim_adjudicate",
         "graph_load",
+        "edge_synthesize",
         "graph_index",
         "transport_score",
         "embed",
         "qc",
         "publish",
     }
+)
+
+RUN2_PRIORITY_DOMAIN_SUBBLOCKS: tuple[str, ...] = (
+    "economy/finance/business",
+    "health/healthcare",
+    "climate/energy/environment",
+    "agriculture/food/rural",
+    "urban/housing/transport",
+    "governance/law/regulation",
+    "labor/social development",
+    "education/human capital",
+    "technology/industry/digital",
+)
+
+RUN2_PRIORITY_CONTEXT_SUBBLOCKS: tuple[str, ...] = (
+    "country/region profiles",
+    "comparative area studies",
+    "historical/political context",
 )
 
 def _default_run_id() -> str:
@@ -68,7 +90,17 @@ class AcademicBatchConfig:
     # Topic source configuration
     topics_dir: Path | None = None
     topic_limit: int | None = None
-    target_per_topic: int = 150
+    target_per_topic: int = 500
+    selected_unique_budget: int = 330_000
+    usable_fulltext_target: int = 180_000
+    policy_core_quota_share: float = 0.25
+    priority_domain_quota_share: float = 0.55
+    priority_context_quota_share: float = 0.15
+    adaptive_reserve_quota_share: float = 0.05
+    priority_domain_subblocks: tuple[str, ...] = RUN2_PRIORITY_DOMAIN_SUBBLOCKS
+    priority_context_subblocks: tuple[str, ...] = RUN2_PRIORITY_CONTEXT_SUBBLOCKS
+    demand_backlog_path: Path | None = None
+    demand_backlog_boost: float = 0.20
     pass_name: str = "pass1_abstract"
     run_id: str = field(default_factory=_default_run_id)
 
@@ -105,8 +137,11 @@ class AcademicBatchConfig:
     article_connect_timeout_seconds: int = 15
     article_read_timeout_seconds: int = 120
     article_total_timeout_seconds: int = 150
+    article_provider_watchdog_seconds: int = 0
+    article_retryable_followup_passes: int = 1
+    article_retryable_followup_delay_seconds: float = 5.0
     fulltext_max_concurrent_fetches: int = 24
-    fulltext_acquisition_mode: str = "v3_legacy"
+    fulltext_acquisition_mode: str = "v7_http_metadata"
     fulltext_metadata_resolvers_enabled: bool = True
     fulltext_metadata_resolver_order: tuple[str, ...] = ("unpaywall", "crossref", "semanticscholar")
     fulltext_unpaywall_email: str = ""
@@ -138,8 +173,10 @@ class AcademicBatchConfig:
     paper_classification_model: str = ""
     track_b_extraction_model: str = ""
     track_c_extraction_model: str = ""
+    numeric_precision_mode: str = "high_precision"
+    claim_adjudication_passes: int = 3
     transport_target_context_id: str = ""
-    transport_target_country_codes: tuple[str, ...] = ()
+    transport_target_country_codes: tuple[str, ...] = ("UA",)
     transport_target_time_period: str = ""
 
     # Embedding (local sentence-transformers)
@@ -257,6 +294,18 @@ class AcademicBatchConfig:
         return self.component_dir / "resolve_extract_results.jsonl"
 
     @property
+    def resolve_extract_attempts_path(self) -> Path:
+        return self.resolve_extract_results_path
+
+    @property
+    def resolve_extract_final_results_path(self) -> Path:
+        return self.component_dir / "resolve_extract_final_results.jsonl"
+
+    @property
+    def resolve_extract_final_works_path(self) -> Path:
+        return self.extracted_dir / "resolve_finalize.jsonl"
+
+    @property
     def resolve_extract_errors_path(self) -> Path:
         return self.component_dir / "resolve_extract_errors.jsonl"
 
@@ -281,12 +330,60 @@ class AcademicBatchConfig:
         return self.component_dir / "published_claims.jsonl"
 
     @property
+    def raw_claim_candidates_final_path(self) -> Path:
+        return self.component_dir / "raw_claim_candidates_final.jsonl"
+
+    @property
+    def published_claims_final_path(self) -> Path:
+        return self.component_dir / "published_claims_final.jsonl"
+
+    @property
     def context_attributes_path(self) -> Path:
         return self.component_dir / "context_attributes.jsonl"
 
     @property
     def moderation_edges_path(self) -> Path:
         return self.component_dir / "moderation_edges.jsonl"
+
+    @property
+    def context_attributes_clean_path(self) -> Path:
+        return self.component_dir / "context_attributes_clean.jsonl"
+
+    @property
+    def moderation_edges_clean_path(self) -> Path:
+        return self.component_dir / "moderation_edges_clean.jsonl"
+
+    @property
+    def simulation_ready_numeric_path(self) -> Path:
+        return self.component_dir / "simulation_ready_numeric_estimates.jsonl"
+
+    @property
+    def numeric_estimates_raw_path(self) -> Path:
+        return self.component_dir / "numeric_estimates_raw.jsonl"
+
+    @property
+    def numeric_estimates_curated_path(self) -> Path:
+        return self.component_dir / "numeric_estimates_curated.jsonl"
+
+    @property
+    def claim_adjudication_passes_path(self) -> Path:
+        return self.component_dir / "claim_adjudication_passes.jsonl"
+
+    @property
+    def claim_adjudications_path(self) -> Path:
+        return self.component_dir / "claim_adjudications.jsonl"
+
+    @property
+    def claim_consensus_report_path(self) -> Path:
+        return self.component_dir / "claim_consensus_report.json"
+
+    @property
+    def canonical_review_queue_path(self) -> Path:
+        return self.component_dir / "canonical_review_queue.jsonl"
+
+    @property
+    def edge_synthesis_report_path(self) -> Path:
+        return self.component_dir / "edge_synthesis_report.json"
 
     @property
     def transport_scores_path(self) -> Path:
@@ -328,10 +425,26 @@ class AcademicBatchConfig:
 
         if self.target_per_topic < 1:
             raise ValueError("target_per_topic must be >= 1")
+        if self.selected_unique_budget < 1:
+            raise ValueError("selected_unique_budget must be >= 1")
+        if self.usable_fulltext_target < 1:
+            raise ValueError("usable_fulltext_target must be >= 1")
+        if not (0.0 <= float(self.demand_backlog_boost) <= 1.0):
+            raise ValueError("demand_backlog_boost must be in range [0, 1]")
+        if self.claim_adjudication_passes < 1:
+            raise ValueError("claim_adjudication_passes must be >= 1")
         if self.fulltext_acquisition_mode not in {"v3_legacy", "v7_http_metadata"}:
             raise ValueError("fulltext_acquisition_mode must be one of: v3_legacy, v7_http_metadata")
+        if self.numeric_precision_mode not in {"off", "balanced", "high_precision"}:
+            raise ValueError("numeric_precision_mode must be one of: off, balanced, high_precision")
         if self.fulltext_metadata_timeout_seconds < 1:
             raise ValueError("fulltext_metadata_timeout_seconds must be >= 1")
+        if self.article_retryable_followup_passes < 0:
+            raise ValueError("article_retryable_followup_passes must be >= 0")
+        if self.article_retryable_followup_delay_seconds < 0:
+            raise ValueError("article_retryable_followup_delay_seconds must be >= 0")
+        if self.article_provider_watchdog_seconds < -1:
+            raise ValueError("article_provider_watchdog_seconds must be >= -1")
         if not self.fulltext_metadata_resolver_order:
             raise ValueError("fulltext_metadata_resolver_order must not be empty")
         if self.fulltext_max_candidate_urls_per_work < 1:
@@ -359,11 +472,28 @@ class AcademicBatchConfig:
             raise ValueError("llm_gate_audit_max_miss_rate_pct must be >= 0")
         if not (0.0 <= self.llm_gate_auto_conf_threshold <= 1.0):
             raise ValueError("llm_gate_auto_conf_threshold must be in range [0, 1]")
+        quota_sum = (
+            float(self.policy_core_quota_share)
+            + float(self.priority_domain_quota_share)
+            + float(self.priority_context_quota_share)
+            + float(self.adaptive_reserve_quota_share)
+        )
+        if abs(quota_sum - 1.0) > 0.001:
+            raise ValueError("selection quota shares must sum to 1.0")
 
         if self.topics_dir is None:
-            self.topics_dir = Path("/Users/deniskopylov/polisyos/relevant_topics_domain_files")
+            self.topics_dir = Path(
+                os.environ.get(
+                    "POLISYOS_TOPICS_DIR",
+                    str(Path.cwd() / "relevant_topics_domain_files"),
+                )
+            )
         if self.fulltext_shared_cache_dir is not None:
             self.fulltext_shared_cache_dir = Path(self.fulltext_shared_cache_dir)
+        else:
+            self.fulltext_shared_cache_dir = self.snapshot_root / "_shared_fulltext_cache"
+        if self.demand_backlog_path is not None:
+            self.demand_backlog_path = Path(self.demand_backlog_path)
 
         ensure_dirs(
             self.component_dir,

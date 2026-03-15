@@ -5,8 +5,8 @@ from __future__ import annotations
 from datetime import UTC, datetime
 from pathlib import Path
 
-from polisyos.batch_common.manifest import write_publish_manifest, write_stage_manifest
 from polisyos.academic.batch.config import AcademicBatchConfig
+from polisyos.batch_common.manifest import write_publish_manifest, write_stage_manifest
 
 
 def run_publish(config: AcademicBatchConfig) -> Path:
@@ -24,13 +24,28 @@ def run_publish(config: AcademicBatchConfig) -> Path:
         config.selected_global_works_path,
         config.fulltext_resolved_path,
         config.resolve_extract_progress_path,
+        config.resolve_extract_attempts_path,
         config.resolve_extract_results_path,
+        config.resolve_extract_final_results_path,
+        config.resolve_extract_final_works_path,
         config.resolve_extract_errors_path,
         config.fulltext_fetch_log_path,
         config.llm_request_log_path,
         config.raw_claim_candidates_path,
         config.published_claims_path,
+        config.raw_claim_candidates_final_path,
+        config.published_claims_final_path,
+        config.context_attributes_path,
+        config.context_attributes_clean_path,
+        config.moderation_edges_path,
+        config.moderation_edges_clean_path,
+        config.simulation_ready_numeric_path,
         config.article_extraction_results_path,
+        config.claim_adjudication_passes_path,
+        config.claim_adjudications_path,
+        config.claim_consensus_report_path,
+        config.canonical_review_queue_path,
+        config.edge_synthesis_report_path,
         config.llm_gate_manifest_path,
         config.llm_gate_audit_path,
         config.qc_report_path,

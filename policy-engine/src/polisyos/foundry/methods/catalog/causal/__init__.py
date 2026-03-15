@@ -14,7 +14,12 @@ from ._registry_boot import register_causal_methods
 from .cate import CausalForestEstimator
 from .constraint_discovery import FCIDiscovery, GESDiscovery, PCDiscovery
 from .dagma_discovery import DAGMADiscovery
-from .did import DifferenceInDifferences
+from .diagnostics import ParallelTrendsCheck
+from .did import (
+    DifferenceInDifferences,
+    StandardDifferenceInDifferences,
+    StaggeredDifferenceInDifferences,
+)
 from .dml import DoubleMachineLearning
 from .dowhy_identify_estimate import DoWhyIdentifyEstimate, DoWhyIdentifyEstimateV1
 from .dowhy_refute import DoWhyRefute
@@ -45,8 +50,8 @@ from .protocols import (
 from .rdd import RegressionDiscontinuity
 from .sensitivity_metrics import SensitivityMetrics
 from .structural_time_series import StructuralTimeSeries
-from .synthetic_control import SyntheticControlMethod
 from .symbolic_identify import SymbolicIdentify
+from .synthetic_control import SyntheticControlMethod
 from .transport_check import CheckTransportability
 
 
@@ -80,7 +85,10 @@ __all__ = [
     "TimeSeriesCausalData",
     "TabularCausalDiscoveryData",
     "SyntheticControlMethod",
+    "ParallelTrendsCheck",
     "DifferenceInDifferences",
+    "StandardDifferenceInDifferences",
+    "StaggeredDifferenceInDifferences",
     "RegressionDiscontinuity",
     "StructuralTimeSeries",
     "DoWhyIdentifyEstimate",

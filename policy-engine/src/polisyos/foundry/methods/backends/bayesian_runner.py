@@ -1,0 +1,102 @@
+from __future__ import annotations
+
+import json
+import time
+from typing import Any, Mapping
+
+import numpy as np
+
+from polisyos.core.canon import truncated_hash
+from polisyos.core.observability.determinism import DeterminismTier
+from polisyos.foundry.methods.backends.runtime_fingerprint import (
+    capture_versions,
+    runtime_stack_for,
+)
+from polisyos.foundry.methods.backends.protocol import (
+    MethodResult,
+    MethodRunner,
+    MethodTiming,
+    ReproducibilityInfo,
+)
+from polisyos.foundry.methods.base import ComputeBackend, MethodSignature
+from polisyos.foundry.methods.io import dematerialize_method_output
+
+
+def _resolve_params(signature: MethodSignature, params: Mapping[str, Any]) -> dict[str, Any]:
+    result: dict[str, Any] = {}
+    known = {p.name for p in signature.parameters}
+    unknown = set(params.keys()) - known
+    if unknown:
+        raise ValueError(f"Unknown parameters for {signature.fqn}: {sorted(unknown)}")
+    for param in signature.parameters:
+        result[param.name] = params.get(param.name, param.default)
+    return result
+
+
+class BayesianRunner(MethodRunner):
+    @property
+    def supported_backends(self) -> frozenset[ComputeBackend]:
+        return frozenset({ComputeBackend.BAYESIAN})
+
+    def is_available(self) -> bool:
+        return True
+
+    def execute(
+        self,
+        *,
+        method_class: type,
+        signature: MethodSignature,
+        state: Any,
+        params: Mapping[str, Any],
+        seed: int,
+    ) -> MethodResult:
+        resolved = _resolve_params(signature, params)
+        resolved["__rng__"] = np.random.default_rng(seed)
+        resolved["__seed__"] = seed
+
+        started = time.perf_counter()
+        output = method_class.pure_step(state, resolved)
+        wall_ms = (time.perf_counter() - started) * 1000
+
+        determinism_tier = DeterminismTier.STATISTICAL
+        class_tier = getattr(method_class, "determinism_tier", None)
+        if isinstance(class_tier, DeterminismTier):
+            determinism_tier = class_tier
+        if isinstance(output, dict):
+            maybe_tier = output.get("__determinism_tier__")
+            if isinstance(maybe_tier, DeterminismTier):
+                determinism_tier = maybe_tier
+                output = dict(output)
+                output.pop("__determinism_tier__", None)
+
+        runtime_stack = runtime_stack_for(method_class)
+        versions = capture_versions(
+            base_packages=("numpy", "arviz", "numpyro", "jax", "jaxlib", "scipy", "xarray"),
+            runtime_stack=runtime_stack,
+        )
+        fp_payload = {
+            "backend": ComputeBackend.BAYESIAN.value,
+            "seed": seed,
+            "versions": versions,
+            "runtime_stack": runtime_stack,
+        }
+        fingerprint = truncated_hash(json.dumps(fp_payload, sort_keys=True), length=16)
+        slot_outputs = dematerialize_method_output(
+            method_class=method_class,
+            signature=signature,
+            output=output,
+        )
+
+        return MethodResult(
+            output=output,
+            timing=MethodTiming(wall_time_ms=wall_ms),
+            reproducibility=ReproducibilityInfo(
+                backend=ComputeBackend.BAYESIAN,
+                determinism_tier=determinism_tier,
+                seed=seed,
+                library_versions=versions,
+                fingerprint=fingerprint,
+                note="Posterior sampling is reproducible within fixed dependency versions and seed.",
+            ),
+            slot_outputs=slot_outputs,
+        )

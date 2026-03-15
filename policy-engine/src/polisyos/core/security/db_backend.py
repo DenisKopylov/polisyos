@@ -1,13 +1,16 @@
 """Database backend abstraction for tenant-aware execution."""
 from __future__ import annotations
 
+import uuid
 from contextlib import contextmanager
 from typing import Any, Iterator, Protocol, Sequence, runtime_checkable
-import uuid
 
 import pandas as pd
 
+from polisyos.common.logger import get_logger
 from polisyos.core.security.exceptions import TenantIsolationError
+
+logger = get_logger("polisyos.security.db_backend")
 
 
 def _validate_tenant_id(tenant_id: str) -> None:
@@ -103,7 +106,8 @@ class PostgresBackend:
         try:
             yield
             conn.commit()
-        except Exception:
+        except Exception as exc:
+            logger.debug("Postgres transaction rollback due to error: %s", exc)
             conn.rollback()
             raise
         finally:
@@ -168,7 +172,8 @@ class DuckDBLegacyBackend:
         try:
             yield
             self._db.conn.execute("COMMIT")
-        except Exception:
+        except Exception as exc:
+            logger.debug("DuckDB transaction rollback due to error: %s", exc)
             self._db.conn.execute("ROLLBACK")
             raise
 

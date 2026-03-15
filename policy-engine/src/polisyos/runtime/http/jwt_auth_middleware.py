@@ -2,10 +2,10 @@
 from __future__ import annotations
 
 import contextvars
-import logging
 import os
 from typing import Any, Callable
 
+from polisyos.common.logger import get_logger
 from polisyos.core.observability import get_metrics
 from polisyos.core.security.access_scope import AccessScope
 from polisyos.core.security.exceptions import MFARequiredError, TokenValidationError
@@ -16,7 +16,7 @@ from polisyos.core.security.tenant_context import (
 )
 from polisyos.runtime.http.errors import problem_response
 
-logger = logging.getLogger("polisyos.security.jwt")
+logger = get_logger("polisyos.security.jwt")
 
 
 try:  # pragma: no cover - optional runtime dependency
@@ -118,7 +118,7 @@ class JWTAuthMiddleware(BaseHTTPMiddleware):  # type: ignore[misc]
                 instance=path,
                 error="invalid_token",
             )
-        except Exception as exc:
+        except (AttributeError, KeyError, RuntimeError, TypeError, ValueError) as exc:
             get_metrics().record_identity_failure(reason="identity_error", provider="keycloak")
             logger.exception("Unexpected JWT authentication error")
             return problem_response(

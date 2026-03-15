@@ -15,6 +15,9 @@ from polisyos.academic.knowledge.skg_store import (
     next_skg_version,
     normalize_strength,
 )
+from polisyos.common.logger import get_logger
+
+logger = get_logger(__name__)
 
 
 @dataclass(frozen=True)
@@ -79,7 +82,10 @@ class SKGVersionManager:
                 payload = openalex_client.get_work(openalex_id)
                 if isinstance(payload, dict):
                     return bool(payload.get("is_retracted"))
-            except Exception:
+            except Exception as exc:
+                logger.debug(
+                    "Retraction check failed for %s: %s", openalex_id, exc,
+                )
                 return False
 
         # Fallback for async list_works clients is intentionally conservative.

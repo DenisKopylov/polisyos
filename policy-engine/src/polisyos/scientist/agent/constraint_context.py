@@ -7,13 +7,14 @@ This module bridges two coexisting ProblemFrame contracts:
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 from decimal import Decimal, InvalidOperation
-import re
 from typing import Any
 
+from polisyos.ir.governance.problem_frame import ConstraintSpec
+from polisyos.ir.governance.problem_frame import ProblemFrame as IRProblemFrame
 from polisyos.ir.kernel.values import CountValue, DurationValue, MoneyValue, RateValue
-from polisyos.ir.governance.problem_frame import ConstraintSpec, ProblemFrame as IRProblemFrame
 from polisyos.scientist.agent.protocols import ProblemFrame as AgentProblemFrame
 
 _BUDGET_HINT_RE = re.compile(

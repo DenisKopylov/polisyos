@@ -1,7 +1,6 @@
 """Identity primitives for user/service authentication in Zero Trust mode."""
 from __future__ import annotations
 
-import logging
 import os
 import time
 from dataclasses import dataclass
@@ -10,6 +9,7 @@ from typing import Any, Protocol, runtime_checkable
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from polisyos.common.logger import get_logger
 from polisyos.core.observability import get_metrics
 from polisyos.core.security.exceptions import (
     CrossTenantAccessError,
@@ -19,7 +19,7 @@ from polisyos.core.security.exceptions import (
     TokenValidationError,
 )
 
-logger = logging.getLogger("polisyos.security.identity")
+logger = get_logger("polisyos.security.identity")
 
 
 class PolicyOSRole(str, Enum):
@@ -253,7 +253,7 @@ class SPIFFEIdentityProvider:
         try:
             self._workload_client = WorkloadApiClient(spiffe_socket=self._spiffe_socket)
             return self._workload_client
-        except Exception as exc:  # pragma: no cover - depends on runtime SPIRE env
+        except (AttributeError, OSError, RuntimeError, TypeError, ValueError) as exc:  # pragma: no cover - depends on runtime SPIRE env
             raise IdentityNotAvailableError(
                 f"Cannot connect SPIRE agent at {self._spiffe_socket}: {exc}"
             ) from exc
@@ -293,7 +293,7 @@ class SPIFFEIdentityProvider:
                 issued_at=cert.not_valid_before_utc.timestamp(),
                 expires_at=cert.not_valid_after_utc.timestamp(),
             )
-        except Exception as exc:  # pragma: no cover - runtime SPIRE dependency
+        except (AttributeError, OSError, RuntimeError, TypeError, ValueError) as exc:  # pragma: no cover - runtime SPIRE dependency
             get_metrics().record_identity_failure(reason="spiffe_fetch_failed", provider="spiffe")
             raise IdentityNotAvailableError(str(exc)) from exc
 

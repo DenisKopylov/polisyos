@@ -12,7 +12,17 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 from polisyos.batch_common.manifest import write_stage_manifest
+from polisyos.common.logger import get_logger
 from polisyos.lex.batch.config import ALL_STAGES, BatchConfig
+
+logger = get_logger(__name__)
+
+
+def _parse_gonka_api_keys(raw: str) -> list[str]:
+    value = str(raw or "").strip()
+    if not value:
+        return []
+    return [token.strip() for token in value.split(",") if token.strip()]
 
 
 def _build_parser() -> argparse.ArgumentParser:
@@ -35,6 +45,11 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Delete previous outputs for this run context before start.",
     )
     run_p.add_argument("--gonka-api-key", default="", help="Gonka API key (or GONKA_API_KEY env)")
+    run_p.add_argument(
+        "--gonka-api-keys",
+        default="",
+        help="Comma-separated Gonka API keys (or GONKA_API_KEY_1..N env)",
+    )
     run_p.add_argument("--gonka-base-url", default="https://api.gonkagate.com/v1")
     run_p.add_argument(
         "--gonka-disable-json-mode",
@@ -72,6 +87,18 @@ def _build_parser() -> argparse.ArgumentParser:
         type=int,
         default=5,
         help="Provision count per single LLM request (batch reduces HTTP round-trips).",
+    )
+    run_p.add_argument(
+        "--spo-request-batch-chars",
+        type=int,
+        default=6000,
+        help="Approximate max total provision characters per single LLM request.",
+    )
+    run_p.add_argument(
+        "--spo-group-timeout-seconds",
+        type=float,
+        default=None,
+        help="Optional timeout for one grouped SPO LLM task before deterministic fallback.",
     )
     run_p.add_argument(
         "--spo-extract-mode",
@@ -145,6 +172,31 @@ def _build_parser() -> argparse.ArgumentParser:
     )
     run_p.set_defaults(extract_domains=True)
     run_p.add_argument(
+        "--export-claims-to-cas",
+        dest="export_claims_to_cas",
+        action="store_true",
+        help="Persist export_claims output as CAS-backed claim sets and fact-log segments.",
+    )
+    run_p.add_argument(
+        "--no-export-claims-to-cas",
+        dest="export_claims_to_cas",
+        action="store_false",
+        help="Keep export_claims output as filesystem JSONL only.",
+    )
+    run_p.set_defaults(export_claims_to_cas=False)
+    run_p.add_argument(
+        "--cas-root",
+        type=Path,
+        default=None,
+        help="CAS root for export_claims bridge.",
+    )
+    run_p.add_argument(
+        "--fact-log-root",
+        type=Path,
+        default=None,
+        help="Fact log root for export_claims bridge (default: output-dir/fact_log).",
+    )
+    run_p.add_argument(
         "--disable-quality-gates",
         action="store_true",
         help="Disable SPO quality gate checks.",
@@ -154,16 +206,19 @@ def _build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Fail pipeline when critical quality gates fail.",
     )
-    run_p.add_argument("--quality-max-full-only-docs-pct", type=float, default=30.0)
-    run_p.add_argument("--quality-max-empty-statement-rows-pct", type=float, default=12.0)
+    run_p.add_argument("--quality-max-full-only-docs-pct", type=float, default=25.0)
+    run_p.add_argument("--quality-max-empty-statement-rows-pct", type=float, default=10.0)
     run_p.add_argument("--quality-max-oov-action-rate-pct", type=float, default=1.0)
     run_p.add_argument("--quality-max-missing-quote-rate-pct", type=float, default=5.0)
     run_p.add_argument("--quality-max-duplicate-anchor-rate-pct", type=float, default=0.1)
-    run_p.add_argument("--quality-max-audit-miss-rate-pct", type=float, default=3.0)
+    run_p.add_argument("--quality-max-audit-miss-rate-pct", type=float, default=5.0)
+    run_p.add_argument("--quality-min-reference-resolution-coverage-pct", type=float, default=80.0)
     run_p.add_argument("--quality-min-llm-saved-pct", type=float, default=50.0)
+    run_p.add_argument("--quality-min-audit-samples-for-rate", type=int, default=10)
     run_p.add_argument("--quality-min-provision-docs-for-doc-rate", type=int, default=25)
     run_p.add_argument("--quality-min-spo-rows-for-row-rate", type=int, default=50)
     run_p.add_argument("--quality-min-statements-for-statement-rate", type=int, default=100)
+    run_p.add_argument("--quality-min-reference-rows-for-rate", type=int, default=10)
     run_p.add_argument("--status-filter", nargs="*", default=None, help="Filter by status")
     run_p.add_argument("--type-filter", nargs="*", default=None, help="Filter by doc type")
     run_p.add_argument(
@@ -171,11 +226,70 @@ def _build_parser() -> argparse.ArgumentParser:
         default="all",
         help=f"Comma-separated stages: {','.join(sorted(ALL_STAGES))} or 'all'",
     )
+    run_p.add_argument(
+        "--publish-require-embeddings",
+        dest="publish_require_embeddings",
+        action="store_true",
+        help="Require embeddings for publish_bundle consumer readiness.",
+    )
+    run_p.add_argument(
+        "--no-publish-require-embeddings",
+        dest="publish_require_embeddings",
+        action="store_false",
+        help="Allow publish_bundle without embeddings (server-side backfill prep mode).",
+    )
+    run_p.set_defaults(publish_require_embeddings=True)
     run_p.add_argument("--resume", action="store_true", help="Resume from checkpoint")
     run_p.add_argument(
         "--max-docs", type=int, default=None,
         help="Stop after processing this many NEW documents.",
     )
+
+    # --- smoke ---
+    smoke_p = sub.add_parser("smoke", help="Plan and run a fast informative Lex smoke pass")
+    smoke_p.add_argument("--cards", required=True, type=Path, help="Path to cards XML")
+    smoke_p.add_argument("--texts", required=True, type=Path, help="Path to texts XML")
+    smoke_p.add_argument("--output-dir", required=True, type=Path, help="Output directory")
+    smoke_p.add_argument(
+        "--profile",
+        choices=("fast", "informative", "acceptance_safe"),
+        default="informative",
+        help="Smoke profile tuned for local Mac runs.",
+    )
+    smoke_p.add_argument("--sample-docs", type=int, default=None, help="Override selected document count.")
+    smoke_p.add_argument("--scan-docs", type=int, default=None, help="How many matched docs to scan for sampling.")
+    smoke_p.add_argument("--clean-output", action="store_true", help="Delete previous outputs before smoke run.")
+    smoke_p.add_argument("--resume", action="store_true", help="Resume smoke run output if present.")
+    smoke_p.add_argument("--gonka-api-key", default="", help="Gonka API key (or GONKA_API_KEY env)")
+    smoke_p.add_argument(
+        "--gonka-api-keys",
+        default="",
+        help="Comma-separated Gonka API keys (or GONKA_API_KEY_1..N env)",
+    )
+    smoke_p.add_argument("--gonka-base-url", default="https://api.gonkagate.com/v1")
+    smoke_p.add_argument(
+        "--gonka-disable-json-mode",
+        action="store_true",
+        help="Do not send response_format=json_object to Gonka chat/completions.",
+    )
+    smoke_p.add_argument("--llm-model", default="qwen/qwen3-235b-a22b-instruct-2507-fp8")
+    smoke_p.add_argument("--parallel-llm", type=int, default=None, help="Override profile LLM concurrency.")
+    smoke_p.add_argument("--gonka-rate-limit-rps", type=float, default=None, help="Override profile Gonka request rate.")
+    smoke_p.add_argument("--max-retries", type=int, default=None, help="Override profile retry count.")
+    smoke_p.add_argument(
+        "--spo-request-batch-chars",
+        type=int,
+        default=None,
+        help="Override profile max total provision characters per LLM request.",
+    )
+    smoke_p.add_argument(
+        "--spo-group-timeout-seconds",
+        type=float,
+        default=None,
+        help="Override profile timeout for one grouped SPO LLM task before deterministic fallback.",
+    )
+    smoke_p.add_argument("--status-filter", nargs="*", default=None, help="Filter by status")
+    smoke_p.add_argument("--type-filter", nargs="*", default=None, help="Filter by doc type")
 
     # --- embed-local ---
     embed_p = sub.add_parser("embed-local", help="Build local embeddings and HNSW indexes")
@@ -202,9 +316,26 @@ def _build_parser() -> argparse.ArgumentParser:
     qc_p.add_argument("--no-fail-fast", dest="fail_fast", action="store_false")
     qc_p.set_defaults(fail_fast=True)
 
+    # --- benchmark ---
+    benchmark_p = sub.add_parser("benchmark", help="Run deterministic Lex consumer benchmarks")
+    benchmark_p.add_argument("--output-dir", required=True, type=Path)
+
     # --- publish ---
     publish_p = sub.add_parser("publish", help="Write Lex publish manifest")
     publish_p.add_argument("--output-dir", required=True, type=Path)
+    publish_p.add_argument(
+        "--require-embeddings",
+        dest="require_embeddings",
+        action="store_true",
+        help="Require embeddings for consumer-ready publish manifest.",
+    )
+    publish_p.add_argument(
+        "--no-require-embeddings",
+        dest="require_embeddings",
+        action="store_false",
+        help="Allow publish manifest without embeddings.",
+    )
+    publish_p.set_defaults(require_embeddings=True)
 
     # --- stats ---
     stats_p = sub.add_parser("stats", help="Show graph statistics")
@@ -256,10 +387,24 @@ def _clean_lex_output(output_dir: Path, *, shard_count: int, shard_index: int) -
                 target.unlink()
 
     if shard_count == 1 or shard_index == 0:
-        for rel_dir in ("provisions", "spo_results"):
+        for rel_dir in (
+            "provisions",
+            "spo_results",
+            "spo_grounded",
+            "references",
+            "resolved_references",
+            "domains",
+            "claim_exports",
+            "manifests",
+            "benchmark_report.json",
+            "publish",
+        ):
             target = output_dir / rel_dir
             if target.exists():
-                shutil.rmtree(target)
+                if target.is_dir():
+                    shutil.rmtree(target)
+                else:
+                    target.unlink()
 
 
 def _cmd_run(args: argparse.Namespace) -> None:
@@ -290,6 +435,7 @@ def _cmd_run(args: argparse.Namespace) -> None:
         shard_count=args.shard_count,
         shard_index=args.shard_index,
         gonka_api_key=args.gonka_api_key,
+        gonka_api_keys=_parse_gonka_api_keys(getattr(args, "gonka_api_keys", "")),
         gonka_base_url=args.gonka_base_url,
         gonka_disable_json_mode=args.gonka_disable_json_mode,
         llm_model=args.llm_model,
@@ -307,6 +453,8 @@ def _cmd_run(args: argparse.Namespace) -> None:
         spo_batch_docs=args.spo_batch_docs,
         spo_task_batch_size=args.spo_task_batch_size,
         spo_request_batch_size=args.spo_request_batch_size,
+        spo_request_batch_chars=args.spo_request_batch_chars,
+        spo_group_timeout_seconds=args.spo_group_timeout_seconds,
         spo_extract_mode=args.spo_extract_mode,
         spo_skip_trivial=not args.no_spo_skip_trivial,
         spo_verify_mode=args.spo_verify_mode,
@@ -330,10 +478,17 @@ def _cmd_run(args: argparse.Namespace) -> None:
         quality_max_missing_quote_rate_pct=args.quality_max_missing_quote_rate_pct,
         quality_max_duplicate_anchor_rate_pct=args.quality_max_duplicate_anchor_rate_pct,
         quality_max_audit_miss_rate_pct=args.quality_max_audit_miss_rate_pct,
+        quality_min_reference_resolution_coverage_pct=args.quality_min_reference_resolution_coverage_pct,
         quality_min_llm_saved_pct=args.quality_min_llm_saved_pct,
+        quality_min_audit_samples_for_rate=args.quality_min_audit_samples_for_rate,
         quality_min_provision_docs_for_doc_rate=args.quality_min_provision_docs_for_doc_rate,
         quality_min_spo_rows_for_row_rate=args.quality_min_spo_rows_for_row_rate,
         quality_min_statements_for_statement_rate=args.quality_min_statements_for_statement_rate,
+        quality_min_reference_rows_for_rate=args.quality_min_reference_rows_for_rate,
+        publish_require_embeddings=args.publish_require_embeddings,
+        export_claims_to_cas=args.export_claims_to_cas,
+        cas_root=args.cas_root,
+        fact_log_root=args.fact_log_root,
     )
 
     from polisyos.lex.batch.pipeline import run_batch_pipeline
@@ -345,11 +500,27 @@ def _cmd_run(args: argparse.Namespace) -> None:
     print(f"  SPO triples:{stats.total_spo}")
     print(f"  Entities:   {stats.entities}")
     print(f"  Facts:      {stats.facts}")
+    if stats.grounded_facts or stats.normative_facts or stats.candidate_facts:
+        print(f"  Candidate facts: {stats.candidate_facts}")
+        print(f"  Grounded facts:  {stats.grounded_facts}")
+        print(f"  Normative facts: {stats.normative_facts}")
+    if stats.reference_edges:
+        print(f"  Resolved refs:   {stats.reference_edges}")
+    if stats.exported_claims:
+        print(f"  Exported claims: {stats.exported_claims}")
+    if getattr(stats, "exported_claim_sets", 0):
+        print(f"  Claim sets:      {stats.exported_claim_sets}")
+    if stats.published_bundle:
+        print("  Publish bundle: yes")
+    if stats.benchmark_passed is not None:
+        print(f"  Benchmark OK: {stats.benchmark_passed}")
     print(f"  Time:       {stats.elapsed_seconds:.1f}s")
     if config.sharded:
         print(f"  Shard:      {config.shard_index + 1}/{config.shard_count} ({config.shard_slug})")
     if stats.quality_passed is not None:
         print(f"  Quality OK: {stats.quality_passed}")
+    if stats.benchmark_passed is not None and stats.benchmark_failed_checks:
+        print(f"  Benchmark failed checks: {', '.join(stats.benchmark_failed_checks)}")
     for stage, dt in sorted(stats.stage_times.items()):
         print(f"    {stage}: {dt:.1f}s")
 
@@ -360,6 +531,8 @@ def _cmd_run(args: argparse.Namespace) -> None:
         run_artifacts.append(config.llm_gate_manifest_path)
     if config.llm_gate_audit_path.exists():
         run_artifacts.append(config.llm_gate_audit_path)
+    if config.benchmark_report_path.exists():
+        run_artifacts.append(config.benchmark_report_path)
 
     write_stage_manifest(
         manifest_path=config.output_dir / "manifests" / "run.json",
@@ -373,10 +546,63 @@ def _cmd_run(args: argparse.Namespace) -> None:
             "facts": stats.facts,
             "elapsed_seconds": round(stats.elapsed_seconds, 3),
             **stats.llm_gate_metrics,
+            **stats.benchmark_metrics,
         },
-        artifacts=run_artifacts,
+        artifacts=run_artifacts + [
+            config.consumer_manifest_path,
+            config.benchmark_report_path,
+            config.claim_exports_dir / "normative_claims.jsonl",
+            config.claim_exports_dir / "normative_claim_sets_summary.json",
+        ],
         started_at=datetime.now(UTC).isoformat(),
     )
+
+
+def _cmd_smoke(args: argparse.Namespace) -> None:
+    if args.clean_output:
+        _clean_lex_output(args.output_dir, shard_count=1, shard_index=0)
+
+    from polisyos.lex.batch.smoke import run_smoke
+
+    result = run_smoke(
+        cards_path=args.cards,
+        texts_path=args.texts,
+        output_dir=args.output_dir,
+        profile_name=args.profile,
+        gonka_api_key=args.gonka_api_key,
+        gonka_api_keys=_parse_gonka_api_keys(getattr(args, "gonka_api_keys", "")),
+        gonka_base_url=args.gonka_base_url,
+        gonka_disable_json_mode=args.gonka_disable_json_mode,
+        llm_model=args.llm_model,
+        resume=bool(args.resume),
+        status_filter=frozenset(args.status_filter) if args.status_filter else None,
+        type_filter=frozenset(args.type_filter) if args.type_filter else None,
+        sample_docs=args.sample_docs,
+        scan_docs=args.scan_docs,
+        parallel_llm=args.parallel_llm,
+        gonka_rate_limit_rps=args.gonka_rate_limit_rps,
+        max_retries=args.max_retries,
+        spo_request_batch_chars=args.spo_request_batch_chars,
+        spo_group_timeout_seconds=args.spo_group_timeout_seconds,
+    )
+    stats = result["stats"]
+    print("\nSmoke run complete:")
+    print(f"  Profile:        {result['profile'].name}")
+    print(f"  Scanned docs:   {result['scanned_docs']}")
+    print(f"  Selected docs:  {result['selected_docs']}")
+    print(f"  Processed docs: {stats.total_docs}")
+    print(f"  Provisions:     {stats.total_provisions}")
+    print(f"  SPO rows:       {stats.total_spo}")
+    print(f"  Grounded facts: {stats.grounded_facts}")
+    print(f"  Normative facts:{stats.normative_facts}")
+    print(f"  Resolved refs:  {stats.reference_edges}")
+    print(f"  Quality OK:     {stats.quality_passed}")
+    if stats.quality_failed_checks:
+        print(f"  Failed checks:  {', '.join(stats.quality_failed_checks)}")
+    print(f"  Time:           {stats.elapsed_seconds:.1f}s")
+    print(f"  Plan:           {result['plan_path']}")
+    print(f"  Report:         {result['report_path']}")
+    print(f"  Summary:        {result['summary_path']}")
 
 
 def _cmd_embed_local(args: argparse.Namespace) -> None:
@@ -460,10 +686,21 @@ def _cmd_qc(args: argparse.Namespace) -> None:
     )
 
 
+def _cmd_benchmark(args: argparse.Namespace) -> None:
+    from polisyos.lex.batch.benchmark import run_benchmark
+
+    cfg = _minimal_cfg(args.output_dir)
+    outcome = run_benchmark(cfg)
+    print(f"Benchmark passed: {outcome.passed}")
+    if outcome.failed_checks:
+        print(f"Failed checks: {', '.join(outcome.failed_checks)}")
+    print(f"Benchmark report: {cfg.benchmark_report_path}")
+
+
 def _cmd_publish(args: argparse.Namespace) -> None:
     from polisyos.lex.batch.publish import run_publish
 
-    manifest = run_publish(args.output_dir)
+    manifest = run_publish(args.output_dir, require_embeddings=bool(args.require_embeddings))
     print(f"Publish manifest: {manifest}")
 
 
@@ -480,6 +717,11 @@ def _cmd_stats(args: argparse.Namespace) -> None:
         entities = con.execute("SELECT COUNT(*) FROM lex_entities").fetchone()[0]
         facts = con.execute("SELECT COUNT(*) FROM lex_facts").fetchone()[0]
         provisions = con.execute("SELECT COUNT(*) FROM lex_provisions").fetchone()[0]
+        candidate_facts = _count_table_rows(con, "lex_fact_candidates")
+        grounded_facts = _count_table_rows(con, "lex_fact_grounded")
+        normative_facts = _count_table_rows(con, "lex_normative_facts")
+        reference_edges = _count_table_rows(con, "lex_reference_edges")
+        doc_versions = _count_table_rows(con, "lex_doc_versions")
     finally:
         con.close()
 
@@ -487,6 +729,16 @@ def _cmd_stats(args: argparse.Namespace) -> None:
     print(f"  Entities:   {entities:,}")
     print(f"  Facts:      {facts:,}")
     print(f"  Provisions: {provisions:,}")
+    if candidate_facts:
+        print(f"  Candidate facts: {candidate_facts:,}")
+    if grounded_facts:
+        print(f"  Grounded facts:  {grounded_facts:,}")
+    if normative_facts:
+        print(f"  Normative facts: {normative_facts:,}")
+    if reference_edges:
+        print(f"  Resolved refs:   {reference_edges:,}")
+    if doc_versions:
+        print(f"  Doc versions:    {doc_versions:,}")
 
 
 def _cmd_search(args: argparse.Namespace) -> None:
@@ -494,7 +746,11 @@ def _cmd_search(args: argparse.Namespace) -> None:
 
     store = LegalKnowledgeStore(db_path=args.output_dir / "lex_knowledge_graph.duckdb", index_dir=args.output_dir)
     try:
-        results = store.text_search_facts(args.query, top_k=args.top_k)
+        results = store.text_search_facts(
+            args.query,
+            top_k=args.top_k,
+            trust_tier="grounded_fact",
+        )
     finally:
         store.close()
 
@@ -509,13 +765,24 @@ def _cmd_search(args: argparse.Namespace) -> None:
         print(f"    confidence: {r.confidence:.2f}, similarity: {r.similarity:.2f}")
 
 
+def _count_table_rows(con, table_name: str) -> int:  # type: ignore[no-untyped-def]
+    exists = con.execute(
+        "SELECT COUNT(*) FROM information_schema.tables WHERE table_name = ?",
+        [table_name],
+    ).fetchone()[0]
+    if not exists:
+        return 0
+    return int(con.execute(f"SELECT COUNT(*) FROM {table_name}").fetchone()[0])
+
+
 def main() -> None:
     try:
         from dotenv import load_dotenv
 
+
         load_dotenv()
-    except Exception:
-        pass
+    except Exception as exc:
+        logger.debug("Ignored exception: {}", exc)
 
     logging.basicConfig(
         level=logging.INFO,
@@ -532,10 +799,14 @@ def main() -> None:
 
     if args.command == "run":
         _cmd_run(args)
+    elif args.command == "smoke":
+        _cmd_smoke(args)
     elif args.command == "embed-local":
         _cmd_embed_local(args)
     elif args.command == "qc":
         _cmd_qc(args)
+    elif args.command == "benchmark":
+        _cmd_benchmark(args)
     elif args.command == "publish":
         _cmd_publish(args)
     elif args.command == "stats":

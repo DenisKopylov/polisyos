@@ -9,8 +9,8 @@ from polisyos.core.run.manifest import RunManifest
 
 from .models import (
     BuildDefinition,
-    BuildMetadata,
     BuilderInfo,
+    BuildMetadata,
     DigestSet,
     InTotoStatement,
     ResourceDescriptor,

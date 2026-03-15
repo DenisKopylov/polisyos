@@ -4,7 +4,6 @@ from pathlib import Path
 
 from polisyos.core.contracts.scholar import SourceSpec
 from polisyos.fabric.docs import DocSourceSpec
-
 from polisyos.scholar.errors import ScholarAcquireError, ScholarValidationError
 from polisyos.scholar.types import AcquireResult
 

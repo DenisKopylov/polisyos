@@ -10,10 +10,10 @@ from typing import Any
 
 from polisyos.core.canon import content_hash, truncated_hash
 from polisyos.ir.trinity import TrinityBundle
+from polisyos.scientist.agent.feasibility import FeasibilityProbe
 from polisyos.scientist.agent.informed_critic import InformedCriticAgent, InformedCriticConfig
 from polisyos.scientist.agent.knowledge_base import CriticKnowledgeBase
 from polisyos.scientist.agent.norm_loader import NormPackLoader
-from polisyos.scientist.agent.feasibility import FeasibilityProbe
 from polisyos.scientist.agent.prompts import get_critic_prompt
 from polisyos.scientist.agent.protocols import (
     CriticAgent,
@@ -24,7 +24,6 @@ from polisyos.scientist.agent.protocols import (
     ProblemFrame,
 )
 from polisyos.scientist.llm import TracedLLMClient
-
 
 _COMMON_WORDS = {
     "the",
@@ -248,7 +247,7 @@ class MockCriticAgent:
                     continue
                 try:
                     numeric = float(value)
-                except Exception:
+                except (TypeError, ValueError):
                     continue
                 if param_name in {"rate", "tax_rate", "subsidy_rate"} and numeric > 1.0:
                     issues.append(

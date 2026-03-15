@@ -3,14 +3,21 @@ from __future__ import annotations
 from polisyos.foundry.methods.exceptions import MethodAlreadyRegisteredError
 from polisyos.foundry.methods.registry import MethodRegistry
 
+from .convex import QuadraticProgramEstimator, RobustOptimizationEstimator
 from ._registry_boot import register_optimization_methods
-from .io_model import LeontiefInputOutput
-from .lp import ResourceLP
-from .milp import BudgetMILP
+from .io_model import InputOutputLeontiefModel, LeontiefInputOutput
+from .lp import LinearResourceLP, ResourceLP
+from .milp import BudgetMILP, IntegerBudgetMILP
+from .multiobjective import MultiObjectiveNSGA2Estimator
+from .sequential import (
+    DynamicProgrammingEstimator,
+    SecondOrderConeProgramEstimator,
+    TwoStageStochasticProgramEstimator,
+)
 from .protocols import (
     AllocationItem,
-    IOModelResult,
     InputOutputMethod,
+    IOModelResult,
     OptimizationMethod,
     OptimizationProblem,
     OptimizationResult,
@@ -30,12 +37,21 @@ def ensure_optimization_methods_registered(registry: MethodRegistry | None = Non
 __all__ = [
     "AllocationItem",
     "BudgetMILP",
+    "InputOutputLeontiefModel",
+    "IntegerBudgetMILP",
     "IOModelResult",
     "InputOutputMethod",
+    "LinearResourceLP",
     "LeontiefInputOutput",
+    "MultiObjectiveNSGA2Estimator",
     "OptimizationMethod",
     "OptimizationProblem",
     "OptimizationResult",
+    "QuadraticProgramEstimator",
+    "RobustOptimizationEstimator",
+    "SecondOrderConeProgramEstimator",
+    "TwoStageStochasticProgramEstimator",
+    "DynamicProgrammingEstimator",
     "ResourceConstraint",
     "ResourceLP",
     "ensure_optimization_methods_registered",

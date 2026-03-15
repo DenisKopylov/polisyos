@@ -97,11 +97,13 @@ class HighConfidenceDrafter(MockDrafterAgent):
         self,
         problem_frame: ProblemFrame,
         *,
+        data_context: dict[str, Any] | None = None,
         hints: list[str] | None = None,
         prior_drafts=None,
     ):
         draft = await super().draft_policy(
             problem_frame,
+            data_context=data_context,
             hints=hints,
             prior_drafts=prior_drafts,
         )
@@ -137,12 +139,14 @@ def test_pass1_injects_rag_few_shot_hint() -> None:
             self,
             problem_frame: ProblemFrame,
             *,
+            data_context: dict[str, Any] | None = None,
             hints: list[str] | None = None,
             prior_drafts=None,
         ):
             self.last_hints = list(hints or [])
             return await super().draft_policy(
                 problem_frame,
+                data_context=data_context,
                 hints=hints,
                 prior_drafts=prior_drafts,
             )

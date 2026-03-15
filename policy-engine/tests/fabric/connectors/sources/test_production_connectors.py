@@ -7,7 +7,10 @@ from typing import Any
 
 from polisyos.fabric.connectors.base import ConnectionConfig, FetchRequest
 from polisyos.fabric.connectors.sources.eurostat import EurostatConnector
+from polisyos.fabric.connectors.sources.unesco_uis import UNESCOUISConnector
+from polisyos.fabric.connectors.sources.unpd import UNPDConnector
 from polisyos.fabric.connectors.sources.ukons import UKONSConnector
+from polisyos.fabric.connectors.sources.who import WHOConnector
 from polisyos.fabric.connectors.sources.wvs import WVSConnector
 from polisyos.fabric.connectors.sources.world_bank import WorldBankConnector, _retry_after_seconds
 from polisyos.ir.connectors import VersionStrategy
@@ -135,6 +138,58 @@ def test_eurostat_fetch_with_mock_http(monkeypatch) -> None:
     assert set(result.data["time_period"].tolist()) == {"2021", "2022"}
 
 
+def test_eurostat_uses_since_and_until_time_period_params(monkeypatch) -> None:
+    connector = EurostatConnector()
+    payload = {
+        "id": ["geo", "time"],
+        "size": [1, 1],
+        "dimension": {
+            "geo": {"category": {"index": {"UA": 0}, "label": {"UA": "UA"}}},
+            "time": {
+                "category": {
+                    "index": {"2023": 0},
+                    "label": {"2023": "2023"},
+                }
+            },
+        },
+        "value": {"0": 100.0},
+    }
+
+    async def _fake_request_json(_session, _url, *, params, connector_id):
+        assert connector_id == "eurostat.data"
+        assert params["format"] == "JSON"
+        assert params["geo"] == "UA"
+        assert params["sinceTimePeriod"] == "2020"
+        assert params["untilTimePeriod"] == "2022"
+        assert "time" not in params
+        headers = {"Last-Modified": "Tue, 02 Jan 2024 00:00:00 GMT"}
+        return payload, headers, json.dumps(payload).encode("utf-8")
+
+    async def _fake_get_session(self, _handle):  # noqa: ARG001
+        return object()
+
+    monkeypatch.setattr(EurostatConnector, "_request_json", staticmethod(_fake_request_json))
+    monkeypatch.setattr(EurostatConnector, "_get_session", _fake_get_session)
+
+    async def _exercise():
+        handle = await connector.connect(ConnectionConfig(url="https://example.test"))
+        result = await connector.fetch(
+            handle,
+            FetchRequest(
+                dataset_id="ilc_test",
+                filters=(("geo", ("UA",)),),
+                date_start=datetime(2020, 1, 1, tzinfo=timezone.utc),
+                date_end=datetime(2022, 12, 31, tzinfo=timezone.utc),
+            ),
+        )
+        await connector.disconnect(handle)
+        return result
+
+    result = _run_async(_exercise())
+    assert result.row_count == 1
+    assert result.data.iloc[0]["time_period"] == "2023"
+
+
 def test_ukons_fetch_with_mock_http(monkeypatch) -> None:
     connector = UKONSConnector()
     payload = {
@@ -219,3 +274,150 @@ def test_wvs_fetch_with_mock_http(monkeypatch) -> None:
     assert result.version.strategy == VersionStrategy.ETAG
     assert result.fetch_duration_ms > 0.0
     assert result.data.iloc[0]["country_code"] == "DE"
+
+
+def test_who_fetch_with_mock_http(monkeypatch) -> None:
+    connector = WHOConnector()
+    payload = {
+        "value": [
+            {
+                "IndicatorCode": "WHOSIS_000001",
+                "SpatialDim": "UKR",
+                "TimeDim": 2020,
+                "NumericValue": 72.5,
+                "Dim1": "SEX_BTSX",
+                "Date": "2024-08-02T09:43:39.193+02:00",
+            }
+        ]
+    }
+
+    async def _fake_request_json(_session, _url, *, params, connector_id, headers=None):
+        del headers
+        assert connector_id == "who.indicators"
+        assert "SpatialDim eq 'UKR'" in params["$filter"]
+        return payload, {}, json.dumps(payload).encode("utf-8")
+
+    async def _fake_get_session(self, _handle):  # noqa: ARG001
+        return object()
+
+    monkeypatch.setattr(WHOConnector, "_request_json", staticmethod(_fake_request_json))
+    monkeypatch.setattr(WHOConnector, "_get_session", _fake_get_session)
+
+    async def _exercise():
+        handle = await connector.connect(ConnectionConfig(url="https://example.test"))
+        result = await connector.fetch(
+            handle,
+            FetchRequest(
+                dataset_id="WHOSIS_000001",
+                filters=(("country", ("UA",)),),
+                date_start=datetime(2020, 1, 1, tzinfo=timezone.utc),
+                date_end=datetime(2020, 12, 31, tzinfo=timezone.utc),
+            ),
+        )
+        await connector.disconnect(handle)
+        return result
+
+    result = _run_async(_exercise())
+    assert result.row_count == 1
+    assert result.schema_id == "who.indicators.generic"
+    assert result.data.iloc[0]["country_code"] == "UKR"
+
+
+def test_unpd_fetch_with_mock_http(monkeypatch) -> None:
+    connector = UNPDConnector()
+    payload = {
+        "data": [
+            {
+                "indicatorId": "1",
+                "iso3Code": "UKR",
+                "locationId": 804,
+                "timeLabel": "2020",
+                "value": 55.1,
+                "variantId": 4,
+                "sexId": 2,
+            }
+        ]
+    }
+
+    async def _fake_request_json(_session, _url, *, params, connector_id, headers=None):
+        del params
+        assert connector_id == "unpd.data"
+        assert headers == {"Authorization": "Bearer token-123"}
+        return payload, {}, json.dumps(payload).encode("utf-8")
+
+    async def _fake_get_session(self, _handle):  # noqa: ARG001
+        return object()
+
+    monkeypatch.setattr(UNPDConnector, "_request_json", staticmethod(_fake_request_json))
+    monkeypatch.setattr(UNPDConnector, "_get_session", _fake_get_session)
+
+    async def _exercise():
+        handle = await connector.connect(
+            ConnectionConfig(
+                url="https://example.test",
+                auth_credentials={"token": "token-123"},
+            )
+        )
+        result = await connector.fetch(
+            handle,
+            FetchRequest(
+                dataset_id="1",
+                filters=(("country", ("UA",)),),
+                date_start=datetime(2020, 1, 1, tzinfo=timezone.utc),
+                date_end=datetime(2020, 12, 31, tzinfo=timezone.utc),
+            ),
+        )
+        await connector.disconnect(handle)
+        return result
+
+    result = _run_async(_exercise())
+    assert result.row_count == 1
+    assert result.schema_id == "unpd.data.generic"
+    assert result.data.iloc[0]["country_code"] == "UKR"
+
+
+def test_unesco_uis_fetch_with_mock_http(monkeypatch) -> None:
+    connector = UNESCOUISConnector()
+    payload = {
+        "records": [
+            {
+                "indicatorId": "200101",
+                "geoUnit": "UKR",
+                "year": 2020,
+                "value": 44835.87,
+                "magnitude": None,
+                "qualifier": None,
+            }
+        ]
+    }
+
+    async def _fake_request_json(_session, _url, *, params, connector_id, headers=None):
+        del headers
+        assert connector_id == "unesco_uis.data"
+        assert params["indicator"] == "200101"
+        return payload, {}, json.dumps(payload).encode("utf-8")
+
+    async def _fake_get_session(self, _handle):  # noqa: ARG001
+        return object()
+
+    monkeypatch.setattr(UNESCOUISConnector, "_request_json", staticmethod(_fake_request_json))
+    monkeypatch.setattr(UNESCOUISConnector, "_get_session", _fake_get_session)
+
+    async def _exercise():
+        handle = await connector.connect(ConnectionConfig(url="https://example.test"))
+        result = await connector.fetch(
+            handle,
+            FetchRequest(
+                dataset_id="200101",
+                filters=(("country", ("UA",)),),
+                date_start=datetime(2020, 1, 1, tzinfo=timezone.utc),
+                date_end=datetime(2020, 12, 31, tzinfo=timezone.utc),
+            ),
+        )
+        await connector.disconnect(handle)
+        return result
+
+    result = _run_async(_exercise())
+    assert result.row_count == 1
+    assert result.schema_id == "unesco_uis.data.generic"
+    assert result.data.iloc[0]["country_code"] == "UKR"

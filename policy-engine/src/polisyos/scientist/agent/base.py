@@ -3,9 +3,9 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 
-from polisyos.ir.model_spec import AgentConfig, EnvironmentConfig, ModelSpec
 from polisyos.ir.governance.policy_spec import InterventionSpec, PolicySpec
 from polisyos.ir.governance.problem_frame import ObjectiveSpec, ProblemDomain, ProblemFrame
+from polisyos.ir.model_spec import AgentConfig, EnvironmentConfig, ModelSpec
 from polisyos.ir.trinity import TrinityBundle
 
 __all__ = ["BaseAgent", "MockAgent"]

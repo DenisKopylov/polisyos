@@ -13,18 +13,21 @@ from cryptography.hazmat.primitives.asymmetric import ec
 from cryptography.hazmat.primitives.serialization import load_pem_public_key
 from cryptography.x509 import load_pem_x509_certificate
 
+from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.manifest import ArtifactManifest
-from polisyos.core.canon import content_hash, streaming_hash
-from polisyos.core.canon.canon_json import to_canonical_bytes
 from polisyos.core.artifacts.signing import (
     DetachedSignature,
     SignatureStatement,
     canonical_statement_bytes,
     compute_key_id,
 )
+from polisyos.core.canon import content_hash, streaming_hash
+from polisyos.core.canon.canon_json import to_canonical_bytes
 
 from .models import StepResult, StepStatus, VerificationReport
 from .safe_tar import UnsafeArchiveError, safe_extract_tar
+
+logger = get_logger(__name__)
 
 
 class AuditPackageVerifier:
@@ -95,7 +98,7 @@ class AuditPackageVerifier:
             return None
         try:
             index = json.loads(index_path.read_text("utf-8"))
-        except Exception as exc:
+        except (OSError, ValueError, TypeError) as exc:
             report.add_failure("INVALID_INDEX", f"index.json is invalid: {exc}", path="index.json")
             return None
         if index.get("package_format") != "polisyos-audit-v1":
@@ -115,8 +118,8 @@ class AuditPackageVerifier:
                 profile = str(payload.get("profile") or "").strip()
                 if profile in {"full", "manifests_only"}:
                     return profile
-            except Exception:
-                pass
+            except (OSError, ValueError, TypeError) as exc:
+                logger.debug("Ignored exception while resolving profile: %s", exc)
         profile = str(index.get("export_profile") or "").strip()
         if profile in {"full", "manifests_only"}:
             return profile
@@ -208,7 +211,7 @@ class AuditPackageVerifier:
             return step
         try:
             sig_payload = json.loads(sig_path.read_text("utf-8"))
-        except Exception as exc:
+        except (OSError, ValueError, TypeError) as exc:
             step.checks_failed += 1
             report.add_failure("INVALID_CHECKSUM_SIGNATURE", str(exc), path=str(sig_path))
             return step
@@ -233,7 +236,7 @@ class AuditPackageVerifier:
             step.checks_failed += 1
             report.add_failure("INVALID_CHECKSUM_SIGNATURE", "checksum signature verification failed")
             return step
-        except Exception as exc:
+        except (ValueError, TypeError) as exc:
             step.checks_failed += 1
             report.add_failure("INVALID_CHECKSUM_SIGNATURE", f"verification error: {exc}")
             return step
@@ -256,7 +259,7 @@ class AuditPackageVerifier:
             report.artifacts_total += 1
             try:
                 manifest = ArtifactManifest.model_validate_json(manifest_path.read_text("utf-8"))
-            except Exception as exc:
+            except (ValueError, TypeError) as exc:
                 step.checks_failed += 1
                 report.add_failure(
                     "INVALID_ARTIFACT_MANIFEST",
@@ -328,7 +331,7 @@ class AuditPackageVerifier:
             report.signatures_total += 1
             try:
                 signature = DetachedSignature.model_validate_json(sig_path.read_text("utf-8"))
-            except Exception as exc:
+            except (ValueError, TypeError) as exc:
                 step.checks_failed += 1
                 report.add_failure("INVALID_SIGNATURE_FILE", str(exc), path=str(sig_path.relative_to(pkg_dir)))
                 continue
@@ -408,7 +411,7 @@ class AuditPackageVerifier:
                 step.checks_failed += 1
                 report.add_failure("INVALID_SIGNATURE", f"Ed25519 verification failed for {hex_id}")
                 continue
-            except Exception as exc:
+            except (ValueError, TypeError) as exc:
                 step.checks_failed += 1
                 report.add_failure("INVALID_SIGNATURE", f"verification error for {hex_id}: {exc}")
                 continue
@@ -440,7 +443,7 @@ class AuditPackageVerifier:
                 try:
                     key = load_pem_public_key(item.read_bytes())
                     trusted[compute_key_id(key)] = key
-                except Exception:
+                except (OSError, ValueError, TypeError):
                     continue
         for path in self._trusted_keys:
             if not path.exists() or not path.is_file():
@@ -448,7 +451,7 @@ class AuditPackageVerifier:
             try:
                 key = load_pem_public_key(path.read_bytes())
                 trusted[compute_key_id(key)] = key
-            except Exception:
+            except (OSError, ValueError, TypeError):
                 continue
 
         if self._allow_package_keys:
@@ -460,13 +463,13 @@ class AuditPackageVerifier:
                     try:
                         key = load_pem_public_key(item.read_bytes())
                         trusted[compute_key_id(key)] = key
-                    except Exception:
+                    except (OSError, ValueError, TypeError):
                         continue
             identities_path = package_key_dir / "identities.json"
             if identities_path.exists():
                 try:
                     payload = json.loads(identities_path.read_text("utf-8"))
-                except Exception:
+                except (OSError, ValueError, TypeError):
                     payload = {}
                 if isinstance(payload, dict):
                     for key_id, value in payload.items():
@@ -491,7 +494,7 @@ class AuditPackageVerifier:
             return step
         try:
             prov_json = json.loads(path.read_text("utf-8"))
-        except Exception as exc:
+        except (OSError, ValueError, TypeError) as exc:
             report.add_failure("INVALID_PROVENANCE", f"prov.json parse error: {exc}")
             step.checks_failed += 1
             step.status = StepStatus.FAIL
@@ -574,7 +577,7 @@ class AuditPackageVerifier:
             return step
         try:
             prov_json = json.loads(path.read_text("utf-8"))
-        except Exception:
+        except (OSError, ValueError, TypeError):
             step.status = StepStatus.FAIL
             step.checks_failed = 1
             step.duration_ms = (time.perf_counter() - started) * 1000
@@ -644,7 +647,7 @@ class AuditPackageVerifier:
 
         try:
             payload = json.loads(attestation_path.read_text("utf-8"))
-        except Exception as exc:
+        except (OSError, ValueError, TypeError) as exc:
             step.checks_failed += 1
             report.add_failure(
                 "SLSA_ATTESTATION_INVALID_JSON",
@@ -659,7 +662,7 @@ class AuditPackageVerifier:
             from polisyos.core.security.slsa.models import InTotoStatement
 
             statement = InTotoStatement.model_validate(payload)
-        except Exception as exc:
+        except (ValueError, TypeError) as exc:
             step.checks_failed += 1
             report.add_failure(
                 "SLSA_ATTESTATION_INVALID_STRUCTURE",
@@ -678,7 +681,7 @@ class AuditPackageVerifier:
             root_ref = index_data.get("artifacts", {}).get("root_artifact_id")
             if isinstance(root_ref, str):
                 root_hex = root_ref.removeprefix("sha256:")
-        except Exception:
+        except (OSError, ValueError, TypeError):
             root_hex = ""
 
         if not statement.subject:
@@ -738,7 +741,7 @@ class AuditPackageVerifier:
         else:
             try:
                 sig_payload = json.loads(signature_path.read_text("utf-8"))
-            except Exception as exc:
+            except (OSError, ValueError, TypeError) as exc:
                 step.checks_failed += 1
                 report.add_failure(
                     "SLSA_SIGNATURE_INVALID_JSON",
@@ -789,7 +792,7 @@ class AuditPackageVerifier:
                             "SLSA signature verification failed",
                             path="slsa/signature.json",
                         )
-                    except Exception as exc:
+                    except (TypeError, ValueError) as exc:
                         step.checks_failed += 1
                         report.add_failure(
                             "SLSA_SIGNATURE_VERIFY_ERROR",
@@ -801,7 +804,7 @@ class AuditPackageVerifier:
         if transparency_path.exists():
             try:
                 transparency = json.loads(transparency_path.read_text("utf-8"))
-            except Exception as exc:
+            except (OSError, ValueError, TypeError) as exc:
                 step.checks_failed += 1
                 report.add_failure(
                     "SLSA_TRANSPARENCY_INVALID_JSON",
@@ -846,7 +849,7 @@ class AuditPackageVerifier:
             return {}
         try:
             payload = json.loads(path.read_text("utf-8"))
-        except Exception:
+        except (OSError, ValueError, TypeError):
             return {}
         if not isinstance(payload, dict):
             return {}

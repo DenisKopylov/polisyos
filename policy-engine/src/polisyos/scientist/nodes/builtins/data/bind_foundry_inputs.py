@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass, replace
 from typing import Any
 
+from polisyos.common.logger import get_logger
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.contracts.foundry import FoundryInputBindingRule
@@ -20,6 +21,8 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     INPUT_REGISTRY_BUNDLE_REF,
     INPUT_TRINITY_BUNDLE_REF,
 )
+
+logger = get_logger(__name__)
 
 _ZERO_HASH = f"sha256:{'0' * 64}"
 
@@ -146,7 +149,12 @@ def _parse_binding_rules(value: Any) -> list[FoundryInputBindingRule] | None:
         for item in value:
             try:
                 rules.append(FoundryInputBindingRule.model_validate(item))
-            except Exception:
+            except (TypeError, ValueError):
+                logger.debug(
+                    "Failed to validate binding rule item: %s",
+                    item,
+                    exc_info=True,
+                )
                 continue
         return rules or None
     return None
@@ -164,6 +172,11 @@ def _check_model_spec_consistency(
         payload = from_canonical_bytes(ctx.store.get_bytes(trinity_ref.artifact_id))
         trinity = TrinityBundle.model_validate(payload)
     except Exception:
+        logger.debug(
+            "Failed to load trinity bundle for model-spec consistency check from ref %s",
+            trinity_ref,
+            exc_info=True,
+        )
         return None
 
     expected = str(trinity.model_spec.data_snapshot_ref).strip()

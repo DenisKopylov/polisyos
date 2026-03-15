@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 
+from polisyos.common.logger import get_logger
 from polisyos.core.contracts.runtime import (
     RunTimelineEvent,
     RunTimelineSummary,
@@ -12,6 +13,8 @@ from polisyos.core.contracts.runtime import (
 from polisyos.core.trace.record import TraceRecord
 
 from .run_index import IndexedRunRecord
+
+logger = get_logger(__name__)
 
 
 @dataclass(frozen=True)
@@ -56,7 +59,8 @@ def _load_trace_events(path: Path) -> list[RunTimelineEvent]:
                 continue
             try:
                 record = TraceRecord.model_validate_json(stripped)
-            except Exception:
+            except (TypeError, ValueError) as exc:
+                logger.debug("Skipping invalid trace event in %s: %s", path, exc)
                 continue
 
             metrics: dict[str, int | float] = {}

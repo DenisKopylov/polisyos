@@ -111,6 +111,15 @@ class TestSlotSpecValidation:
                 shape=("n_agents",),
             )
 
+    def test_contract_id_must_be_non_empty_string(self, sample_unit: Unit):
+        with pytest.raises(TypeError):
+            SlotSpec(
+                name="bad",
+                slot_type=SlotType.SCALAR,
+                unit=sample_unit,
+                contract_id="",
+            )
+
 
 class TestParameterSpecValidation:
     def test_bounds_must_be_ordered(self):
@@ -196,6 +205,12 @@ class TestHashing:
         s3 = SlotSpec(name="a", slot_type=SlotType.SCALAR, unit=Units.UAH)
         slots = frozenset({s1, s2, s3})
         assert len(slots) == 2
+
+    def test_contract_id_participates_in_slot_identity(self):
+        s1 = SlotSpec(name="a", slot_type=SlotType.SCALAR, unit=Units.UAH, contract_id="c1")
+        s2 = SlotSpec(name="a", slot_type=SlotType.SCALAR, unit=Units.UAH, contract_id="c2")
+        assert hash(s1) != hash(s2)
+        assert s1 != s2
 
     def test_array_param_hashable(self):
         arr = jnp.array([0.1, 0.2, 0.3])

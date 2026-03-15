@@ -29,6 +29,7 @@ from typing import Any, ClassVar, Type
 
 import pytest
 
+from polisyos.common.logger import get_logger
 from polisyos.core.canon import content_hash
 from polisyos.fabric.connectors.base import (
     ConnectionConfig,
@@ -42,6 +43,8 @@ from polisyos.fabric.connectors.capabilities import validate_protocol_compliance
 from polisyos.fabric.connectors.contracts.schema import DataSchema
 from polisyos.fabric.connectors.testing.contracts import assert_schema_compliance
 from polisyos.ir.connectors import ConnectorCapability, DataVersion, VersionStrategy
+
+logger = get_logger(__name__)
 
 
 # ---------------------------------------------------------------------------
@@ -60,8 +63,8 @@ def _to_records(data: Any) -> list[dict[str, Any]]:
 
         if hasattr(data, "to_dict"):
             return data.to_dict(orient="records")
-    except Exception:
-        pass
+    except Exception as exc:
+        logger.debug("Ignored exception: %s", exc)
 
     if isinstance(data, list) and all(isinstance(item, dict) for item in data):
         return data
@@ -445,6 +448,7 @@ class ConnectorTestHarness:
         records = _to_records(result.data)
         try:
             import pandas as pd  # noqa: F401
+
 
             df = pd.DataFrame(records)
         except Exception as exc:  # pragma: no cover

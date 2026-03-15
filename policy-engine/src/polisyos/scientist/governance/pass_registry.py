@@ -17,9 +17,11 @@ RUNTIME_ALLOWED_PASS_IDS: frozenset[str] = frozenset(
     {
         "confidence",
         "equity",
+        "cross_graph_evidence",
         "pii_check",
         "refutation",
         "literature_gate",
+        "normative_arbitration",
         "sutva_check",
         "transportability_required",
         "human_review_required",

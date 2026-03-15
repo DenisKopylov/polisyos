@@ -5,20 +5,18 @@ from __future__ import annotations
 import asyncio
 import gc
 import json
-import logging
 import math
 import random
 import re
 import time
 from collections import defaultdict, deque
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
 import aiohttp
 
-from polisyos.batch_common.manifest import write_stage_manifest
 import polisyos.academic.batch.fulltext_resolver as fulltext_resolver_module
 from polisyos.academic.batch.article_extractor import (
     _CLAIM_SENTENCE_RE,
@@ -27,6 +25,7 @@ from polisyos.academic.batch.article_extractor import (
     _as_list,
     _build_evidence_bundle,
     _normalize_context_attribute,
+    _normalize_empirical_parameter,
     _normalize_extraction_payload,
     _normalize_moderation_edge,
     _normalized_text,
@@ -42,28 +41,34 @@ from polisyos.academic.batch.fulltext_resolver import (
     fetch_full_text_result_for_work,
     reconstruct_abstract,
 )
+from polisyos.academic.batch.parser import extract_numerical_estimates
+from polisyos.academic.batch.prompts import (
+    CONTEXT_EXTRACTION_SCHEMA_HINT,
+    MODERATOR_EXTRACTION_SCHEMA_HINT,
+    PAPER_CLASSIFICATION_PROMPT,
+)
 from polisyos.academic.knowledge.variable_canonizer import VariableCanonizer
 from polisyos.academic.openalex.priority_filter import should_process
+from polisyos.batch_common.manifest import write_stage_manifest
+from polisyos.common.logger import get_logger
 from polisyos.ir.analytics.literature import (
     ArticleExtractionResult,
     CausalClaim,
     ClaimType,
     ContextAttribute,
     DesignFamily,
+    EvidenceParameter,
+    EvidenceStrength,
     EvidenceSpan,
     HeterogeneityResult,
     ModerationEdge,
+    ParameterType,
     PaperKind,
     SourceBasis,
     TextQuality,
 )
-from polisyos.academic.batch.prompts import (
-    PAPER_CLASSIFICATION_PROMPT,
-    CONTEXT_EXTRACTION_SCHEMA_HINT,
-    MODERATOR_EXTRACTION_SCHEMA_HINT,
-)
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 _DESIGN_TIERS: dict[str, int | None] = {
     DesignFamily.RCT.value: 1,
@@ -149,6 +154,24 @@ _HETEROGENEITY_CLASSIFICATION_RE = re.compile(
 )
 _RESULT_CUE_RE = re.compile(
     r"\b(we find|results show|effect on|impact on|increas\w*|decreas\w*|reduc\w*|rais\w*|improv\w*|lead(?:s|ing)? to|caus(?:e|es|ed|ing))\b",
+    re.IGNORECASE,
+)
+_PRECISION_RESULT_CUE_RE = re.compile(
+    r"\b("
+    r"95%\s*ci|99%\s*ci|confidence interval|std\.?\s*err(?:or)?|standard error|"
+    r"se\s*[=:]\s*[-+]?\d|ci\s*[\[:=]|"
+    r"coef(?:ficient)?|beta|odds ratio|risk ratio|hazard ratio|relative risk|"
+    r"instrumental variable|2sls|tsls|difference[- ]?in[- ]?differences?|regression discontinuity|"
+    r"event study|fixed effects|panel fe|logit|probit"
+    r")\b",
+    re.IGNORECASE,
+)
+_DESCRIPTIVE_ONLY_RE = re.compile(
+    r"\b("
+    r"descriptive study|descriptive analysis|cross[- ]sectional non[- ]analytic|frequency distribution|"
+    r"univariate analysis|bivariate analysis|most respondents|mostly good|mostly positive|"
+    r"prevalence|awareness level|knowledge level|attitude level"
+    r")\b",
     re.IGNORECASE,
 )
 _MIN_FULLTEXT_CHARS = 64
@@ -279,9 +302,63 @@ Rules:
 - If evidence is only associational or review-based, set claim_type accordingly instead of forcing causal_claim.
 - sample_size must be integer or null.
 - Numeric fields must be numeric, never words like high/medium/low.
+- empirical_parameters must only include true effect estimates, treatment effects, coefficients, elasticities, odds ratios,
+  hazard ratios, or quantified policy contrasts.
+- If a paper reports only descriptive percentages, prevalence, sample shares, baseline levels, or p-values without an effect size,
+  return empirical_parameters as [].
+- Never emit named parameter shells. If you cannot provide a numeric value or value_range, omit that parameter entirely.
+- When the paper reports uncertainty in forms like `95% CI [a, b]` or `(SE = x)`, copy it into confidence_interval/std_error.
+- Prefer 1-4 strongest policy-relevant estimates instead of many weak numeric candidates.
 - For identification_strategy: only include if the paper has a clear causal identification strategy. Set null otherwise.
 - For heterogeneity_results: include only if the paper explicitly tests effect heterogeneity or moderation.
 """.strip()
+
+_NUMERIC_RESCUE_SCHEMA_HINT = """
+Return strict JSON with exactly one key:
+- empirical_parameters: array of objects
+
+Each empirical_parameters object:
+{
+  "name": "canonical-like variable name",
+  "display_name": "short label",
+  "parameter_type": "quantitative",
+  "value": number|null,
+  "value_range": [number, number] | null,
+  "confidence_interval": [number, number] | null,
+  "std_error": number|null,
+  "unit": "unitless|elasticity|semi_elasticity|odds_ratio|risk_ratio|hazard_ratio|correlation_coefficient|standardized_effect|index_points|percentage_points|basis_points",
+  "evidence_strength": "rct|quasi_natural|quasi_natural_event|panel_fe|structural|observational|cross_sectional|meta_analysis|theoretical|unknown",
+  "heterogeneity_note": "short note on what the estimate measures",
+  "geographic_scope": "optional geography",
+  "time_period": "optional period"
+}
+
+Rules:
+- Extract only true effect estimates, treatment effects, coefficients, elasticities, odds ratios, hazard ratios, or standardized effects.
+- Prefer estimates with explicit uncertainty whenever the paper reports it.
+- When result snippets contain forms like `coefficient = 0.18 (SE = 0.04)` or
+  `effect was 0.25 (95% CI [0.15, 0.45])`, copy both the point estimate and
+  the uncertainty fields into the output.
+- Use exact variable names from the provided claim inventory when an estimate quantifies one of those claims.
+- Never include p-values, significance stars, standard errors by themselves, t-stats, z-stats, F-stats, R-squared, sample sizes, descriptive counts, or baseline means without a contrast.
+- If the paper reports significance but no effect magnitude, return an empty array.
+- If the estimate is dimensionless but clearly a coefficient/effect size, set unit to "unitless" or a more specific dimensionless unit.
+- Prefer the most policy-relevant 1-4 estimates instead of exhaustively listing weak candidates.
+""".strip()
+
+_NON_EFFECT_PARAMETER_RE = re.compile(
+    r"\b(sample[_ ]?size|study\.sample_size|p[-_ ]?value|significance|t[-_ ]?stat(istic)?|"
+    r"z[-_ ]?stat(istic)?|f[-_ ]?stat(istic)?|r[_ ]?squared|r\^2|baseline mean|descriptive count|"
+    r"number of observations|n observations|n =)\b",
+    re.IGNORECASE,
+)
+_NUMERIC_UNITFUL_HINT_RE = re.compile(
+    r"\b(percentage points?|pp|basis points?|odds ratio|risk ratio|relative risk|hazard ratio|"
+    r"elasticit(?:y|ies)|semi[- ]?elasticit(?:y|ies)|correlation|beta\b|standardi[sz]ed effect|"
+    r"standardi[sz]ed coefficient|index points?|score points?|unitless)\b",
+    re.IGNORECASE,
+)
+_VAR_SPLIT_RE = re.compile(r"[^a-z0-9]+")
 
 
 @dataclass
@@ -310,6 +387,12 @@ class ResolveExtractStats:
     track_b_rejected_hard: int = 0
     context_attributes_extracted: int = 0
     moderation_edges_extracted: int = 0
+    numeric_rescue_requests: int = 0
+    numeric_rescue_successes: int = 0
+    numeric_rescue_failures: int = 0
+    numeric_rescue_parameters_added: int = 0
+    deterministic_numeric_rescue_successes: int = 0
+    deterministic_numeric_rescue_parameters_added: int = 0
     total_tokens_prompt: int = 0
     total_tokens_completion: int = 0
     total_extraction_cost_usd: float = 0.0
@@ -364,10 +447,62 @@ class ProviderResponse:
     truncated_output: bool
 
 
+def _empty_provider_response(
+    *,
+    error_class: str,
+    raw_content: str = "",
+    parse_status: str = "empty",
+) -> ProviderResponse:
+    return ProviderResponse(
+        parsed={},
+        usage={},
+        http_status=0,
+        finish_reason="",
+        latency_ms=0.0,
+        retry_count=0,
+        limiter_wait_ms=0.0,
+        backoff_sleep_ms=0.0,
+        parse_status=parse_status,
+        error_class=error_class,
+        raw_content=raw_content[:4000],
+        truncated_output=False,
+    )
+
+
+def _resolve_provider_watchdog_seconds(config: AcademicBatchConfig) -> float | None:
+    configured = int(config.article_provider_watchdog_seconds)
+    if configured < 0:
+        return None
+    if configured > 0:
+        return float(configured)
+    # Bias the stage-level watchdog toward recall over speed:
+    # keep it well above the typical provider retry/backoff envelope so it
+    # catches only clearly stuck requests, not merely slow-but-productive ones.
+    return float(max(300, int(config.article_total_timeout_seconds) + 15))
+
+
+async def _await_provider_json(
+    pool: GonkaMultiKeyPool,
+    *,
+    model: str,
+    prompt: str,
+    temperature: float,
+    watchdog_seconds: float | None,
+) -> ProviderResponse:
+    request = pool.chat_json(
+        model=model,
+        prompt=prompt,
+        temperature=temperature,
+    )
+    if watchdog_seconds is None:
+        return await request
+    return await asyncio.wait_for(request, timeout=watchdog_seconds)
+
+
 class _SlidingWindowLimiter:
     def __init__(self, max_requests: int, window: float = 1.0) -> None:
         self._max = max(1, int(max_requests))
-        self._window = float(window)
+        self._window = max(0.01, float(window))
         self._lock = asyncio.Lock()
         self._timestamps: deque[float] = deque()
 
@@ -397,7 +532,10 @@ class _ProviderClient:
     def __init__(self, *, api_key: str, base_url: str, rate_limit_rps: float, circuit_failures: int, circuit_reset_seconds: int, connect_timeout_seconds: int, read_timeout_seconds: int, total_timeout_seconds: int) -> None:
         self.api_key = api_key
         self.url = f"{base_url.rstrip('/')}/chat/completions"
-        self.limiter = _SlidingWindowLimiter(max(1, math.ceil(rate_limit_rps)), window=1.0)
+        # Support fractional per-key request rates so local smoke runs can match
+        # provider-specific practical throughput, not just integer RPS ceilings.
+        effective_rps = max(0.001, float(rate_limit_rps))
+        self.limiter = _SlidingWindowLimiter(max_requests=1, window=(1.0 / effective_rps))
         self.circuit_failures = max(1, int(circuit_failures))
         self.circuit_reset_seconds = max(1, int(circuit_reset_seconds))
         self.consecutive_failures = 0
@@ -669,8 +807,8 @@ def _load_progress(path: Path) -> dict[str, Any]:
             loaded = json.load(fh)
         if isinstance(loaded, dict) and isinstance(loaded.get("items"), dict):
             return loaded
-    except Exception:
-        pass
+    except Exception as exc:
+        logger.debug("Ignored exception: %s", exc)
     return {"version": 1, "updated_at": "", "items": {}}
 
 
@@ -708,7 +846,42 @@ def _load_metadata_cache(path: Path) -> dict[str, dict[str, Any]]:
 
 
 def _terminal_state(state: str) -> bool:
-    return state in {"published", "raw_only", "failed", "rejected"}
+    return state in {
+        "published",
+        "raw_only",
+        "succeeded_nonempty",
+        "succeeded_empty",
+        "permanent_failed",
+        "rejected",
+    }
+
+
+def _retryable_state(state: str) -> bool:
+    return state == "retryable_failed"
+
+
+def _count_progress_state(progress: dict[str, Any], state: str) -> int:
+    items = progress.get("items")
+    if not isinstance(items, dict):
+        return 0
+    return sum(1 for value in items.values() if isinstance(value, dict) and str(value.get("state") or "") == state)
+
+
+def _resolve_extract_artifacts(config: AcademicBatchConfig) -> list[Path]:
+    return [
+        config.resolve_extract_progress_path,
+        config.resolve_extract_results_path,
+        config.resolve_extract_errors_path,
+        config.fulltext_fetch_log_path,
+        config.fulltext_metadata_cache_path,
+        config.llm_request_log_path,
+        config.raw_claim_candidates_path,
+        config.published_claims_path,
+        config.context_attributes_path,
+        config.moderation_edges_path,
+        config.article_extraction_results_path,
+        config.extracted_dir / "resolve_extract.jsonl",
+    ]
 
 
 def _topic_id_for_row(row: dict[str, Any]) -> str:
@@ -769,6 +942,8 @@ def _prefetch_priority(work: dict[str, Any]) -> float:
     priority += min(6.0, float(_count_pattern(_METHOD_SENTENCE_RE, abstract)))
     priority += min(4.0, float(_count_pattern(_EMPIRICAL_DATA_RE, abstract)))
     priority += min(6.0, float(_count_pattern(_RESULT_CUE_RE, abstract)))
+    precision_signal = _precision_result_signal_score(title, abstract)
+    priority += min(12.0, precision_signal * 1.5)
     if bool(work.get("has_fulltext")):
         priority += 15.0
     if bool(open_access.get("is_oa")):
@@ -777,6 +952,8 @@ def _prefetch_priority(work: dict[str, Any]) -> float:
         priority += 8.0
     if _has_strong_design_signal(title, abstract):
         priority += 10.0
+    if _descriptive_only_score(title, abstract) > 0 and precision_signal == 0:
+        priority -= 12.0
     priority -= min(6.0, _downgrade_signal_score(title, abstract) * 1.5)
     if _is_review_like(title, abstract):
         priority -= 25.0
@@ -854,6 +1031,24 @@ def _result_signal_score(*parts: str) -> float:
         ),
     ) * 0.25
     return round(score, 6)
+
+
+def _precision_result_signal_score(*parts: str) -> float:
+    title = parts[0] if len(parts) > 0 else ""
+    abstract = parts[1] if len(parts) > 1 else ""
+    text = parts[2] if len(parts) > 2 else ""
+    score = 0.0
+    score += min(5.0, float(_count_pattern(_PRECISION_RESULT_CUE_RE, text))) * 1.25
+    score += min(2.5, float(_count_pattern(_PRECISION_RESULT_CUE_RE, abstract))) * 0.9
+    score += min(1.0, float(_count_pattern(_PRECISION_RESULT_CUE_RE, title))) * 0.5
+    return round(score, 6)
+
+
+def _descriptive_only_score(*parts: str) -> float:
+    haystack = "\n".join(part for part in parts if part)
+    if not haystack:
+        return 0.0
+    return float(len(_DESCRIPTIVE_ONLY_RE.findall(haystack)))
 
 
 def _downgrade_signal_score(*parts: str) -> float:
@@ -1239,6 +1434,8 @@ def _post_resolve_priority(item: WorkItem, *, text: str, source_kind: str, text_
     method_signal = _method_signal_score(title, abstract, text)
     data_signal = _data_signal_score(title, abstract, text)
     result_signal = _result_signal_score(title, abstract, text)
+    precision_signal = _precision_result_signal_score(title, abstract, text)
+    descriptive_signal = _descriptive_only_score(title, abstract, text)
     downgrade_signal = _downgrade_signal_score(title, abstract, text)
     priority = item.prefetch_priority
     priority += 20.0 if source_kind != "abstract_fallback" else -50.0
@@ -1246,8 +1443,11 @@ def _post_resolve_priority(item: WorkItem, *, text: str, source_kind: str, text_
     priority += min(14.0, method_signal * 2.0)
     priority += min(8.0, data_signal * 2.0)
     priority += min(12.0, result_signal * 1.75)
+    priority += min(18.0, precision_signal * 2.5)
     if _has_strong_design_signal(title, abstract, text):
         priority += 12.0
+    if descriptive_signal > 0 and precision_signal == 0 and method_signal < 2.0:
+        priority -= min(16.0, descriptive_signal * 3.0)
     priority -= min(10.0, downgrade_signal * 2.5)
     if _is_review_like(title, abstract, text):
         priority -= 30.0
@@ -1276,6 +1476,8 @@ def _eligibility_gate(
     method_signal = _method_signal_score(title, abstract, text)
     data_signal = _data_signal_score(title, abstract, text)
     result_signal = _result_signal_score(title, abstract, text)
+    precision_signal = _precision_result_signal_score(title, abstract, text)
+    descriptive_signal = _descriptive_only_score(title, abstract, text)
     empirical_signal = method_signal + result_signal + (data_signal * 0.75)
     strong_design = _has_strong_design_signal(title, abstract, text)
     if source_kind == "abstract_fallback":
@@ -1295,6 +1497,8 @@ def _eligibility_gate(
         reasons.append("method_only")
     if empirical_signal < 1.0 and not strong_design:
         reasons.append("missing_empirical_cues")
+    if descriptive_signal > 0 and precision_signal == 0 and method_signal < 1.5 and not strong_design:
+        reasons.append("descriptive_only")
     llm_eligible = not reasons
     hard_reasons = [reason for reason in reasons if reason in _CONTEXT_HARD_REJECTION_REASONS]
     soft_reasons = [reason for reason in reasons if reason in _CONTEXT_SOFT_REJECTION_REASONS]
@@ -1319,6 +1523,8 @@ def _build_streaming_evidence_bundle(item: WorkItem, *, text: str, source_kind: 
         "method_sentences": min(8, max(3, budget // 3)),
         "result_sentences": min(8, max(3, budget // 3)),
         "claim_sentences": min(8, max(3, budget // 3)),
+        "numeric_result_snippets": min(8, max(4, budget // 3)),
+        "numeric_result_blocks": min(6, max(3, budget // 4)),
     }
     for key, limit in allocations.items():
         rows = bundle.get(key, [])
@@ -1343,6 +1549,388 @@ def _prompt_for_bundle(bundle: dict[str, Any]) -> str:
         + _ONE_CALL_SCHEMA_HINT
         + "\n\nEvidence bundle:\n"
         + json.dumps(bundle, ensure_ascii=False)
+    )
+
+
+def _parameter_context_text(parameter: EvidenceParameter) -> str:
+    return " | ".join(
+        part
+        for part in (
+            str(parameter.name or ""),
+            str(parameter.display_name or ""),
+            str(parameter.heterogeneity_note or ""),
+        )
+        if part
+    ).strip()
+
+
+def _parameter_is_non_effect_metric(parameter: EvidenceParameter) -> bool:
+    if parameter.parameter_type != ParameterType.QUANTITATIVE:
+        return False
+    return bool(_NON_EFFECT_PARAMETER_RE.search(_parameter_context_text(parameter)))
+
+
+def _parameter_quality_score(parameter: EvidenceParameter) -> float:
+    score = 0.0
+    if parameter.parameter_type == ParameterType.QUANTITATIVE:
+        score += 1.0
+    if parameter.value is not None:
+        score += 2.0
+    if parameter.value_range is not None:
+        score += 1.5
+    if str(parameter.unit or "").strip():
+        score += 1.5
+    if parameter.confidence_interval is not None:
+        score += 1.0
+    if parameter.std_error is not None:
+        score += 0.5
+    if parameter.evidence_strength.value not in {EvidenceStrength.UNKNOWN.value, EvidenceStrength.THEORETICAL.value}:
+        score += 1.5
+    if _NUMERIC_UNITFUL_HINT_RE.search(_parameter_context_text(parameter)):
+        score += 0.5
+    if _parameter_is_non_effect_metric(parameter):
+        score -= 4.0
+    return score
+
+
+def _parameter_merge_key(parameter: EvidenceParameter) -> tuple[Any, ...]:
+    return (
+        parameter.name,
+        parameter.parameter_type.value,
+        parameter.value,
+        parameter.value_range,
+    )
+
+
+def _parameter_numeric_value(parameter: EvidenceParameter) -> float | None:
+    if parameter.value is not None:
+        return float(parameter.value)
+    if parameter.value_range is not None:
+        lo, hi = parameter.value_range
+        return (float(lo) + float(hi)) / 2.0
+    return None
+
+
+def _values_close(left: float | None, right: float | None) -> bool:
+    if left is None or right is None:
+        return False
+    tolerance = max(0.01, max(abs(float(left)), abs(float(right))) * 0.1)
+    return abs(float(left) - float(right)) <= tolerance
+
+
+def _surface_text(value: str) -> str:
+    return " ".join(token for token in _VAR_SPLIT_RE.split(str(value or "").lower()) if token)
+
+
+def _text_mentions_variable(text: str, variable: str) -> bool:
+    haystack = _surface_text(text)
+    needle = _surface_text(variable)
+    if not haystack or not needle:
+        return False
+    if needle in haystack:
+        return True
+    tokens = [token for token in needle.split() if len(token) >= 3]
+    if len(tokens) < 2:
+        return False
+    matched = sum(1 for token in tokens if token in haystack)
+    return matched >= max(2, len(tokens) - 1)
+
+
+def _best_claim_for_sentence(sentence: str, claims: list[CausalClaim]) -> CausalClaim | None:
+    best_claim: CausalClaim | None = None
+    best_score = 0
+    for claim in claims:
+        score = 0
+        if _text_mentions_variable(sentence, claim.effect_variable):
+            score += 2
+        if _text_mentions_variable(sentence, claim.cause_variable):
+            score += 1
+        if score > best_score:
+            best_claim = claim
+            best_score = score
+    if best_claim is not None:
+        return best_claim
+    if len(claims) == 1:
+        return claims[0]
+    return None
+
+
+def _best_parameter_for_estimate(
+    estimate_value: float,
+    sentence: str,
+    parameters: list[EvidenceParameter],
+) -> EvidenceParameter | None:
+    best_parameter: EvidenceParameter | None = None
+    best_score = float("-inf")
+    for parameter in parameters:
+        if parameter.parameter_type != ParameterType.QUANTITATIVE:
+            continue
+        if _parameter_is_non_effect_metric(parameter):
+            continue
+        score = 0.0
+        if _values_close(_parameter_numeric_value(parameter), estimate_value):
+            score += 3.0
+        if _text_mentions_variable(sentence, parameter.name):
+            score += 2.0
+        if _text_mentions_variable(sentence, parameter.display_name):
+            score += 1.0
+        if parameter.confidence_interval is None and parameter.std_error is None:
+            score += 0.5
+        if score > best_score:
+            best_parameter = parameter
+            best_score = score
+    if best_parameter is not None and best_score >= 2.5:
+        return best_parameter
+    value_matches = [
+        parameter
+        for parameter in parameters
+        if parameter.parameter_type == ParameterType.QUANTITATIVE
+        and not _parameter_is_non_effect_metric(parameter)
+        and _values_close(_parameter_numeric_value(parameter), estimate_value)
+    ]
+    if len(value_matches) == 1:
+        return value_matches[0]
+    quantitative_parameters = [
+        parameter for parameter in parameters if parameter.parameter_type == ParameterType.QUANTITATIVE
+    ]
+    if len(quantitative_parameters) == 1:
+        return quantitative_parameters[0]
+    return None
+
+
+def _deterministic_numeric_rescue_parameters(
+    *,
+    bundle: dict[str, Any],
+    result: ArticleExtractionResult,
+) -> list[EvidenceParameter]:
+    if result.source_basis != SourceBasis.FULLTEXT:
+        return []
+    candidate_parameters = [
+        parameter for parameter in result.empirical_parameters if parameter.parameter_type == ParameterType.QUANTITATIVE
+    ]
+    rescued: list[EvidenceParameter] = []
+    seen: set[tuple[Any, ...]] = set()
+    for bucket in ("numeric_result_blocks", "numeric_result_snippets", "result_sentences", "claim_sentences", "abstract_sentences"):
+        for item in bundle.get(bucket, []):
+            if not isinstance(item, dict):
+                continue
+            sentence = _normalized_text(item.get("text"))
+            if not sentence:
+                continue
+            for estimate in extract_numerical_estimates(sentence):
+                if estimate.std_error is None and (estimate.ci_low is None or estimate.ci_high is None):
+                    continue
+                target_parameter = _best_parameter_for_estimate(
+                    estimate.value,
+                    sentence,
+                    candidate_parameters,
+                )
+                target_claim = _best_claim_for_sentence(sentence, result.causal_claims)
+                target_name = (
+                    target_parameter.name
+                    if target_parameter is not None
+                    else str(estimate.variable_hint or "").strip()
+                    if str(estimate.variable_hint or "").strip()
+                    else target_claim.effect_variable
+                    if target_claim is not None
+                    else ""
+                )
+                if not target_name:
+                    continue
+                normalized = _normalize_empirical_parameter(
+                    {
+                        "name": target_name,
+                        "display_name": (
+                            target_parameter.display_name
+                            if target_parameter is not None and str(target_parameter.display_name or "").strip()
+                            else target_name
+                        ),
+                        "parameter_type": "quantitative",
+                        "value": estimate.value,
+                        "confidence_interval": (
+                            [estimate.ci_low, estimate.ci_high]
+                            if estimate.ci_low is not None and estimate.ci_high is not None
+                            else None
+                        ),
+                        "std_error": estimate.std_error,
+                        "unit": estimate.unit or (target_parameter.unit if target_parameter is not None else None),
+                        "evidence_strength": (
+                            target_parameter.evidence_strength.value
+                            if target_parameter is not None
+                            and target_parameter.evidence_strength.value != EvidenceStrength.UNKNOWN.value
+                            else target_claim.evidence_strength.value
+                            if target_claim is not None
+                            and target_claim.evidence_strength.value != EvidenceStrength.UNKNOWN.value
+                            else result.methodology_enum.value
+                        ),
+                        "heterogeneity_note": sentence,
+                        "geographic_scope": target_parameter.geographic_scope if target_parameter is not None else "",
+                        "time_period": target_parameter.time_period if target_parameter is not None else "",
+                    }
+                )
+                if normalized is None or _parameter_is_non_effect_metric(normalized):
+                    continue
+                key = _parameter_merge_key(normalized)
+                if key in seen:
+                    continue
+                seen.add(key)
+                rescued.append(normalized)
+    return rescued
+
+
+def _merge_numeric_parameter_lists(
+    primary: list[EvidenceParameter],
+    rescue: list[EvidenceParameter],
+) -> list[EvidenceParameter]:
+    merged: dict[tuple[Any, ...], EvidenceParameter] = {}
+    for parameter in [*primary, *rescue]:
+        key = _parameter_merge_key(parameter)
+        existing = merged.get(key)
+        if existing is None:
+            merged[key] = parameter
+            continue
+        keep, enrich = (
+            (parameter, existing)
+            if _parameter_quality_score(parameter) > _parameter_quality_score(existing)
+            else (existing, parameter)
+        )
+        merged[key] = keep.model_copy(
+            update={
+                "display_name": keep.display_name or enrich.display_name,
+                "unit": keep.unit or enrich.unit,
+                "confidence_interval": keep.confidence_interval or enrich.confidence_interval,
+                "std_error": keep.std_error if keep.std_error is not None else enrich.std_error,
+                "evidence_strength": (
+                    keep.evidence_strength
+                    if keep.evidence_strength.value != EvidenceStrength.UNKNOWN.value
+                    else enrich.evidence_strength
+                ),
+                "geographic_scope": keep.geographic_scope or enrich.geographic_scope,
+                "time_period": keep.time_period or enrich.time_period,
+                "aggregation_level": keep.aggregation_level or enrich.aggregation_level,
+                "heterogeneity_note": keep.heterogeneity_note or enrich.heterogeneity_note,
+                "transferability": (
+                    keep.transferability
+                    if keep.transferability != "unknown"
+                    else enrich.transferability
+                ),
+                "transfer_conditions": sorted({*keep.transfer_conditions, *enrich.transfer_conditions}),
+                "subgroup_estimates": {**enrich.subgroup_estimates, **keep.subgroup_estimates},
+            }
+        )
+    return list(merged.values())
+
+
+def _has_high_precision_numeric_parameter(result: ArticleExtractionResult) -> bool:
+    for parameter in result.empirical_parameters:
+        if parameter.parameter_type != ParameterType.QUANTITATIVE:
+            continue
+        if _parameter_is_non_effect_metric(parameter):
+            continue
+        if parameter.value is None and parameter.value_range is None:
+            continue
+        if not str(parameter.unit or "").strip():
+            continue
+        if parameter.confidence_interval is None and parameter.std_error is None:
+            continue
+        if parameter.evidence_strength.value in {EvidenceStrength.UNKNOWN.value, EvidenceStrength.THEORETICAL.value}:
+            continue
+        return True
+    return False
+
+
+def _claim_supports_numeric_rescue(claim: CausalClaim) -> bool:
+    if claim.claim_type in {
+        ClaimType.CAUSAL_CLAIM,
+        ClaimType.CAUSAL_ASSERTION,
+        ClaimType.ASSOCIATIVE,
+        ClaimType.ASSOCIATION,
+    }:
+        return True
+    return False
+
+
+def _has_precision_numeric_signal(result: ArticleExtractionResult) -> bool:
+    parts: list[str] = [result.title, result.citation_summary, result.methodology]
+    for claim in result.causal_claims[:8]:
+        parts.append(claim.claim_text)
+        parts.extend(span.text for span in claim.supporting_spans[:4])
+        parts.extend(span.text for span in claim.method_spans[:3])
+    for parameter in result.empirical_parameters[:6]:
+        parts.extend(
+            [
+                str(parameter.name or ""),
+                str(parameter.display_name or ""),
+                str(parameter.heterogeneity_note or ""),
+            ]
+        )
+        if parameter.confidence_interval is not None or parameter.std_error is not None:
+            return True
+    return _precision_result_signal_score("\n".join(part for part in parts if part)) > 0
+
+
+def _needs_numeric_rescue(result: ArticleExtractionResult) -> bool:
+    if result.source_basis != SourceBasis.FULLTEXT:
+        return False
+    if _has_high_precision_numeric_parameter(result):
+        return False
+    if _is_review_like(result.title, result.citation_summary, result.methodology):
+        return False
+    if _is_theory_like(result.title, result.citation_summary, result.methodology):
+        return False
+    if not any(_claim_supports_numeric_rescue(claim) for claim in result.causal_claims):
+        return False
+    if not result.methodology and not any(claim.method_spans for claim in result.causal_claims):
+        return False
+    if not _has_precision_numeric_signal(result):
+        return False
+    return True
+
+
+def _build_numeric_rescue_prompt(
+    bundle: dict[str, Any],
+    *,
+    claim_inventory: list[dict[str, str]],
+    result: ArticleExtractionResult,
+) -> str:
+    focused_bundle = {
+        "metadata_summary": bundle.get("metadata_summary", {}),
+        "abstract_sentences": bundle.get("abstract_sentences", [])[:4],
+        "method_sentences": bundle.get("method_sentences", [])[:8],
+        "result_sentences": bundle.get("result_sentences", [])[:10],
+        "claim_sentences": bundle.get("claim_sentences", [])[:8],
+        "numeric_result_snippets": bundle.get("numeric_result_snippets", [])[:10],
+        "numeric_result_blocks": bundle.get("numeric_result_blocks", [])[:6],
+    }
+    existing_candidates = [
+        {
+            "name": parameter.name,
+            "display_name": parameter.display_name,
+            "value": parameter.value,
+            "value_range": list(parameter.value_range) if parameter.value_range else None,
+            "unit": parameter.unit,
+            "evidence_strength": parameter.evidence_strength.value,
+            "heterogeneity_note": parameter.heterogeneity_note,
+        }
+        for parameter in result.empirical_parameters[:8]
+    ]
+    return (
+        "Extract quantitative effect estimates for simulation-ready policy analysis.\n"
+        + _NUMERIC_RESCUE_SCHEMA_HINT
+        + "\n\nMethodology summary:\n"
+        + json.dumps(
+            {
+                "methodology": result.methodology,
+                "methodology_enum": result.methodology_enum.value,
+            },
+            ensure_ascii=False,
+        )
+        + "\n\nCausal claim inventory (use exact variable names when an estimate maps to one of these claims):\n"
+        + json.dumps(claim_inventory[:6], ensure_ascii=False)
+        + "\n\nExisting low-confidence numeric candidates (correct them only if the evidence bundle supports a real effect estimate):\n"
+        + json.dumps(existing_candidates, ensure_ascii=False)
+        + "\n\nEvidence bundle:\n"
+        + json.dumps(focused_bundle, ensure_ascii=False)
     )
 
 
@@ -1487,7 +2075,7 @@ def _reset_output_paths(config: AcademicBatchConfig) -> None:
             path.unlink()
 
 
-async def run_resolve_extract(config: AcademicBatchConfig) -> dict[str, float | int]:
+async def _run_resolve_extract_pass(config: AcademicBatchConfig) -> dict[str, float | int]:
     started_at = datetime.now(UTC).isoformat()
     selected_rows_path = config.selected_global_works_path
     if not selected_rows_path.exists():
@@ -1530,7 +2118,7 @@ async def run_resolve_extract(config: AcademicBatchConfig) -> dict[str, float | 
     with open(selected_rows_path, "r", encoding="utf-8") as fh:
         selected_rows = [json.loads(line) for line in fh if line.strip()]
 
-    work_items: list[WorkItem] = []
+    merged_rows: dict[str, dict[str, Any]] = {}
     for index, row in enumerate(selected_rows, start=1):
         if not isinstance(row, dict):
             continue
@@ -1540,20 +2128,46 @@ async def run_resolve_extract(config: AcademicBatchConfig) -> dict[str, float | 
         work_id = str(row.get("work_id") or work.get("id") or "").strip()
         if not work_id:
             continue
+        merged = merged_rows.get(work_id)
+        if merged is None:
+            merged_rows[work_id] = {
+                "work": work,
+                "topic_id": _topic_id_for_row(row),
+                "topic_ids": _topic_ids_for_row(row),
+                "topic_display_names": _topic_names_for_row(row),
+                "selected_rank": index,
+            }
+        else:
+            if bool(work.get("has_fulltext")) and not bool(merged["work"].get("has_fulltext")):
+                merged["work"] = work
+            merged["selected_rank"] = min(int(merged["selected_rank"]), index)
+            for topic_id in _topic_ids_for_row(row):
+                if topic_id not in merged["topic_ids"]:
+                    merged["topic_ids"].append(topic_id)
+            for topic_name in _topic_names_for_row(row):
+                if topic_name not in merged["topic_display_names"]:
+                    merged["topic_display_names"].append(topic_name)
+            if _topic_id_for_row(row) and _topic_id_for_row(row) not in merged["topic_ids"]:
+                merged["topic_ids"].append(_topic_id_for_row(row))
+        topic_seen.add(_topic_id_for_row(row))
+
+    work_items: list[WorkItem] = []
+    for work_id, merged in merged_rows.items():
+        work = merged["work"]
         work_items.append(
             WorkItem(
                 work=work,
                 work_id=work_id,
-                topic_id=_topic_id_for_row(row),
-                topic_ids=_topic_ids_for_row(row),
-                topic_display_names=_topic_names_for_row(row),
+                topic_id=str(merged["topic_id"] or "topic_unknown"),
+                topic_ids=list(merged["topic_ids"]),
+                topic_display_names=list(merged["topic_display_names"]),
                 prefetch_priority=_prefetch_priority(work),
-                selected_rank=index,
+                selected_rank=int(merged["selected_rank"]),
             )
         )
-        topic_seen.add(_topic_id_for_row(row))
 
     del selected_rows
+    del merged_rows
     gc.collect()
     work_items.sort(key=lambda item: (-item.prefetch_priority, item.selected_rank, item.work_id))
     if config.article_prefetch_candidates_per_topic > 0:
@@ -1584,7 +2198,14 @@ async def run_resolve_extract(config: AcademicBatchConfig) -> dict[str, float | 
         async with progress_lock:
             _mark_progress(work_id, state, **extra)
             _progress_dirty += 1
-            if _progress_dirty >= _PROGRESS_FLUSH_INTERVAL or state in ("published", "failed"):
+            if _progress_dirty >= _PROGRESS_FLUSH_INTERVAL or state in (
+                "published",
+                "raw_only",
+                "succeeded_nonempty",
+                "succeeded_empty",
+                "retryable_failed",
+                "permanent_failed",
+            ):
                 _write_progress(config.resolve_extract_progress_path, progress)
                 _progress_dirty = 0
 
@@ -1610,7 +2231,7 @@ async def run_resolve_extract(config: AcademicBatchConfig) -> dict[str, float | 
             continue
         await fetch_queue.put(item)
         _enqueue_count += 1
-    logger.info("Enqueue complete: %d items queued, %d skipped (already done)", _enqueue_count, _skip_count)
+    logger.info("Enqueue complete: {} items queued, {} skipped (already done)", _enqueue_count, _skip_count)
 
     fetch_workers_count = max(1, int(config.fulltext_max_concurrent_fetches))
     llm_workers_count = max(1, int(config.article_max_concurrent_llm))
@@ -1839,7 +2460,7 @@ async def run_resolve_extract(config: AcademicBatchConfig) -> dict[str, float | 
                 fetch_queue.task_done()
 
     async def llm_dispatcher() -> None:
-        logger.info("LLM dispatcher started, llm_workers=%d", llm_workers_count)
+        logger.info("LLM dispatcher started, llm_workers={}", llm_workers_count)
         _dispatched = 0
         while True:
             if fetch_done.is_set() and eligible_queue.empty() and all(v == 0 for v in topic_inflight.values()):
@@ -1877,11 +2498,12 @@ async def run_resolve_extract(config: AcademicBatchConfig) -> dict[str, float | 
             await llm_queue.put(eligible_item)
             _dispatched += 1
             if _dispatched % 200 == 1:
-                logger.info("LLM dispatcher: %d items dispatched to llm_queue", _dispatched)
+                logger.info("LLM dispatcher: {} items dispatched to llm_queue", _dispatched)
             eligible_queue.task_done()
 
     async def llm_worker(pool: GonkaMultiKeyPool) -> None:
         _worker_count = 0
+        provider_watchdog_seconds = _resolve_provider_watchdog_seconds(config)
         while True:
             entry = await llm_queue.get()
             if entry is None:
@@ -1891,7 +2513,7 @@ async def run_resolve_extract(config: AcademicBatchConfig) -> dict[str, float | 
             work_item = eligible_item.work_item
             _worker_count += 1
             if _worker_count == 1:
-                logger.info("LLM worker got first item: %s", work_item.work_id)
+                logger.info("LLM worker got first item: {}", work_item.work_id)
             await _persist_progress(work_item.work_id, "llm_inflight", topic_id=work_item.topic_id)
             stats.llm_requests += 1
             bundle = _build_streaming_evidence_bundle(
@@ -1901,11 +2523,77 @@ async def run_resolve_extract(config: AcademicBatchConfig) -> dict[str, float | 
                 sentence_budget=config.article_evidence_bundle_sentence_budget,
             )
             prompt = _prompt_for_bundle(bundle)
-            response = await pool.chat_json(
-                model=config.article_extraction_model,
-                prompt=prompt,
-                temperature=0.0,
-            )
+            response = _empty_provider_response(error_class="provider_client_exception")
+            request_failure_exc: Exception | None = None
+            try:
+                response = await _await_provider_json(
+                    pool,
+                    model=config.article_extraction_model,
+                    prompt=prompt,
+                    temperature=0.0,
+                    watchdog_seconds=provider_watchdog_seconds,
+                )
+            except asyncio.TimeoutError as exc:
+                response = _empty_provider_response(
+                    error_class="timeout",
+                    raw_content=f"worker_watchdog_timeout:{provider_watchdog_seconds}",
+                )
+                request_failure_exc = RuntimeError(f"worker_watchdog_timeout:{provider_watchdog_seconds}")
+            except Exception as exc:
+                response = _empty_provider_response(
+                    error_class="provider_client_exception",
+                    raw_content=str(exc),
+                )
+                request_failure_exc = exc
+            if request_failure_exc is not None:
+                if response.error_class == "timeout":
+                    stats.timeouts += 1
+                async with file_lock:
+                    _jsonl_append(
+                        config.llm_request_log_path,
+                        {
+                            "request_kind": "main_extract",
+                            "work_id": work_item.work_id,
+                            "topic_id": work_item.topic_id,
+                            "http_status": response.http_status,
+                            "finish_reason": response.finish_reason,
+                            "retry_count": response.retry_count,
+                            "limiter_wait_ms": round(response.limiter_wait_ms, 3),
+                            "backoff_sleep_ms": round(response.backoff_sleep_ms, 3),
+                            "total_latency_ms": round(response.latency_ms, 3),
+                            "prompt_tokens": 0,
+                            "completion_tokens": 0,
+                            "parse_status": response.parse_status,
+                            "error_class": response.error_class,
+                            "truncated_output": response.truncated_output,
+                        },
+                    )
+                    _jsonl_append(
+                        config.resolve_extract_errors_path,
+                        {
+                            "work_id": work_item.work_id,
+                            "topic_id": work_item.topic_id,
+                            "error_class": response.error_class or "provider_client_exception",
+                            "error_message": str(request_failure_exc),
+                            "finish_reason": response.finish_reason,
+                            "http_status": response.http_status,
+                        },
+                    )
+                stats.extraction_errors += 1
+                await _persist_progress(
+                    work_item.work_id,
+                    (
+                        "retryable_failed"
+                        if str(response.error_class or "") in {"provider_http_429", "provider_http_5xx", "timeout"}
+                        else "permanent_failed"
+                    ),
+                    topic_id=work_item.topic_id,
+                    error_class=response.error_class or "provider_client_exception",
+                    error_message=str(request_failure_exc),
+                )
+                topic_inflight[work_item.topic_id] = max(0, topic_inflight[work_item.topic_id] - 1)
+                llm_queue.task_done()
+                continue
             stats.llm_latency_ms.append(response.latency_ms)
             stats.limiter_wait_ms.append(response.limiter_wait_ms)
             stats.total_tokens_prompt += int(response.usage.get("prompt_tokens") or 0)
@@ -1927,6 +2615,7 @@ async def run_resolve_extract(config: AcademicBatchConfig) -> dict[str, float | 
                 _jsonl_append(
                     config.llm_request_log_path,
                     {
+                        "request_kind": "main_extract",
                         "work_id": work_item.work_id,
                         "topic_id": work_item.topic_id,
                         "http_status": response.http_status,
@@ -1965,6 +2654,88 @@ async def run_resolve_extract(config: AcademicBatchConfig) -> dict[str, float | 
                 result = ArticleExtractionResult.model_validate(payload)
                 result = result.model_copy(update={"source_context": infer_context_from_article(work_item.work, result)})
                 claim_inventory = _build_claim_inventory(result, canonizer)
+
+                if config.numeric_precision_mode != "off" and _needs_numeric_rescue(result):
+                    try:
+                        stats.numeric_rescue_requests += 1
+                        stats.llm_requests += 1
+                        rescue_prompt = _build_numeric_rescue_prompt(
+                            bundle,
+                            claim_inventory=claim_inventory,
+                            result=result,
+                        )
+                        rescue_response = await pool.chat_json(
+                            model=config.article_extraction_model,
+                            prompt=rescue_prompt,
+                            temperature=0.0,
+                        )
+                        stats.llm_latency_ms.append(rescue_response.latency_ms)
+                        stats.limiter_wait_ms.append(rescue_response.limiter_wait_ms)
+                        stats.total_tokens_prompt += int(rescue_response.usage.get("prompt_tokens") or 0)
+                        stats.total_tokens_completion += int(rescue_response.usage.get("completion_tokens") or 0)
+                        stats.total_extraction_cost_usd += float(rescue_response.usage.get("total_cost_usd") or 0.0)
+                        async with file_lock:
+                            _jsonl_append(
+                                config.llm_request_log_path,
+                                {
+                                    "request_kind": "numeric_rescue",
+                                    "work_id": work_item.work_id,
+                                    "topic_id": work_item.topic_id,
+                                    "http_status": rescue_response.http_status,
+                                    "finish_reason": rescue_response.finish_reason,
+                                    "retry_count": rescue_response.retry_count,
+                                    "limiter_wait_ms": round(rescue_response.limiter_wait_ms, 3),
+                                    "backoff_sleep_ms": round(rescue_response.backoff_sleep_ms, 3),
+                                    "total_latency_ms": round(rescue_response.latency_ms, 3),
+                                    "prompt_tokens": int(rescue_response.usage.get("prompt_tokens") or 0),
+                                    "completion_tokens": int(rescue_response.usage.get("completion_tokens") or 0),
+                                    "parse_status": rescue_response.parse_status,
+                                    "error_class": rescue_response.error_class,
+                                    "truncated_output": rescue_response.truncated_output,
+                                },
+                            )
+                        rescue_parsed = dict(rescue_response.parsed or {})
+                        rescue_parameters = [
+                            item
+                            for item in (
+                                _normalize_empirical_parameter(raw)
+                                for raw in _as_list(rescue_parsed.get("empirical_parameters"))
+                            )
+                            if item is not None
+                        ]
+                        if rescue_parameters:
+                            merged_parameters = _merge_numeric_parameter_lists(
+                                result.empirical_parameters,
+                                rescue_parameters,
+                            )
+                            if merged_parameters != result.empirical_parameters:
+                                stats.numeric_rescue_successes += 1
+                                stats.numeric_rescue_parameters_added += max(
+                                    0,
+                                    len(merged_parameters) - len(result.empirical_parameters),
+                                )
+                                result = result.model_copy(update={"empirical_parameters": merged_parameters})
+                    except Exception:
+                        stats.numeric_rescue_failures += 1
+                        logger.debug("Numeric rescue failed for {}", work_item.work_id, exc_info=True)
+
+                if config.numeric_precision_mode != "off" and not _has_high_precision_numeric_parameter(result):
+                    deterministic_rescue_parameters = _deterministic_numeric_rescue_parameters(
+                        bundle=bundle,
+                        result=result,
+                    )
+                    if deterministic_rescue_parameters:
+                        merged_parameters = _merge_numeric_parameter_lists(
+                            result.empirical_parameters,
+                            deterministic_rescue_parameters,
+                        )
+                        if merged_parameters != result.empirical_parameters:
+                            stats.deterministic_numeric_rescue_successes += 1
+                            stats.deterministic_numeric_rescue_parameters_added += max(
+                                0,
+                                len(merged_parameters) - len(result.empirical_parameters),
+                            )
+                            result = result.model_copy(update={"empirical_parameters": merged_parameters})
 
                 # --- Track B/C routing (opt-in) ---
                 if config.track_b_enabled or config.track_c_enabled:
@@ -2082,22 +2853,49 @@ async def run_resolve_extract(config: AcademicBatchConfig) -> dict[str, float | 
                                 **me.model_dump(mode="json"),
                             })
                 published_count = sum(1 for claim in result.causal_claims if claim.publish_to_graph)
+                nonempty_result = bool(
+                    result.causal_claims
+                    or result.empirical_parameters
+                    or result.context_attributes
+                    or result.moderation_edges
+                    or result.boundary_conditions
+                )
                 stats.raw_claims += len(result.causal_claims)
                 stats.published_claims += published_count
                 stats.extracted += 1
                 topic_success[work_item.topic_id] += 1
-                final_state = "published" if published_count > 0 else "raw_only"
+                final_state = "succeeded_nonempty" if nonempty_result else "succeeded_empty"
                 await _persist_progress(
                     work_item.work_id,
                     final_state,
                     topic_id=work_item.topic_id,
                     published_claims=published_count,
                     raw_claims=len(result.causal_claims),
+                    publish_state=("published" if published_count > 0 else "raw_only"),
                     source_basis=result.source_basis.value,
                 )
             except Exception as exc:
                 stats.extraction_errors += 1
                 async with file_lock:
+                    _jsonl_append(
+                        config.llm_request_log_path,
+                        {
+                            "request_kind": "main_extract",
+                            "work_id": work_item.work_id,
+                            "topic_id": work_item.topic_id,
+                            "http_status": response.http_status,
+                            "finish_reason": response.finish_reason,
+                            "retry_count": response.retry_count,
+                            "limiter_wait_ms": round(response.limiter_wait_ms, 3),
+                            "backoff_sleep_ms": round(response.backoff_sleep_ms, 3),
+                            "total_latency_ms": round(response.latency_ms, 3),
+                            "prompt_tokens": int(response.usage.get("prompt_tokens") or 0),
+                            "completion_tokens": int(response.usage.get("completion_tokens") or 0),
+                            "parse_status": response.parse_status,
+                            "error_class": response.error_class or "normalization_error",
+                            "truncated_output": response.truncated_output,
+                        },
+                    )
                     _jsonl_append(
                         config.resolve_extract_errors_path,
                         {
@@ -2111,7 +2909,11 @@ async def run_resolve_extract(config: AcademicBatchConfig) -> dict[str, float | 
                     )
                 await _persist_progress(
                     work_item.work_id,
-                    "failed",
+                    (
+                        "retryable_failed"
+                        if str(response.error_class or "") in {"provider_http_429", "provider_http_5xx", "timeout"}
+                        else "permanent_failed"
+                    ),
                     topic_id=work_item.topic_id,
                     error_class=response.error_class or "normalization_error",
                     error_message=str(exc),
@@ -2167,6 +2969,12 @@ async def run_resolve_extract(config: AcademicBatchConfig) -> dict[str, float | 
         "track_b_rejected_hard": stats.track_b_rejected_hard,
         "context_attributes_extracted": stats.context_attributes_extracted,
         "moderation_edges_extracted": stats.moderation_edges_extracted,
+        "numeric_rescue_requests": stats.numeric_rescue_requests,
+        "numeric_rescue_successes": stats.numeric_rescue_successes,
+        "numeric_rescue_failures": stats.numeric_rescue_failures,
+        "numeric_rescue_parameters_added": stats.numeric_rescue_parameters_added,
+        "deterministic_numeric_rescue_successes": stats.deterministic_numeric_rescue_successes,
+        "deterministic_numeric_rescue_parameters_added": stats.deterministic_numeric_rescue_parameters_added,
     }
 
     write_stage_manifest(
@@ -2174,23 +2982,104 @@ async def run_resolve_extract(config: AcademicBatchConfig) -> dict[str, float | 
         stage="resolve_extract",
         status="ok",
         metrics=metrics,
-        artifacts=[
-            config.resolve_extract_progress_path,
-            config.resolve_extract_results_path,
-            config.resolve_extract_errors_path,
-            config.fulltext_fetch_log_path,
-            config.fulltext_metadata_cache_path,
-            config.llm_request_log_path,
-            config.raw_claim_candidates_path,
-            config.published_claims_path,
-            config.context_attributes_path,
-            config.moderation_edges_path,
-            config.article_extraction_results_path,
-            config.extracted_dir / "resolve_extract.jsonl",
-        ],
+        artifacts=_resolve_extract_artifacts(config),
         started_at=started_at,
     )
     return metrics
+
+
+def _merge_resolve_extract_metrics(
+    cumulative: dict[str, float | int],
+    metrics: dict[str, float | int],
+    *,
+    first_pass: bool,
+) -> dict[str, float | int]:
+    additive_keys = {
+        "fulltext_resolved",
+        "abstract_only",
+        "eligible_fulltext_per_topic",
+        "context_eligible",
+        "rejected",
+        "successful_llm_extractions_per_topic",
+        "raw_claims_per_topic",
+        "published_claims_per_topic",
+        "extraction_errors",
+        "total_tokens_prompt",
+        "total_tokens_completion",
+        "total_extraction_cost_usd",
+        "low_fulltext_coverage_topics",
+        "papers_classified",
+        "track_b_routed",
+        "track_b_only_routed",
+        "track_b_rejected_hard",
+        "context_attributes_extracted",
+        "moderation_edges_extracted",
+        "numeric_rescue_requests",
+        "numeric_rescue_successes",
+        "numeric_rescue_failures",
+        "numeric_rescue_parameters_added",
+        "deterministic_numeric_rescue_successes",
+        "deterministic_numeric_rescue_parameters_added",
+    }
+    merged = dict(cumulative)
+    if first_pass:
+        for key, value in metrics.items():
+            merged[key] = value
+        return merged
+    for key, value in metrics.items():
+        if key == "records":
+            continue
+        if key in additive_keys:
+            previous = merged.get(key, 0)
+            if isinstance(previous, (int, float)) and isinstance(value, (int, float)):
+                merged[key] = previous + value
+            else:
+                merged[key] = value
+            continue
+        merged[key] = value
+    return merged
+
+
+async def run_resolve_extract(config: AcademicBatchConfig) -> dict[str, float | int]:
+    started_at = datetime.now(UTC).isoformat()
+    max_followup_passes = max(0, int(config.article_retryable_followup_passes))
+    followup_delay_seconds = max(0.0, float(config.article_retryable_followup_delay_seconds))
+
+    cumulative_metrics: dict[str, float | int] = {}
+    current_config = config
+    passes_run = 0
+    for pass_index in range(max_followup_passes + 1):
+        pass_metrics = await _run_resolve_extract_pass(current_config)
+        cumulative_metrics = _merge_resolve_extract_metrics(
+            cumulative_metrics,
+            pass_metrics,
+            first_pass=(pass_index == 0),
+        )
+        passes_run += 1
+        progress = _load_progress(config.resolve_extract_progress_path)
+        retryable_remaining = _count_progress_state(progress, "retryable_failed")
+        if retryable_remaining == 0 or pass_index >= max_followup_passes:
+            cumulative_metrics["retry_followup_passes_run"] = max(0, passes_run - 1)
+            cumulative_metrics["retryable_failures_remaining"] = retryable_remaining
+            cumulative_metrics["final_succeeded_nonempty"] = _count_progress_state(progress, "succeeded_nonempty")
+            cumulative_metrics["final_succeeded_empty"] = _count_progress_state(progress, "succeeded_empty")
+            cumulative_metrics["final_permanent_failed"] = _count_progress_state(progress, "permanent_failed")
+            cumulative_metrics["final_retryable_failed"] = retryable_remaining
+            cumulative_metrics["final_rejected"] = _count_progress_state(progress, "rejected")
+            write_stage_manifest(
+                manifest_path=config.manifests_dir / "resolve_extract.json",
+                stage="resolve_extract",
+                status="ok",
+                metrics=cumulative_metrics,
+                artifacts=_resolve_extract_artifacts(config),
+                started_at=started_at,
+            )
+            return cumulative_metrics
+        if followup_delay_seconds > 0:
+            await asyncio.sleep(followup_delay_seconds)
+        current_config = replace(current_config, resume=True)
+
+    return cumulative_metrics
 
 
 __all__ = ["run_resolve_extract"]

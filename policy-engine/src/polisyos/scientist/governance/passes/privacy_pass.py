@@ -2,9 +2,13 @@ from __future__ import annotations
 
 from typing import List
 
+from polisyos.core.governance.passes.base import (
+    ComplianceIssue,
+    IssueSeverity,
+    PassContext,
+    ValidatorPass,
+)
 from polisyos.ir.analytics.data_views import AccessTier
-
-from polisyos.core.governance.passes.base import ValidatorPass, PassContext, ComplianceIssue, IssueSeverity
 
 
 def _access_tier_from_request(request: object) -> str | None:

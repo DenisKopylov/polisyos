@@ -9,12 +9,12 @@ from typing import Any
 import numpy as np
 from pydantic import BaseModel
 
+from polisyos.core.artifacts.environment import EnvironmentManifestRef
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.contracts.foundry import ConstraintReportRef
-from polisyos.core.artifacts.environment import EnvironmentManifestRef
 
 __all__ = [
     "ExecuteArtifacts",
@@ -34,6 +34,7 @@ class ExecuteArtifacts:
     state_delta_ref: ArtifactRef
     metrics_ref: ArtifactRef
     constraint_report_ref: ConstraintReportRef | None = None
+    constraint_hard_fail: bool = False
     environment_ref: EnvironmentManifestRef | None = None
     environment_fingerprint: str | None = None
 

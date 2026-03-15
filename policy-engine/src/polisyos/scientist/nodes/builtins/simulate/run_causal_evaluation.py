@@ -6,13 +6,15 @@ from typing import Any
 from polisyos.core.artifacts.manifest import InputRef
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
+from polisyos.foundry.methods.catalog import (
+    ensure_all_methods_registered as ensure_causal_methods_registered,
+)
 from polisyos.foundry.methods.causal import (
     GraphCausalData,
     GraphCausalDataV1,
     HTEObservationalData,
     PanelObservationalData,
     RDDObservationalData,
-    ensure_causal_methods_registered,
 )
 from polisyos.ir.analytics.causal import (
     CausalEffectReport,

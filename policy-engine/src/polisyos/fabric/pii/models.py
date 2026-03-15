@@ -90,10 +90,10 @@ def max_severity(left: PIISeverity, right: PIISeverity) -> PIISeverity:
 def severity_leq(left: str, right: str) -> bool:
     try:
         left_idx = _SEVERITY_ORDER.index(PIISeverity(left))
-    except Exception:
+    except (ValueError, KeyError):
         left_idx = 0
     try:
         right_idx = _SEVERITY_ORDER.index(PIISeverity(right))
-    except Exception:
+    except (ValueError, KeyError):
         right_idx = 0
     return left_idx <= right_idx

@@ -14,13 +14,13 @@ from polisyos.fabric.world import (
     persist_doc_fragment,
     persist_doc_meta,
     stable_world_provenance_v1,
+    validate_doc_meta_ids,
     write_world_fact_segment,
 )
 from polisyos.fabric.world.events import (
     build_deterministic_world_event,
     persist_world_event_with_facts,
 )
-from polisyos.fabric.world import validate_doc_meta_ids
 from polisyos.ir.citations import AnchorKind, FragmentLocator
 from polisyos.ir.world.doc import DocFragment
 from polisyos.ir.world.event import (

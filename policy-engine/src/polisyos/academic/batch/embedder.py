@@ -2,18 +2,18 @@
 
 from __future__ import annotations
 
-import logging
 from datetime import UTC, datetime
 from pathlib import Path
 
 import duckdb
 import numpy as np
 
+from polisyos.academic.batch.config import AcademicBatchConfig
 from polisyos.batch_common.manifest import write_stage_manifest
 from polisyos.batch_common.thermal import pause_between_batches
-from polisyos.academic.batch.config import AcademicBatchConfig
+from polisyos.common.logger import get_logger
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 def build_hnsw_index(

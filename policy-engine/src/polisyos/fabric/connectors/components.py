@@ -3,8 +3,11 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Iterable
 
+from polisyos.common.logger import get_logger
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.ir.connectors import ConnectorCapability
+
+logger = get_logger(__name__)
 
 if TYPE_CHECKING:
     from polisyos.fabric.connectors.base import SourceConnector
@@ -69,11 +72,17 @@ def _load_builtin_connectors() -> Iterable[type["SourceConnector"]]:
             SDMXSourceConnector,
             SocrataConnector,
             SPARQLConnector,
+            UNESCOUISConnector,
+            UNPDConnector,
             UKONSConnector,
-            WVSConnector,
+            WHOConnector,
             WorldBankConnector,
+            WVSConnector,
         )
     except Exception:
+        logger.debug(
+            "Failed to import builtin connector classes", exc_info=True,
+        )
         return ()
 
     return (
@@ -88,6 +97,9 @@ def _load_builtin_connectors() -> Iterable[type["SourceConnector"]]:
         OpendatasoftConnector,
         SPARQLConnector,
         RestJsonConnector,
+        WHOConnector,
+        UNPDConnector,
+        UNESCOUISConnector,
     )
 
 
@@ -101,6 +113,10 @@ def _build_builtin_components() -> list[ConnectorComponent]:
         try:
             components.append(connector_component_from_class(connector_class, tags=tags))
         except Exception:
+            logger.debug(
+                "Failed to build component from connector class %s",
+                getattr(connector_class, "__name__", connector_class), exc_info=True,
+            )
             continue
     return components
 
@@ -124,6 +140,23 @@ socrata_connector_component = _component_by_short_id(_BUILTIN_COMPONENTS, "soda"
 opendatasoft_connector_component = _component_by_short_id(_BUILTIN_COMPONENTS, "ods")
 sparql_connector_component = _component_by_short_id(_BUILTIN_COMPONENTS, "endpoint")
 rest_json_connector_component = _component_by_short_id(_BUILTIN_COMPONENTS, "json")
+who_connector_component = _component_by_short_id(_BUILTIN_COMPONENTS, "indicators")
+unpd_connector_component = next(
+    (
+        component
+        for component in _BUILTIN_COMPONENTS
+        if component.metadata.component_id.namespace == "unpd"
+    ),
+    None,
+)
+unesco_uis_connector_component = next(
+    (
+        component
+        for component in _BUILTIN_COMPONENTS
+        if component.metadata.component_id.namespace == "unesco_uis"
+    ),
+    None,
+)
 __polisyos_components__ = list(_BUILTIN_COMPONENTS)
 
 __all__ = [
@@ -141,5 +174,8 @@ __all__ = [
     "opendatasoft_connector_component",
     "sparql_connector_component",
     "rest_json_connector_component",
+    "who_connector_component",
+    "unpd_connector_component",
+    "unesco_uis_connector_component",
     "__polisyos_components__",
 ]

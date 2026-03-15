@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
+from polisyos.common.logger import get_logger
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.contracts.fabric import DataSnapshot
@@ -20,6 +21,8 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     INPUT_DATA_SNAPSHOT_REF,
     INPUT_INPUT_BINDINGS_REF,
 )
+
+logger = get_logger(__name__)
 
 _QUALITY_TIER_MAP: dict[str, QualityTier] = {
     "unverified": QualityTier.UNVERIFIED,
@@ -158,7 +161,7 @@ def _resolve_validation_profile(raw: Any) -> ValidationProfile:
     if isinstance(raw, dict):
         try:
             return ValidationProfile.from_dict(raw)
-        except Exception:
+        except (TypeError, ValueError):
             return ValidationProfile.mvp()
     if isinstance(raw, str):
         token = raw.strip().lower()
@@ -190,6 +193,11 @@ def _load_quality_report(
     try:
         payload = from_canonical_bytes(ctx.store.get_bytes(snapshot.quality_report_ref.artifact_id))
     except Exception:
+        logger.debug(
+            "Failed to load quality report from ref %s",
+            snapshot.quality_report_ref,
+            exc_info=True,
+        )
         return None
     if isinstance(payload, dict):
         return _quality_report_from_dict(payload)
@@ -227,7 +235,7 @@ def _quality_report_from_dict(payload: dict[str, Any]) -> _QualityReportProxy:
     if isinstance(tier_raw, int):
         try:
             tier = QualityTier(tier_raw)
-        except Exception:
+        except (TypeError, ValueError):
             tier = QualityTier.UNVERIFIED
     elif isinstance(tier_raw, str):
         tier = _QUALITY_TIER_MAP.get(tier_raw.strip().lower(), QualityTier.UNVERIFIED)
@@ -246,7 +254,7 @@ def _quality_report_from_dict(payload: dict[str, Any]) -> _QualityReportProxy:
     data_age_raw = freshness_raw.get("data_age_seconds")
     try:
         data_age = int(data_age_raw) if data_age_raw is not None else None
-    except Exception:
+    except (TypeError, ValueError):
         data_age = None
     message = str(freshness_raw.get("message") or "freshness status unavailable")
 
@@ -272,7 +280,7 @@ def _quality_report_from_dict(payload: dict[str, Any]) -> _QualityReportProxy:
     score_raw = payload.get("score", 0.0)
     try:
         score = float(score_raw)
-    except Exception:
+    except (TypeError, ValueError):
         score = 0.0
 
     return _QualityReportProxy(

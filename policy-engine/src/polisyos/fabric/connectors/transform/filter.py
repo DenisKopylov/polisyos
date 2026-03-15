@@ -1,6 +1,7 @@
 """Row filtering transform."""
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 from typing import Callable
 
@@ -20,6 +21,22 @@ from polisyos.fabric.connectors.transform.pipeline import (
 )
 
 __all__ = ["FilterTransform"]
+
+# Tokens that must NOT appear in a DataFrame.eval() condition string.
+# These could enable arbitrary code execution via pandas numexpr backend.
+_UNSAFE_PATTERN = re.compile(
+    r"(__import__|__class__|__subclasses__|__globals__|__builtins__"
+    r"|eval\s*\(|exec\s*\(|compile\s*\(|open\s*\(|os\.|sys\.|subprocess\.)",
+    re.IGNORECASE,
+)
+
+
+def _validate_eval_condition(condition: str) -> None:
+    """Reject filter conditions containing unsafe tokens."""
+    if _UNSAFE_PATTERN.search(condition):
+        raise TransformError(
+            f"Filter condition contains unsafe token: {condition!r}"
+        )
 
 
 @dataclass
@@ -43,6 +60,7 @@ class FilterTransform(DataTransform):
         copy_policy = resolve_copy_policy(context)
 
         if isinstance(self.condition, str):
+            _validate_eval_condition(self.condition)
             try:
                 mask = data.eval(self.condition)
             except Exception as exc:

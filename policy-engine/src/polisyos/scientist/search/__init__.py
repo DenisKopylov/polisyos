@@ -2,6 +2,11 @@
 
 from __future__ import annotations
 
+from polisyos.scientist.search.adversarial import (
+    NegatedCompositeObjective,
+    VulnerabilityFound,
+    run_stress_test,
+)
 from polisyos.scientist.search.controller import (
     BatchCandidateGenerator,
     SearchConfig,
@@ -10,25 +15,10 @@ from polisyos.scientist.search.controller import (
     SearchResult,
     SearchStatus,
 )
-from polisyos.scientist.search.adversarial import (
-    NegatedCompositeObjective,
-    VulnerabilityFound,
-    run_stress_test,
-)
-from polisyos.scientist.search.sensitivity_adapter import SensitivityAwareCandidateGenerator
 from polisyos.scientist.search.diversity import (
     DiversityTracker,
     ExclusionListBuilder,
     enrich_context_with_diversity,
-)
-from polisyos.scientist.search.portfolio import (
-    PortfolioCombination,
-    PortfolioEvaluationResult,
-    PortfolioSearchMode,
-    PortfolioSearchSpace,
-    PortfolioSweep,
-    PortfolioSweepConfig,
-    PortfolioSweepReport,
 )
 from polisyos.scientist.search.objective import (
     BaseObjective,
@@ -41,6 +31,16 @@ from polisyos.scientist.search.objective import (
     ObjectiveValue,
     OptimizationDirection,
 )
+from polisyos.scientist.search.portfolio import (
+    PortfolioCombination,
+    PortfolioEvaluationResult,
+    PortfolioSearchMode,
+    PortfolioSearchSpace,
+    PortfolioSweep,
+    PortfolioSweepConfig,
+    PortfolioSweepReport,
+)
+from polisyos.scientist.search.sensitivity_adapter import SensitivityAwareCandidateGenerator
 from polisyos.scientist.search.stages import (
     CheapStage,
     CorrelationRecord,

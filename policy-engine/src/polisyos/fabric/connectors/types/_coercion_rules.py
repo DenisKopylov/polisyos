@@ -9,7 +9,7 @@ from __future__ import annotations
 import math
 import re
 from datetime import date, datetime, time, timedelta
-from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
+from decimal import ROUND_HALF_UP, Decimal, InvalidOperation
 from typing import Any
 
 from ._coercion_policies import CoercionPolicy, CoercionResult

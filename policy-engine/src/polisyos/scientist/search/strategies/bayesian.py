@@ -7,11 +7,15 @@ import math
 from dataclasses import asdict, dataclass
 from typing import Any
 
-from loguru import logger
+from polisyos.common.logger import get_logger
 
-from polisyos.scientist.search.strategies._deps import (
+# Imported lazily through _deps to keep module importable without optional stack.
+from polisyos.scientist.search.strategies._deps import (  # noqa: E402
+    ExactMarginalLogLikelihood,
     ExpectedImprovement,
+    Normalize,
     ProbabilityOfImprovement,
+    SingleTaskGP,
     Standardize,
     UpperConfidenceBound,
     fit_gpytorch_mll,
@@ -31,12 +35,7 @@ from polisyos.scientist.search.strategies.types import (
     StrategyState,
 )
 
-# Imported lazily through _deps to keep module importable without optional stack.
-from polisyos.scientist.search.strategies._deps import (  # noqa: E402
-    ExactMarginalLogLikelihood,
-    Normalize,
-    SingleTaskGP,
-)
+logger = get_logger(__name__)
 
 
 @dataclass(slots=True)

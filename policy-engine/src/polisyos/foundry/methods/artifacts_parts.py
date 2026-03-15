@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-import logging
 from typing import TYPE_CHECKING
 
+from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import (
     ArtifactRef,
@@ -30,7 +30,7 @@ if TYPE_CHECKING:
     from polisyos.core.artifacts.store import FileSystemCAS
 
 __version__ = ARTIFACTS_VERSION
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 __all__ = [

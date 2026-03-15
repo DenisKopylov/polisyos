@@ -1,21 +1,21 @@
 from __future__ import annotations
 
+import json
+import time
 from contextlib import nullcontext
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
-import json
-import time
 from typing import Any, Callable, Dict, Mapping, Sequence
 
 import jax
-from jax.flatten_util import ravel_pytree
 import jax.numpy as jnp
 import numpy as np
 import optax
+from jax.flatten_util import ravel_pytree
 
+from polisyos.core.contracts.foundry import ExecPlan, ProgramGraph
 from polisyos.core.observability import get_metrics, get_tracer
 from polisyos.core.observability.config import is_hpc_observability_enabled
-from polisyos.core.contracts.foundry import ExecPlan, ProgramGraph
 from polisyos.foundry.calibration.bijectors import (
     from_unconstrained,
     make_bijector,
@@ -39,7 +39,11 @@ from polisyos.foundry.calibration.report import (
 )
 from polisyos.foundry.calibration.uncertainty_adapter import envelopes_from_calibration
 from polisyos.foundry.contracts.state import GlobalState
-from polisyos.ir.analytics.calibration import CalibrationConfig, CalibrationTarget, TrainableParamRef
+from polisyos.ir.analytics.calibration import (
+    CalibrationConfig,
+    CalibrationTarget,
+    TrainableParamRef,
+)
 from polisyos.ir.kernel import (
     ConstraintRegistry,
     MechanismTypeRegistry,
@@ -47,6 +51,7 @@ from polisyos.ir.kernel import (
     SelectorFieldRegistry,
     SlotRegistry,
 )
+from polisyos.scientist.autotune.calibration import apply_calibration_meta_overrides
 
 
 @dataclass
@@ -320,7 +325,7 @@ class Calibrator:
         if self.inputs.constraint_values:
             constraint_values.update(self.inputs.constraint_values)
         handles: list[ConstraintHandle] = []
-        ids = cfg.constraint_loss.constraint_ids or list(registry.constraints.keys())
+        ids = cfg.constraint_loss.constraint_ids or registry.constraints.keys()
         for constraint_id in ids:
             spec = registry.constraints.get(constraint_id)
             if spec is None or spec.slot_id is None or spec.operator is None:
@@ -428,7 +433,10 @@ class Calibrator:
         return groups, diagnostics
 
     def run(self) -> CalibrationReport:
-        cfg = self.inputs.config
+        cfg = apply_calibration_meta_overrides(
+            self.inputs.config,
+            context={"calibrator_inputs": self.inputs},
+        )
         diagnostics: list[str] = []
         bundle = self._build_bundle()
         targets, metric_paths, path_by_target = self._target_meta()

@@ -2,7 +2,12 @@ from __future__ import annotations
 
 from typing import List
 
-from polisyos.core.governance.passes.base import ComplianceIssue, IssueSeverity, PassContext, ValidatorPass
+from polisyos.core.governance.passes.base import (
+    ComplianceIssue,
+    IssueSeverity,
+    PassContext,
+    ValidatorPass,
+)
 
 _TENANT_PII_CEILINGS: dict[str, str] = {
     "shared": "low",

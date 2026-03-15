@@ -1,34 +1,68 @@
-import { screen } from "@testing-library/react";
-import { vi } from "vitest";
+import { act, fireEvent, render, screen } from "@testing-library/react";
 
-import { renderWithProviders } from "@/test/render";
+const { tMock } = vi.hoisted(() => ({
+  tMock: vi.fn((key: string) => key),
+}));
 
-import JsonPreview from "./JsonPreview";
+vi.mock("@/i18n/LocaleProvider", () => ({
+  useI18n: () => ({
+    t: tMock,
+  }),
+}));
+
+import JsonPreview from "@/shared/ui/JsonPreview";
 
 describe("JsonPreview", () => {
-  it("renders the empty label when no payload is available", () => {
-    renderWithProviders(<JsonPreview data={undefined} emptyLabel="No payload yet" />);
-
-    expect(screen.getByText("No payload yet")).toBeInTheDocument();
+  afterEach(() => {
+    vi.restoreAllMocks();
+    vi.useRealTimers();
   });
 
-  it("renders structured payloads with a copy affordance", () => {
-    renderWithProviders(
-      <JsonPreview
-        data={{
-          decision: "approve",
-          blockers: 0,
-        }}
-      />,
+  it("renders the empty label when there is no payload", () => {
+    render(<JsonPreview data={undefined} emptyLabel="Nothing to show" />);
+
+    expect(screen.getByText("Nothing to show")).toBeInTheDocument();
+  });
+
+  it("renders and copies structured payloads", async () => {
+    vi.useFakeTimers();
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    Object.defineProperty(navigator, "clipboard", {
+      configurable: true,
+      value: { writeText },
+    });
+
+    render(<JsonPreview data={{ status: "ok", count: 2 }} />);
+
+    expect(screen.getByText(/"status": "ok"/)).toBeInTheDocument();
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: "common.copy" }));
+      await Promise.resolve();
+    });
+
+    expect(writeText).toHaveBeenCalledWith(
+      JSON.stringify({ status: "ok", count: 2 }, null, 2),
     );
+    expect(screen.getByRole("button", { name: "common.copied" })).toBeInTheDocument();
 
-    expect(screen.getByText(/"decision": "approve"/)).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Copy" })).toBeInTheDocument();
+    await act(async () => {
+      vi.advanceTimersByTime(1_000);
+    });
+
+    expect(screen.getByRole("button", { name: "common.copy" })).toBeInTheDocument();
   });
 
-  it("renders plain string payloads as-is", () => {
-    renderWithProviders(<JsonPreview data="plain payload" />);
+  it("falls back to String(data) for circular values and skips copy without clipboard", async () => {
+    const circular: { self?: unknown } = {};
+    circular.self = circular;
+    Object.defineProperty(navigator, "clipboard", {
+      configurable: true,
+      value: undefined,
+    });
 
-    expect(screen.getByText("plain payload")).toBeInTheDocument();
+    render(<JsonPreview data={circular} />);
+
+    expect(screen.getByText("[object Object]")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "common.copy" }));
   });
 });

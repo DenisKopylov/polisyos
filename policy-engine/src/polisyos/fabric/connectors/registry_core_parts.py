@@ -12,8 +12,6 @@ from packaging.version import parse as parse_version
 from polisyos.common.logger import get_logger
 from polisyos.core.canon import content_hash
 from polisyos.core.registry.generic import GenericRegistry
-from polisyos.ir.connectors import ConnectorCapability, ConnectorMetadataSpec, TrustLevel
-
 from polisyos.fabric.connectors._registry_errors import (
     AmbiguousConnectorError,
     ConnectorAlreadyRegisteredError,
@@ -28,6 +26,7 @@ from polisyos.fabric.connectors._registry_models import (
     RegistryMetrics,
     RegistryStats,
 )
+from polisyos.ir.connectors import ConnectorCapability, ConnectorMetadataSpec, TrustLevel
 
 if TYPE_CHECKING:
     from polisyos.fabric.connectors.base import (
@@ -152,8 +151,8 @@ class ConnectorRegistry(RegistryLifecycleMixin):
                     loop.run_until_complete(
                         asyncio.gather(*(pool.close_all() for pool in pools_to_close))
                     )
-            except Exception:
-                pass  # Best effort cleanup
+            except Exception as exc:
+                logger.debug("Ignored exception: %s", exc)  # Best effort cleanup
 
         logger.info("ConnectorRegistry singleton reset")
 
@@ -225,6 +224,10 @@ class ConnectorRegistry(RegistryLifecycleMixin):
                         self._cache_wrappers[fqid] = cached
                 return self._apply_slo_metrics_wrapper(cached, connector_id=fqid)
             except Exception:
+                logger.debug(
+                    "Failed to create caching proxy for connector %s, using unwrapped",
+                    fqid, exc_info=True,
+                )
                 return self._apply_slo_metrics_wrapper(connector, connector_id=fqid)
 
         return self._apply_slo_metrics_wrapper(connector, connector_id=fqid)
@@ -372,6 +375,9 @@ class ConnectorRegistry(RegistryLifecycleMixin):
             try:
                 return parse_version(version)
             except Exception:
+                logger.debug(
+                    "Failed to parse version from FQID %s", fqid, exc_info=True,
+                )
                 return parse_version("0")
 
         return max(candidates, key=version_key)

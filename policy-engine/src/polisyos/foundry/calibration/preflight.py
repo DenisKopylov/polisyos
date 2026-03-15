@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from typing import Any, Dict, Mapping, Tuple
 
-import numpy as np
 import jax.numpy as jnp
+import numpy as np
 
 from polisyos.ir.analytics.calibration import CalibrationConfig, CalibrationTarget
 from polisyos.ir.analytics.data_views import DataViewRequest

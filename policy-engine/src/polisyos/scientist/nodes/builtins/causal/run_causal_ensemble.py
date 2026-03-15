@@ -11,8 +11,10 @@ from pydantic import BaseModel, ConfigDict, Field
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
+from polisyos.foundry.methods.catalog import (
+    ensure_all_methods_registered as ensure_causal_methods_registered,
+)
 from polisyos.foundry.methods.catalog.causal.protocols import SCMQueryData
-from polisyos.foundry.methods.causal import ensure_causal_methods_registered
 from polisyos.ir.analytics.causal_discovery import load_causal_discovery_report
 from polisyos.ir.analytics.causal_ensemble import (
     CausalModelEnsemble,
@@ -27,7 +29,11 @@ from polisyos.ir.analytics.causal_graph import (
     load_causal_graph_model,
     persist_causal_graph_model,
 )
-from polisyos.ir.analytics.causal_queries import CausalQuery, CausalQueryResult, load_causal_query_result
+from polisyos.ir.analytics.causal_queries import (
+    CausalQuery,
+    CausalQueryResult,
+    load_causal_query_result,
+)
 from polisyos.ir.analytics.structural_causal_model import (
     StructuralCausalModelSpec,
     load_structural_causal_model_spec,
@@ -47,9 +53,9 @@ from polisyos.scientist.engine.protocol import NodeError, NodeEvent, NodeOutcome
 from polisyos.scientist.engine.state import ExperimentState
 from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.state_keys import (
-    ARTIFACT_CAUSAL_ENVELOPE_REF,
     ARTIFACT_CAUSAL_ENSEMBLE_ENVELOPE_REF,
     ARTIFACT_CAUSAL_ENSEMBLE_REF,
+    ARTIFACT_CAUSAL_ENVELOPE_REF,
     ARTIFACT_CAUSAL_QUERY_RESULT_REF,
     ARTIFACT_STRUCTURAL_CAUSAL_MODEL_SPEC_REF,
 )

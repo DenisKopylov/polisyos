@@ -34,7 +34,10 @@ from polisyos.ir.analytics.transportability import (
     TransportabilityResult,
     TransportabilityStatus,
     TransportFormula,
+    TransportMode,
 )
+
+from .transport_engine import solve_transportability
 
 
 class EliminationResult(BaseModel):
@@ -53,7 +56,7 @@ class EliminationResult(BaseModel):
     tags={"causal", "transportability"},
 )
 class CheckTransportability:
-    """Simplified TR checker (backdoor-oriented, no full do-calculus)."""
+    """Legacy simplified transportability shim delegated through the canonical engine."""
 
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STRICT_CPU
 
@@ -95,18 +98,34 @@ class CheckTransportability:
 
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description=(
-            "Check transportability with simplified elimination rules "
-            "(direct/backdoor/mediator stratification only)."
+            "Legacy simplified transportability fallback delegated through "
+            "the canonical transport engine."
         ),
         assumptions={
-            "algorithm_version": "simplified_tr_v2",
-            "unsupported": "front-door, rule-2/3 do-calculus, c-component factorization",
+            "algorithm_version": "trso_v2",
+            "fallback": "explicit simplified_legacy path only",
         },
         tags=frozenset({"causal", "transportability"}),
     )
 
     @staticmethod
     def pure_step(state: Mapping[str, Any], params: Mapping[str, Any]) -> dict[str, Any]:
+        selection_diagram = SelectionDiagram.model_validate(state["selection_diagram"])
+        result = solve_transportability(
+            selection_diagram=selection_diagram,
+            query_treatment=str(state["query_treatment"]),
+            query_outcome=str(state["query_outcome"]),
+            solver_mode="simplified",
+            allow_degraded_transport=True,
+            pag_identification_policy=params.get("pag_identification_policy"),
+            pag_max_dag_samples=int(params.get("pag_max_dag_samples", 100) or 100),
+            pag_threshold=float(params.get("pag_threshold", 0.5) or 0.5),
+            pag_seed=int(params.get("pag_seed", 0) or 0),
+        )
+        return {"transport_result": result.model_dump(mode="json")}
+
+
+def _legacy_pure_step(state: Mapping[str, Any], params: Mapping[str, Any]) -> dict[str, Any]:
         selection_diagram = SelectionDiagram.model_validate(state["selection_diagram"])
         query_treatment = str(state["query_treatment"])
         query_outcome = str(state["query_outcome"])
@@ -178,7 +197,8 @@ def _evaluate_pag_probabilistic(
     if not dag_candidates:
         return TransportabilityResult(
             query=f"P*({query_outcome}|do({query_treatment}))",
-            status=TransportabilityStatus.NON_TRANSPORTABLE,
+            status=TransportabilityStatus.UNSUPPORTED,
+            transport_mode=TransportMode.NONE,
             base_confidence=0.0,
             context_distance_penalty=0.0,
             data_availability_penalty=0.0,
@@ -193,7 +213,7 @@ def _evaluate_pag_probabilistic(
             ],
             source_context_id=selection_diagram.source_context.context_id,
             target_context_id=selection_diagram.target_context.context_id,
-            identification_engine="simplified",
+            identification_engine="simplified_legacy",
             identification_trace=["pag_probabilistic:no_dag_candidates"],
             unsupported_reason="pag_dag_sampling_failed",
         )
@@ -212,17 +232,25 @@ def _evaluate_pag_probabilistic(
 
     total = len(evaluated)
     transportable_count = sum(
-        1 for item in evaluated if item.status is not TransportabilityStatus.NON_TRANSPORTABLE
+        1 for item in evaluated if item.status is not TransportabilityStatus.UNSUPPORTED
     )
-    direct_count = sum(1 for item in evaluated if item.status is TransportabilityStatus.DIRECT)
+    direct_count = sum(
+        1
+        for item in evaluated
+        if item.status is TransportabilityStatus.IDENTIFIED
+        and item.transport_mode is TransportMode.DIRECT
+    )
     id_confidence = float(transportable_count / total)
 
     if direct_count == total:
-        final_status = TransportabilityStatus.DIRECT
+        final_status = TransportabilityStatus.IDENTIFIED
+        final_mode = TransportMode.DIRECT
     elif id_confidence >= threshold:
-        final_status = TransportabilityStatus.TRANSPORTABLE
+        final_status = TransportabilityStatus.IDENTIFIED
+        final_mode = TransportMode.TRANSPORT_FORMULA
     else:
-        final_status = TransportabilityStatus.NON_TRANSPORTABLE
+        final_status = TransportabilityStatus.UNSUPPORTED
+        final_mode = TransportMode.NONE
 
     representative = _choose_representative_result(
         results=evaluated,
@@ -232,7 +260,7 @@ def _evaluate_pag_probabilistic(
     required_target_data = sorted({key for item in evaluated for key in item.required_target_data})
     blocking = (
         list(representative.blocking_s_nodes)
-        if final_status is TransportabilityStatus.NON_TRANSPORTABLE
+        if final_status is TransportabilityStatus.UNSUPPORTED
         else []
     )
     warnings = list(representative.warnings)
@@ -247,9 +275,10 @@ def _evaluate_pag_probabilistic(
     return representative.model_copy(
         update={
             "status": final_status,
+            "transport_mode": final_mode,
             "transport_formula": (
                 representative.transport_formula
-                if final_status is not TransportabilityStatus.NON_TRANSPORTABLE
+                if final_status is not TransportabilityStatus.UNSUPPORTED
                 else None
             ),
             "blocking_s_nodes": blocking,
@@ -262,7 +291,7 @@ def _evaluate_pag_probabilistic(
             "id_confidence_under_pag": id_confidence,
             "pag_dag_sample_size": total,
             "pag_transportable_count": transportable_count,
-            "identification_engine": "simplified",
+            "identification_engine": "simplified_legacy",
             "identification_trace": list(representative.identification_trace)
             + [f"pag_probabilistic:{transportable_count}/{total}"],
             "unsupported_reason": representative.unsupported_reason,
@@ -275,20 +304,26 @@ def _choose_representative_result(
     results: list[TransportabilityResult],
     status: TransportabilityStatus,
 ) -> TransportabilityResult:
-    if status is TransportabilityStatus.DIRECT:
+    if status is TransportabilityStatus.IDENTIFIED:
         for item in results:
-            if item.status is TransportabilityStatus.DIRECT:
+            if (
+                item.status is TransportabilityStatus.IDENTIFIED
+                and item.transport_mode is TransportMode.DIRECT
+            ):
                 return item
-    if status is TransportabilityStatus.TRANSPORTABLE:
+    if status is TransportabilityStatus.IDENTIFIED:
         for item in results:
-            if item.status is TransportabilityStatus.TRANSPORTABLE:
+            if (
+                item.status is TransportabilityStatus.IDENTIFIED
+                and item.transport_mode is TransportMode.TRANSPORT_FORMULA
+            ):
                 return item
         for item in results:
-            if item.status is TransportabilityStatus.DIRECT:
+            if item.status is TransportabilityStatus.IDENTIFIED:
                 return item
-    if status is TransportabilityStatus.NON_TRANSPORTABLE:
+    if status is TransportabilityStatus.UNSUPPORTED:
         for item in results:
-            if item.status is TransportabilityStatus.NON_TRANSPORTABLE:
+            if item.status is TransportabilityStatus.UNSUPPORTED:
                 return item
     return results[0]
 
@@ -425,7 +460,8 @@ def _evaluate_single_graph(
     if not s_nodes:
         return TransportabilityResult(
             query=f"P*({query_outcome}|do({query_treatment}))",
-            status=TransportabilityStatus.DIRECT,
+            status=TransportabilityStatus.IDENTIFIED,
+            transport_mode=TransportMode.DIRECT,
             base_confidence=1.0,
             context_distance_penalty=0.0,
             data_availability_penalty=0.0,
@@ -436,7 +472,7 @@ def _evaluate_single_graph(
             assumes_time_stationarity=has_lagged,
             lagged_edge_count=lagged_count,
             temporal_distance_penalty=temporal_penalty,
-            identification_engine="simplified",
+            identification_engine="simplified_legacy",
             identification_trace=["simplified:direct:no_s_nodes"],
         )
 
@@ -494,7 +530,8 @@ def _evaluate_single_graph(
             )
         return TransportabilityResult(
             query=f"P*({query_outcome}|do({query_treatment}))",
-            status=TransportabilityStatus.NON_TRANSPORTABLE,
+            status=TransportabilityStatus.UNSUPPORTED,
+            transport_mode=TransportMode.NONE,
             blocking_s_nodes=residual_s_nodes,
             base_confidence=0.0,
             context_distance_penalty=0.0,
@@ -509,9 +546,9 @@ def _evaluate_single_graph(
             assumes_time_stationarity=has_lagged,
             lagged_edge_count=lagged_count,
             temporal_distance_penalty=temporal_penalty,
-            identification_engine="simplified",
+            identification_engine="simplified_legacy",
             identification_trace=[
-                "simplified:non_transportable:unresolved_s_nodes",
+                "simplified:unsupported:unresolved_s_nodes",
             ],
             unsupported_reason="simplified_unresolved_s_nodes",
         )
@@ -537,7 +574,8 @@ def _evaluate_single_graph(
         )
     return TransportabilityResult(
         query=f"P*({query_outcome}|do({query_treatment}))",
-        status=TransportabilityStatus.TRANSPORTABLE,
+        status=TransportabilityStatus.IDENTIFIED,
+        transport_mode=TransportMode.TRANSPORT_FORMULA,
         transport_formula=formula,
         base_confidence=1.0,
         context_distance_penalty=context_penalty,
@@ -552,8 +590,8 @@ def _evaluate_single_graph(
         assumes_time_stationarity=has_lagged,
         lagged_edge_count=lagged_count,
         temporal_distance_penalty=temporal_penalty,
-        identification_engine="simplified",
-        identification_trace=["simplified:transportable:stratification"],
+        identification_engine="simplified_legacy",
+        identification_trace=["simplified:identified:stratification"],
     )
 
 
@@ -786,4 +824,4 @@ def _compute_final_confidence(
     return confidence
 
 
-__all__ = ["CheckTransportability", "EliminationResult"]
+__all__ = ["CheckTransportability", "EliminationResult", "_legacy_pure_step"]

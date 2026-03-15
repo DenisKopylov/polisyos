@@ -27,10 +27,10 @@ from ._store_models import (
     CACHE_SCHEMA_NAME,
     CACHE_SCHEMA_VERSION,
     INDEX_SCHEMA_VERSION,
+    CachedFetchResult,
     CacheEntry,
     CacheMetadata,
     CacheStats,
-    CachedFetchResult,
 )
 from ._store_serialization import ResultSerializer
 

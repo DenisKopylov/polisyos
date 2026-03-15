@@ -2,7 +2,12 @@ from __future__ import annotations
 
 from typing import Any
 
-__all__ = ["DataPlaneGateNode", "LegalCheckNode", "RunGovernanceNode"]
+__all__ = [
+    "DataPlaneGateNode",
+    "LegalCheckNode",
+    "RunNormativeArbitrationNode",
+    "RunGovernanceNode",
+]
 
 
 def __getattr__(name: str) -> Any:
@@ -14,6 +19,10 @@ def __getattr__(name: str) -> Any:
         from .legal_check import LegalCheckNode
 
         return LegalCheckNode
+    if name == "RunNormativeArbitrationNode":
+        from .run_normative_arbitration import RunNormativeArbitrationNode
+
+        return RunNormativeArbitrationNode
     if name == "RunGovernanceNode":
         from .run_governance import RunGovernanceNode
 

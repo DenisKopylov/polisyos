@@ -6,7 +6,11 @@ from pathlib import Path
 from typing import Any
 
 from polisyos.core.contracts.fabric import EvidenceBundleRef
-from polisyos.fabric.ingestion import ConnectorManifestSpec, DatasetFetchSpec, run_connectors_ingestion
+from polisyos.fabric.ingestion import (
+    ConnectorManifestSpec,
+    DatasetFetchSpec,
+    run_connectors_ingestion,
+)
 
 __all__ = [
     "ConnectorManifestSpec",

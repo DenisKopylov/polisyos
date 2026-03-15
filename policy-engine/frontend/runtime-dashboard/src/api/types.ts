@@ -72,6 +72,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/auth/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Auth Me */
+        get: operations["get_auth_me"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/control/capabilities": {
         parameters: {
             query?: never;
@@ -950,6 +967,37 @@ export interface components {
             /** Top Level Keys */
             top_level_keys?: string[];
         };
+        /** AuthMeResponse */
+        AuthMeResponse: {
+            /** Cell Id */
+            cell_id?: string | null;
+            /** Display Name */
+            display_name: string;
+            /** Feature Overrides */
+            feature_overrides?: {
+                [key: string]: boolean;
+            };
+            meta: components["schemas"]["ApiMeta"];
+            /**
+             * Mfa Verified
+             * @default false
+             */
+            mfa_verified: boolean;
+            /** Permissions */
+            permissions?: string[];
+            /**
+             * Principal Type
+             * @default user
+             * @enum {string}
+             */
+            principal_type: "anonymous" | "service" | "user";
+            /** Roles */
+            roles?: string[];
+            /** Tenant Id */
+            tenant_id: string;
+            /** User Id */
+            user_id: string;
+        };
         /** BindingProfileInfo */
         BindingProfileInfo: {
             /**
@@ -1032,6 +1080,8 @@ export interface components {
             category: string;
             /** Description */
             description: string;
+            /** Disabled Reason */
+            disabled_reason?: string | null;
             /**
              * Enabled
              * @default true
@@ -1278,6 +1328,11 @@ export interface components {
                 [key: string]: string[];
             };
         };
+        /**
+         * DecisionValidityStatus
+         * @enum {string}
+         */
+        DecisionValidityStatus: "active" | "warning" | "stale" | "superseded" | "revoked" | "requires_human_review";
         /** DiscoveryCandidate */
         DiscoveryCandidate: {
             /** Candidate Id */
@@ -1490,6 +1545,10 @@ export interface components {
         GovernanceDebugView: {
             /** Contract Warnings */
             contract_warnings?: string[];
+            /** Decision Validity */
+            decision_validity?: {
+                [key: string]: unknown;
+            } | null;
             /**
              * Fallback From Decision Packet
              * @default false
@@ -1508,6 +1567,12 @@ export interface components {
             /** Links */
             links?: {
                 [key: string]: components["schemas"]["ArtifactRef"] | null;
+            } | null;
+            /** Normative Arbitration Result Ref */
+            normative_arbitration_result_ref?: components["schemas"]["ArtifactRef"] | null;
+            /** Normative Summary */
+            normative_summary?: {
+                [key: string]: unknown;
             } | null;
             /** Notes */
             notes?: string[];
@@ -2279,6 +2344,15 @@ export interface components {
         RunDetails: {
             /** Cell Id */
             cell_id?: string | null;
+            /**
+             * Decision Review Required
+             * @default false
+             */
+            decision_review_required: boolean;
+            decision_superseded_by_ref?: components["schemas"]["ArtifactRef"] | null;
+            /** Decision Validity Checked At */
+            decision_validity_checked_at?: string | null;
+            decision_validity_status?: components["schemas"]["DecisionValidityStatus"] | null;
             /** Duration Ms */
             duration_ms?: number | null;
             /** Finished At */
@@ -2559,6 +2633,15 @@ export interface components {
         RunSummary: {
             /** Cell Id */
             cell_id?: string | null;
+            /**
+             * Decision Review Required
+             * @default false
+             */
+            decision_review_required: boolean;
+            decision_superseded_by_ref?: components["schemas"]["ArtifactRef"] | null;
+            /** Decision Validity Checked At */
+            decision_validity_checked_at?: string | null;
+            decision_validity_status?: components["schemas"]["DecisionValidityStatus"] | null;
             /** Duration Ms */
             duration_ms?: number | null;
             /** Finished At */
@@ -3242,6 +3325,80 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Unexpected runtime API failure. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+        };
+    };
+    get_auth_me: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuthMeResponse"];
+                };
+            };
+            /** @description Malformed request payload or parameters. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authentication is required for this route. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authenticated principal cannot access this resource. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Requested resource does not exist. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Request validation failed. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
                     "application/problem+json": components["schemas"]["RuntimeApiProblem"];
                 };
             };

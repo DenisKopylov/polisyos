@@ -7,8 +7,10 @@ from typing import Any
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
+from polisyos.foundry.methods.catalog import (
+    ensure_all_methods_registered as ensure_causal_methods_registered,
+)
 from polisyos.foundry.methods.catalog.causal.protocols import SCMQueryData
-from polisyos.foundry.methods.causal import ensure_causal_methods_registered
 from polisyos.ir.analytics.causal_queries import (
     CausalQuery,
     CausalQueryResult,

@@ -31,10 +31,14 @@ class ExperimentState(BaseModel):
     observational_data_ref: ArtifactRef | None = None
     execution_plan_ref: ArtifactRef | None = None
     method_catalog_snapshot_ref: ArtifactRef | None = None
+    capability_manifest_ref: ArtifactRef | None = None
+    causal_capability_contract_ref: ArtifactRef | None = None
     preflight_report_ref: ArtifactRef | None = None
     evaluator_report_ref: ArtifactRef | None = None
     iteration_state_ref: ArtifactRef | None = None
     reproducibility_manifest_ref: ArtifactRef | None = None
+    control_job_id: str | None = None
+    execution_profile: str | None = None
     causal_method_fqn: str | None = None
     causal_method_params: dict[str, JsonValue] = Field(default_factory=dict)
     critic_knowledge_base_ref: ArtifactRef | None = None

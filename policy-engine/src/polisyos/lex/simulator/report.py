@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from enum import Enum
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from polisyos.core.contracts.lex import ComplianceIssue
 
@@ -17,6 +17,8 @@ class ComplianceTransition(str, Enum):
 
 
 class ComplianceDelta(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     norm_id: str
     pass_id: str
     fingerprint: str
@@ -26,6 +28,8 @@ class ComplianceDelta(BaseModel):
 
 
 class AffectedKPI(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     kpi_id: str
     description: str
     affected_norm_ids: list[str] = Field(default_factory=list)
@@ -33,6 +37,8 @@ class AffectedKPI(BaseModel):
 
 
 class NormImpactReport(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     schema_version: str = "1.0"
     report_id: str
     old_pack_id: str

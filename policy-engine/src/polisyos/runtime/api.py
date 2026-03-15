@@ -5,9 +5,12 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, Optional
 
+from polisyos.common.logger import get_logger
 from polisyos.common.serialization import fast_json_dumps
 from polisyos.core.contracts.foundry import EnvironmentManifestRef
 from polisyos.runtime.manifest import ArtifactRef, RunManifest
+
+logger = get_logger(__name__)
 
 
 def _run_dir(base_dir: Path, run_id: str) -> Path:
@@ -107,8 +110,8 @@ def log_artifact(
             fingerprint = payload_dict.get("fingerprint")
             if isinstance(fingerprint, str):
                 manifest.environment_fingerprint = fingerprint
-        except Exception:
-            pass
+        except (AttributeError, TypeError, ValueError) as exc:
+            logger.debug("Failed to process environment_ref in artifact metadata: %s", exc)
     _write_manifest(base_dir, manifest)
     return ref
 

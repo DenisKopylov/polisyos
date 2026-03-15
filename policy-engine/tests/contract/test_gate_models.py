@@ -16,7 +16,7 @@ def test_gate_request_roundtrip() -> None:
         simulation_results={"gdp_change": 1},
         issue_summary={"requested_items": 2},
         artifact_refs={"causal_report_ref": "sha256:" + ("a" * 64)},
-        transport_summary={"status": "transportable"},
+        transport_summary={"status": "identified", "transport_mode": "transport_formula"},
         replay_summary={"readiness": "partial"},
     )
     request = GateRequest(

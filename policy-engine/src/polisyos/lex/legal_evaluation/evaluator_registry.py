@@ -6,18 +6,18 @@ from typing import Any, Callable
 
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.components import (
+    ENTRY_POINT_GROUP_LEX_EVALUATORS,
     ComponentEntry,
     ComponentKind,
     ComponentRegistry,
     DuplicateComponentIdPolicy,
-    ENTRY_POINT_GROUP_LEX_EVALUATORS,
     HostAbi,
     discover_components,
     validate_metadata,
 )
 from polisyos.core.components.ids import SemVer
-from polisyos.core.registry.generic import GenericRegistry
 from polisyos.core.contracts.lex import ChangeProposalRef, LegalEvaluationRequest, LegalReportRef
+from polisyos.core.registry.generic import GenericRegistry
 from polisyos.lex.errors import LexValidationError
 
 LexEvaluatorFn = Callable[

@@ -1,15 +1,24 @@
 from __future__ import annotations
 
 import contextlib
-from dataclasses import dataclass
-from datetime import datetime, timedelta
 import json
 import os
+from dataclasses import dataclass
+from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Any
+from typing import Protocol, runtime_checkable
 
+from polisyos.common.logger import get_logger
 from polisyos.common.timestamps import parse_iso_datetime, to_iso_utc, utc_now
 from polisyos.core.canon import content_hash
+
+logger = get_logger(__name__)
+
+
+@runtime_checkable
+class _HasRoot(Protocol):
+    @property
+    def root(self) -> Path: ...
 
 def _serialize_datetime(value: datetime | None) -> str | None:
     return to_iso_utc(value) if value is not None else None
@@ -48,7 +57,7 @@ class FreshnessStateStore:
     is persisted under `<cas_root>/freshness_state`.
     """
 
-    def __init__(self, cas: Any | Path) -> None:
+    def __init__(self, cas: _HasRoot | Path) -> None:
         if isinstance(cas, Path):
             root_path = cas
         else:
@@ -80,7 +89,8 @@ class FreshnessStateStore:
             return FreshnessRuntimeState()
         try:
             payload = json.loads(path.read_text(encoding="utf-8"))
-        except Exception:
+        except (json.JSONDecodeError, OSError, ValueError):
+            logger.debug("Failed to parse freshness state file %s", path)
             return FreshnessRuntimeState()
         if not isinstance(payload, dict):
             return FreshnessRuntimeState()

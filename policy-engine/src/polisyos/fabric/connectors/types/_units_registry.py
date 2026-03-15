@@ -5,7 +5,7 @@ import threading
 from decimal import Decimal
 from typing import ClassVar, Iterator, Mapping
 
-from ._units_base import BaseUnit, STANDARD_UNITS
+from ._units_base import STANDARD_UNITS, BaseUnit
 from ._units_core import Unit
 from ._units_errors import UnitParseError
 

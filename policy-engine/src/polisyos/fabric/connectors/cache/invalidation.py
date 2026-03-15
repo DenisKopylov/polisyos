@@ -80,8 +80,8 @@ class InvalidationTrigger:
                             reason="File signature changed",
                             metadata={"mtime": source_mtime, "size": source_size},
                         )
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.debug("Ignored exception: %s", exc)
 
         return None
 
@@ -179,8 +179,8 @@ class InvalidationOrchestrator:
             finally:
                 try:
                     await self._registry.release_connection(connector_id, handle)
-                except Exception:
-                    pass
+                except Exception as exc:
+                    logger.debug("Ignored exception: %s", exc)
 
             if event:
                 await self.invalidate_dataset(dataset_id, InvalidationStrategy.SOFT_MARK)

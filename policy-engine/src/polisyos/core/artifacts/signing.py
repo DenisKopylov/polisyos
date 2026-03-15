@@ -22,9 +22,13 @@ from cryptography.hazmat.primitives.serialization import (
 )
 from pydantic import BaseModel, ConfigDict, Field, computed_field, model_validator
 
+from polisyos.common.logger import get_logger
+
 from ..canon import content_hash
 from ..canon.canon_json import to_canonical_bytes
 from .ids import ArtifactID
+
+logger = get_logger(__name__)
 
 SIGNATURE_FORMAT_VERSION = "1"
 SIGNATURE_ALGORITHM = "Ed25519"
@@ -669,8 +673,8 @@ def build_verifier_from_config(config: SigningConfig) -> Ed25519Verifier:
     verifier.load_revoked_dir(config.revoked_dir)
     try:
         verifier.load_identity_bindings(config.identities_path)
-    except Exception:
-        pass
+    except Exception as exc:
+        logger.debug("Ignored exception: %s", exc)
     return verifier
 
 

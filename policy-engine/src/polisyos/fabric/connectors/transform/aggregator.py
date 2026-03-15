@@ -15,16 +15,16 @@ from polisyos.fabric.connectors.contracts.schema import (
     DataSchema,
     TimeGranularity,
 )
+from polisyos.fabric.connectors.transform._common import (
+    build_lineage,
+    copy_if_needed,
+    stage_started_at,
+)
 from polisyos.fabric.connectors.transform.pipeline import (
     DataTransform,
     TransformContext,
     TransformError,
     TransformLineage,
-)
-from polisyos.fabric.connectors.transform._common import (
-    build_lineage,
-    copy_if_needed,
-    stage_started_at,
 )
 from polisyos.fabric.connectors.types.temporal import (
     AggregationMethod,

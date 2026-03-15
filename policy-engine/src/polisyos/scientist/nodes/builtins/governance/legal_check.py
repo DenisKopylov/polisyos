@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 
+from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.canon import from_canonical_bytes
@@ -23,6 +24,8 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     REPORT_CHANGE_PROPOSAL_REF,
     REPORT_LEGAL_REPORT_REF,
 )
+
+logger = get_logger(__name__)
 
 _METADATA = ComponentMetadata(
     component_id=ComponentId.parse("scientist.node_legal_check@1.0.1"),
@@ -85,6 +88,11 @@ def _read_compliance_grade(ctx: ExecutionContext, report_ref: ArtifactRef) -> st
     try:
         payload = from_canonical_bytes(ctx.store.get_bytes(report_ref.artifact_id))
     except Exception:
+        logger.debug(
+            "Failed to read compliance grade from report ref %s",
+            report_ref,
+            exc_info=True,
+        )
         return None
     if not isinstance(payload, dict):
         return None

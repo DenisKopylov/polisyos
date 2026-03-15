@@ -12,8 +12,8 @@ from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.contracts.foundry import Metrics, SimulationResult
 from polisyos.core.contracts.lex import LegalEvaluationRequest
 from polisyos.core.contracts.trinity import PolicySpecRef
-from polisyos.ir.norm_pack import NormPack, NormRule
 from polisyos.ir.governance.policy_spec import ParameterSpec, PolicySpec
+from polisyos.ir.norm_pack import NormPack, NormRule
 from polisyos.lex.common import collapse_ws
 from polisyos.lex.errors import LexNotReadyError, LexValidationError
 from polisyos.lex.normpack.applicability import applies_to_context

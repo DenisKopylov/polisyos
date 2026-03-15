@@ -211,43 +211,69 @@ class LegalConstraintBridge:
         if self._db_path is None or not self._db_path.exists():
             return []
         keywords = _collect_keywords(policy_domain=policy_domain, policy_spec=policy_spec)
-        if not keywords:
-            return []
 
         try:
             with duckdb.connect(str(self._db_path), read_only=True) as con:
-                if not _table_exists(con, "lex_facts"):
+                fact_table = _best_fact_table(con)
+                if not fact_table:
                     return []
                 has_domains = _table_exists(con, "lex_doc_domains")
+                domain_on_fact = _column_exists(con, fact_table, "top_domain")
+                text_columns = [
+                    column
+                    for column in (
+                        "fact_text",
+                        "condition_text_uk",
+                        "procedure_text_uk",
+                        "temporal_text_uk",
+                        "sanction_text_uk",
+                        "exception_text_uk",
+                    )
+                    if _column_exists(con, fact_table, column)
+                ]
+
+                if not keywords and not (policy_domain and (has_domains or domain_on_fact)):
+                    return []
 
                 conditions: list[str] = []
                 params: list[Any] = []
                 for keyword in keywords:
                     pattern = f"%{keyword.lower()}%"
-                    conditions.extend(
-                        [
-                            "LOWER(COALESCE(f.fact_text, '')) LIKE ?",
-                            "LOWER(COALESCE(f.condition_text_uk, '')) LIKE ?",
-                            "LOWER(COALESCE(f.procedure_text_uk, '')) LIKE ?",
-                        ]
-                    )
-                    params.extend([pattern, pattern, pattern])
+                    for column in text_columns:
+                        conditions.append(f"LOWER(COALESCE(f.{column}, '')) LIKE ?")
+                        params.append(pattern)
 
+                join_sql = "LEFT JOIN lex_doc_domains d ON d.doc_id = f.doc_id" if has_domains else ""
+                domain_clauses: list[str] = []
                 if has_domains and policy_domain:
-                    domain_clause = "LOWER(COALESCE(d.domain, '')) = ?"
-                    where_sql = f"(({ ' OR '.join(conditions) }) OR {domain_clause})"
+                    domain_clauses.append("LOWER(COALESCE(d.domain, '')) = ?")
                     params.append(policy_domain.lower())
-                    join_sql = "LEFT JOIN lex_doc_domains d ON d.doc_id = f.doc_id"
-                else:
-                    where_sql = f"({ ' OR '.join(conditions) })"
-                    join_sql = ""
+                if domain_on_fact and policy_domain:
+                    domain_clauses.append("LOWER(COALESCE(f.top_domain, '')) = ?")
+                    params.append(policy_domain.lower())
+
+                where_parts: list[str] = []
+                if conditions:
+                    where_parts.append(f"({' OR '.join(conditions)})")
+                if domain_clauses:
+                    where_parts.append(f"({' OR '.join(domain_clauses)})")
+                if not where_parts:
+                    return []
+                where_sql = " OR ".join(where_parts)
+
+                trust_clause = ""
+                if fact_table == "lex_facts" and _column_exists(con, fact_table, "trust_tier"):
+                    trust_clause = (
+                        " AND COALESCE(f.trust_tier, '') "
+                        "IN ('grounded_fact', 'normative_fact')"
+                    )
 
                 sql = (
                     "SELECT f.fact_id, f.fact_text, f.doc_name, "
                     "f.doc_reestr_code, f.provision_citation "
-                    "FROM lex_facts f "
+                    f"FROM {fact_table} f "
                     f"{join_sql} "
-                    f"WHERE {where_sql} "
+                    f"WHERE {where_sql}{trust_clause} "
                     "LIMIT 100"
                 )
                 rows = con.execute(sql, params).fetchall()
@@ -395,10 +421,29 @@ def _coerce_edge(raw: Any) -> tuple[str, str] | None:
 
 def _table_exists(con: duckdb.DuckDBPyConnection, table_name: str) -> bool:
     row = con.execute(
-        "SELECT 1 FROM pragma_table_list() WHERE name = ? LIMIT 1",
+        "SELECT 1 FROM information_schema.tables WHERE table_name = ? LIMIT 1",
         [table_name],
     ).fetchone()
     return row is not None
+
+
+def _column_exists(
+    con: duckdb.DuckDBPyConnection,
+    table_name: str,
+    column_name: str,
+) -> bool:
+    rows = con.execute(
+        "SELECT name FROM pragma_table_info(?)",
+        [table_name],
+    ).fetchall()
+    return any(str(row[0] or "") == column_name for row in rows)
+
+
+def _best_fact_table(con: duckdb.DuckDBPyConnection) -> str:
+    for table_name in ("lex_normative_facts", "lex_fact_grounded", "lex_facts"):
+        if _table_exists(con, table_name):
+            return table_name
+    return ""
 
 
 def _normalize_token(value: str) -> str:

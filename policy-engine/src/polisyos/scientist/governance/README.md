@@ -23,7 +23,7 @@
 
 ## Важный нюанс default workflow
 
-`run_experiment()` через `scientist.node_run_governance@1.1.0` использует workflow-ноду, где:
+`run_experiment()` через `scientist.node_run_governance@1.2.0` использует workflow-ноду, где:
 - поддержан typed human-gate lifecycle (`require_human_gate`, `gate_request`, `gate_decision`, escalation);
 - выполняется runtime-подмножество `ValidationPipeline` по профилю (`confidence`, `equity`, `pii_check`, `refutation`, `literature_gate`, `sutva_check`, `transportability_required`, `human_review_required`);
 - для DoWhy causal reports выполняется `refutation` pass (MVP=warning, STRICT=blocker);

@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
+from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.manifest import InputRef
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
@@ -22,6 +23,8 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_LITERATURE_PRIOR_REF,
     ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF,
 )
+
+logger = get_logger(__name__)
 
 _METADATA = ComponentMetadata(
     component_id=ComponentId.parse("scientist.node_reconcile_causal_graph@1.0.0"),
@@ -101,8 +104,8 @@ def _load_data_graph(ctx: ExecutionContext, state: ExperimentState) -> tuple[Cau
             graph = _extract_graph(payload)
             if graph is not None:
                 return graph, method_ref
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.debug("Ignored exception: %s", exc)
 
     return None, None
 

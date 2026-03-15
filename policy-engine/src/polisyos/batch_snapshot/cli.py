@@ -9,8 +9,9 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 from polisyos.batch_common.hashing import sha256_file
+from polisyos.common.logger import get_logger
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 def _load_json(path: Path) -> dict:

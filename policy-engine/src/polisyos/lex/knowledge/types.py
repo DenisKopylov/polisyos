@@ -3,9 +3,9 @@
 from __future__ import annotations
 
 import hashlib
+from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
-
 
 # ---------------------------------------------------------------------------
 # SPO extraction output (Stage 3 -> Stage 4)
@@ -34,6 +34,18 @@ class RuleLink(BaseModel):
     target_doc_id: str = ""
     target_anchor: str = ""
     ref_text_uk: str = ""
+    resolution_confidence: float | None = Field(default=None, ge=0.0, le=1.0)
+
+
+FactTrustTier = Literal["search_candidate", "grounded_fact", "normative_fact"]
+GroundingStatus = Literal[
+    "exact_quote",
+    "quote_without_offsets",
+    "offsets_without_quote",
+    "missing_quote",
+]
+CanonicalStatus = Literal["canonicalized", "partially_canonicalized", "raw"]
+ReferenceResolutionStatus = Literal["resolved", "partial", "unresolved", "not_applicable"]
 
 
 class SPOCandidate(BaseModel):
@@ -77,6 +89,15 @@ class SPOCandidate(BaseModel):
     source_quote_uk: str = ""
     source_quote_start: int | None = None
     source_quote_end: int | None = None
+    grounding_status: GroundingStatus = "missing_quote"
+    canonical_status: CanonicalStatus = "raw"
+    reference_resolution_status: ReferenceResolutionStatus = "not_applicable"
+    trust_tier: FactTrustTier = "search_candidate"
+    constraint_type_raw: str = ""
+    constraint_type_canon: str = ""
+    structure_quality: str = ""
+    doc_family_id: str = ""
+    version_id: str = ""
 
     # --- Executable atoms ---
     thresholds: list[ThresholdAtom] = Field(default_factory=list)
@@ -124,6 +145,62 @@ class SPOCandidate(BaseModel):
             s_start = None
             s_end = None
 
+        if self.grounding_status != "missing_quote":
+            grounding_status = self.grounding_status
+        elif self.source_quote_uk.strip() and s_start is not None and s_end is not None:
+            grounding_status = "exact_quote"
+        elif self.source_quote_uk.strip():
+            grounding_status = "quote_without_offsets"
+        elif s_start is not None and s_end is not None:
+            grounding_status = "offsets_without_quote"
+        else:
+            grounding_status = "missing_quote"
+
+        if self.canonical_status != "raw":
+            canonical_status = self.canonical_status
+        elif action_canon and norm_type_canon:
+            canonical_status = "canonicalized"
+        elif action_canon or norm_type_canon:
+            canonical_status = "partially_canonicalized"
+        else:
+            canonical_status = "raw"
+
+        if self.reference_resolution_status != "not_applicable":
+            reference_resolution_status = self.reference_resolution_status
+        elif not self.links:
+            reference_resolution_status = "not_applicable"
+        else:
+            resolved_links = sum(
+                1
+                for link in self.links
+                if link.target_doc_id.strip() or link.target_anchor.strip()
+            )
+            if resolved_links == len(self.links):
+                reference_resolution_status = "resolved"
+            elif resolved_links > 0:
+                reference_resolution_status = "partial"
+            else:
+                reference_resolution_status = "unresolved"
+
+        if self.structure_quality == "fallback_search_only":
+            trust_tier = "search_candidate"
+        elif self.trust_tier != "search_candidate":
+            trust_tier = self.trust_tier
+        else:
+            confidence_rank = confidence_final if confidence_final is not None else self.confidence
+            if (
+                grounding_status == "exact_quote"
+                and canonical_status == "canonicalized"
+                and (self.norm_type_canon or norm_type_canon) in {"obligation", "prohibition", "permission"}
+                and confidence_rank >= 0.6
+                and self.structure_quality != "fallback_search_only"
+            ):
+                trust_tier = "normative_fact"
+            elif grounding_status == "exact_quote":
+                trust_tier = "grounded_fact"
+            else:
+                trust_tier = "search_candidate"
+
         object.__setattr__(self, "action_raw", action_raw)
         object.__setattr__(self, "action_canon", action_canon)
         object.__setattr__(self, "norm_type_raw", norm_type_raw)
@@ -139,6 +216,10 @@ class SPOCandidate(BaseModel):
         object.__setattr__(self, "statement_id", statement_id)
         object.__setattr__(self, "source_quote_start", s_start)
         object.__setattr__(self, "source_quote_end", s_end)
+        object.__setattr__(self, "grounding_status", grounding_status)
+        object.__setattr__(self, "canonical_status", canonical_status)
+        object.__setattr__(self, "reference_resolution_status", reference_resolution_status)
+        object.__setattr__(self, "trust_tier", trust_tier)
         return self
 
 
@@ -171,6 +252,12 @@ class SPOExtractionResult(BaseModel):
     extraction_source: str = "llm"  # rule_auto|llm|audit_llm|deferred
     gate_score: float = 0.0
     gate_reason_codes: list[str] = Field(default_factory=list)
+    legal_unit_subtype: str = ""
+    route_class: str = ""
+    empty_spo_retry_eligible: bool = False
+    audit_miss_prone: bool = False
+    reference_bearing: bool = False
+    threshold_bearing: bool = False
 
     # Perf and usage
     latency_ms: int = 0
@@ -244,6 +331,18 @@ class LegalFact(BaseModel):
     source_quote_start: int | None = None
     source_quote_end: int | None = None
     thresholds_json: str = "[]"
+    trust_tier: FactTrustTier = "search_candidate"
+    grounding_status: GroundingStatus = "missing_quote"
+    canonical_status: CanonicalStatus = "raw"
+    reference_resolution_status: ReferenceResolutionStatus = "not_applicable"
+    structure_quality: str = ""
+    constraint_type_canon: str = ""
+    legal_unit_subtype: str = ""
+    route_class: str = ""
+    empty_spo_retry_eligible: bool = False
+    audit_miss_prone: bool = False
+    reference_bearing: bool = False
+    threshold_bearing: bool = False
 
     # Provenance
     doc_id: str
@@ -255,6 +354,12 @@ class LegalFact(BaseModel):
     provision_anchor: str = ""
     provision_citation: str = ""
     original_context_short: str = ""
+    jurisdiction: str = "UA"
+    top_domain: str = ""
+    doc_family_id: str = ""
+    version_id: str = ""
+    effective_from: str = ""
+    effective_to: str = ""
 
     # SPO bilingual labels (for embedding template)
     subject_en: str = ""
@@ -266,6 +371,7 @@ class LegalFact(BaseModel):
         """Bilingual structured template with rule clauses."""
         parts = [
             "FACT",
+            f"trust_tier: {self.trust_tier}",
             f"norm_type: {self.norm_type_canon or self.norm_type}",
             f"action: {self.action_canon or self.predicate}",
             f"spo: {self.subject_en} ({self.subject_uk}) {self.predicate} {self.object_en} ({self.object_uk})",
@@ -279,6 +385,8 @@ class LegalFact(BaseModel):
             parts.append(f"procedure_uk: {self.procedure_text_uk}")
         if self.original_context_short:
             parts.append(f"quote_uk: {self.original_context_short[:400]}")
+        if self.top_domain:
+            parts.append(f"domain: {self.top_domain}")
         return "\n".join(parts)
 
 
@@ -297,6 +405,12 @@ class LegalProvision(BaseModel):
     citation_label: str
     kind: str
     provision_text: str
+    struct_kind: str = ""
+    section_role: str = ""
+    lineage_path: str = ""
+    appendix_id: str = ""
+    table_id: str = ""
+    fallback_allowed_for_reasoning: bool = False
 
     def embedding_text(self) -> str:
         """Raw Ukrainian provision text for embedding."""
@@ -339,6 +453,22 @@ class LegalFactResult(BaseModel):
     procedure_text_uk: str = ""
     thresholds_json: str = ""
     source_quote_uk: str = ""
+    trust_tier: FactTrustTier = "search_candidate"
+    grounding_status: GroundingStatus = "missing_quote"
+    canonical_status: CanonicalStatus = "raw"
+    reference_resolution_status: ReferenceResolutionStatus = "not_applicable"
+    structure_quality: str = ""
+    constraint_type_canon: str = ""
+    legal_unit_subtype: str = ""
+    route_class: str = ""
+    empty_spo_retry_eligible: bool = False
+    audit_miss_prone: bool = False
+    reference_bearing: bool = False
+    threshold_bearing: bool = False
+    jurisdiction: str = "UA"
+    top_domain: str = ""
+    effective_from: str = ""
+    effective_to: str = ""
     doc_name: str
     doc_reestr_code: str
     provision_citation: str
@@ -356,4 +486,13 @@ class LegalProvisionResult(BaseModel):
     citation_label: str
     kind: str
     provision_text_preview: str
+    struct_kind: str = ""
+    section_role: str = ""
+    legal_unit_subtype: str = ""
+    route_class: str = ""
+    empty_spo_retry_eligible: bool = False
+    audit_miss_prone: bool = False
+    reference_bearing: bool = False
+    threshold_bearing: bool = False
+    fallback_allowed_for_reasoning: bool = False
     similarity: float

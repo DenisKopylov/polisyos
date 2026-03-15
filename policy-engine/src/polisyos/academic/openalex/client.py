@@ -3,15 +3,15 @@
 from __future__ import annotations
 
 import asyncio
-import logging
 from dataclasses import dataclass
 from typing import Any
 
 import aiohttp
 
 from polisyos.academic.openalex.rate_limiter import OpenAlexRateLimiter
+from polisyos.common.logger import get_logger
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 @dataclass(frozen=True)

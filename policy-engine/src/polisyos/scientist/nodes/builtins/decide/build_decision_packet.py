@@ -1,19 +1,36 @@
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from enum import Enum
 from typing import Any, Final
 
+from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
-from polisyos.core.canon import CanonSpec, from_canonical_bytes
+from polisyos.core.canon import CanonSpec, content_hash, from_canonical_bytes
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
+from polisyos.core.contracts.decision_validity import (
+    DecisionBasisSection,
+    DecisionDependencyKind,
+    DecisionDependencyRef,
+    DecisionTriggerRecord,
+    DecisionTriggerSpec,
+    DecisionTriggerType,
+    DecisionValidityEnvelope,
+    DecisionValidityEvaluation,
+    DecisionValidityStatus,
+)
 from polisyos.core.contracts.distributional import DistributionalReportRef
 from polisyos.core.contracts.fabric import DataSnapshot
 from polisyos.core.contracts.foundry import Metrics, SimulationResult
-from polisyos.core.contracts.scientist import DecisionPacketRef
+from polisyos.core.contracts.scholar import FreshnessMetadata
+from polisyos.core.contracts.scientist import (
+    DecisionMonitoringContractRef,
+    DecisionPacketRef,
+)
 from polisyos.core.contracts.uncertainty import UncertaintyEnvelopeRef
 from polisyos.ir.analytics.abm_bridge import load_abm_alignment_report
 from polisyos.ir.analytics.backtest import load_backtest_report
@@ -21,18 +38,33 @@ from polisyos.ir.analytics.causal import CausalEffectReport
 from polisyos.ir.analytics.causal_ensemble import load_causal_model_ensemble
 from polisyos.ir.analytics.distributional import load_distributional_report
 from polisyos.ir.analytics.hte import load_hte_result, load_policy_recommendation
+from polisyos.ir.analytics.normative_arbitration import (
+    NormativeArbitrationResult,
+    load_normative_arbitration_result,
+)
 from polisyos.ir.analytics.uncertainty import load_uncertainty_envelope
-from polisyos.ir.refs import ABMAlignmentReportRef, CausalModelEnsembleRef
+from polisyos.ir.refs import (
+    ABMAlignmentReportRef,
+    CausalModelEnsembleRef,
+    NormativeArbitrationResultRef,
+)
 from polisyos.scientist.engine.context import ExecutionContext
-from polisyos.scientist.engine.protocol import NodeOutcome, NodeSpec
+from polisyos.scientist.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
 from polisyos.scientist.engine.state import ExperimentState
+from polisyos.scientist.decision_validity import DecisionValidityService
+from polisyos.scientist.feedback import (
+    DecisionFeedbackService,
+    build_monitoring_contract_from_packet,
+)
 from polisyos.scientist.governance.report import GovernanceReport
+from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_ABM_ALIGNMENT_REPORT_REF,
     ARTIFACT_BACKTEST_REPORT_REF,
-    ARTIFACT_CAUSAL_ENVELOPE_REF,
     ARTIFACT_CAUSAL_ENSEMBLE_REF,
+    ARTIFACT_CAUSAL_ENVELOPE_REF,
     ARTIFACT_CAUSAL_REPORT_REF,
+    ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF,
     ARTIFACT_DECISION_CARD_REF,
     ARTIFACT_DECISION_PACKET_REF,
     ARTIFACT_DISTRIBUTIONAL_REPORT_REF,
@@ -43,14 +75,17 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_EXEC_PLAN_REF,
     ARTIFACT_HTE_RESULT_REF,
     ARTIFACT_INPUT_BINDING_REPORT_REF,
+    ARTIFACT_LOWERED_IR_REF,
     ARTIFACT_METRICS_REF,
     ARTIFACT_NORM_IMPACT_REPORT_REF,
+    ARTIFACT_NORMATIVE_ARBITRATION_RESULT_REF,
     ARTIFACT_POLICY_RECOMMENDATION_REF,
     ARTIFACT_PROGRAM_GRAPH_REF,
     ARTIFACT_SENSITIVITY_RESULT_REF,
     ARTIFACT_SIMULATION_RESULT_REF,
     ARTIFACT_STATE_SNAPSHOT_REF,
     ARTIFACT_STRESS_TEST_REPORT_REF,
+    ARTIFACT_TRANSPORTABILITY_RESULT_REF,
     INPUT_DATA_SNAPSHOT_REF,
     INPUT_INPUT_BINDINGS_REF,
     INPUT_KNOWLEDGE_BUNDLE_REF,
@@ -59,15 +94,17 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     INPUT_RESEARCH_INTENT_REF,
     INPUT_STATE_SNAPSHOT_REF,
     INPUT_TRINITY_BUNDLE_REF,
-    REPORT_COMPILE_REPORT_REF,
     REPORT_CHANGE_PROPOSAL_REF,
+    REPORT_COMPILE_REPORT_REF,
     REPORT_GOVERNANCE_REPORT_REF,
     REPORT_LEGAL_REPORT_REF,
     REPORT_LINK_REPORT_REF,
 )
 
+logger = get_logger(__name__)
+
 _METADATA = ComponentMetadata(
-    component_id=ComponentId.parse("scientist.node_build_decision_packet@1.4.0"),
+    component_id=ComponentId.parse("scientist.node_build_decision_packet@1.5.0"),
     kind=ComponentKind.SCIENTIST_NODE,
     abi_targets={"world_abi": "1.x"},
     display_name="Build Decision Packet",
@@ -82,9 +119,12 @@ _SPEC = NodeSpec(
         "run_id",
         "params.random_seed",
         "params.determinism_tier",
+        "execution_profile",
+        "capability_manifest_ref",
         "inputs",
         "reports_index",
         "artifacts_index",
+        "artifacts_index.normative_arbitration_result_ref",
     ],
     state_writes=[f"artifacts_index.{ARTIFACT_DECISION_PACKET_REF}"],
     produces=[ARTIFACT_DECISION_PACKET_REF],
@@ -141,7 +181,7 @@ class BuildDecisionPacketNode:
         )
 
         packet_payload: dict[str, object] = {
-            "schema_version": "3.2",
+            "schema_version": "3.4",
             "generated_at": datetime.now(timezone.utc).isoformat(),
             "run_id": state.run_id,
             "seed": seed,
@@ -157,7 +197,7 @@ class BuildDecisionPacketNode:
             "governance": None,
             "uncertainty": _build_uncertainty_section(ctx, state.inputs, state.artifacts_index),
             "uncertainty_bounds": None,
-            "causal": _build_causal_section(ctx, state.artifacts_index),
+            "causal": _build_causal_section(ctx, state, state.artifacts_index),
             "abm_alignment": _build_abm_alignment_section(ctx, state.artifacts_index),
             "hte": _build_hte_section(ctx, state.artifacts_index),
             "targeting": _build_targeting_section(ctx, state.artifacts_index),
@@ -173,16 +213,26 @@ class BuildDecisionPacketNode:
             "stress_test": _build_aux_artifact_section(
                 ctx, state.artifacts_index, ARTIFACT_STRESS_TEST_REPORT_REF
             ),
+            "tradeoff_certificate": _build_tradeoff_certificate_section(
+                ctx, state.artifacts_index
+            ),
+            "runtime_contracts": _build_runtime_contracts_section(state),
             "inputs": inputs_section,
             "artifacts": artifacts_section,
             "replay": replay_section,
             "notes": [],
         }
         if isinstance(backtest_section, dict):
-            packet_payload["trust_profile"] = {
-                "backtest_trust_score": backtest_section.get("trust_score"),
-                "backtest_trust_grade": backtest_section.get("trust_grade"),
-            }
+            if bool(backtest_section.get("trust_eligible", True)):
+                packet_payload["trust_profile"] = {
+                    "backtest_trust_score": backtest_section.get("trust_score"),
+                    "backtest_trust_grade": backtest_section.get("trust_grade"),
+                }
+            else:
+                packet_payload["trust_profile"] = {
+                    "backtest_trust_score": None,
+                    "backtest_trust_grade": None,
+                }
 
         metrics_ref = state.artifacts_index.get(ARTIFACT_METRICS_REF)
         if metrics_ref is not None:
@@ -205,6 +255,11 @@ class BuildDecisionPacketNode:
                     "notes": report.notes,
                 }
             except Exception:
+                logger.debug(
+                    "Failed to load governance report from ref %s",
+                    governance_ref,
+                    exc_info=True,
+                )
                 packet_payload["governance"] = None
 
         uncertainty_bounds = _build_uncertainty_bounds(
@@ -222,6 +277,50 @@ class BuildDecisionPacketNode:
             state=state,
         )
         packet_payload["analysis_limits"] = _build_analysis_limits(packet_payload)
+        validity_envelope = _build_decision_validity_envelope(
+            ctx=ctx,
+            state=state,
+            packet_payload=packet_payload,
+        )
+        validity_baseline = _build_decision_validity_baseline(
+            packet_payload=packet_payload,
+            envelope=validity_envelope,
+        )
+        packet_payload["decision_validity_envelope"] = validity_envelope.model_dump(mode="json")
+        packet_payload["decision_validity_baseline"] = validity_baseline.model_dump(mode="json")
+        feedback_loop, monitoring_contract_ref = _build_feedback_loop(
+            ctx=ctx,
+            state=state,
+            packet_payload=packet_payload,
+            decision_lineage_key=validity_envelope.decision_lineage_key,
+        )
+        packet_payload["feedback_loop"] = feedback_loop
+        missing_serious_contracts = _missing_serious_decision_contracts(
+            state=state,
+            monitoring_contract_ref=monitoring_contract_ref,
+        )
+        if missing_serious_contracts:
+            return NodeOutcome(
+                status="fail",
+                state=state,
+                events=[
+                    NodeEvent(
+                        level="error",
+                        message=(
+                            "Serious execution profiles require a complete decision contract; "
+                            f"missing: {', '.join(missing_serious_contracts)}."
+                        ),
+                    )
+                ],
+                error=NodeError(
+                    code=node_errors.ERROR_INVALID_STATE,
+                    message="Incomplete serious decision contract",
+                    details={
+                        "execution_profile": state.execution_profile,
+                        "missing_contracts": missing_serious_contracts,
+                    },
+                ),
+            )
 
         inputs = _build_manifest_inputs(packet_payload)
 
@@ -232,13 +331,19 @@ class BuildDecisionPacketNode:
                 media_type="application/json",
                 schema=SchemaInfo(
                     name="polisyos.scientist.DecisionPacket",
-                    version="3.2",
+                    version="3.4",
                 ),
                 inputs=inputs or None,
             ),
             canon_spec=CanonSpec(forbid_floats=False),
         )
         packet_ref = DecisionPacketRef(artifact_id=packet_ref_payload.artifact_id)
+        DecisionValidityService(ctx.store).register_decision_packet(
+            packet_ref=str(packet_ref.artifact_id),
+            envelope=validity_envelope,
+            baseline=validity_baseline,
+            monitoring_contract_ref=monitoring_contract_ref,
+        )
 
         new_state = state.model_copy(deep=True)
         new_state.artifacts_index[ARTIFACT_DECISION_PACKET_REF] = packet_ref
@@ -272,6 +377,7 @@ def _build_artifacts_section(
     return {
         ARTIFACT_EXEC_PLAN_REF: _ref_from_dict(artifacts_index, ARTIFACT_EXEC_PLAN_REF),
         ARTIFACT_PROGRAM_GRAPH_REF: _ref_from_dict(artifacts_index, ARTIFACT_PROGRAM_GRAPH_REF),
+        ARTIFACT_LOWERED_IR_REF: _ref_from_dict(artifacts_index, ARTIFACT_LOWERED_IR_REF),
         ARTIFACT_SIMULATION_RESULT_REF: _ref_from_dict(
             artifacts_index, ARTIFACT_SIMULATION_RESULT_REF
         ),
@@ -310,8 +416,14 @@ def _build_artifacts_section(
             artifacts_index, ARTIFACT_ECONOMETRIC_ENVELOPE_REF
         ),
         ARTIFACT_DECISION_CARD_REF: _ref_from_dict(artifacts_index, ARTIFACT_DECISION_CARD_REF),
+        ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF: _ref_from_dict(
+            artifacts_index, ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF
+        ),
         ARTIFACT_NORM_IMPACT_REPORT_REF: _ref_from_dict(
             artifacts_index, ARTIFACT_NORM_IMPACT_REPORT_REF
+        ),
+        ARTIFACT_NORMATIVE_ARBITRATION_RESULT_REF: _ref_from_dict(
+            artifacts_index, ARTIFACT_NORMATIVE_ARBITRATION_RESULT_REF
         ),
         ARTIFACT_SENSITIVITY_RESULT_REF: _ref_from_dict(
             artifacts_index, ARTIFACT_SENSITIVITY_RESULT_REF
@@ -319,12 +431,48 @@ def _build_artifacts_section(
         ARTIFACT_STRESS_TEST_REPORT_REF: _ref_from_dict(
             artifacts_index, ARTIFACT_STRESS_TEST_REPORT_REF
         ),
+        ARTIFACT_TRANSPORTABILITY_RESULT_REF: _ref_from_dict(
+            artifacts_index, ARTIFACT_TRANSPORTABILITY_RESULT_REF
+        ),
     }
 
 
 def _ref_from_dict(index: dict[str, ArtifactRef], key: str) -> str | None:
     ref = index.get(key)
     return str(ref.artifact_id) if ref is not None else None
+
+
+def _build_runtime_contracts_section(state: ExperimentState) -> dict[str, object]:
+    return {
+        "execution_profile": state.execution_profile,
+        "capability_manifest_ref": (
+            str(state.capability_manifest_ref.artifact_id)
+            if state.capability_manifest_ref is not None
+            else None
+        ),
+    }
+
+
+def _missing_serious_decision_contracts(
+    *,
+    state: ExperimentState,
+    monitoring_contract_ref: str | None,
+) -> list[str]:
+    profile = str(state.execution_profile or state.params.get("execution_profile") or "").strip().lower()
+    if profile not in {"research", "governed", "production"}:
+        return []
+    missing: list[str] = []
+    if state.capability_manifest_ref is None:
+        missing.append("capability_manifest_ref")
+    if ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF not in state.artifacts_index:
+        missing.append(ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF)
+    if ARTIFACT_TRANSPORTABILITY_RESULT_REF not in state.artifacts_index:
+        missing.append(ARTIFACT_TRANSPORTABILITY_RESULT_REF)
+    if ARTIFACT_NORMATIVE_ARBITRATION_RESULT_REF not in state.artifacts_index:
+        missing.append(ARTIFACT_NORMATIVE_ARBITRATION_RESULT_REF)
+    if not monitoring_contract_ref:
+        missing.append("monitoring_contract_ref")
+    return missing
 
 
 def _build_policy_summary(
@@ -338,6 +486,11 @@ def _build_policy_summary(
     try:
         payload = from_canonical_bytes(ctx.store.get_bytes(trinity_ref.artifact_id))
     except Exception:
+        logger.debug(
+            "Failed to load trinity bundle for policy summary from ref %s",
+            trinity_ref,
+            exc_info=True,
+        )
         return "Policy data unavailable", 0
 
     if not isinstance(payload, dict):
@@ -356,6 +509,7 @@ def _build_policy_summary(
 
 def _build_causal_section(
     ctx: ExecutionContext,
+    state: ExperimentState,
     artifacts_index: dict[str, ArtifactRef],
 ) -> dict[str, object] | None:
     report_ref = artifacts_index.get(ARTIFACT_CAUSAL_REPORT_REF)
@@ -383,6 +537,11 @@ def _build_causal_section(
             payload["ensemble_methods"] = sorted({member.discovery_method for member in ensemble.members})
             payload["ensemble_consensus_graph_ref"] = ensemble.consensus_graph_ref
         except Exception:
+            logger.debug(
+                "Failed to parse causal model ensemble from ref %s",
+                ensemble_ref,
+                exc_info=True,
+            )
             payload["ensemble_parse_warning"] = "causal_ensemble_parse_failed"
 
     if report_ref is not None:
@@ -413,7 +572,7 @@ def _build_causal_section(
                         refutation_tests_total > 0
                         and refutation_tests_passed == refutation_tests_total
                     ),
-                    "transportability_summary": _build_transportability_summary(report),
+                    "transportability_summary": _build_transportability_summary(report, state),
                 }
             )
         except Exception:
@@ -422,17 +581,23 @@ def _build_causal_section(
     return payload
 
 
-def _build_transportability_summary(report: CausalEffectReport) -> dict[str, object] | None:
+def _build_transportability_summary(
+    report: CausalEffectReport,
+    state: ExperimentState,
+) -> dict[str, object] | None:
     transport = report.transport_result
     if transport is None:
         return None
     gap_vars = [gap.required_variable for gap in transport.data_gaps]
     return {
         "status": transport.status.value,
+        "transport_mode": transport.transport_mode.value,
         "final_confidence": transport.final_confidence,
         "feasible": transport.feasible,
         "algorithm_version": transport.algorithm_version,
         "identification_engine": transport.identification_engine,
+        "capability_hash": state.params.get("transportability_capability_hash"),
+        "degradation_policy": state.params.get("transportability_degradation_policy"),
         "unsupported_reason": transport.unsupported_reason,
         "identification_trace": list(transport.identification_trace),
         "pag_identification_policy": (
@@ -574,6 +739,7 @@ def _build_backtest_section(
         return None
     from polisyos.core.contracts.backtest import BacktestReportRef
 
+
     payload: dict[str, object] = {"report_ref": str(backtest_ref.artifact_id)}
     try:
         report = load_backtest_report(
@@ -593,6 +759,11 @@ def _build_backtest_section(
                 "detected_biases": [
                     bias.model_dump(mode="json") for bias in report.detected_biases
                 ],
+                "prediction_mode_requested": report.prediction_mode_requested,
+                "prediction_mode_effective": report.prediction_mode_effective,
+                "degraded": report.degraded,
+                "degraded_reasons": list(report.degraded_reasons),
+                "trust_eligible": report.trust_eligible,
                 "trust_score": report.trust_score,
                 "trust_grade": report.trust_grade,
             }
@@ -600,6 +771,75 @@ def _build_backtest_section(
     except Exception:
         payload["parse_warning"] = "backtest_report_parse_failed"
     return payload
+
+
+def _build_feedback_loop(
+    *,
+    ctx: ExecutionContext,
+    state: ExperimentState,
+    packet_payload: dict[str, object],
+    decision_lineage_key: str,
+) -> tuple[dict[str, object], str | None]:
+    generated_at = packet_payload.get("generated_at")
+    anchor_at = str(state.params.get("deployment_at") or generated_at or "")
+    monitoring_contract_ref: str | None = None
+    feedback_service = DecisionFeedbackService(ctx.store)
+    contract = build_monitoring_contract_from_packet(
+        run_id=state.run_id,
+        decision_lineage_key=decision_lineage_key,
+        anchor_at=_parse_anchor_at(anchor_at),
+        packet_payload=packet_payload,
+        override=(
+            state.params.get("monitoring_contract_override")
+            if isinstance(state.params.get("monitoring_contract_override"), dict)
+            else None
+        ),
+    )
+    if contract is not None:
+        input_refs: list[InputRef] = []
+        for ref in (
+            state.inputs.get(INPUT_DATA_SNAPSHOT_REF),
+            state.artifacts_index.get(ARTIFACT_BACKTEST_REPORT_REF),
+            state.artifacts_index.get(ARTIFACT_METRICS_REF),
+        ):
+            if ref is not None:
+                input_refs.append(InputRef(artifact_id=ref.artifact_id, role="feedback_source"))
+        monitoring_contract_ref = feedback_service.persist_monitoring_contract(
+            contract,
+            inputs=input_refs or None,
+        )
+
+    backtest_section = packet_payload.get("backtest") if isinstance(packet_payload.get("backtest"), dict) else {}
+    contract_ref_payload = (
+        DecisionMonitoringContractRef(artifact_id=monitoring_contract_ref).model_dump(mode="json")
+        if monitoring_contract_ref is not None
+        else None
+    )
+    return (
+        {
+            "anchor_at": anchor_at,
+            "monitoring_contract_ref": contract_ref_payload,
+            "latest_monitoring_report_ref": None,
+            "latest_compare_report_ref": None,
+            "latest_reissue_plan_ref": None,
+            "backtest_mode_effective": backtest_section.get("prediction_mode_effective"),
+            "backtest_trust_eligible": backtest_section.get("trust_eligible"),
+        },
+        monitoring_contract_ref,
+    )
+
+
+def _parse_anchor_at(value: str) -> datetime:
+    normalized = value.strip()
+    if normalized.endswith("Z"):
+        normalized = normalized[:-1] + "+00:00"
+    try:
+        parsed = datetime.fromisoformat(normalized)
+    except ValueError:
+        return datetime.now(timezone.utc)
+    if parsed.tzinfo is None:
+        return parsed.replace(tzinfo=timezone.utc)
+    return parsed.astimezone(timezone.utc)
 
 
 def _build_distributional_section(
@@ -662,6 +902,29 @@ def _build_distributional_section(
     return payload
 
 
+def _build_tradeoff_certificate_section(
+    ctx: ExecutionContext,
+    artifacts_index: dict[str, ArtifactRef],
+) -> dict[str, object] | None:
+    result = _load_normative_arbitration(ctx, artifacts_index)
+    if result is None:
+        return None
+    return {
+        "selected_policy": result.tradeoff_certificate.selected_policy.value,
+        "selected_option": result.tradeoff_certificate.selected_option.value,
+        "winners": list(result.tradeoff_certificate.winners),
+        "losers": list(result.tradeoff_certificate.losers),
+        "residual_dissent": [
+            item.model_dump(mode="json") for item in result.tradeoff_certificate.residual_dissent
+        ],
+        "rights_violations": list(result.tradeoff_certificate.rights_violations),
+        "hard_constraint_violations": list(
+            result.tradeoff_certificate.hard_constraint_violations
+        ),
+        "notes": list(result.tradeoff_certificate.notes),
+    }
+
+
 def _build_econometrics_section(
     ctx: ExecutionContext,
     artifacts_index: dict[str, ArtifactRef],
@@ -708,6 +971,23 @@ def _build_econometrics_section(
             payload["envelope_parse_warning"] = "econometric_envelope_parse_failed"
 
     return payload
+
+
+def _load_normative_arbitration(
+    ctx: ExecutionContext,
+    artifacts_index: dict[str, ArtifactRef],
+) -> NormativeArbitrationResult | None:
+    ref = artifacts_index.get(ARTIFACT_NORMATIVE_ARBITRATION_RESULT_REF)
+    if ref is None:
+        return None
+    try:
+        return load_normative_arbitration_result(
+            ctx.store,
+            NormativeArbitrationResultRef(artifact_id=ref.artifact_id),
+        )
+    except Exception:
+        logger.debug("Failed to parse normative arbitration result from ref %s", ref, exc_info=True)
+        return None
 
 
 def _build_aux_artifact_section(
@@ -766,6 +1046,7 @@ def _build_replay_section(
         "suggested_next_step": suggested_next_step,
         "fallback_from_decision_packet": False,
         "has_exec_plan_ref": artifacts_section.get(ARTIFACT_EXEC_PLAN_REF) is not None,
+        "has_lowered_ir_ref": artifacts_section.get(ARTIFACT_LOWERED_IR_REF) is not None,
     }
 
 
@@ -852,6 +1133,7 @@ def _build_diagnostics_summary(
     uncertainty = packet_payload.get("uncertainty")
     uncertainty_dict = uncertainty if isinstance(uncertainty, dict) else {}
     uncertainty_bounds = packet_payload.get("uncertainty_bounds")
+    normative_result = _load_normative_arbitration(ctx, state.artifacts_index)
 
     governance_links = governance_dict.get("links")
     legal_ref = None
@@ -872,6 +1154,7 @@ def _build_diagnostics_summary(
         uncertainty_bounds, dict
     )
     contract_warnings = _collect_contract_warnings(ctx, state)
+    resolved_fidelity_level = _load_resolved_fidelity_level(ctx, state)
     requires_expert_review = bool(transport_dict.get("requires_expert_review")) or bool(
         state.params.get("needs_expert_review")
     )
@@ -879,6 +1162,21 @@ def _build_diagnostics_summary(
         issues if isinstance(issues, list) else [],
         code="HUMAN_REVIEW_REQUESTED",
     ) or requires_expert_review
+    rights_violation_count = 0
+    residual_dissent_count = 0
+    normative_model_completeness = None
+    normative_selected_policy = None
+    normative_selected_option = None
+    if normative_result is not None:
+        rights_violation_count = sum(
+            1
+            for item in normative_result.rights_audit
+            if item.status.value == "violated" and "soft_right" not in item.notes
+        )
+        residual_dissent_count = len(normative_result.residual_dissent)
+        normative_model_completeness = normative_result.model_completeness.value
+        normative_selected_policy = normative_result.selected_policy.value
+        normative_selected_option = normative_result.selected_option.value
 
     return {
         "governance_verdict": governance_dict.get("verdict"),
@@ -898,8 +1196,15 @@ def _build_diagnostics_summary(
         "has_causal_report": has_causal_report,
         "uncertainty_available": uncertainty_available,
         "human_review_needed": human_review_needed,
+        "has_normative_arbitration": normative_result is not None,
+        "normative_selected_policy": normative_selected_policy,
+        "normative_selected_option": normative_selected_option,
+        "normative_model_completeness": normative_model_completeness,
+        "normative_residual_dissent_count": residual_dissent_count,
+        "normative_rights_violation_count": rights_violation_count,
         "determinism_tier": replay_dict.get("determinism_tier"),
         "seed_source": replay_dict.get("seed_source"),
+        "resolved_fidelity_level": resolved_fidelity_level,
         "contract_warnings": contract_warnings,
     }
 
@@ -937,10 +1242,6 @@ def _build_analysis_limits(packet_payload: dict[str, object]) -> dict[str, objec
         labels.append("distributional_not_run")
     if packet_payload.get("abm_alignment") is None:
         labels.append("abm_alignment_not_run")
-    if "deprecated_mechanism_bindings" in normalized_contract_warnings:
-        labels.append("deprecated_mechanism_bindings")
-    if "model_fidelity_level_ignored" in normalized_contract_warnings:
-        labels.append("model_fidelity_level_ignored")
     if any(
         warning.startswith("missing_runtime_mechanism_support:")
         for warning in normalized_contract_warnings
@@ -955,10 +1256,635 @@ def _build_analysis_limits(packet_payload: dict[str, object]) -> dict[str, objec
         "partial_replay_readiness": "partial_replay_readiness" in labels,
         "incomplete_replay_readiness": "incomplete_replay_readiness" in labels,
         "missing_uncertainty_artifact": "missing_uncertainty_artifact" in labels,
-        "deprecated_mechanism_bindings": "deprecated_mechanism_bindings" in labels,
-        "model_fidelity_level_ignored": "model_fidelity_level_ignored" in labels,
         "missing_runtime_mechanism_support": "missing_runtime_mechanism_support" in labels,
     }
+
+
+def _build_decision_validity_envelope(
+    *,
+    ctx: ExecutionContext,
+    state: ExperimentState,
+    packet_payload: dict[str, object],
+) -> DecisionValidityEnvelope:
+    source_context = _extract_context_payload(
+        state,
+        "source_context",
+        "source_context_profile",
+    )
+    target_context = _extract_context_payload(
+        state,
+        "target_context",
+        "target_context_profile",
+        "context_profile",
+    )
+    source_context_fingerprint = _fingerprint_payload(source_context)
+    target_context_fingerprint = _fingerprint_payload(target_context)
+
+    normative_basis = _build_normative_basis(packet_payload)
+    data_basis = _build_data_basis(ctx, packet_payload)
+    knowledge_basis = _build_knowledge_basis(ctx, packet_payload)
+    transportability_basis = _build_transportability_basis(
+        state=state,
+        packet_payload=packet_payload,
+        source_context_fingerprint=source_context_fingerprint,
+        target_context_fingerprint=target_context_fingerprint,
+    )
+    normative_frame_payload = _load_normative_frame_payload(ctx, packet_payload)
+    normative_policy = _path_get(packet_payload, ("tradeoff_certificate", "selected_policy"))
+
+    policy_fingerprint = content_hash(
+        json.dumps(
+            {
+                "trinity_bundle_ref": _path_get(packet_payload, ("inputs", INPUT_TRINITY_BUNDLE_REF)),
+                "policy_summary": packet_payload.get("policy_summary"),
+                "intervention_count": packet_payload.get("intervention_count"),
+                "target_context_fingerprint": target_context_fingerprint,
+                "normative_frame": normative_frame_payload,
+                "normative_policy": normative_policy,
+            },
+            sort_keys=True,
+            separators=(",", ":"),
+        )
+    )
+    decision_lineage_key = content_hash(
+        json.dumps(
+            {
+                "trinity_bundle_ref": _path_get(packet_payload, ("inputs", INPUT_TRINITY_BUNDLE_REF)),
+                "policy_summary": packet_payload.get("policy_summary"),
+                "intervention_count": packet_payload.get("intervention_count"),
+                "target_context_fingerprint": target_context_fingerprint,
+                "normative_frame": normative_frame_payload,
+                "normative_policy": normative_policy,
+            },
+            sort_keys=True,
+            separators=(",", ":"),
+        )
+    )
+
+    return DecisionValidityEnvelope(
+        decision_lineage_key=decision_lineage_key,
+        policy_fingerprint=policy_fingerprint,
+        source_context_fingerprint=source_context_fingerprint,
+        target_context_fingerprint=target_context_fingerprint,
+        normative_basis=normative_basis,
+        data_basis=data_basis,
+        knowledge_basis=knowledge_basis,
+        transportability_basis=transportability_basis,
+        watched_triggers=_build_watched_triggers(
+            normative_basis=normative_basis,
+            data_basis=data_basis,
+            knowledge_basis=knowledge_basis,
+            transportability_basis=transportability_basis,
+        ),
+    )
+
+
+def _build_decision_validity_baseline(
+    *,
+    packet_payload: dict[str, object],
+    envelope: DecisionValidityEnvelope,
+) -> DecisionValidityEvaluation:
+    triggers: list[DecisionTriggerRecord] = []
+    reasons: list[str] = []
+
+    diagnostics = packet_payload.get("diagnostics_summary")
+    diagnostics_dict = diagnostics if isinstance(diagnostics, dict) else {}
+    governance = packet_payload.get("governance")
+    governance_dict = governance if isinstance(governance, dict) else {}
+
+    if bool(diagnostics_dict.get("human_review_needed")) or bool(
+        diagnostics_dict.get("requires_expert_review")
+    ):
+        triggers.append(
+            DecisionTriggerRecord(
+                trigger_type=DecisionTriggerType.EXPERT_REVIEW,
+                status=DecisionValidityStatus.REQUIRES_HUMAN_REVIEW,
+                reason="human_or_expert_review_required",
+                details={
+                    "human_review_needed": bool(diagnostics_dict.get("human_review_needed")),
+                    "requires_expert_review": bool(
+                        diagnostics_dict.get("requires_expert_review")
+                    ),
+                },
+            )
+        )
+        reasons.append("human_or_expert_review_required")
+
+    if str(governance_dict.get("verdict", "")).strip().lower() == "human_gate":
+        triggers.append(
+            DecisionTriggerRecord(
+                trigger_type=DecisionTriggerType.HUMAN_GATE,
+                status=DecisionValidityStatus.REQUIRES_HUMAN_REVIEW,
+                reason="governance_verdict_human_gate",
+            )
+        )
+        reasons.append("governance_verdict_human_gate")
+
+    data_summary = envelope.data_basis.summary
+    freshness_level = str(data_summary.get("freshness_level", "")).strip().lower()
+    if freshness_level and freshness_level != "fresh":
+        triggers.append(
+            DecisionTriggerRecord(
+                trigger_type=DecisionTriggerType.DATASET_SUPERSEDED,
+                status=DecisionValidityStatus.STALE,
+                reason=f"data_freshness_{freshness_level}",
+                dependency_key=data_summary.get("dataset_dependency_key"),
+                details={"freshness_level": freshness_level},
+            )
+        )
+        reasons.append(f"data_freshness_{freshness_level}")
+    if bool(data_summary.get("schema_drift")) or bool(data_summary.get("contract_drift")):
+        drift_reason = (
+            "schema_drift_detected"
+            if bool(data_summary.get("schema_drift"))
+            else "contract_drift_detected"
+        )
+        triggers.append(
+            DecisionTriggerRecord(
+                trigger_type=DecisionTriggerType.HISTORICAL_SEMANTIC_REVISION,
+                status=DecisionValidityStatus.STALE,
+                reason=drift_reason,
+            )
+        )
+        reasons.append(drift_reason)
+
+    knowledge_summary = envelope.knowledge_basis.summary
+    knowledge_freshness = str(knowledge_summary.get("freshness_status", "")).strip().lower()
+    if knowledge_freshness in {"stale", "expired"}:
+        triggers.append(
+            DecisionTriggerRecord(
+                trigger_type=DecisionTriggerType.CONTRADICTING_EVIDENCE,
+                status=DecisionValidityStatus.WARNING,
+                reason=f"knowledge_bundle_{knowledge_freshness}",
+                dependency_key=knowledge_summary.get("knowledge_dependency_key"),
+                details={"freshness_status": knowledge_freshness},
+            )
+        )
+        reasons.append(f"knowledge_bundle_{knowledge_freshness}")
+
+    status = DecisionValidityStatus.ACTIVE
+    for trigger in triggers:
+        status = _max_validity_status(status, trigger.status)
+    normative_summary = envelope.normative_basis.summary
+    if str(normative_summary.get("normative_model_completeness", "")).strip().lower() == "partial":
+        status = _max_validity_status(status, DecisionValidityStatus.WARNING)
+        reasons.append("normative_model_partial")
+    residual_dissent_count = normative_summary.get("normative_residual_dissent_count")
+    if isinstance(residual_dissent_count, int) and residual_dissent_count > 0:
+        status = _max_validity_status(status, DecisionValidityStatus.WARNING)
+        reasons.append("normative_residual_dissent")
+
+    return DecisionValidityEvaluation(
+        decision_lineage_key=envelope.decision_lineage_key,
+        status=status,
+        reasons=_dedupe_strings(reasons),
+        triggers=triggers,
+        dependency_keys=envelope.dependency_keys(),
+        recommended_action=_recommended_action(status),
+        review_required=status == DecisionValidityStatus.REQUIRES_HUMAN_REVIEW,
+    )
+
+
+def _build_normative_basis(packet_payload: dict[str, object]) -> DecisionBasisSection:
+    dependencies: list[DecisionDependencyRef] = []
+    summary: dict[str, object] = {}
+    norm_pack_ref = _path_get(packet_payload, ("inputs", INPUT_NORM_PACK_REF))
+    legal_report_ref = _path_get(packet_payload, ("artifacts", REPORT_LEGAL_REPORT_REF))
+    normative_result_ref = _path_get(
+        packet_payload,
+        ("artifacts", ARTIFACT_NORMATIVE_ARBITRATION_RESULT_REF),
+    )
+    if isinstance(norm_pack_ref, str):
+        dependencies.append(
+            _dependency_ref(
+                DecisionDependencyKind.NORM_PACK,
+                f"norm_pack:{norm_pack_ref}",
+                artifact_id=norm_pack_ref,
+                label="norm_pack_ref",
+            )
+        )
+        summary["norm_pack_ref"] = norm_pack_ref
+    if isinstance(legal_report_ref, str):
+        dependencies.append(
+            _dependency_ref(
+                DecisionDependencyKind.LEGAL_REPORT,
+                f"legal_report:{legal_report_ref}",
+                artifact_id=legal_report_ref,
+                label="legal_report_ref",
+            )
+        )
+        summary["legal_report_ref"] = legal_report_ref
+    if isinstance(normative_result_ref, str):
+        dependencies.append(
+            _dependency_ref(
+                DecisionDependencyKind.NORMATIVE_ARBITRATION,
+                f"normative_arbitration:{normative_result_ref}",
+                artifact_id=normative_result_ref,
+                label="normative_arbitration_result_ref",
+            )
+        )
+        summary["normative_arbitration_result_ref"] = normative_result_ref
+    governance = packet_payload.get("governance")
+    if isinstance(governance, dict):
+        summary["governance_verdict"] = governance.get("verdict")
+    diagnostics = packet_payload.get("diagnostics_summary")
+    if isinstance(diagnostics, dict):
+        summary["legal_executed"] = bool(diagnostics.get("legal_executed"))
+        summary["normative_selected_policy"] = diagnostics.get("normative_selected_policy")
+        summary["normative_selected_option"] = diagnostics.get("normative_selected_option")
+        summary["normative_model_completeness"] = diagnostics.get(
+            "normative_model_completeness"
+        )
+        summary["normative_residual_dissent_count"] = diagnostics.get(
+            "normative_residual_dissent_count"
+        )
+        summary["normative_rights_violation_count"] = diagnostics.get(
+            "normative_rights_violation_count"
+        )
+    return DecisionBasisSection(dependencies=dependencies, summary=summary)
+
+
+def _build_data_basis(
+    ctx: ExecutionContext,
+    packet_payload: dict[str, object],
+) -> DecisionBasisSection:
+    dependencies: list[DecisionDependencyRef] = []
+    summary: dict[str, Any] = {}
+    data_snapshot_ref = _path_get(packet_payload, ("inputs", INPUT_DATA_SNAPSHOT_REF))
+    binding_report_ref = _path_get(packet_payload, ("artifacts", ARTIFACT_INPUT_BINDING_REPORT_REF))
+    if isinstance(data_snapshot_ref, str):
+        dependencies.append(
+            _dependency_ref(
+                DecisionDependencyKind.DATA_SNAPSHOT,
+                f"data_snapshot:{data_snapshot_ref}",
+                artifact_id=data_snapshot_ref,
+                label="data_snapshot_ref",
+            )
+        )
+        summary["data_snapshot_ref"] = data_snapshot_ref
+    if isinstance(binding_report_ref, str):
+        dependencies.append(
+            _dependency_ref(
+                DecisionDependencyKind.INPUT_BINDING_REPORT,
+                f"input_binding_report:{binding_report_ref}",
+                artifact_id=binding_report_ref,
+                label="input_binding_report_ref",
+            )
+        )
+        summary["input_binding_report_ref"] = binding_report_ref
+
+    snapshot_payload = _load_json_payload_by_ref(ctx, data_snapshot_ref)
+    if snapshot_payload is None:
+        return DecisionBasisSection(dependencies=dependencies, summary=summary)
+
+    try:
+        snapshot = DataSnapshot.model_validate(snapshot_payload)
+    except Exception:
+        return DecisionBasisSection(dependencies=dependencies, summary=summary)
+
+    summary["stats"] = dict(snapshot.stats)
+    summary["notes"] = list(snapshot.notes)
+    summary["pii_scan_summary"] = snapshot.pii_scan_summary
+    if snapshot.quality_report_ref is not None:
+        quality_report_ref = str(snapshot.quality_report_ref.artifact_id)
+        dependencies.append(
+            _dependency_ref(
+                DecisionDependencyKind.QUALITY_REPORT,
+                f"quality_report:{quality_report_ref}",
+                artifact_id=quality_report_ref,
+                label="quality_report_ref",
+            )
+        )
+        summary["quality_report_ref"] = quality_report_ref
+        quality_payload = _load_json_payload_by_ref(ctx, quality_report_ref)
+        if isinstance(quality_payload, dict):
+            dataset_id = quality_payload.get("dataset_id")
+            schema_id = quality_payload.get("schema_id")
+            if isinstance(dataset_id, str) and dataset_id:
+                dataset_dependency = _dependency_ref(
+                    DecisionDependencyKind.DATASET,
+                    f"dataset:{dataset_id}",
+                    label=dataset_id,
+                )
+                dependencies.append(dataset_dependency)
+                summary["dataset_id"] = dataset_id
+                summary["dataset_dependency_key"] = dataset_dependency.key
+            if isinstance(schema_id, str) and schema_id:
+                dependencies.append(
+                    _dependency_ref(
+                        DecisionDependencyKind.DATA_SCHEMA,
+                        f"data_schema:{schema_id}",
+                        label=schema_id,
+                    )
+                )
+                summary["schema_id"] = schema_id
+            freshness = quality_payload.get("freshness_status")
+            if isinstance(freshness, dict):
+                summary["freshness_level"] = freshness.get("level")
+                summary["is_fresh"] = freshness.get("is_fresh")
+                summary["data_age_seconds"] = freshness.get("data_age_seconds")
+                summary["freshness_message"] = freshness.get("message")
+            quality_flags = quality_payload.get("quality_flags")
+            if isinstance(quality_flags, list):
+                summary["quality_flags"] = [str(item) for item in quality_flags]
+            violations = quality_payload.get("violations")
+            if isinstance(violations, list):
+                messages = [
+                    str(item.get("message", "")).lower()
+                    for item in violations
+                    if isinstance(item, dict)
+                ]
+                summary["schema_drift"] = any("schema drift" in msg for msg in messages)
+                summary["contract_drift"] = any(
+                    "contract drift" in msg or "supersed" in msg for msg in messages
+                )
+
+    return DecisionBasisSection(
+        dependencies=_dedupe_dependency_refs(dependencies),
+        summary=summary,
+    )
+
+
+def _build_knowledge_basis(
+    ctx: ExecutionContext,
+    packet_payload: dict[str, object],
+) -> DecisionBasisSection:
+    dependencies: list[DecisionDependencyRef] = []
+    summary: dict[str, Any] = {}
+    knowledge_bundle_ref = _path_get(packet_payload, ("inputs", INPUT_KNOWLEDGE_BUNDLE_REF))
+    research_intent_ref = _path_get(packet_payload, ("inputs", INPUT_RESEARCH_INTENT_REF))
+    if isinstance(knowledge_bundle_ref, str):
+        dependencies.append(
+            _dependency_ref(
+                DecisionDependencyKind.KNOWLEDGE_BUNDLE,
+                f"knowledge_bundle:{knowledge_bundle_ref}",
+                artifact_id=knowledge_bundle_ref,
+                label="knowledge_bundle_ref",
+            )
+        )
+        summary["knowledge_bundle_ref"] = knowledge_bundle_ref
+        summary["knowledge_dependency_key"] = f"knowledge_bundle:{knowledge_bundle_ref}"
+    if isinstance(research_intent_ref, str):
+        dependencies.append(
+            _dependency_ref(
+                DecisionDependencyKind.RESEARCH_INTENT,
+                f"research_intent:{research_intent_ref}",
+                artifact_id=research_intent_ref,
+                label="research_intent_ref",
+            )
+        )
+    for artifact_key in (
+        ARTIFACT_CAUSAL_REPORT_REF,
+        ARTIFACT_CAUSAL_ENSEMBLE_REF,
+        ARTIFACT_ECONOMETRIC_EVIDENCE_REF,
+    ):
+        artifact_ref = _path_get(packet_payload, ("artifacts", artifact_key))
+        if isinstance(artifact_ref, str):
+            dependencies.append(
+                _dependency_ref(
+                    DecisionDependencyKind.CAUSAL_EVIDENCE,
+                    f"causal_evidence:{artifact_ref}",
+                    artifact_id=artifact_ref,
+                    label=artifact_key,
+                )
+            )
+
+    bundle_payload = _load_json_payload_by_ref(ctx, knowledge_bundle_ref)
+    if isinstance(bundle_payload, dict):
+        freshness_payload = bundle_payload.get("freshness")
+        if isinstance(freshness_payload, dict):
+            try:
+                freshness = FreshnessMetadata.model_validate(freshness_payload)
+                summary["freshness_status"] = freshness.compute_status().value
+                summary["source_freshness_at"] = (
+                    freshness.source_freshness_at.isoformat()
+                    if freshness.source_freshness_at is not None
+                    else None
+                )
+                summary["enrichment_count"] = freshness.enrichment_count
+            except Exception:
+                summary["freshness_status"] = "unknown"
+        notes = bundle_payload.get("notes")
+        if isinstance(notes, list):
+            summary["notes"] = [str(item) for item in notes]
+
+    return DecisionBasisSection(
+        dependencies=_dedupe_dependency_refs(dependencies),
+        summary=summary,
+    )
+
+
+def _build_transportability_basis(
+    *,
+    state: ExperimentState,
+    packet_payload: dict[str, object],
+    source_context_fingerprint: str | None,
+    target_context_fingerprint: str | None,
+) -> DecisionBasisSection:
+    dependencies: list[DecisionDependencyRef] = []
+    summary: dict[str, Any] = {}
+    causal = packet_payload.get("causal")
+    causal_dict = causal if isinstance(causal, dict) else {}
+    transport = causal_dict.get("transportability_summary")
+    transport_dict = dict(transport) if isinstance(transport, dict) else {}
+    if transport_dict:
+        summary.update(transport_dict)
+    summary["source_context_fingerprint"] = source_context_fingerprint
+    summary["target_context_fingerprint"] = target_context_fingerprint
+    assumptions = state.params.get("transportability_assumptions")
+    if isinstance(assumptions, list):
+        summary["assumptions"] = list(assumptions)
+    elif isinstance(assumptions, dict):
+        summary["assumptions"] = assumptions
+
+    capability_hash = transport_dict.get("capability_hash")
+    if isinstance(capability_hash, str) and capability_hash:
+        dependencies.append(
+            _dependency_ref(
+                DecisionDependencyKind.TRANSPORTABILITY,
+                f"transportability_capability:{capability_hash}",
+                label="transportability_capability_hash",
+            )
+        )
+    if target_context_fingerprint is not None:
+        dependencies.append(
+            _dependency_ref(
+                DecisionDependencyKind.CONTEXT_PROFILE,
+                f"context_profile:{target_context_fingerprint}",
+                label="target_context",
+            )
+        )
+    if source_context_fingerprint is not None:
+        dependencies.append(
+            _dependency_ref(
+                DecisionDependencyKind.CONTEXT_PROFILE,
+                f"context_profile:{source_context_fingerprint}",
+                label="source_context",
+            )
+        )
+
+    return DecisionBasisSection(
+        dependencies=_dedupe_dependency_refs(dependencies),
+        summary=summary,
+    )
+
+
+def _build_watched_triggers(
+    *,
+    normative_basis: DecisionBasisSection,
+    data_basis: DecisionBasisSection,
+    knowledge_basis: DecisionBasisSection,
+    transportability_basis: DecisionBasisSection,
+) -> list[DecisionTriggerSpec]:
+    return [
+        DecisionTriggerSpec(
+            trigger_type=DecisionTriggerType.LAW_CHANGE,
+            dependency_keys=[item.key for item in normative_basis.dependencies],
+            description="Watch norm/legal dependencies for change or hard invalidation.",
+        ),
+        DecisionTriggerSpec(
+            trigger_type=DecisionTriggerType.DATASET_SUPERSEDED,
+            dependency_keys=[item.key for item in data_basis.dependencies],
+            description="Watch dataset supersede and cache invalidation signals.",
+        ),
+        DecisionTriggerSpec(
+            trigger_type=DecisionTriggerType.HISTORICAL_SEMANTIC_REVISION,
+            dependency_keys=[item.key for item in data_basis.dependencies],
+            description="Watch schema or semantic revision of historical data.",
+        ),
+        DecisionTriggerSpec(
+            trigger_type=DecisionTriggerType.CONTRADICTING_EVIDENCE,
+            dependency_keys=[item.key for item in knowledge_basis.dependencies],
+            description="Watch contradictory evidence, retractions, and stale scholar bundles.",
+        ),
+        DecisionTriggerSpec(
+            trigger_type=DecisionTriggerType.CONTEXT_PROFILE_DRIFT,
+            dependency_keys=[item.key for item in transportability_basis.dependencies],
+            description="Watch source/target context profile drift.",
+        ),
+    ]
+
+
+def _dependency_ref(
+    kind: DecisionDependencyKind,
+    key: str,
+    *,
+    artifact_id: str | None = None,
+    label: str | None = None,
+    metadata: dict[str, Any] | None = None,
+) -> DecisionDependencyRef:
+    return DecisionDependencyRef(
+        kind=kind,
+        key=key,
+        artifact_id=artifact_id,
+        label=label,
+        metadata=metadata or {},
+    )
+
+
+def _dedupe_dependency_refs(
+    values: list[DecisionDependencyRef],
+) -> list[DecisionDependencyRef]:
+    deduped: list[DecisionDependencyRef] = []
+    seen: set[tuple[str, str, str | None]] = set()
+    for item in values:
+        key = (item.kind.value, item.key, item.artifact_id)
+        if key in seen:
+            continue
+        seen.add(key)
+        deduped.append(item)
+    return deduped
+
+
+def _extract_context_payload(state: ExperimentState, *keys: str) -> Any:
+    for key in keys:
+        if key in state.params:
+            return state.params.get(key)
+    return None
+
+
+def _fingerprint_payload(value: Any) -> str | None:
+    if value is None:
+        return None
+    return content_hash(
+        json.dumps(value, sort_keys=True, separators=(",", ":"), default=str)
+    )
+
+
+def _load_json_payload_by_ref(
+    ctx: ExecutionContext,
+    ref_value: str | None,
+) -> dict[str, Any] | None:
+    if not isinstance(ref_value, str) or not ref_value:
+        return None
+    try:
+        artifact_id = ArtifactID.model_validate(ref_value)
+        payload = from_canonical_bytes(ctx.store.get_bytes(artifact_id))
+    except Exception:
+        return None
+    return payload if isinstance(payload, dict) else None
+
+
+def _load_normative_frame_payload(
+    ctx: ExecutionContext,
+    packet_payload: dict[str, object],
+) -> dict[str, Any] | None:
+    trinity_bundle_ref = _path_get(packet_payload, ("inputs", INPUT_TRINITY_BUNDLE_REF))
+    bundle = _load_json_payload_by_ref(ctx, trinity_bundle_ref)
+    if bundle is None:
+        return None
+    problem_frame = bundle.get("problem_frame")
+    if not isinstance(problem_frame, dict):
+        return None
+    normative_frame = problem_frame.get("normative_frame")
+    return normative_frame if isinstance(normative_frame, dict) else None
+
+
+def _path_get(payload: dict[str, object], path: tuple[str, ...]) -> Any:
+    current: Any = payload
+    for key in path:
+        if not isinstance(current, dict):
+            return None
+        current = current.get(key)
+    return current
+
+
+def _dedupe_strings(values: list[str]) -> list[str]:
+    deduped: list[str] = []
+    for value in values:
+        normalized = value.strip()
+        if normalized and normalized not in deduped:
+            deduped.append(normalized)
+    return deduped
+
+
+def _recommended_action(status: DecisionValidityStatus) -> str:
+    if status == DecisionValidityStatus.ACTIVE:
+        return "none"
+    if status == DecisionValidityStatus.WARNING:
+        return "monitor"
+    if status == DecisionValidityStatus.STALE:
+        return "refresh_decision"
+    if status == DecisionValidityStatus.SUPERSEDED:
+        return "review_superseded"
+    if status == DecisionValidityStatus.REVOKED:
+        return "record_revocation"
+    return "human_review"
+
+
+def _max_validity_status(
+    left: DecisionValidityStatus,
+    right: DecisionValidityStatus,
+) -> DecisionValidityStatus:
+    order = {
+        DecisionValidityStatus.ACTIVE: 0,
+        DecisionValidityStatus.WARNING: 1,
+        DecisionValidityStatus.STALE: 2,
+        DecisionValidityStatus.REQUIRES_HUMAN_REVIEW: 3,
+        DecisionValidityStatus.SUPERSEDED: 4,
+        DecisionValidityStatus.REVOKED: 5,
+    }
+    return right if order[right] > order[left] else left
 
 
 def _summarize_governance_issues(issues: list[dict[str, object]]) -> dict[str, int]:
@@ -1038,11 +1964,31 @@ def _append_unique(values: list[str], value: str) -> None:
         values.append(value)
 
 
+def _load_resolved_fidelity_level(
+    ctx: ExecutionContext,
+    state: ExperimentState,
+) -> str | None:
+    lowered_ir_ref = state.artifacts_index.get(ARTIFACT_LOWERED_IR_REF)
+    if lowered_ir_ref is None:
+        return None
+    try:
+        payload = from_canonical_bytes(ctx.store.get_bytes(lowered_ir_ref.artifact_id))
+    except Exception:
+        return None
+    if not isinstance(payload, dict):
+        return None
+    fidelity = payload.get("policy_fidelity_level")
+    return fidelity if isinstance(fidelity, str) else None
+
+
 def _build_manifest_inputs(packet_payload: dict[str, object]) -> list[InputRef]:
     collected: dict[tuple[str, str], InputRef] = {}
     for section_name, prefix in (
         ("inputs", "input"),
         ("artifacts", "artifact"),
+        ("runtime_contracts", "runtime_contracts"),
+        ("decision_validity_envelope", "decision_validity_envelope"),
+        ("decision_validity_baseline", "decision_validity_baseline"),
         ("uncertainty", "uncertainty"),
         ("hte", "hte"),
         ("targeting", "targeting"),
@@ -1177,8 +2123,8 @@ def _build_uncertainty_bounds(
             bounds["causal_effect_point"] = float(env.point_estimate)
             if env.confidence_level is not None:
                 bounds["causal_effect_ci_level"] = float(env.confidence_level)
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.debug("Ignored exception: %s", exc)
 
     econometric_ref = uncertainty_section.get("econometric_envelope_ref")
     if isinstance(econometric_ref, str):
@@ -1190,7 +2136,7 @@ def _build_uncertainty_bounds(
             bounds["econometric_effect_point"] = float(env.point_estimate)
             if env.confidence_level is not None:
                 bounds["econometric_effect_ci_level"] = float(env.confidence_level)
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.debug("Ignored exception: %s", exc)
 
     return bounds or None

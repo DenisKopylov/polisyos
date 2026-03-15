@@ -5,11 +5,12 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
-from polisyos.core.components import ComponentId
 from polisyos.core.canon import from_canonical_bytes
+from polisyos.core.components import ComponentId
 from polisyos.core.contracts.lex import (
     ChangeProposalRef,
     LegalEvaluationRequest,
@@ -44,6 +45,8 @@ from polisyos.lex.legal_evaluation.backends.simple_v1 import (
 from polisyos.lex.legal_evaluation.change_proposals import propose_changes_impl
 from polisyos.lex.legal_evaluation.context_builder import LegalContextBuilder
 from polisyos.lex.normpack.select_sources import normalize_as_of
+
+logger = get_logger(__name__)
 
 _ID_RE = re.compile(ID_PATTERN)
 
@@ -110,10 +113,11 @@ def _load_trinity_bundle_refs(
     try:
         from polisyos.core.contracts.trinity import TrinityBundle as TrinityRefsBundle
 
+
         refs_bundle = TrinityRefsBundle.model_validate(payload)
         return refs_bundle.policy_spec_ref, refs_bundle.model_spec_ref
-    except Exception:
-        pass
+    except Exception as exc:
+        logger.debug("Ignored exception: %s", exc)
 
     try:
         trinity_bundle = TrinityPayloadBundle.model_validate(payload)

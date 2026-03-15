@@ -8,6 +8,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from polisyos.common.logger import get_logger
 from polisyos.core.contracts.control import (
     DataNeed,
     FetchPlan,
@@ -19,6 +20,8 @@ from polisyos.fabric.catalog.search import MetricSearcher
 from polisyos.fabric.catalog.source_bindings import SourceBinding, SourceBindingRegistry
 from polisyos.fabric.connectors.registry import ConnectorRegistry
 from polisyos.ir.connectors import TrustLevel
+
+logger = get_logger(__name__)
 
 
 def _stable_id(prefix: str, *parts: str) -> str:
@@ -293,6 +296,9 @@ class FastLaneResolver:
         try:
             meta = self._connector_registry.get_metadata(connector_id)
         except Exception:
+            logger.debug(
+                "Failed to get connector metadata for %s", connector_id, exc_info=True,
+            )
             return {"trust_level": None, "last_updated": None, "latency_ms": None}
         return {
             "trust_level": meta.trust_level,

@@ -16,6 +16,8 @@ import pandas as pd
 
 from polisyos.core.pipeline import (
     DagPipeline as CoreDagPipeline,
+)
+from polisyos.core.pipeline import (
     PipelineCycleError,
     UnknownStageError,
 )

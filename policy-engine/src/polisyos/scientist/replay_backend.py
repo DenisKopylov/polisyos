@@ -41,7 +41,7 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     INPUT_STATE_SNAPSHOT_REF,
     INPUT_TRINITY_BUNDLE_REF,
 )
-from polisyos.scientist.workflows.builder import run_default_workflow
+from polisyos.scientist.workflows.builder import run_selected_workflow
 
 
 @dataclass
@@ -192,7 +192,7 @@ def _execute_scientist_replay(
         inputs=state_inputs,
         params={"random_seed": seed, "replay_mode": True},
     )
-    result = run_default_workflow(state, store=store, foundry=DefaultFoundryPort())
+    result = run_selected_workflow(state, store=store, foundry=DefaultFoundryPort())
     decision_packet = result.state.artifacts_index.get(ARTIFACT_DECISION_PACKET_REF)
     simulation_result = result.state.artifacts_index.get(ARTIFACT_SIMULATION_RESULT_REF)
     return (

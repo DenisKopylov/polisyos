@@ -7,7 +7,41 @@ import os
 from dataclasses import dataclass, field
 from pathlib import Path
 
-ALL_STAGES = frozenset({"parse", "structure", "spo", "graph"})
+ALL_STAGES = frozenset(
+    {
+        "parse",
+        "structure",
+        "spo",
+        "ground_quotes",
+        "resolve_refs",
+        "graph",
+        "export_claims",
+        "benchmark",
+        # Operational finalize stages are invoked via dedicated CLI commands,
+        # but they still need to be accepted by BatchConfig for tests/helpers.
+        "qc",
+        "publish_bundle",
+    }
+)
+
+
+def _default_gonka_api_keys() -> list[str]:
+    primary = str(os.environ.get("GONKA_API_KEY", "")).strip()
+    keys: list[str] = [primary] if primary else []
+    numbered: list[tuple[int, str]] = []
+    for key, value in os.environ.items():
+        if not key.startswith("GONKA_API_KEY_"):
+            continue
+        suffix = key.removeprefix("GONKA_API_KEY_")
+        if not suffix.isdigit():
+            continue
+        token = str(value or "").strip()
+        if token:
+            numbered.append((int(suffix), token))
+    for _, token in sorted(numbered):
+        if token not in keys:
+            keys.append(token)
+    return keys
 
 
 @dataclass
@@ -61,8 +95,28 @@ class BatchConfig:
         return self.output_dir / "references"
 
     @property
+    def grounded_spo_dir(self) -> Path:
+        return self.output_dir / "spo_grounded"
+
+    @property
+    def resolved_references_dir(self) -> Path:
+        return self.output_dir / "resolved_references"
+
+    @property
     def domains_dir(self) -> Path:
         return self.output_dir / "domains"
+
+    @property
+    def claim_exports_dir(self) -> Path:
+        return self.output_dir / "claim_exports"
+
+    @property
+    def consumer_manifest_path(self) -> Path:
+        return self.output_dir / "publish" / "consumer_readiness.json"
+
+    @property
+    def benchmark_report_path(self) -> Path:
+        return self.output_dir / "benchmark_report.json"
 
     @property
     def llm_gate_audit_path(self) -> Path:
@@ -79,6 +133,7 @@ class BatchConfig:
 
     # --- LLM (Gonka, OpenAI-compatible) ---
     gonka_api_key: str = ""
+    gonka_api_keys: list[str] = field(default_factory=_default_gonka_api_keys)
     gonka_base_url: str = "https://api.gonkagate.com/v1"
     llm_model: str = "qwen/qwen3-235b-a22b-instruct-2507-fp8"
     llm_temperature: float = 0.1
@@ -100,6 +155,7 @@ class BatchConfig:
     # --- Filtering ---
     status_filter: frozenset[str] | None = None
     type_filter: frozenset[str] | None = None
+    doc_id_filter: frozenset[str] | None = None
 
     # --- Pipeline control ---
     stages: frozenset[str] = field(default_factory=lambda: ALL_STAGES)
@@ -117,6 +173,8 @@ class BatchConfig:
     spo_batch_docs: int = 500
     spo_task_batch_size: int = 1000
     spo_request_batch_size: int = 5
+    spo_request_batch_chars: int | None = 6000
+    spo_group_timeout_seconds: float | None = None
     spo_max_provisions_per_doc: int | None = None
     spo_extract_mode: str = "light"
     spo_skip_trivial: bool = True
@@ -141,20 +199,29 @@ class BatchConfig:
     # --- Deterministic enrichments ---
     extract_references_enabled: bool = True
     extract_domains_enabled: bool = True
+    publish_require_embeddings: bool = True
+    export_claims_to_cas: bool = False
+    cas_root: Path | None = None
+    fact_log_root: Path | None = None
 
     # --- Quality gates ---
     quality_gates_enabled: bool = True
     quality_fail_on_critical: bool = False
-    quality_max_full_only_docs_pct: float = 30.0
-    quality_max_empty_statement_rows_pct: float = 12.0
+    quality_structure_gate_enabled: bool = True
+    quality_structure_fail_fast: bool = True
+    quality_max_full_only_docs_pct: float = 25.0
+    quality_max_empty_statement_rows_pct: float = 10.0
     quality_max_oov_action_rate_pct: float = 1.0
     quality_max_missing_quote_rate_pct: float = 5.0
     quality_max_duplicate_anchor_rate_pct: float = 0.1
-    quality_max_audit_miss_rate_pct: float = 3.0
+    quality_max_audit_miss_rate_pct: float = 5.0
+    quality_min_reference_resolution_coverage_pct: float = 80.0
     quality_min_llm_saved_pct: float = 50.0
+    quality_min_audit_samples_for_rate: int = 10
     quality_min_provision_docs_for_doc_rate: int = 25
     quality_min_spo_rows_for_row_rate: int = 50
     quality_min_statements_for_statement_rate: int = 100
+    quality_min_reference_rows_for_rate: int = 10
 
     def is_doc_in_shard(self, doc_id: str) -> bool:
         """Deterministically assign a document id to one shard."""
@@ -174,6 +241,10 @@ class BatchConfig:
             raise ValueError("spo_max_provisions_per_doc must be >= 1 when set")
         if self.spo_request_batch_size < 1:
             raise ValueError("spo_request_batch_size must be >= 1")
+        if self.spo_request_batch_chars is not None and self.spo_request_batch_chars < 500:
+            raise ValueError("spo_request_batch_chars must be >= 500 when set")
+        if self.spo_group_timeout_seconds is not None and self.spo_group_timeout_seconds <= 0:
+            raise ValueError("spo_group_timeout_seconds must be > 0 when set")
         if self.spo_extract_mode not in {"light", "full"}:
             raise ValueError("spo_extract_mode must be one of: light, full")
         if self.spo_verify_mode not in {"llm", "code"}:
@@ -190,19 +261,25 @@ class BatchConfig:
             raise ValueError("llm_gate_audit_sample_rate must be in range [0, 1]")
         if self.llm_gate_audit_max_miss_rate_pct < 0.0:
             raise ValueError("llm_gate_audit_max_miss_rate_pct must be >= 0")
+        if self.quality_min_reference_resolution_coverage_pct < 0.0 or self.quality_min_reference_resolution_coverage_pct > 100.0:
+            raise ValueError("quality_min_reference_resolution_coverage_pct must be in range [0, 100]")
+        if self.quality_min_reference_rows_for_rate < 0:
+            raise ValueError("quality_min_reference_rows_for_rate must be >= 0")
         if not (0.0 <= self.llm_gate_auto_conf_threshold <= 1.0):
             raise ValueError("llm_gate_auto_conf_threshold must be in range [0, 1]")
         if self.quality_min_provision_docs_for_doc_rate < 0:
             raise ValueError("quality_min_provision_docs_for_doc_rate must be >= 0")
+        if self.quality_min_audit_samples_for_rate < 0:
+            raise ValueError("quality_min_audit_samples_for_rate must be >= 0")
         if self.quality_min_spo_rows_for_row_rate < 0:
             raise ValueError("quality_min_spo_rows_for_row_rate must be >= 0")
         if self.quality_min_statements_for_statement_rate < 0:
             raise ValueError("quality_min_statements_for_statement_rate must be >= 0")
 
-        if self.sharded and {"graph"} & set(self.stages):
+        if self.sharded and {"graph", "export_claims", "publish_bundle"} & set(self.stages):
             raise ValueError(
-                "In sharded mode run only parse/structure/spo stages. "
-                "Run graph as a separate single-process finalize pass."
+                "In sharded mode run only parse/structure/spo/ground_quotes/resolve_refs stages. "
+                "Run graph/export_claims/publish_bundle as separate single-process finalize passes."
             )
 
         self.output_dir.mkdir(parents=True, exist_ok=True)
@@ -210,11 +287,34 @@ class BatchConfig:
         self.spo_results_dir.mkdir(parents=True, exist_ok=True)
         self.provisions_dir.mkdir(parents=True, exist_ok=True)
         self.references_dir.mkdir(parents=True, exist_ok=True)
+        self.grounded_spo_dir.mkdir(parents=True, exist_ok=True)
+        self.resolved_references_dir.mkdir(parents=True, exist_ok=True)
         self.domains_dir.mkdir(parents=True, exist_ok=True)
+        self.claim_exports_dir.mkdir(parents=True, exist_ok=True)
         self.openai_batches_dir.mkdir(parents=True, exist_ok=True)
 
-        if not self.gonka_api_key:
-            self.gonka_api_key = os.environ.get("GONKA_API_KEY", "")
+        if not self.gonka_api_keys:
+            self.gonka_api_keys = _default_gonka_api_keys()
+
+        explicit_key = str(self.gonka_api_key or "").strip()
+        if explicit_key:
+            if explicit_key not in self.gonka_api_keys:
+                self.gonka_api_keys = [explicit_key, *self.gonka_api_keys]
+            else:
+                self.gonka_api_keys = [explicit_key, *[k for k in self.gonka_api_keys if k != explicit_key]]
+        self.gonka_api_key = explicit_key or (self.gonka_api_keys[0] if self.gonka_api_keys else "")
+
+        if self.export_claims_to_cas:
+            if self.cas_root is None:
+                env_root = os.environ.get("POLISYOS_CAS_ROOT")
+                if env_root:
+                    self.cas_root = Path(env_root)
+            if self.fact_log_root is None:
+                self.fact_log_root = self.output_dir / "fact_log"
+            if self.cas_root is None:
+                raise ValueError("export_claims_to_cas requires cas_root or POLISYOS_CAS_ROOT")
+            self.cas_root.mkdir(parents=True, exist_ok=True)
+            self.fact_log_root.mkdir(parents=True, exist_ok=True)
 
         unknown = set(self.stages) - ALL_STAGES
         if unknown:

@@ -6,6 +6,7 @@ import jax.numpy as jnp
 import pytest
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.contracts.foundry import CompileRequest
 from polisyos.core.registry import build_registry_bundle, load_registry_bundle_content
 from polisyos.foundry.compile.api import compile as compile_foundry
@@ -135,9 +136,96 @@ def test_constraint_operators(
     )
 
     if should_pass:
-        result = execute_program_graph(**exec_kwargs)
-        assert result.metrics_ref is not None
-        assert result.constraint_report_ref is not None
+        exec_result = execute_program_graph(**exec_kwargs)
+        assert exec_result.metrics_ref is not None
+        assert exec_result.constraint_report_ref is not None
+        assert exec_result.constraint_hard_fail is False
+        report_payload = from_canonical_bytes(
+            store.get_bytes(exec_result.constraint_report_ref.artifact_id)
+        )
+        assert report_payload["hard_fail"] is False
+        assert report_payload["violations"][0]["violated"] is False
     else:
-        with pytest.raises(ValueError):
-            execute_program_graph(**exec_kwargs)
+        exec_result = execute_program_graph(**exec_kwargs)
+        assert exec_result.constraint_report_ref is not None
+        assert exec_result.constraint_hard_fail is True
+        report_payload = from_canonical_bytes(
+            store.get_bytes(exec_result.constraint_report_ref.artifact_id)
+        )
+        assert report_payload["hard_fail"] is True
+        assert report_payload["violations"][0]["violated"] is True
+
+
+def test_soft_constraint_violation_persists_penalty_without_failing_execute(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path)
+    registries, bundle_ref = _registries_with_constraint(store, ">=")
+
+    policy_bundle = TrinityBundle(
+        problem_frame=ProblemFrame(
+            problem_id="problem_soft_constraint",
+            domain=ProblemDomain.FISCAL,
+            soft_constraints=[
+                ProblemConstraintSpec(
+                    constraint_id="budget_guard",
+                    constraint_type=ConstraintType.SOFT,
+                    value=Decimal("5"),
+                    penalty_weight=Decimal("2.0"),
+                )
+            ],
+        ),
+        policy_spec=PolicySpec(policy_id="policy_soft_constraint", interventions=[]),
+        model_spec=ModelSpec(
+            model_id="model_soft_constraint",
+            data_snapshot_ref=CTX_REF,
+            registry_bundle_ref=str(bundle_ref.artifact_id),
+        ),
+    )
+
+    policy_ref = store.put_json(
+        policy_bundle,
+        PutOptions(
+            kind="ir.trinity_bundle",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.ir.TrinityBundle", version=policy_bundle.schema_version),
+        ),
+    )
+    compile_result = compile_foundry(
+        store,
+        CompileRequest(
+            input_kind="trinity",
+            policy_ref=policy_ref,
+            registry_bundle_ref=bundle_ref,
+        ),
+    )
+    assert compile_result.ok
+    program_ref = next(
+        ref.ref for ref in compile_result.derived_refs if ref.role == "program_graph"
+    )
+    exec_plan_ref = compile_result.exec_plan_ref
+    assert exec_plan_ref is not None
+
+    base_state = GlobalState.empty(n_agents=1, n_firms=1).replace(
+        government_balance=jnp.array(0.0, dtype=jnp.float32)
+    )
+
+    exec_result = execute_program_graph(
+        store=store,
+        program_ref=program_ref,
+        exec_plan_ref=exec_plan_ref,
+        base_state=base_state,
+        mechanism_registry=registries.mechanism_registry,
+        slot_registry=registries.slot_registry,
+        merge_registry=registries.merge_registry,
+        selector_field_registry=registries.selector_field_registry,
+        constraint_registry=registries.constraint_registry,
+        step=0,
+    )
+
+    assert exec_result.constraint_report_ref is not None
+    assert exec_result.constraint_hard_fail is False
+    report_payload = from_canonical_bytes(store.get_bytes(exec_result.constraint_report_ref.artifact_id))
+    assert report_payload["ok"] is True
+    assert report_payload["hard_fail"] is False
+    assert report_payload["penalty_total"] == 2.0
+    assert report_payload["violations"][0]["severity"] == "soft"
+    assert report_payload["violations"][0]["violated"] is True

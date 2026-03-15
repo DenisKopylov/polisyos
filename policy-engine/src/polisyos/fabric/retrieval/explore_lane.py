@@ -8,11 +8,14 @@ from datetime import datetime, timezone
 from typing import Any
 
 from polisyos.common.async_tools import run_coro_sync
+from polisyos.common.logger import get_logger
 from polisyos.core.contracts.control import DataNeed, DiscoveryCandidate
 from polisyos.fabric.connectors.profiles import SourceProfileRegistry
 from polisyos.fabric.connectors.profiles.resolver import resolve_connection_config
 from polisyos.fabric.connectors.registry import ConnectorRegistry
 from polisyos.ir.connectors import ConnectorCapability
+
+logger = get_logger(__name__)
 
 
 @dataclass(frozen=True)
@@ -105,6 +108,10 @@ class ExploreLaneDiscovery:
                                 if isinstance(schema_raw, dict):
                                     schema_excerpt = schema_raw
                             except Exception:
+                                logger.debug(
+                                    "Failed to fetch dataset schema for connector=%s dataset=%s",
+                                    connector_id, descriptor.dataset_id, exc_info=True,
+                                )
                                 schema_excerpt = {}
 
                         candidates.append(

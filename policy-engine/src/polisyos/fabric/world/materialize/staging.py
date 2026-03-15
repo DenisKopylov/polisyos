@@ -11,7 +11,6 @@ from polisyos.ir.world.predicates import WORLD_REL_PREFIX
 
 from .errors import WorldSchemaError
 
-
 REQUIRED_COLUMNS = {
     "fact_id",
     "schema_version",

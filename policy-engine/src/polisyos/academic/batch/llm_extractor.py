@@ -5,7 +5,6 @@ from __future__ import annotations
 import asyncio
 import hashlib
 import json
-import logging
 import re
 from dataclasses import dataclass
 from datetime import UTC, datetime
@@ -14,11 +13,12 @@ from typing import Any
 
 import aiohttp
 
-from polisyos.batch_common.manifest import write_stage_manifest
 from polisyos.academic.batch.config import AcademicBatchConfig
 from polisyos.academic.knowledge.types import EstimateCandidate, WorkRecord
+from polisyos.batch_common.manifest import write_stage_manifest
+from polisyos.common.logger import get_logger
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 EXTRACTION_PROMPT = """Extract causal and quantitative evidence from this abstract.
 

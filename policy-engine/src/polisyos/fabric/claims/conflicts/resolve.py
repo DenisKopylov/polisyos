@@ -3,6 +3,7 @@ from __future__ import annotations
 from decimal import ROUND_HALF_UP, Decimal
 from pathlib import Path
 
+from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
@@ -19,8 +20,8 @@ from polisyos.fabric.world import (
     stable_world_provenance_v1,
     validate_conflict_set_id,
 )
-from polisyos.ir.canon import to_canonical_bytes
 from polisyos.ir.analytics.uncertainty import persist_uncertainty_envelope
+from polisyos.ir.canon import to_canonical_bytes
 from polisyos.ir.world.abi import EdgeKind, NodeKind
 from polisyos.ir.world.conflict import (
     ConflictResolution,
@@ -46,6 +47,7 @@ from polisyos.ir.world.quality import (
 )
 from polisyos.ir.world.trust import TrustAssessment, TrustTier
 
+from ..world_events import build_claims_world_event, persist_claims_world_event
 from .detect import (
     _all_claim_artifacts_from_db,
     _load_claim_refs_from_claim_sets,
@@ -58,7 +60,8 @@ from .score_claims import score_claim_trust_assessments
 from .score_docs import score_doc_trust_assessments
 from .types import ConflictResolveOptions, ConflictResolveResult, RankedClaim
 from .uncertainty_adapter import envelope_from_conflict_resolution
-from ..world_events import build_claims_world_event, persist_claims_world_event
+
+logger = get_logger(__name__)
 
 _CONFLICT_RESOLUTION_SCHEMA = SchemaInfo(name="fabric.claims.conflict_resolution", version="1.0")
 _Q4 = Decimal("0.0001")
@@ -249,6 +252,9 @@ def _query_extractor_ids_by_claim_from_db(
         try:
             manifest = cas.get_manifest(ArtifactID.model_validate(artifact_id))
         except Exception:
+            logger.debug(
+                "Failed to load manifest for artifact %s", artifact_id, exc_info=True,
+            )
             continue
         if manifest.kind != "fabric.claims.claim_set":
             continue

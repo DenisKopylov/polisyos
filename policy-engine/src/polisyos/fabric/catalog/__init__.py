@@ -2,7 +2,7 @@
 from .binding import DataContractSchemaBinding, MetricBinding
 from .contract import DataContract, DataContractCollection, DataType, Granularity, PIITier
 from .registry import ContractHashMismatchError, ContractNotFoundError, DataContractRegistry
-from .resolver_fast_lane import FastLaneResolveResult, FastLaneResolver
+from .resolver_fast_lane import FastLaneResolver, FastLaneResolveResult
 from .search import MetricSearcher, SearchResponse, SearchResult
 from .source_bindings import SourceBinding, SourceBindingCollection, SourceBindingRegistry
 from .validate import ContractValidationError, load_contract_collection

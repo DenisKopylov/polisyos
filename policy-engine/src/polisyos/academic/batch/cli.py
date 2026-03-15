@@ -13,8 +13,12 @@ from polisyos.academic.batch.config import ALL_STAGES, AcademicBatchConfig
 _STAGE_ALIAS = {
     "topic-select": "topic_select",
     "resolve-extract": "resolve_extract",
+    "resolve-finalize": "resolve_finalize",
+    "numeric-extract": "numeric_extract",
     "merge-dedup": "merge_dedup",
+    "claim-adjudicate": "claim_adjudicate",
     "graph-load": "graph_load",
+    "edge-synthesize": "edge_synthesize",
     "graph-index": "graph_index",
     "transport-score": "transport_score",
 }
@@ -47,6 +51,19 @@ def _build_config(args: argparse.Namespace, *, stages: frozenset[str]) -> Academ
         token.strip().upper() for token in target_country_codes_raw.split(",") if token.strip()
     )
     shared_cache_dir_raw = str(getattr(args, "fulltext_shared_cache_dir", "")).strip()
+    priority_domain_subblocks_raw = str(getattr(args, "priority_domain_subblocks", "")).strip()
+    priority_context_subblocks_raw = str(getattr(args, "priority_context_subblocks", "")).strip()
+    priority_domain_subblocks = (
+        tuple(token.strip() for token in priority_domain_subblocks_raw.split("|") if token.strip())
+        if priority_domain_subblocks_raw
+        else AcademicBatchConfig.priority_domain_subblocks
+    )
+    priority_context_subblocks = (
+        tuple(token.strip() for token in priority_context_subblocks_raw.split("|") if token.strip())
+        if priority_context_subblocks_raw
+        else AcademicBatchConfig.priority_context_subblocks
+    )
+    demand_backlog_path_raw = str(getattr(args, "demand_backlog_path", "")).strip()
 
     return AcademicBatchConfig(
         snapshot_root=Path(args.snapshot_root),
@@ -54,7 +71,17 @@ def _build_config(args: argparse.Namespace, *, stages: frozenset[str]) -> Academ
         resume=bool(getattr(args, "resume", False)),
         topics_dir=Path(getattr(args, "topics_dir")) if getattr(args, "topics_dir", None) else None,
         topic_limit=int(getattr(args, "topic_limit")) if getattr(args, "topic_limit", None) is not None else None,
-        target_per_topic=int(getattr(args, "target_per_topic", 150)),
+        target_per_topic=int(getattr(args, "target_per_topic", 500)),
+        selected_unique_budget=int(getattr(args, "selected_unique_budget", 330_000)),
+        usable_fulltext_target=int(getattr(args, "usable_fulltext_target", 180_000)),
+        policy_core_quota_share=float(getattr(args, "policy_core_quota_share", 0.25)),
+        priority_domain_quota_share=float(getattr(args, "priority_domain_quota_share", 0.55)),
+        priority_context_quota_share=float(getattr(args, "priority_context_quota_share", 0.15)),
+        adaptive_reserve_quota_share=float(getattr(args, "adaptive_reserve_quota_share", 0.05)),
+        priority_domain_subblocks=priority_domain_subblocks,
+        priority_context_subblocks=priority_context_subblocks,
+        demand_backlog_path=Path(demand_backlog_path_raw) if demand_backlog_path_raw else None,
+        demand_backlog_boost=float(getattr(args, "demand_backlog_boost", 0.20)),
         pass_name=str(getattr(args, "pass_name", "pass1_abstract")),
         run_id=resolved_run_id,
         openalex_email=str(getattr(args, "openalex_email", "")),
@@ -87,8 +114,13 @@ def _build_config(args: argparse.Namespace, *, stages: frozenset[str]) -> Academ
         article_connect_timeout_seconds=int(getattr(args, "article_connect_timeout_seconds", 15)),
         article_read_timeout_seconds=int(getattr(args, "article_read_timeout_seconds", 120)),
         article_total_timeout_seconds=int(getattr(args, "article_total_timeout_seconds", 150)),
+        article_provider_watchdog_seconds=int(getattr(args, "article_provider_watchdog_seconds", 0)),
+        article_retryable_followup_passes=int(getattr(args, "article_retryable_followup_passes", 1)),
+        article_retryable_followup_delay_seconds=float(
+            getattr(args, "article_retryable_followup_delay_seconds", 5.0)
+        ),
         fulltext_max_concurrent_fetches=int(getattr(args, "fulltext_max_concurrent_fetches", 24)),
-        fulltext_acquisition_mode=str(getattr(args, "fulltext_acquisition_mode", "v3_legacy")),
+        fulltext_acquisition_mode=str(getattr(args, "fulltext_acquisition_mode", "v7_http_metadata")),
         fulltext_metadata_resolvers_enabled=bool(getattr(args, "fulltext_metadata_resolvers_enabled", True)),
         fulltext_metadata_resolver_order=resolver_order,
         fulltext_unpaywall_email=str(getattr(args, "fulltext_unpaywall_email", "")),
@@ -118,6 +150,8 @@ def _build_config(args: argparse.Namespace, *, stages: frozenset[str]) -> Academ
         paper_classification_model=str(getattr(args, "paper_classification_model", "")),
         track_b_extraction_model=str(getattr(args, "track_b_extraction_model", "")),
         track_c_extraction_model=str(getattr(args, "track_c_extraction_model", "")),
+        numeric_precision_mode=str(getattr(args, "numeric_precision_mode", "high_precision")),
+        claim_adjudication_passes=int(getattr(args, "claim_adjudication_passes", 3)),
         transport_target_context_id=str(getattr(args, "transport_target_context_id", "")),
         transport_target_country_codes=transport_target_country_codes,
         transport_target_time_period=str(getattr(args, "transport_target_time_period", "")),
@@ -126,17 +160,21 @@ def _build_config(args: argparse.Namespace, *, stages: frozenset[str]) -> Academ
 
 
 async def _run_stage(args: argparse.Namespace, stage: str) -> None:
+    from polisyos.academic.batch.claim_adjudicator import run_claim_adjudicate, run_consensus_aggregate
     from polisyos.academic.batch.dedup import merge_and_dedup
+    from polisyos.academic.batch.edge_synthesize import run_edge_synthesize
     from polisyos.academic.batch.embedder import run_embed
     from polisyos.academic.batch.graph_builder import run_graph_index, run_graph_load
     from polisyos.academic.batch.harvester import harvest_all
+    from polisyos.academic.batch.numeric_extract import run_numeric_extract
     from polisyos.academic.batch.parser import parse_raw_sources
     from polisyos.academic.batch.pipeline import run_academic_pipeline
     from polisyos.academic.batch.publish import run_publish
     from polisyos.academic.batch.qc import run_qc
+    from polisyos.academic.batch.resolve_finalize import run_resolve_finalize
     from polisyos.academic.batch.resolve_extract import run_resolve_extract
-    from polisyos.academic.batch.transport_score import run_transport_score
     from polisyos.academic.batch.topic_select import run_topic_select
+    from polisyos.academic.batch.transport_score import run_transport_score
 
     stage_name = _normalize_stage_name(stage)
     if stage_name == "run":
@@ -164,11 +202,23 @@ async def _run_stage(args: argparse.Namespace, stage: str) -> None:
     elif stage_name == "resolve_extract":
         resolve_stats = await run_resolve_extract(cfg)
         print(json_dumps_pretty(resolve_stats))
+    elif stage_name == "resolve_finalize":
+        finalize_stats = run_resolve_finalize(cfg)
+        print(json_dumps_pretty(finalize_stats))
+    elif stage_name == "numeric_extract":
+        numeric_stats = run_numeric_extract(cfg)
+        print(json_dumps_pretty(numeric_stats))
     elif stage_name == "merge_dedup":
         stats = merge_and_dedup(cfg)
         print(f"Merged works: {stats.get('merged_records', 0)}")
         print(f"Duplicates: {stats.get('duplicates', 0)}")
         print(f"Topic links: {stats.get('topic_links', 0)}")
+    elif stage_name == "claim_adjudicate":
+        adjudication_stats = await run_claim_adjudicate(cfg)
+        adjudication_stats.update(
+            {f"consensus_{key}": value for key, value in run_consensus_aggregate(cfg).items()}
+        )
+        print(json_dumps_pretty(adjudication_stats))
     elif stage_name == "graph_load":
         gstats = run_graph_load(cfg)
         print(
@@ -176,6 +226,9 @@ async def _run_stage(args: argparse.Namespace, stage: str) -> None:
             f"works={gstats.works} estimates={gstats.estimates} claims={gstats.claims} "
             f"topic_selections={gstats.topic_selections}"
         )
+    elif stage_name == "edge_synthesize":
+        synthesis_stats = run_edge_synthesize(cfg)
+        print(json_dumps_pretty(synthesis_stats))
     elif stage_name == "graph_index":
         run_graph_index(cfg)
         print("Graph indexes created")
@@ -254,7 +307,23 @@ def _build_parser() -> argparse.ArgumentParser:
     common.add_argument("--snapshot-root", required=True)
     common.add_argument("--topics-dir", default="/Users/deniskopylov/polisyos/relevant_topics_domain_files")
     common.add_argument("--topic-limit", type=int, default=None)
-    common.add_argument("--target-per-topic", type=int, default=150)
+    common.add_argument("--target-per-topic", type=int, default=500)
+    common.add_argument("--selected-unique-budget", type=int, default=330000)
+    common.add_argument("--usable-fulltext-target", type=int, default=180000)
+    common.add_argument("--policy-core-quota-share", type=float, default=0.25)
+    common.add_argument("--priority-domain-quota-share", type=float, default=0.55)
+    common.add_argument("--priority-context-quota-share", type=float, default=0.15)
+    common.add_argument("--adaptive-reserve-quota-share", type=float, default=0.05)
+    common.add_argument(
+        "--priority-domain-subblocks",
+        default="economy/finance/business|health/healthcare|climate/energy/environment|agriculture/food/rural|urban/housing/transport|governance/law/regulation|labor/social development|education/human capital|technology/industry/digital",
+    )
+    common.add_argument(
+        "--priority-context-subblocks",
+        default="country/region profiles|comparative area studies|historical/political context",
+    )
+    common.add_argument("--demand-backlog-path", default="")
+    common.add_argument("--demand-backlog-boost", type=float, default=0.20)
     common.add_argument("--pass-name", default="pass1_abstract")
     common.add_argument("--run-id", default="")
     common.add_argument("--openalex-email", default="")
@@ -286,8 +355,11 @@ def _build_parser() -> argparse.ArgumentParser:
     common.add_argument("--article-connect-timeout-seconds", type=int, default=15)
     common.add_argument("--article-read-timeout-seconds", type=int, default=120)
     common.add_argument("--article-total-timeout-seconds", type=int, default=150)
+    common.add_argument("--article-provider-watchdog-seconds", type=int, default=0)
+    common.add_argument("--article-retryable-followup-passes", type=int, default=1)
+    common.add_argument("--article-retryable-followup-delay-seconds", type=float, default=5.0)
     common.add_argument("--fulltext-max-concurrent-fetches", type=int, default=24)
-    common.add_argument("--fulltext-acquisition-mode", default="v3_legacy", choices=["v3_legacy", "v7_http_metadata"])
+    common.add_argument("--fulltext-acquisition-mode", default="v7_http_metadata", choices=["v3_legacy", "v7_http_metadata"])
     common.add_argument(
         "--fulltext-metadata-resolvers-enabled",
         dest="fulltext_metadata_resolvers_enabled",
@@ -352,8 +424,10 @@ def _build_parser() -> argparse.ArgumentParser:
     common.add_argument("--paper-classification-model", default="")
     common.add_argument("--track-b-extraction-model", default="")
     common.add_argument("--track-c-extraction-model", default="")
+    common.add_argument("--numeric-precision-mode", default="high_precision", choices=["off", "balanced", "high_precision"])
+    common.add_argument("--claim-adjudication-passes", type=int, default=3)
     common.add_argument("--transport-target-context-id", default="")
-    common.add_argument("--transport-target-country-codes", default="")
+    common.add_argument("--transport-target-country-codes", default="UA")
     common.add_argument("--transport-target-time-period", default="")
 
     common.add_argument("--resume", action="store_true")
@@ -362,8 +436,11 @@ def _build_parser() -> argparse.ArgumentParser:
     sub.add_parser("harvest", parents=[common], help="Harvest OpenAlex snapshots")
     sub.add_parser("parse", parents=[common], help="Parse raw snapshots")
     sub.add_parser("resolve-extract", parents=[common], help="Streaming fulltext-first one-call extraction")
+    sub.add_parser("resolve-finalize", parents=[common], help="Consolidate resolve attempts into one canonical result per work")
     sub.add_parser("merge-dedup", parents=[common], help="Merge parsed records and dedup by work_id")
+    sub.add_parser("claim-adjudicate", parents=[common], help="Run multi-pass claim adjudication on finalized extraction results")
     sub.add_parser("graph-load", parents=[common], help="Load merged works into DuckDB")
+    sub.add_parser("edge-synthesize", parents=[common], help="Build family-aggregated evidence layers and canonical review queues")
     sub.add_parser("graph-index", parents=[common], help="Build DuckDB indexes")
     sub.add_parser("transport-score", parents=[common], help="Score edge transportability")
 
@@ -417,8 +494,11 @@ def main() -> None:
         "harvest",
         "parse",
         "resolve-extract",
+        "resolve-finalize",
         "merge-dedup",
+        "claim-adjudicate",
         "graph-load",
+        "edge-synthesize",
         "graph-index",
         "transport-score",
         "embed",

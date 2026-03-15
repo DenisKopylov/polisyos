@@ -69,6 +69,11 @@ export class RuntimeApiClient {
     return this.request('GET', path);
   }
 
+  async getAuthMe() {
+    const path = `/api/v1/auth/me`;
+    return this.request('GET', path);
+  }
+
   async getControlCapabilities() {
     const path = `/api/v1/control/capabilities`;
     return this.request('GET', path);
@@ -114,6 +119,11 @@ export class RuntimeApiClient {
     return this.request('GET', path);
   }
 
+  async getControlJobStatus(params) {
+    const path = `/api/v1/control/jobs/${encodeURIComponent(String(params.job_id))}`;
+    return this.request('GET', path);
+  }
+
   async getLexGraphStats(params) {
     const path = `/api/v1/control/lex/graph/stats`;
     const query = this.buildQuery({
@@ -132,8 +142,18 @@ export class RuntimeApiClient {
     return this.request('GET', path);
   }
 
+  async getRunCompare(params) {
+    const path = `/api/v1/debug/runs/${encodeURIComponent(String(params.left_run_id))}/compare/${encodeURIComponent(String(params.right_run_id))}`;
+    return this.request('GET', path);
+  }
+
   async getRunErrors(params) {
     const path = `/api/v1/debug/runs/${encodeURIComponent(String(params.run_id))}/errors`;
+    return this.request('GET', path);
+  }
+
+  async getRunFeedback(params) {
+    const path = `/api/v1/debug/runs/${encodeURIComponent(String(params.run_id))}/feedback`;
     return this.request('GET', path);
   }
 

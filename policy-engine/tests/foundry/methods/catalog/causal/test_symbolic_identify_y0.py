@@ -78,8 +78,8 @@ def test_symbolic_identify_handles_frontdoor_like_case(monkeypatch) -> None:
     )
     result = TransportabilityResult.model_validate(raw["transport_result"])
 
-    assert result.status is TransportabilityStatus.TRANSPORTABLE
-    assert result.identification_engine == "symbolic"
+    assert result.status is TransportabilityStatus.IDENTIFIED
+    assert result.identification_engine == "y0"
     assert result.transport_formula is not None
     assert result.transport_formula.adjustment_type == "frontdoor_symbolic"
     assert "P*(M|X)" in result.transport_formula.target_quantities
@@ -104,8 +104,8 @@ def test_symbolic_identify_reports_unavailable_backend(monkeypatch) -> None:
     )
     result = TransportabilityResult.model_validate(raw["transport_result"])
 
-    assert result.status is TransportabilityStatus.NON_TRANSPORTABLE
-    assert result.identification_engine == "symbolic"
+    assert result.status is TransportabilityStatus.UNSUPPORTED
+    assert result.identification_engine == "y0"
     assert result.unsupported_reason == "y0_unavailable;rpy2_unavailable"
     assert any("symbolic_backend_unavailable" in step for step in result.identification_trace)
 
@@ -125,8 +125,8 @@ def test_symbolic_identify_supports_r_backend_mode(monkeypatch) -> None:
     )
     result = TransportabilityResult.model_validate(raw["transport_result"])
 
-    assert result.status is TransportabilityStatus.TRANSPORTABLE
-    assert result.identification_engine == "symbolic"
+    assert result.status is TransportabilityStatus.IDENTIFIED
+    assert result.identification_engine == "r_causaleffect"
     assert any("symbolic_backend_selected:r" in step for step in result.identification_trace)
 
 
@@ -148,5 +148,5 @@ def test_symbolic_identify_full_auto_fallback_order(monkeypatch) -> None:
         params={"symbolic_backend": "full_auto", "require_symbolic_backend": True},
     )
     result = TransportabilityResult.model_validate(raw["transport_result"])
-    assert result.status is TransportabilityStatus.NON_TRANSPORTABLE
+    assert result.status is TransportabilityStatus.UNSUPPORTED
     assert any("symbolic_backend_order:y0,r" in step for step in result.identification_trace)

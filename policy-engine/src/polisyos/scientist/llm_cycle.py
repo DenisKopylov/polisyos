@@ -6,6 +6,7 @@ from typing import Any
 
 from polisyos.core.artifacts.manifest import InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.canon import CanonSpec, fingerprint
 from polisyos.core.contracts.control import DataNeed
 from polisyos.core.contracts.execution_plan import (
     BudgetSpec,
@@ -28,8 +29,6 @@ from polisyos.core.contracts.execution_plan import (
     ReproducibilityManifestRef,
     StopCriteria,
 )
-from polisyos.core.canon import fingerprint
-from polisyos.core.canon import CanonSpec
 from polisyos.foundry.methods import MethodRegistry, check_linkable
 
 
@@ -83,6 +82,7 @@ def preflight_execution_plan(
     registry = MethodRegistry.get_instance()
 
     available = {entry.fqn for entry in catalog.entries}
+    catalog_entries = {entry.fqn: entry for entry in catalog.entries}
     node_by_id = {node.node_id: node for node in plan.method_dag}
     graph: dict[str, set[str]] = {}
 
@@ -108,6 +108,28 @@ def preflight_execution_plan(
                     message=f"Method '{node.method_fqn}' not found in method catalog snapshot",
                     path=["method_dag", node.node_id, "method_fqn"],
                     replanning_hints=["Pick a method from live catalog snapshot"],
+                )
+            )
+            continue
+        entry = catalog_entries.get(node.method_fqn)
+        if entry is not None and entry.causal_available is False:
+            diagnostics.append(
+                PreflightDiagnostic(
+                    code="method_catalog.causal_capability_unavailable",
+                    severity="error",
+                    message=(
+                        f"Method '{node.method_fqn}' requires unavailable causal runtime "
+                        f"capabilities: {entry.causal_capability_requirements}"
+                    ),
+                    path=["method_dag", node.node_id, "method_fqn"],
+                    replanning_hints=[
+                        "Install the required causal profile or choose a method without symbolic transport requirements",
+                    ],
+                    data={
+                        "causal_requirements": list(entry.causal_capability_requirements),
+                        "disabled_reasons": list(entry.causal_disabled_reasons),
+                        "causal_capability_hash": catalog.causal_capability_hash,
+                    },
                 )
             )
 

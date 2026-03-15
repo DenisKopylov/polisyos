@@ -18,6 +18,14 @@ class DistributionResult(BaseModel):
     format: str = ""
     connector_type: str = ""
     connector_params: dict = Field(default_factory=dict)
+    source_locator: str = ""
+    profile_id: str = ""
+    media_type: str = ""
+    machine_readable: bool = False
+    parser_supported: bool = False
+    size_estimate_bytes: int | None = None
+    checksum: str = ""
+    default_filters: dict[str, list[str]] = Field(default_factory=dict)
     quality_score: float = 0.0
 
 
@@ -45,11 +53,20 @@ class DatasetSearchResult(BaseModel):
     source: str = ""
     agency: str = ""
     dataset_id: str = ""
+    source_dataset_id: str = ""
     dedup_key: str = ""
+    execution_tier: str = "catalog"
+    update_frequency: str = ""
+    last_updated: str | None = None
+    coverage: "DatasetCoverage" = Field(default_factory=lambda: DatasetCoverage())
+    access: "DatasetAccess" = Field(default_factory=lambda: DatasetAccess())
+    quality: "DatasetQuality" = Field(default_factory=lambda: DatasetQuality())
+    preferred_distribution_id: str = ""
 
     # Best distribution (for quick connector access)
     connector_type: str = ""
     connector_params: dict = Field(default_factory=dict)
+    profile_id: str = ""
 
     def embedding_text(self) -> str:
         """Text used for vector embedding."""
@@ -74,6 +91,14 @@ class DistributionRecord(BaseModel):
     name: str = ""
     connector_type: str = ""
     connector_params: dict = Field(default_factory=dict)
+    source_locator: str = ""
+    profile_id: str = ""
+    media_type: str = ""
+    machine_readable: bool = False
+    parser_supported: bool = False
+    size_estimate_bytes: int | None = None
+    checksum: str = ""
+    default_filters: dict[str, list[str]] = Field(default_factory=dict)
     quality_score: float = 0.0
 
 
@@ -105,7 +130,15 @@ class DatasetRecord(BaseModel):
     source: str = ""
     agency: str = ""
     dataset_id: str = ""
+    source_dataset_id: str = ""
     dedup_key: str = ""
+    execution_tier: str = "catalog"
+    update_frequency: str = ""
+    last_updated: str | None = None
+    coverage: "DatasetCoverage" = Field(default_factory=lambda: DatasetCoverage())
+    access: "DatasetAccess" = Field(default_factory=lambda: DatasetAccess())
+    quality: "DatasetQuality" = Field(default_factory=lambda: DatasetQuality())
+    preferred_distribution_id: str = ""
 
 
 class DatasetVariable(BaseModel):
@@ -127,7 +160,10 @@ class DatasetCoverage(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     countries: list[str] = Field(default_factory=list)
+    regions: list[str] = Field(default_factory=list)
     time_range: str = ""
+    time_start: str | None = None
+    time_end: str | None = None
     granularity: str = ""
 
 
@@ -140,6 +176,19 @@ class DatasetAccess(BaseModel):
     api_endpoint: str | None = None
     bulk_download_url: str | None = None
     license: str = ""
+    auth_required: bool = False
+
+
+class DatasetQuality(BaseModel):
+    """Quality/readiness scores for runtime-grade dataset selection."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    description_score: float = 0.0
+    machine_readable_score: float = 0.0
+    parser_support_score: float = 0.0
+    freshness_score: float = 0.0
+    execution_readiness_score: float = 0.0
 
 
 class DatasetEntry(BaseModel):
@@ -155,6 +204,40 @@ class DatasetEntry(BaseModel):
     access: DatasetAccess = Field(default_factory=DatasetAccess)
     update_frequency: str
     last_updated: str
+
+
+class ResolvedFetchTarget(BaseModel):
+    """Concrete fetch target derived from catalog metadata."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    catalog_dataset_id: str
+    connector_id: str
+    profile_id: str = ""
+    request_dataset_id: str
+    distribution_id: str = ""
+    connector_params: dict = Field(default_factory=dict)
+    default_filters: dict[str, list[str]] = Field(default_factory=dict)
+    machine_readable: bool = False
+    parser_supported: bool = False
+
+
+class MetricBindingMatch(BaseModel):
+    """Deterministic metric -> dataset/distribution binding row."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    metric_id: str
+    catalog_dataset_id: str
+    distribution_id: str = ""
+    connector_id: str
+    profile_id: str = ""
+    request_dataset_id: str
+    confidence: float = 0.0
+    default_filters: dict[str, list[str]] = Field(default_factory=dict)
+    execution_tier: str = "catalog"
+    source: str = ""
+    title: str = ""
 
 
 class DatasetMatch(BaseModel):
@@ -197,3 +280,7 @@ class PStarZResult(BaseModel):
     condition_on: dict[str, float] = Field(default_factory=dict)
     distribution: list[float] | None = None
     distribution_type: DistributionType = DistributionType.POINT
+
+
+DatasetSearchResult.model_rebuild()
+DatasetRecord.model_rebuild()

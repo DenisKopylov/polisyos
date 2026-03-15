@@ -30,9 +30,9 @@ from polisyos.ir.world.event import (
 )
 from polisyos.ir.world.ids import conflict_set_id_from_key
 
+from ..world_events import build_claims_world_event, persist_claims_world_event
 from .key import compare_v1, conflict_key_v1
 from .types import ConflictDetectOptions, ConflictDetectResult
-from ..world_events import build_claims_world_event, persist_claims_world_event
 
 
 def _query_claim_artifacts_from_db(db: SimulationDB, claim_ids: Iterable[str]) -> dict[str, str]:

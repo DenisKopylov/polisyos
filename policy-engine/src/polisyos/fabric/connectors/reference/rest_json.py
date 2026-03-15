@@ -47,6 +47,7 @@ from typing import Any, ClassVar
 
 import aiohttp
 
+from polisyos.common.logger import get_logger
 from polisyos.core.canon import streaming_hash
 from polisyos.fabric.connectors.base import (
     BaseConnector,
@@ -80,6 +81,8 @@ from polisyos.ir.connectors import (
     capabilities_from_flags,
 )
 
+logger = get_logger(__name__)
+
 
 def _parse_http_datetime(value: str | None) -> datetime | None:
     if not value:
@@ -87,11 +90,15 @@ def _parse_http_datetime(value: str | None) -> datetime | None:
     try:
         from email.utils import parsedate_to_datetime
 
+
         parsed = parsedate_to_datetime(value)
         if parsed.tzinfo is None:
             parsed = parsed.replace(tzinfo=timezone.utc)
         return parsed
-    except Exception:
+    except (TypeError, ValueError):
+        logger.debug(
+            "Failed to parse HTTP datetime value %r", value, exc_info=True,
+        )
         return None
 
 
@@ -259,6 +266,10 @@ class GenericRESTConnector(BaseConnector[list[dict[str, Any]]]):
             params[cfg["date_end_param"]] = request.date_end.isoformat()
         if request.incremental_since:
             params["since"] = request.incremental_since.value
+        for key, values in request.filters:
+            if not values:
+                continue
+            params[key] = ",".join(str(value) for value in values)
 
         page_number = 1
         cursor: str | None = None

@@ -5,7 +5,7 @@ from polisyos.foundry.methods.catalog.causal.protocols import ParameterTransferD
 from polisyos.ir.analytics.context import ContextProfile, IncomeLevel
 from polisyos.ir.analytics.literature import EvidenceParameter
 from polisyos.ir.analytics.parameters import ContextAdaptiveParameterBundle, ParameterApplicability
-from polisyos.ir.analytics.transportability import TransportabilityStatus
+from polisyos.ir.analytics.transportability import TransportMode, TransportabilityStatus
 
 
 def test_parameter_transfer_builds_bridge_payload() -> None:
@@ -23,7 +23,8 @@ def test_parameter_transfer_builds_bridge_payload() -> None:
             "fiscal_multiplier": ParameterApplicability(
                 parameter_id="fiscal_multiplier",
                 target_context_id="UA",
-                transport_status=TransportabilityStatus.TRANSPORTABLE,
+                transport_status=TransportabilityStatus.IDENTIFIED,
+                transport_mode=TransportMode.TRANSPORT_FORMULA,
                 transport_confidence=0.6,
                 context_distance=0.4,
                 is_applicable=True,

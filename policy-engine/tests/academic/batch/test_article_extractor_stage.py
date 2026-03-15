@@ -3,10 +3,10 @@ from __future__ import annotations
 import asyncio
 import json
 
-from polisyos.academic.batch.article_extractor import run_article_extract
+from polisyos.academic.batch.article_extractor import _build_evidence_bundle, run_article_extract
 from polisyos.academic.batch.config import AcademicBatchConfig
 from polisyos.academic.batch.fulltext_resolver import FullTextFetchResult
-from polisyos.academic.batch.resolve_extract import ProviderResponse, WorkItem, _eligibility_gate
+from polisyos.academic.batch.resolve_extract import ProviderResponse, WorkItem, _eligibility_gate, _post_resolve_priority
 from polisyos.ir.analytics.literature import TextQuality
 
 
@@ -167,6 +167,184 @@ class _PartialFailureFakePool(_BaseFakePool):
             http_status=200,
             finish_reason="stop",
             latency_ms=9.0,
+            retry_count=0,
+            limiter_wait_ms=0.0,
+            backoff_sleep_ms=0.0,
+            parse_status="ok",
+            error_class="",
+            raw_content="{}",
+            truncated_output=False,
+        )
+
+
+class _CrashingFakePool(_BaseFakePool):
+    async def chat_json(self, *, model, prompt, temperature):  # type: ignore[no-untyped-def]
+        raise RuntimeError("provider transport dropped")
+
+
+class _RetryableThenSuccessFakePool(_BaseFakePool):
+    attempts = 0
+
+    async def chat_json(self, *, model, prompt, temperature):  # type: ignore[no-untyped-def]
+        type(self).attempts += 1
+        if type(self).attempts == 1:
+            raise asyncio.TimeoutError()
+        return ProviderResponse(
+            parsed={
+                "paper_relevance": True,
+                "paper_relevance_reason": "policy causal",
+                "empirical_parameters": [
+                    {
+                        "name": "gdp growth",
+                        "value": 0.2,
+                        "parameter_type": "quantitative",
+                        "evidence_strength": "observational",
+                        "geographic_scope": "OECD",
+                    }
+                ],
+                "causal_claims": [
+                    {
+                        "claim_type": "causal_claim",
+                        "cause_variable": "gdp growth",
+                        "effect_variable": "employment",
+                        "direction": "positive",
+                        "evidence_strength": "observational",
+                        "supporting_span_ids": ["r_01"],
+                        "method_span_ids": ["m_01"],
+                    }
+                ],
+                "boundary_conditions": [],
+                "mechanisms": [],
+                "methodology_summary": "did",
+                "sample_size": 1000,
+                "citation_summary": "demo",
+                "extraction_confidence": 0.8,
+            },
+            usage={"prompt_tokens": 100, "completion_tokens": 50, "total_cost_usd": 0.01},
+            http_status=200,
+            finish_reason="stop",
+            latency_ms=10.0,
+            retry_count=0,
+            limiter_wait_ms=0.0,
+            backoff_sleep_ms=0.0,
+            parse_status="ok",
+            error_class="",
+            raw_content="{}",
+            truncated_output=False,
+        )
+
+
+class _NumericRescueFakePool(_BaseFakePool):
+    async def chat_json(self, *, model, prompt, temperature):  # type: ignore[no-untyped-def]
+        if "Extract quantitative effect estimates for simulation-ready policy analysis." in prompt:
+            parsed = {
+                "empirical_parameters": [
+                    {
+                        "name": "employment_rate",
+                        "display_name": "difference-in-differences estimate of employment rate change",
+                        "value": 0.18,
+                        "parameter_type": "quantitative",
+                        "unit": "percentage_points",
+                        "evidence_strength": "panel_fe",
+                        "heterogeneity_note": "estimated employment rate change after treatment",
+                    }
+                ]
+            }
+            usage = {"prompt_tokens": 80, "completion_tokens": 35, "total_cost_usd": 0.01}
+        else:
+            parsed = {
+                "paper_relevance": True,
+                "paper_relevance_reason": "empirical policy effect paper",
+                "empirical_parameters": [
+                    {
+                        "name": "employment_rate",
+                        "display_name": "employment rate",
+                        "value": 0.18,
+                        "parameter_type": "quantitative",
+                        "evidence_strength": "unknown",
+                    }
+                ],
+                "causal_claims": [
+                    {
+                        "claim_type": "associative",
+                        "cause_variable": "payroll_tax_cut",
+                        "effect_variable": "employment_rate",
+                        "direction": "positive",
+                        "evidence_strength": "panel_fe",
+                        "supporting_span_ids": ["r_01"],
+                        "method_span_ids": ["m_01"],
+                    }
+                ],
+                "boundary_conditions": [],
+                "mechanisms": [],
+                "methodology_summary": "panel fixed effects with staggered rollout",
+                "methodology_enum": "panel_fe",
+                "sample_size": 800,
+                "citation_summary": "employment effect paper",
+                "extraction_confidence": 0.87,
+            }
+            usage = {"prompt_tokens": 120, "completion_tokens": 55, "total_cost_usd": 0.01}
+        return ProviderResponse(
+            parsed=parsed,
+            usage=usage,
+            http_status=200,
+            finish_reason="stop",
+            latency_ms=10.0,
+            retry_count=0,
+            limiter_wait_ms=0.0,
+            backoff_sleep_ms=0.0,
+            parse_status="ok",
+            error_class="",
+            raw_content="{}",
+            truncated_output=False,
+        )
+
+
+class _DeterministicNumericRescueFakePool(_BaseFakePool):
+    async def chat_json(self, *, model, prompt, temperature):  # type: ignore[no-untyped-def]
+        if "Extract quantitative effect estimates for simulation-ready policy analysis." in prompt:
+            parsed = {"empirical_parameters": []}
+            usage = {"prompt_tokens": 60, "completion_tokens": 20, "total_cost_usd": 0.01}
+        else:
+            parsed = {
+                "paper_relevance": True,
+                "paper_relevance_reason": "empirical policy effect paper",
+                "empirical_parameters": [
+                    {
+                        "name": "employment_rate",
+                        "display_name": "employment rate",
+                        "value": 0.18,
+                        "parameter_type": "quantitative",
+                        "unit": "unitless",
+                        "evidence_strength": "panel_fe",
+                    }
+                ],
+                "causal_claims": [
+                    {
+                        "claim_type": "causal_claim",
+                        "cause_variable": "payroll_tax_cut",
+                        "effect_variable": "employment_rate",
+                        "direction": "positive",
+                        "evidence_strength": "panel_fe",
+                        "supporting_span_ids": ["r_01"],
+                        "method_span_ids": ["m_01"],
+                    }
+                ],
+                "boundary_conditions": [],
+                "mechanisms": [],
+                "methodology_summary": "panel fixed effects with staggered rollout",
+                "methodology_enum": "panel_fe",
+                "sample_size": 800,
+                "citation_summary": "employment effect paper",
+                "extraction_confidence": 0.87,
+            }
+            usage = {"prompt_tokens": 120, "completion_tokens": 55, "total_cost_usd": 0.01}
+        return ProviderResponse(
+            parsed=parsed,
+            usage=usage,
+            http_status=200,
+            finish_reason="stop",
+            latency_ms=10.0,
             retry_count=0,
             limiter_wait_ms=0.0,
             backoff_sleep_ms=0.0,
@@ -371,6 +549,18 @@ async def _fake_fetch_full_text_result_only(work, **kwargs):  # type: ignore[no-
     )
 
 
+async def _fake_fetch_full_text_with_uncertainty(work, **kwargs):  # type: ignore[no-untyped-def]
+    return FullTextFetchResult(
+        text=(
+            "We estimate a panel fixed effects model with staggered rollout timing. "
+            "The coefficient is 0.18 (SE = 0.04) for employment rate after the payroll tax cut."
+        ),
+        source_kind="fulltext_html",
+        source_url="https://example.org/with-uncertainty",
+        fetch_error_class="",
+    )
+
+
 async def _fake_fetch_full_text_field_experiment(work, **kwargs):  # type: ignore[no-untyped-def]
     return FullTextFetchResult(
         text=(
@@ -539,6 +729,215 @@ def test_run_article_extract_stage_drops_bad_items_without_losing_document(monke
     assert payload["causal_claims"][0]["supporting_spans"]
 
 
+def test_run_article_extract_stage_handles_provider_exception_without_hanging(monkeypatch, tmp_path) -> None:
+    config = AcademicBatchConfig(snapshot_root=tmp_path / "snap")
+    config.gonka_api_key = "fake"
+    config.gonka_api_keys = ["fake"]
+
+    row = {
+        "work_id": "https://openalex.org/W3X",
+        "topic_ids": ["T1"],
+        "topic_display_names": ["Fiscal policy"],
+        "work": {
+            "id": "https://openalex.org/W3X",
+            "title": "Spending Effects",
+            "publication_year": 2020,
+            "cited_by_count": 60,
+            "topics": [{"display_name": "Fiscal policy and economic growth"}],
+            "abstract_inverted_index": {"government": [0], "spending": [1], "output": [2]},
+            "authorships": [{"institutions": [{"country_code": "US"}]}],
+            "open_access": {"is_oa": False},
+        },
+    }
+
+    config.selected_global_works_path.parent.mkdir(parents=True, exist_ok=True)
+    config.selected_global_works_path.write_text(json.dumps(row) + "\n", encoding="utf-8")
+
+    monkeypatch.setattr("polisyos.academic.batch.resolve_extract.GonkaMultiKeyPool", _CrashingFakePool)
+    monkeypatch.setattr("polisyos.academic.batch.resolve_extract.fetch_full_text_result_for_work", _fake_fetch_full_text)
+
+    metrics = asyncio.run(run_article_extract(config))
+
+    assert int(metrics["successful_llm_extractions_per_topic"]) == 0
+    assert int(metrics["extraction_errors"]) == 1
+    progress = json.loads(config.resolve_extract_progress_path.read_text(encoding="utf-8"))
+    item = progress["items"]["https://openalex.org/W3X"]
+    assert item["state"] == "permanent_failed"
+    errors = [
+        json.loads(line)
+        for line in config.resolve_extract_errors_path.read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
+    assert errors[0]["error_class"] == "provider_client_exception"
+
+
+def test_run_article_extract_stage_retries_retryable_failures_in_followup_pass(monkeypatch, tmp_path) -> None:
+    config = AcademicBatchConfig(snapshot_root=tmp_path / "snap")
+    config.gonka_api_key = "fake"
+    config.gonka_api_keys = ["fake"]
+    config.article_retryable_followup_passes = 1
+    config.article_retryable_followup_delay_seconds = 0.0
+
+    row = {
+        "work_id": "https://openalex.org/W3Y",
+        "topic_ids": ["T1"],
+        "topic_display_names": ["Fiscal policy"],
+        "work": {
+            "id": "https://openalex.org/W3Y",
+            "title": "Spending Effects",
+            "publication_year": 2020,
+            "cited_by_count": 60,
+            "topics": [{"display_name": "Fiscal policy and economic growth"}],
+            "abstract_inverted_index": {"government": [0], "spending": [1], "output": [2]},
+            "authorships": [{"institutions": [{"country_code": "US"}]}],
+            "open_access": {"is_oa": False},
+        },
+    }
+
+    config.selected_global_works_path.parent.mkdir(parents=True, exist_ok=True)
+    config.selected_global_works_path.write_text(json.dumps(row) + "\n", encoding="utf-8")
+
+    _RetryableThenSuccessFakePool.attempts = 0
+    monkeypatch.setattr("polisyos.academic.batch.resolve_extract.GonkaMultiKeyPool", _RetryableThenSuccessFakePool)
+    monkeypatch.setattr("polisyos.academic.batch.resolve_extract.fetch_full_text_result_for_work", _fake_fetch_full_text)
+
+    metrics = asyncio.run(run_article_extract(config))
+
+    assert int(metrics["retry_followup_passes_run"]) == 1
+    assert int(metrics["retryable_failures_remaining"]) == 0
+    assert int(metrics["successful_llm_extractions_per_topic"]) == 1
+    assert int(metrics["final_succeeded_nonempty"]) == 1
+
+    progress = json.loads(config.resolve_extract_progress_path.read_text(encoding="utf-8"))
+    item = progress["items"]["https://openalex.org/W3Y"]
+    assert item["state"] == "succeeded_nonempty"
+
+    lines = [
+        json.loads(line)
+        for line in config.article_extraction_results_path.read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
+    assert len(lines) == 1
+
+
+def test_run_article_extract_stage_numeric_rescue_enriches_parameters(monkeypatch, tmp_path) -> None:
+    config = AcademicBatchConfig(snapshot_root=tmp_path / "snap")
+    config.gonka_api_key = "fake"
+    config.gonka_api_keys = ["fake"]
+    config.numeric_precision_mode = "high_precision"
+
+    row = {
+        "work_id": "https://openalex.org/W3R",
+        "topic_ids": ["T1"],
+        "topic_display_names": ["Labor policy"],
+        "work": {
+            "id": "https://openalex.org/W3R",
+            "title": "Payroll Tax Cuts and Employment",
+            "publication_year": 2021,
+            "cited_by_count": 60,
+            "topics": [{"display_name": "Labor policy and employment"}],
+            "abstract_inverted_index": {"payroll": [0], "tax": [1], "employment": [2], "effect": [3]},
+            "authorships": [{"institutions": [{"country_code": "US"}]}],
+            "open_access": {"is_oa": False},
+        },
+    }
+
+    config.selected_global_works_path.parent.mkdir(parents=True, exist_ok=True)
+    config.selected_global_works_path.write_text(json.dumps(row) + "\n", encoding="utf-8")
+
+    monkeypatch.setattr("polisyos.academic.batch.resolve_extract.GonkaMultiKeyPool", _NumericRescueFakePool)
+    monkeypatch.setattr("polisyos.academic.batch.resolve_extract.fetch_full_text_result_for_work", _fake_fetch_full_text)
+
+    metrics = asyncio.run(run_article_extract(config))
+
+    assert int(metrics["successful_llm_extractions_per_topic"]) == 1
+    assert int(metrics["numeric_rescue_requests"]) == 1
+    assert int(metrics["numeric_rescue_successes"]) == 1
+
+    payload = json.loads(config.article_extraction_results_path.read_text(encoding="utf-8").strip())
+    assert len(payload["empirical_parameters"]) == 1
+    assert "employment" in payload["empirical_parameters"][0]["name"]
+    assert payload["empirical_parameters"][0]["unit"] == "percentage_points"
+    assert payload["empirical_parameters"][0]["evidence_strength"] == "panel_fe"
+    request_log_rows = [
+        json.loads(line)
+        for line in config.llm_request_log_path.read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
+    assert [row["request_kind"] for row in request_log_rows] == ["main_extract", "numeric_rescue"]
+
+
+def test_run_article_extract_stage_deterministic_numeric_rescue_adds_uncertainty(monkeypatch, tmp_path) -> None:
+    config = AcademicBatchConfig(snapshot_root=tmp_path / "snap")
+    config.gonka_api_key = "fake"
+    config.gonka_api_keys = ["fake"]
+    config.numeric_precision_mode = "high_precision"
+
+    row = {
+        "work_id": "https://openalex.org/W3D",
+        "topic_ids": ["T1"],
+        "topic_display_names": ["Labor policy"],
+        "work": {
+            "id": "https://openalex.org/W3D",
+            "title": "Payroll Tax Cuts and Employment",
+            "publication_year": 2021,
+            "cited_by_count": 60,
+            "topics": [{"display_name": "Labor policy and employment"}],
+            "abstract_inverted_index": {"payroll": [0], "tax": [1], "employment": [2], "effect": [3]},
+            "authorships": [{"institutions": [{"country_code": "US"}]}],
+            "open_access": {"is_oa": False},
+        },
+    }
+
+    config.selected_global_works_path.parent.mkdir(parents=True, exist_ok=True)
+    config.selected_global_works_path.write_text(json.dumps(row) + "\n", encoding="utf-8")
+
+    monkeypatch.setattr("polisyos.academic.batch.resolve_extract.GonkaMultiKeyPool", _DeterministicNumericRescueFakePool)
+    monkeypatch.setattr(
+        "polisyos.academic.batch.resolve_extract.fetch_full_text_result_for_work",
+        _fake_fetch_full_text_with_uncertainty,
+    )
+
+    metrics = asyncio.run(run_article_extract(config))
+
+    assert int(metrics["successful_llm_extractions_per_topic"]) == 1
+    assert int(metrics["numeric_rescue_requests"]) == 1
+    assert int(metrics["deterministic_numeric_rescue_successes"]) == 1
+
+    payload = json.loads(config.article_extraction_results_path.read_text(encoding="utf-8").strip())
+    assert len(payload["empirical_parameters"]) == 1
+    assert payload["empirical_parameters"][0]["std_error"] == 0.04
+    request_log_rows = [
+        json.loads(line)
+        for line in config.llm_request_log_path.read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
+    assert [row["request_kind"] for row in request_log_rows] == ["main_extract", "numeric_rescue"]
+
+
+def test_build_evidence_bundle_includes_numeric_result_snippets() -> None:
+    bundle = _build_evidence_bundle(
+        title="Employment effects of payroll tax cuts",
+        abstract="",
+        text=(
+            "Table 2 reports employment rate coefficient = 0.18 (SE = 0.04) for treated firms. "
+            "Odds ratio OR = 1.25 (95% CI: 1.10-1.42) is reported for retention."
+        ),
+        source_kind="fulltext_html",
+    )
+
+    snippets = bundle["numeric_result_snippets"]
+    assert len(snippets) >= 1
+    texts = [row["text"] for row in snippets]
+    assert any("SE = 0.04" in text for text in texts)
+    assert any("95% CI" in text for text in texts)
+    blocks = bundle["numeric_result_blocks"]
+    assert len(blocks) >= 1
+    block_texts = [row["text"] for row in blocks]
+    assert any("Table 2 reports employment rate coefficient" in text for text in block_texts)
+    assert any("Odds ratio OR = 1.25" in text for text in block_texts)
+
+
 def test_run_article_extract_stage_allows_result_only_empirical_signal(monkeypatch, tmp_path) -> None:
     config = AcademicBatchConfig(snapshot_root=tmp_path / "snap")
     config.gonka_api_key = "fake"
@@ -574,7 +973,6 @@ def test_run_article_extract_stage_allows_result_only_empirical_signal(monkeypat
 
 def test_eligibility_gate_allows_track_b_context_salvage() -> None:
     item = WorkItem(
-        row={},
         work={
             "id": "https://openalex.org/WCTX",
             "title": "Systematic Review of Institutional Quality Across OECD Democracies",
@@ -618,6 +1016,81 @@ def test_eligibility_gate_allows_track_b_context_salvage() -> None:
     assert with_track_b.llm_eligible is False
     assert with_track_b.context_eligible is True
     assert with_track_b.rejection_reasons == ["review_like", "missing_empirical_cues"]
+
+
+def test_eligibility_gate_rejects_descriptive_only_fulltext() -> None:
+    item = WorkItem(
+        work={
+            "id": "https://openalex.org/WDESC",
+            "title": "Knowledge and Attitudes Toward Health Prevention",
+            "abstract_inverted_index": {
+                "descriptive": [0],
+                "study": [1],
+                "knowledge": [2],
+                "attitudes": [3],
+            },
+        },
+        work_id="https://openalex.org/WDESC",
+        topic_id="T1",
+        topic_ids=["T1"],
+        topic_display_names=["Health communication"],
+        prefetch_priority=0.0,
+        selected_rank=1,
+    )
+    text = (
+        "This descriptive study reports that most respondents had good knowledge and positive attitudes. "
+        "The analysis uses frequency distributions and descriptive analysis only."
+    )
+
+    decision = _eligibility_gate(
+        item,
+        text=text,
+        source_kind="fulltext_html",
+        text_quality=TextQuality.EXTRACTED_FULLTEXT.value,
+        track_b_enabled=False,
+    )
+
+    assert decision.llm_eligible is False
+    assert "descriptive_only" in decision.rejection_reasons
+
+
+def test_post_resolve_priority_prefers_precision_results() -> None:
+    item = WorkItem(
+        work={
+            "id": "https://openalex.org/WPREC",
+            "title": "Labor Reform and Employment",
+            "abstract_inverted_index": {"labor": [0], "reform": [1], "employment": [2]},
+        },
+        work_id="https://openalex.org/WPREC",
+        topic_id="T1",
+        topic_ids=["T1"],
+        topic_display_names=["Labor policy"],
+        prefetch_priority=100.0,
+        selected_rank=1,
+    )
+    precision_text = (
+        "We estimate a difference-in-differences model. The coefficient on reform exposure is 0.18 "
+        "(SE = 0.04), with a 95% CI [0.10, 0.26]."
+    )
+    descriptive_text = (
+        "This descriptive study reports that most respondents had positive attitudes and good knowledge. "
+        "Results show prevalence rates and frequency distributions only."
+    )
+
+    precision_priority = _post_resolve_priority(
+        item,
+        text=precision_text,
+        source_kind="fulltext_html",
+        text_quality=TextQuality.EXTRACTED_FULLTEXT.value,
+    )
+    descriptive_priority = _post_resolve_priority(
+        item,
+        text=descriptive_text,
+        source_kind="fulltext_html",
+        text_quality=TextQuality.EXTRACTED_FULLTEXT.value,
+    )
+
+    assert precision_priority > descriptive_priority
 
 
 def test_run_article_extract_stage_rejects_review_like_before_llm(monkeypatch, tmp_path) -> None:

@@ -2,22 +2,100 @@
 
 from __future__ import annotations
 
-import logging
+import json
+import re
 from pathlib import Path
 
 import duckdb
 import numpy as np
 
-from polisyos.datasets.knowledge.types import DatasetSearchResult, DistributionResult
-
-logger = logging.getLogger(__name__)
-
-_DATASET_SELECT = (
-    "id, title, description, publisher, spatial, "
-    "temporal_start, temporal_end, source_portal, "
-    "polisyos_metrics, keywords, themes, variables, formats, "
-    "source, agency, dataset_id, dedup_key"
+from polisyos.common.logger import get_logger
+from polisyos.datasets.knowledge.types import (
+    DatasetAccess,
+    DatasetCoverage,
+    DatasetQuality,
+    DatasetSearchResult,
+    DistributionResult,
+    MetricBindingMatch,
+    ResolvedFetchTarget,
 )
+
+logger = get_logger(__name__)
+
+_DATASET_COLUMNS: list[tuple[str, str]] = [
+    ("id", "''"),
+    ("title", "''"),
+    ("description", "''"),
+    ("publisher", "''"),
+    ("spatial", "''"),
+    ("temporal_start", "NULL"),
+    ("temporal_end", "NULL"),
+    ("source_portal", "''"),
+    ("polisyos_metrics", "CAST([] AS VARCHAR[])"),
+    ("keywords", "CAST([] AS VARCHAR[])"),
+    ("themes", "CAST([] AS VARCHAR[])"),
+    ("variables", "CAST([] AS VARCHAR[])"),
+    ("formats", "CAST([] AS VARCHAR[])"),
+    ("source", "''"),
+    ("agency", "''"),
+    ("dataset_id", "''"),
+    ("source_dataset_id", "''"),
+    ("dedup_key", "''"),
+    ("execution_tier", "'catalog'"),
+    ("update_frequency", "''"),
+    ("last_updated", "NULL"),
+    ("coverage_countries", "CAST([] AS VARCHAR[])"),
+    ("coverage_regions", "CAST([] AS VARCHAR[])"),
+    ("coverage_time_start", "NULL"),
+    ("coverage_time_end", "NULL"),
+    ("coverage_granularity", "''"),
+    ("access_api_endpoint", "NULL"),
+    ("access_bulk_download_url", "NULL"),
+    ("access_license", "''"),
+    ("access_auth_required", "FALSE"),
+    ("quality_description_score", "0.0"),
+    ("quality_machine_readable_score", "0.0"),
+    ("quality_parser_support_score", "0.0"),
+    ("quality_freshness_score", "0.0"),
+    ("quality_execution_readiness_score", "0.0"),
+    ("preferred_distribution_id", "''"),
+]
+_DISTRIBUTION_COLUMNS: list[tuple[str, str]] = [
+    ("id", "''"),
+    ("dataset_id", "''"),
+    ("url", "''"),
+    ("format", "''"),
+    ("connector_type", "''"),
+    ("connector_params", "'{}'"),
+    ("source_locator", "''"),
+    ("profile_id", "''"),
+    ("media_type", "''"),
+    ("machine_readable", "FALSE"),
+    ("parser_supported", "FALSE"),
+    ("size_estimate_bytes", "NULL"),
+    ("checksum", "''"),
+    ("default_filters", "'{}'"),
+    ("quality_score", "0.0"),
+]
+_BINDING_COLUMNS: list[tuple[str, str]] = [
+    ("metric_id", "''"),
+    ("dataset_id", "''"),
+    ("distribution_id", "''"),
+    ("connector_id", "''"),
+    ("profile_id", "''"),
+    ("request_dataset_id", "''"),
+    ("confidence", "0.0"),
+    ("default_filters", "'{}'"),
+    ("execution_tier", "'catalog'"),
+    ("source", "''"),
+]
+_CONNECTOR_ALIASES = {
+    "worldbank": "worldbank.wdi",
+    "ukons": "ukons.datasets",
+    "sdmx": "sdmx.source",
+    "wvs": "wvs.wave7",
+    "rest_json": "rest.json",
+}
 
 
 class DatasetCatalogStore:
@@ -30,6 +108,54 @@ class DatasetCatalogStore:
 
         self._dataset_index = None
         self._dataset_ids: list[str] | None = None
+        self._table_exists_cache: dict[str, bool] = {}
+        self._table_columns_cache: dict[str, set[str]] = {}
+
+    def _table_exists(self, table_name: str) -> bool:
+        cached = self._table_exists_cache.get(table_name)
+        if cached is not None:
+            return cached
+        row = self._con.execute(
+            "SELECT 1 FROM information_schema.tables WHERE table_schema = 'main' AND table_name = ?",
+            [table_name],
+        ).fetchone()
+        exists = row is not None
+        self._table_exists_cache[table_name] = exists
+        return exists
+
+    def _table_columns(self, table_name: str) -> set[str]:
+        cached = self._table_columns_cache.get(table_name)
+        if cached is not None:
+            return cached
+        if not self._table_exists(table_name):
+            self._table_columns_cache[table_name] = set()
+            return set()
+        rows = self._con.execute(f"PRAGMA table_info('{table_name}')").fetchall()
+        columns = {str(row[1]) for row in rows}
+        self._table_columns_cache[table_name] = columns
+        return columns
+
+    def _select_clause(
+        self,
+        table_name: str,
+        columns: list[tuple[str, str]],
+        *,
+        alias: str | None = None,
+    ) -> str:
+        available = self._table_columns(table_name)
+        prefix = f"{alias}." if alias else ""
+        parts: list[str] = []
+        for column_name, default_sql in columns:
+            if column_name in available:
+                parts.append(f"{prefix}{column_name} AS {column_name}")
+            else:
+                parts.append(f"{default_sql} AS {column_name}")
+        return ", ".join(parts)
+
+    def _fetch_dicts(self, sql: str, params: list[object] | tuple[object, ...]) -> list[dict[str, object]]:
+        cursor = self._con.execute(sql, params)
+        columns = [str(item[0]) for item in cursor.description]
+        return [dict(zip(columns, row, strict=False)) for row in cursor.fetchall()]
 
     def _load_dataset_index(self) -> None:
         if self._dataset_index is not None:
@@ -39,7 +165,7 @@ class DatasetCatalogStore:
         npz_path = self._index_dir / "ds_dataset_embeddings.npz"
         hnsw_path = self._index_dir / "ds_dataset_index.hnsw"
         if not npz_path.exists() or not hnsw_path.exists():
-            logger.warning("Dataset index files not found in %s", self._index_dir)
+            logger.warning("Dataset index files not found in {}", self._index_dir)
             return
 
         data = np.load(str(npz_path), allow_pickle=True)
@@ -51,27 +177,140 @@ class DatasetCatalogStore:
         idx.set_ef(100)
         self._dataset_index = idx
 
-    def _to_dataset_result(self, row: tuple, *, similarity: float = 0.0) -> DatasetSearchResult:
+    @staticmethod
+    def _as_list(value: object) -> list[str]:
+        if isinstance(value, list):
+            return [str(item) for item in value if str(item)]
+        if isinstance(value, tuple):
+            return [str(item) for item in value if str(item)]
+        return []
+
+    @staticmethod
+    def _as_bool(value: object) -> bool:
+        if isinstance(value, bool):
+            return value
+        if isinstance(value, (int, float)):
+            return bool(value)
+        if isinstance(value, str):
+            return value.strip().lower() in {"1", "true", "yes", "on"}
+        return False
+
+    @staticmethod
+    def _json_mapping(value: object) -> dict:
+        if isinstance(value, dict):
+            return value
+        if isinstance(value, str) and value.strip():
+            try:
+                parsed = json.loads(value)
+            except json.JSONDecodeError:
+                return {}
+            return parsed if isinstance(parsed, dict) else {}
+        return {}
+
+    @staticmethod
+    def _normalize_connector_id(connector_id: str) -> str:
+        value = (connector_id or "").strip()
+        return _CONNECTOR_ALIASES.get(value, value)
+
+    def _to_dataset_result(self, row: dict[str, object], *, similarity: float = 0.0) -> DatasetSearchResult:
         return DatasetSearchResult(
-            id=row[0],
-            title=row[1] or "",
-            description=row[2] or "",
-            publisher=row[3] or "",
-            spatial=row[4] or "",
-            temporal_start=str(row[5]) if row[5] else None,
-            temporal_end=str(row[6]) if row[6] else None,
-            source_portal=row[7] or "",
-            polisyos_metrics=list(row[8] or []),
-            keywords=list(row[9] or []),
-            themes=list(row[10] or []),
-            variables=list(row[11] or []),
-            formats=list(row[12] or []),
-            source=row[13] or "",
-            agency=row[14] or "",
-            dataset_id=row[15] or "",
-            dedup_key=row[16] or "",
+            id=str(row.get("id") or ""),
+            title=str(row.get("title") or ""),
+            description=str(row.get("description") or ""),
+            publisher=str(row.get("publisher") or ""),
+            spatial=str(row.get("spatial") or ""),
+            temporal_start=str(row["temporal_start"]) if row.get("temporal_start") else None,
+            temporal_end=str(row["temporal_end"]) if row.get("temporal_end") else None,
+            source_portal=str(row.get("source_portal") or ""),
+            polisyos_metrics=self._as_list(row.get("polisyos_metrics")),
+            keywords=self._as_list(row.get("keywords")),
+            themes=self._as_list(row.get("themes")),
+            variables=self._as_list(row.get("variables")),
+            formats=self._as_list(row.get("formats")),
+            source=str(row.get("source") or ""),
+            agency=str(row.get("agency") or ""),
+            dataset_id=str(row.get("dataset_id") or ""),
+            source_dataset_id=str(row.get("source_dataset_id") or ""),
+            dedup_key=str(row.get("dedup_key") or ""),
+            execution_tier=str(row.get("execution_tier") or "catalog"),
+            update_frequency=str(row.get("update_frequency") or ""),
+            last_updated=str(row["last_updated"]) if row.get("last_updated") else None,
+            coverage=DatasetCoverage(
+                countries=self._as_list(row.get("coverage_countries")),
+                regions=self._as_list(row.get("coverage_regions")),
+                time_range="",
+                time_start=str(row["coverage_time_start"]) if row.get("coverage_time_start") else None,
+                time_end=str(row["coverage_time_end"]) if row.get("coverage_time_end") else None,
+                granularity=str(row.get("coverage_granularity") or ""),
+            ),
+            access=DatasetAccess(
+                api_endpoint=str(row["access_api_endpoint"]) if row.get("access_api_endpoint") else None,
+                bulk_download_url=str(row["access_bulk_download_url"]) if row.get("access_bulk_download_url") else None,
+                license=str(row.get("access_license") or ""),
+                auth_required=self._as_bool(row.get("access_auth_required")),
+            ),
+            quality=DatasetQuality(
+                description_score=float(row.get("quality_description_score") or 0.0),
+                machine_readable_score=float(row.get("quality_machine_readable_score") or 0.0),
+                parser_support_score=float(row.get("quality_parser_support_score") or 0.0),
+                freshness_score=float(row.get("quality_freshness_score") or 0.0),
+                execution_readiness_score=float(row.get("quality_execution_readiness_score") or 0.0),
+            ),
+            preferred_distribution_id=str(row.get("preferred_distribution_id") or ""),
             similarity=similarity,
         )
+
+    def _to_distribution_result(self, row: dict[str, object]) -> DistributionResult:
+        return DistributionResult(
+            id=str(row.get("id") or ""),
+            dataset_id=str(row.get("dataset_id") or ""),
+            url=str(row.get("url") or ""),
+            format=str(row.get("format") or ""),
+            connector_type=self._normalize_connector_id(str(row.get("connector_type") or "")),
+            connector_params=self._json_mapping(row.get("connector_params")),
+            source_locator=str(row.get("source_locator") or ""),
+            profile_id=str(row.get("profile_id") or ""),
+            media_type=str(row.get("media_type") or ""),
+            machine_readable=self._as_bool(row.get("machine_readable")),
+            parser_supported=self._as_bool(row.get("parser_supported")),
+            size_estimate_bytes=int(row["size_estimate_bytes"]) if row.get("size_estimate_bytes") is not None else None,
+            checksum=str(row.get("checksum") or ""),
+            default_filters=self._json_mapping(row.get("default_filters")),
+            quality_score=float(row.get("quality_score") or 0.0),
+        )
+
+    def _get_dataset_row(self, dataset_id: str) -> dict[str, object] | None:
+        rows = self._fetch_dicts(
+            f"SELECT {self._select_clause('ds_datasets', _DATASET_COLUMNS)} FROM ds_datasets WHERE id = ? LIMIT 1",
+            [dataset_id],
+        )
+        return rows[0] if rows else None
+
+    @staticmethod
+    def _infer_request_dataset_id(distribution: DistributionResult) -> str:
+        params = distribution.connector_params
+        if distribution.source_locator:
+            return distribution.source_locator
+        if distribution.connector_type == "worldbank.wdi":
+            return str(params.get("indicator_id") or distribution.url or "").strip()
+        if distribution.connector_type in {"ukons.datasets", "eurostat.data", "sdmx.source", "wvs.wave7"}:
+            return str(
+                params.get("dataset_id")
+                or params.get("dataflow_id")
+                or params.get("indicator_id")
+                or distribution.url
+                or ""
+            ).strip()
+        if distribution.connector_type == "ckan.resource":
+            package_id = str(params.get("package_id") or "").strip()
+            resource_id = str(params.get("resource_id") or "").strip()
+            if package_id and resource_id:
+                return f"{package_id}/{resource_id}"
+            if distribution.url:
+                return distribution.url
+        if distribution.connector_type == "rest.json":
+            return str(params.get("url") or distribution.url or "").strip()
+        return distribution.url or ""
 
     def search_by_vector(
         self,
@@ -87,88 +326,179 @@ class DatasetCatalogStore:
         k = min(top_k, len(self._dataset_ids))
         labels, distances = self._dataset_index.knn_query(query_vector.reshape(1, -1), k=k)
         results: list[DatasetSearchResult] = []
+        select_clause = self._select_clause("ds_datasets", _DATASET_COLUMNS)
         for label, dist in zip(labels[0], distances[0]):
             similarity = 1.0 - float(dist)
             if similarity < min_similarity:
                 continue
             did = self._dataset_ids[int(label)]
-            row = self._con.execute(
-                f"SELECT {_DATASET_SELECT} FROM ds_datasets WHERE id = ?",
-                [did],
-            ).fetchone()
-            if row:
-                results.append(self._to_dataset_result(row, similarity=similarity))
+            rows = self._fetch_dicts(f"SELECT {select_clause} FROM ds_datasets WHERE id = ?", [did])
+            if rows:
+                results.append(self._to_dataset_result(rows[0], similarity=similarity))
         return results
 
     def search_by_text(self, query: str, *, top_k: int = 20) -> list[DatasetSearchResult]:
-        pattern = f"%{query}%"
-        rows = self._con.execute(
-            f"SELECT {_DATASET_SELECT} FROM ds_datasets "
-            "WHERE title ILIKE ? OR description ILIKE ? LIMIT ?",
-            [pattern, pattern, top_k],
-        ).fetchall()
-        return [self._to_dataset_result(r, similarity=1.0) for r in rows]
+        normalized = query.strip().lower()
+        if not normalized:
+            return []
+
+        tokens = [
+            token
+            for token in dict.fromkeys(re.split(r"[^\w]+", normalized, flags=re.UNICODE))
+            if len(token) >= 2
+        ][:8]
+        if not tokens:
+            tokens = [normalized]
+
+        haystack = (
+            "lower("
+            "coalesce(title, '') || ' ' || "
+            "coalesce(description, '') || ' ' || "
+            "coalesce(array_to_string(keywords, ' '), '') || ' ' || "
+            "coalesce(array_to_string(variables, ' '), '') || ' ' || "
+            "coalesce(array_to_string(polisyos_metrics, ' '), '') || ' ' || "
+            "coalesce(array_to_string(themes, ' '), '') || ' ' || "
+            "coalesce(source, '') || ' ' || "
+            "coalesce(agency, '')"
+            ")"
+        )
+        title_expr = "lower(coalesce(title, ''))"
+        description_expr = "lower(coalesce(description, ''))"
+
+        score_parts = [
+            f"CASE WHEN {title_expr} LIKE ? THEN 8 ELSE 0 END",
+            f"CASE WHEN {description_expr} LIKE ? THEN 3 ELSE 0 END",
+            f"CASE WHEN {haystack} LIKE ? THEN 2 ELSE 0 END",
+        ]
+        score_params: list[object] = [f"%{normalized}%", f"%{normalized}%", f"%{normalized}%"]
+        where_parts = [f"{haystack} LIKE ?"]
+        where_params: list[object] = [f"%{normalized}%"]
+
+        for token in tokens:
+            pattern = f"%{token}%"
+            score_parts.append(f"CASE WHEN {title_expr} LIKE ? THEN 3 ELSE 0 END")
+            score_parts.append(f"CASE WHEN {description_expr} LIKE ? THEN 1 ELSE 0 END")
+            score_parts.append(f"CASE WHEN {haystack} LIKE ? THEN 1 ELSE 0 END")
+            score_params.extend([pattern, pattern, pattern])
+            where_parts.append(f"{haystack} LIKE ?")
+            where_params.append(pattern)
+
+        select_clause = self._select_clause("ds_datasets", _DATASET_COLUMNS)
+        score_expr = " + ".join(score_parts)
+        where_clause = " OR ".join(where_parts)
+        rows = self._fetch_dicts(
+            f"SELECT {select_clause}, ({score_expr}) AS text_score "
+            "FROM ds_datasets "
+            f"WHERE {where_clause} "
+            "ORDER BY text_score DESC, quality_execution_readiness_score DESC, title ASC "
+            "LIMIT ?",
+            [*score_params, *where_params, top_k],
+        )
+        return [self._to_dataset_result(row, similarity=1.0) for row in rows]
 
     def find_by_polisyos_metric(self, metric_name: str, *, top_k: int = 20) -> list[DatasetSearchResult]:
-        rows = self._con.execute(
-            f"SELECT {_DATASET_SELECT} FROM ds_datasets "
+        rows = self._fetch_dicts(
+            f"SELECT {self._select_clause('ds_datasets', _DATASET_COLUMNS)} FROM ds_datasets "
             "WHERE list_contains(polisyos_metrics, ?) LIMIT ?",
             [metric_name, top_k],
-        ).fetchall()
-        return [self._to_dataset_result(r, similarity=1.0) for r in rows]
+        )
+        return [self._to_dataset_result(row, similarity=1.0) for row in rows]
 
     def find_by_variables(self, variables: list[str], *, top_k: int = 20) -> list[DatasetSearchResult]:
         if not variables:
             return []
         conditions = " OR ".join("list_contains(variables, ?)" for _ in variables)
-        rows = self._con.execute(
-            f"SELECT {_DATASET_SELECT} FROM ds_datasets WHERE {conditions} LIMIT ?",
+        rows = self._fetch_dicts(
+            f"SELECT {self._select_clause('ds_datasets', _DATASET_COLUMNS)} FROM ds_datasets WHERE {conditions} LIMIT ?",
             [*variables, top_k],
-        ).fetchall()
-        return [self._to_dataset_result(r, similarity=1.0) for r in rows]
+        )
+        return [self._to_dataset_result(row, similarity=1.0) for row in rows]
 
-    def get_connector_params(self, dataset_id: str) -> dict | None:
-        row = self._con.execute(
-            "SELECT connector_type, connector_params "
-            "FROM ds_distributions "
-            "WHERE dataset_id = ? AND connector_type IS NOT NULL AND connector_type != '' "
-            "ORDER BY quality_score DESC LIMIT 1",
-            [dataset_id],
-        ).fetchone()
-        if row is None:
-            return None
-        import json
-
-        params = row[1]
-        if isinstance(params, str):
-            params = json.loads(params)
-        return {"type": row[0], "params": params}
-
-    def get_distributions(self, dataset_id: str) -> list[DistributionResult]:
-        rows = self._con.execute(
-            "SELECT id, dataset_id, url, format, connector_type, connector_params, quality_score "
-            "FROM ds_distributions WHERE dataset_id = ? ORDER BY quality_score DESC",
-            [dataset_id],
-        ).fetchall()
-        import json
-
-        out: list[DistributionResult] = []
+    def resolve_metric_bindings(self, metric_name: str, *, top_k: int = 20) -> list[MetricBindingMatch]:
+        if not self._table_exists("ds_metric_bindings"):
+            return []
+        rows = self._fetch_dicts(
+            f"SELECT {self._select_clause('ds_metric_bindings', _BINDING_COLUMNS, alias='b')}, "
+            "COALESCE(ds.title, '') AS title "
+            "FROM ds_metric_bindings AS b "
+            "LEFT JOIN ds_datasets AS ds ON ds.id = b.dataset_id "
+            "WHERE b.metric_id = ? "
+            "ORDER BY b.confidence DESC, b.dataset_id ASC "
+            "LIMIT ?",
+            [metric_name, top_k],
+        )
+        out: list[MetricBindingMatch] = []
         for row in rows:
-            params = row[5]
-            if isinstance(params, str):
-                params = json.loads(params)
             out.append(
-                DistributionResult(
-                    id=row[0],
-                    dataset_id=row[1],
-                    url=row[2] or "",
-                    format=row[3] or "",
-                    connector_type=row[4] or "",
-                    connector_params=params if isinstance(params, dict) else {},
-                    quality_score=float(row[6]) if row[6] is not None else 0.0,
+                MetricBindingMatch(
+                    metric_id=str(row.get("metric_id") or ""),
+                    catalog_dataset_id=str(row.get("dataset_id") or ""),
+                    distribution_id=str(row.get("distribution_id") or ""),
+                    connector_id=self._normalize_connector_id(str(row.get("connector_id") or "")),
+                    profile_id=str(row.get("profile_id") or ""),
+                    request_dataset_id=str(row.get("request_dataset_id") or ""),
+                    confidence=float(row.get("confidence") or 0.0),
+                    default_filters=self._json_mapping(row.get("default_filters")),
+                    execution_tier=str(row.get("execution_tier") or "catalog"),
+                    source=str(row.get("source") or ""),
+                    title=str(row.get("title") or ""),
                 )
             )
         return out
+
+    def resolve_fetch_target(self, dataset_id: str) -> ResolvedFetchTarget | None:
+        dataset_row = self._get_dataset_row(dataset_id)
+        distributions = self.get_distributions(dataset_id)
+        if not distributions:
+            return None
+        preferred_distribution_id = str(dataset_row.get("preferred_distribution_id") or "") if dataset_row else ""
+        distribution = sorted(
+            distributions,
+            key=lambda item: (
+                0 if item.id == preferred_distribution_id else 1,
+                -int(item.parser_supported),
+                -int(item.machine_readable),
+                -item.quality_score,
+                item.id,
+            ),
+        )[0]
+        request_dataset_id = self._infer_request_dataset_id(distribution)
+        if not request_dataset_id:
+            return None
+        return ResolvedFetchTarget(
+            catalog_dataset_id=dataset_id,
+            connector_id=self._normalize_connector_id(distribution.connector_type),
+            profile_id=distribution.profile_id,
+            request_dataset_id=request_dataset_id,
+            distribution_id=distribution.id,
+            connector_params=distribution.connector_params,
+            default_filters=distribution.default_filters,
+            machine_readable=distribution.machine_readable,
+            parser_supported=distribution.parser_supported,
+        )
+
+    def get_connector_params(self, dataset_id: str) -> dict | None:
+        target = self.resolve_fetch_target(dataset_id)
+        if target is None:
+            return None
+        return {
+            "type": target.connector_id,
+            "params": target.connector_params,
+            "dataset_id": target.request_dataset_id,
+            "profile_id": target.profile_id,
+            "distribution_id": target.distribution_id,
+            "default_filters": target.default_filters,
+            "machine_readable": target.machine_readable,
+            "parser_supported": target.parser_supported,
+        }
+
+    def get_distributions(self, dataset_id: str) -> list[DistributionResult]:
+        rows = self._fetch_dicts(
+            f"SELECT {self._select_clause('ds_distributions', _DISTRIBUTION_COLUMNS)} "
+            "FROM ds_distributions WHERE dataset_id = ? ORDER BY parser_supported DESC, quality_score DESC, id ASC",
+            [dataset_id],
+        )
+        return [self._to_distribution_result(row) for row in rows]
 
     def close(self) -> None:
         self._con.close()

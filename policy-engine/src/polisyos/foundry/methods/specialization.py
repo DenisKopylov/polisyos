@@ -13,6 +13,7 @@ from typing import Any, Mapping, Sequence
 import jax
 import jax.numpy as jnp
 import numpy as np
+
 from polisyos.core.canon import content_hash, truncated_hash
 
 __all__ = [

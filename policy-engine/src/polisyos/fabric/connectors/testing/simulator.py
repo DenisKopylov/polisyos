@@ -44,8 +44,8 @@ from dataclasses import MISSING, dataclass
 from enum import Enum, auto
 from pathlib import Path
 from typing import Any, Iterable
-from urllib.parse import parse_qsl, urlencode, urlparse, urlunparse
 from unittest.mock import patch
+from urllib.parse import parse_qsl, urlencode, urlparse, urlunparse
 
 from polisyos.core.canon import content_hash
 

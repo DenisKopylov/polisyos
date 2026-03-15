@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from enum import Enum
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class VulnerabilityType(str, Enum):
@@ -14,6 +14,8 @@ class VulnerabilityType(str, Enum):
 
 
 class Vulnerability(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     vulnerability_id: str
     vulnerability_type: VulnerabilityType
     severity: str = "high"
@@ -26,6 +28,8 @@ class Vulnerability(BaseModel):
 
 
 class StressTestReport(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     schema_version: str = "1.0"
     report_id: str
 

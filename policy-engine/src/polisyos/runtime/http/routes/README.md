@@ -2,7 +2,7 @@
 
 `routes/` — тонкий HTTP-слой runtime API v1. Здесь только request/response wiring, authz context и вызовы сервисов из `../services`.
 
-Документ отражает текущее состояние кода на **2026-03-03**.
+Документ отражает текущее состояние кода на **2026-03-11**.
 
 ## Структура
 
@@ -38,6 +38,8 @@ routes/
 - `GET /api/v1/debug/runs/{run_id}/nodes/{alias}`
 - `GET /api/v1/debug/runs/{run_id}/governance`
 - `GET /api/v1/debug/runs/{run_id}/errors`
+- `GET /api/v1/debug/runs/{run_id}/feedback`
+- `GET /api/v1/debug/runs/{left_run_id}/compare/{right_run_id}`
 
 ### `artifacts.py` (`/api/v1/artifacts`)
 
@@ -49,7 +51,9 @@ routes/
 ### `control.py` (`/api/v1/control`)
 
 - `POST /api/v1/control/runs`
+- `POST /api/v1/control/runs/{run_id}/feedback/evaluate`
 - `POST /api/v1/control/runs/nl`
+- `POST /api/v1/control/runs/{run_id}/reissue`
 - `POST /api/v1/control/data/ingest`
 - `POST /api/v1/control/data/resolve`
 - `POST /api/v1/control/data/discover`
@@ -77,6 +81,7 @@ routes/
 - `runs.py` и `debug.py` вызывают `enforce_run_tenant_access(...)`.
 - `artifacts.py` вызывает `enforce_artifact_tenant_access(...)`.
 - `control.py` lazily создаёт `ControlPlaneService` и кэширует его в `request.app.state._control_service`.
+- Feedback/debug surfaces читают decision-level артефакты через `ctx.feedback`, а `reissue` остаётся control-plane операцией с human-gated publication.
 
 ## Что важно при расширении routes
 

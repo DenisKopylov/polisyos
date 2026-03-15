@@ -4,10 +4,14 @@ from typing import List
 
 from pydantic import ValidationError
 
-from polisyos.ir.trinity import TrinityBundle
+from polisyos.core.governance.passes.base import (
+    ComplianceIssue,
+    IssueSeverity,
+    PassContext,
+    ValidatorPass,
+)
 from polisyos.ir.governance.validation import build_validation_report
-
-from polisyos.core.governance.passes.base import ValidatorPass, PassContext, ComplianceIssue, IssueSeverity
+from polisyos.ir.trinity import TrinityBundle
 
 
 class SchemaPass(ValidatorPass):

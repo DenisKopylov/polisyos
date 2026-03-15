@@ -1,11 +1,14 @@
 from __future__ import annotations
 
 from enum import Enum
+import logging
 from typing import Any, Literal
 
 from pydantic import Field, model_validator
 
 from .base import ID_PATTERN, KernelModel
+
+logger = logging.getLogger(__name__)
 
 
 class MergeRuleKind(str, Enum):
@@ -113,7 +116,10 @@ class MergeRuleSpec(KernelModel):
             return data
         try:
             kind_enum = kind if isinstance(kind, MergeRuleKind) else MergeRuleKind(kind)
-        except Exception:
+        except Exception as exc:
+            logger.debug(
+                "Failed to resolve MergeRuleKind from %r, skipping defaults: %s", kind, exc,
+            )
             return data
         props = EXPECTED_ALGEBRA_PROPERTIES.get(kind_enum)
         if not props:

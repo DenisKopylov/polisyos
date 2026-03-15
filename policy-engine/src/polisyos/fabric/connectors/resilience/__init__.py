@@ -6,8 +6,8 @@ external API calls from transient failures, cascade failures, and overload.
 """
 from __future__ import annotations
 
-from dataclasses import dataclass
 import threading
+from dataclasses import dataclass
 from functools import wraps
 from typing import Any, Awaitable, Callable, Mapping, TypeVar
 

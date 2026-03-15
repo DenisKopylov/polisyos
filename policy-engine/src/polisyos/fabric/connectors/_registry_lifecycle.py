@@ -8,7 +8,6 @@ from typing import TYPE_CHECKING, Any, Callable, Literal
 
 from polisyos.common.logger import get_logger
 from polisyos.core.observability import get_metrics
-
 from polisyos.fabric.connectors._registry_errors import (
     ConnectorAlreadyRegisteredError,
     ConnectorConfigError,
@@ -194,8 +193,8 @@ class RegistryLifecycleMixin:
                 try:
                     self.register(connector_class, override=False)
                     registered += 1
-                except Exception:
-                    pass  # duplicate or validation — skip
+                except Exception as exc:
+                    logger.debug("Ignored exception: %s", exc)  # duplicate or validation — skip
         except Exception as exc:
             logger.debug(
                 "Direct connector bootstrap fallback failed",
@@ -362,8 +361,8 @@ class RegistryLifecycleMixin:
                     loop.run_until_complete(
                         asyncio.gather(*(pool.close_all() for pool in pools_to_close))
                     )
-            except Exception:
-                pass
+            except Exception as exc:
+                logger.debug("Ignored exception: %s", exc)
 
         return True
 

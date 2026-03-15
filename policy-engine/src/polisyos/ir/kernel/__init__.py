@@ -8,8 +8,8 @@ from .mechanisms import (
     ParamType,
 )
 from .merge_rules import (
-    ConflictResolution,
     DEFAULT_MERGE_RULE_REGISTRY,
+    ConflictResolution,
     MergeRuleKind,
     MergeRuleRef,
     MergeRuleRegistry,

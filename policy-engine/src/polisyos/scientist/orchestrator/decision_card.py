@@ -1,12 +1,15 @@
 from __future__ import annotations
 
+import json
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
 from enum import Enum
-import json
 from typing import Any
 
+from polisyos.common.logger import get_logger
 from polisyos.core.canon import truncated_hash
+
+logger = get_logger(__name__)
 
 
 class Verdict(str, Enum):
@@ -283,7 +286,12 @@ def _parse_datetime(raw: Any) -> datetime:
     if isinstance(raw, str):
         try:
             return datetime.fromisoformat(raw)
-        except Exception:
+        except (TypeError, ValueError):
+            logger.debug(
+                "Failed to parse datetime from string: %r",
+                raw,
+                exc_info=True,
+            )
             return datetime.now(timezone.utc)
     return datetime.now(timezone.utc)
 

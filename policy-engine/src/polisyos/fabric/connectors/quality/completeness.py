@@ -15,7 +15,11 @@ from typing import Any
 
 import pandas as pd
 
+from polisyos.common.logger import get_logger
+
 from .report import CompletenessResult, RuleViolation
+
+logger = get_logger(__name__)
 
 SEVERITY_WEIGHTS = {"error": 1.0, "warning": 0.6, "info": 0.3}
 
@@ -255,8 +259,8 @@ class CompletenessAnalyzer:
         if granularity is not None:
             try:
                 return granularity.to_pandas_freq()
-            except Exception:
-                pass
+            except Exception as exc:
+                logger.debug("Ignored exception: %s", exc)
         return CompletenessAnalyzer._infer_frequency(time_values)
 
     @staticmethod
@@ -308,6 +312,7 @@ class CompletenessAnalyzer:
             return time_dimension
         for field in schema.fields:
             from polisyos.fabric.connectors.contracts.schema import SemanticType
+
 
             if field.semantic_type == SemanticType.TEMPORAL:
                 return field.name

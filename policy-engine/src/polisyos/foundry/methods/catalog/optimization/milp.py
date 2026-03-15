@@ -3,6 +3,8 @@ from __future__ import annotations
 import time
 from typing import Any, ClassVar, Mapping
 
+from polisyos.common.logger import get_logger
+from polisyos.foundry.methods.backends.protocol import SolverStatus
 from polisyos.foundry.methods.base import (
     ComplexityClass,
     ComputeBackend,
@@ -15,7 +17,6 @@ from polisyos.foundry.methods.base import (
     Unit,
     foundry_method,
 )
-from polisyos.foundry.methods.backends.protocol import SolverStatus
 from polisyos.ir.analytics.uncertainty import (
     IntervalSemantics,
     PropagationMethod,
@@ -29,6 +30,8 @@ from .protocols import (
     emit_optimization_metrics,
     parse_optimization_problem,
 )
+
+logger = get_logger(__name__)
 
 _ORTOOLS_AVAILABLE: bool | None = None
 
@@ -56,10 +59,12 @@ def _constraint_ok(lhs: float, sense: str, rhs: float, eps: float = 1e-9) -> boo
 @foundry_method(
     namespace="optimization",
     version="1.0.0",
-    tags={"optimization", "milp", "solver"},
+    tags={"optimization", "milp", "solver", "deprecated:legacy-fqn"},
 )
 class BudgetMILP:
     """Knapsack-style budget allocation via Mixed Integer Linear Programming."""
+
+    runtime_stack: ClassVar[tuple[str, ...]] = ("ortools",)
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="budget_milp",
@@ -71,15 +76,22 @@ class BudgetMILP:
                     name="optimization_problem",
                     slot_type=SlotType.SCALAR,
                     unit=Unit("problem", "json"),
+                    contract_id=OptimizationProblem.contract_id,
                 )
             }
         ),
         output_slots=frozenset(
             {
                 SlotSpec(
-                    name="optimization_result",
+                    name="result",
                     slot_type=SlotType.SCALAR,
                     unit=Unit("result", "json"),
+                    contract_id=OptimizationResult.contract_id,
+                ),
+                SlotSpec(
+                    name="solver_info",
+                    slot_type=SlotType.SCALAR,
+                    unit=Unit("solver", "json"),
                 )
             }
         ),
@@ -148,6 +160,7 @@ class BudgetMILP:
 
         from ortools.linear_solver import pywraplp
 
+
         t0 = time.perf_counter()
         solver = pywraplp.Solver.CreateSolver(solver_id)
         if solver is None:
@@ -167,8 +180,8 @@ class BudgetMILP:
         if relative_gap > 0:
             try:
                 solver.SetSolverSpecificParametersAsString(f"limits/gap={relative_gap}")
-            except Exception:
-                pass
+            except Exception as exc:
+                logger.debug("Ignored exception: %s", exc)
 
         variables: dict[str, Any] = {}
         for item in problem.items:
@@ -320,4 +333,13 @@ class BudgetMILP:
         return result, solver_info
 
 
-__all__ = ["BudgetMILP"]
+@foundry_method(
+    namespace="optimization.integer",
+    version="1.0.0",
+    tags={"optimization", "milp", "solver"},
+)
+class IntegerBudgetMILP(BudgetMILP):
+    """Canonical namespace for integer optimization budget allocation."""
+
+
+__all__ = ["BudgetMILP", "IntegerBudgetMILP"]

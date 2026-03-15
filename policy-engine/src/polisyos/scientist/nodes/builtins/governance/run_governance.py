@@ -10,11 +10,21 @@ from polisyos.core.canon.canon_json import from_canonical_bytes
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.contracts.fabric import DataSnapshot
 from polisyos.core.contracts.foundry import Metrics
-from polisyos.core.contracts.lex import ChangeProposalRef, LegalReportRef
-from polisyos.core.contracts.lex import ComplianceIssue, IssueSeverity
+from polisyos.core.contracts.lex import (
+    ChangeProposalRef,
+    ComplianceIssue,
+    IssueSeverity,
+    LegalReportRef,
+)
 from polisyos.core.contracts.scientist import GovernanceReportRef
 from polisyos.core.governance.passes.base import PassContext
 from polisyos.core.governance.profiles import ValidationProfile
+from polisyos.ir.analytics.normative_arbitration import (
+    ArbitrationOption,
+    NormativeArbitrationResult,
+    load_normative_arbitration_result,
+)
+from polisyos.ir.refs import NormativeArbitrationResultRef
 from polisyos.ir.governance.gate import (
     GateContext,
     GateDecision,
@@ -27,6 +37,8 @@ from polisyos.scientist.engine.protocol import NodeEvent, NodeOutcome, NodeSpec
 from polisyos.scientist.engine.state import ExperimentState
 from polisyos.scientist.governance.pass_registry import (
     build_governance_pipeline,
+)
+from polisyos.scientist.governance.pass_registry import (
     runtime_profile as build_runtime_profile,
 )
 from polisyos.scientist.governance.report import GovernanceReport, GovernanceReportLinks
@@ -35,6 +47,7 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CAUSAL_REPORT_REF,
     ARTIFACT_DISTRIBUTIONAL_REPORT_REF,
     ARTIFACT_METRICS_REF,
+    ARTIFACT_NORMATIVE_ARBITRATION_RESULT_REF,
     INPUT_DATA_SNAPSHOT_REF,
     INPUT_TRINITY_BUNDLE_REF,
     REPORT_CHANGE_PROPOSAL_REF,
@@ -43,7 +56,7 @@ from polisyos.scientist.nodes.builtins.state_keys import (
 )
 
 _METADATA = ComponentMetadata(
-    component_id=ComponentId.parse("scientist.node_run_governance@1.1.0"),
+    component_id=ComponentId.parse("scientist.node_run_governance@1.2.0"),
     kind=ComponentKind.SCIENTIST_NODE,
     abi_targets={"world_abi": "1.x"},
     display_name="Run Governance",
@@ -62,6 +75,7 @@ _SPEC = NodeSpec(
         "artifacts_index.causal_report_ref",
         "artifacts_index.causal_graph_ref",
         "artifacts_index.metrics_ref",
+        "artifacts_index.normative_arbitration_result_ref",
         "params.query_treatment",
         "params.human_review_request",
         "params.human_review_request_ref",
@@ -188,7 +202,10 @@ class RunGovernanceNode:
                         )
                     )
 
-        profile = _resolve_validation_profile(new_state.params.get("governance_profile"))
+        profile = _resolve_validation_profile(
+            new_state.params.get("governance_profile"),
+            execution_profile=new_state.execution_profile,
+        )
         checks = _run_governance_checks(ctx, new_state, profile)
         governance_issues = checks.issues
         new_state.params["validation_trace"] = checks.trace
@@ -211,17 +228,58 @@ class RunGovernanceNode:
             blocker_count = sum(
                 1 for issue in governance_issues if issue.severity == IssueSeverity.BLOCKER
             )
+            normative_result = _load_normative_arbitration_result(ctx, new_state)
+            if verdict not in {"human_gate", "reject"}:
+                if blocker_count > 0:
+                    verdict = "reject"
+                    events.append(
+                        NodeEvent(
+                            level="warn",
+                            message=(
+                                f"Governance checks blocked decision "
+                                f"({blocker_count} blocker(s))"
+                            ),
+                        )
+                    )
+                elif normative_result is not None:
+                    if _normative_selects_revision(normative_result):
+                        verdict = "needs_revision"
+                        events.append(
+                            NodeEvent(
+                                level="warn",
+                                message=(
+                                    "Normative arbitration requires revision "
+                                    f"({normative_result.selected_option.value})"
+                                ),
+                            )
+                        )
+                    elif normative_result.selected_option == ArbitrationOption.PROPOSAL:
+                        verdict = "approve"
+            if blocker_count > 0 and verdict == "reject":
+                pass
+        else:
+            normative_result = _load_normative_arbitration_result(ctx, new_state)
+            if verdict not in {"human_gate", "reject"} and normative_result is not None:
+                if _normative_selects_revision(normative_result):
+                    verdict = "needs_revision"
+                    events.append(
+                        NodeEvent(
+                            level="warn",
+                            message=(
+                                "Normative arbitration requires revision "
+                                f"({normative_result.selected_option.value})"
+                            ),
+                        )
+                    )
+                elif normative_result.selected_option == ArbitrationOption.PROPOSAL:
+                    verdict = "approve"
+
+        if governance_issues:
+            blocker_count = sum(
+                1 for issue in governance_issues if issue.severity == IssueSeverity.BLOCKER
+            )
             if blocker_count > 0 and verdict != "human_gate":
                 verdict = "reject"
-                events.append(
-                    NodeEvent(
-                        level="warn",
-                        message=(
-                            f"Governance checks blocked decision "
-                            f"({blocker_count} blocker(s))"
-                        ),
-                    )
-                )
 
         report = GovernanceReport(
             verdict=verdict,
@@ -458,11 +516,19 @@ def _transport_summary_from_state(
     report_ref = state.artifacts_index.get(ARTIFACT_CAUSAL_REPORT_REF)
     if report_ref is None:
         status = state.params.get("transportability_status")
+        mode = state.params.get("transportability_transport_mode")
         engine = state.params.get("transportability_identification_engine")
+        capability_hash = state.params.get("transportability_capability_hash")
+        degradation_policy = state.params.get("transportability_degradation_policy")
         if isinstance(status, str) or isinstance(engine, str):
             return {
                 "status": status if isinstance(status, str) else "not_available",
+                "transport_mode": mode if isinstance(mode, str) else "not_available",
                 "identification_engine": engine if isinstance(engine, str) else "not_available",
+                "capability_hash": capability_hash if isinstance(capability_hash, str) else None,
+                "degradation_policy": (
+                    degradation_policy if isinstance(degradation_policy, str) else None
+                ),
             }
         return None
 
@@ -477,7 +543,10 @@ def _transport_summary_from_state(
         return None
     summary = {
         "status": transport.get("status"),
+        "transport_mode": transport.get("transport_mode"),
         "identification_engine": transport.get("identification_engine"),
+        "capability_hash": state.params.get("transportability_capability_hash"),
+        "degradation_policy": state.params.get("transportability_degradation_policy"),
         "requires_expert_review": bool(transport.get("requires_expert_review", False)),
         "data_gaps_count": len(transport.get("data_gaps", []))
         if isinstance(transport.get("data_gaps"), list)
@@ -680,7 +749,11 @@ def _optional_int(raw: Any) -> int | None:
     return value if value > 0 else None
 
 
-def _resolve_validation_profile(raw: Any) -> ValidationProfile:
+def _resolve_validation_profile(
+    raw: Any,
+    *,
+    execution_profile: str | None = None,
+) -> ValidationProfile:
     if isinstance(raw, ValidationProfile):
         return raw
     if isinstance(raw, dict):
@@ -694,6 +767,11 @@ def _resolve_validation_profile(raw: Any) -> ValidationProfile:
             return ValidationProfile.fast()
         if token == "strict":
             return ValidationProfile.strict()
+    profile_token = str(execution_profile or "").strip().lower()
+    if profile_token in {"governed", "production"}:
+        return ValidationProfile.strict()
+    if profile_token == "research":
+        return ValidationProfile.mvp()
     return ValidationProfile.mvp()
 
 
@@ -758,6 +836,29 @@ def _run_governance_checks(
         trace=trace.to_dict(),
         pass_state=pass_ctx.state,
     )
+
+
+def _load_normative_arbitration_result(
+    ctx: ExecutionContext,
+    state: ExperimentState,
+) -> NormativeArbitrationResult | None:
+    ref = state.artifacts_index.get(ARTIFACT_NORMATIVE_ARBITRATION_RESULT_REF)
+    if ref is None:
+        return None
+    try:
+        return load_normative_arbitration_result(
+            ctx.store,
+            NormativeArbitrationResultRef(artifact_id=ref.artifact_id),
+        )
+    except Exception:
+        return None
+
+
+def _normative_selects_revision(result: NormativeArbitrationResult) -> bool:
+    return result.selected_option in {
+        ArbitrationOption.BASELINE,
+        ArbitrationOption.INDETERMINATE,
+    }
 
 
 def _has_issue_code(issues: list[ComplianceIssue], code: str) -> bool:

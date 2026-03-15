@@ -1,9 +1,9 @@
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any, Dict, List, Optional
-import json
 
 from polisyos.core.canon import truncated_hash
 from polisyos.core.trace import TraceRecord

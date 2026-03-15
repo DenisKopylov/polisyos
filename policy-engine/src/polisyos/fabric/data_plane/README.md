@@ -1,6 +1,6 @@
 # Data Plane
 
-`polisyos.fabric.data_plane` — orchestration-слой над ingestion: execution modes, cursor lifecycle, record/replay и snapshot production.
+`polisyos.fabric.data_plane` — orchestration-слой над ingestion: execution modes, cursor lifecycle, record/replay, snapshot production и semantic diff для revised historical sources.
 
 ## Назначение
 
@@ -30,6 +30,8 @@ connector manifest
   `RecordSession`/`ReplayStore` для record/replay fixtures.
 - `regression.py`
   deterministic compare record/replay результатов.
+- `semantic_diff.py`
+  `compare_historical_rows(...)`: schema evolution + row-level semantic diff для revised historical snapshots.
 
 ## Возвращаемые результаты
 
@@ -43,6 +45,12 @@ connector manifest
 - `mode_effective`
 
 Специальный случай: `run_record_mode(...)` возвращает `(IngestionResult, record_ref_hex)`.
+
+Semantic diff path возвращает `HistoricalSemanticDiffReport`:
+
+- сначала использует `DataSchema.primary_key`;
+- затем fallback на `time_dimension + geo_dimension + semantic CODE/INDEX/IDENTIFIER`;
+- если grain невыводим, помечает отчёт `manual_review_required` и не делает auto-recalibration.
 
 ## Связи
 

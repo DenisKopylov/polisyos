@@ -1,8 +1,11 @@
 """Program-graph orchestrator — execute_program_graph and direct helpers."""
 from __future__ import annotations
 
+import logging
 import time
 from typing import Any
+
+logger = logging.getLogger(__name__)
 
 import jax
 import jax.numpy as jnp
@@ -16,10 +19,11 @@ from polisyos.core.artifacts.environment import (
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
-from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.contracts.foundry import (
+    ConstraintReport,
     ConstraintReportRef,
     ExecPlan,
+    LoweredIR,
     Metrics,
     PatchOp,
     ProgramGraph,
@@ -28,6 +32,8 @@ from polisyos.core.contracts.foundry import (
 from polisyos.foundry.agents import AdaptiveAgentMechanism
 from polisyos.foundry.patch_vm import merge_patch_records
 from polisyos.foundry.registry import create_mechanism_from_spec
+from polisyos.ir.governance.schedule import ScheduleSpec, schedule_range
+from polisyos.ir.governance.selector_expr import SelectorExpr
 from polisyos.ir.kernel import (
     ConstraintRegistry,
     MechanismTypeRegistry,
@@ -36,12 +42,10 @@ from polisyos.ir.kernel import (
     SlotRegistry,
     SlotScope,
 )
-from polisyos.ir.governance.schedule import ScheduleSpec, schedule_range
-from polisyos.ir.governance.selector_expr import SelectorExpr
-from polisyos.ir.trinity import TrinityBundle
 
 from ._executor_models import ExecuteArtifacts, artifact_id, load_model, load_payload
-from ._executor_ops import check_constraints, coerce_number, evaluate_selector, apply_ops_to_state
+from ._executor_ops import apply_ops_to_state, coerce_number, evaluate_selector
+from .constraints_engine import check_constraints as evaluate_lowered_constraints
 
 __all__ = [
     "execute_program_graph",
@@ -71,6 +75,8 @@ def execute_program_graph(
     base_ref: ArtifactRef | None = None,
     project_root: str | None = None,
     capture_env: bool = False,
+    parameter_overrides: dict[str, dict[str, Any]] | None = None,
+    parameter_override_bundle_ref: ArtifactRef | None = None,
 ) -> ExecuteArtifacts:
     env_manifest_ref: EnvironmentManifestRef | None = None
     env_fingerprint: str | None = None
@@ -92,6 +98,9 @@ def execute_program_graph(
     start_time = time.perf_counter()
     program_graph = load_model(store, program_ref, ProgramGraph)
     exec_plan = load_model(store, exec_plan_ref, ExecPlan)
+    if program_graph.lowered_ir_ref is None:
+        raise ValueError("program_graph_missing_lowered_ir_ref")
+    lowered_ir = load_model(store, program_graph.lowered_ir_ref, LoweredIR)
 
     order = exec_plan.order or [node.node_id for node in program_graph.nodes]
     node_map = {node.node_id: node for node in program_graph.nodes}
@@ -104,7 +113,12 @@ def execute_program_graph(
         n_firms = int(base_state.firms.capital.shape[0])
 
     key = jax.random.PRNGKey(seed)
-    tax_rate_value = _resolve_income_tax_rate(program_graph, store, step)
+    tax_rate_value = _resolve_income_tax_rate(
+        program_graph,
+        store,
+        step,
+        parameter_overrides=parameter_overrides,
+    )
     patch_records: dict[str, list[dict[str, Any]]] = {}
     ops: list[PatchOp] = []
     applied_nodes = 0
@@ -113,27 +127,15 @@ def execute_program_graph(
     checked_constraints = 0
     masks: dict[str, tuple[jnp.ndarray, SlotScope]] = {}
     state_for_checks = base_state
-
-    constraint_values: dict[str, Any] = {}
-    if constraint_registry is not None:
-        try:
-            ir_payload = from_canonical_bytes(store.get_bytes(program_graph.ir_ref.artifact_id))
-            if program_graph.ir_ref.kind == "ir.trinity_bundle":
-                bundle = TrinityBundle.model_validate(ir_payload)
-                constraint_values = {
-                    constraint.constraint_id: constraint.value
-                    for constraint in (
-                        bundle.problem_frame.hard_constraints
-                        + bundle.problem_frame.soft_constraints
-                    )
-                }
-            else:
-                raise ValueError(
-                    f"Unsupported IR kind for constraints: {program_graph.ir_ref.kind}"
-                )
-        except Exception as exc:  # pragma: no cover - defensive
-            raise ValueError(f"Failed to load policy for constraints: {exc}") from exc
-    constraint_events: list[dict[str, Any]] = []
+    constraint_report = ConstraintReport(
+        ok=True,
+        hard_fail=False,
+        constraint_mode=lowered_ir.constraint_mode,
+        total_constraints=0,
+        violations=[],
+        penalty_total=None,
+        notes=[],
+    )
 
     for node_id in order:
         node = node_map.get(node_id)
@@ -157,7 +159,11 @@ def execute_program_graph(
                 if node.params_ref is None:
                     skipped_nodes += 1
                     continue
-                payload = load_payload(store, node.params_ref)
+                payload = _load_node_payload(
+                    store,
+                    node=node,
+                    parameter_overrides=parameter_overrides,
+                )
                 schedule = ScheduleSpec.model_validate(payload.get("schedule", {}))
                 start, end = schedule_range(schedule)
                 if step < start or step > end:
@@ -169,7 +175,7 @@ def execute_program_graph(
                 if isinstance(mask_id, str):
                     mask_info = masks.get(mask_id)
                 if mask_info is None:
-                    selector_payload = payload.get("target") or {}
+                    selector_payload = payload.get("selector") or payload.get("target") or {}
                     target = _SELECTOR_ADAPTER.validate_python(selector_payload)
                     mask_info = evaluate_selector(
                         target, base_state, selector_field_registry=selector_field_registry
@@ -177,7 +183,7 @@ def execute_program_graph(
                 mask, mask_scope = mask_info
 
                 params = payload.get("params", {})
-                mechanism_type = node.mechanism_type
+                mechanism_type = node.mechanism_type or payload.get("mechanism_id")
                 mechanism_spec = mechanism_registry.mechanisms.get(mechanism_type)
                 mechanism = create_mechanism_from_spec(
                     mechanism_type,
@@ -185,6 +191,7 @@ def execute_program_graph(
                     n_agents=n_agents,
                     n_firms=n_firms,
                     mechanism_spec=mechanism_spec,
+                    selected_fidelity=payload.get("selected_fidelity"),
                 )
                 if (
                     tax_rate_value is not None
@@ -234,16 +241,18 @@ def execute_program_graph(
                     )
             elif node.op.op_kind == "check_constraints":
                 ids = node.op.params.get("constraint_ids") or []
-                if isinstance(ids, list):
-                    checked_constraints += len(ids)
                 if constraint_registry is not None:
-                    check_constraints(
-                        ids,
-                        constraint_registry=constraint_registry,
-                        constraint_values=constraint_values,
+                    constraint_ids = [item for item in ids if isinstance(item, str)]
+                    lowered_constraints = [
+                        item
+                        for item in lowered_ir.constraints
+                        if item.constraint_id in constraint_ids
+                    ]
+                    checked_constraints += len(lowered_constraints)
+                    constraint_report = evaluate_lowered_constraints(
+                        constraints=lowered_constraints,
                         slot_registry=slot_registry,
                         state=state_for_checks,
-                        events=constraint_events,
                     )
             else:
                 skipped_nodes += 1
@@ -252,7 +261,11 @@ def execute_program_graph(
             if node.params_ref is None:
                 skipped_nodes += 1
                 continue
-            payload = load_payload(store, node.params_ref)
+            payload = _load_node_payload(
+                store,
+                node=node,
+                parameter_overrides=parameter_overrides,
+            )
             schedule = ScheduleSpec.model_validate(payload.get("schedule", {}))
             start, end = schedule_range(schedule)
             if step < start or step > end:
@@ -267,6 +280,7 @@ def execute_program_graph(
                 n_agents=n_agents,
                 n_firms=n_firms,
                 mechanism_spec=mechanism_spec,
+                selected_fidelity=payload.get("selected_fidelity"),
             )
             if (
                 tax_rate_value is not None
@@ -322,23 +336,12 @@ def execute_program_graph(
                                     if isinstance(patch, dict):
                                         patch_records.setdefault(str(slot_id), []).append(patch)
                 applied_nodes += 1
-                constraint_events.append(
-                    {
-                        "event": "method.executed",
-                        "node_id": node_id,
-                        "method_fqn": method_fqn,
-                    }
-                )
             except Exception as exc:
-                skipped_nodes += 1
-                constraint_events.append(
-                    {
-                        "event": "method.failed",
-                        "node_id": node_id,
-                        "method_fqn": method_fqn,
-                        "error": str(exc),
-                    }
+                logger.debug(
+                    "Failed to execute method node '%s' (method=%s): %s",
+                    node_id, method_fqn, exc,
                 )
+                skipped_nodes += 1
             continue
         skipped_nodes += 1
 
@@ -356,6 +359,17 @@ def execute_program_graph(
         InputRef(artifact_id=artifact_id(program_ref), role="program_graph"),
         InputRef(artifact_id=artifact_id(exec_plan_ref), role="exec_plan"),
     ]
+    if program_graph.lowered_ir_ref is not None:
+        inputs.append(
+            InputRef(artifact_id=program_graph.lowered_ir_ref.artifact_id, role="lowered_ir")
+        )
+    if parameter_override_bundle_ref is not None:
+        inputs.append(
+            InputRef(
+                artifact_id=parameter_override_bundle_ref.artifact_id,
+                role="parameter_override_bundle",
+            )
+        )
     for op in ops:
         if op.value_ref is not None:
             inputs.append(InputRef(artifact_id=op.value_ref.artifact_id, role="patch_value"))
@@ -380,6 +394,7 @@ def execute_program_graph(
             "patch_ops": int(len(ops)),
             "step": int(step),
             "step_latency_ms": latency_ms,
+            "constraint_hard_fail": int(constraint_report.hard_fail),
         }
     )
     metrics_ref = store.put_json(
@@ -393,18 +408,13 @@ def execute_program_graph(
     )
 
     constraint_report_ref = None
-    if constraint_registry is not None:
-        report = {
-            "schema_version": "1.0",
-            "step": step,
-            "checked": checked_constraints,
-            "events": constraint_events,
-        }
+    if constraint_registry is not None or lowered_ir.constraints:
         cref = store.put_json(
-            report,
+            constraint_report,
             PutOptions(
                 kind="foundry.constraint_report",
                 media_type="application/json",
+                schema=SchemaInfo(name="polisyos.core.ConstraintReport", version="1.0"),
                 inputs=inputs,
             ),
         )
@@ -414,6 +424,7 @@ def execute_program_graph(
         state_delta_ref=state_delta_ref,
         metrics_ref=metrics_ref,
         constraint_report_ref=constraint_report_ref,
+        constraint_hard_fail=constraint_report.hard_fail,
         environment_ref=env_manifest_ref,
         environment_fingerprint=env_fingerprint,
     )
@@ -463,11 +474,16 @@ def _resolve_income_tax_rate(
     program_graph: ProgramGraph,
     store: FileSystemCAS,
     step: int,
+    parameter_overrides: dict[str, dict[str, Any]] | None = None,
 ) -> jnp.ndarray | None:
     for node in program_graph.nodes:
         if node.mechanism_type != "income_tax" or node.params_ref is None:
             continue
-        payload = load_payload(store, node.params_ref)
+        payload = _load_node_payload(
+            store,
+            node=node,
+            parameter_overrides=parameter_overrides,
+        )
         schedule = ScheduleSpec.model_validate(payload.get("schedule", {}))
         start, end = schedule_range(schedule)
         if step < start or step > end:
@@ -478,3 +494,23 @@ def _resolve_income_tax_rate(
             continue
         return jnp.array(float(numeric), dtype=jnp.float32)
     return None
+
+
+def _load_node_payload(
+    store: FileSystemCAS,
+    *,
+    node: Any,
+    parameter_overrides: dict[str, dict[str, Any]] | None,
+) -> dict[str, Any]:
+    payload = load_payload(store, node.params_ref)
+    if not isinstance(payload, dict):
+        return {}
+    if not parameter_overrides:
+        return payload
+    node_overrides = parameter_overrides.get(str(node.node_id))
+    if not isinstance(node_overrides, dict) or not node_overrides:
+        return payload
+    merged_payload = dict(payload)
+    params = payload.get("params")
+    merged_payload["params"] = {**(params if isinstance(params, dict) else {}), **node_overrides}
+    return merged_payload

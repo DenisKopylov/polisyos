@@ -14,7 +14,7 @@ def start_node_span(tracer: Any | None, attributes: dict[str, Any]) -> Any:
         return nullcontext(None)
     try:
         return tracer.start_as_current_span(NODE_SPAN_NAME, attributes=attributes)
-    except Exception:
+    except Exception:  # noqa: BLE001 - telemetry must never crash the pipeline
         return nullcontext(None)
 
 
@@ -25,7 +25,7 @@ def set_span_attribute(span: Any, key: str, value: Any) -> None:
     if callable(setter):
         try:
             setter(key, value)
-        except Exception:
+        except Exception:  # noqa: BLE001 - telemetry must never crash the pipeline
             return
 
 
@@ -42,5 +42,5 @@ def add_span_events(span: Any, events: Iterable[NodeEvent]) -> None:
         attrs["level"] = event.level
         try:
             add_event(event.message, attributes=attrs)
-        except Exception:
+        except Exception:  # noqa: BLE001 - telemetry must never crash the pipeline
             continue

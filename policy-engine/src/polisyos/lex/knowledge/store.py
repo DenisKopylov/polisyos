@@ -5,25 +5,73 @@ This is the persistence layer used by ``search.py``.
 
 from __future__ import annotations
 
-import logging
 from pathlib import Path
+from typing import Any
 
 import duckdb
 import numpy as np
 
+from polisyos.common.logger import get_logger
 from polisyos.lex.knowledge.types import (
     LegalFactResult,
     LegalProvisionResult,
     LegalSearchResult,
 )
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
-_FACT_SELECT = (
-    "fact_id, subject_en, predicate, object_en, fact_text, "
-    "confidence, norm_type, action_canon, norm_type_canon, "
-    "condition_text_uk, exception_text_uk, procedure_text_uk, "
-    "thresholds_json, source_quote_uk, doc_name, doc_reestr_code, provision_citation"
+_FACT_SELECT_FIELDS: tuple[tuple[str, str], ...] = (
+    ("fact_id", "''"),
+    ("subject_en", "''"),
+    ("predicate", "''"),
+    ("object_en", "''"),
+    ("fact_text", "''"),
+    ("confidence", "0.0"),
+    ("norm_type", "''"),
+    ("action_canon", "''"),
+    ("norm_type_canon", "''"),
+    ("condition_text_uk", "''"),
+    ("exception_text_uk", "''"),
+    ("procedure_text_uk", "''"),
+    ("thresholds_json", "'[]'"),
+    ("source_quote_uk", "''"),
+    ("trust_tier", "'search_candidate'"),
+    ("grounding_status", "'missing_quote'"),
+    ("canonical_status", "'raw'"),
+    ("reference_resolution_status", "'not_applicable'"),
+    ("structure_quality", "''"),
+    ("constraint_type_canon", "''"),
+    ("legal_unit_subtype", "''"),
+    ("route_class", "''"),
+    ("empty_spo_retry_eligible", "FALSE"),
+    ("audit_miss_prone", "FALSE"),
+    ("reference_bearing", "FALSE"),
+    ("threshold_bearing", "FALSE"),
+    ("jurisdiction", "'UA'"),
+    ("top_domain", "''"),
+    ("effective_from", "''"),
+    ("effective_to", "''"),
+    ("doc_name", "''"),
+    ("doc_reestr_code", "''"),
+    ("provision_citation", "''"),
+)
+
+_PROVISION_SELECT_FIELDS: tuple[tuple[str, str], ...] = (
+    ("provision_id", "''"),
+    ("doc_name", "''"),
+    ("doc_reestr_code", "''"),
+    ("citation_label", "''"),
+    ("kind", "''"),
+    ("provision_text", "''"),
+    ("struct_kind", "''"),
+    ("section_role", "''"),
+    ("legal_unit_subtype", "''"),
+    ("route_class", "''"),
+    ("empty_spo_retry_eligible", "FALSE"),
+    ("audit_miss_prone", "FALSE"),
+    ("reference_bearing", "FALSE"),
+    ("threshold_bearing", "FALSE"),
+    ("fallback_allowed_for_reasoning", "FALSE"),
 )
 
 
@@ -41,6 +89,117 @@ class LegalKnowledgeStore:
         self._fact_ids: list[str] | None = None
         self._provision_index = None
         self._provision_ids: list[str] | None = None
+        self._table_exists_cache: dict[str, bool] = {}
+        self._table_columns_cache: dict[str, set[str]] = {}
+
+    def _table_exists(self, table_name: str) -> bool:
+        cached = self._table_exists_cache.get(table_name)
+        if cached is not None:
+            return cached
+        exists = bool(
+            self._con.execute(
+                "SELECT COUNT(*) FROM information_schema.tables WHERE table_name = ?",
+                [table_name],
+            ).fetchone()[0]
+        )
+        self._table_exists_cache[table_name] = exists
+        return exists
+
+    def _fact_table(self, *, trust_tier: str | None, include_candidates: bool) -> str:
+        if trust_tier == "normative_fact" and self._table_exists("lex_normative_facts"):
+            return "lex_normative_facts"
+        if trust_tier == "grounded_fact" and self._table_exists("lex_fact_grounded"):
+            return "lex_fact_grounded"
+        if trust_tier == "search_candidate" and self._table_exists("lex_fact_candidates"):
+            return "lex_fact_candidates"
+        if not include_candidates and self._table_exists("lex_fact_grounded"):
+            return "lex_fact_grounded"
+        return "lex_facts"
+
+    def _fact_filters(
+        self,
+        *,
+        alias: str = "",
+        trust_tier: str | None = None,
+        jurisdiction: str | None = None,
+        domain: str | None = None,
+        as_of: str | None = None,
+        legal_unit_subtype: str | None = None,
+        route_class: str | None = None,
+        include_candidates: bool = False,
+        selected_table: str = "lex_facts",
+    ) -> tuple[list[str], list[Any]]:
+        prefix = f"{alias}." if alias else ""
+        clauses: list[str] = []
+        params: list[Any] = []
+        available_columns = self._table_columns(selected_table)
+
+        if trust_tier:
+            clauses.append(f"{prefix}trust_tier = ?")
+            params.append(trust_tier)
+        elif (not include_candidates) and selected_table == "lex_facts":
+            clauses.append(f"{prefix}trust_tier IN ('grounded_fact', 'normative_fact')")
+
+        if jurisdiction:
+            clauses.append(f"UPPER(COALESCE({prefix}jurisdiction, '')) = ?")
+            params.append(jurisdiction.strip().upper())
+        if domain:
+            clauses.append(f"LOWER(COALESCE({prefix}top_domain, '')) = ?")
+            params.append(domain.strip().lower())
+        if legal_unit_subtype and "legal_unit_subtype" in available_columns:
+            clauses.append(f"LOWER(COALESCE({prefix}legal_unit_subtype, '')) = ?")
+            params.append(legal_unit_subtype.strip().lower())
+        if route_class and "route_class" in available_columns:
+            clauses.append(f"LOWER(COALESCE({prefix}route_class, '')) = ?")
+            params.append(route_class.strip().lower())
+        if as_of:
+            clauses.append(
+                f"(COALESCE({prefix}effective_from, '') = '' OR {prefix}effective_from <= ?)"
+            )
+            params.append(as_of)
+            clauses.append(
+                f"(COALESCE({prefix}effective_to, '') = '' OR {prefix}effective_to >= ?)"
+            )
+            params.append(as_of)
+        return clauses, params
+
+    def _to_where_sql(self, clauses: list[str]) -> str:
+        if not clauses:
+            return ""
+        return " WHERE " + " AND ".join(clauses)
+
+    def _table_columns(self, table_name: str) -> set[str]:
+        cached = self._table_columns_cache.get(table_name)
+        if cached is not None:
+            return cached
+        rows = self._con.execute(
+            """
+            SELECT column_name
+            FROM information_schema.columns
+            WHERE table_name = ?
+            """,
+            [table_name],
+        ).fetchall()
+        columns = {str(row[0]) for row in rows}
+        self._table_columns_cache[table_name] = columns
+        return columns
+
+    def _select_sql(
+        self,
+        *,
+        table_name: str,
+        fields: tuple[tuple[str, str], ...],
+        alias: str = "",
+    ) -> str:
+        prefix = f"{alias}." if alias else ""
+        available_columns = self._table_columns(table_name)
+        selected: list[str] = []
+        for column_name, default_sql in fields:
+            if column_name in available_columns:
+                selected.append(f"{prefix}{column_name}")
+            else:
+                selected.append(f"{default_sql} AS {column_name}")
+        return ", ".join(selected)
 
     # ------------------------------------------------------------------
     # Vector index loading (lazy)
@@ -122,9 +281,25 @@ class LegalKnowledgeStore:
             procedure_text_uk=row[11] or "",
             thresholds_json=row[12] or "",
             source_quote_uk=row[13] or "",
-            doc_name=row[14] or "",
-            doc_reestr_code=row[15] or "",
-            provision_citation=row[16] or "",
+            trust_tier=row[14] or "search_candidate",
+            grounding_status=row[15] or "missing_quote",
+            canonical_status=row[16] or "raw",
+            reference_resolution_status=row[17] or "not_applicable",
+            structure_quality=row[18] or "",
+            constraint_type_canon=row[19] or "",
+            legal_unit_subtype=row[20] or "",
+            route_class=row[21] or "",
+            empty_spo_retry_eligible=bool(row[22]),
+            audit_miss_prone=bool(row[23]),
+            reference_bearing=bool(row[24]),
+            threshold_bearing=bool(row[25]),
+            jurisdiction=row[26] or "UA",
+            top_domain=row[27] or "",
+            effective_from=row[28] or "",
+            effective_to=row[29] or "",
+            doc_name=row[30] or "",
+            doc_reestr_code=row[31] or "",
+            provision_citation=row[32] or "",
             similarity=similarity,
         )
 
@@ -172,11 +347,22 @@ class LegalKnowledgeStore:
         *,
         top_k: int = 20,
         min_similarity: float = 0.3,
+        trust_tier: str | None = None,
+        jurisdiction: str | None = None,
+        domain: str | None = None,
+        as_of: str | None = None,
+        include_candidates: bool = False,
+        legal_unit_subtype: str | None = None,
+        route_class: str | None = None,
     ) -> list[LegalFactResult]:
         self._load_fact_index()
         if self._fact_index is None or self._fact_ids is None:
             return []
 
+        table_name = self._fact_table(
+            trust_tier=trust_tier,
+            include_candidates=include_candidates,
+        )
         labels, distances = self._fact_index.knn_query(query_vector.reshape(1, -1), k=min(top_k, len(self._fact_ids)))
         results: list[LegalFactResult] = []
         for label, dist in zip(labels[0], distances[0]):
@@ -184,9 +370,22 @@ class LegalKnowledgeStore:
             if similarity < min_similarity:
                 continue
             fid = self._fact_ids[int(label)]
+            clauses, params = self._fact_filters(
+                trust_tier=trust_tier,
+                jurisdiction=jurisdiction,
+                domain=domain,
+                as_of=as_of,
+                legal_unit_subtype=legal_unit_subtype,
+                route_class=route_class,
+                include_candidates=include_candidates,
+                selected_table=table_name,
+            )
+            clauses.insert(0, "fact_id = ?")
+            params.insert(0, fid)
+            fact_select = self._select_sql(table_name=table_name, fields=_FACT_SELECT_FIELDS)
             row = self._con.execute(
-                f"SELECT {_FACT_SELECT} FROM lex_facts WHERE fact_id = ?",
-                [fid],
+                f"SELECT {fact_select} FROM {table_name}{self._to_where_sql(clauses)}",
+                params,
             ).fetchone()
             if row:
                 results.append(self._to_fact_result(row, similarity=similarity))
@@ -198,6 +397,8 @@ class LegalKnowledgeStore:
         *,
         top_k: int = 10,
         min_similarity: float = 0.3,
+        legal_unit_subtype: str | None = None,
+        route_class: str | None = None,
     ) -> list[LegalProvisionResult]:
         self._load_provision_index()
         if self._provision_index is None or self._provision_ids is None:
@@ -210,10 +411,22 @@ class LegalKnowledgeStore:
             if similarity < min_similarity:
                 continue
             pid = self._provision_ids[int(label)]
+            clauses = ["provision_id = ?"]
+            params: list[Any] = [pid]
+            available_columns = self._table_columns("lex_provisions")
+            if legal_unit_subtype and "legal_unit_subtype" in available_columns:
+                clauses.append("LOWER(COALESCE(legal_unit_subtype, '')) = ?")
+                params.append(legal_unit_subtype.strip().lower())
+            if route_class and "route_class" in available_columns:
+                clauses.append("LOWER(COALESCE(route_class, '')) = ?")
+                params.append(route_class.strip().lower())
+            provision_select = self._select_sql(
+                table_name="lex_provisions",
+                fields=_PROVISION_SELECT_FIELDS,
+            )
             row = self._con.execute(
-                "SELECT provision_id, doc_name, doc_reestr_code, citation_label, kind, provision_text "
-                "FROM lex_provisions WHERE provision_id = ?",
-                [pid],
+                f"SELECT {provision_select} FROM lex_provisions{self._to_where_sql(clauses)}",
+                params,
             ).fetchone()
             if row:
                 results.append(
@@ -224,6 +437,15 @@ class LegalKnowledgeStore:
                         citation_label=row[3],
                         kind=row[4],
                         provision_text_preview=row[5][:300] if row[5] else "",
+                        struct_kind=row[6] or "",
+                        section_role=row[7] or "",
+                        legal_unit_subtype=row[8] or "",
+                        route_class=row[9] or "",
+                        empty_spo_retry_eligible=bool(row[10]),
+                        audit_miss_prone=bool(row[11]),
+                        reference_bearing=bool(row[12]),
+                        threshold_bearing=bool(row[13]),
+                        fallback_allowed_for_reasoning=bool(row[14]),
                         similarity=similarity,
                     )
                 )
@@ -238,18 +460,39 @@ class LegalKnowledgeStore:
         query: str,
         *,
         top_k: int = 20,
+        trust_tier: str | None = None,
+        jurisdiction: str | None = None,
+        domain: str | None = None,
+        as_of: str | None = None,
+        include_candidates: bool = False,
+        legal_unit_subtype: str | None = None,
+        route_class: str | None = None,
     ) -> list[LegalFactResult]:
+        table_name = self._fact_table(
+            trust_tier=trust_tier,
+            include_candidates=include_candidates,
+        )
         pattern = f"%{query}%"
+        clauses, params = self._fact_filters(
+            trust_tier=trust_tier,
+            jurisdiction=jurisdiction,
+            domain=domain,
+            as_of=as_of,
+            legal_unit_subtype=legal_unit_subtype,
+            route_class=route_class,
+            include_candidates=include_candidates,
+            selected_table=table_name,
+        )
+        text_clause = (
+            "(fact_text ILIKE ? OR subject_en ILIKE ? OR object_en ILIKE ? "
+            "OR condition_text_uk ILIKE ? OR exception_text_uk ILIKE ? OR source_quote_uk ILIKE ?)"
+        )
+        clauses.insert(0, text_clause)
+        params = [pattern, pattern, pattern, pattern, pattern, pattern, *params, top_k]
+        fact_select = self._select_sql(table_name=table_name, fields=_FACT_SELECT_FIELDS)
         rows = self._con.execute(
-            f"SELECT {_FACT_SELECT} FROM lex_facts "
-            "WHERE fact_text ILIKE ? "
-            "OR subject_en ILIKE ? "
-            "OR object_en ILIKE ? "
-            "OR condition_text_uk ILIKE ? "
-            "OR exception_text_uk ILIKE ? "
-            "OR source_quote_uk ILIKE ? "
-            "LIMIT ?",
-            [pattern, pattern, pattern, pattern, pattern, pattern, top_k],
+            f"SELECT {fact_select} FROM {table_name}{self._to_where_sql(clauses)} LIMIT ?",
+            params,
         ).fetchall()
         return [self._to_fact_result(r, similarity=1.0) for r in rows]
 
@@ -258,12 +501,35 @@ class LegalKnowledgeStore:
         action_canon: str,
         *,
         top_k: int = 50,
+        trust_tier: str | None = "normative_fact",
+        jurisdiction: str | None = None,
+        domain: str | None = None,
+        as_of: str | None = None,
+        include_candidates: bool = False,
+        legal_unit_subtype: str | None = None,
+        route_class: str | None = None,
     ) -> list[LegalFactResult]:
+        table_name = self._fact_table(
+            trust_tier=trust_tier,
+            include_candidates=include_candidates,
+        )
+        clauses, params = self._fact_filters(
+            trust_tier=trust_tier,
+            jurisdiction=jurisdiction,
+            domain=domain,
+            as_of=as_of,
+            legal_unit_subtype=legal_unit_subtype,
+            route_class=route_class,
+            include_candidates=include_candidates,
+            selected_table=table_name,
+        )
+        clauses.insert(0, "action_canon = ?")
+        params = [action_canon, *params, top_k]
+        fact_select = self._select_sql(table_name=table_name, fields=_FACT_SELECT_FIELDS)
         rows = self._con.execute(
-            f"SELECT {_FACT_SELECT} FROM lex_facts "
-            "WHERE action_canon = ? "
+            f"SELECT {fact_select} FROM {table_name}{self._to_where_sql(clauses)} "
             "ORDER BY confidence DESC LIMIT ?",
-            [action_canon, top_k],
+            params,
         ).fetchall()
         return [self._to_fact_result(r, similarity=1.0) for r in rows]
 
@@ -272,25 +538,146 @@ class LegalKnowledgeStore:
         metric: str,
         *,
         top_k: int = 50,
+        trust_tier: str | None = "normative_fact",
+        jurisdiction: str | None = None,
+        domain: str | None = None,
+        as_of: str | None = None,
+        include_candidates: bool = False,
+        legal_unit_subtype: str | None = None,
+        route_class: str | None = None,
     ) -> list[LegalFactResult]:
+        table_name = self._fact_table(
+            trust_tier=trust_tier,
+            include_candidates=include_candidates,
+        )
+        clauses, params = self._fact_filters(
+            alias="f",
+            trust_tier=trust_tier,
+            jurisdiction=jurisdiction,
+            domain=domain,
+            as_of=as_of,
+            legal_unit_subtype=legal_unit_subtype,
+            route_class=route_class,
+            include_candidates=include_candidates,
+            selected_table=table_name,
+        )
+        clauses.insert(0, "t.metric = ?")
+        params = [metric, *params, top_k]
+        fact_select = self._select_sql(table_name=table_name, fields=_FACT_SELECT_FIELDS, alias="f")
         rows = self._con.execute(
-            f"SELECT f.{_FACT_SELECT} "
-            "FROM lex_facts f "
+            f"SELECT {fact_select} "
+            f"FROM {table_name} f "
             "JOIN lex_rule_thresholds t ON t.fact_id = f.fact_id "
-            "WHERE t.metric = ? "
+            f"{self._to_where_sql(clauses)} "
             "ORDER BY f.confidence DESC LIMIT ?",
-            [metric, top_k],
+            params,
         ).fetchall()
         return [self._to_fact_result(r, similarity=1.0) for r in rows]
+
+    def find_constraints(
+        self,
+        *,
+        query: str | None = None,
+        top_k: int = 50,
+        jurisdiction: str | None = None,
+        domain: str | None = None,
+        as_of: str | None = None,
+        legal_unit_subtype: str | None = None,
+        route_class: str | None = None,
+    ) -> list[LegalFactResult]:
+        table_name = self._fact_table(
+            trust_tier="normative_fact",
+            include_candidates=False,
+        )
+        clauses, params = self._fact_filters(
+            trust_tier="normative_fact",
+            jurisdiction=jurisdiction,
+            domain=domain,
+            as_of=as_of,
+            legal_unit_subtype=legal_unit_subtype,
+            route_class=route_class,
+            include_candidates=False,
+            selected_table=table_name,
+        )
+        clauses.insert(
+            0,
+            "("
+            "norm_type_canon IN ('obligation', 'prohibition', 'permission') "
+            "OR COALESCE(thresholds_json, '[]') <> '[]' "
+            "OR COALESCE(procedure_text_uk, '') <> '' "
+            "OR COALESCE(exception_text_uk, '') <> ''"
+            ")",
+        )
+        if query:
+            pattern = f"%{query}%"
+            clauses.insert(0, "(fact_text ILIKE ? OR source_quote_uk ILIKE ? OR condition_text_uk ILIKE ?)")
+            params = [pattern, pattern, pattern, *params, top_k]
+        else:
+            params = [*params, top_k]
+        fact_select = self._select_sql(table_name=table_name, fields=_FACT_SELECT_FIELDS)
+        rows = self._con.execute(
+            f"SELECT {fact_select} FROM {table_name}{self._to_where_sql(clauses)} "
+            "ORDER BY confidence DESC LIMIT ?",
+            params,
+        ).fetchall()
+        return [self._to_fact_result(r, similarity=1.0) for r in rows]
+
+    def get_applicable_norms(
+        self,
+        *,
+        domain: str | None = None,
+        jurisdiction: str | None = None,
+        as_of: str | None = None,
+        top_k: int = 100,
+        legal_unit_subtype: str | None = None,
+        route_class: str | None = None,
+    ) -> list[LegalFactResult]:
+        return self.find_constraints(
+            query=None,
+            top_k=top_k,
+            jurisdiction=jurisdiction,
+            domain=domain,
+            as_of=as_of,
+            legal_unit_subtype=legal_unit_subtype,
+            route_class=route_class,
+        )
 
     # ------------------------------------------------------------------
     # Graph traversal
     # ------------------------------------------------------------------
 
-    def get_facts_for_entity(self, entity_id: str) -> list[LegalFactResult]:
+    def get_facts_for_entity(
+        self,
+        entity_id: str,
+        *,
+        trust_tier: str | None = "grounded_fact",
+        jurisdiction: str | None = None,
+        domain: str | None = None,
+        as_of: str | None = None,
+        include_candidates: bool = False,
+        legal_unit_subtype: str | None = None,
+        route_class: str | None = None,
+    ) -> list[LegalFactResult]:
+        table_name = self._fact_table(
+            trust_tier=trust_tier,
+            include_candidates=include_candidates,
+        )
+        clauses, params = self._fact_filters(
+            trust_tier=trust_tier,
+            jurisdiction=jurisdiction,
+            domain=domain,
+            as_of=as_of,
+            legal_unit_subtype=legal_unit_subtype,
+            route_class=route_class,
+            include_candidates=include_candidates,
+            selected_table=table_name,
+        )
+        clauses.insert(0, "(subject_id = ? OR object_id = ?)")
+        params = [entity_id, entity_id, *params]
+        fact_select = self._select_sql(table_name=table_name, fields=_FACT_SELECT_FIELDS)
         rows = self._con.execute(
-            f"SELECT {_FACT_SELECT} FROM lex_facts WHERE subject_id = ? OR object_id = ?",
-            [entity_id, entity_id],
+            f"SELECT {fact_select} FROM {table_name}{self._to_where_sql(clauses)}",
+            params,
         ).fetchall()
         return [self._to_fact_result(r, similarity=1.0) for r in rows]
 
@@ -300,7 +687,13 @@ class LegalKnowledgeStore:
         *,
         max_hops: int = 2,
         max_results: int = 50,
+        trust_tier: str | None = "grounded_fact",
+        include_candidates: bool = False,
     ) -> list[tuple[LegalSearchResult, str, int]]:
+        table_name = self._fact_table(
+            trust_tier=trust_tier,
+            include_candidates=include_candidates,
+        )
         visited: set[str] = {entity_id}
         results: list[tuple[LegalSearchResult, str, int]] = []
         frontier = [entity_id]
@@ -311,7 +704,7 @@ class LegalKnowledgeStore:
                 rows = self._con.execute(
                     "SELECT DISTINCT "
                     "CASE WHEN subject_id = ? THEN object_id ELSE subject_id END AS neighbor_id, predicate "
-                    "FROM lex_facts WHERE subject_id = ? OR object_id = ?",
+                    f"FROM {table_name} WHERE subject_id = ? OR object_id = ?",
                     [eid, eid, eid],
                 ).fetchall()
 

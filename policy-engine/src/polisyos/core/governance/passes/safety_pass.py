@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import List
 
-from .base import ValidatorPass, PassContext, ComplianceIssue, IssueSeverity
+from .base import ComplianceIssue, IssueSeverity, PassContext, ValidatorPass
 
 
 def _extract_mechanisms(registry_bundle: object | None) -> dict:

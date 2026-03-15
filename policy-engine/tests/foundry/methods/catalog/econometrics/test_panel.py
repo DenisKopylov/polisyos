@@ -69,7 +69,7 @@ def test_panel_fixed_effects_drops_time_invariant_feature() -> None:
     assert result.method_name == "fixed_effects"
     assert "x_var" in result.params
     assert any("x_entity_constant" in warning for warning in warnings)
-    assert dispatched.output["envelope"] is not None
+    assert dispatched.output["uncertainty_envelope"] is not None
 
 
 def test_panel_random_effects_runs() -> None:
@@ -91,3 +91,4 @@ def test_panel_random_effects_runs() -> None:
     result = dispatched.output["result"]
     assert result.method_name == "random_effects"
     assert result.n_obs > 0
+    assert dispatched.output["uncertainty_envelope"] is not None

@@ -7,8 +7,9 @@ from typing import Iterable
 
 import pandas as pd
 
-from polisyos.core.canon import content_hash
+from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.canon import content_hash
 from polisyos.fabric.io.db import SimulationDB
 from polisyos.fabric.world.store.segments import load_world_fact_manifests
 from polisyos.ir.fact_log import FactSegmentManifest
@@ -32,6 +33,8 @@ from .sql import (
     sql_update_world_nodes,
 )
 from .staging import stage_world_segment
+
+logger = get_logger(__name__)
 
 
 @dataclass
@@ -277,6 +280,9 @@ def _load_applied_segments(db: SimulationDB) -> dict[str, str]:
     try:
         rows = db.conn.execute(sql_load_applied_segments()).fetchall()
     except Exception:
+        logger.debug(
+            "Failed to load applied segments from SimulationDB", exc_info=True,
+        )
         return {}
     return {row[0]: row[1] for row in rows}
 

@@ -3,9 +3,17 @@ from __future__ import annotations
 from dataclasses import dataclass, field, replace
 from typing import Any
 
+from polisyos.common.logger import get_logger
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
-from polisyos.core.contracts.foundry import ExecuteRequest, FoundryExecConfig, SimulationResult
+from polisyos.core.contracts.foundry import (
+    ExecPlanRef,
+    ExecuteRequest,
+    FoundryExecConfig,
+    FoundryInputBindingsRef,
+    ParameterOverrideBundleRef,
+    SimulationResult,
+)
 from polisyos.core.observability import get_metrics
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
@@ -22,8 +30,11 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_STATE_SNAPSHOT_REF,
     ARTIFACT_TEE_ATTESTATION_REF,
     INPUT_INPUT_BINDINGS_REF,
+    INPUT_PARAMETER_OVERRIDE_BUNDLE_REF,
     INPUT_REGISTRY_BUNDLE_REF,
 )
+
+logger = get_logger(__name__)
 
 _METADATA = ComponentMetadata(
     component_id=ComponentId.parse("scientist.node_run_simulation@1.0.1"),
@@ -40,6 +51,7 @@ _SPEC = NodeSpec(
     state_reads=[
         f"artifacts_index.{ARTIFACT_EXEC_PLAN_REF}",
         f"inputs.{INPUT_INPUT_BINDINGS_REF}",
+        f"inputs.{INPUT_PARAMETER_OVERRIDE_BUNDLE_REF}",
         f"inputs.{INPUT_REGISTRY_BUNDLE_REF}",
         "params.simulation_method",
     ],
@@ -118,11 +130,21 @@ class RunSimulationNode:
             return NodeOutcome(status="fail", state=state, error=error)
 
         registry_ref = state.inputs.get(INPUT_REGISTRY_BUNDLE_REF)
+        parameter_override_bundle_ref = state.inputs.get(INPUT_PARAMETER_OVERRIDE_BUNDLE_REF)
 
         request = ExecuteRequest(
-            exec_plan_ref=exec_plan_ref,
-            input_bindings_ref=input_bindings_ref,
+            exec_plan_ref=ExecPlanRef.model_validate(exec_plan_ref.model_dump(mode="json")),
+            input_bindings_ref=FoundryInputBindingsRef.model_validate(
+                input_bindings_ref.model_dump(mode="json")
+            ),
             registry_bundle_ref=registry_ref,
+            parameter_override_bundle_ref=(
+                ParameterOverrideBundleRef.model_validate(
+                    parameter_override_bundle_ref.model_dump(mode="json")
+                )
+                if parameter_override_bundle_ref is not None
+                else None
+            ),
             exec_config=self.exec_config,
         )
 
@@ -144,8 +166,8 @@ class RunSimulationNode:
                     new_state.artifacts_index[ARTIFACT_STATE_SNAPSHOT_REF] = (
                         sim_result.state_snapshot_ref
                     )
-            except Exception:
-                pass
+            except Exception as exc:
+                logger.debug("Ignored exception: %s", exc)
 
         for item in result.derived_refs:
             artifacts.append(item.ref)

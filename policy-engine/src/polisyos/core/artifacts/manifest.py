@@ -5,8 +5,8 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
-from .ids import ArtifactID
 from ..components.ids import ComponentId
+from .ids import ArtifactID
 
 
 def utc_now() -> datetime:

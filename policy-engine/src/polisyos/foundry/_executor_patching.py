@@ -11,7 +11,13 @@ from polisyos.foundry.merge_engine import MergeEngine, MergeRecord
 from polisyos.foundry.patch_vm import merge_patch_records
 from polisyos.ir.kernel import MergeRuleRegistry, SlotRegistry
 
-from ._executor_models import ApplyArtifacts, artifact_id, get_state_path, load_model, set_state_path
+from ._executor_models import (
+    ApplyArtifacts,
+    artifact_id,
+    get_state_path,
+    load_model,
+    set_state_path,
+)
 from ._executor_ops import apply_ops_for_slot, validate_ops_compatibility
 from ._executor_snapshots import put_state_snapshot
 

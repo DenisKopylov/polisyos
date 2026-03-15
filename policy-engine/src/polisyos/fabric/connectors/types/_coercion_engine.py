@@ -13,19 +13,19 @@ from typing import Any, Callable, ClassVar
 
 from ._coercion_errors import CoercionError, PrecisionLossWarning
 from ._coercion_policies import (
+    TYPE_INFO,
     CoercionPolicy,
     CoercionResult,
     DataTypeCategory,
-    TYPE_INFO,
 )
 from ._coercion_rules import (
-    coerce_to_int,
-    coerce_to_float,
-    coerce_to_decimal,
     coerce_to_boolean,
-    coerce_to_string,
     coerce_to_date,
     coerce_to_datetime,
+    coerce_to_decimal,
+    coerce_to_float,
+    coerce_to_int,
+    coerce_to_string,
 )
 
 __all__ = [

@@ -23,7 +23,6 @@ from polisyos.fabric.connectors.contracts.schema import (
     SchemaType,
 )
 
-
 # ---------------------------------------------------------------------------
 # Contract violation exception
 # ---------------------------------------------------------------------------

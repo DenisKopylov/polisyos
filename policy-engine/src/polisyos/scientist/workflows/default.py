@@ -60,10 +60,16 @@ def default_workflow_spec() -> WorkflowSpec:
                 depends_on=["link_trinity", "run_data_plane_gate", "ready_to_run"],
             ),
             NodeInvocation(
+                alias="compile_cross_graph_evidence",
+                node_id="scientist.node_compile_cross_graph_evidence@1.0.0",
+                depends_on=["compile_foundry"],
+            ),
+            NodeInvocation(
                 alias="resolve_parameters",
                 node_id="scientist.node_resolve_parameters@1.0.0",
                 depends_on=[
                     "compile_foundry",
+                    "compile_cross_graph_evidence",
                     "bind_foundry_inputs",
                     "run_data_plane_gate",
                 ],
@@ -99,13 +105,24 @@ def default_workflow_spec() -> WorkflowSpec:
                 depends_on=["run_simulation"],
             ),
             NodeInvocation(
-                alias="run_governance",
-                node_id="scientist.node_run_governance@1.1.0",
+                alias="run_normative_arbitration",
+                node_id="scientist.node_run_normative_arbitration@1.0.0",
                 depends_on=[
                     "legal_check",
                     "propagate_uncertainty",
                     "run_distributional_analysis",
                     "run_causal_evaluation",
+                ],
+            ),
+            NodeInvocation(
+                alias="run_governance",
+                node_id="scientist.node_run_governance@1.2.0",
+                depends_on=[
+                    "legal_check",
+                    "propagate_uncertainty",
+                    "run_distributional_analysis",
+                    "run_causal_evaluation",
+                    "run_normative_arbitration",
                 ],
             ),
             NodeInvocation(
@@ -115,7 +132,7 @@ def default_workflow_spec() -> WorkflowSpec:
             ),
             NodeInvocation(
                 alias="build_decision_packet",
-                node_id="scientist.node_build_decision_packet@1.4.0",
+                node_id="scientist.node_build_decision_packet@1.5.0",
                 depends_on=["run_governance", "run_causal_evaluation", "run_evaluator"],
             ),
         ],
@@ -123,7 +140,9 @@ def default_workflow_spec() -> WorkflowSpec:
             "E1.8 default workflow spec (engine DAG)",
             "ExecutionPlan/preflight pipeline is mandatory before compile stage.",
             "P8 data-plane: bind_foundry_inputs + pre-simulation run_data_plane_gate.",
+            "Cross-graph evidence profile is compiled before parameter resolution and governance.",
             "LegalCheckNode executes after simulation and may skip when legal context is unavailable.",
+            "Normative arbitration executes before governance and formalizes proposal-vs-baseline tradeoffs.",
             "Decision packet is generated after governance, evaluation, and uncertainty propagation.",
         ],
     )

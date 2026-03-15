@@ -1,8 +1,8 @@
 from __future__ import annotations
 
+import re
 from collections.abc import Mapping, Sequence
 from contextlib import contextmanager
-import re
 from typing import Any, Iterator
 
 import pandas as pd

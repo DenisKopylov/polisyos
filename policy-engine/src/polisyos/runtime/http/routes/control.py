@@ -7,16 +7,22 @@ from polisyos.core.contracts.control import (
     CacheStatusResponse,
     CapabilityManifestResponse,
     ConnectorsListResponse,
+    ControlJobResponse,
+    ControlOutboxEventsResponse,
+    ControlWorkersResponse,
     DataCatalogSearchResponse,
     DataDiscoverRequest,
     DataDiscoverResponse,
     DataPreviewRequest,
     DataPreviewResponse,
+    DecisionValidityEventRequest,
+    DecisionValidityEventResponse,
+    DecisionValiditySummaryResponse,
     DataResolveRequest,
     DataResolveResponse,
+    IndexStatsResponse,
     IngestRequest,
     IngestResponse,
-    IndexStatsResponse,
     LexGraphStatsResponse,
     LexPipelineStatusResponse,
     LexSearchRequest,
@@ -32,13 +38,18 @@ from polisyos.core.contracts.control import (
     SourceProfilesListResponse,
     WorkflowRunRequest,
 )
+from polisyos.core.contracts.runtime import FeedbackActionResponse
+from polisyos.core.artifacts.ids import ArtifactID
+from polisyos.runtime.http.execution_policy import RuntimePrincipal
 from polisyos.runtime.http.dependencies import (
     build_meta,
+    enforce_artifact_tenant_access,
+    enforce_run_tenant_access,
     ensure_request_id,
     get_runtime_api_context,
     set_authz_resource,
 )
-from polisyos.runtime.http.errors import bad_request
+from polisyos.runtime.http.errors import bad_request, not_found
 
 try:  # pragma: no cover - optional runtime dependency
     from fastapi import APIRouter, Depends, Query, Request
@@ -68,6 +79,11 @@ def _get_control_service(request: Request):
     return svc
 
 
+def _get_principal(request: Request) -> RuntimePrincipal:
+    claims = getattr(request.state, "user_claims", None)
+    return RuntimePrincipal.from_user_claims(claims)
+
+
 if router is not None:
 
     @router.post(
@@ -94,7 +110,66 @@ if router is not None:
             )
         control = _get_control_service(request)
         request_id = ensure_request_id(request)
-        return control.launch_workflow_run(body, request_id=request_id)
+        return control.launch_workflow_run(
+            body,
+            request_id=request_id,
+            principal=_get_principal(request),
+        )
+
+    @router.post(
+        "/runs/{run_id}/feedback/evaluate",
+        response_model=FeedbackActionResponse,
+        operation_id="evaluate_run_feedback",
+        summary="Evaluate post-deployment monitoring for a run",
+    )
+    def evaluate_run_feedback(
+        run_id: str,
+        request: Request,
+        ctx=Depends(get_runtime_api_context),  # noqa: B008
+    ) -> FeedbackActionResponse:
+        run = ctx.run_index.get_run(run_id)
+        enforce_run_tenant_access(request, ctx=ctx, run=run)
+        set_authz_resource(
+            request,
+            tenant_id=run.details.tenant_id,
+            kind="control.evaluate_feedback",
+        )
+        request_id = ensure_request_id(request)
+        _, monitoring_report_ref, compare_report_ref, reissue_plan_ref = ctx.feedback.evaluate_run_feedback(run)
+        return FeedbackActionResponse(
+            meta=build_meta(request, source_kinds=[run.source_kind]),
+            run_id=run_id,
+            action="evaluate_feedback",
+            status="completed",
+            monitoring_report_ref=(
+                {
+                    "artifact_id": monitoring_report_ref,
+                    "kind": "scientist.decision_monitoring_report",
+                    "media_type": "application/json",
+                }
+                if monitoring_report_ref is not None
+                else None
+            ),
+            compare_report_ref=(
+                {
+                    "artifact_id": compare_report_ref,
+                    "kind": "scientist.decision_compare_report",
+                    "media_type": "application/json",
+                }
+                if compare_report_ref is not None
+                else None
+            ),
+            reissue_plan_ref=(
+                {
+                    "artifact_id": reissue_plan_ref,
+                    "kind": "scientist.decision_reissue_plan",
+                    "media_type": "application/json",
+                }
+                if reissue_plan_ref is not None
+                else None
+            ),
+            message=f"Feedback evaluation for run {run_id} completed.",
+        )
 
     @router.post(
         "/runs/nl",
@@ -113,7 +188,215 @@ if router is not None:
         )
         control = _get_control_service(request)
         request_id = ensure_request_id(request)
-        return await control.launch_nl_run(body, request_id=request_id)
+        return await control.launch_nl_run(
+            body,
+            request_id=request_id,
+            principal=_get_principal(request),
+        )
+
+    @router.post(
+        "/runs/{run_id}/reissue",
+        response_model=FeedbackActionResponse,
+        operation_id="reissue_run",
+        summary="Create a human-gated reissue run",
+    )
+    def reissue_run(
+        run_id: str,
+        request: Request,
+        ctx=Depends(get_runtime_api_context),  # noqa: B008
+    ) -> FeedbackActionResponse:
+        run = ctx.run_index.get_run(run_id)
+        enforce_run_tenant_access(request, ctx=ctx, run=run)
+        set_authz_resource(
+            request,
+            tenant_id=run.details.tenant_id,
+            kind="control.reissue_run",
+        )
+        control = _get_control_service(request)
+        payload = control.reissue_run(
+            run_id,
+            request_id=ensure_request_id(request),
+            principal=_get_principal(request),
+        )
+        return FeedbackActionResponse(
+            meta=build_meta(request, source_kinds=[run.source_kind]),
+            run_id=run_id,
+            action="reissue",
+            status="accepted",
+            monitoring_report_ref=(
+                {
+                    "artifact_id": payload["monitoring_report_ref"],
+                    "kind": "scientist.decision_monitoring_report",
+                    "media_type": "application/json",
+                }
+                if payload.get("monitoring_report_ref")
+                else None
+            ),
+            compare_report_ref=(
+                {
+                    "artifact_id": payload["compare_report_ref"],
+                    "kind": "scientist.decision_compare_report",
+                    "media_type": "application/json",
+                }
+                if payload.get("compare_report_ref")
+                else None
+            ),
+            reissue_plan_ref=(
+                {
+                    "artifact_id": payload["reissue_plan_ref"],
+                    "kind": "scientist.decision_reissue_plan",
+                    "media_type": "application/json",
+                }
+                if payload.get("reissue_plan_ref")
+                else None
+            ),
+            reissued_run_id=payload.get("run_id"),
+            message=str(payload.get("message") or f"Reissue for run {run_id} accepted."),
+        )
+
+    @router.get(
+        "/jobs/{job_id}",
+        response_model=ControlJobResponse,
+        operation_id="get_control_job_status",
+        summary="Get durable control job status",
+    )
+    def get_control_job_status(
+        job_id: str,
+        request: Request,
+    ) -> ControlJobResponse:
+        set_authz_resource(
+            request,
+            tenant_id=getattr(request.state, "tenant_id", None),
+            kind="control.job_status",
+        )
+        control = _get_control_service(request)
+        request_id = ensure_request_id(request)
+        return control.get_job_status(job_id, request_id=request_id)
+
+    @router.get(
+        "/workers",
+        response_model=ControlWorkersResponse,
+        operation_id="list_control_workers",
+        summary="List control-plane worker leases",
+    )
+    def list_control_workers(
+        request: Request,
+        active_only: bool = Query(default=True),
+    ) -> ControlWorkersResponse:
+        set_authz_resource(
+            request,
+            tenant_id=getattr(request.state, "tenant_id", None),
+            kind="control.workers",
+        )
+        control = _get_control_service(request)
+        request_id = ensure_request_id(request)
+        return control.list_control_workers(
+            active_only=active_only,
+            request_id=request_id,
+        )
+
+    @router.get(
+        "/outbox",
+        response_model=ControlOutboxEventsResponse,
+        operation_id="list_control_outbox",
+        summary="List durable control-plane outbox events",
+    )
+    def list_control_outbox(
+        request: Request,
+        state: str | None = Query(default="pending"),
+        limit: int = Query(default=100, ge=1, le=500),
+    ) -> ControlOutboxEventsResponse:
+        set_authz_resource(
+            request,
+            tenant_id=getattr(request.state, "tenant_id", None),
+            kind="control.outbox",
+        )
+        control = _get_control_service(request)
+        request_id = ensure_request_id(request)
+        return control.list_control_outbox(
+            state=state,
+            limit=limit,
+            request_id=request_id,
+        )
+
+    @router.post(
+        "/decision-validity/events",
+        response_model=DecisionValidityEventResponse,
+        operation_id="publish_decision_validity_event",
+        summary="Publish a durable decision invalidation event",
+    )
+    def publish_decision_validity_event(
+        body: DecisionValidityEventRequest,
+        request: Request,
+    ) -> DecisionValidityEventResponse:
+        set_authz_resource(
+            request,
+            tenant_id=getattr(request.state, "tenant_id", None),
+            kind="control.publish_decision_validity_event",
+        )
+        control = _get_control_service(request)
+        request_id = ensure_request_id(request)
+        return control.publish_decision_validity_event(body, request_id=request_id)
+
+    @router.get(
+        "/runs/{run_id}/decision-validity",
+        response_model=DecisionValiditySummaryResponse,
+        operation_id="get_run_decision_validity",
+        summary="Read full decision validity lifecycle for a run",
+    )
+    def get_run_decision_validity(
+        run_id: str,
+        request: Request,
+        ctx=Depends(get_runtime_api_context),  # noqa: B008
+    ) -> DecisionValiditySummaryResponse:
+        run = ctx.run_index.get_run(run_id)
+        enforce_run_tenant_access(request, ctx=ctx, run=run)
+        if run.decision_packet_ref is None:
+            raise not_found(
+                f"Run {run_id} does not have a decision packet.",
+                code="decision_packet_missing",
+            )
+        set_authz_resource(
+            request,
+            tenant_id=run.details.tenant_id,
+            kind="control.read_decision_validity",
+        )
+        control = _get_control_service(request)
+        request_id = ensure_request_id(request)
+        return control.get_decision_validity_summary(
+            str(run.decision_packet_ref.artifact_id),
+            run_id=run.run_id,
+            request_id=request_id,
+        )
+
+    @router.get(
+        "/decision-packets/{decision_packet_ref}/decision-validity",
+        response_model=DecisionValiditySummaryResponse,
+        operation_id="get_packet_decision_validity",
+        summary="Read full decision validity lifecycle for a decision packet",
+    )
+    def get_packet_decision_validity(
+        decision_packet_ref: str,
+        request: Request,
+        ctx=Depends(get_runtime_api_context),  # noqa: B008
+    ) -> DecisionValiditySummaryResponse:
+        artifact_id = ArtifactID.model_validate(decision_packet_ref)
+        tenant_id = enforce_artifact_tenant_access(
+            request,
+            ctx=ctx,
+            artifact_id=artifact_id,
+        )
+        set_authz_resource(
+            request,
+            tenant_id=tenant_id,
+            kind="control.read_decision_validity",
+        )
+        control = _get_control_service(request)
+        request_id = ensure_request_id(request)
+        return control.get_decision_validity_summary(
+            str(artifact_id),
+            request_id=request_id,
+        )
 
     @router.post(
         "/data/ingest",
@@ -422,7 +705,11 @@ if router is not None:
         )
         control = _get_control_service(request)
         request_id = ensure_request_id(request)
-        return control.trigger_lex_pipeline(body, request_id=request_id)
+        return control.trigger_lex_pipeline(
+            body,
+            request_id=request_id,
+            principal=_get_principal(request),
+        )
 
     @router.get(
         "/lex/status/{pipeline_id}",

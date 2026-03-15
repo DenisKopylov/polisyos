@@ -3,6 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Optional, Tuple
 
+from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.governance.passes.base import IssueSeverity, PassContext
 from polisyos.core.governance.profiles import ValidationProfile
@@ -12,6 +13,8 @@ from polisyos.ir.trinity import TrinityBundle
 
 from .pass_registry import build_governance_pipeline
 from .pipeline import ValidationPipeline
+
+logger = get_logger(__name__)
 
 
 def build_default_pipeline() -> ValidationPipeline:
@@ -137,6 +140,11 @@ def _load_registry_bundle(state: dict, policy) -> object | None:
         store = FileSystemCAS(_cas_root(state))
         return load_registry_bundle_content(store, bundle_id)
     except Exception:
+        logger.debug(
+            "Failed to load registry bundle for id %s",
+            bundle_id,
+            exc_info=True,
+        )
         return None
 
 
@@ -171,7 +179,11 @@ def _extract_trinity_bundle(state: dict) -> TrinityBundle | None:
     if isinstance(value, dict):
         try:
             return TrinityBundle.model_validate(value)
-        except Exception:
+        except (TypeError, ValueError):
+            logger.debug(
+                "Failed to validate trinity bundle from state",
+                exc_info=True,
+            )
             return None
     return None
 

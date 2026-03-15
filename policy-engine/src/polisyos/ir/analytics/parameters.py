@@ -4,7 +4,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from polisyos.ir.analytics.context import ContextProfile
 from polisyos.ir.analytics.literature import EvidenceParameter
-from polisyos.ir.analytics.transportability import TransportabilityStatus
+from polisyos.ir.analytics.transportability import TransportabilityStatus, TransportMode
 from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
 from polisyos.ir.canon import CanonSpec
 from polisyos.ir.refs import ContextAdaptiveParameterBundleRef
@@ -21,6 +21,7 @@ class ParameterApplicability(BaseModel):
     parameter_id: str
     target_context_id: str
     transport_status: TransportabilityStatus
+    transport_mode: TransportMode = TransportMode.NONE
     transport_confidence: float = Field(ge=0.0, le=1.0)
     context_distance: float = Field(ge=0.0, le=1.0)
     is_applicable: bool

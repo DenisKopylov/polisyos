@@ -4,6 +4,7 @@ from dataclasses import dataclass
 
 from pydantic import TypeAdapter
 
+from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.components import ComponentKind, ComponentRegistry, ResolvePolicy
@@ -29,6 +30,8 @@ from polisyos.ir.registry_fragments import (
     RegistryFragmentMeta,
     compose_registry_fragments,
 )
+
+logger = get_logger(__name__)
 
 
 @dataclass(frozen=True, slots=True)
@@ -75,7 +78,10 @@ def build_registry_bundle_from_components(
         try:
             created = entry.component.create()
             fragment = TypeAdapter(RegistryFragment).validate_python(created)
-        except Exception:
+        except Exception as exc:
+            logger.debug(
+                "Skipping component %s: create/validate failed: %s", entry.metadata.component_id, exc,
+            )
             continue
 
         normalized = _normalize_fragment_meta(

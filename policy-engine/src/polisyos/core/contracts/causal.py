@@ -1,8 +1,8 @@
 from polisyos.ir.refs import (
-    CausalModelEnsembleRef,
     CausalDiscoveryReportRef,
     CausalEffectReportRef,
     CausalGraphModelRef,
+    CausalModelEnsembleRef,
     CausalQueryResultRef,
     CausalSensitivityResultRef,
     LiteratureCausalPriorRef,

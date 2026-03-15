@@ -2,18 +2,25 @@
 
 from __future__ import annotations
 
-from datetime import datetime
-from decimal import Decimal, InvalidOperation
 import os
 import uuid
+from datetime import datetime
+from decimal import Decimal, InvalidOperation
 from typing import Any, Iterable
+
+from pydantic import BaseModel, ConfigDict, Field
 
 from polisyos.core.canon import truncated_hash
 from polisyos.core.observability import get_metrics, get_tracer
+from polisyos.ir.governance.selector_expr import (
+    SelectorAll,
+    SelectorAny,
+    SelectorExpr,
+    SelectorNot,
+    SelectorPredicate,
+)
 from polisyos.ir.norm_pack import RuleType
-from polisyos.ir.governance.selector_expr import SelectorAll, SelectorAny, SelectorExpr, SelectorNot, SelectorPredicate
 from polisyos.ir.trinity import TrinityBundle
-from pydantic import BaseModel, ConfigDict, Field
 from polisyos.scientist.agent.constraint_context import ConstraintContextAssembler
 from polisyos.scientist.agent.feasibility import FeasibilityProbe, NullFeasibilityProbe
 from polisyos.scientist.agent.knowledge_base import CriticKnowledgeBase

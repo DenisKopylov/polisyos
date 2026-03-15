@@ -17,8 +17,7 @@ except ModuleNotFoundError:  # pragma: no cover - optional runtime dependency
             self.status_code = status_code
             self.description = description
 
-from polisyos.core.observability import get_metrics, get_tracer
-from polisyos.core.pipeline import LinearPipeline
+from polisyos.common.logger import get_logger
 from polisyos.core.governance.passes.base import (
     ComplianceIssue,
     IssueSeverity,
@@ -26,7 +25,12 @@ from polisyos.core.governance.passes.base import (
     ValidatorPass,
 )
 from polisyos.core.governance.profiles import ValidationProfile
-from .telemetry import ValidationTrace, PassSpan
+from polisyos.core.observability import get_metrics, get_tracer
+from polisyos.core.pipeline import LinearPipeline
+
+from .telemetry import PassSpan, ValidationTrace
+
+logger = get_logger(__name__)
 
 
 @dataclass
@@ -134,8 +138,8 @@ class ValidationPipeline:
             if ctx.ir:
                 try:
                     span.set_inputs_hash(ctx.ir.model_dump(mode="json"))
-                except Exception:
-                    pass
+                except Exception as exc:
+                    logger.debug("Ignored exception: %s", exc)
 
             with metrics.time_governance_pass({"pass_id": validator.pass_id}):
                 try:

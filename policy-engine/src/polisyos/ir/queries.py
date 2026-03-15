@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Annotated, Literal
 
-from pydantic import Field, ConfigDict
+from pydantic import ConfigDict, Field
 
 from polisyos.ir.connectors import QualityTier, TrustLevel
 from polisyos.ir.kernel.base import KernelModel

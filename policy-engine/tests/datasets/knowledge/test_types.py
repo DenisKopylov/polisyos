@@ -4,7 +4,13 @@ from __future__ import annotations
 
 import pytest
 
-from polisyos.datasets.knowledge.types import DatasetRecord, DatasetSearchResult, DistributionRecord
+from polisyos.datasets.knowledge.types import (
+    DatasetRecord,
+    DatasetSearchResult,
+    DistributionRecord,
+    MetricBindingMatch,
+    ResolvedFetchTarget,
+)
 
 
 def test_dataset_search_result_embedding_text() -> None:
@@ -38,3 +44,25 @@ def test_distribution_record_defaults() -> None:
     assert dist.id == ""
     assert dist.url == ""
     assert dist.quality_score == 0.0
+    assert dist.parser_supported is False
+
+
+def test_resolved_fetch_target_defaults() -> None:
+    target = ResolvedFetchTarget(
+        catalog_dataset_id="catalog-1",
+        connector_id="worldbank.wdi",
+        request_dataset_id="NY.GDP.MKTP.CD",
+    )
+    assert target.profile_id == ""
+    assert target.default_filters == {}
+
+
+def test_metric_binding_match_defaults() -> None:
+    match = MetricBindingMatch(
+        metric_id="gdp",
+        catalog_dataset_id="catalog-1",
+        connector_id="worldbank.wdi",
+        request_dataset_id="NY.GDP.MKTP.CD",
+    )
+    assert match.confidence == 0.0
+    assert match.execution_tier == "catalog"

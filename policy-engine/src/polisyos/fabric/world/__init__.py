@@ -21,9 +21,9 @@ from polisyos.fabric.world.store import (
     persist_conflict_set,
     persist_doc_fragment,
     persist_doc_meta,
+    persist_fact_segment_manifest,
     persist_quality_report,
     persist_trust_assessment,
-    persist_fact_segment_manifest,
     persist_world_event,
     stable_world_provenance_v1,
     validate_claim_id,
@@ -37,6 +37,7 @@ from polisyos.fabric.world.store import (
     validate_world_facts,
     write_world_fact_segment,
 )
+
 try:
     from polisyos.fabric.world.materialize import (
         MergeStrategy,
@@ -51,8 +52,8 @@ try:
         WorldSchemaError,
         WorldSegmentHashMismatch,
         apply_world_segment,
-        ensure_world_materialized,
         ensure_world_kuzu_schema,
+        ensure_world_materialized,
         ensure_world_schema,
         materialize_world_duckdb_from_fact_log,
         materialize_world_kuzu_from_duckdb,

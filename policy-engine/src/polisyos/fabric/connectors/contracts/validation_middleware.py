@@ -230,8 +230,8 @@ class ContractValidatingProxy(Generic[DataT]):
             try:
                 scoped = frame.sort_values(time_dimension, kind="stable")
                 return scoped.tail(contract.completeness_window_rows)
-            except Exception:
-                pass
+            except Exception as exc:
+                logger.debug("Ignored exception: %s", exc)
         return frame.tail(contract.completeness_window_rows)
 
     @staticmethod

@@ -44,6 +44,13 @@ class DataSnapshotRef(ArtifactRef):
     media_type: Literal["application/json"] = "application/json"
 
 
+class HistoricalSemanticDiffReportRef(ArtifactRef):
+    kind: Literal["fabric.historical_semantic_diff_report"] = (
+        "fabric.historical_semantic_diff_report"
+    )
+    media_type: Literal["application/json"] = "application/json"
+
+
 class QueryPlanStep(BaseModel):
     model_config = ConfigDict(extra="forbid")
 

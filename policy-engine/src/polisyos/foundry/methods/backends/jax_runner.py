@@ -2,29 +2,26 @@ from __future__ import annotations
 
 import json
 import time
-from importlib import metadata
 from typing import TYPE_CHECKING, Any, Mapping
 
 from polisyos.core.canon import truncated_hash
 from polisyos.core.observability.determinism import DeterminismTier
-from polisyos.foundry.methods.base import ComputeBackend, MethodSignature
+from polisyos.foundry.methods.backends.runtime_fingerprint import (
+    capture_versions,
+    runtime_stack_for,
+    safe_version,
+)
 from polisyos.foundry.methods.backends.protocol import (
     MethodResult,
     MethodRunner,
     MethodTiming,
     ReproducibilityInfo,
 )
+from polisyos.foundry.methods.base import ComputeBackend, MethodSignature
+from polisyos.foundry.methods.io import dematerialize_method_output
 
 if TYPE_CHECKING:
     from polisyos.foundry.methods.compiler import MethodCompiler
-
-
-def _safe_version(name: str) -> str | None:
-    try:
-        return metadata.version(name)
-    except metadata.PackageNotFoundError:
-        return None
-
 
 class JaxRunner(MethodRunner):
     """Thin adapter around existing MethodCompiler execution path."""
@@ -77,11 +74,15 @@ class JaxRunner(MethodRunner):
         )
         exec_ms = (time.perf_counter() - run_started) * 1000
 
-        versions: dict[str, str] = {}
+        runtime_stack = runtime_stack_for(method_class)
+        versions: dict[str, str] = capture_versions(
+            base_packages=("jaxlib",),
+            runtime_stack=runtime_stack,
+        )
         jax_ver = getattr(jax, "__version__", None)
         if jax_ver:
             versions["jax"] = jax_ver
-        jaxlib_ver = _safe_version("jaxlib")
+        jaxlib_ver = safe_version("jaxlib")
         if jaxlib_ver:
             versions["jaxlib"] = jaxlib_ver
 
@@ -89,8 +90,14 @@ class JaxRunner(MethodRunner):
             "backend": ComputeBackend.JAX.value,
             "seed": seed,
             "versions": versions,
+            "runtime_stack": runtime_stack,
         }
         fingerprint = truncated_hash(json.dumps(fp_payload, sort_keys=True), length=16)
+        slot_outputs = dematerialize_method_output(
+            method_class=method_class,
+            signature=signature,
+            output=output,
+        )
 
         return MethodResult(
             output=output,
@@ -105,4 +112,5 @@ class JaxRunner(MethodRunner):
                 library_versions=versions,
                 fingerprint=fingerprint,
             ),
+            slot_outputs=slot_outputs,
         )

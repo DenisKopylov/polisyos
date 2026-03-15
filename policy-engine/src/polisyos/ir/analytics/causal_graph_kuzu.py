@@ -2,10 +2,13 @@ from __future__ import annotations
 
 import csv
 import json
+import logging
 import shutil
 import tempfile
 from pathlib import Path
 from typing import TYPE_CHECKING, Callable
+
+logger = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
     from polisyos.ir.analytics.causal_graph import CausalGraphModel
@@ -165,6 +168,7 @@ def _export_graph_edges_csv(graph: "CausalGraphModel", output_path: Path) -> Non
 def _import_kuzu():
     try:
         import kuzu
+
     except Exception as exc:
         raise CausalGraphKuzuNotAvailableError("kuzu not available") from exc
     return kuzu
@@ -217,8 +221,8 @@ def _remove_tmp_files(paths: list[Path]) -> None:
         try:
             if path.exists():
                 path.unlink()
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.debug("Ignored exception: %s", exc)
 
 
 def _sql_literal(value: str) -> str:

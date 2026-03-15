@@ -16,15 +16,15 @@ from polisyos.core.contracts.foundry import (
 from polisyos.core.registry import load_registry_bundle_content
 from polisyos.foundry.conflict_checker import CompileTimeConflictChecker
 from polisyos.foundry.cost_model import CostBudget, CostModel
-from polisyos.foundry.mechanisms import build_treasury_plan
-from polisyos.foundry.registry import has_runtime_mechanism_support
 from polisyos.foundry.layout import build_slot_layout
+from polisyos.foundry.mechanisms import build_treasury_plan
 from polisyos.ir.linker import link_trinity
 from polisyos.ir.linker.reports import LinkSeverity
 from polisyos.ir.registry_fragments import RegistryBundle
 from polisyos.ir.trinity import TrinityBundle
 
 from ._graph import build_exec_order, build_program_graph
+from ._lowering import lower_trinity
 
 
 def compile_trinity(store: FileSystemCAS, request: CompileRequest) -> CompileResult:
@@ -43,6 +43,8 @@ def compile_trinity(store: FileSystemCAS, request: CompileRequest) -> CompileRes
             registry_bundle_ref=None,
             link_report_ref=None,
             notes=["missing_registry_bundle"],
+            lowered_ir_ref=None,
+            semantic_closure_notes=[],
         )
 
     registry_content = load_registry_bundle_content(store, registry_bundle_ref)
@@ -78,53 +80,43 @@ def compile_trinity(store: FileSystemCAS, request: CompileRequest) -> CompileRes
             registry_bundle_ref=registry_bundle_ref,
             link_report_ref=link_report_ref,
             notes=compile_notes + ["link_failed"],
+            lowered_ir_ref=None,
+            semantic_closure_notes=[],
         )
 
-    missing_runtime_support = sorted(
-        {
-            intervention.kind
-            for intervention in bundle.policy_spec.interventions
-            if not has_runtime_mechanism_support(intervention.kind)
-        }
-    )
-    if missing_runtime_support:
+    try:
+        lowered_ir_ref, lowered_ir, semantic_notes = lower_trinity(
+            store,
+            policy_ref=policy_ref,
+            registry_bundle_ref=registry_bundle_ref,
+            bundle=bundle,
+            linked_bundle=linked_bundle,
+            registry_content=registry_content,
+            strict=request.validation_flags.strict_schema,
+        )
+    except Exception as exc:
+        lowering_error = str(exc)
+        lowering_notes = list(compile_notes)
+        if lowering_error.startswith("missing_runtime_mechanism_support:"):
+            lowering_notes.append(lowering_error)
+        lowering_notes.append(f"semantic_lowering_failed:{lowering_error}")
         return _compile_error(
             store,
             ok=False,
             policy_ref=policy_ref,
             registry_bundle_ref=registry_bundle_ref,
             link_report_ref=link_report_ref,
-            notes=compile_notes
-            + [
-                f"missing_runtime_mechanism_support:{mechanism_id}"
-                for mechanism_id in missing_runtime_support
-            ],
+            notes=lowering_notes,
+            lowered_ir_ref=None,
+            semantic_closure_notes=[],
         )
-
-    bindings = {item.intervention_id: item for item in linked_bundle.bindings.interventions}
-
-    constraint_ids = sorted(
-        {
-            constraint.constraint_id
-            for constraint in (
-                bundle.problem_frame.hard_constraints
-                + bundle.problem_frame.soft_constraints
-            )
-        }
-    )
-
-    def _resolve_slots(intervention) -> tuple[list[str], list[str]]:
-        binding = bindings.get(intervention.intervention_id)
-        if binding is None:
-            return [], []
-        return list(binding.reads_slots), list(binding.writes_slots)
 
     program_graph, params_refs = build_program_graph(
         store,
         ir_ref=policy_ref,
-        interventions=bundle.policy_spec.interventions,
-        resolve_slots=_resolve_slots,
-        constraint_ids=constraint_ids,
+        lowered_ir_ref=lowered_ir_ref,
+        mechanisms=lowered_ir.mechanisms,
+        constraint_ids=[item.constraint_id for item in lowered_ir.constraints],
     )
 
     conflict_checker = CompileTimeConflictChecker(
@@ -144,6 +136,8 @@ def compile_trinity(store: FileSystemCAS, request: CompileRequest) -> CompileRes
             + [
                 f"conflict_check_failed:{len(conflict_report.conflicts)}",
             ],
+            lowered_ir_ref=lowered_ir_ref,
+            semantic_closure_notes=semantic_notes,
         )
 
     cost_budget = _build_cost_budget(request)
@@ -173,12 +167,15 @@ def compile_trinity(store: FileSystemCAS, request: CompileRequest) -> CompileRes
                 registry_bundle_ref=registry_bundle_ref,
                 link_report_ref=link_report_ref,
                 notes=compile_notes + ["cost_budget_exceeded"],
+                lowered_ir_ref=lowered_ir_ref,
+                semantic_closure_notes=semantic_notes,
             )
 
     program_inputs = _program_graph_inputs(
         policy_ref=policy_ref,
         registry_bundle_ref=registry_bundle_ref,
         link_report_ref=link_report_ref,
+        lowered_ir_ref=lowered_ir_ref,
         params_refs=params_refs,
     )
     program_ref = store.put_json(
@@ -186,7 +183,7 @@ def compile_trinity(store: FileSystemCAS, request: CompileRequest) -> CompileRes
         PutOptions(
             kind="foundry.program_graph",
             media_type="application/json",
-            schema=SchemaInfo(name="polisyos.core.ProgramGraph", version="0.1.0"),
+            schema=SchemaInfo(name="polisyos.core.ProgramGraph", version="0.2.0"),
             inputs=program_inputs,
         ),
     )
@@ -199,16 +196,19 @@ def compile_trinity(store: FileSystemCAS, request: CompileRequest) -> CompileRes
         determinism_tier=request.compile_config.determinism_tier,
         random_seed=request.compile_config.random_seed,
         nan_guard_enabled=request.compile_config.nan_guard_enabled,
+        policy_fidelity_level=lowered_ir.policy_fidelity_level,
+        constraint_mode=lowered_ir.constraint_mode,
         mode=request.compile_config.mode,
         jit=request.compile_config.jit,
         max_steps=request.compile_config.max_steps,
+        notes=semantic_notes,
     )
     exec_plan_payload_ref = store.put_json(
         exec_plan,
         PutOptions(
             kind="foundry.exec_plan",
             media_type="application/json",
-            schema=SchemaInfo(name="polisyos.core.ExecPlan", version="0.1.0"),
+            schema=SchemaInfo(name="polisyos.core.ExecPlan", version="0.2.0"),
             inputs=[InputRef(artifact_id=program_graph_ref.artifact_id, role="program_graph")],
         ),
     )
@@ -243,16 +243,19 @@ def compile_trinity(store: FileSystemCAS, request: CompileRequest) -> CompileRes
         policy_ref=policy_ref,
         registry_bundle_ref=registry_bundle_ref,
         link_report_ref=link_report_ref,
+        lowered_ir_ref=lowered_ir_ref,
         program_graph_ref=program_graph_ref,
         exec_plan_ref=exec_plan_ref,
         slot_layout_ref=slot_layout_ref,
         treasury_plan_ref=treasury_plan_ref,
+        semantic_closure_notes=semantic_notes,
         notes=compile_notes,
     )
     compile_inputs = _compile_inputs(
         policy_ref=policy_ref,
         registry_bundle_ref=registry_bundle_ref,
         link_report_ref=link_report_ref,
+        lowered_ir_ref=lowered_ir_ref,
         program_graph_ref=program_graph_ref,
         exec_plan_ref=exec_plan_ref,
         slot_layout_ref=slot_layout_ref,
@@ -261,6 +264,7 @@ def compile_trinity(store: FileSystemCAS, request: CompileRequest) -> CompileRes
     compile_report_ref = put_compile_report(store, compile_report, inputs=compile_inputs)
 
     derived_refs = [
+        DerivedArtifact(role="lowered_ir", ref=lowered_ir_ref),
         DerivedArtifact(role="program_graph", ref=program_graph_ref),
         DerivedArtifact(role="exec_plan", ref=exec_plan_ref),
         DerivedArtifact(role="link_report", ref=link_report_ref),
@@ -273,7 +277,7 @@ def compile_trinity(store: FileSystemCAS, request: CompileRequest) -> CompileRes
         exec_plan_ref=exec_plan_ref,
         compile_report_ref=compile_report_ref,
         derived_refs=derived_refs,
-        notes=compile_notes,
+        notes=_merge_notes(compile_notes, semantic_notes),
     )
 
 
@@ -296,6 +300,7 @@ def _program_graph_inputs(
     policy_ref: ArtifactRef,
     registry_bundle_ref: ArtifactRef | None,
     link_report_ref: ArtifactRef | None,
+    lowered_ir_ref: ArtifactRef | None,
     params_refs: dict[str, ArtifactRef],
 ) -> list[InputRef]:
     inputs = [InputRef(artifact_id=policy_ref.artifact_id, role="ir")]
@@ -305,6 +310,8 @@ def _program_graph_inputs(
         )
     if link_report_ref is not None:
         inputs.append(InputRef(artifact_id=link_report_ref.artifact_id, role="link_report"))
+    if lowered_ir_ref is not None:
+        inputs.append(InputRef(artifact_id=lowered_ir_ref.artifact_id, role="lowered_ir"))
     for node_id, ref in sorted(params_refs.items()):
         inputs.append(InputRef(artifact_id=ref.artifact_id, role=f"params:{node_id}"))
     return inputs
@@ -315,6 +322,7 @@ def _compile_inputs(
     policy_ref: ArtifactRef,
     registry_bundle_ref: ArtifactRef | None,
     link_report_ref: ArtifactRef | None,
+    lowered_ir_ref: ArtifactRef | None,
     program_graph_ref: ArtifactRef | None,
     exec_plan_ref: ArtifactRef | None,
     slot_layout_ref: ArtifactRef | None,
@@ -327,6 +335,8 @@ def _compile_inputs(
         )
     if link_report_ref is not None:
         inputs.append(InputRef(artifact_id=link_report_ref.artifact_id, role="link_report"))
+    if lowered_ir_ref is not None:
+        inputs.append(InputRef(artifact_id=lowered_ir_ref.artifact_id, role="lowered_ir"))
     if program_graph_ref is not None:
         inputs.append(
             InputRef(artifact_id=program_graph_ref.artifact_id, role="program_graph")
@@ -349,6 +359,8 @@ def _compile_error(
     policy_ref: ArtifactRef,
     registry_bundle_ref: ArtifactRef | None,
     link_report_ref: ArtifactRef | None,
+    lowered_ir_ref: ArtifactRef | None,
+    semantic_closure_notes: list[str],
     notes: list[str],
 ) -> CompileResult:
     compile_report = CompileReport(
@@ -356,12 +368,15 @@ def _compile_error(
         policy_ref=policy_ref,
         registry_bundle_ref=registry_bundle_ref,
         link_report_ref=link_report_ref,
+        lowered_ir_ref=lowered_ir_ref,
+        semantic_closure_notes=semantic_closure_notes,
         notes=notes,
     )
     compile_inputs = _compile_inputs(
         policy_ref=policy_ref,
         registry_bundle_ref=registry_bundle_ref,
         link_report_ref=link_report_ref,
+        lowered_ir_ref=lowered_ir_ref,
         program_graph_ref=None,
         exec_plan_ref=None,
         slot_layout_ref=None,
@@ -370,6 +385,8 @@ def _compile_error(
     compile_report_ref = put_compile_report(store, compile_report, inputs=compile_inputs)
 
     derived_refs: list[DerivedArtifact] = []
+    if lowered_ir_ref is not None:
+        derived_refs.append(DerivedArtifact(role="lowered_ir", ref=lowered_ir_ref))
     if link_report_ref is not None:
         derived_refs.append(DerivedArtifact(role="link_report", ref=link_report_ref))
     return CompileResult(
@@ -424,3 +441,12 @@ def _link_warning_notes(link_report) -> list[str]:
         if token not in notes:
             notes.append(token)
     return notes
+
+
+def _merge_notes(*note_groups: list[str]) -> list[str]:
+    merged: list[str] = []
+    for notes in note_groups:
+        for note in notes:
+            if note not in merged:
+                merged.append(note)
+    return merged

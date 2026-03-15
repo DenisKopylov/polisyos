@@ -10,15 +10,17 @@ from __future__ import annotations
 
 import ast
 import inspect
-import logging
 import subprocess
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Mapping, Sequence
 
+from polisyos.common.logger import get_logger
 from polisyos.core.canon import (
     content_hash as compute_content_hash,
+)
+from polisyos.core.canon import (
     streaming_hash,
     to_canonical_bytes,
     truncated_hash,
@@ -30,7 +32,7 @@ __all__ = [
     "compute_source_fingerprint",
 ]
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 # -- Shared constants (used across sub-modules) ------------------------------
 ARTIFACTS_VERSION: str = "1.0.0"

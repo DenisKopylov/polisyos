@@ -134,7 +134,7 @@ def _extract_shap_importances(
     warnings: list[str] = []
     try:  # pragma: no cover - optional dependency
         import shap
-    except Exception:
+    except (ImportError, ModuleNotFoundError):
         return [], ["SHAP not installed; falling back to tree_based feature importance"]
 
     if x.shape[0] > SHAP_MAX_ROWS:
@@ -239,7 +239,7 @@ def extract_cate_from_estimator(
         lo, hi = estimator.effect_interval(x, alpha=alpha)
         ci_lower = _align_metric_length(lo, n_samples=n_samples)
         ci_upper = _align_metric_length(hi, n_samples=n_samples)
-    except Exception:
+    except Exception:  # noqa: BLE001 - econml estimator API varies per backend
         warnings.append("Estimator does not provide effect_interval; per-row CIs omitted")
 
     cate_std = np.full(n_samples, np.nan, dtype=float)
@@ -249,7 +249,7 @@ def extract_cate_from_estimator(
             getattr(inference, "std_point", np.nan),
             n_samples=n_samples,
         )
-    except Exception:
+    except Exception:  # noqa: BLE001 - econml estimator API varies per backend
         warnings.append("Estimator does not provide effect_inference; per-row std omitted")
 
     ate = float(np.mean(cate))
@@ -264,7 +264,7 @@ def extract_cate_from_estimator(
         pvalue = getattr(ate_inf, "pvalue", None)
         if pvalue is not None:
             ate_p_value = float(np.asarray(pvalue).ravel()[0])
-    except Exception:
+    except Exception:  # noqa: BLE001 - econml estimator API varies per backend
         warnings.append("Estimator does not provide ate_inference; ATE CI via empirical quantiles")
 
     importances, importance_warnings = extract_feature_importances(

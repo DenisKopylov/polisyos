@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-import logging
 import os
 import queue
 import threading
@@ -10,6 +9,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Protocol
 
+from polisyos.common.logger import get_logger
 from polisyos.core.observability import get_metrics
 from polisyos.core.trace.record import TraceRecord
 
@@ -21,7 +21,7 @@ from .audit_models import (
     ChainedLogEntry,
 )
 
-logger = logging.getLogger("polisyos.security.audit_sink")
+logger = get_logger("polisyos.security.audit_sink")
 
 
 class AuditStorageBackend(Protocol):
@@ -63,7 +63,8 @@ class LocalJsonlBackend:
 
         try:
             lines = _read_tail_lines(self._path)
-        except Exception:
+        except (OSError, UnicodeDecodeError, ValueError) as exc:
+            logger.debug("Failed to read audit tail lines: %s", exc)
             return None
 
         for raw in reversed(lines):
@@ -71,7 +72,7 @@ class LocalJsonlBackend:
                 continue
             try:
                 entry = ChainedLogEntry.model_validate_json(raw)
-            except Exception:
+            except (TypeError, ValueError):
                 continue
             if entry.chain_id != chain_id:
                 continue
@@ -126,8 +127,13 @@ class HotTierBackend:
                 timeout=15.0,
             )
             response.raise_for_status()
-        finally:
             self._buffer.clear()
+        except Exception:
+            logger.error(
+                "HotTierBackend flush failed, %d audit entries retained for retry",
+                len(self._buffer),
+            )
+            raise
 
 
 class ColdTierBackend:
@@ -184,8 +190,13 @@ class ColdTierBackend:
                 ObjectLockMode="COMPLIANCE",
                 ObjectLockRetainUntilDate=retain_until,
             )
-        finally:
             self._buffer.clear()
+        except Exception:
+            logger.error(
+                "ColdTierBackend flush failed, %d audit entries retained for retry",
+                len(self._buffer),
+            )
+            raise
 
 
 class ChainedAuditSink:
@@ -337,7 +348,7 @@ class ChainedAuditSink:
                         duration_seconds=time.perf_counter() - started,
                         status="ok",
                     )
-            except Exception as exc:
+            except (AttributeError, OSError, RuntimeError, TypeError, ValueError, KeyError) as exc:
                 logger.error("Audit replica write failed: %s", exc)
                 get_metrics().record_audit_write_latency(
                     backend=type(backend).__name__,
@@ -355,7 +366,7 @@ class ChainedAuditSink:
         for backend in self._replica_backends:
             try:
                 backend.flush()
-            except Exception as exc:
+            except (AttributeError, OSError, RuntimeError, TypeError, ValueError, KeyError) as exc:
                 logger.error("Audit backend flush failed: %s", exc)
 
     def close(self) -> None:

@@ -7,13 +7,13 @@ comprehensive quality reports.
 
 from __future__ import annotations
 
-import logging
 from datetime import datetime, timezone
 from types import SimpleNamespace
 from typing import Any
 
 import pandas as pd
 
+from polisyos.common.logger import get_logger
 from polisyos.core.evaluation import ThresholdBand, ThresholdMapper, WeightedScorer
 from polisyos.fabric.tabular import require_dataframe
 from polisyos.ir.connectors import QualityTier
@@ -23,7 +23,7 @@ from .consistency import ConsistencyChecker
 from .freshness import FreshnessChecker, FreshnessPolicy
 from .report import DataQualityReport
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 class QualityScorer:

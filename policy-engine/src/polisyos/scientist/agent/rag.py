@@ -9,17 +9,17 @@ Design goals:
 
 from __future__ import annotations
 
-from dataclasses import asdict, dataclass
-from datetime import datetime, timezone
 import io
-import logging
 import os
 import re
+from dataclasses import asdict, dataclass
+from datetime import datetime, timezone
 from typing import Any, Callable, Protocol, Sequence
 
 import numpy as np
 from pydantic import BaseModel, ConfigDict, Field
 
+from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import InputRef, ProducerInfo, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
@@ -27,7 +27,7 @@ from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.ir.trinity import TrinityBundle
 from polisyos.scientist.agent.protocols import ProblemFrame as AgentProblemFrame
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 RAG_ENTRIES_KIND = "scientist.rag_entries.v1"
 RAG_VECTORS_KIND = "scientist.rag_vectors.v1"

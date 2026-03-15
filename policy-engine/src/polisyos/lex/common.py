@@ -1,8 +1,13 @@
 from __future__ import annotations
 
-from datetime import date, datetime
 import re
+from datetime import date, datetime
 from typing import Any
+
+from polisyos.common.logger import get_logger
+
+logger = get_logger(__name__)
+_ISO_LIKE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}(?:[T ][0-9:+.\-Z]+)?$")
 
 __all__ = ["collapse_ws", "latest_object_by_subject", "parse_iso_date"]
 
@@ -21,7 +26,9 @@ def parse_iso_date(value: str | None) -> date | None:
         if len(raw) == 10 and raw.count("-") == 2:
             return date.fromisoformat(raw)
         return datetime.fromisoformat(raw.replace("Z", "+00:00")).date()
-    except Exception:
+    except (TypeError, ValueError):
+        if _ISO_LIKE_RE.fullmatch(raw):
+            logger.debug("Failed to parse ISO date: {!r}", value)
         return None
 
 

@@ -14,6 +14,7 @@ from typing import Any
 
 from cryptography.hazmat.primitives.serialization import Encoding, PublicFormat
 
+from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.graph import resolve_dependency_graph
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactManifest
@@ -58,6 +59,8 @@ from .prov_json import ProvJsonConverter, prov_json_to_dot
 __all__ = [
     "AuditPackageAssembler",
 ]
+
+logger = get_logger(__name__)
 
 
 @dataclass(frozen=True)
@@ -157,7 +160,7 @@ class AuditPackageAssembler:
             raw = manifest_path.read_text("utf-8")
             try:
                 manifest = RunManifest.model_validate_json(raw)
-            except Exception as exc:
+            except (TypeError, ValueError) as exc:
                 raise AuditAssemblyError(f"Unsupported run manifest format: {exc}") from exc
         else:
             manifest = self._load_manifest_from_trace(run_dir, run_id)
@@ -180,7 +183,7 @@ class AuditPackageAssembler:
         for line in trace_path.read_text("utf-8").splitlines():
             try:
                 record = TraceRecord.model_validate_json(line)
-            except Exception:
+            except (TypeError, ValueError):
                 continue
             if record.event == "RUN_FINALIZED":
                 for ref in record.refs.outputs:
@@ -211,7 +214,7 @@ class AuditPackageAssembler:
                 for line in trace_path.read_text("utf-8").splitlines():
                     try:
                         rec = TraceRecord.model_validate_json(line)
-                    except Exception:
+                    except (TypeError, ValueError):
                         continue
                     if rec.event in {"NODE_OK", "RUN_FINALIZED", "RUN_OUTPUT_ADDED"}:
                         for ref in rec.refs.outputs:
@@ -312,8 +315,8 @@ class AuditPackageAssembler:
                     pkg_dir / "metadata" / "environment.json",
                     _load_json_payload(self._cas, env_id),
                 )
-            except Exception:
-                pass
+            except (ValueError, TypeError, OSError, UnicodeDecodeError) as exc:
+                logger.debug("Ignored exception: %s", exc)
 
         decision_packet_id = find_decision_packet_id(artifact_ids, manifests)
         if decision_packet_id is not None:
@@ -322,8 +325,8 @@ class AuditPackageAssembler:
                     pkg_dir / "metadata" / "decision_packet.json",
                     _load_json_payload(self._cas, decision_packet_id),
                 )
-            except Exception:
-                pass
+            except (ValueError, TypeError, OSError, UnicodeDecodeError) as exc:
+                logger.debug("Ignored exception: %s", exc)
 
         slsa_info = build_slsa_bundle(
             self._cas,
@@ -399,7 +402,7 @@ class AuditPackageAssembler:
                     check=True,
                     capture_output=True,
                 )
-            except Exception:
+            except (subprocess.CalledProcessError, FileNotFoundError, OSError):
                 warnings.append("Graphviz not available; skipped SVG rendering")
 
         checksums = compute_file_checksums(
@@ -444,7 +447,7 @@ class AuditPackageAssembler:
     ) -> dict[str, Any] | None:
         try:
             signer = load_signer_from_config(SigningConfig.from_env())
-        except Exception:
+        except (RuntimeError, OSError, ValueError, TypeError):
             warnings.append("Package checksum signature skipped: no signing key configured")
             return None
 
@@ -483,7 +486,7 @@ def _load_json_payload(cas: FileSystemCAS, artifact_id: ArtifactID) -> dict[str,
     blob = cas.get_bytes(artifact_id)
     try:
         payload = from_canonical_bytes(blob)
-    except Exception:
+    except (TypeError, ValueError):
         payload = json.loads(blob.decode("utf-8"))
     if not isinstance(payload, dict):
         raise ValueError("artifact payload is not an object")

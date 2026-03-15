@@ -66,6 +66,109 @@ def _strict_mode_enabled() -> bool:
     return value in {"1", "true", "yes", "on"}
 
 
+def _normalize_metadata_tags(
+    namespace: str,
+    signature: "MethodSignature",
+    tags: set[str] | frozenset[str],
+) -> frozenset[str]:
+    normalized = {str(tag).strip() for tag in tags if str(tag).strip()}
+    normalized |= _infer_affinity_tags(namespace, signature)
+    normalized |= _infer_task_tags(namespace, signature)
+    return frozenset(sorted(normalized))
+
+
+def _infer_affinity_tags(namespace: str, signature: "MethodSignature") -> set[str]:
+    ns = namespace.lower()
+    slot_names = {slot.name for slot in signature.input_slots} | {
+        slot.name for slot in signature.output_slots
+    }
+    inferred: set[str] = set()
+
+    if "panel" in ns or {"panel_data", "outcome_panel", "entity_ids", "time_ids"} & slot_names:
+        inferred.add("panel")
+    if (
+        {"outcome", "treatment", "time_treatment"} <= slot_names
+        or {"outcome", "treatment", "treatment_timing"} <= slot_names
+        or {"panel_observational_data"} & slot_names
+    ):
+        inferred.add("panel")
+    if any(token in ns for token in ("cross_section", "cross-section")):
+        inferred.add("cross-section")
+    if {
+        "outcome",
+        "treatment",
+        "running_variable",
+        "covariates",
+        "confounders",
+        "hte_data",
+        "graph_causal_data",
+    } & slot_names:
+        inferred.add("cross-section")
+    if any(token in ns for token in ("timeseries", "time_series", "time-series")) or {
+        "time_series_data",
+        "endog",
+        "time_index",
+    } & slot_names:
+        inferred.add("time-series")
+    if "spatial" in ns or "geo" in ns:
+        inferred.add("spatial")
+    if "network" in ns or "graph" in ns:
+        inferred.add("network")
+    if "survey" in ns:
+        inferred.add("survey")
+    if "optimization" in ns:
+        inferred.add("optimization")
+    if "structural" in ns:
+        inferred.add("structural")
+    if any(token in ns for token in ("causal.discovery", "causal.prior", "causal.transport")) or {
+        "selection_diagram",
+        "scm_query_data",
+        "scm_fit_data",
+        "graph_causal_data",
+        "graph_reconciliation_data",
+        "literature_prior_build_data",
+    } & slot_names:
+        inferred.add("structural")
+    if any(token in ns for token in ("ml", "machine_learning")) or {"covariates", "exog"} & slot_names:
+        inferred.add("tabular")
+    if {
+        "features",
+        "target",
+        "tabular_data",
+        "tabular_discovery_data",
+        "hte_data",
+        "graph_causal_data",
+    } & slot_names:
+        inferred.add("tabular")
+    return inferred
+
+
+def _infer_task_tags(namespace: str, signature: "MethodSignature") -> set[str]:
+    ns = namespace.lower()
+    output_slot_names = {slot.name for slot in signature.output_slots}
+    inferred: set[str] = set()
+
+    if any(token in ns for token in ("discovery", "identify")):
+        inferred.add("discovery")
+    if "diagnostic" in ns or "diagnostics" in ns:
+        inferred.add("diagnostics")
+    if "forecast" in ns:
+        inferred.add("forecasting")
+    if "simulation" in ns or "microsim" in ns:
+        inferred.add("simulation")
+    if "policy_learning" in ns or "targeting" in ns:
+        inferred.add("policy-learning")
+    if "selection" in ns:
+        inferred.add("feature-selection")
+    if "uncertainty" in ns or "uncertainty_envelope" in output_slot_names:
+        inferred.add("uncertainty")
+
+    primary_tasks = inferred - {"uncertainty"}
+    if not primary_tasks:
+        inferred.add("estimation")
+    return inferred
+
+
 # ---------------------------------------------------------------------------
 # Enumerations
 # ---------------------------------------------------------------------------
@@ -93,7 +196,7 @@ class SlotType(Enum):
 
     SCALAR = auto()    # ()
     VECTOR = auto()    # (n_agents,)
-    MATRIX = auto()    # (n_agents, n_agents)
+    MATRIX = auto()    # Generic 2D shape
     TENSOR = auto()    # Arbitrary shape
 
 
@@ -103,6 +206,7 @@ class ComputeBackend(str, Enum):
     JAX = "jax"
     NUMPY = "numpy"
     SOLVER = "solver"
+    BAYESIAN = "bayesian"
 
 
 # ---------------------------------------------------------------------------
@@ -172,6 +276,7 @@ class SlotSpec:
     name: str
     slot_type: SlotType
     unit: Unit
+    contract_id: str | None = None
     shape: tuple[int | str, ...] = ()
     description: str = ""
     bounds: tuple[float | int | None, float | int | None] = (None, None)
@@ -183,6 +288,10 @@ class SlotSpec:
             raise TypeError("SlotSpec.slot_type must be a SlotType")
         if not isinstance(self.unit, Unit):
             raise TypeError("SlotSpec.unit must be a Unit")
+        if self.contract_id is not None and (
+            not isinstance(self.contract_id, str) or not self.contract_id.strip()
+        ):
+            raise TypeError("SlotSpec.contract_id must be None or a non-empty string")
         if not isinstance(self.shape, tuple):
             raise TypeError("SlotSpec.shape must be a tuple")
         for dim in self.shape:
@@ -201,6 +310,7 @@ class SlotSpec:
             "name": self.name,
             "slot_type": self.slot_type.name,
             "unit": self.unit._stable_dict(),
+            "contract_id": self.contract_id,
             "shape": list(self.shape),
         }
 
@@ -211,7 +321,7 @@ class SlotSpec:
         Note: description and bounds are excluded as they do not affect
         slot identity for linking purposes.
         """
-        return hash((self.name, self.slot_type, self.unit, self.shape))
+        return hash((self.name, self.slot_type, self.unit, self.contract_id, self.shape))
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, SlotSpec):
@@ -220,6 +330,7 @@ class SlotSpec:
             self.name == other.name
             and self.slot_type == other.slot_type
             and self.unit == other.unit
+            and self.contract_id == other.contract_id
             and self.shape == other.shape
         )
 
@@ -493,6 +604,16 @@ class FoundryMethod(Protocol[StateT, ParamsT]):
         """Execute one simulation step (pure function)."""
         ...
 
+    @staticmethod
+    def materialize_input(bound_inputs: Mapping[str, Any], fallback_state: Any) -> Any:
+        """Optional hook to materialize bound slot values into runtime state."""
+        ...
+
+    @staticmethod
+    def dematerialize_output(output: Any) -> Mapping[str, Any]:
+        """Optional hook to map runtime output back to declared slots."""
+        ...
+
 
 # ---------------------------------------------------------------------------
 # Registration decorator
@@ -557,13 +678,17 @@ def foundry_method(
         if not hasattr(cls, "metadata"):
             cls.metadata = MethodMetadata(
                 description=f"{cls.__name__} - auto-generated metadata",
-                tags=frozenset(tags or set()),
+                tags=_normalize_metadata_tags(namespace, cls.signature, tags or set()),
             )
-        elif tags:
+        else:
             existing = cls.metadata
             cls.metadata = MethodMetadata(
                 description=existing.description,
-                tags=existing.tags | frozenset(tags),
+                tags=_normalize_metadata_tags(
+                    namespace,
+                    cls.signature,
+                    set(existing.tags) | set(tags or set()),
+                ),
                 citations=existing.citations,
                 equations=existing.equations,
                 assumptions=existing.assumptions,

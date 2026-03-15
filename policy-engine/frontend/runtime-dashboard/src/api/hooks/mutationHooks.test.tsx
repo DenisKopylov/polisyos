@@ -1,4 +1,4 @@
-import { renderHook, waitFor } from "@testing-library/react";
+import { act, renderHook, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { useDiscoverDataSources } from "@/api/hooks/useDiscoverDataSources";
@@ -77,11 +77,14 @@ describe("mutation hooks", () => {
     const invalidateSpy = vi.spyOn(queryClient, "invalidateQueries");
 
     const view = renderHook(() => useLaunchRun(), { wrapper });
-    const result = await view.result.current.mutateAsync({
-      execution_intent: "Inspect policy drift",
-    } as never);
+    let result: Awaited<ReturnType<typeof view.result.current.mutateAsync>>;
+    await act(async () => {
+      result = await view.result.current.mutateAsync({
+        execution_intent: "Inspect policy drift",
+      } as never);
+    });
 
-    expect(result.run_id).toBe("run-launched");
+    expect(result!.run_id).toBe("run-launched");
     expect(postSpy).toHaveBeenCalledWith("/api/v1/control/runs", {
       body: {
         execution_intent: "Inspect policy drift",
@@ -119,13 +122,15 @@ describe("mutation hooks", () => {
 
     const view = renderHook(() => useLaunchNlRun(), { wrapper });
 
-    await expect(
-      view.result.current.mutateAsync({
-        nl_request: "Run a sensitivity analysis",
-      } as never),
-    ).rejects.toMatchObject({
-      code: "launch_failed",
-      status: 500,
+    await act(async () => {
+      await expect(
+        view.result.current.mutateAsync({
+          nl_request: "Run a sensitivity analysis",
+        } as never),
+      ).rejects.toMatchObject({
+        code: "launch_failed",
+        status: 500,
+      });
     });
 
     expect(queryClient.getQueryData(runListKey)).toEqual(initialRuns);
@@ -165,9 +170,11 @@ describe("mutation hooks", () => {
       const postSpy = mockRuntimePostSuccess(scenario.response);
       const view = renderHook(() => scenario.hook(), { wrapper });
 
-      await expect(
-        view.result.current.mutateAsync(scenario.input as never),
-      ).resolves.toEqual(scenario.response);
+      await act(async () => {
+        await expect(
+          view.result.current.mutateAsync(scenario.input as never),
+        ).resolves.toEqual(scenario.response);
+      });
 
       expect(postSpy).toHaveBeenCalledWith(scenario.endpoint, {
         body: scenario.input,
@@ -234,9 +241,11 @@ describe("mutation hooks", () => {
       const view = renderHook(() => scenario.hook(), { wrapper });
 
       await waitFor(async () => {
-        await expect(
-          view.result.current.mutateAsync(scenario.input as never),
-        ).resolves.toEqual(scenario.response);
+        await act(async () => {
+          await expect(
+            view.result.current.mutateAsync(scenario.input as never),
+          ).resolves.toEqual(scenario.response);
+        });
       });
 
       expect(postSpy).toHaveBeenCalledWith(scenario.endpoint, {

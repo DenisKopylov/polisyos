@@ -13,6 +13,7 @@ from typing import Any
 
 import pandas as pd
 
+from polisyos.common.logger import get_logger
 from polisyos.fabric.connectors.contracts.schema import (
     DataSchema,
     SchemaType,
@@ -20,6 +21,9 @@ from polisyos.fabric.connectors.contracts.schema import (
 
 from ._inference_config import InferenceConfig, SchemaHints
 from ._inference_engine import SchemaInference
+
+logger = get_logger(__name__)
+
 
 __all__ = [
     "CoercionResult",
@@ -316,5 +320,8 @@ def _coerce_decimal(value: Any) -> Decimal | None:
         return value
     try:
         return Decimal(str(value))
-    except Exception:
+    except (TypeError, ValueError):
+        logger.debug(
+            "Failed to coerce value %r to Decimal", value, exc_info=True,
+        )
         return None

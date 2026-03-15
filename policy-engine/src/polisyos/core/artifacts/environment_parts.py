@@ -7,14 +7,14 @@ import subprocess
 from ._env_capture import capture_environment
 from ._env_comparison import compare_environments
 from ._env_models import (
-    CPUInfo,
     ContainerInfo,
+    CPUInfo,
     DependencyInfo,
     EnvironmentDiff,
     EnvironmentManifest,
     EnvironmentManifestRef,
-    GPUInfo,
     GitInfo,
+    GPUInfo,
     JAXInfo,
     OSInfo,
     PythonInfo,

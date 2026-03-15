@@ -9,14 +9,14 @@ Provides:
 
 from __future__ import annotations
 
-import logging
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from polisyos.common.logger import get_logger
 from polisyos.core.contracts.cursor import CursorState
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 def run_batch_incremental(
@@ -189,6 +189,9 @@ def run_record_mode(
         try:
             evidence_ref = run_coro_sync(_record_ingestion())
         except Exception:
+            logger.debug(
+                "Async record ingestion failed, falling back to sync path", exc_info=True,
+            )
             # Fall back to sync path if async context isn't needed
             result = run_orchestrated_ingestion(
                 connector_manifest=connector_manifest,
@@ -308,6 +311,9 @@ def run_replay_mode(
         try:
             evidence_ref = run_coro_sync(_replay_ingestion())
         except Exception:
+            logger.debug(
+                "Async replay ingestion failed, falling back to sync path", exc_info=True,
+            )
             # Fallback to standard orchestrated ingestion (simulator is async)
             result = run_orchestrated_ingestion(
                 connector_manifest=connector_manifest,

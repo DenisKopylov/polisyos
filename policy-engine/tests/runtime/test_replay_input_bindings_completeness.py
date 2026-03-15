@@ -16,13 +16,36 @@ def _put_json(store: FileSystemCAS, payload, *, kind: str):
 def _base_payload(store: FileSystemCAS):
     registry_ref = _put_json(store, {"registry": {}}, kind="core.registry_bundle")
     trinity_ref = _put_json(store, {"trinity": {}}, kind="ir.trinity_bundle")
+    lowered_ir_ref = _put_json(
+        store,
+        {"policy_fidelity_level": "hybrid", "constraint_mode": "hard_soft_v1"},
+        kind="foundry.lowered_ir",
+    )
+    program_graph_ref = _put_json(
+        store,
+        {"nodes": [], "edges": [], "entrypoints": [], "lowered_ir_ref": str(lowered_ir_ref.artifact_id)},
+        kind="foundry.program_graph",
+    )
     state_snapshot_ref = _put_json(store, {"state": {}}, kind="foundry.state_snapshot")
     data_snapshot_ref = _put_json(
         store,
         DataSnapshot(data_ref=StateSnapshotRef(artifact_id=state_snapshot_ref.artifact_id)),
         kind="fabric.data_snapshot",
     )
-    exec_plan_ref = _put_json(store, {"order": []}, kind="foundry.exec_plan")
+    exec_plan_ref = _put_json(
+        store,
+        {
+            "program_ref": {
+                "artifact_id": str(program_graph_ref.artifact_id),
+                "kind": "foundry.program_graph",
+                "media_type": "application/json",
+            },
+            "order": [],
+            "policy_fidelity_level": "hybrid",
+            "constraint_mode": "hard_soft_v1",
+        },
+        kind="foundry.exec_plan",
+    )
     simulation_result_ref = _put_json(
         store,
         {"metrics_ref": str(exec_plan_ref.artifact_id)},
@@ -39,12 +62,14 @@ def _base_payload(store: FileSystemCAS):
         },
         "artifacts": {
             "exec_plan_ref": str(exec_plan_ref.artifact_id),
+            "lowered_ir_ref": str(lowered_ir_ref.artifact_id),
             "simulation_result_ref": str(simulation_result_ref.artifact_id),
         },
         "_refs": {
             "registry_ref": registry_ref,
             "data_snapshot_ref": data_snapshot_ref,
             "state_snapshot_ref": state_snapshot_ref,
+            "lowered_ir_ref": lowered_ir_ref,
         },
     }
 
@@ -84,3 +109,16 @@ def test_replay_completeness_accepts_packet_with_input_bindings_ref(tmp_path) ->
 
     assert report.level.value == "complete"
     assert report.ok
+
+
+def test_replay_completeness_requires_lowered_ir_ref(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path)
+    payload = _base_payload(store)
+    packet_payload = {k: v for k, v in payload.items() if k != "_refs"}
+    packet_payload["artifacts"].pop("lowered_ir_ref", None)
+    packet_ref = _put_json(store, packet_payload, kind="scientist.decision_packet")
+
+    report = completeness_check(store, packet_ref.artifact_id)
+
+    assert report.level.value == "incomplete"
+    assert "missing_required_role:artifact.lowered_ir_ref" in report.reason_codes

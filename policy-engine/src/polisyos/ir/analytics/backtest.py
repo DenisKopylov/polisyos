@@ -121,6 +121,11 @@ class BacktestReport(BaseModel):
     detected_biases: list[SystematicBias] = Field(default_factory=list)
     overall_bias_direction: BiasDirection = BiasDirection.NEUTRAL
 
+    prediction_mode_requested: str | None = None
+    prediction_mode_effective: str | None = None
+    degraded: bool = False
+    degraded_reasons: list[str] = Field(default_factory=list)
+    trust_eligible: bool = True
     trust_score: float | None = Field(default=None, ge=0.0, le=1.0)
     trust_grade: str | None = None
 

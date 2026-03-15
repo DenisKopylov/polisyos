@@ -19,13 +19,6 @@ from .manifest import (
     WarningRecord,
 )
 from .registry import RegistryBundle
-from .store import (
-    ExportReport,
-    FileSystemCAS,
-    ImportReport,
-    PutOptions,
-    VerificationReport,
-)
 from .signing import (
     ArtifactSigner,
     ArtifactSigningResult,
@@ -36,12 +29,19 @@ from .signing import (
     Ed25519Signer,
     Ed25519Verifier,
     KeyPair,
-    SigningConfig,
     SignatureStatement,
     SignatureVerificationResult,
     SignatureVerificationStatus,
+    SigningConfig,
     compute_key_id,
     ensure_private_key_permissions,
+)
+from .store import (
+    ExportReport,
+    FileSystemCAS,
+    ImportReport,
+    PutOptions,
+    VerificationReport,
 )
 
 __all__ = [

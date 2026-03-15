@@ -47,3 +47,29 @@ def test_trust_scorer_coverage_gate_caps_grade() -> None:
     score, grade = scorer.compute(scenarios=scenarios, biases=[])
     assert score is not None
     assert grade in {"C", "D", "F"}
+
+
+def test_backtesting_scientist_fallback_marks_report_degraded(tmp_path) -> None:
+    history = {
+        "policy_cost": [100.0, 101.0, 99.0, 98.0],
+    }
+    history_path = tmp_path / "history.json"
+    history_path.write_text(json.dumps(history), encoding="utf-8")
+
+    plan = HistoricalValidationPlan(
+        plan_id="bt_fallback",
+        historical_data_path=str(history_path),
+        intervention_step=2,
+        target_metrics=["policy_cost"],
+        ground_truth_outcomes={"policy_cost": [97.0, 96.0]},
+        prediction_source=PredictionSource.SCIENTIST,
+        scientist_state=None,
+    )
+
+    report = BacktestOrchestrator(cas_root=str(tmp_path / ".polisyos")).run([plan])
+    assert report.prediction_mode_requested == "scientist"
+    assert report.prediction_mode_effective == "naive"
+    assert report.degraded is True
+    assert report.trust_eligible is False
+    assert report.trust_score is None
+    assert report.degraded_reasons

@@ -11,18 +11,18 @@ from __future__ import annotations
 
 import json
 import os
+import tempfile
+import threading
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Iterator
-import threading
-import tempfile
 
 from pydantic import BaseModel, ConfigDict, Field
 
 from polisyos.common.logger import get_logger
 from polisyos.core.errors import ErrorCategory, PolicyOSError
+from polisyos.fabric.connectors.contracts.evolution import EvolutionReport, SchemaEvolution
 from polisyos.fabric.connectors.contracts.schema import DataSchema, SchemaVersion
-from polisyos.fabric.connectors.contracts.evolution import SchemaEvolution, EvolutionReport
 
 logger = get_logger(__name__)
 

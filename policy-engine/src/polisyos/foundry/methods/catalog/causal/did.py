@@ -18,6 +18,7 @@ from polisyos.foundry.methods.base import (
     Unit,
     foundry_method,
 )
+from polisyos.foundry.methods.catalog._payloads import extract_model_payload
 from polisyos.foundry.methods.catalog.causal._common import (
     bootstrap_ci,
     build_failure_report,
@@ -27,6 +28,80 @@ from polisyos.foundry.methods.catalog.causal._common import (
 )
 from polisyos.foundry.methods.catalog.causal.protocols import PanelObservationalData
 from polisyos.ir.analytics.causal import CausalMethod, DiagnosticTest, EstimationStatus
+
+
+def _did_output_slots() -> frozenset[SlotSpec]:
+    return frozenset(
+        {
+            SlotSpec(
+                name="result",
+                slot_type=SlotType.SCALAR,
+                unit=Unit("report", "json"),
+            ),
+            SlotSpec(
+                name="uncertainty_envelope",
+                slot_type=SlotType.SCALAR,
+                unit=Unit("uncertainty", "json"),
+            ),
+            SlotSpec(
+                name="warnings",
+                slot_type=SlotType.SCALAR,
+                unit=Unit("warning", "list"),
+            ),
+        }
+    )
+
+
+def _did_payload(state: Any) -> dict[str, Any]:
+    return extract_model_payload(
+        state,
+        model_cls=PanelObservationalData,
+        nested_keys=("panel_data", "panel_observational_data"),
+    )
+
+
+def _materialize_did_data(bound_inputs: Mapping[str, Any], fallback_state: Any) -> PanelObservationalData:
+    payload = _did_payload(fallback_state)
+    payload.update(bound_inputs)
+    return PanelObservationalData.model_validate(payload)
+
+
+def _standard_did_input_slots() -> frozenset[SlotSpec]:
+    return frozenset(
+        {
+            SlotSpec(
+                name="outcome",
+                slot_type=SlotType.MATRIX,
+                unit=Unit("outcome", "value"),
+                contract_id=PanelObservationalData.contract_id,
+                shape=("n_units", "n_periods"),
+            ),
+            SlotSpec(
+                name="treatment",
+                slot_type=SlotType.VECTOR,
+                unit=Unit("binary", "flag"),
+                shape=("n_units",),
+            ),
+            SlotSpec(
+                name="time_treatment",
+                slot_type=SlotType.SCALAR,
+                unit=Unit("time", "index"),
+            ),
+        }
+    )
+
+
+def _staggered_did_input_slots() -> frozenset[SlotSpec]:
+    return _standard_did_input_slots() | frozenset(
+        {
+            SlotSpec(
+                name="treatment_timing",
+                slot_type=SlotType.VECTOR,
+                unit=Unit("time", "index"),
+                shape=("n_units",),
+            )
+        }
+    )
 
 
 def _normal_two_sided_pvalue(z_score: float) -> float:
@@ -305,10 +380,16 @@ def _run_staggered_did(data: PanelObservationalData, params: Mapping[str, Any]) 
 @foundry_method(
     namespace="causal.inference",
     version="1.0.0",
-    tags={"causal", "quasi-experimental", "difference-in-differences"},
+    tags={
+        "causal",
+        "quasi-experimental",
+        "difference-in-differences",
+        "deprecated:aggregate-wrapper",
+    },
 )
 class DifferenceInDifferences:
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
+    runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="difference_in_differences",
@@ -320,23 +401,17 @@ class DifferenceInDifferences:
                     name="outcome_panel",
                     slot_type=SlotType.MATRIX,
                     unit=Unit("outcome", "value"),
+                    shape=("n_units", "n_periods"),
                 ),
                 SlotSpec(
                     name="treatment_indicator",
                     slot_type=SlotType.VECTOR,
                     unit=Unit("binary", "flag"),
+                    shape=("n_units",),
                 ),
             }
         ),
-        output_slots=frozenset(
-            {
-                SlotSpec(
-                    name="causal_effect_report",
-                    slot_type=SlotType.SCALAR,
-                    unit=Unit("report", "json"),
-                ),
-            }
-        ),
+        output_slots=_did_output_slots(),
         parameters=(
             ParameterSpec(name="staggered", default=False),
             ParameterSpec(name="control_group", default="never_treated"),
@@ -391,5 +466,139 @@ class DifferenceInDifferences:
             return _run_staggered_did(data, params)
         return _run_standard_did(data, params)
 
+    @staticmethod
+    def materialize_input(
+        bound_inputs: Mapping[str, Any],
+        fallback_state: Any,
+    ) -> PanelObservationalData:
+        payload = _did_payload(fallback_state)
+        if "outcome_panel" in bound_inputs and "outcome" not in bound_inputs:
+            payload["outcome"] = bound_inputs["outcome_panel"]
+        if "treatment_indicator" in bound_inputs and "treatment" not in bound_inputs:
+            payload["treatment"] = bound_inputs["treatment_indicator"]
+        payload.update(
+            {
+                key: value
+                for key, value in bound_inputs.items()
+                if key not in {"outcome_panel", "treatment_indicator"}
+            }
+        )
+        return PanelObservationalData.model_validate(payload)
 
-__all__ = ["DifferenceInDifferences"]
+
+@foundry_method(
+    namespace="causal.inference.did",
+    version="1.0.0",
+    tags={"causal", "difference-in-differences"},
+)
+class StandardDifferenceInDifferences:
+    """Dedicated standard 2x2 Difference-in-Differences estimator."""
+
+    determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
+    runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
+
+    signature: ClassVar[MethodSignature] = MethodSignature(
+        name="standard",
+        namespace="placeholder",
+        version="0.0.0",
+        input_slots=_standard_did_input_slots(),
+        output_slots=_did_output_slots(),
+        parameters=(
+            ParameterSpec(name="cov_type", default="HC1"),
+            ParameterSpec(name="cluster_var", default=None),
+            ParameterSpec(name="confidence_level", default=0.95),
+        ),
+        fidelity=FidelityLevel.HIGH,
+        complexity=ComplexityClass.O_N2,
+        backend=ComputeBackend.NUMPY,
+        supports_jit=False,
+        supports_vmap=False,
+        supports_grad=False,
+    )
+
+    metadata: ClassVar[MethodMetadata] = MethodMetadata(
+        description="Standard 2x2 DiD estimator.",
+        tags=frozenset({"causal", "difference-in-differences"}),
+        citations=DifferenceInDifferences.metadata.citations,
+        equations={"did_2x2": DifferenceInDifferences.metadata.equations["did_2x2"]},
+        assumptions=DifferenceInDifferences.metadata.assumptions,
+    )
+
+    @staticmethod
+    def pure_step(state: PanelObservationalData, params: Mapping[str, Any]) -> dict[str, Any]:
+        data = (
+            state
+            if isinstance(state, PanelObservationalData)
+            else PanelObservationalData.model_validate(state)
+        )
+        return _run_standard_did(data, params)
+
+    @staticmethod
+    def materialize_input(
+        bound_inputs: Mapping[str, Any],
+        fallback_state: Any,
+    ) -> PanelObservationalData:
+        return _materialize_did_data(bound_inputs, fallback_state)
+
+
+@foundry_method(
+    namespace="causal.inference.did",
+    version="1.0.0",
+    tags={"causal", "difference-in-differences"},
+)
+class StaggeredDifferenceInDifferences:
+    """Dedicated staggered-adoption Difference-in-Differences estimator."""
+
+    determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
+    runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
+
+    signature: ClassVar[MethodSignature] = MethodSignature(
+        name="staggered",
+        namespace="placeholder",
+        version="0.0.0",
+        input_slots=_staggered_did_input_slots(),
+        output_slots=_did_output_slots(),
+        parameters=(
+            ParameterSpec(name="control_group", default="never_treated"),
+            ParameterSpec(name="n_bootstrap", default=1000),
+            ParameterSpec(name="anticipation", default=0),
+            ParameterSpec(name="confidence_level", default=0.95),
+        ),
+        fidelity=FidelityLevel.HIGH,
+        complexity=ComplexityClass.O_N2,
+        backend=ComputeBackend.NUMPY,
+        supports_jit=False,
+        supports_vmap=False,
+        supports_grad=False,
+    )
+
+    metadata: ClassVar[MethodMetadata] = MethodMetadata(
+        description="Staggered-adoption DiD estimator with ATT(g,t) aggregation.",
+        tags=frozenset({"causal", "difference-in-differences"}),
+        citations=DifferenceInDifferences.metadata.citations,
+        equations=DifferenceInDifferences.metadata.equations,
+        assumptions=DifferenceInDifferences.metadata.assumptions,
+    )
+
+    @staticmethod
+    def pure_step(state: PanelObservationalData, params: Mapping[str, Any]) -> dict[str, Any]:
+        data = (
+            state
+            if isinstance(state, PanelObservationalData)
+            else PanelObservationalData.model_validate(state)
+        )
+        return _run_staggered_did(data, params)
+
+    @staticmethod
+    def materialize_input(
+        bound_inputs: Mapping[str, Any],
+        fallback_state: Any,
+    ) -> PanelObservationalData:
+        return _materialize_did_data(bound_inputs, fallback_state)
+
+
+__all__ = [
+    "DifferenceInDifferences",
+    "StandardDifferenceInDifferences",
+    "StaggeredDifferenceInDifferences",
+]

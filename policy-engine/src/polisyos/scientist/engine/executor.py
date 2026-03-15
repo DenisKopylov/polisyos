@@ -7,9 +7,10 @@ from typing import TYPE_CHECKING, Any, Iterable
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
-from polisyos.core.canon import CanonViolation
+from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
+from polisyos.core.canon import CanonSpec, CanonViolation
 from polisyos.scientist.engine.checkpoint import compute_workflow_fingerprint
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.errors import (
@@ -99,6 +100,9 @@ def _log_node_events(logger: logging.Logger, alias: str, events: Iterable[Any]) 
             logger.log(level, "%s %s %s", prefix, message, attrs)
 
 
+_module_logger = get_logger(__name__)
+
+
 def _bind_node_params(node: Any, params: dict[str, Any]) -> Any:
     if not params:
         return node
@@ -107,7 +111,10 @@ def _bind_node_params(node: Any, params: dict[str, Any]) -> Any:
         try:
             bound = binder(params)
             return bound if bound is not None else node
-        except Exception:
+        except Exception as exc:  # noqa: BLE001
+            _module_logger.debug(
+                "Node bind failed (%s), using unbound node: %s", type(exc).__name__, exc,
+            )
             return node
     return node
 
@@ -526,6 +533,7 @@ class WorkflowExecutor:
                     version=state.schema_version,
                 ),
             ),
+            canon_spec=CanonSpec(forbid_floats=False),
         )
 
     def _persist_report(self, report: WorkflowReport) -> ArtifactRef:

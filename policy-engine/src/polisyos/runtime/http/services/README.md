@@ -2,7 +2,7 @@
 
 `services/` — прикладной слой runtime API: run index, timeline/debug/lineage views, artifact inspection и control-plane orchestration.
 
-Документ отражает текущее состояние кода на **2026-03-03**.
+Документ отражает текущее состояние кода на **2026-03-11**.
 
 ## Структура и ответственность
 
@@ -27,6 +27,11 @@
   - Санитизирует чувствительные поля (`authorization`, `password`, `token`, `api_key`, ...).
   - Для agent pipeline поддерживает fallback-цепочку источников: `audit_trail -> timeline -> reflexion/model-variant params`.
 
+- `feedback.py`
+  - Даёт decision-level read surface для `GET /debug/runs/{run_id}/feedback` и `GET /debug/runs/{left}/compare/{right}`.
+  - Поднимает `DecisionMonitoringContract`, `DecisionMonitoringReport`, `DecisionCompareReport`, `DecisionReissuePlan` из CAS и склеивает их с `DecisionValidityService`.
+  - Готовит reissue payload: клонирует `ExperimentState.inputs`, добавляет `ParameterOverrideBundleRef` и metadata о refuted metrics.
+
 - `lineage.py`
   - Агрегирует dependency graph для одного или нескольких корневых артефактов.
   - Возвращает `is_complete`, missing/corrupted IDs, nodes/edges и суммарный размер.
@@ -39,6 +44,7 @@
 - `control.py`
   - Оркестрация `/api/v1/control/*`:
   - workflow launch (`/runs`) и NL launch (`/runs/nl`);
+  - feedback evaluation/reissue (`/runs/{run_id}/feedback/evaluate`, `/runs/{run_id}/reissue`);
   - fabric ingestion/resolve/discover/preview/catalog/promotion;
   - connectors/profiles/cache introspection;
   - Lex batch trigger/status/stats/search.
@@ -51,6 +57,7 @@
 ## Control-service: важные детали
 
 - `launch_workflow_run(...)` запускает `scientist.run_experiment(...)` в фоне, собирая `state_payload` из обязательного data source и optional refs.
+- `reissue_run(...)` использует feedback service для evaluate+prepare и публикует новый workflow run только как human-gated durable job.
 - `launch_nl_run(...)` поддерживает multi-model execution (если разрешено), budget guards, evaluator/preflight/reproducibility артефакты и fallback на mock agents при недоступном LLM gateway.
 - В NL path возможна auto-materialization retrieval результатов в `DataSnapshot`/`InputBindings`.
 - `run_data_ingestion(...)` поддерживает режимы orchestrated, `batch_incremental`, `streaming_windowed`, а также record/replay ветки.

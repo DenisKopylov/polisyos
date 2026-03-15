@@ -27,6 +27,11 @@ def _put_json(store: FileSystemCAS, payload, *, kind: str):
 def _build_packet_fixture(store: FileSystemCAS):
     registry_bundle_ref = _put_json(store, {"registry": {}}, kind="core.registry_bundle")
     trinity_bundle_ref = _put_json(store, {"trinity": {}}, kind="ir.trinity_bundle")
+    lowered_ir_ref = _put_json(
+        store,
+        {"policy_fidelity_level": "hybrid", "constraint_mode": "hard_soft_v1"},
+        kind="foundry.lowered_ir",
+    )
     state_snapshot_ref = _put_json(store, {"state": {}}, kind="foundry.state_snapshot")
     data_snapshot = DataSnapshot(
         data_ref=StateSnapshotRef(artifact_id=state_snapshot_ref.artifact_id),
@@ -41,7 +46,7 @@ def _build_packet_fixture(store: FileSystemCAS):
     input_bindings_ref = _put_json(store, input_bindings, kind="foundry.input_bindings")
     program_graph_ref = _put_json(
         store,
-        {"nodes": []},
+        {"nodes": [], "edges": [], "entrypoints": [], "lowered_ir_ref": str(lowered_ir_ref.artifact_id)},
         kind="foundry.program_graph",
     )
     exec_plan = ExecPlan(
@@ -71,6 +76,7 @@ def _build_packet_fixture(store: FileSystemCAS):
         },
         "artifacts": {
             "exec_plan_ref": str(exec_plan_ref.artifact_id),
+            "lowered_ir_ref": str(lowered_ir_ref.artifact_id),
             "simulation_result_ref": str(simulation_result_ref.artifact_id),
             "metrics_ref": str(metrics_ref.artifact_id),
         },

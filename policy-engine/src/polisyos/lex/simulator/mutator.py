@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from polisyos.ir.norm_pack import NormPack, NormRule
 from polisyos.ir.world.ids import stable_world_id_from_canon
@@ -8,6 +8,8 @@ from polisyos.ir.world.ids import stable_world_id_from_canon
 
 class MutationIntent(BaseModel):
     """Why and for which scenario the mutated pack was created."""
+
+    model_config = ConfigDict(extra="forbid")
 
     scenario_label: str = Field(min_length=1)
     reason: str = Field(min_length=1)

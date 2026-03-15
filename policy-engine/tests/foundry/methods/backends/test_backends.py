@@ -15,9 +15,13 @@ from polisyos.foundry.methods import (
     MethodRegistry,
     MethodSignature,
     ParameterSpec,
+    SlotSpec,
+    SlotType,
+    Unit,
     execute_heterogeneous_chain,
 )
 from polisyos.foundry.methods.backends.adapters import adapt_state
+from polisyos.foundry.methods.backends.bayesian_runner import BayesianRunner
 from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
 from polisyos.foundry.methods.backends.jax_runner import JaxRunner
 from polisyos.foundry.methods.backends.numpy_runner import NumpyRunner
@@ -104,6 +108,96 @@ class _SolverToy:
         )
 
 
+class _EmitSignal:
+    signature: ClassVar[MethodSignature] = MethodSignature(
+        name="emit_signal",
+        namespace="tests.polyglot",
+        version="1.0.0",
+        input_slots=frozenset(),
+        output_slots=frozenset(
+            {
+                SlotSpec(
+                    name="signal",
+                    slot_type=SlotType.SCALAR,
+                    unit=Unit("none", "1"),
+                )
+            }
+        ),
+        parameters=(ParameterSpec(name="delta", default=1.0),),
+        fidelity=FidelityLevel.LOW,
+        complexity=ComplexityClass.O_1,
+        backend=ComputeBackend.NUMPY,
+        supports_jit=False,
+        supports_vmap=False,
+        supports_grad=False,
+    )
+    metadata: ClassVar[MethodMetadata] = MethodMetadata(description="emit signal")
+
+    @staticmethod
+    def pure_step(state: Any, params: dict[str, Any]) -> float:
+        return float(state) + float(params["delta"])
+
+
+class _ConsumeSignal:
+    signature: ClassVar[MethodSignature] = MethodSignature(
+        name="consume_signal",
+        namespace="tests.polyglot",
+        version="1.0.0",
+        input_slots=frozenset(
+            {
+                SlotSpec(
+                    name="signal",
+                    slot_type=SlotType.SCALAR,
+                    unit=Unit("none", "1"),
+                )
+            }
+        ),
+        output_slots=frozenset(),
+        parameters=(ParameterSpec(name="factor", default=2.0),),
+        fidelity=FidelityLevel.LOW,
+        complexity=ComplexityClass.O_1,
+        backend=ComputeBackend.NUMPY,
+        supports_jit=False,
+        supports_vmap=False,
+        supports_grad=False,
+    )
+    metadata: ClassVar[MethodMetadata] = MethodMetadata(description="consume signal")
+
+    @staticmethod
+    def pure_step(state: Any, params: dict[str, Any]) -> float:
+        return float(state) * float(params["factor"])
+
+
+class _BayesianEmitSignal:
+    signature: ClassVar[MethodSignature] = MethodSignature(
+        name="bayesian_emit_signal",
+        namespace="tests.polyglot",
+        version="1.0.0",
+        input_slots=frozenset(),
+        output_slots=frozenset(
+            {
+                SlotSpec(
+                    name="signal",
+                    slot_type=SlotType.SCALAR,
+                    unit=Unit("none", "1"),
+                )
+            }
+        ),
+        parameters=(ParameterSpec(name="delta", default=1.0),),
+        fidelity=FidelityLevel.LOW,
+        complexity=ComplexityClass.O_1,
+        backend=ComputeBackend.BAYESIAN,
+        supports_jit=False,
+        supports_vmap=False,
+        supports_grad=False,
+    )
+    metadata: ClassVar[MethodMetadata] = MethodMetadata(description="bayesian emit signal")
+
+    @staticmethod
+    def pure_step(state: Any, params: dict[str, Any]) -> float:
+        return float(state) + float(params["delta"])
+
+
 def test_adapters_roundtrip_between_jax_and_numpy():
     arr = jnp.array([1.0, 2.0], dtype=jnp.float32)
     as_numpy = adapt_state(
@@ -149,6 +243,21 @@ def test_solver_runner_extracts_status():
     assert result.reproducibility.solver_status.value == "optimal"
 
 
+def test_bayesian_runner_executes():
+    method = _register_method(_BayesianEmitSignal)
+    runner = BayesianRunner()
+    result = runner.execute(
+        method_class=method,
+        signature=method.signature,
+        state=4.0,
+        params={"delta": 3.0},
+        seed=5,
+    )
+    assert result.output == 7.0
+    assert result.slot_outputs["signal"] == 7.0
+    assert result.reproducibility.backend == ComputeBackend.BAYESIAN
+
+
 def test_jax_runner_executes():
     method = _register_method(_JaxIncrement)
     runner = JaxRunner()
@@ -178,3 +287,18 @@ def test_execute_heterogeneous_chain_numpy_to_jax():
     assert result.node_results[0][0] == node_np.id
     assert result.node_results[1][0] == node_jax.id
 
+
+def test_execute_heterogeneous_chain_routes_bound_slot_values():
+    _register_method(_EmitSignal)
+    _register_method(_ConsumeSignal)
+
+    composer = MethodComposer(registry=MethodRegistry.get_instance())
+    producer = composer.add("tests.polyglot.emit_signal@1.0.0", delta=1.0)
+    consumer = composer.add("tests.polyglot.consume_signal@1.0.0", factor=3.0)
+    composer.connect(producer, consumer, {"signal": "signal"})
+    chain = composer.build()
+
+    result = execute_heterogeneous_chain(chain, state=2.0)
+
+    assert result.final_state == 9.0
+    assert result.node_results[0][1].slot_outputs["signal"] == 3.0

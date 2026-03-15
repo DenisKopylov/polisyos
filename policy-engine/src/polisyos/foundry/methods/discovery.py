@@ -17,7 +17,6 @@ import contextlib
 import importlib
 import importlib.metadata
 import inspect
-import logging
 import sys
 import warnings
 from dataclasses import dataclass, field
@@ -25,6 +24,7 @@ from pathlib import Path
 from types import ModuleType
 from typing import Any, Callable, Iterable, Iterator, Protocol, Sequence
 
+from polisyos.common.logger import get_logger
 from polisyos.core.discovery import (
     BaseDiscovery,
     DuplicatePolicy,
@@ -41,7 +41,6 @@ from polisyos.foundry.methods.exceptions import (
     MethodDefinitionError,
 )
 from polisyos.foundry.methods.registry import MethodRegistry
-
 
 __all__ = [
     "DISCOVERY_MODULE_PREFIX",
@@ -68,7 +67,7 @@ ENTRY_POINT_GROUP = "polisyos.methods"
 DISCOVERY_MODULE_PREFIX = "_polisyos_discovery_"
 """Prefix for dynamically imported dev-scan modules."""
 
-_logger = logging.getLogger(__name__)
+_logger = get_logger(__name__)
 
 
 @dataclass(slots=True)
@@ -237,8 +236,8 @@ def _get_method_fqn_safe(cls: type) -> str:
     try:
         if hasattr(cls, "signature") and hasattr(cls.signature, "fqn"):
             return cls.signature.fqn
-    except Exception:
-        pass
+    except Exception as exc:  # noqa: BLE001
+        _logger.debug("Ignored exception: %s", exc)
     return f"{cls.__module__}.{cls.__name__}"
 
 

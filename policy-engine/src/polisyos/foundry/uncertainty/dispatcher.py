@@ -1,19 +1,23 @@
 from __future__ import annotations
 
-import logging
 from typing import Callable, Mapping
 
 import jax
 import jax.numpy as jnp
 
-from polisyos.ir.analytics.uncertainty import DistributionFamily, PropagationMethod, UncertaintyEnvelope
+from polisyos.common.logger import get_logger
+from polisyos.ir.analytics.uncertainty import (
+    DistributionFamily,
+    PropagationMethod,
+    UncertaintyEnvelope,
+)
 
 from .config import PropagationConfig
 from .delta import DeltaMethodPropagator
 from .monte_carlo import MonteCarloPropagator
 from .protocol import PropagationResult
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 class PropagationDispatcher:

@@ -6,8 +6,11 @@ from typing import Any, Iterable, Mapping
 
 import pandas as pd
 
+from polisyos.common.logger import get_logger
 from polisyos.fabric.connectors.resilience.rate_limiter import parse_retry_after_header
 from polisyos.ir.connectors import DataVersion, VersionStrategy
+
+logger = get_logger(__name__)
 
 FRESHNESS_SOURCE_TIMESTAMP_MISSING = "freshness:source_timestamp_missing"
 
@@ -42,7 +45,10 @@ def parse_http_datetime(value: str | None) -> datetime | None:
         return None
     try:
         parsed = parsedate_to_datetime(value)
-    except Exception:
+    except (TypeError, ValueError):
+        logger.debug(
+            "Failed to parse HTTP datetime value %r", value, exc_info=True,
+        )
         return None
     if parsed.tzinfo is None:
         parsed = parsed.replace(tzinfo=timezone.utc)

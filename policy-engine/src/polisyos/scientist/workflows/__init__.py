@@ -7,8 +7,10 @@ if TYPE_CHECKING:
         build_default_registry,
         build_execution_context,
         build_registry_with_builtin_nodes,
+        resolve_workflow_id,
         run_causal_full_workflow,
         run_default_workflow,
+        run_selected_workflow,
     )
     from polisyos.scientist.workflows.causal_full import causal_full_workflow_spec
     from polisyos.scientist.workflows.default import default_workflow_spec
@@ -28,8 +30,10 @@ __all__ = [
     "build_default_registry",
     "build_execution_context",
     "build_registry_with_builtin_nodes",
+    "resolve_workflow_id",
     "run_default_workflow",
     "run_causal_full_workflow",
+    "run_selected_workflow",
     "default_workflow_spec",
     "causal_full_workflow_spec",
 ]
@@ -40,23 +44,29 @@ def __getattr__(name: str):
         "build_default_registry",
         "build_execution_context",
         "build_registry_with_builtin_nodes",
+        "resolve_workflow_id",
         "run_causal_full_workflow",
         "run_default_workflow",
+        "run_selected_workflow",
     }:
         from polisyos.scientist.workflows.builder import (
             build_default_registry,
             build_execution_context,
             build_registry_with_builtin_nodes,
+            resolve_workflow_id,
             run_causal_full_workflow,
             run_default_workflow,
+            run_selected_workflow,
         )
 
         return {
             "build_default_registry": build_default_registry,
             "build_execution_context": build_execution_context,
             "build_registry_with_builtin_nodes": build_registry_with_builtin_nodes,
+            "resolve_workflow_id": resolve_workflow_id,
             "run_causal_full_workflow": run_causal_full_workflow,
             "run_default_workflow": run_default_workflow,
+            "run_selected_workflow": run_selected_workflow,
         }[name]
     if name in {"default_workflow_spec", "causal_full_workflow_spec"}:
         from polisyos.scientist.workflows.causal_full import causal_full_workflow_spec

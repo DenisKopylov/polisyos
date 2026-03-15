@@ -1,11 +1,12 @@
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from enum import Enum
 import random
 import re
+from dataclasses import dataclass, field
+from enum import Enum
 from typing import Any
 
+from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.environment import (
     EnvironmentDiff,
     EnvironmentManifest,
@@ -22,7 +23,6 @@ from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.contracts.foundry import ExecPlan, Metrics, SimulationResult
 
-
 _SHA256_HEX_RE = re.compile(r"^[0-9a-f]{64}$")
 _SHA256_PREF_RE = re.compile(r"^sha256:[0-9a-f]{64}$")
 
@@ -34,6 +34,7 @@ _STATE_SOURCE_ROLES = frozenset(
         "artifact.state_snapshot_ref",
     }
 )
+logger = get_logger(__name__)
 
 
 class ReplayStrategy(str, Enum):
@@ -131,8 +132,8 @@ def set_global_seeds(seed: int) -> None:
         import numpy as np
 
         np.random.seed(seed)
-    except Exception:
-        pass
+    except ImportError as exc:
+        logger.debug("Failed to initialize numpy random seed: %s", exc)
 
 
 def normalize_artifact_id(value: str) -> ArtifactID:
@@ -201,8 +202,8 @@ def resolve_effective_seed(
                 plan = ExecPlan.model_validate(plan_payload)
                 if isinstance(plan.random_seed, int):
                     return SeedResolution(value=plan.random_seed, source="exec_plan.random_seed")
-            except Exception:
-                pass
+            except (OSError, TypeError, ValueError, RuntimeError) as exc:
+                logger.debug("Failed to resolve effective seed from exec plan: %s", exc)
 
     return SeedResolution(value=default, source="default")
 
@@ -220,7 +221,8 @@ def compare_current_environment(
         original_env = EnvironmentManifest.model_validate(original_payload)
         current_env = capture_environment(include_git=False, include_dependencies=True)
         return compare_environments(original_env, current_env)
-    except Exception:
+    except (OSError, TypeError, ValueError, RuntimeError) as exc:
+        logger.debug("Failed to compare environments: %s", exc)
         return []
 
 
@@ -250,7 +252,8 @@ def completeness_check(
     reasons: list[str] = []
     try:
         packet_payload = payload or _load_packet_payload(store, packet_ref)
-    except Exception:
+    except (FileNotFoundError, OSError, TypeError, ValueError, RuntimeError) as exc:
+        logger.debug("Failed to load replay packet payload: %s", exc)
         return CompletenessReport(
             level=CompletenessLevel.INCOMPLETE,
             strategy=ReplayStrategy.NONE,
@@ -472,6 +475,7 @@ def _critical_roles(strategy: ReplayStrategy) -> frozenset[str]:
         return frozenset(
             {
                 "artifact.exec_plan_ref",
+                "artifact.lowered_ir_ref",
                 "input.registry_bundle_ref",
                 "input.input_bindings_ref",
             }
@@ -532,6 +536,7 @@ def _missing_required_roles(
     if strategy == ReplayStrategy.FOUNDRY:
         for required in (
             "artifact.exec_plan_ref",
+            "artifact.lowered_ir_ref",
             "input.registry_bundle_ref",
             "input.input_bindings_ref",
         ):

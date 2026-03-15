@@ -4,8 +4,12 @@ from __future__ import annotations
 
 import asyncio
 import json
+import zipfile
+from io import BytesIO
 from pathlib import Path
 from typing import Any
+
+import pandas as pd
 
 from polisyos.fabric.connectors.base import ConnectionConfig, FetchRequest
 from polisyos.fabric.connectors.sources.ckan_catalog import CKANCatalogConnector
@@ -154,8 +158,41 @@ class TestCKANResourceParsing:
 
     def test_parse_unknown_format_fallback_csv(self):
         raw = b"col1,col2\na,b\n"
-        df = CKANResourceConnector._parse_resource(raw, "xls")
+        df = CKANResourceConnector._parse_resource(raw, "bin")
         assert len(df) == 1
+
+    def test_parse_xlsx_uses_excel_reader(self, monkeypatch):
+        called: dict[str, object] = {}
+
+        def _fake_read_excel(*args, **kwargs):
+            called["engine"] = kwargs.get("engine")
+            return {"Sheet1": pd.DataFrame([{"name": "foo", "value": 1}])}
+
+        monkeypatch.setattr(pd, "read_excel", _fake_read_excel)
+
+        df = CKANResourceConnector._parse_resource(b"fake-xlsx", "xlsx")
+        assert len(df) == 1
+        assert "__sheet_name" in df.columns
+
+    def test_parse_ods_uses_excel_reader(self, monkeypatch):
+        def _fake_read_excel(*args, **kwargs):
+            return {"Data": pd.DataFrame([{"name": "bar"}])}
+
+        monkeypatch.setattr(pd, "read_excel", _fake_read_excel)
+
+        df = CKANResourceConnector._parse_resource(b"fake-ods", "ods")
+        assert len(df) == 1
+        assert df.iloc[0]["__sheet_name"] == "Data"
+
+    def test_parse_zip_csv(self):
+        buffer = BytesIO()
+        with zipfile.ZipFile(buffer, "w") as archive:
+            archive.writestr("table.csv", "name,value\nfoo,1\nbar,2\n")
+
+        df = CKANResourceConnector._parse_resource(buffer.getvalue(), "zip")
+        assert len(df) == 2
+        assert "__source_file" in df.columns
+        assert set(df["name"].tolist()) == {"foo", "bar"}
 
 
 class TestCKANResourceResolve:
@@ -174,6 +211,22 @@ class TestCKANResourceResolve:
         url, fmt = _run_async(_exercise())
         assert url == "https://example.test/data.csv"
         assert fmt == "csv"
+
+    def test_resolve_direct_url_xlsx(self):
+        connector = CKANResourceConnector()
+
+        async def _exercise():
+            handle = await connector.connect(_ckan_config())
+            url, fmt = await connector._resolve_resource(
+                handle, "https://data.example.test",
+                "https://example.test/data.xlsx",
+            )
+            await connector.disconnect(handle)
+            return url, fmt
+
+        url, fmt = _run_async(_exercise())
+        assert url == "https://example.test/data.xlsx"
+        assert fmt == "xlsx"
 
     def test_resolve_package_resource(self, monkeypatch):
         connector = CKANResourceConnector()

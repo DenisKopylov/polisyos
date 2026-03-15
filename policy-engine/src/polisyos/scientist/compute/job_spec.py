@@ -3,13 +3,15 @@ from __future__ import annotations
 import json
 from typing import Any
 
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.canon import content_hash
 
 
 class JobSpec(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     job_kind: str = "legacy_program"
     program_ref: ArtifactRef | None = None
     exec_plan_ref: ArtifactRef | None = None
@@ -39,6 +41,8 @@ class JobSpec(BaseModel):
 
 
 class JobKey(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     value: str
 
     @staticmethod
@@ -54,6 +58,8 @@ class JobKey(BaseModel):
 
 
 class JobResult(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     job_key: JobKey
     state_delta_ref: ArtifactRef | None = None
     metrics_ref: ArtifactRef | None = None

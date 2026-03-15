@@ -4,12 +4,12 @@ serving as the "receipt" for CAS-backed provenance (Law J).
 """
 from __future__ import annotations
 
-import logging
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any, ClassVar, Sequence
 from uuid import UUID, uuid4
 
+from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import (
     ArtifactManifest,
@@ -20,6 +20,8 @@ from polisyos.core.artifacts.manifest import (
 )
 from polisyos.core.canon import (
     content_hash as compute_content_hash,
+)
+from polisyos.core.canon import (
     to_canonical_bytes,
 )
 
@@ -35,7 +37,7 @@ __all__ = [
     "ExecutionEvidence",
 ]
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 def _to_artifact_id(value: str | ArtifactID) -> ArtifactID:

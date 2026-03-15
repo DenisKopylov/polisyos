@@ -6,10 +6,17 @@ from typing import Any, Literal
 from pydantic import BaseModel, ConfigDict, Field
 
 from ..artifacts.manifest import ArtifactRef, InputRef
+from .decision_validity import DecisionValidityStatus
 from .execution_plan import (
     EvaluatorVerdict,
     IterationLifecycleState,
     StopReason,
+)
+from .feedback import (
+    DecisionCompareReport,
+    DecisionMonitoringContract,
+    DecisionMonitoringReport,
+    DecisionReissuePlan,
 )
 
 SourceKind = Literal["core_run"]
@@ -84,6 +91,8 @@ class RunRecordV1(BaseModel):
     duration_ms: int | None = Field(default=None, ge=0)
     tenant_id: str | None = None
     cell_id: str | None = None
+    execution_profile: str | None = None
+    control_job_id: str | None = None
     has_trace: bool = False
 
 
@@ -91,15 +100,24 @@ class RunSummary(RunRecordV1):
     root_artifact_count: int = Field(default=0, ge=0)
     has_workflow_report: bool = False
     warnings: list[str] = Field(default_factory=list)
+    decision_validity_status: DecisionValidityStatus | None = None
+    decision_validity_checked_at: datetime | None = None
+    decision_review_required: bool = False
+    decision_superseded_by_ref: ArtifactRef | None = None
 
 
 class RunDetails(RunRecordV1):
     manifest_ref: ArtifactRef | None = None
     trace_ref: ArtifactRef | None = None
+    capability_manifest_ref: ArtifactRef | None = None
     root_artifacts: list[ArtifactRef] = Field(default_factory=list)
     has_workflow_report: bool = False
     workflow_report_ref: ArtifactRef | None = None
     warnings: list[str] = Field(default_factory=list)
+    decision_validity_status: DecisionValidityStatus | None = None
+    decision_validity_checked_at: datetime | None = None
+    decision_review_required: bool = False
+    decision_superseded_by_ref: ArtifactRef | None = None
 
 
 class RunTimelineEvent(BaseModel):
@@ -188,6 +206,9 @@ class GovernanceDebugView(BaseModel):
     transport_summary: dict[str, Any] | None = None
     validation_trace: dict[str, Any] | None = None
     contract_warnings: list[str] = Field(default_factory=list)
+    decision_validity: dict[str, Any] | None = None
+    normative_summary: dict[str, Any] | None = None
+    normative_arbitration_result_ref: ArtifactRef | None = None
     fallback_from_decision_packet: bool = False
 
 
@@ -546,6 +567,29 @@ class ArtifactSchemaView(BaseModel):
     top_level_keys: list[str] = Field(default_factory=list)
 
 
+class RunFeedbackView(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    run_id: str
+    source_kind: SourceKind
+    decision_packet_ref: ArtifactRef | None = None
+    feedback_loop: dict[str, Any] | None = None
+    monitoring_contract: DecisionMonitoringContract | None = None
+    monitoring_report: DecisionMonitoringReport | None = None
+    compare_report: DecisionCompareReport | None = None
+    reissue_plan: DecisionReissuePlan | None = None
+    decision_validity: dict[str, Any] | None = None
+    notes: list[str] = Field(default_factory=list)
+
+
+class RunCompareView(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    left_run_id: str
+    right_run_id: str
+    report: DecisionCompareReport
+
+
 class RunsListResponse(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -656,6 +700,34 @@ class ArtifactSchemaResponse(BaseModel):
     schema_view: ArtifactSchemaView = Field(alias="schema")
 
 
+class RunFeedbackResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    meta: ApiMeta
+    feedback: RunFeedbackView
+
+
+class RunCompareResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    meta: ApiMeta
+    compare: RunCompareView
+
+
+class FeedbackActionResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    meta: ApiMeta
+    run_id: str
+    action: Literal["evaluate_feedback", "reissue"]
+    status: Literal["completed", "accepted"] = "completed"
+    monitoring_report_ref: ArtifactRef | None = None
+    compare_report_ref: ArtifactRef | None = None
+    reissue_plan_ref: ArtifactRef | None = None
+    reissued_run_id: str | None = None
+    message: str
+
+
 __all__ = [
     "AgentPipelineAttempt",
     "AgentPipelineResponse",
@@ -674,6 +746,11 @@ __all__ = [
     "ArtifactSchemaResponse",
     "ArtifactSchemaView",
     "CursorPage",
+    "DecisionCompareReport",
+    "DecisionMonitoringContract",
+    "DecisionMonitoringReport",
+    "DecisionReissuePlan",
+    "FeedbackActionResponse",
     "GovernanceDebugResponse",
     "GovernanceDebugView",
     "NodeDebugResponse",
@@ -697,11 +774,15 @@ __all__ = [
     "RunDetailsResponse",
     "RunErrorView",
     "RunErrorsResponse",
+    "RunFeedbackResponse",
+    "RunFeedbackView",
     "RunLineageResponse",
     "RunNodeRecord",
     "RunNodesResponse",
     "RunRecordV1",
     "RunSummary",
+    "RunCompareResponse",
+    "RunCompareView",
     "RunTimelineEvent",
     "RunTimelineResponse",
     "RunTimelineSummary",

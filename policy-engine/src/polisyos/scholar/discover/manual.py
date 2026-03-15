@@ -5,7 +5,6 @@ from urllib.parse import parse_qsl, urlencode, urlparse, urlunparse
 
 from polisyos.core.canon import content_hash
 from polisyos.core.contracts.scholar import SourceSpec
-
 from polisyos.scholar.errors import ScholarDiscoverError, ScholarValidationError
 
 

@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass
 from decimal import Decimal, InvalidOperation
 from io import BytesIO
-import math
 from types import SimpleNamespace
 from typing import Any, Protocol, runtime_checkable
 
@@ -16,8 +16,14 @@ from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.contracts.fabric import DataSnapshot
 from polisyos.core.contracts.foundry import StateSnapshot
+from polisyos.ir.governance.selector_expr import (
+    SelectorAll,
+    SelectorAny,
+    SelectorExpr,
+    SelectorNot,
+    SelectorPredicate,
+)
 from polisyos.ir.kernel import SelectorFieldRegistry
-from polisyos.ir.governance.selector_expr import SelectorAll, SelectorAny, SelectorExpr, SelectorNot, SelectorPredicate
 from polisyos.ir.types import SelectorOperator
 
 

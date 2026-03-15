@@ -2,9 +2,13 @@ from __future__ import annotations
 
 from typing import List
 
-from polisyos.scientist.kernel.budgets import ComputeBudget, EvidenceBudget, ComplexityBudget
-
-from polisyos.core.governance.passes.base import ValidatorPass, PassContext, ComplianceIssue, IssueSeverity
+from polisyos.core.governance.passes.base import (
+    ComplianceIssue,
+    IssueSeverity,
+    PassContext,
+    ValidatorPass,
+)
+from polisyos.scientist.kernel.budgets import ComplexityBudget, ComputeBudget, EvidenceBudget
 
 
 class BudgetPass(ValidatorPass):

@@ -27,6 +27,15 @@ Rules:
 - Every item in "empirical_parameters" must be an object, never a bare string.
 - Use "name", not "parameter" or "variable".
 - If no numeric estimate is available, set "value" to null and put the textual statement in "value_qualitative".
+- Only extract causal effect estimates or directly usable quantitative parameters.
+- Never use p-values, significance stars, test statistics, sample sizes, or confidence levels as "value".
+- If the estimate is unitless, still set "unit" explicitly. Prefer one of:
+  "unitless", "elasticity", "semi_elasticity", "odds_ratio", "risk_ratio",
+  "hazard_ratio", "correlation_coefficient", "standardized_effect",
+  "index_points", "percentage_points".
+- If the paper reports a coefficient/effect size but the scale is unclear, prefer
+  a conservative explicit unit like "unitless" over null only when the paper
+  clearly presents it as an effect estimate rather than a significance metric.
 - "sample_size" must be an integer or null.
 - "extraction_confidence" must be a numeric value in [0,1], never words like high/medium/low.
 """.strip()

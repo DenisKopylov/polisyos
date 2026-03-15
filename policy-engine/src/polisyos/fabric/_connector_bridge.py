@@ -48,8 +48,8 @@ def fabric_get_data(
         The canonical result envelope.
     """
     # --- Local imports to maintain Law A at the module graph level ---
-    from polisyos.ir.connectors import FetchRequest, FetchResult
     from polisyos.fabric.connectors.registry import ConnectorRegistry
+    from polisyos.ir.connectors import FetchRequest, FetchResult
 
     constraints = constraints or {}
     registry = ConnectorRegistry.get_instance()

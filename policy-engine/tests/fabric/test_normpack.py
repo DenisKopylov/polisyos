@@ -5,9 +5,12 @@ from datetime import datetime, timezone
 from decimal import Decimal
 from pathlib import Path
 
+import duckdb
+
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.fabric.io.db import SimulationDB
+from polisyos.fabric.claims.persist import load_json_artifact
 from polisyos.fabric.world.materialize import materialize_world_duckdb_from_fact_log
 from polisyos.ir.citations import CitationRef, DocumentRef
 from polisyos.ir.norm_pack import NormPack
@@ -18,6 +21,7 @@ from polisyos.lex.api import (
     build_version_index,
     ingest_legal_doc_bytes,
 )
+from polisyos.lex.batch.claim_bridge import export_normative_claim_sets
 from polisyos.lex.normpack.assemble_pack import claims_to_norm_rules
 from polisyos.lex.types import LegalDocSource, NormPackBuildRequest
 
@@ -74,6 +78,138 @@ def _claim(
 def _load_norm_pack(cas: FileSystemCAS, artifact_id: str) -> NormPack:
     payload = json.loads(cas.get_bytes(ArtifactID.model_validate(artifact_id)))
     return NormPack.model_validate(payload)
+
+
+def _seed_bridge_db(db_path: Path) -> None:
+    with duckdb.connect(str(db_path)) as con:
+        con.execute(
+            """
+            CREATE TABLE lex_normative_facts (
+                fact_id VARCHAR,
+                doc_id VARCHAR,
+                doc_name VARCHAR,
+                doc_reestr_code VARCHAR,
+                doc_type VARCHAR,
+                doc_status VARCHAR,
+                jurisdiction VARCHAR,
+                top_domain VARCHAR,
+                effective_from VARCHAR,
+                effective_to VARCHAR,
+                provision_anchor VARCHAR,
+                provision_citation VARCHAR,
+                subject_en VARCHAR,
+                subject_uk VARCHAR,
+                object_en VARCHAR,
+                object_uk VARCHAR,
+                predicate VARCHAR,
+                action_canon VARCHAR,
+                norm_type_canon VARCHAR,
+                constraint_type_canon VARCHAR,
+                fact_text VARCHAR,
+                confidence DOUBLE,
+                thresholds_json VARCHAR,
+                source_quote_uk VARCHAR,
+                source_quote_start INTEGER,
+                source_quote_end INTEGER
+            )
+            """
+        )
+        con.execute(
+            """
+            CREATE TABLE lex_provisions (
+                doc_id VARCHAR,
+                anchor_path VARCHAR,
+                kind VARCHAR,
+                struct_kind VARCHAR,
+                section_role VARCHAR,
+                provision_text VARCHAR
+            )
+            """
+        )
+        con.executemany(
+            """
+            INSERT INTO lex_normative_facts VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            [
+                (
+                    "fact.speed_50",
+                    "law-a",
+                    "Road Law A",
+                    "0001",
+                    "Закон",
+                    "active",
+                    "UA",
+                    "roads",
+                    "2025-01-01",
+                    None,
+                    "article:1",
+                    "стаття 1",
+                    "road_user",
+                    "користувач дороги",
+                    "50 km",
+                    "50 км",
+                    "requires",
+                    "speed_limit",
+                    "obligation",
+                    "speed_limit",
+                    "Максимальна швидкість не повинна перевищувати 50 км.",
+                    0.91,
+                    '[{"metric":"max_speed_kmh","operator":"<=","value_decimal":"50","unit":"km"}]',
+                    "Максимальна швидкість не повинна перевищувати 50 км.",
+                    0,
+                    51,
+                ),
+                (
+                    "fact.speed_60",
+                    "law-b",
+                    "Road Law B",
+                    "0002",
+                    "Закон",
+                    "active",
+                    "UA",
+                    "roads",
+                    "2025-01-01",
+                    None,
+                    "article:1",
+                    "стаття 1",
+                    "road_user",
+                    "користувач дороги",
+                    "60 km",
+                    "60 км",
+                    "requires",
+                    "speed_limit",
+                    "obligation",
+                    "speed_limit",
+                    "Максимальна швидкість не повинна перевищувати 60 км.",
+                    0.89,
+                    '[{"metric":"max_speed_kmh","operator":"<=","value_decimal":"60","unit":"km"}]',
+                    "Максимальна швидкість не повинна перевищувати 60 км.",
+                    0,
+                    51,
+                ),
+            ],
+        )
+        con.executemany(
+            "INSERT INTO lex_provisions VALUES (?, ?, ?, ?, ?, ?)",
+            [
+                (
+                    "law-a",
+                    "article:1",
+                    "article",
+                    "article",
+                    "normative_unit",
+                    "Максимальна швидкість не повинна перевищувати 50 км.",
+                ),
+                (
+                    "law-b",
+                    "article:1",
+                    "article",
+                    "article",
+                    "normative_unit",
+                    "Максимальна швидкість не повинна перевищувати 60 км.",
+                ),
+            ],
+        )
 
 
 def test_claim_to_norm_rule_mapping_is_deterministic() -> None:
@@ -286,3 +422,49 @@ norm: roads.max_speed_kmh <= 60 [km]
         ).fetchall()
     )
     assert winners_before == winners_after
+
+
+def test_normpack_can_build_from_exported_claim_sets(tmp_path: Path) -> None:
+    cas = FileSystemCAS(tmp_path / "cas")
+    db_path = tmp_path / "lex.duckdb"
+    _seed_bridge_db(db_path)
+
+    bridge_result = export_normative_claim_sets(
+        db_path=db_path,
+        cas_root=cas.root,
+        fact_log_root=tmp_path,
+        output_dir=tmp_path / "claim_exports",
+    )
+
+    request = NormPackBuildRequest(
+        jurisdiction="ua",
+        as_of="2025-06-01",
+        domain="roads",
+        claim_set_artifact_ids=bridge_result.normalized_claim_set_artifact_ids,
+    )
+
+    result = assemble_norm_pack(
+        cas=cas,
+        fact_log_root=tmp_path,
+        request=request,
+        db=None,
+    )
+
+    assert result.claim_set_artifact_ids == bridge_result.normalized_claim_set_artifact_ids
+    assert len(result.selected_doc_versions) == 2
+    assert result.selected_fragment_ids
+    assert result.conflict_set_ids
+
+    norm_pack = _load_norm_pack(cas, result.norm_pack_artifact_id)
+    assert norm_pack.norms
+    assert any(rule.backend_metadata["operator"] == "<=" for rule in norm_pack.norms)
+
+    claim_set_payload = load_json_artifact(cas, result.claim_set_artifact_ids[0])
+    assert claim_set_payload["claims"]
+
+    sim_db = SimulationDB(db_path=str(tmp_path / "sim.duckdb"))
+    materialize_world_duckdb_from_fact_log(tmp_path, sim_db, cas)
+    assemble_events = sim_db.conn.execute(
+        "SELECT COUNT(*) FROM world.world_events WHERE event_kind = 'assemble_norm_pack'"
+    ).fetchone()[0]
+    assert assemble_events >= 1

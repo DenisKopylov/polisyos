@@ -1,6 +1,11 @@
 """Public facade -- re-exports from decomposed sub-modules."""
 from __future__ import annotations
 
+# Program-graph orchestrator
+from ._executor_graph import (  # noqa: F401
+    execute_program_graph,
+)
+
 # Models & low-level helpers
 from ._executor_models import (  # noqa: F401
     ApplyArtifacts,
@@ -28,23 +33,18 @@ from ._executor_ops import (  # noqa: F401
     validate_ops_compatibility,
 )
 
-# State snapshot persistence
-from ._executor_snapshots import (  # noqa: F401
-    load_state_snapshot,
-    put_state_snapshot,
-)
-
-# Program-graph orchestrator
-from ._executor_graph import (  # noqa: F401
-    execute_program_graph,
-)
-
 # State-delta application & patching
 from ._executor_patching import (  # noqa: F401
     apply_patch_map,
     apply_patch_records,
     apply_state_delta,
     apply_state_delta_and_snapshot,
+)
+
+# State snapshot persistence
+from ._executor_snapshots import (  # noqa: F401
+    load_state_snapshot,
+    put_state_snapshot,
 )
 
 __all__ = [

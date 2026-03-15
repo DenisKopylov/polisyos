@@ -5,9 +5,12 @@ import tempfile
 from pathlib import Path
 from typing import Callable, Literal
 
+from polisyos.common.logger import get_logger
 from polisyos.fabric.io.db import SimulationDB
 
 from .errors import WorldKuzuNotAvailable, WorldMaterializationError, WorldSchemaError
+
+logger = get_logger(__name__)
 
 
 _DEFAULT_DDL_PATH = Path(__file__).resolve().parents[1] / "ddl" / "kuzu_world.cypher"
@@ -104,6 +107,7 @@ def materialize_world_kuzu_from_duckdb(
 def _import_kuzu():
     try:
         import kuzu
+
     except Exception as exc:
         raise WorldKuzuNotAvailable("kuzu not available") from exc
     return kuzu
@@ -146,8 +150,8 @@ def _remove_tmp_files(paths: list[Path]) -> None:
         try:
             if path.exists():
                 path.unlink()
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.debug("Ignored exception: %s", exc)
 
 
 def _export_world_nodes(db: SimulationDB, output_path: Path) -> None:

@@ -7,7 +7,6 @@ import jax
 from polisyos.foundry.contracts.fidelity import FidelityLevel
 from polisyos.foundry.contracts.state import GlobalState
 
-
 PatchRecord = dict[str, Any]
 PatchMap = dict[str, list[PatchRecord]]
 

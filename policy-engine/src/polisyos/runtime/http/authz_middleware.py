@@ -1,10 +1,10 @@
 """Authorization middleware with delegation verification and OPA policy checks."""
 from __future__ import annotations
 
-import logging
 import os
 from typing import Any, Callable
 
+from polisyos.common.logger import get_logger
 from polisyos.core.security.access_scope import AccessScope
 from polisyos.core.security.authz import AuthzInput, OPAClient
 from polisyos.core.security.delegation import DelegationTokenManager
@@ -15,7 +15,7 @@ from polisyos.core.security.tenant_context import (
 )
 from polisyos.runtime.http.errors import problem_response
 
-logger = logging.getLogger("polisyos.security.authz")
+logger = get_logger("polisyos.security.authz")
 
 
 try:  # pragma: no cover - optional runtime dependency
@@ -111,7 +111,7 @@ class AuthzMiddleware(BaseHTTPMiddleware):  # type: ignore[misc]
                     expected_audience=self._service_spiffe_id,
                     trusted_issuers=self._trusted_delegators or frozenset({peer_spiffe_id}),
                 )
-            except Exception as exc:
+            except (AttributeError, KeyError, RuntimeError, TypeError, ValueError) as exc:
                 deny = self._deny_or_shadow(
                     request,
                     reason="invalid_delegation",

@@ -4,6 +4,7 @@ from typing import Any, ClassVar, Mapping
 
 import numpy as np
 
+from polisyos.common.logger import get_logger
 from polisyos.core.observability.determinism import DeterminismTier
 from polisyos.foundry.methods.base import (
     ComplexityClass,
@@ -29,6 +30,8 @@ from polisyos.foundry.methods.catalog.causal._econml_adapter import (
 from polisyos.foundry.methods.catalog.causal.protocols import HTEObservationalData
 from polisyos.ir.analytics.causal import CausalMethod, EstimationStatus
 from polisyos.ir.analytics.hte import PolicyRecommendation, TargetingRule
+
+logger = get_logger(__name__)
 
 
 def _extract_policy_tree_rules(
@@ -65,7 +68,10 @@ def _extract_policy_tree_rules(
     values = tree.value
     try:
         leaf_ids = np.asarray(policy_tree.apply(x), dtype=int).ravel()
-    except Exception:
+    except Exception as exc:
+        logger.debug(
+            "PolicyTree.apply failed, using fallback leaf_ids: %s", exc,
+        )
         leaf_ids = np.full(shape=(x.shape[0],), fill_value=-1, dtype=int)
 
     rules: list[TargetingRule] = []
@@ -190,6 +196,7 @@ class OptimalPolicyLearner:
             require_econml()
             from econml.dml import CausalForestDML
             from econml.policy import PolicyTree
+
         except Exception as exc:
             report = build_failure_report(
                 method=CausalMethod.POLICY_TREE,

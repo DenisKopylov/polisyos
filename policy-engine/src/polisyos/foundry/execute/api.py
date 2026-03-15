@@ -12,6 +12,7 @@ from polisyos.core.contracts.foundry import (
     ExecuteResult,
     FoundryInputBindingsRef,
     MetricsRef,
+    ParameterOverrideBundle,
     SimulationResult,
     SimulationResultRef,
     StateSnapshotRef,
@@ -44,6 +45,25 @@ def execute(store: FileSystemCAS, request: ExecuteRequest) -> ExecuteResult:
     base_state = load_state_snapshot(store, snapshot_ref=state_snapshot_ref)
 
     exec_plan = _load_model(store, request.exec_plan_ref, ExecPlan)
+    parameter_overrides: dict[str, dict[str, object]] | None = None
+    parameter_override_inputs: list[InputRef] = []
+    if request.parameter_override_bundle_ref is not None:
+        bundle = _load_model(
+            store,
+            request.parameter_override_bundle_ref,
+            ParameterOverrideBundle,
+        )
+        parameter_overrides = {
+            str(node_id): dict(values)
+            for node_id, values in bundle.overrides.items()
+            if isinstance(values, dict)
+        }
+        parameter_override_inputs.append(
+            InputRef(
+                artifact_id=request.parameter_override_bundle_ref.artifact_id,
+                role="parameter_override_bundle",
+            )
+        )
     try:
         exec_artifacts = execute_program_graph(
             store,
@@ -59,6 +79,8 @@ def execute(store: FileSystemCAS, request: ExecuteRequest) -> ExecuteResult:
             seed=request.exec_config.seed,
             base_ref=state_snapshot_ref,
             capture_env=request.exec_config.capture_env,
+            parameter_overrides=parameter_overrides,
+            parameter_override_bundle_ref=request.parameter_override_bundle_ref,
         )
     except MissingRuntimeMechanismSupportError as exc:
         return ExecuteResult(
@@ -69,6 +91,27 @@ def execute(store: FileSystemCAS, request: ExecuteRequest) -> ExecuteResult:
                 f"missing_runtime_mechanism_support:{exc.mech_type}",
                 str(exc),
             ],
+        )
+
+    derived_refs = [
+        DerivedArtifact(role="metrics", ref=exec_artifacts.metrics_ref),
+        DerivedArtifact(role="state_delta", ref=exec_artifacts.state_delta_ref),
+    ]
+    if exec_artifacts.constraint_report_ref is not None:
+        derived_refs.append(
+            DerivedArtifact(role="constraint_report", ref=exec_artifacts.constraint_report_ref)
+        )
+    if exec_artifacts.environment_ref is not None:
+        derived_refs.append(
+            DerivedArtifact(role="environment_manifest", ref=exec_artifacts.environment_ref)
+        )
+
+    if exec_artifacts.constraint_hard_fail:
+        return ExecuteResult(
+            ok=False,
+            simulation_result_ref=None,
+            derived_refs=derived_refs,
+            notes=[*resolved_state.notes, "hard_constraint_violation"],
         )
 
     _, applied = apply_state_delta_and_snapshot(
@@ -95,6 +138,7 @@ def execute(store: FileSystemCAS, request: ExecuteRequest) -> ExecuteResult:
         InputRef(artifact_id=applied.state_snapshot_ref.artifact_id, role="state_snapshot"),
     ]
     sim_inputs.extend(resolved_state.input_refs)
+    sim_inputs.extend(parameter_override_inputs)
     sim_result_ref = store.put_json(
         sim_result,
         PutOptions(
@@ -104,19 +148,6 @@ def execute(store: FileSystemCAS, request: ExecuteRequest) -> ExecuteResult:
             inputs=sim_inputs,
         ),
     )
-
-    derived_refs = [
-        DerivedArtifact(role="metrics", ref=exec_artifacts.metrics_ref),
-        DerivedArtifact(role="state_delta", ref=exec_artifacts.state_delta_ref),
-    ]
-    if exec_artifacts.constraint_report_ref is not None:
-        derived_refs.append(
-            DerivedArtifact(role="constraint_report", ref=exec_artifacts.constraint_report_ref)
-        )
-    if exec_artifacts.environment_ref is not None:
-        derived_refs.append(
-            DerivedArtifact(role="environment_manifest", ref=exec_artifacts.environment_ref)
-        )
 
     return ExecuteResult(
         ok=True,

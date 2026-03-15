@@ -13,7 +13,7 @@ from polisyos.core.components import (
     DuplicateComponentIdPolicy,
     discover_components,
 )
-from polisyos.core.components.bootstrap import build_components_index, bootstrap_plugin_registries
+from polisyos.core.components.bootstrap import bootstrap_plugin_registries, build_components_index
 from polisyos.core.registry import build_registry_bundle_from_components
 from polisyos.core.registry.builder_from_fragments import FragmentPrecedencePolicy
 

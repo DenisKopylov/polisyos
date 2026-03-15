@@ -141,6 +141,39 @@ def test_run_transportability_node_graceful_skip_without_source_context(tmp_path
     assert "transportability_warning" in outcome.state.params
 
 
+@pytest.mark.parametrize("execution_profile", ["research", "governed", "production"])
+def test_run_transportability_rejects_degraded_transport_outside_dev(
+    tmp_path,
+    execution_profile: str,
+) -> None:
+    ctx = _build_ctx(tmp_path, run_id=f"R_transport_strict_{execution_profile}")
+    report_ref = persist_causal_effect_report(ctx.store, _base_report())
+    graph_ref = persist_causal_graph_model(ctx.store, _mediator_graph())
+    profile = {"context_id": "DE", "income_level": "high", "institutional_quality": 0.8}
+    state = ExperimentState(
+        run_id=f"R_transport_strict_{execution_profile}",
+        artifacts_index={
+            ARTIFACT_CAUSAL_REPORT_REF: report_ref,
+            ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF: graph_ref,
+        },
+        params={
+            "source_context": profile,
+            "target_context": profile,
+            "query_treatment": "tax_rate",
+            "query_outcome": "gdp_growth",
+            "allow_degraded_transport": True,
+        },
+        execution_profile=execution_profile,
+    )
+
+    outcome = RunTransportabilityNode().execute(ctx, state)
+
+    assert outcome.status == "fail"
+    assert outcome.error is not None
+    assert outcome.error.code == "node.invalid_state"
+    assert "forbidden outside the dev execution profile" in outcome.error.message
+
+
 def test_resolution_loop_hard_legal_constraint_sets_infeasible(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -258,8 +291,9 @@ def test_resolution_loop_data_gap_and_convergence(
 
     assert result.feasible is True
     assert result.resolution_rounds <= 3
-    assert result.data_gaps
-    assert result.data_gaps[0].available_proxies
+    assert result.status is TransportabilityStatus.BOUNDED_NON_IDENTIFIED
+    assert result.partial_identification_result is not None
+    assert "Exact transport identification unavailable; emitted Manski bounds fallback." in result.warnings
 
 
 def test_run_transportability_node_updates_causal_report(tmp_path) -> None:
@@ -289,7 +323,7 @@ def test_run_transportability_node_updates_causal_report(tmp_path) -> None:
     updated_ref = outcome.state.artifacts_index[ARTIFACT_CAUSAL_REPORT_REF]
     updated = load_causal_effect_report(ctx.store, updated_ref)
     assert updated.transport_result is not None
-    assert updated.transport_result.status is TransportabilityStatus.DIRECT
+    assert updated.transport_result.status is TransportabilityStatus.IDENTIFIED
 
 
 def test_run_transportability_uses_ensemble_consensus_graph_when_available(
@@ -333,13 +367,12 @@ def test_run_transportability_uses_ensemble_consensus_graph_when_available(
 
     captured_nodes: dict[str, list[str]] = {}
 
-    def _fake_pure_step(state_payload, method_params):
-        del method_params
-        diagram = SelectionDiagram.model_validate(state_payload["selection_diagram"])
+    def _fake_solver(**kwargs):
+        diagram = kwargs["diagram"]
         captured_nodes["nodes"] = list(diagram.base_graph.nodes)
         result = TransportabilityResult(
             query="P*(Y|do(X))",
-            status=TransportabilityStatus.DIRECT,
+            status=TransportabilityStatus.IDENTIFIED,
             final_confidence=1.0,
             source_context_id=diagram.source_context.context_id,
             target_context_id=diagram.target_context.context_id,
@@ -347,8 +380,8 @@ def test_run_transportability_uses_ensemble_consensus_graph_when_available(
         return {"transport_result": result.model_dump(mode="json")}
 
     monkeypatch.setattr(
-        "polisyos.scientist.nodes.builtins.causal.resolve_transport.CheckTransportability.pure_step",
-        _fake_pure_step,
+        "polisyos.scientist.nodes.builtins.causal.resolve_transport._run_transport_solver",
+        _fake_solver,
     )
 
     profile = {"context_id": "DE", "income_level": "high", "institutional_quality": 0.8}
@@ -381,16 +414,15 @@ def test_run_transportability_symbolic_mode_records_backend_issue(
     report_ref = persist_causal_effect_report(ctx.store, _base_report())
     graph_ref = persist_causal_graph_model(ctx.store, _mediator_graph())
 
-    def _fake_symbolic_step(state_payload, method_params):
-        del method_params
-        diagram = SelectionDiagram.model_validate(state_payload["selection_diagram"])
+    def _fake_solver(**kwargs):
+        diagram = kwargs["diagram"]
         result = TransportabilityResult(
             query="P*(gdp_growth|do(tax_rate))",
-            status=TransportabilityStatus.NON_TRANSPORTABLE,
+            status=TransportabilityStatus.UNSUPPORTED,
             final_confidence=0.0,
             source_context_id=diagram.source_context.context_id,
             target_context_id=diagram.target_context.context_id,
-            identification_engine="symbolic",
+            identification_engine="y0",
             identification_trace=["symbolic_backend_unavailable:y0_unavailable"],
             unsupported_reason="y0_unavailable",
             warnings=["Symbolic backend unavailable; y0 is not installed."],
@@ -398,8 +430,8 @@ def test_run_transportability_symbolic_mode_records_backend_issue(
         return {"transport_result": result.model_dump(mode="json")}
 
     monkeypatch.setattr(
-        "polisyos.scientist.nodes.builtins.causal.resolve_transport.SymbolicIdentify.pure_step",
-        _fake_symbolic_step,
+        "polisyos.scientist.nodes.builtins.causal.resolve_transport._run_transport_solver",
+        _fake_solver,
     )
 
     profile = {"context_id": "DE", "income_level": "high", "institutional_quality": 0.8}
@@ -424,25 +456,23 @@ def test_run_transportability_symbolic_mode_records_backend_issue(
     updated_ref = outcome.state.artifacts_index[ARTIFACT_CAUSAL_REPORT_REF]
     updated = load_causal_effect_report(ctx.store, updated_ref)
     assert updated.transport_result is not None
-    assert updated.transport_result.identification_engine == "symbolic"
+    assert updated.transport_result.identification_engine == "y0"
     assert updated.transport_result.unsupported_reason == "y0_unavailable"
-    assert outcome.state.params["transportability_identification_engine"] == "symbolic"
+    assert outcome.state.params["transportability_identification_engine"] == "y0"
 
 
 @pytest.mark.parametrize(
-    ("solver_mode", "expected_backend", "expected_require"),
+    "solver_mode",
     [
-        ("symbolic_r", "r", True),
-        ("full_auto", "full_auto", False),
-        ("auto", "auto", False),
+        "symbolic_r",
+        "full_auto",
+        "auto",
     ],
 )
 def test_run_transportability_solver_mode_maps_symbolic_backend_params(
     tmp_path,
     monkeypatch: pytest.MonkeyPatch,
     solver_mode: str,
-    expected_backend: str,
-    expected_require: bool,
 ) -> None:
     ctx = _build_ctx(tmp_path, run_id=f"R_transport_solver_mode_{solver_mode}")
     report_ref = persist_causal_effect_report(ctx.store, _base_report())
@@ -450,24 +480,24 @@ def test_run_transportability_solver_mode_maps_symbolic_backend_params(
 
     captured_params: dict[str, object] = {}
 
-    def _fake_symbolic_step(state_payload, method_params):
-        captured_params.update(method_params)
-        diagram = SelectionDiagram.model_validate(state_payload["selection_diagram"])
+    def _fake_solver(**kwargs):
+        captured_params.update(kwargs)
+        diagram = kwargs["diagram"]
         result = TransportabilityResult(
             query="P*(gdp_growth|do(tax_rate))",
-            status=TransportabilityStatus.NON_TRANSPORTABLE,
+            status=TransportabilityStatus.UNSUPPORTED,
             final_confidence=0.0,
             source_context_id=diagram.source_context.context_id,
             target_context_id=diagram.target_context.context_id,
-            identification_engine="symbolic",
+            identification_engine="y0",
             identification_trace=["symbolic_backend_unavailable:test_probe"],
             unsupported_reason="test_probe",
         )
         return {"transport_result": result.model_dump(mode="json")}
 
     monkeypatch.setattr(
-        "polisyos.scientist.nodes.builtins.causal.resolve_transport.SymbolicIdentify.pure_step",
-        _fake_symbolic_step,
+        "polisyos.scientist.nodes.builtins.causal.resolve_transport._run_transport_solver",
+        _fake_solver,
     )
 
     profile = {"context_id": "DE", "income_level": "high", "institutional_quality": 0.8}
@@ -488,8 +518,9 @@ def test_run_transportability_solver_mode_maps_symbolic_backend_params(
 
     outcome = RunTransportabilityNode().execute(ctx, state)
     assert outcome.status == "ok"
-    assert captured_params["symbolic_backend"] == expected_backend
-    assert captured_params["require_symbolic_backend"] is expected_require
+    assert captured_params["solver_mode"] == solver_mode
+    assert captured_params["allow_degraded_transport"] is False
+    assert captured_params["capability_contract"] is not None
 
 
 def test_resolution_loop_emits_outer_search_budget_events_when_truncated(
@@ -510,7 +541,7 @@ def test_resolution_loop_emits_outer_search_budget_events_when_truncated(
         diagram = kwargs["diagram"]
         result = TransportabilityResult(
             query="P*(gdp_growth|do(tax_rate))",
-            status=TransportabilityStatus.TRANSPORTABLE,
+            status=TransportabilityStatus.IDENTIFIED,
             transport_formula=TransportFormula(
                 formula_str="synthetic",
                 stratification_variables=["z1", "z2", "z3"],
@@ -628,7 +659,7 @@ def test_resolution_loop_proxy_exclusion_violation_requires_expert_review(
         diagram = kwargs["diagram"]
         result = TransportabilityResult(
             query="P*(gdp_growth|do(tax_rate))",
-            status=TransportabilityStatus.TRANSPORTABLE,
+            status=TransportabilityStatus.IDENTIFIED,
             transport_formula=TransportFormula(
                 formula_str="synthetic_proxy",
                 stratification_variables=["tax_compliance"],
@@ -712,7 +743,7 @@ def test_resolution_loop_non_transportable_adds_manski_fallback(
         diagram = kwargs["diagram"]
         result = TransportabilityResult(
             query="P*(gdp_growth|do(tax_rate))",
-            status=TransportabilityStatus.NON_TRANSPORTABLE,
+            status=TransportabilityStatus.UNSUPPORTED,
             final_confidence=0.0,
             source_context_id=diagram.source_context.context_id,
             target_context_id=diagram.target_context.context_id,
@@ -745,6 +776,7 @@ def test_resolution_loop_non_transportable_adds_manski_fallback(
         query_outcome="gdp_growth",
     )
 
-    assert result.status is TransportabilityStatus.NON_TRANSPORTABLE
+    assert result.status is TransportabilityStatus.UNSUPPORTED
     assert result.partial_identification_result is not None
     assert result.partial_identification_result.method.value == "manski_bounds"
+    assert "partial_identification_non_informative:manski_bounds" in result.warnings

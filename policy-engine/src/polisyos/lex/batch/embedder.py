@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import logging
 import time
 from dataclasses import dataclass
 from pathlib import Path
@@ -13,8 +12,9 @@ import hnswlib
 import numpy as np
 
 from polisyos.batch_common.thermal import pause_between_batches
+from polisyos.common.logger import get_logger
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 @dataclass
@@ -92,6 +92,7 @@ def _load_existing_ids(npz_path: Path) -> set[str]:
         data = np.load(str(npz_path), allow_pickle=True)
         return set(str(v) for v in data["ids"])
     except Exception:
+        logger.debug("Failed to load existing embedding IDs from %s", npz_path)
         return set()
 
 
@@ -226,7 +227,14 @@ def build_local_embeddings_and_indexes(
         except ImportError:
             pass
 
-    model = SentenceTransformer(embedding_model, device=embedding_device, model_kwargs=model_kwargs)
+    if model_kwargs:
+        model = SentenceTransformer(
+            embedding_model,
+            device=embedding_device,
+            model_kwargs=model_kwargs,
+        )
+    else:
+        model = SentenceTransformer(embedding_model, device=embedding_device)
 
     stats = EmbeddingStats()
     embedded, skipped = _embed_table(

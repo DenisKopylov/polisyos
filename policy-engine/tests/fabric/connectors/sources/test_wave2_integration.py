@@ -83,6 +83,7 @@ class TestWave2CKANProfiles:
         [
             ("data_gov_ua", "data.gov.ua"),
             ("data_gov_ro", "data.gov.ro"),
+            ("data_gov_md", "dataset.gov.md"),
             ("eu_open_data", "data.europa.eu"),
         ],
     )
@@ -94,12 +95,12 @@ class TestWave2CKANProfiles:
         assert expected_url_contains in profile.base_url
 
     def test_total_ckan_profiles(self):
-        """5 CKAN profiles: data.gov.uk, data.gov.us, data.gov.ua, data.gov.ro, EU."""
+        """6 CKAN profiles: data.gov.uk, data.gov.us, data.gov.ua, data.gov.ro, dataset.gov.md, EU."""
         reg = SourceProfileRegistry.get_instance()
         ckan_profiles = reg.list_by_family("ckan")
-        assert len(ckan_profiles) == 5
+        assert len(ckan_profiles) == 6
 
-    @pytest.mark.parametrize("profile_id", ["data_gov_ua", "data_gov_ro", "eu_open_data"])
+    @pytest.mark.parametrize("profile_id", ["data_gov_ua", "data_gov_ro", "data_gov_md", "eu_open_data"])
     def test_profile_resolves_to_config(self, profile_id: str):
         reg = SourceProfileRegistry.get_instance()
         profile = reg.get(profile_id)
@@ -126,7 +127,7 @@ class TestWave2ProfileCounts:
         for p in reg.list_all():
             counts[p.connector_family] = counts.get(p.connector_family, 0) + 1
         assert counts["sdmx"] == 7
-        assert counts["ckan"] == 5
+        assert counts["ckan"] == 6
         assert counts["socrata"] == 2
         assert counts["opendatasoft"] == 2
         assert counts["sparql"] == 2

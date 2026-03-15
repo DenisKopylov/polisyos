@@ -4,11 +4,11 @@ compilation context for CAS-backed provenance (Law J).
 """
 from __future__ import annotations
 
-import logging
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import TYPE_CHECKING, Any, ClassVar
 
+from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import (
     ArtifactManifest,
@@ -18,18 +18,20 @@ from polisyos.core.artifacts.manifest import (
 )
 from polisyos.core.canon import (
     content_hash as compute_content_hash,
+)
+from polisyos.core.canon import (
     to_canonical_bytes,
 )
 
 from ._artifacts_fingerprint import (
     ARTIFACTS_VERSION,
+    SOURCE_UNAVAILABLE,
     SourceFingerprint,
     _artifact_id_from_bytes,
     _compute_deterministic_hash,
     _utc_now,
     compute_source_fingerprint,
     compute_source_hash,
-    SOURCE_UNAVAILABLE,
 )
 from .specialization import Specialization
 
@@ -40,7 +42,7 @@ __all__ = [
     "MethodArtifact",
 ]
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 def _specialization_payload(spec: Specialization) -> dict[str, Any]:

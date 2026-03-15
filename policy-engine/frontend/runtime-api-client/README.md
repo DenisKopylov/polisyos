@@ -26,7 +26,7 @@ Runtime API app -> schemas/runtime_api_v1.openapi.json -> generated runtimeApiCl
 Клиент генерирует GET/read-path wrappers по группам:
 - health: `runtimeApiHealth`, `health`, `ready`;
 - runs: `listRuns`, `getRunDetails`, `getRunTimeline`, `getRunNodes`, `getRunLineage`, `getRunAgents`;
-- debug: `getNodeDebug`, `getGovernanceDebug`, `getRunErrors`;
+- debug: `getNodeDebug`, `getGovernanceDebug`, `getRunErrors`, `getRunFeedback`, `getRunCompare`;
 - artifacts: `getArtifactManifest`, `getArtifactContent`, `getArtifactLineage`, `getArtifactSchema`;
 - control (read): `listBindingProfiles`, `getCacheStatus`, `searchDataCatalog`, `listConnectors`, `getDataIndexStats`, `listSourceProfiles`, `listDataPromotionCandidates`, `listLlmProfiles`.
 

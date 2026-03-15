@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import logging
 from pathlib import Path
 
 import duckdb
@@ -14,8 +13,10 @@ from polisyos.academic.knowledge.types import (
     ParameterEstimateResult,
     WorkSearchResult,
 )
+from polisyos.common.logger import get_logger
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
+
 
 _WORK_SELECT = (
     "id, title, doi, abstract, year, publication_date, language, work_type, is_retracted, "
@@ -293,7 +294,10 @@ class ScholarKnowledgeStore:
                 "SELECT DISTINCT topic_id FROM ac_topic_selections WHERE work_id = ?",
                 [work_id],
             ).fetchall()
-        except Exception:
+        except (OSError, RuntimeError) as exc:
+            logger.debug(
+                "topic_ids query failed for %s: %s", work_id, exc,
+            )
             return []
         return [str(r[0]) for r in rows if r and r[0]]
 
@@ -347,7 +351,10 @@ class ScholarKnowledgeStore:
                 "FROM ac_boundary_conditions WHERE work_id = ?",
                 [work_id],
             ).fetchall()
-        except Exception:
+        except (OSError, RuntimeError) as exc:
+            logger.debug(
+                "boundary_conditions query failed for %s: %s", work_id, exc,
+            )
             return []
         return [
             BoundaryConditionResult(

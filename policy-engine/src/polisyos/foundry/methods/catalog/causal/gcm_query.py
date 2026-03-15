@@ -136,7 +136,7 @@ def _linear_noise_std(mechanism: NodeMechanism) -> float:
     params = mechanism.family_params
     try:
         std = float(params.get("noise_std", 0.0))
-    except Exception:
+    except (TypeError, ValueError, ArithmeticError):
         return 0.0
     if not math.isfinite(std) or std < 0.0:
         return 0.0

@@ -9,6 +9,7 @@ from typing import Any
 from pydantic import BaseModel, ConfigDict, Field
 
 from polisyos.academic.knowledge.skg_query import SKGQuery
+from polisyos.common.logger import get_logger
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.datasets.knowledge.proxy_resolver import (
     compose_confidence_harmonic,
@@ -17,8 +18,10 @@ from polisyos.datasets.knowledge.proxy_resolver import (
 )
 from polisyos.datasets.knowledge.registry import DatasetRegistry
 from polisyos.datasets.knowledge.types import PStarZResult
-from polisyos.foundry.methods.catalog.causal.symbolic_identify import SymbolicIdentify
-from polisyos.foundry.methods.catalog.causal.transport_check import CheckTransportability
+from polisyos.foundry.methods.catalog.causal.capabilities import (
+    build_causal_capability_contract,
+)
+from polisyos.foundry.methods.catalog.causal.transport_engine import solve_transportability
 from polisyos.ir.analytics.alignment_certification import (
     AlignmentCertificate,
     AlignmentCertificateType,
@@ -32,6 +35,11 @@ from polisyos.ir.analytics.causal import (
     load_causal_effect_report,
     persist_causal_effect_report,
 )
+from polisyos.ir.analytics.causal_capabilities import (
+    CausalCapabilityContract,
+    load_causal_capability_contract,
+    persist_causal_capability_contract,
+)
 from polisyos.ir.analytics.causal_ensemble import load_causal_model_ensemble
 from polisyos.ir.analytics.causal_graph import CausalGraphModel, load_causal_graph_model
 from polisyos.ir.analytics.context import ContextProfile
@@ -43,11 +51,17 @@ from polisyos.ir.analytics.transportability import (
     SNodeOrigin,
     TransportabilityResult,
     TransportabilityStatus,
+    TransportMode,
     build_selection_diagram,
     persist_transportability_result,
 )
 from polisyos.ir.artifacts import InputRef
-from polisyos.ir.refs import CausalEffectReportRef, CausalGraphModelRef, CausalModelEnsembleRef
+from polisyos.ir.refs import (
+    CausalCapabilityContractRef,
+    CausalEffectReportRef,
+    CausalGraphModelRef,
+    CausalModelEnsembleRef,
+)
 from polisyos.lex.api import evaluate_transport_constraints
 from polisyos.lex.legal_evaluation.transport_constraints import (
     ConstraintSeverity,
@@ -60,11 +74,14 @@ from polisyos.scientist.engine.protocol import NodeError, NodeEvent, NodeOutcome
 from polisyos.scientist.engine.state import ExperimentState
 from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.state_keys import (
+    ARTIFACT_CAUSAL_CAPABILITY_CONTRACT_REF,
     ARTIFACT_CAUSAL_ENSEMBLE_REF,
     ARTIFACT_CAUSAL_REPORT_REF,
     ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF,
     ARTIFACT_TRANSPORTABILITY_RESULT_REF,
 )
+
+logger = get_logger(__name__)
 
 MAX_ROUNDS = 3
 PROXY_FALLBACK_THRESHOLD = 0.3
@@ -98,23 +115,34 @@ _SPEC = NodeSpec(
         "params.pag_threshold",
         "params.pag_seed",
         "params.transport_solver_mode",
+        "params.allow_degraded_transport",
+        "params.workflow_id",
         "params.dataset_registry_db_path",
         "params.legal_kg_db_path",
         "params.skg_db_path",
         "params.skg_index_dir",
         f"artifacts_index.{ARTIFACT_CAUSAL_REPORT_REF}",
+        f"artifacts_index.{ARTIFACT_CAUSAL_CAPABILITY_CONTRACT_REF}",
         f"artifacts_index.{ARTIFACT_CAUSAL_ENSEMBLE_REF}",
         f"artifacts_index.{ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF}",
     ],
     state_writes=[
         "params.transportability_status",
+        "params.transportability_transport_mode",
         "params.transportability_identification_engine",
         "params.transportability_id_confidence_under_pag",
+        "params.transportability_capability_hash",
+        "params.transportability_degradation_policy",
         "params.transportability_warning",
         f"artifacts_index.{ARTIFACT_CAUSAL_REPORT_REF}",
+        f"artifacts_index.{ARTIFACT_CAUSAL_CAPABILITY_CONTRACT_REF}",
         f"artifacts_index.{ARTIFACT_TRANSPORTABILITY_RESULT_REF}",
     ],
-    produces=[ARTIFACT_TRANSPORTABILITY_RESULT_REF, ARTIFACT_CAUSAL_REPORT_REF],
+    produces=[
+        ARTIFACT_TRANSPORTABILITY_RESULT_REF,
+        ARTIFACT_CAUSAL_REPORT_REF,
+        ARTIFACT_CAUSAL_CAPABILITY_CONTRACT_REF,
+    ],
 )
 
 
@@ -323,6 +351,8 @@ class TransportabilityResolutionLoop:
         pag_threshold: float = 0.5,
         pag_seed: int | None = None,
         solver_mode: str = "auto",
+        allow_degraded_transport: bool = False,
+        capability_contract: CausalCapabilityContract | None = None,
     ) -> TransportabilityResult:
         self._cache_clear()
         normalized_solver_mode = (
@@ -382,25 +412,14 @@ class TransportabilityResolutionLoop:
                     query_treatment=query_treatment,
                     query_outcome=query_outcome,
                     solver_mode=normalized_solver_mode,
+                    allow_degraded_transport=allow_degraded_transport,
+                    capability_contract=capability_contract,
                     pag_identification_policy=pag_identification_policy,
                     pag_max_dag_samples=pag_max_dag_samples,
                     pag_threshold=pag_threshold,
                     pag_seed=pag_seed if pag_seed is not None else 0,
                 )
                 tr_result = TransportabilityResult.model_validate(tr_payload["transport_result"])
-                if (
-                    normalized_solver_mode == "symbolic"
-                    and tr_result.unsupported_reason is not None
-                    and tr_result.unsupported_reason.startswith("y0_")
-                ):
-                    return tr_result.model_copy(
-                        update={
-                            "feasible": False,
-                            "resolution_rounds": round_num,
-                            "warnings": list(tr_result.warnings)
-                            + ["symbolic_solver_mode_requested_but_backend_unavailable"],
-                        }
-                    )
 
                 p_star_values: dict[str, PStarZResult] = {}
                 data_gaps: list[DataGap] = []
@@ -554,14 +573,15 @@ class TransportabilityResolutionLoop:
             if tr_result is None or state is None or diagram is None:
                 return TransportabilityResult(
                     query=f"P*({query_outcome}|do({query_treatment}))",
-                    status=TransportabilityStatus.NON_TRANSPORTABLE,
+                    status=TransportabilityStatus.UNSUPPORTED,
+                    transport_mode=TransportMode.NONE,
                     base_confidence=0.0,
                     final_confidence=0.0,
                     feasible=False,
                     warnings=["Transportability resolution failed unexpectedly."],
                     source_context_id=source_context.context_id,
                     target_context_id=target_context.context_id,
-                    identification_engine="simplified",
+                    identification_engine="simplified_legacy",
                     identification_trace=["resolution_loop:unexpected_failure"],
                     unsupported_reason="resolution_loop_unexpected_failure",
                 )
@@ -577,39 +597,26 @@ def _run_transport_solver(
     query_treatment: str,
     query_outcome: str,
     solver_mode: str,
+    allow_degraded_transport: bool,
+    capability_contract: CausalCapabilityContract | None,
     pag_identification_policy: str | None,
     pag_max_dag_samples: int,
     pag_threshold: float,
     pag_seed: int,
 ) -> dict[str, Any]:
-    payload = {
-        "selection_diagram": diagram.model_dump(mode="json"),
-        "query_treatment": query_treatment,
-        "query_outcome": query_outcome,
-    }
-    method_params = {
-        "pag_identification_policy": pag_identification_policy,
-        "pag_max_dag_samples": pag_max_dag_samples,
-        "pag_threshold": pag_threshold,
-        "pag_seed": pag_seed,
-    }
-    if solver_mode == "simplified":
-        return CheckTransportability.pure_step(payload, method_params)
-    symbolic_backend = "auto"
-    require_backend = False
-    if solver_mode in {"symbolic", "symbolic_y0"}:
-        symbolic_backend = "y0"
-        require_backend = True
-    elif solver_mode == "symbolic_r":
-        symbolic_backend = "r"
-        require_backend = True
-    elif solver_mode == "full_auto":
-        symbolic_backend = "full_auto"
-
-    symbolic_params = dict(method_params)
-    symbolic_params["symbolic_backend"] = symbolic_backend
-    symbolic_params["require_symbolic_backend"] = require_backend
-    return SymbolicIdentify.pure_step(payload, symbolic_params)
+    result = solve_transportability(
+        selection_diagram=diagram,
+        query_treatment=query_treatment,
+        query_outcome=query_outcome,
+        solver_mode=solver_mode,
+        allow_degraded_transport=allow_degraded_transport,
+        capability_contract=capability_contract,
+        pag_identification_policy=pag_identification_policy,
+        pag_max_dag_samples=pag_max_dag_samples,
+        pag_threshold=pag_threshold,
+        pag_seed=pag_seed,
+    )
+    return {"transport_result": result.model_dump(mode="json")}
 
 
 @dataclass(frozen=True)
@@ -694,6 +701,19 @@ class RunTransportabilityNode:
         pag_threshold = _resolve_pag_threshold(state)
         pag_seed = _resolve_pag_seed(state, graph)
         transport_solver_mode = _resolve_transport_solver_mode(state)
+        try:
+            allow_degraded_transport = _resolve_allow_degraded_transport(state)
+        except ValueError as exc:
+            return NodeOutcome(
+                status="fail",
+                state=state,
+                error=NodeError(
+                    code=node_errors.ERROR_INVALID_STATE,
+                    message=str(exc),
+                    details={"execution_profile": state.execution_profile},
+                ),
+            )
+        capability_contract, capability_ref = _resolve_or_build_capability_contract(ctx, state)
 
         dataset_registry = _build_dataset_registry(state.params.get("dataset_registry_db_path"))
         skg_query = _build_skg_query(
@@ -723,6 +743,8 @@ class RunTransportabilityNode:
                 pag_threshold=pag_threshold,
                 pag_seed=pag_seed,
                 solver_mode=transport_solver_mode,
+                allow_degraded_transport=allow_degraded_transport,
+                capability_contract=capability_contract,
             )
         finally:
             if isinstance(skg_query, SKGQuery):
@@ -746,8 +768,15 @@ class RunTransportabilityNode:
 
         new_state = state.model_copy(deep=True)
         new_state.params["transportability_status"] = transport_result.status.value
+        new_state.params["transportability_transport_mode"] = transport_result.transport_mode.value
         new_state.params["transportability_identification_engine"] = (
             transport_result.identification_engine
+        )
+        new_state.params["transportability_capability_hash"] = (
+            capability_contract.dependency_fingerprint
+        )
+        new_state.params["transportability_degradation_policy"] = (
+            capability_contract.degradation_policy
         )
         if transport_result.id_confidence_under_pag is not None:
             new_state.params["transportability_id_confidence_under_pag"] = (
@@ -756,19 +785,22 @@ class RunTransportabilityNode:
         else:
             new_state.params.pop("transportability_id_confidence_under_pag", None)
         new_state.params.pop("transportability_warning", None)
+        new_state.artifacts_index[ARTIFACT_CAUSAL_CAPABILITY_CONTRACT_REF] = capability_ref
+        new_state.causal_capability_contract_ref = capability_ref
         new_state.artifacts_index[ARTIFACT_TRANSPORTABILITY_RESULT_REF] = transport_ref
         new_state.artifacts_index[ARTIFACT_CAUSAL_REPORT_REF] = updated_report_ref
 
         return NodeOutcome(
             status="ok",
             state=new_state,
-            artifacts=[transport_ref, updated_report_ref],
+            artifacts=[capability_ref, transport_ref, updated_report_ref],
             events=[
                 NodeEvent(
                     level="info",
                     message=(
                         "Transportability resolved: "
                         f"status={transport_result.status.value}, "
+                        f"mode={transport_result.transport_mode.value}, "
                         f"engine={transport_result.identification_engine}, "
                         f"rounds={transport_result.resolution_rounds}, "
                         f"feasible={transport_result.feasible}"
@@ -820,10 +852,18 @@ def _build_final_result(
         )
 
     partial_identification = None
-    if tr_result.status is TransportabilityStatus.NON_TRANSPORTABLE:
+    if tr_result.status is TransportabilityStatus.UNSUPPORTED:
         partial_identification = _build_manski_fallback(tr_result=tr_result, state=state)
         if partial_identification.is_informative:
             warnings.append("partial_identification_informative:manski_bounds")
+            tr_result = tr_result.model_copy(
+                update={
+                    "status": TransportabilityStatus.BOUNDED_NON_IDENTIFIED,
+                    "transport_mode": TransportMode.BOUNDS_ONLY,
+                    "identification_engine": "bounds_only",
+                    "unsupported_reason": None,
+                }
+            )
         else:
             warnings.append("partial_identification_non_informative:manski_bounds")
 
@@ -1045,12 +1085,13 @@ def _build_infeasible_result(
 ) -> TransportabilityResult:
     return TransportabilityResult(
         query=f"P*({query_outcome}|do({query_treatment}))",
-        status=TransportabilityStatus.NON_TRANSPORTABLE,
+        status=TransportabilityStatus.UNSUPPORTED,
+        transport_mode=TransportMode.NONE,
         base_confidence=0.0,
         context_distance_penalty=0.0,
         data_availability_penalty=0.0,
         final_confidence=0.0,
-        algorithm_version="simplified_tr_v2",
+        algorithm_version="trso_v2",
         feasible=False,
         hard_legal_constraints=[item.constraint_id for item in hard_constraints],
         warnings=[
@@ -1059,7 +1100,7 @@ def _build_infeasible_result(
         ],
         source_context_id=source_context.context_id,
         target_context_id=target_context.context_id,
-        identification_engine="simplified",
+        identification_engine="simplified_legacy",
         identification_trace=["resolution_loop:hard_legal_constraint"],
         unsupported_reason="hard_legal_constraint",
     )
@@ -1210,6 +1251,51 @@ def _resolve_transport_solver_mode(state: ExperimentState) -> str:
     return "auto"
 
 
+def _resolve_allow_degraded_transport(state: ExperimentState) -> bool:
+    raw = state.params.get("allow_degraded_transport")
+    profile = str(state.execution_profile or state.params.get("execution_profile") or "").strip().lower()
+    if isinstance(raw, bool):
+        if raw and profile in {"research", "governed", "production"}:
+            raise ValueError(
+                "allow_degraded_transport is forbidden outside the dev execution profile"
+            )
+        return raw
+    if isinstance(raw, str):
+        token = raw.strip().lower()
+        if token in {"1", "true", "yes", "on"}:
+            if profile in {"research", "governed", "production"}:
+                raise ValueError(
+                    "allow_degraded_transport is forbidden outside the dev execution profile"
+                )
+            return True
+        if token in {"0", "false", "no", "off"}:
+            return False
+    workflow_id = str(state.params.get("workflow_id", "")).strip().lower()
+    if workflow_id == "scientist_causal_full":
+        return False
+    return False
+
+
+def _resolve_or_build_capability_contract(
+    ctx: ExecutionContext,
+    state: ExperimentState,
+) -> tuple[CausalCapabilityContract, CausalCapabilityContractRef]:
+    raw_ref = state.artifacts_index.get(ARTIFACT_CAUSAL_CAPABILITY_CONTRACT_REF)
+    if raw_ref is not None:
+        try:
+            ref = CausalCapabilityContractRef.model_validate(raw_ref.model_dump(mode="json"))
+            return load_causal_capability_contract(ctx.store, ref), ref
+        except Exception:
+            logger.debug(
+                "Failed to load causal capability contract from ref %s, rebuilding",
+                raw_ref,
+                exc_info=True,
+            )
+    contract = build_causal_capability_contract()
+    ref = persist_causal_capability_contract(ctx.store, contract)
+    return contract, ref
+
+
 def _resolve_pag_identification_policy(state: ExperimentState, graph: CausalGraphModel) -> str:
     raw = state.params.get("pag_identification_policy")
     if isinstance(raw, str) and raw.strip():
@@ -1248,8 +1334,8 @@ def _resolve_pag_seed(state: ExperimentState, graph: CausalGraphModel) -> int:
     if raw is not None:
         try:
             return int(raw)
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.debug("Ignored exception: %s", exc)
     payload = f"{state.run_id}|{graph.model_dump_json(exclude_none=False, by_alias=True)}"
     return int(hashlib.sha256(payload.encode("utf-8")).hexdigest()[:16], 16) % (2**31 - 1)
 
@@ -1279,8 +1365,8 @@ def _resolve_causal_graph(ctx: ExecutionContext, state: ExperimentState) -> Caus
                 consensus_ref = _build_graph_ref_from_artifact_id(ensemble.consensus_graph_ref)
                 if consensus_ref is not None:
                     return load_causal_graph_model(ctx.store, consensus_ref)
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.debug("Ignored exception: %s", exc)
 
     for key in (ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF, "causal_graph_ref"):
         ref_raw = state.artifacts_index.get(key)

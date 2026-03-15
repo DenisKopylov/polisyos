@@ -7,6 +7,7 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from polisyos.common.logger import get_logger
 from polisyos.common.serialization import to_python_data
 from polisyos.common.timestamps import utc_now
 from polisyos.core.artifacts.manifest import ArtifactRef, ProducerInfo, SchemaInfo
@@ -15,6 +16,8 @@ from polisyos.core.cache import LRUCache
 from polisyos.core.canon import CanonSpec, content_hash, from_canonical_bytes, to_canonical_bytes
 from polisyos.scientist.engine.protocol import NodeOutcome, NodeSpec
 from polisyos.scientist.engine.state import ExperimentState
+
+logger = get_logger(__name__)
 
 IDEMPOTENCY_CONTRACT_VERSION = "1.0"
 
@@ -128,7 +131,10 @@ class NodeResultCache:
         try:
             payload = from_canonical_bytes(self._store.get_bytes(outcome_ref.artifact_id))
             outcome = NodeOutcome.model_validate(payload)
-        except Exception:
+        except (FileNotFoundError, OSError, TypeError, ValueError) as exc:
+            logger.debug(
+                "Cache miss for key %s, evicting: %s", key, exc,
+            )
             self._index.delete(key)
             return None
         return outcome
@@ -197,14 +203,20 @@ class NodeResultCache:
                 for item in outputs:
                     try:
                         ref = ArtifactRef.model_validate(item)
-                    except Exception:
+                    except (TypeError, ValueError) as exc:
+                        logger.debug(
+                            "Skipping invalid artifact ref in trace: %s", exc,
+                        )
                         continue
                     if ref.kind != "scientist.node_cache_entry":
                         continue
                     try:
                         if self.load_entry(ref):
                             restored += 1
-                    except Exception:
+                    except (FileNotFoundError, OSError, TypeError, ValueError) as exc:
+                        logger.debug(
+                            "Failed to load cache entry: %s", exc,
+                        )
                         continue
         return restored
 
@@ -216,7 +228,10 @@ class NodeResultCache:
             try:
                 if self.load_entry(ref):
                     restored += 1
-            except Exception:
+            except (FileNotFoundError, OSError, TypeError, ValueError) as exc:
+                logger.debug(
+                    "Failed to seed from entry ref: %s", exc,
+                )
                 continue
         return restored
 

@@ -7,9 +7,10 @@ import json
 import os
 import time
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
+from polisyos.common.logger import get_logger
 from polisyos.core.contracts.control import (
     DataContext,
     DataNeed,
@@ -21,11 +22,14 @@ from polisyos.core.contracts.control import (
     MetricCandidate,
     PromotionCandidate,
 )
+from polisyos.datasets.batch.source_registry import SourceSpec, load_source_registry
 from polisyos.fabric.catalog.resolver_fast_lane import FastLaneResolver
 from polisyos.fabric.catalog.source_bindings import SourceBinding
 
 from .executor import ExecutePlanResult, FetchExecutor
 from .explore_lane import ExploreLaneDiscoverResult, ExploreLaneDiscovery, ExploreLaneLimits
+
+logger = get_logger(__name__)
 
 
 @dataclass(frozen=True)
@@ -83,6 +87,37 @@ class RetrievalService:
         self._index_size_bytes = 0
         self._docs_added_last_run = 0
         self._last_updated: datetime | None = None
+        self._catalog_source_policies: dict[str, SourceSpec] | None = None
+
+    def _source_policy(self, source_name: str) -> SourceSpec | None:
+        normalized = (source_name or "").strip()
+        if not normalized:
+            return None
+        if self._catalog_source_policies is None:
+            registry_path = Path(__file__).resolve().parents[2] / "datasets" / "batch" / "source_registry.yaml"
+            try:
+                registry = load_source_registry(registry_path)
+            except Exception:
+                logger.debug("Failed to load dataset source registry for retrieval policy lookup", exc_info=True)
+                self._catalog_source_policies = {}
+            else:
+                self._catalog_source_policies = {spec.name: spec for spec in registry.sources}
+        return self._catalog_source_policies.get(normalized)
+
+    def _catalog_date_window(
+        self,
+        *,
+        source_name: str,
+        need: DataNeed,
+    ) -> tuple[str | None, str | None, SourceSpec | None]:
+        policy = self._source_policy(source_name)
+        if need.time_start or need.time_end or policy is None:
+            return need.time_start, need.time_end, policy
+        if policy.history_policy != "rolling_window" or policy.default_lookback_days is None:
+            return None, None, policy
+        date_end = datetime.now(timezone.utc)
+        date_start = date_end - timedelta(days=int(policy.default_lookback_days))
+        return date_start.isoformat(), date_end.isoformat(), policy
 
     def resolve(self, request: DataResolveRequest) -> ResolveOutcome:
         started = time.perf_counter()
@@ -480,57 +515,155 @@ class RetrievalService:
             return plans, candidates
 
         for need in unresolved:
-            # Use find_by_polisyos_metric if available
-            find_fn = getattr(catalog, "find_by_polisyos_metric", None)
-            if find_fn is None:
-                continue
-            try:
-                results = find_fn(need.metric, top_k=3)
-            except Exception:
-                continue
-            if not results:
+            resolved_rows: list[dict[str, object]] = []
+
+            binding_fn = getattr(catalog, "resolve_metric_bindings", None)
+            if binding_fn is not None:
+                try:
+                    bindings = binding_fn(need.metric, top_k=3)
+                except Exception:
+                    logger.debug("Catalog binding lookup failed for metric %s", need.metric, exc_info=True)
+                    bindings = []
+                for binding in bindings:
+                    connector_id = str(getattr(binding, "connector_id", "") or "").strip()
+                    request_dataset_id = str(getattr(binding, "request_dataset_id", "") or "").strip()
+                    if not connector_id or not request_dataset_id:
+                        continue
+                    resolved_rows.append(
+                        {
+                            "catalog_dataset_id": str(getattr(binding, "catalog_dataset_id", "") or ""),
+                            "distribution_id": str(getattr(binding, "distribution_id", "") or ""),
+                            "connector_id": connector_id,
+                            "profile_id": str(getattr(binding, "profile_id", "") or ""),
+                            "request_dataset_id": request_dataset_id,
+                            "default_filters": dict(getattr(binding, "default_filters", {}) or {}),
+                            "confidence": float(getattr(binding, "confidence", 0.0) or 0.0),
+                            "catalog_title": str(getattr(binding, "title", "") or ""),
+                            "execution_tier": str(getattr(binding, "execution_tier", "catalog") or "catalog"),
+                            "source": str(getattr(binding, "source", "") or ""),
+                        }
+                    )
+
+            if not resolved_rows:
+                find_fn = getattr(catalog, "find_by_polisyos_metric", None)
+                resolve_target_fn = getattr(catalog, "resolve_fetch_target", None)
+                if find_fn is None or resolve_target_fn is None:
+                    continue
+                try:
+                    results = find_fn(need.metric, top_k=3)
+                except Exception:
+                    logger.debug("Catalog lookup failed for metric %s", need.metric, exc_info=True)
+                    continue
+                for result in results:
+                    try:
+                        target = resolve_target_fn(result.id)
+                    except Exception:
+                        logger.debug("Catalog fetch target resolution failed for %s", result.id, exc_info=True)
+                        continue
+                    if target is None or not target.connector_id or not target.request_dataset_id or not target.parser_supported:
+                        continue
+                    resolved_rows.append(
+                        {
+                            "catalog_dataset_id": target.catalog_dataset_id,
+                            "distribution_id": target.distribution_id,
+                            "connector_id": target.connector_id,
+                            "profile_id": target.profile_id,
+                            "request_dataset_id": target.request_dataset_id,
+                            "default_filters": target.default_filters,
+                            "confidence": max(0.05, result.similarity * 0.8),
+                            "catalog_title": result.title,
+                            "execution_tier": getattr(result, "execution_tier", "catalog"),
+                            "source": getattr(result, "source", ""),
+                        }
+                    )
+
+            if not resolved_rows:
                 continue
 
-            for rank, result in enumerate(results):
-                connector = getattr(catalog, "get_connector_params", lambda _: None)(result.id)
-                connector_type = (connector or {}).get("type", "catalog_discovered")
+            deduped_rows: list[dict[str, object]] = []
+            seen: set[tuple[str, str]] = set()
+            for row in resolved_rows:
+                dedupe_key = (str(row["connector_id"]), str(row["request_dataset_id"]))
+                if dedupe_key in seen:
+                    continue
+                seen.add(dedupe_key)
+                deduped_rows.append(row)
+
+            fallbacks: list[FetchPlanFallback] = []
+            for rank, row in enumerate(deduped_rows, start=1):
                 candidate = MetricCandidate(
-                    candidate_id=_stable_id("cat", need.metric, result.id),
+                    candidate_id=_stable_id(
+                        "cat",
+                        need.metric,
+                        str(row["connector_id"]),
+                        str(row["request_dataset_id"]),
+                    ),
                     metric_id=need.metric,
-                    connector_id=connector_type,
-                    dataset_id=result.id,
-                    profile_id="",
+                    connector_id=str(row["connector_id"]),
+                    dataset_id=str(row["request_dataset_id"]),
+                    profile_id=str(row["profile_id"]) or None,
                     source_lane="catalog",
-                    confidence=result.similarity * 0.8,
-                    rank=rank + 1,
-                    trust_score=0.6,
-                    freshness_score=0.5,
-                    coverage_estimate=0.7,
-                    latency_estimate_ms=2000,
-                    filters_template={},
-                    match_reason="dataset_catalog_metric_match",
-                    metadata={"catalog_title": result.title},
+                    confidence=max(0.05, min(1.0, float(row["confidence"]))),
+                    rank=rank,
+                    trust_score=0.7,
+                    freshness_score=0.6,
+                    coverage_estimate=0.75,
+                    latency_estimate_ms=1500,
+                    filters_template=dict(row["default_filters"]),
+                    match_reason="dataset_catalog_metric_binding",
+                    metadata={
+                        "catalog_dataset_id": row["catalog_dataset_id"],
+                        "distribution_id": row["distribution_id"],
+                        "catalog_title": row["catalog_title"],
+                        "execution_tier": row["execution_tier"],
+                    },
                 )
                 candidates.append(candidate)
+                if rank > 1:
+                    fallbacks.append(
+                        FetchPlanFallback(
+                            connector_id=str(row["connector_id"]),
+                            dataset_id=str(row["request_dataset_id"]),
+                            profile_id=str(row["profile_id"]) or None,
+                            filters=dict(row["default_filters"]),
+                        )
+                    )
 
-            primary = results[0]
-            connector = getattr(catalog, "get_connector_params", lambda _: None)(primary.id)
-            connector_type = (connector or {}).get("type", "catalog_discovered")
+            primary = deduped_rows[0]
+            date_start, date_end, policy = self._catalog_date_window(
+                source_name=str(primary.get("source") or ""),
+                need=need,
+            )
             plans.append(
                 FetchPlan(
-                    plan_id=_stable_id("plan", need.metric, connector_type, primary.id),
+                    plan_id=_stable_id(
+                        "plan",
+                        need.metric,
+                        str(primary["connector_id"]),
+                        str(primary["request_dataset_id"]),
+                    ),
                     metric_id=need.metric,
-                    connector_id=connector_type,
-                    dataset_id=primary.id,
-                    profile_id="",
-                    filters={},
-                    date_start=need.time_start,
-                    date_end=need.time_end,
+                    connector_id=str(primary["connector_id"]),
+                    dataset_id=str(primary["request_dataset_id"]),
+                    profile_id=str(primary["profile_id"]) or None,
+                    filters=dict(primary["default_filters"]),
+                    date_start=date_start,
+                    date_end=date_end,
                     granularity=need.granularity,
                     quality_min=need.quality_min,
                     source_lane="catalog",
-                    fallbacks=[],
-                    metadata={"catalog_discovered": True, "catalog_title": primary.title},
+                    fallbacks=fallbacks[:2],
+                    metadata={
+                        "catalog_discovered": True,
+                        "catalog_dataset_id": primary["catalog_dataset_id"],
+                        "distribution_id": primary["distribution_id"],
+                        "catalog_title": primary["catalog_title"],
+                        "execution_tier": primary["execution_tier"],
+                        "source": primary.get("source", ""),
+                        "history_policy": policy.history_policy if policy else "",
+                        "default_lookback_days": policy.default_lookback_days if policy else None,
+                        "manual_backfill_allowed": bool(policy.allow_manual_backfill) if policy else False,
+                    },
                 )
             )
         return plans, candidates
@@ -543,4 +676,3 @@ class RetrievalService:
         if len(lanes) == 1:
             return next(iter(lanes))
         return "hybrid"
-

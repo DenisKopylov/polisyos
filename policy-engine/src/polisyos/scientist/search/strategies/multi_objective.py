@@ -6,8 +6,7 @@ import io
 from dataclasses import dataclass
 from typing import Any
 
-from loguru import logger
-
+from polisyos.common.logger import get_logger
 from polisyos.scientist.search.objective import OptimizationDirection
 from polisyos.scientist.search.strategies._deps import (
     ExpectedHypervolumeImprovement,
@@ -29,6 +28,8 @@ from polisyos.scientist.search.strategies.errors import OptionalDependencyUnavai
 from polisyos.scientist.search.strategies.resource_arbiter import ResourceArbiter
 from polisyos.scientist.search.strategies.runtime import apply_torch_runtime_settings
 from polisyos.scientist.search.strategies.types import Evaluation, PolicyCandidate, StrategyState
+
+logger = get_logger(__name__)
 
 
 @dataclass(slots=True)

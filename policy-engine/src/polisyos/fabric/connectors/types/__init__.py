@@ -38,6 +38,21 @@ Example:
 from __future__ import annotations
 
 # =============================================================================
+# Coercion Module
+# =============================================================================
+from polisyos.fabric.connectors.types.coercion import (
+    CoercionError,
+    CoercionPolicy,
+    CoercionResult,
+    CoercionRule,
+    PrecisionLossWarning,
+    TypeCoercion,
+    can_safely_cast,
+    get_coercion_path,
+    safe_cast,
+)
+
+# =============================================================================
 # Connector Core Types (from legacy module)
 # =============================================================================
 from polisyos.fabric.connectors.types.connector_types import (
@@ -62,60 +77,44 @@ from polisyos.fabric.connectors.types.connector_types import (
 # Dimensions Module
 # =============================================================================
 from polisyos.fabric.connectors.types.dimensions import (
-    Dimension,
-    DimensionRegistry,
     BaseDimension,
+    Dimension,
     DimensionError,
+    DimensionRegistry,
     IncompatibleDimensionsError,
     get_dimension_registry,
-)
-
-# =============================================================================
-# Units Module
-# =============================================================================
-from polisyos.fabric.connectors.types.units import (
-    Unit,
-    UnitRegistry,
-    BaseUnit,
-    ConversionFactor,
-    MetricPrefix,
-    UnitParseError,
-    UnitConversionError,
-    get_unit_registry,
-    parse_unit,
 )
 
 # =============================================================================
 # Temporal Module
 # =============================================================================
 from polisyos.fabric.connectors.types.temporal import (
-    TemporalType,
-    TimeGrain,
     AggregationMethod,
-    TemporalVariable,
-    TimeInterval,
-    TemporalSemantics,
     StockFlowCombination,
     TemporalAggregationError,
-    validate_temporal_aggregation,
+    TemporalSemantics,
+    TemporalType,
+    TemporalVariable,
+    TimeGrain,
+    TimeInterval,
     infer_temporal_type,
+    validate_temporal_aggregation,
 )
 
 # =============================================================================
-# Coercion Module
+# Units Module
 # =============================================================================
-from polisyos.fabric.connectors.types.coercion import (
-    TypeCoercion,
-    CoercionPolicy,
-    CoercionResult,
-    CoercionRule,
-    CoercionError,
-    PrecisionLossWarning,
-    safe_cast,
-    can_safely_cast,
-    get_coercion_path,
+from polisyos.fabric.connectors.types.units import (
+    BaseUnit,
+    ConversionFactor,
+    MetricPrefix,
+    Unit,
+    UnitConversionError,
+    UnitParseError,
+    UnitRegistry,
+    get_unit_registry,
+    parse_unit,
 )
-
 
 # =============================================================================
 # Public API

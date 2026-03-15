@@ -12,18 +12,20 @@ from polisyos.foundry.methods.catalog.causal.parameter_transfer import Parameter
 from polisyos.foundry.methods.catalog.causal.protocols import ParameterTransferData
 from polisyos.ir.analytics.causal_graph import load_causal_graph_model
 from polisyos.ir.analytics.context import ContextProfile
+from polisyos.ir.analytics.cross_graph import load_cross_graph_evidence_profile
 from polisyos.ir.analytics.parameters import (
     ContextAdaptiveParameterBundle,
     ParameterApplicability,
     persist_context_adaptive_parameter_bundle,
 )
 from polisyos.ir.artifacts import InputRef
-from polisyos.ir.refs import CausalGraphModelRef
+from polisyos.ir.refs import CausalGraphModelRef, CrossGraphEvidenceProfileRef
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.protocol import NodeEvent, NodeOutcome, NodeSpec
 from polisyos.scientist.engine.state import ExperimentState
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF,
+    ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF,
     ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF,
 )
 
@@ -48,6 +50,7 @@ _SPEC = NodeSpec(
         "params.phase15_runtime_draws",
         "params.phase15_runtime_seed",
         "params.causal_graph_ref",
+        f"artifacts_index.{ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF}",
         f"artifacts_index.{ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF}",
     ],
     state_writes=[
@@ -119,6 +122,7 @@ class ResolveParametersNode:
         parameters: dict[str, Any] = {}
         applicability: dict[str, ParameterApplicability] = {}
         unsupported: list[str] = []
+        cross_graph_profile = _resolve_cross_graph_profile(ctx, state)
 
         skg_query = SKGQuery(db_path=db_path, index_dir=index_dir)
         try:
@@ -128,6 +132,7 @@ class ResolveParametersNode:
                     parameter_name=parameter_name,
                     target_context=target_context,
                     causal_graph=causal_graph,
+                    cross_graph_profile=cross_graph_profile,
                 )
                 applicability[parameter_name] = appl
                 if parameter is None:
@@ -236,6 +241,21 @@ def _resolve_causal_graph_ref(state: ExperimentState) -> CausalGraphModelRef | N
         payload = raw
     try:
         return CausalGraphModelRef.model_validate(payload)
+    except Exception:
+        return None
+
+
+def _resolve_cross_graph_profile(ctx: ExecutionContext, state: ExperimentState):
+    raw = state.artifacts_index.get(ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF)
+    if raw is None:
+        return None
+    try:
+        if hasattr(raw, "model_dump"):
+            payload = raw.model_dump(mode="json")
+        else:
+            payload = raw
+        ref = CrossGraphEvidenceProfileRef.model_validate(payload)
+        return load_cross_graph_evidence_profile(ctx.store, ref)
     except Exception:
         return None
 

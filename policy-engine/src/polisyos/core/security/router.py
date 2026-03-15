@@ -38,7 +38,7 @@ def resolve_routing(
 
     try:
         resolution: CellResolution = registry.resolve(tenant_id)
-    except Exception as exc:
+    except TenantIsolationError as exc:
         raise TenantRoutingError(str(exc)) from exc
 
     return RoutingResult(

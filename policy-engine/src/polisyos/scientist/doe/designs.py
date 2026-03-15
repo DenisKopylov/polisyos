@@ -2,14 +2,18 @@ from __future__ import annotations
 
 from enum import Enum
 
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 
 class ScenarioSweep(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     scenarios: list[dict] = Field(default_factory=list)
 
 
 class AblationPlan(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     targets: list[str] = Field(default_factory=list)
 
 
@@ -33,6 +37,8 @@ class RunFailurePolicy(str, Enum):
 
 
 class ParameterSpec(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     name: str
     lower_bound: float
     upper_bound: float
@@ -57,6 +63,8 @@ class ParameterSpec(BaseModel):
 
 
 class SensitivityPlan(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     # Legacy field preserved for backward compatibility.
     parameters: list[str] = Field(default_factory=list)
 
@@ -117,6 +125,8 @@ class SensitivityPlan(BaseModel):
 
 
 class SensitivityResult(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     schema_version: str = "1.0"
     method: SensitivityMethod
     parameter_names: list[str]
@@ -145,6 +155,8 @@ class AdversarialStrategy(str, Enum):
 
 
 class AdversarialPlan(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     parameter_specs: list[ParameterSpec] = Field(default_factory=list)
     strategy: AdversarialStrategy = AdversarialStrategy.SEARCH_LOOP
     max_iterations: int = Field(default=50, ge=1)

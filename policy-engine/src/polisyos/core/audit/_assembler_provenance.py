@@ -8,6 +8,7 @@ from typing import Any
 
 from cryptography.hazmat.primitives.serialization import load_pem_public_key
 
+from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactManifest
 from polisyos.core.artifacts.signing import (
@@ -18,7 +19,6 @@ from polisyos.core.artifacts.signing import (
 )
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.canon.canon_json import from_canonical_bytes
-from polisyos.core.trace.record import TraceRecord
 from polisyos.core.contracts.provenance import (
     ActivityType,
     AgentType,
@@ -28,12 +28,16 @@ from polisyos.core.contracts.provenance import (
     ProvenanceCoreGraph,
     ProvenanceEntity,
 )
+from polisyos.core.trace.record import TraceRecord
 
 __all__ = [
     "build_merged_provenance",
     "collect_public_keys",
     "collect_signatures",
 ]
+
+
+logger = get_logger(__name__)
 
 
 def collect_signatures(
@@ -77,7 +81,12 @@ def collect_public_keys(
                 pem = key_file.read_bytes()
                 public_key = load_pem_public_key(pem)
                 key_id = compute_key_id(public_key)
-            except Exception:
+            except (OSError, TypeError, ValueError) as exc:
+                logger.debug(
+                    "Failed to load trusted public key from %s: %s",
+                    key_file,
+                    exc,
+                )
                 continue
             if key_id in key_ids:
                 found[key_id] = pem
@@ -96,7 +105,8 @@ def collect_public_keys(
             continue
         try:
             payload = json.loads(path.read_text("utf-8"))
-        except Exception:
+        except (OSError, TypeError, json.JSONDecodeError) as exc:
+            logger.debug("Failed to parse identity payload from %s: %s", path, exc)
             continue
         if not isinstance(payload, dict):
             continue
@@ -159,7 +169,8 @@ def build_merged_provenance(
         for idx, line in enumerate(trace_path.read_text("utf-8").splitlines()):
             try:
                 record = TraceRecord.model_validate_json(line)
-            except Exception:
+            except ValueError as exc:
+                logger.debug("Skipping invalid trace record at line %s: %s", idx + 1, exc)
                 continue
             activity_id = f"{run_id}/{idx:05d}/{record.phase}/{record.event}"
             activity = ProvenanceActivity(
@@ -183,7 +194,12 @@ def build_merged_provenance(
     for artifact_id in sorted(artifact_ids, key=lambda item: item.hex):
         try:
             payload = _load_json_payload(cas, artifact_id)
-        except Exception:
+        except (FileNotFoundError, OSError, TypeError, ValueError, UnicodeDecodeError) as exc:
+            logger.debug(
+                "Failed to load artifact payload for %s: %s",
+                artifact_id,
+                exc,
+            )
             continue
         prov_ref = payload.get("provenance_ref")
         prov_artifact_id = _extract_provenance_artifact_id(prov_ref)
@@ -192,7 +208,12 @@ def build_merged_provenance(
         try:
             prov_payload = _load_json_payload(cas, prov_artifact_id)
             sub_graph = ProvenanceCoreGraph.from_dict(prov_payload)
-        except Exception:
+        except (TypeError, ValueError) as exc:
+            logger.debug(
+                "Failed to load provenance payload for %s: %s",
+                prov_artifact_id,
+                exc,
+            )
             continue
         for item in sub_graph.entities.values():
             graph.add_entity(item)
@@ -215,7 +236,8 @@ def _load_json_payload(cas: FileSystemCAS, artifact_id: ArtifactID) -> dict[str,
     blob = cas.get_bytes(artifact_id)
     try:
         payload = from_canonical_bytes(blob)
-    except Exception:
+    except (TypeError, ValueError) as exc:
+        logger.debug("Failed to parse canonical payload for %s: %s", artifact_id, exc)
         payload = json.loads(blob.decode("utf-8"))
     if not isinstance(payload, dict):
         raise ValueError("artifact payload is not an object")
@@ -228,12 +250,16 @@ def _extract_provenance_artifact_id(value: Any) -> ArtifactID | None:
         if isinstance(inner, str):
             try:
                 return ArtifactID.model_validate(inner)
-            except Exception:
+            except (TypeError, ValueError) as exc:
+                logger.debug("Failed to parse artifact id from nested provenance payload %s: %s", inner, exc)
                 return None
     if isinstance(value, str):
         try:
             return ArtifactID.model_validate(value)
-        except Exception:
+        except (TypeError, ValueError) as exc:
+            logger.debug(
+                "Failed to parse provenance artifact id from value %s: %s", value, exc
+            )
             return None
     return None
 

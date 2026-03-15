@@ -7,8 +7,8 @@ from collections import defaultdict
 from datetime import UTC, datetime
 from pathlib import Path
 
-from polisyos.batch_common.manifest import write_raw_manifest, write_stage_manifest
 from polisyos.academic.batch.config import AcademicBatchConfig
+from polisyos.batch_common.manifest import write_raw_manifest, write_stage_manifest
 
 
 def _utc_slug() -> str:

@@ -15,6 +15,7 @@ def test_causal_full_workflow_contains_phase9_nodes() -> None:
     assert "run_causal_ensemble" in by_alias
     assert "run_abm_consistency" in by_alias
     assert "run_transportability" in by_alias
+    assert "run_normative_arbitration" in by_alias
     assert "resolve_parameters" in by_alias
     assert "build_literature_prior" in by_alias["reconcile_causal_graph"].depends_on
     assert "reconcile_causal_graph" in by_alias["run_governance"].depends_on
@@ -27,6 +28,7 @@ def test_causal_full_workflow_contains_phase9_nodes() -> None:
     assert "run_causal_ensemble" in by_alias["run_governance"].depends_on
     assert "run_abm_consistency" in by_alias["run_governance"].depends_on
     assert "run_transportability" in by_alias["run_governance"].depends_on
+    assert "run_normative_arbitration" in by_alias["run_governance"].depends_on
 
 
 def test_default_workflow_does_not_include_phase9_nodes() -> None:

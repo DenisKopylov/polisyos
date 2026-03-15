@@ -16,10 +16,16 @@ from datetime import datetime, timezone
 from enum import Enum
 from typing import Any, Dict, List, Optional
 
-from loguru import logger
-
+from polisyos.common.logger import get_logger
 from polisyos.core.contracts.scientist import FailureCardRef
 from polisyos.scientist.agent.failure_card import FailureCard, FailureSeverity, RemediationTarget
+from polisyos.scientist.autotune.reflexion import (
+    ReflexionReplayRecorder,
+    load_reflexion_routing_config,
+    route_recoverable_failure,
+)
+
+logger = get_logger(__name__)
 
 
 class ReflexionDecision(str, Enum):
@@ -58,6 +64,7 @@ class ReflexionOrchestrator:
     def __init__(self, config: Optional[ReflexionConfig] = None):
         self.config = config or ReflexionConfig()
         self._decision_log: List[Dict[str, Any]] = []
+        self._replay_recorder = ReflexionReplayRecorder()
 
     def evaluate_failure(
         self,
@@ -95,7 +102,11 @@ class ReflexionOrchestrator:
                 card, ReflexionDecision.ABORT_WITH_REPORT, "llm_budget_exhausted"
             )
 
-        if card.remediation_target == RemediationTarget.DRAFTER:
+        autotune_config = load_reflexion_routing_config(context={"state": state})
+        autotuned_route = route_recoverable_failure(card, config=autotune_config)
+        if autotuned_route is not None:
+            decision = ReflexionDecision(autotuned_route)
+        elif card.remediation_target == RemediationTarget.DRAFTER:
             decision = ReflexionDecision.RETURN_TO_DRAFTER
         elif card.remediation_target == RemediationTarget.HUMAN:
             decision = ReflexionDecision.ESCALATE_TO_HUMAN
@@ -190,6 +201,32 @@ class ReflexionOrchestrator:
 
     def reset_decision_log(self) -> None:
         self._decision_log.clear()
+
+    def record_retry_outcome(
+        self,
+        card: FailureCard,
+        decision: ReflexionDecision,
+        success: bool,
+        *,
+        unsafe_for_nonhuman: bool = False,
+        alternative_outcomes: Dict[str, bool] | None = None,
+        metadata: dict[str, Any] | None = None,
+    ) -> None:
+        outcomes = dict(alternative_outcomes or {})
+        outcomes[decision.value] = bool(success)
+        self._replay_recorder.record_case(
+            case_id=f"{card.run_id}:{card.card_id}:{card.attempt_number}",
+            card=card,
+            decision_outcomes=outcomes,
+            unsafe_for_nonhuman=unsafe_for_nonhuman,
+            metadata=metadata,
+        )
+
+    def get_replay_records(self) -> List[Dict[str, Any]]:
+        return self._replay_recorder.records()
+
+    def write_replay_dataset(self, **kwargs: Any):
+        return self._replay_recorder.write_dataset(**kwargs)
 
     def _llm_budget_exhausted(self, state: "ExperimentState") -> bool:
         budget = state.get("budget") or {}

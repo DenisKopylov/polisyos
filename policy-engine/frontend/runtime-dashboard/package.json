@@ -14,7 +14,7 @@
     "test": "vitest run",
     "test:contracts": "vitest run src/test/contracts/contractFixtures.test.ts",
     "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage && node ./scripts/check-coverage-ratchet.mjs",
+    "test:coverage": "vitest run --coverage --maxWorkers=1 --testTimeout=20000 --hookTimeout=20000 && node ./scripts/check-coverage-ratchet.mjs",
     "test:a11y": "npm run test:a11y:components && npm run test:a11y:pages",
     "test:a11y:components": "vitest run --config vitest.a11y.config.ts",
     "test:a11y:pages": "playwright test e2e/a11y --project=chromium",

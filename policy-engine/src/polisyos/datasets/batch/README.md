@@ -7,6 +7,7 @@
 - собирает метаданные из внешних статистических источников (SDMX/CKAN/API);
 - нормализует их в единую модель `DatasetRecord`;
 - загружает граф каталога в DuckDB и строит vector index;
+- прогоняет consumer benchmarks для `scientist`, `fabric`, transportability и `foundry`;
 - готовит QC и publish manifest;
 - опционально заполняет registry-таблицы для transportability (`DatasetRegistry`).
 
@@ -21,8 +22,9 @@
 | `graph_index` | `graph_builder.py` | Создает вторичные индексы DuckDB | `graph/dataset_catalog.duckdb`, `manifests/graph_index.json` |
 | `core_sources_ingest` | `core_sources_ingest.py` | Заполняет `ds_registry_datasets`, `ds_variable_alignments`, `ds_observations` | `graph/dataset_catalog.duckdb`, `manifests/core_sources_ingest.json` |
 | `embed` | `embedder.py` | Строит эмбеддинги и HNSW index | `ds_dataset_embeddings.npz`, `ds_dataset_index.hnsw`, `manifests/embed.json` |
+| `benchmark` | `benchmark.py` | Считает multilingual search / retrieval / transport / foundry readiness benchmarks | `benchmark_report.json`, `manifests/benchmark.json` |
 | `qc` | `qc.py` | Проводит QC checks и fail-fast gate | `qc_report.json`, `manifests/qc.json` |
-| `publish` | `publish.py` | Собирает publish manifest с hash артефактов | `publish/manifest.json`, `manifests/publish.json` |
+| `publish` | `publish.py` | Собирает publish manifest и `consumer_readiness.json`, блокируя publish при провале readiness-gates | `publish/manifest.json`, `publish/consumer_readiness.json`, `manifests/publish.json` |
 
 ## Snapshot layout
 
@@ -34,23 +36,24 @@
   graph/dataset_catalog.duckdb
   ds_dataset_embeddings.npz
   ds_dataset_index.hnsw
+  benchmark_report.json
   qc_report.json
   manifests/*.json
-  publish/manifest.json
+  publish/{manifest.json,consumer_readiness.json}
 ```
 
 ## Source registry и волны
 
 - Источники объявлены в `source_registry.yaml` (`name`, `family`, `wave`, `endpoint`, фильтры agencies).
 - Поддерживаются wave `A/B/C/D`.
-- Wave `C` (сейчас `data_gov_ua`) обрабатывается тем же последовательным циклом, без параллельного fan-out.
+- Wave `C` теперь разделён на `data_gov_ua_broad` и `data_gov_ua_exec`; второй строится как curated slice из broad snapshot и тоже идёт последовательным циклом, без параллельного fan-out.
 - `--resume` повторно использует последний raw snapshot конкретного source.
 
 Основные `family` в текущем коде:
 
 - `sdmx` (OECD, IMF, ECB, Eurostat, ILO, UNICEF);
 - `worldbank`, `wvs`, `ukons`, `who`, `uis`, `unpd`;
-- `ckan` (например `data_gov_ua`);
+- `ckan` (например `data_gov_ua_broad`, `data_gov_ua_exec`);
 - `undata`.
 
 ## CLI точки входа
@@ -63,12 +66,13 @@ CLI расположен в `cli.py`.
 python -m polisyos.datasets.batch.cli run --snapshot-root /abs/path/to/snapshot
 python -m polisyos.datasets.batch.cli run --snapshot-root /abs/path/to/snapshot --stages harvest,normalize,merge-dedup
 python -m polisyos.datasets.batch.cli core-sources-ingest --snapshot-root /abs/path/to/snapshot
+python -m polisyos.datasets.batch.cli benchmark --snapshot-root /abs/path/to/snapshot
 python -m polisyos.datasets.batch.cli search --db-path /abs/path/to/snapshot/datasets/graph/dataset_catalog.duckdb --query "gdp per capita"
 ```
 
 Важно:
 
-- `run` по умолчанию использует `DEFAULT_RUN_STAGES` (без `core_sources_ingest`).
+- `run` по умолчанию использует полный `DEFAULT_RUN_STAGES`, включая `core_sources_ingest`, `benchmark`, `qc` и `publish`.
 - aliases стадий поддерживаются (`merge-dedup`, `graph-load`, `graph-index`, `core-sources-ingest`).
 
 ## Конфигурация (`DatasetBatchConfig`)
@@ -89,11 +93,17 @@ python -m polisyos.datasets.batch.cli search --db-path /abs/path/to/snapshot/dat
   - `empty_title_pct <= 5%`;
   - `empty_description_pct <= 60%`;
   - `url_sample_reachability_pct >= 70%` (warning, если sample пустой).
+- Benchmark/readiness gates в текущей реализации:
+  - `benchmark_search_top5_relevance_pct >= 80%`;
+  - `benchmark_retrieval_ready_pct >= 85%`;
+  - `benchmark_transport_ready_pct >= 80%`;
+  - `benchmark_foundry_fitness_pct >= 80%`.
+- `publish` больше не является “тупой” записью manifest: он требует успешный `qc_report.json`, валидный `benchmark_report.json` и положительный `publish/consumer_readiness.json`.
 - Метрики PolicyOS в normalize подключаются через `metrics_map` параметр функции, но стандартный CLI сейчас не передает этот файл отдельным флагом.
 
 ## Связи с соседними пакетами
 
 - `polisyos.batch_common.*` — manifests, QC model, thermal helpers, directory layout.
 - `polisyos.datasets.knowledge.types` — канонические `DatasetRecord/DistributionRecord` для стадий normalize/merge/graph.
-- `polisyos.fabric.connectors.*` — `core_sources_ingest` использует connector profiles для WDI/WVS.
+- `polisyos.fabric.connectors.*` — `core_sources_ingest` использует connector profiles и source-specific fetchers для worldbank/wvs/eurostat/oecd/ilo и transport-source REST APIs.
 - `polisyos.datasets.knowledge.search` — CLI команда `search` использует runtime-граф поверх собранного каталога.

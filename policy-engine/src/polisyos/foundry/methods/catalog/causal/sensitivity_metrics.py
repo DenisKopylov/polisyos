@@ -177,7 +177,7 @@ def _extract_stat(payload: Any, keys: tuple[str, ...]) -> float | None:
                 continue
             try:
                 scalar = float(value)
-            except Exception:
+            except (TypeError, ValueError):
                 continue
             if math.isfinite(scalar):
                 return scalar

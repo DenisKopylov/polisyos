@@ -13,9 +13,14 @@ from typing import Any
 from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.primitives.serialization import Encoding, PublicFormat, load_pem_public_key
 
+from polisyos.common.logger import get_logger
+
+logger = get_logger(__name__)
+
+
 try:
     from polisyos.core.canon import content_hash, streaming_hash
-except Exception:  # pragma: no cover - template fallback for standalone runs
+except ImportError:  # pragma: no cover - template fallback for standalone runs
     def content_hash(payload: bytes | str, *, prefix: bool = False) -> str:
         raw = payload if isinstance(payload, bytes) else payload.encode("utf-8")
         digest = __import__("hashlib").sha256(raw).hexdigest()
@@ -70,22 +75,22 @@ def _safe_extract(
             return
         except TypeError:
             # Python < 3.12 fallback below.
-            pass
+            logger.debug("tarfile extractall fallback for python < 3.12")
 
-        for member in members:
-            rel = Path(member.name)
-            out_path = target / rel
-            if member.isdir():
-                out_path.mkdir(parents=True, exist_ok=True)
-                continue
-            if not member.isfile():
-                continue
-            out_path.parent.mkdir(parents=True, exist_ok=True)
-            extracted = tar.extractfile(member)
-            if extracted is None:
-                continue
-            with extracted, out_path.open("wb") as handle:
-                shutil.copyfileobj(extracted, handle)
+            for member in members:
+                rel = Path(member.name)
+                out_path = target / rel
+                if member.isdir():
+                    out_path.mkdir(parents=True, exist_ok=True)
+                    continue
+                if not member.isfile():
+                    continue
+                out_path.parent.mkdir(parents=True, exist_ok=True)
+                extracted = tar.extractfile(member)
+                if extracted is None:
+                    continue
+                with extracted, out_path.open("wb") as handle:
+                    shutil.copyfileobj(extracted, handle)
 
 
 def _validate_members(
@@ -128,8 +133,8 @@ def _resolve_profile(pkg_dir: Path, index: dict[str, Any]) -> str:
                 return str(payload["profile"])
             if payload.get("manifests_only") is True:
                 return "manifests_only"
-        except Exception:
-            pass
+        except (OSError, ValueError, TypeError, json.JSONDecodeError, UnicodeDecodeError) as exc:
+            logger.debug("Ignored exception: %s", exc)
     profile = index.get("export_profile")
     if profile in {"full", "manifests_only"}:
         return str(profile)
@@ -165,7 +170,7 @@ def _verify_checksum_signature(pkg_dir: Path) -> tuple[list[str], list[str]]:
         return failures, warnings
     try:
         payload = json.loads(sig_path.read_text("utf-8"))
-    except Exception as exc:
+    except (OSError, ValueError, json.JSONDecodeError, UnicodeDecodeError) as exc:
         failures.append(f"invalid checksum signature payload: {exc}")
         return failures, warnings
     key_id = payload.get("key_id")
@@ -182,7 +187,7 @@ def _verify_checksum_signature(pkg_dir: Path) -> tuple[list[str], list[str]]:
             public_key.verify(bytes.fromhex(signature_hex), statement)
             matched = True
             break
-        except Exception:
+        except (ValueError, TypeError):
             continue
     if not matched:
         failures.append("checksum signature verification failed")
@@ -202,11 +207,11 @@ def _load_package_keys(pkg_dir: Path) -> dict[str, Any]:
     for key_file in sorted(key_dir.glob("*.pem")):
         try:
             key = load_pem_public_key(key_file.read_bytes())
-        except Exception:
+        except (OSError, TypeError, ValueError):
             continue
         try:
             keys[_key_id(key)] = key
-        except Exception:
+        except (TypeError, ValueError):
             continue
     return keys
 
@@ -222,7 +227,7 @@ def _verify_cas(
     for manifest_path in sorted((pkg_dir / "artifacts" / "sha256").rglob("*.manifest.json")):
         try:
             manifest = json.loads(manifest_path.read_text("utf-8"))
-        except Exception as exc:
+        except (OSError, ValueError, json.JSONDecodeError, UnicodeDecodeError) as exc:
             failures.append(f"invalid manifest: {manifest_path}: {exc}")
             continue
         hex_id = _parse_artifact_hex(manifest.get("artifact_id"))
@@ -280,7 +285,7 @@ def _verify_signatures(
     for sig_path in sig_files:
         try:
             signature = json.loads(sig_path.read_text("utf-8"))
-        except Exception as exc:
+        except (OSError, ValueError, json.JSONDecodeError, UnicodeDecodeError) as exc:
             failures.append(f"invalid signature file: {sig_path}: {exc}")
             continue
         statement = signature.get("statement")
@@ -336,7 +341,7 @@ def _verify_signatures(
         except InvalidSignature:
             failures.append(f"invalid signature bytes for {hex_id}")
             continue
-        except Exception as exc:
+        except (TypeError, ValueError) as exc:
             failures.append(f"signature verification error for {hex_id}: {exc}")
             continue
 
@@ -365,7 +370,7 @@ def _verify_slsa(
 
     try:
         attestation = json.loads(attestation_path.read_text("utf-8"))
-    except Exception as exc:
+    except (OSError, ValueError, json.JSONDecodeError, UnicodeDecodeError) as exc:
         failures.append(f"invalid slsa attestation json: {exc}")
         return failures, warnings
 
@@ -426,7 +431,7 @@ def _verify_slsa(
     else:
         try:
             signature_payload = json.loads(signature_path.read_text("utf-8"))
-        except Exception as exc:
+        except (OSError, ValueError, json.JSONDecodeError, UnicodeDecodeError) as exc:
             failures.append(f"invalid slsa signature payload: {exc}")
         else:
             payload_sha = signature_payload.get("payload_sha256")
@@ -439,7 +444,7 @@ def _verify_slsa(
     if transparency_path.exists():
         try:
             transparency = json.loads(transparency_path.read_text("utf-8"))
-        except Exception as exc:
+        except (OSError, ValueError, json.JSONDecodeError, UnicodeDecodeError) as exc:
             failures.append(f"invalid slsa transparency payload: {exc}")
         else:
             entry_sha = transparency.get("payload_sha256")
@@ -469,7 +474,7 @@ def main(argv: list[str] | None = None) -> int:
         return 1
     try:
         index = json.loads(index_path.read_text("utf-8"))
-    except Exception as exc:
+    except (OSError, ValueError, json.JSONDecodeError, UnicodeDecodeError) as exc:
         print("FAIL")
         print(f"- invalid index.json: {exc}")
         return 1

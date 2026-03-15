@@ -5,55 +5,39 @@ Phase 3.2 Public API.
 """
 from __future__ import annotations
 
+from polisyos.foundry.methods.backends import (
+    BackendNotAvailableError,
+    ChainExecutionResult,
+    MethodDispatcher,
+    MethodResult,
+    MethodRunner,
+    MethodTiming,
+    ReproducibilityInfo,
+    SolverStatus,
+    execute_heterogeneous_chain,
+)
 from polisyos.foundry.methods.base import (
-    FoundryMethod,
+    ComplexityClass,
     ComputeBackend,
-    MethodSignature,
+    FidelityLevel,
+    FoundryMethod,
     MethodMetadata,
+    MethodSignature,
+    ParameterSpec,
     SlotSpec,
     SlotType,
-    ParameterSpec,
     Unit,
-    FidelityLevel,
-    ComplexityClass,
-    foundry_method,
     check_protocol_compliance,
-    parse_fqn,
+    foundry_method,
     is_valid_semver,
+    parse_fqn,
 )
-
-from polisyos.foundry.methods.exceptions import (
-    FoundryMethodError,
-    MethodDefinitionError,
-    MethodNotFoundError,
-    MethodAlreadyRegisteredError,
-    ResolutionError,
-    SlotConnectionError,
-    UnitMismatchError,
-    ShapeMismatchError,
-    CyclicDependencyError,
-    CompilationError,
-    ParameterValidationError,
-    ArtifactError,
-    LawViolationError,
+from polisyos.foundry.methods.composer import (
+    CompiledMethodChain,
+    CompositionDAG,
+    MethodComposer,
+    MethodNode,
 )
-
-from polisyos.foundry.methods.resolution import (
-    ResolutionPolicy,
-    VersionConstraint,
-    resolve_version,
-    find_compatible_versions,
-    compare_versions,
-    is_compatible_upgrade,
-)
-
-from polisyos.foundry.methods.registry import (
-    MethodEntry,
-    MethodRegistry,
-    RegistrySnapshot,
-    get_registry,
-)
-
 from polisyos.foundry.methods.discovery import (
     DISCOVERY_MODULE_PREFIX,
     ENTRY_POINT_GROUP,
@@ -67,7 +51,44 @@ from polisyos.foundry.methods.discovery import (
     bootstrap_registry,
     is_foundry_method,
 )
-
+from polisyos.foundry.methods.exceptions import (
+    ArtifactError,
+    CompilationError,
+    CyclicDependencyError,
+    FoundryMethodError,
+    LawViolationError,
+    MethodAlreadyRegisteredError,
+    MethodContractError,
+    MethodDefinitionError,
+    MethodNotFoundError,
+    ParameterValidationError,
+    ResolutionError,
+    ShapeMismatchError,
+    SlotConnectionError,
+    UnitMismatchError,
+)
+from polisyos.foundry.methods.linker import (
+    LinkerConfig,
+    LinkResult,
+    SlotBinding,
+    SlotLinker,
+    check_linkable,
+    link_methods,
+)
+from polisyos.foundry.methods.registry import (
+    MethodEntry,
+    MethodRegistry,
+    RegistrySnapshot,
+    get_registry,
+)
+from polisyos.foundry.methods.resolution import (
+    ResolutionPolicy,
+    VersionConstraint,
+    compare_versions,
+    find_compatible_versions,
+    is_compatible_upgrade,
+    resolve_version,
+)
 from polisyos.foundry.methods.types.checker import (
     AdapterPlan,
     IncompatibilityReason,
@@ -83,39 +104,12 @@ from polisyos.foundry.methods.types.checker import (
     find_compatible_slots,
 )
 
-from polisyos.foundry.methods.linker import (
-    SlotLinker,
-    SlotBinding,
-    LinkResult,
-    LinkerConfig,
-    link_methods,
-    check_linkable,
-)
-
-from polisyos.foundry.methods.composer import (
-    MethodNode,
-    CompositionDAG,
-    MethodComposer,
-    CompiledMethodChain,
-)
-from polisyos.foundry.methods.backends import (
-    BackendNotAvailableError,
-    ChainExecutionResult,
-    MethodDispatcher,
-    MethodResult,
-    MethodRunner,
-    MethodTiming,
-    ReproducibilityInfo,
-    SolverStatus,
-    execute_heterogeneous_chain,
-)
-
 try:
     from polisyos.foundry.methods.compiler import (
-        MethodCompiler,
-        CompiledMethod,
         CompilationCache,
         CompiledChainExecutor,
+        CompiledMethod,
+        MethodCompiler,
         get_global_cache,
         reset_global_cache,
     )
@@ -125,9 +119,9 @@ except ModuleNotFoundError:  # pragma: no cover - optional dependency path
 
 try:
     from polisyos.foundry.methods.specialization import (
-        Specialization,
-        ShapeSpec,
         BackendSpec,
+        ShapeSpec,
+        Specialization,
         build_specialization,
         compute_static_params_hash,
         specialization_from_signature_and_state,
@@ -138,31 +132,32 @@ except ModuleNotFoundError:  # pragma: no cover - optional dependency path
 
 try:
     from polisyos.foundry.methods.artifacts import (
-        MethodArtifact,
         ChainArtifact,
-        ExecutionEvidence,
-        SlotBindingRecord,
-        MethodTiming,
-        DeviceInfo,
         ChainNodeRecord,
+        DeviceInfo,
+        ExecutionEvidence,
+        MethodArtifact,
+        MethodTiming,
+        SlotBindingRecord,
         SourceFingerprint,
-        compute_source_hash,
         compute_source_fingerprint,
-        store_method_artifact,
+        compute_source_hash,
         store_chain_artifact,
         store_execution_evidence,
+        store_method_artifact,
     )
     _ARTIFACTS_AVAILABLE = True
 except ModuleNotFoundError:  # pragma: no cover - optional dependency path
     _ARTIFACTS_AVAILABLE = False
+from polisyos.foundry.methods.catalog_snapshot import (
+    build_method_catalog_snapshot,
+    persist_method_catalog_snapshot,
+)
+from polisyos.foundry.methods.catalog import ensure_all_methods_registered
 from polisyos.foundry.methods.components_bridge import (
     ComponentsBridgeError,
     ComponentsBridgeReport,
     bootstrap_method_registry_from_components,
-)
-from polisyos.foundry.methods.catalog_snapshot import (
-    build_method_catalog_snapshot,
-    persist_method_catalog_snapshot,
 )
 
 __all__ = [
@@ -184,6 +179,7 @@ __all__ = [
     "MethodDefinitionError",
     "MethodNotFoundError",
     "MethodAlreadyRegisteredError",
+    "MethodContractError",
     "ResolutionError",
     "SlotConnectionError",
     "UnitMismatchError",
@@ -275,6 +271,7 @@ __all__ = [
     "bootstrap_method_registry_from_components",
     "build_method_catalog_snapshot",
     "persist_method_catalog_snapshot",
+    "ensure_all_methods_registered",
 ]
 
 if not _COMPILER_AVAILABLE:

@@ -7,10 +7,11 @@ Exports protocol interfaces, mock implementations, and legacy helpers.
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 # =============================================================================
 # PROTOCOLS (Type Interfaces)
 # =============================================================================
-
 from polisyos.scientist.agent.protocols import (
     AGENT_PROTOCOLS,
     AgentRole,
@@ -34,11 +35,15 @@ from polisyos.scientist.agent.protocols import (
     is_valid_agent,
 )
 
-from typing import TYPE_CHECKING
-
 if TYPE_CHECKING:
     # Optional exports (loaded lazily at runtime to avoid circular imports).
     from polisyos.scientist.agent.base import BaseAgent, MockAgent
+    from polisyos.scientist.agent.code_verifier import CodeVerificationSandbox, SandboxConfig
+    from polisyos.scientist.agent.constitution import (
+        ConstitutionGenerator,
+        KnownPitfall,
+        PolicyConstitution,
+    )
     from polisyos.scientist.agent.critic import (
         LLMCriticAgent,
         MockCriticAgent,
@@ -47,11 +52,6 @@ if TYPE_CHECKING:
     from polisyos.scientist.agent.data_need_extractor import (
         LLMDataNeedExtractorAgent,
         MockDataNeedExtractorAgent,
-    )
-    from polisyos.scientist.agent.constitution import (
-        ConstitutionGenerator,
-        KnownPitfall,
-        PolicyConstitution,
     )
     from polisyos.scientist.agent.drafter import (
         LLMDrafterAgent,
@@ -68,8 +68,6 @@ if TYPE_CHECKING:
         StateSnapshotFeasibilityProbe,
     )
     from polisyos.scientist.agent.feasibility_duckdb import DuckDBFeasibilityProbe
-    from polisyos.scientist.agent.rag import CASRAGIndex, RAGConfig
-    from polisyos.scientist.agent.code_verifier import CodeVerificationSandbox, SandboxConfig
     from polisyos.scientist.agent.formalizer import LLMFormalizerAgent, MockFormalizerAgent
     from polisyos.scientist.agent.informed_critic import InformedCriticAgent, InformedCriticConfig
     from polisyos.scientist.agent.knowledge_base import CriticKnowledgeBase
@@ -80,6 +78,7 @@ if TYPE_CHECKING:
         StaticNormPackLoader,
     )
     from polisyos.scientist.agent.pi import LLMPIAgent, MockPIAgent
+    from polisyos.scientist.agent.rag import CASRAGIndex, RAGConfig
 
 __all__ = [
     "PIAgent",

@@ -73,6 +73,22 @@ class MethodAlreadyRegisteredError(FoundryMethodError):
         super().__init__(f"Method already registered: {fqn}")
 
 
+class MethodContractError(FoundryMethodError):
+    """
+    Method input/output contract is violated at runtime.
+
+    Raised when a method returns values that do not match its declared output
+    slots, or when slot materialization cannot produce a valid runtime payload.
+    """
+
+    default_category = ErrorCategory.VALIDATION
+
+    def __init__(self, method_fqn: str, reason: str) -> None:
+        self.method_fqn = method_fqn
+        self.reason = reason
+        super().__init__(f"Method contract error for {method_fqn}: {reason}")
+
+
 class ResolutionError(FoundryMethodError):
     """
     Error during version resolution.

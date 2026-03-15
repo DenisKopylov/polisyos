@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Mapping, Protocol, runtime_checkable
+from typing import Any, ClassVar, Mapping, Protocol, runtime_checkable
 
 from polisyos.core.observability import get_metrics
 from polisyos.foundry.methods.backends.protocol import SolverStatus
@@ -47,6 +47,7 @@ class ResourceConstraint:
 class OptimizationProblem:
     """Canonical optimization problem payload for MILP/LP methods."""
 
+    contract_id: ClassVar[str] = "foundry.optimization.problem.v1"
     problem_id: str
     items: tuple[AllocationItem, ...]
     constraints: tuple[ResourceConstraint, ...] = ()
@@ -109,6 +110,7 @@ class OptimizationProblem:
 class OptimizationResult:
     """Unified result contract for optimization methods."""
 
+    contract_id: ClassVar[str] = "foundry.optimization.result.v1"
     status: SolverStatus
     objective_value: float | None
     variables: Mapping[str, float]
@@ -151,6 +153,7 @@ class OptimizationResult:
 class IOModelResult:
     """Result payload for Leontief input-output modeling."""
 
+    contract_id: ClassVar[str] = "foundry.optimization.io_result.v1"
     status: SolverStatus
     output_vector: tuple[float, ...]
     multipliers: tuple[float, ...]

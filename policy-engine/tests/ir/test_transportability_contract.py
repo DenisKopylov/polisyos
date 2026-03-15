@@ -91,7 +91,7 @@ def test_transportability_result_upgrades_legacy_formula_alias() -> None:
     assert result.transport_formula is not None
     dumped = result.model_dump(mode="json")
     assert "formula" not in dumped
-    assert dumped["identification_engine"] == "simplified"
+    assert dumped["identification_engine"] == "simplified_legacy"
 
 
 # --- DOD-145 golden tests ---
@@ -153,7 +153,7 @@ def _build_golden_scenario() -> tuple[SelectionDiagram, str, str]:
 
 
 def test_golden_non_transportable_verdict() -> None:
-    """Collider S-node blocks transport → NON_TRANSPORTABLE."""
+    """Collider S-node blocks transport → UNSUPPORTED in legacy simplified mode."""
     diagram, treatment, outcome = _build_golden_scenario()
     raw = CheckTransportability.pure_step(
         state={
@@ -164,7 +164,7 @@ def test_golden_non_transportable_verdict() -> None:
         params={},
     )
     tr = TransportabilityResult.model_validate(raw["transport_result"])
-    assert tr.status == TransportabilityStatus.NON_TRANSPORTABLE
+    assert tr.status == TransportabilityStatus.UNSUPPORTED
     assert tr.final_confidence == 0.0
     assert len(tr.blocking_s_nodes) >= 1
 
@@ -196,7 +196,7 @@ def test_golden_non_transportable_then_manski_e2e() -> None:
         params={},
     )
     tr = TransportabilityResult.model_validate(raw["transport_result"])
-    assert tr.status == TransportabilityStatus.NON_TRANSPORTABLE
+    assert tr.status == TransportabilityStatus.UNSUPPORTED
 
     manski = compute_manski_bounds(
         outcome_conditioned=np.array([0.25, 0.55]),

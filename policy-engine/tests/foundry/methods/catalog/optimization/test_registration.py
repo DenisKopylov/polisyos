@@ -12,4 +12,19 @@ def test_register_optimization_methods_queryable() -> None:
     signatures = [sig for sig in registry.query() if sig.namespace.startswith("optimization")]
     names = {sig.name for sig in signatures}
 
-    assert names == {"budget_milp", "resource_lp", "leontief_io"}
+    assert names == {
+        "budget_milp",
+        "resource_lp",
+        "leontief_io",
+        "quadratic_program",
+        "robust_optimization",
+        "multiobjective_nsga2",
+        "socp",
+        "two_stage_stochastic_program",
+        "dynamic_programming",
+    }
+
+    fqns = {sig.fqn for sig in signatures}
+    assert "optimization.linear.resource_lp@1.0.0" in fqns
+    assert "optimization.integer.budget_milp@1.0.0" in fqns
+    assert "optimization.io.leontief_io@1.0.0" in fqns

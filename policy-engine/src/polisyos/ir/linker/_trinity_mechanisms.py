@@ -5,11 +5,6 @@ from __future__ import annotations
 from decimal import Decimal, InvalidOperation
 from typing import Iterable
 
-from polisyos.ir.kernel.merge_rules import MergeRuleKind, MergeRuleRegistry
-from polisyos.ir.kernel.selector_fields import SelectorFieldRegistry
-from polisyos.ir.kernel.slots import SlotRegistry, SlotValueType
-from polisyos.ir.kernel.units import MoneyUnit, RateUnit, UnitsRegistry
-from polisyos.ir.kernel.values import CountValue, DurationValue, MoneyValue, RateValue
 from polisyos.ir.governance.policy_spec import InterventionSpec
 from polisyos.ir.governance.problem_frame import ConstraintSpec
 from polisyos.ir.governance.schedule import ScheduleSpec, schedule_range
@@ -20,6 +15,11 @@ from polisyos.ir.governance.selector_expr import (
     SelectorNot,
     SelectorPredicate,
 )
+from polisyos.ir.kernel.merge_rules import MergeRuleKind, MergeRuleRegistry
+from polisyos.ir.kernel.selector_fields import SelectorFieldRegistry
+from polisyos.ir.kernel.slots import SlotRegistry, SlotValueType
+from polisyos.ir.kernel.units import MoneyUnit, RateUnit, UnitsRegistry
+from polisyos.ir.kernel.values import CountValue, DurationValue, MoneyValue, RateValue
 
 from .reports import LinkIssue, LinkIssueCode, LinkSeverity
 

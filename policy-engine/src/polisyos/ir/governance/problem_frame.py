@@ -58,6 +58,48 @@ class ConstraintType(str, Enum):
     SOFT = "soft"  # Preferred but not required
 
 
+class NormativeArbitrationPolicy(str, Enum):
+    """Supported formal arbitration policies."""
+
+    LEXICOGRAPHIC_RIGHTS = "lexicographic_rights"
+    WEIGHTED_WELFARE = "weighted_welfare"
+    MAX_MIN_HARM = "max_min_harm"
+    PARETO_FILTER = "pareto_filter"
+
+
+class NormativeComparisonMode(str, Enum):
+    """Supported comparison modes for arbitration."""
+
+    PROPOSAL_VS_BASELINE = "proposal_vs_baseline"
+
+
+class NormativeOutcomeChannel(str, Enum):
+    """Canonical channels that can feed normative utilities/rights."""
+
+    SIMULATION_METRIC = "simulation_metric"
+    DISTRIBUTIONAL_NET_IMPACT = "distributional_net_impact"
+    DISTRIBUTIONAL_LOSERS_SHARE = "distributional_losers_share"
+    DISTRIBUTIONAL_WINNERS_SHARE = "distributional_winners_share"
+    DISTRIBUTIONAL_OVERALL_GINI_DELTA = "distributional_overall_gini_delta"
+    UNCERTAINTY_CI_WIDTH_RATIO = "uncertainty_ci_width_ratio"
+    SYNTHESIZED = "synthesized"
+
+
+class NormativeComparisonTarget(str, Enum):
+    """Which quantity a right condition evaluates."""
+
+    PROPOSAL = "proposal"
+    BASELINE = "baseline"
+    DELTA = "delta"
+
+
+class UtilityDirection(str, Enum):
+    """Utility aggregation direction for a stakeholder term."""
+
+    MAXIMIZE = "maximize"
+    MINIMIZE = "minimize"
+
+
 class KPISpec(KernelModel):
     """
     Key Performance Indicator specification.
@@ -163,6 +205,67 @@ class StakeholderSpec(KernelModel):
     attributes: dict[str, str | int | bool] = Field(default_factory=dict)
 
 
+class StakeholderOutcomeBinding(KernelModel):
+    """Map a stakeholder to a concrete outcome channel and key."""
+
+    binding_id: str = Field(..., pattern=ID_PATTERN)
+    stakeholder_id: str = Field(..., pattern=ID_PATTERN)
+    channel: NormativeOutcomeChannel
+    outcome_key: str = Field(..., min_length=1, max_length=200)
+    weight: NonNegativeDecimal = Decimal("1")
+    notes: list[str] = Field(default_factory=list, max_length=10)
+
+
+class StakeholderUtilityTerm(KernelModel):
+    """Explicit utility term for stakeholder welfare aggregation."""
+
+    term_id: str = Field(..., pattern=ID_PATTERN)
+    stakeholder_id: str = Field(..., pattern=ID_PATTERN)
+    binding_refs: list[str] = Field(default_factory=list, max_length=10)
+    direction: UtilityDirection = UtilityDirection.MAXIMIZE
+    coefficient: DecimalValue = Decimal("1")
+    welfare_weight: NonNegativeDecimal = Decimal("1")
+    notes: list[str] = Field(default_factory=list, max_length=10)
+
+
+class StakeholderRightSpec(KernelModel):
+    """Explicit normative right attached to a stakeholder."""
+
+    right_id: str = Field(..., pattern=ID_PATTERN)
+    stakeholder_id: str = Field(..., pattern=ID_PATTERN)
+    binding_ref: str | None = Field(None, pattern=ID_PATTERN)
+    compare_to: NormativeComparisonTarget = NormativeComparisonTarget.DELTA
+    operator: Literal["<", "<=", "==", "!=", ">=", ">"]
+    threshold: DecimalValue | int | str | bool
+    hard: bool = True
+    notes: list[str] = Field(default_factory=list, max_length=10)
+
+
+class NormativeFrame(KernelModel):
+    """Formal value-conflict model used by normative arbitration."""
+
+    comparison_mode: NormativeComparisonMode = NormativeComparisonMode.PROPOSAL_VS_BASELINE
+    default_policy: NormativeArbitrationPolicy = NormativeArbitrationPolicy.LEXICOGRAPHIC_RIGHTS
+    enabled_policies: list[NormativeArbitrationPolicy] = Field(
+        default_factory=lambda: [NormativeArbitrationPolicy.LEXICOGRAPHIC_RIGHTS],
+        max_length=4,
+    )
+    stakeholder_bindings: list[StakeholderOutcomeBinding] = Field(
+        default_factory=list,
+        max_length=MAX_STAKEHOLDERS * 5,
+    )
+    utility_terms: list[StakeholderUtilityTerm] = Field(
+        default_factory=list,
+        max_length=MAX_STAKEHOLDERS * 5,
+    )
+    rights_catalog: list[StakeholderRightSpec] = Field(
+        default_factory=list,
+        max_length=MAX_STAKEHOLDERS * 5,
+    )
+    hard_constraint_refs: list[str] = Field(default_factory=list, max_length=MAX_CONSTRAINTS)
+    notes: list[str] = Field(default_factory=list, max_length=20)
+
+
 class ProblemFrame(KernelModel):
     """
     ProblemFrame: The "Why" artifact.
@@ -213,6 +316,10 @@ class ProblemFrame(KernelModel):
         max_length=MAX_STAKEHOLDERS,
         description="Entities affected by the problem",
     )
+    normative_frame: NormativeFrame | None = Field(
+        default=None,
+        description="Optional formal normative arbitration model",
+    )
 
     # Metadata
     narrative: str | None = Field(
@@ -254,7 +361,67 @@ class ProblemFrame(KernelModel):
                     f"must have constraint_type=SOFT"
                 )
 
+        if self.normative_frame is not None:
+            self._validate_normative_frame()
+
         return self
+
+    def _validate_normative_frame(self) -> None:
+        assert self.normative_frame is not None
+        normative = self.normative_frame
+        stakeholder_ids = {stakeholder.stakeholder_id for stakeholder in self.stakeholders}
+        hard_constraint_ids = {constraint.constraint_id for constraint in self.hard_constraints}
+
+        _validate_unique_ids(normative.stakeholder_bindings, "binding_id")
+        _validate_unique_ids(normative.utility_terms, "term_id")
+        _validate_unique_ids(normative.rights_catalog, "right_id")
+
+        if not normative.enabled_policies:
+            raise ValueError("normative_frame.enabled_policies must not be empty")
+        if normative.default_policy not in normative.enabled_policies:
+            raise ValueError(
+                "normative_frame.default_policy must be present in enabled_policies"
+            )
+
+        binding_ids = {binding.binding_id for binding in normative.stakeholder_bindings}
+        for binding in normative.stakeholder_bindings:
+            if binding.stakeholder_id not in stakeholder_ids:
+                raise ValueError(
+                    "normative_frame.stakeholder_bindings references unknown stakeholder "
+                    f"'{binding.stakeholder_id}'"
+                )
+
+        for term in normative.utility_terms:
+            if term.stakeholder_id not in stakeholder_ids:
+                raise ValueError(
+                    "normative_frame.utility_terms references unknown stakeholder "
+                    f"'{term.stakeholder_id}'"
+                )
+            for binding_ref in term.binding_refs:
+                if binding_ref not in binding_ids:
+                    raise ValueError(
+                        "normative_frame.utility_terms references unknown binding "
+                        f"'{binding_ref}'"
+                    )
+
+        for right in normative.rights_catalog:
+            if right.stakeholder_id not in stakeholder_ids:
+                raise ValueError(
+                    "normative_frame.rights_catalog references unknown stakeholder "
+                    f"'{right.stakeholder_id}'"
+                )
+            if right.binding_ref is not None and right.binding_ref not in binding_ids:
+                raise ValueError(
+                    "normative_frame.rights_catalog references unknown binding "
+                    f"'{right.binding_ref}'"
+                )
+
+        for constraint_ref in normative.hard_constraint_refs:
+            if constraint_ref not in hard_constraint_ids:
+                raise ValueError(
+                    "normative_frame.hard_constraint_refs references unknown hard constraint "
+                    f"'{constraint_ref}'"
+                )
 
 
 def _validate_unique_ids(items: Sequence[KernelModel], attr: str) -> None:

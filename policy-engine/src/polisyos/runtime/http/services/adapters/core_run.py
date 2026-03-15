@@ -5,11 +5,14 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.run.manifest import RunManifest as CoreRunManifest
 from polisyos.core.trace.record import TraceRecord
+
+logger = get_logger(__name__)
 
 
 @dataclass(frozen=True)
@@ -21,6 +24,9 @@ class CoreRunAdapterResult:
     duration_ms: int | None
     tenant_id: str | None
     cell_id: str | None
+    execution_profile: str | None
+    control_job_id: str | None
+    capability_manifest_ref: ArtifactRef | None
     manifest_ref: ArtifactRef | None
     trace_ref: ArtifactRef | None
     root_artifacts: tuple[ArtifactRef, ...]
@@ -49,7 +55,8 @@ def load_core_run(
     for line in _iter_trace_lines(trace_path):
         try:
             record = TraceRecord.model_validate_json(line)
-        except Exception:
+        except (TypeError, ValueError) as exc:
+            logger.debug("Failed to validate trace record from %s: %s", trace_path, exc)
             continue
         if record.event != "RUN_FINALIZED":
             continue
@@ -67,6 +74,9 @@ def load_core_run(
             duration_ms=None,
             tenant_id=None,
             cell_id=None,
+            execution_profile=None,
+            control_job_id=None,
+            capability_manifest_ref=None,
             manifest_ref=None,
             trace_ref=None,
             root_artifacts=(),
@@ -81,7 +91,8 @@ def load_core_run(
     try:
         payload = from_canonical_bytes(store.get_bytes(manifest_ref.artifact_id))
         manifest = CoreRunManifest.model_validate(payload)
-    except Exception as exc:
+    except (TypeError, ValueError, OSError) as exc:
+        logger.debug("Failed to load core run manifest %s: %s", manifest_ref, exc)
         warnings.append(f"core_run_manifest_load_failed:{type(exc).__name__}")
         return CoreRunAdapterResult(
             run_id=run_id,
@@ -91,6 +102,9 @@ def load_core_run(
             duration_ms=None,
             tenant_id=None,
             cell_id=None,
+            execution_profile=None,
+            control_job_id=None,
+            capability_manifest_ref=None,
             manifest_ref=manifest_ref,
             trace_ref=None,
             root_artifacts=(),
@@ -115,6 +129,9 @@ def load_core_run(
         duration_ms=duration_ms,
         tenant_id=manifest.tenant_id,
         cell_id=manifest.cell_id,
+        execution_profile=manifest.execution_profile,
+        control_job_id=manifest.control_job_id,
+        capability_manifest_ref=manifest.capability_manifest_ref,
         manifest_ref=manifest_ref,
         trace_ref=manifest.trace_ref,
         root_artifacts=tuple(manifest.outputs),
@@ -147,4 +164,3 @@ def _iter_trace_lines(path: Path):
             stripped = line.strip()
             if stripped:
                 yield stripped
-

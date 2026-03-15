@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Any
 
 from polisyos.common.async_tools import run_coro_sync
+from polisyos.common.logger import get_logger
 from polisyos.core.contracts.control import (
     DataContextMetric,
     FetchPlan,
@@ -18,6 +19,8 @@ from polisyos.fabric.connectors.profiles import SourceProfileRegistry
 from polisyos.fabric.connectors.profiles.resolver import resolve_connection_config
 from polisyos.fabric.connectors.registry import ConnectorRegistry
 from polisyos.ir.connectors import FetchRequest, FetchResult
+
+logger = get_logger(__name__)
 
 
 @dataclass(frozen=True)
@@ -240,8 +243,8 @@ def _extract_rows(payload: Any, *, max_rows: int) -> list[dict[str, Any]]:
             rows = head.to_dict(orient="records")
             if isinstance(rows, list):
                 return [row for row in rows if isinstance(row, dict)]
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.debug("Ignored exception: %s", exc)
     if isinstance(payload, list):
         rows = payload[:max_rows]
         return [row for row in rows if isinstance(row, dict)]

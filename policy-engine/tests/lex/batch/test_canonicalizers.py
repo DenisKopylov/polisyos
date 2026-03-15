@@ -81,6 +81,10 @@ def test_canonicalize_norm_type_maps_new_smoke_tokens() -> None:
     assert canon == "procedure"
     assert oov is False
 
+    canon, oov = canonicalize_norm_type("амendment")
+    assert canon == "amendment"
+    assert oov is False
+
 
 def test_canonicalize_action_heuristics_cover_unseen_variants() -> None:
     canon, oov = canonicalize_action("approve_internal_plan")
@@ -89,4 +93,16 @@ def test_canonicalize_action_heuristics_cover_unseen_variants() -> None:
 
     canon, oov = canonicalize_action("inconsistent_with_law")
     assert canon == "prohibits"
+    assert oov is False
+
+    canon, oov = canonicalize_action("вносить")
+    assert canon == "amends"
+    assert oov is False
+
+    canon, oov = canonicalize_action("регулює")
+    assert canon == "regulates"
+    assert oov is False
+
+    canon, oov = canonicalize_action("амендує")
+    assert canon == "amends"
     assert oov is False

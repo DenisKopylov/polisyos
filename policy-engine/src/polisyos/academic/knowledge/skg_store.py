@@ -49,12 +49,65 @@ CREATE TABLE IF NOT EXISTS ac_skg_edges (
     updated_ts         TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE IF NOT EXISTS ac_skg_edge_evidence (
+    edge_id            VARCHAR NOT NULL,
+    claim_id           VARCHAR NOT NULL,
+    openalex_id        VARCHAR NOT NULL,
+    src                VARCHAR NOT NULL,
+    dst                VARCHAR NOT NULL,
+    direction          VARCHAR NOT NULL,
+    evidence_strength  VARCHAR NOT NULL,
+    confidence         DOUBLE NOT NULL,
+    design_family      VARCHAR,
+    design_quality_tier INTEGER,
+    skg_version        INTEGER NOT NULL,
+    PRIMARY KEY (edge_id, claim_id, openalex_id)
+);
+
+CREATE TABLE IF NOT EXISTS ac_skg_family_edges (
+    family_edge_id            VARCHAR PRIMARY KEY,
+    src_family                VARCHAR NOT NULL,
+    dst_family                VARCHAR NOT NULL,
+    direction                 VARCHAR NOT NULL,
+    n_articles                INTEGER DEFAULT 1,
+    n_claims                  INTEGER DEFAULT 1,
+    article_refs              VARCHAR NOT NULL,
+    claim_refs                VARCHAR NOT NULL,
+    evidence_strength         VARCHAR NOT NULL,
+    confidence                DOUBLE NOT NULL,
+    direction_histogram_json  VARCHAR DEFAULT '{}',
+    design_tier_histogram_json VARCHAR DEFAULT '{}',
+    design_family_histogram_json VARCHAR DEFAULT '{}',
+    candidate_layer           VARCHAR DEFAULT 'family',
+    quality_signals_json      VARCHAR DEFAULT '{}',
+    updated_ts                TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE TABLE IF NOT EXISTS ac_skg_parameters (
     param_id           VARCHAR PRIMARY KEY,
     canonical_name     VARCHAR NOT NULL,
     openalex_id        VARCHAR NOT NULL,
     parameter_json     VARCHAR NOT NULL,
     context_json       VARCHAR
+);
+
+CREATE TABLE IF NOT EXISTS ac_skg_simulation_parameters (
+    numeric_id              VARCHAR PRIMARY KEY,
+    openalex_id             VARCHAR NOT NULL,
+    canonical_name          VARCHAR NOT NULL,
+    estimate_type           VARCHAR NOT NULL,
+    point_estimate          DOUBLE NOT NULL,
+    estimate_sign           VARCHAR,
+    unit                    VARCHAR,
+    evidence_strength       VARCHAR,
+    confidence_interval_json VARCHAR DEFAULT '[]',
+    std_error               DOUBLE,
+    linked_claim_ids_json   VARCHAR DEFAULT '[]',
+    linked_edges_json       VARCHAR DEFAULT '[]',
+    context_json            VARCHAR,
+    source_layer            VARCHAR DEFAULT 'simulation_ready',
+    uncertainty_source      VARCHAR DEFAULT '',
+    quality_flags_json      VARCHAR DEFAULT '[]'
 );
 
 CREATE TABLE IF NOT EXISTS ac_skg_canonization_cache (
@@ -76,8 +129,14 @@ CREATE TABLE IF NOT EXISTS ac_skg_versions (
 CREATE INDEX IF NOT EXISTS idx_ac_skg_edges_src ON ac_skg_edges(src);
 CREATE INDEX IF NOT EXISTS idx_ac_skg_edges_dst ON ac_skg_edges(dst);
 CREATE INDEX IF NOT EXISTS idx_ac_skg_edges_confidence ON ac_skg_edges(confidence);
+CREATE INDEX IF NOT EXISTS idx_ac_skg_edge_evidence_edge ON ac_skg_edge_evidence(edge_id);
+CREATE INDEX IF NOT EXISTS idx_ac_skg_edge_evidence_article ON ac_skg_edge_evidence(openalex_id);
+CREATE INDEX IF NOT EXISTS idx_ac_skg_family_edges_src ON ac_skg_family_edges(src_family);
+CREATE INDEX IF NOT EXISTS idx_ac_skg_family_edges_dst ON ac_skg_family_edges(dst_family);
 CREATE INDEX IF NOT EXISTS idx_ac_skg_params_name ON ac_skg_parameters(canonical_name);
 CREATE INDEX IF NOT EXISTS idx_ac_skg_params_article ON ac_skg_parameters(openalex_id);
+CREATE INDEX IF NOT EXISTS idx_ac_skg_sim_params_name ON ac_skg_simulation_parameters(canonical_name);
+CREATE INDEX IF NOT EXISTS idx_ac_skg_sim_params_article ON ac_skg_simulation_parameters(openalex_id);
 CREATE INDEX IF NOT EXISTS idx_ac_skg_articles_year ON ac_skg_articles(year);
 CREATE INDEX IF NOT EXISTS idx_ac_skg_articles_retracted ON ac_skg_articles(retracted);
 
@@ -92,6 +151,7 @@ CREATE TABLE IF NOT EXISTS ac_skg_context_attributes (
     time_period        VARCHAR,
     measurement_method VARCHAR,
     confidence         DOUBLE DEFAULT 0.5,
+    evidence_span_count INTEGER DEFAULT 0,
     skg_version        INTEGER NOT NULL
 );
 

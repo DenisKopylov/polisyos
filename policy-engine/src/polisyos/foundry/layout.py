@@ -1,11 +1,13 @@
 from __future__ import annotations
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from polisyos.ir.kernel.slots import SlotRegistry
 
 
 class SlotLayout(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
     layout: dict[str, str] = Field(default_factory=dict)
     notes: list[str] = Field(default_factory=list)

@@ -139,6 +139,36 @@ def test_run_transport_score_counts_edges_without_moderators(tmp_path: Path) -> 
     assert row == (0.8, 0.0, 0.0, 0.8, "")
 
 
+def test_run_transport_score_preserves_requested_target_context_without_profile(tmp_path: Path) -> None:
+    config = AcademicBatchConfig(
+        snapshot_root=tmp_path,
+        transport_target_context_id="UA",
+        transport_target_country_codes=("UA",),
+    )
+    con = _setup_db(config.db_path)
+    try:
+        con.execute(
+            "INSERT INTO ac_skg_edges "
+            "(edge_id, src, dst, direction, n_articles, article_refs, evidence_strength, confidence) "
+            "VALUES ('e1', 'policy', 'outcome', 'positive', 1, '[]', 'observational', 0.7)"
+        )
+    finally:
+        con.close()
+
+    result = run_transport_score(config)
+    assert result["transport_scores_written"] == 1
+
+    con = duckdb.connect(str(config.db_path), read_only=True)
+    try:
+        row = con.execute(
+            "SELECT target_context_id, transport_confidence FROM ac_skg_transport_scores WHERE edge_id = 'e1'"
+        ).fetchone()
+    finally:
+        con.close()
+
+    assert row == ("UA", pytest.approx(0.7))
+
+
 def test_run_transport_score_writes_target_aware_scores_without_mutating_edges(tmp_path: Path) -> None:
     config = AcademicBatchConfig(
         snapshot_root=tmp_path,

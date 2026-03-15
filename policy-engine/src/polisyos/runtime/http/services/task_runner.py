@@ -2,13 +2,14 @@
 
 from __future__ import annotations
 
-import logging
 import threading
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
 from typing import Any, Callable, Literal
 
-logger = logging.getLogger(__name__)
+from polisyos.common.logger import get_logger
+
+logger = get_logger(__name__)
 
 TaskState = Literal["pending", "running", "completed", "failed"]
 
@@ -28,7 +29,10 @@ class TaskRunner:
     with a proper job queue (Celery, etc.).
     """
 
-    def __init__(self, max_workers: int = 2) -> None:
+    def __init__(self, max_workers: int | None = None) -> None:
+        if max_workers is None:
+            import os
+            max_workers = int(os.environ.get("POLISYOS_CONTROL_MAX_WORKERS", "0")) or min(os.cpu_count() or 2, 4)
         self._executor = ThreadPoolExecutor(max_workers=max_workers, thread_name_prefix="ctrl")
         self._tasks: dict[str, TaskRecord] = {}
         self._lock = threading.Lock()
@@ -65,7 +69,7 @@ class TaskRunner:
             fn(*args, **kwargs)
             record.state = "completed"
             logger.info("task %s (run %s) completed", record.task_id, record.run_id)
-        except Exception as exc:
+        except (AttributeError, KeyError, OSError, RuntimeError, TypeError, ValueError) as exc:
             record.state = "failed"
             record.error = str(exc)
             logger.exception("task %s (run %s) failed: %s", record.task_id, record.run_id, exc)

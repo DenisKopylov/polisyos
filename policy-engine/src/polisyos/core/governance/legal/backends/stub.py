@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import List, TYPE_CHECKING
+from typing import TYPE_CHECKING, List
 
 from polisyos.core.governance.passes.base import ComplianceIssue, IssueSeverity
 

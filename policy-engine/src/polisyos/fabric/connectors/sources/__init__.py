@@ -10,9 +10,12 @@ from polisyos.fabric.connectors.sources.rest_json import RestJsonConnector
 from polisyos.fabric.connectors.sources.sdmx_source import SDMXSourceConnector
 from polisyos.fabric.connectors.sources.socrata import SocrataConnector
 from polisyos.fabric.connectors.sources.sparql import SPARQLConnector
+from polisyos.fabric.connectors.sources.unesco_uis import UNESCOUISConnector
+from polisyos.fabric.connectors.sources.unpd import UNPDConnector
 from polisyos.fabric.connectors.sources.ukons import UKONSConnector
-from polisyos.fabric.connectors.sources.wvs import WVSConnector
+from polisyos.fabric.connectors.sources.who import WHOConnector
 from polisyos.fabric.connectors.sources.world_bank import WorldBankConnector
+from polisyos.fabric.connectors.sources.wvs import WVSConnector
 
 __all__ = [
     "WorldBankConnector",
@@ -26,6 +29,9 @@ __all__ = [
     "OpendatasoftConnector",
     "RestJsonConnector",
     "SPARQLConnector",
+    "WHOConnector",
+    "UNPDConnector",
+    "UNESCOUISConnector",
     "HTTPConnectorBase",
     "HTTPResilienceProfile",
 ]

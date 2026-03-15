@@ -36,9 +36,15 @@ from polisyos.ir.governance.problem_frame import (
     ConstraintSpec,
     ConstraintType,
     KPISpec,
+    NormativeArbitrationPolicy,
+    NormativeFrame,
     ObjectiveSpec,
     ProblemDomain,
     ProblemFrame,
+    StakeholderOutcomeBinding,
+    StakeholderRightSpec,
+    StakeholderSpec,
+    StakeholderUtilityTerm,
     SuccessCriterion,
 )
 from polisyos.ir.governance.schedule import ScheduleSpec
@@ -194,6 +200,110 @@ class TestProblemFrame:
                 ],
             )
         assert "must have constraint_type=HARD" in str(exc_info.value)
+
+    def test_normative_frame_validates_existing_refs(self) -> None:
+        frame = ProblemFrame(
+            problem_id="test",
+            domain=ProblemDomain.FISCAL,
+            stakeholders=[
+                StakeholderSpec(
+                    stakeholder_id="workers",
+                    entity_type=EntityType.AGENT,
+                )
+            ],
+            hard_constraints=[
+                ConstraintSpec(
+                    constraint_id="budget_cap",
+                    constraint_type=ConstraintType.HARD,
+                    slot_id="fiscal_cost",
+                    operator="<=",
+                    value=100,
+                )
+            ],
+            normative_frame=NormativeFrame(
+                default_policy=NormativeArbitrationPolicy.WEIGHTED_WELFARE,
+                enabled_policies=[
+                    NormativeArbitrationPolicy.LEXICOGRAPHIC_RIGHTS,
+                    NormativeArbitrationPolicy.WEIGHTED_WELFARE,
+                ],
+                stakeholder_bindings=[
+                    StakeholderOutcomeBinding(
+                        binding_id="workers_income",
+                        stakeholder_id="workers",
+                        channel="distributional_net_impact",
+                        outcome_key="workers",
+                    )
+                ],
+                utility_terms=[
+                    StakeholderUtilityTerm(
+                        term_id="workers_welfare",
+                        stakeholder_id="workers",
+                        binding_refs=["workers_income"],
+                    )
+                ],
+                rights_catalog=[
+                    StakeholderRightSpec(
+                        right_id="workers_non_loss",
+                        stakeholder_id="workers",
+                        binding_ref="workers_income",
+                        operator=">=",
+                        threshold=0,
+                    )
+                ],
+                hard_constraint_refs=["budget_cap"],
+            ),
+        )
+
+        assert frame.normative_frame is not None
+        assert frame.normative_frame.default_policy == NormativeArbitrationPolicy.WEIGHTED_WELFARE
+
+    def test_normative_frame_rejects_unknown_stakeholder_ref(self) -> None:
+        with pytest.raises(ValidationError) as exc_info:
+            ProblemFrame(
+                problem_id="test",
+                domain=ProblemDomain.FISCAL,
+                normative_frame=NormativeFrame(
+                    stakeholder_bindings=[
+                        StakeholderOutcomeBinding(
+                            binding_id="missing_binding",
+                            stakeholder_id="missing",
+                            channel="distributional_net_impact",
+                            outcome_key="missing",
+                        )
+                    ]
+                ),
+            )
+        assert "unknown stakeholder" in str(exc_info.value)
+
+    def test_normative_frame_rejects_duplicate_binding_ids(self) -> None:
+        with pytest.raises(ValidationError) as exc_info:
+            ProblemFrame(
+                problem_id="test",
+                domain=ProblemDomain.FISCAL,
+                stakeholders=[
+                    StakeholderSpec(
+                        stakeholder_id="workers",
+                        entity_type=EntityType.AGENT,
+                    )
+                ],
+                normative_frame=NormativeFrame(
+                    stakeholder_bindings=[
+                        StakeholderOutcomeBinding(
+                            binding_id="dup_binding",
+                            stakeholder_id="workers",
+                            channel="distributional_net_impact",
+                            outcome_key="workers",
+                        ),
+                        StakeholderOutcomeBinding(
+                            binding_id="dup_binding",
+                            stakeholder_id="workers",
+                            channel="distributional_net_impact",
+                            outcome_key="workers_alt",
+                        ),
+                    ]
+                ),
+            )
+        assert "duplicate binding_id" in str(exc_info.value)
 
 
 # =============================================================================

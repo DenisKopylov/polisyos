@@ -11,9 +11,10 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Iterator
 
-from loguru import logger
-
+from polisyos.common.logger import get_logger
 from polisyos.scientist.search.strategies._deps import torch
+
+logger = get_logger(__name__)
 
 
 class ResourceMode(str, Enum):
@@ -51,8 +52,8 @@ def memory_cleanup() -> None:
         try:
             if getattr(torch.backends, "mps", None) and torch.backends.mps.is_available():
                 torch.mps.empty_cache()
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.debug("Ignored exception: %s", exc)
 
 
 class ResourceArbiter:

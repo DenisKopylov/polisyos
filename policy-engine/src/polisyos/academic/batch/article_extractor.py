@@ -5,7 +5,6 @@ from __future__ import annotations
 import asyncio
 import hashlib
 import json
-import logging
 import re
 import time
 from collections import deque
@@ -16,7 +15,6 @@ from typing import Any
 
 import aiohttp
 
-from polisyos.batch_common.manifest import write_stage_manifest
 from polisyos.academic.batch.claim_ids import stable_claim_id
 from polisyos.academic.batch.config import AcademicBatchConfig
 from polisyos.academic.batch.context_classifier import infer_context_from_article
@@ -35,6 +33,8 @@ from polisyos.academic.knowledge.types import EstimateCandidate, SourceTopicRef,
 from polisyos.academic.knowledge.variable_canonizer import VariableCanonizer
 from polisyos.academic.openalex.priority_filter import should_process
 from polisyos.academic.trust import compute_trust_score
+from polisyos.batch_common.manifest import write_stage_manifest
+from polisyos.common.logger import get_logger
 from polisyos.core.canon.hashing import content_hash
 from polisyos.ir.analytics.literature import (
     ArticleExtractionResult,
@@ -44,8 +44,8 @@ from polisyos.ir.analytics.literature import (
     ClaimType,
     ContextAttribute,
     DesignFamily,
-    EvidenceSpan,
     EvidenceParameter,
+    EvidenceSpan,
     EvidenceStrength,
     HeterogeneityResult,
     IdentificationStrategy,
@@ -56,7 +56,7 @@ from polisyos.ir.analytics.literature import (
     TextQuality,
 )
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 def _parse_json_object(raw_content: str) -> dict[str, Any] | None:
@@ -121,6 +121,30 @@ _PARAMETER_TYPE_ALIASES = {
     "ordinal": ParameterType.ORDINAL.value,
     "distributional": ParameterType.DISTRIBUTIONAL.value,
     "categorical": ParameterType.QUALITATIVE.value,
+}
+_PARAMETER_UNIT_ALIASES = {
+    "pp": "percentage_points",
+    "percentage_point": "percentage_points",
+    "percentage_points": "percentage_points",
+    "pct_point": "percentage_points",
+    "pct_points": "percentage_points",
+    "basis_point": "basis_points",
+    "basis_points": "basis_points",
+    "odds_ratio": "odds_ratio",
+    "risk_ratio": "risk_ratio",
+    "relative_risk": "risk_ratio",
+    "hazard_ratio": "hazard_ratio",
+    "elasticity": "elasticity",
+    "semi_elasticity": "semi_elasticity",
+    "correlation_coefficient": "correlation_coefficient",
+    "correlation": "correlation_coefficient",
+    "standardized_effect": "standardized_effect",
+    "standardised_effect": "standardized_effect",
+    "index_point": "index_points",
+    "index_points": "index_points",
+    "score_point": "index_points",
+    "score_points": "index_points",
+    "unitless": "unitless",
 }
 _DIRECTION_ALIASES = {
     "positive": "positive",
@@ -197,12 +221,29 @@ _METHOD_SENTENCE_RE = re.compile(
 _RESULT_SENTENCE_RE = re.compile(
     r"\b(we find|find that|results show|our results|our findings|we show|we document|we provide evidence|"
     r"evidence from|evidence on|estimate|estimated|increases?|decreases?|reduces?|raises?|affect(?:s|ed|ing)?|"
-    r"effects? on|impact on|leads to|causes?|has no effect|no effect on)\b",
+    r"effects? on|impact on|coefficient|beta\b|odds ratio|risk ratio|hazard ratio|leads to|causes?|"
+    r"has no effect|no effect on)\b",
     re.IGNORECASE,
 )
 _CLAIM_SENTENCE_RE = re.compile(
     r"\b(causes?|effect of|impact of|leads to|results in|increases?|decreases?|reduces?|raises?|"
     r"affect(?:s|ed|ing)?|find that|show that|document that|evidence that|associated with|no effect on)\b",
+    re.IGNORECASE,
+)
+_NUMERIC_RESULT_SNIPPET_RE = re.compile(
+    r"\b((?:95%|90%)\s*C[Ii]|(?:SE|s\.e\.|std\.?\s*err(?:or)?)\s*=|"
+    r"\bOR\b\s*=|\bRR\b\s*=|\bHR\b\s*=|β\s*=|\bbeta\b\s*=|\bcoefficient\b|\bcoef\.?\b|"
+    r"percentage\s*points?|basis\s*points?)\b",
+    re.IGNORECASE,
+)
+_NUMERIC_RESULT_BLOCK_RE = re.compile(
+    r"\b("
+    r"table\s+\d+|panel\s+[a-z]|\bcol(?:umn)?\s*\(?\d+\)?|regression results?|main results?|"
+    r"coefficient|coef\.?\b|beta\b|odds ratio|risk ratio|hazard ratio|"
+    r"95%\s*ci|90%\s*ci|confidence interval|std\.?\s*err(?:or)?|se\s*[=:]|"
+    r"fixed effects?|instrumental variable|2sls|tsls|difference[- ]?in[- ]?differences?|"
+    r"first stage|second stage"
+    r")\b",
     re.IGNORECASE,
 )
 
@@ -319,6 +360,13 @@ def _normalize_parameter_type(value: Any, *, fallback: str) -> str:
     return _PARAMETER_TYPE_ALIASES.get(normalized, fallback)
 
 
+def _normalize_parameter_unit(value: Any) -> str | None:
+    normalized = _normalized_text(value).lower().replace("-", "_").replace(" ", "_")
+    if not normalized:
+        return None
+    return _PARAMETER_UNIT_ALIASES.get(normalized, normalized)
+
+
 def _normalize_direction(value: Any) -> str:
     normalized = _normalized_text(value).lower().replace(" ", "_")
     if not normalized:
@@ -397,12 +445,85 @@ def _select_top_sentences(sentences: list[str], pattern: re.Pattern[str], *, lim
     return out
 
 
+def _select_numeric_result_snippets(text: str, *, limit: int) -> list[dict[str, Any]]:
+    normalized = _normalized_text(text)
+    if not normalized:
+        return []
+    snippets: list[dict[str, Any]] = []
+    seen: set[str] = set()
+    for index, match in enumerate(_NUMERIC_RESULT_SNIPPET_RE.finditer(normalized), start=1):
+        start = max(0, match.start() - 140)
+        end = min(len(normalized), match.end() + 180)
+        snippet = normalized[start:end].strip(" ;,")
+        if len(snippet) < 24 or snippet in seen:
+            continue
+        seen.add(snippet)
+        score = 0.65
+        if re.search(r"(?:95%|90%)\s*C[Ii]", snippet, re.IGNORECASE):
+            score += 0.15
+        if re.search(r"(?:SE|s\.e\.|std\.?\s*err(?:or)?)\s*=", snippet, re.IGNORECASE):
+            score += 0.1
+        snippets.append(
+            {
+                "section": "results",
+                "text": snippet,
+                "sentence_index": None,
+                "score": round(min(1.0, score), 3),
+                "span_id": f"n_{index:02d}",
+            }
+        )
+        if len(snippets) >= limit:
+            break
+    return snippets
+
+
+def _select_numeric_result_blocks(text: str, *, limit: int) -> list[dict[str, Any]]:
+    raw_text = str(text or "")
+    if not raw_text.strip():
+        return []
+    snippets: list[dict[str, Any]] = []
+    seen: set[str] = set()
+    for index, match in enumerate(_NUMERIC_RESULT_BLOCK_RE.finditer(raw_text), start=1):
+        start = max(0, match.start() - 260)
+        end = min(len(raw_text), match.end() + 520)
+        snippet = _normalized_text(raw_text[start:end]).strip(" ;,")
+        if len(snippet) < 80 or snippet in seen:
+            continue
+        if len(re.findall(r"[-+]?\d+(?:\.\d+)?", snippet)) < 2:
+            continue
+        seen.add(snippet)
+        score = 0.7
+        lower = snippet.lower()
+        if "table " in lower or "panel " in lower:
+            score += 0.05
+        if re.search(r"(?:95%|90%)\s*c[i]", lower):
+            score += 0.15
+        if re.search(r"(?:se|std\.?\s*err(?:or)?)\s*[=:]", lower):
+            score += 0.1
+        if re.search(r"\b(coef(?:ficient)?|beta|odds ratio|risk ratio|hazard ratio)\b", lower):
+            score += 0.1
+        snippets.append(
+            {
+                "section": "results",
+                "text": snippet,
+                "sentence_index": None,
+                "score": round(min(1.0, score), 3),
+                "span_id": f"nb_{index:02d}",
+            }
+        )
+        if len(snippets) >= limit:
+            break
+    return snippets
+
+
 def _build_evidence_bundle(*, title: str, abstract: str, text: str, source_kind: str) -> dict[str, Any]:
     sentences = _split_sentences(text)
     abstract_sentences = _split_sentences(abstract)
     method_sentences = _select_top_sentences(sentences or abstract_sentences, _METHOD_SENTENCE_RE, limit=6)
     result_sentences = _select_top_sentences(sentences or abstract_sentences, _RESULT_SENTENCE_RE, limit=8)
     claim_sentences = _select_top_sentences(sentences or abstract_sentences, _CLAIM_SENTENCE_RE, limit=8)
+    numeric_result_snippets = _select_numeric_result_snippets(text, limit=8)
+    numeric_result_blocks = _select_numeric_result_blocks(text, limit=6)
     if not claim_sentences and abstract_sentences:
         claim_sentences = _select_top_sentences(abstract_sentences, _RESULT_SENTENCE_RE, limit=5)
     source_basis = SourceBasis.ABSTRACT_ONLY.value if source_kind == "abstract_fallback" else SourceBasis.FULLTEXT.value
@@ -434,6 +555,8 @@ def _build_evidence_bundle(*, title: str, abstract: str, text: str, source_kind:
         "method_sentences": method_sentences,
         "result_sentences": result_sentences,
         "claim_sentences": claim_sentences,
+        "numeric_result_snippets": numeric_result_snippets,
+        "numeric_result_blocks": numeric_result_blocks,
     }
 
 
@@ -459,7 +582,7 @@ def _normalize_evidence_span(payload: Any, *, default_section: str = "") -> Evid
 
 def _span_lookup(evidence_bundle: dict[str, Any]) -> dict[str, dict[str, Any]]:
     out: dict[str, dict[str, Any]] = {}
-    for bucket in ("abstract_sentences", "method_sentences", "result_sentences", "claim_sentences"):
+    for bucket in ("abstract_sentences", "method_sentences", "result_sentences", "claim_sentences", "numeric_result_snippets", "numeric_result_blocks"):
         for item in evidence_bundle.get(bucket, []):
             if not isinstance(item, dict):
                 continue
@@ -568,6 +691,8 @@ def _normalize_empirical_parameter(payload: Any) -> EvidenceParameter | None:
     name = _normalized_text(payload.get("name") or payload.get("parameter") or payload.get("variable"))
     if not name:
         return None
+    if name in {"sample_size", "study.sample_size", "n", "n_observations"}:
+        return None
 
     value = _coerce_float(payload.get("value"))
     value_range = _coerce_number_pair(payload.get("value_range"))
@@ -587,7 +712,7 @@ def _normalize_empirical_parameter(payload: Any) -> EvidenceParameter | None:
         "value_qualitative": value_qualitative or None,
         "confidence_interval": _coerce_number_pair(payload.get("confidence_interval")),
         "std_error": _coerce_float(payload.get("std_error")),
-        "unit": _normalized_text(payload.get("unit")) or None,
+        "unit": _normalize_parameter_unit(payload.get("unit")),
         "evidence_strength": _normalize_evidence_strength(payload.get("evidence_strength")),
         "geographic_scope": _normalized_text(payload.get("geographic_scope")),
         "time_period": _normalized_text(payload.get("time_period")),
@@ -601,7 +726,8 @@ def _normalize_empirical_parameter(payload: Any) -> EvidenceParameter | None:
     }
     try:
         return EvidenceParameter.model_validate(candidate)
-    except Exception:
+    except (TypeError, ValueError) as exc:
+        logger.debug("EvidenceParameter validation failed: {}", exc)
         return None
 
 
@@ -700,7 +826,7 @@ def _normalize_causal_claim(
         return None
     try:
         return CausalClaim.model_validate(candidate)
-    except Exception:
+    except (TypeError, ValueError):
         return None
 
 
@@ -717,7 +843,7 @@ def _normalize_mechanism(payload: Any) -> Mechanism | None:
         return None
     try:
         return Mechanism.model_validate(candidate)
-    except Exception:
+    except (TypeError, ValueError):
         return None
 
 
@@ -737,7 +863,7 @@ def _normalize_boundary_condition(payload: Any) -> BoundaryCondition | None:
     }
     try:
         return BoundaryCondition.model_validate(candidate)
-    except Exception:
+    except (TypeError, ValueError):
         return None
 
 
@@ -755,7 +881,7 @@ def _normalize_identification_strategy(payload: Any) -> IdentificationStrategy |
         return None
     try:
         return IdentificationStrategy.model_validate(candidate)
-    except Exception:
+    except (TypeError, ValueError):
         return None
 
 
@@ -783,7 +909,7 @@ def _normalize_heterogeneity_result(payload: Any) -> HeterogeneityResult | None:
     }
     try:
         return HeterogeneityResult.model_validate(candidate)
-    except Exception:
+    except (TypeError, ValueError):
         return None
 
 
@@ -806,7 +932,7 @@ def _normalize_context_attribute(payload: Any) -> ContextAttribute | None:
     }
     try:
         return ContextAttribute.model_validate(candidate)
-    except Exception:
+    except (TypeError, ValueError):
         return None
 
 
@@ -833,7 +959,7 @@ def _normalize_moderation_edge(payload: Any) -> ModerationEdge | None:
     }
     try:
         return ModerationEdge.model_validate(candidate)
-    except Exception:
+    except (TypeError, ValueError):
         return None
 
 
@@ -1218,6 +1344,11 @@ Rules:
 - Use null for unavailable numeric values.
 - Never place words like high, medium, low in numeric fields.
 - If a value is qualitative, put it in value_qualitative instead of value.
+- For empirical_parameters, extract coefficients/effect sizes only; never use p-values,
+  significance stars, sample sizes, or test statistics as the main numeric value.
+- If a quantitative estimate is dimensionless, set unit explicitly to a conservative
+  label like unitless, elasticity, odds_ratio, risk_ratio, correlation_coefficient,
+  standardized_effect, index_points, or percentage_points.
 - sample_size must be an integer or null.
 - Every causal claim must include at least one supporting span.
 - Be conservative about design_family_hint.

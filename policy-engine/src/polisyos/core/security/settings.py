@@ -4,29 +4,9 @@ import os
 from dataclasses import dataclass
 from functools import lru_cache
 
-
-def _parse_bool(value: str | None, default: bool) -> bool:
-    if value is None:
-        return default
-    return value.strip().lower() in {"1", "true", "yes", "on"}
-
-
-def _parse_int(value: str | None, default: int) -> int:
-    if value is None or not value.strip():
-        return default
-    try:
-        return int(value.strip())
-    except ValueError:
-        return default
-
-
-def _parse_float(value: str | None, default: float) -> float:
-    if value is None or not value.strip():
-        return default
-    try:
-        return float(value.strip())
-    except ValueError:
-        return default
+from polisyos.common.env_parsing import parse_bool as _parse_bool
+from polisyos.common.env_parsing import parse_float as _parse_float
+from polisyos.common.env_parsing import parse_int as _parse_int
 
 
 @dataclass(frozen=True)
@@ -88,13 +68,15 @@ class SecuritySettings:
     POLISYOS_SBOM_GRYPE_DB_PATH: str = ""
     POLISYOS_SBOM_ALLOWED_CVES: str = ""
 
-    def allowed_regions(self) -> set[str]:
-        return {
+    @lru_cache(maxsize=1)
+    def allowed_regions(self) -> frozenset[str]:
+        return frozenset(
             region.strip()
             for region in self.POLISYOS_ALLOWED_REGIONS.split(",")
             if region.strip()
-        }
+        )
 
+    @lru_cache(maxsize=1)
     def trusted_delegators(self) -> frozenset[str]:
         return frozenset(
             item.strip()
@@ -102,6 +84,7 @@ class SecuritySettings:
             if item.strip()
         )
 
+    @lru_cache(maxsize=1)
     def required_mfa_roles(self) -> frozenset[str]:
         return frozenset(
             item.strip().lower()
@@ -109,6 +92,7 @@ class SecuritySettings:
             if item.strip()
         )
 
+    @lru_cache(maxsize=1)
     def tee_expected_measurements(self) -> tuple[str, ...]:
         return tuple(
             item.strip().lower()
@@ -116,6 +100,7 @@ class SecuritySettings:
             if item.strip()
         )
 
+    @lru_cache(maxsize=1)
     def tee_enforce_tiers(self) -> frozenset[str]:
         return frozenset(
             item.strip().lower()
@@ -123,6 +108,7 @@ class SecuritySettings:
             if item.strip()
         )
 
+    @lru_cache(maxsize=1)
     def sbom_allowed_cves(self) -> frozenset[str]:
         return frozenset(
             item.strip().upper()

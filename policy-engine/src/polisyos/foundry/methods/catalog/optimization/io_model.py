@@ -6,6 +6,7 @@ from typing import Any, ClassVar, Mapping
 import numpy as np
 from numpy.linalg import LinAlgError
 
+from polisyos.foundry.methods.backends.protocol import SolverStatus
 from polisyos.foundry.methods.base import (
     ComplexityClass,
     ComputeBackend,
@@ -18,7 +19,6 @@ from polisyos.foundry.methods.base import (
     Unit,
     foundry_method,
 )
-from polisyos.foundry.methods.backends.protocol import SolverStatus
 from polisyos.ir.analytics.uncertainty import (
     DistributionFamily,
     IntervalSemantics,
@@ -71,10 +71,12 @@ def _normalize_columns_for_productivity(a_pert: np.ndarray, a_base: np.ndarray) 
 @foundry_method(
     namespace="optimization",
     version="1.0.0",
-    tags={"optimization", "input-output", "leontief"},
+    tags={"optimization", "input-output", "leontief", "deprecated:legacy-fqn"},
 )
 class LeontiefInputOutput:
     """Leontief inter-industry input-output model using Numpy."""
+
+    runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="leontief_io",
@@ -83,18 +85,26 @@ class LeontiefInputOutput:
         input_slots=frozenset(
             {
                 SlotSpec(
-                    name="io_problem",
-                    slot_type=SlotType.SCALAR,
-                    unit=Unit("problem", "json"),
-                )
+                    name="technical_coefficients",
+                    slot_type=SlotType.MATRIX,
+                    unit=Unit("io", "coefficients"),
+                    shape=("n_sectors", "n_sectors"),
+                ),
+                SlotSpec(
+                    name="final_demand",
+                    slot_type=SlotType.VECTOR,
+                    unit=Unit("demand", "value"),
+                    shape=("n_sectors",),
+                ),
             }
         ),
         output_slots=frozenset(
             {
                 SlotSpec(
-                    name="io_result",
+                    name="result",
                     slot_type=SlotType.SCALAR,
                     unit=Unit("result", "json"),
+                    contract_id=IOModelResult.contract_id,
                 )
             }
         ),
@@ -154,6 +164,14 @@ class LeontiefInputOutput:
             duration_seconds=max(0.0, time.perf_counter() - started),
         )
         return result.to_payload()
+
+    @staticmethod
+    def materialize_input(bound_inputs: Mapping[str, Any], fallback_state: Any) -> Any:
+        if not isinstance(fallback_state, Mapping):
+            raise TypeError("LeontiefInputOutput fallback_state must be a mapping")
+        payload = dict(fallback_state)
+        payload.update(bound_inputs)
+        return payload
 
     @staticmethod
     def _solve(
@@ -314,4 +332,13 @@ class LeontiefInputOutput:
         )
 
 
-__all__ = ["LeontiefInputOutput"]
+@foundry_method(
+    namespace="optimization.io",
+    version="1.0.0",
+    tags={"optimization", "input-output", "leontief"},
+)
+class InputOutputLeontiefModel(LeontiefInputOutput):
+    """Canonical namespace for Leontief input-output analysis."""
+
+
+__all__ = ["InputOutputLeontiefModel", "LeontiefInputOutput"]

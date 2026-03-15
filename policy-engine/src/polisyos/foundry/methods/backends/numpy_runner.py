@@ -2,13 +2,16 @@ from __future__ import annotations
 
 import json
 import time
-from importlib import metadata
 from typing import Any, Mapping
 
 import numpy as np
 
 from polisyos.core.canon import truncated_hash
 from polisyos.core.observability.determinism import DeterminismTier
+from polisyos.foundry.methods.backends.runtime_fingerprint import (
+    capture_versions,
+    runtime_stack_for,
+)
 from polisyos.foundry.methods.backends.protocol import (
     MethodResult,
     MethodRunner,
@@ -16,22 +19,7 @@ from polisyos.foundry.methods.backends.protocol import (
     ReproducibilityInfo,
 )
 from polisyos.foundry.methods.base import ComputeBackend, MethodSignature
-
-
-def _safe_version(package_name: str) -> str | None:
-    try:
-        return metadata.version(package_name)
-    except metadata.PackageNotFoundError:
-        return None
-
-
-def _capture_versions() -> dict[str, str]:
-    versions: dict[str, str] = {}
-    for pkg in ("numpy", "scipy", "statsmodels", "pandas", "linearmodels", "sklearn"):
-        version = _safe_version(pkg)
-        if version:
-            versions[pkg] = version
-    return versions
+from polisyos.foundry.methods.io import dematerialize_method_output
 
 
 def _resolve_params(signature: MethodSignature, params: Mapping[str, Any]) -> dict[str, Any]:
@@ -82,13 +70,23 @@ class NumpyRunner(MethodRunner):
                 output = dict(output)
                 output.pop("__determinism_tier__", None)
 
-        versions = _capture_versions()
+        runtime_stack = runtime_stack_for(method_class)
+        versions = capture_versions(
+            base_packages=("numpy", "scipy", "statsmodels", "pandas"),
+            runtime_stack=runtime_stack,
+        )
         fp_payload = {
             "backend": ComputeBackend.NUMPY.value,
             "seed": seed,
             "versions": versions,
+            "runtime_stack": runtime_stack,
         }
         fingerprint = truncated_hash(json.dumps(fp_payload, sort_keys=True), length=16)
+        slot_outputs = dematerialize_method_output(
+            method_class=method_class,
+            signature=signature,
+            output=output,
+        )
 
         return MethodResult(
             output=output,
@@ -105,4 +103,5 @@ class NumpyRunner(MethodRunner):
                     else "Deterministic within fixed dependency versions and seed."
                 ),
             ),
+            slot_outputs=slot_outputs,
         )

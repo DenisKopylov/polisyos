@@ -1,16 +1,17 @@
 from __future__ import annotations
 
+import os
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-import os
 from typing import Any, Callable, Dict, List, Protocol
 from uuid import uuid4
 
-from loguru import logger
-
+from polisyos.common.logger import get_logger
 from polisyos.scientist.search.objective import CompositeObjective, ObjectiveValue
 from polisyos.scientist.search.stopping import StoppingCriterion
+
+logger = get_logger(__name__)
 
 
 def _as_bool(raw: str | None, default: bool = False) -> bool:

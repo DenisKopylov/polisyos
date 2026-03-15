@@ -5,6 +5,7 @@ from typing import Any, ClassVar, Mapping
 
 import numpy as np
 
+from polisyos.common.logger import get_logger
 from polisyos.core.observability.determinism import DeterminismTier
 from polisyos.foundry.methods.base import (
     ComplexityClass,
@@ -26,10 +27,13 @@ from polisyos.foundry.methods.catalog.causal._common import (
 from polisyos.foundry.methods.catalog.causal.protocols import GraphCausalData, GraphCausalDataV1
 from polisyos.ir.analytics.causal import CausalMethod, EstimationStatus
 
+logger = get_logger(__name__)
+
 
 def _load_dowhy_dependencies() -> tuple[Any, Any]:
     import dowhy
     import pandas as pd
+
 
     return dowhy, pd
 
@@ -52,7 +56,10 @@ def _extract_standard_error(estimate: Any) -> float | None:
         if value is None:
             return None
         scalar = _to_float_scalar(value)
-    except Exception:
+    except (TypeError, ValueError) as exc:
+        logger.debug(
+            "Failed to extract standard error from estimate: %s", exc,
+        )
         return None
     if scalar < 0:
         return None
@@ -64,7 +71,10 @@ def _extract_confidence_interval(estimate: Any) -> tuple[float, float] | None:
         return None
     try:
         interval = estimate.get_confidence_intervals()
-    except Exception:
+    except (TypeError, ValueError) as exc:
+        logger.debug(
+            "Failed to extract confidence intervals from estimate: %s", exc,
+        )
         return None
     if interval is None:
         return None

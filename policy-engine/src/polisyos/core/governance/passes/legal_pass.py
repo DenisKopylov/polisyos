@@ -1,22 +1,22 @@
 from __future__ import annotations
 
-from typing import Dict, List, TYPE_CHECKING
+from typing import TYPE_CHECKING, Dict, List
 
 from polisyos.core.backends import BackendDispatcher, BackendNotAvailableError
+from polisyos.core.governance.legal.backends.expr_ast import (
+    ExpressionASTBackend,
+)
+from polisyos.core.governance.legal.backends.stub import StubBackend
 from polisyos.core.governance.passes.base import (
     ComplianceIssue,
     PassContext,
     ValidatorPass,
 )
 from polisyos.core.governance.profiles import ProfileLevel
-from polisyos.core.governance.legal.backends.stub import StubBackend
-from polisyos.core.governance.legal.backends.expr_ast import (
-    ExpressionASTBackend,
-)
 
 if TYPE_CHECKING:
-    from polisyos.ir.norm_pack import NormPack
     from polisyos.core.governance.legal.backends.base import RuleBackend
+    from polisyos.ir.norm_pack import NormPack
 
 
 _BACKEND_REGISTRY: Dict[str, type] = {

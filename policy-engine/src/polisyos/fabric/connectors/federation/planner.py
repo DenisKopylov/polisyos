@@ -10,10 +10,7 @@ from datetime import datetime
 
 from polisyos.common.logger import get_logger
 from polisyos.fabric.connectors.base import FetchRequest
-from polisyos.fabric.connectors.registry import ConnectorPreferences, ConnectorRegistry
-from polisyos.fabric.connectors.quality.report import DataQualityReport
 from polisyos.fabric.connectors.contracts.registry import SchemaRegistry
-
 from polisyos.fabric.connectors.federation.ranker import SourceRanker
 from polisyos.fabric.connectors.federation.types import (
     CompositionRequest,
@@ -24,6 +21,8 @@ from polisyos.fabric.connectors.federation.types import (
     PlanningError,
     RankedSource,
 )
+from polisyos.fabric.connectors.quality.report import DataQualityReport
+from polisyos.fabric.connectors.registry import ConnectorPreferences, ConnectorRegistry
 
 logger = get_logger(__name__)
 
@@ -166,8 +165,8 @@ class FederationPlanner:
                 columns = set(schema.field_names())
                 key_columns = tuple(schema.effective_grain_dims())
                 time_dimension = schema.time_dimension
-            except Exception:
-                pass
+            except Exception as exc:
+                logger.debug("Ignored exception: %s", exc)
 
         if not columns and descriptor.metadata:
             metadata_columns = descriptor.metadata.get("columns")

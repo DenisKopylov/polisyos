@@ -6,12 +6,18 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from typing import TYPE_CHECKING
 
+from polisyos.common.logger import get_logger
+
+logger = get_logger(__name__)
+
 if TYPE_CHECKING:
     from polisyos.core.artifacts.environment import EnvironmentManifest
 
 from polisyos.core.canon import truncated_hash
 from polisyos.core.observability.determinism import (
     DeterminismTier,
+)
+from polisyos.core.observability.determinism import (
     get_determinism_tier as _get_determinism_tier,
 )
 
@@ -238,8 +244,8 @@ def _get_cuda_version_fast() -> str | None:
                     if cuda_home
                     else "detected"
                 )
-    except Exception:
-        pass
+    except Exception as exc:
+        logger.debug("Ignored exception: %s", exc)
 
     return None
 
@@ -249,11 +255,12 @@ def _get_cudnn_version() -> str | None:
     try:
         from importlib.metadata import version
 
+
         jaxlib_ver = version("jaxlib")
         if "cuda" in jaxlib_ver:
             return "bundled"
-    except Exception:
-        pass
+    except Exception as exc:
+        logger.debug("Ignored exception: %s", exc)
     return None
 
 

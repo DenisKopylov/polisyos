@@ -2,11 +2,11 @@
 
 from __future__ import annotations
 
-import logging
 import os
 from pathlib import Path
 from typing import Any
 
+from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir.model_spec import ModelSpec
 from polisyos.ir.norm_pack import NormPack
@@ -26,7 +26,7 @@ from .drafter_clients import LLMDrafterAgent, MockDrafterAgent
 from .drafter_models import MultiPassConfig
 from .drafter_multipass import MultiPassLLMDrafter
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 def create_drafter_agent(

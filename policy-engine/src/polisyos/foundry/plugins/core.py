@@ -8,7 +8,6 @@ from typing import Any, Callable, Generic, Protocol, Sequence, TypeVar, runtime_
 import jax
 import jax.numpy as jnp
 
-
 StateT = TypeVar("StateT", bound="DomainState")
 AgentT = TypeVar("AgentT", bound="DomainAgentState")
 ActionT = TypeVar("ActionT")

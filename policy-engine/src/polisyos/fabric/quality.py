@@ -8,6 +8,10 @@ from typing import Any
 
 import pandas as pd
 
+from polisyos.common.logger import get_logger
+
+logger = get_logger(__name__)
+
 
 @total_ordering
 class QualityLevel(Enum):
@@ -391,6 +395,7 @@ def compute_quality_from_duckdb(
     """
     import duckdb
 
+
     conn = duckdb.connect(db_path, read_only=True)
     try:
         row_count = conn.execute(f"SELECT COUNT(*) FROM {table_name}").fetchone()[0]
@@ -452,12 +457,18 @@ def get_cached_quality_indicators(
     if hasattr(catalog_registry, "get_contract"):
         try:
             contract = catalog_registry.get_contract(metric_id)
-        except Exception:
+        except (TypeError, ValueError, KeyError, AttributeError):
+            logger.debug(
+                "Failed to get_contract for metric %s", metric_id, exc_info=True,
+            )
             return None
     elif hasattr(catalog_registry, "get"):
         try:
             contract = catalog_registry.get(metric_id)
-        except Exception:
+        except (TypeError, ValueError, KeyError, AttributeError):
+            logger.debug(
+                "Failed to get contract for metric %s", metric_id, exc_info=True,
+            )
             return None
 
     if contract is None:
@@ -473,5 +484,8 @@ def get_cached_quality_indicators(
 
     try:
         return QualityIndicators.from_dict(quality_stats)
-    except Exception:
+    except (TypeError, ValueError, KeyError, AttributeError):
+        logger.debug(
+            "Failed to parse quality indicators for metric %s", metric_id, exc_info=True,
+        )
         return None

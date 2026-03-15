@@ -4,7 +4,9 @@ from __future__ import annotations
 
 import os
 
-from loguru import logger
+from polisyos.common.logger import get_logger
+
+logger = get_logger(__name__)
 
 
 def apply_torch_runtime_settings(torch_module) -> str:
@@ -20,12 +22,12 @@ def apply_torch_runtime_settings(torch_module) -> str:
 
     try:
         torch_module.set_num_threads(max(1, num_threads))
-    except Exception:
-        pass
+    except Exception as exc:
+        logger.debug("Ignored exception: %s", exc)
     try:
         torch_module.set_num_interop_threads(max(1, interop_threads))
-    except Exception:
-        pass
+    except Exception as exc:
+        logger.debug("Ignored exception: %s", exc)
 
     logger.info(
         "Torch runtime configured: device={} threads={} interop_threads={}",

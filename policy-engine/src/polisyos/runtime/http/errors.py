@@ -126,6 +126,19 @@ def forbidden(detail: str, *, code: str = "forbidden") -> RuntimeHTTPError:
     return RuntimeHTTPError(status_code=403, error="forbidden", detail=detail, code=code)
 
 
+def unprocessable_entity(
+    detail: str,
+    *,
+    code: str = "unprocessable_entity",
+) -> RuntimeHTTPError:
+    return RuntimeHTTPError(
+        status_code=422,
+        error="request_validation_failed",
+        detail=detail,
+        code=code,
+    )
+
+
 def not_found(detail: str, *, code: str = "not_found") -> RuntimeHTTPError:
     return RuntimeHTTPError(status_code=404, error="not_found", detail=detail, code=code)
 

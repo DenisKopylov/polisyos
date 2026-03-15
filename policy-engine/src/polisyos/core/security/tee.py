@@ -156,7 +156,7 @@ class SEVSNPVerifier:
             try:
                 payload = json.loads(path.read_text(encoding="utf-8"))
                 report = AttestationReport.model_validate(payload)
-            except Exception as exc:  # noqa: BLE001
+            except (TypeError, ValueError) as exc:  # noqa: BLE001
                 raise AttestationFetchError(f"Failed to parse attestation report: {exc}") from exc
 
             if nonce is not None and report.report_data_hex:

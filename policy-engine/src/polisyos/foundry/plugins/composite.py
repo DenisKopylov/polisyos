@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from dataclasses import dataclass, field, is_dataclass, replace as dc_replace
+from dataclasses import dataclass, field, is_dataclass
+from dataclasses import replace as dc_replace
 from typing import Any, Callable, Sequence
 
 import equinox as eqx

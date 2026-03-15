@@ -15,9 +15,12 @@ from urllib.parse import quote, urljoin, urlparse
 
 import aiohttp
 
-from polisyos.batch_common.manifest import write_stage_manifest
 from polisyos.academic.batch.config import AcademicBatchConfig
+from polisyos.batch_common.manifest import write_stage_manifest
+from polisyos.common.logger import get_logger
 from polisyos.ir.analytics.literature import SourceBasis, TextQuality
+
+logger = get_logger(__name__)
 
 _SECTION_CUE_RE = re.compile(
     r"\b(abstract|introduction|background|methods?|results?|discussion|conclusion|references)\b",
@@ -34,6 +37,30 @@ _FULLTEXT_BOILERPLATE_RE = re.compile(
     r"(cookie policy|cookie settings|accept cookies|all rights reserved|download pdf|view abstract|view pdf|"
     r"sign in to access|institutional login|research output|explore all metrics|accesses|citations|"
     r"doi:\s*\S+|doi\.org/\S+|https?://\S+)"
+)
+_REPOSITORY_SHELL_CUE_RE = re.compile(
+    r"(?i)\b("
+    r"institutional research information system|catalogo dei prodotti della ricerca|"
+    r"scheda breve|scheda completa|file in questo prodotto|visualizza/apri|"
+    r"pubblicazioni consigliate|recommended publications|"
+    r"utilizza questo identificativo|social impact|focus group iris|"
+    r"home sfoglia|client feedback faq|all open access proceedings journals|"
+    r"simulazione asn|prodotti della ricerca"
+    r")\b"
+)
+_HTMLISH_PREFIXES = (
+    b"<!doctype",
+    b"<html",
+    b"<head",
+    b"<?xml",
+    b"<!doc",
+    b"\n\n\n\n<",
+)
+_NON_PDF_BINARY_PREFIXES = (
+    b"\xff\xd8\xff",
+    b"\x89png\r\n\x1a\n",
+    b"gif87a",
+    b"gif89a",
 )
 
 
@@ -107,8 +134,36 @@ def _extract_html_text(html: str) -> str:
 def _extract_pdf_text(raw_bytes: bytes) -> str:
     try:
         from pypdf import PdfReader  # type: ignore[import-not-found]
-    except Exception:
+    except (ImportError, ModuleNotFoundError):
         return ""
+    try:
+        import io
+
+        reader = PdfReader(io.BytesIO(raw_bytes))
+        texts: list[str] = []
+        for page in reader.pages[:30]:
+            texts.append(str(page.extract_text() or ""))
+        return "\n".join(texts).strip()
+    except (OSError, TypeError, ValueError) as exc:
+        logger.debug("PDF text extraction failed: %s", exc)
+        return ""
+
+
+def _sniff_pdf_payload(raw_bytes: bytes, *, content_type: str) -> tuple[bool, str]:
+    head = bytes(raw_bytes[:64]).lstrip()
+    lower_head = head.lower()
+    lowered_type = str(content_type or "").lower()
+    if head.startswith(b"%PDF-"):
+        return True, "pdf"
+    if any(lower_head.startswith(prefix) for prefix in _HTMLISH_PREFIXES):
+        return False, "html_disguised_as_pdf"
+    if any(lower_head.startswith(prefix) for prefix in _NON_PDF_BINARY_PREFIXES):
+        return False, "binary_disguised_as_pdf"
+    if any(token in lowered_type for token in ("text/html", "xml", "application/json")):
+        return False, "html_disguised_as_pdf"
+    if lowered_type.startswith("image/"):
+        return False, "binary_disguised_as_pdf"
+    return True, "unknown_pdf_payload"
 
 
 def _sanitize_fulltext_text(text: str) -> tuple[str, bool]:
@@ -136,17 +191,6 @@ def _sanitize_fulltext_text(text: str) -> tuple[str, bool]:
 
     cleaned = re.sub(r"\s+", " ", cleaned).strip()
     return cleaned, changed
-
-    try:
-        import io
-
-        reader = PdfReader(io.BytesIO(raw_bytes))
-        texts: list[str] = []
-        for page in reader.pages[:30]:
-            texts.append(str(page.extract_text() or ""))
-        return "\n".join(texts).strip()
-    except Exception:
-        return ""
 
 
 def _text_quality_for(source_kind: str, text: str) -> TextQuality:
@@ -192,6 +236,14 @@ def _looks_like_fake_fulltext(text: str) -> bool:
     if _PLACEHOLDER_RE.search(normalized):
         return True
     return False
+
+
+def _looks_like_repository_shell(text: str) -> bool:
+    normalized = (text or "").strip()
+    if not normalized:
+        return False
+    cues = {match.group(0).lower() for match in _REPOSITORY_SHELL_CUE_RE.finditer(normalized)}
+    return len(cues) >= 2
 
 
 def _looks_like_usable_fulltext(
@@ -908,6 +960,10 @@ async def _fetch_v3_legacy(
                     raw_bytes = await resp.read()
                     final_url = str(getattr(resp, "url", url) or url)
                     if "pdf" in content_type or candidate.expect_pdf or url.lower().endswith(".pdf"):
+                        looks_pdf, sniff_state = _sniff_pdf_payload(raw_bytes, content_type=content_type)
+                        if not looks_pdf:
+                            last_error_class = sniff_state
+                            continue
                         text, _ = _sanitize_fulltext_text(_extract_pdf_text(raw_bytes))
                         if text.strip():
                             return FullTextFetchResult(
@@ -921,6 +977,7 @@ async def _fetch_v3_legacy(
                         continue
                     html = raw_bytes.decode("utf-8", errors="ignore")
                     pdf_targets = _extract_pdf_targets(html, final_url)
+                    repository_shell = False
                     for target in pdf_targets:
                         _insert_candidate(
                             pending_urls,
@@ -957,8 +1014,12 @@ async def _fetch_v3_legacy(
                             max_candidates=20,
                         )
                     text, _ = _sanitize_fulltext_text(_extract_html_text(html))
+                    repository_shell = bool(pdf_targets) and _looks_like_repository_shell(text)
                     if _looks_like_redirect_placeholder(text):
                         last_error_class = "redirect_placeholder"
+                        continue
+                    if repository_shell:
+                        last_error_class = "repository_shell_with_pdf"
                         continue
                     if text.strip():
                         if pdf_targets and not _looks_like_usable_fulltext(text):
@@ -1109,6 +1170,26 @@ async def _fetch_v7_http_metadata(
                     raw_bytes = await resp.read()
                     latency_ms = round((time.monotonic() - started) * 1000.0, 3)
                     if "pdf" in content_type or candidate.expect_pdf or url.lower().endswith(".pdf"):
+                        looks_pdf, sniff_state = _sniff_pdf_payload(raw_bytes, content_type=content_type)
+                        if not looks_pdf:
+                            attempts.append(
+                                FullTextFetchAttempt(
+                                    work_id=work_id,
+                                    attempt_kind=candidate.attempt_kind,
+                                    candidate_priority=candidate.priority,
+                                    candidate_url=url,
+                                    source_kind=candidate.source_kind or "publisher_pdf",
+                                    http_status=http_status,
+                                    fetch_error_class=sniff_state,
+                                    latency_ms=latency_ms,
+                                    redirected_to=redirected_to,
+                                    text_chars=0,
+                                    usable_text=False,
+                                    final_for_work=False,
+                                )
+                            )
+                            last_error_class = sniff_state
+                            continue
                         text, _ = _sanitize_fulltext_text(_extract_pdf_text(raw_bytes))
                         usable, text_state = _classify_text_state(
                             text,
@@ -1192,8 +1273,11 @@ async def _fetch_v7_http_metadata(
                         min_soft_usable_chars=min_soft_usable_chars,
                         soft_usable_requires_section_cues=soft_usable_requires_section_cues,
                     )
+                    repository_shell = bool(pdf_targets) and _looks_like_repository_shell(text)
                     if _looks_like_redirect_placeholder(text):
                         fetch_error_class = "redirect_placeholder"
+                    elif repository_shell:
+                        fetch_error_class = "repository_shell_with_pdf"
                     elif pdf_targets and not usable:
                         fetch_error_class = "landing_page_without_pdf"
                     elif not usable and len(text.strip()) < min_soft_usable_chars:
@@ -1217,11 +1301,11 @@ async def _fetch_v7_http_metadata(
                             discovered_pdf_count=len(pdf_targets),
                             discovered_canonical_count=len(canonical_targets),
                             text_chars=len(text.strip()),
-                            usable_text=usable,
-                            final_for_work=usable,
+                            usable_text=usable and not repository_shell,
+                            final_for_work=usable and not repository_shell,
                         )
                     )
-                    if usable:
+                    if usable and not repository_shell:
                         return FullTextFetchResult(
                             text=text,
                             source_kind="fulltext_html",

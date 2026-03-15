@@ -4,17 +4,16 @@ from __future__ import annotations
 
 import asyncio
 import json
-from collections import Counter, defaultdict
+from collections import defaultdict
 from datetime import UTC, datetime
 from typing import Any
 
-from polisyos.batch_common.manifest import write_stage_manifest
 from polisyos.academic.batch.claim_ids import stable_claim_id
 from polisyos.academic.batch.config import AcademicBatchConfig
 from polisyos.academic.batch.prompts import (
-    CLAIM_ADJUDICATION_PROMPT_VARIANTS,
     CLAIM_ADJUDICATION_SCHEMA_HINT,
 )
+from polisyos.batch_common.manifest import write_stage_manifest
 from polisyos.ir.analytics.literature import (
     ArticleExtractionResult,
     CausalClaim,
@@ -26,13 +25,24 @@ from polisyos.ir.analytics.literature import (
     SourceBasis,
     SupportStatus,
 )
+from polisyos.scientist.autotune.claim_adjudication import (
+    ClaimAdjudicationSearchConfig,
+    aggregate_claim_rows,
+    load_claim_adjudication_config,
+    select_prompt_variant,
+)
 
 
 def _load_article_results(config: AcademicBatchConfig) -> list[ArticleExtractionResult]:
     rows: list[ArticleExtractionResult] = []
-    if not config.article_extraction_results_path.exists():
+    source_path = (
+        config.resolve_extract_final_results_path
+        if config.resolve_extract_final_results_path.exists()
+        else config.article_extraction_results_path
+    )
+    if not source_path.exists():
         return rows
-    with open(config.article_extraction_results_path, "r", encoding="utf-8") as fh:
+    with open(source_path, "r", encoding="utf-8") as fh:
         for line in fh:
             line = line.strip()
             if not line:
@@ -217,65 +227,6 @@ def _normalize_adjudication_payload(
         "consensus_passes": total_passes,
         "consensus_stability": 1.0 if total_passes <= 1 else max(0.0, min(1.0, 1.0 / max(1, pass_index + 1))),
     }
-
-
-def _mode(items: list[str], default: str) -> str:
-    if not items:
-        return default
-    return Counter(items).most_common(1)[0][0]
-
-
-def _aggregate_claim(rows: list[ClaimAdjudicationResult]) -> ClaimAdjudicationResult:
-    total = len(rows)
-    claim_id = rows[0].claim_id
-    openalex_id = rows[0].openalex_id
-    cause = rows[0].cause_variable
-    effect = rows[0].effect_variable
-    source_basis = _mode([row.source_basis.value for row in rows], SourceBasis.FULLTEXT.value)
-    claim_type = _mode([row.claim_type.value for row in rows], ClaimType.ASSOCIATION.value)
-    design_family = _mode([row.design_family.value for row in rows], DesignFamily.UNCLEAR.value)
-    credibility = _mode([row.causal_credibility.value for row in rows], CausalCredibility.UNCLEAR.value)
-    bias = _mode([row.risk_of_bias.value for row in rows], RiskOfBias.UNCLEAR.value)
-    support = _mode([row.support_status.value for row in rows], SupportStatus.INSUFFICIENT.value)
-    publishable_votes = sum(1 for row in rows if row.publishable_edge)
-    stability = publishable_votes / total if total else 0.0
-    avg_asserts = sum(row.paper_asserts_causality_score for row in rows) / max(1, total)
-    avg_validity = sum(row.claim_validity_score for row in rows) / max(1, total)
-    avg_conf = sum(row.adjudication_confidence for row in rows) / max(1, total)
-
-    publishable = bool(
-        publishable_votes >= max(2, (total + 1) // 2)
-        or (
-            avg_validity >= 0.85
-            and avg_conf >= 0.85
-            and source_basis == SourceBasis.FULLTEXT.value
-            and credibility in {CausalCredibility.STRONG.value, CausalCredibility.MODERATE.value}
-        )
-    )
-    if source_basis == SourceBasis.ABSTRACT_ONLY.value:
-        publishable = False
-
-    return ClaimAdjudicationResult(
-        claim_id=claim_id,
-        openalex_id=openalex_id,
-        cause_variable=cause,
-        effect_variable=effect,
-        source_basis=SourceBasis(source_basis),
-        paper_asserts_causality_score=avg_asserts,
-        claim_type=ClaimType(claim_type),
-        design_family=DesignFamily(design_family),
-        causal_credibility=CausalCredibility(credibility),
-        risk_of_bias=RiskOfBias(bias),
-        support_status=SupportStatus(support),
-        claim_validity_score=avg_validity,
-        adjudication_confidence=avg_conf,
-        publishable_edge=publishable,
-        adjudication_notes=" | ".join(sorted({row.adjudication_notes for row in rows if row.adjudication_notes}))[:800],
-        consensus_passes=total,
-        consensus_stability=stability,
-    )
-
-
 async def _adjudicate_with_llm(
     *,
     client: Any,
@@ -283,8 +234,9 @@ async def _adjudicate_with_llm(
     result: ArticleExtractionResult,
     claim: CausalClaim,
     pass_index: int,
+    search_config: ClaimAdjudicationSearchConfig,
 ) -> ClaimAdjudicationResult:
-    variant = CLAIM_ADJUDICATION_PROMPT_VARIANTS[pass_index % len(CLAIM_ADJUDICATION_PROMPT_VARIANTS)]
+    variant = select_prompt_variant(search_config, pass_index)
     source_basis = claim.source_basis.value if claim.source_basis else result.source_basis.value
     supporting = [span.model_dump(mode="json") for span in claim.supporting_spans]
     method_spans = [span.model_dump(mode="json") for span in claim.method_spans]
@@ -339,6 +291,7 @@ async def run_claim_adjudicate(config: AcademicBatchConfig) -> dict[str, int | f
     from polisyos.academic.batch.article_extractor import GonkaChatClient
 
     started_at = datetime.now(UTC).isoformat()
+    search_config = load_claim_adjudication_config(context={"academic_config": config})
     rows = _load_article_results(config)
     if not rows:
         write_stage_manifest(
@@ -382,12 +335,13 @@ async def run_claim_adjudicate(config: AcademicBatchConfig) -> dict[str, int | f
                     result=result,
                     claim=claim,
                     pass_index=pass_index,
+                    search_config=search_config,
                 )
                 return pass_index, adjudication
 
             for result in rows:
                 for claim in result.causal_claims:
-                    for pass_index in range(max(1, int(config.claim_adjudication_passes))):
+                    for pass_index in range(max(1, int(search_config.passes))):
                         tasks.append(asyncio.create_task(_run_one(pass_index, result, claim)))
 
             for task in asyncio.as_completed(tasks):
@@ -423,6 +377,7 @@ async def run_claim_adjudicate(config: AcademicBatchConfig) -> dict[str, int | f
 
 def run_consensus_aggregate(config: AcademicBatchConfig) -> dict[str, int | float]:
     started_at = datetime.now(UTC).isoformat()
+    search_config = load_claim_adjudication_config(context={"academic_config": config})
     grouped: dict[str, list[ClaimAdjudicationResult]] = defaultdict(list)
     if not config.claim_adjudication_passes_path.exists():
         write_stage_manifest(
@@ -445,7 +400,7 @@ def run_consensus_aggregate(config: AcademicBatchConfig) -> dict[str, int | floa
             adjudication = ClaimAdjudicationResult.model_validate(row)
             grouped[adjudication.claim_id].append(adjudication)
 
-    aggregated = [_aggregate_claim(rows) for rows in grouped.values()]
+    aggregated = [aggregate_claim_rows(rows, search_config) for rows in grouped.values()]
     with open(config.claim_adjudications_path, "w", encoding="utf-8") as fh:
         for item in sorted(aggregated, key=lambda row: (row.openalex_id, row.claim_id)):
             fh.write(item.model_dump_json() + "\n")

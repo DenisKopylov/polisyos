@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from decimal import Decimal
 from typing import Any, Literal, Mapping
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
@@ -104,6 +105,11 @@ class CalibrationReportRef(ArtifactRef):
     media_type: Literal["application/json"] = "application/json"
 
 
+class ParameterOverrideBundleRef(ArtifactRef):
+    kind: Literal["foundry.parameter_override_bundle"] = "foundry.parameter_override_bundle"
+    media_type: Literal["application/json"] = "application/json"
+
+
 class TraceSliceRef(ArtifactRef):
     kind: Literal["foundry.trace_slice"] = "foundry.trace_slice"
     media_type: Literal["application/jsonl"] = "application/jsonl"
@@ -168,7 +174,9 @@ class ProgramEdge(BaseModel):
 class ProgramGraph(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
+    schema_version: str = Field("0.2", pattern=r"^\d+\.\d+$")
     ir_ref: ArtifactRef
+    lowered_ir_ref: LoweredIRRef | None = None
     nodes: list[ProgramNode] = Field(default_factory=list)
     edges: list[ProgramEdge] = Field(default_factory=list)
     entrypoints: list[str] = Field(default_factory=list)
@@ -178,16 +186,45 @@ class ProgramGraph(BaseModel):
 class LoweredMechanism(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    mechanism_type: str
-    params_ref: ArtifactRef | None = None
-    target_ref: ArtifactRef | None = None
+    binding_id: str
+    mechanism_id: str
+    intervention_ids: list[str] = Field(default_factory=list)
+    effective_params_ref: ArtifactRef | None = None
+    effective_schedule: dict[str, Any] | None = None
+    selected_fidelity: str | None = None
+    inputs: list[str] = Field(default_factory=list)
+    outputs: list[str] = Field(default_factory=list)
+    legacy_kind_alias_used: bool = False
+    target_selector: dict[str, Any] | None = None
+    priority: int | None = None
+    notes: list[str] = Field(default_factory=list)
+
+
+class LoweredConstraint(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    constraint_id: str
+    severity: Literal["hard", "soft"]
+    slot_id: str
+    operator: Literal["<", "<=", ">", ">=", "==", "!="]
+    expected: Any
+    unit_id: str | None = None
+    penalty: Decimal | None = None
+    notes: list[str] = Field(default_factory=list)
 
 
 class LoweredIR(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
+    schema_version: str = Field("0.2", pattern=r"^\d+\.\d+$")
     ir_ref: ArtifactRef
     mechanisms: list[LoweredMechanism] = Field(default_factory=list)
+    constraints: list[LoweredConstraint] = Field(default_factory=list)
+    parameter_specs: list[dict[str, Any]] = Field(default_factory=list)
+    time_semantics: dict[str, Any] | None = None
+    environment_config: dict[str, Any] | None = None
+    policy_fidelity_level: str | None = None
+    constraint_mode: str = "hard_soft_v1"
     notes: list[str] = Field(default_factory=list)
 
 
@@ -215,6 +252,14 @@ class ExecPlan(BaseModel):
     nan_guard_enabled: bool = Field(
         default=False,
         description="Enable NaN/Inf guard checks during execution",
+    )
+    policy_fidelity_level: str | None = Field(
+        default=None,
+        description="Resolved policy-level fidelity from Trinity lowering",
+    )
+    constraint_mode: str = Field(
+        default="hard_soft_v1",
+        description="Constraint semantics mode used by executor",
     )
     mode: Literal["dev", "perf", "audit"] = "dev"
     jit: bool = True
@@ -342,6 +387,15 @@ class FoundryInputBindings(BaseModel):
     notes: list[str] = Field(default_factory=list)
 
 
+class ParameterOverrideBundle(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
+    overrides: dict[str, dict[str, Any]] = Field(default_factory=dict)
+    sources: dict[str, list[str]] = Field(default_factory=dict)
+    notes: list[str] = Field(default_factory=list)
+
+
 class ExecuteRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -351,6 +405,7 @@ class ExecuteRequest(BaseModel):
     input_bindings_ref: FoundryInputBindingsRef
 
     registry_bundle_ref: ArtifactRef | None = None
+    parameter_override_bundle_ref: ParameterOverrideBundleRef | None = None
     exec_config: FoundryExecConfig = Field(default_factory=FoundryExecConfig)
     notes: list[str] = Field(default_factory=list)
 
@@ -457,6 +512,33 @@ class Metrics(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     values: dict[str, int | str] = Field(default_factory=dict)
+    notes: list[str] = Field(default_factory=list)
+
+
+class ConstraintViolation(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    constraint_id: str
+    severity: Literal["hard", "soft"]
+    slot_id: str
+    operator: Literal["<", "<=", ">", ">=", "==", "!="]
+    expected: str
+    actual: str
+    violated: bool
+    penalty: Decimal | None = None
+    events: list[dict[str, Any]] = Field(default_factory=list)
+
+
+class ConstraintReport(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
+    ok: bool
+    hard_fail: bool = False
+    constraint_mode: str = "hard_soft_v1"
+    total_constraints: int = 0
+    violations: list[ConstraintViolation] = Field(default_factory=list)
+    penalty_total: Decimal | None = None
     notes: list[str] = Field(default_factory=list)
 
 

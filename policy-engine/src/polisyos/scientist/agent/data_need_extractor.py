@@ -7,10 +7,13 @@ import re
 from pathlib import Path
 from typing import Any
 
+from polisyos.common.logger import get_logger
 from polisyos.fabric.catalog.registry import DataContractRegistry
 from polisyos.scientist.agent.prompts import get_data_need_extractor_prompt
 from polisyos.scientist.agent.protocols import DataNeedExtractorAgent, DataNeedSpec, ProblemFrame
 from polisyos.scientist.llm import TracedLLMClient
+
+logger = get_logger(__name__)
 
 _YEAR_RE = re.compile(r"(19|20)\d{2}")
 
@@ -142,8 +145,8 @@ class LLMDataNeedExtractorAgent:
                 )
             if needs:
                 return self._enrich_with_catalog(needs)
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.debug("Ignored exception: %s", exc)
         return await self._fallback.extract_data_needs(problem_frame)
 
 
@@ -159,6 +162,11 @@ class LLMDataNeedExtractorAgent:
             try:
                 results = find_fn(need.metric, top_k=1)
             except Exception:
+                logger.debug(
+                    "Catalog lookup failed for metric %r",
+                    need.metric,
+                    exc_info=True,
+                )
                 results = []
             # Keep all needs; those with catalog hits get boosted quality_min
             if results:

@@ -6,18 +6,17 @@ existing data from multiple sources with deterministic behavior.
 """
 from __future__ import annotations
 
+import heapq
+import json
+from contextlib import contextmanager
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Any, Iterable
-from contextlib import contextmanager
-import heapq
-import json
 
 import pandas as pd
 
 from polisyos.common.logger import get_logger
 from polisyos.core.canon import content_hash
-
 from polisyos.fabric.connectors.federation.resolver import ConflictResolver
 from polisyos.fabric.connectors.federation.types import (
     AuditLevel,

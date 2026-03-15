@@ -11,13 +11,13 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from typing import Any
-import logging
 
+from polisyos.common.logger import get_logger
 from polisyos.ir.connectors import ConnectorCapability
 
 from .report import FreshnessLevel, FreshnessStatus
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 KNOWN_SCHEDULES = {
     "real-time",

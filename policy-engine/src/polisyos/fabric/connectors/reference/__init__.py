@@ -10,9 +10,9 @@ ConnectorDiscovery scans this package and uses __all__ to select the
 reference connector classes for built-in registration.
 """
 
-from polisyos.fabric.connectors.reference.static_csv import StaticCSVConnector
 from polisyos.fabric.connectors.reference.rest_json import GenericRESTConnector
 from polisyos.fabric.connectors.reference.sdmx import SDMXConnector
+from polisyos.fabric.connectors.reference.static_csv import StaticCSVConnector
 
 __all__ = [
     "StaticCSVConnector",

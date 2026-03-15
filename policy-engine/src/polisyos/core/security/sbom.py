@@ -127,7 +127,7 @@ class SBOMGenerator:
             )
             metrics.record_sbom_generation(source=source, outcome="success")
             return metadata
-        except Exception as exc:  # noqa: BLE001
+        except (FileNotFoundError, OSError, RuntimeError, TimeoutError, ValueError) as exc:  # noqa: BLE001
             metrics.record_sbom_generation(source=source, outcome="error")
             raise SBOMGenerationError(str(exc)) from exc
 
@@ -153,7 +153,7 @@ class SBOMGenerator:
             )
             metrics.record_sbom_generation(source=source, outcome="success")
             return metadata
-        except Exception as exc:  # noqa: BLE001
+        except (FileNotFoundError, OSError, RuntimeError, TimeoutError, ValueError) as exc:  # noqa: BLE001
             metrics.record_sbom_generation(source=source, outcome="error")
             raise SBOMGenerationError(str(exc)) from exc
 
@@ -218,7 +218,7 @@ class SBOMGenerator:
             env = {"GRYPE_DB_CACHE_DIR": str(grype_db_path)}
         try:
             _run_cli(cmd, timeout_seconds=300, env=env)
-        except Exception as exc:  # noqa: BLE001
+        except (FileNotFoundError, OSError, RuntimeError, TimeoutError, ValueError) as exc:  # noqa: BLE001
             raise SBOMScannerError(str(exc)) from exc
 
 

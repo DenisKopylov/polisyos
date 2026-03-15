@@ -1,11 +1,14 @@
 from __future__ import annotations
 
+import hashlib
 from collections import defaultdict
 from datetime import datetime
-import hashlib
 from pathlib import Path
 from typing import Any
 
+from pydantic import ValidationError
+
+from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.canon import from_canonical_bytes
@@ -23,11 +26,11 @@ from polisyos.core.contracts.runtime import (
     ReproducibilityView,
     RetrievalPhaseTelemetry,
     RetrievalTelemetryView,
+    RunErrorView,
     RunEvidenceContextView,
     RunEvidenceNeedView,
     RunEvidencePlanView,
     RunEvidencePromotionView,
-    RunErrorView,
     RunNodeRecord,
     RunWorkflowEdgeView,
     RunWorkflowNodeView,
@@ -35,11 +38,13 @@ from polisyos.core.contracts.runtime import (
     RunWorkflowView,
 )
 from polisyos.core.trace.record import TraceRecord
+from polisyos.scientist.decision_validity import DecisionValidityService
 
 from .run_index import IndexedRunRecord
 from .timeline import TimelineService
 
 _GOVERNANCE_REPORT_KEY = "governance_report_ref"
+_NORMATIVE_ARBITRATION_RESULT_KEY = "normative_arbitration_result_ref"
 _REFLEXION_TERMINAL_KIND = "scientist.reflexion_terminal"
 _WORKFLOW_SPEC_KIND = "scientist.workflow_spec"
 _DEFAULT_SENSITIVE_KEYS = (
@@ -70,6 +75,9 @@ _AGENT_ALIASES: dict[str, str] = {
 }
 
 
+logger = get_logger(__name__)
+
+
 class DebugService:
     def __init__(
         self,
@@ -80,6 +88,7 @@ class DebugService:
     ) -> None:
         self._store = store
         self._timeline_service = timeline_service
+        self._decision_validity_service = DecisionValidityService(store)
         self._sensitive_keys = tuple(key.lower() for key in sensitive_keys)
 
     def list_run_nodes(self, run: IndexedRunRecord) -> list[RunNodeRecord]:
@@ -150,6 +159,10 @@ class DebugService:
             issue_summary = _summarize_issue_counts(issues)
             legal_executed = _legal_executed_from_governance(report_payload)
             packet_payload = self._load_json_artifact(run.decision_packet_ref)
+            decision_validity = self._decision_validity_summary(
+                run.decision_packet_ref,
+                packet_payload,
+            )
             return GovernanceDebugView(
                 run_id=run.run_id,
                 source_kind=run.source_kind,
@@ -169,10 +182,20 @@ class DebugService:
                 transport_summary=_transport_summary_from_packet(packet_payload),
                 validation_trace=validation_trace,
                 contract_warnings=_contract_warnings_from_packet(packet_payload),
+                decision_validity=decision_validity,
+                normative_summary=_normative_summary_from_packet(packet_payload),
+                normative_arbitration_result_ref=_artifact_ref_from_packet(
+                    packet_payload,
+                    _NORMATIVE_ARBITRATION_RESULT_KEY,
+                ),
                 fallback_from_decision_packet=False,
             )
 
         packet_payload = self._load_json_artifact(run.decision_packet_ref)
+        decision_validity = self._decision_validity_summary(
+            run.decision_packet_ref,
+            packet_payload,
+        )
         governance_block = packet_payload.get("governance")
         if isinstance(governance_block, dict):
             fallback = True
@@ -201,7 +224,25 @@ class DebugService:
             transport_summary=_transport_summary_from_packet(packet_payload),
             validation_trace=validation_trace,
             contract_warnings=_contract_warnings_from_packet(packet_payload),
+            decision_validity=decision_validity,
+            normative_summary=_normative_summary_from_packet(packet_payload),
+            normative_arbitration_result_ref=_artifact_ref_from_packet(
+                packet_payload,
+                _NORMATIVE_ARBITRATION_RESULT_KEY,
+            ),
             fallback_from_decision_packet=fallback,
+        )
+
+    def _decision_validity_summary(
+        self,
+        ref: ArtifactRef | None,
+        packet_payload: dict[str, Any],
+    ) -> dict[str, Any] | None:
+        if ref is None:
+            return None
+        return self._decision_validity_service.get_summary(
+            str(ref.artifact_id),
+            packet_payload=packet_payload,
         )
 
     def get_run_errors(self, run: IndexedRunRecord) -> list[RunErrorView]:
@@ -809,7 +850,8 @@ class DebugService:
             return {}
         try:
             payload = from_canonical_bytes(self._store.get_bytes(ref.artifact_id))
-        except Exception:
+        except (FileNotFoundError, OSError, TypeError, ValueError, UnicodeDecodeError) as exc:
+            logger.debug("Failed to load JSON artifact %s: %s", ref.artifact_id, exc)
             return {}
         return payload if isinstance(payload, dict) else {}
 
@@ -818,7 +860,8 @@ class DebugService:
             return None
         try:
             return self._store.get_manifest(ref.artifact_id)
-        except Exception:
+        except (FileNotFoundError, OSError, ValidationError, TypeError, ValueError) as exc:
+            logger.debug("Failed to load manifest %s: %s", ref.artifact_id, exc)
             return None
 
     def _load_run_manifest_payload(self, run: IndexedRunRecord) -> dict[str, Any]:
@@ -882,7 +925,8 @@ def _nodes_from_timeline(events: list[Any]) -> list[RunNodeRecord]:
 def _artifact_ref_from_payload(value: dict[str, Any]) -> ArtifactRef | None:
     try:
         return ArtifactRef.model_validate(value)
-    except Exception:
+    except (TypeError, ValueError, ValidationError) as exc:
+        logger.debug("Failed to parse artifact ref from payload %s: %s", value, exc)
         return None
 
 
@@ -903,7 +947,8 @@ def _state_ref_from_param(
         return None
     try:
         return ArtifactRef(artifact_id=value, kind=kind, media_type=media_type)
-    except Exception:
+    except (TypeError, ValueError) as exc:
+        logger.debug("Failed to construct artifact ref for %s/%s: %s", kind, media_type, exc)
         return None
 
 
@@ -1567,7 +1612,8 @@ def _extract_report_ref(payload: dict[str, Any], key: str) -> ArtifactRef | None
         return None
     try:
         return ArtifactRef.model_validate(raw_ref)
-    except Exception:
+    except (TypeError, ValueError) as exc:
+        logger.debug("Failed to parse report ref for key %s: %s", key, exc)
         return None
 
 
@@ -1579,7 +1625,8 @@ def _iter_trace_records(path: Path):
                 continue
             try:
                 yield TraceRecord.model_validate_json(stripped)
-            except Exception:
+            except (ValueError, TypeError) as exc:
+                logger.debug("Failed to parse trace record in %s: %s", path, exc)
                 continue
 
 
@@ -1645,7 +1692,8 @@ def _artifact_ref_from_string(
         return None
     try:
         return ArtifactRef(artifact_id=value, kind=kind, media_type=media_type)
-    except Exception:
+    except (TypeError, ValueError) as exc:
+        logger.debug("Failed to build artifact ref from %s: %s", value, exc)
         return None
 
 
@@ -1737,6 +1785,33 @@ def _contract_warnings_from_packet(payload: dict[str, Any]) -> list[str]:
     return _as_list_of_strings(diagnostics.get("contract_warnings"))
 
 
+def _normative_summary_from_packet(payload: dict[str, Any]) -> dict[str, Any] | None:
+    diagnostics = payload.get("diagnostics_summary")
+    tradeoff = payload.get("tradeoff_certificate")
+    if not isinstance(diagnostics, dict) and not isinstance(tradeoff, dict):
+        return None
+    diagnostics = diagnostics if isinstance(diagnostics, dict) else {}
+    tradeoff = tradeoff if isinstance(tradeoff, dict) else {}
+    return {
+        "selected_policy": diagnostics.get("normative_selected_policy")
+        or tradeoff.get("selected_policy"),
+        "selected_option": diagnostics.get("normative_selected_option")
+        or tradeoff.get("selected_option"),
+        "model_completeness": diagnostics.get("normative_model_completeness"),
+        "residual_dissent_count": diagnostics.get("normative_residual_dissent_count"),
+        "rights_violation_count": diagnostics.get("normative_rights_violation_count"),
+        "winners": _as_list_of_strings(tradeoff.get("winners")),
+        "losers": _as_list_of_strings(tradeoff.get("losers")),
+    }
+
+
+def _artifact_ref_from_packet(payload: dict[str, Any], key: str) -> ArtifactRef | None:
+    artifacts = payload.get("artifacts")
+    if not isinstance(artifacts, dict):
+        return None
+    return _artifact_ref_from_payload(artifacts.get(key))
+
+
 def _transport_summary_from_packet(payload: dict[str, Any]) -> dict[str, Any] | None:
     causal = payload.get("causal")
     if not isinstance(causal, dict):
@@ -1759,10 +1834,17 @@ def _artifact_ref_from_payload(value: Any) -> ArtifactRef | None:
     if isinstance(value, dict):
         try:
             return ArtifactRef.model_validate(value)
-        except Exception:
+        except (TypeError, ValueError) as exc:
+            logger.debug(
+                "Failed to parse generic artifact ref payload %s: %s", value, exc
+            )
             return None
     if isinstance(value, str):
-        return ArtifactRef(artifact_id=value, kind=None, media_type=None)
+        return ArtifactRef(
+            artifact_id=value,
+            kind="artifact.unknown",
+            media_type="application/json",
+        )
     return None
 
 

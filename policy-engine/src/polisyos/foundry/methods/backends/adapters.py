@@ -42,11 +42,15 @@ def adapt_state(
     if source_backend is ComputeBackend.JAX and target_backend in (
         ComputeBackend.NUMPY,
         ComputeBackend.SOLVER,
+        ComputeBackend.BAYESIAN,
     ):
         return to_numpy(state)
 
-    if source_backend in (ComputeBackend.NUMPY, ComputeBackend.SOLVER) and target_backend is ComputeBackend.JAX:
+    if source_backend in (
+        ComputeBackend.NUMPY,
+        ComputeBackend.SOLVER,
+        ComputeBackend.BAYESIAN,
+    ) and target_backend is ComputeBackend.JAX:
         return to_jax(state)
 
     return state
-

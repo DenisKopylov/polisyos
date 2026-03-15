@@ -144,6 +144,7 @@ class BuildLiteraturePrior:
                 min_confidence=min_confidence,
                 limit=limit,
                 domain=domain,
+                edge_layer="hybrid",
             )
             version_id = query.latest_skg_version_id()
             snapshot_ref = query.skg_snapshot_ref(version_id=version_id)

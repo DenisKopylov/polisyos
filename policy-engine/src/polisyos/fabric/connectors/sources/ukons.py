@@ -1,14 +1,19 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
 import json
 import time
+from datetime import datetime, timezone
 from typing import Any, AsyncIterator, ClassVar, Iterable
 
 import pandas as pd
 
 from polisyos.core.canon import content_hash as compute_content_hash
-from polisyos.fabric.connectors.base import ConnectionHandle, FetchRequest, FetchResult, HealthStatus
+from polisyos.fabric.connectors.base import (
+    ConnectionHandle,
+    FetchRequest,
+    FetchResult,
+    HealthStatus,
+)
 from polisyos.fabric.connectors.sources._contracts.ukons_contracts import UKONS_GENERIC_SCHEMA
 from polisyos.fabric.connectors.sources.http_base import HTTPConnectorBase, HTTPResilienceProfile
 from polisyos.fabric.connectors.sources.http_common import frame_completeness, safe_float, safe_int

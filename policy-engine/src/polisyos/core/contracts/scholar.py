@@ -6,9 +6,9 @@ Defines the minimal ABI boundary between Scholar and other modules.
 
 from __future__ import annotations
 
+import re
 from datetime import datetime, timezone
 from enum import Enum
-import re
 from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator

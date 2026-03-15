@@ -3,11 +3,13 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from datetime import datetime
+from pathlib import Path
 from typing import Any, Dict, List
 
-from loguru import logger
-
+from polisyos.common.logger import get_logger
 from polisyos.scientist.workflows.engine_base import WorkflowEngine
+
+logger = get_logger(__name__)
 
 
 @dataclass
@@ -67,11 +69,13 @@ class CheapStage(SearchStage):
 
     def __init__(
         self,
-        threshold: float = 0.5,
+        threshold: float | None = None,
         enable_parameter_checks: bool = True,
         enable_structure_checks: bool = True,
     ):
-        self._threshold = threshold
+        from polisyos.scientist.autotune.cheap_stage import resolve_cheap_stage_threshold
+
+        self._threshold = resolve_cheap_stage_threshold(threshold)
         self._param_checks = enable_parameter_checks
         self._struct_checks = enable_structure_checks
 
@@ -331,6 +335,40 @@ class CorrelationTracker:
             "true_positive_rate": tp_rate,
             "spearman_correlation": correlation,
         }
+
+    def records(self) -> List[CorrelationRecord]:
+        return list(self._records)
+
+    def to_jsonl_rows(self) -> List[Dict[str, Any]]:
+        return [
+            {
+                "candidate_hash": record.candidate_hash,
+                "stage_a_score": record.stage_a_score,
+                "stage_b_score": record.stage_b_score,
+                "stage_a_passed": record.stage_a_passed,
+                "stage_b_approved": record.stage_b_approved,
+                "timestamp": record.timestamp.isoformat(),
+            }
+            for record in self._records
+        ]
+
+    def write_dataset(
+        self,
+        *,
+        output_dir: Path | None = None,
+        suite_id: str = "cheap_stage_correlation",
+        suite_version: str = "1.0",
+        holdout_fraction: float = 0.2,
+    ):
+        from polisyos.scientist.autotune.cheap_stage import write_correlation_dataset
+
+        return write_correlation_dataset(
+            self.to_jsonl_rows(),
+            output_dir=output_dir,
+            suite_id=suite_id,
+            suite_version=suite_version,
+            holdout_fraction=holdout_fraction,
+        )
 
     @staticmethod
     def _spearman(x: List[float], y: List[float]) -> float:

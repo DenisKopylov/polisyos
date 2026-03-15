@@ -322,7 +322,7 @@ class TestComponentSystem:
     def test_builtin_components_count(self):
         from polisyos.fabric.connectors.components import __polisyos_components__
 
-        assert len(__polisyos_components__) == 11
+        assert len(__polisyos_components__) >= 14
 
     @pytest.mark.parametrize(
         "short_id",

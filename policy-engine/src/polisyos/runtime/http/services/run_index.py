@@ -10,6 +10,7 @@ from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.contracts.runtime import CursorPage, RunDetails, RunSummary, SourceKind
+from polisyos.scientist.decision_validity import DecisionValidityService
 
 from .adapters.core_run import CoreRunAdapterResult, load_core_run
 
@@ -39,6 +40,7 @@ class RunIndexService:
         self._store = store
         self._core_runs_root = core_runs_root
         self._refresh_ttl_seconds = max(refresh_ttl_seconds, 0.1)
+        self._decision_validity_service = DecisionValidityService(store)
         self._cache: dict[str, IndexedRunRecord] = {}
         self._artifact_tenants: dict[str, str] = {}
         self._cache_built_at: float = 0.0
@@ -148,14 +150,32 @@ class RunIndexService:
         result = load_core_run(store=self._store, run_dir=run_dir)
         if result is None:
             return None
-        return _core_result_to_indexed(result, run_dir=run_dir)
+        return _core_result_to_indexed(
+            result,
+            run_dir=run_dir,
+            decision_validity_service=self._decision_validity_service,
+        )
 
 
 def _core_result_to_indexed(
     result: CoreRunAdapterResult,
     *,
     run_dir: Path,
+    decision_validity_service: DecisionValidityService,
 ) -> IndexedRunRecord:
+    validity = None
+    superseded_by_ref = None
+    if result.decision_packet_ref is not None:
+        evaluation, _ = decision_validity_service.get_evaluation(
+            str(result.decision_packet_ref.artifact_id)
+        )
+        validity = evaluation
+        if evaluation.superseded_by_ref:
+            superseded_by_ref = ArtifactRef(
+                artifact_id=evaluation.superseded_by_ref,
+                kind=None,
+                media_type=None,
+            )
     details = RunDetails(
         run_id=result.run_id,
         source_kind="core_run",
@@ -165,13 +185,20 @@ def _core_result_to_indexed(
         duration_ms=result.duration_ms,
         tenant_id=result.tenant_id,
         cell_id=result.cell_id,
+        execution_profile=result.execution_profile,
+        control_job_id=result.control_job_id,
         has_trace=True,
         manifest_ref=result.manifest_ref,
         trace_ref=result.trace_ref,
+        capability_manifest_ref=result.capability_manifest_ref,
         root_artifacts=list(result.root_artifacts),
         has_workflow_report=result.workflow_report_ref is not None,
         workflow_report_ref=result.workflow_report_ref,
         warnings=list(result.warnings),
+        decision_validity_status=(validity.status if validity is not None else None),
+        decision_validity_checked_at=(validity.evaluated_at if validity is not None else None),
+        decision_review_required=bool(validity.review_required) if validity is not None else False,
+        decision_superseded_by_ref=superseded_by_ref,
     )
     summary = RunSummary(
         run_id=result.run_id,
@@ -182,10 +209,16 @@ def _core_result_to_indexed(
         duration_ms=details.duration_ms,
         tenant_id=details.tenant_id,
         cell_id=details.cell_id,
+        execution_profile=details.execution_profile,
+        control_job_id=details.control_job_id,
         has_trace=True,
         root_artifact_count=len(result.root_artifacts),
         has_workflow_report=result.workflow_report_ref is not None,
         warnings=list(result.warnings),
+        decision_validity_status=(validity.status if validity is not None else None),
+        decision_validity_checked_at=(validity.evaluated_at if validity is not None else None),
+        decision_review_required=bool(validity.review_required) if validity is not None else False,
+        decision_superseded_by_ref=superseded_by_ref,
     )
     return IndexedRunRecord(
         run_id=result.run_id,
@@ -247,6 +280,8 @@ def _register_artifact_tenants(
         refs.append(record.details.manifest_ref)
     if record.details.trace_ref is not None:
         refs.append(record.details.trace_ref)
+    if record.details.capability_manifest_ref is not None:
+        refs.append(record.details.capability_manifest_ref)
     if record.workflow_report_ref is not None:
         refs.append(record.workflow_report_ref)
     if record.experiment_state_ref is not None:

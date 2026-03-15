@@ -7,6 +7,7 @@ from polisyos.ir.analytics.transportability import (
     SelectionDiagram,
     SNode,
     SNodeOrigin,
+    TransportMode,
     TransportabilityResult,
     TransportabilityStatus,
     build_selection_diagram,
@@ -37,9 +38,10 @@ def test_transport_check_direct_when_no_s_nodes() -> None:
     )
     result = TransportabilityResult.model_validate(payload["transport_result"])
 
-    assert result.status is TransportabilityStatus.DIRECT
+    assert result.status is TransportabilityStatus.IDENTIFIED
+    assert result.transport_mode is TransportMode.DIRECT
     assert result.final_confidence == 1.0
-    assert result.identification_engine == "simplified"
+    assert result.identification_engine == "simplified_legacy"
 
 
 def test_transport_check_transportable_uses_conditional_target_quantity_for_mediator() -> None:
@@ -73,7 +75,8 @@ def test_transport_check_transportable_uses_conditional_target_quantity_for_medi
     )
     result = TransportabilityResult.model_validate(payload["transport_result"])
 
-    assert result.status is TransportabilityStatus.TRANSPORTABLE
+    assert result.status is TransportabilityStatus.IDENTIFIED
+    assert result.transport_mode is TransportMode.TRANSPORT_FORMULA
     assert result.transport_formula is not None
     assert "P*(tax_compliance|tax_rate)" in result.transport_formula.target_quantities
     assert result.transport_formula.stratification_details
@@ -112,9 +115,9 @@ def test_transport_check_non_transportable_tracks_unsupported_cases() -> None:
     )
     result = TransportabilityResult.model_validate(payload["transport_result"])
 
-    assert result.status is TransportabilityStatus.NON_TRANSPORTABLE
+    assert result.status is TransportabilityStatus.UNSUPPORTED
     assert result.unsupported_cases
-    assert result.algorithm_version == "simplified_tr_v2"
+    assert result.algorithm_version == "trso_v2"
     assert result.unsupported_reason == "simplified_unresolved_s_nodes"
 
 
@@ -171,7 +174,7 @@ def test_transport_check_pag_probabilistic_computes_id_confidence() -> None:
     assert result.pag_transportable_count is not None
     assert result.pag_dag_sample_size > 0
     assert 0.0 <= result.id_confidence_under_pag <= 1.0
-    assert result.status is TransportabilityStatus.TRANSPORTABLE
+    assert result.status is TransportabilityStatus.IDENTIFIED
 
 
 def test_transport_check_pag_probabilistic_threshold_blocks() -> None:
@@ -193,4 +196,4 @@ def test_transport_check_pag_probabilistic_threshold_blocks() -> None:
 
     assert result.id_confidence_under_pag is not None
     assert result.id_confidence_under_pag < 0.75
-    assert result.status is TransportabilityStatus.NON_TRANSPORTABLE
+    assert result.status is TransportabilityStatus.UNSUPPORTED

@@ -10,10 +10,10 @@ from typing import Mapping
 from polisyos.fabric.connectors.types.dimensions import Dimension
 
 from ._units_base import (
-    BaseUnit,
-    ConversionFactor,
     STANDARD_UNITS,
     SUPERSCRIPT_MAP,
+    BaseUnit,
+    ConversionFactor,
 )
 from ._units_errors import UnitConversionError, UnitParseError
 from ._units_prefixes import PREFIX_FACTORS

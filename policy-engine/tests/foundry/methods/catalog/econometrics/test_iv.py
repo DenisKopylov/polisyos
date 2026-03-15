@@ -69,7 +69,7 @@ def test_iv_2sls_runs_and_estimates_endogenous_effect() -> None:
 
     beta = next(value for key, value in result.params.items() if "x_endog" in key)
     assert abs(beta - 2.0) < 0.5
-    assert dispatched.output["envelope"] is not None
+    assert dispatched.output["uncertainty_envelope"] is not None
 
 
 def test_iv_gmm_runs() -> None:
@@ -96,3 +96,4 @@ def test_iv_gmm_runs() -> None:
     result = dispatched.output["result"]
     assert result.method_name == "iv_gmm"
     assert result.n_obs > 0
+    assert dispatched.output["uncertainty_envelope"] is not None

@@ -7,6 +7,7 @@ from decimal import Decimal
 from pathlib import Path
 from typing import Any
 
+from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.fabric.claims import ClaimNormalizeOptions, normalize_claims
 from polisyos.fabric.claims.backends import resolve_extractor
@@ -39,6 +40,8 @@ from polisyos.ir.world.event import (
 from polisyos.ir.world.ids import claim_id_from_payload
 from polisyos.lex.common import collapse_ws
 from polisyos.lex.normpack.policies import NORM_CLAIM_EXTRACT_PIPELINE_ID, NORM_CLAIM_SET_KIND
+
+logger = get_logger(__name__)
 
 _ID_RE = re.compile(ID_PATTERN)
 
@@ -87,6 +90,7 @@ def _to_datetime_utc(value: str | None) -> datetime | None:
                 parsed = parsed.replace(tzinfo=timezone.utc)
         return parsed.astimezone(timezone.utc)
     except Exception:
+        logger.debug("Failed to parse datetime value: %r", value)
         return None
 
 
@@ -146,6 +150,7 @@ def _candidate_to_norm_claim(
         reject_floats_deep(qualifiers)
         reject_floats_deep(props)
     except Exception:
+        logger.debug("Invalid candidate payload for predicate %s", predicate_id)
         warnings.append(f"warning:invalid_candidate_payload:{predicate_id}")
         return None
 

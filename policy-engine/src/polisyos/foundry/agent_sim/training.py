@@ -17,28 +17,15 @@ from polisyos.foundry.agent_sim.prng import get_mechanism_key
 from polisyos.foundry.agent_sim.rewards import compute_agent_reward
 from polisyos.foundry.agent_sim.rl import Trajectory, compute_returns_and_advantages, ppo_loss
 from polisyos.foundry.agent_sim.temporal import build_temporal_observations
+from polisyos.foundry.agent_sim.training_config import TrainingConfigBase
 from polisyos.foundry.agent_sim.temporal_mechanisms import TemporalConsumptionMechanism
-from polisyos.foundry.runtime.fingerprint import DeterminismTier, EnvironmentFingerprint
 from polisyos.foundry.contracts.fidelity import FidelityLevel
+from polisyos.foundry.runtime.fingerprint import DeterminismTier, EnvironmentFingerprint
 
 
 @dataclass(frozen=True)
-class TrainingConfig:
-    n_episodes: int = 100
-    steps_per_episode: int = 64
-    horizon: int = 256
-    gamma: float = 0.99
-    gae_lambda: float = 0.95
-    ppo_epochs: int = 4
-    clip_epsilon: float = 0.2
-    value_coef: float = 0.5
-    entropy_coef: float = 0.01
-    learning_rate: float = 3e-4
-    max_grad_norm: float = 1.0
-    utility_type: str = "crra"
+class TrainingConfig(TrainingConfigBase):
     log_interval: int = 10
-    fidelity: FidelityLevel = FidelityLevel.SURROGATE_FLUID
-    include_expectations: bool = True
 
 
 def train_actor_critic(
@@ -229,22 +216,7 @@ def train_actor_critic_jit(
         create_jit_trainer,
     )
 
-    jit_config = JITTrainingConfig(
-        n_episodes=config.n_episodes,
-        steps_per_episode=config.steps_per_episode,
-        ppo_epochs=config.ppo_epochs,
-        gamma=config.gamma,
-        gae_lambda=config.gae_lambda,
-        clip_epsilon=config.clip_epsilon,
-        value_coef=config.value_coef,
-        entropy_coef=config.entropy_coef,
-        learning_rate=config.learning_rate,
-        max_grad_norm=config.max_grad_norm,
-        horizon=config.horizon,
-        utility_type=config.utility_type,
-        fidelity=config.fidelity,
-        include_expectations=config.include_expectations,
-    )
+    jit_config = JITTrainingConfig(**config.common_kwargs())
 
     if rng_key is None:
         rng_key = jax.random.PRNGKey(0)

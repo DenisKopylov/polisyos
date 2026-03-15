@@ -7,7 +7,13 @@ from polisyos.foundry.methods.catalog.causal.constraint_discovery import (
     GESDiscovery,
     PCDiscovery,
 )
-from polisyos.foundry.methods.catalog.causal.did import DifferenceInDifferences
+from polisyos.foundry.methods.catalog.causal.dagma_discovery import DAGMADiscovery
+from polisyos.foundry.methods.catalog.causal.diagnostics import ParallelTrendsCheck
+from polisyos.foundry.methods.catalog.causal.did import (
+    DifferenceInDifferences,
+    StandardDifferenceInDifferences,
+    StaggeredDifferenceInDifferences,
+)
 from polisyos.foundry.methods.catalog.causal.dowhy_identify_estimate import (
     DoWhyIdentifyEstimate,
     DoWhyIdentifyEstimateV1,
@@ -17,9 +23,8 @@ from polisyos.foundry.methods.catalog.causal.gcm_fit import HybridSCMFit
 from polisyos.foundry.methods.catalog.causal.gcm_query import GCMQuery
 from polisyos.foundry.methods.catalog.causal.graph_reconciliation import ReconcileCausalGraph
 from polisyos.foundry.methods.catalog.causal.literature_prior import BuildLiteraturePrior
-from polisyos.foundry.methods.catalog.causal.dagma_discovery import DAGMADiscovery
-from polisyos.foundry.methods.catalog.causal.pcmci_discovery import PCMCIDiscovery
 from polisyos.foundry.methods.catalog.causal.parameter_transfer import ParameterTransfer
+from polisyos.foundry.methods.catalog.causal.pcmci_discovery import PCMCIDiscovery
 from polisyos.foundry.methods.catalog.causal.rdd import RegressionDiscontinuity
 from polisyos.foundry.methods.catalog.causal.sensitivity_metrics import SensitivityMetrics
 from polisyos.foundry.methods.catalog.causal.structural_time_series import StructuralTimeSeries
@@ -31,7 +36,10 @@ from polisyos.foundry.methods.catalog.causal.transport_check import CheckTranspo
 def register_causal_methods() -> Sequence[type]:
     methods: list[type] = [
         SyntheticControlMethod,
+        ParallelTrendsCheck,
         DifferenceInDifferences,
+        StandardDifferenceInDifferences,
+        StaggeredDifferenceInDifferences,
         RegressionDiscontinuity,
         StructuralTimeSeries,
         DoWhyIdentifyEstimateV1,

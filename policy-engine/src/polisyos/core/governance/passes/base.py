@@ -2,11 +2,11 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import List, Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, List, Optional
 
 if TYPE_CHECKING:
-    from polisyos.ir.trinity import TrinityBundle
     from polisyos.core.governance.profiles import ValidationProfile
+    from polisyos.ir.trinity import TrinityBundle
 
 from polisyos.core.contracts.lex import ComplianceIssue, IssueSeverity
 

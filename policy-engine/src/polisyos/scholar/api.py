@@ -7,7 +7,6 @@ from typing import Any
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.contracts.scholar import KnowledgeBundleRef, ResearchIntent
 from polisyos.fabric.storage import StoragePort
-
 from polisyos.scholar.orchestrator.enrich import enrich_topic as _enrich_topic
 from polisyos.scholar.policies import ScholarPolicy
 from polisyos.scholar.types import EnrichResultV1

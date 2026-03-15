@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-import logging
 from dataclasses import dataclass
 from typing import Any
 
+from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.observability import get_metrics
 from polisyos.scientist.agent.failure_card import FailureCard
@@ -17,7 +17,7 @@ from polisyos.scientist.agent.failure_index import (
 )
 from polisyos.scientist.agent.protocols import CritiqueReport, ProblemFrame
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 @dataclass(frozen=True, slots=True)

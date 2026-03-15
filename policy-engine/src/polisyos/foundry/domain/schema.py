@@ -23,6 +23,8 @@ class RegionProfile(BaseModel):
 class SimulationConfig(BaseModel):
     """Глобальные настройки симуляции."""
 
+    model_config = ConfigDict(extra="forbid")
+
     n_agents: int = Field(..., gt=0, description="Количество агентов в популяции")
     n_steps: int = Field(default=12, gt=0, description="Горизонт планирования (месяцев)")
     seed: int = 42

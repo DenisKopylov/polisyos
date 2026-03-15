@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from datetime import datetime
 import json
 import time
+from dataclasses import dataclass, field
+from datetime import datetime
 from typing import Any, Callable, ClassVar, Generic, TypeVar
 
 import aiohttp
@@ -172,13 +172,15 @@ class HTTPConnectorBase(BaseConnector[DataT], Generic[DataT]):
             url: str,
             params: dict[str, str],
             connector_id: str,
+            headers: dict[str, str] | None = None,
         ) -> tuple[Any, dict[str, str], bytes]:
-            return await self._request_json(
-                session,
-                url,
-                params=params,
-                connector_id=connector_id,
-            )
+            request_kwargs = {
+                "params": params,
+                "connector_id": connector_id,
+            }
+            if headers:
+                request_kwargs["headers"] = headers
+            return await self._request_json(session, url, **request_kwargs)
 
         wrapped = apply_resilience(
             _raw_request,
@@ -195,15 +197,22 @@ class HTTPConnectorBase(BaseConnector[DataT], Generic[DataT]):
         *,
         params: dict[str, str],
         connector_id: str | None = None,
+        headers: dict[str, str] | None = None,
     ) -> tuple[Any, dict[str, str], bytes]:
         session = await self._get_session(handle)
         executor = self._json_executor(handle)
+        request_headers = self._build_auth_headers(handle, headers)
+        kwargs: dict[str, Any] = {
+            "handle": handle,
+            "session": session,
+            "url": url,
+            "params": params,
+            "connector_id": connector_id or self.connector_id,
+        }
+        if request_headers:
+            kwargs["headers"] = request_headers
         return await executor(
-            handle=handle,
-            session=session,
-            url=url,
-            params=params,
-            connector_id=connector_id or self.connector_id,
+            **kwargs,
         )
 
     async def _request_json(
@@ -213,8 +222,9 @@ class HTTPConnectorBase(BaseConnector[DataT], Generic[DataT]):
         *,
         params: dict[str, str],
         connector_id: str,
+        headers: dict[str, str] | None = None,
     ) -> tuple[Any, dict[str, str], bytes]:
-        async with session.get(url, params=params) as response:
+        async with session.get(url, params=params, headers=headers) as response:
             headers = dict(response.headers)
             if response.status == 429:
                 retry_after = retry_after_seconds(headers)
@@ -243,6 +253,27 @@ class HTTPConnectorBase(BaseConnector[DataT], Generic[DataT]):
                     request_params={"url": url},
                 ) from exc
             return body, headers, raw
+
+    @staticmethod
+    def _build_auth_headers(
+        handle: ConnectionHandle,
+        headers: dict[str, str] | None = None,
+    ) -> dict[str, str]:
+        request_headers = dict(headers or {})
+        auth_method = (handle.config.auth_method or "").strip().lower()
+        credentials = handle.config.auth_credentials or {}
+
+        if auth_method == "bearer":
+            token = str(credentials.get("token") or "").strip()
+            if token:
+                request_headers.setdefault("Authorization", f"Bearer {token}")
+        elif auth_method == "api_key":
+            key = str(credentials.get("key") or "").strip()
+            header_name = str(credentials.get("header") or "X-API-Key").strip() or "X-API-Key"
+            if key:
+                request_headers.setdefault(header_name, key)
+
+        return request_headers
 
     def _build_fetch_result(
         self,

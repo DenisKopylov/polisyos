@@ -3,7 +3,6 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from pathlib import Path
 
-
 NORMALIZATION_RULES = [
     {"pattern": r"\s+", "repl": "_"},
     {"pattern": r"[^a-zA-Z0-9_]", "repl": ""},

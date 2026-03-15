@@ -11,20 +11,24 @@ SECURITY: Uses ASTPolicy for validation before ANY evaluation.
 from __future__ import annotations
 
 import ast
-from typing import Any, Dict, List, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Dict, List
 
-from polisyos.core.governance.passes.base import (
-    ComplianceIssue,
-    IssueSeverity,
-)
+from polisyos.common.logger import get_logger
 from polisyos.core.governance.legal.ast_policy import (
     ASTLimits,
     ASTPolicy,
     SecurityError,
 )
+from polisyos.core.governance.passes.base import (
+    ComplianceIssue,
+    IssueSeverity,
+)
 
 if TYPE_CHECKING:
     from polisyos.ir.norm_pack import NormPack, NormRule
+
+
+logger = get_logger(__name__)
 
 
 class SafeExpressionEvaluator:
@@ -373,7 +377,12 @@ class ExpressionASTBackend:
                 )
             ]
 
-        except Exception as e:
+        except (SyntaxError, TypeError, ValueError) as e:
+            logger.debug(
+                "Unexpected error evaluating norm %s: %s",
+                norm.norm_id,
+                e,
+            )
             return [
                 ComplianceIssue(
                     pass_id="legal",
@@ -408,9 +417,12 @@ class ExpressionASTBackend:
 
             if values:
                 return f"Current values: {', '.join(values)}"
-        except Exception:
-            pass
-
+        except (AttributeError, TypeError, ValueError) as exc:
+            logger.debug(
+                "Failed to build suggestion payload for rule %s: %s",
+                norm.norm_id,
+                exc,
+            )
         return None
 
 

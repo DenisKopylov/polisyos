@@ -6,18 +6,21 @@ from __future__ import annotations
 
 import ast
 import builtins
-from dataclasses import dataclass, field
-from enum import Enum
 import json
 import multiprocessing as mp
 import os
 import re
 import time
+from dataclasses import dataclass, field
+from enum import Enum
 from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from polisyos.common.logger import get_logger
 from polisyos.scientist.agent.protocols import DraftResult, ProblemFrame
+
+logger = get_logger(__name__)
 
 
 class VerificationStatus(str, Enum):
@@ -397,8 +400,8 @@ def _verification_worker(
     config = SandboxConfig(**config_payload)
     try:
         _apply_resource_limits(config)
-    except Exception:
-        pass
+    except Exception as exc:
+        logger.debug("Ignored exception: %s", exc)
 
     allowed_modules = _load_allowed_modules(config.allowed_modules)
     output = _LimitedOutputBuffer(config.max_output_chars)
@@ -501,6 +504,7 @@ def _build_globals(
 def _apply_resource_limits(config: SandboxConfig) -> None:
     try:
         import resource
+
     except Exception:
         return
     soft_mem = int(config.max_memory_mb) * 1024 * 1024

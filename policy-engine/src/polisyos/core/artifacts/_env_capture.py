@@ -11,9 +11,11 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from polisyos.common.logger import get_logger
+
 from ._env_models import (
-    CPUInfo,
     ContainerInfo,
+    CPUInfo,
     DependencyInfo,
     EnvironmentManifest,
     GitInfo,
@@ -33,6 +35,8 @@ from ._env_utils import (
     _safe_package_version,
     _safe_run,
 )
+
+logger = get_logger(__name__)
 
 __all__ = [
     "capture_environment",
@@ -304,13 +308,14 @@ def _capture_jax_info() -> JAXInfo:
             try:
                 from jax._src import lib as jaxlib_internal
 
+
                 xla_version = getattr(jaxlib_internal, "xla_extension_version", None)
                 if xla_version is not None:
                     jax_info.xla_version = str(xla_version)
             except (ImportError, AttributeError):
                 pass
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.debug("Ignored exception: %s", exc)
 
     return jax_info
 

@@ -6,16 +6,16 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from polisyos.ir.analytics.context import ContextProfile
 from polisyos.ir.analytics.causal_graph import (
     CausalEdge,
     CausalGraphModel,
     EdgeSource,
     GraphType,
 )
-from polisyos.ir.canon import CanonSpec
+from polisyos.ir.analytics.context import ContextProfile
 from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
 from polisyos.ir.artifacts.contracts import ArtifactID
+from polisyos.ir.canon import CanonSpec
 from polisyos.ir.refs import LiteratureCausalPriorRef
 
 

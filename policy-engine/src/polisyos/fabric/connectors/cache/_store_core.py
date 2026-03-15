@@ -21,10 +21,10 @@ from ._store_models import (
     CACHE_PAYLOAD_KIND,
     CACHE_SCHEMA_NAME,
     CACHE_SCHEMA_VERSION,
+    CachedFetchResult,
     CacheEntry,
     CacheMetadata,
     CacheStats,
-    CachedFetchResult,
     _canon_spec_allow_floats,
     _dt_to_ts,
     _payload_to_request,
@@ -130,8 +130,8 @@ class ConnectorCacheStore:
 
         try:
             self._index.update_access(cache_key)
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.debug("Ignored exception: %s", exc)
 
         self._hit_count += 1
         latency = time.perf_counter() - start
@@ -192,8 +192,8 @@ class ConnectorCacheStore:
 
         try:
             self._index.update_access(cache_key)
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.debug("Ignored exception: %s", exc)
 
         latency = time.perf_counter() - start
         self._record_latency("get_any", latency)

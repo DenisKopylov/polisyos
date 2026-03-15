@@ -43,6 +43,7 @@ class MethodResult:
     output: Any
     timing: MethodTiming
     reproducibility: ReproducibilityInfo
+    slot_outputs: Mapping[str, Any] = field(default_factory=dict)
     artifacts: Mapping[str, Any] = field(default_factory=dict)
     warnings: tuple[str, ...] = ()
 
@@ -65,4 +66,3 @@ class MethodRunner(Protocol):
         seed: int,
     ) -> MethodResult:
         ...
-

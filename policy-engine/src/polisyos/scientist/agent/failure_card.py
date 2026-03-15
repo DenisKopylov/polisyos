@@ -21,9 +21,10 @@ from enum import Enum
 from typing import Any, Dict, List, Optional
 from uuid import UUID, uuid4
 
-from pydantic import BaseModel, Field, computed_field
+from pydantic import BaseModel, ConfigDict, Field, computed_field
 
 from polisyos.core.canon import content_hash
+
 
 class FailureSource(str, Enum):
     """Origin of the failure detection."""
@@ -59,6 +60,8 @@ class RemediationTarget(str, Enum):
 class ConstraintViolation(BaseModel):
     """Detailed constraint violation record."""
 
+    model_config = ConfigDict(extra="forbid")
+
     constraint_id: str = Field(description="Unique identifier for the constraint")
     constraint_type: str = Field(description="Category: safety, budget, schema, semantic")
     field_path: Optional[str] = Field(default=None, description="JSON path to violating field")
@@ -69,6 +72,8 @@ class ConstraintViolation(BaseModel):
 
 class StateDiff(BaseModel):
     """Captures state changes that led to failure."""
+
+    model_config = ConfigDict(extra="forbid")
 
     before_ref: Optional[str] = Field(default=None, description="CAS ref to state before operation")
     after_ref: Optional[str] = Field(default=None, description="CAS ref to state after operation")
@@ -83,6 +88,8 @@ class FailureCard(BaseModel):
     This is the primary data structure that enables self-healing. It captures
     all context needed for an LLM agent to understand and fix the error.
     """
+
+    model_config = ConfigDict(extra="forbid")
 
     # === Identity ===
     card_id: UUID = Field(default_factory=uuid4, description="Unique identifier for this card")

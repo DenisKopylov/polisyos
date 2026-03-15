@@ -38,10 +38,21 @@ from polisyos.ir.analytics.hte import (
     persist_hte_result,
     persist_policy_recommendation,
 )
+from polisyos.ir.analytics.normative_arbitration import (
+    ArbitrationOption,
+    NormativeArbitrationResult,
+    NormativeModelCompleteness,
+    OptionOutcomeMatrix,
+    PolicyOutcome,
+    ResidualDissent,
+    TradeoffCertificate,
+    persist_normative_arbitration_result,
+)
 from polisyos.ir.analytics.sensitivity import SensitivityResult, persist_sensitivity_result
 from polisyos.ir.analytics.transportability import (
     TransportabilityResult,
     TransportabilityStatus,
+    persist_transportability_result,
 )
 from polisyos.ir.analytics.uncertainty import (
     DistributionFamily,
@@ -62,11 +73,14 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CAUSAL_ENVELOPE_REF,
     ARTIFACT_CAUSAL_ENSEMBLE_REF,
     ARTIFACT_CAUSAL_REPORT_REF,
+    ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF,
     ARTIFACT_HTE_RESULT_REF,
     ARTIFACT_METRICS_REF,
+    ARTIFACT_NORMATIVE_ARBITRATION_RESULT_REF,
     ARTIFACT_POLICY_RECOMMENDATION_REF,
     ARTIFACT_SENSITIVITY_RESULT_REF,
     ARTIFACT_SIMULATION_RESULT_REF,
+    ARTIFACT_TRANSPORTABILITY_RESULT_REF,
     INPUT_DATA_SNAPSHOT_REF,
     INPUT_REGISTRY_BUNDLE_REF,
     INPUT_TRINITY_BUNDLE_REF,
@@ -133,7 +147,7 @@ def test_build_decision_packet_node_emits_v3_payload_and_manifest_inputs(tmp_pat
     manifest = store.get_manifest(packet_ref.artifact_id)
     roles = {item.role for item in manifest.inputs}
 
-    assert payload["schema_version"] == "3.2"
+    assert payload["schema_version"] == "3.4"
     assert payload["seed"] == 123
     assert payload["policy_summary"] == "Policy data attached"
     assert payload["replay"]["strategy_hint"] == "scientist"
@@ -144,6 +158,9 @@ def test_build_decision_packet_node_emits_v3_payload_and_manifest_inputs(tmp_pat
     assert payload["diagnostics_summary"]["transport_status"] == "not_run"
     assert payload["analysis_limits"]["partial_replay_readiness"] is True
     assert payload["analysis_limits"]["missing_uncertainty_artifact"] is True
+    assert payload["feedback_loop"]["anchor_at"] is not None
+    assert payload["feedback_loop"]["monitoring_contract_ref"] is not None
+    assert payload["feedback_loop"]["latest_monitoring_report_ref"] is None
     assert payload["inputs"]["trinity_bundle_ref"] == str(trinity_ref.artifact_id)
     assert payload["artifacts"]["metrics_ref"] == str(metrics_ref.artifact_id)
     assert payload["artifacts"]["governance_report_ref"] == str(governance_ref.artifact_id)
@@ -197,20 +214,7 @@ def test_build_decision_packet_surfaces_legal_links_and_contract_warnings(tmp_pa
         store,
         LinkReport(
             ok=True,
-            issues=[
-                LinkIssue(
-                    severity=LinkSeverity.WARNING,
-                    code=LinkIssueCode.DEPRECATED_MECHANISM_BINDINGS,
-                    message="ignored",
-                    path=["policy_spec", "mechanism_bindings"],
-                ),
-                LinkIssue(
-                    severity=LinkSeverity.WARNING,
-                    code=LinkIssueCode.MODEL_FIDELITY_LEVEL_IGNORED,
-                    message="ignored",
-                    path=["model_spec", "fidelity_level"],
-                ),
-            ],
+            issues=[],
         ),
     )
     compile_report_ref = put_compile_report(
@@ -219,8 +223,6 @@ def test_build_decision_packet_surfaces_legal_links_and_contract_warnings(tmp_pa
             ok=False,
             link_report_ref=link_report_ref,
             notes=[
-                "link_warning:deprecated_mechanism_bindings",
-                "link_warning:model_fidelity_level_ignored",
                 "missing_runtime_mechanism_support:custom_subsidy",
             ],
         ),
@@ -257,13 +259,327 @@ def test_build_decision_packet_surfaces_legal_links_and_contract_warnings(tmp_pa
         change_proposal_artifact.artifact_id
     )
     assert payload["diagnostics_summary"]["contract_warnings"] == [
-        "deprecated_mechanism_bindings",
-        "model_fidelity_level_ignored",
         "missing_runtime_mechanism_support:custom_subsidy",
     ]
-    assert payload["analysis_limits"]["deprecated_mechanism_bindings"] is True
-    assert payload["analysis_limits"]["model_fidelity_level_ignored"] is True
     assert payload["analysis_limits"]["missing_runtime_mechanism_support"] is True
+
+
+def test_build_decision_packet_includes_tradeoff_certificate_and_normative_validity(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path)
+    registry_bundle = build_default_registry_bundle(store).bundle_ref
+    run = RunContext.start(store=store, registry_bundle=registry_bundle, run_id="R_packet_normative")
+    ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("test.packet.normative"))
+
+    trinity_ref = store.put_json(
+        {
+            "schema_version": "1.0",
+            "problem_frame": {
+                "schema_version": "1.0",
+                "problem_id": "normative_problem",
+                "domain": "social",
+                "normative_frame": {
+                    "comparison_mode": "proposal_vs_baseline",
+                    "default_policy": "weighted_welfare",
+                    "enabled_policies": ["weighted_welfare"],
+                    "stakeholder_bindings": [],
+                    "utility_terms": [],
+                    "rights_catalog": [],
+                    "hard_constraint_refs": [],
+                },
+            },
+            "policy_spec": {"schema_version": "1.0", "policy_id": "policy", "interventions": []},
+            "model_spec": {
+                "schema_version": "1.0",
+                "model_id": "model",
+                "data_snapshot_ref": "sha256:" + "0" * 64,
+                "fidelity_level": "hybrid",
+            },
+        },
+        PutOptions(
+            kind="ir.trinity_bundle",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.ir.TrinityBundle", version="1.0"),
+        ),
+    )
+    data_snapshot_ref = store.put_json(
+        {"data_ref": None},
+        PutOptions(kind="fabric.data_snapshot", media_type="application/json"),
+    )
+    governance_ref = store.put_json(
+        GovernanceReport(verdict="approve", issues=[]),
+        PutOptions(kind="scientist.governance_report", media_type="application/json"),
+    )
+    normative_ref = persist_normative_arbitration_result(
+        store,
+        NormativeArbitrationResult(
+            model_completeness=NormativeModelCompleteness.PARTIAL,
+            option_matrix=[
+                OptionOutcomeMatrix(
+                    option=ArbitrationOption.BASELINE,
+                    binding_values={"workers": 0.0},
+                ),
+                OptionOutcomeMatrix(
+                    option=ArbitrationOption.PROPOSAL,
+                    binding_values={"workers": 1.0},
+                ),
+            ],
+            per_stakeholder_utility=[],
+            rights_audit=[],
+            hard_constraint_audit=[],
+            policy_outcomes=[
+                PolicyOutcome(
+                    policy="weighted_welfare",
+                    selected_option=ArbitrationOption.PROPOSAL,
+                    rationale="aggregate welfare positive",
+                )
+            ],
+            selected_policy="weighted_welfare",
+            selected_option=ArbitrationOption.PROPOSAL,
+            residual_dissent=[
+                ResidualDissent(
+                    policy="pareto_filter",
+                    preferred_option=ArbitrationOption.INDETERMINATE,
+                    rationale="neutral proposal",
+                )
+            ],
+            tradeoff_certificate=TradeoffCertificate(
+                selected_policy="weighted_welfare",
+                selected_option=ArbitrationOption.PROPOSAL,
+                winners=["workers"],
+                losers=[],
+                residual_dissent=[
+                    ResidualDissent(
+                        policy="pareto_filter",
+                        preferred_option=ArbitrationOption.INDETERMINATE,
+                        rationale="neutral proposal",
+                    )
+                ],
+                notes=["partial_model"],
+            ),
+            metadata={"model_source": "declared"},
+        ),
+    )
+
+    state = ExperimentState(
+        run_id="R_packet_normative",
+        inputs={
+            INPUT_TRINITY_BUNDLE_REF: trinity_ref,
+            INPUT_REGISTRY_BUNDLE_REF: registry_bundle,
+            INPUT_DATA_SNAPSHOT_REF: data_snapshot_ref,
+        },
+        artifacts_index={ARTIFACT_NORMATIVE_ARBITRATION_RESULT_REF: normative_ref},
+        reports_index={REPORT_GOVERNANCE_REPORT_REF: governance_ref},
+    )
+
+    outcome = BuildDecisionPacketNode().execute(ctx, state)
+    packet_ref = outcome.artifacts[0]
+    payload = from_canonical_bytes(store.get_bytes(packet_ref.artifact_id))
+
+    assert payload["artifacts"]["normative_arbitration_result_ref"] == str(normative_ref.artifact_id)
+    assert payload["tradeoff_certificate"]["selected_policy"] == "weighted_welfare"
+    assert payload["diagnostics_summary"]["normative_model_completeness"] == "partial"
+    assert payload["diagnostics_summary"]["normative_residual_dissent_count"] == 1
+    assert (
+        payload["decision_validity_envelope"]["normative_basis"]["summary"]["normative_selected_policy"]
+        == "weighted_welfare"
+    )
+    assert payload["decision_validity_baseline"]["status"] == "warning"
+
+
+def test_build_decision_packet_rejects_incomplete_serious_contract(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path)
+    registry_bundle = build_default_registry_bundle(store).bundle_ref
+    run = RunContext.start(store=store, registry_bundle=registry_bundle, run_id="R_packet_serious_fail")
+    ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("test.packet.serious"))
+
+    trinity_ref = store.put_json(
+        {"trinity": {}},
+        PutOptions(
+            kind="ir.trinity_bundle",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.ir.TrinityBundle", version="1.0"),
+        ),
+    )
+    data_snapshot_ref = store.put_json(
+        {"data_ref": None},
+        PutOptions(kind="fabric.data_snapshot", media_type="application/json"),
+    )
+    governance_ref = store.put_json(
+        GovernanceReport(verdict="approve", issues=[]),
+        PutOptions(kind="scientist.governance_report", media_type="application/json"),
+    )
+
+    state = ExperimentState(
+        run_id="R_packet_serious_fail",
+        inputs={
+            INPUT_TRINITY_BUNDLE_REF: trinity_ref,
+            INPUT_REGISTRY_BUNDLE_REF: registry_bundle,
+            INPUT_DATA_SNAPSHOT_REF: data_snapshot_ref,
+        },
+        reports_index={REPORT_GOVERNANCE_REPORT_REF: governance_ref},
+        execution_profile="governed",
+    )
+
+    outcome = BuildDecisionPacketNode().execute(ctx, state)
+
+    assert outcome.status == "fail"
+    assert outcome.error is not None
+    assert outcome.error.code == "node.invalid_state"
+    assert "capability_manifest_ref" in outcome.error.details["missing_contracts"]
+    assert ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF in outcome.error.details["missing_contracts"]
+    assert ARTIFACT_TRANSPORTABILITY_RESULT_REF in outcome.error.details["missing_contracts"]
+    assert ARTIFACT_NORMATIVE_ARBITRATION_RESULT_REF in outcome.error.details["missing_contracts"]
+
+
+def test_build_decision_packet_accepts_complete_serious_contract(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path)
+    registry_bundle = build_default_registry_bundle(store).bundle_ref
+    run = RunContext.start(store=store, registry_bundle=registry_bundle, run_id="R_packet_serious_ok")
+    ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("test.packet.serious.ok"))
+
+    trinity_ref = store.put_json(
+        {
+            "schema_version": "1.0",
+            "problem_frame": {
+                "schema_version": "1.0",
+                "problem_id": "serious_problem",
+                "domain": "social",
+                "normative_frame": {
+                    "comparison_mode": "proposal_vs_baseline",
+                    "default_policy": "weighted_welfare",
+                    "enabled_policies": ["weighted_welfare"],
+                    "stakeholder_bindings": [],
+                    "utility_terms": [],
+                    "rights_catalog": [],
+                    "hard_constraint_refs": [],
+                },
+            },
+            "policy_spec": {"schema_version": "1.0", "policy_id": "policy", "interventions": []},
+            "model_spec": {
+                "schema_version": "1.0",
+                "model_id": "model",
+                "data_snapshot_ref": "sha256:" + "0" * 64,
+                "fidelity_level": "hybrid",
+            },
+        },
+        PutOptions(
+            kind="ir.trinity_bundle",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.ir.TrinityBundle", version="1.0"),
+        ),
+    )
+    data_snapshot_ref = store.put_json(
+        {"data_ref": None},
+        PutOptions(kind="fabric.data_snapshot", media_type="application/json"),
+    )
+    metrics_ref = store.put_json(
+        Metrics(values={"policy_cost": 100.0, "applied_nodes": 1}),
+        PutOptions(kind="foundry.metrics", media_type="application/json"),
+    )
+    governance_ref = store.put_json(
+        GovernanceReport(verdict="approve", issues=[]),
+        PutOptions(kind="scientist.governance_report", media_type="application/json"),
+    )
+    normative_ref = persist_normative_arbitration_result(
+        store,
+        NormativeArbitrationResult(
+            model_completeness=NormativeModelCompleteness.PARTIAL,
+            option_matrix=[
+                OptionOutcomeMatrix(
+                    option=ArbitrationOption.BASELINE,
+                    binding_values={"workers": 0.0},
+                ),
+                OptionOutcomeMatrix(
+                    option=ArbitrationOption.PROPOSAL,
+                    binding_values={"workers": 1.0},
+                ),
+            ],
+            per_stakeholder_utility=[],
+            rights_audit=[],
+            hard_constraint_audit=[],
+            policy_outcomes=[
+                PolicyOutcome(
+                    policy="weighted_welfare",
+                    selected_option=ArbitrationOption.PROPOSAL,
+                    rationale="aggregate welfare positive",
+                )
+            ],
+            selected_policy="weighted_welfare",
+            selected_option=ArbitrationOption.PROPOSAL,
+            residual_dissent=[],
+            tradeoff_certificate=TradeoffCertificate(
+                selected_policy="weighted_welfare",
+                selected_option=ArbitrationOption.PROPOSAL,
+                winners=["workers"],
+                losers=[],
+                residual_dissent=[],
+                notes=[],
+            ),
+            metadata={"model_source": "declared"},
+        ),
+    )
+    transport_ref = persist_transportability_result(
+        store,
+        TransportabilityResult(
+            query="P*(Y|do(X))",
+            status=TransportabilityStatus.IDENTIFIED,
+            final_confidence=0.9,
+            source_context_id="DE",
+            target_context_id="UA",
+        ),
+    )
+    cross_graph_ref = store.put_json(
+        {
+            "schema_version": "2.0",
+            "summary": {"status": "ok", "total_needs": 1},
+            "needs": [],
+            "diagnostics": [],
+            "ontology_snapshot": [],
+            "bridges": [],
+            "source_refs": {},
+            "notes": [],
+        },
+        PutOptions(kind="ir.cross_graph_evidence_profile", media_type="application/json"),
+    )
+    capability_manifest_ref = store.put_json(
+        {
+            "schema_version": "1.0",
+            "job_id": "job-serious",
+            "execution_profile": "governed",
+        },
+        PutOptions(kind="runtime.capability_manifest", media_type="application/json"),
+    )
+
+    state = ExperimentState(
+        run_id="R_packet_serious_ok",
+        inputs={
+            INPUT_TRINITY_BUNDLE_REF: trinity_ref,
+            INPUT_REGISTRY_BUNDLE_REF: registry_bundle,
+            INPUT_DATA_SNAPSHOT_REF: data_snapshot_ref,
+        },
+        artifacts_index={
+            ARTIFACT_METRICS_REF: metrics_ref,
+            ARTIFACT_NORMATIVE_ARBITRATION_RESULT_REF: normative_ref,
+            ARTIFACT_TRANSPORTABILITY_RESULT_REF: transport_ref,
+            ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF: cross_graph_ref,
+        },
+        reports_index={REPORT_GOVERNANCE_REPORT_REF: governance_ref},
+        execution_profile="governed",
+        capability_manifest_ref=capability_manifest_ref,
+    )
+
+    outcome = BuildDecisionPacketNode().execute(ctx, state)
+
+    assert outcome.status == "ok"
+    packet_ref = outcome.artifacts[0]
+    payload = from_canonical_bytes(store.get_bytes(packet_ref.artifact_id))
+    assert payload["runtime_contracts"]["execution_profile"] == "governed"
+    assert payload["runtime_contracts"]["capability_manifest_ref"] == str(
+        capability_manifest_ref.artifact_id
+    )
+    assert payload["artifacts"]["cross_graph_evidence_profile_ref"] == str(cross_graph_ref.artifact_id)
+    assert payload["artifacts"]["transportability_result_ref"] == str(transport_ref.artifact_id)
+    assert payload["feedback_loop"]["monitoring_contract_ref"] is not None
 
 
 def test_build_decision_packet_node_accepts_float_uncertainty_bounds(tmp_path) -> None:
@@ -757,13 +1073,13 @@ def test_build_decision_packet_includes_transportability_summary(tmp_path) -> No
             pre_periods=0,
             post_periods=0,
             transport_result=TransportabilityResult(
-                status=TransportabilityStatus.TRANSPORTABLE,
+                status=TransportabilityStatus.IDENTIFIED,
                 query="P*(Y|do(X))",
                 final_confidence=0.73,
                 feasible=True,
                 resolution_rounds=2,
                 unsupported_cases=["front-door outside simplified scope"],
-                identification_engine="symbolic",
+                identification_engine="y0",
                 identification_trace=["symbolic_success:frontdoor:M"],
             ),
         ),
@@ -784,11 +1100,11 @@ def test_build_decision_packet_includes_transportability_summary(tmp_path) -> No
 
     summary = payload["causal"]["transportability_summary"]
     assert isinstance(summary, dict)
-    assert summary["status"] == "transportable"
+    assert summary["status"] == "identified"
     assert summary["final_confidence"] == 0.73
     assert summary["resolution_rounds"] == 2
     assert summary["unsupported_cases_count"] == 1
-    assert summary["identification_engine"] == "symbolic"
+    assert summary["identification_engine"] == "y0"
     assert summary["unsupported_reason"] is None
 
 

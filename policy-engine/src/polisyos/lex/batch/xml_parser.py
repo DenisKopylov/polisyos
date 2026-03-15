@@ -10,14 +10,15 @@ from __future__ import annotations
 
 import hashlib
 import json
-import logging
 import re
 import xml.etree.ElementTree as ET
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Iterator
 
-logger = logging.getLogger(__name__)
+from polisyos.common.logger import get_logger
+
+logger = get_logger(__name__)
 
 _WS_RE = re.compile(r"\s+")
 
@@ -175,17 +176,17 @@ def parse_cards(cards_path: Path) -> dict[str, list[NPACard]]:
             elem.clear()
 
             if count % 20_000 == 0:
-                logger.info("Parsed %d cards...", count)
+                logger.info("Parsed {} cards...", count)
     except ET.ParseError as exc:
         # ЄДРНПА XML dumps may contain trailing junk bytes (e.g. \x1a DOS EOF)
         # after the closing root tag.  If we already parsed documents, treat
         # this as a non-fatal end-of-stream.
         if count > 0:
-            logger.warning("XML parse error after %d cards (ignored): %s", count, exc)
+            logger.warning("XML parse error after {} cards (ignored): {}", count, exc)
         else:
             raise
 
-    logger.info("Parsed %d cards total, %d unique reestr_codes", count, len(index))
+    logger.info("Parsed {} cards total, {} unique reestr_codes", count, len(index))
     return index
 
 
@@ -199,19 +200,21 @@ def iter_documents(
     *,
     status_filter: frozenset[str] | None = None,
     type_filter: frozenset[str] | None = None,
+    doc_id_filter: frozenset[str] | None = None,
 ) -> Iterator[NPADocument]:
     """Stream-parse texts XML, join with cards, yield NPADocument objects.
 
     Memory: only one <document> from texts in RAM at a time (+ all cards index).
     """
-    logger.info("Loading cards index from %s ...", cards_path)
+    logger.info("Loading cards index from {} ...", cards_path)
     cards_index = parse_cards(cards_path)
-    logger.info("Cards index loaded. Streaming texts from %s ...", texts_path)
+    logger.info("Cards index loaded. Streaming texts from {} ...", texts_path)
 
     matched = 0
     skipped_no_card = 0
     skipped_filter = 0
     skipped_empty = 0
+    remaining_doc_ids = set(doc_id_filter) if doc_id_filter else None
 
     context = ET.iterparse(str(texts_path), events=("end",))
     try:
@@ -242,24 +245,37 @@ def iter_documents(
             if type_filter and card.doc_type not in type_filter:
                 skipped_filter += 1
                 continue
+            if remaining_doc_ids is not None and card.doc_id not in remaining_doc_ids:
+                skipped_filter += 1
+                continue
 
             yield NPADocument(card=card, text=text)
             matched += 1
+            if remaining_doc_ids is not None:
+                remaining_doc_ids.discard(card.doc_id)
+                if not remaining_doc_ids:
+                    break
 
             if matched % 10_000 == 0:
                 logger.info(
-                    "Yielded %d documents (skipped: %d no card, %d filter, %d empty)",
-                    matched, skipped_no_card, skipped_filter, skipped_empty,
+                    "Yielded {} documents (skipped: {} no card, {} filter, {} empty)",
+                    matched,
+                    skipped_no_card,
+                    skipped_filter,
+                    skipped_empty,
                 )
     except ET.ParseError as exc:
         if matched > 0:
-            logger.warning("XML parse error after %d texts (ignored): %s", matched, exc)
+            logger.warning("XML parse error after {} texts (ignored): {}", matched, exc)
         else:
             raise
 
     logger.info(
-        "Done. Total yielded: %d, skipped: %d no card, %d filter, %d empty",
-        matched, skipped_no_card, skipped_filter, skipped_empty,
+        "Done. Total yielded: {}, skipped: {} no card, {} filter, {} empty",
+        matched,
+        skipped_no_card,
+        skipped_filter,
+        skipped_empty,
     )
 
 
@@ -274,6 +290,7 @@ def build_manifest(
     *,
     status_filter: frozenset[str] | None = None,
     type_filter: frozenset[str] | None = None,
+    doc_id_filter: frozenset[str] | None = None,
 ) -> int:
     """Write manifest.jsonl with all document metadata. Returns count."""
     count = 0
@@ -282,6 +299,7 @@ def build_manifest(
             cards_path, texts_path,
             status_filter=status_filter,
             type_filter=type_filter,
+            doc_id_filter=doc_id_filter,
         ):
             entry = {
                 "doc_id": doc.card.doc_id,
@@ -297,5 +315,5 @@ def build_manifest(
             }
             fh.write(json.dumps(entry, ensure_ascii=False) + "\n")
             count += 1
-    logger.info("Manifest written: %d entries → %s", count, output_path)
+    logger.info("Manifest written: {} entries -> {}", count, output_path)
     return count

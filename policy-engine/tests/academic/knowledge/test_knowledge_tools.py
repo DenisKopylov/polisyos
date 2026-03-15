@@ -7,6 +7,7 @@ from polisyos.academic.knowledge.types import (
     WorkSearchResult,
 )
 from polisyos.datasets.knowledge.types import DatasetSearchResult
+from polisyos.lex.knowledge.types import LegalFactResult, LegalProvisionResult
 from polisyos.scientist.agent.knowledge_tools import KnowledgeToolkit
 
 
@@ -38,7 +39,7 @@ class _MockDatasetCatalog:
 
     def get_connector_params(self, dataset_id):
         if dataset_id == "ds-gdp-1":
-            return {"type": "worldbank", "params": {"indicator_id": "NY.GDP.MKTP.CD"}}
+            return {"type": "worldbank.wdi", "params": {"indicator_id": "NY.GDP.MKTP.CD"}}
         return None
 
 
@@ -56,7 +57,8 @@ class _MockScholarGraph:
             ),
         ]
 
-    def get_parameter_prior(self, variable, domain=None, country=None):
+    def get_parameter_prior(self, variable, domain=None, country=None, *, prefer_simulation_ready=True):
+        del prefer_simulation_ready
         if variable == "min_wage_elasticity":
             return ParameterPrior(
                 variable=variable,
@@ -70,20 +72,103 @@ class _MockScholarGraph:
             )
         return None
 
-    def find_causal_evidence(self, cause, effect, *, min_trust=0.5):
+    def find_causal_evidence(self, cause, effect, *, min_trust=0.5, support_mode="exact"):
+        del cause, effect, min_trust, support_mode
         return []
 
     def get_mechanism_evidence(self, mechanism_name, *, top_k=20):
         return []
 
 
+class _MockLegalGraph:
+    """Minimal mock for LegalKnowledgeGraph."""
+
+    def hybrid_search(
+        self,
+        query,
+        *,
+        top_k=20,
+        trust_tier="grounded_fact",
+        jurisdiction="UA",
+        domain=None,
+        as_of=None,
+        include_candidates=False,
+    ):
+        return [
+            LegalFactResult(
+                fact_id="lf-1",
+                subject_name="state",
+                predicate="requires",
+                object_name="license",
+                fact_text=f"Mock legal fact for {query}",
+                confidence=0.9,
+                norm_type="obligation",
+                trust_tier=trust_tier,
+                jurisdiction=jurisdiction or "UA",
+                top_domain=domain or "",
+                doc_name="Mock law",
+                doc_reestr_code="123",
+                provision_citation="стаття 1",
+                similarity=0.95,
+            )
+        ]
+
+    def search_provisions(self, query, *, top_k=10, min_similarity=0.3):
+        return [
+            LegalProvisionResult(
+                provision_id="prov-1",
+                doc_name="Mock law",
+                doc_reestr_code="123",
+                citation_label="стаття 1",
+                kind="article",
+                provision_text_preview=f"Provision for {query}",
+                struct_kind="article",
+                section_role="normative_unit",
+                fallback_allowed_for_reasoning=True,
+                similarity=0.8,
+            )
+        ]
+
+    def find_legal_constraints(self, *, query=None, top_k=50, jurisdiction="UA", domain=None, as_of=None):
+        return self.hybrid_search(
+            query or "constraints",
+            top_k=top_k,
+            trust_tier="normative_fact",
+            jurisdiction=jurisdiction,
+            domain=domain,
+            as_of=as_of,
+        )
+
+    def search_facts_with_threshold(self, metric, *, top_k=50, jurisdiction="UA", domain=None, as_of=None):
+        return self.hybrid_search(
+            metric,
+            top_k=top_k,
+            trust_tier="normative_fact",
+            jurisdiction=jurisdiction,
+            domain=domain,
+            as_of=as_of,
+        )
+
+    def get_applicable_norms(self, *, domain=None, jurisdiction="UA", as_of=None, top_k=100):
+        return self.hybrid_search(
+            domain or "norms",
+            top_k=top_k,
+            trust_tier="normative_fact",
+            jurisdiction=jurisdiction,
+            domain=domain,
+            as_of=as_of,
+        )
+
+
 def test_toolkit_no_graphs() -> None:
     toolkit = KnowledgeToolkit()
     assert not toolkit.has_dataset_catalog
     assert not toolkit.has_scholar_graph
+    assert not toolkit.has_legal_graph
     assert toolkit.search_datasets("GDP") == []
     assert toolkit.get_parameter_prior("test") is None
     assert toolkit.find_causal_evidence("X", "Y") == []
+    assert toolkit.search_legal_facts("ліцензія") == []
 
 
 def test_toolkit_search_datasets() -> None:
@@ -105,7 +190,7 @@ def test_toolkit_get_dataset_connector() -> None:
     toolkit = KnowledgeToolkit(dataset_catalog=_MockDatasetCatalog())
     connector = toolkit.get_dataset_connector("ds-gdp-1")
     assert connector is not None
-    assert connector["type"] == "worldbank"
+    assert connector["type"] == "worldbank.wdi"
 
 
 def test_toolkit_search_evidence() -> None:
@@ -152,3 +237,33 @@ def test_toolkit_format_prior_context() -> None:
     text = toolkit.format_prior_context(prior)
     assert "LITERATURE PRIOR" in text
     assert "-0.1" in text
+
+
+def test_toolkit_legal_methods() -> None:
+    toolkit = KnowledgeToolkit(legal_graph=_MockLegalGraph())
+    assert toolkit.has_legal_graph
+
+    facts = toolkit.search_legal_facts("ліцензія", domain="transport")
+    assert len(facts) == 1
+    assert facts[0].trust_tier == "grounded_fact"
+    assert facts[0].top_domain == "transport"
+
+    provisions = toolkit.search_legal_provisions("дозвіл")
+    assert len(provisions) == 1
+    assert provisions[0].struct_kind == "article"
+
+    constraints = toolkit.find_legal_constraints(domain="transport")
+    assert len(constraints) == 1
+    assert constraints[0].trust_tier == "normative_fact"
+
+    thresholds = toolkit.search_legal_thresholds("vat_rate")
+    assert len(thresholds) == 1
+    assert thresholds[0].trust_tier == "normative_fact"
+
+    norms = toolkit.get_applicable_norms(domain="transport")
+    assert len(norms) == 1
+    assert norms[0].jurisdiction == "UA"
+
+    formatted = toolkit.format_legal_context(constraints)
+    assert "LEGAL CONTEXT" in formatted
+    assert "normative_fact" in formatted

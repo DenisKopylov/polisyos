@@ -1,7 +1,7 @@
 """
 CKANResourceConnector — downloads actual data resources from CKAN packages.
 
-Handles CSV and JSON resources from CKAN portals. The dataset_id format is
+Handles CSV, JSON, spreadsheets, and ZIP-wrapped tabular resources from CKAN portals. The dataset_id format is
 ``{package_id}/{resource_id}`` or a direct resource URL.
 """
 
@@ -9,10 +9,13 @@ from __future__ import annotations
 
 import csv
 import io
+import importlib.util
 import json as _json
 import time
+import zipfile
 from datetime import datetime, timezone
 from typing import Any, AsyncIterator, ClassVar
+from urllib.parse import urlparse
 
 import aiohttp
 import pandas as pd
@@ -43,7 +46,7 @@ from polisyos.ir.connectors import (
 
 
 class CKANResourceConnector(HTTPConnectorBase[pd.DataFrame]):
-    """Download and parse individual CKAN resources (CSV/JSON)."""
+    """Download and parse individual CKAN resources."""
 
     namespace: ClassVar[str] = "ckan"
     short_id: ClassVar[str] = "resource"
@@ -181,7 +184,7 @@ class CKANResourceConnector(HTTPConnectorBase[pd.DataFrame]):
         - A direct URL → use as-is with guessed format
         """
         if dataset_id.startswith("http://") or dataset_id.startswith("https://"):
-            fmt = "csv" if dataset_id.lower().endswith(".csv") else "json"
+            fmt = self._guess_format(dataset_id, "")
             return dataset_id, fmt
 
         parts = dataset_id.split("/", 1)
@@ -200,7 +203,7 @@ class CKANResourceConnector(HTTPConnectorBase[pd.DataFrame]):
         result = body.get("result", {})
         for r in result.get("resources", []):
             if r.get("id") == resource_id:
-                return r["url"], (r.get("format", "csv") or "csv").lower()
+                return r["url"], self._guess_format(str(r.get("url") or ""), str(r.get("format") or ""))
 
         raise FetchError(
             message=f"Resource {resource_id} not found in package {package_id}",
@@ -227,11 +230,123 @@ class CKANResourceConnector(HTTPConnectorBase[pd.DataFrame]):
                         return pd.DataFrame(data[key])
                 return pd.DataFrame([data])
             return pd.DataFrame()
+        if fmt in {"xlsx", "xls", "ods"}:
+            return CKANResourceConnector._parse_spreadsheet(raw, fmt)
+        if fmt == "zip":
+            return CKANResourceConnector._parse_zip_archive(raw)
         # Fallback: try CSV
         text = raw.decode("utf-8", errors="replace")
         reader = csv.DictReader(io.StringIO(text))
         rows = list(reader)
         return pd.DataFrame(rows) if rows else pd.DataFrame()
+
+    @staticmethod
+    def _parse_spreadsheet(raw: bytes, fmt: str) -> pd.DataFrame:
+        engine_map = {
+            "xlsx": "openpyxl",
+            "xls": "xlrd",
+            "ods": "odf",
+        }
+        engine = engine_map.get(fmt)
+        if engine and not importlib.util.find_spec(engine):
+            engine = None
+
+        try:
+            workbook = pd.read_excel(
+                io.BytesIO(raw),
+                sheet_name=None,
+                engine=engine,
+            )
+        except Exception as exc:
+            raise FetchError(
+                message=f"Failed to parse {fmt.upper()} resource: {exc}",
+                connector_id=CKANResourceConnector.connector_id,
+            ) from exc
+
+        if isinstance(workbook, pd.DataFrame):
+            return workbook
+
+        frames: list[pd.DataFrame] = []
+        if isinstance(workbook, dict):
+            for sheet_name, frame in workbook.items():
+                if not isinstance(frame, pd.DataFrame):
+                    continue
+                enriched = frame.copy()
+                enriched["__sheet_name"] = sheet_name
+                frames.append(enriched)
+        if not frames:
+            return pd.DataFrame()
+        return pd.concat(frames, ignore_index=True, sort=False)
+
+    @staticmethod
+    def _parse_zip_archive(raw: bytes) -> pd.DataFrame:
+        try:
+            archive = zipfile.ZipFile(io.BytesIO(raw))
+        except zipfile.BadZipFile as exc:
+            raise FetchError(
+                message=f"Failed to parse ZIP resource: {exc}",
+                connector_id=CKANResourceConnector.connector_id,
+            ) from exc
+
+        frames: list[pd.DataFrame] = []
+        with archive:
+            for name in archive.namelist():
+                if name.endswith("/"):
+                    continue
+                inner_fmt = CKANResourceConnector._guess_format(name, "")
+                if inner_fmt not in {"csv", "json", "xlsx", "xls", "ods"}:
+                    continue
+                inner_raw = archive.read(name)
+                try:
+                    frame = CKANResourceConnector._parse_resource(inner_raw, inner_fmt)
+                except FetchError:
+                    continue
+                if frame.empty:
+                    continue
+                enriched = frame.copy()
+                enriched["__source_file"] = name
+                frames.append(enriched)
+
+        if not frames:
+            raise FetchError(
+                message="ZIP resource does not contain supported tabular files",
+                connector_id=CKANResourceConnector.connector_id,
+            )
+        return pd.concat(frames, ignore_index=True, sort=False)
+
+    @staticmethod
+    def _guess_format(url: str, raw_format: str) -> str:
+        value = str(raw_format or "").strip().lower()
+        aliases = {
+            "csv": "csv",
+            "json": "json",
+            "xlsx": "xlsx",
+            "xls": "xls",
+            "xlsm": "xlsx",
+            "ods": "ods",
+            "zip": "zip",
+            "application/zip": "zip",
+            "application/json": "json",
+            "text/csv": "csv",
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": "xlsx",
+            "application/vnd.ms-excel": "xls",
+            "application/vnd.oasis.opendocument.spreadsheet": "ods",
+        }
+        if value in aliases:
+            return aliases[value]
+
+        url_lc = urlparse(url).path.lower()
+        for suffix, detected in (
+            (".csv", "csv"),
+            (".json", "json"),
+            (".xlsx", "xlsx"),
+            (".xls", "xls"),
+            (".ods", "ods"),
+            (".zip", "zip"),
+        ):
+            if url_lc.endswith(suffix):
+                return detected
+        return value or "csv"
 
 
 __all__ = ["CKANResourceConnector"]

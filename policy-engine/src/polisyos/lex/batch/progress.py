@@ -7,11 +7,12 @@ On restart, already-completed documents are skipped.
 from __future__ import annotations
 
 import json
-import logging
 import time
 from pathlib import Path
 
-logger = logging.getLogger(__name__)
+from polisyos.common.logger import get_logger
+
+logger = get_logger(__name__)
 
 
 class ProgressTracker:
@@ -125,7 +126,7 @@ class ProgressTracker:
         total = sum(len(v) for v in self._completed.values())
         if total:
             logger.info(
-                "Progress loaded: %d entries across %d documents",
+                "Progress loaded: {} entries across {} documents",
                 total,
                 len(self._completed),
             )

@@ -5,9 +5,10 @@ from dataclasses import dataclass
 from functools import lru_cache
 from typing import Any, Mapping
 
-from polisyos.core.backends import BackendDispatcher, BackendNotAvailableError as CoreBackendNotAvailableError
-from polisyos.foundry.methods.base import ComputeBackend, MethodSignature
+from polisyos.core.backends import BackendDispatcher
+from polisyos.core.backends import BackendNotAvailableError as CoreBackendNotAvailableError
 from polisyos.foundry.methods.backends.protocol import MethodResult, MethodRunner
+from polisyos.foundry.methods.base import ComputeBackend, MethodSignature
 
 
 @dataclass(frozen=True)
@@ -95,4 +96,8 @@ class MethodDispatcher:
             from polisyos.foundry.methods.backends.solver_runner import SolverRunner
 
             return SolverRunner()
+        if backend is ComputeBackend.BAYESIAN:
+            from polisyos.foundry.methods.backends.bayesian_runner import BayesianRunner
+
+            return BayesianRunner()
         raise ValueError(f"Unsupported backend: {backend}")

@@ -7,11 +7,11 @@ These are mixed into ``MultiPassLLMDrafter`` via the
 from __future__ import annotations
 
 import json
-import logging
 import time
 from dataclasses import replace
 from typing import TYPE_CHECKING, Any
 
+from polisyos.common.logger import get_logger
 from polisyos.core.observability import get_tracer
 from polisyos.scientist.agent.code_verifier import (
     DraftVariableExtractor,
@@ -33,7 +33,7 @@ if TYPE_CHECKING:
 
     from .drafter_models import MultiPassConfig
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 __all__ = ["_DrafterPassesMixin"]
 

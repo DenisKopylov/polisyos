@@ -20,28 +20,15 @@ from polisyos.foundry.agent_sim.metrics import (
 from polisyos.foundry.agent_sim.prng import get_mechanism_key
 from polisyos.foundry.agent_sim.rewards import compute_agent_reward
 from polisyos.foundry.agent_sim.rl import Trajectory, compute_returns_and_advantages, ppo_loss
+from polisyos.foundry.agent_sim.state import GlobalState
 from polisyos.foundry.agent_sim.temporal import build_temporal_observations
 from polisyos.foundry.agent_sim.temporal_mechanisms import TemporalConsumptionMechanism
-from polisyos.foundry.agent_sim.state import GlobalState
+from polisyos.foundry.agent_sim.training_config import TrainingConfigBase
 from polisyos.foundry.contracts.fidelity import FidelityLevel
 
 
 @dataclass(frozen=True)
-class JITTrainingConfig:
-    n_episodes: int = 100
-    steps_per_episode: int = 64
-    ppo_epochs: int = 4
-    gamma: float = 0.99
-    gae_lambda: float = 0.95
-    clip_epsilon: float = 0.2
-    value_coef: float = 0.5
-    entropy_coef: float = 0.01
-    learning_rate: float = 3e-4
-    max_grad_norm: float = 1.0
-    horizon: int = 256
-    utility_type: str = "crra"
-    fidelity: FidelityLevel = FidelityLevel.SURROGATE_FLUID
-    include_expectations: bool = True
+class JITTrainingConfig(TrainingConfigBase):
     credit_config: CreditConfig | None = None
     collect_metrics: bool = True
     metrics_frequency: int = 1

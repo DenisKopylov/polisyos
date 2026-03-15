@@ -3,25 +3,31 @@
 from __future__ import annotations
 
 import json
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
+from typing import Any
 
 import duckdb
 import numpy as np
+from pydantic import ValidationError
 
 from polisyos.academic.knowledge.store import ScholarKnowledgeStore
+from polisyos.academic.knowledge.skg_store import EVIDENCE_WEIGHTS
 from polisyos.academic.knowledge.types import (
     BoundaryConditionResult,
     CausalClaimResult,
     ParameterEstimateResult,
     ParameterPrior,
 )
+from polisyos.common.logger import get_logger
 from polisyos.ir.analytics.context import ContextProfile
 from polisyos.ir.analytics.literature import (
     EvidenceParameter,
     EvidenceStrength,
     ParameterType,
 )
+
+logger = get_logger(__name__)
 
 
 @dataclass(frozen=True)
@@ -38,6 +44,39 @@ class ParameterCandidate:
     transport_penalty: float = 0.0
     transport_notes: tuple[str, ...] = ()
     requires_expert_review: bool = False
+    source_layer: str = "raw_parameter"
+    linked_claim_ids: tuple[str, ...] = ()
+    linked_edge_ids: tuple[str, ...] = ()
+    uncertainty_source: str = ""
+    quality_flags: tuple[str, ...] = ()
+
+
+@dataclass(frozen=True)
+class EdgeSupportRecord:
+    edge_id: str
+    src: str
+    dst: str
+    direction: str
+    confidence: float
+    evidence_strength: str
+    n_unique_works: int
+    n_claims: int = 0
+    article_refs: tuple[str, ...] = ()
+    claim_refs: tuple[str, ...] = ()
+    source_layer: str = "exact"
+    conflict_flag: bool = False
+    quality_flags: tuple[str, ...] = ()
+
+
+@dataclass(frozen=True)
+class EdgeTransportRecord:
+    edge_id: str
+    target_context_id: str
+    transport_confidence: float
+    match_mode: str = ""
+    matched_moderators_count: int = 0
+    generic_penalty: float = 0.0
+    context_match_reward: float = 0.0
 
 
 class SKGQuery:
@@ -69,7 +108,11 @@ class SKGQuery:
         prior_low = float(np.percentile(values, 10))
         prior_high = float(np.percentile(values, 90))
 
-        best_design = sorted(estimates, key=lambda e: e.trust_score, reverse=True)[0].study_design if estimates else ""
+        best_design = (
+            sorted(estimates, key=lambda e: e.trust_score, reverse=True)[0].study_design
+            if estimates
+            else ""
+        )
         prior = ParameterPrior(
             variable=variable,
             prior_mean=weighted_mean,
@@ -92,8 +135,35 @@ class SKGQuery:
         cause: str,
         effect: str,
         min_trust: float = 0.5,
+        support_mode: str = "exact",
+        limit: int = 32,
     ) -> list[CausalClaimResult]:
-        return self._store.get_causal_claims(cause, effect, min_trust=min_trust)
+        mode = self._normalize_support_mode(support_mode)
+        if mode == "exact":
+            return self._store.get_causal_claims(cause, effect, min_trust=min_trust)
+        rows = self.query_edge_support(
+            cause=cause,
+            effect=effect,
+            min_confidence=min_trust,
+            support_mode=mode,
+            limit=limit,
+        )
+        return [
+            CausalClaimResult(
+                id=row.edge_id,
+                work_id=row.article_refs[0] if row.article_refs else "",
+                cause=row.src,
+                effect=row.dst,
+                direction=row.direction,
+                strength=row.evidence_strength,
+                mechanism=f"{row.source_layer}_support",
+                domain=self._edge_domain(row.src, row.dst),
+                trust_score=row.confidence,
+                work_title=f"{row.n_unique_works} work(s) synthesized",
+                work_year=None,
+            )
+            for row in rows
+        ]
 
     def query_boundary_conditions(self, *, work_id: str) -> list[BoundaryConditionResult]:
         return self._store.get_boundary_conditions_for_work(work_id)
@@ -104,11 +174,166 @@ class SKGQuery:
         *,
         target_context: ContextProfile | None = None,
         limit: int = 256,
+        layer: str = "auto",
+        require_simulation_ready: bool = True,
     ) -> list[ParameterCandidate]:
         clean_name = str(parameter_name).strip()
         if not clean_name:
             return []
 
+        selected_layer = self._normalize_parameter_layer(layer)
+        results: list[ParameterCandidate] = []
+
+        if selected_layer in {"auto", "simulation", "hybrid"}:
+            results.extend(
+                self._query_simulation_parameter_candidates(
+                    clean_name,
+                    target_context=target_context,
+                    limit=limit,
+                )
+            )
+            if selected_layer == "simulation":
+                return results
+
+        if results and selected_layer == "auto":
+            return results[:limit]
+
+        if selected_layer in {"auto", "raw", "hybrid"}:
+            raw_candidates = self._query_raw_parameter_candidates(
+                clean_name,
+                target_context=target_context,
+                limit=limit,
+            )
+            if require_simulation_ready:
+                raw_candidates = [
+                    replace(
+                        candidate,
+                        requires_expert_review=True,
+                        quality_flags=tuple(
+                            sorted(
+                                {
+                                    *candidate.quality_flags,
+                                    "raw_parameter_fallback",
+                                    "simulation_ready_missing",
+                                }
+                            )
+                        ),
+                        transport_notes=tuple([*candidate.transport_notes, "raw_parameter_fallback"]),
+                    )
+                    for candidate in raw_candidates
+                ]
+            results.extend(raw_candidates)
+
+        deduped: dict[tuple[str, float | None, str, str], ParameterCandidate] = {}
+        for candidate in results:
+            key = (
+                candidate.parameter.name,
+                candidate.parameter.value,
+                candidate.source_layer,
+                candidate.parameter.evidence_strength.value,
+            )
+            existing = deduped.get(key)
+            if existing is None:
+                deduped[key] = candidate
+                continue
+            deduped[key] = existing if self._candidate_priority(existing) >= self._candidate_priority(candidate) else candidate
+        ordered = sorted(deduped.values(), key=self._candidate_priority, reverse=True)
+        return ordered[:limit]
+
+    def _query_simulation_parameter_candidates(
+        self,
+        parameter_name: str,
+        *,
+        target_context: ContextProfile | None,
+        limit: int,
+    ) -> list[ParameterCandidate]:
+        if not self._table_exists("ac_skg_simulation_parameters"):
+            return []
+        has_ci = self._column_exists("ac_skg_simulation_parameters", "confidence_interval_json")
+        has_std_error = self._column_exists("ac_skg_simulation_parameters", "std_error")
+        has_source_layer = self._column_exists("ac_skg_simulation_parameters", "source_layer")
+        has_uncertainty_source = self._column_exists("ac_skg_simulation_parameters", "uncertainty_source")
+        has_quality_flags = self._column_exists("ac_skg_simulation_parameters", "quality_flags_json")
+        extra_select = []
+        extra_select.append("confidence_interval_json" if has_ci else "'[]' AS confidence_interval_json")
+        extra_select.append("std_error" if has_std_error else "NULL AS std_error")
+        extra_select.append("source_layer" if has_source_layer else "'simulation_ready' AS source_layer")
+        extra_select.append("uncertainty_source" if has_uncertainty_source else "'' AS uncertainty_source")
+        extra_select.append("quality_flags_json" if has_quality_flags else "'[]' AS quality_flags_json")
+
+        rows = self._con.execute(
+            f"""
+            SELECT numeric_id, openalex_id, canonical_name, estimate_type, point_estimate,
+                   estimate_sign, unit, evidence_strength,
+                   {", ".join(extra_select)},
+                   linked_claim_ids_json, linked_edges_json, context_json
+            FROM ac_skg_simulation_parameters
+            WHERE canonical_name = ?
+            LIMIT ?
+            """,
+            [parameter_name, int(limit)],
+        ).fetchall()
+
+        out: list[ParameterCandidate] = []
+        for row in rows:
+            ci_payload = self._parse_json_list_or_number_pair(row[8])
+            std_error = self._safe_float(row[9])
+            source_layer = str(row[10] or "simulation_ready").strip() or "simulation_ready"
+            uncertainty_source = str(row[11] or "").strip() or (
+                "confidence_interval"
+                if ci_payload is not None
+                else "std_error"
+                if std_error is not None
+                else ""
+            )
+            quality_flags = tuple(self._parse_json_list(row[12]))
+            linked_claim_ids = tuple(self._parse_json_list(row[13]))
+            linked_edge_ids = tuple(self._linked_edge_refs(self._parse_json_mixed_list(row[14])))
+            source_context = self._parse_context_profile(row[15])
+            parameter = self._to_evidence_parameter(
+                parameter_name,
+                {
+                    "display_name": parameter_name,
+                    "value": self._safe_float(row[4]),
+                    "unit": str(row[6] or "").strip() or None,
+                    "evidence_strength": str(row[7] or ""),
+                    "confidence_interval": list(ci_payload) if ci_payload is not None else None,
+                    "std_error": std_error,
+                },
+            )
+            if parameter is None:
+                continue
+            transport_penalty, transport_notes, requires_expert_review = self._transport_metadata_for_parameter(
+                parameter_name,
+                source_context=source_context,
+                target_context=target_context,
+                linked_edge_refs=linked_edge_ids,
+            )
+            out.append(
+                ParameterCandidate(
+                    parameter=parameter,
+                    source_context=source_context,
+                    transport_penalty=transport_penalty,
+                    transport_notes=tuple(transport_notes),
+                    requires_expert_review=requires_expert_review,
+                    source_layer=source_layer,
+                    linked_claim_ids=linked_claim_ids,
+                    linked_edge_ids=linked_edge_ids,
+                    uncertainty_source=uncertainty_source,
+                    quality_flags=quality_flags,
+                )
+            )
+        return out
+
+    def _query_raw_parameter_candidates(
+        self,
+        parameter_name: str,
+        *,
+        target_context: ContextProfile | None,
+        limit: int,
+    ) -> list[ParameterCandidate]:
+        if not self._table_exists("ac_skg_parameters"):
+            return []
         rows = self._con.execute(
             """
             SELECT parameter_json, context_json
@@ -116,44 +341,46 @@ class SKGQuery:
             WHERE canonical_name = ?
             LIMIT ?
             """,
-            [clean_name, int(limit)],
+            [parameter_name, int(limit)],
         ).fetchall()
 
-        result: list[ParameterCandidate] = []
+        out: list[ParameterCandidate] = []
         for parameter_json, context_json in rows:
             payload = self._parse_json_dict(parameter_json)
             if payload is None:
                 continue
-            parameter = self._to_evidence_parameter(clean_name, payload)
+            parameter = self._to_evidence_parameter(parameter_name, payload)
             if parameter is None:
                 continue
-
-            source_context = None
-            context_payload = self._parse_json_dict(context_json)
-            if context_payload is not None:
-                try:
-                    source_context = ContextProfile.model_validate(context_payload)
-                except Exception:
-                    source_context = None
-
-            transport_penalty, transport_notes, requires_expert_review = (
-                self._transport_metadata_for_parameter(
-                    clean_name,
-                    source_context=source_context,
-                    target_context=target_context,
-                )
+            source_context = self._parse_context_profile(context_json)
+            transport_penalty, transport_notes, requires_expert_review = self._transport_metadata_for_parameter(
+                parameter_name,
+                source_context=source_context,
+                target_context=target_context,
+                linked_edge_refs=(),
             )
-
-            result.append(
+            quality_flags: list[str] = []
+            if parameter.confidence_interval is None and parameter.std_error is None:
+                quality_flags.append("uncertainty_missing")
+            out.append(
                 ParameterCandidate(
                     parameter=parameter,
                     source_context=source_context,
                     transport_penalty=transport_penalty,
                     transport_notes=tuple(transport_notes),
                     requires_expert_review=requires_expert_review,
+                    source_layer="raw_parameter",
+                    linked_claim_ids=(),
+                    linked_edge_ids=(),
+                    uncertainty_source="confidence_interval"
+                    if parameter.confidence_interval is not None
+                    else "std_error"
+                    if parameter.std_error is not None
+                    else "",
+                    quality_flags=tuple(quality_flags),
                 )
             )
-        return result
+        return out
 
     def _transport_metadata_for_parameter(
         self,
@@ -161,6 +388,7 @@ class SKGQuery:
         *,
         source_context: ContextProfile | None,
         target_context: ContextProfile | None,
+        linked_edge_refs: tuple[str, ...],
     ) -> tuple[float, list[str], bool]:
         notes: list[str] = []
         penalty = 0.0
@@ -179,9 +407,17 @@ class SKGQuery:
                 penalty += 0.10
                 notes.append("target_context_profile_missing")
                 requires_expert_review = True
-            elif not self._has_transport_scores_for_target(target_context.context_id):
-                penalty += 0.05
-                notes.append("transport_score_unavailable")
+            else:
+                transport_confidence = self._transport_confidence_for_edges(
+                    linked_edge_refs,
+                    target_context.context_id,
+                )
+                if transport_confidence is None:
+                    penalty += 0.05
+                    notes.append("transport_score_unavailable")
+                else:
+                    penalty = max(0.0, penalty - min(0.15, transport_confidence * 0.15))
+                    notes.append(f"transport_confidence:{transport_confidence:.2f}")
 
         moderation_edges = self._moderation_signal_count(parameter_name)
         if moderation_edges > 0:
@@ -204,7 +440,7 @@ class SKGQuery:
                 """,
                 [clean_context_id, clean_context_id],
             ).fetchone()
-        except Exception:
+        except duckdb.Error:
             return False
         return bool(row)
 
@@ -225,27 +461,84 @@ class SKGQuery:
                 """,
                 [clean_name, f"%.{clean_name}", f"{clean_name}.%"],
             ).fetchone()
-        except Exception:
+        except duckdb.Error:
             return 0
         return int(row[0]) if row and row[0] is not None else 0
 
-    def _has_transport_scores_for_target(self, target_context_id: str | None) -> bool:
+    def _transport_confidence_for_edges(
+        self,
+        linked_edge_refs: tuple[str, ...],
+        target_context_id: str,
+    ) -> float | None:
         clean_context_id = str(target_context_id or "").strip()
-        if not clean_context_id or not self._table_exists("ac_skg_transport_scores"):
-            return False
+        if (
+            not clean_context_id
+            or not linked_edge_refs
+            or not self._table_exists("ac_skg_transport_scores")
+        ):
+            return None
+        placeholders = ", ".join(["?"] * len(linked_edge_refs))
         try:
             row = self._con.execute(
-                """
-                SELECT 1
+                f"""
+                SELECT AVG(transport_confidence)
                 FROM ac_skg_transport_scores
                 WHERE target_context_id = ?
-                LIMIT 1
+                  AND edge_id IN ({placeholders})
                 """,
-                [clean_context_id],
+                [clean_context_id, *linked_edge_refs],
             ).fetchone()
-        except Exception:
-            return False
-        return bool(row)
+        except duckdb.Error:
+            return None
+        value = self._safe_float(row[0] if row else None)
+        return value
+
+    def query_edge_transport(
+        self,
+        edge_ids: list[str] | tuple[str, ...],
+        *,
+        target_context_id: str,
+    ) -> list[EdgeTransportRecord]:
+        clean_context_id = str(target_context_id or "").strip()
+        clean_edge_ids = sorted({str(edge_id).strip() for edge_id in edge_ids if str(edge_id).strip()})
+        if (
+            not clean_context_id
+            or not clean_edge_ids
+            or not self._table_exists("ac_skg_transport_scores")
+        ):
+            return []
+        placeholders = ", ".join(["?"] * len(clean_edge_ids))
+        rows = self._con.execute(
+            f"""
+            SELECT edge_id, target_context_id, transport_confidence, match_mode,
+                   matched_moderators_json, generic_penalty, context_match_reward
+            FROM ac_skg_transport_scores
+            WHERE target_context_id = ?
+              AND edge_id IN ({placeholders})
+            ORDER BY transport_confidence DESC, edge_id ASC
+            """,
+            [clean_context_id, *clean_edge_ids],
+        ).fetchall()
+        results: list[EdgeTransportRecord] = []
+        for row in rows:
+            matched = self._parse_json_list(row[4])
+            if not matched:
+                mixed = self._parse_json_mixed_list(row[4])
+                matched_count = len(mixed)
+            else:
+                matched_count = len(matched)
+            results.append(
+                EdgeTransportRecord(
+                    edge_id=str(row[0]),
+                    target_context_id=str(row[1]),
+                    transport_confidence=float(row[2] or 0.0),
+                    match_mode=str(row[3] or ""),
+                    matched_moderators_count=matched_count,
+                    generic_penalty=float(row[5] or 0.0),
+                    context_match_reward=float(row[6] or 0.0),
+                )
+            )
+        return results
 
     def _table_exists(self, table_name: str) -> bool:
         try:
@@ -258,7 +551,7 @@ class SKGQuery:
                 """,
                 [str(table_name)],
             ).fetchone()
-        except Exception:
+        except duckdb.Error:
             return False
         return bool(row)
 
@@ -273,61 +566,181 @@ class SKGQuery:
                 """,
                 [str(table_name), str(column_name)],
             ).fetchone()
-        except Exception:
+        except duckdb.Error:
             return False
         return bool(row)
+
+    def query_edge_support(
+        self,
+        *,
+        cause: str,
+        effect: str,
+        min_confidence: float = 0.25,
+        support_mode: str = "hybrid",
+        limit: int = 32,
+    ) -> list[EdgeSupportRecord]:
+        clean_cause = str(cause).strip()
+        clean_effect = str(effect).strip()
+        if not clean_cause or not clean_effect:
+            return []
+        mode = self._normalize_support_mode(support_mode)
+        rows: list[EdgeSupportRecord] = []
+        if mode in {"exact", "hybrid"}:
+            rows.extend(
+                self._query_exact_edge_support(
+                    clean_cause,
+                    clean_effect,
+                    min_confidence=min_confidence,
+                    limit=limit,
+                )
+            )
+            if mode == "exact":
+                return rows[:limit]
+        if mode in {"family", "hybrid"}:
+            rows.extend(
+                self._query_family_edge_support(
+                    clean_cause,
+                    clean_effect,
+                    min_confidence=min_confidence,
+                    limit=limit,
+                )
+            )
+
+        merged: dict[tuple[str, str, str], EdgeSupportRecord] = {}
+        for row in rows:
+            key = (row.src, row.dst, row.direction)
+            existing = merged.get(key)
+            if existing is None:
+                merged[key] = row
+                continue
+            article_refs = tuple(sorted({*existing.article_refs, *row.article_refs}))
+            claim_refs = tuple(sorted({*existing.claim_refs, *row.claim_refs}))
+            quality_flags = tuple(sorted({*existing.quality_flags, *row.quality_flags}))
+            merged[key] = EdgeSupportRecord(
+                edge_id=existing.edge_id if existing.source_layer == "exact" else row.edge_id,
+                src=row.src,
+                dst=row.dst,
+                direction=row.direction,
+                confidence=max(existing.confidence, row.confidence),
+                evidence_strength=self._strongest_strength(
+                    existing.evidence_strength,
+                    row.evidence_strength,
+                ),
+                n_unique_works=max(existing.n_unique_works, row.n_unique_works, len(article_refs)),
+                n_claims=max(existing.n_claims, row.n_claims, len(claim_refs)),
+                article_refs=article_refs,
+                claim_refs=claim_refs,
+                source_layer="hybrid",
+                conflict_flag=bool(existing.conflict_flag or row.conflict_flag),
+                quality_flags=quality_flags,
+            )
+        return sorted(merged.values(), key=lambda item: item.confidence, reverse=True)[:limit]
+
+    def _query_exact_edge_support(
+        self,
+        cause: str,
+        effect: str,
+        *,
+        min_confidence: float,
+        limit: int,
+    ) -> list[EdgeSupportRecord]:
+        if not self._table_exists("ac_skg_edges"):
+            return []
+        rows = self._con.execute(
+            """
+            SELECT edge_id, src, dst, direction, n_articles, article_refs, evidence_strength, confidence
+            FROM ac_skg_edges
+            WHERE src = ? AND dst = ? AND confidence >= ?
+            ORDER BY confidence DESC, edge_id ASC
+            LIMIT ?
+            """,
+            [cause, effect, float(min_confidence), int(limit)],
+        ).fetchall()
+        out: list[EdgeSupportRecord] = []
+        for row in rows:
+            article_refs = tuple(self._parse_json_list(row[5]))
+            out.append(
+                EdgeSupportRecord(
+                    edge_id=str(row[0]),
+                    src=str(row[1]),
+                    dst=str(row[2]),
+                    direction=str(row[3]),
+                    confidence=float(row[7]),
+                    evidence_strength=str(row[6]),
+                    n_unique_works=int(row[4] or len(article_refs)),
+                    article_refs=article_refs,
+                    source_layer="exact",
+                )
+            )
+        return out
+
+    def _query_family_edge_support(
+        self,
+        cause: str,
+        effect: str,
+        *,
+        min_confidence: float,
+        limit: int,
+    ) -> list[EdgeSupportRecord]:
+        if not self._table_exists("ac_skg_family_edges"):
+            return []
+        rows = self._con.execute(
+            """
+            SELECT family_edge_id, src_family, dst_family, direction, n_articles, n_claims,
+                   article_refs, claim_refs, evidence_strength, confidence, quality_signals_json
+            FROM ac_skg_family_edges
+            WHERE src_family = ? AND dst_family = ? AND confidence >= ?
+            ORDER BY confidence DESC, family_edge_id ASC
+            LIMIT ?
+            """,
+            [cause, effect, float(min_confidence), int(limit)],
+        ).fetchall()
+        out: list[EdgeSupportRecord] = []
+        for row in rows:
+            article_refs = tuple(self._parse_json_list(row[6]))
+            claim_refs = tuple(self._parse_json_list(row[7]))
+            quality_signals = self._parse_json_dict(row[10]) or {}
+            quality_flags: list[str] = []
+            if bool(quality_signals.get("conflict_flag")):
+                quality_flags.append("directional_conflict")
+            out.append(
+                EdgeSupportRecord(
+                    edge_id=str(row[0]),
+                    src=str(row[1]),
+                    dst=str(row[2]),
+                    direction=str(row[3]),
+                    confidence=float(row[9]),
+                    evidence_strength=str(row[8]),
+                    n_unique_works=int(row[4] or len(article_refs)),
+                    n_claims=int(row[5] or len(claim_refs)),
+                    article_refs=article_refs,
+                    claim_refs=claim_refs,
+                    source_layer="family",
+                    conflict_flag=bool(quality_signals.get("conflict_flag")),
+                    quality_flags=tuple(quality_flags),
+                )
+            )
+        return out
 
     def query_edge_priors(
         self,
         *,
         min_confidence: float = 0.0,
         limit: int = 100,
-    ) -> list[dict]:
-        has_candidate_layer = self._column_exists("ac_skg_edges", "candidate_layer")
-        has_quality_json = self._column_exists("ac_skg_edges", "quality_signals_json")
-        extra_select = ""
-        if has_candidate_layer:
-            extra_select += ", candidate_layer"
-        if has_quality_json:
-            extra_select += ", quality_signals_json"
-        rows = self._con.execute(
-            f"""
-            SELECT edge_id, src, dst, direction, n_articles, article_refs, evidence_strength, confidence
-            {extra_select}
-            FROM ac_skg_edges
-            WHERE confidence >= ?
-            ORDER BY confidence DESC
-            LIMIT ?
-            """,
-            [float(min_confidence), int(limit)],
-        ).fetchall()
-        result: list[dict] = []
-        for row in rows:
-            payload = {
-                "edge_id": str(row[0]),
-                "src": str(row[1]),
-                "dst": str(row[2]),
-                "direction": str(row[3]),
-                "n_articles": int(row[4]),
-                "article_refs_json": str(row[5]),
-                "article_refs": self._parse_json_list(row[5]),
-                "evidence_strength": str(row[6]),
-                "confidence": float(row[7]),
-            }
-            idx = 8
-            if has_candidate_layer:
-                payload["candidate_layer"] = str(row[idx])
-                idx += 1
-            if has_quality_json:
-                payload["quality_signals"] = self._parse_json_dict(row[idx]) or {}
-            result.append(payload)
-        return result
+        edge_layer: str = "exact",
+    ) -> list[dict[str, object]]:
+        return self.query_prior_for_variables(
+            [],
+            min_confidence=min_confidence,
+            limit=limit,
+            edge_layer=edge_layer,
+        )
 
     @staticmethod
     def _parse_json_list(value: object) -> list[str]:
         try:
             payload = json.loads(str(value or "[]"))
-        except Exception:
+        except (json.JSONDecodeError, ValueError, TypeError):
             return []
         if not isinstance(payload, list):
             return []
@@ -339,6 +752,14 @@ class SKGQuery:
         return result
 
     @staticmethod
+    def _parse_json_mixed_list(value: object) -> list[Any]:
+        try:
+            payload = json.loads(str(value or "[]"))
+        except (json.JSONDecodeError, ValueError, TypeError):
+            return []
+        return payload if isinstance(payload, list) else []
+
+    @staticmethod
     def _parse_json_dict(value: object) -> dict | None:
         if value in (None, ""):
             return None
@@ -346,18 +767,124 @@ class SKGQuery:
             return dict(value)
         try:
             payload = json.loads(str(value))
-        except Exception:
+        except (json.JSONDecodeError, ValueError, TypeError):
             return None
         if not isinstance(payload, dict):
             return None
         return payload
 
     @staticmethod
-    def _to_evidence_parameter(name: str, payload: dict) -> EvidenceParameter | None:
+    def _parse_json_list_or_number_pair(value: object) -> tuple[float, float] | None:
+        try:
+            payload = json.loads(str(value or "[]")) if not isinstance(value, (list, tuple)) else value
+        except (json.JSONDecodeError, ValueError, TypeError):
+            return None
+        if not isinstance(payload, (list, tuple)) or len(payload) != 2:
+            return None
+        try:
+            lo = float(payload[0])
+            hi = float(payload[1])
+        except (TypeError, ValueError):
+            return None
+        return (lo, hi)
+
+    @staticmethod
+    def _safe_float(value: object) -> float | None:
+        try:
+            return None if value is None else float(value)
+        except (TypeError, ValueError):
+            return None
+
+    @staticmethod
+    def _edge_domain(src: str, dst: str) -> str:
+        for candidate in (src, dst):
+            token = str(candidate).strip()
+            if "." in token:
+                return token.split(".", 1)[0]
+        return ""
+
+    @staticmethod
+    def _parse_context_profile(value: object) -> ContextProfile | None:
+        payload = SKGQuery._parse_json_dict(value)
+        if payload is None:
+            return None
+        try:
+            return ContextProfile.model_validate(payload)
+        except (ValidationError, ValueError, TypeError):
+            return None
+
+    @staticmethod
+    def _linked_edge_refs(payload: list[Any]) -> tuple[str, ...]:
+        refs: set[str] = set()
+        for item in payload:
+            if isinstance(item, str) and item.strip():
+                refs.add(item.strip())
+                continue
+            if not isinstance(item, dict):
+                continue
+            edge_id = str(item.get("edge_id") or "").strip()
+            if edge_id:
+                refs.add(edge_id)
+                continue
+            src = str(item.get("src") or "").strip()
+            dst = str(item.get("dst") or "").strip()
+            direction = str(item.get("direction") or "").strip()
+            if src and dst:
+                refs.add(f"{src}->{dst}" + (f":{direction}" if direction else ""))
+        return tuple(sorted(refs))
+
+    @staticmethod
+    def _normalize_parameter_layer(layer: str) -> str:
+        token = str(layer or "auto").strip().lower()
+        if token not in {"auto", "simulation", "raw", "hybrid"}:
+            return "auto"
+        return token
+
+    @staticmethod
+    def _normalize_support_mode(mode: str) -> str:
+        token = str(mode or "exact").strip().lower()
+        if token not in {"exact", "family", "hybrid"}:
+            return "exact"
+        return token
+
+    @staticmethod
+    def _candidate_priority(candidate: ParameterCandidate) -> tuple[float, float, float, int]:
+        strength_weight = EVIDENCE_WEIGHTS.get(
+            candidate.parameter.evidence_strength.value,
+            EVIDENCE_WEIGHTS[EvidenceStrength.UNKNOWN.value],
+        )
+        layer_weight = {
+            "simulation_ready": 1.0,
+            "simulation": 1.0,
+            "curated_numeric": 0.95,
+            "raw_parameter": 0.65,
+        }.get(candidate.source_layer, 0.75)
+        uncertainty_bonus = 0.15 if candidate.parameter.confidence_interval or candidate.parameter.std_error else 0.0
+        review_penalty = -0.1 if candidate.requires_expert_review else 0.0
+        return (
+            layer_weight + uncertainty_bonus + review_penalty,
+            strength_weight,
+            1.0 - float(candidate.transport_penalty or 0.0),
+            len(candidate.linked_claim_ids),
+        )
+
+    @staticmethod
+    def _strongest_strength(*values: str) -> str:
+        best = EvidenceStrength.UNKNOWN.value
+        best_score = EVIDENCE_WEIGHTS[best]
+        for value in values:
+            score = EVIDENCE_WEIGHTS.get(str(value), EVIDENCE_WEIGHTS[EvidenceStrength.UNKNOWN.value])
+            if score > best_score:
+                best = str(value)
+                best_score = score
+        return best
+
+    @staticmethod
+    def _to_evidence_parameter(name: str, payload: dict[str, Any]) -> EvidenceParameter | None:
         try:
             return EvidenceParameter.model_validate(payload)
-        except Exception:
-            pass
+        except (ValidationError, ValueError, TypeError) as exc:
+            logger.debug("EvidenceParameter.model_validate fallback: %s", exc)
 
         raw_value = payload.get("value", payload.get("estimate"))
         if raw_value is None:
@@ -365,28 +892,35 @@ class SKGQuery:
 
         try:
             value = float(raw_value)
-        except Exception:
+        except (ValueError, TypeError):
             return None
 
         confidence_interval: tuple[float, float] | None = None
-        ci_low = payload.get("ci_low")
-        ci_high = payload.get("ci_high")
-        if ci_low is not None and ci_high is not None:
+        ci_payload = payload.get("confidence_interval")
+        if isinstance(ci_payload, (list, tuple)) and len(ci_payload) == 2:
             try:
-                confidence_interval = (float(ci_low), float(ci_high))
-            except Exception:
+                confidence_interval = (float(ci_payload[0]), float(ci_payload[1]))
+            except (ValueError, TypeError):
+                confidence_interval = None
+        elif payload.get("ci_low") is not None and payload.get("ci_high") is not None:
+            try:
+                confidence_interval = (
+                    float(payload.get("ci_low")),
+                    float(payload.get("ci_high")),
+                )
+            except (ValueError, TypeError):
                 confidence_interval = None
 
         std_error_raw = payload.get("std_error")
         try:
             std_error = None if std_error_raw is None else float(std_error_raw)
-        except Exception:
+        except (ValueError, TypeError):
             std_error = None
 
         evidence_strength_raw = payload.get("evidence_strength")
         try:
             evidence_strength = EvidenceStrength(str(evidence_strength_raw))
-        except Exception:
+        except ValueError:
             evidence_strength = EvidenceStrength.UNKNOWN
 
         try:
@@ -404,14 +938,15 @@ class SKGQuery:
                 ),
                 evidence_strength=evidence_strength,
                 time_period=str(payload.get("time_period") or ""),
+                geographic_scope=str(payload.get("geographic_scope") or ""),
             )
-        except Exception:
+        except (ValidationError, ValueError, TypeError):
             return None
 
     def latest_skg_version_id(self) -> int | None:
         try:
             row = self._con.execute("SELECT MAX(version_id) FROM ac_skg_versions").fetchone()
-        except Exception:
+        except duckdb.Error:
             return None
         if not row or row[0] is None:
             return None
@@ -430,19 +965,92 @@ class SKGQuery:
         min_confidence: float = 0.0,
         limit: int = 256,
         domain: str | None = None,
+        edge_layer: str = "exact",
     ) -> list[dict[str, object]]:
         clean_variables = sorted({str(item).strip() for item in variables if str(item).strip()})
-        if not clean_variables:
-            return []
+        mode = self._normalize_support_mode(edge_layer)
+        rows: list[dict[str, object]] = []
+        if mode in {"exact", "hybrid"}:
+            rows.extend(
+                self._query_prior_rows_from_exact(
+                    clean_variables=clean_variables,
+                    min_confidence=min_confidence,
+                    limit=limit,
+                    domain=domain,
+                )
+            )
+            if mode == "exact":
+                return rows[:limit]
+        if mode in {"family", "hybrid"}:
+            rows.extend(
+                self._query_prior_rows_from_family(
+                    clean_variables=clean_variables,
+                    min_confidence=min_confidence,
+                    limit=limit,
+                    domain=domain,
+                )
+            )
 
-        placeholders = ", ".join(["?"] * len(clean_variables))
-        filters = [f"(src IN ({placeholders}) OR dst IN ({placeholders}))", "confidence >= ?"]
-        params: list[object] = [*clean_variables, *clean_variables, float(min_confidence)]
+        merged: dict[tuple[str, str, str], dict[str, object]] = {}
+        for row in rows:
+            key = (str(row["src"]), str(row["dst"]), str(row["direction"]))
+            existing = merged.get(key)
+            if existing is None:
+                merged[key] = row
+                continue
+            article_refs = sorted({*existing.get("article_refs", []), *row.get("article_refs", [])})
+            quality_signals = {
+                **dict(existing.get("quality_signals") or {}),
+                **dict(row.get("quality_signals") or {}),
+                "layers": sorted(
+                    {
+                        *existing.get("quality_signals", {}).get("layers", [existing.get("candidate_layer", "exact")]),
+                        *row.get("quality_signals", {}).get("layers", [row.get("candidate_layer", "family")]),
+                    }
+                ),
+            }
+            merged[key] = {
+                **existing,
+                "edge_id": existing.get("edge_id") or row.get("edge_id"),
+                "confidence": max(float(existing["confidence"]), float(row["confidence"])),
+                "n_articles": max(
+                    int(existing.get("n_articles") or 0),
+                    int(row.get("n_articles") or 0),
+                    len(article_refs),
+                ),
+                "article_refs": article_refs,
+                "evidence_strength": self._strongest_strength(
+                    str(existing.get("evidence_strength") or ""),
+                    str(row.get("evidence_strength") or ""),
+                ),
+                "candidate_layer": "hybrid",
+                "quality_signals": quality_signals,
+            }
+        ordered = sorted(merged.values(), key=lambda item: float(item["confidence"]), reverse=True)
+        return ordered[:limit]
+
+    def _query_prior_rows_from_exact(
+        self,
+        *,
+        clean_variables: list[str],
+        min_confidence: float,
+        limit: int,
+        domain: str | None,
+    ) -> list[dict[str, object]]:
+        if not self._table_exists("ac_skg_edges"):
+            return []
+        filters = ["confidence >= ?"]
+        params: list[object] = [float(min_confidence)]
+        if clean_variables:
+            placeholders = ", ".join(["?"] * len(clean_variables))
+            filters.insert(0, f"(src IN ({placeholders}) OR dst IN ({placeholders}))")
+            params = [*clean_variables, *clean_variables, *params]
         if domain:
             filters.append("(src ILIKE ? OR dst ILIKE ?)")
-            domain_pattern = f"{domain.strip()}.%"
-            params.extend([domain_pattern, domain_pattern])
+            pattern = f"{domain.strip()}.%"
+            params.extend([pattern, pattern])
         params.append(int(limit))
+
         has_candidate_layer = self._column_exists("ac_skg_edges", "candidate_layer")
         has_quality_json = self._column_exists("ac_skg_edges", "quality_signals_json")
         extra_select = ""
@@ -450,7 +1058,6 @@ class SKGQuery:
             extra_select += ", candidate_layer"
         if has_quality_json:
             extra_select += ", quality_signals_json"
-
         rows = self._con.execute(
             (
                 "SELECT edge_id, src, dst, direction, n_articles, article_refs, "
@@ -463,30 +1070,80 @@ class SKGQuery:
             ),
             params,
         ).fetchall()
-
         result: list[dict[str, object]] = []
         for row in rows:
             article_refs = self._parse_json_list(row[5])
-            scope_conditions = self._parse_json_list(row[8])
+            payload = {
+                "edge_id": str(row[0]),
+                "src": str(row[1]),
+                "dst": str(row[2]),
+                "direction": str(row[3]),
+                "n_articles": int(row[4] or len(article_refs)),
+                "article_refs": article_refs,
+                "scope_conditions": self._parse_json_list(row[8]),
+                "evidence_strength": str(row[6]),
+                "confidence": float(row[7]),
+                "candidate_layer": "exact",
+                "quality_signals": {"layers": ["exact"]},
+            }
+            idx = 9
+            if has_candidate_layer:
+                payload["candidate_layer"] = str(row[idx])
+                idx += 1
+            if has_quality_json:
+                payload["quality_signals"] = self._parse_json_dict(row[idx]) or {"layers": ["exact"]}
+            result.append(payload)
+        return result
+
+    def _query_prior_rows_from_family(
+        self,
+        *,
+        clean_variables: list[str],
+        min_confidence: float,
+        limit: int,
+        domain: str | None,
+    ) -> list[dict[str, object]]:
+        if not self._table_exists("ac_skg_family_edges"):
+            return []
+        filters = ["confidence >= ?"]
+        params: list[object] = [float(min_confidence)]
+        if clean_variables:
+            placeholders = ", ".join(["?"] * len(clean_variables))
+            filters.insert(0, f"(src_family IN ({placeholders}) OR dst_family IN ({placeholders}))")
+            params = [*clean_variables, *clean_variables, *params]
+        if domain:
+            pattern = f"{domain.strip()}.%"
+            filters.append("(src_family ILIKE ? OR dst_family ILIKE ?)")
+            params.extend([pattern, pattern])
+        params.append(int(limit))
+        rows = self._con.execute(
+            (
+                "SELECT family_edge_id, src_family, dst_family, direction, n_articles, article_refs, "
+                "evidence_strength, confidence, quality_signals_json "
+                "FROM ac_skg_family_edges "
+                f"WHERE {' AND '.join(filters)} "
+                "ORDER BY confidence DESC, family_edge_id ASC "
+                "LIMIT ?"
+            ),
+            params,
+        ).fetchall()
+        result: list[dict[str, object]] = []
+        for row in rows:
             result.append(
                 {
                     "edge_id": str(row[0]),
                     "src": str(row[1]),
                     "dst": str(row[2]),
                     "direction": str(row[3]),
-                    "n_articles": int(row[4] or len(article_refs)),
-                    "article_refs": article_refs,
-                    "scope_conditions": scope_conditions,
+                    "n_articles": int(row[4] or 0),
+                    "article_refs": self._parse_json_list(row[5]),
+                    "scope_conditions": [],
                     "evidence_strength": str(row[6]),
                     "confidence": float(row[7]),
+                    "candidate_layer": "family",
+                    "quality_signals": self._parse_json_dict(row[8]) or {"layers": ["family"]},
                 }
             )
-            idx = 9
-            if has_candidate_layer:
-                result[-1]["candidate_layer"] = str(row[idx])
-                idx += 1
-            if has_quality_json:
-                result[-1]["quality_signals"] = self._parse_json_dict(row[idx]) or {}
         return result
 
     def close(self) -> None:
@@ -494,4 +1151,10 @@ class SKGQuery:
         self._con.close()
 
 
-__all__ = ["SKGQuery", "LiteraturePriorResult", "ParameterCandidate"]
+__all__ = [
+    "SKGQuery",
+    "LiteraturePriorResult",
+    "ParameterCandidate",
+    "EdgeSupportRecord",
+    "EdgeTransportRecord",
+]

@@ -378,9 +378,13 @@ class SchemaInference:
                         try:
                             pd.to_datetime(sample.head(10))
                             return SchemaType.DATETIME, match_rate
-                        except Exception:
-                            pass
+                        except Exception as exc:
+                            logger.debug("Ignored exception: %s", exc)
                 except Exception:
+                    logger.debug(
+                        "Failed to match datetime pattern %s on column sample",
+                        pattern, exc_info=True,
+                    )
                     continue
 
             # Check for category (low cardinality)
@@ -546,8 +550,8 @@ class SchemaInference:
                 if median_days <= 92:
                     return TimeGranularity.QUARTERLY
                 return TimeGranularity.ANNUAL
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.debug("Ignored exception: %s", exc)
 
         return None
 

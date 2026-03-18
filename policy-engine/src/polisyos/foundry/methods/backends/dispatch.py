@@ -7,8 +7,17 @@ from typing import Any, Mapping
 
 from polisyos.core.backends import BackendDispatcher
 from polisyos.core.backends import BackendNotAvailableError as CoreBackendNotAvailableError
+from polisyos.foundry.methods.backends.circuit_breaker import (
+    BackendCircuitOpenError,
+    CircuitBreaker,
+    get_circuit_breaker_registry,
+)
+from polisyos.foundry.methods._logging import _infer_n_obs, get_foundry_logger
 from polisyos.foundry.methods.backends.protocol import MethodResult, MethodRunner
 from polisyos.foundry.methods.base import ComputeBackend, MethodSignature
+from polisyos.foundry.methods.output_monitor import _emit_anomaly_metric, get_output_monitor
+
+_log = get_foundry_logger("foundry.backends.dispatch")
 
 
 @dataclass(frozen=True)
@@ -66,14 +75,92 @@ class MethodDispatcher:
         params: Mapping[str, Any],
         seed: int,
     ) -> MethodResult:
+        import time as _time
+
         runner = self._resolve_runner(signature.backend)
-        return runner.execute(
-            method_class=method_class,
-            signature=signature,
-            state=state,
-            params=params,
-            seed=seed,
+        breaker = get_circuit_breaker_registry().get(signature.backend.value)
+        n_obs = _infer_n_obs(state)
+
+        _log.debug(
+            "method_dispatch_start",
+            fqn=signature.fqn,
+            backend=signature.backend.value,
+            n_obs=n_obs,
         )
+        t0 = _time.perf_counter()
+
+        def _execute() -> MethodResult:
+            return runner.execute(
+                method_class=method_class,
+                signature=signature,
+                state=state,
+                params=params,
+                seed=seed,
+            )
+
+        try:
+            result = breaker.call(_execute)
+        except BackendCircuitOpenError:
+            # Backend circuit is open — attempt fallback to NumPy
+            fallback_backend = ComputeBackend.NUMPY
+            if signature.backend == fallback_backend:
+                _log.error(
+                    "method_dispatch_error",
+                    fqn=signature.fqn,
+                    backend=signature.backend.value,
+                    reason="circuit_open_no_fallback",
+                )
+                raise  # no fallback available
+            try:
+                _log.warning(
+                    "method_dispatch_fallback",
+                    fqn=signature.fqn,
+                    original_backend=signature.backend.value,
+                    fallback_backend=fallback_backend.value,
+                )
+                fallback_runner = self._resolve_runner(fallback_backend)
+                result = fallback_runner.execute(
+                    method_class=method_class,
+                    signature=signature,
+                    state=state,
+                    params=params,
+                    seed=seed,
+                )
+            except Exception:
+                raise  # re-raise the original BackendCircuitOpenError's cause
+        except Exception as exc:
+            elapsed_ms = (_time.perf_counter() - t0) * 1000
+            _log.error(
+                "method_dispatch_error",
+                fqn=signature.fqn,
+                backend=signature.backend.value,
+                elapsed_ms=round(elapsed_ms, 2),
+                exc=type(exc).__name__,
+            )
+            raise
+
+        elapsed_ms = (_time.perf_counter() - t0) * 1000
+        _log.info(
+            "method_dispatch_complete",
+            fqn=signature.fqn,
+            backend=signature.backend.value,
+            elapsed_ms=round(elapsed_ms, 2),
+            n_obs=n_obs,
+        )
+
+        # Basic anomaly detection: NaN/Inf + key sanity (vectorised, near-zero cost)
+        expected_keys: set[str] | None = None
+        if signature.output_slots:
+            expected_keys = {s.name for s in signature.output_slots}
+        monitor = get_output_monitor()
+        flags = monitor.check_basic(result.output, expected_keys=expected_keys)
+        if flags:
+            import warnings
+            for flag in flags:
+                warnings.warn(str(flag), stacklevel=3)
+            _emit_anomaly_metric(signature.fqn, flags)
+
+        return result
 
     def _resolve_runner(self, backend: ComputeBackend) -> MethodRunner:
         try:

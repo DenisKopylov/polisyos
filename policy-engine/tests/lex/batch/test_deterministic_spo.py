@@ -309,6 +309,36 @@ def test_deterministic_spo_extracts_multivalue_threshold_row() -> None:
     assert "subtype_threshold_multivalue_row" in result.reason_codes
 
 
+def test_deterministic_spo_extracts_unitless_salary_threshold_row() -> None:
+    result = extract_deterministic_spo(
+        text="Заступники Міністра 330",
+        citation_label="Рядок 2",
+        doc_title="Про впорядкування умов оплати праці працівників апарату органів виконавчої влади",
+        legal_unit_subtype="tariff_threshold_row",
+        quality_family="appendix_heavy",
+        threshold_bearing=True,
+    )
+
+    assert result.candidates
+    assert any(candidate.predicate == "sets_threshold" for candidate in result.candidates)
+    assert "subtype_threshold_unitless_row" in result.reason_codes
+
+
+def test_deterministic_spo_extracts_conditional_threshold_row() -> None:
+    result = extract_deterministic_spo(
+        text="корисне навантаження не менш як 500 кг на дальність 300 км і більше",
+        citation_label="Таблиця, рядок 4",
+        doc_title="Збірник тарифів",
+        legal_unit_subtype="tariff_threshold_row",
+        quality_family="appendix_heavy",
+        threshold_bearing=True,
+    )
+
+    assert result.candidates
+    assert any(candidate.predicate == "sets_threshold" for candidate in result.candidates)
+    assert "subtype_threshold_condition_row" in result.reason_codes
+
+
 def test_deterministic_spo_extracts_subtype_application_requirement() -> None:
     result = extract_deterministic_spo(
         text="Заявник подає копію договору та повідомляє орган про зміну адреси.",
@@ -321,6 +351,21 @@ def test_deterministic_spo_extracts_subtype_application_requirement() -> None:
     assert result.candidates
     assert any(candidate.predicate == "requires" for candidate in result.candidates)
     assert "subtype_application_requirement" in result.reason_codes
+
+
+def test_deterministic_spo_extracts_amendment_wording_item() -> None:
+    result = extract_deterministic_spo(
+        text='25. У додатках NN 1, 2, 4 слова "карбованці" замінити на слово "гривні".',
+        citation_label="Пункт 25",
+        doc_title="Про внесення змін",
+        legal_unit_subtype="amendment_bundle",
+        quality_family="appendix_heavy",
+        reference_bearing=True,
+    )
+
+    assert result.candidates
+    assert any(candidate.predicate == "amends" for candidate in result.candidates)
+    assert "subtype_amendment_bundle" in result.reason_codes
 
 
 def test_deterministic_spo_extracts_application_requirement_bullet() -> None:

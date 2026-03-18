@@ -139,6 +139,7 @@ class OptimalPolicyLearner:
                     name="hte_data",
                     slot_type=SlotType.MATRIX,
                     unit=Unit("observations", "rows"),
+                    shape=("n_obs", "n_features"),
                 )
             }
         ),
@@ -188,6 +189,10 @@ class OptimalPolicyLearner:
             "overlap": "Positivity of treatment assignment over covariate support.",
             "budget_constraint": "Cost-per-unit estimate is stable for target allocation.",
         },
+        when_to_use="Learn optimal treatment assignment rule from data to maximize expected welfare",
+        when_not_to_use="Ethical constraints disallow algorithmic treatment assignment; very small treated sample",
+        typical_min_obs=200,
+        output_interpretation="Decision rule/tree assigning treatment based on covariates. Policy value = E[Y(d(X))] under learned policy.",
     )
 
     @staticmethod

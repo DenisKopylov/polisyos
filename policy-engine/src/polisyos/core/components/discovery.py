@@ -42,7 +42,7 @@ ENTRY_POINT_KIND_BY_GROUP: dict[str, ComponentKind] = {
 }
 
 DEFAULT_ENTRY_POINT_GROUPS: tuple[str, ...] = tuple(sorted(ENTRY_POINT_KIND_BY_GROUP.keys()))
-DEFAULT_DEV_SCAN_ROOT = Path(__file__).resolve().parents[2] / "packs"
+DEFAULT_DEV_SCAN_ROOT: Path | None = None
 DISCOVERY_MODULE_PREFIX = "_polisyos_components_scan_"
 
 
@@ -359,7 +359,7 @@ def _discover_group(*, group: str, errors: list[DiscoveryError]) -> list[Discove
 
 def _default_dev_scan_paths() -> list[Path]:
     paths: list[Path] = []
-    if DEFAULT_DEV_SCAN_ROOT.exists():
+    if DEFAULT_DEV_SCAN_ROOT is not None and DEFAULT_DEV_SCAN_ROOT.exists():
         paths.append(DEFAULT_DEV_SCAN_ROOT)
 
     env_raw = os.getenv("POLISYOS_PACKS_PATHS", "").strip()

@@ -9,6 +9,8 @@ from unittest.mock import MagicMock
 
 import pytest
 
+from polisyos.core.contracts.execution_plan import ExecutionPlan, MethodDagNode
+from polisyos.foundry.methods.catalog_snapshot import build_method_catalog_snapshot
 from polisyos.scientist.search.controller import (
     SearchConfig,
     SearchController,
@@ -26,6 +28,7 @@ from polisyos.scientist.search.stopping import (
     MaxIterations,
     MaxWallTime,
 )
+from polisyos.scientist.llm_cycle import preflight_execution_plan
 from polisyos.scientist.workflows.engine_simple import SimpleLoopEngine
 
 
@@ -482,3 +485,106 @@ class TestIntegration:
         assert result.iterations_completed == 2
         assert result.best_candidate is not None
         assert mock_engine.run.call_count == 2
+
+
+class TestGenerationContext:
+    def test_search_controller_exposes_execution_plan_mutations_in_generation_context(
+        self,
+        quadratic_objective,
+    ):
+        snapshot = build_method_catalog_snapshot(run_id="R_search_context")
+        baseline_plan = ExecutionPlan(
+            plan_id="plan_search_context",
+            method_dag=[
+                MethodDagNode(
+                    node_id="node_lp",
+                    method_fqn="optimization.resource_lp@1.0.0",
+                    notes=["optional_leaf"],
+                )
+            ],
+        )
+        preflight = preflight_execution_plan(baseline_plan, snapshot)
+
+        class ContextCapturingGenerator:
+            def __init__(self):
+                self.contexts: list[dict[str, Any]] = []
+
+            def generate(self, history, current_best, context):
+                del history, current_best
+                self.contexts.append(dict(context))
+                return {"x": 1.0, "semantic": {"interventions": []}}
+
+        generator = ContextCapturingGenerator()
+
+        controller = SearchController(
+            config=SearchConfig(stopping=MaxIterations(1), objective=quadratic_objective),
+            candidate_generator=generator,
+            stage_a_evaluator=lambda candidate, context: (0.0, True),
+            stage_b_evaluator=lambda candidate, context: {
+                "simulation_results": {"x": candidate.get("x", 1.0)},
+                "feedback": {"verdict": "APPROVE"},
+            },
+        )
+
+        controller.run(
+            {
+                "baseline_execution_plan": baseline_plan,
+                "catalog_snapshot": snapshot,
+                "preflight_report": preflight,
+            }
+        )
+
+        assert generator.contexts
+        first_context = generator.contexts[0]
+        assert first_context["search_state"]["iteration"] == 0
+        assert first_context["execution_plan_topology_mutation_count"] >= 1
+        assert any(
+            item["replacement_method_fqn"] == "optimization.linear.resource_lp@1.0.0"
+            for item in first_context["execution_plan_topology_mutation_payload"]
+            if item["kind"] == "swap_method"
+        )
+
+    def test_search_controller_refreshes_mutation_context_from_stage_b_feedback(
+        self,
+        quadratic_objective,
+    ):
+        snapshot = build_method_catalog_snapshot(run_id="R_search_context")
+        baseline_plan = ExecutionPlan(
+            plan_id="plan_search_feedback",
+            method_dag=[
+                MethodDagNode(
+                    node_id="node_lp",
+                    method_fqn="optimization.resource_lp@1.0.0",
+                )
+            ],
+        )
+        preflight = preflight_execution_plan(baseline_plan, snapshot)
+
+        class ContextCapturingGenerator:
+            def __init__(self):
+                self.contexts: list[dict[str, Any]] = []
+
+            def generate(self, history, current_best, context):
+                del history, current_best
+                self.contexts.append(dict(context))
+                return {"x": 1.0, "semantic": {"interventions": []}}
+
+        generator = ContextCapturingGenerator()
+
+        controller = SearchController(
+            config=SearchConfig(stopping=MaxIterations(2), objective=quadratic_objective),
+            candidate_generator=generator,
+            stage_a_evaluator=lambda candidate, context: (0.0, True),
+            stage_b_evaluator=lambda candidate, context: {
+                "simulation_results": {"x": candidate.get("x", 1.0)},
+                "feedback": {"verdict": "APPROVE"},
+                "preflight_report": preflight,
+                "catalog_snapshot": snapshot,
+            },
+        )
+
+        controller.run({"baseline_execution_plan": baseline_plan})
+
+        assert len(generator.contexts) == 2
+        assert "execution_plan_topology_mutation_payload" not in generator.contexts[0]
+        assert generator.contexts[1]["execution_plan_topology_mutation_count"] >= 1

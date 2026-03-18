@@ -57,10 +57,66 @@ def test_preflight_blocks_unavailable_symbolic_transport_method() -> None:
     report = preflight_execution_plan(plan, snapshot)
 
     assert report.ready_to_run is False
-    assert any(
-        item.code == "method_catalog.causal_capability_unavailable"
-        for item in report.diagnostics
+    unavailable = next(
+        item for item in report.diagnostics if item.code == "method_catalog.method_unavailable"
     )
+    assert unavailable.data["disabled_reasons"]
+    assert any("unavailable" in reason for reason in unavailable.data["disabled_reasons"])
+    assert unavailable.data["capability_matrix"]["runnable"] is False
+    assert "alternative_methods" in unavailable.data
+
+
+def test_preflight_suggests_capability_aware_alternative_for_removed_wrapper() -> None:
+    from polisyos.foundry.methods.catalog import ensure_all_methods_registered
+
+    ensure_all_methods_registered()
+    snapshot = build_method_catalog_snapshot(run_id="R_preflight")
+    plan = ExecutionPlan(
+        plan_id="plan_removed_wrapper",
+        run_id="R_preflight",
+        method_dag=[
+            MethodDagNode(
+                node_id="node_lp",
+                method_fqn="optimization.resource_lp@1.0.0",
+                depends_on=[],
+            )
+        ],
+    )
+
+    report = preflight_execution_plan(plan, snapshot)
+
+    missing = next(item for item in report.diagnostics if item.code == "method_catalog.method_missing")
+    alternatives = [item["fqn"] for item in missing.data["alternative_methods"]]
+    assert "optimization.linear.resource_lp@1.0.0" in alternatives
+
+
+def test_preflight_enriches_slot_linker_diagnostics_with_replanning_candidates() -> None:
+    snapshot = build_method_catalog_snapshot(run_id="R_preflight")
+    plan = ExecutionPlan(
+        plan_id="plan_slot_linker",
+        run_id="R_preflight",
+        method_dag=[
+            MethodDagNode(
+                node_id="node_forecast",
+                method_fqn="forecasting.univariate.theta@1.0.0",
+            ),
+            MethodDagNode(
+                node_id="node_panel",
+                method_fqn="econometrics.panel.fixed_effects@1.0.0",
+                depends_on=["node_forecast"],
+            ),
+        ],
+    )
+
+    report = preflight_execution_plan(plan, snapshot)
+
+    diag = next(item for item in report.diagnostics if item.code == "slot_linker.not_linkable")
+    assert diag.data["src_node_id"] == "node_forecast"
+    assert diag.data["dst_node_id"] == "node_panel"
+    assert diag.data["source_method_fqn"] == "forecasting.univariate.theta@1.0.0"
+    assert diag.data["target_method_fqn"] == "econometrics.panel.fixed_effects@1.0.0"
+    assert "alternative_methods" in diag.data
+    assert "adapter_methods" in diag.data
 
 
 @pytest.mark.parametrize(

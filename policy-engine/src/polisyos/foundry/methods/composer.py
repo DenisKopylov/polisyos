@@ -14,13 +14,17 @@ from __future__ import annotations
 import graphlib
 from dataclasses import dataclass, field
 from types import MappingProxyType
-from typing import Any, Iterator, Mapping, Sequence
+from typing import Any, Iterator, Mapping, Sequence, TYPE_CHECKING
 from uuid import UUID, uuid4
 
 from polisyos.foundry.methods.base import MethodSignature, _stable_digest
 from polisyos.foundry.methods.exceptions import CyclicDependencyError
 from polisyos.foundry.methods.linker import LinkResult, SlotBinding, SlotLinker
 from polisyos.foundry.methods.registry import MethodRegistry
+
+if TYPE_CHECKING:
+    from polisyos.foundry.methods.backends.chain_executor import ExecutorMode
+    from polisyos.foundry.methods.backends.chain_executor import FxRateProvider
 
 __all__ = [
     "MethodNode",
@@ -222,6 +226,66 @@ class CompositionDAG:
 
     def get_edge(self, source_id: UUID, target_id: UUID) -> LinkResult | None:
         return self.edges.get((source_id, target_id))
+
+    def compute_parallel_levels(
+        self,
+        extra_predecessors: Mapping[UUID, set[UUID]] | None = None,
+    ) -> list[list[UUID]]:
+        """
+        Partition the DAG into topological *levels*.
+
+        All nodes within the same level are mutually independent and can
+        execute concurrently.  Nodes in level *k+1* depend only on nodes
+        in levels 0..k.
+
+        Returns
+        -------
+        list[list[UUID]]
+            Ordered list of levels; each level is a sorted list of node UUIDs.
+            The sort order within each level follows the same stable key as
+            ``topological_order()`` (insertion order first, then NodeKey).
+
+        Raises
+        ------
+        CyclicDependencyError
+            If the DAG contains a cycle.
+        """
+        # Build in-degree map respecting extra_predecessors
+        in_degree: dict[UUID, int] = {}
+        adj: dict[UUID, set[UUID]] = {nid: set() for nid in self.nodes}
+
+        for node_id in self.nodes:
+            preds = set(self.predecessors.get(node_id, set()))
+            if extra_predecessors and node_id in extra_predecessors:
+                preds |= {p for p in extra_predecessors[node_id] if p in self.nodes}
+            in_degree[node_id] = len(preds)
+            for pred_id in preds:
+                if pred_id in adj:
+                    adj[pred_id].add(node_id)
+
+        levels: list[list[UUID]] = []
+        ready: list[UUID] = [nid for nid, deg in in_degree.items() if deg == 0]
+
+        processed = 0
+        while ready:
+            batch = self._sort_ready(ready)
+            levels.append(batch)
+            processed += len(batch)
+            next_ready: list[UUID] = []
+            for node_id in batch:
+                for succ_id in adj.get(node_id, set()):
+                    in_degree[succ_id] -= 1
+                    if in_degree[succ_id] == 0:
+                        next_ready.append(succ_id)
+            ready = next_ready
+
+        if processed != len(self.nodes):
+            # Cycle detected
+            remaining = [nid for nid, deg in in_degree.items() if deg > 0]
+            cycle_fqns = [self.nodes[uid].method_fqn for uid in remaining[:5]]
+            raise CyclicDependencyError(cycle_fqns)
+
+        return levels
 
     def freeze(self) -> FrozenCompositionDAG:
         nodes = MappingProxyType(dict(self.nodes))
@@ -456,8 +520,17 @@ class MethodComposer:
 
         return warnings
 
-    def build(self) -> CompiledMethodChain:
-        """Build the compiled chain; raises on cyclic dependencies."""
+    def build(self, *, validate_semantics: bool = False) -> CompiledMethodChain:
+        """Build the compiled chain; raises on cyclic dependencies.
+
+        Parameters
+        ----------
+        validate_semantics:
+            When True, runs the cross-method semantic validator after building
+            the chain. Semantic errors are appended to the chain's ``warnings``
+            tuple. Fatal semantic errors (conflicts) are raised immediately.
+            Set ``POLISYOS_STRICT=1`` to make ordering violations fatal.
+        """
         warnings = self.validate()
         req_predecessors, _req_warnings = self._requirement_edges()
         order = self._dag.topological_order(extra_predecessors=req_predecessors)
@@ -474,13 +547,35 @@ class MethodComposer:
             )
         )
 
-        return CompiledMethodChain(
+        chain = CompiledMethodChain(
             dag=self._dag.freeze(),
             signatures=MappingProxyType(dict(self._signatures)),
             execution_order=tuple(order),
             bindings=tuple(all_bindings),
             warnings=tuple(w for w in warnings if not w.startswith("CRITICAL:")),
         )
+
+        if validate_semantics:
+            import os
+            from polisyos.foundry.methods.semantic_validator import CrossMethodValidator
+            strict = bool(os.environ.get("POLISYOS_STRICT"))
+            validator = CrossMethodValidator(strict=strict)
+            report = validator.validate_chain(chain)
+
+            if report.errors:
+                raise ValueError(
+                    f"Chain failed semantic validation:\n{report.summary()}"
+                )
+
+            if report.warnings:
+                semantic_warnings = tuple(
+                    f"[semantic] {issue.message}" for issue in report.warnings
+                )
+                # Rebuild chain with extended warnings (frozen dataclass — use replace).
+                from dataclasses import replace as _replace
+                chain = _replace(chain, warnings=chain.warnings + semantic_warnings)
+
+        return chain
 
     def __len__(self) -> int:
         return len(self._dag)
@@ -554,6 +649,9 @@ class CompiledMethodChain:
         params_per_node: Mapping[UUID, Mapping[str, Any]] | None = None,
         seed: int = 0,
         registry: MethodRegistry | None = None,
+        executor_mode: "ExecutorMode" = "sequential",
+        async_node_timeout_sec: float | None = None,
+        fx_rate_provider: "FxRateProvider" | None = None,
     ) -> Any:
         from polisyos.foundry.methods.backends.chain_executor import (
             execute_heterogeneous_chain,
@@ -565,4 +663,7 @@ class CompiledMethodChain:
             params_per_node=params_per_node,
             seed=seed,
             registry=registry,
+            executor_mode=executor_mode,
+            async_node_timeout_sec=async_node_timeout_sec,
+            fx_rate_provider=fx_rate_provider,
         )

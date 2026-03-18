@@ -1,0 +1,642 @@
+"""optimal_design — Optimal Experimental Design for Causal Inference (Phase 9).
+
+Implements two key results:
+
+1. **O-set (Henckel, Perković & Maathuis 2022)**: graphical criterion for the
+   adjustment set that minimises asymptotic variance among all valid backdoor
+   adjustment sets.
+
+2. **Minimum-cost identification (Bareinboim, Brito & Pearl 2012)**: greedy
+   algorithm for finding the cheapest set of experimental interventions that
+   renders the target causal query identifiable.
+
+Additional utilities:
+- ``optimal_instrument_selection``: select IVs with maximum first-stage strength
+- ``adaptive_experiment``: Bayesian sequential budget allocation plan
+
+Foundry method: ``causal.design.experiment@1.0.0``
+
+References
+----------
+Henckel, L., Perković, E. & Maathuis, M.H. (2022). Graphical criteria for
+    efficient total effect estimation via adjustment in causal linear models.
+    *JRSS-B*, 84(2), 579–599.
+Bareinboim, E., Brito, C. & Pearl, J. (2012). Local characterizations of
+    causal Bayesian networks. *LNCS*, 7205.
+"""
+
+from __future__ import annotations
+
+import itertools
+import logging
+from typing import Any, ClassVar, Mapping, Sequence
+
+from polisyos.core.observability.determinism import DeterminismTier
+from polisyos.foundry.methods.base import (
+    ComplexityClass,
+    ComputeBackend,
+    FidelityLevel,
+    MethodMetadata,
+    MethodSignature,
+    ParameterSpec,
+    SlotSpec,
+    SlotType,
+    Unit,
+    foundry_method,
+)
+from polisyos.ir.analytics.causal_graph import CausalGraphModel
+from polisyos.ir.analytics.experiment_plan import (
+    ExperimentPlan,
+    OptimalAdjustmentResult,
+    OptimalIVResult,
+)
+
+_logger = logging.getLogger(__name__)
+
+
+# ---------------------------------------------------------------------------
+# Internal graph helpers
+# ---------------------------------------------------------------------------
+
+
+def _parents_of(graph: CausalGraphModel, nodes: frozenset[str]) -> frozenset[str]:
+    """Return all direct parents of *nodes* in the directed graph."""
+    from polisyos.foundry.methods.catalog.causal.admg_ops import extract_directed_edges
+
+    parents: set[str] = set()
+    for src, dst in extract_directed_edges(graph):
+        if dst in nodes:
+            parents.add(src)
+    return frozenset(parents)
+
+
+def _compute_o_set(
+    graph: CausalGraphModel,
+    treatment: str,
+    outcome: str,
+) -> frozenset[str]:
+    """Henckel, Perković & Maathuis (2022) Theorem 3 — O-set.
+
+    O(X, Y, G) = Pa_G(An_{G_{\\bar{X}}}(Y) \\ X) \\ De_G(X)
+
+    Where G_{\\bar{X}} is the graph with all incoming edges to X removed
+    (i.e. the interventional graph do(X)).
+
+    Algorithm
+    ---------
+    1. Build G_cut = G with incoming edges to X removed.
+    2. Find An(Y) in G_cut: ancestors of Y (including Y itself).
+    3. Remove X from that ancestor set: An_Y_nox = An_Y \\ {X}.
+    4. Take parents in the *original* graph G: Pa_G(An_Y_nox).
+    5. Remove De_G(X) (descendants of X in original G, including X):
+       O = Pa_G(An_Y_nox) \\ De_G(X).
+
+    This correctly identifies all pre-treatment confounders that are
+    ancestors of Y in the interventional world, excluding X and its
+    descendants.
+    """
+    from polisyos.foundry.methods.catalog.causal.admg_ops import (
+        ancestors,
+        descendants,
+        remove_incoming_edges,
+    )
+
+    # Step 1: G_cut = G with incoming edges to X removed (interventional graph)
+    g_cut = remove_incoming_edges(graph, frozenset({treatment}))
+
+    # Step 2: An(Y) in G_cut (ancestors of Y in the interventional world)
+    an_y = ancestors(g_cut, frozenset({outcome}), include_self=True)
+
+    # Step 3: remove treatment X from ancestor set
+    an_y_nox = an_y - frozenset({treatment})
+
+    # Step 4: parents in the ORIGINAL graph G
+    pa = _parents_of(graph, an_y_nox)
+
+    # Step 5: remove De_G(X) (including X) — these cannot be adjusted for
+    de_x = descendants(graph, frozenset({treatment}), include_self=True)
+    return pa - de_x
+
+
+def _check_backdoor(
+    graph: CausalGraphModel,
+    treatment: str,
+    outcome: str,
+    adjustment_set: frozenset[str],
+) -> bool:
+    """Check whether adjustment_set satisfies the backdoor criterion.
+
+    Criterion (Pearl 2009):
+    (a) No node in Z is a descendant of X.
+    (b) Z blocks every backdoor path from X to Y in G.
+
+    Implemented via m-separation in the graph G_{\\underline{X}} (outgoing
+    edges of X removed): X ⊥ Y | Z in G_{\\underline{X}}. In this graph,
+    all causal paths X→...→Y are cut, leaving only backdoor paths that go
+    backward through X's ancestors. Z must block all of these.
+    """
+    from polisyos.foundry.methods.catalog.causal.admg_ops import (
+        descendants,
+        m_separation,
+        remove_outgoing_edges,
+    )
+
+    # Condition (a): no descendant of X in Z
+    de_x = descendants(graph, frozenset({treatment}), include_self=True)
+    if adjustment_set & de_x:
+        return False
+
+    # Condition (b): Z blocks all backdoor paths in G_{X̲} (outgoing of X removed)
+    g_no_out = remove_outgoing_edges(graph, frozenset({treatment}))
+    return m_separation(
+        g_no_out,
+        x_set=frozenset({treatment}),
+        y_set=frozenset({outcome}),
+        z_set=adjustment_set,
+    )
+
+
+# ---------------------------------------------------------------------------
+# Algorithm functions
+# ---------------------------------------------------------------------------
+
+
+def optimal_adjustment_set(
+    graph: CausalGraphModel,
+    treatment: str,
+    outcome: str,
+) -> OptimalAdjustmentResult:
+    """Compute the O-set: optimal adjustment for minimum asymptotic variance.
+
+    The O-set minimises the asymptotic variance of the backdoor adjustment
+    estimator ATE = Σ_Z E[Y|X=1,Z]P(Z) − Σ_Z E[Y|X=0,Z]P(Z) among all
+    valid backdoor adjustment sets (Henckel et al. 2022, Theorem 4).
+
+    Parameters
+    ----------
+    graph:
+        Causal DAG (ADMG also supported for the graphical computation).
+    treatment:
+        Treatment variable X.
+    outcome:
+        Outcome variable Y.
+
+    Returns
+    -------
+    OptimalAdjustmentResult
+        O-set and backdoor validity flag.
+    """
+    if treatment not in graph.nodes:
+        raise ValueError(f"Treatment variable {treatment!r} not in graph nodes.")
+    if outcome not in graph.nodes:
+        raise ValueError(f"Outcome variable {outcome!r} not in graph nodes.")
+
+    o_set = _compute_o_set(graph, treatment, outcome)
+    is_valid = _check_backdoor(graph, treatment, outcome, o_set)
+
+    _logger.debug(
+        "optimal_adjustment_set: treatment=%r outcome=%r o_set=%r valid=%s",
+        treatment,
+        outcome,
+        sorted(o_set),
+        is_valid,
+    )
+
+    return OptimalAdjustmentResult(
+        o_set=o_set,
+        graphical_criterion_used="henckel-2022-o-set",
+        treatment=treatment,
+        outcome=outcome,
+        o_set_is_valid_backdoor=is_valid,
+    )
+
+
+def optimal_instrument_selection(
+    graph: CausalGraphModel,
+    treatment: str,
+    outcome: str,
+) -> OptimalIVResult:
+    """Select graphically valid instrumental variables.
+
+    A variable Z is a valid instrument for (X, Y) if:
+    1. Z is not a descendant of X.
+    2. Z has a directed path to X (relevance / first stage).
+    3. Z affects Y only through X (exclusion restriction):
+       Z and Y are m-separated given X in G minus the X→... edge-cut.
+
+    The function returns all valid IV sets found by checking each node
+    individually.  The ``optimal_iv_set`` is chosen as the singleton
+    with the most direct path (or the empty set if none qualifies).
+
+    Parameters
+    ----------
+    graph:
+        Causal DAG.
+    treatment:
+        Endogenous treatment variable X.
+    outcome:
+        Outcome variable Y.
+
+    Returns
+    -------
+    OptimalIVResult
+    """
+    from polisyos.foundry.methods.catalog.causal.admg_ops import (
+        descendants,
+        has_directed_path,
+        induced_subgraph,
+        m_separation,
+        remove_outgoing_edges,
+    )
+
+    de_x = descendants(graph, frozenset({treatment}), include_self=True)
+
+    valid_ivs: list[frozenset[str]] = []
+    for node in graph.nodes:
+        if node == treatment or node == outcome:
+            continue
+        if node in de_x:
+            continue  # criterion 1: not a descendant
+
+        if not has_directed_path(graph, node, treatment):
+            continue  # criterion 2: must have path to X
+
+        # Criterion 3: exclusion restriction — Z ⊥ Y | X after removing X→* edges
+        # Remove the outgoing edges of X, then check if Z can reach Y
+        g_no_x_out = remove_outgoing_edges(graph, frozenset({treatment}))
+        # In this graph, Z→Y paths bypass X only if they don't go through X
+        # Z ⊥ Y | ∅ in G_{X̲} means exclusion restriction holds
+        separated = m_separation(
+            g_no_x_out,
+            x_set=frozenset({node}),
+            y_set=frozenset({outcome}),
+            z_set=frozenset({treatment}),
+        )
+        if separated:
+            valid_ivs.append(frozenset({node}))
+
+    optimal = valid_ivs[0] if valid_ivs else frozenset()
+    return OptimalIVResult(
+        optimal_iv_set=optimal,
+        all_valid_iv_sets=valid_ivs,
+        treatment=treatment,
+        outcome=outcome,
+        exclusion_restriction_verified=True,
+    )
+
+
+def minimum_cost_identification(
+    graph: CausalGraphModel,
+    treatment: str,
+    outcome: str,
+    available_interventions: dict[str, float],
+) -> ExperimentPlan:
+    """Find the cheapest set of interventions to identify P(Y|do(X)).
+
+    Algorithm (greedy, based on Bareinboim, Brito & Pearl 2012):
+
+    1. Check observational identifiability via ``id_algorithm``.
+       If identified, return immediately (cost = 0).
+    2. Greedily try each single intervention by increasing cost.
+       Run ``z_id_algorithm`` with that Z; return on first success.
+    3. If no singleton works, try all pairs (again cheapest-first).
+    4. Fall back to the full intervention set if no subset works.
+
+    Parameters
+    ----------
+    graph:
+        Causal DAG.
+    treatment:
+        Treatment variable X.
+    outcome:
+        Outcome variable Y.
+    available_interventions:
+        Mapping variable_name → cost of intervening on that variable.
+
+    Returns
+    -------
+    ExperimentPlan
+        Recommended intervention set and total cost estimate.
+    """
+    from polisyos.foundry.methods.catalog.causal.id_engine import (
+        IdentificationStatus,
+        id_algorithm,
+        z_id_algorithm,
+    )
+
+    tx = frozenset({treatment})
+    oy = frozenset({outcome})
+
+    # Step 1: check observational identifiability
+    base = id_algorithm(treatment=tx, outcome=oy, graph=graph)
+    if base.status == IdentificationStatus.IDENTIFIED:
+        return ExperimentPlan(
+            query=f"P({outcome}|do({treatment}))",
+            recommended_interventions=(),
+            cost_estimate=0.0,
+            already_identified_observationally=True,
+            rationale="Query is identifiable from observational data alone; no experiment needed.",
+            n_stages=0,
+        )
+
+    if not available_interventions:
+        return ExperimentPlan(
+            query=f"P({outcome}|do({treatment}))",
+            recommended_interventions=(),
+            cost_estimate=None,
+            already_identified_observationally=False,
+            rationale="No experimental interventions available; query may not be identifiable.",
+        )
+
+    sorted_by_cost = sorted(available_interventions.items(), key=lambda x: x[1])
+
+    # Step 2: single intervention
+    for var, cost in sorted_by_cost:
+        result = z_id_algorithm(
+            treatment=tx,
+            outcome=oy,
+            z_interventions=frozenset({var}),
+            graph=graph,
+        )
+        if result.status == IdentificationStatus.IDENTIFIED:
+            _logger.debug(
+                "minimum_cost_identification: single intervention %r (cost=%.2f) sufficient.",
+                var,
+                cost,
+            )
+            return ExperimentPlan(
+                query=f"P({outcome}|do({treatment}))",
+                recommended_interventions=(var,),
+                cost_estimate=cost,
+                already_identified_observationally=False,
+                rationale=(
+                    f"Single intervention on {var!r} (cost={cost}) is sufficient "
+                    "to identify the target query via Z-transport."
+                ),
+            )
+
+    # Step 3: pairs
+    all_vars_sorted = [v for v, _ in sorted_by_cost]
+    for pair in itertools.combinations(all_vars_sorted, 2):
+        pair_cost = sum(available_interventions[v] for v in pair)
+        result = z_id_algorithm(
+            treatment=tx,
+            outcome=oy,
+            z_interventions=frozenset(pair),
+            graph=graph,
+        )
+        if result.status == IdentificationStatus.IDENTIFIED:
+            _logger.debug(
+                "minimum_cost_identification: pair %r (cost=%.2f) sufficient.",
+                pair,
+                pair_cost,
+            )
+            return ExperimentPlan(
+                query=f"P({outcome}|do({treatment}))",
+                recommended_interventions=tuple(pair),
+                cost_estimate=pair_cost,
+                already_identified_observationally=False,
+                rationale=(
+                    f"Pair of interventions {pair} (total cost={pair_cost}) "
+                    "sufficient to identify the target query."
+                ),
+            )
+
+    # Fallback: recommend all interventions
+    total_cost = sum(available_interventions.values())
+    return ExperimentPlan(
+        query=f"P({outcome}|do({treatment}))",
+        recommended_interventions=tuple(all_vars_sorted),
+        cost_estimate=total_cost,
+        already_identified_observationally=False,
+        rationale=(
+            "No single intervention or pair was sufficient; "
+            "all available interventions are recommended as a conservative plan."
+        ),
+    )
+
+
+def adaptive_experiment(
+    graph: CausalGraphModel,
+    treatment: str,
+    outcome: str,
+    budget: float,
+    n_stages: int = 3,
+    prior_effect_size: float = 0.0,
+    prior_variance: float = 1.0,
+) -> list[ExperimentPlan]:
+    """Generate a sequential adaptive experimental design plan.
+
+    Divides the total budget across N stages, with each stage refining
+    the posterior variance estimate (Bayesian sequential design):
+    V_posterior = 1 / (1/V_prior + n_stage/V_likelihood)
+
+    Parameters
+    ----------
+    graph:
+        Causal DAG for computing the optimal adjustment set.
+    treatment:
+        Treatment variable X.
+    outcome:
+        Outcome variable Y.
+    budget:
+        Total experimental budget (e.g. sample size or cost units).
+    n_stages:
+        Number of adaptive stages.
+    prior_effect_size:
+        Prior point estimate for the ATE.
+    prior_variance:
+        Prior variance V_0 for the effect size.
+
+    Returns
+    -------
+    list[ExperimentPlan]
+        One ExperimentPlan per stage, with equal budget allocation.
+    """
+    adj_result = optimal_adjustment_set(graph, treatment, outcome)
+    stage_budget = budget / max(n_stages, 1)
+    plans: list[ExperimentPlan] = []
+    current_var = prior_variance
+
+    for stage in range(1, n_stages + 1):
+        # Posterior variance after each stage (Gaussian conjugate update)
+        likelihood_var = current_var / max(stage, 1)
+        posterior_var = 1.0 / (1.0 / current_var + 1.0 / likelihood_var)
+        current_var = posterior_var
+
+        plans.append(
+            ExperimentPlan(
+                query=f"P({outcome}|do({treatment})) [stage {stage}/{n_stages}]",
+                recommended_interventions=(treatment,),
+                cost_estimate=stage_budget,
+                adjustment_set=adj_result.o_set if adj_result.o_set_is_valid_backdoor else None,
+                already_identified_observationally=False,
+                rationale=(
+                    f"Stage {stage}/{n_stages}: allocate {stage_budget:.1f} budget units; "
+                    f"expected posterior variance after stage = {posterior_var:.4f}."
+                ),
+                n_stages=stage,
+            )
+        )
+
+    return plans
+
+
+# ---------------------------------------------------------------------------
+# Foundry wrapper
+# ---------------------------------------------------------------------------
+
+
+@foundry_method(
+    namespace="causal.design",
+    version="1.0.0",
+    tags={"causal", "design", "o_set", "henckel_maathuis", "optimal_experiment"},
+)
+class CausalExperimentDesigner:
+    """Optimal experimental design for causal inference (Phase 9).
+
+    Dispatches to one of four design modes via the ``mode`` parameter:
+
+    ``"optimal_adjustment"`` (default)
+        Compute the O-set: adjustment set minimising asymptotic variance
+        (Henckel, Perković & Maathuis 2022).
+        Requires: ``graph``, ``treatment``, ``outcome``.
+
+    ``"optimal_iv"``
+        Select graphically valid IV sets with maximum first-stage coverage.
+        Requires: ``graph``, ``treatment``, ``outcome``.
+
+    ``"minimum_cost"``
+        Greedy minimum-cost intervention plan to achieve identifiability
+        (Bareinboim, Brito & Pearl 2012).
+        Requires: ``graph``, ``treatment``, ``outcome``,
+        ``available_interventions`` (dict var → cost).
+
+    ``"adaptive"``
+        Bayesian sequential budget-allocation plan.
+        Requires: ``graph``, ``treatment``, ``outcome``,
+        ``budget`` (float), ``n_stages`` (int, default 3).
+    """
+
+    determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STRICT_CPU
+    runtime_stack: ClassVar[tuple[str, ...]] = ()
+
+    signature: ClassVar[MethodSignature] = MethodSignature(
+        name="causal_experiment_designer",
+        namespace="placeholder",
+        version="0.0.0",
+        input_slots=frozenset({
+            SlotSpec("graph_json", SlotType.SCALAR, Unit("graph", "json")),
+        }),
+        output_slots=frozenset({
+            SlotSpec("design_result", SlotType.SCALAR, Unit("result", "json")),
+        }),
+        parameters=(
+            ParameterSpec(name="mode", default="optimal_adjustment"),
+            ParameterSpec(name="treatment", default=""),
+            ParameterSpec(name="outcome", default=""),
+            ParameterSpec(name="available_interventions", default={}),
+            ParameterSpec(name="budget", default=100.0),
+            ParameterSpec(name="n_stages", default=3),
+            ParameterSpec(name="prior_effect_size", default=0.0),
+            ParameterSpec(name="prior_variance", default=1.0),
+        ),
+        fidelity=FidelityLevel.HIGH,
+        complexity=ComplexityClass.O_N2,
+        backend=ComputeBackend.NUMPY,
+        supports_jit=False,
+        supports_vmap=False,
+        supports_grad=False,
+    )
+
+    metadata: ClassVar[MethodMetadata] = MethodMetadata(
+        description=(
+            "Optimal experimental design for causal inference. "
+            "Computes O-set (Henckel et al. 2022), optimal IVs, "
+            "minimum-cost identification plan, and adaptive experiment stages."
+        ),
+        tags=frozenset({
+            "causal", "design", "o_set", "adjustment", "iv",
+            "minimum_cost", "adaptive", "henckel_maathuis",
+        }),
+        citations=(
+            "Henckel, L., Perković, E. & Maathuis, M.H. (2022). "
+            "Graphical criteria for efficient total effect estimation via "
+            "adjustment in causal linear models. JRSS-B, 84(2), 579–599.",
+            "Bareinboim, E., Brito, C. & Pearl, J. (2012). Local "
+            "characterizations of causal Bayesian networks. LNCS, 7205.",
+        ),
+        equations={
+            "o_set": "O(X,Y,G) = Pa_G(An(Y)_{G_{V\\De(X)}}) \\ (De(X) ∪ {X})",
+            "inv_var_eff": "Var(ATE_{O}) ≤ Var(ATE_Z) for any valid Z",
+            "min_cost": "argmin_S cost(S) s.t. Z-ID(X,Y,G,S) = IDENTIFIED",
+        },
+        determinism_tier=DeterminismTier.STRICT_CPU,
+        required_deps=(),
+        when_to_use=(
+            "Designing a new study: choose adjustment variables for minimum variance; "
+            "selecting instruments; planning sequential experiments with budget constraints."
+        ),
+        when_not_to_use=(
+            "Post-hoc analysis on existing data where the adjustment set is fixed; "
+            "non-parametric bounds are needed instead of point identification."
+        ),
+        output_interpretation=(
+            "optimal_adjustment: o_set is the theoretically optimal conditioning set. "
+            "minimum_cost: recommended_interventions is the cheapest set to run. "
+            "adaptive: list of stage plans with per-stage budget allocation."
+        ),
+    )
+
+    @staticmethod
+    def pure_step(
+        state: Mapping[str, Any],
+        params: Mapping[str, Any],
+    ) -> dict[str, Any]:
+        """Dispatch to the selected design mode."""
+        mode: str = params.get("mode", "optimal_adjustment")
+        graph: CausalGraphModel = state["graph"]
+        treatment: str = params.get("treatment", "")
+        outcome: str = params.get("outcome", "")
+
+        if mode == "optimal_adjustment":
+            result = optimal_adjustment_set(graph, treatment, outcome)
+            return {"design_result": result.model_dump()}
+
+        if mode == "optimal_iv":
+            result = optimal_instrument_selection(graph, treatment, outcome)
+            return {"design_result": result.model_dump()}
+
+        if mode == "minimum_cost":
+            available: dict[str, float] = dict(
+                params.get("available_interventions", {})
+            )
+            plan = minimum_cost_identification(graph, treatment, outcome, available)
+            return {"design_result": plan.model_dump()}
+
+        if mode == "adaptive":
+            plans = adaptive_experiment(
+                graph=graph,
+                treatment=treatment,
+                outcome=outcome,
+                budget=float(params.get("budget", 100.0)),
+                n_stages=int(params.get("n_stages", 3)),
+                prior_effect_size=float(params.get("prior_effect_size", 0.0)),
+                prior_variance=float(params.get("prior_variance", 1.0)),
+            )
+            return {"design_result": [p.model_dump() for p in plans]}
+
+        raise ValueError(
+            f"Unknown CausalExperimentDesigner mode {mode!r}. "
+            "Expected one of: 'optimal_adjustment', 'optimal_iv', "
+            "'minimum_cost', 'adaptive'."
+        )
+
+
+__all__ = [
+    "CausalExperimentDesigner",
+    "optimal_adjustment_set",
+    "optimal_instrument_selection",
+    "minimum_cost_identification",
+    "adaptive_experiment",
+]

@@ -106,6 +106,9 @@ class CheckTransportability:
             "fallback": "explicit simplified_legacy path only",
         },
         tags=frozenset({"causal", "transportability"}),
+        when_to_use="Check whether causal effect P*(Y|do(X)) is transportable from source to target context; simplified fallback path",
+        when_not_to_use="Symbolic identification required (use SymbolicIdentify); query is purely observational with no context shift",
+        output_interpretation="TransportabilityResult: IDENTIFIED = effect is transportable. UNSUPPORTED = cannot transport without additional target-context data. Blocking S-nodes indicate what is needed.",
     )
 
     @staticmethod

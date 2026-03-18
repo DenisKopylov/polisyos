@@ -54,7 +54,8 @@ def _prediction_output_slots() -> frozenset[SlotSpec]:
 )
 class BayesianLinearRegressionEstimator:
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
-    runtime_stack: ClassVar[tuple[str, ...]] = ("numpy", "arviz")
+    runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
+    optional_deps: ClassVar[tuple[str, ...]] = ("arviz",)
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="linear_regression",
@@ -86,6 +87,10 @@ class BayesianLinearRegressionEstimator:
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Sampling-based Bayesian linear regression with posterior predictive summaries.",
         tags=frozenset({"bayesian", "sampling", "regression"}),
+        when_to_use="Regression with prior information; uncertainty quantification; small samples where frequentist CI unreliable",
+        when_not_to_use="Very large datasets where MCMC is too slow; no interest in full posterior distribution",
+        typical_min_obs=20,
+        output_interpretation="Posterior distribution over coefficients. Credible interval: 95% probability parameter is in [a,b]. Posterior predictive for new observations.",
     )
 
     @staticmethod

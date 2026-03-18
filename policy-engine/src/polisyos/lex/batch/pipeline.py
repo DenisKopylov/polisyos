@@ -551,15 +551,21 @@ def _check_structure_quality_gate(*, config: BatchConfig, stats: StructureQualit
 
 
 def _should_extract_spo_from_span(span: ProvisionSpan) -> bool:
+    high_precision_fallback = False
     if not span.text.strip():
         return False
     if span.is_fallback_chunk:
-        return False
+        subtype = (span.legal_unit_subtype or "").strip().lower()
+        high_precision_fallback = subtype in {"amendment_bundle", "approval_bundle"} and len(span.text) <= 3600
+        if not high_precision_fallback:
+            return False
     if (span.route_class or "").strip().lower() == "search_only":
         return False
-    if not span.fallback_allowed_for_reasoning:
+    if not span.fallback_allowed_for_reasoning and not high_precision_fallback:
         return False
-    if span.section_role in {"fallback_recall", "table_header", "appendix_section"}:
+    if span.section_role in {"table_header", "appendix_section"}:
+        return False
+    if span.section_role == "fallback_recall" and not high_precision_fallback:
         return False
     return True
 

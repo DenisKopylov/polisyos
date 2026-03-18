@@ -3,6 +3,7 @@ Tests for Method Discovery & Plugin System.
 """
 from __future__ import annotations
 
+import importlib
 import sys
 import textwrap
 import threading
@@ -33,7 +34,6 @@ from polisyos.foundry.methods.discovery import (
     EntryPointSource,
     FileSystemSource,
     MethodDiscovery,
-    bootstrap_registry,
     is_foundry_method,
 )
 from polisyos.foundry.methods.registry import MethodRegistry
@@ -969,117 +969,26 @@ class TestMethodDiscovery:
 
 
 # =============================================================================
-# Bootstrap integration tests
+# Legacy bootstrap removal tests
 # =============================================================================
 
 
-class TestBootstrapRegistry:
-    def test_bootstrap_with_no_plugins(self, fresh_registry) -> None:
-        with mock.patch(
-            "polisyos.foundry.methods.discovery.importlib.metadata.entry_points"
-        ) as mock_eps:
-            mock_eps.return_value = []
+class TestLegacyBootstrapRemoval:
+    def test_discovery_module_no_longer_exports_bootstrap_registry(self) -> None:
+        module = importlib.import_module("polisyos.foundry.methods.discovery")
 
-            report = bootstrap_registry(registry=fresh_registry)
+        assert not hasattr(module, "bootstrap_registry")
 
-            assert report.success is True
-            assert report.total_registered == 0
+    def test_public_methods_api_no_longer_exports_bootstrap_registry(self) -> None:
+        module = importlib.import_module("polisyos.foundry.methods")
 
-    def test_bootstrap_dev_mode(self, fresh_registry, tmp_path: Path) -> None:
-        method_file = tmp_path / "dev_method.py"
-        method_file.write_text(
-            textwrap.dedent(
-                """
-                from typing import Any, ClassVar, Mapping
-                from polisyos.foundry.methods.base import (
-                    MethodSignature,
-                    MethodMetadata,
-                    SlotSpec,
-                    SlotType,
-                    Unit,
-                    FidelityLevel,
-                    ComplexityClass,
-                )
+        assert not hasattr(module, "bootstrap_registry")
 
-                unit = Unit("none", "1")
+    def test_legacy_bootstrap_import_raises_import_error(self) -> None:
+        namespace: dict[str, object] = {}
 
-                class DevMethod:
-                    signature: ClassVar[MethodSignature] = MethodSignature(
-                        name="dev",
-                        namespace="test.dev",
-                        version="1.0.0",
-                        input_slots=frozenset({
-                            SlotSpec("x", SlotType.SCALAR, unit)
-                        }),
-                        output_slots=frozenset({
-                            SlotSpec("y", SlotType.SCALAR, unit)
-                        }),
-                        parameters=(),
-                        fidelity=FidelityLevel.LOW,
-                        complexity=ComplexityClass.O_1,
-                    )
-                    metadata: ClassVar[MethodMetadata] = MethodMetadata(
-                        description="Dev method"
-                    )
-
-                    @staticmethod
-                    def pure_step(state: Any, params: Mapping[str, Any]) -> Any:
-                        return state
-                """
-            )
-        )
-
-        with mock.patch(
-            "polisyos.foundry.methods.discovery.importlib.metadata.entry_points"
-        ) as mock_eps:
-            mock_eps.return_value = []
-
-            report = bootstrap_registry(
-                registry=fresh_registry,
-                dev_mode=True,
-                dev_paths=[tmp_path],
-            )
-
-            assert report.total_registered >= 0
-
-    def test_bootstrap_custom_entry_point_group(self, fresh_registry) -> None:
-        method = create_test_method("custom_ep", "custom.group")
-
-        mock_ep = mock.MagicMock()
-        mock_ep.name = "custom"
-        mock_ep.value = "custom:method"
-        mock_ep.load.return_value = method
-
-        with mock.patch(
-            "polisyos.foundry.methods.discovery.importlib.metadata.entry_points"
-        ) as mock_eps:
-            def selective_eps(group=None):
-                if group == "my.custom.group":
-                    return [mock_ep]
-                return []
-
-            mock_eps.side_effect = selective_eps
-
-            report = bootstrap_registry(
-                registry=fresh_registry,
-                entry_point_group="my.custom.group",
-            )
-
-            assert report.total_registered == 1
-
-    def test_bootstrap_uses_singleton_by_default(self) -> None:
-        MethodRegistry.reset_instance()
-
-        with mock.patch(
-            "polisyos.foundry.methods.discovery.importlib.metadata.entry_points"
-        ) as mock_eps:
-            mock_eps.return_value = []
-
-            report = bootstrap_registry()
-
-            assert report.success is True
-
-        MethodRegistry.reset_instance()
+        with pytest.raises(ImportError):
+            exec("from polisyos.foundry.methods.discovery import bootstrap_registry", {}, namespace)
 
 
 # =============================================================================

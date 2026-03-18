@@ -23,7 +23,7 @@ from .uncertainty import ConformalPredictionEstimator
 
 
 def ensure_ml_methods_registered(registry: MethodRegistry | None = None) -> None:
-    reg = registry or MethodRegistry.get_instance()
+    reg = registry if registry is not None else MethodRegistry.get_instance()
     for method_class in register_ml_methods():
         try:
             reg.register(method_class)

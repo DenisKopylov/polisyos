@@ -452,6 +452,10 @@ class DifferenceInDifferences:
             ),
             "stable_composition": "Group composition is stable over analysis horizon.",
         },
+        when_to_use="Quasi-experimental design with panel/repeated cross-section data; parallel trends assumption",
+        when_not_to_use="Treatment and control have diverging pre-trends; no pre-period data; spillovers contaminate control",
+        typical_min_obs=50,
+        output_interpretation="ATT: Average Treatment Effect on the Treated. Parallel trends test: pre-period DiD should be ~0.",
     )
 
     @staticmethod
@@ -522,6 +526,10 @@ class StandardDifferenceInDifferences:
         citations=DifferenceInDifferences.metadata.citations,
         equations={"did_2x2": DifferenceInDifferences.metadata.equations["did_2x2"]},
         assumptions=DifferenceInDifferences.metadata.assumptions,
+        when_to_use="Quasi-experimental design with panel/repeated cross-section data; parallel trends assumption",
+        when_not_to_use="Treatment and control have diverging pre-trends; no pre-period data; spillovers contaminate control",
+        typical_min_obs=50,
+        output_interpretation="ATT: Average Treatment Effect on the Treated. Parallel trends test: pre-period DiD should be ~0.",
     )
 
     @staticmethod
@@ -578,6 +586,10 @@ class StaggeredDifferenceInDifferences:
         citations=DifferenceInDifferences.metadata.citations,
         equations=DifferenceInDifferences.metadata.equations,
         assumptions=DifferenceInDifferences.metadata.assumptions,
+        when_to_use="Quasi-experimental design with panel/repeated cross-section data; parallel trends assumption",
+        when_not_to_use="Treatment and control have diverging pre-trends; no pre-period data; spillovers contaminate control",
+        typical_min_obs=50,
+        output_interpretation="ATT: Average Treatment Effect on the Treated. Parallel trends test: pre-period DiD should be ~0.",
     )
 
     @staticmethod

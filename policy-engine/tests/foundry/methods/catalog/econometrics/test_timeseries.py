@@ -46,14 +46,14 @@ def test_arima_runs() -> None:
 
     ensure_econometric_methods_registered()
     registry = MethodRegistry.get_instance()
-    method_cls = registry.get("econometrics.timeseries.time_series@1.0.0")
+    method_cls = registry.get("econometrics.timeseries.arima@1.0.0")
 
     dispatcher = MethodDispatcher.get_instance()
     dispatched = dispatcher.dispatch(
         method_class=method_cls,
         signature=method_cls.signature,
         state=TimeSeriesData(endog=_make_arima_series()),
-        params={"model": "arima", "p": 1, "d": 0, "q": 0},
+        params={"p": 1, "d": 0, "q": 0},
         seed=10,
     )
 
@@ -69,14 +69,14 @@ def test_var_runs() -> None:
 
     ensure_econometric_methods_registered()
     registry = MethodRegistry.get_instance()
-    method_cls = registry.get("econometrics.timeseries.time_series@1.0.0")
+    method_cls = registry.get("econometrics.timeseries.var@1.0.0")
 
     dispatcher = MethodDispatcher.get_instance()
     dispatched = dispatcher.dispatch(
         method_class=method_cls,
         signature=method_cls.signature,
         state=TimeSeriesData(endog=_make_var_series()),
-        params={"model": "var", "max_lags": 4, "information_criterion": "aic"},
+        params={"max_lags": 4, "information_criterion": "aic"},
         seed=12,
     )
 

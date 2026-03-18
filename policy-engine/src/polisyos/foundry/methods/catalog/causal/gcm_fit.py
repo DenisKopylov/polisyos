@@ -66,6 +66,85 @@ def _fit_linear_ols(y: np.ndarray, x: np.ndarray, parent_names: list[str]) -> di
     }
 
 
+def _fit_additive_noise_poly(
+    y: np.ndarray,
+    x: np.ndarray,
+    parent_names: list[str],
+    *,
+    degree: int = 2,
+) -> dict[str, Any]:
+    """Fit an additive-noise model Y = f(pa_Y) + U using polynomial regression.
+
+    Stores both the linear (OLS) params (for backward-compatible prediction via
+    ``_linear_predict``) and the higher-degree polynomial coefficients.  The
+    linear params serve as a first-order approximation; downstream abduction
+    uses the residual U = Y − f_poly(pa_Y) for a better noise estimate.
+
+    Parameters
+    ----------
+    y:
+        1-D outcome array.
+    x:
+        2-D parent data array of shape (n_obs, n_parents).
+    parent_names:
+        Ordered list of parent variable names matching columns of *x*.
+    degree:
+        Polynomial degree for the non-linear f().  Default 2 (quadratic).
+
+    Returns
+    -------
+    dict
+        ``family_params`` payload compatible with
+        :class:`~polisyos.ir.analytics.structural_causal_model.MechanismFamily.ADDITIVE_NOISE`.
+    """
+    n_parents = x.shape[1] if x.ndim == 2 else 0
+
+    # --- Linear baseline (always computed, used as fallback) -----------------
+    ols_params = _fit_linear_ols(y, x, parent_names)
+
+    if n_parents == 0 or degree <= 1:
+        # No parents or linear-only: degenerate additive noise == OLS
+        return {**ols_params, "fit_mode": "additive_noise_linear"}
+
+    # --- Polynomial design matrix -------------------------------------------
+    # For simplicity: degree-d Vandermonde expansion of each parent separately,
+    # then concatenate (no cross-terms).  This keeps the design interpretable
+    # and serialisable as plain lists.
+    poly_cols: list[np.ndarray] = [np.ones(y.shape[0])]
+    poly_feature_names: list[str] = ["__intercept__"]
+    for i, name in enumerate(parent_names):
+        col = x[:, i]
+        for d in range(1, degree + 1):
+            poly_cols.append(col ** d)
+            poly_feature_names.append(f"{name}^{d}")
+    design_poly = np.column_stack(poly_cols)
+
+    try:
+        coeff_poly = np.linalg.lstsq(design_poly, y, rcond=None)[0]
+    except np.linalg.LinAlgError:
+        # Degenerate: fall back to linear OLS
+        return {**ols_params, "fit_mode": "additive_noise_linear"}
+
+    fitted_poly = design_poly @ coeff_poly
+    residual_poly = y - fitted_poly
+    noise_std_poly = float(np.std(residual_poly))
+
+    return {
+        # Linear params kept for backward-compatible _linear_predict calls
+        "intercept": float(ols_params["intercept"]),
+        "coefficients": ols_params["coefficients"],
+        "noise_std": noise_std_poly,  # poly residual std (better for abduction)
+        "design_rank": int(np.linalg.matrix_rank(design_poly)),
+        "fit_mode": "additive_noise_poly",
+        # Polynomial coefficients for exact residual computation
+        "poly_degree": int(degree),
+        "poly_coefficients": {
+            name: float(coeff_poly[idx])
+            for idx, name in enumerate(poly_feature_names)
+        },
+    }
+
+
 def _empirical_params(y: np.ndarray) -> dict[str, Any]:
     return {
         "mean": float(np.mean(y)),
@@ -200,6 +279,7 @@ class HybridSCMFit:
                     name="scm_fit_data",
                     slot_type=SlotType.MATRIX,
                     unit=Unit("observations", "rows"),
+                    shape=("n_obs", "n_features"),
                 )
             }
         ),
@@ -235,6 +315,10 @@ class HybridSCMFit:
             ),
             "law_h": "Mechanism params must remain JSON-serializable.",
         },
+        when_to_use="Fit Graphical Causal Model to data given known DAG structure; estimate mechanisms for causal queries",
+        when_not_to_use="DAG unknown and no prior to guide structure; no software dependency on dowhy-gcm",
+        typical_min_obs=200,
+        output_interpretation="Fitted causal mechanisms (noise models) per node. Use downstream for counterfactual/attribution queries.",
     )
 
     @staticmethod

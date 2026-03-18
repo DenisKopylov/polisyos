@@ -51,13 +51,13 @@ class AgingMechanism(Mechanism):
         age_years = new_age // self.steps_per_year
 
         in_fertile = (age_years >= self.fertility_start) & (age_years <= self.fertility_end)
-        peak = 0.5 * (self.fertility_start + self.fertility_end)
-        age_from_peak = jnp.abs(age_years - peak)
-        fertility_factor = jnp.exp(-0.01 * age_from_peak**2)
+        peak = jnp.float32(0.5 * (self.fertility_start + self.fertility_end))
+        age_from_peak = jnp.abs(age_years.astype(jnp.float32) - peak)
+        fertility_factor = jnp.exp(jnp.float32(-0.01) * age_from_peak**2)
         new_fertility = jnp.where(
             in_fertile & active,
-            self.peak_fertility * fertility_factor,
-            0.0,
+            jnp.float32(self.peak_fertility) * fertility_factor,
+            jnp.float32(0.0),
         )
 
         new_retired = (age_years >= self.retirement_age) & active

@@ -9,7 +9,8 @@ from polisyos.lex.batch.doc_family import classify_doc_family, infer_doc_type_ca
 
 _AMENDMENT_RE = re.compile(
     r"(внести\s+зміни|внесення\s+змін|викласти\s+у\s+(?:такій|новій)\s+редакції|"
-    r"доповнити|доповнення|замінити\s+слов(?:а|ами)|виключити|"
+    r"доповнити|доповнення|доповнено|замінити\s+слов(?:о|а|ами)|"
+    r"слова?\s+\"?[^\"]+\"?\s+замінити|виключити|виключено|"
     r"визнати\s+(?:таким|такими).+?чинність|скасувати)",
     re.IGNORECASE,
 )
@@ -61,6 +62,33 @@ _APPLICATION_BULLET_RE = re.compile(
 _FORM_PLACEHOLDER_RE = re.compile(
     r"(вноситься\s+потрібне|вписується\s+потрібне|потрібне\s+підкреслити|"
     r"непотрібне\s+закреслити|\(\s*дата\s*\)|\bм\.\s*п\.\b)",
+    re.IGNORECASE,
+)
+_FORM_FIELD_LABEL_RE = re.compile(
+    r"^(?:дата|примітки|реєстраційний\s+номер|контрольна\s+сума\s+звіту|"
+    r"контактна\s+особа(?:\s+з\s+питань\s+складеного\s+звіту)?|"
+    r"посада(?:,?\s*підрозділ)?|прізвище,?\s*ім['’`ʼ]я,?\s*по\s+батькові|"
+    r"міжміський\s+код,?\s*телефон,?\s*факс|e-mail|статутний\s+капітал|"
+    r"номінальна\s+вартість|частка\s+привілейованих\s+акцій|"
+    r"сумарна\s+вартість\s+непогашених\s+облігацій|дата\s+прийняття\s+звіту|"
+    r"попередній\s+звіт\s+зареєстровано\s+за\s+номером)\b",
+    re.IGNORECASE,
+)
+_REGISTRY_TITLE_RE = re.compile(
+    r"^(?:перелік|список|реєстр|номенклатура|класифікатор|збірник|схема)\b",
+    re.IGNORECASE,
+)
+_SETTLEMENT_ITEM_RE = re.compile(
+    r"(?:(?:^|\s)\d+\s*)?(?:с\.|смт|м\.|місто)\s*[А-ЯІЇЄҐ][^0-9,;]{1,40}",
+    re.IGNORECASE,
+)
+_AREA_HEADER_RE = re.compile(
+    r"^(?:[А-ЯІЇЄҐ][а-яіїєґ'’`ʼ-]+(?:\s+[А-ЯІЇЄҐ][а-яіїєґ'’`ʼ-]+){0,3}\s+"
+    r"(?:область|район)|ЗОНА\s+[А-ЯІЇЄҐA-Z'’`ʼ -]+)$",
+    re.IGNORECASE,
+)
+_SALARY_TABLE_RE = re.compile(
+    r"(посадов(?:ий|ого)\s+оклад|окладів|ставка|тариф|гривень|грн\b)",
     re.IGNORECASE,
 )
 _THRESHOLD_MULTI_RE = re.compile(
@@ -156,9 +184,42 @@ def detect_legal_unit_subtype(
     compact = _compact(text)
     lower = compact.lower()
     title = (doc_title or "").strip()
+    title_lower = title.lower()
+    threshold_like = False
+    if struct_kind == "table_row":
+        threshold_like = bool(_THRESHOLD_RE.search(compact) or _THRESHOLD_MULTI_RE.match(compact) or _THRESHOLD_STRONG_RE.search(compact))
+    elif struct_kind in {"paragraph", "enumeration_item"}:
+        threshold_like = bool(_THRESHOLD_MULTI_RE.match(compact) or _THRESHOLD_STRONG_RE.search(compact))
 
     if not compact:
         return "table_scaffold"
+    if section_role in {"appendix_header", "table_header", "attachment_inventory", "questionnaire_item", "form_field", "decorative_separator"}:
+        if section_role == "attachment_inventory":
+            return "inventory_only"
+        return "table_scaffold"
+    if section_role in {"form_header", "signature_block"}:
+        if threshold_like and _SALARY_TABLE_RE.search(compact):
+            return "tariff_threshold_row"
+        return "form_scaffold"
+    if section_role == "composition_member":
+        return "composition_list"
+    if (
+        doc_family == "appendix_heavy"
+        and not _NORMATIVE_RE.search(compact)
+        and not _AMENDMENT_RE.search(compact)
+        and not _APPLICATION_RE.search(compact)
+    ):
+        settlement_hits = len(_SETTLEMENT_ITEM_RE.findall(compact))
+        if (
+            _REGISTRY_TITLE_RE.match(compact)
+            or _AREA_HEADER_RE.match(compact)
+            or settlement_hits >= 1
+        ):
+            return "registry_catalog_row"
+        if _FORM_FIELD_LABEL_RE.match(compact) or (compact.endswith(":") and len(compact.split()) <= 10):
+            return "form_scaffold"
+        if section_role == "procedure" and len(compact.split()) <= 14 and not threshold_like:
+            return "form_scaffold"
     if _FORM_PLACEHOLDER_RE.search(compact):
         return "form_scaffold"
     if _AMENDMENT_RE.search(compact):
@@ -167,11 +228,6 @@ def detect_legal_unit_subtype(
         "додат" in lower or "положення" in lower or "порядок" in lower or title
     ):
         return "approval_bundle"
-    threshold_like = False
-    if struct_kind == "table_row":
-        threshold_like = bool(_THRESHOLD_RE.search(compact) or _THRESHOLD_MULTI_RE.match(compact) or _THRESHOLD_STRONG_RE.search(compact))
-    elif struct_kind in {"paragraph", "enumeration_item"}:
-        threshold_like = bool(_THRESHOLD_MULTI_RE.match(compact) or _THRESHOLD_STRONG_RE.search(compact))
     if threshold_like:
         return "tariff_threshold_row"
     if doc_family == "appendix_heavy" and (_APPLICATION_RE.search(compact) or _APPLICATION_BULLET_RE.match(compact)):

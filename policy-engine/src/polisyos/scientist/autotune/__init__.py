@@ -33,6 +33,11 @@ from .runtime import (
     SearchLoopRunner,
     seed_loop_baseline,
 )
+from .execution_plan import (
+    CapabilityAwareExecutionPlanCandidateGenerator,
+    build_execution_plan_generation_context,
+    suggest_execution_plan_topology_mutations,
+)
 
 __all__ = [
     "BenchmarkEvaluation",
@@ -40,6 +45,8 @@ __all__ = [
     "BenchmarkSplitManifest",
     "BenchmarkSuite",
     "BenchmarkedEvaluator",
+    "CapabilityAwareExecutionPlanCandidateGenerator",
+    "build_execution_plan_generation_context",
     "ChampionBackedRuntimeLoader",
     "ChampionPointer",
     "ChampionRegistry",
@@ -52,6 +59,7 @@ __all__ = [
     "SequenceCandidateGenerator",
     "SearchLoopRunner",
     "SearchLoopSpec",
+    "suggest_execution_plan_topology_mutations",
     "default_cas_root",
     "default_search_registry_root",
     "default_store",

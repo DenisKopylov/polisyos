@@ -81,6 +81,9 @@ class PCAEstimator:
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Principal component decomposition for tabular features.",
         tags=frozenset({"ml", "decomposition", "pca"}),
+        when_to_use="Dimensionality reduction; decorrelation of features; visualization of high-dimensional data",
+        when_not_to_use="Non-linear structure (use UMAP/t-SNE); non-negative data where parts matter (use NMF)",
+        output_interpretation="Explained variance ratio per component. Loadings show variable contributions. Biplot for interpretation.",
     )
 
     @staticmethod

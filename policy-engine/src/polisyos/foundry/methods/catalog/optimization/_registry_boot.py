@@ -2,10 +2,13 @@ from __future__ import annotations
 
 from typing import Sequence
 
+from .advanced_stochastic import BilevelOptimizationEstimator, ChanceConstrainedEstimator
+from .combinatorial import KnapsackEstimator, VehicleRoutingEstimator
 from .convex import QuadraticProgramEstimator, RobustOptimizationEstimator
-from .io_model import InputOutputLeontiefModel, LeontiefInputOutput
-from .lp import LinearResourceLP, ResourceLP
-from .milp import BudgetMILP, IntegerBudgetMILP
+from .game_theory import NashEquilibriumEstimator
+from .io_model import LeontiefInputOutput
+from .lp import ResourceLP
+from .milp import BudgetMILP
 from .multiobjective import MultiObjectiveNSGA2Estimator
 from .sequential import (
     DynamicProgrammingEstimator,
@@ -17,17 +20,19 @@ from .sequential import (
 def register_optimization_methods() -> Sequence[type]:
     return (
         BudgetMILP,
-        IntegerBudgetMILP,
         ResourceLP,
-        LinearResourceLP,
         LeontiefInputOutput,
-        InputOutputLeontiefModel,
         QuadraticProgramEstimator,
         RobustOptimizationEstimator,
         MultiObjectiveNSGA2Estimator,
         SecondOrderConeProgramEstimator,
         TwoStageStochasticProgramEstimator,
         DynamicProgrammingEstimator,
+        KnapsackEstimator,
+        VehicleRoutingEstimator,
+        NashEquilibriumEstimator,
+        BilevelOptimizationEstimator,
+        ChanceConstrainedEstimator,
     )
 
 

@@ -4,7 +4,6 @@ import math
 from typing import Any, ClassVar, Mapping
 
 import numpy as np
-from sklearn.linear_model import Ridge
 
 from polisyos.core.observability.determinism import DeterminismTier
 from polisyos.foundry.methods.base import (
@@ -108,6 +107,10 @@ class TabularTransformerEstimator:
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Transformer-style tabular regressor using a self-attention encoder with a ridge head.",
         tags=frozenset({"ml", "deep-learning", "tabular-transformer"}),
+        when_to_use="Sequence modeling with long-range dependencies; NLP tasks; tabular data with attention",
+        when_not_to_use="Very small datasets (<50 obs); need simple interpretable model; no GPU available for large models",
+        output_interpretation="Task-specific output (classification logits, regression values, generated text). Attention weights for interpretability.",
+        typical_min_obs=50,
     )
 
     @staticmethod
@@ -137,6 +140,7 @@ class TabularTransformerEstimator:
         fit_kwargs: dict[str, Any] = {}
         if data.sample_weight is not None:
             fit_kwargs["sample_weight"] = np.asarray(data.sample_weight, dtype=float)
+        from sklearn.linear_model import Ridge  # noqa: PLC0415
         head = Ridge(alpha=ridge_alpha)
         head.fit(encoded, y_raw, **fit_kwargs)
         predictions = np.asarray(head.predict(encoded), dtype=float)

@@ -6,9 +6,9 @@
 
 ## Роль в системе
 
-`agent_sim` покрывает микроуровень (поведение агентов, обучение, демография, сетевые эффекты) и работает как отдельный execution contour.
+`agent_sim` покрывает микроуровень (поведение агентов, обучение, демография, сетевые эффекты) и остается специализированным execution contour для low-level ABM/RL задач.
 
-Это параллельный стек к Trinity-пайплайну `foundry.compile -> foundry.execute`, а не его замена.
+В Foundry V2 его canonical registry/discovery surface публикуется через `simulation.*` methods; direct `agent_sim` API нужен там, где важны training loops, кастомные executors и исследовательские прогоны.
 
 ## Слои исполнения
 

@@ -3,7 +3,7 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from polisyos.foundry.methods.econometrics.protocols import (
+from polisyos.foundry.methods.catalog.econometrics.protocols import (
     EconometricResult,
     PanelData,
     TimeSeriesData,

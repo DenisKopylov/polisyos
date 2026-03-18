@@ -39,7 +39,7 @@
 
 - Основной реестр строится через `register_causal_methods()` из `_registry_boot.py`.
 - `ensure_causal_methods_registered()` в `__init__.py` регистрирует методы idempotent-путем.
-- Legacy импорт `polisyos.foundry.methods.causal.*` сохранен как facade и реэкспортирует этот каталог.
+- Публичный flat import поддерживается через пакет `polisyos.foundry.methods.causal`, но deep shim-пути удалены.
 
 ## Runtime capability contract
 

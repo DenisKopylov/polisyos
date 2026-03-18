@@ -131,6 +131,10 @@ class ElasticNetEstimator:
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Elastic Net regression with cross-validated regularization.",
         tags=frozenset({"ml", "regression", "elastic-net"}),
+        when_to_use="Sparse linear regression; variable selection under multicollinearity; regularized coefficient estimates",
+        when_not_to_use="Nonlinear relationships; very large feature spaces with complex interactions (use tree methods)",
+        output_interpretation="Coefficients with magnitude indicating importance. Alpha and l1_ratio selected by CV. Zero coefficients = excluded variables.",
+        typical_min_obs=50,
     )
 
     @staticmethod
@@ -209,6 +213,10 @@ class RandomForestEstimator:
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Random forest regression baseline with feature importance.",
         tags=frozenset({"ml", "regression", "random-forest"}),
+        when_to_use="Nonlinear regression/classification; variable importance; robust to outliers and irrelevant features",
+        when_not_to_use="Extrapolation beyond training data range; need highly interpretable linear coefficients",
+        output_interpretation="Feature importances (Gini/permutation). OOB error as unbiased generalization estimate.",
+        typical_min_obs=100,
     )
 
     @staticmethod
@@ -292,6 +300,10 @@ class GradientBoostingEstimator:
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Gradient boosting regression baseline for tabular prediction.",
         tags=frozenset({"ml", "regression", "gradient-boosting"}),
+        when_to_use="Tabular data; often best single model; handles missing values natively",
+        when_not_to_use="Small datasets (<100 obs) where overfitting is likely; need fast inference",
+        output_interpretation="SHAP values for feature attribution. Partial dependence plots for marginal effects.",
+        typical_min_obs=100,
     )
 
     @staticmethod

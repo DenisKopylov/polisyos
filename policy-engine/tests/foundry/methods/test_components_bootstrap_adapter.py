@@ -1,9 +1,18 @@
 from __future__ import annotations
 
+from dataclasses import dataclass
 from typing import Any, Mapping
 
-import pytest
-
+from polisyos.core.components import (
+    Capability,
+    ComponentEntry,
+    ComponentId,
+    ComponentKind,
+    ComponentMetadata,
+    ComponentRegistry,
+)
+from polisyos.core.components.discovery import DiscoverySourceInfo
+from polisyos.foundry.methods.components_bridge import bootstrap_method_registry_from_components
 from polisyos.foundry.methods.base import (
     ComplexityClass,
     FidelityLevel,
@@ -13,7 +22,6 @@ from polisyos.foundry.methods.base import (
     SlotType,
     Unit,
 )
-from polisyos.foundry.methods.discovery import bootstrap_registry
 from polisyos.foundry.methods.registry import MethodRegistry
 
 
@@ -44,46 +52,46 @@ def _legacy_method_class() -> type:
     return LegacyMethod
 
 
-class _FakeEntryPoint:
-    def __init__(self, *, name: str, value: str, loaded: object) -> None:
-        self.name = name
-        self.value = value
-        self._loaded = loaded
+@dataclass(frozen=True)
+class _LegacyMethodComponent:
+    metadata: ComponentMetadata
+    method_class: type
 
-    def load(self) -> object:
-        return self._loaded
+    def create(self) -> type:
+        return self.method_class
 
 
-def test_bootstrap_registry_legacy_adapter_via_components(monkeypatch) -> None:
+def test_components_bridge_registers_methods_without_legacy_bootstrap_adapter() -> None:
     MethodRegistry.reset_instance()
     registry = MethodRegistry.get_instance()
 
-    legacy_method = _legacy_method_class()
-
-    def _entry_points(*, group: str | None = None):
-        if group == "my.legacy.group":
-            return [
-                _FakeEntryPoint(
-                    name="legacy.sample",
-                    value="legacy.sample:method",
-                    loaded=legacy_method,
-                )
-            ]
-        return []
-
-    monkeypatch.setattr(
-        "polisyos.foundry.methods.discovery.importlib.metadata.entry_points",
-        _entry_points,
+    method_class = _legacy_method_class()
+    metadata = ComponentMetadata(
+        component_id=ComponentId.parse("legacy.group.sample@1.0.0"),
+        kind=ComponentKind.FOUNDRY_METHOD,
+        abi_targets={"foundry_methods_api": ">=3.5.0,<4.0.0"},
+        domains=["legacy"],
+        jurisdictions=[],
+        tags=["legacy"],
+        capabilities=Capability.FOUNDRY_METHOD,
+        deps=[],
+        description="legacy test method",
+        display_name="LegacyMethod",
     )
 
-    with pytest.warns(DeprecationWarning):
-        report = bootstrap_registry(
-            registry=registry,
-            entry_point_group="my.legacy.group",
+    component_registry = ComponentRegistry()
+    component_registry.register(
+        ComponentEntry(
+            metadata=metadata,
+            component=_LegacyMethodComponent(metadata=metadata, method_class=method_class),
+            source=DiscoverySourceInfo(source_type="entry_point", location="test"),
         )
+    )
+
+    report = bootstrap_method_registry_from_components(component_registry, registry)
 
     assert report.errors == []
-    assert "legacy.group.sample@1.0.0" in report.registered
+    assert report.registered == ["legacy.group.sample@1.0.0"]
 
     resolved = registry.get("legacy.group.sample@1.0.0")
     assert resolved.signature.fqn == "legacy.group.sample@1.0.0"

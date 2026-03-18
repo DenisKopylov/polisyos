@@ -5,12 +5,12 @@ import pytest
 
 from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
 from polisyos.foundry.methods.backends.solver_runner import SolverRunner
-from polisyos.foundry.methods.optimization.io_model import LeontiefInputOutput
-from polisyos.foundry.methods.optimization.lp import ResourceLP
-from polisyos.foundry.methods.optimization.milp import BudgetMILP
-from polisyos.foundry.methods.optimization.protocols import (
+from polisyos.foundry.methods.optimization import (
     AllocationItem,
+    BudgetMILP,
+    LeontiefInputOutput,
     OptimizationProblem,
+    ResourceLP,
     ResourceConstraint,
 )
 

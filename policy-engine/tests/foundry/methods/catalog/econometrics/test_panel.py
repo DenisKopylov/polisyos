@@ -51,7 +51,7 @@ def test_panel_fixed_effects_drops_time_invariant_feature() -> None:
 
     ensure_econometric_methods_registered()
     registry = MethodRegistry.get_instance()
-    method_cls = registry.get("econometrics.panel.panel_data@1.0.0")
+    method_cls = registry.get("econometrics.panel.fixed_effects@1.0.0")
 
     dispatcher = MethodDispatcher.get_instance()
     data = _make_panel_data()
@@ -59,7 +59,7 @@ def test_panel_fixed_effects_drops_time_invariant_feature() -> None:
         method_class=method_cls,
         signature=method_cls.signature,
         state=data,
-        params={"model": "fixed_effects", "cov_type": "robust"},
+        params={"cov_type": "robust"},
         seed=42,
     )
 
@@ -77,14 +77,14 @@ def test_panel_random_effects_runs() -> None:
 
     ensure_econometric_methods_registered()
     registry = MethodRegistry.get_instance()
-    method_cls = registry.get("econometrics.panel.panel_data@1.0.0")
+    method_cls = registry.get("econometrics.panel.random_effects@1.0.0")
 
     dispatcher = MethodDispatcher.get_instance()
     dispatched = dispatcher.dispatch(
         method_class=method_cls,
         signature=method_cls.signature,
         state=_make_panel_data(),
-        params={"model": "random_effects", "cov_type": "robust"},
+        params={"cov_type": "robust"},
         seed=7,
     )
 

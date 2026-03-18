@@ -19,11 +19,18 @@ from polisyos.foundry.methods.backends import (
 from polisyos.foundry.methods.base import (
     ComplexityClass,
     ComputeBackend,
+    DimExpr,
+    DimVar,
     FidelityLevel,
     FoundryMethod,
+    FoundryMethodBase,
+    MethodContracts,
+    MethodKind,
     MethodMetadata,
     MethodSignature,
     ParameterSpec,
+    Shape,
+    SideEffectProfile,
     SlotSpec,
     SlotType,
     Unit,
@@ -48,12 +55,12 @@ from polisyos.foundry.methods.discovery import (
     EntryPointSource,
     FileSystemSource,
     MethodDiscovery,
-    bootstrap_registry,
     is_foundry_method,
 )
 from polisyos.foundry.methods.exceptions import (
     ArtifactError,
     CompilationError,
+    ContractViolationError,
     CyclicDependencyError,
     FoundryMethodError,
     LawViolationError,
@@ -67,6 +74,18 @@ from polisyos.foundry.methods.exceptions import (
     SlotConnectionError,
     UnitMismatchError,
 )
+from polisyos.foundry.methods.lifecycle import (
+    LifecycleLog,
+    LifecycleManager,
+    MethodLifecycle,
+)
+from polisyos.foundry.methods.plan_optimizer import (
+    ComplexityClass as PlanComplexityClass,
+    ExecutionPlanOptimizer,
+    MethodCostModel,
+    NodeSchedule,
+    OptimizedPlan,
+)
 from polisyos.foundry.methods.linker import (
     LinkerConfig,
     LinkResult,
@@ -75,11 +94,19 @@ from polisyos.foundry.methods.linker import (
     check_linkable,
     link_methods,
 )
+from polisyos.foundry.methods.slot_schema import (
+    SLOT_SCHEMA_REGISTRY,
+    SlotSchema,
+    get_slot_schema,
+    is_semantically_compatible,
+    register_slot_schema,
+)
 from polisyos.foundry.methods.registry import (
     MethodEntry,
     MethodRegistry,
     RegistrySnapshot,
     get_registry,
+    registry_scope,
 )
 from polisyos.foundry.methods.resolution import (
     ResolutionPolicy,
@@ -87,7 +114,19 @@ from polisyos.foundry.methods.resolution import (
     compare_versions,
     find_compatible_versions,
     is_compatible_upgrade,
+    parse_pip_specifier,
+    resolve_by_specifier,
+    resolve_method_version,
     resolve_version,
+)
+from polisyos.foundry.methods.selection import (
+    MethodSelectionCriteria,
+    authoring_catalog_payload,
+    method_selection_payload,
+    rank_method_catalog_entries,
+    suggest_adapter_methods,
+    suggest_plan_node_alternatives,
+    suggest_alternative_methods,
 )
 from polisyos.foundry.methods.types.checker import (
     AdapterPlan,
@@ -154,6 +193,19 @@ from polisyos.foundry.methods.catalog_snapshot import (
     persist_method_catalog_snapshot,
 )
 from polisyos.foundry.methods.catalog import ensure_all_methods_registered
+from polisyos.foundry.methods.compat import (
+    BreakingChange,
+    BreakingChangeError,
+    SignatureDiff,
+    assert_no_breaking_changes,
+)
+from polisyos.foundry.methods.deprecation import (
+    DeprecationAudit,
+    DeprecationInfo,
+    MethodRetiredException,
+    deprecate_method,
+    tag_deprecated_in_registry,
+)
 from polisyos.foundry.methods.components_bridge import (
     ComponentsBridgeError,
     ComponentsBridgeReport,
@@ -163,12 +215,17 @@ from polisyos.foundry.methods.components_bridge import (
 __all__ = [
     "FoundryMethod",
     "ComputeBackend",
+    "MethodKind",
     "MethodSignature",
     "MethodMetadata",
+    "SideEffectProfile",
     "SlotSpec",
     "SlotType",
     "ParameterSpec",
     "Unit",
+    "DimVar",
+    "DimExpr",
+    "Shape",
     "FidelityLevel",
     "ComplexityClass",
     "foundry_method",
@@ -192,9 +249,19 @@ __all__ = [
     "ResolutionPolicy",
     "VersionConstraint",
     "resolve_version",
+    "resolve_by_specifier",
+    "resolve_method_version",
+    "parse_pip_specifier",
     "find_compatible_versions",
     "compare_versions",
     "is_compatible_upgrade",
+    "MethodSelectionCriteria",
+    "rank_method_catalog_entries",
+    "suggest_alternative_methods",
+    "suggest_adapter_methods",
+    "suggest_plan_node_alternatives",
+    "method_selection_payload",
+    "authoring_catalog_payload",
     "MethodEntry",
     "MethodRegistry",
     "RegistrySnapshot",
@@ -208,7 +275,6 @@ __all__ = [
     "EntryPointSource",
     "FileSystemSource",
     "MethodDiscovery",
-    "bootstrap_registry",
     "is_foundry_method",
     "AdapterPlan",
     "IncompatibilityReason",
@@ -272,6 +338,22 @@ __all__ = [
     "build_method_catalog_snapshot",
     "persist_method_catalog_snapshot",
     "ensure_all_methods_registered",
+    "ExecutionPlanOptimizer",
+    "MethodCostModel",
+    "NodeSchedule",
+    "OptimizedPlan",
+    "PlanComplexityClass",
+    # compat
+    "BreakingChange",
+    "BreakingChangeError",
+    "SignatureDiff",
+    "assert_no_breaking_changes",
+    # deprecation
+    "DeprecationAudit",
+    "DeprecationInfo",
+    "MethodRetiredException",
+    "deprecate_method",
+    "tag_deprecated_in_registry",
 ]
 
 if not _COMPILER_AVAILABLE:

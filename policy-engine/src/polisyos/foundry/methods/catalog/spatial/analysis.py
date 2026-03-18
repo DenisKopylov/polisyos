@@ -122,6 +122,9 @@ class MoranIEstimator:
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Global Moran's I test for spatial autocorrelation.",
         tags=frozenset({"spatial", "moran-i"}),
+        when_to_use="Test for spatial clustering; check spatial autocorrelation before regression",
+        when_not_to_use="No spatial weights matrix available; data are not spatially indexed",
+        output_interpretation="Moran's I ∈ [-1,1]. I>0 = positive spatial clustering. p-value from permutation test.",
     )
 
     @staticmethod
@@ -191,6 +194,10 @@ class GWREstimator:
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Geographically weighted regression using Gaussian kernel weights.",
         tags=frozenset({"spatial", "gwr"}),
+        when_to_use="Regression with spatially varying coefficients; explore local heterogeneity in policy effects",
+        when_not_to_use="Global homogeneous relationships; very small spatial datasets; bandwidth selection is unclear",
+        output_interpretation="Local coefficients map showing spatial variation. Compare to global OLS to assess non-stationarity.",
+        typical_min_obs=50,
     )
 
     @staticmethod
@@ -264,6 +271,10 @@ class SpatialDurbinEstimator:
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Spatial Durbin regression with outcome and feature spatial lags.",
         tags=frozenset({"spatial", "spatial-durbin"}),
+        when_to_use="Regression with spatial spillovers; spatial lag model for policy diffusion; SEM for spatial error",
+        when_not_to_use="No spatial structure; spatial weights uncertain; pure time-series data",
+        output_interpretation="ρ (spatial lag): spillover intensity. Direct + indirect (spillover) effects of each regressor.",
+        typical_min_obs=50,
     )
 
     @staticmethod
@@ -336,6 +347,9 @@ class GravityModelEstimator:
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Log-linear gravity model for trade, migration, or commuting flows.",
         tags=frozenset({"spatial", "gravity-model"}),
+        when_to_use="Model bilateral flows (trade, migration, commuting) as function of mass and distance",
+        when_not_to_use="Non-bilateral data; zero-inflated flows (use PPML); no distance information available",
+        output_interpretation="Distance decay coefficient: elasticity of flow to distance. Origin/destination elasticities: size effects. R² on log scale.",
     )
 
     @staticmethod
@@ -429,6 +443,9 @@ class AccessibilityIndexEstimator:
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Gravity-style accessibility index from origins to opportunities.",
         tags=frozenset({"spatial", "accessibility-index"}),
+        when_to_use="Measure spatial access to services (hospitals, jobs, schools); equity analysis of facility distribution",
+        when_not_to_use="No spatial coordinates; travel cost matrix unavailable; binary reachability sufficient",
+        output_interpretation="Accessibility score per origin: higher = better access. Decay parameter controls distance penalty. Useful for spatial equity mapping.",
     )
 
     @staticmethod

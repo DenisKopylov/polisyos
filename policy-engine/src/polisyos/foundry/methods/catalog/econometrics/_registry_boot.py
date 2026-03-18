@@ -22,22 +22,45 @@ from .expansion import (
     SyntheticDiDEstimator,
     VECMEstimator,
 )
-from .iv import GMMEstimator, InstrumentalVariablesEstimator, TwoStageLeastSquaresEstimator
-from .panel import FixedEffectsEstimator, PanelDataEstimator, RandomEffectsEstimator
-from .timeseries import ARIMAEstimator, TimeSeriesEstimator, VAREstimator
+from .count_data import (
+    NegativeBinomialEstimator,
+    PoissonRegressionEstimator,
+    ZeroInflatedPoissonEstimator,
+)
+from .discrete_choice import (
+    BLPEstimator,
+    LogitEstimator,
+    MixedLogitEstimator,
+    MultinomialLogitEstimator,
+    ProbitEstimator,
+)
+from .high_dimensional import (
+    PostDoubleSelectionEstimator,
+    PostLASSOEstimator,
+)
+from .factor_models import DynamicFactorModelEstimator, PrincipalComponentsEstimator
+from .iv import GMMEstimator, TwoStageLeastSquaresEstimator
+from .panel import FixedEffectsEstimator, RandomEffectsEstimator
+from .selection import (
+    HeckmanSelectionEstimator,
+    TobitEstimator,
+    TruncatedRegressionEstimator,
+)
+from .semiparametric import (
+    KernelRegressionEstimator,
+    RobinsonEstimator,
+)
+from .timeseries import ARIMAEstimator, VAREstimator
 
 
 def register_econometric_methods() -> Sequence[type]:
     return (
         FixedEffectsEstimator,
         RandomEffectsEstimator,
-        PanelDataEstimator,
         TwoStageLeastSquaresEstimator,
         GMMEstimator,
-        InstrumentalVariablesEstimator,
         ARIMAEstimator,
         VAREstimator,
-        TimeSeriesEstimator,
         QuantileRegressionEstimator,
         EventStudyEstimator,
         LocalProjectionsEstimator,
@@ -52,6 +75,25 @@ def register_econometric_methods() -> Sequence[type]:
         SarganHansenEstimator,
         CointegrationTestEstimator,
         ForecastBacktestEstimator,
+        # Phase 2 additions
+        LogitEstimator,
+        ProbitEstimator,
+        MultinomialLogitEstimator,
+        MixedLogitEstimator,
+        BLPEstimator,
+        HeckmanSelectionEstimator,
+        TobitEstimator,
+        TruncatedRegressionEstimator,
+        PoissonRegressionEstimator,
+        NegativeBinomialEstimator,
+        ZeroInflatedPoissonEstimator,
+        RobinsonEstimator,
+        KernelRegressionEstimator,
+        PostLASSOEstimator,
+        PostDoubleSelectionEstimator,
+        # Phase SOTA additions
+        PrincipalComponentsEstimator,
+        DynamicFactorModelEstimator,
     )
 
 

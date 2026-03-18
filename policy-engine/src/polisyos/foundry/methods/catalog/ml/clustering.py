@@ -84,6 +84,9 @@ class KMeansEstimator:
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="K-means clustering for segmentation of tabular observations.",
         tags=frozenset({"ml", "clustering", "kmeans"}),
+        when_to_use="Unsupervised grouping of units; identify latent population segments; input for targeting policy",
+        when_not_to_use="Non-spherical clusters; unknown k with no elbow; presence of outliers (use DBSCAN)",
+        output_interpretation="Cluster assignments + centroids. Silhouette score: >0.5 = good. Elbow in within-cluster SS for k selection.",
     )
 
     @staticmethod

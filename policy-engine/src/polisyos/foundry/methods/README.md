@@ -1,6 +1,6 @@
 # Methods (`polisyos.foundry.methods`)
 
-`methods` — подсистема Foundry для декларативных вычислительных методов: ABI, discovery/registry, композиция DAG-цепочек и multi-backend исполнение.
+`methods` — подсистема Foundry для декларативных вычислительных методов: ABI, unified registry/discovery, композиция DAG-цепочек, capability-aware selection и multi-backend исполнение.
 
 Актуально по коду на 2026-03-03.
 
@@ -22,7 +22,7 @@ FoundryMethod protocol
 
 - `base.py`: ABI (`FoundryMethod`, `MethodSignature`, `MethodMetadata`, `SlotSpec`, `ParameterSpec`) и `@foundry_method`.
 - `registry.py`: thread-safe singleton `MethodRegistry` с version resolution и query API.
-- `discovery.py`: bootstrap из entry points (`polisyos.methods`) и filesystem sources.
+- `discovery.py`: discovery utilities для entry points и dev filesystem scan; production bootstrap идет через `core.components`.
 - `linker.py`: проверка совместимости slot-ов (type/unit/shape) и построение bindings.
 - `composer.py`: DAG-композиция (`graphlib.TopologicalSorter`) и deterministic order.
 - `backends/*`: dispatch и запуск методов в JAX/NumPy/Solver окружениях.
@@ -31,19 +31,28 @@ FoundryMethod protocol
 
 ## Каталог методов
 
-Канонические реализации находятся в `methods/catalog/*`:
+Канонические реализации находятся только в `methods/catalog/*`:
 
 - `methods/catalog/causal/`
 - `methods/catalog/econometrics/`
 - `methods/catalog/optimization/`
+- `methods/catalog/simulation/`
+- `methods/catalog/survey/`
+- `methods/catalog/distributional/`
+- `methods/catalog/forecasting/`
+- `methods/catalog/validation/`
+- `methods/catalog/sensitivity/`
+- `methods/catalog/bayesian/`
+- `methods/catalog/spatial/`
 
 Навигация по каталогу: `methods/catalog/README.md`.
 Для крупного causal-каталога есть отдельный документ: `methods/catalog/causal/README.md`.
 
-## Совместимость после миграции
+## Public surface после V2
 
-- `methods/causal/*`, `methods/econometrics/*`, `methods/optimization/*` сохранены как compatibility facade.
-- Основной источник правды для новых реализаций и регистрации — `methods/catalog/*`.
+- Пакеты `polisyos.foundry.methods.causal`, `...econometrics`, `...optimization` остаются как flat public API.
+- Deep submodules вида `polisyos.foundry.methods.<domain>.<module>` удалены.
+- Bootstrap legacy API `bootstrap_registry(...)` удален; runtime должен идти через components index + methods bridge.
 
 ## Связь с Foundry и Scientist
 
@@ -55,7 +64,13 @@ FoundryMethod protocol
 
 - Много optional deps: `jax`, solver stack, `statsmodels`, `linearmodels`, `econml`, и др.
 - При отсутствии зависимостей часть методов доступна, а часть регистрируется условно.
-- Переходный слой совместимости сохраняет дублирующие import-path до завершения миграции.
+- Snapshot `schema_version=2.0` является canonical capability/runtime truth для planner и scientist.
+
+## Документы V2
+
+- `catalog/AUTHORING.md` — как добавлять новые методы.
+- `catalog/NAMING.md` — канонический FQN contract.
+- `catalog/MIGRATION_V2.md` — breaking migration note.
 
 ## Тестовый контур
 

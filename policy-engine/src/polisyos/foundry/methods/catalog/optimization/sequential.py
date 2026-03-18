@@ -108,6 +108,9 @@ class SecondOrderConeProgramEstimator:
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Second-order cone program with one L2 norm cone and linear side constraints.",
         tags=frozenset({"optimization", "convex", "socp"}),
+        when_to_use="Convex problems with quadratic cone constraints; robust linear programs; portfolio risk constraints",
+        when_not_to_use="Non-convex feasible set; problem has integer variables; linear relaxation suffices",
+        output_interpretation="Optimal solution satisfying cone and linear constraints. Objective value is globally optimal for convex SOCP.",
     )
 
     @staticmethod
@@ -213,6 +216,9 @@ class TwoStageStochasticProgramEstimator:
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Two-stage stochastic program with shortage recourse under discrete demand scenarios.",
         tags=frozenset({"optimization", "stochastic-program"}),
+        when_to_use="Optimization under uncertainty; resource planning with stochastic demand or costs",
+        when_not_to_use="Deterministic problem; uncertainty is irrelevant or negligible",
+        output_interpretation="Here-and-now decisions (1st stage) + recourse actions (2nd stage). EVPI = value of perfect information.",
     )
 
     @staticmethod
@@ -324,6 +330,9 @@ class DynamicProgrammingEstimator:
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Finite-horizon dynamic programming over discrete states and actions.",
         tags=frozenset({"optimization", "dynamic-programming"}),
+        when_to_use="Multi-period decisions with state transitions; optimal stopping, resource extraction, pension design",
+        when_not_to_use="State space too large (curse of dimensionality without approximation); no clear Markov structure",
+        output_interpretation="Value function V(s): expected future payoff from state s. Policy function π(s): optimal action in state s.",
     )
 
     @staticmethod
@@ -333,6 +342,9 @@ class DynamicProgrammingEstimator:
         transition = np.asarray(payload["transition_tensor"], dtype=float)
         initial_state = int(payload["initial_state"])
         gamma = float(params.get("discount_factor", 1.0))
+        rng = params.get("__rng__")
+        if rng is None:
+            rng = np.random.default_rng(int(params.get("__seed__", 0)))
 
         n_stages, n_states, n_actions = rewards.shape
         values = np.zeros((n_stages + 1, n_states), dtype=float)
@@ -354,7 +366,13 @@ class DynamicProgrammingEstimator:
             variables[f"stage_{stage}_action"] = float(action)
             variables[f"stage_{stage}_state"] = float(current_state)
             path_reward += float(rewards[stage, current_state, action]) * (gamma ** stage)
-            current_state = int(np.argmax(transition[stage, current_state, action]))
+            probs = np.asarray(transition[stage, current_state, action], dtype=float)
+            probs = np.clip(probs, 0.0, None)
+            total_mass = float(np.sum(probs))
+            if total_mass <= 0.0:
+                current_state = int(np.argmax(transition[stage, current_state, action]))
+            else:
+                current_state = int(rng.choice(n_states, p=probs / total_mass))
 
         result = OptimizationResult(
             status=SolverStatus.OPTIMAL,
@@ -368,6 +386,7 @@ class DynamicProgrammingEstimator:
                 "realized_discounted_reward": path_reward,
                 "terminal_state": current_state,
                 "value_function": values.tolist(),
+                "rollout_mode": "sampled_markov_path",
             },
         )
         return {"result": _serialize_result(result)}

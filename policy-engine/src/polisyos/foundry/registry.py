@@ -1,12 +1,10 @@
+import importlib
 import inspect
+from collections.abc import Iterator, Mapping as MappingABC
 from dataclasses import dataclass
-from typing import Any, Dict, Mapping, Type
+from typing import TYPE_CHECKING, Any, Mapping, Type
 
-from polisyos.foundry.agents import AdaptiveAgentMechanism
 from polisyos.foundry.contracts.fidelity import FidelityLevel as RuntimeFidelityLevel
-from polisyos.foundry.contracts.mechanism import Mechanism
-from polisyos.foundry.mechanisms import IncomeTax, LaborMarketMechanism, TaxSubsidy
-from polisyos.foundry.queue import QueueMechanism
 from polisyos.foundry.specs import (
     MECHANISM_SPECS,
     get_mechanism_spec,
@@ -16,53 +14,49 @@ from polisyos.foundry.specs import (
 from polisyos.ir.kernel import MechanismTypeSpec
 from polisyos.ir.model_spec import FidelityLevel as IRFidelityLevel
 
+if TYPE_CHECKING:  # pragma: no cover
+    from polisyos.foundry.contracts.mechanism import Mechanism
+
 
 @dataclass(frozen=True)
 class MechanismRuntimeDescriptor:
-    mechanism_class: Type[Mechanism]
+    mechanism_type: str
+    method_fqn: str
+    mechanism_class_path: str
     supported_fidelities: frozenset[RuntimeFidelityLevel]
     hybrid_default: RuntimeFidelityLevel
+
+    @property
+    def mechanism_class(self) -> Type[Any]:
+        mechanism_class = _load_symbol(self.mechanism_class_path)
+        if not inspect.isclass(mechanism_class):
+            raise TypeError(
+                "Runtime mechanism descriptor resolved a non-class object for "
+                f"'{self.mechanism_type}': {self.mechanism_class_path}"
+            )
+        return mechanism_class
 
 
 _ALL_RUNTIME_FIDELITIES = frozenset(RuntimeFidelityLevel)
 
-MECHANISM_REGISTRY: Dict[str, MechanismRuntimeDescriptor] = {
-    "adaptive_agent": MechanismRuntimeDescriptor(
-        mechanism_class=AdaptiveAgentMechanism,
-        supported_fidelities=_ALL_RUNTIME_FIDELITIES,
-        hybrid_default=RuntimeFidelityLevel.SURROGATE_FLUID,
-    ),
-    "tax_subsidy": MechanismRuntimeDescriptor(
-        mechanism_class=TaxSubsidy,
-        supported_fidelities=_ALL_RUNTIME_FIDELITIES,
-        hybrid_default=RuntimeFidelityLevel.SURROGATE_FLUID,
-    ),
-    "income_tax": MechanismRuntimeDescriptor(
-        mechanism_class=IncomeTax,
-        supported_fidelities=_ALL_RUNTIME_FIDELITIES,
-        hybrid_default=RuntimeFidelityLevel.SURROGATE_FLUID,
-    ),
-    "labor_market": MechanismRuntimeDescriptor(
-        mechanism_class=LaborMarketMechanism,
-        supported_fidelities=frozenset(
-            {
-                RuntimeFidelityLevel.SURROGATE_FLUID,
-                RuntimeFidelityLevel.RELAXED_DISCRETE,
-            }
-        ),
-        hybrid_default=RuntimeFidelityLevel.SURROGATE_FLUID,
-    ),
-    "queue": MechanismRuntimeDescriptor(
-        mechanism_class=QueueMechanism,
-        supported_fidelities=frozenset(
-            {
-                RuntimeFidelityLevel.SURROGATE_FLUID,
-                RuntimeFidelityLevel.RELAXED_DISCRETE,
-            }
-        ),
-        hybrid_default=RuntimeFidelityLevel.SURROGATE_FLUID,
-    ),
-}
+
+class _MechanismRegistryView(MappingABC[str, MechanismRuntimeDescriptor]):
+    """Compatibility view backed by the unified mechanism method catalog."""
+
+    def _mapping(self) -> dict[str, MechanismRuntimeDescriptor]:
+        return _runtime_registry_descriptors()
+
+    def __getitem__(self, key: str) -> MechanismRuntimeDescriptor:
+        return self._mapping()[key]
+
+    def __iter__(self) -> Iterator[str]:
+        return iter(self._mapping())
+
+    def __len__(self) -> int:
+        return len(self._mapping())
+
+
+MECHANISM_REGISTRY: MappingABC[str, MechanismRuntimeDescriptor] = _MechanismRegistryView()
 
 
 class MissingRuntimeMechanismSupportError(ValueError):
@@ -94,16 +88,17 @@ class UnsupportedRuntimeFidelityError(ValueError):
 
 
 def has_runtime_mechanism_support(mech_type: str) -> bool:
-    return mech_type in MECHANISM_REGISTRY
+    return mech_type in _runtime_registry_descriptors()
 
 
 def get_mechanism_descriptor(mech_type: str) -> MechanismRuntimeDescriptor:
-    if mech_type not in MECHANISM_REGISTRY:
+    descriptors = _runtime_registry_descriptors()
+    if mech_type not in descriptors:
         raise MissingRuntimeMechanismSupportError(mech_type)
-    return MECHANISM_REGISTRY[mech_type]
+    return descriptors[mech_type]
 
 
-def get_mechanism_class(mech_type: str) -> Type[Mechanism]:
+def get_mechanism_class(mech_type: str) -> Type[Any]:
     return get_mechanism_descriptor(mech_type).mechanism_class
 
 
@@ -136,7 +131,7 @@ def resolve_runtime_fidelity(
     return resolved
 
 
-def _init_kwargs(mech_cls: Type[Mechanism], kwargs: dict[str, Any]) -> dict[str, Any]:
+def _init_kwargs(mech_cls: Type[Any], kwargs: dict[str, Any]) -> dict[str, Any]:
     signature = inspect.signature(mech_cls.__init__)
     if any(param.kind == inspect.Parameter.VAR_KEYWORD for param in signature.parameters.values()):
         return kwargs
@@ -155,7 +150,7 @@ def create_mechanism(
     n_firms: int = 0,
     *,
     selected_fidelity: RuntimeFidelityLevel | str | None = None,
-) -> Mechanism:
+) -> Any:
     mechanism_type, params = _extract_intervention_fields(intervention)
     validate_mechanism_params(mechanism_type, params)
     descriptor = get_mechanism_descriptor(mechanism_type)
@@ -178,7 +173,7 @@ def create_mechanism_from_spec(
     *,
     mechanism_spec: MechanismTypeSpec | None = None,
     selected_fidelity: RuntimeFidelityLevel | str | None = None,
-) -> Mechanism:
+) -> Any:
     coerced = _coerce_params(params)
     validate_mechanism_params(mechanism_type, coerced, mechanism_spec=mechanism_spec)
     descriptor = get_mechanism_descriptor(mechanism_type)
@@ -250,6 +245,70 @@ def _extract_intervention_fields(intervention: Any) -> tuple[str, dict[str, Any]
     if not isinstance(params, dict):
         raise ValueError("Intervention params must be a dict")
     return mechanism_type, params
+
+
+def _runtime_registry_descriptors() -> dict[str, MechanismRuntimeDescriptor]:
+    from polisyos.foundry.methods.base import MethodKind
+    from polisyos.foundry.methods.catalog.mechanism import ensure_mechanism_methods_registered
+    from polisyos.foundry.methods.registry import MethodRegistry
+
+    registry = MethodRegistry.get_instance()
+    ensure_mechanism_methods_registered(registry)
+
+    descriptors: dict[str, MechanismRuntimeDescriptor] = {}
+    for signature in registry.list_all():
+        if signature.kind is not MethodKind.MECHANISM:
+            continue
+        method_class = registry.get(signature.fqn)
+        mechanism_type = str(getattr(method_class, "runtime_mechanism_type", "")).strip()
+        mechanism_class_path = str(
+            getattr(method_class, "runtime_mechanism_class_path", "")
+        ).strip()
+        if not mechanism_type or not mechanism_class_path:
+            continue
+        supported = _coerce_supported_fidelities(
+            getattr(method_class, "supported_runtime_fidelities", _ALL_RUNTIME_FIDELITIES)
+        )
+        hybrid_default = _coerce_runtime_fidelity_value(
+            getattr(
+                method_class,
+                "hybrid_default_runtime_fidelity",
+                RuntimeFidelityLevel.SURROGATE_FLUID,
+            )
+        )
+        descriptors[mechanism_type] = MechanismRuntimeDescriptor(
+            mechanism_type=mechanism_type,
+            method_fqn=signature.fqn,
+            mechanism_class_path=mechanism_class_path,
+            supported_fidelities=supported,
+            hybrid_default=hybrid_default,
+        )
+    return {key: descriptors[key] for key in sorted(descriptors)}
+
+
+def _coerce_supported_fidelities(values: Any) -> frozenset[RuntimeFidelityLevel]:
+    if isinstance(values, RuntimeFidelityLevel):
+        return frozenset({values})
+    if isinstance(values, str):
+        return frozenset({RuntimeFidelityLevel(str(values))})
+    try:
+        return frozenset(_coerce_runtime_fidelity_value(item) for item in values)
+    except TypeError:
+        return _ALL_RUNTIME_FIDELITIES
+
+
+def _coerce_runtime_fidelity_value(value: Any) -> RuntimeFidelityLevel:
+    if isinstance(value, RuntimeFidelityLevel):
+        return value
+    return RuntimeFidelityLevel(str(value))
+
+
+def _load_symbol(path: str) -> Any:
+    module_name, separator, symbol_name = str(path).partition(":")
+    if not separator or not module_name or not symbol_name:
+        raise ValueError(f"Invalid symbol path: {path!r}")
+    module = importlib.import_module(module_name)
+    return getattr(module, symbol_name)
 
 
 __all__ = [

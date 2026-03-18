@@ -15,4 +15,13 @@ def test_register_bayesian_methods_queryable() -> None:
     assert names == {
         "linear_regression",
         "autoregression",
+        "hierarchical",
+        "hmc",
+        "nuts",
+        "gaussian_mixture",
+        "dirichlet_process_mixture",
+        "gp_regression",
+        "sparse_gp_regression",
+        "bbvi",
+        "mean_field_vi",
     }

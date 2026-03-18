@@ -73,14 +73,14 @@ state_delta + metrics + state_snapshot + simulation_result
 - `compile/`, `execute/`, `executor.py`, `_executor_*.py`: фасады compile/execute и оркестрация ProgramGraph.
 - `data_plane/`: преобразование входных data snapshots в bound Foundry state.
 - `merge_engine.py`, `patch_vm.py`, `constraints_engine.py`, `conflict_checker.py`, `cost_model.py`: merge и guardrails.
-- `registry.py`, `mechanisms/`, `agents.py`, `queue.py`, `specs.py`: реестр механизмов и встроенные реализации.
+- `registry.py`, `mechanisms/`, `agents.py`, `queue.py`, `specs.py`: runtime bridge для механизмов и встроенные реализации; descriptor-слой собирается из `mechanism.runtime.*` методов, а не из отдельной hardcoded-карты.
 
 ### Прикладные подсистемы
 
 - `methods/`: typed method ABI, registry/discovery, DAG composition, backend dispatch.
 - `calibration/`: подстройка trainable-параметров по целевым рядам.
 - `uncertainty/`: propagation неопределенности (delta/monte-carlo).
-- `agent_sim/`: отдельный ABM/RL execution contour.
+- `agent_sim/`: низкоуровневая ABM/RL подсистема; canonical planning/runtime surface идет через `simulation.*` methods, а direct API остается для training-heavy и research сценариев.
 - `plugins/`: plugin-слой поверх `agent_sim` для multi-domain симуляций.
 - `analysis/`: пост-метрики распределительных эффектов.
 
@@ -93,7 +93,7 @@ state_delta + metrics + state_snapshot + simulation_result
 
 ## Встроенный реестр механизмов
 
-`registry.MECHANISM_REGISTRY` включает:
+`registry.MECHANISM_REGISTRY` теперь является compatibility-view поверх unified method catalog и резолвит runtime descriptors из `mechanism.runtime.*`:
 
 - `adaptive_agent`
 - `tax_subsidy`
@@ -136,6 +136,9 @@ Foundry используется в:
 - `calibration/README.md`
 - `methods/README.md`
 - `methods/catalog/README.md`
+- `methods/catalog/AUTHORING.md`
+- `methods/catalog/NAMING.md`
+- `methods/catalog/MIGRATION_V2.md`
 - `methods/catalog/causal/README.md`
 - `plugins/README.md`
 - `uncertainty/README.md`

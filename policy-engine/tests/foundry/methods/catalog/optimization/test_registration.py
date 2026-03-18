@@ -22,6 +22,12 @@ def test_register_optimization_methods_queryable() -> None:
         "socp",
         "two_stage_stochastic_program",
         "dynamic_programming",
+        # Phase 6d additions
+        "knapsack",
+        "vehicle_routing",
+        "nash_equilibrium",
+        "bilevel",
+        "chance_constrained",
     }
 
     fqns = {sig.fqn for sig in signatures}

@@ -3,14 +3,17 @@ from __future__ import annotations
 import json
 
 from polisyos.core.artifacts.store import FileSystemCAS
-from polisyos.core.contracts.execution_plan import MethodDagNode, PreflightDiagnostic, PreflightReport
+from polisyos.core.contracts.execution_plan import ExecutionPlan, MethodDagNode, PreflightDiagnostic, PreflightReport
+from polisyos.foundry.methods.catalog_snapshot import build_method_catalog_snapshot
 from polisyos.scientist.autotune import (
     BenchmarkSplitManifest,
     BenchmarkSuite,
+    CapabilityAwareExecutionPlanCandidateGenerator,
     ChampionRegistry,
     persist_benchmark_evaluation,
     persist_benchmark_suite,
     persist_mutation_artifact,
+    suggest_execution_plan_topology_mutations,
 )
 from polisyos.scientist.autotune.execution_plan import (
     ExecutionPlanBenchmarkEvaluator,
@@ -19,8 +22,10 @@ from polisyos.scientist.autotune.execution_plan import (
     TopologyMutation,
     TopologyMutationKind,
     default_execution_plan_policy,
+    execution_plan_search_loop_spec,
 )
 from polisyos.scientist.governance.report import GovernanceReport
+from polisyos.scientist.llm_cycle import preflight_execution_plan
 
 
 def _suite(tmp_path):
@@ -132,3 +137,73 @@ def test_execution_plan_promotion_is_blocked_when_new_blocker_appears(tmp_path) 
 
     assert evaluation.guardrails["no_new_blockers"] is False
     assert decision.promoted is False
+
+
+def test_suggest_execution_plan_topology_mutations_for_removed_wrapper() -> None:
+    snapshot = build_method_catalog_snapshot(run_id="R_exec_autotune")
+    config = ExecutionPlanSearchConfig(
+        method_dag=[
+            MethodDagNode(
+                node_id="node_lp",
+                method_fqn="optimization.resource_lp@1.0.0",
+                notes=["optional_leaf"],
+            )
+        ]
+    )
+    report = preflight_execution_plan(
+        ExecutionPlan(plan_id="plan_exec_autotune", method_dag=list(config.method_dag)),
+        snapshot,
+    )
+
+    mutations = suggest_execution_plan_topology_mutations(
+        config,
+        preflight_report=report,
+        catalog=snapshot,
+    )
+
+    assert any(
+        mutation.kind is TopologyMutationKind.SWAP_METHOD
+        and mutation.node_id == "node_lp"
+        and mutation.replacement_method_fqn == "optimization.linear.resource_lp@1.0.0"
+        for mutation in mutations
+    )
+    assert any(
+        mutation.kind is TopologyMutationKind.DROP_OPTIONAL_NODE
+        and mutation.node_id == "node_lp"
+        for mutation in mutations
+    )
+
+
+def test_capability_aware_generator_emits_topology_candidate_for_missing_method() -> None:
+    snapshot = build_method_catalog_snapshot(run_id="R_exec_autotune")
+    baseline_plan = ExecutionPlan(
+        plan_id="plan_exec_generator",
+        method_dag=[
+            MethodDagNode(
+                node_id="node_lp",
+                method_fqn="optimization.resource_lp@1.0.0",
+            )
+        ],
+    )
+    report = preflight_execution_plan(baseline_plan, snapshot)
+
+    payload = CapabilityAwareExecutionPlanCandidateGenerator().generate(
+        history=[],
+        current_best=None,
+        context={
+            "baseline_execution_plan": baseline_plan,
+            "catalog_snapshot": snapshot,
+            "preflight_report": report,
+        },
+    )
+    candidate = ExecutionPlanSearchConfig.model_validate(payload)
+
+    assert candidate.mode is ExecutionPlanSearchMode.TOPOLOGY_STEP
+    assert candidate.topology_mutation is not None
+    assert candidate.topology_mutation.kind is TopologyMutationKind.SWAP_METHOD
+    assert candidate.topology_mutation.replacement_method_fqn == "optimization.linear.resource_lp@1.0.0"
+
+
+def test_execution_plan_search_loop_defaults_to_capability_aware_generator() -> None:
+    spec = execution_plan_search_loop_spec()
+    assert isinstance(spec.candidate_generator, CapabilityAwareExecutionPlanCandidateGenerator)

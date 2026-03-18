@@ -82,6 +82,10 @@ class SurvivalAnalysisEstimator:
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Cox proportional hazards survival analysis for time-to-event outcomes.",
         tags=frozenset({"ml", "survival", "cox"}),
+        when_to_use="Time-to-event outcome with censoring; proportional hazards model; survival analysis",
+        when_not_to_use="Proportional hazards assumption violated; very short follow-up; no censoring present",
+        output_interpretation="Hazard ratios: HR=1.5 means 50% higher instantaneous event risk. Test PH assumption (Schoenfeld residuals).",
+        typical_min_obs=50,
     )
 
     @staticmethod

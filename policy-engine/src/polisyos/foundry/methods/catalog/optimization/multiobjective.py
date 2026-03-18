@@ -85,6 +85,9 @@ class MultiObjectiveNSGA2Estimator:
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="NSGA-II search for Pareto-efficient selections under a budget.",
         tags=frozenset({"optimization", "multiobjective", "nsga2"}),
+        when_to_use="Multiple conflicting objectives; policy trade-off analysis (equity vs efficiency); Pareto frontier",
+        when_not_to_use="Single objective problem; objectives can be aggregated with known weights",
+        output_interpretation="Pareto-optimal set. Each solution is undominated. Decision-maker selects preferred trade-off point.",
     )
 
     @staticmethod

@@ -114,6 +114,7 @@ class MetaLearnerEstimator:
                     name="hte_data",
                     slot_type=SlotType.MATRIX,
                     unit=Unit("observations", "rows"),
+                    shape=("n_obs", "n_features"),
                 )
             }
         ),
@@ -163,6 +164,9 @@ class MetaLearnerEstimator:
             "unconfoundedness": "No unobserved confounders conditional on observed variables.",
             "overlap": "Positive probability of treatment/control across covariate support.",
         },
+        when_to_use="Heterogeneous treatment effects via ML metalearners (S/T/X/R)",
+        typical_min_obs=100,
+        output_interpretation="CATE: Conditional Average Treatment Effect for each unit. Mean CATE ≈ ATE.",
     )
 
     @staticmethod

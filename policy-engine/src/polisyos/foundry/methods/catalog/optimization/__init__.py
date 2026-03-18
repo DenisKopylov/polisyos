@@ -3,11 +3,14 @@ from __future__ import annotations
 from polisyos.foundry.methods.exceptions import MethodAlreadyRegisteredError
 from polisyos.foundry.methods.registry import MethodRegistry
 
+from .advanced_stochastic import BilevelOptimizationEstimator, ChanceConstrainedEstimator
+from .combinatorial import KnapsackEstimator, VehicleRoutingEstimator
 from .convex import QuadraticProgramEstimator, RobustOptimizationEstimator
 from ._registry_boot import register_optimization_methods
-from .io_model import InputOutputLeontiefModel, LeontiefInputOutput
-from .lp import LinearResourceLP, ResourceLP
-from .milp import BudgetMILP, IntegerBudgetMILP
+from .game_theory import NashEquilibriumEstimator
+from .io_model import LeontiefInputOutput
+from .lp import ResourceLP
+from .milp import BudgetMILP
 from .multiobjective import MultiObjectiveNSGA2Estimator
 from .sequential import (
     DynamicProgrammingEstimator,
@@ -26,7 +29,7 @@ from .protocols import (
 
 
 def ensure_optimization_methods_registered(registry: MethodRegistry | None = None) -> None:
-    reg = registry or MethodRegistry.get_instance()
+    reg = registry if registry is not None else MethodRegistry.get_instance()
     for method_class in register_optimization_methods():
         try:
             reg.register(method_class)
@@ -37,11 +40,8 @@ def ensure_optimization_methods_registered(registry: MethodRegistry | None = Non
 __all__ = [
     "AllocationItem",
     "BudgetMILP",
-    "InputOutputLeontiefModel",
-    "IntegerBudgetMILP",
     "IOModelResult",
     "InputOutputMethod",
-    "LinearResourceLP",
     "LeontiefInputOutput",
     "MultiObjectiveNSGA2Estimator",
     "OptimizationMethod",
@@ -54,6 +54,11 @@ __all__ = [
     "DynamicProgrammingEstimator",
     "ResourceConstraint",
     "ResourceLP",
+    "KnapsackEstimator",
+    "VehicleRoutingEstimator",
+    "NashEquilibriumEstimator",
+    "BilevelOptimizationEstimator",
+    "ChanceConstrainedEstimator",
     "ensure_optimization_methods_registered",
     "register_optimization_methods",
 ]

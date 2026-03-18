@@ -60,7 +60,8 @@ def _output_slots() -> frozenset[SlotSpec]:
 )
 class BayesianAutoregressionEstimator:
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
-    runtime_stack: ClassVar[tuple[str, ...]] = ("numpy", "arviz")
+    runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
+    optional_deps: ClassVar[tuple[str, ...]] = ("arviz",)
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="autoregression",
@@ -92,6 +93,10 @@ class BayesianAutoregressionEstimator:
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Sampling-based Bayesian autoregression for univariate time series.",
         tags=frozenset({"bayesian", "sampling", "time-series"}),
+        when_to_use="Macroeconomic forecasting with priors; univariate time series where uncertainty quantification matters",
+        when_not_to_use="Very long series where MCMC is too slow; multivariate VAR needed",
+        typical_min_obs=80,
+        output_interpretation="Posterior predictive forecasts with full uncertainty. AR coefficient credible intervals show persistence uncertainty.",
     )
 
     @staticmethod

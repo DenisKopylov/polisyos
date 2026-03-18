@@ -11,12 +11,28 @@ from polisyos.ir.analytics.causal import (
 )
 
 from ._registry_boot import register_causal_methods
+from .advanced_designs import (
+    BunchingEstimator,
+    DRLearnerEstimator,
+    MarginalTreatmentEffectEstimator,
+    RegressionKinkDesignEstimator,
+    RLearnerEstimator,
+    ShiftShareIVEstimator,
+)
+from .bounds import (
+    BalkePearlBoundsEstimator,
+    ImbensManskiBoundsEstimator,
+    LeeBoundsEstimator,
+    ManskiBoundsEstimator,
+    OptimizationBasedBoundsEstimator,
+)
+from .bounds_engine import BoundsEngineMethod
 from .cate import CausalForestEstimator
 from .constraint_discovery import FCIDiscovery, GESDiscovery, PCDiscovery
 from .dagma_discovery import DAGMADiscovery
+from .discovery_pipeline import UnifiedCausalDiscovery
 from .diagnostics import ParallelTrendsCheck
 from .did import (
-    DifferenceInDifferences,
     StandardDifferenceInDifferences,
     StaggeredDifferenceInDifferences,
 )
@@ -25,9 +41,17 @@ from .dowhy_identify_estimate import DoWhyIdentifyEstimate, DoWhyIdentifyEstimat
 from .dowhy_refute import DoWhyRefute
 from .gcm_fit import HybridSCMFit
 from .gcm_query import GCMQuery
+from .twin_network_query import TwinNetworkQuery
 from .graph_reconciliation import ReconcileCausalGraph, compute_reconciliation_diagnostics
 from .literature_prior import BuildLiteraturePrior
+from .mediation import CausalMediationEstimator, ControlledDirectEffectEstimator
 from .meta_learners import MetaLearnerEstimator
+from .modern_did import (
+    BorusyakJaravelSpiessEstimator,
+    CallawaySantAnnaEstimator,
+    DeChaisemartinDHaultfoeuilleEstimator,
+    SunAbrahamEstimator,
+)
 from .parameter_transfer import ParameterTransfer
 from .pcmci_discovery import PCMCIDiscovery
 from .policy_learning import OptimalPolicyLearner
@@ -52,11 +76,54 @@ from .sensitivity_metrics import SensitivityMetrics
 from .structural_time_series import StructuralTimeSeries
 from .symbolic_identify import SymbolicIdentify
 from .synthetic_control import SyntheticControlMethod
+from .causal_engine import CausalEngine
+from .query_validator import CausalQueryValidator
 from .transport_check import CheckTransportability
+from .treatment_effects import (
+    AIPWEstimator,
+    CBPSEstimator,
+    EntropyBalancingEstimator,
+    IPWEstimator,
+    PropensityScoreMatchingEstimator,
+    TMLEEstimator,
+)
+from .interference import (
+    BipartiteInterferenceEstimator,
+    NetworkAIPWEstimator,
+    PartialInterferenceEstimator,
+    SpatialInterferenceEstimator,
+)
+from .protocols import NetworkCausalData
+from .protocols import (
+    ContinuousTreatmentData,
+    DoseResponseResult,
+    MultiTreatmentData,
+    MultiTreatmentResult,
+)
+from .continuous_treatment import (
+    EntropyBalancingContinuousEstimator,
+    GeneralizedPropensityScoreEstimator,
+    KernelDoseResponseEstimator,
+    ShiftInterventionEstimator,
+)
+from .multi_treatment import (
+    MultiArmAIPWEstimator,
+    MultinomialIPWEstimator,
+    pairwise_contrasts,
+)
+from .superlearner import FittedSuperLearner, SuperLearnerNuisanceModel
+from .nuisance_resolver import MultinomialPropensityModel, ParametricConditionalDensity
+from .cross_fit import CrossFitContinuousOrchestrator
+from .fairness import (
+    CounterfactualFairnessEstimator,
+    PathSpecificFairnessEstimator,
+    TVFairnessDecomposer,
+)
+from .protocols import FairnessObservationalData
 
 
 def ensure_causal_methods_registered(registry: MethodRegistry | None = None) -> None:
-    reg = registry or MethodRegistry.get_instance()
+    reg = registry if registry is not None else MethodRegistry.get_instance()
     for method_class in register_causal_methods():
         try:
             reg.register(method_class)
@@ -86,7 +153,6 @@ __all__ = [
     "TabularCausalDiscoveryData",
     "SyntheticControlMethod",
     "ParallelTrendsCheck",
-    "DifferenceInDifferences",
     "StandardDifferenceInDifferences",
     "StaggeredDifferenceInDifferences",
     "RegressionDiscontinuity",
@@ -96,6 +162,7 @@ __all__ = [
     "DoWhyRefute",
     "HybridSCMFit",
     "GCMQuery",
+    "TwinNetworkQuery",
     "ParameterTransfer",
     "BuildLiteraturePrior",
     "ReconcileCausalGraph",
@@ -105,6 +172,7 @@ __all__ = [
     "FCIDiscovery",
     "GESDiscovery",
     "DAGMADiscovery",
+    "UnifiedCausalDiscovery",
     "SensitivityMetrics",
     "CheckTransportability",
     "SymbolicIdentify",
@@ -112,6 +180,60 @@ __all__ = [
     "DoubleMachineLearning",
     "MetaLearnerEstimator",
     "OptimalPolicyLearner",
+    "AIPWEstimator",
+    "TMLEEstimator",
+    "IPWEstimator",
+    "PropensityScoreMatchingEstimator",
+    "EntropyBalancingEstimator",
+    "CBPSEstimator",
+    "CallawaySantAnnaEstimator",
+    "SunAbrahamEstimator",
+    "DeChaisemartinDHaultfoeuilleEstimator",
+    "BorusyakJaravelSpiessEstimator",
+    "ManskiBoundsEstimator",
+    "LeeBoundsEstimator",
+    "BalkePearlBoundsEstimator",
+    "ImbensManskiBoundsEstimator",
+    "OptimizationBasedBoundsEstimator",
+    "BoundsEngineMethod",
+    "CausalMediationEstimator",
+    "ControlledDirectEffectEstimator",
+    "RegressionKinkDesignEstimator",
+    "BunchingEstimator",
+    "MarginalTreatmentEffectEstimator",
+    "ShiftShareIVEstimator",
+    "DRLearnerEstimator",
+    "RLearnerEstimator",
     "register_causal_methods",
     "ensure_causal_methods_registered",
+    "CausalEngine",
+    "CausalQueryValidator",
+    # Phase 4: Interference
+    "NetworkCausalData",
+    "PartialInterferenceEstimator",
+    "NetworkAIPWEstimator",
+    "SpatialInterferenceEstimator",
+    "BipartiteInterferenceEstimator",
+    # Phase 6: Advanced estimation — continuous & multi-valued treatments
+    "ContinuousTreatmentData",
+    "DoseResponseResult",
+    "MultiTreatmentData",
+    "MultiTreatmentResult",
+    "GeneralizedPropensityScoreEstimator",
+    "KernelDoseResponseEstimator",
+    "ShiftInterventionEstimator",
+    "EntropyBalancingContinuousEstimator",
+    "MultinomialIPWEstimator",
+    "MultiArmAIPWEstimator",
+    "pairwise_contrasts",
+    "FittedSuperLearner",
+    "SuperLearnerNuisanceModel",
+    "ParametricConditionalDensity",
+    "MultinomialPropensityModel",
+    "CrossFitContinuousOrchestrator",
+    # Phase 8: Causal Fairness
+    "FairnessObservationalData",
+    "TVFairnessDecomposer",
+    "PathSpecificFairnessEstimator",
+    "CounterfactualFairnessEstimator",
 ]

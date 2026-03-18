@@ -1,5 +1,6 @@
 __pycache__/
 *.pyc
+*.egg-info/
 .venv/
 .env
 .env.server_*
@@ -45,6 +46,9 @@ test_collect.txt
 compileall.txt
 ruff_stats.txt
 stale_sources_missing_paths.txt
+
+# Accidental shell redirection artifacts like `pip install foo>=1.2`
+/=*
 
 # Documentation (auto-generated or working docs)
 docs/

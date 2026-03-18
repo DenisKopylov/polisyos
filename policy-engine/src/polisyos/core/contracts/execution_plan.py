@@ -181,6 +181,22 @@ class MethodCatalogEntry(BaseModel):
     name: str = Field(..., min_length=1)
     version: str = Field(..., min_length=1)
     backend: str = Field(..., min_length=1)
+    execution_backend: str = Field(..., min_length=1)
+    kind: str = Field(..., min_length=1)
+    family: str = Field(..., min_length=1)
+    variant: str = Field(..., min_length=1)
+    fidelity_tier: str = Field(..., min_length=1)
+    data_modalities: list[str] = Field(default_factory=list)
+    runtime_stack: list[str] = Field(default_factory=list)
+    determinism_tier: str | None = None
+    required_deps: list[str] = Field(default_factory=list)
+    optional_deps: list[str] = Field(default_factory=list)
+    fallback_policy: str = Field(default="none")
+    side_effect_profile: str = Field(default="none")
+    runnable: bool = True
+    disabled_reasons: list[str] = Field(default_factory=list)
+    dependency_posture: dict[str, Any] = Field(default_factory=dict)
+    capability_matrix: dict[str, Any] = Field(default_factory=dict)
     input_slots: list[dict[str, Any]] = Field(default_factory=list)
     output_slots: list[dict[str, Any]] = Field(default_factory=list)
     parameters: list[dict[str, Any]] = Field(default_factory=list)
@@ -192,12 +208,22 @@ class MethodCatalogEntry(BaseModel):
     causal_capability_requirements: list[str] = Field(default_factory=list)
     causal_available: bool | None = None
     causal_disabled_reasons: list[str] = Field(default_factory=list)
+    # Rich semantic metadata for LLM planning
+    description: str = Field(default="")
+    citations: list[str] = Field(default_factory=list)
+    assumptions: list[str] = Field(default_factory=list)
+    when_to_use: str = Field(default="")
+    when_not_to_use: str = Field(default="")
+    prerequisites: list[str] = Field(default_factory=list)
+    diagnostic_checks: list[str] = Field(default_factory=list)
+    typical_min_obs: int | None = Field(default=None)
+    output_interpretation: str = Field(default="")
 
 
 class MethodCatalogSnapshot(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
+    schema_version: str = Field("2.0", pattern=r"^\d+\.\d+$")
     snapshot_id: str = Field(..., min_length=1, max_length=128)
     run_id: str | None = Field(default=None, max_length=128)
     generated_at: datetime = Field(default_factory=datetime.utcnow)

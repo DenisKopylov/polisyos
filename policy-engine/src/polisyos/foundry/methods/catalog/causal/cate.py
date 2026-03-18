@@ -53,6 +53,7 @@ class CausalForestEstimator:
                     name="hte_data",
                     slot_type=SlotType.MATRIX,
                     unit=Unit("observations", "rows"),
+                    shape=("n_obs", "n_features"),
                 )
             }
         ),
@@ -109,6 +110,10 @@ class CausalForestEstimator:
             "overlap": "0 < P(T=1|X) < 1 across support.",
             "consistency": "Observed outcome equals potential outcome under observed treatment.",
         },
+        when_to_use="Heterogeneous treatment effects; individual-level CATE estimation; high-dimensional covariates",
+        when_not_to_use="Average effect only needed; small sample (<100)",
+        typical_min_obs=200,
+        output_interpretation="CATE(x): treatment effect for individual with covariates x. ATE = mean(CATE). Feature importances show heterogeneity drivers.",
     )
 
     @staticmethod

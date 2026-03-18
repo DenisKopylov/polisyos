@@ -21,4 +21,39 @@ from polisyos.ir.analytics.partial_identification import *  # noqa: F401,F403
 from polisyos.ir.analytics.sensitivity import *  # noqa: F401,F403
 from polisyos.ir.analytics.structural_causal_model import *  # noqa: F401,F403
 from polisyos.ir.analytics.transportability import *  # noqa: F401,F403
+from polisyos.ir.analytics.estimand import *  # noqa: F401,F403
+from polisyos.ir.analytics.knowledge_base import *  # noqa: F401,F403
 from polisyos.ir.analytics.uncertainty import *  # noqa: F401,F403
+from polisyos.ir.analytics.evidence_bundle import DataProvenance, EvidenceBundle
+from polisyos.ir.analytics.evidence_bundle import ProofStep as IRProofStep
+from polisyos.ir.analytics.negative_certificate import BlockingType, NegativeCertificate, SuggestedExperiment
+from polisyos.ir.analytics.query_validation_report import (
+    ValidationSeverity,
+    ValidationIssue,
+    ValidationError,
+    ValidationWarning,
+    QueryValidationReport,
+)
+from polisyos.ir.analytics.sensitivity_report import SensitivityReport
+from polisyos.ir.analytics.covariate_balance import CovariateBalanceReport, compute_smd
+from polisyos.ir.analytics.falsification_report import *  # noqa: F401,F403
+from polisyos.ir.analytics.diagnostic_dashboard import DiagnosticDashboardData
+from polisyos.ir.analytics.causal_run_snapshot import CausalRunSnapshot, persist_snapshot, lookup_snapshot
+from polisyos.ir.analytics.quality_report import CausalQualityReport, QualityDimension
+from polisyos.ir.analytics.interference import (
+    ExposureMappingType,
+    InterferenceEffectDecomposition,
+    InterferenceMethod,
+    NetworkInterferenceReport,
+)
+from polisyos.ir.analytics.data_fusion import (
+    FusionDataset,
+    FusionResult,
+    DataCombinationPlan,
+    ValidityReport,
+)
+from polisyos.ir.analytics.experiment_plan import (
+    OptimalAdjustmentResult,
+    ExperimentPlan,
+    OptimalIVResult,
+)

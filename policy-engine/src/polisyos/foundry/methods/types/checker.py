@@ -10,7 +10,7 @@ from dataclasses import dataclass, field
 from enum import Enum, auto
 from typing import Sequence
 
-from polisyos.foundry.methods.base import SlotSpec, SlotType, Unit
+from polisyos.foundry.methods.base import DimVar, SlotSpec, SlotType, Unit
 
 # -----------------------------------------------------------------------------
 # Result Types
@@ -526,9 +526,36 @@ class BroadcastResult:
     reason: str = ""
 
 
+def _dim_name(d: object) -> str:
+    """Return a display name for any DimExpr."""
+    if d is None:
+        return "*"
+    if isinstance(d, DimVar):
+        return f"${d.name}"
+    return repr(d)
+
+
+def _dims_are_same_symbolic(a: object, b: object) -> bool:
+    """True if both are symbolic and refer to the same name."""
+    if isinstance(a, DimVar) and isinstance(b, DimVar):
+        return a.name == b.name
+    if isinstance(a, str) and isinstance(b, str):
+        return a == b
+    if isinstance(a, DimVar) and isinstance(b, str):
+        return a.name == b
+    if isinstance(a, str) and isinstance(b, DimVar):
+        return a == b.name
+    return False
+
+
+def _is_symbolic(d: object) -> bool:
+    """True if dimension is symbolic (DimVar, str, or None wildcard)."""
+    return d is None or isinstance(d, (DimVar, str))
+
+
 def _check_shapes_broadcast_to(
-    source_shape: tuple[int | str, ...],
-    target_shape: tuple[int | str, ...],
+    source_shape: tuple,
+    target_shape: tuple,
 ) -> BroadcastResult:
     """
     Check if source shape can broadcast to target shape (directional).
@@ -537,6 +564,14 @@ def _check_shapes_broadcast_to(
     - source.ndim must be <= target.ndim
     - Align from the right
     - Each dimension must be equal or source dimension == 1
+
+    Handles int, str, DimVar, and None (wildcard) dimension types.
+    DimVar rules:
+    - DimVar × DimVar with same name → compatible
+    - DimVar × DimVar with different names → warning (may mismatch at runtime)
+    - DimVar × int → compatible (symbolic satisfied by concrete)
+    - int × DimVar → warning unless int == 1
+    - None (wildcard) × anything → compatible, no warning
     """
     warnings: list[str] = []
 
@@ -556,8 +591,13 @@ def _check_shapes_broadcast_to(
 
         if src_missing:
             requires_broadcast = True
+            continue
 
-        # Both integers
+        # Either side is None (wildcard) → always compatible
+        if src_dim is None or tgt_dim is None:
+            continue
+
+        # Both concrete integers
         if isinstance(src_dim, int) and isinstance(tgt_dim, int):
             if src_dim == tgt_dim:
                 continue
@@ -572,25 +612,29 @@ def _check_shapes_broadcast_to(
                 ),
             )
 
-        # Both symbolic
-        if isinstance(src_dim, str) and isinstance(tgt_dim, str):
-            if src_dim != tgt_dim:
+        # Both symbolic (DimVar or str)
+        if _is_symbolic(src_dim) and _is_symbolic(tgt_dim):
+            if not _dims_are_same_symbolic(src_dim, tgt_dim):
                 warnings.append(
-                    f"Symbolic dimension mismatch at axis -{i + 1}: {src_dim!r} vs {tgt_dim!r}"
+                    f"Symbolic dimension mismatch at axis -{i + 1}: "
+                    f"{_dim_name(src_dim)} vs {_dim_name(tgt_dim)}"
                 )
             continue
 
-        # Symbolic vs int
-        if isinstance(src_dim, str) and isinstance(tgt_dim, int):
+        # Symbolic source vs concrete target
+        if _is_symbolic(src_dim) and isinstance(tgt_dim, int):
             warnings.append(
-                f"Symbolic source dimension vs fixed target at axis -{i + 1}: {src_dim!r} vs {tgt_dim}"
+                f"Symbolic source dimension vs fixed target at axis -{i + 1}: "
+                f"{_dim_name(src_dim)} vs {tgt_dim}"
             )
             continue
 
-        if isinstance(src_dim, int) and isinstance(tgt_dim, str):
+        # Concrete source vs symbolic target
+        if isinstance(src_dim, int) and _is_symbolic(tgt_dim):
             if src_dim != 1:
                 warnings.append(
-                    f"Fixed source dimension vs symbolic target at axis -{i + 1}: {src_dim} vs {tgt_dim!r}"
+                    f"Fixed source dimension vs symbolic target at axis -{i + 1}: "
+                    f"{src_dim} vs {_dim_name(tgt_dim)}"
                 )
             else:
                 requires_broadcast = True
@@ -604,27 +648,35 @@ def _check_shapes_broadcast_to(
 
 
 def _dims_match(
-    src_dim: int | str,
-    tgt_dim: int | str,
+    src_dim: object,
+    tgt_dim: object,
     warnings: list[str],
     *,
     axis: int,
 ) -> bool:
+    # Wildcard (None) matches anything
+    if src_dim is None or tgt_dim is None:
+        return True
+    # Both concrete ints
     if isinstance(src_dim, int) and isinstance(tgt_dim, int):
         return src_dim == tgt_dim
-    if isinstance(src_dim, str) and isinstance(tgt_dim, str):
-        if src_dim != tgt_dim:
+    # Both symbolic (DimVar or str)
+    if _is_symbolic(src_dim) and _is_symbolic(tgt_dim):
+        if not _dims_are_same_symbolic(src_dim, tgt_dim):
             warnings.append(
-                f"Symbolic dimension mismatch at axis {axis}: {src_dim!r} vs {tgt_dim!r}"
+                f"Symbolic dimension mismatch at axis {axis}: "
+                f"{_dim_name(src_dim)} vs {_dim_name(tgt_dim)}"
             )
         return True
+    # Mixed symbolic / concrete
     warnings.append(
-        f"Symbolic dimension vs fixed size at axis {axis}: {src_dim!r} vs {tgt_dim!r}"
+        f"Symbolic dimension vs fixed size at axis {axis}: "
+        f"{_dim_name(src_dim)} vs {_dim_name(tgt_dim)}"
     )
     return True
 
 
-def _is_one_dim(dim: int | str) -> bool:
+def _is_one_dim(dim: object) -> bool:
     return isinstance(dim, int) and dim == 1
 
 

@@ -13,6 +13,8 @@ from __future__ import annotations
 import json
 from typing import Optional
 
+from polisyos.core.contracts.execution_plan import MethodCatalogSnapshot
+from polisyos.foundry.methods.selection import authoring_catalog_payload
 from polisyos.ir.kernel import DEFAULT_MECHANISM_REGISTRY
 from polisyos.ir.trinity import TrinityBundle
 
@@ -85,6 +87,9 @@ You receive draft policy narratives from the Drafter and must produce machine-ex
 {mechanisms_json}
 
 # LIVE FOUNDRY METHODS CATALOG (OPTIONAL)
+{method_catalog_summary_json}
+
+# FULL METHOD CATALOG SNAPSHOT (OPTIONAL)
 {method_catalog_json}
 
 # TRINITYBUNDLE SCHEMA (v1.x)
@@ -278,8 +283,24 @@ def get_formalizer_prompt(method_catalog_snapshot: dict | None = None) -> str:
         "entries": [],
         "notes": ["method_catalog_unavailable"],
     }
+    method_catalog_summary = {
+        "source_schema_version": "none",
+        "snapshot_id": "none",
+        "runnable_method_count": 0,
+        "unavailable_method_count": 0,
+        "recommended_families": [],
+        "notable_unavailable_families": [],
+    }
+    if method_catalog_snapshot:
+        try:
+            parsed_snapshot = MethodCatalogSnapshot.model_validate(method_catalog_snapshot)
+        except Exception:
+            parsed_snapshot = None
+        if parsed_snapshot is not None:
+            method_catalog_summary = authoring_catalog_payload(parsed_snapshot)
     return FORMALIZER_SYSTEM_PROMPT.format(
         mechanisms_json=json.dumps(mechanisms, indent=2),
+        method_catalog_summary_json=json.dumps(method_catalog_summary, indent=2),
         method_catalog_json=json.dumps(method_catalog_payload, indent=2),
         schema_json=json.dumps(schema, indent=2),
     )

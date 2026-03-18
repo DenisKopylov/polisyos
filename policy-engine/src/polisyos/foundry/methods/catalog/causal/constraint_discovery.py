@@ -847,6 +847,7 @@ class PCDiscovery:
                     name="tabular_discovery_data",
                     slot_type=SlotType.MATRIX,
                     unit=Unit("observations", "rows"),
+                    shape=("n_obs", "n_vars"),
                 )
             }
         ),
@@ -885,6 +886,10 @@ class PCDiscovery:
             "causal_sufficiency": "No severe hidden confounding for CPDAG interpretation.",
             "ci_test_validity": "Selected CI test assumptions hold for input data.",
         },
+        when_to_use="Causal structure learning from observational data; recover Markov equivalence class under faithfulness",
+        when_not_to_use="Strong selection bias; many latent confounders; very high-dimensional with small N",
+        typical_min_obs=200,
+        output_interpretation="CPDAG (PC) or PAG (FCI) encoding causal structure. Directed edges = identified directions. Undirected = observationally equivalent.",
     )
 
     @staticmethod
@@ -910,6 +915,7 @@ class FCIDiscovery:
                     name="tabular_discovery_data",
                     slot_type=SlotType.MATRIX,
                     unit=Unit("observations", "rows"),
+                    shape=("n_obs", "n_vars"),
                 )
             }
         ),
@@ -947,6 +953,10 @@ class FCIDiscovery:
             "latent_confounding": "Latent confounding may be present; output interpreted as PAG.",
             "ci_test_validity": "Selected CI test assumptions hold for input data.",
         },
+        when_to_use="Causal structure learning from observational data; recover Markov equivalence class under faithfulness",
+        when_not_to_use="Strong selection bias; many latent confounders; very high-dimensional with small N",
+        typical_min_obs=200,
+        output_interpretation="CPDAG (PC) or PAG (FCI) encoding causal structure. Directed edges = identified directions. Undirected = observationally equivalent.",
     )
 
     @staticmethod
@@ -972,6 +982,7 @@ class GESDiscovery:
                     name="tabular_discovery_data",
                     slot_type=SlotType.MATRIX,
                     unit=Unit("observations", "rows"),
+                    shape=("n_obs", "n_vars"),
                 )
             }
         ),
@@ -1008,6 +1019,10 @@ class GESDiscovery:
             "score_adequacy": "Selected score function is suitable for data generating process.",
             "causal_sufficiency": "No severe hidden confounding for CPDAG interpretation.",
         },
+        when_to_use="Causal structure learning from observational data; recover Markov equivalence class under faithfulness",
+        when_not_to_use="Strong selection bias; many latent confounders; very high-dimensional with small N",
+        typical_min_obs=200,
+        output_interpretation="CPDAG (PC) or PAG (FCI) encoding causal structure. Directed edges = identified directions. Undirected = observationally equivalent.",
     )
 
     @staticmethod

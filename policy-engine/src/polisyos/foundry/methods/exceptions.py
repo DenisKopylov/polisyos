@@ -308,6 +308,35 @@ class ArtifactError(FoundryMethodError):
         super().__init__(f"{artifact_type} error: {reason}")
 
 
+class ContractViolationError(FoundryMethodError):
+    """
+    A MethodContracts precondition, postcondition, or invariant was violated.
+
+    Raised in strict mode (``POLISYOS_STRICT=1``) when a declarative contract
+    expression evaluates to ``False`` before or after ``pure_step``.
+
+    Attributes:
+        method_fqn: Fully qualified name of the method whose contract failed
+        contract_type: One of "precondition", "postcondition", "invariant"
+        expression: The contract expression that failed
+    """
+
+    default_category = ErrorCategory.VALIDATION
+
+    def __init__(
+        self,
+        method_fqn: str,
+        contract_type: str,
+        expression: str,
+    ) -> None:
+        self.method_fqn = method_fqn
+        self.contract_type = contract_type
+        self.expression = expression
+        super().__init__(
+            f"Contract violation in {method_fqn} [{contract_type}]: {expression!r}"
+        )
+
+
 class LawViolationError(FoundryMethodError):
     """
     Raised when runtime checks detect a violation of architecture laws.

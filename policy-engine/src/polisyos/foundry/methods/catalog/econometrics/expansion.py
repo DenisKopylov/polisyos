@@ -74,6 +74,9 @@ class VECMEstimator:
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Vector error correction model for cointegrated multivariate time series.",
         tags=frozenset({"econometrics", "vecm"}),
+        when_to_use="Cointegrated multivariate time series; long-run equilibrium with error-correction dynamics",
+        typical_min_obs=100,
+        output_interpretation="EC term coefficient: speed of mean reversion. Long-run cointegrating vector.",
     )
 
     @staticmethod
@@ -169,6 +172,9 @@ class BayesianVAREstimator:
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Closed-form Bayesian VAR with ridge-style Minnesota prior shrinkage.",
         tags=frozenset({"econometrics", "bayesian-var"}),
+        when_to_use="Multivariate time series forecasting with many variables; Minnesota prior shrinks toward random walk",
+        typical_min_obs=80,
+        output_interpretation="Posterior mean coefficients with credible intervals. Prior scale controls shrinkage strength. Residual covariance trace for model fit.",
     )
 
     @staticmethod
@@ -302,6 +308,9 @@ class SyntheticDiDEstimator:
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Synthetic difference-in-differences estimator with ridge-regularized donor weights.",
         tags=frozenset({"econometrics", "synthetic-did"}),
+        when_to_use="Panel DiD with poor pre-trend parallel trends; combine synthetic control donor weighting with DiD",
+        typical_min_obs=50,
+        output_interpretation="ATE_SDID: average treatment effect on treated. Pre-fit RMSE measures synthetic control quality. Donor weights show control unit contributions.",
     )
 
     @staticmethod
@@ -413,6 +422,9 @@ class SpatialAutoregressiveEstimator:
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Spatial autoregressive regression using a normalized spatial lag of the outcome.",
         tags=frozenset({"econometrics", "spatial-autoregressive"}),
+        when_to_use="Cross-sectional or panel data with spatial spillovers; outcome in one unit depends on neighbors' outcomes",
+        typical_min_obs=50,
+        output_interpretation="rho: spatial autoregressive coefficient measuring spillover strength. X coefficients: direct effects. HC1 SEs account for heteroskedasticity.",
     )
 
     @staticmethod

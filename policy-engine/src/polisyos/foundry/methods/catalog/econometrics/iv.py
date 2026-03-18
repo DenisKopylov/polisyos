@@ -450,6 +450,10 @@ class TwoStageLeastSquaresEstimator:
             "2sls_stage2": InstrumentalVariablesEstimator.metadata.equations["2sls_stage2"],
         },
         assumptions=InstrumentalVariablesEstimator.metadata.assumptions,
+        when_to_use="Endogenous regressor with valid instrument (relevance + exclusion restriction); LATE estimation",
+        when_not_to_use="Weak instruments (F-stat < 10); no valid exclusion restriction; many instruments relative to obs",
+        typical_min_obs=100,
+        output_interpretation="LATE: Local Average Treatment Effect for compliers. First-stage F-stat should exceed 10. Sargan-Hansen for overidentification.",
     )
 
     @staticmethod
@@ -506,6 +510,10 @@ class GMMEstimator:
         citations=InstrumentalVariablesEstimator.metadata.citations,
         equations={"gmm_moment": InstrumentalVariablesEstimator.metadata.equations["gmm_moment"]},
         assumptions=InstrumentalVariablesEstimator.metadata.assumptions,
+        when_to_use="Multiple instruments; heteroskedastic errors; panel IV; want efficient weighting of moments",
+        when_not_to_use="Homoskedastic errors (2SLS is as efficient); few observations relative to instruments",
+        typical_min_obs=150,
+        output_interpretation="GMM coefficient + SE with optimal weighting matrix. J-statistic tests overidentifying restrictions (should not reject). Compare to 2SLS for efficiency gain.",
     )
 
     @staticmethod

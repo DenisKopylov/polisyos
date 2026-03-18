@@ -85,6 +85,9 @@ class ParameterTransfer:
             ),
         },
         tags=frozenset({"causal", "structural", "parameters", "bridge"}),
+        when_to_use="Transfer external validity / parameter estimates to a new context; incorporate prior parameter knowledge into structural estimation",
+        when_not_to_use="No prior parameter bundle available; parameters are not transferable across contexts",
+        output_interpretation="Parameter values with uncertainty multipliers. Literature priors formatted for JAX/NumPyro. Runtime intervals show Monte Carlo uncertainty around transferred parameters.",
     )
 
     @staticmethod

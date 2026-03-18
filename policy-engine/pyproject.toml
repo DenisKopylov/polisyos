@@ -174,6 +174,12 @@ academic-skg = [
 sandbox = [
     "RestrictedPython>=7.0,<8.0",
 ]
+shapesafe = [
+    "beartype>=0.18.0",
+]
+hotreload = [
+    "watchfiles>=0.21.0",
+]
 agent-quality = [
     "policy-engine[rag,sandbox]",
 ]
@@ -195,6 +201,11 @@ dev = [
     "jupyterlab>=4.0.0",
     "matplotlib>=3.8.0",
     "seaborn>=0.13.0",
+    "structlog>=24.0.0",
+    "mutmut>=2.0",
+]
+structured-logging = [
+    "structlog>=24.0.0",
 ]
 search_bo = [
     "torch>=2.0.0",
@@ -215,6 +226,7 @@ search_mo = [
 polisy = "polisyos.foundry.plugins.cli:main"
 polisyos = "polisyos.core.components.cli:main"
 polisyos-causal-capabilities = "polisyos.foundry.methods.catalog.causal.capabilities:main"
+polisyos-foundry = "polisyos.foundry.methods.cli:main"
 
 [project.entry-points."polisyos.fabric_connectors"]
 "worldbank.wdi" = "polisyos.fabric.connectors.components:world_bank_connector_component"
@@ -229,24 +241,6 @@ polisyos-causal-capabilities = "polisyos.foundry.methods.catalog.causal.capabili
 "sparql.endpoint" = "polisyos.fabric.connectors.components:sparql_connector_component"
 "rest.json" = "polisyos.fabric.connectors.components:rest_json_connector_component"
 
-[project.entry-points."polisyos.ir_fragments"]
-"roads.core" = "polisyos.packs.roads.ir_fragments:roads_ir_fragment_component"
-"econ.core" = "polisyos.packs.econ.ir_fragments:econ_ir_fragment_component"
-
-[project.entry-points."polisyos.foundry_methods"]
-"roads.method" = "polisyos.packs.roads.foundry_methods:roads_method_component"
-
-[project.entry-points."polisyos.scholar_extractors"]
-"roads.extractor" = "polisyos.packs.roads.scholar_extractors:roads_extractor_component"
-
-[project.entry-points."polisyos.lex_extractors"]
-"roads.lex_regex" = "polisyos.packs.roads.scholar_extractors:lex_norm_regex_extractor_component"
-
-[project.entry-points."polisyos.lex_evaluators"]
-"roads.simple_eval" = "polisyos.packs.roads.lex_evaluators:lex_simple_evaluator_component"
-
-[project.entry-points."polisyos.norm_pack_providers"]
-"roads.norms" = "polisyos.packs.roads.norms_provider:roads_norms_provider_component"
 
 [project.entry-points."polisyos.scientist_governance_passes"]
 "budget" = "polisyos.scientist.governance.pass_entrypoints:budget_pass_factory"
@@ -263,6 +257,7 @@ polisyos-causal-capabilities = "polisyos.foundry.methods.catalog.causal.capabili
 "refutation" = "polisyos.scientist.governance.pass_entrypoints:refutation_pass_factory"
 "human_review_required" = "polisyos.scientist.governance.pass_entrypoints:human_review_required_pass_factory"
 "quality" = "polisyos.scientist.governance.pass_entrypoints:quality_gate_pass_factory"
+"normative_arbitration" = "polisyos.scientist.governance.pass_entrypoints:normative_arbitration_pass_factory"
 
 # --- Tool Configurations ---
 
@@ -296,7 +291,7 @@ ignore = []
 python_version = "3.11"
 strict = true
 ignore_missing_imports = true # Для библиотек без типов (некоторые ML либы)
-plugins = ["pydantic.mypy"] # Плагин для корректной работы с Pydantic v2
+plugins = ["pydantic.mypy", "polisyos.foundry.methods.mypy_plugin"] # Плагин для корректной работы с Pydantic v2
 
 [tool.pytest.ini_options]
 minversion = "6.0"
@@ -305,4 +300,22 @@ testpaths = ["tests"]
 asyncio_mode = "auto"
 markers = [
     "integration: slow or DB-backed workflow tests",
+    "benchmark: performance regression benchmarks (requires pytest-benchmark)",
+    "property: hypothesis property-based tests",
 ]
+
+# ---------------------------------------------------------------------------
+# Mutation testing (mutmut) — run locally, not on every PR (too slow)
+# ---------------------------------------------------------------------------
+# Run with:
+#   cd policy-engine
+#   mutmut run --paths-to-mutate src/polisyos/foundry/methods/backends/ \
+#               --tests-dir tests/foundry/methods/backends/
+#   mutmut results
+#
+# Target mutation score: ≥ 70% kill rate for backends/ and base.py core paths.
+[tool.mutmut]
+paths_to_mutate = "src/polisyos/foundry/methods/"
+tests_dir = "tests/foundry/"
+runner = "python -m pytest tests/foundry/methods/ -x -q --no-header"
+dict_synonyms = "Synth, Fake, Dummy, Stub, Mock"

@@ -437,6 +437,13 @@ _ACTION_SYNONYMS: dict[str, str] = {
 
 _PERCENT_RE = re.compile(r"(?P<value>\d+(?:[\.,]\d+)?)\s*%")
 _YEAR_RE = re.compile(r"(?P<value>\d+)\s*(?:рок(?:и|ів|у)?|years?)", re.IGNORECASE)
+_GENERIC_THRESHOLD_RE = re.compile(
+    r"(?P<lemma>не\s+менш(?:е| як)|не\s+більш(?:е| як)|не\s+нижче|не\s+вище)?\s*"
+    r"(?P<value>\d+(?:[\.,]\d+)?)\s*"
+    r"(?P<unit>грн|коп|кг|км|га|тонн(?:и)?|годин(?:и)?|"
+    r"дн(?:ів|і)?|місяц(?:ів|і)?|рок(?:ів|и)?)\b",
+    re.IGNORECASE,
+)
 
 
 def _normalize_token(raw: str) -> str:
@@ -557,7 +564,7 @@ def _decimal_text(value: str) -> str | None:
 
 
 def extract_thresholds_from_text(text: str, *, applies_to: str = "") -> list[ThresholdAtom]:
-    """Extract simple thresholds (percentages + durations) from text."""
+    """Extract simple thresholds (percentages, durations, scalar limits) from text."""
     thresholds: list[ThresholdAtom] = []
     if not text.strip():
         return thresholds
@@ -586,6 +593,45 @@ def extract_thresholds_from_text(text: str, *, applies_to: str = "") -> list[Thr
                 value_decimal=value_decimal,
                 value_text=value_raw,
                 unit="year",
+                applies_to=applies_to or None,
+            )
+        )
+
+    seen_generic: set[tuple[str, str, str, str]] = set()
+    for match in _GENERIC_THRESHOLD_RE.finditer(text):
+        value_raw = match.group("value")
+        unit_raw = (match.group("unit") or "").strip().lower()
+        lemma_raw = (match.group("lemma") or "").strip().lower()
+        if unit_raw.startswith("рок"):
+            # Already emitted as duration above.
+            continue
+        operator = "eq"
+        if lemma_raw.startswith("не менш"):
+            operator = "gte"
+        elif lemma_raw.startswith("не більш") or lemma_raw.startswith("не вище"):
+            operator = "lte"
+        elif lemma_raw.startswith("не нижче"):
+            operator = "gte"
+        value_decimal = _decimal_text(value_raw)
+        unit_map = {
+            "грн": "currency_uah",
+            "коп": "currency_uah",
+            "кг": "mass_kg",
+            "км": "distance_km",
+            "га": "area_ha",
+        }
+        metric = unit_map.get(unit_raw, unit_raw)
+        key = (metric, operator, value_raw, unit_raw)
+        if key in seen_generic:
+            continue
+        seen_generic.add(key)
+        thresholds.append(
+            ThresholdAtom(
+                metric=metric,
+                operator=operator,
+                value_decimal=value_decimal,
+                value_text=value_raw,
+                unit=unit_raw,
                 applies_to=applies_to or None,
             )
         )

@@ -12,9 +12,9 @@ from polisyos.core.run.context import RunContext
 from polisyos.foundry.methods.causal import (
     GraphCausalData,
     GraphCausalDataV1,
+    HTEObservationalData,
     PanelObservationalData,
 )
-from polisyos.foundry.methods.causal.protocols import HTEObservationalData
 from polisyos.ir.analytics.causal import (
     CausalEffectReport,
     CausalMethod,

@@ -91,6 +91,9 @@ class ReweightingCalibrationEstimator:
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Linear calibration of survey weights to population totals and mean income.",
         tags=frozenset({"microsim", "calibration", "survey"}),
+        when_to_use="Align microsimulation outputs to aggregate control totals; demographic projection calibration",
+        when_not_to_use="Control totals are inconsistent or unavailable; non-linear calibration required",
+        output_interpretation="Calibrated weights/probabilities. Check alignment tables: model vs target. RMSE across cells.",
     )
 
     @staticmethod

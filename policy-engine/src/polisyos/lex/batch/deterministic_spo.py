@@ -32,7 +32,8 @@ _REPEAL_RE = re.compile(
     re.IGNORECASE,
 )
 _AMEND_RE = re.compile(
-    r"(?:внести\s+(?:такі\s+)?зміни|викласти\s+в\s+(?:такій\s+)?(?:новій\s+)?редакції)",
+    r"(?:внести\s+(?:такі\s+)?зміни|викласти\s+в\s+(?:такій\s+)?(?:новій\s+)?редакції|"
+    r"доповнено|доповнити|слова?\s+\"?[^\"]+\"?\s+замінити|виключити)",
     re.IGNORECASE,
 )
 _APPROVE_RE = re.compile(
@@ -236,8 +237,22 @@ _THRESHOLD_ROW_RE = re.compile(
     r"^(?P<subject>[^\n.;]{2,160}?)\s{2,}(?P<value>\d+(?:[.,]\d+)?)\s*(?P<unit>%|грн|коп|рок(?:ів|и)?|дн(?:ів|і)?|місяц(?:ів|і)?|кг|тонн(?:и)?)\b",
     re.IGNORECASE,
 )
+_UNITLESS_THRESHOLD_ROW_RE = re.compile(
+    r"^(?P<subject>[^\n.;:]{2,180}?)\s{1,}(?P<value>\d+(?:[.,]\d+)?(?:\s*-\s*\d+(?:[.,]\d+)?)?)\s*$",
+    re.IGNORECASE,
+)
 _MULTIVALUE_THRESHOLD_ROW_RE = re.compile(
     r"^(?P<subject>[^\d\n.;]{2,180}?)\s+(?P<values>\d+(?:[.,]\d+)?(?:\s+\d+(?:[.,]\d+)?){1,})(?:\s*(?P<unit>%|грн|коп|тис\.?(?:куб\.?\s*метрів)?|га|кг|тонн(?:и)?)\b)?",
+    re.IGNORECASE,
+)
+_CONDITION_THRESHOLD_RE = re.compile(
+    r"(?P<lemma>не\s+менш(?:е| як)|не\s+більш(?:е| як)|не\s+нижче|не\s+вище)\s+"
+    r"(?P<value>\d+(?:[.,]\d+)?)\s*(?P<unit>%|грн|коп|кг|км|га|тонн(?:и)?|"
+    r"рок(?:ів|и)?|місяц(?:ів|і)?|дн(?:ів|і)?|годин(?:и)?)",
+    re.IGNORECASE,
+)
+_SALARY_TABLE_RE = re.compile(
+    r"(посадов(?:ий|ого)\s+оклад|окладів|оплат[аи]\s+праці|ставка|тариф|гривень|грн\b)",
     re.IGNORECASE,
 )
 _APPLICANT_ACTION_RE = re.compile(
@@ -1126,7 +1141,25 @@ def _extract_threshold_row_candidates(*, text: str, doc_title: str) -> tuple[lis
     if not cleaned:
         return [], []
     quote = _clip_text(cleaned, size=320)
+    thresholds = extract_thresholds_from_text(cleaned, applies_to=doc_title or "регульований показник")
     match = _THRESHOLD_ROW_RE.search(cleaned)
+    if not match:
+        unitless_match = _UNITLESS_THRESHOLD_ROW_RE.search(cleaned)
+        if unitless_match and _SALARY_TABLE_RE.search(f"{doc_title} {cleaned}"):
+            subject_uk = _clip_text(unitless_match.group("subject").strip(" .;:"), 160)
+            value = unitless_match.group("value").strip()
+            return [
+                _build_candidate(
+                    subject_uk=subject_uk or "регульований показник",
+                    predicate="sets_threshold",
+                    object_uk=f"{value} грн",
+                    norm_type="obligation",
+                    fact_text=f"{subject_uk or 'регульований показник'} має поріг {value} грн",
+                    quote=quote,
+                    confidence=0.88,
+                    thresholds_text=f"{cleaned} грн",
+                )
+            ], ["subtype_threshold_unitless_row"]
     if not match:
         multi_match = _MULTIVALUE_THRESHOLD_ROW_RE.search(cleaned)
         if multi_match:
@@ -1145,9 +1178,37 @@ def _extract_threshold_row_candidates(*, text: str, doc_title: str) -> tuple[lis
                     thresholds_text=cleaned,
                 )
             ], ["subtype_threshold_multivalue_row"]
-        thresholds = extract_thresholds_from_text(cleaned, applies_to=doc_title or "регульований показник")
+        condition_match = _CONDITION_THRESHOLD_RE.search(cleaned)
+        if condition_match:
+            value_label = f"{condition_match.group('lemma').strip()} {condition_match.group('value').strip()} {condition_match.group('unit').strip()}"
+            subject_hint = _clip_text(cleaned[: max(12, condition_match.start())].strip(" .;:-"), 160)
+            return [
+                _build_candidate(
+                    subject_uk=subject_hint or doc_title or "регульований показник",
+                    predicate="sets_threshold",
+                    object_uk=value_label,
+                    norm_type="obligation",
+                    fact_text=f"{subject_hint or doc_title or 'регульований показник'} має умову {value_label}",
+                    quote=quote,
+                    confidence=0.87,
+                    thresholds_text=cleaned,
+                )
+            ], ["subtype_threshold_condition_row"]
         if not thresholds:
             return [], []
+        if _SALARY_TABLE_RE.search(f"{doc_title} {cleaned}") and len(thresholds) >= 2:
+            return [
+                _build_candidate(
+                    subject_uk="зазначені посади",
+                    predicate="sets_threshold",
+                    object_uk="схема посадових окладів",
+                    norm_type="obligation",
+                    fact_text="Встановлено схему посадових окладів для зазначених посад",
+                    quote=quote,
+                    confidence=0.87,
+                    thresholds_text=cleaned,
+                )
+            ], ["subtype_threshold_schedule_row"]
         value_label = thresholds[0].value_text or thresholds[0].value_decimal or "числовий поріг"
         return [
             _build_candidate(

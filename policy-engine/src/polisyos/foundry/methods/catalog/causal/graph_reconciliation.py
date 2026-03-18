@@ -693,6 +693,9 @@ class ReconcileCausalGraph:
             "llm_calibration": "LLM hints are capped and discounted against existing evidence.",
             "cycle_handling": "Cycles are resolved via lagging first, removal as fallback.",
         },
+        when_to_use="Merge data-driven causal discovery with literature priors and LLM structural hints; build reconciled DAG for SCM fitting",
+        when_not_to_use="Purely data-driven discovery without prior knowledge; single evidence source only",
+        output_interpretation="Reconciled DAG with combined edge confidences. Diagnostics: cyclic inconsistency norm and irreducible conflict norm indicate evidence quality. needs_expert_review flag triggers human review.",
     )
 
     @staticmethod

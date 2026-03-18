@@ -57,14 +57,15 @@ def _constraint_ok(lhs: float, sense: str, rhs: float, eps: float = 1e-9) -> boo
 
 
 @foundry_method(
-    namespace="optimization",
+    namespace="optimization.integer",
     version="1.0.0",
-    tags={"optimization", "milp", "solver", "deprecated:legacy-fqn"},
+    tags={"optimization", "milp", "solver"},
 )
 class BudgetMILP:
     """Knapsack-style budget allocation via Mixed Integer Linear Programming."""
 
     runtime_stack: ClassVar[tuple[str, ...]] = ("ortools",)
+    required_deps: ClassVar[tuple[str, ...]] = ("ortools",)
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="budget_milp",
@@ -115,6 +116,9 @@ class BudgetMILP:
             "objective": "max sum_i benefit_i * x_i",
             "budget": "sum_i cost_i * x_i <= B",
         },
+        when_to_use="Integer/binary decisions (facility location, portfolio, assignment); combinatorial policy design",
+        when_not_to_use="Continuous relaxation acceptable; very large problem that can't be solved in time budget",
+        output_interpretation="Optimal integer solution + objective. Duality gap = distance from LP relaxation bound. MIP gap % reported.",
     )
 
     @staticmethod
@@ -332,14 +336,4 @@ class BudgetMILP:
         }
         return result, solver_info
 
-
-@foundry_method(
-    namespace="optimization.integer",
-    version="1.0.0",
-    tags={"optimization", "milp", "solver"},
-)
-class IntegerBudgetMILP(BudgetMILP):
-    """Canonical namespace for integer optimization budget allocation."""
-
-
-__all__ = ["BudgetMILP", "IntegerBudgetMILP"]
+__all__ = ["BudgetMILP"]

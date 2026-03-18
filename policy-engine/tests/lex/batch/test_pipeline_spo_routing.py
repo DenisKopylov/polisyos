@@ -6,6 +6,7 @@ from polisyos.lex.batch.config import BatchConfig
 from polisyos.lex.batch.pipeline import (
     _build_spo_doc_routing_plan,
     _group_docs_by_spo_settings,
+    _should_extract_spo_from_span,
 )
 from polisyos.lex.batch.smoke import SMOKE_PROFILES
 from polisyos.lex.batch.structurer import ProvisionSpan
@@ -178,3 +179,26 @@ def test_build_spo_doc_routing_plan_keeps_law_soft_cap_above_acceptance_default(
 
     assert len(plan.reasoning_spans) == 24
     assert plan.llm_allowed is True
+
+
+def test_should_extract_spo_from_small_fallback_approval_bundle() -> None:
+    span = ProvisionSpan(
+        kind="fallback_unit",
+        number=None,
+        anchor_path="full/chunk:0001",
+        citation_label="Повний текст",
+        offset_start=0,
+        offset_end=120,
+        text="ЗАТВЕРДЖЕНО наказом Міністерства охорони здоров'я України Перелік лікарських засобів.",
+        token_est=12,
+        text_hash="fallback-approval",
+        is_fallback_chunk=True,
+        struct_kind="fallback_unit",
+        section_role="fallback_recall",
+        lineage_path="full/chunk:0001",
+        fallback_allowed_for_reasoning=False,
+        legal_unit_subtype="approval_bundle",
+        route_class="deterministic_only",
+    )
+
+    assert _should_extract_spo_from_span(span) is True

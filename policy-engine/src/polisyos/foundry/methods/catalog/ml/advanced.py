@@ -73,6 +73,10 @@ class GaussianProcessEstimator:
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Gaussian process regression for smooth non-parametric tabular prediction.",
         tags=frozenset({"ml", "regression", "gaussian-process"}),
+        when_to_use="Small datasets requiring uncertainty quantification; smooth functions; Bayesian non-parametric regression",
+        when_not_to_use="Large datasets (>10k obs) due to O(n³) cost; high-dimensional input spaces",
+        output_interpretation="Posterior mean = prediction. Posterior std = epistemic uncertainty. Kernel hyperparameters indicate length scale of variation.",
+        typical_min_obs=20,
     )
 
     @staticmethod
@@ -163,6 +167,10 @@ class QuantileForestEstimator:
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Random-forest quantile regression via tree-level predictive distribution.",
         tags=frozenset({"ml", "regression", "quantile-forest"}),
+        when_to_use="Tabular data; prediction intervals without distributional assumptions; heteroscedastic outcomes",
+        when_not_to_use="Need exact coverage guarantees (use conformal prediction); very small datasets",
+        output_interpretation="Ensemble mean = point prediction. Quantile bounds define prediction interval. Width reflects heteroscedasticity.",
+        typical_min_obs=100,
     )
 
     @staticmethod
@@ -256,6 +264,10 @@ class NeuralODEEstimator:
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Neural-ODE-inspired continuous-time dynamics learned via derivative matching and ODE integration.",
         tags=frozenset({"ml", "dynamics", "neural-ode"}),
+        when_to_use="Continuous-time dynamics; irregular time series; systems with known ODE structure",
+        when_not_to_use="Short time series (<6 obs); purely discrete processes; no temporal structure",
+        output_interpretation="Fitted trajectory from ODE integration. Training score on derivative approximation. Residuals indicate model-data fit.",
+        typical_min_obs=30,
     )
 
     @staticmethod

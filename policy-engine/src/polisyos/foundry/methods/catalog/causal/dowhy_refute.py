@@ -216,6 +216,7 @@ class DoWhyRefute:
                     name="graph_causal_data",
                     slot_type=SlotType.MATRIX,
                     unit=Unit("observations", "rows"),
+                    shape=("n_obs", "n_features"),
                 )
             }
         ),
@@ -259,6 +260,9 @@ class DoWhyRefute:
             "identifiability": "Target estimand is identifiable under graph assumptions.",
             "robustness_rule": "Refutation passes when effect ratio remains near 1.0.",
         },
+        when_to_use="Validate causal estimate robustness via placebo treatment, random common cause, data subset refuters",
+        when_not_to_use="No prior causal estimate to validate; purely exploratory analysis",
+        output_interpretation="Refutation test statistics. Estimate should be stable under placebo/random cause. Large deviation = suspect.",
     )
 
     _METHOD_MAP: ClassVar[dict[str, CausalMethod]] = {

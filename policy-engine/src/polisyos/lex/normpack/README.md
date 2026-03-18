@@ -76,7 +76,7 @@ select_doc_sources
 ### `policies.py`
 
 - Константы pipeline и policy ids.
-- Default extractor: `lex.norm_extractor.regex_v1@1.0.0`.
+- Default extractor: `lex.norm_extractor.regex_v1`.
 - Default provisions: `article`, `point`, `subpoint`.
 
 ## Важные особенности

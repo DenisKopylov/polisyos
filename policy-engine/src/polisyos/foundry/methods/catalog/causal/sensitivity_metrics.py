@@ -21,7 +21,7 @@ from polisyos.foundry.methods.base import (
     foundry_method,
 )
 from polisyos.foundry.methods.catalog.causal.protocols import GraphCausalData
-from polisyos.ir.analytics.sensitivity import EValueResult, SensitivityResult
+from polisyos.ir.analytics.sensitivity import BenchmarkResult, EValueResult, SensitivityResult
 
 _EPS = 1.0e-12
 
@@ -373,6 +373,182 @@ def _compute_rosenbaum_gamma(
     return float(gamma_max + gamma_step), float(last_p), None
 
 
+def _partial_r2_numpy(
+    X: np.ndarray,
+    y: np.ndarray,
+    col_idx: int,
+) -> float | None:
+    """Compute partial R² of column col_idx of X on y, controlling for remaining columns.
+
+    partial R² = 1 - RSS_full / RSS_restricted
+    where RSS_full = OLS residuals of y ~ X (all columns)
+    and   RSS_restricted = OLS residuals of y ~ X_without_col_idx
+    """
+    n, p = X.shape
+    if n < p + 2 or p < 2:
+        return None
+
+    # Full model: y ~ X
+    try:
+        coef_full, _, _, _ = np.linalg.lstsq(X, y, rcond=None)
+        res_full = y - X @ coef_full
+        rss_full = float(np.dot(res_full, res_full))
+
+        # Restricted model: drop col_idx
+        keep = [i for i in range(p) if i != col_idx]
+        X_restr = X[:, keep]
+        coef_restr, _, _, _ = np.linalg.lstsq(X_restr, y, rcond=None)
+        res_restr = y - X_restr @ coef_restr
+        rss_restr = float(np.dot(res_restr, res_restr))
+
+        if rss_restr <= _EPS:
+            return None
+        r2 = 1.0 - rss_full / rss_restr
+        return float(max(0.0, min(1.0, r2)))
+    except (np.linalg.LinAlgError, ValueError):
+        return None
+
+
+def _compute_benchmarks(
+    *,
+    data_matrix: np.ndarray,
+    treatment_col: int,
+    outcome_col: int,
+    covariate_cols: list[int],
+    benchmark_names: list[str],
+    partial_r2_treatment: float | None,
+    sensemakr_mod: Any | None,
+) -> tuple[list[BenchmarkResult], str | None]:
+    """Compute Cinelli-Hazlett benchmarks relative to named observed covariates.
+
+    For each benchmark covariate, computes:
+    - r2yd_x: partial R² of that covariate on the outcome
+    - r2td_x: partial R² of that covariate on the treatment
+    - bias_scale: r2td_x / partial_r2_treatment (how many times this covariate's
+      treatment-confounding would be needed to explain away the effect)
+    - rv_benchmarked: sensemakr RV benchmarked to this covariate (if available)
+
+    Falls back to numpy-only partial R² computation when sensemakr is unavailable.
+    """
+    if not benchmark_names or not covariate_cols:
+        return [], None
+
+    n, p_total = data_matrix.shape
+    # Build design matrix with intercept, treatment, and all covariates
+    all_cols = [treatment_col] + covariate_cols
+    X_base = np.hstack([
+        np.ones((n, 1), dtype=float),
+        data_matrix[:, all_cols],
+    ])
+    y_outcome = data_matrix[:, outcome_col].astype(float)
+    t_treatment = data_matrix[:, treatment_col].astype(float)
+
+    # Covariate-only design (for r2td_x: partial R² of covariate on treatment)
+    X_covariates = np.hstack([
+        np.ones((n, 1), dtype=float),
+        data_matrix[:, covariate_cols],
+    ])
+
+    # Build name → position in covariate_cols mapping
+    # covariate_cols[i] is the column index in data_matrix
+    col_idx_to_pos: dict[int, int] = {col: idx for idx, col in enumerate(covariate_cols)}
+
+    results: list[BenchmarkResult] = []
+    warnings_found: list[str] = []
+
+    for name in benchmark_names:
+        # Find the column index for this benchmark covariate
+        bench_col: int | None = None
+        for col_idx in covariate_cols:
+            pass  # we'll match by name index below — handled outside
+
+        # We receive benchmark_names and covariate_cols in the same order
+        # from the caller, so zip them together
+        # This function is called with benchmark names that map to covariate_cols
+        # positionally (caller filters to matching columns first).
+        # Use the outer scope variable; iterate below.
+        r2yd_x: float | None = None
+        r2td_x: float | None = None
+        bias_scale: float | None = None
+        rv_benchmarked: float | None = None
+        interpretation = ""
+
+        # Find bench_col by position in the names → covariate_cols list
+        # (caller passes only names that exist in covariate_cols ordering)
+        try:
+            bench_pos = benchmark_names.index(name)  # position in benchmark_names list
+            if bench_pos < len(covariate_cols):
+                bench_col_idx = covariate_cols[bench_pos]
+            else:
+                warnings_found.append(f"benchmark covariate '{name}' not found; skipping")
+                continue
+        except ValueError:
+            warnings_found.append(f"benchmark covariate '{name}' not found; skipping")
+            continue
+
+        # r2yd_x: partial R² of bench_col on outcome (controlling for T + other covariates)
+        # In X_base: column 0 = intercept, column 1 = treatment, columns 2.. = covariates
+        # The benchmark covariate is at X_base column = 2 + bench_pos
+        bench_in_base = 2 + bench_pos
+        if bench_in_base < X_base.shape[1]:
+            r2yd_x = _partial_r2_numpy(X_base, y_outcome, bench_in_base)
+
+        # r2td_x: partial R² of bench_col on treatment (controlling for other covariates)
+        # In X_covariates: column 0 = intercept, columns 1.. = covariates
+        bench_in_cov = 1 + bench_pos
+        if bench_in_cov < X_covariates.shape[1]:
+            r2td_x = _partial_r2_numpy(X_covariates, t_treatment, bench_in_cov)
+
+        # bias_scale: relative to treatment's own partial R²
+        if r2td_x is not None and partial_r2_treatment is not None and partial_r2_treatment > _EPS:
+            bias_scale = r2td_x / partial_r2_treatment
+
+        # Optional sensemakr enhancement
+        if sensemakr_mod is not None and r2yd_x is not None and r2td_x is not None:
+            ovb_bounds = getattr(sensemakr_mod, "ovb_bounds", None)
+            if callable(ovb_bounds):
+                try:
+                    bounds_result = ovb_bounds(
+                        r2yd_x=r2yd_x,
+                        r2td_x=r2td_x,
+                    )
+                    rv_benchmarked = _extract_stat(
+                        bounds_result,
+                        ("rv_q", "rv", "robustness_value", "adjusted_rv"),
+                    )
+                except Exception:
+                    pass  # sensemakr API mismatch — skip
+
+        # Build interpretation string
+        parts: list[str] = [f"Covariate '{name}':"]
+        if r2yd_x is not None:
+            parts.append(f"r2_outcome={r2yd_x:.3f}")
+        if r2td_x is not None:
+            parts.append(f"r2_treatment={r2td_x:.3f}")
+        if bias_scale is not None:
+            if bias_scale >= 1.0:
+                parts.append(
+                    f"bias_scale={bias_scale:.1f}x (effect is more robust than this covariate)"
+                )
+            else:
+                parts.append(
+                    f"bias_scale={bias_scale:.2f}x (confounder of this strength could explain away effect)"
+                )
+        interpretation = " ".join(parts)
+
+        results.append(BenchmarkResult(
+            covariate_name=name,
+            r2yd_x=r2yd_x,
+            r2td_x=r2td_x,
+            bias_scale=bias_scale,
+            rv_benchmarked=rv_benchmarked,
+            interpretation=interpretation,
+        ))
+
+    warning_msg = "; ".join(warnings_found) if warnings_found else None
+    return results, warning_msg
+
+
 def _build_interpretation(result: SensitivityResult) -> str:
     parts: list[str] = []
     if result.e_value is not None:
@@ -407,6 +583,7 @@ class SensitivityMetrics:
                     name="graph_causal_data",
                     slot_type=SlotType.MATRIX,
                     unit=Unit("observations", "rows"),
+                    shape=("n_obs", "n_features"),
                 )
             }
         ),
@@ -433,6 +610,26 @@ class SensitivityMetrics:
             ParameterSpec(name="robustness_value_threshold", default=0.05),
             ParameterSpec(name="rosenbaum_gamma_threshold", default=1.25),
             ParameterSpec(name="covariates", default=None),
+            ParameterSpec(
+                name="ess_fraction",
+                default=None,
+                description="ESS fraction from upstream density-ratio or positivity check.",
+            ),
+            ParameterSpec(
+                name="ess_min_threshold",
+                default=0.1,
+                description="ESS fraction below which to emit a near-inestimable warning.",
+            ),
+            ParameterSpec(
+                name="benchmark_covariates",
+                default=None,
+                description=(
+                    "List of covariate column names for Cinelli-Hazlett relative sensitivity "
+                    "benchmarking. Each named covariate's partial R² on treatment and outcome "
+                    "is computed and compared to the treatment's own partial R². "
+                    "If None, benchmarking is skipped."
+                ),
+            ),
         ),
         fidelity=FidelityLevel.HIGH,
         complexity=ComplexityClass.O_N2,
@@ -459,6 +656,9 @@ class SensitivityMetrics:
             "matching_quality": "Nearest-neighbor covariate matching approximates pair balance.",
             "effect_scale": "ATE to RR conversion is an approximation recorded in conversion_method.",
         },
+        when_to_use="Assess robustness of causal estimate to unmeasured confounding; how strong must confounding be to explain away result",
+        when_not_to_use="Purely descriptive analysis without causal claim; no concern about unobserved confounders",
+        output_interpretation="E-value: minimum association a confounder must have with T and Y to fully explain the effect. Higher E-value = more robust.",
     )
 
     @staticmethod
@@ -545,6 +745,56 @@ class SensitivityMetrics:
         if rosenbaum_warning is not None:
             warnings.append(rosenbaum_warning)
 
+        # Cinelli-Hazlett benchmarking
+        benchmark_covariates_raw = params.get("benchmark_covariates")
+        benchmark_results: list[BenchmarkResult] = []
+        benchmark_covariate_names: list[str] = []
+        if benchmark_covariates_raw is not None:
+            raw_names = [str(c) for c in benchmark_covariates_raw]
+            # Filter to names that exist in data and are covariates (not treatment/outcome)
+            valid_names = [
+                name for name in raw_names
+                if name in data.column_names
+                and name not in {data.treatment, data.outcome}
+                and data.column_names.index(name) in covariate_indices
+            ]
+            if valid_names:
+                bench_cols = [data.column_names.index(name) for name in valid_names]
+                # Load sensemakr once (may already have tried above)
+                try:
+                    sensemakr_mod = _load_sensemakr_module()
+                except Exception:
+                    sensemakr_mod = None
+                benchmark_results, bench_warning = _compute_benchmarks(
+                    data_matrix=np.asarray(data.data, dtype=float),
+                    treatment_col=treatment_idx,
+                    outcome_col=outcome_idx,
+                    covariate_cols=covariate_indices,
+                    benchmark_names=valid_names,
+                    partial_r2_treatment=partial_r2_treatment,
+                    sensemakr_mod=sensemakr_mod,
+                )
+                benchmark_covariate_names = valid_names
+                if bench_warning:
+                    warnings.append(bench_warning)
+            else:
+                skipped = [n for n in raw_names if n not in data.column_names]
+                if skipped:
+                    warnings.append(
+                        f"benchmark_covariates not found in data columns: {skipped}"
+                    )
+
+        ess_fraction_raw = params.get("ess_fraction")
+        ess_min_threshold = _to_float(params.get("ess_min_threshold", 0.1), name="ess_min_threshold")
+        if ess_fraction_raw is not None:
+            ess_frac = _to_float(ess_fraction_raw, name="ess_fraction")
+            if ess_frac < ess_min_threshold:
+                warnings.append(
+                    f"transport near-inestimable: ESS fraction {ess_frac:.3f} < threshold "
+                    f"{ess_min_threshold:.3f}. The estimand is formally identifiable but "
+                    "statistical precision is critically limited."
+                )
+
         e_value_threshold = _to_float(params.get("e_value_threshold", 1.25), name="e_value_threshold")
         robustness_value_threshold = _to_float(
             params.get("robustness_value_threshold", 0.05),
@@ -574,6 +824,8 @@ class SensitivityMetrics:
             rosenbaum_gamma=rosenbaum_gamma,
             rosenbaum_p_value=rosenbaum_p_value,
             is_robust=is_robust,
+            benchmark_results=benchmark_results,
+            benchmark_covariates=benchmark_covariate_names,
             metadata={
                 "sample_size": sample_size,
                 "alpha": alpha,
@@ -585,6 +837,7 @@ class SensitivityMetrics:
                 "metric_checks": metric_checks,
                 "covariates_used": [data.column_names[idx] for idx in covariate_indices],
                 "warnings": list(warnings),
+                "ess_fraction": ess_fraction_raw,
             },
         )
         result = result.model_copy(update={"interpretation": _build_interpretation(result)})

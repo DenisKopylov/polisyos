@@ -2,6 +2,16 @@ from __future__ import annotations
 
 from typing import Sequence
 
+from .advanced import (
+    GaussianProcessKrigingEstimator,
+    InverseDistanceWeightingEstimator,
+    MAUPSensitivityProfileEstimator,
+    SpatialMicrosimulationEstimator,
+    SpatialSARARPanelEstimator,
+    SpatialSLXPanelEstimator,
+    TwoStepFCAAccessibilityEstimator,
+    ZoneBalanceDesignEstimator,
+)
 from .analysis import (
     AccessibilityIndexEstimator,
     GravityModelEstimator,
@@ -17,6 +27,14 @@ def register_spatial_methods() -> Sequence[type]:
         SpatialDurbinEstimator,
         GravityModelEstimator,
         AccessibilityIndexEstimator,
+        GaussianProcessKrigingEstimator,
+        InverseDistanceWeightingEstimator,
+        SpatialSLXPanelEstimator,
+        SpatialSARARPanelEstimator,
+        TwoStepFCAAccessibilityEstimator,
+        SpatialMicrosimulationEstimator,
+        ZoneBalanceDesignEstimator,
+        MAUPSensitivityProfileEstimator,
     )
 
 

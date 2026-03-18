@@ -83,6 +83,7 @@ def test_dynamic_programming_and_socp_dispatcher_path() -> None:
     runner = SolverRunner()
     if not runner.is_available():
         pytest.skip("solver backend not available in this environment")
+    pytest.importorskip("cvxpy")
 
     dispatcher = MethodDispatcher.get_instance()
     socp_cls = registry.get("optimization.convex.socp@1.0.0")

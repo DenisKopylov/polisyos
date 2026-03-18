@@ -139,11 +139,13 @@ class RegressionDiscontinuity:
                     name="running_variable",
                     slot_type=SlotType.VECTOR,
                     unit=Unit("forcing", "value"),
+                    shape=("n_obs",),
                 ),
                 SlotSpec(
                     name="outcome",
                     slot_type=SlotType.VECTOR,
                     unit=Unit("outcome", "value"),
+                    shape=("n_obs",),
                 ),
             }
         ),
@@ -196,6 +198,10 @@ class RegressionDiscontinuity:
             ),
             "local_randomization": "Near cutoff assignment approximates randomization.",
         },
+        when_to_use="Sharp or fuzzy RDD with a forcing/running variable and clear cutoff; local average treatment effect near threshold",
+        when_not_to_use="No clear discontinuity; manipulation of running variable; small bandwidth yields <30 obs",
+        typical_min_obs=100,
+        output_interpretation="RD estimate: LATE at the cutoff. Positive = treatment increases outcome at threshold.",
     )
 
     @staticmethod

@@ -55,6 +55,14 @@ def test_spatial_registration_and_core_methods_run() -> None:
         "spatial_durbin",
         "gravity_model",
         "accessibility_index",
+        "gaussian_process_kriging",
+        "idw",
+        "slx",
+        "sarar",
+        "two_step_fca",
+        "smsm",
+        "maup_profile",
+        "zone_balance",
     }
 
     state = _spatial_state()
@@ -126,3 +134,176 @@ def test_gravity_model_and_accessibility_index_run() -> None:
         seed=159,
     )
     assert np.asarray(access_result.output["scores"], dtype=float).shape == (4,)
+
+
+def test_advanced_spatial_methods_run() -> None:
+    ensure_spatial_methods_registered()
+    registry = MethodRegistry.get_instance()
+    dispatcher = MethodDispatcher.get_instance()
+
+    kriging_cls = registry.get("spatial.interpolation.gaussian_process_kriging@1.0.0")
+    kriging_result = dispatcher.dispatch(
+        method_class=kriging_cls,
+        signature=kriging_cls.signature,
+        state={
+            "coordinates": np.array(
+                [[0.0, 0.0], [0.0, 1.0], [1.0, 0.0], [1.0, 1.0], [0.5, 0.4]],
+                dtype=float,
+            ),
+            "values": np.array([1.0, 1.8, 2.1, 2.9, 1.7], dtype=float),
+            "prediction_coords": np.array([[0.2, 0.2], [0.8, 0.8], [0.5, 0.7]], dtype=float),
+        },
+        params={"length_scale": 0.7, "noise_level": 0.02},
+        seed=163,
+    )
+    assert np.asarray(kriging_result.output["result"].fitted_values, dtype=float).shape == (3,)
+    assert np.asarray(kriging_result.output["result"].scores, dtype=float).shape == (3,)
+
+    idw_cls = registry.get("spatial.interpolation.idw@1.0.0")
+    idw_result = dispatcher.dispatch(
+        method_class=idw_cls,
+        signature=idw_cls.signature,
+        state={
+            "coordinates": np.array(
+                [[0.0, 0.0], [0.0, 1.0], [1.0, 0.0], [1.0, 1.0], [0.5, 0.4]],
+                dtype=float,
+            ),
+            "values": np.array([1.0, 1.8, 2.1, 2.9, 1.7], dtype=float),
+            "prediction_coords": np.array([[0.2, 0.2], [0.8, 0.8], [0.5, 0.7]], dtype=float),
+        },
+        params={"power": 1.8},
+        seed=164,
+    )
+    assert np.asarray(idw_result.output["result"].fitted_values, dtype=float).shape == (3,)
+    assert np.asarray(idw_result.output["result"].scores, dtype=float).shape == (3,)
+
+    slx_cls = registry.get("spatial.panel.slx@1.0.0")
+    slx_result = dispatcher.dispatch(
+        method_class=slx_cls,
+        signature=slx_cls.signature,
+        state={
+            "coordinates": np.array(
+                [[0.0, 0.0], [0.0, 1.0], [1.0, 0.0], [0.0, 0.0], [0.0, 1.0], [1.0, 0.0]],
+                dtype=float,
+            ),
+            "values": np.array([2.0, 3.0, 4.0, 2.4, 3.4, 4.8], dtype=float),
+            "features": np.array(
+                [
+                    [1.0, 0.2],
+                    [0.7, 0.6],
+                    [1.2, 0.1],
+                    [1.1, 0.25],
+                    [0.8, 0.7],
+                    [1.4, 0.2],
+                ],
+                dtype=float,
+            ),
+            "unit_ids": np.array(["u0", "u1", "u2", "u0", "u1", "u2"]),
+            "time_ids": np.array([0, 0, 0, 1, 1, 1]),
+        },
+        params={},
+        seed=167,
+    )
+    assert slx_result.output["result"].method_name == "slx"
+    assert slx_result.output["result"].statistics["spillover_effect_norm"] >= 0.0
+
+    sarar_cls = registry.get("spatial.panel.sarar@1.0.0")
+    sarar_result = dispatcher.dispatch(
+        method_class=sarar_cls,
+        signature=sarar_cls.signature,
+        state={
+            "coordinates": np.array(
+                [[0.0, 0.0], [0.0, 1.0], [1.0, 0.0], [0.0, 0.0], [0.0, 1.0], [1.0, 0.0]],
+                dtype=float,
+            ),
+            "values": np.array([2.0, 3.0, 4.0, 2.4, 3.4, 4.8], dtype=float),
+            "features": np.array(
+                [
+                    [1.0, 0.2],
+                    [0.7, 0.6],
+                    [1.2, 0.1],
+                    [1.1, 0.25],
+                    [0.8, 0.7],
+                    [1.4, 0.2],
+                ],
+                dtype=float,
+            ),
+            "unit_ids": np.array(["u0", "u1", "u2", "u0", "u1", "u2"]),
+            "time_ids": np.array([0, 0, 0, 1, 1, 1]),
+        },
+        params={"max_iter": 5},
+        seed=169,
+    )
+    assert sarar_result.output["result"].method_name == "sarar"
+    assert abs(float(sarar_result.output["result"].statistics["rho"])) <= 0.95
+    assert abs(float(sarar_result.output["result"].statistics["lambda"])) <= 0.95
+
+    fca_cls = registry.get("spatial.accessibility.two_step_fca@1.0.0")
+    fca_result = dispatcher.dispatch(
+        method_class=fca_cls,
+        signature=fca_cls.signature,
+        state={
+            "origin_coords": np.array([[0.0, 0.0], [0.0, 1.0], [1.0, 0.5]], dtype=float),
+            "destination_coords": np.array([[0.1, 0.2], [0.9, 0.6]], dtype=float),
+            "opportunity_mass": np.array([120.0, 80.0], dtype=float),
+            "demand_mass": np.array([60.0, 45.0, 50.0], dtype=float),
+        },
+        params={"catchment_threshold": 1.2, "distance_decay": 0.2},
+        seed=173,
+    )
+    assert np.asarray(fca_result.output["result"].scores, dtype=float).shape == (3,)
+
+    smsm_cls = registry.get("spatial.microsim.smsm@1.0.0")
+    smsm_result = dispatcher.dispatch(
+        method_class=smsm_cls,
+        signature=smsm_cls.signature,
+        state={
+            "sample_features": np.array(
+                [
+                    [1.0, 0.0, 1.0],
+                    [0.0, 1.0, 1.0],
+                    [1.0, 1.0, 0.0],
+                    [0.5, 0.2, 0.1],
+                ],
+                dtype=float,
+            ),
+            "area_constraints": np.array([[30.0, 18.0, 20.0], [22.0, 25.0, 15.0]], dtype=float),
+            "area_coordinates": np.array([[0.0, 0.0], [1.0, 1.0]], dtype=float),
+        },
+        params={"max_iter": 18},
+        seed=179,
+    )
+    assert np.asarray(smsm_result.output["result"].scores, dtype=float).shape == (2, 4)
+
+    zone_cls = registry.get("spatial.design.zone_balance@1.0.0")
+    zone_result = dispatcher.dispatch(
+        method_class=zone_cls,
+        signature=zone_cls.signature,
+        state={
+            "coordinates": np.array(
+                [[0.0, 0.0], [0.2, 0.9], [0.8, 0.1], [1.0, 1.0], [0.5, 0.4]],
+                dtype=float,
+            ),
+            "values": np.array([10.0, 12.0, 9.0, 15.0, 11.0], dtype=float),
+        },
+        params={"n_zones": 2, "max_iter": 10},
+        seed=181,
+    )
+    assert np.asarray(zone_result.output["result"].scores, dtype=float).shape == (5,)
+
+    maup_cls = registry.get("spatial.design.maup_profile@1.0.0")
+    maup_result = dispatcher.dispatch(
+        method_class=maup_cls,
+        signature=maup_cls.signature,
+        state={
+            "coordinates": np.array(
+                [[0.0, 0.0], [0.2, 0.9], [0.8, 0.1], [1.0, 1.0], [0.5, 0.4], [0.7, 0.8]],
+                dtype=float,
+            ),
+            "values": np.array([10.0, 12.0, 9.0, 15.0, 11.0, 13.0], dtype=float),
+        },
+        params={"min_zones": 2, "max_zones": 4, "n_restarts": 3},
+        seed=183,
+    )
+    assert maup_result.output["result"].method_name == "maup_profile"
+    assert np.asarray(maup_result.output["result"].scores, dtype=float).shape == (3, 4)

@@ -24,7 +24,7 @@ def _reset_globals():
 def test_did_standard_known_att():
     ensure_causal_methods_registered()
     method_cls = MethodRegistry.get_instance().get(
-        "causal.inference.difference_in_differences@1.0.0"
+        "causal.inference.did.standard@1.0.0"
     )
     t0 = 5
     att_true = 3.0
@@ -39,7 +39,7 @@ def test_did_standard_known_att():
         method_class=method_cls,
         signature=method_cls.signature,
         state=data,
-        params={"staggered": False},
+        params={},
         seed=7,
     )
     report = result.output["report"]
@@ -50,7 +50,7 @@ def test_did_standard_known_att():
 def test_did_staggered_bootstrap_runs():
     ensure_causal_methods_registered()
     method_cls = MethodRegistry.get_instance().get(
-        "causal.inference.difference_in_differences@1.0.0"
+        "causal.inference.did.staggered@1.0.0"
     )
     n_units, n_periods = 12, 10
     base = np.tile(np.linspace(0, 9, n_periods, dtype=float), (n_units, 1))
@@ -70,7 +70,7 @@ def test_did_staggered_bootstrap_runs():
         method_class=method_cls,
         signature=method_cls.signature,
         state=data,
-        params={"staggered": True, "n_bootstrap": 200},
+        params={"n_bootstrap": 200},
         seed=11,
     )
     report = result.output["report"]

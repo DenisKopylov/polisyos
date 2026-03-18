@@ -107,6 +107,9 @@ class HausmanTestEstimator:
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Hausman specification test between FE and RE panel estimators.",
         tags=frozenset({"econometrics", "diagnostics", "hausman"}),
+        when_to_use="Panel data; test whether random effects are consistent (i.e., correlated with regressors)",
+        typical_min_obs=50,
+        output_interpretation="Reject H0 → FE preferred (RE inconsistent). Fail to reject → RE efficient. Chi-sq statistic with df = number of common coefficients.",
     )
 
     @staticmethod
@@ -183,6 +186,9 @@ class WeakIVTestEstimator:
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="First-stage weak instrument diagnostic using an F-stat threshold.",
         tags=frozenset({"econometrics", "diagnostics", "weak-iv"}),
+        when_to_use="IV/2SLS estimation; check whether instruments are sufficiently correlated with endogenous regressors",
+        typical_min_obs=100,
+        output_interpretation="F-stat >= 10 (Staiger-Stock rule of thumb) indicates strong instruments. Low F-stat → weak IV bias toward OLS.",
     )
 
     @staticmethod
@@ -253,6 +259,9 @@ class SarganHansenEstimator:
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Overidentifying restrictions test using Sargan-Hansen/J-statistic.",
         tags=frozenset({"econometrics", "diagnostics", "sargan-hansen"}),
+        when_to_use="Overidentified IV models (more instruments than endogenous variables); test instrument exogeneity jointly",
+        typical_min_obs=100,
+        output_interpretation="Fail to reject H0 → instruments pass overidentification test. Reject → at least one instrument correlated with error.",
     )
 
     @staticmethod
@@ -320,6 +329,9 @@ class CointegrationTestEstimator:
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Engle-Granger cointegration diagnostic.",
         tags=frozenset({"econometrics", "diagnostics", "cointegration"}),
+        when_to_use="Test for long-run equilibrium relationship between two I(1) time series before fitting VECM",
+        typical_min_obs=100,
+        output_interpretation="Reject H0 → series are cointegrated (residuals stationary). Use VECM. Fail to reject → model in differences (VAR).",
     )
 
     @staticmethod
@@ -392,6 +404,9 @@ class ForecastBacktestEstimator:
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Rolling holdout forecast backtest for ARIMA/VAR style models.",
         tags=frozenset({"econometrics", "diagnostics", "forecast-backtest"}),
+        when_to_use="Evaluate out-of-sample forecast accuracy of time series models using rolling holdout windows",
+        typical_min_obs=50,
+        output_interpretation="RMSE and MAE over holdout period. Lower values = better forecast accuracy. Compare across models.",
     )
 
     @staticmethod

@@ -457,6 +457,10 @@ class FixedEffectsEstimator:
         citations=PanelDataEstimator.metadata.citations,
         equations={"fixed_effects": PanelDataEstimator.metadata.equations["fixed_effects"]},
         assumptions=PanelDataEstimator.metadata.assumptions,
+        when_to_use="Panel data; want to control for time-invariant unobserved heterogeneity; treatment varies within unit over time",
+        when_not_to_use="Cross-sectional only; time-invariant treatment; interest in between-unit effects",
+        typical_min_obs=50,
+        output_interpretation="Within-estimator coefficient: effect of X on Y controlling for unit FE. Hausman test to choose between FE/RE.",
     )
 
     @staticmethod
@@ -511,6 +515,10 @@ class RandomEffectsEstimator:
         citations=PanelDataEstimator.metadata.citations,
         equations={"random_effects": PanelDataEstimator.metadata.equations["random_effects"]},
         assumptions=PanelDataEstimator.metadata.assumptions,
+        when_to_use="Panel data; individual effects uncorrelated with regressors; want to estimate between-unit effects",
+        when_not_to_use="Correlated random effects (use FE or Mundlak); unbalanced panel with few periods per unit",
+        typical_min_obs=50,
+        output_interpretation="GLS estimator. More efficient than FE if RE assumption holds. Compare with FE via Hausman test.",
     )
 
     @staticmethod

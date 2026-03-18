@@ -355,6 +355,119 @@ def _abduce_linear_noises(
     return noise
 
 
+def _abduce_noises_unified(
+    *,
+    condition: Mapping[str, float],
+    order: list[str],
+    parents_map: Mapping[str, list[str]],
+    mechanisms: Mapping[str, NodeMechanism],
+    warnings: list[str],
+) -> dict[str, float]:
+    """Abduct exogenous noise values from a factual observation.
+
+    Extends :func:`_abduce_linear_noises` to handle additional mechanism families:
+
+    - ``LINEAR``: exact closed-form residual U = Y − f(pa_Y)
+    - ``ADDITIVE_NOISE``: same as LINEAR since f is stored as linear params
+    - ``PARAMETRIC_PRIOR``: approximate, uses prior-mean linear prediction
+    - ``EMPIRICAL``, ``POST_NONLINEAR``, ``CLASSIFIER``: skip (U = 0), emit warning
+
+    Parameters
+    ----------
+    condition:
+        Observed variable values {node: value} (the factual world).
+    order:
+        Topological order of all SCM nodes.
+    parents_map:
+        {node: [parent, ...]} mapping.
+    mechanisms:
+        {node: NodeMechanism} mapping.
+    warnings:
+        Mutable list; abduction warnings are appended here.
+
+    Returns
+    -------
+    dict[str, float]
+        Abducted noise values {node: U_node}.
+    """
+    if not condition:
+        return {}
+
+    pseudo_observed: dict[str, float] = {}
+    noise: dict[str, float] = {}
+
+    for node in order:
+        # Pin observed nodes directly
+        if node in condition:
+            pseudo_observed[node] = float(condition[node])
+        else:
+            mechanism = mechanisms.get(node)
+            if mechanism is None:
+                pseudo_observed[node] = 0.0
+            elif mechanism.family in (MechanismFamily.LINEAR, MechanismFamily.ADDITIVE_NOISE) and all(
+                parent in pseudo_observed for parent in parents_map.get(node, [])
+            ):
+                parent_values = {p: pseudo_observed[p] for p in parents_map.get(node, [])}
+                pseudo_observed[node] = _linear_predict(mechanism, parent_values)
+            elif mechanism.family is MechanismFamily.PARAMETRIC_PRIOR and all(
+                parent in pseudo_observed for parent in parents_map.get(node, [])
+            ):
+                # Approximate: use prior-mean linear prediction
+                prior = mechanism.family_params.get("prior")
+                if isinstance(prior, Mapping):
+                    intercept = float(prior.get("__intercept__", {}).get("mean", 0.0))
+                    val = intercept
+                    for parent in parents_map.get(node, []):
+                        stats = prior.get(parent, {})
+                        val += float(stats.get("mean", 0.0)) * pseudo_observed[parent]
+                    pseudo_observed[node] = val
+                else:
+                    pseudo_observed[node] = float(mechanism.family_params.get("mean", 0.0))
+            else:
+                pseudo_observed[node] = 0.0
+
+        # Abduct noise for observed nodes where we can compute it
+        mechanism = mechanisms.get(node)
+        if mechanism is None or node not in condition:
+            continue
+        all_parents_known = all(parent in pseudo_observed for parent in parents_map.get(node, []))
+        if not all_parents_known:
+            continue
+
+        parent_values = {p: pseudo_observed[p] for p in parents_map.get(node, [])}
+
+        if mechanism.family in (MechanismFamily.LINEAR, MechanismFamily.ADDITIVE_NOISE):
+            mean = _linear_predict(mechanism, parent_values)
+            noise[node] = float(condition[node]) - mean
+
+        elif mechanism.family is MechanismFamily.PARAMETRIC_PRIOR:
+            # Approximate abduction via prior-mean linear prediction
+            prior = mechanism.family_params.get("prior")
+            if isinstance(prior, Mapping):
+                intercept = float(prior.get("__intercept__", {}).get("mean", 0.0))
+                val = intercept
+                for parent in parents_map.get(node, []):
+                    stats = prior.get(parent, {})
+                    val += float(stats.get("mean", 0.0)) * parent_values[parent]
+                noise[node] = float(condition[node]) - val
+            else:
+                mean_val = float(mechanism.family_params.get("mean", 0.0))
+                noise[node] = float(condition[node]) - mean_val
+
+        else:
+            # EMPIRICAL, POST_NONLINEAR, CLASSIFIER: cannot abduct analytically
+            _append_warning(
+                warnings,
+                (
+                    f"cannot abduct noise for node '{node}' "
+                    f"with family '{mechanism.family.value}'; "
+                    "treating as U=0 (factual condition ignored for this node)"
+                ),
+            )
+
+    return noise
+
+
 def _effective_intervention(query: CausalQuery) -> InterventionSpec | None:
     if query.intervention_spec is not None:
         return query.intervention_spec
@@ -374,6 +487,7 @@ def _simulate_samples(
     warnings: list[str],
     intervention_override: InterventionSpec | None = None,
     condition_override: Mapping[str, float] | None = None,
+    precomputed_abduced_noises: dict[str, float] | None = None,
 ) -> tuple[np.ndarray, dict[str, np.ndarray]]:
     order = _topological_order(scm_spec)
     parents_map = _parents_by_node(scm_spec)
@@ -384,16 +498,19 @@ def _simulate_samples(
         else dict(query.condition)
     )
     descendants = _descendants_of_treatment(scm_spec, query.treatment_variable)
-    abduced_noises = (
-        _abduce_linear_noises(
+
+    if precomputed_abduced_noises is not None:
+        # Caller provided pre-computed noises (e.g. from twin-network query)
+        abduced_noises = precomputed_abduced_noises
+    elif query.query_type is QueryType.COUNTERFACTUAL:
+        abduced_noises = _abduce_linear_noises(
             query=query.model_copy(update={"condition": condition}),
             order=order,
             parents_map=parents_map,
             mechanisms=mechanisms,
         )
-        if query.query_type is QueryType.COUNTERFACTUAL
-        else {}
-    )
+    else:
+        abduced_noises = {}
 
     intervention = (
         intervention_override
@@ -666,6 +783,9 @@ class GCMQuery:
                 "linear mechanisms with identifiable residuals."
             ),
         },
+        when_to_use="Query fitted GCM for counterfactuals, interventions, or attribution after GCMFit",
+        when_not_to_use="GCM has not been fitted; query is purely observational; non-acyclic graph",
+        output_interpretation="Counterfactual distribution P(Y|do(X=x)). Attribution of anomaly/change to each causal parent.",
     )
 
     @staticmethod
@@ -766,4 +886,14 @@ class GCMQuery:
         return output
 
 
-__all__ = ["GCMQuery"]
+__all__ = [
+    "GCMQuery",
+    "_abduce_noises_unified",
+    "_simulate_samples",
+    "_topological_order",
+    "_parents_by_node",
+    "_mechanism_map",
+    "_sample_node_value",
+    "_effective_intervention",
+    "_percentile_ci",
+]

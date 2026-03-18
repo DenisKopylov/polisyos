@@ -15,7 +15,7 @@ from .protocols import MultiplexNetworkData, NetworkData, NetworkResult
 
 
 def ensure_network_methods_registered(registry: MethodRegistry | None = None) -> None:
-    reg = registry or MethodRegistry.get_instance()
+    reg = registry if registry is not None else MethodRegistry.get_instance()
     for method_class in register_network_methods():
         try:
             reg.register(method_class)

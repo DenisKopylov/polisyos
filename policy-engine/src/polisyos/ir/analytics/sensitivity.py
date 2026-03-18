@@ -10,6 +10,42 @@ from polisyos.ir.canon import CanonSpec
 from polisyos.ir.refs import CausalSensitivityResultRef
 
 
+class BenchmarkResult(BaseModel):
+    """Cinelli-Hazlett benchmarking result relative to a named observed covariate.
+
+    Quantifies how much confounding would be needed (relative to this covariate's
+    association strength) to explain away the estimated effect.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    covariate_name: str
+    r2yd_x: float | None = None
+    """Partial R² of this covariate on outcome (controlling for treatment + other covariates)."""
+    r2td_x: float | None = None
+    """Partial R² of this covariate on treatment (controlling for other covariates)."""
+    bias_scale: float | None = None
+    """How many times this covariate's confounding would be needed to explain away the effect.
+    Computed as r2td_x / partial_r2_treatment. Values > 1 indicate the effect is more robust
+    than a confounder with the same strength as this covariate."""
+    rv_benchmarked: float | None = None
+    """Robustness Value benchmarked relative to this covariate's partial R². Provided by
+    sensemakr when available."""
+    interpretation: str = ""
+    """Human-readable summary of this benchmark."""
+
+    @model_validator(mode="after")
+    def _validate(self) -> "BenchmarkResult":
+        for field in ("r2yd_x", "r2td_x"):
+            val = getattr(self, field)
+            if val is not None:
+                if not math.isfinite(val):
+                    raise ValueError(f"{field} must be finite")
+                if not (0.0 <= val <= 1.0):
+                    raise ValueError(f"{field} must be in [0, 1]")
+        return self
+
+
 class EValueResult(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
@@ -56,6 +92,11 @@ class SensitivityResult(BaseModel):
     interpretation: str = ""
     is_robust: bool = False
     metadata: dict[str, Any] = Field(default_factory=dict)
+
+    benchmark_results: list[BenchmarkResult] = Field(default_factory=list)
+    """Cinelli-Hazlett benchmarks relative to named observed covariates."""
+    benchmark_covariates: list[str] = Field(default_factory=list)
+    """Names of covariates used for benchmarking."""
 
     @model_validator(mode="after")
     def _validate(self) -> "SensitivityResult":
@@ -113,6 +154,7 @@ def load_sensitivity_result(
 
 
 __all__ = [
+    "BenchmarkResult",
     "EValueResult",
     "SensitivityResult",
     "persist_sensitivity_result",

@@ -456,6 +456,7 @@ class PCMCIDiscovery:
                     name="timeseries_data",
                     slot_type=SlotType.MATRIX,
                     unit=Unit("observations", "timesteps"),
+                    shape=("n_obs", "n_series"),
                 )
             }
         ),
@@ -496,6 +497,10 @@ class PCMCIDiscovery:
             "stationarity": "Time-series is sufficiently stationary over the analysis window.",
             "causal_sufficiency": "No severe hidden confounding beyond algorithm tolerance.",
         },
+        when_to_use="Causal discovery in multivariate time series; detect lagged causal links with false discovery control",
+        when_not_to_use="Cross-sectional data; fewer than 100 time steps; no time-series structure",
+        typical_min_obs=200,
+        output_interpretation="Causal graph of lagged links with p-values and effect sizes. MCI link = conditional independence of Xt given parents.",
     )
 
     @staticmethod

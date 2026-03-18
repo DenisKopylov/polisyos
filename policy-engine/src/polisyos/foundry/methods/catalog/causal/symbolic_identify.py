@@ -307,6 +307,9 @@ class SymbolicIdentify:
                 "Falls back to simplified transportability when symbolic path is unavailable."
             ),
         },
+        when_to_use="Symbolic causal identification of transportability query P*(Y|do(X)); use when y0/R symbolic backend is available",
+        when_not_to_use="No symbolic backend available and simplified transport sufficient; query is purely observational",
+        output_interpretation="TransportabilityResult: IDENTIFIED = effect is transportable with given formula. UNSUPPORTED = cannot transport without additional data. Confidence reflects context distance penalty.",
     )
 
     @staticmethod
@@ -385,7 +388,283 @@ class SymbolicIdentify:
         return {"transport_result": result.model_dump(mode="json")}
 
 
+def _id_result_to_transport_result(
+    id_result: "IdentificationResult",
+    diagram: SelectionDiagram,
+    treatment: str,
+    outcome: str,
+) -> TransportabilityResult:
+    """Convert IdentificationResult → TransportabilityResult for backward compat."""
+    from polisyos.foundry.methods.catalog.causal.id_engine import IdentificationStatus
+
+    if id_result.status is IdentificationStatus.IDENTIFIED:
+        assert id_result.estimand_ast is not None
+        formula_str = id_result.estimand_ast.to_latex()
+        formula = TransportFormula(
+            formula_str=formula_str,
+            stratification_variables=[],
+            source_quantities=[dr.dataset_ref or "" for dr in id_result.required_distributions],
+            adjustment_type=id_result.estimand_ast.identification_method,
+        )
+        distance = float(diagram.context_distance)
+        context_penalty = min(distance * 0.35, 0.6)
+        return TransportabilityResult(
+            query=f"P*({outcome}|do({treatment}))",
+            status=TransportabilityStatus.IDENTIFIED,
+            transport_mode=TransportMode.TRANSPORT_FORMULA if diagram.s_nodes else TransportMode.DIRECT,
+            transport_formula=formula,
+            base_confidence=1.0,
+            context_distance_penalty=context_penalty,
+            data_availability_penalty=0.0,
+            final_confidence=max(0.0, 1.0 - context_penalty),
+            algorithm_version="id_v1",
+            identification_engine="native_id",
+            identification_trace=id_result.trace,
+            estimand_ast=id_result.estimand_ast.model_dump(mode="json"),
+            source_context_id=diagram.source_context.context_id,
+            target_context_id=diagram.target_context.context_id,
+        )
+
+    if id_result.status is IdentificationStatus.HEDGE_FOUND:
+        assert id_result.hedge_certificate is not None
+        cert = id_result.hedge_certificate
+        return TransportabilityResult(
+            query=f"P*({outcome}|do({treatment}))",
+            status=TransportabilityStatus.UNSUPPORTED,
+            transport_mode=TransportMode.NONE,
+            base_confidence=0.0,
+            context_distance_penalty=0.0,
+            data_availability_penalty=0.0,
+            final_confidence=0.0,
+            algorithm_version="id_v1",
+            identification_engine="native_id",
+            identification_trace=id_result.trace,
+            unsupported_reason="hedge_certificate: " + cert.description,
+            blocking_s_nodes=diagram.s_nodes,
+            source_context_id=diagram.source_context.context_id,
+            target_context_id=diagram.target_context.context_id,
+        )
+
+    # PAG_AMBIGUOUS or ORACLE_NEEDED — fall through to simplified
+    return TransportabilityResult(
+        query=f"P*({outcome}|do({treatment}))",
+        status=TransportabilityStatus.UNSUPPORTED,
+        transport_mode=TransportMode.NONE,
+        base_confidence=0.0,
+        context_distance_penalty=0.0,
+        data_availability_penalty=0.0,
+        final_confidence=0.0,
+        algorithm_version="id_v1",
+        identification_engine="native_id",
+        identification_trace=id_result.trace,
+        unsupported_reason=f"id_status={id_result.status.value}",
+        source_context_id=diagram.source_context.context_id,
+        target_context_id=diagram.target_context.context_id,
+    )
+
+
+@foundry_method(
+    namespace="causal.transport",
+    version="2.0.0",
+    tags={"causal", "transportability", "symbolic", "id-algorithm", "pearl-bareinboim"},
+)
+class SymbolicIdentifyV2:
+    """Symbolic causal identification using the native Shpitser-Pearl ID algorithm.
+
+    Replaces the heuristic frontdoor fallback in v1 with the full recursive ID
+    algorithm (Steps 1-7 from Shpitser & Pearl 2006), producing:
+
+    - A structured EstimandAST (not just a formula string)
+    - A HedgeCertificate on failure (formal non-identifiability witness)
+    - A backward-compatible TransportabilityResult for existing consumers
+
+    Falls back to v1 solve_transportability() for non-DAG graphs (CPDAG, PAG)
+    where the PAG-identification policy governs.
+    """
+
+    determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STRICT_CPU
+    runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
+
+    signature: ClassVar[MethodSignature] = MethodSignature(
+        name="symbolic_identify",
+        namespace="placeholder",
+        version="0.0.0",
+        input_slots=frozenset(
+            {
+                SlotSpec(
+                    name="selection_diagram",
+                    slot_type=SlotType.SCALAR,
+                    unit=Unit("graph", "json"),
+                ),
+                SlotSpec(
+                    name="query_treatment",
+                    slot_type=SlotType.SCALAR,
+                    unit=Unit("variable", "str"),
+                ),
+                SlotSpec(
+                    name="query_outcome",
+                    slot_type=SlotType.SCALAR,
+                    unit=Unit("variable", "str"),
+                ),
+            }
+        ),
+        output_slots=frozenset(
+            {
+                SlotSpec(
+                    name="transport_result",
+                    slot_type=SlotType.SCALAR,
+                    unit=Unit("artifact", "json"),
+                ),
+                SlotSpec(
+                    name="estimand_ast",
+                    slot_type=SlotType.SCALAR,
+                    unit=Unit("artifact", "json"),
+                ),
+            }
+        ),
+        parameters=(
+            ParameterSpec(name="use_native_id", default=True),
+            ParameterSpec(name="oracle_backend", default="none"),
+            ParameterSpec(name="require_symbolic_backend", default=False),
+            ParameterSpec(name="symbolic_backend", default="auto"),
+            ParameterSpec(name="pag_identification_policy", default="probabilistic"),
+            ParameterSpec(name="pag_max_dag_samples", default=100),
+            ParameterSpec(name="pag_threshold", default=0.5),
+            ParameterSpec(name="pag_seed", default=0),
+        ),
+        fidelity=FidelityLevel.HIGH,
+        complexity=ComplexityClass.O_N2,
+        backend=ComputeBackend.NUMPY,
+        supports_jit=False,
+        supports_vmap=False,
+        supports_grad=False,
+    )
+
+    metadata: ClassVar[MethodMetadata] = MethodMetadata(
+        description=(
+            "Pearl-Bareinboim symbolic identification via native ID algorithm "
+            "(Shpitser & Pearl 2006). Returns structured EstimandAST + "
+            "TransportabilityResult. Falls back to v1 solver for PAG/CPDAG inputs."
+        ),
+        tags=frozenset(
+            {"causal", "transportability", "symbolic", "id-algorithm", "pearl-bareinboim"}
+        ),
+        assumptions={
+            "id_scope": "Full 7-step recursive ID for DAG/ADMG inputs (GraphType.DAG or PAG with ARROW/ARROW).",
+            "fallback": "Non-DAG inputs fall back to solve_transportability() v1 solver.",
+            "hedge": "Non-identifiable cases return HedgeCertificate (formal witness).",
+        },
+        when_to_use=(
+            "Formal causal identification of P*(Y|do(X)) with structured EstimandAST output; "
+            "use when you need the estimand in compiled form for the EstimandCompiler."
+        ),
+        when_not_to_use=(
+            "When only a qualitative transportability check is needed (use CheckTransportability); "
+            "when graph is CPDAG/PAG and PAG-identification is the main path."
+        ),
+        output_interpretation=(
+            "transport_result: TransportabilityResult (backward compat). "
+            "estimand_ast: EstimandAST serialised as dict — parse with EstimandAST.model_validate(). "
+            "HEDGE_FOUND → status=UNSUPPORTED with hedge description in identification_trace."
+        ),
+    )
+
+    @staticmethod
+    def pure_step(state: Mapping[str, Any], params: Mapping[str, Any]) -> dict[str, Any]:
+        from polisyos.foundry.methods.catalog.causal.id_engine import (
+            IdentificationStatus,
+            id_with_oracle_fallback,
+            tr_algorithm,
+        )
+        from polisyos.ir.analytics.causal_graph import GraphType
+
+        selection_diagram = SelectionDiagram.model_validate(state["selection_diagram"])
+        query_treatment = str(state["query_treatment"])
+        query_outcome = str(state["query_outcome"])
+        use_native = bool(params.get("use_native_id", True))
+        oracle = str(params.get("oracle_backend", "none"))
+
+        graph = selection_diagram.base_graph
+        can_use_native = use_native and graph.graph_type in {GraphType.DAG, GraphType.PAG}
+
+        if can_use_native:
+            # Use TR algorithm if S-nodes present, otherwise plain ID
+            if selection_diagram.s_nodes:
+                id_result = tr_algorithm(
+                    treatment=frozenset({query_treatment}),
+                    outcome=frozenset({query_outcome}),
+                    selection_diagram=selection_diagram,
+                )
+            else:
+                id_result = id_with_oracle_fallback(
+                    treatment=frozenset({query_treatment}),
+                    outcome=frozenset({query_outcome}),
+                    graph=graph,
+                    oracle=oracle,  # type: ignore[arg-type]
+                )
+
+            if id_result.status in {
+                IdentificationStatus.IDENTIFIED,
+                IdentificationStatus.HEDGE_FOUND,
+            }:
+                transport_result = _id_result_to_transport_result(
+                    id_result, selection_diagram, query_treatment, query_outcome
+                )
+                estimand_dict = (
+                    id_result.estimand_ast.model_dump(mode="json")
+                    if id_result.estimand_ast is not None
+                    else None
+                )
+                return {
+                    "transport_result": transport_result.model_dump(mode="json"),
+                    "estimand_ast": estimand_dict,
+                }
+
+        # Fallback: v1 solve_transportability
+        symbolic_backend = normalize_symbolic_backend_mode(params.get("symbolic_backend"))
+        selected_backend, _, unavailable_reasons = _resolve_symbolic_backend_locally(
+            symbolic_backend
+        )
+        trace = [f"symbolic_backend_order:fallback_to_v1"]
+
+        # Try frontdoor heuristic first (v1 behavior)
+        if selected_backend is not None:
+            frontdoor_result = _symbolic_from_frontdoor(
+                diagram=selection_diagram,
+                treatment=query_treatment,
+                outcome=query_outcome,
+                trace=trace,
+                backend_name=selected_backend,
+            )
+            if frontdoor_result is not None:
+                return {
+                    "transport_result": frontdoor_result.model_dump(mode="json"),
+                    "estimand_ast": None,
+                }
+
+        result = solve_transportability(
+            selection_diagram=selection_diagram,
+            query_treatment=query_treatment,
+            query_outcome=query_outcome,
+            solver_mode="full_auto",
+            allow_degraded_transport=True,
+            pag_identification_policy=params.get("pag_identification_policy"),
+            pag_max_dag_samples=int(params.get("pag_max_dag_samples", 100) or 100),
+            pag_threshold=float(params.get("pag_threshold", 0.5) or 0.5),
+            pag_seed=int(params.get("pag_seed", 0) or 0),
+        )
+        return {
+            "transport_result": result.model_dump(mode="json"),
+            "estimand_ast": None,
+        }
+
+
+# Import deferred to avoid circular imports at module-load time
+from polisyos.foundry.methods.catalog.causal.id_engine import IdentificationResult  # noqa: E402
+
+
 __all__ = [
     "SymbolicIdentify",
+    "SymbolicIdentifyV2",
     "convert_graph_to_symbolic_repr",
 ]

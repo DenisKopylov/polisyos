@@ -15,6 +15,9 @@ from polisyos.foundry.methods import (
     MethodRegistry,
     MethodSignature,
     ParameterSpec,
+    SlotSpec,
+    SlotType,
+    Unit,
 )
 from polisyos.scientist.compute.job_spec import JobKey, JobSpec
 from polisyos.scientist.compute.runner import run_job
@@ -32,8 +35,8 @@ class _MethodJobIncrement:
         name="method_job_increment",
         namespace="tests.scientist",
         version="1.0.0",
-        input_slots=frozenset(),
-        output_slots=frozenset(),
+        input_slots=frozenset({SlotSpec("state", SlotType.VECTOR, Unit("dimensionless", "array"))}),
+        output_slots=frozenset({SlotSpec("values", SlotType.VECTOR, Unit("dimensionless", "array"))}),
         parameters=(ParameterSpec(name="delta", default=1.0),),
         fidelity=FidelityLevel.LOW,
         complexity=ComplexityClass.O_1,

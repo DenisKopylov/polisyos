@@ -74,6 +74,7 @@ INFRA_DIRS = {
     "agent_sim",
     "runtime",
     "methods/testing",
+    "methods/cli",        # CLI tooling — needs I/O and pathlib
 }
 
 INFRA_FILES = {
@@ -81,6 +82,15 @@ INFRA_FILES = {
     "methods/base.py",
     "methods/discovery.py",
     "methods/_artifacts_fingerprint.py",
+    # Infrastructure modules that legitimately require I/O / system access:
+    "methods/cache.py",          # disk-backed result cache (sqlite3, pathlib)
+    "methods/hot_reload.py",     # file-watcher for dev (os, pathlib)
+    "methods/observability.py",  # metrics / tracing integration (os)
+    "methods/compat_matrix.py",  # compat report generator (pandas)
+    "methods/composer.py",       # chain orchestration (os for env vars)
+    "methods/deprecation.py",    # CLI-facing deprecation warnings (print to stderr)
+    "methods/backends/checkpointing.py",  # checkpoint I/O (pathlib)
+    "methods/backends/ray_runner.py",     # Ray distributed runner (os)
 }
 
 

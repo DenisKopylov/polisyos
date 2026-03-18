@@ -100,6 +100,9 @@ class CommunityDetectionEstimator:
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Spectral community detection on a weighted adjacency matrix.",
         tags=frozenset({"network", "community-detection"}),
+        when_to_use="Identify cohesive subgroups; detect clusters in social/trade networks",
+        when_not_to_use="No clear community structure; number of communities k is fully unknown and elbow is flat",
+        output_interpretation="Community assignments. Modularity Q: >0.3 = meaningful community structure.",
     )
 
     @staticmethod
@@ -172,6 +175,9 @@ class InputOutputNetworkEstimator:
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Network linkage analysis using a Leontief-like inverse over the adjacency matrix.",
         tags=frozenset({"network", "input-output-network"}),
+        when_to_use="Identify influential nodes; policy diffusion through economic input-output networks; forward/backward linkage analysis",
+        when_not_to_use="Non-economic networks; adjacency matrix is not interpretable as flow/share matrix",
+        output_interpretation="Centrality scores per node. High betweenness = bottleneck. Backward/forward linkages from Leontief inverse.",
     )
 
     @staticmethod
@@ -238,6 +244,9 @@ class NetworkDiffusionEstimator:
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="DeGroot-style network diffusion from initial node states.",
         tags=frozenset({"network", "diffusion"}),
+        when_to_use="Spread of behavior, information, or beliefs on network; opinion dynamics; DeGroot learning model",
+        when_not_to_use="Non-network processes; need stochastic contagion (use SIS/SIR); no adjacency structure",
+        output_interpretation="Final node states after diffusion. Trajectory shows convergence path. Consensus = all nodes reach same state.",
     )
 
     @staticmethod
@@ -307,6 +316,9 @@ class ContagionModelEstimator:
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Discrete-time SIS/SIR contagion model on a weighted network.",
         tags=frozenset({"network", "contagion-model"}),
+        when_to_use="Spread of behavior, disease, or information on network; threshold models",
+        when_not_to_use="Non-network contagion; homogeneous mixing sufficient (use compartmental ODE); no adjacency data",
+        output_interpretation="Cascade size and timing. R0>1 = systemic spread. Identification of superspreaders.",
     )
 
     @staticmethod
@@ -392,6 +404,9 @@ class MultiplexNetworkEstimator:
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Multiplex network analytics over several adjacency layers.",
         tags=frozenset({"network", "multiplex-network"}),
+        when_to_use="Networks with multiple relationship types (trade, social, information); multilayer network analysis",
+        when_not_to_use="Single-layer network; layers are not meaningfully distinct; no inter-layer coupling",
+        output_interpretation="Aggregate centrality across layers. Interlayer difference = divergence across network types. Dominant eigenvector = cross-layer influential nodes.",
     )
 
     @staticmethod

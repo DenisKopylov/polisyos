@@ -43,10 +43,12 @@ Usage:
 """
 from __future__ import annotations
 
+import contextvars
 import threading
+from contextlib import contextmanager
 from dataclasses import dataclass, field
 from functools import cmp_to_key
-from typing import Any, Callable, Iterator, Mapping
+from typing import Any, Callable, Generator, Iterator, Mapping
 
 from polisyos.core.registry import BaseRegistry
 from polisyos.foundry.methods.base import (
@@ -58,6 +60,127 @@ from polisyos.foundry.methods.exceptions import (
     MethodAlreadyRegisteredError,
     MethodNotFoundError,
 )
+from polisyos.foundry.methods.lifecycle import (
+    LifecycleLog,
+    LifecycleManager,
+    MethodLifecycle,
+)
+
+# ---------------------------------------------------------------------------
+# Structured logging (optional — no-ops if structlog not installed)
+# ---------------------------------------------------------------------------
+
+try:
+    import structlog as _structlog
+    _log = _structlog.get_logger("foundry.registry")
+    _STRUCTLOG_AVAILABLE = True
+except ImportError:  # pragma: no cover
+    _STRUCTLOG_AVAILABLE = False
+    _log = None  # type: ignore[assignment]
+
+
+def _registry_log(event: str, **kwargs: object) -> None:
+    """Emit a structured log event if structlog is available."""
+    if _STRUCTLOG_AVAILABLE and _log is not None:
+        try:
+            _log.info(event, **kwargs)
+        except Exception:
+            pass  # never let logging break the registry
+
+
+# ---------------------------------------------------------------------------
+# Registry Audit Log
+# ---------------------------------------------------------------------------
+
+import time as _time
+from typing import Literal
+
+_AuditEventKind = Literal["register", "register_lazy", "unregister", "lazy_load", "conflict_skipped"]
+
+
+@dataclass(slots=True)
+class RegistryAuditEvent:
+    """A single entry in the registry audit log."""
+
+    event: str          # AuditEventKind value
+    fqn: str
+    timestamp: float    # time.time()
+    caller: str         # simplified "module:lineno" string
+    details: dict       # extra context (backend, version, lazy, ...)
+
+
+class RegistryAuditLog:
+    """
+    Thread-safe in-process audit log for registry operations.
+
+    Records every ``register``, ``register_lazy``, ``unregister``, and
+    ``lazy_load`` call with caller information for post-mortem analysis.
+    """
+
+    def __init__(self) -> None:
+        self._events: list[RegistryAuditEvent] = []
+        self._lock = threading.Lock()
+
+    def record(
+        self,
+        event: str,
+        fqn: str,
+        caller: str = "",
+        **details: object,
+    ) -> None:
+        """Append an audit event (thread-safe)."""
+        ev = RegistryAuditEvent(
+            event=event,
+            fqn=fqn,
+            timestamp=_time.time(),
+            caller=caller,
+            details=dict(details),
+        )
+        with self._lock:
+            self._events.append(ev)
+
+    def get_history(self, fqn: str | None = None) -> list[RegistryAuditEvent]:
+        """Return all events, optionally filtered by *fqn*."""
+        with self._lock:
+            if fqn is None:
+                return list(self._events)
+            return [e for e in self._events if e.fqn == fqn]
+
+    def clear(self) -> None:
+        """Clear all events (for testing)."""
+        with self._lock:
+            self._events.clear()
+
+    def export_jsonl(self, path: "Path") -> None:
+        """Write all events to *path* as newline-delimited JSON."""
+        import json as _json
+        with self._lock:
+            lines = [
+                _json.dumps({
+                    "event": e.event,
+                    "fqn": e.fqn,
+                    "timestamp": e.timestamp,
+                    "caller": e.caller,
+                    **e.details,
+                })
+                for e in self._events
+            ]
+        Path(path).write_text("\n".join(lines) + ("\n" if lines else ""))
+
+    def __len__(self) -> int:
+        with self._lock:
+            return len(self._events)
+
+
+# Process-wide audit log singleton
+_AUDIT_LOG = RegistryAuditLog()
+
+
+def get_registry_audit_log() -> RegistryAuditLog:
+    """Return the global registry audit log."""
+    return _AUDIT_LOG
+
+
 from polisyos.foundry.methods.resolution import (
     ResolutionError,
     ResolutionPolicy,
@@ -70,7 +193,12 @@ __all__ = [
     "MethodEntry",
     "MethodRegistry",
     "RegistrySnapshot",
+    "RegistryAuditEvent",
+    "RegistryAuditLog",
     "get_registry",
+    "get_registry_audit_log",
+    "registry_scope",
+    "MethodLifecycle",
 ]
 
 MethodFactory = Callable[[], type[FoundryMethod]]
@@ -91,6 +219,7 @@ class MethodEntry:
         factory: Callable that returns the method class
         loaded: Whether the class has been loaded
         _cached_class: The loaded class (None if not yet loaded)
+        lifecycle_log: Ordered log of lifecycle state transitions
     """
 
     signature: MethodSignature
@@ -98,6 +227,7 @@ class MethodEntry:
     factory: MethodFactory
     loaded: bool = False
     _cached_class: type[FoundryMethod] | None = field(default=None, repr=False)
+    lifecycle_log: LifecycleLog = field(default_factory=LifecycleLog, repr=False)
 
     @property
     def fqn(self) -> str:
@@ -230,6 +360,18 @@ class MethodRegistry:
         with cls._instance_lock:
             cls._instance = None
 
+    @classmethod
+    def _create_fresh(cls) -> "MethodRegistry":
+        """
+        Create a brand-new, isolated MethodRegistry instance (NOT the singleton).
+
+        Intended for use with ``registry_scope()`` to give tests and parallel
+        workers their own isolated registries without touching the global singleton.
+        """
+        instance = object.__new__(cls)
+        instance._initialize()
+        return instance
+
     # ---------------------------------------------------------------------
     # Configuration
     # ---------------------------------------------------------------------
@@ -293,17 +435,32 @@ class MethodRegistry:
         fqn = sig.fqn
 
         with self._reg_lock:
+            log = LifecycleLog()
+            LifecycleManager.transition(log, fqn, MethodLifecycle.DEFINED, strict=False)
             entry = MethodEntry(
                 signature=sig,
                 metadata=meta,
                 factory=lambda cls=method_class: cls,
                 loaded=True,
                 _cached_class=method_class,
+                lifecycle_log=log,
             )
 
             self._entries.register(entry, override=override)
+            LifecycleManager.transition(log, fqn, MethodLifecycle.REGISTERED, actor="registry.register")
             self._registration_count += 1
             self._touch_modified()
+            _registry_log(
+                "method_registered",
+                fqn=fqn,
+                namespace=sig.namespace,
+                version=sig.version,
+                backend=sig.backend.value,
+                tags=sorted(str(t) for t in meta.tags),
+                override=override,
+                lazy=False,
+            )
+            _AUDIT_LOG.record("register", fqn, backend=sig.backend.value, lazy=False, override=override)
 
         return fqn
 
@@ -336,17 +493,32 @@ class MethodRegistry:
         fqn = signature.fqn
 
         with self._reg_lock:
+            log = LifecycleLog()
+            LifecycleManager.transition(log, fqn, MethodLifecycle.DEFINED, strict=False)
             entry = MethodEntry(
                 signature=signature,
                 metadata=metadata,
                 factory=factory,
                 loaded=False,
                 _cached_class=None,
+                lifecycle_log=log,
             )
 
             self._entries.register(entry, override=override)
+            LifecycleManager.transition(log, fqn, MethodLifecycle.REGISTERED, actor="registry.register_lazy")
             self._registration_count += 1
             self._touch_modified()
+            _registry_log(
+                "method_registered",
+                fqn=fqn,
+                namespace=signature.namespace,
+                version=signature.version,
+                backend=signature.backend.value,
+                tags=sorted(str(t) for t in metadata.tags),
+                override=override,
+                lazy=True,
+            )
+            _AUDIT_LOG.record("register_lazy", fqn, backend=signature.backend.value, lazy=True, override=override)
 
         return fqn
 
@@ -365,7 +537,13 @@ class MethodRegistry:
             if removed is None:
                 return False
 
+            LifecycleManager.transition(
+                removed.lifecycle_log, fqn, MethodLifecycle.RETIRED,
+                actor="registry.unregister", strict=False,
+            )
             self._touch_modified()
+            _registry_log("method_unregistered", fqn=fqn)
+            _AUDIT_LOG.record("unregister", fqn)
             return True
 
     # ---------------------------------------------------------------------
@@ -717,6 +895,47 @@ class MethodRegistry:
         return f"<MethodRegistry methods={len(self)}>"
 
 
+# ---------------------------------------------------------------------------
+# Context-variable for isolated registries (testing / parallel workers)
+# ---------------------------------------------------------------------------
+
+_registry_ctx: contextvars.ContextVar[MethodRegistry | None] = contextvars.ContextVar(
+    "_foundry_registry", default=None
+)
+
+
+@contextmanager
+def registry_scope() -> Generator[MethodRegistry, None, None]:
+    """
+    Context manager that provides an isolated, fresh MethodRegistry.
+
+    Within the ``with`` block, all calls to ``get_registry()`` return the
+    isolated instance instead of the global singleton.  This is the
+    preferred pattern for tests and parallel execution:
+
+        with registry_scope() as reg:
+            ensure_all_methods_registered(reg)
+            assert len(reg.list_all()) > 0
+
+    The isolated registry is discarded when the block exits and never
+    touches the global singleton.
+    """
+    fresh = MethodRegistry._create_fresh()
+    token = _registry_ctx.set(fresh)
+    try:
+        yield fresh
+    finally:
+        _registry_ctx.reset(token)
+
+
 def get_registry() -> MethodRegistry:
-    """Get the global method registry instance."""
+    """
+    Get the active MethodRegistry for the current context.
+
+    Returns the context-local registry if one is active (set via
+    ``registry_scope()``), otherwise returns the global singleton.
+    """
+    ctx = _registry_ctx.get()
+    if ctx is not None:
+        return ctx
     return MethodRegistry.get_instance()

@@ -30,6 +30,11 @@ from polisyos.core.contracts.execution_plan import (
     StopCriteria,
 )
 from polisyos.foundry.methods import MethodRegistry, check_linkable
+from polisyos.foundry.methods.selection import (
+    method_selection_payload,
+    suggest_adapter_methods,
+    suggest_plan_node_alternatives,
+)
 
 
 def build_default_execution_plan(
@@ -101,18 +106,67 @@ def preflight_execution_plan(
                 )
         graph[node.node_id] = deps
         if node.method_fqn not in available:
+            alternatives = suggest_plan_node_alternatives(
+                catalog,
+                node=node,
+                plan_nodes=plan.method_dag,
+                target_fqn=node.method_fqn,
+                limit=3,
+                registry=registry,
+            )
             diagnostics.append(
                 PreflightDiagnostic(
                     code="method_catalog.method_missing",
                     severity="error",
                     message=f"Method '{node.method_fqn}' not found in method catalog snapshot",
                     path=["method_dag", node.node_id, "method_fqn"],
-                    replanning_hints=["Pick a method from live catalog snapshot"],
+                    replanning_hints=[
+                        "Pick a method from the live catalog snapshot ranked by capability compatibility",
+                    ],
+                    data={"alternative_methods": method_selection_payload(alternatives)},
                 )
             )
             continue
         entry = catalog_entries.get(node.method_fqn)
+        if entry is not None and entry.runnable is False:
+            alternatives = suggest_plan_node_alternatives(
+                catalog,
+                node=node,
+                plan_nodes=plan.method_dag,
+                target_entry=entry,
+                limit=3,
+                registry=registry,
+            )
+            diagnostics.append(
+                PreflightDiagnostic(
+                    code="method_catalog.method_unavailable",
+                    severity="error",
+                    message=(
+                        f"Method '{node.method_fqn}' is not runnable in the current runtime: "
+                        f"{entry.disabled_reasons}"
+                    ),
+                    path=["method_dag", node.node_id, "method_fqn"],
+                    replanning_hints=[
+                        "Pick a runnable method from the live catalog snapshot or install missing dependencies",
+                    ],
+                    data={
+                        "disabled_reasons": list(entry.disabled_reasons),
+                        "dependency_posture": dict(entry.dependency_posture),
+                        "capability_matrix": dict(entry.capability_matrix),
+                        "alternative_methods": method_selection_payload(alternatives),
+                    },
+                )
+            )
+            continue
         if entry is not None and entry.causal_available is False:
+            alternatives = suggest_plan_node_alternatives(
+                catalog,
+                node=node,
+                plan_nodes=plan.method_dag,
+                target_entry=entry,
+                limit=3,
+                registry=registry,
+            )
             diagnostics.append(
                 PreflightDiagnostic(
                     code="method_catalog.causal_capability_unavailable",
@@ -129,6 +183,7 @@ def preflight_execution_plan(
                         "causal_requirements": list(entry.causal_capability_requirements),
                         "disabled_reasons": list(entry.causal_disabled_reasons),
                         "causal_capability_hash": catalog.causal_capability_hash,
+                        "alternative_methods": method_selection_payload(alternatives),
                     },
                 )
             )
@@ -166,6 +221,25 @@ def preflight_execution_plan(
                 )
                 continue
             if not check_linkable(source_sig, target_sig):
+                target_entry = catalog_entries.get(node.method_fqn)
+                alternatives = suggest_plan_node_alternatives(
+                    catalog,
+                    node=node,
+                    plan_nodes=plan.method_dag,
+                    target_entry=target_entry,
+                    target_fqn=node.method_fqn,
+                    limit=3,
+                    registry=registry,
+                )
+                adapter_methods = suggest_adapter_methods(
+                    catalog,
+                    source_fqn=source.method_fqn,
+                    target_fqn=node.method_fqn,
+                    source_signature=source_sig,
+                    target_signature=target_sig,
+                    limit=3,
+                    registry=registry,
+                )
                 diagnostics.append(
                     PreflightDiagnostic(
                         code="slot_linker.not_linkable",
@@ -179,6 +253,14 @@ def preflight_execution_plan(
                             "Insert adapter method",
                             "Choose compatible upstream method",
                         ],
+                        data={
+                            "src_node_id": source.node_id,
+                            "dst_node_id": node.node_id,
+                            "source_method_fqn": source.method_fqn,
+                            "target_method_fqn": node.method_fqn,
+                            "alternative_methods": method_selection_payload(alternatives),
+                            "adapter_methods": method_selection_payload(adapter_methods),
+                        },
                     )
                 )
 
@@ -344,6 +426,80 @@ def build_reproducibility_manifest(
     )
 
 
+def build_causal_execution_plan(
+    *,
+    run_id: str,
+    estimand_ast: "Any",
+    data_needs: "list[Any]",
+    n_obs: int = 1000,
+    covariate_dim: int = 5,
+    use_cross_fitting: bool = True,
+    knowledge_base: "Any | None" = None,
+    max_iterations: int = 3,
+    run_budget_usd: float | None = None,
+    per_model_budget_usd: float | None = None,
+) -> "ExecutionPlan":
+    """Build an ExecutionPlan from a Pearl-Bareinboim EstimandAST.
+
+    This is the closed pipeline::
+
+        EstimandAST
+            ↓ compile_estimand()
+        list[MethodDagNode]
+            ↓ build_default_execution_plan()
+        ExecutionPlan
+
+    Parameters
+    ----------
+    run_id:
+        Unique run identifier (passed through to ExecutionPlan).
+    estimand_ast:
+        An ``EstimandAST`` instance produced by ``id_algorithm`` / ``tr_algorithm``.
+    data_needs:
+        List of ``DataNeed`` objects describing data requirements.
+    n_obs:
+        Approximate dataset size — used by ``recommend_estimator`` to choose
+        between plug-in and semiparametric strategies.
+    covariate_dim:
+        Number of pre-treatment covariates — informs DML vs AIPW choice.
+    use_cross_fitting:
+        If True, wrap the estimation node with K-fold cross-fitting.
+    knowledge_base:
+        Optional ``DataKnowledgeBase`` for linking ``DistributionRef`` leaves to
+        real dataset refs.  When None, a minimal in-memory instance is constructed.
+    max_iterations:
+        Maximum scientist loop iterations.
+    run_budget_usd / per_model_budget_usd:
+        Optional budget constraints passed to ``BudgetSpec``.
+
+    Returns
+    -------
+    ExecutionPlan
+        A fully populated execution plan ready for preflight and execution.
+    """
+    from polisyos.foundry.methods.catalog.causal.estimand_compiler import compile_estimand
+
+    _recommendation, nodes_dicts = compile_estimand(
+        estimand_ast,
+        run_id=run_id,
+        n_obs=n_obs,
+        covariate_dim=covariate_dim,
+        use_cross_fitting=use_cross_fitting,
+        knowledge_base=knowledge_base,
+    )
+
+    method_dag = [MethodDagNode(**nd) for nd in nodes_dicts]
+
+    return build_default_execution_plan(
+        run_id=run_id,
+        data_needs=data_needs,
+        method_dag=method_dag,
+        max_iterations=max_iterations,
+        run_budget_usd=run_budget_usd,
+        per_model_budget_usd=per_model_budget_usd,
+    )
+
+
 def persist_reproducibility_manifest(
     store: FileSystemCAS,
     manifest: ReproducibilityManifest,
@@ -365,6 +521,7 @@ def persist_reproducibility_manifest(
 
 __all__ = [
     "build_default_execution_plan",
+    "build_causal_execution_plan",
     "preflight_execution_plan",
     "evaluate_iteration",
     "persist_execution_plan",

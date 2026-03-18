@@ -145,6 +145,9 @@ class QuadraticProgramEstimator:
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Quadratic program with explicit vectors, matrices, and bounds.",
         tags=frozenset({"optimization", "convex", "quadratic-program"}),
+        when_to_use="Convex objective + constraints; portfolio optimization, signal processing, regression variants",
+        when_not_to_use="Non-convex quadratic objective (indefinite Q); integer variables required",
+        output_interpretation="Globally optimal solution (convex guarantees). KKT conditions hold at optimum.",
     )
 
     @staticmethod
@@ -268,6 +271,9 @@ class RobustOptimizationEstimator:
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Robust linear allocation with L1 uncertainty penalty on the objective.",
         tags=frozenset({"optimization", "convex", "robust-optimization"}),
+        when_to_use="Worst-case uncertainty; no distributional assumption on uncertainty; robust policy design",
+        when_not_to_use="Uncertainty is well-characterized probabilistically; stochastic program is preferred",
+        output_interpretation="Minimax optimal solution. Constraint satisfied for all scenarios in uncertainty set.",
     )
 
     @staticmethod

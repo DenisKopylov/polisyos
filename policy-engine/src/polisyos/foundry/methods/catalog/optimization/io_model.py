@@ -69,14 +69,15 @@ def _normalize_columns_for_productivity(a_pert: np.ndarray, a_base: np.ndarray) 
 
 
 @foundry_method(
-    namespace="optimization",
+    namespace="optimization.io",
     version="1.0.0",
-    tags={"optimization", "input-output", "leontief", "deprecated:legacy-fqn"},
+    tags={"optimization", "input-output", "leontief"},
 )
 class LeontiefInputOutput:
     """Leontief inter-industry input-output model using Numpy."""
 
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
+    required_deps: ClassVar[tuple[str, ...]] = ("numpy",)
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="leontief_io",
@@ -129,6 +130,9 @@ class LeontiefInputOutput:
             "system": "x = (I - A)^(-1) d",
             "multiplier": "m_j = sum_i L_ij",
         },
+        when_to_use="Inter-industry economic analysis; multiplier effects of demand shocks; supply chain impact",
+        when_not_to_use="No IO table available; analysis is at firm level not sector level",
+        output_interpretation="Leontief multipliers: how $1 increase in final demand propagates through economy. Employment/output multipliers.",
     )
 
     @staticmethod
@@ -331,14 +335,4 @@ class LeontiefInputOutput:
             },
         )
 
-
-@foundry_method(
-    namespace="optimization.io",
-    version="1.0.0",
-    tags={"optimization", "input-output", "leontief"},
-)
-class InputOutputLeontiefModel(LeontiefInputOutput):
-    """Canonical namespace for Leontief input-output analysis."""
-
-
-__all__ = ["InputOutputLeontiefModel", "LeontiefInputOutput"]
+__all__ = ["LeontiefInputOutput"]

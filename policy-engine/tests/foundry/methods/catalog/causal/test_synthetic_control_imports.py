@@ -2,31 +2,26 @@ from __future__ import annotations
 
 import importlib
 
+import pytest
 
-def test_catalog_direct_imports_resolve_same_class() -> None:
-    legacy_module = importlib.import_module("polisyos.foundry.methods.catalog.causal.scm")
+
+def test_canonical_synthetic_control_imports_resolve() -> None:
+    package_module = importlib.import_module("polisyos.foundry.methods.causal")
     canonical_module = importlib.import_module(
         "polisyos.foundry.methods.catalog.causal.synthetic_control"
     )
 
-    assert legacy_module.SyntheticControlMethod is canonical_module.SyntheticControlMethod
+    assert package_module.SyntheticControlMethod is canonical_module.SyntheticControlMethod
 
 
-def test_catalog_legacy_shim_has_empty_all() -> None:
-    legacy_module = importlib.import_module("polisyos.foundry.methods.catalog.causal.scm")
-
-    assert legacy_module.__all__ == []
-
-
-def test_catalog_legacy_star_import_does_not_export_method() -> None:
-    imported: dict[str, object] = {}
-    exec("from polisyos.foundry.methods.catalog.causal.scm import *", {}, imported)
-
-    assert "SyntheticControlMethod" not in imported
-
-
-def test_flattened_facade_direct_import_paths_resolve_same_class() -> None:
-    legacy_module = importlib.import_module("polisyos.foundry.methods.causal.scm")
-    canonical_module = importlib.import_module("polisyos.foundry.methods.causal.synthetic_control")
-
-    assert legacy_module.SyntheticControlMethod is canonical_module.SyntheticControlMethod
+@pytest.mark.parametrize(
+    "module_name",
+    [
+        "polisyos.foundry.methods.catalog.causal.scm",
+        "polisyos.foundry.methods.causal.scm",
+        "polisyos.foundry.methods.causal.synthetic_control",
+    ],
+)
+def test_removed_legacy_synthetic_control_import_paths_fail(module_name: str) -> None:
+    with pytest.raises(ModuleNotFoundError):
+        importlib.import_module(module_name)

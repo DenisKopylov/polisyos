@@ -153,6 +153,158 @@ def _should_use_probabilistic_pag_path(
         return True
 
 
+def _attach_estimand_ast(
+    result: TransportabilityResult,
+    estimand_ast: Any,
+) -> TransportabilityResult:
+    """Return a copy of *result* with *estimand_ast* serialised into the result."""
+    return result.model_copy(
+        update={"estimand_ast": estimand_ast.model_dump(mode="json")}
+    )
+
+
+def _estimand_ast_to_transport_formula(
+    ast: Any,
+    *,
+    engine: str,
+) -> TransportFormula | None:
+    """Convert a symbolic EstimandAST to a TransportFormula for the result contract.
+
+    Extracts stratification variables, source quantities, and target quantities
+    from the tree structure of the estimand.
+
+    Returns None when the AST shape is not expressible as a simple TransportFormula.
+    """
+    from polisyos.ir.analytics.estimand import DistributionDomain, SumNode  # noqa: PLC0415
+
+    try:
+        latex = ast.to_latex()
+        dist_refs = ast.collect_distribution_refs()
+
+        source_qtys = [
+            ref.to_latex()
+            for ref in dist_refs
+            if ref.domain in {DistributionDomain.SOURCE, DistributionDomain.EXPERIMENTAL}
+        ]
+        target_qtys = [
+            ref.to_latex()
+            for ref in dist_refs
+            if ref.domain is DistributionDomain.TARGET
+        ]
+
+        # Extract summation/stratification variables from SumNode root or first SumNode child
+        strat_vars: list[str] = []
+        root = ast.root
+        if hasattr(root, "summation_vars"):
+            strat_vars = list(root.summation_vars)
+        elif hasattr(root, "factors"):
+            for factor in root.factors:
+                if hasattr(factor, "summation_vars"):
+                    strat_vars = list(factor.summation_vars)
+                    break
+
+        adj_type = "transport_formula"
+        if not strat_vars:
+            adj_type = "direct"
+
+        return TransportFormula(
+            formula_str=latex,
+            stratification_variables=strat_vars,
+            stratification_details=[],
+            source_quantities=source_qtys,
+            target_quantities=target_qtys,
+            adjustment_type=adj_type,
+        )
+    except Exception:  # noqa: BLE001
+        return None
+
+
+def _try_tr_via_id_engine(
+    *,
+    diagram: SelectionDiagram,
+    treatment: str,
+    outcome: str,
+    backend_id: CausalBackendId,
+    trace: list[str],
+) -> TransportabilityResult | None:
+    """Attempt identification via the formal TR algorithm from id_engine.
+
+    Runs :func:`tr_algorithm` on the selection diagram, applies the do-calculus
+    simplification post-pass via :func:`rewrite_estimand`, converts the resulting
+    :class:`EstimandAST` to a :class:`TransportFormula`, and returns a
+    :class:`TransportabilityResult`.
+
+    Returns None if identification fails or the estimand cannot be converted.
+    """
+    try:
+        from polisyos.foundry.methods.catalog.causal.do_calculus import rewrite_estimand  # noqa: PLC0415
+        from polisyos.foundry.methods.catalog.causal.id_engine import (  # noqa: PLC0415
+            IdentificationStatus,
+            tr_algorithm,
+        )
+    except ImportError:
+        return None
+
+    try:
+        id_result = tr_algorithm(
+            treatment=frozenset({treatment}),
+            outcome=frozenset({outcome}),
+            selection_diagram=diagram,
+        )
+    except Exception:  # noqa: BLE001
+        return None
+
+    if id_result.status is not IdentificationStatus.IDENTIFIED:
+        return None
+    if id_result.estimand_ast is None:
+        return None
+
+    # Apply do-calculus simplification post-pass
+    try:
+        simplified_ast, rewrite_steps = rewrite_estimand(
+            id_result.estimand_ast, diagram.base_graph
+        )
+    except Exception:  # noqa: BLE001
+        simplified_ast = id_result.estimand_ast
+        rewrite_steps = []
+
+    # Convert EstimandAST to TransportFormula
+    formula = _estimand_ast_to_transport_formula(simplified_ast, engine=backend_id.value)
+    if formula is None:
+        return None
+
+    engine_tag = f"id_engine_tr:{backend_id.value}"
+    n_rewrite = len(rewrite_steps)
+    extra_trace = [*trace, f"symbolic_backend_selected:{backend_id.value}", "tr_id_engine_identified"]
+    if n_rewrite > 0:
+        extra_trace.append(f"do_calculus_rewrite:{n_rewrite}_steps")
+
+    context_penalty = min(float(diagram.context_distance) * 0.35, 0.6)
+    data_penalty = min(0.6, 0.15 * len(formula.target_quantities))
+
+    base_result = TransportabilityResult(
+        query=f"P*({outcome}|do({treatment}))",
+        status=TransportabilityStatus.IDENTIFIED,
+        transport_mode=(
+            TransportMode.TRANSPORT_FORMULA if formula.target_quantities
+            else TransportMode.DIRECT
+        ),
+        transport_formula=formula if formula.target_quantities else None,
+        base_confidence=1.0,
+        context_distance_penalty=context_penalty,
+        data_availability_penalty=data_penalty,
+        final_confidence=max(0.0, 1.0 - context_penalty - data_penalty),
+        algorithm_version="trso_v2",
+        identification_engine=engine_tag,
+        identification_trace=extra_trace,
+        required_target_data=list(formula.target_quantities),
+        source_context_id=diagram.source_context.context_id,
+        target_context_id=diagram.target_context.context_id,
+    )
+
+    return _attach_estimand_ast(base_result, simplified_ast)
+
+
 def _run_symbolic_backend(
     *,
     backend_id: CausalBackendId,
@@ -162,6 +314,17 @@ def _run_symbolic_backend(
     trace: list[str],
 ) -> TransportabilityResult | None:
     base_trace = [*trace, f"symbolic_backend_selected:{backend_id.value}"]
+    # Attempt formal TR identification via id_engine (with do-calculus post-pass)
+    tr_result = _try_tr_via_id_engine(
+        diagram=diagram,
+        treatment=treatment,
+        outcome=outcome,
+        backend_id=backend_id,
+        trace=trace,
+    )
+    if tr_result is not None:
+        return tr_result
+
     if not diagram.s_nodes:
         return _direct_result(
             diagram=diagram,

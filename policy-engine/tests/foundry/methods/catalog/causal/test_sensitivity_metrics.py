@@ -198,3 +198,50 @@ def test_sensitivity_metrics_skips_rosenbaum_for_non_binary_treatment():
     assert result.rosenbaum_gamma is None
     assert result.rosenbaum_p_value is None
     assert any("treatment must be binary" in str(item) for item in warnings)
+
+
+def test_sensitivity_metrics_ess_warning_when_below_threshold():
+    payload = _dispatch_result(
+        _instrumental_fixture(),
+        params={
+            "point_estimate": 0.5,
+            "confidence_interval": [0.2, 0.8],
+            "conversion_method": "ate_to_rr_log",
+            "covariates": ["Z"],
+            "ess_fraction": 0.05,
+            "ess_min_threshold": 0.1,
+        },
+    )
+    warnings = payload.get("warnings", [])
+    assert any("transport near-inestimable" in str(w) for w in warnings)
+    assert any("0.050" in str(w) for w in warnings)
+
+
+def test_sensitivity_metrics_no_ess_warning_when_above_threshold():
+    payload = _dispatch_result(
+        _instrumental_fixture(),
+        params={
+            "point_estimate": 0.5,
+            "confidence_interval": [0.2, 0.8],
+            "conversion_method": "ate_to_rr_log",
+            "covariates": ["Z"],
+            "ess_fraction": 0.5,
+            "ess_min_threshold": 0.1,
+        },
+    )
+    warnings = payload.get("warnings", [])
+    assert not any("transport near-inestimable" in str(w) for w in warnings)
+
+
+def test_sensitivity_metrics_ess_fraction_stored_in_metadata():
+    payload = _dispatch_result(
+        _instrumental_fixture(),
+        params={
+            "point_estimate": 0.3,
+            "conversion_method": "ate_to_rr_log",
+            "covariates": ["Z"],
+            "ess_fraction": 0.25,
+        },
+    )
+    result = payload["sensitivity_result"]
+    assert result.metadata.get("ess_fraction") == 0.25

@@ -6,6 +6,7 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from polisyos.ir.analytics.estimand import SideConditionKind
 from polisyos.ir.analytics.transportability import TransportabilityResult
 from polisyos.ir.analytics.uncertainty import (
     DistributionFamily,
@@ -33,6 +34,16 @@ class CausalMethod(str, Enum):
     T_LEARNER = "t_learner"
     X_LEARNER = "x_learner"
     POLICY_TREE = "policy_tree"
+    G_COMPUTATION = "g_computation"
+    ICE_G_FORMULA = "ice_g_formula"
+    LTMLE = "ltmle"
+    G_ESTIMATION = "g_estimation"
+    Q_LEARNING_DTR = "q_learning_dtr"
+    A_LEARNING_DTR = "a_learning_dtr"
+    OUTCOME_WEIGHTED_LEARNING = "outcome_weighted_learning"
+    DOUBLY_ROBUST_DTR = "doubly_robust_dtr"
+    OFF_POLICY_EVALUATION = "off_policy_evaluation"
+    CAUSAL_BANDIT = "causal_bandit"
 
 
 class EstimationStatus(str, Enum):
@@ -246,6 +257,38 @@ def load_causal_effect_report(
     return CausalEffectReport.model_validate(payload)
 
 
+class PositivityDiagnosticReport(BaseModel):
+    """Positivity / overlap diagnostic result for causal identification governance.
+
+    Produced by ``causal.diagnostics.positivity_check@1.0.0`` and consumed by
+    downstream estimators (AIPW, CrossFitOrchestrator) to gate estimation.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    passes_positivity: bool
+    """True when propensity scores are within (min_threshold, max_threshold) for all obs."""
+
+    min_propensity_observed: float = Field(ge=0.0, le=1.0)
+    max_propensity_observed: float = Field(ge=0.0, le=1.0)
+
+    effective_sample_size: float = Field(ge=0.0)
+    """Kish ESS = (Σw)² / Σw² where w = IPW weights."""
+
+    ess_fraction: float = Field(ge=0.0, le=1.0)
+    """ESS / n_obs — fraction of effective sample retained."""
+
+    overlap_score: float = Field(ge=0.0, le=1.0)
+    """Aggregate overlap: 1 = perfect, 0 = no common support."""
+
+    n_obs: int = Field(ge=0)
+    n_trimmed: int = Field(ge=0, default=0)
+    """Number of observations trimmed due to extreme propensity."""
+
+    recommendations: list[str] = Field(default_factory=list)
+    side_conditions_violated: list[SideConditionKind] = Field(default_factory=list)
+
+
 __all__ = [
     "CausalMethod",
     "EstimationStatus",
@@ -254,6 +297,7 @@ __all__ = [
     "PlaceboResult",
     "DiagnosticTest",
     "CausalEffectReport",
+    "PositivityDiagnosticReport",
     "TransportabilityResult",
     "persist_causal_effect_report",
     "load_causal_effect_report",

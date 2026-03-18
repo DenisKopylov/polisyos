@@ -13,7 +13,10 @@ os.environ["JAX_PLATFORM_NAME"] = "cpu"
 os.environ["XLA_PYTHON_CLIENT_PREALLOCATE"] = "false"
 os.environ["JAX_ENABLE_X64"] = "true"
 
-import jax.numpy as jnp
+try:
+    import jax.numpy as jnp
+except ModuleNotFoundError:  # pragma: no cover - local environments may be NumPy-only
+    import numpy as jnp
 
 from polisyos.foundry.methods import (
     ComplexityClass,
@@ -27,14 +30,40 @@ from polisyos.foundry.methods import (
     foundry_method,
 )
 from polisyos.foundry.methods.types.units import Units
-from polisyos.foundry.methods.testing import (
-    GoldenStore,
-    GoldenVerificationResult,
-    MethodTestSuite,
-    VerificationStatus,
-    create_sample_params,
-    create_sample_state,
-)
+try:
+    from polisyos.foundry.methods.testing import (
+        GoldenStore,
+        GoldenVerificationResult,
+        MethodTestSuite,
+        VerificationStatus,
+        create_sample_params,
+        create_sample_state,
+    )
+except ModuleNotFoundError:  # pragma: no cover - optional test-only dependencies may be absent
+    class GoldenStore:  # type: ignore[no-redef]
+        def __init__(self, *_args: Any, **_kwargs: Any) -> None:
+            raise RuntimeError("polisyos.foundry.methods.testing dependencies are unavailable")
+
+
+    class GoldenVerificationResult:  # type: ignore[no-redef]
+        pass
+
+
+    class MethodTestSuite:  # type: ignore[no-redef]
+        def __init__(self, *_args: Any, **_kwargs: Any) -> None:
+            raise RuntimeError("polisyos.foundry.methods.testing dependencies are unavailable")
+
+
+    class VerificationStatus:  # type: ignore[no-redef]
+        PASSED = "passed"
+
+
+    def create_sample_params(*_args: Any, **_kwargs: Any) -> Any:  # type: ignore[no-redef]
+        raise RuntimeError("polisyos.foundry.methods.testing dependencies are unavailable")
+
+
+    def create_sample_state(*_args: Any, **_kwargs: Any) -> Any:  # type: ignore[no-redef]
+        raise RuntimeError("polisyos.foundry.methods.testing dependencies are unavailable")
 
 
 @pytest.fixture
@@ -378,11 +407,17 @@ def assert_suite_passes():
 
 @pytest.fixture
 def isolated_registry():
-    from polisyos.foundry.methods.registry import MethodRegistry
+    """
+    Provide an isolated MethodRegistry for the duration of one test.
 
-    MethodRegistry.reset_instance()
-    registry = MethodRegistry.get_instance()
+    Uses ``registry_scope()`` so the global singleton is never touched and
+    tests can run safely in parallel.
+    """
+    from polisyos.foundry.methods.registry import registry_scope
 
-    yield registry
+    with registry_scope() as reg:
+        yield reg
 
-    MethodRegistry.reset_instance()
+
+# Alias: preferred name for new tests
+fresh_registry = isolated_registry

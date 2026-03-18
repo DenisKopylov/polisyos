@@ -10,10 +10,14 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 from polisyos.core.canon import CanonSpec, fingerprint
 from polisyos.core.contracts.execution_plan import (
     ExecutionPlan,
+    MethodCatalogSnapshot,
     MethodDagEdge,
     MethodDagNode,
     PreflightReport,
 )
+from polisyos.foundry.methods import MethodRegistry
+from polisyos.foundry.methods.base import parse_fqn
+from polisyos.foundry.methods.selection import suggest_adapter_methods, suggest_plan_node_alternatives
 from polisyos.scientist.governance.report import GovernanceReport
 
 from .models import (
@@ -50,6 +54,7 @@ class TopologyMutation(BaseModel):
 
     kind: TopologyMutationKind
     node_id: str = Field(..., min_length=1)
+    upstream_node_id: str | None = None
     replacement_method_fqn: str | None = None
     adapter_method_fqn: str | None = None
 
@@ -96,6 +101,81 @@ class ExecutionPlanSearchConfig(MutationArtifact):
             }
         )
 
+    def with_topology_mutation(
+        self,
+        mutation: TopologyMutation,
+        *,
+        registry: MethodRegistry | None = None,
+    ) -> "ExecutionPlanSearchConfig":
+        reg = registry or MethodRegistry.get_instance()
+        nodes = [node.model_copy(deep=True) for node in self.method_dag]
+        node_by_id = {node.node_id: node for node in nodes}
+        target = node_by_id.get(mutation.node_id)
+        if target is None:
+            raise ValueError(f"unknown node_id for topology mutation: {mutation.node_id}")
+
+        if mutation.kind is TopologyMutationKind.SWAP_METHOD:
+            replacement = str(mutation.replacement_method_fqn or "").strip()
+            if not replacement:
+                raise ValueError("swap_method mutations require replacement_method_fqn")
+            target.method_fqn = replacement
+            try:
+                _, _, version = parse_fqn(replacement)
+            except ValueError:
+                target.method_version = None
+            else:
+                target.method_version = version
+            try:
+                target.backend = reg.get(replacement).signature.execution_backend.value
+            except Exception:
+                target.backend = None
+        elif mutation.kind is TopologyMutationKind.INSERT_ADAPTER:
+            adapter_fqn = str(mutation.adapter_method_fqn or "").strip()
+            if not adapter_fqn:
+                raise ValueError("insert_adapter mutations require adapter_method_fqn")
+            upstream_node_id = str(mutation.upstream_node_id or "").strip()
+            if not upstream_node_id:
+                upstream_node_id = target.depends_on[0] if len(target.depends_on) == 1 else ""
+            if not upstream_node_id or upstream_node_id not in set(target.depends_on):
+                raise ValueError("insert_adapter mutations require upstream_node_id to identify the broken edge")
+            adapter_node_id = _unique_adapter_node_id(nodes, upstream_node_id=upstream_node_id, target_node_id=target.node_id)
+            adapter_node = MethodDagNode(
+                node_id=adapter_node_id,
+                method_fqn=adapter_fqn,
+                method_version=_version_from_fqn(adapter_fqn),
+                backend=_backend_for_method(reg, adapter_fqn),
+                depends_on=[upstream_node_id],
+                reads_slots=list(_input_slot_names(reg, adapter_fqn)),
+                writes_slots=list(_output_slot_names(reg, adapter_fqn)),
+                notes=[f"inserted_adapter_for:{target.node_id}"],
+            )
+            target.depends_on = [
+                adapter_node_id if dep_id == upstream_node_id else dep_id for dep_id in target.depends_on
+            ]
+            nodes.append(adapter_node)
+        elif mutation.kind is TopologyMutationKind.DROP_OPTIONAL_NODE:
+            downstream = [
+                node for node in nodes if target.node_id in set(node.depends_on or [])
+            ]
+            for consumer in downstream:
+                consumer.depends_on = [dep_id for dep_id in consumer.depends_on if dep_id != target.node_id]
+                for dep_id in target.depends_on:
+                    if dep_id not in consumer.depends_on:
+                        consumer.depends_on.append(dep_id)
+            nodes = [node for node in nodes if node.node_id != target.node_id]
+        else:
+            raise ValueError(f"unsupported topology mutation kind: {mutation.kind}")
+
+        return ExecutionPlanSearchConfig(
+            mode=ExecutionPlanSearchMode.TOPOLOGY_STEP,
+            method_dag=nodes,
+            method_edges=_edges_from_nodes(nodes),
+            params=dict(self.params),
+            fixed_method_dag_hash=self.fixed_method_dag_hash or self.method_dag_hash,
+            topology_mutation=mutation,
+            notes=[*self.notes, _mutation_note(mutation)],
+        )
+
 
 def build_baseline_execution_plan_config(context: dict[str, Any] | None = None) -> ExecutionPlanSearchConfig:
     baseline_plan = None if context is None else context.get("baseline_execution_plan")
@@ -115,6 +195,194 @@ def build_baseline_execution_plan_config(context: dict[str, Any] | None = None) 
     return ExecutionPlanSearchConfig()
 
 
+def suggest_execution_plan_topology_mutations(
+    config: ExecutionPlanSearchConfig,
+    *,
+    preflight_report: PreflightReport,
+    catalog: MethodCatalogSnapshot,
+    limit: int = 8,
+    registry: MethodRegistry | None = None,
+) -> list[TopologyMutation]:
+    reg = registry or MethodRegistry.get_instance()
+    mutations: list[TopologyMutation] = []
+    seen: set[tuple[str, str, str, str]] = set()
+    node_by_id = {node.node_id: node for node in config.method_dag}
+    catalog_entries = {entry.fqn: entry for entry in catalog.entries}
+
+    for diagnostic in preflight_report.diagnostics:
+        node_id = _diagnostic_node_id(diagnostic)
+        if not node_id:
+            continue
+        node = node_by_id.get(node_id)
+        if node is None:
+            continue
+
+        alternative_rows = diagnostic.data.get("alternative_methods") or []
+        for row in alternative_rows:
+            replacement = str(row.get("fqn") or "").strip()
+            if not replacement or replacement == node.method_fqn:
+                continue
+            mutation = TopologyMutation(
+                kind=TopologyMutationKind.SWAP_METHOD,
+                node_id=node.node_id,
+                replacement_method_fqn=replacement,
+            )
+            _append_unique_mutation(mutations, seen, mutation)
+
+        if diagnostic.code == "slot_linker.not_linkable":
+            src_node_id = str(diagnostic.data.get("src_node_id") or "").strip()
+            adapter_rows = diagnostic.data.get("adapter_methods") or []
+            for row in adapter_rows:
+                adapter_fqn = str(row.get("fqn") or "").strip()
+                if not adapter_fqn:
+                    continue
+                mutation = TopologyMutation(
+                    kind=TopologyMutationKind.INSERT_ADAPTER,
+                    node_id=node.node_id,
+                    upstream_node_id=src_node_id or None,
+                    adapter_method_fqn=adapter_fqn,
+                )
+                _append_unique_mutation(mutations, seen, mutation)
+
+            if not adapter_rows and src_node_id:
+                source_node = node_by_id.get(src_node_id)
+                if source_node is not None:
+                    adapter_candidates = suggest_adapter_methods(
+                        catalog,
+                        source_fqn=source_node.method_fqn,
+                        target_fqn=node.method_fqn,
+                        limit=3,
+                        registry=reg,
+                        exclude_fqns=(node.method_fqn,),
+                    )
+                    for entry in adapter_candidates:
+                        mutation = TopologyMutation(
+                            kind=TopologyMutationKind.INSERT_ADAPTER,
+                            node_id=node.node_id,
+                            upstream_node_id=src_node_id,
+                            adapter_method_fqn=entry.fqn,
+                        )
+                        _append_unique_mutation(mutations, seen, mutation)
+
+        if (
+            diagnostic.code in {"method_catalog.method_missing", "method_catalog.method_unavailable"}
+            and _is_optional_leaf_node(node, config.method_dag)
+        ):
+            mutation = TopologyMutation(
+                kind=TopologyMutationKind.DROP_OPTIONAL_NODE,
+                node_id=node.node_id,
+            )
+            _append_unique_mutation(mutations, seen, mutation)
+
+        if (
+            diagnostic.code == "method_catalog.causal_capability_unavailable"
+            and catalog_entries.get(node.method_fqn) is not None
+        ):
+            alternatives = suggest_plan_node_alternatives(
+                catalog,
+                node=node,
+                plan_nodes=config.method_dag,
+                target_entry=catalog_entries.get(node.method_fqn),
+                limit=3,
+                registry=reg,
+            )
+            for entry in alternatives:
+                mutation = TopologyMutation(
+                    kind=TopologyMutationKind.SWAP_METHOD,
+                    node_id=node.node_id,
+                    replacement_method_fqn=entry.fqn,
+                )
+                _append_unique_mutation(mutations, seen, mutation)
+
+        if len(mutations) >= max(1, int(limit)):
+            break
+
+    return mutations[: max(1, int(limit))]
+
+
+class CapabilityAwareExecutionPlanCandidateGenerator:
+    def generate(
+        self,
+        history: list[Any],
+        current_best: dict[str, Any] | None,
+        context: dict[str, Any],
+    ) -> dict[str, Any]:
+        generation_context = build_execution_plan_generation_context(
+            history=history,
+            current_best=current_best,
+            context=context,
+        )
+        config = generation_context.get("execution_plan_search_config")
+        catalog = generation_context.get("catalog_snapshot")
+        preflight = generation_context.get("preflight_report")
+        mutations = generation_context.get("execution_plan_topology_mutations") or []
+        if not isinstance(config, ExecutionPlanSearchConfig):
+            return build_baseline_execution_plan_config(context).model_dump(mode="json")
+        if catalog is None or preflight is None:
+            return config.model_dump(mode="json")
+
+        attempted = {
+            _mutation_identity(_coerce_candidate_mutation(item))
+            for item in history
+            if _coerce_candidate_mutation(item) is not None
+        }
+        for mutation in mutations:
+            identity = _mutation_identity(mutation)
+            if identity in attempted:
+                continue
+            return config.with_topology_mutation(mutation).model_dump(mode="json")
+        return config.model_dump(mode="json")
+
+
+def build_execution_plan_generation_context(
+    *,
+    history: list[Any],
+    current_best: dict[str, Any] | None,
+    context: dict[str, Any],
+    limit: int = 8,
+) -> dict[str, Any]:
+    generation_context: dict[str, Any] = {}
+    config = _current_execution_plan_config(
+        history=history,
+        current_best=current_best,
+        context=context,
+    )
+    if config is None:
+        config = _baseline_config_from_context(context)
+    catalog = _coerce_catalog_snapshot(
+        _latest_stage_b_value(history, "catalog_snapshot")
+        or _latest_stage_b_value(history, "method_catalog_snapshot")
+        or context.get("catalog_snapshot")
+        or context.get("method_catalog_snapshot")
+    )
+    preflight = _coerce_preflight(
+        _latest_stage_b_value(history, "preflight_report")
+        or context.get("preflight_report")
+    )
+    mutations: list[TopologyMutation] = []
+    if catalog is not None and preflight.diagnostics:
+        mutations = suggest_execution_plan_topology_mutations(
+            config,
+            preflight_report=preflight,
+            catalog=catalog,
+            limit=limit,
+        )
+    generation_context.update(
+        {
+            "execution_plan_search_config": config,
+            "baseline_execution_plan_config": config,
+            "catalog_snapshot": catalog,
+            "preflight_report": preflight,
+            "execution_plan_topology_mutations": mutations,
+            "execution_plan_topology_mutation_payload": [
+                mutation.model_dump(mode="json") for mutation in mutations
+            ],
+            "execution_plan_topology_mutation_count": len(mutations),
+        }
+    )
+    return generation_context
+
+
 def default_execution_plan_policy() -> PromotionPolicy:
     return PromotionPolicy(
         loop_id=EXECUTION_PLAN_LOOP_ID,
@@ -129,6 +397,187 @@ def default_execution_plan_policy() -> PromotionPolicy:
             "compatibility_ok",
         ],
     )
+
+
+def _coerce_catalog_snapshot(raw: Any) -> MethodCatalogSnapshot | None:
+    if isinstance(raw, MethodCatalogSnapshot):
+        return raw
+    if isinstance(raw, dict):
+        return MethodCatalogSnapshot.model_validate(raw)
+    return None
+
+
+def _baseline_config_from_context(context: dict[str, Any]) -> ExecutionPlanSearchConfig:
+    baseline_cfg = context.get("baseline_execution_plan_config")
+    if isinstance(baseline_cfg, ExecutionPlanSearchConfig):
+        return baseline_cfg
+    if isinstance(baseline_cfg, dict):
+        return ExecutionPlanSearchConfig.model_validate(baseline_cfg)
+    return build_baseline_execution_plan_config(context)
+
+
+def _current_execution_plan_config(
+    *,
+    history: list[Any],
+    current_best: dict[str, Any] | None,
+    context: dict[str, Any],
+) -> ExecutionPlanSearchConfig | None:
+    for candidate in (
+        current_best,
+        _latest_stage_b_value(history, "candidate_payload"),
+        _latest_history_candidate(history),
+        context.get("execution_plan_search_config"),
+        context.get("baseline_execution_plan_config"),
+    ):
+        config = _coerce_candidate_config(candidate)
+        if config is not None:
+            return config
+    return None
+
+
+def _coerce_candidate_config(raw: Any) -> ExecutionPlanSearchConfig | None:
+    if isinstance(raw, ExecutionPlanSearchConfig):
+        return raw
+    if isinstance(raw, dict):
+        try:
+            return ExecutionPlanSearchConfig.model_validate(raw)
+        except Exception:
+            return None
+    return None
+
+
+def _latest_history_candidate(history: list[Any]) -> Any | None:
+    for item in reversed(history):
+        candidate = getattr(item, "candidate", None)
+        if candidate is not None:
+            return candidate
+    return None
+
+
+def _latest_stage_b_value(history: list[Any], key: str) -> Any | None:
+    for item in reversed(history):
+        stage_b_result = getattr(item, "stage_b_result", None)
+        if isinstance(stage_b_result, dict) and stage_b_result.get(key) is not None:
+            return stage_b_result.get(key)
+    return None
+
+
+def _diagnostic_node_id(diagnostic: Any) -> str | None:
+    path = getattr(diagnostic, "path", None)
+    if isinstance(path, list) and len(path) >= 2 and path[0] == "method_dag":
+        token = str(path[1]).strip()
+        return token or None
+    return None
+
+
+def _is_optional_leaf_node(node: MethodDagNode, plan_nodes: list[MethodDagNode]) -> bool:
+    downstream = any(node.node_id in set(item.depends_on or []) for item in plan_nodes)
+    if downstream:
+        return False
+    note_tokens = [token.lower() for token in [*node.notes, *node.deprecations] if token]
+    return any("optional" in token for token in note_tokens)
+
+
+def _append_unique_mutation(
+    mutations: list[TopologyMutation],
+    seen: set[tuple[str, str, str, str]],
+    mutation: TopologyMutation,
+) -> None:
+    identity = _mutation_identity(mutation)
+    if identity in seen:
+        return
+    seen.add(identity)
+    mutations.append(mutation)
+
+
+def _mutation_identity(mutation: TopologyMutation | None) -> tuple[str, str, str, str] | None:
+    if mutation is None:
+        return None
+    return (
+        mutation.kind.value,
+        mutation.node_id,
+        str(mutation.upstream_node_id or ""),
+        str(mutation.replacement_method_fqn or mutation.adapter_method_fqn or ""),
+    )
+
+
+def _coerce_candidate_mutation(history_item: Any) -> TopologyMutation | None:
+    candidate = getattr(history_item, "candidate", history_item)
+    if isinstance(candidate, ExecutionPlanSearchConfig):
+        return candidate.topology_mutation
+    if isinstance(candidate, dict):
+        mutation = candidate.get("topology_mutation")
+        if mutation is None:
+            return None
+        return TopologyMutation.model_validate(mutation)
+    return None
+
+
+def _unique_adapter_node_id(
+    nodes: list[MethodDagNode],
+    *,
+    upstream_node_id: str,
+    target_node_id: str,
+) -> str:
+    base = f"{upstream_node_id}_to_{target_node_id}_adapter"
+    existing = {node.node_id for node in nodes}
+    if base not in existing:
+        return base
+    suffix = 2
+    while f"{base}_{suffix}" in existing:
+        suffix += 1
+    return f"{base}_{suffix}"
+
+
+def _version_from_fqn(fqn: str) -> str | None:
+    try:
+        _, _, version = parse_fqn(fqn)
+    except ValueError:
+        return None
+    return version
+
+
+def _backend_for_method(registry: MethodRegistry, fqn: str) -> str | None:
+    try:
+        return registry.get(fqn).signature.execution_backend.value
+    except Exception:
+        return None
+
+
+def _input_slot_names(registry: MethodRegistry, fqn: str) -> tuple[str, ...]:
+    try:
+        signature = registry.get(fqn).signature
+    except Exception:
+        return ()
+    return tuple(sorted(signature.input_slot_names))
+
+
+def _output_slot_names(registry: MethodRegistry, fqn: str) -> tuple[str, ...]:
+    try:
+        signature = registry.get(fqn).signature
+    except Exception:
+        return ()
+    return tuple(sorted(signature.output_slot_names))
+
+
+def _edges_from_nodes(nodes: list[MethodDagNode]) -> list[MethodDagEdge]:
+    edges: list[MethodDagEdge] = []
+    for node in nodes:
+        for dep_id in node.depends_on:
+            edges.append(MethodDagEdge(src=dep_id, dst=node.node_id, relation="depends_on"))
+    edges.sort(key=lambda edge: (edge.src, edge.dst, edge.relation))
+    return edges
+
+
+def _mutation_note(mutation: TopologyMutation) -> str:
+    if mutation.kind is TopologyMutationKind.SWAP_METHOD:
+        return f"swap:{mutation.node_id}->{mutation.replacement_method_fqn}"
+    if mutation.kind is TopologyMutationKind.INSERT_ADAPTER:
+        return (
+            f"adapter:{mutation.upstream_node_id or 'auto'}->{mutation.node_id}"
+            f":{mutation.adapter_method_fqn}"
+        )
+    return f"drop_optional:{mutation.node_id}"
 
 
 class ExecutionPlanBenchmarkEvaluator(BenchmarkedEvaluator):
@@ -234,7 +683,7 @@ def execution_plan_search_loop_spec(
     return SearchLoopSpec(
         loop_id=EXECUTION_PLAN_LOOP_ID,
         mutation_codec=PydanticMutationCodec(ExecutionPlanSearchConfig),
-        candidate_generator=candidate_generator,
+        candidate_generator=candidate_generator or CapabilityAwareExecutionPlanCandidateGenerator(),
         benchmark_evaluator=ExecutionPlanBenchmarkEvaluator(store=store, registry=registry),
         promotion_policy=default_execution_plan_policy(),
         runtime_loader=None,
@@ -386,6 +835,8 @@ def _read_jsonl(path: Path) -> list[dict[str, Any]]:
 
 
 __all__ = [
+    "build_execution_plan_generation_context",
+    "CapabilityAwareExecutionPlanCandidateGenerator",
     "EXECUTION_PLAN_LOOP_ID",
     "ExecutionPlanBenchmarkEvaluator",
     "ExecutionPlanSearchConfig",
@@ -395,4 +846,5 @@ __all__ = [
     "build_baseline_execution_plan_config",
     "default_execution_plan_policy",
     "execution_plan_search_loop_spec",
+    "suggest_execution_plan_topology_mutations",
 ]

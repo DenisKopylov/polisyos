@@ -50,11 +50,13 @@ class StructuralTimeSeries:
                     name="outcome_panel",
                     slot_type=SlotType.MATRIX,
                     unit=Unit("outcome", "value"),
+                    shape=("n_units", "n_periods"),
                 ),
                 SlotSpec(
                     name="treatment_indicator",
                     slot_type=SlotType.VECTOR,
                     unit=Unit("binary", "flag"),
+                    shape=("n_units",),
                 ),
             }
         ),
@@ -113,6 +115,10 @@ class StructuralTimeSeries:
             ),
             "no_structural_break_pre": "No unmodeled structural break before treatment.",
         },
+        when_to_use="Interrupted time series with control covariates; estimate causal impact of policy intervention on single time series",
+        when_not_to_use="No pre-intervention baseline; confounded trend; multiple simultaneous interventions",
+        typical_min_obs=52,
+        output_interpretation="Counterfactual predicted series vs actual. Absolute/relative impact = actual - counterfactual. Posterior probability of effect.",
     )
 
     @staticmethod

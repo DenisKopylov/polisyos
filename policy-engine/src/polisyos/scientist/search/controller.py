@@ -254,6 +254,7 @@ class SearchController:
                 effective_context = context
             else:
                 effective_context = enrich_context_with_diversity(context, self._history)
+        effective_context = self._build_generation_context(effective_context, iteration=iteration)
 
         batch_size = max(1, int(self._config.batch_size))
         can_batch = (
@@ -333,6 +334,41 @@ class SearchController:
         self._history.append(record)
         if self._diversity_tracker is not None:
             self._diversity_tracker.record_iteration(candidate)
+
+    def _build_generation_context(
+        self,
+        context: Dict[str, Any],
+        *,
+        iteration: int,
+    ) -> Dict[str, Any]:
+        enriched = dict(context)
+        enriched["search_state"] = {
+            "iteration": int(iteration),
+            "history_length": len(self._history),
+            "current_best_candidate": self._best_candidate,
+            "current_best_objective": self._best_objective,
+        }
+        if self._history:
+            enriched["last_stage_b_result"] = self._history[-1].stage_b_result
+        try:
+            from polisyos.scientist.autotune.execution_plan import (
+                build_execution_plan_generation_context,
+            )
+        except Exception:
+            return enriched
+
+        try:
+            execution_plan_context = build_execution_plan_generation_context(
+                history=self._history,
+                current_best=self._best_candidate,
+                context=enriched,
+            )
+        except Exception:
+            return enriched
+
+        if execution_plan_context.get("execution_plan_topology_mutation_payload"):
+            enriched.update(execution_plan_context)
+        return enriched
 
     def _to_history_dict(self, iteration: SearchIteration) -> Dict[str, Any]:
         """Convert iteration to dict for stopping criteria."""

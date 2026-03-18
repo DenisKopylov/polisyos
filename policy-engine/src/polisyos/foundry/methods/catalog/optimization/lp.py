@@ -60,14 +60,17 @@ def _constraint_ok(lhs: float, sense: str, rhs: float, eps: float = 1e-9) -> boo
 
 
 @foundry_method(
-    namespace="optimization",
+    namespace="optimization.linear",
     version="1.0.0",
-    tags={"optimization", "lp", "solver", "deprecated:legacy-fqn"},
+    tags={"optimization", "lp", "solver"},
 )
 class ResourceLP:
     """Linear programming resource allocation with OR-Tools/Scipy fallback."""
 
     runtime_stack: ClassVar[tuple[str, ...]] = ("ortools", "scipy", "numpy")
+    required_deps: ClassVar[tuple[str, ...]] = ("numpy",)
+    optional_deps: ClassVar[tuple[str, ...]] = ("ortools", "scipy")
+    fallback_policy: ClassVar[str] = "prefer_ortools_then_scipy"
 
     signature: ClassVar[MethodSignature] = MethodSignature(
         name="resource_lp",
@@ -117,6 +120,9 @@ class ResourceLP:
             "objective": "max c^T x",
             "constraints": "A x <= b, x >= 0",
         },
+        when_to_use="Resource allocation with linear objective and constraints; budget optimization; staffing",
+        when_not_to_use="Non-convex objective; integer/binary decisions required; nonlinear constraints",
+        output_interpretation="Optimal variable values + objective value. Shadow prices (dual values) = marginal value of each constraint.",
     )
 
     @staticmethod
@@ -401,14 +407,4 @@ class ResourceLP:
             },
         )
 
-
-@foundry_method(
-    namespace="optimization.linear",
-    version="1.0.0",
-    tags={"optimization", "lp", "solver"},
-)
-class LinearResourceLP(ResourceLP):
-    """Canonical namespace for linear resource allocation."""
-
-
-__all__ = ["LinearResourceLP", "ResourceLP"]
+__all__ = ["ResourceLP"]

@@ -114,3 +114,48 @@ def test_build_legal_unit_signals_does_not_mark_mandate_paragraph_as_threshold_r
     )
 
     assert signals.legal_unit_subtype == "core_normative_clause"
+
+
+def test_build_legal_unit_signals_marks_settlement_registry_as_search_only() -> None:
+    signals = build_legal_unit_signals(
+        text="1 с. Довгий Ліс 2 с. Мотилі 3 с. Нове Шарне",
+        struct_kind="paragraph",
+        section_role="normative_unit",
+        fallback_allowed_for_reasoning=True,
+        doc_family="appendix_heavy",
+        doc_title="Перелік населених пунктів",
+        citation_label="Додаток 1",
+    )
+
+    assert signals.legal_unit_subtype == "registry_catalog_row"
+    assert signals.route_class == "search_only"
+
+
+def test_build_legal_unit_signals_marks_appendix_header_as_search_only() -> None:
+    signals = build_legal_unit_signals(
+        text="Додаток до Положення про план приватизації майна, затвердженого наказом Фонду державного майна України",
+        struct_kind="appendix",
+        section_role="appendix_header",
+        fallback_allowed_for_reasoning=True,
+        doc_family="appendix_heavy",
+        doc_title="Додаток до Положення",
+        citation_label="Додаток",
+    )
+
+    assert signals.legal_unit_subtype == "table_scaffold"
+    assert signals.route_class == "search_only"
+
+
+def test_build_legal_unit_signals_marks_amendment_wording_item_as_deterministic() -> None:
+    signals = build_legal_unit_signals(
+        text='25. У додатках NN 1, 2, 4 слова "карбованці" замінити на слово "гривні".',
+        struct_kind="enumeration_item",
+        section_role="normative_unit",
+        fallback_allowed_for_reasoning=True,
+        doc_family="appendix_heavy",
+        doc_title="Про внесення змін",
+        citation_label="Пункт 25",
+    )
+
+    assert signals.legal_unit_subtype == "amendment_bundle"
+    assert signals.route_class == "deterministic_only"

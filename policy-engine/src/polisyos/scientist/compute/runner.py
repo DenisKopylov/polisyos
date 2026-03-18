@@ -175,6 +175,7 @@ class MethodBackend:
         evidence_payload = {
             "method_fqn": signature.fqn,
             "backend": signature.backend.value,
+            "execution_backend": signature.execution_backend.value,
             "timing": {
                 "wall_time_ms": method_result.timing.wall_time_ms,
                 "cpu_time_ms": method_result.timing.cpu_time_ms,

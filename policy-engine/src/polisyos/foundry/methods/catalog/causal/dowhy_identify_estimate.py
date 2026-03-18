@@ -134,6 +134,7 @@ def _base_signature() -> MethodSignature:
                     name="graph_causal_data",
                     slot_type=SlotType.MATRIX,
                     unit=Unit("observations", "rows"),
+                    shape=("n_obs", "n_features"),
                 )
             }
         ),
@@ -170,6 +171,10 @@ _BASE_METADATA = MethodMetadata(
         "graph_correctness": "Causal graph is correctly specified.",
         "identifiability": "Target estimand is identifiable under graph assumptions.",
     },
+    when_to_use="Systematic identification and estimation of causal effect given causal DAG; use DoWhy framework",
+    when_not_to_use="No causal graph available; outcome is not identified from observed data",
+    typical_min_obs=100,
+    output_interpretation="Identified estimand (expression of ATE in terms of observables) + numeric estimate with confidence interval.",
 )
 
 

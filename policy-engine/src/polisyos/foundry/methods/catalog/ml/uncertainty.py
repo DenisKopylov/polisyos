@@ -85,6 +85,10 @@ class ConformalPredictionEstimator:
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Split-conformal style residual intervals over an upstream prediction result.",
         tags=frozenset({"ml", "uncertainty", "conformal-prediction"}),
+        when_to_use="Distribution-free prediction intervals with coverage guarantee; any black-box model",
+        when_not_to_use="Need conditional coverage (use CQR); calibration set too small (<50 obs)",
+        output_interpretation="Prediction set with 1-α marginal coverage guarantee. Width indicates uncertainty.",
+        typical_min_obs=50,
     )
 
     @staticmethod

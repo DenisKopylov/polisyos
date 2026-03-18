@@ -306,6 +306,9 @@ class TimeSeriesEstimator:
             "var_stability": "VAR process is stable with roots outside unit circle.",
             "error_properties": "Residual diagnostics should be checked by analyst.",
         },
+        when_to_use="Univariate (ARIMA) or multivariate (VAR) time series forecasting; stationary or difference-stationary series",
+        typical_min_obs=50,
+        output_interpretation="ARIMA: forecasts with CI, AIC/BIC for model selection, check residual autocorrelation. VAR: IRFs show dynamic responses, FEVD shows each variable's contribution.",
     )
 
     @staticmethod
@@ -376,6 +379,9 @@ class ARIMAEstimator:
         citations=TimeSeriesEstimator.metadata.citations,
         equations={"arima": TimeSeriesEstimator.metadata.equations["arima"]},
         assumptions=TimeSeriesEstimator.metadata.assumptions,
+        when_to_use="Univariate time series forecasting; stationary or difference-stationary series",
+        typical_min_obs=50,
+        output_interpretation="Forecasts with CI. AIC/BIC for model selection. Check residual autocorrelation.",
     )
 
     @staticmethod
@@ -440,6 +446,9 @@ class VAREstimator:
         citations=TimeSeriesEstimator.metadata.citations,
         equations={"var": TimeSeriesEstimator.metadata.equations["var"]},
         assumptions=TimeSeriesEstimator.metadata.assumptions,
+        when_to_use="Multivariate time series; joint forecasting and impulse response analysis across variables",
+        typical_min_obs=80,
+        output_interpretation="IRFs show dynamic responses. Forecast error variance decomposition shows each variable's contribution.",
     )
 
     @staticmethod

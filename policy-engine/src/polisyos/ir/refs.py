@@ -115,6 +115,11 @@ class CausalQueryResultRef(ArtifactRefModel):
     media_type: Literal["application/json"] = "application/json"
 
 
+class TwinNetworkResultRef(ArtifactRefModel):
+    kind: Literal["ir.twin_network_result"] = "ir.twin_network_result"
+    media_type: Literal["application/json"] = "application/json"
+
+
 class CausalModelEnsembleRef(ArtifactRefModel):
     kind: Literal["ir.causal_model_ensemble"] = "ir.causal_model_ensemble"
     media_type: Literal["application/json"] = "application/json"
@@ -135,6 +140,20 @@ class BacktestReportRef(ArtifactRefModel):
     media_type: Literal["application/json"] = "application/json"
 
 
+class NCMSpecRef(ArtifactRefModel):
+    """Reference to a persisted NCMSpec artifact."""
+
+    kind: Literal["ir.ncm_spec"] = "ir.ncm_spec"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class CounterfactualResultRef(ArtifactRefModel):
+    """Reference to a persisted counterfactual query result artifact."""
+
+    kind: Literal["ir.counterfactual_result"] = "ir.counterfactual_result"
+    media_type: Literal["application/json"] = "application/json"
+
+
 __all__ = [
     "ABMAlignmentReportRef",
     "BacktestReportRef",
@@ -149,6 +168,7 @@ __all__ = [
     "CrossGraphEvidenceProfileRef",
     "StructuralCausalModelSpecRef",
     "CausalQueryResultRef",
+    "TwinNetworkResultRef",
     "CausalModelEnsembleRef",
     "DistributionalReportRef",
     "EvidenceBundleRef",
@@ -157,4 +177,6 @@ __all__ = [
     "NormativeArbitrationResultRef",
     "PolicyRecommendationRef",
     "UncertaintyEnvelopeRef",
+    "NCMSpecRef",
+    "CounterfactualResultRef",
 ]

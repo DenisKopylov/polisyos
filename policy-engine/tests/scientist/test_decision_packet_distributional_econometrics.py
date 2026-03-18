@@ -109,7 +109,7 @@ def test_decision_packet_includes_distributional_and_econometric_sections(tmp_pa
         PutOptions(kind="scientist.method_result.econometrics.iv", media_type="application/json"),
     )
     econometric_evidence_ref = store.put_json(
-        {"method_fqn": "econometrics.iv.instrumental_variables@1.0.0"},
+        {"method_fqn": "econometrics.iv.two_stage_least_squares@1.0.0"},
         PutOptions(kind="scientist.method_evidence", media_type="application/json"),
     )
     econometric_envelope_ref = persist_uncertainty_envelope(

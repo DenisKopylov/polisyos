@@ -490,6 +490,7 @@ class DAGMADiscovery:
                     name="tabular_discovery_data",
                     slot_type=SlotType.MATRIX,
                     unit=Unit("observations", "rows"),
+                    shape=("n_obs", "n_vars"),
                 )
             }
         ),
@@ -527,6 +528,10 @@ class DAGMADiscovery:
         citations=(
             "Bello, K. et al. (2022). DAGMA: Learning DAGs via M-matrices and a log-det acyclicity.",
         ),
+        when_to_use="Continuous differentiable DAG structure learning; faster than combinatorial search for dense graphs",
+        when_not_to_use="Very small samples; known domain graph priors should dominate data; cycles expected in data-generating process",
+        typical_min_obs=500,
+        output_interpretation="Weighted adjacency matrix of learned DAG. Threshold to get graph skeleton. Compare to prior knowledge.",
     )
 
     @staticmethod

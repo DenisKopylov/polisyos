@@ -30,9 +30,12 @@ __all__ = [
     "VersionConstraint",
     "ResolutionError",
     "resolve_version",
+    "resolve_by_specifier",
+    "resolve_method_version",
     "find_compatible_versions",
     "compare_versions",
     "is_compatible_upgrade",
+    "parse_pip_specifier",
 ]
 
 
@@ -597,3 +600,154 @@ def is_compatible_upgrade(current: str, target: str) -> bool:
         target_parsed.major == current_parsed.major
         and target_parsed >= current_parsed
     )
+
+
+# ---------------------------------------------------------------------------
+# Pip-style specifier support (requires ``packaging`` — always available as
+# it is a core dependency listed in pyproject.toml).
+# ---------------------------------------------------------------------------
+
+def parse_pip_specifier(specifier: str) -> "packaging.specifiers.SpecifierSet":
+    """
+    Parse a pip-style version specifier string into a SpecifierSet.
+
+    Supported forms:
+    - ``~=1.2``          compatible release (>=1.2, ==1.*)
+    - ``>=1.0,<2.0``     range constraint
+    - ``==1.0.0``        exact pin
+    - ``!=1.3``          exclusion
+    - ``1.0.0``          bare version — treated as exact (==1.0.0)
+
+    Args:
+        specifier: Pip-style version specifier string.
+
+    Returns:
+        A :class:`packaging.specifiers.SpecifierSet` instance.
+
+    Raises:
+        ValueError: If *specifier* cannot be parsed.
+    """
+    try:
+        from packaging.specifiers import SpecifierSet, InvalidSpecifier
+    except ImportError as exc:  # pragma: no cover
+        raise ImportError(
+            "The 'packaging' library is required for pip-style specifier support. "
+            "Install it with: pip install packaging"
+        ) from exc
+
+    # Bare version string (e.g. "1.0.0") → treat as exact match
+    stripped = specifier.strip()
+    if stripped and stripped[0].isdigit():
+        stripped = f"=={stripped}"
+
+    try:
+        return SpecifierSet(stripped, prereleases=False)
+    except InvalidSpecifier as exc:
+        raise ValueError(f"Invalid pip-style specifier {specifier!r}: {exc}") from exc
+
+
+def resolve_by_specifier(
+    available: Sequence[str],
+    specifier: str,
+    *,
+    include_prerelease: bool = False,
+) -> str:
+    """
+    Resolve the highest available version matching a pip-style *specifier*.
+
+    Args:
+        available: Sequence of version strings (semver format).
+        specifier: Pip-style constraint, e.g. ``"~=1.2"``, ``">=1.0,<2.0"``,
+            ``"==1.0.0"``, or bare ``"1.0.0"``.
+        include_prerelease: When True, pre-release versions are also considered.
+
+    Returns:
+        The highest-matching version string from *available*.
+
+    Raises:
+        ResolutionError: When no version in *available* satisfies *specifier*.
+        ValueError: When *specifier* or any version string is invalid.
+    """
+    try:
+        from packaging.version import Version as PkgVersion
+    except ImportError as exc:  # pragma: no cover
+        raise ImportError("The 'packaging' library is required.") from exc
+
+    spec_set = parse_pip_specifier(specifier)
+    if include_prerelease:
+        spec_set = type(spec_set)(str(spec_set), prereleases=True)
+
+    # Convert our SemVer strings to packaging.Version for filtering.
+    candidates: list[tuple[PkgVersion, str]] = []
+    for v_str in available:
+        try:
+            pv = PkgVersion(v_str)
+        except Exception:
+            # Skip un-parseable strings rather than crashing.
+            continue
+        if spec_set.contains(pv, prereleases=include_prerelease):
+            candidates.append((pv, v_str))
+
+    if not candidates:
+        raise ResolutionError(
+            policy=ResolutionPolicy.LATEST_COMPATIBLE,
+            requested=specifier,
+            available=list(available),
+            reason=f"No version satisfies specifier {specifier!r}",
+        )
+
+    # Return the original string corresponding to the highest version.
+    best_pv, best_str = max(candidates, key=lambda pair: pair[0])
+    return best_str
+
+
+def resolve_method_version(
+    fqn_base: str,
+    specifier: str | None,
+    registry: "MethodRegistry",  # type: ignore[name-defined]  # forward ref
+) -> str:
+    """
+    High-level helper: resolve a versioned FQN for *fqn_base* using a
+    pip-style *specifier*.
+
+    When *specifier* is ``None`` the LATEST stable version is returned.
+
+    Args:
+        fqn_base: Base method name, e.g. ``"causal.did.standard"``.
+        specifier: Pip-style constraint (``"~=1.0"``, ``">=1.0,<2.0"``,
+            ``"1.0.0"``), or ``None`` for latest.
+        registry: The :class:`~polisyos.foundry.methods.registry.MethodRegistry`
+            instance to query.
+
+    Returns:
+        The resolved FQN, e.g. ``"causal.did.standard@1.2.0"``.
+
+    Raises:
+        ResolutionError: When no version satisfies the specifier or the
+            *fqn_base* is not registered.
+        ValueError: When *specifier* is malformed.
+    """
+    available_versions = registry.list_versions(fqn_base)
+    if not available_versions:
+        raise ResolutionError(
+            policy=ResolutionPolicy.LATEST,
+            requested=specifier,
+            available=[],
+            reason=f"No versions registered for {fqn_base!r}",
+        )
+
+    if specifier is None:
+        # LATEST stable
+        resolved = resolve_version(
+            available=available_versions,
+            requested=None,
+            policy=ResolutionPolicy.LATEST,
+        )
+    else:
+        resolved = resolve_by_specifier(available_versions, specifier)
+
+    return f"{fqn_base}@{resolved}"
+
+
+# Note: MethodRegistry is only used as a string forward reference in
+# resolve_method_version() to avoid a circular import (registry.py imports this module).

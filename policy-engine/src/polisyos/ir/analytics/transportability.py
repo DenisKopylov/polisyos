@@ -97,6 +97,244 @@ class SelectionDiagram(BaseModel):
     context_distance: float = 0.0
 
 
+# ---------------------------------------------------------------------------
+# SigmaVariable — pure graph-theoretic σ-variable concept
+# ---------------------------------------------------------------------------
+
+
+class SigmaVariable(BaseModel):
+    """Formal σ-variable (selection variable) for a mechanism shift between domains.
+
+    Unlike :class:`SNode` which carries policy-domain context (ContextProfile,
+    context dimensions, legal constraint IDs), ``SigmaVariable`` is a pure
+    graph-theoretic concept: it names the variable whose generating mechanism
+    differs between source and target domain, and tracks whether it has been
+    resolved by adjustment.
+
+    Use ``SigmaVariable.from_s_node()`` to convert an existing policy-specific
+    ``SNode`` into this leaner graph-theoretic form.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    variable_name: str
+    """The domain variable whose mechanism shifts (σ-variable in the formal sense)."""
+
+    node_name: str
+    """The S-node graph identifier, conventionally ``'S_' + variable_name``."""
+
+    is_resolved: bool = False
+    """True when the S-node has been eliminated by adjustment or transported."""
+
+    resolving_adjustment_set: tuple[str, ...] = ()
+    """Variables used to block this σ-variable's effect (empty when unresolved)."""
+
+    origin: SNodeOrigin = SNodeOrigin.CONTEXT_DELTA
+
+    @classmethod
+    def from_s_node(cls, s_node: "SNode") -> "SigmaVariable":
+        """Convert a policy-specific SNode to a graph-theoretic SigmaVariable."""
+        return cls(
+            variable_name=s_node.target_variable,
+            node_name=f"S_{s_node.target_variable}",
+            origin=s_node.origin,
+        )
+
+
+# ---------------------------------------------------------------------------
+# SelectionDiagramBuilder — programmatic builder (no ContextProfile required)
+# ---------------------------------------------------------------------------
+
+
+class SelectionDiagramBuilder:
+    """Fluent builder for :class:`SelectionDiagram` without requiring a ContextProfile.
+
+    The existing :func:`build_selection_diagram` factory creates diagrams from
+    context deltas.  This builder provides a programmatic API for constructing
+    diagrams directly from variable names — useful for unit tests, algorithm
+    development, and scenarios where the context difference is known structurally
+    rather than via numeric ContextProfile attributes.
+
+    Example::
+
+        diagram = (
+            SelectionDiagramBuilder(graph)
+            .add_sigma_variable("X", severity="high")
+            .add_sigma_variable("Z", role=SNodeRole.MEDIATOR)
+            .build()
+        )
+    """
+
+    def __init__(self, graph: "CausalGraphModel") -> None:
+        self._graph = graph
+        self._s_nodes: list[SNode] = []
+        self._sigma_vars: list[SigmaVariable] = []
+        self._seen: set[str] = set()  # deduplicate by variable_name
+
+    def add_sigma_variable(
+        self,
+        variable_name: str,
+        *,
+        context_dimension: str = "programmatic",
+        severity: Literal["low", "medium", "high"] = "medium",
+        role: SNodeRole | None = None,
+    ) -> "SelectionDiagramBuilder":
+        """Add a σ-variable (selection/context-shift node) by variable name.
+
+        Parameters
+        ----------
+        variable_name     : the domain variable whose mechanism shifts
+        context_dimension : informal label for the dimension of shift (default "programmatic")
+        severity          : "low" | "medium" | "high" (default "medium")
+        role              : optional structural role (PRE_TREATMENT_COVARIATE, MEDIATOR, …)
+
+        Returns self for chaining.
+        """
+        if variable_name in self._seen:
+            return self
+        self._seen.add(variable_name)
+        sn = SNode(
+            target_variable=variable_name,
+            context_dimension=context_dimension,
+            source_value=0.0,
+            target_value=1.0,
+            delta=1.0,
+            severity=severity,
+            role=role,
+        )
+        self._s_nodes.append(sn)
+        self._sigma_vars.append(SigmaVariable.from_s_node(sn))
+        return self
+
+    def build(
+        self,
+        source_context: "ContextProfile | None" = None,
+        target_context: "ContextProfile | None" = None,
+    ) -> SelectionDiagram:
+        """Build and return an immutable :class:`SelectionDiagram`.
+
+        Parameters
+        ----------
+        source_context : optional source ContextProfile; defaults to ``ContextProfile()``
+        target_context : optional target ContextProfile; defaults to ``ContextProfile()``
+        """
+        sc = source_context if source_context is not None else ContextProfile()
+        tc = target_context if target_context is not None else ContextProfile()
+        return SelectionDiagram(
+            base_graph=self._graph,
+            s_nodes=list(self._s_nodes),
+            source_context=sc,
+            target_context=tc,
+            context_distance=sc.distance_to(tc),
+        )
+
+    @property
+    def sigma_variables(self) -> list[SigmaVariable]:
+        """List of SigmaVariable objects added so far."""
+        return list(self._sigma_vars)
+
+
+# ---------------------------------------------------------------------------
+# MultiSourceSelectionDiagram — multi-source mz-ID support
+# ---------------------------------------------------------------------------
+
+
+class SourceDomainSpec(BaseModel):
+    """Specification for a single source domain in a multi-domain transport scenario.
+
+    Provides a Pydantic IR representation of a source domain, analogous to the
+    internal ``SourceDomain`` frozen dataclass in ``id_engine.py`` but living in
+    the IR layer so it can be serialised, validated, and composed without
+    importing algorithmic code.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    domain_id: str
+    """Unique identifier for this source domain (e.g. ``"study_us_2010"``)."""
+
+    s_nodes: tuple[SNode, ...] = ()
+    """S-nodes (mechanism shifts) that affect this domain relative to the target."""
+
+    z_interventions: tuple[str, ...] = ()
+    """Variables for which experimental (Z-interventional) distributions are available."""
+
+    dataset_ref: str | None = None
+    """Reference key for the dataset from this domain."""
+
+    source_context: ContextProfile | None = None
+    """Optional context profile for this domain."""
+
+    def to_source_domain(self) -> Any:
+        """Convert to ``id_engine.SourceDomain`` for algorithmic use.
+
+        Uses a lazy import to avoid foundry→IR circular imports.
+        """
+        from polisyos.foundry.methods.catalog.causal.id_engine import SourceDomain  # noqa: PLC0415
+
+        return SourceDomain(
+            domain_id=self.domain_id,
+            s_nodes=frozenset(sn.target_variable for sn in self.s_nodes),
+            z_interventions=frozenset(self.z_interventions),
+            dataset_ref=self.dataset_ref,
+        )
+
+    def to_selection_diagram(self, base_graph: "CausalGraphModel") -> SelectionDiagram:
+        """Project this domain spec to a standalone :class:`SelectionDiagram`."""
+        sc = self.source_context if self.source_context is not None else ContextProfile()
+        return SelectionDiagram(
+            base_graph=base_graph,
+            s_nodes=list(self.s_nodes),
+            source_context=sc,
+            target_context=ContextProfile(),
+            context_distance=sc.distance_to(ContextProfile()),
+        )
+
+
+class MultiSourceSelectionDiagram(BaseModel):
+    """Selection diagram for multi-source (mz-ID) transportability.
+
+    Represents the scenario where a single target graph receives evidence from
+    multiple source studies, each potentially having different mechanism shifts
+    (S-nodes) and/or experimental distributions (Z-interventions).
+
+    Use ``to_source_domains()`` to convert to the list expected by
+    ``mz_id_algorithm()`` in ``id_engine.py``.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    base_graph: CausalGraphModel
+    """The shared target-domain causal graph."""
+
+    domains: tuple[SourceDomainSpec, ...] = ()
+    """Source domains contributing evidence."""
+
+    target_context: ContextProfile
+    """Context profile for the target domain."""
+
+    def to_selection_diagram(self, domain_id: str) -> SelectionDiagram:
+        """Project a single domain to a standalone :class:`SelectionDiagram`.
+
+        Parameters
+        ----------
+        domain_id : the ``domain_id`` of the domain to project
+
+        Raises
+        ------
+        KeyError
+            If no domain with the given ``domain_id`` exists.
+        """
+        for spec in self.domains:
+            if spec.domain_id == domain_id:
+                return spec.to_selection_diagram(self.base_graph)
+        raise KeyError(f"No domain with domain_id={domain_id!r} in MultiSourceSelectionDiagram")
+
+    def to_source_domains(self) -> list[Any]:
+        """Convert all domains to ``id_engine.SourceDomain`` objects."""
+        return [spec.to_source_domain() for spec in self.domains]
+
+
 class StratificationVariable(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
@@ -210,6 +448,10 @@ class TransportabilityResult(BaseModel):
 
     # Phase 12 advanced: partial identification fallback for non-identified cases.
     partial_identification_result: PartialIdentificationResult | None = None
+
+    # Pearl-Bareinboim ID engine: structured EstimandAST (dict for circular-import safety).
+    # Consumers: EstimandAST.model_validate(result.estimand_ast)
+    estimand_ast: dict[str, Any] | None = Field(default=None)
 
     # Backward-compatible Phase 8A fields.
     sutva_assumed: bool = True
@@ -511,7 +753,11 @@ __all__ = [
     "SNodeOrigin",
     "SNodeRole",
     "SNode",
+    "SigmaVariable",
     "SelectionDiagram",
+    "SelectionDiagramBuilder",
+    "SourceDomainSpec",
+    "MultiSourceSelectionDiagram",
     "StratificationVariable",
     "TransportFormula",
     "TransportabilityStatus",

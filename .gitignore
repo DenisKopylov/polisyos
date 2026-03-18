@@ -17,3 +17,7 @@ scm-implementation-spec-v3.md
 
 # exported design renders
 output/playwright/
+
+# local Claude desktop state
+.claude/settings*.json
+.claude/worktrees/

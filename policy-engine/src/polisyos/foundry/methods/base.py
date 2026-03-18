@@ -25,6 +25,7 @@ from typing import Any, Callable, ClassVar, Mapping, Protocol, TypeVar, runtime_
 import numpy as np
 
 from polisyos.core.canon import content_hash
+from polisyos.core.observability.determinism import DeterminismTier
 from polisyos.foundry.methods.exceptions import LawViolationError, MethodDefinitionError
 
 _SEMVER_RE = re.compile(
@@ -143,6 +144,28 @@ def _infer_affinity_tags(namespace: str, signature: "MethodSignature") -> set[st
     return inferred
 
 
+def _normalize_string_tuple(values: Any) -> tuple[str, ...]:
+    if isinstance(values, str):
+        values = (values,)
+    if values is None:
+        return ()
+    if not isinstance(values, (list, tuple, set, frozenset)):
+        raise TypeError("expected iterable of strings")
+    normalized = [str(value).strip() for value in values if str(value).strip()]
+    return tuple(dict.fromkeys(normalized))
+
+
+def _infer_data_modalities(namespace: str, signature: "MethodSignature") -> frozenset[str]:
+    modalities: set[str] = set()
+    affinity_tags = _infer_affinity_tags(namespace, signature)
+    for tag in ("panel", "cross-section", "time-series", "spatial", "network", "survey", "tabular"):
+        if tag in affinity_tags:
+            modalities.add(tag)
+    if "optimization" in namespace.lower():
+        modalities.add("optimization")
+    return frozenset(sorted(modalities))
+
+
 def _infer_task_tags(namespace: str, signature: "MethodSignature") -> set[str]:
     ns = namespace.lower()
     output_slot_names = {slot.name for slot in signature.output_slots}
@@ -209,6 +232,23 @@ class ComputeBackend(str, Enum):
     BAYESIAN = "bayesian"
 
 
+class MethodKind(str, Enum):
+    """Execution contour of a Foundry method."""
+
+    PURE = "pure"
+    MECHANISM = "mechanism"
+    SIMULATION = "simulation"
+
+
+class SideEffectProfile(str, Enum):
+    """Runtime side effects visible outside the pure method output."""
+
+    NONE = "none"
+    PATCH_EMISSION = "patch_emission"
+    ARTIFACT_EMISSION = "artifact_emission"
+    TRAINING = "training"
+
+
 # ---------------------------------------------------------------------------
 # Core data types
 # ---------------------------------------------------------------------------
@@ -264,6 +304,64 @@ class Unit:
         return f"Unit({self.dimension!r}, {self.symbol!r})"
 
 
+# ---------------------------------------------------------------------------
+# Symbolic dimension algebra (T3.1)
+# ---------------------------------------------------------------------------
+
+@dataclass(frozen=True)
+class DimVar:
+    """
+    Named symbolic dimension variable for use in ``SlotSpec.shape``.
+
+    A ``DimVar`` represents a named axis whose concrete size is unknown at
+    definition time but must be consistent across linked slots.
+
+    Example::
+
+        n_obs = DimVar("n_obs")
+        n_vars = DimVar("n_vars")
+
+        outcome_slot = SlotSpec(
+            name="outcome",
+            slot_type=SlotType.VECTOR,
+            unit=Unit("dimensionless", "-"),
+            shape=(n_obs,),
+        )
+        covariate_slot = SlotSpec(
+            name="covariates",
+            slot_type=SlotType.MATRIX,
+            unit=Unit("dimensionless", "-"),
+            shape=(n_obs, n_vars),
+        )
+
+    Compatibility rules enforced by :func:`types.checker.check_slot_compatibility`:
+    - ``DimVar("n_obs")`` × ``DimVar("n_obs")`` → compatible (same symbolic name)
+    - ``DimVar("n_obs")`` × ``DimVar("n_rows")`` → warning (may differ at runtime)
+    - ``DimVar("n_obs")`` × ``int`` → compatible (concrete satisfies symbolic)
+    - ``int`` × ``DimVar("n_obs")`` → compatible with warning (fixed vs symbolic)
+    """
+
+    name: str
+
+    def __post_init__(self) -> None:
+        if not isinstance(self.name, str) or not self.name.strip():
+            raise ValueError("DimVar.name must be a non-empty string")
+
+    def __repr__(self) -> str:
+        return f"DimVar({self.name!r})"
+
+    def __str__(self) -> str:
+        return self.name
+
+
+# Type aliases for symbolic shape specifications
+DimExpr = int | str | DimVar | None
+"""A single dimension: concrete int, legacy str, typed DimVar, or None (wildcard)."""
+
+Shape = tuple[DimExpr, ...]
+"""A shape tuple using symbolic or concrete dimension expressions."""
+
+
 @dataclass(frozen=True, slots=True)
 class SlotSpec:
     """
@@ -295,8 +393,10 @@ class SlotSpec:
         if not isinstance(self.shape, tuple):
             raise TypeError("SlotSpec.shape must be a tuple")
         for dim in self.shape:
-            if not isinstance(dim, (int, str)):
-                raise TypeError("SlotSpec.shape entries must be int or str")
+            if dim is not None and not isinstance(dim, (int, str, DimVar)):
+                raise TypeError(
+                    "SlotSpec.shape entries must be int, str, DimVar, or None"
+                )
         if self.slot_type is SlotType.SCALAR and self.shape != ():
             raise ValueError("SlotType.SCALAR requires shape=()")
         _validate_bounds("SlotSpec.bounds", self.bounds)
@@ -306,12 +406,19 @@ class SlotSpec:
         return _stable_digest(self._stable_dict())
 
     def _stable_dict(self) -> dict[str, Any]:
+        def _serialise_dim(d: DimExpr) -> str | int | None:
+            if d is None:
+                return None
+            if isinstance(d, DimVar):
+                return f"$DimVar:{d.name}"
+            return d  # int or str
+
         return {
             "name": self.name,
             "slot_type": self.slot_type.name,
             "unit": self.unit._stable_dict(),
             "contract_id": self.contract_id,
-            "shape": list(self.shape),
+            "shape": [_serialise_dim(d) for d in self.shape],
         }
 
     def __hash__(self) -> int:
@@ -403,6 +510,11 @@ class MethodSignature:
     fidelity: FidelityLevel
     complexity: ComplexityClass
     backend: ComputeBackend = ComputeBackend.JAX
+    kind: MethodKind = MethodKind.PURE
+    family: str = ""
+    variant: str = ""
+    data_modalities: frozenset[str] = frozenset()
+    fidelity_tier: FidelityLevel | None = None
 
     commutes_with: frozenset[str] = frozenset()
     conflicts_with: frozenset[str] = frozenset()
@@ -429,12 +541,22 @@ class MethodSignature:
             raise TypeError("parameters must be a tuple")
         if not isinstance(self.backend, ComputeBackend):
             raise TypeError("backend must be a ComputeBackend")
+        if not isinstance(self.kind, MethodKind):
+            raise TypeError("kind must be a MethodKind")
         if not isinstance(self.commutes_with, frozenset):
             raise TypeError("commutes_with must be a frozenset")
         if not isinstance(self.conflicts_with, frozenset):
             raise TypeError("conflicts_with must be a frozenset")
         if not isinstance(self.requires, frozenset):
             raise TypeError("requires must be a frozenset")
+        if not isinstance(self.data_modalities, frozenset):
+            object.__setattr__(self, "data_modalities", frozenset(self.data_modalities))
+        if self.fidelity_tier is None:
+            object.__setattr__(self, "fidelity_tier", self.fidelity)
+        if not self.family:
+            object.__setattr__(self, "family", self.namespace or self.name)
+        if not self.variant:
+            object.__setattr__(self, "variant", self.name)
         for slot in self.input_slots:
             if not isinstance(slot, SlotSpec):
                 raise TypeError("input_slots must contain SlotSpec")
@@ -461,6 +583,11 @@ class MethodSignature:
     def fqn(self) -> str:
         """Fully Qualified Name for registry lookup."""
         return f"{self.namespace}.{self.name}@{self.version}"
+
+    @property
+    def execution_backend(self) -> ComputeBackend:
+        """Explicit execution backend for capability reporting."""
+        return self.backend
 
     @property
     def static_param_names(self) -> frozenset[str]:
@@ -513,7 +640,12 @@ class MethodSignature:
             "output_slots": _stable_set([slot._stable_dict() for slot in self.output_slots]),
             "parameters": _stable_list([param._stable_dict() for param in self.parameters]),
             "fidelity": self.fidelity.name,
+            "fidelity_tier": self.fidelity_tier.name if self.fidelity_tier else None,
             "complexity": self.complexity.name,
+            "kind": self.kind.value,
+            "family": self.family,
+            "variant": self.variant,
+            "data_modalities": sorted(self.data_modalities),
             "commutes_with": sorted(self.commutes_with),
             "conflicts_with": sorted(self.conflicts_with),
             "requires": sorted(self.requires),
@@ -531,6 +663,56 @@ class MethodSignature:
         return hash((self.name, self.namespace, self.version, self.backend))
 
 
+@dataclass(frozen=True)
+class MethodContracts:
+    """
+    Declarative Design-by-Contract specification for a Foundry method.
+
+    Contracts are strings that are ``eval``'d in strict mode
+    (``POLISYOS_STRICT=1``) before and after ``pure_step``.
+
+    Eval namespace for preconditions / invariants::
+
+        {"state": state, "params": params, "np": np}
+
+    Eval namespace for postconditions::
+
+        {"state": state, "params": params, "result": result, "np": np}
+
+    Any expression that evaluates to ``False`` raises
+    :class:`~polisyos.foundry.methods.exceptions.ContractViolationError`.
+
+    Example
+    -------
+    ::
+
+        @foundry_method(...)
+        class MyMethod:
+            metadata = MethodMetadata(
+                description="...",
+                contracts=MethodContracts(
+                    preconditions=["len(state['outcome']) >= 2"],
+                    postconditions=["not np.any(np.isnan(result['ate']))"],
+                    invariants=["params['alpha'] > 0"],
+                ),
+            )
+    """
+
+    preconditions: tuple[str, ...] = ()
+    """Expressions checked *before* ``pure_step`` (state + params namespace)."""
+
+    postconditions: tuple[str, ...] = ()
+    """Expressions checked *after* ``pure_step`` (state + params + result namespace)."""
+
+    invariants: tuple[str, ...] = ()
+    """Expressions checked both before and after ``pure_step``."""
+
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "preconditions", tuple(self.preconditions))
+        object.__setattr__(self, "postconditions", tuple(self.postconditions))
+        object.__setattr__(self, "invariants", tuple(self.invariants))
+
+
 @dataclass(frozen=True, slots=True)
 class MethodMetadata:
     """
@@ -545,6 +727,24 @@ class MethodMetadata:
     citations: tuple[str, ...] = ()
     equations: Mapping[str, str] = field(default_factory=dict)
     assumptions: Mapping[str, str] = field(default_factory=dict)
+    determinism_tier: DeterminismTier | None = None
+    required_deps: tuple[str, ...] = ()
+    optional_deps: tuple[str, ...] = ()
+    fallback_policy: str = "none"
+    side_effect_profile: SideEffectProfile = SideEffectProfile.NONE
+    contracts: MethodContracts | None = None
+    when_to_use: str = ""
+    """LLM-readable guidance: when this method is the right choice."""
+    when_not_to_use: str = ""
+    """LLM-readable guidance: common pitfalls and exclusion criteria."""
+    prerequisites: tuple[str, ...] = ()
+    """FQNs of methods recommended to run *before* this one (validation, diagnostics)."""
+    diagnostic_checks: tuple[str, ...] = ()
+    """FQNs of methods recommended to run *after* this one (sensitivity, robustness)."""
+    typical_min_obs: int | None = None
+    """Minimum number of observations for reliable results (for scoring/filtering)."""
+    output_interpretation: str = ""
+    """LLM-readable guide to interpreting the primary output metric."""
 
     def __post_init__(self) -> None:
         if not isinstance(self.description, str):
@@ -553,6 +753,18 @@ class MethodMetadata:
             object.__setattr__(self, "tags", frozenset(self.tags))
         if not isinstance(self.citations, tuple):
             object.__setattr__(self, "citations", tuple(self.citations))
+        object.__setattr__(self, "required_deps", _normalize_string_tuple(self.required_deps))
+        object.__setattr__(self, "optional_deps", _normalize_string_tuple(self.optional_deps))
+        object.__setattr__(self, "prerequisites", _normalize_string_tuple(self.prerequisites))
+        object.__setattr__(self, "diagnostic_checks", _normalize_string_tuple(self.diagnostic_checks))
+        if self.determinism_tier is not None and not isinstance(self.determinism_tier, DeterminismTier):
+            raise TypeError("MethodMetadata.determinism_tier must be a DeterminismTier")
+        if not isinstance(self.side_effect_profile, SideEffectProfile):
+            object.__setattr__(
+                self,
+                "side_effect_profile",
+                SideEffectProfile(str(self.side_effect_profile)),
+            )
         if not isinstance(self.equations, MappingProxyType):
             equations_copy = dict(self.equations)
             object.__setattr__(self, "equations", MappingProxyType(equations_copy))
@@ -571,10 +783,41 @@ class MethodMetadata:
             "citations": list(self.citations),
             "equations": _stable_mapping(self.equations),
             "assumptions": _stable_mapping(self.assumptions),
+            "determinism_tier": (
+                self.determinism_tier.value if self.determinism_tier is not None else None
+            ),
+            "required_deps": list(self.required_deps),
+            "optional_deps": list(self.optional_deps),
+            "fallback_policy": self.fallback_policy,
+            "side_effect_profile": self.side_effect_profile.value,
+            "when_to_use": self.when_to_use,
+            "when_not_to_use": self.when_not_to_use,
+            "prerequisites": list(self.prerequisites),
+            "diagnostic_checks": list(self.diagnostic_checks),
+            "typical_min_obs": self.typical_min_obs,
+            "output_interpretation": self.output_interpretation,
         }
 
     def __hash__(self) -> int:
-        return hash((self.description, self.tags, self.citations, tuple(self.assumptions.items())))
+        return hash(
+            (
+                self.description,
+                self.tags,
+                self.citations,
+                tuple(self.assumptions.items()),
+                self.determinism_tier,
+                self.required_deps,
+                self.optional_deps,
+                self.fallback_policy,
+                self.side_effect_profile,
+                self.when_to_use,
+                self.when_not_to_use,
+                self.prerequisites,
+                self.diagnostic_checks,
+                self.typical_min_obs,
+                self.output_interpretation,
+            )
+        )
 
 
 # ---------------------------------------------------------------------------
@@ -669,10 +912,27 @@ def foundry_method(
             raise MethodDefinitionError("version must be valid semver")
 
         original_sig = cls.signature
-        cls.signature = replace(
+        inferred_sig = replace(
             original_sig,
             namespace=namespace,
             version=version,
+        )
+        inferred_family = str(getattr(cls, "method_family", "")).strip() or inferred_sig.namespace
+        inferred_variant = str(getattr(cls, "method_variant", "")).strip() or inferred_sig.name
+        inferred_kind = getattr(cls, "method_kind", inferred_sig.kind)
+        if not isinstance(inferred_kind, MethodKind):
+            inferred_kind = MethodKind(str(inferred_kind))
+        inferred_modalities = inferred_sig.data_modalities or _infer_data_modalities(
+            namespace,
+            inferred_sig,
+        )
+        cls.signature = replace(
+            inferred_sig,
+            kind=inferred_kind,
+            family=inferred_family,
+            variant=inferred_variant,
+            data_modalities=frozenset(inferred_modalities),
+            fidelity_tier=inferred_sig.fidelity_tier or inferred_sig.fidelity,
         )
 
         if not hasattr(cls, "metadata"):
@@ -682,31 +942,194 @@ def foundry_method(
             )
         else:
             existing = cls.metadata
+            merged_tags = set(tags or set()) | {
+                str(tag)
+                for tag in existing.tags
+                if not str(tag).startswith("deprecated:")
+            }
             cls.metadata = MethodMetadata(
                 description=existing.description,
                 tags=_normalize_metadata_tags(
                     namespace,
                     cls.signature,
-                    set(existing.tags) | set(tags or set()),
+                    merged_tags,
                 ),
                 citations=existing.citations,
                 equations=existing.equations,
                 assumptions=existing.assumptions,
+                determinism_tier=existing.determinism_tier,
+                required_deps=existing.required_deps,
+                optional_deps=existing.optional_deps,
+                fallback_policy=existing.fallback_policy,
+                side_effect_profile=existing.side_effect_profile,
+                contracts=existing.contracts,
+                when_to_use=existing.when_to_use,
+                when_not_to_use=existing.when_not_to_use,
+                prerequisites=existing.prerequisites,
+                diagnostic_checks=existing.diagnostic_checks,
+                typical_min_obs=existing.typical_min_obs,
+                output_interpretation=existing.output_interpretation,
             )
+
+        current_metadata = cls.metadata
+        runtime_stack = _normalize_string_tuple(getattr(cls, "runtime_stack", ()))
+        required_deps = current_metadata.required_deps or _normalize_string_tuple(
+            getattr(cls, "required_deps", runtime_stack)
+        )
+        optional_deps = current_metadata.optional_deps or _normalize_string_tuple(
+            getattr(cls, "optional_deps", ())
+        )
+        determinism_tier = current_metadata.determinism_tier or getattr(cls, "determinism_tier", None)
+        fallback_policy = current_metadata.fallback_policy
+        if fallback_policy == "none":
+            fallback_policy = str(getattr(cls, "fallback_policy", "none"))
+        side_effect_profile = current_metadata.side_effect_profile
+        if side_effect_profile is SideEffectProfile.NONE:
+            side_effect_profile = getattr(cls, "side_effect_profile", SideEffectProfile.NONE)
+        if not isinstance(side_effect_profile, SideEffectProfile):
+            side_effect_profile = SideEffectProfile(str(side_effect_profile))
+        cls.metadata = MethodMetadata(
+            description=current_metadata.description,
+            tags=current_metadata.tags,
+            citations=current_metadata.citations,
+            equations=current_metadata.equations,
+            assumptions=current_metadata.assumptions,
+            determinism_tier=determinism_tier,
+            required_deps=required_deps,
+            optional_deps=optional_deps,
+            fallback_policy=fallback_policy,
+            side_effect_profile=side_effect_profile,
+            contracts=current_metadata.contracts,
+            when_to_use=current_metadata.when_to_use,
+            when_not_to_use=current_metadata.when_not_to_use,
+            prerequisites=current_metadata.prerequisites,
+            diagnostic_checks=current_metadata.diagnostic_checks,
+            typical_min_obs=current_metadata.typical_min_obs,
+            output_interpretation=current_metadata.output_interpretation,
+        )
 
         if _strict_mode_enabled():
             original_fn = cls.pure_step
+            _contracts: MethodContracts | None = cls.metadata.contracts
+            _fqn: str = cls.signature.fqn
 
             @functools.wraps(original_fn)
             def strict_pure_step(state: Any, params: Any) -> Any:
                 _validate_pure_step_args(state, params)
-                return original_fn(state, params)
+                if _contracts is not None:
+                    _check_contracts_pre(_fqn, _contracts, state, params)
+                result = original_fn(state, params)
+                if _contracts is not None:
+                    _check_contracts_post(_fqn, _contracts, state, params, result)
+                return result
 
             cls.pure_step = staticmethod(strict_pure_step)
+
+        # Beartype runtime shape checking (opt-in via env var)
+        if _beartype_enabled():
+            _wrap_pure_step_with_beartype(cls)
 
         return cls
 
     return decorator
+
+
+def _beartype_enabled() -> bool:
+    """Return True when beartype wrapping is requested AND beartype is available."""
+    value = os.getenv("FOUNDRY_SHAPE_CHECK", "").strip().lower()
+    if value in {"0", "false", "no", "off"}:
+        return False
+    # Default on when beartype is installed (dev / test environments)
+    try:
+        import beartype  # noqa: F401
+        return True
+    except ImportError:
+        return False
+
+
+def _wrap_pure_step_with_beartype(cls: type) -> None:
+    """
+    Wrap ``cls.pure_step`` with ``beartype`` for runtime type annotation checks.
+
+    This is a no-op if beartype is not installed or if ``pure_step`` has no
+    annotations worth checking.  The wrapper is skipped silently on import
+    error so production environments that don't install beartype are unaffected.
+    """
+    try:
+        from beartype import beartype as _beartype
+    except ImportError:
+        return
+
+    original_fn = cls.pure_step
+    try:
+        wrapped = _beartype(original_fn)
+        cls.pure_step = staticmethod(wrapped)
+    except Exception:
+        # beartype may refuse to wrap functions with non-annotated args — skip gracefully
+        pass
+
+
+# ---------------------------------------------------------------------------
+# Contract enforcement helpers
+# ---------------------------------------------------------------------------
+
+
+def _check_contracts_pre(
+    fqn: str,
+    contracts: "MethodContracts",
+    state: Any,
+    params: Any,
+) -> None:
+    """Evaluate preconditions and invariants before pure_step."""
+    _ns = {"state": state, "params": params, "np": np}
+    for expr in contracts.preconditions:
+        try:
+            ok = eval(expr, _ns)  # noqa: S307 — internal, developer-authored only
+        except Exception as exc:
+            from polisyos.foundry.methods.exceptions import ContractViolationError
+            raise ContractViolationError(fqn, "precondition", expr) from exc
+        if not ok:
+            from polisyos.foundry.methods.exceptions import ContractViolationError
+            raise ContractViolationError(fqn, "precondition", expr)
+    for expr in contracts.invariants:
+        try:
+            ok = eval(expr, _ns)  # noqa: S307
+        except Exception as exc:
+            from polisyos.foundry.methods.exceptions import ContractViolationError
+            raise ContractViolationError(fqn, "invariant", expr) from exc
+        if not ok:
+            from polisyos.foundry.methods.exceptions import ContractViolationError
+            raise ContractViolationError(fqn, "invariant", expr)
+
+
+def _check_contracts_post(
+    fqn: str,
+    contracts: "MethodContracts",
+    state: Any,
+    params: Any,
+    result: Any,
+) -> None:
+    """Evaluate postconditions and invariants after pure_step."""
+    _ns = {"state": state, "params": params, "result": result, "np": np}
+    for expr in contracts.postconditions:
+        try:
+            ok = eval(expr, _ns)  # noqa: S307
+        except Exception as exc:
+            from polisyos.foundry.methods.exceptions import ContractViolationError
+            raise ContractViolationError(fqn, "postcondition", expr) from exc
+        if not ok:
+            from polisyos.foundry.methods.exceptions import ContractViolationError
+            raise ContractViolationError(fqn, "postcondition", expr)
+    _ns_inv = {"state": state, "params": params, "np": np}
+    for expr in contracts.invariants:
+        try:
+            ok = eval(expr, _ns_inv)  # noqa: S307
+        except Exception as exc:
+            from polisyos.foundry.methods.exceptions import ContractViolationError
+            raise ContractViolationError(fqn, "invariant", expr) from exc
+        if not ok:
+            from polisyos.foundry.methods.exceptions import ContractViolationError
+            raise ContractViolationError(fqn, "invariant", expr)
 
 
 # ---------------------------------------------------------------------------
@@ -732,6 +1155,77 @@ def check_protocol_compliance(cls: type) -> list[str]:
         errors.append(f"{cls.__name__}.metadata is not a MethodMetadata")
 
     return errors
+
+
+# ---------------------------------------------------------------------------
+# Fail-fast base class (optional mixin for __init_subclass__ ABI enforcement)
+# ---------------------------------------------------------------------------
+
+
+class FoundryMethodBase:
+    """
+    Optional base class for Foundry methods that enforces ABI at *class
+    definition time* rather than at registration time.
+
+    Inherit from this class to get an immediate ``MethodDefinitionError`` if
+    your class is missing ``pure_step`` (as a ``@staticmethod``) or if
+    ``signature`` is not a ``MethodSignature`` instance.
+
+    The decorator ``@foundry_method`` handles namespace / version injection and
+    is still required.  This base class only provides the fail-fast structural
+    check so that import-time errors are surfaced earlier.
+
+    Example
+    -------
+    ::
+
+        @foundry_method(namespace="causal.did", version="1.0.0")
+        class MyDID(FoundryMethodBase):
+            signature = MethodSignature(name="my_did", ...)
+            metadata = MethodMetadata(...)
+
+            @staticmethod
+            def pure_step(state, params):
+                ...
+
+    To skip the check (e.g. for abstract intermediaries) pass
+    ``skip_abi_check=True``::
+
+        class _AbstractBase(FoundryMethodBase, skip_abi_check=True):
+            ...
+    """
+
+    def __init_subclass__(cls, skip_abi_check: bool = False, **kw: Any) -> None:
+        super().__init_subclass__(**kw)
+        if skip_abi_check or getattr(cls, "_skip_abi_check", False):
+            return
+
+        # pure_step must be a @staticmethod
+        pure_step_attr = inspect.getattr_static(cls, "pure_step", None)
+        if pure_step_attr is None:
+            raise MethodDefinitionError(
+                f"{cls.__qualname__} inherits from FoundryMethodBase but is missing "
+                "'pure_step'. Add a @staticmethod pure_step(state, params) -> state."
+            )
+        if not isinstance(pure_step_attr, staticmethod):
+            raise MethodDefinitionError(
+                f"{cls.__qualname__}.pure_step must be a @staticmethod (Law F). "
+                "Remove 'self' and add the @staticmethod decorator."
+            )
+
+        # signature must be a MethodSignature if already set
+        if hasattr(cls, "signature") and not isinstance(cls.signature, MethodSignature):
+            raise MethodDefinitionError(
+                f"{cls.__qualname__}.signature must be a MethodSignature instance, "
+                f"got {type(cls.signature).__name__}."
+            )
+
+        # metadata must be a MethodMetadata if already set
+        if hasattr(cls, "metadata") and not isinstance(cls.metadata, MethodMetadata):
+            raise MethodDefinitionError(
+                f"{cls.__qualname__}.metadata must be a MethodMetadata instance, "
+                f"got {type(cls.metadata).__name__}."
+            )
 
 
 # ---------------------------------------------------------------------------

@@ -38,6 +38,17 @@ def test_extract_thresholds_from_text_finds_percent_and_duration() -> None:
     assert all(t.applies_to == "customs_employee" for t in thresholds)
 
 
+def test_extract_thresholds_from_text_finds_scalar_limits() -> None:
+    thresholds = extract_thresholds_from_text(
+        "корисне навантаження не менш як 500 кг на дальність 300 км і більше",
+        applies_to="transport_condition",
+    )
+
+    metrics = {(t.metric, t.operator, t.value_text, t.unit) for t in thresholds}
+    assert ("mass_kg", "gte", "500", "кг") in metrics
+    assert ("distance_km", "eq", "300", "км") in metrics
+
+
 def test_canonicalize_action_maps_verify_label() -> None:
     canon, oov = canonicalize_action("adopt_proposal")
     assert canon == "approves"

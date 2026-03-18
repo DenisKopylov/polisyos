@@ -111,11 +111,13 @@ class SyntheticControlMethod:
                     name="outcome_panel",
                     slot_type=SlotType.MATRIX,
                     unit=Unit("outcome", "value"),
+                    shape=("n_units", "n_periods"),
                 ),
                 SlotSpec(
                     name="treatment_indicator",
                     slot_type=SlotType.VECTOR,
                     unit=Unit("binary", "flag"),
+                    shape=("n_units",),
                 ),
             }
         ),
@@ -130,11 +132,13 @@ class SyntheticControlMethod:
                     name="donor_weights",
                     slot_type=SlotType.VECTOR,
                     unit=Unit("weight", "proportion"),
+                    shape=("n_donors",),
                 ),
                 SlotSpec(
                     name="counterfactual_series",
                     slot_type=SlotType.VECTOR,
                     unit=Unit("outcome", "value"),
+                    shape=("n_periods",),
                 ),
             }
         ),
@@ -176,6 +180,10 @@ class SyntheticControlMethod:
             "convex_hull_overlap": "Treated pre-period trajectory lies in donor convex hull.",
             "no_interference": "No interference/spillovers between treated and donor units.",
         },
+        when_to_use="Single treated unit; comparative case study; no suitable control group; good pre-treatment fit (<15 donor units)",
+        when_not_to_use="Many treated units; short pre-treatment period (<5 periods); poor synthetic control fit",
+        typical_min_obs=30,
+        output_interpretation="ATT trajectory post-treatment: gap between treated unit and synthetic control. In-space/in-time placebos validate inference.",
     )
 
     @staticmethod
@@ -203,7 +211,8 @@ class SyntheticControlMethod:
                 post_periods=data.post_periods,
                 assumptions=assumptions,
             )
-            return wrap_causal_output(report, warnings=[report.status_reason or "invalid input"])
+            return wrap_causal_output(report, warnings=[report.status_reason or "invalid input"],
+                                      extras={"weights": np.array([]), "counterfactual": np.array([])})
         if donor_idx.shape[0] < 2:
             report = build_failure_report(
                 method=CausalMethod.SYNTHETIC_CONTROL,
@@ -217,7 +226,8 @@ class SyntheticControlMethod:
                 post_periods=data.post_periods,
                 assumptions=assumptions,
             )
-            return wrap_causal_output(report, warnings=[report.status_reason or "invalid input"])
+            return wrap_causal_output(report, warnings=[report.status_reason or "invalid input"],
+                                      extras={"weights": np.array([]), "counterfactual": np.array([])})
         if data.time_treatment <= 0 or data.time_treatment >= data.n_periods:
             report = build_failure_report(
                 method=CausalMethod.SYNTHETIC_CONTROL,
@@ -233,7 +243,8 @@ class SyntheticControlMethod:
                 post_periods=data.post_periods,
                 assumptions=assumptions,
             )
-            return wrap_causal_output(report, warnings=[report.status_reason or "invalid input"])
+            return wrap_causal_output(report, warnings=[report.status_reason or "invalid input"],
+                                      extras={"weights": np.array([]), "counterfactual": np.array([])})
 
         t0 = data.time_treatment
         treated = int(treated_idx[0])
@@ -271,7 +282,8 @@ class SyntheticControlMethod:
                 assumptions=assumptions,
             )
             return wrap_causal_output(
-                report, warnings=[report.status_reason or "optimizer failure"]
+                report, warnings=[report.status_reason or "optimizer failure"],
+                extras={"weights": np.array([]), "counterfactual": np.array([])},
             )
 
         counterfactual = donor_weights @ data.outcome[donor_idx, :]

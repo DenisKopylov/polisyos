@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import pytest
 
-from polisyos.foundry.methods.optimization.protocols import (
+from polisyos.foundry.methods.catalog.optimization.protocols import (
     AllocationItem,
     OptimizationProblem,
     ResourceConstraint,

@@ -101,6 +101,9 @@ class StaticMicrosimEstimator:
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Static tax-benefit microsimulation with weighted distributional aggregates.",
         tags=frozenset({"microsim", "simulation", "survey"}),
+        when_to_use="First-order (mechanical) distributional impact of policy reform on existing population; tax/benefit calculator",
+        when_not_to_use="Need behavioral responses; dynamic effects matter (use dynamic microsim)",
+        output_interpretation="Distribution of winners/losers. Change in Gini, poverty headcount. Budget cost at first round.",
     )
 
     @staticmethod

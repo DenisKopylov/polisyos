@@ -24,7 +24,7 @@ from .static import StaticMicrosimEstimator
 
 
 def ensure_microsim_methods_registered(registry: MethodRegistry | None = None) -> None:
-    reg = registry or MethodRegistry.get_instance()
+    reg = registry if registry is not None else MethodRegistry.get_instance()
     for method_class in register_microsim_methods():
         try:
             reg.register(method_class)

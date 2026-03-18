@@ -96,6 +96,9 @@ class BuildLiteraturePrior:
             "graceful_degradation": "Unavailable SKG returns empty prior with warning.",
             "lineage": "Result metadata carries skg snapshot/version for reproducibility.",
         },
+        when_to_use="Incorporate literature-informed causal priors into graph discovery; constrain structure learning with prior knowledge",
+        when_not_to_use="No SKG available and purely data-driven discovery is preferred; variables are entirely novel with no prior literature",
+        output_interpretation="Literature prior edges with confidence scores. Higher confidence = stronger prior. Empty prior = no matching literature found.",
     )
 
     @staticmethod

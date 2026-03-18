@@ -95,6 +95,9 @@ class TaxBenefitCalculatorEstimator:
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Tax-benefit calculator producing liabilities, transfers, disposable income, and tax rates.",
         tags=frozenset({"microsim", "tax-benefit", "survey"}),
+        when_to_use="First-order (mechanical) distributional impact of policy reform on existing population; tax/benefit calculator",
+        when_not_to_use="Need behavioral responses; dynamic effects matter (use dynamic microsim)",
+        output_interpretation="Distribution of winners/losers. Change in Gini, poverty headcount. Budget cost at first round.",
     )
 
     @staticmethod
@@ -199,6 +202,9 @@ class BehavioralResponseEstimator:
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Behavioral income response to tax wedges using a labor-supply elasticity rule.",
         tags=frozenset({"microsim", "behavioral-response", "survey"}),
+        when_to_use="Policy with significant labor supply or consumption behavioral responses; structural microsim",
+        when_not_to_use="Behavioral responses negligible; elasticity estimates unavailable or highly uncertain",
+        output_interpretation="Behavioral + first-round effects. Elasticities determine magnitude of behavioral response.",
     )
 
     @staticmethod
@@ -276,6 +282,9 @@ class ImputationModelEstimator:
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Supervised imputation of missing market income using tabular household features.",
         tags=frozenset({"microsim", "imputation", "survey"}),
+        when_to_use="Missing income/covariate imputation in survey microdata prior to microsimulation",
+        when_not_to_use="Very high missing rates (>50%); missingness is informative and cannot be modeled",
+        output_interpretation="Imputed values replace missing entries. RMSE on observed training data indicates quality. Missing share shows scope of imputation.",
     )
 
     @staticmethod
@@ -381,6 +390,10 @@ class DynamicMicrosimEstimator:
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Dynamic microsimulation of income evolution and fiscal outcomes over a finite horizon.",
         tags=frozenset({"microsim", "dynamic", "survey"}),
+        when_to_use="Long-run distributional effects; cohort pension reform; lifetime income redistribution",
+        when_not_to_use="Short-run first-order analysis sufficient; no longitudinal data available",
+        output_interpretation="Lifetime income/wealth distributions. Generational accounting. Cohort-specific winners/losers.",
+        typical_min_obs=1000,
     )
 
     @staticmethod

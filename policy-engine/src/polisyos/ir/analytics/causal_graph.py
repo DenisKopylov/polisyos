@@ -15,6 +15,8 @@ class GraphType(str, Enum):
     DAG = "dag"
     CPDAG = "cpdag"
     PAG = "pag"
+    MGRAPH = "mgraph"  # M-graph: includes R_X indicator and X_star proxy nodes
+    ADMG = "admg"      # Acyclic Directed Mixed Graph (bidirected edges only, no R-nodes)
 
 
 class PAGIdentificationPolicy(str, Enum):
@@ -120,7 +122,7 @@ class CausalEdge(BaseModel):
 
 
 class CausalGraphModel(BaseModel):
-    """DAG / CPDAG / PAG causal graph IR contract."""
+    """DAG / CPDAG / PAG / MGRAPH / ADMG causal graph IR contract."""
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
@@ -166,6 +168,8 @@ class CausalGraphModel(BaseModel):
             for edge in self.edges:
                 if edge.mark_src is EdgeMark.CIRCLE or edge.mark_dst is EdgeMark.CIRCLE:
                     raise ValueError("CPDAG does not allow circle endpoints")
+        elif self.graph_type is GraphType.MGRAPH:
+            _validate_mgraph_structure(self.nodes, self.edges)
 
         if self.id_confidence_under_pag is not None:
             if not (0.0 <= self.id_confidence_under_pag <= 1.0):
@@ -261,6 +265,46 @@ class CausalGraphModel(BaseModel):
                     "metadata_json": json.dumps(edge.metadata, sort_keys=True),
                 },
             )
+
+
+def _validate_mgraph_structure(nodes: list[str], edges: list["CausalEdge"]) -> None:
+    """Validate the naming contract for an M-graph.
+
+    For every node named "R_X" in nodes:
+      - The substantive variable "X" must also be in nodes.
+      - The proxy variable "X_star" must also be in nodes.
+    For every node named "X_star" in nodes:
+      - An edge R_X → X_star (TAIL→ARROW) must exist.
+    Raises ValueError with a descriptive message on violation.
+    """
+    node_set = set(nodes)
+    directed = {(e.src, e.dst) for e in edges
+                if e.mark_src.value == "tail" and e.mark_dst.value == "arrow"}
+
+    for node in nodes:
+        if node.startswith("R_"):
+            target = node[2:]  # "R_X" → "X"
+            if target not in node_set:
+                raise ValueError(
+                    f"M-graph node '{node}' has no corresponding substantive variable '{target}'"
+                )
+            proxy = f"{target}_star"
+            if proxy not in node_set:
+                raise ValueError(
+                    f"M-graph node '{node}' has no corresponding proxy variable '{proxy}'"
+                )
+        elif node.endswith("_star"):
+            target = node[:-5]  # "X_star" → "X"
+            r_node = f"R_{target}"
+            if r_node not in node_set:
+                raise ValueError(
+                    f"M-graph proxy '{node}' has no corresponding R-node '{r_node}'"
+                )
+            # Edge R_X → X_star must exist
+            if (r_node, node) not in directed:
+                raise ValueError(
+                    f"M-graph requires directed edge '{r_node}' → '{node}'"
+                )
 
 
 def _has_directed_cycle(

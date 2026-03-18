@@ -302,3 +302,85 @@ def test_pc_and_ges_recover_chain_adjacency_when_causallearn_available() -> None
         adjacency_pairs = {frozenset((edge.src, edge.dst)) for edge in report.graph.edges}
         assert frozenset({"X", "Y"}) in adjacency_pairs
         assert frozenset({"Y", "Z"}) in adjacency_pairs
+
+
+# ---------------------------------------------------------------------------
+# UnifiedCausalDiscovery integration: new report fields
+# ---------------------------------------------------------------------------
+
+
+def test_unified_discovery_report_has_skeleton_agreement(monkeypatch: pytest.MonkeyPatch) -> None:
+    """DiscoveryPipelineReport.skeleton_agreement should be a dict[str, float] in [0,1]."""
+    from polisyos.foundry.methods.catalog.causal.discovery_pipeline import (
+        UnifiedCausalDiscovery,
+        _run_algorithms_parallel,
+    )
+    from polisyos.foundry.methods.catalog.causal.protocols import UnifiedDiscoveryData
+    from polisyos.ir.analytics.causal_discovery import CausalDiscoveryReport
+    from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, EdgeMark, GraphType
+
+    # Build a minimal CPDAG report to feed through the pipeline
+    cpdag = CausalGraphModel(
+        graph_type=GraphType.CPDAG,
+        nodes=["A", "B"],
+        edges=[CausalEdge(src="A", dst="B", mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW)],
+    )
+    mock_report = CausalDiscoveryReport(method="pc", graph=cpdag)
+
+    def _fake_parallel(state, dc, algo_specs, params):
+        weights = {spec.name: spec.weight for spec in algo_specs}
+        total = sum(weights.values()) or 1.0
+        normed = {k: v / total for k, v in weights.items()}
+        # Return pc report regardless of what was asked
+        return [mock_report], {"pc": 1.0}
+
+    monkeypatch.setattr(
+        "polisyos.foundry.methods.catalog.causal.discovery_pipeline._run_algorithms_parallel",
+        _fake_parallel,
+    )
+
+    state = UnifiedDiscoveryData(
+        data=np.random.default_rng(0).normal(size=(20, 2)),
+        variable_names=["A", "B"],
+    )
+    result = UnifiedCausalDiscovery.pure_step(state, {"force_algorithms": "pc"})
+    report = result["report"]
+
+    assert isinstance(report.skeleton_agreement, dict)
+    for key, score in report.skeleton_agreement.items():
+        assert isinstance(key, str)
+        assert 0.0 <= score <= 1.0
+
+
+def test_unified_discovery_report_has_pag_validity_field(monkeypatch: pytest.MonkeyPatch) -> None:
+    """DiscoveryPipelineReport should have pag_validity_violations (list) and temporal_dag fields."""
+    from polisyos.foundry.methods.catalog.causal.discovery_pipeline import UnifiedCausalDiscovery
+    from polisyos.foundry.methods.catalog.causal.protocols import UnifiedDiscoveryData
+    from polisyos.ir.analytics.causal_discovery import CausalDiscoveryReport
+    from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, EdgeMark, GraphType
+
+    pag = CausalGraphModel(
+        graph_type=GraphType.PAG,
+        nodes=["X", "Y"],
+        edges=[CausalEdge(src="X", dst="Y", mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW)],
+    )
+    mock_report = CausalDiscoveryReport(method="fci", graph=pag)
+
+    def _fake_parallel(state, dc, algo_specs, params):
+        return [mock_report], {"fci": 1.0}
+
+    monkeypatch.setattr(
+        "polisyos.foundry.methods.catalog.causal.discovery_pipeline._run_algorithms_parallel",
+        _fake_parallel,
+    )
+
+    state = UnifiedDiscoveryData(
+        data=np.random.default_rng(1).normal(size=(20, 2)),
+        variable_names=["X", "Y"],
+    )
+    result = UnifiedCausalDiscovery.pure_step(state, {"force_algorithms": "fci"})
+    report = result["report"]
+
+    assert isinstance(report.pag_validity_violations, list)
+    # temporal_dag should be None since no PCMCI run
+    assert report.temporal_dag is None

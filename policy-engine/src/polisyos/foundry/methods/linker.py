@@ -15,6 +15,10 @@ from polisyos.foundry.methods.exceptions import (
     SlotConnectionError,
     UnitMismatchError,
 )
+from polisyos.foundry.methods.slot_schema import (
+    SemanticCompatibilityError,
+    is_semantically_compatible,
+)
 from polisyos.foundry.methods.types.checker import (
     IncompatibilityReason,
     ShapeAdapterKind,
@@ -139,14 +143,31 @@ class LinkerConfig:
     prefer_exact_names: bool = True
     warn_on_conversion: bool = True
     allow_unsafe_shapes: bool = False
+    check_semantic_compatibility: bool = True
+    """
+    When True (default), the linker checks that source and target slots are
+    semantically compatible according to ``SLOT_SCHEMA_REGISTRY``.  Slots
+    not present in the registry are considered unconstrained (always allowed).
+    Set to False to disable semantic checks (e.g. for legacy chains or when
+    connecting slots with non-standard names).
+    """
 
     @classmethod
     def strict(cls) -> LinkerConfig:
-        return cls(strict_shape=True, allow_partial_links=False)
+        return cls(strict_shape=True, allow_partial_links=False, check_semantic_compatibility=True)
 
     @classmethod
     def permissive(cls) -> LinkerConfig:
-        return cls(strict_shape=False, allow_partial_links=True)
+        return cls(strict_shape=False, allow_partial_links=True, check_semantic_compatibility=False)
+
+    @classmethod
+    def semantic_strict(cls) -> LinkerConfig:
+        """Full semantic + shape strictness — use in production pipelines."""
+        return cls(
+            strict_shape=True,
+            allow_partial_links=False,
+            check_semantic_compatibility=True,
+        )
 
 
 # -----------------------------------------------------------------------------
@@ -163,6 +184,13 @@ class SlotLinker:
     @property
     def config(self) -> LinkerConfig:
         return self._config
+
+    def _check_semantic(self, src_name: str, tgt_name: str) -> None:
+        """Raise SemanticCompatibilityError if slots are semantically incompatible."""
+        if not self._config.check_semantic_compatibility:
+            return
+        if not is_semantically_compatible(src_name, tgt_name):
+            raise SemanticCompatibilityError(src_name, tgt_name)
 
     def link(
         self,
@@ -229,6 +257,9 @@ class SlotLinker:
                     f"{compat.warnings[0] if compat.warnings else 'incompatible'}"
                 )
 
+            # Semantic compatibility check (respects config.check_semantic_compatibility)
+            self._check_semantic(src_name, tgt_name)
+
             binding = SlotBinding(
                 source_method=source_sig.fqn,
                 source_slot=src_name,
@@ -281,6 +312,13 @@ class SlotLinker:
                     allow_unsafe_shapes=self._config.allow_unsafe_shapes,
                 )
                 if compat.compatible:
+                    # Skip semantically incompatible same-named slots gracefully
+                    if not is_semantically_compatible(name, name):
+                        warnings.append(
+                            f"Slot '{name}' skipped: semantic incompatibility "
+                            f"(source and target have same name but different semantics)"
+                        )
+                        continue
                     binding = SlotBinding(
                         source_method=source_sig.fqn,
                         source_slot=name,

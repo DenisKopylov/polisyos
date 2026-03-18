@@ -53,6 +53,7 @@ class DoubleMachineLearning:
                     name="hte_data",
                     slot_type=SlotType.MATRIX,
                     unit=Unit("observations", "rows"),
+                    shape=("n_obs", "n_features"),
                 )
             }
         ),
@@ -103,6 +104,12 @@ class DoubleMachineLearning:
             "unconfoundedness": "No unobserved confounders conditional on observed variables.",
             "overlap": "Propensity score bounded away from 0 and 1.",
         },
+        when_to_use="High-dimensional controls; partially linear model with continuous or binary treatment; want Neyman-orthogonal ATE",
+        when_not_to_use="Low-dimensional setting where OLS suffices; no nuisance functions to partial out; discrete choice model",
+        prerequisites=(),
+        diagnostic_checks=("causal.sensitivity.sensemakr@1.0.0",),
+        typical_min_obs=200,
+        output_interpretation="Theta: ATE/LATE from partialling-out Neyman-orthogonal moments. Asymptotically normal with cross-fitting.",
     )
 
     @staticmethod

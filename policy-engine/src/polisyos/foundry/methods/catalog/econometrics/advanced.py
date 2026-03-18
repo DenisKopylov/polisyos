@@ -144,6 +144,9 @@ class QuantileRegressionEstimator:
         description="Quantile regression for heterogeneous effects across the conditional distribution.",
         tags=frozenset({"econometrics", "quantile-regression"}),
         citations=("Koenker, R. (2005). Quantile Regression.",),
+        when_to_use="Distributional effects of treatment/policy; heterogeneous impacts at different outcome quantiles",
+        typical_min_obs=100,
+        output_interpretation="Conditional quantile function. β(τ): effect at quantile τ. Plot β(τ) vs τ to see distributional heterogeneity.",
     )
 
     @staticmethod
@@ -224,6 +227,9 @@ class EventStudyEstimator:
         description="Simple event-study estimator over relative treatment time.",
         tags=frozenset({"econometrics", "event-study"}),
         citations=("Sun, L. & Abraham, S. (2021). Estimating dynamic treatment effects in event studies.",),
+        when_to_use="Panel data with staggered or common treatment timing; plot dynamic treatment effects around event",
+        typical_min_obs=50,
+        output_interpretation="Coefficients at each relative period (pre/post event). Pre-period estimates should be near zero (parallel trends check).",
     )
 
     @staticmethod
@@ -350,6 +356,9 @@ class LocalProjectionsEstimator:
         description="Jorda local projections for impulse responses.",
         tags=frozenset({"econometrics", "local-projections"}),
         citations=("Jorda, O. (2005). Estimation and Inference of Impulse Responses by Local Projections.",),
+        when_to_use="Flexible impulse response estimation without VAR model restrictions; non-linear or state-dependent dynamics",
+        typical_min_obs=80,
+        output_interpretation="IRF at each horizon h. Plot irf_h0 through irf_hH with CIs. More robust to misspecification than VAR-based IRFs.",
     )
 
     @staticmethod
@@ -453,6 +462,9 @@ class GARCHEstimator:
         description="GARCH volatility model for conditional heteroskedasticity.",
         tags=frozenset({"econometrics", "garch"}),
         citations=("Bollerslev, T. (1986). Generalized autoregressive conditional heteroskedasticity.",),
+        when_to_use="Volatility clustering in financial/macro time series; conditional heteroskedasticity",
+        typical_min_obs=200,
+        output_interpretation="Conditional variance forecast. alpha+beta close to 1 = high persistence. ARCH LM test for fit.",
     )
 
     @staticmethod
@@ -533,6 +545,9 @@ class ChangePointEstimator:
         description="Structural break detection via rupture-based change point search.",
         tags=frozenset({"econometrics", "change-point"}),
         citations=("Truong, C. et al. (2020). Selective review of offline change point detection methods.",),
+        when_to_use="Time series with suspected regime shifts or structural breaks; detect when mean/variance changes",
+        typical_min_obs=50,
+        output_interpretation="Breakpoint indices and segment means. Penalty controls number of breaks detected. Visual inspection recommended.",
     )
 
     @staticmethod

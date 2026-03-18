@@ -52,14 +52,14 @@ def test_iv_2sls_runs_and_estimates_endogenous_effect() -> None:
 
     ensure_econometric_methods_registered()
     registry = MethodRegistry.get_instance()
-    method_cls = registry.get("econometrics.iv.instrumental_variables@1.0.0")
+    method_cls = registry.get("econometrics.iv.two_stage_least_squares@1.0.0")
 
     dispatcher = MethodDispatcher.get_instance()
     dispatched = dispatcher.dispatch(
         method_class=method_cls,
         signature=method_cls.signature,
         state=_make_iv_panel(),
-        params={"method": "2sls", "n_endogenous": 1, "cov_type": "robust"},
+        params={"n_endogenous": 1, "cov_type": "robust"},
         seed=5,
     )
 
@@ -77,7 +77,7 @@ def test_iv_gmm_runs() -> None:
 
     ensure_econometric_methods_registered()
     registry = MethodRegistry.get_instance()
-    method_cls = registry.get("econometrics.iv.instrumental_variables@1.0.0")
+    method_cls = registry.get("econometrics.iv.gmm@1.0.0")
 
     dispatcher = MethodDispatcher.get_instance()
     dispatched = dispatcher.dispatch(
@@ -85,7 +85,6 @@ def test_iv_gmm_runs() -> None:
         signature=method_cls.signature,
         state=_make_iv_panel(),
         params={
-            "method": "gmm",
             "n_endogenous": 1,
             "cov_type": "robust",
             "weight_type": "robust",

@@ -1,0 +1,517 @@
+"""Tests for Phase 2: Missing Data Theory (M-graphs).
+
+Covers:
+  - GraphType.MGRAPH validation and build_mgraph factory
+  - RecoverabilityResult: test_recoverability algorithm
+  - OrderedRecovery: ordered_recovery algorithm
+  - full_law_identify: two-stage pipeline
+  - Foundry methods: pure_step interfaces
+"""
+
+from __future__ import annotations
+
+import pytest
+
+from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, EdgeMark, GraphType
+from polisyos.ir.analytics.mgraph import (
+    MGraphMetadata,
+    MissingnessKind,
+    ProxyNode,
+    RNode,
+    build_mgraph,
+    extract_mgraph_metadata,
+)
+
+
+# ---------------------------------------------------------------------------
+# Shared DGP helpers
+# ---------------------------------------------------------------------------
+
+
+def make_mcar_mgraph() -> CausalGraphModel:
+    """X → Y, R_X is MCAR (no parents)."""
+    return build_mgraph(
+        substantive_vars=["X", "Y"],
+        directed_edges=[("X", "Y")],
+        missingness_map={"X": MissingnessKind.MCAR},
+    )
+
+
+def make_mar_mgraph() -> CausalGraphModel:
+    """R_X depends on Y (MAR: missingness determined by observed variable, X not ancestor of Y)."""
+    return build_mgraph(
+        substantive_vars=["X", "Y"],
+        directed_edges=[("Y", "R_X")],
+        missingness_map={"X": MissingnessKind.MAR},
+    )
+
+
+def make_mnar_mgraph() -> CausalGraphModel:
+    """X → Y, X → R_X (MNAR: missingness depends on X itself)."""
+    return build_mgraph(
+        substantive_vars=["X", "Y"],
+        directed_edges=[("X", "Y")],
+        missingness_map={"X": MissingnessKind.MNAR},
+    )
+
+
+def make_fully_observed_graph() -> CausalGraphModel:
+    """X → Y, no missing data at all."""
+    return CausalGraphModel(
+        graph_type=GraphType.DAG,
+        nodes=["X", "Y"],
+        edges=[CausalEdge(src="X", dst="Y")],
+    )
+
+
+def make_multivar_mcar_mgraph() -> CausalGraphModel:
+    """X → Y, both MCAR."""
+    return build_mgraph(
+        substantive_vars=["X", "Y"],
+        directed_edges=[("X", "Y")],
+        missingness_map={
+            "X": MissingnessKind.MCAR,
+            "Y": MissingnessKind.MCAR,
+        },
+    )
+
+
+def make_partial_mnar_mgraph() -> CausalGraphModel:
+    """X → Y, X is MCAR, Y is MNAR (Y → R_Y)."""
+    return build_mgraph(
+        substantive_vars=["X", "Y"],
+        directed_edges=[("X", "Y")],
+        missingness_map={
+            "X": MissingnessKind.MCAR,
+            "Y": MissingnessKind.MNAR,
+        },
+    )
+
+
+def make_confounded_mcar_mgraph() -> CausalGraphModel:
+    """X → Y with bidirected X ↔ Y (latent confounder), X MCAR.
+    Stage 1 should pass (MCAR), Stage 2 should HEDGE_FOUND (non-identifiable).
+    """
+    return build_mgraph(
+        substantive_vars=["X", "Y"],
+        directed_edges=[("X", "Y")],
+        bidirected_edges=[("X", "Y")],
+        missingness_map={"X": MissingnessKind.MCAR},
+    )
+
+
+# ---------------------------------------------------------------------------
+# T1: MCAR is recoverable
+# ---------------------------------------------------------------------------
+
+
+def test_mcar_is_recoverable():
+    from polisyos.foundry.methods.catalog.causal.recoverability_engine import (
+        RecoverabilityStatus,
+        test_recoverability,
+    )
+
+    graph = make_mcar_mgraph()
+    meta = extract_mgraph_metadata(graph)
+    result = test_recoverability(
+        query_vars=frozenset(meta.substantive_vars),
+        graph=graph,
+        mgraph_meta=meta,
+    )
+    assert result.status == RecoverabilityStatus.RECOVERABLE
+    assert result.blocking_r_nodes == frozenset()
+    assert result.recovery_estimand is not None
+
+
+# ---------------------------------------------------------------------------
+# T2: MAR is recoverable
+# ---------------------------------------------------------------------------
+
+
+def test_mar_is_recoverable():
+    from polisyos.foundry.methods.catalog.causal.recoverability_engine import (
+        RecoverabilityStatus,
+        test_recoverability,
+    )
+
+    graph = make_mar_mgraph()
+    meta = extract_mgraph_metadata(graph)
+    result = test_recoverability(
+        query_vars=frozenset(meta.substantive_vars),
+        graph=graph,
+        mgraph_meta=meta,
+    )
+    assert result.status == RecoverabilityStatus.RECOVERABLE
+    assert result.blocking_r_nodes == frozenset()
+
+
+# ---------------------------------------------------------------------------
+# T3: MNAR is NOT recoverable
+# ---------------------------------------------------------------------------
+
+
+def test_mnar_not_recoverable():
+    from polisyos.foundry.methods.catalog.causal.recoverability_engine import (
+        RecoverabilityStatus,
+        test_recoverability,
+    )
+
+    graph = make_mnar_mgraph()
+    meta = extract_mgraph_metadata(graph)
+    result = test_recoverability(
+        query_vars=frozenset(meta.substantive_vars),
+        graph=graph,
+        mgraph_meta=meta,
+    )
+    assert result.status == RecoverabilityStatus.NOT_RECOVERABLE
+    assert "R_X" in result.blocking_r_nodes
+    assert result.recovery_estimand is None
+
+
+# ---------------------------------------------------------------------------
+# T4: Fully observed graph (no R-nodes) is trivially recoverable
+# ---------------------------------------------------------------------------
+
+
+def test_fully_observed_trivial():
+    """For a fully-observed graph, build an explicit MGRAPH with no missingness."""
+    # A graph where all vars are fully observed still needs to be MGRAPH type
+    # to use test_recoverability. Build one with empty missingness_map.
+    graph = build_mgraph(
+        substantive_vars=["X", "Y"],
+        directed_edges=[("X", "Y")],
+        missingness_map={},  # no missingness at all
+    )
+    from polisyos.foundry.methods.catalog.causal.recoverability_engine import (
+        RecoverabilityStatus,
+        test_recoverability,
+    )
+    meta = extract_mgraph_metadata(graph)
+    result = test_recoverability(
+        query_vars=frozenset(meta.substantive_vars),
+        graph=graph,
+        mgraph_meta=meta,
+    )
+    assert result.status == RecoverabilityStatus.RECOVERABLE
+    assert result.blocking_r_nodes == frozenset()
+
+
+# ---------------------------------------------------------------------------
+# T5: Both MCAR — both recoverable
+# ---------------------------------------------------------------------------
+
+
+def test_multivar_both_mcar():
+    from polisyos.foundry.methods.catalog.causal.recoverability_engine import (
+        RecoverabilityStatus,
+        test_recoverability,
+    )
+
+    graph = make_multivar_mcar_mgraph()
+    meta = extract_mgraph_metadata(graph)
+    result = test_recoverability(
+        query_vars=frozenset(meta.substantive_vars),
+        graph=graph,
+        mgraph_meta=meta,
+    )
+    assert result.status == RecoverabilityStatus.RECOVERABLE
+
+
+# ---------------------------------------------------------------------------
+# T6: Partial non-recoverability — only MNAR R-node is blocked
+# ---------------------------------------------------------------------------
+
+
+def test_partial_nonrecoverability():
+    from polisyos.foundry.methods.catalog.causal.recoverability_engine import (
+        RecoverabilityStatus,
+        test_recoverability,
+    )
+
+    graph = make_partial_mnar_mgraph()
+    meta = extract_mgraph_metadata(graph)
+    result = test_recoverability(
+        query_vars=frozenset(meta.substantive_vars),
+        graph=graph,
+        mgraph_meta=meta,
+    )
+    assert result.status == RecoverabilityStatus.NOT_RECOVERABLE
+    assert "R_Y" in result.blocking_r_nodes
+    # R_X (MCAR) must NOT be blocking
+    assert "R_X" not in result.blocking_r_nodes
+
+
+# ---------------------------------------------------------------------------
+# T7: ordered_recovery returns EstimandAST with ProductNode root
+# ---------------------------------------------------------------------------
+
+
+def test_ordered_recovery_mcar_returns_estimand_ast():
+    from polisyos.foundry.methods.catalog.causal.recoverability_engine import ordered_recovery
+    from polisyos.ir.analytics.estimand import EstimandAST, ProductNode
+
+    graph = make_mcar_mgraph()
+    meta = extract_mgraph_metadata(graph)
+    estimand = ordered_recovery(graph=graph, mgraph_meta=meta)
+
+    assert isinstance(estimand, EstimandAST)
+    assert isinstance(estimand.root, ProductNode)
+    assert estimand.identification_method == "ordered_recovery"
+
+
+# ---------------------------------------------------------------------------
+# T8: ordered_recovery respects topological order
+# ---------------------------------------------------------------------------
+
+
+def test_ordered_recovery_topological_order():
+    """X → Y: X must appear before Y in the recovery factor sequence."""
+    from polisyos.foundry.methods.catalog.causal.recoverability_engine import ordered_recovery
+    from polisyos.ir.analytics.estimand import ProductNode, RecoveredDistNode
+
+    graph = make_mcar_mgraph()
+    meta = extract_mgraph_metadata(graph)
+    estimand = ordered_recovery(graph=graph, mgraph_meta=meta)
+
+    assert isinstance(estimand.root, ProductNode)
+    variables_in_order = [
+        f.variable for f in estimand.root.factors
+        if isinstance(f, RecoveredDistNode)
+    ]
+    # X has no parent in the DAG, Y has X as parent → X must come first
+    assert variables_in_order.index("X") < variables_in_order.index("Y")
+
+
+# ---------------------------------------------------------------------------
+# T9: ordered_recovery generates one proof step per substantive variable
+# ---------------------------------------------------------------------------
+
+
+def test_ordered_recovery_proof_steps_count():
+    from polisyos.foundry.methods.catalog.causal.recoverability_engine import (
+        RecoverabilityStatus,
+        test_recoverability,
+    )
+
+    graph = make_mcar_mgraph()
+    meta = extract_mgraph_metadata(graph)
+    result = test_recoverability(
+        query_vars=frozenset(meta.substantive_vars),
+        graph=graph,
+        mgraph_meta=meta,
+    )
+    # One proof step per query variable (MGRAPH_RECOVERABLE_VAR or MGRAPH_TRIVIALLY_OBSERVED)
+    recov_steps = [
+        s for s in result.proof_steps
+        if s.rule_name in ("MGRAPH_RECOVERABLE_VAR", "MGRAPH_TRIVIALLY_OBSERVED")
+    ]
+    assert len(recov_steps) == len(meta.substantive_vars)
+
+
+# ---------------------------------------------------------------------------
+# T10: MCAR factor has correct missingness_kind
+# ---------------------------------------------------------------------------
+
+
+def test_ordered_recovery_missingness_kind_in_factors():
+    from polisyos.foundry.methods.catalog.causal.recoverability_engine import ordered_recovery
+    from polisyos.ir.analytics.estimand import ProductNode, RecoveredDistNode
+
+    graph = make_mcar_mgraph()
+    meta = extract_mgraph_metadata(graph)
+    estimand = ordered_recovery(graph=graph, mgraph_meta=meta)
+
+    assert isinstance(estimand.root, ProductNode)
+    x_factor = next(
+        (f for f in estimand.root.factors
+         if isinstance(f, RecoveredDistNode) and f.variable == "X"),
+        None,
+    )
+    assert x_factor is not None
+    assert x_factor.missingness_kind == "mcar"
+    assert x_factor.missingness_indicator == "R_X"
+    assert x_factor.proxy_variable == "X_star"
+
+
+# ---------------------------------------------------------------------------
+# T11: full_law_identify with MCAR simple graph → IDENTIFIED
+# ---------------------------------------------------------------------------
+
+
+def test_full_law_identify_mcar_simple():
+    from polisyos.foundry.methods.catalog.causal.id_engine import IdentificationStatus
+    from polisyos.foundry.methods.catalog.causal.recoverability_engine import full_law_identify
+
+    graph = make_mcar_mgraph()
+    meta = extract_mgraph_metadata(graph)
+    result = full_law_identify(
+        treatment=frozenset({"X"}),
+        outcome=frozenset({"Y"}),
+        graph=graph,
+        mgraph_meta=meta,
+    )
+    assert result.status == IdentificationStatus.IDENTIFIED
+    assert result.estimand_ast is not None
+    assert result.algorithm_version == "full_law_v1"
+
+
+# ---------------------------------------------------------------------------
+# T12: full_law_identify with MNAR X → NOT_RECOVERABLE
+# ---------------------------------------------------------------------------
+
+
+def test_full_law_identify_mnar_blocked():
+    from polisyos.foundry.methods.catalog.causal.id_engine import IdentificationStatus
+    from polisyos.foundry.methods.catalog.causal.recoverability_engine import full_law_identify
+
+    graph = make_mnar_mgraph()
+    meta = extract_mgraph_metadata(graph)
+    result = full_law_identify(
+        treatment=frozenset({"X"}),
+        outcome=frozenset({"Y"}),
+        graph=graph,
+        mgraph_meta=meta,
+    )
+    assert result.status == IdentificationStatus.NOT_RECOVERABLE
+    assert result.estimand_ast is None
+
+
+# ---------------------------------------------------------------------------
+# T13: full_law_identify with confounded MCAR → HEDGE_FOUND (Stage 2 fails)
+# ---------------------------------------------------------------------------
+
+
+def test_full_law_identify_hedge_stage2():
+    from polisyos.foundry.methods.catalog.causal.id_engine import IdentificationStatus
+    from polisyos.foundry.methods.catalog.causal.recoverability_engine import full_law_identify
+
+    graph = make_confounded_mcar_mgraph()
+    meta = extract_mgraph_metadata(graph)
+    result = full_law_identify(
+        treatment=frozenset({"X"}),
+        outcome=frozenset({"Y"}),
+        graph=graph,
+        mgraph_meta=meta,
+    )
+    # Stage 1 passes (MCAR → recoverable), Stage 2 fails (latent confounder)
+    assert result.status in (
+        IdentificationStatus.HEDGE_FOUND,
+        IdentificationStatus.ORACLE_NEEDED,
+    )
+
+
+# ---------------------------------------------------------------------------
+# T14: full_law_identify proof_steps contain both STAGE1 and STAGE2 entries
+# ---------------------------------------------------------------------------
+
+
+def test_full_law_identify_proof_steps_include_both_stages():
+    from polisyos.foundry.methods.catalog.causal.recoverability_engine import full_law_identify
+
+    graph = make_mcar_mgraph()
+    meta = extract_mgraph_metadata(graph)
+    result = full_law_identify(
+        treatment=frozenset({"X"}),
+        outcome=frozenset({"Y"}),
+        graph=graph,
+        mgraph_meta=meta,
+    )
+    rule_names = {s.rule_name for s in result.proof_steps}
+    assert "FULL_LAW_STAGE1_PASS" in rule_names
+    assert "FULL_LAW_STAGE2" in rule_names
+
+
+# ---------------------------------------------------------------------------
+# T15: build_mgraph factory with MCAR produces valid CausalGraphModel
+# ---------------------------------------------------------------------------
+
+
+def test_build_mgraph_factory_mcar_valid():
+    graph = build_mgraph(
+        substantive_vars=["X", "Y"],
+        directed_edges=[("X", "Y")],
+        missingness_map={"X": MissingnessKind.MCAR},
+    )
+    assert graph.graph_type == GraphType.MGRAPH
+    assert "R_X" in graph.nodes
+    assert "X_star" in graph.nodes
+    assert "X" in graph.nodes
+    assert "Y" in graph.nodes
+    # Edge R_X → X_star must exist
+    directed = {(e.src, e.dst) for e in graph.edges
+                if e.mark_src == EdgeMark.TAIL and e.mark_dst == EdgeMark.ARROW}
+    assert ("R_X", "X_star") in directed
+
+
+# ---------------------------------------------------------------------------
+# T16: build_mgraph factory with MNAR adds X → R_X edge
+# ---------------------------------------------------------------------------
+
+
+def test_build_mgraph_factory_mnar_has_edge():
+    graph = build_mgraph(
+        substantive_vars=["X", "Y"],
+        directed_edges=[("X", "Y")],
+        missingness_map={"X": MissingnessKind.MNAR},
+    )
+    directed = {(e.src, e.dst) for e in graph.edges
+                if e.mark_src == EdgeMark.TAIL and e.mark_dst == EdgeMark.ARROW}
+    assert ("X", "R_X") in directed
+
+
+# ---------------------------------------------------------------------------
+# T17: MGRAPH validator rejects graph with missing proxy node
+# ---------------------------------------------------------------------------
+
+
+def test_mgraph_validator_missing_proxy_raises():
+    """Constructing a CausalGraphModel(MGRAPH) with R_X but no X_star → ValueError."""
+    with pytest.raises(ValueError, match="X_star"):
+        CausalGraphModel(
+            graph_type=GraphType.MGRAPH,
+            nodes=["X", "Y", "R_X"],   # X_star is missing
+            edges=[CausalEdge(src="X", dst="Y")],
+        )
+
+
+# ---------------------------------------------------------------------------
+# T18: All three Foundry methods' pure_step return expected top-level keys
+# ---------------------------------------------------------------------------
+
+
+def test_foundry_methods_pure_step_all_three():
+    from polisyos.foundry.methods.catalog.causal.missing_data import (
+        FullLawIdentify,
+        OrderedRecovery,
+        RecoverabilityTest,
+    )
+
+    graph = make_mcar_mgraph()
+    graph_dict = graph.model_dump(mode="json")
+
+    # RecoverabilityTest
+    out_rt = RecoverabilityTest.pure_step(
+        {"mgraph_data": graph_dict},
+        {"query_variables": [], "dataset_ref": None},
+    )
+    assert "recoverability_result" in out_rt
+    assert "status" in out_rt["recoverability_result"]
+    assert out_rt["recoverability_result"]["status"] == "recoverable"
+
+    # OrderedRecovery
+    out_or = OrderedRecovery.pure_step(
+        {"mgraph_data": graph_dict},
+        {"dataset_ref": None},
+    )
+    assert "recovery_estimand" in out_or
+    assert "ordered_recovery_steps" in out_or
+    assert out_or["recovery_estimand"] is not None
+
+    # FullLawIdentify
+    out_fl = FullLawIdentify.pure_step(
+        {"mgraph_data": graph_dict, "treatment": "X", "outcome": "Y"},
+        {"oracle": "none", "dataset_ref": None},
+    )
+    assert "identification_result" in out_fl
+    assert "status" in out_fl["identification_result"]
+    assert out_fl["identification_result"]["status"] == "identified"
